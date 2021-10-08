@@ -30,9 +30,9 @@ import './assets/css/base.less'
 export default {
   name: 'App',
   mounted() {
-    this.$appConfig.primaryColor().then(res => {
-      document.body.style.setProperty('--themeColor', res)
-    })
+    // this.$appConfig.primaryColor().then(res => {
+    //   document.body.style.setProperty('--themeColor', res)
+    // })
   }
 }
 </script>

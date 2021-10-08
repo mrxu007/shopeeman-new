@@ -2,12 +2,37 @@ import Vue from 'vue'
 import VueRouter from 'vue-router'
 Vue.use(VueRouter)
 
-const routes = [{
-  path: '/',
-  name: 'Home',
-  component: () =>
-    import('../views/mall-manger/Tag-manger.vue')
-},
+const routes = [
+  //   {
+  //   path: '/',
+  //   name: 'Home',
+  //   component: () =>
+  //     import('../views/mall-manger/Tag-manger.vue')
+  // },
+  {
+    path: '/personal-center', // 个人中心
+    name: 'personal-center',
+    component: () =>
+      import('../views/personal-center/index.vue')
+  },
+  {
+    path: '/catch-notice', // 异常公告
+    name: 'catch-notice',
+    component: () =>
+      import('../views/catch-notice/index.vue')
+  },
+  {
+    path: '/mall-manager', // 店铺管理
+    name: 'mall-manager',
+    component: () =>
+      import('../views/mall-manager/index.vue')
+  },
+  {
+    path: '/data-statistics', // 数据统计
+    name: 'data-statistics',
+    component: () =>
+      import('../views/data-statistics/index.vue')
+  }
 ]
 const originalPush = VueRouter.prototype.push
 
