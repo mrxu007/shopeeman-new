@@ -2,7 +2,7 @@ import axios from 'axios'
 import jxAdapter from './jx-apdater'
 import tbAdaptert from './gateway/gateway-adapter'
 const jxRequest = axios.create({
-  baseURL: '',
+  baseURL: process.env.VUE_APP_BASE_API,
   timeout: 5000,
   withCredentials: true,
   adapter: config => {
@@ -31,10 +31,10 @@ const jdRequest = axios.create({
 export default {
   jdRequest, // 对接第三方请求
   jxRequest, // 对接本地请求
-  tbRequest, // 对接云采集请求
+  tbRequest // 对接云采集请求
 
   // 请按照一下格式填写
-  // 2021-09-24   
+  // 2021-09-24
   // weTbUploadGetHeaders: (data) => tbRequest.post('/ycj/api/v2/taobao/tbX5/weTbUploadGetHeaders', data), // 上传淘宝图片（由爬虫组提供）
   // weTbUploadPostResult: (data) => tbRequest.post('/ycj/api/v2/taobao/tbX5/weTbUploadPostResult', data) // 上报淘宝图片（由爬虫组提供）
 
