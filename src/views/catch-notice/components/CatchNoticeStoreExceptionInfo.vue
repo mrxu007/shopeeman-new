@@ -417,8 +417,13 @@ export default {
         display: flex;
         align-items: center;
         .exceptionType,.exceptionType,.exceptionType{
-          .el-select{
-            width: 300px;
+          /deep/.el-select{
+            width: 200px;
+            .el-select__tags{
+              .el-tag{
+                max-width: 100px;
+              }
+            }
           }
         }
         //创建时间和交易时间
