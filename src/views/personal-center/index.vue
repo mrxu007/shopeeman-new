@@ -1,3 +1,11 @@
+<!--
+ * @Author: your name
+ * @Date: 2021-10-08 14:16:18
+ * @LastEditTime: 2021-10-09 11:56:10
+ * @LastEditors: your name
+ * @Description: In User Settings Edit
+ * @FilePath: \shopeeman-new\src\views\personal-center\index.vue
+-->
 <template>
   <div class="catch-notice-style">
     <!--账单核算 -->
@@ -34,7 +42,7 @@ export default {
   },
   data() {
     return {
-      activeVal: 0
+      activeVal: '0'
     }
   },
   mounted() {
