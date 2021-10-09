@@ -37,7 +37,7 @@
       :data="tableData"
       border
       style="width: 100%"
-      height="calc(100vh - 148px)"
+      height="calc(100vh - 160px)"
     >
       <el-table-column
         type="index"
@@ -46,18 +46,18 @@
       />
       <el-table-column
         label="仓库"
-        prop="warehouse"
+        prop=""
       />
       <el-table-column
-        prop="signingTime"
+        prop=""
         label="签收时间"
       />
       <el-table-column
-        prop="packagePicture"
+        prop=""
         label="包裹图片"
       />
       <el-table-column
-        prop="flowNumber"
+        prop=""
         label="采购物流单号"
       />
       <el-table-column
