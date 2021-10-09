@@ -12,7 +12,7 @@
             size="mini"
             multiple
             collapse-tags
-            @change="exceptionTypeHandleOne"
+            @change="exceptionTypeOneChangeHandle"
           >
             <el-option
               label="全部"
@@ -33,6 +33,7 @@
             size="mini"
             multiple
             collapse-tags
+            @change="exceptionTypeTwoChangeHandle"
           >
             <el-option
               label="全部"
@@ -53,6 +54,7 @@
             size="mini"
             multiple
             collapse-tags
+            @change="dealStatusChangeHandel"
           >
             <el-option
               label="全部"
@@ -227,6 +229,8 @@ export default {
         label: '备件缺货无法发货'
       }
       ],
+      // 记录是否全选
+      exceptionTypeOptionsOneAll: false,
       // 第一个异常类型options
       exceptionTypeOptionsTwo: [{
         id: 1,
@@ -261,6 +265,8 @@ export default {
         value: 8,
         label: '通知提示'
       }],
+      // 记录是否全选
+      exceptionTypeOptionsTwoAll: false,
       // 仓库处理状态
       dealStatus: [
         {
@@ -277,34 +283,112 @@ export default {
           label: '已处理'
         }
       ],
+      // 记录是否全选
+      dealStatusAll: false,
       // 表格数据
       tableData: []
     }
   },
   methods: {
-    // 格式化多选下拉框的数据
-    formatSelectData(value) {
-      return value.join(',')
+    // 第一种异常类型
+    exceptionTypeOneChangeHandle(val) {
+      // 当为全选时
+      if (this.exceptionTypeOptionsOneAll) {
+        this.exceptionTypeOptionsOneAll = false
+        if (val.indexOf('all') > -1) { // 当为全选时
+          this.form.exceptionTypeOne = val.filter(item => {
+            return item !== 'all'
+          })
+        } else { // 不为全选时
+          this.form.exceptionTypeOne = []
+        }
+      } else {
+        if (val.indexOf('all') > -1) { // 当为全选时
+          this.form.exceptionTypeOne = ['all']
+          this.exceptionTypeOptionsOne.forEach(item => {
+            this.form.exceptionTypeOne.push(item.value)
+          })
+          this.exceptionTypeOptionsOneAll = true
+        } else {
+          if (val.length === this.exceptionTypeOptionsOne.length) {
+            this.form.exceptionTypeOne = ['all']
+            this.exceptionTypeOne.forEach(item => {
+              this.form.exceptionTypeOne.push(item.value)
+            })
+            this.exceptionTypeOptionsOneAll = true
+          } else {
+            this.form.exceptionTypeOne = val
+          }
+        }
+      }
     },
-    // 异常类型改变
-    exceptionTypeHandleOne(value) {
-      // 当选中全选时
-      // const exitAll = value.findIndex(item => {
-      //   return item === 'all'
-      // })
-      // if (exitAll >= 0) {
-      //   this.form.exceptionType = ['all']
-      //   this.exceptionTypeOptions.forEach(item => {
-      //     this.form.exceptionType.push(item.value)
-      //   })
-      // } else {
-      //   value.forEach(item => {
-      //     this.form.exceptionType(this.exceptionTypeOptions.find(item1 => {
-      //       return item === item1.value
-      //     }))
-      //   })
-      // }
+
+    // 第二种异常类型
+    exceptionTypeTwoChangeHandle(val) {
+      // 当为全选时
+      if (this.exceptionTypeOptionsTwoAll) {
+        this.exceptionTypeOptionsTwoAll = false
+        if (val.indexOf('all') > -1) { // 当为全选时
+          this.form.exceptionTypeTwo = val.filter(item => {
+            return item !== 'all'
+          })
+        } else { // 不为全选时
+          this.form.exceptionTypeTwo = []
+        }
+      } else {
+        if (val.indexOf('all') > -1) { // 当为全选时
+          this.form.exceptionTypeTwo = ['all']
+          this.exceptionTypeOptionsTwo.forEach(item => {
+            this.form.exceptionTypeTwo.push(item.value)
+          })
+          this.exceptionTypeOptionsTwoAll = true
+        } else {
+          if (val.length === this.exceptionTypeOptionsTwo.length) {
+            this.form.exceptionTypeTwo = ['all']
+            this.exceptionTypeTwo.forEach(item => {
+              this.form.exceptionTypeTwo.push(item.value)
+            })
+            this.exceptionTypeOptionsTwoAll = true
+          } else {
+            this.form.exceptionTypeTwo = val
+          }
+        }
+      }
+    },
+
+    // 仓库处理
+    dealStatusChangeHandel(val) {
+      // 当为全选时
+      if (this.dealStatusAll) {
+        this.dealStatusAll = false
+        if (val.indexOf('all') > -1) { // 当为全选时
+          this.form.dealStatus = val.filter(item => {
+            return item !== 'all'
+          })
+        } else { // 不为全选时
+          this.form.dealStatus = []
+        }
+      } else {
+        if (val.indexOf('all') > -1) { // 当为全选时
+          this.form.dealStatus = ['all']
+          this.dealStatus.forEach(item => {
+            this.form.dealStatus.push(item.value)
+          })
+          this.dealStatusAll = true
+        } else {
+          if (val.length === this.dealStatus.length) {
+            this.form.dealStatus = ['all']
+            this.dealStatus.forEach(item => {
+              this.form.dealStatus.push(item.value)
+            })
+            this.dealStatusAll = true
+          } else {
+            this.form.dealStatus = val
+          }
+        }
+      }
     }
+
   }
 }
 </script>
@@ -334,7 +418,7 @@ export default {
         align-items: center;
         .exceptionType,.exceptionType,.exceptionType{
           .el-select{
-            width: 200px;
+            width: 300px;
           }
         }
         //创建时间和交易时间

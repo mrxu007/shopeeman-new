@@ -91,8 +91,6 @@ export default {
       // 表格数据
       tableData: []
     }
-  },
-  mounted() {
   }
 }
 </script>
