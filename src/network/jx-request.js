@@ -1,7 +1,7 @@
 import axios from 'axios'
 import jxAdapter from './jx-apdater'
 import tbAdaptert from './gateway/gateway-adapter'
-const jxRequest = axios.create({
+const AppRequest = axios.create({ // 壳内转发请求
   baseURL: process.env.VUE_APP_BASE_API,
   timeout: 5000,
   withCredentials: true,
@@ -9,7 +9,7 @@ const jxRequest = axios.create({
     return jxAdapter(config)
   }
 })
-const tbRequest = axios.create({
+const ycjRequest = axios.create({ // 云采集请求
   baseURL: 'http://129.204.71.240',
   timeout: 5000,
   withCredentials: true,
@@ -17,7 +17,7 @@ const tbRequest = axios.create({
     return tbAdaptert(config)
   }
 })
-const jdRequest = axios.create({
+const otherRequest = axios.create({ // 第三方请求
   timeout: 5000,
   headers: {
     'User-Agent':
@@ -29,13 +29,16 @@ const jdRequest = axios.create({
   }
 })
 export default {
-  jdRequest, // 对接第三方请求
-  jxRequest, // 对接本地请求
-  tbRequest // 对接云采集请求
+  AppRequest, // 对接第三方请求
+  ycjRequest, // 对接本地请求
+  otherRequest, // 对接云采集请求
 
   // 请按照一下格式填写
   // 2021-09-24
   // weTbUploadGetHeaders: (data) => tbRequest.post('/ycj/api/v2/taobao/tbX5/weTbUploadGetHeaders', data), // 上传淘宝图片（由爬虫组提供）
   // weTbUploadPostResult: (data) => tbRequest.post('/ycj/api/v2/taobao/tbX5/weTbUploadPostResult', data) // 上报淘宝图片（由爬虫组提供）
+
+  // 2020-10-09
+  getMallDataStatistics: (data) => AppRequest.post('/mallDataStatistics/dataStat', data) // 获取数据分析
 
 }

@@ -29,12 +29,11 @@ Vue.use(SvgIcon, {
 })
 Vue.use(VueDND)
 
-
 Vue.prototype.$IpcMain = IpcMain
 Vue.prototype.$NetService = NetService
 Vue.prototype.$api = api
-Vue.prototype.$jxrequest = api.jxRequest
-Vue.prototype.$jdrequest = api.jdRequest
+Vue.prototype.$AppRequest = api.AppRequest
+Vue.prototype.$otherRequest = api.otherRequest
 Vue.prototype.$gatewayService = gatewayService.gatewayService
 
 // 所有的input框自动获取焦点
