@@ -32,6 +32,12 @@ const routes = [
     name: 'data-statistics',
     component: () =>
       import('../views/data-statistics/index.vue')
+  },
+  {
+    path: '/test-api', // 测试联调接口
+    name: 'test-api',
+    component: () =>
+      import('../views/test-api/index.vue')
   }
 ]
 const originalPush = VueRouter.prototype.push
