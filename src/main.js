@@ -12,6 +12,8 @@ import SvgIcon from 'vue-svgicon'
 import VueDND from 'awe-dnd'
 import { UTable, UTableColumn } from 'umy-ui'
 import errorHanleCature from 'error-capture-handle'
+import * as echarts from 'echarts'
+Vue.prototype.$echarts = echarts
 // const config = {
 //   openDebugger: process.env.NODE_ENV === 'development',
 //   userName: 'xxx项目', // 当前操作的项目名
