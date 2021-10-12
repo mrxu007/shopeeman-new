@@ -78,7 +78,7 @@
           <div>
             <span>实时概况：</span>
             <el-date-picker
-              v-model="form.overviewTime"
+              v-model="form.dateTime"
               type="daterange"
               range-separator="-"
               start-placeholder="开始日期"
@@ -87,7 +87,7 @@
             />
           </div>
           <div>
-            <el-button type="primary" size="mini">查询</el-button>
+            <el-button type="primary" size="mini" @click="searchHandle">查询</el-button>
             <el-button type="primary" size="mini">查看列表数据</el-button>
             <el-button type="primary" size="mini" plain>导出</el-button>
           </div>
@@ -102,13 +102,13 @@
               <img :src="transactionAmountPng">
               <span>成交金额（元）</span>
               <img :src="questionPng">：
-              <span>0.00</span>
+              <span>{{ orderListData.totalDealAmount }}</span>
             </div>
             <div class="item">
               <img :src="orderNumberPng">
               <span>shopee订单数（单）</span>
               <img :src="questionPng">：
-              <span>0.00</span>
+              <span>{{ orderListData.platformOrderCount }}</span>
             </div>
           </div>
           <div class="right">
@@ -116,13 +116,13 @@
               <img :src="cancelOrderPng">
               <span>已取消订金额（元）</span>
               <img :src="questionPng">：
-              <span>0.00</span>
+              <span>{{ orderListData.totalCanceledEscrowAmount }}</span>
             </div>
             <div class="item">
               <img :src="alreadyCancelPng">
               <span>已取消订单数（单）</span>
               <img :src="questionPng">：
-              <span>0.00</span>
+              <span>{{ orderListData.platformCancelOrderCount }}</span>
             </div>
           </div>
         </el-card>
@@ -131,13 +131,13 @@
             <img :src="cancelPng">
             <span>订单即将取消（单）</span>
             <img :src="questionPng">：
-            <span>0.00</span>
+            <span>{{ orderListData.shipDelayingNum }}</span>
           </div>
           <div class="item">
             <img :src="warehouseDeliveryPng">
             <span>仓库发货订单数（单）</span>
             <img :src="questionPng">：
-            <span>0.00</span>
+            <span>{{ orderListData.totalOutboundNum }}</span>
           </div>
         </el-card>
         <el-card class="box-card topRight" shadow="never">
@@ -145,13 +145,13 @@
             <img :src="noOrderPng">
             <span>匹配不到订单数（单）</span>
             <img :src="questionPng">：
-            <span>0.00</span>
+            <span>{{ orderListData.noOrderNum }}</span>
           </div>
           <div class="item">
             <img :src="printFailPng">
             <span>页面打印失败数（单）</span>
             <img :src="questionPng">：
-            <span>0.00</span>
+            <span>{{ orderListData.printOrderFailNum }}</span>
           </div>
         </el-card>
       </div>
@@ -162,13 +162,13 @@
               <img :src="purchasePng">
               <span>已采购单数（单）</span>
               <img :src="questionPng">：
-              <span>0.00</span>
+              <span>{{ orderListData.totalCompletedShotNum }}</span>
             </div>
             <div class="item">
               <img :src="waitPurchasePng">
               <span>待采购单数（单）</span>
               <img :src="questionPng">：
-              <span>0.00</span>
+              <span>{{ orderListData.waitShotNum }}</span>
             </div>
           </div>
           <div class="right">
@@ -176,7 +176,7 @@
               <img :src="purchasedPng">
               <span>已采购金额（元）</span>
               <img :src="questionPng">：
-              <span>0.00</span>
+              <span>{{ orderListData.totalCompletedShotAmount }}</span>
             </div>
           </div>
         </div>
@@ -187,7 +187,7 @@
               <img :src="outMoneyPng">
               <span>仓库出库金额（元）</span>
               <img :src="questionPng">：
-              <span>0.00</span>
+              <span>{{ orderListData.totalOutStockAmount }}</span>
             </div>
           </div>
         </div>
@@ -265,6 +265,21 @@ export default {
   },
   data() {
     return {
+      // 订单列表数据
+      orderListData: {
+        totalDealAmount: '0.00',
+        totalCanceledEscrowAmount: '0.00',
+        platformOrderCount: '0',
+        platformCancelOrderCount: '0',
+        waitShotNum: '0',
+        totalCompletedShotAmount: '0.00',
+        totalCompletedShotNum: '0',
+        totalOutStockAmount: '0.00',
+        shipDelayingNum: '0',
+        totalOutboundNum: '0',
+        noOrderNum: '0',
+        printOrderFailNum: '0'
+      },
       // 问号图标
       questionPng: require('@/assets/image/data-statistics/question.png'),
       // 成交金额图标
@@ -297,7 +312,7 @@ export default {
         accountNumber: [], // 账号
         site: [], // 站点
         history: '', // 历史图表时间
-        overviewTime: ''// 实时概况时间
+        dateTime: ''// 实时概况时间
       },
       // 店铺select
       storeData: [{
@@ -435,7 +450,7 @@ export default {
       otherException: false,
       purchaseNumber: false,
       purchaseMoney: false,
-      // 销售统计图标数据
+      // 销售统计图表数据
       saleCountOption: {
         tooltip: {
           trigger: 'axis'
@@ -449,7 +464,7 @@ export default {
         xAxis: {
           type: 'category',
           boundaryGap: false,
-          data: ['2021-10-05', '2021-10-06', '2021-10-07', '2021-10-08', '2021-10-09', '2021-10-10', '2021-10-11']
+          data: []
         },
         yAxis: {
           type: 'value'
@@ -459,7 +474,7 @@ export default {
             id: 'systemOrderNumber',
             name: '系统订单数量',
             type: 'line',
-            data: [120, 132, 101, 134, 90, 230, 210],
+            data: [],
             itemStyle: {
               color: '#5ae214'
             }
@@ -468,7 +483,7 @@ export default {
             id: 'shopeeOrderNumber',
             name: '虾皮订单数量',
             type: 'line',
-            data: [220, 182, 191, 234, 290, 330, 310],
+            data: [],
             itemStyle: {
               color: '#2389f3'
             }
@@ -476,7 +491,7 @@ export default {
           {
             name: '订单收入',
             type: 'line',
-            data: [150, 232, 201, 154, 190, 330, 410],
+            data: [],
             itemStyle: {
               color: '#F32823'
             }
@@ -498,7 +513,7 @@ export default {
         xAxis: {
           type: 'category',
           boundaryGap: false,
-          data: ['2021-10-05', '2021-10-06', '2021-10-07', '2021-10-08', '2021-10-09', '2021-10-10', '2021-10-11']
+          data: []
         },
         yAxis: {
           type: 'value'
@@ -507,7 +522,7 @@ export default {
           {
             name: '新增售后金额',
             type: 'line',
-            data: [120, 132, 101, 134, 90, 230, 210],
+            data: [],
             itemStyle: {
               color: '#5ae214'
             }
@@ -515,7 +530,7 @@ export default {
           {
             name: '订单已取消新增采购单数',
             type: 'line',
-            data: [220, 182, 191, 234, 290, 330, 310],
+            data: [],
             itemStyle: {
               color: '#23e9f3'
             }
@@ -523,7 +538,7 @@ export default {
           {
             name: '订单已取消新增采购金额',
             type: 'line',
-            data: [150, 232, 201, 154, 190, 330, 410],
+            data: [],
             itemStyle: {
               color: '#919494'
             }
@@ -531,28 +546,28 @@ export default {
           {
             name: '新增售后单数',
             type: 'line',
-            data: [150, 232, 201, 154, 190, 330, 410],
+            data: [],
             itemStyle: {
               color: '#bba433'
             }
           }, {
             name: '已采购售后退款成功金额',
             type: 'line',
-            data: [150, 232, 201, 154, 190, 330, 410],
+            data: [],
             itemStyle: {
               color: '#a633bb'
             }
           }, {
             name: '已采购售后退款成功数',
             type: 'line',
-            data: [150, 232, 201, 154, 190, 330, 410],
+            data: [],
             itemStyle: {
               color: '#333dbb'
             }
           }, {
             name: '订单已取消单数',
             type: 'line',
-            data: [150, 232, 201, 154, 190, 330, 410],
+            data: [],
             itemStyle: {
               color: '#d41a1a'
             }
@@ -574,7 +589,7 @@ export default {
         xAxis: {
           type: 'category',
           boundaryGap: false,
-          data: ['2021-10-05', '2021-10-06', '2021-10-07', '2021-10-08', '2021-10-09', '2021-10-10', '2021-10-11']
+          data: []
         },
         yAxis: {
           type: 'value'
@@ -583,7 +598,7 @@ export default {
           {
             name: '采购数量',
             type: 'line',
-            data: [120, 132, 101, 134, 90, 230, 210],
+            data: [],
             itemStyle: {
               color: '#5ae214'
             }
@@ -591,17 +606,9 @@ export default {
           {
             name: '采购金额',
             type: 'line',
-            data: [220, 182, 191, 234, 290, 330, 310],
+            data: [],
             itemStyle: {
               color: '#2389f3'
-            }
-          },
-          {
-            name: '订单收入',
-            type: 'line',
-            data: [150, 232, 201, 154, 190, 330, 410],
-            itemStyle: {
-              color: '#F32823'
             }
           }
         ]
@@ -620,7 +627,7 @@ export default {
         xAxis: {
           type: 'category',
           boundaryGap: false,
-          data: ['2021-10-05', '2021-10-06', '2021-10-07', '2021-10-08', '2021-10-09', '2021-10-10', '2021-10-11']
+          data: []
         },
         yAxis: {
           type: 'value'
@@ -629,7 +636,7 @@ export default {
           {
             name: '签收',
             type: 'line',
-            data: [120, 132, 101, 134, 90, 230, 210],
+            data: [],
             itemStyle: {
               color: '#5ae214'
             }
@@ -637,7 +644,7 @@ export default {
           {
             name: '入库',
             type: 'line',
-            data: [220, 182, 191, 234, 290, 330, 310],
+            data: [],
             itemStyle: {
               color: '#23e9f3'
             }
@@ -645,7 +652,7 @@ export default {
           {
             name: '出库',
             type: 'line',
-            data: [150, 232, 201, 154, 190, 330, 410],
+            data: [],
             itemStyle: {
               color: '#919494'
             }
@@ -653,40 +660,148 @@ export default {
           {
             name: '拒收',
             type: 'line',
-            data: [150, 232, 201, 154, 190, 330, 410],
+            data: [],
             itemStyle: {
               color: '#bba433'
             }
           }, {
             name: '匹配不到订单',
             type: 'line',
-            data: [150, 232, 201, 154, 190, 330, 410],
+            data: [],
             itemStyle: {
               color: '#a633bb'
             }
           }, {
             name: '等待子订单',
             type: 'line',
-            data: [150, 232, 201, 154, 190, 330, 410],
+            data: [],
             itemStyle: {
               color: '#333dbb'
             }
           }, {
             name: '页面打印失败',
             type: 'line',
-            data: [150, 232, 201, 154, 190, 330, 410],
+            data: [],
             itemStyle: {
               color: '#d41a1a'
             }
           }, {
             name: '其它异常',
             type: 'line',
-            data: [150, 232, 201, 154, 190, 330, 410],
+            data: [],
             itemStyle: {
               color: '#5f4009'
             }
           }
         ]
+      }
+    }
+  },
+  mounted() {
+    this.getOrderListData()
+    this.getChartData()
+  },
+  methods: {
+    // 查询
+    async searchHandle() {
+      console.log()
+      if (this.form.overviewTime) {
+        const startTiem = this.formatSearch(this.form.overviewTime[0])
+        const endTiem = this.formatSearch(this.form.overviewTime[1])
+        this.form.overviewTime = `${startTiem}/${endTiem}`
+      }
+    },
+    // 格式化搜索时间
+    formatSearch(data) {
+      const time = new Date(data)
+      // 分别获取年月日时分秒
+      const year = time.getFullYear()
+      const month = ((time.getMonth() + 1) + '').padStart(2, 0)
+      const day = (time.getDate() + '').padStart(2, 0)
+      const hours = (time.getHours() + '').padStart(2, 0)
+      const minutes = (time.getMinutes() + '').padStart(2, 0)
+      const seconds = (time.getSeconds() + '').padStart(2, 0)
+      const result = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`
+      return result
+    },
+    // 获取订单列表数据
+    async getOrderListData() {
+      const startTime = this.formatSearch(new Date().getTime())
+      // 当前时间
+      const currentDate = new Date()
+      // 向后推59天
+      const endTiem = this.formatSearch(currentDate.setDate(currentDate.getDate() + 59))
+      const dateTime = `${startTime}/${endTiem}`
+      const result = await this.$api.getDrderBasicStatV2({ dateTime: dateTime })
+      if (result.data.code === '200') {
+        this.orderListData = result.data.data
+      } else {
+        this.$message.error(result.data.message)
+      }
+    },
+    // 获取图表数据
+    async getChartData() {
+      const result = await this.$api.getDataStat()
+      await this.formatChartsOption(result.data)
+    },
+    // 将图表数据拼接到echarts参数种
+    formatChartsOption(data) {
+      console.log(data)
+      const xAxisData = Object.keys(data).reverse()
+      this.saleCountOption.xAxis.data = xAxisData
+      this.afterSaleCountOption.xAxis.data = xAxisData
+      this.purchaseOption.xAxis.data = xAxisData
+      this.shipmentStatisticsOption.xAxis.data = xAxisData
+      // 销售统计图表数据
+      this.saleCountOption.series[0].data = []
+      this.saleCountOption.series[1].data = []
+      this.saleCountOption.series[2].data = []
+      // 售后统计图表
+      this.afterSaleCountOption.series[0].data = []
+      this.afterSaleCountOption.series[1].data = []
+      this.afterSaleCountOption.series[2].data = []
+      this.afterSaleCountOption.series[3].data = []
+      this.afterSaleCountOption.series[4].data = []
+      this.afterSaleCountOption.series[5].data = []
+      this.afterSaleCountOption.series[6].data = []
+
+      //   采购统计图表数据
+      this.afterSaleCountOption.series[0].data = []
+      this.afterSaleCountOption.series[1].data = []
+      this.afterSaleCountOption.series[2].data = []
+      // 仓库发货统计数据
+      this.shipmentStatisticsOption.series[0].data = []
+      this.shipmentStatisticsOption.series[1].data = []
+      this.shipmentStatisticsOption.series[2].data = []
+      this.shipmentStatisticsOption.series[3].data = []
+      this.shipmentStatisticsOption.series[4].data = []
+      this.shipmentStatisticsOption.series[5].data = []
+      this.shipmentStatisticsOption.series[6].data = []
+      this.shipmentStatisticsOption.series[7].data = []
+      for (const key in data) {
+        this.saleCountOption.series[0].data.push(data[key].order.ppxias_order_num)
+        this.saleCountOption.series[1].data.push(data[key].order.shopee_order_num)
+        this.saleCountOption.series[2].data.push(data[key].order.escrow_amount)
+
+        this.afterSaleCountOption.series[0].data.push(data[key].return.return_amount)
+        this.afterSaleCountOption.series[1].data.push(data[key].return.shot_return_cancelled_num)
+        this.afterSaleCountOption.series[2].data.push(data[key].return.shot_return_cancelled_amount)
+        this.afterSaleCountOption.series[3].data.push(data[key].return.return_num)
+        this.afterSaleCountOption.series[4].data.push(data[key].return.shot_return_success_amount)
+        this.afterSaleCountOption.series[5].data.push(data[key].return.shot_return_success_num)
+        this.afterSaleCountOption.series[6].data.push(data[key].return.return_cancelled_num)
+
+        this.afterSaleCountOption.series[0].data.push(data[key].shot.shot_num)
+        this.afterSaleCountOption.series[1].data.push(data[key].shot.shot_amount)
+
+        this.shipmentStatisticsOption.series[0].data.push(data[key].warehouse.signing_package_num)
+        this.shipmentStatisticsOption.series[1].data.push(data[key].warehouse.storage_num)
+        this.shipmentStatisticsOption.series[2].data.push(data[key].warehouse.outbound_num)
+        this.shipmentStatisticsOption.series[3].data.push(data[key].warehouse.reject_package_num)
+        this.shipmentStatisticsOption.series[4].data.push(data[key].warehouse.today_no_orde_num)
+        this.shipmentStatisticsOption.series[5].data.push(data[key].warehouse.today_wait_order_num)
+        this.shipmentStatisticsOption.series[6].data.push(data[key].warehouse.today_print_order_fail_num)
+        this.shipmentStatisticsOption.series[7].data.push(data[key].warehouse.other_abnormal)
       }
     }
   }

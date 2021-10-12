@@ -58,6 +58,8 @@ export default {
       this.myChart = myChart
       const option = this.option
       myChart.setOption(option)
+      console.log(option)
+      debugger
     }
   }
 }

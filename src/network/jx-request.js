@@ -39,6 +39,8 @@ export default {
   // weTbUploadPostResult: (data) => tbRequest.post('/ycj/api/v2/taobao/tbX5/weTbUploadPostResult', data) // 上报淘宝图片（由爬虫组提供）
 
   // 2020-10-09
-  getMallDataStatistics: (data) => AppRequest.post('/mallDataStatistics/dataStat', data) // 获取数据分析
+  getMallDataStatistics: (data) => AppRequest.post('/mallDataStatistics/dataStat', data), // 获取数据分析
+  getDrderBasicStatV2: (data) => AppRequest.post('/mallDataStatistics/orderBasicStatV2', data), // 数据统计获取订单列表数据
+  getDataStat: (data) => AppRequest.post('/mallDataStatistics/dataStat', data) // 数据统计图表数据
 
 }
