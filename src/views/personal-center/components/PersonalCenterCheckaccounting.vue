@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-10-08 14:16:18
- * @LastEditTime: 2021-10-11 15:47:27
+ * @LastEditTime: 2021-10-12 18:02:37
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shopeeman-new\src\views\personal-center\components\PersonalCenterCheckaccounting.vue
@@ -25,7 +25,7 @@
         >
         </el-date-picker>
       </div>
-      <el-button type="primary" size="mini" class="mar-right">查 询</el-button>
+      <el-button type="primary" size="mini" class="mar-right" @click="getOrderStatisticsList">查 询</el-button>
       <el-button type="primary" size="mini" class="mar-right">查看列表数据</el-button>
       <el-button type="primary" size="mini" class="mar-right">导 出</el-button>
     </div>
@@ -36,19 +36,19 @@
           <div class="overview-card">
             <el-card shadow="always" class="cart">
               <div class="cart-item">
-                <img src="../../../assets/img/default.png" class="mar-right" alt="" />
+                <img src="../../../assets/img/chargeTotalFee.png" class="mar-right" alt="" />
                 <span class="text-center mar-right">充值总金额（元）</span>
-                <span class="text-right">0</span>
+                <span class="text-right">{{recharge_column}}</span>
               </div>
               <div class="cart-item">
-                <img src="../../../assets/img/default.png" class="mar-right" alt="" />
+                <img src="../../../assets/img/purchaseReturn.png" class="mar-right" alt="" />
                 <span class="text-center mar-right">采购商品退回金额（元）</span>
-                <span class="text-right">0</span>
+                <span class="text-right">{{purchase_goods_return_column}}</span>
               </div>
               <div class="cart-item">
-                <img src="../../../assets/img/default.png" class="mar-right" alt="" />
+                <img src="../../../assets/img/return.png" class="mar-right" alt="" />
                 <span class="text-center mar-right">退件总金额（元）</span>
-                <span class="text-right">0</span>
+                <span class="text-right">{{return_column}}</span>
               </div>
             </el-card>
           </div>
@@ -57,19 +57,19 @@
           <div class="overview-card">
             <el-card shadow="always">
               <div class="cart-item">
-                <img src="../../../assets/img/default.png" class="mar-right" alt="" />
+                <img src="../../../assets/img/translate.png" class="mar-right" alt="" />
                 <span class="text-center mar-right">翻译总金额（元）</span>
-                <span class="text-right">0</span>
+                <span class="text-right">{{translation_column}}</span>
               </div>
               <div class="cart-item">
-                <img src="../../../assets/img/default.png" class="mar-right" alt="" />
+                <img src="../../../assets/img/IP.png" class="mar-right" alt="" />
                 <span class="text-center mar-right">主体IP消费总金额（元）</span>
-                <span class="text-right">0</span>
+                <span class="text-right">{{mall_main_column}}</span>
               </div>
               <div class="cart-item">
-                <img src="../../../assets/img/default.png" class="mar-right" alt="" />
+                <img src="../../../assets/img/totalConsumption.png" class="mar-right" alt="" />
                 <span class="text-center mar-right">总消费金额（元）</span>
-                <span class="text-right">0</span>
+                <span class="text-right">{{total_expense_amount}}</span>
               </div>
             </el-card>
           </div>
@@ -78,19 +78,19 @@
           <div class="overview-card">
             <el-card shadow="always">
               <div class="cart-item">
-                <img src="../../../assets/img/default.png" class="mar-right" alt="" />
+                <img src="../../../assets/img/purchase.png" class="mar-right" alt="" />
                 <span class="text-center mar-right">采购商品总金额（元）</span>
-                <span class="text-right">0</span>
+                <span class="text-right">{{purchase_goods_column}}</span>
               </div>
               <div class="cart-item">
-                <img src="../../../assets/img/default.png" class="mar-right" alt="" />
+                <img src="../../../assets/img/exception.png" class="mar-right" alt="" />
                 <span class="text-center mar-right">异常赔付总金额（元）</span>
-                <span class="text-right">0</span>
+                <span class="text-right">{{abnormal_payment_column}}</span>
               </div>
               <div class="cart-item">
-                <img src="../../../assets/img/default.png" class="mar-right" alt="" />
+                <img src="../../../assets/img/totalIncome.png" class="mar-right" alt="" />
                 <span class="text-center mar-right">总收入金额（元）</span>
-                <span class="text-right">0</span>
+                <span class="text-right">{{total_revenue_amount}}</span>
               </div>
             </el-card>
           </div>
@@ -99,14 +99,14 @@
           <div class="overview-card">
             <el-card shadow="always">
               <div class="cart-item">
-                <img src="../../../assets/img/default.png" class="mar-right" alt="" />
+                <img src="../../../assets/img/warehouse.png" class="mar-right" alt="" />
                 <span class="text-center mar-right">仓库发货总金额（元）</span>
-                <span class="text-right">0</span>
+                <span class="text-right">{{warehouse_ship_column}}</span>
               </div>
               <div class="cart-item">
-                <img src="../../../assets/img/default.png" class="mar-right" alt="" />
+                <img src="../../../assets/img/other.png" class="mar-right" alt="" />
                 <span class="text-center mar-right">其他总金额（元）</span>
-                <span class="text-right">0</span>
+                <span class="text-right">{{other_column}}</span>
               </div>
             </el-card>
           </div>
@@ -163,9 +163,53 @@ export default {
           },
         ],
       },
+    recharge_column: 0,
+    translation_column: 0,
+    purchase_goods_column: 0,
+    warehouse_ship_column: 0,
+    return_column: 0,
+    purchase_goods_return_column: 0,
+    mall_main_column: 0,
+    abnormal_payment_column: 0,
+    other_column: 0,
+    total_expense_amount: 0,
+    total_revenue_amount: 0,
     }
   },
-  methods: {},
+  mounted(){
+      let end = new Date().getTime()
+      let start = end - 31 * 24 * 60 * 60 * 1000
+      this.statisticsTime = [this.$dayjs(start).format('YYYY-MM-DD'), this.$dayjs(end).format('YYYY-MM-DD')]
+      this.getOrderStatisticsList()
+  },
+  methods: {
+    async getOrderStatisticsList(){
+        let params = {
+            transTime: this.statisticsTime.length?this.setDateFmt(this.statisticsTime).join('/'):''
+        }
+        let res = await this.$api.getOrderStatisticsList(params)
+        if(res.data.status_code===200){
+            this.recharge_column = res.data.data.recharge_column
+            this.translation_column = res.data.data.translation_column
+            this.purchase_goods_column = res.data.data.purchase_goods_column
+            this.warehouse_ship_column = res.data.data.warehouse_ship_column
+            this.return_column = res.data.data.return_column
+            this.purchase_goods_return_column = res.data.data.purchase_goods_return_column
+            this.mall_main_column = res.data.data.mall_main_column
+            this.abnormal_payment_column = res.data.data.abnormal_payment_column
+            this.other_column = res.data.data.other_column
+            this.total_expense_amount = res.data.data.total_expense_amount
+            this.total_revenue_amount = res.data.data.total_revenue_amount
+        }
+        console.log("getOrderStatisticsList",res)
+    },
+      // 日期选择器时间处理
+    setDateFmt(data) {
+      data[0] = data[0] + ' 00:00:00'
+      data[1] = data[1] + ' 23:59:59'
+      return data
+    },
+  },
 }
 </script>
 
@@ -211,7 +255,6 @@ export default {
         flex: 1;
       }
       .text-right {
-        width: 40px;
         font-weight: 900;
         font-size: 24px;
       }

@@ -47,7 +47,8 @@ export async function delay(time) {
 }
 
 // 格式化时间
-export function dateFormat(time, fmt) {
+export function dateFormat(Time, fmt) {
+  let time = new Date(Time)
   var o = {
     'M+': time.getMonth() + 1, // 月份
     'd+': time.getDate(), // 日
@@ -136,3 +137,4 @@ export function splitCookie(mallInfo, str) {
   // // console.log('cookies', cookies)
   return cookies
 }
+

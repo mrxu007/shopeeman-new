@@ -1,3 +1,11 @@
+/*
+ * @Author: your name
+ * @Date: 2021-10-08 14:16:18
+ * @LastEditTime: 2021-10-12 17:12:29
+ * @LastEditors: Please set LastEditors
+ * @Description: In User Settings Edit
+ * @FilePath: \shopeeman-new\src\network\jx-request.js
+ */
 import axios from 'axios'
 import jxAdapter from './jx-apdater'
 import tbAdaptert from './gateway/gateway-adapter'
@@ -39,6 +47,17 @@ export default {
   // weTbUploadPostResult: (data) => tbRequest.post('/ycj/api/v2/taobao/tbX5/weTbUploadPostResult', data) // 上报淘宝图片（由爬虫组提供）
 
   // 2020-10-09
-  getMallDataStatistics: (data) => AppRequest.post('/mallDataStatistics/dataStat', data) // 获取数据分析
-
+  getMallDataStatistics: (data) => AppRequest.post('/mallDataStatistics/dataStat', data), // 获取数据分析
+  //个人中心 -> 软件财务中心
+  getTransType: (data) => AppRequest.get('/user/transType', {data}),  //获取账单交易类型
+  getAccountAmount: (data) => AppRequest.get('/user/accountAmount', {data}), //查询用户账号余额
+  getAccountAmountDetailList: (data) => AppRequest.post('/user/accountAmountDetailList', data), //查询用户账号余额
+  getTranslateDetail: (data) => AppRequest.get('/translate/getTranslateDetail', {params: data}), //获取翻译明细数据
+  getChargeUrlV2: (data) => AppRequest.get('/emptyBag/chargeUrlV2', {params: data}), //充值
+  getTranslateAmount: (data) => AppRequest.get('/translate/getTranslateAmount', {params: data}), //获取今日翻译费用
+  
+  //个人中心 -> 账单核算
+  getOrderStatisticsList: (data) => AppRequest.get('/orderStatistics/index', {params: data}), //账单核算：列表
+  
+  
 }

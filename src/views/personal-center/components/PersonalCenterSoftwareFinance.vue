@@ -5,8 +5,8 @@
     <div class="message">
       <div>账户余额：{{ account.balance }}元</div>
       <div class="bottonGroup">
-        <el-button type="primary" size="mini">刷新余额</el-button>
-        <el-button type="primary" size="mini">充值</el-button>
+        <el-button type="primary" size="mini" @click="getAccountAmount">刷新余额</el-button>
+        <el-button type="primary" size="mini" @click="rechargeVisible = true">充值</el-button>
       </div>
       <div>今日翻译费用：{{ account.translationCosts }}元</div>
     </div>
@@ -16,10 +16,12 @@
       <div class="rowOne">
         <!-- 创建时间 -->
         <div class="creationTime">
-          创建时间：<el-date-picker v-model="form.creationTime" type="daterange" range-separator="-" start-placeholder="开始日期" end-placeholder="结束日期" size="mini" />
+          创建时间：<el-date-picker v-model="form.creationTime" type="daterange" range-separator="-" value-format="yyyy-MM-dd" start-placeholder="开始日期" end-placeholder="结束日期" size="mini" />
         </div>
         <!-- 交易时间 -->
-        <div class="tradingTime">交易时间：<el-date-picker v-model="form.tradingTime" type="daterange" range-separator="-" start-placeholder="开始日期" end-placeholder="结束日期" size="mini" /></div>
+        <div class="tradingTime">
+          交易时间：<el-date-picker v-model="form.tradingTime" type="daterange" value-format="yyyy-MM-dd" range-separator="-" start-placeholder="开始日期" end-placeholder="结束日期" size="mini" />
+        </div>
         <!-- 金额范围 -->
         <div class="moneyRange">
           金额范围：
@@ -34,21 +36,23 @@
         <div class="transactionStatus">
           交易状态：
           <el-select v-model="form.transactionStatus" size="mini">
-            <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value" />
+            <el-option v-for="item in tranStatus" :key="item.id" :label="item.name" :value="item.id" />
           </el-select>
         </div>
         <!-- 资金流向 -->
         <div class="moneyFlow">
           资金流向：
-          <el-select v-model="form.moneyFlow" size="mini">
-            <el-option v-for="item in moneyFlow" :key="item.value" :label="item.label" :value="item.value" />
+          <el-select v-model="form.moneyFlow" size="mini" multiple collapse-tags clearable @change="changeSelect($event, 'moneyFlow')">
+            <el-option label="全选" value="全选" @click.native="selectAll('moneyFlow', moneyFlow)"></el-option>
+            <el-option v-for="item in moneyFlow" :key="item.id" :label="item.label" :value="item.id" />
           </el-select>
         </div>
         <!-- 交易类型 -->
         <div class="transactionType">
           交易类型：
-          <el-select v-model="form.transactionType" size="mini">
-            <el-option v-for="item in transactionType" :key="item.value" :label="item.label" :value="item.value" />
+          <el-select v-model="form.transactionType" size="mini" multiple collapse-tags clearable @change="changeSelect($event, 'transactionType')">
+            <el-option label="全选" value="全选" @click.native="selectAll('transactionType', transactionType)"></el-option>
+            <el-option v-for="item in transactionType" :key="item.id" :label="item.name" :value="item.id" />
           </el-select>
         </div>
       </div>
@@ -65,15 +69,16 @@
           <el-input v-model="form.bigBagNumber" size="mini" />
         </div>
         <div class="searchRowThreeBottonGroup">
-          <el-button type="primary" size="mini">查询</el-button>
-          <el-button type="primary" size="mini">充值查询条件</el-button>
-          <el-button type="primary" size="mini">导出数据</el-button>
+          <el-button type="primary" size="mini" @click="selectList">查询</el-button>
+          <el-button type="primary" size="mini" @click="reset">重置查询条件</el-button>
+          <el-button type="primary" size="mini" @click="exportData">导出数据</el-button>
         </div>
       </div>
     </div>
     <!-- 表格区 -->
     <div class="content">
       <el-table
+        v-loading="tableLoading"
         ref="multipleTable"
         :data="allbillingData"
         tooltip-effect="dark"
@@ -96,46 +101,44 @@
             </p>
           </template>
         </el-table-column>
-        <el-table-column min-width="130px" label="订单编号" align="center">
+        <el-table-column min-width="140px" label="订单编号" align="center">
           <template slot-scope="scope">
-            <p v-if="scope.row.package_order_sn" class="tabletext">
-              <span style="cursor: pointer">{{ scope.row.package_order_sn }}</span
-              ><span class="copyIcon" @click="copy(scope.row.package_order_sn)"><i class="el-icon-document-copy" /></span>
+            <p v-if="scope.row.order_sn" class="tabletext">
+              <span style="cursor: pointer">{{ scope.row.order_sn }}</span
+              ><span class="copyIcon" @click="copy(scope.row.order_sn)"><i class="el-icon-document-copy" /></span>
             </p>
           </template>
         </el-table-column>
         <el-table-column align="center" prop="type" label="资金流向" min-width="60"
           ><template slot-scope="scope">
-            <p v-if="scope.row.type > 0">
-              {{}}
-            </p>
+            <p v-if="scope.row.type > 0">{{ scope.row.type === 1 ? '收入' : '支出' }}</p>
           </template>
         </el-table-column>
         <el-table-column align="center" prop="trans_type" label="交易类型" min-width="70"
           ><template slot-scope="scope">
-            <p v-if="scope.row.trans_type > 0">
-              {{}}
-            </p>
+            <p v-if="scope.row.trans_type > 0">{{ changeTypeName(scope.row.trans_type, transactionType) }}</p>
           </template>
         </el-table-column>
         <el-table-column align="center" prop="trans_type" label="交易状态" min-width="70"
           ><template slot-scope="scope">
-            <p v-if="scope.row.trans_type > 0">
-              {{}}
-            </p>
+            <p v-if="scope.row.trans_type > 0">{{ changeTypeName(scope.row.trans_status, tranStatus) }}</p>
           </template>
         </el-table-column>
         <el-table-column prop="trans_time" label="交易时间" align="center" min-width="90px">
-          <template slot-scope="scope">
-            {{}}
-          </template>
+          <template slot-scope="scope"> {{ scope.row.trans_time }} </template>
         </el-table-column>
-        <el-table-column prop="created_at" label="创建时间" align="center" width="90px" />
+        <el-table-column prop="created_at" label="创建时间" align="center" min-width="90px">
+          <template slot-scope="scope"> {{ scope.row.created_at }} </template>
+        </el-table-column>
         <el-table-column align="center" prop="amount" label="交易金额" min-width="70" />
         <el-table-column align="center" prop="current_amount" label="账户余额" min-width="80" />
-        <el-table-column align="center" prop="current_amount" label="大包号" min-width="80" />
-        <el-table-column align="center" prop="current_amount" label="商品skuID" min-width="80" />
-        <el-table-column align="center" prop="current_amount" label="费用明细" min-width="80" />
+        <el-table-column align="center" prop="package_sn" label="大包号" min-width="80" />
+        <el-table-column align="center" prop="sys_sku_id" label="商品skuID" min-width="80" />
+        <el-table-column align="center" label="费用明细" min-width="70"
+          ><template slot-scope="scope">
+            <el-button type="primary" size="mini" v-if="scope.row.trans_type === 2" @click="getTransDetail">翻译明细</el-button>
+          </template>
+        </el-table-column>
         <el-table-column align="center" prop="remark" label="备注" min-width="100" />
       </el-table>
       <div class="pagination">
@@ -150,6 +153,71 @@
         />
       </div>
     </div>
+    <!-- dialog充值 -->
+    <el-dialog title="账户充值" :visible.sync="rechargeVisible" width="900px">
+      <div class="recharge-box">
+        <p>账户余额：{{ account.balance }}</p>
+        <div class="account-box">
+          <div class="account-item" v-for="(item, index) in rechargeList" :key="index" @click="amount = item" :class="{ activeColor: amount === item }">￥{{ item }}</div>
+        </div>
+        <div class="account-input">充值金额：<el-input size="mini" v-model="amount" style="width: 200px" clearable></el-input></div>
+        <el-button type="primary" class="btn" @click="recharge">立即充值</el-button>
+      </div>
+    </el-dialog>
+    <!-- dialog翻译明细 -->
+    <el-dialog title="翻译明细" :visible.sync="translateDetailVisible" width="900px">
+      <div class="tranDetail">
+        <div class="header-selsect">
+          <!-- <div class="select-item">
+            <p>翻译类型:</p>
+            <el-select
+              v-model="translateType"
+              style="width:130px;"
+              placeholder="请选择"
+              size="mini"
+              clearable
+            >
+              <el-option
+                v-for="(item,index) in transType"
+                :key="index"
+                :label="item.label"
+                :value="item.value"
+              />
+            </el-select>
+          </div> -->
+          <div class="select-item">
+            <p>翻译时间:</p>
+            <el-date-picker
+              v-model="chooseDate"
+              type="daterange"
+              size="mini"
+              format="yyyy-MM-dd HH:mm:ss"
+              start-placeholder="开始日期"
+              end-placeholder="结束日期"
+              :default-time="['00:00:00', '23:59:59']"
+            />
+          </div>
+          <el-button type="primary" size="mini">查询</el-button>
+        </div>
+        <div class="table-style">
+          <el-table :data="tranDetailData" tooltip-effect="dark" height="500">
+            <el-table-column align="center" type="index" label="序号" width="50" />
+            <el-table-column prop="type" label="翻译类型" align="center" width="90px">
+              <template slot-scope="scope">
+                <p>{{ scope.row.type == 1 ? '文字' : '图片' }}</p>
+              </template>
+            </el-table-column>
+            <el-table-column align="center" label="翻译字符串" min-width="70" show-overflow-tooltip
+              ><template slot-scope="scope">
+                <p>{{ scope.row.text }}</p>
+              </template>
+            </el-table-column>
+            <el-table-column prop="amount" label="翻译金额" align="center" width="90px" />
+            <el-table-column prop="created_at" label="翻译时间" align="center" width="90px" />
+          </el-table>
+        </div>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
@@ -158,13 +226,13 @@ export default {
   data() {
     return {
       account: {
-        balance: '-0.08', // 账户余额
+        balance: '', // 账户余额
         translationCosts: '0', // 今日翻译费用
       },
       //   搜索条件
       form: {
-        creationTime: '', // 创建时间
-        tradingTime: '', // 交易时间
+        creationTime: [], // 创建时间
+        tradingTime: [], // 交易时间
         minMoney: '', // 最小金额
         maxMoney: '', // 最大金额
         transactionStatus: '', // 交易状态
@@ -174,115 +242,318 @@ export default {
         bigBagNumber: '', // 星卓越大包号：
       },
       // 交易状态下拉选择
-      options: [
+      tranStatus: [
         {
-          value: 0,
-          label: '全部',
+          id: 0,
+          name: '全部',
         },
         {
-          value: 1,
-          label: '成功',
+          id: 1,
+          name: '成功',
         },
         {
-          value: 2,
-          label: '失败',
+          id: 2,
+          name: '失败',
         },
         {
-          value: 3,
-          label: '退款',
+          id: 3,
+          name: '退款',
         },
         {
-          value: 4,
-          label: '等待付款',
+          id: 4,
+          name: '等待付款',
         },
       ],
       // 资金流向select
       moneyFlow: [
         {
-          value: 0,
-          label: '全部',
-        },
-        {
-          value: 1,
+          id: 1,
           label: '收入',
         },
         {
-          value: 2,
+          id: 2,
           label: '支出',
         },
       ],
       // 交易类型select
       transactionType: [
-        {
-          value: 0,
-          label: '全部',
-        },
-        {
-          value: 1,
-          label: '充值',
-        },
-        {
-          value: 2,
-          label: '翻译',
-        },
-        {
-          value: 3,
-          label: '采购商品',
-        },
-        {
-          value: 4,
-          label: '仓库发货',
-        },
-        {
-          value: 5,
-          label: '退件',
-        },
-        {
-          value: 6,
-          label: '采购商品退回',
-        },
-        {
-          value: 7,
-          label: '主体IP消费',
-        },
-        {
-          value: 8,
-          label: '异常赔付',
-        },
-        {
-          value: 9,
-          label: '海外仓备货',
-        },
-        {
-          value: 10,
-          label: '软件开户',
-        },
-        {
-          value: 11,
-          label: '费用冲正',
-        },
-        {
-          value: 12,
-          label: '海外仓发货',
-        },
-        {
-          value: 13,
-          label: '钱包迁移',
-        },
+        // {
+        //   id: 0,
+        //   name: '全部',
+        // },
+        // {
+        //   id: 1,
+        //   name: '充值',
+        // },
+        // {
+        //   id: 2,
+        //   name: '翻译',
+        // },
+        // {
+        //   id: 3,
+        //   name: '采购商品',
+        // },
+        // {
+        //   id: 4,
+        //   name: '仓库发货',
+        // },
+        // {
+        //   id: 5,
+        //   name: '退件',
+        // },
+        // {
+        //   id: 6,
+        //   name: '采购商品退回',
+        // },
+        // {
+        //   id: 7,
+        //   name: '主体IP消费',
+        // },
+        // {
+        //   id: 8,
+        //   name: '异常赔付',
+        // },
+        // {
+        //   id: 9,
+        //   name: '海外仓备货',
+        // },
+        // {
+        //   id: 10,
+        //   name: '软件开户',
+        // },
+        // {
+        //   id: 11,
+        //   name: '费用冲正',
+        // },
+        // {
+        //   id: 12,
+        //   name: '海外仓发货',
+        // },
+        // {
+        //   id: 13,
+        //   label: '钱包迁移',
+        // },
       ],
       pageSize: 20, //页码
       currentPage: 1, //页码
       total: 0, //表格总数
       allbillingData: [], //表格数据
+      tableLoading: false,
+      translateDetailVisible: false, //翻译明细弹窗
+      tranDetailData: [], //翻译明细
+      chooseDate: [],
+      rechargeVisible: false, //充值弹窗
+      rechargeList: [100, 200, 500, 1000, 2000, 5000],
+      amount: '',
     }
   },
-  mounted() {},
+  mounted() {
+    let end = new Date().getTime()
+    let start = end - 31 * 24 * 60 * 60 * 1000
+    this.form.creationTime = [this.$dayjs(start).format('YYYY-MM-DD'), this.$dayjs(end).format('YYYY-MM-DD')]
+    this.getTransType()
+    this.getAccountAmount()
+    this.getTranslateAmount()
+  },
   methods: {
+    //导出数据
+    exportData() {
+      if (!this.allbillingData.length) {
+        return this.$message.warning('没有可导出的数据')
+      }
+      let num = 1
+      let str = `<tr>
+              <td>编号</td>
+              <td>交易号</td>
+              <td>订单编号</td>
+              <td>资金流向</td>
+              <td>交易类型</td>
+              <td>交易状态</td>
+              <td>交易时间</td>
+              <td>创建时间</td>
+              <td>交易金额</td>
+              <td>账户余额</td>
+              <td>大包号</td>
+              <td>商品SkuId</td>
+              <td>备注</td>
+            </tr>`
+      for (let i = 0; i < this.allbillingData.length; i++) {
+        let item = this.allbillingData[i]
+        str += `<tr><td>${num++}</td>
+                    <td style="mso-number-format:'\@';">${item.trans_number ? item.trans_number : '' + '\t'}</td>
+                    <td style="mso-number-format:'\@';">${item.order_sn ? item.order_sn : '' + '\t'}</td>
+                    <td>${item.type && item.type === 1 ? '收入' : '支出' || '' + '\t'}</td>
+                    <td>${item.trans_type ? this.changeTypeName(item.trans_type, this.transactionType) : '' + '\t'}</td>
+                    <td>${item.trans_status ? this.changeTypeName(item.trans_status, this.tranStatus) : '' + '\t'}</td>
+                    <td>${item.trans_time ? item.trans_time : '' + '\t'}</td> 
+                    <td>${item.created_at ? item.created_at : '' + '\t'}</td>
+                    <td>${item.amount ? item.amount : '' + '\t'}</td>
+                    <td>${item.current_amount ? item.current_amount : '' + '\t'}</td>
+                    <td>${item.package_sn ? item.package_sn : '' + '\t'}</td>
+                    <td>${item.sys_sku_id ? item.sys_sku_id : '' + '\t'}</td>
+                    <td>${item.remark ? item.remark : '' + '\t'}</td>
+                </tr>`
+      }
+      //Worksheet名
+      let worksheet = `账单数据${new Date(Date.now() + 8 * 3600 * 1000).toISOString().slice(0, 10)}`
+      let uri = 'data:application/vnd.ms-excel;base64,'
+
+      //下载的表格模板数据
+      let template = `<html xmlns:o="urn:schemas-microsoft-com:office:office"
+                    xmlns:x="urn:schemas-microsoft-com:office:excel"
+                    xmlns="http://www.w3.org/TR/REC-html40">
+                    <head><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet>
+                    <x:Name>${worksheet}</x:Name>
+                    <x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet>
+                    </x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]-->
+                    </head><body><table>${str}</table></body></html>`
+      //下载模板
+      // let template = templates.replace(/<td/g,`<td style="mso-number-format:'\@';"`)
+      let blob = new Blob([template], { type: 'html', name: worksheet })
+      let a = document.createElement('a')
+      document.body.appendChild(a)
+      // a.href = uri + this.base64(template)
+      a.href = URL.createObjectURL(blob)
+      a.download = `账单数据${new Date(Date.now() + 8 * 3600 * 1000).toISOString().slice(0, 10)}.xls`
+      a.click()
+      document.body.removeChild(a)
+    },
+    //充值
+    async recharge() {
+      let params = { amount: this.amount }
+      let res = await this.$api.getChargeUrlV2(params)
+    },
+    //获取今日翻译费用
+    async getTranslateAmount() {
+      let res = await this.$api.getTranslateAmount()
+      if (res.data.code === 200) {
+        this.account.translationCosts = res.data.data.amount
+      }
+    },
+    //获取翻译明细
+    async getTransDetail(row) {
+      this.translateDetailVisible = true
+      let params = {
+        uuid: row.uuid,
+        startTime: this.$dayjs(this.chooseDate[0]).format('YYYY-MM-DD') + ' 00:00:00',
+        endTime: this.$dayjs(this.chooseDate[1]).format('YYYY-MM-DD') + ' 23:59:59',
+      }
+      let res = await this.$api.getTranslateDetail(params)
+      console.log(res, 'getTransDetail')
+    },
+    //重置
+    reset() {
+      this.form = {
+        creationTime: [], // 创建时间
+        tradingTime: [], // 交易时间
+        minMoney: '', // 最小金额
+        maxMoney: '', // 最大金额
+        transactionStatus: '', // 交易状态
+        moneyFlow: [], // 资金流向
+        transactionType: [], // 交易类型
+        orderNumber: '', // 订单编号
+        bigBagNumber: '', // 星卓越大包号：
+      }
+    },
+    //查询列表数据
+    async selectList() {
+      let params = {}
+      params.page = this.currentPage
+      params.pageNum = this.pageSize
+      params.createdAt = this.form.creationTime.length ? this.setDateFmt(this.form.creationTime).join('/') : '/'
+      params.transTime = this.form.tradingTime.length ? this.setDateFmt(this.form.tradingTime).join('/') : '/'
+      params.transStatus = this.form.transactionStatus
+      params.type = this.form.moneyFlow
+      params.amount = `${this.form.minMoney != '' ? Number(this.saleVal.min) : 0}/${this.form.maxMoney != '' ? Number(this.form.maxMoney) : 0}`
+      params.transType = this.form.transactionType
+      params.orderSn = this.form.orderNumber
+      params.childName = ''
+      params.packageSn = this.form.bigBagNumber
+      this.tableLoading = true
+      let res = await this.$api.getAccountAmountDetailList(params)
+      if (res.data.status_code === 200) {
+        this.allbillingData = res.data.data.data
+        this.total = res.data.data.total
+      }
+      this.tableLoading = false
+    },
+    //获取账单交易类型
+    async getTransType() {
+      let res = await this.$api.getTransType()
+      if (res.data.status_code === 200) {
+        this.transactionType = res.data.data
+      } else {
+        this.$message.error(res.data.message)
+      }
+    },
+    //查询用户账号余额
+    async getAccountAmount() {
+      let res = await this.$api.getAccountAmount()
+      if (res.data.status_code === 200) {
+        this.account.balance = res.data.data
+      } else {
+        this.$message.error(res.data.message)
+      }
+    },
+    // 日期选择器时间处理
+    setDateFmt(data) {
+      data[0] = data[0] + ' 00:00:00'
+      data[1] = data[1] + ' 23:59:59'
+      return data
+    },
+    //转换类型中文
+    changeTypeName(id, baseData) {
+      let str = ''
+      let data = baseData.find((item) => item.id === id)
+      str = data ? data.name : ''
+      return str
+    },
+    //全选
+    selectAll(key, baseData) {
+      if (this.form[key].length < baseData.length) {
+        this.form[key] = []
+        baseData.map((item) => {
+          this.form[key].push(item.id)
+        })
+      } else {
+        this.form[key] = []
+      }
+    },
+    changeSelect(val, key) {
+      if (!val.includes('全选') && val.length === this.form[key].length) {
+      } else if (val.includes('全选') && val.length - 1 < this.form[key].length) {
+        this.form[key] = this.form[key].filter((item) => {
+          return item !== '全选'
+        })
+      }
+    },
     handleCurrentChange(val) {
       this.currentPage = val
+      this.selectList()
     },
     handleSizeChange(size) {
       this.pageSize = size
+      this.selectList
+    },
+    //点击复制
+    copy(attr) {
+      let target = document.createElement('div')
+      target.id = 'tempTarget'
+      target.style.opacity = '0'
+      target.innerText = attr
+      document.body.appendChild(target)
+      try {
+        let range = document.createRange()
+        range.selectNode(target)
+        window.getSelection().removeAllRanges()
+        window.getSelection().addRange(range)
+        document.execCommand('copy')
+        window.getSelection().removeAllRanges()
+        this.$message.success('复制成功')
+      } catch (e) {
+        //console.log('复制失败')
+      }
+      target.parentElement.removeChild(target)
     },
   },
 }
@@ -292,6 +563,9 @@ export default {
 .PersonalCenterSoftwareFinance {
   padding: 16px;
   background: #fff;
+  /deep/ .el-dialog__body {
+    padding: 10px 20px;
+  }
 }
 // 账户相关信息
 .message {
@@ -386,9 +660,83 @@ export default {
 .content {
   margin-top: 20px;
 }
+.copyIcon {
+  i {
+    color: red;
+    cursor: pointer;
+  }
+}
 .pagination {
   display: flex;
   justify-content: flex-end;
   margin-top: 10px;
+}
+//dialog
+.tranDetail {
+  .header-selsect {
+    display: flex;
+    .select-item {
+      // width: 345px;
+      margin-right: 20px;
+      .check-ground {
+        flex: 1;
+        display: flex;
+        justify-content: center;
+        align-content: space-between;
+      }
+      .middle {
+        margin: 0 4px;
+      }
+      p {
+        padding-right: 8px;
+        font-size: 14px;
+        font-weight: normal;
+        font-stretch: normal;
+        line-height: 23px;
+        letter-spacing: 0px;
+        color: #666666;
+      }
+      display: flex;
+      align-items: center;
+      padding-right: 10px;
+    }
+  }
+  .table-style {
+    margin-top: 10px;
+  }
+}
+.recharge-box {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  font-size: 18px;
+  .account-box {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    .account-item {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 180px;
+      height: 120px;
+      border: 1px solid #dcdcdc;
+      border-radius: 8px;
+      margin: 20px;
+      cursor: pointer;
+    }
+    .activeColor {
+      background: chocolate;
+    }
+  }
+  .account-input {
+    margin-top: 20px;
+    display: flex;
+  }
+  .btn {
+    margin: 60px 0 20px;
+    width: 300px;
+  }
 }
 </style>

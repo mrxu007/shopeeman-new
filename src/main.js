@@ -1,3 +1,11 @@
+/*
+ * @Author: your name
+ * @Date: 2021-10-08 14:16:18
+ * @LastEditTime: 2021-10-12 12:06:13
+ * @LastEditors: your name
+ * @Description: In User Settings Edit
+ * @FilePath: \shopeeman-new\src\main.js
+ */
 import Vue from 'vue'
 import App from './App.vue'
 import router from './router'
@@ -12,6 +20,8 @@ import SvgIcon from 'vue-svgicon'
 import VueDND from 'awe-dnd'
 import { UTable, UTableColumn } from 'umy-ui'
 import errorHanleCature from 'error-capture-handle'
+import dayjs from 'dayjs'
+
 // const config = {
 //   openDebugger: process.env.NODE_ENV === 'development',
 //   userName: 'xxx项目', // 当前操作的项目名
@@ -35,7 +45,7 @@ Vue.prototype.$api = api
 Vue.prototype.$AppRequest = api.AppRequest
 Vue.prototype.$otherRequest = api.otherRequest
 Vue.prototype.$gatewayService = gatewayService.gatewayService
-
+Vue.prototype.$dayjs = dayjs
 // 所有的input框自动获取焦点
 Vue.directive('fo', {
   inserted(el, binding, vnode) {

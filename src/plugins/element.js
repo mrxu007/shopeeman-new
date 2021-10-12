@@ -186,5 +186,5 @@ const resetMessage = (options) => {
     return resetMessage(options)
   }
 })
-Vue.prototype.$message2 = resetMessage
+Vue.prototype.$message = resetMessage
 
