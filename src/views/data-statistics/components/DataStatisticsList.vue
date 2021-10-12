@@ -201,55 +201,24 @@
       <div class="chartTop">
         <div class="leftCahrt">
           <span class="tit">销售统计</span>
-          <div class="checkLegend saleCount">
-            <el-checkbox v-model="systemOrderChecked" @change="systemOrderNumberHandle">系统订单数量</el-checkbox>
-            <el-checkbox v-model="shopeeOrderChecked">虾皮订单数量</el-checkbox>
-            <el-checkbox v-model="orderIncomeChecked">订单收入</el-checkbox>
-          </div>
-
-          <Echart id="saleCountChart" width="100%" height="calc(100% - 60px)" :option="saleCountOption" />
+          <Echart id="saleCountChart" width="100%" height="calc(100% - 20px)" :option="saleCountOption" />
           <h6>统计日期</h6>
         </div>
         <div class="rightChart">
           <span class="tit">售后统计</span>
-          <div class="checkLegend afterSaleCount">
-            <el-checkbox v-model="addSaleMoney">新增售后金额</el-checkbox>
-            <el-checkbox v-model="orderCancelAdd">订单已取消新增采购单数</el-checkbox>
-            <el-checkbox v-model="orderCancelAddMoney">订单已取消新增采购金额</el-checkbox>
-            <el-checkbox v-model="addSale">新增售后单数</el-checkbox>
-            <el-checkbox v-model="saleRefundMoney">已采购售后退款成功金额</el-checkbox>
-            <el-checkbox v-model="saleRefund">已采购售后退款成功数</el-checkbox>
-            <el-checkbox v-model="orderCance">订单已取消单数</el-checkbox>
-          </div>
-          <Echart id="afterSaleChart" width="100%" height="calc(100% - 80px)" :option="afterSaleCountOption" />
+          <Echart id="afterSaleChart" width="100%" height="calc(100% - 20px)" :option="afterSaleCountOption" />
           <h6>统计日期</h6>
         </div>
       </div>
       <div class="chartBottom">
         <div class="leftCahrt">
           <span class="tit">采购统计</span>
-
-          <div class="checkLegend purchaseCount">
-            <el-checkbox v-model="purchaseNumber">采购数量</el-checkbox>
-            <el-checkbox v-model="purchaseMoney">采购金额</el-checkbox>
-          </div>
-          <Echart id="purchaseChart" width="100%" height="calc(100% - 60px)" :option="purchaseOption" />
+          <Echart id="purchaseChart" width="100%" height="calc(100% - 20px)" :option="purchaseOption" />
           <h6>统计日期</h6>
         </div>
         <div class="rightChart">
           <span class="tit">仓库发货统计</span>
-
-          <div class="checkLegend shipmentStatistics">
-            <el-checkbox v-model="signFor">签收</el-checkbox>
-            <el-checkbox v-model="warehousing">入库</el-checkbox>
-            <el-checkbox v-model="exWarehouse">出库</el-checkbox>
-            <el-checkbox v-model="rejection">拒收</el-checkbox>
-            <el-checkbox v-model="cannotMatch">匹配不到订单</el-checkbox>
-            <el-checkbox v-model="waitSonOrder">等待子订单</el-checkbox>
-            <el-checkbox v-model="pagePrintFail">页面打印失败</el-checkbox>
-            <el-checkbox v-model="otherException">其它异常</el-checkbox>
-          </div>
-          <Echart id="shipmentStatisticsChart" width="100%" height="calc(100% - 60px)" :option="shipmentStatisticsOption" />
+          <Echart id="shipmentStatisticsChart" width="100%" height="calc(100% - 20px)" :option="shipmentStatisticsOption" />
           <h6>统计日期</h6>
         </div>
       </div>
@@ -430,33 +399,17 @@ export default {
           label: '近60天'
         }
       ],
-      systemOrderChecked: false,
-      shopeeOrderChecked: false,
-      orderIncomeChecked: false,
-      addSaleMoney: false,
-      orderCancelAdd: false,
-      orderCancelAddMoney: false,
-      addSale: false,
-      saleRefundMoney: false,
-      saleRefund: false,
-      orderCance: false,
-      signFor: false,
-      warehousing: false,
-      exWarehouse: false,
-      rejection: false,
-      cannotMatch: false,
-      waitSonOrder: false,
-      pagePrintFail: false,
-      otherException: false,
-      purchaseNumber: false,
-      purchaseMoney: false,
       // 销售统计图表数据
       saleCountOption: {
         tooltip: {
           trigger: 'axis'
         },
+        legend: {
+          top: 20,
+          data: ['系统订单数量', '虾皮订单数量', '订单收入']
+        },
         grid: {
-          top: '20px',
+          top: '60px',
           left: '50px',
           right: '50px',
           bottom: '20px'
@@ -471,7 +424,6 @@ export default {
         },
         series: [
           {
-            id: 'systemOrderNumber',
             name: '系统订单数量',
             type: 'line',
             data: [1, 2, 3, 4, 5, 6, 7],
@@ -480,7 +432,6 @@ export default {
             }
           },
           {
-            id: 'shopeeOrderNumber',
             name: '虾皮订单数量',
             type: 'line',
             data: [2, 3, 4, 5, 6, 7, 8],
@@ -499,13 +450,13 @@ export default {
         ]
       },
 
-      // 售后统计图标数据
+      // 售后统计图表数据
       afterSaleCountOption: {
         tooltip: {
           trigger: 'axis'
         },
         grid: {
-          top: '20px',
+          top: '80px',
           left: '50px',
           right: '50px',
           bottom: '20px'
@@ -517,6 +468,10 @@ export default {
         },
         yAxis: {
           type: 'value'
+        },
+        legend: {
+          top: 30,
+          data: ['新增售后金额', '订单已取消新增采购单数', '订单已取消新增采购金额', '新增售后单数', '已采购售后退款成功金额', '已采购售后退款成功数', '订单已取消单数']
         },
         series: [
           {
@@ -575,13 +530,13 @@ export default {
         ]
       },
 
-      // 采购统计图标数据
+      // 采购统计图表数据
       purchaseOption: {
         tooltip: {
           trigger: 'axis'
         },
         grid: {
-          top: '20px',
+          top: '60px',
           left: '50px',
           right: '50px',
           bottom: '20px'
@@ -593,6 +548,11 @@ export default {
         },
         yAxis: {
           type: 'value'
+        },
+
+        legend: {
+          top: 20,
+          data: ['采购数量', '采购金额']
         },
         series: [
           {
@@ -613,13 +573,13 @@ export default {
           }
         ]
       },
-      // 仓库发货统计
+      // 仓库发货统计图表数据
       shipmentStatisticsOption: {
         tooltip: {
           trigger: 'axis'
         },
         grid: {
-          top: '20px',
+          top: '60px',
           left: '50px',
           right: '50px',
           bottom: '20px'
@@ -631,6 +591,10 @@ export default {
         },
         yAxis: {
           type: 'value'
+        },
+        legend: {
+          top: 20,
+          data: ['签收', '入库', '出库', '拒收', '匹配不到订单', '等待子订单', '页面打印失败', '其它异常']
         },
         series: [
           {
