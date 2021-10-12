@@ -746,7 +746,6 @@ export default {
     },
     // 将图表数据拼接到echarts参数种
     formatChartsOption(data) {
-      console.log(data)
       const xAxisData = Object.keys(data).reverse()
       this.saleCountOption.xAxis.data = xAxisData
       this.afterSaleCountOption.xAxis.data = xAxisData
