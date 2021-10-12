@@ -39,6 +39,14 @@ export default {
   // weTbUploadPostResult: (data) => tbRequest.post('/ycj/api/v2/taobao/tbX5/weTbUploadPostResult', data) // 上报淘宝图片（由爬虫组提供）
 
   // 2020-10-09
-  getMallDataStatistics: (data) => AppRequest.post('/mallDataStatistics/dataStat', data) // 获取数据分析
-
+  getMallDataStatistics: (data) => AppRequest.post('/mallDataStatistics/dataStat', data), // 获取数据分析
+  getChildUserList: (data) => AppRequest.post('/user/childUserList', data), // 个人中心-团队管理-查询子账号列表
+  userRoleList: (data) => AppRequest.get('/user/userRoleList', data), // 个人中心-团队管理-获取子账号角色类型
+  saveChildUsers: (data) => AppRequest.post('/user/saveChildUsers', data), // 个人中心-团队管理-新增子账号列表
+  deleteChildUser: (data) => AppRequest.post('/user/deleteChildUser', data), // 个人中心-团队管理-删除子账号
+  editChildUsers: (data) => AppRequest.post('/user/editChildUserDatas', data), // 个人中心-团队管理-修改子账号信息
+  getIPTrustList: (data) => AppRequest.get('/getIPTrustList', data), // 个人中心-信任IP-获取列表
+  updateTrustedIP: (data) => AppRequest.post('/updateTrustedIP', data), // 个人中心-信任IP-更新用户的IP信任列表
+  deleteTrustedIP: (data) => AppRequest.post('/deleteTrustedIP', data), // 个人中心-信任IP-删除用户的IP信任
+  setIpCheck: (data) => AppRequest.post('/user/setIpCheck', data) // 个人中心-信任IP-设置信任IP是否开启
 }
