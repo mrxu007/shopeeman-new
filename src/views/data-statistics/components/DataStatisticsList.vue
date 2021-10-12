@@ -202,7 +202,7 @@
         <div class="leftCahrt">
           <span class="tit">销售统计</span>
           <div class="checkLegend saleCount">
-            <el-checkbox v-model="systemOrderChecked">系统订单数量</el-checkbox>
+            <el-checkbox v-model="systemOrderChecked" @change="systemOrderNumberHandle">系统订单数量</el-checkbox>
             <el-checkbox v-model="shopeeOrderChecked">虾皮订单数量</el-checkbox>
             <el-checkbox v-model="orderIncomeChecked">订单收入</el-checkbox>
           </div>
@@ -474,7 +474,7 @@ export default {
             id: 'systemOrderNumber',
             name: '系统订单数量',
             type: 'line',
-            data: [],
+            data: [1, 2, 3, 4, 5, 6, 7],
             itemStyle: {
               color: '#5ae214'
             }
@@ -483,7 +483,7 @@ export default {
             id: 'shopeeOrderNumber',
             name: '虾皮订单数量',
             type: 'line',
-            data: [],
+            data: [2, 3, 4, 5, 6, 7, 8],
             itemStyle: {
               color: '#2389f3'
             }
@@ -491,7 +491,7 @@ export default {
           {
             name: '订单收入',
             type: 'line',
-            data: [],
+            data: [3, 4, 5, 6, 7, 8, 9],
             itemStyle: {
               color: '#F32823'
             }
@@ -744,8 +744,16 @@ export default {
       const result = await this.$api.getDataStat()
       await this.formatChartsOption(result.data)
     },
+    // 系统订单数量check
+    systemOrderNumberHandle() {
+      console.log(this.systemOrderChecked)
+      if (!this.systemOrderChecked) {
+        this.saleCountOption.series[0].data = []
+      }
+    },
     // 将图表数据拼接到echarts参数种
     formatChartsOption(data) {
+      console.log(data)
       const xAxisData = Object.keys(data).reverse()
       this.saleCountOption.xAxis.data = xAxisData
       this.afterSaleCountOption.xAxis.data = xAxisData
@@ -765,9 +773,8 @@ export default {
       this.afterSaleCountOption.series[6].data = []
 
       //   采购统计图表数据
-      this.afterSaleCountOption.series[0].data = []
-      this.afterSaleCountOption.series[1].data = []
-      this.afterSaleCountOption.series[2].data = []
+      this.purchaseOption.series[0].data = []
+      this.purchaseOption.series[1].data = []
       // 仓库发货统计数据
       this.shipmentStatisticsOption.series[0].data = []
       this.shipmentStatisticsOption.series[1].data = []
@@ -790,8 +797,8 @@ export default {
         this.afterSaleCountOption.series[5].data.push(data[key].return.shot_return_success_num)
         this.afterSaleCountOption.series[6].data.push(data[key].return.return_cancelled_num)
 
-        this.afterSaleCountOption.series[0].data.push(data[key].shot.shot_num)
-        this.afterSaleCountOption.series[1].data.push(data[key].shot.shot_amount)
+        this.purchaseOption.series[0].data.push(data[key].shot.shot_num)
+        this.purchaseOption.series[1].data.push(data[key].shot.shot_amount)
 
         this.shipmentStatisticsOption.series[0].data.push(data[key].warehouse.signing_package_num)
         this.shipmentStatisticsOption.series[1].data.push(data[key].warehouse.storage_num)

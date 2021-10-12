@@ -26,9 +26,6 @@ export default {
       // 所有配置
       type: Object,
       default: null
-    },
-    changeValue: {
-      type: String
     }
   },
   data() {
@@ -38,8 +35,12 @@ export default {
     }
   },
   watch: {
-    changeValue: function(newV, oldv) {
-      this.drawChart()
+    option: {
+      deep: true,
+      handler: function(newV, oldv) {
+        this.option = newV
+        this.drawChart()
+      }
     }
   },
   mounted() {
