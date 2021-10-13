@@ -49,16 +49,25 @@ export default {
   // 2020-10-09
   getMallDataStatistics: (data) => AppRequest.post('/mallDataStatistics/dataStat', data), // 获取数据分析
   // 2020-10-11
-  // 软件财务中心(个人中心)
+  // 软件财务中心---个人中心
   getTransType: (data) => AppRequest.get('/user/transType', { data }), // 获取账单交易类型
   getAccountAmount: (data) => AppRequest.get('/user/accountAmount', { data }), // 查询用户账号余额
   getAccountAmountDetailList: (data) => AppRequest.post('/user/accountAmountDetailList', data), // 查询用户账号余额
   getTranslateDetail: (data) => AppRequest.get('/translate/getTranslateDetail', { params: data }), // 获取翻译明细数据
   getChargeUrlV2: (data) => AppRequest.get('/emptyBag/chargeUrlV2', { params: data }), // 充值
   getTranslateAmount: (data) => AppRequest.get('/translate/getTranslateAmount', { params: data }), // 获取今日翻译费用
-  // 账单核算(个人中心)
+  // 账单核算---个人中心
   getOrderStatisticsList: (data) => AppRequest.get('/orderStatistics/index', { params: data }), // 账单核算：列表
-  // 数据统计(数据统计)
+  getChildUserList: (data) => AppRequest.post('/user/childUserList', data), // 个人中心-团队管理-查询子账号列表
+  userRoleList: (data) => AppRequest.get('/user/userRoleList', data), // 个人中心-团队管理-获取子账号角色类型
+  saveChildUsers: (data) => AppRequest.post('/user/saveChildUsers', data), // 个人中心-团队管理-新增子账号列表
+  deleteChildUser: (data) => AppRequest.post('/user/deleteChildUser', data), // 个人中心-团队管理-删除子账号
+  editChildUsers: (data) => AppRequest.post('/user/editChildUserDatas', data), // 个人中心-团队管理-修改子账号信息
+  getIPTrustList: (data) => AppRequest.get('/getIPTrustList', data), // 个人中心-信任IP-获取列表
+  updateTrustedIP: (data) => AppRequest.post('/updateTrustedIP', data), // 个人中心-信任IP-更新用户的IP信任列表
+  deleteTrustedIP: (data) => AppRequest.post('/deleteTrustedIP', data), // 个人中心-信任IP-删除用户的IP信任
+  setIpCheck: (data) => AppRequest.post('/user/setIpCheck', data), // 个人中心-信任IP-设置信任IP是否开启
+  // 数据统计
   getDrderBasicStatV2: (data) => AppRequest.post('/mallDataStatistics/orderBasicStatV2', data), // 数据统计获取订单列表数据
   getDataStat: (data) => AppRequest.post('/mallDataStatistics/dataStat', data) // 数据统计图表数据
 
