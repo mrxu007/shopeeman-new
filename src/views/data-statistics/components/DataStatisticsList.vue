@@ -29,6 +29,7 @@
               size="mini"
               multiple
               collapse-tags
+              @change="accountNumberHandle"
             >
               <el-option
                 label="全部"
@@ -46,6 +47,7 @@
               size="mini"
               multiple
               collapse-tags
+              @change="siteHandle"
             >
               <el-option
                 label="全部"
@@ -366,6 +368,8 @@ export default {
           label: '菲菲测试'
         }
       ],
+      // 账号select是否全选
+      accountNumberAll: false,
       // 站点select
       siteData: [
         {
@@ -382,6 +386,8 @@ export default {
           label: 'TW-12'
         }
       ],
+      // 站点select是否全选
+      siteAll: false,
       // 历史select
       historyData: [
         {
@@ -666,9 +672,72 @@ export default {
     this.getChartData()
   },
   methods: {
+    // 站点select改变时
+    siteHandle(val) {
+      // 当为全选时
+      if (this.siteAll) {
+        this.siteAll = false
+        if (val.indexOf('all') > -1) { // 当为全选时
+          this.form.site = val.filter(item => {
+            return item !== 'all'
+          })
+        } else { // 不为全选时
+          this.form.site = []
+        }
+      } else {
+        if (val.indexOf('all') > -1) { // 当为全选时
+          this.form.site = ['all']
+          this.siteData.forEach(item => {
+            this.form.site.push(item.value)
+          })
+          this.siteAll = true
+        } else {
+          if (val.length === this.siteData.length) {
+            this.form.site = ['all']
+            this.siteData.forEach(item => {
+              this.form.site.push(item.value)
+            })
+            this.siteAll = true
+          } else {
+            this.form.site = val
+          }
+        }
+      }
+    },
+    // 账号select改变时
+    accountNumberHandle(val) {
+      // 当为全选时
+      if (this.accountNumberAll) {
+        this.accountNumberAll = false
+        if (val.indexOf('all') > -1) { // 当为全选时
+          this.form.accountNumber = val.filter(item => {
+            return item !== 'all'
+          })
+        } else { // 不为全选时
+          this.form.accountNumber = []
+        }
+      } else {
+        if (val.indexOf('all') > -1) { // 当为全选时
+          this.form.accountNumber = ['all']
+          this.accountNumberData.forEach(item => {
+            this.form.accountNumber.push(item.value)
+          })
+          this.accountNumberAll = true
+        } else {
+          if (val.length === this.accountNumberData.length) {
+            this.form.accountNumber = ['all']
+            this.accountNumberData.forEach(item => {
+              this.form.accountNumber.push(item.value)
+            })
+            this.accountNumberAll = true
+          } else {
+            this.form.accountNumber = val
+          }
+        }
+      }
+    },
     // 查询
     async searchHandle() {
-      console.log()
       if (this.form.overviewTime) {
         const startTiem = this.formatSearch(this.form.overviewTime[0])
         const endTiem = this.formatSearch(this.form.overviewTime[1])
@@ -708,16 +777,8 @@ export default {
       const result = await this.$api.getDataStat()
       await this.formatChartsOption(result.data)
     },
-    // 系统订单数量check
-    systemOrderNumberHandle() {
-      console.log(this.systemOrderChecked)
-      if (!this.systemOrderChecked) {
-        this.saleCountOption.series[0].data = []
-      }
-    },
     // 将图表数据拼接到echarts参数种
     formatChartsOption(data) {
-      console.log(data)
       const xAxisData = Object.keys(data).reverse()
       this.saleCountOption.xAxis.data = xAxisData
       this.afterSaleCountOption.xAxis.data = xAxisData
@@ -797,7 +858,7 @@ export default {
         }
         .top{
             .el-select{
-                width: 150px;
+                width: 200px;
                 margin-right: 10px;
             }
         }
