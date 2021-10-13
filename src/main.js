@@ -22,6 +22,8 @@ import { UTable, UTableColumn } from 'umy-ui'
 import errorHanleCature from 'error-capture-handle'
 import dayjs from 'dayjs'
 
+import * as echarts from 'echarts'
+Vue.prototype.$echarts = echarts
 // const config = {
 //   openDebugger: process.env.NODE_ENV === 'development',
 //   userName: 'xxx项目', // 当前操作的项目名
