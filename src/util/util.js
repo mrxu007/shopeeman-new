@@ -1,4 +1,3 @@
-
 import md5 from 'js-md5'
 
 /**
@@ -8,20 +7,29 @@ import md5 from 'js-md5'
  * @returns
  */
 export function subStringLength(str, len) {
-  var regexp = /[^\x00-\xff]/g// 正在表达式匹配中文
+  var regexp = /[^\x00-\xff]/g // 正在表达式匹配中文
   // 当字符串字节长度小于指定的字节长度时
   if (str.replace(regexp, 'aa').length <= len) {
-    return { 'firstStr': str, 'secondStr': '' }
+    return {
+      'firstStr': str,
+      'secondStr': ''
+    }
   }
   // 假设指定长度内都是中文
   var m = Math.floor(len / 2)
   for (var i = m, j = str.length; i < j; i++) {
     // 当截取字符串字节长度满足指定的字节长度
     if (str.substring(0, i).replace(regexp, 'aa').length >= len) {
-      return { 'firstStr': str.substring(0, i), 'secondStr': str.substring(i) }
+      return {
+        'firstStr': str.substring(0, i),
+        'secondStr': str.substring(i)
+      }
     }
   }
-  return { 'firstStr': str, 'secondStr': '' }
+  return {
+    'firstStr': str,
+    'secondStr': ''
+  }
 }
 // 算法生成sku组合
 export function cartesianProductOf() {
@@ -33,7 +41,9 @@ export function cartesianProductOf() {
       })
     })
     return ret
-  }, [[]])
+  }, [
+    []
+  ])
 }
 // 延迟
 export async function delay(time) {
@@ -68,9 +78,9 @@ export function dateFormat(Time, fmt) {
     if (new RegExp('(' + k + ')').test(fmt)) {
       fmt = fmt.replace(
         RegExp.$1,
-        RegExp.$1.length == 1
-          ? o[k]
-          : ('00' + o[k]).substr(('' + o[k]).length)
+        RegExp.$1.length == 1 ?
+        o[k] :
+        ('00' + o[k]).substr(('' + o[k]).length)
       )
     }
   }
@@ -137,4 +147,36 @@ export function splitCookie(mallInfo, str) {
   // // console.log('cookies', cookies)
   return cookies
 }
+//sleep函数
+export function sleep(time) {
+  return new Promise((resolve) => setTimeout(resolve, time));
+}
+//导出excel
+export function exportExcelDataCommend(fileName, str) {
+  //Worksheet名
+  let worksheet = `${fileName}${new Date(Date.now() + 8 * 3600 * 1000).toISOString().slice(0, 10)}`
+  let uri = 'data:application/vnd.ms-excel;base64,'
 
+  //下载的表格模板数据
+  let template = `<html xmlns:o="urn:schemas-microsoft-com:office:office"
+                xmlns:x="urn:schemas-microsoft-com:office:excel"
+                xmlns="http://www.w3.org/TR/REC-html40">
+                <head><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet>
+                <x:Name>${worksheet}</x:Name>
+                <x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet>
+                </x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]-->
+                </head><body><table>${str}</table></body></html>`
+  //下载模板
+  // let template = templates.replace(/<td/g,`<td style="mso-number-format:'\@';"`)
+  let blob = new Blob([template], {
+    type: 'html',
+    name: worksheet
+  })
+  let a = document.createElement('a')
+  document.body.appendChild(a)
+  // a.href = uri + this.base64(template)
+  a.href = URL.createObjectURL(blob)
+  a.download = `${fileName}${new Date(Date.now() + 8 * 3600 * 1000).toISOString().slice(0, 10)}.xls`
+  a.click()
+  document.body.removeChild(a)
+}

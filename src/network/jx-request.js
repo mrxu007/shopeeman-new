@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-10-08 14:16:18
- * @LastEditTime: 2021-10-12 17:12:29
+ * @LastEditTime: 2021-10-13 17:52:43
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shopeeman-new\src\network\jx-request.js
@@ -38,8 +38,8 @@ const otherRequest = axios.create({ // 第三方请求
 })
 export default {
   AppRequest, // 对接第三方请求
-  ycjRequest, // 对接本地请求
-  otherRequest, // 对接云采集请求
+  ycjRequest, // 对接云采集请求
+  otherRequest, // 对接第三方请求
 
   // 请按照一下格式填写
   // 2021-09-24
@@ -58,6 +58,8 @@ export default {
   
   //个人中心 -> 账单核算
   getOrderStatisticsList: (data) => AppRequest.get('/orderStatistics/index', {params: data}), //账单核算：列表
+
+ 
   
   
 }

@@ -1,8 +1,8 @@
 /*
  * @Author: your name
  * @Date: 2021-10-08 14:16:18
- * @LastEditTime: 2021-10-12 12:06:13
- * @LastEditors: your name
+ * @LastEditTime: 2021-10-13 17:48:18
+ * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shopeeman-new\src\main.js
  */
@@ -21,15 +21,9 @@ import VueDND from 'awe-dnd'
 import { UTable, UTableColumn } from 'umy-ui'
 import errorHanleCature from 'error-capture-handle'
 import dayjs from 'dayjs'
+import applicationConfig from './services/application-config'
+import XzyNetMessageService from './services/XzyNetMessageService'
 
-// const config = {
-//   openDebugger: process.env.NODE_ENV === 'development',
-//   userName: 'xxx项目', // 当前操作的项目名
-//   system_code: '', // 申请机器人 system_code
-//   secret_key: '', // 申请机器人 secret_key
-//   robot_name: '' // 申请机器人 robot_name
-// }
-// errorHanleCature(config).ListenerError().ListenerVueError(Vue) // 监听全局 error 、监听vue中的错误
 
 Vue.use(UTable)
 Vue.use(UTableColumn)
@@ -39,6 +33,8 @@ Vue.use(SvgIcon, {
 })
 Vue.use(VueDND)
 
+Vue.prototype.$XzyNetMessageService = new XzyNetMessageService()
+Vue.prototype.$appConfig = new applicationConfig();
 Vue.prototype.$IpcMain = IpcMain
 Vue.prototype.$NetService = NetService
 Vue.prototype.$api = api
@@ -46,6 +42,9 @@ Vue.prototype.$AppRequest = api.AppRequest
 Vue.prototype.$otherRequest = api.otherRequest
 Vue.prototype.$gatewayService = gatewayService.gatewayService
 Vue.prototype.$dayjs = dayjs
+
+
+
 // 所有的input框自动获取焦点
 Vue.directive('fo', {
   inserted(el, binding, vnode) {
