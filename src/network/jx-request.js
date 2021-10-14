@@ -58,15 +58,19 @@ export default {
   getTranslateAmount: (data) => AppRequest.get('/translate/getTranslateAmount', { params: data }), // 获取今日翻译费用
   // 账单核算---个人中心
   getOrderStatisticsList: (data) => AppRequest.get('/orderStatistics/index', { params: data }), // 账单核算：列表
-  getChildUserList: (data) => AppRequest.post('/user/childUserList', data), // 个人中心-团队管理-查询子账号列表
-  userRoleList: (data) => AppRequest.get('/user/userRoleList', data), // 个人中心-团队管理-获取子账号角色类型
-  saveChildUsers: (data) => AppRequest.post('/user/saveChildUsers', data), // 个人中心-团队管理-新增子账号列表
-  deleteChildUser: (data) => AppRequest.post('/user/deleteChildUser', data), // 个人中心-团队管理-删除子账号
-  editChildUsers: (data) => AppRequest.post('/user/editChildUserDatas', data), // 个人中心-团队管理-修改子账号信息
-  getIPTrustList: (data) => AppRequest.get('/getIPTrustList', data), // 个人中心-信任IP-获取列表
-  updateTrustedIP: (data) => AppRequest.post('/updateTrustedIP', data), // 个人中心-信任IP-更新用户的IP信任列表
-  deleteTrustedIP: (data) => AppRequest.post('/deleteTrustedIP', data), // 个人中心-信任IP-删除用户的IP信任
-  setIpCheck: (data) => AppRequest.post('/user/setIpCheck', data), // 个人中心-信任IP-设置信任IP是否开启
+  getChildUserList: (data) => AppRequest.post('/user/childUserList', data), // 团队管理-查询子账号列表
+  userRoleList: (data) => AppRequest.get('/user/userRoleList', data), // 团队管理-获取子账号角色类型
+  saveChildUsers: (data) => AppRequest.post('/user/saveChildUsers', data), // 团队管理-新增子账号列表
+  deleteChildUser: (data) => AppRequest.post('/user/deleteChildUser', data), // 团队管理-删除子账号
+  editChildUsers: (data) => AppRequest.post('/user/editChildUserDatas', data), // 团队管理-修改子账号信息
+  getBindMallCount: (data) => AppRequest.get('/mallGroup/bindMallCount', { params: data }), // 团队管理-获取店铺分组
+  getIPTrustList: (data) => AppRequest.get('/getIPTrustList', { params: data }), // 信任IP-获取列表
+  updateTrustedIP: (data) => AppRequest.post('/updateTrustedIP', data), // 信任IP-更新用户的IP信任列表
+  deleteTrustedIP: (data) => AppRequest.post('/deleteTrustedIP', data), // 信任IP-删除用户的IP信任
+  setIpCheck: (data) => AppRequest.post('/user/setIpCheck', data), // 信任IP-设置信任IP是否开启
+  getPhoneLists: (data) => AppRequest.get('/user/getPhoneLists', data), // 信任IP-获取手机号码列表
+  updatePhoneListForIp: (data) => AppRequest.post('/user/updatePhoneListForIp', data), // 信任IP-配置接收手机验证码的手机号
+  testlogin: (data) => AppRequest.post('/user/login', data), // 测试登录状态
   // 数据统计
   getDrderBasicStatV2: (data) => AppRequest.post('/mallDataStatistics/orderBasicStatV2', data), // 数据统计获取订单列表数据
   getDataStat: (data) => AppRequest.post('/mallDataStatistics/dataStat', data) // 数据统计图表数据

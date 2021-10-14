@@ -3,7 +3,7 @@
     <div class="operation">
       <div class="o-item">
         <span class="o-item-span">信任IP：</span>
-        <el-input v-model="ipVal" placeholder="请输入内容" clearable size="mini" />
+        <el-input v-model="ipVal" style="width:130px" placeholder="请输入内容" clearable size="mini" />
       </div>
       <div class="o-item">
         <el-button type="primary" size="mini" @click="getIPTrustList">搜索</el-button>
@@ -12,8 +12,8 @@
       </div>
       <div class="o-item-alone">
         <span class="o-item-span">登录是否检测：</span>
-        <el-radio v-model="isOpenIpCheck" label="1">关闭检测</el-radio>
-        <el-radio v-model="isOpenIpCheck" label="2">当信任IP数大于 <el-input v-model="trustIpCount" size="mini" />时打开检测 </el-radio>
+        <el-radio v-model="isOpenIpCheck" label="0">关闭检测</el-radio>
+        <el-radio v-model="isOpenIpCheck" label="1">当信任IP数大于 <el-input v-model="trustIpCount" size="mini" />时打开检测 </el-radio>
       </div>
       <div class="o-item">
         <el-button type="primary" size="mini" @click="saveConfigure">保存配置</el-button>
@@ -21,10 +21,20 @@
     </div>
     <span class="tips">温馨提示：用于软件安全防护，可对登录的IP进行检测，若登录的IP不在信任IP列表中，将进行手机短信验证，接收短信验证码的手机号最多3个(默认开户手机号)</span>
     <div class="table-content">
-      <el-table v-loading="isloading" :data="tableData" stripe style="min-width: 1000px" height="calc(100vh - 95px)">
+      <el-table
+        v-loading="isloading"
+        :data="tableData"
+        stripe
+        style="min-width: 1000px"
+        height="calc(100vh - 115px)"
+        :header-cell-style="{
+          textAlign: 'center',
+          backgroundColor: '#f5f7fa',
+        }"
+      >
         <el-table-column type="index" align="center" label="序号" min-width="50">
           <template slot-scope="scope">
-            {{ (scope.$index)+1 }}
+            {{ scope.$index + 1 }}
           </template>
         </el-table-column>
         <el-table-column prop="ip" align="center" show-overflow-tooltip label="IP" min-width="180" />
@@ -35,8 +45,10 @@
             <el-button
               type="primary"
               size="mini"
-              @click="isShowDialog = true
-                      updataTrustIp(row)"
+              @click="
+                isShowDialog = true
+                updataTrustIp(row)
+              "
             >修改</el-button>
             <el-button type="primary" size="mini" @click="deleteTrustIp(row)">删除</el-button>
           </template>
@@ -60,15 +72,10 @@
         <div class="form-content">
           <el-form label-position="right" label-width="80px">
             <el-form-item label="当前IP:">
-              <el-input v-model="currentIp" size="mini" />
+              <el-input v-model="currentIp" size="mini" placeholder="请输入IP" />
             </el-form-item>
             <el-form-item label="备注:">
-              <el-input
-                v-model="remark"
-                type="textarea"
-                :rows="2"
-                placeholder="请输入内容"
-              />
+              <el-input v-model="remark" type="textarea" :rows="2" placeholder="请输入内容" />
             </el-form-item>
           </el-form>
           <div style="text-align: center">
@@ -78,27 +85,40 @@
       </el-dialog>
     </div>
     <div class="phone-dialog">
-      <el-dialog :close-on-click-modal="false" title="配置手机号码" :visible.sync="isShowPhoneNum">
-        <div style="display:flex;">
+      <el-dialog :close-on-click-modal="false" title="配置手机号码" :visible.sync="isShowPhoneNum" @close="closePhoneDialog">
+        <div style="display: flex;margin-bottom:10px;">
           <div class="o-item">
             <span class="o-item-span">手机号码：</span>
             <el-input v-model="phoneNum" placeholder="请输入手机号" clearable size="mini" />
           </div>
           <div class="o-item">
-            <el-button type="primary" size="mini" @click="addPhoneNum">添加手机号</el-button>
+            <el-button type="primary" size="mini" @click="updatePhoneNum(1,phoneNum)">添加手机号</el-button>
           </div>
         </div>
         <div class="dialog-table">
-          <el-table :data="phoneTableData" stripe style="min-width: 240px" max-height="400">
+          <el-table
+            :data="phoneTableData"
+            stripe
+            style="min-width: 240px"
+            max-height="400"
+            :header-cell-style="{
+              textAlign: 'center',
+              backgroundColor: '#f5f7fa',
+            }"
+          >
             <el-table-column type="index" align="center" label="序号" min-width="50">
               <template slot-scope="scope">
-                {{ (scope.$index)+1 }}
+                {{ scope.$index + 1 }}
               </template>
             </el-table-column>
-            <el-table-column prop="phoneNum" align="center" label="手机号" min-width="100" />
+            <el-table-column prop="" align="center" label="手机号" min-width="100">
+              <template slot-scope="{ row }">
+                {{ row ? row : '' }}
+              </template>
+            </el-table-column>
             <el-table-column label="操作" align="center" min-width="80">
               <template slot-scope="{ row }">
-                <el-button type="primary" size="mini">删除</el-button>
+                <el-button type="primary" size="mini" @click="updatePhoneNum(2,row)">删除</el-button>
               </template>
             </el-table-column>
           </el-table>
@@ -115,31 +135,32 @@ export default {
       isShowDialog: false, // 是否打开账号创建/修改弹窗
       isShowPhoneNum: false, // 是否打开配置接收手机号弹窗
       isloading: false,
-      isOpenIpCheck: '1',
-      phoneNum: '',
-      ipVal: '', // 搜索信任IP输入框
-      currentIp: '', // 更新信任IP输入框
+      isOpenIpCheck: '', // 是否打开检测
+      phoneNum: '', // 配置手机号码手机号
+      ipVal: '', // 搜索信任IP
+      currentIp: '', // 更新信任IP
       remark: '', // 备注
-      ipId: '',
-      trustIpCount: '100', // 信任IP数
-      phoneTableData: [{ phoneNum: '15898986698' }, { phoneNum: '15898986698' }],
-      options: [
-        {
-          value: '选项1',
-          label: '停用'
-        },
-        {
-          value: '选项2',
-          label: '启用'
-        }
-      ],
-      tableData: []
+      ipId: '', // 不传则为新增,传值则为更新
+      trustIpCount: '', // 信任IP数
+      phoneTableData: [], // 配置手机号码数据
+      tableData: [] // 表格数据
     }
   },
-  async mounted() {
-    await this.getIPTrustList()
+  mounted() {
+    this.testlogin()
+    this.getPhoneLists()
+    this.getIPTrustList()
   },
   methods: {
+    // 获取手机号码列表信息
+    async getPhoneLists() {
+      const { data } = await this.$api.getPhoneLists()
+      if (data.code === 200) {
+        this.phoneTableData = data.data.phone_list
+      } else {
+        this.$message.error(`获取手机号失败${data.message}`)
+      }
+    },
     // 获取列表信息
     async getIPTrustList() {
       this.isloading = true
@@ -147,13 +168,29 @@ export default {
         ip: this.ipVal
       }
       const { data } = await this.$api.getIPTrustList(params)
-      console.log(data)
+      console.log('tableData', data)
       if (data.code === 200) {
         this.tableData = data.data
         this.isloading = false
       } else {
-        this.$message.error(`获取数据失败${data.code}`)
+        this.$message.error(`获取数据失败${data.message}`)
         this.isloading = false
+      }
+    },
+    // 需要登录
+    async testlogin() {
+      const params = {
+        username: 'yyn_test',
+        password: 'yyn123456',
+        appCode: 'shopeeman'
+      }
+      const { data } = await this.$api.testlogin(params)
+      console.log('login', data)
+      if (data.code === 200) {
+        this.isOpenIpCheck = data.data.is_open_ip_check + ''
+        this.trustIpCount = data.data.trust_ip_count
+      } else {
+        this.$message.error(`获取登录数据失败${data.message}`)
       }
     },
     // 保存配置
@@ -178,16 +215,22 @@ export default {
       }
     },
     // 删除信任IP
-    async deleteTrustIp(val) {
-      const { data } = await this.$api.deleteTrustedIP({
-        id: val.id
+    deleteTrustIp(val) {
+      this.$confirm('此操作将永久删除该IP, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(async() => {
+        const { data } = await this.$api.deleteTrustedIP({
+          id: val.id
+        })
+        if (data.code === 200) {
+          this.$message.success(`删除成功`)
+        } else {
+          this.$message.error(`删除失败${data.message}`)
+        }
+        this.getIPTrustList()
       })
-      if (data.code === 200) {
-        this.$message.success(`删除成功`)
-      } else {
-        this.$message.error(`删除失败${data.message}`)
-      }
-      this.getIPTrustList()
     },
     // 更新信任IP
     async editTruestIp() {
@@ -215,26 +258,58 @@ export default {
       this.currentIp = val.ip
       this.remark = val.remark
     },
-    // 添加手机号
-    addPhoneNum() {
+    updatePhoneNum(actionVal, phoneNumVal) {
       const reg = /^1([38]\d|5[0-35-9]|7[3678])\d{8}$/
-      if (this.phoneNum === '') {
-        this.$message('请输入手机号')
-        return
+      switch (actionVal) {
+        case 1:
+          if (actionVal === 1) {
+            if (this.phoneNum === '') {
+              this.$message('请输入手机号')
+              return
+            }
+            if (!reg.test(this.phoneNum)) {
+              this.$message('手机号码格式有误')
+              return
+            }
+            if (this.phoneTableData.length >= 3) {
+              this.$message('最多只能添加3个手机号码')
+              return
+            }
+          }
+          this.updatePhoneListForIp(actionVal, phoneNumVal)
+          break
+        case 2:
+          this.$confirm('此操作将永久删除该手机号, 是否继续?', '提示', {
+            confirmButtonText: '确定',
+            cancelButtonText: '取消',
+            type: 'warning'
+          }).then(() => {
+            this.updatePhoneListForIp(actionVal, phoneNumVal)
+          })
+          break
       }
-      if (!reg.test(this.phoneNum)) {
-        this.$message('手机号码格式有误')
-        return
+    },
+    // 更新手机号
+    async updatePhoneListForIp(actionVal, phoneNumVal) {
+      const params = {
+        phone: phoneNumVal,
+        action: actionVal //	1：新增;2：删除
       }
-      if (this.phoneTableData.length >= 3) {
-        this.$message('最多只能添加3个手机号码')
-        return
+      const { data } = await this.$api.updatePhoneListForIp(params)
+      if (data.code === 200) {
+        this.$message.success(`更新成功`)
+      } else {
+        this.$message.error(`更新失败${data.message}`)
       }
+      this.getPhoneLists()
     },
     closeDialog() {
       this.ipId = ''
       this.currentIp = ''
       this.remark = ''
+    },
+    closePhoneDialog() {
+      this.phoneNum = ''
     }
   }
 }
@@ -247,7 +322,7 @@ export default {
   padding: 16px;
   min-width: 1100px;
   //   width:calc(100vw) ;
-  .tips{
+  .tips {
     font-size: 12px;
     color: red;
   }
@@ -260,9 +335,9 @@ export default {
     .o-item {
       display: flex;
       align-items: center;
-      margin-right: 10px;
+      margin-right: 20px;
       .o-item-span {
-        min-width: 60px;
+        // min-width: 60px;
       }
     }
     .o-item-alone {
@@ -270,9 +345,9 @@ export default {
       align-items: center;
       margin-right: 10px;
       .o-item-span {
-        min-width: 100px;
+        // min-width: 100px;
       }
-      /deep/.el-radio{
+      /deep/.el-radio {
         margin-right: 10px;
       }
       /deep/.el-input {
@@ -292,8 +367,8 @@ export default {
     margin-top: 10px;
   }
   .dialog-content {
-    /deep/.el-textarea__inner{
-      font-family: "微软雅黑";
+    /deep/.el-textarea__inner {
+      font-family: '微软雅黑';
     }
     /deep/.el-form {
       /deep/.el-form-item {
@@ -337,11 +412,11 @@ export default {
       }
     }
     /deep/.el-input {
-        width: 200px !important;
-      }
-      /deep/.el-input__inner {
-        width: 200px !important;
-      }
+      width: 200px !important;
+    }
+    /deep/.el-input__inner {
+      width: 200px !important;
+    }
     .o-item {
       display: flex;
       align-items: center;
