@@ -766,7 +766,7 @@ export default {
       const endTiem = this.formatSearch(currentDate.setDate(currentDate.getDate() + 59))
       const dateTime = `${startTime}/${endTiem}`
       const result = await this.$api.getDrderBasicStatV2({ dateTime: dateTime })
-      if (result.data.code === '200') {
+      if (result.data.code == 200) {
         this.orderListData = result.data.data
       } else {
         this.$message.error(result.data.message)
@@ -775,11 +775,11 @@ export default {
     // 获取图表数据
     async getChartData() {
       const result = await this.$api.getDataStat()
-      await this.formatChartsOption(result.data)
+      await this.formatChartsOption(result.data.data)
     },
     // 将图表数据拼接到echarts参数种
     formatChartsOption(data) {
-      const xAxisData = Object.keys(data).reverse()
+      const xAxisData = Object.keys(data)
       this.saleCountOption.xAxis.data = xAxisData
       this.afterSaleCountOption.xAxis.data = xAxisData
       this.purchaseOption.xAxis.data = xAxisData

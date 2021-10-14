@@ -8,7 +8,7 @@
         <div class="exceptionType">
           异常类型：
           <el-select
-            v-model="form.exceptionTypeOne"
+            v-model="form.type"
             size="mini"
             multiple
             collapse-tags
@@ -27,9 +27,9 @@
           </el-select>
         </div>
         <div class="exceptionType">
-          异常类型：
+          处理方式：
           <el-select
-            v-model="form.exceptionTypeTwo"
+            v-model="form.wechatStatus"
             size="mini"
             multiple
             collapse-tags
@@ -50,7 +50,7 @@
         <div class="exceptionType">
           仓库处理状态：
           <el-select
-            v-model="form.dealStatus"
+            v-model="form.status"
             size="mini"
             multiple
             collapse-tags
@@ -61,7 +61,7 @@
               value="all"
             />
             <el-option
-              v-for="item in dealStatus"
+              v-for="item in status"
               :key="item.id"
               :label="item.label"
               :value="item.value"
@@ -70,7 +70,7 @@
         </div>
         <div class="creationTime">
           创建时间：<el-date-picker
-            v-model="form.creationTime"
+            v-model="form.dateStat"
             type="daterange"
             range-separator="-"
             start-placeholder="开始日期"
@@ -83,15 +83,15 @@
       <div class="rowTwo">
         <div class="orderNumber">
           物流单号：
-          <el-input v-model="form.flowNumber" size="mini" />
+          <el-input v-model="form.packageCode" size="mini" />
         </div>
         <div class="orderNumber">
           订单号：
-          <el-input v-model="form.orderNumber" size="mini" />
+          <el-input v-model="form.orderSn" size="mini" />
         </div>
         <div class="searchRowThreeBottonGroup">
-          <el-button type="primary" size="mini">搜索</el-button>
-          <el-button type="primary" size="mini">更改订单状态</el-button>
+          <el-button type="primary" size="mini" @click="searchHandle">搜索</el-button>
+          <el-button type="primary" size="mini" @click="orderBatchDealHandle">订单批量处理</el-button>
         </div>
       </div>
     </div>
@@ -101,6 +101,7 @@
       border
       style="width: 100%"
       height="calc(100vh - 134px)"
+      @selection-change="selectionChangeHandle"
     >
       <el-table-column
         type="selection"
@@ -108,47 +109,89 @@
       />
       <el-table-column
         label="仓库名称"
-        prop=""
+        prop="warehouse_name"
       />
       <el-table-column
-        prop=""
+        prop="package_order_sn"
         label="订单号"
       />
       <el-table-column
-        prop=""
+        prop="package_code"
         label="物流单号"
       />
       <el-table-column
-        prop=""
+        prop="wechat_status"
         label="处理方式"
+        :formatter="formatterWechatStatus"
       />
       <el-table-column
-        prop=""
+        prop="content"
         label="异常信息"
       />
       <el-table-column
-        prop=""
+        prop="type"
         label="异常类型"
+        :formatter="formatterContent"
       />
       <el-table-column
-        prop=""
         label="异常图片"
-      />
+      >
+        <template slot-scope="scope">
+          <el-image
+            style="width: 40px; height: 40px"
+            :src="scope.row.image"
+            :preview-src-list="[scope.row.image]"
+          />
+        </template>
+      </el-table-column>
       <el-table-column
-        prop=""
+        prop="created_at"
         label="创建时间"
       />
       <el-table-column
-        prop=""
+        prop="updated_at"
         label="更改时间"
       />
       <el-table-column
-        prop=""
+        prop="status"
         label="仓库处理状态"
+        :formatter="formatterStatus"
       />
       <el-table-column
         label="操作"
-      /></el-table>
+      >
+        <template slot-scope="scope">
+          <el-button size="mini" type="primary" @click="orderDealHandle(scope.row)">订单处理</el-button>
+        </template>
+      </el-table-column>
+    </el-table>
+
+    <!--订单处理dialog-->
+    <el-dialog title="选择处理方式" :visible.sync="orderDealDialogFormVisible" width="500px">
+      <el-form :model="orderDealDialogForm">
+        <el-form-item label="处理方式:" label-width="80px">
+          <el-select v-model="orderDealDialogForm.wechatStatus" placeholder="请选择处理方式">
+            <el-option v-for="item in wechatStatusDialogOption" :key="item.id" :label="item.label" :value="item.value" />
+          </el-select>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="orderDealDialogHandle">确 定</el-button>
+      </div>
+    </el-dialog>
+    <!--批量订单处理dialog-->
+    <el-dialog title="选择处理方式" :visible.sync="orderBatchDealDialogFormVisible" width="500px">
+      <el-form :model="orderBatchDealDialogForm">
+        <el-form-item label="处理方式:" label-width="80px">
+          <el-select v-model="orderBatchDealDialogForm.wechatStatus" placeholder="请选择处理方式">
+            <el-option v-for="item in wechatStatusDialogOption" :key="item.id" :label="item.label" :value="item.value" />
+          </el-select>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="orderBatchDealDialogHandle">确 定</el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
@@ -156,119 +199,164 @@
 export default {
   data() {
     return {
+      // dialog下拉选择状态
+      wechatStatusDialogOption: [
+        {
+          id: 0,
+          value: 0,
+          label: '暂未处理'
+        }, {
+          id: 1,
+          value: 1,
+          label: '退件'
+        }, {
+          id: 2,
+          value: 2,
+          label: '暂存仓库'
+        }, {
+          id: 3,
+          value: 3,
+          label: '坚持发货'
+        }, {
+          id: 4,
+          value: 4,
+          label: '等候补发'
+        }, {
+          id: 5,
+          value: 5,
+          label: '订单匹配完成'
+        }, {
+          id: 6,
+          value: 6,
+          label: '处理完成'
+        }, {
+          id: 50,
+          value: 50,
+          label: '通知提示'
+        }
+      ],
       //   搜索条件
       form: {
-        exceptionTypeOne: [], // 异常类型一
-        exceptionTypeTwo: [], // 异常类型二
-        dealStatus: [], // 仓库处理状态
-        creationTime: '', // 创建时间
-        flowNumber: '', // 物流单号
-        orderNumber: ''// 订单号
+        type: [], // 异常类型
+        wechatStatus: [], // 处理方式：
+        status: [], // 仓库处理状态
+        dateStat: '', // 创建时间
+        packageCode: '', // 物流单号
+        orderSn: ''// 订单号
       },
-
+      // 控制订单处理dialog
+      orderDealDialogFormVisible: false,
+      // 订单处理dialog表单数据
+      orderDealDialogForm: {
+        id: '',
+        wechatStatus: ''
+      },
+      // 控制批量订单处理
+      orderBatchDealDialogFormVisible: false,
+      // 批量订单处理dialog表单数据
+      orderBatchDealDialogForm: {
+        id: '',
+        wechatStatus: ''
+      },
       // 第一个异常类型options
       exceptionTypeOptionsOne: [{
-        id: 2,
+        id: 1,
         value: 1,
         label: '到货实物颜色与订单要求产品不符'
       }, {
-        id: 3,
+        id: 2,
         value: 2,
         label: '到货包裹是空包'
       }, {
-        id: 4,
+        id: 3,
         value: 3,
         label: '到货包裹码数错误'
       }, {
-        id: 5,
+        id: 4,
         value: 4,
         label: '到货包裹里多订单无法区分识别'
       }, {
-        id: 6,
+        id: 5,
         value: 5,
         label: '到货包裹缺件少件，无法满足对应销售订单'
       }, {
-        id: 7,
+        id: 6,
         value: 6,
         label: '到货包裹脏污、破损'
       }, {
-        id: 8,
+        id: 7,
         value: 7,
         label: '到货包裹渠道无法支持'
       }, {
-        id: 9,
+        id: 8,
         value: 8,
         label: '到货包裹超材超重，无法寄出'
       }, {
-        id: 10,
+        id: 9,
         value: 9,
         label: '到货包裹运费偏高，请确认是否选择发货'
       }, {
-        id: 11,
+        id: 10,
         value: 10,
         label: '到货包裹无法打印面单，请及时同步'
       }, {
-        id: 12,
+        id: 11,
         value: 11,
         label: '系统已欠费，无法寄出，请及时安排充值'
       }, {
-        id: 13,
+        id: 12,
         value: 12,
         label: '无法支持尾程物流渠道，请安排处理'
       }, {
-        id: 14,
+        id: 13,
         value: 13,
         label: '包裹未匹配订单，请及时处理'
       }, {
-        id: 15,
-        value: 14,
-        label: '订单取消，包裹拒收'
-      }, {
-        id: 16,
-        value: 15,
-        label: '备件缺货无法发货'
+        id: 50,
+        value: 50,
+        label: '备货缺件，无法发货'
       }
       ],
       // 记录是否全选
       exceptionTypeOptionsOneAll: false,
-      // 第一个异常类型options
+      // 处理方式options
       exceptionTypeOptionsTwo: [{
+        id: 0,
+        value: 0,
+        label: '暂未处理'
+      }, {
         id: 1,
         value: 1,
-        label: '暂未处理'
+        label: '退件'
       }, {
         id: 2,
         value: 2,
-        label: '退件'
+        label: '暂存仓库'
       }, {
         id: 3,
         value: 3,
-        label: '暂存仓库'
+        label: '坚持发货'
       }, {
         id: 4,
         value: 4,
-        label: '坚持发货'
+        label: '等候补发'
       }, {
         id: 5,
         value: 5,
-        label: '等候补发'
+        label: '订单匹配完成'
       }, {
         id: 6,
         value: 6,
-        label: '订单匹配完成'
-      }, {
-        id: 7,
-        value: 7,
         label: '处理完成'
       }, {
-        id: 8,
-        value: 8,
+        id: 50,
+        value: 50,
         label: '通知提示'
       }],
       // 记录是否全选
       exceptionTypeOptionsTwoAll: false,
       // 仓库处理状态
-      dealStatus: [
+      status: [
         {
           id: 1,
           value: 1,
@@ -286,71 +374,246 @@ export default {
       // 记录是否全选
       dealStatusAll: false,
       // 表格数据
-      tableData: []
+      tableData: [],
+      // 表格选中的数据
+      tableCheck: []
     }
   },
+  mounted() {
+    this.getExceptionWarehouse()
+  },
   methods: {
-    // 第一种异常类型
+    // 当表格check改变时
+    selectionChangeHandle(value) {
+      this.tableCheck = value
+    },
+    // 订单批量处理
+    orderBatchDealHandle() {
+      this.orderBatchDealDialogFormVisible = true
+    },
+    // 批量订单处理dialog确定
+    async orderBatchDealDialogHandle() {
+      if (this.tableCheck.length > 0) {
+        for (let index = 0; index < this.tableCheck.length; index++) {
+          const element = this.tableCheck[index]
+          this.orderBatchDealDialogForm.id = element.id
+          const result = await this.$api.uploadDealExceptionStatus(this.orderBatchDealDialogForm)
+          if (result.data.code === 200) {
+            this.orderDealDialogFormVisible = false
+            // this.$message({
+            //   message: '订单处理成功',
+            //   type: 'success'
+            // })
+            this.getExceptionWarehouse()
+          } else {
+            this.$message.error(`订单号为：${element.package_order_sn}，${result.data.message}`)
+            return
+          }
+        }
+      } else {
+        this.$message('请选择需要批量处理的订单')
+      }
+    },
+    // 订单处理dialog确定
+    async orderDealDialogHandle() {
+      const result = await this.$api.uploadDealExceptionStatus(this.orderDealDialogForm)
+      if (result.data.code === 200) {
+        this.orderDealDialogFormVisible = false
+        this.$message({
+          message: '订单处理成功',
+          type: 'success'
+        })
+        this.getExceptionWarehouse()
+      } else {
+        this.$message.error(result.data.message)
+      }
+    },
+    // 搜索
+    async searchHandle() {
+      if (this.form.dateStat) {
+        const startTiem = this.formatSearch(this.form.dateStat[0])
+        const endTiem = this.formatSearch(this.form.dateStat[1])
+        this.form.dateStat = `${startTiem}/${endTiem}`
+      }
+      if (this.form.type || this.form.type.length > 0) {
+        this.form.type = (this.form.type.filter(item => {
+          return item !== 'all'
+        })).join(',')
+      }
+      if (this.form.wechatStatus || this.form.wechatStatus.length > 0) {
+        this.form.wechatStatus = (this.form.wechatStatus.filter(item => {
+          return item !== 'all'
+        })).join(',')
+      }
+      if (this.form.status || this.form.status.length > 0) {
+        this.form.status = (this.form.status.filter(item => {
+          return item !== 'all'
+        })).join(',')
+      }
+      const result = await this.$api.getExceptionWarehouse(this.form)
+      if (result.data.code === 200) {
+        this.tableData = result.data.data
+      } else {
+        this.$message.error(result.data.message)
+      }
+    },
+
+    // 格式化搜索时间
+    formatSearch(data) {
+      const time = new Date(data)
+      // 分别获取年月日时分秒
+      const year = time.getFullYear()
+      const month = ((time.getMonth() + 1) + '').padStart(2, 0)
+      const day = (time.getDate() + '').padStart(2, 0)
+      const hours = (time.getHours() + '').padStart(2, 0)
+      const minutes = (time.getMinutes() + '').padStart(2, 0)
+      const seconds = (time.getSeconds() + '').padStart(2, 0)
+      const result = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`
+      return result
+    },
+    // 订单处理
+    orderDealHandle(row) {
+      this.orderDealDialogForm.id = row.id
+      this.orderDealDialogFormVisible = true
+    },
+    // 格式化仓库异常类型
+    formatterContent(row, column) {
+      const shotStatus = row.type
+      switch (shotStatus) {
+        case 1:
+          return '到货实物颜色与订单要求产品不符'
+        case 2:
+          return '到货包裹是空包'
+        case 3:
+          return '到货包裹码数错误'
+        case 4:
+          return '到货包裹里多订单无法区分识别'
+        case 5:
+          return '到货包裹缺件少件，无法满足对应销售订单'
+        case 6:
+          return '到货包裹脏污、破损'
+        case 7:
+          return '到货包裹渠道无法支持'
+        case 8:
+          return '到货包裹超材超重，无法寄出'
+        case 9:
+          return '到货包裹运费偏高，请确认是否选择发货'
+        case 10:
+          return '到货包裹无法打印面单，请及时同步'
+        case 11:
+          return '系统已欠费无法出库，请及时安排充值'
+        case 12:
+          return '无法支持尾程物流渠道，请安排处理'
+        case 13:
+          return '包裹未匹配订单，请及时处理'
+        case 50:
+          return '备货缺件，无法发货'
+      }
+    },
+    // 格式化处理方式
+    formatterWechatStatus(row, column) {
+      const shotStatus = row.wechat_status
+      switch (shotStatus) {
+        case 0:
+          return '暂未处理'
+        case 1:
+          return '退件'
+        case 2:
+          return '暂存仓库'
+        case 3:
+          return '坚持发货'
+        case 4:
+          return '等候补发'
+        case 5:
+          return '订单匹配完成'
+        case 6:
+          return '处理完成'
+        case 50:
+          return '通知提示'
+      }
+    },
+    // 格式化仓库处理状态
+    formatterStatus(row, column) {
+      const shotStatus = row.status
+      switch (shotStatus) {
+        case 1:
+          return '未处理'
+        case 2:
+          return '处理中'
+        case 3:
+          return '已处理'
+      }
+    },
+    // 异常信息列表
+    async getExceptionWarehouse() {
+      const result = await this.$api.getExceptionWarehouse()
+      if (result.data.code === 200) {
+        this.tableData = result.data.data
+      } else {
+        this.$message.error(result.data.message)
+      }
+    },
+    // 异常类型
     exceptionTypeOneChangeHandle(val) {
       // 当为全选时
       if (this.exceptionTypeOptionsOneAll) {
         this.exceptionTypeOptionsOneAll = false
         if (val.indexOf('all') > -1) { // 当为全选时
-          this.form.exceptionTypeOne = val.filter(item => {
+          this.form.type = val.filter(item => {
             return item !== 'all'
           })
         } else { // 不为全选时
-          this.form.exceptionTypeOne = []
+          this.form.type = []
         }
       } else {
         if (val.indexOf('all') > -1) { // 当为全选时
-          this.form.exceptionTypeOne = ['all']
+          this.form.type = ['all']
           this.exceptionTypeOptionsOne.forEach(item => {
-            this.form.exceptionTypeOne.push(item.value)
+            this.form.type.push(item.value)
           })
           this.exceptionTypeOptionsOneAll = true
         } else {
           if (val.length === this.exceptionTypeOptionsOne.length) {
-            this.form.exceptionTypeOne = ['all']
-            this.exceptionTypeOne.forEach(item => {
-              this.form.exceptionTypeOne.push(item.value)
+            this.form.type = ['all']
+            this.type.forEach(item => {
+              this.form.type.push(item.value)
             })
             this.exceptionTypeOptionsOneAll = true
           } else {
-            this.form.exceptionTypeOne = val
+            this.form.type = val
           }
         }
       }
     },
 
-    // 第二种异常类型
+    // 仓库处理状态：
     exceptionTypeTwoChangeHandle(val) {
       // 当为全选时
       if (this.exceptionTypeOptionsTwoAll) {
         this.exceptionTypeOptionsTwoAll = false
         if (val.indexOf('all') > -1) { // 当为全选时
-          this.form.exceptionTypeTwo = val.filter(item => {
+          this.form.wechatStatus = val.filter(item => {
             return item !== 'all'
           })
         } else { // 不为全选时
-          this.form.exceptionTypeTwo = []
+          this.form.wechatStatus = []
         }
       } else {
         if (val.indexOf('all') > -1) { // 当为全选时
-          this.form.exceptionTypeTwo = ['all']
+          this.form.wechatStatus = ['all']
           this.exceptionTypeOptionsTwo.forEach(item => {
-            this.form.exceptionTypeTwo.push(item.value)
+            this.form.wechatStatus.push(item.value)
           })
           this.exceptionTypeOptionsTwoAll = true
         } else {
           if (val.length === this.exceptionTypeOptionsTwo.length) {
-            this.form.exceptionTypeTwo = ['all']
-            this.exceptionTypeTwo.forEach(item => {
-              this.form.exceptionTypeTwo.push(item.value)
+            this.form.wechatStatus = ['all']
+            this.wechatStatus.forEach(item => {
+              this.form.wechatStatus.push(item.value)
             })
             this.exceptionTypeOptionsTwoAll = true
           } else {
-            this.form.exceptionTypeTwo = val
+            this.form.wechatStatus = val
           }
         }
       }
@@ -362,28 +625,28 @@ export default {
       if (this.dealStatusAll) {
         this.dealStatusAll = false
         if (val.indexOf('all') > -1) { // 当为全选时
-          this.form.dealStatus = val.filter(item => {
+          this.form.status = val.filter(item => {
             return item !== 'all'
           })
         } else { // 不为全选时
-          this.form.dealStatus = []
+          this.form.status = []
         }
       } else {
         if (val.indexOf('all') > -1) { // 当为全选时
-          this.form.dealStatus = ['all']
-          this.dealStatus.forEach(item => {
-            this.form.dealStatus.push(item.value)
+          this.form.status = ['all']
+          this.status.forEach(item => {
+            this.form.status.push(item.value)
           })
           this.dealStatusAll = true
         } else {
-          if (val.length === this.dealStatus.length) {
-            this.form.dealStatus = ['all']
-            this.dealStatus.forEach(item => {
-              this.form.dealStatus.push(item.value)
+          if (val.length === this.status.length) {
+            this.form.status = ['all']
+            this.status.forEach(item => {
+              this.form.status.push(item.value)
             })
             this.dealStatusAll = true
           } else {
-            this.form.dealStatus = val
+            this.form.status = val
           }
         }
       }
@@ -439,7 +702,7 @@ export default {
         // 物流单号和订单号
         .orderNumber,.orderNumber{
           .el-input{
-              width: 80px;
+              width: 120px;
           }
         }
     }
