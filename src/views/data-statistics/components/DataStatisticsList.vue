@@ -425,9 +425,13 @@ export default {
           boundaryGap: false,
           data: []
         },
-        yAxis: {
-          type: 'value'
-        },
+        yAxis: [{
+          type: 'value',
+          name: '销售数量'
+        }, {
+          type: 'value',
+          name: '销售金额'
+        }],
         series: [
           {
             name: '系统订单数量',
@@ -451,7 +455,8 @@ export default {
             data: [3, 4, 5, 6, 7, 8, 9],
             itemStyle: {
               color: '#F32823'
-            }
+            },
+            yAxisIndex: 1
           }
         ]
       },
@@ -462,7 +467,7 @@ export default {
           trigger: 'axis'
         },
         grid: {
-          top: '80px',
+          top: '120px',
           left: '50px',
           right: '50px',
           bottom: '20px'
@@ -472,9 +477,13 @@ export default {
           boundaryGap: false,
           data: []
         },
-        yAxis: {
-          type: 'value'
-        },
+        yAxis: [{
+          type: 'value',
+          name: '订单数量'
+        }, {
+          type: 'value',
+          name: '订单金额'
+        }],
         legend: {
           top: 30,
           data: ['新增售后金额', '订单已取消新增采购单数', '订单已取消新增采购金额', '新增售后单数', '已采购售后退款成功金额', '已采购售后退款成功数', '订单已取消单数']
@@ -486,7 +495,8 @@ export default {
             data: [],
             itemStyle: {
               color: '#5ae214'
-            }
+            },
+            yAxisIndex: 1
           },
           {
             name: '订单已取消新增采购单数',
@@ -502,7 +512,8 @@ export default {
             data: [],
             itemStyle: {
               color: '#919494'
-            }
+            },
+            yAxisIndex: 1
           },
           {
             name: '新增售后单数',
@@ -517,7 +528,8 @@ export default {
             data: [],
             itemStyle: {
               color: '#a633bb'
-            }
+            },
+            yAxisIndex: 1
           }, {
             name: '已采购售后退款成功数',
             type: 'line',
@@ -552,10 +564,13 @@ export default {
           boundaryGap: false,
           data: []
         },
-        yAxis: {
-          type: 'value'
-        },
-
+        yAxis: [{
+          type: 'value',
+          name: '采购数量'
+        }, {
+          type: 'value',
+          name: '采购金额'
+        }],
         legend: {
           top: 20,
           data: ['采购数量', '采购金额']
@@ -575,7 +590,8 @@ export default {
             data: [],
             itemStyle: {
               color: '#2389f3'
-            }
+            },
+            yAxisIndex: 1
           }
         ]
       },
@@ -596,7 +612,8 @@ export default {
           data: []
         },
         yAxis: {
-          type: 'value'
+          type: 'value',
+          name: '数量'
         },
         legend: {
           top: 20,

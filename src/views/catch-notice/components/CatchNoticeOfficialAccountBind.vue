@@ -1,3 +1,4 @@
+<!--仓库公众号绑定-->
 <template>
   <div class="CatchNoticeOfficialAccountBind">
     <div class=" content">

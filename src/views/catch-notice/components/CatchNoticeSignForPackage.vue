@@ -385,6 +385,7 @@ export default {
           message: '标记成功',
           type: 'success'
         })
+        this.getExceptionNoOrderIndex()
       } else {
         this.$message.error(result.data.message)
       }
