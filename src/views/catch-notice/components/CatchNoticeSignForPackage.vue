@@ -90,7 +90,7 @@
     </el-dialog>
 
     <!--申请退件dialog-->
-    <el-dialog title="标记为我的订单" :visible.sync="applyDialogFormVisible" width="500px">
+    <el-dialog title="申请退件" :visible.sync="applyDialogFormVisible" width="500px">
       <span style="color:red">温馨提示：请填写子订单号</span>
       <el-form :model="applyDialogForm">
         <el-form-item label="收件人:" label-width="80px">
