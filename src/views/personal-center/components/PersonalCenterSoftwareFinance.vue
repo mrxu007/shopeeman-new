@@ -224,7 +224,7 @@
 </template>
 
 <script>
-import { exportExcelDataCommend } from '../../../util/util'
+import { exportExcelDataCommon } from '../../../util/util'
 export default {
   data() {
     return {
@@ -416,7 +416,7 @@ export default {
                     <td>${item.created_at ? item.created_at : '' + '\t'}</td>
                 </tr>`
       }
-      exportExcelDataCommend('翻译明细数据',str)
+      exportExcelDataCommon('翻译明细数据',str)
     },
     //导出数据
     exportExcel(data) {
@@ -456,7 +456,7 @@ export default {
                     <td>${item.remark ? item.remark : '' + '\t'}</td>
                 </tr>`
       }
-      exportExcelDataCommend('账单数据',str)
+      exportExcelDataCommon('账单数据',str)
     },
     //充值
     async recharge() {

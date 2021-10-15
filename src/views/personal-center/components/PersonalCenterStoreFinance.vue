@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-10-08 14:16:18
- * @LastEditTime: 2021-10-14 16:41:58
+ * @LastEditTime: 2021-10-15 09:42:35
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shopeeman-new\src\views\personal-center\components\PersonalCenterStoreFinance.vue
@@ -173,7 +173,7 @@
 </template>
 
 <script >
-import { sleep, exportExcelDataCommend } from '../../../util/util'
+import { sleep, exportExcelDataCommon } from '../../../util/util'
 export default {
   data() {
     return {
@@ -295,7 +295,7 @@ export default {
                     <td>${item.gmt_create ?this.$dayjs(item.gmt_create).format('yyyy-mm-dd') : '' + '\t'}</td>
                 </tr>`
       }
-      exportExcelDataCommend('充值记录数据',str)
+      exportExcelDataCommon('充值记录数据',str)
     },
     //导出账单记录
     exportAccount(){
@@ -336,7 +336,7 @@ export default {
                     <td>${item.trans_time ? item.trans_time : '' + '\t'}</td>
                 </tr>`
       }
-      exportExcelDataCommend('用户账单记录数据',str)
+      exportExcelDataCommon('用户账单记录数据',str)
     },
     //app_uid
     async getAppUid() {
@@ -382,9 +382,10 @@ export default {
     },
     // 日期选择器时间处理
     setDateFmt(data) {
-      data[0] = data[0] + ' 00:00:00'
-      data[1] = data[1] + ' 23:59:59'
-      return data
+      let nData = []
+      nData[0] = data[0] + ' 00:00:00'
+      nData[1] = data[1] + ' 23:59:59'
+      return nData
     },
     //切换tab
     handleClick() {

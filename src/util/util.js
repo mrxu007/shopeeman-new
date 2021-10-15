@@ -152,7 +152,7 @@ export function sleep(time) {
   return new Promise((resolve) => setTimeout(resolve, time));
 }
 //导出excel
-export function exportExcelDataCommend(fileName, str) {
+export function exportExcelDataCommon(fileName, str) {
   //Worksheet名
   let worksheet = `${fileName}${new Date(Date.now() + 8 * 3600 * 1000).toISOString().slice(0, 10)}`
   let uri = 'data:application/vnd.ms-excel;base64,'
@@ -177,6 +177,52 @@ export function exportExcelDataCommend(fileName, str) {
   // a.href = uri + this.base64(template)
   a.href = URL.createObjectURL(blob)
   a.download = `${fileName}${new Date(Date.now() + 8 * 3600 * 1000).toISOString().slice(0, 10)}.xls`
+  a.click()
+  document.body.removeChild(a)
+}
+//导出csv
+export function exportCsvDataCommon(fileName, str) {
+/**
+ * const header = [
+        '统计日期',
+        '充值金额（收入）',
+        '翻译金额（消费）',
+        '采购商品金额（消费）',
+        '仓库发货金额（消费）',
+        '退件金额（消费）',
+        '采购商品退回金额（收入）',
+        '主体IP消费金额（消费）',
+        '异常赔付金额（收入）',
+        '其它金额（消费）',
+        '用户当天消费总金额',
+        '用户当天收入总金额'
+        ]
+        const data = [header.join(',')].concat(this.statisticsDetailData.map(item => {
+        return [
+            `${item.stat_date ? item.stat_date : 0}`,
+            `"${item.recharge ? item.recharge : 0}"`,
+            `"${item.translation ? item.translation : 0}"`,
+            `"${item.purchase_goods ? item.purchase_goods : 0}"`,
+            `"${item.warehouse_ship ? item.warehouse_ship : 0}"`,
+            `"${item.return ? item.return : 0}"`,
+            `"${item.purchase_goods_return ? item.purchase_goods_return : 0}"`,
+            `"${item.mall_main ? item.mall_main : 0}"`,
+            `"${item.abnormal_payment ? item.abnormal_payment : 0}"`,
+            `"${item.other ? item.other : 0}"`,
+            `"${item.income_amount_total ? item.income_amount_total : 0}"`,
+            `"${item.consum_amount_total ? item.consum_amount_total : 0}"`
+        ].join(',')
+      }))
+      // str = str.replace(/<[^>]+>/gim,' ')
+      // data.join('\n')
+      exportCsvDataCommon('dsf',data)
+ */  
+  const blob = new Blob(['\ufeff' + str.join('\n')], {type: 'text/csv,charset=UTF-8'})
+  let a = document.createElement('a')
+  document.body.appendChild(a)
+  // a.href = uri + this.base64(template)
+  a.href = URL.createObjectURL(blob)
+  a.download = `${fileName}${new Date(Date.now() + 8 * 3600 * 1000).toISOString().slice(0, 10)}.csv`
   a.click()
   document.body.removeChild(a)
 }

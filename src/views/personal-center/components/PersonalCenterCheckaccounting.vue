@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-10-08 14:16:18
- * @LastEditTime: 2021-10-14 15:56:16
+ * @LastEditTime: 2021-10-14 18:21:30
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shopeeman-new\src\views\personal-center\components\PersonalCenterCheckaccounting.vue
@@ -146,7 +146,7 @@
 
 <script>
 import ChartLine from '../../components/echart-line.vue'
-import { exportExcelDataCommend } from '../../../util/util'
+import { exportExcelDataCommon, exportCsvDataCommon } from '../../../util/util'
 export default {
   components: {
     ChartLine,
@@ -340,7 +340,7 @@ export default {
               <td>翻译金额（消费）</td>
               <td>采购商品金额（消费）</td>
               <td>仓库发货金额（消费）</td>
-              <td>退件金额（消费</td>
+              <td>退件金额（消费）</td>
               <td>采购商品退回金额（收入）</td>
               <td>主体IP消费金额（消费）</td>
               <td>异常赔付金额（收入）</td>
@@ -365,7 +365,7 @@ export default {
                     <td>${item.consum_amount_total ? item.consum_amount_total : 0 + '\t'}</td>
                 </tr>`
       }
-      exportExcelDataCommend('统计数据详情', str)
+      exportExcelDataCommon('统计数据详情', str)
     },
     // 日期选择器时间处理
     setDateFmt(data) {
