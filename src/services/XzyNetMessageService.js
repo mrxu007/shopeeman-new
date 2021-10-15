@@ -7,15 +7,14 @@
  * @FilePath: \shopeeman-new\src\services\XzyNetMessageService.js
  */
 export default class XzyNetMessageService {
-    baseUrl='http://api.xzy.com'
-    constructor() {
-      this.nativeService = window['XzyNetMessageBridgeService']
-    }
-    get(apiName,params) {
-      return this.nativeService.get(this.baseUrl+apiName, JSON.stringify(params))
-    }
-    post(apiName, data, options = { 'Content-Type': 'application/json' }) {
-      return this.nativeService.post(`${this.baseUrl}`, apiName, JSON.stringify({ headers: options }), data ? JSON.stringify(data) : null)
-    }
+  // baseUrl='http://api.xzy.com'
+  constructor() {
+    this.nativeService = window['XzyNetMessageBridgeService']
   }
-  
+  get(apiName, params) {
+    return this.nativeService.get(apiName, JSON.stringify(params))
+  }
+  post(apiName, data, options = { 'Content-Type': 'application/json' }) {
+    return this.nativeService.post(`${this.baseUrl}`, apiName, JSON.stringify({ headers: options }), data ? JSON.stringify(data) : null)
+  }
+}

@@ -1,6 +1,7 @@
 <!--仓库公众号绑定-->
 <template>
   <div class="CatchNoticeOfficialAccountBind">
+    <!-- <el-botton @click="">test</el-botton> -->
     <div class=" content">
       <h2 style="text-align:center">软件绑定星卓越公众号流程</h2>
       <div><span>为了更好的开展国内中转仓异常包裹处理服务，星卓越已经推出异常包裹信息微信推送功能，请各位用户务必按照以下流程绑定星卓越公众号，绑定后即可通过微信了解到异常包裹信息并进行处理。</span></div>
@@ -48,7 +49,6 @@
 </template>
 
 <script>
-import axios from 'axios'
 export default {
   data() {
     return {
@@ -64,7 +64,9 @@ export default {
   },
   methods: {
     async getQrCode() {
-      const result = await axios.get('http://user.xzygyl.com/api/wechat/qrCode')
+      const userInfo = await this.$appConfig.getUserInfo()
+      const muid = userInfo.Muid
+      const result = JSON.parse(await this.$XzyNetMessageService.get('http://user.xzygyl.com/api/wechat/qrCode', { Muid: muid }))
       console.log(result)
     }
   }
