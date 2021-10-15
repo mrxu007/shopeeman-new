@@ -58,45 +58,45 @@
         </ul>
       </el-col>
     </el-row>
-    <el-row class="article">
+    <el-row id="article">
       <!-- @table-body-scroll="tableScroll" -->
-      <u-table ref="plTable" :max-height="height" use-virtual :data-changes-scroll-top="false" :row-height="rowHeight" :border="false">
-        <u-table-column align="center" type="selection" width="50" />
-        <u-table-column align="center" type="index" label="序列号" width="100" />
-        <u-table-column align="center" prop="group_name" label="分组" />
-        <u-table-column align="center" prop="" label="站点">
+      <el-table ref="plTable" height="calc(100vh - 216px)" :data="mallListTemp">
+        <el-table-column align="center" type="selection" width="50" />
+        <el-table-column align="center" type="index" label="序列号" width="100" />
+        <el-table-column align="center" prop="group_name" label="分组" />
+        <el-table-column align="center" prop="" label="站点">
           <template v-slot="{ row }">
             {{ countriesObj[row.country] }}
           </template>
-        </u-table-column>
+        </el-table-column>
 
-        <u-table-column align="center" prop="mall_account_info" label="店铺真实名称">
+        <el-table-column align="center" prop="mall_account_info" label="店铺真实名称">
           <template v-slot="{ row }">
             {{ row.mall_account_info.userRealName }}
           </template>
-        </u-table-column>
-        <u-table-column align="center" prop="platform_mall_id" label="店铺ID" />
-        <u-table-column align="center" prop="good_mall_status" label="是否优质店铺">
+        </el-table-column>
+        <el-table-column align="center" prop="platform_mall_id" label="店铺ID" />
+        <el-table-column align="center" prop="good_mall_status" label="是否优质店铺">
           <template v-slot="{ row }">
             {{ row.good_mall_status === '-1' ? '否' : '是' }}
           </template>
-        </u-table-column>
-        <u-table-column align="center" prop="platform_mall_name" label="店铺账号" />
-        <u-table-column align="center" prop="watermark" label="店铺水印文字" />
-        <u-table-column align="center" prop="item_limit" label="店铺额度" />
-        <u-table-column align="center" prop="mall_alias_name" label="店铺别名" />
-        <u-table-column align="center" prop="web_login_info" label="登录状态">
+        </el-table-column>
+        <el-table-column align="center" prop="platform_mall_name" label="店铺账号" />
+        <el-table-column align="center" prop="watermark" label="店铺水印文字" />
+        <el-table-column align="center" prop="item_limit" label="店铺额度" />
+        <el-table-column align="center" prop="mall_alias_name" label="店铺别名" />
+        <el-table-column align="center" prop="web_login_info" label="登录状态">
           <template v-slot="{ row }">
             {{ row.web_login_info ? '检测成功' : '等待检测...' }}
           </template>
-        </u-table-column>
-        <u-table-column align="center" prop="mall_status" label="店铺状态">
+        </el-table-column>
+        <el-table-column align="center" prop="mall_status" label="店铺状态">
           <template v-slot="{ row }">
             {{ mallStatusObj[row.mall_status] }}
           </template>
-        </u-table-column>
-        <u-table-column align="center" prop="created_at" label="授权日期" />
-      </u-table>
+        </el-table-column>
+        <el-table-column align="center" prop="created_at" label="授权日期" />
+      </el-table>
     </el-row>
   </el-row>
 </template>
@@ -106,9 +106,10 @@ import { getMallListAPI } from '../../../module-api/mall-manager-api/mall-list-a
 export default {
   data() {
     return {
-      height: 400,
+      height: 300,
       rowHeight: 50,
       mallList: [],
+      mallListTemp: [],
       countryVal: 0,
       countries: [
         { label: '马来站', value: 'MY' },
@@ -164,6 +165,13 @@ export default {
 
     }
   },
+  computed: {
+    heightCalc() {
+      const res = 'calc(100vh - 250px)'.replace('px', '')
+      debugger
+      return res
+    }
+  },
   created() {
     this.getMallList()
   },
@@ -184,6 +192,7 @@ export default {
         this.$message.error('获取店铺列表失败')
       }
       this.mallList = res.data
+      this.mallListTemp = this.mallList
       console.log('this.malllist', this.mallList)
       this.$refs.plTable && this.$refs.plTable.reloadData(this.mallList)
     }
