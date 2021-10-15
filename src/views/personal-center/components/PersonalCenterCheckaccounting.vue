@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-10-08 14:16:18
- * @LastEditTime: 2021-10-14 18:21:30
+ * @LastEditTime: 2021-10-15 16:14:25
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shopeeman-new\src\views\personal-center\components\PersonalCenterCheckaccounting.vue
@@ -268,21 +268,22 @@ export default {
         transTime: this.statisticsTime.length ? this.setDateFmt(this.statisticsTime).join('/') : '/',
       }
       let res = await this.$api.getOrderStatisticsList(params)
-      if (res.data.code === 200) {
-        this.recharge_column = res.data.data.recharge_column
-        this.translation_column = res.data.data.translation_column
-        this.purchase_goods_column = res.data.data.purchase_goods_column
-        this.warehouse_ship_column = res.data.data.warehouse_ship_column
-        this.return_column = res.data.data.return_column
-        this.purchase_goods_return_column = res.data.data.purchase_goods_return_column
-        this.mall_main_column = res.data.data.mall_main_column
-        this.abnormal_payment_column = res.data.data.abnormal_payment_column
-        this.other_column = res.data.data.other_column
-        this.total_expense_amount = res.data.data.total_expense_amount
-        this.total_revenue_amount = res.data.data.total_revenue_amount
+      console.log(res, 'getOrderStatisticsList')
+      if (res.data.code === 200 && res.data.data) {
+        this.recharge_column = res.data.data.recharge_column || 0
+        this.translation_column = res.data.data.translation_column || 0
+        this.purchase_goods_column = res.data.data.purchase_goods_column || 0
+        this.warehouse_ship_column = res.data.data.warehouse_ship_column || 0
+        this.return_column = res.data.data.return_column || 0
+        this.purchase_goods_return_column = res.data.data.purchase_goods_return_column || 0
+        this.mall_main_column = res.data.data.mall_main_column || 0
+        this.abnormal_payment_column = res.data.data.abnormal_payment_column || 0
+        this.other_column = res.data.data.other_column || 0
+        this.total_expense_amount = res.data.data.total_expense_amount || 0
+        this.total_revenue_amount = res.data.data.total_revenue_amount || 0
 
-        this.statisticsDetailData = res.data.data.data
-        let lineData = res.data.data.data.reverse()
+        this.statisticsDetailData = res.data.data.data ? res.data.data.data : []
+        let lineData = res.data.data.data ? res.data.data.data.reverse() : []
         let xAxisData = []
         let options = {}
         options['recharge'] = []
