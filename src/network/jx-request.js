@@ -46,9 +46,10 @@ export default {
   // weTbUploadGetHeaders: (data) => tbRequest.post('/ycj/api/v2/taobao/tbX5/weTbUploadGetHeaders', data), // 上传淘宝图片（由爬虫组提供）
   // weTbUploadPostResult: (data) => tbRequest.post('/ycj/api/v2/taobao/tbX5/weTbUploadPostResult', data) // 上报淘宝图片（由爬虫组提供）
 
-  // 2020-10-09
+  // 2021-10-09
   getMallDataStatistics: (data) => AppRequest.post('/mallDataStatistics/dataStat', data), // 获取数据分析
-  // 2020-10-11
+
+  // 2021-10-11
   // 软件财务中心---个人中心
   getTransType: (data) => AppRequest.get('/user/transType', { data }), // 获取账单交易类型
   getAccountAmount: (data) => AppRequest.get('/user/accountAmount', { data }), // 查询用户账号余额
@@ -56,6 +57,7 @@ export default {
   getTranslateDetail: (data) => AppRequest.get('/translate/getTranslateDetail', { params: data }), // 获取翻译明细数据
   getChargeUrlV2: (data) => AppRequest.get('/emptyBag/chargeUrlV2', { params: data }), // 充值
   getTranslateAmount: (data) => AppRequest.get('/translate/getTranslateAmount', { params: data }), // 获取今日翻译费用
+
   // 账单核算---个人中心
   getOrderStatisticsList: (data) => AppRequest.get('/orderStatistics/index', { params: data }), // 账单核算：列表
   getChildUserList: (data) => AppRequest.post('/user/childUserList', data), // 个人中心-团队管理-查询子账号列表
@@ -67,8 +69,13 @@ export default {
   updateTrustedIP: (data) => AppRequest.post('/updateTrustedIP', data), // 个人中心-信任IP-更新用户的IP信任列表
   deleteTrustedIP: (data) => AppRequest.post('/deleteTrustedIP', data), // 个人中心-信任IP-删除用户的IP信任
   setIpCheck: (data) => AppRequest.post('/user/setIpCheck', data), // 个人中心-信任IP-设置信任IP是否开启
+
   // 数据统计
   getDrderBasicStatV2: (data) => AppRequest.post('/mallDataStatistics/orderBasicStatV2', data), // 数据统计获取订单列表数据
-  getDataStat: (data) => AppRequest.post('/mallDataStatistics/dataStat', data) // 数据统计图表数据
+  getDataStat: (data) => AppRequest.post('/mallDataStatistics/dataStat', data), // 数据统计图表数据
+
+  // 2021-10-14
+  // 店铺管理
+  getMallList: (data) => AppRequest.get('/bindMall/mallList', data) // 获取店铺列表
 
 }

@@ -5,26 +5,30 @@
         <ul>
           <li>
             <span>站点：</span>
-            <el-select v-model="site" placeholder="" size="mini" filterable>
-              <el-option v-for="(item, index) in 4" :key="index" />
+            <el-select v-model="countryVal" placeholder="" size="mini" filterable>
+              <el-option label="全部" :value="0" />
+              <el-option v-for="(item, index) in countries" :key="index" :label="item.label" :value="item.value" />
             </el-select>
           </li>
           <li>
-            <el-select v-model="site" class="unnormal" placeholder="" size="mini" filterable>
-              <el-option v-for="(item, index) in 4" :key="index" />
+            <el-select v-model="mallSearchConditionVal" class="unnormal" placeholder="" size="mini" filterable>
+              <el-option v-for="(item, index) in mallSearchCondition" :key="index" :label="item.label" :value="item.value" />
             </el-select>
-            <el-input v-model="site" class="unnormal2" placeholder="" size="mini" />
+            <el-input v-model="mallSearchConditionInputVal" class="unnormal2" placeholder="" size="mini" />
           </li>
           <li>
             <span>店铺状态：</span>
-            <el-select v-model="site" placeholder="" size="mini" filterable>
-              <el-option v-for="(item, index) in 4" :key="index" />
+            <el-select v-model="mallStausVal" placeholder="" size="mini" filterable>
+              <el-option label="全部" :value="0" />
+              <el-option v-for="(item, index) in mallStatus" :key="index" :label="item.label" :value="item.value" />
             </el-select>
           </li>
           <li>
             <span>店铺分组：</span>
-            <el-select v-model="site" placeholder="" size="mini" filterable>
-              <el-option v-for="(item, index) in 4" :key="index" />
+            <el-select v-model="groupId" placeholder="" size="mini" filterable>
+              <el-option label="全部" :value="0" />
+              <el-option label="无分组" :value="-1" />
+              <el-option v-for="(item, index) in 4" :key="index" :label="item" :value="item" />
             </el-select>
           </li>
         </ul>
@@ -47,7 +51,7 @@
             <el-button type="primary" size="mini">开启店铺休假模式</el-button>
             <el-button type="primary" size="mini">关闭店铺休假模式</el-button>
             <el-button type="primary" size="mini">批量修改物流方式</el-button>
-            <el-button type="primary" size="mini">查询</el-button>
+            <el-button type="primary" size="mini" @click="getMallList">查询</el-button>
             <el-checkbox>隐藏日志</el-checkbox>
             <p class="res-text">温馨提示：导入新加披站点店铺时，若账号为手机号时，填写模板时请填写完整(带有国家区号)的手机号，否则登录失败</p>
           </li>
@@ -55,32 +59,133 @@
       </el-col>
     </el-row>
     <el-row class="article">
-      <u-table ref="plTable" :max-height="height" use-virtual :data-changes-scroll-top="false" :row-height="rowHeight" :border="false" @table-body-scroll="tableScroll">
+      <!-- @table-body-scroll="tableScroll" -->
+      <u-table ref="plTable" :max-height="height" use-virtual :data-changes-scroll-top="false" :row-height="rowHeight" :border="false">
         <u-table-column align="center" type="selection" width="50" />
         <u-table-column align="center" type="index" label="序列号" width="100" />
-        <u-table-column align="center" label="分组">1</u-table-column>
-        <u-table-column align="center" label="站点">1</u-table-column>
-        <u-table-column align="center" label="店铺真实名称">1</u-table-column>
-        <u-table-column align="center" label="店铺ID">1</u-table-column>
-        <u-table-column align="center" label="是否优质店铺">1</u-table-column>
-        <u-table-column align="center" label="店铺账号">1</u-table-column>
-        <u-table-column align="center" label="店铺水印文字">1</u-table-column>
-        <u-table-column align="center" label="店铺额度">1</u-table-column>
-        <u-table-column align="center" label="店铺别名">1</u-table-column>
-        <u-table-column align="center" label="登录状态">1</u-table-column>
-        <u-table-column align="center" label="店铺状态">1</u-table-column>
-        <u-table-column align="center" label="授权日期">1</u-table-column>
+        <u-table-column align="center" prop="group_name" label="分组" />
+        <u-table-column align="center" prop="" label="站点">
+          <template v-slot="{ row }">
+            {{ countriesObj[row.country] }}
+          </template>
+        </u-table-column>
+
+        <u-table-column align="center" prop="mall_account_info" label="店铺真实名称">
+          <template v-slot="{ row }">
+            {{ row.mall_account_info.userRealName }}
+          </template>
+        </u-table-column>
+        <u-table-column align="center" prop="platform_mall_id" label="店铺ID" />
+        <u-table-column align="center" prop="good_mall_status" label="是否优质店铺">
+          <template v-slot="{ row }">
+            {{ row.good_mall_status === '-1' ? '否' : '是' }}
+          </template>
+        </u-table-column>
+        <u-table-column align="center" prop="platform_mall_name" label="店铺账号" />
+        <u-table-column align="center" prop="watermark" label="店铺水印文字" />
+        <u-table-column align="center" prop="item_limit" label="店铺额度" />
+        <u-table-column align="center" prop="mall_alias_name" label="店铺别名" />
+        <u-table-column align="center" prop="web_login_info" label="登录状态">
+          <template v-slot="{ row }">
+            {{ row.web_login_info ? '检测成功' : '等待检测...' }}
+          </template>
+        </u-table-column>
+        <u-table-column align="center" prop="mall_status" label="店铺状态">
+          <template v-slot="{ row }">
+            {{ mallStatusObj[row.mall_status] }}
+          </template>
+        </u-table-column>
+        <u-table-column align="center" prop="created_at" label="授权日期" />
       </u-table>
     </el-row>
   </el-row>
 </template>
 
 <script>
+import { getMallListAPI } from '../../../module-api/mall-manager-api/mall-list-api'
 export default {
+  data() {
+    return {
+      height: 400,
+      rowHeight: 50,
+      mallList: [],
+      countryVal: 0,
+      countries: [
+        { label: '马来站', value: 'MY' },
+        { label: '台湾站', value: 'TW' },
+        { label: '新加坡站', value: 'SG' },
+        { label: '菲律宾站', value: 'PH' },
+        { label: '泰国站', value: 'TH' },
+        { label: '越南站', value: 'VN' },
+        { label: '印尼站', value: 'ID' },
+        { label: '巴西站', value: 'BR' }
+      ],
+      countriesObj: {
+        'MY': '马来站',
+        'TW': '台湾站',
+        '2': '冻结',
+        'SG': '新加坡站',
+        'PH': '菲律宾站',
+        'TH': '泰国站',
+        'VN': '越南站',
+        'ID': '印尼站',
+        'BR': '巴西站'
+      },
+      mallSearchConditionVal: 'mallName',
+      mallSearchCondition: [
+        {
+          label: '店铺名称',
+          value: 'mallName'
+        },
+        {
+          label: '店铺ID',
+          value: 'mallId'
+        },
+        {
+          label: '店铺别名',
+          value: 'mallAliasName'
+        }
+      ],
+      mallSearchConditionInputVal: '',
+      mallStausVal: 0,
+      mallStatus: [
+        { label: '正常', value: 1 }, // 0 1 都是正常
+        { label: '冻结', value: 2 },
+        { label: '禁止', value: 3 }
+      ],
+      mallStatusObj: {
+        '0': '正常',
+        '1': '正常',
+        '2': '冻结',
+        '3': '禁止'
+      },
+
+      groupId: 0
+
+    }
+  },
+  created() {
+    this.getMallList()
+  },
   methods: {
-    tableScroll({ scrollTop, scrollLeft, table, judgeFlse }) {
-      // {scrollTop， scrollLeft, table, judgeFlse: 这个参数返回一个boolean值，为true则代表表格滚动到了底部了，false没有滚动到底部，必须开起大数据渲染模式才能有值哦}, event
-      console.log(scrollTop, scrollLeft, table, judgeFlse)
+    // tableScroll({ scrollTop, scrollLeft, table, judgeFlse }) {
+    //   // {scrollTop， scrollLeft, table, judgeFlse: 这个参数返回一个boolean值，为true则代表表格滚动到了底部了，false没有滚动到底部，必须开起大数据渲染模式才能有值哦}, event
+    //   console.log(scrollTop, scrollLeft, table, judgeFlse)
+    // },
+
+    async getMallList() {
+      const params = {}
+      this.countryVal ? params['country'] = this.countryVal : ''
+      this.mallSearchConditionInputVal ? params[this.mallSearchConditionVal] = this.mallSearchConditionInputVal : ''
+      params['groupId'] = this.groupId
+      this.mallStausVal ? params['isFilterFrozen'] = this.mallStausVal : ''
+      const res = await getMallListAPI(params)
+      if (res.code !== 200) {
+        this.$message.error('获取店铺列表失败')
+      }
+      this.mallList = res.data
+      console.log('this.malllist', this.mallList)
+      this.$refs.plTable && this.$refs.plTable.reloadData(this.mallList)
     }
   }
 }
