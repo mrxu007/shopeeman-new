@@ -147,7 +147,7 @@ export default {
     }
   },
   mounted() {
-    this.testlogin()
+    this.getUserInfo()
     this.getPhoneLists()
     this.getIPTrustList()
   },
@@ -177,20 +177,16 @@ export default {
         this.isloading = false
       }
     },
-    // 需要登录
-    async testlogin() {
-      const params = {
-        username: 'yyn_test',
-        password: 'yyn123456',
-        appCode: 'shopeeman'
-      }
-      const { data } = await this.$api.testlogin(params)
-      console.log('login', data)
-      if (data.code === 200) {
-        this.isOpenIpCheck = data.data.is_open_ip_check + ''
-        this.trustIpCount = data.data.trust_ip_count
-      } else {
-        this.$message.error(`获取登录数据失败${data.message}`)
+    // 用户信息
+    async getUserInfo() {
+      const service = window['ConfigBridgeService']
+      try {
+        const data = await service.getUserInfo()
+        console.log('login', data)
+        this.isOpenIpCheck = data.is_open_ip_check + ''
+        this.trustIpCount = data.trust_ip_count
+      } catch (error) {
+        console.log(error)
       }
     },
     // 保存配置

@@ -70,7 +70,6 @@ export default {
   setIpCheck: (data) => AppRequest.post('/user/setIpCheck', data), // 信任IP-设置信任IP是否开启
   getPhoneLists: (data) => AppRequest.get('/user/getPhoneLists', data), // 信任IP-获取手机号码列表
   updatePhoneListForIp: (data) => AppRequest.post('/user/updatePhoneListForIp', data), // 信任IP-配置接收手机验证码的手机号
-  testlogin: (data) => AppRequest.post('/user/login', data), // 测试登录状态
   // 数据统计
   getDrderBasicStatV2: (data) => AppRequest.post('/mallDataStatistics/orderBasicStatV2', data), // 数据统计获取订单列表数据
   getDataStat: (data) => AppRequest.post('/mallDataStatistics/dataStat', data) // 数据统计图表数据
