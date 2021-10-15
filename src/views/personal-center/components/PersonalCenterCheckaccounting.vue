@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-10-08 14:16:18
- * @LastEditTime: 2021-10-12 18:02:37
+ * @LastEditTime: 2021-10-14 18:21:30
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shopeeman-new\src\views\personal-center\components\PersonalCenterCheckaccounting.vue
@@ -26,8 +26,9 @@
         </el-date-picker>
       </div>
       <el-button type="primary" size="mini" class="mar-right" @click="getOrderStatisticsList">查 询</el-button>
-      <el-button type="primary" size="mini" class="mar-right">查看列表数据</el-button>
-      <el-button type="primary" size="mini" class="mar-right">导 出</el-button>
+      <el-button type="primary" size="mini" class="mar-right" @click="detailVisible = true">查看列表数据</el-button>
+      <el-button type="primary" size="mini" class="mar-right" @click="exportData">导 出</el-button>
+      <p style="color: red">统计数据对应财务中心以交易时间为维度的流水账单</p>
     </div>
     <!-- 数据总览 -->
     <div class="overview">
@@ -38,17 +39,17 @@
               <div class="cart-item">
                 <img src="../../../assets/img/chargeTotalFee.png" class="mar-right" alt="" />
                 <span class="text-center mar-right">充值总金额（元）</span>
-                <span class="text-right">{{recharge_column}}</span>
+                <span class="text-right">{{ recharge_column }}</span>
               </div>
               <div class="cart-item">
                 <img src="../../../assets/img/purchaseReturn.png" class="mar-right" alt="" />
                 <span class="text-center mar-right">采购商品退回金额（元）</span>
-                <span class="text-right">{{purchase_goods_return_column}}</span>
+                <span class="text-right">{{ purchase_goods_return_column }}</span>
               </div>
               <div class="cart-item">
                 <img src="../../../assets/img/return.png" class="mar-right" alt="" />
                 <span class="text-center mar-right">退件总金额（元）</span>
-                <span class="text-right">{{return_column}}</span>
+                <span class="text-right">{{ return_column }}</span>
               </div>
             </el-card>
           </div>
@@ -59,17 +60,17 @@
               <div class="cart-item">
                 <img src="../../../assets/img/translate.png" class="mar-right" alt="" />
                 <span class="text-center mar-right">翻译总金额（元）</span>
-                <span class="text-right">{{translation_column}}</span>
+                <span class="text-right">{{ translation_column }}</span>
               </div>
               <div class="cart-item">
                 <img src="../../../assets/img/IP.png" class="mar-right" alt="" />
                 <span class="text-center mar-right">主体IP消费总金额（元）</span>
-                <span class="text-right">{{mall_main_column}}</span>
+                <span class="text-right">{{ mall_main_column }}</span>
               </div>
               <div class="cart-item">
                 <img src="../../../assets/img/totalConsumption.png" class="mar-right" alt="" />
                 <span class="text-center mar-right">总消费金额（元）</span>
-                <span class="text-right">{{total_expense_amount}}</span>
+                <span class="text-right">{{ total_expense_amount }}</span>
               </div>
             </el-card>
           </div>
@@ -80,17 +81,17 @@
               <div class="cart-item">
                 <img src="../../../assets/img/purchase.png" class="mar-right" alt="" />
                 <span class="text-center mar-right">采购商品总金额（元）</span>
-                <span class="text-right">{{purchase_goods_column}}</span>
+                <span class="text-right">{{ purchase_goods_column }}</span>
               </div>
               <div class="cart-item">
                 <img src="../../../assets/img/exception.png" class="mar-right" alt="" />
                 <span class="text-center mar-right">异常赔付总金额（元）</span>
-                <span class="text-right">{{abnormal_payment_column}}</span>
+                <span class="text-right">{{ abnormal_payment_column }}</span>
               </div>
               <div class="cart-item">
                 <img src="../../../assets/img/totalIncome.png" class="mar-right" alt="" />
                 <span class="text-center mar-right">总收入金额（元）</span>
-                <span class="text-right">{{total_revenue_amount}}</span>
+                <span class="text-right">{{ total_revenue_amount }}</span>
               </div>
             </el-card>
           </div>
@@ -101,12 +102,12 @@
               <div class="cart-item">
                 <img src="../../../assets/img/warehouse.png" class="mar-right" alt="" />
                 <span class="text-center mar-right">仓库发货总金额（元）</span>
-                <span class="text-right">{{warehouse_ship_column}}</span>
+                <span class="text-right">{{ warehouse_ship_column }}</span>
               </div>
               <div class="cart-item">
                 <img src="../../../assets/img/other.png" class="mar-right" alt="" />
                 <span class="text-center mar-right">其他总金额（元）</span>
-                <span class="text-right">{{other_column}}</span>
+                <span class="text-right">{{ other_column }}</span>
               </div>
             </el-card>
           </div>
@@ -117,15 +118,35 @@
       <div class="account-box">
         <span class="account-title">数据统计</span>
         <div class="account-item">
-          <chart-line :lineData="lineData"></chart-line>
+          <chart-line :option="lineData" id="chartLine"></chart-line>
         </div>
       </div>
     </div>
+    <el-dialog title="数据详情" :visible.sync="detailVisible" width="70%">
+      <div>
+        <el-table :data="statisticsDetailData" tooltip-effect="dark" height="500">
+          <el-table-column align="center" type="index" label="序号" width="50" />
+          <el-table-column prop="stat_date" label="统计日期" align="center" />
+          <el-table-column prop="recharge" label="充值金额（收入）" align="center" />
+          <el-table-column prop="translation" label="翻译金额（消费）" align="center" />
+          <el-table-column prop="purchase_goods" label="采购商品金额（消费）" align="center" />
+          <el-table-column prop="warehouse_ship" label="仓库发货金额（消费）" align="center" />
+          <el-table-column prop="return" label="退件金额（消费）" align="center" />
+          <el-table-column prop="purchase_goods_return" label="采购商品退回金额（收入）" align="center" />
+          <el-table-column prop="mall_main" label="主体IP消费金额（消费）" align="center" />
+          <el-table-column prop="abnormal_payment" label="异常赔付金额（收入）" align="center" />
+          <el-table-column prop="other" label="其它金额（消费）" align="center" />
+          <el-table-column prop="income_amount_total" label="用户当天消费总金额" align="center" />
+          <el-table-column prop="consum_amount_total" label="用户当天收入总金额" align="center" />
+        </el-table>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
 <script>
 import ChartLine from '../../components/echart-line.vue'
+import { exportExcelDataCommon, exportCsvDataCommon } from '../../../util/util'
 export default {
   components: {
     ChartLine,
@@ -140,8 +161,16 @@ export default {
         },
       },
       lineData: {
-        xAxis: ['2021-2-2', '2023-5-6', '2015-6-10'],
-        legend: ['仓库发货金额', '主体IP消费金额', '总消费金额', '充值金额', '采购金额', '采购退回金额'],
+        xAxis: {
+          type: 'category',
+          data: ['2021-2-2', '2023-5-6', '2015-6-10'],
+        },
+        yAxis: {
+          type: 'value',
+        },
+        legend: {
+          data: ['仓库发货金额', '主体IP消费金额', '总消费金额', '充值金额', '采购金额', '采购退回金额', '异常赔付金额', '其它总金额', '翻译金额', '退件金额', '总收入金额'],
+        },
         series: [
           {
             name: '仓库发货金额',
@@ -151,59 +180,194 @@ export default {
           },
           {
             name: '主体IP消费金额',
-            data: [0, 2, 0],
+            data: [0, 0, 0],
+            smooth: true,
+            type: 'line',
+          },
+          {
+            name: '总消费金额',
+            data: [0, 0, 0],
             smooth: true,
             type: 'line',
           },
           {
             name: '充值金额',
-            data: [0, -1, 0],
+            data: [0, 0, 0],
+            smooth: true,
+            type: 'line',
+          },
+          {
+            name: '采购金额',
+            data: [0, 0, 0],
+            smooth: true,
+            type: 'line',
+          },
+          {
+            name: '采购退回金额',
+            data: [0, 0, 0],
+            smooth: true,
+            type: 'line',
+          },
+          {
+            name: '异常赔付金额',
+            data: [0, 0, 0],
+            smooth: true,
+            type: 'line',
+          },
+          {
+            name: '其它总金额',
+            data: [0, 0, 0],
+            smooth: true,
+            type: 'line',
+          },
+          {
+            name: '翻译金额',
+            data: [0, 0, 0],
+            smooth: true,
+            type: 'line',
+          },
+          {
+            name: '退件金额',
+            data: [0, 0, 0],
+            smooth: true,
+            type: 'line',
+          },
+          {
+            name: '总收入金额',
+            data: [0, 0, 0],
             smooth: true,
             type: 'line',
           },
         ],
       },
-    recharge_column: 0,
-    translation_column: 0,
-    purchase_goods_column: 0,
-    warehouse_ship_column: 0,
-    return_column: 0,
-    purchase_goods_return_column: 0,
-    mall_main_column: 0,
-    abnormal_payment_column: 0,
-    other_column: 0,
-    total_expense_amount: 0,
-    total_revenue_amount: 0,
+      recharge_column: 0, //充值总金额
+      translation_column: 0,
+      purchase_goods_column: 0,
+      warehouse_ship_column: 0,
+      return_column: 0,
+      purchase_goods_return_column: 0,
+      mall_main_column: 0,
+      abnormal_payment_column: 0,
+      other_column: 0,
+      total_expense_amount: 0,
+      total_revenue_amount: 0,
+      statisticsDetailData: [], //列表数据
+      detailVisible: false,
     }
   },
-  mounted(){
-      let end = new Date().getTime()
-      let start = end - 31 * 24 * 60 * 60 * 1000
-      this.statisticsTime = [this.$dayjs(start).format('YYYY-MM-DD'), this.$dayjs(end).format('YYYY-MM-DD')]
-      this.getOrderStatisticsList()
+  mounted() {
+    let end = new Date().getTime()
+    let start = end - 31 * 24 * 60 * 60 * 1000
+    this.statisticsTime = [this.$dayjs(start).format('YYYY-MM-DD'), this.$dayjs(end).format('YYYY-MM-DD')]
+    this.getOrderStatisticsList()
   },
   methods: {
-    async getOrderStatisticsList(){
-        let params = {
-            transTime: this.statisticsTime.length?this.setDateFmt(this.statisticsTime).join('/'):''
+    //获取统计数据
+    async getOrderStatisticsList() {
+      let params = {
+        transTime: this.statisticsTime.length ? this.setDateFmt(this.statisticsTime).join('/') : '/',
+      }
+      let res = await this.$api.getOrderStatisticsList(params)
+      if (res.data.code === 200) {
+        this.recharge_column = res.data.data.recharge_column
+        this.translation_column = res.data.data.translation_column
+        this.purchase_goods_column = res.data.data.purchase_goods_column
+        this.warehouse_ship_column = res.data.data.warehouse_ship_column
+        this.return_column = res.data.data.return_column
+        this.purchase_goods_return_column = res.data.data.purchase_goods_return_column
+        this.mall_main_column = res.data.data.mall_main_column
+        this.abnormal_payment_column = res.data.data.abnormal_payment_column
+        this.other_column = res.data.data.other_column
+        this.total_expense_amount = res.data.data.total_expense_amount
+        this.total_revenue_amount = res.data.data.total_revenue_amount
+
+        this.statisticsDetailData = res.data.data.data
+        let lineData = res.data.data.data.reverse()
+        let xAxisData = []
+        let options = {}
+        options['recharge'] = []
+        options['translation'] = []
+        options['purchase_goods'] = []
+        options['warehouse_ship'] = []
+        options['return'] = []
+        options['purchase_goods_return'] = []
+        options['mall_main'] = []
+        options['abnormal_payment'] = []
+        options['other'] = []
+        options['income_amount_total'] = []
+        options['consum_amount_total'] = []
+        for (let i = 0; i < lineData.length; i++) {
+          let item = lineData[i]
+          xAxisData.push(item.stat_date)
+          options['recharge'].push(Number(item.recharge))
+          options['translation'].push(Number(item.translation))
+          options['purchase_goods'].push(Number(item.purchase_goods))
+          options['warehouse_ship'].push(Number(item.warehouse_ship))
+          options['return'].push(Number(item.return))
+          options['purchase_goods_return'].push(Number(item.purchase_goods_return))
+          options['mall_main'].push(Number(item.mall_main))
+          options['abnormal_payment'].push(Number(item.abnormal_payment))
+          options['other'].push(Number(item.other))
+          options['income_amount_total'].push(Number(item.income_amount_total))
+          options['consum_amount_total'].push(Number(item.consum_amount_total))
         }
-        let res = await this.$api.getOrderStatisticsList(params)
-        if(res.data.status_code===200){
-            this.recharge_column = res.data.data.recharge_column
-            this.translation_column = res.data.data.translation_column
-            this.purchase_goods_column = res.data.data.purchase_goods_column
-            this.warehouse_ship_column = res.data.data.warehouse_ship_column
-            this.return_column = res.data.data.return_column
-            this.purchase_goods_return_column = res.data.data.purchase_goods_return_column
-            this.mall_main_column = res.data.data.mall_main_column
-            this.abnormal_payment_column = res.data.data.abnormal_payment_column
-            this.other_column = res.data.data.other_column
-            this.total_expense_amount = res.data.data.total_expense_amount
-            this.total_revenue_amount = res.data.data.total_revenue_amount
-        }
-        console.log("getOrderStatisticsList",res)
+        console.log('xAxisData', xAxisData)
+        this.lineData.xAxis.data = xAxisData
+        // this.lineData.series[0].data = options.warehouse_ship
+        this.lineData.series[1].data = options.mall_main
+        this.lineData.series[2].data = options.income_amount_total
+        this.lineData.series[3].data = options.recharge
+        this.lineData.series[4].data = options.purchase_goods
+        this.lineData.series[5].data = options.purchase_goods_return
+        this.lineData.series[6].data = options.abnormal_payment
+        this.lineData.series[7].data = options.other
+        this.lineData.series[8].data = options.translation
+        this.lineData.series[9].data = options.return
+        this.lineData.series[10].data = options.consum_amount_total
+      }
+      console.log('getOrderStatisticsList', res, this.lineData)
     },
-      // 日期选择器时间处理
+    //导出数据
+    exportData() {
+      if (!this.statisticsDetailData.length) {
+        return this.$message.warning('没有可导出的数据')
+      }
+      let num = 1
+      let str = `<tr>
+              <td>编号</td>
+              <td>统计日期</td>
+              <td>充值金额（收入）</td>
+              <td>翻译金额（消费）</td>
+              <td>采购商品金额（消费）</td>
+              <td>仓库发货金额（消费）</td>
+              <td>退件金额（消费）</td>
+              <td>采购商品退回金额（收入）</td>
+              <td>主体IP消费金额（消费）</td>
+              <td>异常赔付金额（收入）</td>
+              <td>其它金额（消费）</td>
+              <td>用户当天消费总金额</td>
+              <td>用户当天收入总金额</td>
+            </tr>`
+      for (let i = 0; i < this.statisticsDetailData.length; i++) {
+        let item = this.statisticsDetailData[i]
+        str += `<tr><td>${num++}</td>
+                    <td>${item.stat_date ? item.stat_date : 0 + '\t'}</td>
+                    <td>${item.recharge ? item.recharge : 0 + '\t'}</td>
+                    <td>${item.translation ? item.translation : 0 + '\t'}</td> 
+                    <td>${item.purchase_goods ? item.purchase_goods : 0 + '\t'}</td>
+                    <td>${item.warehouse_ship ? item.warehouse_ship : 0 + '\t'}</td>
+                    <td>${item.return ? item.return : 0 + '\t'}</td>
+                    <td>${item.purchase_goods_return ? item.purchase_goods_return : 0 + '\t'}</td>
+                    <td>${item.mall_main ? item.mall_main : 0 + '\t'}</td>
+                    <td>${item.abnormal_payment ? item.abnormal_payment : 0 + '\t'}</td>
+                    <td>${item.other ? item.other : 0 + '\t'}</td>
+                    <td>${item.income_amount_total ? item.income_amount_total : 0 + '\t'}</td>
+                    <td>${item.consum_amount_total ? item.consum_amount_total : 0 + '\t'}</td>
+                </tr>`
+      }
+      exportExcelDataCommon('统计数据详情', str)
+    },
+    // 日期选择器时间处理
     setDateFmt(data) {
       data[0] = data[0] + ' 00:00:00'
       data[1] = data[1] + ' 23:59:59'
@@ -218,6 +382,9 @@ export default {
   padding: 16px;
   background: #fff;
   height: 100%;
+  /deep/ .el-dialog__body {
+    padding: 10px 20px;
+  }
 }
 .mar-right {
   margin-right: 10px;
@@ -225,6 +392,7 @@ export default {
 // btn区
 .header-btn {
   display: flex;
+  align-items: center;
   .btn-item {
     display: felx;
     align-items: center;
@@ -236,9 +404,9 @@ export default {
   .overview-card {
     padding: 16px;
     font-size: 18px;
-    height:240px;
-    .el-card{
-        height:100%;
+    height: 240px;
+    .el-card {
+      height: 100%;
     }
     .cart-item {
       display: flex;
@@ -281,6 +449,7 @@ export default {
       top: -10px;
     }
     .account-item {
+      height: 500px;
     }
   }
 }

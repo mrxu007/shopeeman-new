@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-10-08 14:16:18
- * @LastEditTime: 2021-10-12 17:12:29
+ * @LastEditTime: 2021-10-13 17:52:43
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shopeeman-new\src\network\jx-request.js
@@ -38,8 +38,8 @@ const otherRequest = axios.create({ // 第三方请求
 })
 export default {
   AppRequest, // 对接第三方请求
-  ycjRequest, // 对接本地请求
-  otherRequest, // 对接云采集请求
+  ycjRequest, // 对接云采集请求
+  otherRequest, // 对接第三方请求
 
   // 请按照一下格式填写
   // 2021-09-24
@@ -76,13 +76,12 @@ export default {
 
   // 2021-10-14
   // 店铺管理
-  getMallList: (data) => AppRequest.get('/bindMall/mallList', data), // 获取店铺列表
+  getMallList: (data) => AppRequest.get('/bindMall/mallList', { params: data }), // 获取店铺列表
 
   // 异常公告
   getExceptionNoOrderIndex: (data) => AppRequest.get('/exceptionNoOrderIndex', { params: data }), // 异常公告签收包裹异常列表
   markPackageToMy: (data) => AppRequest.post('/signPackage/markPackageToMy', data), // 异常公告签收包裹异常：标记为我的
   apply: (data) => AppRequest.post('/packageReturn/apply', data), // 异常公告签收包裹异常：申请退件
-
   getExceptionNoTrackingNumberIndex: (data) => AppRequest.get('/exceptionNoTrackingNumberIndex', { params: data }), // 异常公告待获取物流单号订单列表
   updateOrderTrackingNumber: (data) => AppRequest.post('/order/updateOrderTrackingNumber', data), // 异常公告待获取物流订单添加采购物流单号
   getExceptionExpiredOrderIndex: (data) => AppRequest.get('/exceptionExpiredOrderIndex', { params: data }), // 异常公告即将过期订单列表

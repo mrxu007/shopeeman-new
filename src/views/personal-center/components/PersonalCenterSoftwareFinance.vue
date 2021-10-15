@@ -136,7 +136,7 @@
         <el-table-column align="center" prop="sys_sku_id" label="商品skuID" min-width="80" />
         <el-table-column align="center" label="费用明细" min-width="70"
           ><template slot-scope="scope">
-            <el-button type="primary" size="mini" v-if="scope.row.trans_type === 2" @click="getTransDetail">翻译明细</el-button>
+            <el-button type="primary" size="mini" v-if="scope.row.trans_type === 2" @click="getTransDetail(scope.row)">翻译明细</el-button>
           </template>
         </el-table-column>
         <el-table-column align="center" prop="remark" label="备注" min-width="100" />
@@ -188,6 +188,7 @@
           <div class="select-item">
             <p>翻译时间:</p>
             <el-date-picker
+              :disabled="true"
               v-model="chooseDate"
               type="daterange"
               size="mini"
@@ -197,7 +198,8 @@
               :default-time="['00:00:00', '23:59:59']"
             />
           </div>
-          <el-button type="primary" size="mini">查询</el-button>
+          <!-- <el-button type="primary" size="mini" @click="getTransDetail">查询</el-button> -->
+          <el-button type="primary" size="mini" @click="exportDetailData">导出数据</el-button>
         </div>
         <div class="table-style">
           <el-table :data="tranDetailData" tooltip-effect="dark" height="500">
@@ -213,7 +215,7 @@
               </template>
             </el-table-column>
             <el-table-column prop="amount" label="翻译金额" align="center" width="90px" />
-            <el-table-column prop="created_at" label="翻译时间" align="center" width="90px" />
+            <el-table-column prop="created_at" label="翻译时间" align="center" width="160px" />
           </el-table>
         </div>
       </div>
@@ -222,6 +224,7 @@
 </template>
 
 <script>
+import { exportExcelDataCommon } from '../../../util/util'
 export default {
   data() {
     return {
@@ -345,20 +348,79 @@ export default {
       rechargeVisible: false, //充值弹窗
       rechargeList: [100, 200, 500, 1000, 2000, 5000],
       amount: '',
+      exportDataList: [],
+      uuid: ''
     }
   },
   mounted() {
     let end = new Date().getTime()
     let start = end - 31 * 24 * 60 * 60 * 1000
     this.form.creationTime = [this.$dayjs(start).format('YYYY-MM-DD'), this.$dayjs(end).format('YYYY-MM-DD')]
+    //查询交易类型
     this.getTransType()
+    //查询用户账号余额
     this.getAccountAmount()
+    //获取翻译费用
     this.getTranslateAmount()
+    this.selectList()
   },
   methods: {
+    async exportData(){
+      if (!this.total) {
+        return this.$message.warning('没有可以导出的订单')
+      }
+      this.exportDataList = []
+      let params = {}
+      params.page = this.currentPage
+      params.pageSize = this.pageSize
+      params.createdAt = this.form.creationTime.length ? this.setDateFmt(this.form.creationTime).join('/') : '/'
+      params.transTime = this.form.tradingTime.length ? this.setDateFmt(this.form.tradingTime).join('/') : '/'
+      params.transStatus = this.form.transactionStatus
+      params.type = this.form.moneyFlow
+      params.amount = `${this.form.minMoney != '' ? Number(this.form.minMoney) : 0}/${this.form.maxMoney != '' ? Number(this.form.maxMoney) : 0}`
+      params.transType = this.form.transactionType
+      params.orderSn = this.form.orderNumber
+      params.childName = ''
+      params.packageSn = this.form.bigBagNumber
+      this.tableLoading = true
+      let {data} = await this.$api.getAccountAmountDetailList(params)
+      let amountData = data.data&&data.data.data.length?data.data.data : undefined
+      while(amountData){
+        this.exportDataList = this.exportDataList.concat(amountData)
+        params.page++
+        let {data} = await this.$api.getAccountAmountDetailList(params)
+        amountData = data.data&&data.data.data.length?data.data.data : undefined
+      }
+      this.tableLoading = false
+      this.exportExcel(this.exportDataList)
+    },
+    //导出翻译明细数据
+    exportDetailData(){
+      if(!this.tranDetailData.length){
+        return this.$message.warning('没有可导出的数据')
+      }
+      let num = 1
+      let str = `<tr>
+              <td>编号</td>
+              <td>翻译类型</td>
+              <td>翻译字符串</td>
+              <td>翻译金额</td>
+              <td>翻译时间</td>
+            </tr>`
+      for (let i = 0; i < this.tranDetailData.length; i++) {
+        let item = this.tranDetailData[i]
+        str += `<tr><td>${num++}</td>
+                    <td>${item.type ?(item.type===1?'文字':'图片'): '' + '\t'}</td>
+                    <td>${item.text ?item.text  : '' + '\t'}</td>
+                    <td>${item.amount ? item.amount : '' + '\t'}</td> 
+                    <td>${item.created_at ? item.created_at : '' + '\t'}</td>
+                </tr>`
+      }
+      exportExcelDataCommon('翻译明细数据',str)
+    },
     //导出数据
-    exportData() {
-      if (!this.allbillingData.length) {
+    exportExcel(data) {
+      if (!data.length) {
         return this.$message.warning('没有可导出的数据')
       }
       let num = 1
@@ -377,8 +439,8 @@ export default {
               <td>商品SkuId</td>
               <td>备注</td>
             </tr>`
-      for (let i = 0; i < this.allbillingData.length; i++) {
-        let item = this.allbillingData[i]
+      for (let i = 0; i < data.length; i++) {
+        let item = data[i]
         str += `<tr><td>${num++}</td>
                     <td style="mso-number-format:'\@';">${item.trans_number ? item.trans_number : '' + '\t'}</td>
                     <td style="mso-number-format:'\@';">${item.order_sn ? item.order_sn : '' + '\t'}</td>
@@ -394,29 +456,7 @@ export default {
                     <td>${item.remark ? item.remark : '' + '\t'}</td>
                 </tr>`
       }
-      //Worksheet名
-      let worksheet = `账单数据${new Date(Date.now() + 8 * 3600 * 1000).toISOString().slice(0, 10)}`
-      let uri = 'data:application/vnd.ms-excel;base64,'
-
-      //下载的表格模板数据
-      let template = `<html xmlns:o="urn:schemas-microsoft-com:office:office"
-                    xmlns:x="urn:schemas-microsoft-com:office:excel"
-                    xmlns="http://www.w3.org/TR/REC-html40">
-                    <head><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet>
-                    <x:Name>${worksheet}</x:Name>
-                    <x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet>
-                    </x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]-->
-                    </head><body><table>${str}</table></body></html>`
-      //下载模板
-      // let template = templates.replace(/<td/g,`<td style="mso-number-format:'\@';"`)
-      let blob = new Blob([template], { type: 'html', name: worksheet })
-      let a = document.createElement('a')
-      document.body.appendChild(a)
-      // a.href = uri + this.base64(template)
-      a.href = URL.createObjectURL(blob)
-      a.download = `账单数据${new Date(Date.now() + 8 * 3600 * 1000).toISOString().slice(0, 10)}.xls`
-      a.click()
-      document.body.removeChild(a)
+      exportExcelDataCommon('账单数据',str)
     },
     //充值
     async recharge() {
@@ -433,13 +473,21 @@ export default {
     //获取翻译明细
     async getTransDetail(row) {
       this.translateDetailVisible = true
+      let date = row.created_at.split(' ')[0]
+      this.chooseDate = [date+' 00:00:00',date+' 23:59:59']
+      // this.chooseDate = ['2021-09-17 00:00:00','2021-09-17 23:59:59']
       let params = {
-        uuid: row.uuid,
-        startTime: this.$dayjs(this.chooseDate[0]).format('YYYY-MM-DD') + ' 00:00:00',
-        endTime: this.$dayjs(this.chooseDate[1]).format('YYYY-MM-DD') + ' 23:59:59',
+        // uuid: row.uid,
+        startTime: this.chooseDate[0],
+        endTime: this.chooseDate[1],
       }
       let res = await this.$api.getTranslateDetail(params)
-      console.log(res, 'getTransDetail')
+      if(res.data.code === 200){
+        this.tranDetailData = res.data.data
+      }else{
+        this.$message.warning(res.data.message)
+      }
+      console.log("getTransDetail",)
     },
     //重置
     reset() {
@@ -457,21 +505,23 @@ export default {
     },
     //查询列表数据
     async selectList() {
+      console.log(this.form.creationTime)
       let params = {}
       params.page = this.currentPage
-      params.pageNum = this.pageSize
+      params.pageSize = this.pageSize
       params.createdAt = this.form.creationTime.length ? this.setDateFmt(this.form.creationTime).join('/') : '/'
       params.transTime = this.form.tradingTime.length ? this.setDateFmt(this.form.tradingTime).join('/') : '/'
       params.transStatus = this.form.transactionStatus
       params.type = this.form.moneyFlow
-      params.amount = `${this.form.minMoney != '' ? Number(this.saleVal.min) : 0}/${this.form.maxMoney != '' ? Number(this.form.maxMoney) : 0}`
+      params.amount = `${this.form.minMoney != '' ? Number(this.form.minMoney) : 0}/${this.form.maxMoney != '' ? Number(this.form.maxMoney) : 0}`
       params.transType = this.form.transactionType
       params.orderSn = this.form.orderNumber
       params.childName = ''
       params.packageSn = this.form.bigBagNumber
       this.tableLoading = true
       let res = await this.$api.getAccountAmountDetailList(params)
-      if (res.data.status_code === 200) {
+      console.log("status_code",res)
+      if (res.data.code === 200) {
         this.allbillingData = res.data.data.data
         this.total = res.data.data.total
       }
@@ -480,7 +530,7 @@ export default {
     //获取账单交易类型
     async getTransType() {
       let res = await this.$api.getTransType()
-      if (res.data.status_code === 200) {
+      if (res.data.code === 200) {
         this.transactionType = res.data.data
       } else {
         this.$message.error(res.data.message)
@@ -489,7 +539,8 @@ export default {
     //查询用户账号余额
     async getAccountAmount() {
       let res = await this.$api.getAccountAmount()
-      if (res.data.status_code === 200) {
+      console.log("res",res)
+      if (res.data.code === 200) {
         this.account.balance = res.data.data
       } else {
         this.$message.error(res.data.message)
