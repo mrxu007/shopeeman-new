@@ -1,63 +1,76 @@
 <!--
  * @Author: your name
- * @Date: 2021-10-11 11:37:54
- * @LastEditTime: 2021-10-11 14:52:45
- * @LastEditors: Please set LastEditors
+ * @Date: 2021-10-13 10:14:33
+ * @LastEditTime: 2021-10-13 11:27:11
+ * @LastEditors: your name
  * @Description: In User Settings Edit
  * @FilePath: \shopeeman-new\src\views\components\echart-line.vue
 -->
+<!--echarts图形组件-->
 <template>
-  <div class="chart-line">
-    <div id="chartLine"></div>
-  </div>
+  <div
+    :id="id"
+    :class="id"
+    :style="'height:' + height + ';' + 'width:' + width"
+  />
 </template>
 
 <script>
 import echarts from 'echarts'
 export default {
-  name: 'ChartLine',
   props: {
-    lineData: {
-      type: Object,
+    // 唯一标识符
+    id: { type: String, default: 'chart' },
+    // 宽
+    width: {
+      type: String,
+      default: '100%'
     },
+    // 高
+    height: {
+      type: String,
+      default: '100%'
+    },
+    option: {
+      // 所有配置
+      type: Object,
+      default: null
+    }
   },
   data() {
     return {
-      chartData: {
-        
-      },
+      resizeTimer: null,
+      myChart: null
+    }
+  },
+  watch: {
+    option: {
+      deep: true,
+      handler: function(newV, oldv) {
+        this.option = newV
+        this.drawChart()
+      }
     }
   },
   mounted() {
-    console.log("props",this.lineData)
-    this.renderLine()
+    this.drawChart()
+    window.addEventListener('resize', () => {
+      if (this.resizeTimer) clearTimeout(this.resizeTimer)
+      this.resizeTimer = setTimeout(() => {
+        this.myChart.resize()
+      }, 0)
+    })
   },
   methods: {
-      renderLine(){
-          let data = this.lineData
-          let lineData = {
-              legend:{
-                  data: data.legend
-              },
-              xAxis: {
-                data: data.xAxis,
-             },
-             yAxis: {},
-             series: data.series
-          }
-          let myChart = echarts.init(document.getElementById('chartLine'))
-          console.log("lineData",lineData)
-          myChart.setOption(lineData)
-      }
-  },
+    drawChart() {
+      // 基于准备好的dom，初始化echarts实例
+      const myChart = echarts.init(document.getElementById(this.id))
+      this.myChart = myChart
+      const option = this.option
+      myChart.setOption(option)
+    }
+  }
 }
 </script>
 
-<style lang="less" scoped>
-.chart-line {
-}
-#chartLine {
-  width: 100%;
-  height: 400px;
-}
-</style>
+<style lang="less" scoped></style>

@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-10-08 14:16:18
- * @LastEditTime: 2021-10-12 17:12:29
+ * @LastEditTime: 2021-10-13 17:52:43
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shopeeman-new\src\network\jx-request.js
@@ -38,17 +38,18 @@ const otherRequest = axios.create({ // 第三方请求
 })
 export default {
   AppRequest, // 对接第三方请求
-  ycjRequest, // 对接本地请求
-  otherRequest, // 对接云采集请求
+  ycjRequest, // 对接云采集请求
+  otherRequest, // 对接第三方请求
 
   // 请按照一下格式填写
   // 2021-09-24
   // weTbUploadGetHeaders: (data) => tbRequest.post('/ycj/api/v2/taobao/tbX5/weTbUploadGetHeaders', data), // 上传淘宝图片（由爬虫组提供）
   // weTbUploadPostResult: (data) => tbRequest.post('/ycj/api/v2/taobao/tbX5/weTbUploadPostResult', data) // 上报淘宝图片（由爬虫组提供）
 
-  // 2020-10-09
+  // 2021-10-09
   getMallDataStatistics: (data) => AppRequest.post('/mallDataStatistics/dataStat', data), // 获取数据分析
-  // 2020-10-11
+
+  // 2021-10-11
   // 软件财务中心---个人中心
   getTransType: (data) => AppRequest.get('/user/transType', { data }), // 获取账单交易类型
   getAccountAmount: (data) => AppRequest.get('/user/accountAmount', { data }), // 查询用户账号余额
@@ -56,6 +57,7 @@ export default {
   getTranslateDetail: (data) => AppRequest.get('/translate/getTranslateDetail', { params: data }), // 获取翻译明细数据
   getChargeUrlV2: (data) => AppRequest.get('/emptyBag/chargeUrlV2', { params: data }), // 充值
   getTranslateAmount: (data) => AppRequest.get('/translate/getTranslateAmount', { params: data }), // 获取今日翻译费用
+
   // 账单核算---个人中心
   getOrderStatisticsList: (data) => AppRequest.get('/orderStatistics/index', { params: data }), // 账单核算：列表
   getChildUserList: (data) => AppRequest.post('/user/childUserList', data), // 团队管理-查询子账号列表
@@ -72,6 +74,19 @@ export default {
   updatePhoneListForIp: (data) => AppRequest.post('/user/updatePhoneListForIp', data), // 信任IP-配置接收手机验证码的手机号
   // 数据统计
   getDrderBasicStatV2: (data) => AppRequest.post('/mallDataStatistics/orderBasicStatV2', data), // 数据统计获取订单列表数据
-  getDataStat: (data) => AppRequest.post('/mallDataStatistics/dataStat', data) // 数据统计图表数据
+  getDataStat: (data) => AppRequest.post('/mallDataStatistics/dataStat', data), // 数据统计图表数据
 
+  // 2021-10-14
+  // 店铺管理
+  getMallList: (data) => AppRequest.get('/bindMall/mallList', { params: data }), // 获取店铺列表
+
+  // 异常公告
+  getExceptionNoOrderIndex: (data) => AppRequest.get('/exceptionNoOrderIndex', { params: data }), // 异常公告签收包裹异常列表
+  markPackageToMy: (data) => AppRequest.post('/signPackage/markPackageToMy', data), // 异常公告签收包裹异常：标记为我的
+  apply: (data) => AppRequest.post('/packageReturn/apply', data), // 异常公告签收包裹异常：申请退件
+  getExceptionNoTrackingNumberIndex: (data) => AppRequest.get('/exceptionNoTrackingNumberIndex', { params: data }), // 异常公告待获取物流单号订单列表
+  updateOrderTrackingNumber: (data) => AppRequest.post('/order/updateOrderTrackingNumber', data), // 异常公告待获取物流订单添加采购物流单号
+  getExceptionExpiredOrderIndex: (data) => AppRequest.get('/exceptionExpiredOrderIndex', { params: data }), // 异常公告即将过期订单列表
+  getExceptionWarehouse: (data) => AppRequest.get('/exceptionWarehouse', { params: data }), // 异常公告仓库异常信息列表
+  uploadDealExceptionStatus: (data) => AppRequest.post('/uploadDealExceptionStatus', data) // 异常公告仓库异常处理状态上报
 }

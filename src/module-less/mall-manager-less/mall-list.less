@@ -4,25 +4,40 @@
   .header {
     background: white;
     padding: 16px;
-    .header-top {
+    .header-lft {
+      max-width: 317px;
       ul {
-        display: flex;
         li {
           margin: 5px;
           display: flex;
           span {
             white-space: nowrap;
-            width: 89px;
+            width: 100px;
             text-align: right;
           }
           .unnormal {
-              width: 89px;
+              width: 100px;
           }
           .unnormal2 {
             width: 198px;
           }
         }
      
+      }
+    }
+    .header-rht {
+      ul {
+        li {
+          .el-button {
+            margin: 3px;
+          }
+          .el-checkbox {
+            margin: 5px;
+          }
+          .res-text {
+            color: red;
+          }
+        }
       }
     }
   }

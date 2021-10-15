@@ -7,6 +7,7 @@
 <style lang="less">
 body {
   --themeColor: #f97c28;
+  overflow: hidden;
 }
 #app {
   font-family: Microsoft YaHei;
