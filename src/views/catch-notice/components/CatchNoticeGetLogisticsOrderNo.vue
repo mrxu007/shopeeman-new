@@ -8,9 +8,9 @@
         <!-- 采购物流编号 -->
         <div class="flowNumber">
           采购物流编号：
-          <el-input v-model="form.flowNumber" size="mini" />
+          <el-input v-model="form.shotOrderSn" size="mini" />
         </div>
-        <el-button size="mini" type="primary">搜索</el-button>
+        <el-button size="mini" type="primary" @click="searchHandle">搜索</el-button>
         <el-button size="mini" type="primary">登录拼多多</el-button>
         <el-button size="mini" type="primary">登录淘宝</el-button>
         <el-button size="mini" type="primary">登录1688</el-button>
@@ -43,31 +43,35 @@
         />
         <el-table-column
           label="订单号"
-          prop=""
+          prop="order_sn"
         />
         <el-table-column
-          prop=""
+          prop="ori_platform"
           label="采购类型"
         />
         <el-table-column
-          prop=""
+          prop="shot_order_sn"
           label="采购订单号"
         />
         <el-table-column
-          prop=""
+          prop="shotted_at"
           label="采购时间"
         />
         <el-table-column
-          prop=""
+          prop="buy_account_info"
           label="采购账号"
         />
         <el-table-column
-          prop=""
+          prop="pay_account_info"
           label="付款账号"
         />
         <el-table-column
           label="操作"
-        />
+        >
+          <template slot-scope="scope">
+            <el-button size="mini" type="primary" @click="logisticsOrderNoHandle(scope.row)">填写采购物流单号</el-button>
+          </template>
+        </el-table-column>
       </el-table>
       <el-input
         v-if="!hideLog"
@@ -77,6 +81,31 @@
         class="flowNumberLog"
       />
     </div>
+
+    <!--填写采购物流单号dialog-->
+    <el-dialog title="采购物流单号填写" :visible.sync="logisticsOrderNoDialogFormVisible" width="500px">
+      <el-form :model="logisticsOrderNoDialogForm">
+        <el-form-item label="绑定仓库:" label-width="80px">
+          <el-select v-model="logisticsOrderNoDialogForm.warehouseId">
+            <el-option v-for="item in logisticsOrderNoDialogWarehouseOptions" :key="item.id" :label="item.label" :value="item.value" />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="物流公司:" label-width="80px">
+          <el-input v-model="logisticsOrderNoDialogForm.lists[0].trackingNumber" />
+        </el-form-item>
+        <el-form-item label="物流单号:" label-width="80px">
+          <el-input v-model="logisticsOrderNoDialogForm.lists[0].trackingNumberCompany" />
+        </el-form-item>
+      </el-form>
+      <div style="color:red">
+        <span>关于绑定仓库选项:</span>
+        <p>1、仅显示当前订单店铺绑定的仓库</p>
+        <p>2、采购类型如果为国内平台时，显示国内中转仓，如果为国外平台，则显示海外仓</p>
+      </div>
+      <div slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="logisticsOrderNoDialogHandle">保存</el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
@@ -84,9 +113,26 @@
 export default {
   data() {
     return {
+      // 控制采购物流单号dialog
+      logisticsOrderNoDialogFormVisible: false,
+      // 采购物流单号dialog表单数据
+      logisticsOrderNoDialogForm: {
+        sysOrderId: '',
+        lists: [{ id: '0', trackingNumber: '', trackingNumberCompany: '' }],
+        warehouseId: ''
+      },
+      logisticsOrderNoDialogWarehouseOptions: [{
+        id: 1,
+        value: '星卓越泰国海外仓',
+        label: '星卓越泰国海外仓'
+      }, {
+        id: 2,
+        value: '东莞华夏本土仓',
+        label: '东莞华夏本土仓'
+      }],
       //   搜索条件
       form: {
-        flowNumber: '' // 采购物流编号
+        shotOrderSn: '' // 采购物流编号
       },
       hideLog: false, // 隐藏日志
       // 表格数据
@@ -94,10 +140,54 @@ export default {
       logData: ''// 日志内容
     }
   },
+  mounted() {
+    this.getExceptionNoTrackingNumberIndex()
+  },
   methods: {
+    // 查询
+    async searchHandle() {
+      const result = await this.$api.getExceptionNoTrackingNumberIndex(this.form)
+      if (result.data.code === 200) {
+        this.tableData = result.data.data.data
+      } else {
+        this.$message.error(result.data.message)
+      }
+    },
+    // 填写采购物流单号
+    logisticsOrderNoHandle(row) {
+      this.logisticsOrderNoDialogForm = {
+        sysOrderId: '',
+        lists: [{ id: '0', trackingNumber: '', trackingNumberCompany: '' }],
+        warehouseId: ''
+      }
+      this.logisticsOrderNoDialogForm.sysOrderId = row.sys_order_id
+      this.logisticsOrderNoDialogFormVisible = true
+    },
+    // 采购物流单号dialog保存
+    async logisticsOrderNoDialogHandle() {
+      // const result = await this.$api.updateOrderTrackingNumber(this.logisticsOrderNoDialogForm)
+      // if (result.data.code === 200) {
+      //   this.logisticsOrderNoDialogFormVisible = false
+      //   this.$message({
+      //     message: '采购物流单号添加成功',
+      //     type: 'success'
+      //   })
+      // } else {
+      //   this.$message.error(result.data.message)
+      // }
+    },
     // 获取采购物流单号
     flowNumberHandle() {
       this.hideLog = false
+    },
+    // 获取物流单号订单列表
+    async getExceptionNoTrackingNumberIndex() {
+      const result = await this.$api.getExceptionNoTrackingNumberIndex()
+      if (result.data.code === 200) {
+        this.tableData = result.data.data.data
+      } else {
+        this.$message.error(result.data.message)
+      }
     }
   }
 }

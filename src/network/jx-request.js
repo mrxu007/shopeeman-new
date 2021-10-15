@@ -76,6 +76,16 @@ export default {
 
   // 2021-10-14
   // 店铺管理
-  getMallList: (data) => AppRequest.get('/bindMall/mallList', data) // 获取店铺列表
+  getMallList: (data) => AppRequest.get('/bindMall/mallList', data), // 获取店铺列表
 
+  // 异常公告
+  getExceptionNoOrderIndex: (data) => AppRequest.get('/exceptionNoOrderIndex', { params: data }), // 异常公告签收包裹异常列表
+  markPackageToMy: (data) => AppRequest.post('/signPackage/markPackageToMy', data), // 异常公告签收包裹异常：标记为我的
+  apply: (data) => AppRequest.post('/packageReturn/apply', data), // 异常公告签收包裹异常：申请退件
+
+  getExceptionNoTrackingNumberIndex: (data) => AppRequest.get('/exceptionNoTrackingNumberIndex', { params: data }), // 异常公告待获取物流单号订单列表
+  updateOrderTrackingNumber: (data) => AppRequest.post('/order/updateOrderTrackingNumber', data), // 异常公告待获取物流订单添加采购物流单号
+  getExceptionExpiredOrderIndex: (data) => AppRequest.get('/exceptionExpiredOrderIndex', { params: data }), // 异常公告即将过期订单列表
+  getExceptionWarehouse: (data) => AppRequest.get('/exceptionWarehouse', { params: data }), // 异常公告仓库异常信息列表
+  uploadDealExceptionStatus: (data) => AppRequest.post('/uploadDealExceptionStatus', data) // 异常公告仓库异常处理状态上报
 }
