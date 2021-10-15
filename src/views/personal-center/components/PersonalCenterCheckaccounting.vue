@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-10-08 14:16:18
- * @LastEditTime: 2021-10-15 16:14:25
+ * @LastEditTime: 2021-10-15 17:18:37
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shopeeman-new\src\views\personal-center\components\PersonalCenterCheckaccounting.vue
@@ -383,6 +383,8 @@ export default {
   padding: 16px;
   background: #fff;
   height: 100%;
+  min-width: 1280px;
+  overflow: auto;
   /deep/ .el-dialog__body {
     padding: 10px 20px;
   }
@@ -404,8 +406,9 @@ export default {
   margin-top: 10px;
   .overview-card {
     padding: 16px;
-    font-size: 18px;
+    font-size: 16px;
     height: 240px;
+    min-width: 330px;
     .el-card {
       height: 100%;
     }
@@ -425,7 +428,7 @@ export default {
       }
       .text-right {
         font-weight: 900;
-        font-size: 24px;
+        font-size: 18px;
       }
     }
   }
@@ -433,6 +436,7 @@ export default {
 //数据图表
 .statistic-charts {
   margin-top: 10px;
+  padding: 0 16px;
   .account-box {
     border: 1px solid #dcdcdc;
     border-radius: 4px;
