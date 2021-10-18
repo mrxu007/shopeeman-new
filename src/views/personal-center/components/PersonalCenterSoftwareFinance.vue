@@ -139,7 +139,7 @@
             <el-button type="primary" size="mini" v-if="scope.row.trans_type === 2" @click="getTransDetail(scope.row)">翻译明细</el-button>
           </template>
         </el-table-column>
-        <el-table-column align="center" prop="remark" label="备注" min-width="100" />
+        <el-table-column align="center" prop="remark" label="备注" width="120" show-overflow-tooltip/>
       </el-table>
       <div class="pagination">
         <el-pagination
