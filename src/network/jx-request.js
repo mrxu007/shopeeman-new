@@ -89,4 +89,5 @@ export default {
   getExceptionExpiredOrderIndex: (data) => AppRequest.get('/exceptionExpiredOrderIndex', { params: data }), // 异常公告即将过期订单列表
   getExceptionWarehouse: (data) => AppRequest.get('/exceptionWarehouse', { params: data }), // 异常公告仓库异常信息列表
   uploadDealExceptionStatus: (data) => AppRequest.post('/uploadDealExceptionStatus', data) // 异常公告仓库异常处理状态上报
+
 }
