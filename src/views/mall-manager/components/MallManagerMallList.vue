@@ -60,7 +60,7 @@
     </el-row>
     <el-row id="article">
       <!-- @table-body-scroll="tableScroll" -->
-      <el-table ref="plTable" height="calc(100vh - 216px)" :data="mallListTemp">
+      <el-table ref="plTable" height="calc(100vh - 216px)" :data="mallListTemp" @cahgne>
         <el-table-column align="center" type="selection" width="50" />
         <el-table-column align="center" type="index" label="序列号" width="100" />
         <el-table-column align="center" prop="group_name" label="分组" />
@@ -103,6 +103,7 @@
 
 <script>
 import { getMallListAPI } from '../../../module-api/mall-manager-api/mall-list-api'
+import { exportExcelDataCommon } from '../../../util/util'
 export default {
   data() {
     return {
@@ -180,7 +181,15 @@ export default {
     //   // {scrollTop， scrollLeft, table, judgeFlse: 这个参数返回一个boolean值，为true则代表表格滚动到了底部了，false没有滚动到底部，必须开起大数据渲染模式才能有值哦}, event
     //   console.log(scrollTop, scrollLeft, table, judgeFlse)
     // },
-
+    downloadTemplate() {
+      const headers = `<tr>
+      <td>站点</td>
+      <td>店铺名称</td>
+      <td>店铺ID</td>
+      <td>店铺文字水印</td>
+      <td>分组</td>
+      </tr>`
+    },
     async getMallList() {
       const params = {}
       this.countryVal ? params['country'] = this.countryVal : ''
@@ -194,7 +203,7 @@ export default {
       this.mallList = res.data
       this.mallListTemp = this.mallList
       console.log('this.malllist', this.mallList)
-      this.$refs.plTable && this.$refs.plTable.reloadData(this.mallList)
+      // this.$refs.plTable && this.$refs.plTable.reloadData(this.mallList)
     }
   }
 }
