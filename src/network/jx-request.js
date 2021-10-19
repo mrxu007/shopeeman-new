@@ -78,6 +78,8 @@ export default {
 
   // 2021-10-14
   // 店铺管理
+  ddMallGoodsGetMallList: (data) => AppRequest.get('/ddMallGoods/getMallList', data), // 联动站点分组获取店铺列表
+  mallGroupIndex: (data) => AppRequest.get('/mallGroup/index', { params: data }), // 获取店铺分组列表
   getMallList: (data) => AppRequest.get('/bindMall/mallList', { params: data }), // 获取店铺列表
 
   // 异常公告

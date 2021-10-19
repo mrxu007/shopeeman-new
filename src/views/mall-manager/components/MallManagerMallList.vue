@@ -18,7 +18,7 @@
           </li>
           <li>
             <span>店铺状态：</span>
-            <el-select v-model="mallStausVal" placeholder="" size="mini" filterable>
+            <el-select v-model="mallStausVal" placeholder=""  size="mini" filterable>
               <el-option label="全部" :value="0" />
               <el-option v-for="(item, index) in mallStatus" :key="index" :label="item.label" :value="item.value" />
             </el-select>
@@ -125,13 +125,13 @@ export default {
       countriesObj: {
         'MY': '马来站',
         'TW': '台湾站',
-        '2': '冻结',
         'SG': '新加坡站',
         'PH': '菲律宾站',
         'TH': '泰国站',
         'VN': '越南站',
         'ID': '印尼站',
-        'BR': '巴西站'
+        'BR': '巴西站',
+        '2': '冻结',
       },
       mallSearchConditionVal: 'mallName',
       mallSearchCondition: [
