@@ -18,7 +18,7 @@
           </li>
           <li>
             <span>店铺状态：</span>
-            <el-select v-model="mallStausVal" placeholder="" size="mini" filterable>
+            <el-select v-model="mallStausVal" placeholder=""  size="mini" filterable>
               <el-option label="全部" :value="0" />
               <el-option v-for="(item, index) in mallStatus" :key="index" :label="item.label" :value="item.value" />
             </el-select>
@@ -58,57 +58,59 @@
         </ul>
       </el-col>
     </el-row>
-    <el-row class="article">
+    <el-row id="article">
       <!-- @table-body-scroll="tableScroll" -->
-      <u-table ref="plTable" :max-height="height" use-virtual :data-changes-scroll-top="false" :row-height="rowHeight" :border="false">
-        <u-table-column align="center" type="selection" width="50" />
-        <u-table-column align="center" type="index" label="序列号" width="100" />
-        <u-table-column align="center" prop="group_name" label="分组" />
-        <u-table-column align="center" prop="" label="站点">
+      <el-table ref="plTable" height="calc(100vh - 216px)" :data="mallListTemp" @cahgne>
+        <el-table-column align="center" type="selection" width="50" />
+        <el-table-column align="center" type="index" label="序列号" width="100" />
+        <el-table-column align="center" prop="group_name" label="分组" />
+        <el-table-column align="center" prop="" label="站点">
           <template v-slot="{ row }">
             {{ countriesObj[row.country] }}
           </template>
-        </u-table-column>
+        </el-table-column>
 
-        <u-table-column align="center" prop="mall_account_info" label="店铺真实名称">
+        <el-table-column align="center" prop="mall_account_info" label="店铺真实名称">
           <template v-slot="{ row }">
             {{ row.mall_account_info.userRealName }}
           </template>
-        </u-table-column>
-        <u-table-column align="center" prop="platform_mall_id" label="店铺ID" />
-        <u-table-column align="center" prop="good_mall_status" label="是否优质店铺">
+        </el-table-column>
+        <el-table-column align="center" prop="platform_mall_id" label="店铺ID" />
+        <el-table-column align="center" prop="good_mall_status" label="是否优质店铺">
           <template v-slot="{ row }">
             {{ row.good_mall_status === '-1' ? '否' : '是' }}
           </template>
-        </u-table-column>
-        <u-table-column align="center" prop="platform_mall_name" label="店铺账号" />
-        <u-table-column align="center" prop="watermark" label="店铺水印文字" />
-        <u-table-column align="center" prop="item_limit" label="店铺额度" />
-        <u-table-column align="center" prop="mall_alias_name" label="店铺别名" />
-        <u-table-column align="center" prop="web_login_info" label="登录状态">
+        </el-table-column>
+        <el-table-column align="center" prop="platform_mall_name" label="店铺账号" />
+        <el-table-column align="center" prop="watermark" label="店铺水印文字" />
+        <el-table-column align="center" prop="item_limit" label="店铺额度" />
+        <el-table-column align="center" prop="mall_alias_name" label="店铺别名" />
+        <el-table-column align="center" prop="web_login_info" label="登录状态">
           <template v-slot="{ row }">
             {{ row.web_login_info ? '检测成功' : '等待检测...' }}
           </template>
-        </u-table-column>
-        <u-table-column align="center" prop="mall_status" label="店铺状态">
+        </el-table-column>
+        <el-table-column align="center" prop="mall_status" label="店铺状态">
           <template v-slot="{ row }">
             {{ mallStatusObj[row.mall_status] }}
           </template>
-        </u-table-column>
-        <u-table-column align="center" prop="created_at" label="授权日期" />
-      </u-table>
+        </el-table-column>
+        <el-table-column align="center" prop="created_at" label="授权日期" />
+      </el-table>
     </el-row>
   </el-row>
 </template>
 
 <script>
 import { getMallListAPI } from '../../../module-api/mall-manager-api/mall-list-api'
+import { exportExcelDataCommon } from '../../../util/util'
 export default {
   data() {
     return {
-      height: 400,
+      height: 300,
       rowHeight: 50,
       mallList: [],
+      mallListTemp: [],
       countryVal: 0,
       countries: [
         { label: '马来站', value: 'MY' },
@@ -123,13 +125,13 @@ export default {
       countriesObj: {
         'MY': '马来站',
         'TW': '台湾站',
-        '2': '冻结',
         'SG': '新加坡站',
         'PH': '菲律宾站',
         'TH': '泰国站',
         'VN': '越南站',
         'ID': '印尼站',
-        'BR': '巴西站'
+        'BR': '巴西站',
+        '2': '冻结',
       },
       mallSearchConditionVal: 'mallName',
       mallSearchCondition: [
@@ -164,6 +166,13 @@ export default {
 
     }
   },
+  computed: {
+    heightCalc() {
+      const res = 'calc(100vh - 250px)'.replace('px', '')
+      debugger
+      return res
+    }
+  },
   created() {
     this.getMallList()
   },
@@ -172,7 +181,15 @@ export default {
     //   // {scrollTop， scrollLeft, table, judgeFlse: 这个参数返回一个boolean值，为true则代表表格滚动到了底部了，false没有滚动到底部，必须开起大数据渲染模式才能有值哦}, event
     //   console.log(scrollTop, scrollLeft, table, judgeFlse)
     // },
-
+    downloadTemplate() {
+      const headers = `<tr>
+      <td>站点</td>
+      <td>店铺名称</td>
+      <td>店铺ID</td>
+      <td>店铺文字水印</td>
+      <td>分组</td>
+      </tr>`
+    },
     async getMallList() {
       const params = {}
       this.countryVal ? params['country'] = this.countryVal : ''
@@ -184,8 +201,9 @@ export default {
         this.$message.error('获取店铺列表失败')
       }
       this.mallList = res.data
+      this.mallListTemp = this.mallList
       console.log('this.malllist', this.mallList)
-      this.$refs.plTable && this.$refs.plTable.reloadData(this.mallList)
+      // this.$refs.plTable && this.$refs.plTable.reloadData(this.mallList)
     }
   }
 }

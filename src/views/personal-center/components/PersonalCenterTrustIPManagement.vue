@@ -147,20 +147,10 @@ export default {
     }
   },
   mounted() {
-    this.testlogin()
-    this.getPhoneLists()
+    this.getUserInfo()
     this.getIPTrustList()
   },
   methods: {
-    // 获取手机号码列表信息
-    async getPhoneLists() {
-      const { data } = await this.$api.getPhoneLists()
-      if (data.code === 200) {
-        this.phoneTableData = data.data.phone_list
-      } else {
-        this.$message.error(`获取手机号失败${data.message}`)
-      }
-    },
     // 获取列表信息
     async getIPTrustList() {
       this.isloading = true
@@ -177,20 +167,16 @@ export default {
         this.isloading = false
       }
     },
-    // 需要登录
-    async testlogin() {
-      const params = {
-        username: 'yyn_test',
-        password: 'yyn123456',
-        appCode: 'shopeeman'
-      }
-      const { data } = await this.$api.testlogin(params)
-      console.log('login', data)
-      if (data.code === 200) {
-        this.isOpenIpCheck = data.data.is_open_ip_check + ''
-        this.trustIpCount = data.data.trust_ip_count
-      } else {
-        this.$message.error(`获取登录数据失败${data.message}`)
+    // 用户信息
+    async getUserInfo() {
+      try {
+        const data = await this.$appConfig.getUserInfo()
+        console.log('login', data)
+        this.isOpenIpCheck = data.is_open_ip_check + ''
+        this.trustIpCount = data.trust_ip_count
+        this.phoneTableData = data.phone_list
+      } catch (error) {
+        console.log(error)
       }
     },
     // 保存配置
@@ -297,11 +283,20 @@ export default {
       }
       const { data } = await this.$api.updatePhoneListForIp(params)
       if (data.code === 200) {
+        if (params.action === 1) {
+          this.phoneTableData.push(params.phone)
+        } else {
+          for (var i = 0; i < this.phoneTableData.length; i++) {
+            if (this.phoneTableData[i] === params.phone) {
+              this.phoneTableData.splice(i, 1)
+              break
+            }
+          }
+        }
         this.$message.success(`更新成功`)
       } else {
         this.$message.error(`更新失败${data.message}`)
       }
-      this.getPhoneLists()
     },
     closeDialog() {
       this.ipId = ''

@@ -4,8 +4,8 @@
     <div class=" content">
       <h2 style="text-align:center">软件绑定星卓越公众号流程</h2>
       <div><span>为了更好的开展国内中转仓异常包裹处理服务，星卓越已经推出异常包裹信息微信推送功能，请各位用户务必按照以下流程绑定星卓越公众号，绑定后即可通过微信了解到异常包裹信息并进行处理。</span></div>
-      <h3>绑定流程:</h3>
-      <img src="" style="width:200px;height:200px" alt="">
+      <h3 style="margin-top:20px">绑定流程:</h3>
+      <img :src="qrCodeImage1" style="width:200px;height:200px" alt="">
       <div class="step1">
         1、扫描上方的星卓越公众号二维码，<span style="color:red">点击关注</span>,收到公众号回复即为<span style="color:red">关注成功</span>
         <div class="imageGroup">
@@ -19,7 +19,7 @@
       <div class="step2">
         2、公众号关注成功后，在扫描下方的用户识别码，此二维码为<span style="color:red">软件账号唯一识别码（不同二维码信息不同）</span>扫描之后会弹出<span style="color:red">操作成功</span>的提示，即为账号绑定成功
         <div class="imageGroup">
-          <!-- <img :src="image4"> -->
+          <svg class="icon svg-icon" aria-hidden="true" v-html="qrCodeImage2" />
           <div class="arrow">
             <div class="divArrow" />
           </div>
@@ -48,7 +48,6 @@
 </template>
 
 <script>
-import axios from 'axios'
 export default {
   data() {
     return {
@@ -56,16 +55,28 @@ export default {
       image2: require('@/assets/image/catch-notice/image2.png'),
       image3: require('@/assets/image/catch-notice/image3.png'),
       image4: require('@/assets/image/catch-notice/image4.jpg'),
-      image5: require('@/assets/image/catch-notice/image5.png')
+      image5: require('@/assets/image/catch-notice/image5.png'),
+      qrCodeImage1: '',
+      qrCodeImage2: ''
     }
   },
   mounted() {
     this.getQrCode()
   },
   methods: {
+    test() {
+      this.getQrCode()
+    },
     async getQrCode() {
-      const result = await axios.get('http://user.xzygyl.com/api/wechat/qrCode')
-      console.log(result)
+      const userInfo = await this.$appConfig.getUserInfo()
+      const muid = userInfo.Muid
+      const result = JSON.parse(JSON.parse(await this.$XzyNetMessageService.getA('/api/wechat/qrCode', { params: { app_id: muid }})).data)
+      if (result.code == 200) {
+        this.qrCodeImage1 = result.data.wechatCode
+        this.qrCodeImage2 = result.data.qrCode
+      } else {
+        this.$message.error(result.message)
+      }
     }
   }
 }
@@ -75,6 +86,8 @@ export default {
   background: #fff;
   white-space: nowrap;
   overflow: hidden;
+  height: 100vh;
+  overflow-y: auto;
 }
 .content{
   width: 1200px;

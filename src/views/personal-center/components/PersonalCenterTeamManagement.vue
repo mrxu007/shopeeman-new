@@ -211,7 +211,7 @@ export default {
       }
       const shopGroupId = []
       this.multipleSelection.forEach(item => {
-        shopGroupId.push(item.id).toString()
+        shopGroupId.push(item.id)
       })
       switch (val) {
         case 'add':
@@ -283,7 +283,7 @@ export default {
         password: this.password,
         note: this.note,
         isEnable: this.diaIsEnable,
-        groupIds: shopGroupId
+        groupIds: shopGroupId.toString()
       }
       const { data } = await this.$api.editChildUsers(params)
       if (data.code === 200) {
@@ -296,6 +296,7 @@ export default {
     },
     // 添加子账号
     async addSubAccount(shopGroupId) {
+      console.log(shopGroupId.toString())
       if (this.tableData.length >= 20) {
         this.$message('子账号数量达到上限制')
         return
@@ -306,7 +307,7 @@ export default {
         password: this.password,
         note: this.note,
         isEnable: this.diaIsEnable,
-        groupIds: shopGroupId
+        groupIds: shopGroupId.toString()
       }
       const { data } = await this.$api.saveChildUsers(params)
       if (data.code === 200) {
