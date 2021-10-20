@@ -23,7 +23,8 @@ import errorHanleCature from 'error-capture-handle'
 import dayjs from 'dayjs'
 import applicationConfig from './services/application-config'
 import XzyNetMessageService from './services/XzyNetMessageService'
-import Logs  from "cyt-pl-plug";
+import YipService from './services/YipService'
+import Logs from 'cyt-pl-plug'
 
 import * as echarts from 'echarts'
 Vue.prototype.$echarts = echarts
@@ -43,9 +44,10 @@ Vue.use(UTableColumn)
 //   tagName: 'svgicon'
 // })
 
-Vue.use(Logs);
+Vue.use(Logs)
 Vue.use(VueDND)
 
+Vue.prototype.$YipService = new YipService()
 Vue.prototype.$XzyNetMessageService = new XzyNetMessageService()
 Vue.prototype.$appConfig = new applicationConfig()
 Vue.prototype.$IpcMain = IpcMain

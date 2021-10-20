@@ -43,8 +43,7 @@
             start-placeholder="开始日期"
             end-placeholder="结束日期"
             :picker-options="pickerOptions"
-          >
-          </el-date-picker>
+          />
         </div>
       </div>
       <div class="tool-row">
@@ -61,8 +60,8 @@
           </el-select>
         </div>
         <div class="tool-item mar-right">
-          <el-input placeholder="请输入内容" v-model="userName" size="mini" class="input-with-select">
-            <el-select v-model="userNameSelect" slot="prepend" placeholder="用户名称" style="width: 120px">
+          <el-input v-model="userName" placeholder="请输入内容" size="mini" class="input-with-select">
+            <el-select slot="prepend" v-model="userNameSelect" placeholder="用户名称" style="width: 120px">
               <el-option v-for="(item, index) in userType" :key="index" :label="item.label" :value="item.value" />
             </el-select>
           </el-input>
@@ -78,8 +77,8 @@
       </div>
     </div>
     <div class="content">
-      <el-table v-loading="tableLoading" ref="multipleTable" :data="tableData" tooltip-effect="dark" max-height="650">
-        <el-table-column type="selection" width="55"> </el-table-column>
+      <el-table ref="multipleTable" v-loading="tableLoading" :data="tableData" tooltip-effect="dark" max-height="650">
+        <el-table-column type="selection" width="55" />
         <el-table-column align="center" type="index" label="序号" width="50">
           <template slot-scope="scope">{{ (currentPage - 1) * pageSize + scope.$index + 1 }}</template>
         </el-table-column>
@@ -90,18 +89,18 @@
         <el-table-column align="center" prop="package_order_sn" label="商品图片" min-width="70" />
         <el-table-column prop="amount" label="买家姓名" align="center" min-width="90px" />
         <el-table-column align="center" prop="trans_status" label="评价星数" min-width="70">
-          <template slot-scope="scope"> </template>
+          <template slot-scope="scope" />
         </el-table-column>
         <el-table-column align="center" prop="current_amount" label="评价时间" min-width="70" />
         <el-table-column align="center" prop="customs_money" label="评价内容" min-width="80" />
         <el-table-column align="center" prop="first_express_money" label="您的回复" min-width="80" />
         <el-table-column align="center" prop="warhouse_money" label="回复时间" min-width="80" />
         <el-table-column align="center" prop="trans_status" label="操作状态" min-width="70">
-          <template slot-scope="scope"> </template>
+          <template slot-scope="scope" />
         </el-table-column>
       </el-table>
     </div>
-    <Logs ref="Logs" clear v-model="showConsole" />
+    <Logs ref="Logs" v-model="showConsole" clear />
   </div>
 </template>
 
@@ -112,7 +111,7 @@ export default {
       pickerOptions: {
         disabledDate(time) {
           return time.getTime() > Date.now()
-        },
+        }
       },
       countryVal: '',
       groupId: '',
@@ -125,7 +124,7 @@ export default {
         { label: '泰国站', value: 'TH' },
         { label: '越南站', value: 'VN' },
         { label: '印尼站', value: 'ID' },
-        { label: '巴西站', value: 'BR' },
+        { label: '巴西站', value: 'BR' }
       ],
       assessTime: [],
       tableData: [],
@@ -134,69 +133,69 @@ export default {
       replayTypeList: [
         {
           value: '',
-          label: '全部',
+          label: '全部'
         },
         {
           value: '1',
-          label: '待回复',
+          label: '待回复'
         },
         {
           value: '',
-          label: '已回复',
-        },
+          label: '已回复'
+        }
       ],
       startNum: '',
       startNumList: [
         {
           value: '',
-          label: '全部',
+          label: '全部'
         },
         {
           value: '5',
-          label: '五颗星',
+          label: '五颗星'
         },
         {
           value: '4',
-          label: '四颗星',
+          label: '四颗星'
         },
         {
           value: '3',
-          label: '三颗星',
+          label: '三颗星'
         },
         {
           value: '2',
-          label: '两颗星',
+          label: '两颗星'
         },
         {
           value: '1',
-          label: '一颗星',
-        },
+          label: '一颗星'
+        }
       ],
       userName: '',
       userNameSelect: '',
       userType: [
         {
           value: '用户名称',
-          label: '用户名称',
+          label: '用户名称'
         },
         {
           value: '商品名称',
-          label: '商品名称',
+          label: '商品名称'
         },
         {
           value: '规格名称',
-          label: '规格名称',
-        },
+          label: '规格名称'
+        }
       ],
-      showConsole: true,
+      showConsole: true
     }
   },
   methods: {
-      //清除日志
-      clearLog(){
-          this.$refs.Logs.consoleMsg = ''
-      }
-  },
+    // 清除日志
+    clearLog() {
+      this.$refs.Logs.consoleMsg = ''
+    }
+  }
 }
 </script>
 

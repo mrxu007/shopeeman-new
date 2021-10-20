@@ -72,8 +72,8 @@
     </div>
     <div class="base_option_button" style="margin: 10px;">
       <el-button size="mini" type="primary">新增公司主体</el-button>
-      <el-button size="mini" type="primary">解绑主体IP</el-button>
-      <el-button size="mini" type="primary">绑定主体IP</el-button>
+      <!-- <el-button size="mini" type="primary">解绑主体IP</el-button> -->
+      <!-- <el-button size="mini" type="primary">绑定主体IP</el-button> -->
       <el-button size="mini" type="primary">清除IP缓存</el-button>
       <el-button size="mini" type="primary">新增自有IP公司主体</el-button>
       <el-button size="mini" type="primary">续费一个月</el-button>
@@ -174,9 +174,21 @@ export default {
   },
   methods: {
     // ip- tableList
-    async getTableList(params) {
-      const res = await this.$api.getMallManagerStoreMainManagementList(params)
+    async getTableList() {
+      const params = {}
+      const userInfo = await this.$appConfig.getUserInfo()
+      console.log('55', userInfo)
+      params.uid = userInfo.muid
+      params.uuid = ''
+      params.ip_alias = ''
+      params.source = 1
+      params.status = ''
+      params.supplier_info = ''
+      params.expiration_dates = ''
+      params.ip_id = ''
+      const res = await this.$YipService.GetIpList(JSON.stringify(params))
       console.log(res)
+      // console.log(res)
     },
     // 分页递增
     indexMethod(index) {

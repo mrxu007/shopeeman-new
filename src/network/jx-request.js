@@ -107,8 +107,8 @@ export default {
   // 店铺管理
   getMallManagerStoreMainManagementList: (data) => AppRequest.get('/yunip/api/myiplist', { params: data }), // 店铺主体管理列表
   getPaymentList: (data) => AppRequest2.post('/api/mallAccountBill', data), // 货款对账列表
-  // 获取站点信息
   getMallSite: (data) => AppRequest2.get('/api/ddMallGoods/getMallList', { params: data }), // 店铺站点信息
-  exchangeRateList: (data) => AppRequest2.get('/api/exchangeRateList', { params: data }) // 获取汇率
+  exchangeRateList: (data) => AppRequest2.get('/api/exchangeRateList', { params: data }), // 获取汇率
+  updateMallInfo: (data) => AppRequest2.post('/api/bindMall/updateMallInfo', { params: data }) // 同步信息
 
 }
