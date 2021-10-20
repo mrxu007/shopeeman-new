@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-10-08 14:16:18
- * @LastEditTime: 2021-10-15 15:32:42
+ * @LastEditTime: 2021-10-18 10:49:29
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shopeeman-new\src\views\personal-center\components\PersonalCenterStoreFinance.vue
@@ -101,7 +101,7 @@
           <el-table-column min-width="160px" label="内部交易单号" prop="trade_no" align="center" />
           <el-table-column min-width="60px" label="充值金额" prop="amount" align="center" />
           <el-table-column align="center" label="交易时间" min-width="60">
-            <template slot-scope="scope"> {{ $dayjs(scope.row.trans_time*1000).format('YYYY-MM-DD') }} </template>
+            <template slot-scope="scope"> {{ $dayjs(scope.row.trans_time * 1000).format('YYYY-MM-DD') }} </template>
           </el-table-column>
           <el-table-column align="center" prop="receipt_amount" label="实收金额" min-width="70" />
           <el-table-column align="center" prop="buyer_pay_amount" label="买家付款金额" min-width="70" />
@@ -115,10 +115,10 @@
           <el-table-column align="center" prop="buyer_id" label="买家支付宝唯一用户号" min-width="120" />
           <el-table-column align="center" prop="remark" label="备注" min-width="80" />
           <el-table-column align="center" label="支付时间" min-width="60">
-            <template slot-scope="scope"> {{ $dayjs(scope.row.pay_time*1000).format('YYYY-MM-DD') }} </template>
+            <template slot-scope="scope"> {{ $dayjs(scope.row.pay_time * 1000).format('YYYY-MM-DD') }} </template>
           </el-table-column>
           <el-table-column align="center" label="交易创建时间" min-width="60">
-            <template slot-scope="scope"> {{ $dayjs(scope.row.gmt_create*1000).format('YYYY-MM-DD') }} </template>
+            <template slot-scope="scope"> {{ $dayjs(scope.row.gmt_create * 1000).format('YYYY-MM-DD') }} </template>
           </el-table-column>
         </el-table>
       </div>
@@ -143,19 +143,19 @@
             <template slot-scope="scope" v-if="scope.row.type"> {{ scope.row.type === 1 ? '收入' : '支出' }} </template>
           </el-table-column>
           <el-table-column align="center" prop="trans_type" label="交易类型" min-width="70">
-            <template slot-scope="scope"> {{changeTypeName(scope.row.trans_type,tradeTypeList)}} </template>
+            <template slot-scope="scope"> {{ changeTypeName(scope.row.trans_type, tradeTypeList) }} </template>
           </el-table-column>
           <el-table-column align="center" prop="package_order_sn" label="订单编号" min-width="70" />
           <el-table-column prop="amount" label="交易金额" align="center" min-width="90px" />
           <el-table-column align="center" prop="trans_status" label="交易状态" min-width="70">
-            <template slot-scope="scope"> {{changeTypeName(scope.row.trans_status,tradeStatusList)}} </template>
+            <template slot-scope="scope"> {{ changeTypeName(scope.row.trans_status, tradeStatusList) }} </template>
           </el-table-column>
           <el-table-column align="center" prop="current_amount" label="当前剩余金额" min-width="70" />
           <el-table-column align="center" prop="customs_money" label="清关费用" min-width="80" />
           <el-table-column align="center" prop="first_express_money" label="头程物流费用" min-width="80" />
           <el-table-column align="center" prop="warhouse_money" label="仓库操作费" min-width="80" />
           <el-table-column align="center" prop="order_outbound_img" label="出库图片" min-width="70">
-            <template slot-scope="scope" > 
+            <template slot-scope="scope">
               <el-image :src="scope.row.order_outbound_img" v-if="scope.row.order_outbound_img"></el-image>
             </template>
           </el-table-column>
@@ -273,7 +273,7 @@ export default {
         {
           value: '5',
           label: '已向用户发起扣款',
-        }
+        },
       ],
       muid: null, //app_uid
       balanceLoading: false,
@@ -291,7 +291,7 @@ export default {
     this.searchUserBalance()
   },
   methods: {
-    async userRecharge(){
+    async userRecharge() {
       window.open(`http://user.xzy.17hyj.com/externalPay?amount=${this.rechargeMoney}&app_uid=${this.muid}&remark=${this.rechargeRemark}`)
     },
     async exportTableData() {
@@ -369,7 +369,7 @@ export default {
         str += `<tr><td>${num++}</td>
                     <td style="mso-number-format:'\@';">${item.trade_no ? item.trade_no : '' + '\t'}</td>
                     <td>${item.amount ? item.amount : '' + '\t'}</td>
-                    <td>${item.trans_time && this.$dayjs(item.trans_time*1000).format('YYYY-MM-DD') + '\t'}</td>
+                    <td>${item.trans_time && this.$dayjs(item.trans_time * 1000).format('YYYY-MM-DD') + '\t'}</td>
                     <td>${item.receipt_amount ? item.receipt_amount : '' + '\t'}</td>
                     <td>${item.buyer_pay_amount ? item.buyer_pay_amount : '' + '\t'}</td>
                     <td>${item.status ? (item.status === 1 ? '进行中' : '充值成功') : '' + '\t'}</td> 
@@ -377,8 +377,8 @@ export default {
                     <td style="mso-number-format:'\@';">${item.seller_id ? item.seller_id : '' + '\t'}</td>
                     <td style="mso-number-format:'\@';">${item.buyer_id ? item.buyer_id : '' + '\t'}</td>
                     <td>${item.remark ? item.remark : '' + '\t'}</td>
-                    <td>${item.pay_time ? this.$dayjs(item.pay_time*1000).format('YYYY-MM-DD') : '' + '\t'}</td>
-                    <td>${item.gmt_create ? this.$dayjs(item.gmt_create*1000).format('YYYY-MM-DD') : '' + '\t'}</td>
+                    <td>${item.pay_time ? this.$dayjs(item.pay_time * 1000).format('YYYY-MM-DD') : '' + '\t'}</td>
+                    <td>${item.gmt_create ? this.$dayjs(item.gmt_create * 1000).format('YYYY-MM-DD') : '' + '\t'}</td>
                 </tr>`
       }
       exportExcelDataCommon('充值记录数据', str)
@@ -408,10 +408,10 @@ export default {
                     <td>${item.warehouse_name ? item.warehouse_name : '' + '\t'}</td>
                     <td style="mso-number-format:'\@';">${item.trans_number ? item.trans_number : '' + '\t'}</td>
                     <td>${item.type && item.type === 1 ? '收入' : '支出' + '\t'}</td>
-                    <td>${item.trans_type ? this.changeTypeName(item.trans_type,this.tradeTypeList) : '' + '\t'}</td>
+                    <td>${item.trans_type ? this.changeTypeName(item.trans_type, this.tradeTypeList) : '' + '\t'}</td>
                     <td>${item.package_order_sn ? item.package_order_sn : '' + '\t'}</td>
                     <td>${item.amount ? item.amount : '' + '\t'}</td> 
-                    <td>${item.trans_status ?this.changeTypeName(item.trans_status,this.tradeStatusList)  : '' + '\t'}</td>
+                    <td>${item.trans_status ? this.changeTypeName(item.trans_status, this.tradeStatusList) : '' + '\t'}</td>
                     <td>${item.current_amount ? item.current_amount : '' + '\t'}</td>
                     <td>${item.customs_money ? item.customs_money : '' + '\t'}</td>
                     <td>${item.first_express_money ? item.first_express_money : '' + '\t'}</td>
@@ -433,15 +433,19 @@ export default {
       let params = {
         app_uid: this.muid,
       }
-      let res = await this.$XzyNetMessageService.post('xzy.UserGetUserDetail', params)
-      if (res) {
-        let resObj = JSON.parse(res)
-        let info = JSON.parse(resObj.data)
-        if (info.code === 200) {
-          this.userBalance = info.data.amount
+      try {
+        let res = await this.$XzyNetMessageService.post('xzy.UserGetUserDetail', params)
+        if (res) {
+          let resObj = JSON.parse(res)
+          let info = JSON.parse(resObj.data)
+          if (info.code === 200) {
+            this.userBalance = info.data.amount
+          }
         }
+        // await sleep(1000)
+      } catch (error) {
+        console.log(error)
       }
-      // await sleep(1000)
       this.balanceLoading = false
     },
     //用户账单记录查询
@@ -455,14 +459,18 @@ export default {
         trans_type: this.tradeType,
       }
       this.tableLoading = true
-      let res = await this.$XzyNetMessageService.post('xzy.UserGetUserAccountAmount', params)
-      if (res) {
-        let resObj = JSON.parse(res)
-        let info = JSON.parse(resObj.data)
-        if (info.code === 200) {
-          this.tableData = info.data.data
-          this.total = info.data.total
+      try {
+        let res = await this.$XzyNetMessageService.post('xzy.UserGetUserAccountAmount', params)
+        if (res) {
+          let resObj = JSON.parse(res)
+          let info = JSON.parse(resObj.data)
+          if (info.code === 200) {
+            this.tableData = info.data.data
+            this.total = info.data.total
+          }
         }
+      } catch (error) {
+        console.log(error)
       }
       this.tableLoading = false
     },
@@ -475,14 +483,18 @@ export default {
         trans_time: this.tradeTime.length ? this.setDateFmt(this.tradeTime).join('/') : '',
       }
       this.tableLoading = true
-      let res = await this.$XzyNetMessageService.post('xzy.UserGetUserRecharge', params)
-      if (res) {
-        let resObj = JSON.parse(res)
-        let info = JSON.parse(resObj.data)
-        if (info.code === 200) {
-          this.tableData = info.data.data
-          this.total = info.data.total
+      try {
+        let res = await this.$XzyNetMessageService.post('xzy.UserGetUserRecharge', params)
+        if (res) {
+          let resObj = JSON.parse(res)
+          let info = JSON.parse(resObj.data)
+          if (info.code === 200) {
+            this.tableData = info.data.data
+            this.total = info.data.total
+          }
         }
+      } catch (error) {
+        console.log(error)
       }
       this.tableLoading = false
     },
@@ -509,25 +521,25 @@ export default {
       this.tradeTime = []
       this.tradeType = ''
       this.orderNumber = ''
-      if(this.activeName === 'rechargeRecord'){
+      if (this.activeName === 'rechargeRecord') {
         this.searchRechargeRecord()
-      }else if(this.activeName === 'accountRecord'){
+      } else if (this.activeName === 'accountRecord') {
         this.searchBillRecord()
       }
     },
     handleCurrentChange(val) {
       this.currentPage = val
-      if(this.activeName === 'rechargeRecord'){
+      if (this.activeName === 'rechargeRecord') {
         this.searchRechargeRecord()
-      }else if(this.activeName === 'accountRecord'){
+      } else if (this.activeName === 'accountRecord') {
         this.searchBillRecord()
       }
     },
     handleSizeChange(size) {
       this.pageSize = size
-      if(this.activeName === 'rechargeRecord'){
+      if (this.activeName === 'rechargeRecord') {
         this.searchRechargeRecord()
-      }else if(this.activeName === 'accountRecord'){
+      } else if (this.activeName === 'accountRecord') {
         this.searchBillRecord()
       }
     },

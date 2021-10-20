@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-10-08 14:16:18
- * @LastEditTime: 2021-10-13 17:48:18
+ * @LastEditTime: 2021-10-19 11:23:00
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shopeeman-new\src\main.js
@@ -16,13 +16,14 @@ import 'umy-ui/lib/theme-chalk/index.css' // 引入样式
 import { IpcMain, NetService } from 'cyt-ipc'
 import api from './network/jx-request'
 import gatewayService from './network/gateway/gateway-request'
-import SvgIcon from 'vue-svgicon'
+import SvgIocn from 'vue-svgicon'
 import VueDND from 'awe-dnd'
 import { UTable, UTableColumn } from 'umy-ui'
 import errorHanleCature from 'error-capture-handle'
 import dayjs from 'dayjs'
 import applicationConfig from './services/application-config'
 import XzyNetMessageService from './services/XzyNetMessageService'
+import Logs  from "cyt-pl-plug";
 
 import * as echarts from 'echarts'
 Vue.prototype.$echarts = echarts
@@ -38,9 +39,11 @@ Vue.prototype.$echarts = echarts
 Vue.use(UTable)
 Vue.use(UTableColumn)
 
-Vue.use(SvgIcon, {
-  tagName: 'svgicon'
-})
+// Vue.use(SvgIcon, {
+//   tagName: 'svgicon'
+// })
+
+Vue.use(Logs);
 Vue.use(VueDND)
 
 Vue.prototype.$XzyNetMessageService = new XzyNetMessageService()
