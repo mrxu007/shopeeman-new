@@ -173,11 +173,10 @@ export default {
     this.getTableList()// tableList
   },
   methods: {
-    // tableList
+    // ip- tableList
     async getTableList(params) {
-      await this.$api.getOrderStatisticsList()
-    //   const res = await this.$api.getMallManagerStoreMainManagementList(params)
-    //   console.log(res)
+      const res = await this.$api.getMallManagerStoreMainManagementList(params)
+      console.log(res)
     },
     // 分页递增
     indexMethod(index) {

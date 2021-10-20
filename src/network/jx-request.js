@@ -17,6 +17,14 @@ const AppRequest = axios.create({ // 壳内转发请求
     return jxAdapter(config)
   }
 })
+const AppRequest2 = axios.create({ // 壳内转发请求
+  baseURL: 'http://local.spm.com',
+  timeout: 5000,
+  withCredentials: true,
+  adapter: config => {
+    return jxAdapter(config)
+  }
+})
 const ycjRequest = axios.create({ // 云采集请求
   baseURL: 'http://129.204.71.240',
   timeout: 5000,
@@ -29,7 +37,8 @@ const otherRequest = axios.create({ // 第三方请求
   timeout: 5000,
   headers: {
     'User-Agent':
-      'Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/537.36'
+      'Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/537.36',
+    'Accept': 'application/vnd.ppxias.v3+json'
   },
   withCredentials: true,
   adapter: config => {
@@ -92,5 +101,10 @@ export default {
 
   // 2021-10-18
   // 店铺管理
-  getMallManagerStoreMainManagementList: (data) => AppRequest.get('/yunip/api/myiplist', { params: data }) // 店铺主体管理列表
+  getMallManagerStoreMainManagementList: (data) => AppRequest.get('/yunip/api/myiplist', { params: data }), // 店铺主体管理列表
+  getPaymentList: (data) => AppRequest2.post('/api/mallAccountBill', data), // 货款对账列表
+  // 获取站点信息
+  getMallSite: (data) => AppRequest2.get('/api/ddMallGoods/getMallList', { params: data }), // 店铺站点信息
+  exchangeRateList: (data) => AppRequest2.get('/api/exchangeRateList', { params: data }) // 获取汇率
+
 }
