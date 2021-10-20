@@ -226,3 +226,4 @@ export function exportCsvDataCommon(fileName, str) {
   a.click()
   document.body.removeChild(a)
 }
+

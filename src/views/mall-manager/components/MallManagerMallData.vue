@@ -45,7 +45,7 @@
             <li>
               <el-button type="primary" size="mini" @click="getMallStatistics()">查询</el-button>
               <el-button type="primary" size="mini" @click="handlerSelectTableOperating('exportSearch')">导出数据</el-button>
-              <el-button type="primary" size="mini" @click="syncMallData()">同步店铺数据</el-button>
+              <el-button type="primary" size="mini" @click="handlerSelectTableOperating('syncMallData')">同步店铺数据</el-button>
             </li>
             <li>
               <el-progress v-show="isShowProgress" style="width:230px" :text-inside="true" :stroke-width="24" :percentage="percentage" status="success" />
@@ -200,6 +200,8 @@
 </template>
 
 <script>
+import ShopeeConfig from '@/services/shopeeman-config'
+import { exportExcelDataCommon } from '@/util/util'
 export default {
   data() {
     return {
@@ -217,12 +219,13 @@ export default {
       frozenAmount: 0, // 待拨款总金额
       frozenAmountOrders: 0, // 待拨款总订单数
       multipleSelection: [],
+      shopeeConfig: new ShopeeConfig(),
       form: {
         groupId: 0, // 店铺分组ID
         agoNoneOrderDays: '0', // 距今无订单天数
         site: '', // 站点
         shopSelect: '0', // 店铺选择
-        serviceDataTime: '3', // 客服数据统计时间
+        serviceDataTime: 'real_time', // 客服数据统计时间
         shopSelectVal: '' // 店铺选择值
       },
       siteList: [
@@ -248,10 +251,10 @@ export default {
         { value: '2', label: '店铺别名' }
       ],
       serviceDataTimeList: [
-        { value: '0', label: '昨天' },
-        { value: '1', label: '今天' },
-        { value: '2', label: '7天' },
-        { value: '3', label: '30天' }
+        { value: 'yesterday', label: '昨天' },
+        { value: 'real_time', label: '今天' },
+        { value: 'past7days', label: '7天' },
+        { value: 'past30days', label: '30天' }
       ]
     }
   },
@@ -261,66 +264,24 @@ export default {
   },
   methods: {
     // 同步店铺数据
-    async syncMallData() {
-      if (!this.multipleSelection.length) return this.$message('请选择要同步的数据')
+    async syncMallData(data) {
+      const url = this.shopeeConfig.getSiteDomainCrossBk('VN')
+      console.log(url)
       this.isShowProgress = true
       this.percentage = 0
-      let serviceDataTime = ''
-      switch (this.form.serviceDataTime) {
-        case '0':
-          serviceDataTime = Date.parse(new Date()) / 1000
-          break
-        case '1':
-          serviceDataTime = Date.parse(new Date()) / 1000
-          break
+      const { startTime, endTime } = this.getTimeStamp(this.form.serviceDataTime)
+      const parmas = {
+        start_time: parseInt(startTime / 1000),
+        end_time: parseInt(endTime / 1000),
+        period: this.form.serviceDataTime,
+        fetag: 'fetag'
       }
-      this.multipleSelection.status = ''
-      for (let index = 0; index < this.multipleSelection.length; index++) {
-        this.$set(this.multipleSelection[index], 'status', '开始同步')
-        this.percentage = parseInt((index + 1) / this.tableData.length * 100)
-        this.$set(this.multipleSelection[index], 'status', '同步完成')
+      console.log(parmas)
+      for (let index = 0; index < data.length; index++) {
+        this.$set(data[index], 'status', '开始同步')
+        this.percentage = parseInt((index + 1) / data.length * 100)
+        this.$set(data[index], 'status', '同步完成')
       }
-      // let parmas = {}
-      // for (let index = 0; index < this.tableData.length; index++) {
-      //   const item = this.tableData[index]
-      //   parmas = {
-      //     allProduct: item.all_product_num,
-      //     bannedProduct: item.banned_product_num,
-      //     soldoutProduct: item.soldout_product_num,
-      //     unlistedProduct: item.unlisted_product_num,
-      //     activeProduct: item.active_product_num,
-      //     fansNumber: item.fans_number,
-      //     followersNumber: item.followers_number,
-      //     displayResponseRate: item.chat_response_rate,
-      //     ratingStar: item.rating_star,
-      //     nonFulfillmentRate: item.order_non_fulfillment_rate,
-      //     todayViewProductCount: item.today_view_product_count,
-      //     yesterdayViewProductCount: item.yesterday_view_product_count,
-      //     weekViewProductCount: item.week_view_product_count,
-      //     monthViewProductCount: item.month_view_product_count,
-      //     todayViewPersonCount: item.today_view_person_count,
-      //     yesterdayViewPersonCount: item.yesterday_view_person_count,
-      //     weekViewPersonCount: item.week_view_person_count,
-      //     monthViewPersonCount: item.month_view_person_count,
-      //     mallQuota: item.mall_quota,
-      //     mallDatas: {
-      //       ChatShopUvData: item.mall_datas.ChatShopUvData ? item.mall_datas.ChatShopUvData : '',
-      //       ChatsEnquiredData: item.mall_datas && item.mall_datas.ChatsEnquiredData ? item.mall_datas.ChatsEnquiredData : '',
-      //       ChatVisitorsEnquiredData: item.mall_datas && item.mall_datas.ChatVisitorsEnquiredData ? item.mall_datas.ChatVisitorsEnquiredData : '',
-      //       ChatRespondedChatsData: item.mall_datas && item.mall_datas.ChatRespondedChatsData ? item.mall_datas.ChatRespondedChatsData : '',
-      //       ChatNonRespondedChatsData: item.mall_datas && item.mall_datas.ChatNonRespondedChatsData ? item.mall_datas.ChatNonRespondedChatsData : '',
-      //       ChatResponseTimeData: item.mall_datas && item.mall_datas.ChatResponseTimeData ? item.mall_datas.ChatResponseTimeData : '',
-      //       ChatBuyersData: item.mall_datas && item.mall_datas.ChatBuyersData ? item.mall_datas.ChatBuyersData : '',
-      //       ChatOrdersData: item.mall_datas && item.mall_datas.ChatOrdersData ? item.mall_datas.ChatOrdersData : '',
-      //       ChatUnitsData: item.mall_datas && item.mall_datas.ChatUnitsData ? item.mall_datas.ChatUnitsData : '',
-      //       ChatSalesData: item.mall_datas && item.mall_datas.ChatSalesData ? item.mall_datas.ChatSalesData : ''
-      //     },
-      //     sysMallId: item.id
-      //   }
-      //   const { data } = await this.$api.syncMallData(parmas)
-      //   console.log('传入数据', parmas)
-      //   console.log('获取数据', data)
-      // }
     },
     // 点击店铺分组
     rowClick(row) {
@@ -366,7 +327,7 @@ export default {
         this.total = resData.total
         this.tableData = resData.data
         this.tableData.map(item => {
-          item.country = this.setCountry(item.country)
+          item.country = this.shopeeConfig.getSiteCode(item.country)
           item.mall_datas = JSON.parse(item.mall_datas)
           item.available_amount = item.available_amount ? parseInt(item.available_amount) : 0
           item.lastmonth_amount = item.lastmonth_amount ? parseInt(item.lastmonth_amount) : 0
@@ -381,8 +342,13 @@ export default {
           item.not_order_time = item.recent_order_create_time ? this.formatDay(item.recent_order_create_time) : '无订单记录'
           testData.forEach(nItem => {
             item.group_name = item.platform_mall_id === nItem.platform_mall_id ? nItem.group_name : item.group_name
+            item.mall_type = item.platform_mall_id === nItem.platform_mall_id ? nItem.mall_type : item.mall_type
           })
+          // this.$nextTick(() => {
+          //   this.$refs.plTable.toggleRowSelection([{ row: item }])
+          // })
         })
+
         this.isLoading = false
         console.log('tableData', this.tableData)
       } else {
@@ -400,40 +366,36 @@ export default {
       const day = parseInt(total / (24 * 60 * 60))
       return day
     },
-    setCountry(val) {
-      switch (val) {
-        case 'MY':
-          return '马来站'
-        case 'TW':
-          return '台湾站'
-        case 'SG':
-          return '新加坡站'
-        case 'PH':
-          return '菲律宾站'
-        case 'TH':
-          return '泰国站'
-        case 'VN':
-          return '越南站'
-        case 'ID':
-          return '印尼站'
-        case 'BR':
-          return '巴西站'
-        case 'MX':
-          return '墨西哥站'
-        case 'CO':
-          return '哥伦比亚站'
-        case 'CL':
-          return '智利站'
-        case 'PL':
-          return '波兰站'
-      }
-    },
     // 勾选表格操作
     handlerSelectTableOperating(OperatingName) {
       if (this.multipleSelection.length) {
         this[OperatingName](this.multipleSelection)
       } else {
         this[OperatingName](this.tableData)
+      }
+    },
+    // 获取时间戳
+    getTimeStamp(val) {
+      const toData = new Date(new Date().toLocaleDateString()).getTime()
+      let startTime = ''
+      let endTime = ''
+      switch (val) {
+        case 'yesterday':
+          startTime = toData - 3600 * 24 * 1000
+          endTime = (startTime) + 24 * 60 * 60 * 1000 - 1
+          return { startTime, endTime }
+        case 'real_time':
+          startTime = toData
+          endTime = startTime + 24 * 60 * 60 * 1000 - 1
+          return { startTime, endTime }
+        case 'past7days':
+          startTime = toData - 7 * 3600 * 24 * 1000
+          endTime = (startTime) + 24 * 60 * 60 * 1000 - 1
+          return { startTime, endTime }
+        case 'past30days':
+          startTime = toData - 30 * 3600 * 24 * 1000
+          endTime = (startTime) + 24 * 60 * 60 * 1000 - 1
+          return { startTime, endTime }
       }
     },
     // 导出采集,excel
@@ -495,7 +457,7 @@ export default {
         <td>${item.country ? item.country : '' + '\t'}</td>
         <td>${item.platform_mall_id ? item.platform_mall_id : '' + '\t'}</td>
         <td>${item.mall_alias_name ? item.mall_alias_name : item.platform_mall_name + '\t'}</td>
-        <td>${item.aaa ? item.aaa : '' + '\t'}</td>
+        <td>${item.group_name ? item.group_name : '' + '\t'}</td>
         <td>${item.recent_order_create_time ? item.recent_order_create_time : '' + '\t'}</td>
         <td>${item.not_order_time ? item.not_order_time : '' + '\t'}</td>
         <td>${item.yesterday_order_num ? item.yesterday_order_num : '' + '\t'}</td>
@@ -537,27 +499,7 @@ export default {
         <td>${item.available_amount ? item.available_amount : '' + '\t'}</td>
         </tr>`
       })
-      // Worksheet名
-      const worksheet = '店铺数据'
-      // let uri = 'data:application/vnd.ms-excel;base64,'
-      // 下载的表格模板数据
-      const template = `<html xmlns:o="urn:schemas-microsoft-com:office:office" 
-          xmlns:x="urn:schemas-microsoft-com:office:excel" 
-          xmlns="http://www.w3.org/TR/REC-html40">
-          <head><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet>
-            <x:Name>${worksheet}</x:Name>
-            <x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet>
-            </x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]-->
-            </head><body><table>${str}</table></body></html>`
-      // 下载模板
-      const blob = new Blob([template], { type: 'html', name: worksheet })
-      const a = document.createElement('a')
-      document.body.appendChild(a)
-      // a.href = uri + this.base64(template)
-      a.href = URL.createObjectURL(blob)
-      a.download = '店铺数据.xls'
-      a.click()
-      document.body.removeChild(a)
+      exportExcelDataCommon('店铺数据', str)
     },
     tableScroll() {},
     handleSizeChange(val) {

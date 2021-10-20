@@ -30,7 +30,7 @@
             </li>
             <li>
               <el-button type="primary" size="mini" @click="getMallStatistics()">查询</el-button>
-              <el-button type="primary" size="mini" @click="syncMallData()">同步店铺指标数据</el-button>
+              <el-button type="primary" size="mini" @click="handlerSelectTableOperating('syncMallData')">同步店铺指标数据</el-button>
               <el-button type="primary" size="mini" @click="handlerSelectTableOperating('exportSearch')">导出数据</el-button>
             </li>
             <li>
@@ -377,6 +377,8 @@
 </template>
 
 <script>
+import ShopeeConfig from '@/services/shopeeman-config'
+import { exportExcelDataCommon } from '@/util/util'
 export default {
   data() {
     return {
@@ -389,6 +391,7 @@ export default {
       multipleSelection: [],
       percentage: 0, // 进度条数据
       isShowProgress: false,
+      shopeeConfig: new ShopeeConfig(),
       form: {
         site: '', // 站点
         orderIndex: '0', // 订单完成指标
@@ -427,14 +430,15 @@ export default {
   },
   methods: {
     // 同步店铺指标数据
-    syncMallData() {
+    async syncMallData(data) {
+      const url = this.shopeeConfig.getSiteDomainCrossBk('VN')
+      console.log(url)
       this.isShowProgress = true
       this.percentage = 0
-      this.tableData.status = ''
-      for (let index = 0; index < this.tableData.length; index++) {
-        this.$set(this.tableData[index], 'status', '开始同步')
-        this.percentage = parseInt((index + 1) / this.tableData.length * 100)
-        this.$set(this.tableData[index], 'status', '同步完成')
+      for (let index = 0; index < data.length; index++) {
+        this.$set(data[index], 'status', '开始同步')
+        this.percentage = parseInt((index + 1) / data.length * 100)
+        this.$set(data[index], 'status', '同步完成')
       }
     },
     // 点击店铺分组
@@ -470,7 +474,7 @@ export default {
         this.total = resData.total
         this.tableData = resData.data
         this.tableData.map(item => {
-          item.country = this.setCountry(item.country)
+          item.country = this.shopeeConfig.getSiteCode(item.country)
           item.order_service_indicators = item.order_service_indicators ? JSON.parse(item.order_service_indicators) : ''
         })
         this.isLoading = false
@@ -478,34 +482,6 @@ export default {
       } else {
         this.$message.error(`${data.message}`)
         this.isLoading = false
-      }
-    },
-    setCountry(val) {
-      switch (val) {
-        case 'MY':
-          return '马来站'
-        case 'TW':
-          return '台湾站'
-        case 'SG':
-          return '新加坡站'
-        case 'PH':
-          return '菲律宾站'
-        case 'TH':
-          return '泰国站'
-        case 'VN':
-          return '越南站'
-        case 'ID':
-          return '印尼站'
-        case 'BR':
-          return '巴西站'
-        case 'MX':
-          return '墨西哥站'
-        case 'CO':
-          return '哥伦比亚站'
-        case 'CL':
-          return '智利站'
-        case 'PL':
-          return '波兰站'
       }
     },
     // 勾选表格操作
@@ -627,31 +603,9 @@ export default {
         <td>${item.order_service_indicators && item.order_service_indicators.WeekResponseSpeed ? item.order_service_indicators.WeekResponseSpeed : '' + '\t'}</td>
         <td>${item.order_service_indicators && item.order_service_indicators.ChatResponsePoint ? item.order_service_indicators.ChatResponsePoint : '' + '\t'}</td>
         <td>${item.order_service_indicators && item.order_service_indicators.ResponseSpeedPoint ? item.order_service_indicators.ResponseSpeedPoint : '' + '\t'}</td>
-
-
         </tr>`
       })
-      // Worksheet名
-      const worksheet = '店铺指标'
-      // let uri = 'data:application/vnd.ms-excel;base64,'
-      // 下载的表格模板数据
-      const template = `<html xmlns:o="urn:schemas-microsoft-com:office:office"
-          xmlns:x="urn:schemas-microsoft-com:office:excel"
-          xmlns="http://www.w3.org/TR/REC-html40">
-          <head><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet>
-            <x:Name>${worksheet}</x:Name>
-            <x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet>
-            </x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]-->
-              </head><body><table>${str}</table></body></html>`
-      // 下载模板
-      const blob = new Blob([template], { type: 'html', name: worksheet })
-      const a = document.createElement('a')
-      document.body.appendChild(a)
-      // a.href = uri + this.base64(template)
-      a.href = URL.createObjectURL(blob)
-      a.download = '店铺指标.xls'
-      a.click()
-      document.body.removeChild(a)
+      exportExcelDataCommon('店铺指标', str)
     },
     tableScroll() {},
     handleSizeChange(val) {
