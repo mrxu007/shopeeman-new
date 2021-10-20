@@ -89,7 +89,9 @@
             </template>
           </u-table-column>
           <u-table-column align="center" label="店铺分组">
-            1
+            <template slot-scope="{row}">
+              {{ row.group_name }}
+            </template>
           </u-table-column>
           <u-table-column align="center" label="操作状态" min-width="100">
             <template slot-scope="{row}">
@@ -183,7 +185,7 @@
         <div class="pagination">
           <el-pagination
             background
-            :current-page="currentPage"
+            :current-page="page"
             :page-sizes="[700, 1000, 1500, 2000]"
             :page-size="pageSize"
             layout="total, sizes, prev, pager, next, jumper"
@@ -220,7 +222,7 @@ export default {
         agoNoneOrderDays: '0', // 距今无订单天数
         site: '', // 站点
         shopSelect: '0', // 店铺选择
-        serviceDataTime: '2', // 客服数据统计时间
+        serviceDataTime: '3', // 客服数据统计时间
         shopSelectVal: '' // 店铺选择值
       },
       siteList: [
@@ -247,8 +249,9 @@ export default {
       ],
       serviceDataTimeList: [
         { value: '0', label: '昨天' },
-        { value: '1', label: '7天' },
-        { value: '2', label: '30天' }
+        { value: '1', label: '今天' },
+        { value: '2', label: '7天' },
+        { value: '3', label: '30天' }
       ]
     }
   },
@@ -259,10 +262,23 @@ export default {
   methods: {
     // 同步店铺数据
     async syncMallData() {
+      if (!this.multipleSelection.length) return this.$message('请选择要同步的数据')
       this.isShowProgress = true
-      this.percentage = 10
-      for (let index = 0; index < this.tableData.length; index++) {
-        this.$set(this.tableData[index], 'status', '开始同步')
+      this.percentage = 0
+      let serviceDataTime = ''
+      switch (this.form.serviceDataTime) {
+        case '0':
+          serviceDataTime = Date.parse(new Date()) / 1000
+          break
+        case '1':
+          serviceDataTime = Date.parse(new Date()) / 1000
+          break
+      }
+      this.multipleSelection.status = ''
+      for (let index = 0; index < this.multipleSelection.length; index++) {
+        this.$set(this.multipleSelection[index], 'status', '开始同步')
+        this.percentage = parseInt((index + 1) / this.tableData.length * 100)
+        this.$set(this.multipleSelection[index], 'status', '同步完成')
       }
       // let parmas = {}
       // for (let index = 0; index < this.tableData.length; index++) {
@@ -343,6 +359,9 @@ export default {
       }
       const { data } = await this.$api.getMallStatistics(parmas)
       if (data.code === 200) {
+        const res = await this.$api.test()
+        const testData = res.data.data.data
+        console.log(testData)
         const resData = data.data
         this.total = resData.total
         this.tableData = resData.data
@@ -360,9 +379,12 @@ export default {
           this.frozenAmount += item.frozen_amount
           this.frozenAmountOrders += item.frozen_amount_orders
           item.not_order_time = item.recent_order_create_time ? this.formatDay(item.recent_order_create_time) : '无订单记录'
+          testData.forEach(nItem => {
+            item.group_name = item.platform_mall_id === nItem.platform_mall_id ? nItem.group_name : item.group_name
+          })
         })
         this.isLoading = false
-        console.log('tableData', resData)
+        console.log('tableData', this.tableData)
       } else {
         this.$message.error(`${data.message}`)
         this.isLoading = false
