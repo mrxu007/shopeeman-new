@@ -18,7 +18,7 @@
           </li>
           <li>
             <span>店铺状态：</span>
-            <el-select v-model="mallStausVal" placeholder=""  size="mini" filterable>
+            <el-select v-model="mallStausVal" placeholder="" size="mini" filterable>
               <el-option label="全部" :value="0" />
               <el-option v-for="(item, index) in mallStatus" :key="index" :label="item.label" :value="item.value" />
             </el-select>
@@ -37,7 +37,7 @@
         <ul>
           <li>
             <el-checkbox>强制登录</el-checkbox>
-            <el-button type="primary" size="mini">一键登录</el-button>
+            <el-button type="primary" size="mini" @click="alotOfLogined">一键登录</el-button>
             <el-button type="primary" size="mini" @click="importMall('authorization')">导入店铺</el-button>
             <el-button type="primary" size="mini" @click="exportMall">导出店铺</el-button>
             <el-button type="primary" size="mini" @click="editWaterMall('update')">修改账号登录密码</el-button>
@@ -209,7 +209,7 @@
           </li>
           <li>
             <p>确认信息：</p>
-            <el-input v-model="confirmVal" size="mini" />
+            <!-- <el-input v-model="confirmVal" size="mini" /> -->
           </li>
         </ul>
       </el-row>
@@ -218,7 +218,7 @@
 </template>
 
 <script>
-import { getMallListAPI, updateWatermarkAPI, updateUserPasswordAPI } from '../../../module-api/mall-manager-api/mall-list-api'
+import { getMallListAPI, updateWatermarkAPI, updateUserPasswordAPI, loginAPI, uploadMallCookie } from '../../../module-api/mall-manager-api/mall-list-api'
 import { delay, exportExcelDataCommon } from '../../../util/util'
 import xlsx from 'xlsx'
 export default {
@@ -252,7 +252,7 @@ export default {
         'VN': '越南站',
         'ID': '印尼站',
         'BR': '巴西站',
-        '2': '冻结',
+        '2': '冻结'
       },
       mallSearchConditionVal: 'mallName',
       mallSearchCondition: [
@@ -341,6 +341,28 @@ export default {
         return
       }
       this.waterDialogVisible = true
+    },
+    async alotOfLogined() {
+      const len = this.multipleSelection.length
+      for (let i = 0; i < len; i++) {
+        const item = this.multipleSelection[i]
+        const res = await loginAPI(item)
+        if (res.code !== 200) {
+          console.log('店铺登录', res.data)
+          continue
+        }
+        debugger
+        const params = {
+          'mallId': res.data.mallId,
+          'webLoginInfo': JSON.stringify(res.data.Cookie)
+        }
+        const res2 = await uploadMallCookie(params)
+        debugger
+        if (res.code !== 200) {
+          console.log('店铺上传', res.data)
+          continue
+        }
+      }
     },
     importMall(val) {
       this.importType = val
