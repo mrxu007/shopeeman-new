@@ -1,4 +1,6 @@
 import api from '../../network/jx-request'
+import ShopeemanConfig from '../../services/shopeeman-config'
+const shopeemanConfig = new ShopeemanConfig()
 
 // 获取店铺列表
 export async function getMallListAPI(params) {
@@ -44,6 +46,29 @@ export async function updateUserPasswordAPI(params) {
 export async function ddMallGoodsGetMallList(params) {
   try {
     const res = await api.ddMallGoodsGetMallList({ params })
+    if (res.data.code === 200) {
+      return { code: 200, data: res.data.data }
+    }
+    return { code: -2, data: '获取店铺列表失败' }
+  } catch (error) {
+    return { code: -2, data: `getMallList-catch: ${error}` }
+  }
+}
+
+// 店铺一键登陆
+export async function loginAPI(mallInfo) {
+  try {
+    const { country } = mallInfo
+    const params = {}
+    const res = await api.login(params, {
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Referer': shopeemanConfig.getMallInformation(country),
+        'Origin': ``,
+        'host': 'seller.my.shopee.cn'
+      }
+    })
+    debugger
     if (res.data.code === 200) {
       return { code: 200, data: res.data.data }
     }

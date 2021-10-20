@@ -12,6 +12,9 @@ import tbAdaptert from './gateway/gateway-adapter'
 const AppRequest = axios.create({ // 壳内转发请求
   baseURL: process.env.VUE_APP_BASE_API,
   timeout: 5000,
+  headers: {
+    'Accept': 'application/vnd.ppxias.v3+json'
+  },
   withCredentials: true,
   adapter: config => {
     return jxAdapter(config)
@@ -83,6 +86,7 @@ export default {
   getMallList: (data) => AppRequest.get('/bindMall/mallList', { params: data }), // 获取店铺列表
   updateWatermark: (data) => AppRequest.post('/bindMall/updateWatermark', data), // 修改店铺水印
   updateUserPassword: (data) => AppRequest.post('/bindMall/uploadUserPassword', data), // 修改账户登录密码
+  login: (data, headers) => AppRequest.post('/api/v2/login/', data, headers),
 
   // 异常公告
   getExceptionNoOrderIndex: (data) => AppRequest.get('/exceptionNoOrderIndex', { params: data }), // 异常公告签收包裹异常列表
