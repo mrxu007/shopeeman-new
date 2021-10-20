@@ -6,16 +6,7 @@
       <!-- 第一行 -->
       <div class="rowOne">
         <!-- 签收时间 -->
-        <div class="signingTime">
-          签收时间：<el-date-picker
-            v-model="form.packageTime"
-            type="daterange"
-            range-separator="-"
-            start-placeholder="开始日期"
-            end-placeholder="结束日期"
-            size="mini"
-          />
-        </div>
+        <div class="signingTime">签收时间：<el-date-picker v-model="form.selectTime" type="daterange" range-separator="-" start-placeholder="开始日期" end-placeholder="结束日期" size="mini" /></div>
         <!-- 采购物流单号 -->
         <div class="logisticsNumber">
           采购物流单号：
@@ -24,52 +15,21 @@
         <el-button size="mini" type="primary" @click="searchHandle">搜索</el-button>
       </div>
       <!-- 第二行 -->
-      <div class="rowTwo">
-        说&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;明：包裹已签收，但是匹配不到订单，仓库无法发货，需及时匹配订单，此界面只显示近7天的数据包裹异常数据
-      </div>
+      <div class="rowTwo">说&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;明：包裹已签收，但是匹配不到订单，仓库无法发货，需及时匹配订单，此界面只显示近7天的数据包裹异常数据</div>
       <!-- 第三行 -->
-      <div class="rowThree">
-        操作指引：请在此界面手动标记订单号或者在【订单列表】右键【同步此订单】获取订单信息
-      </div>
+      <div class="rowThree">操作指引：请在此界面手动标记订单号或者在【订单列表】右键【同步此订单】获取订单信息</div>
     </div>
-    <el-table
-      :header-cell-style="{background:'#f5f7fa'}"
-      :data="tableData"
-      border
-      style="width: 100%"
-      height="calc(100vh - 160px)"
-    >
-      <el-table-column
-        type="index"
-        label="序列号"
-        width="80"
-      />
-      <el-table-column
-        label="仓库"
-        prop="warehouse_name"
-      />
-      <el-table-column
-        prop="package_time"
-        label="签收时间"
-      />
-      <el-table-column
-        label="包裹图片"
-      >
+    <el-table :header-cell-style="{ background: '#f5f7fa' }" :data="tableData" border style="width: 100%" height="calc(100vh - 160px)">
+      <el-table-column type="index" label="序列号" width="80" />
+      <el-table-column label="仓库" prop="warehouse_name" />
+      <el-table-column prop="package_time" label="签收时间" />
+      <el-table-column label="包裹图片">
         <template slot-scope="scope">
-          <el-image
-            style="width: 40px; height: 40px"
-            :src="scope.row.package_image"
-            :preview-src-list="[scope.row.package_image]"
-          />
+          <el-image style="width: 40px; height: 40px" :src="scope.row.package_image" :preview-src-list="[scope.row.package_image]" />
         </template>
       </el-table-column>
-      <el-table-column
-        prop="package_code"
-        label="采购物流单号"
-      />
-      <el-table-column
-        label="操作"
-      >
+      <el-table-column prop="package_code" label="采购物流单号" />
+      <el-table-column label="操作">
         <template slot-scope="scope">
           <el-button size="mini" type="primary" @click="markMyOrderHandle(scope.row)">标记为我的订单</el-button>
           <el-button size="mini" type="primary" @click="applyReturnPartsHandle(scope.row)">申请退件</el-button>
@@ -78,7 +38,7 @@
     </el-table>
     <!--标记为我的订单dialog-->
     <el-dialog title="标记为我的订单" :visible.sync="markMyOrderDialogFormVisible" width="500px">
-      <span style="color:red">温馨提示：请填写子订单号</span>
+      <span style="color: red">温馨提示：请填写子订单号</span>
       <el-form :model="markMyOrderDialogForm">
         <el-form-item label="订单编号:" label-width="80px">
           <el-input v-model="markMyOrderDialogForm.orderSn" autocomplete="off" />
@@ -91,7 +51,7 @@
 
     <!--申请退件dialog-->
     <el-dialog title="申请退件" :visible.sync="applyDialogFormVisible" width="500px">
-      <span style="color:red">温馨提示：请填写子订单号</span>
+      <span style="color: red">温馨提示：请填写子订单号</span>
       <el-form :model="applyDialogForm">
         <el-form-item label="收件人:" label-width="80px">
           <el-input v-model="applyDialogForm.returnContact" />
@@ -99,11 +59,7 @@
         <el-form-item label="联系电话:" label-width="80px">
           <el-input v-model="applyDialogForm.returnPhoneNumber" />
         </el-form-item>
-        <el-form-item label="退件地区:" label-width="80px"><el-cascader
-          v-model="applyDialogForm.applyRegion"
-          :options="options"
-        />
-        </el-form-item>
+        <el-form-item label="退件地区:" label-width="80px"><el-cascader v-model="applyDialogForm.applyRegion" :options="options" /> </el-form-item>
         <el-form-item label="详细地址:" label-width="80px">
           <el-input v-model="applyDialogForm.applyAddress" />
         </el-form-item>
@@ -320,7 +276,7 @@ export default {
       //   搜索条件
       form: {
         packageCode: '', // 创建时间
-        packageTime: '' // 交易状态
+        selectTime: ''
       },
       // 控制标记为我的dialog
       markMyOrderDialogFormVisible: false,
@@ -355,12 +311,17 @@ export default {
   methods: {
     // 搜索按钮
     async searchHandle() {
-      if (this.form.packageTime) {
-        const startTiem = this.formatSearch(this.form.packageTime[0])
-        const endTiem = this.formatSearch(this.form.packageTime[1])
-        this.form.packageTime = `${startTiem}/${endTiem}`
+      if (!this.form.selectTime) {
+        this.$message.error('请先选择时间')
+        return
       }
-      const result = await this.$api.getExceptionNoOrderIndex(this.form)
+      const startTiem = this.formatSearch(this.form.selectTime[0])
+      const endTiem = this.formatSearch(this.form.selectTime[1])
+      const params = {
+        'packageCode': this.form.packageCode,
+        'packageTime': `${startTiem}/${endTiem}`
+      }
+      const result = await this.$api.getExceptionNoOrderIndex(params)
       if (result.data.code === 200) {
         this.tableData = result.data.data.data
       } else {
@@ -458,56 +419,56 @@ export default {
 </script>
 
 <style lang="less" scoped>
-.CatchNoticeSignForPackage{
-    padding: 16px;
-    background: #fff;
+.CatchNoticeSignForPackage {
+  padding: 16px;
+  background: #fff;
 }
 //上面查询条件部分
-.search{
-    white-space: nowrap;
-    overflow-y: auto;
-    &>div{
-        margin: 10px 0;
-        &:first-child{
-          margin-top: 0;
-        }
+.search {
+  white-space: nowrap;
+  overflow-y: auto;
+  & > div {
+    margin: 10px 0;
+    &:first-child {
+      margin-top: 0;
     }
-    .rowOne{
-        display: flex;
-        align-items: center;
-        //签收时间
-        .signingTime{
-            /deep/.el-date-editor{
-                width: 198px;
-            }
-        }
-        //采购物流单号
-        .logisticsNumber{
-          margin: 0 10px;
-            .el-input{
-                width: 80px;
-            }
-        }
+  }
+  .rowOne {
+    display: flex;
+    align-items: center;
+    //签收时间
+    .signingTime {
+      /deep/.el-date-editor {
+        width: 198px;
+      }
     }
-    .rowThree{
-      color: red;
+    //采购物流单号
+    .logisticsNumber {
+      margin: 0 10px;
+      .el-input {
+        width: 80px;
+      }
     }
+  }
+  .rowThree {
+    color: red;
+  }
 }
 //表格部分
-.el-table{
+.el-table {
   margin-top: 10px;
 }
-/deep/.el-dialog{
-  .el-dialog__header{
+/deep/.el-dialog {
+  .el-dialog__header {
     text-align: left;
   }
-  .el-dialog__body{
+  .el-dialog__body {
     padding-bottom: 0px;
     padding-top: 10px;
-    .el-form{
+    .el-form {
       margin-top: 10px;
-      .el-form-item{
-        .el-form-item__label{
+      .el-form-item {
+        .el-form-item__label {
           text-align: left;
         }
         margin-bottom: 10px;

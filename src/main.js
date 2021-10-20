@@ -22,6 +22,7 @@ import { UTable, UTableColumn } from 'umy-ui'
 import errorHanleCature from 'error-capture-handle'
 import dayjs from 'dayjs'
 import applicationConfig from './services/application-config'
+import ShopeemanConfig from './services/shopeeman-config'
 import XzyNetMessageService from './services/XzyNetMessageService'
 import YipService from './services/YipService'
 import Logs from 'cyt-pl-plug'
@@ -50,6 +51,8 @@ Vue.use(VueDND)
 Vue.prototype.$YipService = new YipService()
 Vue.prototype.$XzyNetMessageService = new XzyNetMessageService()
 Vue.prototype.$appConfig = new applicationConfig()
+Vue.prototype.$shopeeManConfig = new ShopeemanConfig()
+
 Vue.prototype.$IpcMain = IpcMain
 Vue.prototype.$NetService = NetService
 Vue.prototype.$api = api
