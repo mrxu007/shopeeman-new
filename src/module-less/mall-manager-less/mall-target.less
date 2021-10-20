@@ -1,19 +1,41 @@
 .contaniner{
   margin: 10px;
   min-width: 1280px;
+  overflow: scroll;
+  height: 590px;
+  display: flex;
+  .left {
+    margin-right: 10px;
+    /deep/.el-table {
+      border-radius: 5px;
+      /deep/.el-table__row {
+        cursor: pointer;
+      }
+    }
+    /deep/.current-row {
+      color: #f74e1d;
+    }
+  }
   .header {
     background: white;
     padding: 16px;
+    min-width: 1280px;
     .header-top {
       ul {
         display: flex;
         li {
           margin: 5px;
           display: flex;
+          /deep/.el-input{
+            width: 120px !important;
+          }
+          .shopId{
+            width: 200px !important;
+          }
           span {
             // display: list-item;
             white-space: nowrap;
-            min-width: 98px;
+            min-width: 50px;
             line-height: 28px;
             text-align: right;
           }
@@ -23,7 +45,18 @@
     }
   }
   .article {
+    min-width: 1280px;
     background: white;
     margin-top: 10px;
+    .pagination{
+      float: right;
+      margin: 10px;
+    }
+  }
+  
+}
+@media only screen and (min-width: 1400px) {
+  .contaniner {
+    height: 1000px;
   }
 }

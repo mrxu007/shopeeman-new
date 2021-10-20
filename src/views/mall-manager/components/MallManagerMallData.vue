@@ -1,109 +1,555 @@
 <template>
   <el-row class="contaniner">
-    <el-row class="header">
-      <el-col :span="24" class="header-top">
-        <ul>
-          <li>
-            <span>站点：</span>
-            <el-select v-model="site" placeholder="" size="mini" filterable>
-              <el-option v-for="(item, index) in 4" :key="index" />
-            </el-select>
-          </li>
-          <li>
-            <span>距今无订单天数：</span>
-            <el-select v-model="site" placeholder="" size="mini" filterable>
-              <el-option v-for="(item, index) in 4" :key="index" />
-            </el-select>
-          </li>
-          <li>
-            <el-select v-model="site" class="unnormal" placeholder="" size="mini" filterable>
-              <el-option v-for="(item, index) in 4" :key="index" />
-            </el-select>
-            <el-input v-model="site" class="unnormal2" placeholder="" size="mini" />
-          </li>
-          <li>
-            <span>客服数据统计时间(仅用于同步数据)：</span>
-            <el-select v-model="site" placeholder="" size="mini" filterable>
-              <el-option v-for="(item, index) in 4" :key="index" />
-            </el-select>
-          </li>
-          <li>
-            <el-button type="primary" size="mini">查询</el-button>
-            <el-button type="primary" size="mini">导出数据</el-button>
-            <el-button type="primary" size="mini">同步店铺数据</el-button>
-          </li>
-        </ul>
-      </el-col>
-    </el-row>
-    <el-row class="header-two">
-      <el-col :span="24" class="header-two-top">
-        <span>当前条件下，待拨款总订单数：8 </span>
-        <span>待拨款总金额： 1</span>
-        <span>本周已拨款总金额： 1</span>
-        <span>本月已拨款总金额：1 </span>
-        <span>全部已拨款总金额：1 </span>
-      </el-col>
-    </el-row>
-    <el-row class="article">
-      <u-table ref="plTable" :max-height="height" use-virtual :data-changes-scroll-top="false" :row-height="rowHeight" :border="false" @table-body-scroll="tableScroll">
-        <u-table-column align="center" type="selection" width="50" />
-        <u-table-column align="center" type="index" label="序列号" width="100" />
-        <u-table-column align="center" label="站点">1</u-table-column>
-        <u-table-column align="center" label="店铺ID">1</u-table-column>
-        <u-table-column align="center" label="店铺名称">1</u-table-column>
-        <u-table-column align="center" label="店铺分组">1</u-table-column>
-        <u-table-column align="center" label="操作状态">
-          <template>
-            <el-button type="primary" size="mini">修改分组</el-button>
-          </template>
-        </u-table-column>
-        <u-table-column align="center" label="最近订单创建时间">1</u-table-column>
-        <u-table-column align="center" label="距今无订单天数">1</u-table-column>
-        <u-table-column align="center" label="昨日订单数">1</u-table-column>
-        <u-table-column align="center" label="近7天订单数">1</u-table-column>
-        <u-table-column align="center" label="历史订单数">1</u-table-column>
-        <u-table-column align="center" label="店铺额度">1</u-table-column>
-        <u-table-column align="center" label="全部产品数">1</u-table-column>
-        <u-table-column align="center" label="上架产品数">1</u-table-column>
-        <u-table-column align="center" label="售空产品数">1</u-table-column>
-        <u-table-column align="center" label="禁卖产品数">1</u-table-column>
-        <u-table-column align="center" label="未上架产品数">1</u-table-column>
-        <u-table-column align="center" label="聊聊回复率">1</u-table-column>
-        <u-table-column align="center" label="卖场评价">1</u-table-column>
-        <u-table-column align="center" label="订单未完成率">1</u-table-column>
-        <u-table-column align="center" label="关注量">1</u-table-column>
-        <u-table-column align="center" label="粉丝量">1</u-table-column>
-        <u-table-column align="center" label="商品浏览量">1</u-table-column>
-        <u-table-column align="center" label="昨日商品浏览量">1</u-table-column>
-        <u-table-column align="center" label="近7天商品浏览量">1</u-table-column>
-        <u-table-column align="center" label="近30天商品浏览量">1</u-table-column>
-        <u-table-column align="center" label="访客数">1</u-table-column>
-        <u-table-column align="center" label="昨日访客数">1</u-table-column>
-        <u-table-column align="center" label="近7日访客数">1</u-table-column>
-        <u-table-column align="center" label="近30日访客数">1</u-table-column>
-        <u-table-column align="center" label="客服不重复访客数">1</u-table-column>
-        <u-table-column align="center" label="客服询问数">1</u-table-column>
-        <u-table-column align="center" label="客服访客询问数">1</u-table-column>
-        <u-table-column align="center" label="客服已回应数">1</u-table-column>
-        <u-table-column align="center" label="客服无回应数">1</u-table-column>
-        <u-table-column align="center" label="客服咨询买家数">1</u-table-column>
-        <u-table-column align="center" label="客服咨询订单数">1</u-table-column>
-        <u-table-column align="center" label="客服咨询件数">1</u-table-column>
-        <u-table-column align="center" label="客服咨询销售额">1</u-table-column>
-        <u-table-column align="center" label="客服平均回应时间">1</u-table-column>
-        <u-table-column align="center" label="待拨款订单数">1</u-table-column>
-        <u-table-column align="center" label="待拨款金额">1</u-table-column>
-        <u-table-column align="center" label="本周已拨款">1</u-table-column>
-        <u-table-column align="center" label="本月已拨款">1</u-table-column>
-        <u-table-column align="center" label="全部已拨款">1</u-table-column>
+    <el-col class="left" :span="3">
+      <u-table
+        ref="shopGroupTable"
+        width="100"
+        height="876"
+        :data-changes-scroll-top="false"
+        :row-height="40"
+        :border="false"
+        :data="shopGruopData"
+        @row-click="rowClick"
+      >
+        <u-table-column align="center" prop="group_name" label="店铺分组" />
       </u-table>
-    </el-row>
+    </el-col>
+    <el-col class="right" :span="21">
+      <el-row class="header">
+        <el-col :span="24" class="header-top">
+          <ul>
+            <li>
+              <span>站点：</span>
+              <el-select v-model="form.site" class="unnormal" placeholder="" size="mini" filterable>
+                <el-option v-for="(item, index) in siteList" :key="index" :label="item.label" :value="item.value" />
+              </el-select>
+            </li>
+            <!-- <li>
+              <span>距今无订单天数：</span>
+              <el-select v-model="form.agoNoneOrderDays" class="unnormal1" placeholder="" size="mini" filterable>
+                <el-option v-for="(item, index) in agoNoneOrderDaysList" :key="index" :label="item.label" :value="item.value" />
+              </el-select>
+            </li> -->
+            <li>
+              <el-select v-model="form.shopSelect" class="unnormal" placeholder="" size="mini" filterable>
+                <el-option v-for="(item, index) in shopSelectList" :key="index" :label="item.label" :value="item.value" />
+              </el-select>
+              <el-input v-model="form.shopSelectVal" class="unnormal2" placeholder="" size="mini" />
+            </li>
+            <li>
+              <span>客服数据统计时间(仅用于同步数据)：</span>
+              <el-select v-model="form.serviceDataTime" class="unnormal3" placeholder="" size="mini" filterable>
+                <el-option v-for="(item, index) in serviceDataTimeList" :key="index" :label="item.label" :value="item.value" />
+              </el-select>
+            </li>
+            <li>
+              <el-button type="primary" size="mini" @click="getMallStatistics()">查询</el-button>
+              <el-button type="primary" size="mini" @click="handlerSelectTableOperating('exportSearch')">导出数据</el-button>
+              <el-button type="primary" size="mini" @click="syncMallData()">同步店铺数据</el-button>
+            </li>
+            <li>
+              <el-progress v-show="isShowProgress" style="width:230px" :text-inside="true" :stroke-width="24" :percentage="percentage" status="success" />
+            </li>
+          </ul>
+        </el-col>
+      </el-row>
+      <el-row class="header-two">
+        <el-col :span="24" class="header-two-top">
+          <span>当前条件下，待拨款总订单数：<p>{{ frozenAmountOrders }}</p> </span>
+          <span>待拨款总金额： <p>{{ parseFloat(frozenAmount).toFixed(2) }}</p></span>
+          <span>本周已拨款总金额： <p>{{ parseFloat(weekAmount).toFixed(2) }}</p></span>
+          <span>本月已拨款总金额：<p>{{ parseFloat(monthAmount).toFixed(2) }}</p> </span>
+          <span>全部已拨款总金额：<p>{{ parseFloat(availableAmount).toFixed(2) }}</p> </span>
+        </el-col>
+      </el-row>
+      <el-row class="article">
+        <u-table
+          ref="plTable"
+          v-loading="isLoading"
+          height="680"
+          use-virtual
+          :data-changes-scroll-top="false"
+          :row-height="40"
+          :border="false"
+          :data="tableData"
+          :header-cell-style="{
+            textAlign: 'center',
+            backgroundColor: '#f5f7fa',
+          }"
+          @table-body-scroll="tableScroll"
+          @selection-change="handleSelectionChange"
+        >
+          <u-table-column align="center" type="selection" width="50" />
+          <u-table-column align="center" type="index" label="序列号" width="80" />
+          <u-table-column align="center" prop="country" label="站点" />
+          <u-table-column align="center" prop="platform_mall_id" label="店铺ID" min-width="120" />
+          <u-table-column align="center" label="店铺名称" min-width="130">
+            <template slot-scope="{row}">
+              {{ row.mall_alias_name?row.mall_alias_name:row.platform_mall_name }}
+            </template>
+          </u-table-column>
+          <u-table-column align="center" label="店铺分组">
+            1
+          </u-table-column>
+          <u-table-column align="center" label="操作状态" min-width="100">
+            <template slot-scope="{row}">
+              {{ row.status }}
+            </template>
+          </u-table-column>
+          <u-table-column align="center" prop="recent_order_create_time" label="最近订单创建时间" min-width="150" />
+          <u-table-column align="center" label="距今无订单天数" min-width="150">
+            <template slot-scope="{row}">
+              {{ row.not_order_time }}
+            </template>
+          </u-table-column>
+          <u-table-column align="center" prop="yesterday_order_num" label="昨日订单数" min-width="90" />
+          <u-table-column align="center" prop="week_order_num" label="近7天订单数" min-width="100" />
+          <u-table-column align="center" prop="history_order_num" label="历史订单数" min-width="90" />
+          <u-table-column align="center" prop="mall_quota" label="店铺额度" />
+          <u-table-column align="center" prop="all_product_num" label="全部产品数" min-width="90" />
+          <u-table-column align="center" prop="active_product_num" label="上架产品数" min-width="100" />
+          <u-table-column align="center" prop="soldout_product_num" label="售空产品数" min-width="90" />
+          <u-table-column align="center" prop="banned_product_num" label="禁卖产品数" min-width="90" />
+          <u-table-column align="center" prop="unlisted_product_num" label="未上架产品数" min-width="110" />
+          <u-table-column align="center" prop="chat_response_rate" label="聊聊回复率" min-width="90" />
+          <u-table-column align="center" prop="rating_star" label="卖场评价" />
+          <u-table-column align="center" prop="order_non_fulfillment_rate" label="订单未完成率" min-width="110" />
+          <u-table-column align="center" prop="followers_number" label="关注量" />
+          <u-table-column align="center" prop="fans_number" label="粉丝量" />
+          <u-table-column align="center" prop="today_view_product_count" label="商品浏览量" min-width="90" />
+          <u-table-column align="center" prop="yesterday_view_product_count" label="昨日商品浏览量" min-width="120" />
+          <u-table-column align="center" prop="week_view_product_count" label="近7天商品浏览量" min-width="130" />
+          <u-table-column align="center" prop="month_view_product_count" label="近30天商品浏览量" min-width="140" />
+          <u-table-column align="center" prop="today_view_person_count" label="访客数" />
+          <u-table-column align="center" prop="yesterday_view_person_count" label="昨日访客数" min-width="90" />
+          <u-table-column align="center" prop="week_view_person_count" label="近7日访客数" min-width="100" />
+          <u-table-column align="center" prop="month_view_person_count" label="近30日访客数" min-width="110" />
+          <u-table-column align="center" label="客服不重复访客数" min-width="140">
+            <template slot-scope="{row}">
+              {{ row.mall_datas && row.mall_datas.ChatShopUvData?row.mall_datas.ChatShopUvData:'-' }}
+            </template>
+          </u-table-column>
+          <u-table-column align="center" label="客服询问数" min-width="90">
+            <template slot-scope="{row}">
+              {{ row.mall_datas && row.mall_datas.ChatsEnquiredData?row.mall_datas.ChatsEnquiredData:'-' }}
+            </template>
+          </u-table-column>
+          <u-table-column align="center" label="客服访客询问数" min-width="120">
+            <template slot-scope="{row}">
+              {{ row.mall_datas && row.mall_datas.ChatVisitorsEnquiredData?row.mall_datas.ChatVisitorsEnquiredData:'-' }}
+            </template>
+          </u-table-column>
+          <u-table-column align="center" label="客服已回应数" min-width="110">
+            <template slot-scope="{row}">
+              {{ row.mall_datas && row.mall_datas.ChatRespondedChatsData?row.mall_datas.ChatRespondedChatsData:'-' }}
+            </template>
+          </u-table-column>
+          <u-table-column align="center" label="客服无回应数" min-width="110">
+            <template slot-scope="{row}">
+              {{ row.mall_datas && row.mall_datas.ChatNonRespondedChatsData?row.mall_datas.ChatNonRespondedChatsData:'-' }}
+            </template>
+          </u-table-column>
+          <u-table-column align="center" label="客服咨询买家数" min-width="120">
+            <template slot-scope="{row}">
+              {{ row.mall_datas && row.mall_datas.ChatBuyersData?row.mall_datas.ChatBuyersData:'-' }}
+            </template>
+          </u-table-column>
+          <u-table-column align="center" label="客服咨询订单数" min-width="120">
+            <template slot-scope="{row}">
+              {{ row.mall_datas && row.mall_datas.ChatOrdersData?row.mall_datas.ChatOrdersData:'-' }}
+            </template>
+          </u-table-column>
+          <u-table-column align="center" label="客服咨询件数" min-width="110">
+            <template slot-scope="{row}">
+              {{ row.mall_datas && row.mall_datas.ChatUnitsData?row.mall_datas.ChatUnitsData:'-' }}
+            </template>
+          </u-table-column>
+          <u-table-column align="center" label="客服咨询销售额" min-width="120">
+            <template slot-scope="{row}">
+              {{ row.mall_datas && row.mall_datas.ChatSalesData?row.mall_datas.ChatSalesData:'-' }}
+            </template>
+          </u-table-column>
+          <u-table-column align="center" label="客服平均回应时间" min-width="140">
+            <template slot-scope="{row}">
+              {{ row.mall_datas && row.mall_datas.ChatResponseTimeData?row.mall_datas.ChatResponseTimeData:'-' }}
+            </template>
+          </u-table-column>
+          <u-table-column align="center" prop="frozen_amount_orders" label="待拨款订单数" min-width="110" />
+          <u-table-column align="center" prop="frozen_amount" label="待拨款金额" min-width="110" />
+          <u-table-column align="center" prop="lastweek_amount" label="本周已拨款" min-width="110" />
+          <u-table-column align="center" prop="lastmonth_amount" label="本月已拨款" min-width="110" />
+          <u-table-column align="center" prop="available_amount" label="全部已拨款" min-width="100" />
+        </u-table>
+        <div class="pagination">
+          <el-pagination
+            background
+            :current-page="currentPage"
+            :page-sizes="[700, 1000, 1500, 2000]"
+            :page-size="pageSize"
+            layout="total, sizes, prev, pager, next, jumper"
+            :total="total"
+            @size-change="handleSizeChange"
+            @current-change="handleCurrentChange"
+          />
+        </div>
+      </el-row>
+    </el-col>
   </el-row>
 </template>
 
 <script>
 export default {
-
+  data() {
+    return {
+      page: 1,
+      total: 0,
+      pageSize: 700,
+      isLoading: false,
+      percentage: 0, // 进度条数据
+      isShowProgress: false,
+      tableData: [], // 表格数据
+      shopGruopData: [], // 店铺分组数据
+      availableAmount: 0, // 全部已拨款总金额
+      monthAmount: 0, // 本月已拨款总金额
+      weekAmount: 0, // 本周已拨款总金额
+      frozenAmount: 0, // 待拨款总金额
+      frozenAmountOrders: 0, // 待拨款总订单数
+      multipleSelection: [],
+      form: {
+        groupId: 0, // 店铺分组ID
+        agoNoneOrderDays: '0', // 距今无订单天数
+        site: '', // 站点
+        shopSelect: '0', // 店铺选择
+        serviceDataTime: '2', // 客服数据统计时间
+        shopSelectVal: '' // 店铺选择值
+      },
+      siteList: [
+        { value: '', label: '全部' },
+        { value: 'TH', label: '泰国站' },
+        { value: 'MY', label: '马来站' },
+        { value: 'TW', label: '台湾站' },
+        { value: 'PH', label: '菲律宾站' },
+        { value: 'ID', label: '印尼站' },
+        { value: 'SG', label: '新加坡站' },
+        { value: 'VN', label: '越南站' }
+      ],
+      // agoNoneOrderDaysList: [
+      //   { value: '0', label: '全部' },
+      //   { value: '1', label: '7天内' },
+      //   { value: '2', label: '大于7天小于等于14天' },
+      //   { value: '3', label: '大于14天小于等于30天' },
+      //   { value: '4', label: '30天以上' }
+      // ],
+      shopSelectList: [
+        { value: '0', label: '店铺名称' },
+        { value: '1', label: '店铺ID' },
+        { value: '2', label: '店铺别名' }
+      ],
+      serviceDataTimeList: [
+        { value: '0', label: '昨天' },
+        { value: '1', label: '7天' },
+        { value: '2', label: '30天' }
+      ]
+    }
+  },
+  async mounted() {
+    await this.getMallStatistics()
+    await this.getBindMallCount()
+  },
+  methods: {
+    // 同步店铺数据
+    async syncMallData() {
+      this.isShowProgress = true
+      this.percentage = 10
+      for (let index = 0; index < this.tableData.length; index++) {
+        this.$set(this.tableData[index], 'status', '开始同步')
+      }
+      // let parmas = {}
+      // for (let index = 0; index < this.tableData.length; index++) {
+      //   const item = this.tableData[index]
+      //   parmas = {
+      //     allProduct: item.all_product_num,
+      //     bannedProduct: item.banned_product_num,
+      //     soldoutProduct: item.soldout_product_num,
+      //     unlistedProduct: item.unlisted_product_num,
+      //     activeProduct: item.active_product_num,
+      //     fansNumber: item.fans_number,
+      //     followersNumber: item.followers_number,
+      //     displayResponseRate: item.chat_response_rate,
+      //     ratingStar: item.rating_star,
+      //     nonFulfillmentRate: item.order_non_fulfillment_rate,
+      //     todayViewProductCount: item.today_view_product_count,
+      //     yesterdayViewProductCount: item.yesterday_view_product_count,
+      //     weekViewProductCount: item.week_view_product_count,
+      //     monthViewProductCount: item.month_view_product_count,
+      //     todayViewPersonCount: item.today_view_person_count,
+      //     yesterdayViewPersonCount: item.yesterday_view_person_count,
+      //     weekViewPersonCount: item.week_view_person_count,
+      //     monthViewPersonCount: item.month_view_person_count,
+      //     mallQuota: item.mall_quota,
+      //     mallDatas: {
+      //       ChatShopUvData: item.mall_datas.ChatShopUvData ? item.mall_datas.ChatShopUvData : '',
+      //       ChatsEnquiredData: item.mall_datas && item.mall_datas.ChatsEnquiredData ? item.mall_datas.ChatsEnquiredData : '',
+      //       ChatVisitorsEnquiredData: item.mall_datas && item.mall_datas.ChatVisitorsEnquiredData ? item.mall_datas.ChatVisitorsEnquiredData : '',
+      //       ChatRespondedChatsData: item.mall_datas && item.mall_datas.ChatRespondedChatsData ? item.mall_datas.ChatRespondedChatsData : '',
+      //       ChatNonRespondedChatsData: item.mall_datas && item.mall_datas.ChatNonRespondedChatsData ? item.mall_datas.ChatNonRespondedChatsData : '',
+      //       ChatResponseTimeData: item.mall_datas && item.mall_datas.ChatResponseTimeData ? item.mall_datas.ChatResponseTimeData : '',
+      //       ChatBuyersData: item.mall_datas && item.mall_datas.ChatBuyersData ? item.mall_datas.ChatBuyersData : '',
+      //       ChatOrdersData: item.mall_datas && item.mall_datas.ChatOrdersData ? item.mall_datas.ChatOrdersData : '',
+      //       ChatUnitsData: item.mall_datas && item.mall_datas.ChatUnitsData ? item.mall_datas.ChatUnitsData : '',
+      //       ChatSalesData: item.mall_datas && item.mall_datas.ChatSalesData ? item.mall_datas.ChatSalesData : ''
+      //     },
+      //     sysMallId: item.id
+      //   }
+      //   const { data } = await this.$api.syncMallData(parmas)
+      //   console.log('传入数据', parmas)
+      //   console.log('获取数据', data)
+      // }
+    },
+    // 点击店铺分组
+    rowClick(row) {
+      this.form.groupId = row.id
+      this.getMallStatistics()
+    },
+    // 获取店铺分组
+    async getBindMallCount() {
+      const { data } = await this.$api.getBindMallCount()
+      if (data.code === 200) {
+        this.shopGruopData = data.data
+        this.shopGruopData.unshift({ 'id': 0, 'group_name': '全部分组' })
+        this.shopGruopData.push({ 'id': -1, 'group_name': '无分组' })
+        console.log('shopGroupData', data.data)
+      } else {
+        this.$message.error(`店铺分组数据错误${data.message}`)
+      }
+    },
+    // 获取数据
+    async getMallStatistics() {
+      this.isLoading = true
+      this.availableAmount = 0
+      this.monthAmount = 0
+      this.weekAmount = 0
+      this.frozenAmount = 0
+      this.frozenAmountOrders = 0
+      const shopSelectVal = this.form.shopSelectVal.trim()
+      const parmas = {
+        country: this.form.site,
+        groupId: this.form.groupId,
+        mallName: this.form.shopSelect === '0' ? shopSelectVal : '',
+        mallId: this.form.shopSelect === '1' ? shopSelectVal : '',
+        mallAliasName: this.form.shopSelect === '2' ? shopSelectVal : '',
+        page: this.page,
+        pageSize: this.pageSize
+      }
+      const { data } = await this.$api.getMallStatistics(parmas)
+      if (data.code === 200) {
+        const resData = data.data
+        this.total = resData.total
+        this.tableData = resData.data
+        this.tableData.map(item => {
+          item.country = this.setCountry(item.country)
+          item.mall_datas = JSON.parse(item.mall_datas)
+          item.available_amount = item.available_amount ? parseInt(item.available_amount) : 0
+          item.lastmonth_amount = item.lastmonth_amount ? parseInt(item.lastmonth_amount) : 0
+          item.lastweek_amount = item.lastweek_amount ? parseInt(item.lastweek_amount) : 0
+          item.frozen_amount = item.frozen_amount ? parseInt(item.frozen_amount) : 0
+          item.frozen_amount_orders = item.frozen_amount_orders ? item.frozen_amount_orders : 0
+          this.availableAmount += item.available_amount
+          this.monthAmount += item.lastmonth_amount
+          this.weekAmount += item.lastweek_amount
+          this.frozenAmount += item.frozen_amount
+          this.frozenAmountOrders += item.frozen_amount_orders
+          item.not_order_time = item.recent_order_create_time ? this.formatDay(item.recent_order_create_time) : '无订单记录'
+        })
+        this.isLoading = false
+        console.log('tableData', resData)
+      } else {
+        this.$message.error(`${data.message}`)
+        this.isLoading = false
+      }
+    },
+    formatDay(val) {
+      const today = this.$dayjs(new Date()).format('YYYY-MM-DD HH:mm:ss')
+      const day1 = new Date(today)
+      const day2 = new Date(val)
+      const s1 = day1.getTime()
+      const s2 = day2.getTime()
+      const total = (s1 - s2) / 1000
+      const day = parseInt(total / (24 * 60 * 60))
+      return day
+    },
+    setCountry(val) {
+      switch (val) {
+        case 'MY':
+          return '马来站'
+        case 'TW':
+          return '台湾站'
+        case 'SG':
+          return '新加坡站'
+        case 'PH':
+          return '菲律宾站'
+        case 'TH':
+          return '泰国站'
+        case 'VN':
+          return '越南站'
+        case 'ID':
+          return '印尼站'
+        case 'BR':
+          return '巴西站'
+        case 'MX':
+          return '墨西哥站'
+        case 'CO':
+          return '哥伦比亚站'
+        case 'CL':
+          return '智利站'
+        case 'PL':
+          return '波兰站'
+      }
+    },
+    // 勾选表格操作
+    handlerSelectTableOperating(OperatingName) {
+      if (this.multipleSelection.length) {
+        this[OperatingName](this.multipleSelection)
+      } else {
+        this[OperatingName](this.tableData)
+      }
+    },
+    // 导出采集,excel
+    exportSearch(data) {
+      // 要导出的json数据
+      // const jsonData = this.multipleSelection
+      const jsonData = data
+      if (!jsonData?.length) {
+        return this.$message('暂无导出数据')
+      }
+      let str =
+        `<tr>
+          <td>站点</td>
+          <td>店铺ID</td>
+          <td>店铺名称</td>
+          <td>店铺分组</td>
+          <td>最近创建订单时间</td>
+          <td>距今无订单数</td>
+          <td>昨日订单数</td>
+          <td>近7天订单数</td>
+          <td>历史订单总数</td>
+          <td>店铺额度</td>
+          <td>全部产品数</td>
+          <td>上架产品数</td>
+          <td>售空产品数</td>
+          <td>禁卖产品数</td>
+          <td>未上架产品数</td>
+          <td>聊聊回复率</td>
+          <td>卖场评价</td>
+          <td>订单未完成率</td>
+          <td>关注量</td>
+          <td>粉丝量</td>
+          <td>商品浏览量</td>
+          <td>昨日商品浏览量</td>
+          <td>近7天商品浏览量</td>
+          <td>近30天商品浏览量</td>
+          <td>访客数</td>
+          <td>昨日访客数</td>
+          <td>近7日访客数</td>
+          <td>近30日访客数</td>
+          <td>客服不重复访客数</td>
+          <td>客服询问数</td>
+          <td>客服访客询问数</td>
+          <td>客服已回应数</td>
+          <td>客服无回应数</td>
+          <td>客服咨询买家数</td>
+          <td>客服咨询订单数</td>
+          <td>客服咨询件数</td>
+          <td>客服咨询销售额</td>
+          <td>客服平均回应时间</td>
+          <td>待拨款订单数</td>
+          <td>待拨款金额</td>
+          <td>本周已拨款</td>
+          <td>本月已拨款</td>
+          <td>全部已拨款</td>
+        </tr>`
+      jsonData.forEach((item) => {
+        str += `<tr>
+        <td>${item.country ? item.country : '' + '\t'}</td>
+        <td>${item.platform_mall_id ? item.platform_mall_id : '' + '\t'}</td>
+        <td>${item.mall_alias_name ? item.mall_alias_name : item.platform_mall_name + '\t'}</td>
+        <td>${item.aaa ? item.aaa : '' + '\t'}</td>
+        <td>${item.recent_order_create_time ? item.recent_order_create_time : '' + '\t'}</td>
+        <td>${item.not_order_time ? item.not_order_time : '' + '\t'}</td>
+        <td>${item.yesterday_order_num ? item.yesterday_order_num : '' + '\t'}</td>
+        <td>${item.week_order_num ? item.week_order_num : '' + '\t'}</td>
+        <td>${item.history_order_num ? item.history_order_num : '' + '\t'}</td>
+        <td>${item.mall_quota ? item.mall_quota : '' + '\t'}</td>
+        <td>${item.all_product_num ? item.all_product_num : '' + '\t'}</td>
+        <td>${item.active_product_num ? item.active_product_num : '' + '\t'}</td>
+        <td>${item.soldout_product_num ? item.soldout_product_num : '' + '\t'}</td>
+        <td>${item.banned_product_num ? item.banned_product_num : '' + '\t'}</td>
+        <td>${item.unlisted_product_num ? item.unlisted_product_num : '' + '\t'}</td>
+        <td>${item.chat_response_rate ? item.chat_response_rate : '' + '\t'}</td>
+        <td>${item.rating_star ? item.rating_star : '' + '\t'}</td>
+        <td>${item.order_non_fulfillment_rate ? item.order_non_fulfillment_rate : '' + '\t'}</td>
+        <td>${item.followers_number ? item.followers_number : '' + '\t'}</td>
+        <td>${item.fans_number ? item.fans_number : '' + '\t'}</td>
+        <td>${item.today_view_product_count ? item.today_view_product_count : '' + '\t'}</td>
+        <td>${item.yesterday_view_product_count ? item.yesterday_view_product_count : '' + '\t'}</td>
+        <td>${item.week_view_product_count ? item.week_view_product_count : '' + '\t'}</td>
+        <td>${item.month_view_product_count ? item.month_view_product_count : '' + '\t'}</td>
+        <td>${item.today_view_person_count ? item.today_view_person_count : '' + '\t'}</td>
+        <td>${item.yesterday_view_person_count ? item.yesterday_view_person_count : '' + '\t'}</td>
+        <td>${item.week_view_person_count ? item.week_view_person_count : '' + '\t'}</td>
+        <td>${item.month_view_person_count ? item.month_view_person_count : '' + '\t'}</td>
+        <td>${item.mall_datas && item.mall_datas.ChatShopUvData ? item.mall_datas.ChatShopUvData : '' + '\t'}</td>
+        <td>${item.mall_datas && item.mall_datas.ChatsEnquiredData ? item.mall_datas.ChatsEnquiredData : '' + '\t'}</td>
+        <td>${item.mall_datas && item.mall_datas.ChatVisitorsEnquiredData ? item.mall_datas.ChatVisitorsEnquiredData : '' + '\t'}</td>
+        <td>${item.mall_datas && item.mall_datas.ChatRespondedChatsData ? item.mall_datas.ChatRespondedChatsData : '' + '\t'}</td>
+        <td>${item.mall_datas && item.mall_datas.ChatNonRespondedChatsData ? item.mall_datas.ChatNonRespondedChatsData : '' + '\t'}</td>
+        <td>${item.mall_datas && item.mall_datas.ChatBuyersData ? item.mall_datas.ChatBuyersData : '' + '\t'}</td>
+        <td>${item.mall_datas && item.mall_datas.ChatOrdersData ? item.mall_datas.ChatOrdersData : '' + '\t'}</td>
+        <td>${item.mall_datas && item.mall_datas.ChatUnitsData ? item.mall_datas.ChatUnitsData : '' + '\t'}</td>
+        <td>${item.mall_datas && item.mall_datas.ChatSalesData ? item.mall_datas.ChatSalesData : '' + '\t'}</td>
+        <td>${item.mall_datas && item.mall_datas.ChatResponseTimeData ? item.mall_datas.ChatResponseTimeData : '' + '\t'}</td>
+        <td>${item.frozen_amount_orders ? item.frozen_amount_orders : '' + '\t'}</td>
+        <td>${item.frozen_amount ? item.frozen_amount : '' + '\t'}</td>
+        <td>${item.lastweek_amount ? item.lastweek_amount : '' + '\t'}</td>
+        <td>${item.lastmonth_amount ? item.lastmonth_amount : '' + '\t'}</td>
+        <td>${item.available_amount ? item.available_amount : '' + '\t'}</td>
+        </tr>`
+      })
+      // Worksheet名
+      const worksheet = '店铺数据'
+      // let uri = 'data:application/vnd.ms-excel;base64,'
+      // 下载的表格模板数据
+      const template = `<html xmlns:o="urn:schemas-microsoft-com:office:office" 
+          xmlns:x="urn:schemas-microsoft-com:office:excel" 
+          xmlns="http://www.w3.org/TR/REC-html40">
+          <head><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet>
+            <x:Name>${worksheet}</x:Name>
+            <x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet>
+            </x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]-->
+            </head><body><table>${str}</table></body></html>`
+      // 下载模板
+      const blob = new Blob([template], { type: 'html', name: worksheet })
+      const a = document.createElement('a')
+      document.body.appendChild(a)
+      // a.href = uri + this.base64(template)
+      a.href = URL.createObjectURL(blob)
+      a.download = '店铺数据.xls'
+      a.click()
+      document.body.removeChild(a)
+    },
+    tableScroll() {},
+    handleSizeChange(val) {
+      this.pageSize = val
+      this.getMallStatistics()
+    },
+    handleCurrentChange(val) {
+      this.page = val
+      this.getMallStatistics()
+    },
+    handleSelectionChange(val) {
+      this.multipleSelection = val
+    }
+  }
 }
 </script>
 

@@ -286,12 +286,9 @@ export default {
         if (params.action === 1) {
           this.phoneTableData.push(params.phone)
         } else {
-          for (var i = 0; i < this.phoneTableData.length; i++) {
-            if (this.phoneTableData[i] === params.phone) {
-              this.phoneTableData.splice(i, 1)
-              break
-            }
-          }
+          this.phoneTableData = this.phoneTableData.filter(item => {
+            return item !== params.phone
+          })
         }
         this.$message.success(`更新成功`)
       } else {
