@@ -1,3 +1,11 @@
+<!--
+ * @Author: your name
+ * @Date: 2021-10-08 14:16:18
+ * @LastEditTime: 2021-10-15 17:24:57
+ * @LastEditors: Please set LastEditors
+ * @Description: In User Settings Edit
+ * @FilePath: \shopeeman-new\src\App.vue
+-->
 <template>
   <div id="app">
     <router-view />
@@ -7,7 +15,7 @@
 <style lang="less">
 body {
   --themeColor: #f97c28;
-  overflow: hidden;
+  /*overflow: hidden;*/
 }
 #app {
   font-family: Microsoft YaHei;
