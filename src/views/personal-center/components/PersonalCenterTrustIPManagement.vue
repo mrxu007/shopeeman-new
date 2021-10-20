@@ -3,7 +3,7 @@
     <div class="operation">
       <div class="o-item">
         <span class="o-item-span">信任IP：</span>
-        <el-input v-model="ipVal" style="width:130px" placeholder="请输入内容" clearable size="mini" />
+        <el-input v-model="ipVal" style="width: 130px" placeholder="请输入内容" clearable size="mini" />
       </div>
       <div class="o-item">
         <el-button type="primary" size="mini" @click="getIPTrustList">搜索</el-button>
@@ -49,7 +49,8 @@
                 isShowDialog = true
                 updataTrustIp(row)
               "
-            >修改</el-button>
+              >修改</el-button
+            >
             <el-button type="primary" size="mini" @click="deleteTrustIp(row)">删除</el-button>
           </template>
         </el-table-column>
@@ -86,13 +87,13 @@
     </div>
     <div class="phone-dialog">
       <el-dialog :close-on-click-modal="false" title="配置手机号码" :visible.sync="isShowPhoneNum" @close="closePhoneDialog">
-        <div style="display: flex;margin-bottom:10px;">
+        <div style="display: flex; margin-bottom: 10px">
           <div class="o-item">
             <span class="o-item-span">手机号码：</span>
             <el-input v-model="phoneNum" placeholder="请输入手机号" clearable size="mini" />
           </div>
           <div class="o-item">
-            <el-button type="primary" size="mini" @click="updatePhoneNum(1,phoneNum)">添加手机号</el-button>
+            <el-button type="primary" size="mini" @click="updatePhoneNum(1, phoneNum)">添加手机号</el-button>
           </div>
         </div>
         <div class="dialog-table">
@@ -118,7 +119,7 @@
             </el-table-column>
             <el-table-column label="操作" align="center" min-width="80">
               <template slot-scope="{ row }">
-                <el-button type="primary" size="mini" @click="updatePhoneNum(2,row)">删除</el-button>
+                <el-button type="primary" size="mini" @click="updatePhoneNum(2, row)">删除</el-button>
               </template>
             </el-table-column>
           </el-table>
@@ -171,6 +172,7 @@ export default {
     async getUserInfo() {
       try {
         const data = await this.$appConfig.getUserInfo()
+        debugger
         console.log('login', data)
         this.isOpenIpCheck = data.is_open_ip_check + ''
         this.trustIpCount = data.trust_ip_count
