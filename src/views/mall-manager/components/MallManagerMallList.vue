@@ -321,6 +321,7 @@ export default {
     }
   },
   created() {
+    this.test()
     this.getMallList()
   },
   methods: {
@@ -328,6 +329,12 @@ export default {
     //   // {scrollTop， scrollLeft, table, judgeFlse: 这个参数返回一个boolean值，为true则代表表格滚动到了底部了，false没有滚动到底部，必须开起大数据渲染模式才能有值哦}, event
     //   console.log(scrollTop, scrollLeft, table, judgeFlse)
     // },
+    async test() {
+
+      // const res2 = await this.$appConfig.saveConfig()
+      // const res = await this.$appConfig.getUserConfig()
+      // debugger
+    },
     handleSelectionChange(val) {
       this.multipleSelection = val
     },

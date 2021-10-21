@@ -24,6 +24,21 @@ import dayjs from 'dayjs'
 import applicationConfig from './services/application-config'
 import ShopeemanConfig from './services/shopeeman-config'
 import XzyNetMessageService from './services/XzyNetMessageService'
+import mallServce from './services/mall-servers'
+import commodityService from './services/commodity-service'
+import buyerAccountService from './services/buyer-account-service'
+import BaseUtilService from './services/BaseUtilService'
+import CloudLogBridgeService from './services/CloudLogBridgeService'
+import ImageService from './services/ImageService'
+import MattingService from './services/MattingService'
+import platformId from './services/platform-utils'
+import orderService from './services/order-service'
+import orderDetail from './services/order-detail'
+import tborderDetail from './services/tbOrder-detail'
+import collectService from './services/collect-service'
+import aliyunOssService from './services/aliyun-oss-service'
+import viewManagerService from './services/view-manager-service'
+import SonAccountService from './services/son-acccount-service'
 import Logs from 'cyt-pl-plug'
 
 import * as echarts from 'echarts'
@@ -47,16 +62,27 @@ Vue.use(UTableColumn)
 Vue.use(Logs)
 Vue.use(VueDND)
 
-Vue.prototype.$XzyNetMessageService = new XzyNetMessageService()
-Vue.prototype.$appConfig = new applicationConfig()
-Vue.prototype.$shopeeManConfig = new ShopeemanConfig()
-
 Vue.prototype.$IpcMain = IpcMain
 Vue.prototype.$NetService = NetService
 Vue.prototype.$api = api
 Vue.prototype.$AppRequest = api.AppRequest
 Vue.prototype.$otherRequest = api.otherRequest
 Vue.prototype.$gatewayService = gatewayService.gatewayService
+Vue.prototype.$XzyNetMessageService = new XzyNetMessageService()
+Vue.prototype.$appConfig = new applicationConfig()
+Vue.prototype.$shopeeManConfig = new ShopeemanConfig()
+Vue.prototype.$mallService = new mallServce()
+Vue.prototype.$commodityService = new commodityService()
+Vue.prototype.$buyerAccountService = new buyerAccountService()
+Vue.prototype.$BaseUtilService = new BaseUtilService()
+Vue.prototype.$CloudLogBridgeService = new CloudLogBridgeService()
+Vue.prototype.$ImageService = new ImageService()
+Vue.prototype.$MattingService = new MattingService()
+Vue.prototype.$collectService = new collectService()
+Vue.prototype.$orderService = new orderService()
+Vue.prototype.$ossService = new aliyunOssService()
+Vue.prototype.$viewManagerService = new viewManagerService()
+Vue.prototype.$SonAccountService = new SonAccountService()
 Vue.prototype.$dayjs = dayjs
 
 // 所有的input框自动获取焦点
