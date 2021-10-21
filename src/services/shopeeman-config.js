@@ -89,9 +89,9 @@ export default class ShopeemanConfig {
     // 各站点本土前台网址
     this.site_domain_local = {
       'MY': 'https://shopee.com.my',
-      'TW': 'https://shopee.tw/',
+      'TW': 'https://shopee.tw',
       'VN': 'https://shopee.vn',
-      'ID': 'https://shopee.co.id/',
+      'ID': 'https://shopee.co.id',
       'PH': 'https://shopee.ph',
       'TH': 'https://shopee.co.th',
       'SG': 'https://shopee.sg',
@@ -178,22 +178,26 @@ export default class ShopeemanConfig {
       country,
       loginLink: '', // 各站点对应后台域名
       Origin: '', // 各站点对应后台域名
-      host: 'seller.my.shopee.cn'
+      host: ''
     }
     switch (IPType) { // 根据 country [站点] + IPType  [全局设置大陆 or  本土域名]
       case 1: // 大陆
         params['loginLink'] = `${this.site_domain_chinese_bk[country]}/account/signin`
         params['Origin'] = `${this.site_domain_chinese_bk[country]}`
+        params['host'] = `${this.site_domain_chinese_bk[country].replace('https://', '')}`
         break
       case 2: // 本地
         params['loginLink'] = `${this.site_domain_local_bk[country]}/account/signin`
         params['Origin'] = `${this.site_domain_local_bk[country]}`
+        params['host'] = `${this.site_domain_chinese_bk[country].replace('https://', '')}`
         break
       default: // 随便 大陆 or  本地  因为后台会自动
         params['loginLink'] = `${this.site_domain_chinese_bk[country]}/account/signin`
         params['Origin'] = `${this.site_domain_chinese_bk[country]}`
+        params['host'] = `${this.site_domain_chinese_bk[country].replace('https://', '')}`
         break
     }
+    return params
   }
   getSiteCode(val) { // 站点及简码对应关系
     return this.site_code[val] || 'invalid_value'
