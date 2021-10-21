@@ -2,7 +2,8 @@
   <div class="content">
     <div class="all_condition">
       <div class="condition_item">
-        <span>站点：</span>
+        <storeChoose @changeMallList="changeMallList" />
+        <!-- <span>站点：</span>
         <el-select v-model="query.siteid" size="mini" width="150px" placeholder="站点">
           <el-option value="" label="全部" />
           <el-option v-for="item in siteList" :key="item.id" :label="item.value" :value="item.id" />
@@ -22,7 +23,7 @@
         <el-select v-model="query.siteid" size="mini" width="150px" placeholder="站点">
           <el-option value="" label="全部" />
           <el-option v-for="item in siteList" :key="item.id" :label="item.value" :value="item.id" />
-        </el-select>
+        </el-select> -->
       </div>
 
       <div class="condition_item">
@@ -134,16 +135,93 @@
             @size-change="handleSizeChange"
             @current-change="handleCurrentChange"
           />
-
         </div>
       </div>
+    </div>
+    <!-- dialog -->
+    <div>
+      <el-dialog
+        title="新增主体"
+        :visible.sync="dialog_addmaster"
+        width="30%"
+        :before-close="handleClose"
+      >
+        <div class="dialog_addip">
+          <div class="left">
+            <div class="left_item">
+              ip区域：
+              <el-select v-model="region_ip">
+                <el-option v-for="(item,index) in region_ipList" :key="'region'+index" :label="item.value" :value="item.id" />
+              </el-select>
+            </div>
+            <div class="left_item">
+              ip周期：
+              <el-select v-model="time_ip">
+                <el-option v-for="(item,index) in time_ipList" :key="'time'+index" :label="item.value" :value="item.id" />
+              </el-select>
+            </div>
+            <div class="left_item">
+              主体名称：<el-input v-model="ipName" style="width:200px" />
+            </div>
+          </div>
+          <div class="right">
+            <div class="right_condition">
+              <div>
+                站点:
+                <storeChoose @changeMallList="changeMallList" />
+                <el-button @click="dialog_search_IPMall">查询</el-button>
+              </div>
+              <el-check v-model="showUserIP">显示已绑定ip店铺</el-check>
+              <div class="right_table">
+                <el-table
+
+                  ref="multipleTable"
+                  :row-key="generateUUID"
+                  :data="dialog_mallList"
+                >
+                  <el-table-column
+                    type="selection"
+                    width="55"
+                  />
+                  <el-table-column prop="" label="序号" />
+                  <el-table-column prop="" label="站点" />
+                  <el-table-column prop="" label="店铺名称" />
+                  <el-table-column prop="" label="已绑定公司主体名称" />
+                </el-table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </el-dialog>
     </div>
   </div>
 </template>
 <script>
+import storeChoose from '../../../components/store-choose'
 export default {
+  components: { storeChoose },
+
   data() {
     return {
+      dialog_mallList: [],
+      showUserIP: false,
+      ipName: '', // 主体名称
+      time_ipList: [
+        { id: 1, value: '1个月/68元' },
+        { id: 2, value: '3个月/204元' },
+        { id: 3, value: '1个月/408元' },
+        { id: 4, value: '1个月/816元' }
+
+      ],
+      time_ip: '',
+      region_ip: '',
+      region_ipList: [
+        { id: 1, value: '新加坡' },
+        { id: 2, value: '泰国-曼谷' },
+        { id: 3, value: '菲律宾-预售' }
+      ],
+      dialog_addmaster: true,
       tableList: [],
       page: 1,
       pageSize: 20,
@@ -171,14 +249,50 @@ export default {
   created() {
     this.initDate()
     this.getTableList()// tableList
+    this.GetCloudIPAreaList()// 获取IP区域列表
   },
   methods: {
+    // dialog 多选
+    // 方法
+    generateUUID() {
+      var d = new Date().getTime()
+      if (window.performance && typeof window.performance.now === 'function') {
+        d += performance.now() // use high-precision timer if available
+      }
+      var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(
+        /[xy]/g,
+        function(c) {
+          var r = (d + Math.random() * 16) % 16 | 0
+          d = Math.floor(d / 16)
+          return (c === 'x' ? r : (r & 0x3) | 0x8).toString(16)
+        }
+      )
+      return uuid
+    },
+
+    // 多选
+    handleSelectionChange(val) {
+      // 获取参数
+    },
+    // 新增ip 店铺查询
+    dialog_search_IPMall() {},
+    // 获取IP区域列表
+    async GetCloudIPAreaList() {
+      const data = await this.$YipService.GetCloudIPAreaList()
+      console.log('region_ip', data)
+    },
+    // 获取店铺信息
+    changeMallList(val) {
+      this.site = Object.assign(val)
+      // console.log('changeMallList', this.site)
+    },
     // ip- tableList
     async getTableList() {
       const params = {}
-      const userInfo = await this.$appConfig.getUserInfo()
-      console.log('55', userInfo)
-      params.uid = userInfo.muid
+      console.log('111')
+      // const userInfo = await this.$appConfig.getUserInfo()
+      // console.log('55', userInfo)
+      // params.uid = userInfo.muid
       params.uuid = ''
       params.ip_alias = ''
       params.source = 1
@@ -186,9 +300,10 @@ export default {
       params.supplier_info = ''
       params.expiration_dates = ''
       params.ip_id = ''
+      // console.log(this.$YipService.GetIpList())
       const res = await this.$YipService.GetIpList(JSON.stringify(params))
+      // console.log(res, '111')
       console.log(res)
-      // console.log(res)
     },
     // 分页递增
     indexMethod(index) {

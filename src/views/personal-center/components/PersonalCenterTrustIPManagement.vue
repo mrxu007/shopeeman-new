@@ -171,6 +171,7 @@ export default {
     async getUserInfo() {
       try {
         const data = await this.$appConfig.getUserInfo()
+        debugger
         console.log('login', data)
         this.isOpenIpCheck = data.is_open_ip_check + ''
         this.trustIpCount = data.trust_ip_count
