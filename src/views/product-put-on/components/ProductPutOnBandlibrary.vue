@@ -9,14 +9,14 @@
       </div>
       <div class="o-item">
         <span style="min-width:84px">关键字类别：</span>
-        <el-select v-model="form.site" placeholder="" size="mini" filterable>
-          <el-option v-for="(item, index) in siteList" :key="index" :label="item.label" :value="item.value" />
+        <el-select v-model="form.type" placeholder="" size="mini" filterable>
+          <el-option v-for="(item, index) in typeList" :key="index" :label="item.label" :value="item.value" />
         </el-select>
       </div>
       <div class="o-item">
         <span style="min-width:57px">词来源：</span>
-        <el-select v-model="form.site" placeholder="" size="mini" filterable>
-          <el-option v-for="(item, index) in siteList" :key="index" :label="item.label" :value="item.value" />
+        <el-select v-model="form.source" placeholder="" size="mini" filterable>
+          <el-option v-for="(item, index) in sourceList" :key="index" :label="item.label" :value="item.value" />
         </el-select>
       </div>
       <div class="o-item">
@@ -26,12 +26,12 @@
       <div class="o-item">
         <el-button type="primary" size="mini" @click="getChildUserList">查询</el-button>
         <el-button type="primary" size="mini" @click="dialogVisible= true">添加</el-button>
-        <el-button type="primary" size="mini" @click="getChildUserList">批量删除</el-button>
-        <el-button type="primary" size="mini" @click="dialogBanWordVisible= true">批量导入</el-button>
+        <el-button type="primary" size="mini" @click="batchDelete()">批量删除</el-button>
+        <el-button type="primary" size="mini" @click="dialogBanWordVisible= true"> 批量导入 </el-button>
         <el-button type="primary" size="mini" @click="getChildUserList">导出数据</el-button>
       </div>
       <div class="o-item">
-        <el-checkbox v-model="checked">隐藏日志</el-checkbox>
+        <el-checkbox v-model="showConsole">隐藏日志</el-checkbox>
       </div>
     </div>
     <div class="table-content">
@@ -44,6 +44,7 @@
           textAlign: 'center',
           backgroundColor: '#f5f7fa',
         }"
+        @selection-change="handleSelectionChange"
       >
         <u-table-column type="index" align="center" label="序号" min-width="50">
           <template slot-scope="scope">
@@ -105,33 +106,46 @@
         :visible.sync="dialogBanWordVisible"
         :close-on-click-modal="false"
       >
-        <span>
-          <el-button style="margin-right:20px" size="mini" type="primary" @click="batchImport()">批量导入</el-button>
+        <div style="display: flex;">
+          <el-upload ref="importRef" accept=".xls, .xlsx" action="https://jsonplaceholder.typicode.com/posts/" :on-change="importTemplateEvent" :show-file-list="false" :auto-upload="false">
+            <el-button :data="importTemplateData" size="mini" type="primary" style="margin-right: 10px"> 批量导入 </el-button>
+          </el-upload>
           <el-button type="primary" size="mini" @click="downloadTemplate()">下载模板</el-button>
-        </span>
+        </div>
         <span>
-          <div class="text-log-content" v-html="consoleMsg" />
+          <div class="text-log-content" v-html="batchConsoleMsg" />
         </span>
         <span style="display: flex;justify-content:center;">
           <el-button type="primary" size="mini" @click="dialogBanWordVisible = false">关闭</el-button>
         </span>
       </el-dialog>
     </div>
+    <div class="logging">
+      <Logging :console-msg="consoleMsg" :show-console="showConsole" @changeshowConsole="changeshowConsole" />
+    </div>
   </div>
 </template>
 
 <script>
+import xlsx from 'xlsx'
+const Logging = () => import('@/components/logging.vue')
 import { exportExcelDataCommon } from '../../../util/util'
 export default {
+  components: {
+    Logging
+  },
   data() {
     return {
-      consoleMsg: '', // 批量导入信息
+      showConsole: true,
+      consoleMsg: '', // 打印日志
+      batchConsoleMsg: '', // 批量导入信息
+      importTemplateData: '', // 导入数据
       dialogBanWordVisible: false,
       dialogVisible: false,
-      checked: true,
       page: 1,
       total: 0,
       isloading: false,
+      multipleSelection: [],
       keyWord: '', // 关键词
       dialogSite: 'MY', // 弹框站点
       dialogType: '1', // 弹框关键词类别
@@ -169,22 +183,63 @@ export default {
     this.getChildUserList()
   },
   methods: {
+    // 批量删除
+    batchDelete() {
+      if (this.multipleSelection.length <= 0) return this.$message('请选择要删除的数据')
+    },
+    // 表格导入
+    importTemplateEvent(file) {
+      const files = { 0: file.raw }
+      if (!/\.(xls|xlsx)$/.test(files[0].name.toLowerCase())) {
+        this.writeLog('上传格式不对,请上传xls、xls格式的文件', false)
+        return
+      }
+      if (files.length <= 0) {
+        this.writeLog('表格为空', false)
+        return
+      }
+      const fileReader = new FileReader()
+      fileReader.onload = (ev) => {
+        const data = ev.target.result
+        const workbook = xlsx.read(data, {
+          type: 'binary'
+        })
+        const wsname = workbook.SheetNames[0] // 去第一张表
+        let ws = xlsx.utils.sheet_to_json(workbook.Sheets[wsname]) // 生成Json表格
+        // console.log('ws表格里面的数据，且是json格式', ws)
+        this.importTemplateData = ws
+        ws = null
+        // this.writeLog(`正在读取中...`, true)
+        this.batchImport()
+        // this.writeLog(`【${file.name}】该模板不符合要求,请下载指定模板`, false)
+        // 重写数据
+        this.$refs.importRef.value = ''
+      }
+      fileReader.readAsBinaryString(files[0])
+    },
+    // 改变日志显示状态
+    changeshowConsole(status) {
+      this.showConsole = status
+    },
     // 下载模板
     downloadTemplate() {
       const template = `<tr>
-      <td style="width: 400px">站点(马来站，台湾站，泰国站，印尼站，菲律宾站，新加坡站，越南站)<span style="color:red">(必填)</span></td>
-      <td style="width: 300px">账号<span style="color:red">(必填)(如果为手机号，请不要加国家区号)</span></td>
-      <td style="width: 200px">密码<span style="color:red">(必填)</span></span></td>
-      <td style="width: 200px">店铺真实名称<span style="color:red">(必填)</span></span></td>
-      <td style="width: 200px">分组<span style="color:orange">(选填)</span></td>
-      <td style="width: 200px">店铺主体名称<span style="color:red">(需申IP隔离必填)</span></td>
-      <td style="width: 200px">SPC_F<span style="color:red">(浏览识别码)</span></td>
-      <td style="width: 200px">店铺别名<span style="color:orange">(选填)</span></td>
+      <td>站点</td>
+      <td>关键词类型</td>
+      <td>关键词</td>
       </tr>`
       exportExcelDataCommon('SHOPEE品牌词模板', template)
     },
     // 批量导入
-    batchImport() {},
+    batchImport() {
+      this.batchConsoleMsg = ''
+      if (this.importTemplateData.length <= 0) {
+        this.writeLog('表格数据不能为空', false)
+        this.showConsole = false
+        return
+      }
+      this.batchConsoleMsg = this.importTemplateData
+    },
     // 添加禁售词
     saveBanWord() {
       if (this.dialogkeyWord.trim() === '') return this.$message('请填写禁售词')
@@ -212,8 +267,18 @@ export default {
         this.isloading = false
       }
     },
+    // 日志封装
+    writeLog(msg, success = true) {
+      if (!msg) return
+      const color = success ? 'green' : 'red'
+      // const time = this.dateFormat(new Date(Date.now()), 'hh:mm:ss')
+      this.consoleMsg = `<p style="color:${color}; margin-top: 8px;">${msg}</p>` + this.consoleMsg
+    },
     handleSizeChange() {},
-    handleCurrentChange() {}
+    handleCurrentChange() {},
+    handleSelectionChange(val) {
+      this.multipleSelection = val
+    }
   }
 }
 </script>

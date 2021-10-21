@@ -3,31 +3,31 @@
     <div class="operation">
       <div class="o-item">
         <span>站点：</span>
-        <el-select v-model="form.site" class="unnormal" placeholder="" size="mini" filterable>
+        <el-select v-model="form.site" size="mini" filterable>
           <el-option v-for="(item, index) in siteList" :key="index" :label="item.label" :value="item.value" />
         </el-select>
       </div>
       <div class="o-item">
         <span>一级类目：</span>
-        <el-select v-model="form.site" class="unnormal" placeholder="" size="mini" filterable>
+        <el-select v-model="form.site" size="mini" filterable>
           <el-option v-for="(item, index) in siteList" :key="index" :label="item.label" :value="item.value" />
         </el-select>
       </div>
       <div class="o-item">
         <span>二级类目：</span>
-        <el-select v-model="form.site" class="unnormal" placeholder="" size="mini" filterable>
+        <el-select v-model="form.site" size="mini" filterable>
           <el-option v-for="(item, index) in siteList" :key="index" :label="item.label" :value="item.value" />
         </el-select>
       </div>
       <div class="o-item">
         <span>三级类目：</span>
-        <el-select v-model="form.site" class="unnormal" placeholder="" size="mini" filterable>
+        <el-select v-model="form.site" size="mini" filterable>
           <el-option v-for="(item, index) in siteList" :key="index" :label="item.label" :value="item.value" />
         </el-select>
       </div>
       <div class="o-item">
         <span>排序：</span>
-        <el-select v-model="form.sort" class="unnormal" placeholder="" size="mini" filterable>
+        <el-select v-model="form.sort" size="mini" filterable>
           <el-option v-for="(item, index) in sortList" :key="index" :label="item.label" :value="item.value" />
         </el-select>
       </div>
