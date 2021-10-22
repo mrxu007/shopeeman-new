@@ -4,7 +4,7 @@
       <el-tab-pane label="自动回复" name="autoReply">
         <el-row class="header">
           <el-col class="header-top">
-            <storeChoose @changeMallList="changeMallList"></storeChoose>
+            <storeChoose :source="'autoReply'" @changeMallList="changeMallList" style="margin-bottom: 10px;"></storeChoose>
             <el-col :span="24" class="header-two-top">
               <el-button type="primary" size="mini">批量设置预设自动回复</el-button>
               <el-button type="primary" size="mini">批量开启预设自动回复</el-button>
@@ -12,7 +12,7 @@
               <el-button type="primary" size="mini">批量设置离线自动回复</el-button>
               <el-button type="primary" size="mini">批量开启离线自动回复</el-button>
               <el-button type="" size="mini">批量关闭离线自动回复</el-button>
-              <el-button type="primary" size="mini">搜索</el-button>
+              <el-button type="primary" size="mini" @click="searchAutoReplyTable">搜索</el-button>
               <el-checkbox v-model="isShowLog" size="mini" style="margin-left: 5px;">显示日志</el-checkbox>
             </el-col>
           </el-col>
@@ -21,6 +21,7 @@
           <el-col :span="isShowLog && 20 || 24">
             <u-table ref="plTable"
                      :height="height"
+                     :data="tableDataAutoReply"
                      use-virtual
                      :data-changes-scroll-top="false"
                      :row-height="rowHeight"
@@ -41,7 +42,7 @@
       <el-tab-pane label="常见问题助理" name="FAQAssistant">
         <el-row class="header">
           <el-col class="header-top">
-            <storeChoose @changeMallList="changeMallList"></storeChoose>
+            <storeChoose :source="'FAQAssistant'" @changeMallList="changeMallList"></storeChoose>
             <el-col :span="24" class="header-two-top">
               <el-button type="primary" size="mini">批量开启</el-button>
               <el-button type="" size="mini">批量关闭</el-button>
@@ -78,7 +79,7 @@
       <el-tab-pane label="讯息快捷" name="messageQuickly">
         <el-row class="header">
           <el-col class="header-top">
-            <storeChoose @changeMallList="changeMallList"></storeChoose>
+            <storeChoose :source="'messageQuickly'" @changeMallList="changeMallList"></storeChoose>
             <el-col :span="24" class="header-two-top">
               <el-button type="primary" size="mini">批量开启</el-button>
               <el-button type="" size="mini">批量关闭</el-button>
@@ -131,7 +132,10 @@
           autoReply: null,
           FAQAssistant: null,
           messageQuickly: null
-        }
+        },
+        tableDataAutoReply:[],
+        tableDataFAQAssistant:[],
+        tableDataMessageQuickly:[],
       }
     },
     mounted() {
@@ -148,9 +152,28 @@
         let offerHeight = window.innerHeight
         this.height = offerHeight - 190
       },
-      changeMallList(val) {
-        this.SiteList[this.activeName] = Object.assign(val)
-        console.log('changeMallList', this.site)
+      changeMallList(data) {
+        this.SiteList[data.source] = data.mallList
+        console.log('changeMallList', this.SiteList)
+      },
+      async searchAutoReplyTable(){
+        let mallList = this.SiteList.autoReply || []
+        mallList.forEach(async item=>{
+          let resOfflineJson = await this.$shopeemanService.scOfflineReply(item.country,{shop_id:item.platform_mall_id})
+          let resChatJson = await this.$shopeemanService.scChatSetting(item.country,{shop_id:item.platform_mall_id})
+          try {
+            let resOffline = JSON.parse(resOfflineJson)
+            console.log('offlineRes',resOffline)
+          }catch (e) {
+
+          }
+          try {
+            let resChat = JSON.parse(resChatJson)
+            console.log('resChatJson',resChat)
+          }catch (e) {
+
+          }
+        })
       },
       handleClick() {
 

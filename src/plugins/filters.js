@@ -14,8 +14,18 @@ var chineseSite = function(val) {
     'ID': '印尼',
     'BR': '巴西'
   }
-  let attribute = val.toLocaleUpperCase()
-  let site = countries[attribute] || attribute
+  let countries_id = {
+    '4': 'TH',
+    '5': 'MY',
+    '3': 'TW',
+    '1': 'SG',
+    '7': 'PH',
+    '6': 'VN',
+    '2': 'ID',
+    '8': 'BR'
+  }
+  let attribute = val && (val+'').toLocaleUpperCase() || val
+  let site = countries[attribute] || countries[countries_id[attribute]] || ''
   return site
 }
 

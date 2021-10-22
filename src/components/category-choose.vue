@@ -75,6 +75,16 @@ export default {
         { label: '印尼站', value: 'ID' },
         { label: '巴西站', value: 'BR' },
       ],
+      countries_id:{
+        'TH' : "4",
+        'MY' : "5",
+        'TW' : "3",
+        'SG' : "1",
+        'PH' : "7",
+        'VN' : "6",
+        'ID' : "2",
+        'BR' : "8",
+      },
       category1: '',
       categoryList1: [],
       category2: '',
@@ -168,6 +178,7 @@ export default {
         categorySecond: this.category2,
         categoryThird: this.category3,
         categoryList: this.categoryList,
+        platformId:this.countries_id[this.countryVal]
       }
       console.log(params,"params")
       this.$emit('setCategory', params)

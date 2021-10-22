@@ -1,67 +1,163 @@
 <template>
   <div class="product-put-on-hot-word">
-    <div>
-      <category-choose :isAll="true" :level="2" @setCategory="setCategory"></category-choose>
+    <div class="category-choose-box">
+      <category-choose :level="2" @setCategory="setCategory"></category-choose>
+      <el-button size="mini" type="primary" @click="getKeyWord">查询</el-button>
+      <el-button size="mini" @click="exportData">导出</el-button>
     </div>
     <div class="content">
-      <el-table v-loading="tableLoading" ref="multipleTable" :data="tableData" tooltip-effect="dark" max-height="680" @selection-change="selectionChange">
-        <el-table-column type="selection" width="55"> </el-table-column>
+      <el-table v-loading="tableLoading" ref="multipleTable" :data="tableData" tooltip-effect="dark" :height="'calc(100vh - 80px)'">
         <el-table-column align="center" type="index" label="序号" width="50">
           <template slot-scope="scope">{{ (currentPage - 1) * pageSize + scope.$index + 1 }}</template>
         </el-table-column>
         <el-table-column width="120px" label="站点" prop="country" align="center">
-          <template slot-scope="scope">{{ scope.row.country | chineseSite }}</template>
+          <template slot-scope="scope">{{ scope.row.platform_id | chineseSite }}</template>
         </el-table-column>
-        <el-table-column min-width="60px" label="项目来源" prop="warehouse_name" align="center" />
-        <el-table-column min-width="60px" label="一级类目" prop="warehouse_name" align="center" />
-        <el-table-column min-width="60px" label="二级类目" prop="warehouse_name" align="center" />
-        <el-table-column min-width="60px" label="末级类目" prop="warehouse_name" align="center" />
-        <el-table-column min-width="60px" label="创建时间" prop="created_at" align="center" >
-          <template slot-scope="scope">{{ $dayjs(scope.row.created_at).format('YYYY-MM-DD') }}</template>
+        <el-table-column min-width="40px" label="一级类目" prop="" align="center">
+          <template slot-scope="scope">{{ scope.row.display_path.split('>')[0]}}({{scope.row.display_path_cn.split('>')[0]}})</template>
         </el-table-column>
-        <el-table-column min-width="60px" label="操作结果" prop="warehouse_name" align="center" />
-        <el-table-column min-width="60px" label="操作" prop="warehouse_name" align="center" />
+        <el-table-column min-width="80px" label="二级类目" prop="" align="center">
+          <template slot-scope="scope">{{scope.row.display_path.split('>')[1] &&
+            (scope.row.display_path.split('>')[1]+'('+scope.row.display_path_cn.split('>')[1]+')') || ''}}</template>
+        </el-table-column>
+        <el-table-column min-width="80px" label="热搜词分类类目" prop="" align="center">
+          <template slot-scope="scope">{{ scope.row.hotKeywords[0]&&scope.row.hotKeywords[0].keyword_name}}</template>
+        </el-table-column>
+        <el-table-column min-width="60px" label="热搜词名称" prop="" align="center">
+          <template slot-scope="scope">{{ scope.row.hotKeywords[0]&&scope.row.hotKeywords[0].keyword_name || ''}}</template>
+        </el-table-column>
+        <el-table-column min-width="60px" label="产品数" prop="" align="center">
+          <template slot-scope="scope">{{ scope.row.hotKeywords[0]&&scope.row.hotKeywords[0].total_count || ''}}</template>
+        </el-table-column>
+        <el-table-column min-width="60px" label="更新时间" prop="created_at" align="center">
+          <template slot-scope="scope">{{ $dayjs(scope.row.update_time*1000).format('YYYY-MM-DD') }}</template>
+        </el-table-column>
+        <el-table-column min-width="60px" label="近30天销量" prop="warehouse_name" align="center">
+          <template slot-scope="scope">{{ scope.row.hotKeywords[0]&&scope.row.hotKeywords[0].keyword_month_sales || ''}}</template>
+        </el-table-column>
       </el-table>
-      <div class="pagination">
-        <el-pagination
-            background
-            :page-sizes="[10, 20, 50, 100]"
-            :page-size="pageSize"
-            layout="total, sizes, prev, pager, next, jumper"
-            :total="total"
-            @current-change="handleCurrentChange"
-            @size-change="handleSizeChange"
-        />
-      </div>
+<!--      <div class="pagination">-->
+<!--        <el-pagination-->
+<!--            background-->
+<!--            :page-sizes="[10, 20, 50, 100]"-->
+<!--            :page-size="pageSize"-->
+<!--            layout="total, sizes, prev, pager, next, jumper"-->
+<!--            :total="total"-->
+<!--            @current-change="handleCurrentChange"-->
+<!--            @size-change="handleSizeChange"-->
+<!--        />-->
+<!--      </div>-->
     </div>
   </div>
 </template>
 
 <script>
   import CategoryChoose from '../../../components/category-choose.vue'
+  import { exportExcelDataCommon, dateFormat } from '../../../util/util'
+
   export default {
     components: {
-      CategoryChoose,
+      CategoryChoose
     },
     data() {
       return {
-
+        tableData: [],
+        country: '',
+        platformId: '',
+        categoryFirst: '',
+        categorySecond: '',
+        tableLoading: false,
+        currentPage:1,
+        total: 0,
+        pageSize: 20
       }
     },
     mounted() {
-
+      // this.getKeyWord()
     },
     methods: {
-      setCategory(val){
-        this.selectCategory = val
-        console.log('setCategory', val)
-      }
-    },
+      setCategory(select) {
+        this.country = select.country
+        this.platformId = select.platformId
+        this.categoryFirst = select.categoryFirst
+        this.categorySecond = select.categorySecond
+      },
+      async getKeyWord() {
+        let params = {
+          platform_id: this.platformId,
+          cat_id_1: this.categoryFirst,
+          cat_id_2: this.categorySecond
+        }
+        this.tableLoading = true
+        let resJson= await this.$commodityService.getKeyWord(params)
+        try {
+          let res = JSON.parse(resJson)
+          this.tableData = res.data
+          console.log(res)
+          this.total =  res.data.length
+        }catch (e) {
+          this.$message.error('热搜词列表请求失败')
+        }finally {
+          this.tableLoading = false
+        }
+      },
+      handleCurrentChange(val) {
+        this.currentPage = val
+        this.searchTableList()
+      },
+      handleSizeChange(size) {
+        this.pageSize = size
+        this.searchTableList()
+      },
+      exportData() {
+        if (!this.tableData.length) {
+          return this.$message.warning('没有可导出的数据')
+        }
+        let num = 1
+        let str = `<tr>
+              <td>编号</td>
+              <td>站点</td>
+              <td>一级类目</td>
+              <td>二级类目</td>
+              <td>热搜词分类类目</td>
+              <td>热搜词名称</td>
+              <td>产品数</td>
+              <td>更新时间</td>
+              <td>近30天销量</td>
+            </tr>`
+        for (let i = 0; i < this.tableData.length; i++) {
+          let item = this.tableData[i]
+          let categoryFirst = item.display_path && item.display_path.split('>')[0]
+            &&`${ item.display_path.split('>')[0]}(${item.display_path_cn.split('>')[0]})` ||''
+          let categorySecond = item.display_path && item.display_path.split('>')[1]
+            &&`${ item.display_path.split('>')[1]}(${item.display_path_cn.split('>')[1]})` ||''
+          str += `<tr><td>${num++}</td>
+                    <td>${item.platform_id ? item.platform_id : 0 + '\t'}</td>
+                    <td>${categoryFirst + '\t'}</td>
+                    <td>${categorySecond + '\t'}</td>
+                    <td>${categorySecond + '\t'}</td>
+                    <td>${item.hotKeywords[0]&&item.hotKeywords[0].keyword_name || '' + '\t'}</td>
+                    <td>${item.hotKeywords[0]&&item.hotKeywords[0].total_count || 0 + '\t'}</td>
+                    <td>${ dateFormat(item.update_time*1000,'yyyy-MM-dd') + '\t'}</td>
+                    <td>${item.hotKeywords[0]&&item.hotKeywords[0].keyword_month_sales || 0 + '\t'}</td>
+                </tr>`
+        }
+        exportExcelDataCommon('热搜词推荐', str)
+      },
+    }
   }
 </script>
 
 <style lang="less" scoped>
-  .product-put-on-hot-word{
+  .product-put-on-hot-word {
+    min-width: 1280px;
+    margin: 10px;
+    padding: 10px;
+    background: #fff;
 
+    .category-choose-box {
+      margin-bottom: 10px;
+      display: flex;
+    }
   }
 </style>
