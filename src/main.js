@@ -42,7 +42,12 @@ import SonAccountService from './services/son-acccount-service'
 import Logs from 'cyt-pl-plug'
 
 import * as echarts from 'echarts'
+import * as filters from './plugins/filters'
+
 Vue.prototype.$echarts = echarts
+Object.keys(filters).forEach(key=>{
+  Vue.filter(key,filters[key])//插入过滤器名和对应方法
+})
 // const config = {
 //   openDebugger: process.env.NODE_ENV === 'development',
 //   userName: 'xxx项目', // 当前操作的项目名
