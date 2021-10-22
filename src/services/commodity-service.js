@@ -534,4 +534,18 @@ export default class CommodityService {
   callDianBaShopeeInfo(data) {
     return this.nativeService.callDianBaShopeeInfo('GetAvgPrice', JSON.stringify(data))
   }
+  /**
+ * @name :获取热搜词列表
+ * @param : {
+ * platform_id: '',国家code
+ * cat_id_1: '',
+ * cat_id_2: '',
+ * }
+ *
+ */
+  getKeyWord(data) {
+    data['order_by'] = 'keyword_month_sales'
+    return this.nativeService.callDianBaShopeeInfo('GetKeyWord', JSON.stringify(data))
+  }
 }
+

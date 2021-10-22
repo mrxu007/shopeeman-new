@@ -62,7 +62,7 @@
     methods: {
       changeMallList(val) {
         this.SiteList[this.activeName] = Object.assign(val)
-        console.log('changeMallList', this.site)
+        console.log('changeMallList', this.SiteList)
       }
     }
 

@@ -40,6 +40,7 @@ const otherRequest = axios.create({ // 第三方请求
     return jxAdapter(config)
   }
 })
+
 export default {
   AppRequest, // 对接第三方请求
   ycjRequest, // 对接云采集请求
