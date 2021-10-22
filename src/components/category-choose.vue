@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-10-21 15:41:32
- * @LastEditTime: 2021-10-21 20:45:09
+ * @LastEditTime: 2021-10-22 15:56:27
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shopeeman-new\src\components\category-choose.vue
@@ -99,13 +99,16 @@ export default {
       deep: true
     },
     category1(val, oldVal) {
-      if (val === '') {
-        this.category2 = ''
-        this.category3 = ''
-        this.categoryList2 = []
-        this.categoryList3 = []
-        this.sendParent()
-      }
+      this.category2 = ''
+      this.category3 = ''
+      this.categoryList2 = []
+      this.categoryList3 = []
+      this.sendParent()
+    },
+    category2(val, oldVal) {
+      this.category3 = ''
+      this.categoryList3 = []
+      this.sendParent()
     }
   },
   mounted() {
@@ -113,7 +116,10 @@ export default {
   },
   methods: {
     async getCategory(categoryID, level) {
-      if (!this.countryVal) return
+      if (!this.countryVal) {
+        this.sendParent()
+        return
+      }
       if (this.level === level) {
         this.sendParent()
         return

@@ -53,8 +53,7 @@ export default {
   // 2021-10-09
   getMallDataStatistics: (data) => AppRequest.post('/mallDataStatistics/dataStat', data), // 获取数据分析
 
-  // 2021-10-11
-  // 软件财务中心---个人中心
+  // 个人中心--软件财务中心
   getTransType: (data) => AppRequest.get('/user/transType', { data }), // 获取账单交易类型
   getAccountAmount: (data) => AppRequest.get('/user/accountAmount', { data }), // 查询用户账号余额
   getAccountAmountDetailList: (data) => AppRequest.post('/user/accountAmountDetailList', data), // 查询用户账号余额
@@ -62,7 +61,7 @@ export default {
   getChargeUrlV2: (data) => AppRequest.get('/emptyBag/chargeUrlV2', { params: data }), // 充值
   getTranslateAmount: (data) => AppRequest.get('/translate/getTranslateAmount', { params: data }), // 获取今日翻译费用
 
-  // 账单核算---个人中心
+  // 个人中心--账单核算
   getOrderStatisticsList: (data) => AppRequest.get('/orderStatistics/index', { params: data }), // 账单核算：列表
   getChildUserList: (data) => AppRequest.post('/user/childUserList', data), // 团队管理-查询子账号列表
   userRoleList: (data) => AppRequest.get('/user/userRoleList', data), // 团队管理-获取子账号角色类型
@@ -76,12 +75,12 @@ export default {
   setIpCheck: (data) => AppRequest.post('/user/setIpCheck', data), // 信任IP-设置信任IP是否开启
   getPhoneLists: (data) => AppRequest.get('/user/getPhoneLists', data), // 信任IP-获取手机号码列表
   updatePhoneListForIp: (data) => AppRequest.post('/user/updatePhoneListForIp', data), // 信任IP-配置接收手机验证码的手机号
-  // 数据统计
+
+  // 数据统计--数据统计
   getDrderBasicStatV2: (data) => AppRequest.post('/mallDataStatistics/orderBasicStatV2', data), // 数据统计获取订单列表数据
   getDataStat: (data) => AppRequest.post('/mallDataStatistics/dataStat', data), // 数据统计图表数据
 
-  // 2021-10-14
-  // 店铺管理
+  // 店铺管理--店铺管理
   ddMallGoodsGetMallList: (data) => AppRequest.get('/ddMallGoods/getMallList', data), // 联动站点分组获取店铺列表
   mallGroupIndex: (data) => AppRequest.get('/mallGroup/index', { params: data }), // 获取店铺分组列表
   getMallList: (data) => AppRequest.get('/bindMall/mallList', { params: data }), // 获取店铺列表
@@ -91,6 +90,11 @@ export default {
   updateWatermark: (data) => AppRequest.post('/bindMall/updateWatermark', data), // 修改店铺水印
   updateUserPassword: (data) => AppRequest.post('/bindMall/uploadUserPassword', data), // 修改账户登录密码
   uploadMallCookie: (data) => AppRequest.post('/bindMall/uploadWebLoginInfo', data), // 上报店铺cookie
+
+  // 店铺管理--店铺分组
+  getMallGroup: (data) => AppRequest.get('/mallGroup/index', { params: data }), // 获取店铺分组列表
+  addOrUpdatemallGroup: (data) => AppRequest.post('/mallGroup/save', data), // 新增/修改分组
+  deleteGroup: (data) => AppRequest.post('/mallGroup/delete', data), // 新增/修改分组
 
   // 异常公告
   getExceptionNoOrderIndex: (data) => AppRequest.get('/exceptionNoOrderIndex', { params: data }), // 异常公告签收包裹异常列表

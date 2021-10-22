@@ -1,3 +1,4 @@
+import { setTimeout } from 'core-js'
 import md5 from 'js-md5'
 
 /**
@@ -227,3 +228,25 @@ export function exportCsvDataCommon(fileName, str) {
   document.body.removeChild(a)
 }
 
+export function debounce(fun, wait, immediate) {
+  let timeout = null
+  let result = null
+  return function() {
+    const context = this
+    const args = arguments
+    if (timeout) {
+      clearTimeout(timeout)
+    }
+    if (immediate) {
+      const rightNow = !timeout
+      timeout = setTimeout(() => {
+        timeout = null
+      }, wait)
+      if (rightNow) result = fun.apply(context, args)
+    } else {
+      timeout = setTimeout(() => {
+        result = result = fun.apply(context, args)
+      }, wait)
+    }
+  }
+}
