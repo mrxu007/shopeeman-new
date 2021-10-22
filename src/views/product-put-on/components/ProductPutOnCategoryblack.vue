@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-10-21 09:38:11
- * @LastEditTime: 2021-10-22 15:52:26
+ * @LastEditTime: 2021-10-22 20:21:12
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shopeeman-new\src\views\product-put-on\components\ProductPutOnCategoryblack.vue
@@ -38,11 +38,28 @@
         <el-table-column width="120px" label="站点" prop="country" align="center">
           <template slot-scope="scope">{{ scope.row.country | chineseSite }}</template>
         </el-table-column>
-        <el-table-column min-width="60px" label="项目来源" prop="warehouse_name" align="center" />
-        <el-table-column min-width="60px" label="一级类目" prop="warehouse_name" align="center" />
-        <el-table-column min-width="60px" label="二级类目" prop="warehouse_name" align="center" />
-        <el-table-column min-width="60px" label="末级类目" prop="warehouse_name" align="center" />
-        <el-table-column min-width="60px" label="创建时间" prop="created_at" align="center" >
+        <el-table-column min-width="60px" label="项目来源"  align="center" >
+             <template slot-scope="scope">
+                <!-- <p v-if="scope.row.uid">{{ changeTypeName(scope.row.uid,categorySourceList)}}</p>  -->
+                <p >公有</p>
+             </template>
+        </el-table-column>
+        <el-table-column min-width="60px" label="一级类目" prop="warehouse_name" align="center" >
+             <template slot-scope="scope">
+                <p >{{ scope.row.parent_category_list&&scope.row.parent_category_list.length?(scope.row.parent_category_list[0]?scope.row.parent_category_list[0].category_cn_name:''):''}}</p> 
+             </template>
+        </el-table-column>
+        <el-table-column min-width="60px" label="二级类目" prop="warehouse_name" align="center" >
+             <template slot-scope="scope">
+                <p >{{ scope.row.parent_category_list&&scope.row.parent_category_list.length?(scope.row.parent_category_list[1]?scope.row.parent_category_list[1].category_cn_name:''):''}}</p> 
+             </template>
+        </el-table-column>
+        <el-table-column min-width="60px" label="末级类目" prop="warehouse_name" align="center" >
+             <template slot-scope="scope">
+                <p >{{ scope.row.parent_category_list&&scope.row.parent_category_list.length?(scope.row.parent_category_list[2]?scope.row.parent_category_list[2].category_cn_name:''):''}}</p> 
+             </template>
+        </el-table-column>
+        <el-table-column min-width="60px" label="创建时间"  align="center" >
             <template slot-scope="scope">{{ $dayjs(scope.row.created_at).format('YYYY-MM-DD') }}</template>
         </el-table-column>
         <el-table-column min-width="60px" label="操作结果" prop="warehouse_name" align="center" />
@@ -131,7 +148,9 @@ export default {
       },
     }
   },
-  mounted() {},
+  mounted() {
+      this.searchTableList()
+  },
   methods: {
     setAddCategory(val) {
       this.addSelectCategory = val
@@ -207,6 +226,13 @@ export default {
         console.log(res,resObj)
       }
       this.searchTableList()
+    },
+    //转换类型中文
+    changeTypeName(value, baseData) {
+      let str = ''
+      let data = baseData.find((item) => item.value == value)
+      str = data ? data.label : ''
+      return str
     },
     //   表格选择
     selectionChange(val) {
