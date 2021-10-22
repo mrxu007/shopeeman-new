@@ -40,6 +40,12 @@ const routes = [
       import('../views/product-put-on/index.vue')
   },
   {
+    path: '/user-config', // 数据统计
+    name: 'user-config',
+    component: () =>
+      import('../views/user-config/index.vue')
+  },
+  {
     path: '/test-api', // 测试联调接口
     name: 'test-api',
     component: () =>
