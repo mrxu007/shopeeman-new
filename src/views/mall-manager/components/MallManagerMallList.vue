@@ -220,6 +220,7 @@
 <script>
 import { getMallListAPI, updateWatermarkAPI, updateUserPasswordAPI, loginAPI, uploadMallCookie } from '../../../module-api/mall-manager-api/mall-list-api'
 import { delay, exportExcelDataCommon } from '../../../util/util'
+import { countriesObj, countries } from '../../../util/countries'
 import xlsx from 'xlsx'
 export default {
   data() {
@@ -227,33 +228,17 @@ export default {
       height: 300,
       rowHeight: 50,
       consoleMsg: '',
+      buttonStatus: {
+        login: false
+      },
       mallList: [],
       mallListTemp: [],
       importMallListData: [],
       multipleSelection: [],
       multipleSelection2: [],
       countryVal: 0,
-      countries: [
-        { label: '马来站', value: 'MY' },
-        { label: '台湾站', value: 'TW' },
-        { label: '新加坡站', value: 'SG' },
-        { label: '菲律宾站', value: 'PH' },
-        { label: '泰国站', value: 'TH' },
-        { label: '越南站', value: 'VN' },
-        { label: '印尼站', value: 'ID' },
-        { label: '巴西站', value: 'BR' }
-      ],
-      countriesObj: {
-        'MY': '马来站',
-        'TW': '台湾站',
-        'SG': '新加坡站',
-        'PH': '菲律宾站',
-        'TH': '泰国站',
-        'VN': '越南站',
-        'ID': '印尼站',
-        'BR': '巴西站',
-        '2': '冻结'
-      },
+      countries: null,
+      countriesObj: null,
       mallSearchConditionVal: 'mallName',
       mallSearchCondition: [
         {
@@ -321,6 +306,9 @@ export default {
     }
   },
   created() {
+    this.countries = countries
+    this.countriesObj = countriesObj
+    this.test()
     this.getMallList()
   },
   methods: {
@@ -328,6 +316,10 @@ export default {
     //   // {scrollTop， scrollLeft, table, judgeFlse: 这个参数返回一个boolean值，为true则代表表格滚动到了底部了，false没有滚动到底部，必须开起大数据渲染模式才能有值哦}, event
     //   console.log(scrollTop, scrollLeft, table, judgeFlse)
     // },
+    async test() {
+      const res = await this.$appConfig.getUserConfig()
+      debugger
+    },
     handleSelectionChange(val) {
       this.multipleSelection = val
     },
@@ -343,6 +335,10 @@ export default {
       this.waterDialogVisible = true
     },
     async alotOfLogined() {
+      if (this.buttonStatus.login) {
+        return
+      }
+      this.buttonStatus.login = true
       const len = this.multipleSelection.length
       for (let i = 0; i < len; i++) {
         const item = this.multipleSelection[i]
@@ -351,18 +347,22 @@ export default {
           console.log('店铺登录', res.data)
           continue
         }
-        debugger
+        // debugger
         const params = {
           'mallId': res.data.mallId,
           'webLoginInfo': JSON.stringify(res.data.Cookie)
         }
         const res2 = await uploadMallCookie(params)
-        debugger
+        // debugger
         if (res.code !== 200) {
           console.log('店铺上传', res.data)
           continue
         }
       }
+      // setTimeout(() => {
+      //   this.buttonStatus.login = false
+      // }, 20000)
+      this.buttonStatus.login = false
     },
     importMall(val) {
       this.importType = val

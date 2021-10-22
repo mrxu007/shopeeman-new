@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-10-08 14:16:18
- * @LastEditTime: 2021-10-19 11:45:19
+ * @LastEditTime: 2021-10-21 10:58:35
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shopeeman-new\src\views\mall-manager\components\MallManagerWithdrawalRecord.vue
@@ -10,7 +10,8 @@
   <div class="store-evaluation">
     <div class="tool-bar">
       <div class="tool-row">
-        <div class="tool-item mar-right">
+        <storeChoose @changeMallList="changeMallList" />
+        <!-- <div class="tool-item mar-right">
           <span>站点：</span>
           <el-select v-model="countryVal" placeholder="" size="mini" filterable>
             <el-option label="全部" :value="0" />
@@ -30,7 +31,7 @@
           <el-select v-model="mallSelect" placeholder="" size="mini" filterable>
             <el-option v-for="(item, index) in 4" :key="index" />
           </el-select>
-        </div>
+        </div> -->
         <div class="tool-item">
           <span>时间：</span>
           <el-date-picker
@@ -66,10 +67,10 @@
             </el-select>
           </el-input>
         </div>
-        <el-button type="primary" size="mini" class="mar-right">查询</el-button>
-        <el-button type="primary" size="mini" class="mar-right">批量回复</el-button>
+        <el-button type="primary" size="mini" class="mar-right" @click="searchRate">查询</el-button>
+        <el-button type="primary" size="mini" class="mar-right" @click="batchReplay">批量回复</el-button>
         <el-button type="primary" size="mini" class="mar-right">取消操作</el-button>
-        <el-button type="primary" size="mini" class="mar-right">导出数据</el-button>
+        <el-button type="primary" size="mini" class="mar-right" @click="exportData">导出数据</el-button>
         <el-button type="primary" size="mini" class="mar-right" @click="clearLog">清除日志</el-button>
         <div class="tool-item mar-right">
           <el-checkbox v-model="showConsole">隐藏日志</el-checkbox>
@@ -91,10 +92,31 @@
         <el-table-column align="center" prop="trans_status" label="评价星数" min-width="70">
           <template slot-scope="scope" />
         </el-table-column>
-        <el-table-column align="center" prop="current_amount" label="评价时间" min-width="70" />
-        <el-table-column align="center" prop="customs_money" label="评价内容" min-width="80" />
-        <el-table-column align="center" prop="first_express_money" label="您的回复" min-width="80" />
-        <el-table-column align="center" prop="warhouse_money" label="回复时间" min-width="80" />
+        <el-table-column prop="user_name" label="买家姓名" align="center" min-width="90px" />
+        <el-table-column align="center" prop="rating_star" label="评价星数" min-width="100">
+          <template slot-scope="scope">
+            <el-rate v-model="scope.row.rating_star" />
+          </template>
+        </el-table-column>
+        <el-table-column align="center" prop="ctime" label="评价时间" min-width="70">
+          <template slot-scope="scope">
+            {{ $dayjs(scope.row.ctime * 1000).format('YYYY-MM-DD HH:MM') }}
+          </template>
+        </el-table-column>
+        <el-table-column align="center" prop="user_portrait" label="评价内容" min-width="80" show-overflow-tooltip />
+        <el-table-column align="center" label="您的回复" min-width="80" show-overflow-tooltip>
+          <template slot-scope="scope">
+            <div v-if="scope.row.reply.comment">{{ scope.row.reply.comment }}</div>
+            <div v-else>
+              <el-button type="primary" size="mini" @click="singleReplay">回复</el-button>
+            </div>
+          </template>
+        </el-table-column>
+        <el-table-column align="center" label="回复时间" min-width="80">
+          <template slot-scope="scope">
+            {{ $dayjs(scope.row.reply.ctime * 1000).format('YYYY-MM-DD HH:MM') }}
+          </template>
+        </el-table-column>
         <el-table-column align="center" prop="trans_status" label="操作状态" min-width="70">
           <template slot-scope="scope" />
         </el-table-column>
@@ -105,7 +127,12 @@
 </template>
 
 <script>
+import { exportExcelDataCommon } from '../../../util/util'
+import storeChoose from '../../../components/store-choose'
 export default {
+  components: {
+    storeChoose
+  },
   data() {
     return {
       pickerOptions: {
@@ -127,7 +154,32 @@ export default {
         { label: '巴西站', value: 'BR' }
       ],
       assessTime: [],
-      tableData: [],
+      tableData: [
+        {
+          comment_id: 1940787567,
+          is_hidden: false,
+          rating_star: 5,
+          comment: '',
+          images: [],
+          ctime: 1578480210,
+          user_id: 46644576,
+          user_name: 'tanyin2',
+          user_portrait: '',
+          order_id: 31986779381556,
+          order_sn: '200106VQ0A4USM',
+          product_id: 3514088694,
+          model_id: 0,
+          product_cover: '75b327a8ad9496bc03d554afd834b0e7',
+          product_name: '❃▽ถูกสุด+ไม่ต้องรอของ สติ๊กเกอร์ติดเล็บ‼️รุ่นใหม่ Gel Nail Strip ลายน่ารักไม่ซ้ำใคร คละสี',
+          model_name: 'DA138|DA180|DA127|DA137|DA179|DA157|DA167|DA134|DA147|DA142|DA136|DA197|DA162|DA144|DA119|DA102|DA146|DA111|DA109|DA195',
+          reply: {
+            comment: '24242',
+            is_hidden: false,
+            comment_id: 1940787567,
+            ctime: 1627719018
+          }
+        }
+      ],
       tableLoading: false,
       replayType: '',
       replayTypeList: [
@@ -219,6 +271,7 @@ export default {
     align-items: center;
     flex-wrap: wrap;
     .tool-item {
+      margin-top: 10px;
       display: flex;
       align-items: center;
     }
@@ -228,5 +281,17 @@ export default {
   margin: 20px 0;
   background: #fff;
   height: calc(100vh - 150px);
+  .tableActive {
+    color: red;
+    cursor: pointer;
+  }
+}
+.replay-dialog {
+  display: flex;
+  justify-content: space-between;
+  flex-direction: column;
+  .btn {
+    margin-top: 20px;
+  }
 }
 </style>

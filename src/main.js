@@ -25,10 +25,30 @@ import applicationConfig from './services/application-config'
 import ShopeemanConfig from './services/shopeeman-config'
 import XzyNetMessageService from './services/XzyNetMessageService'
 import YipService from './services/YipService'
+import mallServce from './services/mall-servers'
+import commodityService from './services/commodity-service'
+import buyerAccountService from './services/buyer-account-service'
+import BaseUtilService from './services/BaseUtilService'
+import CloudLogBridgeService from './services/CloudLogBridgeService'
+import ImageService from './services/ImageService'
+import MattingService from './services/MattingService'
+import platformId from './services/platform-utils'
+import orderService from './services/order-service'
+import orderDetail from './services/order-detail'
+import tborderDetail from './services/tbOrder-detail'
+import collectService from './services/collect-service'
+import aliyunOssService from './services/aliyun-oss-service'
+import viewManagerService from './services/view-manager-service'
+import SonAccountService from './services/son-acccount-service'
 import Logs from 'cyt-pl-plug'
 
 import * as echarts from 'echarts'
+import * as filters from './plugins/filters'
+
 Vue.prototype.$echarts = echarts
+Object.keys(filters).forEach(key => {
+  Vue.filter(key, filters[key])// 插入过滤器名和对应方法
+})
 // const config = {
 //   openDebugger: process.env.NODE_ENV === 'development',
 //   userName: 'xxx项目', // 当前操作的项目名
@@ -50,7 +70,6 @@ Vue.use(VueDND)
 
 Vue.prototype.$YipService = new YipService()
 Vue.prototype.$XzyNetMessageService = new XzyNetMessageService()
-Vue.prototype.$appConfig = new applicationConfig()
 Vue.prototype.$shopeeManConfig = new ShopeemanConfig()
 
 Vue.prototype.$IpcMain = IpcMain
@@ -59,6 +78,21 @@ Vue.prototype.$api = api
 Vue.prototype.$AppRequest = api.AppRequest
 Vue.prototype.$otherRequest = api.otherRequest
 Vue.prototype.$gatewayService = gatewayService.gatewayService
+Vue.prototype.$XzyNetMessageService = new XzyNetMessageService()
+Vue.prototype.$appConfig = new applicationConfig()
+Vue.prototype.$shopeeManConfig = new ShopeemanConfig()
+Vue.prototype.$mallService = new mallServce()
+Vue.prototype.$commodityService = new commodityService()
+Vue.prototype.$buyerAccountService = new buyerAccountService()
+Vue.prototype.$BaseUtilService = new BaseUtilService()
+Vue.prototype.$CloudLogBridgeService = new CloudLogBridgeService()
+Vue.prototype.$ImageService = new ImageService()
+Vue.prototype.$MattingService = new MattingService()
+Vue.prototype.$collectService = new collectService()
+Vue.prototype.$orderService = new orderService()
+Vue.prototype.$ossService = new aliyunOssService()
+Vue.prototype.$viewManagerService = new viewManagerService()
+Vue.prototype.$SonAccountService = new SonAccountService()
 Vue.prototype.$dayjs = dayjs
 
 // 所有的input框自动获取焦点

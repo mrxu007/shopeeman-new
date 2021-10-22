@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-10-08 14:16:18
- * @LastEditTime: 2021-10-19 17:04:27
+ * @LastEditTime: 2021-10-19 20:26:05
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shopeeman-new\src\views\mall-manager\components\MallManagerWithdrawalRecord.vue
@@ -10,7 +10,8 @@
   <div class="drawal-record">
     <div class="tool-bar">
       <div class="tool-row">
-        <div class="tool-item mar-right">
+          <storeChoose :is-all="true" @changeMallList="changeMallList"></storeChoose>
+        <!-- <div class="tool-item mar-right">
           <span>站点：</span>
           <el-select v-model="countryVal" placeholder="" size="mini" filterable>
             <el-option label="全部" :value="0" />
@@ -30,7 +31,7 @@
           <el-select v-model="mallSelect" placeholder="" size="mini" filterable>
             <el-option v-for="(item, index) in 4" :key="index" />
           </el-select>
-        </div>
+        </div> -->
       </div>
       <div class="tool-row">
         <div class="tool-item mar-right">
@@ -92,7 +93,11 @@
 </template>
 
 <script>
+import storeChoose from '../../../components/store-choose'
 export default {
+    components: {
+        storeChoose
+    },
   data() {
     return {
       pickerOptions: {
@@ -144,6 +149,9 @@ export default {
     this.getMallList()
   },
   methods: {
+    changeMallList(val){
+        console.log("changeMallList",val)
+    },
     async getMallList() {},
     exportData() {
       this.$refs.Logs.writeLog('sdhgkjdjhglk', true)
