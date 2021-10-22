@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-10-21 09:38:11
- * @LastEditTime: 2021-10-22 11:29:10
+ * @LastEditTime: 2021-10-22 15:52:26
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shopeeman-new\src\views\product-put-on\components\ProductPutOnCategoryblack.vue
@@ -17,7 +17,7 @@
             <el-option v-for="(item, index) in categorySourceList" :key="index" :label="item.label" :value="item.value" />
           </el-select>
         </div>
-        <category-choose :isAll="true" :level="2" @setCategory="setCategory"></category-choose>
+        <category-choose :isAll="true" :level="3" @setCategory="setCategory"></category-choose>
       </div>
       <div class="tool-row">
         <div class="tool-item mar-right">
@@ -35,7 +35,7 @@
         <el-table-column align="center" type="index" label="序号" width="50">
           <template slot-scope="scope">{{ (currentPage - 1) * pageSize + scope.$index + 1 }}</template>
         </el-table-column>
-                <el-table-column width="120px" label="站点" prop="country" align="center">
+        <el-table-column width="120px" label="站点" prop="country" align="center">
           <template slot-scope="scope">{{ scope.row.country | chineseSite }}</template>
         </el-table-column>
         <el-table-column min-width="60px" label="项目来源" prop="warehouse_name" align="center" />
