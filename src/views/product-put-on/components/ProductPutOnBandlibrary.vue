@@ -127,19 +127,19 @@
 </template>
 
 <script>
-import xlsx from 'xlsx'
 const Logging = () => import('@/components/logging.vue')
+import shpeeManMixin from '@/util/shpeeMan-mixin' // 公共方法
 import { exportExcelDataCommon } from '../../../util/util'
 export default {
   components: {
     Logging
   },
+  mixins: [shpeeManMixin],
   data() {
     return {
       showConsole: true,
       consoleMsg: '', // 打印日志
       batchConsoleMsg: '', // 批量导入信息
-      importTemplateData: '', // 导入数据
       dialogBanWordVisible: false,
       dialogVisible: false,
       page: 1,
@@ -176,6 +176,16 @@ export default {
         { value: 'SG', label: '新加坡站' },
         { value: 'VN', label: '越南站' }
       ],
+      siteObj: {
+        '马来站': 'MY',
+        '台湾站': 'TW',
+        '新加坡站': 'SG',
+        '菲律宾站': 'PH',
+        '泰国站': 'TH',
+        '越南站': 'VN',
+        '印尼站': 'ID',
+        '巴西站': 'BR'
+      },
       tableData: [] // 表格数据
     }
   },
@@ -187,58 +197,40 @@ export default {
     batchDelete() {
       if (this.multipleSelection.length <= 0) return this.$message('请选择要删除的数据')
     },
-    // 表格导入
-    importTemplateEvent(file) {
-      const files = { 0: file.raw }
-      if (!/\.(xls|xlsx)$/.test(files[0].name.toLowerCase())) {
-        this.writeLog('上传格式不对,请上传xls、xls格式的文件', false)
-        return
-      }
-      if (files.length <= 0) {
-        this.writeLog('表格为空', false)
-        return
-      }
-      const fileReader = new FileReader()
-      fileReader.onload = (ev) => {
-        const data = ev.target.result
-        const workbook = xlsx.read(data, {
-          type: 'binary'
-        })
-        const wsname = workbook.SheetNames[0] // 去第一张表
-        let ws = xlsx.utils.sheet_to_json(workbook.Sheets[wsname]) // 生成Json表格
-        // console.log('ws表格里面的数据，且是json格式', ws)
-        this.importTemplateData = ws
-        ws = null
-        // this.writeLog(`正在读取中...`, true)
-        this.batchImport()
-        // this.writeLog(`【${file.name}】该模板不符合要求,请下载指定模板`, false)
-        // 重写数据
-        this.$refs.importRef.value = ''
-      }
-      fileReader.readAsBinaryString(files[0])
-    },
-    // 改变日志显示状态
-    changeshowConsole(status) {
-      this.showConsole = status
-    },
     // 下载模板
     downloadTemplate() {
-      const template = `<tr>
-      <td>站点</td>
-      <td>关键词类型</td>
-      <td>关键词</td>
+      const template = `
+      <tr>
+        <td>站点</td>
+        <td>关键词类型</td>
+        <td>关键词</td>
       </tr>`
       exportExcelDataCommon('SHOPEE品牌词模板', template)
     },
     // 批量导入
     batchImport() {
-      this.batchConsoleMsg = ''
-      if (this.importTemplateData.length <= 0) {
+      const dataSum = this.importTemplateData.length
+      if (dataSum <= 0) {
         this.writeLog('表格数据不能为空', false)
         this.showConsole = false
         return
       }
-      this.batchConsoleMsg = this.importTemplateData
+      let successNum = 0
+      let failNum = 0
+      console.log(this.importTemplateData)
+      this.batchWriteLog('开始导入禁售词')
+      for (let index = 0; index < dataSum; index++) {
+        const element = this.importTemplateData[index]
+        if (!element['站点'] || !element['关键词类型'] || !element['关键词']) {
+          failNum++
+          this.batchWriteLog(`表头错误`, false)
+          continue
+        }
+        successNum++
+        console.log(this.siteObj[element['站点']])
+        this.batchWriteLog(`站点-${this.siteObj[element['站点']]} 添加禁售词"${element['关键词']}"-成功`, true)
+      }
+      this.batchWriteLog(`导入总数：${dataSum}，成功数：${successNum}，失败数：${failNum}`)
     },
     // 添加禁售词
     saveBanWord() {
@@ -267,12 +259,10 @@ export default {
         this.isloading = false
       }
     },
-    // 日志封装
-    writeLog(msg, success = true) {
+    batchWriteLog(msg, success = true) {
       if (!msg) return
       const color = success ? 'green' : 'red'
-      // const time = this.dateFormat(new Date(Date.now()), 'hh:mm:ss')
-      this.consoleMsg = `<p style="color:${color}; margin-top: 8px;">${msg}</p>` + this.consoleMsg
+      this.batchConsoleMsg = `<p style="color:${color}; margin-top: 8px;">${msg}</p>` + this.batchConsoleMsg
     },
     handleSizeChange() {},
     handleCurrentChange() {},

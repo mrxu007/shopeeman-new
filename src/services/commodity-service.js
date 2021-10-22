@@ -359,7 +359,14 @@ export default class CommodityService {
    */
   checkListingRepeat(data) {
     // string sysMallId, string platformType, string itemSku, string title, string country, string dimension
-    const { sysMallId, platformType, itemSku, title, country, dimension } = data
+    const {
+      sysMallId,
+      platformType,
+      itemSku,
+      title,
+      country,
+      dimension
+    } = data
     return this.nativeService.callFunction('CheckListingRepeat', sysMallId, platformType, itemSku, title, country, dimension)
   }
   /**
@@ -368,7 +375,17 @@ export default class CommodityService {
    */
   SaveListingRecord(data) {
     // long sysMallId, int platformType, string itemSku, string title, string listingId, string country, string mallId, long categoryId, string skuDatas = ""
-    const { sysMallId, platformType, itemSku, title, listingId, country, mallId, categoryId, skuDatas } = data
+    const {
+      sysMallId,
+      platformType,
+      itemSku,
+      title,
+      listingId,
+      country,
+      mallId,
+      categoryId,
+      skuDatas
+    } = data
 
     return this.nativeService.callFunction('SaveListingRecord', sysMallId, platformType, itemSku, title, listingId, country, mallId, categoryId, skuDatas)
   }
@@ -381,18 +398,18 @@ export default class CommodityService {
     return this.nativeService.callFunction('Dictionary', data)
   }
   /**
-  * 类目映射
-  * @param {string} sysMallId
-  */
+   * 类目映射
+   * @param {string} sysMallId
+   */
   getCategoryRelation(data) {
     // console.log('值', data)
 
     return this.nativeService.callCategoryFunction('GetCategoryRelation', data[0] + '', data[1], data[2] + '', data[3])
   }
   /**
- * 保存映射
- * @param {string} sysMallId
- */
+   * 保存映射
+   * @param {string} sysMallId
+   */
   saveCategoryRelation(data) {
     // console.log(JSON.stringify(data))
     return this.nativeService.callCategoryFunction('SaveCategoryRelation', JSON.stringify(data))
@@ -402,6 +419,18 @@ export default class CommodityService {
    * @param {array} data
    */
   getTbCategory(data) {
+    // console.log(JSON.stringify(data))
+    return this.nativeService.callCategoryFunction('GetCategoryInfo', data[0] + '', data[1] + '', data[2] + '', data[3])
+  }
+  /**
+   * 获取类目
+   * @param {array} data
+   * data[0]:country站点
+   * data[1]:categoryId类目id
+   * data[2]:isParent 类目的父级标识：1传入的类目作为父级查询；0当前类目查询
+   * data[3]: 'tbCategory'
+   */
+  getCategory(data) {
     // console.log(JSON.stringify(data))
     return this.nativeService.callCategoryFunction('GetCategoryInfo', data[0] + '', data[1] + '', data[2] + '', data[3])
   }
@@ -439,11 +468,70 @@ export default class CommodityService {
     return this.nativeService.callCategoryFunction('GetPlatformCategoryNameInfo', 'CN', categoryId, platformId)
   }
   uploadSpecByCategoryId(data) {
-    const { country, categoryId, dataSource, maxAmount, minAmount } = data
+    const {
+      country,
+      categoryId,
+      dataSource,
+      maxAmount,
+      minAmount
+    } = data
     return this.nativeService.callCategoryFunction('UploadSpecByCategoryId', country, categoryId + '', JSON.stringify(dataSource), maxAmount, minAmount)
   }
   UploadTbCatAttr(data) {
-    const { categoryId, dataSource } = data
+    const {
+      categoryId,
+      dataSource
+    } = data
     return this.nativeService.callCategoryFunction('UploadTbCatAttr', categoryId + '', JSON.stringify(dataSource))
+  }
+  /**
+ * @name :
+ * @param  {
+ * page:1,
+ * country:'MY'
+ * categoryId:'123'
+ * type:'0' 类目来源
+ * perpage:10,
+ * parentCategoryTree:[]
+ * }
+  站点选择全部的时候 country为null
+  parentCategoryTree：类目id父级集合
+ */
+  getBlackCategory(data) {
+    return this.nativeService.callCategoryFunction('GetCategoryBlackList', JSON.stringify(data))
+  }
+  /**
+ * @name :
+ * @param  {
+ * data[0] categoryId:类目id,
+ * data[1] country:站点,
+ * data[2] categoryPTree:[]父级类目id集合
+ * }
+ */
+  addBlackCategory(data) {
+    return this.nativeService.callCategoryFunction('AddCategoryBlackInfo', data[0] + '', data[1] + '', data[2] + '')
+  }
+  /**
+ * @name :
+ * @param  {
+ * id:黑名单id（系统id）
+ * }
+ */
+  deleteBlackCategory(id) {
+    return this.nativeService.callCategoryFunction('DeleteCategoryBlackInfo', id + '')
+  }
+  /**
+   * 成交价格建议
+   * @param {
+   *  platform_id:站点ID
+   *  order_by:排序方式
+   *  cat_id_1:一级类目
+   *  cat_id_2:二级类目
+   *  cat_id_3:三级类目
+   * } data
+   * @returns
+   */
+  callDianBaShopeeInfo(data) {
+    return this.nativeService.callDianBaShopeeInfo('GetAvgPrice', JSON.stringify(data))
   }
 }
