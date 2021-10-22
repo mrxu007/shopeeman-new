@@ -5,14 +5,14 @@
  */
 var chineseSite = function(val) {
   let countries = {
-    'MY': '马来站',
-    'TW': '台湾站',
-    'SG': '新加坡站',
-    'PH': '菲律宾站',
-    'TH': '泰国站',
-    'VN': '越南站',
-    'ID': '印尼站',
-    'BR': '巴西站'
+    'MY': '马来',
+    'TW': '台湾',
+    'SG': '新加坡',
+    'PH': '菲律宾',
+    'TH': '泰国',
+    'VN': '越南',
+    'ID': '印尼',
+    'BR': '巴西'
   }
   let attribute = val.toLocaleUpperCase()
   let site = countries[attribute] || attribute

@@ -9,7 +9,7 @@
         <el-table-column align="center" type="index" label="序号" width="50">
           <template slot-scope="scope">{{ (currentPage - 1) * pageSize + scope.$index + 1 }}</template>
         </el-table-column>
-        <el-table-column width="60px" label="站点" prop="country" align="center">
+        <el-table-column width="120px" label="站点" prop="country" align="center">
           <template slot-scope="scope">{{ scope.row.country | chineseSite }}</template>
         </el-table-column>
         <el-table-column min-width="60px" label="项目来源" prop="warehouse_name" align="center" />
