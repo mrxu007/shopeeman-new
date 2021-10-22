@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-10-21 09:38:11
- * @LastEditTime: 2021-10-21 11:15:35
+ * @LastEditTime: 2021-10-22 15:28:16
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shopeeman-new\src\views\product-put-on\components\ProductPutOnCategoryblack.vue
@@ -14,7 +14,7 @@
         <storeChoose :is-all="true" @changeMallList="changeMallList"></storeChoose>
       </div>
       <div class="tool-row">
-          <div class="tool-item mar-right">
+        <div class="tool-item mar-right">
           <span>查询时间：</span>
           <el-date-picker
             v-model="statisticsTime"
@@ -26,6 +26,7 @@
             start-placeholder="开始日期"
             end-placeholder="结束日期"
             :picker-options="pickerOptions"
+            :default-time="['00:00:00', '23:59:59']"
           >
           </el-date-picker>
         </div>
@@ -35,15 +36,19 @@
     </div>
     <!-- 表格区 -->
     <div class="content">
-      <el-table v-loading="tableLoading" ref="multipleTable" :data="tableData" tooltip-effect="dark" max-height="650" @selection-change="selectionChange">
-        <el-table-column type="selection" width="55"> </el-table-column>
+      <el-table v-loading="tableLoading" ref="multipleTable" :data="tableDataCut" tooltip-effect="dark" max-height="650" >
         <el-table-column align="center" type="index" label="序号" width="50">
           <template slot-scope="scope">{{ (currentPage - 1) * pageSize + scope.$index + 1 }}</template>
         </el-table-column>
-        <el-table-column min-width="60px" label="站点" prop="warehouse_name" align="center" />
-        <el-table-column min-width="60px" label="店铺" prop="warehouse_name" align="center" />
-        <el-table-column min-width="60px" label="店铺分组" prop="warehouse_name" align="center" />
-        <el-table-column min-width="60px" label="上架总量" prop="warehouse_name" align="center" />
+         <el-table-column width="120px" label="站点" prop="country" align="center">
+          <template slot-scope="scope">{{ scope.row.country | chineseSite }}</template>
+        </el-table-column>
+        <el-table-column min-width="60px" label="店铺" prop="warehouse_name" align="center" >
+            
+            <template slot-scope="scope">{{ scope.row.mall_alias_name?scope.row.mall_alias_name:scope.row.platform_mall_name }}</template>
+        </el-table-column>
+        <el-table-column min-width="60px" label="店铺分组" prop="group_name" align="center" />
+        <el-table-column min-width="60px" label="上架总量" prop="upCount" align="center" />
       </el-table>
       <div class="pagination">
         <el-pagination
@@ -62,36 +67,107 @@
 
 <script>
 import storeChoose from '../../../components/store-choose'
+import { exportExcelDataCommon } from '../../../util/util'
 export default {
   components: {
     storeChoose,
   },
   data() {
     return {
-       pickerOptions: {
+      pickerOptions: {
         disabledDate(time) {
           return time.getTime() > Date.now()
         },
       },
-      statisticsTime:[],
+      statisticsTime: [],
       pageSize: 20, //页码
       currentPage: 1, //页码
       total: 0, //表格总数
+      multipleSelection: [],
+      tableLoading: false,
+      tableData: [],
+      mallData: [],
+      tableDataCut:[]
     }
   },
+  mounted() {
+    let end = new Date().getTime()
+    let start = end - 3 * 24 * 60 * 60 * 1000
+    this.statisticsTime = [this.$dayjs(start).format('YYYY-MM-DD'), this.$dayjs(end).format('YYYY-MM-DD')]
+  },
   methods: {
+    changeMallList(val) {
+      this.mallData = val
+      console.log(val)
+    },
     //导出数据
-    exportData(){
-
+    exportData() {
+        if(!this.tableData.length){
+            return this.$message.warning("没有可导出的数据！")
+        }
+        let num = 1
+        let str = `<tr>
+                <td>编号</td>
+                <td>站点</td>
+                <td>店铺</td>
+                <td>店铺分组</td>
+                <td>店铺总量</td>
+                </tr>`
+        for (let i = 0; i < this.tableData.length; i++) {
+            let item = this.tableData[i]
+            str += `<tr><td>${num++}</td>
+                        <td>${item.country ?item.country: '' + '\t'}</td>
+                        <td>${item.mall_alias_name ?item.mall_alias_name  : item.platform_mall_name + '\t'}</td>
+                        <td>${item.group_name ? item.group_name : '' + '\t'}</td> 
+                        <td>${item.upCount ? item.upCount : 0 + '\t'}</td>
+                    </tr>`
+        }
+        exportExcelDataCommon('店铺上架数量统计',str)
     },
     //查询
-    async searchTableList() {},
-  
+    async searchTableList() {
+      console.log(this.statisticsTime)
+      let params = [this.statisticsTime[0] + ' 00:00:00', this.statisticsTime[1] + ' 23:59:59']
+      this.tableLoading = true
+      let res = await this.$commodityService.getStatisticsNew(params)
+      if (!res) {
+        this.tableLoading = false
+        return
+      }
+      let resObj = JSON.parse(res)
+      let statisticData = resObj.data || []
+      for(let i=0;i<this.mallData.length;i++){
+          let mall = this.mallData[i]
+          mall.upCount = 0
+          statisticData.forEach(item=>{
+              item.list.forEach(subItem=>{
+                  if(subItem.mallId==mall.platform_mall_id){
+                      mall.upCount += subItem.cnt
+                  }
+              })
+          })
+          this.tableData.push(mall)
+      }
+      this.total = this.tableData.length
+      this.dataCut()
+      console.log(res,this.mallData,this.tableData)
+      this.tableLoading = false
+    },
+    //   表格选择
+    selectionChange(val) {
+      this.multipleSelection = val
+    },
+    // 分页设置
+    dataCut() {
+        this.tableDataCut = this.tableData.slice((this.currentPage - 1) * this.pageSize, this.currentPage * this.pageSize)
+    },
     handleCurrentChange(val) {
       this.currentPage = val
+      this.dataCut()
     },
     handleSizeChange(size) {
       this.pageSize = size
+      this.dataCut()
     },
   },
 }
@@ -123,10 +199,14 @@ export default {
   margin: 20px 0;
   background: #fff;
   height: calc(100vh - 150px);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
   .pagination {
     display: flex;
     justify-content: flex-end;
-    margin-top: 10px;
+    margin-top: 20px;
+    height: 35px;
   }
 }
 </style>

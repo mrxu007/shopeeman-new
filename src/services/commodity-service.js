@@ -520,4 +520,14 @@ export default class CommodityService {
  deleteBlackCategory(id) {
   return this.nativeService.callCategoryFunction('DeleteCategoryBlackInfo',id+'')
 }
+/**
+ * @name : 
+ * @param  {
+ * data[0]:startTime:yyyy-MM-dd 00:00:00
+ * data[1]:endTime:yyyy-MM-dd 23:59:59
+ * }
+ */
+ getStatisticsNew(data) {
+  return this.nativeService.callFunction('GetStatisticsNew',data[0],data[1])
+}
 }
