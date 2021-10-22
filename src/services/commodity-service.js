@@ -509,7 +509,7 @@ export default class CommodityService {
  * }
  */
  addBlackCategory(data) {
-  return this.nativeService.callCategoryFunction('AddCategoryBlackInfo',data[0]+'',data[1]+'',data[2]+'')
+  return this.nativeService.callCategoryFunction('AddCategoryBlackInfo',data[0]+'',data[1]+'',JSON.stringify(data[2]))
 }
 /**
  * @name : 

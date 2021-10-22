@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-10-21 09:38:11
- * @LastEditTime: 2021-10-21 21:08:51
+ * @LastEditTime: 2021-10-22 11:29:10
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shopeeman-new\src\views\product-put-on\components\ProductPutOnCategoryblack.vue
@@ -35,7 +35,9 @@
         <el-table-column align="center" type="index" label="序号" width="50">
           <template slot-scope="scope">{{ (currentPage - 1) * pageSize + scope.$index + 1 }}</template>
         </el-table-column>
-        <el-table-column min-width="60px" label="站点" prop="country" align="center" />
+                <el-table-column width="120px" label="站点" prop="country" align="center">
+          <template slot-scope="scope">{{ scope.row.country | chineseSite }}</template>
+        </el-table-column>
         <el-table-column min-width="60px" label="项目来源" prop="warehouse_name" align="center" />
         <el-table-column min-width="60px" label="一级类目" prop="warehouse_name" align="center" />
         <el-table-column min-width="60px" label="二级类目" prop="warehouse_name" align="center" />
@@ -172,6 +174,17 @@ export default {
       let params = [this.addSelectCategory.categoryList[this.addSelectCategory.categoryList.length - 1], this.addSelectCategory.country, this.addSelectCategory.categoryList]
       console.log(this.addSelectCategory, params)
       let res = await this.$commodityService.addBlackCategory(params)
+      if (!res) {
+          return this.$message.warning('添加失败')
+      }
+      let resObj = JSON.parse(res)
+        if(resObj.code===200){
+            this.$message.success('添加成功')
+            this.addBlackVisible = false
+            await this.searchTableList()
+        }else{
+            this.$message.error(resObj.msg)
+        }
       console.log(res, 'addBlackCategory')
     },
     //批量删除

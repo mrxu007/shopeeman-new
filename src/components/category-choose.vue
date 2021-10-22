@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-10-21 15:41:32
- * @LastEditTime: 2021-10-21 20:45:09
+ * @LastEditTime: 2021-10-22 11:34:25
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shopeeman-new\src\components\category-choose.vue
@@ -112,7 +112,10 @@ export default {
   },
   methods: {
     async getCategory(categoryID, level) {
-      if (!this.countryVal) return
+      if (!this.countryVal) {
+          this.sendParent()
+          return
+      }
       if (this.level === level) {
         this.sendParent()
         return
