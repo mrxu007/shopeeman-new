@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-10-08 14:16:18
- * @LastEditTime: 2021-10-18 10:49:29
+ * @LastEditTime: 2021-10-20 17:34:30
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shopeeman-new\src\views\personal-center\components\PersonalCenterStoreFinance.vue
@@ -179,7 +179,7 @@
 </template>
 
 <script >
-import { sleep, exportExcelDataCommon } from '../../../util/util'
+import {  exportExcelDataCommon } from '../../../util/util'
 export default {
   data() {
     return {
