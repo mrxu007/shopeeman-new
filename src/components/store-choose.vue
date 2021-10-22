@@ -187,7 +187,7 @@
   .storeChooseUL {
     display: flex;
     align-items: center;
-    margin-bottom: 10px;
+    // margin-bottom: 10px;
 
     li {
       display: flex;

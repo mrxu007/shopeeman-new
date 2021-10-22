@@ -1,8 +1,8 @@
 <!--
  * @Author: your name
  * @Date: 2021-10-08 14:16:18
- * @LastEditTime: 2021-10-09 11:56:10
- * @LastEditors: your name
+ * @LastEditTime: 2021-10-21 14:28:04
+ * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shopeeman-new\src\views\personal-center\index.vue
 -->
@@ -24,7 +24,7 @@
     <main v-if="activeVal === '4'"><ProductPutOnBandlibrary /></main>
 
     <!--类目黑名单 -->
-    <main v-if="activeVal === '4'"><ProductPutOnCategoryblack /></main>
+    <main v-if="activeVal === '5'"><ProductPutOnCategoryblack /></main>
   </div>
 </template>
 
