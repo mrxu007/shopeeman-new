@@ -17,6 +17,7 @@
     <div class="table-content">
       <u-table
         v-loading="isloading"
+        use-virtual
         :data="tableData"
         :row-height="40"
         :border="false"

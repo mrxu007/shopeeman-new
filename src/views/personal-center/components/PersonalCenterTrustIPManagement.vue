@@ -23,10 +23,10 @@
     <div class="table-content">
       <el-table
         v-loading="isloading"
-        :data="tableData"
+        :data="tableData.slice((page - 1) * pageSize, page * pageSize)"
         stripe
         style="min-width: 1000px"
-        height="calc(100vh - 115px)"
+        height="calc(100vh - 155px)"
         :header-cell-style="{
           textAlign: 'center',
           backgroundColor: '#f5f7fa',
@@ -49,25 +49,24 @@
                 isShowDialog = true
                 updataTrustIp(row)
               "
-              >修改</el-button
-            >
+            >修改</el-button>
             <el-button type="primary" size="mini" @click="deleteTrustIp(row)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
     </div>
-    <!-- <div class="pagination">
+    <div class="pagination">
       <el-pagination
         background
-        :current-page="currentPage4"
+        :current-page="page"
         :page-sizes="[30, 50, 100, 200]"
-        :page-size="100"
+        :page-size="pageSize"
         layout="total, sizes, prev, pager, next, jumper"
-        :total="400"
+        :total="total"
         @size-change="handleSizeChange"
         @current-change="handleCurrentChange"
       />
-    </div> -->
+    </div>
     <div class="dialog-content">
       <el-dialog :close-on-click-modal="false" title="编辑信任IP" :visible.sync="isShowDialog" @close="closeDialog">
         <div class="form-content">
@@ -130,9 +129,14 @@
 </template>
 
 <script>
+import shpeeManMixin from '@/util/shpeeMan-mixin' // 公共方法
 export default {
+  mixins: [shpeeManMixin],
   data() {
     return {
+      pageSize: 30,
+      page: 1,
+      total: 0,
       isShowDialog: false, // 是否打开账号创建/修改弹窗
       isShowPhoneNum: false, // 是否打开配置接收手机号弹窗
       isloading: false,
@@ -162,6 +166,7 @@ export default {
       console.log('tableData', data)
       if (data.code === 200) {
         this.tableData = data.data
+        this.total = this.tableData.length
         this.isloading = false
       } else {
         this.$message.error(`获取数据失败${data.message}`)
@@ -172,7 +177,6 @@ export default {
     async getUserInfo() {
       try {
         const data = await this.$appConfig.getUserInfo()
-        debugger
         console.log('login', data)
         this.isOpenIpCheck = data.is_open_ip_check + ''
         this.trustIpCount = data.trust_ip_count
@@ -357,7 +361,7 @@ export default {
   }
   .pagination {
     display: flex;
-    justify-content: center;
+    justify-content: flex-end;
     margin-top: 10px;
   }
   .dialog-content {

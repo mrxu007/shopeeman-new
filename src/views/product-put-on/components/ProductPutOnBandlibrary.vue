@@ -37,6 +37,7 @@
     <div class="table-content">
       <u-table
         v-loading="isloading"
+        use-virtual
         :data="tableData"
         :row-height="40"
         :border="false"
@@ -63,8 +64,8 @@
       <el-pagination
         background
         :current-page="page"
-        :page-sizes="[30, 50, 100, 200]"
-        :page-size="30"
+        :page-sizes="[50, 100, 200]"
+        :page-size="pageSize"
         layout="total, sizes, prev, pager, next, jumper"
         :total="total"
         @size-change="handleSizeChange"
@@ -105,9 +106,10 @@
         title="批量导入禁售词"
         :visible.sync="dialogBanWordVisible"
         :close-on-click-modal="false"
+        @close="dialogBanWordClose"
       >
         <div style="display: flex;">
-          <el-upload ref="importRef" accept=".xls, .xlsx" action="https://jsonplaceholder.typicode.com/posts/" :on-change="importTemplateEvent" :show-file-list="false" :auto-upload="false">
+          <el-upload ref="importRef" accept=".xls,.xlsx " action="https://jsonplaceholder.typicode.com/posts/" :on-change="importTemplateEvent" :show-file-list="false" :auto-upload="false">
             <el-button :data="importTemplateData" size="mini" type="primary" style="margin-right: 10px"> 批量导入 </el-button>
           </el-upload>
           <el-button type="primary" size="mini" @click="downloadTemplate()">下载模板</el-button>
@@ -144,6 +146,7 @@ export default {
       dialogVisible: false,
       page: 1,
       total: 0,
+      pageSize: 30,
       isloading: false,
       multipleSelection: [],
       keyWord: '', // 关键词
@@ -201,10 +204,16 @@ export default {
     downloadTemplate() {
       const template = `
       <tr>
-        <td>站点</td>
-        <td>关键词类型</td>
-        <td>关键词</td>
-      </tr>`
+        <td style="width: 500px">站点(马来站,台湾站,新加坡站,菲律宾站,泰国站,越南站,印尼站,巴西站)<span style="color:red">（必填）</span></td>
+        <td>关键词类型(违规词,品牌词,禁运词)<span style="color:red">（必填）</span></td>
+        <td>关键词<span style="color:red">（必填）</span></td>
+      </tr>
+      <tr>
+        <td>台湾站</td>
+        <td>违规词</td>
+        <td>食品</td>
+      </tr>
+      `
       exportExcelDataCommon('SHOPEE品牌词模板', template)
     },
     // 批量导入
@@ -217,18 +226,19 @@ export default {
       }
       let successNum = 0
       let failNum = 0
-      console.log(this.importTemplateData)
       this.batchWriteLog('开始导入禁售词')
       for (let index = 0; index < dataSum; index++) {
         const element = this.importTemplateData[index]
-        if (!element['站点'] || !element['关键词类型'] || !element['关键词']) {
+        console.log(element)
+        if (!element['站点(马来站,台湾站,新加坡站,菲律宾站,泰国站,越南站,印尼站,巴西站)（必填）'] ||
+            !element['关键词类型(违规词,品牌词,禁运词)（必填）'] ||
+            !element['关键词（必填）']) {
           failNum++
-          this.batchWriteLog(`表头错误`, false)
+          this.batchWriteLog(`【${index + 1}】参数错误`, false)
           continue
         }
         successNum++
-        console.log(this.siteObj[element['站点']])
-        this.batchWriteLog(`站点-${this.siteObj[element['站点']]} 添加禁售词"${element['关键词']}"-成功`, true)
+        this.batchWriteLog(`站点【${element['站点(马来站,台湾站,新加坡站,菲律宾站,泰国站,越南站,印尼站,巴西站)（必填）']}】  添加禁售词【${element['关键词（必填）']}】 成功`, true)
       }
       this.batchWriteLog(`导入总数：${dataSum}，成功数：${successNum}，失败数：${failNum}`)
     },
@@ -268,6 +278,9 @@ export default {
     handleCurrentChange() {},
     handleSelectionChange(val) {
       this.multipleSelection = val
+    },
+    dialogBanWordClose() {
+      this.batchConsoleMsg = ''
     }
   }
 }

@@ -72,7 +72,7 @@ export default {
         const wsname = workbook.SheetNames[0] // 取第一张表
         let ws = XLSX.utils.sheet_to_json(workbook.Sheets[wsname]) // 生成Json表格
         // console.log('ws表格里面的数据，且是json格式', ws)
-        console.log(ws)
+        // console.log(ws)
         this.importTemplateData = ws
         this.batchImport()
         ws = null
@@ -90,6 +90,12 @@ export default {
         .filter(item => {
           return item !== ''
         })
+    },
+    handleCurrentChange(val) {
+      this.page = val
+    },
+    handleSizeChange(val) {
+      this.pageSize = val
     }
   }
 }
