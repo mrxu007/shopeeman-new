@@ -33,7 +33,7 @@
               <u-table-column align="center" label="离线自动回复">1</u-table-column>
             </u-table>
           </el-col>
-          <el-col v-if="isShowLog" :span="4" >
+          <el-col v-if="isShowLog" :span="4">
             <div class="log-show" :style="`height:${height}px`"></div>
           </el-col>
         </el-row>
@@ -41,7 +41,7 @@
       <el-tab-pane label="常见问题助理" name="FAQAssistant">
         <el-row class="header">
           <el-col class="header-top">
-            <storeChoose :is-all="true" @changeMallList="changeMallList"></storeChoose>
+            <storeChoose @changeMallList="changeMallList"></storeChoose>
             <el-col :span="24" class="header-two-top">
               <el-button type="primary" size="mini">批量开启</el-button>
               <el-button type="" size="mini">批量关闭</el-button>
@@ -70,7 +70,7 @@
               <u-table-column align="center" label="操作">1</u-table-column>
             </u-table>
           </el-col>
-          <el-col v-if="isShowLog" :span="4" >
+          <el-col v-if="isShowLog" :span="4">
             <div class="log-show" :style="`height:${height}px`"></div>
           </el-col>
         </el-row>
@@ -78,28 +78,7 @@
       <el-tab-pane label="讯息快捷" name="messageQuickly">
         <el-row class="header">
           <el-col class="header-top">
-            <ul>
-              <li>
-                <span>站点：</span>
-                <el-select v-model="countryVal" placeholder="" size="mini" filterable>
-                  <el-option v-for="(item, index) in countries" :key="index" :label="item.label" :value="item.value"/>
-                </el-select>
-              </li>
-              <li>
-                <span>店铺分组：</span>
-                <el-select v-model="groupId" placeholder="" size="mini" filterable>
-                  <el-option label="全部" :value="0"/>
-                  <el-option label="无分组" :value="-1"/>
-                  <el-option v-for="(item, index) in 4" :key="index" :label="item" :value="item"/>
-                </el-select>
-              </li>
-              <li>
-                <span>店铺：</span>
-                <el-select v-model="site" placeholder="" size="mini" filterable>
-                  <el-option v-for="(item, index) in 4" :key="index" :label="item" :value="item"/>
-                </el-select>
-              </li>
-            </ul>
+            <storeChoose @changeMallList="changeMallList"></storeChoose>
             <el-col :span="24" class="header-two-top">
               <el-button type="primary" size="mini">批量开启</el-button>
               <el-button type="" size="mini">批量关闭</el-button>
@@ -128,7 +107,7 @@
               <u-table-column align="center" label="操作">1</u-table-column>
             </u-table>
           </el-col>
-          <el-col v-if="isShowLog" :span="4" >
+          <el-col v-if="isShowLog" :span="4">
             <div class="log-show" :style="`height:${height}px`"></div>
           </el-col>
         </el-row>
@@ -139,6 +118,7 @@
 
 <script>
   import storeChoose from '../../../components/store-choose'
+
   export default {
     components: { storeChoose },
     data() {
@@ -147,46 +127,37 @@
         isShowLog: true,
         height: 300,
         rowHeight: 50,
-        countryVal: 'TH',
-        countries: [
-          { label: '泰国站', value: 'TH' },
-          { label: '马来站', value: 'MY' },
-          { label: '台湾站', value: 'TW' },
-          { label: '新加坡站', value: 'SG' },
-          { label: '菲律宾站', value: 'PH' },
-          { label: '越南站', value: 'VN' },
-          { label: '印尼站', value: 'ID' },
-          { label: '巴西站', value: 'BR' }
-        ],
-        groupId:'',
-        site:'',
-
+        SiteList: {
+          autoReply: null,
+          FAQAssistant: null,
+          messageQuickly: null
+        }
       }
     },
-    mounted(){
+    mounted() {
 
     },
-    created(){
+    created() {
       this.resizeHeight()
       window.addEventListener('resize', (event) => {
         this.resizeHeight()
       })
     },
-    methods:{
-      resizeHeight(){
+    methods: {
+      resizeHeight() {
         let offerHeight = window.innerHeight
         this.height = offerHeight - 190
       },
-      changeMallList(val){
-        this.site =Object.assign(val)
-        console.log('changeMallList',this.site)
+      changeMallList(val) {
+        this.SiteList[this.activeName] = Object.assign(val)
+        console.log('changeMallList', this.site)
       },
-      handleClick(){
+      handleClick() {
 
       },
-      tableScroll(){
+      tableScroll() {
 
-      },
+      }
     }
   }
 </script>
