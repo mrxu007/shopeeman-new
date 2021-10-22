@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-10-08 14:16:18
- * @LastEditTime: 2021-10-20 18:01:35
+ * @LastEditTime: 2021-10-21 10:58:35
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shopeeman-new\src\views\mall-manager\components\MallManagerWithdrawalRecord.vue
@@ -88,7 +88,7 @@
         <el-table-column min-width="100px" label="店铺名称" prop="trans_number" align="center" />
         <el-table-column align="center" prop="order_sn" label="订单编号" min-width="120">
           <template slot-scope="scope">
-            <p class="tableActive" >{{ scope.row.order_sn }}</p>
+            <p class="tableActive">{{ scope.row.order_sn }}</p>
           </template>
         </el-table-column>
         <el-table-column align="center" prop="product_name" label="商品名称" min-width="80" show-overflow-tooltip />
@@ -334,9 +334,9 @@ export default {
     //回复信息
     userReplay() {},
     //打开外部窗口
-    openUrl(row){
-        let url = location.origin + '/product' + '/' + row.mallID + '/' + row.product_id
-        window.open(url)
+    openUrl(row) {
+      let url = location.origin + '/product' + '/' + row.mallID + '/' + row.product_id
+      window.open(url)
     },
     //   表格选择
     selectionChange(val) {
@@ -373,6 +373,7 @@ export default {
     align-items: center;
     flex-wrap: wrap;
     .tool-item {
+      margin-top: 10px;
       display: flex;
       align-items: center;
     }
@@ -382,9 +383,9 @@ export default {
   margin: 20px 0;
   background: #fff;
   height: calc(100vh - 150px);
-  .tableActive{
-      color:red;
-      cursor: pointer;
+  .tableActive {
+    color: red;
+    cursor: pointer;
   }
 }
 .replay-dialog {
