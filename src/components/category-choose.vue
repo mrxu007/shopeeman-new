@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-10-21 15:41:32
- * @LastEditTime: 2021-10-21 20:45:09
+ * @LastEditTime: 2021-10-22 15:56:27
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shopeeman-new\src\components\category-choose.vue
@@ -75,6 +75,16 @@ export default {
         { label: '印尼站', value: 'ID' },
         { label: '巴西站', value: 'BR' },
       ],
+      countries_id:{
+        'TH' : "4",
+        'MY' : "5",
+        'TW' : "3",
+        'SG' : "1",
+        'PH' : "7",
+        'VN' : "6",
+        'ID' : "2",
+        'BR' : "8",
+      },
       category1: '',
       categoryList1: [],
       category2: '',
@@ -98,13 +108,16 @@ export default {
       deep: true,
     },
     category1(val, oldVal) {
-      if (val === '') {
         this.category2 = ''
         this.category3 = ''
         this.categoryList2 = []
         this.categoryList3 = []
         this.sendParent()
-      }
+    },
+    category2(val, oldVal) {
+        this.category3 = ''
+        this.categoryList3 = []
+        this.sendParent()
     },
   },
   mounted() {
@@ -112,7 +125,10 @@ export default {
   },
   methods: {
     async getCategory(categoryID, level) {
-      if (!this.countryVal) return
+      if (!this.countryVal) {
+        this.sendParent()
+        return
+      }
       if (this.level === level) {
         this.sendParent()
         return
@@ -165,6 +181,7 @@ export default {
         categorySecond: this.category2,
         categoryThird: this.category3,
         categoryList: this.categoryList,
+        platformId:this.countries_id[this.countryVal]
       }
       console.log(params,"params")
       this.$emit('setCategory', params)

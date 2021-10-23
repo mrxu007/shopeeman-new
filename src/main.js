@@ -39,10 +39,16 @@ import collectService from './services/collect-service'
 import aliyunOssService from './services/aliyun-oss-service'
 import viewManagerService from './services/view-manager-service'
 import SonAccountService from './services/son-acccount-service'
+import shopeemanService from './services/shopeeman-service'
 import Logs from 'cyt-pl-plug'
 
 import * as echarts from 'echarts'
+import * as filters from './plugins/filters'
+
 Vue.prototype.$echarts = echarts
+Object.keys(filters).forEach(key=>{
+  Vue.filter(key,filters[key])//插入过滤器名和对应方法
+})
 // const config = {
 //   openDebugger: process.env.NODE_ENV === 'development',
 //   userName: 'xxx项目', // 当前操作的项目名
@@ -83,6 +89,7 @@ Vue.prototype.$orderService = new orderService()
 Vue.prototype.$ossService = new aliyunOssService()
 Vue.prototype.$viewManagerService = new viewManagerService()
 Vue.prototype.$SonAccountService = new SonAccountService()
+Vue.prototype.$shopeemanService = new shopeemanService()
 Vue.prototype.$dayjs = dayjs
 
 // 所有的input框自动获取焦点
