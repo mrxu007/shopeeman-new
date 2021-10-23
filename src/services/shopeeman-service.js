@@ -1,3 +1,11 @@
+/*
+ * @Author: your name
+ * @Date: 2021-10-22 20:47:53
+ * @LastEditTime: 2021-10-23 11:40:16
+ * @LastEditors: Please set LastEditors
+ * @Description: In User Settings Edit
+ * @FilePath: \shopeeman-new\src\services\shopeeman-service.js
+ */
 export default class NetMessageBridgeService {
   NetMessageBridgeService() {
     return window['NetMessageBridgeService']
@@ -81,5 +89,10 @@ export default class NetMessageBridgeService {
   scChatSetting(country, data) {
     return this.getChinese(country, '/webchat/api/workbenchapi/v1.2/sc/chat_setting', data)
   }
+  //获取店铺评价列表
+  getShopEvaluateList(country, data){
+    return this.getChinese(country, '/api/v3/settings/search_shop_rating_comments', data)
+  }
+
 
 }

@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-10-21 09:38:11
- * @LastEditTime: 2021-10-22 20:21:12
+ * @LastEditTime: 2021-10-23 11:03:06
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shopeeman-new\src\views\product-put-on\components\ProductPutOnCategoryblack.vue
@@ -40,8 +40,7 @@
         </el-table-column>
         <el-table-column min-width="60px" label="项目来源"  align="center" >
              <template slot-scope="scope">
-                <!-- <p v-if="scope.row.uid">{{ changeTypeName(scope.row.uid,categorySourceList)}}</p>  -->
-                <p >公有</p>
+                <p >{{ scope.row.uid===0?'公有':'私有' }}</p> 
              </template>
         </el-table-column>
         <el-table-column min-width="60px" label="一级类目" prop="warehouse_name" align="center" >
