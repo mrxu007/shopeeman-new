@@ -281,6 +281,7 @@ export default {
     },
     dialogBanWordClose() {
       this.batchConsoleMsg = ''
+      this.showConsole = true
     }
   }
 }

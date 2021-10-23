@@ -5,7 +5,6 @@
     min-width: 1280px;
     .operation {
       min-width: 500px;
-      // padding: 16px;
       margin-bottom: 10px;
       display: flex;
       height: 40px;
@@ -14,9 +13,6 @@
         display: flex;
         align-items: center;
         margin-right: 30px;
-        span {
-          // min-width: 70px;
-        }
         /deep/.el-select {
           /deep/.el-input {
             width: 150px;
@@ -32,4 +28,18 @@
       justify-content: center;
       margin-top: 10px;
     }
+  }
+  @media only screen and (max-width: 1280px) {
+    .contaniner {
+        /deep/.plTableBox {
+          max-height: 695px !important;
+        }
+        /deep/.el-table {
+          max-height: 695px !important;
+          /deep/.el-table__body-wrapper {
+            max-height: 435px !important;
+          }
+        }
+      }
+    
   }

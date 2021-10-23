@@ -21,7 +21,7 @@
         :data="tableData"
         :row-height="40"
         :border="false"
-        :max-height="790"
+        :max-height="795"
         :header-cell-style="{
           textAlign: 'center',
           backgroundColor: '#f5f7fa',
@@ -41,7 +41,7 @@
         <u-table-column prop="goods_count_rise_day" align="center" show-overflow-tooltip label="商品日增长数" min-width="110" />
         <u-table-column prop="sales_rate_day" align="center" show-overflow-tooltip label="动销率(日)" min-width="90" />
         <u-table-column prop="goods_count" align="center" show-overflow-tooltip label="商品总数(日)" min-width="110" />
-        <u-table-column prop="has_sales_goods_count_day" align="center" show-overflow-tooltip label="有销量的商品数(日)" min-width="100" />
+        <u-table-column prop="has_sales_goods_count_day" align="center" show-overflow-tooltip label="有销量的商品数(日)" min-width="150" />
       </u-table>
     </div>
   </div>

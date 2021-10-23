@@ -1,18 +1,7 @@
 <template>
   <el-row class="contaniner">
-    <el-col class="left" :span="3">
-      <u-table
-        ref="shopGroupTable"
-        width="100"
-        height="876"
-        :data-changes-scroll-top="false"
-        :row-height="40"
-        :border="false"
-        :data="shopGruopData"
-        @row-click="rowClick"
-      >
-        <u-table-column align="center" prop="group_name" label="店铺分组" />
-      </u-table>
+    <el-col :span="3">
+      <mallGroup :get-data="getMallStatistics" @getGroupId="getGroupId" />
     </el-col>
     <el-col class="right" :span="21">
       <el-row class="header">
@@ -66,7 +55,7 @@
         <u-table
           ref="plTable"
           v-loading="isLoading"
-          height="680"
+          max-height="370"
           use-virtual
           :data-changes-scroll-top="false"
           :row-height="40"
@@ -200,9 +189,13 @@
 </template>
 
 <script>
+import mallGroup from '@/components/mall-group.vue'
 import ShopeeConfig from '@/services/shopeeman-config'
 import { exportExcelDataCommon } from '@/util/util'
 export default {
+  components: {
+    mallGroup
+  },
   data() {
     return {
       page: 1,
@@ -212,7 +205,6 @@ export default {
       percentage: 0, // 进度条数据
       isShowProgress: false,
       tableData: [], // 表格数据
-      shopGruopData: [], // 店铺分组数据
       availableAmount: 0, // 全部已拨款总金额
       monthAmount: 0, // 本月已拨款总金额
       weekAmount: 0, // 本周已拨款总金额
@@ -260,7 +252,6 @@ export default {
   },
   async mounted() {
     await this.getMallStatistics()
-    await this.getBindMallCount()
   },
   methods: {
     // 同步店铺数据
@@ -281,23 +272,6 @@ export default {
         this.$set(data[index], 'status', '开始同步')
         this.percentage = parseInt((index + 1) / data.length * 100)
         this.$set(data[index], 'status', '同步完成')
-      }
-    },
-    // 点击店铺分组
-    rowClick(row) {
-      this.form.groupId = row.id
-      this.getMallStatistics()
-    },
-    // 获取店铺分组
-    async getBindMallCount() {
-      const { data } = await this.$api.getBindMallCount()
-      if (data.code === 200) {
-        this.shopGruopData = data.data
-        this.shopGruopData.unshift({ 'id': 0, 'group_name': '全部分组' })
-        this.shopGruopData.push({ 'id': -1, 'group_name': '无分组' })
-        console.log('shopGroupData', data.data)
-      } else {
-        this.$message.error(`店铺分组数据错误${data.message}`)
       }
     },
     // 获取数据
@@ -500,6 +474,9 @@ export default {
         </tr>`
       })
       exportExcelDataCommon('店铺数据', str)
+    },
+    getGroupId(data) {
+      this.form.groupId = data
     },
     tableScroll() {},
     handleSizeChange(val) {

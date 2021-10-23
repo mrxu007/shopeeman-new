@@ -55,7 +55,7 @@ export default {
       const files = { 0: file.raw }
       // 表格导入
       if (!/\.(xls|xlsx)$/.test(files[0].name.toLowerCase())) {
-        this.writeLog('上传格式不对,请上传xls、xlsx格式的文件', false)
+        this.writeLog('格式错误,请上传xls、xlsx格式的文件', false)
         this.showConsole = false
         return
       }
