@@ -15,34 +15,32 @@
       </div>
     </div>
     <div class="table-content">
-      <u-table
+      <el-table
         v-loading="isloading"
-        use-virtual
         :data="tableData"
-        :row-height="40"
         :border="false"
-        :max-height="795"
+        height="calc(100vh - 105px)"
         :header-cell-style="{
           textAlign: 'center',
           backgroundColor: '#f5f7fa',
         }"
       >
-        <u-table-column type="index" align="center" label="序号" min-width="50">
+        <el-table-column type="index" align="center" label="序号" min-width="50">
           <template slot-scope="scope">
             {{ scope.$index + 1 }}
           </template>
-        </u-table-column>
-        <u-table-column prop="platform_id" align="center" show-overflow-tooltip label="站点" min-width="80" />
-        <u-table-column prop="date" align="center" show-overflow-tooltip label="日期" min-width="90" />
-        <u-table-column prop="category1" align="center" show-overflow-tooltip label="一级类目" min-width="150" />
-        <u-table-column prop="category2" align="center" show-overflow-tooltip label="二级类目" min-width="150" />
-        <u-table-column prop="category3" align="center" show-overflow-tooltip label="三级类目" min-width="150" />
-        <u-table-column prop="goods_price_avg" align="center" show-overflow-tooltip label="商品平均价" min-width="90" />
-        <u-table-column prop="goods_count_rise_day" align="center" show-overflow-tooltip label="商品日增长数" min-width="110" />
-        <u-table-column prop="sales_rate_day" align="center" show-overflow-tooltip label="动销率(日)" min-width="90" />
-        <u-table-column prop="goods_count" align="center" show-overflow-tooltip label="商品总数(日)" min-width="110" />
-        <u-table-column prop="has_sales_goods_count_day" align="center" show-overflow-tooltip label="有销量的商品数(日)" min-width="150" />
-      </u-table>
+        </el-table-column>
+        <el-table-column prop="platform_id" align="center" show-overflow-tooltip label="站点" min-width="80" />
+        <el-table-column prop="date" align="center" show-overflow-tooltip label="日期" min-width="90" />
+        <el-table-column prop="category1" align="center" show-overflow-tooltip label="一级类目" min-width="150" />
+        <el-table-column prop="category2" align="center" show-overflow-tooltip label="二级类目" min-width="150" />
+        <el-table-column prop="category3" align="center" show-overflow-tooltip label="三级类目" min-width="150" />
+        <el-table-column prop="goods_price_avg" align="center" show-overflow-tooltip label="商品平均价" min-width="90" />
+        <el-table-column prop="goods_count_rise_day" align="center" show-overflow-tooltip label="商品日增长数" min-width="110" />
+        <el-table-column prop="sales_rate_day" align="center" show-overflow-tooltip label="动销率(日)" min-width="90" />
+        <el-table-column prop="goods_count" align="center" show-overflow-tooltip label="商品总数(日)" min-width="110" />
+        <el-table-column prop="has_sales_goods_count_day" align="center" show-overflow-tooltip label="有销量的商品数(日)" min-width="150" />
+      </el-table>
     </div>
   </div>
 </template>

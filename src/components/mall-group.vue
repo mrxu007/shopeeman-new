@@ -4,7 +4,7 @@
       ref="shopGroupTable"
       highlight-current-row
       width="100"
-      height="565"
+      height="calc(100vh - 20px)"
       :data-changes-scroll-top="false"
       :row-height="40"
       :border="false"
@@ -67,9 +67,4 @@ export default {
     /deep/.current-row {
       color: #f74e1d;
     }
- @media only screen and (min-width: 1400px) {
-    /deep/.el-table {
-        height: 855px !important;
-      }
-  }
 </style>
