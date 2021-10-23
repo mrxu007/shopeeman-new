@@ -21,14 +21,14 @@
       </div>
       <div class="o-item">
         <span style="min-width:57px">关键词：</span>
-        <el-input v-model="keyWord" size="mini" placeholder="请输入关键词" clearable />
+        <el-input v-model="form.keyWord" size="mini" placeholder="请输入关键词" clearable />
       </div>
       <div class="o-item">
-        <el-button type="primary" size="mini" @click="getChildUserList">查询</el-button>
+        <el-button type="primary" size="mini" @click="getBannedWordList()">查询</el-button>
         <el-button type="primary" size="mini" @click="dialogVisible= true">添加</el-button>
         <el-button type="primary" size="mini" @click="batchDelete()">批量删除</el-button>
         <el-button type="primary" size="mini" @click="dialogBanWordVisible= true"> 批量导入 </el-button>
-        <el-button type="primary" size="mini" @click="getChildUserList">导出数据</el-button>
+        <el-button type="primary" size="mini" @click="exportSearch()">导出数据</el-button>
       </div>
       <div class="o-item">
         <el-checkbox v-model="showConsole">隐藏日志</el-checkbox>
@@ -52,18 +52,19 @@
           </template>
         </el-table-column>
         <el-table-column type="selection" align="center" min-width="55" />
-        <el-table-column prop="typeCn" align="center" show-overflow-tooltip label="站点" />
-        <el-table-column prop="typeCn" align="center" show-overflow-tooltip label="词来源" />
-        <el-table-column prop="typeCn" align="center" show-overflow-tooltip label="词类型" />
-        <el-table-column prop="typeCn" align="center" show-overflow-tooltip label="关键词" />
-        <el-table-column prop="typeCn" align="center" show-overflow-tooltip label="添加时间" />
+        <el-table-column prop="country" align="center" label="站点" min-width="80" />
+        <el-table-column prop="uid" align="center" label="词来源" min-width="80" />
+        <el-table-column prop="type" align="center" label="词类型" min-width="80" />
+        <el-table-column prop="word" align="center" show-overflow-tooltip label="关键词" min-width="180" />
+        <el-table-column prop="created_at" align="center" show-overflow-tooltip label="添加时间" min-width="100" />
+
       </el-table>
     </div>
     <div class="pagination">
       <el-pagination
         background
         :current-page="page"
-        :page-sizes="[50, 100, 200]"
+        :page-sizes="[10, 30, 50]"
         :page-size="pageSize"
         layout="total, sizes, prev, pager, next, jumper"
         :total="total"
@@ -76,6 +77,7 @@
         title="添加禁售词"
         :visible.sync="dialogVisible"
         :close-on-click-modal="false"
+        @close="dialogClose"
       >
         <span>
           <el-form label-position="right" label-width="80px">
@@ -93,7 +95,7 @@
               <el-input v-model="dialogkeyWord" size="mini" placeholder="请输入关键词" clearable />
             </el-form-item>
             <el-form-item>
-              <el-button style="margin-right:20px" size="mini" type="primary" @click="saveBanWord()">确 定</el-button>
+              <el-button style="margin-right:20px" size="mini" type="primary" @click="addBannedWord()">确 定</el-button>
               <el-button type="primary" size="mini" @click="dialogVisible = false">取 消</el-button>
             </el-form-item>
           </el-form>
@@ -105,7 +107,7 @@
         title="批量导入禁售词"
         :visible.sync="dialogBanWordVisible"
         :close-on-click-modal="false"
-        @close="dialogBanWordClose"
+        @close="dialogClose"
       >
         <div style="display: flex;">
           <el-upload ref="importRef" accept=".xls,.xlsx " action="https://jsonplaceholder.typicode.com/posts/" :on-change="importTemplateEvent" :show-file-list="false" :auto-upload="false">
@@ -144,25 +146,26 @@ export default {
       isloading: false,
       multipleSelection: [],
       importTemplateData: '', // 导入数据
-      keyWord: '', // 关键词
       dialogSite: 'MY', // 弹框站点
       dialogType: '1', // 弹框关键词类别
       dialogkeyWord: '', // 弹框关键词
       form: {
         site: '', // 站点
         type: '0', // 关键词类别
-        source: '0'// 词来源
+        source: '0', // 词来源
+        keyWord: '' // 关键词
+
       },
       sourceList: [
         { value: '0', label: '全部' },
-        { value: '1', label: '系统' },
-        { value: '3', label: '用户' }
+        { value: '-1', label: '系统' },
+        { value: '1', label: '用户' }
       ],
       typeList: [
         { value: '0', label: '全部' },
-        { value: '1', label: '违规词' },
+        { value: '1', label: '禁运词' },
         { value: '2', label: '品牌词' },
-        { value: '3', label: '禁运词' }
+        { value: '3', label: '违规词' }
       ],
       siteList: [
         { value: '', label: '全部' },
@@ -174,6 +177,11 @@ export default {
         { value: 'SG', label: '新加坡站' },
         { value: 'VN', label: '越南站' }
       ],
+      typeObj: {
+        '禁运词': '1',
+        '品牌词': '2',
+        '违规词': '3'
+      },
       siteObj: {
         '马来站': 'MY',
         '台湾站': 'TW',
@@ -188,12 +196,74 @@ export default {
     }
   },
   mounted() {
-    this.getChildUserList()
+    this.getBannedWordList()
   },
   methods: {
+    // 导出excel
+    async exportSearch() {
+      const data = []
+      const len = this.total % 10 === 0 ? (this.total / 10) : (Math.floor(this.total / 10) + 1)
+      for (let index = 1; index <= len; index++) {
+        const parmas = {
+          page: index
+        }
+        try {
+          const res = await this.$commodityService.getBannedWordList(parmas)
+          const jsonData = JSON.parse(res).data.data
+          jsonData.forEach(item => {
+            data.push(item)
+          })
+        } catch (error) {
+          console.log(error)
+        }
+      }
+      if (!data?.length) {
+        return this.$message('暂无导出数据')
+      }
+      let str =
+      `<tr>
+          <td>站点</td>
+          <td>词来源</td>
+          <td>词类型</td>
+          <td>关键词</td>
+          <td>添加时间</td>
+      </tr>`
+      data.forEach((item) => {
+        item.created_at = item.created_at.replace('T', ' ').replace('Z', '')
+        item.country = this.$options.filters.chineseSite(item.country)
+        item.uid = item.uid === 0 ? '系统' : '用户'
+        if (item.type === 2) {
+          item.type = '品牌词'
+        } else if (item.type === 3) {
+          item.type = '违规词'
+        } else {
+          item.type = '禁运词'
+        }
+        str += `<tr>
+        <td>${item.country ? item.country : '' + '\t'}</td>
+        <td>${item.uid ? item.uid : '' + '\t'}</td>
+        <td>${item.type ? item.type : '' + '\t'}</td>
+        <td>${item.word ? item.word : '' + '\t'}</td>
+        <td>${item.created_at ? item.created_at : '' + '\t'}</td>
+        </tr>`
+      })
+      exportExcelDataCommon('品牌词库', str)
+    },
     // 批量删除
-    batchDelete() {
+    async batchDelete() {
       if (this.multipleSelection.length <= 0) return this.$message('请选择要删除的数据')
+      for (let index = 0; index < this.multipleSelection.length; index++) {
+        const element = this.multipleSelection[index]
+        const res = await this.$commodityService.deleteDannedWord(element.id)
+        const jsonData = JSON.parse(res)
+        if (jsonData.code === 200) {
+          this.$refs.Logs.writeLog(`违规词【${element.word}】删除成功`, true)
+        } else {
+          this.$refs.Logs.writeLog(`违规词【${element.word}】删除失败 ${jsonData.msg}`, false)
+        }
+      }
+      this.showConsole = false
+      this.getBannedWordList()
     },
     // 下载模板
     downloadTemplate() {
@@ -212,11 +282,10 @@ export default {
       exportExcelDataCommon('SHOPEE品牌词模板', template)
     },
     // 批量导入
-    batchImport() {
+    async batchImport() {
       const dataSum = this.importTemplateData.length
       if (dataSum <= 0) {
-        this.$refs.Logs.writeLog('表格数据不能为空', false)
-        this.showConsole = false
+        this.batchWriteLog(`表格数据为空`, false)
         return
       }
       let successNum = 0
@@ -224,49 +293,113 @@ export default {
       this.batchWriteLog('开始导入禁售词')
       for (let index = 0; index < dataSum; index++) {
         const element = this.importTemplateData[index]
-        console.log(element)
-        if (!element['站点(马来站,台湾站,新加坡站,菲律宾站,泰国站,越南站,印尼站,巴西站)（必填）'] ||
-            !element['关键词类型(违规词,品牌词,禁运词)（必填）'] ||
-            !element['关键词（必填）']) {
+        const countryVal = element['站点(马来站,台湾站,新加坡站,菲律宾站,泰国站,越南站,印尼站,巴西站)（必填）']
+        const typeVal = element['关键词类型(违规词,品牌词,禁运词)（必填）']
+        const wordVal = element['关键词（必填）']
+        if (!countryVal || !typeVal || !wordVal || !this.typeObj[typeVal] || !this.siteObj[countryVal]) {
           failNum++
-          this.batchWriteLog(`【${index + 1}】参数错误`, false)
+          this.batchWriteLog(`【${index + 1}】参数错误,请按要求填写`, false)
           continue
         }
-        successNum++
-        this.batchWriteLog(`站点【${element['站点(马来站,台湾站,新加坡站,菲律宾站,泰国站,越南站,印尼站,巴西站)（必填）']}】  添加禁售词【${element['关键词（必填）']}】 成功`, true)
+        const parmas = {
+          word: wordVal.toString(),
+          country: this.siteObj[countryVal],
+          type: this.typeObj[typeVal]
+        }
+        console.log('execlVal', parmas)
+        try {
+          const res = await this.$commodityService.addBannedWord(parmas)
+          const jsonData = JSON.parse(res)
+          console.log('batchImport', jsonData)
+          if (jsonData.code === 200) {
+            if (jsonData.data === 1) {
+              this.batchWriteLog(`站点【${countryVal}】 禁售词【${wordVal}】 重复添加`, false)
+              failNum++
+              continue
+            }
+            successNum++
+            this.batchWriteLog(`站点【${countryVal}】 添加禁售词【${wordVal}】 成功`, true)
+          } else {
+            this.$refs.Logs.writeLog(`站点【${countryVal}】 禁售词【${wordVal}】添加失败 ${jsonData.msg}`, false)
+          }
+        } catch (error) {
+          this.batchWriteLog(`${error}`, false)
+        }
       }
+      this.getBannedWordList()
       this.batchWriteLog(`导入总数：${dataSum}，成功数：${successNum}，失败数：${failNum}`)
     },
     // 添加禁售词
-    saveBanWord() {
+    async addBannedWord() {
       if (this.dialogkeyWord.trim() === '') return this.$message('请填写禁售词')
+      const parmas = {
+        word: this.dialogkeyWord.trim(),
+        country: this.dialogSite,
+        type: this.dialogType
+      }
+      try {
+        const res = await this.$commodityService.addBannedWord(parmas)
+        const jsonData = JSON.parse(res)
+        console.log(jsonData)
+        if (jsonData.code === 200) {
+          if (jsonData.data === 1) return this.$message.error('不可重复添加')
+          this.$message.success('添加成功')
+          this.getBannedWordList()
+        } else {
+          this.$message.success('添加失败' + jsonData.msg)
+        }
+      } catch (error) {
+        console.log(error)
+      }
+      this.dialogVisible = false
     },
     // 获取数据列表
-    async getChildUserList() {
+    async getBannedWordList() {
       this.isloading = true
+      const parmas = {
+        page: this.page,
+        perpage: this.pageSize,
+        word: this.form.keyWord.trim(),
+        country: this.form.site,
+        source: Number(this.form.source),
+        type: Number(this.form.type)
+      }
       try {
-        const { data } = await this.$api.getChildUserList({
-          name: this.accountNameVal,
-          isEnable: this.isEnable
-        })
-        console.log('tableData', data)
-        if (data.code === 200) {
-          this.total = data.data.length
-          this.tableData = data.data
+        const res = await this.$commodityService.getBannedWordList(parmas)
+        const jsonData = JSON.parse(res)
+        console.log('tableData', jsonData)
+        if (jsonData.code === 200) {
+          this.tableData = jsonData.data.data
+          if (this.tableData) {
+            this.tableData.map(item => {
+              item.created_at = item.created_at.replace('T', ' ').replace('Z', '')
+              item.country = this.$options.filters.chineseSite(item.country)
+              item.uid = item.uid === 0 ? '系统' : '用户'
+              if (item.type === 2) {
+                item.type = '品牌词'
+              } else if (item.type === 3) {
+                item.type = '违规词'
+              } else {
+                item.type = '禁运词'
+              }
+            })
+          }
+          this.total = jsonData.data.total
           this.isloading = false
         } else {
-          this.$message.error(`获取数据失败${data.message}`)
+          this.$message.error(`获取数据失败:${jsonData.msg}`)
           this.isloading = false
         }
       } catch (err) {
+        this.tableData = []
         this.$message.error(`获取数据失败`)
         console.log(err)
         this.isloading = false
       }
     },
+    // 表格导入
     importTemplateEvent(file) {
       const files = { 0: file.raw }
-      // 表格导入
       if (!/\.(xls|xlsx)$/.test(files[0].name.toLowerCase())) {
         this.$refs.Logs.writeLog('格式错误,请上传xls、xlsx格式的文件', false)
         this.showConsole = false
@@ -301,13 +434,19 @@ export default {
     },
     handleCurrentChange(val) {
       this.page = val
+      this.getBannedWordList()
     },
     handleSizeChange(val) {
+      this.page = 1
       this.pageSize = val
+      this.getBannedWordList()
     },
-    dialogBanWordClose() {
+    dialogClose() {
       this.batchConsoleMsg = ''
       this.showConsole = true
+      this.dialogkeyWord = ''
+      this.dialogSite = 'MY'
+      this.dialogType = '1'
     }
   }
 }

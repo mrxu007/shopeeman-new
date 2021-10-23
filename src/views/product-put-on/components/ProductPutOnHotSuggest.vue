@@ -11,7 +11,7 @@
         </el-select>
       </div>
       <div class="o-item">
-        <el-button type="primary" size="mini" @click="callDianBaShopeeInfo">搜索</el-button>
+        <el-button type="primary" size="mini" @click="getAvgPrice">搜索</el-button>
       </div>
     </div>
     <div class="table-content">
@@ -98,7 +98,7 @@ export default {
     }
   },
   mounted() {
-    this.callDianBaShopeeInfo()
+    this.getAvgPrice()
   },
   methods: {
     async setCategory(val) {
@@ -109,7 +109,7 @@ export default {
       console.log('setCategory', val)
     },
     // 获取数据列表
-    async callDianBaShopeeInfo() {
+    async getAvgPrice() {
       this.isloading = true
       const parmas = {
         platform_id: this.form.site,
@@ -119,7 +119,7 @@ export default {
         cat_id_3: this.form.cat_id_3
       }
       try {
-        const res = await this.$commodityService.callDianBaShopeeInfo(parmas)
+        const res = await this.$commodityService.getAvgPrice(parmas)
         const jsonData = JSON.parse(res)
         if (jsonData.msg === 'success') {
           this.tableData = jsonData.data

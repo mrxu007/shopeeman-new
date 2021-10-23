@@ -531,7 +531,7 @@ export default class CommodityService {
    * } data
    * @returns
    */
-  callDianBaShopeeInfo(data) {
+  getAvgPrice(data) {
     return this.nativeService.callDianBaShopeeInfo('GetAvgPrice', JSON.stringify(data))
   }
   /**
@@ -569,6 +569,34 @@ export default class CommodityService {
     return this.nativeService.callDianBaShopeeInfo('SearchShopeeHotGoods'
       , data.page, data.page_size, data.platform_id, data.cat_id, data.level, data.price, data.month_sales,
       data.increment_like_count, data.increment_item_rating, data.location, data.shopType, data.sortBy)
+  }
+  /**
+   * @name :品牌词库
+   * @param : {
+   * page: 页码
+   * perpage：页码大小
+   * word：关键词
+   * country：站点
+   * source：词来源
+   * type：关键词类别
+   * start_time：
+   * end_time：
+   *}
+   */
+  getBannedWordList(data) {
+    return this.nativeService.callCategoryFunction('GetBannedWordList', JSON.stringify(data))
+  }
+  /**
+   * @name :品牌词库添加
+   */
+  addBannedWord(data) {
+    return this.nativeService.callCategoryFunction('AddBannedWord', data.word, data.country, data.type)
+  }
+  /**
+   * @name :品牌词库删除
+   */
+  deleteDannedWord(data) {
+    return this.nativeService.callCategoryFunction('DeleteDannedWord', data.toString())
   }
 }
 

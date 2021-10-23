@@ -464,7 +464,7 @@ export default {
         this[OperatingName](this.tableData)
       }
     },
-    // 导出采集,excel
+    // 导出excel
     exportSearch(data) {
       // 要导出的json数据
       // const jsonData = this.multipleSelection
