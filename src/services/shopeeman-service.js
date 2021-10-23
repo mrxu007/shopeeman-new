@@ -54,20 +54,20 @@ export default class NetMessageBridgeService {
     return this.NetMessageBridgeService().get(url, JSON.stringify(options))
   }
 
-  getLocal(country, api, data, options) {
+  getLocal(country, api, data, options = {}) {
     const url = this.site_domain_local_bk[country] + api
     options['extrainfo'] = this.getExtraInfo(data)
     options['params'] = data
     return this.NetMessageBridgeService().get(url, JSON.stringify(options))
   }
 
-  postChinese(country, api, data, options) {
+  postChinese(country, api, data, options = {}) {
     const url = this.site_domain_chinese_bk[country] + api
     options['extrainfo'] = this.getExtraInfo(data)
     return this.NetMessageBridgeService().post(url, JSON.stringify(options), JSON.stringify(data))
   }
 
-  postLocal(country, api, data, options) {
+  postLocal(country, api, data, options = {}) {
     const url = this.site_domain_local_bk[country] + api
     options['extrainfo'] = this.getExtraInfo(data)
     return this.NetMessageBridgeService().post(url, JSON.stringify(options), JSON.stringify(data))
