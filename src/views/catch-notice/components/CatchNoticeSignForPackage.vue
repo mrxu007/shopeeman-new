@@ -12,14 +12,14 @@
           采购物流单号：
           <el-input v-model="form.packageCode" size="mini" />
         </div>
-        <el-button size="mini" type="primary" @click="searchHandle">搜索</el-button>
+        <el-button size="mini" type="primary" @click="getExceptionNoOrderIndex">搜索</el-button>
       </div>
       <!-- 第二行 -->
       <div class="rowTwo">说&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;明：包裹已签收，但是匹配不到订单，仓库无法发货，需及时匹配订单，此界面只显示近7天的数据包裹异常数据</div>
       <!-- 第三行 -->
       <div class="rowThree">操作指引：请在此界面手动标记订单号或者在【订单列表】右键【同步此订单】获取订单信息</div>
     </div>
-    <el-table :header-cell-style="{ background: '#f5f7fa' }" :data="tableData" border style="width: 100%" height="calc(100vh - 160px)">
+    <el-table :header-cell-style="{ background: '#f5f7fa' }" :data="tableData" border style="width: 100%" height="calc(100vh - 160px)" :loading="buttonStatus.getList">
       <el-table-column type="index" label="序列号" width="80" />
       <el-table-column label="仓库" prop="warehouse_name" />
       <el-table-column prop="package_time" label="签收时间" />
@@ -41,242 +41,80 @@
       <span style="color: red">温馨提示：请填写子订单号</span>
       <el-form :model="markMyOrderDialogForm">
         <el-form-item label="订单编号:" label-width="80px">
-          <el-input v-model="markMyOrderDialogForm.orderSn" autocomplete="off" />
+          <el-input v-model="markMyOrderDialogForm.orderSn" autocomplete="off" size="mini" />
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="markMyOrderDialogHandle">确 定</el-button>
+        <el-button type="primary" size="mini" @click="markMyOrderDialogHandle">确 定</el-button>
       </div>
     </el-dialog>
 
     <!--申请退件dialog-->
-    <el-dialog title="申请退件" :visible.sync="applyDialogFormVisible" width="500px">
-      <span style="color: red">温馨提示：请填写子订单号</span>
-      <el-form :model="applyDialogForm">
+    <el-dialog title="填写退件信息" :visible.sync="applyDialogFormVisible" width="500px">
+      <!-- <span style="color: red">温馨提示：请填写子订单号</span> -->
+      <el-form :model="applyForm">
         <el-form-item label="收件人:" label-width="80px">
-          <el-input v-model="applyDialogForm.returnContact" />
+          <el-input v-model="applyForm.returnContact" size="mini" />
         </el-form-item>
         <el-form-item label="联系电话:" label-width="80px">
-          <el-input v-model="applyDialogForm.returnPhoneNumber" />
+          <el-input v-model="applyForm.returnPhoneNumber" size="mini" />
         </el-form-item>
-        <el-form-item label="退件地区:" label-width="80px"><el-cascader v-model="applyDialogForm.applyRegion" :options="options" /> </el-form-item>
+        <el-form-item label="退件地区:" label-width="80px">
+          <el-cascader ref="refTbCate" :props="props" clearable size="mini" @change="targetCate" />
+        </el-form-item>
         <el-form-item label="详细地址:" label-width="80px">
-          <el-input v-model="applyDialogForm.applyAddress" />
+          <el-input v-model="applyForm.applyAddress" type="textarea" resize="none" size="mini" />
         </el-form-item>
         <el-form-item label="退件备注:" label-width="80px">
-          <el-input v-model="applyDialogForm.returnRemarks" type="textarea" resize="none" />
+          <el-input v-model="applyForm.returnRemarks" type="textarea" resize="none" size="mini" />
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="applyDialogHandle">保存</el-button>
+        <el-button type="primary" size="mini" @click="applyDialogHandle">保存</el-button>
       </div>
     </el-dialog>
   </div>
 </template>
 
 <script>
+const id = 0
 export default {
   data() {
     return {
-      options: [{
-        value: 'zhinan',
-        label: '指南',
-        children: [{
-          value: 'shejiyuanze',
-          label: '设计原则',
-          children: [{
-            value: 'yizhi',
-            label: '一致'
-          }, {
-            value: 'fankui',
-            label: '反馈'
-          }, {
-            value: 'xiaolv',
-            label: '效率'
-          }, {
-            value: 'kekong',
-            label: '可控'
-          }]
-        }, {
-          value: 'daohang',
-          label: '导航',
-          children: [{
-            value: 'cexiangdaohang',
-            label: '侧向导航'
-          }, {
-            value: 'dingbudaohang',
-            label: '顶部导航'
-          }]
-        }]
-      }, {
-        value: 'zujian',
-        label: '组件',
-        children: [{
-          value: 'basic',
-          label: 'Basic',
-          children: [{
-            value: 'layout',
-            label: 'Layout 布局'
-          }, {
-            value: 'color',
-            label: 'Color 色彩'
-          }, {
-            value: 'typography',
-            label: 'Typography 字体'
-          }, {
-            value: 'icon',
-            label: 'Icon 图标'
-          }, {
-            value: 'button',
-            label: 'Button 按钮'
-          }]
-        }, {
-          value: 'form',
-          label: 'Form',
-          children: [{
-            value: 'radio',
-            label: 'Radio 单选框'
-          }, {
-            value: 'checkbox',
-            label: 'Checkbox 多选框'
-          }, {
-            value: 'input',
-            label: 'Input 输入框'
-          }, {
-            value: 'input-number',
-            label: 'InputNumber 计数器'
-          }, {
-            value: 'select',
-            label: 'Select 选择器'
-          }, {
-            value: 'cascader',
-            label: 'Cascader 级联选择器'
-          }, {
-            value: 'switch',
-            label: 'Switch 开关'
-          }, {
-            value: 'slider',
-            label: 'Slider 滑块'
-          }, {
-            value: 'time-picker',
-            label: 'TimePicker 时间选择器'
-          }, {
-            value: 'date-picker',
-            label: 'DatePicker 日期选择器'
-          }, {
-            value: 'datetime-picker',
-            label: 'DateTimePicker 日期时间选择器'
-          }, {
-            value: 'upload',
-            label: 'Upload 上传'
-          }, {
-            value: 'rate',
-            label: 'Rate 评分'
-          }, {
-            value: 'form',
-            label: 'Form 表单'
-          }]
-        }, {
-          value: 'data',
-          label: 'Data',
-          children: [{
-            value: 'table',
-            label: 'Table 表格'
-          }, {
-            value: 'tag',
-            label: 'Tag 标签'
-          }, {
-            value: 'progress',
-            label: 'Progress 进度条'
-          }, {
-            value: 'tree',
-            label: 'Tree 树形控件'
-          }, {
-            value: 'pagination',
-            label: 'Pagination 分页'
-          }, {
-            value: 'badge',
-            label: 'Badge 标记'
-          }]
-        }, {
-          value: 'notice',
-          label: 'Notice',
-          children: [{
-            value: 'alert',
-            label: 'Alert 警告'
-          }, {
-            value: 'loading',
-            label: 'Loading 加载'
-          }, {
-            value: 'message',
-            label: 'Message 消息提示'
-          }, {
-            value: 'message-box',
-            label: 'MessageBox 弹框'
-          }, {
-            value: 'notification',
-            label: 'Notification 通知'
-          }]
-        }, {
-          value: 'navigation',
-          label: 'Navigation',
-          children: [{
-            value: 'menu',
-            label: 'NavMenu 导航菜单'
-          }, {
-            value: 'tabs',
-            label: 'Tabs 标签页'
-          }, {
-            value: 'breadcrumb',
-            label: 'Breadcrumb 面包屑'
-          }, {
-            value: 'dropdown',
-            label: 'Dropdown 下拉菜单'
-          }, {
-            value: 'steps',
-            label: 'Steps 步骤条'
-          }]
-        }, {
-          value: 'others',
-          label: 'Others',
-          children: [{
-            value: 'dialog',
-            label: 'Dialog 对话框'
-          }, {
-            value: 'tooltip',
-            label: 'Tooltip 文字提示'
-          }, {
-            value: 'popover',
-            label: 'Popover 弹出框'
-          }, {
-            value: 'card',
-            label: 'Card 卡片'
-          }, {
-            value: 'carousel',
-            label: 'Carousel 走马灯'
-          }, {
-            value: 'collapse',
-            label: 'Collapse 折叠面板'
-          }]
-        }]
-      }, {
-        value: 'ziyuan',
-        label: '资源',
-        children: [{
-          value: 'axure',
-          label: 'Axure Components'
-        }, {
-          value: 'sketch',
-          label: 'Sketch Templates'
-        }, {
-          value: 'jiaohu',
-          label: '组件交互文档'
-        }]
-      }],
+      props: {
+        lazy: true,
+        that: this,
+        lazyLoad(node, resolve) {
+          const { level } = node
+          setTimeout(async() => {
+            let nodes = []
+            if (level === 0) {
+              const res = await this.that.$BaseUtilService.getPddAddressModel('0')
+              nodes = res.map(item => {
+                item.label = item.RegionName
+                item.leaf = item.RegionType >= 3
+                item.value = item.RegionId
+                return item
+              })
+            } else {
+              const res = await this.that.$BaseUtilService.getPddAddressModel(node.value)
+              nodes = res.map(item => {
+                item.label = item.RegionName
+                item.leaf = item.RegionType >= 3
+                item.value = item.RegionId
+                return item
+              })
+            }
+            // 通过调用resolve将子节点数据返回，通知组件数据加载完成
+            resolve(nodes || [])
+          }, 1000)
+        }
+      },
+
       //   搜索条件
       form: {
         packageCode: '', // 创建时间
-        selectTime: ''
+        selectTime: ['2021-10-01 00:00:00', '2021-10-30 00:00:00']
       },
       // 控制标记为我的dialog
       markMyOrderDialogFormVisible: false,
@@ -286,9 +124,9 @@ export default {
         orderSn: ''
       },
       // 控制申请退件dialog
-      applyDialogFormVisible: false,
+      applyDialogFormVisible: true,
       // 申请退件dialog表单数据
-      applyDialogForm: {
+      applyForm: {
         lists: {
           gpcId: 0,
           packageCode: ''
@@ -301,32 +139,58 @@ export default {
         returnRemarks: ''
       },
       // 表格数据
-      tableData: [
-      ]
+      tableData: [],
+      // 按钮状态
+
+      buttonStatus: {
+        getList: false
+      },
+      selectCateFinally: ''
     }
   },
   mounted() {
     this.getExceptionNoOrderIndex()
   },
   methods: {
-    // 搜索按钮
-    async searchHandle() {
+    // 用户选择后最终的类目id
+    async targetCate(val) {
+      if (val.length > 0) {
+        console.log('val', val)
+        this.selectCateFinally = ''
+        const finallyname = this.$refs.refTbCate.getCheckedNodes()[0]
+        console.log('finallyname', finallyname)
+        const nameArr = {}
+        finallyname.pathLabels.map(item => {
+          if (!nameArr[item]) {
+            nameArr[item] = '1'
+          }
+        })
+        this.applyForm.applyAddress = Object.keys(nameArr).toString().replace(/,/g, '')
+      }
+    },
+    // 获取签收包裹异常列表
+    async getExceptionNoOrderIndex() {
       if (!this.form.selectTime) {
         this.$message.error('请先选择时间')
         return
       }
-      const startTiem = this.formatSearch(this.form.selectTime[0])
-      const endTiem = this.formatSearch(this.form.selectTime[1])
-      const params = {
-        'packageCode': this.form.packageCode,
-        'packageTime': `${startTiem}/${endTiem}`
+      if (this.buttonStatus.getList) {
+        return
       }
-      const result = await this.$api.getExceptionNoOrderIndex(params)
-      if (result.data.code === 200) {
-        this.tableData = result.data.data.data
+      this.buttonStatus.getList = true
+      const startTime = this.formatSearch(this.form.selectTime[0])
+      const endTime = this.formatSearch(this.form.selectTime[1])
+      const packageCode = this.form.packageCode
+      const params = {}
+      startTime && endTime ? params['packageTime'] = `${startTime}/${endTime}` : ''
+      packageCode ? params['packageCode'] = packageCode : ''
+      const res = await this.$api.getExceptionNoOrderIndex(params)
+      if (res.data.code === 200) {
+        this.tableData = res.data.data.data
       } else {
-        this.$message.error(result.data.message)
+        this.$message.error(res.data.message)
       }
+      this.buttonStatus.getList = false
     },
     // 标记为我的订单
     markMyOrderHandle(row) {
@@ -340,6 +204,7 @@ export default {
     // 标记为我的订单dialog确定
     async markMyOrderDialogHandle() {
       const result = await this.$api.markPackageToMy(this.markMyOrderDialogForm)
+      debugger
       if (result.data.code === 200) {
         this.markMyOrderDialogFormVisible = false
         this.$message({
@@ -353,17 +218,18 @@ export default {
     },
     // 申请退件dialog确定
     async applyDialogHandle() {
-      if (!this.applyDialogForm.applyRegion || this.applyDialogForm.applyRegion.length === 0) {
+      if (!this.applyForm.applyRegion || this.applyForm.applyRegion.length === 0) {
         this.$message.error('退件地区不能为空')
         return
-      } else if (!this.applyDialogForm.applyAddress.trim()) {
+      } else if (!this.applyForm.applyAddress.trim()) {
         this.$message.error('退件详细地址不能为空')
         return
       }
-
-      this.applyDialogForm.applyRegion = this.applyDialogForm.applyRegion.join('/')
-      this.applyDialogForm.returnAddress = `${this.applyDialogForm.applyRegion} ${this.applyDialogForm.applyAddress}`
-      // const result = await this.$api.apply(this.applyDialogForm)
+      this.applyForm.applyRegion = this.applyForm.applyRegion.join('/')
+      this.applyForm.returnAddress = `${this.applyForm.applyRegion} ${this.applyForm.applyAddress}`
+      const test = this.applyForm
+      debugger
+      // const result = await this.$api.apply(this.applyForm)
       // console.log(result)
       // if (result.data.code === 200) {
       //   this.applyDialogFormVisible = false
@@ -377,7 +243,7 @@ export default {
     },
     // 申请退件
     applyReturnPartsHandle(row) {
-      this.applyDialogForm = {
+      this.applyForm = {
         lists: {
           gpcId: 0,
           packageCode: ''
@@ -389,7 +255,7 @@ export default {
         returnAddress: '',
         returnRemarks: ''
       }
-      this.applyDialogForm.lists.packageCode = row.package_code
+      this.applyForm.lists.packageCode = row.package_code
       this.applyDialogFormVisible = true
     },
     // 格式化搜索时间
@@ -404,15 +270,6 @@ export default {
       const seconds = (time.getSeconds() + '').padStart(2, 0)
       const result = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`
       return result
-    },
-    // 获取签收包裹异常列表
-    async getExceptionNoOrderIndex() {
-      const result = await this.$api.getExceptionNoOrderIndex()
-      if (result.data.code === 200) {
-        this.tableData = result.data.data.data
-      } else {
-        this.$message.error(result.data.message)
-      }
     }
   }
 }

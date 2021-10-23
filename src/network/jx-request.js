@@ -86,19 +86,25 @@ export default {
   updateWatermark: (data) => AppRequest.post('/bindMall/updateWatermark', data), // 修改店铺水印
   updateUserPassword: (data) => AppRequest.post('/bindMall/uploadUserPassword', data), // 修改账户登录密码
   uploadMallCookie: (data) => AppRequest.post('/bindMall/uploadWebLoginInfo', data), // 上报店铺cookie
+  deleteBindMall: (data) => AppRequest.post('/bindMall/deleteMall', data), // 上报店铺cookie
 
   // 店铺管理--店铺分组
   getMallGroup: (data) => AppRequest.get('/mallGroup/index', { params: data }), // 获取店铺分组列表
-  addOrUpdatemallGroup: (data) => AppRequest.post('/mallGroup/save', data), // 新增/修改分组
-  deleteGroup: (data) => AppRequest.post('/mallGroup/delete', data), // 新增/修改分组
+  addGroup: (data) => AppRequest.post('/mallGroup/save', data), // 新增分组
+  updateGroup: (data) => AppRequest.post('/mallGroup/update', data), // 修改分组
+  deleteGroup: (data) => AppRequest.post('/mallGroup/delete', data), // 删除分组
 
-  // 异常公告
-  getExceptionNoOrderIndex: (data) => AppRequest.get('/exceptionNoOrderIndex', { params: data }), // 异常公告签收包裹异常列表
-  markPackageToMy: (data) => AppRequest.post('/signPackage/markPackageToMy', data), // 异常公告签收包裹异常：标记为我的
-  apply: (data) => AppRequest.post('/packageReturn/apply', data), // 异常公告签收包裹异常：申请退件
-  getExceptionNoTrackingNumberIndex: (data) => AppRequest.get('/exceptionNoTrackingNumberIndex', { params: data }), // 异常公告待获取物流单号订单列表
-  updateOrderTrackingNumber: (data) => AppRequest.post('/order/updateOrderTrackingNumber', data), // 异常公告待获取物流订单添加采购物流单号
-  getExceptionExpiredOrderIndex: (data) => AppRequest.get('/exceptionExpiredOrderIndex', { params: data }), // 异常公告即将过期订单列表
-  getExceptionWarehouse: (data) => AppRequest.get('/exceptionWarehouse', { params: data }), // 异常公告仓库异常信息列表
-  uploadDealExceptionStatus: (data) => AppRequest.post('/uploadDealExceptionStatus', data) // 异常公告仓库异常处理状态上报
+  // 异常公告--签收包裹异常
+  getExceptionNoOrderIndex: (data) => AppRequest.get('/exceptionNoOrderIndex', { params: data }), // 签收包裹异常列表
+  markPackageToMy: (data) => AppRequest.post('/signPackage/markPackageToMy', data), // 标记为我的
+  apply: (data) => AppRequest.post('/packageReturn/apply', data), // 申请退件
+
+  // 异常公告--待获取物流单号
+  getExceptionNoTrackingNumberIndex: (data) => AppRequest.get('/exceptionNoTrackingNumberIndex', { params: data }), // 订单列表
+  updateOrderTrackingNumber: (data) => AppRequest.post('/order/updateOrderTrackingNumber', data), // 添加采购物流单号
+
+  // 异常公告--即将过期订单
+  getExceptionExpiredOrderIndex: (data) => AppRequest.get('/exceptionExpiredOrderIndex', { params: data }), // 订单列表
+  getExceptionWarehouse: (data) => AppRequest.get('/exceptionWarehouse', { params: data }), // 仓库异常信息列表
+  uploadDealExceptionStatus: (data) => AppRequest.post('/uploadDealExceptionStatus', data) // 仓库异常处理状态上报
 }
