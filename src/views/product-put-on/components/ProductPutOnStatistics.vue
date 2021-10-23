@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-10-21 09:38:11
- * @LastEditTime: 2021-10-22 15:33:26
+ * @LastEditTime: 2021-10-23 17:54:16
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shopeeman-new\src\views\product-put-on\components\ProductPutOnCategoryblack.vue
@@ -67,7 +67,7 @@
 
 <script>
 import storeChoose from '../../../components/store-choose'
-import { exportExcelDataCommon,changeCountryName } from '../../../util/util'
+import { exportExcelDataCommon } from '../../../util/util'
 export default {
   components: {
     storeChoose,
@@ -116,7 +116,7 @@ export default {
         for (let i = 0; i < this.tableData.length; i++) {
             let item = this.tableData[i]
             str += `<tr><td>${num++}</td>
-                        <td>${item.country ?changeCountryName(item.country): '' + '\t'}</td>
+                        <td>${item.country ?this.$filters.chineseSite(item.country): '' + '\t'}</td>
                         <td>${item.mall_alias_name ?item.mall_alias_name  : item.platform_mall_name + '\t'}</td>
                         <td>${item.group_name ? item.group_name : '' + '\t'}</td> 
                         <td>${item.upCount ? item.upCount : 0 + '\t'}</td>

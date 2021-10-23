@@ -266,3 +266,36 @@ export function changeCountryName(val) {
   let site = countries[attribute] || attribute
   return site
 }
+export function changeImageUrl(data) {
+  let countries_image = {
+    "MY" : "https://cf.shopee.com.my",
+    "TW" : "https://s-cf-tw.shopeesz.com",
+    "VN" : "https://cf.shopee.vn",
+    "ID" : "https://cf.shopee.co.id",
+    "PH" : "https://cf.shopee.ph",
+    "TH" : "https://cf.shopee.co.th",
+    "SG" : "https://cf.shopee.sg",
+    "BR" : "https://cf.shopee.com.br",
+    "MX" : "https://cf.shopee.com.mx",
+    "CO" : "https://cf.shopee.com.co",
+    "CL" : "https://cf.shopee.cl",
+    "PL" : "https://cf.shopee.pl",
+  }
+  let countries_id = {
+    '4': 'TH',
+    '5': 'MY',
+    '3': 'TW',
+    '1': 'SG',
+    '7': 'PH',
+    '6': 'VN',
+    '2': 'ID',
+    '8': 'BR'
+  }
+    let country = data[0]
+    let shop_id = data[1]
+    let image_value = data[2]
+    let attribute = country && (country+'').toLocaleUpperCase() || country
+    attribute = countries_id[attribute] || attribute
+    return countries_image[attribute] && (countries_image[attribute] + '/file/' + shop_id + '/' + image_value) || ''
+}
+

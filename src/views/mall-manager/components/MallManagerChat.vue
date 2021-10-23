@@ -157,24 +157,39 @@
         console.log('changeMallList', this.SiteList)
       },
       async searchAutoReplyTable(){
+        this.tableDataAutoRepl = []
         let mallList = this.SiteList.autoReply || []
         mallList.forEach(async item=>{
           let resOfflineJson = await this.$shopeemanService.scOfflineReply(item.country,{shop_id:item.platform_mall_id})
           let resChatJson = await this.$shopeemanService.scChatSetting(item.country,{shop_id:item.platform_mall_id})
+          let temp = {}
           try {
             let resOffline = JSON.parse(resOfflineJson)
             console.log('offlineRes',resOffline)
+            if (resOffline.status === 200){
+
+            } else{
+
+            }
           }catch (e) {
 
           }
           try {
             let resChat = JSON.parse(resChatJson)
             console.log('resChatJson',resChat)
+            if (resChat.status === 200){
+
+            } else{
+
+            }
           }catch (e) {
 
           }
         })
       },
+
+
+
       handleClick() {
 
       },
