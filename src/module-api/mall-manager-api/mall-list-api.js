@@ -76,14 +76,18 @@ export async function loginAPI(mallInfo) {
     }
     const guid = new GUID()
     const url = `${info.Origin}/api/v2/login/?SPC_CDS=${guid.newGUID()}&SPC_CDS_VER=2`
-    const res = await api.otherRequest.post(url, params, {
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        'Referer': info.loginLink,
-        'Origin': info.Origin,
-        'host': info.host
+    const res = await api.otherRequest.post(url, params,
+      {
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'Referer': info.loginLink,
+          'Origin': info.Origin,
+          'host': info.host
+        }
+
       }
-    })
+    )
+    debugger
     if (res.status === 200) {
       const coookieStr = res.headers.find(item => item.Name === 'Set-Cookie') // 提取有用的cookie
       if (coookieStr) {

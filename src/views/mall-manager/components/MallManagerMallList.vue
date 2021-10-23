@@ -394,13 +394,18 @@ export default {
       if (this.buttonStatus.login) {
         return
       }
-      this.buttonStatus.login = true
       const len = this.multipleSelection.length
+      if (!len) {
+        this.$message.error('请先勾选店铺')
+        return
+      }
+      this.buttonStatus.login = true
       for (let i = 0; i < len; i++) {
         const item = this.multipleSelection[i]
-        const res = await loginAPI(item)
+        const res = await this.$shopeemanService.login(item.country, { shop_id: item.platform_mall_id })
         if (res.code !== 200) {
           console.log('店铺登录', res.data)
+          this.$message.error(`店铺登录失败：${res.data}`)
           continue
         }
         // debugger
@@ -414,6 +419,7 @@ export default {
           console.log('店铺上传', res.data)
           continue
         }
+        this.$message.success('店铺登录成功')
       }
       // setTimeout(() => {
       //   this.buttonStatus.login = false
