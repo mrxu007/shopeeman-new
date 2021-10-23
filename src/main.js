@@ -91,6 +91,7 @@ Vue.prototype.$viewManagerService = new viewManagerService()
 Vue.prototype.$SonAccountService = new SonAccountService()
 Vue.prototype.$shopeemanService = new shopeemanService()
 Vue.prototype.$dayjs = dayjs
+Vue.prototype.$filters = filters
 
 // 所有的input框自动获取焦点
 Vue.directive('fo', {
