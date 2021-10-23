@@ -35,11 +35,10 @@
       </div>
     </div>
     <div class="table-content">
-      <u-table
+      <el-table
         v-loading="isloading"
-        use-virtual
         :data="tableData"
-        :row-height="40"
+        height="calc(100vh - 145px)"
         :border="false"
         :header-cell-style="{
           textAlign: 'center',
@@ -47,18 +46,18 @@
         }"
         @selection-change="handleSelectionChange"
       >
-        <u-table-column type="index" align="center" label="序号" min-width="50">
+        <el-table-column type="index" align="center" label="序号" min-width="50">
           <template slot-scope="scope">
             {{ scope.$index + 1 }}
           </template>
-        </u-table-column>
-        <u-table-column type="selection" align="center" min-width="55" />
-        <u-table-column prop="typeCn" align="center" show-overflow-tooltip label="站点" />
-        <u-table-column prop="typeCn" align="center" show-overflow-tooltip label="词来源" />
-        <u-table-column prop="typeCn" align="center" show-overflow-tooltip label="词类型" />
-        <u-table-column prop="typeCn" align="center" show-overflow-tooltip label="关键词" />
-        <u-table-column prop="typeCn" align="center" show-overflow-tooltip label="添加时间" />
-      </u-table>
+        </el-table-column>
+        <el-table-column type="selection" align="center" min-width="55" />
+        <el-table-column prop="typeCn" align="center" show-overflow-tooltip label="站点" />
+        <el-table-column prop="typeCn" align="center" show-overflow-tooltip label="词来源" />
+        <el-table-column prop="typeCn" align="center" show-overflow-tooltip label="词类型" />
+        <el-table-column prop="typeCn" align="center" show-overflow-tooltip label="关键词" />
+        <el-table-column prop="typeCn" align="center" show-overflow-tooltip label="添加时间" />
+      </el-table>
     </div>
     <div class="pagination">
       <el-pagination
@@ -123,20 +122,15 @@
       </el-dialog>
     </div>
     <div class="logging">
-      <Logging :console-msg="consoleMsg" :show-console="showConsole" @changeshowConsole="changeshowConsole" />
+      <Logs ref="Logs" v-model="showConsole" clear />
     </div>
   </div>
 </template>
 
 <script>
-const Logging = () => import('@/components/logging.vue')
-import shpeeManMixin from '@/util/shpeeMan-mixin' // 公共方法
+import XLSX from 'xlsx'
 import { exportExcelDataCommon } from '../../../util/util'
 export default {
-  components: {
-    Logging
-  },
-  mixins: [shpeeManMixin],
   data() {
     return {
       showConsole: true,
@@ -149,6 +143,7 @@ export default {
       pageSize: 30,
       isloading: false,
       multipleSelection: [],
+      importTemplateData: '', // 导入数据
       keyWord: '', // 关键词
       dialogSite: 'MY', // 弹框站点
       dialogType: '1', // 弹框关键词类别
@@ -220,7 +215,7 @@ export default {
     batchImport() {
       const dataSum = this.importTemplateData.length
       if (dataSum <= 0) {
-        this.writeLog('表格数据不能为空', false)
+        this.$refs.Logs.writeLog('表格数据不能为空', false)
         this.showConsole = false
         return
       }
@@ -269,15 +264,46 @@ export default {
         this.isloading = false
       }
     },
+    importTemplateEvent(file) {
+      const files = { 0: file.raw }
+      // 表格导入
+      if (!/\.(xls|xlsx)$/.test(files[0].name.toLowerCase())) {
+        this.$refs.Logs.writeLog('格式错误,请上传xls、xlsx格式的文件', false)
+        this.showConsole = false
+        return
+      }
+      if (files.length <= 0) {
+        this.$refs.Logs.writeLog('表格为空', false)
+        return
+      }
+      const fileReader = new FileReader()
+      fileReader.onload = ev => {
+        const data = ev.target.result
+        const workbook = XLSX.read(data, {
+          type: 'binary'
+        })
+        const wsname = workbook.SheetNames[0] // 取第一张表
+        let ws = XLSX.utils.sheet_to_json(workbook.Sheets[wsname]) // 生成Json表格
+        this.importTemplateData = ws
+        this.batchImport()
+        ws = null
+        this.$refs.importRef.value = ''
+      }
+      fileReader.readAsBinaryString(files[0])
+    },
     batchWriteLog(msg, success = true) {
       if (!msg) return
       const color = success ? 'green' : 'red'
       this.batchConsoleMsg = `<p style="color:${color}; margin-top: 8px;">${msg}</p>` + this.batchConsoleMsg
     },
-    handleSizeChange() {},
-    handleCurrentChange() {},
     handleSelectionChange(val) {
       this.multipleSelection = val
+    },
+    handleCurrentChange(val) {
+      this.page = val
+    },
+    handleSizeChange(val) {
+      this.pageSize = val
     },
     dialogBanWordClose() {
       this.batchConsoleMsg = ''

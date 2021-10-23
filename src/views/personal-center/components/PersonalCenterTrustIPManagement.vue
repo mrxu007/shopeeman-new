@@ -129,9 +129,7 @@
 </template>
 
 <script>
-import shpeeManMixin from '@/util/shpeeMan-mixin' // 公共方法
 export default {
-  mixins: [shpeeManMixin],
   data() {
     return {
       pageSize: 30,
@@ -308,6 +306,12 @@ export default {
     },
     closePhoneDialog() {
       this.phoneNum = ''
+    },
+    handleCurrentChange(val) {
+      this.page = val
+    },
+    handleSizeChange(val) {
+      this.pageSize = val
     }
   }
 }
