@@ -485,7 +485,7 @@ export default class CommodityService {
     return this.nativeService.callCategoryFunction('UploadTbCatAttr', categoryId + '', JSON.stringify(dataSource))
   }
 /**
- * @name : 
+ * @name :
  * @param  {
  * page:1,
  * country:'MY'
@@ -496,14 +496,14 @@ export default class CommodityService {
  * }
   站点选择全部的时候 country为null
   parentCategoryTree：类目id父级集合
- */  
+ */
  getBlackCategory(data) {
   return this.nativeService.callCategoryFunction('GetCategoryBlackList',JSON.stringify(data))
 }
 /**
- * @name : 
+ * @name :
  * @param  {
- * data[0] categoryId:类目id,  
+ * data[0] categoryId:类目id,
  * data[1] country:站点,
  * data[2] categoryPTree:[]父级类目id集合
  * }
@@ -512,7 +512,7 @@ export default class CommodityService {
   return this.nativeService.callCategoryFunction('AddCategoryBlackInfo',data[0]+'',data[1]+'',JSON.stringify(data[2]))
 }
 /**
- * @name : 
+ * @name :
  * @param  {
  * id:黑名单id（系统id）
  * }
@@ -529,5 +529,20 @@ export default class CommodityService {
  */
  getStatisticsNew(data) {
   return this.nativeService.callFunction('GetStatisticsNew',data[0],data[1])
+}
+
+
+/**
+ * @name :获取热搜词列表
+ * @param : {
+ * platform_id: '',国家code
+ * cat_id_1: '',
+ * cat_id_2: '',
+ * }
+ *
+ */
+getKeyWord(data) {
+  data['order_by'] = "keyword_month_sales"
+  return this.nativeService.callDianBaShopeeInfo('GetKeyWord',JSON.stringify(data))
 }
 }

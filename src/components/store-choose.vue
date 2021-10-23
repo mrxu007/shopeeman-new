@@ -38,6 +38,12 @@
         default() {
           return false
         }
+      },
+      source: {
+        type: String,
+        default() {
+          return ''
+        }
       }
     },
     data() {
@@ -67,7 +73,7 @@
           this.isAllowSet2 = false
           this.groupId = []
           this.groupIdList = []
-          this.ddMallGoodsGetMallList()
+          this.ddMallGoodsGetMallList(1)
         },
         deep: true
       },
@@ -93,7 +99,7 @@
             }
             setTimeout(() => {
               this.isAllowSet2 = true
-              this.ddMallGoodsGetMallList()
+              this.ddMallGoodsGetMallList(2)
             }, 10)
           }
         },
@@ -136,7 +142,8 @@
       async changeSelect(val) {
         console.log(val)
       },
-      async ddMallGoodsGetMallList() {
+      async ddMallGoodsGetMallList(val) {
+        console.log(val)
         this.site = []
         let country = this.countryVal
         let groupId = this.groupId.indexOf('') > -1 && this.groupId.slice(1).toString() || this.groupId.toString()
@@ -177,7 +184,11 @@
             mallList.push(temp[0])
           }
         })
-        this.$emit('changeMallList', mallList)
+        if (this.source){
+          this.$emit('changeMallList', {mallList:mallList,source:this.source})
+        } else{
+          this.$emit('changeMallList', mallList)
+        }
       }
     }
   }
