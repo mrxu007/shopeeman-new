@@ -11,9 +11,9 @@
             <el-button type="primary" size="mini" @click="getGroup">查询</el-button>
             <el-button type="primary" size="mini" @click="openGroupDialog(null)">新增分组</el-button>
             <el-button type="primary" size="mini" @click="deleteGroup">删除当前分组</el-button>
-            <el-button type="primary" size="mini">绑定运营</el-button>
-            <el-button type="primary" size="mini">绑定客服</el-button>
-            <el-button type="primary" size="mini">绑定跟单</el-button>
+            <el-button type="primary" size="mini" :disabled="true">绑定运营</el-button>
+            <el-button type="primary" size="mini" :disabled="true">绑定客服</el-button>
+            <el-button type="primary" size="mini" :disabled="true">绑定跟单</el-button>
           </li>
         </ul>
       </el-col>
@@ -22,7 +22,7 @@
       <el-table
         ref="plTable"
         v-loading="buttonStatus.search"
-        height="calc(100vh - 130px)"
+        height="calc(100vh - 140px)"
         :data="groupList"
         :header-cell-style="{
           backgroundColor: '#f5f7fa',
@@ -64,7 +64,7 @@
           <ul>
             <li v-show="typeOpt">
               <p>分组列表：</p>
-              <el-select v-model="groupId" placeholder="" size="mini">
+              <el-select v-model="groupId" placeholder="" size="mini" @change="switchSelectMallStatus">
                 <el-option v-for="(item, index) in groupList" :key="index" :value="item.id" :label="item.group_name" />
               </el-select>
             </li>
@@ -87,17 +87,17 @@
           <ul>
             <li>
               <p>站点：</p>
-              <el-select v-model="siteId" placeholder="" size="mini">
+              <el-select v-model="siteId" placeholder="" size="mini" @change="switchSelectMallStatus">
                 <el-option label="全部" :value="0" />
                 <el-option v-for="(item, index) in countries" :key="index" :label="item.label" :value="item.value" />
               </el-select>
-              <el-button type="primary" size="mini" @click="getMallList">刷新店铺</el-button>
+              <el-button type="primary" size="mini" @click="switchSelectMallStatus('Refresh')">刷新店铺</el-button>
             </li>
             <li>
               <p>店铺ID：</p>
               <el-input v-model.trim="systemId" placeholder="" size="mini" />
-              <el-button type="primary" size="mini">查询</el-button>
-              <el-checkbox v-model="isHide" @change="showMallbangingEvent">隐藏已绑定分组店铺</el-checkbox>
+              <el-button type="primary" size="mini" @click="switchSelectMallStatus">查询</el-button>
+              <el-checkbox v-model="isHide" @change="switchSelectMallStatus">隐藏已绑定分组店铺</el-checkbox>
             </li>
           </ul>
           <div class="con-rht-text">
@@ -114,8 +114,8 @@
               :data-changes-scroll-top="false"
               :row-height="50"
               :border="false"
-              @table-body-scroll="tableScroll"
             >
+              <!-- @table-body-scroll="tableScroll" -->
               <!-- <el-table-column align="center" type="selection" /> -->
               <el-table-column align="center" type="index" label="序号" />
               <el-table-column align="center" prop="" label="站点">
@@ -188,17 +188,19 @@ export default {
       // this.$confirm('确认关闭？')
       //   .then(_ => {
       done()
-      this.importMallListData = []
+      this.bindMallList = []
       this.consoleMsg = ''
       //   })
       //   .catch(_ => {})
     },
-    openGroupDialog(val) {
-      this.typeOpt = val
+    openGroupDialog(row) {
+      this.typeOpt = row
       this.editGroupDialogVisible = true
-      if (this.mallListTemp.length === 0) {
-        this.getMallList()
+      this.bindMallList = []
+      if (row) {
+        this.groupId = row.id
       }
+      this.switchSelectMallStatus('refresh')
     },
     tableScroll({ scrollTop, scrollLeft, table, judgeFlse }) {
       // {scrollTop， scrollLeft, table, judgeFlse: 这个参数返回一个boolean值，为true则代表表格滚动到了底部了，false没有滚动到底部，必须开起大数据渲染模式才能有值哦}, event
@@ -210,19 +212,85 @@ export default {
       })
       row.isSelected = false
       this.bindMallList.splice(index, 1)
-      console.log('111111111111')
     },
     addbingingMall(row) { // 添加绑定店铺
       this.bindMallList.push(row)
       row.isSelected = true
     },
-    showMallbangingEvent() {
-      if (this.isHide) {
-        this.mallListTemp = this.mallList.filter(item => !item.group_name)
-      } else {
-        this.mallListTemp = this.mallList
+    search() {
+      let attrLen = 0
+      this.mallListTemp = this.mallList
+      let siteNameFlat = false
+      let systemIdFlat = false
+      if (this.siteId !== 0) { // 登陆账户名
+        siteNameFlat = true
+        attrLen++
       }
-      this.$refs.plTable2.reloadData(this.mallListTemp)
+      if (this.systemId.trim()) { // 店铺名称
+        systemIdFlat = true
+        attrLen++
+      }
+      if (attrLen > 0) {
+        this.mallListTemp = this.mallListTemp.filter(item => {
+          let flat = 0
+          if (siteNameFlat) {
+            if (item['country'] === this.siteId) {
+              flat++
+            }
+          }
+          if (systemIdFlat) {
+            if (this.systemId.indexOf(`${item.platform_mall_id}`) > -1) {
+              flat++
+            }
+          }
+          if (flat === attrLen) {
+            return item
+          }
+        })
+      }
+      if (this.isHide) { // 3、显示隐藏已绑定店铺
+        this.mallListTemp = this.mallListTemp.filter(item => !item.group_name)
+      }
+       this.$refs.plTable2?.reloadData(this.mallListTemp)
+    },
+    async switchSelectMallStatus(val) {
+      this.bindMallList = []
+      console.log('groupId', this.groupId)
+      console.log('bindMallList', this.bindMallList)
+      if (val === 'refresh') {
+        await this.getMallList() // 1、刷新店铺
+      }
+      if (!this.typeOpt) { // 新增店铺
+        this.mallList.map(item => { // 2、给原数组分组下对应店铺变更状态
+          item.isSelected = false
+        })
+      } else {
+        this.mallList.map(item => { // 2、给原数组分组下对应店铺变更状态
+          if (item.mall_group_id === this.groupId) {
+            this.addbingingMall(item)
+          } else {
+            item.isSelected = false
+          }
+        })
+      }
+      this.search() // 3、 对当前table里面的数据进行筛选
+
+      // 5、始终将当前分组的选项显示  注意去重
+      const mallListTempObj = {}
+      this.mallListTemp.map(item => {
+        mallListTempObj[`${item.platform_mall_id}`] = '1'
+      })
+      const noRepeat = []
+      this.bindMallList.map(item => {
+        const repeatData = mallListTempObj[item.platform_mall_id]
+        if (!repeatData) {
+          noRepeat.push(item)
+        } else {
+          console.log('找到重复的店铺信息', item.platform_mall_name)
+        }
+      })
+      this.mallListTemp.push(...noRepeat)
+      this.$refs.plTable2?.reloadData(this.mallListTemp)
     },
     async getGroup() {
       if (this.buttonStatus.search) {
@@ -248,35 +316,46 @@ export default {
         return
       }
       const addGroupName = this.addGroupName
-      if (!addGroupName) {
+      const typeOpt = this.typeOpt
+      const TypeName = typeOpt ? '修改' : '添加'
+      if (!addGroupName && !typeOpt) { // 新增分组名的验证
         this.$message.error('新增分组名不能为空')
         return
       }
-      if (this.bindMallList.length === 0) {
-        this.$message.error('新增分组,最少绑定一个店铺')
-        return
-      }
       const isRepeatGroupName = this.groupList.find(item => item.group_name === addGroupName)
-      if (isRepeatGroupName) {
+      if (isRepeatGroupName && !typeOpt) {
         this.$message.error('分组名已存在')
         return
       }
       this.buttonStatus.addGroup = true
-      const TypeName = this.typeOpt ? '修改' : '添加'
-      const params = {
-        groupName: this.addGroupName, // 店铺分组必填
-        sysMallId: this.bindMallList.join(','), // 系统店铺id 多个用英文逗号隔开
-        groupId: this.typeOpt ? this.groupId : '' // 分组id   修改的时候 必填 新增时 不传
+      const ids = this.bindMallList.map(item => {
+        return item.id
+      })
+      if (ids.length === 0 && typeOpt) { // 针对更新分组下的店铺验证
+        this.$message.error('请至少勾选一个店铺')
+        return
       }
-      const res = await this.$api.addOrUpdatemallGroup(params)
+      const params = {}
+      params['sysMallIds'] = ids.join(',') // 系统店铺id 多个用英文逗号隔开
+      let res = null
+      if (!typeOpt) {
+        params['groupName'] = this.addGroupName // 分组名
+        res = await this.$api.addGroup(params)
+      } else {
+        const groupName = this.groupList.find(item => item.id === this.groupId)?.group_name
+        params['groupName'] = groupName // 分组名
+        params['groupId'] = this.groupId // 分组id
+        res = await this.$api.updateGroup(params)
+      }
       if (res.data.code !== 200) {
         this.$message.error(`店铺分组${TypeName}失败: ${res.data.message}`)
         this.buttonStatus.addGroup = false
         return
       }
-      this.$message.success('新增分组成功')
+      this.$message.success(`店铺分组${TypeName}成功`)
       this.getGroup()
       this.buttonStatus.addGroup = false
+      this.editGroupDialogVisible = false
     },
     async deleteGroup() {
       if (this.buttonStatus.delGroup) {
@@ -306,21 +385,18 @@ export default {
       const params = {
         'country': ''
       }
-      console.log('1111111111111')
-      this.$api.getMallList(params).then((res) => { // 数据未影响到任何操作可以使用异步
-        if (res.data.code !== 200) {
-          this.$message.error('获取店铺列表失败')
-          return
-        }
-        this.mallList = res.data.data.map(item => {
-          item.isSelected = false
-          return item
-        })
-        this.mallListTemp = this.mallList
-        console.log('this.mallListTemp', this.mallListTemp)
-        this.$refs.plTable2.reloadData(this.mallListTemp)
+      const res = await this.$api.getMallList(params)
+      if (res.data.code !== 200) {
+        this.$message.error('获取店铺列表失败')
+        return
+      }
+      this.mallList = res.data.data.map(item => {
+        item.isSelected = false
+        return item
       })
-      console.log('3333333')
+      this.mallListTemp = this.mallList
+      console.log('this.mallListTemp', this.mallListTemp)
+      this.$refs.plTable2?.reloadData(this.mallListTemp)
     }
   }
 }
