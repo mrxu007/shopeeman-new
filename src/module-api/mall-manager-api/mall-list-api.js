@@ -22,7 +22,7 @@ export async function getMallListAPI(params) {
 export async function updateWatermarkAPI(params) {
   try {
     const res = await api.updateWatermark(params)
-    debugger
+    // debugger
     if (res.data.code === 200) {
       return { code: 200, data: res.data.data }
     }
@@ -36,7 +36,7 @@ export async function updateWatermarkAPI(params) {
 export async function updateUserPasswordAPI(params) {
   try {
     const res = await api.updateUserPassword(params)
-    debugger
+    // debugger
     if (res.data.code === 200) {
       return { code: 200, data: res.data.data }
     }
@@ -121,7 +121,7 @@ export async function loginAPI(mallInfo) {
       const debug_msg = error.data.data.raw_response.debug_msg
       return { code: status, data: `${status} 店铺【${accountName}】登录失败 ${message} ${debug_msg}` }
     }
-    return { code: -2, data: `loginAPI-catch: ${error}` }
+    return { code: -2, data: `loginAPI-catch: 店铺【${accountName}】登录失败 ${error}` }
   }
 }
 
