@@ -47,7 +47,7 @@
             <el-button type="primary" size="mini">刷新登录状态</el-button>
             <el-button type="primary" size="mini">同步店铺信息</el-button>
             <el-button type="primary" size="mini">更新浏览器识别码</el-button>
-            <el-button type="primary" size="mini">一键解绑店铺</el-button>
+            <el-button type="primary" size="mini" @click="openDeleteMallDialog">一键解绑店铺</el-button>
             <el-button type="primary" size="mini">开启店铺休假模式</el-button>
             <el-button type="primary" size="mini">关闭店铺休假模式</el-button>
             <el-button type="primary" size="mini">批量修改物流方式</el-button>
@@ -192,27 +192,45 @@
         </div>
       </el-row>
     </el-dialog>
-    <!-- 删除店铺弹框 -->
-    <el-dialog class="import-mall-dialog" title="删除店铺" :visible.sync="delMallDialog" width="30%" :before-close="handleClose2" :close-on-click-modal="false" :close-on-press-escape="false">
-      <el-row>
+    <!-- 解绑店铺弹框 -->
+    <el-dialog
+      class="del-mall-dialog"
+      title="解绑店铺"
+      :show-close="false"
+      :visible.sync="delMallDialog"
+      width="410px"
+      :before-close="handleClose2"
+      :close-on-click-modal="false"
+      :close-on-press-escape="false"
+    >
+      <div class="contanier-dialog">
+        <h3>温馨提示</h3>
+        <div class="text">
+          <p>1、解绑店铺的同时会删除店铺对应的订单信息，采购订单信息，仓库订单信息，无法恢复，请谨慎操作；</p>
+          <p>2、请输入确认信息 【删除店铺，后果自负】</p>
+        </div>
         <ul>
           <li>
-            <p>温馨提示：</p>
-            <div>
-              <p>1、解绑店铺的同时会删除店铺对应的订单信息，采购订单信息，仓库订单信息，无法恢复，请谨慎操作；</p>
-              <p>2、请输入确认信息 【删除店铺，后果自负】</p>
-            </div>
-          </li>
-          <li>
             <p>当前IP：</p>
-            <el-input v-model="IPVal" size="mini" />
+            <el-input v-model="IPVal" size="mini" :disabled="true" />
           </li>
           <li>
             <p>确认信息：</p>
-            <!-- <el-input v-model="confirmVal" size="mini" /> -->
+            <el-input v-model="comfirmText" size="mini" placeholder="删除店铺，后果自负" />
           </li>
+          <div class="text2">
+            删除店铺的同时删除店铺下的订单信息
+            <el-radio-group v-model="delOrderType">
+              <el-radio :label="0">否</el-radio>
+              <el-radio :label="1">是(无法恢复)</el-radio>
+            </el-radio-group>
+          </div>
         </ul>
-      </el-row>
+      </div>
+      <span slot="footer" class="dialog-footer">
+        <el-button size="mini" @click="cancel2">取 消</el-button>
+        <el-button type="primary" size="mini" @click="chekedDelMall">确 定</el-button>
+      </span>
     </el-dialog>
   </el-row>
 </template>
@@ -229,7 +247,8 @@ export default {
       rowHeight: 50,
       consoleMsg: '',
       buttonStatus: {
-        login: false
+        login: false,
+        delMall: false
       },
       mallList: [],
       mallListTemp: [],
@@ -276,18 +295,14 @@ export default {
       // 导入
       importTemplateData: '',
       IPVal: '',
-      comfirmVal: '',
+      comfirmText: '',
+      delOrderType: 1,
       isStop: false,
       isStopDisable: false,
       importType: null
     }
   },
   computed: {
-    heightCalc() {
-      const res = 'calc(100vh - 250px)'.replace('px', '')
-      debugger
-      return res
-    }
   },
   watch: {
     isStop: {
@@ -308,7 +323,7 @@ export default {
   created() {
     this.countries = countries
     this.countriesObj = countriesObj
-    this.test()
+    // this.test()
     this.getMallList()
   },
   methods: {
@@ -316,9 +331,50 @@ export default {
     //   // {scrollTop， scrollLeft, table, judgeFlse: 这个参数返回一个boolean值，为true则代表表格滚动到了底部了，false没有滚动到底部，必须开起大数据渲染模式才能有值哦}, event
     //   console.log(scrollTop, scrollLeft, table, judgeFlse)
     // },
-    async test() {
-      const res = await this.$appConfig.getUserConfig()
-      debugger
+    // async test() {
+    //   const res = await this.$appConfig.getUserConfig()
+    //   debugger
+    // },
+    cancel2() {
+      this.delMallDialog = false
+      this.reset()
+    },
+    openDeleteMallDialog() {
+      const len = this.multipleSelection.length
+      if (!len) {
+        this.$message.error('请选择店铺')
+        return
+      }
+      this.delMallDialog = true
+    },
+    async chekedDelMall() {
+      const text = this.comfirmText.replace(/,/, '，').trim() === '删除店铺，后果自负'
+      if (!text) {
+        this.$message.error('请填写正确的确认信息再操作')
+        return
+      }
+      this.buttonStatus.delMall = true
+      const ids = this.multipleSelection.map(item => {
+        return item.platform_mall_id
+      })
+      const params = {
+        'sysMallIds': ids.toString(),
+        'ip': this.IPVal || '192.168.1.1',
+        'isPushToXzy': this.delOrderType
+      }
+      const res = await this.$api.deleteBindMall(params)
+      if (res.data.code !== 200) {
+        this.$message.error(`解绑店铺失败:  ${res.data.message}`)
+        this.buttonStatus.delMall = false
+        return
+      }
+      this.$message.success('解绑店铺成功')
+      this.cancel2()
+      this.buttonStatus.delMall = false
+    },
+    reset() {
+      this.comfirmText = ''
+      this.delOrderType = 1
     },
     handleSelectionChange(val) {
       this.multipleSelection = val
@@ -338,13 +394,18 @@ export default {
       if (this.buttonStatus.login) {
         return
       }
-      this.buttonStatus.login = true
       const len = this.multipleSelection.length
+      if (!len) {
+        this.$message.error('请先勾选店铺')
+        return
+      }
+      this.buttonStatus.login = true
       for (let i = 0; i < len; i++) {
         const item = this.multipleSelection[i]
-        const res = await loginAPI(item)
+        const res = await this.$shopeemanService.login(item.country, { shop_id: item.platform_mall_id })
         if (res.code !== 200) {
           console.log('店铺登录', res.data)
+          this.$message.error(`店铺登录失败：${res.data}`)
           continue
         }
         // debugger
@@ -358,6 +419,7 @@ export default {
           console.log('店铺上传', res.data)
           continue
         }
+        this.$message.success('店铺登录成功')
       }
       // setTimeout(() => {
       //   this.buttonStatus.login = false

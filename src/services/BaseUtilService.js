@@ -49,4 +49,7 @@ export default class BaseUtilService {
   checkVersion(version) {
     return this.nativeService.checkVersion(version)
   }
+  getPddAddressModel(val) {
+    return this.nativeService.getPddAddressModel(val)
+  }
 }
