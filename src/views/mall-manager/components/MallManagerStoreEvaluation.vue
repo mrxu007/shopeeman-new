@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-10-08 14:16:18
- * @LastEditTime: 2021-10-21 10:58:35
+ * @LastEditTime: 2021-10-23 14:50:37
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shopeeman-new\src\views\mall-manager\components\MallManagerWithdrawalRecord.vue
@@ -11,27 +11,6 @@
     <div class="tool-bar">
       <div class="tool-row">
         <storeChoose @changeMallList="changeMallList"></storeChoose>
-        <!-- <div class="tool-item mar-right">
-          <span>站点：</span>
-          <el-select v-model="countryVal" placeholder="" size="mini" filterable>
-            <el-option label="全部" :value="0" />
-            <el-option v-for="(item, index) in countries" :key="index" :label="item.label" :value="item.value" />
-          </el-select>
-        </div>
-        <div class="tool-item mar-right">
-          <span>店铺分组：</span>
-          <el-select v-model="groupId" placeholder="" size="mini" filterable>
-            <el-option label="全部" :value="0" />
-            <el-option label="无分组" :value="-1" />
-            <el-option v-for="(item, index) in 4" :key="index" :label="item" :value="item" />
-          </el-select>
-        </div>
-        <div class="tool-item mar-right">
-          <span>店铺：</span>
-          <el-select v-model="mallSelect" placeholder="" size="mini" filterable>
-            <el-option v-for="(item, index) in 4" :key="index" />
-          </el-select>
-        </div> -->
         <div class="tool-item">
           <span>时间：</span>
           <el-date-picker
@@ -63,14 +42,14 @@
         </div>
         <div class="tool-item mar-right">
           <el-input placeholder="请输入内容" v-model="userName" size="mini" class="input-with-select">
-            <el-select v-model="userNameSelect" slot="prepend" placeholder="用户名称" style="width: 120px">
+            <el-select v-model="userTypeSelect" slot="prepend" placeholder="用户名称" style="width: 120px">
               <el-option v-for="(item, index) in userType" :key="index" :label="item.label" :value="item.value" />
             </el-select>
           </el-input>
         </div>
         <el-button type="primary" size="mini" class="mar-right" @click="searchRate">查询</el-button>
         <el-button type="primary" size="mini" class="mar-right" @click="batchReplay">批量回复</el-button>
-        <el-button type="primary" size="mini" class="mar-right">取消操作</el-button>
+        <el-button type="primary" size="mini" class="mar-right" @click="cancelAction=true">取消操作</el-button>
         <el-button type="primary" size="mini" class="mar-right" @click="exportData">导出数据</el-button>
         <el-button type="primary" size="mini" class="mar-right" @click="clearLog">清除日志</el-button>
         <div class="tool-item mar-right">
@@ -79,13 +58,15 @@
       </div>
     </div>
     <div class="content">
-      <el-table v-loading="tableLoading" ref="multipleTable" :data="tableData" tooltip-effect="dark" max-height="650" @selection-change="selectionChange">
+      <el-table v-loading="tableLoading" ref="multipleTable" :data="tableDataCut" tooltip-effect="dark" max-height="650" @selection-change="selectionChange">
         <el-table-column type="selection" width="55"> </el-table-column>
         <el-table-column align="center" type="index" label="序号" width="50">
           <template slot-scope="scope">{{ (currentPage - 1) * pageSize + scope.$index + 1 }}</template>
         </el-table-column>
-        <el-table-column min-width="60px" label="站点" prop="warehouse_name" align="center" />
-        <el-table-column min-width="100px" label="店铺名称" prop="trans_number" align="center" />
+        <el-table-column width="120px" label="站点" prop="country" align="center">
+          <template slot-scope="scope">{{ scope.row.country | chineseSite }}</template>
+        </el-table-column>
+        <el-table-column min-width="100px" label="店铺名称" prop="platform_mall_name" align="center" />
         <el-table-column align="center" prop="order_sn" label="订单编号" min-width="120">
           <template slot-scope="scope">
             <p class="tableActive">{{ scope.row.order_sn }}</p>
@@ -129,6 +110,17 @@
           <template slot-scope="scope"> </template>
         </el-table-column>
       </el-table>
+      <div class="pagination">
+        <el-pagination
+          background
+          :page-sizes="[10, 20, 50, 100]"
+          :page-size="pageSize"
+          layout="total, sizes, prev, pager, next, jumper"
+          :total="total"
+          @current-change="handleCurrentChange"
+          @size-change="handleSizeChange"
+        />
+      </div>
     </div>
     <Logs ref="Logs" clear v-model="showConsole" />
     <el-dialog title="回复内容编辑" :visible.sync="replayTextVisible" width="30%">
@@ -168,7 +160,7 @@ export default {
         { label: '巴西站', value: 'BR' },
       ],
       assessTime: [],
-      tableData: [
+      tableDataCut: [
         {
           comment_id: 1940787567,
           is_hidden: false,
@@ -194,6 +186,7 @@ export default {
           },
         },
       ],
+      tableData: [],
       tableLoading: false,
       replayType: '',
       replayTypeList: [
@@ -238,18 +231,18 @@ export default {
         },
       ],
       userName: '',
-      userNameSelect: '',
+      userTypeSelect: '1',
       userType: [
         {
-          value: '用户名称',
+          value: '1',
           label: '用户名称',
         },
         {
-          value: '商品名称',
+          value: '2',
           label: '商品名称',
         },
         {
-          value: '规格名称',
+          value: '3',
           label: '规格名称',
         },
       ],
@@ -261,23 +254,73 @@ export default {
       replayText: '',
       isBatchReplay: false,
       multipleSelection: [],
+      selectMallList: [],
+      cancelAction: false,
     }
   },
   methods: {
     //查询列表
     async searchRate() {
-      console.log(this.assessTime)
+      if (!this.selectMallList.length) {
+        return this.$message.warning('请选择店铺')
+      }
+      this.clearLog()
+      this.showConsole = false
+      this.$refs.Logs.writeLog('开始查询', true)
+      this.tableData = []
+      this.tableDataCut = []
+      for (let i = 0; i < this.selectMallList.length; i++) {
+        if(this.cancelAction){
+            return
+        }
+        let mall = this.selectMallList[i]
+        let pageNumber = 1
+        await this.searchSingleMall(pageNumber, mall)
+      }
+      this.dataCut()
+    },
+    async searchSingleMall(pageNumber, mall) {
       let params = {
-        rating_star: this.startNum, //全部不传
-        page_number: this.currentPage,
-        page_size: this.pageSize,
-        user_name: this.userName,
+        page_number: pageNumber,
+        page_size: 20,
         ctime_start: this.assessTime.length ? Math.round(new Date(this.assessTime[0]).getTime() / 1000) : '',
         ctime_end: this.assessTime.length ? Math.round(new Date(this.assessTime[1]).getTime() / 1000) : '',
         cursor: 0,
-        // from_page_number:1
+        shop_id: mall.platform_mall_id,
       }
-      console.log(params)
+      if (this.startNum) {
+        params.rating_star = this.startNum
+      }
+      if (this.userName) {
+        if (this.userTypeSelect === '1') {
+          params.user_name = this.userName
+        } else if (this.userTypeSelect === '2') {
+          params.product_name = this.userName
+        } else if (this.userTypeSelect === '3') {
+          params.model_name = this.userName
+        }
+      }
+      let res = await this.$shopeemanService.getShopEvaluateList(mall.country, params)
+      let resObj = JSON.parse(res)
+      console.log(resObj)
+      if (resObj.status !== 200) {
+        this.$refs.Logs.writeLog(`店铺【${mall.platform_mall_name}】请检查店铺是否登录！`, false)
+      } else {
+        let data = JSON.parse(resObj.data)
+        console.log(data)
+        if (data.code === 0) {
+          this.$refs.Logs.writeLog(`店铺【${mall.platform_mall_name}】获取到第【${pageNumber}】页店铺评价数据【${data.data.list.length}】条`, true)
+          data.data.list &&  data.data.list.forEach((item) => {
+              item.country = mall.country
+              item.platform_mall_name = mall.platform_mall_name
+              this.tableData.push(item)
+            })
+          if (data.data.list.length < data.data.page_info.total) {
+            pageNumber++
+            this.searchSingleMall(pageNumber, mall)
+          }
+        }
+      }
     },
     //导出数据
     exportData() {
@@ -332,7 +375,9 @@ export default {
       this.replayTextVisible = true
     },
     //回复信息
-    userReplay() {},
+    userReplay() {
+        
+    },
     //打开外部窗口
     openUrl(row) {
       let url = location.origin + '/product' + '/' + row.mallID + '/' + row.product_id
@@ -343,7 +388,20 @@ export default {
       this.multipleSelection = val
     },
     changeMallList(val) {
+      this.selectMallList = val
       console.log('changeMallList', val)
+    },
+    // 分页设置
+    dataCut() {
+      this.tableDataCut = this.tableData.slice((this.currentPage - 1) * this.pageSize, this.currentPage * this.pageSize)
+    },
+    handleCurrentChange(val) {
+      this.currentPage = val
+      this.dataCut()
+    },
+    handleSizeChange(size) {
+      this.pageSize = size
+      this.dataCut()
     },
     //清除日志
     clearLog() {
@@ -373,7 +431,7 @@ export default {
     align-items: center;
     flex-wrap: wrap;
     .tool-item {
-      margin-top: 10px;
+      //   margin-top: 10px;
       display: flex;
       align-items: center;
     }
@@ -383,6 +441,15 @@ export default {
   margin: 20px 0;
   background: #fff;
   height: calc(100vh - 150px);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  .pagination {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 20px;
+    height: 35px;
+  }
   .tableActive {
     color: red;
     cursor: pointer;
