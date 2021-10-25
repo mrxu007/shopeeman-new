@@ -137,5 +137,17 @@ export default {
   // 异常公告--即将过期订单
   getExceptionExpiredOrderIndex: (data) => AppRequest.get('/exceptionExpiredOrderIndex', { params: data }), // 订单列表
   getExceptionWarehouse: (data) => AppRequest.get('/exceptionWarehouse', { params: data }), // 仓库异常信息列表
-  uploadDealExceptionStatus: (data) => AppRequest.post('/uploadDealExceptionStatus', data) // 仓库异常处理状态上报
+  uploadDealExceptionStatus: (data) => AppRequest.post('/uploadDealExceptionStatus', data), // 仓库异常处理状态上报
+
+  // 10-25 智能仓库
+  colorLabelList: () => AppRequest.get('/colorLabel'), // 订单颜色标识列表
+  orderPackage: (data) => AppRequest.post('/orderPackage', data), // 订单包裹列表
+  refuseList: (data) => AppRequest.get('/interceptConfig', data), // 拒签列表
+  markOrderNeedDeal: (data) => AppRequest.post('/orderPackage/markOrderNeedDeal', data), // 标记订单紧急处理
+  setNoWait: (data) => AppRequest.post('/orderPackage/setNoWait', data), // 订单设置不等待子订单
+  trackingNumberChangeOrder: (data) => AppRequest.post('/orderPackage/trackingNumberChangeOrder', data), // 采购物流单号变更
+  noticeTodeliver: (data) => AppRequest.post('/orderPackage/changeOrderDeliveryStatus', data), // 通知仓库发货/暂停发货
+  getGoodsInfo: (data) => AppRequest.get('/orderPackage/getGoodsInfo ', data), // 订单包裹详情
+  uploadExtService: (data) => AppRequest.post('/orderPackage/uploadExtService ', data) // 订单包裹详情
+
 }

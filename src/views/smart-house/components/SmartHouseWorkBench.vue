@@ -1,12 +1,1743 @@
 <template>
-  <div>123123</div>
+  <div v-loading="isLoading" class="workbench">
+    <div class="top-box">
+      <div class="operate">
+        <div class="title">基础操作</div>
+        <div class="line" />
+        <div class="btn-items">
+          <el-button
+            type="primary"
+            size="mini"
+            @click="markOrderNeedDeal"
+          >标记需仓库紧急处理</el-button>
+          <el-button
+            type="primary"
+            size="mini"
+            @click="setNoWait"
+          >标记无需等待子包裹</el-button>
+        </div>
+        <div class="btn-items">
+          <el-button
+            type="primary"
+            size="mini"
+            @click="trackingNumberChangeOrderFun"
+          >采购物流单号变更</el-button>
+          <el-button
+            type="primary"
+            size="mini"
+            @click="noticeTodeliver(2)"
+          >通知仓库暂停发货</el-button>
+        </div>
+        <div class="btn-items">
+          <el-button
+            type="primary"
+            size="mini"
+            @click="noticeTodeliver(1)"
+          >通知仓库发货</el-button>
+          <el-button
+            type="primary"
+            size="mini"
+            @click="setColorLabelFun"
+          >批量标记颜色标识</el-button>
+        </div>
+        <div class="btn-items">
+          <el-button
+            type="primary"
+            size="mini"
+            @click="noticeTodeliver(1)"
+          >批量推送订单至仓库</el-button>
+          <el-button
+            type="primary"
+            size="mini"
+            @click="extService_visible"
+          >批量添加增值服务</el-button>
+        </div>
+        <div class="btn-items">
+          <el-button
+            type="primary"
+            size="mini"
+            @click="timeDelayFun"
+          >获取面单信息</el-button>
+          <!-- <el-button
+            type="primary"
+            size="mini"
+            @click="noticeTodeliver(1)"
+          >通知仓库发货</el-button> -->
+        </div>
+      </div>
+      <div class="search-list">
+        <div class="title">列表筛选操作</div>
+        <div class="line" />
+        <div class="form-items">
+          <div class="select-item">
+            <storeChoose @change="setMallId" />
+          </div>
+          <div class="select-item">
+            <span class="search-title ">订单创建时间：</span>
+            <el-date-picker
+              v-model="createdTime"
+              size="mini"
+              value-format="yyyy-MM-dd"
+              type="daterange"
+              style="width: 195px;"
+              range-separator="-"
+              :picker-options="pickerOptions"
+              start-placeholder="开始日期"
+              end-placeholder="结束日期"
+            />
+          </div>
+        </div>
+        <div class="form-items">
+          <div class="select-item">
+            <span class="search-title">订单发货状态：</span>
+            <el-select
+              v-model="deliveryStatus"
+              size="mini"
+              style="width: 120px"
+              clearable
+              placeholder="全部"
+            ><el-option label="全部" value="" />
+              <el-option
+                v-for="item in deliverStateList"
+                :key="item.deliveryStatus"
+                :label="item.label"
+                :value="item.deliveryStatus"
+              />
+            </el-select>
+          </div>
+          <div class="select-item">
+            <span class="search-title ">包裹异常类型：</span>
+            <el-select
+              v-model="exceptionType"
+              size="mini"
+              style="width: 120px"
+              clearable
+              placeholder="全部"
+            ><el-option label="全部" value="" />
+              <el-option
+                v-for="item in abnormalTypeList"
+                :key="item.exception_type"
+                :label="item.label"
+                :value="item.exception_type"
+              />
+            </el-select>
+          </div>
+          <div class="select-item">
+            <span class="search-title ">包裹入库时间：</span>
+            <el-date-picker
+              v-model="storageTime"
+              size="mini"
+              value-format="yyyy-MM-dd"
+              type="daterange"
+              style="width: 195px;"
+              range-separator="-"
+              :picker-options="pickerOptions"
+              start-placeholder="开始日期"
+              end-placeholder="结束日期"
+            />
+          </div>
+        </div>
+        <div class="form-items">
+          <div class="select-item">
+            <span class="search-title">订单编号：</span>
+            <el-input
+              v-model="packageOrderSn"
+              size="mini"
+              style="width: 150px"
+              clearable
+            />
+            <span style="margin-left: 8px;" class="search-title">采购物流单号：</span>
+            <el-input
+              v-model="statuoriginalTrackingNumbers"
+              size="mini"
+              style="width: 150px"
+              clearable
+            />
+          </div>
+          <!--         <span class="search-title ">颜色标识：</span>
+          <el-select
+            v-model="colorLabelId"
+            size="mini"
+            style="width: 150px"
+            clearable
+            placeholder="全部"
+          >
+            <el-option
+              v-for="item in colorLogoList"
+              :key="item.id"
+              :label="item.label"
+              :value="item.id"
+              :style="item.color"
+            />
+          </el-select> -->
+          <div class="select-item">
+            <span class="search-title ">包裹出库时间：</span>
+            <el-date-picker
+              v-model="outboundTime"
+              size="mini"
+              value-format="yyyy-MM-dd"
+              type="daterange"
+              style="width: 195px;"
+              range-separator="-"
+              :picker-options="pickerOptions"
+              start-placeholder="开始日期"
+              end-placeholder="结束日期"
+            />
+          </div>
+          <div class="select-item">
+            <el-button
+              type="primary"
+              style="margin-left: 4px;"
+              size="mini"
+              class="m-80"
+              :loading="orderPackageLoading"
+              @click="orderPackage"
+            >搜索</el-button>
+            <el-button
+              v-if="!isExport"
+              type="primary"
+              size="mini"
+              class="m-80"
+              @click="tableToExcel"
+            >导出数据</el-button>
+            <el-progress v-else style="width:160px;display:inline-block;margin-left: 10px;" :text-inside="true" :stroke-width="26" :percentage="((exportNum*100/total).toFixed(2)-0)" />
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="table-box">
+      <el-table
+        ref="workbenchTable"
+        height="calc(100vh - 350px)"
+        :data="tableData"
+        tooltip-effect="dark"
+        style="width: 100%"
+        :header-cell-style="{
+          textAlign: 'center',
+          backgroundColor: '#f5f7fa',
+        }"
+        :cell-style="{ textAlign: 'center' }"
+        :row-style="{height: '80px'}"
+        @selection-change="handleSelectionChange"
+      >
+        <el-table-column
+          type="selection"
+          width="40"
+          fixed
+        />
+        <el-table-column
+          label="序号"
+          width="40"
+          fixed
+        >
+          <template slot-scope="scope">
+            {{ scope.$index + 1 + (currentPage - 1) * pageSize }}
+          </template>
+        </el-table-column>
+        <el-table-column
+          label="店铺名称"
+          width="120"
+          prop="mall_alias_name"
+          fixed
+        />
+        <el-table-column
+          label="站点"
+          width="80"
+          prop="site"
+        />
+        <el-table-column
+          label="仓库"
+          width="80"
+          prop="warehouse_name"
+        />
+        <!--   <el-table-column
+          label="颜色标识"
+          width="100"
+          prop="colorText"
+        /> -->
+        <el-table-column
+          label="订单编号"
+          width="180"
+          prop="package_order_sn"
+        >
+          <template slot-scope="scope">
+            <span>{{ scope.row.package_order_sn }}
+              <span
+                class="copyIcon"
+                @click="copy(scope.row.package_order_sn)"
+              ><i
+                class="el-icon-document-copy"
+              /></span></span>
+          </template>
+        </el-table-column>
+        <el-table-column
+          label="数量"
+          width="60"
+          prop="goods_count"
+        />
+        <el-table-column
+          label="商品详情"
+          width="110"
+        >
+          <template slot-scope="scope">
+            <p><el-button
+              type="primary"
+              size="mini"
+              @click="getGoodsInfo(scope.row.package_order_sn)"
+            >查看签收详情</el-button></p>
+          </template>
+        </el-table-column>
+        <el-table-column
+          label="包裹重量"
+          width="80"
+        > <template slot-scope="scope">
+          <p>
+            {{ scope.row.package_weight }}g
+          </p>
+          <!--  <p>
+            {{ packageType[scope.row.package_type] }}/{{ transportType[scope.row.transport_type] }}
+          </p> -->
+        </template>
+        </el-table-column>
+        <!-- <el-table-column
+          label="运费参考(元)"
+          width="100"
+          prop="package_weight"
+        /> -->
+        <el-table-column
+          label="等待子包裹发货"
+          width="100"
+          prop="statusText"
+        >
+          <template slot-scope="scope">
+            <div class="goods-detail">
+              {{ scope.row.is_mark_outbound>0?'否':'是' }}
+            </div>
+          </template>
+        </el-table-column>
+        <el-table-column
+          label="订单发货状态"
+          width="100"
+          prop="statusText"
+        />
+        <el-table-column
+          label="异常类型"
+          width="80"
+          prop="exceptionText"
+        />
+        <el-table-column
+          label="订单创建时间"
+          width="150"
+          prop="order_created_time"
+        />
+        <el-table-column
+          label="订单平台状态"
+          width="110"
+          prop="orderStatusText"
+        />
+        <el-table-column
+          label="截止发货时间"
+          width="150"
+          prop="latest_ship_date"
+        />
+        <el-table-column
+          label="入库时间"
+          width="150"
+          prop="storage_time"
+        />
+        <el-table-column
+          label="出库时间"
+          width="150"
+          prop="outbound_time"
+        />
+        <el-table-column
+          label="入库图片"
+          width="80"
+        >
+          <template slot-scope="scope">
+            <el-tooltip
+              v-if="scope.row.storage_image"
+              effect="light"
+              placement="right-end"
+              :visible-arrow="false"
+              :enterable="false"
+              style="width: 56px; height: 56px"
+            >
+              <div slot="content">
+                <img :src="scope.row.storage_image" width="400px" height="400px">
+              </div>
+              <el-image
+                :src="scope.row.storage_image"
+                alt=""
+                width="56px"
+                height="56px"
+                style="border-radius: 4px; margin: 0 auto"
+              />
+            </el-tooltip>
+          </template>
+        </el-table-column>
+        <el-table-column
+          label="出库图片"
+          width="80"
+        >
+          <template slot-scope="scope">
+            <el-tooltip
+              v-if="scope.row.outbound_image"
+              effect="light"
+              placement="right-end"
+              :visible-arrow="false"
+              :enterable="false"
+              style="width: 56px; height: 56px"
+            >
+              <div slot="content">
+                <img :src="scope.row.outbound_image" width="400px" height="400px">
+              </div>
+              <el-image
+                :src="scope.row.outbound_image"
+                alt=""
+                width="56px"
+                height="56px"
+                style="border-radius: 4px; margin: 0 auto"
+              />
+            </el-tooltip>
+          </template>
+        </el-table-column>
+        <el-table-column min-width="240px" align="left" label="备注">
+          <template slot-scope="scope">
+            <p style="text-align: left">仓库备注：{{ scope.row.remark }}</p>
+            <p style="text-align: left">
+              用户备注：
+              <span
+                v-show="!(scope.row.id === activeRemarkID ? true : false)"
+              >{{ scope.row.user_remark }}</span>
+              <!-- <el-input type="text" v-model="orderRemark" size="mini"></el-input> -->
+              <el-input
+                v-if="scope.row.id === activeRemarkID ? true : false"
+                v-model="orderRemark"
+                v-focus
+                style="width: 120px"
+                placeholder="请输入备注内容"
+                size="mini"
+                @blur="changeRemark(scope.row.package_order_sn, scope.$index)"
+              />
+              <i
+                style="cursor: pointer;"
+                class="el-icon-edit-outline"
+                @click="editRemark(scope.$index, scope.row.id)"
+              />
+            </p>
+          </template>
+        </el-table-column>
+      </el-table>
+      <div class="pagination">
+        <el-pagination
+          background
+          :current-page.sync="currentPage"
+          :page-size="pageSize"
+          layout="total,sizes, prev, pager, next, jumper"
+          :total="total"
+          :page-sizes="[20, 50, 100, 200]"
+          @size-change="handleSizeChange"
+          @current-change="handleCurrentChange"
+        />
+      </div>
+    </div>
+    <!-- 采购物流单号变更弹窗 -->
+    <el-dialog
+      title="采购物流单号变更"
+      class="dialog-order"
+      width="400px"
+      top="6vh"
+      :close-on-press-escape="false"
+      :close-on-click-modal="false"
+      :visible.sync="orderVisible"
+      @closed="closeDialog1"
+    >
+      <div class="order-dialog">
+        <div class="form-item">
+          <el-input
+            v-model="newOrderSn"
+            size="mini"
+            clearable
+            placeholder="请输入新的单号"
+          />
+          <el-button
+            type="primary"
+            size="mini"
+            @click="trackingNumberChangeOrder"
+          >保存</el-button>
+        </div>
+      </div>
+    </el-dialog>
+    <!-- 批量标记颜色弹窗 -->
+    <el-dialog
+      title="标记颜色标识"
+      class="dialog-color"
+      width="400px"
+      top="6vh"
+      :close-on-press-escape="false"
+      :close-on-click-modal="false"
+      :visible.sync="colorVisible"
+      @closed="closeDialog"
+    >
+      <div class="color-dialog">
+        <div class="form-item">
+          <span class="search-title ">颜色标识：</span>
+          <el-select
+            v-model="colorLabelId1"
+            size="mini"
+            style="width: 150px"
+            clearable
+          >
+            <el-option
+              v-for="item in colorLogoList"
+              :key="item.id"
+              :label="item.label"
+              :value="item.id"
+              :style="item.color"
+            />
+          </el-select>
+          <el-button
+            type="primary"
+            size="mini"
+            @click="setColorLabel"
+          >保存</el-button>
+        </div>
+      </div>
+    </el-dialog>
+    <el-dialog
+      title="包裹数据导出"
+      :visible.sync="dialogVisible1"
+      width="380px"
+    >
+      <p style="font-size: 16px;text-align: center;">线上即将导出{{ multipleSelection.length?multipleSelection.length:total }}条仓库包裹数据，是否生成？</p>
+      <p v-if="total>65000" style="text-align: center;color:red;margin-top:10px;font-size: 16px;">最多单次导出65000条数据, 请重新选择筛选条件。</p>
+      <span slot="footer" class="dialog-footer">
+        <el-button size="small" style="width: 80px;margin:0 20px 20px" @click="dialogVisible1 = false">取 消</el-button>
+        <el-button size="small" :disabled="total>65000" style="width: 80px;margin:0 55px" type="primary" @click="dialogVisible1 = false;exportOrders(1)">确 定</el-button>
+      </span>
+    </el-dialog>
+    <!-- 设置延时退单时间弹窗 -->
+    <el-dialog
+      title="设置延迟推单时间(小时)"
+      class="dialog-delay"
+      width="400px"
+      top="6vh"
+      :close-on-press-escape="false"
+      :close-on-click-modal="false"
+      :visible.sync="delayVisible"
+      @closed="closeDialog2"
+    >
+      <div class="delay-dialog">
+        <div class="form-item">
+          <el-input
+            v-model="delayTime"
+            size="mini"
+            clearable
+            placeholder="不超过24小时"
+          />
+          <el-button
+            type="primary"
+            size="mini"
+            @click="timeDelay"
+          >保存</el-button>
+        </div>
+      </div>
+    </el-dialog>
+    <!-- 包裹详情弹窗 -->
+    <el-dialog
+      title="包裹详情"
+      class="dialog-order"
+      width="1000px"
+      top="6vh"
+      :visible.sync="dialogVisible2"
+    >
+      <div>
+        <el-table
+          ref="workbenchTable"
+          max-height="590px"
+          :data="goodsList"
+          tooltip-effect="dark"
+          style="width: 100%"
+          :header-cell-style="{
+            textAlign: 'center',
+            backgroundColor: '#f5f7fa',
+          }"
+          :cell-style="{ textAlign: 'center' }"
+          :row-style="{height: '80px'}"
+        >
+          <el-table-column
+            label="订单编号"
+            width="180"
+            prop="order_sn"
+            fixed
+          />
+          <el-table-column
+            label="商品名称"
+            width="300"
+            prop="site"
+          >
+            <template slot-scope="scope">
+              <div v-if="scope.row.goods_infos" class="goods-detail">
+                {{ scope.row.goods_infos.goods_name }}
+              </div>
+            </template>
+          </el-table-column>
+          <el-table-column
+            label="商品ID"
+            width="110"
+            prop="warehouse_name"
+          >
+            <template slot-scope="scope">
+              <div v-if="scope.row.goods_infos" class="goods-detail">
+                {{ scope.row.goods_infos.asin }}
+              </div>
+            </template>
+          </el-table-column>
+          <el-table-column
+            label="数量"
+            width="40"
+            prop="colorText"
+          >
+            <template slot-scope="scope">
+              <div v-if="scope.row.goods_infos" class="goods-detail">
+                {{ scope.row.goods_infos.goods_count }}
+              </div>
+            </template>
+          </el-table-column>
+          <el-table-column
+            label="拍单订单号"
+            width="190"
+            prop="package_order_sn"
+          >
+            <template slot-scope="scope">
+              <div v-if="scope.row.shot_order_infos" class="goods-detail">
+                {{ scope.row.shot_order_infos.shot_order_sn }}
+              </div>
+            </template>
+          </el-table-column>
+          <el-table-column
+            label="拍单时间"
+            width="90"
+            prop="goods_count"
+          >
+            <template slot-scope="scope">
+              <div v-if="scope.row.shot_order_infos" class="goods-detail">
+                {{ scope.row.shot_order_infos.shotted_at }}
+              </div>
+            </template>
+          </el-table-column>
+          <el-table-column
+            label="物流单号"
+            width="130"
+          >
+            <template slot-scope="scope">
+              <div v-if="scope.row.goods_package_code_infos">
+                {{ scope.row.goods_package_code_infos.package_code }}
+              </div>
+            </template>
+          </el-table-column>
+          <el-table-column
+            label="状态"
+            width="70"
+          > <template slot-scope="scope">
+            <p v-if="scope.row.package_infos&&scope.row.package_infos.status>0">
+              {{ packageStatusList[scope.row.package_infos.status] }}
+            </p>
+          </template>
+          </el-table-column>
+          <el-table-column
+            label="签收时间"
+            width="90"
+          > <template slot-scope="scope">
+            <p v-if="scope.row.package_infos">{{ scope.row.package_infos.package_time }}</p>
+          </template>
+          </el-table-column>
+          <el-table-column
+            label="包裹签收图片"
+            width="90"
+          >
+            <template slot-scope="scope">
+              <el-tooltip
+                v-if="scope.row.package_infos"
+                effect="light"
+                placement="right-end"
+                :visible-arrow="false"
+                :enterable="false"
+                style="width: 56px; height: 56px"
+              >
+                <div slot="content">
+                  <img :src="scope.row.package_infos.package_image" width="400px" height="400px">
+                </div>
+                <el-image
+                  :src="scope.row.package_infos.package_image"
+                  alt=""
+                  width="56px"
+                  height="56px"
+                  style="border-radius: 4px; margin: 0 auto"
+                />
+              </el-tooltip>
+            </template>
+          </el-table-column>
+          <!--  <el-table-column
+            label="申请赔付"
+            width="120"
+          > <template slot-scope="scope">
+            <p><el-button
+              type="primary"
+              size="mini"
+            >申请赔付</el-button></p>
+          </template>
+          </el-table-column> -->
+        </el-table>
+      </div>
+      <p slot="footer" style="text-align: center;">
+
+        <el-button size="mini" style="width: 80px;margin:0 30px 10px" type="primary" @click="dialogVisible2 = false">关 闭</el-button>
+      </p>
+    </el-dialog>
+
+    <!-- 增值服务 -->
+    <el-dialog
+      title="添加增值服务"
+      :visible.sync="dialogExtService"
+      width="400px"
+    >
+      <div class="exe_itemAll">
+        <div class="exe_item">
+          <span>
+            增值服务:
+          </span>
+          <el-select v-model="extParams.name" size="mini" style="width:200px">
+            <!-- <el-option v-for="item in list" :value="" :label=""></el-option> -->
+            <el-option value="1" label="测试" />
+          </el-select>
+        </div>
+        <div class="exe_item">
+          <span>
+            服务价格:
+          </span>
+          <el-input v-model="extParams.price" clearable size="mini" style="width:200px" onkeyup="value=value.replace(/[^\d]/g,'')" />
+        </div>
+        <div class="exe_item">
+          <span>
+            服务备注:
+          </span>
+          <el-input v-model="extParams.remark" clearable size="mini" style="width:200px" onkeyup="value=value.replace(/[^\d]/g,'')" />
+        </div>
+        <div class="exe_item">
+          <!-- <el-button size="mini" @click="dialogExtService = false">取 消</el-button> -->
+          <!-- <div style="width:30px" /> -->
+          <el-button type="primary" size="mini" @click="extService()">确 定</el-button>
+        </div>
+      </div>
+    </el-dialog>
+
+    <!-- 同步数据至仓库 -->
+    <el-dialog
+      title="同步数据至仓库"
+      :visible.sync="dialog_compareData"
+      width="950px"
+    >
+      <div class="compareData_allItem">
+        <div class="compareData_item">
+          <span>
+            温馨提示：1：请务必确认订单对应店铺绑定的仓库是否正确
+          </span>
+          <span>
+            温馨提示：2：若店铺同时绑定了国内仓和海外仓，则通过采购平台区分
+            (Lazada和Shopeeman默认为海外仓，其余默认国内仓，自有商品无法识别)
+          </span>
+          <span>
+            温馨提示：3：若店铺绑定的自有仓库，请重新绑定仓库，否则无法将数同步至仓库
+            ，将导致您的商品无法出库！！！
+          </span>
+        </div>
+
+        <div class="compareData_item">
+          <el-table :data="compareDataList">
+            <el-table-column prop="" label="站点" min-width="80px" align="center" />
+            <el-table-column prop="" label="店铺名称" min-width="150px" align="center" />
+            <el-table-column prop="" label="采购类型" min-width="100px" align="center" />
+            <el-table-column prop="" label="当前绑定仓库" min-width="200px" align="center" />
+            <el-table-column prop="" label="是否可同步" min-width="100px" align="center" />
+            <el-table-column prop="" label="主订单数" min-width="100px" align="center" />
+            <el-table-column prop="" label="提示" min-width="200px" align="center" />
+            <el-table-column prop="" label="操作" min-width="200px" align="center">
+              <div>
+                <el-button size="mini" type="primary">选择仓库</el-button>
+              </div>
+            </el-table-column>
+          </el-table>
+        </div>
+        <div style="display:flex;justify-content: center;margin-top:10px">
+          <el-button size="mini" type="primary">确  定</el-button>
+        </div>
+      </div>
+    </el-dialog>
+
+  </div>
 </template>
 
 <script>
-export default {
+// import { getSites, getMalls, colorLabelList, creatDate } from '../../utils/index'
+import { getValue, creatDate, colorLabelList } from '../../../util/util'
+import { statusList, exceptionList, orderStatusList, packageStatusList } from './warehouse'
+import storeChoose from '../../../components/store-choose.vue'
 
+export default {
+  components: {
+    storeChoose // 店铺选择组件
+  },
+  directives: {
+    focus: {
+      inserted(el, binding, vnode) {
+        // 聚焦元素
+        el.querySelector('input').focus()
+      }
+    }
+  },
+  data() {
+    return {
+      compareDataList: [],
+      dialog_compareData: true, // 同步数据至仓库
+      dialogExtService: false, // 增值弹窗
+      extParams: { // 增值参数
+        packageOrderSns: '',
+        name: '',
+        price: '',
+        remark: ''
+      },
+      orderPackageLoading: false,
+      isLoading: false, // 加载页面
+      tableData: [], // 表格数据
+      multipleSelection: [], // 表格多选数据
+      currentPage: 1, // 当前页\
+      pageSize: 20,
+      site: '', // 站点
+      total: 0, // 数据总条数
+      siteList: [ // 站点列表
+        {
+          label: '全部',
+          value: ''
+        }
+      ],
+      shopGroup: [], // 店铺分组
+      shopGroupList: [ // 店铺分组列表
+        {
+          label: '店铺1',
+          value: '1'
+        },
+        {
+          label: '店铺2',
+          value: '2'
+        }
+      ],
+      shopAccount: [], // 店铺账号选择
+      shopAccountList: [ // 店铺账号列表
+
+      ],
+      activeRemarkID: 0,
+      orderRemark: '',
+      createdTime: [], // 订单创建时间
+      deliveryStatus: '', // 订单发货状态
+      deliverStateList: statusList, // 订单发货状态列表
+      exceptionType: '', // 包裹异常类型
+      abnormalTypeList: exceptionList, // 包裹异常类型列表
+      packageStatusList: packageStatusList, // 包裹状态列表
+      goodsPackageStatusList: ['', '已签收,未拣货', '已拣货', '申请退件', '已退件', '未签收'], // 商品包裹状态
+      statuoriginalTrackingNumbers: '', // 采购物流单号
+      storageTime: [], // 包裹入库时间
+      packageOrderSn: '', // 订单编号
+      colorLabelId: '', // 颜色标识
+      colorLabelId1: '', // 标记弹窗选择颜色标识
+      colorLogoList: [],
+      outboundTime: [], // 包裹出库时间
+      colorVisible: false, // 显示标记颜色弹窗
+      orderVisible: false, // 显示采购物流单号变更弹窗
+      delayVisible: false, // 显示设置延时退单时间弹窗
+      newOrderSn: '', // 填写的变更单号
+      delayTime: '24', // 设置延时退单时间
+      exportOrderList: [],
+      dialogVisible1: false,
+      dialogVisible2: false,
+      goodsList: [],
+      transportType: ['海运', '空运', '陆运'],
+      packageType: ['', '普货', '敏感货', '商检货'],
+      isExport: false,
+      exportIndex: 0,
+      exportNum: 0,
+      pickerOptions: {
+        disabledDate: time => {
+          return time.getTime() > Date.now()
+        }
+      }
+    }
+  },
+  mounted() {
+    this.createdTime = creatDate(7)
+    this.getInfo()
+    this.orderPackage()
+    // this.userInfo()
+  },
+  methods: {
+    // 增值服务
+    extService_visible() {
+      if (!this.multipleSelection.length) {
+        this.$message.warning('请勾选需要操作的数据')
+        return false
+      }
+      this.dialogExtService = true
+    },
+    async extService() {
+      if (this.extParams.name === '' || this.extParams.price === '') {
+        this.$notify({
+          type: 'error',
+          message: '服务名、价格不能为空'
+        })
+      } else {
+        this.extParams.packageOrderSns = this.multipleSelection.toString()
+        const params = this.extParams
+        const data = await this.$api.uploadExtService(params)
+        console.log('---------', data)
+        if (data.data.code === 200) {
+          this.$notify({
+            type: 'success',
+            message: '操作成功'
+          })
+        } else {
+          let message = ''
+          for (let i = 0; i < data.data.data.length; i++) {
+            const temp = data.data.data[i]
+            if (temp.code !== 200) {
+              message = temp.message
+              break
+            }
+          }
+          this.$notify({
+            type: 'error',
+            // message: message
+            message: data.data.message
+
+          })
+        }
+        this.setSelect()
+        this.orderPackage()
+        this.isLoading = false
+      }
+    },
+    // 表格多选
+    handleSelectionChange(val) {
+      this.multipleSelection = val
+    },
+    // 页数切换
+    handleCurrentChange() {
+      this.orderPackage()
+    },
+    handleSizeChange(val) {
+      this.pageSize = val
+      this.currentPage = 1
+      this.orderPackage()
+    },
+    // 关闭标记颜色弹窗
+    closeDialog() {
+      this.colorLabelId1 = this.colorLogoList[0].id || ''
+      this.setSelect()
+      this.colorVisible = false
+    },
+    // 关闭采购物流单号变更弹窗
+    closeDialog1() {
+      this.setSelect()
+      this.orderVisible = false
+    },
+    // 关闭设置延时退单时间弹窗
+    closeDialog2() {
+      this.delayVisible = false
+    },
+    async getInfo() {
+      colorLabelList().then(res => {
+        console.log('color', res)
+        this.colorLogoList = res
+        this.colorLabelId1 = res[0].id
+      })
+      // getSites().then(res => {
+      //   this.siteList = this.siteList.concat(res)
+      // })
+      // getMalls().then(res => {
+      //   this.shopAccountList = res
+      //   this.orderPackage()
+      // })
+    },
+    setMallId(ids) {
+      this.shopAccount = ids || []
+      console.log(this.shopAccount, ids)
+    },
+    // 查询列表
+    async orderPackage() {
+      this.orderPackageLoading = true
+      this.tableData = []
+      this.isLoading = true
+      const sysMallIds = this.shopAccount.join(',')
+      const query = {
+        page: this.currentPage,
+        pageSize: this.pageSize,
+        status: '',
+        packageOrderSn: this.packageOrderSn,
+        originalTrackingNumber: this.statuoriginalTrackingNumbers,
+        exceptionType: this.exceptionType,
+        deliveryStatus: this.deliveryStatus,
+        colorLabelId: this.colorLabelId,
+        sysMallIds
+      }
+      if (this.createdTime && this.createdTime.length) {
+        query.createdTime = this.setDateFmt(this.createdTime).join('/')
+      }
+      if (this.storageTime && this.storageTime.length) {
+        query.storageTime = this.setDateFmt(this.storageTime).join('/')
+      }
+      if (this.outboundTime && this.outboundTime.length) {
+        query.outboundTime = this.setDateFmt(this.outboundTime).join('/')
+      }
+
+      try {
+        const res = await this.$api.orderPackage(query)
+        const data = res.data
+        console.log(data, '---')
+        if (data.code === 200) {
+          this.total = data.data.total
+          // this.pageSize = data.data.per_page
+          const list = data.data.data
+          for (let i = 0; i < list.length; i++) {
+            const item = list[i]
+            if (this.site !== '' && item.country !== this.site) {
+              continue
+            }
+            item.mall_alias_name = getValue(this.shopAccountList, 'label', 'id', item.sys_mall_id)
+            item.site = getValue(this.siteList, 'label', 'value', item.country)
+            item.statusText = getValue(statusList, 'label', 'deliveryStatus', item.delivery_status)
+            item.exceptionText = getValue(exceptionList, 'label', 'exception_type', item.exception_type)
+            item.orderStatusText = getValue(orderStatusList, 'label', 'order_status', item.order_status)
+            item.colorText = getValue(this.colorLogoList, 'label', 'id', item.color_id) || '无'
+            this.tableData.push(item)
+          }
+          // this.tableData = data.data.data
+        } else {
+          this.$notify({
+            type: 'error',
+            message: data.message
+          })
+        }
+        this.isLoading = false
+      } catch (err) {
+        console.log(err)
+        this.isLoading = false
+        // this.$message.error('查询失败')
+      }
+      this.orderPackageLoading = false
+    },
+    // 重置列表勾选状态
+    setSelect() {
+      this.tableData.forEach(row => {
+        this.$refs.workbenchTable.toggleRowSelection(row, false)
+      })
+    },
+    // 标记无需等待子包裹
+    async setNoWait() {
+      if (!this.multipleSelection.length) {
+        this.$message.warning('请勾选需要操作的数据')
+        return
+      }
+      this.isLoading = true
+      let id = ''
+      const list = this.multipleSelection
+      id = list[0].id
+      for (let i = 1; i < list.length; i++) {
+        const item = list[i]
+        id += ',' + item.id
+      }
+      try {
+        const query = {
+          id
+        }
+        const res = await this.$api.setNoWait(query)
+        const data = res.data
+        if (data.code === 200) {
+          this.$notify({
+            type: 'success',
+            message: '操作成功'
+          })
+        } else {
+          let message = ''
+          for (let i = 0; i < data.data.length; i++) {
+            const temp = data.data[i]
+            if (temp.code !== 200) {
+              message = temp.message
+              break
+            }
+          }
+          this.$notify({
+            type: 'error',
+            message: message
+          })
+        }
+        this.setSelect()
+        this.orderPackage()
+        this.isLoading = false
+      } catch (err) {
+        this.setSelect()
+        console.log(err)
+        this.isLoading = false
+      }
+    },
+    // 标记需仓库紧急处理
+    async markOrderNeedDeal() {
+      if (!this.multipleSelection.length) {
+        this.$message.warning('请勾选需要操作的数据')
+        return
+      }
+      this.isLoading = true
+      let id = ''
+      const list = this.multipleSelection
+      id = list[0].id
+      for (let i = 1; i < list.length; i++) {
+        const item = list[i]
+        id += ',' + item.id
+      }
+      try {
+        const query = {
+          id
+        }
+        const res = await this.$api.markOrderNeedDeal(query)
+        const data = res.data
+        if (data.data.code === 200) {
+          this.$notify({
+            type: 'success',
+            message: '操作成功'
+          })
+        } else {
+          let message = ''
+          for (let i = 0; i < data.data.length; i++) {
+            const temp = data.data[i]
+            if (temp.code !== 200) {
+              message = temp.message
+              break
+            }
+          }
+          this.$notify({
+            type: 'error',
+            message: message
+          })
+        }
+        this.setSelect()
+        this.orderPackage()
+        this.isLoading = false
+      } catch (err) {
+        console.log(err)
+        this.setSelect()
+        this.isLoading = false
+      }
+    },
+    // 通知仓库发货，暂停发货
+    async noticeTodeliver(isDelivery) {
+      if (!this.multipleSelection.length) {
+        this.$message.warning('请勾选需要操作的数据')
+        return
+      }
+      this.isLoading = true
+      let id = ''
+      const list = this.multipleSelection
+      id = list[0].id
+      for (let i = 1; i < list.length; i++) {
+        const item = list[i]
+        id += ',' + item.id
+      }
+      try {
+        const query = {
+          id,
+          isDelivery
+        }
+        const res = await this.$api.noticeTodeliver(query)
+        const data = res.data
+        console.log('data', data.data)
+        if (data.code === 200) {
+          this.$notify({
+            type: 'success',
+            message: '操作成功'
+          })
+          this.setSelect()
+          this.orderPackage()
+        } else {
+          this.$notify({
+            type: 'error',
+            message: data.message
+          })
+        }
+
+        this.isLoading = false
+      } catch (err) {
+        this.setSelect()
+        console.log(err)
+        this.isLoading = false
+      }
+    },
+    editRemark(index, activeRemarkID) {
+      this.activeRemarkID = activeRemarkID
+      this.orderRemark = this.tableData[index].user_remark
+    },
+    // 修改单个备注
+    async changeRemark(id, activeOrder) {
+      const { data } = await this.$api.setUserRemark({
+        packageOrderSn: id,
+        remark: this.orderRemark
+      })
+      if (data.code === 200) {
+        this.$notify({
+          title: '备注管理',
+          type: 'success',
+          message: `设置备注成功`
+        })
+        this.tableData[activeOrder].user_remark = this.orderRemark
+        this.isfocus = true
+        this.activeRemarkID = ''
+        return
+      }
+      this.$notify({
+        title: '备注管理',
+        type: 'error',
+        message: data.message
+      })
+      this.activeRemarkID = ''
+    },
+    // 采购物流单号变更
+    trackingNumberChangeOrderFun() {
+      if (!this.multipleSelection.length || this.multipleSelection.length > 1) {
+        this.$message.warning('请勾选一条需要操作的数据')
+        return
+      }
+      this.orderVisible = true
+    },
+    async trackingNumberChangeOrder() {
+      if (this.newOrderSn === '') {
+        this.$notify('', '请填写新的单号', 'error')
+        return
+      }
+      this.isLoading = true
+      const list = this.multipleSelection
+      try {
+        const query = {
+          trackingNumber: list[0].platform_tracking_number,
+          primaryOrderSn: list[0].package_order_sn,
+          orderSn: this.newOrderSn
+        }
+        const res = await this.$api.trackingNumberChangeOrder(query)
+        const data = res.data
+        if (data.code === 200) {
+          this.$notify({
+            type: 'success',
+            message: '操作成功'
+          })
+          this.orderPackage()
+        } else {
+          this.$notify({
+            type: 'error',
+            message: data.message
+          })
+        }
+        this.setSelect()
+        this.orderVisible = false
+        this.isLoading = false
+      } catch (err) {
+        this.setSelect()
+        this.orderVisible = false
+        console.log(err)
+        this.isLoading = false
+      }
+    },
+    // 设置订单颜色标识
+    setColorLabelFun() {
+      if (!this.multipleSelection.length) {
+        this.$message.warning('请勾选需要操作的数据')
+        return
+      }
+      this.colorVisible = true
+    },
+    async setColorLabel() {
+      this.isLoading = true
+      let sysOrderIds = ''
+      const list = this.multipleSelection
+      sysOrderIds = list[0].id
+      for (let i = 1; i < list.length; i++) {
+        const item = list[i]
+        sysOrderIds += ',' + item.id
+      }
+      try {
+        const query = {
+          sysOrderIds,
+          id: this.colorLabelId1
+        }
+        const res = await this.$api.setColorLabel(query)
+        const data = res.data
+        if (data.code === 200) {
+          this.$notify({
+            type: 'success',
+            message: '操作成功'
+          })
+        } else {
+          let message = ''
+          for (let i = 0; i < data.data.length; i++) {
+            const temp = data.data[i]
+            if (temp.code !== 200) {
+              message = temp.message
+              break
+            }
+          }
+          this.$notify({
+            type: 'error',
+            message: message
+          })
+        }
+        this.setSelect()
+        this.colorVisible = false
+        this.orderPackage()
+        this.isLoading = false
+      } catch (err) {
+        this.setSelect()
+        this.colorVisible = false
+        console.log(err)
+        this.isLoading = false
+      }
+    },
+    // 设置延时退单时间
+    // 获取用户信息
+    userInfo() {
+      let delayTime = localStorage.getItem('delayTime')
+      if (!Number(delayTime)) {
+        this.$api.userInfo().then(res => {
+          if (res.data.code === 200) {
+            delayTime = res.data.data.xzyDelayedTime ? res.data.data.xzyDelayedTime : 24
+            localStorage.setItem('delayTime', delayTime)
+          }
+        })
+      }
+      this.delayTime = delayTime
+    },
+    timeDelayFun() {
+      this.delayVisible = true
+    },
+    timeDelay() {
+      const delayTime = this.delayTime - 0
+      if (delayTime === '') {
+        this.$notify('', '请输入延迟时间', 'error')
+        return
+      }
+      if (delayTime > 24) {
+        this.$notify('', '时间不能超过24小时', 'error')
+        return
+      }
+      if (delayTime < 10) {
+        this.$notify('', '时间不能少于10小时', 'error')
+        return
+      }
+      const query = {
+        xzyDelayedTime: Math.round(delayTime)
+      }
+      this.$api.timeDelay(query).then(res => {
+        console.log(res)
+        if (res.data.code === 200) {
+          this.$notify({
+            type: 'success',
+            message: '设置成功'
+          })
+        } else {
+          this.$notify({
+            type: 'error',
+            message: res.data.message
+          })
+        }
+        this.closeDialog2()
+      }).catch(() => {
+        this.closeDialog2()
+      })
+    },
+    // 日期选择器时间处理
+    setDateFmt(data) {
+      data[0] = data[0].length > 15 ? data[0] : data[0] + ' 00:00:00'
+      data[1] = data[1].length > 15 ? data[1] : data[1] + ' 23:59:59'
+      return data
+    },
+    // 查看包裹信息弹窗
+    async getGoodsInfo(packageOrderSn) {
+      const params = { packageOrderSn }
+      const { data } = await this.$api.getGoodsInfo({ params })
+      if (data.code === 200) {
+        this.goodsList = data.data
+        this.dialogVisible2 = true
+      } else {
+        this.$notify({
+          type: 'error',
+          message: data.message
+        })
+      }
+    },
+    // 导出
+    tableToExcel() {
+      // 要导出的json数据
+      if (this.multipleSelection.length > 0) {
+        this.importBilling([this.multipleSelection])
+      } else {
+        if (!this.total) {
+          return this.$notify({
+            title: '订单信息',
+            type: 'warning',
+            message: `没有可以导出的订单`
+          })
+        }
+        this.exportOrderList = []
+        this.dialogVisible1 = true
+      }
+    },
+    // 实时导出
+    async  exportOrders(page, isRef) {
+      this.isExport = this.isExport ? this.isExport : new Date() - 0
+      const params = {
+        status: '',
+        packageOrderSn: this.packageOrderSn,
+        statuoriginalTrackingNumbers: this.statuoriginalTrackingNumbers,
+        exceptionType: this.exceptionType,
+        deliveryStatus: this.deliveryStatus,
+        colorLabelId: this.colorLabelId,
+        sysMallIds: this.shopAccount.join(',')
+      }
+      params.page = page
+      params.pageSize = 200
+      params.isExport = this.isExport
+      if (this.createdTime && this.createdTime.length) {
+        params.createdTime = this.setDateFmt(this.createdTime).join('/')
+      }
+      if (this.storageTime && this.storageTime.length) {
+        params.storageTime = this.setDateFmt(this.storageTime).join('/')
+      }
+      if (this.outboundTime && this.outboundTime.length) {
+        params.outboundTime = this.setDateFmt(this.outboundTime).join('/')
+      }
+      const { data } = await this.$api.orderPackage(params)
+      console.log(data, 2222)
+      if (data && data.data && data.data.data) {
+        const newData = data.data.data
+        for (let i = 0; i < newData.length; i++) {
+          const item = newData[i]
+          if (this.site !== '' && item.country !== this.site) {
+            continue
+          }
+          item.mall_alias_name = getValue(this.shopAccountList, 'label', 'id', item.sys_mall_id)
+          item.site = getValue(this.siteList, 'label', 'value', item.country)
+          item.statusText = getValue(statusList, 'label', 'deliveryStatus', item.delivery_status)
+          item.exceptionText = getValue(exceptionList, 'label', 'exception_type', item.exception_type)
+          item.orderStatusText = getValue(orderStatusList, 'label', 'order_status', item.order_status)
+          item.colorText = getValue(this.colorLogoList, 'label', 'id', item.color_id) || '无'
+        }
+        this.total = data.data.total
+        if (this.exportOrderList[this.exportIndex]) {
+          this.exportOrderList[this.exportIndex].push(...newData)
+        } else {
+          this.exportOrderList[this.exportIndex] = newData
+        }
+        if (this.exportOrderList[this.exportIndex].length >= 10000) {
+          this.exportOrderList[this.exportIndex + 1] = []
+          this.exportIndex++
+        }
+        this.exportNum = this.exportIndex * 10000 + this.exportOrderList[this.exportIndex].length
+        if (this.exportNum >= this.total) {
+          this.isExport = false
+          this.importBilling(this.exportOrderList)
+          //  loading.close()
+        } else {
+          this.exportOrders(params.page + 1)
+        }
+      } else {
+        if (isRef) {
+          this.isExport = false
+
+          this.$notify({
+            title: '仓库管理',
+            type: 'error',
+            message: data.message
+          })
+        } else {
+          this.exportOrders(params.page, true)
+        }
+      }
+    },
+    // 生成导出文件--订单
+    importBilling(exportOrderList) {
+      console.log(exportOrderList, this.exportIndex)
+      let num = 1
+      let str = `<tr><td>编号</td><td>店铺名称</td><td>站点</td><td>仓库</td><td>颜色标识</td><td>订单编号</td><td>数量</td><td>商品名称</td><td>包裹重量(g)</td><td>运输方式</td><td>货物类型</td><td>是否等待子包裹发货</td>
+            <td>订单发货状态</td><td>异常类型</td><td>订单创建时间</td><td>订单平台状态</td><td>截止发货时间</td><td>入库时间</td><td>出库时间</td>
+            <td>入库图片</td><td>出库图片</td><td>仓库备注</td><td>用户备注</td>
+            </tr>`
+      for (let index = 0; index <= this.exportIndex; index++) {
+        const jsonData = exportOrderList[index]
+        console.log(jsonData)
+        jsonData.forEach(item => {
+          str += `<tr><td>${num++}</td>
+                <td>${item.mall_alias_name}</td>
+                <td>${item.site + '\t'}</td>
+                <td>${item.warehouse_name}</td>
+                <td>${item.colorText ? item.colorText : ''}</td>
+                <td style="mso-number-format:'\@';">${item.package_order_sn ? item.package_order_sn : ''}</td>
+                <td>${item.goods_count ? item.goods_count : ''}</td>
+                <td>${item.goods_name ? item.goods_name : ''}</td>
+                <td>${item.package_weight ? item.package_weight : ''}</td>
+                <td>${item.transport_type ? this.transportType[item.transport_type] : ''}</td>
+                <td>${item.package_type ? this.packageType[item.package_type] : ''}</td>
+                <td>${item.is_mark_outbound > 0 ? '否' : '是'}</td>
+                <td>${item.statusText ? item.statusText : ''}</td>
+                <td>${item.exceptionText ? item.exceptionText : ''}</td>
+                <td>${item.order_created_time}</td>
+                <td>${item.orderStatusText ? item.orderStatusText : ''}</td>
+                <td>${item.latest_ship_date ? item.latest_ship_date : ''}</td>
+                <td>${item.storage_time ? item.storage_time : ''}</td>
+                <td>${item.outbound_time ? item.outbound_time : ''}</td>
+                <td>${item.storage_image ? item.storage_image : '' + '\t'}</td>
+                 <td>${item.outbound_image ? item.outbound_image : '' + '\t'}</td>
+              <td>${item.remark ? item.remark : '' + '\t'}</td>
+               <td>${item.user_remark ? item.user_remark : '' + '\t'}</td>
+                </tr>`
+        })
+      }
+      // Worksheet名
+      const worksheet = `仓库包裹数据${new Date(Date.now() + 8 * 3600 * 1000)
+        .toISOString()
+        .slice(0, 10)}`
+      // const uri = 'data:application/vnd.ms-excel;base64,'
+
+      // 下载的表格模板数据
+      const template = `<html xmlns:o="urn:schemas-microsoft-com:office:office"
+                xmlns:x="urn:schemas-microsoft-com:office:excel"
+                xmlns="http://www.w3.org/TR/REC-html40">
+                <head><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet>
+                  <x:Name>${worksheet}</x:Name>
+                  <x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet>
+                  </x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]-->
+                  </head><body><table>${str}</table></body></html>`
+      // 下载模板
+      // let template = templates.replace(/<td/g,`<td style="mso-number-format:'\@';"`)
+      const blob = new Blob([template], { type: 'html', name: worksheet })
+      const a = document.createElement('a')
+      document.body.appendChild(a)
+      // a.href = uri + this.base64(template)
+      a.href = URL.createObjectURL(blob)
+      a.download = `仓库包裹数据${new Date(Date.now() + 8 * 3600 * 1000)
+        .toISOString()
+        .replace(/T/g, ' ').replace(/\.[\d]{3}Z/, '')
+        .slice(0, 20)}.xls`
+      a.click()
+      document.body.removeChild(a)
+    },
+    // 点击复制
+    copy(attr) {
+      const target = document.createElement('div')
+      target.id = 'tempTarget'
+      target.style.opacity = '0'
+      target.innerText = attr
+      document.body.appendChild(target)
+      try {
+        const range = document.createRange()
+        range.selectNode(target)
+        window.getSelection().removeAllRanges()
+        window.getSelection().addRange(range)
+        document.execCommand('copy')
+        window.getSelection().removeAllRanges()
+        this.$notify({
+          type: 'success',
+          message: '复制成功'
+        })
+      } catch (e) {
+        // console.log('复制失败')
+      }
+      target.parentElement.removeChild(target)
+    }
+  }
 }
 </script>
 
-<style>
+<style lang="less" scoped>
+
+.workbench {
+  min-width: 1200px;
+  padding: 0 5px;
+     /deep/ .el-table .cell {
+      padding-left: 2px !important;
+      padding-right: 2px !important;
+      line-height: 18px !important;
+    }
+    .copyIcon {
+      color: var(--themeColor);
+      margin-left: 1px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+  .top-box {
+      display: flex;
+      overflow-x: auto;
+    .operate {
+      width: 320px;
+      height: 245px;
+      padding: 15px;
+      border-radius: 10px;
+      background: #fff;
+      .btn-items {
+        display: flex;
+        align-items: center;
+        height: 36px;
+        .el-button {
+          width: 140px;
+          height: 28px;
+        }
+      }
+    }
+
+    .search-list {
+      width: 100%;
+      height: 245px;
+      padding: 15px;
+      border-radius: 10px;
+      background: #fff;
+      margin-left: 15px;
+      min-width:854px;
+      .form-items {
+        display: flex;
+        flex-wrap: wrap;
+        .select-item{
+          margin-right:5px;
+          margin-bottom:5px;
+           .search-title {
+            // width: 98px;
+            text-align: right;
+          }
+        }
+
+      }
+    }
+
+    .title {
+      font-size: 16px;
+      font-weight: bold;
+      line-height: 23px;
+      letter-spacing: 1px;
+    }
+
+    .line {
+      margin: 10px 0;
+      width: 100%;
+      height: 2px;
+      background: rgb(223, 223, 223);
+    }
+  }
+  .m-80{
+    width: 80px;
+    height: 30px;
+    line-height: 13px;
+  }
+  .table-box {
+    margin-top: 15px;
+    width: 100%;
+    height: 100%;
+    padding: 15px;
+    border-radius: 10px;
+    background: #fff;
+
+    .goods-detail {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+    }
+
+    .pagination {
+      margin-top: 10px;
+      display: flex;
+      justify-content: flex-end;
+    }
+  }
+
+  .dialog-order {
+
+    .order-dialog {
+      margin-top: -20px;
+    }
+  }
+
+  .dialog-color {
+
+    .color-dialog {
+      height: 280px;
+      margin-top: -20px;
+    }
+  }
+
+  .dialog-delay {
+
+    .delay-dialog {
+      height: 40px;
+      margin-top: -20px;
+    }
+  }
+
+  .form-item {
+    display: flex;
+    align-items: center;
+
+    .el-button {
+      margin-left: 20px;
+    }
+  }
+
+  .tra {
+    margin: 0 5px;
+  }
+
+  /deep/.el-select {
+    .el-tag:first-of-type {
+      display: flex;
+      align-items: center;
+
+      .el-select__tags-text {
+        // display: inline-block;
+        max-width: 48px;
+        overflow: hidden;
+      }
+    }
+  }
+  .exe_itemAll{
+    display: flex;
+    flex-flow: column;
+    align-items: center;
+    justify-content: center;
+    .exe_item{
+       margin-bottom: 10px;
+        display: flex;
+        span{
+          margin-right: 5px;
+        }
+    }
+  }
+  .compareData_allItem{
+
+    .compareData_item{
+      display: flex;
+      flex-flow: column;
+      font-size: smaller;
+      color: rebeccapurple;
+      span{
+        margin-bottom: 5px;
+      }
+    }
+  }
+}
+@media screen and (max-width: 1335px) {
+
+}
 </style>

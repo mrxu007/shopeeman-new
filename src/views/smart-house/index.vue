@@ -10,16 +10,19 @@
   <div class="catch-notice-style">
     <!--爆款选品 -->
     <main v-if="activeVal === '0'"><SmartHouseWorkBench /></main>
+    <main v-if="activeVal === '1'"><Refusesign /></main>
   </div>
 </template>
 
 <script>
 import {
-  SmartHouseWorkBench
+  SmartHouseWorkBench,
+  Refusesign
 } from './index'
 export default {
   components: {
-    SmartHouseWorkBench
+    SmartHouseWorkBench,
+    Refusesign
   },
   data() {
     return {
