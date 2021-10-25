@@ -3,6 +3,14 @@ export default class YipService {
     return window['CommodityBridgeService']
   }
   /**
+       *  ip信息解密
+       * @name : GetIPinfor
+       * @param  {ipinfo} //ipinfo信息
+       */
+  async GetIPinfor(ipinfo) {
+    return await this.nativeService().callSafeUtil('AesDecrypt', ipinfo, '')
+  }
+  /**
        *  获取IP区域列表
        * @name : GetCloudIPAreaList
        * @param  {*}

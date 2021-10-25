@@ -5,6 +5,37 @@ import userInfo from './application-config'
 export default class CommodityService {
   user = ''
   nativeService = window['CommodityBridgeService'];
+
+  /**
+   * 新增公司主体(系统)
+   * @param {string} uid 主账号ID
+   * @param {string} targetId 代理系统ip
+   * @param {string} mallIds 系统店铺id
+   */
+  newBangdingMall(uid, targetId, mallIds) {
+    return this.nativeService.callCloudIpFunction('NewBindingMallBySysMallId', uid, targetId, mallIds)
+  }
+
+  /**
+   * 新增公司主体(系统)
+   * @param {string} lineId 线路id
+   * @param {string} uid 主账号ID
+   * @param {string} 子账号ID
+   * @param {string} ipAlias 主体名称
+   * @param {string} num 购买数量
+   * @param {string} period 购买时长
+   * @param {string} isPresale 是否预售
+   */
+  addIPMaster(parmas) {
+    return this.nativeService.callCloudIpFunction('BuyCloudIP',
+      parmas.lineId.toString(),
+      parmas.uid.toString(),
+      parmas.uuid.toString(),
+      parmas.ipAlias.toString(),
+      parmas.num.toString(),
+      parmas.period.toString(),
+      parmas.isPresale.toString())
+  }
   /**
    * 获取商品详情
    * @param {number} sysId 商品id
@@ -484,8 +515,8 @@ export default class CommodityService {
     } = data
     return this.nativeService.callCategoryFunction('UploadTbCatAttr', categoryId + '', JSON.stringify(dataSource))
   }
-/**
- * @name : 
+  /**
+ * @name :
  * @param  {
  * page:1,
  * country:'MY'
@@ -496,28 +527,28 @@ export default class CommodityService {
  * }
   站点选择全部的时候 country为null
   parentCategoryTree：类目id父级集合
- */  
- getBlackCategory(data) {
-  return this.nativeService.callCategoryFunction('GetCategoryBlackList',JSON.stringify(data))
-}
-/**
- * @name : 
+ */
+  getBlackCategory(data) {
+    return this.nativeService.callCategoryFunction('GetCategoryBlackList', JSON.stringify(data))
+  }
+  /**
+ * @name :
  * @param  {
- * data[0] categoryId:类目id,  
+ * data[0] categoryId:类目id,
  * data[1] country:站点,
  * data[2] categoryPTree:[]父级类目id集合
  * }
  */
- addBlackCategory(data) {
-  return this.nativeService.callCategoryFunction('AddCategoryBlackInfo',data[0]+'',data[1]+'',data[2]+'')
-}
-/**
- * @name : 
+  addBlackCategory(data) {
+    return this.nativeService.callCategoryFunction('AddCategoryBlackInfo', data[0] + '', data[1] + '', data[2] + '')
+  }
+  /**
+ * @name :
  * @param  {
  * id:黑名单id（系统id）
  * }
  */
- deleteBlackCategory(id) {
-  return this.nativeService.callCategoryFunction('DeleteCategoryBlackInfo',id+'')
-}
+  deleteBlackCategory(id) {
+    return this.nativeService.callCategoryFunction('DeleteCategoryBlackInfo', id + '')
+  }
 }
