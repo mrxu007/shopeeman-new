@@ -173,7 +173,7 @@
           <el-pagination
             background
             :current-page="page"
-            :page-sizes="[2, 3, 1500, 2000]"
+            :page-sizes="[700, 1000, 1500, 2000]"
             :page-size="pageSize"
             layout="total, sizes, prev, pager, next, jumper"
             :total="total"
@@ -198,7 +198,7 @@ export default {
     return {
       page: 1,
       total: 0,
-      pageSize: 2,
+      pageSize: 700,
       isLoading: false,
       percentage: 0, // 进度条数据
       isShowProgress: false,
