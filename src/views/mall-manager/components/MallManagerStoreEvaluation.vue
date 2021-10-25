@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-10-08 14:16:18
- * @LastEditTime: 2021-10-23 17:53:12
+ * @LastEditTime: 2021-10-25 10:51:52
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shopeeman-new\src\views\mall-manager\components\MallManagerWithdrawalRecord.vue
@@ -252,6 +252,7 @@ export default {
       this.$refs.Logs.writeLog('开始查询', true)
       this.tableData = []
       this.tableDataCut = []
+      this.total = 0
       for (let i = 0; i < this.selectMallList.length; i++) {
         if (this.cancelAction) {
           return
@@ -289,9 +290,9 @@ export default {
         }
       }
       if (this.replayType === '1') {
-        params.replied = true
-      } else if (this.replayType === '2') {
         params.replied = false
+      } else if (this.replayType === '2') { 
+        params.replied = true
       }
       let res = await this.$shopeemanService.getShopEvaluateList(mall.country, params)
       let resObj = JSON.parse(res)
@@ -384,6 +385,7 @@ export default {
         comment: this.replayText,
         shop_id: row.platform_mall_id,
       }
+      console.log(params)
       let res = await this.$shopeemanService.replyShopRating(row.country, params)
       let resObj = JSON.parse(res)
       let index = this.tableData.findIndex((n) => {

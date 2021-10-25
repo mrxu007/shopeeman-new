@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-10-08 14:16:18
- * @LastEditTime: 2021-10-19 20:26:05
+ * @LastEditTime: 2021-10-25 15:30:23
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shopeeman-new\src\views\mall-manager\components\MallManagerWithdrawalRecord.vue
@@ -11,27 +11,6 @@
     <div class="tool-bar">
       <div class="tool-row">
           <storeChoose :is-all="true" @changeMallList="changeMallList"></storeChoose>
-        <!-- <div class="tool-item mar-right">
-          <span>站点：</span>
-          <el-select v-model="countryVal" placeholder="" size="mini" filterable>
-            <el-option label="全部" :value="0" />
-            <el-option v-for="(item, index) in countries" :key="index" :label="item.label" :value="item.value" />
-          </el-select>
-        </div>
-        <div class="tool-item mar-right">
-          <span>店铺分组：</span>
-          <el-select v-model="groupId" placeholder="" size="mini" filterable>
-            <el-option label="全部" :value="0" />
-            <el-option label="无分组" :value="-1" />
-            <el-option v-for="(item, index) in 4" :key="index" :label="item" :value="item" />
-          </el-select>
-        </div>
-        <div class="tool-item">
-          <span>店铺：</span>
-          <el-select v-model="mallSelect" placeholder="" size="mini" filterable>
-            <el-option v-for="(item, index) in 4" :key="index" />
-          </el-select>
-        </div> -->
       </div>
       <div class="tool-row">
         <div class="tool-item mar-right">
@@ -49,7 +28,7 @@
           >
           </el-date-picker>
         </div>
-        <el-button type="primary" size="mini" class="mar-right" @click="clear">查询提现记录</el-button>
+        <el-button type="primary" size="mini" class="mar-right" @click="searchRecord">查询提现记录</el-button>
         <el-button type="primary" size="mini" class="mar-right" @click="exportData">导 出</el-button>
         <el-checkbox v-model="showConsole" class="mar-right">隐藏日志</el-checkbox>
         <p class="activeColor">当前提现金额合计：{{}}</p>
@@ -60,18 +39,22 @@
         <el-table-column align="center" type="index" label="序号" width="50">
           <template slot-scope="scope">{{ (currentPage - 1) * pageSize + scope.$index + 1 }}</template>
         </el-table-column>
-        <el-table-column min-width="140px" label="站点" prop="warehouse_name" align="center" />
-        <el-table-column min-width="140px" label="店铺名称" prop="trans_number" align="center" />
+        <el-table-column min-width="80px" label="站点" prop="country" align="center" />
+        <el-table-column min-width="80px" label="店铺名称" prop="platform_mall_name" align="center" />
         <el-table-column align="center" prop="transaction_id" label="交易流水号" min-width="120" />
         <el-table-column align="center" prop="bank_name" label="银行" min-width="70" />
         <el-table-column align="center" prop="bank_account_name" label="持卡人" min-width="70" />
         <el-table-column prop="bank_account_number" label="银行卡号" align="center" min-width="120px" />
-        <el-table-column align="center" prop="ic_number" label="IcNumber" min-width="70" />
-        <el-table-column align="center" prop="current_amount" label="提现金额" min-width="70">
-          <template slot-scope="scope">{{ scope.row.withdrawals_money / 100 }}</template>
+        <el-table-column align="center" prop="ic_number" label="IcNumber" min-width="100" />
+        <el-table-column align="center" prop="amount" label="提现金额" min-width="70">
+          <template slot-scope="scope">{{ scope.row.amount}}</template>
         </el-table-column>
-        <el-table-column align="center" prop="withdrawals_time" label="提现时间" min-width="80" />
-        <el-table-column align="center" prop="complete_time" label="完成时间" min-width="80" />
+        <el-table-column align="center" prop="ctime" label="提现时间" min-width="120" >
+           <template slot-scope="scope">{{ $dayjs(scope.row.ctime).format('YYYY-MM-DD HH:mm:ss')}}</template>
+        </el-table-column>
+        <el-table-column align="center" prop="complete_time" label="完成时间" min-width="120" >
+          <template slot-scope="scope">{{ $dayjs(scope.row.complete_time).format('YYYY-MM-DD HH:mm:ss')}}</template>
+        </el-table-column>
         <el-table-column align="center" prop="status" label="提现状态" min-width="80">
           <template slot-scope="scope">{{ changeTypeName(scope.row.status, statusList) }}</template>
         </el-table-column>
@@ -108,19 +91,10 @@ export default {
       showConsole: true,
       countryVal: '',
       groupId: '',
-      mallSelect: '',
-      countries: [
-        { label: '马来站', value: 'MY' },
-        { label: '台湾站', value: 'TW' },
-        { label: '新加坡站', value: 'SG' },
-        { label: '菲律宾站', value: 'PH' },
-        { label: '泰国站', value: 'TH' },
-        { label: '越南站', value: 'VN' },
-        { label: '印尼站', value: 'ID' },
-        { label: '巴西站', value: 'BR' },
-      ],
+      selectMallList: [],
       recordTime: [],
       tableData: [],
+      tableDataCut: [],
       tableLoading: false,
       statusList: [
         {
@@ -143,30 +117,110 @@ export default {
       pageSize: 20, //页码
       currentPage: 1, //页码
       total: 0, //表格总数
+      mallPageSize:50,
     }
   },
   mounted() {
-    this.getMallList()
+    let end = new Date().getTime()
+    let start = end - 30 * 24 * 60 * 60 * 1000
+    this.recordTime = [this.$dayjs(start).format('YYYY-MM-DD'), this.$dayjs(end).format('YYYY-MM-DD')]
   },
   methods: {
     changeMallList(val){
+        this.selectMallList = val
         console.log("changeMallList",val)
     },
-    async getMallList() {},
+     //查询列表
+    async searchRecord() {
+      if (!this.selectMallList.length) {
+        return this.$message.warning('请选择店铺')
+      }
+      this.showConsole = false
+      this.tableData = []
+      this.tableDataCut = []
+      this.total = 0
+      for (let i = 0; i < this.selectMallList.length; i++) {
+        if (this.cancelAction) {
+          return
+        }
+        let mall = this.selectMallList[i]
+        let pageNumber = 1
+        console.log(pageNumber)
+        await this.getRecordList(pageNumber, mall)
+      }
+      console.log(this.tableData, 'searchRate')
+      this.dataCut()
+    },
+    async getRecordList(pageNumber, mall) {
+      let params = {
+        wallet_type: 0,
+        page_number: pageNumber,
+        page_size: this.mallPageSize,
+        start_date: this.recordTime[0],
+        end_date: this.recordTime[1],
+        transaction_types: "201,203",
+        shop_id: mall.platform_mall_id
+      }
+      let res = await this.$shopeemanService.getWithDrawalRecord(mall.country, params)
+      let resObj = JSON.parse(res)
+      if (resObj.status !== 200) {
+        this.$refs.Logs.writeLog(`店铺【${mall.platform_mall_name}】请检查店铺是否登录！`, false)
+      } else {
+        let data = JSON.parse(resObj.data)
+        console.log(data)
+        if (data.code === 0) {
+           data.data.list && data.data.list.forEach(async (item) => {
+              item.country = mall.country
+              item.platform_mall_name = mall.platform_mall_name
+              item.mall_alias_name = mall.mall_alias_name
+              item.platform_mall_id = mall.platform_mall_id
+              let resBank = await this.$shopeemanService.getBankAccount(mall.country,{bank_account_id:item.bank_account_id,shop_id: mall.platform_mall_id})
+              let resObjBank = JSON.parse(resBank)
+              console.log(resObjBank)
+              if (resObjBank.status !== 200) {
+                this.$refs.Logs.writeLog(`店铺【${mall.platform_mall_name}】请检查店铺是否登录！`, false)
+              }else{
+                let bankData = JSON.parse(resObjBank.data)
+                if (bankData.code === 0) {
+                  console.log(bankData.data)
+                  item.bank_name = bankData.data.bank_name
+                  item.bank_account_number = bankData.data.account_number
+                  item.bank_account_name = bankData.data.full_name
+                  item.ic_number = bankData.data.ic_number
+                }
+              }
+              this.tableData.push(item)
+              this.total = this.tableData.length
+            })
+            this.$refs.Logs.writeLog(`店铺【${mall.platform_mall_name}】获取到第【${pageNumber}】页店铺评价数据【${data.data.list.length}】条`, true)
+            if (data.data.list.length >= this.mallPageSize) {
+              pageNumber++
+              this.getRecordList(pageNumber, mall)
+            }
+        }
+      }
+      console.log(res,"getMallList")
+    },
     exportData() {
       this.$refs.Logs.writeLog('sdhgkjdjhglk', true)
     },
     clear() {
       this.$refs.Logs.consoleMsg = ''
     },
+    // 分页设置
+    dataCut() {
+      this.tableDataCut = this.tableData.slice((this.currentPage - 1) * this.pageSize, this.currentPage * this.pageSize)
+    },
     handleCurrentChange(val) {
       this.currentPage = val
+      this.dataCut()
     },
     handleSizeChange(size) {
       this.pageSize = size
+      this.dataCut()
     },
     //转换类型中文
-    changeTypeName(value, statusList) {
+    changeTypeName(value, baseData) {
       let str = ''
       let data = baseData.find((item) => item.value == value)
       str = data ? data.label : ''

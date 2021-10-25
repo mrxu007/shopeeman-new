@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-10-22 20:47:53
- * @LastEditTime: 2021-10-23 17:50:08
+ * @LastEditTime: 2021-10-25 14:59:40
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shopeeman-new\src\services\shopeeman-service.js
@@ -59,6 +59,7 @@ export default class NetMessageBridgeService {
     const url = this.site_domain_chinese_bk[country] + api
     options['extrainfo'] = this.getExtraInfo(data)
     options['params'] = data
+    console.log(url, JSON.stringify(options))
     return this.NetMessageBridgeService().get(url, JSON.stringify(options))
   }
 
@@ -72,6 +73,7 @@ export default class NetMessageBridgeService {
   postChinese(country, api, data, options = {}) {
     const url = this.site_domain_chinese_bk[country] + api
     options['extrainfo'] = this.getExtraInfo(data)
+    console.log(url, JSON.stringify(options), JSON.stringify(data))
     return this.NetMessageBridgeService().post(url, JSON.stringify(options), JSON.stringify(data))
   }
 
@@ -95,10 +97,17 @@ export default class NetMessageBridgeService {
   }
   //回复商店评价
   replyShopRating(country, data){
-    return this.postChinese(country, '/api/v3/settings/reply_shop_rating/', data) 
+    return this.postChinese(country, '/api/v3/settings/reply_shop_rating', data)
+  }
+  //店铺提现记录
+  getWithDrawalRecord(country, data){
+    return this.getChinese(country, '/api/v3/finance/get_wallet_transactions', data)
+  }
+  //获取银行卡信息
+  getBankAccount(country, data){
+    return this.getChinese(country, '/api/v3/finance/get_bank_account', data)
   }
   // https://seller.th.shopee.cn/api/v3/settings/reply_shop_rating/?SPC_CDS=ce76cffe-61aa-4a77-a1c6-70d848438ba6&SPC_CDS_VER=2
-
   // 店铺登录
   async login(country, data) {
     let res = await this.getChinese(country, '/api/v2/login', data)
