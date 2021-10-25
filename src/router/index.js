@@ -50,6 +50,12 @@ const routes = [
     name: 'test-api',
     component: () =>
       import('../views/test-api/index.vue')
+  },
+  {
+    path: '/warehouse', // 智能仓库
+    name: 'warehouse',
+    component: () =>
+      import('../views/warehouse/index.vue')
   }
 ]
 const originalPush = VueRouter.prototype.push
