@@ -9,6 +9,7 @@
       :row-height="40"
       :border="false"
       :data="shopGruopData"
+      :row-class-name="tableRowClassName"
       @row-click="rowClick"
     >
       <el-table-column align="center" prop="group_name" label="店铺分组" />
@@ -33,9 +34,18 @@ export default {
     await this.getBindMallCount()
   },
   methods: {
+    tableRowClassName({ row, rowIndex }) {
+      if (rowIndex === 0) {
+        return 'default-current-row'
+      }
+    },
     // 点击店铺分组
     rowClick(row) {
       this.$emit('getGroupId', row.id)
+      if (row.id !== 0) {
+        document.querySelector('.default-current-row').style.color = '#60627d'
+        document.querySelector('.default-current-row').style.backgroundColor = '#fff'
+      }
       this.getData()
       console.log(row)
     },
@@ -62,7 +72,11 @@ export default {
         cursor: pointer;
       }
     }
-    /deep/.current-row {
+    /deep/.el-table .default-current-row {
       color: #f74e1d;
+      background-color: #ecf5ff;
+    }
+    /deep/.current-row {
+      color: #f74e1d !important;
     }
 </style>
