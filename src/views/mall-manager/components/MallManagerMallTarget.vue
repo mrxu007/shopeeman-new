@@ -23,7 +23,7 @@
               <el-button type="primary" size="mini" @click="handlerSelectTableOperating('exportSearch')">导出数据</el-button>
             </li>
             <li>
-              <el-progress v-show="isShowProgress" style="width:230px" :text-inside="true" :stroke-width="24" :percentage="percentage" status="success" />
+              <el-progress v-show="isShowProgress" style="width: 230px" :text-inside="true" :stroke-width="24" :percentage="percentage" status="success" />
             </li>
             <!-- <li>
               <span>订单完成指标：</span>
@@ -87,261 +87,261 @@
           <el-table-column align="center" prop="country" label="站点" />
           <el-table-column align="center" prop="platform_mall_id" label="店铺ID" min-width="120" />
           <el-table-column align="center" label="店铺名称" min-width="130">
-            <template slot-scope="{row}">
-              {{ row.mall_alias_name?row.mall_alias_name:row.platform_mall_name }}
+            <template slot-scope="{ row }">
+              {{ row.mall_alias_name ? row.mall_alias_name : row.platform_mall_name }}
             </template>
           </el-table-column>
           <el-table-column align="center" label="操作状态" min-width="100">
-            <template slot-scope="{row}">
+            <template slot-scope="{ row }">
               {{ row.status }}
             </template>
           </el-table-column>
           <el-table-column align="center" label="本季度计分" min-width="100">
-            <template slot-scope="{row}">
-              {{ row.order_service_indicators&&row.order_service_indicators.SumPoints?row.order_service_indicators.SumPoints:'-' }}
+            <template slot-scope="{ row }">
+              {{ row.order_service_indicators && row.order_service_indicators.SumPoints ? row.order_service_indicators.SumPoints : '-' }}
             </template>
           </el-table-column>
           <el-table-column align="center" label="买家满意度" min-width="100">
-            <template slot-scope="{row}">
-              {{ row.order_service_indicators&&row.order_service_indicators.BuyerSatisfaction?row.order_service_indicators.BuyerSatisfaction:'-' }}
+            <template slot-scope="{ row }">
+              {{ row.order_service_indicators && row.order_service_indicators.BuyerSatisfaction ? row.order_service_indicators.BuyerSatisfaction : '-' }}
             </template>
           </el-table-column>
           <el-table-column align="center" label="上期买家满意度" min-width="120">
-            <template slot-scope="{row}">
-              {{ row.order_service_indicators&&row.order_service_indicators.WeekBuyerSatisfaction?row.order_service_indicators.WeekBuyerSatisfaction:'-' }}
+            <template slot-scope="{ row }">
+              {{ row.order_service_indicators && row.order_service_indicators.WeekBuyerSatisfaction ? row.order_service_indicators.WeekBuyerSatisfaction : '-' }}
             </template>
           </el-table-column>
           <el-table-column align="center" label="买家满意度计分" min-width="120">
-            <template slot-scope="{row}">
-              {{ row.order_service_indicators&&row.order_service_indicators.BuyerSatisfactionPoint?row.order_service_indicators.BuyerSatisfactionPoint:'-' }}
+            <template slot-scope="{ row }">
+              {{ row.order_service_indicators && row.order_service_indicators.BuyerSatisfactionPoint ? row.order_service_indicators.BuyerSatisfactionPoint : '-' }}
             </template>
           </el-table-column>
           <el-table-column align="center" label="订单完成率">
             <el-table-column align="center" label="未完成率">
-              <template slot-scope="{row}">
-                {{ row.order_service_indicators&&row.order_service_indicators.UnOrderRate?row.order_service_indicators.UnOrderRate:'-' }}
+              <template slot-scope="{ row }">
+                {{ row.order_service_indicators && row.order_service_indicators.UnOrderRate ? row.order_service_indicators.UnOrderRate : '-' }}
               </template>
             </el-table-column>
             <el-table-column align="center" label="取消率">
-              <template slot-scope="{row}">
-                {{ row.order_service_indicators&&row.order_service_indicators.CancellOrderRate?row.order_service_indicators.CancellOrderRate:'-' }}
+              <template slot-scope="{ row }">
+                {{ row.order_service_indicators && row.order_service_indicators.CancellOrderRate ? row.order_service_indicators.CancellOrderRate : '-' }}
               </template>
             </el-table-column>
             <el-table-column align="center" label="退货/退款率" min-width="100">
-              <template slot-scope="{row}">
-                {{ row.order_service_indicators&&row.order_service_indicators.ReturnOrRefundRate?row.order_service_indicators.ReturnOrRefundRate:'-' }}
+              <template slot-scope="{ row }">
+                {{ row.order_service_indicators && row.order_service_indicators.ReturnOrRefundRate ? row.order_service_indicators.ReturnOrRefundRate : '-' }}
               </template>
             </el-table-column>
             <el-table-column align="center" label="逾期出货率" min-width="100">
-              <template slot-scope="{row}">
-                {{ row.order_service_indicators&&row.order_service_indicators.OverTimeDeliveryRate?row.order_service_indicators.OverTimeDeliveryRate:'-' }}
+              <template slot-scope="{ row }">
+                {{ row.order_service_indicators && row.order_service_indicators.OverTimeDeliveryRate ? row.order_service_indicators.OverTimeDeliveryRate : '-' }}
               </template>
             </el-table-column>
             <el-table-column align="center" label="准备时间">
-              <template slot-scope="{row}">
-                {{ row.order_service_indicators&&row.order_service_indicators.PrepareTime?row.order_service_indicators.PrepareTime:'-' }}
+              <template slot-scope="{ row }">
+                {{ row.order_service_indicators && row.order_service_indicators.PrepareTime ? row.order_service_indicators.PrepareTime : '-' }}
               </template>
             </el-table-column>
           </el-table-column>
           <el-table-column align="center" label="上期订单完成率">
             <el-table-column align="center" label="未完成率">
-              <template slot-scope="{row}">
-                {{ row.order_service_indicators&&row.order_service_indicators.WeekUnOrderRate?row.order_service_indicators.WeekUnOrderRate:'-' }}
+              <template slot-scope="{ row }">
+                {{ row.order_service_indicators && row.order_service_indicators.WeekUnOrderRate ? row.order_service_indicators.WeekUnOrderRate : '-' }}
               </template>
             </el-table-column>
             <el-table-column align="center" label="取消率">
-              <template slot-scope="{row}">
-                {{ row.order_service_indicators&&row.order_service_indicators.WeekCancellOrderRate?row.order_service_indicators.WeekCancellOrderRate:'-' }}
+              <template slot-scope="{ row }">
+                {{ row.order_service_indicators && row.order_service_indicators.WeekCancellOrderRate ? row.order_service_indicators.WeekCancellOrderRate : '-' }}
               </template>
             </el-table-column>
             <el-table-column align="center" label="退货/退款率" min-width="100">
-              <template slot-scope="{row}">
-                {{ row.order_service_indicators&&row.order_service_indicators.WeekReturnOrRefundRate?row.order_service_indicators.WeekReturnOrRefundRate:'-' }}
+              <template slot-scope="{ row }">
+                {{ row.order_service_indicators && row.order_service_indicators.WeekReturnOrRefundRate ? row.order_service_indicators.WeekReturnOrRefundRate : '-' }}
               </template>
             </el-table-column>
             <el-table-column align="center" label="逾期出货率" min-width="100">
-              <template slot-scope="{row}">
-                {{ row.order_service_indicators&&row.order_service_indicators.WeekOverTimeDeliveryRate?row.order_service_indicators.WeekOverTimeDeliveryRate:'-' }}
+              <template slot-scope="{ row }">
+                {{ row.order_service_indicators && row.order_service_indicators.WeekOverTimeDeliveryRate ? row.order_service_indicators.WeekOverTimeDeliveryRate : '-' }}
               </template>
             </el-table-column>
             <el-table-column align="center" label="准备时间">
-              <template slot-scope="{row}">
-                {{ row.order_service_indicators&&row.order_service_indicators.WeekPrepareTime?row.order_service_indicators.WeekPrepareTime:'-' }}
+              <template slot-scope="{ row }">
+                {{ row.order_service_indicators && row.order_service_indicators.WeekPrepareTime ? row.order_service_indicators.WeekPrepareTime : '-' }}
               </template>
             </el-table-column>
           </el-table-column>
           <el-table-column align="center" label="订单未完成率计分">
             <el-table-column align="center" label="未完成率">
-              <template slot-scope="{row}">
-                {{ row.order_service_indicators&&row.order_service_indicators.UnOrderRatePoint?row.order_service_indicators.UnOrderRatePoint:'-' }}
+              <template slot-scope="{ row }">
+                {{ row.order_service_indicators && row.order_service_indicators.UnOrderRatePoint ? row.order_service_indicators.UnOrderRatePoint : '-' }}
               </template>
             </el-table-column>
             <el-table-column align="center" label="取消率">
-              <template slot-scope="{row}">
-                {{ row.order_service_indicators&&row.order_service_indicators.CancellOrderRatePoint?row.order_service_indicators.CancellOrderRatePoint:'-' }}
+              <template slot-scope="{ row }">
+                {{ row.order_service_indicators && row.order_service_indicators.CancellOrderRatePoint ? row.order_service_indicators.CancellOrderRatePoint : '-' }}
               </template>
             </el-table-column>
             <el-table-column align="center" label="退货/退款率" min-width="100">
-              <template slot-scope="{row}">
-                {{ row.order_service_indicators&&row.order_service_indicators.ReturnOrRefundRatePoint?row.order_service_indicators.ReturnOrRefundRatePoint:'-' }}
+              <template slot-scope="{ row }">
+                {{ row.order_service_indicators && row.order_service_indicators.ReturnOrRefundRatePoint ? row.order_service_indicators.ReturnOrRefundRatePoint : '-' }}
               </template>
             </el-table-column>
             <el-table-column align="center" label="逾期出货率" min-width="100">
-              <template slot-scope="{row}">
-                {{ row.order_service_indicators&&row.order_service_indicators.OverTimeDeliveryRatePoint?row.order_service_indicators.OverTimeDeliveryRatePoint:'-' }}
+              <template slot-scope="{ row }">
+                {{ row.order_service_indicators && row.order_service_indicators.OverTimeDeliveryRatePoint ? row.order_service_indicators.OverTimeDeliveryRatePoint : '-' }}
               </template>
             </el-table-column>
             <el-table-column align="center" label="准备时间">
-              <template slot-scope="{row}">
-                {{ row.order_service_indicators&&row.order_service_indicators.PrepareTimePoint?row.order_service_indicators.PrepareTimePoint:'-' }}
+              <template slot-scope="{ row }">
+                {{ row.order_service_indicators && row.order_service_indicators.PrepareTimePoint ? row.order_service_indicators.PrepareTimePoint : '-' }}
               </template>
             </el-table-column>
           </el-table-column>
 
           <el-table-column align="center" label="违反上架规范">
             <el-table-column align="center" label="严重违规商品" min-width="110">
-              <template slot-scope="{row}">
-                {{ row.order_service_indicators&&row.order_service_indicators.ViolatingGoods?row.order_service_indicators.ViolatingGoods:'-' }}
+              <template slot-scope="{ row }">
+                {{ row.order_service_indicators && row.order_service_indicators.ViolatingGoods ? row.order_service_indicators.ViolatingGoods : '-' }}
               </template>
             </el-table-column>
             <el-table-column align="center" label="垃圾商品">
-              <template slot-scope="{row}">
-                {{ row.order_service_indicators&&row.order_service_indicators.JunkGoods?row.order_service_indicators.JunkGoods:'-' }}
+              <template slot-scope="{ row }">
+                {{ row.order_service_indicators && row.order_service_indicators.JunkGoods ? row.order_service_indicators.JunkGoods : '-' }}
               </template>
             </el-table-column>
             <el-table-column align="center" label="仿冒品或侵犯知识产权商品" min-width="190">
-              <template slot-scope="{row}">
-                {{ row.order_service_indicators&&row.order_service_indicators.CounterfeitGoods?row.order_service_indicators.CounterfeitGoods:'-' }}
+              <template slot-scope="{ row }">
+                {{ row.order_service_indicators && row.order_service_indicators.CounterfeitGoods ? row.order_service_indicators.CounterfeitGoods : '-' }}
               </template>
             </el-table-column>
             <el-table-column align="center" label="违禁商品">
-              <template slot-scope="{row}">
-                {{ row.order_service_indicators&&row.order_service_indicators.ProhibitedGoods?row.order_service_indicators.ProhibitedGoods:'-' }}
+              <template slot-scope="{ row }">
+                {{ row.order_service_indicators && row.order_service_indicators.ProhibitedGoods ? row.order_service_indicators.ProhibitedGoods : '-' }}
               </template>
             </el-table-column>
             <el-table-column align="center" label="预购商品的%" min-width="120">
-              <template slot-scope="{row}">
-                {{ row.order_service_indicators&&row.order_service_indicators.PreOrderedGoodsRate?row.order_service_indicators.PreOrderedGoodsRate:'-' }}
+              <template slot-scope="{ row }">
+                {{ row.order_service_indicators && row.order_service_indicators.PreOrderedGoodsRate ? row.order_service_indicators.PreOrderedGoodsRate : '-' }}
               </template>
             </el-table-column>
             <el-table-column align="center" label="预购商品的天数%超过目标" min-width="190">
-              <template slot-scope="{row}">
-                {{ row.order_service_indicators&&row.order_service_indicators.PreOrderedOverTarget?row.order_service_indicators.PreOrderedOverTarget:'-' }}
+              <template slot-scope="{ row }">
+                {{ row.order_service_indicators && row.order_service_indicators.PreOrderedOverTarget ? row.order_service_indicators.PreOrderedOverTarget : '-' }}
               </template>
             </el-table-column>
             <el-table-column align="center" label="违反其他上架规范" min-width="140">
-              <template slot-scope="{row}">
-                {{ row.order_service_indicators&&row.order_service_indicators.OtherViolatingGoods?row.order_service_indicators.OtherViolatingGoods:'-' }}
+              <template slot-scope="{ row }">
+                {{ row.order_service_indicators && row.order_service_indicators.OtherViolatingGoods ? row.order_service_indicators.OtherViolatingGoods : '-' }}
               </template>
             </el-table-column>
           </el-table-column>
           <el-table-column align="center" label="上期违反上架规范">
             <el-table-column align="center" label="严重违规商品" min-width="110">
-              <template slot-scope="{row}">
-                {{ row.order_service_indicators&&row.order_service_indicators.WeekViolatingGoods?row.order_service_indicators.WeekViolatingGoods:'-' }}
+              <template slot-scope="{ row }">
+                {{ row.order_service_indicators && row.order_service_indicators.WeekViolatingGoods ? row.order_service_indicators.WeekViolatingGoods : '-' }}
               </template>
             </el-table-column>
             <el-table-column align="center" label="垃圾商品">
-              <template slot-scope="{row}">
-                {{ row.order_service_indicators&&row.order_service_indicators.WeekJunkGoods?row.order_service_indicators.WeekJunkGoods:'-' }}
+              <template slot-scope="{ row }">
+                {{ row.order_service_indicators && row.order_service_indicators.WeekJunkGoods ? row.order_service_indicators.WeekJunkGoods : '-' }}
               </template>
             </el-table-column>
             <el-table-column align="center" label="仿冒品或侵犯知识产权商品" min-width="190">
-              <template slot-scope="{row}">
-                {{ row.order_service_indicators&&row.order_service_indicators.WeekCounterfeitGoods?row.order_service_indicators.WeekCounterfeitGoods:'-' }}
+              <template slot-scope="{ row }">
+                {{ row.order_service_indicators && row.order_service_indicators.WeekCounterfeitGoods ? row.order_service_indicators.WeekCounterfeitGoods : '-' }}
               </template>
             </el-table-column>
             <el-table-column align="center" label="违禁商品">
-              <template slot-scope="{row}">
-                {{ row.order_service_indicators&&row.order_service_indicators.WeekProhibitedGoods?row.order_service_indicators.WeekProhibitedGoods:'-' }}
+              <template slot-scope="{ row }">
+                {{ row.order_service_indicators && row.order_service_indicators.WeekProhibitedGoods ? row.order_service_indicators.WeekProhibitedGoods : '-' }}
               </template>
             </el-table-column>
             <el-table-column align="center" label="预购商品的%" min-width="120">
-              <template slot-scope="{row}">
-                {{ row.order_service_indicators&&row.order_service_indicators.WeekPreOrderedGoodsRate?row.order_service_indicators.WeekPreOrderedGoodsRate:'-' }}
+              <template slot-scope="{ row }">
+                {{ row.order_service_indicators && row.order_service_indicators.WeekPreOrderedGoodsRate ? row.order_service_indicators.WeekPreOrderedGoodsRate : '-' }}
               </template>
             </el-table-column>
             <el-table-column align="center" label="预购商品的天数%超过目标" min-width="190">
-              <template slot-scope="{row}">
-                {{ row.order_service_indicators&&row.order_service_indicators.WeekPreOrderedOverTarget?row.order_service_indicators.WeekPreOrderedOverTarget:'-' }}
+              <template slot-scope="{ row }">
+                {{ row.order_service_indicators && row.order_service_indicators.WeekPreOrderedOverTarget ? row.order_service_indicators.WeekPreOrderedOverTarget : '-' }}
               </template>
             </el-table-column>
             <el-table-column align="center" label="违反其他上架规范" min-width="140">
-              <template slot-scope="{row}">
-                {{ row.order_service_indicators&&row.order_service_indicators.WeekOtherViolatingGoods?row.order_service_indicators.WeekOtherViolatingGoods:'-' }}
+              <template slot-scope="{ row }">
+                {{ row.order_service_indicators && row.order_service_indicators.WeekOtherViolatingGoods ? row.order_service_indicators.WeekOtherViolatingGoods : '-' }}
               </template>
             </el-table-column>
           </el-table-column>
           <el-table-column align="center" label="违反上架规范计分">
             <el-table-column align="center" label="严重违规商品" min-width="110">
-              <template slot-scope="{row}">
-                {{ row.order_service_indicators&&row.order_service_indicators.ViolatingGoodsPoint?row.order_service_indicators.ViolatingGoodsPoint:'-' }}
+              <template slot-scope="{ row }">
+                {{ row.order_service_indicators && row.order_service_indicators.ViolatingGoodsPoint ? row.order_service_indicators.ViolatingGoodsPoint : '-' }}
               </template>
             </el-table-column>
             <el-table-column align="center" label="垃圾商品">
-              <template slot-scope="{row}">
-                {{ row.order_service_indicators&&row.order_service_indicators.JunkGoodsPoint?row.order_service_indicators.JunkGoodsPoint:'-' }}
+              <template slot-scope="{ row }">
+                {{ row.order_service_indicators && row.order_service_indicators.JunkGoodsPoint ? row.order_service_indicators.JunkGoodsPoint : '-' }}
               </template>
             </el-table-column>
             <el-table-column align="center" label="仿冒品或侵犯知识产权商品" min-width="190">
-              <template slot-scope="{row}">
-                {{ row.order_service_indicators&&row.order_service_indicators.CounterfeitGoodsPoint?row.order_service_indicators.CounterfeitGoodsPoint:'-' }}
+              <template slot-scope="{ row }">
+                {{ row.order_service_indicators && row.order_service_indicators.CounterfeitGoodsPoint ? row.order_service_indicators.CounterfeitGoodsPoint : '-' }}
               </template>
             </el-table-column>
             <el-table-column align="center" label="违禁商品">
-              <template slot-scope="{row}">
-                {{ row.order_service_indicators&&row.order_service_indicators.ProhibitedGoodsPoint?row.order_service_indicators.ProhibitedGoodsPoint:'-' }}
+              <template slot-scope="{ row }">
+                {{ row.order_service_indicators && row.order_service_indicators.ProhibitedGoodsPoint ? row.order_service_indicators.ProhibitedGoodsPoint : '-' }}
               </template>
             </el-table-column>
             <el-table-column align="center" label="预购商品的%" min-width="110">
-              <template slot-scope="{row}">
-                {{ row.order_service_indicators&&row.order_service_indicators.PreOrderedGoodsRatePoint?row.order_service_indicators.PreOrderedGoodsRatePoint:'-' }}
+              <template slot-scope="{ row }">
+                {{ row.order_service_indicators && row.order_service_indicators.PreOrderedGoodsRatePoint ? row.order_service_indicators.PreOrderedGoodsRatePoint : '-' }}
               </template>
             </el-table-column>
             <el-table-column align="center" label="预购商品的天数%超过目标" min-width="190">
-              <template slot-scope="{row}">
-                {{ row.order_service_indicators&&row.order_service_indicators.PreOrderedOverTargetPoint?row.order_service_indicators.PreOrderedOverTargetPoint:'-' }}
+              <template slot-scope="{ row }">
+                {{ row.order_service_indicators && row.order_service_indicators.PreOrderedOverTargetPoint ? row.order_service_indicators.PreOrderedOverTargetPoint : '-' }}
               </template>
             </el-table-column>
             <el-table-column align="center" label="违反其他上架规范" min-width="140">
-              <template slot-scope="{row}">
-                {{ row.order_service_indicators&&row.order_service_indicators.OtherViolatingGoodsPoint?row.order_service_indicators.OtherViolatingGoodsPoint:'-' }}
+              <template slot-scope="{ row }">
+                {{ row.order_service_indicators && row.order_service_indicators.OtherViolatingGoodsPoint ? row.order_service_indicators.OtherViolatingGoodsPoint : '-' }}
               </template>
             </el-table-column>
           </el-table-column>
           <el-table-column align="center" label="客服">
             <el-table-column align="center" label="聊天回应">
-              <template slot-scope="{row}">
-                {{ row.order_service_indicators&&row.order_service_indicators.ChatResponse?row.order_service_indicators.ChatResponse:'-' }}
+              <template slot-scope="{ row }">
+                {{ row.order_service_indicators && row.order_service_indicators.ChatResponse ? row.order_service_indicators.ChatResponse : '-' }}
               </template>
             </el-table-column>
             <el-table-column align="center" label="回应速度">
-              <template slot-scope="{row}">
-                {{ row.order_service_indicators&&row.order_service_indicators.ResponseSpeed?row.order_service_indicators.ResponseSpeed:'-' }}
+              <template slot-scope="{ row }">
+                {{ row.order_service_indicators && row.order_service_indicators.ResponseSpeed ? row.order_service_indicators.ResponseSpeed : '-' }}
               </template>
             </el-table-column>
           </el-table-column>
           <el-table-column align="center" label="上期客服">
             <el-table-column align="center" label="聊天回应">
-              <template slot-scope="{row}">
-                {{ row.order_service_indicators&&row.order_service_indicators.WeekChatResponse?row.order_service_indicators.WeekChatResponse:'-' }}
+              <template slot-scope="{ row }">
+                {{ row.order_service_indicators && row.order_service_indicators.WeekChatResponse ? row.order_service_indicators.WeekChatResponse : '-' }}
               </template>
             </el-table-column>
             <el-table-column align="center" label="回应速度">
-              <template slot-scope="{row}">
-                {{ row.order_service_indicators&&row.order_service_indicators.WeekResponseSpeed?row.order_service_indicators.WeekResponseSpeed:'-' }}
+              <template slot-scope="{ row }">
+                {{ row.order_service_indicators && row.order_service_indicators.WeekResponseSpeed ? row.order_service_indicators.WeekResponseSpeed : '-' }}
               </template>
             </el-table-column>
           </el-table-column>
           <el-table-column align="center" label="客服计分">
             <el-table-column align="center" label="聊天回应">
-              <template slot-scope="{row}">
-                {{ row.order_service_indicators&&row.order_service_indicators.ChatResponsePoint?row.order_service_indicators.ChatResponsePoint:'-' }}
+              <template slot-scope="{ row }">
+                {{ row.order_service_indicators && row.order_service_indicators.ChatResponsePoint ? row.order_service_indicators.ChatResponsePoint : '-' }}
               </template>
             </el-table-column>
             <el-table-column align="center" label="回应速度">
-              <template slot-scope="{row}">
-                {{ row.order_service_indicators&&row.order_service_indicators.ResponseSpeedPoint?row.order_service_indicators.ResponseSpeedPoint:'-' }}
+              <template slot-scope="{ row }">
+                {{ row.order_service_indicators && row.order_service_indicators.ResponseSpeedPoint ? row.order_service_indicators.ResponseSpeedPoint : '-' }}
               </template>
             </el-table-column>
           </el-table-column>
@@ -422,11 +422,13 @@ export default {
     async syncMallData(data) {
       const url = this.shopeeConfig.getSiteDomainCrossBk('VN')
       console.log(url)
+      debugger
       this.isShowProgress = true
       this.percentage = 0
-      for (let index = 0; index < data.length; index++) {
+      const len = data.length
+      for (let index = 0; index < len; index++) {
         this.$set(data[index], 'status', '开始同步')
-        this.percentage = parseInt((index + 1) / data.length * 100)
+        this.percentage = parseInt((index + 1) / len * 100)
         this.$set(data[index], 'status', '同步完成')
       }
     },
@@ -599,5 +601,5 @@ export default {
 </script>
 
 <style lang="less" scoped>
-   @import '../../../module-less/mall-manager-less/mall-target.less';
+@import '../../../module-less/mall-manager-less/mall-target.less';
 </style>
