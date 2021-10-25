@@ -5,6 +5,37 @@ import userInfo from './application-config'
 export default class CommodityService {
   user = ''
   nativeService = window['CommodityBridgeService'];
+
+  /**
+   * 新增公司主体(系统)
+   * @param {string} uid 主账号ID
+   * @param {string} targetId 代理系统ip
+   * @param {string} mallIds 系统店铺id
+   */
+  newBangdingMall(uid, targetId, mallIds) {
+    return this.nativeService.callCloudIpFunction('NewBindingMallBySysMallId', uid, targetId, mallIds)
+  }
+
+  /**
+   * 新增公司主体(系统)
+   * @param {string} lineId 线路id
+   * @param {string} uid 主账号ID
+   * @param {string} 子账号ID
+   * @param {string} ipAlias 主体名称
+   * @param {string} num 购买数量
+   * @param {string} period 购买时长
+   * @param {string} isPresale 是否预售
+   */
+  addIPMaster(parmas) {
+    return this.nativeService.callCloudIpFunction('BuyCloudIP',
+      parmas.lineId.toString(),
+      parmas.uid.toString(),
+      parmas.uuid.toString(),
+      parmas.ipAlias.toString(),
+      parmas.num.toString(),
+      parmas.period.toString(),
+      parmas.isPresale.toString())
+  }
   /**
    * 获取商品详情
    * @param {number} sysId 商品id

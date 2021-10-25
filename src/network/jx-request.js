@@ -20,6 +20,14 @@ const AppRequest = axios.create({ // 壳内转发请求
     return jxAdapter(config)
   }
 })
+const AppRequest2 = axios.create({ // 壳内转发请求
+  baseURL: 'http://local.spm.com',
+  timeout: 5000,
+  withCredentials: true,
+  adapter: config => {
+    return jxAdapter(config)
+  }
+})
 const ycjRequest = axios.create({ // 云采集请求
   baseURL: 'http://129.204.71.240',
   timeout: 5000,
@@ -106,6 +114,24 @@ export default {
   // 异常公告--待获取物流单号
   getExceptionNoTrackingNumberIndex: (data) => AppRequest.get('/exceptionNoTrackingNumberIndex', { params: data }), // 订单列表
   updateOrderTrackingNumber: (data) => AppRequest.post('/order/updateOrderTrackingNumber', data), // 添加采购物流单号
+
+  // 异常公告
+  getExceptionNoOrderIndex: (data) => AppRequest.get('/exceptionNoOrderIndex', { params: data }), // 异常公告签收包裹异常列表
+  markPackageToMy: (data) => AppRequest.post('/signPackage/markPackageToMy', data), // 异常公告签收包裹异常：标记为我的
+  apply: (data) => AppRequest.post('/packageReturn/apply', data), // 异常公告签收包裹异常：申请退件
+  getExceptionNoTrackingNumberIndex: (data) => AppRequest.get('/exceptionNoTrackingNumberIndex', { params: data }), // 异常公告待获取物流单号订单列表
+  updateOrderTrackingNumber: (data) => AppRequest.post('/order/updateOrderTrackingNumber', data), // 异常公告待获取物流订单添加采购物流单号
+  getExceptionExpiredOrderIndex: (data) => AppRequest.get('/exceptionExpiredOrderIndex', { params: data }), // 异常公告即将过期订单列表
+  getExceptionWarehouse: (data) => AppRequest.get('/exceptionWarehouse', { params: data }), // 异常公告仓库异常信息列表
+  uploadDealExceptionStatus: (data) => AppRequest.post('/uploadDealExceptionStatus', data), // 异常公告仓库异常处理状态上报
+
+  // 2021-10-18
+  // 店铺管理
+  getMallManagerStoreMainManagementList: (data) => AppRequest.get('/yunip/api/myiplist', { params: data }), // 店铺主体管理列表
+  getPaymentList: (data) => AppRequest2.post('/api/mallAccountBill', data), // 货款对账列表
+  getMallSite: (data) => AppRequest2.get('/api/ddMallGoods/getMallList', { params: data }), // 店铺站点信息
+  exchangeRateList: (data) => AppRequest2.get('/api/exchangeRateList', { params: data }), // 获取汇率
+  updateMallInfo: (data) => AppRequest2.post('/api/bindMall/updateMallInfo', { params: data }), // 同步信息
 
   // 异常公告--即将过期订单
   getExceptionExpiredOrderIndex: (data) => AppRequest.get('/exceptionExpiredOrderIndex', { params: data }), // 订单列表
