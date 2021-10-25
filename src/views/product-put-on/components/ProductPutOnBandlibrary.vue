@@ -24,7 +24,13 @@
         <el-input v-model="form.keyWord" size="mini" placeholder="请输入关键词" clearable />
       </div>
       <div class="o-item">
-        <el-button type="primary" size="mini" @click="getBannedWordList()">查询</el-button>
+        <el-button
+          type="primary"
+          size="mini"
+          @click="
+            isQuery = true
+            getBannedWordList()"
+        >查询</el-button>
         <el-button type="primary" size="mini" @click="dialogVisible= true">添加</el-button>
         <el-button type="primary" size="mini" @click="batchDelete()">批量删除</el-button>
         <el-button type="primary" size="mini" @click="dialogBanWordVisible= true"> 批量导入 </el-button>
@@ -135,6 +141,7 @@ import { exportExcelDataCommon } from '../../../util/util'
 export default {
   data() {
     return {
+      isQuery: false,
       showConsole: true,
       consoleMsg: '', // 打印日志
       batchConsoleMsg: '', // 批量导入信息
@@ -205,7 +212,11 @@ export default {
       const len = this.total % 10 === 0 ? (this.total / 10) : (Math.floor(this.total / 10) + 1)
       for (let index = 1; index <= len; index++) {
         const parmas = {
-          page: index
+          page: index,
+          word: this.isQuery ? this.form.keyWord.trim() : '',
+          country: this.isQuery ? this.form.site : '',
+          source: this.isQuery ? Number(this.form.source) : 0,
+          type: this.isQuery ? Number(this.form.type) : 0
         }
         try {
           const res = await this.$commodityService.getBannedWordList(parmas)

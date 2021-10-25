@@ -84,7 +84,11 @@
         >
           <el-table-column align="center" type="selection" width="50" />
           <el-table-column align="center" type="index" label="序列号" width="80" />
-          <el-table-column align="center" prop="country" label="站点" />
+          <el-table-column align="center" prop="country" label="站点">
+            <template slot-scope="{row}">
+              {{ row.country | chineseSite }}
+            </template>
+          </el-table-column>
           <el-table-column align="center" prop="platform_mall_id" label="店铺ID" min-width="120" />
           <el-table-column align="center" label="店铺名称" min-width="130">
             <template slot-scope="{ row }">
@@ -447,10 +451,11 @@ export default {
         const resData = data.data
         this.total = resData.total
         this.tableData = resData.data
-        this.tableData.map(item => {
-          item.country = this.shopeeConfig.getSiteCode(item.country)
-          item.order_service_indicators = item.order_service_indicators ? JSON.parse(item.order_service_indicators) : ''
-        })
+        if (this.tableData) {
+          this.tableData.map(item => {
+            item.order_service_indicators = item.order_service_indicators ? JSON.parse(item.order_service_indicators) : ''
+          })
+        }
         this.isLoading = false
         console.log('tableData', this.tableData)
       } else {
@@ -586,6 +591,7 @@ export default {
     },
     tableScroll() {},
     handleSizeChange(val) {
+      this.page = 1
       this.pageSize = val
       this.getMallStatistics()
     },
