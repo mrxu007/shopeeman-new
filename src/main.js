@@ -40,6 +40,7 @@ import collectService from './services/collect-service'
 import aliyunOssService from './services/aliyun-oss-service'
 import viewManagerService from './services/view-manager-service'
 import SonAccountService from './services/son-acccount-service'
+import shopeemanService from './services/shopeeman-service'
 import Logs from 'cyt-pl-plug'
 
 import * as echarts from 'echarts'
@@ -93,7 +94,9 @@ Vue.prototype.$orderService = new orderService()
 Vue.prototype.$ossService = new aliyunOssService()
 Vue.prototype.$viewManagerService = new viewManagerService()
 Vue.prototype.$SonAccountService = new SonAccountService()
+Vue.prototype.$shopeemanService = new shopeemanService()
 Vue.prototype.$dayjs = dayjs
+Vue.prototype.$filters = filters
 
 // 所有的input框自动获取焦点
 Vue.directive('fo', {

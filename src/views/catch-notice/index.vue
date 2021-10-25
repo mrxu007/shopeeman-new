@@ -5,6 +5,7 @@
 
     <!-- 待获取物流单号 -->
     <main v-if="activeVal === '1'"><CatchNoticeGetLogisticsOrderNo /></main>
+
     <!-- 即将过期订单 -->
     <main v-if="activeVal === '2'"><CatchNoticeExpiringOrder /></main>
 

@@ -12,7 +12,7 @@
               <el-button type="primary" size="mini">批量设置离线自动回复</el-button>
               <el-button type="primary" size="mini">批量开启离线自动回复</el-button>
               <el-button type="" size="mini">批量关闭离线自动回复</el-button>
-              <el-button type="primary" size="mini">搜索</el-button>
+              <el-button type="primary" size="mini" @click="searchAutoReplyTable">搜索</el-button>
               <el-checkbox v-model="isShowLog" size="mini" style="margin-left: 5px;">显示日志</el-checkbox>
             </el-col>
           </el-col>
