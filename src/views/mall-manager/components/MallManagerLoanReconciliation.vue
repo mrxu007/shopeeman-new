@@ -144,7 +144,12 @@
           <el-table-column prop="created_at" label="拨款时间" align="center" />
           <!-- <el-table-column prop="" label="账单详情" align="center" /> -->
         </el-table>
-        <div class="pagination">
+        <div
+          class="pagination"
+          style="display: flex;
+          justify-content: flex-end;
+          margin: 4px 0px;"
+        >
 
           <el-pagination
             background

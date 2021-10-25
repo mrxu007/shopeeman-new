@@ -91,7 +91,10 @@
     </div>
 
     <div style="margin:10px">
-      <span>
+      <span
+        style="font-size: smaller;
+        color: rebeccapurple;"
+      >
         温馨提示：1.因为IP为实时购买，所以购买后不会立即生成IP信息。IP信息会在三分钟内生成
         2.一个主体IP最多绑定10个店铺 3.若状态为【已绑定，已分配店铺】，但绑定店铺为空，则表示
         店铺不存在此账号
@@ -101,10 +104,10 @@
       <div class="data_table" style="height: 100%;background-color:white">
         <el-table
           ref="multipleTable"
-          height="calc(100vh - 221px)"
+          height="calc(100vh - 262px)"
           :data="tableListEnd"
           :row-style="{ height: '50px' }"
-          style="width: 100%;height: calc(100vh - 221px)"
+          style="width: 100%;height: calc(100vh - 262px)"
           :header-cell-style="{ background: '#f7fafa' }"
           :row-key="generateUUID"
           @selection-change="handleSelectionChange"
@@ -114,24 +117,24 @@
             min-width="55px"
             align="center"
           />
-          <el-table-column label="序号" type="index" align="center" :index="indexMethod" />
-          <el-table-column prop="main_order_sn" label="订单号" align="center" />
-          <el-table-column prop="uid" label="主体ID" align="center" />
-          <el-table-column prop="ip_alias" label="主体名称" align="center" />
+          <el-table-column label="序号" type="index" align="center" :index="indexMethod" fixed />
+          <el-table-column prop="main_order_sn" label="订单号" align="center" min-width="200px" fixed />
+          <el-table-column prop="uid" label="主体ID" align="center" min-width="100px" />
+          <el-table-column prop="ip_alias" label="主体名称" align="center" min-width="200px" />
           <!-- 需要解析 -->
-          <el-table-column prop="poxyIP" label="代理IP" align="center" />
+          <el-table-column prop="poxyIP" label="代理IP" align="center" min-width="150px" />
           <!-- <el-table-column prop="" label="IP渠道" align="center" /> -->
-          <el-table-column prop="source" label="IP来源" align="center" />
+          <el-table-column prop="source" label="IP来源" align="center" min-width="80px" />
           <!-- <el-table-column prop="" label="是否预售IP" align="center" /> -->
-          <el-table-column prop="status" label="状态" align="center" />
-          <el-table-column prop="expiration_time" label="有效日期" align="center" />
-          <el-table-column prop="" label="绑定店铺" align="center">
+          <el-table-column prop="status" label="状态" align="center" min-width="150px" />
+          <el-table-column prop="expiration_time" label="有效日期" align="center" min-width="200px" />
+          <el-table-column prop="" label="绑定店铺" align="center" min-width="100px">
             <template slot-scope="{ row }">
               <!-- 临时取id -->
               {{ row.target_mall_info && row.target_mall_info.mall_id }}
             </template>
           </el-table-column>
-          <el-table-column prop="" label="操作" align="center" min-width="250px">
+          <el-table-column prop="" label="操作" align="center" min-width="250px" fixed="right">
             <template slot-scope="{ row }">
               <div>
                 <el-button size="mini" type="primary" @click="openSoft(row.poxyIP,row.poxyID)">打开代理浏览器</el-button>
@@ -220,7 +223,7 @@
               </el-radio-group>
             </div>
             <div class="left_item">
-              主体名称：<el-input v-model="ipMaster_params.ipAlias" clearable style="width:200px" size="mini" />
+              主体名称：<el-input v-model="ipMaster_params.ipAlias" clearable style="width:180px" size="mini" />
               <span v-show="ipMaster_params.ipAlias===''" style="color:red">(必填)</span>
             </div>
             <div class="left_item">
@@ -229,88 +232,6 @@
           </div>
           <!-- 新增自有IP公司主体 -->
           <div v-if="Typeis==='ipPerson'">
-            <!-- <div class="left_item">
-              ip区域：
-              <el-select v-model="query_person.region_name" size="mini">
-                <el-option v-for="(item,index) in region_ipList" :key="'region'+index" :label="item.value" :value="item.id" />
-              </el-select>
-            </div>
-            <div class="left_item">
-              主体名称：<el-input v-model="query_person.ip_alias" clearable style="width:200px" size="mini" />
-              <span v-show="query_person.ip_alias===''" style="color:red">(必填)</span>
-            </div> -->
-            <!-- <div class="left_item">
-              自有ip类型：
-              <el-radio-group v-model="query_person.ip_agency">
-                <el-radio :label="1">SSP</el-radio>
-                <el-radio :label="6">SS</el-radio>
-                <el-radio :label="2">HTTP</el-radio>
-                <el-radio :label="9">链接</el-radio>
-              </el-radio-group>
-            </div>
-            <div class="left_item">
-              服务器ip：<el-input v-model="query_person.ip_address" clearable style="width:200px" size="mini" />
-              <span v-show="query_person.ip_address===''" style="color:red">(必填)</span>
-            </div>
-            <div class="left_item">
-              服务器端口：<el-input v-model="query_person.ip_port" clearable style="width:200px" size="mini" />
-              <span v-show="query_person.ip_port===''" style="color:red">(必填)</span>
-            </div>
-            <div class="left_item">
-              密码：<el-input v-model="query_person.password" clearable style="width:200px" size="mini" />
-            </div>
-            <div class="left_item">
-              加密方式：
-              <el-select v-model="query_person.encryption" size="mini">
-                <el-option v-for="(item,index) in ipPsdMethodList" :key="'ipPsd'+index" :label="item.label" :value="item.value" />
-              </el-select>
-              <span v-show="query_person.encryption===''" style="color:red">(必填)</span>
-            </div> -->
-            <!-- <div class="left_item">
-              协议参数：<el-input v-model="query_person.parameter" clearable style="width:200px" size="mini" />
-              <span v-show="query_person.agreePro===''" style="color:red">(非必填)</span>
-            </div>
-            <div class="left_item">
-              协议： <el-select
-                v-model="query_person.protocol"
-                placeholder="请选择"
-                size="mini"
-                clearable
-                style="width: 260px"
-              >
-                <el-option
-                  v-for="item in protocolList"
-                  :key="item.value"
-                  :label="item.label"
-                  :value="item.value"
-                />
-              </el-select>
-              <span v-show="query_person.protocol===''" style="color:red">(必填)</span>
-            </div>
-            <div class="left_item">
-              混淆： <el-select
-                v-model="query_person.confuse"
-                placeholder="请选择"
-                clearable
-                size="mini"
-                style="width: 260px"
-              >
-                <el-option
-                  v-for="item in confuseList"
-                  :key="item.value"
-                  :label="item.label"
-                  :value="item.value"
-                />
-              </el-select>
-              <span v-show="query_person.confuse===''" style="color:red">(必填)</span>
-            </div>
-            <div class="left_item">
-              混淆参数：<el-input v-model="query_person.argument" clearable style="width:200px" size="mini" />
-              <span v-show="query_person.argument===''" style="color:red">(必填)</span>
-            </div>
-            <div class="left_item">
-              <el-button size="mini" type="primary" @click="submit_IpPersion">确定</el-button>
-            </div> -->
             <el-form
               ref="query_person"
               :model="query_person"
@@ -323,7 +244,7 @@
                   v-model="query_person.region_name"
                   placeholder="请输入备注"
                   size="mini"
-                  style="width: 260px"
+                  style="width: 200px"
                   clearable
                 />
               </el-form-item>
@@ -334,7 +255,7 @@
                   v-model="query_person.ip_address"
                   placeholder="请输入IP"
                   size="mini"
-                  style="width: 260px"
+                  style="width: 200px"
                   clearable
                 />
               </el-form-item>
@@ -344,7 +265,7 @@
                   v-model="query_person.ip_port"
                   placeholder="请输入端口"
                   size="mini"
-                  style="width: 260px"
+                  style="width: 200px"
                   clearable
                 />
               </el-form-item>
@@ -354,7 +275,7 @@
                   v-model="query_person.ip_agency"
                   placeholder="请选择"
                   size="mini"
-                  style="width: 260px"
+                  style="width: 200px"
                 >
                   <el-option
                     v-for="item in ipTypeList"
@@ -370,7 +291,7 @@
                   v-model="query_person.ip_alias"
                   placeholder="主体名称"
                   size="mini"
-                  style="width: 260px"
+                  style="width: 200px"
                   clearable
                 />
               </el-form-item>
@@ -380,7 +301,7 @@
                   v-model="query_person.map_ip_address"
                   placeholder="请输入映射IP"
                   size="mini"
-                  style="width: 260px"
+                  style="width: 200px"
                   clearable
                 />
               </el-form-item>
@@ -390,7 +311,7 @@
                   v-model="query_person.map_ip_port"
                   placeholder="请输入映射端口"
                   size="mini"
-                  style="width: 260px"
+                  style="width: 200px"
                   clearable
                 />
               </el-form-item> -->
@@ -400,7 +321,7 @@
                     v-model="query_person.mappingIp"
                     placeholder="请输入映射IP"
                     size="mini"
-                    style="width: 260px"
+                    style="width: 200px"
                     clearable
                   />
                 </el-form-item>
@@ -410,7 +331,7 @@
                     v-model="query_person.mappingPort"
                     placeholder="请输入映射端口"
                     size="mini"
-                    style="width: 260px"
+                    style="width: 200px"
                     clearable
                   />
                 </el-form-item> -->
@@ -420,7 +341,7 @@
                   v-model="query_person.username"
                   placeholder="请输入用户名"
                   size="mini"
-                  style="width: 260px"
+                  style="width: 200px"
                   clearable
                 />
               </el-form-item>
@@ -430,7 +351,7 @@
                   v-model="query_person.password"
                   placeholder="请输入密码"
                   size="mini"
-                  style="width: 260px"
+                  style="width: 200px"
                   clearable
                 />
               </el-form-item>
@@ -439,7 +360,7 @@
                 <el-select
                   v-model="query_person.encryption"
                   placeholder="请选择"
-                  style="width: 260px"
+                  style="width: 200px"
                   size="mini"
                 >
                   <el-option
@@ -457,7 +378,7 @@
                   placeholder="请选择"
                   size="mini"
                   clearable
-                  style="width: 260px"
+                  style="width: 200px"
                 >
                   <el-option
                     v-for="item in protocolList"
@@ -473,7 +394,7 @@
                   v-model="query_person.parameter"
                   placeholder="请输入协议参数"
                   size="mini"
-                  style="width: 260px"
+                  style="width: 200px"
                   clearable
                 />
               </el-form-item>
@@ -484,7 +405,7 @@
                   placeholder="请选择"
                   clearable
                   size="mini"
-                  style="width: 260px"
+                  style="width: 200px"
                 >
                   <el-option
                     v-for="item in confuseList"
@@ -500,7 +421,7 @@
                   v-model="query_person.argument"
                   placeholder="请输入协议参数"
                   size="mini"
-                  style="width: 260px"
+                  style="width: 200px"
                   clearable
                 />
               </el-form-item>
@@ -510,7 +431,7 @@
                     v-model="query_person.ip_agency"
                     placeholder="请输入备注"
                     size="mini"
-                    style="width: 260px"
+                    style="width: 200px"
                     clearable
                   />
                 </el-form-item> -->
@@ -521,7 +442,7 @@
                   v-model="query_person.area_name"
                   placeholder="请输入备注"
                   size="mini"
-                  style="width: 260px"
+                  style="width: 200px"
                   clearable
                 />
               </el-form-item> -->
@@ -535,7 +456,12 @@
             </el-form> -->
             </el-form>
 
-            <div class="item">
+            <div
+              class="item"
+              style="
+                display: flex;
+                justify-content: center;"
+            >
               <el-button
                 type="primary"
                 size="mini"
@@ -546,11 +472,14 @@
         </div>
         <div class="right">
           <div class="right_condition">
-            <div>
+            <div
+              style=" display: flex;
+                    margin: 4px 0px;"
+            >
               <storeChoose @changeMallList="changeMallList" />
               <el-button type="primary" size="mini" @click="dialog_search_IPMall">查询</el-button>
             </div>
-            <el-checkbox v-model="showUserIP" @click="bindedMall()">显示已绑定ip店铺</el-checkbox>
+            <el-checkbox v-model="showUserIP" style="margin: 4px 0px;" @click="bindedMall()">显示已绑定ip店铺</el-checkbox>
             <div class="right_table" style="border:1px solid #C0C4CC">
               <el-table
                 ref="multipleTable_dialog"
@@ -1177,6 +1106,11 @@ export default {
      .table_clo{
      border-radius: 0px;
      padding: 2px;
+     .pagination{
+    display: flex;
+    justify-content: flex-end;
+    margin: 4px 0px;
+     }
     }
     .all_condition{
     display: flex;
@@ -1188,7 +1122,8 @@ export default {
       width: auto;
       display: inline-block !important;
       display: inline;
-      margin-bottom: 8px;
+      // margin-bottom: 8px;
+      margin: 4px 0px;
       margin-right: 10px;
       span {
         margin-right: 5px;
@@ -1200,14 +1135,19 @@ export default {
         .el-dialog__body{
           display: flex;
           align-items: center;
+          justify-content: center;
           .left{
             padding: 5px;
+            margin-right: 10px;
             .left_item{
               margin-bottom: 10px;
             }
           }
         }
       }
+    }
+    .el-form-item{
+      margin-bottom: 0px;
     }
 }
 </style>
