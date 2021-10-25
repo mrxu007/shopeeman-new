@@ -47,20 +47,20 @@ export default {
   props: {
     isAll: {
       type: Boolean,
-      default: false,
+      default: false
     },
     isCategoryAll: {
       type: Boolean,
-      default: true,
+      default: true
     },
     level: {
       type: Number,
-      default: 3,
+      default: 3
     },
     isColumn: {
       type: Boolean,
-      default: false,
-    },
+      default: false
+    }
   },
   data() {
     return {
@@ -74,16 +74,17 @@ export default {
         { label: '越南站', value: 'VN' },
         { label: '印尼站', value: 'ID' },
         { label: '巴西站', value: 'BR' },
+        { label: '墨西哥站', value: 'MX' }
       ],
-      countries_id:{
-        'TH' : "4",
-        'MY' : "5",
-        'TW' : "3",
-        'SG' : "1",
-        'PH' : "7",
-        'VN' : "6",
-        'ID' : "2",
-        'BR' : "8",
+      countries_id: {
+        'TH': '4',
+        'MY': '5',
+        'TW': '3',
+        'SG': '1',
+        'PH': '7',
+        'VN': '6',
+        'ID': '2',
+        'BR': '8'
       },
       category1: '',
       categoryList1: [],
@@ -91,7 +92,7 @@ export default {
       categoryList2: [],
       category3: '',
       categoryList3: [],
-      categoryList: [],
+      categoryList: []
     }
   },
   watch: {
@@ -105,20 +106,20 @@ export default {
         this.categoryList3 = []
         this.getCategory(val, 0)
       },
-      deep: true,
+      deep: true
     },
     category1(val, oldVal) {
-        this.category2 = ''
-        this.category3 = ''
-        this.categoryList2 = []
-        this.categoryList3 = []
-        this.sendParent()
+      this.category2 = ''
+      this.category3 = ''
+      this.categoryList2 = []
+      this.categoryList3 = []
+      this.sendParent()
     },
     category2(val, oldVal) {
-        this.category3 = ''
-        this.categoryList3 = []
-        this.sendParent()
-    },
+      this.category3 = ''
+      this.categoryList3 = []
+      this.sendParent()
+    }
   },
   mounted() {
     this.countryVal = (!this.isAll && 'TH') || ''
@@ -140,12 +141,12 @@ export default {
         return
       }
       const query = [this.countryVal, level !== 0 ? (categoryID && categoryID !== '' ? categoryID : '') : '0', '1', 'tbCategory']
-      let res = await this.$commodityService.getCategory(query)
-    //   console.log('getCategory', res)
+      const res = await this.$commodityService.getCategory(query)
+      //   console.log('getCategory', res)
       if (!res) {
         return this.$message.warning('获取失败')
       }
-      let resObj = JSON.parse(res)
+      const resObj = JSON.parse(res)
       if (resObj.code === 200) {
         const data = resObj.data
         if (data.categories) {
@@ -161,32 +162,32 @@ export default {
       console.log(this.category1, 1)
       this.categoryList = []
       if (this.category1) {
-        let arr = [this.category1]
+        const arr = [this.category1]
         this.categoryList = arr
         // console.log(this.categoryList, arr)
       }
       if (this.category1 && this.category2) {
-        let arr = [this.category1, this.category2]
+        const arr = [this.category1, this.category2]
         this.categoryList = arr
         // console.log(this.categoryList, 2,arr)
       }
       if (this.category1 && this.category2 && this.category3) {
-        let arr = [this.category1, this.category2, this.category3]
+        const arr = [this.category1, this.category2, this.category3]
         this.categoryList = arr
         // console.log(this.categoryList, 3,arr)
       }
-      let params = {
+      const params = {
         country: this.countryVal,
         categoryFirst: this.category1,
         categorySecond: this.category2,
         categoryThird: this.category3,
         categoryList: this.categoryList,
-        platformId:this.countries_id[this.countryVal]
+        platformId: this.countries_id[this.countryVal]
       }
-      console.log(params,"params")
+      console.log(params, 'params')
       this.$emit('setCategory', params)
-    },
-  },
+    }
+  }
 }
 </script>
 

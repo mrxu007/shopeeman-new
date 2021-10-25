@@ -25,6 +25,10 @@ export default class applicationConfig {
     return await this.nativeService.saveConfig(config)
   }
 
+  // 获取仓库信息
+  async getWarehouseInfo(val) {
+    return await this.nativeService.getWarehouseInfo(val)
+  }
   async getConfigByName(name) {
     return await this.nativeService.getConfigByName(name)
   }
@@ -32,9 +36,10 @@ export default class applicationConfig {
   async getUserConfig() {
     return await this.nativeService.getUserConfig()
   }
-
-  // 获取仓库信息
-  async getWarehouseInfo(val) {
-    return await this.nativeService.getWarehouseInfo(val)
+  /**
+     * 获取店铺信息
+     */
+  async getGlobalCacheInfo(type, id) {
+    return await this.nativeService.getGlobalCacheInfo(type, id)
   }
 }

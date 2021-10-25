@@ -1,6 +1,11 @@
 .contaniner{
   margin: 10px;
   min-width: 1280px;
+  margin-left: 10px;
+  display: flex;
+  .right {
+    border-radius: 30px;
+    margin-left: 10px;
   .header {
     background: white;
     padding: 16px;
@@ -10,10 +15,16 @@
         li {
           margin: 5px;
           display: flex;
+          /deep/.el-input{
+            width: 120px !important;
+          }
+          .shopId{
+            width: 200px !important;
+          }
           span {
             // display: list-item;
             white-space: nowrap;
-            min-width: 98px;
+            min-width: 50px;
             line-height: 28px;
             text-align: right;
           }
@@ -25,5 +36,10 @@
   .article {
     background: white;
     margin-top: 10px;
+    .pagination{
+      float: right;
+      margin: 10px;
+    }
   }
+}
 }

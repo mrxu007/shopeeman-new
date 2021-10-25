@@ -32,7 +32,8 @@ const otherRequest = axios.create({ // 第三方请求
   timeout: 5000,
   headers: {
     'User-Agent':
-      'Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/537.36'
+      'Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/537.36',
+    'Accept': 'application/vnd.ppxias.v3+json'
   },
   withCredentials: true,
   adapter: config => {
@@ -84,6 +85,9 @@ export default {
   ddMallGoodsGetMallList: (data) => AppRequest.get('/ddMallGoods/getMallList', data), // 联动站点分组获取店铺列表
   mallGroupIndex: (data) => AppRequest.get('/mallGroup/index', { params: data }), // 获取店铺分组列表
   getMallList: (data) => AppRequest.get('/bindMall/mallList', { params: data }), // 获取店铺列表
+  getMallStatistics: (data) => AppRequest.get('/mallStatistics/index', { params: data }), // 店铺数据+店铺指标列表
+  syncMallData: (data) => AppRequest.post('/mallStatistics/save', data), // 上报店铺数据+店铺指标列表
+  test: (data) => AppRequest.get('/bindMall/getMallLoginDatasV2', data),
   updateWatermark: (data) => AppRequest.post('/bindMall/updateWatermark', data), // 修改店铺水印
   updateUserPassword: (data) => AppRequest.post('/bindMall/uploadUserPassword', data), // 修改账户登录密码
   uploadMallCookie: (data) => AppRequest.post('/bindMall/uploadWebLoginInfo', data), // 上报店铺cookie
