@@ -7,18 +7,16 @@
  * @FilePath: \shopeeman-new\src\services\application-config.js
  */
 export default class applicationConfig {
+  nativeService = window['ConfigBridgeService'];
   /**
-     * 获取当前登录的用户信息
-     */
-  constructor() {
-    this.nativeService = window['ConfigBridgeService']
-  }
+   * 获取当前登录的用户信息
+   */
   async getUserInfo() {
     return await this.nativeService.getUserInfo()
   }
   /**
-     * 获取当前配置的主题色
-     */
+   * 获取当前配置的主题色
+   */
   async primaryColor() {
     return await this.nativeService.primaryColor()
   }
@@ -27,11 +25,21 @@ export default class applicationConfig {
     return await this.nativeService.saveConfig(config)
   }
 
+  // 获取仓库信息
+  async getWarehouseInfo(val) {
+    return await this.nativeService.getWarehouseInfo(val)
+  }
   async getConfigByName(name) {
     return await this.nativeService.getConfigByName(name)
   }
   // 获取用户账号
   async getUserConfig() {
     return await this.nativeService.getUserConfig()
+  }
+  /**
+   * 获取店铺信息
+   */
+  async getGlobalCacheInfo(type, id) {
+    return await this.nativeService.getGlobalCacheInfo(type, id)
   }
 }

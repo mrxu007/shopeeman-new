@@ -231,7 +231,7 @@ export function exportCsvDataCommon(fileName, str) {
 export function debounce(fun, wait, immediate) {
   let timeout = null
   let result = null
-  return function () {
+  return function() {
     const context = this
     const args = arguments
     if (timeout) {

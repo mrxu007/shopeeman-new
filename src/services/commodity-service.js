@@ -551,4 +551,83 @@ export default class CommodityService {
   deleteBlackCategory(id) {
     return this.nativeService.callCategoryFunction('DeleteCategoryBlackInfo', id + '')
   }
+  /**
+   * 成交价格建议
+   * @param {
+   *  platform_id:站点ID
+   *  order_by:排序方式
+   *  cat_id_1:一级类目
+   *  cat_id_2:二级类目
+   *  cat_id_3:三级类目
+   * } data
+   * @returns
+   */
+  getAvgPrice(data) {
+    return this.nativeService.callDianBaShopeeInfo('GetAvgPrice', JSON.stringify(data))
+  }
+  /**
+ * @name :获取热搜词列表
+ * @param : {
+ * platform_id: '',国家code
+ * cat_id_1: '',
+ * cat_id_2: '',
+ * }
+ *
+ */
+  getKeyWord(data) {
+    data['order_by'] = 'keyword_month_sales'
+    return this.nativeService.callDianBaShopeeInfo('GetKeyWord', JSON.stringify(data))
+  }
+
+  /**
+ * @name :获取爆款选品列表
+ * @param : {
+ * page：页码
+ * page_size：页数据量
+ * platform_id：参考成交价格建议
+ * cat_id：当前选中的类目id（当前选中二级类目，三级类目未选择，这里传选择的二级类目id）
+ * level：类目级别（一级 or 二级 or ）
+ * price：12_35 价格范围
+ * month_sales：12_35 月销量
+ * increment_like_count：12_35 点赞数
+ * increment_item_rating：12_35 评论数
+ * location： -1   （-1：本地  -2：海外）出货地点
+ * shopType：2   （2：全部  1：官方店铺  0：非官方店铺） 店铺类型
+ * sortBy：1  （1：飙升  2：热门 ）排序
+ *}
+ */
+  searchShopeeHotGoods(data) {
+    return this.nativeService.callDianBaShopeeInfo('SearchShopeeHotGoods'
+      , data.page, data.page_size, data.platform_id, data.cat_id, data.level, data.price, data.month_sales,
+      data.increment_like_count, data.increment_item_rating, data.location, data.shopType, data.sortBy)
+  }
+  /**
+   * @name :品牌词库
+   * @param : {
+   * page: 页码
+   * perpage：页码大小
+   * word：关键词
+   * country：站点
+   * source：词来源
+   * type：关键词类别
+   * start_time：
+   * end_time：
+   *}
+   */
+  getBannedWordList(data) {
+    return this.nativeService.callCategoryFunction('GetBannedWordList', JSON.stringify(data))
+  }
+  /**
+   * @name :品牌词库添加
+   */
+  addBannedWord(data) {
+    return this.nativeService.callCategoryFunction('AddBannedWord', data.word, data.country, data.type)
+  }
+  /**
+   * @name :品牌词库删除
+   */
+  deleteDannedWord(data) {
+    return this.nativeService.callCategoryFunction('DeleteDannedWord', data.toString())
+  }
 }
+

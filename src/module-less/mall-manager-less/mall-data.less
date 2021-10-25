@@ -1,44 +1,63 @@
-.contaniner{
+.contaniner {
   margin: 10px;
   min-width: 1280px;
-  .header {
-    background: white;
-    padding: 16px;
-    .header-top {
-      ul {
-        display: flex;
-        li {
-          margin: 5px;
+  display: flex;
+  .right {
+    border-radius: 30px;
+    margin-left: 10px;
+    .header {
+      background: white;
+      padding: 16px;
+      .header-top {
+        ul {
           display: flex;
-          span {
-            white-space: nowrap;
-            // width: 89px;
-            text-align: right;
+          li {
+            margin: 5px;
+            display: flex;
+            span {
+              white-space: nowrap;
+              text-align: right;
+              line-height: 25px;
+            }
+            .unnormal {
+              width: 120px;
+            }
+            .unnormal1 {
+              width: 180px;
+            }
+            .unnormal2 {
+              width: 158px;
+            }
+            .unnormal3 {
+              width: 80px;
+            }
           }
-          .unnormal {
-              width: 89px;
-          }
-          .unnormal2 {
-            width: 198px;
+
+        }
+      }
+    }
+    .header-two {
+      margin-top: 10px;
+      background: white;
+      padding: 16px;
+      .header-two-top {
+        span {
+          margin: 0 30px 0 0;
+          white-space: nowrap;
+          p {
+            color: red;
+            display: inline;
           }
         }
-     
       }
     }
-  }
-  .header-two {
-    margin-top: 10px;
-    background: white;
-    padding: 16px;
-    .header-two-top {
-      span {
-        margin: 0 50px 0 0;
-        white-space: nowrap;
+    .article {
+      background: white;
+      margin-top: 10px;
+      .pagination {
+        margin: 10px;
+        float: right;
       }
     }
-  }
-  .article {
-    background: white;
-    margin-top: 10px;
   }
 }

@@ -93,6 +93,9 @@ export default {
   ddMallGoodsGetMallList: (data) => AppRequest.get('/ddMallGoods/getMallList', data), // 联动站点分组获取店铺列表
   mallGroupIndex: (data) => AppRequest.get('/mallGroup/index', { params: data }), // 获取店铺分组列表
   getMallList: (data) => AppRequest.get('/bindMall/mallList', { params: data }), // 获取店铺列表
+  getMallStatistics: (data) => AppRequest.get('/mallStatistics/index', { params: data }), // 店铺数据+店铺指标列表
+  syncMallData: (data) => AppRequest.post('/mallStatistics/save', data), // 上报店铺数据+店铺指标列表
+  test: (data) => AppRequest.get('/bindMall/getMallLoginDatasV2', data),
   updateWatermark: (data) => AppRequest.post('/bindMall/updateWatermark', data), // 修改店铺水印
   updateUserPassword: (data) => AppRequest.post('/bindMall/uploadUserPassword', data), // 修改账户登录密码
   uploadMallCookie: (data) => AppRequest.post('/bindMall/uploadWebLoginInfo', data), // 上报店铺cookie
@@ -107,7 +110,7 @@ export default {
   // 异常公告--签收包裹异常
   getExceptionNoOrderIndex: (data) => AppRequest.get('/exceptionNoOrderIndex', { params: data }), // 签收包裹异常列表
   markPackageToMy: (data) => AppRequest.post('/signPackage/markPackageToMy', data), // 标记为我的
-  apply: (data) => AppRequest.post('/packageReturn/apply', data), // 申请退件
+  applicationForreJection: (data) => AppRequest.post('/packageReturn/apply', data), // 申请退件
 
   // 异常公告--待获取物流单号
   getExceptionNoTrackingNumberIndex: (data) => AppRequest.get('/exceptionNoTrackingNumberIndex', { params: data }), // 订单列表

@@ -53,6 +53,9 @@
     <el-dialog title="填写退件信息" :visible.sync="applyDialogFormVisible" width="500px">
       <!-- <span style="color: red">温馨提示：请填写子订单号</span> -->
       <el-form :model="applyForm">
+        <el-form-item label="包裹号:" label-width="80px">
+          <span style="color: red">{{ applyForm.lists.packageCode }}</span>
+        </el-form-item>
         <el-form-item label="收件人:" label-width="80px">
           <el-input v-model="applyForm.returnContact" size="mini" />
         </el-form-item>
@@ -60,10 +63,10 @@
           <el-input v-model="applyForm.returnPhoneNumber" size="mini" />
         </el-form-item>
         <el-form-item label="退件地区:" label-width="80px">
-          <el-cascader ref="refTbCate" :props="props" clearable size="mini" @change="targetCate" />
+          <el-cascader ref="refTbCate" v-model="applyRegion" :props="props" clearable size="mini" @change="targetCate" />
         </el-form-item>
         <el-form-item label="详细地址:" label-width="80px">
-          <el-input v-model="applyForm.applyAddress" type="textarea" resize="none" size="mini" />
+          <el-input v-model="applyForm.returnAddress" type="textarea" resize="none" size="mini" />
         </el-form-item>
         <el-form-item label="退件备注:" label-width="80px">
           <el-input v-model="applyForm.returnRemarks" type="textarea" resize="none" size="mini" />
@@ -77,7 +80,6 @@
 </template>
 
 <script>
-const id = 0
 export default {
   data() {
     return {
@@ -124,20 +126,19 @@ export default {
         orderSn: ''
       },
       // 控制申请退件dialog
-      applyDialogFormVisible: true,
+      applyDialogFormVisible: false,
       // 申请退件dialog表单数据
       applyForm: {
         lists: {
           gpcId: 0,
           packageCode: ''
         },
-        applyRegion: [],
-        applyAddress: '',
         returnContact: '',
         returnPhoneNumber: '',
         returnAddress: '',
         returnRemarks: ''
       },
+      applyRegion: [],
       // 表格数据
       tableData: [],
       // 按钮状态
@@ -165,7 +166,7 @@ export default {
             nameArr[item] = '1'
           }
         })
-        this.applyForm.applyAddress = Object.keys(nameArr).toString().replace(/,/g, '')
+        this.applyForm.returnAddress = Object.keys(nameArr).toString().replace(/,/g, '')
       }
     },
     // 获取签收包裹异常列表
@@ -218,44 +219,42 @@ export default {
     },
     // 申请退件dialog确定
     async applyDialogHandle() {
-      if (!this.applyForm.applyRegion || this.applyForm.applyRegion.length === 0) {
-        this.$message.error('退件地区不能为空')
-        return
-      } else if (!this.applyForm.applyAddress.trim()) {
-        this.$message.error('退件详细地址不能为空')
+      if (!this.applyForm.returnContact) {
+        this.$message.error('收件人不能为空')
         return
       }
-      this.applyForm.applyRegion = this.applyForm.applyRegion.join('/')
-      this.applyForm.returnAddress = `${this.applyForm.applyRegion} ${this.applyForm.applyAddress}`
-      const test = this.applyForm
+      if (!this.applyForm.returnPhoneNumber) {
+        return this.$message.error('联系电话不能为空')
+      }
+      if (!this.applyRegion || !this.applyRegion.length) {
+        return this.$message.error('退件地区不能为空')
+      }
+      if (!this.applyForm.returnAddress) {
+        return this.$message.error('详细地址不能为空')
+      }
+      if (!this.applyForm.returnRemarks) {
+        return this.$message.error('退件备注不能为空')
+      }
+      const res = await this.$api.applicationForreJection(this.applyForm)
       debugger
-      // const result = await this.$api.apply(this.applyForm)
-      // console.log(result)
-      // if (result.data.code === 200) {
-      //   this.applyDialogFormVisible = false
-      //   this.$message({
-      //     message: '申请退件成功',
-      //     type: 'success'
-      //   })
-      // } else {
-      //   this.$message.error(result.data.message)
-      // }
+      if (res.data.code === 200) {
+        this.applyDialogFormVisible = false
+        this.$message({
+          message: '申请退件成功',
+          type: 'success'
+        })
+      } else {
+        this.$message.error(res.data.message)
+      }
     },
     // 申请退件
     applyReturnPartsHandle(row) {
-      this.applyForm = {
-        lists: {
-          gpcId: 0,
-          packageCode: ''
-        },
-        applyRegion: [],
-        applyAddress: '',
-        returnContact: '',
-        returnPhoneNumber: '',
-        returnAddress: '',
-        returnRemarks: ''
-      }
-      this.applyForm.lists.packageCode = row.package_code
+      this.applyForm['lists']['packageCode'] = row.package_code
+      this.applyForm['returnPhoneNumber'] = ''
+      this.applyForm['returnContact'] = ''
+      this.applyForm['returnRemarks'] = ''
+      this.applyForm['returnAddress'] = ''
+      this.applyRegion = []
       this.applyDialogFormVisible = true
     },
     // 格式化搜索时间
