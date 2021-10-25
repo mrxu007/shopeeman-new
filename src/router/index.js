@@ -34,13 +34,19 @@ const routes = [
       import('../views/data-statistics/index.vue')
   },
   {
-    path: '/product-put', // 数据统计
+    path: '/product-put', // 选品上新
     name: 'product-put',
     component: () =>
       import('../views/product-put-on/index.vue')
   },
   {
-    path: '/user-config', // 数据统计
+    path: '/smart-house', // 选品上新
+    name: 'smart-house',
+    component: () =>
+      import('../views/smart-house/index.vue')
+  },
+  {
+    path: '/user-config', // 用户配置
     name: 'user-config',
     component: () =>
       import('../views/user-config/index.vue')

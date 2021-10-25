@@ -42,12 +42,6 @@ export default {
       default() {
         return false
       }
-    },
-    source: {
-      type: String,
-      default() {
-        return ''
-      }
     }
   },
   data() {
@@ -77,7 +71,7 @@ export default {
         this.isAllowSet2 = false
         this.groupId = []
         this.groupIdList = []
-        this.ddMallGoodsGetMallList(1)
+        this.ddMallGoodsGetMallList()
       },
       deep: true
     },
@@ -103,7 +97,7 @@ export default {
           }
           setTimeout(() => {
             this.isAllowSet2 = true
-            this.ddMallGoodsGetMallList(2)
+            this.ddMallGoodsGetMallList()
           }, 10)
         }
       },
@@ -139,15 +133,14 @@ export default {
     }
   },
   mounted() {
-    console.log(this.isAll)
+    // console.log(this.isAll)
     this.countryVal = !this.isAll && 'TH' || ''
   },
   methods: {
     async changeSelect(val) {
       console.log(val)
     },
-    async ddMallGoodsGetMallList(val) {
-      console.log(val)
+    async ddMallGoodsGetMallList() {
       this.site = []
       const country = this.countryVal
       const groupId = this.groupId.indexOf('') > -1 && this.groupId.slice(1).toString() || this.groupId.toString()
@@ -156,7 +149,7 @@ export default {
         mallGroupIds: groupId
       }
       const res = await ddMallGoodsGetMallList(param)
-      console.log('ddMallGoodsGetMallList - res', res)
+      // console.log('ddMallGoodsGetMallList - res', res)
       if (res.code === 200) {
         this.siteList = res.data
         if (this.groupIdList.length === 0) {
@@ -188,11 +181,7 @@ export default {
           mallList.push(temp[0])
         }
       })
-      if (this.source) {
-        this.$emit('changeMallList', { mallList: mallList, source: this.source })
-      } else {
-        this.$emit('changeMallList', mallList)
-      }
+      this.$emit('changeMallList', mallList)
     }
   }
 }

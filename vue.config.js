@@ -13,9 +13,18 @@ module.exports = {
       // 生成文件的最大体积
       maxAssetSize: 3000000000,
       // 只给出 js 文件的性能提示
-      assetFilter: function (assetFilename) {
+      assetFilter: function(assetFilename) {
         return assetFilename.endsWith('.js')
       }
     }
+  },
+  devServer: {
+
+    public: '172.16.11.38:8080',
+
+    hot: true,
+
+    disableHostCheck: true
+
   }
 }
