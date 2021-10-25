@@ -98,7 +98,7 @@ export default {
   // 异常公告--签收包裹异常
   getExceptionNoOrderIndex: (data) => AppRequest.get('/exceptionNoOrderIndex', { params: data }), // 签收包裹异常列表
   markPackageToMy: (data) => AppRequest.post('/signPackage/markPackageToMy', data), // 标记为我的
-  apply: (data) => AppRequest.post('/packageReturn/apply', data), // 申请退件
+  applicationForreJection: (data) => AppRequest.post('/packageReturn/apply', data), // 申请退件
 
   // 异常公告--待获取物流单号
   getExceptionNoTrackingNumberIndex: (data) => AppRequest.get('/exceptionNoTrackingNumberIndex', { params: data }), // 订单列表
