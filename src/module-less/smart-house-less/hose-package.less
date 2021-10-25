@@ -1,0 +1,65 @@
+.contaniner{
+    margin: 10px;
+    .header {
+      background: white;
+      padding: 16px;
+      min-width: 1280px;
+      overflow: auto;
+      ul{
+        display: flex;
+          li{
+            line-height: 24px;
+            display: flex;
+              margin-right: 20px;
+              /deep/.el-range-editor--mini{
+                width: 228px;
+                /deep/.el-range-input{
+                  width: 62px !important;
+              }
+              /deep/.el-range-separator{
+                  width: 42px!important;
+                  text-align: center;
+              }
+            }
+            /deep/.el-input{
+              width: 200px !important;
+            }
+          }
+      }
+    }
+    #article {
+      background: white;
+      margin-top: 10px;
+      padding: 16px;
+      .pagination{
+        float: right;
+        margin-top: 10px;
+      }
+    }
+    .dialog {
+      /deep/.el-dialog__header {
+        padding: 5px 0 0 10px !important;
+      }
+      /deep/.el-dialog__title {
+        font-size: 12px !important;
+        color: #3031337a !important;
+      }
+        /deep/.el-checkbox-group {
+          width: 250px !important;
+
+          /deep/.el-checkbox {
+            margin-right: 5px !important;
+            /deep/.el-checkbox__label {
+              padding-left: 5px !important;
+            }
+          }
+        }
+        /deep/.el-form {
+          width: 350px;
+          /deep/.el-form-item {
+            margin-bottom: 10px !important;
+            text-align: center !important;
+          }
+        }
+      }
+  }

@@ -10,16 +10,26 @@
   <div class="catch-notice-style">
     <!--爆款选品 -->
     <main v-if="activeVal === '0'"><SmartHouseWorkBench /></main>
+
+    <!--包裹列表 -->
+    <main v-if="activeVal === '1'"><SmartHousePackage /></main>
+
+    <!--国内仓退件管理 -->
+    <main v-if="activeVal === '2'"><SmartReturnManage /></main>
   </div>
 </template>
 
 <script>
 import {
-  SmartHouseWorkBench
+  SmartHouseWorkBench,
+  SmartHousePackage,
+  SmartReturnManage
 } from './index'
 export default {
   components: {
-    SmartHouseWorkBench
+    SmartHouseWorkBench,
+    SmartHousePackage,
+    SmartReturnManage
   },
   data() {
     return {

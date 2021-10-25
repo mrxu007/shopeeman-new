@@ -87,7 +87,6 @@ export default {
   getMallList: (data) => AppRequest.get('/bindMall/mallList', { params: data }), // 获取店铺列表
   getMallStatistics: (data) => AppRequest.get('/mallStatistics/index', { params: data }), // 店铺数据+店铺指标列表
   syncMallData: (data) => AppRequest.post('/mallStatistics/save', data), // 上报店铺数据+店铺指标列表
-  test: (data) => AppRequest.get('/bindMall/getMallLoginDatasV2', data),
   updateWatermark: (data) => AppRequest.post('/bindMall/updateWatermark', data), // 修改店铺水印
   updateUserPassword: (data) => AppRequest.post('/bindMall/uploadUserPassword', data), // 修改账户登录密码
   uploadMallCookie: (data) => AppRequest.post('/bindMall/uploadWebLoginInfo', data), // 上报店铺cookie
@@ -111,5 +110,14 @@ export default {
   // 异常公告--即将过期订单
   getExceptionExpiredOrderIndex: (data) => AppRequest.get('/exceptionExpiredOrderIndex', { params: data }), // 订单列表
   getExceptionWarehouse: (data) => AppRequest.get('/exceptionWarehouse', { params: data }), // 仓库异常信息列表
-  uploadDealExceptionStatus: (data) => AppRequest.post('/uploadDealExceptionStatus', data) // 仓库异常处理状态上报
+  uploadDealExceptionStatus: (data) => AppRequest.post('/uploadDealExceptionStatus', data), // 仓库异常处理状态上报
+
+  // 智能仓库-包裹列表
+  getSignPackageList: (data) => AppRequest.post('/signPackage', data), // 获取包裹列表
+  cancelReturn: (data) => AppRequest.post('/packageReturn/cancel', data), // 取消退件
+  getDeturnInfo: (data) => AppRequest.get('/packageReturn/info', data), // 退件详情
+
+  // 智能仓库-退件管理列表
+  getReturnManage: (data) => AppRequest.get('/packageReturn', data) // 获取退件管理列表
+
 }
