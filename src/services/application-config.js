@@ -32,4 +32,10 @@ export default class applicationConfig {
     async getUserConfig() {
       return await this.nativeService.getUserConfig()
     }
+    /**
+     * 获取店铺信息
+     */
+    async getGlobalCacheInfo(type, id) {
+      return await this.nativeService.getGlobalCacheInfo(type, id)
+    }
 }

@@ -297,26 +297,33 @@ export default {
         const resData = data.data
         this.total = resData.total
         this.tableData = resData.data
-        this.tableData.map(item => {
-          item.country = this.shopeeConfig.getSiteCode(item.country)
-          item.mall_datas = JSON.parse(item.mall_datas)
-          item.available_amount = item.available_amount ? parseInt(item.available_amount) : 0
-          item.lastmonth_amount = item.lastmonth_amount ? parseInt(item.lastmonth_amount) : 0
-          item.lastweek_amount = item.lastweek_amount ? parseInt(item.lastweek_amount) : 0
-          item.frozen_amount = item.frozen_amount ? parseInt(item.frozen_amount) : 0
-          item.frozen_amount_orders = item.frozen_amount_orders ? item.frozen_amount_orders : 0
-          this.availableAmount += item.available_amount
-          this.monthAmount += item.lastmonth_amount
-          this.weekAmount += item.lastweek_amount
-          this.frozenAmount += item.frozen_amount
-          this.frozenAmountOrders += item.frozen_amount_orders
-          item.not_order_time = item.recent_order_create_time ? this.formatDay(item.recent_order_create_time) : '无订单记录'
-          testData.forEach(nItem => {
-            item.group_name = item.platform_mall_id === nItem.platform_mall_id ? nItem.group_name : item.group_name
-            item.mall_type = item.platform_mall_id === nItem.platform_mall_id ? nItem.mall_type : item.mall_type
+        if (this.tableData) {
+          for (let index = 0; index < this.tableData.length; index++) {
+            const element = this.tableData[index]
+            const res = await this.$appConfig.getGlobalCacheInfo('mallInfo', element.platform_mall_id)
+            const jsonData = JSON.parse(res)
+            console.log(jsonData)
+          }
+          this.tableData.map(async item => {
+            item.country = this.shopeeConfig.getSiteCode(item.country)
+            item.mall_datas = JSON.parse(item.mall_datas)
+            item.available_amount = item.available_amount ? parseInt(item.available_amount) : 0
+            item.lastmonth_amount = item.lastmonth_amount ? parseInt(item.lastmonth_amount) : 0
+            item.lastweek_amount = item.lastweek_amount ? parseInt(item.lastweek_amount) : 0
+            item.frozen_amount = item.frozen_amount ? parseInt(item.frozen_amount) : 0
+            item.frozen_amount_orders = item.frozen_amount_orders ? item.frozen_amount_orders : 0
+            this.availableAmount += item.available_amount
+            this.monthAmount += item.lastmonth_amount
+            this.weekAmount += item.lastweek_amount
+            this.frozenAmount += item.frozen_amount
+            this.frozenAmountOrders += item.frozen_amount_orders
+            item.not_order_time = item.recent_order_create_time ? this.formatDay(item.recent_order_create_time) : '无订单记录'
+            testData.forEach(nItem => {
+              item.group_name = item.platform_mall_id === nItem.platform_mall_id ? nItem.group_name : item.group_name
+              item.mall_type = item.platform_mall_id === nItem.platform_mall_id ? nItem.mall_type : item.mall_type
+            })
           })
-        })
-
+        }
         this.isLoading = false
         console.log('tableData', this.tableData)
       } else {

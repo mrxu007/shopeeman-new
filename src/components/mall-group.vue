@@ -35,11 +35,9 @@ export default {
   methods: {
     // 点击店铺分组
     rowClick(row) {
-    //   this.form.groupId = row.id
       this.$emit('getGroupId', row.id)
       this.getData()
       console.log(row)
-    //   this.getMallStatistics()
     },
     // 获取店铺分组
     async getBindMallCount() {
