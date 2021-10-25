@@ -45,6 +45,21 @@ let countries_image = {
   "CL" : "https://cf.shopee.cl",
   "PL" : "https://cf.shopee.pl",
 }
+    // 各站点货币符号
+ let  site_coin_symbol = {
+      'MY': 'RM',
+      'TW': '$',
+      'VN': '₫',
+      'ID': 'Rp',
+      'PH': '₱',
+      'TH': '฿',
+      'SG': '$',
+      'BR': 'R$',
+      'MX': 'MX$',
+      'CO': '$',
+      'CL': '$',
+      'PL': 'zł'
+    }
 
 var chineseSite = function(val) {
   let attribute = val && (val+'').toLocaleUpperCase() || val
@@ -61,4 +76,9 @@ var imageRender = function(data) {
   let url = countries_image[attribute] && (countries_image[attribute] + '/file/' + shop_id + '/' + image_value) || ''
   return isArr && [url] || url
 }
-export { chineseSite,imageRender }
+var siteCoin = function(val) {
+  let attribute = val && (val+'').toLocaleUpperCase() || val
+  attribute = countries_id[attribute] || attribute
+  return site_coin_symbol[attribute] || attribute
+}
+export { chineseSite,imageRender,siteCoin }
