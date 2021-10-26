@@ -68,10 +68,31 @@
         }"
         @selection-change="handleSelectionChange"
       >
-        <el-table-column align="center" type="selection" width="50" />
-        <el-table-column align="center" type="index" label="序号" />
-        <el-table-column align="center" prop="need_return_package_code" label="包裹物流单号" min-width="120" show-overflow-tooltip />
-        <el-table-column align="center" prop="order_sn" label="订单编号" min-width="120" show-overflow-tooltip />
+        <el-table-column align="center" type="selection" width="50" fixed />
+        <el-table-column align="center" type="index" label="序号" fixed />
+        <el-table-column align="center" prop="need_return_package_code" label="包裹物流单号" min-width="180" show-overflow-tooltip>
+          <template slot-scope="{row}">
+            <span>{{ row.need_return_package_code }}
+              <span
+                v-if="row.need_return_package_code"
+                class="copyIcon"
+                @click="copy(row.need_return_package_code)"
+              ><i
+                class="el-icon-document-copy"
+              /></span></span>
+          </template>
+        </el-table-column>
+        <el-table-column align="center" prop="order_sn" label="订单编号" min-width="180" show-overflow-tooltip>
+          <template slot-scope="{row}">
+            <span>{{ row.order_sn }}
+              <span
+                v-if="row.order_sn"
+                class="copyIcon"
+                @click="copy(row.order_sn)"
+              ><i
+                class="el-icon-document-copy"
+              /></span></span>
+          </template></el-table-column>
         <el-table-column align="center" prop="warehouse_name" label="签收仓库" min-width="120" show-overflow-tooltip />
         <el-table-column align="center" prop="status" label="状态">
           <template slot-scope="{row}">
@@ -209,6 +230,26 @@ export default {
         console.log(error)
       }
       console.log('tableData', this.tableData)
+    },
+    // 点击复制
+    copy(attr) {
+      const target = document.createElement('div')
+      target.id = 'tempTarget'
+      target.style.opacity = '0'
+      target.innerText = attr
+      document.body.appendChild(target)
+      try {
+        const range = document.createRange()
+        range.selectNode(target)
+        window.getSelection().removeAllRanges()
+        window.getSelection().addRange(range)
+        document.execCommand('copy')
+        window.getSelection().removeAllRanges()
+        this.$message.success('复制成功')
+      } catch (e) {
+        // console.log('复制失败')
+      }
+      target.parentElement.removeChild(target)
     },
     handleSizeChange(val) {
       this.page = 1
