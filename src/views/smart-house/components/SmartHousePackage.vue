@@ -108,7 +108,7 @@
               placement="right-end"
               :visible-arrow="false"
               :enterable="false"
-              style="width: 40px; height: 40px"
+              style="width: 50px; height: 50px"
             >
               <div slot="content">
                 <img
@@ -117,7 +117,7 @@
                   height="300px"
                 >
               </div>
-              <el-image :src="row.package_image" alt="" />
+              <el-image v-if="row.package_image.indexOf('91cyt') != -1" :src="row.package_image" alt="" />
             </el-tooltip>
           </template>
         </el-table-column>

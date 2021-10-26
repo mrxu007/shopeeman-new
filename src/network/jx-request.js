@@ -142,6 +142,7 @@ export default {
   getSignPackageList: (data) => AppRequest.post('/signPackage', data), // 获取包裹列表
   cancelReturn: (data) => AppRequest.post('/packageReturn/cancel', data), // 取消退件
   getReturnInfo: (data) => AppRequest.get('/packageReturn/info', { params: data }), // 退件详情
+  getUnclaimedPackage: (data) => AppRequest.get('/signPackage/getUnclaimedPackage', { params: data }), // 失物招领
 
   // 智能仓库-退件管理列表
   getReturnManage: (data) => AppRequest.get('/packageReturn', { params: data }) // 获取退件管理列表

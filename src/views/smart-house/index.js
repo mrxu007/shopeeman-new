@@ -7,9 +7,13 @@ const SmartHousePackage = () => import('./components/SmartHousePackage.vue')
 // 国内仓退件管理
 const SmartHouseReturnManage = () => import('./components/SmartHouseReturnManage.vue')
 
+// 失物招领
+const SmartHouseUnclaimed = () => import('./components/SmartHouseUnclaimed.vue')
+
 // 导出
 export {
   SmartHouseWorkBench,
   SmartHousePackage,
-  SmartHouseReturnManage
+  SmartHouseReturnManage,
+  SmartHouseUnclaimed
 }

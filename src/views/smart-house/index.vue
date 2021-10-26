@@ -16,6 +16,9 @@
 
     <!--国内仓退件管理 -->
     <main v-if="activeVal === '2'"><SmartHouseReturnManage /></main>
+
+    <!--失物招领 -->
+    <main v-if="activeVal === '3'"><SmartHouseUnclaimed /></main>
   </div>
 </template>
 
@@ -23,13 +26,15 @@
 import {
   SmartHouseWorkBench,
   SmartHousePackage,
-  SmartHouseReturnManage
+  SmartHouseReturnManage,
+  SmartHouseUnclaimed
 } from './index'
 export default {
   components: {
     SmartHouseWorkBench,
     SmartHousePackage,
-    SmartHouseReturnManage
+    SmartHouseReturnManage,
+    SmartHouseUnclaimed
   },
   data() {
     return {
