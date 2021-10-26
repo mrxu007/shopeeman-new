@@ -2,6 +2,18 @@ export default class BaseUtilService {
   constructor() {
     this.nativeService = window['BaseUtilBridgeService']
   }
+
+  UpdateProxy() { // 清除缓存
+    return this.nativeService.updateProxy()
+  }
+  /**
+       *  打开代理浏览器
+       * @name : OpenProxyWeb
+       * @param :{object}
+       */
+  OpenProxyWeb(param) { // 打开代理浏览器
+    return this.nativeService.openProxyWeb(param)
+  }
   stringGetEncodingGbk(writeString) {
     return this.nativeService.stringGetEncodingGbk(writeString.toString())
   }

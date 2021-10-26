@@ -20,6 +20,14 @@ const AppRequest = axios.create({ // 壳内转发请求
     return jxAdapter(config)
   }
 })
+const AppRequest2 = axios.create({ // 壳内转发请求
+  baseURL: 'http://local.spm.com',
+  timeout: 5000,
+  withCredentials: true,
+  adapter: config => {
+    return jxAdapter(config)
+  }
+})
 const ycjRequest = axios.create({ // 云采集请求
   baseURL: 'http://129.204.71.240',
   timeout: 5000,
@@ -32,7 +40,8 @@ const otherRequest = axios.create({ // 第三方请求
   timeout: 5000,
   headers: {
     'User-Agent':
-      'Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/537.36'
+      'Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/537.36',
+    'Accept': 'application/vnd.ppxias.v3+json'
   },
   withCredentials: true,
   adapter: config => {
@@ -84,6 +93,9 @@ export default {
   ddMallGoodsGetMallList: (data) => AppRequest.get('/ddMallGoods/getMallList', data), // 联动站点分组获取店铺列表
   mallGroupIndex: (data) => AppRequest.get('/mallGroup/index', { params: data }), // 获取店铺分组列表
   getMallList: (data) => AppRequest.get('/bindMall/mallList', { params: data }), // 获取店铺列表
+  getMallStatistics: (data) => AppRequest.get('/mallStatistics/index', { params: data }), // 店铺数据+店铺指标列表
+  syncMallData: (data) => AppRequest.post('/mallStatistics/save', data), // 上报店铺数据+店铺指标列表
+  test: (data) => AppRequest.get('/bindMall/getMallLoginDatasV2', data),
   updateWatermark: (data) => AppRequest.post('/bindMall/updateWatermark', data), // 修改店铺水印
   updateUserPassword: (data) => AppRequest.post('/bindMall/uploadUserPassword', data), // 修改账户登录密码
   uploadMallCookie: (data) => AppRequest.post('/bindMall/uploadWebLoginInfo', data), // 上报店铺cookie
@@ -98,11 +110,29 @@ export default {
   // 异常公告--签收包裹异常
   getExceptionNoOrderIndex: (data) => AppRequest.get('/exceptionNoOrderIndex', { params: data }), // 签收包裹异常列表
   markPackageToMy: (data) => AppRequest.post('/signPackage/markPackageToMy', data), // 标记为我的
-  apply: (data) => AppRequest.post('/packageReturn/apply', data), // 申请退件
+  applicationForreJection: (data) => AppRequest.post('/packageReturn/apply', data), // 申请退件
 
   // 异常公告--待获取物流单号
   getExceptionNoTrackingNumberIndex: (data) => AppRequest.get('/exceptionNoTrackingNumberIndex', { params: data }), // 订单列表
   updateOrderTrackingNumber: (data) => AppRequest.post('/order/updateOrderTrackingNumber', data), // 添加采购物流单号
+
+  // 异常公告
+  getExceptionNoOrderIndex: (data) => AppRequest.get('/exceptionNoOrderIndex', { params: data }), // 异常公告签收包裹异常列表
+  markPackageToMy: (data) => AppRequest.post('/signPackage/markPackageToMy', data), // 异常公告签收包裹异常：标记为我的
+  apply: (data) => AppRequest.post('/packageReturn/apply', data), // 异常公告签收包裹异常：申请退件
+  getExceptionNoTrackingNumberIndex: (data) => AppRequest.get('/exceptionNoTrackingNumberIndex', { params: data }), // 异常公告待获取物流单号订单列表
+  updateOrderTrackingNumber: (data) => AppRequest.post('/order/updateOrderTrackingNumber', data), // 异常公告待获取物流订单添加采购物流单号
+  getExceptionExpiredOrderIndex: (data) => AppRequest.get('/exceptionExpiredOrderIndex', { params: data }), // 异常公告即将过期订单列表
+  getExceptionWarehouse: (data) => AppRequest.get('/exceptionWarehouse', { params: data }), // 异常公告仓库异常信息列表
+  uploadDealExceptionStatus: (data) => AppRequest.post('/uploadDealExceptionStatus', data), // 异常公告仓库异常处理状态上报
+
+  // 2021-10-18
+  // 店铺管理
+  getMallManagerStoreMainManagementList: (data) => AppRequest.get('/yunip/api/myiplist', { params: data }), // 店铺主体管理列表
+  getPaymentList: (data) => AppRequest2.post('/api/mallAccountBill', data), // 货款对账列表
+  getMallSite: (data) => AppRequest2.get('/api/ddMallGoods/getMallList', { params: data }), // 店铺站点信息
+  exchangeRateList: (data) => AppRequest2.get('/api/exchangeRateList', { params: data }), // 获取汇率
+  updateMallInfo: (data) => AppRequest2.post('/api/bindMall/updateMallInfo', { params: data }), // 同步信息
 
   // 异常公告--即将过期订单
   getExceptionExpiredOrderIndex: (data) => AppRequest.get('/exceptionExpiredOrderIndex', { params: data }), // 订单列表

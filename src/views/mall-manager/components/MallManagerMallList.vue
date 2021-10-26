@@ -404,8 +404,8 @@ export default {
         const item = this.multipleSelection[i]
         const res = await this.$shopeemanService.login(item.country, { shop_id: item.platform_mall_id })
         if (res.code !== 200) {
-          console.log('店铺登录', res.data)
-          this.$message.error(`店铺登录失败：${res.data}`)
+          console.log(`店铺【${item.platform_mall_name}】登录失败：${res.data}`)
+          this.$message.error(`店铺【${item.platform_mall_name}】登录失败：${res.data}`)
           continue
         }
         // debugger
@@ -419,11 +419,9 @@ export default {
           console.log('店铺上传', res.data)
           continue
         }
-        this.$message.success('店铺登录成功')
+        console.log(`店铺【${item.platform_mall_name}】登录成功`)
+        this.$message.success(`店铺【${item.platform_mall_name}】登录成功`)
       }
-      // setTimeout(() => {
-      //   this.buttonStatus.login = false
-      // }, 20000)
       this.buttonStatus.login = false
     },
     importMall(val) {

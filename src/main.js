@@ -24,6 +24,7 @@ import dayjs from 'dayjs'
 import applicationConfig from './services/application-config'
 import ShopeemanConfig from './services/shopeeman-config'
 import XzyNetMessageService from './services/XzyNetMessageService'
+import YipService from './services/YipService'
 import mallServce from './services/mall-servers'
 import commodityService from './services/commodity-service'
 import buyerAccountService from './services/buyer-account-service'
@@ -46,8 +47,8 @@ import * as echarts from 'echarts'
 import * as filters from './plugins/filters'
 
 Vue.prototype.$echarts = echarts
-Object.keys(filters).forEach(key=>{
-  Vue.filter(key,filters[key])//插入过滤器名和对应方法
+Object.keys(filters).forEach(key => {
+  Vue.filter(key, filters[key])// 插入过滤器名和对应方法
 })
 // const config = {
 //   openDebugger: process.env.NODE_ENV === 'development',
@@ -67,6 +68,10 @@ Vue.use(UTableColumn)
 
 Vue.use(Logs)
 Vue.use(VueDND)
+
+Vue.prototype.$YipService = new YipService()
+Vue.prototype.$XzyNetMessageService = new XzyNetMessageService()
+Vue.prototype.$shopeeManConfig = new ShopeemanConfig()
 
 Vue.prototype.$IpcMain = IpcMain
 Vue.prototype.$NetService = NetService

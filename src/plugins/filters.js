@@ -1,8 +1,8 @@
 /*
  * @Author: your name
  * @Date: 2021-10-22 11:28:33
- * @LastEditTime: 2021-10-25 15:35:05
- * @LastEditors: your name
+ * @LastEditTime: 2021-10-25 15:42:36
+ * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shopeeman-new\src\plugins\filters.js
  */
@@ -53,6 +53,21 @@ let countries_image = {
   "CL": "https://cf.shopee.cl",
   "PL": "https://cf.shopee.pl",
 }
+    // 各站点货币符号
+ let  site_coin_symbol = {
+      'MY': 'RM',
+      'TW': '$',
+      'VN': '₫',
+      'ID': 'Rp',
+      'PH': '₱',
+      'TH': '฿',
+      'SG': '$',
+      'BR': 'R$',
+      'MX': 'MX$',
+      'CO': '$',
+      'CL': '$',
+      'PL': 'zł'
+    }
 
 var chineseSite = function (val) {
   let attribute = val && (val + '').toLocaleUpperCase() || val
@@ -69,8 +84,9 @@ var imageRender = function (data) {
   let url = countries_image[attribute] && (countries_image[attribute] + '/file/' + shop_id + '/' + image_value) || ''
   return isArr && [url] || url
 }
-
-export {
-  chineseSite,
-  imageRender
+var siteCoin = function(val) {
+  let attribute = val && (val+'').toLocaleUpperCase() || val
+  attribute = countries_id[attribute] || attribute
+  return site_coin_symbol[attribute] || attribute
 }
+export { chineseSite,imageRender,siteCoin }

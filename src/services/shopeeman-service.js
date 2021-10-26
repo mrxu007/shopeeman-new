@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-10-22 20:47:53
- * @LastEditTime: 2021-10-25 14:59:40
+ * @LastEditTime: 2021-10-26 10:51:03
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shopeeman-new\src\services\shopeeman-service.js
@@ -97,7 +97,7 @@ export default class NetMessageBridgeService {
   }
   //回复商店评价
   replyShopRating(country, data){
-    return this.postChinese(country, '/api/v3/settings/reply_shop_rating', data)
+    return this.postChinese(country, '/api/v3/settings/reply_shop_rating', data,{Headers:{"Content-Type":" application/json"}})
   }
   //店铺提现记录
   getWithDrawalRecord(country, data){

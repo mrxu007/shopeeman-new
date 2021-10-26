@@ -46,15 +46,15 @@
     <el-dialog title="采购物流单号填写" :visible.sync="logisticsOrderNoDialogFormVisible" width="500px">
       <el-form :model="logisticsOrderNoDialogForm">
         <el-form-item label="绑定仓库:" label-width="80px">
-          <el-select v-model="logisticsOrderNoDialogForm.warehouseId">
+          <el-select v-model="logisticsOrderNoDialogForm.warehouseId" size="mini">
             <el-option v-for="item in logisticsOrderNoDialogWarehouseOptions" :key="item.id" :label="item.label" :value="item.value" />
           </el-select>
         </el-form-item>
         <el-form-item label="物流公司:" label-width="80px">
-          <el-input v-model="logisticsOrderNoDialogForm.lists[0].trackingNumber" />
+          <el-input v-model="logisticsOrderNoDialogForm.lists[0].trackingNumber" size="mini" />
         </el-form-item>
         <el-form-item label="物流单号:" label-width="80px">
-          <el-input v-model="logisticsOrderNoDialogForm.lists[0].trackingNumberCompany" />
+          <el-input v-model="logisticsOrderNoDialogForm.lists[0].trackingNumberCompany" size="mini" />
         </el-form-item>
       </el-form>
       <div style="color: red">
@@ -74,7 +74,7 @@ export default {
   data() {
     return {
       // 控制采购物流单号dialog
-      logisticsOrderNoDialogFormVisible: false,
+      logisticsOrderNoDialogFormVisible: true,
       // 采购物流单号dialog表单数据
       logisticsOrderNoDialogForm: {
         sysOrderId: '',
@@ -103,8 +103,13 @@ export default {
   },
   mounted() {
     this.getExceptionNoTrackingNumberIndex()
+    this.test()
   },
   methods: {
+    async test() {
+      const res = await this.$appConfig.getWarehouseInfo('41')
+      debugger
+    },
     // 查询
     async searchHandle() {
       if (this.isStart) {
@@ -115,6 +120,7 @@ export default {
       const result = await this.$api.getExceptionNoTrackingNumberIndex(this.form)
       if (result.data.code === 200) {
         this.tableData = result.data.data.data
+        console.log('tableData', this.tableData)
       } else {
         this.$message.error(result.data.message)
       }
@@ -154,6 +160,7 @@ export default {
       const result = await this.$api.getExceptionNoTrackingNumberIndex()
       if (result.data.code === 200) {
         this.tableData = result.data.data.data
+        console.log('tableData', this.tableData)
       } else {
         this.$message.error(result.data.message)
       }

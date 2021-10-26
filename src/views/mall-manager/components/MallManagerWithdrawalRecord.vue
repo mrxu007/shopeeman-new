@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-10-08 14:16:18
- * @LastEditTime: 2021-10-25 15:30:23
+ * @LastEditTime: 2021-10-26 15:08:22
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shopeeman-new\src\views\mall-manager\components\MallManagerWithdrawalRecord.vue
@@ -10,7 +10,7 @@
   <div class="drawal-record">
     <div class="tool-bar">
       <div class="tool-row">
-          <storeChoose :is-all="true" @changeMallList="changeMallList"></storeChoose>
+        <storeChoose :is-all="true" @changeMallList="changeMallList"></storeChoose>
       </div>
       <div class="tool-row">
         <div class="tool-item mar-right">
@@ -35,6 +35,7 @@
       </div>
     </div>
     <div class="content">
+      
       <el-table v-loading="tableLoading" ref="multipleTable" :data="tableData" tooltip-effect="dark" max-height="650">
         <el-table-column align="center" type="index" label="序号" width="50">
           <template slot-scope="scope">{{ (currentPage - 1) * pageSize + scope.$index + 1 }}</template>
@@ -47,13 +48,13 @@
         <el-table-column prop="bank_account_number" label="银行卡号" align="center" min-width="120px" />
         <el-table-column align="center" prop="ic_number" label="IcNumber" min-width="100" />
         <el-table-column align="center" prop="amount" label="提现金额" min-width="70">
-          <template slot-scope="scope">{{ scope.row.amount}}</template>
+          <template slot-scope="scope">{{ scope.row.amount }} {{ scope.row.country | siteCoin }}</template>
         </el-table-column>
-        <el-table-column align="center" prop="ctime" label="提现时间" min-width="120" >
-           <template slot-scope="scope">{{ $dayjs(scope.row.ctime).format('YYYY-MM-DD HH:mm:ss')}}</template>
+        <el-table-column align="center" prop="ctime" label="提现时间" min-width="120">
+          <template slot-scope="scope">{{ $dayjs(scope.row.ctime * 1000).format('YYYY-MM-DD HH:mm:ss') }}</template>
         </el-table-column>
-        <el-table-column align="center" prop="complete_time" label="完成时间" min-width="120" >
-          <template slot-scope="scope">{{ $dayjs(scope.row.complete_time).format('YYYY-MM-DD HH:mm:ss')}}</template>
+        <el-table-column align="center" prop="complete_time" label="完成时间" min-width="120">
+          <template slot-scope="scope">{{ $dayjs(scope.row.complete_time * 1000).format('YYYY-MM-DD HH:mm:ss') }}</template>
         </el-table-column>
         <el-table-column align="center" prop="status" label="提现状态" min-width="80">
           <template slot-scope="scope">{{ changeTypeName(scope.row.status, statusList) }}</template>
@@ -62,7 +63,7 @@
       <div class="pagination">
         <el-pagination
           background
-          :page-sizes="[10, 20, 50, 100]"
+          :page-sizes="[20, 50, 100]"
           :page-size="pageSize"
           layout="total, sizes, prev, pager, next, jumper"
           :total="total"
@@ -77,10 +78,11 @@
 
 <script>
 import storeChoose from '../../../components/store-choose'
+import { exportExcelDataCommon } from '../../../util/util'
 export default {
-    components: {
-        storeChoose
-    },
+  components: {
+    storeChoose,
+  },
   data() {
     return {
       pickerOptions: {
@@ -117,7 +119,7 @@ export default {
       pageSize: 20, //页码
       currentPage: 1, //页码
       total: 0, //表格总数
-      mallPageSize:50,
+      mallPageSize: 50,
     }
   },
   mounted() {
@@ -126,19 +128,21 @@ export default {
     this.recordTime = [this.$dayjs(start).format('YYYY-MM-DD'), this.$dayjs(end).format('YYYY-MM-DD')]
   },
   methods: {
-    changeMallList(val){
-        this.selectMallList = val
-        console.log("changeMallList",val)
+    changeMallList(val) {
+      this.selectMallList = val
+      console.log('changeMallList', val)
     },
-     //查询列表
+    //查询列表
     async searchRecord() {
       if (!this.selectMallList.length) {
         return this.$message.warning('请选择店铺')
       }
       this.showConsole = false
+      this.$refs.Logs.consoleMsg = ''
       this.tableData = []
       this.tableDataCut = []
       this.total = 0
+      this.tableLoading = true
       for (let i = 0; i < this.selectMallList.length; i++) {
         if (this.cancelAction) {
           return
@@ -150,6 +154,7 @@ export default {
       }
       console.log(this.tableData, 'searchRate')
       this.dataCut()
+      this.tableLoading = false
     },
     async getRecordList(pageNumber, mall) {
       let params = {
@@ -158,54 +163,86 @@ export default {
         page_size: this.mallPageSize,
         start_date: this.recordTime[0],
         end_date: this.recordTime[1],
-        transaction_types: "201,203",
-        shop_id: mall.platform_mall_id
+        transaction_types: '201,203',
+        shop_id: mall.platform_mall_id,
       }
-      let res = await this.$shopeemanService.getWithDrawalRecord(mall.country, params)
-      let resObj = JSON.parse(res)
-      if (resObj.status !== 200) {
-        this.$refs.Logs.writeLog(`店铺【${mall.platform_mall_name}】请检查店铺是否登录！`, false)
-      } else {
-        let data = JSON.parse(resObj.data)
-        console.log(data)
-        if (data.code === 0) {
-           data.data.list && data.data.list.forEach(async (item) => {
-              item.country = mall.country
-              item.platform_mall_name = mall.platform_mall_name
-              item.mall_alias_name = mall.mall_alias_name
-              item.platform_mall_id = mall.platform_mall_id
-              let resBank = await this.$shopeemanService.getBankAccount(mall.country,{bank_account_id:item.bank_account_id,shop_id: mall.platform_mall_id})
-              let resObjBank = JSON.parse(resBank)
-              console.log(resObjBank)
-              if (resObjBank.status !== 200) {
-                this.$refs.Logs.writeLog(`店铺【${mall.platform_mall_name}】请检查店铺是否登录！`, false)
-              }else{
-                let bankData = JSON.parse(resObjBank.data)
-                if (bankData.code === 0) {
-                  console.log(bankData.data)
-                  item.bank_name = bankData.data.bank_name
-                  item.bank_account_number = bankData.data.account_number
-                  item.bank_account_name = bankData.data.full_name
-                  item.ic_number = bankData.data.ic_number
+      try {
+        let res = await this.$shopeemanService.getWithDrawalRecord(mall.country, params)
+        let resObj = JSON.parse(res)
+        if (resObj.status !== 200) {
+          this.$refs.Logs.writeLog(`店铺【${mall.platform_mall_name}】请检查店铺是否登录！`, false)
+        } else {
+          let data = JSON.parse(resObj.data)
+          if (data.code === 0) {
+            data.data.list &&
+              data.data.list.forEach(async (item) => {
+                item.country = mall.country
+                item.platform_mall_name = mall.platform_mall_name
+                item.mall_alias_name = mall.mall_alias_name
+                item.platform_mall_id = mall.platform_mall_id
+                let resBank = await this.$shopeemanService.getBankAccount(mall.country, { bank_account_id: item.bank_account_id, shop_id: mall.platform_mall_id })
+                let resObjBank = JSON.parse(resBank)
+                if (resObjBank.status !== 200) {
+                  this.$refs.Logs.writeLog(`店铺【${mall.platform_mall_name}】请检查店铺是否登录！`, false)
+                } else {
+                  let bankData = JSON.parse(resObjBank.data)
+                  if (bankData.code === 0) {
+                    item.bank_name = bankData.data.bank_name
+                    item.bank_account_number = bankData.data.account_number
+                    item.bank_account_name = bankData.data.full_name
+                    item.ic_number = bankData.data.ic_number
+                  }
                 }
-              }
-              this.tableData.push(item)
-              this.total = this.tableData.length
-            })
+                this.tableData.push(item)
+                this.total = this.tableData.length
+              })
             this.$refs.Logs.writeLog(`店铺【${mall.platform_mall_name}】获取到第【${pageNumber}】页店铺评价数据【${data.data.list.length}】条`, true)
             if (data.data.list.length >= this.mallPageSize) {
               pageNumber++
               this.getRecordList(pageNumber, mall)
             }
+          }
         }
+      } catch (error) {
+        console.log(error)
       }
-      console.log(res,"getMallList")
     },
     exportData() {
-      this.$refs.Logs.writeLog('sdhgkjdjhglk', true)
-    },
-    clear() {
-      this.$refs.Logs.consoleMsg = ''
+      if (!this.tableData.length) {
+        this.$message.warning('没有可导出的数据')
+      }
+      let num = 1
+      let str = `<tr>
+              <td>编号</td>
+              <td>站点</td>
+              <td>店铺名</td>
+              <td>交易流水号</td>
+              <td>银行</td>
+              <td>持卡人</td>
+              <td>银行卡号</td>
+              <td>IcNumber</td>
+              <td>提现金额</td>
+              <td>提现时间</td>
+              <td>完成时间</td>
+              <td>提现状态</td>
+            </tr>`
+      for (let i = 0; i < this.tableData.length; i++) {
+        let item = this.tableData[i]
+        str += `<tr><td>${num++}</td> 
+                    <td>${item.country ? item.country : '' + '\t'}</td>
+                    <td>${item.platform_mall_name ? item.platform_mall_name : '' + '\t'}</td>
+                    <td style="mso-number-format:'\@';">${item.transaction_id && item.transaction_id + '\t'}</td>
+                    <td>${item.bank_name ? item.bank_name : '' + '\t'}</td>
+                    <td>${item.bank_account_name ? item.bank_account_name : '' + '\t'}</td>
+                    <td>${item.bank_account_number ? item.bank_account_number : '' + '\t'}</td> 
+                    <td style="mso-number-format:'\@';">${item.ic_number ? item.ic_number : '' + '\t'}</td>
+                    <td>${item.amount ? item.amount * -1 : '' + '\t'}</td>
+                    <td>${item.ctime ? this.$dayjs(item.ctime * 1000).format('YYYY-MM-DD HH:mm:ss') : '' + '\t'}</td>
+                    <td>${item.complete_time ? this.$dayjs(item.complete_time * 1000).format('YYYY-MM-DD HH:mm:ss') : '' + '\t'}</td>
+                    <td>${item.status ? this.changeTypeName(item.status, this.statusList) : '' + '\t'}</td>
+                </tr>`
+      }
+      exportExcelDataCommon('提现记录', str)
     },
     // 分页设置
     dataCut() {
@@ -259,10 +296,14 @@ export default {
   margin: 20px 0;
   background: #fff;
   height: calc(100vh - 150px);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
   .pagination {
     display: flex;
     justify-content: flex-end;
-    margin-top: 10px;
+    margin-top: 20px;
+    height: 35px;
   }
 }
 </style>

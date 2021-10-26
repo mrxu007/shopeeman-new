@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-10-08 14:16:18
- * @LastEditTime: 2021-10-25 10:51:52
+ * @LastEditTime: 2021-10-26 12:16:02
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shopeeman-new\src\views\mall-manager\components\MallManagerWithdrawalRecord.vue
@@ -23,8 +23,7 @@
             start-placeholder="开始日期"
             end-placeholder="结束日期"
             :picker-options="pickerOptions"
-          >
-          </el-date-picker>
+          />
         </div>
       </div>
       <div class="tool-row">
@@ -41,16 +40,16 @@
           </el-select>
         </div>
         <div class="tool-item mar-right">
-          <el-input placeholder="请输入内容" v-model="userName" size="mini" class="input-with-select">
-            <el-select v-model="userTypeSelect" slot="prepend" placeholder="用户名称" style="width: 120px">
+          <el-input placeholder="请输入内容" v-model="userName" size="mini" class="input-with-select" clearable>
+            <el-select v-model="userTypeSelect" slot="prepend" placeholder="用户名称" style="width: 120px" >
               <el-option v-for="(item, index) in userType" :key="index" :label="item.label" :value="item.value" />
             </el-select>
           </el-input>
         </div>
-        <el-button type="primary" size="mini" class="mar-right" @click="searchRate">查询</el-button>
-        <el-button type="primary" size="mini" class="mar-right" @click="batchReplay">批量回复</el-button>
+        <el-button type="primary" size="mini" class="mar-right" @click="searchRate" :disabled="tableLoading">查询</el-button>
+        <el-button type="primary" size="mini" class="mar-right" @click="batchReplay" :disabled="tableLoading">批量回复</el-button>
         <el-button type="primary" size="mini" class="mar-right" @click="cancelAction = true">取消操作</el-button>
-        <el-button type="primary" size="mini" class="mar-right" @click="exportData">导出数据</el-button>
+        <el-button type="primary" size="mini" class="mar-right" @click="exportData" :disabled="tableLoading">导出数据</el-button>
         <el-button type="primary" size="mini" class="mar-right" @click="clearLog">清除日志</el-button>
         <div class="tool-item mar-right">
           <el-checkbox v-model="showConsole">隐藏日志</el-checkbox>
@@ -90,7 +89,7 @@
         <el-table-column prop="user_name" label="买家姓名" align="center" min-width="90px" />
         <el-table-column align="center" prop="rating_star" label="评价星数" min-width="100">
           <template slot-scope="scope">
-            <el-rate v-model="scope.row.rating_star"></el-rate>
+            <el-rate v-model="scope.row.rating_star" />
           </template>
         </el-table-column>
         <el-table-column align="center" prop="ctime" label="评价时间" min-width="70">
@@ -98,7 +97,7 @@
             {{ $dayjs(scope.row.ctime * 1000).format('YYYY-MM-DD HH:MM') }}
           </template>
         </el-table-column>
-        <el-table-column align="center" prop="user_portrait" label="评价内容" min-width="80" show-overflow-tooltip />
+        <el-table-column align="center" prop="comment" label="评价内容" min-width="80" show-overflow-tooltip />
         <el-table-column align="center" label="您的回复" min-width="80" show-overflow-tooltip>
           <template slot-scope="scope">
             <div v-if="scope.row.reply && scope.row.reply.comment">{{ scope.row.reply.comment }}</div>
@@ -113,7 +112,7 @@
           </template>
         </el-table-column>
         <el-table-column align="center" prop="replyStatus" label="操作状态" min-width="70" show-overflow-tooltip>
-          <template slot-scope="scope"> </template>
+          <template slot-scope="scope"> {{scope.row.replyStatus}}</template>
         </el-table-column>
       </el-table>
       <div class="pagination">
@@ -238,7 +237,7 @@ export default {
       selectMallList: [],
       cancelAction: false,
       rowInfo: {},
-      mallPageSize:50,
+      mallPageSize: 50,
     }
   },
   methods: {
@@ -253,20 +252,28 @@ export default {
       this.tableData = []
       this.tableDataCut = []
       this.total = 0
-      for (let i = 0; i < this.selectMallList.length; i++) {
-        if (this.cancelAction) {
-          return
+      this.tableLoading = true
+      try {
+        for (let i = 0; i < this.selectMallList.length; i++) {
+          if (this.cancelAction) {
+            this.tableLoading = false
+            this.$refs.Logs.writeLog(`操作已取消！`, true)
+            return
+          }
+          let mall = this.selectMallList[i]
+          let pageNumber = 1
+          console.log(pageNumber)
+          await this.searchSingleMall(pageNumber, mall)
         }
-        let mall = this.selectMallList[i]
-        let pageNumber = 1
-        console.log(pageNumber)
-        await this.searchSingleMall(pageNumber, mall)
+      } catch (error) {
+        console.log(error)
+        this.tableLoading = false
       }
-      console.log(this.tableData, 'searchRate')
       this.dataCut()
+      this.tableLoading = false
     },
     //查询
-    async searchSingleMall(pageNumber, mall,dataArr =[],page =0) {
+    async searchSingleMall(pageNumber, mall, dataArr = [], page = 0) {
       let params = {
         page_number: pageNumber,
         page_size: this.mallPageSize,
@@ -291,38 +298,46 @@ export default {
       }
       if (this.replayType === '1') {
         params.replied = false
-      } else if (this.replayType === '2') { 
+      } else if (this.replayType === '2') {
         params.replied = true
       }
-      let res = await this.$shopeemanService.getShopEvaluateList(mall.country, params)
-      let resObj = JSON.parse(res)
-      if (resObj.status !== 200) {
-        this.$refs.Logs.writeLog(`店铺【${mall.platform_mall_name}】请检查店铺是否登录！`, false)
-      } else {
-        let data = JSON.parse(resObj.data)
-        console.log(data)
-        if (data.code === 0) {
-            let count =  data.data.list.length
-          data.data.list && data.data.list.forEach((item) => {
-              item.country = mall.country
-              item.platform_mall_name = mall.platform_mall_name
-              item.mall_alias_name = mall.mall_alias_name
-              item.platform_mall_id = mall.platform_mall_id
-              let index = dataArr.filter(i=>i.comment_id === item.comment_id)[0] || ''
-              index && count--
-              !index && dataArr.push(item)
-              !index && this.tableData.push(item)
-            })
-          count && this.$refs.Logs.writeLog(`店铺【${mall.mall_alias_name || mall.platform_mall_name}】获取到第【${++page}】页店铺评价数据【${count}】条`, true)
-          if (dataArr.length < data.data.page_info.total && data.data.list.length >= this.mallPageSize) {
-            pageNumber++
-            this.searchSingleMall(pageNumber, mall,dataArr,page)
-          }else{
+      try {
+        let res = await this.$shopeemanService.getShopEvaluateList(mall.country, params)
+        let resObj = JSON.parse(res)
+        if (resObj.status !== 200) {
+          this.$refs.Logs.writeLog(`店铺【${mall.platform_mall_name}】请检查店铺是否登录！`, false)
+        } else {
+          let data = JSON.parse(resObj.data)
+          console.log(data)
+          if (data.code === 0) {
+            let count = data.data.list.length
+            if(count===0){
+              this.$refs.Logs.writeLog(`店铺【${mall.mall_alias_name || mall.platform_mall_name}】获取到第【${++page}】页店铺评价数据【${count}】条`, true)
+            }
+            data.data.list &&
+              data.data.list.forEach((item) => {
+                item.country = mall.country
+                item.platform_mall_name = mall.platform_mall_name
+                item.mall_alias_name = mall.mall_alias_name
+                item.platform_mall_id = mall.platform_mall_id
+                item.replyStatus = '123'
+                let index = dataArr.filter((i) => i.comment_id === item.comment_id)[0] || ''
+                index && count--
+                !index && dataArr.push(item)
+                !index && this.tableData.push(item)
+              })
+            count && this.$refs.Logs.writeLog(`店铺【${mall.mall_alias_name || mall.platform_mall_name}】获取到第【${++page}】页店铺评价数据【${count}】条`, true)
+            if (dataArr.length < data.data.page_info.total && data.data.list.length >= this.mallPageSize) {
+              pageNumber++
+              this.searchSingleMall(pageNumber, mall, dataArr, page)
+            } else {
               this.total += dataArr.length
+            }
           }
         }
+      } catch (error) {
+        console.log(error)
       }
-
     },
     //导出数据
     exportData() {
@@ -351,7 +366,7 @@ export default {
                     <td style="mso-number-format:'\@';">${item.country ? this.$filters.chineseSite(item.country) : '' + '\t'}</td>
                     <td>${item.platform_mall_name ? item.platform_mall_name : '' + '\t'}</td>
                     <td style="mso-number-format:'\@';">${item.order_sn && item.order_sn + '\t'}</td>
-                    <td>${item.product_id ? location.origin + '/product' + '/' + item.mallID + '/' + item.product_id : '' + '\t'}</td>
+                    <td>${item.product_id ? location.origin + '/product' + '/' + item.platform_mall_id + '/' + item.product_id : '' + '\t'}</td>
                     <td>${item.product_cover ? this.$filters.imageRender([item.country, item.platform_mall_id, item.product_cover]) : '' + '\t'}</td>
                     <td>${item.product_name ? item.product_name : '' + '\t'}</td> 
                     <td>${item.user_name ? item.user_name : '' + '\t'}</td>
@@ -386,19 +401,32 @@ export default {
         shop_id: row.platform_mall_id,
       }
       console.log(params)
-      let res = await this.$shopeemanService.replyShopRating(row.country, params)
-      let resObj = JSON.parse(res)
       let index = this.tableData.findIndex((n) => {
         return n.comment_id === row.comment_id
       })
-      console.log(resObj)
+      if(row.reply&&row.reply.ctime){
+        this.tableData[index].replyStatus = '已经回复过了'
+        this.$refs.multipleTable.toggleRowSelection(this.tableData[index], false)
+        return 
+      }
+      let res = await this.$shopeemanService.replyShopRating(row.country, params)
+      let resObj = JSON.parse(res)
       if (resObj.status !== 200) {
         this.tableData[index].replyStatus = '请检查店铺是否登录'
       } else {
         let data = JSON.parse(resObj.data)
-        console.log(data)
         if (data.code === 0) {
+          if(this.tableData[index].reply){
+            this.tableData[index].reply.ctime = Math.round((new Date().getTime()) / 1000)
+            this.tableData[index].reply.comment = this.replayText
+          }else{
+            this.tableData[index].reply = {}
+            this.tableData[index].reply.comment = this.replayText
+            this.tableData[index].reply.ctime = Math.round((new Date().getTime()) / 1000)
+          }
           this.tableData[index].replyStatus = '回复成功'
+          this.replayTextVisible = false
+          this.$refs.multipleTable.toggleRowSelection(this.tableData[index], false)
         } else {
           this.tableData[index].replyStatus = data.message
         }
@@ -415,8 +443,8 @@ export default {
     },
     //打开外部窗口
     openUrl(row) {
-      let url = location.origin + '/product' + '/' + row.mallID + '/' + row.product_id
-      window.open(url)
+      let url = location.origin + '/product' + '/' + row.platform_mall_id + '/' + row.product_id
+      this.$BaseUtilService.openUrl(url)
     },
     //   表格选择
     selectionChange(val) {

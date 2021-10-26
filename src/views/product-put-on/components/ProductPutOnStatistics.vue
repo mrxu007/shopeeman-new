@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-10-21 09:38:11
- * @LastEditTime: 2021-10-23 17:54:16
+ * @LastEditTime: 2021-10-25 17:19:58
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shopeeman-new\src\views\product-put-on\components\ProductPutOnCategoryblack.vue
@@ -43,10 +43,7 @@
          <el-table-column width="120px" label="站点" prop="country" align="center">
           <template slot-scope="scope">{{ scope.row.country | chineseSite }}</template>
         </el-table-column>
-        <el-table-column min-width="60px" label="店铺" prop="warehouse_name" align="center" >
-            
-            <template slot-scope="scope">{{ scope.row.mall_alias_name?scope.row.mall_alias_name:scope.row.platform_mall_name }}</template>
-        </el-table-column>
+        <el-table-column min-width="60px" label="店铺" prop="platform_mall_name" align="center" />
         <el-table-column min-width="60px" label="店铺分组" prop="group_name" align="center" />
         <el-table-column min-width="60px" label="上架总量" prop="upCount" align="center" />
       </el-table>
@@ -117,7 +114,7 @@ export default {
             let item = this.tableData[i]
             str += `<tr><td>${num++}</td>
                         <td>${item.country ?this.$filters.chineseSite(item.country): '' + '\t'}</td>
-                        <td>${item.mall_alias_name ?item.mall_alias_name  : item.platform_mall_name + '\t'}</td>
+                        <td>${item.platform_mall_name ?item.platform_mall_name  :'' + '\t'}</td>
                         <td>${item.group_name ? item.group_name : '' + '\t'}</td> 
                         <td>${item.upCount ? item.upCount : 0 + '\t'}</td>
                     </tr>`

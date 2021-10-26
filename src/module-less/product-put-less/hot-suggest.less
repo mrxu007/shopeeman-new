@@ -1,0 +1,31 @@
+.contaniner {
+    background-color: #fff;
+    margin: 10px;
+    padding: 16px;
+    min-width: 1280px;
+    .operation {
+      min-width: 500px;
+      margin-bottom: 10px;
+      display: flex;
+      height: 40px;
+      align-items: center;
+      .o-item {
+        display: flex;
+        align-items: center;
+        margin-right: 30px;
+        /deep/.el-select {
+          /deep/.el-input {
+            width: 150px;
+          }
+          /deep/.el-input__suffix {
+            text-align: end !important;
+          }
+        }
+      }
+    }
+    .pagination {
+      display: flex;
+      justify-content: center;
+      margin-top: 10px;
+    }
+  }
