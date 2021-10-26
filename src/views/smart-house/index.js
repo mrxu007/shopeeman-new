@@ -5,11 +5,11 @@ const SmartHouseWorkBench = () => import('./components/SmartHouseWorkBench.vue')
 const SmartHousePackage = () => import('./components/SmartHousePackage.vue')
 
 // 国内仓退件管理
-const SmartReturnManage = () => import('./components/SmartReturnManage.vue')
+const SmartHouseReturnManage = () => import('./components/SmartHouseReturnManage.vue')
 
 // 导出
 export {
   SmartHouseWorkBench,
   SmartHousePackage,
-  SmartReturnManage
+  SmartHouseReturnManage
 }

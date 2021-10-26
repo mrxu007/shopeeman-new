@@ -15,7 +15,7 @@
     <main v-if="activeVal === '1'"><SmartHousePackage /></main>
 
     <!--国内仓退件管理 -->
-    <main v-if="activeVal === '2'"><SmartReturnManage /></main>
+    <main v-if="activeVal === '2'"><SmartHouseReturnManage /></main>
   </div>
 </template>
 
@@ -23,13 +23,13 @@
 import {
   SmartHouseWorkBench,
   SmartHousePackage,
-  SmartReturnManage
+  SmartHouseReturnManage
 } from './index'
 export default {
   components: {
     SmartHouseWorkBench,
     SmartHousePackage,
-    SmartReturnManage
+    SmartHouseReturnManage
   },
   data() {
     return {
