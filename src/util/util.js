@@ -3,6 +3,25 @@ import md5 from 'js-md5'
 import Vue from 'vue'
 const instance = new Vue()
 
+// 获取店铺信息
+export async function MallList() {
+  const param = {
+    country: '',
+    mallGroupIds: ''
+  }
+  const res = await instance.$api.ddMallGoodsGetMallList(param)
+  console.log('res', res)
+  if (res.data.code === 200) {
+    const arr = res.data.data
+    const blist = []
+    arr.forEach(e => {
+      blist.push({ 'label': e.platform_mall_name, 'id': e.id })
+    })
+    return blist
+  } else {
+    this.$message.error('获取分组、店铺列表失败')
+  }
+}
 // 获取颜色列表
 export async function colorLabelList() {
   const colorList = []

@@ -44,7 +44,7 @@
           <el-button
             type="primary"
             size="mini"
-            @click="noticeTodeliver(1)"
+            @click="compareDataVisible()"
           >批量推送订单至仓库</el-button>
           <el-button
             type="primary"
@@ -56,7 +56,7 @@
           <el-button
             type="primary"
             size="mini"
-            @click="timeDelayFun"
+            @click="getPackage()"
           >获取面单信息</el-button>
           <!-- <el-button
             type="primary"
@@ -243,18 +243,18 @@
         <el-table-column
           label="站点"
           width="80"
-          prop="site"
+          prop="country"
         />
         <el-table-column
           label="仓库"
           width="80"
           prop="warehouse_name"
         />
-        <!--   <el-table-column
+        <el-table-column
           label="颜色标识"
           width="100"
           prop="colorText"
-        /> -->
+        />
         <el-table-column
           label="订单编号"
           width="180"
@@ -755,23 +755,22 @@
         </div>
 
         <div class="compareData_item">
-          <el-table :data="compareDataList">
-            <el-table-column prop="" label="站点" min-width="80px" align="center" />
-            <el-table-column prop="" label="店铺名称" min-width="150px" align="center" />
-            <el-table-column prop="" label="采购类型" min-width="100px" align="center" />
-            <el-table-column prop="" label="当前绑定仓库" min-width="200px" align="center" />
-            <el-table-column prop="" label="是否可同步" min-width="100px" align="center" />
+          <el-table
+            :header-cell-style="{'background': '#f7fafa'}"
+            :data="multipleSelection"
+            :row-style="{ height: '50px' }"
+            max-height="400"
+          >
+            <el-table-column prop="country" label="站点" min-width="80px" align="center" />
+            <el-table-column prop="mall_alias_name" label="店铺名称" min-width="150px" align="center" />
+            <!-- <el-table-column prop="" label="采购类型" min-width="100px" align="center" /> -->
+            <el-table-column prop="warehouse_name" label="当前绑定仓库" min-width="200px" align="center" />
+            <el-table-column prop="" label="是否可同步" min-width="100px" align="center"><span>是</span></el-table-column>
             <el-table-column prop="" label="主订单数" min-width="100px" align="center" />
-            <el-table-column prop="" label="提示" min-width="200px" align="center" />
-            <el-table-column prop="" label="操作" min-width="200px" align="center">
-              <div>
-                <el-button size="mini" type="primary">选择仓库</el-button>
-              </div>
-            </el-table-column>
           </el-table>
         </div>
         <div style="display:flex;justify-content: center;margin-top:10px">
-          <el-button size="mini" type="primary">确  定</el-button>
+          <el-button size="mini" type="primary" @click="compareData()">确  定</el-button>
         </div>
       </div>
     </el-dialog>
@@ -781,7 +780,7 @@
 
 <script>
 // import { getSites, getMalls, colorLabelList, creatDate } from '../../utils/index'
-import { getValue, creatDate, colorLabelList } from '../../../util/util'
+import { getValue, creatDate, colorLabelList, MallList } from '../../../util/util'
 import { statusList, exceptionList, orderStatusList, packageStatusList } from './warehouse'
 import storeChoose from '../../../components/store-choose.vue'
 
@@ -800,7 +799,7 @@ export default {
   data() {
     return {
       compareDataList: [],
-      dialog_compareData: true, // 同步数据至仓库
+      dialog_compareData: false, // 同步数据至仓库
       dialogExtService: false, // 增值弹窗
       extParams: { // 增值参数
         packageOrderSns: '',
@@ -881,6 +880,46 @@ export default {
     // this.userInfo()
   },
   methods: {
+    // 批量推送订单至仓库
+    compareDataVisible() {
+      if (!this.multipleSelection.length) {
+        this.$message.warning('请勾选需要操作的数据')
+        return false
+      }
+      // const arr = this.multipleSelection
+      const myMap = new Map()
+      const newData = []
+      const msg = []
+      const data = this.multipleSelection
+      data.map(item => {
+        if (!myMap.has(item.mall_alias_name) && !myMap.has(item.warehouse_name)) {
+          myMap.set(item.mall_alias_name)
+          myMap.set(item.warehouse_name)
+          myMap.set(item.warehouse_num)
+          newData.push(item)
+        } else {
+          msg.push(`过滤ID:${item.id}`)
+        }
+      })
+      console.log(newData, msg)
+
+      this.dialog_compareData = true
+    },
+    //
+    compareData() {},
+    // 获取面单信息
+    async getPackage() {
+      const res = await this.$api.getNotHaveLogisticsInformations()
+      console.log('///////', res)
+      if (res.data.code === 200) {
+        this.$notify({
+          type: 'success',
+          message: '没有打印失败的包裹'
+        })
+      } else {
+
+      }
+    },
     // 增值服务
     extService_visible() {
       if (!this.multipleSelection.length) {
@@ -899,7 +938,7 @@ export default {
         this.extParams.packageOrderSns = this.multipleSelection.toString()
         const params = this.extParams
         const data = await this.$api.uploadExtService(params)
-        console.log('---------', data)
+        // console.log('---------', data)
         if (data.data.code === 200) {
           this.$notify({
             type: 'success',
@@ -956,21 +995,20 @@ export default {
     },
     async getInfo() {
       colorLabelList().then(res => {
-        console.log('color', res)
+        // console.log('color', res)
         this.colorLogoList = res
         this.colorLabelId1 = res[0].id
       })
       // getSites().then(res => {
       //   this.siteList = this.siteList.concat(res)
       // })
-      // getMalls().then(res => {
-      //   this.shopAccountList = res
-      //   this.orderPackage()
-      // })
+      MallList().then(res => {
+        this.shopAccountList = res
+      })
     },
     setMallId(ids) {
       this.shopAccount = ids || []
-      console.log(this.shopAccount, ids)
+      // console.log(this.shopAccount, ids)
     },
     // 查询列表
     async orderPackage() {
@@ -1002,7 +1040,7 @@ export default {
       try {
         const res = await this.$api.orderPackage(query)
         const data = res.data
-        console.log(data, '---')
+        // console.log(data, '---')
         if (data.code === 200) {
           this.total = data.data.total
           // this.pageSize = data.data.per_page
@@ -1013,7 +1051,7 @@ export default {
               continue
             }
             item.mall_alias_name = getValue(this.shopAccountList, 'label', 'id', item.sys_mall_id)
-            item.site = getValue(this.siteList, 'label', 'value', item.country)
+            // item.site = getValue(this.siteList, 'label', 'value', item.country)
             item.statusText = getValue(statusList, 'label', 'deliveryStatus', item.delivery_status)
             item.exceptionText = getValue(exceptionList, 'label', 'exception_type', item.exception_type)
             item.orderStatusText = getValue(orderStatusList, 'label', 'order_status', item.order_status)
@@ -1085,7 +1123,7 @@ export default {
         this.isLoading = false
       } catch (err) {
         this.setSelect()
-        console.log(err)
+        // console.log(err)
         this.isLoading = false
       }
     },
@@ -1132,7 +1170,7 @@ export default {
         this.orderPackage()
         this.isLoading = false
       } catch (err) {
-        console.log(err)
+        // console.log(err)
         this.setSelect()
         this.isLoading = false
       }
@@ -1158,7 +1196,7 @@ export default {
         }
         const res = await this.$api.noticeTodeliver(query)
         const data = res.data
-        console.log('data', data.data)
+        // console.log('data', data.data)
         if (data.code === 200) {
           this.$notify({
             type: 'success',
@@ -1174,9 +1212,10 @@ export default {
         }
 
         this.isLoading = false
+        this.setSelect()
       } catch (err) {
         this.setSelect()
-        console.log(err)
+        // console.log(err)
         this.isLoading = false
       }
     },
@@ -1230,6 +1269,7 @@ export default {
           orderSn: this.newOrderSn
         }
         const res = await this.$api.trackingNumberChangeOrder(query)
+
         const data = res.data
         if (data.code === 200) {
           this.$notify({
@@ -1303,7 +1343,7 @@ export default {
       } catch (err) {
         this.setSelect()
         this.colorVisible = false
-        console.log(err)
+        // console.log(err)
         this.isLoading = false
       }
     },
@@ -1342,7 +1382,7 @@ export default {
         xzyDelayedTime: Math.round(delayTime)
       }
       this.$api.timeDelay(query).then(res => {
-        console.log(res)
+        // console.log(res)
         if (res.data.code === 200) {
           this.$notify({
             type: 'success',
@@ -1371,6 +1411,7 @@ export default {
       const { data } = await this.$api.getGoodsInfo({ params })
       if (data.code === 200) {
         this.goodsList = data.data
+        console.log('this.goodsList', this.goodsList)
         this.dialogVisible2 = true
       } else {
         this.$notify({
@@ -1421,7 +1462,7 @@ export default {
         params.outboundTime = this.setDateFmt(this.outboundTime).join('/')
       }
       const { data } = await this.$api.orderPackage(params)
-      console.log(data, 2222)
+      // console.log(data, 2222)
       if (data && data.data && data.data.data) {
         const newData = data.data.data
         for (let i = 0; i < newData.length; i++) {
@@ -1429,7 +1470,7 @@ export default {
           if (this.site !== '' && item.country !== this.site) {
             continue
           }
-          item.mall_alias_name = getValue(this.shopAccountList, 'label', 'id', item.sys_mall_id)
+          item.mall_alias_name = getValue(MallList, 'label', 'id', item.sys_mall_id)
           item.site = getValue(this.siteList, 'label', 'value', item.country)
           item.statusText = getValue(statusList, 'label', 'deliveryStatus', item.delivery_status)
           item.exceptionText = getValue(exceptionList, 'label', 'exception_type', item.exception_type)
@@ -1470,7 +1511,7 @@ export default {
     },
     // 生成导出文件--订单
     importBilling(exportOrderList) {
-      console.log(exportOrderList, this.exportIndex)
+      // console.log(exportOrderList, this.exportIndex)
       let num = 1
       let str = `<tr><td>编号</td><td>店铺名称</td><td>站点</td><td>仓库</td><td>颜色标识</td><td>订单编号</td><td>数量</td><td>商品名称</td><td>包裹重量(g)</td><td>运输方式</td><td>货物类型</td><td>是否等待子包裹发货</td>
             <td>订单发货状态</td><td>异常类型</td><td>订单创建时间</td><td>订单平台状态</td><td>截止发货时间</td><td>入库时间</td><td>出库时间</td>

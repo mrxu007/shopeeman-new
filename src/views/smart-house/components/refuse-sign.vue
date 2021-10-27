@@ -129,6 +129,19 @@
           :value="item.value"
         />
       </el-select></p>
+      <p style="font-size: 14px;padding: 12px 14px 0 60px"><span style="color: red">*</span>仓库：<el-select
+        v-model="warehouseUserId"
+        size="mini"
+        style="width: 180px;"
+      >
+        <el-option
+          v-for="item in warehouseUserList"
+          :key="item.value"
+          :label="item.label"
+          :value="item.value"
+        />
+      </el-select></p>
+
       <p style="font-size: 14px;padding: 12px 14px 0 4px"><span style="color: red">*</span>采购物流单号： <el-input
         v-model="trackingNumberAdd"
         style="width: 180px;"
@@ -152,6 +165,8 @@ import { getValue, creatDate } from '../../../util/util'
 export default {
   data() {
     return {
+      warehouseUserList: [],
+      warehouseUserId: '', // 仓库id
       serchLoading: false,
       trackingNumber: '', // 采购物流单号
       tableData: [],
@@ -185,8 +200,20 @@ export default {
   mounted() {
     this.createdAt = creatDate(30)
     this.serchData()
+    this.warehouseAddress()// 获取仓库信息
+    // this.getstory()
   },
   methods: {
+    async warehouseAddress() {
+      const res = await this.$api.warehouseAddress()
+      this.warehouseUserList = []
+      if (res.data.code === 200) {
+        res.data.data.forEach(e => {
+          this.warehouseUserList.push({ 'label': e.warehouse_name, 'value': e.id })
+        })
+      }
+      console.log(res.data)
+    },
     // 翻页
     newPage(val) {
       this.page = val
@@ -215,7 +242,7 @@ export default {
         const { data } = await this.$api.refuseList({ params })
         console.log(data)
         if (data.code === 200) {
-          const list = data.data.data || []
+          const list = data.data || []
           for (let i = 0; i < list.length; i++) {
             const item = list[i]
             item.orderType = getValue(this.typeList, 'label', 'value', item.type)
@@ -239,12 +266,21 @@ export default {
     // 添加拒签
     async packageSign() {
       if (!this.trackingNumberAdd) {
-        return this.$notify('', '请填写物流单号', 'error')
+        return this.$notify({
+          type: 'error',
+          message: '请填写物流单号'
+        })
       }
-
+      if (!this.warehouseUserId) {
+        return this.$notify({
+          type: 'error',
+          message: '请选择物流仓库'
+        })
+      }
       const query = {
         trackingNumber: this.trackingNumberAdd,
-        type: this.chooseType
+        type: this.chooseType,
+        warehouseUserId: this.warehouseUserId
       }
       try {
         const { data } = await this.$api.packageSign(query)
@@ -290,9 +326,11 @@ export default {
           })
         }
         this.isLoading = false
+        this.serchData()
       } catch (err) {
         console.log(err)
         this.isLoading = false
+        this.serchData()
         // this.$message.error('删除失败')
       }
     },

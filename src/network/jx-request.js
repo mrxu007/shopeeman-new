@@ -145,9 +145,12 @@ export default {
   refuseList: (data) => AppRequest.get('/interceptConfig', data), // 拒签列表
   markOrderNeedDeal: (data) => AppRequest.post('/orderPackage/markOrderNeedDeal', data), // 标记订单紧急处理
   setNoWait: (data) => AppRequest.post('/orderPackage/setNoWait', data), // 订单设置不等待子订单
-  trackingNumberChangeOrder: (data) => AppRequest.post('/orderPackage/trackingNumberChangeOrder', data), // 采购物流单号变更
+  trackingNumberChangeOrder: (data) => AppRequest.post('/order/trackingNumberChangeOrder', data), // 采购物流单号变更
   noticeTodeliver: (data) => AppRequest.post('/orderPackage/changeOrderDeliveryStatus', data), // 通知仓库发货/暂停发货
-  getGoodsInfo: (data) => AppRequest.get('/orderPackage/getGoodsInfo ', data), // 订单包裹详情
-  uploadExtService: (data) => AppRequest.post('/orderPackage/uploadExtService ', data) // 订单包裹详情
-
+  getGoodsInfo: (data) => AppRequest.get('/goodsPackageCode/getGoodsInfoV2 ', data), // 订单包裹详情
+  uploadExtService: (data) => AppRequest.post('/orderPackage/uploadExtService ', data), // 订单包裹详情
+  getNotHaveLogisticsInformations: () => AppRequest.get('/orderPackage/getNotHaveLogisticsInformations'), // 获取面单信息
+  cancelSign: (data) => AppRequest.post('/interceptConfig/delete', data), // 取消拒收/签收信息
+  packageSign: (data) => AppRequest.post('/interceptConfig/save', data), // 仓库包裹拒签/签收
+  warehouseAddress: () => AppRequest.get('/warehouseAddress/userIndex') // 获取仓库信息
 }
