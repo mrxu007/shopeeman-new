@@ -42,6 +42,7 @@
                 <img :src="scope.row.package_image" width="400px" height="400px">
               </div>
               <el-image
+                v-if="scope.row.package_image"
                 :src="scope.row.package_image"
                 alt=""
                 width="56px"
@@ -52,7 +53,18 @@
           </template>
         </el-table-column>
         <el-table-column prop="package_time" label="签收时间" />
-        <el-table-column prop="package_code" label="包裹物流单号" />
+        <el-table-column prop="package_code" label="包裹物流单号">
+          <template slot-scope="{ row }">
+            <span>
+              {{ row.package_code }}
+              <span
+                v-if="row.package_code"
+                class="copyIcon"
+                @click="copy(row.package_code)"
+              ><i class="el-icon-document-copy" /></span>
+            </span>
+          </template>
+        </el-table-column>
         <el-table-column label="操作">
           <template slot-scope="scope">
             <el-button
@@ -109,6 +121,26 @@ export default {
 
   },
   methods: {
+    // 点击复制
+    copy(attr) {
+      const target = document.createElement('div')
+      target.id = 'tempTarget'
+      target.style.opacity = '0'
+      target.innerText = attr
+      document.body.appendChild(target)
+      try {
+        const range = document.createRange()
+        range.selectNode(target)
+        window.getSelection().removeAllRanges()
+        window.getSelection().addRange(range)
+        document.execCommand('copy')
+        window.getSelection().removeAllRanges()
+        this.$message.success('复制成功')
+      } catch (e) {
+        // console.log('复制失败')
+      }
+      target.parentElement.removeChild(target)
+    },
     // 查询失物数据
     async serchData() {
       this.serchDataLoading = true
@@ -187,58 +219,5 @@ export default {
 </script>
 
 <style lang="less" scoped>
-
-.unclaimed-package {
-
-  .operating-box {
-    padding: 15px;
-    border-radius: 10px;
-    background: #fff;
-
-    .form-item {
-      display: flex;
-      align-items: center;
-
-      .title {
-        width: 100px;
-      }
-
-      .el-input {
-        width: 200px;
-      }
-
-      .el-button {
-        margin-left: 10px;
-      }
-    }
-  }
-
-  .table-box {
-    margin-top: 10px;
-    padding: 15px;
-    border-radius: 10px;
-    background: #fff;
-  }
-
-  .dialog1 {
-
-    .form-items {
-      display: flex;
-      margin-bottom: 20px;
-
-      .title {
-        width: 80px;
-      }
-
-      .el-input {
-        width: 200px;
-      }
-
-      .el-button {
-        margin-left: 10px;
-      }
-    }
-  }
-}
-
+@import '../../../module-less/smart-house-less/unclaimed-package.less';
 </style>
