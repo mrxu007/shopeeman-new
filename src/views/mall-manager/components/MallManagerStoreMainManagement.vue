@@ -3,27 +3,6 @@
     <div class="all_condition">
       <div class="condition_item">
         <storeChoose @changeMallList="changeMallList" />
-        <!-- <span>站点：</span>
-        <el-select v-model="query.siteid" size="mini" width="150px" placeholder="站点">
-          <el-option value="" label="全部" />
-          <el-option v-for="item in siteList" :key="item.id" :label="item.value" :value="item.id" />
-        </el-select>
-      </div>
-
-      <div class="condition_item">
-        <span>店铺分组：</span>
-        <el-select v-model="query.siteid" size="mini" width="150px" placeholder="站点">
-          <el-option value="" label="全部" />
-          <el-option v-for="item in siteList" :key="item.id" :label="item.value" :value="item.id" />
-        </el-select>
-      </div>
-
-      <div class="condition_item">
-        <span>店铺账号：</span>
-        <el-select v-model="query.siteid" size="mini" width="150px" placeholder="站点">
-          <el-option value="" label="全部" />
-          <el-option v-for="item in siteList" :key="item.id" :label="item.value" :value="item.id" />
-        </el-select> -->
       </div>
 
       <div class="condition_item">
@@ -138,7 +117,7 @@
             <template slot-scope="{ row }">
               <div>
                 <el-button size="mini" type="primary" @click="openSoft(row.poxyIP,row.poxyID)">打开代理浏览器</el-button>
-                <el-button size="mini" type="primary" @click="dialogvisible=true,Typeis='updataMall',dialog_title='修改绑定店铺',updataMallList(row.poxyID)">修改绑定店铺</el-button>
+                <el-button size="mini" type="primary" @click="showupdateVisible(row.service_info_id)">修改绑定店铺</el-button>
               <!-- <el-button size="mini" type="primary" @click="del(row.uid)">删除</el-button> -->
               </div>
             </template>
@@ -224,7 +203,9 @@
             </div>
             <div class="left_item">
               主体名称：<el-input v-model="ipMaster_params.ipAlias" clearable style="width:180px" size="mini" />
-              <span v-show="ipMaster_params.ipAlias===''" style="color:red">(必填)</span>
+              <!-- <span v-show="ipMaster_params.ipAlias===''" style="color:red">(必填)</span> -->
+              <span style="color:red">(必填)</span>
+
             </div>
             <div class="left_item">
               <el-button size="mini" type="primary" @click="addMaster()">确定</el-button>
@@ -479,25 +460,28 @@
               <storeChoose @changeMallList="changeMallList" />
               <el-button type="primary" size="mini" @click="dialog_search_IPMall">查询</el-button>
             </div>
-            <el-checkbox v-model="showUserIP" style="margin: 4px 0px;" @click="bindedMall()">显示已绑定ip店铺</el-checkbox>
+            <el-checkbox v-model="showUserIP" style="margin: 4px 0px;" @click.native="bindedMall()">显示已绑定ip店铺</el-checkbox>
             <div class="right_table" style="border:1px solid #C0C4CC">
               <el-table
                 ref="multipleTable_dialog"
                 height="400px"
                 :header-cell-style="{'background': '#f7fafa'}"
                 :row-key="generateUUID"
-                :data="dialog_mallList"
+                :data="isBingedList"
                 @selection-change="handleSelectionChangeDialog"
               >
                 <el-table-column
                   type="selection"
                   width="55"
                 />
-                <el-table-column prop="" label="序号" />
-                <el-table-column prop="" label="站点" />
-                <el-table-column prop="" label="店铺名称" />
-                <el-table-column prop="" label="已绑定公司主体名称" />
+                <el-table-column type="index" label="序号" />
+                <el-table-column prop="country" label="站点" />
+                <el-table-column prop="platform_mall_name" label="店铺名称" />
+                <el-table-column prop="main_name" label="已绑定公司主体名称" />
               </el-table>
+            </div>
+            <div style="display:flex;justify-content: center;margin-top:5px">
+              <el-button type="primary" size="mini" @click="updataMallList()">绑定店铺</el-button>
             </div>
           </div>
         </div>
@@ -531,6 +515,11 @@ export default {
       }
     }
     return {
+      showButton: false,
+      targetId: '', // 修改店铺绑定仓库id
+      dialog_selectMallList: [], // dialog表格多选
+      isBingedList: [],
+      dialog_mallList2: [],
       ipMaster_params: {
         lineId: '', // 线路ID
         uid: '', // 主账号ID
@@ -770,22 +759,57 @@ export default {
     this.getMallList()// 初始化店铺列表
   },
   methods: {
+    // 展示修改绑定店铺弹窗
+    showupdateVisible(val) {
+      this.dialogvisible = true
+      this.Typeis = 'updataMall'
+      this.dialog_title = '修改绑定店铺'
+      this.targetId = val
+    },
     // 初始化店铺列表
     async getMallList() {
       const params = {
-        country: 'aa',
-        mallGroupIds: 'bb'
+        country: '',
+        mallGroupIds: ''
       }
-      const data = await this.$api.ddMallGoodsGetMallList(params)
-      console.log('mallList', data)
+      const res = await this.$api.ddMallGoodsGetMallList(params)
+      if (res.data.code === 200) {
+        // 全部
+        this.dialog_mallList = res.data.data
+        // 部分
+        this.dialog_mallList2 = this.dialog_mallList.filter(item => {
+          return item.main_name === ''
+        })
+        // 初始化dialog列表
+        this.isBingedList = this.dialog_mallList2
+      } else {
+        this.$message.warning('网络异常！')
+      }
     },
     //
-    async  updataMallList(val) {
+    async  updataMallList() {
       const userInfo = await this.$appConfig.getUserInfo()
       const uid = userInfo.muid.toString()
-      const targetId = val.toString
-      // const mallIds=  //多选
-      const data = await this.$commodityService.newBangdingMall(uid, targetId)
+      const targetId = this.targetId.toString()
+      const mallIds = this.dialog_selectMallList.toString() || ''
+      console.log('====', targetId)
+      const res = await this.$commodityService.newBangdingMall(uid, targetId, mallIds)
+      const data = JSON.parse(res)
+      if (data.code === -1) {
+        this.$notify({
+          title: '绑定店铺',
+          type: 'error',
+          message: data.message
+        })
+      } else {
+        this.$notify({
+          title: '绑定店铺',
+          type: 'success',
+          message: data.message
+        })
+      }
+      console.log('-----', data)
+      this.$refs.multipleTable_dialog.clearSelection()
     },
     // 获取dialog 店铺列表
     getDialogMallList() {
@@ -793,15 +817,19 @@ export default {
     },
     // 显示已绑定ip店铺
     bindedMall() {
-      if (this.showUserIP === true) {
-        // 筛选
+      if (this.showUserIP === false) {
+        this.isBingedList = this.dialog_mallList
+      } else {
+        this.isBingedList = this.dialog_mallList2
       }
     },
     // dialog多选
     handleSelectionChangeDialog(val) {
       // 清空多选
-      this.dialog_mallList = []
-      console.log('mallList', val)
+      this.dialog_selectMallList = []
+      val.forEach(e => {
+        this.dialog_selectMallList.push(e.id)
+      })
       // this.$refs.multipleTable_dialog.clearSelection()
     },
     // 打开代理浏览器
@@ -855,7 +883,7 @@ export default {
         // 新增
         const res = await this.$YipService.AddSelfIP(JSON.stringify(this.query_person))
         const resMsg = JSON.parse(res)
-        console.log('addSelfIp', resMsg)
+
         if (resMsg.code !== 200) {
           this.$notify({
             title: '新增自有IP公司主体',
@@ -891,7 +919,7 @@ export default {
         const uid = String(userInfo.muid)
         const uuid = '0'
         const data = await this.$YipService.RenewIP(targetId, uid, uuid, String(period))
-        console.log('续费', JSON.parse(data))
+
         this.$message.error(JSON.parse(data).message)
         // 清空多选
         this.$refs.multipleTable.clearSelection()
@@ -901,7 +929,6 @@ export default {
     async GetIPPrice() {
       const lineId = '' // 所选ip区域的id
       const data = await this.$YipService.GetIPPrice(lineId)
-      console.log('dialog_ipPrice', data)
     },
     // 新增自有主体---提交
     async submit_IpPersion() {
@@ -919,7 +946,6 @@ export default {
       const userInfo = await this.$appConfig.getUserInfo()
       this.query_person.uid = userInfo.muid
       const res = await this.$YipService.AddSelfIP(JSON.stringify(this.query_person))
-      console.log('+++++++', res)
     },
     // 新增公司主体---提交
     async addMaster() {
@@ -927,6 +953,7 @@ export default {
         this.$message.warning('主体名称不能为空！')
         return false
       }
+      this.$message.warning('数据请求中.......')
       const userInfo = await this.$appConfig.getUserInfo()
       this.ipMaster_params.uid = userInfo.muid
       this.ipMaster_params.uuid = 0
@@ -948,7 +975,12 @@ export default {
         this.getTableList()
         this.dialogVisible = false
       }
-      console.log('//////', resMsg)
+      console.log('新增公司主体', resMsg)
+      // 附加绑定店铺
+      if (this.dialog_selectMallList.length > 0) {
+        this.targetId = this.ipMaster_params.lineId // 代理ip_ID
+        this.updataMallList()
+      }
     },
     // dialog 多选
     // 方法
@@ -974,7 +1006,7 @@ export default {
       val.forEach(e => {
         this.mulSelect.push(e.uid)
       })
-      console.log('多选', val)
+
       // 获取参数
     },
     // 新增ip 店铺查询
@@ -991,7 +1023,6 @@ export default {
           this.region_ipList.push({ id: e.channel_list[0].lineid, value: e.name })
         })
       })
-      console.log('获取ip列表', resMsg.data)
     },
     // 获取店铺信息
     changeMallList(val) {
@@ -1000,7 +1031,6 @@ export default {
       this.site.forEach(e => {
         this.query.mall_ids.push(e.id)
       })
-      // console.log('站点', this.query.mall_ids)
     },
     // ip- tableList
     async getTableList() {
@@ -1028,13 +1058,12 @@ export default {
             item.poxyIP = data_ipinfor.map_ip_address
           })
           this.tableList.push(item)
-          // console.log('tableList', this.tableList)
+          console.log('tableList', this.tableList)
         })
         this.chang()
       } else {
         this.$message.warning('信息获取失败')
       }
-      // console.log('--------', data.code)
     },
     // 分页
     chang() {
@@ -1065,11 +1094,9 @@ export default {
         : ''
     },
     handleSizeChange: function(pageSize) {
-      console.log('total', this.total)
       // 每页条数切换
       this.pageSize = pageSize
       this.handleCurrentChange(this.page)
-      console.log()
     },
     handleCurrentChange: function(page) {
       // 页码切换
