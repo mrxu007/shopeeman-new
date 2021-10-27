@@ -117,7 +117,7 @@
             <template slot-scope="{ row }">
               <div>
                 <el-button size="mini" type="primary" @click="openSoft(row.poxyIP,row.poxyID)">打开代理浏览器</el-button>
-                <el-button size="mini" type="primary" @click="showupdateVisible(row.service_info_id)">修改绑定店铺</el-button>
+                <el-button size="mini" type="primary" @click="showupdateVisible(row.id)">修改绑定店铺</el-button>
               <!-- <el-button size="mini" type="primary" @click="del(row.uid)">删除</el-button> -->
               </div>
             </template>
@@ -931,22 +931,22 @@ export default {
       const data = await this.$YipService.GetIPPrice(lineId)
     },
     // 新增自有主体---提交
-    async submit_IpPersion() {
-      // 提交 && 绑定
-      if (this.query_person.ip_alias === '' ||
-         this.query_person.ip_address === '' ||
-         this.query_person.ip_port === '' ||
-         this.query_person.encryption === '' ||
-         this.query_person.protocol === '' ||
-         this.query_person.confuse === '' ||
-         this.query_person.argument === '') {
-        this.$message.warning('请输入必填项内容！')
-        return false
-      }
-      const userInfo = await this.$appConfig.getUserInfo()
-      this.query_person.uid = userInfo.muid
-      const res = await this.$YipService.AddSelfIP(JSON.stringify(this.query_person))
-    },
+    // async submit_IpPersion() {
+    //   // 提交 && 绑定
+    //   if (this.query_person.ip_alias === '' ||
+    //      this.query_person.ip_address === '' ||
+    //      this.query_person.ip_port === '' ||
+    //      this.query_person.encryption === '' ||
+    //      this.query_person.protocol === '' ||
+    //      this.query_person.confuse === '' ||
+    //      this.query_person.argument === '') {
+    //     this.$message.warning('请输入必填项内容！')
+    //     return false
+    //   }
+    //   const userInfo = await this.$appConfig.getUserInfo()
+    //   this.query_person.uid = userInfo.muid
+    //   const res = await this.$YipService.AddSelfIP(JSON.stringify(this.query_person))
+    // },
     // 新增公司主体---提交
     async addMaster() {
       if (this.ipMaster_params.ipAlias === '') {
