@@ -575,11 +575,11 @@
           <el-table-column
             label="商品名称"
             width="300"
-            prop="site"
+            prop=""
           >
             <template slot-scope="scope">
-              <div v-if="scope.row.goods_infos" class="goods-detail">
-                {{ scope.row.goods_infos.goods_name }}
+              <div v-if="scope.row.goods" class="goods-detail">
+                {{ scope.row.goods.goods_name }}
               </div>
             </template>
           </el-table-column>
@@ -589,8 +589,8 @@
             prop="warehouse_name"
           >
             <template slot-scope="scope">
-              <div v-if="scope.row.goods_infos" class="goods-detail">
-                {{ scope.row.goods_infos.asin }}
+              <div v-if="scope.row.goods" class="goods-detail">
+                {{ scope.row.goods.goods_id }}
               </div>
             </template>
           </el-table-column>
@@ -600,8 +600,8 @@
             prop="colorText"
           >
             <template slot-scope="scope">
-              <div v-if="scope.row.goods_infos" class="goods-detail">
-                {{ scope.row.goods_infos.goods_count }}
+              <div v-if="scope.row.goods" class="goods-detail">
+                {{ scope.row.goods.goods_count }}
               </div>
             </template>
           </el-table-column>
@@ -611,8 +611,8 @@
             prop="package_order_sn"
           >
             <template slot-scope="scope">
-              <div v-if="scope.row.shot_order_infos" class="goods-detail">
-                {{ scope.row.shot_order_infos.shot_order_sn }}
+              <div v-if="scope.row.shotOrder" class="goods-detail">
+                {{ scope.row.shotOrder.shot_order_sn }}
               </div>
             </template>
           </el-table-column>
@@ -622,35 +622,30 @@
             prop="goods_count"
           >
             <template slot-scope="scope">
-              <div v-if="scope.row.shot_order_infos" class="goods-detail">
-                {{ scope.row.shot_order_infos.shotted_at }}
+              <div v-if="scope.row.shotOrder" class="goods-detail">
+                {{ scope.row.shotOrder.shotted_at }}
               </div>
             </template>
           </el-table-column>
           <el-table-column
             label="物流单号"
             width="130"
-          >
-            <template slot-scope="scope">
-              <div v-if="scope.row.goods_package_code_infos">
-                {{ scope.row.goods_package_code_infos.package_code }}
-              </div>
-            </template>
-          </el-table-column>
+            prop="package_code"
+          />
           <el-table-column
             label="状态"
             width="70"
-          > <template slot-scope="scope">
-            <p v-if="scope.row.package_infos&&scope.row.package_infos.status>0">
-              {{ packageStatusList[scope.row.package_infos.status] }}
-            </p>
+          > <template slot-scope="{ row }">
+            <span>
+              {{ row.package && Number(row.package.status)===1 ? '待处理':'待处理' }}
+            </span>
           </template>
           </el-table-column>
           <el-table-column
             label="签收时间"
             width="90"
           > <template slot-scope="scope">
-            <p v-if="scope.row.package_infos">{{ scope.row.package_infos.package_time }}</p>
+            <p v-if="scope.row.package">{{ scope.row.package.package_time }}</p>
           </template>
           </el-table-column>
           <el-table-column
@@ -659,7 +654,7 @@
           >
             <template slot-scope="scope">
               <el-tooltip
-                v-if="scope.row.package_infos"
+                v-if="scope.row.package"
                 effect="light"
                 placement="right-end"
                 :visible-arrow="false"
@@ -667,10 +662,10 @@
                 style="width: 56px; height: 56px"
               >
                 <div slot="content">
-                  <img :src="scope.row.package_infos.package_image" width="400px" height="400px">
+                  <img :src="scope.row.package.package_image" width="400px" height="400px">
                 </div>
                 <el-image
-                  :src="scope.row.package_infos.package_image"
+                  :src="scope.row.package.package_image"
                   alt=""
                   width="56px"
                   height="56px"
@@ -757,7 +752,7 @@
         <div class="compareData_item">
           <el-table
             :header-cell-style="{'background': '#f7fafa'}"
-            :data="multipleSelection"
+            :data="compareDataList"
             :row-style="{ height: '50px' }"
             max-height="400"
           >
@@ -766,7 +761,7 @@
             <!-- <el-table-column prop="" label="采购类型" min-width="100px" align="center" /> -->
             <el-table-column prop="warehouse_name" label="当前绑定仓库" min-width="200px" align="center" />
             <el-table-column prop="" label="是否可同步" min-width="100px" align="center"><span>是</span></el-table-column>
-            <el-table-column prop="" label="主订单数" min-width="100px" align="center" />
+            <el-table-column prop="warehouse_num" label="主订单数" min-width="100px" align="center" />
           </el-table>
         </div>
         <div style="display:flex;justify-content: center;margin-top:10px">
@@ -798,6 +793,7 @@ export default {
   },
   data() {
     return {
+
       compareDataList: [],
       dialog_compareData: false, // 同步数据至仓库
       dialogExtService: false, // 增值弹窗
@@ -882,43 +878,47 @@ export default {
   methods: {
     // 批量推送订单至仓库
     compareDataVisible() {
-      if (!this.multipleSelection.length) {
-        this.$message.warning('请勾选需要操作的数据')
-        return false
+      // if (!this.multipleSelection.length) {
+      //   this.$message.warning('请勾选需要操作的数据')
+      //   return false
+      // }
+      // // const arr = this.multipleSelection
+      try {
+        const myMap = new Map()
+        this.compareDataList = []
+        const data = this.multipleSelection
+        data.map((item, index) => {
+          if (!myMap.has(item.mall_alias_name) && !myMap.has(item.warehouse_name)) {
+            myMap.set(item.mall_alias_name)
+            myMap.set(item.warehouse_name)
+            item.warehouse_num = 1
+            this.compareDataList.push(item)
+          } else {
+            // msg.push(`过滤ID:${item.id}`)
+            this.compareDataList[index].warehouse_num++
+            // console.log(item.warehouse_num)
+          }
+        })
+        console.log('8888888888', this.compareDataList)
+        this.dialog_compareData = true
+      } catch (error) {
+        console.log(error)
       }
-      // const arr = this.multipleSelection
-      const myMap = new Map()
-      const newData = []
-      const msg = []
-      const data = this.multipleSelection
-      data.map(item => {
-        if (!myMap.has(item.mall_alias_name) && !myMap.has(item.warehouse_name)) {
-          myMap.set(item.mall_alias_name)
-          myMap.set(item.warehouse_name)
-          myMap.set(item.warehouse_num)
-          newData.push(item)
-        } else {
-          msg.push(`过滤ID:${item.id}`)
-        }
-      })
-      console.log(newData, msg)
-
-      this.dialog_compareData = true
     },
     //
     compareData() {},
     // 获取面单信息
     async getPackage() {
-      const res = await this.$api.getNotHaveLogisticsInformations()
-      console.log('///////', res)
-      if (res.data.code === 200) {
-        this.$notify({
-          type: 'success',
-          message: '没有打印失败的包裹'
-        })
-      } else {
-
-      }
+      // 需要对接第三方接口
+      // const res = await this.$api.getNotHaveLogisticsInformations()
+      // console.log('///////', res)
+      // if (res.data.code === 200) {
+      //   this.$notify({
+      //     type: 'success',
+      //     message: '没有打印失败的包裹'
+      //   })
+      // } else {
+      // }
     },
     // 增值服务
     extService_visible() {

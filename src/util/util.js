@@ -10,7 +10,7 @@ export async function MallList() {
     mallGroupIds: ''
   }
   const res = await instance.$api.ddMallGoodsGetMallList(param)
-  console.log('res', res)
+  // console.log('res', res)
   if (res.data.code === 200) {
     const arr = res.data.data
     const blist = []
