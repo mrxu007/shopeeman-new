@@ -138,13 +138,11 @@ export default {
   getExceptionWarehouse: (data) => AppRequest.get('/exceptionWarehouse', { params: data }), // 仓库异常信息列表
   uploadDealExceptionStatus: (data) => AppRequest.post('/uploadDealExceptionStatus', data), // 仓库异常处理状态上报
 
-  // 智能仓库-包裹列表
+  // 智能仓库
   getSignPackageList: (data) => AppRequest.post('/signPackage', data), // 获取包裹列表
   cancelReturn: (data) => AppRequest.post('/packageReturn/cancel', data), // 取消退件
   getReturnInfo: (data) => AppRequest.get('/packageReturn/info', { params: data }), // 退件详情
-  getUnclaimedPackage: (data) => AppRequest.get('/signPackage/getUnclaimedPackage', { params: data }), // 失物招领
-
-  // 智能仓库-退件管理列表
-  getReturnManage: (data) => AppRequest.get('/packageReturn', { params: data }) // 获取退件管理列表
-
+  getUnclaimedPackage: (data) => AppRequest.get('/signPackage/getUnclaimedPackage', { params: data }), // 失物招领列表
+  getReturnManage: (data) => AppRequest.get('/packageReturn', { params: data }), // 获取退件管理列表
+  getAbnormalPayment: (data) => AppRequest.get('/warehouseAbnormalPayment', { params: data }) // 获取退件管理列表
 }

@@ -18,7 +18,10 @@
     <main v-if="activeVal === '2'"><SmartHouseReturnManage /></main>
 
     <!--失物招领 -->
-    <main v-if="activeVal === '3'"><SmartHouseUnclaimed /></main>
+    <main v-if="activeVal === '4'"><SmartHouseUnclaimed /></main>
+
+    <!--我的赔付 -->
+    <main v-if="activeVal === '6'"><SmartHouseAbnormalPayment /></main>
   </div>
 </template>
 
@@ -27,14 +30,16 @@ import {
   SmartHouseWorkBench,
   SmartHousePackage,
   SmartHouseReturnManage,
-  SmartHouseUnclaimed
+  SmartHouseUnclaimed,
+  SmartHouseAbnormalPayment
 } from './index'
 export default {
   components: {
     SmartHouseWorkBench,
     SmartHousePackage,
     SmartHouseReturnManage,
-    SmartHouseUnclaimed
+    SmartHouseUnclaimed,
+    SmartHouseAbnormalPayment
   },
   data() {
     return {

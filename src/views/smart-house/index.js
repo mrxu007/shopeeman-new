@@ -10,10 +10,14 @@ const SmartHouseReturnManage = () => import('./components/SmartHouseReturnManage
 // 失物招领
 const SmartHouseUnclaimed = () => import('./components/SmartHouseUnclaimed.vue')
 
+// 我的赔付
+const SmartHouseAbnormalPayment = () => import('./components/SmartHouseAbnormalPayment.vue')
+
 // 导出
 export {
   SmartHouseWorkBench,
   SmartHousePackage,
   SmartHouseReturnManage,
-  SmartHouseUnclaimed
+  SmartHouseUnclaimed,
+  SmartHouseAbnormalPayment
 }

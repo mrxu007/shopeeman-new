@@ -646,7 +646,7 @@ export default {
       const parmas = {
         packageCode: this.form.logisticsNum.trim(),
         mainOrderSn: this.form.orderNum.trim(),
-        status: this.form.packageStatus,
+        status: Number(this.form.packageStatus),
         packageTime: signingTime,
         appliReturnTime: applyReturnTime,
         page: this.page,
@@ -664,17 +664,15 @@ export default {
               item.package_image = this.getImages(item.package_image)
             })
             console.log('data', resData)
-            this.isShowLoading = false
           }
         } else {
           this.$message.error('获取数据失败', data.message)
-          this.isShowLoading = false
         }
         // console.log('data', data)
       } catch (error) {
         console.log(error)
-        this.isShowLoading = false
       }
+      this.isShowLoading = false
     },
     // 点击复制
     copy(attr) {

@@ -335,7 +335,7 @@ export default {
       const parmas = {
         packageCode: this.form.logisticsNum.trim(),
         orderSn: this.form.orderNum.trim(),
-        status: this.form.returnStatus,
+        status: Number(this.form.returnStatus),
         returnShippingNumber: this.form.returnLogisticsNum.trim(),
         returnPhoneNumber: this.form.returnPhone.trim(),
         returnTime: returnTime,
@@ -349,15 +349,13 @@ export default {
         if (data.code === 200) {
           this.tableData = data.data.data
           this.total = data.data.total
-          this.isShowLoading = false
         } else {
           this.$message.error('数据获取失败', data.message)
-          this.isShowLoading = false
         }
       } catch (error) {
-        this.isShowLoading = false
         console.log(error)
       }
+      this.isShowLoading = false
       console.log('tableData', this.tableData)
     },
     // 点击复制
