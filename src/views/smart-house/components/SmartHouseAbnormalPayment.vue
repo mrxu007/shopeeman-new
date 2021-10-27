@@ -166,17 +166,33 @@
         <el-table-column
           prop="images"
           label="图片凭证"
-          min-width="150"
+          min-width="180"
           align="center"
         >
           <template slot-scope="{row}">
-            <div style="display:flex;justify-content: space-between">
-              <el-image
-                v-for="(item,index) in row.images"
-                :key="index"
-                style="width: 40px; height: 40px"
-                :src="item"
-              />
+            <div
+              v-for="(item,index) in row.images"
+              :key="index"
+            >
+              <el-tooltip
+                effect="light"
+                placement="right-end"
+                :visible-arrow="false"
+                :enterable="false"
+                style="width: 50px; height: 50px"
+              >
+                <div slot="content">
+                  <img
+                    :src="item"
+                    width="300px"
+                    height="300px"
+                  >
+                </div>
+                <el-image
+                  style="width: 40px; height: 40px"
+                  :src="item"
+                />
+              </el-tooltip>
             </div>
           </template>
         </el-table-column>
