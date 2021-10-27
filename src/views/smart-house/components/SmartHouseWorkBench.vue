@@ -891,11 +891,12 @@ export default {
           if (!myMap.has(item.mall_alias_name) && !myMap.has(item.warehouse_name)) {
             myMap.set(item.mall_alias_name)
             myMap.set(item.warehouse_name)
-            item.warehouse_num = 1
+            // item.warehouse_num = 1
             this.compareDataList.push(item)
           } else {
             // msg.push(`过滤ID:${item.id}`)
-            this.compareDataList[index].warehouse_num++
+            // this.compareDataList[index].warehouse_num++
+            // console.log('44444', item)
             // console.log(item.warehouse_num)
           }
         })
