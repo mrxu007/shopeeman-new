@@ -4,9 +4,9 @@
 
 <script>
 export default {
-
+  name:'SmartHouseWorkBench'
 }
 </script>
 
-<style>
+<style >
 </style>

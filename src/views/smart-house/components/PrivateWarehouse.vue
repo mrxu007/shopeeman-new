@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-10-25 16:40:41
- * @LastEditTime: 2021-10-25 17:22:52
+ * @LastEditTime: 2021-10-27 19:27:12
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shopeeman-new\src\views\smart-house\components\PrivateWarehouse.vue
@@ -23,7 +23,6 @@
             start-placeholder="开始日期"
             end-placeholder="结束日期"
             :picker-options="pickerOptions"
-            :default-time="['00:00:00', '23:59:59']"
           >
           </el-date-picker>
         </div>
@@ -34,33 +33,70 @@
         <div class="tool-item mar-right">
           <span>站点：</span>
           <el-select v-model="countryVal" size="mini" filterable>
-            <el-option  label="全部" :value="''" />
             <el-option v-for="(item, index) in countries" :key="index" :label="item.label" :value="item.value" />
           </el-select>
         </div>
         <el-button type="primary" size="mini" @click="searchTableList" class="mar-right">查 询</el-button>
-        <el-button type="primary" size="mini" @click="" class="mar-right">新增商品</el-button>
+        <el-button type="primary" size="mini" @click="insertGoodsVisible = true" class="mar-right">新增商品</el-button>
       </div>
     </div>
-     <!-- 表格区 -->
+    <!-- 表格区 -->
     <div class="content">
-      <el-table v-loading="tableLoading" ref="multipleTable" :data="tableData" tooltip-effect="dark" max-height="650" >
+      <el-table v-loading="tableLoading" ref="multipleTable" :data="tableData" tooltip-effect="dark" max-height="700" @selection-change="selectionChange">
+        <el-table-column type="selection" width="55"></el-table-column>
         <el-table-column align="center" type="index" label="序号" width="50">
           <template slot-scope="scope">{{ (currentPage - 1) * pageSize + scope.$index + 1 }}</template>
         </el-table-column>
-         <el-table-column width="120px" label="商品ID" prop="country" align="center">
-          <template slot-scope="scope">{{ scope.row.country | chineseSite }}</template>
+        <el-table-column min-width="120px" label="商品ID" prop="goods_id" align="center" />
+        <el-table-column min-width="120px" label="商品名称" prop="goods_name" align="center" show-overflow-tooltip />
+        <el-table-column min-width="80" label="商品链接" prop="goods_url" align="center" show-overflow-tooltip>
+          <template slot-scope="scope">
+            <div v-if="scope.row.goods_url">
+              <el-button type="primary" size="mini">查看商品</el-button>
+            </div>
+          </template>
         </el-table-column>
-        <el-table-column min-width="60px" label="商品名称" prop="warehouse_name" align="center" >
-            <template slot-scope="scope">{{ scope.row.platform_mall_name }}</template>
+        <el-table-column label="商品图片" width="80">
+          <template slot-scope="scope">
+            <el-image :src="scope.row.goods_img" style="width: 60px; height: 60px"></el-image>
+          </template>
         </el-table-column>
-        <el-table-column min-width="60px" label="商品链接" prop="group_name" align="center" />
-        <el-table-column min-width="60px" label="商品图片" prop="upCount" align="center" />
-        <el-table-column min-width="60px" label="库存" prop="upCount" align="center" />
-        <el-table-column min-width="60px" label="SKU ID" prop="upCount" align="center" />
-        <el-table-column min-width="60px" label="SKU名称" prop="upCount" align="center" />
-        <el-table-column min-width="60px" label="价格" prop="upCount" align="center" />
-        <el-table-column min-width="60px" label="创建时间" prop="upCount" align="center" />
+        <el-table-column min-width="60px" label="库存" align="center">
+          <template slot-scope="scope">{{ totalStock(scope.row.user_stocks_skus) }}</template>
+        </el-table-column>
+        <el-table-column type="expand" width="120" align="center" label="sku信息详情" header-align="center">
+          <template slot-scope="scope">
+            <el-table
+              max-height="500px"
+              :data="scope.row.user_stocks_skus"
+              style="width: 100%"
+              :header-cell-style="{
+                backgroundColor: '#a9a9a9',
+                color: '#fff',
+              }"
+              @selection-change="selectionChange"
+            >
+              <el-table-column label="SKU图片" width="80" align="center">
+                <template slot-scope="scope">
+                  <el-image :src="scope.row.sku_image" style="width: 60px; height: 60px"></el-image>
+                </template>
+              </el-table-column>
+              <el-table-column label="SKU ID" prop="sku_id" align="center" />
+              <el-table-column label="SKU名称" prop="sku_name" align="center" />
+              <el-table-column label="价格" prop="sku_price" align="center" />
+              <el-table-column label="库存" prop="stock_num" align="center"> </el-table-column>
+            </el-table>
+          </template>
+        </el-table-column>
+        <el-table-column min-width="60px" label="创建时间" prop="created_at" align="center" />
+        <el-table-column label="操作" min-width="60px">
+          <template slot-scope="scope">
+            <div>
+              <el-button type="primary" size="mini" class="mar-right" @click="deleteGoods(scope.row)">删 除</el-button>
+              <el-button type="primary" size="mini" @click="editGoods(scope.row)">编 辑</el-button>
+            </div>
+          </template>
+        </el-table-column>
       </el-table>
       <div class="pagination">
         <el-pagination
@@ -74,11 +110,145 @@
         />
       </div>
     </div>
+    <el-dialog title="自有商品编辑" :visible.sync="insertGoodsVisible" width="1200px" top="5vh" @close="closeDialog">
+      <div class="goodsInsert-dialog">
+        <div class="header-btn">
+          <el-row style="width: 100%">
+            <el-col :span="9" class="mar-right">
+              <div class="tool-item">
+                <span>商品名称：</span>
+                <el-input v-model="goodsName" placeholder="" size="mini" clearable style="width: 200px"></el-input>
+              </div>
+              <div class="tool-item">
+                <span>商品链接：</span>
+                <el-input v-model="goodsUrl" placeholder="" size="mini" clearable style="flex: 1"></el-input>
+              </div>
+              <div class="tool-item">
+                <div class="tool-item mar-right">
+                  <span>站点：</span>
+                  <el-select v-model="goodsCountry" size="mini" filterable style="min-width: 100px; flex: 1">
+                    <el-option label="全部" :value="''" />
+                    <el-option v-for="(item, index) in countries" :key="index" :label="item.label" :value="item.value" />
+                  </el-select>
+                </div>
+                <div class="tool-item" v-if="goodsImage">
+                  <span>商品主图：</span>
+                  <el-image :src="goodsImage" style="width: 148px; height: 148px" @click="goodsImage = ''"></el-image>
+                </div>
+                <div class="tool-item" v-else>
+                  <span>商品主图：</span>
+                  <el-upload class="avatar-uploader" action="#" :show-file-list="false" list-type="picture-card" :on-change="handleChange">
+                    <!-- <el-upload class="upload" list-type="picture-card" action="https://jsonplaceholder.typicode.com/posts/" :on-progress="handleChange"> -->
+                    <i class="el-icon-plus"></i>
+                  </el-upload>
+                </div>
+              </div>
+            </el-col>
+            <el-col :span="7" class="mar-right">
+              <div class="sku-box">
+                <span class="sku-title">规格一</span>
+                <div class="sku-item">
+                  <div class="tool-item">
+                    <span>规格名称</span>
+                    <el-input v-model="spec1name" placeholder="" size="mini" clearable></el-input>
+                  </div>
+                  <div class="tool-item">
+                    <span>选项</span>
+                    <div class="sku-item-box">
+                      <div class="sku-Spec" v-for="(item, i) in skuSpec1" :key="i">
+                        <el-input v-model="item.sku_name" placeholder="" size="mini" clearable @input="createSkuList"></el-input>
+                        <i class="el-icon-plus"></i>
+                        <el-button type="primary" size="mini" @click="deleteSpec1(i)">删除</el-button>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="tool-item">
+                    <span></span>
+                    <el-button type="primary" size="mini" style="width: 100%" @click="addSpec1">添加选项</el-button>
+                  </div>
+                </div>
+              </div>
+            </el-col>
+            <el-col :span="7">
+              <div class="sku-box">
+                <div class="sku-title">
+                  <el-checkbox v-model="skuSecondCheck">规格二</el-checkbox>
+                </div>
+                <div class="sku-item">
+                  <div class="tool-item">
+                    <span>规格名称</span>
+                    <el-input v-model="spec2name" placeholder="" size="mini" clearable></el-input>
+                  </div>
+                  <div class="tool-item">
+                    <span>选项</span>
+                    <div class="sku-item-box">
+                      <div class="sku-Spec" v-for="(item, i) in skuSpec2" :key="i">
+                        <el-input v-model="item.sku_name" placeholder="" size="mini" clearable class="mar-right" :disabled="!skuSecondCheck" @input="createSkuList"></el-input>
+                        <el-button type="primary" size="mini" :disabled="!skuSecondCheck" @click="deleteSpec2(i)">删除</el-button>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="tool-item">
+                    <span></span>
+                    <el-button type="primary" size="mini" style="width: 100%" :disabled="!skuSecondCheck" @click="addSpec2">添加选项</el-button>
+                  </div>
+                </div>
+              </div>
+            </el-col>
+          </el-row>
+          <el-row style="width: 100%; display: flex; margin-top: 10px">
+            <el-col :span="9" class="mar-right"> </el-col>
+            <el-col :span="14">
+              <div class="tool-item">
+                <span class="mar-right">规格咨询</span>
+                <span>价格</span>
+                <el-input v-model="skuPrice" placeholder="" size="mini" clearable class="mar-right" style="width: 100px"></el-input>
+                <span>数量</span>
+                <el-input v-model="skuStock" placeholder="" size="mini" clearable class="mar-right" style="width: 100px"></el-input>
+                <el-button type="primary" size="mini" @click="setSkuPriceStock">批量更新</el-button>
+              </div>
+            </el-col>
+          </el-row>
+        </div>
+        <div class="content-table">
+          <el-table v-loading="tableLoading" ref="skuTable" :data="skuList" tooltip-effect="dark" height="280">
+            <el-table-column align="center" type="index" label="序号" width="50" />
+            <el-table-column width="120px" label="规格一" prop="sku_name1" align="center">
+              <template slot-scope="scope">{{ scope.row.sku_name1 }}</template>
+            </el-table-column>
+            <el-table-column width="120px" label="规格二" prop="sku_name" align="center">
+              <template slot-scope="scope">{{ scope.row.sku_name2 }}</template>
+            </el-table-column>
+            <el-table-column width="80px" label="库存" prop="sku_name" align="center">
+              <template slot-scope="scope">{{ scope.row.stock_num }}</template>
+            </el-table-column>
+            <el-table-column width="80px" label="单买价（元）" prop="sku_name" align="center">
+              <template slot-scope="scope">{{ scope.row.sku_price }}</template>
+            </el-table-column>
+            <el-table-column width="60px" label="规格备注" prop="sku_name" align="center">
+              <template slot-scope="scope">{{ scope.row.remark }}</template>
+            </el-table-column>
+            <el-table-column min-width="60px" label="规格图" prop="platform_mall_name" align="center" />
+            <el-table-column width="140px" label="SKU ID" prop="sku_name" align="center">
+              <template slot-scope="scope">{{ scope.row.sku_id }}</template>
+            </el-table-column>
+            <el-table-column width="160px" label="创建时间" prop="sku_name" align="center">
+              <template slot-scope="scope">{{ scope.row.created_at }}</template>
+            </el-table-column>
+          </el-table>
+        </div>
+        <div class="footer">
+          <el-button type="primary" size="mini" @click="saveInsert">保 存</el-button>
+        </div>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
 <script>
+import { randomWord } from '../../../util/util'
 export default {
+  name:"PrivateWarehouse",
   data() {
     return {
       pickerOptions: {
@@ -87,7 +257,7 @@ export default {
         },
       },
       goodsID: '',
-      countryVal: '',
+      countryVal: 'TH',
       searchTime: [],
       countries: [
         { label: '泰国站', value: 'TH' },
@@ -106,24 +276,314 @@ export default {
       pageSize: 20, //页码
       currentPage: 1, //页码
       total: 0, //表格总数
-      tableData:[],
-      tableLoading:false
+      tableData: [],
+      tableLoading: false,
+      multipleSelection: [],
+      insertGoodsVisible: false,
+      editInfo: {},
+      goodsName: '',
+      goodsUrl: '',
+      goodsCountry: '',
+      goodsImage: '',
+      skuSecondCheck: false,
+      skuList: [],
+      skuSpec1: [],
+      skuSpec2: [],
+      skuPrice: 0,
+      skuStock: 0,
+      spec1name: '规格一',
+      spec2name: '规格二',
     }
   },
   mounted() {
     let end = new Date().getTime()
     let start = end - 30 * 24 * 60 * 60 * 1000
     this.searchTime = [this.$dayjs(start).format('YYYY-MM-DD'), this.$dayjs(end).format('YYYY-MM-DD')]
+    this.searchTableList()
   },
   methods: {
-      async searchTableList(){
-
-      },
-      handleCurrentChange(val) {
+    //保存新增
+    async saveInsert() {
+      if (!this.skuList.length) {
+        return this.$message.warning('缺少sku信息！')
+      }
+      let userStocksSkus = []
+      this.skuSpec1.forEach((item1) => {
+        this.skuSpec2.forEach((item2) => {
+          userStocksSkus.push({
+            sku_id: 0,
+            id: 0,
+            sku_name: item2.sku_name ? item1.sku_name + ',' + item2.sku_name : item1.sku_name,
+            stock_num: 0,
+            sku_price: 0,
+            sku_image: '',
+            remark: '',
+            created_at: null,
+          })
+        })
+      })
+      if (!this.goodsName) {
+        return this.$message.warning('商品名称不能为空！')
+      }
+      let params = {
+        country: this.countryVal,
+        goodsName: this.goodsName,
+        goodsUrl: this.goodsUrl,
+        goodsImg: this.goodsImage,
+        userStocksSkus: JSON.stringify(userStocksSkus),
+      }
+      let res = await this.$api.insertUserGoods(params)
+      if (res.data.code === 200) {
+        this.$message.success('保存成功!')
+        this.insertGoodsVisible = false
+      } else {
+        this.$message.error(res.data.message)
+      }
+      console.log(res, 'saveInsert')
+    },
+    //设置sku价格库存
+    setSkuPriceStock() {
+      if (!this.skuList.length) {
+        return
+      }
+      this.skuList.forEach((item) => {
+        item.stock_num = this.skuStock
+        item.sku_price = this.skuPrice
+      })
+    },
+    //spec1
+    addSpec1() {
+      let params = {
+        sku_name: '',
+      }
+      this.skuSpec1.push(params)
+      this.createSkuList()
+    },
+    deleteSpec1(i) {
+      this.skuSpec1.splice(i, 1)
+      this.createSkuList()
+    },
+    //spec2
+    addSpec2() {
+      let params = {
+        sku_name: '',
+      }
+      this.skuSpec2.push(params)
+      this.createSkuList()
+    },
+    deleteSpec2(i) {
+      this.skuSpec2.splice(i, 1)
+      this.createSkuList()
+    },
+    // 生成sku列表
+    createSkuList() {
+      this.skuList = []
+      if (this.skuSpec1.length === 0 && this.skuSpec2.length === 0) {
+        this.skuList = []
+      }
+      if (this.skuSpec1.length > 0 && this.skuSpec2.length === 0) {
+        this.skuList = this.skuSpec1.map((item) => {
+          return {
+            sku_id: 0,
+            id: 0,
+            sku_name1: item.sku_name,
+            sku_name2: '',
+            stock_num: 0,
+            sku_price: 0,
+            sku_image: '',
+            remark: '',
+            created_at: null,
+          }
+        })
+      }
+      if (this.skuSpec1.length === 0 && this.skuSpec2.length > 0) {
+        this.skuList = this.skuSpec2.map((item) => {
+          return {
+            sku_id: 0,
+            id: 0,
+            sku_name1: '',
+            sku_name2: item.sku_name,
+            stock_num: 0,
+            sku_price: 0,
+            sku_image: '',
+            remark: '',
+            created_at: null,
+          }
+        })
+      }
+      if (this.skuSpec1.length > 0 && this.skuSpec2.length > 0) {
+        this.skuSpec1.forEach((item1) => {
+          this.skuSpec2.forEach((item2) => {
+            this.skuList.push({
+              sku_id: 0,
+              id: 0,
+              sku_name1: item1.sku_name,
+              sku_name2: item2.sku_name,
+              stock_num: 0,
+              sku_price: 0,
+              sku_image: '',
+              remark: '',
+              created_at: null,
+            })
+          })
+        })
+        console.log('this.skuList', this.skuList, this.skuSpec1, this.skuSpec2)
+      }
+    },
+    //列表
+    async searchTableList() {
+      let params = {
+        country: this.countryVal,
+        goodsId: this.goodsID,
+        createTime: '',
+      }
+      params.createTime = this.$dayjs(this.searchTime[0]).format('YYYY-MM-DD') + ' 00:00:00' + '/' + this.$dayjs(this.searchTime[1]).format('YYYY-MM-DD') + ' 23:59:59'
+      this.tableLoading = true
+      let res = await this.$api.getUserStore(params)
+      console.log(res)
+      if (res && res.data.code === 200) {
+        this.total = res.data.data.total
+        this.tableData = res.data.data.data
+      } else {
+        this.$message.error(res.data.message)
+      }
+      this.tableLoading = false
+    },
+    //上传图片
+    async handleChange(file) {
+      let that = this
+      const localFile = file.raw
+      const reader = new FileReader()
+      reader.readAsDataURL(localFile)
+      reader.onload = async () => {
+        that.imgData = reader.result
+        let name = randomWord(false, 32) + '_' + new Date().getTime()
+        let res = await this.$ossService.uploadFile(that.imgData, name)
+        this.goodsImage = res
+      }
+    },
+    //删除商品
+    async deleteGoods(row) {
+      let params = {
+        id: row.id,
+      }
+      let res = await this.$api.deleteUserGoods(params)
+      console.log(res)
+    },
+    //保存新增
+    async saveInsertGoods() {
+      let params = {}
+      let res = await this.$api.insertUserGoods(params)
+      console.log(res)
+    },
+    //保存编辑
+    async saveUpdateGoods() {
+      let params = {}
+      let res = await this.$api.updataUserGoods(params)
+      console.log(res)
+    },
+    closeDialog() {
+      this.countryVal = 'TH'
+      this.goodsName = ''
+      this.goodsUrl = ''
+      this.goodsImage = ''
+      this.skuList = []
+      this.skuSpec1 = []
+      this.skuSpec2 = []
+      this.editInfo = {}
+    },
+    //编辑商品
+    async editGoods(row) {
+      this.insertGoodsVisible = true
+      this.editInfo = row
+      this.countryVal = row.country
+      this.goodsName = row.goods_name
+      this.goodsUrl = row.goods_url
+      this.goodsImage = row.goods_img
+      this.skuList = row.user_stocks_skus
+      row.user_stocks_skus.forEach((item, index) => {
+        let specArr = item.sku_name.split(',') || []
+        if (specArr.length == 1) {
+          item.sku_name1 =  specArr[0]
+          let spec = {
+            sku_id: item.sku_id,
+            id: item.id,
+            sku_name: specArr[0] || '',
+            stock_num: item.stock_num,
+            sku_price: item.sku_price,
+            sku_image: item.sku_image,
+            remark: item.remark,
+            created_at: item.created_at,
+          }
+          let obj = this.skuSpec1.find((n) => {
+            return n.sku_id === item.sku_id
+          })
+          if (!obj) {
+            this.skuSpec1.push(spec)
+          }
+        } else if (specArr.length >= 2) {
+          item.sku_name1 =  specArr[0]
+          item.sku_name2 =  specArr[1]
+          let group = row.user_stocks_skus.length / 2
+          if (index + 1 <= group) {
+            let spec1 = {
+              sku_id: item.sku_id,
+              id: item.id,
+              sku_name: specArr[0] || '',
+              stock_num: item.stock_num,
+              sku_price: item.sku_price,
+              sku_image: item.sku_image,
+              remark: item.remark,
+              created_at: item.created_at,
+            }
+            let obj1 = this.skuSpec1.find((n) => {
+              return n.sku_id === item.sku_id
+            })
+            if (!obj1) {
+              this.skuSpec1.push(spec1)
+            }
+          } else {
+            let spec2 = {
+              sku_id: item.sku_id,
+              id: item.id,
+              sku_name: specArr[1] || '',
+              stock_num: item.stock_num,
+              sku_price: item.sku_price,
+              sku_image: item.sku_image,
+              remark: item.remark,
+              created_at: item.created_at,
+            }
+            let obj2 = this.skuSpec2.find((n) => {
+              return n.sku_id === item.sku_id
+            })
+            if (!obj2) {
+              this.skuSpec2.push(spec2)
+            }
+          }
+        }
+      })
+      this.editSkuList()
+      console.log('row', row, this.skuSpec1, this.skuSpec2)
+    },
+    //计算总库存
+    totalStock(data) {
+      let stock = 0
+      for (let i = 0; i < data.length; i++) {
+        stock += data[i].stock_num
+      }
+      return stock
+    },
+    //   表格选择
+    selectionChange(val) {
+      this.multipleSelection = val
+    },
+    handleCurrentChange(val) {
       this.currentPage = val
+      this.searchTableList()
     },
     handleSizeChange(size) {
       this.pageSize = size
+      this.searchTableList()
     },
   },
 }
@@ -133,6 +593,9 @@ export default {
 .private-store {
   min-width: 1280px;
   margin: 10px;
+  /deep/.el-dialog__body {
+    padding: 10px 20px;
+  }
 }
 .mar-right {
   margin-right: 10px;
@@ -158,7 +621,7 @@ export default {
 .content {
   margin: 20px 0;
   background: #fff;
-  height: calc(100vh - 150px);
+  height: calc(100vh - 110px);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -167,6 +630,81 @@ export default {
     justify-content: flex-end;
     margin-top: 20px;
     height: 35px;
+  }
+}
+.goodsInsert-dialog {
+  .tool-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+    cursor: pointer;
+    span {
+      display: inline-block;
+      width: 80px;
+    }
+  }
+  .header-btn {
+    // display: flex;
+    .sku-box {
+      border: 1px solid #dcdcdc;
+      border-radius: 4px;
+      padding: 16px;
+      position: relative;
+      .sku-title {
+        padding: 0 5px;
+        display: inline-block;
+        height: 20px;
+        line-height: 20px;
+        text-align: center;
+        background: #fff;
+        position: absolute;
+        left: 10px;
+        top: -10px;
+      }
+      .sku-item {
+        display: flex;
+        flex-direction: column;
+        .sku-item-box {
+          height: 180px;
+          width: 100%;
+          border: 1px solid #dcdcdc;
+          overflow-y: auto;
+          .sku-Spec {
+            display: flex;
+            align-items: center;
+            margin: 10px;
+            i {
+              font-size: 20px;
+              margin: 0 10px;
+            }
+          }
+          &::-webkit-scrollbar {
+            width: 5px;
+            height: 10px;
+          }
+          &::-webkit-scrollbar-track {
+            background: rgb(239, 239, 239);
+            border-radius: 2px;
+          }
+          &::-webkit-scrollbar-thumb {
+            background: #bfbfbf;
+            border-radius: 10px;
+          }
+        }
+        span {
+          display: inline-block;
+        }
+      }
+    }
+  }
+  .content-table {
+    margin-top: 20px;
+  }
+  .footer {
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
   }
 }
 </style>
