@@ -60,11 +60,11 @@
       </div>
     </div>
     <div class="base_option_button" style="margin: 10px;">
-      <el-button size="mini" type="primary" @click="(Typeis='ipMaster',dialogvisible=true,dialog_title='新增公司主体')">新增公司主体</el-button>
+      <el-button size="mini" type="primary" @click="(Typeis='ipMaster',dialogvisible=true,showButton=false,dialog_title='新增公司主体')">新增公司主体</el-button>
       <!-- <el-button size="mini" type="primary">解绑主体IP</el-button> -->
       <!-- <el-button size="mini" type="primary">绑定主体IP</el-button> -->
       <el-button size="mini" type="primary" @click="clearIP()">清除IP缓存</el-button>
-      <el-button size="mini" type="primary" @click="(Typeis='ipPerson',dialogvisible=true,dialog_title='新增自有IP公司主体')">新增自有IP公司主体</el-button>
+      <el-button size="mini" type="primary" @click="(Typeis='ipPerson',dialogvisible=true,showButton=false,dialog_title='新增自有IP公司主体')">新增自有IP公司主体</el-button>
       <el-button size="mini" type="primary" @click="timeToMonth(1)">续费一个月</el-button>
       <el-button size="mini" type="primary" @click="timeToMonth(2)">续费三个月</el-button>
     </div>
@@ -481,7 +481,7 @@
               </el-table>
             </div>
             <div style="display:flex;justify-content: center;margin-top:5px">
-              <el-button type="primary" size="mini" @click="updataMallList()">绑定店铺</el-button>
+              <el-button v-show="showButton" type="primary" size="mini" @click="updataMallList()">绑定店铺</el-button>
             </div>
           </div>
         </div>
@@ -761,6 +761,7 @@ export default {
   methods: {
     // 展示修改绑定店铺弹窗
     showupdateVisible(val) {
+      this.showButton = true
       this.dialogvisible = true
       this.Typeis = 'updataMall'
       this.dialog_title = '修改绑定店铺'
@@ -795,6 +796,7 @@ export default {
       console.log('====', targetId)
       const res = await this.$commodityService.newBangdingMall(uid, targetId, mallIds)
       const data = JSON.parse(res)
+      console.log('绑定', data)
       if (data.code === -1) {
         this.$notify({
           title: '绑定店铺',
@@ -883,7 +885,6 @@ export default {
         // 新增
         const res = await this.$YipService.AddSelfIP(JSON.stringify(this.query_person))
         const resMsg = JSON.parse(res)
-
         if (resMsg.code !== 200) {
           this.$notify({
             title: '新增自有IP公司主体',
@@ -896,6 +897,12 @@ export default {
             type: 'success',
             message: `IP保存成功`
           })
+          // 附加店铺绑定
+          this.targetId = resMsg.data
+          if (this.dialog_selectMallList.length > 0) {
+            this.updataMallList()
+          }
+          //
           this.getTableList()
           this.dialogVisible = false
         }
@@ -958,6 +965,7 @@ export default {
       this.ipMaster_params.uid = userInfo.muid
       this.ipMaster_params.uuid = 0
       const params = this.ipMaster_params
+      console.log('************', this.ipMaster_params)
       const data = await this.$commodityService.addIPMaster(params)
       const resMsg = JSON.parse(data)
       if (resMsg.code !== 200) {
@@ -972,15 +980,15 @@ export default {
           type: 'success',
           message: `新增成功`
         })
+        // 附加店铺绑定
+        this.targetId = resMsg.data
+        if (this.dialog_selectMallList.length > 0) {
+          this.updataMallList()
+        }
         this.getTableList()
         this.dialogVisible = false
       }
-      console.log('新增公司主体', resMsg)
-      // 附加绑定店铺
-      if (this.dialog_selectMallList.length > 0) {
-        this.targetId = this.ipMaster_params.lineId // 代理ip_ID
-        this.updataMallList()
-      }
+      // console.log('新增公司主体', resMsg)
     },
     // dialog 多选
     // 方法
@@ -1056,6 +1064,7 @@ export default {
             const data_ipinfor = JSON.parse(res)
             item.poxyID = data_ipinfor.id
             item.poxyIP = data_ipinfor.map_ip_address
+            console.log('ip解析', data_ipinfor)
           })
           this.tableList.push(item)
           console.log('tableList', this.tableList)
@@ -1176,5 +1185,17 @@ export default {
     .el-form-item{
       margin-bottom: 0px;
     }
+    .el-input--mini{
+      margin-bottom: 2px;
+    }
+    .el-form-item__error{
+      line-height: 0;
+      padding-top: 0px;
+    }
 }
+    @media screen and (min-width: 1200px){
+       .el-dialog{
+        margin-top: 10vh !important;
+      }
+    }
 </style>
