@@ -1,6 +1,7 @@
 // 订单发货状态
 const statusList = [{
-  label: '无状态',
+  // label: '无状态',
+  label: '全部',
   deliveryStatus: 0
 },
 {

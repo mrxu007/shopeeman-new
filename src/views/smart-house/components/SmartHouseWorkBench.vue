@@ -5,59 +5,23 @@
         <div class="title">基础操作</div>
         <div class="line" />
         <div class="btn-items">
-          <el-button
-            type="primary"
-            size="mini"
-            @click="markOrderNeedDeal"
-          >标记需仓库紧急处理</el-button>
-          <el-button
-            type="primary"
-            size="mini"
-            @click="setNoWait"
-          >标记无需等待子包裹</el-button>
+          <el-button type="primary" size="mini" @click="markOrderNeedDeal">标记需仓库紧急处理</el-button>
+          <el-button type="primary" size="mini" @click="setNoWait">标记无需等待子包裹</el-button>
         </div>
         <div class="btn-items">
-          <el-button
-            type="primary"
-            size="mini"
-            @click="trackingNumberChangeOrderFun"
-          >采购物流单号变更</el-button>
-          <el-button
-            type="primary"
-            size="mini"
-            @click="noticeTodeliver(2)"
-          >通知仓库暂停发货</el-button>
+          <el-button type="primary" size="mini" @click="trackingNumberChangeOrderFun">采购物流单号变更</el-button>
+          <el-button type="primary" size="mini" @click="noticeTodeliver(2)">通知仓库暂停发货</el-button>
         </div>
         <div class="btn-items">
-          <el-button
-            type="primary"
-            size="mini"
-            @click="noticeTodeliver(1)"
-          >通知仓库发货</el-button>
-          <el-button
-            type="primary"
-            size="mini"
-            @click="setColorLabelFun"
-          >批量标记颜色标识</el-button>
+          <el-button type="primary" size="mini" @click="noticeTodeliver(1)">通知仓库发货</el-button>
+          <el-button type="primary" size="mini" @click="setColorLabelFun">批量标记颜色标识</el-button>
         </div>
         <div class="btn-items">
-          <el-button
-            type="primary"
-            size="mini"
-            @click="compareDataVisible()"
-          >批量推送订单至仓库</el-button>
-          <el-button
-            type="primary"
-            size="mini"
-            @click="extService_visible"
-          >批量添加增值服务</el-button>
+          <el-button type="primary" size="mini" @click="compareDataVisible()">批量推送订单至仓库</el-button>
+          <el-button type="primary" size="mini" @click="extService_visible">批量添加增值服务</el-button>
         </div>
         <div class="btn-items">
-          <el-button
-            type="primary"
-            size="mini"
-            @click="getPackage()"
-          >获取面单信息</el-button>
+          <el-button type="primary" size="mini" @click="getPackage()">获取面单信息</el-button>
           <!-- <el-button
             type="primary"
             size="mini"
@@ -73,13 +37,13 @@
             <storeChoose @change="setMallId" />
           </div>
           <div class="select-item">
-            <span class="search-title ">订单创建时间：</span>
+            <span class="search-title">订单创建时间：</span>
             <el-date-picker
               v-model="createdTime"
               size="mini"
               value-format="yyyy-MM-dd"
               type="daterange"
-              style="width: 195px;"
+              style="width: 195px"
               range-separator="-"
               :picker-options="pickerOptions"
               start-placeholder="开始日期"
@@ -97,16 +61,11 @@
               clearable
               placeholder="全部"
             ><el-option label="全部" value="" />
-              <el-option
-                v-for="item in deliverStateList"
-                :key="item.deliveryStatus"
-                :label="item.label"
-                :value="item.deliveryStatus"
-              />
+              <el-option v-for="item in deliverStateList" :key="item.deliveryStatus" :label="item.label" :value="item.deliveryStatus" />
             </el-select>
           </div>
           <div class="select-item">
-            <span class="search-title ">包裹异常类型：</span>
+            <span class="search-title">包裹异常类型：</span>
             <el-select
               v-model="exceptionType"
               size="mini"
@@ -114,22 +73,17 @@
               clearable
               placeholder="全部"
             ><el-option label="全部" value="" />
-              <el-option
-                v-for="item in abnormalTypeList"
-                :key="item.exception_type"
-                :label="item.label"
-                :value="item.exception_type"
-              />
+              <el-option v-for="item in abnormalTypeList" :key="item.exception_type" :label="item.label" :value="item.exception_type" />
             </el-select>
           </div>
           <div class="select-item">
-            <span class="search-title ">包裹入库时间：</span>
+            <span class="search-title">包裹入库时间：</span>
             <el-date-picker
               v-model="storageTime"
               size="mini"
               value-format="yyyy-MM-dd"
               type="daterange"
-              style="width: 195px;"
+              style="width: 195px"
               range-separator="-"
               :picker-options="pickerOptions"
               start-placeholder="开始日期"
@@ -140,19 +94,9 @@
         <div class="form-items">
           <div class="select-item">
             <span class="search-title">订单编号：</span>
-            <el-input
-              v-model="packageOrderSn"
-              size="mini"
-              style="width: 150px"
-              clearable
-            />
-            <span style="margin-left: 8px;" class="search-title">采购物流单号：</span>
-            <el-input
-              v-model="statuoriginalTrackingNumbers"
-              size="mini"
-              style="width: 150px"
-              clearable
-            />
+            <el-input v-model="packageOrderSn" size="mini" style="width: 150px" clearable />
+            <span style="margin-left: 8px" class="search-title">采购物流单号：</span>
+            <el-input v-model="statuoriginalTrackingNumbers" size="mini" style="width: 150px" clearable />
           </div>
           <!--         <span class="search-title ">颜色标识：</span>
           <el-select
@@ -171,13 +115,13 @@
             />
           </el-select> -->
           <div class="select-item">
-            <span class="search-title ">包裹出库时间：</span>
+            <span class="search-title">包裹出库时间：</span>
             <el-date-picker
               v-model="outboundTime"
               size="mini"
               value-format="yyyy-MM-dd"
               type="daterange"
-              style="width: 195px;"
+              style="width: 195px"
               range-separator="-"
               :picker-options="pickerOptions"
               start-placeholder="开始日期"
@@ -185,22 +129,9 @@
             />
           </div>
           <div class="select-item">
-            <el-button
-              type="primary"
-              style="margin-left: 4px;"
-              size="mini"
-              class="m-80"
-              :loading="orderPackageLoading"
-              @click="orderPackage"
-            >搜索</el-button>
-            <el-button
-              v-if="!isExport"
-              type="primary"
-              size="mini"
-              class="m-80"
-              @click="tableToExcel"
-            >导出数据</el-button>
-            <el-progress v-else style="width:160px;display:inline-block;margin-left: 10px;" :text-inside="true" :stroke-width="26" :percentage="((exportNum*100/total).toFixed(2)-0)" />
+            <el-button type="primary" style="margin-left: 4px" size="mini" class="m-80" :loading="orderPackageLoading" @click="orderPackage">搜索</el-button>
+            <el-button v-if="!isExport" type="primary" size="mini" class="m-80" @click="tableToExcel">导出数据</el-button>
+            <el-progress v-else style="width: 160px; display: inline-block; margin-left: 10px" :text-inside="true" :stroke-width="26" :percentage="((exportNum * 100) / total).toFixed(2) - 0" />
           </div>
         </div>
       </div>
@@ -217,188 +148,74 @@
           backgroundColor: '#f5f7fa',
         }"
         :cell-style="{ textAlign: 'center' }"
-        :row-style="{height: '80px'}"
+        :row-style="{ height: '80px' }"
         @selection-change="handleSelectionChange"
       >
-        <el-table-column
-          type="selection"
-          width="40"
-          fixed
-        />
-        <el-table-column
-          label="序号"
-          width="40"
-          fixed
-        >
+        <el-table-column type="selection" width="40" fixed />
+        <el-table-column label="序号" width="40" fixed>
           <template slot-scope="scope">
             {{ scope.$index + 1 + (currentPage - 1) * pageSize }}
           </template>
         </el-table-column>
-        <el-table-column
-          label="店铺名称"
-          width="120"
-          prop="mall_alias_name"
-          fixed
-        />
-        <el-table-column
-          label="站点"
-          width="80"
-          prop="country"
-        />
-        <el-table-column
-          label="仓库"
-          width="80"
-          prop="warehouse_name"
-        />
-        <el-table-column
-          label="颜色标识"
-          width="100"
-          prop="colorText"
-        />
-        <el-table-column
-          label="订单编号"
-          width="180"
-          prop="package_order_sn"
-        >
+        <el-table-column label="店铺名称" width="120" prop="mall_alias_name" fixed />
+        <el-table-column label="站点" width="80" prop="country" />
+        <el-table-column label="仓库" width="80" prop="warehouse_name" />
+        <el-table-column label="颜色标识" width="100" prop="colorText" />
+        <el-table-column label="订单编号" width="180" prop="package_order_sn">
           <template slot-scope="scope">
-            <span>{{ scope.row.package_order_sn }}
-              <span
-                class="copyIcon"
-                @click="copy(scope.row.package_order_sn)"
-              ><i
-                class="el-icon-document-copy"
-              /></span></span>
+            <span>{{ scope.row.package_order_sn }} <span class="copyIcon" @click="copy(scope.row.package_order_sn)"><i class="el-icon-document-copy" /></span></span>
           </template>
         </el-table-column>
-        <el-table-column
-          label="数量"
-          width="60"
-          prop="goods_count"
-        />
-        <el-table-column
-          label="商品详情"
-          width="110"
-        >
+        <el-table-column label="数量" width="60" prop="goods_count" />
+        <el-table-column label="商品详情" width="110">
           <template slot-scope="scope">
-            <p><el-button
-              type="primary"
-              size="mini"
-              @click="getGoodsInfo(scope.row.package_order_sn)"
-            >查看签收详情</el-button></p>
+            <p><el-button type="primary" size="mini" @click="getGoodsInfo(scope.row.package_order_sn)">查看签收详情</el-button></p>
           </template>
         </el-table-column>
-        <el-table-column
-          label="包裹重量"
-          width="80"
-        > <template slot-scope="scope">
-          <p>
-            {{ scope.row.package_weight }}g
-          </p>
-          <!--  <p>
+        <el-table-column label="包裹重量" width="80">
+          <template slot-scope="scope">
+            <p>{{ scope.row.package_weight }}g</p>
+            <!--  <p>
             {{ packageType[scope.row.package_type] }}/{{ transportType[scope.row.transport_type] }}
           </p> -->
-        </template>
+          </template>
         </el-table-column>
         <!-- <el-table-column
           label="运费参考(元)"
           width="100"
           prop="package_weight"
         /> -->
-        <el-table-column
-          label="等待子包裹发货"
-          width="100"
-          prop="statusText"
-        >
+        <el-table-column label="等待子包裹发货" width="100" prop="statusText">
           <template slot-scope="scope">
             <div class="goods-detail">
-              {{ scope.row.is_mark_outbound>0?'否':'是' }}
+              {{ scope.row.is_mark_outbound > 0 ? '否' : '是' }}
             </div>
           </template>
         </el-table-column>
-        <el-table-column
-          label="订单发货状态"
-          width="100"
-          prop="statusText"
-        />
-        <el-table-column
-          label="异常类型"
-          width="80"
-          prop="exceptionText"
-        />
-        <el-table-column
-          label="订单创建时间"
-          width="150"
-          prop="order_created_time"
-        />
-        <el-table-column
-          label="订单平台状态"
-          width="110"
-          prop="orderStatusText"
-        />
-        <el-table-column
-          label="截止发货时间"
-          width="150"
-          prop="latest_ship_date"
-        />
-        <el-table-column
-          label="入库时间"
-          width="150"
-          prop="storage_time"
-        />
-        <el-table-column
-          label="出库时间"
-          width="150"
-          prop="outbound_time"
-        />
-        <el-table-column
-          label="入库图片"
-          width="80"
-        >
+        <el-table-column label="订单发货状态" width="100" prop="statusText" />
+        <el-table-column label="异常类型" width="80" prop="exceptionText" />
+        <el-table-column label="订单创建时间" width="150" prop="order_created_time" />
+        <el-table-column label="订单平台状态" width="110" prop="orderStatusText" />
+        <el-table-column label="截止发货时间" width="150" prop="latest_ship_date" />
+        <el-table-column label="入库时间" width="150" prop="storage_time" />
+        <el-table-column label="出库时间" width="150" prop="outbound_time" />
+        <el-table-column label="入库图片" width="80">
           <template slot-scope="scope">
-            <el-tooltip
-              v-if="scope.row.storage_image"
-              effect="light"
-              placement="right-end"
-              :visible-arrow="false"
-              :enterable="false"
-              style="width: 56px; height: 56px"
-            >
+            <el-tooltip v-if="scope.row.storage_image" effect="light" placement="right-end" :visible-arrow="false" :enterable="false" style="width: 56px; height: 56px">
               <div slot="content">
                 <img :src="scope.row.storage_image" width="400px" height="400px">
               </div>
-              <el-image
-                :src="scope.row.storage_image"
-                alt=""
-                width="56px"
-                height="56px"
-                style="border-radius: 4px; margin: 0 auto"
-              />
+              <el-image :src="scope.row.storage_image" alt="" width="56px" height="56px" style="border-radius: 4px; margin: 0 auto" />
             </el-tooltip>
           </template>
         </el-table-column>
-        <el-table-column
-          label="出库图片"
-          width="80"
-        >
+        <el-table-column label="出库图片" width="80">
           <template slot-scope="scope">
-            <el-tooltip
-              v-if="scope.row.outbound_image"
-              effect="light"
-              placement="right-end"
-              :visible-arrow="false"
-              :enterable="false"
-              style="width: 56px; height: 56px"
-            >
+            <el-tooltip v-if="scope.row.outbound_image" effect="light" placement="right-end" :visible-arrow="false" :enterable="false" style="width: 56px; height: 56px">
               <div slot="content">
                 <img :src="scope.row.outbound_image" width="400px" height="400px">
               </div>
-              <el-image
-                :src="scope.row.outbound_image"
-                alt=""
-                width="56px"
-                height="56px"
-                style="border-radius: 4px; margin: 0 auto"
-              />
+              <el-image :src="scope.row.outbound_image" alt="" width="56px" height="56px" style="border-radius: 4px; margin: 0 auto" />
             </el-tooltip>
           </template>
         </el-table-column>
@@ -407,9 +224,7 @@
             <p style="text-align: left">仓库备注：{{ scope.row.remark }}</p>
             <p style="text-align: left">
               用户备注：
-              <span
-                v-show="!(scope.row.id === activeRemarkID ? true : false)"
-              >{{ scope.row.user_remark }}</span>
+              <span v-show="!(scope.row.id === activeRemarkID ? true : false)">{{ scope.row.user_remark }}</span>
               <!-- <el-input type="text" v-model="orderRemark" size="mini"></el-input> -->
               <el-input
                 v-if="scope.row.id === activeRemarkID ? true : false"
@@ -420,11 +235,7 @@
                 size="mini"
                 @blur="changeRemark(scope.row.package_order_sn, scope.$index)"
               />
-              <i
-                style="cursor: pointer;"
-                class="el-icon-edit-outline"
-                @click="editRemark(scope.$index, scope.row.id)"
-              />
+              <i style="cursor: pointer" class="el-icon-edit-outline" @click="editRemark(scope.$index, scope.row.id)" />
             </p>
           </template>
         </el-table-column>
@@ -443,78 +254,41 @@
       </div>
     </div>
     <!-- 采购物流单号变更弹窗 -->
-    <el-dialog
-      title="采购物流单号变更"
-      class="dialog-order"
-      width="400px"
-      top="6vh"
-      :close-on-press-escape="false"
-      :close-on-click-modal="false"
-      :visible.sync="orderVisible"
-      @closed="closeDialog1"
-    >
+    <el-dialog title="采购物流单号变更" class="dialog-order" width="400px" top="6vh" :close-on-press-escape="false" :close-on-click-modal="false" :visible.sync="orderVisible" @closed="closeDialog1">
       <div class="order-dialog">
         <div class="form-item">
-          <el-input
-            v-model="newOrderSn"
-            size="mini"
-            clearable
-            placeholder="请输入新的单号"
-          />
-          <el-button
-            type="primary"
-            size="mini"
-            @click="trackingNumberChangeOrder"
-          >保存</el-button>
+          <el-input v-model="newOrderSn" size="mini" clearable placeholder="请输入新的单号" />
+          <el-button type="primary" size="mini" @click="trackingNumberChangeOrder">保存</el-button>
         </div>
       </div>
     </el-dialog>
     <!-- 批量标记颜色弹窗 -->
-    <el-dialog
-      title="标记颜色标识"
-      class="dialog-color"
-      width="400px"
-      top="6vh"
-      :close-on-press-escape="false"
-      :close-on-click-modal="false"
-      :visible.sync="colorVisible"
-      @closed="closeDialog"
-    >
+    <el-dialog title="标记颜色标识" class="dialog-color" width="400px" top="6vh" :close-on-press-escape="false" :close-on-click-modal="false" :visible.sync="colorVisible" @closed="closeDialog">
       <div class="color-dialog">
         <div class="form-item">
-          <span class="search-title ">颜色标识：</span>
-          <el-select
-            v-model="colorLabelId1"
-            size="mini"
-            style="width: 150px"
-            clearable
-          >
-            <el-option
-              v-for="item in colorLogoList"
-              :key="item.id"
-              :label="item.label"
-              :value="item.id"
-              :style="item.color"
-            />
+          <span class="search-title">颜色标识：</span>
+          <el-select v-model="colorLabelId1" size="mini" style="width: 150px" clearable>
+            <el-option v-for="item in colorLogoList" :key="item.id" :label="item.label" :value="item.id" :style="item.color" />
           </el-select>
-          <el-button
-            type="primary"
-            size="mini"
-            @click="setColorLabel"
-          >保存</el-button>
+          <el-button type="primary" size="mini" @click="setColorLabel">保存</el-button>
         </div>
       </div>
     </el-dialog>
-    <el-dialog
-      title="包裹数据导出"
-      :visible.sync="dialogVisible1"
-      width="380px"
-    >
-      <p style="font-size: 16px;text-align: center;">线上即将导出{{ multipleSelection.length?multipleSelection.length:total }}条仓库包裹数据，是否生成？</p>
-      <p v-if="total>65000" style="text-align: center;color:red;margin-top:10px;font-size: 16px;">最多单次导出65000条数据, 请重新选择筛选条件。</p>
+    <el-dialog title="包裹数据导出" :visible.sync="dialogVisible1" width="380px">
+      <p style="font-size: 16px; text-align: center">线上即将导出{{ multipleSelection.length ? multipleSelection.length : total }}条仓库包裹数据，是否生成？</p>
+      <p v-if="total > 65000" style="text-align: center; color: red; margin-top: 10px; font-size: 16px">最多单次导出65000条数据, 请重新选择筛选条件。</p>
       <span slot="footer" class="dialog-footer">
-        <el-button size="small" style="width: 80px;margin:0 20px 20px" @click="dialogVisible1 = false">取 消</el-button>
-        <el-button size="small" :disabled="total>65000" style="width: 80px;margin:0 55px" type="primary" @click="dialogVisible1 = false;exportOrders(1)">确 定</el-button>
+        <el-button size="small" style="width: 80px; margin: 0 20px 20px" @click="dialogVisible1 = false">取 消</el-button>
+        <el-button
+          size="small"
+          :disabled="total > 65000"
+          style="width: 80px; margin: 0 55px"
+          type="primary"
+          @click="
+            dialogVisible1 = false
+            exportOrders(1)
+          "
+        >确 定</el-button>
       </span>
     </el-dialog>
     <!-- 设置延时退单时间弹窗 -->
@@ -530,28 +304,13 @@
     >
       <div class="delay-dialog">
         <div class="form-item">
-          <el-input
-            v-model="delayTime"
-            size="mini"
-            clearable
-            placeholder="不超过24小时"
-          />
-          <el-button
-            type="primary"
-            size="mini"
-            @click="timeDelay"
-          >保存</el-button>
+          <el-input v-model="delayTime" size="mini" clearable placeholder="不超过24小时" />
+          <el-button type="primary" size="mini" @click="timeDelay">保存</el-button>
         </div>
       </div>
     </el-dialog>
     <!-- 包裹详情弹窗 -->
-    <el-dialog
-      title="包裹详情"
-      class="dialog-order"
-      width="1000px"
-      top="6vh"
-      :visible.sync="dialogVisible2"
-    >
+    <el-dialog title="包裹详情" class="dialog-order" width="1000px" top="6vh" :visible.sync="dialogVisible2">
       <div>
         <el-table
           ref="workbenchTable"
@@ -564,113 +323,64 @@
             backgroundColor: '#f5f7fa',
           }"
           :cell-style="{ textAlign: 'center' }"
-          :row-style="{height: '80px'}"
+          :row-style="{ height: '80px' }"
         >
-          <el-table-column
-            label="订单编号"
-            width="180"
-            prop="order_sn"
-            fixed
-          />
-          <el-table-column
-            label="商品名称"
-            width="300"
-            prop=""
-          >
+          <el-table-column label="订单编号" width="180" prop="order_sn" fixed />
+          <el-table-column label="商品名称" width="300" prop="">
             <template slot-scope="scope">
               <div v-if="scope.row.goods" class="goods-detail">
                 {{ scope.row.goods.goods_name }}
               </div>
             </template>
           </el-table-column>
-          <el-table-column
-            label="商品ID"
-            width="110"
-            prop="warehouse_name"
-          >
+          <el-table-column label="商品ID" width="110" prop="warehouse_name">
             <template slot-scope="scope">
               <div v-if="scope.row.goods" class="goods-detail">
                 {{ scope.row.goods.goods_id }}
               </div>
             </template>
           </el-table-column>
-          <el-table-column
-            label="数量"
-            width="40"
-            prop="colorText"
-          >
+          <el-table-column label="数量" width="40" prop="colorText">
             <template slot-scope="scope">
               <div v-if="scope.row.goods" class="goods-detail">
                 {{ scope.row.goods.goods_count }}
               </div>
             </template>
           </el-table-column>
-          <el-table-column
-            label="拍单订单号"
-            width="190"
-            prop="package_order_sn"
-          >
+          <el-table-column label="拍单订单号" width="190" prop="package_order_sn">
             <template slot-scope="scope">
               <div v-if="scope.row.shotOrder" class="goods-detail">
                 {{ scope.row.shotOrder.shot_order_sn }}
               </div>
             </template>
           </el-table-column>
-          <el-table-column
-            label="拍单时间"
-            width="90"
-            prop="goods_count"
-          >
+          <el-table-column label="拍单时间" width="90" prop="goods_count">
             <template slot-scope="scope">
               <div v-if="scope.row.shotOrder" class="goods-detail">
                 {{ scope.row.shotOrder.shotted_at }}
               </div>
             </template>
           </el-table-column>
-          <el-table-column
-            label="物流单号"
-            width="130"
-            prop="package_code"
-          />
-          <el-table-column
-            label="状态"
-            width="70"
-          > <template slot-scope="{ row }">
-            <span>
-              {{ row.package && Number(row.package.status)===1 ? '待处理':'待处理' }}
-            </span>
-          </template>
+          <el-table-column label="物流单号" width="130" prop="package_code" />
+          <el-table-column label="状态" width="70">
+            <template slot-scope="{ row }">
+              <span>
+                {{ row.package && Number(row.package.status) === 1 ? '待处理' : '待处理' }}
+              </span>
+            </template>
           </el-table-column>
-          <el-table-column
-            label="签收时间"
-            width="90"
-          > <template slot-scope="scope">
-            <p v-if="scope.row.package">{{ scope.row.package.package_time }}</p>
-          </template>
-          </el-table-column>
-          <el-table-column
-            label="包裹签收图片"
-            width="90"
-          >
+          <el-table-column label="签收时间" width="90">
             <template slot-scope="scope">
-              <el-tooltip
-                v-if="scope.row.package"
-                effect="light"
-                placement="right-end"
-                :visible-arrow="false"
-                :enterable="false"
-                style="width: 56px; height: 56px"
-              >
+              <p v-if="scope.row.package">{{ scope.row.package.package_time }}</p>
+            </template>
+          </el-table-column>
+          <el-table-column label="包裹签收图片" width="90">
+            <template slot-scope="scope">
+              <el-tooltip v-if="scope.row.package" effect="light" placement="right-end" :visible-arrow="false" :enterable="false" style="width: 56px; height: 56px">
                 <div slot="content">
                   <img :src="scope.row.package.package_image" width="400px" height="400px">
                 </div>
-                <el-image
-                  :src="scope.row.package.package_image"
-                  alt=""
-                  width="56px"
-                  height="56px"
-                  style="border-radius: 4px; margin: 0 auto"
-                />
+                <el-image :src="scope.row.package.package_image" alt="" width="56px" height="56px" style="border-radius: 4px; margin: 0 auto" />
               </el-tooltip>
             </template>
           </el-table-column>
@@ -686,39 +396,28 @@
           </el-table-column> -->
         </el-table>
       </div>
-      <p slot="footer" style="text-align: center;">
-
-        <el-button size="mini" style="width: 80px;margin:0 30px 10px" type="primary" @click="dialogVisible2 = false">关 闭</el-button>
+      <p slot="footer" style="text-align: center">
+        <el-button size="mini" style="width: 80px; margin: 0 30px 10px" type="primary" @click="dialogVisible2 = false">关 闭</el-button>
       </p>
     </el-dialog>
 
     <!-- 增值服务 -->
-    <el-dialog
-      title="添加增值服务"
-      :visible.sync="dialogExtService"
-      width="400px"
-    >
+    <el-dialog title="添加增值服务" :visible.sync="dialogExtService" width="400px" @closed="closeDialog4">
       <div class="exe_itemAll">
         <div class="exe_item">
-          <span>
-            增值服务:
-          </span>
-          <el-select v-model="extParams.name" size="mini" style="width:200px">
+          <span> 增值服务: </span>
+          <el-select v-model="extParams.name" size="mini" style="width: 200px">
             <!-- <el-option v-for="item in list" :value="" :label=""></el-option> -->
             <el-option value="1" label="测试" />
           </el-select>
         </div>
         <div class="exe_item">
-          <span>
-            服务价格:
-          </span>
-          <el-input v-model="extParams.price" clearable size="mini" style="width:200px" onkeyup="value=value.replace(/[^\d]/g,'')" />
+          <span> 服务价格: </span>
+          <el-input v-model="extParams.price" clearable size="mini" style="width: 200px" onkeyup="value=value.replace(/[^\d]/g,'')" />
         </div>
         <div class="exe_item">
-          <span>
-            服务备注:
-          </span>
-          <el-input v-model="extParams.remark" clearable size="mini" style="width:200px" onkeyup="value=value.replace(/[^\d]/g,'')" />
+          <span> 服务备注: </span>
+          <el-input v-model="extParams.remark" clearable size="mini" style="width: 200px" onkeyup="value=value.replace(/[^\d]/g,'')" />
         </div>
         <div class="exe_item">
           <!-- <el-button size="mini" @click="dialogExtService = false">取 消</el-button> -->
@@ -729,33 +428,16 @@
     </el-dialog>
 
     <!-- 同步数据至仓库 -->
-    <el-dialog
-      title="同步数据至仓库"
-      :visible.sync="dialog_compareData"
-      width="950px"
-    >
+    <el-dialog title="同步数据至仓库" :visible.sync="dialog_compareData" width="950px" @closed="closeDialog3">
       <div class="compareData_allItem">
         <div class="compareData_item">
-          <span>
-            温馨提示：1：请务必确认订单对应店铺绑定的仓库是否正确
-          </span>
-          <span>
-            温馨提示：2：若店铺同时绑定了国内仓和海外仓，则通过采购平台区分
-            (Lazada和Shopeeman默认为海外仓，其余默认国内仓，自有商品无法识别)
-          </span>
-          <span>
-            温馨提示：3：若店铺绑定的自有仓库，请重新绑定仓库，否则无法将数同步至仓库
-            ，将导致您的商品无法出库！！！
-          </span>
+          <span> 温馨提示：1：请务必确认订单对应店铺绑定的仓库是否正确 </span>
+          <span> 温馨提示：2：若店铺同时绑定了国内仓和海外仓，则通过采购平台区分 (Lazada和Shopeeman默认为海外仓，其余默认国内仓，自有商品无法识别) </span>
+          <span> 温馨提示：3：若店铺绑定的自有仓库，请重新绑定仓库，否则无法将数同步至仓库 ，将导致您的商品无法出库！！！ </span>
         </div>
 
         <div class="compareData_item">
-          <el-table
-            :header-cell-style="{'background': '#f7fafa'}"
-            :data="compareDataList"
-            :row-style="{ height: '50px' }"
-            max-height="400"
-          >
+          <el-table :header-cell-style="{ background: '#f7fafa' }" :data="compareDataList" :row-style="{ height: '50px' }" max-height="400">
             <el-table-column prop="country" label="站点" min-width="80px" align="center" />
             <el-table-column prop="mall_alias_name" label="店铺名称" min-width="150px" align="center" />
             <!-- <el-table-column prop="" label="采购类型" min-width="100px" align="center" /> -->
@@ -764,12 +446,11 @@
             <el-table-column prop="warehouse_num" label="主订单数" min-width="100px" align="center" />
           </el-table>
         </div>
-        <div style="display:flex;justify-content: center;margin-top:10px">
-          <el-button size="mini" type="primary" @click="compareData()">确  定</el-button>
+        <div style="display: flex; justify-content: center; margin-top: 10px">
+          <el-button size="mini" type="primary" @click="compareData()">确 定</el-button>
         </div>
       </div>
     </el-dialog>
-
   </div>
 </template>
 
@@ -793,11 +474,11 @@ export default {
   },
   data() {
     return {
-
       compareDataList: [],
       dialog_compareData: false, // 同步数据至仓库
       dialogExtService: false, // 增值弹窗
-      extParams: { // 增值参数
+      extParams: {
+        // 增值参数
         packageOrderSns: '',
         name: '',
         price: '',
@@ -811,14 +492,16 @@ export default {
       pageSize: 20,
       site: '', // 站点
       total: 0, // 数据总条数
-      siteList: [ // 站点列表
+      siteList: [
+        // 站点列表
         {
           label: '全部',
           value: ''
         }
       ],
       shopGroup: [], // 店铺分组
-      shopGroupList: [ // 店铺分组列表
+      shopGroupList: [
+        // 店铺分组列表
         {
           label: '店铺1',
           value: '1'
@@ -829,8 +512,8 @@ export default {
         }
       ],
       shopAccount: [], // 店铺账号选择
-      shopAccountList: [ // 店铺账号列表
-
+      shopAccountList: [
+        // 店铺账号列表
       ],
       activeRemarkID: 0,
       orderRemark: '',
@@ -863,7 +546,7 @@ export default {
       exportIndex: 0,
       exportNum: 0,
       pickerOptions: {
-        disabledDate: time => {
+        disabledDate: (time) => {
           return time.getTime() > Date.now()
         }
       }
@@ -876,38 +559,70 @@ export default {
     // this.userInfo()
   },
   methods: {
+    // 关闭同步弹窗
+    closeDialog3() {
+      this.setSelect()
+      this.dialog_compareData = false
+    },
     // 批量推送订单至仓库
     compareDataVisible() {
-      // if (!this.multipleSelection.length) {
-      //   this.$message.warning('请勾选需要操作的数据')
-      //   return false
-      // }
-      // // const arr = this.multipleSelection
+      if (!this.multipleSelection.length) {
+        this.$message.warning('请勾选需要操作的数据')
+        return false
+      }
       try {
-        const myMap = new Map()
+        // 合并重复项
         this.compareDataList = []
-        const data = this.multipleSelection
-        data.map((item, index) => {
-          if (!myMap.has(item.mall_alias_name) && !myMap.has(item.warehouse_name)) {
-            myMap.set(item.mall_alias_name)
-            myMap.set(item.warehouse_name)
-            // item.warehouse_num = 1
-            this.compareDataList.push(item)
+        this.multipleSelection.forEach((el) => {
+          el.warehouse_num = 1
+          const result = this.compareDataList.findIndex((ol) => {
+            return el.mall_alias_name === ol.mall_alias_name && el.warehouse_name === ol.warehouse_name
+          })
+          if (result !== -1) {
+            this.compareDataList[result].warehouse_num = this.compareDataList[result].warehouse_num + el.warehouse_num
           } else {
-            // msg.push(`过滤ID:${item.id}`)
-            // this.compareDataList[index].warehouse_num++
-            // console.log('44444', item)
-            // console.log(item.warehouse_num)
+            this.compareDataList.push(el)
           }
         })
-        console.log('8888888888', this.multipleSelection)
+        // console.log('8888888888', this.multipleSelection)
         this.dialog_compareData = true
       } catch (error) {
         console.log(error)
       }
     },
-    //
-    compareData() {},
+    // 批量推送订单至仓库
+    async compareData() {
+      const list = []
+      this.compareDataList.forEach(item => {
+        // 参数 sysOrderId warehouseUserId
+        list.push({ sysOrderId: item.order_id, warehouseUserId: item.warehouse_id })
+      })
+      // console.log('0000', this.compareDataList)
+      const params = {
+        list: list
+      }
+      const res = await this.$api.uploadWarehouseOrder(params)
+      // console.log('同步', res)
+      if (res.status === 200) {
+        if (res.data.data === 200) {
+          this.$notify({
+            title: '同步数据',
+            type: 'success',
+            message: '操作成功'
+          })
+        } else {
+          this.$notify({
+            title: '同步数据',
+            type: 'error',
+            message: res.data.message
+          })
+        }
+      } else {
+        this.$message.error('网络走丢~~')
+      }
+
+      this.closeDialog3()
+    },
     // 获取面单信息
     async getPackage() {
       // 需要对接第三方接口
@@ -920,6 +635,11 @@ export default {
       //   })
       // } else {
       // }
+    },
+    // 关闭增值服务
+    closeDialog4() {
+      this.setSelect()
+      this.dialogExtService = false
     },
     // 增值服务
     extService_visible() {
@@ -936,7 +656,12 @@ export default {
           message: '服务名、价格不能为空'
         })
       } else {
-        this.extParams.packageOrderSns = this.multipleSelection.toString()
+        // this.extParams.packageOrderSns = this.multipleSelection.toString()\
+        const arr = []
+        this.multipleSelection.forEach(item => {
+          arr.push(item.package_order_sn)
+        })
+        this.extParams.packageOrderSns = arr.toString()
         const params = this.extParams
         const data = await this.$api.uploadExtService(params)
         // console.log('---------', data)
@@ -958,7 +683,6 @@ export default {
             type: 'error',
             // message: message
             message: data.data.message
-
           })
         }
         this.setSelect()
@@ -995,7 +719,7 @@ export default {
       this.delayVisible = false
     },
     async getInfo() {
-      colorLabelList().then(res => {
+      colorLabelList().then((res) => {
         // console.log('color', res)
         this.colorLogoList = res
         this.colorLabelId1 = res[0].id
@@ -1003,7 +727,7 @@ export default {
       // getSites().then(res => {
       //   this.siteList = this.siteList.concat(res)
       // })
-      MallList().then(res => {
+      MallList().then((res) => {
         this.shopAccountList = res
       })
     },
@@ -1076,7 +800,7 @@ export default {
     },
     // 重置列表勾选状态
     setSelect() {
-      this.tableData.forEach(row => {
+      this.tableData.forEach((row) => {
         this.$refs.workbenchTable.toggleRowSelection(row, false)
       })
     },
@@ -1124,7 +848,7 @@ export default {
         this.isLoading = false
       } catch (err) {
         this.setSelect()
-        // console.log(err)
+        console.log(err)
         this.isLoading = false
       }
     },
@@ -1148,7 +872,7 @@ export default {
         }
         const res = await this.$api.markOrderNeedDeal(query)
         const data = res.data
-        if (data.data.code === 200) {
+        if (data.code === 200) {
           this.$notify({
             type: 'success',
             message: '操作成功'
@@ -1171,7 +895,7 @@ export default {
         this.orderPackage()
         this.isLoading = false
       } catch (err) {
-        // console.log(err)
+        console.log(err)
         this.setSelect()
         this.isLoading = false
       }
@@ -1216,7 +940,7 @@ export default {
         this.setSelect()
       } catch (err) {
         this.setSelect()
-        // console.log(err)
+        console.log(err)
         this.isLoading = false
       }
     },
@@ -1344,7 +1068,7 @@ export default {
       } catch (err) {
         this.setSelect()
         this.colorVisible = false
-        // console.log(err)
+        console.log(err)
         this.isLoading = false
       }
     },
@@ -1353,7 +1077,7 @@ export default {
     userInfo() {
       let delayTime = localStorage.getItem('delayTime')
       if (!Number(delayTime)) {
-        this.$api.userInfo().then(res => {
+        this.$api.userInfo().then((res) => {
           if (res.data.code === 200) {
             delayTime = res.data.data.xzyDelayedTime ? res.data.data.xzyDelayedTime : 24
             localStorage.setItem('delayTime', delayTime)
@@ -1382,23 +1106,26 @@ export default {
       const query = {
         xzyDelayedTime: Math.round(delayTime)
       }
-      this.$api.timeDelay(query).then(res => {
-        // console.log(res)
-        if (res.data.code === 200) {
-          this.$notify({
-            type: 'success',
-            message: '设置成功'
-          })
-        } else {
-          this.$notify({
-            type: 'error',
-            message: res.data.message
-          })
-        }
-        this.closeDialog2()
-      }).catch(() => {
-        this.closeDialog2()
-      })
+      this.$api
+        .timeDelay(query)
+        .then((res) => {
+          // console.log(res)
+          if (res.data.code === 200) {
+            this.$notify({
+              type: 'success',
+              message: '设置成功'
+            })
+          } else {
+            this.$notify({
+              type: 'error',
+              message: res.data.message
+            })
+          }
+          this.closeDialog2()
+        })
+        .catch(() => {
+          this.closeDialog2()
+        })
     },
     // 日期选择器时间处理
     setDateFmt(data) {
@@ -1439,7 +1166,7 @@ export default {
       }
     },
     // 实时导出
-    async  exportOrders(page, isRef) {
+    async exportOrders(page, isRef) {
       this.isExport = this.isExport ? this.isExport : new Date() - 0
       const params = {
         status: '',
@@ -1521,7 +1248,7 @@ export default {
       for (let index = 0; index <= this.exportIndex; index++) {
         const jsonData = exportOrderList[index]
         console.log(jsonData)
-        jsonData.forEach(item => {
+        jsonData.forEach((item) => {
           str += `<tr><td>${num++}</td>
                 <td>${item.mall_alias_name}</td>
                 <td>${item.site + '\t'}</td>
@@ -1549,9 +1276,7 @@ export default {
         })
       }
       // Worksheet名
-      const worksheet = `仓库包裹数据${new Date(Date.now() + 8 * 3600 * 1000)
-        .toISOString()
-        .slice(0, 10)}`
+      const worksheet = `仓库包裹数据${new Date(Date.now() + 8 * 3600 * 1000).toISOString().slice(0, 10)}`
       // const uri = 'data:application/vnd.ms-excel;base64,'
 
       // 下载的表格模板数据
@@ -1572,7 +1297,8 @@ export default {
       a.href = URL.createObjectURL(blob)
       a.download = `仓库包裹数据${new Date(Date.now() + 8 * 3600 * 1000)
         .toISOString()
-        .replace(/T/g, ' ').replace(/\.[\d]{3}Z/, '')
+        .replace(/T/g, ' ')
+        .replace(/\.[\d]{3}Z/, '')
         .slice(0, 20)}.xls`
       a.click()
       document.body.removeChild(a)
@@ -1605,24 +1331,23 @@ export default {
 </script>
 
 <style lang="less" scoped>
-
 .workbench {
   min-width: 1200px;
   padding: 0 5px;
-     /deep/ .el-table .cell {
-      padding-left: 2px !important;
-      padding-right: 2px !important;
-      line-height: 18px !important;
-    }
-    .copyIcon {
-      color: var(--themeColor);
-      margin-left: 1px;
-      font-size: 16px;
-      cursor: pointer;
-    }
+  /deep/ .el-table .cell {
+    padding-left: 2px !important;
+    padding-right: 2px !important;
+    line-height: 18px !important;
+  }
+  .copyIcon {
+    color: var(--themeColor);
+    margin-left: 1px;
+    font-size: 16px;
+    cursor: pointer;
+  }
   .top-box {
-      display: flex;
-      overflow-x: auto;
+    display: flex;
+    overflow-x: auto;
     .operate {
       width: 320px;
       height: 245px;
@@ -1647,19 +1372,18 @@ export default {
       border-radius: 10px;
       background: #fff;
       margin-left: 15px;
-      min-width:854px;
+      min-width: 854px;
       .form-items {
         display: flex;
         flex-wrap: wrap;
-        .select-item{
-          margin-right:5px;
-          margin-bottom:5px;
-           .search-title {
+        .select-item {
+          margin-right: 5px;
+          margin-bottom: 5px;
+          .search-title {
             // width: 98px;
             text-align: right;
           }
         }
-
       }
     }
 
@@ -1677,7 +1401,7 @@ export default {
       background: rgb(223, 223, 223);
     }
   }
-  .m-80{
+  .m-80 {
     width: 80px;
     height: 30px;
     line-height: 13px;
@@ -1706,14 +1430,12 @@ export default {
   }
 
   .dialog-order {
-
     .order-dialog {
       margin-top: -20px;
     }
   }
 
   .dialog-color {
-
     .color-dialog {
       height: 280px;
       margin-top: -20px;
@@ -1721,7 +1443,6 @@ export default {
   }
 
   .dialog-delay {
-
     .delay-dialog {
       height: 40px;
       margin-top: -20px;
@@ -1753,33 +1474,31 @@ export default {
       }
     }
   }
-  .exe_itemAll{
+  .exe_itemAll {
     display: flex;
     flex-flow: column;
     align-items: center;
     justify-content: center;
-    .exe_item{
-       margin-bottom: 10px;
-        display: flex;
-        span{
-          margin-right: 5px;
-        }
+    .exe_item {
+      margin-bottom: 10px;
+      display: flex;
+      span {
+        margin-right: 5px;
+      }
     }
   }
-  .compareData_allItem{
-
-    .compareData_item{
+  .compareData_allItem {
+    .compareData_item {
       display: flex;
       flex-flow: column;
       font-size: smaller;
       color: rebeccapurple;
-      span{
+      span {
         margin-bottom: 5px;
       }
     }
   }
 }
 @media screen and (max-width: 1335px) {
-
 }
 </style>
