@@ -900,7 +900,7 @@ export default {
             // console.log(item.warehouse_num)
           }
         })
-        console.log('8888888888', this.compareDataList)
+        console.log('8888888888', this.multipleSelection)
         this.dialog_compareData = true
       } catch (error) {
         console.log(error)
