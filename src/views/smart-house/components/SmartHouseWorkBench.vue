@@ -599,16 +599,16 @@ export default {
       const list = []
       this.compareDataList.forEach(item => {
         // 参数 sysOrderId warehouseUserId
-        list.push({ sysOrderId: item.id, warehouseUserId: item.warehouse_id })
+        list.push({ sysOrderId: item.sys_order_id, warehouseUserId: item.warehouse_id })
       })
       // console.log('0000', this.compareDataList)
       const params = {
-        list: list
+        lists: list
       }
       const res = await this.$api.uploadWarehouseOrder(params)
       // console.log('同步', res)
       if (res.status === 200) {
-        if (res.data.data === 200) {
+        if (res.data.code === 200) {
           this.$notify({
             title: '同步数据',
             type: 'success',
