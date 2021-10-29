@@ -139,7 +139,6 @@ export default {
   getMallSite: (data) => AppRequest2.get('/api/ddMallGoods/getMallList', { params: data }), // 店铺站点信息
   exchangeRateList: (data) => AppRequest2.get('/api/exchangeRateList', { params: data }), // 获取汇率
   updateMallInfo: (data) => AppRequest2.post('/api/bindMall/updateMallInfo', { params: data }), // 同步信息
-  updateMallInfo: (data) => AppRequest2.post('/api/bindMall/updateMallInfo', { params: data }), // 同步信息
 
   // 异常公告--即将过期订单
   getExceptionExpiredOrderIndex: (data) => AppRequest.get('/exceptionExpiredOrderIndex', { params: data }), // 订单列表

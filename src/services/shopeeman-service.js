@@ -162,6 +162,23 @@ export default class NetMessageBridgeService {
     }
     return reg[country]?.test(account)
   }
+  // 获取店铺评价列表
+  getShopEvaluateList(country, data) {
+    return this.getChinese(country, '/api/v3/settings/search_shop_rating_comments', data)
+  }
+  // 回复商店评价
+  replyShopRating(country, data) {
+    return this.postChinese(country, '/api/v3/settings/reply_shop_rating', data, { Headers: { 'Content-Type': ' application/json' }})
+  }
+  // 店铺提现记录
+  getWithDrawalRecord(country, data) {
+    return this.getChinese(country, '/api/v3/finance/get_wallet_transactions', data)
+  }
+  // 获取银行卡信息
+  getBankAccount(country, data) {
+    return this.getChinese(country, '/api/v3/finance/get_bank_account', data)
+  }
+  // https://seller.th.shopee.cn/api/v3/settings/reply_shop_rating/?SPC_CDS=ce76cffe-61aa-4a77-a1c6-70d848438ba6&SPC_CDS_VER=2
   // 店铺登录
   async login(mallInfo, data) {
     const { country, mall_account_info } = mallInfo
