@@ -492,6 +492,7 @@
 </template>
 <script>
 import storeChoose from '../../../components/store-choose'
+import { encryptionList, ipTypeList, protocolList, confuseList } from '../../../util/MallManagerStoredata'
 export default {
   components: { storeChoose },
 
@@ -533,44 +534,44 @@ export default {
       Typeis: '',
       mulSelect: [],
       dialogvisible: false,
-      encryptionList: [
-        {
-          label: 'rc4-md5',
-          value: 'rc4-md5'
-        },
-        {
-          label: 'aes-128-ctr',
-          value: 'aes-128-ctr'
-        },
-        {
-          label: 'aes-192-ctr',
-          value: 'aes-192-ctr'
-        },
-        {
-          label: 'aes-256-ctr',
-          value: 'aes-256-ctr'
-        },
-        {
-          label: 'aes-128-cfb',
-          value: 'aes-128-cfb'
-        },
-        {
-          label: 'aes-192-cfb',
-          value: 'aes-192-cfb'
-        },
-        {
-          label: 'aes-256-cfb',
-          value: 'aes-256-cfb'
-        },
-        {
-          label: 'chacha20',
-          value: 'chacha20'
-        },
-        {
-          label: 'rc4',
-          value: 'rc4'
-        }
-      ],
+      // encryptionList: [
+      //   {
+      //     label: 'rc4-md5',
+      //     value: 'rc4-md5'
+      //   },
+      //   {
+      //     label: 'aes-128-ctr',
+      //     value: 'aes-128-ctr'
+      //   },
+      //   {
+      //     label: 'aes-192-ctr',
+      //     value: 'aes-192-ctr'
+      //   },
+      //   {
+      //     label: 'aes-256-ctr',
+      //     value: 'aes-256-ctr'
+      //   },
+      //   {
+      //     label: 'aes-128-cfb',
+      //     value: 'aes-128-cfb'
+      //   },
+      //   {
+      //     label: 'aes-192-cfb',
+      //     value: 'aes-192-cfb'
+      //   },
+      //   {
+      //     label: 'aes-256-cfb',
+      //     value: 'aes-256-cfb'
+      //   },
+      //   {
+      //     label: 'chacha20',
+      //     value: 'chacha20'
+      //   },
+      //   {
+      //     label: 'rc4',
+      //     value: 'rc4'
+      //   }
+      // ],
       ipTypeList: [
         {
           value: '',
@@ -598,44 +599,44 @@ export default {
         map_ip_address: [{ validator: validZipCode, trigger: 'blur' }],
         map_ip_port: [{ validator: validPort, trigger: 'blur' }]
       },
-      ipPsdMethodList: [
-        {
-          label: 'rc4-md5',
-          value: 'rc4-md5'
-        },
-        {
-          label: 'aes-128-ctr',
-          value: 'aes-128-ctr'
-        },
-        {
-          label: 'aes-192-ctr',
-          value: 'aes-192-ctr'
-        },
-        {
-          label: 'aes-256-ctr',
-          value: 'aes-256-ctr'
-        },
-        {
-          label: 'aes-128-cfb',
-          value: 'aes-128-cfb'
-        },
-        {
-          label: 'aes-192-cfb',
-          value: 'aes-192-cfb'
-        },
-        {
-          label: 'aes-256-cfb',
-          value: 'aes-256-cfb'
-        },
-        {
-          label: 'chacha20',
-          value: 'chacha20'
-        },
-        {
-          label: 'rc4',
-          value: 'rc4'
-        }
-      ],
+      // ipPsdMethodList: [
+      //   {
+      //     label: 'rc4-md5',
+      //     value: 'rc4-md5'
+      //   },
+      //   {
+      //     label: 'aes-128-ctr',
+      //     value: 'aes-128-ctr'
+      //   },
+      //   {
+      //     label: 'aes-192-ctr',
+      //     value: 'aes-192-ctr'
+      //   },
+      //   {
+      //     label: 'aes-256-ctr',
+      //     value: 'aes-256-ctr'
+      //   },
+      //   {
+      //     label: 'aes-128-cfb',
+      //     value: 'aes-128-cfb'
+      //   },
+      //   {
+      //     label: 'aes-192-cfb',
+      //     value: 'aes-192-cfb'
+      //   },
+      //   {
+      //     label: 'aes-256-cfb',
+      //     value: 'aes-256-cfb'
+      //   },
+      //   {
+      //     label: 'chacha20',
+      //     value: 'chacha20'
+      //   },
+      //   {
+      //     label: 'rc4',
+      //     value: 'rc4'
+      //   }
+      // ],
       protocolList: [
         {
           label: 'auth_sha1_v4',
