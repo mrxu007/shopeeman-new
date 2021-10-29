@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-10-25 16:40:41
- * @LastEditTime: 2021-10-27 19:27:12
+ * @LastEditTime: 2021-10-28 17:01:15
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shopeeman-new\src\views\smart-house\components\PrivateWarehouse.vue
@@ -42,8 +42,7 @@
     </div>
     <!-- 表格区 -->
     <div class="content">
-      <el-table v-loading="tableLoading" ref="multipleTable" :data="tableData" tooltip-effect="dark" max-height="700" @selection-change="selectionChange">
-        <el-table-column type="selection" width="55"></el-table-column>
+      <el-table v-loading="tableLoading" ref="multipleTable" :data="tableData" tooltip-effect="dark" max-height="700">
         <el-table-column align="center" type="index" label="序号" width="50">
           <template slot-scope="scope">{{ (currentPage - 1) * pageSize + scope.$index + 1 }}</template>
         </el-table-column>
@@ -74,7 +73,6 @@
                 backgroundColor: '#a9a9a9',
                 color: '#fff',
               }"
-              @selection-change="selectionChange"
             >
               <el-table-column label="SKU图片" width="80" align="center">
                 <template slot-scope="scope">
@@ -85,6 +83,11 @@
               <el-table-column label="SKU名称" prop="sku_name" align="center" />
               <el-table-column label="价格" prop="sku_price" align="center" />
               <el-table-column label="库存" prop="stock_num" align="center"> </el-table-column>
+               <el-table-column label="操作" width="80" align="center">
+                <template slot-scope="scope">
+                  <el-button size="mini" type="primary" @click="deleteSku(scope.$index)">删 除</el-button>
+                </template>
+              </el-table-column>
             </el-table>
           </template>
         </el-table-column>
@@ -110,6 +113,7 @@
         />
       </div>
     </div>
+    <!-- 编辑新增弹窗 -->
     <el-dialog title="自有商品编辑" :visible.sync="insertGoodsVisible" width="1200px" top="5vh" @close="closeDialog">
       <div class="goodsInsert-dialog">
         <div class="header-btn">
@@ -127,7 +131,6 @@
                 <div class="tool-item mar-right">
                   <span>站点：</span>
                   <el-select v-model="goodsCountry" size="mini" filterable style="min-width: 100px; flex: 1">
-                    <el-option label="全部" :value="''" />
                     <el-option v-for="(item, index) in countries" :key="index" :label="item.label" :value="item.value" />
                   </el-select>
                 </div>
@@ -138,7 +141,6 @@
                 <div class="tool-item" v-else>
                   <span>商品主图：</span>
                   <el-upload class="avatar-uploader" action="#" :show-file-list="false" list-type="picture-card" :on-change="handleChange">
-                    <!-- <el-upload class="upload" list-type="picture-card" action="https://jsonplaceholder.typicode.com/posts/" :on-progress="handleChange"> -->
                     <i class="el-icon-plus"></i>
                   </el-upload>
                 </div>
@@ -155,8 +157,8 @@
                   <div class="tool-item">
                     <span>选项</span>
                     <div class="sku-item-box">
-                      <div class="sku-Spec" v-for="(item, i) in skuSpec1" :key="i">
-                        <el-input v-model="item.sku_name" placeholder="" size="mini" clearable @input="createSkuList"></el-input>
+                      <div class="sku-Spec" v-for="(item, i) in skuSpec1" :key="i + 'spec1'">
+                        <el-input v-model="item.sku_name" placeholder="" size="mini" clearable @input="sepcInput($event, i)" :disabled="item.sku_disabled"></el-input>
                         <i class="el-icon-plus"></i>
                         <el-button type="primary" size="mini" @click="deleteSpec1(i)">删除</el-button>
                       </div>
@@ -182,8 +184,8 @@
                   <div class="tool-item">
                     <span>选项</span>
                     <div class="sku-item-box">
-                      <div class="sku-Spec" v-for="(item, i) in skuSpec2" :key="i">
-                        <el-input v-model="item.sku_name" placeholder="" size="mini" clearable class="mar-right" :disabled="!skuSecondCheck" @input="createSkuList"></el-input>
+                      <div class="sku-Spec" v-for="(item, i) in skuSpec2" :key="i + 'spec2'">
+                        <el-input v-model="item.sku_name" placeholder="" size="mini" clearable class="mar-right" :disabled="!skuSecondCheck || item.sku_disabled" @input="sepcInput($event, i)" ></el-input>
                         <el-button type="primary" size="mini" :disabled="!skuSecondCheck" @click="deleteSpec2(i)">删除</el-button>
                       </div>
                     </div>
@@ -202,9 +204,9 @@
               <div class="tool-item">
                 <span class="mar-right">规格咨询</span>
                 <span>价格</span>
-                <el-input v-model="skuPrice" placeholder="" size="mini" clearable class="mar-right" style="width: 100px"></el-input>
+                <el-input v-model="skuPrice" placeholder="" size="mini" clearable class="mar-right" style="width: 100px" @input="setSkuPriceStock"></el-input>
                 <span>数量</span>
-                <el-input v-model="skuStock" placeholder="" size="mini" clearable class="mar-right" style="width: 100px"></el-input>
+                <el-input v-model="skuStock" placeholder="" size="mini" clearable class="mar-right" style="width: 100px" @input="setSkuPriceStock"></el-input>
                 <el-button type="primary" size="mini" @click="setSkuPriceStock">批量更新</el-button>
               </div>
             </el-col>
@@ -217,16 +219,22 @@
               <template slot-scope="scope">{{ scope.row.sku_name1 }}</template>
             </el-table-column>
             <el-table-column width="120px" label="规格二" prop="sku_name" align="center">
-              <template slot-scope="scope">{{ scope.row.sku_name2 }}</template>
+              <template slot-scope="scope"> {{ scope.row.sku_name2 }}</template>
             </el-table-column>
-            <el-table-column width="80px" label="库存" prop="sku_name" align="center">
-              <template slot-scope="scope">{{ scope.row.stock_num }}</template>
+            <el-table-column width="120px" label="库存" prop="sku_name" align="center">
+              <template slot-scope="scope">
+                <el-input v-model="scope.row.stock_num" placeholder="" size="mini"></el-input>
+              </template>
             </el-table-column>
-            <el-table-column width="80px" label="单买价（元）" prop="sku_name" align="center">
-              <template slot-scope="scope">{{ scope.row.sku_price }}</template>
+            <el-table-column width="120px" label="单买价（元）" prop="sku_name" align="center">
+              <template slot-scope="scope">
+                <el-input v-model="scope.row.sku_price" placeholder="" size="mini"></el-input>
+              </template>
             </el-table-column>
-            <el-table-column width="60px" label="规格备注" prop="sku_name" align="center">
-              <template slot-scope="scope">{{ scope.row.remark }}</template>
+            <el-table-column width="120px" label="规格备注" prop="sku_name" align="center">
+              <template slot-scope="scope">
+                <el-input v-model="scope.row.remark" placeholder="" size="mini"></el-input>
+              </template>
             </el-table-column>
             <el-table-column min-width="60px" label="规格图" prop="platform_mall_name" align="center" />
             <el-table-column width="140px" label="SKU ID" prop="sku_name" align="center">
@@ -238,7 +246,8 @@
           </el-table>
         </div>
         <div class="footer">
-          <el-button type="primary" size="mini" @click="saveInsert">保 存</el-button>
+          <el-button type="primary" size="mini" @click="saveUpdateGoods" v-if="editInfo.id">保 存</el-button>
+          <el-button type="primary" size="mini" @click="saveInsert" v-else>新 增</el-button>
         </div>
       </div>
     </el-dialog>
@@ -248,7 +257,7 @@
 <script>
 import { randomWord } from '../../../util/util'
 export default {
-  name:"PrivateWarehouse",
+  name: 'PrivateWarehouse',
   data() {
     return {
       pickerOptions: {
@@ -278,12 +287,11 @@ export default {
       total: 0, //表格总数
       tableData: [],
       tableLoading: false,
-      multipleSelection: [],
       insertGoodsVisible: false,
       editInfo: {},
       goodsName: '',
       goodsUrl: '',
-      goodsCountry: '',
+      goodsCountry: 'TH',
       goodsImage: '',
       skuSecondCheck: false,
       skuList: [],
@@ -293,6 +301,7 @@ export default {
       skuStock: 0,
       spec1name: '规格一',
       spec2name: '规格二',
+      skuListCopy: [],
     }
   },
   mounted() {
@@ -326,7 +335,7 @@ export default {
         return this.$message.warning('商品名称不能为空！')
       }
       let params = {
-        country: this.countryVal,
+        country: this.goodsCountry,
         goodsName: this.goodsName,
         goodsUrl: this.goodsUrl,
         goodsImg: this.goodsImage,
@@ -336,10 +345,48 @@ export default {
       if (res.data.code === 200) {
         this.$message.success('保存成功!')
         this.insertGoodsVisible = false
+        this.searchTableList()
       } else {
         this.$message.error(res.data.message)
       }
       console.log(res, 'saveInsert')
+    },
+    //保存编辑
+    async saveUpdateGoods() {
+      let userStocksSkus = []
+      this.skuList.forEach((item) => {
+        userStocksSkus.push({
+          sku_id: item.sku_id,
+          id: item.id,
+          sku_name: item.sku_name2 ? item.sku_name1 + ',' + item.sku_name2 : item.sku_name1,
+          stock_num: item.stock_num,
+          sku_price: item.sku_price,
+          sku_image: item.sku_image,
+          remark: item.remark,
+          created_at: item.created_at,
+        })
+      })
+      let params = {
+        country: this.goodsCountry,
+        id: this.editInfo.id,
+        goodsId: this.editInfo.goodsId,
+        goodsName: this.goodsName,
+        goodsImg: this.goodsImage,
+        userStocksSkus: JSON.stringify(userStocksSkus),
+      }
+      let res = await this.$api.updataUserGoods(params)
+      if (res.data.code === 200) {
+        this.$message.success('保存成功!')
+        this.insertGoodsVisible = false
+        this.searchTableList()
+      } else {
+        this.$message.error(res.data.message)
+      }
+      console.log(res, 'saveUpdateGoods')
+    },
+    //删除sku
+    async deleteSku(){
+
     },
     //设置sku价格库存
     setSkuPriceStock() {
@@ -351,7 +398,7 @@ export default {
         item.sku_price = this.skuPrice
       })
     },
-    //spec1
+    //添加spec1
     addSpec1() {
       let params = {
         sku_name: '',
@@ -359,11 +406,7 @@ export default {
       this.skuSpec1.push(params)
       this.createSkuList()
     },
-    deleteSpec1(i) {
-      this.skuSpec1.splice(i, 1)
-      this.createSkuList()
-    },
-    //spec2
+    //添加spec2
     addSpec2() {
       let params = {
         sku_name: '',
@@ -371,8 +414,28 @@ export default {
       this.skuSpec2.push(params)
       this.createSkuList()
     },
+    //删除spec1
+    deleteSpec1(i) {
+      this.skuList = this.skuList.filter((n) => {
+        return n.sku_name1 !== this.skuSpec1[i].sku_name
+      })
+      this.skuSpec1.splice(i, 1)
+    },
+    //删除spec2
     deleteSpec2(i) {
+      this.skuList = this.skuList.filter((n) => {
+        return n.sku_name1 !== this.skuSpec2[i].sku_name
+      })
       this.skuSpec2.splice(i, 1)
+    },
+    
+    sepcInput(val, i) {
+      let spec = this.skuList.find((n) => {
+        return n.sku_name1 === val || n.sku_name2 === val
+      })
+      if (spec) {
+        return this.$message.warning('此规格已存在')
+      }
       this.createSkuList()
     },
     // 生成sku列表
@@ -383,48 +446,70 @@ export default {
       }
       if (this.skuSpec1.length > 0 && this.skuSpec2.length === 0) {
         this.skuList = this.skuSpec1.map((item) => {
-          return {
-            sku_id: 0,
-            id: 0,
-            sku_name1: item.sku_name,
-            sku_name2: '',
-            stock_num: 0,
-            sku_price: 0,
-            sku_image: '',
-            remark: '',
-            created_at: null,
-          }
-        })
-      }
-      if (this.skuSpec1.length === 0 && this.skuSpec2.length > 0) {
-        this.skuList = this.skuSpec2.map((item) => {
-          return {
-            sku_id: 0,
-            id: 0,
-            sku_name1: '',
-            sku_name2: item.sku_name,
-            stock_num: 0,
-            sku_price: 0,
-            sku_image: '',
-            remark: '',
-            created_at: null,
-          }
-        })
-      }
-      if (this.skuSpec1.length > 0 && this.skuSpec2.length > 0) {
-        this.skuSpec1.forEach((item1) => {
-          this.skuSpec2.forEach((item2) => {
-            this.skuList.push({
+          let obj = this.skuListCopy.find((n) => {
+            return n.sku_name1 === item.sku_name
+          })
+          if (obj) {
+            return {
+              sku_id: obj.sku_id,
+              id: obj.id,
+              sku_name1: obj.sku_name1,
+              sku_name2: '',
+              stock_num: obj.stock_num,
+              sku_price: obj.sku_price,
+              sku_image: obj.sku_image,
+              remark: obj.remark,
+              created_at: obj.created_at,
+            }
+          } else {
+            return {
               sku_id: 0,
               id: 0,
-              sku_name1: item1.sku_name,
-              sku_name2: item2.sku_name,
+              sku_name1: item.sku_name,
+              sku_name2: '',
               stock_num: 0,
               sku_price: 0,
               sku_image: '',
               remark: '',
               created_at: null,
+            }
+          }
+        })
+      }
+      if (this.skuSpec1.length === 0 && this.skuSpec2.length > 0) {
+        return this.$message.warning('规格一必填！')
+      }
+      if (this.skuSpec1.length > 0 && this.skuSpec2.length > 0) {
+        this.skuSpec1.forEach((item1) => {
+          this.skuSpec2.forEach((item2) => {
+            let obj = this.skuListCopy.find((n) => {
+              return n.sku_name1 === item1.sku_name && n.sku_name2 === item2.sku_name
             })
+            if (obj) {
+              this.skuList.push({
+                sku_id: obj.sku_id,
+                id: obj.id,
+                sku_name1: obj.sku_name1,
+                sku_name2: obj.sku_name2,
+                stock_num: obj.stock_num,
+                sku_price: obj.sku_price,
+                sku_image: obj.sku_image,
+                remark: obj.remark,
+                created_at: obj.created_at,
+              })
+            } else {
+              this.skuList.push({
+                sku_id: 0,
+                id: 0,
+                sku_name1: item1.sku_name,
+                sku_name2: item2.sku_name,
+                stock_num: 0,
+                sku_price: 0,
+                sku_image: '',
+                remark: '',
+                created_at: null,
+              })
+            }
           })
         })
         console.log('this.skuList', this.skuList, this.skuSpec1, this.skuSpec2)
@@ -440,7 +525,6 @@ export default {
       params.createTime = this.$dayjs(this.searchTime[0]).format('YYYY-MM-DD') + ' 00:00:00' + '/' + this.$dayjs(this.searchTime[1]).format('YYYY-MM-DD') + ' 23:59:59'
       this.tableLoading = true
       let res = await this.$api.getUserStore(params)
-      console.log(res)
       if (res && res.data.code === 200) {
         this.total = res.data.data.total
         this.tableData = res.data.data.data
@@ -468,18 +552,12 @@ export default {
         id: row.id,
       }
       let res = await this.$api.deleteUserGoods(params)
-      console.log(res)
-    },
-    //保存新增
-    async saveInsertGoods() {
-      let params = {}
-      let res = await this.$api.insertUserGoods(params)
-      console.log(res)
-    },
-    //保存编辑
-    async saveUpdateGoods() {
-      let params = {}
-      let res = await this.$api.updataUserGoods(params)
+      if (res.data.code === 200) {
+        this.$message.success('删除成功')
+        this.searchTableList()
+      } else {
+        this.$message.error(res.data.message)
+      }
       console.log(res)
     },
     closeDialog() {
@@ -493,77 +571,55 @@ export default {
       this.editInfo = {}
     },
     //编辑商品
-    async editGoods(row) {
+    editGoods(row) {
       this.insertGoodsVisible = true
       this.editInfo = row
-      this.countryVal = row.country
+      this.goodsCountry = row.country
       this.goodsName = row.goods_name
       this.goodsUrl = row.goods_url
       this.goodsImage = row.goods_img
-      this.skuList = row.user_stocks_skus
       row.user_stocks_skus.forEach((item, index) => {
         let specArr = item.sku_name.split(',') || []
         if (specArr.length == 1) {
-          item.sku_name1 =  specArr[0]
-          let spec = {
-            sku_id: item.sku_id,
-            id: item.id,
-            sku_name: specArr[0] || '',
-            stock_num: item.stock_num,
-            sku_price: item.sku_price,
-            sku_image: item.sku_image,
-            remark: item.remark,
-            created_at: item.created_at,
+          item.sku_name1 = specArr[0]
+          let params = {
+            sku_name: specArr[0],
+            sku_disabled: true
           }
-          let obj = this.skuSpec1.find((n) => {
-            return n.sku_id === item.sku_id
+          let obj = this.skuSpec1.find((item) => {
+            return item.sku_name === specArr[0]
           })
           if (!obj) {
-            this.skuSpec1.push(spec)
+            this.skuSpec1.push(params)
           }
         } else if (specArr.length >= 2) {
-          item.sku_name1 =  specArr[0]
-          item.sku_name2 =  specArr[1]
-          let group = row.user_stocks_skus.length / 2
-          if (index + 1 <= group) {
-            let spec1 = {
-              sku_id: item.sku_id,
-              id: item.id,
-              sku_name: specArr[0] || '',
-              stock_num: item.stock_num,
-              sku_price: item.sku_price,
-              sku_image: item.sku_image,
-              remark: item.remark,
-              created_at: item.created_at,
-            }
-            let obj1 = this.skuSpec1.find((n) => {
-              return n.sku_id === item.sku_id
-            })
-            if (!obj1) {
-              this.skuSpec1.push(spec1)
-            }
-          } else {
-            let spec2 = {
-              sku_id: item.sku_id,
-              id: item.id,
-              sku_name: specArr[1] || '',
-              stock_num: item.stock_num,
-              sku_price: item.sku_price,
-              sku_image: item.sku_image,
-              remark: item.remark,
-              created_at: item.created_at,
-            }
-            let obj2 = this.skuSpec2.find((n) => {
-              return n.sku_id === item.sku_id
-            })
-            if (!obj2) {
-              this.skuSpec2.push(spec2)
-            }
+          item.sku_name1 = specArr[0]
+          item.sku_name2 = specArr[1]
+          let params1 = {
+            sku_name: specArr[0],
+            sku_disabled: true
+          }
+          let params2 = {
+            sku_name: specArr[1],
+            sku_disabled: true
+          }
+          let obj1 = this.skuSpec1.find((item) => {
+            return item.sku_name === specArr[0]
+          })
+          if (!obj1) {
+            this.skuSpec1.push(params1)
+          }
+          let obj2 = this.skuSpec2.find((item) => {
+            return item.sku_name === specArr[1]
+          })
+          if (!obj2) {
+            this.skuSpec2.push(params2)
           }
         }
       })
-      this.editSkuList()
-      console.log('row', row, this.skuSpec1, this.skuSpec2)
+      this.skuListCopy = JSON.parse(JSON.stringify(row.user_stocks_skus))
+      this.skuList = row.user_stocks_skus
+      console.log('row', row, this.skuSpec1, this.skuSpec2, this.skuList)
     },
     //计算总库存
     totalStock(data) {
@@ -572,10 +628,6 @@ export default {
         stock += data[i].stock_num
       }
       return stock
-    },
-    //   表格选择
-    selectionChange(val) {
-      this.multipleSelection = val
     },
     handleCurrentChange(val) {
       this.currentPage = val

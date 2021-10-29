@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-10-08 14:16:18
- * @LastEditTime: 2021-10-26 12:16:02
+ * @LastEditTime: 2021-10-28 17:25:34
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shopeeman-new\src\views\mall-manager\components\MallManagerWithdrawalRecord.vue
@@ -240,6 +240,9 @@ export default {
       mallPageSize: 50,
     }
   },
+  mounted(){
+    
+  },
   methods: {
     //查询列表
     async searchRate() {
@@ -442,8 +445,10 @@ export default {
       }
     },
     //打开外部窗口
-    openUrl(row) {
-      let url = location.origin + '/product' + '/' + row.platform_mall_id + '/' + row.product_id
+    async openUrl(row) {
+      let webUrl = await this.$shopeeManConfig.getSiteWebUrl(row.country)
+      console.log(webUrl)
+      let url = webUrl + '/product' + '/' + row.platform_mall_id + '/' + row.product_id
       this.$BaseUtilService.openUrl(url)
     },
     //   表格选择
