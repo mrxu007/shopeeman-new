@@ -139,9 +139,6 @@ export default {
   getPaymentList: (data) => AppRequest2.post('/api/mallAccountBill', data), // 货款对账列表
   getMallSite: (data) => AppRequest2.get('/api/ddMallGoods/getMallList', { params: data }), // 店铺站点信息
   exchangeRateList: (data) => AppRequest2.get('/api/exchangeRateList', { params: data }), // 获取汇率
-<<<<<<< HEAD
-  updateMallInfo: (data) => AppRequest2.post('/api/bindMall/updateMallInfo', { params: data }) // 同步信息
-=======
   updateMallInfo: (data) => AppRequest2.post('/api/bindMall/updateMallInfo', { params: data }), // 同步信息
 
   // 异常公告--即将过期订单
@@ -149,10 +146,9 @@ export default {
   getExceptionWarehouse: (data) => AppRequest.get('/exceptionWarehouse', { params: data }), // 仓库异常信息列表
   uploadDealExceptionStatus: (data) => AppRequest.post('/uploadDealExceptionStatus', data), // 仓库异常处理状态上报
 
-  //智能仓库 --自有仓库
-  getUserStore: (data) => AppRequest.get('/userStock/get', { params: data }), //自有仓库列表
-  insertUserGoods: (data) => AppRequest.post('/userStock/save', data), //新增自有商品
-  updataUserGoods: (data) => AppRequest.post('/userStock/update', data), //编辑自有商品
-  deleteUserGoods: (data) => AppRequest.post('/userStock/deleteGoods', data), //删除自有商品
->>>>>>> cdc6b54ef3f87b0b855c4fc8685c55c8002f7679
+  // 智能仓库 --自有仓库
+  getUserStore: (data) => AppRequest.get('/userStock/get', { params: data }), // 自有仓库列表
+  insertUserGoods: (data) => AppRequest.post('/userStock/save', data), // 新增自有商品
+  updataUserGoods: (data) => AppRequest.post('/userStock/update', data), // 编辑自有商品
+  deleteUserGoods: (data) => AppRequest.post('/userStock/deleteGoods', data) // 删除自有商品
 }

@@ -28,11 +28,7 @@ module.exports = {
   }
   // devServer: {
 
-<<<<<<< HEAD
   //   public: '172.16.11.38:8080',
-=======
-    // public: '172.16.11.50:8080',
->>>>>>> cdc6b54ef3f87b0b855c4fc8685c55c8002f7679
 
   //   hot: true,
 
