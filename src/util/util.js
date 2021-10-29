@@ -30,7 +30,7 @@ export async function colorLabelList() {
     for (let index = 0; index < data.data.data.length; index++) {
       const item = data.data.data[index]
       const obj = {}
-      obj.label = item.name
+      obj.label = item.color_name
       obj.id = item.id
       obj.color = `color:${item.color}`
       colorList.push(obj)

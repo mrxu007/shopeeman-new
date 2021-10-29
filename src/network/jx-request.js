@@ -154,6 +154,6 @@ export default {
   packageSign: (data) => AppRequest.post('/interceptConfig/save', data), // 仓库包裹拒签/签收
   warehouseAddress: () => AppRequest.get('/warehouseAddress/userIndex'), // 获取仓库信息
   uploadWarehouseOrder: (data) => AppRequest.post('/warehouseAddress/uploadWarehouseOrder', data), // 获取仓库信息
-  setColorLabel: (data) => AppRequest.post(`/colorLabel/setOrderColor`, data) // 设置订单颜色标识
+  setColorLabel: (data) => AppRequest.post(`/colorLabel/setOrder`, data) // 设置订单颜色标识
 
 }

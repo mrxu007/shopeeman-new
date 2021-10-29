@@ -160,13 +160,17 @@
         <el-table-column label="店铺名称" width="120" prop="mall_alias_name" fixed />
         <el-table-column label="站点" width="80" prop="country" />
         <el-table-column label="仓库" width="80" prop="warehouse_name" />
-        <el-table-column label="颜色标识" width="100" prop="colorText" />
+        <el-table-column label="颜色标识" width="100" prop="colorText">
+          <!-- <template slot-scope="{ row }">
+            <span :style="row.color">{{ row.label }}</span>
+          </template> -->
+        </el-table-column>
         <el-table-column label="订单编号" width="180" prop="package_order_sn">
           <template slot-scope="scope">
             <span>{{ scope.row.package_order_sn }} <span class="copyIcon" @click="copy(scope.row.package_order_sn)"><i class="el-icon-document-copy" /></span></span>
           </template>
         </el-table-column>
-        <el-table-column label="数量" width="60" prop="goods_count" />
+        <el-table-column label="数量" width="60" prop="goodsCount" />
         <el-table-column label="商品详情" width="110">
           <template slot-scope="scope">
             <p><el-button type="primary" size="mini" @click="getGoodsInfo(scope.row.package_order_sn)">查看签收详情</el-button></p>
@@ -185,7 +189,7 @@
           width="100"
           prop="package_weight"
         /> -->
-        <el-table-column label="等待子包裹发货" width="100" prop="statusText">
+        <el-table-column label="等待子包裹发货" width="120" prop="statusText">
           <template slot-scope="scope">
             <div class="goods-detail">
               {{ scope.row.is_mark_outbound > 0 ? '否' : '是' }}
@@ -340,12 +344,12 @@
               </div>
             </template>
           </el-table-column>
-          <el-table-column label="数量" width="40" prop="colorText">
-            <template slot-scope="scope">
+          <el-table-column label="数量" width="40" prop="goodsCount">
+            <!-- <template slot-scope="scope">
               <div v-if="scope.row.goods" class="goods-detail">
-                {{ scope.row.goods.goods_count }}
+                {{ scope.row.goods.goodsCount }}
               </div>
-            </template>
+            </template> -->
           </el-table-column>
           <el-table-column label="拍单订单号" width="190" prop="package_order_sn">
             <template slot-scope="scope">
@@ -595,7 +599,7 @@ export default {
       const list = []
       this.compareDataList.forEach(item => {
         // 参数 sysOrderId warehouseUserId
-        list.push({ sysOrderId: item.order_id, warehouseUserId: item.warehouse_id })
+        list.push({ sysOrderId: item.id, warehouseUserId: item.warehouse_id })
       })
       // console.log('0000', this.compareDataList)
       const params = {
@@ -783,6 +787,8 @@ export default {
             item.colorText = getValue(this.colorLogoList, 'label', 'id', item.color_id) || '无'
             this.tableData.push(item)
           }
+          console.log('colorLogoList', this.colorLogoList)
+          console.log('tableList', this.tableData)
           // this.tableData = data.data.data
         } else {
           this.$notify({
@@ -1028,19 +1034,25 @@ export default {
     },
     async setColorLabel() {
       this.isLoading = true
-      let sysOrderIds = ''
-      const list = this.multipleSelection
-      sysOrderIds = list[0].id
-      for (let i = 1; i < list.length; i++) {
-        const item = list[i]
-        sysOrderIds += ',' + item.id
-      }
+      // let sysOrderIds = ''
+      // const list = this.multipleSelection
+      // sysOrderIds = list[0].id
+      // for (let i = 1; i < list.length; i++) {
+      //   const item = list[i]
+      //   sysOrderIds += ',' + item.id
+      // }
+      const list = []
+      this.multipleSelection.forEach(item => {
+        list.push(item.id)
+      })
       try {
         const query = {
-          sysOrderIds,
+          // sysOrderIds,
+          sysOrderIds: list.toString() || '',
           id: this.colorLabelId1
         }
         const res = await this.$api.setColorLabel(query)
+        // console.log('color', res)
         const data = res.data
         if (data.code === 200) {
           this.$notify({
