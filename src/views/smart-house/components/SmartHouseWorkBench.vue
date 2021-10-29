@@ -1043,7 +1043,7 @@ export default {
       // }
       const list = []
       this.multipleSelection.forEach(item => {
-        list.push(item.id)
+        list.push(item.sys_order_id)
       })
       try {
         const query = {
