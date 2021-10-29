@@ -1,7 +1,3 @@
-<<<<<<< HEAD
-import { sha256 } from 'js-sha256'
-import md5 from 'js-md5'
-=======
 /*
  * @Author: your name
  * @Date: 2021-10-22 20:47:53
@@ -10,7 +6,6 @@ import md5 from 'js-md5'
  * @Description: In User Settings Edit
  * @FilePath: \shopeeman-new\src\services\shopeeman-service.js
  */
->>>>>>> cdc6b54ef3f87b0b855c4fc8685c55c8002f7679
 export default class NetMessageBridgeService {
   NetMessageBridgeService() {
     return window['NetMessageBridgeService']
@@ -173,19 +168,19 @@ export default class NetMessageBridgeService {
     }
     return reg[country]?.test(account)
   }
-  //获取店铺评价列表
+  // 获取店铺评价列表
   getShopEvaluateList(country, data) {
     return this.getChinese(country, '/api/v3/settings/search_shop_rating_comments', data)
   }
-  //回复商店评价
+  // 回复商店评价
   replyShopRating(country, data) {
-    return this.postChinese(country, '/api/v3/settings/reply_shop_rating', data, { Headers: { "Content-Type": " application/json" } })
+    return this.postChinese(country, '/api/v3/settings/reply_shop_rating', data, { Headers: { 'Content-Type': ' application/json' }})
   }
-  //店铺提现记录
+  // 店铺提现记录
   getWithDrawalRecord(country, data) {
     return this.getChinese(country, '/api/v3/finance/get_wallet_transactions', data)
   }
-  //获取银行卡信息
+  // 获取银行卡信息
   getBankAccount(country, data) {
     return this.getChinese(country, '/api/v3/finance/get_bank_account', data)
   }
