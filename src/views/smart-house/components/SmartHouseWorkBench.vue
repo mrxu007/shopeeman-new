@@ -94,9 +94,9 @@
         <div class="form-items">
           <div class="select-item">
             <span class="search-title">订单编号：</span>
-            <el-input v-model="packageOrderSn" size="mini" style="width: 150px" clearable />
+            <el-input v-model="packageOrderSn" size="mini" style="width: 180px" clearable />
             <span style="margin-left: 8px" class="search-title">采购物流单号：</span>
-            <el-input v-model="statuoriginalTrackingNumbers" size="mini" style="width: 150px" clearable />
+            <el-input v-model="statuoriginalTrackingNumbers" size="mini" style="width: 180px" clearable />
           </div>
           <!--         <span class="search-title ">颜色标识：</span>
           <el-select
