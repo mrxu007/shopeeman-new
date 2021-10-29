@@ -1,3 +1,11 @@
+/*
+ * @Author: your name
+ * @Date: 2021-10-08 14:16:18
+ * @LastEditTime: 2021-10-27 21:34:47
+ * @LastEditors: Please set LastEditors
+ * @Description: In User Settings Edit
+ * @FilePath: \shopeeman-new\vue.config.js
+ */
 const CopyWebpackPlugin = require('copy-webpack-plugin')
 module.exports = {
   publicPath: './',
@@ -13,18 +21,18 @@ module.exports = {
       // 生成文件的最大体积
       maxAssetSize: 3000000000,
       // 只给出 js 文件的性能提示
-      assetFilter: function(assetFilename) {
+      assetFilter: function (assetFilename) {
         return assetFilename.endsWith('.js')
       }
     }
-  },
-  devServer: {
-
-    public: '172.16.11.38:8080',
-
-    hot: true,
-
-    disableHostCheck: true
-
   }
+  // devServer: {
+
+  //   public: '172.16.11.38:8080',
+
+  //   hot: true,
+
+  //   disableHostCheck: true
+
+  // }
 }

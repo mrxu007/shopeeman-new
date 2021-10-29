@@ -584,7 +584,7 @@ export default {
     },
     handleSizeChange(size) {
       this.pageSize = size
-      this.selectList
+      this.selectList()
     },
     //点击复制
     copy(attr) {

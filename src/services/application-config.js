@@ -42,4 +42,8 @@ export default class applicationConfig {
   async getGlobalCacheInfo(type, id) {
     return await this.nativeService.getGlobalCacheInfo(type, id)
   }
+
+  async updateInfoMall(mallId, webLoginInfo) {
+    return await this.nativeService.updateInfo(mallId, webLoginInfo)
+  }
 }
