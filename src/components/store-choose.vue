@@ -19,7 +19,7 @@
         <span>店铺：</span>
         <el-select v-model="site" placeholder="" multiple collapse-tags size="mini" filterable>
           <el-option label="全部" :value="''"/>
-          <el-option v-for="(item, index) in siteList" :key="index" :label="item.platform_mall_name"
+          <el-option v-for="(item, index) in siteList" :key="index" :label="item.mall_alias_name || item.platform_mall_name"
                      :value="item.platform_mall_id"/>
         </el-select>
       </li>
@@ -135,7 +135,6 @@
       }
     },
     mounted() {
-      console.log(this.isAll)
       this.countryVal = !this.isAll && 'TH' || ''
     },
     methods: {
@@ -143,7 +142,6 @@
         console.log(val)
       },
       async ddMallGoodsGetMallList(val) {
-        console.log(val)
         this.site = []
         let country = this.countryVal
         let groupId = this.groupId.indexOf('') > -1 && this.groupId.slice(1).toString() || this.groupId.toString()
