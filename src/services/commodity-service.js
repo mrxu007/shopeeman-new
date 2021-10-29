@@ -5,6 +5,37 @@ import userInfo from './application-config'
 export default class CommodityService {
   user = ''
   nativeService = window['CommodityBridgeService'];
+
+  /**
+   * 新增公司主体(系统)
+   * @param {string} uid 主账号ID
+   * @param {string} targetId 代理系统ip
+   * @param {string} mallIds 系统店铺id
+   */
+  newBangdingMall(uid, targetId, mallIds) {
+    return this.nativeService.callCloudIpFunction('NewBindingMallBySysMallId', uid, targetId, mallIds)
+  }
+
+  /**
+   * 新增公司主体(系统)
+   * @param {string} lineId 线路id
+   * @param {string} uid 主账号ID
+   * @param {string} 子账号ID
+   * @param {string} ipAlias 主体名称
+   * @param {string} num 购买数量
+   * @param {string} period 购买时长
+   * @param {string} isPresale 是否预售
+   */
+  addIPMaster(parmas) {
+    return this.nativeService.callCloudIpFunction('BuyCloudIP',
+      parmas.lineId.toString(),
+      parmas.uid.toString(),
+      parmas.uuid.toString(),
+      parmas.ipAlias.toString(),
+      parmas.num.toString(),
+      parmas.period.toString(),
+      parmas.isPresale.toString())
+  }
   /**
    * 获取商品详情
    * @param {number} sysId 商品id
@@ -484,7 +515,7 @@ export default class CommodityService {
     } = data
     return this.nativeService.callCategoryFunction('UploadTbCatAttr', categoryId + '', JSON.stringify(dataSource))
   }
-/**
+  /**
  * @name :
  * @param  {
  * page:1,
@@ -497,10 +528,10 @@ export default class CommodityService {
   站点选择全部的时候 country为null
   parentCategoryTree：类目id父级集合
  */
- getBlackCategory(data) {
-  return this.nativeService.callCategoryFunction('GetCategoryBlackList',JSON.stringify(data))
-}
-/**
+  getBlackCategory(data) {
+    return this.nativeService.callCategoryFunction('GetCategoryBlackList', JSON.stringify(data))
+  }
+  /**
  * @name :
  * @param  {
  * data[0] categoryId:类目id,
@@ -509,9 +540,13 @@ export default class CommodityService {
  * }
  */
  addBlackCategory(data) {
-  return this.nativeService.callCategoryFunction('AddCategoryBlackInfo',data[0]+'',data[1]+'',data[2]+'')
+  return this.nativeService.callCategoryFunction('AddCategoryBlackInfo',data[0]+'',data[1]+'',JSON.stringify(data[2]))
 }
 /**
+  addBlackCategory(data) {
+    return this.nativeService.callCategoryFunction('AddCategoryBlackInfo', data[0] + '', data[1] + '', data[2] + '')
+  }
+  /**
  * @name :
  * @param  {
  * id:黑名单id（系统id）
@@ -520,8 +555,37 @@ export default class CommodityService {
  deleteBlackCategory(id) {
   return this.nativeService.callCategoryFunction('DeleteCategoryBlackInfo',id+'')
 }
+/**
+ * @name : 
+ * @param  {
+ * data[0]:startTime:yyyy-MM-dd 00:00:00
+ * data[1]:endTime:yyyy-MM-dd 23:59:59
+ * }
+ */
+ getStatisticsNew(data) {
+  return this.nativeService.callFunction('GetStatisticsNew',data[0],data[1])
+}
+
 
 /**
+  deleteBlackCategory(id) {
+    return this.nativeService.callCategoryFunction('DeleteCategoryBlackInfo', id + '')
+  }
+  /**
+   * 成交价格建议
+   * @param {
+   *  platform_id:站点ID
+   *  order_by:排序方式
+   *  cat_id_1:一级类目
+   *  cat_id_2:二级类目
+   *  cat_id_3:三级类目
+   * } data
+   * @returns
+   */
+  getAvgPrice(data) {
+    return this.nativeService.callDianBaShopeeInfo('GetAvgPrice', JSON.stringify(data))
+  }
+  /**
  * @name :获取热搜词列表
  * @param : {
  * platform_id: '',国家code
@@ -530,12 +594,12 @@ export default class CommodityService {
  * }
  *
  */
-getKeyWord(data) {
-  data['order_by'] = "keyword_month_sales"
-  return this.nativeService.callDianBaShopeeInfo('GetKeyWord',JSON.stringify(data))
-}
+  getKeyWord(data) {
+    data['order_by'] = 'keyword_month_sales'
+    return this.nativeService.callDianBaShopeeInfo('GetKeyWord', JSON.stringify(data))
+  }
 
-/**
+  /**
  * @name :获取爆款选品列表
  * @param : {
  * page：页码
@@ -552,9 +616,38 @@ getKeyWord(data) {
  * sortBy：1  （1：飙升  2：热门 ）排序
  *}
  */
-searchShopeeHotGoods(data) {
-  return this.nativeService.callDianBaShopeeInfo('SearchShopeeHotGoods'
-    ,data.page,data.page_size,data.platform_id,data.cat_id,data.level,data.price, data.month_sales,
-    data.increment_like_count,data.increment_item_rating,data.location,data.shopType,data.sortBy)
+  searchShopeeHotGoods(data) {
+    return this.nativeService.callDianBaShopeeInfo('SearchShopeeHotGoods'
+      , data.page, data.page_size, data.platform_id, data.cat_id, data.level, data.price, data.month_sales,
+      data.increment_like_count, data.increment_item_rating, data.location, data.shopType, data.sortBy)
+  }
+  /**
+   * @name :品牌词库
+   * @param : {
+   * page: 页码
+   * perpage：页码大小
+   * word：关键词
+   * country：站点
+   * source：词来源
+   * type：关键词类别
+   * start_time：
+   * end_time：
+   *}
+   */
+  getBannedWordList(data) {
+    return this.nativeService.callCategoryFunction('GetBannedWordList', JSON.stringify(data))
+  }
+  /**
+   * @name :品牌词库添加
+   */
+  addBannedWord(data) {
+    return this.nativeService.callCategoryFunction('AddBannedWord', data.word, data.country, data.type)
+  }
+  /**
+   * @name :品牌词库删除
+   */
+  deleteDannedWord(data) {
+    return this.nativeService.callCategoryFunction('DeleteDannedWord', data.toString())
+  }
 }
-}
+

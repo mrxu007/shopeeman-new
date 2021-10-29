@@ -1,3 +1,11 @@
+/*
+ * @Author: your name
+ * @Date: 2021-10-08 14:16:18
+ * @LastEditTime: 2021-10-27 21:34:47
+ * @LastEditors: Please set LastEditors
+ * @Description: In User Settings Edit
+ * @FilePath: \shopeeman-new\vue.config.js
+ */
 const CopyWebpackPlugin = require('copy-webpack-plugin')
 module.exports = {
   publicPath: './',
@@ -18,4 +26,13 @@ module.exports = {
       }
     }
   }
+  // devServer: {
+
+  //   public: '172.16.11.38:8080',
+
+  //   hot: true,
+
+  //   disableHostCheck: true
+
+  // }
 }

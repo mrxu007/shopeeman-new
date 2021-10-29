@@ -1,0 +1,88 @@
+.contaniner {
+    background-color: #fff;
+    margin: 10px;
+    padding: 16px;
+    min-width: 1280px;
+    .operation {
+      // padding: 16px;
+      min-width: 1280px;
+      margin-bottom: 10px;
+      display: flex;
+      height: 40px;
+      align-items: center;
+      .o-item {
+        display: flex;
+        align-items: center;
+        margin-right: 20px;
+        // .o-name {
+        //   min-width: 85px;
+        //   text-align: right;
+        // }
+        /deep/.el-select {
+          /deep/.el-input {
+            max-width: 120px;
+          }
+          /deep/.el-input__suffix {
+            text-align: end !important;
+          }
+        }
+      }
+    }
+    .pagination {
+      display: flex;
+      margin-top: 10px;
+      justify-content: flex-end;
+    }
+    .dialog-content {
+      /deep/.el-dialog {
+        width: 400px !important;
+        /deep/.el-dialog__body {
+          width: 400px !important;
+          display: flex !important;
+          justify-content: center;
+          padding: 10px 20px !important;
+        }
+        /deep/.el-dialog__header {
+          padding: 5px 0 0 10px !important;
+        }
+        /deep/.el-dialog__title {
+          font-size: 12px !important;
+          color: #3031337a !important;
+        }
+        /deep/.el-form {
+          /deep/.el-form-item {
+            margin-bottom: 5px !important;
+          }
+        }
+        /deep/.el-button{
+          width: 85px;
+          margin-top: 15px;
+        }
+      }
+      
+    }
+    .dialog-ban-content{
+      /deep/.el-dialog__body {
+       
+        padding: 10px 20px !important;
+      }
+      /deep/.el-dialog__header {
+        padding: 5px 0 0 10px !important;
+      }
+      /deep/.el-dialog__title {
+        font-size: 12px !important;
+        color: #3031337a !important;
+      }
+      /deep/.el-button{
+        width: 85px;
+        margin: 15px 0;
+      }
+      .text-log-content{
+        padding: 10px;
+        overflow: auto;
+        // width: 100px;
+        height: 300px;
+        border: 1px solid #ccc;
+      }
+    }
+  }

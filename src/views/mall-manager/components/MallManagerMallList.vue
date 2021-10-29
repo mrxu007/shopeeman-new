@@ -37,7 +37,7 @@
         <ul>
           <li>
             <el-checkbox>强制登录</el-checkbox>
-            <el-button type="primary" size="mini" @click="alotOfLogined">一键登录</el-button>
+            <el-button type="primary" size="mini" :loading="buttonStatus.login" @click="alotOfLogined">一键登录</el-button>
             <el-button type="primary" size="mini" @click="importMall('authorization')">导入店铺</el-button>
             <el-button type="primary" size="mini" @click="exportMall">导出店铺</el-button>
             <el-button type="primary" size="mini" @click="editWaterMall('update')">修改账号登录密码</el-button>
@@ -93,9 +93,9 @@
         <el-table-column align="center" prop="watermark" label="店铺水印文字" />
         <el-table-column align="center" prop="item_limit" label="店铺额度" />
         <el-table-column align="center" prop="mall_alias_name" label="店铺别名" />
-        <el-table-column align="center" prop="web_login_info" label="登录状态">
+        <el-table-column align="center" prop="web_login_info" label="登录状态" show-overflow-tooltip="">
           <template v-slot="{ row }">
-            {{ row.web_login_info ? '检测成功' : '等待检测...' }}
+            <span v-html="row.webLoginInfo" />
           </template>
         </el-table-column>
         <el-table-column align="center" prop="mall_status" label="店铺状态">
@@ -236,7 +236,7 @@
 </template>
 
 <script>
-import { getMallListAPI, updateWatermarkAPI, updateUserPasswordAPI, loginAPI, uploadMallCookie } from '../../../module-api/mall-manager-api/mall-list-api'
+import { getMallListAPI, updateWatermarkAPI, updateUserPasswordAPI, uploadMallCookie } from '../../../module-api/mall-manager-api/mall-list-api'
 import { delay, exportExcelDataCommon } from '../../../util/util'
 import { countriesObj, countries } from '../../../util/countries'
 import xlsx from 'xlsx'
@@ -402,28 +402,32 @@ export default {
       this.buttonStatus.login = true
       for (let i = 0; i < len; i++) {
         const item = this.multipleSelection[i]
-        const res = await this.$shopeemanService.login(item.country, { shop_id: item.platform_mall_id })
+        item.webLoginInfo = '正在登陆中...'
+        const res = await this.$shopeemanService.login(item, { mallId: item.platform_mall_id })
         if (res.code !== 200) {
-          console.log('店铺登录', res.data)
-          this.$message.error(`店铺登录失败：${res.data}`)
+          console.log(`店铺【${item.platform_mall_name}】登录失败：${res.data}`)
+          // this.$message.error(`店铺【${item.platform_mall_name}】`)
+          item.webLoginInfo = `<p style="color: red">登录失败：${res.data}</p>`
           continue
         }
-        // debugger
+        debugger
+        const mallId = res.data.mallId
+        const webLoginInfo = JSON.stringify(res.data.Cookie)
         const params = {
-          'mallId': res.data.mallId,
-          'webLoginInfo': JSON.stringify(res.data.Cookie)
+          mallId,
+          webLoginInfo
         }
         const res2 = await uploadMallCookie(params)
-        // debugger
-        if (res.code !== 200) {
-          console.log('店铺上传', res.data)
+        debugger
+        if (res2.code !== 200) {
+          console.log('店铺上传失败', res.data)
           continue
         }
-        this.$message.success('店铺登录成功')
+        await this.$appConfig.updateInfoMall(`${mallId}`, webLoginInfo)
+        const res5 = await this.$appConfig.getGlobalCacheInfo('mallInfo', mallId)
+        debugger
+        item.webLoginInfo = '<p style="color: green">登录成功</p>'
       }
-      // setTimeout(() => {
-      //   this.buttonStatus.login = false
-      // }, 20000)
       this.buttonStatus.login = false
     },
     importMall(val) {
