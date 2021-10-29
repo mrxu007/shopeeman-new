@@ -510,6 +510,7 @@ export default {
       params.page = this.currentPage
       params.pageSize = this.pageSize
       params.createdAt = this.form.creationTime.length ? this.setDateFmt(this.form.creationTime).join('/') : '/'
+      
       params.transTime = this.form.tradingTime.length ? this.setDateFmt(this.form.tradingTime).join('/') : '/'
       params.transStatus = this.form.transactionStatus
       params.type = this.form.moneyFlow

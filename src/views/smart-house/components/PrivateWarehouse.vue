@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-10-25 16:40:41
- * @LastEditTime: 2021-10-28 17:01:15
+ * @LastEditTime: 2021-10-29 11:21:18
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shopeeman-new\src\views\smart-house\components\PrivateWarehouse.vue
@@ -64,31 +64,33 @@
           <template slot-scope="scope">{{ totalStock(scope.row.user_stocks_skus) }}</template>
         </el-table-column>
         <el-table-column type="expand" width="120" align="center" label="sku信息详情" header-align="center">
-          <template slot-scope="scope">
-            <el-table
-              max-height="500px"
-              :data="scope.row.user_stocks_skus"
-              style="width: 100%"
-              :header-cell-style="{
-                backgroundColor: '#a9a9a9',
-                color: '#fff',
-              }"
-            >
-              <el-table-column label="SKU图片" width="80" align="center">
-                <template slot-scope="scope">
-                  <el-image :src="scope.row.sku_image" style="width: 60px; height: 60px"></el-image>
-                </template>
-              </el-table-column>
-              <el-table-column label="SKU ID" prop="sku_id" align="center" />
-              <el-table-column label="SKU名称" prop="sku_name" align="center" />
-              <el-table-column label="价格" prop="sku_price" align="center" />
-              <el-table-column label="库存" prop="stock_num" align="center"> </el-table-column>
-               <el-table-column label="操作" width="80" align="center">
-                <template slot-scope="scope">
-                  <el-button size="mini" type="primary" @click="deleteSku(scope.$index)">删 除</el-button>
-                </template>
-              </el-table-column>
-            </el-table>
+          <template v-slot="{ row, $index }" class="subTable">
+            <div class="subTable">
+              <el-table
+                :data="row.user_stocks_skus"
+                style="width: 100%"
+                :header-cell-style="{
+                  backgroundColor: '#a9a9a9',
+                  color: '#fff',
+                }"
+              >
+                <el-table-column label="序号" type="index" align="center" />
+                <el-table-column label="SKU图片" width="80" align="center">
+                  <template slot-scope="scope">
+                    <el-image :src="scope.row.sku_image" style="width: 60px; height: 60px"></el-image>
+                  </template>
+                </el-table-column>
+                <el-table-column label="SKU ID" prop="sku_id" align="center" />
+                <el-table-column label="SKU名称" prop="sku_name" align="center" />
+                <el-table-column label="价格" prop="sku_price" align="center" />
+                <el-table-column label="库存" prop="stock_num" align="center"> </el-table-column>
+                <el-table-column label="操作" width="80" align="center">
+                  <template slot-scope="scope">
+                    <el-button size="mini" type="primary" @click="deleteSku($index, row, scope.row, scope.$index)">删 除</el-button>
+                  </template>
+                </el-table-column>
+              </el-table>
+            </div>
           </template>
         </el-table-column>
         <el-table-column min-width="60px" label="创建时间" prop="created_at" align="center" />
@@ -185,7 +187,15 @@
                     <span>选项</span>
                     <div class="sku-item-box">
                       <div class="sku-Spec" v-for="(item, i) in skuSpec2" :key="i + 'spec2'">
-                        <el-input v-model="item.sku_name" placeholder="" size="mini" clearable class="mar-right" :disabled="!skuSecondCheck || item.sku_disabled" @input="sepcInput($event, i)" ></el-input>
+                        <el-input
+                          v-model="item.sku_name"
+                          placeholder=""
+                          size="mini"
+                          clearable
+                          class="mar-right"
+                          :disabled="!skuSecondCheck || item.sku_disabled"
+                          @input="sepcInput($event, i)"
+                        ></el-input>
                         <el-button type="primary" size="mini" :disabled="!skuSecondCheck" @click="deleteSpec2(i)">删除</el-button>
                       </div>
                     </div>
@@ -385,8 +395,20 @@ export default {
       console.log(res, 'saveUpdateGoods')
     },
     //删除sku
-    async deleteSku(){
-
+    async deleteSku(faIndex, faRow, row, index) {
+      console.log(faIndex, faRow, row, index)
+      let params = {
+        id: faRow.id,
+        skuIdList: JSON.stringify([row.id]),
+      }
+      let res = await this.$api.deleteUserSku(params)
+      if (res.data.code === 200) {
+        this.$message.success('删除成功!')
+        this.tableData[faIndex].user_stocks_skus.splice(index, 1)
+      } else {
+        this.$message.error(res.data.message)
+      }
+      console.log(res)
     },
     //设置sku价格库存
     setSkuPriceStock() {
@@ -414,21 +436,56 @@ export default {
       this.skuSpec2.push(params)
       this.createSkuList()
     },
+    async deleteEditSku(deleteSkus){
+        let goodsId = ''
+        let skuIds = []
+        deleteSkus.forEach((item) => {
+          if (item.sys_stock_id) {
+            goodsId = item.sys_stock_id
+            skuIds.push(item.id)
+          }
+        })
+        if (goodsId && skuIds.length) {
+          let params = {
+            id: goodsId,
+            skuIdList: JSON.stringify(skuIds),
+          }
+          let res = await this.$api.deleteUserSku(params)
+          if (res.data.code === 200) {
+            this.$message.success('删除成功!')
+          } else {
+            this.$message.error(res.data.message)
+          }
+        }
+    },
     //删除spec1
     deleteSpec1(i) {
-      this.skuList = this.skuList.filter((n) => {
+      let baseSKU = JSON.parse(JSON.stringify(this.skuList))
+      this.skuList = baseSKU.filter((n) => {
         return n.sku_name1 !== this.skuSpec1[i].sku_name
       })
+      let deleteSkus = baseSKU.filter((n) => {
+        return n.sku_name1 === this.skuSpec1[i].sku_name
+      })
+      if (deleteSkus) {
+        this.deleteEditSku(deleteSkus)
+      }
       this.skuSpec1.splice(i, 1)
     },
     //删除spec2
     deleteSpec2(i) {
-      this.skuList = this.skuList.filter((n) => {
+      let baseSKU = JSON.parse(JSON.stringify(this.skuList))
+      this.skuList =baseSKU.filter((n) => {
         return n.sku_name1 !== this.skuSpec2[i].sku_name
       })
+      let deleteSkus = baseSKU.filter((n) => {
+        return n.sku_name1 === this.skuSpec2[i].sku_name
+      })
+      if (deleteSkus) {
+        this.deleteEditSku(deleteSkus)
+      }
       this.skuSpec2.splice(i, 1)
     },
-    
     sepcInput(val, i) {
       let spec = this.skuList.find((n) => {
         return n.sku_name1 === val || n.sku_name2 === val
@@ -451,6 +508,7 @@ export default {
           })
           if (obj) {
             return {
+              sys_stock_id:obj.sys_stock_id,
               sku_id: obj.sku_id,
               id: obj.id,
               sku_name1: obj.sku_name1,
@@ -512,7 +570,6 @@ export default {
             }
           })
         })
-        console.log('this.skuList', this.skuList, this.skuSpec1, this.skuSpec2)
       }
     },
     //列表
@@ -531,6 +588,7 @@ export default {
       } else {
         this.$message.error(res.data.message)
       }
+      console.log(this.tableData)
       this.tableLoading = false
     },
     //上传图片
@@ -584,7 +642,7 @@ export default {
           item.sku_name1 = specArr[0]
           let params = {
             sku_name: specArr[0],
-            sku_disabled: true
+            sku_disabled: true,
           }
           let obj = this.skuSpec1.find((item) => {
             return item.sku_name === specArr[0]
@@ -597,11 +655,11 @@ export default {
           item.sku_name2 = specArr[1]
           let params1 = {
             sku_name: specArr[0],
-            sku_disabled: true
+            sku_disabled: true,
           }
           let params2 = {
             sku_name: specArr[1],
-            sku_disabled: true
+            sku_disabled: true,
           }
           let obj1 = this.skuSpec1.find((item) => {
             return item.sku_name === specArr[0]
@@ -677,6 +735,10 @@ export default {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  .subTable {
+    width: 60%;
+    margin: 0 auto;
+  }
   .pagination {
     display: flex;
     justify-content: flex-end;
