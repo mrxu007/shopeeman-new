@@ -539,6 +539,10 @@ export default class CommodityService {
  * data[2] categoryPTree:[]父级类目id集合
  * }
  */
+ addBlackCategory(data) {
+  return this.nativeService.callCategoryFunction('AddCategoryBlackInfo',data[0]+'',data[1]+'',JSON.stringify(data[2]))
+}
+/**
   addBlackCategory(data) {
     return this.nativeService.callCategoryFunction('AddCategoryBlackInfo', data[0] + '', data[1] + '', data[2] + '')
   }
@@ -548,6 +552,22 @@ export default class CommodityService {
  * id:黑名单id（系统id）
  * }
  */
+ deleteBlackCategory(id) {
+  return this.nativeService.callCategoryFunction('DeleteCategoryBlackInfo',id+'')
+}
+/**
+ * @name : 
+ * @param  {
+ * data[0]:startTime:yyyy-MM-dd 00:00:00
+ * data[1]:endTime:yyyy-MM-dd 23:59:59
+ * }
+ */
+ getStatisticsNew(data) {
+  return this.nativeService.callFunction('GetStatisticsNew',data[0],data[1])
+}
+
+
+/**
   deleteBlackCategory(id) {
     return this.nativeService.callCategoryFunction('DeleteCategoryBlackInfo', id + '')
   }
