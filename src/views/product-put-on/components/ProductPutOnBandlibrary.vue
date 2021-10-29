@@ -28,7 +28,6 @@
           type="primary"
           size="mini"
           @click="
-            isQuery = true
             getBannedWordList()"
         >查询</el-button>
         <el-button type="primary" size="mini" @click="dialogVisible= true">添加</el-button>
@@ -141,7 +140,6 @@ import { exportExcelDataCommon } from '../../../util/util'
 export default {
   data() {
     return {
-      isQuery: false,
       showConsole: true,
       consoleMsg: '', // 打印日志
       batchConsoleMsg: '', // 批量导入信息
@@ -208,15 +206,16 @@ export default {
   methods: {
     // 导出excel
     async exportSearch() {
+      this.isloading = true
       const data = []
       const len = this.total % 10 === 0 ? (this.total / 10) : (Math.floor(this.total / 10) + 1)
       for (let index = 1; index <= len; index++) {
         const parmas = {
           page: index,
-          word: this.isQuery ? this.form.keyWord.trim() : '',
-          country: this.isQuery ? this.form.site : '',
-          source: this.isQuery ? Number(this.form.source) : 0,
-          type: this.isQuery ? Number(this.form.type) : 0
+          word: this.form.keyWord.trim(),
+          country: this.form.site,
+          source: Number(this.form.source),
+          type: Number(this.form.type)
         }
         try {
           const res = await this.$commodityService.getBannedWordList(parmas)
@@ -228,6 +227,7 @@ export default {
           console.log(error)
         }
       }
+      this.isloading = false
       if (!data?.length) {
         return this.$message('暂无导出数据')
       }

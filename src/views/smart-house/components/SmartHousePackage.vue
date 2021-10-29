@@ -313,30 +313,32 @@
             size="mini"
           />
         </el-form-item>
-        <p style="color: red">shoppe平台包裹：上传平台返回的退件包裹二维码</p>
-        <p style="color: red">Lazada平台包裹：上传平台返回的退件包裹PDF文件</p>
-        <el-form-item label="包裹文件">
-          <div style="display: flex">
-            <div>
-              <el-button
-                :loading="upFileLiadding"
-                type="primary"
-                size="mini"
-                @click="reupload"
-              >
-                <i class="el-icon-upload el-icon--right"> 上传文件 </i>
-              </el-button>
+        <div v-if="isOverseas">
+          <p style="color: red">shoppe平台包裹：上传平台返回的退件包裹二维码</p>
+          <p style="color: red">Lazada平台包裹：上传平台返回的退件包裹PDF文件</p>
+          <el-form-item label="包裹文件">
+            <div style="display: flex">
+              <div>
+                <el-button
+                  :loading="upFileLiadding"
+                  type="primary"
+                  size="mini"
+                  @click="reupload"
+                >
+                  <i class="el-icon-upload el-icon--right"> 上传文件 </i>
+                </el-button>
+              </div>
+              <div class="img-box" style="width: 40px; height: 40px; margin-left:5px">
+                <img
+                  :src="returnMsg.returnFile"
+                  alt=""
+                  width="40px"
+                  height="40px"
+                >
+              </div>
             </div>
-            <div class="img-box" style="width: 40px; height: 40px; margin-left:5px">
-              <img
-                :src="returnMsg.returnFile"
-                alt=""
-                width="40px"
-                height="40px"
-              >
-            </div>
-          </div>
-        </el-form-item>
+          </el-form-item>
+        </div>
         <el-form-item label="退件备注">
           <el-input
             v-model="returnMsg.returnRemarks"
@@ -414,6 +416,7 @@
 export default {
   data() {
     return {
+      isOverseas: false, // 是否国外仓
       showConsole: true,
       applyRegion: [], // 退件地址
       selectAddress: { // 选择地址
@@ -599,16 +602,25 @@ export default {
     },
     // 退件/批量申请退件
     returnParts(val) {
+      this.returnMsg.returnFile = ''
+      this.isOverseas = false
       this.returnMsg.lists = []
       if (Array.isArray(val)) {
         if (!val.length) return this.$message('请选择需要申请退件的包裹')
-        val.map((item) => {
-          this.returnMsg.lists.push({ gpcId: item.gpcId, packageCode: item.package_code })
-        })
+        if (val.every(item => item.warehouse_type === val[0].warehouse_type)) {
+          val.map((item) => {
+            this.returnMsg.lists.push({ gpcId: item.gpcId, packageCode: item.package_code })
+            if (item.warehouse_type === 3) this.isOverseas = true
+          })
+          this.returnMsgDialog = true
+        } else {
+          this.$message.error('无法同时退不同仓库的包裹')
+        }
       } else {
         this.returnMsg.lists.push({ gpcId: val.gpcId, packageCode: val.package_code })
+        if (val.warehouse_type === 3) this.isOverseas = true
+        this.returnMsgDialog = true
       }
-      this.returnMsgDialog = true
     },
     // 保存退件信息
     async saveReturnMsg() {
@@ -668,7 +680,6 @@ export default {
         } else {
           this.$message.error('获取数据失败', data.message)
         }
-        // console.log('data', data)
       } catch (error) {
         console.log(error)
       }
