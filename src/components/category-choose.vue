@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-10-21 15:41:32
- * @LastEditTime: 2021-10-22 15:56:27
+ * @LastEditTime: 2021-10-23 11:23:00
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shopeeman-new\src\components\category-choose.vue

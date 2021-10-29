@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-10-08 14:16:18
- * @LastEditTime: 2021-10-21 14:28:04
+ * @LastEditTime: 2021-10-27 21:34:16
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shopeeman-new\src\views\personal-center\index.vue
@@ -22,6 +22,8 @@
 
     <!--我的赔付 -->
     <main v-if="activeVal === '6'"><SmartHouseAbnormalPayment /></main>
+    <!--自有仓库 -->
+    <main v-if="activeVal === '7'"><PrivateWarehouse /></main>
   </div>
 </template>
 
@@ -31,7 +33,8 @@ import {
   SmartHousePackage,
   SmartHouseReturnManage,
   SmartHouseUnclaimed,
-  SmartHouseAbnormalPayment
+  SmartHouseAbnormalPayment,
+  PrivateWarehouse
 } from './index'
 export default {
   components: {
@@ -39,7 +42,9 @@ export default {
     SmartHousePackage,
     SmartHouseReturnManage,
     SmartHouseUnclaimed,
-    SmartHouseAbnormalPayment
+    SmartHouseAbnormalPayment,
+    PrivateWarehouse
+
   },
   data() {
     return {

@@ -85,7 +85,7 @@
           <el-table-column align="center" type="selection" width="50" />
           <el-table-column align="center" type="index" label="序列号" width="80" />
           <el-table-column align="center" prop="country" label="站点">
-            <template slot-scope="{row}">
+            <template slot-scope="{ row }">
               {{ row.country | chineseSite }}
             </template>
           </el-table-column>
@@ -371,6 +371,7 @@
 import mallGroup from '@/components/mall-group.vue'
 import ShopeeConfig from '@/services/shopeeman-config'
 import { exportExcelDataCommon } from '@/util/util'
+import { MallTargetApi } from '../../../module-api/mall-manager-api/mall-target-api'
 export default {
   components: {
     mallGroup
@@ -386,6 +387,7 @@ export default {
       percentage: 0, // 进度条数据
       isShowProgress: false,
       shopeeConfig: new ShopeeConfig(),
+      mallTargetApiInstance: new MallTargetApi(this),
       form: {
         site: '', // 站点
         orderIndex: '0', // 订单完成指标
@@ -424,16 +426,33 @@ export default {
   methods: {
     // 同步店铺指标数据
     async syncMallData(data) {
-      const url = this.shopeeConfig.getSiteDomainCrossBk('VN')
-      console.log(url)
-      debugger
       this.isShowProgress = true
       this.percentage = 0
       const len = data.length
       for (let index = 0; index < len; index++) {
-        this.$set(data[index], 'status', '开始同步')
+        const item = data[index]
+        this.$set(item, 'status', '开始同步')
+        const res1 = this.mallTargetApiInstance.theQuarterPoint(item, '/api/v2/shops/sellerCenter/ongoingPoints')
+        const res2 = this.mallTargetApiInstance.getShopPerformance(item, '/api/v2/shops/sellerCenter/shopPerformance')
+        const res3 = await Promise.all([res1, res2])
+        const params = {
+          'mallDatas': '',
+          'sysMallId': item.id
+        }
+        if (res3[0].code === 200 && res3[1].code === 200) {
+          params['violationScore'] = res3[0].data.totalPoints
+          params['orderServiceIndicators'] = res3[1].data
+          const res4 = await this.$api.mallStatisticsSave(params)
+          if (res4.data.code === 200) {
+            this.$set(item, 'status', '同步成功')
+          } else {
+            this.$set(item, 'status', '同步失败:上报失败')
+          }
+          this.$set(item, 'status', '同步成功')
+        } else {
+          this.$set(item, 'status', `同步失败`)
+        }
         this.percentage = parseInt((index + 1) / len * 100)
-        this.$set(data[index], 'status', '同步完成')
       }
     },
     // 获取数据

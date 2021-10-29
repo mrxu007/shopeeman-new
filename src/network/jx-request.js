@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-10-08 14:16:18
- * @LastEditTime: 2021-10-13 17:52:43
+ * @LastEditTime: 2021-10-26 18:14:21
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shopeeman-new\src\network\jx-request.js
@@ -60,9 +60,12 @@ export default {
   // weTbUploadPostResult: (data) => tbRequest.post('/ycj/api/v2/taobao/tbX5/weTbUploadPostResult', data) // 上报淘宝图片（由爬虫组提供）
 
   // 2021-10-09
+  // 测试数据-----------------------------------------------------
   getMallDataStatistics: (data) => AppRequest.post('/mallDataStatistics/dataStat', data), // 获取数据分析
 
-  // 个人中心--软件财务中心
+  // 个人中心-------------------------------------------------
+
+  // 软件财务中心
   getTransType: (data) => AppRequest.get('/user/transType', { data }), // 获取账单交易类型
   getAccountAmount: (data) => AppRequest.get('/user/accountAmount', { data }), // 查询用户账号余额
   getAccountAmountDetailList: (data) => AppRequest.post('/user/accountAmountDetailList', data), // 查询用户账号余额
@@ -70,7 +73,7 @@ export default {
   getChargeUrlV2: (data) => AppRequest.get('/emptyBag/chargeUrlV2', { params: data }), // 充值
   getTranslateAmount: (data) => AppRequest.get('/translate/getTranslateAmount', { params: data }), // 获取今日翻译费用
 
-  // 个人中心--账单核算
+  // 账单核算
   getOrderStatisticsList: (data) => AppRequest.get('/orderStatistics/index', { params: data }), // 账单核算：列表
   getChildUserList: (data) => AppRequest.post('/user/childUserList', data), // 团队管理-查询子账号列表
   userRoleList: (data) => AppRequest.get('/user/userRoleList', data), // 团队管理-获取子账号角色类型
@@ -85,11 +88,15 @@ export default {
   getPhoneLists: (data) => AppRequest.get('/user/getPhoneLists', data), // 信任IP-获取手机号码列表
   updatePhoneListForIp: (data) => AppRequest.post('/user/updatePhoneListForIp', data), // 信任IP-配置接收手机验证码的手机号
 
-  // 数据统计--数据统计
+  // 数据统计-------------------------------------------------------------------
+
+  // 数据统计
   getDrderBasicStatV2: (data) => AppRequest.post('/mallDataStatistics/orderBasicStatV2', data), // 数据统计获取订单列表数据
   getDataStat: (data) => AppRequest.post('/mallDataStatistics/dataStat', data), // 数据统计图表数据
 
-  // 店铺管理--店铺管理
+  // 店铺管理 ------------------------------------------------------------------
+
+  // 店铺管理
   ddMallGoodsGetMallList: (data) => AppRequest.get('/ddMallGoods/getMallList', data), // 联动站点分组获取店铺列表
   mallGroupIndex: (data) => AppRequest.get('/mallGroup/index', { params: data }), // 获取店铺分组列表
   getMallList: (data) => AppRequest.get('/bindMall/mallList', { params: data }), // 获取店铺列表
@@ -100,27 +107,27 @@ export default {
   uploadMallCookie: (data) => AppRequest.post('/bindMall/uploadWebLoginInfo', data), // 上报店铺cookie
   deleteBindMall: (data) => AppRequest.post('/bindMall/deleteMall', data), // 上报店铺cookie
 
-  // 店铺管理--店铺分组
+  // 店铺分组
   getMallGroup: (data) => AppRequest.get('/mallGroup/index', { params: data }), // 获取店铺分组列表
   addGroup: (data) => AppRequest.post('/mallGroup/save', data), // 新增分组
   updateGroup: (data) => AppRequest.post('/mallGroup/update', data), // 修改分组
   deleteGroup: (data) => AppRequest.post('/mallGroup/delete', data), // 删除分组
 
-  // 异常公告--签收包裹异常
+  // 店铺指标
+  mallStatisticsSave: (data) => AppRequest.post('/mallStatistics/save', data), // 上报数据
+
+  // 异常公告------------------------------------------------------------------------
+  // 签收包裹异常
   getExceptionNoOrderIndex: (data) => AppRequest.get('/exceptionNoOrderIndex', { params: data }), // 签收包裹异常列表
   markPackageToMy: (data) => AppRequest.post('/signPackage/markPackageToMy', data), // 标记为我的
   applicationForreJection: (data) => AppRequest.post('/packageReturn/apply', data), // 申请退件
 
-  // 异常公告--待获取物流单号
+  // 待获取物流单号
   getExceptionNoTrackingNumberIndex: (data) => AppRequest.get('/exceptionNoTrackingNumberIndex', { params: data }), // 订单列表
   updateOrderTrackingNumber: (data) => AppRequest.post('/order/updateOrderTrackingNumber', data), // 添加采购物流单号
 
   // 异常公告
-  getExceptionNoOrderIndex: (data) => AppRequest.get('/exceptionNoOrderIndex', { params: data }), // 异常公告签收包裹异常列表
-  markPackageToMy: (data) => AppRequest.post('/signPackage/markPackageToMy', data), // 异常公告签收包裹异常：标记为我的
   apply: (data) => AppRequest.post('/packageReturn/apply', data), // 异常公告签收包裹异常：申请退件
-  getExceptionNoTrackingNumberIndex: (data) => AppRequest.get('/exceptionNoTrackingNumberIndex', { params: data }), // 异常公告待获取物流单号订单列表
-  updateOrderTrackingNumber: (data) => AppRequest.post('/order/updateOrderTrackingNumber', data), // 异常公告待获取物流订单添加采购物流单号
   getExceptionExpiredOrderIndex: (data) => AppRequest.get('/exceptionExpiredOrderIndex', { params: data }), // 异常公告即将过期订单列表
   getExceptionWarehouse: (data) => AppRequest.get('/exceptionWarehouse', { params: data }), // 异常公告仓库异常信息列表
   uploadDealExceptionStatus: (data) => AppRequest.post('/uploadDealExceptionStatus', data), // 异常公告仓库异常处理状态上报
@@ -131,6 +138,7 @@ export default {
   getPaymentList: (data) => AppRequest2.post('/api/mallAccountBill', data), // 货款对账列表
   getMallSite: (data) => AppRequest2.get('/api/ddMallGoods/getMallList', { params: data }), // 店铺站点信息
   exchangeRateList: (data) => AppRequest2.get('/api/exchangeRateList', { params: data }), // 获取汇率
+  updateMallInfo: (data) => AppRequest2.post('/api/bindMall/updateMallInfo', { params: data }), // 同步信息
   updateMallInfo: (data) => AppRequest2.post('/api/bindMall/updateMallInfo', { params: data }), // 同步信息
 
   // 异常公告--即将过期订单
@@ -144,5 +152,11 @@ export default {
   getReturnInfo: (data) => AppRequest.get('/packageReturn/info', { params: data }), // 退件详情
   getUnclaimedPackage: (data) => AppRequest.get('/signPackage/getUnclaimedPackage', { params: data }), // 失物招领列表
   getReturnManage: (data) => AppRequest.get('/packageReturn', { params: data }), // 获取退件管理列表
-  getAbnormalPayment: (data) => AppRequest.get('/warehouseAbnormalPayment', { params: data }) // 获取退件管理列表
+  getAbnormalPayment: (data) => AppRequest.get('/warehouseAbnormalPayment', { params: data }), // 获取退件管理列表
+
+  // 智能仓库 --自有仓库
+  getUserStore: (data) => AppRequest.get('/userStock/get', { params: data }), // 自有仓库列表
+  insertUserGoods: (data) => AppRequest.post('/userStock/save', data), // 新增自有商品
+  updataUserGoods: (data) => AppRequest.post('/userStock/update', data), // 编辑自有商品
+  deleteUserGoods: (data) => AppRequest.post('/userStock/deleteGoods', data) // 删除自有商品
 }
