@@ -2,9 +2,10 @@
   <div class="contaniner">
     <div class="operation">
       <div class="o-item">
-        <span style="min-width:42px">站点：</span>
-        <el-select v-model="form.site" placeholder="" size="mini" filterable>
-          <el-option v-for="(item, index) in siteList" :key="index" :label="item.label" :value="item.value" />
+        <span>站点：</span>
+        <el-select v-model="form.site" class="unnormal" placeholder="" size="mini" filterable>
+          <el-option label="全部" :value="''" />
+          <el-option v-for="(item, index) in countries" :key="index" :label="item.label" :value="item.value" />
         </el-select>
       </div>
       <div class="o-item">
@@ -87,8 +88,8 @@
         <span>
           <el-form label-position="right" label-width="80px">
             <el-form-item label="站点:">
-              <el-select v-model="dialogSite" placeholder="" size="mini" filterable>
-                <el-option v-for="(item, index) in siteList.slice(1)" :key="index" :label="item.label" :value="item.value" />
+              <el-select v-model="dialogSite" class="unnormal" placeholder="" size="mini" filterable>
+                <el-option v-for="(item, index) in countries" :key="index" :label="item.label" :value="item.value" />
               </el-select>
             </el-form-item>
             <el-form-item label="类别:">
@@ -137,6 +138,7 @@
 <script>
 import XLSX from 'xlsx'
 import { exportExcelDataCommon } from '../../../util/util'
+import { countriesObj, countries, siteObj } from '../../../util/countries'
 export default {
   data() {
     return {
@@ -154,6 +156,9 @@ export default {
       dialogSite: 'MY', // 弹框站点
       dialogType: '1', // 弹框关键词类别
       dialogkeyWord: '', // 弹框关键词
+      countries: null,
+      countriesObj: null,
+      siteObj: null,
       form: {
         site: '', // 站点
         type: '0', // 关键词类别
@@ -172,35 +177,18 @@ export default {
         { value: '2', label: '品牌词' },
         { value: '3', label: '违规词' }
       ],
-      siteList: [
-        { value: '', label: '全部' },
-        { value: 'MY', label: '马来站' },
-        { value: 'TH', label: '泰国站' },
-        { value: 'TW', label: '台湾站' },
-        { value: 'PH', label: '菲律宾站' },
-        { value: 'ID', label: '印尼站' },
-        { value: 'SG', label: '新加坡站' },
-        { value: 'VN', label: '越南站' }
-      ],
       typeObj: {
         '禁运词': '1',
         '品牌词': '2',
         '违规词': '3'
       },
-      siteObj: {
-        '马来站': 'MY',
-        '台湾站': 'TW',
-        '新加坡站': 'SG',
-        '菲律宾站': 'PH',
-        '泰国站': 'TH',
-        '越南站': 'VN',
-        '印尼站': 'ID',
-        '巴西站': 'BR'
-      },
       tableData: [] // 表格数据
     }
   },
   mounted() {
+    this.countries = countries
+    this.countriesObj = countriesObj
+    this.siteObj = siteObj
     this.getBannedWordList()
   },
   methods: {
@@ -229,7 +217,9 @@ export default {
       }
       this.isloading = false
       if (!data?.length) {
-        return this.$message('暂无导出数据')
+        this.isloading = false
+        this.$message('暂无导出数据')
+        return
       }
       let str =
       `<tr>
@@ -241,7 +231,7 @@ export default {
       </tr>`
       data.forEach((item) => {
         item.created_at = item.created_at.replace('T', ' ').replace('Z', '')
-        item.country = this.$options.filters.chineseSite(item.country)
+        item.country = countriesObj[item.country]
         item.uid = item.uid === 0 ? '系统' : '用户'
         if (item.type === 2) {
           item.type = '品牌词'
@@ -307,9 +297,29 @@ export default {
         const countryVal = element['站点(马来站,台湾站,新加坡站,菲律宾站,泰国站,越南站,印尼站,巴西站)（必填）']
         const typeVal = element['关键词类型(违规词,品牌词,禁运词)（必填）']
         const wordVal = element['关键词（必填）']
-        if (!countryVal || !typeVal || !wordVal || !this.typeObj[typeVal] || !this.siteObj[countryVal]) {
+        if (!countryVal) {
           failNum++
-          this.batchWriteLog(`【${index + 1}】参数错误,请按要求填写`, false)
+          this.batchWriteLog(`【${index + 1}】未找到站点(马来站,台湾站,新加坡站,菲律宾站,泰国站,越南站,印尼站,巴西站)（必填）`, false)
+          continue
+        }
+        if (!typeVal) {
+          failNum++
+          this.batchWriteLog(`【${index + 1}】未找到关键词类型(违规词,品牌词,禁运词)（必填）`, false)
+          continue
+        }
+        if (!wordVal) {
+          failNum++
+          this.batchWriteLog(`【${index + 1}】未找到关键词（必填）`, false)
+          continue
+        }
+        if (!this.siteObj[countryVal]) {
+          failNum++
+          this.batchWriteLog(`【${index + 1}】站点参数错误`, false)
+          continue
+        }
+        if (!this.typeObj[typeVal]) {
+          failNum++
+          this.batchWriteLog(`【${index + 1}】关键词类型参数错误`, false)
           continue
         }
         const parmas = {
@@ -324,14 +334,14 @@ export default {
           console.log('batchImport', jsonData)
           if (jsonData.code === 200) {
             if (jsonData.data === 1) {
-              this.batchWriteLog(`站点【${countryVal}】 禁售词【${wordVal}】 重复添加`, false)
+              this.batchWriteLog(`【${index + 1}】站点【${countryVal}】 禁售词【${wordVal}】 重复添加`, false)
               failNum++
               continue
             }
             successNum++
-            this.batchWriteLog(`站点【${countryVal}】 添加禁售词【${wordVal}】 成功`, true)
+            this.batchWriteLog(`【${index + 1}】站点【${countryVal}】 添加禁售词【${wordVal}】 成功`, true)
           } else {
-            this.$refs.Logs.writeLog(`站点【${countryVal}】 禁售词【${wordVal}】添加失败 ${jsonData.msg}`, false)
+            this.$refs.Logs.writeLog(`【${index + 1}】站点【${countryVal}】 禁售词【${wordVal}】添加失败 ${jsonData.msg}`, false)
           }
         } catch (error) {
           this.batchWriteLog(`${error}`, false)
@@ -342,7 +352,7 @@ export default {
     },
     // 添加禁售词
     async addBannedWord() {
-      if (this.dialogkeyWord.trim() === '') return this.$message('请填写禁售词')
+      if (!this.dialogkeyWord.trim()) return this.$message('请填写禁售词')
       const parmas = {
         word: this.dialogkeyWord.trim(),
         country: this.dialogSite,
@@ -384,7 +394,7 @@ export default {
           if (this.tableData) {
             this.tableData.map(item => {
               item.created_at = item.created_at.replace('T', ' ').replace('Z', '')
-              item.country = this.$options.filters.chineseSite(item.country)
+              item.country = countriesObj[item.country]
               item.uid = item.uid === 0 ? '系统' : '用户'
               if (item.type === 2) {
                 item.type = '品牌词'

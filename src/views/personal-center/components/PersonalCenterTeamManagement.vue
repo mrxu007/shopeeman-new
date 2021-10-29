@@ -88,7 +88,7 @@
                 </el-checkbox-group>
               </el-form-item>
               <el-form-item label="子账号:">
-                <el-input v-model="name" size="mini" placeholder="请输入子账号名" />
+                <el-input v-model="name" size="mini" placeholder="请输入子账号名" clearable />
               </el-form-item>
               <el-form-item label="密码:">
                 <el-input v-model="password" placeholder="请输入密码(不得小于9位)" oninput="value=value.replace(/[\W]/g,'')" show-password size="mini" />
@@ -98,7 +98,7 @@
                 <el-radio v-model="diaIsEnable" label="2">停用</el-radio>
               </el-form-item>
               <el-form-item label="备注:">
-                <el-input v-model="note" size="mini" placeholder="请输入备注" />
+                <el-input v-model="note" size="mini" placeholder="请输入备注" clearable />
               </el-form-item>
             </el-form>
           </div>
@@ -178,7 +178,7 @@ export default {
     // 获取店铺分组
     async getBindMallCount() {
       const params = {
-        groupName: this.shopGroupVal
+        groupName: this.shopGroupVal.trim()
       }
       const { data } = await this.$api.getBindMallCount(params)
       if (data.code === 200) {

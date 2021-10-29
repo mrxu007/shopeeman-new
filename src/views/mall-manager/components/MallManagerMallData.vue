@@ -10,7 +10,8 @@
             <li>
               <span>站点：</span>
               <el-select v-model="form.site" class="unnormal" placeholder="" size="mini" filterable>
-                <el-option v-for="(item, index) in siteList" :key="index" :label="item.label" :value="item.value" />
+                <el-option label="全部" :value="0" />
+                <el-option v-for="(item, index) in countries" :key="index" :label="item.label" :value="item.value" />
               </el-select>
             </li>
             <!-- <li>
@@ -23,7 +24,7 @@
               <el-select v-model="form.shopSelect" class="unnormal" placeholder="" size="mini" filterable>
                 <el-option v-for="(item, index) in shopSelectList" :key="index" :label="item.label" :value="item.value" />
               </el-select>
-              <el-input v-model="form.shopSelectVal" class="unnormal2" placeholder="" size="mini" />
+              <el-input v-model="form.shopSelectVal" class="unnormal2" placeholder="" size="mini" clearable />
             </li>
             <li>
               <span>客服数据统计时间(仅用于同步数据)：</span>
@@ -33,7 +34,7 @@
             </li>
             <li>
               <el-button type="primary" size="mini" @click="getMallStatistics()">查询</el-button>
-              <el-button type="primary" size="mini" @click="handlerSelectTableOperating('exportSearch')">导出数据</el-button>
+              <el-button type="primary" size="mini" @click="exportSearch()">导出数据</el-button>
               <el-button type="primary" size="mini" @click="handlerSelectTableOperating('syncMallData')">同步店铺数据</el-button>
             </li>
             <li>
@@ -190,6 +191,7 @@
 import mallGroup from '@/components/mall-group.vue'
 import ShopeeConfig from '@/services/shopeeman-config'
 import { exportExcelDataCommon } from '@/util/util'
+import { countriesObj, countries } from '../../../util/countries'
 export default {
   components: {
     mallGroup
@@ -209,25 +211,17 @@ export default {
       frozenAmount: 0, // 待拨款总金额
       frozenAmountOrders: 0, // 待拨款总订单数
       multipleSelection: [],
+      countries: null,
+      countriesObj: null,
       shopeeConfig: new ShopeeConfig(),
       form: {
         groupId: 0, // 店铺分组ID
         agoNoneOrderDays: '0', // 距今无订单天数
-        site: '', // 站点
+        site: 0, // 站点
         shopSelect: '0', // 店铺选择
         serviceDataTime: 'real_time', // 客服数据统计时间
         shopSelectVal: '' // 店铺选择值
       },
-      siteList: [
-        { value: '', label: '全部' },
-        { value: 'TH', label: '泰国站' },
-        { value: 'MY', label: '马来站' },
-        { value: 'TW', label: '台湾站' },
-        { value: 'PH', label: '菲律宾站' },
-        { value: 'ID', label: '印尼站' },
-        { value: 'SG', label: '新加坡站' },
-        { value: 'VN', label: '越南站' }
-      ],
       // agoNoneOrderDaysList: [
       //   { value: '0', label: '全部' },
       //   { value: '1', label: '7天内' },
@@ -248,8 +242,10 @@ export default {
       ]
     }
   },
-  async mounted() {
-    await this.getMallStatistics()
+  mounted() {
+    this.countries = countries
+    this.countriesObj = countriesObj
+    this.getMallStatistics()
   },
   methods: {
     // 同步店铺数据
@@ -300,7 +296,7 @@ export default {
             const element = this.tableData[index]
             const res = await this.$appConfig.getGlobalCacheInfo('mallInfo', element.platform_mall_id)
             const jsonData = JSON.parse(res)
-            element.country = this.$options.filters.chineseSite(element.country)
+            element.country = countriesObj[element.country]
             element.mall_datas = JSON.parse(element.mall_datas)
             element.available_amount = element.available_amount ? parseInt(element.available_amount) : 0
             element.lastmonth_amount = element.lastmonth_amount ? parseInt(element.lastmonth_amount) : 0
@@ -366,10 +362,52 @@ export default {
       }
     },
     // 导出excel
-    async exportSearch(data) {
-      const jsonData = data
+    async exportSearch() {
+      this.isLoading = true
+      const exportData = []
+      const len = this.total % 700 === 0 ? (this.total / 700) : (Math.floor(this.total / 700) + 1)
+      const shopSelectVal = this.form.shopSelectVal.trim()
+      for (let index = 1; index <= len; index++) {
+        const parmas = {
+          country: this.form.site,
+          groupId: this.form.groupId,
+          mallName: this.form.shopSelect === '0' ? shopSelectVal : '',
+          mallId: this.form.shopSelect === '1' ? shopSelectVal : '',
+          mallAliasName: this.form.shopSelect === '2' ? shopSelectVal : '',
+          page: index
+        }
+        try {
+          const { data } = await this.$api.getMallStatistics(parmas)
+          if (data.code === 200) {
+            const resData = data.data.data
+            if (resData) {
+              for (let index = 0; index < resData.length; index++) {
+                const element = resData[index]
+                const res = await this.$appConfig.getGlobalCacheInfo('mallInfo', element.platform_mall_id)
+                const jsonData = JSON.parse(res)
+                element.country = countriesObj[element.country]
+                element.mall_datas = JSON.parse(element.mall_datas)
+                element.not_order_time = element.recent_order_create_time ? this.formatDay(element.recent_order_create_time) : '无订单记录'
+                element.group_name = jsonData.GroupName
+              }
+            }
+            resData.forEach(item => {
+              exportData.push(item)
+            })
+          } else {
+            this.$message.error(`${data.message}`)
+            this.isLoading = false
+          }
+        } catch (error) {
+          console.log(error)
+          this.isLoading = false
+        }
+      }
+      const jsonData = exportData
       if (!jsonData?.length) {
-        return this.$message('暂无导出数据')
+        this.isLoading = false
+        this.$message('暂无导出数据')
+        return
       }
       let str =
         `<tr>
@@ -465,6 +503,7 @@ export default {
         </tr>`
       })
       exportExcelDataCommon('店铺数据', str)
+      this.isLoading = false
     },
     getGroupId(data) {
       this.form.groupId = data

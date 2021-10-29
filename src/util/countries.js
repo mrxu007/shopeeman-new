@@ -18,4 +18,14 @@ const countriesObj = {
   'ID': '印尼站',
   'BR': '巴西站'
 }
-export { countries, countriesObj }
+const siteObj = {
+  '马来站': 'MY',
+  '台湾站': 'TW',
+  '新加坡站': 'SG',
+  '菲律宾站': 'PH',
+  '泰国站': 'TH',
+  '越南站': 'VN',
+  '印尼站': 'ID',
+  '巴西站': 'BR'
+}
+export { countries, countriesObj, siteObj }

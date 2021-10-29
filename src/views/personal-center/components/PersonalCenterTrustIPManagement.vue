@@ -72,7 +72,7 @@
         <div class="form-content">
           <el-form label-position="right" label-width="80px">
             <el-form-item label="当前IP:">
-              <el-input v-model="currentIp" size="mini" placeholder="请输入IP" />
+              <el-input v-model="currentIp" size="mini" placeholder="请输入IP" clearable />
             </el-form-item>
             <el-form-item label="备注:">
               <el-input v-model="remark" type="textarea" :rows="2" placeholder="请输入内容" />
@@ -158,7 +158,7 @@ export default {
     async getIPTrustList() {
       this.isloading = true
       const params = {
-        ip: this.ipVal
+        ip: this.ipVal.trim()
       }
       const { data } = await this.$api.getIPTrustList(params)
       console.log('tableData', data)
@@ -185,7 +185,7 @@ export default {
     },
     // 保存配置
     async saveConfigure() {
-      if (this.trustIpCount === '') {
+      if (!this.trustIpCount.trim()) {
         this.$message(`信任IP数不能为空`)
         return
       }
@@ -195,7 +195,7 @@ export default {
       }
       const params = {
         isOpenIpCheck: this.isOpenIpCheck, // 是否开启信任IP管理：1是;0不是
-        trustIpCount: this.trustIpCount
+        trustIpCount: this.trustIpCount.trim()
       }
       const { data } = await this.$api.setIpCheck(params)
       if (data.code === 200) {
@@ -224,14 +224,14 @@ export default {
     },
     // 更新信任IP
     async editTruestIp() {
-      if (this.currentIp === '') {
+      if (!this.currentIp.trim()) {
         this.$message(`请输入IP地址`)
         return
       }
       const params = {
         id: this.ipId, // 自增ID，不传则为新增,传值则为更新
-        ip: this.currentIp,
-        remark: this.remark
+        ip: this.currentIp.trim(),
+        remark: this.remark.trim()
       }
       const { data } = await this.$api.updateTrustedIP(params)
       if (data.code === 200) {
