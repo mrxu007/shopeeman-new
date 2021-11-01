@@ -1,11 +1,3 @@
-/*
- * @Author: your name
- * @Date: 2021-10-22 20:47:53
- * @LastEditTime: 2021-10-26 10:51:03
- * @LastEditors: Please set LastEditors
- * @Description: In User Settings Edit
- * @FilePath: \shopeeman-new\src\services\shopeeman-service.js
- */
 export default class NetMessageBridgeService {
   NetMessageBridgeService() {
     return window['NetMessageBridgeService']
@@ -16,6 +8,12 @@ export default class NetMessageBridgeService {
       mallId: data.mallId || data.platform_mall_id || data.shop_id,
       isEmoticons: false
     }
+  }
+  async getUrlPrefix(country) {
+    const response = await window['ConfigBridgeService'].getUserConfig()
+    const data = JSON.parse(response)
+    const dominType = data.SwitchDominTypeSetting === 'Local'
+    return dominType && this.site_domain_chinese_bk[country] || this.site_domain_local_bk[country]
   }
 
   // 大陆后台
@@ -55,41 +53,54 @@ export default class NetMessageBridgeService {
    * @param data  参数
    * @param options 头部
    */
-  getChinese(country, api, data, options = {}) {
-    const url = this.site_domain_chinese_bk[country] + api
-    options['extrainfo'] = this.getExtraInfo(data)
-    options['params'] = data
-    console.log(url, JSON.stringify(options))
-    return this.NetMessageBridgeService().get(url, JSON.stringify(options))
-  }
-
-  getLocal(country, api, data, options = {}) {
-    const url = this.site_domain_local_bk[country] + api
+  async getChinese(country, api, data, options = {}) {
+    const url = await this.getUrlPrefix(country) + api
     options['extrainfo'] = this.getExtraInfo(data)
     options['params'] = data
     return this.NetMessageBridgeService().get(url, JSON.stringify(options))
   }
 
-  postChinese(country, api, data, options = {}) {
-    const url = this.site_domain_chinese_bk[country] + api
+  async postChinese(country, api, data, options = {}) {
+    const url = await this.getUrlPrefix(country) + api
     options['extrainfo'] = this.getExtraInfo(data)
-    console.log(url, JSON.stringify(options), JSON.stringify(data))
-    return this.NetMessageBridgeService().post(url, JSON.stringify(options), JSON.stringify(data))
+    options['params'] = data
+    return this.NetMessageBridgeService().get(url, JSON.stringify(options))
+    let param = data
+    if (data.isString) {
+      param = data.isString
+    }
+    return this.NetMessageBridgeService().post(url, JSON.stringify(options), JSON.stringify(param))
   }
 
-  postLocal(country, api, data, options = {}) {
-    const url = this.site_domain_local_bk[country] + api
+  async putChinese(country, api, data, options = {}) {
+    const url = await this.getUrlPrefix(country) + api
     options['extrainfo'] = this.getExtraInfo(data)
     return this.NetMessageBridgeService().post(url, JSON.stringify(options), JSON.stringify(data))
+
+    const referer = options['headers'] && options['headers'].referer
+    if (referer) {
+      options['headers'] = Object.assign(options['headers'],
+        {
+          origin: url,
+          referer: url + referer
+        })
+    }
+    return this.NetMessageBridgeService().put(url, JSON.stringify(options), JSON.stringify(data))
   }
 
-  // 获取离线回复数据
-  scOfflineReply(country, data) {
-    return this.getChinese(country, '/webchat/api/workbenchapi/v1.2/sc/offline_reply', data)
-  }
-  // 获取自动回复数据
-  scChatSetting(country, data) {
-    return this.getChinese(country, '/webchat/api/workbenchapi/v1.2/sc/chat_setting', data)
+  async deleteChinese(country, api, data, options = {}) {
+    const url = await this.getUrlPrefix(country) + api
+    options['extrainfo'] = this.getExtraInfo(data)
+    return this.NetMessageBridgeService().post(url, JSON.stringify(options), JSON.stringify(data))
+    const referer = options['headers'] && options['headers'].referer
+    if (referer) {
+      options['headers'] = Object.assign(options['headers'],
+        {
+          origin: url,
+          referer: url + referer
+        })
+    }
+    return this.NetMessageBridgeService().delete(url, JSON.stringify(options), JSON.stringify(data))
   }
 
   // 手机号是否符合各个国家的手机号
@@ -240,4 +251,96 @@ export default class NetMessageBridgeService {
       return { code: -2, data: `login-catch: ${e}` }
     }
   }
+
+  // 获取自动回复数据
+  scChatSetting(country, data) {
+    return this.getChinese(country, '/webchat/api/workbenchapi/v1.2/sc/chat_setting', data)
+  }
+
+  // 设置自动回复数据
+  setChatSetting(country, data) {
+    const options = {
+      headers: {
+        'Content-Type': 'application/json;charset=UTF-8'
+      }
+    }
+    return this.putChinese(country, '/webchat/api/workbenchapi/v1.2/sc/chat_setting', data, options)
+  }
+
+  // 获取离线回复数据
+  scOfflineReply(country, data) {
+    return this.getChinese(country, '/webchat/api/workbenchapi/v1.2/sc/offline_reply', data)
+  }
+
+  // 设置离线回复数据
+  setOfflineReply(country, data, options = {}) {
+    options.headers = Object.assign(options.headers, {
+      'Content-Type': 'application/json;charset=UTF-8'
+    })
+
+    return this.putChinese(country, '/webchat/api/workbenchapi/v1.2/sc/offline_reply', data, options)
+  }
+
+  // 获取快捷消息
+  messageShortcutsGroups(country, data) {
+    return this.getChinese(country, '/webchat/api/workbenchapi/v1.2/sc/message_shortcuts/groups', data)
+  }
+
+  // 设置快捷消息
+  setShortcutsGroups(country, data) {
+    return this.postChinese(country, '/webchat/api/workbenchapi/v1.2/sc/message_shortcuts/group', data)
+  }
+
+  // 开关快捷消息
+  switchMessageShortcutsGroups(country, data) {
+    const url = '/webchat/api/workbenchapi/v1.2/sc/message_shortcuts/group/' + data.id
+    return this.putChinese(country, url, data)
+  }
+
+  // 删除快捷消息
+  deleteMessageShortcutsGroups(country, data, options = {}) {
+    const url = '/webchat/api/workbenchapi/v1.2/sc/message_shortcuts/group/' + data.id
+    return this.deleteChinese(country, url, data, options)
+  }
+
+  // 获取问题问候语
+  scFaqs(country, data) {
+    return this.getChinese(country, '/webchat/api/workbenchapi/v1.2/sc/faqs', data)
+  }
+
+  // 设置问题问候语
+  faqsShopSettings(country, data) {
+    return this.putChinese(country, '/webchat/api/workbenchapi/v1.2/sc/faqs/shop/settings', data)
+  }
+
+  // 提交问题问候语
+  updateFaqsShopSettings(country, data) {
+    return this.postChinese(country, '/webchat/api/workbenchapi/v1.2/sc/faqs/shop/settings', data)
+  }
+
+  // 删除问题问候语
+  deleteFaqsShopSettings(country, data) {
+    return this.deleteChinese(country, '/webchat/api/workbenchapi/v1.2/sc/faqs/shop/settings', data)
+  }
+
+  // 获取银行卡信息
+  getBankAccounts(country, data, option) {
+    return this.postChinese(country, '/api/v3/finance/get_bank_accounts/', data, option)
+  }
+
+  // 获取银行卡详细信息
+  getWalletTransactions(country, data, option) {
+    return this.getChinese(country, '/api/v3/finance/get_wallet_transactions/', data, option)
+  }
+
+  // 获取银行卡金额
+  getWalletStatus(country, data, option) {
+    return this.getChinese(country, '/api/v3/finance/get_wallet_status', data, option)
+  }
+
+  // 提取金额
+  // getBankAccounts(country, data,option) {
+  //   return this.postChinese(country, '/api/v3/finance/get_bank_accounts/', data,option)
+  // }
 }
+
