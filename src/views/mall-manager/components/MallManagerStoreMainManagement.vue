@@ -33,7 +33,7 @@
 
       <div class="condition_item">
         <span>IP区域：</span>
-        <el-input v-model="query.ip_address" clearable size="mini" style="width:180px" />
+        <el-input v-model="query.ip_address" clearable size="mini" style="width:200px" />
       </div>
 
       <div class="condition_item">
@@ -52,7 +52,7 @@
 
       <div class="condition_item">
         <span>主体名称：</span>
-        <el-input v-model="query.ip_alias" clearable placeholder="主体名称" size="mini" style="width:180px" />
+        <el-input v-model="query.ip_alias" clearable placeholder="主体名称" size="mini" style="width:200px" />
       </div>
 
       <div class="condition_item">
@@ -107,7 +107,7 @@
           <!-- <el-table-column prop="" label="是否预售IP" align="center" /> -->
           <el-table-column prop="status" label="状态" align="center" min-width="150px" />
           <el-table-column prop="expiration_time" label="有效日期" align="center" min-width="200px" />
-          <el-table-column prop="" label="绑定店铺" align="center" min-width="100px">
+          <el-table-column prop="mall_alias_name" label="绑定店铺" align="center" min-width="100px">
             <template slot-scope="{ row }">
               <!-- 临时取id -->
               {{ row.target_mall_info && row.target_mall_info.mall_id }}
@@ -492,6 +492,8 @@
 </template>
 <script>
 import storeChoose from '../../../components/store-choose'
+// import { getValue } from '../../utils/utils'
+// import { getMalls } from '../../utils/index'
 import { encryptionList, ipTypeList, protocolList, confuseList } from '../../../util/MallManagerStoredata'
 export default {
   components: { storeChoose },
@@ -534,58 +536,8 @@ export default {
       Typeis: '',
       mulSelect: [],
       dialogvisible: false,
-      // encryptionList: [
-      //   {
-      //     label: 'rc4-md5',
-      //     value: 'rc4-md5'
-      //   },
-      //   {
-      //     label: 'aes-128-ctr',
-      //     value: 'aes-128-ctr'
-      //   },
-      //   {
-      //     label: 'aes-192-ctr',
-      //     value: 'aes-192-ctr'
-      //   },
-      //   {
-      //     label: 'aes-256-ctr',
-      //     value: 'aes-256-ctr'
-      //   },
-      //   {
-      //     label: 'aes-128-cfb',
-      //     value: 'aes-128-cfb'
-      //   },
-      //   {
-      //     label: 'aes-192-cfb',
-      //     value: 'aes-192-cfb'
-      //   },
-      //   {
-      //     label: 'aes-256-cfb',
-      //     value: 'aes-256-cfb'
-      //   },
-      //   {
-      //     label: 'chacha20',
-      //     value: 'chacha20'
-      //   },
-      //   {
-      //     label: 'rc4',
-      //     value: 'rc4'
-      //   }
-      // ],
-      ipTypeList: [
-        {
-          value: '',
-          label: '无'
-        },
-        {
-          value: 'SSR',
-          label: 'SSR'
-        },
-        {
-          value: 'HTTP',
-          label: 'HTTP'
-        }
-      ],
+      encryptionList: encryptionList,
+      ipTypeList: ipTypeList,
       updata_Params: {
         uid: '', // 账号uid
         targetId: '', // 代理系统id
@@ -637,58 +589,38 @@ export default {
       //     value: 'rc4'
       //   }
       // ],
-      protocolList: [
-        {
-          label: 'auth_sha1_v4',
-          value: 'auth_sha1_v4'
-        },
-        {
-          label: 'auth_aes128_md5',
-          value: 'auth_aes128_md5'
-        },
-        {
-          label: 'auth_aes128_sha1',
-          value: 'auth_aes128_sha1'
-        },
-        {
-          label: 'auth_chain_a',
-          value: 'auth_chain_a'
-        },
-        {
-          label: 'auth_chain_b',
-          value: 'auth_chain_b'
-        },
-        {
-          label: 'auth_chain_c',
-          value: 'auth_chain_c'
-        },
-        {
-          label: 'auth_chain_d',
-          value: 'auth_chain_d'
-        }
-      ],
-      confuseList: [
-        {
-          label: 'http_simple',
-          value: 'http_simple'
-        },
-        {
-          label: 'http_post',
-          value: 'http_post'
-        },
-        {
-          label: 'random_head',
-          value: 'random_head'
-        },
-        {
-          label: 'tls1.2_ticket_auth',
-          value: 'tls1.2_ticket_auth'
-        },
-        {
-          label: 'tls1.2_ticket_fastauth',
-          value: 'tls1.2_ticket_fastauth'
-        }
-      ],
+      // protocolList: [
+      //   {
+      //     label: 'auth_sha1_v4',
+      //     value: 'auth_sha1_v4'
+      //   },
+      //   {
+      //     label: 'auth_aes128_md5',
+      //     value: 'auth_aes128_md5'
+      //   },
+      //   {
+      //     label: 'auth_aes128_sha1',
+      //     value: 'auth_aes128_sha1'
+      //   },
+      //   {
+      //     label: 'auth_chain_a',
+      //     value: 'auth_chain_a'
+      //   },
+      //   {
+      //     label: 'auth_chain_b',
+      //     value: 'auth_chain_b'
+      //   },
+      //   {
+      //     label: 'auth_chain_c',
+      //     value: 'auth_chain_c'
+      //   },
+      //   {
+      //     label: 'auth_chain_d',
+      //     value: 'auth_chain_d'
+      //   }
+      // ],
+      protocolList: protocolList,
+      confuseList: confuseList,
       query_person: {
         username: '', // 用户名
         password: '', // 密码
@@ -750,7 +682,8 @@ export default {
         }
       },
       showRMB: true,
-      showLog: true
+      showLog: true,
+      shopAccountList: []
     }
   },
   created() {
@@ -758,8 +691,14 @@ export default {
     this.getTableList()// tableList
     this.GetCloudIPAreaList()// 获取IP区域列表
     this.getMallList()// 初始化店铺列表
+    // this.getInfo() // 获取店铺信息
   },
   methods: {
+    // async getInfo() {
+    //   getMalls().then(res => {
+    //     this.shopAccountList = res
+    //   })
+    // },
     // 展示修改绑定店铺弹窗
     showupdateVisible(val) {
       this.showButton = true
@@ -919,16 +858,27 @@ export default {
     // 续费一个月
     async timeToMonth(period) {
       // period=1 一个月 2一季度
+      console.log('xufei', this.mulSelect)
       if (this.mulSelect.length <= 0) {
         this.$message.warning('请选择要续费的主体')
       } else {
         const userInfo = await this.$appConfig.getUserInfo()
-        const targetId = this.mulSelect.toString()
+        var list = []
+        this.mulSelect.forEach(item => {
+          if (item.target_mall_info != null) {
+            list.push(item.target_mall_info[0].ip_target_id)
+            console.log('2222', item.target_mall_info)
+          } else {
+            this.$message.error('续费ip信息有误')
+          }
+        })
+        const targetId = list.toString() || ''
         const uid = String(userInfo.muid)
         const uuid = '0'
         const data = await this.$YipService.RenewIP(targetId, uid, uuid, String(period))
-
-        this.$message.error(JSON.parse(data).message)
+        console.log('------', list, data)
+        // this.$message.error(JSON.parse(data).message)
+        this.$message.error(data)
         // 清空多选
         this.$refs.multipleTable.clearSelection()
       }
@@ -1011,10 +961,10 @@ export default {
 
     // 多选
     handleSelectionChange(val) {
-      this.mulSelect = []
-      val.forEach(e => {
-        this.mulSelect.push(e.uid)
-      })
+      this.mulSelect = val
+      // val.forEach(e => {
+      //   this.mulSelect.push(e.uid)
+      // })
 
       // 获取参数
     },
@@ -1027,7 +977,7 @@ export default {
       this.region_ipList = []
       resMsg.data.forEach(item => {
         item.area_list.forEach(e => {
-          //  e.channel_list[0].lineid   路线id
+          //  e.channel_list[0].lineid  路线id
           //  e.name  区域名
           this.region_ipList.push({ id: e.channel_list[0].lineid, value: e.name })
         })
@@ -1065,10 +1015,11 @@ export default {
             const data_ipinfor = JSON.parse(res)
             item.poxyID = data_ipinfor.id
             item.poxyIP = data_ipinfor.map_ip_address
-            console.log('ip解析', data_ipinfor)
+            // console.log('ip解析', data_ipinfor)
+            // item.mall_alias_name = getValue(this.shopAccountList, 'label', 'id', item.target_mall_info.mall_id) //店铺解析
           })
           this.tableList.push(item)
-          console.log('tableList', this.tableList)
+          // console.log('tableList', this.tableList)
         })
         this.chang()
       } else {
