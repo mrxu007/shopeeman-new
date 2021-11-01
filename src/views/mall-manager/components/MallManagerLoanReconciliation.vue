@@ -70,8 +70,8 @@
           v-model="cloumn_date"
           size="mini"
           style="width: 310px"
-          type="datetimerange"
-          value-format="yyyy-MM-dd HH:mm:ss"
+          type="daterange"
+          value-format="yyyy-MM-dd"
           range-separator="-"
           :picker-options="pickerOptions"
           start-placeholder="开始日期"
@@ -104,31 +104,21 @@
           <el-checkbox v-model="showConsole"> 隐藏日志</el-checkbox>
         </div>
       </div>
-
       <div class="condition_item">
-        <el-button
-          size="mini"
-          type="primary"
-          @click="
-            uploadVisible = true
-            cancelActive = false
-          "
-          >同步数据</el-button
-        >
+        <el-button size="mini" type="primary" @click="search">搜索</el-button>
+        <el-button  size="mini"  type="primary" @click=" updataMall();cancelActive = false">同步数据</el-button>
         <el-button size="mini" type="primary" @click="cancelActive = true">取消同步</el-button>
         <el-button size="mini" type="primary" @click="clearLog">清空日志</el-button>
         <el-button size="mini" type="primary" @click="export_table((query.page = 1)), (exportList = [])">导出</el-button>
-        <el-button size="mini" type="primary" @click="search">搜索</el-button>
       </div>
     </div>
-
     <div class="table_clo">
       <div class="data_table" style="height: 100%; background-color: white">
         <el-table height="calc(100vh - 281px)" :data="tableList" :row-style="{ height: '50px' }" style="width: 100%; height: calc(100vh - 260px)" :header-cell-style="{ background: '#f7fafa' }">
           <el-table-column label="序号" type="index" />
           <el-table-column prop="country" label="站点" align="center" />
           <el-table-column prop="platform_mall_name" label="店铺名称" align="center" />
-          <el-table-column prop="order_sn" label="订单编号" align="center" />
+          <el-table-column prop="order_id" label="订单编号" align="center" />
           <el-table-column prop="" label="状态" align="center">
             <template slot-scope="{ row }">{{ Number(row.status) === 1 ? '已拨款 ' : '即将拨款' }}</template>
           </el-table-column>
@@ -155,27 +145,6 @@
       </div>
     </div>
     <Logs ref="Logs" clear v-model="showConsole" />
-    <el-dialog title="同步数据" :visible.sync="uploadVisible" width="30%">
-      <div class="upload-dialog">
-        <el-select v-model="uploadType" placeholder="请选择" size="mini" style="margin: 10px 0">
-          <el-option label="全部" :value="99"> </el-option>
-          <el-option label="已拨款" :value="0"> </el-option>
-          <el-option label="即将拨款" :value="2"> </el-option>
-        </el-select>
-        <el-date-picker
-          v-model="uplaodDate"
-          size="mini"
-          style="width: 310px"
-          type="datetimerange"
-          value-format="yyyy-MM-dd"
-          range-separator="-"
-          :picker-options="pickerOptions"
-          start-placeholder="开始日期"
-          end-placeholder="结束日期"
-        />
-        <el-button type="primary" size="mini" class="btn" @click="updataMall" style="margin-left: 10px">确定</el-button>
-      </div>
-    </el-dialog>
   </div>
 </template>
 <script>
@@ -233,9 +202,6 @@ export default {
       showConsole: true,
       selectMallList: [],
       mallPageSize: 50,
-      uploadVisible: false,
-      uploadType: 99,
-      uplaodDate: [],
       cancelActive: false,
     }
   },
@@ -244,9 +210,6 @@ export default {
     this.getTableList() // 初始化table
     // this.getMallSite()// 初始化站点
     this.exchangeRateList() // 获取汇率
-    let end = new Date().getTime()
-    let start = end - 3 * 24 * 60 * 60 * 1000
-    this.uplaodDate = [this.$dayjs(start).format('YYYY-MM-DD'), this.$dayjs(end).format('YYYY-MM-DD')]
   },
   methods: {
     clearLog() {
@@ -261,7 +224,8 @@ export default {
     },
     // 同步信息
     async updataMall() {
-      this.uploadVisible = false
+      console.log("regd")
+      // this.uploadVisible = false
       this.showConsole = false
       this.$refs.Logs.consoleMsg = ''
       this.$refs.Logs.writeLog(`开始同步`, true)
@@ -277,11 +241,14 @@ export default {
           let mall = this.selectMallList[i]
           let pageNumber = 1
           this.$refs.Logs.writeLog(`开始同步店铺【${mall.platform_mall_name}】对账信息`, true)
-          if (this.uploadType === 99) {
+          if (this.query.status === '') {
             await this.searchSingleMall(pageNumber, mall, 0)
             await this.searchSingleMall(pageNumber, mall, 2)
-          } else {
-            await this.searchSingleMall(pageNumber, mall, this.uploadType)
+          } else if(this.query.status === '1'){
+              await this.searchSingleMall(pageNumber, mall, 0)
+          }
+          else if(this.query.status === '2'){
+            await this.searchSingleMall(pageNumber, mall, 2)
           }
         }
       } catch (error) {
@@ -302,13 +269,14 @@ export default {
         // end_date: '',
       }
       if (type === 0) {
-        params['start_date'] = this.uplaodDate[0]
-        params['end_date'] = this.uplaodDate[1]
+        params['start_date'] = this.cloumn_date[0]
+        params['end_date'] = this.cloumn_date[1]
       }
       let res = await this.$shopeemanService.getIncomeTransaction(mall.country, params)
       let resObj = res && JSON.parse(res)
       if (resObj && resObj.status !== 200) {
-        this.$refs.Logs.writeLog(`店铺【${mall.platform_mall_name}】请检查店铺是否登录！`, false)
+        console.log(this.query.status)
+        if( this.query.status!=='' || type!==2) {this.$refs.Logs.writeLog(`店铺【${mall.platform_mall_name}】请检查店铺是否登录！`, false)}
       } else {
         let data = JSON.parse(resObj.data)
         console.log(data, 'searchSingleMall')
@@ -323,14 +291,14 @@ export default {
                 bill_num: item.id + '',
                 amount: item.amount + '',
                 using_wallet: item.using_wallet ? '1' : '0',
-                release_time: this.$dayjs(item.release_time*1000).format('YYYY-MM-DD HH:mm:ss'),
+                release_time: this.$dayjs(item.release_time).format('YYYY-MM-DD HH:mm:ss'),
               }
               let index = dataArr.filter((i) => i.bill_num === params.bill_num)[0] || ''
               index && count--
               !index && dataArr.push(params)
               // !index && this.UploadRecordData(mall.platform_mall_id,item)
             })
-          count && this.$refs.Logs.writeLog(`同步店铺【${mall.platform_mall_name}】第【${++page}】页店铺评价数据【${count}】条`, true)
+          count && this.$refs.Logs.writeLog(`同步店铺【${mall.platform_mall_name}】【${type===0?'已拨款':'即将拨款'}】第【${++page}】页店铺评价数据【${count}】条`, true)
           if (dataArr.length < data.data.page_info.total && data.data.list.length >= this.mallPageSize) {
             pageNumber++
             this.searchSingleMall(pageNumber, mall, dataArr, page)
@@ -448,7 +416,7 @@ export default {
               <td>${index + 1}</td>
               <td>${item.country ? item.country : '-' + '\t'}</td>
               <td>${item.platform_mall_name ? item.platform_mall_name : '-' + '\t'}</td>
-              <td>${item.order_sn ? item.order_sn : '-' + '\t'}</td>
+              <td>${item.order_id ? item.order_id : '-' + '\t'}</td>
               <td>${item.status && Number(item.status) === 1 ? '已拨款' : '即将拨款' + '\t'}</td>
               <td>${item.bill_num ? item.bill_num : '-' + '\t'}</td>
               <td>${item.appropriate_amount ? item.appropriate_amount : '-' + '\t'}</td>
@@ -491,11 +459,25 @@ export default {
         console.log('error', data)
       }
     },
+    // 日期选择器时间处理
+    setDateFmt(data) {
+      data[0] = data[0] + ' 00:00:00'
+      data[1] = data[1] + ' 23:59:59'
+      return data
+    },
     // 搜索
     search() {
       const params = this.query
-      params.sysMallId = this.query.sysMallId.toString() || ''
-      params.appropriateTime = this.cloumn_date && this.cloumn_date.length >= 0 ? this.cloumn_date.join('/').toString() : ''
+      let sysMallId = ''
+      this.selectMallList.forEach((item,index)=>{
+        if(index===0){
+          sysMallId = item.id
+        }else{
+          sysMallId = sysMallId + ',' + item.id
+        }
+      })
+      params.sysMallId = sysMallId || ''
+      params.appropriateTime =  this.cloumn_date.length >= 0 ? this.setDateFmt(this.cloumn_date).join('/') : ''
       this.getTableList(params)
     },
     // 初始化tableList
@@ -503,8 +485,8 @@ export default {
       const data = await this.$api.getPaymentList(params)
       if (data.data.code === 200) {
         this.tableList = data.data.data.data
-        this.query.page = data.data.data.last_page
-        this.query.pageSize = data.data.data.per_page
+        // this.query.page = data.data.data.last_page
+        // this.query.pageSize = data.data.data.per_page
         this.total = data.data.data.total
         this.to_back_amount = data.data.data.to_back_amount
         this.haved_amount = data.data.data.haved_amount
@@ -515,17 +497,22 @@ export default {
     },
     // 初始化时间
     initDate() {
-      const d = new Date()
-      const d1 = d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate() + ' 23:59:59'
-      const d2 = d.getFullYear() + '-' + d.getMonth() + '-' + d.getDate() + ' 23:59:59'
-      this.cloumn_date = [d2, d1]
-      this.cloumn_date && this.cloumn_date.length > 0 ? this.cloumn_date.join('/').toString() : ''
+      let end = new Date().getTime()
+      let start = end - 31 * 24 * 60 * 60 * 1000
+      this.cloumn_date = [this.$dayjs(start).format('YYYY-MM-DD'), this.$dayjs(end).format('YYYY-MM-DD')]
+      // const d = new Date()
+      // const d1 = d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate() 
+      // const d2 = d.getFullYear() + '-' + d.getMonth() + '-' + d.getDate() 
+      // this.cloumn_date = [d2, d1]
+      // this.cloumn_date && this.cloumn_date.length > 0 ? this.cloumn_date.join('/').toString() : ''
     },
     handleSizeChange(val) {
       this.query.pageSize = val
+      this.search()
     },
     handleCurrentChange(val) {
       this.query.page = val
+      this.search()
     },
   },
 }
