@@ -1,5 +1,5 @@
 <template>
-  <div class="content">
+  <div v-loading="loading" class="content">
     <div class="all_condition">
       <div class="condition_item">
         <storeChoose @changeMallList="changeMallList" />
@@ -113,11 +113,12 @@
               {{ row.target_mall_info && row.target_mall_info.mall_id }}
             </template>
           </el-table-column>
-          <el-table-column prop="" label="操作" align="center" min-width="250px" fixed="right">
+          <el-table-column prop="" label="操作" align="center" min-width="330px" fixed="right">
             <template slot-scope="{ row }">
               <div>
                 <el-button size="mini" type="primary" @click="openSoft(row.poxyIP,row.poxyID)">打开代理浏览器</el-button>
                 <el-button size="mini" type="primary" @click="showupdateVisible(row.id)">修改绑定店铺</el-button>
+                <el-button size="mini" type="primary" @click="delInfor(row.id)">删除</el-button>
               <!-- <el-button size="mini" type="primary" @click="del(row.uid)">删除</el-button> -->
               </div>
             </template>
@@ -141,11 +142,13 @@
     <!-- dialog 新增公司主体-->
     <div class="dialog_addip">
       <el-dialog
+        v-loading="loading"
         :title="dialog_title"
         :visible.sync="dialogvisible"
         width="1200px"
         height="600px"
         top="2vh"
+        @closed="closeDialog1"
       >
         <div class="left">
           <!-- 修改绑定店铺信息 -->
@@ -518,6 +521,7 @@ export default {
       }
     }
     return {
+      loading: false,
       showButton: false,
       targetId: '', // 修改店铺绑定仓库id
       dialog_selectMallList: [], // dialog表格多选
@@ -694,6 +698,64 @@ export default {
     // this.getInfo() // 获取店铺信息
   },
   methods: {
+    // 关闭弹窗清除
+    closeDialog1() {
+      this.query_person = {
+        username: '', // 用户名
+        password: '', // 密码
+        ip_address: '', // IP地址
+        ip_port: '', //	端口号
+        ip_alias: '', // IP别名（主体名称）
+        ip_agency: '', // 代理方式
+        encryption: '', // 加密方式
+        protocol: '', // 协议类型
+        confuse: '', // 混淆方式
+        uid: '', // 用户主账号ID
+        uuid: '', // 用户子账号ID
+        channel_code: '', // 渠道代号
+        channel_name: '', // 渠道名称
+        region_name: '', //	区域名
+        area_name: '', // 地区名
+        parameter: '', // 协议参数
+        argument: '', // 混淆参数
+        map_ip_address: '', // 代理IP
+        map_ip_port: '' // 代理端口
+      }
+      this.ipMaster_params = {
+        lineId: '', // 线路ID
+        uid: '', // 主账号ID
+        uuid: '', // 子账号ID
+        ipAlias: '', // 主体名称）（默认IP）
+        num: '1', // 购买数量 默认1
+        period: '', // 购买时长
+        isPresale: ''// 是否预售
+      }
+      this.showUserIP = false
+      this.$refs.multipleTable_dialog.clearSelection()
+    },
+    // 删除
+    async delInfor(val) {
+      const targetId = val.toString()
+      const res = await this.$YipService.delInfor(targetId)
+      this.loading = true
+      const data = JSON.parse(res)
+      if (data.code === -1) {
+        this.loading = false
+        this.$notify({
+          title: '删除',
+          type: 'error',
+          message: data.message
+        })
+      } else {
+        this.loading = false
+        this.$notify({
+          title: '删除',
+          type: 'success',
+          message: '删除成功'
+        })
+      }
+      this.getTableList()
+    },
     // async getInfo() {
     //   getMalls().then(res => {
     //     this.shopAccountList = res
@@ -823,15 +885,18 @@ export default {
         this.query_person.ip_alias = ipAlias
         this.query_person.uuid = 0
         // 新增
+        this.loading = true
         const res = await this.$YipService.AddSelfIP(JSON.stringify(this.query_person))
         const resMsg = JSON.parse(res)
         if (resMsg.code !== 200) {
+          this.loading = false
           this.$notify({
             title: '新增自有IP公司主体',
             type: 'error',
             message: resMsg.message
           })
         } else {
+          this.loading = false
           this.$notify({
             title: '新增自有IP公司主体',
             type: 'success',
@@ -911,7 +976,8 @@ export default {
         this.$message.warning('主体名称不能为空！')
         return false
       }
-      this.$message.warning('数据请求中.......')
+      // this.$message.warning('数据请求中.......')
+      this.loading = true
       const userInfo = await this.$appConfig.getUserInfo()
       this.ipMaster_params.uid = userInfo.muid
       this.ipMaster_params.uuid = 0
@@ -919,13 +985,16 @@ export default {
       console.log('************', this.ipMaster_params)
       const data = await this.$commodityService.addIPMaster(params)
       const resMsg = JSON.parse(data)
-      if (resMsg.code !== 200) {
+      console.log('add', resMsg)
+      if (resMsg.code === -1) {
+        this.loading = false
         this.$notify({
           title: '新增公司主体',
           type: 'error',
           message: resMsg.message
         })
       } else {
+        this.loading = false
         this.$notify({
           title: '新增公司主体',
           type: 'success',
@@ -1006,9 +1075,11 @@ export default {
       params.ip_id = ''
       params.statius = this.query.statius
       const res = await this.$YipService.GetIpList(JSON.stringify(params))
+      this.loading = true
       const data = JSON.parse(res)
       this.tableList = []
       if (data.code === 200 && data.data.length > 0) {
+        this.loading = false
         // 解析ip
         data.data.forEach(item => {
           this.$YipService.GetIPinfor(item.ip_info).then(res => {
@@ -1023,6 +1094,7 @@ export default {
         })
         this.chang()
       } else {
+        this.loading = true
         this.$message.warning('信息获取失败')
       }
     },

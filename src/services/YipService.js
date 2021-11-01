@@ -2,6 +2,12 @@ export default class YipService {
   nativeService() {
     return window['CommodityBridgeService']
   }
+  // 删除
+  // targetId
+  delInfor(targetId) {
+    return this.nativeService().callCloudIpFunction('DeleteSelfIP', targetId)
+  }
+
   /**
        *  ip信息解密
        * @name : GetIPinfor
