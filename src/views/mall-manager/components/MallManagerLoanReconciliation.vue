@@ -226,12 +226,12 @@ export default {
     async updataMall() {
       console.log("regd")
       // this.uploadVisible = false
-      this.showConsole = false
-      this.$refs.Logs.consoleMsg = ''
-      this.$refs.Logs.writeLog(`开始同步`, true)
       if (!this.selectMallList.length) {
         this.$message.warning('请选择要同步的店铺！')
       }
+      this.showConsole = false
+      this.$refs.Logs.consoleMsg = ''
+      this.$refs.Logs.writeLog(`开始同步`, true)
       try {
         for (let i = 0; i < this.selectMallList.length; i++) {
           if (this.cancelActive) {
@@ -459,12 +459,6 @@ export default {
         console.log('error', data)
       }
     },
-    // 日期选择器时间处理
-    setDateFmt(data) {
-      data[0] = data[0] + ' 00:00:00'
-      data[1] = data[1] + ' 23:59:59'
-      return data
-    },
     // 搜索
     search() {
       const params = this.query
@@ -477,7 +471,7 @@ export default {
         }
       })
       params.sysMallId = sysMallId || ''
-      params.appropriateTime =  this.cloumn_date.length >= 0 ? this.setDateFmt(this.cloumn_date).join('/') : ''
+      params.appropriateTime =  this.cloumn_date.length >= 0 ? this.cloumn_date[0]+' 00:00:00/'+this.cloumn_date[1]+' 23:59:59' : ''
       this.getTableList(params)
     },
     // 初始化tableList
