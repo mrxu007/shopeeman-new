@@ -10,7 +10,8 @@
   <div class="catch-notice-style">
     <!--爆款选品 -->
     <main v-if="activeVal === '0'"><SmartHouseWorkBench /></main>
-     <!--自有仓库 -->
+    <main v-if="activeVal === '1'"><RefuseSign /></main>
+    <!--自有仓库 -->
     <main v-if="activeVal === '7'"><PrivateWarehouse /></main>
   </div>
 </template>
@@ -18,12 +19,14 @@
 <script>
 import {
   PrivateWarehouse,
-  SmartHouseWorkBench
+  SmartHouseWorkBench,
+  RefuseSign
 } from './index'
 export default {
   components: {
     PrivateWarehouse,
-    SmartHouseWorkBench
+    SmartHouseWorkBench,
+    RefuseSign
   },
   data() {
     return {

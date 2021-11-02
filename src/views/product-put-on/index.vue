@@ -7,7 +7,7 @@
  * @FilePath: \shopeeman-new\src\views\personal-center\index.vue
 -->
 <template>
-  <div class="catch-notice-style">
+  <div class="product-put-on-style">
     <!--爆款选品 -->
     <main v-if="activeVal === '0'"><ProductPutOnPopularSelection /></main>
 

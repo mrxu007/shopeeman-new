@@ -1,3 +1,5 @@
+import { sha256 } from 'js-sha256'
+import md5 from 'js-md5'
 export default class NetMessageBridgeService {
   NetMessageBridgeService() {
     return window['NetMessageBridgeService']
@@ -51,12 +53,20 @@ export default class NetMessageBridgeService {
    * @param country 站点
    * @param api api尾缀
    * @param data  参数
-   * @param options 头部
+   * @param options 头部 referer只需要添加尾缀
    */
   async getChinese(country, api, data, options = {}) {
     const url = await this.getUrlPrefix(country) + api
     options['extrainfo'] = this.getExtraInfo(data)
     options['params'] = data
+    const referer = options['headers'] && options['headers'].referer
+    if (referer) {
+      options['headers'] = Object.assign(options['headers'],
+        {
+          origin: url,
+          referer: url + referer
+        })
+    }
     return this.NetMessageBridgeService().get(url, JSON.stringify(options))
   }
 
@@ -64,19 +74,20 @@ export default class NetMessageBridgeService {
     const url = await this.getUrlPrefix(country) + api
     options['extrainfo'] = this.getExtraInfo(data)
     options['params'] = data
-    return this.NetMessageBridgeService().get(url, JSON.stringify(options))
-    let param = data
-    if (data.isString) {
-      param = data.isString
+    const referer = options['headers'] && options['headers'].referer
+    if (referer) {
+      options['headers'] = Object.assign(options['headers'],
+        {
+          origin: url,
+          referer: url + referer
+        })
     }
-    return this.NetMessageBridgeService().post(url, JSON.stringify(options), JSON.stringify(param))
+    return this.NetMessageBridgeService().post(url, JSON.stringify(options), JSON.stringify(data))
   }
 
   async putChinese(country, api, data, options = {}) {
     const url = await this.getUrlPrefix(country) + api
     options['extrainfo'] = this.getExtraInfo(data)
-    return this.NetMessageBridgeService().post(url, JSON.stringify(options), JSON.stringify(data))
-
     const referer = options['headers'] && options['headers'].referer
     if (referer) {
       options['headers'] = Object.assign(options['headers'],
@@ -91,7 +102,6 @@ export default class NetMessageBridgeService {
   async deleteChinese(country, api, data, options = {}) {
     const url = await this.getUrlPrefix(country) + api
     options['extrainfo'] = this.getExtraInfo(data)
-    return this.NetMessageBridgeService().post(url, JSON.stringify(options), JSON.stringify(data))
     const referer = options['headers'] && options['headers'].referer
     if (referer) {
       options['headers'] = Object.assign(options['headers'],
@@ -166,7 +176,6 @@ export default class NetMessageBridgeService {
       'MY': /^(\+?6?01){1}(([145]{1}(\-|\s)?\d{7,8})|([236789]{1}(\s|\-)?\d{7}))$/,
       'NO': /^(\+?47)?[49]\d{7}$/,
       'BE': /^(\+?32|0)4?\d{8}$/,
-      'NO': /^(\+?47)?[49]\d{7}$/,
       'PL': /^(\+?48)? ?[5-8]\d ?\d{3} ?\d{2} ?\d{2}$/,
       'BR': /^(\+?55|0)\-?[1-9]{2}\-?[2-9]{1}\d{3,4}\-?\d{4}$/,
       'PT': /^(\+?351)?9[1236]\d{7}$/,
@@ -179,13 +188,14 @@ export default class NetMessageBridgeService {
     }
     return reg[country]?.test(account)
   }
+
   // 获取店铺评价列表
   getShopEvaluateList(country, data) {
     return this.getChinese(country, '/api/v3/settings/search_shop_rating_comments', data)
   }
   // 回复商店评价
   replyShopRating(country, data) {
-    return this.postChinese(country, '/api/v3/settings/reply_shop_rating', data, { Headers: { 'Content-Type': ' application/json' }})
+    return this.postChinese(country, '/api/v3/settings/reply_shop_rating', data, { Headers: { 'Content-Type': ' application/json' } })
   }
   // 店铺提现记录
   getWithDrawalRecord(country, data) {
@@ -195,7 +205,10 @@ export default class NetMessageBridgeService {
   getBankAccount(country, data) {
     return this.getChinese(country, '/api/v3/finance/get_bank_account', data)
   }
-  // https://seller.th.shopee.cn/api/v3/settings/reply_shop_rating/?SPC_CDS=ce76cffe-61aa-4a77-a1c6-70d848438ba6&SPC_CDS_VER=2
+  // 获取货款对账list
+  getIncomeTransaction(country, data) {
+    return this.getChinese(country, '/api/v3/finance/income_transaction_histories', data)
+  }
   // 店铺登录
   async login(mallInfo, data) {
     const { country, mall_account_info } = mallInfo
@@ -215,35 +228,37 @@ export default class NetMessageBridgeService {
     } else {
       params['username'] = accountName
     }
-    // params['captcha'] = ''
-    // params['captchar_id'] = ''
-    // params['vcode'] = ''
+
     try {
       let res = await this.postChinese(country, '/api/v2/login', params)
       res = JSON.parse(res)
       if (res.status === 200) {
         const data = JSON.parse(res.data)
-        debugger
+        // { 官方返回字段
+        //   "username": "bibbyrunp1907",
+        //   "shopid": 227067897,
+        //   "phone": "*****85",
+        //   "sso": "In0lULeRz2sYMG8lNkcLSGn4QhD2anvuH06jYnQTe7bDLWRrJVFy8TTztxKww9oQcnJNtBqUlgzpWyHHpA4/R+QeKyiAm1tIjlgvil2pBQY9z1IGJGeEPRk2EISgfvJTuQUmneqRI9ysPS1binsuxfkEDa6aECOE1vuYKwJeqyM=",
+        //   "cs_token": "In0lULeRz2sYMG8lNkcLSGn4QhD2anvuH06jYnQTe7bDLWRrJVFy8TTztxKww9oQcnJNtBqUlgzpWyHHpA4/R+QeKyiAm1tIjlgvil2pBQY9z1IGJGeEPRk2EISgfvJTuQUmneqRI9ysPS1binsuxfkEDa6aECOE1vuYKwJeqyM=",
+        //   "portrait": "e8d017e5d3f23f6b28b619b2a1cff8d0",
+        //   "id": 227072342,
+        //   "sso_v2": ".dmtSWFN4dFVGNWZtMUtleaZztQKg7ItfjnZZnlHv54/XD5s7zZ+ygvftJC7FV3RLfYfRY1180l+1+bdxdAXZpz0PWhoamGT1nhpJ0/estdbLCk8+/vrXxXl/dkO0U/CcWFECN/sv6N11vvDCdlOpdgDsXo8Ml0xTSR0hL905C+boP8bxTiebv3CGErFve2Gqbzz5Wii06QzZeAHB287+/g==",
+        //   "language": "th",
+        //   "errcode": 0,
+        //   "token": "e41ef37f09ef7a151d2cb570cb49a264",
+        //   "sub_account_token": null,
+        //   "email": ""
+        // }
         const Cookie = {}
-        // Cookie['token'] = data.token
-        Cookie['SPC_SC_TK'] = data.token
-        Cookie['cstoken'] = data.cs_token
-        Cookie['satoken'] = data.satoken || ''
-        // Cookie['sso'] = data.sso
         Cookie['SPC_EC'] = data.sso
-        // Cookie['shopeeuid'] = data.shopId
-        Cookie['ShopeeUid'] = data.shopid
-        // Cookie['shopid'] = data.id
-        Cookie['portrait'] = data.portrait
-        Cookie['userRealName'] = data.username
-        Cookie['mainAccountId'] = data.mainAccountId || ''
-        Cookie['portrait'] = data.portrait
+        Cookie['SPC_SC_TK'] = data.token
+        Cookie['ShopeeUid'] = data.id // 虾皮平台用户Uid
+        Cookie['shopid'] = data.shopid // 平台店铺ID
         const obj = {
-          mallId: data.shopid + '',
+          shopid: data.shopid + '',
           username: data.username,
           Cookie
         }
-        debugger
         return { code: 200, data: obj }
       }
       return { code: res.status, data: `${res.status} ${res.data} ` }
