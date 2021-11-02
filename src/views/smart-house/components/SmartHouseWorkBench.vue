@@ -198,7 +198,7 @@
           </template>
         </el-table-column>
         <el-table-column label="订单发货状态" width="100" prop="statusText" />
-        <el-table-column label="异常类型" width="80" prop="exceptionText" />
+        <el-table-column label="异常类型" width="100" prop="exceptionText" />
         <el-table-column label="订单创建时间" width="150" prop="order_created_time" />
         <el-table-column label="订单平台状态" width="110" prop="orderStatusText" />
         <el-table-column label="截止发货时间" width="150" prop="latest_ship_date" />
@@ -226,7 +226,7 @@
         </el-table-column>
         <el-table-column min-width="240px" align="left" label="备注">
           <template slot-scope="scope">
-            <p style="text-align: left">仓库备注：{{ scope.row.remark }}</p>
+            <p style="text-align: left">仓库备注：{{ scope.row.ext_service && scope.row.ext_service.remark }}</p>
             <p style="text-align: left">
               用户备注：
               <span v-show="!(scope.row.id === activeRemarkID ? true : false)">{{ scope.row.user_remark }}</span>
@@ -473,7 +473,7 @@
 import { getValue, creatDate, colorLabelList, MallList } from '../../../util/util'
 import { statusList, exceptionList, orderStatusList, packageStatusList } from './warehouse'
 import storeChoose from '../../../components/store-choose.vue'
-
+import ShopeeConfig from '@/services/shopeeman-config'
 export default {
   components: {
     storeChoose // 店铺选择组件
@@ -488,6 +488,7 @@ export default {
   },
   data() {
     return {
+      shopeeConfig: new ShopeeConfig(),
       compareDataList: [],
       dialog_compareData: false, // 同步数据至仓库
       dialogExtService: false, // 增值弹窗
@@ -579,7 +580,7 @@ export default {
 
     // 打开备注弹窗
     remarkFun() {
-      if (!this.multipleSelection.length || this.multipleSelection.length > 1) {
+      if (!this.multipleSelection.length) {
         this.$message.warning('请勾选一条需要操作的数据')
         return
       }
@@ -602,16 +603,18 @@ export default {
           remark: this.newRemark
         }
         const res = await this.$api.setUserRemark(query)
-        console.log('000000000', res)
+        // console.log('000000000', res)
         const data = res.data
         if (data.code === 200) {
           this.$notify({
+            title: '批量备注',
             type: 'success',
             message: '操作成功'
           })
           this.orderPackage()
         } else {
           this.$notify({
+            title: '批量备注',
             type: 'error',
             message: data.message
           })
@@ -868,10 +871,11 @@ export default {
             item.exceptionText = getValue(exceptionList, 'label', 'exception_type', item.exception_type)
             item.orderStatusText = getValue(orderStatusList, 'label', 'order_status', item.order_status)
             item.colorText = getValue(this.colorLogoList, 'label', 'id', item.color_id) || '无'
+            item.country = this.shopeeConfig.getSiteCode(item.country)
             this.tableData.push(item)
           }
-          console.log('colorLogoList', this.colorLogoList)
-          console.log('tableList', this.tableData)
+          // console.log('colorLogoList', this.colorLogoList)
+          // console.log('tableList', this.tableData)
           // this.tableData = data.data.data
         } else {
           this.$notify({
@@ -1039,10 +1043,13 @@ export default {
     },
     // 修改单个备注
     async changeRemark(id, activeOrder) {
-      const { data } = await this.$api.setUserRemark({
+      this.isLoading = true
+      const res = await this.$api.setUserRemark({
         packageOrderSn: id,
         remark: this.orderRemark
       })
+      const data = res.data
+      this.isLoading = false
       if (data.code === 200) {
         this.$notify({
           title: '备注管理',
