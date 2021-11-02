@@ -65,19 +65,20 @@ export default class NetMessageBridgeService {
     const url = await this.getUrlPrefix(country) + api
     options['extrainfo'] = this.getExtraInfo(data)
     options['params'] = data
-    return this.NetMessageBridgeService().get(url, JSON.stringify(options))
-    let param = data
-    if (data.isString) {
-      param = data.isString
+    let referer = options['headers'] && options['headers'].referer
+    if (referer) {
+      options['headers'] = Object.assign(options['headers'],
+        {
+          origin: url,
+          referer: url + referer
+        })
     }
-    return this.NetMessageBridgeService().post(url, JSON.stringify(options), JSON.stringify(param))
+    return this.NetMessageBridgeService().post(url, JSON.stringify(options), JSON.stringify(data))
   }
 
   async putChinese(country, api, data, options = {}) {
     const url = await this.getUrlPrefix(country) + api
     options['extrainfo'] = this.getExtraInfo(data)
-    return this.NetMessageBridgeService().post(url, JSON.stringify(options), JSON.stringify(data))
-
     let referer = options['headers'] && options['headers'].referer
     if (referer) {
       options['headers'] = Object.assign(options['headers'],
@@ -92,7 +93,6 @@ export default class NetMessageBridgeService {
   async deleteChinese(country, api, data, options = {}) {
     const url = await this.getUrlPrefix(country) + api
     options['extrainfo'] = this.getExtraInfo(data)
-    return this.NetMessageBridgeService().post(url, JSON.stringify(options), JSON.stringify(data))
     let referer = options['headers'] && options['headers'].referer
     if (referer) {
       options['headers'] = Object.assign(options['headers'],

@@ -1,7 +1,7 @@
 <template>
   <el-row class="contaniner">
     <el-tabs v-model="activeName" type="card" @tab-click="handleClick">
-      <el-tab-pane label="自动回复" name="autoReply">
+      <el-tab-pane label="自动回复" name="autoReply" v-loading="autoReplyLoad">
         <el-row class="header">
           <el-col class="header-top">
             <storeChoose :source="'autoReply'" @changeMallList="changeMallList"
@@ -19,7 +19,7 @@
               <el-button type="primary" size="mini" @click="allSetAutoReply(1)">批量开启离线自动回复</el-button>
               <el-button type="" size="mini" @click="allSetAutoReply(0)">批量关闭离线自动回复</el-button>
               <el-button type="primary" size="mini" @click="searchAutoReplyTable">搜索</el-button>
-              <el-checkbox v-model="isShowLog" size="mini" style="margin-left: 5px;">显示日志</el-checkbox>
+              <el-checkbox v-model="autoReplyShowConsole" size="mini" style="margin-left: 5px;">隐藏日志</el-checkbox>
             </el-col>
           </el-col>
         </el-row>
@@ -80,8 +80,9 @@
             <div class="log-show" :style="`height:${height}px`"></div>
           </el-col>
         </el-row>
+        <Logs ref="autoReplyLogs" clear v-model="autoReplyShowConsole"/>
       </el-tab-pane>
-      <el-tab-pane label="常见问题助理" name="FAQAssistant">
+      <el-tab-pane label="常见问题助理" name="FAQAssistant" v-loading="FAQAssistantLoad">
         <el-row class="header">
           <el-col class="header-top">
             <storeChoose :source="'FAQAssistant'" @changeMallList="changeMallList"
@@ -94,7 +95,7 @@
               </el-button>
               <el-button type="" size="mini" @click="allFaqsShopSettings()">批量删除常见问题</el-button>
               <el-button type="primary" size="mini" @click="scFaqsTable">搜索</el-button>
-              <el-checkbox v-model="isShowLog" size="mini" style="margin-left: 5px;">显示日志</el-checkbox>
+              <el-checkbox v-model="FAQAssistantShowConsole" size="mini" style="margin-left: 5px;">隐藏日志</el-checkbox>
             </el-col>
           </el-col>
         </el-row>
@@ -109,7 +110,7 @@
                      :border="false"
                      @selection-change="handleSelectionChange2"
                      @table-body-scroll="tableScroll">
-              <u-table-column align="center" type="selection" width="50" />
+              <u-table-column align="center" type="selection" width="50"/>
               <u-table-column align="center" type="index" label="序列号" width="80"/>
               <u-table-column align="center" label="店铺名称" width="150">
                 <template slot-scope="scope">
@@ -149,8 +150,9 @@
             <div class="log-show" :style="`height:${height}px`"></div>
           </el-col>
         </el-row>
+        <Logs ref="FAQAssistantLogs" clear v-model="FAQAssistantShowConsole"/>
       </el-tab-pane>
-      <el-tab-pane label="讯息快捷" name="messageQuickly">
+      <el-tab-pane label="讯息快捷" name="messageQuickly" v-loading="messageQuicklyLoad">
         <el-row class="header">
           <el-col class="header-top">
             <storeChoose :source="'messageQuickly'" @changeMallList="changeMallList"
@@ -162,7 +164,7 @@
               <el-button type="primary" size="mini" @click="addMessageQuickly()">批量添加</el-button>
               <el-button type="" size="mini" @click="allSwitch_DeleteMessageShortcutsGroups()">批量删除</el-button>
               <el-button type="primary" size="mini" @click="messageShortcutsGroupsTable">搜索</el-button>
-              <el-checkbox v-model="isShowLog" size="mini" style="margin-left: 5px;">显示日志</el-checkbox>
+              <el-checkbox v-model="messageQuicklyShowConsole" size="mini" style="margin-left: 5px;">隐藏日志</el-checkbox>
             </el-col>
           </el-col>
         </el-row>
@@ -177,7 +179,7 @@
                      :border="false"
                      @selection-change="handleSelectionChange3"
                      @table-body-scroll="tableScroll">
-              <u-table-column align="center" type="selection" width="50" />
+              <u-table-column align="center" type="selection" width="50"/>
               <u-table-column align="center" type="index" label="序列号" width="80"/>
               <u-table-column align="center" label="店铺名称" width="150">
                 <template slot-scope="scope">
@@ -218,6 +220,7 @@
             <div class="log-show" :style="`height:${height}px`"></div>
           </el-col>
         </el-row>
+        <Logs ref="messageQuicklyLogs" clear v-model="messageQuicklyShowConsole"/>
       </el-tab-pane>
     </el-tabs>
     <div class="autoReply_dialog">
@@ -235,7 +238,8 @@
       </el-dialog>
     </div>
     <div class="FAQAssistant_dialog">
-      <el-dialog :title="FAQAssistantTitle" :visible.sync="FAQAssistantVisible" :close-on-click-modal="false" width="40%">
+      <el-dialog :title="FAQAssistantTitle" :visible.sync="FAQAssistantVisible" :close-on-click-modal="false"
+                 width="40%">
         <div class="FAQAssistant_box" v-if="FAQAssistantAction">
           <div class="FAQAssistant_title">
             <div style="width: 110px;padding-right: 10px;text-align: right">分组</div>
@@ -288,7 +292,8 @@
           <div style="display: flex;justify-content: center;padding-top: 10px;">
             <el-button size="mini" @click="updateCategorys(1)" type="primary">新增类型</el-button>
             <el-button size="mini" :disabled="FAQAssistantAction.categorys.length < 2"
-                       @click="updateCategorys()" style="margin-left: 15px;">删除</el-button>
+                       @click="updateCategorys()" style="margin-left: 15px;">删除
+            </el-button>
           </div>
           <div style="display: flex;justify-content: flex-end">
             <el-button type="primary" size="mini" @click="confirmFaqsShopSettings">确定</el-button>
@@ -356,7 +361,13 @@
         messageQuicklyTitle: '',
         messageQuicklyAction: null,
         tableDataMessageQuickly: [],
-        selectDataMessageQuickly: []
+        selectDataMessageQuickly: [],
+        autoReplyShowConsole: true,
+        FAQAssistantShowConsole: true,
+        messageQuicklyShowConsole: true,
+        autoReplyLoad: 0,
+        FAQAssistantLoad: 0,
+        messageQuicklyLoad: 0
       }
     },
     watch: {},
@@ -379,71 +390,93 @@
       async searchAutoReplyTable() {
         this.tableDataAutoReply = []
         let mallList = this.SiteList.autoReply || []
+        this.$refs.autoReplyLogs.writeLog('开始查询', true)
         mallList.forEach(async item => {
-          let resOfflineJson = await this.$shopeemanService.scOfflineReply(item.country, {
-            shop_id: item.platform_mall_id,
-            timezone: 8
-          })
-          let resChatJson = await this.$shopeemanService.scChatSetting(item.country, { shop_id: item.platform_mall_id })
           let temp = {
             country: item.country,
             platform_mall_id: item.platform_mall_id,
             platform_mall_name: item.platform_mall_name,
             mall_alias_name: item.mall_alias_name
           }
+          this.$refs.autoReplyLogs.writeLog(`正在获取店铺【${item.mall_alias_name || item.platform_mall_name}】的预设回复`, true)
+          let resOfflineJson = await this.$shopeemanService.scOfflineReply(item.country, {
+            shop_id: item.platform_mall_id,
+            timezone: 8
+          })
+          let resChatJson = await this.$shopeemanService.scChatSetting(item.country, { shop_id: item.platform_mall_id })
           try {
             let resOffline = JSON.parse(resOfflineJson)
             let dataOffline = JSON.parse(resOffline.data)
             let resChat = JSON.parse(resChatJson)
             let dataChat = JSON.parse(resChat.data)
-            console.log(dataOffline, dataChat)
+            console.log(resOffline, resChat)
             if (resOffline.status === 200) {
+              this.$refs.autoReplyLogs.writeLog(`店铺【${item.mall_alias_name || item.platform_mall_name}】的预设离线回复获取成功`, true)
               temp = Object.assign(temp, dataOffline, { status: dataOffline.status === 'enabled' })
+            } else if (resOffline.status === 403) {
+              this.$refs.autoReplyLogs.writeLog(`店铺【${item.mall_alias_name || item.platform_mall_name}】的未登录`, false)
+              return
             } else {
+              this.$refs.autoReplyLogs.writeLog(`店铺【${item.mall_alias_name || item.platform_mall_name}】的预设离线回复获取失败`, false)
             }
             if (resChat.status === 200) {
+              this.$refs.autoReplyLogs.writeLog(`店铺【${item.mall_alias_name || item.platform_mall_name}】的预设自动回复获取成功`, true)
               temp = Object.assign(temp, dataChat, { auto_reply_status: dataChat.auto_reply_status === 'enabled' })
             } else {
+              this.$refs.autoReplyLogs.writeLog(`店铺【${item.mall_alias_name || item.platform_mall_name}】的预设自动回复获取失败`, false)
             }
-          } catch (e) {
-
-          } finally {
-            let index = this.tableDataAutoReply.findIndex(i=>i.platform_mall_id === temp.platform_mall_id)
-            if (index > -1){
-              this.tableDataAutoReply.splice(index,1,temp)
-            } else{
+            let index = this.tableDataAutoReply.findIndex(i => i.platform_mall_id === temp.platform_mall_id)
+            if (index > -1) {
+              this.tableDataAutoReply.splice(index, 1, temp)
+            } else {
               this.tableDataAutoReply.push(temp)
             }
+          } catch (e) {
+            this.$refs.autoReplyLogs.writeLog(`店铺【${item.mall_alias_name || item.platform_mall_name}】的预设回复获取失败`, false)
           }
         })
-        // this.$refs.tableAutoReply.toggleAllSelection()
       },
       async setAutoReply(item, auto_reply_content = '', type = -1) {
+        if (!this.autoReplyLoad) {
+          this.autoReplyLoad = 1
+        }
         let auto_reply_status = item.auto_reply_status
         if (type > -1) {
           auto_reply_status = type && true || false
         }
+        this.$refs.autoReplyLogs.writeLog(`正在设置店铺【${item.mall_alias_name || item.platform_mall_name}】的预设自动回复`, true)
         let setChatSettingJson = await this.$shopeemanService.setChatSetting(item.country, {
           shop_id: parseInt(item.platform_mall_id),
           auto_reply_status: auto_reply_status && 'enabled' || 'disabled',
           auto_reply_content: auto_reply_content || item.auto_reply_content
         })
         let setChatSettingRes = JSON.parse(setChatSettingJson)
+        console.log('setChatSettingRes', setChatSettingRes)
         if (setChatSettingRes.state >= 200 && setChatSettingRes.state < 300) {
+          this.$refs.autoReplyLogs.writeLog(`店铺【${item.mall_alias_name || item.platform_mall_name}】的预设自动回复设置成功`, true)
           let data = JSON.parse(setChatSettingRes.data)
-          let temp = Object.assign(item, data, { status: data.auto_reply_status === 'enabled' })
+          let temp = Object.assign(item, data, { auto_reply_status: data.auto_reply_status === 'enabled' })
           let index = this.tableDataAutoReply.findIndex(i => i.platform_mall_id == item.platform_mall_id)
           this.tableDataAutoReply.splice(index, 1, temp)
-          console.log(this.tableDataAutoReply)
+        } else if (setChatSettingRes.status === 403) {
+          this.$refs.autoReplyLogs.writeLog(`店铺【${item.mall_alias_name || item.platform_mall_name}】的未登录`, false)
+          return
         } else {
-
+          this.$refs.autoReplyLogs.writeLog(`店铺【${item.mall_alias_name || item.platform_mall_name}】的预设自动回复设置失败`, false)
+        }
+        if (!--this.autoReplyLoad) {
+          this.searchAutoReplyTable()
         }
       },
       async setOfflineReply(item, content = '', type = -1) {
+        if (!this.autoReplyLoad) {
+          this.autoReplyLoad = 1
+        }
         let status = item.status
         if (type > -1) {
           status = type && true || false
         }
+        this.$refs.autoReplyLogs.writeLog(`正在设置店铺【${item.mall_alias_name || item.platform_mall_name}】的预设离线回复`, true)
         let param = {
           shop_id: parseInt(item.platform_mall_id),
           status: status && 'enabled' || 'disabled',
@@ -451,36 +484,46 @@
           timezone: 8,
           working_days: item.working_days
         }
-        param =  JSON.stringify(param).replace(/\s*(\d+):\s*(\d+):00/g, "$1:$2")
-        let setOfflineReplyJson = await this.$shopeemanService.setOfflineReply(item.country,JSON.parse(param) , { headers: { referer: '/portal/assistant/basic/autoReply' } })
+        param = JSON.stringify(param).replace(/\s*(\d+):\s*(\d+):00/g, '$1:$2')
+        let setOfflineReplyJson = await this.$shopeemanService.setOfflineReply(item.country, JSON.parse(param), { headers: { referer: '/portal/assistant/basic/autoReply' } })
         let setOfflineReplyRes = JSON.parse(setOfflineReplyJson)
         console.log(setOfflineReplyRes)
         if (setOfflineReplyRes.state >= 200 && setOfflineReplyRes.state < 300) {
+          this.$refs.autoReplyLogs.writeLog(`店铺【${item.mall_alias_name || item.platform_mall_name}】的预设离线回复设置成功`, true)
           let data = JSON.parse(setOfflineReplyRes.data)
           let temp = Object.assign(item, data, { status: data.status === 'enabled' })
           let index = this.tableDataAutoReply.findIndex(i => i.platform_mall_id == item.platform_mall_id)
           this.tableDataAutoReply.splice(index, 1, temp)
           console.log(this.tableDataAutoReply)
+        } else if (setOfflineReplyRes.status === 403) {
+          this.$refs.autoReplyLogs.writeLog(`店铺【${item.mall_alias_name || item.platform_mall_name}】的未登录`, false)
+          return
         } else {
-
+          this.$refs.autoReplyLogs.writeLog(`店铺【${item.mall_alias_name || item.platform_mall_name}】的预设离线回复设置失败`, false)
         }
-
+        if (!--this.autoReplyLoad) {
+          this.searchAutoReplyTable()
+        }
       },
       allSetAutoReply(type, content, model) {
         if (this.autoReplyVisible) {
           this.autoReplyVisible = false
           model = this.autoReplyTitle === '批量设置自动回复内容'
         }
+        this.autoReplyLoad = this.tableDataAutoReply.length
         this.tableDataAutoReply.forEach(item => {
           model && this.setAutoReply(item, content, type)
           !model && this.setOfflineReply(item, content, type)
         })
+        console.log('完成')
       },
 
       async scFaqsTable() {
         this.tableDataFAQAssistant = []
         let mallList = this.SiteList.FAQAssistant || []
+        this.$refs.FAQAssistantLogs.writeLog('开始查询', true)
         mallList.forEach(async item => {
+          this.$refs.FAQAssistantLogs.writeLog(`正在获取店铺【${item.mall_alias_name || item.platform_mall_name}】的常见问题`, true)
           let faqsSettingJson = await this.$shopeemanService.scFaqs(item.country, {
             shop_id: item.platform_mall_id,
             group_type: 1
@@ -495,22 +538,27 @@
           if (faqsSettingRes.status >= 200 && faqsSettingRes.status < 300) {
             let faqsSettingDataJson = faqsSettingRes.data
             let faqsSettingData = JSON.parse(faqsSettingDataJson)
+            this.$refs.FAQAssistantLogs.writeLog(`店铺【${item.mall_alias_name || item.platform_mall_name}】的常见问题获取成功，共有${faqsSettingData.length || 0}条`, true)
             faqsSettingData.forEach(item => {
               item = Object.assign(item, temp, { faq_status: item.faq_status && true || false })
-              let index = this.tableDataFAQAssistant.findIndex(i=>i.faq_id === temp.faq_id)
-              if (index > -1){
-                this.tableDataFAQAssistant.splice(index,1,item)
-              } else{
+              let index = this.tableDataFAQAssistant.findIndex(i => i.faq_id === temp.faq_id)
+              if (index > -1) {
+                this.tableDataFAQAssistant.splice(index, 1, item)
+              } else {
                 this.tableDataFAQAssistant.push(item)
               }
             })
+          } else if (faqsSettingRes.status === 403) {
+            this.$refs.FAQAssistantLogs.writeLog(`店铺【${item.mall_alias_name || item.platform_mall_name}】的未登录`, false)
+            return
           } else {
-
+            this.$refs.FAQAssistantLogs.writeLog(`店铺【${item.mall_alias_name || item.platform_mall_name}】的常见问题获取失败`, false)
           }
           console.log('faqsSettingRes', faqsSettingRes)
         })
       },
       async setFaqsShopSettings(item, type = -1, data) {
+        this.$refs.FAQAssistantLogs.writeLog(`正在设置店铺【${item.mall_alias_name || item.platform_mall_name}】的常见问题`, true)
         let param = {
           shop_id: parseInt(item.platform_mall_id),
           faq_id: item.faq_id
@@ -526,16 +574,21 @@
         }
         let faqsShopSettingsJson = await this.$shopeemanService.faqsShopSettings(item.country, param)
         let faqsShopSettingsRes = JSON.parse(faqsShopSettingsJson)
-        console.log(faqsShopSettingsRes)
-
+        console.log('faqsShopSettingsRes', faqsShopSettingsRes)
+        if (faqsShopSettingsRes.status >= 200 && faqsShopSettingsRes.status < 300) {
+          this.$refs.FAQAssistantLogs.writeLog(`店铺【${item.mall_alias_name || item.platform_mall_name}】的常见问题设置成功`, true)
+        } else {
+          this.$refs.FAQAssistantLogs.writeLog(`店铺【${item.mall_alias_name || item.platform_mall_name}】的常见问题设置失败`, false)
+        }
       },
       async deleteFaqsShopSettings(item) {
         console.log(item)
       },
-      async updateFaqsShopSettings(item,type) {
+      async updateFaqsShopSettings(item, type) {
         this.FAQAssistantVisible = false
-        console.log('updateFaqsShopSettings',item)
-        if(type){
+        console.log('updateFaqsShopSettings', item)
+        if (type) {
+          this.$refs.FAQAssistantLogs.writeLog(`正在编辑店铺【${item.mall_alias_name || item.platform_mall_name}】的常见问题`, true)
           let param = {
             shop_id: parseInt(item.platform_mall_id),
             group_name: item.group_name,
@@ -543,34 +596,45 @@
             faq_id: item.faq_id,
             faq_type: item.faq_type,
             categorys: item.categorys,
-            faq_status: item.faq_status && 1 || 0,
+            faq_status: item.faq_status && 1 || 0
           }
           let faqsShopSettingsJson = await this.$shopeemanService.faqsShopSettings(item.country, param)
           let faqsShopSettingsRes = JSON.parse(faqsShopSettingsJson)
-          console.log('faqsShopSettingsRes',faqsShopSettingsRes)
-        }else{
+          console.log('faqsShopSettingsRes', faqsShopSettingsRes)
+          if (faqsShopSettingsRes.status >= 200 && faqsShopSettingsRes.status < 300) {
+            this.$refs.FAQAssistantLogs.writeLog(`店铺【${item.mall_alias_name || item.platform_mall_name}】的常见问题编辑成功`, true)
+          } else {
+            this.$refs.FAQAssistantLogs.writeLog(`店铺【${item.mall_alias_name || item.platform_mall_name}】的常见问题编辑失败`, false)
+          }
+        } else {
+          this.$refs.FAQAssistantLogs.writeLog(`正在添加店铺【${item.mall_alias_name || item.platform_mall_name}】的常见问题`, true)
           let param = {
             shop_id: parseInt(item.platform_mall_id),
             group_name: item.group_name,
             greeting_content: item.greeting_content,
             faq_status: item.faq_status && 1 || 0,
             faq_type: item.faq_type,
-            categorys: item.categorys,
+            categorys: item.categorys
           }
           let updateFaqsShopSettingsJson = await this.$shopeemanService.updateFaqsShopSettings(item.country, param)
           let updateFaqsShopSettingsRes = JSON.parse(updateFaqsShopSettingsJson)
-          console.log('updateFaqsShopSettingsRes',updateFaqsShopSettingsRes)
+          if (updateFaqsShopSettingsRes.status >= 200 && updateFaqsShopSettingsRes.status < 300) {
+            this.$refs.FAQAssistantLogs.writeLog(`店铺【${item.mall_alias_name || item.platform_mall_name}】的常见问题添加成功`, true)
+          } else {
+            this.$refs.FAQAssistantLogs.writeLog(`店铺【${item.mall_alias_name || item.platform_mall_name}】的常见问题添加失败`, false)
+          }
+          console.log('updateFaqsShopSettingsRes', updateFaqsShopSettingsRes)
 
         }
       },
       confirmFaqsShopSettings() {
         let platform_mall_id = this.FAQAssistantAction && this.FAQAssistantAction.platform_mall_id
-        if(platform_mall_id){
-          this.updateFaqsShopSettings(this.FAQAssistantAction,1)
-        }else{
-          this.SiteList.FAQAssistant.forEach(item=>{
+        if (platform_mall_id) {
+          this.updateFaqsShopSettings(this.FAQAssistantAction, 1)
+        } else {
+          this.SiteList.FAQAssistant.forEach(item => {
             let param = JSON.parse(JSON.stringify(item))
-            param = Object.assign(param,this.FAQAssistantAction)
+            param = Object.assign(param, this.FAQAssistantAction)
             this.updateFaqsShopSettings(param)
           })
         }
@@ -603,7 +667,7 @@
                 { answer: '', is_fake: true, question: '' },
                 { answer: '', is_fake: true, question: '' }
               ]
-            }],
+            }]
           }
         }
       },
@@ -625,20 +689,22 @@
         }
       },
       allFaqsShopSettings(type, model) {
-        if(this.selectDataFAQAssistant.length) {
+        if (this.selectDataFAQAssistant.length) {
           this.selectDataFAQAssistant.forEach(item => {
             model && this.setFaqsShopSettings(item, type)
             !model && this.deleteFaqsShopSettings(item, type)
           })
-        }else{
+        } else {
           this.$message.error('至少选择一个常见问题')
         }
       },
 
       async messageShortcutsGroupsTable() {
+        this.$refs.messageQuicklyLogs.writeLog('开始查询', true)
         this.tableDataMessageQuickly = []
         let mallList = this.SiteList.messageQuickly || []
         mallList.forEach(async item => {
+          this.$refs.messageQuicklyLogs.writeLog(`正在获取店铺【${item.mall_alias_name || item.platform_mall_name}】的快捷讯息`, true)
           let shortcutsGroupsJson = await this.$shopeemanService.messageShortcutsGroups(item.country, {
             shop_id: item.platform_mall_id,
             group_type: 1
@@ -651,23 +717,27 @@
           })
           let shortcutsGroupsRes = JSON.parse(shortcutsGroupsJson)
           if (shortcutsGroupsRes.status >= 200 && shortcutsGroupsRes.status < 300) {
+            this.$refs.messageQuicklyLogs.writeLog(`店铺【${item.mall_alias_name || item.platform_mall_name}】的快捷讯息获取成功`, true)
             let shortcutsGroupsDataJson = shortcutsGroupsRes.data
             let shortcutsGroupsData = JSON.parse(shortcutsGroupsDataJson)
+            this.$refs.messageQuicklyLogs.writeLog(`店铺【${item.mall_alias_name || item.platform_mall_name}】的快捷讯息共${shortcutsGroupsData.length || 0}条`, true)
             shortcutsGroupsData.forEach(item => {
               let data = Object.assign(JSON.parse(temp), item, { state: item.state === 'enabled' })
-              let index = this.tableDataMessageQuickly.findIndex(i=>i.id === data.id)
-              if (index > -1){
-                this.tableDataMessageQuickly.splice(index,1,data)
-              } else{
+              let index = this.tableDataMessageQuickly.findIndex(i => i.id === data.id)
+              if (index > -1) {
+                this.tableDataMessageQuickly.splice(index, 1, data)
+              } else {
                 this.tableDataMessageQuickly.push(data)
               }
             })
           } else {
+            this.$refs.messageQuicklyLogs.writeLog(`店铺【${item.mall_alias_name || item.platform_mall_name}】的快捷讯息获取失败`, false)
           }
         })
         // this.$refs.tableAutoReply.toggleRowSelection(temp)
       },
       async switchMessageShortcutsGroups(item, type = -1, message) {
+        this.$refs.messageQuicklyLogs.writeLog(`正在设置店铺【${item.mall_alias_name || item.platform_mall_name}】的快捷讯息`, true)
         let param = {
           shop_id: parseInt(item.platform_mall_id),
           group_type: 1,
@@ -687,8 +757,14 @@
           param, { headers: { referer: '/portal/assistant/basic/messageShortcuts' } })
         let switchMessageShortcutsGroupsRes = JSON.parse(switchMessageShortcutsGroupsJson)
         console.log(switchMessageShortcutsGroupsRes)
+        if (switchMessageShortcutsGroupsRes.status >= 200 && switchMessageShortcutsGroupsRes.status < 300) {
+          this.$refs.messageQuicklyLogs.writeLog(`店铺【${item.mall_alias_name || item.platform_mall_name}】的快捷讯息设置成功`, true)
+        } else {
+          this.$refs.messageQuicklyLogs.writeLog(`店铺【${item.mall_alias_name || item.platform_mall_name}】的快捷讯息设置失败`, false)
+        }
       },
       async addMessageShortcutsGroups(item) {
+        this.$refs.messageQuicklyLogs.writeLog(`正在添加店铺【${item.mall_alias_name || item.platform_mall_name}】的快捷讯息`, true)
         console.log('addMessageShortcutsGroups', item)
         let setShortcutsGroupsJson = await this.$shopeemanService.setShortcutsGroups(item.country, {
           shop_id: parseInt(item.platform_mall_id),
@@ -697,7 +773,12 @@
           message_shortcuts: this.messageQuicklyAction.message_shortcuts
         })// { headers: { referer: '/portal/assistant/basic/messageShortcuts' } }
         let setShortcutsGroupsRes = JSON.parse(setShortcutsGroupsJson)
-        console.log('addMessageShortcutsGroups', setShortcutsGroupsRes)
+        console.log('setShortcutsGroupsRes', setShortcutsGroupsRes)
+        if (setShortcutsGroupsRes.status >= 200 && setShortcutsGroupsRes.status < 300) {
+          this.$refs.messageQuicklyLogs.writeLog(`店铺【${item.mall_alias_name || item.platform_mall_name}】的快捷讯息添加成功`, true)
+        } else {
+          this.$refs.messageQuicklyLogs.writeLog(`店铺【${item.mall_alias_name || item.platform_mall_name}】的快捷讯息添加失败`, false)
+        }
 
       },
       async deleteMessageShortcutsGroups(item) {
@@ -710,12 +791,12 @@
         console.log(deleteMessageShortcutsGroupsRes)
       },
       allSwitch_DeleteMessageShortcutsGroups(type, model) {
-        if(this.selectDataMessageQuickly.length){
+        if (this.selectDataMessageQuickly.length) {
           this.selectDataMessageQuickly.forEach(item => {
             model && this.switchMessageShortcutsGroups(item, type)
             !model && this.deleteMessageShortcutsGroups(item, type)
           })
-        }else{
+        } else {
           this.$message.error('至少选择一条讯息')
         }
       },
@@ -754,13 +835,13 @@
       handleClick() {
 
       },
-      handleSelectionChange1(val){
+      handleSelectionChange1(val) {
         this.selectDataAutoReply = val
       },
-      handleSelectionChange2(val){
+      handleSelectionChange2(val) {
         this.selectDataFAQAssistant = val
       },
-      handleSelectionChange3(val){
+      handleSelectionChange3(val) {
         this.selectDataMessageQuickly = val
       },
       resizeHeight() {

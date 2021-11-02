@@ -132,7 +132,7 @@
           let categorySecond = item.display_path && item.display_path.split('>')[1]
             &&`${ item.display_path.split('>')[1]}(${item.display_path_cn.split('>')[1]})` ||''
           str += `<tr><td>${num++}</td>
-                    <td>${item.platform_id ? item.platform_id : 0 + '\t'}</td>
+                    <td>${this.$filters.chineseSite(item.platform_id)+ '\t'}</td>
                     <td>${categoryFirst + '\t'}</td>
                     <td>${categorySecond + '\t'}</td>
                     <td>${categorySecond + '\t'}</td>
