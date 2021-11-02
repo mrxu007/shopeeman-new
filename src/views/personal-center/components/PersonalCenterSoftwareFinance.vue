@@ -3,7 +3,8 @@
   <div class="PersonalCenterSoftwareFinance">
     <!--账户相关信息-->
     <div class="message">
-      <div>账户余额：{{ account.balance }}元</div>
+      <div  v-if="amountLoading">账户余额：<span class="warning-style">获取中...</span></div>
+      <div v-else>账户余额：{{ account.balance }}元</div>
       <div class="bottonGroup">
         <el-button type="primary" size="mini" @click="getAccountAmount">刷新余额</el-button>
         <el-button type="primary" size="mini" @click="rechargeVisible = true">充值</el-button>
@@ -25,9 +26,9 @@
         <!-- 金额范围 -->
         <div class="moneyRange">
           金额范围：
-          <el-input v-model="form.minMoney" size="mini" />
+          <el-input v-model="form.minMoney" size="mini"  clearable/>
           <span>-</span>
-          <el-input v-model="form.maxMoney" size="mini" />
+          <el-input v-model="form.maxMoney" size="mini" clearable/>
         </div>
       </div>
       <!-- 第二行 -->
@@ -61,7 +62,7 @@
         <!-- 订单编号 -->
         <div class="orderNumber">
           订单编号：
-          <el-input v-model="form.orderNumber" size="mini" />
+          <el-input v-model="form.orderNumber" size="mini" clearable/>
         </div>
         <!-- 星卓越大包号 -->
         <div class="bigBagNumber">
@@ -91,7 +92,7 @@
         <el-table-column align="center" type="index" label="序号" width="50">
           <template slot-scope="scope">{{ (currentPage - 1) * pageSize + scope.$index + 1 }}</template>
         </el-table-column>
-        <el-table-column min-width="140px" label="交易号" align="center">
+        <el-table-column min-width="150px" label="交易号" align="center">
           <template slot-scope="scope">
             <p class="tabletext">
               <span style="cursor: pointer"> {{ scope.row.trans_number }}</span
@@ -101,7 +102,7 @@
             </p>
           </template>
         </el-table-column>
-        <el-table-column min-width="140px" label="订单编号" align="center">
+        <el-table-column min-width="150px" label="订单编号" align="center">
           <template slot-scope="scope">
             <p v-if="scope.row.order_sn" class="tabletext">
               <span style="cursor: pointer">{{ scope.row.order_sn }}</span
@@ -124,10 +125,10 @@
             <p v-if="scope.row.trans_type > 0">{{ changeTypeName(scope.row.trans_status, tranStatus) }}</p>
           </template>
         </el-table-column>
-        <el-table-column prop="trans_time" label="交易时间" align="center" min-width="90px">
+        <el-table-column prop="trans_time" label="交易时间" align="center" min-width="120px">
           <template slot-scope="scope"> {{ scope.row.trans_time }} </template>
         </el-table-column>
-        <el-table-column prop="created_at" label="创建时间" align="center" min-width="90px">
+        <el-table-column prop="created_at" label="创建时间" align="center" min-width="120px">
           <template slot-scope="scope"> {{ scope.row.created_at }} </template>
         </el-table-column>
         <el-table-column align="center" prop="amount" label="交易金额" min-width="70" />
@@ -139,12 +140,12 @@
             <el-button type="primary" size="mini" v-if="scope.row.trans_type === 2" @click="getTransDetail(scope.row)">翻译明细</el-button>
           </template>
         </el-table-column>
-        <el-table-column align="center" prop="remark" label="备注" width="120" show-overflow-tooltip/>
+        <el-table-column align="center" prop="remark" label="备注" min-width="120" show-overflow-tooltip/>
       </el-table>
       <div class="pagination">
         <el-pagination
           background
-          :page-sizes="[10, 20, 50, 100]"
+          :page-sizes="[20, 30,50, 100]"
           :page-size="pageSize"
           layout="total, sizes, prev, pager, next, jumper"
           :total="total"
@@ -202,7 +203,7 @@
           <el-button type="primary" size="mini" @click="exportDetailData">导出数据</el-button>
         </div>
         <div class="table-style">
-          <el-table :data="tranDetailData" tooltip-effect="dark" height="500">
+          <el-table :data="tranDetailData" tooltip-effect="dark" max-height="650">
             <el-table-column align="center" type="index" label="序号" width="50" />
             <el-table-column prop="type" label="翻译类型" align="center" width="90px">
               <template slot-scope="scope">
@@ -279,64 +280,7 @@ export default {
         },
       ],
       // 交易类型select
-      transactionType: [
-        // {
-        //   id: 0,
-        //   name: '全部',
-        // },
-        // {
-        //   id: 1,
-        //   name: '充值',
-        // },
-        // {
-        //   id: 2,
-        //   name: '翻译',
-        // },
-        // {
-        //   id: 3,
-        //   name: '采购商品',
-        // },
-        // {
-        //   id: 4,
-        //   name: '仓库发货',
-        // },
-        // {
-        //   id: 5,
-        //   name: '退件',
-        // },
-        // {
-        //   id: 6,
-        //   name: '采购商品退回',
-        // },
-        // {
-        //   id: 7,
-        //   name: '主体IP消费',
-        // },
-        // {
-        //   id: 8,
-        //   name: '异常赔付',
-        // },
-        // {
-        //   id: 9,
-        //   name: '海外仓备货',
-        // },
-        // {
-        //   id: 10,
-        //   name: '软件开户',
-        // },
-        // {
-        //   id: 11,
-        //   name: '费用冲正',
-        // },
-        // {
-        //   id: 12,
-        //   name: '海外仓发货',
-        // },
-        // {
-        //   id: 13,
-        //   label: '钱包迁移',
-        // },
-      ],
+      transactionType: [],
       pageSize: 20, //页码
       currentPage: 1, //页码
       total: 0, //表格总数
@@ -349,7 +293,8 @@ export default {
       rechargeList: [100, 200, 500, 1000, 2000, 5000],
       amount: '',
       exportDataList: [],
-      uuid: ''
+      uuid: '',
+      amountLoading: false,
     }
   },
   mounted() {
@@ -373,8 +318,8 @@ export default {
       let params = {}
       params.page = this.currentPage
       params.pageSize = this.pageSize
-      params.createdAt = this.form.creationTime.length ? this.setDateFmt(this.form.creationTime).join('/') : '/'
-      params.transTime = this.form.tradingTime.length ? this.setDateFmt(this.form.tradingTime).join('/') : '/'
+      params.createdAt = this.form.creationTime.length ? this.form.creationTime[0]+' 00:00:00/'+this.form.creationTime[1]+' 23:59:59' : '/'
+      params.transTime = this.form.tradingTime.length ? this.form.tradingTime[0]+' 00:00:00/'+this.form.tradingTime[1]+' 23:59:59' : '/'   
       params.transStatus = this.form.transactionStatus
       params.type = this.form.moneyFlow
       params.amount = `${this.form.minMoney != '' ? Number(this.form.minMoney) : 0}/${this.form.maxMoney != '' ? Number(this.form.maxMoney) : 0}`
@@ -472,12 +417,13 @@ export default {
     },
     //获取翻译明细
     async getTransDetail(row) {
+      console.log(row)
       this.translateDetailVisible = true
       let date = row.created_at.split(' ')[0]
       this.chooseDate = [date+' 00:00:00',date+' 23:59:59']
       // this.chooseDate = ['2021-09-17 00:00:00','2021-09-17 23:59:59']
       let params = {
-        // uuid: row.uid,
+        uuid: row.uid,
         startTime: this.chooseDate[0],
         endTime: this.chooseDate[1],
       }
@@ -505,12 +451,12 @@ export default {
     },
     //查询列表数据
     async selectList() {
-      console.log(this.form.creationTime)
       let params = {}
       params.page = this.currentPage
       params.pageSize = this.pageSize
-      params.createdAt = this.form.creationTime.length ? this.setDateFmt(this.form.creationTime).join('/') : '/'
-      params.transTime = this.form.tradingTime.length ? this.setDateFmt(this.form.tradingTime).join('/') : '/'
+      params.createdAt =  this.form.creationTime&&this.form.creationTime.length ? this.form.creationTime[0]+' 00:00:00/'+this.form.creationTime[1]+' 23:59:59' : '/'
+      
+      params.transTime = this.form.tradingTime&&this.form.tradingTime.length ?this.form.tradingTime[0]+' 00:00:00/'+this.form.tradingTime[1]+' 23:59:59' : '/'
       params.transStatus = this.form.transactionStatus
       params.type = this.form.moneyFlow
       params.amount = `${this.form.minMoney != '' ? Number(this.form.minMoney) : 0}/${this.form.maxMoney != '' ? Number(this.form.maxMoney) : 0}`
@@ -519,8 +465,9 @@ export default {
       params.childName = ''
       params.packageSn = this.form.bigBagNumber
       this.tableLoading = true
+      
       let res = await this.$api.getAccountAmountDetailList(params)
-      console.log("status_code",res)
+      
       if (res.data.code === 200) {
         this.allbillingData = res.data.data.data
         this.total = res.data.data.total
@@ -538,13 +485,14 @@ export default {
     },
     //查询用户账号余额
     async getAccountAmount() {
+      this.amountLoading = true
       let res = await this.$api.getAccountAmount()
-      console.log("res",res)
       if (res.data.code === 200) {
         this.account.balance = res.data.data
       } else {
         this.$message.error(res.data.message)
       }
+      this.amountLoading = false
     },
     // 日期选择器时间处理
     setDateFmt(data) {
@@ -625,6 +573,10 @@ export default {
   flex-wrap: nowrap;
   white-space: nowrap;
   overflow: hidden;
+  .warning-style {
+      color: red;
+      font-size: 16px;
+    }
   .bottonGroup {
     margin: 0 10px;
   }
@@ -710,6 +662,7 @@ export default {
 //表格区
 .content {
   margin-top: 20px;
+  height: calc(100vh - 220px);
 }
 .copyIcon {
   i {
@@ -720,7 +673,7 @@ export default {
 .pagination {
   display: flex;
   justify-content: flex-end;
-  margin-top: 10px;
+  margin-top: 20px;
 }
 //dialog
 .tranDetail {
@@ -778,7 +731,7 @@ export default {
       cursor: pointer;
     }
     .activeColor {
-      background: chocolate;
+      background: #FFDEAD;
     }
   }
   .account-input {

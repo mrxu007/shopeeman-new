@@ -1,5 +1,6 @@
 import { sha256 } from 'js-sha256'
 import md5 from 'js-md5'
+<<<<<<< HEAD
 /*
  * @Author: your name
  * @Date: 2021-10-22 20:47:53
@@ -8,6 +9,8 @@ import md5 from 'js-md5'
  * @Description: In User Settings Edit
  * @FilePath: \shopeeman-new\src\services\shopeeman-service.js
  */
+=======
+>>>>>>> 9875fa1deb6befbf64ae0674ad17af4f0f08f0f1
 export default class NetMessageBridgeService {
   NetMessageBridgeService() {
     return window['NetMessageBridgeService']
@@ -205,7 +208,10 @@ export default class NetMessageBridgeService {
   getBankAccount(country, data) {
     return this.getChinese(country, '/api/v3/finance/get_bank_account', data)
   }
-  // https://seller.th.shopee.cn/api/v3/settings/reply_shop_rating/?SPC_CDS=ce76cffe-61aa-4a77-a1c6-70d848438ba6&SPC_CDS_VER=2
+  //获取货款对账list
+  getIncomeTransaction(country, data) {
+    return this.getChinese(country, '/api/v3/finance/income_transaction_histories', data)
+  }
   // 店铺登录
   async login(mallInfo, data) {
     const { country, mall_account_info } = mallInfo
