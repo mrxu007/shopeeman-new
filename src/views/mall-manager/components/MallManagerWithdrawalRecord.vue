@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-10-08 14:16:18
- * @LastEditTime: 2021-10-26 15:08:22
+ * @LastEditTime: 2021-11-02 14:51:48
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shopeeman-new\src\views\mall-manager\components\MallManagerWithdrawalRecord.vue
@@ -31,7 +31,7 @@
         <el-button type="primary" size="mini" class="mar-right" @click="searchRecord">查询提现记录</el-button>
         <el-button type="primary" size="mini" class="mar-right" @click="exportData">导 出</el-button>
         <el-checkbox v-model="showConsole" class="mar-right">隐藏日志</el-checkbox>
-        <p class="activeColor">当前提现金额合计：{{}}</p>
+        <p class="activeColor">当前提现金额合计：{{totalAmount}}</p>
       </div>
     </div>
     <div class="content">
@@ -120,6 +120,7 @@ export default {
       currentPage: 1, //页码
       total: 0, //表格总数
       mallPageSize: 50,
+      totalAmount:0
     }
   },
   mounted() {
@@ -169,6 +170,7 @@ export default {
       try {
         let res = await this.$shopeemanService.getWithDrawalRecord(mall.country, params)
         let resObj = JSON.parse(res)
+        console.log(resObj)
         if (resObj.status !== 200) {
           this.$refs.Logs.writeLog(`店铺【${mall.platform_mall_name}】请检查店铺是否登录！`, false)
         } else {
@@ -193,6 +195,7 @@ export default {
                     item.ic_number = bankData.data.ic_number
                   }
                 }
+                this.totalAmount += item.amount*-1/100
                 this.tableData.push(item)
                 this.total = this.tableData.length
               })

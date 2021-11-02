@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-10-08 14:16:18
- * @LastEditTime: 2021-10-28 17:25:34
+ * @LastEditTime: 2021-11-02 15:11:03
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shopeeman-new\src\views\mall-manager\components\MallManagerWithdrawalRecord.vue
@@ -246,6 +246,7 @@ export default {
   methods: {
     //查询列表
     async searchRate() {
+      this.cancelAction = false
       if (!this.selectMallList.length) {
         return this.$message.warning('请选择店铺')
       }

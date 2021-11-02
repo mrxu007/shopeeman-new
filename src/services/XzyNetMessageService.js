@@ -1,13 +1,14 @@
 /*
  * @Author: your name
  * @Date: 2021-10-13 16:56:39
- * @LastEditTime: 2021-11-02 10:34:03
+ * @LastEditTime: 2021-11-02 11:59:02
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shopeeman-new\src\services\XzyNetMessageService.js
  */
 export default class XzyNetMessageService {
-  baseUrl = 'http://api.xzy.com'
+  // baseUrl = 'http://api.xzy.com'
+  baseUrl = 'http://api.xzygyl.com/api/route'
   baseUrlA = 'http://user.xzygyl.com'
   constructor() {
     this.nativeService = window['XzyNetMessageBridgeService']
