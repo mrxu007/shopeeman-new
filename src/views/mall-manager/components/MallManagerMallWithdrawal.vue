@@ -219,13 +219,13 @@
         let str = `<tr>
               <td>编号</td>
               <td>站点</td>
-              <td>一级类目</td>
-              <td>二级类目</td>
-              <td>热搜词分类类目</td>
-              <td>热搜词名称</td>
-              <td>产品数</td>
-              <td>更新时间</td>
-              <td>近30天销量</td>
+              <td>店铺名称</td>
+              <td>银行</td>
+              <td>持卡人</td>
+              <td>银行卡号</td>
+              <td>ICNumber</td>
+              <td>可提现金额</td>
+              <td>提现中金额</td>
             </tr>`
         for (let i = 0; i < this.tableData.length; i++) {
           let item = this.tableData[i]
@@ -234,14 +234,14 @@
           let categorySecond = item.display_path && item.display_path.split('>')[1]
             && `${item.display_path.split('>')[1]}(${item.display_path_cn.split('>')[1]})` || ''
           str += `<tr><td>${num++}</td>
-                    <td>${item.platform_id ? item.platform_id : 0 + '\t'}</td>
-                    <td>${categoryFirst + '\t'}</td>
-                    <td>${categorySecond + '\t'}</td>
-                    <td>${categorySecond + '\t'}</td>
-                    <td>${item.hotKeywords[0] && item.hotKeywords[0].keyword_name || '' + '\t'}</td>
-                    <td>${item.hotKeywords[0] && item.hotKeywords[0].total_count || 0 + '\t'}</td>
-                    <td>${dateFormat(item.update_time * 1000, 'yyyy-MM-dd') + '\t'}</td>
-                    <td>${item.hotKeywords[0] && item.hotKeywords[0].keyword_month_sales || 0 + '\t'}</td>
+                    <td>${this.$filters.chineseSite(item.country)+ '\t'}</td>
+                    <td>${item.platform_mall_name + '\t'}</td>
+                    <td>${(item.bankAccounts &&item.bankAccounts.list && item.bankAccounts.list[0] && item.bankAccounts.list[0].bank_name || '') + '\t'}</td>
+                    <td>${(item.bankAccounts &&item.bankAccounts.list && item.bankAccounts.list[0] && item.bankAccounts.list[0].account_name || '') + '\t'}</td>
+                    <td>${(item.bankAccounts &&item.bankAccounts.list && item.bankAccounts.list[0] && item.bankAccounts.list[0].account_number || '') + '\t'}</td>
+                    <td>${(item.bankAccounts &&item.bankAccounts.list && item.bankAccounts.list[0] && item.bankAccounts.list[0].mtime || '') + '\t'}</td>
+                    <td>${(item.balance || '') + '\t'}</td>
+                    <td>${(item.withdrawal_no || '') + '\t'}</td>
                 </tr>`
         }
         exportExcelDataCommon('热搜词推荐', str)

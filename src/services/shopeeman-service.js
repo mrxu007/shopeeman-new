@@ -53,12 +53,20 @@ export default class NetMessageBridgeService {
    * @param country 站点
    * @param api api尾缀
    * @param data  参数
-   * @param options 头部
+   * @param options 头部 referer只需要添加尾缀
    */
   async getChinese(country, api, data, options = {}) {
     const url = await this.getUrlPrefix(country) + api
     options['extrainfo'] = this.getExtraInfo(data)
     options['params'] = data
+    const referer = options['headers'] && options['headers'].referer
+    if (referer) {
+      options['headers'] = Object.assign(options['headers'],
+        {
+          origin: url,
+          referer: url + referer
+        })
+    }
     return this.NetMessageBridgeService().get(url, JSON.stringify(options))
   }
 
@@ -66,19 +74,20 @@ export default class NetMessageBridgeService {
     const url = await this.getUrlPrefix(country) + api
     options['extrainfo'] = this.getExtraInfo(data)
     options['params'] = data
-    return this.NetMessageBridgeService().get(url, JSON.stringify(options))
-    let param = data
-    if (data.isString) {
-      param = data.isString
+    const referer = options['headers'] && options['headers'].referer
+    if (referer) {
+      options['headers'] = Object.assign(options['headers'],
+        {
+          origin: url,
+          referer: url + referer
+        })
     }
-    return this.NetMessageBridgeService().post(url, JSON.stringify(options), JSON.stringify(param))
+    return this.NetMessageBridgeService().post(url, JSON.stringify(options), JSON.stringify(data))
   }
 
   async putChinese(country, api, data, options = {}) {
     const url = await this.getUrlPrefix(country) + api
     options['extrainfo'] = this.getExtraInfo(data)
-    return this.NetMessageBridgeService().post(url, JSON.stringify(options), JSON.stringify(data))
-
     const referer = options['headers'] && options['headers'].referer
     if (referer) {
       options['headers'] = Object.assign(options['headers'],
@@ -93,7 +102,6 @@ export default class NetMessageBridgeService {
   async deleteChinese(country, api, data, options = {}) {
     const url = await this.getUrlPrefix(country) + api
     options['extrainfo'] = this.getExtraInfo(data)
-    return this.NetMessageBridgeService().post(url, JSON.stringify(options), JSON.stringify(data))
     const referer = options['headers'] && options['headers'].referer
     if (referer) {
       options['headers'] = Object.assign(options['headers'],
@@ -168,7 +176,6 @@ export default class NetMessageBridgeService {
       'MY': /^(\+?6?01){1}(([145]{1}(\-|\s)?\d{7,8})|([236789]{1}(\s|\-)?\d{7}))$/,
       'NO': /^(\+?47)?[49]\d{7}$/,
       'BE': /^(\+?32|0)4?\d{8}$/,
-      'NO': /^(\+?47)?[49]\d{7}$/,
       'PL': /^(\+?48)? ?[5-8]\d ?\d{3} ?\d{2} ?\d{2}$/,
       'BR': /^(\+?55|0)\-?[1-9]{2}\-?[2-9]{1}\d{3,4}\-?\d{4}$/,
       'PT': /^(\+?351)?9[1236]\d{7}$/,
@@ -181,6 +188,7 @@ export default class NetMessageBridgeService {
     }
     return reg[country]?.test(account)
   }
+
   // 获取店铺评价列表
   getShopEvaluateList(country, data) {
     return this.getChinese(country, '/api/v3/settings/search_shop_rating_comments', data)
