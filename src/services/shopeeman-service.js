@@ -1,16 +1,5 @@
 import { sha256 } from 'js-sha256'
 import md5 from 'js-md5'
-<<<<<<< HEAD
-/*
- * @Author: your name
- * @Date: 2021-10-22 20:47:53
- * @LastEditTime: 2021-10-26 10:51:03
- * @LastEditors: Please set LastEditors
- * @Description: In User Settings Edit
- * @FilePath: \shopeeman-new\src\services\shopeeman-service.js
- */
-=======
->>>>>>> 9875fa1deb6befbf64ae0674ad17af4f0f08f0f1
 export default class NetMessageBridgeService {
   NetMessageBridgeService() {
     return window['NetMessageBridgeService']
@@ -208,7 +197,7 @@ export default class NetMessageBridgeService {
   getBankAccount(country, data) {
     return this.getChinese(country, '/api/v3/finance/get_bank_account', data)
   }
-  //获取货款对账list
+  // 获取货款对账list
   getIncomeTransaction(country, data) {
     return this.getChinese(country, '/api/v3/finance/income_transaction_histories', data)
   }
