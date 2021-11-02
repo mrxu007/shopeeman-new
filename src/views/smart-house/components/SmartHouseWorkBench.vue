@@ -132,6 +132,7 @@
             <el-button type="primary" style="margin-left: 4px" size="mini" class="m-80" :loading="orderPackageLoading" @click="orderPackage">搜索</el-button>
             <el-button v-if="!isExport" type="primary" size="mini" class="m-80" @click="tableToExcel">导出数据</el-button>
             <el-progress v-else style="width: 160px; display: inline-block; margin-left: 10px" :text-inside="true" :stroke-width="26" :percentage="((exportNum * 100) / total).toFixed(2) - 0" />
+            <el-button type="primary" size="mini" class="m-80" style="width:120px" @click="remarkFun">批量更新用户备注</el-button>
           </div>
         </div>
       </div>
@@ -257,6 +258,15 @@
         />
       </div>
     </div>
+    <!-- 批量更新用户备注 -->
+    <el-dialog title="批量更新用户备注" class="dialog-order" width="400px" top="6vh" :close-on-press-escape="false" :close-on-click-modal="false" :visible.sync="remarkVisible" @closed="closeDialog5">
+      <div class="order-dialog">
+        <div class="form-item">
+          <el-input v-model="newRemark" size="mini" clearable placeholder="请输入备注" />
+          <el-button type="primary" size="mini" @click="remarkServe">提交</el-button>
+        </div>
+      </div>
+    </el-dialog>
     <!-- 采购物流单号变更弹窗 -->
     <el-dialog title="采购物流单号变更" class="dialog-order" width="400px" top="6vh" :close-on-press-escape="false" :close-on-click-modal="false" :visible.sync="orderVisible" @closed="closeDialog1">
       <div class="order-dialog">
@@ -553,7 +563,10 @@ export default {
         disabledDate: (time) => {
           return time.getTime() > Date.now()
         }
-      }
+      },
+      remarkVisible: false,
+      newRemark: ''
+
     }
   },
   mounted() {
@@ -563,6 +576,62 @@ export default {
     // this.userInfo()
   },
   methods: {
+
+    // 打开备注弹窗
+    remarkFun() {
+      if (!this.multipleSelection.length || this.multipleSelection.length > 1) {
+        this.$message.warning('请勾选一条需要操作的数据')
+        return
+      }
+      this.remarkVisible = true
+    },
+    // 备注
+    async remarkServe() {
+      if (this.newRemark === '') {
+        this.$notify('', '请输入备注', 'error')
+        return
+      }
+      this.isLoading = true
+      const list = []
+      this.multipleSelection.forEach(item => {
+        list.push(item.package_order_sn)
+      })
+      try {
+        const query = {
+          packageOrderSn: list.toString(),
+          remark: this.newRemark
+        }
+        const res = await this.$api.setUserRemark(query)
+        console.log('000000000', res)
+        const data = res.data
+        if (data.code === 200) {
+          this.$notify({
+            type: 'success',
+            message: '操作成功'
+          })
+          this.orderPackage()
+        } else {
+          this.$notify({
+            type: 'error',
+            message: data.message
+          })
+        }
+        this.closeDialog5()
+        this.remarkVisible = false
+        this.isLoading = false
+      } catch (err) {
+        this.closeDialog5()
+        this.remarkVisible = false
+        console.log(err)
+        this.isLoading = false
+      }
+    },
+    // 关闭备注弹窗
+    closeDialog5() {
+      this.newRemark = ''
+      this.setSelect()
+      this.remarkVisible = false
+    },
     // 关闭同步弹窗
     closeDialog3() {
       this.setSelect()
@@ -642,6 +711,12 @@ export default {
     },
     // 关闭增值服务
     closeDialog4() {
+      this.extParams = {
+        packageOrderSns: '',
+        name: '',
+        price: '',
+        remark: ''
+      }
       this.setSelect()
       this.dialogExtService = false
     },
@@ -689,6 +764,14 @@ export default {
             message: data.data.message
           })
         }
+        // 清空数据
+        this.extParams = {
+          packageOrderSns: '',
+          name: '',
+          price: '',
+          remark: ''
+        }
+        this.dialogExtService = false
         this.setSelect()
         this.orderPackage()
         this.isLoading = false
