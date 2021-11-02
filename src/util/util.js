@@ -1,6 +1,66 @@
 import { setTimeout } from 'core-js'
 import md5 from 'js-md5'
+import Vue from 'vue'
+const instance = new Vue()
 
+// 获取店铺信息
+export async function MallList() {
+  const param = {
+    country: '',
+    mallGroupIds: ''
+  }
+  const res = await instance.$api.ddMallGoodsGetMallList(param)
+  // console.log('res', res)
+  if (res.data.code === 200) {
+    const arr = res.data.data
+    const blist = []
+    arr.forEach(e => {
+      blist.push({ 'label': e.platform_mall_name, 'id': e.id })
+    })
+    return blist
+  } else {
+    this.$message.error('获取分组、店铺列表失败')
+  }
+}
+// 获取颜色列表
+export async function colorLabelList() {
+  const colorList = []
+  try {
+    const data = await instance.$api.colorLabelList()
+    for (let index = 0; index < data.data.data.length; index++) {
+      const item = data.data.data[index]
+      const obj = {}
+      obj.label = item.color_name
+      obj.id = item.id
+      obj.color = `color:${item.color}`
+      colorList.push(obj)
+    }
+    return colorList
+  } catch (err) {
+    return []
+  }
+}
+// 设置日期选择器默认时间
+export function creatDate(i) {
+  const base = new Date()
+  const baseVal = [base.getFullYear(), base.getMonth() + 1, base.getDate()].join('-')
+  const oneDay = 24 * 3600 * 1000
+  const now = new Date(base - oneDay * i)
+  const nowVal = [now.getFullYear(), now.getMonth() + 1, now.getDate()].join('-')
+  return [nowVal, baseVal]
+}
+// 匹配对象数组值
+export function getValue(arr, label, value, relValue) {
+  let data = ''
+  for (let i = 0; i < arr.length; i++) {
+    const item = arr[i]
+    if (item[value] === relValue) {
+      data = item[label]
+      break
+    }
+  }
+  return data
+}
 /**
  *
  * @param {string} str 字符串长度
@@ -231,7 +291,7 @@ export function exportCsvDataCommon(fileName, str) {
 export function debounce(fun, wait, immediate) {
   let timeout = null
   let result = null
-  return function () {
+  return function() {
     const context = this
     const args = arguments
     if (timeout) {
@@ -252,20 +312,18 @@ export function debounce(fun, wait, immediate) {
 }
 // randomWord 产生任意长度随机字母数字组合
 // randomFlag-是否任意长度 min-任意长度最小位[固定位数] max-任意长度最大位
-export function randomWord(randomFlag, min, max){
-  let str = "",
-      range = min,
-      arr = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'];
+export function randomWord(randomFlag, min, max) {
+  let str = ''
+  let range = min
+  const arr = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']
   // 随机产生
-  if(randomFlag){ //生成3-32位随机串
-      range = Math.round(Math.random() * (max-min)) + min;
+  if (randomFlag) { // 生成3-32位随机串
+    range = Math.round(Math.random() * (max - min)) + min
   }
-  for(let i=0; i<range; i++){
-      let pos = Math.round(Math.random() * (arr.length-1));
-      str += arr[pos];
+  for (let i = 0; i < range; i++) {
+    const pos = Math.round(Math.random() * (arr.length - 1))
+    str += arr[pos]
   }
-  return str;
+  return str
 }
-
-
 

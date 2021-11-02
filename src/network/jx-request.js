@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-10-08 14:16:18
- * @LastEditTime: 2021-10-26 18:14:21
+ * @LastEditTime: 2021-11-01 14:27:18
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shopeeman-new\src\network\jx-request.js
@@ -136,19 +136,38 @@ export default {
   // 2021-10-18
   // 店铺管理
   getMallManagerStoreMainManagementList: (data) => AppRequest.get('/yunip/api/myiplist', { params: data }), // 店铺主体管理列表
-  getPaymentList: (data) => AppRequest2.post('/api/mallAccountBill', data), // 货款对账列表
-  getMallSite: (data) => AppRequest2.get('/api/ddMallGoods/getMallList', { params: data }), // 店铺站点信息
-  exchangeRateList: (data) => AppRequest2.get('/api/exchangeRateList', { params: data }), // 获取汇率
-  updateMallInfo: (data) => AppRequest2.post('/api/bindMall/updateMallInfo', { params: data }), // 同步信息
+  getPaymentList: (data) => AppRequest.post('/mallAccountBill', data), // 货款对账列表
+  getMallSite: (data) => AppRequest.get('/ddMallGoods/getMallList', { params: data }), // 店铺站点信息
+  exchangeRateList: (data) => AppRequest.get('/exchangeRateList', { params: data }), // 获取汇率
+  updateMallInfo: (data) => AppRequest.post('/bindMall/updateMallInfo',  data ), // 同步信息
+  uploadPaymentList: (data) => AppRequest.post('/mallAccountBill/save', data), //上报货款对账单
 
   // 异常公告--即将过期订单
   getExceptionExpiredOrderIndex: (data) => AppRequest.get('/exceptionExpiredOrderIndex', { params: data }), // 订单列表
   getExceptionWarehouse: (data) => AppRequest.get('/exceptionWarehouse', { params: data }), // 仓库异常信息列表
   uploadDealExceptionStatus: (data) => AppRequest.post('/uploadDealExceptionStatus', data), // 仓库异常处理状态上报
 
+  // 10-25 智能仓库
+  colorLabelList: () => AppRequest.get('/colorLabel'), // 订单颜色标识列表
+  orderPackage: (data) => AppRequest.post('/orderPackage', data), // 订单包裹列表
+  refuseList: (data) => AppRequest.get('/interceptConfig', data), // 拒签列表
+  markOrderNeedDeal: (data) => AppRequest.post('/orderPackage/markOrderNeedDeal', data), // 标记订单紧急处理
+  setNoWait: (data) => AppRequest.post('/orderPackage/setNoWait', data), // 订单设置不等待子订单
+  trackingNumberChangeOrder: (data) => AppRequest.post('/order/trackingNumberChangeOrder', data), // 采购物流单号变更
+  noticeTodeliver: (data) => AppRequest.post('/orderPackage/changeOrderDeliveryStatus', data), // 通知仓库发货/暂停发货
+  getGoodsInfo: (data) => AppRequest.get('/goodsPackageCode/getGoodsInfoV2 ', data), // 订单包裹详情
+  uploadExtService: (data) => AppRequest.post('/orderPackage/uploadExtService ', data), // 订单增值服务
+  getNotHaveLogisticsInformations: () => AppRequest.get('/orderPackage/getNotHaveLogisticsInformations'), // 获取面单信息
+  cancelSign: (data) => AppRequest.post('/interceptConfig/delete', data), // 取消拒收/签收信息
+  packageSign: (data) => AppRequest.post('/interceptConfig/save', data), // 仓库包裹拒签/签收
+  warehouseAddress: () => AppRequest.get('/warehouseAddress/userIndex'), // 获取仓库信息
+  uploadWarehouseOrder: (data) => AppRequest.post('/warehouseAddress/uploadWarehouseOrder', data), // 获取仓库信息
+  setColorLabel: (data) => AppRequest.post(`/colorLabel/setOrder`, data), // 设置订单颜色标识
+
   // 智能仓库 --自有仓库
   getUserStore: (data) => AppRequest.get('/userStock/get', { params: data }), // 自有仓库列表
   insertUserGoods: (data) => AppRequest.post('/userStock/save', data), // 新增自有商品
   updataUserGoods: (data) => AppRequest.post('/userStock/update', data), // 编辑自有商品
-  deleteUserGoods: (data) => AppRequest.post('/userStock/deleteGoods', data) // 删除自有商品
+  deleteUserGoods: (data) => AppRequest.post('/userStock/deleteGoods', data), // 删除自有商品 
+  deleteUserSku: (data) => AppRequest.post('/userStock/deleteSkus', data)//删除sku
 }

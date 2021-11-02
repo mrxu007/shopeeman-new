@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-10-08 14:16:18
- * @LastEditTime: 2021-10-20 17:34:30
+ * @LastEditTime: 2021-11-02 11:08:39
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shopeeman-new\src\views\personal-center\components\PersonalCenterStoreFinance.vue
@@ -179,7 +179,7 @@
 </template>
 
 <script >
-import {  exportExcelDataCommon } from '../../../util/util'
+import { exportExcelDataCommon } from '../../../util/util'
 export default {
   data() {
     return {
@@ -435,12 +435,10 @@ export default {
       }
       try {
         let res = await this.$XzyNetMessageService.post('xzy.UserGetUserDetail', params)
-        if (res) {
-          let resObj = JSON.parse(res)
-          let info = JSON.parse(resObj.data)
-          if (info.code === 200) {
-            this.userBalance = info.data.amount
-          }
+        let resObj = res&&JSON.parse(res)
+        let info = resObj&&resObj.data&&JSON.parse(resObj.data)
+        if (info&&info.code === 200) {
+          this.userBalance = info.data.amount
         }
         // await sleep(1000)
       } catch (error) {
@@ -484,6 +482,7 @@ export default {
       }
       this.tableLoading = true
       try {
+        console.log()
         let res = await this.$XzyNetMessageService.post('xzy.UserGetUserRecharge', params)
         if (res) {
           let resObj = JSON.parse(res)
