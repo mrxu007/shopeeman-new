@@ -106,7 +106,7 @@
       </div>
       <div class="condition_item">
         <el-button size="mini" type="primary" @click="search">搜索</el-button>
-        <el-button  size="mini"  type="primary" @click=" updataMall();cancelActive = false">同步数据</el-button>
+        <el-button size="mini" type="primary" @click=" updataMall();cancelActive = false">同步数据</el-button>
         <el-button size="mini" type="primary" @click="cancelActive = true">取消同步</el-button>
         <el-button size="mini" type="primary" @click="clearLog">清空日志</el-button>
         <el-button size="mini" type="primary" @click="export_table((query.page = 1)), (exportList = [])">导出</el-button>
@@ -144,12 +144,13 @@
         </div>
       </div>
     </div>
-    <Logs ref="Logs" clear v-model="showConsole" />
+    <Logs ref="Logs" v-model="showConsole" clear />
   </div>
 </template>
 <script>
 import storeChoose from '../../../components/store-choose'
 import { exportExcelDataCommon } from '../../../util/util'
+import { getSiteCode } from '../../../services/shopeeman-config'
 export default {
   components: { storeChoose },
   data() {
@@ -173,13 +174,13 @@ export default {
         { name: '巴西站', value: 'BR' },
         { name: '墨西哥站', value: 'MX' },
         { name: '智利站', value: 'CL' },
-        { name: '哥伦比亚站', value: 'CO' },
+        { name: '哥伦比亚站', value: 'CO' }
       ],
       site_query: {
         // 站点参数
         country: 'TH', // 站点
         typeCoin: '฿', // 币种
-        rate_coin: '', // 汇率
+        rate_coin: '' // 汇率
       },
       plantform_mallID: '', // 平台店铺ID
       mallGroupId: [], // 店铺分组
@@ -190,19 +191,19 @@ export default {
         status: '',
         appropriateTime: '',
         page: 1,
-        pageSize: 20,
+        pageSize: 20
       },
       cloumn_date: [],
       pickerOptions: {
         disabledDate(time) {
           return time.getTime() > Date.now()
-        },
+        }
       },
       showRMB: false,
       showConsole: true,
       selectMallList: [],
       mallPageSize: 50,
-      cancelActive: false,
+      cancelActive: false
     }
   },
   mounted() {
@@ -224,7 +225,7 @@ export default {
     },
     // 同步信息
     async updataMall() {
-      console.log("regd")
+      console.log('regd')
       // this.uploadVisible = false
       if (!this.selectMallList.length) {
         this.$message.warning('请选择要同步的店铺！')
@@ -238,16 +239,15 @@ export default {
             this.$refs.Logs.writeLog(`操作已取消！`, true)
             return
           }
-          let mall = this.selectMallList[i]
-          let pageNumber = 1
+          const mall = this.selectMallList[i]
+          const pageNumber = 1
           this.$refs.Logs.writeLog(`开始同步店铺【${mall.platform_mall_name}】对账信息`, true)
           if (this.query.status === '') {
             await this.searchSingleMall(pageNumber, mall, 0)
             await this.searchSingleMall(pageNumber, mall, 2)
-          } else if(this.query.status === '1'){
-              await this.searchSingleMall(pageNumber, mall, 0)
-          }
-          else if(this.query.status === '2'){
+          } else if (this.query.status === '1') {
+            await this.searchSingleMall(pageNumber, mall, 0)
+          } else if (this.query.status === '2') {
             await this.searchSingleMall(pageNumber, mall, 2)
           }
         }
@@ -260,11 +260,11 @@ export default {
         this.$refs.Logs.writeLog(`操作已取消！`, true)
         return
       }
-      let params = {
-        tran_type: type, //0,2  type:0-status:1 付款转账完成    type:2-status:0 等待订单完成
+      const params = {
+        tran_type: type, // 0,2  type:0-status:1 付款转账完成    type:2-status:0 等待订单完成
         page_number: pageNumber,
         page_size: this.mallPageSize,
-        shop_id: mall.platform_mall_id,
+        shop_id: mall.platform_mall_id
         // start_date: '',
         // end_date: '',
       }
@@ -272,33 +272,33 @@ export default {
         params['start_date'] = this.cloumn_date[0]
         params['end_date'] = this.cloumn_date[1]
       }
-      let res = await this.$shopeemanService.getIncomeTransaction(mall.country, params)
-      let resObj = res && JSON.parse(res)
+      const res = await this.$shopeemanService.getIncomeTransaction(mall.country, params)
+      const resObj = res && JSON.parse(res)
       if (resObj && resObj.status !== 200) {
         console.log(this.query.status)
-        if( this.query.status!=='' || type!==2) {this.$refs.Logs.writeLog(`店铺【${mall.platform_mall_name}】请检查店铺是否登录！`, false)}
+        if (this.query.status !== '' || type !== 2) { this.$refs.Logs.writeLog(`店铺【${mall.platform_mall_name}】请检查店铺是否登录！`, false) }
       } else {
-        let data = JSON.parse(resObj.data)
+        const data = JSON.parse(resObj.data)
         console.log(data, 'searchSingleMall')
         if (data.code === 0) {
           let count = data.data.list.length
           data.data.list &&
             data.data.list.forEach((item) => {
               console.log(item)
-              let params = {
+              const params = {
                 order_id: item.order_id + '',
                 status: item.status === 1 ? '1' : '2',
                 bill_num: item.id + '',
                 amount: item.amount + '',
                 using_wallet: item.using_wallet ? '1' : '0',
-                release_time: this.$dayjs(item.release_time).format('YYYY-MM-DD HH:mm:ss'),
+                release_time: this.$dayjs(item.release_time).format('YYYY-MM-DD HH:mm:ss')
               }
-              let index = dataArr.filter((i) => i.bill_num === params.bill_num)[0] || ''
+              const index = dataArr.filter((i) => i.bill_num === params.bill_num)[0] || ''
               index && count--
               !index && dataArr.push(params)
               // !index && this.UploadRecordData(mall.platform_mall_id,item)
             })
-          count && this.$refs.Logs.writeLog(`同步店铺【${mall.platform_mall_name}】【${type===0?'已拨款':'即将拨款'}】第【${++page}】页店铺评价数据【${count}】条`, true)
+          count && this.$refs.Logs.writeLog(`同步店铺【${mall.platform_mall_name}】【${type === 0 ? '已拨款' : '即将拨款'}】第【${++page}】页店铺评价数据【${count}】条`, true)
           if (dataArr.length < data.data.page_info.total && data.data.list.length >= this.mallPageSize) {
             pageNumber++
             this.searchSingleMall(pageNumber, mall, dataArr, page)
@@ -311,13 +311,13 @@ export default {
         }
       }
     },
-    //上传服务端
+    // 上传服务端
     async UploadRecordData(mallID, dataArr) {
-      let params = {
+      const params = {
         mallId: mallID,
-        bills: dataArr,
+        bills: dataArr
       }
-      let res = await this.$api.uploadPaymentList(params)
+      const res = await this.$api.uploadPaymentList(params)
       console.log(res)
     },
     // 计算汇率
@@ -447,7 +447,7 @@ export default {
     async getMallSite() {
       const params = {
         country: this.site_query.country,
-        mallGroupId: this.mallGroupId && this.mallGroupId.toString(),
+        mallGroupId: this.mallGroupId && this.mallGroupId.toString()
       }
       // 获取店铺分组
       const data = await this.$api.getMallSite(params)
@@ -463,22 +463,29 @@ export default {
     search() {
       const params = this.query
       let sysMallId = ''
-      this.selectMallList.forEach((item,index)=>{
-        if(index===0){
+      this.selectMallList.forEach((item, index) => {
+        if (index === 0) {
           sysMallId = item.id
-        }else{
+        } else {
           sysMallId = sysMallId + ',' + item.id
         }
       })
       params.sysMallId = sysMallId || ''
-      params.appropriateTime =  this.cloumn_date.length >= 0 ? this.cloumn_date[0]+' 00:00:00/'+this.cloumn_date[1]+' 23:59:59' : ''
+      params.appropriateTime = this.cloumn_date.length >= 0 ? this.cloumn_date[0] + ' 00:00:00/' + this.cloumn_date[1] + ' 23:59:59' : ''
       this.getTableList(params)
     },
     // 初始化tableList
     async getTableList(params) {
       const data = await this.$api.getPaymentList(params)
       if (data.data.code === 200) {
-        this.tableList = data.data.data.data
+        // this.tableList = data.data.data.data
+        const list = data.data.data.data
+        list.forEach(i => {
+          const aa = getSiteCode(i.country)
+          // list.push(i)
+          console.log(aa)
+        })
+        this.tableList = list
         // this.query.page = data.data.data.last_page
         // this.query.pageSize = data.data.data.per_page
         this.total = data.data.data.total
@@ -491,12 +498,12 @@ export default {
     },
     // 初始化时间
     initDate() {
-      let end = new Date().getTime()
-      let start = end - 31 * 24 * 60 * 60 * 1000
+      const end = new Date().getTime()
+      const start = end - 31 * 24 * 60 * 60 * 1000
       this.cloumn_date = [this.$dayjs(start).format('YYYY-MM-DD'), this.$dayjs(end).format('YYYY-MM-DD')]
       // const d = new Date()
-      // const d1 = d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate() 
-      // const d2 = d.getFullYear() + '-' + d.getMonth() + '-' + d.getDate() 
+      // const d1 = d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate()
+      // const d2 = d.getFullYear() + '-' + d.getMonth() + '-' + d.getDate()
       // this.cloumn_date = [d2, d1]
       // this.cloumn_date && this.cloumn_date.length > 0 ? this.cloumn_date.join('/').toString() : ''
     },
@@ -507,8 +514,8 @@ export default {
     handleCurrentChange(val) {
       this.query.page = val
       this.search()
-    },
-  },
+    }
+  }
 }
 </script>
 <style lang="less">

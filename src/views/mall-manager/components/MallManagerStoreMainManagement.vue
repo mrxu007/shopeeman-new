@@ -490,8 +490,7 @@
 </template>
 <script>
 import storeChoose from '../../../components/store-choose'
-// import { getValue} from '../../utils/utils'
-import { getMalls, getValue } from '../../../util/util'
+import { getMalls, MallgetValue } from '../../../util/util'
 import { encryptionList, ipTypeList, protocolList, confuseList } from '../../../util/MallManagerStoredata'
 export default {
   components: { storeChoose },
@@ -1104,7 +1103,7 @@ export default {
           data.data.forEach((item, index) => {
             // 获取店铺名称
             if (item.target_mall_info) {
-              item.mall_alias_name = getValue(this.shopAccountList, 'label', 'id', item.target_mall_info[0].mall_id)
+              item.mall_alias_name = MallgetValue(this.shopAccountList, 'label', 'id', item.target_mall_info[0].mall_id)
             }
             // 解析ip
             this.$YipService.GetIPinfor(item.ip_info).then(res => {
