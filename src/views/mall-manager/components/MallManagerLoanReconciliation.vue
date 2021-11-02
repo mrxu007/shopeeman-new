@@ -118,7 +118,7 @@
           <el-table-column label="序号" type="index" />
           <el-table-column prop="country" label="站点" align="center" />
           <el-table-column prop="platform_mall_name" label="店铺名称" align="center" />
-          <el-table-column prop="order_id" label="订单编号" align="center" />
+          <el-table-column prop="order_id" label="订单编号" align="center" min-width="120px" />
           <el-table-column prop="" label="状态" align="center">
             <template slot-scope="{ row }">{{ Number(row.status) === 1 ? '已拨款 ' : '即将拨款' }}</template>
           </el-table-column>
@@ -127,7 +127,7 @@
           <el-table-column prop="" label="拨款金额(RMB)" align="center">
             <template slot-scope="{ row }">{{ (row.appropriate_amount * site_query.rate_coin).toFixed(2) }}</template>
           </el-table-column>
-          <el-table-column prop="created_at" label="拨款时间" align="center" />
+          <el-table-column prop="created_at" label="拨款时间" align="center" min-width="120px" />
           <!-- <el-table-column prop="" label="账单详情" align="center" /> -->
         </el-table>
         <div class="pagination" style="display: flex; justify-content: flex-end; margin: 4px 0px">
@@ -150,11 +150,12 @@
 <script>
 import storeChoose from '../../../components/store-choose'
 import { exportExcelDataCommon } from '../../../util/util'
-import { getSiteCode } from '../../../services/shopeeman-config'
+import ShopeeConfig from '@/services/shopeeman-config'
 export default {
   components: { storeChoose },
   data() {
     return {
+      shopeeConfig: new ShopeeConfig(),
       orgin: '',
       to_back_amount: '', // 即将拨款
       haved_amount: '', // 已拨款
@@ -481,9 +482,8 @@ export default {
         // this.tableList = data.data.data.data
         const list = data.data.data.data
         list.forEach(i => {
-          const aa = getSiteCode(i.country)
-          // list.push(i)
-          console.log(aa)
+          i.country = this.shopeeConfig.getSiteCode(i.country)
+          list.push(i)
         })
         this.tableList = list
         // this.query.page = data.data.data.last_page

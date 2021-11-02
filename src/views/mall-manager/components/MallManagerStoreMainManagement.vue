@@ -1106,6 +1106,8 @@ export default {
               item.mall_alias_name = MallgetValue(this.shopAccountList, 'label', 'id', item.target_mall_info[0].mall_id)
             }
             // 解析ip
+            item.poxyIP = ''
+            item.poxyID = ''
             this.$YipService.GetIPinfor(item.ip_info).then(res => {
               const data_ipinfor = JSON.parse(res)
               item.poxyID = data_ipinfor.id
