@@ -1,68 +1,70 @@
 <template>
   <el-row class="contaniner">
     <el-row class="header">
-      <el-col :span="8" class="header-lft">
-        <ul>
-          <li>
-            <span>站点：</span>
-            <el-select v-model="countryVal" placeholder="" size="mini" filterable>
-              <el-option label="全部" :value="0" />
-              <el-option v-for="(item, index) in countries" :key="index" :label="item.label" :value="item.value" />
-            </el-select>
-          </li>
-          <li>
-            <el-select v-model="mallSearchConditionVal" class="unnormal" placeholder="" size="mini" filterable>
-              <el-option v-for="(item, index) in mallSearchCondition" :key="index" :label="item.label" :value="item.value" />
-            </el-select>
-            <el-input v-model="mallSearchConditionInputVal" class="unnormal2" placeholder="" size="mini" />
-          </li>
-          <li>
-            <span>店铺状态：</span>
-            <el-select v-model="mallStausVal" placeholder="" size="mini" filterable>
-              <el-option label="全部" :value="0" />
-              <el-option v-for="(item, index) in mallStatus" :key="index" :label="item.label" :value="item.value" />
-            </el-select>
-          </li>
-          <li>
-            <span>店铺分组：</span>
-            <el-select v-model="groupId" placeholder="" size="mini" filterable>
-              <el-option label="全部" :value="0" />
-              <el-option label="无分组" :value="-1" />
-              <el-option v-for="(item, index) in 4" :key="index" :label="item" :value="item" />
-            </el-select>
-          </li>
-        </ul>
-      </el-col>
-      <el-col :span="16" class="header-rht">
-        <ul>
-          <li>
-            <el-checkbox>强制登录</el-checkbox>
-            <el-button type="primary" size="mini" :loading="buttonStatus.login" @click="alotOfLogined">一键登录</el-button>
-            <el-button type="primary" size="mini" @click="importMall('authorization')">导入店铺</el-button>
-            <el-button type="primary" size="mini" @click="exportMall">导出店铺</el-button>
-            <el-button type="primary" size="mini" @click="editWaterMall('update')">修改账号登录密码</el-button>
-            <el-button type="primary" size="mini" @click="editWaterMall('edit')">修改店铺水印文字</el-button>
-            <el-button type="primary" size="mini">设置店铺封面</el-button>
-            <el-button type="primary" size="mini">设置退货地址</el-button>
-            <el-button type="primary" size="mini">刷新登录状态</el-button>
-            <el-button type="primary" size="mini">同步店铺信息</el-button>
-            <el-button type="primary" size="mini">更新浏览器识别码</el-button>
-            <el-button type="primary" size="mini" @click="openDeleteMallDialog">一键解绑店铺</el-button>
-            <el-button type="primary" size="mini">开启店铺休假模式</el-button>
-            <el-button type="primary" size="mini">关闭店铺休假模式</el-button>
-            <el-button type="primary" size="mini">批量修改物流方式</el-button>
-            <el-button type="primary" size="mini" @click="getMallList">查询</el-button>
-            <el-checkbox>隐藏日志</el-checkbox>
-            <p class="res-text">温馨提示：导入新加披站点店铺时，若账号为手机号时，填写模板时请填写完整(带有国家区号)的手机号，否则登录失败</p>
-          </li>
-        </ul>
-      </el-col>
+      <div class="header-content">
+        <el-col :span="8" class="header-lft">
+          <ul>
+            <li>
+              <span>站点：</span>
+              <el-select v-model="countryVal" placeholder="" size="mini" filterable>
+                <el-option label="全部" :value="0" />
+                <el-option v-for="(item, index) in countries" :key="index" :label="item.label" :value="item.value" />
+              </el-select>
+            </li>
+            <li>
+              <el-select v-model="mallSearchConditionVal" class="unnormal" placeholder="" size="mini" filterable>
+                <el-option v-for="(item, index) in mallSearchCondition" :key="index" :label="item.label" :value="item.value" />
+              </el-select>
+              <el-input v-model="mallSearchConditionInputVal" class="unnormal2" placeholder="" size="mini" />
+            </li>
+            <li>
+              <span>店铺状态：</span>
+              <el-select v-model="mallStausVal" placeholder="" size="mini" filterable>
+                <el-option label="全部" :value="0" />
+                <el-option v-for="(item, index) in mallStatus" :key="index" :label="item.label" :value="item.value" />
+              </el-select>
+            </li>
+            <li>
+              <span>店铺分组：</span>
+              <el-select v-model="groupId" placeholder="" size="mini" filterable>
+                <el-option label="全部" :value="0" />
+                <el-option label="无分组" :value="-1" />
+                <el-option v-for="(item, index) in 4" :key="index" :label="item" :value="item" />
+              </el-select>
+            </li>
+          </ul>
+        </el-col>
+        <el-col :span="16" class="header-rht">
+          <ul>
+            <li>
+              <el-checkbox>强制登录</el-checkbox>
+              <el-button type="primary" size="mini" :loading="buttonStatus.login" @click="alotOfLogined">一键登录</el-button>
+              <el-button type="primary" size="mini" @click="importMall('authorization')">导入店铺</el-button>
+              <el-button type="primary" size="mini" @click="exportMall">导出店铺</el-button>
+              <el-button type="primary" size="mini" @click="editWaterMall('update')">修改账号登录密码</el-button>
+              <el-button type="primary" size="mini" @click="editWaterMall('edit')">修改店铺水印文字</el-button>
+              <el-button type="primary" size="mini">设置店铺封面</el-button>
+              <el-button type="primary" size="mini">设置退货地址</el-button>
+              <el-button type="primary" size="mini">刷新登录状态</el-button>
+              <el-button type="primary" size="mini">同步店铺信息</el-button>
+              <el-button type="primary" size="mini">更新浏览器识别码</el-button>
+              <el-button type="primary" size="mini" @click="openDeleteMallDialog">一键解绑店铺</el-button>
+              <el-button type="primary" size="mini">开启店铺休假模式</el-button>
+              <el-button type="primary" size="mini">关闭店铺休假模式</el-button>
+              <el-button type="primary" size="mini">批量修改物流方式</el-button>
+              <el-button type="primary" size="mini" @click="getMallList">查询</el-button>
+              <el-checkbox>隐藏日志</el-checkbox>
+              <p class="res-text">温馨提示：导入新加披站点店铺时，若账号为手机号时，填写模板时请填写完整(带有国家区号)的手机号，否则登录失败</p>
+            </li>
+          </ul>
+        </el-col>
+      </div>
     </el-row>
     <el-row id="article">
       <!-- @table-body-scroll="tableScroll" -->
       <el-table
         ref="plTable"
-        height="calc(100vh - 216px)"
+        height="calc(100vh - 245px)"
         :data="mallListTemp"
         :header-cell-style="{
           backgroundColor: '#f5f7fa',
@@ -411,7 +413,7 @@ export default {
           continue
         }
         debugger
-        const mallId = res.data.mallId
+        const mallId = res.data.shopid
         const webLoginInfo = JSON.stringify(res.data.Cookie)
         const params = {
           mallId,

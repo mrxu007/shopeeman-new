@@ -1,4 +1,4 @@
-import applicationConfig from './application-config';
+import applicationConfig from './application-config'
 export default class ShopeemanConfig {
   /**
    * 获取当前登录的用户信息
@@ -173,8 +173,8 @@ export default class ShopeemanConfig {
       'PL': '.shopee.com.pl'
     }
   }
-  async getUserInfo(){
-    let res = await new applicationConfig().getUserConfig()
+  async getUserInfo() {
+    const res = await new applicationConfig().getUserConfig()
     return JSON.parse(res) || ''
   }
 
@@ -216,15 +216,15 @@ export default class ShopeemanConfig {
   getSiteCoinSymbol(val) { // 各站点货币符号
     return this.site_coin_symbol[val] || 'invalid_value'
   }
-  //域名切换设置 Auto:自动切换  Local：大陆  Abroad：境外
-  async getSiteWebUrl(val){
+  // 域名切换设置 Auto:自动切换  Local：大陆  Abroad：境外
+  async getSiteWebUrl(val) {
     let weburl = ''
     const userInfo = await this.getUserInfo()
-    const domain = userInfo&&userInfo.SwitchDominTypeSetting
-    if(domain === 'Local'){
-      weburl =  this.site_domain_chinese[val]
-    }else if(domain === 'Abroad'){
-      weburl = this.site_domain_local[val] 
+    const domain = userInfo && userInfo.SwitchDominTypeSetting
+    if (domain === 'Local') {
+      weburl = this.site_domain_chinese[val]
+    } else if (domain === 'Abroad') {
+      weburl = this.site_domain_local[val]
     }
     return weburl
   }

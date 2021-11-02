@@ -20,8 +20,8 @@ export default class CommodityService {
    * 新增公司主体(系统)
    * @param {string} lineId 线路id
    * @param {string} uid 主账号ID
-   * @param {string} 子账号ID
    * @param {string} ipAlias 主体名称
+   * @param {string} 子账号ID
    * @param {string} num 购买数量
    * @param {string} period 购买时长
    * @param {string} isPresale 是否预售
@@ -30,8 +30,8 @@ export default class CommodityService {
     return this.nativeService.callCloudIpFunction('BuyCloudIP',
       parmas.lineId.toString(),
       parmas.uid.toString(),
-      parmas.uuid.toString(),
       parmas.ipAlias.toString(),
+      parmas.uuid.toString(),
       parmas.num.toString(),
       parmas.period.toString(),
       parmas.isPresale.toString())

@@ -1,6 +1,66 @@
 import { setTimeout } from 'core-js'
 import md5 from 'js-md5'
+import Vue from 'vue'
+const instance = new Vue()
 
+// 获取店铺信息
+export async function MallList() {
+  const param = {
+    country: '',
+    mallGroupIds: ''
+  }
+  const res = await instance.$api.ddMallGoodsGetMallList(param)
+  // console.log('res', res)
+  if (res.data.code === 200) {
+    const arr = res.data.data
+    const blist = []
+    arr.forEach(e => {
+      blist.push({ 'label': e.platform_mall_name, 'id': e.id })
+    })
+    return blist
+  } else {
+    this.$message.error('获取分组、店铺列表失败')
+  }
+}
+// 获取颜色列表
+export async function colorLabelList() {
+  const colorList = []
+  try {
+    const data = await instance.$api.colorLabelList()
+    for (let index = 0; index < data.data.data.length; index++) {
+      const item = data.data.data[index]
+      const obj = {}
+      obj.label = item.color_name
+      obj.id = item.id
+      obj.color = `color:${item.color}`
+      colorList.push(obj)
+    }
+    return colorList
+  } catch (err) {
+    return []
+  }
+}
+// 设置日期选择器默认时间
+export function creatDate(i) {
+  const base = new Date()
+  const baseVal = [base.getFullYear(), base.getMonth() + 1, base.getDate()].join('-')
+  const oneDay = 24 * 3600 * 1000
+  const now = new Date(base - oneDay * i)
+  const nowVal = [now.getFullYear(), now.getMonth() + 1, now.getDate()].join('-')
+  return [nowVal, baseVal]
+}
+// 匹配对象数组值
+export function getValue(arr, label, value, relValue) {
+  let data = ''
+  for (let i = 0; i < arr.length; i++) {
+    const item = arr[i]
+    if (item[value] === relValue) {
+      data = item[label]
+      break
+    }
+  }
+  return data
+}
 /**
  *
  * @param {string} str 字符串长度

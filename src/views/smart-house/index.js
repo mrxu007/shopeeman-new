@@ -8,6 +8,7 @@
  */
 // 智能仓库
 const SmartHouseWorkBench = () => import('./components/SmartHouseWorkBench.vue')
+const RefuseSign = () => import('./components/RefuseSign.vue')
 // 自由仓库
 const PrivateWarehouse = () => import('./components/PrivateWarehouse.vue')
 
@@ -30,5 +31,6 @@ export {
   SmartHouseReturnManage,
   SmartHouseUnclaimed,
   SmartHouseAbnormalPayment,
+  RefuseSign,
   PrivateWarehouse
 }

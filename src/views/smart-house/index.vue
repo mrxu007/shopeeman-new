@@ -20,8 +20,12 @@
     <!--失物招领 -->
     <main v-if="activeVal === '4'"><SmartHouseUnclaimed /></main>
 
+    <!--拒签收管理 -->
+    <main v-if="activeVal === '5'"><RefuseSign /></main>
+
     <!--我的赔付 -->
     <main v-if="activeVal === '6'"><SmartHouseAbnormalPayment /></main>
+
     <!--自有仓库 -->
     <main v-if="activeVal === '7'"><PrivateWarehouse /></main>
   </div>
@@ -34,7 +38,8 @@ import {
   SmartHouseReturnManage,
   SmartHouseUnclaimed,
   SmartHouseAbnormalPayment,
-  PrivateWarehouse
+  PrivateWarehouse,
+  RefuseSign
 } from './index'
 export default {
   components: {
@@ -43,8 +48,8 @@ export default {
     SmartHouseReturnManage,
     SmartHouseUnclaimed,
     SmartHouseAbnormalPayment,
-    PrivateWarehouse
-
+    PrivateWarehouse,
+    RefuseSign
   },
   data() {
     return {
