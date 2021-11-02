@@ -22,7 +22,7 @@
           <el-option
             v-for="(item, index) in siteList"
             :key="index"
-            :label="item.platform_mall_name"
+            :label="item.mall_alias_name || item.platform_mall_name"
             :value="item.platform_mall_id"
           />
         </el-select>
@@ -41,6 +41,12 @@ export default {
       type: Boolean,
       default() {
         return false
+      }
+    },
+    source: {
+      type: String,
+      default() {
+        return ''
       }
     }
   },
@@ -71,7 +77,7 @@ export default {
         this.isAllowSet2 = false
         this.groupId = []
         this.groupIdList = []
-        this.ddMallGoodsGetMallList()
+        this.ddMallGoodsGetMallList(1)
       },
       deep: true
     },
@@ -97,7 +103,7 @@ export default {
           }
           setTimeout(() => {
             this.isAllowSet2 = true
-            this.ddMallGoodsGetMallList()
+            this.ddMallGoodsGetMallList(2)
           }, 10)
         }
       },
@@ -133,14 +139,13 @@ export default {
     }
   },
   mounted() {
-    // console.log(this.isAll)
     this.countryVal = !this.isAll && 'TH' || ''
   },
   methods: {
     async changeSelect(val) {
       console.log(val)
     },
-    async ddMallGoodsGetMallList() {
+    async ddMallGoodsGetMallList(val) {
       this.site = []
       const country = this.countryVal
       const groupId = this.groupId.indexOf('') > -1 && this.groupId.slice(1).toString() || this.groupId.toString()
@@ -181,7 +186,11 @@ export default {
           mallList.push(temp[0])
         }
       })
-      this.$emit('changeMallList', mallList)
+      if (this.source) {
+        this.$emit('changeMallList', { mallList: mallList, source: this.source })
+      } else {
+        this.$emit('changeMallList', mallList)
+      }
     }
   }
 }

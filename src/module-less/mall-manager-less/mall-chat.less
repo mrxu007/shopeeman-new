@@ -53,4 +53,38 @@
     border: #1a1a1a 1px solid;
     width: 100%;
   }
+  .reply_setting{
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    .reply_content{
+      border: 1px solid #666;
+      margin: 0 10px;
+      padding: 5px 10px;
+      text-align: left;
+      height: 65px;
+      box-sizing: border-box;
+      overflow: auto;
+      white-space: initial;
+    }
+  }
+
+  .message_content{
+    border: 1px #999999 solid;
+    padding: 5px 10px;
+    overflow: auto;
+    height: 80px;
+    text-align: left;
+    white-space: initial;
+
+    .contentP{
+      margin: 0 0 10px;
+      padding: 0;
+      &:last-child{
+        margin-bottom: 0;
+      }
+    }
+  }
 }
+
+

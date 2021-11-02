@@ -23,12 +23,11 @@
             start-placeholder="开始日期"
             end-placeholder="结束日期"
             :picker-options="pickerOptions"
-          >
-          </el-date-picker>
+          />
         </div>
         <div class="tool-item mar-right">
           <span>商品ID：</span>
-          <el-input v-model="goodsID" placeholder="" size="mini" clearable></el-input>
+          <el-input v-model="goodsID" placeholder="" size="mini" clearable />
         </div>
         <div class="tool-item mar-right">
           <span>站点：</span>
@@ -36,13 +35,13 @@
             <el-option v-for="(item, index) in countries" :key="index" :label="item.label" :value="item.value" />
           </el-select>
         </div>
-        <el-button type="primary" size="mini" @click="searchTableList" class="mar-right">查 询</el-button>
-        <el-button type="primary" size="mini" @click="insertGoodsVisible = true" class="mar-right">新增商品</el-button>
+        <el-button type="primary" size="mini" class="mar-right" @click="searchTableList">查 询</el-button>
+        <el-button type="primary" size="mini" class="mar-right" @click="insertGoodsVisible = true">新增商品</el-button>
       </div>
     </div>
     <!-- 表格区 -->
     <div class="content">
-      <el-table v-loading="tableLoading" ref="multipleTable" :data="tableData" tooltip-effect="dark" max-height="700">
+      <el-table ref="multipleTable" v-loading="tableLoading" :data="tableData" tooltip-effect="dark" max-height="700">
         <el-table-column align="center" type="index" label="序号" width="50">
           <template slot-scope="scope">{{ (currentPage - 1) * pageSize + scope.$index + 1 }}</template>
         </el-table-column>
@@ -57,7 +56,7 @@
         </el-table-column>
         <el-table-column label="商品图片" width="80">
           <template slot-scope="scope">
-            <el-image :src="scope.row.goods_img" style="width: 60px; height: 60px"></el-image>
+            <el-image :src="scope.row.goods_img" style="width: 60px; height: 60px" />
           </template>
         </el-table-column>
         <el-table-column min-width="60px" label="库存" align="center">
@@ -77,13 +76,13 @@
                 <el-table-column label="序号" type="index" align="center" />
                 <el-table-column label="SKU图片" width="80" align="center">
                   <template slot-scope="scope">
-                    <el-image :src="scope.row.sku_image" style="width: 60px; height: 60px"></el-image>
+                    <el-image :src="scope.row.sku_image" style="width: 60px; height: 60px" />
                   </template>
                 </el-table-column>
                 <el-table-column label="SKU ID" prop="sku_id" align="center" />
                 <el-table-column label="SKU名称" prop="sku_name" align="center" />
                 <el-table-column label="价格" prop="sku_price" align="center" />
-                <el-table-column label="库存" prop="stock_num" align="center"> </el-table-column>
+                <el-table-column label="库存" prop="stock_num" align="center" />
                 <el-table-column label="操作" width="80" align="center">
                   <template slot-scope="scope">
                     <el-button size="mini" type="primary" @click="deleteSku($index, row, scope.row, scope.$index)">删 除</el-button>
@@ -123,11 +122,11 @@
             <el-col :span="9" class="mar-right">
               <div class="tool-item">
                 <span>商品名称：</span>
-                <el-input v-model="goodsName" placeholder="" size="mini" clearable style="width: 200px"></el-input>
+                <el-input v-model="goodsName" placeholder="" size="mini" clearable style="width: 200px" />
               </div>
               <div class="tool-item">
                 <span>商品链接：</span>
-                <el-input v-model="goodsUrl" placeholder="" size="mini" clearable style="flex: 1"></el-input>
+                <el-input v-model="goodsUrl" placeholder="" size="mini" clearable style="flex: 1" />
               </div>
               <div class="tool-item">
                 <div class="tool-item mar-right">
@@ -136,14 +135,14 @@
                     <el-option v-for="(item, index) in countries" :key="index" :label="item.label" :value="item.value" />
                   </el-select>
                 </div>
-                <div class="tool-item" v-if="goodsImage">
+                <div v-if="goodsImage" class="tool-item">
                   <span>商品主图：</span>
-                  <el-image :src="goodsImage" style="width: 148px; height: 148px" @click="goodsImage = ''"></el-image>
+                  <el-image :src="goodsImage" style="width: 148px; height: 148px" @click="goodsImage = ''" />
                 </div>
-                <div class="tool-item" v-else>
+                <div v-else class="tool-item">
                   <span>商品主图：</span>
                   <el-upload class="avatar-uploader" action="#" :show-file-list="false" list-type="picture-card" :on-change="handleChange">
-                    <i class="el-icon-plus"></i>
+                    <i class="el-icon-plus" />
                   </el-upload>
                 </div>
               </div>
@@ -154,20 +153,20 @@
                 <div class="sku-item">
                   <div class="tool-item">
                     <span>规格名称</span>
-                    <el-input v-model="spec1name" placeholder="" size="mini" clearable></el-input>
+                    <el-input v-model="spec1name" placeholder="" size="mini" clearable />
                   </div>
                   <div class="tool-item">
                     <span>选项</span>
                     <div class="sku-item-box">
-                      <div class="sku-Spec" v-for="(item, i) in skuSpec1" :key="i + 'spec1'">
-                        <el-input v-model="item.sku_name" placeholder="" size="mini" clearable @input="sepcInput($event, i)" :disabled="item.sku_disabled"></el-input>
-                        <i class="el-icon-plus"></i>
+                      <div v-for="(item, i) in skuSpec1" :key="i + 'spec1'" class="sku-Spec">
+                        <el-input v-model="item.sku_name" placeholder="" size="mini" clearable :disabled="item.sku_disabled" @input="sepcInput($event, i)" />
+                        <i class="el-icon-plus" />
                         <el-button type="primary" size="mini" @click="deleteSpec1(i)">删除</el-button>
                       </div>
                     </div>
                   </div>
                   <div class="tool-item">
-                    <span></span>
+                    <span />
                     <el-button type="primary" size="mini" style="width: 100%" @click="addSpec1">添加选项</el-button>
                   </div>
                 </div>
@@ -181,27 +180,19 @@
                 <div class="sku-item">
                   <div class="tool-item">
                     <span>规格名称</span>
-                    <el-input v-model="spec2name" placeholder="" size="mini" clearable></el-input>
+                    <el-input v-model="spec2name" placeholder="" size="mini" clearable />
                   </div>
                   <div class="tool-item">
                     <span>选项</span>
                     <div class="sku-item-box">
-                      <div class="sku-Spec" v-for="(item, i) in skuSpec2" :key="i + 'spec2'">
-                        <el-input
-                          v-model="item.sku_name"
-                          placeholder=""
-                          size="mini"
-                          clearable
-                          class="mar-right"
-                          :disabled="!skuSecondCheck || item.sku_disabled"
-                          @input="sepcInput($event, i)"
-                        ></el-input>
+                      <div v-for="(item, i) in skuSpec2" :key="i + 'spec2'" class="sku-Spec">
+                        <el-input v-model="item.sku_name" placeholder="" size="mini" clearable class="mar-right" :disabled="!skuSecondCheck || item.sku_disabled" @input="sepcInput($event, i)" />
                         <el-button type="primary" size="mini" :disabled="!skuSecondCheck" @click="deleteSpec2(i)">删除</el-button>
                       </div>
                     </div>
                   </div>
                   <div class="tool-item">
-                    <span></span>
+                    <span />
                     <el-button type="primary" size="mini" style="width: 100%" :disabled="!skuSecondCheck" @click="addSpec2">添加选项</el-button>
                   </div>
                 </div>
@@ -209,21 +200,21 @@
             </el-col>
           </el-row>
           <el-row style="width: 100%; display: flex; margin-top: 10px">
-            <el-col :span="9" class="mar-right"> </el-col>
+            <el-col :span="9" class="mar-right" />
             <el-col :span="14">
               <div class="tool-item">
                 <span class="mar-right">规格咨询</span>
                 <span>价格</span>
-                <el-input v-model="skuPrice" placeholder="" size="mini" clearable class="mar-right" style="width: 100px" @input="setSkuPriceStock"></el-input>
+                <el-input v-model="skuPrice" placeholder="" size="mini" clearable class="mar-right" style="width: 100px" @input="setSkuPriceStock" />
                 <span>数量</span>
-                <el-input v-model="skuStock" placeholder="" size="mini" clearable class="mar-right" style="width: 100px" @input="setSkuPriceStock"></el-input>
+                <el-input v-model="skuStock" placeholder="" size="mini" clearable class="mar-right" style="width: 100px" @input="setSkuPriceStock" />
                 <el-button type="primary" size="mini" @click="setSkuPriceStock">批量更新</el-button>
               </div>
             </el-col>
           </el-row>
         </div>
         <div class="content-table">
-          <el-table v-loading="tableLoading" ref="skuTable" :data="skuList" tooltip-effect="dark" height="280">
+          <el-table ref="skuTable" v-loading="tableLoading" :data="skuList" tooltip-effect="dark" height="280">
             <el-table-column align="center" type="index" label="序号" width="50" />
             <el-table-column width="120px" label="规格一" prop="sku_name1" align="center">
               <template slot-scope="scope">{{ scope.row.sku_name1 }}</template>
@@ -233,17 +224,17 @@
             </el-table-column>
             <el-table-column width="120px" label="库存" prop="sku_name" align="center">
               <template slot-scope="scope">
-                <el-input v-model="scope.row.stock_num" placeholder="" size="mini"></el-input>
+                <el-input v-model="scope.row.stock_num" placeholder="" size="mini" />
               </template>
             </el-table-column>
             <el-table-column width="120px" label="单买价（元）" prop="sku_name" align="center">
               <template slot-scope="scope">
-                <el-input v-model="scope.row.sku_price" placeholder="" size="mini"></el-input>
+                <el-input v-model="scope.row.sku_price" placeholder="" size="mini" />
               </template>
             </el-table-column>
             <el-table-column width="120px" label="规格备注" prop="sku_name" align="center">
               <template slot-scope="scope">
-                <el-input v-model="scope.row.remark" placeholder="" size="mini"></el-input>
+                <el-input v-model="scope.row.remark" placeholder="" size="mini" />
               </template>
             </el-table-column>
             <el-table-column min-width="60px" label="规格图" prop="platform_mall_name" align="center" />
@@ -256,8 +247,8 @@
           </el-table>
         </div>
         <div class="footer">
-          <el-button type="primary" size="mini" @click="saveUpdateGoods" v-if="editInfo.id">保 存</el-button>
-          <el-button type="primary" size="mini" @click="saveInsert" v-else>新 增</el-button>
+          <el-button v-if="editInfo.id" type="primary" size="mini" @click="saveUpdateGoods">保 存</el-button>
+          <el-button v-else type="primary" size="mini" @click="saveInsert">新 增</el-button>
         </div>
       </div>
     </el-dialog>
@@ -273,7 +264,7 @@ export default {
       pickerOptions: {
         disabledDate(time) {
           return time.getTime() > Date.now()
-        },
+        }
       },
       goodsID: '',
       countryVal: 'TH',
@@ -290,11 +281,11 @@ export default {
         { label: '墨西哥站', value: 'MX' },
         { label: '哥伦比亚站', value: 'CO' },
         { label: '智利站', value: 'CL' },
-        { label: '波兰站', value: 'PL' },
+        { label: '波兰站', value: 'PL' }
       ],
-      pageSize: 20, //页码
-      currentPage: 1, //页码
-      total: 0, //表格总数
+      pageSize: 20, // 页码
+      currentPage: 1, // 页码
+      total: 0, // 表格总数
       tableData: [],
       tableLoading: false,
       insertGoodsVisible: false,
@@ -311,22 +302,22 @@ export default {
       skuStock: 0,
       spec1name: '规格一',
       spec2name: '规格二',
-      skuListCopy: [],
+      skuListCopy: []
     }
   },
   mounted() {
-    let end = new Date().getTime()
-    let start = end - 30 * 24 * 60 * 60 * 1000
+    const end = new Date().getTime()
+    const start = end - 30 * 24 * 60 * 60 * 1000
     this.searchTime = [this.$dayjs(start).format('YYYY-MM-DD'), this.$dayjs(end).format('YYYY-MM-DD')]
     this.searchTableList()
   },
   methods: {
-    //保存新增
+    // 保存新增
     async saveInsert() {
       if (!this.skuList.length) {
         return this.$message.warning('缺少sku信息！')
       }
-      let userStocksSkus = []
+      const userStocksSkus = []
       this.skuSpec1.forEach((item1) => {
         this.skuSpec2.forEach((item2) => {
           userStocksSkus.push({
@@ -337,21 +328,21 @@ export default {
             sku_price: 0,
             sku_image: '',
             remark: '',
-            created_at: null,
+            created_at: null
           })
         })
       })
       if (!this.goodsName) {
         return this.$message.warning('商品名称不能为空！')
       }
-      let params = {
+      const params = {
         country: this.goodsCountry,
         goodsName: this.goodsName,
         goodsUrl: this.goodsUrl,
         goodsImg: this.goodsImage,
-        userStocksSkus: JSON.stringify(userStocksSkus),
+        userStocksSkus: JSON.stringify(userStocksSkus)
       }
-      let res = await this.$api.insertUserGoods(params)
+      const res = await this.$api.insertUserGoods(params)
       if (res.data.code === 200) {
         this.$message.success('保存成功!')
         this.insertGoodsVisible = false
@@ -361,9 +352,9 @@ export default {
       }
       console.log(res, 'saveInsert')
     },
-    //保存编辑
+    // 保存编辑
     async saveUpdateGoods() {
-      let userStocksSkus = []
+      const userStocksSkus = []
       this.skuList.forEach((item) => {
         userStocksSkus.push({
           sku_id: item.sku_id,
@@ -373,18 +364,18 @@ export default {
           sku_price: item.sku_price,
           sku_image: item.sku_image,
           remark: item.remark,
-          created_at: item.created_at,
+          created_at: item.created_at
         })
       })
-      let params = {
+      const params = {
         country: this.goodsCountry,
         id: this.editInfo.id,
         goodsId: this.editInfo.goodsId,
         goodsName: this.goodsName,
         goodsImg: this.goodsImage,
-        userStocksSkus: JSON.stringify(userStocksSkus),
+        userStocksSkus: JSON.stringify(userStocksSkus)
       }
-      let res = await this.$api.updataUserGoods(params)
+      const res = await this.$api.updataUserGoods(params)
       if (res.data.code === 200) {
         this.$message.success('保存成功!')
         this.insertGoodsVisible = false
@@ -394,14 +385,14 @@ export default {
       }
       console.log(res, 'saveUpdateGoods')
     },
-    //删除sku
+    // 删除sku
     async deleteSku(faIndex, faRow, row, index) {
       console.log(faIndex, faRow, row, index)
-      let params = {
+      const params = {
         id: faRow.id,
-        skuIdList: JSON.stringify([row.id]),
+        skuIdList: JSON.stringify([row.id])
       }
-      let res = await this.$api.deleteUserSku(params)
+      const res = await this.$api.deleteUserSku(params)
       if (res.data.code === 200) {
         this.$message.success('删除成功!')
         this.tableData[faIndex].user_stocks_skus.splice(index, 1)
@@ -410,7 +401,7 @@ export default {
       }
       console.log(res)
     },
-    //设置sku价格库存
+    // 设置sku价格库存
     setSkuPriceStock() {
       if (!this.skuList.length) {
         return
@@ -420,51 +411,51 @@ export default {
         item.sku_price = this.skuPrice
       })
     },
-    //添加spec1
+    // 添加spec1
     addSpec1() {
-      let params = {
-        sku_name: '',
+      const params = {
+        sku_name: ''
       }
       this.skuSpec1.push(params)
       this.createSkuList()
     },
-    //添加spec2
+    // 添加spec2
     addSpec2() {
-      let params = {
-        sku_name: '',
+      const params = {
+        sku_name: ''
       }
       this.skuSpec2.push(params)
       this.createSkuList()
     },
-    async deleteEditSku(deleteSkus){
-        let goodsId = ''
-        let skuIds = []
-        deleteSkus.forEach((item) => {
-          if (item.sys_stock_id) {
-            goodsId = item.sys_stock_id
-            skuIds.push(item.id)
-          }
-        })
-        if (goodsId && skuIds.length) {
-          let params = {
-            id: goodsId,
-            skuIdList: JSON.stringify(skuIds),
-          }
-          let res = await this.$api.deleteUserSku(params)
-          if (res.data.code === 200) {
-            this.$message.success('删除成功!')
-          } else {
-            this.$message.error(res.data.message)
-          }
+    async deleteEditSku(deleteSkus) {
+      let goodsId = ''
+      const skuIds = []
+      deleteSkus.forEach((item) => {
+        if (item.sys_stock_id) {
+          goodsId = item.sys_stock_id
+          skuIds.push(item.id)
         }
+      })
+      if (goodsId && skuIds.length) {
+        const params = {
+          id: goodsId,
+          skuIdList: JSON.stringify(skuIds)
+        }
+        const res = await this.$api.deleteUserSku(params)
+        if (res.data.code === 200) {
+          this.$message.success('删除成功!')
+        } else {
+          this.$message.error(res.data.message)
+        }
+      }
     },
-    //删除spec1
+    // 删除spec1
     deleteSpec1(i) {
-      let baseSKU = JSON.parse(JSON.stringify(this.skuList))
+      const baseSKU = JSON.parse(JSON.stringify(this.skuList))
       this.skuList = baseSKU.filter((n) => {
         return n.sku_name1 !== this.skuSpec1[i].sku_name
       })
-      let deleteSkus = baseSKU.filter((n) => {
+      const deleteSkus = baseSKU.filter((n) => {
         return n.sku_name1 === this.skuSpec1[i].sku_name
       })
       if (deleteSkus) {
@@ -472,13 +463,13 @@ export default {
       }
       this.skuSpec1.splice(i, 1)
     },
-    //删除spec2
+    // 删除spec2
     deleteSpec2(i) {
-      let baseSKU = JSON.parse(JSON.stringify(this.skuList))
-      this.skuList =baseSKU.filter((n) => {
+      const baseSKU = JSON.parse(JSON.stringify(this.skuList))
+      this.skuList = baseSKU.filter((n) => {
         return n.sku_name1 !== this.skuSpec2[i].sku_name
       })
-      let deleteSkus = baseSKU.filter((n) => {
+      const deleteSkus = baseSKU.filter((n) => {
         return n.sku_name1 === this.skuSpec2[i].sku_name
       })
       if (deleteSkus) {
@@ -487,7 +478,7 @@ export default {
       this.skuSpec2.splice(i, 1)
     },
     sepcInput(val, i) {
-      let spec = this.skuList.find((n) => {
+      const spec = this.skuList.find((n) => {
         return n.sku_name1 === val || n.sku_name2 === val
       })
       if (spec) {
@@ -503,12 +494,12 @@ export default {
       }
       if (this.skuSpec1.length > 0 && this.skuSpec2.length === 0) {
         this.skuList = this.skuSpec1.map((item) => {
-          let obj = this.skuListCopy.find((n) => {
+          const obj = this.skuListCopy.find((n) => {
             return n.sku_name1 === item.sku_name
           })
           if (obj) {
             return {
-              sys_stock_id:obj.sys_stock_id,
+              sys_stock_id: obj.sys_stock_id,
               sku_id: obj.sku_id,
               id: obj.id,
               sku_name1: obj.sku_name1,
@@ -517,7 +508,7 @@ export default {
               sku_price: obj.sku_price,
               sku_image: obj.sku_image,
               remark: obj.remark,
-              created_at: obj.created_at,
+              created_at: obj.created_at
             }
           } else {
             return {
@@ -529,7 +520,7 @@ export default {
               sku_price: 0,
               sku_image: '',
               remark: '',
-              created_at: null,
+              created_at: null
             }
           }
         })
@@ -540,7 +531,7 @@ export default {
       if (this.skuSpec1.length > 0 && this.skuSpec2.length > 0) {
         this.skuSpec1.forEach((item1) => {
           this.skuSpec2.forEach((item2) => {
-            let obj = this.skuListCopy.find((n) => {
+            const obj = this.skuListCopy.find((n) => {
               return n.sku_name1 === item1.sku_name && n.sku_name2 === item2.sku_name
             })
             if (obj) {
@@ -553,7 +544,7 @@ export default {
                 sku_price: obj.sku_price,
                 sku_image: obj.sku_image,
                 remark: obj.remark,
-                created_at: obj.created_at,
+                created_at: obj.created_at
               })
             } else {
               this.skuList.push({
@@ -565,23 +556,23 @@ export default {
                 sku_price: 0,
                 sku_image: '',
                 remark: '',
-                created_at: null,
+                created_at: null
               })
             }
           })
         })
       }
     },
-    //列表
+    // 列表
     async searchTableList() {
-      let params = {
+      const params = {
         country: this.countryVal,
         goodsId: this.goodsID,
-        createTime: '',
+        createTime: ''
       }
       params.createTime = this.$dayjs(this.searchTime[0]).format('YYYY-MM-DD') + ' 00:00:00' + '/' + this.$dayjs(this.searchTime[1]).format('YYYY-MM-DD') + ' 23:59:59'
       this.tableLoading = true
-      let res = await this.$api.getUserStore(params)
+      const res = await this.$api.getUserStore(params)
       if (res && res.data.code === 200) {
         this.total = res.data.data.total
         this.tableData = res.data.data.data
@@ -591,25 +582,25 @@ export default {
       console.log(this.tableData)
       this.tableLoading = false
     },
-    //上传图片
+    // 上传图片
     async handleChange(file) {
-      let that = this
+      const that = this
       const localFile = file.raw
       const reader = new FileReader()
       reader.readAsDataURL(localFile)
-      reader.onload = async () => {
+      reader.onload = async() => {
         that.imgData = reader.result
-        let name = randomWord(false, 32) + '_' + new Date().getTime()
-        let res = await this.$ossService.uploadFile(that.imgData, name)
+        const name = randomWord(false, 32) + '_' + new Date().getTime()
+        const res = await this.$ossService.uploadFile(that.imgData, name)
         this.goodsImage = res
       }
     },
-    //删除商品
+    // 删除商品
     async deleteGoods(row) {
-      let params = {
-        id: row.id,
+      const params = {
+        id: row.id
       }
-      let res = await this.$api.deleteUserGoods(params)
+      const res = await this.$api.deleteUserGoods(params)
       if (res.data.code === 200) {
         this.$message.success('删除成功')
         this.searchTableList()
@@ -628,7 +619,7 @@ export default {
       this.skuSpec2 = []
       this.editInfo = {}
     },
-    //编辑商品
+    // 编辑商品
     editGoods(row) {
       this.insertGoodsVisible = true
       this.editInfo = row
@@ -637,14 +628,14 @@ export default {
       this.goodsUrl = row.goods_url
       this.goodsImage = row.goods_img
       row.user_stocks_skus.forEach((item, index) => {
-        let specArr = item.sku_name.split(',') || []
+        const specArr = item.sku_name.split(',') || []
         if (specArr.length == 1) {
           item.sku_name1 = specArr[0]
-          let params = {
+          const params = {
             sku_name: specArr[0],
-            sku_disabled: true,
+            sku_disabled: true
           }
-          let obj = this.skuSpec1.find((item) => {
+          const obj = this.skuSpec1.find((item) => {
             return item.sku_name === specArr[0]
           })
           if (!obj) {
@@ -653,21 +644,21 @@ export default {
         } else if (specArr.length >= 2) {
           item.sku_name1 = specArr[0]
           item.sku_name2 = specArr[1]
-          let params1 = {
+          const params1 = {
             sku_name: specArr[0],
-            sku_disabled: true,
+            sku_disabled: true
           }
-          let params2 = {
+          const params2 = {
             sku_name: specArr[1],
-            sku_disabled: true,
+            sku_disabled: true
           }
-          let obj1 = this.skuSpec1.find((item) => {
+          const obj1 = this.skuSpec1.find((item) => {
             return item.sku_name === specArr[0]
           })
           if (!obj1) {
             this.skuSpec1.push(params1)
           }
-          let obj2 = this.skuSpec2.find((item) => {
+          const obj2 = this.skuSpec2.find((item) => {
             return item.sku_name === specArr[1]
           })
           if (!obj2) {
@@ -679,7 +670,7 @@ export default {
       this.skuList = row.user_stocks_skus
       console.log('row', row, this.skuSpec1, this.skuSpec2, this.skuList)
     },
-    //计算总库存
+    // 计算总库存
     totalStock(data) {
       let stock = 0
       for (let i = 0; i < data.length; i++) {
@@ -694,8 +685,8 @@ export default {
     handleSizeChange(size) {
       this.pageSize = size
       this.searchTableList()
-    },
-  },
+    }
+  }
 }
 </script>
 

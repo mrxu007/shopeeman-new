@@ -147,6 +147,23 @@ export default {
   getExceptionWarehouse: (data) => AppRequest.get('/exceptionWarehouse', { params: data }), // 仓库异常信息列表
   uploadDealExceptionStatus: (data) => AppRequest.post('/uploadDealExceptionStatus', data), // 仓库异常处理状态上报
 
+  // 10-25 智能仓库
+  colorLabelList: () => AppRequest.get('/colorLabel'), // 订单颜色标识列表
+  orderPackage: (data) => AppRequest.post('/orderPackage', data), // 订单包裹列表
+  refuseList: (data) => AppRequest.get('/interceptConfig', data), // 拒签列表
+  markOrderNeedDeal: (data) => AppRequest.post('/orderPackage/markOrderNeedDeal', data), // 标记订单紧急处理
+  setNoWait: (data) => AppRequest.post('/orderPackage/setNoWait', data), // 订单设置不等待子订单
+  trackingNumberChangeOrder: (data) => AppRequest.post('/order/trackingNumberChangeOrder', data), // 采购物流单号变更
+  noticeTodeliver: (data) => AppRequest.post('/orderPackage/changeOrderDeliveryStatus', data), // 通知仓库发货/暂停发货
+  getGoodsInfo: (data) => AppRequest.get('/goodsPackageCode/getGoodsInfoV2 ', data), // 订单包裹详情
+  uploadExtService: (data) => AppRequest.post('/orderPackage/uploadExtService ', data), // 订单增值服务
+  getNotHaveLogisticsInformations: () => AppRequest.get('/orderPackage/getNotHaveLogisticsInformations'), // 获取面单信息
+  cancelSign: (data) => AppRequest.post('/interceptConfig/delete', data), // 取消拒收/签收信息
+  packageSign: (data) => AppRequest.post('/interceptConfig/save', data), // 仓库包裹拒签/签收
+  warehouseAddress: () => AppRequest.get('/warehouseAddress/userIndex'), // 获取仓库信息
+  uploadWarehouseOrder: (data) => AppRequest.post('/warehouseAddress/uploadWarehouseOrder', data), // 获取仓库信息
+  setColorLabel: (data) => AppRequest.post(`/colorLabel/setOrder`, data), // 设置订单颜色标识
+
   // 智能仓库 --自有仓库
   getUserStore: (data) => AppRequest.get('/userStock/get', { params: data }), // 自有仓库列表
   insertUserGoods: (data) => AppRequest.post('/userStock/save', data), // 新增自有商品

@@ -7,19 +7,15 @@
  * @FilePath: \shopeeman-new\src\views\personal-center\index.vue
 -->
 <template>
-  <div class="catch-notice-style">
-    <!--账单核算 -->
-    <main v-if="activeVal === '0'"><PersonalCenterCheckaccounting /></main>
-
+  <div class="personal-center-style">
     <!--软件财务中心 -->
-    <main v-if="activeVal === '1'"><PersonalCenterSoftwareFinance /></main>
-
+    <main v-if="activeVal === '0'"><PersonalCenterSoftwareFinance /></main>
     <!--仓库财务中心 -->
-    <main v-if="activeVal === '2'"><PersonalCenterStoreFinance /></main>
-
+    <main v-if="activeVal === '1'"><PersonalCenterStoreFinance /></main>
+    <!--账单核算 -->
+    <main v-if="activeVal === '2'"><PersonalCenterCheckaccounting /></main>
     <!--团队管理 -->
     <main v-if="activeVal === '3'"><PersonalCenterTeamManagement /></main>
-
     <!--信任IP管理 -->
     <main v-if="activeVal === '4'"><PersonalCenterTrustIPManagement /></main>
   </div>
