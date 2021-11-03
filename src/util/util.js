@@ -377,28 +377,30 @@ export function randomWord(randomFlag, min, max) {
   return str
 }
 
-export function batchOperation(array, method, count = 1) {
+/**
+ *
+ * @param array // 数组（参数）
+ * @param method // 请求函数
+ * @returns {Promise<any>}
+ */
+export function batchOperation(array, method) {
   return new Promise(resolve => {
-    let countObj = { count: count }
-    let number = count
-    let isCount = -1
+    let number = array.length
+    let countObj = { count: number }
+    let submitCount = 0
     let setIn = setInterval(()=>{
       let num = countObj.count
       if (num === 0){
         clearInterval(setIn)
         setIn = null
-        resolve()
+        resolve('完成')
       }else {
-        let i = parseInt((number - num) /10)
-        if (isCount !== i){
-          isCount = i
-          manage(i)
-        }
+        manage(number - num)
       }
     },1000)
-    function manage(i=0) {
-      for (let j = 0; i < array.length && j < 10; i++,j++) {
-        let item = array[i]
+    function manage(completeCount) {
+      for (;(submitCount - completeCount) < 10 && submitCount<number; ++submitCount) {
+        let item = array[submitCount]
         method(item,countObj)
       }
     }

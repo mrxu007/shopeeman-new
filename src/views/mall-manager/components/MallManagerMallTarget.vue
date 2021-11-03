@@ -104,6 +104,7 @@
           </el-table-column>
           <el-table-column align="center" label="操作状态" min-width="100">
             <template slot-scope="{ row }">
+              <span :style="row.color &&('color:'+row.color)"></span>
               {{ row.status }}
             </template>
           </el-table-column>
@@ -376,7 +377,7 @@
 
 <script>
 import mallGroup from '@/components/mall-group.vue'
-import { exportExcelDataCommon } from '@/util/util'
+import { exportExcelDataCommon ,batchOperation} from '@/util/util'
 import { MallTargetApi } from '../../../module-api/mall-manager-api/mall-target-api'
 export default {
   components: {
@@ -413,7 +414,8 @@ export default {
         { value: '1', label: '佳' },
         { value: '2', label: '差' },
         { value: '3', label: '危险' }
-      ]
+      ],
+      addPercentage: 0
     }
   },
   mounted() {
@@ -428,8 +430,15 @@ export default {
       this.isShowProgress = true
       this.percentage = 0
       const len = data.length
-      for (let index = 0; index < len; index++) {
-        const item = data[index]
+      this.addPercentage = 100 / len
+      let res = await batchOperation(data, this.syncMall)
+      console.log(1,'完成',res)
+      this.percentage = 100
+    },
+    //店铺同步
+    async syncMall(item,count = {count:1}){
+      try {
+        console.log('item - count',item,count)
         this.$set(item, 'status', '开始同步')
         const res1 = await this.mallTargetApiInstance.theQuarterPoint(item, '/api/v2/shops/sellerCenter/ongoingPoints')
         const res2 = await this.mallTargetApiInstance.getShopPerformance(item, '/api/v2/shops/sellerCenter/shopPerformance')
@@ -446,16 +455,21 @@ export default {
           if (res4.data.code === 200) {
             this.$set(item, 'status', '同步成功')
           } else {
+            this.$set(item, 'color', `#F56C6C`)
             this.$set(item, 'status', '同步失败:上报失败')
           }
-          this.$set(item, 'status', '同步成功')
         } else {
+          this.$set(item, 'color', `#F56C6C`)
           this.$set(item, 'status', `同步失败`)
         }
-        console.log('res1', res1)
-        console.log('res2', res2)
-        console.log('res3', res3)
-        this.percentage = parseInt((index + 1) / len * 100)
+        console.log('syncMall', res1,res2,res3)
+      }catch (e) {
+        console.log('错误',e)
+        this.$set(item, 'color', `#F56C6C`)
+        this.$set(item, 'status', `同步失败`)
+      }finally {
+        --count.count
+        this.percentage += this.addPercentage
       }
     },
     // 获取数据
