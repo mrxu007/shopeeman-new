@@ -439,6 +439,7 @@ export default {
       try {
         console.log('item - count',item,count)
         this.$set(item, 'status', '开始同步')
+        this.$set(item, 'color', '')
         const res1 = await this.mallTargetApiInstance.theQuarterPoint(item, '/api/v2/shops/sellerCenter/ongoingPoints')
         const res2 = await this.mallTargetApiInstance.getShopPerformance(item, '/api/v2/shops/sellerCenter/shopPerformance')
         const res3 = await Promise.all([res1, res2])
