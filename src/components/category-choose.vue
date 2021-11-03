@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-10-21 15:41:32
- * @LastEditTime: 2021-10-23 11:23:00
+ * @LastEditTime: 2021-11-02 14:17:23
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shopeeman-new\src\components\category-choose.vue
@@ -65,17 +65,7 @@ export default {
   data() {
     return {
       countryVal: null,
-      countries: [
-        { label: '泰国站', value: 'TH' },
-        { label: '马来站', value: 'MY' },
-        { label: '台湾站', value: 'TW' },
-        { label: '新加坡站', value: 'SG' },
-        { label: '菲律宾站', value: 'PH' },
-        { label: '越南站', value: 'VN' },
-        { label: '印尼站', value: 'ID' },
-        { label: '巴西站', value: 'BR' },
-        { label: '墨西哥站', value: 'MX' }
-      ],
+      countries: this.$filters.countries_option,
       countries_id: {
         'TH': '4',
         'MY': '5',
@@ -84,7 +74,11 @@ export default {
         'PH': '7',
         'VN': '6',
         'ID': '2',
-        'BR': '8'
+        'BR': '8',
+        'MX': '9',
+        'CO': '10',
+        'CL': '11',
+        'PL': '12',
       },
       category1: '',
       categoryList1: [],
@@ -199,6 +193,7 @@ export default {
 .category-content {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   li {
     display: flex;
     margin-right: 10px;

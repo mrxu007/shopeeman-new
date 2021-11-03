@@ -106,7 +106,15 @@
       </div>
       <div class="condition_item">
         <el-button size="mini" type="primary" @click="search">搜索</el-button>
-        <el-button size="mini" type="primary" @click=" updataMall();cancelActive = false">同步数据</el-button>
+        <el-button
+          size="mini"
+          type="primary"
+          @click="
+            updataMall()
+            cancelActive = false
+          "
+          >同步数据</el-button
+        >
         <el-button size="mini" type="primary" @click="cancelActive = true">取消同步</el-button>
         <el-button size="mini" type="primary" @click="clearLog">清空日志</el-button>
         <el-button size="mini" type="primary" @click="export_table((query.page = 1)), (exportList = [])">导出</el-button>
@@ -275,10 +283,7 @@ export default {
       }
       const res = await this.$shopeemanService.getIncomeTransaction(mall.country, params)
       const resObj = res && JSON.parse(res)
-      if (resObj && resObj.status !== 200) {
-        console.log(this.query.status)
-        if (this.query.status !== '' || type !== 2) { this.$refs.Logs.writeLog(`店铺【${mall.platform_mall_name}】请检查店铺是否登录！`, false) }
-      } else {
+      if (resObj && resObj.status === 200) {
         const data = JSON.parse(resObj.data)
         console.log(data, 'searchSingleMall')
         if (data.code === 0) {
@@ -309,6 +314,14 @@ export default {
               this.UploadRecordData(mall.platform_mall_id, dataArr)
             }
           }
+        }
+      } else if (resObj && resObj.status === 403) {
+        if (this.query.status !== '' || type !== 2) {
+          this.$refs.Logs.writeLog(`店铺【${mall.platform_mall_name}】请检查店铺是否登录！`, false)
+        }
+      } else {
+        if (this.query.status !== '' || type !== 2) {
+          this.$refs.Logs.writeLog(`店铺【${mall.platform_mall_name}】获取失败！`, false)
         }
       }
     },

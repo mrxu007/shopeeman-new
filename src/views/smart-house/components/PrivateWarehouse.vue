@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-10-25 16:40:41
- * @LastEditTime: 2021-10-29 11:21:18
+ * @LastEditTime: 2021-11-02 21:21:55
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shopeeman-new\src\views\smart-house\components\PrivateWarehouse.vue
@@ -11,6 +11,16 @@
     <!-- btn区 -->
     <div class="tool-bar">
       <div class="tool-row">
+         <div class="tool-item mar-right">
+          <span style="width:60px;">站点：</span>
+          <el-select v-model="countryVal" size="mini" filterable>
+            <el-option v-for="(item, index) in countries" :key="index" :label="item.label" :value="item.value" />
+          </el-select>
+        </div>
+         <div class="tool-item mar-right">
+          <span>商品ID：</span>
+          <el-input v-model="goodsID" placeholder="" size="mini" clearable />
+        </div>
         <div class="tool-item mar-right">
           <span>查询时间：</span>
           <el-date-picker
@@ -24,16 +34,6 @@
             end-placeholder="结束日期"
             :picker-options="pickerOptions"
           />
-        </div>
-        <div class="tool-item mar-right">
-          <span>商品ID：</span>
-          <el-input v-model="goodsID" placeholder="" size="mini" clearable />
-        </div>
-        <div class="tool-item mar-right">
-          <span>站点：</span>
-          <el-select v-model="countryVal" size="mini" filterable>
-            <el-option v-for="(item, index) in countries" :key="index" :label="item.label" :value="item.value" />
-          </el-select>
         </div>
         <el-button type="primary" size="mini" class="mar-right" @click="searchTableList">查 询</el-button>
         <el-button type="primary" size="mini" class="mar-right" @click="insertGoodsVisible = true">新增商品</el-button>
@@ -269,20 +269,7 @@ export default {
       goodsID: '',
       countryVal: 'TH',
       searchTime: [],
-      countries: [
-        { label: '泰国站', value: 'TH' },
-        { label: '马来站', value: 'MY' },
-        { label: '台湾站', value: 'TW' },
-        { label: '新加坡站', value: 'SG' },
-        { label: '菲律宾站', value: 'PH' },
-        { label: '越南站', value: 'VN' },
-        { label: '印尼站', value: 'ID' },
-        { label: '巴西站', value: 'BR' },
-        { label: '墨西哥站', value: 'MX' },
-        { label: '哥伦比亚站', value: 'CO' },
-        { label: '智利站', value: 'CL' },
-        { label: '波兰站', value: 'PL' }
-      ],
+      countries:this.$filters.countries_option,
       pageSize: 20, // 页码
       currentPage: 1, // 页码
       total: 0, // 表格总数

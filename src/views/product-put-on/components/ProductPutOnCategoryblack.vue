@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-10-21 09:38:11
- * @LastEditTime: 2021-10-23 11:03:06
+ * @LastEditTime: 2021-11-02 14:25:27
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shopeeman-new\src\views\product-put-on\components\ProductPutOnCategoryblack.vue
@@ -11,17 +11,17 @@
     <!-- btn区 -->
     <div class="tool-bar">
       <div class="tool-row">
+        <category-choose :isAll="true" :level="3" @setCategory="setCategory"></category-choose>
+      </div>
+      <div class="tool-row">
         <div class="tool-item mar-right">
           <span>类目来源：</span>
           <el-select v-model="categorySource" placeholder="" size="mini" filterable>
             <el-option v-for="(item, index) in categorySourceList" :key="index" :label="item.label" :value="item.value" />
           </el-select>
         </div>
-        <category-choose :isAll="true" :level="3" @setCategory="setCategory"></category-choose>
-      </div>
-      <div class="tool-row">
         <div class="tool-item mar-right">
-          <el-input v-model="categoryKeyWord" placeholder="按关键词搜索查询" size="mini"></el-input>
+          <el-input v-model="categoryKeyWord" placeholder="按关键词搜索查询" size="mini" clearable></el-input>
         </div>
         <el-button type="primary" size="mini" @click="searchTableList" class="tool-item mar-right">查 询</el-button>
         <el-button type="primary" size="mini" @click="addBlackVisible = true" class="tool-item mar-right">添 加</el-button>
@@ -35,31 +35,31 @@
         <el-table-column align="center" type="index" label="序号" width="50">
           <template slot-scope="scope">{{ (currentPage - 1) * pageSize + scope.$index + 1 }}</template>
         </el-table-column>
-        <el-table-column width="120px" label="站点" prop="country" align="center">
+        <el-table-column width="80px" label="站点" prop="country" align="center">
           <template slot-scope="scope">{{ scope.row.country | chineseSite }}</template>
         </el-table-column>
-        <el-table-column min-width="60px" label="项目来源"  align="center" >
-             <template slot-scope="scope">
-                <p >{{ scope.row.uid===0?'公有':'私有' }}</p> 
-             </template>
+        <el-table-column min-width="60px" label="项目来源" align="center">
+          <template slot-scope="scope">
+            <p>{{ scope.row.uid === 0 ? '公有' : '私有' }}</p>
+          </template>
         </el-table-column>
-        <el-table-column min-width="60px" label="一级类目" prop="warehouse_name" align="center" >
-             <template slot-scope="scope">
-                <p >{{ scope.row.parent_category_list&&scope.row.parent_category_list.length?(scope.row.parent_category_list[0]?scope.row.parent_category_list[0].category_cn_name:''):''}}</p> 
-             </template>
+        <el-table-column min-width="120px" label="一级类目" prop="warehouse_name" align="center">
+          <template slot-scope="scope">
+            <p>{{ scope.row.parent_category_list && scope.row.parent_category_list.length ? (scope.row.parent_category_list[0] ? scope.row.parent_category_list[0].category_name+'('+scope.row.parent_category_list[0].category_cn_name+')' : '') : '' }}</p>
+          </template>
         </el-table-column>
-        <el-table-column min-width="60px" label="二级类目" prop="warehouse_name" align="center" >
-             <template slot-scope="scope">
-                <p >{{ scope.row.parent_category_list&&scope.row.parent_category_list.length?(scope.row.parent_category_list[1]?scope.row.parent_category_list[1].category_cn_name:''):''}}</p> 
-             </template>
+        <el-table-column min-width="120px" label="二级类目" prop="warehouse_name" align="center">
+          <template slot-scope="scope">
+            <p>{{ scope.row.parent_category_list && scope.row.parent_category_list.length ? (scope.row.parent_category_list[1] ? scope.row.parent_category_list[1].category_name+'('+scope.row.parent_category_list[1].category_cn_name+')' : '') : '' }}</p>
+          </template>
         </el-table-column>
-        <el-table-column min-width="60px" label="末级类目" prop="warehouse_name" align="center" >
-             <template slot-scope="scope">
-                <p >{{ scope.row.parent_category_list&&scope.row.parent_category_list.length?(scope.row.parent_category_list[2]?scope.row.parent_category_list[2].category_cn_name:''):''}}</p> 
-             </template>
+        <el-table-column min-width="120px" label="末级类目" prop="warehouse_name" align="center">
+          <template slot-scope="scope">
+            <p>{{ scope.row.parent_category_list && scope.row.parent_category_list.length ? (scope.row.parent_category_list[2] ? scope.row.parent_category_list[2].category_name+'('+scope.row.parent_category_list[2].category_cn_name+')' : '') : '' }}</p>
+          </template>
         </el-table-column>
-        <el-table-column min-width="60px" label="创建时间"  align="center" >
-            <template slot-scope="scope">{{ $dayjs(scope.row.created_at).format('YYYY-MM-DD') }}</template>
+        <el-table-column min-width="60px" label="创建时间" align="center">
+          <template slot-scope="scope">{{ $dayjs(scope.row.created_at).format('YYYY-MM-DD') }}</template>
         </el-table-column>
         <el-table-column min-width="60px" label="操作结果" prop="warehouse_name" align="center" />
         <el-table-column min-width="60px" label="操作" prop="warehouse_name" align="center" />
@@ -97,16 +97,7 @@ export default {
   data() {
     return {
       countryVal: '',
-      countries: [
-        { label: '马来站', value: 'MY' },
-        { label: '台湾站', value: 'TW' },
-        { label: '新加坡站', value: 'SG' },
-        { label: '菲律宾站', value: 'PH' },
-        { label: '泰国站', value: 'TH' },
-        { label: '越南站', value: 'VN' },
-        { label: '印尼站', value: 'ID' },
-        { label: '巴西站', value: 'BR' },
-      ],
+      countries: this.$filters.countries_option,
       categorySource: '0',
       categorySourceList: [
         {
@@ -148,7 +139,7 @@ export default {
     }
   },
   mounted() {
-      this.searchTableList()
+    this.searchTableList()
   },
   methods: {
     setAddCategory(val) {
@@ -183,8 +174,6 @@ export default {
       } else {
         this.$message.warning(resObj.msg)
       }
-      console.log(resObj)
-
       this.tableLoading = false
     },
     //添加黑名单
@@ -193,16 +182,16 @@ export default {
       console.log(this.addSelectCategory, params)
       let res = await this.$commodityService.addBlackCategory(params)
       if (!res) {
-          return this.$message.warning('添加失败')
+        return this.$message.warning('添加失败')
       }
       let resObj = JSON.parse(res)
-        if(resObj.code===200){
-            this.$message.success('添加成功')
-            this.addBlackVisible = false
-            await this.searchTableList()
-        }else{
-            this.$message.error(resObj.msg)
-        }
+      if (resObj && resObj.code === 200) {
+        this.$message.success('添加成功')
+        this.addBlackVisible = false
+        await this.searchTableList()
+      } else {
+        this.$message.error(resObj.msg)
+      }
       console.log(res, 'addBlackCategory')
     },
     //批量删除
@@ -217,12 +206,12 @@ export default {
           return this.$message.warning('删除失败')
         }
         let resObj = JSON.parse(res)
-        if(resObj.code===200){
-            this.$message.success('删除成功')
-        }else{
-            this.$message.error(resObj.msg)
+        if (resObj && resObj.code === 200) {
+          this.$message.success('删除成功')
+        } else {
+          this.$message.error(resObj.msg)
         }
-        console.log(res,resObj)
+        console.log(res, resObj)
       }
       this.searchTableList()
     },

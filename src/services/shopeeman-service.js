@@ -196,7 +196,7 @@ export default class NetMessageBridgeService {
   }
   // 回复商店评价
   replyShopRating(country, data) {
-    return this.postChinese(country, '/api/v3/settings/reply_shop_rating', data, { Headers: { 'Content-Type': ' application/json' } })
+    return this.postChinese(country, '/api/v3/settings/reply_shop_rating', data, { Headers: { 'Content-Type': ' application/json' }})
   }
   // 店铺提现记录
   getWithDrawalRecord(country, data) {
@@ -338,8 +338,8 @@ export default class NetMessageBridgeService {
   }
 
   // 删除问题问候语
-  deleteFaqsShopSettings(country, data) {
-    return this.deleteChinese(country, '/webchat/api/workbenchapi/v1.2/sc/faqs/shop/settings', data)
+  deleteFaqsShopSettings(country, data, options = {}) {
+    return this.deleteChinese(country, '/webchat/api/workbenchapi/v1.2/sc/faqs/shop/settings', data,options)
   }
 
   // 获取银行卡信息

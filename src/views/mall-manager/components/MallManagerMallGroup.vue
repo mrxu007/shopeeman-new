@@ -120,7 +120,7 @@
               <el-table-column align="center" type="index" label="序号" />
               <el-table-column align="center" prop="" label="站点">
                 <template v-slot="{ row }">
-                  {{ countriesObj[row.country] }}
+                  {{ row.country | chineseSite }}
                 </template>
               </el-table-column>
               <el-table-column align="center" prop="platform_mall_id" label="店铺ID" />
@@ -141,7 +141,6 @@
 </template>
 
 <script>
-import { countriesObj, countries } from '../../../util/countries'
 export default {
   data() {
     return {
@@ -167,16 +166,13 @@ export default {
       addGroupName: '',
       mallList: [],
       mallListTemp: [],
-      countries: null,
-      countriesObj: null,
+      countries: this.$filters.countries_option,
       isHide: false,
       bindMallList: []
 
     }
   },
   created() {
-    this.countries = countries
-    this.countriesObj = countriesObj
     this.getGroup()
   },
   methods: {
