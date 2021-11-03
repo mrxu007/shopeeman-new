@@ -55,20 +55,11 @@ export default {
       isAllowSet1: true,
       isAllowSet2: true,
       countryVal: null,
-      countries: [
-        { label: '泰国站', value: 'TH' },
-        { label: '马来站', value: 'MY' },
-        { label: '台湾站', value: 'TW' },
-        { label: '新加坡站', value: 'SG' },
-        { label: '菲律宾站', value: 'PH' },
-        { label: '越南站', value: 'VN' },
-        { label: '印尼站', value: 'ID' },
-        { label: '巴西站', value: 'BR' }
-      ],
       groupId: [],
       groupIdList: [],
       site: [],
-      siteList: []
+      siteList: [],
+      countries:this.$filters.countries_option
     }
   },
   watch: {
@@ -156,11 +147,13 @@ export default {
       const res = await ddMallGoodsGetMallList(param)
       // console.log('ddMallGoodsGetMallList - res', res)
       if (res.code === 200) {
+        console.log(res.data)
         this.siteList = res.data
         if (this.groupIdList.length === 0) {
           this.groupId = ['']
           this.siteList.forEach(item => {
-            if (item.group_name) {
+            let index = this.groupIdList.findIndex(i=>i.id === item.group_id)
+            if (item.group_name && index < 0) {
               this.groupIdList.push({
                 group_name: item.group_name,
                 id: item.group_id
@@ -205,7 +198,7 @@ export default {
     li {
       display: flex;
       margin-right: 10px;
-
+      align-items: center;
       .el-select {
         display: flex;
       }

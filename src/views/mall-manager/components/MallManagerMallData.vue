@@ -91,7 +91,11 @@
         >
           <el-table-column align="center" type="selection" width="50" />
           <el-table-column align="center" type="index" label="序列号" width="80" />
-          <el-table-column align="center" prop="country" label="站点" />
+          <el-table-column align="center" prop="country" label="站点">
+            <template slot-scope="{ row }">
+              {{ row.country | chineseSite }}
+            </template>
+          </el-table-column>
           <el-table-column align="center" prop="platform_mall_id" label="店铺ID" min-width="120" />
           <el-table-column align="center" label="店铺名称" min-width="130">
             <template slot-scope="{ row }">
@@ -212,7 +216,6 @@
 <script>
 import mallGroup from '@/components/mall-group.vue'
 import { exportExcelDataCommon } from '@/util/util'
-import { countriesObj, countries } from '../../../util/countries'
 export default {
   components: {
     mallGroup
@@ -232,9 +235,7 @@ export default {
       frozenAmount: 0, // 待拨款总金额
       frozenAmountOrders: 0, // 待拨款总订单数
       multipleSelection: [],
-      countries: null,
-      countriesObj: null,
-      shopeeConfig: new ShopeeConfig(),
+      countries: this.$filters.countries_option,
       form: {
         groupId: 0, // 店铺分组ID
         agoNoneOrderDays: '0', // 距今无订单天数
@@ -264,8 +265,6 @@ export default {
     }
   },
   mounted() {
-    this.countries = countries
-    this.countriesObj = countriesObj
     this.getMallStatistics()
   },
   methods: {
@@ -315,9 +314,6 @@ export default {
       const { data } = await this.$api.getMallStatistics(parmas)
       console.log(data)
       if (data.code === 200) {
-        const res = await this.$api.test()
-        const testData = res.data.data.data
-        console.log(testData)
         const resData = data.data
         this.total = resData.total
         this.tableData = resData.data
@@ -326,7 +322,7 @@ export default {
             const element = this.tableData[index]
             const res = await this.$appConfig.getGlobalCacheInfo('mallInfo', element.platform_mall_id)
             const jsonData = JSON.parse(res)
-            element.country = countriesObj[element.country]
+            // element.country = this.$filters.chineseSite(element.country)
             element.mall_datas = JSON.parse(element.mall_datas)
             element.available_amount = element.available_amount ? parseInt(element.available_amount) : 0
             element.lastmonth_amount = element.lastmonth_amount ? parseInt(element.lastmonth_amount) : 0
@@ -338,28 +334,9 @@ export default {
             this.weekAmount += element.lastweek_amount
             this.frozenAmount += element.frozen_amount
             this.frozenAmountOrders += element.frozen_amount_orders
-            element.not_order_time = element.recent_order_create_time ? this.formatDay(element.recent_order_create_time) : '无订单记录'
+            element.not_order_time = this.formatDay(element.recent_order_create_time)
             element.group_name = jsonData.GroupName
           }
-          this.tableData.map(async item => {
-            item.country = this.shopeeConfig.getSiteCode(item.country)
-            item.mall_datas = JSON.parse(item.mall_datas)
-            item.available_amount = item.available_amount ? parseInt(item.available_amount) : 0
-            item.lastmonth_amount = item.lastmonth_amount ? parseInt(item.lastmonth_amount) : 0
-            item.lastweek_amount = item.lastweek_amount ? parseInt(item.lastweek_amount) : 0
-            item.frozen_amount = item.frozen_amount ? parseInt(item.frozen_amount) : 0
-            item.frozen_amount_orders = item.frozen_amount_orders ? item.frozen_amount_orders : 0
-            this.availableAmount += item.available_amount
-            this.monthAmount += item.lastmonth_amount
-            this.weekAmount += item.lastweek_amount
-            this.frozenAmount += item.frozen_amount
-            this.frozenAmountOrders += item.frozen_amount_orders
-            item.not_order_time = item.recent_order_create_time ? this.formatDay(item.recent_order_create_time) : '无订单记录'
-            testData.forEach(nItem => {
-              item.group_name = item.platform_mall_id === nItem.platform_mall_id ? nItem.group_name : item.group_name
-              item.mall_type = item.platform_mall_id === nItem.platform_mall_id ? nItem.mall_type : item.mall_type
-            })
-          })
         }
         this.isLoading = false
         console.log('tableData', this.tableData)
@@ -369,14 +346,16 @@ export default {
       }
     },
     formatDay(val) {
-      const today = this.$dayjs(new Date()).format('YYYY-MM-DD HH:mm:ss')
-      const day1 = new Date(today)
-      const day2 = new Date(val)
-      const s1 = day1.getTime()
-      const s2 = day2.getTime()
-      const total = (s1 - s2) / 1000
-      const day = parseInt(total / (24 * 60 * 60))
-      return day
+      if (val){
+        const day2 = new Date(val)
+        const s1 = new Date().getTime()
+        const s2 = day2.getTime()
+        const total = (s1 - s2) / 1000
+        const day = parseInt(total / (24 * 60 * 60))
+        return day
+      } else {
+        return '无订单记录'
+      }
     },
     // 勾选表格操作
     handlerSelectTableOperating(OperatingName) {
@@ -434,9 +413,9 @@ export default {
                 const element = resData[index]
                 const res = await this.$appConfig.getGlobalCacheInfo('mallInfo', element.platform_mall_id)
                 const jsonData = JSON.parse(res)
-                element.country = countriesObj[element.country]
+                element.country = this.$filters.chineseSite(element.country)
                 element.mall_datas = JSON.parse(element.mall_datas)
-                element.not_order_time = element.recent_order_create_time ? this.formatDay(element.recent_order_create_time) : '无订单记录'
+                element.not_order_time = this.formatDay(element.recent_order_create_time)
                 element.group_name = jsonData.GroupName
               }
             }
@@ -506,7 +485,7 @@ export default {
         </tr>`
       jsonData.forEach((item) => {
         str += `<tr>
-        <td>${item.country ? item.country : '' + '\t'}</td>
+        <td>${item.country ? this.$filters.chineseSite(item.country) : '' + '\t'}</td>
         <td>${item.platform_mall_id ? item.platform_mall_id : '' + '\t'}</td>
         <td>${item.mall_alias_name ? item.mall_alias_name : item.platform_mall_name + '\t'}</td>
         <td>${item.group_name ? item.group_name : '' + '\t'}</td>

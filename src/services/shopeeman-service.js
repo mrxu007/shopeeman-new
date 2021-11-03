@@ -367,8 +367,8 @@ export default class NetMessageBridgeService {
   }
 
   // 删除问题问候语
-  deleteFaqsShopSettings(country, data) {
-    return this.deleteChinese(country, '/webchat/api/workbenchapi/v1.2/sc/faqs/shop/settings', data)
+  deleteFaqsShopSettings(country, data, options = {}) {
+    return this.deleteChinese(country, '/webchat/api/workbenchapi/v1.2/sc/faqs/shop/settings', data,options)
   }
 
   // 获取银行卡信息

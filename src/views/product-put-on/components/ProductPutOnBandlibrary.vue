@@ -139,7 +139,6 @@
 <script>
 import XLSX from 'xlsx'
 import { exportExcelDataCommon } from '../../../util/util'
-import { countriesObj, countries, siteObj } from '../../../util/countries'
 export default {
   data() {
     return {
@@ -157,9 +156,8 @@ export default {
       dialogSite: 'MY', // 弹框站点
       dialogType: '1', // 弹框关键词类别
       dialogkeyWord: '', // 弹框关键词
-      countries: null,
-      countriesObj: null,
-      siteObj: null,
+      countries: this.$filters.countries_option,
+      siteObj: this.$filters.countries_site,
       form: {
         site: '', // 站点
         type: '0', // 关键词类别
@@ -187,9 +185,6 @@ export default {
     }
   },
   mounted() {
-    this.countries = countries
-    this.countriesObj = countriesObj
-    this.siteObj = siteObj
     this.getBannedWordList()
   },
   methods: {
@@ -232,7 +227,7 @@ export default {
       </tr>`
       data.forEach((item) => {
         item.created_at = item.created_at.replace('T', ' ').replace('Z', '')
-        item.country = countriesObj[item.country]
+        item.country = this.$filters.chineseSite(item.country)
         item.uid = item.uid === 0 ? '系统' : '用户'
         if (item.type === 2) {
           item.type = '品牌词'
@@ -395,7 +390,7 @@ export default {
           if (this.tableData) {
             this.tableData.map(item => {
               item.created_at = item.created_at.replace('T', ' ').replace('Z', '')
-              item.country = countriesObj[item.country]
+              item.country = this.$filters.chineseSite(item.country)
               item.uid = item.uid === 0 ? '系统' : '用户'
               if (item.type === 2) {
                 item.type = '品牌词'
