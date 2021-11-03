@@ -10,7 +10,7 @@
         <!-- 采购物流单号 -->
         <div class="logisticsNumber">
           采购物流单号：
-          <el-input v-model="form.packageCode" size="mini" />
+          <el-input v-model="form.packageCode" size="mini" clearable />
         </div>
         <el-button size="mini" type="primary" @click="getExceptionNoOrderIndex">搜索</el-button>
       </div>
@@ -310,13 +310,16 @@ export default {
     .logisticsNumber {
       margin: 0 10px;
       .el-input {
-        width: 80px;
+        width: 150px;
       }
     }
   }
+  .rowTwo{
+    font-size:13px ;
+  }
   .rowThree {
     color: red;
-    font-size: ;
+    font-size: 13px;
   }
 }
 //表格部分

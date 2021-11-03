@@ -8,7 +8,7 @@
         <!-- 订单编号 -->
         <div class="orderNumber">
           订单编号：
-          <el-input v-model="form.orderSn" size="mini" />
+          <el-input v-model="form.orderSn" size="mini" clearable />
         </div>
         <el-button size="mini" type="primary" @click="searchHandle">搜索</el-button>
       </div>
@@ -174,14 +174,18 @@ export default {
         //订单编号
         .orderNumber{
           margin-right: 10px;
-            .el-input{
-                width: 80px;
-            }
-        }
+            .el-input {
+        width: 150px;
+      }
     }
-    .rowThree{
-      color: red;
-    }
+  }
+  .rowTwo{
+    font-size:13px ;
+  }
+  .rowThree {
+    color: red;
+    font-size: 13px;
+  }
 }
 //表格部分
 .el-table{
