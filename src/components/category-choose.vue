@@ -69,17 +69,7 @@ export default {
   data() {
     return {
       countryVal: null,
-      countries: [
-        { label: '泰国站', value: 'TH' },
-        { label: '马来站', value: 'MY' },
-        { label: '台湾站', value: 'TW' },
-        { label: '新加坡站', value: 'SG' },
-        { label: '菲律宾站', value: 'PH' },
-        { label: '越南站', value: 'VN' },
-        { label: '印尼站', value: 'ID' },
-        { label: '巴西站', value: 'BR' },
-        { label: '墨西哥站', value: 'MX' }
-      ],
+      countries: this.$filters.countries_option,
       countries_id: {
         'TH': '4',
         'MY': '5',
@@ -88,7 +78,11 @@ export default {
         'PH': '7',
         'VN': '6',
         'ID': '2',
-        'BR': '8'
+        'BR': '8',
+        'MX': '9',
+        'CO': '10',
+        'CL': '11',
+        'PL': '12',
       },
       category1: '',
       categoryList1: [],

@@ -66,7 +66,7 @@
       <el-button size="mini" type="primary" @click="clearIP()">清除IP缓存</el-button>
       <el-button size="mini" type="primary" @click="(Typeis='ipPerson',dialogvisible=true,showButton=false,dialog_title='新增自有IP公司主体')">新增自有IP公司主体</el-button>
       <el-button size="mini" type="primary" @click="timeToMonth(1)">续费一个月</el-button>
-      <el-button size="mini" type="primary" @click="timeToMonth(2)">续费三个月</el-button>
+      <el-button size="mini" type="primary" @click="timeToMonth(3)">续费三个月</el-button>
     </div>
 
     <div style="margin:10px">
@@ -107,12 +107,7 @@
           <!-- <el-table-column prop="" label="是否预售IP" align="center" /> -->
           <el-table-column prop="status" label="状态" align="center" min-width="150px" />
           <el-table-column prop="expiration_time" label="有效日期" align="center" min-width="200px" />
-          <el-table-column prop="mall_alias_name" label="绑定店铺" align="center" min-width="100px">
-            <template slot-scope="{ row }">
-              <!-- 临时取id -->
-              {{ row.target_mall_info && row.target_mall_info.mall_id }}
-            </template>
-          </el-table-column>
+          <el-table-column prop="mall_alias_name" label="绑定店铺" align="center" min-width="100px" />
           <el-table-column prop="" label="操作" align="center" min-width="330px" fixed="right">
             <template slot-scope="{ row }">
               <div>
@@ -187,14 +182,14 @@
           <div v-if="Typeis==='ipMaster'">
             <div class="left_item">
               ip区域：
-              <el-select v-model="ipMaster_params.lineId" size="mini">
+              <el-select v-model="ipMaster_params.lineId" size="mini" @change="getPrice(),ipMaster_params.period=''">
                 <el-option v-for="(item,index) in region_ipList" :key="'region'+index" :label="item.value" :value="item.id" />
               </el-select>
             </div>
             <div class="left_item">
               ip周期：
               <el-select v-model="ipMaster_params.period" size="mini">
-                <el-option v-for="(item,index) in time_ipList" :key="'time'+index" :label="item.value" :value="item.id" />
+                <el-option v-for="(item,index) in time_ipList" :key="'time'+index" :label="item.period+'个月'" :value="item.period" />
               </el-select>
             </div>
             <div class="left_item">
@@ -495,8 +490,7 @@
 </template>
 <script>
 import storeChoose from '../../../components/store-choose'
-// import { getValue } from '../../utils/utils'
-// import { getMalls } from '../../utils/index'
+import { getMalls, MallgetValue } from '../../../util/util'
 import { encryptionList, ipTypeList, protocolList, confuseList } from '../../../util/MallManagerStoredata'
 export default {
   components: { storeChoose },
@@ -649,10 +643,11 @@ export default {
       dialog_mallList: [],
       showUserIP: false,
       ipName: '', // 主体名称
-      time_ipList: [
-        { id: 1, value: '1个月' },
-        { id: 2, value: '3个月' }
-      ],
+      // time_ipList: [
+      //   { id: 1, value: '1个月' },
+      //   { id: 2, value: '3个月' }
+      // ],
+      time_ipList: [],
       time_ip: '1',
       region_ip: '',
       region_ipList: [
@@ -691,11 +686,11 @@ export default {
     }
   },
   created() {
+    this.getInfo() // 获取店铺信息
+    // this.getTableList()// tableList
     this.initDate()
-    this.getTableList()// tableList
     this.GetCloudIPAreaList()// 获取IP区域列表
     this.getMallList()// 初始化店铺列表
-    // this.getInfo() // 获取店铺信息
   },
   methods: {
     // 关闭弹窗清除
@@ -756,11 +751,12 @@ export default {
       }
       this.getTableList()
     },
-    // async getInfo() {
-    //   getMalls().then(res => {
-    //     this.shopAccountList = res
-    //   })
-    // },
+    async getInfo() {
+      getMalls().then(res => {
+        this.shopAccountList = res
+        this.getTableList()
+      })
+    },
     // 展示修改绑定店铺弹窗
     showupdateVisible(val) {
       this.showButton = true
@@ -923,27 +919,32 @@ export default {
     // 续费一个月
     async timeToMonth(period) {
       // period=1 一个月 2一季度
-      console.log('xufei', this.mulSelect)
       if (this.mulSelect.length <= 0) {
         this.$message.warning('请选择要续费的主体')
       } else {
         const userInfo = await this.$appConfig.getUserInfo()
         var list = []
         this.mulSelect.forEach(item => {
-          if (item.target_mall_info != null) {
-            list.push(item.target_mall_info[0].ip_target_id)
-            console.log('2222', item.target_mall_info)
-          } else {
-            this.$message.error('续费ip信息有误')
-          }
+          // if (item.target_mall_info != null) {
+          //   // list.push(item.target_mall_info[0].ip_target_id)
+          //   list.push(item.id)
+          //   // console.log('2222', item.id)
+          // } else {
+          //   this.$message.error('续费ip信息有误')
+          // }
+          list.push(item.id)
         })
         const targetId = list.toString() || ''
         const uid = String(userInfo.muid)
         const uuid = '0'
-        const data = await this.$YipService.RenewIP(targetId, uid, uuid, String(period))
-        console.log('------', list, data)
+        const res = await this.$YipService.RenewIP(targetId, uid, uuid, String(period))
         // this.$message.error(JSON.parse(data).message)
-        this.$message.error(data)
+        const data = JSON.parse(res)
+        if (data.code === -1) {
+          this.$message.error(data)
+        } else {
+          this.$message.success('续费成功')
+        }
         // 清空多选
         this.$refs.multipleTable.clearSelection()
       }
@@ -1052,6 +1053,24 @@ export default {
         })
       })
     },
+    // 获取价格
+    async getPrice() {
+      const parmas = {
+        line_id: this.ipMaster_params.lineId.toString() || '',
+        is_renewal: '0'
+      }
+      try {
+        const res = await this.$YipService.getprice(parmas.line_id, parmas.is_renewal)
+        const data = JSON.parse(res)
+        if (data.code === 200) {
+          this.time_ipList = data.data.period_info
+        } else {
+          this.$message.warning(data.message)
+        }
+      } catch (error) {
+        console.log('getPrice.error', error)
+      }
+    },
     // 获取店铺信息
     changeMallList(val) {
       this.query.mall_ids = []
@@ -1074,28 +1093,34 @@ export default {
       params.expiration_dates = this.cloumn_date && this.cloumn_date.length > 0 ? this.cloumn_date.join('/').toString() : ''
       params.ip_id = ''
       params.statius = this.query.statius
-      const res = await this.$YipService.GetIpList(JSON.stringify(params))
       this.loading = true
-      const data = JSON.parse(res)
-      this.tableList = []
-      if (data.code === 200 && data.data.length > 0) {
-        this.loading = false
-        // 解析ip
-        data.data.forEach(item => {
-          this.$YipService.GetIPinfor(item.ip_info).then(res => {
-            const data_ipinfor = JSON.parse(res)
-            item.poxyID = data_ipinfor.id
-            item.poxyIP = data_ipinfor.map_ip_address
-            // console.log('ip解析', data_ipinfor)
-            // item.mall_alias_name = getValue(this.shopAccountList, 'label', 'id', item.target_mall_info.mall_id) //店铺解析
+      try {
+        const res = await this.$YipService.GetIpList(JSON.stringify(params))
+        const data = JSON.parse(res)
+        this.tableList = []
+        if (data.code === 200 && data.data.length > 0 && this.shopAccountList.length > 0) {
+          this.loading = false
+          data.data.forEach((item, index) => {
+            // 获取店铺名称
+            if (item.target_mall_info) {
+              item.mall_alias_name = MallgetValue(this.shopAccountList, 'label', 'id', item.target_mall_info[0].mall_id)
+            }
+            // 解析ip
+            item.poxyIP = ''
+            item.poxyID = ''
+            this.$YipService.GetIPinfor(item.ip_info).then(res => {
+              const data_ipinfor = JSON.parse(res)
+              item.poxyID = data_ipinfor.id
+              item.poxyIP = data_ipinfor.map_ip_address
+            })
+            this.tableList.push(item)
           })
-          this.tableList.push(item)
-          // console.log('tableList', this.tableList)
-        })
-        this.chang()
-      } else {
-        this.loading = true
-        this.$message.warning('信息获取失败')
+          // 分页
+          this.chang()
+        }
+      } catch (error) {
+        this.loading = false
+        console.log('error', error)
       }
     },
     // 分页

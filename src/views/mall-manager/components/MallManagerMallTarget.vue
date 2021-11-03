@@ -9,37 +9,44 @@
           <ul>
             <li>
               <span>站点：</span>
-              <el-select v-model="form.site" placeholder="" size="mini" filterable>
-                <el-option v-for="(item, index) in siteList" :key="index" :label="item.label" :value="item.value" />
+              <el-select v-model="form.site" class="unnormal" size="mini" filterable>
+                <el-option label="全部" :value="0" />
+                <el-option v-for="(item, index) in countries" :key="index" :label="item.label" :value="item.value" />
               </el-select>
             </li>
             <li>
               <span>店铺ID：</span>
-              <el-input v-model="form.mallId" class="shopId" placeholder="" size="mini" />
+              <el-input v-model="form.mallId" class="shopId" size="mini" clearable oninput="value=value.replace(/\s+/g,'')" />
             </li>
             <li>
-              <el-button type="primary" size="mini" @click="getMallStatistics()">查询</el-button>
+              <el-button
+                type="primary"
+                size="mini"
+                @click="
+                  page = 1
+                  getMallStatistics()"
+              >查询</el-button>
               <el-button type="primary" size="mini" @click="handlerSelectTableOperating('syncMallData')">同步店铺指标数据</el-button>
-              <el-button type="primary" size="mini" @click="handlerSelectTableOperating('exportSearch')">导出数据</el-button>
+              <el-button type="primary" size="mini" @click="exportSearch()">导出数据</el-button>
             </li>
             <li>
               <el-progress v-show="isShowProgress" style="width: 230px" :text-inside="true" :stroke-width="24" :percentage="percentage" status="success" />
             </li>
             <!-- <li>
               <span>订单完成指标：</span>
-              <el-select v-model="form.orderIndex" placeholder="" size="mini" filterable>
+              <el-select v-model="form.orderIndex"  size="mini" filterable>
                 <el-option v-for="(item, index) in formIndexList" :key="index" :label="item.label" :value="item.value" />
               </el-select>
             </li>
             <li>
               <span>买家满意指标：</span>
-              <el-select v-model="form.buyerIndex" placeholder="" size="mini" filterable>
+              <el-select v-model="form.buyerIndex"  size="mini" filterable>
                 <el-option v-for="(item, index) in formIndexList" :key="index" :label="item.label" :value="item.value" />
               </el-select>
             </li>
             <li>
               <span>流程服务指标：</span>
-              <el-select v-model="form.serviceIndex" placeholder="" size="mini" filterable>
+              <el-select v-model="form.serviceIndex"  size="mini" filterable>
                 <el-option v-for="(item, index) in formIndexList" :key="index" :label="item.label" :value="item.value" />
               </el-select>
             </li> -->
@@ -49,19 +56,19 @@
           <ul>
             <!-- <li>
               <span>评分等级：</span>
-              <el-select v-model="form.rating" placeholder="" size="mini" filterable>
+              <el-select v-model="form.rating"  size="mini" filterable>
                 <el-option v-for="(item, index) in ratingList" :key="index" :label="item.label" :value="item.value" />
               </el-select>
             </li>
             <li>
               <span>违反上架指标：</span>
-              <el-select v-model="form.violationPutIndex" placeholder="" size="mini" filterable>
+              <el-select v-model="form.violationPutIndex"  size="mini" filterable>
                 <el-option v-for="(item, index) in formIndexList" :key="index" :label="item.label" :value="item.value" />
               </el-select>
             </li>
             <li>
               <span>店铺ID：</span>
-              <el-input v-model="form.mallId" class="shopId" placeholder="" size="mini" />
+              <el-input v-model="form.mallId" class="shopId"  size="mini" />
             </li>
             <li>
               <el-button type="primary" size="mini" @click="getMallStatistics()">查询</el-button>
@@ -86,7 +93,7 @@
           <el-table-column align="center" type="index" label="序列号" width="80" />
           <el-table-column align="center" prop="country" label="站点">
             <template slot-scope="{ row }">
-              {{ row.country | chineseSite }}
+              {{row.country | chineseSite }}
             </template>
           </el-table-column>
           <el-table-column align="center" prop="platform_mall_id" label="店铺ID" min-width="120" />
@@ -97,7 +104,7 @@
           </el-table-column>
           <el-table-column align="center" label="操作状态" min-width="100">
             <template slot-scope="{ row }">
-              {{ row.status }}
+              <span :style="row.color &&('color:'+row.color)">{{ row.status }}</span>
             </template>
           </el-table-column>
           <el-table-column align="center" label="本季度计分" min-width="100">
@@ -369,8 +376,7 @@
 
 <script>
 import mallGroup from '@/components/mall-group.vue'
-import ShopeeConfig from '@/services/shopeeman-config'
-import { exportExcelDataCommon } from '@/util/util'
+import { exportExcelDataCommon ,batchOperation} from '@/util/util'
 import { MallTargetApi } from '../../../module-api/mall-manager-api/mall-target-api'
 export default {
   components: {
@@ -386,10 +392,10 @@ export default {
       multipleSelection: [],
       percentage: 0, // 进度条数据
       isShowProgress: false,
-      shopeeConfig: new ShopeeConfig(),
+      countries: this.$filters.countries_option,
       mallTargetApiInstance: new MallTargetApi(this),
       form: {
-        site: '', // 站点
+        site: 0, // 站点
         orderIndex: '0', // 订单完成指标
         buyerIndex: '0', // 买家满意指标
         serviceIndex: '0', // 流程服务指标
@@ -397,16 +403,6 @@ export default {
         violationPutIndex: '0', // 违反上架指标
         mallId: ''// 店铺ID
       },
-      siteList: [
-        { value: '', label: '全部' },
-        { value: 'TH', label: '泰国站' },
-        { value: 'MY', label: '马来站' },
-        { value: 'TW', label: '台湾站' },
-        { value: 'PH', label: '菲律宾站' },
-        { value: 'ID', label: '印尼站' },
-        { value: 'SG', label: '新加坡站' },
-        { value: 'VN', label: '越南站' }
-      ],
       formIndexList: [
         { value: '0', label: '全部' },
         { value: '1', label: '正常' },
@@ -417,23 +413,34 @@ export default {
         { value: '1', label: '佳' },
         { value: '2', label: '差' },
         { value: '3', label: '危险' }
-      ]
+      ],
+      addPercentage: 0
     }
   },
-  async mounted() {
-    await this.getMallStatistics()
+  mounted() {
+    this.getMallStatistics()
   },
   methods: {
     // 同步店铺指标数据
     async syncMallData(data) {
+      if (!data) {
+        return this.$message('暂无同步数据')
+      }
       this.isShowProgress = true
       this.percentage = 0
       const len = data.length
-      for (let index = 0; index < len; index++) {
-        const item = data[index]
+      this.addPercentage = 100 / len
+      let res = await batchOperation(data, this.syncMall)
+      console.log(1,'完成',res)
+      this.percentage = 100
+    },
+    //店铺同步
+    async syncMall(item,count = {count:1}){
+      try {
+        console.log('item - count',item,count)
         this.$set(item, 'status', '开始同步')
-        const res1 = this.mallTargetApiInstance.theQuarterPoint(item, '/api/v2/shops/sellerCenter/ongoingPoints')
-        const res2 = this.mallTargetApiInstance.getShopPerformance(item, '/api/v2/shops/sellerCenter/shopPerformance')
+        const res1 = await this.mallTargetApiInstance.theQuarterPoint(item, '/api/v2/shops/sellerCenter/ongoingPoints')
+        const res2 = await this.mallTargetApiInstance.getShopPerformance(item, '/api/v2/shops/sellerCenter/shopPerformance')
         const res3 = await Promise.all([res1, res2])
         const params = {
           'mallDatas': '',
@@ -443,16 +450,25 @@ export default {
           params['violationScore'] = res3[0].data.totalPoints
           params['orderServiceIndicators'] = res3[1].data
           const res4 = await this.$api.mallStatisticsSave(params)
+          console.log('res4', res4)
           if (res4.data.code === 200) {
             this.$set(item, 'status', '同步成功')
           } else {
+            this.$set(item, 'color', `#F56C6C`)
             this.$set(item, 'status', '同步失败:上报失败')
           }
-          this.$set(item, 'status', '同步成功')
         } else {
+          this.$set(item, 'color', `#F56C6C`)
           this.$set(item, 'status', `同步失败`)
         }
-        this.percentage = parseInt((index + 1) / len * 100)
+        console.log('syncMall', res1,res2,res3)
+      }catch (e) {
+        console.log('错误',e)
+        this.$set(item, 'color', `#F56C6C`)
+        this.$set(item, 'status', `同步失败`)
+      }finally {
+        --count.count
+        this.percentage += this.addPercentage
       }
     },
     // 获取数据
@@ -460,7 +476,7 @@ export default {
       this.isLoading = true
       const parmas = {
         country: this.form.site,
-        mallId: this.form.mallId.trim(),
+        mallId: this.form.mallId,
         groupId: this.form.groupId,
         page: this.page,
         pageSize: this.pageSize
@@ -491,12 +507,44 @@ export default {
       }
     },
     // 导出excel
-    exportSearch(data) {
-      // 要导出的json数据
-      // const jsonData = this.multipleSelection
-      const jsonData = data
+    async exportSearch() {
+      this.isLoading = true
+      const exportData = []
+      const len = this.total % 700 === 0 ? (this.total / 700) : (Math.floor(this.total / 700) + 1)
+      for (let index = 1; index <= len; index++) {
+        const parmas = {
+          country: this.form.site,
+          mallId: this.form.mallId,
+          groupId: this.form.groupId,
+          page: index
+        }
+        try {
+          const { data } = await this.$api.getMallStatistics(parmas)
+          if (data.code === 200) {
+            const resData = data.data.data
+            if (resData) {
+              for (let index = 0; index < resData.length; index++) {
+                const element = resData[index]
+                element.order_service_indicators = element.order_service_indicators ? JSON.parse(element.order_service_indicators) : ''
+              }
+            }
+            resData.forEach(item => {
+              exportData.push(item)
+            })
+          } else {
+            this.$message.error(`${data.message}`)
+            this.isLoading = false
+          }
+        } catch (error) {
+          console.log(error)
+          this.isLoading = false
+        }
+      }
+      const jsonData = exportData
       if (!jsonData?.length) {
-        return this.$message('暂无导出数据')
+        this.isLoading = false
+        this.$message('暂无导出数据')
+        return
       }
       let str =
         `<tr>
@@ -552,7 +600,7 @@ export default {
         </tr>`
       jsonData.forEach((item) => {
         str += `<tr>
-        <td>${item.country ? item.country : '' + '\t'}</td>
+        <td>${item.country ? this.$filters.chineseSite(item.country) : '' + '\t'}</td>
         <td>${item.platform_mall_id ? item.platform_mall_id : '' + '\t'}</td>
         <td>${item.mall_alias_name ? item.mall_alias_name : item.platform_mall_name + '\t'}</td>
         <td>${item.order_service_indicators && item.order_service_indicators.SumPoints ? item.order_service_indicators.SumPoints : '' + '\t'}</td>
@@ -604,6 +652,7 @@ export default {
         </tr>`
       })
       exportExcelDataCommon('店铺指标', str)
+      this.isLoading = false
     },
     getGroupId(data) {
       this.form.groupId = data

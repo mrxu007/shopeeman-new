@@ -160,16 +160,7 @@ export default {
       countryVal: '',
       groupId: '',
       mallSelect: '',
-      countries: [
-        { label: '马来站', value: 'MY' },
-        { label: '台湾站', value: 'TW' },
-        { label: '新加坡站', value: 'SG' },
-        { label: '菲律宾站', value: 'PH' },
-        { label: '泰国站', value: 'TH' },
-        { label: '越南站', value: 'VN' },
-        { label: '印尼站', value: 'ID' },
-        { label: '巴西站', value: 'BR' },
-      ],
+      countries: this.$filters.countries_option,
       assessTime: [],
       tableDataCut: [],
       tableData: [],
@@ -372,13 +363,13 @@ export default {
             </tr>`
       for (let i = 0; i < this.tableData.length; i++) {
         let item = this.tableData[i]
-        str += `<tr><td>${num++}</td> 
+        str += `<tr><td>${num++}</td>
                     <td style="mso-number-format:'\@';">${item.country ? this.$filters.chineseSite(item.country) : '' + '\t'}</td>
                     <td>${item.platform_mall_name ? item.platform_mall_name : '' + '\t'}</td>
                     <td style="mso-number-format:'\@';">${item.order_sn && item.order_sn + '\t'}</td>
                     <td>${item.product_id ? location.origin + '/product' + '/' + item.platform_mall_id + '/' + item.product_id : '' + '\t'}</td>
                     <td>${item.product_cover ? this.$filters.imageRender([item.country, item.platform_mall_id, item.product_cover]) : '' + '\t'}</td>
-                    <td>${item.product_name ? item.product_name : '' + '\t'}</td> 
+                    <td>${item.product_name ? item.product_name : '' + '\t'}</td>
                     <td>${item.user_name ? item.user_name : '' + '\t'}</td>
                     <td>${item.rating_star ? item.rating_star : '' + '\t'}</td>
                     <td>${item.ctime ? this.$dayjs(item.ctime * 1000).format('YYYY-MM-DD HH:MM') : '' + '\t'}</td>

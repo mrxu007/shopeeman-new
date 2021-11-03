@@ -102,6 +102,7 @@ export default class NetMessageBridgeService {
   async deleteChinese(country, api, data, options = {}) {
     const url = await this.getUrlPrefix(country) + api
     options['extrainfo'] = this.getExtraInfo(data)
+
     const referer = options['headers'] && options['headers'].referer
     if (referer) {
       options['headers'] = Object.assign(options['headers'],
@@ -195,7 +196,7 @@ export default class NetMessageBridgeService {
   }
   // 回复商店评价
   replyShopRating(country, data) {
-    return this.postChinese(country, '/api/v3/settings/reply_shop_rating', data, { Headers: { 'Content-Type': ' application/json' } })
+    return this.postChinese(country, '/api/v3/settings/reply_shop_rating', data, { Headers: { 'Content-Type': ' application/json' }})
   }
   // 店铺提现记录
   getWithDrawalRecord(country, data) {
@@ -210,14 +211,14 @@ export default class NetMessageBridgeService {
     return this.getChinese(country, '/api/v3/finance/income_transaction_histories', data)
   }
   // 店铺登录
-  async login(mallInfo, data) {
-    const { country, mall_account_info } = mallInfo
-    const encryptPwd = sha256(md5(mall_account_info.password))
+  async login(mallInfo, flat) {
+    const { country, mall_account_info, platform_mall_id } = mallInfo
     const accountName = mall_account_info.username
+    const encryptPwd = sha256(md5(mall_account_info.password))
     // const encryptPwd = sha256(md5('Th123654'))
     // const accountName = 'hellohappy586'
     const params = {
-      mallId: data.mallId,
+      mallId: platform_mall_id || '1111', // 导入店铺初始没有mallId
       remember: false,
       password_hash: encryptPwd
     }
@@ -228,10 +229,11 @@ export default class NetMessageBridgeService {
     } else {
       params['username'] = accountName
     }
-
+    flat === 2 ? params['exportInfo'] = mallInfo : ''// 导入店铺必须参数   flat 1 一键登陆  2导入店铺
     try {
       let res = await this.postChinese(country, '/api/v2/login', params)
       res = JSON.parse(res)
+      debugger
       if (res.status === 200) {
         const data = JSON.parse(res.data)
         // { 官方返回字段
@@ -256,6 +258,7 @@ export default class NetMessageBridgeService {
         Cookie['shopid'] = data.shopid // 平台店铺ID
         const obj = {
           shopid: data.shopid + '',
+          ShopeeUid: data.id,
           username: data.username,
           Cookie
         }
@@ -263,6 +266,7 @@ export default class NetMessageBridgeService {
       }
       return { code: res.status, data: `${res.status} ${res.data} ` }
     } catch (e) {
+      console.log('e', e)
       return { code: -2, data: `login-catch: ${e}` }
     }
   }
@@ -334,8 +338,8 @@ export default class NetMessageBridgeService {
   }
 
   // 删除问题问候语
-  deleteFaqsShopSettings(country, data) {
-    return this.deleteChinese(country, '/webchat/api/workbenchapi/v1.2/sc/faqs/shop/settings', data)
+  deleteFaqsShopSettings(country, data, options = {}) {
+    return this.deleteChinese(country, '/webchat/api/workbenchapi/v1.2/sc/faqs/shop/settings', data,options)
   }
 
   // 获取银行卡信息
