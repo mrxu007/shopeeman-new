@@ -342,6 +342,7 @@ export default {
     }
   },
   mounted() {
+    this.form.moneyFlow.push('全部')
     this.moneyFlow.map((item) => {
       this.form.moneyFlow.push(item.id)
     })
@@ -526,6 +527,7 @@ export default {
       const res = await this.$api.getTransType()
       if (res.data.code === 200) {
         this.transactionType = res.data.data
+        this.form.transactionType.push('全部')
         this.transactionType.map((item) => {
           this.form.transactionType.push(item.id)
         })
@@ -561,6 +563,7 @@ export default {
     selectAll(key, baseData) {
       if (this.form[key].length < baseData.length) {
         this.form[key] = []
+        this.form[key].push('全部')
         baseData.map((item) => {
           this.form[key].push(item.id)
         })
