@@ -112,8 +112,17 @@
             <template slot-scope="{ row }">
               <div>
                 <el-button size="mini" type="primary" @click="openSoft(row.poxyIP,row.poxyID)">打开代理浏览器</el-button>
-                <el-button size="mini" type="primary" @click="showupdateVisible(row.id)">修改绑定店铺</el-button>
+                <!-- <el-button size="mini" type="primary" @click="showupdateVisible(row.id,row)">修改绑定店铺</el-button> -->
                 <el-button size="mini" type="primary" @click="delInfor(row.id)">删除</el-button>
+                <el-dropdown style="width: 100px;margin-left: 10px;">
+                  <el-button style="width: 100px;" size="mini" plain type="primary">
+                    更多操作<i class="el-icon-arrow-down el-icon--right" />
+                  </el-button>
+                  <el-dropdown-menu slot="dropdown">
+                    <el-dropdown-item> <div v-if="Number(row.source) ===2" class="dropdownItem" @click="showupdateVisible(row.id,row)"> 编辑</div></el-dropdown-item>
+                    <el-dropdown-item> <div class="dropdownItem" @click="showupdateVisible(row.id,row)">修改绑定店铺</div></el-dropdown-item>
+                  </el-dropdown-menu>
+                </el-dropdown>
               <!-- <el-button size="mini" type="primary" @click="del(row.uid)">删除</el-button> -->
               </div>
             </template>
@@ -136,6 +145,7 @@
     </div>
     <!-- dialog 新增公司主体-->
     <div class="dialog_addip">
+
       <el-dialog
         v-loading="loading"
         :title="dialog_title"
@@ -209,8 +219,8 @@
               <el-button size="mini" type="primary" @click="addMaster()">确定</el-button>
             </div>
           </div>
-          <!-- 新增自有IP公司主体 -->
-          <div v-if="Typeis==='ipPerson'">
+          <!-- 新增自有IP公司主体 && 修改绑定店铺-->
+          <div v-if="Typeis==='ipPerson' || Typeis==='updataMall'">
             <el-form
               ref="query_person"
               :model="query_person"
@@ -219,13 +229,16 @@
             >
               <el-form-item prop="region_name">
                 <span slot="label">区域名</span>
-                <el-input
+                <el-select v-model="query_person.region_name" size="mini">
+                  <el-option v-for="(item,index) in region_ipList" :key="'region'+index" :label="item.value" :value="item.value" />
+                </el-select>
+                <!-- <el-input
                   v-model="query_person.region_name"
                   placeholder="请输入备注"
                   size="mini"
                   style="width: 200px"
                   clearable
-                />
+                /> -->
               </el-form-item>
 
               <el-form-item prop="ip_address">
@@ -441,10 +454,19 @@
                 display: flex;
                 justify-content: center;"
             >
+              <!-- 新增 || 修改 -->
               <el-button
+                v-if="Typeis==='ipPerson'"
                 type="primary"
                 size="mini"
                 @click="addMallMainAndBind"
+              >保存</el-button>
+
+              <el-button
+                v-if="Typeis==='updataMall'"
+                type="primary"
+                size="mini"
+                @click="UpdateSelfIPMallMain"
               >保存</el-button>
             </div>
           </div>
@@ -472,10 +494,10 @@
                   type="selection"
                   width="55"
                 />
-                <el-table-column type="index" label="序号" />
-                <el-table-column prop="country" label="站点" />
-                <el-table-column prop="platform_mall_name" label="店铺名称" />
-                <el-table-column prop="main_name" label="已绑定公司主体名称" />
+                <el-table-column type="index" label="序号" align="center" />
+                <el-table-column prop="country" label="站点" align="center" />
+                <el-table-column prop="mall_alias_name" label="店铺名称" align="center" />
+                <!-- <el-table-column prop="main_name" label="已绑定公司主体名称" /> -->
               </el-table>
             </div>
             <div style="display:flex;justify-content: center;margin-top:5px">
@@ -489,6 +511,7 @@
   </div>
 </template>
 <script>
+import ShopeeConfig from '@/services/shopeeman-config'
 import storeChoose from '../../../components/store-choose'
 import { getMalls, MallgetValue } from '../../../util/util'
 import { encryptionList, ipTypeList, protocolList, confuseList } from '../../../util/MallManagerStoredata'
@@ -515,6 +538,7 @@ export default {
       }
     }
     return {
+      shopeeConfig: new ShopeeConfig(),
       loading: false,
       showButton: false,
       targetId: '', // 修改店铺绑定仓库id
@@ -693,6 +717,44 @@ export default {
     this.getMallList()// 初始化店铺列表
   },
   methods: {
+    // 主体修改
+    UpdateSelfIPMallMain() {
+      this.$refs.query_person.validate(async(valid) => {
+        if (!valid) return
+        const userInfo = await this.$appConfig.getUserInfo()
+        this.query_person.uid = userInfo.muid
+        const ipAlias = this.randomWord(true, 10, 32)
+        this.query_person.ip_alias = ipAlias
+        this.query_person.uuid = 0
+        // 新增
+        this.loading = true
+        const res = await this.$YipService.UpdateSelfIP(JSON.stringify(this.query_person))
+        const resMsg = JSON.parse(res)
+        if (resMsg.code !== 200) {
+          this.loading = false
+          this.$notify({
+            title: '修改主体信息',
+            type: 'error',
+            message: resMsg.message
+          })
+        } else {
+          this.loading = false
+          this.$notify({
+            title: '修改主体信息',
+            type: 'success',
+            message: `修改成功`
+          })
+          // 附加店铺绑定
+          this.targetId = resMsg.data
+          if (this.dialog_selectMallList.length > 0) {
+            this.updataMallList()
+          }
+          //
+          this.getTableList()
+          this.dialogvisible = false
+        }
+      })
+    },
     // 关闭弹窗清除
     closeDialog1() {
       this.query_person = {
@@ -758,12 +820,52 @@ export default {
       })
     },
     // 展示修改绑定店铺弹窗
-    showupdateVisible(val) {
+    showupdateVisible(val, d) {
+      console.log('/*-/-/*-', d)
       this.showButton = true
       this.dialogvisible = true
       this.Typeis = 'updataMall'
       this.dialog_title = '修改绑定店铺'
       this.targetId = val
+
+      // 列表渲染
+      this.$nextTick(() => {
+        if (this.$refs.multipleTable_dialog) {
+          this.$refs.multipleTable_dialog.clearSelection()
+        }
+      })
+      const tempMall = []
+      if (d.target_mall_info && d.target_mall_info.length > 0) {
+        d.target_mall_info.forEach(item => {
+          const index = this.dialog_mallList.findIndex(mall => {
+            return Number(mall.id) === Number(item.mall_id)
+          })
+          if (index > -1) {
+            tempMall.push(this.dialog_mallList[index])
+            this.$nextTick(() => {
+              this.$refs.multipleTable_dialog.toggleRowSelection(this.dialog_mallList[index], true)
+            })
+          }
+        })
+      }
+      // 表格渲染
+      const row = d
+      this.query_person = {
+        target_id: d.id,
+        source: d.source, // 1 2
+        region_name: row.data_ipinfor.region_name, // 区域名
+        ip_address: row.data_ipinfor.ip_address, // 1
+        ip_port: row.data_ipinfor.port, // 1
+        ip_agency: row.data_ipinfor.ip_agency, // 1
+        ip_alias: row.ip_alias,
+        username: row.data_ipinfor.username, // 1
+        password: row.data_ipinfor.password, // 1
+        encryption: row.data_ipinfor.encryption, // 1
+        protocol: row.data_ipinfor.protocol, // 1
+        parameter: row.data_ipinfor.parameter,
+        confuse: row.data_ipinfor.confuse, // 1
+        argument: row.data_ipinfor.argument
+      }
     },
     // 初始化店铺列表
     async getMallList() {
@@ -773,8 +875,14 @@ export default {
       }
       const res = await this.$api.ddMallGoodsGetMallList(params)
       if (res.data.code === 200) {
+        const list = []
+        res.data.data.forEach(e => {
+          e.country = this.shopeeConfig.getSiteCode(e.country)
+          list.push(e)
+        })
         // 全部
-        this.dialog_mallList = res.data.data
+        // this.dialog_mallList = res.data.data
+        this.dialog_mallList = list
         // 部分
         this.dialog_mallList2 = this.dialog_mallList.filter(item => {
           return item.main_name === ''
@@ -791,24 +899,29 @@ export default {
       const uid = userInfo.muid.toString()
       const targetId = this.targetId.toString()
       const mallIds = this.dialog_selectMallList.toString() || ''
-      console.log('====', targetId)
-      const res = await this.$commodityService.newBangdingMall(uid, targetId, mallIds)
-      const data = JSON.parse(res)
-      console.log('绑定', data)
-      if (data.code === -1) {
-        this.$notify({
-          title: '绑定店铺',
-          type: 'error',
-          message: data.message
-        })
-      } else {
-        this.$notify({
-          title: '绑定店铺',
-          type: 'success',
-          message: data.message
-        })
+      // console.log('====', mallIds)
+      try {
+        const res = await this.$commodityService.newBangdingMall(uid, targetId, mallIds)
+        const data = JSON.parse(res)
+        console.log('绑定', data)
+        if (data.code !== 200) {
+          this.$notify({
+            title: '绑定店铺',
+            type: 'error',
+            message: data.message
+          })
+        } else {
+          this.$notify({
+            title: '绑定店铺',
+            type: 'success',
+            message: '绑定成功'
+          })
+        }
+      } catch (error) {
+        console.log('店铺绑定', error)
       }
-      console.log('-----', data)
+      this.dialogvisible = false
+      this.getTableList()
       this.$refs.multipleTable_dialog.clearSelection()
     },
     // 获取dialog 店铺列表
@@ -828,6 +941,7 @@ export default {
       // 清空多选
       this.dialog_selectMallList = []
       val.forEach(e => {
+        // console.log('888', e)
         this.dialog_selectMallList.push(e.id)
       })
       // this.$refs.multipleTable_dialog.clearSelection()
@@ -905,7 +1019,7 @@ export default {
           }
           //
           this.getTableList()
-          this.dialogVisible = false
+          this.dialogvisible = false
         }
       })
     },
@@ -987,7 +1101,7 @@ export default {
       const data = await this.$commodityService.addIPMaster(params)
       const resMsg = JSON.parse(data)
       console.log('add', resMsg)
-      if (resMsg.code === -1) {
+      if (resMsg.code === '-1') {
         this.loading = false
         this.$notify({
           title: '新增公司主体',
@@ -1007,7 +1121,7 @@ export default {
           this.updataMallList()
         }
         this.getTableList()
-        this.dialogVisible = false
+        this.dialogvisible = false
       }
       // console.log('新增公司主体', resMsg)
     },
@@ -1100,10 +1214,14 @@ export default {
         this.tableList = []
         if (data.code === 200 && data.data.length > 0 && this.shopAccountList.length > 0) {
           this.loading = false
+          const mall = []
           data.data.forEach((item, index) => {
             // 获取店铺名称
-            if (item.target_mall_info) {
-              item.mall_alias_name = MallgetValue(this.shopAccountList, 'label', 'id', item.target_mall_info[0].mall_id)
+            if (item.target_mall_info && item.target_mall_info.length > 0) {
+              item.target_mall_info.forEach(i => {
+                mall.push(MallgetValue(this.shopAccountList, 'label', 'id', i.mall_id))
+              })
+              item.mall_alias_name = mall.toString()
             }
             // 解析ip
             item.poxyIP = ''
@@ -1112,6 +1230,7 @@ export default {
               const data_ipinfor = JSON.parse(res)
               item.poxyID = data_ipinfor.id
               item.poxyIP = data_ipinfor.map_ip_address
+              item.data_ipinfor = data_ipinfor // 修改获取数据
             })
             this.tableList.push(item)
           })

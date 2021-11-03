@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-10-21 15:41:32
- * @LastEditTime: 2021-11-02 14:17:23
+ * @LastEditTime: 2021-11-03 16:53:45
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shopeeman-new\src\components\category-choose.vue
@@ -10,28 +10,28 @@
   <div>
     <ul :class="['category-content', { 'category-column': isColumn === true }]">
       <li :class="[{ 'column-item': isColumn === true }]">
-        <span>站点：</span>
+        <span :style="{'width':spanWidth}">站点：</span>
         <el-select v-model="countryVal" size="mini" filterable>
           <el-option v-if="isAll" label="全部" :value="''" />
           <el-option v-for="(item, index) in countries" :key="index" :label="item.label" :value="item.value" />
         </el-select>
       </li>
       <li :class="[{ 'column-item': isColumn === true }]">
-        <span>一级类目：</span>
+        <span :style="{'width':spanWidth}">一级类目：</span>
         <el-select v-model="category1" placeholder="" size="mini" filterable @change="getCategory($event, 1)">
           <el-option v-if="isCategoryAll" label="全部" :value="''" />
           <el-option v-for="(item, index) in categoryList1" :key="index" :label="item.category_name + '(' + item.category_cn_name + ')'" :value="item.category_id" />
         </el-select>
       </li>
       <li v-if="level === 3 || level === 2" :class="[{ 'column-item': isColumn === true }]">
-        <span>二级类目：</span>
+        <span :style="{'width':spanWidth}">二级类目：</span>
         <el-select v-model="category2" placeholder="" size="mini" filterable @change="getCategory($event, 2)">
           <el-option v-if="isCategoryAll" label="全部" :value="''" />
           <el-option v-for="(item, index) in categoryList2" :key="index" :label="item.category_name + '(' + item.category_cn_name + ')'" :value="item.category_id" />
         </el-select>
       </li>
       <li v-if="level === 3" :class="[{ 'column-item': isColumn === true }]">
-        <span>三级类目：</span>
+        <span :style="{'width':spanWidth}">三级类目：</span>
         <el-select v-model="category3" placeholder="" size="mini" filterable @change="getCategory($event, 3)">
           <el-option v-if="isCategoryAll" label="全部" :value="''" />
           <el-option v-for="(item, index) in categoryList3" :key="index" :label="item.category_name + '(' + item.category_cn_name + ')'" :value="item.category_id" />
@@ -45,6 +45,10 @@
 export default {
   name: 'CategoryChoose',
   props: {
+    spanWidth:{
+       type: String,
+       default: "80px"
+    },
     isAll: {
       type: Boolean,
       default: false

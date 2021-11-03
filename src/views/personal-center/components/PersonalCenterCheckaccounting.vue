@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-10-08 14:16:18
- * @LastEditTime: 2021-11-02 12:13:40
+ * @LastEditTime: 2021-11-03 16:22:13
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shopeeman-new\src\views\personal-center\components\PersonalCenterCheckaccounting.vue
@@ -236,8 +236,8 @@
 </template>
 
 <script>
-import ChartLine from '../../components/echart-line.vue'
-import { exportExcelDataCommon, exportCsvDataCommon } from '../../../util/util'
+import ChartLine from '../../../components/echart.vue'
+import { creatDate, exportExcelDataCommon } from '../../../util/util'
 export default {
   components: {
     ChartLine
@@ -252,6 +252,9 @@ export default {
         }
       },
       lineData: {
+        tooltip: {
+          trigger: 'axis'
+        },
         xAxis: {
           type: 'category',
           data: ['2021-2-2', '2023-5-6', '2015-6-10']
@@ -347,9 +350,7 @@ export default {
     }
   },
   mounted() {
-    const end = new Date().getTime()
-    const start = end - 31 * 24 * 60 * 60 * 1000
-    this.statisticsTime = [this.$dayjs(start).format('YYYY-MM-DD'), this.$dayjs(end).format('YYYY-MM-DD')]
+    this.statisticsTime = creatDate(31)
     this.getOrderStatisticsList()
   },
   methods: {

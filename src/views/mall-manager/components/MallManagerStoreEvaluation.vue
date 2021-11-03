@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-10-08 14:16:18
- * @LastEditTime: 2021-11-02 18:23:24
+ * @LastEditTime: 2021-11-03 17:01:16
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shopeeman-new\src\views\mall-manager\components\MallManagerWithdrawalRecord.vue
@@ -10,20 +10,13 @@
   <div class="store-evaluation">
     <div class="tool-bar">
       <div class="tool-row">
-        <storeChoose @changeMallList="changeMallList"></storeChoose>
-        <div class="tool-item">
-          <span>时间：</span>
-          <el-date-picker
-            v-model="assessTime"
-            size="mini"
-            value-format="yyyy-MM-dd"
-            type="daterange"
-            style="width: 200px"
-            range-separator="-"
-            start-placeholder="开始日期"
-            end-placeholder="结束日期"
-            :picker-options="pickerOptions"
-          />
+        <storeChoose @changeMallList="changeMallList" :spanWidth="'80px'"></storeChoose>
+         <div class="tool-item ">
+          <el-input placeholder="请输入内容" v-model="userName" size="mini" class="input-with-select" clearable>
+            <el-select v-model="userTypeSelect" slot="prepend" placeholder="用户名称" style="width: 120px">
+              <el-option v-for="(item, index) in userType" :key="index" :label="item.label" :value="item.value" />
+            </el-select>
+          </el-input>
         </div>
       </div>
       <div class="tool-row">
@@ -40,13 +33,21 @@
           </el-select>
         </div>
         <div class="tool-item mar-right">
-          <el-input placeholder="请输入内容" v-model="userName" size="mini" class="input-with-select" clearable>
-            <el-select v-model="userTypeSelect" slot="prepend" placeholder="用户名称" style="width: 120px">
-              <el-option v-for="(item, index) in userType" :key="index" :label="item.label" :value="item.value" />
-            </el-select>
-          </el-input>
+          <span>时间：</span>
+          <el-date-picker
+            v-model="assessTime"
+            size="mini"
+            value-format="yyyy-MM-dd"
+            type="daterange"
+            style="width: 200px"
+            range-separator="-"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
+            :picker-options="pickerOptions"
+          />
         </div>
-        <el-button type="primary" size="mini" class="mar-right" @click="searchRate" :disabled="tableLoading">查询</el-button>
+       
+        <el-button type="primary" size="mini" class="mar-right" @click="searchRate" :disabled="tableLoading">查 询</el-button>
         <el-button type="primary" size="mini" class="mar-right" @click="batchReplay" :disabled="tableLoading">批量回复</el-button>
         <el-button type="primary" size="mini" class="mar-right" @click="cancelAction = true">取消操作</el-button>
         <el-button type="primary" size="mini" class="mar-right" @click="exportData" :disabled="tableLoading">导出数据</el-button>
@@ -260,8 +261,6 @@ export default {
           }
           let mall = this.selectMallList[i]
           let pageNumber = 1
-          console.log(i)
-          console.log(this.tableData)
           await this.searchSingleMall(pageNumber, mall)
         }
       } catch (error) {
@@ -500,9 +499,13 @@ export default {
     align-items: center;
     flex-wrap: wrap;
     .tool-item {
-      //   margin-top: 10px;
       display: flex;
       align-items: center;
+      span{
+        display:inline-block;
+        width:80px;
+        text-align: center;
+      }
     }
   }
 }

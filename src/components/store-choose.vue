@@ -2,21 +2,21 @@
   <div>
     <ul class="storeChooseUL">
       <li>
-        <span>站点：</span>
+        <span :style="{'width':spanWidth}">站点：</span>
         <el-select v-model="countryVal" size="mini" filterable>
           <el-option v-if="isAll" label="全部" :value="''" />
           <el-option v-for="(item, index) in countries" :key="index" :label="item.label" :value="item.value" />
         </el-select>
       </li>
       <li>
-        <span>店铺分组：</span>
+        <span :style="{'width':spanWidth}">店铺分组：</span>
         <el-select v-model="groupId" placeholder="" multiple collapse-tags size="mini" filterable>
           <el-option label="全部" :value="''" />
           <el-option v-for="(item, index) in groupIdList" :key="index" :label="item.group_name" :value="item.id" />
         </el-select>
       </li>
       <li>
-        <span>店铺：</span>
+        <span :style="{'width':spanWidth}">店铺：</span>
         <el-select v-model="site" placeholder="" multiple collapse-tags size="mini" filterable>
           <el-option label="全部" :value="''" />
           <el-option
@@ -37,6 +37,10 @@ import { ddMallGoodsGetMallList } from '../module-api/mall-manager-api/mall-list
 export default {
   name: 'StoreChoose',
   props: {
+    spanWidth:{
+       type: String,
+       default: "80px"
+    },
     isAll: {
       type: Boolean,
       default() {
@@ -198,13 +202,20 @@ export default {
     li {
       display: flex;
       margin-right: 10px;
+<<<<<<< HEAD
       align-items: center;
+=======
+      span{
+        display:inline-block;
+        width:80px;
+        text-align: center;
+      }
+>>>>>>> 52b03bc16e57377ceaf539d876f28ba288c0f4e6
       .el-select {
         display: flex;
       }
-
       .el-tag--info.el-tag--mini {
-        max-width: 55%;
+        max-width: 35%;
       }
     }
   }
