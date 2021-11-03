@@ -452,7 +452,7 @@ export default {
             'platformMallUid': platformMallUid,
             'mallAccountInfo': item.mall_account_info,
             'mallGroup': item.mallGroup,
-            'itemLimit': 0, // 待定需要获取
+            'itemLimit': 500, // 待定需要获取
             'platformMallName': platformMallName,
             'mallAliasName': item.mallAliasName,
             'mallMainName': item.mallMainName,
@@ -460,8 +460,8 @@ export default {
             'SPC_EC': item.SPC_EC,
             'SPC_SC_TK': item.SPC_SC_TK
           }
-          const res3 = await this.getMallGoodsAmount(item)
-          debugger
+          // const res3 = await this.getMallGoodsAmount(item)
+          // debugger
           const res4 = await this.$api.saveMallAuthInfo(params2)
 
           debugger
