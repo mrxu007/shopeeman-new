@@ -52,6 +52,7 @@
       <el-table-column
         prop="ship_by_date"
         label="订单自动取消时间"
+        width="140"
       />
       <el-table-column
         prop="shot_status"
@@ -65,10 +66,12 @@
       <el-table-column
         prop="logistics_id"
         label="Shopee物流公司"
+        width="140"
       />
       <el-table-column
         prop="logistics_id"
         label="Shopee物流单号"
+        width="140"
       />
       <el-table-column
         prop="package_status"
