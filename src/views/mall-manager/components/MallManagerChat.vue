@@ -34,17 +34,17 @@
                      :border="false"
                      @selection-change="handleSelectionChange1"
                      @table-body-scroll="tableScroll">
-              <u-table-column align="center" type="index" label="序列号" width="80">
+              <u-table-column align="left" type="index" label="序列号" width="80">
                 <template slot-scope="scope">
                   {{ scope.$index + 1 }}
                 </template>
               </u-table-column>
-              <u-table-column align="center" label="店铺名称" width="150">
+              <u-table-column align="left" label="店铺名称" width="150">
                 <template slot-scope="scope">
                   {{ scope.row.mall_alias_name || scope.row.platform_mall_name }}
                 </template>
               </u-table-column>
-              <u-table-column align="center" label="预设自动回复">
+              <u-table-column align="left" label="预设自动回复">
                 <template slot-scope="scope">
                   <div class="reply_setting">
                     <el-switch
@@ -59,7 +59,7 @@
                   </div>
                 </template>
               </u-table-column>
-              <u-table-column align="center" label="离线自动回复">
+              <u-table-column align="left" label="离线自动回复">
                 <template slot-scope="scope">
                   <div class="reply_setting">
                     <el-switch
@@ -110,24 +110,24 @@
                      :border="false"
                      @selection-change="handleSelectionChange2"
                      @table-body-scroll="tableScroll">
-              <u-table-column align="center" type="selection" width="50"/>
-              <u-table-column align="center" type="index" label="序列号" width="80"/>
-              <u-table-column align="center" label="店铺名称" width="150">
+              <u-table-column align="left" type="selection" width="50"/>
+              <u-table-column align="left" type="index" label="序列号" width="80"/>
+              <u-table-column align="left" label="店铺名称" width="150">
                 <template slot-scope="scope">
                   {{ scope.row.mall_alias_name || scope.row.platform_mall_name }}
                 </template>
               </u-table-column>
-              <u-table-column align="center" label="分组名称" width="150">
+              <u-table-column align="left" label="分组名称" width="150">
                 <template slot-scope="scope">
                   {{scope.row.group_name}}
                 </template>
               </u-table-column>
-              <u-table-column align="center" label="问候语" width="">
+              <u-table-column align="left" label="问候语" width="">
                 <template slot-scope="scope">
                   {{scope.row.greeting_content}}
                 </template>
               </u-table-column>
-              <u-table-column align="center" label="常见问题助理" width="150">
+              <u-table-column align="left" label="常见问题助理" width="150">
                 <template slot-scope="scope">
                   <el-switch
                       v-model="scope.row.faq_status"
@@ -137,11 +137,11 @@
                   </el-switch>
                 </template>
               </u-table-column>
-              <u-table-column align="center" label="操作" width="180">
+              <u-table-column align="left" label="操作" width="180">
                 <template slot-scope="scope">
                   <el-button type="primary" @click="updateFaqsShop('编辑常见问题',scope.row)" size="mini">编辑
                   </el-button>
-                  <el-button size="mini" @click="deleteFaqsShopSettings">删除</el-button>
+                  <el-button size="mini" @click="deleteFaqsShopSettings(scope.row)">删除</el-button>
                 </template>
               </u-table-column>
             </u-table>
@@ -179,19 +179,19 @@
                      :border="false"
                      @selection-change="handleSelectionChange3"
                      @table-body-scroll="tableScroll">
-              <u-table-column align="center" type="selection" width="50"/>
-              <u-table-column align="center" type="index" label="序列号" width="80"/>
-              <u-table-column align="center" label="店铺名称" width="150">
+              <u-table-column align="left" type="selection" width="50"/>
+              <u-table-column align="left" type="index" label="序列号" width="80"/>
+              <u-table-column align="left" label="店铺名称" width="150">
                 <template slot-scope="scope">
                   {{ scope.row.mall_alias_name || scope.row.platform_mall_name }}
                 </template>
               </u-table-column>
-              <u-table-column align="center" label="分组名称" width="150">
+              <u-table-column align="left" label="分组名称" width="150">
                 <template slot-scope="scope">
                   {{ scope.row.name }}
                 </template>
               </u-table-column>
-              <u-table-column align="center" label="分组状态" width="100">
+              <u-table-column align="left" label="分组状态" width="100">
                 <template slot-scope="scope">
                   <el-switch
                       v-model="scope.row.state"
@@ -201,14 +201,14 @@
                   </el-switch>
                 </template>
               </u-table-column>
-              <u-table-column align="center" label="讯息内容">
+              <u-table-column align="left" label="讯息内容">
                 <template slot-scope="scope">
                   <div class="message_content">
                     <p v-for="item in scope.row.message_shortcuts" :key="item.id" class="contentP">{{item.content}}</p>
                   </div>
                 </template>
               </u-table-column>
-              <u-table-column align="center" label="操作" width="180">
+              <u-table-column align="left" label="操作" width="180">
                 <template slot-scope="scope">
                   <el-button type="primary" size="mini" @click="updateMessageQuickly(scope.row)">编辑</el-button>
                   <el-button size="mini" @click="deleteMessageShortcutsGroups(scope.row)">删除</el-button>
@@ -332,6 +332,7 @@
 
 <script>
   import storeChoose from '../../../components/store-choose'
+  import { batchOperation } from '../../../util/util'
 
   export default {
     components: { storeChoose },
@@ -558,6 +559,9 @@
         })
       },
       async setFaqsShopSettings(item, type = -1, data) {
+        if (!this.FAQAssistantLoad) {
+          this.FAQAssistantLoad = 1
+        }
         this.$refs.FAQAssistantLogs.writeLog(`正在设置店铺【${item.mall_alias_name || item.platform_mall_name}】的常见问题`, true)
         let param = {
           shop_id: parseInt(item.platform_mall_id),
@@ -580,11 +584,34 @@
         } else {
           this.$refs.FAQAssistantLogs.writeLog(`店铺【${item.mall_alias_name || item.platform_mall_name}】的常见问题设置失败`, false)
         }
+        if (!--this.FAQAssistantLoad) {
+          this.scFaqsTable()
+        }
       },
       async deleteFaqsShopSettings(item) {
-        console.log(item)
+        if (!this.FAQAssistantLoad) {
+          this.FAQAssistantLoad = 1
+        }
+        this.$refs.FAQAssistantLogs.writeLog(`正在删除店铺【${item.mall_alias_name || item.platform_mall_name}】的常见问题`, true)
+        let deleteFaqsShopJson = await this.$shopeemanService.deleteFaqsShopSettings(item.country, {
+          shop_id: parseInt(item.platform_mall_id),
+          faq_id: item.faq_id
+        }, { headers: { referer: '/portal/assistant/faq','Content-Type':'application/json;charset=UTF-8' } })
+        let deleteFaqsShopRes = JSON.parse(deleteFaqsShopJson)
+        console.log('deleteFaqsShopRes',deleteFaqsShopRes)
+        if (deleteFaqsShopRes.status >= 200 && deleteFaqsShopRes.status < 300) {
+          this.$refs.FAQAssistantLogs.writeLog(`店铺【${item.mall_alias_name || item.platform_mall_name}】的常见问题删除成功`, true)
+        } else {
+          this.$refs.FAQAssistantLogs.writeLog(`店铺【${item.mall_alias_name || item.platform_mall_name}】的常见问题删除失败`, false)
+        }
+        if (!--this.FAQAssistantLoad) {
+          this.scFaqsTable()
+        }
       },
       async updateFaqsShopSettings(item, type) {
+        if (!this.FAQAssistantLoad) {
+          this.FAQAssistantLoad = 1
+        }
         this.FAQAssistantVisible = false
         console.log('updateFaqsShopSettings', item)
         if (type) {
@@ -624,7 +651,9 @@
             this.$refs.FAQAssistantLogs.writeLog(`店铺【${item.mall_alias_name || item.platform_mall_name}】的常见问题添加失败`, false)
           }
           console.log('updateFaqsShopSettingsRes', updateFaqsShopSettingsRes)
-
+        }
+        if (!--this.FAQAssistantLoad) {
+          this.scFaqsTable()
         }
       },
       confirmFaqsShopSettings() {
@@ -632,6 +661,7 @@
         if (platform_mall_id) {
           this.updateFaqsShopSettings(this.FAQAssistantAction, 1)
         } else {
+          this.FAQAssistantLoad = this.SiteList.FAQAssistant.length
           this.SiteList.FAQAssistant.forEach(item => {
             let param = JSON.parse(JSON.stringify(item))
             param = Object.assign(param, this.FAQAssistantAction)
@@ -689,6 +719,7 @@
         }
       },
       allFaqsShopSettings(type, model) {
+        this.FAQAssistantLoad = this.selectDataFAQAssistant.length
         if (this.selectDataFAQAssistant.length) {
           this.selectDataFAQAssistant.forEach(item => {
             model && this.setFaqsShopSettings(item, type)
@@ -717,10 +748,9 @@
           })
           let shortcutsGroupsRes = JSON.parse(shortcutsGroupsJson)
           if (shortcutsGroupsRes.status >= 200 && shortcutsGroupsRes.status < 300) {
-            this.$refs.messageQuicklyLogs.writeLog(`店铺【${item.mall_alias_name || item.platform_mall_name}】的快捷讯息获取成功`, true)
             let shortcutsGroupsDataJson = shortcutsGroupsRes.data
             let shortcutsGroupsData = JSON.parse(shortcutsGroupsDataJson)
-            this.$refs.messageQuicklyLogs.writeLog(`店铺【${item.mall_alias_name || item.platform_mall_name}】的快捷讯息共${shortcutsGroupsData.length || 0}条`, true)
+            this.$refs.messageQuicklyLogs.writeLog(`店铺【${item.mall_alias_name || item.platform_mall_name}】的快捷讯息获取成功，共${shortcutsGroupsData.length || 0}条`, true)
             shortcutsGroupsData.forEach(item => {
               let data = Object.assign(JSON.parse(temp), item, { state: item.state === 'enabled' })
               let index = this.tableDataMessageQuickly.findIndex(i => i.id === data.id)
@@ -730,6 +760,9 @@
                 this.tableDataMessageQuickly.push(data)
               }
             })
+          } else if (shortcutsGroupsRes.status === 403) {
+            this.$refs.messageQuicklyLogs.writeLog(`店铺【${item.mall_alias_name || item.platform_mall_name}】的未登录`, false)
+            return
           } else {
             this.$refs.messageQuicklyLogs.writeLog(`店铺【${item.mall_alias_name || item.platform_mall_name}】的快捷讯息获取失败`, false)
           }
@@ -737,6 +770,9 @@
         // this.$refs.tableAutoReply.toggleRowSelection(temp)
       },
       async switchMessageShortcutsGroups(item, type = -1, message) {
+        if (!this.messageQuicklyLoad) {
+          this.messageQuicklyLoad = 1
+        }
         this.$refs.messageQuicklyLogs.writeLog(`正在设置店铺【${item.mall_alias_name || item.platform_mall_name}】的快捷讯息`, true)
         let param = {
           shop_id: parseInt(item.platform_mall_id),
@@ -762,10 +798,15 @@
         } else {
           this.$refs.messageQuicklyLogs.writeLog(`店铺【${item.mall_alias_name || item.platform_mall_name}】的快捷讯息设置失败`, false)
         }
+        if (!--this.messageQuicklyLoad) {
+          this.messageShortcutsGroupsTable()
+        }
       },
       async addMessageShortcutsGroups(item) {
+        if (!this.messageQuicklyLoad) {
+          this.messageQuicklyLoad = 1
+        }
         this.$refs.messageQuicklyLogs.writeLog(`正在添加店铺【${item.mall_alias_name || item.platform_mall_name}】的快捷讯息`, true)
-        console.log('addMessageShortcutsGroups', item)
         let setShortcutsGroupsJson = await this.$shopeemanService.setShortcutsGroups(item.country, {
           shop_id: parseInt(item.platform_mall_id),
           group_type: 1,
@@ -779,19 +820,34 @@
         } else {
           this.$refs.messageQuicklyLogs.writeLog(`店铺【${item.mall_alias_name || item.platform_mall_name}】的快捷讯息添加失败`, false)
         }
-
+        if (!--this.messageQuicklyLoad) {
+          this.messageShortcutsGroupsTable()
+        }
       },
       async deleteMessageShortcutsGroups(item) {
+        if (!this.messageQuicklyLoad) {
+          this.messageQuicklyLoad = 1
+        }
+        this.$refs.messageQuicklyLogs.writeLog(`正在删除店铺【${item.mall_alias_name || item.platform_mall_name}】的快捷讯息`, true)
         let deleteMessageShortcutsGroupsJson = await this.$shopeemanService.deleteMessageShortcutsGroups(item.country, {
           shop_id: parseInt(item.platform_mall_id),
           group_type: 1,
           id: item.id
-        }, { headers: { referer: '/portal/assistant/basic/messageShortcuts' } })//
+        }, { headers: { referer: '/portal/assistant/basic/messageShortcuts','Content-Type':'application/json;charset=UTF-8' } })//
         let deleteMessageShortcutsGroupsRes = JSON.parse(deleteMessageShortcutsGroupsJson)
-        console.log(deleteMessageShortcutsGroupsRes)
+        console.log('deleteMessageShortcutsGroupsRes',deleteMessageShortcutsGroupsRes)
+        if (deleteMessageShortcutsGroupsRes.status >= 200 && deleteMessageShortcutsGroupsRes.status < 300) {
+          this.$refs.messageQuicklyLogs.writeLog(`店铺【${item.mall_alias_name || item.platform_mall_name}】的快捷讯息删除成功`, true)
+        } else {
+          this.$refs.messageQuicklyLogs.writeLog(`店铺【${item.mall_alias_name || item.platform_mall_name}】的快捷讯息删除失败`, false)
+        }
+        if (!--this.messageQuicklyLoad) {
+          this.messageShortcutsGroupsTable()
+        }
       },
       allSwitch_DeleteMessageShortcutsGroups(type, model) {
         if (this.selectDataMessageQuickly.length) {
+          this.messageQuicklyLoad = this.selectDataMessageQuickly.length
           this.selectDataMessageQuickly.forEach(item => {
             model && this.switchMessageShortcutsGroups(item, type)
             !model && this.deleteMessageShortcutsGroups(item, type)
@@ -826,6 +882,7 @@
         if (type) {
           this.switchMessageShortcutsGroups(this.messageQuicklyAction, 0, this.messageQuicklyAction)
         } else {
+          this.messageQuicklyLoad = this.SiteList[this.activeName].length
           this.SiteList[this.activeName].forEach(item => {
             this.addMessageShortcutsGroups(item)
           })

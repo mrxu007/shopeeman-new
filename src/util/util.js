@@ -1,6 +1,7 @@
 import { setTimeout } from 'core-js'
 import md5 from 'js-md5'
 import Vue from 'vue'
+
 const instance = new Vue()
 
 // 获取店铺信息
@@ -22,6 +23,7 @@ export async function MallList() {
     this.$message.error('获取分组、店铺列表失败')
   }
 }
+
 // 获取颜色列表
 export async function colorLabelList() {
   const colorList = []
@@ -40,6 +42,7 @@ export async function colorLabelList() {
     return []
   }
 }
+
 // 设置日期选择器默认时间
 export function creatDate(i) {
   const base = new Date()
@@ -49,6 +52,7 @@ export function creatDate(i) {
   const nowVal = [now.getFullYear(), now.getMonth() + 1, now.getDate()].join('-')
   return [nowVal, baseVal]
 }
+
 // 匹配对象数组值
 export function getValue(arr, label, value, relValue) {
   let data = ''
@@ -61,6 +65,7 @@ export function getValue(arr, label, value, relValue) {
   }
   return data
 }
+
 /**
  *
  * @param {string} str 字符串长度
@@ -92,6 +97,7 @@ export function subStringLength(str, len) {
     'secondStr': ''
   }
 }
+
 // 算法生成sku组合
 export function cartesianProductOf() {
   return Array.prototype.reduce.call(arguments, (a, b) => {
@@ -106,6 +112,7 @@ export function cartesianProductOf() {
     []
   ])
 }
+
 // 延迟
 export async function delay(time) {
   return new Promise((resolve) => {
@@ -147,6 +154,7 @@ export function dateFormat(Time, fmt) {
   }
   return fmt
 }
+
 // 获取base64图片大小，返回kb数字
 export function showSize(img) {
   // 把头部去掉
@@ -172,10 +180,12 @@ export function showSize(img) {
   }
   return size
 }
+
 export function getImgMd5(img) {
   const number = md5(img)
   return number
 }
+
 // 切割整合cookie
 export function splitCookie(mallInfo, str) {
   //   let obj = {
@@ -208,10 +218,12 @@ export function splitCookie(mallInfo, str) {
   // // console.log('cookies', cookies)
   return cookies
 }
+
 // sleep函数
 export function sleep(time) {
   return new Promise((resolve) => setTimeout(resolve, time))
 }
+
 // 导出excel
 export function exportExcelDataCommon(fileName, str) {
   // Worksheet名
@@ -241,24 +253,25 @@ export function exportExcelDataCommon(fileName, str) {
   a.click()
   document.body.removeChild(a)
 }
+
 // 导出csv
 export function exportCsvDataCommon(fileName, str) {
   /**
    * const header = [
-          '统计日期',
-          '充值金额（收入）',
-          '翻译金额（消费）',
-          '采购商品金额（消费）',
-          '仓库发货金额（消费）',
-          '退件金额（消费）',
-          '采购商品退回金额（收入）',
-          '主体IP消费金额（消费）',
-          '异常赔付金额（收入）',
-          '其它金额（消费）',
-          '用户当天消费总金额',
-          '用户当天收入总金额'
-          ]
-          const data = [header.join(',')].concat(this.statisticsDetailData.map(item => {
+   '统计日期',
+   '充值金额（收入）',
+   '翻译金额（消费）',
+   '采购商品金额（消费）',
+   '仓库发货金额（消费）',
+   '退件金额（消费）',
+   '采购商品退回金额（收入）',
+   '主体IP消费金额（消费）',
+   '异常赔付金额（收入）',
+   '其它金额（消费）',
+   '用户当天消费总金额',
+   '用户当天收入总金额'
+   ]
+   const data = [header.join(',')].concat(this.statisticsDetailData.map(item => {
           return [
               `${item.stat_date ? item.stat_date : 0}`,
               `"${item.recharge ? item.recharge : 0}"`,
@@ -274,9 +287,9 @@ export function exportCsvDataCommon(fileName, str) {
               `"${item.consum_amount_total ? item.consum_amount_total : 0}"`
           ].join(',')
         }))
-        // str = str.replace(/<[^>]+>/gim,' ')
-        // data.join('\n')
-        exportCsvDataCommon('dsf',data)
+   // str = str.replace(/<[^>]+>/gim,' ')
+   // data.join('\n')
+   exportCsvDataCommon('dsf',data)
    */
   const blob = new Blob(['\ufeff' + str.join('\n')], { type: 'text/csv,charset=UTF-8' })
   const a = document.createElement('a')
@@ -310,6 +323,7 @@ export function debounce(fun, wait, immediate) {
     }
   }
 }
+
 // randomWord 产生任意长度随机字母数字组合
 // randomFlag-是否任意长度 min-任意长度最小位[固定位数] max-任意长度最大位
 export function randomWord(randomFlag, min, max) {
@@ -327,3 +341,30 @@ export function randomWord(randomFlag, min, max) {
   return str
 }
 
+export function batchOperation(array, method, count = 1) {
+  return new Promise(resolve => {
+    let countObj = { count: count }
+    let number = count
+    let isCount = -1
+    let setIn = setInterval(()=>{
+      let num = countObj.count
+      if (num === 0){
+        clearInterval(setIn)
+        setIn = null
+        resolve()
+      }else {
+        let i = parseInt((number - num) /10)
+        if (isCount !== i){
+          isCount = i
+          manage(i)
+        }
+      }
+    },1000)
+    function manage(i=0) {
+      for (let j = 0; i < array.length && j < 10; i++,j++) {
+        let item = array[i]
+        method(item,countObj)
+      }
+    }
+  })
+}
