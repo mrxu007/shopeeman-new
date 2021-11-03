@@ -97,16 +97,7 @@ export default {
   data() {
     return {
       countryVal: '',
-      countries: [
-        { label: '马来站', value: 'MY' },
-        { label: '台湾站', value: 'TW' },
-        { label: '新加坡站', value: 'SG' },
-        { label: '菲律宾站', value: 'PH' },
-        { label: '泰国站', value: 'TH' },
-        { label: '越南站', value: 'VN' },
-        { label: '印尼站', value: 'ID' },
-        { label: '巴西站', value: 'BR' },
-      ],
+      countries: this.$filters.countries_option,
       categorySource: '0',
       categorySourceList: [
         {

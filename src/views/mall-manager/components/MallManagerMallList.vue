@@ -76,7 +76,7 @@
         <el-table-column align="center" prop="group_name" label="分组" />
         <el-table-column align="center" prop="" label="站点">
           <template v-slot="{ row }">
-            {{ countriesObj[row.country] }}
+            {{ row.country | chineseSite }}
           </template>
         </el-table-column>
 
@@ -175,7 +175,7 @@
             <el-table-column align="center" prop="mallGroup" label="分组" />
             <el-table-column align="center" prop="" label="站点">
               <template v-slot="{ row }">
-                {{ countriesObj[row.country] }}
+                {{ row.country | chineseSite }}
               </template>
             </el-table-column>
             <el-table-column align="center" prop="platformMallName" label="店铺真实名称" />
@@ -240,7 +240,6 @@
 <script>
 import { getMallListAPI, updateWatermarkAPI, updateUserPasswordAPI, uploadMallCookie } from '../../../module-api/mall-manager-api/mall-list-api'
 import { delay, exportExcelDataCommon } from '../../../util/util'
-import { countriesObj, countries } from '../../../util/countries'
 import xlsx from 'xlsx'
 export default {
   data() {
@@ -258,8 +257,7 @@ export default {
       multipleSelection: [],
       multipleSelection2: [],
       countryVal: 0,
-      countries: null,
-      countriesObj: null,
+      countries: this.$filters.countries_option,
       mallSearchConditionVal: 'mallName',
       mallSearchCondition: [
         {
@@ -323,9 +321,6 @@ export default {
     }
   },
   created() {
-    this.countries = countries
-    this.countriesObj = countriesObj
-    // this.test()
     this.getMallList()
     this.getIP()
   },
@@ -522,7 +517,7 @@ export default {
         template += `
         <tr>
           <td style="text-align:left;">${item.group_name || ''}</td>
-          <td style="text-align:left;">${this.countriesObj[item.country] || ''}</td>
+          <td style="text-align:left;">${this.$filters.chineseSite(item.country) || ''}</td>
           <td style="text-align:left;">${item?.mall_account_info?.userRealName || ''}</td>
           <td style="text-align:left;">${item.platform_mall_id}</td>
           <td style="text-align:left;">${item.platform_mall_name}</td>
@@ -548,7 +543,7 @@ export default {
         this.multipleSelection.map(item => {
           template += `
         <tr>
-          <td style="text-align:left;">${this.countriesObj[item.country]}</td>
+          <td style="text-align:left;">${this.$filters.chineseSite(item.country)}</td>
           <td style="text-align:left;">${item.platform_mall_name}</td>
           <td style="text-align:left;">${item.platform_mall_id}</td>
           <td style="text-align:left;">${item.watermark || ''}</td>
