@@ -3,7 +3,7 @@
     <div class="operation">
       <div class="o-item">
         <span>账号名称：</span>
-        <el-input v-model="accountNameVal" placeholder="请输入内容" clearable size="mini" />
+        <el-input v-model="accountNameVal" oninput="value=value.replace(/\s+/g,'')" placeholder="请输入内容" clearable size="mini" />
       </div>
       <div class="o-item">
         <el-select v-model="isEnable" placeholder="请选择用户状态" size="mini">
@@ -88,7 +88,7 @@
                 </el-checkbox-group>
               </el-form-item>
               <el-form-item label="子账号:">
-                <el-input v-model="name" size="mini" placeholder="请输入子账号名" />
+                <el-input v-model="name" size="mini" placeholder="请输入子账号名" clearable oninput="value=value.replace(/\s+/g,'')" />
               </el-form-item>
               <el-form-item label="密码:">
                 <el-input v-model="password" placeholder="请输入密码(不得小于9位)" oninput="value=value.replace(/[\W]/g,'')" show-password size="mini" />
@@ -98,7 +98,7 @@
                 <el-radio v-model="diaIsEnable" label="2">停用</el-radio>
               </el-form-item>
               <el-form-item label="备注:">
-                <el-input v-model="note" size="mini" placeholder="请输入备注" />
+                <el-input v-model="note" size="mini" placeholder="请输入备注" clearable oninput="value=value.replace(/\s+/g,'')" />
               </el-form-item>
             </el-form>
           </div>
@@ -110,7 +110,7 @@
         <div class="dialog-right">
           <div class="operation-content">
             <span style="width: 120px">店铺分组:</span>
-            <el-input v-model="shopGroupVal" placeholder="请输入店铺分组名称" clearable size="mini" />
+            <el-input v-model="shopGroupVal" placeholder="请输入店铺分组名称" clearable size="mini" oninput="value=value.replace(/\s+/g,'')" />
             <el-button style="margin-left: 20px" type="primary" size="mini" @click="getBindMallCount">查找</el-button>
           </div>
           <div class="dialog-table">
@@ -178,7 +178,7 @@ export default {
     // 获取店铺分组
     async getBindMallCount() {
       const params = {
-        groupName: this.shopGroupVal
+        groupName: this.shopGroupVal.trim()
       }
       const { data } = await this.$api.getBindMallCount(params)
       if (data.code === 200) {
@@ -201,7 +201,7 @@ export default {
         this.$message('请选择用户类别')
         return
       }
-      if (this.name === '') {
+      if (!this.name) {
         this.$message('请填写账号')
         return
       }
@@ -215,7 +215,7 @@ export default {
       })
       switch (val) {
         case 'add':
-          if (this.password === '') {
+          if (!this.password) {
             this.$message('请填写密码')
             return
           }

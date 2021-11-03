@@ -10,7 +10,8 @@
             <li>
               <span>站点：</span>
               <el-select v-model="form.site" class="unnormal" placeholder="" size="mini" filterable>
-                <el-option v-for="(item, index) in siteList" :key="index" :label="item.label" :value="item.value" />
+                <el-option label="全部" :value="0" />
+                <el-option v-for="(item, index) in countries" :key="index" :label="item.label" :value="item.value" />
               </el-select>
             </li>
             <!-- <li>
@@ -23,7 +24,7 @@
               <el-select v-model="form.shopSelect" class="unnormal" placeholder="" size="mini" filterable>
                 <el-option v-for="(item, index) in shopSelectList" :key="index" :label="item.label" :value="item.value" />
               </el-select>
-              <el-input v-model="form.shopSelectVal" class="unnormal2" placeholder="" size="mini" />
+              <el-input v-model="form.shopSelectVal" class="unnormal2" placeholder="" size="mini" clearable oninput="value=value.replace(/\s+/g,'')" />
             </li>
             <li>
               <span>客服数据统计时间(仅用于同步数据)：</span>
@@ -32,23 +33,46 @@
               </el-select>
             </li>
             <li>
-              <el-button type="primary" size="mini" @click="getMallStatistics()">查询</el-button>
-              <el-button type="primary" size="mini" @click="handlerSelectTableOperating('exportSearch')">导出数据</el-button>
+              <el-button
+                type="primary"
+                size="mini"
+                @click="
+                  page = 1
+                  getMallStatistics()
+                "
+                >查询</el-button
+              >
+              <el-button type="primary" size="mini" @click="exportSearch()">导出数据</el-button>
               <el-button type="primary" size="mini" @click="handlerSelectTableOperating('syncMallData')">同步店铺数据</el-button>
             </li>
             <li>
-              <el-progress v-show="isShowProgress" style="width:230px" :text-inside="true" :stroke-width="24" :percentage="percentage" status="success" />
+              <el-progress v-show="isShowProgress" style="width: 230px" :text-inside="true" :stroke-width="24" :percentage="percentage" status="success" />
             </li>
           </ul>
         </el-col>
       </el-row>
       <el-row class="header-two">
         <el-col :span="24" class="header-two-top">
-          <span>当前条件下，待拨款总订单数：<p>{{ frozenAmountOrders }}</p> </span>
-          <span>待拨款总金额： <p>{{ parseFloat(frozenAmount).toFixed(2) }}</p></span>
-          <span>本周已拨款总金额： <p>{{ parseFloat(weekAmount).toFixed(2) }}</p></span>
-          <span>本月已拨款总金额：<p>{{ parseFloat(monthAmount).toFixed(2) }}</p> </span>
-          <span>全部已拨款总金额：<p>{{ parseFloat(availableAmount).toFixed(2) }}</p> </span>
+          <span
+            >当前条件下，待拨款总订单数：
+            <p>{{ frozenAmountOrders }}</p>
+          </span>
+          <span
+            >待拨款总金额：
+            <p>{{ parseFloat(frozenAmount).toFixed(2) }}</p></span
+          >
+          <span
+            >本周已拨款总金额：
+            <p>{{ parseFloat(weekAmount).toFixed(2) }}</p></span
+          >
+          <span
+            >本月已拨款总金额：
+            <p>{{ parseFloat(monthAmount).toFixed(2) }}</p>
+          </span>
+          <span
+            >全部已拨款总金额：
+            <p>{{ parseFloat(availableAmount).toFixed(2) }}</p>
+          </span>
         </el-col>
       </el-row>
       <el-row class="article">
@@ -70,23 +94,23 @@
           <el-table-column align="center" prop="country" label="站点" />
           <el-table-column align="center" prop="platform_mall_id" label="店铺ID" min-width="120" />
           <el-table-column align="center" label="店铺名称" min-width="130">
-            <template slot-scope="{row}">
-              {{ row.mall_alias_name?row.mall_alias_name:row.platform_mall_name }}
+            <template slot-scope="{ row }">
+              {{ row.mall_alias_name ? row.mall_alias_name : row.platform_mall_name }}
             </template>
           </el-table-column>
           <el-table-column align="center" label="店铺分组">
-            <template slot-scope="{row}">
+            <template slot-scope="{ row }">
               {{ row.group_name }}
             </template>
           </el-table-column>
           <el-table-column align="center" label="操作状态" min-width="100">
-            <template slot-scope="{row}">
+            <template slot-scope="{ row }">
               {{ row.status }}
             </template>
           </el-table-column>
           <el-table-column align="center" prop="recent_order_create_time" label="最近订单创建时间" min-width="150" />
           <el-table-column align="center" label="距今无订单天数" min-width="150">
-            <template slot-scope="{row}">
+            <template slot-scope="{ row }">
               {{ row.not_order_time }}
             </template>
           </el-table-column>
@@ -113,53 +137,53 @@
           <el-table-column align="center" prop="week_view_person_count" label="近7日访客数" min-width="100" />
           <el-table-column align="center" prop="month_view_person_count" label="近30日访客数" min-width="110" />
           <el-table-column align="center" label="客服不重复访客数" min-width="140">
-            <template slot-scope="{row}">
-              {{ row.mall_datas && row.mall_datas.ChatShopUvData?row.mall_datas.ChatShopUvData:'-' }}
+            <template slot-scope="{ row }">
+              {{ row.mall_datas && row.mall_datas.ChatShopUvData ? row.mall_datas.ChatShopUvData : '-' }}
             </template>
           </el-table-column>
           <el-table-column align="center" label="客服询问数" min-width="90">
-            <template slot-scope="{row}">
-              {{ row.mall_datas && row.mall_datas.ChatsEnquiredData?row.mall_datas.ChatsEnquiredData:'-' }}
+            <template slot-scope="{ row }">
+              {{ row.mall_datas && row.mall_datas.ChatsEnquiredData ? row.mall_datas.ChatsEnquiredData : '-' }}
             </template>
           </el-table-column>
           <el-table-column align="center" label="客服访客询问数" min-width="120">
-            <template slot-scope="{row}">
-              {{ row.mall_datas && row.mall_datas.ChatVisitorsEnquiredData?row.mall_datas.ChatVisitorsEnquiredData:'-' }}
+            <template slot-scope="{ row }">
+              {{ row.mall_datas && row.mall_datas.ChatVisitorsEnquiredData ? row.mall_datas.ChatVisitorsEnquiredData : '-' }}
             </template>
           </el-table-column>
           <el-table-column align="center" label="客服已回应数" min-width="110">
-            <template slot-scope="{row}">
-              {{ row.mall_datas && row.mall_datas.ChatRespondedChatsData?row.mall_datas.ChatRespondedChatsData:'-' }}
+            <template slot-scope="{ row }">
+              {{ row.mall_datas && row.mall_datas.ChatRespondedChatsData ? row.mall_datas.ChatRespondedChatsData : '-' }}
             </template>
           </el-table-column>
           <el-table-column align="center" label="客服无回应数" min-width="110">
-            <template slot-scope="{row}">
-              {{ row.mall_datas && row.mall_datas.ChatNonRespondedChatsData?row.mall_datas.ChatNonRespondedChatsData:'-' }}
+            <template slot-scope="{ row }">
+              {{ row.mall_datas && row.mall_datas.ChatNonRespondedChatsData ? row.mall_datas.ChatNonRespondedChatsData : '-' }}
             </template>
           </el-table-column>
           <el-table-column align="center" label="客服咨询买家数" min-width="120">
-            <template slot-scope="{row}">
-              {{ row.mall_datas && row.mall_datas.ChatBuyersData?row.mall_datas.ChatBuyersData:'-' }}
+            <template slot-scope="{ row }">
+              {{ row.mall_datas && row.mall_datas.ChatBuyersData ? row.mall_datas.ChatBuyersData : '-' }}
             </template>
           </el-table-column>
           <el-table-column align="center" label="客服咨询订单数" min-width="120">
-            <template slot-scope="{row}">
-              {{ row.mall_datas && row.mall_datas.ChatOrdersData?row.mall_datas.ChatOrdersData:'-' }}
+            <template slot-scope="{ row }">
+              {{ row.mall_datas && row.mall_datas.ChatOrdersData ? row.mall_datas.ChatOrdersData : '-' }}
             </template>
           </el-table-column>
           <el-table-column align="center" label="客服咨询件数" min-width="110">
-            <template slot-scope="{row}">
-              {{ row.mall_datas && row.mall_datas.ChatUnitsData?row.mall_datas.ChatUnitsData:'-' }}
+            <template slot-scope="{ row }">
+              {{ row.mall_datas && row.mall_datas.ChatUnitsData ? row.mall_datas.ChatUnitsData : '-' }}
             </template>
           </el-table-column>
           <el-table-column align="center" label="客服咨询销售额" min-width="120">
-            <template slot-scope="{row}">
-              {{ row.mall_datas && row.mall_datas.ChatSalesData?row.mall_datas.ChatSalesData:'-' }}
+            <template slot-scope="{ row }">
+              {{ row.mall_datas && row.mall_datas.ChatSalesData ? row.mall_datas.ChatSalesData : '-' }}
             </template>
           </el-table-column>
           <el-table-column align="center" label="客服平均回应时间" min-width="140">
-            <template slot-scope="{row}">
-              {{ row.mall_datas && row.mall_datas.ChatResponseTimeData?row.mall_datas.ChatResponseTimeData:'-' }}
+            <template slot-scope="{ row }">
+              {{ row.mall_datas && row.mall_datas.ChatResponseTimeData ? row.mall_datas.ChatResponseTimeData : '-' }}
             </template>
           </el-table-column>
           <el-table-column align="center" prop="frozen_amount_orders" label="待拨款订单数" min-width="110" />
@@ -188,6 +212,7 @@
 <script>
 import mallGroup from '@/components/mall-group.vue'
 import { exportExcelDataCommon } from '@/util/util'
+import { countriesObj, countries } from '../../../util/countries'
 export default {
   components: {
     mallGroup
@@ -207,24 +232,17 @@ export default {
       frozenAmount: 0, // 待拨款总金额
       frozenAmountOrders: 0, // 待拨款总订单数
       multipleSelection: [],
+      countries: null,
+      countriesObj: null,
+      shopeeConfig: new ShopeeConfig(),
       form: {
         groupId: 0, // 店铺分组ID
         agoNoneOrderDays: '0', // 距今无订单天数
-        site: '', // 站点
+        site: 0, // 站点
         shopSelect: '0', // 店铺选择
         serviceDataTime: 'real_time', // 客服数据统计时间
         shopSelectVal: '' // 店铺选择值
       },
-      siteList: [
-        { value: '', label: '全部' },
-        { value: 'TH', label: '泰国站' },
-        { value: 'MY', label: '马来站' },
-        { value: 'TW', label: '台湾站' },
-        { value: 'PH', label: '菲律宾站' },
-        { value: 'ID', label: '印尼站' },
-        { value: 'SG', label: '新加坡站' },
-        { value: 'VN', label: '越南站' }
-      ],
       // agoNoneOrderDaysList: [
       //   { value: '0', label: '全部' },
       //   { value: '1', label: '7天内' },
@@ -245,14 +263,19 @@ export default {
       ]
     }
   },
-  async mounted() {
-    await this.getMallStatistics()
+  mounted() {
+    this.countries = countries
+    this.countriesObj = countriesObj
+    this.getMallStatistics()
   },
   methods: {
     // 同步店铺数据
     async syncMallData(data) {
-      
-      console.log(url)
+      if (!data) {
+        return this.$message('暂无同步数据')
+      }
+      // const url = this.shopeeConfig.getSiteDomainCrossBk('VN')
+      // console.log(url)
       this.isShowProgress = true
       this.percentage = 0
       const { startTime, endTime } = this.getTimeStamp(this.form.serviceDataTime)
@@ -264,9 +287,11 @@ export default {
       }
       console.log(parmas)
       for (let index = 0; index < data.length; index++) {
-        this.$set(data[index], 'status', '开始同步')
+        const item = data[index]
+        this.$set(item, 'status', '开始同步')
+
         this.percentage = parseInt((index + 1) / data.length * 100)
-        this.$set(data[index], 'status', '同步完成')
+        this.$set(item, 'status', '同步完成')
       }
     },
     // 获取数据
@@ -277,7 +302,7 @@ export default {
       this.weekAmount = 0
       this.frozenAmount = 0
       this.frozenAmountOrders = 0
-      const shopSelectVal = this.form.shopSelectVal.trim()
+      const shopSelectVal = this.form.shopSelectVal
       const parmas = {
         country: this.form.site,
         groupId: this.form.groupId,
@@ -288,6 +313,7 @@ export default {
         pageSize: this.pageSize
       }
       const { data } = await this.$api.getMallStatistics(parmas)
+      console.log(data)
       if (data.code === 200) {
         const res = await this.$api.test()
         const testData = res.data.data.data
@@ -300,7 +326,20 @@ export default {
             const element = this.tableData[index]
             const res = await this.$appConfig.getGlobalCacheInfo('mallInfo', element.platform_mall_id)
             const jsonData = JSON.parse(res)
-            console.log(jsonData)
+            element.country = countriesObj[element.country]
+            element.mall_datas = JSON.parse(element.mall_datas)
+            element.available_amount = element.available_amount ? parseInt(element.available_amount) : 0
+            element.lastmonth_amount = element.lastmonth_amount ? parseInt(element.lastmonth_amount) : 0
+            element.lastweek_amount = element.lastweek_amount ? parseInt(element.lastweek_amount) : 0
+            element.frozen_amount = element.frozen_amount ? parseInt(element.frozen_amount) : 0
+            element.frozen_amount_orders = element.frozen_amount_orders ? element.frozen_amount_orders : 0
+            this.availableAmount += element.available_amount
+            this.monthAmount += element.lastmonth_amount
+            this.weekAmount += element.lastweek_amount
+            this.frozenAmount += element.frozen_amount
+            this.frozenAmountOrders += element.frozen_amount_orders
+            element.not_order_time = element.recent_order_create_time ? this.formatDay(element.recent_order_create_time) : '无订单记录'
+            element.group_name = jsonData.GroupName
           }
           this.tableData.map(async item => {
             item.country = this.shopeeConfig.getSiteCode(item.country)
@@ -372,12 +411,52 @@ export default {
       }
     },
     // 导出excel
-    exportSearch(data) {
-      // 要导出的json数据
-      // const jsonData = this.multipleSelection
-      const jsonData = data
+    async exportSearch() {
+      this.isLoading = true
+      const exportData = []
+      const len = this.total % 700 === 0 ? (this.total / 700) : (Math.floor(this.total / 700) + 1)
+      const shopSelectVal = this.form.shopSelectVal
+      for (let index = 1; index <= len; index++) {
+        const parmas = {
+          country: this.form.site,
+          groupId: this.form.groupId,
+          mallName: this.form.shopSelect === '0' ? shopSelectVal : '',
+          mallId: this.form.shopSelect === '1' ? shopSelectVal : '',
+          mallAliasName: this.form.shopSelect === '2' ? shopSelectVal : '',
+          page: index
+        }
+        try {
+          const { data } = await this.$api.getMallStatistics(parmas)
+          if (data.code === 200) {
+            const resData = data.data.data
+            if (resData) {
+              for (let index = 0; index < resData.length; index++) {
+                const element = resData[index]
+                const res = await this.$appConfig.getGlobalCacheInfo('mallInfo', element.platform_mall_id)
+                const jsonData = JSON.parse(res)
+                element.country = countriesObj[element.country]
+                element.mall_datas = JSON.parse(element.mall_datas)
+                element.not_order_time = element.recent_order_create_time ? this.formatDay(element.recent_order_create_time) : '无订单记录'
+                element.group_name = jsonData.GroupName
+              }
+            }
+            resData.forEach(item => {
+              exportData.push(item)
+            })
+          } else {
+            this.$message.error(`${data.message}`)
+            this.isLoading = false
+          }
+        } catch (error) {
+          console.log(error)
+          this.isLoading = false
+        }
+      }
+      const jsonData = exportData
       if (!jsonData?.length) {
-        return this.$message('暂无导出数据')
+        this.isLoading = false
+        this.$message('暂无导出数据')
+        return
       }
       let str =
         `<tr>
@@ -473,6 +552,7 @@ export default {
         </tr>`
       })
       exportExcelDataCommon('店铺数据', str)
+      this.isLoading = false
     },
     getGroupId(data) {
       this.form.groupId = data

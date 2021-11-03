@@ -102,7 +102,6 @@ export default {
   getMallList: (data) => AppRequest.get('/bindMall/mallList', { params: data }), // 获取店铺列表
   getMallStatistics: (data) => AppRequest.get('/mallStatistics/index', { params: data }), // 店铺数据+店铺指标列表
   syncMallData: (data) => AppRequest.post('/mallStatistics/save', data), // 上报店铺数据+店铺指标列表
-  test: (data) => AppRequest.get('/bindMall/getMallLoginDatasV2', data),
   updateWatermark: (data) => AppRequest.post('/bindMall/updateWatermark', data), // 修改店铺水印
   updateUserPassword: (data) => AppRequest.post('/bindMall/uploadUserPassword', data), // 修改账户登录密码
   uploadMallCookie: (data) => AppRequest.post('/bindMall/uploadWebLoginInfo', data), // 上报店铺cookie
@@ -148,6 +147,13 @@ export default {
   getExceptionWarehouse: (data) => AppRequest.get('/exceptionWarehouse', { params: data }), // 仓库异常信息列表
   uploadDealExceptionStatus: (data) => AppRequest.post('/uploadDealExceptionStatus', data), // 仓库异常处理状态上报
 
+  // 智能仓库
+  getSignPackageList: (data) => AppRequest.post('/signPackage', data), // 获取包裹列表
+  cancelReturn: (data) => AppRequest.post('/packageReturn/cancel', data), // 取消退件
+  getReturnInfo: (data) => AppRequest.get('/packageReturn/info', { params: data }), // 退件详情
+  getUnclaimedPackage: (data) => AppRequest.get('/signPackage/getUnclaimedPackage', { params: data }), // 失物招领列表
+  getReturnManage: (data) => AppRequest.get('/packageReturn', { params: data }), // 获取退件管理列表
+  getAbnormalPayment: (data) => AppRequest.get('/warehouseAbnormalPayment', { params: data }), // 获取退件管理列表
   // 10-25 智能仓库
   colorLabelList: () => AppRequest.get('/colorLabel'), // 订单颜色标识列表
   orderPackage: (data) => AppRequest.post('/orderPackage', data), // 订单包裹列表
