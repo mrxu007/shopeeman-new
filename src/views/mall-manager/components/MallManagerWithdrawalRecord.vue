@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-10-08 14:16:18
- * @LastEditTime: 2021-11-02 14:51:48
+ * @LastEditTime: 2021-11-02 18:23:11
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shopeeman-new\src\views\mall-manager\components\MallManagerWithdrawalRecord.vue
@@ -31,11 +31,10 @@
         <el-button type="primary" size="mini" class="mar-right" @click="searchRecord">查询提现记录</el-button>
         <el-button type="primary" size="mini" class="mar-right" @click="exportData">导 出</el-button>
         <el-checkbox v-model="showConsole" class="mar-right">隐藏日志</el-checkbox>
-        <p class="activeColor">当前提现金额合计：{{totalAmount}}</p>
+        <p class="activeColor">当前提现金额合计：{{ totalAmount }}</p>
       </div>
     </div>
     <div class="content">
-      
       <el-table v-loading="tableLoading" ref="multipleTable" :data="tableData" tooltip-effect="dark" max-height="650">
         <el-table-column align="center" type="index" label="序号" width="50">
           <template slot-scope="scope">{{ (currentPage - 1) * pageSize + scope.$index + 1 }}</template>
@@ -120,7 +119,7 @@ export default {
       currentPage: 1, //页码
       total: 0, //表格总数
       mallPageSize: 50,
-      totalAmount:0
+      totalAmount: 0,
     }
   },
   mounted() {
@@ -144,13 +143,13 @@ export default {
       this.tableDataCut = []
       this.total = 0
       this.tableLoading = true
+      this.$refs.Logs.writeLog(`开始同步！`, true)
       for (let i = 0; i < this.selectMallList.length; i++) {
         if (this.cancelAction) {
           return
         }
         let mall = this.selectMallList[i]
         let pageNumber = 1
-        console.log(pageNumber)
         await this.getRecordList(pageNumber, mall)
       }
       console.log(this.tableData, 'searchRate')
@@ -171,9 +170,7 @@ export default {
         let res = await this.$shopeemanService.getWithDrawalRecord(mall.country, params)
         let resObj = JSON.parse(res)
         console.log(resObj)
-        if (resObj.status !== 200) {
-          this.$refs.Logs.writeLog(`店铺【${mall.platform_mall_name}】请检查店铺是否登录！`, false)
-        } else {
+        if (resObj.status === 200) {
           let data = JSON.parse(resObj.data)
           if (data.code === 0) {
             data.data.list &&
@@ -183,10 +180,9 @@ export default {
                 item.mall_alias_name = mall.mall_alias_name
                 item.platform_mall_id = mall.platform_mall_id
                 let resBank = await this.$shopeemanService.getBankAccount(mall.country, { bank_account_id: item.bank_account_id, shop_id: mall.platform_mall_id })
-                let resObjBank = JSON.parse(resBank)
-                if (resObjBank.status !== 200) {
-                  this.$refs.Logs.writeLog(`店铺【${mall.platform_mall_name}】请检查店铺是否登录！`, false)
-                } else {
+                let resObjBank = resBank && JSON.parse(resBank)
+                console.log(resObjBank)
+                if (resObjBank.status === 200) {
                   let bankData = JSON.parse(resObjBank.data)
                   if (bankData.code === 0) {
                     item.bank_name = bankData.data.bank_name
@@ -194,8 +190,12 @@ export default {
                     item.bank_account_name = bankData.data.full_name
                     item.ic_number = bankData.data.ic_number
                   }
+                } else if (resObjBank.status === 403) {
+                  this.$refs.Logs.writeLog(`店铺【${mall.platform_mall_name}】请检查店铺是否登录！`, false)
+                } else {
+                  this.$refs.Logs.writeLog(`店铺【${mall.platform_mall_name}】获取失败！`, false)
                 }
-                this.totalAmount += item.amount*-1/100
+                this.totalAmount += (item.amount * -1) / 100
                 this.tableData.push(item)
                 this.total = this.tableData.length
               })
@@ -204,7 +204,14 @@ export default {
               pageNumber++
               this.getRecordList(pageNumber, mall)
             }
+          }else{
+            this.$refs.Logs.writeLog(`店铺【${mall.platform_mall_name}】${data.message}`, false)
           }
+        } else if (resObj.status === 403) {
+          this.$refs.Logs.writeLog(`店铺【${mall.platform_mall_name}】请检查店铺是否登录！`, false)
+        }
+        else{
+          this.$refs.Logs.writeLog(`店铺【${mall.platform_mall_name}】获取失败！`, false)
         }
       } catch (error) {
         console.log(error)

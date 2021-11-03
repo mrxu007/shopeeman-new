@@ -106,7 +106,15 @@
       </div>
       <div class="condition_item">
         <el-button size="mini" type="primary" @click="search">搜索</el-button>
-        <el-button  size="mini"  type="primary" @click=" updataMall();cancelActive = false">同步数据</el-button>
+        <el-button
+          size="mini"
+          type="primary"
+          @click="
+            updataMall()
+            cancelActive = false
+          "
+          >同步数据</el-button
+        >
         <el-button size="mini" type="primary" @click="cancelActive = true">取消同步</el-button>
         <el-button size="mini" type="primary" @click="clearLog">清空日志</el-button>
         <el-button size="mini" type="primary" @click="export_table((query.page = 1)), (exportList = [])">导出</el-button>
@@ -224,7 +232,7 @@ export default {
     },
     // 同步信息
     async updataMall() {
-      console.log("regd")
+      console.log('regd')
       // this.uploadVisible = false
       if (!this.selectMallList.length) {
         this.$message.warning('请选择要同步的店铺！')
@@ -244,10 +252,9 @@ export default {
           if (this.query.status === '') {
             await this.searchSingleMall(pageNumber, mall, 0)
             await this.searchSingleMall(pageNumber, mall, 2)
-          } else if(this.query.status === '1'){
-              await this.searchSingleMall(pageNumber, mall, 0)
-          }
-          else if(this.query.status === '2'){
+          } else if (this.query.status === '1') {
+            await this.searchSingleMall(pageNumber, mall, 0)
+          } else if (this.query.status === '2') {
             await this.searchSingleMall(pageNumber, mall, 2)
           }
         }
@@ -274,10 +281,7 @@ export default {
       }
       let res = await this.$shopeemanService.getIncomeTransaction(mall.country, params)
       let resObj = res && JSON.parse(res)
-      if (resObj && resObj.status !== 200) {
-        console.log(this.query.status)
-        if( this.query.status!=='' || type!==2) {this.$refs.Logs.writeLog(`店铺【${mall.platform_mall_name}】请检查店铺是否登录！`, false)}
-      } else {
+      if (resObj && resObj.status === 200) {
         let data = JSON.parse(resObj.data)
         console.log(data, 'searchSingleMall')
         if (data.code === 0) {
@@ -298,7 +302,7 @@ export default {
               !index && dataArr.push(params)
               // !index && this.UploadRecordData(mall.platform_mall_id,item)
             })
-          count && this.$refs.Logs.writeLog(`同步店铺【${mall.platform_mall_name}】【${type===0?'已拨款':'即将拨款'}】第【${++page}】页店铺评价数据【${count}】条`, true)
+          count && this.$refs.Logs.writeLog(`同步店铺【${mall.platform_mall_name}】【${type === 0 ? '已拨款' : '即将拨款'}】第【${++page}】页店铺评价数据【${count}】条`, true)
           if (dataArr.length < data.data.page_info.total && data.data.list.length >= this.mallPageSize) {
             pageNumber++
             this.searchSingleMall(pageNumber, mall, dataArr, page)
@@ -308,6 +312,14 @@ export default {
               this.UploadRecordData(mall.platform_mall_id, dataArr)
             }
           }
+        }
+      } else if (resObj && resObj.status === 403) {
+        if (this.query.status !== '' || type !== 2) {
+          this.$refs.Logs.writeLog(`店铺【${mall.platform_mall_name}】请检查店铺是否登录！`, false)
+        }
+      } else {
+        if (this.query.status !== '' || type !== 2) {
+          this.$refs.Logs.writeLog(`店铺【${mall.platform_mall_name}】获取失败！`, false)
         }
       }
     },
@@ -463,15 +475,15 @@ export default {
     search() {
       const params = this.query
       let sysMallId = ''
-      this.selectMallList.forEach((item,index)=>{
-        if(index===0){
+      this.selectMallList.forEach((item, index) => {
+        if (index === 0) {
           sysMallId = item.id
-        }else{
+        } else {
           sysMallId = sysMallId + ',' + item.id
         }
       })
       params.sysMallId = sysMallId || ''
-      params.appropriateTime =  this.cloumn_date.length >= 0 ? this.cloumn_date[0]+' 00:00:00/'+this.cloumn_date[1]+' 23:59:59' : ''
+      params.appropriateTime = this.cloumn_date.length >= 0 ? this.cloumn_date[0] + ' 00:00:00/' + this.cloumn_date[1] + ' 23:59:59' : ''
       this.getTableList(params)
     },
     // 初始化tableList
@@ -495,8 +507,8 @@ export default {
       let start = end - 31 * 24 * 60 * 60 * 1000
       this.cloumn_date = [this.$dayjs(start).format('YYYY-MM-DD'), this.$dayjs(end).format('YYYY-MM-DD')]
       // const d = new Date()
-      // const d1 = d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate() 
-      // const d2 = d.getFullYear() + '-' + d.getMonth() + '-' + d.getDate() 
+      // const d1 = d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate()
+      // const d2 = d.getFullYear() + '-' + d.getMonth() + '-' + d.getDate()
       // this.cloumn_date = [d2, d1]
       // this.cloumn_date && this.cloumn_date.length > 0 ? this.cloumn_date.join('/').toString() : ''
     },
