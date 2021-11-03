@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-10-08 14:16:18
- * @LastEditTime: 2021-10-15 17:18:37
+ * @LastEditTime: 2021-11-02 12:13:40
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shopeeman-new\src\views\personal-center\components\PersonalCenterCheckaccounting.vue
@@ -312,11 +312,11 @@ export default {
           options['income_amount_total'].push(Number(item.income_amount_total))
           options['consum_amount_total'].push(Number(item.consum_amount_total))
         }
-        console.log('xAxisData', xAxisData)
+        console.log('xAxisData', xAxisData,options['income_amount_total'])
         this.lineData.xAxis.data = xAxisData
-        // this.lineData.series[0].data = options.warehouse_ship
+        this.lineData.series[0].data = options.warehouse_ship
         this.lineData.series[1].data = options.mall_main
-        this.lineData.series[2].data = options.income_amount_total
+        this.lineData.series[2].data = options.consum_amount_total  
         this.lineData.series[3].data = options.recharge
         this.lineData.series[4].data = options.purchase_goods
         this.lineData.series[5].data = options.purchase_goods_return
@@ -324,7 +324,7 @@ export default {
         this.lineData.series[7].data = options.other
         this.lineData.series[8].data = options.translation
         this.lineData.series[9].data = options.return
-        this.lineData.series[10].data = options.consum_amount_total
+        this.lineData.series[10].data = options.income_amount_total  
       }
       console.log('getOrderStatisticsList', res, this.lineData)
     },

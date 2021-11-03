@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-10-08 14:16:18
- * @LastEditTime: 2021-11-02 11:08:39
+ * @LastEditTime: 2021-11-02 11:57:11
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shopeeman-new\src\views\personal-center\components\PersonalCenterStoreFinance.vue
@@ -304,14 +304,14 @@ export default {
         let params = {
           app_uid: this.muid,
           page_size: this.pageSize,
-          page: this.currentPage,
-          trans_time: this.tradeTime.length ? this.setDateFmt(this.tradeTime).join('/') : '',
+          page: this.currentPage,  
+          trans_time: this.tradeTime.length ? this.tradeTime[0]+' 00:00:00/'+this.tradeTime[1]+' 23:59:59' : '',
         }
         let resf = await this.$XzyNetMessageService.post('xzy.UserGetUserRecharge', params)
         // console.log(res)
         if (resf) {
-          let resObj = JSON.parse(resf)
-          let info = JSON.parse(resObj.data)
+          let resObj = resf && JSON.parse(resf)
+          let info = resObj && resObj.data && JSON.parse(resObj.data)
           let totalPage = (info.data && info.data.total_page) || 0
           while (params.page <= totalPage) {
             this.exportDataList = this.exportDataList.concat(info.data.data)
@@ -326,14 +326,14 @@ export default {
           app_uid: this.muid,
           page_size: this.pageSize,
           page: this.currentPage,
-          trans_time: this.tradeTime.length ? this.setDateFmt(this.tradeTime).join('/') : '',
+          trans_time: this.tradeTime.length ? this.tradeTime[0]+' 00:00:00/'+this.tradeTime[1]+' 23:59:59' : '',
           package_order_sn: this.orderNumber,
           trans_type: this.tradeType,
         }
         let resf = await this.$XzyNetMessageService.post('xzy.UserGetUserAccountAmount', params)
         if (resf) {
-          let resObj = JSON.parse(resf)
-          let info = JSON.parse(resObj.data)
+          let resObj = resf && JSON.parse(resf)
+          let info = resObj && resObj.data && JSON.parse(resObj.data)
           let totalPage = (info && info.data && info.data.total_page) || 0
           while (params.page <= totalPage) {
             this.exportDataList = this.exportDataList.concat(info.data.data)
@@ -435,9 +435,9 @@ export default {
       }
       try {
         let res = await this.$XzyNetMessageService.post('xzy.UserGetUserDetail', params)
-        let resObj = res&&JSON.parse(res)
-        let info = resObj&&resObj.data&&JSON.parse(resObj.data)
-        if (info&&info.code === 200) {
+        let resObj = res && JSON.parse(res)
+        let info = resObj && resObj.data && JSON.parse(resObj.data)
+        if (info && info.code === 200) {
           this.userBalance = info.data.amount
         }
         // await sleep(1000)
@@ -452,20 +452,18 @@ export default {
         app_uid: this.muid,
         page_size: this.pageSize,
         page: this.currentPage,
-        trans_time: this.tradeTime.length ? this.setDateFmt(this.tradeTime).join('/') : '',
+        trans_time: this.tradeTime.length ? this.tradeTime[0]+' 00:00:00/'+this.tradeTime[1]+' 23:59:59': '',
         package_order_sn: this.orderNumber,
         trans_type: this.tradeType,
       }
       this.tableLoading = true
       try {
         let res = await this.$XzyNetMessageService.post('xzy.UserGetUserAccountAmount', params)
-        if (res) {
-          let resObj = JSON.parse(res)
-          let info = JSON.parse(resObj.data)
-          if (info.code === 200) {
-            this.tableData = info.data.data
-            this.total = info.data.total
-          }
+        let resObj = res && JSON.parse(res)
+        let info = resObj && resObj.data && JSON.parse(resObj.data)
+        if (info && info.code === 200) {
+          this.tableData = info.data.data
+          this.total = info.data.total
         }
       } catch (error) {
         console.log(error)
@@ -478,20 +476,18 @@ export default {
         app_uid: this.muid,
         page_size: this.pageSize,
         page: this.currentPage,
-        trans_time: this.tradeTime.length ? this.setDateFmt(this.tradeTime).join('/') : '',
+        trans_time: this.tradeTime.length ? this.tradeTime[0]+' 00:00:00/'+this.tradeTime[1]+' 23:59:59' : '',
       }
       this.tableLoading = true
       try {
-        console.log()
         let res = await this.$XzyNetMessageService.post('xzy.UserGetUserRecharge', params)
-        if (res) {
-          let resObj = JSON.parse(res)
-          let info = JSON.parse(resObj.data)
-          if (info.code === 200) {
-            this.tableData = info.data.data
-            this.total = info.data.total
-          }
+        let resObj = res && JSON.parse(res)
+        let info = resObj && resObj.data && JSON.parse(resObj.data)
+        if (info && info.code === 200) {
+          this.tableData = info.data.data
+          this.total = info.data.total
         }
+        // console.log(res, resObj, resObj.data, info)
       } catch (error) {
         console.log(error)
       }

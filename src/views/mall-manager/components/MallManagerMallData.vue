@@ -187,7 +187,6 @@
 
 <script>
 import mallGroup from '@/components/mall-group.vue'
-import ShopeeConfig from '@/services/shopeeman-config'
 import { exportExcelDataCommon } from '@/util/util'
 export default {
   components: {
@@ -208,7 +207,6 @@ export default {
       frozenAmount: 0, // 待拨款总金额
       frozenAmountOrders: 0, // 待拨款总订单数
       multipleSelection: [],
-      shopeeConfig: new ShopeeConfig(),
       form: {
         groupId: 0, // 店铺分组ID
         agoNoneOrderDays: '0', // 距今无订单天数
@@ -253,7 +251,7 @@ export default {
   methods: {
     // 同步店铺数据
     async syncMallData(data) {
-      const url = this.shopeeConfig.getSiteDomainCrossBk('VN')
+      
       console.log(url)
       this.isShowProgress = true
       this.percentage = 0

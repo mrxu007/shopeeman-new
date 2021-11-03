@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-10-08 14:16:18
- * @LastEditTime: 2021-10-19 11:23:00
+ * @LastEditTime: 2021-11-02 16:45:59
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shopeeman-new\src\main.js
@@ -41,7 +41,7 @@ import aliyunOssService from './services/aliyun-oss-service'
 import viewManagerService from './services/view-manager-service'
 import SonAccountService from './services/son-acccount-service'
 import shopeemanService from './services/shopeeman-service'
-import Logs from 'cyt-pl-plug'
+import {Logs} from 'cyt-pl-plug'
 
 import * as echarts from 'echarts'
 import * as filters from './plugins/filters'
