@@ -444,10 +444,17 @@ export default {
         if (flat === 1) { // 一键登陆
           // 获取壳内店铺信息,组装
           const res1_flat1 = await this.$appConfig.getGlobalCacheInfo('mallInfo', mallId)
-          mallDataInfo = res1_flat1
+          mallDataInfo = JSON.parse(res1_flat1)
+          const Cookie = res.data.Cookie
+          mallDataInfo.web_login_info['SPC_EC'] = Cookie.SPC_EC
+          mallDataInfo.web_login_info['sso'] = Cookie.SPC_EC
+          mallDataInfo.web_login_info['SPC_SC_TK'] = Cookie.SPC_SC_TK
+          mallDataInfo.web_login_info['token'] = Cookie.SPC_SC_TK
+          mallDataInfo.web_login_info['ShopeeUid'] = Cookie.ShopeeUid
+          mallDataInfo.web_login_info['shopeeuid'] = Cookie.ShopeeUid
+          mallDataInfo.web_login_info['shopid'] = Cookie.shopid
           // 2、更新壳信息
-          // const res2_flat1 = await this.$appConfig.updateInfoMall(`${mallId}`, mallDataInfo) // 更新里面店铺的cookie （壳）
-          debugger
+          await this.$appConfig.updateInfoMall(`${mallId}`, JSON.stringify(mallDataInfo)) // 更新里面店铺的cookie （壳）
         } else { // 导入店铺
           // 2、更新壳信息
           mallDataInfo = res.data.mallInfo_new
@@ -483,7 +490,6 @@ export default {
           'webLoginInfo': JSON.stringify(res.data.Cookie)
         }
         const res5 = await uploadMallCookie(params) // 上报店铺信息cookie (服务端)
-        debugger
         if (res5.code !== 200) {
           // console.log('店铺上传失败', res.data)
           this.writeLog(`(${i + 1}/${len})账号【${platform_mall_name}】授权失败：上报店铺信息cookie失败`, true)

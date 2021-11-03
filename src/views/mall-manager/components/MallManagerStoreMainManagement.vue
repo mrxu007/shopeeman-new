@@ -495,7 +495,11 @@
                   width="55"
                 />
                 <el-table-column type="index" label="序号" align="center" />
-                <el-table-column prop="country" label="站点" align="center" />
+                <el-table-column prop="country" label="站点" align="center" >
+                  <template slot-scope="{ row }">
+                    {{ row.country | chineseSite}}
+                  </template>
+                </el-table-column>
                 <el-table-column prop="mall_alias_name" label="店铺名称" align="center" />
                 <!-- <el-table-column prop="main_name" label="已绑定公司主体名称" /> -->
               </el-table>
@@ -511,7 +515,6 @@
   </div>
 </template>
 <script>
-import ShopeeConfig from '@/services/shopeeman-config'
 import storeChoose from '../../../components/store-choose'
 import { getMalls, MallgetValue } from '../../../util/util'
 import { encryptionList, ipTypeList, protocolList, confuseList } from '../../../util/MallManagerStoredata'
@@ -538,7 +541,6 @@ export default {
       }
     }
     return {
-      shopeeConfig: new ShopeeConfig(),
       loading: false,
       showButton: false,
       targetId: '', // 修改店铺绑定仓库id
@@ -875,14 +877,7 @@ export default {
       }
       const res = await this.$api.ddMallGoodsGetMallList(params)
       if (res.data.code === 200) {
-        const list = []
-        res.data.data.forEach(e => {
-          e.country = this.shopeeConfig.getSiteCode(e.country)
-          list.push(e)
-        })
-        // 全部
-        // this.dialog_mallList = res.data.data
-        this.dialog_mallList = list
+        this.dialog_mallList = res.data.data
         // 部分
         this.dialog_mallList2 = this.dialog_mallList.filter(item => {
           return item.main_name === ''
@@ -1211,6 +1206,7 @@ export default {
       try {
         const res = await this.$YipService.GetIpList(JSON.stringify(params))
         const data = JSON.parse(res)
+        console.log(data)
         this.tableList = []
         if (data.code === 200 && data.data.length > 0 && this.shopAccountList.length > 0) {
           this.loading = false

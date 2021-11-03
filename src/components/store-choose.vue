@@ -197,9 +197,9 @@ export default {
   li {
     display: flex;
     margin-right: 10px;
+    align-items: center;
     span {
       display: inline-block;
-      width: 80px;
       text-align: center;
     }
     .el-select {
