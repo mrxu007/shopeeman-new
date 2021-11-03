@@ -106,7 +106,8 @@ export default {
   updateWatermark: (data) => AppRequest.post('/bindMall/updateWatermark', data), // 修改店铺水印
   updateUserPassword: (data) => AppRequest.post('/bindMall/uploadUserPassword', data), // 修改账户登录密码
   uploadMallCookie: (data) => AppRequest.post('/bindMall/uploadWebLoginInfo', data), // 上报店铺cookie
-  deleteBindMall: (data) => AppRequest.post('/bindMall/deleteMall', data), // 上报店铺cookie
+  deleteBindMall: (data) => AppRequest.post('/bindMall/deleteMall', data), // 删除店铺信息
+  saveMallAuthInfo: (data) => AppRequest.post('/bindMall/saveMallAuthInfo', data), // 上报店铺信息
 
   // 店铺分组
   getMallGroup: (data) => AppRequest.get('/mallGroup/index', { params: data }), // 获取店铺分组列表
@@ -139,8 +140,8 @@ export default {
   getPaymentList: (data) => AppRequest.post('/mallAccountBill', data), // 货款对账列表
   getMallSite: (data) => AppRequest.get('/ddMallGoods/getMallList', { params: data }), // 店铺站点信息
   exchangeRateList: (data) => AppRequest.get('/exchangeRateList', { params: data }), // 获取汇率
-  updateMallInfo: (data) => AppRequest.post('/bindMall/updateMallInfo',  data ), // 同步信息
-  uploadPaymentList: (data) => AppRequest.post('/mallAccountBill/save', data), //上报货款对账单
+  updateMallInfo: (data) => AppRequest.post('/bindMall/updateMallInfo', data), // 同步信息
+  uploadPaymentList: (data) => AppRequest.post('/mallAccountBill/save', data), // 上报货款对账单
 
   // 异常公告--即将过期订单
   getExceptionExpiredOrderIndex: (data) => AppRequest.get('/exceptionExpiredOrderIndex', { params: data }), // 订单列表
@@ -168,6 +169,6 @@ export default {
   getUserStore: (data) => AppRequest.get('/userStock/get', { params: data }), // 自有仓库列表
   insertUserGoods: (data) => AppRequest.post('/userStock/save', data), // 新增自有商品
   updataUserGoods: (data) => AppRequest.post('/userStock/update', data), // 编辑自有商品
-  deleteUserGoods: (data) => AppRequest.post('/userStock/deleteGoods', data), // 删除自有商品 
-  deleteUserSku: (data) => AppRequest.post('/userStock/deleteSkus', data)//删除sku
+  deleteUserGoods: (data) => AppRequest.post('/userStock/deleteGoods', data), // 删除自有商品
+  deleteUserSku: (data) => AppRequest.post('/userStock/deleteSkus', data)// 删除sku
 }
