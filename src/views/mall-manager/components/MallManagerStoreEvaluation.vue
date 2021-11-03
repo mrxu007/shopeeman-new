@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-10-08 14:16:18
- * @LastEditTime: 2021-10-28 17:25:34
+ * @LastEditTime: 2021-11-02 18:23:24
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shopeeman-new\src\views\mall-manager\components\MallManagerWithdrawalRecord.vue
@@ -41,7 +41,7 @@
         </div>
         <div class="tool-item mar-right">
           <el-input placeholder="请输入内容" v-model="userName" size="mini" class="input-with-select" clearable>
-            <el-select v-model="userTypeSelect" slot="prepend" placeholder="用户名称" style="width: 120px" >
+            <el-select v-model="userTypeSelect" slot="prepend" placeholder="用户名称" style="width: 120px">
               <el-option v-for="(item, index) in userType" :key="index" :label="item.label" :value="item.value" />
             </el-select>
           </el-input>
@@ -83,7 +83,12 @@
         </el-table-column>
         <el-table-column label="商品图片" prop="product_cover" align="center">
           <template slot-scope="scope">
-            <el-image v-bind:src="[scope.row.country, scope.row.platform_mall_id, scope.row.product_cover] | imageRender" style="width: 60px; height: 60px"></el-image>
+            <el-tooltip effect="light" placement="right-end" :visible-arrow="false" :enterable="false" style="width: 56px; height: 56px; display: inline-block">
+              <div slot="content">
+                <el-image v-bind:src="[scope.row.country, scope.row.platform_mall_id, scope.row.product_cover] | imageRender" style="width:400px;height:400px;" ></el-image>
+              </div>
+              <el-image v-bind:src="[scope.row.country, scope.row.platform_mall_id, scope.row.product_cover] | imageRender" style="width:56px;height:56px;" ></el-image>
+            </el-tooltip>
           </template>
         </el-table-column>
         <el-table-column prop="user_name" label="买家姓名" align="center" min-width="90px" />
@@ -112,7 +117,7 @@
           </template>
         </el-table-column>
         <el-table-column align="center" prop="replyStatus" label="操作状态" min-width="70" show-overflow-tooltip>
-          <template slot-scope="scope"> {{scope.row.replyStatus}}</template>
+          <template slot-scope="scope"> {{ scope.row.replyStatus }}</template>
         </el-table-column>
       </el-table>
       <div class="pagination">
@@ -240,12 +245,11 @@ export default {
       mallPageSize: 50,
     }
   },
-  mounted(){
-    
-  },
+  mounted() {},
   methods: {
     //查询列表
     async searchRate() {
+      this.cancelAction = false
       if (!this.selectMallList.length) {
         return this.$message.warning('请选择店铺')
       }
@@ -265,7 +269,8 @@ export default {
           }
           let mall = this.selectMallList[i]
           let pageNumber = 1
-          console.log(pageNumber)
+          console.log(i)
+          console.log(this.tableData)
           await this.searchSingleMall(pageNumber, mall)
         }
       } catch (error) {
@@ -307,14 +312,11 @@ export default {
       try {
         let res = await this.$shopeemanService.getShopEvaluateList(mall.country, params)
         let resObj = JSON.parse(res)
-        if (resObj.status !== 200) {
-          this.$refs.Logs.writeLog(`店铺【${mall.platform_mall_name}】请检查店铺是否登录！`, false)
-        } else {
+        if (resObj.status === 200) {
           let data = JSON.parse(resObj.data)
-          console.log(data)
           if (data.code === 0) {
             let count = data.data.list.length
-            if(count===0){
+            if (count === 0) {
               this.$refs.Logs.writeLog(`店铺【${mall.mall_alias_name || mall.platform_mall_name}】获取到第【${++page}】页店铺评价数据【${count}】条`, true)
             }
             data.data.list &&
@@ -336,7 +338,13 @@ export default {
             } else {
               this.total += dataArr.length
             }
+          } else {
+            this.$refs.Logs.writeLog(`店铺【${mall.platform_mall_name}】${data.message}！`, false)
           }
+        } else if (resObj.status === 403) {
+          this.$refs.Logs.writeLog(`店铺【${mall.platform_mall_name}】请检查店铺是否登录！`, false)
+        } else {
+          this.$refs.Logs.writeLog(`店铺【${mall.platform_mall_name}】获取失败！`, false)
         }
       } catch (error) {
         console.log(error)
@@ -407,25 +415,23 @@ export default {
       let index = this.tableData.findIndex((n) => {
         return n.comment_id === row.comment_id
       })
-      if(row.reply&&row.reply.ctime){
+      if (row.reply && row.reply.ctime) {
         this.tableData[index].replyStatus = '已经回复过了'
         this.$refs.multipleTable.toggleRowSelection(this.tableData[index], false)
-        return 
+        return
       }
       let res = await this.$shopeemanService.replyShopRating(row.country, params)
       let resObj = JSON.parse(res)
-      if (resObj.status !== 200) {
-        this.tableData[index].replyStatus = '请检查店铺是否登录'
-      } else {
+      if (resObj.status === 200) {
         let data = JSON.parse(resObj.data)
         if (data.code === 0) {
-          if(this.tableData[index].reply){
-            this.tableData[index].reply.ctime = Math.round((new Date().getTime()) / 1000)
+          if (this.tableData[index].reply) {
+            this.tableData[index].reply.ctime = Math.round(new Date().getTime() / 1000)
             this.tableData[index].reply.comment = this.replayText
-          }else{
+          } else {
             this.tableData[index].reply = {}
             this.tableData[index].reply.comment = this.replayText
-            this.tableData[index].reply.ctime = Math.round((new Date().getTime()) / 1000)
+            this.tableData[index].reply.ctime = Math.round(new Date().getTime() / 1000)
           }
           this.tableData[index].replyStatus = '回复成功'
           this.replayTextVisible = false
@@ -433,6 +439,10 @@ export default {
         } else {
           this.tableData[index].replyStatus = data.message
         }
+      } else if (resObj.status === 403) {
+        this.tableData[index].replyStatus = '请检查店铺是否登录'
+      } else {
+        this.tableData[index].replyStatus = '操作失败'
       }
     },
     userReplaySave() {

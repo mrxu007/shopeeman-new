@@ -4,6 +4,42 @@ import Vue from 'vue'
 
 const instance = new Vue()
 
+// 匹配对象数组值(店铺绑定)
+export function MallgetValue(arr, label, id, relID) {
+  let data = ''
+  for (let i = 0; i < arr.length; i++) {
+    const item = arr[i]
+    if (item[id] === Number(relID)) {
+      data = item[label]
+      break
+    }
+  }
+  return data
+}
+// 获取店铺信息
+export async function getMalls() {
+  // await instance.$api.logFun()
+  const shopList = []
+  try {
+    const { data } = await instance.$api.ddMallGoodsGetMallList()
+    // if (data.data.length) {
+    //   localStorage.setItem('mallList', JSON.stringify(data.data))
+    // }
+    for (let index = 0; index < data.data.length; index++) {
+      const item = data.data[index]
+      const obj = {}
+      obj.label = item.mall_alias_name
+      obj.value = item.platform_mall_id
+      obj.country = item.country
+      obj.id = item.id
+      shopList.push(obj)
+    }
+    return shopList
+  } catch (err) {
+    return []
+  }
+}
+
 // 获取店铺信息
 export async function MallList() {
   const param = {

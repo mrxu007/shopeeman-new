@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-10-21 09:38:11
- * @LastEditTime: 2021-10-25 17:19:58
+ * @LastEditTime: 2021-11-02 12:23:43
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shopeeman-new\src\views\product-put-on\components\ProductPutOnCategoryblack.vue
@@ -36,11 +36,11 @@
     </div>
     <!-- 表格区 -->
     <div class="content">
-      <el-table v-loading="tableLoading" ref="multipleTable" :data="tableDataCut" tooltip-effect="dark" max-height="650" >
+      <el-table v-loading="tableLoading" ref="multipleTable" :data="tableDataCut" tooltip-effect="dark" max-height="650">
         <el-table-column align="center" type="index" label="序号" width="50">
           <template slot-scope="scope">{{ (currentPage - 1) * pageSize + scope.$index + 1 }}</template>
         </el-table-column>
-         <el-table-column width="120px" label="站点" prop="country" align="center">
+        <el-table-column width="120px" label="站点" prop="country" align="center">
           <template slot-scope="scope">{{ scope.row.country | chineseSite }}</template>
         </el-table-column>
         <el-table-column min-width="60px" label="店铺" prop="platform_mall_name" align="center" />
@@ -84,13 +84,16 @@ export default {
       tableLoading: false,
       tableData: [],
       mallData: [],
-      tableDataCut:[]
+      tableDataCut: [],
     }
   },
-  mounted() {
+  async mounted() {
     let end = new Date().getTime()
     let start = end - 3 * 24 * 60 * 60 * 1000
     this.statisticsTime = [this.$dayjs(start).format('YYYY-MM-DD'), this.$dayjs(end).format('YYYY-MM-DD')]
+    setTimeout(()=>{
+      this.searchTableList()
+    },1000)
   },
   methods: {
     changeMallList(val) {
@@ -99,27 +102,27 @@ export default {
     },
     //导出数据
     exportData() {
-        if(!this.tableData.length){
-            return this.$message.warning("没有可导出的数据！")
-        }
-        let num = 1
-        let str = `<tr>
+      if (!this.tableData.length) {
+        return this.$message.warning('没有可导出的数据！')
+      }
+      let num = 1
+      let str = `<tr>
                 <td>编号</td>
                 <td>站点</td>
                 <td>店铺</td>
                 <td>店铺分组</td>
                 <td>店铺总量</td>
                 </tr>`
-        for (let i = 0; i < this.tableData.length; i++) {
-            let item = this.tableData[i]
-            str += `<tr><td>${num++}</td>
-                        <td>${item.country ?this.$filters.chineseSite(item.country): '' + '\t'}</td>
-                        <td>${item.platform_mall_name ?item.platform_mall_name  :'' + '\t'}</td>
+      for (let i = 0; i < this.tableData.length; i++) {
+        let item = this.tableData[i]
+        str += `<tr><td>${num++}</td>
+                        <td>${item.country ? this.$filters.chineseSite(item.country) : '' + '\t'}</td>
+                        <td>${item.platform_mall_name ? item.platform_mall_name : '' + '\t'}</td>
                         <td>${item.group_name ? item.group_name : '' + '\t'}</td> 
                         <td>${item.upCount ? item.upCount : 0 + '\t'}</td>
                     </tr>`
-        }
-        exportExcelDataCommon('店铺上架数量统计',str)
+      }
+      exportExcelDataCommon('店铺上架数量统计', str)
     },
     //查询
     async searchTableList() {
@@ -131,23 +134,23 @@ export default {
         this.tableLoading = false
         return
       }
-      let resObj = JSON.parse(res)
+      let resObj = res && JSON.parse(res)
       let statisticData = resObj.data || []
-      for(let i=0;i<this.mallData.length;i++){
-          let mall = this.mallData[i]
-          mall.upCount = 0
-          statisticData.forEach(item=>{
-              item.list.forEach(subItem=>{
-                  if(subItem.mallId==mall.platform_mall_id){
-                      mall.upCount += subItem.cnt
-                  }
-              })
+      for (let i = 0; i < this.mallData.length; i++) {
+        let mall = this.mallData[i]
+        mall.upCount = 0
+        statisticData.forEach((item) => {
+          item.list.forEach((subItem) => {
+            if (subItem.mallId == mall.platform_mall_id) {
+              mall.upCount += subItem.cnt
+            }
           })
-          this.tableData.push(mall)
+        })
+        this.tableData.push(mall)
       }
       this.total = this.tableData.length
       this.dataCut()
-      console.log(res,this.mallData,this.tableData)
+      // console.log(res, this.mallData, this.tableData)
       this.tableLoading = false
     },
     //   表格选择
@@ -156,7 +159,7 @@ export default {
     },
     // 分页设置
     dataCut() {
-        this.tableDataCut = this.tableData.slice((this.currentPage - 1) * this.pageSize, this.currentPage * this.pageSize)
+      this.tableDataCut = this.tableData.slice((this.currentPage - 1) * this.pageSize, this.currentPage * this.pageSize)
     },
     handleCurrentChange(val) {
       this.currentPage = val

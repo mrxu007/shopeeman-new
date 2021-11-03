@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-10-21 15:41:32
- * @LastEditTime: 2021-10-23 11:23:00
+ * @LastEditTime: 2021-11-02 14:17:23
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shopeeman-new\src\components\category-choose.vue
@@ -199,6 +199,7 @@ export default {
 .category-content {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   li {
     display: flex;
     margin-right: 10px;

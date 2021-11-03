@@ -11,7 +11,7 @@ export async function getMallListAPI(params) {
     const res = await api.getMallList(params)
     if (res.data.code === 200) {
       const mallArr = res.data.data.map(item => {
-        item.webLoginInfo = '<p>等待检测...</p>'
+        item.LoginInfo = '<p>等待检测...</p>'
         return item
       })
       return { code: 200, data: mallArr }

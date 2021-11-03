@@ -38,20 +38,20 @@
           <ul>
             <li>
               <el-checkbox>强制登录</el-checkbox>
-              <el-button type="primary" size="mini" :loading="buttonStatus.login" @click="alotOfLogined">一键登录</el-button>
+              <el-button type="primary" size="mini" :loading="buttonStatus.login" @click="alotOfLogined(null)">一键登录</el-button>
               <el-button type="primary" size="mini" @click="importMall('authorization')">导入店铺</el-button>
               <el-button type="primary" size="mini" @click="exportMall">导出店铺</el-button>
               <el-button type="primary" size="mini" @click="editWaterMall('update')">修改账号登录密码</el-button>
               <el-button type="primary" size="mini" @click="editWaterMall('edit')">修改店铺水印文字</el-button>
-              <el-button type="primary" size="mini">设置店铺封面</el-button>
-              <el-button type="primary" size="mini">设置退货地址</el-button>
-              <el-button type="primary" size="mini">刷新登录状态</el-button>
-              <el-button type="primary" size="mini">同步店铺信息</el-button>
-              <el-button type="primary" size="mini">更新浏览器识别码</el-button>
+              <el-button type="primary" size="mini" disabled>设置店铺封面</el-button>
+              <el-button type="primary" size="mini" disabled>设置退货地址</el-button>
+              <el-button type="primary" size="mini" disabled>刷新登录状态</el-button>
+              <el-button type="primary" size="mini" disabled>同步店铺信息</el-button>
+              <el-button type="primary" size="mini" disabled>更新浏览器识别码</el-button>
               <el-button type="primary" size="mini" @click="openDeleteMallDialog">一键解绑店铺</el-button>
-              <el-button type="primary" size="mini">开启店铺休假模式</el-button>
-              <el-button type="primary" size="mini">关闭店铺休假模式</el-button>
-              <el-button type="primary" size="mini">批量修改物流方式</el-button>
+              <el-button type="primary" size="mini" disabled>开启店铺休假模式</el-button>
+              <el-button type="primary" size="mini" disabled>关闭店铺休假模式</el-button>
+              <el-button type="primary" size="mini" disabled>批量修改物流方式</el-button>
               <el-button type="primary" size="mini" @click="getMallList">查询</el-button>
               <el-checkbox>隐藏日志</el-checkbox>
               <p class="res-text">温馨提示：导入新加披站点店铺时，若账号为手机号时，填写模板时请填写完整(带有国家区号)的手机号，否则登录失败</p>
@@ -97,7 +97,7 @@
         <el-table-column align="center" prop="mall_alias_name" label="店铺别名" />
         <el-table-column align="center" prop="web_login_info" label="登录状态" show-overflow-tooltip="">
           <template v-slot="{ row }">
-            <span v-html="row.webLoginInfo" />
+            <span v-html="row.LoginInfo" />
           </template>
         </el-table-column>
         <el-table-column align="center" prop="mall_status" label="店铺状态">
@@ -158,7 +158,7 @@
               <div class="text-log-content" v-html="consoleMsg" />
             </div>
             <div class="text-btn">
-              <el-button type="primary" size="mini">店铺授权</el-button>
+              <el-button type="primary" size="mini" @click="mallAuthorization">店铺授权</el-button>
             </div>
           </div>
           <el-table
@@ -185,8 +185,8 @@
             <el-table-column align="center" prop="web_login_info" label="登录识别码" width="200">
               <template v-slot="{ row }">
                 <div>
-                  <p>SPC_EC : <el-input v-model="row.spcMark.SPC_EC" size="mini" /></p>
-                  <p>SPC_SC_TK : <el-input v-model="row.spcMark.SPC_SC_TK" size="mini" /></p>
+                  <p>SPC_EC : <el-input v-model="row.SPC_EC" size="mini" /></p>
+                  <p>SPC_SC_TK : <el-input v-model="row.SPC_SC_TK" size="mini" /></p>
                 </div>
               </template>
             </el-table-column>
@@ -214,7 +214,7 @@
         <ul>
           <li>
             <p>当前IP：</p>
-            <el-input v-model="IPVal" size="mini" :disabled="true" />
+            <p class="li-first">{{ IPVal }}</p>
           </li>
           <li>
             <p>确认信息：</p>
@@ -327,6 +327,7 @@ export default {
     this.countriesObj = countriesObj
     // this.test()
     this.getMallList()
+    this.getIP()
   },
   methods: {
     // tableScroll({ scrollTop, scrollLeft, table, judgeFlse }) {
@@ -349,6 +350,13 @@ export default {
       }
       this.delMallDialog = true
     },
+    getIP() {
+      this.$BaseUtilService.getAddressIP().then(res => {
+        this.IPVal = res
+      }).catch(e => {
+        console.log('getIP', e)
+      })
+    },
     async chekedDelMall() {
       const text = this.comfirmText.replace(/,/, '，').trim() === '删除店铺，后果自负'
       if (!text) {
@@ -359,9 +367,12 @@ export default {
       const ids = this.multipleSelection.map(item => {
         return item.platform_mall_id
       })
+      if (!this.IPVal) {
+        return this.$message.error('未获取到IP地址,无法操作')
+      }
       const params = {
         'sysMallIds': ids.toString(),
-        'ip': this.IPVal || '192.168.1.1',
+        'ip': this.IPVal,
         'isPushToXzy': this.delOrderType
       }
       const res = await this.$api.deleteBindMall(params)
@@ -380,9 +391,19 @@ export default {
     },
     handleSelectionChange(val) {
       this.multipleSelection = val
+      console.log('this.multipleSelection', this.multipleSelection)
     },
     handleSelectionChange2(val) {
       this.multipleSelection2 = val
+    },
+    mallAuthorization() { // 店铺授权
+      if (!this.importMallListData.length) {
+        return this.$message.error('请导入店铺')
+      }
+      if (!this.multipleSelection2.length) {
+        return this.$message.error('请勾选店铺')
+      }
+      this.alotOfLogined(this.multipleSelection2)
     },
     editWaterMall(val) {
       this.importType = val
@@ -392,31 +413,62 @@ export default {
       }
       this.waterDialogVisible = true
     },
-    async alotOfLogined() {
+    async alotOfLogined(mallArr) {
       if (this.buttonStatus.login) {
         return
       }
-      const len = this.multipleSelection.length
+      let flat = 1 // 默认一键登陆
+      let len = null
+      let selectMall = null
+      if (mallArr) { // 导入店铺
+        len = mallArr.length
+        selectMall = mallArr
+        flat = 2
+      } else { // 一键登陆
+        len = this.multipleSelection.length
+        selectMall = this.multipleSelection
+      }
       if (!len) {
         this.$message.error('请先勾选店铺')
         return
       }
       this.buttonStatus.login = true
       for (let i = 0; i < len; i++) {
-        const item = this.multipleSelection[i]
-        item.webLoginInfo = '正在登陆中...'
-        const res = await this.$shopeemanService.login(item, { mallId: item.platform_mall_id })
+        const item = selectMall[i]
+        const platformMallName = item.platformMallName
+        flat === 1 ? item.LoginInfo = '正在登陆中...' : this.writeLog(`(${i + 1}/${len})店铺【${platformMallName}】开始授权`, true)
+        const res = await this.$shopeemanService.login(item, flat)
         if (res.code !== 200) {
-          console.log(`店铺【${item.platform_mall_name}】登录失败：${res.data}`)
-          // this.$message.error(`店铺【${item.platform_mall_name}】`)
-          item.webLoginInfo = `<p style="color: red">登录失败：${res.data}</p>`
+          flat === 1 ? item.LoginInfo = `<p style="color: red">登录失败：${res.data}</p>` : this.writeLog(`(${i + 1}/${len})店铺【${platformMallName}】授权失败：${res.data}`, false)
           continue
         }
         debugger
-        const mallId = res.data.shopid
+        const platformMallId = res.data.shopid // 平台店铺ID
+        const platformMallUid = res.data.ShopeeUid // 平台卖家ID
         const webLoginInfo = JSON.stringify(res.data.Cookie)
+        if (flat === 2) { // 如果是导入店铺,在上报cookie之前应该先上报店铺
+          const params2 = {
+            'platformMallId': platformMallId,
+            'platformMallUid': platformMallUid,
+            'mallAccountInfo': item.mall_account_info,
+            'mallGroup': item.mallGroup,
+            'itemLimit': 500, // 待定需要获取
+            'platformMallName': platformMallName,
+            'mallAliasName': item.mallAliasName,
+            'mallMainName': item.mallMainName,
+            'country': item.country,
+            'SPC_EC': item.SPC_EC,
+            'SPC_SC_TK': item.SPC_SC_TK
+          }
+          // const res3 = await this.getMallGoodsAmount(item)
+          // debugger
+          const res4 = await this.$api.saveMallAuthInfo(params2)
+
+          debugger
+          this.writeLog(`(${i + 1}/${len})店铺【${platformMallName}】上报店铺成功`, true)
+        }
         const params = {
-          mallId,
+          platformMallId,
           webLoginInfo
         }
         const res2 = await uploadMallCookie(params)
@@ -425,12 +477,29 @@ export default {
           console.log('店铺上传失败', res.data)
           continue
         }
-        await this.$appConfig.updateInfoMall(`${mallId}`, webLoginInfo)
-        const res5 = await this.$appConfig.getGlobalCacheInfo('mallInfo', mallId)
-        debugger
-        item.webLoginInfo = '<p style="color: green">登录成功</p>'
+        await this.$appConfig.updateInfoMall(`${platformMallId}`, webLoginInfo)
+        // const res5 = await this.$appConfig.getGlobalCacheInfo('mallInfo', mallId)
+        flat === 1 ? item.LoginInfo = '<p style="color: green">登录成功</p>' : this.writeLog(`(${i + 1}/${len})店铺【${platformMallName}】授权成功`, true)
       }
       this.buttonStatus.login = false
+    },
+    // 获取店铺上新商品额度
+    async  getMallGoodsAmount(mallInfo) {
+      try {
+        const params = {
+          version: '3.1.0'
+        }
+        // cnsc_shop_id  店铺类型为 2 or 3时，需要此参数
+        const { country } = mallInfo
+        const res = await this.$shopeemanService.postChinese(country, '/api/v3/product/get_product_statistical_data', params, { headers: { referer: '/portal/product/list/all' }})
+        debugger
+        if (res.data.code === 200) {
+          return { code: 200, data: '上报成功' }
+        }
+        return { code: res.data.code, data: `${res.data.code} ${res.data.message}` }
+      } catch (error) {
+        return { code: -2, data: `getMallList-catch: ${error}` }
+      }
     },
     importMall(val) {
       this.importType = val
@@ -571,14 +640,14 @@ export default {
       this.importTemplateData = null
     },
     async importMallName() {
-      // 站点(马来站，台湾站，泰国站，印尼站，菲律宾站，新加坡站，越南站)（必填）
-      // 账号（必填）(如果为手机号，请不要加国家区号)
-      // 密码（必填）
-      // 店铺真实名称（必填）
+      // 站点(马来站，台湾站，泰国站，印尼站，菲律宾站，新加坡站，越南站)(必填)
+      // 账号(必填)(如果为手机号，请不要加国家区号)
+      // 密码(必填)
+      // 店铺真实名称(必填)
       // 分组(选填)
       // 店铺主体名称(需申IP隔离必填)
       // SPC_F(浏览识别码)
-      // 店铺别名（选填）
+      // 店铺别名(选填)
       const len = this.importTemplateData.length
       const importMallArr = []
       for (let i = 0; i < len; i++) {
@@ -587,42 +656,38 @@ export default {
           break
         }
         const item = this.importTemplateData[i]
-        if (!item['站点(马来站，台湾站，泰国站，印尼站，菲律宾站，新加坡站，越南站)（必填）']) {
-          this.writeLog(`(${i + 1}/${len})未找到站点(马来站，台湾站，泰国站，印尼站，菲律宾站，新加坡站，越南站)（必填）`, false)
+        if (!item['站点(马来站，台湾站，泰国站，印尼站，菲律宾站，新加坡站，越南站)(必填)']) {
+          this.writeLog(`(${i + 1}/${len})未找到站点(马来站，台湾站，泰国站，印尼站，菲律宾站，新加坡站，越南站)(必填)`, false)
           continue
         }
-        if (!item['账号（必填）(如果为手机号，请不要加国家区号)']) {
-          this.writeLog(`(${i + 1}/${len})未找到账号（必填）(如果为手机号，请不要加国家区号)`, false)
+        if (!item['账号(必填)(如果为手机号，请不要加国家区号)']) {
+          this.writeLog(`(${i + 1}/${len})未找到账号(必填)(如果为手机号，请不要加国家区号)`, false)
           continue
         }
-        if (!item['密码（必填）']) {
-          this.writeLog(`(${i + 1}/${len})未找到密码（必填）`, false)
+        if (!item['密码(必填)']) {
+          this.writeLog(`(${i + 1}/${len})未找到密码(必填)`, false)
           continue
         }
-        if (!item['店铺真实名称（必填）']) {
-          this.writeLog(`(${i + 1}/${len})未找到店铺真实名称（必填）`, false)
+        if (!item['店铺真实名称(必填)']) {
+          this.writeLog(`(${i + 1}/${len})未找到店铺真实名称(必填)`, false)
           continue
         }
-        const country = this.countries.filter(item2 => item2.label === item['站点(马来站，台湾站，泰国站，印尼站，菲律宾站，新加坡站，越南站)（必填）'])
+        const country = this.countries.filter(item2 => item2.label === item['站点(马来站，台湾站，泰国站，印尼站，菲律宾站，新加坡站，越南站)(必填)'])
         if (!country.length) {
-          this.writeLog(`(${i + 1}/${len})未找到[${item['站点(马来站，台湾站，泰国站，印尼站，菲律宾站，新加坡站，越南站)（必填）']}],站点填写有误`, false)
+          this.writeLog(`(${i + 1}/${len})未找到[${item['站点(马来站，台湾站，泰国站，印尼站，菲律宾站，新加坡站，越南站)(必填)']}],站点填写有误`, false)
           continue
-        }i
+        }
         const obj = {
-          'platformMallId': '',
-          'platformMallUid': '',
-          'accountName': item['账号（必填）(如果为手机号，请不要加国家区号)'],
-          'mallAccountInfo': { username: item['账号（必填）(如果为手机号，请不要加国家区号)'], password: item['密码（必填）'] },
+          'accountName': item['账号(必填)(如果为手机号，请不要加国家区号)'],
+          'mall_account_info': { username: item['账号(必填)(如果为手机号，请不要加国家区号)'], password: item['密码(必填)'] },
           'mallGroup': item['分组(选填)'] || '',
-          'itemLimit': '',
-          'platformMallName': item['店铺真实名称（必填）'],
-          'sysMallId': '',
-          'mallAliasName': item['店铺别名（选填）'] || '',
+          'platformMallName': item['店铺真实名称(必填)'],
+          'mallAliasName': item['店铺别名(选填)'] || '',
+          'mallMainName': item['店铺主体名称(需申IP隔离必填)'],
           'country': country[0].value,
-          'spcMark': {
-            'SPC_EC': '',
-            'SPC_SC_TK': ''
-          }
+          'malltype': 1,
+          'SPC_EC': '',
+          'SPC_SC_TK': ''
         }
         importMallArr.push(obj)
       }
