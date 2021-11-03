@@ -308,6 +308,7 @@ export default {
   }
   .rowThree {
     color: red;
+    font-size: ;
   }
 }
 //表格部分

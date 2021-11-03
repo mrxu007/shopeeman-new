@@ -172,17 +172,17 @@
           >
             <el-table-column align="center" type="selection" width="50" />
             <el-table-column align="center" type="index" label="序号" />
-            <el-table-column align="center" prop="mallGroup" label="分组" />
+            <el-table-column align="center" prop="group_name" label="分组" />
             <el-table-column align="center" prop="" label="站点">
               <template v-slot="{ row }">
                 {{ countriesObj[row.country] }}
               </template>
             </el-table-column>
-            <el-table-column align="center" prop="platformMallName" label="店铺真实名称" />
-            <el-table-column align="center" prop="accountName" label="店铺账号" />
+            <el-table-column align="center" prop="userRealName" label="店铺真实名称" />
+            <el-table-column align="center" prop="platform_mall_name" label="店铺账号" />
             <!-- <el-table-column align="center" prop="watermark" label="店铺水印文字" /> -->
-            <el-table-column align="center" prop="mallAliasName" label="店铺别名" />
-            <el-table-column align="center" prop="web_login_info" label="登录识别码" width="200">
+            <el-table-column align="center" prop="mall_alias_name" label="店铺别名" />
+            <el-table-column align="center" label="登录识别码" width="200">
               <template v-slot="{ row }">
                 <div>
                   <p>SPC_EC : <el-input v-model="row.SPC_EC" size="mini" /></p>
@@ -435,68 +435,84 @@ export default {
       this.buttonStatus.login = true
       for (let i = 0; i < len; i++) {
         const item = selectMall[i]
-        const platformMallName = item.platformMallName
-        flat === 1 ? item.LoginInfo = '正在登陆中...' : this.writeLog(`(${i + 1}/${len})店铺【${platformMallName}】开始授权`, true)
+        const platform_mall_name = item.platform_mall_name
+        flat === 1 ? item.LoginInfo = '正在登陆中...' : this.writeLog(`(${i + 1}/${len})账号【${platform_mall_name}】开始授权`, true)
+        // 1、shopeeMan官方登录
         const res = await this.$shopeemanService.login(item, flat)
         if (res.code !== 200) {
-          flat === 1 ? item.LoginInfo = `<p style="color: red">登录失败：${res.data}</p>` : this.writeLog(`(${i + 1}/${len})店铺【${platformMallName}】授权失败：${res.data}`, false)
+          flat === 1 ? item.LoginInfo = `<p style="color: red">登录失败：${res.data}</p>` : this.writeLog(`(${i + 1}/${len})账号【${platform_mall_name}】授权失败：${res.data}`, false)
           continue
         }
-        debugger
-        const platformMallId = res.data.shopid // 平台店铺ID
-        const platformMallUid = res.data.ShopeeUid // 平台卖家ID
-        const webLoginInfo = JSON.stringify(res.data.Cookie)
-        if (flat === 2) { // 如果是导入店铺,在上报cookie之前应该先上报店铺
+        const mallId = res.data.mallId // 平台店铺ID
+        const mallUId = res.data.mallUId // 平台卖家ID
+        let mallDataInfo = null
+        if (flat === 1) { // 一键登陆
+          // 获取壳内店铺信息,组装
+          const res1_flat1 = await this.$appConfig.getGlobalCacheInfo('mallInfo', mallId)
+          mallDataInfo = res1_flat1
+          // 2、更新壳信息
+          // const res2_flat1 = await this.$appConfig.updateInfoMall(`${mallId}`, mallDataInfo) // 更新里面店铺的cookie （壳）
+          debugger
+        } else { // 导入店铺
+          // 2、更新壳信息
+          mallDataInfo = res.data.mallInfo_new
+          await this.$appConfig.updateInfoMall(mallId, JSON.stringify(mallDataInfo)) // 更新里面店铺的cookie （壳）
+          // 4、判断物流信息是否是普通店铺 (店铺导入独有)
+          // 5、获取信息额度 (店铺导入独有)
           const params2 = {
-            'platformMallId': platformMallId,
-            'platformMallUid': platformMallUid,
-            'mallAccountInfo': item.mall_account_info,
-            'mallGroup': item.mallGroup,
-            'itemLimit': 500, // 待定需要获取
-            'platformMallName': platformMallName,
-            'mallAliasName': item.mallAliasName,
-            'mallMainName': item.mallMainName,
+            'platformMallId': mallId,
+            'platformMallUid': mallUId,
+            'mallAccountInfo': JSON.stringify(item.mall_account_info),
+            'mallGroup': item.group_name,
+            'itemLimit': 500,
+            'platformMallName': platform_mall_name,
+            'mallAliasName': item.mall_alias_name,
+            'mallMainName': item.MallMainName,
             'country': item.country,
             'SPC_EC': item.SPC_EC,
-            'SPC_SC_TK': item.SPC_SC_TK
+            'SPC_SC_TK': item.SPC_SC_TK,
+            'mall_type': 1 // 写死1 普通店铺
           }
-          // const res3 = await this.getMallGoodsAmount(item)
-          // debugger
-          const res4 = await this.$api.saveMallAuthInfo(params2)
-
-          debugger
-          this.writeLog(`(${i + 1}/${len})店铺【${platformMallName}】上报店铺成功`, true)
+          const res3 = await this.getMallGoodsAmount(mallDataInfo)
+          res3.code === 200 ? params2['itemLimit'] = res3.data : ''
+          // 6、上报店铺信息(店铺导入独有) 如果是导入店铺,在上报cookie之前应该先上报店铺
+          const res4 = await this.$api.saveMallAuthInfo(params2) // 导入店铺信息（服务端）
+          if (res4.data.code !== 200) {
+            this.writeLog(`(${i + 1}/${len})账号【${platform_mall_name}】授权失败：${res4.data.message}`, true)
+            continue
+          }
         }
+        // 7、上报cookie信息
         const params = {
-          platformMallId,
-          webLoginInfo
+          'mallId': mallId,
+          'webLoginInfo': JSON.stringify(res.data.Cookie)
         }
-        const res2 = await uploadMallCookie(params)
+        const res5 = await uploadMallCookie(params) // 上报店铺信息cookie (服务端)
         debugger
-        if (res2.code !== 200) {
-          console.log('店铺上传失败', res.data)
+        if (res5.code !== 200) {
+          // console.log('店铺上传失败', res.data)
+          this.writeLog(`(${i + 1}/${len})账号【${platform_mall_name}】授权失败：上报店铺信息cookie失败`, true)
           continue
         }
-        await this.$appConfig.updateInfoMall(`${platformMallId}`, webLoginInfo)
-        // const res5 = await this.$appConfig.getGlobalCacheInfo('mallInfo', mallId)
-        flat === 1 ? item.LoginInfo = '<p style="color: green">登录成功</p>' : this.writeLog(`(${i + 1}/${len})店铺【${platformMallName}】授权成功`, true)
+        flat === 1 ? item.LoginInfo = '<p style="color: green">登录成功</p>' : this.writeLog(`(${i + 1}/${len})账号【${platform_mall_name}】授权成功`, true)
       }
       this.buttonStatus.login = false
     },
     // 获取店铺上新商品额度
     async  getMallGoodsAmount(mallInfo) {
       try {
+        const { country, platform_mall_id } = mallInfo
         const params = {
-          version: '3.1.0'
+          'platform_mall_id': platform_mall_id, // 导入店铺初始没有mallId
+          'version': '3.1.0'
         }
         // cnsc_shop_id  店铺类型为 2 or 3时，需要此参数
-        const { country } = mallInfo
-        const res = await this.$shopeemanService.postChinese(country, '/api/v3/product/get_product_statistical_data', params, { headers: { referer: '/portal/product/list/all' }})
-        debugger
-        if (res.data.code === 200) {
-          return { code: 200, data: '上报成功' }
+        let res = await this.$shopeemanService.getChinese(country, '/api/v3/product/get_product_statistical_data/?', params, { headers: { referer: '/portal/product/list/all' }})
+        res = JSON.parse(JSON.parse(res).data)
+        if (res.status === 200) {
+          return { code: 200, data: res.data.count_for_limit }
         }
-        return { code: res.data.code, data: `${res.data.code} ${res.data.message}` }
+        return { code: res.status, data: `${res.status} ${res.data.message}` }
       } catch (error) {
         return { code: -2, data: `getMallList-catch: ${error}` }
       }
@@ -677,15 +693,51 @@ export default {
           this.writeLog(`(${i + 1}/${len})未找到[${item['站点(马来站，台湾站，泰国站，印尼站，菲律宾站，新加坡站，越南站)(必填)']}],站点填写有误`, false)
           continue
         }
-        const obj = {
-          'accountName': item['账号(必填)(如果为手机号，请不要加国家区号)'],
-          'mall_account_info': { username: item['账号(必填)(如果为手机号，请不要加国家区号)'], password: item['密码(必填)'] },
-          'mallGroup': item['分组(选填)'] || '',
-          'platformMallName': item['店铺真实名称(必填)'],
-          'mallAliasName': item['店铺别名(选填)'] || '',
-          'mallMainName': item['店铺主体名称(需申IP隔离必填)'],
+        // const obj = {
+        //   'accountName': item['账号(必填)(如果为手机号，请不要加国家区号)'] + '',
+        //   'mall_account_info': { username: item['账号(必填)(如果为手机号，请不要加国家区号)'] + '', password: item['密码(必填)'] },
+        //   'mallGroup': item['分组(选填)'] || '',
+        //   'platformMallName': item['店铺真实名称(必填)'],
+        //   'mallAliasName': ,
+        //   'mallMainName': item['店铺主体名称(需申IP隔离必填)'] || '',
+        //   'country': country[0].value,
+        //   'SPC_EC': '',
+        //   'SPC_SC_TK': ''
+        // }
+        const password = item['密码(必填)']
+        const username = `${item['账号(必填)(如果为手机号，请不要加国家区号)']}`
+        const mall_alias_name = item['店铺别名(选填)'] || ''
+        const GroupName = item['分组(选填)'] || ''
+        const MallMainName = item['店铺主体名称(需申IP隔离必填)'] || ''
+        const platformMallRealName = item['店铺真实名称(必填)']
+        const obj = { // 数据结构与 店铺列表一致
+          'id': 0,
+          'group_name': GroupName,
           'country': country[0].value,
-          'malltype': 1,
+          'platform_mall_name': username,
+          'platform_mall_id': '',
+          'platform_mall_uid': '',
+          'MallMainName': MallMainName,
+          'mall_account_info': { // 店铺账户信息(导入模板里面的信息)
+            'password': password,
+            'username': username,
+            'userRealName': platformMallRealName,
+            'subsiteindex': 0
+          },
+          'item_limit': 500,
+          'mall_group_uid': 0,
+          'mall_group_id': 0,
+          'watermark': '',
+          'created_at': '',
+          'mall_alias_name': mall_alias_name,
+          'mall_status': 1,
+          'good_mall_status': '-1',
+          'web_login_info': '',
+          'mall_remark': '',
+          'mall_type': '',
+
+          // 渲染导入列表用的字段
+          'userRealName': platformMallRealName,
           'SPC_EC': '',
           'SPC_SC_TK': ''
         }
