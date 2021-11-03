@@ -64,4 +64,7 @@ export default class BaseUtilService {
   getPddAddressModel(val) {
     return this.nativeService.getPddAddressModel(val)
   }
+  getAddressIP() { // 获取本地外网IP
+    return this.nativeService.getAddressIP()
+  }
 }

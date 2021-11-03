@@ -106,7 +106,8 @@ export default {
   updateWatermark: (data) => AppRequest.post('/bindMall/updateWatermark', data), // 修改店铺水印
   updateUserPassword: (data) => AppRequest.post('/bindMall/uploadUserPassword', data), // 修改账户登录密码
   uploadMallCookie: (data) => AppRequest.post('/bindMall/uploadWebLoginInfo', data), // 上报店铺cookie
-  deleteBindMall: (data) => AppRequest.post('/bindMall/deleteMall', data), // 上报店铺cookie
+  deleteBindMall: (data) => AppRequest.post('/bindMall/deleteMall', data), // 删除店铺信息
+  saveMallAuthInfo: (data) => AppRequest.post('/bindMall/saveMallAuthInfo', data), // 上报店铺信息
 
   // 店铺分组
   getMallGroup: (data) => AppRequest.get('/mallGroup/index', { params: data }), // 获取店铺分组列表
