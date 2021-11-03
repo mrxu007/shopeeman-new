@@ -444,6 +444,7 @@ export default {
           'mallDatas': '',
           'sysMallId': item.id
         }
+        debugger
         if (res3[0].code === 200 && res3[1].code === 200) {
           params['violationScore'] = res3[0].data.totalPoints
           params['orderServiceIndicators'] = res3[1].data
