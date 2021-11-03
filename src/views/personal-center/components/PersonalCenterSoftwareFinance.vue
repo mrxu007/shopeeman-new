@@ -185,7 +185,7 @@
       <div class="pagination">
         <el-pagination
           background
-          :page-sizes="[20, 30,50, 100]"
+          :page-sizes="[20, 30, 50, 100]"
           :page-size="pageSize"
           layout="total, sizes, prev, pager, next, jumper"
           :total="total"
@@ -347,7 +347,6 @@ export default {
       this.form.moneyFlow.push(item.id)
     })
     this.form.creationTime = creatDate(31)
-    // 查询交易类型
     // 查询交易类型
     this.getTransType()
     // 查询用户账号余额
@@ -626,9 +625,9 @@ export default {
   white-space: nowrap;
   overflow: hidden;
   .warning-style {
-      color: red;
-      font-size: 16px;
-    }
+    color: red;
+    font-size: 16px;
+  }
   .bottonGroup {
     margin: 0 10px;
   }
@@ -639,12 +638,12 @@ export default {
   & > div {
     margin: 10px 0;
   }
-  /deep/.el-row{
+  /deep/.el-row {
     min-width: 920px !important;
-    /deep/.el-col{
-    width: 300px !important;
-    // padding: 0px !important;
-  }
+    /deep/.el-col {
+      width: 300px !important;
+      // padding: 0px !important;
+    }
   }
   .rowOne {
     display: flex;
@@ -653,7 +652,7 @@ export default {
     white-space: nowrap;
     overflow: hidden;
     //创建时间和交易时间
-    .creationTime{
+    .creationTime {
       /deep/.el-date-editor {
         width: 198px;
       }
@@ -702,7 +701,7 @@ export default {
       }
     }
     //资金流向
-    .moneyFlow{
+    .moneyFlow {
       margin: 0 10px;
     }
   }
@@ -713,14 +712,14 @@ export default {
     white-space: nowrap;
     overflow: hidden;
     // 订单编号和星卓越大包号
-    .orderNumber{
+    .orderNumber {
       .el-input {
         width: 197px;
       }
     }
     //卓越大包号
     .bigBagNumber {
-       margin: 0 10px;
+      margin: 0 10px;
       .el-input {
         width: 158px;
       }
@@ -801,7 +800,7 @@ export default {
       cursor: pointer;
     }
     .activeColor {
-      background: #FFDEAD;
+      background: #ffdead;
     }
   }
   .account-input {

@@ -112,12 +112,7 @@
 </template>
 <script>
 import storeChoose from '../../../components/store-choose'
-<<<<<<< HEAD
-import { exportExcelDataCommon } from '../../../util/util'
-import ShopeeConfig from '@/services/shopeeman-config'
-=======
-import { exportExcelDataCommon, creatDate} from '../../../util/util'
->>>>>>> 52b03bc16e57377ceaf539d876f28ba288c0f4e6
+import { exportExcelDataCommon, creatDate } from '../../../util/util'
 export default {
   components: { storeChoose },
   data() {
@@ -175,7 +170,7 @@ export default {
     }
   },
   mounted() {
-     // 初始化时间
+    // 初始化时间
     this.cloumn_date = creatDate(31)
     this.getTableList() // 初始化table
     this.exchangeRateList() // 获取汇率
@@ -404,36 +399,6 @@ export default {
         this.export_table(page + 1)
       }
     },
-<<<<<<< HEAD
-    // 店铺分组-全选赋值
-    selectall_gruop() {
-      if (this.mallGroupId.length < this.mallList_gruop.length) {
-        this.mallGroupId = []
-        this.mallList_gruop.map((item) => {
-          this.mallGroupId.push(item.id)
-        })
-      } else {
-        this.mallGroupId = []
-      }
-    },
-    // 获取站点店铺信息
-    async getMallSite() {
-      const params = {
-        country: this.site_query.country,
-        mallGroupId: this.mallGroupId && this.mallGroupId.toString()
-      }
-      // 获取店铺分组
-      const data = await this.$api.getMallSite(params)
-      if (data.data.code === 200) {
-        this.mallList_gruop = data.data.data
-        this.mallList_mall = data.data.data
-        // console.log('-------', data.data.data)
-      } else {
-        console.log('error', data)
-      }
-    },
-=======
->>>>>>> 52b03bc16e57377ceaf539d876f28ba288c0f4e6
     // 搜索
     search() {
       const params = this.query
@@ -470,20 +435,6 @@ export default {
       }
       console.log(data.data.data)
     },
-<<<<<<< HEAD
-    // 初始化时间
-    initDate() {
-      const end = new Date().getTime()
-      const start = end - 31 * 24 * 60 * 60 * 1000
-      this.cloumn_date = [this.$dayjs(start).format('YYYY-MM-DD'), this.$dayjs(end).format('YYYY-MM-DD')]
-      // const d = new Date()
-      // const d1 = d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate()
-      // const d2 = d.getFullYear() + '-' + d.getMonth() + '-' + d.getDate()
-      // this.cloumn_date = [d2, d1]
-      // this.cloumn_date && this.cloumn_date.length > 0 ? this.cloumn_date.join('/').toString() : ''
-    },
-=======
->>>>>>> 52b03bc16e57377ceaf539d876f28ba288c0f4e6
     handleSizeChange(val) {
       this.query.pageSize = val
       this.search()
