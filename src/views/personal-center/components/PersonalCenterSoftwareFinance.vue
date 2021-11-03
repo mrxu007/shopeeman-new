@@ -225,7 +225,7 @@
 </template>
 
 <script>
-import { exportExcelDataCommon } from '../../../util/util'
+import { exportExcelDataCommon,creatDate } from '../../../util/util'
 export default {
   data() {
     return {
@@ -298,9 +298,7 @@ export default {
     }
   },
   mounted() {
-    let end = new Date().getTime()
-    let start = end - 31 * 24 * 60 * 60 * 1000
-    this.form.creationTime = [this.$dayjs(start).format('YYYY-MM-DD'), this.$dayjs(end).format('YYYY-MM-DD')]
+    this.form.creationTime = creatDate(31)
     //查询交易类型
     this.getTransType()
     //查询用户账号余额

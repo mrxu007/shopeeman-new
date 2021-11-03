@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-10-21 09:38:11
- * @LastEditTime: 2021-11-02 14:25:27
+ * @LastEditTime: 2021-11-03 16:55:16
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shopeeman-new\src\views\product-put-on\components\ProductPutOnCategoryblack.vue
@@ -257,6 +257,10 @@ export default {
     .tool-item {
       display: flex;
       align-items: center;
+      span{
+        display: inline-block;
+        width: 80px;
+      }
     }
   }
 }
