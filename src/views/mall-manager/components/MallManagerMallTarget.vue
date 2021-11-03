@@ -16,10 +16,16 @@
             </li>
             <li>
               <span>店铺ID：</span>
-              <el-input v-model="form.mallId" class="shopId" size="mini" clearable />
+              <el-input v-model="form.mallId" class="shopId" size="mini" clearable oninput="value=value.replace(/\s+/g,'')" />
             </li>
             <li>
-              <el-button type="primary" size="mini" @click="getMallStatistics()">查询</el-button>
+              <el-button
+                type="primary"
+                size="mini"
+                @click="
+                  page = 1
+                  getMallStatistics()"
+              >查询</el-button>
               <el-button type="primary" size="mini" @click="handlerSelectTableOperating('syncMallData')">同步店铺指标数据</el-button>
               <el-button type="primary" size="mini" @click="exportSearch()">导出数据</el-button>
             </li>
@@ -422,14 +428,17 @@ export default {
   methods: {
     // 同步店铺指标数据
     async syncMallData(data) {
+      if (!data) {
+        return this.$message('暂无同步数据')
+      }
       this.isShowProgress = true
       this.percentage = 0
       const len = data.length
       for (let index = 0; index < len; index++) {
         const item = data[index]
         this.$set(item, 'status', '开始同步')
-        const res1 = this.mallTargetApiInstance.theQuarterPoint(item, '/api/v2/shops/sellerCenter/ongoingPoints')
-        const res2 = this.mallTargetApiInstance.getShopPerformance(item, '/api/v2/shops/sellerCenter/shopPerformance')
+        const res1 = await this.mallTargetApiInstance.theQuarterPoint(item, '/api/v2/shops/sellerCenter/ongoingPoints')
+        const res2 = await this.mallTargetApiInstance.getShopPerformance(item, '/api/v2/shops/sellerCenter/shopPerformance')
         const res3 = await Promise.all([res1, res2])
         const params = {
           'mallDatas': '',
@@ -439,6 +448,7 @@ export default {
           params['violationScore'] = res3[0].data.totalPoints
           params['orderServiceIndicators'] = res3[1].data
           const res4 = await this.$api.mallStatisticsSave(params)
+          console.log('res4', res4)
           if (res4.data.code === 200) {
             this.$set(item, 'status', '同步成功')
           } else {
@@ -448,6 +458,9 @@ export default {
         } else {
           this.$set(item, 'status', `同步失败`)
         }
+        console.log('res1', res1)
+        console.log('res2', res2)
+        console.log('res3', res3)
         this.percentage = parseInt((index + 1) / len * 100)
       }
     },
@@ -456,7 +469,7 @@ export default {
       this.isLoading = true
       const parmas = {
         country: this.form.site,
-        mallId: this.form.mallId.trim(),
+        mallId: this.form.mallId,
         groupId: this.form.groupId,
         page: this.page,
         pageSize: this.pageSize
@@ -494,7 +507,7 @@ export default {
       for (let index = 1; index <= len; index++) {
         const parmas = {
           country: this.form.site,
-          mallId: this.form.mallId.trim(),
+          mallId: this.form.mallId,
           groupId: this.form.groupId,
           page: index
         }

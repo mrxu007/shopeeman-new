@@ -54,6 +54,7 @@
             v-model="form.orderNum"
             clearable
             size="mini"
+            oninput="value=value.replace(/\s+/g,'')"
           />
         </li>
         <li>
@@ -62,6 +63,7 @@
             v-model="form.logisticsNum"
             clearable
             size="mini"
+            oninput="value=value.replace(/\s+/g,'')"
           />
         </li>
         <li>
@@ -70,6 +72,7 @@
             v-model="form.returnLogisticsNum"
             clearable
             size="mini"
+            oninput="value=value.replace(/\s+/g,'')"
           />
         </li>
         <li>
@@ -78,6 +81,7 @@
             v-model="form.returnPhone"
             clearable
             size="mini"
+            oninput="value=value.replace(/\s+/g,'')"
           />
         </li>
         <li>
@@ -85,7 +89,9 @@
             type="primary"
             :disabled="cancelLoading"
             size="mini"
-            @click="getReturnManage"
+            @click="
+              page=1
+              getReturnManage()"
           >查询</el-button>
           <el-button
             type="primary"
@@ -333,11 +339,11 @@ export default {
         ? `${this.$dayjs(this.form.applyReturnTime[0]).format('YYYY-MM-DD HH:mm:ss')}/${this.$dayjs(this.form.applyReturnTime[1]).format('YYYY-MM-DD HH:mm:ss')}`
         : ''
       const parmas = {
-        packageCode: this.form.logisticsNum.trim(),
-        orderSn: this.form.orderNum.trim(),
+        packageCode: this.form.logisticsNum,
+        orderSn: this.form.orderNum,
         status: Number(this.form.returnStatus),
-        returnShippingNumber: this.form.returnLogisticsNum.trim(),
-        returnPhoneNumber: this.form.returnPhone.trim(),
+        returnShippingNumber: this.form.returnLogisticsNum,
+        returnPhoneNumber: this.form.returnPhone,
         returnTime: returnTime,
         appliReturnTime: applyReturnTime,
         page: this.page,

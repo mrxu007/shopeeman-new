@@ -83,13 +83,16 @@
             v-model="form.orderSn"
             clearable
             size="mini"
+            oninput="value=value.replace(/\s+/g,'')"
           />
         </li>
         <li>
           <el-button
             type="primary"
             size="mini"
-            @click="getAbnormalPayment"
+            @click="
+              page = 1
+              getAbnormalPayment()"
           >查询</el-button>
         </li>
       </ul>
@@ -312,6 +315,8 @@ export default {
       this.isShowLoading = true
       const parmas = JSON.parse(JSON.stringify(this.form))
       parmas.createAt = parmas.createAt ? `${this.$dayjs(parmas.createAt[0]).format('YYYY-MM-DD HH:mm:ss')}/${this.$dayjs(parmas.createAt[1]).format('YYYY-MM-DD HH:mm:ss')}` : ''
+      parmas.page = this.page
+      parmas.pageSize = this.pageSize
       try {
         const { data } = await this.$api.getAbnormalPayment(parmas)
         if (data.code === 200) {

@@ -3,17 +3,22 @@
     <div class="operation">
       <div class="o-item">
         <span class="o-item-span">信任IP：</span>
-        <el-input v-model="ipVal" style="width: 130px" placeholder="请输入内容" clearable size="mini" />
+        <el-input v-model="ipVal" style="width: 130px" placeholder="请输入内容" clearable size="mini" oninput="value=value.replace(/\s+/g,'')" />
       </div>
       <div class="o-item">
-        <el-button type="primary" size="mini" @click="getIPTrustList">搜索</el-button>
+        <el-button
+          type="primary"
+          size="mini"
+          @click="
+            getIPTrustList"
+        >搜索</el-button>
         <el-button type="primary" size="mini" @click="isShowDialog = true">添加信任IP</el-button>
         <el-button type="primary" size="mini" @click="isShowPhoneNum = true">配置接收短信的手机号</el-button>
       </div>
       <div class="o-item-alone">
         <span class="o-item-span">登录是否检测：</span>
         <el-radio v-model="isOpenIpCheck" label="0">关闭检测</el-radio>
-        <el-radio v-model="isOpenIpCheck" label="1">当信任IP数大于 <el-input v-model="trustIpCount" size="mini" />时打开检测 </el-radio>
+        <el-radio v-model="isOpenIpCheck" label="1">当信任IP数大于 <el-input v-model="trustIpCount" size="mini" oninput="value=value.replace(/\s+/g,'')" />时打开检测 </el-radio>
       </div>
       <div class="o-item">
         <el-button type="primary" size="mini" @click="saveConfigure">保存配置</el-button>
@@ -72,10 +77,10 @@
         <div class="form-content">
           <el-form label-position="right" label-width="80px">
             <el-form-item label="当前IP:">
-              <el-input v-model="currentIp" size="mini" placeholder="请输入IP" clearable />
+              <el-input v-model="currentIp" size="mini" placeholder="请输入IP" clearable oninput="value=value.replace(/\s+/g,'')" />
             </el-form-item>
             <el-form-item label="备注:">
-              <el-input v-model="remark" type="textarea" :rows="2" placeholder="请输入内容" />
+              <el-input v-model="remark" type="textarea" :rows="2" placeholder="请输入内容" oninput="value=value.replace(/\s+/g,'')" />
             </el-form-item>
           </el-form>
           <div style="text-align: center">
@@ -89,7 +94,7 @@
         <div style="display: flex; margin-bottom: 10px">
           <div class="o-item">
             <span class="o-item-span">手机号码：</span>
-            <el-input v-model="phoneNum" placeholder="请输入手机号" clearable size="mini" />
+            <el-input v-model="phoneNum" placeholder="请输入手机号" clearable size="mini" oninput="value=value.replace(/\s+/g,'')" />
           </div>
           <div class="o-item">
             <el-button type="primary" size="mini" @click="updatePhoneNum(1, phoneNum)">添加手机号</el-button>
@@ -158,7 +163,7 @@ export default {
     async getIPTrustList() {
       this.isloading = true
       const params = {
-        ip: this.ipVal.trim()
+        ip: this.ipVal
       }
       const { data } = await this.$api.getIPTrustList(params)
       console.log('tableData', data)
@@ -175,17 +180,20 @@ export default {
     async getUserInfo() {
       try {
         const data = await this.$appConfig.getUserInfo()
+        const trustIpCount = localStorage.getItem('trustIpCount')
+        const isOpenIpCheck = localStorage.getItem('isOpenIpCheck')
+        const phoneTableData = localStorage.getItem('phoneTableData')
+        this.isOpenIpCheck = isOpenIpCheck ? isOpenIpCheck + '' : data.is_open_ip_check + ''
+        this.trustIpCount = trustIpCount || data.trust_ip_count
+        this.phoneTableData = phoneTableData ? phoneTableData.split(',') : data.phone_list
         console.log('login', data)
-        this.isOpenIpCheck = data.is_open_ip_check + ''
-        this.trustIpCount = data.trust_ip_count
-        this.phoneTableData = data.phone_list
       } catch (error) {
         console.log(error)
       }
     },
     // 保存配置
     async saveConfigure() {
-      if (!this.trustIpCount.trim()) {
+      if (!this.trustIpCount) {
         this.$message(`信任IP数不能为空`)
         return
       }
@@ -195,11 +203,13 @@ export default {
       }
       const params = {
         isOpenIpCheck: this.isOpenIpCheck, // 是否开启信任IP管理：1是;0不是
-        trustIpCount: this.trustIpCount.trim()
+        trustIpCount: this.trustIpCount
       }
       const { data } = await this.$api.setIpCheck(params)
       if (data.code === 200) {
         this.$message.success(`保存成功`)
+        localStorage.setItem('isOpenIpCheck', this.isOpenIpCheck)
+        localStorage.setItem('trustIpCount', this.trustIpCount)
       } else {
         this.$message.error(`保存失败${data.message}`)
       }
@@ -224,14 +234,14 @@ export default {
     },
     // 更新信任IP
     async editTruestIp() {
-      if (!this.currentIp.trim()) {
+      if (!this.currentIp) {
         this.$message(`请输入IP地址`)
         return
       }
       const params = {
         id: this.ipId, // 自增ID，不传则为新增,传值则为更新
-        ip: this.currentIp.trim(),
-        remark: this.remark.trim()
+        ip: this.currentIp,
+        remark: this.remark
       }
       const { data } = await this.$api.updateTrustedIP(params)
       if (data.code === 200) {
@@ -289,7 +299,16 @@ export default {
       if (data.code === 200) {
         if (params.action === 1) {
           this.phoneTableData.push(params.phone)
+          localStorage.setItem('phoneTableData', this.phoneTableData)
         } else {
+          const phoneTableData = localStorage.getItem('phoneTableData')
+          if (phoneTableData) {
+            let localPhoneTableData = phoneTableData.split(',')
+            localPhoneTableData = localPhoneTableData.filter(item => {
+              return item !== params.phone
+            })
+            localStorage.setItem('phoneTableData', localPhoneTableData)
+          }
           this.phoneTableData = this.phoneTableData.filter(item => {
             return item !== params.phone
           })

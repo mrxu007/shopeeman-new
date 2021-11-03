@@ -54,6 +54,7 @@
             v-model="form.orderNum"
             clearable
             size="mini"
+            oninput="value=value.replace(/\s+/g,'')"
           />
         </li>
         <li>
@@ -62,6 +63,7 @@
             v-model="form.logisticsNum"
             clearable
             size="mini"
+            oninput="value=value.replace(/\s+/g,'')"
           />
         </li>
         <li>
@@ -69,7 +71,9 @@
             type="primary"
             size="mini"
             :disabled="cancelLoading"
-            @click="getSignPackageList"
+            @click="
+              page =1
+              getSignPackageList()"
           >查询</el-button>
           <el-button
             type="primary"
@@ -272,7 +276,6 @@
         />
       </div>
     </el-row>
-    <!-- 退件信息查看弹窗 -->
     <el-dialog
       class="dialog"
       title="填写退件信息"
@@ -287,13 +290,19 @@
         <el-form-item label="收件人">
           <el-input
             v-model="returnMsg.returnContact"
+            clearable
+            placeholder="请填写收件人"
             size="mini"
+            oninput="value=value.replace(/\s+/g,'')"
           />
         </el-form-item>
         <el-form-item label="联系电话">
           <el-input
             v-model="returnMsg.returnPhoneNumber"
+            clearable
+            placeholder="请填写联系电话"
             size="mini"
+            oninput="value=value.replace(/\s+/g,'')"
           />
         </el-form-item>
         <el-form-item label="退件地区">
@@ -301,7 +310,6 @@
             ref="refTbCate"
             v-model="applyRegion"
             :props="props"
-            clearable
             size="mini"
             @change="targetCate"
           />
@@ -310,7 +318,9 @@
           <el-input
             v-model="returnMsg.returnAddress"
             type="textarea"
+            placeholder="请填写详细地址"
             size="mini"
+            oninput="value=value.replace(/\s+/g,'')"
           />
         </el-form-item>
         <div v-if="isOverseas">
@@ -344,6 +354,8 @@
             v-model="returnMsg.returnRemarks"
             type="textarea"
             size="mini"
+            placeholder="请填写退件备注"
+            oninput="value=value.replace(/\s+/g,'')"
           />
         </el-form-item>
       </el-form>
@@ -656,8 +668,8 @@ export default {
         ? `${this.$dayjs(this.form.applyReturnTime[0]).format('YYYY-MM-DD HH:mm:ss')}/${this.$dayjs(this.form.applyReturnTime[1]).format('YYYY-MM-DD HH:mm:ss')}`
         : ''
       const parmas = {
-        packageCode: this.form.logisticsNum.trim(),
-        mainOrderSn: this.form.orderNum.trim(),
+        packageCode: this.form.logisticsNum,
+        mainOrderSn: this.form.orderNum,
         status: Number(this.form.packageStatus),
         packageTime: signingTime,
         appliReturnTime: applyReturnTime,

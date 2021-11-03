@@ -7,6 +7,7 @@
           v-model="packageCode"
           size="mini"
           clearable
+          oninput="value=value.replace(/\s+/g,'')"
         />
         <el-button
           type="primary"
@@ -93,6 +94,7 @@
           v-model="orderSn"
           size="mini"
           clearable
+          oninput="value=value.replace(/\s+/g,'')"
         />
         <el-button
           type="primary"

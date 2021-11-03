@@ -24,7 +24,7 @@
               <el-select v-model="form.shopSelect" class="unnormal" placeholder="" size="mini" filterable>
                 <el-option v-for="(item, index) in shopSelectList" :key="index" :label="item.label" :value="item.value" />
               </el-select>
-              <el-input v-model="form.shopSelectVal" class="unnormal2" placeholder="" size="mini" clearable />
+              <el-input v-model="form.shopSelectVal" class="unnormal2" placeholder="" size="mini" clearable oninput="value=value.replace(/\s+/g,'')" />
             </li>
             <li>
               <span>客服数据统计时间(仅用于同步数据)：</span>
@@ -33,7 +33,13 @@
               </el-select>
             </li>
             <li>
-              <el-button type="primary" size="mini" @click="getMallStatistics()">查询</el-button>
+              <el-button
+                type="primary"
+                size="mini"
+                @click="
+                  page =1
+                  getMallStatistics()"
+              >查询</el-button>
               <el-button type="primary" size="mini" @click="exportSearch()">导出数据</el-button>
               <el-button type="primary" size="mini" @click="handlerSelectTableOperating('syncMallData')">同步店铺数据</el-button>
             </li>
@@ -250,8 +256,11 @@ export default {
   methods: {
     // 同步店铺数据
     async syncMallData(data) {
-      const url = this.shopeeConfig.getSiteDomainCrossBk('VN')
-      console.log(url)
+      if (!data) {
+        return this.$message('暂无同步数据')
+      }
+      // const url = this.shopeeConfig.getSiteDomainCrossBk('VN')
+      // console.log(url)
       this.isShowProgress = true
       this.percentage = 0
       const { startTime, endTime } = this.getTimeStamp(this.form.serviceDataTime)
@@ -263,9 +272,11 @@ export default {
       }
       console.log(parmas)
       for (let index = 0; index < data.length; index++) {
-        this.$set(data[index], 'status', '开始同步')
+        const item = data[index]
+        this.$set(item, 'status', '开始同步')
+
         this.percentage = parseInt((index + 1) / data.length * 100)
-        this.$set(data[index], 'status', '同步完成')
+        this.$set(item, 'status', '同步完成')
       }
     },
     // 获取数据
@@ -276,7 +287,7 @@ export default {
       this.weekAmount = 0
       this.frozenAmount = 0
       this.frozenAmountOrders = 0
-      const shopSelectVal = this.form.shopSelectVal.trim()
+      const shopSelectVal = this.form.shopSelectVal
       const parmas = {
         country: this.form.site,
         groupId: this.form.groupId,
@@ -287,6 +298,7 @@ export default {
         pageSize: this.pageSize
       }
       const { data } = await this.$api.getMallStatistics(parmas)
+      console.log(data)
       if (data.code === 200) {
         const resData = data.data
         this.total = resData.total
@@ -366,7 +378,7 @@ export default {
       this.isLoading = true
       const exportData = []
       const len = this.total % 700 === 0 ? (this.total / 700) : (Math.floor(this.total / 700) + 1)
-      const shopSelectVal = this.form.shopSelectVal.trim()
+      const shopSelectVal = this.form.shopSelectVal
       for (let index = 1; index <= len; index++) {
         const parmas = {
           country: this.form.site,

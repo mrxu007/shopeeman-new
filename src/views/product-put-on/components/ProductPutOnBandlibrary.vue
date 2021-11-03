@@ -22,13 +22,14 @@
       </div>
       <div class="o-item">
         <span style="min-width:57px">关键词：</span>
-        <el-input v-model="form.keyWord" size="mini" placeholder="请输入关键词" clearable />
+        <el-input v-model="form.keyWord" size="mini" placeholder="请输入关键词" clearable oninput="value=value.replace(/\s+/g,'')" />
       </div>
       <div class="o-item">
         <el-button
           type="primary"
           size="mini"
           @click="
+            page = 1
             getBannedWordList()"
         >查询</el-button>
         <el-button type="primary" size="mini" @click="dialogVisible= true">添加</el-button>
@@ -98,7 +99,7 @@
               </el-select>
             </el-form-item>
             <el-form-item label="关键词:">
-              <el-input v-model="dialogkeyWord" size="mini" placeholder="请输入关键词" clearable />
+              <el-input v-model="dialogkeyWord" size="mini" placeholder="请输入关键词" clearable oninput="value=value.replace(/\s+/g,'')" />
             </el-form-item>
             <el-form-item>
               <el-button style="margin-right:20px" size="mini" type="primary" @click="addBannedWord()">确 定</el-button>
@@ -200,7 +201,7 @@ export default {
       for (let index = 1; index <= len; index++) {
         const parmas = {
           page: index,
-          word: this.form.keyWord.trim(),
+          word: this.form.keyWord,
           country: this.form.site,
           source: Number(this.form.source),
           type: Number(this.form.type)
@@ -352,9 +353,9 @@ export default {
     },
     // 添加禁售词
     async addBannedWord() {
-      if (!this.dialogkeyWord.trim()) return this.$message('请填写禁售词')
+      if (!this.dialogkeyWord) return this.$message('请填写禁售词')
       const parmas = {
-        word: this.dialogkeyWord.trim(),
+        word: this.dialogkeyWord,
         country: this.dialogSite,
         type: this.dialogType
       }
@@ -380,7 +381,7 @@ export default {
       const parmas = {
         page: this.page,
         perpage: this.pageSize,
-        word: this.form.keyWord.trim(),
+        word: this.form.keyWord,
         country: this.form.site,
         source: Number(this.form.source),
         type: Number(this.form.type)
