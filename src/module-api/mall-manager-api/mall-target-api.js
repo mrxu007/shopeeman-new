@@ -10,7 +10,6 @@ class MallTargetApi {
       const params = { 'mallId': platform_mall_id }
       let res = await this._this.$shopeemanService.getChinese(country, api, params)
       res = JSON.parse(res)
-      debugger
       if (res.status === 200) {
         return { code: 200, data: { totalPoints: JSON.parse(res.data)?.data?.totalPoints || 0 } }// 本季度计分
       }
@@ -24,7 +23,6 @@ class MallTargetApi {
       const { platform_mall_id, country, platform_mall_name } = mallInfo
       const params = { 'mallId': platform_mall_id }
       let res = await this._this.$shopeemanService.getChinese(country, api, params)
-      debugger
       res = JSON.parse(res)
       if (res.status === 200) {
         const { listingViolations, fulFillMent, customerService, customerSatisfaction } = JSON.parse(res.data).data
