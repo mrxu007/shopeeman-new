@@ -69,9 +69,9 @@ export default {
     },
     async getQrCode() {
       const userInfo = await this.$appConfig.getUserInfo()
-      const muid = userInfo.Muid
+      const muid = userInfo.muid
       const result = JSON.parse(JSON.parse(await this.$XzyNetMessageService.getA('/api/wechat/qrCode', { params: { app_id: muid }})).data)
-      if (result.code == 200) {
+      if (result.code === 200) {
         this.qrCodeImage1 = result.data.wechatCode
         this.qrCodeImage2 = result.data.qrCode
       } else {

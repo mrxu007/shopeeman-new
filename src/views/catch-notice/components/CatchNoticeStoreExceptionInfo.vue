@@ -90,12 +90,13 @@
           <el-input v-model="form.orderSn" size="mini" />
         </div>
         <div class="searchRowThreeBottonGroup">
-          <el-button type="primary" size="mini" @click="searchHandle">搜索</el-button>
+          <el-button type="primary" size="mini" @click="getExceptionWarehouse">搜索</el-button>
           <el-button type="primary" size="mini" @click="orderBatchDealHandle">订单批量处理</el-button>
         </div>
       </div>
     </div>
     <el-table
+      v-loading="isLoading"
       :header-cell-style="{background:'#f5f7fa'}"
       :data="tableData"
       border
@@ -167,29 +168,29 @@
     </el-table>
 
     <!--订单处理dialog-->
-    <el-dialog title="选择处理方式" :visible.sync="orderDealDialogFormVisible" width="500px">
+    <el-dialog title="选择处理方式" :visible.sync="orderDealDialogFormVisible" width="400px">
       <el-form :model="orderDealDialogForm">
         <el-form-item label="处理方式:" label-width="80px">
-          <el-select v-model="orderDealDialogForm.wechatStatus" placeholder="请选择处理方式">
+          <el-select v-model="orderDealDialogForm.wechatStatus" size="mini" placeholder="请选择处理方式">
             <el-option v-for="item in wechatStatusDialogOption" :key="item.id" :label="item.label" :value="item.value" />
           </el-select>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="orderDealDialogHandle">确 定</el-button>
+        <el-button size="mini" type="primary" @click="orderDealDialogHandle">确 定</el-button>
       </div>
     </el-dialog>
     <!--批量订单处理dialog-->
-    <el-dialog title="选择处理方式" :visible.sync="orderBatchDealDialogFormVisible" width="500px">
+    <el-dialog title="选择处理方式" :visible.sync="orderBatchDealDialogFormVisible" width="400px">
       <el-form :model="orderBatchDealDialogForm">
         <el-form-item label="处理方式:" label-width="80px">
-          <el-select v-model="orderBatchDealDialogForm.wechatStatus" placeholder="请选择处理方式">
+          <el-select v-model="orderBatchDealDialogForm.wechatStatus" size="mini" placeholder="请选择处理方式">
             <el-option v-for="item in wechatStatusDialogOption" :key="item.id" :label="item.label" :value="item.value" />
           </el-select>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="orderBatchDealDialogHandle">确 定</el-button>
+        <el-button size="mini" type="primary" @click="orderBatchDealDialogHandle">确 定</el-button>
       </div>
     </el-dialog>
   </div>
@@ -201,11 +202,12 @@ export default {
     return {
       // dialog下拉选择状态
       wechatStatusDialogOption: [
+        // {
+        //   id: 0,
+        //   value: 0,
+        //   label: '暂未处理'
+        // },
         {
-          id: 0,
-          value: 0,
-          label: '暂未处理'
-        }, {
           id: 1,
           value: 1,
           label: '退件'
@@ -221,26 +223,27 @@ export default {
           id: 4,
           value: 4,
           label: '等候补发'
-        }, {
-          id: 5,
-          value: 5,
-          label: '订单匹配完成'
-        }, {
-          id: 6,
-          value: 6,
-          label: '处理完成'
-        }, {
-          id: 50,
-          value: 50,
-          label: '通知提示'
         }
+        // {
+        //   id: 5,
+        //   value: 5,
+        //   label: '订单匹配完成'
+        // }, {
+        //   id: 6,
+        //   value: 6,
+        //   label: '处理完成'
+        // }, {
+        //   id: 50,
+        //   value: 50,
+        //   label: '通知提示'
+        // }
       ],
       //   搜索条件
       form: {
         type: [], // 异常类型
         wechatStatus: [], // 处理方式：
         status: [], // 仓库处理状态
-        dateStat: '', // 创建时间
+        dateStat: [new Date().getTime() - 3600 * 1000 * 24 * 15, new Date()], // 创建时间
         packageCode: '', // 物流单号
         orderSn: ''// 订单号
       },
@@ -318,7 +321,7 @@ export default {
       }
       ],
       // 记录是否全选
-      exceptionTypeOptionsOneAll: false,
+      exceptionTypeOptionsOneAll: true,
       // 处理方式options
       exceptionTypeOptionsTwo: [{
         id: 0,
@@ -354,7 +357,7 @@ export default {
         label: '通知提示'
       }],
       // 记录是否全选
-      exceptionTypeOptionsTwoAll: false,
+      exceptionTypeOptionsTwoAll: true,
       // 仓库处理状态
       status: [
         {
@@ -372,17 +375,34 @@ export default {
         }
       ],
       // 记录是否全选
-      dealStatusAll: false,
+      dealStatusAll: true,
       // 表格数据
       tableData: [],
       // 表格选中的数据
-      tableCheck: []
+      tableCheck: [],
+      isLoading: false
     }
   },
   mounted() {
+    this.initSelect()
     this.getExceptionWarehouse()
   },
   methods: {
+    // 初始选择值
+    initSelect() {
+      this.form.type.push('all')
+      this.exceptionTypeOptionsOne.map(item => {
+        this.form.type.push(item.id)
+      })
+      this.form.wechatStatus.push('all')
+      this.exceptionTypeOptionsTwo.map(item => {
+        this.form.wechatStatus.push(item.id)
+      })
+      this.form.status.push('all')
+      this.status.map(item => {
+        this.form.status.push(item.id)
+      })
+    },
     // 当表格check改变时
     selectionChangeHandle(value) {
       this.tableCheck = value
@@ -424,35 +444,6 @@ export default {
           type: 'success'
         })
         this.getExceptionWarehouse()
-      } else {
-        this.$message.error(result.data.message)
-      }
-    },
-    // 搜索
-    async searchHandle() {
-      if (this.form.dateStat) {
-        const startTiem = this.formatSearch(this.form.dateStat[0])
-        const endTiem = this.formatSearch(this.form.dateStat[1])
-        this.form.dateStat = `${startTiem}/${endTiem}`
-      }
-      if (this.form.type || this.form.type.length > 0) {
-        this.form.type = (this.form.type.filter(item => {
-          return item !== 'all'
-        })).join(',')
-      }
-      if (this.form.wechatStatus || this.form.wechatStatus.length > 0) {
-        this.form.wechatStatus = (this.form.wechatStatus.filter(item => {
-          return item !== 'all'
-        })).join(',')
-      }
-      if (this.form.status || this.form.status.length > 0) {
-        this.form.status = (this.form.status.filter(item => {
-          return item !== 'all'
-        })).join(',')
-      }
-      const result = await this.$api.getExceptionWarehouse(this.form)
-      if (result.data.code === 200) {
-        this.tableData = result.data.data
       } else {
         this.$message.error(result.data.message)
       }
@@ -546,12 +537,30 @@ export default {
     },
     // 异常信息列表
     async getExceptionWarehouse() {
-      const result = await this.$api.getExceptionWarehouse()
+      this.isLoading = true
+      const parmas = {}
+      const startTiem = this.formatSearch(this.form.dateStat[0])
+      const endTiem = this.formatSearch(this.form.dateStat[1])
+      parmas.dateStat = `${startTiem}/${endTiem}`
+      parmas.type = (this.form.type.filter(item => {
+        return item !== 'all'
+      })).join(',')
+      parmas.wechatStatus = (this.form.wechatStatus.filter(item => {
+        return item !== 'all'
+      })).join(',')
+      parmas.status = (this.form.status.filter(item => {
+        return item !== 'all'
+      })).join(',')
+      parmas.packageCode = this.form.packageCode
+      parmas.orderSn = this.form.orderSn
+      const result = await this.$api.getExceptionWarehouse(parmas)
+      console.log(result)
       if (result.data.code === 200) {
         this.tableData = result.data.data
       } else {
         this.$message.error(result.data.message)
       }
+      this.isLoading = false
     },
     // 异常类型
     exceptionTypeOneChangeHandle(val) {
@@ -575,7 +584,7 @@ export default {
         } else {
           if (val.length === this.exceptionTypeOptionsOne.length) {
             this.form.type = ['all']
-            this.type.forEach(item => {
+            this.exceptionTypeOptionsOne.forEach(item => {
               this.form.type.push(item.value)
             })
             this.exceptionTypeOptionsOneAll = true
@@ -608,7 +617,7 @@ export default {
         } else {
           if (val.length === this.exceptionTypeOptionsTwo.length) {
             this.form.wechatStatus = ['all']
-            this.wechatStatus.forEach(item => {
+            this.exceptionTypeOptionsTwo.forEach(item => {
               this.form.wechatStatus.push(item.value)
             })
             this.exceptionTypeOptionsTwoAll = true
