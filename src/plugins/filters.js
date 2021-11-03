@@ -67,6 +67,32 @@ const countries_option = [
   { label: '智利站', value: 'CL' },
   { label: '波兰站', value: 'PL' }
 ]
+const countries_site = {
+  '马来站': 'MY',
+  '马来': 'MY',
+  '台湾站': 'TW',
+  '台湾': 'TW',
+  '新加坡站': 'SG',
+  '新加坡': 'SG',
+  '菲律宾站': 'PH',
+  '菲律宾': 'PH',
+  '泰国站': 'TH',
+  '泰国': 'TH',
+  '越南站': 'VN',
+  '越南': 'VN',
+  '印尼站': 'ID',
+  '印尼': 'ID',
+  '巴西站': 'BR',
+  '巴西': 'BR',
+  '墨西哥站': 'MX',
+  '墨西哥': 'MX',
+  '哥伦比亚站': 'CO',
+  '哥伦比亚': 'CO',
+  '智利站': 'CL',
+  '智利': 'CL',
+  '波兰站': 'PL',
+  '波兰': 'PL'
+}
 // 各站点货币符号
 const site_coin_symbol = {
   'MY': 'RM',
@@ -103,7 +129,4 @@ var siteCoin = function(val) {
   attribute = countries_id[attribute] || attribute
   return site_coin_symbol[attribute] || attribute
 }
-var getCountriesList = function() {
-  return countries_option
-}
-export { chineseSite, imageRender, siteCoin,getCountriesList }
+export { chineseSite, imageRender, siteCoin, countries_option, countries_site }

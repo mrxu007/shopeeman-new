@@ -269,20 +269,7 @@ export default {
       goodsID: '',
       countryVal: 'TH',
       searchTime: [],
-      countries: [
-        { label: '泰国站', value: 'TH' },
-        { label: '马来站', value: 'MY' },
-        { label: '台湾站', value: 'TW' },
-        { label: '新加坡站', value: 'SG' },
-        { label: '菲律宾站', value: 'PH' },
-        { label: '越南站', value: 'VN' },
-        { label: '印尼站', value: 'ID' },
-        { label: '巴西站', value: 'BR' },
-        { label: '墨西哥站', value: 'MX' },
-        { label: '哥伦比亚站', value: 'CO' },
-        { label: '智利站', value: 'CL' },
-        { label: '波兰站', value: 'PL' }
-      ],
+      countries:this.$filters.countries_option,
       pageSize: 20, // 页码
       currentPage: 1, // 页码
       total: 0, // 表格总数

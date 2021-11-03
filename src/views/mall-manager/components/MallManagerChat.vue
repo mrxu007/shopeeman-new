@@ -34,6 +34,7 @@
                      :border="false"
                      @selection-change="handleSelectionChange1"
                      @table-body-scroll="tableScroll">
+              <u-table-column align="left" type="selection" width="50"/>
               <u-table-column align="left" type="index" label="序列号" width="80">
                 <template slot-scope="scope">
                   {{ scope.$index + 1 }}
@@ -507,16 +508,19 @@
         }
       },
       allSetAutoReply(type, content, model) {
+        if (this.selectDataAutoReply.length === 0) {
+          this.$message.error('至少选择一条预设回复')
+          return
+        }
         if (this.autoReplyVisible) {
           this.autoReplyVisible = false
           model = this.autoReplyTitle === '批量设置自动回复内容'
         }
-        this.autoReplyLoad = this.tableDataAutoReply.length
-        this.tableDataAutoReply.forEach(item => {
+        this.autoReplyLoad = this.selectDataAutoReply.length
+        this.selectDataAutoReply.forEach(item => {
           model && this.setAutoReply(item, content, type)
           !model && this.setOfflineReply(item, content, type)
         })
-        console.log('完成')
       },
 
       async scFaqsTable() {

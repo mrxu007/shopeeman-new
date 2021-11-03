@@ -93,7 +93,7 @@
           <el-table-column align="center" type="index" label="序列号" width="80" />
           <el-table-column align="center" prop="country" label="站点">
             <template slot-scope="{ row }">
-              {{ countriesObj[row.country] }}
+              {{row.country | chineseSite }}
             </template>
           </el-table-column>
           <el-table-column align="center" prop="platform_mall_id" label="店铺ID" min-width="120" />
@@ -376,10 +376,8 @@
 
 <script>
 import mallGroup from '@/components/mall-group.vue'
-import ShopeeConfig from '@/services/shopeeman-config'
 import { exportExcelDataCommon } from '@/util/util'
 import { MallTargetApi } from '../../../module-api/mall-manager-api/mall-target-api'
-import { countriesObj, countries } from '../../../util/countries'
 export default {
   components: {
     mallGroup
@@ -394,9 +392,7 @@ export default {
       multipleSelection: [],
       percentage: 0, // 进度条数据
       isShowProgress: false,
-      countries: null,
-      countriesObj: null,
-      shopeeConfig: new ShopeeConfig(),
+      countries: this.$filters.countries_option,
       mallTargetApiInstance: new MallTargetApi(this),
       form: {
         site: 0, // 站点
@@ -421,8 +417,6 @@ export default {
     }
   },
   mounted() {
-    this.countries = countries
-    this.countriesObj = countriesObj
     this.getMallStatistics()
   },
   methods: {
@@ -444,7 +438,6 @@ export default {
           'mallDatas': '',
           'sysMallId': item.id
         }
-        debugger
         if (res3[0].code === 200 && res3[1].code === 200) {
           params['violationScore'] = res3[0].data.totalPoints
           params['orderServiceIndicators'] = res3[1].data
@@ -594,7 +587,7 @@ export default {
         </tr>`
       jsonData.forEach((item) => {
         str += `<tr>
-        <td>${item.country ? countriesObj[item.country] : '' + '\t'}</td>
+        <td>${item.country ? this.$filters.chineseSite(item.country) : '' + '\t'}</td>
         <td>${item.platform_mall_id ? item.platform_mall_id : '' + '\t'}</td>
         <td>${item.mall_alias_name ? item.mall_alias_name : item.platform_mall_name + '\t'}</td>
         <td>${item.order_service_indicators && item.order_service_indicators.SumPoints ? item.order_service_indicators.SumPoints : '' + '\t'}</td>

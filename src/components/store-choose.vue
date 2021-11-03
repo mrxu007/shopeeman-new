@@ -59,7 +59,7 @@ export default {
       groupIdList: [],
       site: [],
       siteList: [],
-      countries:this.$filters.getCountriesList()
+      countries:this.$filters.countries_option
     }
   },
   watch: {
