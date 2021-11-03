@@ -104,8 +104,7 @@
           </el-table-column>
           <el-table-column align="center" label="操作状态" min-width="100">
             <template slot-scope="{ row }">
-              <span :style="row.color &&('color:'+row.color)"></span>
-              {{ row.status }}
+              <span :style="row.color &&('color:'+row.color)">{{ row.status }}</span>
             </template>
           </el-table-column>
           <el-table-column align="center" label="本季度计分" min-width="100">
