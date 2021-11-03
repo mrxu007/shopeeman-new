@@ -2,6 +2,11 @@ export default class YipService {
   nativeService() {
     return window['CommodityBridgeService']
   }
+
+  // 获取价格
+  async getprice(lineId, is_renewal) {
+    return await this.nativeService().callCloudIpFunction('GetIPPrice', lineId, is_renewal)
+  }
   // 删除
   // targetId
   delInfor(targetId) {
