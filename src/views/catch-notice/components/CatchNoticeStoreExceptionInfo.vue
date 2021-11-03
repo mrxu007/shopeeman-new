@@ -167,29 +167,29 @@
     </el-table>
 
     <!--订单处理dialog-->
-    <el-dialog title="选择处理方式" :visible.sync="orderDealDialogFormVisible" width="500px">
+    <el-dialog title="选择处理方式" :visible.sync="orderDealDialogFormVisible" width="400px">
       <el-form :model="orderDealDialogForm">
         <el-form-item label="处理方式:" label-width="80px">
-          <el-select v-model="orderDealDialogForm.wechatStatus" placeholder="请选择处理方式">
+          <el-select v-model="orderDealDialogForm.wechatStatus" size="mini" placeholder="请选择处理方式">
             <el-option v-for="item in wechatStatusDialogOption" :key="item.id" :label="item.label" :value="item.value" />
           </el-select>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="orderDealDialogHandle">确 定</el-button>
+        <el-button size="mini" type="primary" @click="orderDealDialogHandle">确 定</el-button>
       </div>
     </el-dialog>
     <!--批量订单处理dialog-->
-    <el-dialog title="选择处理方式" :visible.sync="orderBatchDealDialogFormVisible" width="500px">
+    <el-dialog title="选择处理方式" :visible.sync="orderBatchDealDialogFormVisible" width="400px">
       <el-form :model="orderBatchDealDialogForm">
         <el-form-item label="处理方式:" label-width="80px">
-          <el-select v-model="orderBatchDealDialogForm.wechatStatus" placeholder="请选择处理方式">
+          <el-select v-model="orderBatchDealDialogForm.wechatStatus" size="mini" placeholder="请选择处理方式">
             <el-option v-for="item in wechatStatusDialogOption" :key="item.id" :label="item.label" :value="item.value" />
           </el-select>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="orderBatchDealDialogHandle">确 定</el-button>
+        <el-button size="mini" type="primary" @click="orderBatchDealDialogHandle">确 定</el-button>
       </div>
     </el-dialog>
   </div>
@@ -201,11 +201,12 @@ export default {
     return {
       // dialog下拉选择状态
       wechatStatusDialogOption: [
+        // {
+        //   id: 0,
+        //   value: 0,
+        //   label: '暂未处理'
+        // },
         {
-          id: 0,
-          value: 0,
-          label: '暂未处理'
-        }, {
           id: 1,
           value: 1,
           label: '退件'
@@ -221,19 +222,20 @@ export default {
           id: 4,
           value: 4,
           label: '等候补发'
-        }, {
-          id: 5,
-          value: 5,
-          label: '订单匹配完成'
-        }, {
-          id: 6,
-          value: 6,
-          label: '处理完成'
-        }, {
-          id: 50,
-          value: 50,
-          label: '通知提示'
         }
+        // {
+        //   id: 5,
+        //   value: 5,
+        //   label: '订单匹配完成'
+        // }, {
+        //   id: 6,
+        //   value: 6,
+        //   label: '处理完成'
+        // }, {
+        //   id: 50,
+        //   value: 50,
+        //   label: '通知提示'
+        // }
       ],
       //   搜索条件
       form: {
