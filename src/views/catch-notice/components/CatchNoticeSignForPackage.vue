@@ -25,7 +25,9 @@
       <el-table-column prop="package_time" label="签收时间" />
       <el-table-column label="包裹图片">
         <template slot-scope="scope">
-          <el-image style="width: 40px; height: 40px" :src="scope.row.package_image" :preview-src-list="[scope.row.package_image]" />
+          <el-image style="width: 40px; height: 40px" :src="scope.row.package_image" :preview-src-list="[scope.row.package_image]">
+            <div slot="error" class="image-slot" />
+          </el-image>
         </template>
       </el-table-column>
       <el-table-column prop="package_code" label="采购物流单号" />
