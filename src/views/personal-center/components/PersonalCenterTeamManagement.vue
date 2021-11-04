@@ -65,18 +65,6 @@
         </el-table-column>
       </el-table>
     </div>
-    <!-- <div class="pagination">
-      <el-pagination
-        background
-        :current-page="currentPage"
-        :page-sizes="[30, 50, 100, 200]"
-        :page-size="30"
-        layout="total, sizes, prev, pager, next, jumper"
-        :total="total"
-        @size-change="handleSizeChange"
-        @current-change="handleCurrentChange"
-      />
-    </div> -->
     <div class="dialog-content">
       <el-dialog :close-on-click-modal="false" title="账号创建/修改" :visible.sync="isShowDialog" @close="closeDialog">
         <div class="dialog-left">
@@ -114,7 +102,7 @@
             <el-button style="margin-left: 20px" type="primary" size="mini" @click="getBindMallCount">查找</el-button>
           </div>
           <div class="dialog-table">
-            <el-table ref="shopGruopDataRef" :data="shopGruopData" stripe style="min-width: 240px" max-height="350" :row-key="getRowKey " @selection-change="handleSelectionChange">
+            <el-table ref="shopGruopDataRef" :data="shopGruopData" stripe style="min-width: 240px" max-height="450" :row-key="getRowKey " @selection-change="handleSelectionChange">
               <el-table-column type="selection" align="center" min-width="45" :reserve-selection="true" />
               <el-table-column align="center" show-overflow-tooltip label="序号" min-width="40">
                 <template slot-scope="scope">
@@ -354,14 +342,11 @@ export default {
       this.diaIsEnable = '1'
       this.$refs.shopGruopDataRef.clearSelection()
       this.shopGroupVal = ''
-      this.getBindMallCount()
     },
     // 记住所选项
     getRowKey(row) {
       return row.id
-    },
-    handleSizeChange() {},
-    handleCurrentChange() {}
+    }
   }
 }
 </script>
@@ -402,6 +387,22 @@ export default {
     margin-top: 10px;
   }
   .dialog-content {
+    /deep/.el-dialog {
+      margin-top: 10vh !important;
+      width: 900px !important;
+      /deep/.el-dialog__body {
+        width: 880px !important;
+        display: flex !important;
+        justify-content: space-between;
+      }
+      /deep/.el-dialog__header {
+        padding: 5px 0 0 10px !important;
+      }
+      /deep/.el-dialog__title {
+        font-size: 12px !important;
+        color: #3031337a !important;
+      }
+    }
     .dialog-left {
       min-width: 320px;
       .form-content {
@@ -415,36 +416,20 @@ export default {
             }
           }
         }
-
         /deep/.el-form {
           /deep/.el-form-item {
-            margin-bottom: 1px !important;
+            margin-bottom: 10px !important;
           }
         }
       }
     }
     .dialog-right {
-      min-width: 320px;
-      margin-left: 20px;
+      min-width: 450px;
+      // margin-left: 20px;
       margin-top: 5px;
       .operation-content {
         display: flex;
         align-items: center;
-      }
-    }
-    /deep/.el-dialog {
-      width: 700px !important;
-      /deep/.el-dialog__body {
-        width: 660px !important;
-        display: flex !important;
-        justify-content: space-between;
-      }
-      /deep/.el-dialog__header {
-        padding: 5px 0 0 10px !important;
-      }
-      /deep/.el-dialog__title {
-        font-size: 12px !important;
-        color: #3031337a !important;
       }
     }
   }

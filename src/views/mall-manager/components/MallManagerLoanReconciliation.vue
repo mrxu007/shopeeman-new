@@ -13,7 +13,7 @@
 
     <div class="all_condition">
       <div class="condition_item">
-        <storeChoose @changeMallList="changeMallList" />
+        <storeChoose :is-all="true" @changeMallList="changeMallList" />
       </div>
       <div class="condition_item">
         <span>平台店铺ID：</span>
@@ -79,7 +79,11 @@
       <div class="data_table" style="height: 100%; background-color: white">
         <el-table height="calc(100vh - 281px)" :data="tableList" :row-style="{ height: '50px' }" style="width: 100%; height: calc(100vh - 260px)" :header-cell-style="{ background: '#f7fafa' }">
           <el-table-column label="序号" type="index" />
-          <el-table-column prop="country" label="站点" align="center" />
+          <el-table-column prop="country" label="站点" align="center" >
+            <template slot-scope="{ row }">
+              {{ row.country | chineseSite}}
+            </template>
+          </el-table-column>
           <el-table-column prop="platform_mall_name" label="店铺名称" align="center" />
           <el-table-column prop="order_id" label="订单编号" align="center" />
           <el-table-column prop="" label="状态" align="center">
@@ -112,7 +116,7 @@
 </template>
 <script>
 import storeChoose from '../../../components/store-choose'
-import { exportExcelDataCommon, creatDate} from '../../../util/util'
+import { exportExcelDataCommon, creatDate } from '../../../util/util'
 export default {
   components: { storeChoose },
   data() {
@@ -125,19 +129,6 @@ export default {
       total: 0,
       mallList_gruop: [],
       mallList_mall: [],
-      siteList: [
-        { name: '马来站', value: 'MY' },
-        { name: '台湾站', value: 'TW' },
-        { name: '越南站', value: 'VN' },
-        { name: '印尼站', value: 'ID' },
-        { name: '菲律宾站', value: 'PH' },
-        { name: '泰国站', value: 'TH' },
-        { name: '新加坡站', value: 'SG' },
-        { name: '巴西站', value: 'BR' },
-        { name: '墨西哥站', value: 'MX' },
-        { name: '智利站', value: 'CL' },
-        { name: '哥伦比亚站', value: 'CO' },
-      ],
       site_query: {
         // 站点参数
         country: 'TH', // 站点
@@ -169,7 +160,7 @@ export default {
     }
   },
   mounted() {
-     // 初始化时间
+    // 初始化时间
     this.cloumn_date = creatDate(31)
     this.getTableList() // 初始化table
     this.exchangeRateList() // 获取汇率
@@ -380,7 +371,7 @@ export default {
         this.exportList.forEach((item, index) => {
           str += `<tr>
               <td>${index + 1}</td>
-              <td>${item.country ? item.country : '-' + '\t'}</td>
+              <td>${item.country ? this.$filters.chineseSite(item.country) : '-' + '\t'}</td>
               <td>${item.platform_mall_name ? item.platform_mall_name : '-' + '\t'}</td>
               <td>${item.order_id ? item.order_id : '-' + '\t'}</td>
               <td>${item.status && Number(item.status) === 1 ? '已拨款' : '即将拨款' + '\t'}</td>
@@ -417,6 +408,7 @@ export default {
     async getTableList(params) {
       const data = await this.$api.getPaymentList(params)
       if (data.data.code === 200) {
+        // this.tableList = data.data.data.data
         this.tableList = data.data.data.data
         // this.query.page = data.data.data.last_page
         // this.query.pageSize = data.data.data.per_page

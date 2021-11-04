@@ -78,7 +78,7 @@
       <el-row class="article">
         <el-table
           v-loading="isLoading"
-          height="calc(100vh - 215px)"
+          height="calc(100vh - 225px)"
           :data-changes-scroll-top="false"
           :border="false"
           :data="tableData"
@@ -107,7 +107,7 @@
               {{ row.group_name }}
             </template>
           </el-table-column>
-          <el-table-column align="center" label="操作状态" min-width="100">
+          <el-table-column align="center" label="操作状态" min-width="100" show-overflow-tooltip>
             <template slot-scope="{ row }">
               <span :style="row.color && 'color:' + row.color">{{ row.status }}</span>
             </template>

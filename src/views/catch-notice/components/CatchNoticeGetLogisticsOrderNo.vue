@@ -8,15 +8,15 @@
         <!-- 采购物流编号 -->
         <div class="flowNumber">
           采购物流编号：
-          <el-input v-model="form.shotOrderSn" size="mini" />
+          <el-input v-model="form.shotOrderSn" size="mini" clearable />
         </div>
         <el-button size="mini" type="primary" @click="searchHandle">搜索</el-button>
         <el-button size="mini" type="primary">登录拼多多</el-button>
         <el-button size="mini" type="primary">登录淘宝</el-button>
         <el-button size="mini" type="primary">登录1688</el-button>
         <el-button size="mini" type="primary">登录Lazada</el-button>
-        <el-button size="mini" type="primary" @click="flowNumberHandle">获取采购物流单号</el-button>、
-        <el-checkbox v-model="hideLog">隐藏日志</el-checkbox>
+        <el-button size="mini" type="primary" @click="flowNumberHandle">获取采购物流单号</el-button>
+        <el-checkbox v-model="showConsole" style="margin-left:15px;">隐藏日志</el-checkbox>
       </div>
       <!-- 第二行 -->
       <div class="rowTwo">说&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;明：采购订单发货需及时获取采购物流单号，此通知只会同步采购后近5天未获取采购物流单号的订单</div>
@@ -39,7 +39,8 @@
           </template>
         </el-table-column>
       </el-table>
-      <el-input v-if="!hideLog" v-model="logData" resize="none" type="textarea" class="flowNumberLog" />
+      <Logs ref="Logs" v-model="showConsole" clear />
+      <!-- <el-input v-if="!hideLog" v-model="logData" resize="none" type="textarea" class="flowNumberLog" /> -->
     </div>
 
     <!--填写采购物流单号dialog-->
@@ -63,7 +64,7 @@
         <p>2、采购类型如果为国内平台时，显示国内中转仓，如果为国外平台，则显示海外仓</p>
       </div>
       <div slot="footer" class="dialog-footer">
-        <el-button type="primary" @click="logisticsOrderNoDialogHandle">保存</el-button>
+        <el-button type="primary" size="mini" @click="logisticsOrderNoDialogHandle">保存</el-button>
       </div>
     </el-dialog>
   </div>
@@ -74,7 +75,7 @@ export default {
   data() {
     return {
       // 控制采购物流单号dialog
-      logisticsOrderNoDialogFormVisible: true,
+      logisticsOrderNoDialogFormVisible: false,
       // 采购物流单号dialog表单数据
       logisticsOrderNoDialogForm: {
         sysOrderId: '',
@@ -94,7 +95,7 @@ export default {
       form: {
         shotOrderSn: '' // 采购物流编号
       },
-      hideLog: false, // 隐藏日志
+      showConsole: true, // 隐藏日志
       // 表格数据
       tableData: [],
       logData: '', // 日志内容
@@ -103,13 +104,8 @@ export default {
   },
   mounted() {
     this.getExceptionNoTrackingNumberIndex()
-    this.test()
   },
   methods: {
-    async test() {
-      const res = await this.$appConfig.getWarehouseInfo('41')
-      debugger
-    },
     // 查询
     async searchHandle() {
       if (this.isStart) {
@@ -152,8 +148,9 @@ export default {
       // }
     },
     // 获取采购物流单号
-    flowNumberHandle() {
-      this.hideLog = false
+    async flowNumberHandle() {
+      // const { data } = await this.$api.originalTrackingNumberEmpty()
+      this.showConsole = false
     },
     // 获取物流单号订单列表
     async getExceptionNoTrackingNumberIndex() {
@@ -194,12 +191,16 @@ export default {
     .flowNumber {
       margin-right: 10px;
       .el-input {
-        width: 80px;
+        width: 150px;
       }
     }
   }
+  .rowTwo{
+    font-size:13px ;
+  }
   .rowThree {
     color: red;
+    font-size: 13px;
   }
 }
 .bottom {

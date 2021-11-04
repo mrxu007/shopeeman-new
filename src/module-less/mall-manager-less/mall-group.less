@@ -4,12 +4,14 @@
   .header {
     background: white;
     padding: 16px;
+    overflow: auto;
     .header-top {
       ul {
         display: flex;
         li {
           margin: 5px;
           display: flex;
+          align-items: center;
           span {
             white-space: nowrap;
             width: 89px;
@@ -19,7 +21,7 @@
               width: 89px;
           }
           .unnormal2 {
-            width: 198px;
+            width: 180px;
           }
         }
      
@@ -100,5 +102,31 @@
       }
     }
   }
- 
+  .excel-dialog{
+    ul {
+      .btn {
+        display: flex;
+        .tip{
+          color: red;
+          margin: 5px;
+        }
+        .el-button {
+          margin: 5px;
+        }
+      }
+      .tip2{
+        margin-top: 10px;
+      }
+    }
+    .text-log {
+      margin-top: 10px;
+      width: 460px;
+      height: 270px;
+      border: 1px solid #ccc;
+      overflow-y: auto;
+      .text-log-content {
+        padding: 16px;
+      }
+    }
+  }
 }
