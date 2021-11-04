@@ -3,21 +3,21 @@
     <ul class="storeChooseUL">
       <li>
         <span :style="{ width: spanWidth }">站点：</span>
-        <el-select v-model="countryVal" size="mini" filterable>
+        <el-select v-model="countryVal" size="mini" filterable class="siteSelectBox">
           <el-option v-if="isAll" label="全部" :value="''" />
           <el-option v-for="(item, index) in countries" :key="index" :label="item.label" :value="item.value" />
         </el-select>
       </li>
       <li>
         <span :style="{ width: spanWidth }">店铺分组：</span>
-        <el-select v-model="groupId" placeholder="" multiple collapse-tags size="mini" filterable>
+        <el-select v-model="groupId" placeholder="" multiple collapse-tags size="mini" filterable class="selectBox">
           <el-option label="全部" :value="''" />
           <el-option v-for="(item, index) in groupIdList" :key="index" :label="item.group_name" :value="item.id" />
         </el-select>
       </li>
       <li>
         <span :style="{ width: spanWidth }">店铺：</span>
-        <el-select v-model="site" placeholder="" multiple collapse-tags size="mini" filterable>
+        <el-select v-model="site" placeholder="" multiple collapse-tags size="mini" filterable class="selectBox">
           <el-option label="全部" :value="''" />
           <el-option v-for="(item, index) in siteList" :key="index" :label="item.mall_alias_name || item.platform_mall_name" :value="item.platform_mall_id" />
         </el-select>
@@ -34,20 +34,20 @@ export default {
   props: {
     spanWidth: {
       type: String,
-      default: '80px'
+      default: '80px',
     },
     isAll: {
       type: Boolean,
       default() {
         return false
-      }
+      },
     },
     source: {
       type: String,
       default() {
         return ''
-      }
-    }
+      },
+    },
   },
   data() {
     return {
@@ -58,7 +58,7 @@ export default {
       groupIdList: [],
       site: [],
       siteList: [],
-      countries: this.$filters.countries_option
+      countries: this.$filters.countries_option,
     }
   },
   watch: {
@@ -69,7 +69,7 @@ export default {
         this.groupIdList = []
         this.ddMallGoodsGetMallList(1)
       },
-      deep: true
+      deep: true,
     },
     groupId: {
       handler(val, oldVal) {
@@ -80,7 +80,7 @@ export default {
           if (isOldAll !== isAll) {
             if (isAll) {
               this.groupId = ['']
-              this.groupIdList.forEach(item => {
+              this.groupIdList.forEach((item) => {
                 this.groupId.push(item.id)
               })
             } else {
@@ -97,7 +97,7 @@ export default {
           }, 10)
         }
       },
-      deep: true
+      deep: true,
     },
     site: {
       handler(val, oldVal) {
@@ -108,7 +108,7 @@ export default {
           if (isOldAll !== isAll) {
             if (isAll) {
               this.site = ['']
-              this.siteList.forEach(item => {
+              this.siteList.forEach((item) => {
                 this.site.push(item.platform_mall_id)
               })
             } else {
@@ -125,11 +125,11 @@ export default {
           })
         }
       },
-      deep: true
-    }
+      deep: true,
+    },
   },
   mounted() {
-    this.countryVal = !this.isAll && 'TH' || ''
+    this.countryVal = (!this.isAll && 'TH') || ''
   },
   methods: {
     async changeSelect(val) {
@@ -138,10 +138,10 @@ export default {
     async ddMallGoodsGetMallList(val) {
       this.site = []
       const country = this.countryVal
-      const groupId = this.groupId.indexOf('') > -1 && this.groupId.slice(1).toString() || this.groupId.toString()
+      const groupId = (this.groupId.indexOf('') > -1 && this.groupId.slice(1).toString()) || this.groupId.toString()
       const param = {
         country: country,
-        mallGroupIds: groupId
+        mallGroupIds: groupId,
       }
       const res = await ddMallGoodsGetMallList(param)
       // console.log('ddMallGoodsGetMallList - res', res)
@@ -150,12 +150,12 @@ export default {
         this.siteList = res.data
         if (this.groupIdList.length === 0) {
           this.groupId = ['']
-          this.siteList.forEach(item => {
-            const index = this.groupIdList.findIndex(i => i.id === item.group_id)
+          this.siteList.forEach((item) => {
+            const index = this.groupIdList.findIndex((i) => i.id === item.group_id)
             if (item.group_name && index < 0) {
               this.groupIdList.push({
                 group_name: item.group_name,
-                id: item.group_id
+                id: item.group_id,
               })
               this.groupId.push(item.group_id)
             }
@@ -172,9 +172,9 @@ export default {
     },
     changeMallList() {
       const mallList = []
-      this.site.forEach(item => {
+      this.site.forEach((item) => {
         if (item) {
-          const temp = this.siteList.filter(i => i.platform_mall_id === item)
+          const temp = this.siteList.filter((i) => i.platform_mall_id === item)
           mallList.push(temp[0])
         }
       })
@@ -183,8 +183,8 @@ export default {
       } else {
         this.$emit('changeMallList', mallList)
       }
-    }
-  }
+    },
+  },
 }
 </script>
 
@@ -193,20 +193,25 @@ export default {
   display: flex;
   align-items: center;
   // margin-bottom: 10px;
-
   li {
     display: flex;
     margin-right: 10px;
     align-items: center;
     span {
       display: inline-block;
-      text-align: center;
+      text-align: right;
     }
     .el-select {
       display: flex;
     }
     .el-tag--info.el-tag--mini {
-      max-width: 35%;
+      max-width: 80px;
+    }
+    .siteSelectBox {
+      width: 100px ;
+    }
+    .selectBox{
+      width: 180px ;
     }
   }
 }
