@@ -276,7 +276,7 @@
               </el-form-item>
               <el-form-item prop="ip_agency">
                 <span slot="label">代理方式：</span>
-                <el-select
+                <!-- <el-select
                   v-model="query_person.ip_agency"
                   placeholder="请选择"
                   size="mini"
@@ -288,7 +288,16 @@
                     :label="item.label"
                     :value="item.value"
                   />
-                </el-select>
+                </el-select> -->
+
+                <el-radio-group v-model="query_person.ip_agency" size="small" style="width: 200px">
+                  <el-radio
+                    v-for="item in ipTypeList"
+                    :key="item.value"
+                    :label="item.label"
+                    :value="item.value"
+                  />
+                </el-radio-group>
               </el-form-item>
               <el-form-item prop="ip_alias">
                 <span slot="label">主体名称：</span>
@@ -451,14 +460,6 @@
                   clearable
                 />
               </el-form-item> -->
-              <!-- <el-form-item>
-                <el-button
-                  type="primary"
-                  size="mini"
-                  @click="addMallMainAndBind"
-                >保存</el-button>
-              </el-form-item>
-            </el-form> -->
             </el-form>
 
             <div
@@ -475,12 +476,12 @@
                 @click="addMallMainAndBind"
               >保存</el-button>
 
-              <el-button
+              <!-- <el-button
                 v-if="Typeis==='updataMall'"
                 type="primary"
                 size="mini"
                 @click="UpdateSelfIPMallMain"
-              >保存</el-button>
+              >保存</el-button> -->
             </div>
           </div>
         </div>

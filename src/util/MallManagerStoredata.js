@@ -45,6 +45,10 @@ const ipTypeList = [
     label: '无'
   },
   {
+    value: 'SS',
+    label: 'SS'
+  },
+  {
     value: 'SSR',
     label: 'SSR'
   },
