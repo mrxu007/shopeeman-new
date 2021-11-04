@@ -17,8 +17,9 @@ body {
   --themeColor: #f97c28;
   /*overflow: hidden;*/
 }
-#app {
+* {
   font-family: Microsoft YaHei;
+  font-size: 12px !important;
 }
 .el-loading-mask.is-fullscreen {
   background-color: rgba(10, 10, 10, 0.5);
