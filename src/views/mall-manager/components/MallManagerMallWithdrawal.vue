@@ -11,7 +11,7 @@
         <p>当前提现中总金额：<span style="color: red">{{withdrawal}}</span></p>
         <p style="margin-right: 10px;">
           各店铺满
-          <el-input v-model="demand" placeholder="" size="mini"/>
+          <el-input v-model="demand" placeholder="" size="mini" style="width:80px;"/>
           才可以提现
         </p>
         <p style="margin-right: 5px;">

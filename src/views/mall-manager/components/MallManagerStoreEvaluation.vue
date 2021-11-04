@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-10-08 14:16:18
- * @LastEditTime: 2021-11-03 17:01:16
+ * @LastEditTime: 2021-11-04 17:08:10
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shopeeman-new\src\views\mall-manager\components\MallManagerWithdrawalRecord.vue
@@ -13,7 +13,7 @@
         <storeChoose @changeMallList="changeMallList" :spanWidth="'80px'"></storeChoose>
          <div class="tool-item ">
           <el-input placeholder="请输入内容" v-model="userName" size="mini" class="input-with-select" clearable>
-            <el-select v-model="userTypeSelect" slot="prepend" placeholder="用户名称" style="width: 120px">
+            <el-select v-model="userTypeSelect" slot="prepend" placeholder="用户名称" class="miniSelectBox">
               <el-option v-for="(item, index) in userType" :key="index" :label="item.label" :value="item.value" />
             </el-select>
           </el-input>
@@ -21,14 +21,8 @@
       </div>
       <div class="tool-row">
         <div class="tool-item mar-right">
-          <span>回复类型：</span>
-          <el-select v-model="replayType" placeholder="" size="mini" filterable>
-            <el-option v-for="(item, index) in replayTypeList" :key="index" :label="item.label" :value="item.value" />
-          </el-select>
-        </div>
-        <div class="tool-item mar-right">
           <span>评价星数：</span>
-          <el-select v-model="startNum" placeholder="" size="mini" filterable>
+          <el-select v-model="startNum" placeholder="" size="mini" filterable class="miniSelectBox">
             <el-option v-for="(item, index) in startNumList" :key="index" :label="item.label" :value="item.value" />
           </el-select>
         </div>
@@ -39,26 +33,31 @@
             size="mini"
             value-format="yyyy-MM-dd"
             type="daterange"
-            style="width: 200px"
+            style="width: 180px"
             range-separator="-"
             start-placeholder="开始日期"
             end-placeholder="结束日期"
             :picker-options="pickerOptions"
           />
         </div>
-       
-        <el-button type="primary" size="mini" class="mar-right" @click="searchRate" :disabled="tableLoading">查 询</el-button>
-        <el-button type="primary" size="mini" class="mar-right" @click="batchReplay" :disabled="tableLoading">批量回复</el-button>
-        <el-button type="primary" size="mini" class="mar-right" @click="cancelAction = true">取消操作</el-button>
-        <el-button type="primary" size="mini" class="mar-right" @click="exportData" :disabled="tableLoading">导出数据</el-button>
-        <el-button type="primary" size="mini" class="mar-right" @click="clearLog">清除日志</el-button>
+        <div class="tool-item mar-right">
+          <span>回复类型：</span>
+          <el-select v-model="replayType" placeholder="" size="mini" filterable class="miniSelectBox">
+            <el-option v-for="(item, index) in replayTypeList" :key="index" :label="item.label" :value="item.value" />
+          </el-select>
+        </div>
+        <el-button type="primary" size="mini"  style="width:75px;" @click="searchRate" :disabled="tableLoading">查  询</el-button>
+        <el-button type="primary" size="mini" class="mar-right btnbox" @click="batchReplay" :disabled="tableLoading">批量回复</el-button>
+        <el-button type="primary" size="mini" class="mar-right btnbox" @click="cancelAction = true">取消操作</el-button>
+        <el-button type="primary" size="mini" class="mar-right btnbox" @click="exportData" :disabled="tableLoading">导出数据</el-button>
+        <el-button type="primary" size="mini" class="mar-right btnbox" @click="clearLog">清除日志</el-button>
         <div class="tool-item mar-right">
           <el-checkbox v-model="showConsole">隐藏日志</el-checkbox>
         </div>
       </div>
     </div>
     <div class="content">
-      <el-table v-loading="tableLoading" ref="multipleTable" :data="tableDataCut" tooltip-effect="dark" max-height="650" @selection-change="selectionChange">
+      <el-table v-loading="tableLoading" ref="multipleTable" :data="tableDataCut" tooltip-effect="dark" height="calc(100vh - 215px)" @selection-change="selectionChange">
         <el-table-column type="selection" width="55"> </el-table-column>
         <el-table-column align="center" type="index" label="序号" width="50">
           <template slot-scope="scope">{{ (currentPage - 1) * pageSize + scope.$index + 1 }}</template>
@@ -223,7 +222,7 @@ export default {
           label: '规格名称',
         },
       ],
-      showConsole: true,
+      showConsole: true,//日志
       pageSize: 20, //页码
       currentPage: 1, //页码
       total: 0, //表格总数
@@ -481,11 +480,17 @@ export default {
 
 <style lang="less" scoped>
 .store-evaluation {
-  min-width: 1280px;
+  // min-width: 1200px;
   margin: 10px;
 }
 .mar-right {
   margin-right: 10px;
+}
+.miniSelectBox{
+  width:100px;
+}
+.btnbox{
+  width:80px;
 }
 .activeColor {
   color: red;
@@ -493,29 +498,34 @@ export default {
 .tool-bar {
   height: 100px;
   background: #fff;
+  overflow-x: auto ;
   .tool-row {
-    padding: 16px 16px 0 16px;
+    margin:10px 10px 0 0;
     display: flex;
     align-items: center;
-    flex-wrap: wrap;
+    // flex-wrap: wrap;
     .tool-item {
       display: flex;
       align-items: center;
       span{
         display:inline-block;
         width:80px;
-        text-align: center;
+        text-align: right;
       }
+      // .el-select{
+      //   flex:1;
+      // }
     }
   }
 }
 .content {
   margin: 20px 0;
   background: #fff;
-  height: calc(100vh - 150px);
+  height: calc(100vh - 160px);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  overflow: auto;
   .pagination {
     display: flex;
     justify-content: flex-end;

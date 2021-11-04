@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-10-21 15:41:32
- * @LastEditTime: 2021-11-03 16:53:45
+ * @LastEditTime: 2021-11-04 14:35:58
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shopeeman-new\src\components\category-choose.vue
@@ -214,6 +214,7 @@ export default {
   span {
     display: inline-block;
     width: 80px;
+    text-align: right;
   }
 }
 </style>

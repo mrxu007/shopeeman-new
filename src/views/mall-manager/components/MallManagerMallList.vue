@@ -2,13 +2,28 @@
   <el-row class="contaniner">
     <el-row class="header">
       <div class="header-content">
-        <el-col :span="8" class="header-lft">
+        <el-col :span="4" class="header-lft">
           <ul>
             <li>
               <span>站点：</span>
-              <el-select v-model="countryVal" placeholder="" size="mini" filterable>
+              <el-select v-model="countryVal" placeholder="" size="mini" filterable class="unnormal2">
                 <el-option label="全部" :value="0" />
                 <el-option v-for="(item, index) in countries" :key="index" :label="item.label" :value="item.value" />
+              </el-select>
+            </li>
+            <li>
+              <span>店铺状态：</span>
+              <el-select v-model="mallStausVal" placeholder="" size="mini" filterable class="unnormal2">
+                <el-option label="全部" :value="0" />
+                <el-option v-for="(item, index) in mallStatus" :key="index" :label="item.label" :value="item.value" />
+              </el-select>
+            </li>
+            <li>
+              <span>店铺分组：</span>
+              <el-select v-model="groupId" placeholder="" size="mini" filterable class="unnormal2">
+                <el-option label="全部" :value="0" />
+                <el-option label="无分组" :value="-1" />
+                <el-option v-for="(item, index) in 4" :key="index" :label="item" :value="item" />
               </el-select>
             </li>
             <li>
@@ -17,46 +32,34 @@
               </el-select>
               <el-input v-model="mallSearchConditionInputVal" class="unnormal2" placeholder="" size="mini" />
             </li>
-            <li>
-              <span>店铺状态：</span>
-              <el-select v-model="mallStausVal" placeholder="" size="mini" filterable>
-                <el-option label="全部" :value="0" />
-                <el-option v-for="(item, index) in mallStatus" :key="index" :label="item.label" :value="item.value" />
-              </el-select>
-            </li>
-            <li>
-              <span>店铺分组：</span>
-              <el-select v-model="groupId" placeholder="" size="mini" filterable>
-                <el-option label="全部" :value="0" />
-                <el-option label="无分组" :value="-1" />
-                <el-option v-for="(item, index) in 4" :key="index" :label="item" :value="item" />
-              </el-select>
-            </li>
           </ul>
         </el-col>
-        <el-col :span="16" class="header-rht">
-          <ul>
-            <li>
-              <el-checkbox v-model="forceLogin">强制登录</el-checkbox>
-              <el-button type="primary" size="mini" :loading="buttonStatus.login" @click="alotOfLogined(null)">一键登录</el-button>
-              <el-button type="primary" size="mini" @click="importMall('authorization')">导入店铺</el-button>
-              <el-button type="primary" size="mini" @click="exportMall">导出店铺</el-button>
-              <el-button type="primary" size="mini" @click="editWaterMall('update')">修改账号登录密码</el-button>
-              <el-button type="primary" size="mini" @click="editWaterMall('edit')">修改店铺水印文字</el-button>
-              <el-button type="primary" size="mini" disabled>设置店铺封面</el-button>
-              <el-button type="primary" size="mini" disabled>设置退货地址</el-button>
-              <el-button type="primary" size="mini" disabled>刷新登录状态</el-button>
-              <el-button type="primary" size="mini" disabled>同步店铺信息</el-button>
-              <el-button type="primary" size="mini" disabled>更新浏览器识别码</el-button>
-              <el-button type="primary" size="mini" @click="openDeleteMallDialog">一键解绑店铺</el-button>
-              <el-button type="primary" size="mini" disabled>开启店铺休假模式</el-button>
-              <el-button type="primary" size="mini" disabled>关闭店铺休假模式</el-button>
-              <el-button type="primary" size="mini" disabled>批量修改物流方式</el-button>
-              <el-button type="primary" size="mini" @click="getMallList">查询</el-button>
-              <el-checkbox>隐藏日志</el-checkbox>
-              <p class="res-text">温馨提示：导入新加披站点店铺时，若账号为手机号时，填写模板时请填写完整(带有国家区号)的手机号，否则登录失败</p>
-            </li>
-          </ul>
+        <el-col :span="20" class="header-rht">
+          <el-row class="btn-row">
+            <el-checkbox>强制登录</el-checkbox>
+            <el-button type="primary" size="mini" :loading="buttonStatus.login" @click="alotOfLogined(null)">一键登录</el-button>
+            <el-button type="primary" size="mini" @click="importMall('authorization')">导入店铺</el-button>
+            <el-button type="primary" size="mini" @click="exportMall">导出店铺</el-button>
+            <el-button type="primary" size="mini" @click="editWaterMall('update')">修改账号登录密码</el-button>
+            <el-button type="primary" size="mini" @click="editWaterMall('edit')">修改店铺水印文字</el-button>
+            <el-button type="primary" size="mini" disabled>设置店铺封面</el-button>
+          </el-row>
+          <el-row class="btn-row">
+            <el-button type="primary" size="mini" disabled>刷新登录状态</el-button>
+            <el-button type="primary" size="mini" disabled>同步店铺信息</el-button>
+            <el-button type="primary" size="mini" disabled>更新浏览器识别码</el-button>
+            <el-button type="primary" size="mini" @click="openDeleteMallDialog">一键解绑店铺</el-button>
+            <el-button type="primary" size="mini" disabled>开启店铺休假模式</el-button>
+            <el-button type="primary" size="mini" disabled>关闭店铺休假模式</el-button>
+          </el-row>
+          <el-row class="btn-row">
+            <el-button type="primary" size="mini" @click="getMallList">查询</el-button>
+            <el-button type="primary" size="mini" disabled>批量修改物流方式</el-button>
+            <el-button type="primary" size="mini" disabled>设置退货地址</el-button>
+
+            <el-checkbox v-model="showConsole">隐藏日志</el-checkbox>
+          </el-row>
+          <span class="res-text">温馨提示：导入新加披站点店铺时，若账号为手机号时，填写模板时请填写完整(带有国家区号)的手机号，否则登录失败</span>
         </el-col>
       </div>
     </el-row>
@@ -105,7 +108,7 @@
             {{ mallStatusObj[row.mall_status] }}
           </template>
         </el-table-column>
-        <el-table-column align="center" prop="created_at" label="授权日期" />
+        <el-table-column align="center" prop="created_at" label="授权日期" min-width="120px" />
       </el-table>
     </el-row>
     <!-- 修改店铺水印弹框 -->
@@ -158,11 +161,7 @@
               <div class="text-log-content" v-html="consoleMsg" />
             </div>
             <div class="text-btn">
-              <el-button
-                type="primary"
-                size="mini"
-                @click="mallAuthorization"
-              >店铺授权</el-button>
+              <el-button type="primary" size="mini" @click="mallAuthorization">店铺授权</el-button>
             </div>
           </div>
           <el-table
@@ -286,10 +285,10 @@ export default {
         { label: '禁止', value: 3 }
       ],
       mallStatusObj: {
-        '0': '正常',
-        '1': '正常',
-        '2': '冻结',
-        '3': '禁止'
+        0: '正常',
+        1: '正常',
+        2: '冻结',
+        3: '禁止'
       },
       groupId: 0,
       // dialog
@@ -304,11 +303,11 @@ export default {
       delOrderType: 1,
       isStop: false,
       isStopDisable: false,
-      importType: null
+      importType: null,
+      showConsole: true
     }
   },
-  computed: {
-  },
+  computed: {},
   watch: {
     isStop: {
       handler(val) {
@@ -351,11 +350,14 @@ export default {
       this.delMallDialog = true
     },
     getIP() {
-      this.$BaseUtilService.getAddressIP().then(res => {
-        this.IPVal = res
-      }).catch(e => {
-        console.log('getIP', e)
-      })
+      this.$BaseUtilService
+        .getAddressIP()
+        .then((res) => {
+          this.IPVal = res
+        })
+        .catch((e) => {
+          console.log('getIP', e)
+        })
     },
     async chekedDelMall() {
       const text = this.comfirmText.replace(/,/, '，').trim() === '删除店铺，后果自负'
@@ -364,16 +366,16 @@ export default {
         return
       }
       this.buttonStatus.delMall = true
-      const ids = this.multipleSelection.map(item => {
+      const ids = this.multipleSelection.map((item) => {
         return item.platform_mall_id
       })
       if (!this.IPVal) {
         return this.$message.error('未获取到IP地址,无法操作')
       }
       const params = {
-        'sysMallIds': ids.toString(),
-        'ip': this.IPVal,
-        'isPushToXzy': this.delOrderType
+        sysMallIds: ids.toString(),
+        ip: this.IPVal,
+        isPushToXzy: this.delOrderType
       }
       const res = await this.$api.deleteBindMall(params)
       if (res.data.code !== 200) {
@@ -396,7 +398,8 @@ export default {
     handleSelectionChange2(val) {
       this.multipleSelection2 = val
     },
-    mallAuthorization() { // 店铺授权
+    mallAuthorization() {
+      // 店铺授权
       if (!this.importMallListData.length) {
         return this.$message.error('请导入店铺')
       }
@@ -420,11 +423,13 @@ export default {
       let flat = 1 // 默认一键登陆
       let len = null
       let selectMall = null
-      if (mallArr) { // 导入店铺
+      if (mallArr) {
+        // 导入店铺
         len = mallArr.length
         selectMall = mallArr
         flat = 2
-      } else { // 一键登陆
+      } else {
+        // 一键登陆
         len = this.multipleSelection.length
         selectMall = this.multipleSelection
       }
@@ -451,13 +456,14 @@ export default {
         const res = await this.$shopeemanService.login(item, flat)
         console.log(res)
         if (res.code !== 200) {
-          flat === 1 ? item.LoginInfo = `<p style="color: red">登录失败：${res.data}</p>` : this.writeLog(`(${i + 1}/${len})账号【${platform_mall_name}】授权失败：${res.data}`, false)
+          flat === 1 ? (item.LoginInfo = `<p style="color: red">登录失败：${res.data}</p>`) : this.writeLog(`(${i + 1}/${len})账号【${platform_mall_name}】授权失败：${res.data}`, false)
           continue
         }
         const mallId = res.data.mallId // 平台店铺ID
         const mallUId = res.data.mallUId // 平台卖家ID
         let mallDataInfo = null
-        if (flat === 1) { // 一键登陆
+        if (flat === 1) {
+          // 一键登陆
           // 获取壳内店铺信息,组装
           const res1_flat1 = await this.$appConfig.getGlobalCacheInfo('mallInfo', mallId)
           mallDataInfo = JSON.parse(res1_flat1)
@@ -478,21 +484,21 @@ export default {
           // 4、判断物流信息是否是普通店铺 (店铺导入独有)
           // 5、获取信息额度 (店铺导入独有)
           const params2 = {
-            'platformMallId': mallId,
-            'platformMallUid': mallUId,
-            'mallAccountInfo': JSON.stringify(item.mall_account_info),
-            'mallGroup': item.group_name,
-            'itemLimit': 500,
-            'platformMallName': platform_mall_name,
-            'mallAliasName': item.mall_alias_name,
-            'mallMainName': item.MallMainName,
-            'country': item.country,
-            'SPC_EC': item.SPC_EC,
-            'SPC_SC_TK': item.SPC_SC_TK,
-            'mall_type': 1 // 写死1 普通店铺
+            platformMallId: mallId,
+            platformMallUid: mallUId,
+            mallAccountInfo: JSON.stringify(item.mall_account_info),
+            mallGroup: item.group_name,
+            itemLimit: 500,
+            platformMallName: platform_mall_name,
+            mallAliasName: item.mall_alias_name,
+            mallMainName: item.MallMainName,
+            country: item.country,
+            SPC_EC: item.SPC_EC,
+            SPC_SC_TK: item.SPC_SC_TK,
+            mall_type: 1 // 写死1 普通店铺
           }
           const res3 = await this.getMallGoodsAmount(mallDataInfo)
-          res3.code === 200 ? params2['itemLimit'] = res3.data : ''
+          res3.code === 200 ? (params2['itemLimit'] = res3.data) : ''
           const res4 = await this.isNormalMall(mallDataInfo)
           if (res4.code !== 200) {
             this.writeLog(`(${i + 1}/${len})账号【${platform_mall_name}】授权失败：该账号属于跨境店铺`, true)
@@ -507,8 +513,8 @@ export default {
         }
         // 7、上报cookie信息
         const params = {
-          'mallId': mallId,
-          'webLoginInfo': JSON.stringify(res.data.Cookie)
+          mallId: mallId,
+          webLoginInfo: JSON.stringify(res.data.Cookie)
         }
         const res6 = await uploadMallCookie(params) // 上报店铺信息cookie (服务端)
         if (res6.code !== 200) {
@@ -516,7 +522,7 @@ export default {
           this.writeLog(`(${i + 1}/${len})账号【${platform_mall_name}】授权失败：上报店铺信息cookie失败`, true)
           continue
         }
-        flat === 1 ? item.LoginInfo = '<p style="color: green">登录成功</p>' : this.writeLog(`(${i + 1}/${len})账号【${platform_mall_name}】授权成功`, true)
+        flat === 1 ? (item.LoginInfo = '<p style="color: green">登录成功</p>') : this.writeLog(`(${i + 1}/${len})账号【${platform_mall_name}】授权成功`, true)
       }
       this.buttonStatus.login = false
     },
@@ -537,12 +543,12 @@ export default {
       }
     },
     // 获取店铺上新商品额度
-    async  getMallGoodsAmount(mallInfo) {
+    async getMallGoodsAmount(mallInfo) {
       try {
         const { country, platform_mall_id } = mallInfo
         const params = {
-          'platform_mall_id': platform_mall_id, // 导入店铺初始没有mallId
-          'version': '3.1.0'
+          platform_mall_id: platform_mall_id, // 导入店铺初始没有mallId
+          version: '3.1.0'
         }
         // cnsc_shop_id  店铺类型为 2 or 3时，需要此参数
         let res = await this.$shopeemanService.getChinese(country, '/api/v3/product/get_product_statistical_data/?', params, { headers: { referer: '/portal/product/list/all' }})
@@ -560,7 +566,7 @@ export default {
       try {
         const { country, platform_mall_id } = mallInfo
         const params = {
-          'platform_mall_id': platform_mall_id
+          platform_mall_id: platform_mall_id
         }
         let res = await this.$shopeemanService.getChinese(country, '/api/v3/logistics/get_channel_list/?', params)
         res = JSON.parse(JSON.parse(res).data)
@@ -584,7 +590,8 @@ export default {
       this.importType = val
       this.importMallDialogVisible = true
     },
-    exportMall() { // 下载店铺信息
+    exportMall() {
+      // 下载店铺信息
       let template = `<tr>
         <td style="width: 200px; text-align:left;">分组</td>
         <td style="width: 200px; text-align:left;">站点</td>
@@ -597,7 +604,7 @@ export default {
         <td style="width: 200px; text-align:left;">店铺状态</td>
         <td style="width: 200px; text-align:left;">授权日期</td>
       </tr>`
-      this.mallList.map(item => {
+      this.mallList.map((item) => {
         template += `
         <tr>
           <td style="text-align:left;">${item.group_name || ''}</td>
@@ -615,7 +622,8 @@ export default {
       })
       exportExcelDataCommon('店铺信息', template)
     },
-    downloadTemplate() { // 下载修改店铺水印模板
+    downloadTemplate() {
+      // 下载修改店铺水印模板
       if (this.importType === 'edit') {
         let template = `<tr>
       <td style="width: 200px; text-align:left;">站点</td>
@@ -624,7 +632,7 @@ export default {
       <td style="width: 200px; text-align:left;">店铺文字水印</td>
       <td style="width: 200px; text-align:left;">分组</td>
       </tr>`
-        this.multipleSelection.map(item => {
+        this.multipleSelection.map((item) => {
           template += `
         <tr>
           <td style="text-align:left;">${this.$filters.chineseSite(item.country)}</td>
@@ -660,13 +668,13 @@ export default {
     async importEditWateNameOrUpdate() {
       const len = this.importTemplateData.length
       if (this.importType === 'edit') {
-        const params = { 'lists': [] }
+        const params = { lists: [] }
         // {"lists":[{"sysMallId":"12","watermark":"MarlonStowe"},{"sysMallId":"41","watermark":"Queen- fashion"}]}
         this.importTemplateData.forEach((item, index) => {
           if (item['店铺ID(必填)']) {
             const obj = {
-              'sysMallId': item['店铺ID(必填)'],
-              'watermark': item['店铺文字水印']
+              sysMallId: item['店铺ID(必填)'],
+              watermark: item['店铺文字水印']
             }
             params['lists'].push(obj)
           } else {
@@ -684,9 +692,9 @@ export default {
         let failNum = 0
         for (let index = 0; index < len; index++) {
           const params = {
-            'sysMallId': '',
-            'password': '',
-            'username': ''
+            sysMallId: '',
+            password: '',
+            username: ''
           }
           const item = this.importTemplateData[index]
           if (!item['SHOPEE店铺ID(必填)']) {
@@ -751,7 +759,7 @@ export default {
           this.writeLog(`(${i + 1}/${len})未找到店铺真实名称(必填)`, false)
           continue
         }
-        const country = this.countries.filter(item2 => item2.label === item['站点(马来站，台湾站，泰国站，印尼站，菲律宾站，新加坡站，越南站)(必填)'])
+        const country = this.countries.filter((item2) => item2.label === item['站点(马来站，台湾站，泰国站，印尼站，菲律宾站，新加坡站，越南站)(必填)'])
         if (!country.length) {
           this.writeLog(`(${i + 1}/${len})未找到[${item['站点(马来站，台湾站，泰国站，印尼站，菲律宾站，新加坡站，越南站)(必填)']}],站点填写有误`, false)
           continue
@@ -773,36 +781,38 @@ export default {
         const GroupName = item['分组(选填)'] || ''
         const MallMainName = item['店铺主体名称(需申IP隔离必填)'] || ''
         const platformMallRealName = item['店铺真实名称(必填)']
-        const obj = { // 数据结构与 店铺列表一致
-          'id': 0,
-          'group_name': GroupName,
-          'country': country[0].value,
-          'platform_mall_name': username,
-          'platform_mall_id': '',
-          'platform_mall_uid': '',
-          'MallMainName': MallMainName,
-          'mall_account_info': { // 店铺账户信息(导入模板里面的信息)
-            'password': password + '',
-            'username': username,
-            'userRealName': platformMallRealName,
-            'subsiteindex': 0
+        const obj = {
+          // 数据结构与 店铺列表一致
+          id: 0,
+          group_name: GroupName,
+          country: country[0].value,
+          platform_mall_name: username,
+          platform_mall_id: '',
+          platform_mall_uid: '',
+          MallMainName: MallMainName,
+          mall_account_info: {
+            // 店铺账户信息(导入模板里面的信息)
+            password: password + '',
+            username: username,
+            userRealName: platformMallRealName,
+            subsiteindex: 0
           },
-          'item_limit': 500,
-          'mall_group_uid': 0,
-          'mall_group_id': 0,
-          'watermark': '',
-          'created_at': '',
-          'mall_alias_name': mall_alias_name,
-          'mall_status': 1,
-          'good_mall_status': '-1',
-          'web_login_info': '',
-          'mall_remark': '',
-          'mall_type': '',
+          item_limit: 500,
+          mall_group_uid: 0,
+          mall_group_id: 0,
+          watermark: '',
+          created_at: '',
+          mall_alias_name: mall_alias_name,
+          mall_status: 1,
+          good_mall_status: '-1',
+          web_login_info: '',
+          mall_remark: '',
+          mall_type: '',
 
           // 渲染导入列表用的字段
-          'userRealName': platformMallRealName,
-          'SPC_EC': '',
-          'SPC_SC_TK': ''
+          userRealName: platformMallRealName,
+          SPC_EC: '',
+          SPC_SC_TK: ''
         }
         importMallArr.push(obj)
       }
@@ -849,10 +859,10 @@ export default {
     },
     async getMallList() {
       const params = {}
-      this.countryVal ? params['country'] = this.countryVal : ''
-      this.mallSearchConditionInputVal ? params[this.mallSearchConditionVal] = this.mallSearchConditionInputVal : ''
+      this.countryVal ? (params['country'] = this.countryVal) : ''
+      this.mallSearchConditionInputVal ? (params[this.mallSearchConditionVal] = this.mallSearchConditionInputVal) : ''
       params['groupId'] = this.groupId
-      this.mallStausVal ? params['isFilterFrozen'] = this.mallStausVal : ''
+      this.mallStausVal ? (params['isFilterFrozen'] = this.mallStausVal) : ''
       const res = await getMallListAPI(params)
       if (res.code !== 200) {
         this.$message.error('获取店铺列表失败')
@@ -887,8 +897,7 @@ export default {
         color = setcolor
       }
       const time = this.dateFormat(new Date(Date.now()), 'hh:mm:ss')
-      this.consoleMsg =
-        `<p style="color:${color}">${time}:${msg}</p>` + this.consoleMsg
+      this.consoleMsg = `<p style="color:${color}">${time}:${msg}</p>` + this.consoleMsg
     },
     dateFormat(time, fmt) {
       var o = {
@@ -901,25 +910,16 @@ export default {
         S: time.getMilliseconds() // 毫秒
       }
       if (/(y+)/.test(fmt)) {
-        fmt = fmt.replace(
-          RegExp.$1,
-          (time.getFullYear() + '').substr(4 - RegExp.$1.length)
-        )
+        fmt = fmt.replace(RegExp.$1, (time.getFullYear() + '').substr(4 - RegExp.$1.length))
       }
       for (var k in o) {
         if (new RegExp('(' + k + ')').test(fmt)) {
-          fmt = fmt.replace(
-            RegExp.$1,
-            RegExp.$1.length === 1
-              ? o[k]
-              : ('00' + o[k]).substr(('' + o[k]).length)
-          )
+          fmt = fmt.replace(RegExp.$1, RegExp.$1.length === 1 ? o[k] : ('00' + o[k]).substr(('' + o[k]).length))
         }
       }
       return fmt
     }
   }
-
 }
 </script>
 

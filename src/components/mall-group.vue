@@ -1,10 +1,18 @@
+<!--
+ * @Author: your name
+ * @Date: 2021-10-25 15:37:05
+ * @LastEditTime: 2021-11-04 17:29:33
+ * @LastEditors: your name
+ * @Description: In User Settings Edit
+ * @FilePath: \shopeeman-new\src\components\mall-group.vue
+-->
 <template>
   <div class="container">
     <el-table
       ref="shopGroupTable"
       highlight-current-row
       width="100"
-      height="calc(100vh - 20px)"
+      height="calc(100vh - 30px)"
       :data-changes-scroll-top="false"
       :row-height="40"
       :border="false"
