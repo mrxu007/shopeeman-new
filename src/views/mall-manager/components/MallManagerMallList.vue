@@ -149,7 +149,7 @@
           <el-upload ref="importRef" accept=".xls, .xlsx" action="https://jsonplaceholder.typicode.com/posts/" :on-change="importTemplateEvent" :show-file-list="false" :auto-upload="false">
             <el-button :data="importTemplateData" size="mini" type="primary" style="margin-right: 10px"> 批量导入 </el-button>
           </el-upload>
-          <el-button type="primary" size="mini" :loading="isStopDisable" @click="isStop = true">取消导入</el-button>
+          <el-button type="primary" size="mini" :loading="isStopDisable" :disabled="!buttonStatus.login" @click="isStop = true">取消导入</el-button>
           <el-button type="primary" size="mini" @click="downloadTemplate">下载模板</el-button>
         </div>
         <div class="container-dialog">
@@ -477,10 +477,16 @@ export default {
           }
           const res3 = await this.getMallGoodsAmount(mallDataInfo)
           res3.code === 200 ? params2['itemLimit'] = res3.data : ''
+          const res4 = await this.isNormalMall(mallDataInfo)
+          debugger
+          if (res4.code !== 200) {
+            this.writeLog(`(${i + 1}/${len})账号【${platform_mall_name}】授权失败：该账号属于跨境店铺`, true)
+            continue
+          }
           // 6、上报店铺信息(店铺导入独有) 如果是导入店铺,在上报cookie之前应该先上报店铺
-          const res4 = await this.$api.saveMallAuthInfo(params2) // 导入店铺信息（服务端）
-          if (res4.data.code !== 200) {
-            this.writeLog(`(${i + 1}/${len})账号【${platform_mall_name}】授权失败：${res4.data.message}`, true)
+          const res5 = await this.$api.saveMallAuthInfo(params2) // 导入店铺信息（服务端）
+          if (res5.data.code !== 200) {
+            this.writeLog(`(${i + 1}/${len})账号【${platform_mall_name}】授权失败：${res5.data.message}`, true)
             continue
           }
         }
@@ -489,8 +495,8 @@ export default {
           'mallId': mallId,
           'webLoginInfo': JSON.stringify(res.data.Cookie)
         }
-        const res5 = await uploadMallCookie(params) // 上报店铺信息cookie (服务端)
-        if (res5.code !== 200) {
+        const res6 = await uploadMallCookie(params) // 上报店铺信息cookie (服务端)
+        if (res6.code !== 200) {
           // console.log('店铺上传失败', res.data)
           this.writeLog(`(${i + 1}/${len})账号【${platform_mall_name}】授权失败：上报店铺信息cookie失败`, true)
           continue
@@ -510,12 +516,30 @@ export default {
         // cnsc_shop_id  店铺类型为 2 or 3时，需要此参数
         let res = await this.$shopeemanService.getChinese(country, '/api/v3/product/get_product_statistical_data/?', params, { headers: { referer: '/portal/product/list/all' }})
         res = JSON.parse(JSON.parse(res).data)
-        if (res.status === 200) {
+        if (res.code === 0) {
           return { code: 200, data: res.data.count_for_limit }
         }
         return { code: res.status, data: `${res.status} ${res.data.message}` }
       } catch (error) {
         return { code: -2, data: `getMallList-catch: ${error}` }
+      }
+    },
+    // 判断店铺是否是跨境店铺还是普通店铺
+    async isNormalMall(mallInfo) {
+      try {
+        const { country, platform_mall_id } = mallInfo
+        const params = {
+          'platform_mall_id': platform_mall_id
+        }
+        let res = await this.$shopeemanService.getChinese(country, '/api/v3/logistics/get_channel_list/?', params)
+        res = JSON.parse(JSON.parse(res).data)
+        if (res.code === 0) {
+          const Logistics = res.data
+          return { code: 200, data: true }
+        }
+        return { code: res.status, data: `${res.status} ${res.data.message}` }
+      } catch (error) {
+        return { code: -2, data: `isNormalMall-catch: ${error}` }
       }
     },
     importMall(val) {
