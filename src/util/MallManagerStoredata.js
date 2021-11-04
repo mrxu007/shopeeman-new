@@ -40,17 +40,22 @@ const encryptionList = [
 
 // 代理方式
 const ipTypeList = [
-  {
-    value: '',
-    label: '无'
-  },
+
   {
     value: 'SSR',
     label: 'SSR'
   },
   {
+    value: 'SS',
+    label: 'SS'
+  },
+  {
     value: 'HTTP',
     label: 'HTTP'
+  },
+  {
+    value: '链接',
+    label: '链接'
   }
 ]
 
@@ -109,4 +114,42 @@ const confuseList = [
   }
 ]
 
-export { encryptionList, ipTypeList, protocolList, confuseList }
+const region_ipListSelf = [
+  {
+    label: '香港',
+    value: '香港'
+  },
+  {
+    label: '大陆',
+    value: '大陆'
+  },
+  {
+    label: '泰国',
+    value: '泰国'
+  },
+  {
+    label: '马来',
+    value: '马来'
+  },
+  {
+    label: '新加坡',
+    value: '新加坡'
+  },
+  {
+    label: '菲律宾',
+    value: '菲律宾'
+  },
+  {
+    label: '印尼',
+    value: '印尼'
+  },
+  {
+    label: '越南',
+    value: '越南'
+  },
+  {
+    label: '台湾',
+    value: '台湾'
+  }
+]
+export { encryptionList, ipTypeList, protocolList, confuseList, region_ipListSelf }
