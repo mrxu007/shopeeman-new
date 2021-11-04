@@ -184,6 +184,7 @@
         >
           <template slot-scope="{ row }">
             <el-tooltip
+              v-if="row.package_image"
               effect="light"
               placement="right-end"
               :visible-arrow="false"
@@ -198,10 +199,11 @@
                 >
               </div>
               <el-image
-                v-if="row.package_image.indexOf('91cyt') != -1"
                 :src="row.package_image"
                 alt=""
-              />
+              >
+                <div slot="error" class="image-slot" />
+              </el-image>
             </el-tooltip>
           </template>
         </el-table-column>
@@ -545,13 +547,6 @@ export default {
       const event = new MouseEvent('click')
       input.dispatchEvent(event)
     },
-    // 图片缓存
-    getImages(_url) {
-      if (_url !== undefined) {
-        const _u = _url.substring(7)
-        return 'https://images.weserv.nl/?url=' + _u
-      }
-    },
     // 用户选择后最终的类目id
     async targetCate(val) {
       if (val.length > 0) {
@@ -684,9 +679,6 @@ export default {
           const resData = data.data.data
           if (resData) {
             this.tableData = resData
-            this.tableData.map((item) => {
-              item.package_image = this.getImages(item.package_image)
-            })
             console.log('data', resData)
           }
         } else {

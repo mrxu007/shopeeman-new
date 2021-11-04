@@ -158,7 +158,11 @@
               <div class="text-log-content" v-html="consoleMsg" />
             </div>
             <div class="text-btn">
-              <el-button type="primary" size="mini" @click="mallAuthorization">店铺授权</el-button>
+              <el-button
+                type="primary"
+                size="mini"
+                @click="mallAuthorization"
+              >店铺授权</el-button>
             </div>
           </div>
           <el-table
@@ -445,6 +449,7 @@ export default {
 
         // 1、shopeeMan官方登录
         const res = await this.$shopeemanService.login(item, flat)
+        console.log(res)
         if (res.code !== 200) {
           flat === 1 ? item.LoginInfo = `<p style="color: red">登录失败：${res.data}</p>` : this.writeLog(`(${i + 1}/${len})账号【${platform_mall_name}】授权失败：${res.data}`, false)
           continue
@@ -559,9 +564,16 @@ export default {
         }
         let res = await this.$shopeemanService.getChinese(country, '/api/v3/logistics/get_channel_list/?', params)
         res = JSON.parse(JSON.parse(res).data)
+        const siteMall = this.$shopeeManConfig.getSiteMall()
+        const isNormal = siteMall[country].some(item => {
+          return res.data.list.some(resitem => {
+            return Number(item.ShipId) === resitem.channel_id
+          })
+        })
+        debugger
         if (res.code === 0) {
           const Logistics = res.data
-          return { code: 200, data: true }
+          return { code: 200, data: isNormal }
         }
         return { code: res.status, data: `${res.status} ${res.data.message}` }
       } catch (error) {
