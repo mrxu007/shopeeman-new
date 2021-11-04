@@ -1,13 +1,15 @@
 <template>
   <div class="content">
     <div class="overdata_view">
-      <span>金额总览</span>
-      <div style="display: flex; margin-top: 10px">
-        <span>即将拨款：</span>
-        <h3>{{ to_back_amount }}{{ site_query.typeCoin }}</h3>
-        <div style="width: 20px" />
-        <span>已完成拨款：</span>
-        <h3>{{ haved_amount }}{{ site_query.typeCoin }}</h3>
+      <div class="account-box">
+        <span class="account-title">金额总览</span>
+        <div class="account-item">
+          <span>即将拨款：</span>
+          <h3>{{ to_back_amount }}{{ site_query.typeCoin }}</h3>
+          <div style="width: 20px" />
+          <span>已完成拨款：</span>
+          <h3>{{ haved_amount }}{{ site_query.typeCoin }}</h3>
+        </div>
       </div>
     </div>
 
@@ -79,9 +81,9 @@
       <div class="data_table" style="height: 100%; background-color: white">
         <el-table height="calc(100vh - 281px)" :data="tableList" :row-style="{ height: '50px' }" style="width: 100%; height: calc(100vh - 260px)" :header-cell-style="{ background: '#f7fafa' }">
           <el-table-column label="序号" type="index" />
-          <el-table-column prop="country" label="站点" align="center" >
+          <el-table-column prop="country" label="站点" align="center">
             <template slot-scope="{ row }">
-              {{ row.country | chineseSite}}
+              {{ row.country | chineseSite }}
             </template>
           </el-table-column>
           <el-table-column prop="platform_mall_name" label="店铺名称" align="center" />
@@ -440,6 +442,39 @@ export default {
   .overdata_view,
   .all_condition,
   .table_clo {
+    .account-box {
+      border: 1px solid #dcdcdc;
+      border-radius: 4px;
+      padding: 16px;
+      position: relative;
+      .account-title {
+        padding: 0 5px;
+        display: inline-block;
+        height: 20px;
+        line-height: 20px;
+        text-align: center;
+        background: #fff;
+        position: absolute;
+        left: 10px;
+        top: -10px;
+      }
+      .account-item {
+        display: flex;
+        align-items: center;
+        span {
+          margin-right: 20px;
+          display: inline-block;
+        }
+        .acount-item-sub {
+          display: flex;
+          align-items: center;
+        }
+        .warning-style {
+          color: red;
+          font-size: 16px;
+        }
+      }
+    }
     background-color: white;
     padding: 5px;
     margin: 10px;

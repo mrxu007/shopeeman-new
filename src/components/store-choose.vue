@@ -16,7 +16,7 @@
         </el-select>
       </li>
       <li>
-        <span :style="{ width: spanWidth }">店铺：</span>
+        <span :style="{ width: spanWidth }">店铺名称：</span>
         <el-select v-model="site" placeholder="" multiple collapse-tags size="mini" filterable class="selectBox">
           <el-option label="全部" :value="''" />
           <el-option v-for="(item, index) in siteList" :key="index" :label="item.mall_alias_name || item.platform_mall_name" :value="item.platform_mall_id" />
