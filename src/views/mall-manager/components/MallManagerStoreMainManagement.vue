@@ -33,12 +33,12 @@
 
       <div class="condition_item">
         <span>IP区域：</span>
-        <el-input v-model="query.ip_address" clearable size="mini" style="width:200px" />
+        <el-input v-model="query.ip_address" clearable size="mini" style="width: 200px" />
       </div>
 
       <div class="condition_item">
         <span>渠道商：</span>
-        <el-input v-model="query.supplier_info" clearable size="mini" style="width:180px" />
+        <el-input v-model="query.supplier_info" clearable size="mini" style="width: 180px" />
       </div>
 
       <div class="condition_item">
@@ -52,64 +52,51 @@
 
       <div class="condition_item">
         <span>主体名称：</span>
-        <el-input v-model="query.ip_alias" clearable placeholder="主体名称" size="mini" style="width:200px" />
+        <el-input v-model="query.ip_alias" clearable placeholder="主体名称" size="mini" style="width: 200px" />
       </div>
 
       <div class="condition_item">
         <el-button size="mini" type="primary" @click="search">搜索</el-button>
       </div>
     </div>
-    <div class="base_option_button" style="margin: 10px;">
-      <el-button size="mini" type="primary" @click="(Typeis='ipMaster',dialogvisible=true,showButton=false,dialog_title='新增公司主体')">新增公司主体</el-button>
+    <div class="base_option_button" style="margin: 10px">
+      <el-button size="mini" type="primary" @click=";(Typeis = 'ipMaster'), (dialogvisible = true), (showButton = false), (dialog_title = '新增公司主体')">新增公司主体</el-button>
       <!-- <el-button size="mini" type="primary">解绑主体IP</el-button> -->
       <!-- <el-button size="mini" type="primary">绑定主体IP</el-button> -->
       <el-button size="mini" type="primary" @click="clearIP()">清除IP缓存</el-button>
-      <el-button size="mini" type="primary" @click="(Typeis='ipPerson',dialogvisible=true,showButton=false,dialog_title='新增自有IP公司主体')">新增自有IP公司主体</el-button>
+      <el-button size="mini" type="primary" @click=";(Typeis = 'ipPerson'), (dialogvisible = true), (showButton = false), (dialog_title = '新增自有IP公司主体')">新增自有IP公司主体</el-button>
       <el-button size="mini" type="primary" @click="timeToMonth(1)">续费一个月</el-button>
       <el-button size="mini" type="primary" @click="timeToMonth(3)">续费三个月</el-button>
     </div>
 
-    <div style="margin:10px">
-      <div
-        style="font-size: smaller;
-        color: rebeccapurple;"
-      >
-        温馨提示：1.因为IP为实时购买，所以购买后不会立即生成IP信息。IP信息会在三分钟内生成
-        2.一个主体IP最多绑定10个店铺 3.若状态为【已绑定，已分配店铺】，但绑定店铺为空，则表示
-        店铺不存在此账号
+    <div style="margin: 10px">
+      <div style="font-size: smaller; color: rebeccapurple">
+        温馨提示：1.因为IP为实时购买，所以购买后不会立即生成IP信息。IP信息会在三分钟内生成 2.一个主体IP最多绑定10个店铺 3.若状态为【已绑定，已分配店铺】，但绑定店铺为空，则表示 店铺不存在此账号
       </div>
-      <div
-        style="font-size: smaller;
-        color: rebeccapurple;margin-left:60px"
-      >
-        3.对于系统的香港IP（非香港名称），IP过期后，将无法进行续费，请在IP有效期内续费。
-        4、系统的香港IP（非香港名称）过期后，会被自动回收，回收后将不在显示代理IP信息
+      <div style="font-size: smaller; color: rebeccapurple; margin-left: 60px">
+        3.对于系统的香港IP（非香港名称），IP过期后，将无法进行续费，请在IP有效期内续费。 4、系统的香港IP（非香港名称）过期后，会被自动回收，回收后将不在显示代理IP信息
       </div>
     </div>
     <div class="table_clo">
-      <div class="data_table" style="height: 100%;background-color:white">
+      <div class="data_table" style="height: 100%; background-color: white">
         <el-table
           ref="multipleTable"
           height="calc(100vh - 262px)"
           :data="tableListEnd"
           :row-style="{ height: '50px' }"
-          style="width: 100%;height: calc(100vh - 262px)"
+          style="width: 100%; height: calc(100vh - 262px)"
           :header-cell-style="{ background: '#f7fafa' }"
           :row-key="generateUUID"
           @selection-change="handleSelectionChange"
         >
-          <el-table-column
-            type="selection"
-            min-width="55px"
-            align="center"
-          />
+          <el-table-column type="selection" min-width="55px" align="center" />
           <el-table-column label="序号" type="index" align="center" :index="indexMethod" fixed />
           <el-table-column prop="uid" label="主体ID" align="center" min-width="100px" fixed />
           <el-table-column prop="ip_alias" label="主体名称" align="center" min-width="200px" />
           <!-- 需要解析 -->
           <el-table-column prop="poxyIP" label="代理IP" align="center" min-width="150px" />
           <el-table-column prop="" label="IP渠道" align="center">
-            <template slot-scope="{row}">
+            <template slot-scope="{ row }">
               <span>{{ row.data_ipinfor && row.data_ipinfor.region_name }}</span>
             </template>
           </el-table-column>
@@ -122,26 +109,23 @@
           <el-table-column prop="" label="操作" align="center" min-width="330px" fixed="right">
             <template slot-scope="{ row }">
               <div>
-                <el-button size="mini" type="primary" @click="openSoft(row.poxyIP,row.poxyID)">打开代理浏览器</el-button>
+                <el-button size="mini" type="primary" @click="openSoft(row.poxyIP, row.poxyID)">打开代理浏览器</el-button>
                 <!-- <el-button size="mini" type="primary" @click="showupdateVisible(row.id,row)">修改绑定店铺</el-button> -->
                 <el-button size="mini" type="primary" @click="delInfor(row.id)">删除</el-button>
-                <el-dropdown style="width: 100px;margin-left: 10px;">
-                  <el-button style="width: 100px;" size="mini" plain type="primary">
-                    更多操作<i class="el-icon-arrow-down el-icon--right" />
-                  </el-button>
+                <el-dropdown style="width: 100px; margin-left: 10px">
+                  <el-button style="width: 100px" size="mini" plain type="primary"> 更多操作<i class="el-icon-arrow-down el-icon--right" /> </el-button>
 
                   <el-dropdown-menu slot="dropdown">
-                    <el-dropdown-item> <div v-if="row.source ==='用户'" class="dropdownItem" @click="showupdateVisible(row.id,row),Typeis = 'updataMall'"> 编辑</div></el-dropdown-item>
-                    <el-dropdown-item> <div v-if="row.source ==='系统'" class="dropdownItem" @click="showupdateVisible(row.id,row),Typeis = ''">修改绑定店铺</div></el-dropdown-item>
+                    <el-dropdown-item> <div v-if="row.source === '用户'" class="dropdownItem" @click="showupdateVisible(row.id, row), (Typeis = 'updataMall')">编辑</div></el-dropdown-item>
+                    <el-dropdown-item> <div v-if="row.source === '系统'" class="dropdownItem" @click="showupdateVisible(row.id, row), (Typeis = '')">修改绑定店铺</div></el-dropdown-item>
                   </el-dropdown-menu>
                 </el-dropdown>
-              <!-- <el-button size="mini" type="primary" @click="del(row.uid)">删除</el-button> -->
+                <!-- <el-button size="mini" type="primary" @click="del(row.uid)">删除</el-button> -->
               </div>
             </template>
           </el-table-column>
         </el-table>
         <div class="pagination">
-
           <el-pagination
             background
             :current-page.sync="page"
@@ -157,17 +141,7 @@
     </div>
     <!-- dialog 新增公司主体-->
     <div class="dialog_addip">
-
-      <el-dialog
-        v-loading="loading"
-        :title="dialog_title"
-        :visible.sync="dialogvisible"
-        width="1200px"
-        height="600px"
-        top="2vh"
-        :class="{'changeVisible': Typeis===''}"
-        @closed="closeDialog1"
-      >
+      <el-dialog v-loading="loading" :title="dialog_title" :visible.sync="dialogvisible" width="1200px" height="600px" top="2vh" :class="{ changeVisible: Typeis === '' }" @closed="closeDialog1">
         <div class="left">
           <!-- 修改绑定店铺信息 -->
           <!-- <div v-if="Typeis==='updataMall'">
@@ -202,17 +176,17 @@
             </div>
           </div> -->
           <!--新增公司主体  -->
-          <div v-if="Typeis==='ipMaster'">
+          <div v-if="Typeis === 'ipMaster'">
             <div class="left_item">
               ip区域：
-              <el-select v-model="ipMaster_params.lineId" size="mini" @change="getPrice(),ipMaster_params.period=''">
-                <el-option v-for="(item,index) in region_ipList" :key="'region'+index" :label="item.value" :value="item.id" />
+              <el-select v-model="ipMaster_params.lineId" size="mini" @change="getPrice(), (ipMaster_params.period = '')">
+                <el-option v-for="(item, index) in region_ipList" :key="'region' + index" :label="item.value" :value="item.id" />
               </el-select>
             </div>
             <div class="left_item">
               ip周期：
               <el-select v-model="ipMaster_params.period" size="mini">
-                <el-option v-for="(item,index) in time_ipList" :key="'time'+index" :label="item.period+'个月'" :value="item.period" />
+                <el-option v-for="(item, index) in time_ipList" :key="'time' + index" :label="item.period + '个月'" :value="item.period" />
               </el-select>
             </div>
             <div class="left_item">
@@ -223,27 +197,21 @@
               </el-radio-group>
             </div>
             <div class="left_item">
-              主体名称：<el-input v-model="ipMaster_params.ipAlias" clearable style="width:180px" size="mini" />
+              主体名称：<el-input v-model="ipMaster_params.ipAlias" clearable style="width: 180px" size="mini" />
               <!-- <span v-show="ipMaster_params.ipAlias===''" style="color:red">(必填)</span> -->
-              <span style="color:red">(必填)</span>
-
+              <span style="color: red">(必填)</span>
             </div>
             <div class="left_item">
               <el-button size="mini" type="primary" @click="addMaster()">确定</el-button>
             </div>
           </div>
           <!-- 新增自有IP公司主体 && 修改绑定店铺-->
-          <div v-if="Typeis==='ipPerson' || Typeis==='updataMall'">
-            <el-form
-              ref="query_person"
-              :model="query_person"
-              :rules="httpRules"
-              label-width="100px"
-            >
+          <div v-if="Typeis === 'ipPerson' || Typeis === 'updataMall'">
+            <el-form ref="query_person" :model="query_person" :rules="httpRules" label-width="100px">
               <el-form-item prop="region_name">
                 <span slot="label">区域名</span>
                 <el-select v-model="query_person.region_name" size="mini">
-                  <el-option v-for="(item,index) in region_ipList" :key="'region'+index" :label="item.value" :value="item.value" />
+                  <el-option v-for="(item, index) in region_ipList" :key="'region' + index" :label="item.value" :value="item.value" />
                 </el-select>
                 <!-- <el-input
                   v-model="query_person.region_name"
@@ -256,49 +224,21 @@
 
               <el-form-item prop="ip_address">
                 <span slot="label">IP地址：</span>
-                <el-input
-                  v-model="query_person.ip_address"
-                  placeholder="请输入IP"
-                  size="mini"
-                  style="width: 200px"
-                  clearable
-                />
+                <el-input v-model="query_person.ip_address" placeholder="请输入IP" size="mini" style="width: 200px" clearable />
               </el-form-item>
               <el-form-item prop="ip_port">
                 <span slot="label">端口号：</span>
-                <el-input
-                  v-model="query_person.ip_port"
-                  placeholder="请输入端口"
-                  size="mini"
-                  style="width: 200px"
-                  clearable
-                />
+                <el-input v-model="query_person.ip_port" placeholder="请输入端口" size="mini" style="width: 200px" clearable />
               </el-form-item>
               <el-form-item prop="ip_agency">
                 <span slot="label">代理方式：</span>
-                <el-select
-                  v-model="query_person.ip_agency"
-                  placeholder="请选择"
-                  size="mini"
-                  style="width: 200px"
-                >
-                  <el-option
-                    v-for="item in ipTypeList"
-                    :key="item.value"
-                    :label="item.label"
-                    :value="item.value"
-                  />
+                <el-select v-model="query_person.ip_agency" placeholder="请选择" size="mini" style="width: 200px">
+                  <el-option v-for="item in ipTypeList" :key="item.value" :label="item.label" :value="item.value" />
                 </el-select>
               </el-form-item>
               <el-form-item prop="ip_alias">
                 <span slot="label">主体名称：</span>
-                <el-input
-                  v-model="query_person.ip_alias"
-                  placeholder="主体名称"
-                  size="mini"
-                  style="width: 200px"
-                  clearable
-                />
+                <el-input v-model="query_person.ip_alias" placeholder="主体名称" size="mini" style="width: 200px" clearable />
               </el-form-item>
               <!-- <el-form-item prop="map_ip_address">
                 <span slot="label">映射IP</span>
@@ -342,93 +282,37 @@
                 </el-form-item> -->
               <el-form-item prop="username">
                 <span slot="label">用户名：</span>
-                <el-input
-                  v-model="query_person.username"
-                  placeholder="请输入用户名"
-                  size="mini"
-                  style="width: 200px"
-                  clearable
-                />
+                <el-input v-model="query_person.username" placeholder="请输入用户名" size="mini" style="width: 200px" clearable />
               </el-form-item>
               <el-form-item prop="password">
                 <span slot="label">密码：</span>
-                <el-input
-                  v-model="query_person.password"
-                  placeholder="请输入密码"
-                  size="mini"
-                  style="width: 200px"
-                  clearable
-                />
+                <el-input v-model="query_person.password" placeholder="请输入密码" size="mini" style="width: 200px" clearable />
               </el-form-item>
               <el-form-item prop="encryption">
                 <span slot="label">加密方式：</span>
-                <el-select
-                  v-model="query_person.encryption"
-                  placeholder="请选择"
-                  style="width: 200px"
-                  size="mini"
-                >
-                  <el-option
-                    v-for="item in encryptionList"
-                    :key="item.value"
-                    :label="item.label"
-                    :value="item.value"
-                  />
+                <el-select v-model="query_person.encryption" placeholder="请选择" style="width: 200px" size="mini">
+                  <el-option v-for="item in encryptionList" :key="item.value" :label="item.label" :value="item.value" />
                 </el-select>
               </el-form-item>
               <el-form-item prop="protocol">
                 <span slot="label">协议：</span>
-                <el-select
-                  v-model="query_person.protocol"
-                  placeholder="请选择"
-                  size="mini"
-                  clearable
-                  style="width: 200px"
-                >
-                  <el-option
-                    v-for="item in protocolList"
-                    :key="item.value"
-                    :label="item.label"
-                    :value="item.value"
-                  />
+                <el-select v-model="query_person.protocol" placeholder="请选择" size="mini" clearable style="width: 200px">
+                  <el-option v-for="item in protocolList" :key="item.value" :label="item.label" :value="item.value" />
                 </el-select>
               </el-form-item>
               <el-form-item prop="parameter">
                 <span slot="label">协议参数：</span>
-                <el-input
-                  v-model="query_person.parameter"
-                  placeholder="请输入协议参数"
-                  size="mini"
-                  style="width: 200px"
-                  clearable
-                />
+                <el-input v-model="query_person.parameter" placeholder="请输入协议参数" size="mini" style="width: 200px" clearable />
               </el-form-item>
               <el-form-item prop="confuse">
                 <span slot="label">混淆：</span>
-                <el-select
-                  v-model="query_person.confuse"
-                  placeholder="请选择"
-                  clearable
-                  size="mini"
-                  style="width: 200px"
-                >
-                  <el-option
-                    v-for="item in confuseList"
-                    :key="item.value"
-                    :label="item.label"
-                    :value="item.value"
-                  />
+                <el-select v-model="query_person.confuse" placeholder="请选择" clearable size="mini" style="width: 200px">
+                  <el-option v-for="item in confuseList" :key="item.value" :label="item.label" :value="item.value" />
                 </el-select>
               </el-form-item>
               <el-form-item prop="argument">
                 <span slot="label">混淆参数：</span>
-                <el-input
-                  v-model="query_person.argument"
-                  placeholder="请输入协议参数"
-                  size="mini"
-                  style="width: 200px"
-                  clearable
-                />
+                <el-input v-model="query_person.argument" placeholder="请输入协议参数" size="mini" style="width: 200px" clearable />
               </el-form-item>
               <!-- <el-form-item prop="ip_agency">
                   <span slot="label">代理方式</span>
@@ -461,68 +345,46 @@
             </el-form> -->
             </el-form>
 
-            <div
-              class="item"
-              style="
-                display: flex;
-                justify-content: center;"
-            >
+            <div class="item" style="display: flex; justify-content: center">
               <!-- 新增 || 修改 -->
-              <el-button
-                v-if="Typeis==='ipPerson'"
-                type="primary"
-                size="mini"
-                @click="addMallMainAndBind"
-              >保存</el-button>
+              <el-button v-if="Typeis === 'ipPerson'" type="primary" size="mini" @click="addMallMainAndBind">保存</el-button>
 
-              <el-button
-                v-if="Typeis==='updataMall'"
-                type="primary"
-                size="mini"
-                @click="UpdateSelfIPMallMain"
-              >保存</el-button>
+              <el-button v-if="Typeis === 'updataMall'" type="primary" size="mini" @click="UpdateSelfIPMallMain">保存</el-button>
             </div>
           </div>
         </div>
         <div class="right">
           <div class="right_condition">
-            <div
-              style=" display: flex;
-                    margin: 4px 0px;"
-            >
+            <div style="display: flex; margin: 4px 0px">
               <storeChoose @changeMallList="changeMallList" />
               <el-button type="primary" size="mini" @click="dialog_search_IPMall">查询</el-button>
             </div>
             <!-- <el-checkbox v-model="showUserIP" style="margin: 4px 0px;" @click.native="bindedMall()">显示已绑定ip店铺</el-checkbox> -->
-            <div class="right_table" style="border:1px solid #C0C4CC">
+            <div class="right_table" style="border: 1px solid #c0c4cc">
               <el-table
                 ref="multipleTable_dialog"
                 height="400px"
-                :header-cell-style="{'background': '#f7fafa'}"
+                :header-cell-style="{ background: '#f7fafa' }"
                 :row-key="generateUUID"
                 :data="isBingedList"
                 @selection-change="handleSelectionChangeDialog"
               >
-                <el-table-column
-                  type="selection"
-                  width="55"
-                />
+                <el-table-column type="selection" width="55" />
                 <el-table-column type="index" label="序号" align="center" />
-                <el-table-column prop="country" label="站点" align="center" >
+                <el-table-column prop="country" label="站点" align="center">
                   <template slot-scope="{ row }">
-                    {{ row.country | chineseSite}}
+                    {{ row.country | chineseSite }}
                   </template>
                 </el-table-column>
                 <el-table-column prop="mall_alias_name" label="店铺名称" align="center" />
                 <!-- <el-table-column prop="main_name" label="已绑定公司主体名称" /> -->
               </el-table>
             </div>
-            <div style="display:flex;justify-content: center;margin-top:5px">
+            <div style="display: flex; justify-content: center; margin-top: 5px">
               <el-button v-show="showButton" type="primary" size="mini" @click="updataMallList()">绑定店铺</el-button>
             </div>
           </div>
         </div>
-
       </el-dialog>
     </div>
   </div>
@@ -889,13 +751,6 @@ export default {
       }
       const res = await this.$api.ddMallGoodsGetMallList(params)
       if (res.data.code === 200) {
-<<<<<<< HEAD
-        this.dialog_mallList = res.data.data
-        // 部分
-        this.dialog_mallList2 = this.dialog_mallList.filter(item => {
-          return item.main_name === ''
-        })
-=======
         const list = []
         res.data.data.forEach(e => {
           e.country = this.shopeeConfig.getSiteCode(e.country)
@@ -908,7 +763,6 @@ export default {
         // this.dialog_mallList2 = this.dialog_mallList.filter(item => {
         //   return item.main_name === ''
         // })
->>>>>>> 7fbcb1e43a59ed47a19fec82e44b717d1928f115
         // 初始化dialog列表
         // this.isBingedList = this.dialog_mallList2
 
@@ -1321,28 +1175,28 @@ export default {
 }
 </script>
 <style lang="less">
-
-.content{
-    min-width: 1200px;
-    // padding: 5px;
-    // margin: 10px;
-    // margin-right:10px ;
-    .all_condition, .table_clo{
+.content {
+  min-width: 1200px;
+  // padding: 5px;
+  // margin: 10px;
+  // margin-right:10px ;
+  .all_condition,
+  .table_clo {
     background-color: white;
     padding: 5px;
     margin: 10px;
     border-radius: 10px;
+  }
+  .table_clo {
+    border-radius: 0px;
+    padding: 2px;
+    .pagination {
+      display: flex;
+      justify-content: flex-end;
+      margin: 4px 0px;
     }
-     .table_clo{
-     border-radius: 0px;
-     padding: 2px;
-     .pagination{
-    display: flex;
-    justify-content: flex-end;
-    margin: 4px 0px;
-     }
-    }
-    .all_condition{
+  }
+  .all_condition {
     display: flex;
     flex-wrap: wrap;
     // justify-content:center;
@@ -1359,43 +1213,43 @@ export default {
         margin-right: 5px;
       }
     }
-    }
-    .dialog_addip{
-      .el-dialog{
-        .el-dialog__body{
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          .left{
-            padding: 5px;
-            margin-right: 10px;
-            .left_item{
-              margin-bottom: 10px;
-            }
+  }
+  .dialog_addip {
+    .el-dialog {
+      .el-dialog__body {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        .left {
+          padding: 5px;
+          margin-right: 10px;
+          .left_item {
+            margin-bottom: 10px;
           }
         }
       }
     }
-    .el-form-item{
-      margin-bottom: 0px;
+  }
+  .el-form-item {
+    margin-bottom: 0px;
+  }
+  .el-input--mini {
+    margin-bottom: 2px;
+  }
+  .el-form-item__error {
+    line-height: 0;
+    padding-top: 0px;
+  }
+  .changeVisible {
+    .el-dialog {
+      width: 900px !important;
     }
-    .el-input--mini{
-      margin-bottom: 2px;
-    }
-    .el-form-item__error{
-      line-height: 0;
-      padding-top: 0px;
-    }
-    .changeVisible{
-      .el-dialog{
-        width:900px !important
-      }
-    }
+  }
 }
 
-    @media screen and (min-width: 1200px){
-       .el-dialog{
-        margin-top: 10vh !important;
-      }
-    }
+@media screen and (min-width: 1200px) {
+  .el-dialog {
+    margin-top: 10vh !important;
+  }
+}
 </style>
