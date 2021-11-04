@@ -2,7 +2,7 @@
   <div v-loading="loading" class="content">
     <div class="all_condition">
       <div class="condition_item">
-        <storeChoose @changeMallList="changeMallList" />
+        <storeChoose :is-all="true" @changeMallList="changeMallList" />
       </div>
 
       <div class="condition_item">
@@ -70,14 +70,21 @@
     </div>
 
     <div style="margin:10px">
-      <span
+      <div
         style="font-size: smaller;
         color: rebeccapurple;"
       >
         温馨提示：1.因为IP为实时购买，所以购买后不会立即生成IP信息。IP信息会在三分钟内生成
         2.一个主体IP最多绑定10个店铺 3.若状态为【已绑定，已分配店铺】，但绑定店铺为空，则表示
         店铺不存在此账号
-      </span>
+      </div>
+      <div
+        style="font-size: smaller;
+        color: rebeccapurple;margin-left:60px"
+      >
+        3.对于系统的香港IP（非香港名称），IP过期后，将无法进行续费，请在IP有效期内续费。
+        4、系统的香港IP（非香港名称）过期后，会被自动回收，回收后将不在显示代理IP信息
+      </div>
     </div>
     <div class="table_clo">
       <div class="data_table" style="height: 100%;background-color:white">
@@ -97,15 +104,19 @@
             align="center"
           />
           <el-table-column label="序号" type="index" align="center" :index="indexMethod" fixed />
-          <el-table-column prop="main_order_sn" label="订单号" align="center" min-width="200px" fixed />
-          <el-table-column prop="uid" label="主体ID" align="center" min-width="100px" />
+          <el-table-column prop="uid" label="主体ID" align="center" min-width="100px" fixed />
           <el-table-column prop="ip_alias" label="主体名称" align="center" min-width="200px" />
           <!-- 需要解析 -->
           <el-table-column prop="poxyIP" label="代理IP" align="center" min-width="150px" />
-          <!-- <el-table-column prop="" label="IP渠道" align="center" /> -->
+          <el-table-column prop="" label="IP渠道" align="center">
+            <template slot-scope="{row}">
+              <span>{{ row.data_ipinfor && row.data_ipinfor.region_name }}</span>
+            </template>
+          </el-table-column>
           <el-table-column prop="source" label="IP来源" align="center" min-width="80px" />
           <!-- <el-table-column prop="" label="是否预售IP" align="center" /> -->
           <el-table-column prop="status" label="状态" align="center" min-width="150px" />
+          <el-table-column prop="main_order_sn" label="订单号" align="center" min-width="200px" />
           <el-table-column prop="expiration_time" label="有效日期" align="center" min-width="200px" />
           <el-table-column prop="mall_alias_name" label="绑定店铺" align="center" min-width="100px" />
           <el-table-column prop="" label="操作" align="center" min-width="330px" fixed="right">
@@ -118,9 +129,10 @@
                   <el-button style="width: 100px;" size="mini" plain type="primary">
                     更多操作<i class="el-icon-arrow-down el-icon--right" />
                   </el-button>
+
                   <el-dropdown-menu slot="dropdown">
-                    <el-dropdown-item> <div v-if="Number(row.source) ===2" class="dropdownItem" @click="showupdateVisible(row.id,row)"> 编辑</div></el-dropdown-item>
-                    <el-dropdown-item> <div class="dropdownItem" @click="showupdateVisible(row.id,row)">修改绑定店铺</div></el-dropdown-item>
+                    <el-dropdown-item> <div v-if="row.source ==='用户'" class="dropdownItem" @click="showupdateVisible(row.id,row),Typeis = 'updataMall'"> 编辑</div></el-dropdown-item>
+                    <el-dropdown-item> <div v-if="row.source ==='系统'" class="dropdownItem" @click="showupdateVisible(row.id,row),Typeis = ''">修改绑定店铺</div></el-dropdown-item>
                   </el-dropdown-menu>
                 </el-dropdown>
               <!-- <el-button size="mini" type="primary" @click="del(row.uid)">删除</el-button> -->
@@ -153,6 +165,7 @@
         width="1200px"
         height="600px"
         top="2vh"
+        :class="{'changeVisible': Typeis===''}"
         @closed="closeDialog1"
       >
         <div class="left">
@@ -480,7 +493,7 @@
               <storeChoose @changeMallList="changeMallList" />
               <el-button type="primary" size="mini" @click="dialog_search_IPMall">查询</el-button>
             </div>
-            <el-checkbox v-model="showUserIP" style="margin: 4px 0px;" @click.native="bindedMall()">显示已绑定ip店铺</el-checkbox>
+            <!-- <el-checkbox v-model="showUserIP" style="margin: 4px 0px;" @click.native="bindedMall()">显示已绑定ip店铺</el-checkbox> -->
             <div class="right_table" style="border:1px solid #C0C4CC">
               <el-table
                 ref="multipleTable_dialog"
@@ -516,7 +529,7 @@
 </template>
 <script>
 import storeChoose from '../../../components/store-choose'
-import { getMalls, MallgetValue } from '../../../util/util'
+import { getMalls, MallgetValue, getValue } from '../../../util/util'
 import { encryptionList, ipTypeList, protocolList, confuseList } from '../../../util/MallManagerStoredata'
 export default {
   components: { storeChoose },
@@ -826,10 +839,9 @@ export default {
       console.log('/*-/-/*-', d)
       this.showButton = true
       this.dialogvisible = true
-      this.Typeis = 'updataMall'
-      this.dialog_title = '修改绑定店铺'
-      this.targetId = val
+      this.dialog_title = this.Typeis === '' ? '编辑' : '修改绑定店铺'
 
+      this.targetId = val
       // 列表渲染
       this.$nextTick(() => {
         if (this.$refs.multipleTable_dialog) {
@@ -877,13 +889,30 @@ export default {
       }
       const res = await this.$api.ddMallGoodsGetMallList(params)
       if (res.data.code === 200) {
+<<<<<<< HEAD
         this.dialog_mallList = res.data.data
         // 部分
         this.dialog_mallList2 = this.dialog_mallList.filter(item => {
           return item.main_name === ''
         })
+=======
+        const list = []
+        res.data.data.forEach(e => {
+          e.country = this.shopeeConfig.getSiteCode(e.country)
+          list.push(e)
+        })
+        // 全部
+        // this.dialog_mallList = res.data.data
+        this.dialog_mallList = list
+        // // 部分
+        // this.dialog_mallList2 = this.dialog_mallList.filter(item => {
+        //   return item.main_name === ''
+        // })
+>>>>>>> 7fbcb1e43a59ed47a19fec82e44b717d1928f115
         // 初始化dialog列表
-        this.isBingedList = this.dialog_mallList2
+        // this.isBingedList = this.dialog_mallList2
+
+        this.isBingedList = this.dialog_mallList
       } else {
         this.$message.warning('网络异常！')
       }
@@ -1227,6 +1256,7 @@ export default {
               item.poxyID = data_ipinfor.id
               item.poxyIP = data_ipinfor.map_ip_address
               item.data_ipinfor = data_ipinfor // 修改获取数据
+              console.log(index, data_ipinfor)
             })
             this.tableList.push(item)
           })
@@ -1356,7 +1386,13 @@ export default {
       line-height: 0;
       padding-top: 0px;
     }
+    .changeVisible{
+      .el-dialog{
+        width:900px !important
+      }
+    }
 }
+
     @media screen and (min-width: 1200px){
        .el-dialog{
         margin-top: 10vh !important;
