@@ -427,6 +427,7 @@ export default {
         this.$message.error('请先勾选店铺')
         return
       }
+      debugger
       this.buttonStatus.login = true
       for (let i = 0; i < len; i++) {
         const item = selectMall[i]
@@ -744,7 +745,7 @@ export default {
           'platform_mall_uid': '',
           'MallMainName': MallMainName,
           'mall_account_info': { // 店铺账户信息(导入模板里面的信息)
-            'password': password,
+            'password': password + '',
             'username': username,
             'userRealName': platformMallRealName,
             'subsiteindex': 0
