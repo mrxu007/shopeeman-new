@@ -15,8 +15,8 @@
         <el-button size="mini" type="primary">登录淘宝</el-button>
         <el-button size="mini" type="primary">登录1688</el-button>
         <el-button size="mini" type="primary">登录Lazada</el-button>
-        <el-button size="mini" type="primary" @click="flowNumberHandle">获取采购物流单号</el-button>
-        <el-checkbox v-model="showConsole" style="margin-left:15px;">隐藏日志</el-checkbox>
+        <el-button size="mini" type="primary" @click="syncLogistics('new')">获取采购物流单号</el-button>
+        <el-checkbox v-model="showConsole" style="margin-left: 15px">隐藏日志</el-checkbox>
       </div>
       <!-- 第二行 -->
       <div class="rowTwo">说&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;明：采购订单发货需及时获取采购物流单号，此通知只会同步采购后近5天未获取采购物流单号的订单</div>
@@ -71,6 +71,8 @@
 </template>
 
 <script>
+import LogisticeSyncService from '../../../services/logistics-sync-service/logistics-sync-service-new'
+
 export default {
   data() {
     return {
@@ -148,9 +150,21 @@ export default {
       // }
     },
     // 获取采购物流单号
-    async flowNumberHandle() {
-      // const { data } = await this.$api.originalTrackingNumberEmpty()
-      this.showConsole = false
+    // async flowNumberHandle() {
+    //   // const { data } = await this.$api.originalTrackingNumberEmpty()
+    //   this.showConsole = false
+    // },
+    async syncLogistics(mode) {
+      this.hideConsole = false
+      const service = new LogisticeSyncService(this.writeLog, mode)
+      // const malls = await this.$mallService.getMallList()
+      const buyerAccount = [...this.buyerAccountList['pdd'], ...this.buyerAccountList['taobao'], ...this.buyerAccountList['alibaba']]
+      console.log(buyerAccount)
+      if (this.multipleSelection.length > 0) {
+        service.start(this, buyerAccount, this.multipleSelection)
+      } else {
+        service.start(this, buyerAccount)
+      }
     },
     // 获取物流单号订单列表
     async getExceptionNoTrackingNumberIndex() {
@@ -195,8 +209,8 @@ export default {
       }
     }
   }
-  .rowTwo{
-    font-size:13px ;
+  .rowTwo {
+    font-size: 13px;
   }
   .rowThree {
     color: red;

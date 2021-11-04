@@ -165,7 +165,6 @@ export default class NetMessageBridgeService {
     const { country, mall_account_info, platform_mall_id } = mallInfo
     const accountName = mall_account_info.username
     const encryptPwd = sha256(md5(mall_account_info.password))
-    debugger
     // const encryptPwd = sha256(md5('Th123654'))
     // const accountName = 'hellohappy586'
     const params = {
@@ -226,8 +225,8 @@ export default class NetMessageBridgeService {
         const Cookie = {} // (一键登陆专用)
         Cookie['SPC_EC'] = data.sso
         Cookie['SPC_SC_TK'] = data.token
-        Cookie['ShopeeUid'] = data.id // 虾皮平台用户Uid
-        Cookie['shopid'] = data.shopid // 平台店铺ID
+        Cookie['ShopeeUid'] = mallUId // 虾皮平台用户Uid
+        Cookie['shopid'] = mallId // 平台店铺ID
 
         const Cookie_new = { // 店铺cookie信息(导入店铺专用)(更新壳)
           'SPC_CDS_VER': '2',

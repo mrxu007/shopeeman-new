@@ -37,7 +37,7 @@
         <el-col :span="16" class="header-rht">
           <ul>
             <li>
-              <el-checkbox>强制登录</el-checkbox>
+              <el-checkbox v-model="forceLogin">强制登录</el-checkbox>
               <el-button type="primary" size="mini" :loading="buttonStatus.login" @click="alotOfLogined(null)">一键登录</el-button>
               <el-button type="primary" size="mini" @click="importMall('authorization')">导入店铺</el-button>
               <el-button type="primary" size="mini" @click="exportMall">导出店铺</el-button>
@@ -251,6 +251,7 @@ export default {
         login: false,
         delMall: false
       },
+      forceLogin: false,
       mallList: [],
       mallListTemp: [],
       importMallListData: [],
@@ -427,12 +428,21 @@ export default {
         this.$message.error('请先勾选店铺')
         return
       }
-      debugger
       this.buttonStatus.login = true
       for (let i = 0; i < len; i++) {
         const item = selectMall[i]
         const platform_mall_name = item.platform_mall_name
         flat === 1 ? item.LoginInfo = '正在登陆中...' : this.writeLog(`(${i + 1}/${len})账号【${platform_mall_name}】开始授权`, true)
+        // 0、检测
+        if (!this.forceLogin && flat === 1) {
+          // 不强制登陆并且为一键登陆时, 走检测接口
+          const userInfo = await this.getUserInfo(item)
+          if (userInfo.code === 200) {
+            item.LoginInfo = `<p style="color: green">登录成功</p>`
+            continue
+          }
+        }
+
         // 1、shopeeMan官方登录
         const res = await this.$shopeemanService.login(item, flat)
         if (res.code !== 200) {
@@ -455,7 +465,7 @@ export default {
           mallDataInfo.web_login_info['shopeeuid'] = Cookie.ShopeeUid
           mallDataInfo.web_login_info['shopid'] = Cookie.shopid
           // 2、更新壳信息
-          await this.$appConfig.updateInfoMall(`${mallId}`, JSON.stringify(mallDataInfo)) // 更新里面店铺的cookie （壳）
+          await this.$appConfig.updateInfoMall(mallId, JSON.stringify(mallDataInfo)) // 更新里面店铺的cookie （壳）
         } else { // 导入店铺
           // 2、更新壳信息
           mallDataInfo = res.data.mallInfo_new
@@ -479,7 +489,6 @@ export default {
           const res3 = await this.getMallGoodsAmount(mallDataInfo)
           res3.code === 200 ? params2['itemLimit'] = res3.data : ''
           const res4 = await this.isNormalMall(mallDataInfo)
-          debugger
           if (res4.code !== 200) {
             this.writeLog(`(${i + 1}/${len})账号【${platform_mall_name}】授权失败：该账号属于跨境店铺`, true)
             continue
@@ -505,6 +514,22 @@ export default {
         flat === 1 ? item.LoginInfo = '<p style="color: green">登录成功</p>' : this.writeLog(`(${i + 1}/${len})账号【${platform_mall_name}】授权成功`, true)
       }
       this.buttonStatus.login = false
+    },
+    async getUserInfo(mallInfo) {
+      try {
+        const { country, platform_mall_id } = mallInfo
+        const params = {
+          'platform_mall_id': platform_mall_id // 导入店铺初始没有mallId
+        }
+        let res = await this.$shopeemanService.getChinese(country, '/api/selleraccount/user_info/?', params)
+        res = JSON.parse(JSON.parse(res).data)
+        if (res.code === 0) {
+          return { code: 200, data: '店铺已经登陆' }
+        }
+        return { code: res.status, data: `${res.status} ${res.data.message}` }
+      } catch (error) {
+        return { code: -2, data: `getMallList-catch: ${error}` }
+      }
     },
     // 获取店铺上新商品额度
     async  getMallGoodsAmount(mallInfo) {
