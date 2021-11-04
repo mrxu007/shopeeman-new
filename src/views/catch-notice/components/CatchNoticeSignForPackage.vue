@@ -10,7 +10,7 @@
         <!-- 采购物流单号 -->
         <div class="logisticsNumber">
           采购物流单号：
-          <el-input v-model="form.packageCode" size="mini" />
+          <el-input v-model="form.packageCode" size="mini" clearable />
         </div>
         <el-button size="mini" type="primary" @click="getExceptionNoOrderIndex">搜索</el-button>
       </div>
@@ -25,7 +25,9 @@
       <el-table-column prop="package_time" label="签收时间" />
       <el-table-column label="包裹图片">
         <template slot-scope="scope">
-          <el-image style="width: 40px; height: 40px" :src="scope.row.package_image" :preview-src-list="[scope.row.package_image]" />
+          <el-image style="width: 40px; height: 40px" :src="scope.row.package_image" :preview-src-list="[scope.row.package_image]">
+            <div slot="error" class="image-slot" />
+          </el-image>
         </template>
       </el-table-column>
       <el-table-column prop="package_code" label="采购物流单号" />
@@ -54,7 +56,7 @@
       <!-- <span style="color: red">温馨提示：请填写子订单号</span> -->
       <el-form :model="applyForm">
         <el-form-item label="包裹号:" label-width="80px">
-          <span style="color: red">{{ applyForm.lists.packageCode }}</span>
+          <span style="color: red">{{ applyForm.lists[0].packageCode }}</span>
         </el-form-item>
         <el-form-item label="收件人:" label-width="80px">
           <el-input v-model="applyForm.returnContact" size="mini" />
@@ -73,7 +75,7 @@
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button type="primary" size="mini" @click="applyDialogHandle">保存</el-button>
+        <el-button :loading="saveLoading" type="primary" size="mini" @click="applyDialogHandle">保存</el-button>
       </div>
     </el-dialog>
   </div>
@@ -83,6 +85,7 @@
 export default {
   data() {
     return {
+      saveLoading: false,
       props: {
         lazy: true,
         that: this,
@@ -129,10 +132,12 @@ export default {
       applyDialogFormVisible: false,
       // 申请退件dialog表单数据
       applyForm: {
-        lists: {
-          gpcId: 0,
-          packageCode: ''
-        },
+        lists: [
+          {
+            gpcId: 0,
+            packageCode: ''
+          }
+        ],
         returnContact: '',
         returnPhoneNumber: '',
         returnAddress: '',
@@ -235,8 +240,9 @@ export default {
       if (!this.applyForm.returnRemarks) {
         return this.$message.error('退件备注不能为空')
       }
+      this.saveLoading = true
       const res = await this.$api.applicationForreJection(this.applyForm)
-      debugger
+      console.log(res.data.data[0])
       if (res.data.code === 200) {
         this.applyDialogFormVisible = false
         this.$message({
@@ -244,12 +250,16 @@ export default {
           type: 'success'
         })
       } else {
-        this.$message.error(res.data.message)
+        let errData = res.data.data[0]
+        errData = errData.substring(errData.indexOf(':') + 1)
+        this.$message.error(errData)
       }
+      this.saveLoading = false
     },
     // 申请退件
     applyReturnPartsHandle(row) {
-      this.applyForm['lists']['packageCode'] = row.package_code
+      this.applyForm.lists = []
+      this.applyForm.lists.push({ gpcId: row.id, packageCode: row.package_code })
       this.applyForm['returnPhoneNumber'] = ''
       this.applyForm['returnContact'] = ''
       this.applyForm['returnRemarks'] = ''
@@ -302,13 +312,16 @@ export default {
     .logisticsNumber {
       margin: 0 10px;
       .el-input {
-        width: 80px;
+        width: 150px;
       }
     }
   }
+  .rowTwo{
+    font-size:13px ;
+  }
   .rowThree {
     color: red;
-    font-size: ;
+    font-size: 13px;
   }
 }
 //表格部分

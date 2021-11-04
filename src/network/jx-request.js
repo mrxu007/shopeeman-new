@@ -126,6 +126,7 @@ export default {
   // 待获取物流单号
   getExceptionNoTrackingNumberIndex: (data) => AppRequest.get('/exceptionNoTrackingNumberIndex', { params: data }), // 订单列表
   updateOrderTrackingNumber: (data) => AppRequest.post('/order/updateOrderTrackingNumber', data), // 添加采购物流单号
+  originalTrackingNumberEmpty: (data) => AppRequest.get('/order/originalTrackingNumberEmpty', data), // 获取采购物流单号
 
   // 异常公告
   apply: (data) => AppRequest.post('/packageReturn/apply', data), // 异常公告签收包裹异常：申请退件

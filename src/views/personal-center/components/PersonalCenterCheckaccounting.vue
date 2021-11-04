@@ -36,17 +36,17 @@
           <div class="overview-card">
             <el-card shadow="always" class="cart">
               <div class="cart-item">
-                <img src="../../../assets/img/chargeTotalFee.png" class="mar-right" alt="" />
+                <img src="../../../assets/img/chargeTotalFee.png" class="mar-right" alt="">
                 <span class="text-center mar-right">充值总金额（元）</span>
                 <span class="text-right">{{ recharge_column }}</span>
               </div>
               <div class="cart-item">
-                <img src="../../../assets/img/purchaseReturn.png" class="mar-right" alt="" />
+                <img src="../../../assets/img/purchaseReturn.png" class="mar-right" alt="">
                 <span class="text-center mar-right">采购商品退回金额（元）</span>
                 <span class="text-right">{{ purchase_goods_return_column }}</span>
               </div>
               <div class="cart-item">
-                <img src="../../../assets/img/return.png" class="mar-right" alt="" />
+                <img src="../../../assets/img/return.png" class="mar-right" alt="">
                 <span class="text-center mar-right">退件总金额（元）</span>
                 <span class="text-right">{{ return_column }}</span>
               </div>
@@ -57,17 +57,17 @@
           <div class="overview-card">
             <el-card shadow="always">
               <div class="cart-item">
-                <img src="../../../assets/img/translate.png" class="mar-right" alt="" />
+                <img src="../../../assets/img/translate.png" class="mar-right" alt="">
                 <span class="text-center mar-right">翻译总金额（元）</span>
                 <span class="text-right">{{ translation_column }}</span>
               </div>
               <div class="cart-item">
-                <img src="../../../assets/img/IP.png" class="mar-right" alt="" />
+                <img src="../../../assets/img/IP.png" class="mar-right" alt="">
                 <span class="text-center mar-right">主体IP消费总金额（元）</span>
                 <span class="text-right">{{ mall_main_column }}</span>
               </div>
               <div class="cart-item">
-                <img src="../../../assets/img/totalConsumption.png" class="mar-right" alt="" />
+                <img src="../../../assets/img/totalConsumption.png" class="mar-right" alt="">
                 <span class="text-center mar-right">总消费金额（元）</span>
                 <span class="text-right">{{ total_expense_amount }}</span>
               </div>
@@ -78,17 +78,17 @@
           <div class="overview-card">
             <el-card shadow="always">
               <div class="cart-item">
-                <img src="../../../assets/img/purchase.png" class="mar-right" alt="" />
+                <img src="../../../assets/img/purchase.png" class="mar-right" alt="">
                 <span class="text-center mar-right">采购商品总金额（元）</span>
                 <span class="text-right">{{ purchase_goods_column }}</span>
               </div>
               <div class="cart-item">
-                <img src="../../../assets/img/exception.png" class="mar-right" alt="" />
+                <img src="../../../assets/img/exception.png" class="mar-right" alt="">
                 <span class="text-center mar-right">异常赔付总金额（元）</span>
                 <span class="text-right">{{ abnormal_payment_column }}</span>
               </div>
               <div class="cart-item">
-                <img src="../../../assets/img/totalIncome.png" class="mar-right" alt="" />
+                <img src="../../../assets/img/totalIncome.png" class="mar-right" alt="">
                 <span class="text-center mar-right">总收入金额（元）</span>
                 <span class="text-right">{{ total_revenue_amount }}</span>
               </div>
@@ -99,12 +99,12 @@
           <div class="overview-card">
             <el-card shadow="always">
               <div class="cart-item">
-                <img src="../../../assets/img/warehouse.png" class="mar-right" alt="" />
+                <img src="../../../assets/img/warehouse.png" class="mar-right" alt="">
                 <span class="text-center mar-right">仓库发货总金额（元）</span>
                 <span class="text-right">{{ warehouse_ship_column }}</span>
               </div>
               <div class="cart-item">
-                <img src="../../../assets/img/other.png" class="mar-right" alt="" />
+                <img src="../../../assets/img/other.png" class="mar-right" alt="">
                 <span class="text-center mar-right">其他总金额（元）</span>
                 <span class="text-right">{{ other_column }}</span>
               </div>
@@ -302,9 +302,7 @@ export default {
     }
   },
   mounted() {
-    const end = new Date().getTime()
-    const start = end - 31 * 24 * 60 * 60 * 1000
-    this.statisticsTime = [this.$dayjs(start).format('YYYY-MM-DD'), this.$dayjs(end).format('YYYY-MM-DD')]
+    this.statisticsTime = creatDate(31)
     this.getOrderStatisticsList()
   },
   methods: {

@@ -122,8 +122,7 @@
         <el-table-column min-width="150px" label="交易号" align="center">
           <template slot-scope="scope">
             <p class="tabletext">
-              <span style="cursor: pointer"> {{ scope.row.trans_number }}</span
-              ><span class="copyIcon" @click="copy(scope.row.trans_number)">
+              <span style="cursor: pointer"> {{ scope.row.trans_number }}</span><span class="copyIcon" @click="copy(scope.row.trans_number)">
                 <i class="el-icon-document-copy" />
               </span>
             </p>
@@ -132,25 +131,36 @@
         <el-table-column min-width="150px" label="订单编号" align="center">
           <template slot-scope="scope">
             <p v-if="scope.row.order_sn" class="tabletext">
-              <span style="cursor: pointer">{{ scope.row.order_sn }}</span
-              ><span class="copyIcon" @click="copy(scope.row.order_sn)"><i class="el-icon-document-copy" /></span>
+              <span style="cursor: pointer">{{ scope.row.order_sn }}</span><span class="copyIcon" @click="copy(scope.row.order_sn)"><i class="el-icon-document-copy" /></span>
             </p>
           </template>
         </el-table-column>
-        <el-table-column align="center" prop="type" label="资金流向" min-width="60"
-          ><template slot-scope="scope">
-            <p v-if="scope.row.type > 0">{{ scope.row.type === 1 ? '收入' : '支出' }}</p>
-          </template>
+        <el-table-column
+          align="center"
+          prop="type"
+          label="资金流向"
+          min-width="60"
+        ><template slot-scope="scope">
+          <p v-if="scope.row.type > 0">{{ scope.row.type === 1 ? '收入' : '支出' }}</p>
+        </template>
         </el-table-column>
-        <el-table-column align="center" prop="trans_type" label="交易类型" min-width="70"
-          ><template slot-scope="scope">
-            <p v-if="scope.row.trans_type > 0">{{ changeTypeName(scope.row.trans_type, transactionType) }}</p>
-          </template>
+        <el-table-column
+          align="center"
+          prop="trans_type"
+          label="交易类型"
+          min-width="70"
+        ><template slot-scope="scope">
+          <p v-if="scope.row.trans_type > 0">{{ changeTypeName(scope.row.trans_type, transactionType) }}</p>
+        </template>
         </el-table-column>
-        <el-table-column align="center" prop="trans_type" label="交易状态" min-width="70"
-          ><template slot-scope="scope">
-            <p v-if="scope.row.trans_type > 0">{{ changeTypeName(scope.row.trans_status, tranStatus) }}</p>
-          </template>
+        <el-table-column
+          align="center"
+          prop="trans_type"
+          label="交易状态"
+          min-width="70"
+        ><template slot-scope="scope">
+          <p v-if="scope.row.trans_type > 0">{{ changeTypeName(scope.row.trans_status, tranStatus) }}</p>
+        </template>
         </el-table-column>
         <el-table-column prop="trans_time" label="交易时间" align="center" min-width="120px">
           <template slot-scope="scope"> {{ scope.row.trans_time }} </template>
@@ -162,10 +172,13 @@
         <el-table-column align="center" prop="current_amount" label="账户余额" min-width="80" />
         <el-table-column align="center" prop="package_sn" label="大包号" min-width="80" />
         <el-table-column align="center" prop="sys_sku_id" label="商品skuID" min-width="80" />
-        <el-table-column align="center" label="费用明细" min-width="70"
-          ><template slot-scope="scope">
-            <el-button v-if="scope.row.trans_type === 2" type="primary" size="mini" @click="getTransDetail(scope.row)">翻译明细</el-button>
-          </template>
+        <el-table-column
+          align="center"
+          label="费用明细"
+          min-width="70"
+        ><template slot-scope="scope">
+          <el-button v-if="scope.row.trans_type === 2" type="primary" size="mini" @click="getTransDetail(scope.row)">翻译明细</el-button>
+        </template>
         </el-table-column>
         <el-table-column align="center" prop="remark" label="备注" min-width="120" show-overflow-tooltip />
       </el-table>
@@ -237,10 +250,14 @@
                 <p>{{ scope.row.type == 1 ? '文字' : '图片' }}</p>
               </template>
             </el-table-column>
-            <el-table-column align="center" label="翻译字符串" min-width="70" show-overflow-tooltip
-              ><template slot-scope="scope">
-                <p>{{ scope.row.text }}</p>
-              </template>
+            <el-table-column
+              align="center"
+              label="翻译字符串"
+              min-width="70"
+              show-overflow-tooltip
+            ><template slot-scope="scope">
+              <p>{{ scope.row.text }}</p>
+            </template>
             </el-table-column>
             <el-table-column prop="amount" label="翻译金额" align="center" width="90px" />
             <el-table-column prop="created_at" label="翻译时间" align="center" width="160px" />
@@ -329,9 +346,7 @@ export default {
     this.moneyFlow.map((item) => {
       this.form.moneyFlow.push(item.id)
     })
-    const end = new Date().getTime()
-    const start = end - 31 * 24 * 60 * 60 * 1000
-    this.form.creationTime = [this.$dayjs(start).format('YYYY-MM-DD'), this.$dayjs(end).format('YYYY-MM-DD')]
+    this.form.creationTime = creatDate(31)
     // 查询交易类型
     this.getTransType()
     // 查询用户账号余额

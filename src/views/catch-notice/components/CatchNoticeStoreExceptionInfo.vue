@@ -142,7 +142,9 @@
             style="width: 40px; height: 40px"
             :src="scope.row.image"
             :preview-src-list="[scope.row.image]"
-          />
+          >
+            <div slot="error" class="image-slot" />
+          </el-image>
         </template>
       </el-table-column>
       <el-table-column
