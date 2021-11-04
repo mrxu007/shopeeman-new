@@ -68,7 +68,6 @@ export default class NetMessageBridgeService {
           referer: url + referer
         })
     }
-    debugger
     return this.NetMessageBridgeService().get(url, JSON.stringify(options))
   }
 
@@ -368,7 +367,7 @@ export default class NetMessageBridgeService {
 
   // 删除问题问候语
   deleteFaqsShopSettings(country, data, options = {}) {
-    return this.deleteChinese(country, '/webchat/api/workbenchapi/v1.2/sc/faqs/shop/settings', data,options)
+    return this.deleteChinese(country, '/webchat/api/workbenchapi/v1.2/sc/faqs/shop/settings', data, options)
   }
 
   // 获取银行卡信息
