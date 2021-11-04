@@ -55,11 +55,10 @@ export default {
   otherRequest, // 对接第三方请求
 
   // 请按照一下格式填写
-  // 2021-09-24
+  // 一键上新
   // weTbUploadGetHeaders: (data) => tbRequest.post('/ycj/api/v2/taobao/tbX5/weTbUploadGetHeaders', data), // 上传淘宝图片（由爬虫组提供）
   // weTbUploadPostResult: (data) => tbRequest.post('/ycj/api/v2/taobao/tbX5/weTbUploadPostResult', data) // 上报淘宝图片（由爬虫组提供）
 
-  // 2021-10-09
   // 测试数据-----------------------------------------------------
   getMallDataStatistics: (data) => AppRequest.post('/mallDataStatistics/dataStat', data), // 获取数据分析
 
@@ -144,9 +143,9 @@ export default {
   uploadPaymentList: (data) => AppRequest.post('/mallAccountBill/save', data), // 上报货款对账单
 
   // 异常公告--即将过期订单
-  getExceptionExpiredOrderIndex: (data) => AppRequest.get('/exceptionExpiredOrderIndex', { params: data }), // 订单列表
-  getExceptionWarehouse: (data) => AppRequest.get('/exceptionWarehouse', { params: data }), // 仓库异常信息列表
-  uploadDealExceptionStatus: (data) => AppRequest.post('/uploadDealExceptionStatus', data), // 仓库异常处理状态上报
+  // getExceptionExpiredOrderIndex: (data) => AppRequest.get('/exceptionExpiredOrderIndex', { params: data }), // 订单列表
+  // getExceptionWarehouse: (data) => AppRequest.get('/exceptionWarehouse', { params: data }), // 仓库异常信息列表
+  // uploadDealExceptionStatus: (data) => AppRequest.post('/uploadDealExceptionStatus', data), // 仓库异常处理状态上报
 
   // 智能仓库
   getSignPackageList: (data) => AppRequest.post('/signPackage', data), // 获取包裹列表

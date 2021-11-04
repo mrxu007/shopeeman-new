@@ -3,111 +3,26 @@
  */
 export default class buyerAccountService {
   constructor() {
-    this.nativeService = window['buyerAccountService']
-    this.shortOrderService = window['ShortOrderBridgeService']
+    this.nativeService = window['BuyerAccountBridgeService']
   }
-  /**
-   * 拼多多买手号登录
+  /**   BuyerLogin（platform,url）
+   *    platform:平台
+        url:登录链接
+        public const int PddPlatform = 1; //拼多多
+        public const int TbPlatform = 2; //淘宝
+        public const int TmPlatform = 3; //天猫
+        public const int JdPlatform = 4; //京东
+        public const int JxPlatform = 10; //京喜
+        public const int OwnPlatform = 5; //自有
+        public const int PpxiasGHPT = 6; //皮皮虾供货平台
+        public const int AlibabaPlatform = 8; //皮皮虾供货平台
+        public const int HyjPlatform = 7; //货源甲
+        public const int ShopeePlatform = 11;//Shopee平台
+        public const int AliExpress = 12;//Shopee平台
+        public const int HlbOverseasPlatform = 15;//货老板云仓
+        public const int TmallCrossBorderPlatform = 13;//天猫淘宝海外平台
    */
-  pddLogin() {
-    return this.nativeService.pddLogin()
-  }
-  /**
-   * 进入买手号个人中心
-   * @param {*} account
-   */
-  pddUserCenter(account, url = '') {
-    this.nativeService.pddUserCenter(account, url)
-  }
-  /**
-   * 保存买手号信息到本地
-   * @param {*} account
-   */
-  saveAsLocal(account) {
-    return this.nativeService.saveAsLocal(account)
-  }
-  /**
-   * 获取本地存储的买手号信息
-   */
-  getLocalAccounts() {
-    return this.nativeService.getLocalAccounts()
-  }
-  /**
-   * 淘宝登录
-   */
-  taobaoLogin() {
-    return this.nativeService.taobaoLogin()
-  }
-  /**
-   * 打开淘宝账号个人中心
-   * @param {*} account
-   */
-  taobaoUserCenter(account, url = '') {
-    return this.nativeService.taobaoUserCenter(account, url)
-  }
-  /**
-   * 京东登录
-   */
-  jingdongLogin() {
-    return this.nativeService.jingdongLogin()
-  }
-  /**
-   * 打开京东账号个人中心
-   * @param {*} account
-   */
-  jingdongUserCenter(account, url = '') {
-    return this.nativeService.jingdongUserCenter(account, url)
-  }
-  /**
-   * 京喜登录
-   */
-  jingxiLogin() {
-    return this.nativeService.jingxiLogin()
-  }
-  /**
-   * 打开京喜账号个人中心
-   * @param {*} account
-   */
-  jingxiUserCenter(account, url = '') {
-    return this.nativeService.jingxiUserCenter(account, url)
-  }
-  /**
-   * 1688登录
-   */
-  AlibabaLogin() {
-    return this.nativeService.alibabaLogin()
-  }
-  /**
-   * 打开1688账号个人中心
-   * @param {*} account
-   */
-  AlibabaUserCenter(account, url = '') {
-    return this.nativeService.alibabaUserCenter(account, url)
-  }
-  /**
-   * 拼多多优惠劵
-   */
-  pddCouponWindow(ShotOrderAccount) {
-    if (this.nativeService.pddCouponWindow) {
-      return this.nativeService.pddCouponWindow(ShotOrderAccount)
-    }
-  }
-
-  /**
-   * 拼多多规格映射
-   * @param {*} relationSkuModel
-   * @param {*} account
-   * @returns
-   */
-  skuRelationWindow(relationSkuModel, account) {
-    return this.nativeService.skuRelationWindow(relationSkuModel, account)
-  }
-  /**
-   * 获取映射信息
-   * @param {*} sysOrderIds
-   * @returns
-   */
-  getBySysOrderIds(sysOrderIds) {
-    return this.shortOrderService.getBySysOrderIds(sysOrderIds)
+  async buyerCenterLogin(platform, url) {
+    this.nativeService.buyerLogin(platform, url)
   }
 }
