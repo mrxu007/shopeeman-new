@@ -13,53 +13,8 @@
 
     <div class="all_condition">
       <div class="condition_item">
-        <storeChoose @changeMallList="changeMallList" />
+        <storeChoose :is-all="true" @changeMallList="changeMallList" />
       </div>
-      <!-- <div class="condition_item">
-        <span>站点：</span>
-        <el-select
-          v-model="site_query.country"
-          size="mini"
-          width="150px"
-          placeholder="站点"
-          @change="getMallSite(),exchangeRateList(),orgin='',showRMB=false"
-        >
-          <el-option v-for="item in siteList" :key="item.name" :label="item.name" :value="item.value" />
-        </el-select>
-      </div> -->
-
-      <!-- <div class="condition_item">
-        <span>店铺分组：</span>
-        <el-select
-          v-model="mallGroupId"
-          size="mini"
-          width="150px"
-          placeholder="店铺分组"
-          collapse-tags
-          multiple
-          style="min-width: 235px;"
-          @change="getMallSite"
-        >
-          <el-option label="全部" value="全选" @click.native="selectall_gruop" />
-          <el-option v-for="item in mallList_gruop" :key="item.id" :label="item.mall_alias_name" :value="item.id" />
-        </el-select>
-      </div> -->
-
-      <!-- <div class="condition_item">
-        <span>店铺：</span>
-        <el-select
-          v-model="query.sysMallId"
-          size="mini"
-          width="150px"
-          collapse-tags
-          multiple
-          placeholder="店铺"
-        >
-          <el-option value="" label="全部" />
-          <el-option v-for="item in mallList_mall" :key="item.id" :label="item.platform_mall_name" :value="item.platform_mall_id" />
-        </el-select>
-      </div> -->
-
       <div class="condition_item">
         <span>平台店铺ID：</span>
         <el-input v-model="plantform_mallID" clearable placeholder="输入多个ID请使用英文','号隔开" size="mini" style="width: 220px" />
@@ -124,7 +79,11 @@
       <div class="data_table" style="height: 100%; background-color: white">
         <el-table height="calc(100vh - 281px)" :data="tableList" :row-style="{ height: '50px' }" style="width: 100%; height: calc(100vh - 260px)" :header-cell-style="{ background: '#f7fafa' }">
           <el-table-column label="序号" type="index" />
-          <el-table-column prop="country" label="站点" align="center" />
+          <el-table-column prop="country" label="站点" align="center" >
+            <template slot-scope="{ row }">
+              {{ row.country | chineseSite}}
+            </template>
+          </el-table-column>
           <el-table-column prop="platform_mall_name" label="店铺名称" align="center" />
           <el-table-column prop="order_id" label="订单编号" align="center" min-width="120px" />
           <el-table-column prop="" label="状态" align="center">
@@ -157,13 +116,11 @@
 </template>
 <script>
 import storeChoose from '../../../components/store-choose'
-import { exportExcelDataCommon } from '../../../util/util'
-import ShopeeConfig from '@/services/shopeeman-config'
+import { exportExcelDataCommon, creatDate } from '../../../util/util'
 export default {
   components: { storeChoose },
   data() {
     return {
-      shopeeConfig: new ShopeeConfig(),
       orgin: '',
       to_back_amount: '', // 即将拨款
       haved_amount: '', // 已拨款
@@ -172,19 +129,6 @@ export default {
       total: 0,
       mallList_gruop: [],
       mallList_mall: [],
-      siteList: [
-        { name: '马来站', value: 'MY' },
-        { name: '台湾站', value: 'TW' },
-        { name: '越南站', value: 'VN' },
-        { name: '印尼站', value: 'ID' },
-        { name: '菲律宾站', value: 'PH' },
-        { name: '泰国站', value: 'TH' },
-        { name: '新加坡站', value: 'SG' },
-        { name: '巴西站', value: 'BR' },
-        { name: '墨西哥站', value: 'MX' },
-        { name: '智利站', value: 'CL' },
-        { name: '哥伦比亚站', value: 'CO' }
-      ],
       site_query: {
         // 站点参数
         country: 'TH', // 站点
@@ -216,9 +160,9 @@ export default {
     }
   },
   mounted() {
-    this.initDate()
+    // 初始化时间
+    this.cloumn_date = creatDate(31)
     this.getTableList() // 初始化table
-    // this.getMallSite()// 初始化站点
     this.exchangeRateList() // 获取汇率
   },
   methods: {
@@ -234,7 +178,6 @@ export default {
     },
     // 同步信息
     async updataMall() {
-      console.log('regd')
       // this.uploadVisible = false
       if (!this.selectMallList.length) {
         this.$message.warning('请选择要同步的店铺！')
@@ -428,7 +371,7 @@ export default {
         this.exportList.forEach((item, index) => {
           str += `<tr>
               <td>${index + 1}</td>
-              <td>${item.country ? item.country : '-' + '\t'}</td>
+              <td>${item.country ? this.$filters.chineseSite(item.country) : '-' + '\t'}</td>
               <td>${item.platform_mall_name ? item.platform_mall_name : '-' + '\t'}</td>
               <td>${item.order_id ? item.order_id : '-' + '\t'}</td>
               <td>${item.status && Number(item.status) === 1 ? '已拨款' : '即将拨款' + '\t'}</td>
@@ -444,33 +387,6 @@ export default {
         this.getTableList()
         this.exportList.push(...this.tableList)
         this.export_table(page + 1)
-      }
-    },
-    // 店铺分组-全选赋值
-    selectall_gruop() {
-      if (this.mallGroupId.length < this.mallList_gruop.length) {
-        this.mallGroupId = []
-        this.mallList_gruop.map((item) => {
-          this.mallGroupId.push(item.id)
-        })
-      } else {
-        this.mallGroupId = []
-      }
-    },
-    // 获取站点店铺信息
-    async getMallSite() {
-      const params = {
-        country: this.site_query.country,
-        mallGroupId: this.mallGroupId && this.mallGroupId.toString()
-      }
-      // 获取店铺分组
-      const data = await this.$api.getMallSite(params)
-      if (data.data.code === 200) {
-        this.mallList_gruop = data.data.data
-        this.mallList_mall = data.data.data
-        // console.log('-------', data.data.data)
-      } else {
-        console.log('error', data)
       }
     },
     // 搜索
@@ -493,12 +409,7 @@ export default {
       const data = await this.$api.getPaymentList(params)
       if (data.data.code === 200) {
         // this.tableList = data.data.data.data
-        const list = data.data.data.data
-        list.forEach(i => {
-          i.country = this.shopeeConfig.getSiteCode(i.country)
-          list.push(i)
-        })
-        this.tableList = list
+        this.tableList = data.data.data.data
         // this.query.page = data.data.data.last_page
         // this.query.pageSize = data.data.data.per_page
         this.total = data.data.data.total
@@ -508,17 +419,6 @@ export default {
         this.$message.warning('数据请求失败！')
       }
       console.log(data.data.data)
-    },
-    // 初始化时间
-    initDate() {
-      const end = new Date().getTime()
-      const start = end - 31 * 24 * 60 * 60 * 1000
-      this.cloumn_date = [this.$dayjs(start).format('YYYY-MM-DD'), this.$dayjs(end).format('YYYY-MM-DD')]
-      // const d = new Date()
-      // const d1 = d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate()
-      // const d2 = d.getFullYear() + '-' + d.getMonth() + '-' + d.getDate()
-      // this.cloumn_date = [d2, d1]
-      // this.cloumn_date && this.cloumn_date.length > 0 ? this.cloumn_date.join('/').toString() : ''
     },
     handleSizeChange(val) {
       this.query.pageSize = val

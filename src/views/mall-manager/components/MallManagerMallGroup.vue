@@ -48,7 +48,7 @@
         </el-table-column>
       </el-table>
     </el-row>
-    <!-- 新增/修改店铺 -->
+    <!-- 新增/修改店铺弹框 -->
     <el-dialog
       class="edit-group-dialog"
       :title="typeOpt ? '修改店铺分组' : '新增店铺分组'"
@@ -74,11 +74,11 @@
             </li>
             <li class="btn">
               <el-button type="primary" size="mini" @click="addOrUpdatemallGroup">保存</el-button>
-              <el-button type="primary" size="mini">Excel导入分组</el-button>
+              <el-button v-show="!typeOpt" type="primary" size="mini" @click="openExcelDialog">Excel导入分组</el-button>
             </li>
             <li>
               <div class="text-log">
-                <div class="text-log-content" v-html="consoleMsg" />
+                <div class="text-log-content" />
               </div>
             </li>
           </ul>
@@ -137,10 +137,41 @@
         </div>
       </el-row>
     </el-dialog>
+    <!-- Excal导入店铺分组 -->
+    <el-dialog
+      class="excel-dialog"
+      title="Excel导入店铺分组"
+      :visible.sync="ExcelDialogVisible"
+      width="500px"
+      :before-close="handleClose2"
+      :close-on-click-modal="false"
+      :close-on-press-escape="false"
+      :modal="false"
+    >
+      <ul>
+        <li class="btn">
+          <el-upload ref="importRef" accept=".xls, .xlsx" action="https://jsonplaceholder.typicode.com/posts/" :on-change="importTemplateEvent" :show-file-list="false" :auto-upload="false">
+            <el-button :data="importTemplateData" size="mini" type="primary"> 批量导入 </el-button>
+          </el-upload>
+          <el-button type="primary" size="mini" @click="downloadTemplate('downExcelGroupTemplate')">下载模板</el-button>
+          <span class="tip">请先下载数据模板再进行批量导入</span>
+        </li>
+        <li class="tip2">
+          <p>导入信息：</p>
+        </li>
+        <li>
+          <div class="text-log">
+            <div class="text-log-content" v-html="consoleMsg" />
+          </div>
+        </li>
+      </ul>
+    </el-dialog>
   </el-row>
 </template>
 
 <script>
+import { exportExcelDataCommon } from '../../../util/util'
+import xlsx from 'xlsx'
 export default {
   data() {
     return {
@@ -160,6 +191,7 @@ export default {
       // 店铺分组弹框
       typeOpt: '',
       editGroupDialogVisible: false,
+      ExcelDialogVisible: false,
       groupId: '',
       siteId: 0,
       systemId: '',
@@ -168,7 +200,9 @@ export default {
       mallListTemp: [],
       countries: this.$filters.countries_option,
       isHide: false,
-      bindMallList: []
+      bindMallList: [],
+
+      importTemplateData: ''
 
     }
   },
@@ -185,9 +219,126 @@ export default {
       //   .then(_ => {
       done()
       this.bindMallList = []
-      this.consoleMsg = ''
       //   })
       //   .catch(_ => {})
+    },
+    handleClose2(done) {
+      done()
+      this.consoleMsg = ''
+    },
+
+    downloadTemplate(type) { // 下载修改店铺水印模板
+      this[type]()
+    },
+    // 表格导入
+    importTemplateEvent(file) {
+      const files = { 0: file.raw }
+      if (!/\.(xls|xlsx)$/.test(files[0].name.toLowerCase())) {
+        this.writeLog('上传格式不对,请上传xls、xls格式的文件', false)
+        return
+      }
+      if (files.length <= 0) {
+        this.writeLog('表格为空', false)
+        return
+      }
+      const fileReader = new FileReader()
+      fileReader.onload = (ev) => {
+        const data = ev.target.result
+        const workbook = xlsx.read(data, {
+          type: 'binary'
+        })
+        const wsname = workbook.SheetNames[0] // 去第一张表
+        let ws = xlsx.utils.sheet_to_json(workbook.Sheets[wsname]) // 生成Json表格
+        // console.log('ws表格里面的数据，且是json格式', ws)
+        this.importTemplateData = ws
+        ws = null
+        this.writeLog(`正在读取中...`, true)
+        this.importGroupName()
+        // 重写数据
+        this.$refs.importRef.value = ''
+      }
+      fileReader.readAsBinaryString(files[0])
+    },
+    async importGroupName() {
+      const len = this.importTemplateData.length
+      const importGroupObj = {}
+      const mallListTempRelationId = {}
+      this.mallListTemp.map(item => {
+        mallListTempRelationId[`${item.platform_mall_id}`] = item.id
+      })
+      for (let i = 0; i < len; i++) {
+        // if (this.isStop) {
+        //   this.writeLog('取消导入', false)
+        //   break
+        // }
+        const item = this.importTemplateData[i]
+        if (!item['店铺ID(必填)']) {
+          this.writeLog(`(${i + 1}/${len})item['店铺ID(必填)']`, false)
+          continue
+        }
+        if (!item['分组名称(必填)']) {
+          this.writeLog(`(${i + 1}/${len})分组名称(必填)`, false)
+          continue
+        }
+        const mallID = item['店铺ID(必填)'] + ''
+        const groupName = item['分组名称(必填)']
+        if (!importGroupObj[`${groupName}`]) {
+          importGroupObj[`${groupName}`] = []
+        }
+        importGroupObj[`${groupName}`].push(mallListTempRelationId[mallID])
+      }
+      const params = {}
+      let res = null
+      let index = 1
+      const lens = Object.keys(importGroupObj).length
+
+      for (const key in importGroupObj) {
+        const isRepeatGroupName = this.groupList.find(item => item.group_name === key)
+        if (isRepeatGroupName) {
+          console.log('找到重复分组名', isRepeatGroupName)
+          params['groupName'] = key // 分组名
+          params['groupId'] = isRepeatGroupName.id // 分组id
+          params['sysMallIds'] = importGroupObj[key].join(',')
+          res = await this.$api.updateGroup(params)
+        } else {
+          console.log('创建新分组名', isRepeatGroupName)
+          params['groupName'] = key // 分组名
+          params['sysMallIds'] = importGroupObj[key].join(',')
+          res = await this.$api.addGroup(params)
+        }
+        if (res.data.code !== 200) {
+          this.$message.error()
+          this.writeLog(`(${index}/${lens})店铺分组导入失败: ${res.data.message}`, false)
+          this.buttonStatus.addGroup = false
+          continue
+        }
+        this.writeLog(`(${index}/${lens})店铺分组名：【${key}】导入成功`, true)
+        index++
+      }
+      this.getGroup()
+      this.getMallList()
+      this.writeLog(`导入结束`, true)
+      this.importTemplateData = null
+    },
+    downExcelGroupTemplate() {
+      let template = `<tr>
+      <td style="width: 200px; text-align:left;">店铺名称<span style="color:red">(必填)</span></td>
+      <td style="width: 200px; text-align:left;">店铺ID<span style="color:red">(必填)</span></td>
+      <td style="width: 200px; text-align:left;">分组名称<span style="color:red">(必填)</span></td>
+      </tr>`
+      this.mallListTemp.map(item => {
+        template += `
+          <tr>
+            <td style="width: 200px; text-align:left;">${item.platform_mall_name}</td>
+            <td style="width: 200px; text-align:left;">${item.platform_mall_id}</td>
+            <td style="width: 200px; text-align:left;">${item.group_name || ''}</td>
+          </tr>
+        `
+      })
+      exportExcelDataCommon('批量导入分组', template)
+    },
+    async openExcelDialog() {
+      this.ExcelDialogVisible = true
     },
     openGroupDialog(row) {
       this.typeOpt = row
@@ -304,7 +455,6 @@ export default {
       }
       this.groupList = res.data.data
       this.groupListTemp = this.groupList
-      console.log('groupListTemp', this.groupListTemp)
       this.buttonStatus.search = false
     },
     async addOrUpdatemallGroup() {
@@ -353,6 +503,7 @@ export default {
       this.buttonStatus.addGroup = false
       this.editGroupDialogVisible = false
     },
+
     async deleteGroup() {
       if (this.buttonStatus.delGroup) {
         return
@@ -393,6 +544,44 @@ export default {
       this.mallListTemp = this.mallList
       console.log('this.mallListTemp', this.mallListTemp)
       this.$refs.plTable2?.reloadData(this.mallListTemp)
+    },
+    writeLog(msg, success, setcolor) {
+      if (!msg) return
+      let color = success ? 'green' : 'red'
+      if (setcolor) {
+        color = setcolor
+      }
+      const time = this.dateFormat(new Date(Date.now()), 'hh:mm:ss')
+      this.consoleMsg =
+        `<p style="color:${color}">${time}:${msg}</p>` + this.consoleMsg
+    },
+    dateFormat(time, fmt) {
+      var o = {
+        'M+': time.getMonth() + 1, // 月份
+        'd+': time.getDate(), // 日
+        'h+': time.getHours(), // 小时
+        'm+': time.getMinutes(), // 分
+        's+': time.getSeconds(), // 秒
+        'q+': Math.floor((time.getMonth() + 3) / 3), // 季度
+        S: time.getMilliseconds() // 毫秒
+      }
+      if (/(y+)/.test(fmt)) {
+        fmt = fmt.replace(
+          RegExp.$1,
+          (time.getFullYear() + '').substr(4 - RegExp.$1.length)
+        )
+      }
+      for (var k in o) {
+        if (new RegExp('(' + k + ')').test(fmt)) {
+          fmt = fmt.replace(
+            RegExp.$1,
+            RegExp.$1.length === 1
+              ? o[k]
+              : ('00' + o[k]).substr(('' + o[k]).length)
+          )
+        }
+      }
+      return fmt
     }
   }
 }

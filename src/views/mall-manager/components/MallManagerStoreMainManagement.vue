@@ -290,7 +290,7 @@
                   />
                 </el-select> -->
 
-                <el-radio-group v-model="query_person.ip_agency" size="small" style="width: 200px">
+                <el-radio-group v-model="query_person.ip_agency" style="width: 200px">
                   <el-radio
                     v-for="item in ipTypeList"
                     :key="item.value"

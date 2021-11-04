@@ -28,4 +28,5 @@ pnpm-debug.log*
 *.sw?
 package-lock.json
 #ackage-lock.json
+#package-lock.json
 yarn.lock

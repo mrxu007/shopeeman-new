@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-10-08 14:16:18
- * @LastEditTime: 2021-11-02 18:23:11
+ * @LastEditTime: 2021-11-03 17:03:08
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shopeeman-new\src\views\mall-manager\components\MallManagerWithdrawalRecord.vue
@@ -77,7 +77,7 @@
 
 <script>
 import storeChoose from '../../../components/store-choose'
-import { exportExcelDataCommon } from '../../../util/util'
+import { exportExcelDataCommon,creatDate } from '../../../util/util'
 export default {
   components: {
     storeChoose,
@@ -123,9 +123,8 @@ export default {
     }
   },
   mounted() {
-    let end = new Date().getTime()
-    let start = end - 30 * 24 * 60 * 60 * 1000
-    this.recordTime = [this.$dayjs(start).format('YYYY-MM-DD'), this.$dayjs(end).format('YYYY-MM-DD')]
+    //初始化时间
+    this.recordTime = creatDate(30)
   },
   methods: {
     changeMallList(val) {
@@ -169,7 +168,6 @@ export default {
       try {
         let res = await this.$shopeemanService.getWithDrawalRecord(mall.country, params)
         let resObj = JSON.parse(res)
-        console.log(resObj)
         if (resObj.status === 200) {
           let data = JSON.parse(resObj.data)
           if (data.code === 0) {
@@ -299,6 +297,11 @@ export default {
     .tool-item {
       display: flex;
       align-items: center;
+      span{
+        display: inline-block;
+        width:80px;
+        text-align: center;
+      }
     }
   }
 }
