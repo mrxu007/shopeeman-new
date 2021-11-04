@@ -109,7 +109,7 @@
           </el-table-column>
           <el-table-column align="center" label="操作状态" min-width="100">
             <template slot-scope="{ row }">
-              {{ row.status }}
+              <span :style="row.color && 'color:' + row.color">{{ row.status }}</span>
             </template>
           </el-table-column>
           <el-table-column align="center" prop="recent_order_create_time" label="最近订单创建时间" min-width="150" />
@@ -215,13 +215,15 @@
 
 <script>
 import mallGroup from '@/components/mall-group.vue'
-import { exportExcelDataCommon } from '@/util/util'
+import { exportExcelDataCommon, batchOperation } from '@/util/util'
+import { MallDataApi } from '../../../module-api/mall-manager-api/mall-data-api'
 export default {
   components: {
-    mallGroup
+    mallGroup,
   },
   data() {
     return {
+      mallDataApiInstance: new MallDataApi(this),
       page: 1,
       total: 0,
       pageSize: 700,
@@ -242,7 +244,7 @@ export default {
         site: 0, // 站点
         shopSelect: '0', // 店铺选择
         serviceDataTime: 'real_time', // 客服数据统计时间
-        shopSelectVal: '' // 店铺选择值
+        shopSelectVal: '', // 店铺选择值
       },
       // agoNoneOrderDaysList: [
       //   { value: '0', label: '全部' },
@@ -254,14 +256,14 @@ export default {
       shopSelectList: [
         { value: '0', label: '店铺名称' },
         { value: '1', label: '店铺ID' },
-        { value: '2', label: '店铺别名' }
+        { value: '2', label: '店铺别名' },
       ],
       serviceDataTimeList: [
         { value: 'yesterday', label: '昨天' },
         { value: 'real_time', label: '今天' },
         { value: 'past7days', label: '7天' },
-        { value: 'past30days', label: '30天' }
-      ]
+        { value: 'past30days', label: '30天' },
+      ],
     }
   },
   mounted() {
@@ -273,24 +275,150 @@ export default {
       if (!data) {
         return this.$message('暂无同步数据')
       }
+      console.log(data, 'syncMallData')
       // const url = this.shopeeConfig.getSiteDomainCrossBk('VN')
       // console.log(url)
       this.isShowProgress = true
       this.percentage = 0
-      const { startTime, endTime } = this.getTimeStamp(this.form.serviceDataTime)
-      const parmas = {
-        start_time: parseInt(startTime / 1000),
-        end_time: parseInt(endTime / 1000),
-        period: this.form.serviceDataTime,
-        fetag: 'fetag'
-      }
-      console.log(parmas)
-      for (let index = 0; index < data.length; index++) {
-        const item = data[index]
-        this.$set(item, 'status', '开始同步')
-
-        this.percentage = parseInt((index + 1) / data.length * 100)
+      let res = await batchOperation(data, this.syncMall)
+      this.percentage = 100
+      console.log(1, '完成', res)
+    },
+    async syncMall(item, count = { count: 1 }) {
+      try {
+        this.$set(item, 'status', '开始同步...')
+        const res1 = await this.mallDataApiInstance.getProductStatisticalData(item, '/api/v3/product/get_product_statistical_data/')
+        console.log(res1, 'res1')
+        if (res1.code === 403) {
+          this.$set(item, 'status', '店铺未登录')
+          this.$set(item, 'color', 'red')
+          return
+        }
+        const res2 = await this.mallDataApiInstance.getShopProfile(item, '/api/marketing/v4/shop/profile/')
+        console.log(res2, 'res2')
+        if (res2.code === 403) {
+          this.$set(item, 'status', '店铺未登录')
+          this.$set(item, 'color', 'red')
+          await this.mallDataApiInstance.uploadMallData(item)
+          return
+        }
+        const res3 = await this.mallDataApiInstance.getShopMetricsvalue(item, '/api/marketing/v4/shop/metrics_value/')
+        console.log(res3, 'res3')
+        if (res3.code === 403) {
+          this.$set(item, 'status', '店铺未登录')
+          this.$set(item, 'color', 'red')
+          await this.mallDataApiInstance.uploadMallData(item)
+          return
+        }
+        let todayStart = new Date(new Date().toLocaleDateString()).getTime()
+        let todayEnd = new Date(new Date().toLocaleDateString()).getTime() + 24 * 60 * 60 * 1000 - 1
+        //今日访客
+        let paramsToday = {
+          mallId: item.platform_mall_id,
+          start_time: Math.round(todayStart / 1000),
+          end_time: Math.round(todayEnd / 1000),
+          period: 'real_time',
+          fetag: 'fetag',
+        }
+        const res4 = await this.mallDataApiInstance.getKeyMetrics(item, '/api/mydata/v3/dashboard/key-metrics/', paramsToday, 'today')
+        console.log(res4, 'res4')
+        if (res4.code === 403) {
+          this.$set(item, 'status', '店铺未登录')
+          this.$set(item, 'color', 'red')
+          await this.mallDataApiInstance.uploadMallData(item)
+          return
+        }
+        //昨日访客
+        let paramsYesterday = {
+          mallId: item.platform_mall_id,
+          start_time: Math.round((todayStart - 1 * 24 * 60 * 60) / 1000),
+          end_time: Math.round((todayEnd - 1 * 24 * 60 * 60) / 1000),
+          period: 'yesterday',
+          fetag: 'fetag',
+        }
+        const res5 = await this.mallDataApiInstance.getKeyMetrics(item, '/api/mydata/v3/dashboard/key-metrics/', paramsYesterday, 'yesterday')
+        console.log(res5, 'res5')
+        if (res5.code === 403) {
+          this.$set(item, 'status', '店铺未登录')
+          this.$set(item, 'color', 'red')
+          await this.mallDataApiInstance.uploadMallData(item)
+          return
+        }
+        //近七天访客
+        let params7 = {
+          mallId: item.platform_mall_id,
+          start_time: Math.round(todayEnd / 1000),
+          end_time: Math.round((todayEnd - 7 * 24 * 60 * 60) / 1000),
+          period: 'past7days',
+          fetag: 'fetag',
+        }
+        const res6 = await this.mallDataApiInstance.getKeyMetrics(item, '/api/mydata/v3/dashboard/key-metrics/', params7, 'past7days')
+        console.log(res6, 'res6')
+        if (res6.code === 403) {
+          this.$set(item, 'status', '店铺未登录')
+          this.$set(item, 'color', 'red')
+          await this.mallDataApiInstance.uploadMallData(item)
+          return
+        }
+        //近30天访客
+        let params30 = {
+          mallId: item.platform_mall_id,
+          start_time: Math.round(todayEnd / 1000),
+          end_time: Math.round((todayEnd - 30 * 24 * 60 * 60) / 1000),
+          period: 'past30days',
+          fetag: 'fetag',
+        }
+        const res7 = await this.mallDataApiInstance.getKeyMetrics(item, '/api/mydata/v3/dashboard/key-metrics/', params30, 'past30days')
+        console.log(res7, 'res7')
+        if (res7.code === 403) {
+          this.$set(item, 'status', '店铺未登录')
+          this.$set(item, 'color', 'red')
+          await this.mallDataApiInstance.uploadMallData(item)
+          return
+        }
+        //近30天聊天
+        let paramsChat30 = {
+          mallId: item.platform_mall_id,
+          start_time: Math.round(todayEnd / 1000),
+          end_time: Math.round((todayEnd - 30 * 24 * 60 * 60) / 1000),
+          period: 'past30days',
+        }
+        const res8 = await this.mallDataApiInstance.getChatDashboard(item, '/api/mydata/v2/chat/dashboard/funnel/', paramsChat30, 'past30days')
+        console.log(res8, 'res8')
+        if (res8.code === 403) {
+          this.$set(item, 'status', '店铺未登录')
+          this.$set(item, 'color', 'red')
+          await this.mallDataApiInstance.uploadMallData(item)
+          return
+        }
+        //拨款信息
+        const res9 = await this.mallDataApiInstance.getIncomeMeta(item, '/api/v3/finance/get_income_meta/')
+        console.log(res9, 'res9')
+        if (res9.code === 403) {
+          this.$set(item, 'status', '店铺未登录')
+          this.$set(item, 'color', 'red')
+          await this.mallDataApiInstance.uploadMallData(item)
+          return
+        }
         this.$set(item, 'status', '同步完成')
+        this.$set(item, 'color', 'green')
+        const res10 = await this.mallDataApiInstance.uploadMallData(item)
+        console.log(res10, 'res10')
+        if (res10.code === 200) {
+          this.$set(item, 'status', '同步成功-上报成功')
+          this.$set(item, 'color', 'green')
+        }else{
+          this.$set(item, 'status', '同步成功-上报失败')
+          this.$set(item, 'color', 'red')
+        }
+        console.log(item, 'down')
+      } catch (e) {
+        console.log('错误', e)
+        this.$set(item, 'status', '同步失败')
+        this.$set(item, 'color', 'red')
+      } finally {
+        --count.count
+        // this.percentage += this.addPercentage
       }
     },
     // 获取数据
@@ -309,7 +437,7 @@ export default {
         mallId: this.form.shopSelect === '1' ? shopSelectVal : '',
         mallAliasName: this.form.shopSelect === '2' ? shopSelectVal : '',
         page: this.page,
-        pageSize: this.pageSize
+        pageSize: this.pageSize,
       }
       const { data } = await this.$api.getMallStatistics(parmas)
       console.log(data)
@@ -336,6 +464,8 @@ export default {
             this.frozenAmountOrders += element.frozen_amount_orders
             element.not_order_time = this.formatDay(element.recent_order_create_time)
             element.group_name = jsonData.GroupName
+            // element['status']= ''
+            // element['color'] = ''
           }
         }
         this.isLoading = false
@@ -346,7 +476,7 @@ export default {
       }
     },
     formatDay(val) {
-      if (val){
+      if (val) {
         const day2 = new Date(val)
         const s1 = new Date().getTime()
         const s2 = day2.getTime()
@@ -373,7 +503,7 @@ export default {
       switch (val) {
         case 'yesterday':
           startTime = toData - 3600 * 24 * 1000
-          endTime = (startTime) + 24 * 60 * 60 * 1000 - 1
+          endTime = startTime + 24 * 60 * 60 * 1000 - 1
           return { startTime, endTime }
         case 'real_time':
           startTime = toData
@@ -381,11 +511,11 @@ export default {
           return { startTime, endTime }
         case 'past7days':
           startTime = toData - 7 * 3600 * 24 * 1000
-          endTime = (startTime) + 24 * 60 * 60 * 1000 - 1
+          endTime = startTime + 24 * 60 * 60 * 1000 - 1
           return { startTime, endTime }
         case 'past30days':
           startTime = toData - 30 * 3600 * 24 * 1000
-          endTime = (startTime) + 24 * 60 * 60 * 1000 - 1
+          endTime = startTime + 24 * 60 * 60 * 1000 - 1
           return { startTime, endTime }
       }
     },
@@ -393,7 +523,7 @@ export default {
     async exportSearch() {
       this.isLoading = true
       const exportData = []
-      const len = this.total % 700 === 0 ? (this.total / 700) : (Math.floor(this.total / 700) + 1)
+      const len = this.total % 700 === 0 ? this.total / 700 : Math.floor(this.total / 700) + 1
       const shopSelectVal = this.form.shopSelectVal
       for (let index = 1; index <= len; index++) {
         const parmas = {
@@ -402,7 +532,7 @@ export default {
           mallName: this.form.shopSelect === '0' ? shopSelectVal : '',
           mallId: this.form.shopSelect === '1' ? shopSelectVal : '',
           mallAliasName: this.form.shopSelect === '2' ? shopSelectVal : '',
-          page: index
+          page: index,
         }
         try {
           const { data } = await this.$api.getMallStatistics(parmas)
@@ -419,7 +549,7 @@ export default {
                 element.group_name = jsonData.GroupName
               }
             }
-            resData.forEach(item => {
+            resData.forEach((item) => {
               exportData.push(item)
             })
           } else {
@@ -437,8 +567,7 @@ export default {
         this.$message('暂无导出数据')
         return
       }
-      let str =
-        `<tr>
+      let str = `<tr>
           <td>站点</td>
           <td>店铺ID</td>
           <td>店铺名称</td>
@@ -547,8 +676,8 @@ export default {
     },
     handleSelectionChange(val) {
       this.multipleSelection = val
-    }
-  }
+    },
+  },
 }
 </script>
 

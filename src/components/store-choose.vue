@@ -204,7 +204,6 @@ export default {
       margin-right: 10px;
       span{
         display:inline-block;
-        width:80px;
         text-align: center;
       }
       .el-select {

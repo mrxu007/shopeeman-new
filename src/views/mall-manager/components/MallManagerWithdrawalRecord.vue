@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-10-08 14:16:18
- * @LastEditTime: 2021-11-03 17:03:08
+ * @LastEditTime: 2021-11-03 20:28:10
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shopeeman-new\src\views\mall-manager\components\MallManagerWithdrawalRecord.vue
@@ -217,7 +217,7 @@ export default {
     },
     exportData() {
       if (!this.tableData.length) {
-        this.$message.warning('没有可导出的数据')
+        return this.$message.warning('没有可导出的数据')
       }
       let num = 1
       let str = `<tr>
