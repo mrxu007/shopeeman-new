@@ -176,13 +176,13 @@ export default class NetMessageBridgeService {
       username: '',
       password: mall_account_info.password
     }
-    const reg = new RegExp('[\\u4E00-\\u9FFF]+', 'g')
+    const reg = new RegExp('[\\u4E00-\\u9FFFa-zA-Z]+', 'g')
     if (accountName.indexOf('@') > -1) {
       params['email'] = accountName
-      copy_mallInfo['username'] = accountName
+      acccount_info['username'] = accountName
     } else if (reg.test(accountName)) {
       params['username'] = accountName
-      copy_mallInfo['username'] = accountName
+      acccount_info['username'] = accountName
     } else {
       const phone = this.getTelephoneNumberIsTrue(country, accountName)
       params['phone'] = phone
