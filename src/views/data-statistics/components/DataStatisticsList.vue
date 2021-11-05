@@ -7,18 +7,19 @@
       </div>
       <div class="search">
         <div class="top">
-          <storeChoose :is-all="true" @changeMallList="changeMallList"></storeChoose>
+          <storeChoose :is-all="true" @changeMallList="changeMallList"></storeChoose>      
+        </div>
+        <div class="bottom">
           <div class="historyChart">
             <span>历史图表：</span>
-            <el-select v-model="history" size="mini">
+            <el-select v-model="history" size="mini" class="inputbox mar-right">
               <el-option v-for="item in historyData" :key="item.value" :label="item.label" :value="item.value" />
             </el-select>
           </div>
-        </div>
-        <div class="bottom">
           <div>
             <span>实时概况：</span>
             <el-date-picker
+            style="width:260px;"
               v-model="dateTime"
               size="mini"
               value-format="yyyy-MM-dd"
@@ -40,7 +41,7 @@
               "
               >查询</el-button
             >
-            <el-button type="primary" size="mini" @click="detailVisible = true">查看列表数据</el-button>
+            <el-button type="primary" size="mini" @click="detailVisible = true" >查看列表数据</el-button>
             <el-button type="primary" size="mini" plain @click="exportData">导出</el-button>
           </div>
         </div>
@@ -325,7 +326,7 @@
 </template>
 
 <script>
-import { creatDate, exportExcelDataCommon  } from '../../../util/util'
+import { creatDate, exportExcelDataCommon } from '../../../util/util'
 import storeChoose from '../../../components/store-choose'
 import Echart from '../components/chart.vue'
 export default {
@@ -701,9 +702,9 @@ export default {
   },
   methods: {
     //数据导出
-    exportData(){
-      if(!this.statisticsDetailData.length){
-        return this.$message.warning("没有可导出的数据")
+    exportData() {
+      if (!this.statisticsDetailData.length) {
+        return this.$message.warning('没有可导出的数据')
       }
       let num = 1
       let str = `<tr>
@@ -762,7 +763,7 @@ export default {
                     <td>${item.warehouse ? item.warehouse.returned_num : 0 + '\t'}</td>
                 </tr>`
       }
-      exportExcelDataCommon('统计详情列表',str)
+      exportExcelDataCommon('统计详情列表', str)
     },
     changeMallList(val) {
       this.selectMallList = val
@@ -960,24 +961,36 @@ export default {
   white-space: nowrap;
   overflow-y: auto;
 }
+
 //实时概况
 .realTimeOverview {
   display: flex;
   align-items: center;
   .search {
     margin-left: 30px;
+    .inputbox {
+      width: 100px;
+    }
+    .mar-right{
+      margin-right:10px;
+    }
     .top,
     .bottom {
       display: flex;
     }
     .top {
       .el-select {
-        width: 200px;
+        // width: 200px;
         margin-right: 10px;
       }
     }
     .bottom {
       margin-top: 10px;
+      span {
+        display: inline-block;
+        width: 80px;
+        text-align: right;
+      }
       .el-date-editor {
         width: 310px;
         margin-right: 10px;
@@ -989,9 +1002,12 @@ export default {
   margin-top: 16px;
   .dataView {
     display: flex;
+    min-width: 1200px;
     /deep/.el-card__body {
       display: flex;
       justify-content: space-between;
+
+      // 1px solid #EBEEF5;
     }
     /deep/.el-card {
       width: 100%;

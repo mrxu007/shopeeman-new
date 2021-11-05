@@ -58,7 +58,7 @@
           <el-col :span="8">
             <div class="moneyFlow">
               <label>资金流向：</label>
-              <el-select v-model="form.moneyFlow" size="mini" multiple collapse-tags clearable @change="changeSelect($event, 'moneyFlow')">
+              <el-select v-model="form.moneyFlow" style="width: 207px;" size="mini" multiple collapse-tags clearable @change="changeSelect($event, 'moneyFlow')">
                 <el-option label="全部" value="全部" @click.native="selectAll('moneyFlow', moneyFlow)" />
                 <el-option v-for="item in moneyFlow" :key="item.id" :label="item.label" :value="item.id" />
               </el-select>
@@ -110,16 +110,16 @@
         v-loading="tableLoading"
         :data="allbillingData"
         tooltip-effect="dark"
-        max-height="625"
+        height="calc(100vh - 256px)"
         :header-cell-style="{
           textAlign: 'center',
           backgroundColor: '#f5f7fa',
         }"
       >
-        <el-table-column align="center" type="index" label="序号" width="50">
+        <el-table-column align="center" type="index" label="序号" min-width="50px" fixed>
           <template slot-scope="scope">{{ (currentPage - 1) * pageSize + scope.$index + 1 }}</template>
         </el-table-column>
-        <el-table-column min-width="150px" label="交易号" align="center">
+        <el-table-column min-width="180px" label="交易号" align="center" fixed>
           <template slot-scope="scope">
             <p class="tabletext">
               <span style="cursor: pointer"> {{ scope.row.trans_number }}</span><span class="copyIcon" @click="copy(scope.row.trans_number)">
@@ -128,7 +128,7 @@
             </p>
           </template>
         </el-table-column>
-        <el-table-column min-width="150px" label="订单编号" align="center">
+        <el-table-column min-width="180px" label="订单编号" align="center">
           <template slot-scope="scope">
             <p v-if="scope.row.order_sn" class="tabletext">
               <span style="cursor: pointer">{{ scope.row.order_sn }}</span><span class="copyIcon" @click="copy(scope.row.order_sn)"><i class="el-icon-document-copy" /></span>
@@ -139,7 +139,7 @@
           align="center"
           prop="type"
           label="资金流向"
-          min-width="60"
+          min-width="80px"
         ><template slot-scope="scope">
           <p v-if="scope.row.type > 0">{{ scope.row.type === 1 ? '收入' : '支出' }}</p>
         </template>
@@ -148,7 +148,7 @@
           align="center"
           prop="trans_type"
           label="交易类型"
-          min-width="70"
+          min-width="100px"
         ><template slot-scope="scope">
           <p v-if="scope.row.trans_type > 0">{{ changeTypeName(scope.row.trans_type, transactionType) }}</p>
         </template>
@@ -157,30 +157,30 @@
           align="center"
           prop="trans_type"
           label="交易状态"
-          min-width="70"
+          min-width="70px"
         ><template slot-scope="scope">
           <p v-if="scope.row.trans_type > 0">{{ changeTypeName(scope.row.trans_status, tranStatus) }}</p>
         </template>
         </el-table-column>
-        <el-table-column prop="trans_time" label="交易时间" align="center" min-width="120px">
+        <el-table-column prop="trans_time" label="交易时间" align="center" min-width="180px">
           <template slot-scope="scope"> {{ scope.row.trans_time }} </template>
         </el-table-column>
-        <el-table-column prop="created_at" label="创建时间" align="center" min-width="120px">
+        <el-table-column prop="created_at" label="创建时间" align="center" min-width="180px">
           <template slot-scope="scope"> {{ scope.row.created_at }} </template>
         </el-table-column>
-        <el-table-column align="center" prop="amount" label="交易金额" min-width="70" />
-        <el-table-column align="center" prop="current_amount" label="账户余额" min-width="80" />
-        <el-table-column align="center" prop="package_sn" label="大包号" min-width="80" />
-        <el-table-column align="center" prop="sys_sku_id" label="商品skuID" min-width="80" />
+        <el-table-column align="center" prop="amount" label="交易金额" min-width="70px" />
+        <el-table-column align="center" prop="current_amount" label="账户余额" min-width="80px" />
+        <el-table-column align="center" prop="package_sn" label="大包号" min-width="80px" />
+        <el-table-column align="center" prop="sys_sku_id" label="商品skuID" min-width="80px" />
         <el-table-column
           align="center"
           label="费用明细"
-          min-width="70"
+          min-width="70px"
         ><template slot-scope="scope">
           <el-button v-if="scope.row.trans_type === 2" type="primary" size="mini" @click="getTransDetail(scope.row)">翻译明细</el-button>
         </template>
         </el-table-column>
-        <el-table-column align="center" prop="remark" label="备注" min-width="120" show-overflow-tooltip />
+        <el-table-column align="center" prop="remark" label="备注" min-width="120px" show-overflow-tooltip fixed="right" />
       </el-table>
       <div class="pagination">
         <el-pagination
@@ -192,6 +192,7 @@
           @current-change="handleCurrentChange"
           @size-change="handleSizeChange"
         />
+        <!-- </div> -->
       </div>
     </div>
     <!-- dialog充值 -->
@@ -611,6 +612,7 @@ export default {
 
 <style lang="less" scoped>
 .PersonalCenterSoftwareFinance {
+  min-width: 1200px;
   padding: 16px;
   background: #fff;
   /deep/ .el-dialog__body {
@@ -641,7 +643,7 @@ export default {
   /deep/.el-row {
     min-width: 920px !important;
     /deep/.el-col {
-      width: 300px !important;
+      // width: 300px !important;
       // padding: 0px !important;
     }
   }
@@ -654,12 +656,13 @@ export default {
     //创建时间和交易时间
     .creationTime {
       /deep/.el-date-editor {
-        width: 198px;
+        // width: 198px;
+        width: 207px;
       }
     }
     .tradingTime {
       /deep/.el-date-editor {
-        width: 190px;
+        width: 207px;
       }
     }
     //交易时间
@@ -697,7 +700,7 @@ export default {
     //交易状态
     .transactionStatus {
       .el-select {
-        width: 197px;
+        width: 207px;
       }
     }
     //资金流向
@@ -714,14 +717,14 @@ export default {
     // 订单编号和星卓越大包号
     .orderNumber {
       .el-input {
-        width: 197px;
+        width: 207px;
       }
     }
     //卓越大包号
     .bigBagNumber {
       margin: 0 10px;
       .el-input {
-        width: 158px;
+        width: 178px;
       }
     }
     .searchRowThreeBottonGroup {
@@ -731,7 +734,7 @@ export default {
 //表格区
 .content {
   margin-top: 20px;
-  height: calc(100vh - 220px);
+  // height: calc(100vh - 220px);
 }
 .copyIcon {
   i {
