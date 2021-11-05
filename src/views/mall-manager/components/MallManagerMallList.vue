@@ -237,6 +237,8 @@
         <el-button type="primary" size="mini" @click="chekedDelMall">确 定</el-button>
       </span>
     </el-dialog>
+    <Logs ref="Logs" v-model="showConsole" clear />
+    <!-- this.$refs.Logs.writeLog(`店铺【${mall.mall_alias_name || mall.platform_mall_name}】获取到第【${++page}】页店铺评价数据【${count}】条`, true) -->
   </el-row>
 </template>
 
