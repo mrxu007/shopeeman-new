@@ -456,7 +456,6 @@ export default {
 
         // 1、shopeeMan官方登录
         const res = await this.$shopeemanService.login(item, flat)
-        console.log(res)
         if (res.code !== 200) {
           flat === 1 ? (item.LoginInfo = `<p style="color: red">登录失败：${res.data}</p>`) : this.writeLog(`(${i + 1}/${len})账号【${platform_mall_name}】授权失败：${res.data}`, false)
           continue
@@ -484,6 +483,11 @@ export default {
           mallDataInfo = res.data.mallInfo_new
           await this.$appConfig.updateInfoMall(mallId, JSON.stringify(mallDataInfo)) // 更新里面店铺的cookie （壳）
           // 4、判断物流信息是否是普通店铺 (店铺导入独有)
+          const res3 = await this.isNormalMall(mallDataInfo)
+          if (res3.code !== 200) {
+            this.writeLog(`(${i + 1}/${len})账号【${platform_mall_name}】授权失败：该账号属于跨境店铺`, true)
+            continue
+          }
           // 5、获取信息额度 (店铺导入独有)
           const params2 = {
             platformMallId: mallId,
@@ -499,13 +503,8 @@ export default {
             SPC_SC_TK: item.SPC_SC_TK,
             mall_type: 1 // 写死1 普通店铺
           }
-          const res3 = await this.getMallGoodsAmount(mallDataInfo)
-          res3.code === 200 ? (params2['itemLimit'] = res3.data) : ''
-          const res4 = await this.isNormalMall(mallDataInfo)
-          if (res4.code !== 200) {
-            this.writeLog(`(${i + 1}/${len})账号【${platform_mall_name}】授权失败：该账号属于跨境店铺`, true)
-            continue
-          }
+          const res4 = await this.getMallGoodsAmount(mallDataInfo)
+          res4.code === 200 ? (params2['itemLimit'] = res4.data) : ''
           // 6、上报店铺信息(店铺导入独有) 如果是导入店铺,在上报cookie之前应该先上报店铺
           const res5 = await this.$api.saveMallAuthInfo(params2) // 导入店铺信息（服务端）
           if (res5.data.code !== 200) {
@@ -578,7 +577,6 @@ export default {
             return Number(item.ShipId) === resitem.channel_id
           })
         })
-        debugger
         if (res.code === 0) {
           const Logistics = res.data
           return { code: 200, data: isNormal }

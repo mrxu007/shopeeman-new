@@ -68,6 +68,7 @@ export default class NetMessageBridgeService {
           referer: url + referer
         })
     }
+    console.log('object', url, JSON.stringify(options))
     return this.NetMessageBridgeService().get(url, JSON.stringify(options))
   }
 
