@@ -43,7 +43,7 @@
 
         <div class="condition_item" style="margin-left: 17px;">
           <span>主体名称：</span>
-          <el-input v-model="query.ip_alias" clearable placeholder="主体名称" size="mini" style="width:180px" />
+          <el-input v-model="query.ip_alias" clearable placeholder="主体名称" size="mini" style="width:200px" />
         </div>
       </div>
 
@@ -60,11 +60,11 @@
         <div class="condition_item" style="margin-left: 15px;">
           <el-button size="mini" type="primary" @click="(Typeis='ipMaster',dialogvisible=true,showButton=false,dialog_title='新增公司主体')">新增公司主体</el-button>
           <el-button size="mini" type="primary" @click="lostIP">解绑主体IP</el-button>
-          <!-- <el-button size="mini" type="primary">绑定主体IP</el-button> -->
           <el-button size="mini" type="primary" @click="clearIP()">清除IP缓存</el-button>
           <el-button size="mini" type="primary" @click="(Typeis='ipPerson',dialogvisible=true,showButton=false,dialog_title='新增自有IP公司主体')">新增自有IP公司主体</el-button>
           <el-button size="mini" type="primary" @click="timeToMonth(1)">续费一个月</el-button>
           <el-button size="mini" type="primary" @click="timeToMonth(3)">续费三个月</el-button>
+          <el-button size="mini" type="primary" @click="search()">搜 索</el-button>
         </div>
       </div>
     </div>
