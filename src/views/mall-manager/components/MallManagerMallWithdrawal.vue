@@ -68,7 +68,7 @@
           <template slot-scope="scope">{{ scope.row.withdrawal_no }}</template>
         </u-table-column>
         <u-table-column align="center" label="今日是否可提现">
-          <template slot-scope="scope">{{scope.row.balance && '是' || '否'}}</template>
+          <template slot-scope="scope">{{scope.row.num_of_free_times && '是' || '否'}}</template>
         </u-table-column>
         <u-table-column align="center" :show-overflow-tooltip="true" label="操作状态">
           <template slot-scope="scope">{{ scope.row.error || '同步成功'}}</template>
@@ -91,6 +91,39 @@
         </div>
       </el-dialog>
     </div>
+    <div class="tiedCard_dialog">
+      <el-dialog title="绑定银行卡" :visible.sync="tiedCardVisible" :close-on-click-modal="false" >
+        <div class="tiedCardBox" v-if="active">
+          <div class="tiedCardItem">
+            <span class="tiedCardLabel">当前店铺名</span>
+            {{active && (active.mall_alias_name || active.platform_mall_name)}}
+          </div>
+          <div class="tiedCardItem">
+            <span class="tiedCardLabel">当前手机号</span>
+            {{active && active.mall_alias_name}}
+          </div>
+          <div class="tiedCardItem">
+            <span class="tiedCardLabel">银行账号</span>
+            {{active && active.mall_alias_name}}
+          </div>
+          <div class="tiedCardItem">
+            <span class="tiedCardLabel">持卡人姓名</span>
+            {{active && active.mall_alias_name}}
+          </div>
+          <div class="tiedCardItem">
+            <span class="tiedCardLabel">IC卡号</span>
+            {{active && active.mall_alias_name}}
+          </div>
+          <div class="tiedCardItem">
+            <span class="tiedCardLabel">银行名称</span>
+            {{active && active.mall_alias_name}}
+          </div>
+          <div class="tiedCardItem">
+            <el-input v-model="cardCode" size="mini"></el-input>
+          </div>
+        </div>
+      </el-dialog>
+    </div>
   </el-row>
 </template>
 
@@ -106,6 +139,7 @@
       return {
         isShowLog: true,
         depositVisible:false,
+        tiedCardVisible:false,
         active: null,
         depositPassword:'',
         canCarry: 0,
@@ -116,6 +150,7 @@
         rowHeight: 50,
         SiteList: [],
         tableData: [],
+        cardCode:'',
       }
     },
     created() {
@@ -128,13 +163,16 @@
       synchronousShops() {
         this.tableData = []
         this.SiteList.forEach(async item => {
-          console.log(item)
           let time = new Date().getTime()
           let start_date = dateFormat(time, 'yyyy-MM-dd')
+          const resJson = await this.$appConfig.getGlobalCacheInfo('mallInfo', item.platform_mall_id)
+          const res = JSON.parse(resJson)
+          const password = res && res.mall_account_info && res.mall_account_info.password || ''
+          const encryptPwd =password && sha256(md5(password)) || ''
           let end_date = dateFormat((time - 30 * 24 * 60 * 60 * 1000), 'yyyy-MM-dd')
           let param1 = {
             shop_id: parseInt(item.platform_mall_id),
-            password_hash: '8523cacc5229f136f37bf211ba486138562fe97a050d4859bc88f7a914c11bf1'
+            password_hash: encryptPwd
           }
           let param2 = {
             shop_id: parseInt(item.platform_mall_id),
@@ -204,9 +242,13 @@
           }
         })
       },
-      batchWithdrawal() {
+      async batchWithdrawal() {
         const encryptPwd = sha256(md5(this.depositPassword))
-        console.log(encryptPwd)
+        let param = {payment_password:encryptPwd,mallId:this.active.platform_mall_id}
+        const verifyPaymentJson = await this.$shopeemanService.verifyPaymentPass(this.active.country,param)
+        console.log('verifyPaymentJson',verifyPaymentJson)
+        const verifyPaymentRes = JSON.parse(verifyPaymentJson)
+        console.log('verifyPaymentRes',verifyPaymentRes)
       },
       allBatchWithdrawal(){
 

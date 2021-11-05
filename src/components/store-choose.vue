@@ -204,9 +204,13 @@ export default {
     }
     .el-select {
       display: flex;
-    }
-    .el-tag--info.el-tag--mini {
-      max-width: 35%;
+      width: 160px;
+      .el-select__input{
+        margin: 0;
+      }
+      .el-input__suffix{
+        margin-right: 0;
+      }
     }
   }
 }

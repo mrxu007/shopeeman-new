@@ -54,7 +54,7 @@
                         active-color="#13ce66"
                         inactive-color="#ff4949">
                     </el-switch>
-                    <div v-if="scope.row.auto_reply_status && scope.row.auto_reply_content" class="reply_content">
+                    <div class="reply_content">
                       {{scope.row.auto_reply_content}}
                     </div>
                   </div>
@@ -69,7 +69,7 @@
                         active-color="#13ce66"
                         inactive-color="#ff4949">
                     </el-switch>
-                    <div v-if="scope.row.status && scope.row.content" class="reply_content">
+                    <div class="reply_content">
                       {{scope.row.content}}
                     </div>
                   </div>

@@ -400,7 +400,7 @@ export default {
           sysMallId = sysMallId + ',' + item.id
         }
       })
-      params.sysMallId = sysMallId || ''
+      params.sysMallId = (sysMallId + '') || ''
       params.appropriateTime = this.cloumn_date.length >= 0 ? this.cloumn_date[0] + ' 00:00:00/' + this.cloumn_date[1] + ' 23:59:59' : ''
       this.getTableList(params)
     },

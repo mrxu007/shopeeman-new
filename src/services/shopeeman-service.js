@@ -387,8 +387,8 @@ export default class NetMessageBridgeService {
   }
 
   // 提取金额
-  // getBankAccounts(country, data,option) {
-  //   return this.postChinese(country, '/api/v3/finance/get_bank_accounts/', data,option)
-  // }
+  verifyPaymentPass(country, data,option) {
+    return this.getChinese(country, '/api/v3/finance/verify_payment_pass/', data,option)
+  }
 }
 
