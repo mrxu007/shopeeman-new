@@ -88,7 +88,7 @@ export default class MallListAPI {
         version: '3.1.0'
       }
       // cnsc_shop_id  店铺类型为 2 or 3时，需要此参数
-      let res = await this.$shopeemanService.getChinese(country, '/api/v3/product/get_product_statistical_data/?', params, { headers: { referer: '/portal/product/list/all' } })
+      let res = await this._this.$shopeemanService.getChinese(country, '/api/v3/product/get_product_statistical_data/?', params, { headers: { referer: '/portal/product/list/all' }})
       res = JSON.parse(JSON.parse(res).data)
       if (res.code === 0) {
         return { code: 200, data: res.data } // count_for_limit
@@ -106,9 +106,10 @@ export default class MallListAPI {
       const params = {
         platform_mall_id: platform_mall_id
       }
-      let res = await this.$shopeemanService.getChinese(country, '/api/v3/logistics/get_channel_list/?', params)
+      let res = await this._this.$shopeemanService.getChinese(country, '/api/v3/logistics/get_channel_list/?', params)
+      debugger
       res = JSON.parse(JSON.parse(res).data)
-      const siteMall = this.$shopeeManConfig.getSiteMall()
+      const siteMall = this._this.$shopeeManConfig.getSiteMall()
       const isNormal = siteMall[country].some(item => {
         return res.data.list.some(resitem => {
           return Number(item.ShipId) === resitem.channel_id
@@ -130,7 +131,7 @@ export default class MallListAPI {
       const params = {
         'platform_mall_id': platform_mall_id // 导入店铺初始没有mallId
       }
-      let res = await this.$shopeemanService.getChinese(country, '/api/selleraccount/user_info/?', params)
+      let res = await this._this.$shopeemanService.getChinese(country, '/api/selleraccount/user_info/?', params)
       res = JSON.parse(JSON.parse(res).data)
       if (res.code === 0) {
         return { code: 200, data: '店铺已经登陆' }

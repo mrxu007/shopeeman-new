@@ -490,10 +490,11 @@ export default {
         } else { // 导入店铺
           // 2、更新壳信息
           mallDataInfo = res.data.mallInfo_new
+          console.log(mallId, JSON.stringify(mallDataInfo))
           await this.$appConfig.updateInfoMall(mallId, JSON.stringify(mallDataInfo)) // 更新里面店铺的cookie （壳）
           // 4、判断物流信息是否是普通店铺 (店铺导入独有)
           const res3 = await this.mallListAPIInstance.isNormalMall({ country, platform_mall_id })
-          if (res3.code !== 200) {
+          if (res3.code !== 200 || !res3.data) {
             this.writeLog(`(${i + 1}/${len})账号【${platform_mall_name}】授权失败：该账号属于跨境店铺`, true)
             continue
           }
@@ -515,6 +516,7 @@ export default {
           const res4 = await this.mallListAPIInstance.getMallGoodsAmount({ country, platform_mall_id })
           res4.code === 200 ? (params2['itemLimit'] = res4.data) : ''
           // 6、上报店铺信息(店铺导入独有) 如果是导入店铺,在上报cookie之前应该先上报店铺
+          console.log(params2)
           const res5 = await this.$api.saveMallAuthInfo(params2) // 导入店铺信息（服务端）
           if (res5.data.code !== 200) {
             this.writeLog(`(${i + 1}/${len})账号【${platform_mall_name}】授权失败：${res5.data.message}`, true)
