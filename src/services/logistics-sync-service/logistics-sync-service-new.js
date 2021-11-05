@@ -3,6 +3,9 @@ import jxRequest from '../../network/jx-request'
 import BaseUtilService from '../BaseUtilService'
 import LogisticBridgeService from '../LogisticBridgeService'
 import AppConfig from '../application-config'
+import {
+  DomUtils
+} from 'htmlparser2'
 /**
  * 物流同步服务
  */
@@ -16,6 +19,7 @@ export default class logisticeSyncService {
   buyerAccountContainer = null // 存放开始同步订单的 买手号
   ordersContainer = null // 存放开始同步订单的订单号
   allSetting
+  _that = null
   constructor(logCallback) {
     this.logCallback = logCallback
   }
@@ -31,31 +35,34 @@ export default class logisticeSyncService {
    * @param {订单} ordersList
    * @returns
    */
-  async start(buyerAccounts, ordersList = []) { // singleOrders
+  async start(that, buyerAccounts, ordersList = []) { // singleOrders
+    this._that = that
     await this.getGlobalSetting() // 全局设置
     let orders = []
-    if (!ordersList.length) { // 同步选择的订单
+    if (ordersList.length) { // 同步选择的订单
       orders = ordersList
     } else { // 自动获取需要同步物流的订单
       orders = await this.getOrdersFromServer() // 服务端返回需要同步物流的订单
     }
     orders = this.filterOrder(orders) // 过滤有物流信息,但是未发货状态 的订单
-    const ordersLen = orders.length
+    let ordersLen = orders.length
     if (!ordersLen) {
-      this.writeLog(`获取到【${ordersLen}】条需要同步物流的订单`, false)
+      this._that.$refs.Logs.writeLog(`没有获取到订单`, false)
       return
     }
-    this.writeLog(`获取到【${ordersLen}】条需要同步物流的订单`, true)
+    this._that.$refs.Logs.writeLog(`获取到【${ordersLen}】条需要同步物流的订单`, true)
     // 买手号与订单归类
     const accountMapOrderId = new Map()
-    for (let i = 0; i < ordersLen.length; i++) {
+    console.log(ordersLen)
+    for (let i = 0; i < ordersLen; i++) {
       const item = orders[i]
-      const buyer_name = item.shot_order_info.buyer_name
-      const shot_order_sn = item.shot_order_info.shot_order_sn
-      const account = buyerAccounts.find(item => item.name === buyer_name)
-      debugger
+      console.log(item)
+      const buyer_name = item.buy_account_info?item.buy_account_info.name:''
+      console.log(buyer_name)
+      const shot_order_sn = item.shot_order_sn
+      const account = buyerAccounts.find(buyer => buyer.UserName === buyer_name)
       if (!account) {
-        this.writeLog(`订单【${shot_order_sn}】对应的买手号【${buyer_name}】没有找到，请登录对应买手号.`, false)
+        this._that.$refs.Logs.writeLog(`订单【${shot_order_sn}】对应的买手号【${buyer_name}】没有找到，请登录对应买手号.`, false)
         continue
       }
       if (accountMapOrderId.has(account)) {
@@ -80,51 +87,51 @@ export default class logisticeSyncService {
    * @returns // 服务端返回需要同步物流的订单
    */
   async getOrdersFromServer() {
-    const orderList = []
-    let page = 1
-    while (page) {
-      const params = {
-        page,
-        limit: 100,
-        uid: this.userInfo.muid
-      }
-      const res = await this.getOrdersFromServerCycle(params)
-      if (res.code === 200) {
-        orderList.push(...res.data.orderList)
-        this.writeLog(`获取第${page}页需要同步物流的订单成功(共${res.data.last_page})页`, true)
-      } else {
-        this.writeLog(`获取 第${page}页需要同步物流的订单失败原因:${res.code}: ${res.data} 共(${res.data.last_page})页`, false)
-      }
-      page++
-      if (page >= res.data.last_page) {
-        break
-      }
+    let orderList = []
+    const res = await this.getOrdersFromServerCycle()
+    console.log(res)
+    if (res.code === 200) {
+      orderList = res.data.orderList   
+      // this._that.$refs.Logs.writeLog(`获取到需要同步物流的订单成功(共${res.data.total})条`, true)
+    } else {
+      this._that.$refs.Logs.writeLog(`获取需要同步物流的订单失败原因:${res.code}: ${res.data}`, false)
     }
-    this.writeLog(`共获取到 [${orderList.length}条] 需要同步物流的订单`, true)
     return orderList
   }
-  async getOrdersFromServerCycle(params) {
+  async getOrdersFromServerCycle() {
     try {
-      const res = await this.$api.getNotLogisticsOrderList({ params })
+      const res = await this.$api.getExceptionNoTrackingNumberIndex()
+      console.log(res, "getOrdersFromServerCycle")
       if (res.data.code === 200) {
         const data = {
-          total: res.data.data.total,
-          last_page: res.data.data.last_page,
+          total: res.data.data.count,
           orderList: res.data.data.data
         }
-        return { code: 200, data }
+        return {
+          code: 200,
+          data
+        }
       }
-      return { code: res.data.code, data: res.data.message }
+      return {
+        code: res.data.code,
+        data: res.data.message
+      }
     } catch (error) {
       if (error.response) {
-        return { code: error.response.status, data: error.response.data.message }
+        return {
+          code: error.response.status,
+          data: error.response.data.message
+        }
       }
-      return { code: -2, data: `getOrdersFromServerCycle-catch:${error}` }
+      return {
+        code: -2,
+        data: `getOrdersFromServerCycle-catch:${error}`
+      }
     }
   }
   // 筛选需要获取物流信息的订单
   filterOrder(orders) {
-    return orders.filter(item => !item.logistics || !item.logistics.tracking_number && item.shot_order_info && item.shot_order_info.shot_order_sn)
+    return orders.filter(item => !item.logistics || !item.logistics.tracking_number && item.shot_order_info && item.shot_order_info.shot_order_sn && item.buy_account_info )
   }
   /**
    * 获取上家真实物流
@@ -132,20 +139,19 @@ export default class logisticeSyncService {
    * @param {*} orders
    */
   async syncLogistic() {
+    console.log(this.buyerAccountContainer,this.ordersContainer,"syncLogistic")
     if (this.buyerAccountContainer && this.ordersContainer) {
-      switch (this.buyerAccountContainer.platform_id) {
+      switch (this.buyerAccountContainer.shotOrderPlatform) {
         case 1: // 拼多多
           await this.syncLogisticAggregation('拼多多')
           break
-        case 3: // 淘宝
+        case 0: // 淘宝
           await this.syncLogisticAggregation('淘宝')
           break
-        case 10: // 京东
-          // await this.jdSyncLogistic(buyerAccount, orders)
-          break
-        case 8: // 1688
+        case 5: // 1688
           await this.syncLogisticAggregation('1688')
-
+        case 7: // lazada
+          await this.syncLogisticAggregation('lazada')
           break
         default:
           break
@@ -156,39 +162,40 @@ export default class logisticeSyncService {
    * 买手号物流同步聚合接口
    */
   async syncLogisticAggregation(type) {
+    console.log(type,"syncLogisticAggregation")
     const orders = this.ordersContainer
     const ordersLen = orders.length
     const buyerAccount = this.buyerAccountContainer
     for (let index = 0; index < ordersLen; index++) {
       const item = orders[index]
-      const shot_order_sn = item.shot_order_info.shot_order_sn
+      console.log(item,"56656")
+      // const shot_order_sn = item.shot_order_sn || '211026-447993681280098'
+      const shot_order_sn = '2229427695828657966'
       try {
-        const logisticInfo = await this.$LogisticBridgeService.getLogisticByOrderIdAsync(buyerAccount, shot_order_sn)
-        debugger
+        console.log(buyerAccount.shotOrderPlatform,shot_order_sn,JSON.stringify(buyerAccount),"=========================")
+        const logisticInfo = await this.$baseUtilService.getOriginLogistics(buyerAccount.shotOrderPlatform,shot_order_sn, buyerAccount)
+        console.log(logisticInfo)
         if (logisticInfo.Code !== 200) {
-          this.writeLog(
-            `(${type})订单【${shot_order_sn}获取上家物流失败原因: ${logisticInfo.Code} : ${logisticInfo.Msg}(买手号: ${buyerAccount.name})`,
-            false
-          )
+          this._that.$refs.Logs.writeLog(`(${type})订单【${shot_order_sn}获取上家物流失败原因: ${logisticInfo.Code} : ${logisticInfo.Msg}(买手号: ${buyerAccount.UserName})`, false)
           continue
         }
         if (!logisticInfo.TrackingNumber) {
-          this.writeLog(`(${type})订单【${shot_order_sn}】未发货`, false, '#ff9900')
+          this._that.$refs.Logs.writeLog(`(${type})订单【${shot_order_sn}】未发货`, false, '#ff9900')
           continue
         }
         const tbshippingName = this.changetbOrderName(logisticInfo.TrackingName)
         const params = {
-          order_id: item.order_id,
+          order_id: item.sys_order_id,
           tracking_number: logisticInfo.TrackingNumber,
           logistics_company: logisticInfo.TrackingName,
           logistics_company_code: tbshippingName
         }
         const res = await this.saveOrderLogistics(params)
         if (res.code !== 200) {
-          this.writeLog(`(${type})订单【${shot_order_sn}】上报物流失败原因: ${res.code}: ${res.data}`, false)
+          this._that.$refs.Logs.writeLog(`(${type})订单【${shot_order_sn}】上报物流失败原因: ${res.code}: ${res.data}`, false)
           continue
         }
-        this.writeLog(`(${type})订单【${shot_order_sn}】同步物流成功`, true)
+        this._that.$refs.Logs.writeLog(`(${type})订单【${shot_order_sn}】同步物流成功`, true)
         if (!item.logistics) {
           item.logistics = {}
         }
@@ -197,10 +204,7 @@ export default class logisticeSyncService {
         item.logistics.logistics_company_code = tbshippingName
       } catch (e) {
         console.log(e)
-        this.writeLog(
-          `订单【${shot_order_sn}获取上家物流失败原因(拼多多): ${JSON.stringify(e)}`,
-          false
-        )
+        this._that.$refs.Logs.writeLog( `订单【${shot_order_sn}获取上家物流失败原因(拼多多): ${JSON.stringify(e)}`, false)
         continue
       }
     }
@@ -223,14 +227,26 @@ export default class logisticeSyncService {
     try {
       const res = await this._this.$api.saveOrderLogistics(params)
       if (res.data.code === 200) {
-        return { code: 200, data: '物流信息上报成功' }
+        return {
+          code: 200,
+          data: '物流信息上报成功'
+        }
       }
-      return { code: res.data.code, data: res.data.message }
+      return {
+        code: res.data.code,
+        data: res.data.message
+      }
     } catch (error) {
       if (error.response) {
-        return { code: error.response.status, data: error.response.data.message }
+        return {
+          code: error.response.status,
+          data: error.response.data.message
+        }
       }
-      return { code: -2, data: `sync-service-saveOrderLogistics-catch:${JSON.stringify(error)}` }
+      return {
+        code: -2,
+        data: `sync-service-saveOrderLogistics-catch:${JSON.stringify(error)}`
+      }
     }
   }
   // 辅助函数------------------
