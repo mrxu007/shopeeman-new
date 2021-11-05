@@ -27,7 +27,7 @@
               </el-select>
             </li>
             <li>
-              <el-select v-model="mallSearchConditionVal" class="unnormal" placeholder="" size="mini" filterable>
+              <el-select v-model="mallSearchConditionVal" class="unnormal" placeholder="" size="mini">
                 <el-option v-for="(item, index) in mallSearchCondition" :key="index" :label="item.label" :value="item.value" />
               </el-select>
               <el-input v-model="mallSearchConditionInputVal" class="unnormal2" placeholder="" size="mini" />
@@ -243,7 +243,8 @@
 </template>
 
 <script>
-import { getMallListAPI, updateWatermarkAPI, updateUserPasswordAPI, uploadMallCookie } from '../../../module-api/mall-manager-api/mall-list-api'
+// import {uploadMallCookie } from '../../../module-api/mall-manager-api/mall-list-api'
+import MallListAPI from '../../../module-api/mall-manager-api/mall-list-api'
 import { delay, exportExcelDataCommon } from '../../../util/util'
 import xlsx from 'xlsx'
 export default {
@@ -251,6 +252,7 @@ export default {
     return {
       height: 300,
       rowHeight: 50,
+      mallListAPIInstance: new MallListAPI(this),
       consoleMsg: '',
       buttonStatus: {
         login: false,
@@ -349,6 +351,10 @@ export default {
         this.$message.error('请选择店铺')
         return
       }
+      if (len > 10) {
+        this.$message.error(`解绑店铺最多为：10个/次, 当前选择店铺数为：${len}个`)
+        return
+      }
       this.delMallDialog = true
     },
     getIP() {
@@ -369,7 +375,7 @@ export default {
       }
       this.buttonStatus.delMall = true
       const ids = this.multipleSelection.map((item) => {
-        return item.platform_mall_id
+        return item.id
       })
       if (!this.IPVal) {
         return this.$message.error('未获取到IP地址,无法操作')
@@ -386,6 +392,7 @@ export default {
         return
       }
       this.$message.success('解绑店铺成功')
+      this.getMallList()
       this.cancel2()
       this.buttonStatus.delMall = false
     },
@@ -442,12 +449,14 @@ export default {
       this.buttonStatus.login = true
       for (let i = 0; i < len; i++) {
         const item = selectMall[i]
+        const country = item.country
+        const platform_mall_id = item.platform_mall_id
         const platform_mall_name = item.platform_mall_name
         flat === 1 ? item.LoginInfo = '正在登陆中...' : this.writeLog(`(${i + 1}/${len})账号【${platform_mall_name}】开始授权`, true)
         // 0、检测
         if (!this.forceLogin && flat === 1) {
           // 不强制登陆并且为一键登陆时, 走检测接口
-          const userInfo = await this.getUserInfo(item)
+          const userInfo = await this.mallListAPIInstance.getUserInfo({ country, platform_mall_id })
           if (userInfo.code === 200) {
             item.LoginInfo = `<p style="color: green">登录成功</p>`
             continue
@@ -483,7 +492,7 @@ export default {
           mallDataInfo = res.data.mallInfo_new
           await this.$appConfig.updateInfoMall(mallId, JSON.stringify(mallDataInfo)) // 更新里面店铺的cookie （壳）
           // 4、判断物流信息是否是普通店铺 (店铺导入独有)
-          const res3 = await this.isNormalMall(mallDataInfo)
+          const res3 = await this.mallListAPIInstance.isNormalMall({ country, platform_mall_id })
           if (res3.code !== 200) {
             this.writeLog(`(${i + 1}/${len})账号【${platform_mall_name}】授权失败：该账号属于跨境店铺`, true)
             continue
@@ -503,7 +512,7 @@ export default {
             SPC_SC_TK: item.SPC_SC_TK,
             mall_type: 1 // 写死1 普通店铺
           }
-          const res4 = await this.getMallGoodsAmount(mallDataInfo)
+          const res4 = await this.mallListAPIInstance.getMallGoodsAmount({ country, platform_mall_id })
           res4.code === 200 ? (params2['itemLimit'] = res4.data) : ''
           // 6、上报店铺信息(店铺导入独有) 如果是导入店铺,在上报cookie之前应该先上报店铺
           const res5 = await this.$api.saveMallAuthInfo(params2) // 导入店铺信息（服务端）
@@ -517,7 +526,7 @@ export default {
           mallId: mallId,
           webLoginInfo: JSON.stringify(res.data.Cookie)
         }
-        const res6 = await uploadMallCookie(params) // 上报店铺信息cookie (服务端)
+        const res6 = await this.mallListAPIInstance.uploadMallCookie(params) // 上报店铺信息cookie (服务端)
         if (res6.code !== 200) {
           // console.log('店铺上传失败', res.data)
           this.writeLog(`(${i + 1}/${len})账号【${platform_mall_name}】授权失败：上报店铺信息cookie失败`, true)
@@ -526,65 +535,6 @@ export default {
         flat === 1 ? (item.LoginInfo = '<p style="color: green">登录成功</p>') : this.writeLog(`(${i + 1}/${len})账号【${platform_mall_name}】授权成功`, true)
       }
       this.buttonStatus.login = false
-    },
-    async getUserInfo(mallInfo) {
-      try {
-        const { country, platform_mall_id } = mallInfo
-        const params = {
-          'platform_mall_id': platform_mall_id // 导入店铺初始没有mallId
-        }
-        let res = await this.$shopeemanService.getChinese(country, '/api/selleraccount/user_info/?', params)
-        res = JSON.parse(JSON.parse(res).data)
-        if (res.code === 0) {
-          return { code: 200, data: '店铺已经登陆' }
-        }
-        return { code: res.status, data: `${res.status} ${res.data.message}` }
-      } catch (error) {
-        return { code: -2, data: `getMallList-catch: ${error}` }
-      }
-    },
-    // 获取店铺上新商品额度
-    async getMallGoodsAmount(mallInfo) {
-      try {
-        const { country, platform_mall_id } = mallInfo
-        const params = {
-          platform_mall_id: platform_mall_id, // 导入店铺初始没有mallId
-          version: '3.1.0'
-        }
-        // cnsc_shop_id  店铺类型为 2 or 3时，需要此参数
-        let res = await this.$shopeemanService.getChinese(country, '/api/v3/product/get_product_statistical_data/?', params, { headers: { referer: '/portal/product/list/all' }})
-        res = JSON.parse(JSON.parse(res).data)
-        if (res.code === 0) {
-          return { code: 200, data: res.data.count_for_limit }
-        }
-        return { code: res.status, data: `${res.status} ${res.data.message}` }
-      } catch (error) {
-        return { code: -2, data: `getMallList-catch: ${error}` }
-      }
-    },
-    // 判断店铺是否是跨境店铺还是普通店铺
-    async isNormalMall(mallInfo) {
-      try {
-        const { country, platform_mall_id } = mallInfo
-        const params = {
-          platform_mall_id: platform_mall_id
-        }
-        let res = await this.$shopeemanService.getChinese(country, '/api/v3/logistics/get_channel_list/?', params)
-        res = JSON.parse(JSON.parse(res).data)
-        const siteMall = this.$shopeeManConfig.getSiteMall()
-        const isNormal = siteMall[country].some(item => {
-          return res.data.list.some(resitem => {
-            return Number(item.ShipId) === resitem.channel_id
-          })
-        })
-        if (res.code === 0) {
-          const Logistics = res.data
-          return { code: 200, data: isNormal }
-        }
-        return { code: res.status, data: `${res.status} ${res.data.message}` }
-      } catch (error) {
-        return { code: -2, data: `isNormalMall-catch: ${error}` }
-      }
     },
     importMall(val) {
       this.importType = val
@@ -672,20 +622,26 @@ export default {
         // {"lists":[{"sysMallId":"12","watermark":"MarlonStowe"},{"sysMallId":"41","watermark":"Queen- fashion"}]}
         this.importTemplateData.forEach((item, index) => {
           if (item['店铺ID(必填)']) {
-            const obj = {
-              sysMallId: item['店铺ID(必填)'],
-              watermark: item['店铺文字水印']
+            const sysMallId = this.mallListAPIInstance.getMallID(item['店铺ID(必填)'] + '')
+            if (sysMallId) {
+              const obj = {
+                sysMallId,
+                watermark: item['店铺文字水印']
+              }
+              params['lists'].push(obj)
+            } else {
+              this.writeLog(`(${index + 1}/${len}) 店铺平台ID填写有误`)
             }
-            params['lists'].push(obj)
           } else {
-            this.writeLog(`(${index + 1}/${len}),未找到店铺ID`)
+            this.writeLog(`(${index + 1}/${len}) 请填写店铺平台ID`)
           }
         })
-        const res = await updateWatermarkAPI(params)
+        const res = await this.mallListAPIInstance.updateWatermark(params)
         if (res.code !== 200) {
           this.writeLog(`修改失败:${res.data}`, false)
           return
         }
+        this.getMallList()
         this.writeLog(`修改成功`, true)
       } else if (this.importType === 'update') {
         let succsessNum = 0
@@ -709,18 +665,23 @@ export default {
             this.writeLog(`(${index + 1}/${len})店铺账号不能为空`)
             continue
           }
-          params['sysMallId'] = item['SHOPEE店铺ID(必填)']
-          params['password'] = item['店铺登录账号(必填)']
-          params['username'] = item['密码(必填)']
+          const sysMallId = this.mallListAPIInstance.getMallID(item['SHOPEE店铺ID(必填)'] + '')
+          if (!sysMallId) {
+            this.writeLog(`(${index + 1}/${len}) 店铺平台ID填写有误`)
+            continue
+          }
+          params['sysMallId'] = sysMallId
+          params['username'] = item['店铺登录账号(必填)']
+          params['password'] = item['密码(必填)']
           // 满足条件后
-          const res = await updateUserPasswordAPI(params)
+          const res = await this.mallListAPIInstance.updateUserPassword(params)
           if (res.code !== 200) {
             this.writeLog(`(${index + 1}/${len})修改失败:${res.data}`, false)
             failNum++
             continue
           }
           succsessNum++
-          this.writeLog(`(${index}/${len})修改成功`, true)
+          this.writeLog(`(${index + 1}/${len})修改成功`, true)
         }
         this.writeLog(`共导入店铺【${len}】个,成功【${succsessNum}】个, 失败【${failNum}】个`, true)
       }
@@ -863,9 +824,10 @@ export default {
       this.mallSearchConditionInputVal ? (params[this.mallSearchConditionVal] = this.mallSearchConditionInputVal) : ''
       params['groupId'] = this.groupId
       this.mallStausVal ? (params['isFilterFrozen'] = this.mallStausVal) : ''
-      const res = await getMallListAPI(params)
+      const res = await this.mallListAPIInstance.getMallList(params)
       if (res.code !== 200) {
-        this.$message.error('获取店铺列表失败')
+        this.$message.error(`获取店铺列表失败: ${res.data}`)
+        return
       }
       this.mallList = res.data
       this.mallListTemp = this.mallList
