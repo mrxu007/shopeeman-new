@@ -82,7 +82,7 @@
         <el-table
           ref="plTable"
           v-loading="isLoading"
-          height="calc(100vh - 155px)"
+          height="calc(100vh - 165px)"
           :data-changes-scroll-top="false"
           :border="false"
           :data="tableData"

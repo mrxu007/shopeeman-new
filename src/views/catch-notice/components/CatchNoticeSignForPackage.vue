@@ -19,7 +19,7 @@
       <!-- 第三行 -->
       <div class="rowThree">操作指引：请在此界面手动标记订单号或者在【订单列表】右键【同步此订单】获取订单信息</div>
     </div>
-    <el-table :header-cell-style="{ background: '#f5f7fa' }" :data="tableData" border style="width: 100%" height="calc(100vh - 160px)" :loading="buttonStatus.getList">
+    <el-table v-loading="buttonStatus.getList" :header-cell-style="{ background: '#f5f7fa' }" :data="tableData" style="width: 100%" height="calc(100vh - 160px)">
       <el-table-column type="index" label="序列号" width="80" />
       <el-table-column label="仓库" prop="warehouse_name" />
       <el-table-column prop="package_time" label="签收时间" />
@@ -82,6 +82,7 @@
 </template>
 
 <script>
+import { delay } from '@/util/util'
 export default {
   data() {
     return {
@@ -147,7 +148,6 @@ export default {
       // 表格数据
       tableData: [],
       // 按钮状态
-
       buttonStatus: {
         getList: false
       },
@@ -316,8 +316,8 @@ export default {
       }
     }
   }
-  .rowTwo{
-    font-size:13px ;
+  .rowTwo {
+    font-size: 13px;
   }
   .rowThree {
     color: red;

@@ -74,3 +74,16 @@ export async function uploadMallCookie(params) {
     return { code: -2, data: `getMallList-catch: ${error}` }
   }
 }
+
+// 获取银行卡信息列表
+export async function getBankList(params) {
+  try {
+    const res = await api.getBankList({ params })
+    if (res.data.code === 200) {
+      return { code: 200, data: res.data.data }
+    }
+    return { code: -2, data: '获取店铺列表失败' }
+  } catch (error) {
+    return { code: -2, data: `getMallList-catch: ${error}` }
+  }
+}

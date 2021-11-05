@@ -59,6 +59,7 @@ export default class NetMessageBridgeService {
   async getChinese(country, api, data, options = {}) {
     const url = await this.getUrlPrefix(country) + api
     options['extrainfo'] = this.getExtraInfo(data)
+    delete data.mallId // body 里面不能带店铺id
     options['params'] = data
     const referer = options['headers'] && options['headers'].referer
     if (referer) {
@@ -94,6 +95,7 @@ export default class NetMessageBridgeService {
   async putChinese(country, api, data, options = {}) {
     const url = await this.getUrlPrefix(country) + api
     options['extrainfo'] = this.getExtraInfo(data)
+    delete data.mallId // body 里面不能带店铺id
     const referer = options['headers'] && options['headers'].referer
     if (referer) {
       options['headers'] = Object.assign(options['headers'],
@@ -108,7 +110,7 @@ export default class NetMessageBridgeService {
   async deleteChinese(country, api, data, options = {}) {
     const url = await this.getUrlPrefix(country) + api
     options['extrainfo'] = this.getExtraInfo(data)
-
+    delete data.mallId // body 里面不能带店铺id
     const referer = options['headers'] && options['headers'].referer
     if (referer) {
       options['headers'] = Object.assign(options['headers'],
@@ -146,7 +148,7 @@ export default class NetMessageBridgeService {
   }
   // 回复商店评价
   replyShopRating(country, data) {
-    return this.postChinese(country, '/api/v3/settings/reply_shop_rating', data, { Headers: { 'Content-Type': ' application/json' } })
+    return this.postChinese(country, '/api/v3/settings/reply_shop_rating', data, { Headers: { 'Content-Type': ' application/json' }})
   }
   // 店铺提现记录
   getWithDrawalRecord(country, data) {
@@ -165,7 +167,6 @@ export default class NetMessageBridgeService {
     const { country, mall_account_info, platform_mall_id } = mallInfo
     const accountName = mall_account_info.username
     const encryptPwd = sha256(md5(mall_account_info.password))
-    debugger
     // const encryptPwd = sha256(md5('Th123654'))
     // const accountName = 'hellohappy586'
     const params = {
@@ -177,13 +178,13 @@ export default class NetMessageBridgeService {
       username: '',
       password: mall_account_info.password
     }
-    const reg = new RegExp('[\\u4E00-\\u9FFF]+', 'g')
+    const reg = new RegExp('[\\u4E00-\\u9FFFa-zA-Z]+', 'g')
     if (accountName.indexOf('@') > -1) {
       params['email'] = accountName
-      copy_mallInfo['username'] = accountName
+      acccount_info['username'] = accountName
     } else if (reg.test(accountName)) {
       params['username'] = accountName
-      copy_mallInfo['username'] = accountName
+      acccount_info['username'] = accountName
     } else {
       const phone = this.getTelephoneNumberIsTrue(country, accountName)
       params['phone'] = phone
@@ -226,8 +227,8 @@ export default class NetMessageBridgeService {
         const Cookie = {} // (一键登陆专用)
         Cookie['SPC_EC'] = data.sso
         Cookie['SPC_SC_TK'] = data.token
-        Cookie['ShopeeUid'] = data.id // 虾皮平台用户Uid
-        Cookie['shopid'] = data.shopid // 平台店铺ID
+        Cookie['ShopeeUid'] = mallUId // 虾皮平台用户Uid
+        Cookie['shopid'] = mallId // 平台店铺ID
 
         const Cookie_new = { // 店铺cookie信息(导入店铺专用)(更新壳)
           'SPC_CDS_VER': '2',
@@ -389,6 +390,15 @@ export default class NetMessageBridgeService {
   // 提取金额
   verifyPaymentPass(country, data,option) {
     return this.getChinese(country, '/api/v3/finance/verify_payment_pass/', data,option)
+  }
+
+  // 验证码
+  getWalletOtpSeed(country, data,option) {
+    return this.getChinese(country, '/api/v3/general/get_wallet_otp_seed', data,option)
+  }
+  // 绑卡
+  bindBankAccount(country, data,option) {
+    return this.postChinese(country, '/api/v3/finance/bind_bank_account/', data,option)
   }
 }
 
