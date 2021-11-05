@@ -93,7 +93,7 @@
           <el-table-column align="center" type="index" label="序列号" width="80" />
           <el-table-column align="center" prop="country" label="站点">
             <template slot-scope="{ row }">
-              {{row.country | chineseSite }}
+              {{ row.country | chineseSite }}
             </template>
           </el-table-column>
           <el-table-column align="center" prop="platform_mall_id" label="店铺ID" min-width="120" />
@@ -376,7 +376,7 @@
 
 <script>
 import mallGroup from '@/components/mall-group.vue'
-import { exportExcelDataCommon ,batchOperation} from '@/util/util'
+import { exportExcelDataCommon, batchOperation } from '@/util/util'
 import { MallTargetApi } from '../../../module-api/mall-manager-api/mall-target-api'
 export default {
   components: {
@@ -430,18 +430,18 @@ export default {
       this.percentage = 0
       const len = data.length
       this.addPercentage = 100 / len
-      let res = await batchOperation(data, this.syncMall)
-      console.log(1,'完成',res)
+      const res = await batchOperation(data, this.syncMall)
+      console.log(1, '完成', res)
       this.percentage = 100
     },
-    //店铺同步
-    async syncMall(item,count = {count:1}){
+    // 店铺同步
+    async syncMall(item, count = { count: 1 }) {
       try {
-        console.log('item - count',item,count)
+        console.log('item - count', item, count)
         this.$set(item, 'status', '开始同步')
         this.$set(item, 'color', '')
-        const res1 = await this.mallTargetApiInstance.theQuarterPoint(item, '/api/v2/shops/sellerCenter/ongoingPoints')
-        const res2 = await this.mallTargetApiInstance.getShopPerformance(item, '/api/v2/shops/sellerCenter/shopPerformance')
+        const res1 = this.mallTargetApiInstance.theQuarterPoint(item, '/api/v2/shops/sellerCenter/ongoingPoints')
+        const res2 = this.mallTargetApiInstance.getShopPerformance(item, '/api/v2/shops/sellerCenter/shopPerformance')
         const res3 = await Promise.all([res1, res2])
         const params = {
           'mallDatas': '',
@@ -462,12 +462,12 @@ export default {
           this.$set(item, 'color', `#F56C6C`)
           this.$set(item, 'status', `同步失败`)
         }
-        console.log('syncMall', res1,res2,res3)
-      }catch (e) {
-        console.log('错误',e)
+        console.log('syncMall', res1, res2, res3)
+      } catch (e) {
+        console.log('错误', e)
         this.$set(item, 'color', `#F56C6C`)
         this.$set(item, 'status', `同步失败`)
-      }finally {
+      } finally {
         --count.count
         this.percentage += this.addPercentage
       }

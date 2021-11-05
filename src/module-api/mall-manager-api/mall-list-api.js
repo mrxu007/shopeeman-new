@@ -21,7 +21,30 @@ export default class MallListAPI {
       return { code: -2, data: `getMallList-catch: ${error}` }
     }
   }
-
+  // 根据站点获取分组
+  async getGroup(params) {
+    try {
+      const res = await this._this.$api.getGroupList(params)
+      if (res.data.code === 200) {
+        const groupList = []
+        const isRepeatObj = {}
+        res.data.data.map(item => {
+          if (!isRepeatObj[item.group_id]) {
+            isRepeatObj[item.group_id] = '123'
+            const obj = {
+              label: item.group_name,
+              value: item.group_id
+            }
+            groupList.push(obj)
+          }
+        })
+        return { code: 200, data: groupList }
+      }
+      return { code: res.status, data: '获取店铺列表失败' }
+    } catch (error) {
+      return { code: -2, data: `getMallList-catch: ${error}` }
+    }
+  }
   // 根据 店铺频台id 找到店铺系统id
   getMallID(platform_mall_id) {
     return this.mallList.find(item => item.platform_mall_id === platform_mall_id)?.id
@@ -30,7 +53,6 @@ export default class MallListAPI {
   async updateWatermark(params) {
     try {
       const res = await this._this.$api.updateWatermark(params)
-      // debugger
       if (res.data.code === 200) {
         return { code: 200, data: res.data.data }
       }
@@ -44,7 +66,6 @@ export default class MallListAPI {
   async updateUserPassword(params) {
     try {
       const res = await this._this.$api.updateUserPassword(params)
-      // debugger
       if (res.data.code === 200) {
         return { code: 200, data: res.data.data }
       }
@@ -78,6 +99,18 @@ export default class MallListAPI {
       return { code: -2, data: `getMallList-catch: ${error}` }
     }
   }
+  // 导入店铺信息(服务端)
+  async saveMallAuthInfo(mallInfo) {
+    try {
+      const res = await this._this.$api.saveMallAuthInfo(mallInfo) // 导入店铺信息（服务端）
+      if (res.data.code === 200) {
+        return { code: 200, data: res.data } // count_for_limit
+      }
+      return { code: res.status, data: `${res.status} ${res.data.message}` }
+    } catch (error) {
+      return { code: -2, data: `saveMallAuthInfo-catch: ${error}` }
+    }
+  }
 
   // 获取店铺上新商品额度
   async getMallGoodsAmount(mallInfo) {
@@ -88,12 +121,12 @@ export default class MallListAPI {
         version: '3.1.0'
       }
       // cnsc_shop_id  店铺类型为 2 or 3时，需要此参数
-      let res = await this._this.$shopeemanService.getChinese(country, '/api/v3/product/get_product_statistical_data/?', params, { headers: { referer: '/portal/product/list/all' }})
+      let res = await this._this.$shopeemanService.getChinese(country, '/api/v3/product/get_product_statistical_data/?', params, { headers: { referer: '/portal/product/list/all' } })
       res = JSON.parse(JSON.parse(res).data)
       if (res.code === 0) {
         return { code: 200, data: res.data } // count_for_limit
       }
-      return { code: res.status, data: `${res.status} ${res.data.message}` }
+      return { code: res.errcode, data: `${res.errcode} ${res.message}` }
     } catch (error) {
       return { code: -2, data: `getMallGoodsAmount-catch: ${error}` }
     }
@@ -107,7 +140,6 @@ export default class MallListAPI {
         platform_mall_id: platform_mall_id
       }
       let res = await this._this.$shopeemanService.getChinese(country, '/api/v3/logistics/get_channel_list/?', params)
-      debugger
       res = JSON.parse(JSON.parse(res).data)
       const siteMall = this._this.$shopeeManConfig.getSiteMall()
       const isNormal = siteMall[country].some(item => {
@@ -118,7 +150,7 @@ export default class MallListAPI {
       if (res.code === 0) {
         return { code: 200, data: isNormal }
       }
-      return { code: res.status, data: `${res.status} ${res.data.message}` }
+      return { code: res.errcode, data: `${res.errcode} ${res.message}` }
     } catch (error) {
       return { code: -2, data: `isNormalMall-catch: ${error}` }
     }
@@ -136,9 +168,62 @@ export default class MallListAPI {
       if (res.code === 0) {
         return { code: 200, data: '店铺已经登陆' }
       }
-      return { code: res.status, data: `${res.status} ${res.data.message}` }
+      return { code: res.errcode, data: `${res.errcode} ${res.message}` }
     } catch (error) {
       return { code: -2, data: `getUserInfo-catch: ${error}` }
+    }
+  }
+  // 获取店铺信息
+  async getMallInfo(mallInfo) {
+    try {
+      const { country, platform_mall_id } = mallInfo
+      const params = {
+        platform_mall_id: platform_mall_id
+      }
+      let res = await this._this.$shopeemanService.getChinese(country, '/api/forward/accountservice/v2/shop/', params)
+      res = JSON.parse(JSON.parse(res).data)
+      if (res?.username) {
+        return { code: 200, data: res }
+      }
+      return { code: res.errcode, data: `${res.errcode} ${res.message}` }
+    } catch (error) {
+      return { code: -2, data: `getMallInfo-catch: ${error}` }
+    }
+  }
+  async updateMallInfo(params) {
+    try {
+      const res = await this._this.$api.updateMallInfo(params) // 导入店铺信息（服务端）
+      if (res.data.code === 200) {
+        return { code: 200, data: res.data }
+      }
+      return { code: res.status, data: `${res.status} ${res.data.message}` }
+    } catch (error) {
+      return { code: -2, data: `saveMallAuthInfo-catch: ${error}` }
+    }
+  }
+  // 开启或关闭店铺休假模式
+  async closeOrOpenMallVacation(mallInfo, open) {
+    try {
+      const { country, platform_mall_id } = mallInfo
+      const params = {
+        'platform_mall_id': platform_mall_id,
+        'enable_vacation_mode': open
+      }
+      // https://seller.th.shopee.cn/api/sellermisc/sc_conf/set_shop_settings/?SPC_CDS=3ab26097-85e9-48d2-baab-72766be9bb84&SPC_CDS_VER=2
+      let res = await this._this.$shopeemanService.postChinese(country, '/api/sellermisc/sc_conf/set_shop_settings/?', params, { // options
+        headers: {
+          'Content-Type': 'application/json',
+          'charset': 'UTF-8'
+        }
+      })
+      res = JSON.parse(JSON.parse(res).data)
+
+      if (res.code === 0) {
+        return { code: 200, data: '操作成功' }// Errors within expectations  开启关闭太频繁，需冷却三小时
+      }
+      return { code: res.code, data: `${res.code} ${res.message.indexOf('Errors within expectations') > -1 ? '开启关闭太频繁，需冷却3小时' : res.message}` }
+    } catch (error) {
+      return { code: -2, data: `getMallInfo-catch: ${error}` }
     }
   }
 }
