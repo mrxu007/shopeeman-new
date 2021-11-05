@@ -98,10 +98,10 @@
       <div class="data_table" style="height: 100%;background-color:white">
         <el-table
           ref="multipleTable"
-          height="calc(100vh - 262px)"
+          height="calc(100vh - 233px)"
           :data="tableListEnd"
           :row-style="{ height: '50px' }"
-          style="width: 100%;height: calc(100vh - 262px)"
+          style="width: 100%;height: calc(100vh - 233px)"
           :header-cell-style="{ background: '#f7fafa' }"
           :row-key="generateUUID"
           @selection-change="handleSelectionChange"
