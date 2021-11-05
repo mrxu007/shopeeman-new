@@ -263,6 +263,7 @@ export default {
       this.accountId = val.id
       this.name = val.name
       // this.password = val.password
+      console.log(val.password)
       this.diaIsEnable = val.is_enable.toString()
       this.note = val.note
       val.type.forEach(item => {
