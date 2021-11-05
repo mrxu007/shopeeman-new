@@ -58,7 +58,7 @@
           <el-col :span="8">
             <div class="moneyFlow">
               <label>资金流向：</label>
-              <el-select v-model="form.moneyFlow" size="mini" multiple collapse-tags clearable @change="changeSelect($event, 'moneyFlow')">
+              <el-select v-model="form.moneyFlow" style="width: 207px;" size="mini" multiple collapse-tags clearable @change="changeSelect($event, 'moneyFlow')">
                 <el-option label="全部" value="全部" @click.native="selectAll('moneyFlow', moneyFlow)" />
                 <el-option v-for="item in moneyFlow" :key="item.id" :label="item.label" :value="item.id" />
               </el-select>
@@ -643,7 +643,7 @@ export default {
   /deep/.el-row {
     min-width: 920px !important;
     /deep/.el-col {
-      width: 300px !important;
+      // width: 300px !important;
       // padding: 0px !important;
     }
   }
@@ -662,7 +662,7 @@ export default {
     }
     .tradingTime {
       /deep/.el-date-editor {
-        width: 190px;
+        width: 207px;
       }
     }
     //交易时间
@@ -724,7 +724,7 @@ export default {
     .bigBagNumber {
       margin: 0 10px;
       .el-input {
-        width: 158px;
+        width: 178px;
       }
     }
     .searchRowThreeBottonGroup {
