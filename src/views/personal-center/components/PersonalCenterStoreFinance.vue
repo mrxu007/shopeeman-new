@@ -55,7 +55,7 @@
             size="mini"
             value-format="yyyy-MM-dd"
             type="daterange"
-            style="width: 200px"
+            style="width: 207px"
             range-separator="-"
             start-placeholder="开始日期"
             end-placeholder="结束日期"
@@ -86,37 +86,37 @@
         <el-table
           ref="multipleTable"
           v-loading="tableLoading"
+          height="calc(100vh - 257px)"
           :data="tableData"
           tooltip-effect="dark"
-          max-height="625"
           :header-cell-style="{
             textAlign: 'center',
             backgroundColor: '#f5f7fa',
           }"
         >
-          <el-table-column align="center" type="index" label="序号" width="50">
+          <el-table-column align="center" type="index" label="序号" min-width="50px" fixed>
             <template slot-scope="scope">{{ (currentPage - 1) * pageSize + scope.$index + 1 }}</template>
           </el-table-column>
-          <el-table-column min-width="160px" label="内部交易单号" prop="trade_no" align="center" />
-          <el-table-column min-width="60px" label="充值金额" prop="amount" align="center" />
-          <el-table-column align="center" label="交易时间" min-width="60">
+          <el-table-column min-width="180px" label="内部交易单号" prop="trade_no" align="center" fixed />
+          <el-table-column min-width="100px" label="充值金额" prop="amount" align="center" />
+          <el-table-column align="center" label="交易时间" min-width="100px">
             <template slot-scope="scope"> {{ $dayjs(scope.row.trans_time * 1000).format('YYYY-MM-DD') }} </template>
           </el-table-column>
-          <el-table-column align="center" prop="receipt_amount" label="实收金额" min-width="70" />
-          <el-table-column align="center" prop="buyer_pay_amount" label="买家付款金额" min-width="70" />
+          <el-table-column align="center" prop="receipt_amount" label="实收金额" min-width="70px" />
+          <el-table-column align="center" prop="buyer_pay_amount" label="买家付款金额" min-width="100px" />
           <el-table-column label="交易状态" align="center" min-width="80px">
             <template v-if="scope.row.status" slot-scope="scope"> {{ scope.row.status === 1 ? '进行中' : '充值成功' }} </template>
           </el-table-column>
-          <el-table-column prop="is_recharge" label="是否已充值" align="center" min-width="40px">
+          <el-table-column prop="is_recharge" label="是否已充值" align="center" min-width="80px">
             <template v-if="scope.row.is_recharge" slot-scope="scope"> {{ scope.row.is_recharge === 1 ? '是' : '否' }} </template>
           </el-table-column>
-          <el-table-column align="center" prop="seller_id" label="买家支付宝用户号" min-width="120" />
-          <el-table-column align="center" prop="buyer_id" label="买家支付宝唯一用户号" min-width="120" />
+          <el-table-column align="center" prop="seller_id" label="买家支付宝用户号" min-width="120px" />
+          <el-table-column align="center" prop="buyer_id" label="买家支付宝唯一用户号" min-width="180px" />
           <el-table-column align="center" prop="remark" label="备注" min-width="80" />
-          <el-table-column align="center" label="支付时间" min-width="60">
+          <el-table-column align="center" label="支付时间" min-width="180px">
             <template slot-scope="scope"> {{ $dayjs(scope.row.pay_time * 1000).format('YYYY-MM-DD') }} </template>
           </el-table-column>
-          <el-table-column align="center" label="交易创建时间" min-width="60">
+          <el-table-column align="center" label="交易创建时间" min-width="180px" fixed="right">
             <template slot-scope="scope"> {{ $dayjs(scope.row.gmt_create * 1000).format('YYYY-MM-DD') }} </template>
           </el-table-column>
         </el-table>
@@ -126,40 +126,40 @@
           ref="multipleTable"
           v-loading="tableLoading"
           :data="tableData"
+          height="calc(100vh - 258px)"
           tooltip-effect="dark"
-          max-height="625"
           :header-cell-style="{
             textAlign: 'center',
             backgroundColor: '#f5f7fa',
           }"
         >
-          <el-table-column align="center" type="index" label="序号" width="50">
+          <el-table-column align="center" type="index" label="序号" min-width="50px">
             <template slot-scope="scope">{{ (currentPage - 1) * pageSize + scope.$index + 1 }}</template>
           </el-table-column>
-          <el-table-column min-width="140px" label="仓库名称" prop="warehouse_name" align="center" />
-          <el-table-column min-width="140px" label="交易号" prop="trans_number" align="center" />
-          <el-table-column align="center" prop="type" label="资金流向" min-width="60">
+          <el-table-column min-width="150px" label="仓库名称" prop="warehouse_name" align="center" />
+          <el-table-column min-width="150px" label="交易号" prop="trans_number" align="center" />
+          <el-table-column align="center" prop="type" label="资金流向" min-width="100px">
             <template v-if="scope.row.type" slot-scope="scope"> {{ scope.row.type === 1 ? '收入' : '支出' }} </template>
           </el-table-column>
-          <el-table-column align="center" prop="trans_type" label="交易类型" min-width="70">
+          <el-table-column align="center" prop="trans_type" label="交易类型" min-width="100px">
             <template slot-scope="scope"> {{ changeTypeName(scope.row.trans_type, tradeTypeList) }} </template>
           </el-table-column>
-          <el-table-column align="center" prop="package_order_sn" label="订单编号" min-width="70" />
-          <el-table-column prop="amount" label="交易金额" align="center" min-width="90px" />
-          <el-table-column align="center" prop="trans_status" label="交易状态" min-width="70">
+          <el-table-column align="center" prop="package_order_sn" label="订单编号" min-width="100px" />
+          <el-table-column prop="amount" label="交易金额" align="center" min-width="100px" />
+          <el-table-column align="center" prop="trans_status" label="交易状态" min-width="100px">
             <template slot-scope="scope"> {{ changeTypeName(scope.row.trans_status, tradeStatusList) }} </template>
           </el-table-column>
-          <el-table-column align="center" prop="current_amount" label="当前剩余金额" min-width="70" />
-          <el-table-column align="center" prop="customs_money" label="清关费用" min-width="80" />
-          <el-table-column align="center" prop="first_express_money" label="头程物流费用" min-width="80" />
-          <el-table-column align="center" prop="warhouse_money" label="仓库操作费" min-width="80" />
-          <el-table-column align="center" prop="order_outbound_img" label="出库图片" min-width="70">
+          <el-table-column align="center" prop="current_amount" label="当前剩余金额" min-width="100px" />
+          <el-table-column align="center" prop="customs_money" label="清关费用" min-width="100px" />
+          <el-table-column align="center" prop="first_express_money" label="头程物流费用" min-width="100px" />
+          <el-table-column align="center" prop="warhouse_money" label="仓库操作费" min-width="100px" />
+          <el-table-column align="center" prop="order_outbound_img" label="出库图片" min-width="100px">
             <template slot-scope="scope">
               <el-image v-if="scope.row.order_outbound_img" :src="scope.row.order_outbound_img" />
             </template>
           </el-table-column>
-          <el-table-column align="center" prop="remark" label="备注" width="120" show-overflow-tooltip />
-          <el-table-column align="center" prop="trans_time" label="交易时间" min-width="80" />
+          <el-table-column align="center" prop="remark" label="备注" width="120px" show-overflow-tooltip />
+          <el-table-column align="center" prop="trans_time" label="交易时间" min-width="180px" fixed="right" />
         </el-table>
       </div>
       <div class="pagination">
@@ -543,6 +543,7 @@ export default {
 
 <style lang="less" scoped>
 .store-finance {
+  min-width: 1200px;
   padding: 16px;
   background: #fff;
 }
