@@ -61,7 +61,7 @@
     </div>
     <div class="base_option_button" style="margin: 10px;">
       <el-button size="mini" type="primary" @click="(Typeis='ipMaster',dialogvisible=true,showButton=false,dialog_title='新增公司主体')">新增公司主体</el-button>
-      <!-- <el-button size="mini" type="primary">解绑主体IP</el-button> -->
+      <el-button size="mini" type="primary" @click="lostIP">解绑主体IP</el-button>
       <!-- <el-button size="mini" type="primary">绑定主体IP</el-button> -->
       <el-button size="mini" type="primary" @click="clearIP()">清除IP缓存</el-button>
       <el-button size="mini" type="primary" @click="(Typeis='ipPerson',dialogvisible=true,showButton=false,dialog_title='新增自有IP公司主体')">新增自有IP公司主体</el-button>
@@ -199,6 +199,7 @@
               label-width="120px"
             >
               <el-form-item prop="region_name">
+                <span slot="label" style="color:red;margin-right:3px">*</span>
                 <span slot="label">IP区域</span>
                 <el-select v-model="query_person.region_name" size="mini">
                   <el-option v-for="(item,index) in region_ipListSelf" :key="'region'+index" :label="item.value" :value="item.value" />
@@ -212,6 +213,7 @@
                 /> -->
               </el-form-item>
               <el-form-item prop="ip_alias">
+                <span slot="label" style="color:red;margin-right:3px">*</span>
                 <span slot="label">主体名称：</span>
                 <el-input
                   v-model="query_person.ip_alias"
@@ -223,6 +225,7 @@
               </el-form-item>
 
               <el-form-item prop="ip_agency">
+
                 <span slot="label">自有IP类型：</span>
                 <!-- <el-select
                   v-model="query_person.ip_agency"
@@ -248,6 +251,7 @@
                 </el-radio-group>
               </el-form-item>
               <el-form-item v-show="query_person.ip_agency!=='链接'" key="ip_address" prop="ip_address">
+                <span slot="label" style="color:red;margin-right:3px">*</span>
                 <span slot="label">服务器IP：</span>
                 <el-input
                   v-model="query_person.ip_address"
@@ -258,6 +262,7 @@
                 />
               </el-form-item>
               <el-form-item v-show="query_person.ip_agency!=='链接'" key="ip_port" prop="ip_port">
+                <span slot="label" style="color:red;margin-right:3px">*</span>
                 <span slot="label">服务器端口：</span>
                 <el-input
                   v-model="query_person.ip_port"
@@ -268,6 +273,7 @@
                 />
               </el-form-item>
               <el-form-item v-show="query_person.ip_agency!=='链接'" key="password" prop="password">
+                <span slot="label" style="color:red;margin-right:3px">*</span>
                 <span slot="label">密码：</span>
                 <el-input
                   v-model="query_person.password"
@@ -283,6 +289,7 @@
                 key="encryption"
                 prop="encryption"
               >
+                <span slot="label" style="color:red;margin-right:3px">*</span>
                 <span slot="label">加密方式：</span>
                 <el-select
                   v-model="query_person.encryption"
@@ -300,6 +307,7 @@
               </el-form-item>
               <div v-show="query_person.ip_agency==='SSR'">
                 <el-form-item key="protocol" prop="protocol">
+                  <span slot="label" style="color:red;margin-right:3px">*</span>
                   <span slot="label">协议：</span>
                   <el-select
                     v-model="query_person.protocol"
@@ -327,6 +335,7 @@
                   />
                 </el-form-item>
                 <el-form-item key="confuse" prop="confuse">
+                  <span slot="label" style="color:red;margin-right:3px">*</span>
                   <span slot="label">混淆：</span>
                   <el-select
                     v-model="query_person.confuse"
@@ -355,6 +364,7 @@
                 </el-form-item>
               </div>
               <el-form-item v-show="query_person.ip_agency==='HTTP'" prop="username">
+                <span slot="label" style="color:red;margin-right:3px">*</span>
                 <span slot="label">用户名：</span>
                 <el-input
                   v-model="query_person.username"
@@ -366,6 +376,8 @@
               </el-form-item>
 
               <el-form-item v-show="query_person.ip_agency==='链接'" label="链接">
+                <span slot="label" style="color:red;margin-right:3px">*</span>
+                <span slot="label">链接</span>
                 <el-input v-model="query_person.IPLink" type="textarea" rows="5" />
               </el-form-item>
             </el-form>
@@ -394,6 +406,7 @@
               label-width="120px"
             >
               <el-form-item prop="region_name">
+                <span slot="label" style="color:red;margin-right:3px">*</span>
                 <span slot="label">IP区域</span>
                 <el-select v-model="query_person.region_name" size="mini" :disabled="source1">
                   <el-option v-for="(item,index) in region_ipListSelf" :key="'region'+index" :label="item.value" :value="item.value" />
@@ -407,6 +420,7 @@
                 /> -->
               </el-form-item>
               <el-form-item prop="ip_alias">
+                <span slot="label" style="color:red;margin-right:3px">*</span>
                 <span slot="label">主体名称：</span>
                 <el-input
                   v-model="query_person.ip_alias"
@@ -417,7 +431,9 @@
                 />
               </el-form-item>
 
-              <el-form-item v-show="query_person.ip_agency!=='链接'" key="ip_address" prop="ip_address">
+              <el-form-item v-if="query_person.ip_agency!=='链接'" key="ip_address" prop="ip_address">
+                <span slot="label" style="color:red;margin-right:3px">*</span>
+
                 <span slot="label">服务器IP：</span>
                 <el-input
                   v-model="query_person.ip_address"
@@ -428,7 +444,9 @@
                   clearable
                 />
               </el-form-item>
-              <el-form-item v-show="query_person.ip_agency!=='链接'" key="ip_port" prop="ip_port">
+              <el-form-item v-if="query_person.ip_agency!=='链接'" key="ip_port" prop="ip_port">
+                <span slot="label" style="color:red;margin-right:3px">*</span>
+
                 <span slot="label">服务器端口：</span>
                 <el-input
                   v-model="query_person.ip_port"
@@ -439,8 +457,10 @@
                   clearable
                 />
               </el-form-item>
-              <div v-show="query_person.ip_agency==='SS' || query_person.ip_agency==='SSR'">
+              <div v-if="query_person.ip_agency==='SS' || query_person.ip_agency==='SSR'">
                 <el-form-item key="password" prop="password">
+
+                  <span slot="label" style="color:red;margin-right:3px">*</span>
                   <span slot="label">密码：</span>
                   <el-input
                     v-model="query_person.password"
@@ -456,6 +476,8 @@
                   key="encryption"
                   prop="encryption"
                 >
+                  <span slot="label" style="color:red;margin-right:3px">*</span>
+
                   <span slot="label">加密方式：</span>
                   <el-select
                     v-model="query_person.encryption"
@@ -472,6 +494,8 @@
                   </el-select>
                 </el-form-item>
                 <el-form-item key="protocol" prop="protocol">
+                  <span slot="label" style="color:red;margin-right:3px">*</span>
+
                   <span slot="label">协议：</span>
                   <el-select
                     v-model="query_person.protocol"
@@ -499,6 +523,8 @@
                   />
                 </el-form-item>
                 <el-form-item key="confuse" prop="confuse">
+                  <span slot="label" style="color:red;margin-right:3px">*</span>
+
                   <span slot="label">混淆：</span>
                   <el-select
                     v-model="query_person.confuse"
@@ -527,7 +553,9 @@
                 </el-form-item>
               </div>
 
-              <el-form-item v-show="query_person.ip_agency==='HTTP' || query_person.ip_agency==='链接'" prop="username">
+              <el-form-item v-if="query_person.ip_agency==='HTTP' || query_person.ip_agency==='链接'" prop="username">
+                <span slot="label" style="color:red;margin-right:3px">*</span>
+
                 <span slot="label">用户名：</span>
                 <el-input
                   v-model="query_person.username"
@@ -661,14 +689,16 @@ export default {
       },
       httpRules: {
         // name: [{ required: true, message: '店铺主体不能为空', trigger: 'blur' }],
-        ip_alias: [{ required: true, message: 'IP别名不能为空', trigger: 'blur' }],
-        ip_address: [{ required: true, message: 'IP不能为空', trigger: 'blur' }, { validator: validZipCode, trigger: 'blur' }],
-        ip_port: [{ required: true, message: 'PORT不能为空', trigger: 'blur' }, { validator: validPort, trigger: 'blur' }],
-        map_ip_address: [{ validator: validZipCode, trigger: 'blur' }],
-        map_ip_port: [{ validator: validPort, trigger: 'blur' }],
-        encryption: [{ required: true, message: '加密方式不能为空', trigger: 'blur' }],
-        protocol: [{ required: true, message: '协议方式不能为空', trigger: 'blur' }],
-        confuse: [{ required: true, message: '混淆不能为空', trigger: 'blur' }]
+        // ip_alias: [{ required: true, message: 'IP别名不能为空', trigger: 'blur' }],
+        // ip_address: [{ required: true, message: 'IP不能为空', trigger: 'blur' }, { validator: validZipCode, trigger: 'blur' }],
+        // ip_port: [{ required: true, message: 'PORT不能为空', trigger: 'blur' }, { validator: validPort, trigger: 'blur' }],
+        // map_ip_address: [{ validator: validZipCode, trigger: 'blur' }],
+        // map_ip_port: [{ validator: validPort, trigger: 'blur' }],
+        // encryption: [{ required: true, message: '加密方式不能为空', trigger: 'blur' }],
+        // protocol: [{ required: true, message: '协议方式不能为空', trigger: 'blur' }],
+        // confuse: [{ required: true, message: '混淆不能为空', trigger: 'blur' }],
+        // username: [{ required: true, message: '用户名不能为空', trigger: 'blur' }],
+        // password: [{ required: true, message: '密码不能为空', trigger: 'blur' }]
       },
       // ipPsdMethodList: [
       //   {
@@ -817,44 +847,53 @@ export default {
     this.getMallList()// 初始化店铺列表
   },
   methods: {
-    // 主体修改
-    UpdateSelfIPMallMain() {
-      this.$refs.query_person.validate(async(valid) => {
-        if (!valid) return
-        const userInfo = await this.$appConfig.getUserInfo()
-        this.query_person.uid = userInfo.muid
-        const ipAlias = this.randomWord(true, 10, 32)
-        this.query_person.ip_alias = ipAlias
-        this.query_person.uuid = 0
-        // 新增
-        this.loading = true
-        const res = await this.$YipService.UpdateSelfIP(JSON.stringify(this.query_person))
-        const resMsg = JSON.parse(res)
-        if (resMsg.code !== 200) {
-          this.loading = false
-          this.$notify({
-            title: '修改主体信息',
-            type: 'error',
-            message: resMsg.message
-          })
-        } else {
-          this.loading = false
-          this.$notify({
-            title: '修改主体信息',
-            type: 'success',
-            message: `修改成功`
-          })
-          // 附加店铺绑定
-          this.targetId = resMsg.data
-          if (this.dialog_selectMallList.length > 0) {
-            this.updataMallList()
-          }
-          //
-          this.getTableList()
-          this.dialogvisible = false
-        }
+    // IP解绑
+    lostIP() {
+      if (this.mulSelect.length <= 0 || this.mulSelect.length > 1) {
+        this.$message.warning('请选择一个解绑的主体')
+        return
+      }
+      this.$confirm('确定要解绑1个主体的IP吗？，解绑之后可能存在店铺IP关联的风险和台湾站点不能回粉操作', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        this.lostIPFun()
       })
     },
+    async lostIPFun() {
+      this.loading = true
+      const mallids = []
+      const des = this.mulSelect[0].target_mall_info
+      if (des && des.length > 0) {
+        des.forEach(item => {
+          mallids.push(item.mall_id)
+        })
+      }
+      const target_id = this.mulSelect[0].id.toString()
+      try {
+        const res = await this.$YipService.BusinessunbindiP(target_id)
+        this.loading = false
+        const data = JSON.parse(res)
+        console.log(data)
+        if (data.code === 200) {
+          this.$notify({
+            type: 'success',
+            message: '解绑成功'
+          })
+        } else {
+          this.$notify({
+            type: 'error',
+            message: data.message
+          })
+        }
+        // 清空数据
+        this.$refs.multipleTable.clearSelection()
+      } catch (error) {
+        console.log(error)
+      }
+    },
+
     // 关闭弹窗清除
     closeDialog1() {
       this.query_person = {
@@ -863,7 +902,7 @@ export default {
         ip_address: '', // IP地址
         ip_port: '', //	端口号
         ip_alias: '', // IP别名（主体名称）
-        ip_agency: '', // 代理方式
+        ip_agency: 'SSR', // 代理方式
         encryption: '', // 加密方式
         protocol: '', // 协议类型
         confuse: '', // 混淆方式
@@ -876,7 +915,9 @@ export default {
         parameter: '', // 协议参数
         argument: '', // 混淆参数
         map_ip_address: '', // 代理IP
-        map_ip_port: '' // 代理端口
+        map_ip_port: '', // 代理端口
+        IPLink: '', // 链接
+        dataTime: '' // 有效日期
       }
       this.ipMaster_params = {
         lineId: '', // 线路ID
@@ -887,24 +928,24 @@ export default {
         period: '', // 购买时长
         isPresale: ''// 是否预售
       }
+
       this.showUserIP = false
       this.$refs.multipleTable_dialog.clearSelection()
     },
     // 删除
     async delInfor(val) {
       const targetId = val.toString()
-      const res = await this.$YipService.delInfor(targetId)
       this.loading = true
+      const res = await this.$YipService.delInfor(targetId)
+      this.loading = false
       const data = JSON.parse(res)
       if (data.code === -1) {
-        this.loading = false
         this.$notify({
           title: '删除',
           type: 'error',
           message: data.message
         })
       } else {
-        this.loading = false
         this.$notify({
           title: '删除',
           type: 'success',
@@ -974,8 +1015,40 @@ export default {
     // 修改绑定店铺数据
     async updataDesc() {
       // const params = this.query_person
+
+      // 验证  source=2
+      if (this.query_person.ip_agency === 'SS' || this.query_person.ip_agency === 'SSR') {
+        if (this.query_person.ip_alias === '' ||
+            this.query_person.ip_address === '' ||
+            this.query_person.ip_port === '' ||
+           this.query_person.password === '' ||
+           this.query_person.encryption === '' ||
+           this.query_person.protocol === '' ||
+           this.query_person.confuse === ''
+        ) {
+          this.$message.warning('必填信息不能为空')
+          return
+        }
+      }
+      if (this.query_person.ip_agency === 'HTTP' || this.query_person.ip_agency === '链接') {
+        if (this.query_person.ip_alias === '' ||
+            this.query_person.ip_address === '' ||
+            this.query_person.ip_port === '' ||
+           this.query_person.username === ''
+        ) {
+          this.$message.warning('必填信息不能为空')
+          return
+        }
+      }
+      // 验证 source=1
+      if (Number(this.query_person.source) === 1 && this.query_person.ip_alias === '') {
+        this.$message.warning('主体名称不能为空')
+        return
+      }
       try {
+        this.loading = true
         const res = await this.$YipService.UpdateSelfIP(JSON.stringify(this.query_person))
+        this.loading = false
         const data = JSON.parse(res)
         console.log('updataDesc', data)
         if (data.code === 200) {
@@ -1045,7 +1118,9 @@ export default {
       const mallIds = this.dialog_selectMallList.toString() || ''
 
       try {
+        this.loading = true
         const res = await this.$commodityService.newBangdingMall(uid, targetId, mallIds)
+        this.loading = false
         const data = JSON.parse(res)
 
         if (data.code !== 200) {
@@ -1105,7 +1180,9 @@ export default {
     },
     // 清除IP缓存
     async clearIP() {
+      this.loading = true
       const data = await this.$BaseUtilService.UpdateProxy()
+      this.loading = false
       if (data === null) {
         this.$message.success('清理成功')
       }
@@ -1131,41 +1208,85 @@ export default {
     },
     // 新增自有ip公司主体
     async addMallMainAndBind() {
-      this.$refs.query_person.validate(async(valid) => {
-        if (!valid) return
-        const userInfo = await this.$appConfig.getUserInfo()
-        this.query_person.uid = userInfo.muid
-        const ipAlias = this.randomWord(true, 10, 32)
-        this.query_person.ip_alias = ipAlias
-        this.query_person.uuid = 0
-        // 新增
-        this.loading = true
-        const res = await this.$YipService.AddSelfIP(JSON.stringify(this.query_person))
-        const resMsg = JSON.parse(res)
-        if (resMsg.code !== 200) {
-          this.loading = false
-          this.$notify({
-            title: '新增自有IP公司主体',
-            type: 'error',
-            message: resMsg.message
-          })
-        } else {
-          this.loading = false
-          this.$notify({
-            title: '新增自有IP公司主体',
-            type: 'success',
-            message: `IP保存成功`
-          })
-          // 附加店铺绑定
-          this.targetId = resMsg.data
-          if (this.dialog_selectMallList.length > 0) {
-            this.updataMallList()
-          }
-          //
-          this.getTableList()
-          this.dialogvisible = false
+      // this.$refs.query_person.validate(async(valid) => {
+      // if (!valid) return
+      // 验证
+      if (this.query_person.region_name === '' ||
+            this.query_person.ip_alias === '' ||
+            this.query_person.ip_address === '' ||
+            this.query_person.ip_port === ''
+      ) {
+        this.$message.warning('必填信息不能为空')
+        return
+      }
+      // IP类型 分类验证
+      if (this.query_person.ip_agency === 'SSR') {
+        if (
+          this.query_person.password === '' ||
+           this.query_person.encryption === '' ||
+           this.query_person.protocol === '' ||
+           this.query_person.confuse === ''
+        ) {
+          this.$message.warning('必填信息不能为空')
+          return
         }
-      })
+      }
+      if (this.query_person.ip_agency === 'SS') {
+        if (this.query_person.password === '' ||
+           this.query_person.encryption === ''
+        ) {
+          this.$message.warning('必填信息不能为空')
+          return
+        }
+      }
+
+      if (this.query_person.ip_agency === 'HTTP') {
+        if (this.query_person.password === '' ||
+           this.query_person.username === '') {
+          this.$message.warning('必填信息不能为空')
+          return
+        }
+      }
+
+      if (this.query_person.ip_agency === '链接') {
+        if (this.query_person.IPLink === '') {
+          this.$message.warning('链接不能为空')
+          return
+        }
+      }
+
+      const userInfo = await this.$appConfig.getUserInfo()
+      this.query_person.uid = userInfo.muid
+      const ipAlias = this.randomWord(true, 10, 32)
+      this.query_person.ip_alias = ipAlias
+      this.query_person.uuid = 0
+      // 新增
+      this.loading = true
+      const res = await this.$YipService.AddSelfIP(JSON.stringify(this.query_person))
+      this.loading = false
+      const resMsg = JSON.parse(res)
+      if (resMsg.code !== 200) {
+        this.$notify({
+          title: '新增自有IP公司主体',
+          type: 'error',
+          message: resMsg.message
+        })
+      } else {
+        this.$notify({
+          title: '新增自有IP公司主体',
+          type: 'success',
+          message: `IP保存成功`
+        })
+        // 附加店铺绑定
+        this.targetId = resMsg.data
+        if (this.dialog_selectMallList.length > 0) {
+          this.updataMallList()
+        }
+        //
+        this.getTableList()
+        this.dialogvisible = false
+      }
+      // })
     },
     // 删除
     del(ids) {
@@ -1180,7 +1301,9 @@ export default {
       if (this.mulSelect.length <= 0) {
         this.$message.warning('请选择要续费的主体')
       } else {
+        this.loading = true
         const userInfo = await this.$appConfig.getUserInfo()
+        this.loading = false
         var list = []
         this.mulSelect.forEach(item => {
           // if (item.target_mall_info != null) {
@@ -1195,7 +1318,10 @@ export default {
         const targetId = list.toString() || ''
         const uid = String(userInfo.muid)
         const uuid = '0'
+        this.loading = true
+
         const res = await this.$YipService.RenewIP(targetId, uid, uuid, String(period))
+        this.loading = false
         // this.$message.error(JSON.parse(data).message)
         const data = JSON.parse(res)
         if (data.code === -1) {
@@ -1236,22 +1362,21 @@ export default {
         return false
       }
       // this.$message.warning('数据请求中.......')
-      this.loading = true
       const userInfo = await this.$appConfig.getUserInfo()
       this.ipMaster_params.uid = userInfo.muid
       this.ipMaster_params.uuid = 0
       const params = this.ipMaster_params
+      this.loading = true
       const data = await this.$commodityService.addIPMaster(params)
       const resMsg = JSON.parse(data)
+      this.loading = false
       if (resMsg.code === '-1') {
-        this.loading = false
         this.$notify({
           title: '新增公司主体',
           type: 'error',
           message: resMsg.message
         })
       } else {
-        this.loading = false
         this.$notify({
           title: '新增公司主体',
           type: 'success',
@@ -1348,13 +1473,13 @@ export default {
       params.expiration_dates = this.cloumn_date && this.cloumn_date.length > 0 ? this.cloumn_date.join('/').toString() : ''
       params.ip_id = ''
       params.statius = this.query.statius
-      this.loading = true
       try {
+        this.loading = true
         const res = await this.$YipService.GetIpList(JSON.stringify(params))
+        this.loading = false
         const data = JSON.parse(res)
         this.tableList = []
         if (data.code === 200 && data.data.length > 0 && this.shopAccountList.length > 0) {
-          this.loading = false
           data.data.forEach((item, index) => {
             // 获取店铺名称
             if (item.target_mall_info && item.target_mall_info.length > 0) {

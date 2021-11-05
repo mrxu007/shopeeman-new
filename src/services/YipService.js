@@ -3,6 +3,10 @@ export default class YipService {
     return window['CommodityBridgeService']
   }
 
+  // 解绑IP
+  async BusinessunbindiP(target_id) {
+    return await this.nativeService().callCloudIpFunction('BusinessunbindiP', target_id)
+  }
   // 获取价格
   async getprice(lineId, is_renewal) {
     return await this.nativeService().callCloudIpFunction('GetIPPrice', lineId, is_renewal)
