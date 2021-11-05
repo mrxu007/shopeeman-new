@@ -7,8 +7,8 @@
  * @FilePath: \shopeeman-new\src\views\personal-center\index.vue
 -->
 <template>
-  <div class="catch-notice-style">
-    <!--爆款选品 -->
+  <div class="smart-house-style">
+    <!--仓库工作台 -->
     <main v-if="activeVal === '0'"><SmartHouseWorkBench /></main>
 
     <!--包裹列表 -->
@@ -18,16 +18,16 @@
     <main v-if="activeVal === '2'"><SmartHouseReturnManage /></main>
 
     <!--失物招领 -->
-    <main v-if="activeVal === '4'"><SmartHouseUnclaimed /></main>
+    <main v-if="activeVal === '3'"><SmartHouseUnclaimed /></main>
 
     <!--拒签收管理 -->
-    <main v-if="activeVal === '5'"><RefuseSign /></main>
+    <main v-if="activeVal === '5'"><SmartHouseRefuseSign /></main>
 
     <!--我的赔付 -->
-    <main v-if="activeVal === '6'"><SmartHouseAbnormalPayment /></main>
+    <main v-if="activeVal === '5'"><SmartHouseAbnormalPayment /></main>
 
     <!--自有仓库 -->
-    <main v-if="activeVal === '7'"><PrivateWarehouse /></main>
+    <main v-if="activeVal === '6'"><SmartHousePrivateWarehouse /></main>
   </div>
 </template>
 
@@ -38,8 +38,8 @@ import {
   SmartHouseReturnManage,
   SmartHouseUnclaimed,
   SmartHouseAbnormalPayment,
-  PrivateWarehouse,
-  RefuseSign
+  SmartHousePrivateWarehouse,
+  SmartHouseRefuseSign
 } from './index'
 export default {
   components: {
@@ -48,8 +48,8 @@ export default {
     SmartHouseReturnManage,
     SmartHouseUnclaimed,
     SmartHouseAbnormalPayment,
-    PrivateWarehouse,
-    RefuseSign
+    SmartHousePrivateWarehouse,
+    SmartHouseRefuseSign
   },
   data() {
     return {

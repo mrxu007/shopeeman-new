@@ -10,7 +10,7 @@
         <el-date-picker
           v-model="cloumn_date"
           size="mini"
-          style="width: 310px"
+          style="width: 220px"
           type="datetimerange"
           value-format="yyyy-MM-dd HH:mm:ss"
           range-separator="-"
@@ -22,7 +22,7 @@
 
       <div class="condition_item">
         <span>状态：</span>
-        <el-select v-model="query.statius" size="mini" width="150px" placeholder="站点">
+        <el-select v-model="query.statius" size="mini" style="width:90px" placeholder="站点">
           <el-option value="" label="全部" />
           <el-option value="1" label="已分配" />
           <el-option value="2" label="已解绑" />
@@ -33,17 +33,17 @@
 
       <div class="condition_item">
         <span>IP区域：</span>
-        <el-input v-model="query.ip_address" clearable size="mini" style="width:200px" />
+        <el-input v-model="query.ip_address" clearable size="mini" style="width:130px" />
       </div>
 
       <div class="condition_item">
         <span>渠道商：</span>
-        <el-input v-model="query.supplier_info" clearable size="mini" style="width:180px" />
+        <el-input v-model="query.supplier_info" clearable size="mini" style="width:130px" />
       </div>
 
       <div class="condition_item">
         <span>IP来源：</span>
-        <el-select v-model="query.source" size="mini" width="150px" placeholder="IP来源">
+        <el-select v-model="query.source" style="width:100px" size="mini" placeholder="IP来源">
           <el-option value="" label="全部" />
           <el-option value="1" label="系统" />
           <el-option value="2" label="用户" />
@@ -52,11 +52,18 @@
 
       <div class="condition_item">
         <span>主体名称：</span>
-        <el-input v-model="query.ip_alias" clearable placeholder="主体名称" size="mini" style="width:200px" />
+        <el-input v-model="query.ip_alias" clearable placeholder="主体名称" size="mini" style="width:130px" />
       </div>
 
       <div class="condition_item">
         <el-button size="mini" type="primary" @click="search">搜索</el-button>
+        <el-button size="mini" type="primary" @click="(Typeis='ipMaster',dialogvisible=true,showButton=false,dialog_title='新增公司主体')">新增公司主体</el-button>
+        <!-- <el-button size="mini" type="primary">解绑主体IP</el-button> -->
+        <!-- <el-button size="mini" type="primary">绑定主体IP</el-button> -->
+        <el-button size="mini" type="primary" @click="clearIP()">清除IP缓存</el-button>
+        <el-button size="mini" type="primary" @click="(Typeis='ipPerson',dialogvisible=true,showButton=false,dialog_title='新增自有IP公司主体')">新增自有IP公司主体</el-button>
+        <el-button size="mini" type="primary" @click="timeToMonth(1)">续费一个月</el-button>
+        <el-button size="mini" type="primary" @click="timeToMonth(3)">续费三个月</el-button>
       </div>
     </div>
     <div class="base_option_button" style="margin: 10px;">

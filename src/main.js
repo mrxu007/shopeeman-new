@@ -41,7 +41,7 @@ import aliyunOssService from './services/aliyun-oss-service'
 import viewManagerService from './services/view-manager-service'
 import SonAccountService from './services/son-acccount-service'
 import shopeemanService from './services/shopeeman-service'
-import {Logs} from 'cyt-pl-plug'
+import { Logs } from 'cyt-pl-plug'
 
 import * as echarts from 'echarts'
 import * as filters from './plugins/filters'

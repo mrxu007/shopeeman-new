@@ -15,10 +15,10 @@
 <style lang="less">
 body {
   --themeColor: #f97c28;
-  /*overflow: hidden;*/
 }
-#app {
+* {
   font-family: Microsoft YaHei;
+  font-size: 12px !important;
 }
 .el-loading-mask.is-fullscreen {
   background-color: rgba(10, 10, 10, 0.5);
@@ -39,9 +39,9 @@ import './assets/css/base.less'
 export default {
   name: 'App',
   mounted() {
-    // this.$appConfig.primaryColor().then(res => {
-    //   document.body.style.setProperty('--themeColor', res)
-    // })
+    this.$appConfig.primaryColor().then(res => {
+      document.body.style.setProperty('--themeColor', res)
+    })
   }
 }
 </script>

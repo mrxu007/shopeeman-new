@@ -1,13 +1,15 @@
 <template>
   <div class="content">
     <div class="overdata_view">
-      <span>金额总览</span>
-      <div style="display: flex; margin-top: 10px">
-        <span>即将拨款：</span>
-        <h3>{{ to_back_amount }}{{ site_query.typeCoin }}</h3>
-        <div style="width: 20px" />
-        <span>已完成拨款：</span>
-        <h3>{{ haved_amount }}{{ site_query.typeCoin }}</h3>
+      <div class="account-box">
+        <span class="account-title">金额总览</span>
+        <div class="account-item">
+          <span>即将拨款：</span>
+          <h3>{{ to_back_amount }}{{ site_query.typeCoin }}</h3>
+          <div style="width: 20px" />
+          <span>已完成拨款：</span>
+          <h3>{{ haved_amount }}{{ site_query.typeCoin }}</h3>
+        </div>
       </div>
     </div>
 
@@ -79,13 +81,13 @@
       <div class="data_table" style="height: 100%; background-color: white">
         <el-table height="calc(100vh - 281px)" :data="tableList" :row-style="{ height: '50px' }" style="width: 100%; height: calc(100vh - 260px)" :header-cell-style="{ background: '#f7fafa' }">
           <el-table-column label="序号" type="index" />
-          <el-table-column prop="country" label="站点" align="center" >
+          <el-table-column prop="country" label="站点" align="center">
             <template slot-scope="{ row }">
-              {{ row.country | chineseSite}}
+              {{ row.country | chineseSite }}
             </template>
           </el-table-column>
           <el-table-column prop="platform_mall_name" label="店铺名称" align="center" />
-          <el-table-column prop="order_id" label="订单编号" align="center" min-width="120px" />
+          <el-table-column prop="order_id" label="订单编号" align="center" />
           <el-table-column prop="" label="状态" align="center">
             <template slot-scope="{ row }">{{ Number(row.status) === 1 ? '已拨款 ' : '即将拨款' }}</template>
           </el-table-column>
@@ -94,7 +96,7 @@
           <el-table-column prop="" label="拨款金额(RMB)" align="center">
             <template slot-scope="{ row }">{{ (row.appropriate_amount * site_query.rate_coin).toFixed(2) }}</template>
           </el-table-column>
-          <el-table-column prop="created_at" label="拨款时间" align="center" min-width="120px" />
+          <el-table-column prop="created_at" label="拨款时间" align="center" />
           <!-- <el-table-column prop="" label="账单详情" align="center" /> -->
         </el-table>
         <div class="pagination" style="display: flex; justify-content: flex-end; margin: 4px 0px">
@@ -111,7 +113,7 @@
         </div>
       </div>
     </div>
-    <Logs ref="Logs" v-model="showConsole" clear />
+    <Logs ref="Logs" clear v-model="showConsole" />
   </div>
 </template>
 <script>
@@ -133,7 +135,7 @@ export default {
         // 站点参数
         country: 'TH', // 站点
         typeCoin: '฿', // 币种
-        rate_coin: '' // 汇率
+        rate_coin: '', // 汇率
       },
       plantform_mallID: '', // 平台店铺ID
       mallGroupId: [], // 店铺分组
@@ -144,19 +146,19 @@ export default {
         status: '',
         appropriateTime: '',
         page: 1,
-        pageSize: 20
+        pageSize: 20,
       },
       cloumn_date: [],
       pickerOptions: {
         disabledDate(time) {
           return time.getTime() > Date.now()
-        }
+        },
       },
       showRMB: false,
       showConsole: true,
       selectMallList: [],
       mallPageSize: 50,
-      cancelActive: false
+      cancelActive: false,
     }
   },
   mounted() {
@@ -191,8 +193,8 @@ export default {
             this.$refs.Logs.writeLog(`操作已取消！`, true)
             return
           }
-          const mall = this.selectMallList[i]
-          const pageNumber = 1
+          let mall = this.selectMallList[i]
+          let pageNumber = 1
           this.$refs.Logs.writeLog(`开始同步店铺【${mall.platform_mall_name}】对账信息`, true)
           if (this.query.status === '') {
             await this.searchSingleMall(pageNumber, mall, 0)
@@ -212,11 +214,11 @@ export default {
         this.$refs.Logs.writeLog(`操作已取消！`, true)
         return
       }
-      const params = {
-        tran_type: type, // 0,2  type:0-status:1 付款转账完成    type:2-status:0 等待订单完成
+      let params = {
+        tran_type: type, //0,2  type:0-status:1 付款转账完成    type:2-status:0 等待订单完成
         page_number: pageNumber,
         page_size: this.mallPageSize,
-        shop_id: mall.platform_mall_id
+        shop_id: mall.platform_mall_id,
         // start_date: '',
         // end_date: '',
       }
@@ -224,25 +226,25 @@ export default {
         params['start_date'] = this.cloumn_date[0]
         params['end_date'] = this.cloumn_date[1]
       }
-      const res = await this.$shopeemanService.getIncomeTransaction(mall.country, params)
-      const resObj = res && JSON.parse(res)
+      let res = await this.$shopeemanService.getIncomeTransaction(mall.country, params)
+      let resObj = res && JSON.parse(res)
       if (resObj && resObj.status === 200) {
-        const data = JSON.parse(resObj.data)
+        let data = JSON.parse(resObj.data)
         console.log(data, 'searchSingleMall')
         if (data.code === 0) {
           let count = data.data.list.length
           data.data.list &&
             data.data.list.forEach((item) => {
               console.log(item)
-              const params = {
+              let params = {
                 order_id: item.order_id + '',
                 status: item.status === 1 ? '1' : '2',
                 bill_num: item.id + '',
                 amount: item.amount + '',
                 using_wallet: item.using_wallet ? '1' : '0',
-                release_time: this.$dayjs(item.release_time).format('YYYY-MM-DD HH:mm:ss')
+                release_time: this.$dayjs(item.release_time).format('YYYY-MM-DD HH:mm:ss'),
               }
-              const index = dataArr.filter((i) => i.bill_num === params.bill_num)[0] || ''
+              let index = dataArr.filter((i) => i.bill_num === params.bill_num)[0] || ''
               index && count--
               !index && dataArr.push(params)
               // !index && this.UploadRecordData(mall.platform_mall_id,item)
@@ -268,13 +270,13 @@ export default {
         }
       }
     },
-    // 上传服务端
+    //上传服务端
     async UploadRecordData(mallID, dataArr) {
-      const params = {
+      let params = {
         mallId: mallID,
-        bills: dataArr
+        bills: dataArr,
       }
-      const res = await this.$api.uploadPaymentList(params)
+      let res = await this.$api.uploadPaymentList(params)
       console.log(res)
     },
     // 计算汇率
@@ -427,8 +429,8 @@ export default {
     handleCurrentChange(val) {
       this.query.page = val
       this.search()
-    }
-  }
+    },
+  },
 }
 </script>
 <style lang="less">
@@ -440,6 +442,39 @@ export default {
   .overdata_view,
   .all_condition,
   .table_clo {
+    .account-box {
+      border: 1px solid #dcdcdc;
+      border-radius: 4px;
+      padding: 16px;
+      position: relative;
+      .account-title {
+        padding: 0 5px;
+        display: inline-block;
+        height: 20px;
+        line-height: 20px;
+        text-align: center;
+        background: #fff;
+        position: absolute;
+        left: 10px;
+        top: -10px;
+      }
+      .account-item {
+        display: flex;
+        align-items: center;
+        span {
+          margin-right: 20px;
+          display: inline-block;
+        }
+        .acount-item-sub {
+          display: flex;
+          align-items: center;
+        }
+        .warning-style {
+          color: red;
+          font-size: 16px;
+        }
+      }
+    }
     background-color: white;
     padding: 5px;
     margin: 10px;

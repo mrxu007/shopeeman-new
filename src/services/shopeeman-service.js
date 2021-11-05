@@ -68,6 +68,7 @@ export default class NetMessageBridgeService {
           referer: url + referer
         })
     }
+    console.log('object', url, JSON.stringify(options))
     return this.NetMessageBridgeService().get(url, JSON.stringify(options))
   }
 
@@ -146,7 +147,7 @@ export default class NetMessageBridgeService {
   }
   // 回复商店评价
   replyShopRating(country, data) {
-    return this.postChinese(country, '/api/v3/settings/reply_shop_rating', data, { Headers: { 'Content-Type': ' application/json' } })
+    return this.postChinese(country, '/api/v3/settings/reply_shop_rating', data, { Headers: { 'Content-Type': ' application/json' }})
   }
   // 店铺提现记录
   getWithDrawalRecord(country, data) {
@@ -176,13 +177,13 @@ export default class NetMessageBridgeService {
       username: '',
       password: mall_account_info.password
     }
-    const reg = new RegExp('[\\u4E00-\\u9FFF]+', 'g')
+    const reg = new RegExp('[\\u4E00-\\u9FFFa-zA-Z]+', 'g')
     if (accountName.indexOf('@') > -1) {
       params['email'] = accountName
-      copy_mallInfo['username'] = accountName
+      acccount_info['username'] = accountName
     } else if (reg.test(accountName)) {
       params['username'] = accountName
-      copy_mallInfo['username'] = accountName
+      acccount_info['username'] = accountName
     } else {
       const phone = this.getTelephoneNumberIsTrue(country, accountName)
       params['phone'] = phone
@@ -195,104 +196,104 @@ export default class NetMessageBridgeService {
       copy_mallInfo['mall_account_info'] = acccount_info
     }
     try {
-      // let res = await this.postChinese(country, '/api/v2/login', params, { // options
-      //   headers: {
-      //     'Content-Type': 'application/x-www-form-urlencoded',
-      //     'charset': 'UTF-8'
-      //   }
-      // }, copy_mallInfo)
-      // res = JSON.parse(res)
-      // if (res.status === 200) {
-      //   const data = JSON.parse(res.data)
-      const data = {
-        'username': 'hellohappy586',
-        'shopid': 213693788,
-        'phone': '*****86',
-        'sso': 'frcMkzWmlozOjCMsYjn4+SJdOFw3F1zwoGxKht+0PeJ5f+fqw1dWWBDl750dr1h9qlJKJpVABAYX/+tUA1Xduf2Ra/liYgYoSBYIwitiD7ph6mCmoCfuMudx0VLia/r7wIxmOX3KcCvE13zdf1PHSYIdPTk5vnmzyFX1kxSbp6Q=',
-        'cs_token': 'frcMkzWmlozOjCMsYjn4+SJdOFw3F1zwoGxKht+0PeJ5f+fqw1dWWBDl750dr1h9qlJKJpVABAYX/+tUA1Xduf2Ra/liYgYoSBYIwitiD7ph6mCmoCfuMudx0VLia/r7wIxmOX3KcCvE13zdf1PHSYIdPTk5vnmzyFX1kxSbp6Q=',
-        'portrait': 'ee7db10b758fe62fdca22df0407930ed',
-        'id': 213697505,
-        'language': 'en',
-        'errcode': 0,
-        'token': '19ec9cb05c71d9f99d3aa4465abbaf51',
-        'sub_account_token': null,
-        'email': ''
-      }
-      const mallId = `${data.shopid}` // 平台店铺ID
-      const mallUId = `${data.id}` // 平台店铺ID
-      const username = data.username
+      let res = await this.postChinese(country, '/api/v2/login', params, { // options
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'charset': 'UTF-8'
+        }
+      }, copy_mallInfo)
+      res = JSON.parse(res)
+      if (res.status === 200) {
+        const data = JSON.parse(res.data)
+        // const data = {
+        //   'username': 'hellohappy586',
+        //   'shopid': 213693788,
+        //   'phone': '*****86',
+        //   'sso': 'frcMkzWmlozOjCMsYjn4+SJdOFw3F1zwoGxKht+0PeJ5f+fqw1dWWBDl750dr1h9qlJKJpVABAYX/+tUA1Xduf2Ra/liYgYoSBYIwitiD7ph6mCmoCfuMudx0VLia/r7wIxmOX3KcCvE13zdf1PHSYIdPTk5vnmzyFX1kxSbp6Q=',
+        //   'cs_token': 'frcMkzWmlozOjCMsYjn4+SJdOFw3F1zwoGxKht+0PeJ5f+fqw1dWWBDl750dr1h9qlJKJpVABAYX/+tUA1Xduf2Ra/liYgYoSBYIwitiD7ph6mCmoCfuMudx0VLia/r7wIxmOX3KcCvE13zdf1PHSYIdPTk5vnmzyFX1kxSbp6Q=',
+        //   'portrait': 'ee7db10b758fe62fdca22df0407930ed',
+        //   'id': 213697505,
+        //   'language': 'en',
+        //   'errcode': 0,
+        //   'token': '19ec9cb05c71d9f99d3aa4465abbaf51',
+        //   'sub_account_token': null,
+        //   'email': ''
+        // }
+        const mallId = `${data.shopid}` // 平台店铺ID
+        const mallUId = `${data.id}` // 平台店铺ID
+        const username = data.username
 
-      const Cookie = {} // (一键登陆专用)
-      Cookie['SPC_EC'] = data.sso
-      Cookie['SPC_SC_TK'] = data.token
-      Cookie['ShopeeUid'] = data.id // 虾皮平台用户Uid
-      Cookie['shopid'] = data.shopid // 平台店铺ID
+        const Cookie = {} // (一键登陆专用)
+        Cookie['SPC_EC'] = data.sso
+        Cookie['SPC_SC_TK'] = data.token
+        Cookie['ShopeeUid'] = mallUId // 虾皮平台用户Uid
+        Cookie['shopid'] = mallId // 平台店铺ID
 
-      const Cookie_new = { // 店铺cookie信息(导入店铺专用)(更新壳)
-        'SPC_CDS_VER': '2',
-        'SPC_EC': data.sso,
-        'ShopeeUid': mallUId,
-        'SPC_F': '',
-        'CNSC_SSO': '',
-        'SPC_CNSC_TK': '',
-        'SPC_CNSC_UD': '',
-        'SC_DFP': '',
-        'SPC_SC_SA_UD': '',
-        'SPC_SC_SA_TK': '',
-        'SPC_SC_UD': '',
-        'token': data.token,
-        'cstoken': data.cs_token,
-        'satoken': '',
-        'sso': data.sso,
-        'shopeeuid': mallUId,
-        'shopid': mallId,
-        'portrait': data.portrait,
-        'userRealName': username,
-        'mainAccountId': '',
-        'spc_f': '',
-        'SPC_SC_TK': data.token,
-        'OtherCookieInfo': '',
-        'spcf_update_time': ''
-      }
+        const Cookie_new = { // 店铺cookie信息(导入店铺专用)(更新壳)
+          'SPC_CDS_VER': '2',
+          'SPC_EC': data.sso,
+          'ShopeeUid': mallUId,
+          'SPC_F': '',
+          'CNSC_SSO': '',
+          'SPC_CNSC_TK': '',
+          'SPC_CNSC_UD': '',
+          'SC_DFP': '',
+          'SPC_SC_SA_UD': '',
+          'SPC_SC_SA_TK': '',
+          'SPC_SC_UD': '',
+          'token': data.token,
+          'cstoken': data.cs_token,
+          'satoken': '',
+          'sso': data.sso,
+          'shopeeuid': mallUId,
+          'shopid': mallId,
+          'portrait': data.portrait,
+          'userRealName': username,
+          'mainAccountId': '',
+          'spc_f': '',
+          'SPC_SC_TK': data.token,
+          'OtherCookieInfo': '',
+          'spcf_update_time': ''
+        }
 
-      const mallInfo_new = { // 通知壳更新店铺信息 (导入店铺、一键登陆) 数据结构与壳内店铺信息一致
-        'IPIsExpired': true,
-        'IsOpenSIP': false,
-        'ProxyType': 'ssr',
-        'IsTransit': 0,
-        'IPType': '',
-        'GroupName': mallInfo.group_name, // 店铺分组
-        'web_login_info': Cookie_new, // 店铺cookie
-        'MallMainName': mallInfo.MallMainName,
-        'id': 0,
-        'uid': 0,
-        'country': mallInfo.country, // 国家
-        'platform_mall_name': mallInfo.mall_account_info.username,
-        'platform_mall_id': mallId, // 店铺平台ID
-        'platform_mall_uid': mallUId, // 店铺平台卖家ID
-        'is_global': 0,
-        'mall_main_id': 0,
-        'mall_account_info': mallInfo.mall_account_info, // 店铺账户信息(导入模板里面的信息)
-        //  { 'password': 'Bibbyrunp888',
-        //   'username': 'bibbyrunp1907',
-        //   'userRealName': 'bibbyrunp1907',
-        //   'subsiteindex': 0
-        // },
-        'watermark': mallInfo.watermark, // 店铺水印
-        'mall_alias_name': mallInfo.mall_alias_name, // 店铺别名
-        'mall_type': mallInfo.mall_type, // 店铺类型
-        'mall_group_id': mallInfo.mall_group_id // 店铺分组id
+        const mallInfo_new = { // 通知壳更新店铺信息 (导入店铺、一键登陆) 数据结构与壳内店铺信息一致
+          'IPIsExpired': true,
+          'IsOpenSIP': false,
+          'ProxyType': 'ssr',
+          'IsTransit': 0,
+          'IPType': '',
+          'GroupName': mallInfo.group_name, // 店铺分组
+          'web_login_info': Cookie_new, // 店铺cookie
+          'MallMainName': mallInfo.MallMainName,
+          'id': 0,
+          'uid': 0,
+          'country': mallInfo.country, // 国家
+          'platform_mall_name': mallInfo.mall_account_info.username,
+          'platform_mall_id': mallId, // 店铺平台ID
+          'platform_mall_uid': mallUId, // 店铺平台卖家ID
+          'is_global': 0,
+          'mall_main_id': 0,
+          'mall_account_info': mallInfo.mall_account_info, // 店铺账户信息(导入模板里面的信息)
+          //  { 'password': 'Bibbyrunp888',
+          //   'username': 'bibbyrunp1907',
+          //   'userRealName': 'bibbyrunp1907',
+          //   'subsiteindex': 0
+          // },
+          'watermark': mallInfo.watermark, // 店铺水印
+          'mall_alias_name': mallInfo.mall_alias_name, // 店铺别名
+          'mall_type': mallInfo.mall_type, // 店铺类型
+          'mall_group_id': mallInfo.mall_group_id // 店铺分组id
+        }
+        const obj = {
+          mallId,
+          mallUId,
+          username,
+          Cookie,
+          mallInfo_new
+        }
+        return { code: 200, data: obj }
       }
-      const obj = {
-        mallId,
-        mallUId,
-        username,
-        Cookie,
-        mallInfo_new
-      }
-      return { code: 200, data: obj }
-      // }
-      // return { code: res.status, data: `${res.status} ${res.data} ` }
+      return { code: res.status, data: `${res.status} ${res.data} ` }
     } catch (e) {
       console.log('e', e)
       return { code: -2, data: `login -catch: ${e} ` }

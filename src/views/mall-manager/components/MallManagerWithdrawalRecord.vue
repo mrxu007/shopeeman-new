@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-10-08 14:16:18
- * @LastEditTime: 2021-11-03 17:03:08
+ * @LastEditTime: 2021-11-04 17:39:51
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shopeeman-new\src\views\mall-manager\components\MallManagerWithdrawalRecord.vue
@@ -20,7 +20,7 @@
             size="mini"
             value-format="yyyy-MM-dd"
             type="daterange"
-            style="width: 200px"
+            style="width: 180px"
             range-separator="-"
             start-placeholder="开始日期"
             end-placeholder="结束日期"
@@ -31,11 +31,11 @@
         <el-button type="primary" size="mini" class="mar-right" @click="searchRecord">查询提现记录</el-button>
         <el-button type="primary" size="mini" class="mar-right" @click="exportData">导 出</el-button>
         <el-checkbox v-model="showConsole" class="mar-right">隐藏日志</el-checkbox>
-        <p class="activeColor">当前提现金额合计：{{ totalAmount }}</p>
+        <div class="activeColor">当前提现金额合计：{{ totalAmount }}</div>
       </div>
     </div>
     <div class="content">
-      <el-table v-loading="tableLoading" ref="multipleTable" :data="tableData" tooltip-effect="dark" max-height="650">
+      <el-table v-loading="tableLoading" ref="multipleTable" :data="tableData" tooltip-effect="dark" height="calc(100vh - 215px)">
         <el-table-column align="center" type="index" label="序号" width="50">
           <template slot-scope="scope">{{ (currentPage - 1) * pageSize + scope.$index + 1 }}</template>
         </el-table-column>
@@ -217,7 +217,7 @@ export default {
     },
     exportData() {
       if (!this.tableData.length) {
-        this.$message.warning('没有可导出的数据')
+        return this.$message.warning('没有可导出的数据')
       }
       let num = 1
       let str = `<tr>
@@ -277,7 +277,7 @@ export default {
 
 <style lang="less" scoped>
 .drawal-record {
-  min-width: 1280px;
+  // min-width: 1200px;
   margin: 10px;
 }
 .mar-right {
@@ -289,18 +289,19 @@ export default {
 .tool-bar {
   height: 100px;
   background: #fff;
+  overflow-x: auto ;
   .tool-row {
-    padding: 16px 16px 0 16px;
+    margin:10px 10px 0 0;
     display: flex;
     align-items: center;
-    flex-wrap: wrap;
+    // flex-wrap: wrap;
     .tool-item {
       display: flex;
       align-items: center;
       span{
         display: inline-block;
         width:80px;
-        text-align: center;
+        text-align: right;
       }
     }
   }
@@ -308,7 +309,7 @@ export default {
 .content {
   margin: 20px 0;
   background: #fff;
-  height: calc(100vh - 150px);
+  height: calc(100vh - 160px);
   display: flex;
   flex-direction: column;
   justify-content: space-between;

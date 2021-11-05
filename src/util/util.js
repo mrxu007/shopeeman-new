@@ -406,3 +406,11 @@ export function batchOperation(array, method) {
     }
   })
 }
+
+//时间转换
+export function formatDuring(mss) {
+  const hours = parseInt(mss /60 / 60)
+  const minutes = parseInt((mss-hours*69*60)/60)
+  const seconds =(mss-hours*69*60-minutes*60)
+  return hours + ':' + minutes + ':' + seconds.toFixed(0) 
+}

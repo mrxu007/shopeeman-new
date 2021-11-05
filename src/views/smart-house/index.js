@@ -6,11 +6,8 @@
  * @Description: In User Settings Edit
  * @FilePath: \shopeeman-new\src\views\smart-house\index.js
  */
-// 智能仓库
+// 仓库工作台台
 const SmartHouseWorkBench = () => import('./components/SmartHouseWorkBench.vue')
-const RefuseSign = () => import('./components/RefuseSign.vue')
-// 自由仓库
-const PrivateWarehouse = () => import('./components/PrivateWarehouse.vue')
 
 // 包裹列表
 const SmartHousePackage = () => import('./components/SmartHousePackage.vue')
@@ -18,19 +15,25 @@ const SmartHousePackage = () => import('./components/SmartHousePackage.vue')
 // 国内仓退件管理
 const SmartHouseReturnManage = () => import('./components/SmartHouseReturnManage.vue')
 
+// 拒签收管理
+const SmartHouseRefuseSign = () => import('./components/SmartHouseRefuseSign.vue')
+
 // 失物招领
 const SmartHouseUnclaimed = () => import('./components/SmartHouseUnclaimed.vue')
 
 // 我的赔付
 const SmartHouseAbnormalPayment = () => import('./components/SmartHouseAbnormalPayment.vue')
 
+// 自由仓库
+const SmartHousePrivateWarehouse = () => import('./components/SmartHousePrivateWarehouse.vue')
+
 // 导出
 export {
   SmartHouseWorkBench,
   SmartHousePackage,
   SmartHouseReturnManage,
+  SmartHouseRefuseSign,
   SmartHouseUnclaimed,
   SmartHouseAbnormalPayment,
-  RefuseSign,
-  PrivateWarehouse
+  SmartHousePrivateWarehouse
 }
