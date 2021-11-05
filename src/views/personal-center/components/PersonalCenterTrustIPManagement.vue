@@ -408,6 +408,7 @@ export default {
     display: flex;
     justify-content: flex-end;
     margin: 10px;
+    overflow: hidden;
   }
   .dialog-content {
     /deep/.el-textarea__inner {

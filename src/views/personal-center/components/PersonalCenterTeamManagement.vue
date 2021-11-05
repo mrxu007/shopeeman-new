@@ -232,7 +232,7 @@ export default {
       for (let index = 0; index < this.multipleSelection.length; index++) {
         const element = this.multipleSelection[index]
         if (element.bind_mall_count === 0) {
-          this.$message('有未绑定的店铺的分组')
+          this.$message('有未绑定店铺的分组')
           return
         }
         shopGroupId.push(element.id)
