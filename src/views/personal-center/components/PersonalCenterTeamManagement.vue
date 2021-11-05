@@ -9,7 +9,7 @@
           placeholder="请输入内容"
           clearable
           size="mini"
-          style="min-width:130px"
+          style="width:120px"
         />
       </div>
       <div class="o-item">
@@ -128,12 +128,12 @@
         </div>
         <div class="dialog-right">
           <div class="operation-content">
-            <span style="width: 120px">店铺分组:</span>
+            <span style="width: 60px">店铺分组:</span>
             <el-input v-model="shopGroupVal" placeholder="请输入店铺分组名称" clearable size="mini" oninput="value=value.replace(/\s+/g,'')" />
-            <el-button style="margin-left: 20px" type="primary" size="mini" @click="getBindMallCount">查找</el-button>
+            <el-button style="margin-left: 15px" type="primary" size="mini" @click="getBindMallCount">查找</el-button>
           </div>
           <div class="dialog-table">
-            <el-table ref="shopGruopDataRef" :data="shopGruopData" stripe style="min-width: 240px" max-height="450" :row-key="getRowKey " @selection-change="handleSelectionChange">
+            <el-table ref="shopGruopDataRef" :data="shopGruopData" stripe style="min-width: 240px" max-height="400" :row-key="getRowKey " @selection-change="handleSelectionChange">
               <el-table-column type="selection" align="center" min-width="45" :reserve-selection="true" />
               <el-table-column align="center" label="序号" min-width="40">
                 <template slot-scope="scope">
@@ -263,7 +263,6 @@ export default {
       this.accountId = val.id
       this.name = val.name
       // this.password = val.password
-      console.log(val.password)
       this.diaIsEnable = val.is_enable.toString()
       this.note = val.note
       val.type.forEach(item => {
@@ -426,9 +425,9 @@ export default {
   .dialog-content {
     /deep/.el-dialog {
       margin-top: 10vh !important;
-      width: 900px !important;
+      width: 800px !important;
       /deep/.el-dialog__body {
-        width: 880px !important;
+        width: 800px !important;
         display: flex !important;
         justify-content: space-between;
       }
@@ -441,8 +440,9 @@ export default {
       }
     }
     .dialog-left {
-      min-width: 320px;
+      // min-width: 220px;
       .form-content {
+        width: 305px;
         /deep/.el-checkbox-group {
           width: 250px !important;
 
@@ -461,9 +461,12 @@ export default {
       }
     }
     .dialog-right {
-      min-width: 450px;
+      min-width: 410px;
       margin-left: 20px;
       margin-top: 5px;
+      .el-input{
+        width: 160px;
+      }
       .operation-content {
         display: flex;
         align-items: center;

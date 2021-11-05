@@ -1,37 +1,40 @@
 <template>
   <div class="trustIp-management">
     <div class="operation">
-      <div class="o-item">
-        <span class="o-item-span">信任IP：</span>
-        <el-input v-model="ipVal" style="width: 130px" placeholder="请输入内容" clearable size="mini" oninput="value=value.replace(/\s+/g,'')" />
+      <div class="one">
+        <div class="o-item">
+          <span style="width:47px">信任IP：</span>
+          <el-input v-model="ipVal" style="width: 130px" placeholder="请输入内容" clearable size="mini" oninput="value=value.replace(/\s+/g,'')" />
+        </div>
+        <div class="o-item">
+          <el-button
+            type="primary"
+            size="mini"
+            @click="
+              getIPTrustList"
+          >搜索</el-button>
+          <el-button type="primary" size="mini" @click="isShowDialog = true">添加信任IP</el-button>
+          <el-button type="primary" size="mini" @click="isShowPhoneNum = true">配置接收短信的手机号</el-button>
+        </div>
+        <div class="o-item-alone">
+          <span style="width:84px">登录是否检测：</span>
+          <el-radio v-model="isOpenIpCheck" label="0">关闭检测</el-radio>
+          <el-radio v-model="isOpenIpCheck" label="1">当信任IP数大于 <el-input v-model="trustIpCount" size="mini" oninput="value=value.replace(/\s+/g,'')" />时打开检测 </el-radio>
+        </div>
+        <div class="o-item">
+          <el-button type="primary" size="mini" @click="saveConfigure">保存配置</el-button>
+        </div>
       </div>
-      <div class="o-item">
-        <el-button
-          type="primary"
-          size="mini"
-          @click="
-            getIPTrustList"
-        >搜索</el-button>
-        <el-button type="primary" size="mini" @click="isShowDialog = true">添加信任IP</el-button>
-        <el-button type="primary" size="mini" @click="isShowPhoneNum = true">配置接收短信的手机号</el-button>
-      </div>
-      <div class="o-item-alone">
-        <span class="o-item-span">登录是否检测：</span>
-        <el-radio v-model="isOpenIpCheck" label="0">关闭检测</el-radio>
-        <el-radio v-model="isOpenIpCheck" label="1">当信任IP数大于 <el-input v-model="trustIpCount" size="mini" oninput="value=value.replace(/\s+/g,'')" />时打开检测 </el-radio>
-      </div>
-      <div class="o-item">
-        <el-button type="primary" size="mini" @click="saveConfigure">保存配置</el-button>
-      </div>
+      <p class="tips">
+        温馨提示：用于软件安全防护，可对登录的IP进行检测，若登录的IP不在信任IP列表中，将进行手机短信验证，接收短信验证码的手机号最多3个(默认开户手机号)
+      </p>
     </div>
-    <span class="tips">温馨提示：用于软件安全防护，可对登录的IP进行检测，若登录的IP不在信任IP列表中，将进行手机短信验证，接收短信验证码的手机号最多3个(默认开户手机号)</span>
     <div class="table-content">
       <el-table
         v-loading="isloading"
         :data="tableData.slice((page - 1) * pageSize, page * pageSize)"
         stripe
-        style="min-width: 1000px"
-        height="calc(100vh - 155px)"
+        height="calc(100vh - 163px)"
         :header-cell-style="{
           textAlign: 'center',
           backgroundColor: '#f5f7fa',
@@ -42,10 +45,29 @@
             {{ scope.$index + 1 }}
           </template>
         </el-table-column>
-        <el-table-column prop="ip" align="center" show-overflow-tooltip label="IP" min-width="180" />
-        <el-table-column prop="remark" align="center" show-overflow-tooltip label="备注" min-width="180" />
-        <el-table-column prop="created_at" align="center" show-overflow-tooltip label="添加时间" min-width="180" />
-        <el-table-column label="操作" align="center" min-width="180">
+        <el-table-column
+          prop="ip"
+          align="center"
+          label="IP"
+          min-width="100"
+        />
+        <el-table-column
+          prop="remark"
+          align="center"
+          label="备注"
+          min-width="130"
+        />
+        <el-table-column
+          prop="created_at"
+          align="center"
+          label="添加时间"
+          min-width="140"
+        />
+        <el-table-column
+          label="操作"
+          align="center"
+          min-width="150"
+        >
           <template slot-scope="{ row }">
             <el-button
               type="primary"
@@ -93,8 +115,14 @@
       <el-dialog :close-on-click-modal="false" title="配置手机号码" :visible.sync="isShowPhoneNum" @close="closePhoneDialog">
         <div style="display: flex; margin-bottom: 10px">
           <div class="o-item">
-            <span class="o-item-span">手机号码：</span>
-            <el-input v-model="phoneNum" placeholder="请输入手机号" clearable size="mini" oninput="value=value.replace(/\s+/g,'')" />
+            <span>手机号码：</span>
+            <el-input
+              v-model="phoneNum"
+              placeholder="请输入手机号"
+              clearable
+              size="mini"
+              oninput="value=value.replace(/\s+/g,'')"
+            />
           </div>
           <div class="o-item">
             <el-button type="primary" size="mini" @click="updatePhoneNum(1, phoneNum)">添加手机号</el-button>
@@ -340,52 +368,46 @@ export default {
 .trustIp-management {
   background-color: #fff;
   margin: 10px;
-  padding: 16px;
-  min-width: 1100px;
+  padding:16px 16px 1px 16px;
   //   width:calc(100vw) ;
-  .tips {
-    font-size: 12px;
-    color: red;
-  }
   .operation {
-    min-width: 500px;
-    padding: 16px 0;
-    display: flex;
-    height: 40px;
-    align-items: center;
-    .o-item {
+    overflow: auto;
+    .one{
+      padding: 0px 13px;
       display: flex;
       align-items: center;
-      margin-right: 20px;
-      .o-item-span {
-        // min-width: 60px;
+      .o-item {
+        display: flex;
+        align-items: center;
+        margin-right: 20px;
+      }
+      .o-item-alone {
+        display: flex;
+        align-items: center;
+        margin-right: 10px;
+        /deep/.el-radio {
+          margin-right: 10px;
+          display: flex;
+          align-items: center;
+        }
+        /deep/.el-input {
+          width: 61px !important;
+        }
+        /deep/.el-input__inner {
+          width: 60px !important;
+        }
       }
     }
-    .o-item-alone {
-      display: flex;
-      align-items: center;
-      margin-right: 10px;
-      .o-item-span {
-        // min-width: 100px;
-      }
-      /deep/.el-radio {
-        margin-right: 10px;
-      }
-      /deep/.el-input {
-        width: 61px !important;
-      }
-      /deep/.el-input__inner {
-        width: 60px !important;
-      }
-      //   input {
-      //     min-width: 190px;
-      //   }
+    .tips {
+      color: red;
+      margin: 10px 0;
+      width: 852px;
     }
   }
   .pagination {
     display: flex;
     justify-content: flex-end;
-    margin-top: 10px;
+    margin: 10px;
   }
   .dialog-content {
     /deep/.el-textarea__inner {
@@ -397,9 +419,9 @@ export default {
       }
     }
     /deep/.el-dialog {
-      width: 400px !important;
+      width: 350px !important;
       /deep/.el-dialog__body {
-        width: 400px !important;
+        width: 350px !important;
         display: flex !important;
         justify-content: center;
       }
@@ -433,18 +455,15 @@ export default {
       }
     }
     /deep/.el-input {
-      width: 200px !important;
+      width: 130px !important;
     }
     /deep/.el-input__inner {
-      width: 200px !important;
+      width: 130px !important;
     }
     .o-item {
       display: flex;
       align-items: center;
       margin-right: 10px;
-      .o-item-span {
-        min-width: 80px;
-      }
     }
   }
 }
