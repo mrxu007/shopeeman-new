@@ -99,10 +99,10 @@
           </el-table-column>
           <el-table-column min-width="180px" label="内部交易单号" prop="trade_no" align="center" fixed />
           <el-table-column min-width="100px" label="充值金额" prop="amount" align="center" />
-          <el-table-column align="center" label="交易时间" min-width="100px">
+          <el-table-column align="center" label="交易时间" min-width="180px">
             <template slot-scope="scope"> {{ $dayjs(scope.row.trans_time * 1000).format('YYYY-MM-DD') }} </template>
           </el-table-column>
-          <el-table-column align="center" prop="receipt_amount" label="实收金额" min-width="70px" />
+          <el-table-column align="center" prop="receipt_amount" label="实收金额" min-width="100px" />
           <el-table-column align="center" prop="buyer_pay_amount" label="买家付款金额" min-width="100px" />
           <el-table-column label="交易状态" align="center" min-width="80px">
             <template v-if="scope.row.status" slot-scope="scope"> {{ scope.row.status === 1 ? '进行中' : '充值成功' }} </template>
@@ -110,9 +110,9 @@
           <el-table-column prop="is_recharge" label="是否已充值" align="center" min-width="80px">
             <template v-if="scope.row.is_recharge" slot-scope="scope"> {{ scope.row.is_recharge === 1 ? '是' : '否' }} </template>
           </el-table-column>
-          <el-table-column align="center" prop="seller_id" label="买家支付宝用户号" min-width="120px" />
+          <el-table-column align="center" prop="seller_id" label="买家支付宝用户号" min-width="180px" />
           <el-table-column align="center" prop="buyer_id" label="买家支付宝唯一用户号" min-width="180px" />
-          <el-table-column align="center" prop="remark" label="备注" min-width="80" />
+          <el-table-column align="center" prop="remark" label="备注" min-width="100px" />
           <el-table-column align="center" label="支付时间" min-width="180px">
             <template slot-scope="scope"> {{ $dayjs(scope.row.pay_time * 1000).format('YYYY-MM-DD') }} </template>
           </el-table-column>
@@ -144,7 +144,7 @@
           <el-table-column align="center" prop="trans_type" label="交易类型" min-width="100px">
             <template slot-scope="scope"> {{ changeTypeName(scope.row.trans_type, tradeTypeList) }} </template>
           </el-table-column>
-          <el-table-column align="center" prop="package_order_sn" label="订单编号" min-width="100px" />
+          <el-table-column align="center" prop="package_order_sn" label="订单编号" min-width="180px" />
           <el-table-column prop="amount" label="交易金额" align="center" min-width="100px" />
           <el-table-column align="center" prop="trans_status" label="交易状态" min-width="100px">
             <template slot-scope="scope"> {{ changeTypeName(scope.row.trans_status, tradeStatusList) }} </template>
