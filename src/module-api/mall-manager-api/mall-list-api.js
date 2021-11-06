@@ -11,6 +11,7 @@ export default class MallListAPI {
       if (res.data.code === 200) {
         const mallArr = res.data.data.map(item => {
           item.LoginInfo = '<p>等待检测...</p>'
+          item.isCheckedWaterMark = false
           return item
         })
         this.mallList = mallArr
@@ -227,7 +228,7 @@ export default class MallListAPI {
     }
   }
 
-// 获取银行卡信息列表
+  // 获取银行卡信息列表
   async getBankList(params) {
     try {
       const res = await this._this.$api.getBankList({ params })

@@ -11,9 +11,9 @@
             <el-button type="primary" size="mini" @click="getGroup">查询</el-button>
             <el-button type="primary" size="mini" @click="openGroupDialog(null)">新增分组</el-button>
             <el-button type="primary" size="mini" @click="deleteGroup">删除当前分组</el-button>
-            <el-button type="primary" size="mini" :disabled="true">绑定运营</el-button>
+            <!-- <el-button type="primary" size="mini" :disabled="true">绑定运营</el-button>
             <el-button type="primary" size="mini" :disabled="true">绑定客服</el-button>
-            <el-button type="primary" size="mini" :disabled="true">绑定跟单</el-button>
+            <el-button type="primary" size="mini" :disabled="true">绑定跟单</el-button> -->
           </li>
         </ul>
       </el-col>
@@ -208,6 +208,7 @@ export default {
   },
   created() {
     this.getGroup()
+    this.getMallList()
   },
   methods: {
     handleSelectionChange(val) {
@@ -347,7 +348,7 @@ export default {
       if (row) {
         this.groupId = row.id
       }
-      this.switchSelectMallStatus('refresh')
+      this.switchSelectMallStatus()
     },
     tableScroll({ scrollTop, scrollLeft, table, judgeFlse }) {
       // {scrollTop， scrollLeft, table, judgeFlse: 这个参数返回一个boolean值，为true则代表表格滚动到了底部了，false没有滚动到底部，必须开起大数据渲染模式才能有值哦}, event
@@ -400,11 +401,11 @@ export default {
       }
        this.$refs.plTable2?.reloadData(this.mallListTemp)
     },
-    async switchSelectMallStatus(val) {
+    async switchSelectMallStatus() {
       this.bindMallList = []
       console.log('groupId', this.groupId)
       console.log('bindMallList', this.bindMallList)
-      if (val === 'refresh') {
+      if (this.firstReFresh === 'refresh') {
         await this.getMallList() // 1、刷新店铺
       }
       if (!this.typeOpt) { // 新增店铺

@@ -106,7 +106,15 @@
             {{ row.mall_account_info.username }}
           </template>
         </el-table-column>
-        <el-table-column align="center" prop="watermark" label="店铺水印文字" />
+        <el-table-column align="center" prop="watermark" label="店铺水印文字">
+          <template v-slot="{ row }">
+            <span v-if="row.isCheckedWaterMark">
+              <el-input v-model="row.watermark" v-focus size="mini" type="textarea" resize="none" :autosize="{ minRows: 2, maxRows: 4 }" placeholder="店铺水印" @blur="updateWateMark(row)" />
+            </span>
+
+            <span v-else @click="row.isCheckedWaterMark = true"> {{ row.watermark }}</span>
+          </template>
+        </el-table-column>
         <el-table-column align="center" prop="item_limit" label="店铺额度" />
         <el-table-column align="center" prop="mall_alias_name" label="店铺别名" />
         <el-table-column align="center" prop="web_login_info" label="登录状态" show-overflow-tooltip="">
@@ -831,6 +839,22 @@ export default {
         this.getMallList()
       }
       this.importTemplateData = null
+    },
+    async updateWateMark(row) {
+      row.isCheckedWaterMark = false
+      if (!row.watermark) {
+        return
+      }
+      const params = { lists: [{
+        sysMallId: row.id,
+        watermark: row.watermark
+      }] }
+      const res = await this.mallListAPIInstance.updateWatermark(params)
+      if (res.code !== 200) {
+        this.$message.error(`修改失败:${res.data}`, false)
+        return
+      }
+      this.$message.success(`修改成功`, true)
     },
     async importMallName() {
       // 站点(马来站，台湾站，泰国站，印尼站，菲律宾站，新加坡站，越南站)(必填)
