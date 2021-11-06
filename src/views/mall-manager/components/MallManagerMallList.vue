@@ -499,6 +499,7 @@ export default {
       this.percentage = 100
       this.hideConsole = true
       this.buttonStatus.async = false
+      this.getMallList()
     },
     async  asyncMallInfo(item, count = { count: 1 }) {
       const platform_mall_name = item.platform_mall_name
