@@ -553,7 +553,7 @@ export default {
         const platform_mall_name = item.platform_mall_name
         const res = await this.mallListAPIInstance.closeOrOpenMallVacation(item, isOpen)
         if (res.code === 200) {
-          this.$refs.Logs.writeLog(`店铺【${platform_mall_name}】休闲模式${isOpen ? '开启' : '关闭'}成功`, false)
+          this.$refs.Logs.writeLog(`店铺【${platform_mall_name}】休闲模式${isOpen ? '开启' : '关闭'}成功`, true)
         } else {
           this.$refs.Logs.writeLog(`店铺【${platform_mall_name}】休闲模式${isOpen ? '开启' : '关闭'}失败：${res.data}`, false)
         }
