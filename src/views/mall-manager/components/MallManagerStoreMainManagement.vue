@@ -132,7 +132,7 @@
               <div>
                 <el-button size="mini" type="primary" @click="openSoft(row.poxyIP,row.id)">打开代理浏览器</el-button>
                 <el-button size="mini" type="primary" @click="showupdateVisible(row.id,row)">修改绑定店铺</el-button>
-                <el-button size="mini" type="primary" @click="delInfor(row.id)">删除</el-button>
+                <el-button size="mini" type="primary" @click="delInforFun(row.id)">删除</el-button>
               <!-- <el-button size="mini" type="primary" @click="del(row.uid)">删除</el-button> -->
               </div>
             </template>
@@ -901,6 +901,17 @@ export default {
       this.$refs.multipleTable_dialog.clearSelection()
     },
     // 删除
+    delInforFun(val) {
+      const id = val
+      this.$confirm('确定要删除数据吗？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        // this.lostIPFun()
+        this.delInfor(id)
+      })
+    },
     async delInfor(val) {
       const targetId = val.toString()
       this.loading = true
