@@ -235,7 +235,7 @@
             <el-input v-model="comfirmText" size="mini" placeholder="删除店铺，后果自负" />
           </li>
           <div class="text2">
-            删除店铺的同时删除店铺下的订单信息
+            删除店铺的同时通知仓库订单作废
             <el-radio-group v-model="delOrderType">
               <el-radio :label="0">否</el-radio>
               <el-radio :label="1">是(无法恢复)</el-radio>
@@ -594,7 +594,7 @@ export default {
         flat === 1 ? item.LoginInfo = '正在登陆中...' : this.writeLog(`(${i + 1}/${len})账号【${platform_mall_name}】开始授权`, true)
         // 0、检测
         if (!this.forceLogin && flat === 1) {
-          // 不强制登陆并且为一键登陆时, 走检测接口
+          // 强制登陆不检测是否已经登录
           const userInfo = await this.mallListAPIInstance.getUserInfo(item)
           if (userInfo.code === 200) {
             item.LoginInfo = `<p style="color: green">登录成功</p>`
