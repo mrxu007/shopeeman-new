@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-10-08 14:16:18
- * @LastEditTime: 2021-11-06 15:53:28
+ * @LastEditTime: 2021-11-06 17:57:13
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shopeeman-new\src\views\mall-manager\components\MallManagerWithdrawalRecord.vue
@@ -82,7 +82,7 @@
         </u-table-column>
         <u-table-column align="center" prop="order_sn" label="订单编号" min-width="120">
           <template slot-scope="scope">
-            <p class="tableActive" @click="viewDetails('frontItemDetail', scope.row.product_id, scope.row.platform_mall_id)">{{ scope.row.order_sn }}</p>
+            <p class="tableActive" @click="viewDetails('orderDetail', scope.row.order_id, scope.row.platform_mall_id)">{{ scope.row.order_sn }}</p>
           </template>
         </u-table-column>
         <u-table-column align="center" prop="product_name" label="商品名称" min-width="80" show-overflow-tooltip />
@@ -254,14 +254,12 @@ export default {
   methods: {
     //打开订单页面
     viewDetails(type, id, shopId) {
-      // let mallId = this.currentMall.platform_mall_id || ''
-      // shopId = shopId || mallId
-      // let reqStr = {
-      //   type: type,
-      //   shopId: shopId,
-      //   id: id
-      // }
-      // this.$mallServer.getOrderDetailInfo(mallId, JSON.stringify(reqStr))
+      let reqStr = {
+        type: type,
+        shopId: shopId,
+        id: id
+      }
+      this.$BaseUtilService.getOrderDetailInfo(shopId,JSON.stringify(reqStr))
     },
     //查询列表
     async searchRate() {
@@ -275,10 +273,9 @@ export default {
       this.tableData = []
       this.tableDataCut = []
       this.total = 0
-      
+      this.tableLoading = true
       try {
         for (let i = 0; i < this.selectMallList.length; i++) {
-          this.tableLoading = true
           if (this.cancelAction) {
             this.tableLoading = false
             this.$refs.Logs.writeLog(`操作已取消！`, true)
@@ -292,6 +289,7 @@ export default {
         console.log(error)
         this.tableLoading = false
       }
+      this.tableLoading = false
     },
     //查询
     async searchSingleMall(pageNumber, mall, dataArr = [], page = 0) {
@@ -340,9 +338,11 @@ export default {
                 item.statusColor = ''
                 item.productUrl = await this.productUrl(item)
                 let index = dataArr.filter((i) => i.comment_id === item.comment_id)[0] || ''
-                index && count--
+                console.log("index",index)
                 !index && dataArr.push(item)
                 !index && this.tableData.push(item)
+                this.total = this.tableData.length
+                this.dataCut()
               })
             count && this.$refs.Logs.writeLog(`店铺【${mall.mall_alias_name || mall.platform_mall_name}】获取到第【${++page}】页店铺评价数据【${count}】条`, true)
             if (dataArr.length < data.data.page_info.total && data.data.list.length >= this.mallPageSize) {
@@ -351,7 +351,6 @@ export default {
             } else {
               this.total += dataArr.length
               this.dataCut()
-              this.tableLoading = false
             }
           } else {
             this.$refs.Logs.writeLog(`店铺【${mall.platform_mall_name}】${data.message}！`, false)

@@ -179,7 +179,12 @@
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button size="mini" type="primary" @click="orderDealDialogHandle">确 定</el-button>
+        <el-button
+          size="mini"
+          type="primary"
+          :loading="butLoading"
+          @click="orderDealDialogHandle"
+        >确 定</el-button>
       </div>
     </el-dialog>
     <!--批量订单处理dialog-->
@@ -192,7 +197,12 @@
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button size="mini" type="primary" @click="orderBatchDealDialogHandle">确 定</el-button>
+        <el-button
+          size="mini"
+          type="primary"
+          :loading="butBatchLoading"
+          @click="orderBatchDealDialogHandle"
+        >确 定</el-button>
       </div>
     </el-dialog>
   </div>
@@ -202,6 +212,8 @@
 export default {
   data() {
     return {
+      butLoading: false, // 弹窗按钮加载
+      butBatchLoading: false,
       // dialog下拉选择状态
       wechatStatusDialogOption: [
         // {
@@ -254,14 +266,14 @@ export default {
       // 订单处理dialog表单数据
       orderDealDialogForm: {
         id: '',
-        wechatStatus: ''
+        wechatStatus: 1
       },
       // 控制批量订单处理
       orderBatchDealDialogFormVisible: false,
       // 批量订单处理dialog表单数据
       orderBatchDealDialogForm: {
-        id: '',
-        wechatStatus: ''
+        id: [],
+        wechatStatus: 1
       },
       // 第一个异常类型options
       exceptionTypeOptionsOne: [{
@@ -411,33 +423,33 @@ export default {
     },
     // 订单批量处理
     orderBatchDealHandle() {
+      if (!this.tableCheck?.length) return this.$message('请选择需要批量处理的订单')
       this.orderBatchDealDialogFormVisible = true
     },
     // 批量订单处理dialog确定
     async orderBatchDealDialogHandle() {
-      if (this.tableCheck.length > 0) {
-        for (let index = 0; index < this.tableCheck.length; index++) {
-          const element = this.tableCheck[index]
-          this.orderBatchDealDialogForm.id = element.id
-          const result = await this.$api.uploadDealExceptionStatus(this.orderBatchDealDialogForm)
-          if (result.data.code === 200) {
-            this.orderDealDialogFormVisible = false
-            // this.$message({
-            //   message: '订单处理成功',
-            //   type: 'success'
-            // })
-            this.getExceptionWarehouse()
-          } else {
-            this.$message.error(`订单号为：${element.package_order_sn}，${result.data.message}`)
-            return
-          }
-        }
-      } else {
-        this.$message('请选择需要批量处理的订单')
+      this.butBatchLoading = true
+      this.orderBatchDealDialogForm.id = []
+      this.tableCheck.forEach(item => {
+        this.orderBatchDealDialogForm.id.push(item.id)
+      })
+      const params = {
+        id: this.orderBatchDealDialogForm.id.toString(),
+        wechatStatus: this.orderBatchDealDialogForm.wechatStatus
       }
+      const result = await this.$api.uploadDealExceptionStatus(params)
+      if (result.data.code === 200) {
+        this.orderDealDialogFormVisible = false
+        this.$message.success('订单处理成功')
+        this.getExceptionWarehouse()
+      } else {
+        this.$message.error(result.data.message)
+      }
+      this.butBatchLoading = false
     },
     // 订单处理dialog确定
     async orderDealDialogHandle() {
+      this.butLoading = true
       const result = await this.$api.uploadDealExceptionStatus(this.orderDealDialogForm)
       if (result.data.code === 200) {
         this.orderDealDialogFormVisible = false
@@ -449,6 +461,7 @@ export default {
       } else {
         this.$message.error(result.data.message)
       }
+      this.butLoading = false
     },
 
     // 格式化搜索时间
@@ -702,9 +715,13 @@ export default {
         }
         //创建时间和交易时间
         .creationTime{
-            /deep/.el-date-editor{
-                width: 198px;
+          /deep/.el-date-editor {
+            width: 208px;
+            .el-range-separator{
+              text-align: center;
+              padding: 0px;
             }
+          }
         }
     }
     .rowTwo{

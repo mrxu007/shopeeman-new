@@ -106,7 +106,15 @@
             {{ row.mall_account_info.username }}
           </template>
         </el-table-column>
-        <el-table-column align="center" prop="watermark" label="店铺水印文字" />
+        <el-table-column align="center" prop="watermark" label="店铺水印文字">
+          <template v-slot="{ row }">
+            <span v-if="row.isCheckedWaterMark">
+              <el-input v-model="row.watermark" v-focus size="mini" type="textarea" resize="none" :autosize="{ minRows: 2, maxRows: 4 }" placeholder="店铺水印" @blur="updateWateMark(row)" />
+            </span>
+
+            <span v-else @click="row.isCheckedWaterMark = true"> {{ row.watermark }}</span>
+          </template>
+        </el-table-column>
         <el-table-column align="center" prop="item_limit" label="店铺额度" />
         <el-table-column align="center" prop="mall_alias_name" label="店铺别名" />
         <el-table-column align="center" prop="web_login_info" label="登录状态" show-overflow-tooltip="">
@@ -235,7 +243,7 @@
             <el-input v-model="comfirmText" size="mini" placeholder="删除店铺，后果自负" />
           </li>
           <div class="text2">
-            删除店铺的同时删除店铺下的订单信息
+            删除店铺的同时通知仓库订单作废
             <el-radio-group v-model="delOrderType">
               <el-radio :label="0">否</el-radio>
               <el-radio :label="1">是(无法恢复)</el-radio>
@@ -593,11 +601,11 @@ export default {
         const platform_mall_name = item.platform_mall_name
         flat === 1 ? item.LoginInfo = '正在登陆中...' : this.writeLog(`(${i + 1}/${len})账号【${platform_mall_name}】开始授权`, true)
         // 0、检测
-        if (!this.forceLogin && flat === 1) {
-          // 不强制登陆并且为一键登陆时, 走检测接口
+        if (this.forceLogin && flat === 1) {
+          // 强制登陆不检测是否已经登录
           const userInfo = await this.mallListAPIInstance.getUserInfo(item)
           if (userInfo.code === 200) {
-            item.LoginInfo = `<p style="color: green">登录成功</p>`
+            item.LoginInfo = `<p style="color: green">快速登录成功</p>`
             continue
           }
         }
@@ -831,6 +839,22 @@ export default {
         this.getMallList()
       }
       this.importTemplateData = null
+    },
+    async updateWateMark(row) {
+      row.isCheckedWaterMark = false
+      if (!row.watermark) {
+        return
+      }
+      const params = { lists: [{
+        sysMallId: row.id,
+        watermark: row.watermark
+      }] }
+      const res = await this.mallListAPIInstance.updateWatermark(params)
+      if (res.code !== 200) {
+        this.$message.error(`修改失败:${res.data}`, false)
+        return
+      }
+      this.$message.success(`修改成功`, true)
     },
     async importMallName() {
       // 站点(马来站，台湾站，泰国站，印尼站，菲律宾站，新加坡站，越南站)(必填)

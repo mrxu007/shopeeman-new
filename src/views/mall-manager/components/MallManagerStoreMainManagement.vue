@@ -1538,7 +1538,8 @@ export default {
       // params.expiration_datesg = '2021-10-06 23:59:59/2021-11-06 23:59:59'
       params.mall_ids = this.query.mall_ids.toString() || ''
       // debugger
-      console.log(params)
+      console.log(params, 'getTableList')
+      this.loading = true
       try {
         const res = await this.$YipService.GetIpList(JSON.stringify(params))
         this.tableList = []

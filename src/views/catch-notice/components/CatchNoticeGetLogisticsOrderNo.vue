@@ -70,10 +70,10 @@
           </el-select>
         </el-form-item>
         <el-form-item label="物流公司:" label-width="80px">
-          <el-input v-model="trackingNumber" size="mini" class="inputBox" />
+          <el-input v-model="trackingNumberCompany" size="mini" class="inputBox" />
         </el-form-item>
         <el-form-item label="物流单号:" label-width="80px">
-          <el-input v-model="trackingNumberCompany" size="mini" class="inputBox" />
+          <el-input v-model="trackingNumber" size="mini" class="inputBox" />
         </el-form-item>
       </el-form>
       <div style="color: red">
@@ -287,10 +287,13 @@ export default {
       console.log(res, 'logisticsOrderNoDialogHandle')
       if (res.data.code === 200) {
         this.logisticsOrderNoDialogFormVisible = false
+        this.trackingNumber = ''
+        this.trackingNumberCompany = ''
         this.$message({
           message: '采购物流单号添加成功',
           type: 'success',
         })
+        this.getExceptionNoTrackingNumberIndex()
       } else {
         this.$message.error(res.data.message)
       }
