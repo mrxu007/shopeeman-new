@@ -1,78 +1,86 @@
 <template>
   <div v-loading="loading" class="content">
     <div class="all_condition">
-      <div class="condition_item">
+      <div class="des_conditon">
         <storeChoose :is-all="true" @changeMallList="changeMallList" />
+        <div style="margin-left: 20px">
+          <span>过期时间：</span>
+          <el-date-picker
+            v-model="cloumn_date"
+            size="mini"
+            style="width: 324px"
+            type="datetimerange"
+            value-format="yyyy-MM-dd HH:mm:ss"
+            range-separator="-"
+            :picker-options="pickerOptions"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
+          />
+        </div>
       </div>
 
-      <div class="condition_item">
-        <span>过期时间：</span>
-        <el-date-picker
-          v-model="cloumn_date"
-          size="mini"
-          style="width: 310px"
-          type="datetimerange"
-          value-format="yyyy-MM-dd HH:mm:ss"
-          range-separator="-"
-          :picker-options="pickerOptions"
-          start-placeholder="开始日期"
-          end-placeholder="结束日期"
-        />
+      <div class="des_conditon">
+        <div class="condition_item">
+          <span>状态：</span>
+          <el-select v-model="query.statius" size="mini" style="width:100px" placeholder="站点">
+            <el-option value="" label="全部" />
+            <el-option value="1" label="已分配，已分配店铺" />
+            <el-option value="2" label="已解绑" />
+            <el-option value="3" label="已过期" />
+            <el-option value="4" label="未分配" />
+          </el-select>
+        </div>
+
+        <!-- <div class="condition_item" style="margin-left: 30px;">
+          <span>IP区域：</span>
+          <el-input v-model="query.ip_address" clearable size="mini" style="width:180px" />
+        </div> -->
+
+        <div class="condition_item" style="margin-left: -12px;">
+          <span>IP区域/渠道商：</span>
+          <el-input v-model="query.supplier_info" clearable size="mini" style="width:180px" />
+        </div>
+
+        <div class="condition_item" style="margin-left: 17px;">
+          <span>主体名称：</span>
+          <el-input v-model="query.ip_alias" clearable placeholder="主体名称" size="mini" style="width:180px" />
+        </div>
       </div>
 
-      <div class="condition_item">
-        <span>状态：</span>
-        <el-select v-model="query.statius" size="mini" width="150px" placeholder="站点">
-          <el-option value="" label="全部" />
-          <el-option value="1" label="已分配" />
-          <el-option value="2" label="已解绑" />
-          <el-option value="3" label="已过期" />
-          <el-option value="4" label="未分配" />
-        </el-select>
-      </div>
+      <div class="des_conditon">
+        <div class="condition_item" style="margin-left: 32px;">
+          <span>IP来源：</span>
+          <el-select v-model="query.source" style="width:100px" size="mini" placeholder="IP来源">
+            <el-option value="" label="全部" />
+            <el-option value="1" label="系统" />
+            <el-option value="2" label="用户" />
+          </el-select>
+        </div>
 
-      <div class="condition_item">
-        <span>IP区域：</span>
-        <el-input v-model="query.ip_address" clearable size="mini" style="width:200px" />
-      </div>
-
-      <div class="condition_item">
-        <span>渠道商：</span>
-        <el-input v-model="query.supplier_info" clearable size="mini" style="width:180px" />
-      </div>
-
-      <div class="condition_item">
-        <span>IP来源：</span>
-        <el-select v-model="query.source" size="mini" width="150px" placeholder="IP来源">
-          <el-option value="" label="全部" />
-          <el-option value="1" label="系统" />
-          <el-option value="2" label="用户" />
-        </el-select>
-      </div>
-
-      <div class="condition_item">
-        <span>主体名称：</span>
-        <el-input v-model="query.ip_alias" clearable placeholder="主体名称" size="mini" style="width:200px" />
-      </div>
-
-      <div class="condition_item">
-        <el-button size="mini" type="primary" @click="search">搜索</el-button>
+        <div class="condition_item" style="margin-left: 15px;">
+          <el-button size="mini" type="primary" @click="(Typeis='ipMaster',dialogvisible=true,showButton=false,dialog_title='新增公司主体')">新增公司主体</el-button>
+          <el-button size="mini" type="primary" @click="lostIP">解绑主体IP</el-button>
+          <el-button size="mini" type="primary" @click="clearIP()">清除IP缓存</el-button>
+          <el-button size="mini" type="primary" @click="(Typeis='ipPerson',dialogvisible=true,showButton=false,dialog_title='新增自有IP公司主体')">新增自有IP公司主体</el-button>
+          <el-button size="mini" type="primary" @click="timeToMonth(1)">续费一个月</el-button>
+          <el-button size="mini" type="primary" @click="timeToMonth(3)">续费三个月</el-button>
+          <el-button size="mini" type="primary" @click="getTableList">搜 索</el-button>
+        </div>
       </div>
     </div>
-    <div class="base_option_button" style="margin: 10px;">
+    <!-- <div class="base_option_button" style="margin: 10px;">
       <el-button size="mini" type="primary" @click="(Typeis='ipMaster',dialogvisible=true,showButton=false,dialog_title='新增公司主体')">新增公司主体</el-button>
-      <!-- <el-button size="mini" type="primary">解绑主体IP</el-button> -->
-      <!-- <el-button size="mini" type="primary">绑定主体IP</el-button> -->
+      <el-button size="mini" type="primary" @click="lostIP">解绑主体IP</el-button>
       <el-button size="mini" type="primary" @click="clearIP()">清除IP缓存</el-button>
       <el-button size="mini" type="primary" @click="(Typeis='ipPerson',dialogvisible=true,showButton=false,dialog_title='新增自有IP公司主体')">新增自有IP公司主体</el-button>
       <el-button size="mini" type="primary" @click="timeToMonth(1)">续费一个月</el-button>
       <el-button size="mini" type="primary" @click="timeToMonth(3)">续费三个月</el-button>
-    </div>
+    </div> -->
 
     <div style="margin:10px">
       <div
         style="font-size: smaller;
-        color: rebeccapurple;"
+        color: red;"
       >
         温馨提示：1.因为IP为实时购买，所以购买后不会立即生成IP信息。IP信息会在三分钟内生成
         2.一个主体IP最多绑定10个店铺 3.若状态为【已绑定，已分配店铺】，但绑定店铺为空，则表示
@@ -80,7 +88,7 @@
       </div>
       <div
         style="font-size: smaller;
-        color: rebeccapurple;margin-left:60px"
+        color: red;margin-left:60px;margin-top:5px"
       >
         3.对于系统的香港IP（非香港名称），IP过期后，将无法进行续费，请在IP有效期内续费。
         4、系统的香港IP（非香港名称）过期后，会被自动回收，回收后将不在显示代理IP信息
@@ -90,10 +98,10 @@
       <div class="data_table" style="height: 100%;background-color:white">
         <el-table
           ref="multipleTable"
-          height="calc(100vh - 262px)"
+          height="calc(100vh - 233px)"
           :data="tableListEnd"
           :row-style="{ height: '50px' }"
-          style="width: 100%;height: calc(100vh - 262px)"
+          style="width: 100%;height: calc(100vh - 233px)"
           :header-cell-style="{ background: '#f7fafa' }"
           :row-key="generateUUID"
           @selection-change="handleSelectionChange"
@@ -152,7 +160,7 @@
         v-loading="loading"
         :title="dialog_title"
         :visible.sync="dialogvisible"
-        width="1200px"
+        width="1000px"
         height="600px"
         top="2vh"
         :class="{'changeVisible': Typeis===''}"
@@ -183,10 +191,10 @@
             <div class="left_item">
               主体名称：<el-input v-model="ipMaster_params.ipAlias" clearable style="width:180px" size="mini" />
               <!-- <span v-show="ipMaster_params.ipAlias===''" style="color:red">(必填)</span> -->
-              <span style="color:red">(必填)</span>
+              <span style="color:red;margin-left:200px">(必填)</span>
 
             </div>
-            <div class="left_item">
+            <div class="left_item" style="display: flex;justify-content: center;">
               <el-button size="mini" type="primary" @click="addMaster()">确定</el-button>
             </div>
           </div>
@@ -199,8 +207,9 @@
               label-width="120px"
             >
               <el-form-item prop="region_name">
-                <span slot="label">IP区域</span>
-                <el-select v-model="query_person.region_name" size="mini">
+                <span slot="label" style="color:red;margin-right:3px">*</span>
+                <span slot="label">IP区域：</span>
+                <el-select v-model="query_person.region_name" size="mini" style="width:150px">
                   <el-option v-for="(item,index) in region_ipListSelf" :key="'region'+index" :label="item.value" :value="item.value" />
                 </el-select>
                 <!-- <el-input
@@ -212,17 +221,19 @@
                 /> -->
               </el-form-item>
               <el-form-item prop="ip_alias">
+                <span slot="label" style="color:red;">*</span>
                 <span slot="label">主体名称：</span>
                 <el-input
                   v-model="query_person.ip_alias"
+                  style="width:150px"
                   placeholder="主体名称"
                   size="mini"
-                  style="width: 200px"
                   clearable
                 />
               </el-form-item>
 
-              <el-form-item prop="ip_agency">
+              <el-form-item prop="ip_agency" class="ipType">
+
                 <span slot="label">自有IP类型：</span>
                 <!-- <el-select
                   v-model="query_person.ip_agency"
@@ -238,7 +249,7 @@
                   />
                 </el-select> -->
 
-                <el-radio-group v-model="query_person.ip_agency" style="width: 200px">
+                <el-radio-group v-model="query_person.ip_agency" style="width: 150px">
                   <el-radio
                     v-for="item in ipTypeList"
                     :key="item.value"
@@ -248,32 +259,35 @@
                 </el-radio-group>
               </el-form-item>
               <el-form-item v-show="query_person.ip_agency!=='链接'" key="ip_address" prop="ip_address">
+                <span slot="label" style="color:red;margin-right:3px">*</span>
                 <span slot="label">服务器IP：</span>
                 <el-input
                   v-model="query_person.ip_address"
                   placeholder="请输入IP"
                   size="mini"
-                  style="width: 200px"
+                  style="width: 150px"
                   clearable
                 />
               </el-form-item>
               <el-form-item v-show="query_person.ip_agency!=='链接'" key="ip_port" prop="ip_port">
+                <span slot="label" style="color:red;margin-right:3px">*</span>
                 <span slot="label">服务器端口：</span>
                 <el-input
                   v-model="query_person.ip_port"
                   placeholder="请输入端口"
                   size="mini"
-                  style="width: 200px"
+                  style="width: 150px"
                   clearable
                 />
               </el-form-item>
               <el-form-item v-show="query_person.ip_agency!=='链接'" key="password" prop="password">
+                <span slot="label" style="color:red;margin-right:3px">*</span>
                 <span slot="label">密码：</span>
                 <el-input
                   v-model="query_person.password"
                   placeholder="请输入密码"
                   size="mini"
-                  style="width: 200px"
+                  style="width: 150px"
                   clearable
                 />
               </el-form-item>
@@ -283,11 +297,12 @@
                 key="encryption"
                 prop="encryption"
               >
+                <span slot="label" style="color:red;margin-right:3px">*</span>
                 <span slot="label">加密方式：</span>
                 <el-select
                   v-model="query_person.encryption"
                   placeholder="请选择"
-                  style="width: 200px"
+                  style="width: 150px"
                   size="mini"
                 >
                   <el-option
@@ -300,13 +315,14 @@
               </el-form-item>
               <div v-show="query_person.ip_agency==='SSR'">
                 <el-form-item key="protocol" prop="protocol">
+                  <span slot="label" style="color:red;margin-right:3px">*</span>
                   <span slot="label">协议：</span>
                   <el-select
                     v-model="query_person.protocol"
                     placeholder="请选择"
                     size="mini"
                     clearable
-                    style="width: 200px"
+                    style="width: 150px"
                   >
                     <el-option
                       v-for="item in protocolList"
@@ -322,18 +338,19 @@
                     v-model="query_person.parameter"
                     placeholder="请输入协议参数"
                     size="mini"
-                    style="width: 200px"
+                    style="width: 150px"
                     clearable
                   />
                 </el-form-item>
                 <el-form-item key="confuse" prop="confuse">
+                  <span slot="label" style="color:red;margin-right:3px">*</span>
                   <span slot="label">混淆：</span>
                   <el-select
                     v-model="query_person.confuse"
                     placeholder="请选择"
                     clearable
                     size="mini"
-                    style="width: 200px"
+                    style="width: 150px"
                   >
                     <el-option
                       v-for="item in confuseList"
@@ -349,31 +366,33 @@
                     v-model="query_person.argument"
                     placeholder="请输入协议参数"
                     size="mini"
-                    style="width: 200px"
+                    style="width: 150px"
                     clearable
                   />
                 </el-form-item>
               </div>
               <el-form-item v-show="query_person.ip_agency==='HTTP'" prop="username">
+                <span slot="label" style="color:red;margin-right:3px">*</span>
                 <span slot="label">用户名：</span>
                 <el-input
                   v-model="query_person.username"
                   placeholder="请输入用户名"
                   size="mini"
-                  style="width: 200px"
+                  style="width: 150px"
                   clearable
                 />
               </el-form-item>
 
               <el-form-item v-show="query_person.ip_agency==='链接'" label="链接">
-                <el-input v-model="query_person.IPLink" type="textarea" rows="5" />
+                <span slot="label" style="color:red;margin-right:3px">*</span>
+                <span slot="label">链接</span>
+                <el-input v-model="query_person.IPLink" type="textarea" rows="5" style="width:150px" />
               </el-form-item>
             </el-form>
             <div
               class="item"
               style="
-                display: flex;
-                justify-content: center;
+                margin-left: 120px;
                 margin-top:2px"
             >
               <!-- 新增-->
@@ -394,8 +413,9 @@
               label-width="120px"
             >
               <el-form-item prop="region_name">
-                <span slot="label">IP区域</span>
-                <el-select v-model="query_person.region_name" size="mini" :disabled="source1">
+                <span slot="label" style="color:red;margin-right:3px">*</span>
+                <span slot="label">IP区域：</span>
+                <el-select v-model="query_person.region_name" size="mini" :disabled="source1" style="width:150px">
                   <el-option v-for="(item,index) in region_ipListSelf" :key="'region'+index" :label="item.value" :value="item.value" />
                 </el-select>
                 <!-- <el-input
@@ -407,46 +427,53 @@
                 /> -->
               </el-form-item>
               <el-form-item prop="ip_alias">
+                <span slot="label" style="color:red;margin-right:3px">*</span>
                 <span slot="label">主体名称：</span>
                 <el-input
                   v-model="query_person.ip_alias"
                   placeholder="主体名称"
                   size="mini"
-                  style="width: 200px"
+                  style="width: 150px"
                   clearable
                 />
               </el-form-item>
 
-              <el-form-item v-show="query_person.ip_agency!=='链接'" key="ip_address" prop="ip_address">
+              <el-form-item v-if="query_person.ip_agency!=='链接'" key="ip_address" prop="ip_address">
+                <span slot="label" style="color:red;margin-right:3px">*</span>
+
                 <span slot="label">服务器IP：</span>
                 <el-input
                   v-model="query_person.ip_address"
                   placeholder="请输入IP"
                   size="mini"
-                  style="width: 200px"
+                  style="width: 150px"
                   :disabled="source1"
                   clearable
                 />
               </el-form-item>
-              <el-form-item v-show="query_person.ip_agency!=='链接'" key="ip_port" prop="ip_port">
+              <el-form-item v-if="query_person.ip_agency!=='链接'" key="ip_port" prop="ip_port">
+                <span slot="label" style="color:red;margin-right:3px">*</span>
+
                 <span slot="label">服务器端口：</span>
                 <el-input
                   v-model="query_person.ip_port"
                   :disabled="source1"
                   placeholder="请输入端口"
                   size="mini"
-                  style="width: 200px"
+                  style="width: 150px"
                   clearable
                 />
               </el-form-item>
-              <div v-show="query_person.ip_agency==='SS' || query_person.ip_agency==='SSR'">
+              <div v-if="query_person.ip_agency==='SS' || query_person.ip_agency==='SSR'">
                 <el-form-item key="password" prop="password">
+
+                  <span slot="label" style="color:red;margin-right:3px">*</span>
                   <span slot="label">密码：</span>
                   <el-input
                     v-model="query_person.password"
                     placeholder="请输入密码"
                     size="mini"
-                    style="width: 200px"
+                    style="width: 150px"
                     clearable
                   />
                 </el-form-item>
@@ -456,11 +483,13 @@
                   key="encryption"
                   prop="encryption"
                 >
+                  <span slot="label" style="color:red;margin-right:3px">*</span>
+
                   <span slot="label">加密方式：</span>
                   <el-select
                     v-model="query_person.encryption"
                     placeholder="请选择"
-                    style="width: 200px"
+                    style="width: 150px"
                     size="mini"
                   >
                     <el-option
@@ -472,13 +501,15 @@
                   </el-select>
                 </el-form-item>
                 <el-form-item key="protocol" prop="protocol">
+                  <span slot="label" style="color:red;margin-right:3px">*</span>
+
                   <span slot="label">协议：</span>
                   <el-select
                     v-model="query_person.protocol"
                     placeholder="请选择"
                     size="mini"
                     clearable
-                    style="width: 200px"
+                    style="width: 150px"
                   >
                     <el-option
                       v-for="item in protocolList"
@@ -494,18 +525,20 @@
                     v-model="query_person.parameter"
                     placeholder="请输入协议参数"
                     size="mini"
-                    style="width: 200px"
+                    style="width: 150px"
                     clearable
                   />
                 </el-form-item>
                 <el-form-item key="confuse" prop="confuse">
+                  <span slot="label" style="color:red;margin-right:3px">*</span>
+
                   <span slot="label">混淆：</span>
                   <el-select
                     v-model="query_person.confuse"
                     placeholder="请选择"
                     clearable
                     size="mini"
-                    style="width: 200px"
+                    style="width: 150px"
                   >
                     <el-option
                       v-for="item in confuseList"
@@ -521,38 +554,40 @@
                     v-model="query_person.argument"
                     placeholder="请输入协议参数"
                     size="mini"
-                    style="width: 200px"
+                    style="width: 150px"
                     clearable
                   />
                 </el-form-item>
               </div>
 
-              <el-form-item v-show="query_person.ip_agency==='HTTP' || query_person.ip_agency==='链接'" prop="username">
+              <el-form-item v-if="query_person.ip_agency==='HTTP' || query_person.ip_agency==='链接'" prop="username">
+                <span slot="label" style="color:red;margin-right:3px">*</span>
+
                 <span slot="label">用户名：</span>
                 <el-input
                   v-model="query_person.username"
                   placeholder="请输入用户名"
                   size="mini"
-                  style="width: 200px"
+                  style="width: 150px"
                   clearable
                 />
               </el-form-item>
 
-              <el-form-item label="有效日期">
+              <el-form-item label="有效日期" class="formdata">
                 <el-date-picker
                   v-model="query_person.dataTime"
                   type="datetime"
                   placeholder="选择日期时间"
                   size="mini"
                   :disabled="true"
+                  style="width:194px"
                 />
               </el-form-item>
             </el-form>
             <div
               class="item"
               style="
-                display: flex;
-                justify-content: center;
+                margin-left: 120px;
                 margin-top:2px"
             >
               <el-button
@@ -568,19 +603,31 @@
           <div class="right_condition">
             <div
               style=" display: flex;
-                    margin: 4px 0px;"
+                    margin: 4px 0px;
+                    flex-flow: wrap;"
             >
-              <storeChoose @changeMallList="changeMallList" />
-              <el-button type="primary" size="mini" @click="dialog_search_IPMall">查询</el-button>
+              <storeChoose style="margin-left: -20px;" @changeMallList="changeMallList" />
+
+              <div>
+                <!-- <el-checkbox v-model="showUserIP" style="margin: 4px 0px;" @click.native="bindedMall">显示已绑定ip店铺</el-checkbox> -->
+                <el-checkbox v-model="showUserIP" style="margin: 4px 0px;" @change="bindedMall">显示已绑定ip店铺</el-checkbox>
+
+                <!-- {{ bindindex }}{{ showUserIP }} -->
+                <el-button
+                  type="primary"
+                  size="mini"
+                  style="margin-left: 520px;"
+                  @click="dialog_search_IPMall"
+                >查询</el-button>
+              </div>
             </div>
-            <!-- <el-checkbox v-model="showUserIP" style="margin: 4px 0px;" @click.native="bindedMall()">显示已绑定ip店铺</el-checkbox> -->
-            <div class="right_table" style="border:1px solid #C0C4CC">
+            <div class="right_table" style="border:1px solid #C0C4CC;width: 700px;">
               <el-table
                 ref="multipleTable_dialog"
                 height="400px"
                 :header-cell-style="{'background': '#f7fafa'}"
                 :row-key="generateUUID"
-                :data="dialog_mallList"
+                :data="!showUserIP ? dialog_mallList:bindMalList "
                 @selection-change="handleSelectionChangeDialog"
               >
                 <el-table-column
@@ -590,7 +637,7 @@
                 <el-table-column type="index" label="序号" align="center" />
                 <el-table-column prop="country" label="站点" align="center" />
                 <el-table-column prop="mall_alias_name" label="店铺名称" align="center" />
-                <!-- <el-table-column prop="main_name" label="已绑定公司主体名称" /> -->
+                <el-table-column prop="main_name" label="已绑定公司主体名称" />
               </el-table>
             </div>
             <div style="display:flex;justify-content: center;margin-top:5px">
@@ -606,7 +653,7 @@
 <script>
 import ShopeeConfig from '@/services/shopeeman-config'
 import storeChoose from '../../../components/store-choose'
-import { getMalls, MallgetValue, getValue } from '../../../util/util'
+import { getMalls, MallgetValue, getValue, creatDate } from '../../../util/util'
 import { encryptionList, ipTypeList, protocolList, confuseList, region_ipListSelf } from '../../../util/MallManagerStoredata'
 export default {
   components: { storeChoose },
@@ -631,6 +678,8 @@ export default {
       }
     }
     return {
+      bindindex: [],
+      bindMalList: [],
       region_ipListSelf: region_ipListSelf,
       // shopeeConfig: new ShopeeConfig(),
       loading: false,
@@ -661,83 +710,17 @@ export default {
       },
       httpRules: {
         // name: [{ required: true, message: '店铺主体不能为空', trigger: 'blur' }],
-        ip_alias: [{ required: true, message: 'IP别名不能为空', trigger: 'blur' }],
-        ip_address: [{ required: true, message: 'IP不能为空', trigger: 'blur' }, { validator: validZipCode, trigger: 'blur' }],
-        ip_port: [{ required: true, message: 'PORT不能为空', trigger: 'blur' }, { validator: validPort, trigger: 'blur' }],
-        map_ip_address: [{ validator: validZipCode, trigger: 'blur' }],
-        map_ip_port: [{ validator: validPort, trigger: 'blur' }],
-        encryption: [{ required: true, message: '加密方式不能为空', trigger: 'blur' }],
-        protocol: [{ required: true, message: '协议方式不能为空', trigger: 'blur' }],
-        confuse: [{ required: true, message: '混淆不能为空', trigger: 'blur' }]
+        // ip_alias: [{ required: true, message: 'IP别名不能为空', trigger: 'blur' }],
+        // ip_address: [{ required: true, message: 'IP不能为空', trigger: 'blur' }, { validator: validZipCode, trigger: 'blur' }],
+        // ip_port: [{ required: true, message: 'PORT不能为空', trigger: 'blur' }, { validator: validPort, trigger: 'blur' }],
+        // map_ip_address: [{ validator: validZipCode, trigger: 'blur' }],
+        // map_ip_port: [{ validator: validPort, trigger: 'blur' }],
+        // encryption: [{ required: true, message: '加密方式不能为空', trigger: 'blur' }],
+        // protocol: [{ required: true, message: '协议方式不能为空', trigger: 'blur' }],
+        // confuse: [{ required: true, message: '混淆不能为空', trigger: 'blur' }],
+        // username: [{ required: true, message: '用户名不能为空', trigger: 'blur' }],
+        // password: [{ required: true, message: '密码不能为空', trigger: 'blur' }]
       },
-      // ipPsdMethodList: [
-      //   {
-      //     label: 'rc4-md5',
-      //     value: 'rc4-md5'
-      //   },
-      //   {
-      //     label: 'aes-128-ctr',
-      //     value: 'aes-128-ctr'
-      //   },
-      //   {
-      //     label: 'aes-192-ctr',
-      //     value: 'aes-192-ctr'
-      //   },
-      //   {
-      //     label: 'aes-256-ctr',
-      //     value: 'aes-256-ctr'
-      //   },
-      //   {
-      //     label: 'aes-128-cfb',
-      //     value: 'aes-128-cfb'
-      //   },
-      //   {
-      //     label: 'aes-192-cfb',
-      //     value: 'aes-192-cfb'
-      //   },
-      //   {
-      //     label: 'aes-256-cfb',
-      //     value: 'aes-256-cfb'
-      //   },
-      //   {
-      //     label: 'chacha20',
-      //     value: 'chacha20'
-      //   },
-      //   {
-      //     label: 'rc4',
-      //     value: 'rc4'
-      //   }
-      // ],
-      // protocolList: [
-      //   {
-      //     label: 'auth_sha1_v4',
-      //     value: 'auth_sha1_v4'
-      //   },
-      //   {
-      //     label: 'auth_aes128_md5',
-      //     value: 'auth_aes128_md5'
-      //   },
-      //   {
-      //     label: 'auth_aes128_sha1',
-      //     value: 'auth_aes128_sha1'
-      //   },
-      //   {
-      //     label: 'auth_chain_a',
-      //     value: 'auth_chain_a'
-      //   },
-      //   {
-      //     label: 'auth_chain_b',
-      //     value: 'auth_chain_b'
-      //   },
-      //   {
-      //     label: 'auth_chain_c',
-      //     value: 'auth_chain_c'
-      //   },
-      //   {
-      //     label: 'auth_chain_d',
-      //     value: 'auth_chain_d'
-      //   }
-      // ],
       protocolList: protocolList,
       confuseList: confuseList,
       source1: false,
@@ -782,7 +765,7 @@ export default {
       tableList: [],
       tableListEnd: [],
       page: 1,
-      pageSize: 20,
+      pageSize: 50,
       total: 0,
       siteList: [
         { id: 1, value: '美国' },
@@ -809,52 +792,63 @@ export default {
       shopAccountList: []
     }
   },
-  created() {
+  mounted() {
     this.getInfo() // 获取店铺信息
     // this.getTableList()// tableList
-    this.initDate()
     this.GetCloudIPAreaList()// 获取IP区域列表
     this.getMallList()// 初始化店铺列表
   },
   methods: {
-    // 主体修改
-    UpdateSelfIPMallMain() {
-      this.$refs.query_person.validate(async(valid) => {
-        if (!valid) return
-        const userInfo = await this.$appConfig.getUserInfo()
-        this.query_person.uid = userInfo.muid
-        const ipAlias = this.randomWord(true, 10, 32)
-        this.query_person.ip_alias = ipAlias
-        this.query_person.uuid = 0
-        // 新增
-        this.loading = true
-        const res = await this.$YipService.UpdateSelfIP(JSON.stringify(this.query_person))
-        const resMsg = JSON.parse(res)
-        if (resMsg.code !== 200) {
-          this.loading = false
-          this.$notify({
-            title: '修改主体信息',
-            type: 'error',
-            message: resMsg.message
-          })
-        } else {
-          this.loading = false
-          this.$notify({
-            title: '修改主体信息',
-            type: 'success',
-            message: `修改成功`
-          })
-          // 附加店铺绑定
-          this.targetId = resMsg.data
-          if (this.dialog_selectMallList.length > 0) {
-            this.updataMallList()
-          }
-          //
-          this.getTableList()
-          this.dialogvisible = false
-        }
+    // IP解绑
+    lostIP() {
+      if (this.mulSelect.length <= 0 || this.mulSelect.length > 1) {
+        this.$message.warning('请选择一个解绑的主体')
+        return
+      }
+      this.$confirm('确定要解绑1个主体的IP吗？，解绑之后可能存在店铺IP关联的风险和台湾站点不能回粉操作', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        this.lostIPFun()
       })
     },
+    async lostIPFun() {
+      this.loading = true
+      const mallids = []
+      const des = this.mulSelect[0].target_mall_info
+      if (des && des.length > 0) {
+        des.forEach(item => {
+          mallids.push(item.mall_id)
+        })
+      }
+      const target_id = this.mulSelect[0].id.toString()
+      try {
+        const res = await this.$YipService.BusinessunbindiP(target_id)
+        const data = JSON.parse(res)
+        console.log(data)
+        if (data.code === 200) {
+          this.$notify({
+            type: 'success',
+            message: '解绑成功'
+          })
+        } else {
+          this.$notify({
+            type: 'error',
+            message: data.message
+          })
+        }
+        this.loading = false
+        // 清空数据 刷新
+        this.$refs.multipleTable.clearSelection()
+        this.getTableList()
+        this.get
+      } catch (error) {
+        this.loading = false
+        console.log(error)
+      }
+    },
+
     // 关闭弹窗清除
     closeDialog1() {
       this.query_person = {
@@ -863,7 +857,7 @@ export default {
         ip_address: '', // IP地址
         ip_port: '', //	端口号
         ip_alias: '', // IP别名（主体名称）
-        ip_agency: '', // 代理方式
+        ip_agency: 'SSR', // 代理方式
         encryption: '', // 加密方式
         protocol: '', // 协议类型
         confuse: '', // 混淆方式
@@ -876,7 +870,9 @@ export default {
         parameter: '', // 协议参数
         argument: '', // 混淆参数
         map_ip_address: '', // 代理IP
-        map_ip_port: '' // 代理端口
+        map_ip_port: '', // 代理端口
+        IPLink: '', // 链接
+        dataTime: '' // 有效日期
       }
       this.ipMaster_params = {
         lineId: '', // 线路ID
@@ -887,35 +883,36 @@ export default {
         period: '', // 购买时长
         isPresale: ''// 是否预售
       }
+
       this.showUserIP = false
       this.$refs.multipleTable_dialog.clearSelection()
     },
     // 删除
     async delInfor(val) {
       const targetId = val.toString()
-      const res = await this.$YipService.delInfor(targetId)
       this.loading = true
+      const res = await this.$YipService.delInfor(targetId)
       const data = JSON.parse(res)
       if (data.code === -1) {
-        this.loading = false
         this.$notify({
           title: '删除',
           type: 'error',
           message: data.message
         })
       } else {
-        this.loading = false
         this.$notify({
           title: '删除',
           type: 'success',
           message: '删除成功'
         })
       }
+      this.loading = false
       this.getTableList()
     },
     async getInfo() {
       getMalls().then(res => {
         this.shopAccountList = res
+        this.initDate()
         this.getTableList()
       })
     },
@@ -926,22 +923,24 @@ export default {
       this.dialog_title = '修改绑定店铺'
       this.Typeis = 'updataMall'
       this.targetId = val
+      this.bindindex = [] // 清空绑定数据
+      this.bindMalList = [] // 清空绑定数据
       // 列表渲染
       this.$nextTick(() => {
         if (this.$refs.multipleTable_dialog) {
           this.$refs.multipleTable_dialog.clearSelection()
         }
       })
-      // const tempMall = []
       if (d.target_mall_info && d.target_mall_info.length > 0) {
         d.target_mall_info.forEach(item => {
           const index = this.dialog_mallList.findIndex(mall => {
             return Number(mall.id) === Number(item.mall_id)
           })
           if (index > -1) {
-            // tempMall.push(this.dialog_mallList[index])
+            this.bindMalList.push(this.dialog_mallList[index]) // 存储绑定的店铺 关联bindedMall() 切换
+            this.bindindex.push(index) // 存储绑定店铺的下标 -- 关联bindedMall() 切换
             this.$nextTick(() => {
-              this.$refs.multipleTable_dialog.toggleRowSelection(this.dialog_mallList[index], true)
+              this.$refs.multipleTable_dialog.toggleRowSelection(this.dialog_mallList[index], true) // 渲染
             })
           }
         })
@@ -974,7 +973,38 @@ export default {
     // 修改绑定店铺数据
     async updataDesc() {
       // const params = this.query_person
+
+      // 验证  source=2
+      if (this.query_person.ip_agency === 'SS' || this.query_person.ip_agency === 'SSR') {
+        if (this.query_person.ip_alias === '' ||
+            this.query_person.ip_address === '' ||
+            this.query_person.ip_port === '' ||
+           this.query_person.password === '' ||
+           this.query_person.encryption === '' ||
+           this.query_person.protocol === '' ||
+           this.query_person.confuse === ''
+        ) {
+          this.$message.warning('必填信息不能为空')
+          return
+        }
+      }
+      if (this.query_person.ip_agency === 'HTTP' || this.query_person.ip_agency === '链接') {
+        if (this.query_person.ip_alias === '' ||
+            this.query_person.ip_address === '' ||
+            this.query_person.ip_port === '' ||
+           this.query_person.username === ''
+        ) {
+          this.$message.warning('必填信息不能为空')
+          return
+        }
+      }
+      // 验证 source=1
+      if (Number(this.query_person.source) === 1 && this.query_person.ip_alias === '') {
+        this.$message.warning('主体名称不能为空')
+        return
+      }
       try {
+        this.loading = true
         const res = await this.$YipService.UpdateSelfIP(JSON.stringify(this.query_person))
         const data = JSON.parse(res)
         console.log('updataDesc', data)
@@ -992,6 +1022,7 @@ export default {
           })
         }
         // 关闭弹窗 清空数据 刷新数据
+        this.loading = false
         this.dialogvisible = false
         this.getTableList()
         this.$refs.multipleTable_dialog.clearSelection()
@@ -1019,6 +1050,7 @@ export default {
           dataTime: '' // 有效日期
         }
       } catch (error) {
+        this.loading = false
         console.log('udpata', error)
       }
     },
@@ -1039,12 +1071,16 @@ export default {
     },
     // 绑定用户信息
     async  updataMallList() {
+      if (this.dialog_selectMallList.length === 0) {
+        this.$message.warning('请至少选择一个店铺')
+        return
+      }
       const userInfo = await this.$appConfig.getUserInfo()
       const uid = userInfo.muid.toString()
       const targetId = this.targetId.toString()
       const mallIds = this.dialog_selectMallList.toString() || ''
-
       try {
+        this.loading = true
         const res = await this.$commodityService.newBangdingMall(uid, targetId, mallIds)
         const data = JSON.parse(res)
 
@@ -1061,8 +1097,10 @@ export default {
             message: '绑定成功'
           })
         }
+        this.loading = false
       } catch (error) {
         console.log('店铺绑定', error)
+        this.loading = false
       }
       this.dialogvisible = false
       this.getTableList()
@@ -1073,13 +1111,21 @@ export default {
 
     },
     // 显示已绑定ip店铺
-    // bindedMall() {
-    //   if (this.showUserIP === false) {
-    //     this.isBingedList = this.dialog_mallList
-    //   } else {
-    //     this.isBingedList = this.dialog_mallList2
-    //   }
-    // },
+    bindedMall() {
+      // this.showUserIP = !this.showUserIP
+      if (this.showUserIP) {
+        // dialog_mallList
+        this.$refs.multipleTable_dialog.toggleAllSelection() // 渲染
+      } else {
+        this.bindindex.forEach(item => {
+          this.$nextTick(() => {
+            this.$refs.multipleTable_dialog.toggleRowSelection(this.dialog_mallList[item], true) // 渲染
+          })
+        })
+        //  bindMalList
+        // debugger
+      }
+    },
     // dialog多选
     handleSelectionChangeDialog(val) {
       // 清空多选
@@ -1105,10 +1151,12 @@ export default {
     },
     // 清除IP缓存
     async clearIP() {
+      this.loading = true
       const data = await this.$BaseUtilService.UpdateProxy()
       if (data === null) {
         this.$message.success('清理成功')
       }
+      this.loading = false
     },
     // 确认绑定店铺信息
     updataMall() {
@@ -1131,41 +1179,85 @@ export default {
     },
     // 新增自有ip公司主体
     async addMallMainAndBind() {
-      this.$refs.query_person.validate(async(valid) => {
-        if (!valid) return
-        const userInfo = await this.$appConfig.getUserInfo()
-        this.query_person.uid = userInfo.muid
-        const ipAlias = this.randomWord(true, 10, 32)
-        this.query_person.ip_alias = ipAlias
-        this.query_person.uuid = 0
-        // 新增
-        this.loading = true
-        const res = await this.$YipService.AddSelfIP(JSON.stringify(this.query_person))
-        const resMsg = JSON.parse(res)
-        if (resMsg.code !== 200) {
-          this.loading = false
-          this.$notify({
-            title: '新增自有IP公司主体',
-            type: 'error',
-            message: resMsg.message
-          })
-        } else {
-          this.loading = false
-          this.$notify({
-            title: '新增自有IP公司主体',
-            type: 'success',
-            message: `IP保存成功`
-          })
-          // 附加店铺绑定
-          this.targetId = resMsg.data
-          if (this.dialog_selectMallList.length > 0) {
-            this.updataMallList()
-          }
-          //
-          this.getTableList()
-          this.dialogvisible = false
+      // this.$refs.query_person.validate(async(valid) => {
+      // if (!valid) return
+      // 验证
+      if (this.query_person.region_name === '' ||
+            this.query_person.ip_alias === '' ||
+            this.query_person.ip_address === '' ||
+            this.query_person.ip_port === ''
+      ) {
+        this.$message.warning('必填信息不能为空')
+        return
+      }
+      // IP类型 分类验证
+      if (this.query_person.ip_agency === 'SSR') {
+        if (
+          this.query_person.password === '' ||
+           this.query_person.encryption === '' ||
+           this.query_person.protocol === '' ||
+           this.query_person.confuse === ''
+        ) {
+          this.$message.warning('必填信息不能为空')
+          return
         }
-      })
+      }
+      if (this.query_person.ip_agency === 'SS') {
+        if (this.query_person.password === '' ||
+           this.query_person.encryption === ''
+        ) {
+          this.$message.warning('必填信息不能为空')
+          return
+        }
+      }
+
+      if (this.query_person.ip_agency === 'HTTP') {
+        if (this.query_person.password === '' ||
+           this.query_person.username === '') {
+          this.$message.warning('必填信息不能为空')
+          return
+        }
+      }
+
+      if (this.query_person.ip_agency === '链接') {
+        if (this.query_person.IPLink === '') {
+          this.$message.warning('链接不能为空')
+          return
+        }
+      }
+
+      const userInfo = await this.$appConfig.getUserInfo()
+      this.query_person.uid = userInfo.muid
+      const ipAlias = this.randomWord(true, 10, 32)
+      this.query_person.ip_alias = ipAlias
+      this.query_person.uuid = 0
+      // 新增
+      this.loading = true
+      const res = await this.$YipService.AddSelfIP(JSON.stringify(this.query_person))
+      const resMsg = JSON.parse(res)
+      if (resMsg.code !== 200) {
+        this.$notify({
+          title: '新增自有IP公司主体',
+          type: 'error',
+          message: resMsg.message
+        })
+      } else {
+        this.$notify({
+          title: '新增自有IP公司主体',
+          type: 'success',
+          message: `IP保存成功`
+        })
+        this.loading = false
+        // 附加店铺绑定
+        this.targetId = resMsg.data
+        if (this.dialog_selectMallList.length > 0) {
+          this.updataMallList()
+        }
+        //
+        this.getTableList()
+        this.dialogvisible = false
+      }
+      // })
     },
     // 删除
     del(ids) {
@@ -1180,6 +1272,7 @@ export default {
       if (this.mulSelect.length <= 0) {
         this.$message.warning('请选择要续费的主体')
       } else {
+        this.loading = true
         const userInfo = await this.$appConfig.getUserInfo()
         var list = []
         this.mulSelect.forEach(item => {
@@ -1195,6 +1288,7 @@ export default {
         const targetId = list.toString() || ''
         const uid = String(userInfo.muid)
         const uuid = '0'
+
         const res = await this.$YipService.RenewIP(targetId, uid, uuid, String(period))
         // this.$message.error(JSON.parse(data).message)
         const data = JSON.parse(res)
@@ -1203,6 +1297,7 @@ export default {
         } else {
           this.$message.success('续费成功')
         }
+        this.loading = false
         // 清空多选
         this.$refs.multipleTable.clearSelection()
       }
@@ -1236,27 +1331,26 @@ export default {
         return false
       }
       // this.$message.warning('数据请求中.......')
-      this.loading = true
       const userInfo = await this.$appConfig.getUserInfo()
       this.ipMaster_params.uid = userInfo.muid
       this.ipMaster_params.uuid = 0
       const params = this.ipMaster_params
+      this.loading = true
       const data = await this.$commodityService.addIPMaster(params)
       const resMsg = JSON.parse(data)
       if (resMsg.code === '-1') {
-        this.loading = false
         this.$notify({
           title: '新增公司主体',
           type: 'error',
           message: resMsg.message
         })
       } else {
-        this.loading = false
         this.$notify({
           title: '新增公司主体',
           type: 'success',
           message: `新增成功`
         })
+        this.loading = false
         // 附加店铺绑定
         this.targetId = resMsg.data
         if (this.dialog_selectMallList.length > 0) {
@@ -1329,32 +1423,38 @@ export default {
     // 获取店铺信息
     changeMallList(val) {
       this.query.mall_ids = []
-      this.site = Object.assign(val)
-      this.site.forEach(e => {
-        this.query.mall_ids.push(e.id)
-      })
+      // this.site = Object.assign(val)
+      // this.site.forEach(e => {
+      //   this.query.mall_ids.push(e.id)
+      // })
+      if (val && val.length > 0) {
+        val.forEach(item => {
+          this.query.mall_ids.push(item.id)
+        })
+      }
     },
     // ip- tableList
     async getTableList() {
       const params = {}
       const userInfo = await this.$appConfig.getUserInfo()
       params.uid = userInfo.muid
-      params.uuid = ''
-      params.mall_ids = this.query.mall_ids.toString() || ''
+      params.uuid = '0'
+      params.ip_id = ''
       params.ip_alias = this.query.ip_alias
       params.source = this.query.source
+      params.statius = this.query.statius
       params.ip_address = this.query.ip_address
       params.supplier_info = this.query.supplier_info
       params.expiration_dates = this.cloumn_date && this.cloumn_date.length > 0 ? this.cloumn_date.join('/').toString() : ''
-      params.ip_id = ''
-      params.statius = this.query.statius
+      params.mall_ids = this.query.mall_ids.toString() || ''
+      // debugger
+      console.log(params)
       this.loading = true
       try {
         const res = await this.$YipService.GetIpList(JSON.stringify(params))
         const data = JSON.parse(res)
         this.tableList = []
         if (data.code === 200 && data.data.length > 0 && this.shopAccountList.length > 0) {
-          this.loading = false
           data.data.forEach((item, index) => {
             // 获取店铺名称
             if (item.target_mall_info && item.target_mall_info.length > 0) {
@@ -1378,6 +1478,7 @@ export default {
           })
           // 分页
           this.chang()
+          this.loading = false
         }
       } catch (error) {
         this.loading = false
@@ -1408,9 +1509,7 @@ export default {
       const d2 =
         d.getFullYear() + '-' + d.getMonth() + '-' + d.getDate() + ' 23:59:59'
       this.cloumn_date = [d2, d1]
-      this.cloumn_date && this.cloumn_date.length > 0
-        ? this.cloumn_date.join('/').toString()
-        : ''
+      this.cloumn_date && this.cloumn_date.length > 0 ? this.cloumn_date.join('/').toString() : ''
     },
     handleSizeChange: function(pageSize) {
       // 每页条数切换
@@ -1464,16 +1563,16 @@ export default {
     // justify-content:center;
     // margin-bottom: 30px;
     align-items: center;
+    .des_conditon{
+      display: flex;
     .condition_item {
-      width: auto;
-      display: inline-block !important;
-      display: inline;
-      // margin-bottom: 8px;
-      margin: 4px 0px;
-      margin-right: 10px;
-      span {
-        margin-right: 5px;
-      }
+     width: auto;
+    display: flex;
+    align-items: baseline;
+    margin: 4px 0px;
+    margin-right: 14px;
+    margin-left: 43px;
+    }
     }
     }
     .dialog_addip{
@@ -1482,12 +1581,17 @@ export default {
           display: flex;
           align-items: center;
           justify-content: center;
+          flex-flow: row;
           .left{
             padding: 5px;
             margin-right: 10px;
+            width: 300px;
             .left_item{
               margin-bottom: 10px;
             }
+          }
+          .right{
+            width: 700px;
           }
         }
       }
@@ -1505,6 +1609,26 @@ export default {
     .changeVisible{
       .el-dialog{
         width:900px !important
+      }
+    }
+
+    .ipType{
+      .el-form-item__label{
+        width: 84px;
+      }
+      .el-radio-group{
+        width: 184px;
+      }
+      .el-radio,.is-checked{
+         margin-right: 3px;
+      }
+    }
+    .formdata{
+      .el-form-item__label{
+           width: 74px !important;
+      }
+      .el-form-item__content{
+           margin-left: 74px !important;
       }
     }
 }

@@ -11,7 +11,8 @@ import App from './App.vue'
 import router from './router'
 import './plugins/element'
 // ----------------------------------- 引入umy-ui
-import 'umy-ui/lib/theme-chalk/index.css' // 引入样式
+// import 'umy-ui/lib/theme-chalk/index.css' // 引入样式
+// import 'element-ui/lib/theme-chalk/index.css'
 
 import { IpcMain, NetService } from 'cyt-ipc'
 import api from './network/jx-request'

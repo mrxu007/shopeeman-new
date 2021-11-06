@@ -3,7 +3,14 @@
     <div class="operation">
       <div class="o-item">
         <span>账号名称：</span>
-        <el-input v-model="accountNameVal" oninput="value=value.replace(/\s+/g,'')" placeholder="请输入内容" clearable size="mini" />
+        <el-input
+          v-model="accountNameVal"
+          oninput="value=value.replace(/\s+/g,'')"
+          placeholder="请输入内容"
+          clearable
+          size="mini"
+          style="width:120px"
+        />
       </div>
       <div class="o-item">
         <el-select v-model="isEnable" placeholder="请选择用户状态" size="mini">
@@ -28,27 +35,51 @@
         v-loading="isloading"
         :data="tableData"
         stripe
-        style="min-width: 1000px"
         height="calc(100vh - 105px)"
         :header-cell-style="{
           textAlign: 'center',
           backgroundColor: '#f5f7fa',
         }"
       >
-        <el-table-column type="index" align="center" label="序号" min-width="50">
+        <el-table-column
+          type="index"
+          align="center"
+          label="序号"
+          min-width="50"
+        >
           <template slot-scope="scope">
             {{ scope.$index + 1 }}
           </template>
         </el-table-column>
-        <el-table-column prop="typeCn" align="center" show-overflow-tooltip label="类型" min-width="180" />
-        <el-table-column prop="name" align="center" show-overflow-tooltip label="账号" min-width="180" />
-        <el-table-column prop="groupCn" align="center" show-overflow-tooltip label="关联店分组" min-width="180" />
-        <el-table-column prop="is_enable" align="center" label="状态" min-width="80">
+        <el-table-column
+          prop="typeCn"
+          align="center"
+          label="类型"
+          min-width="180"
+        />
+        <el-table-column
+          prop="name"
+          align="center"
+          label="账号"
+          min-width="120"
+        />
+        <el-table-column
+          prop="groupCn"
+          align="center"
+          label="关联店分组"
+          min-width="180"
+        />
+        <el-table-column
+          prop="is_enable"
+          align="center"
+          label="状态"
+          min-width="80"
+        >
           <template slot-scope="{row}">
             <span>{{ row.is_enable===1?'启用':'停用' }}</span>
           </template>
         </el-table-column>
-        <el-table-column prop="note" align="center" show-overflow-tooltip label="备注" min-width="180" />
+        <el-table-column prop="note" align="center" label="备注" min-width="180" />
         <el-table-column label="操作" align="center" min-width="180">
           <template slot-scope="{ row }">
             <el-button type="primary" size="mini" @click="deleteChildUser(row)">删除</el-button>
@@ -97,19 +128,19 @@
         </div>
         <div class="dialog-right">
           <div class="operation-content">
-            <span style="width: 120px">店铺分组:</span>
+            <span style="width: 60px">店铺分组:</span>
             <el-input v-model="shopGroupVal" placeholder="请输入店铺分组名称" clearable size="mini" oninput="value=value.replace(/\s+/g,'')" />
-            <el-button style="margin-left: 20px" type="primary" size="mini" @click="getBindMallCount">查找</el-button>
+            <el-button style="margin-left: 15px" type="primary" size="mini" @click="getBindMallCount">查找</el-button>
           </div>
           <div class="dialog-table">
-            <el-table ref="shopGruopDataRef" :data="shopGruopData" stripe style="min-width: 240px" max-height="450" :row-key="getRowKey " @selection-change="handleSelectionChange">
+            <el-table ref="shopGruopDataRef" :data="shopGruopData" stripe style="min-width: 240px" max-height="400" :row-key="getRowKey " @selection-change="handleSelectionChange">
               <el-table-column type="selection" align="center" min-width="45" :reserve-selection="true" />
-              <el-table-column align="center" show-overflow-tooltip label="序号" min-width="40">
+              <el-table-column align="center" label="序号" min-width="40">
                 <template slot-scope="scope">
                   {{ scope.$index + 1 }}
                 </template>
               </el-table-column>
-              <el-table-column prop="group_name" align="center" show-overflow-tooltip label="分组名称" min-width="80" />
+              <el-table-column prop="group_name" align="center" label="分组名称" min-width="80" />
               <el-table-column prop="bind_mall_count" align="center" label="绑定店铺数量" min-width="90" />
             </el-table>
           </div>
@@ -198,9 +229,14 @@ export default {
         return
       }
       const shopGroupId = []
-      this.multipleSelection.forEach(item => {
-        shopGroupId.push(item.id)
-      })
+      for (let index = 0; index < this.multipleSelection.length; index++) {
+        const element = this.multipleSelection[index]
+        if (element.bind_mall_count === 0) {
+          this.$message('有未绑定店铺的分组')
+          return
+        }
+        shopGroupId.push(element.id)
+      }
       switch (val) {
         case 'add':
           if (!this.password) {
@@ -227,6 +263,7 @@ export default {
       this.accountId = val.id
       this.name = val.name
       // this.password = val.password
+      console.log(val.password)
       this.diaIsEnable = val.is_enable.toString()
       this.note = val.note
       val.type.forEach(item => {
@@ -356,14 +393,14 @@ export default {
   background-color: #fff;
   margin: 10px;
   padding: 16px;
-  min-width: 1100px;
+  // min-width: 1100px;
   .operation {
-    min-width: 500px;
     // padding: 16px;
     margin-bottom: 10px;
     display: flex;
     height: 40px;
     align-items: center;
+    overflow: auto;
     .o-item {
       display: flex;
       align-items: center;
@@ -389,9 +426,9 @@ export default {
   .dialog-content {
     /deep/.el-dialog {
       margin-top: 10vh !important;
-      width: 900px !important;
+      width: 800px !important;
       /deep/.el-dialog__body {
-        width: 880px !important;
+        width: 800px !important;
         display: flex !important;
         justify-content: space-between;
       }
@@ -404,8 +441,9 @@ export default {
       }
     }
     .dialog-left {
-      min-width: 320px;
+      // min-width: 220px;
       .form-content {
+        width: 305px;
         /deep/.el-checkbox-group {
           width: 250px !important;
 
@@ -424,9 +462,12 @@ export default {
       }
     }
     .dialog-right {
-      min-width: 450px;
-      // margin-left: 20px;
+      min-width: 410px;
+      margin-left: 20px;
       margin-top: 5px;
+      .el-input{
+        width: 160px;
+      }
       .operation-content {
         display: flex;
         align-items: center;

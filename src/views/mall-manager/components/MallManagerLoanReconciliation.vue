@@ -14,89 +14,89 @@
     </div>
 
     <div class="all_condition">
-      <div class="condition_item">
-        <storeChoose :is-all="true" @changeMallList="changeMallList" />
-      </div>
-      <div class="condition_item">
-        <span>平台店铺ID：</span>
-        <el-input v-model="plantform_mallID" clearable placeholder="输入多个ID请使用英文','号隔开" size="mini" style="width: 220px" />
-      </div>
-      <div class="condition_item">
-        <span>拨款时间：</span>
-        <el-date-picker
-          v-model="cloumn_date"
-          size="mini"
-          style="width: 310px"
-          type="daterange"
-          value-format="yyyy-MM-dd"
-          range-separator="-"
-          :picker-options="pickerOptions"
-          start-placeholder="开始日期"
-          end-placeholder="结束日期"
-        />
-      </div>
-
-      <div class="condition_item">
-        <span>状态：</span>
-        <el-select v-model="query.status" size="mini" width="150px" placeholder="站点">
-          <el-option value="" label="全部" />
-          <el-option label="已拨款" value="1" />
-          <el-option label="即将拨款" value="2" />
-        </el-select>
-      </div>
-
-      <div class="condition_item">
-        <span>订单编号：</span>
-        <el-input v-model="query.orderSn" placeholder="订单编号" size="mini" style="width: 180px" clearable />
-      </div>
-
-      <div class="condition_item">
-        <div>
-          <el-switch v-model="showRMB" active-color="#13ce66" inactive-color="grey" @change="compete_Coin()" />
-          <span> 显示人民币： </span>
-          <span> (当前汇率:{{ this.site_query.rate_coin }}) </span>
+      <div class="condition_box">
+        <div class="condition_item">
+          <storeChoose :is-all="true" @changeMallList="changeMallList" />
         </div>
-
-        <div>
-          <el-checkbox v-model="showConsole"> 隐藏日志</el-checkbox>
+        <div class="condition_item">
+          <span class="w80">平台店铺ID：</span>
+          <el-input v-model="plantform_mallID" clearable placeholder="输入多个ID请使用,隔开" size="mini" style="width: 180px" />
         </div>
       </div>
-      <div class="condition_item">
-        <el-button size="mini" type="primary" @click="search">搜索</el-button>
-        <el-button
-          size="mini"
-          type="primary"
-          @click="
-            updataMall()
-            cancelActive = false
-          "
-          >同步数据</el-button
-        >
-        <el-button size="mini" type="primary" @click="cancelActive = true">取消同步</el-button>
-        <el-button size="mini" type="primary" @click="clearLog">清空日志</el-button>
-        <el-button size="mini" type="primary" @click="export_table((query.page = 1)), (exportList = [])">导出</el-button>
+      <div class="condition_box">
+        <div class="condition_item">
+          <span class="w80">状态：</span>
+          <el-select v-model="query.status" size="mini" style="width: 100px" placeholder="站点">
+            <el-option value="" label="全部" />
+            <el-option label="已拨款" value="1" />
+            <el-option label="即将拨款" value="2" />
+          </el-select>
+        </div>
+        <div class="condition_item">
+          <span class="w80">订单编号：</span>
+          <el-input v-model="query.orderSn" placeholder="订单编号" size="mini" style="width: 180px" clearable />
+        </div>
+        <div class="condition_item">
+          <span class="w80">拨款时间：</span>
+          <el-date-picker
+            v-model="cloumn_date"
+            size="mini"
+            style="width: 240px"
+            type="daterange"
+            value-format="yyyy-MM-dd"
+            range-separator="-"
+            :picker-options="pickerOptions"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
+          />
+        </div>
+        <div class="condition_item">
+          <div>
+            <el-switch v-model="showRMB" active-color="#13ce66" inactive-color="grey" @change="compete_Coin()" />
+            <span>显示人民币：</span>
+            <span>(当前汇率:{{ this.site_query.rate_coin }})</span>
+          </div>
+        </div>
+      </div>
+      <div class="condition_box" style="padding-left: 20px">
+        <div class="condition_item">
+          <el-button size="mini" type="primary" @click="search">搜索</el-button>
+          <el-button
+            size="mini"
+            type="primary"
+            @click="
+              cancelActive = false
+              updataMall()
+            "
+            >同步数据</el-button
+          >
+          <el-button size="mini" type="primary" @click="cancelActive = true">取消同步</el-button>
+          <el-button size="mini" type="primary" @click="clearLog">清空日志</el-button>
+          <el-button size="mini" type="primary" @click="export_table((query.page = 1)), (exportList = [])">导出 </el-button>
+          <el-checkbox v-model="showConsole" style="margin-left: 10px"> 隐藏日志</el-checkbox>
+        </div>
       </div>
     </div>
     <div class="table_clo">
       <div class="data_table" style="height: 100%; background-color: white">
         <el-table height="calc(100vh - 281px)" :data="tableList" :row-style="{ height: '50px' }" style="width: 100%; height: calc(100vh - 260px)" :header-cell-style="{ background: '#f7fafa' }">
-          <el-table-column label="序号" type="index" />
-          <el-table-column prop="country" label="站点" align="center">
+          <el-table-column label="序号" width="60" type="index" align="center" />
+          <el-table-column prop="country" width="120px" label="站点" align="center">
             <template slot-scope="{ row }">
               {{ row.country | chineseSite }}
             </template>
           </el-table-column>
-          <el-table-column prop="platform_mall_name" label="店铺名称" align="center" />
-          <el-table-column prop="order_id" label="订单编号" align="center" />
-          <el-table-column prop="" label="状态" align="center">
+          <el-table-column prop="platform_mall_name" min-width="120px" label="店铺名称" align="center" />
+          <el-table-column prop="order_id" label="订单编号" min-width="120px" align="center" />
+          <el-table-column prop="" min-width="80px" label="状态" align="center">
             <template slot-scope="{ row }">{{ Number(row.status) === 1 ? '已拨款 ' : '即将拨款' }}</template>
           </el-table-column>
-          <el-table-column prop="bill_num" label="拨款单号" align="center" />
+          <el-table-column prop="bill_num" width="100px" label="拨款单号" align="center" />
           <el-table-column prop="appropriate_amount" label="拨款金额" align="center" />
           <el-table-column prop="" label="拨款金额(RMB)" align="center">
             <template slot-scope="{ row }">{{ (row.appropriate_amount * site_query.rate_coin).toFixed(2) }}</template>
           </el-table-column>
-          <el-table-column prop="created_at" label="拨款时间" align="center" />
+          <el-table-column prop="created_at" label="拨款时间" width="160px" align="center" />
           <!-- <el-table-column prop="" label="账单详情" align="center" /> -->
         </el-table>
         <div class="pagination" style="display: flex; justify-content: flex-end; margin: 4px 0px">
@@ -113,12 +113,13 @@
         </div>
       </div>
     </div>
-    <Logs ref="Logs" clear v-model="showConsole" />
+    <Logs ref="Logs" v-model="showConsole" clear />
   </div>
 </template>
 <script>
 import storeChoose from '../../../components/store-choose'
 import { exportExcelDataCommon, creatDate } from '../../../util/util'
+
 export default {
   components: { storeChoose },
   data() {
@@ -135,7 +136,7 @@ export default {
         // 站点参数
         country: 'TH', // 站点
         typeCoin: '฿', // 币种
-        rate_coin: '', // 汇率
+        rate_coin: '' // 汇率
       },
       plantform_mallID: '', // 平台店铺ID
       mallGroupId: [], // 店铺分组
@@ -146,19 +147,19 @@ export default {
         status: '',
         appropriateTime: '',
         page: 1,
-        pageSize: 20,
+        pageSize: 20
       },
       cloumn_date: [],
       pickerOptions: {
         disabledDate(time) {
           return time.getTime() > Date.now()
-        },
+        }
       },
       showRMB: false,
       showConsole: true,
       selectMallList: [],
       mallPageSize: 50,
-      cancelActive: false,
+      cancelActive: false
     }
   },
   mounted() {
@@ -175,7 +176,7 @@ export default {
       this.selectMallList = val
       this.site_query['country'] = this.selectMallList[0] ? this.selectMallList[0].country : ''
       this.exchangeRateList()
-      console.log(this.site_query['country'])
+      console.log('111', this.site_query['country'])
       console.log('changeMallList', val)
     },
     // 同步信息
@@ -193,8 +194,8 @@ export default {
             this.$refs.Logs.writeLog(`操作已取消！`, true)
             return
           }
-          let mall = this.selectMallList[i]
-          let pageNumber = 1
+          const mall = this.selectMallList[i]
+          const pageNumber = 1
           this.$refs.Logs.writeLog(`开始同步店铺【${mall.platform_mall_name}】对账信息`, true)
           if (this.query.status === '') {
             await this.searchSingleMall(pageNumber, mall, 0)
@@ -214,11 +215,11 @@ export default {
         this.$refs.Logs.writeLog(`操作已取消！`, true)
         return
       }
-      let params = {
-        tran_type: type, //0,2  type:0-status:1 付款转账完成    type:2-status:0 等待订单完成
+      const params = {
+        tran_type: type, // 0,2  type:0-status:1 付款转账完成    type:2-status:0 等待订单完成
         page_number: pageNumber,
         page_size: this.mallPageSize,
-        shop_id: mall.platform_mall_id,
+        shop_id: mall.platform_mall_id
         // start_date: '',
         // end_date: '',
       }
@@ -226,25 +227,25 @@ export default {
         params['start_date'] = this.cloumn_date[0]
         params['end_date'] = this.cloumn_date[1]
       }
-      let res = await this.$shopeemanService.getIncomeTransaction(mall.country, params)
-      let resObj = res && JSON.parse(res)
+      const res = await this.$shopeemanService.getIncomeTransaction(mall.country, params)
+      const resObj = res && JSON.parse(res)
       if (resObj && resObj.status === 200) {
-        let data = JSON.parse(resObj.data)
+        const data = JSON.parse(resObj.data)
         console.log(data, 'searchSingleMall')
         if (data.code === 0) {
           let count = data.data.list.length
           data.data.list &&
             data.data.list.forEach((item) => {
               console.log(item)
-              let params = {
+              const params = {
                 order_id: item.order_id + '',
                 status: item.status === 1 ? '1' : '2',
                 bill_num: item.id + '',
                 amount: item.amount + '',
                 using_wallet: item.using_wallet ? '1' : '0',
-                release_time: this.$dayjs(item.release_time).format('YYYY-MM-DD HH:mm:ss'),
+                release_time: this.$dayjs(item.release_time).format('YYYY-MM-DD HH:mm:ss')
               }
-              let index = dataArr.filter((i) => i.bill_num === params.bill_num)[0] || ''
+              const index = dataArr.filter((i) => i.bill_num === params.bill_num)[0] || ''
               index && count--
               !index && dataArr.push(params)
               // !index && this.UploadRecordData(mall.platform_mall_id,item)
@@ -270,13 +271,13 @@ export default {
         }
       }
     },
-    //上传服务端
+    // 上传服务端
     async UploadRecordData(mallID, dataArr) {
-      let params = {
+      const params = {
         mallId: mallID,
-        bills: dataArr,
+        bills: dataArr
       }
-      let res = await this.$api.uploadPaymentList(params)
+      const res = await this.$api.uploadPaymentList(params)
       console.log(res)
     },
     // 计算汇率
@@ -402,7 +403,7 @@ export default {
           sysMallId = sysMallId + ',' + item.id
         }
       })
-      params.sysMallId = sysMallId || ''
+      params.sysMallId = (sysMallId + '') || ''
       params.appropriateTime = this.cloumn_date.length >= 0 ? this.cloumn_date[0] + ' 00:00:00/' + this.cloumn_date[1] + ' 23:59:59' : ''
       this.getTableList(params)
     },
@@ -429,8 +430,8 @@ export default {
     handleCurrentChange(val) {
       this.query.page = val
       this.search()
-    },
-  },
+    }
+  }
 }
 </script>
 <style lang="less">
@@ -447,6 +448,7 @@ export default {
       border-radius: 4px;
       padding: 16px;
       position: relative;
+
       .account-title {
         padding: 0 5px;
         display: inline-block;
@@ -458,53 +460,66 @@ export default {
         left: 10px;
         top: -10px;
       }
+
       .account-item {
         display: flex;
         align-items: center;
+
         span {
           margin-right: 20px;
           display: inline-block;
         }
+
         .acount-item-sub {
           display: flex;
           align-items: center;
         }
+
         .warning-style {
           color: red;
           font-size: 16px;
         }
       }
     }
+
     background-color: white;
     padding: 5px;
     margin: 10px;
     border-radius: 10px;
   }
+
   .overdata_view {
     padding: 10px;
     display: flex;
     flex-direction: column;
   }
+
   .table_clo {
     border-radius: 0px;
     padding: 2px;
   }
+
   .all_condition {
-    display: flex;
-    flex-wrap: wrap;
-    // justify-content:center;
-    // margin-bottom: 30px;
-    align-items: center;
-    .condition_item {
-      width: auto;
-      display: inline-block !important;
-      display: inline;
-      margin-bottom: 8px;
-      margin-right: 10px;
-      span {
-        margin-right: 5px;
+    .condition_box {
+      display: flex;
+      align-items: center;
+      .condition_item {
+        width: auto;
+        display: inline-block !important;
+        margin-bottom: 8px;
+        margin-right: 10px;
+
+        span {
+          margin-right: 5px;
+        }
       }
     }
+  }
+
+  .w80 {
+    display: inline-block;
+    text-align: right;
+    width: 80px;
   }
 }
 </style>

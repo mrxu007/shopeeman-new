@@ -81,7 +81,6 @@ import {
   Avatar,
   Drawer
 } from 'element-ui'
-
 Vue.use(Drawer)
 Vue.use(Pagination)
 Vue.use(Dialog)

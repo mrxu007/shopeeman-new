@@ -59,6 +59,7 @@ export default class NetMessageBridgeService {
   async getChinese(country, api, data, options = {}) {
     const url = await this.getUrlPrefix(country) + api
     options['extrainfo'] = this.getExtraInfo(data)
+    delete data.mallId // body 里面不能带店铺id
     options['params'] = data
     const referer = options['headers'] && options['headers'].referer
     if (referer) {
@@ -94,6 +95,7 @@ export default class NetMessageBridgeService {
   async putChinese(country, api, data, options = {}) {
     const url = await this.getUrlPrefix(country) + api
     options['extrainfo'] = this.getExtraInfo(data)
+    delete data.mallId // body 里面不能带店铺id
     const referer = options['headers'] && options['headers'].referer
     if (referer) {
       options['headers'] = Object.assign(options['headers'],
@@ -108,7 +110,7 @@ export default class NetMessageBridgeService {
   async deleteChinese(country, api, data, options = {}) {
     const url = await this.getUrlPrefix(country) + api
     options['extrainfo'] = this.getExtraInfo(data)
-
+    delete data.mallId // body 里面不能带店铺id
     const referer = options['headers'] && options['headers'].referer
     if (referer) {
       options['headers'] = Object.assign(options['headers'],
@@ -386,8 +388,17 @@ export default class NetMessageBridgeService {
   }
 
   // 提取金额
-  // getBankAccounts(country, data,option) {
-  //   return this.postChinese(country, '/api/v3/finance/get_bank_accounts/', data,option)
-  // }
+  verifyPaymentPass(country, data,option) {
+    return this.getChinese(country, '/api/v3/finance/verify_payment_pass/', data,option)
+  }
+
+  // 验证码
+  getWalletOtpSeed(country, data,option) {
+    return this.getChinese(country, '/api/v3/general/get_wallet_otp_seed', data,option)
+  }
+  // 绑卡
+  bindBankAccount(country, data,option) {
+    return this.postChinese(country, '/api/v3/finance/bind_bank_account/', data,option)
+  }
 }
 

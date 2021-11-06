@@ -99,14 +99,16 @@ export default {
   ddMallGoodsGetMallList: (data) => AppRequest.get('/ddMallGoods/getMallList', data), // 联动站点分组获取店铺列表
   mallGroupIndex: (data) => AppRequest.get('/mallGroup/index', { params: data }), // 获取店铺分组列表
   getMallList: (data) => AppRequest.get('/bindMall/mallList', { params: data }), // 获取店铺列表
+  getGroupList: (data) => AppRequest.get('/ddMallGoods/getMallList', { params: data }), // 获取店铺分组
   getMallStatistics: (data) => AppRequest.get('/mallStatistics/index', { params: data }), // 店铺数据+店铺指标列表
   syncMallData: (data) => AppRequest.post('/mallStatistics/save', data), // 上报店铺数据+店铺指标列表
   updateWatermark: (data) => AppRequest.post('/bindMall/updateWatermark', data), // 修改店铺水印
   updateUserPassword: (data) => AppRequest.post('/bindMall/uploadUserPassword', data), // 修改账户登录密码
   uploadMallCookie: (data) => AppRequest.post('/bindMall/uploadWebLoginInfo', data), // 上报店铺cookie
   deleteBindMall: (data) => AppRequest.post('/bindMall/deleteMall', data), // 删除店铺信息
-  saveMallAuthInfo: (data) => AppRequest.post('/bindMall/saveMallAuthInfo', data), // 上报店铺信息
-
+  saveMallAuthInfo: (data) => AppRequest.post('/bindMall/saveMallAuthInfo', data), // 上报保存店铺信息
+  updateMallInfo: (data) => AppRequest.post('/bindMall/updateMallInfo', data), // 上报更新店铺信息
+  getBankList: (data) => AppRequest.get('/getBankList', data), //获取银行卡信息
   // 店铺分组
   getMallGroup: (data) => AppRequest.get('/mallGroup/index', { params: data }), // 获取店铺分组列表
   addGroup: (data) => AppRequest.post('/mallGroup/save', data), // 新增分组
@@ -139,7 +141,7 @@ export default {
   getPaymentList: (data) => AppRequest.post('/mallAccountBill', data), // 货款对账列表
   getMallSite: (data) => AppRequest.get('/ddMallGoods/getMallList', { params: data }), // 店铺站点信息
   exchangeRateList: (data) => AppRequest.get('/exchangeRateList', { params: data }), // 获取汇率
-  updateMallInfo: (data) => AppRequest.post('/bindMall/updateMallInfo', data), // 同步信息
+  // updateMallInfo: (data) => AppRequest.post('/bindMall/updateMallInfo', data), // 同步信息
   uploadPaymentList: (data) => AppRequest.post('/mallAccountBill/save', data), // 上报货款对账单
 
   // 异常公告--即将过期订单

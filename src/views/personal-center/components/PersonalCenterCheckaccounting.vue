@@ -17,7 +17,7 @@
           size="mini"
           value-format="yyyy-MM-dd"
           type="daterange"
-          style="width: 200px"
+          style="width: 207px"
           range-separator="-"
           start-placeholder="开始日期"
           end-placeholder="结束日期"
@@ -124,59 +124,59 @@
     <el-dialog title="数据详情" :visible.sync="detailVisible" width="70%">
       <div>
         <el-table :data="statisticsDetailData" tooltip-effect="dark" height="500">
-          <el-table-column align="center" type="index" label="序号" width="50" />
-          <el-table-column prop="stat_date" label="统计日期" align="center" width="100" />
-          <el-table-column prop="recharge" label="充值金额（收入）" align="center">
+          <el-table-column align="center" type="index" label="序号" min-width="50px" fixed />
+          <el-table-column prop="stat_date" label="统计日期" align="center" min-width="180px" />
+          <el-table-column prop="recharge" label="充值金额（收入）" align="center" min-width="90px">
             <template slot-scope="{ row }">
               {{ row.recharge ? parseFloat(row.recharge).toFixed(2) : '0.00' }}
             </template>
           </el-table-column>
-          <el-table-column prop="translation" label="翻译金额（消费）" align="center">
+          <el-table-column prop="translation" label="翻译金额（消费）" align="center" min-width="90px">
             <template slot-scope="{ row }">
               {{ row.translation ? parseFloat(row.translation).toFixed(2) : '0.00' }}
             </template>
           </el-table-column>
-          <el-table-column prop="purchase_goods" label="采购商品金额（消费）" align="center" width="110">
+          <el-table-column prop="purchase_goods" label="采购商品金额（消费）" align="center" min-width="110px">
             <template slot-scope="{ row }">
               {{ row.purchase_goods ? parseFloat(row.purchase_goods).toFixed(2) : '0.00' }}
             </template>
           </el-table-column>
-          <el-table-column prop="warehouse_ship" label="仓库发货金额（消费）" align="center" width="110">
+          <el-table-column prop="warehouse_ship" label="仓库发货金额（消费）" align="center" min-width="110px">
             <template slot-scope="{ row }">
               {{ row.warehouse_ship ? parseFloat(row.warehouse_ship).toFixed(2) : '0.00' }}
             </template>
           </el-table-column>
-          <el-table-column prop="return" label="退件金额（消费）" align="center">
+          <el-table-column prop="return" label="退件金额（消费）" align="center" min-width="90px">
             <template slot-scope="{ row }">
               {{ row.return ? parseFloat(row.return).toFixed(2) : '0.00' }}
             </template>
           </el-table-column>
-          <el-table-column prop="purchase_goods_return" label="采购商品退回金额（收入）" align="center" width="140">
+          <el-table-column prop="purchase_goods_return" label="采购商品退回金额（收入）" align="center" min-width="130px">
             <template slot-scope="{ row }">
               {{ row.purchase_goods_return ? parseFloat(row.purchase_goods_return).toFixed(2) : '0.00' }}
             </template>
           </el-table-column>
-          <el-table-column prop="mall_main" label="主体IP消费金额（消费）" align="center" width="140">
+          <el-table-column prop="mall_main" label="主体IP消费金额（消费）" align="center" min-width="120px">
             <template slot-scope="{ row }">
               {{ row.mall_main ? parseFloat(row.mall_main).toFixed(2) : '0.00' }}
             </template>
           </el-table-column>
-          <el-table-column prop="abnormal_payment" label="异常赔付金额（收入）" align="center" width="120">
+          <el-table-column prop="abnormal_payment" label="异常赔付金额（收入）" align="center" min-width="110">
             <template slot-scope="{ row }">
               {{ row.abnormal_payment ? parseFloat(row.abnormal_payment).toFixed(2) : '0.00' }}
             </template>
           </el-table-column>
-          <el-table-column prop="other" label="其它金额（消费）" align="center">
+          <el-table-column prop="other" label="其它金额（消费）" align="center" min-width="90px">
             <template slot-scope="{ row }">
               {{ row.other ? parseFloat(row.other).toFixed(2) : '0.00' }}
             </template>
           </el-table-column>
-          <el-table-column prop="income_amount_total" label="用户当天消费总金额" align="center" width="90">
+          <el-table-column prop="income_amount_total" label="用户当天消费总金额" align="center" min-width="100px">
             <template slot-scope="{ row }">
               {{ row.income_amount_total ? parseFloat(row.income_amount_total).toFixed(2) : '0.00' }}
             </template>
           </el-table-column>
-          <el-table-column prop="consum_amount_total" label="用户当天收入总金额" align="center" width="90">
+          <el-table-column prop="consum_amount_total" label="用户当天收入总金额" align="center" min-width="100px" fixed="right">
             <template slot-scope="{ row }">
               {{ row.consum_amount_total ? parseFloat(row.consum_amount_total).toFixed(2) : '0.00' }}
             </template>

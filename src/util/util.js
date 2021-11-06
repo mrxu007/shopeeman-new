@@ -389,23 +389,23 @@ export function randomWord(randomFlag, min, max) {
  */
 export function batchOperation(array, method) {
   return new Promise(resolve => {
-    let number = array.length
-    let countObj = { count: number }
+    const number = array.length
+    const countObj = { count: number }
     let submitCount = 0
-    let setIn = setInterval(()=>{
-      let num = countObj.count
-      if (num === 0){
+    let setIn = setInterval(() => {
+      const num = countObj.count
+      if (num === 0) {
         clearInterval(setIn)
         setIn = null
         resolve('完成')
-      }else {
+      } else {
         manage(number - num)
       }
-    },1000)
+    }, 1000)
     function manage(completeCount) {
-      for (;(submitCount - completeCount) < 10 && submitCount<number; ++submitCount) {
-        let item = array[submitCount]
-        method(item,countObj)
+      for (;(submitCount - completeCount) < 10 && submitCount < number; ++submitCount) {
+        const item = array[submitCount]
+        method(item, countObj)
       }
     }
   })
