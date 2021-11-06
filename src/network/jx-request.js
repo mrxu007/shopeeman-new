@@ -141,7 +141,7 @@ export default {
   getPaymentList: (data) => AppRequest.post('/mallAccountBill', data), // 货款对账列表
   getMallSite: (data) => AppRequest.get('/ddMallGoods/getMallList', { params: data }), // 店铺站点信息
   exchangeRateList: (data) => AppRequest.get('/exchangeRateList', { params: data }), // 获取汇率
-  updateMallInfo: (data) => AppRequest.post('/bindMall/updateMallInfo', data), // 同步信息
+  // updateMallInfo: (data) => AppRequest.post('/bindMall/updateMallInfo', data), // 同步信息
   uploadPaymentList: (data) => AppRequest.post('/mallAccountBill/save', data), // 上报货款对账单
 
   // 异常公告--即将过期订单

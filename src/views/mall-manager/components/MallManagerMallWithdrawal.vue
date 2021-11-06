@@ -146,12 +146,13 @@
   import { sha256 } from 'js-sha256'
   import md5 from 'js-md5'
   import { exportExcelDataCommon, dateFormat } from '../../../util/util'
-  import { getBankList } from '../../../module-api/mall-manager-api/mall-list-api'
+  import MallListAPI from '../../../module-api/mall-manager-api/mall-list-api'
 
   export default {
     components: { storeChoose },
     data() {
       return {
+        mallListAPIInstance: new MallListAPI(this),
         isShowLog: true,
         depositVisible: false,
         tiedCardVisible: false,
@@ -169,7 +170,8 @@
         cardCode: '',
         selectIndex: -1,
         bankList: [],
-        bankCard: null
+        bankCard: null,
+        seed:'',
       }
     },
     created() {
@@ -312,9 +314,9 @@
         }
       },
       async getBankList() {
-        const res = await getBankList()
-        this.bankList = res.data
-        // console.log(this.bankList)
+        const res = await this.mallListAPIInstance.getBankList()
+        this.bankList = res.data || []
+        console.log('getBankList',this.bankList)
       },
       tiedCardPrepare(type) {
         if (this.selectData.length || type) {
@@ -330,6 +332,7 @@
         }
       },
       allTiedCard() {
+        this.cardCode = ''
         if (this.selectData.length || type) {
           if (this.selectIndex < 0) {
             this.selectIndex = 0
@@ -361,6 +364,9 @@
         const getWalletOtpSeedRes = JSON.parse(getWalletOtpSeedJson)
         console.log(getWalletOtpSeedRes)
         if (getWalletOtpSeedRes.status >= 200 && getWalletOtpSeedRes.status < 300) {
+          let data = JSON.parse(getWalletOtpSeedRes.data).data
+          console.log(data)
+          this.seed = data.seed
           this.$message.success('发送成功')
         }else{
           this.$message.error('发送失败')
@@ -368,20 +374,27 @@
       },
       async tiedCard() {
         let param = {
-          shop_id:this.active.platform_mall_id,
-          phone:this.active.phone,
+          mallId:this.active.platform_mall_id,
+          // phone:this.active.phone,
           account_name:this.bankCard.full_name,
+          account_number:this.bankCard.account_number,
+          bank_account_id: null,
+          bank_code: "",
           bank_name:this.bankCard.bank_name,
           bank_name_id:this.bankCard.bank_name_id,
-          account_number:this.bankCard.account_number,
           ic_number:this.bankCard.ic_number,
-          bank_account_id: null,
-          bank_code: this.bankCard,
           branch_name: "",
           region: "",
           status: 4,
         }
-        let bindBankAccountJson =await this.$shopeemanService.bindBankAccount(this.active.country,param)
+        let option = {
+          'params':{
+            seed: this.seed,
+            code: this.cardCode,
+            otp_seed: 'bank-account'
+          }
+        }
+        let bindBankAccountJson =await this.$shopeemanService.bindBankAccount(this.active.country,param,option)
         const bindBankAccountRes = JSON.parse(bindBankAccountJson)
         console.log('bindBankAccountRes',bindBankAccountRes)
         this.tiedCardVisible = false

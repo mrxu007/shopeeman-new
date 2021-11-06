@@ -305,7 +305,7 @@
     </div>
     <div class="messageQuickly_dialog">
       <el-dialog :title="messageQuicklyTitle" :visible.sync="messageQuicklyVisible" :close-on-click-modal="false"
-                 width="800px">
+                 width="450px">
         <div class="messageQuickly_box">
           <div class="messageQuickly_title">
             <div style="width: 80px;">群组名称</div>
