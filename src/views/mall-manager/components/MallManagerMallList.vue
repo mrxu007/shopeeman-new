@@ -362,6 +362,14 @@ export default {
     this.getGroup()
     this.getIP()
   },
+  mounted() {
+    this.$IpcMain.on('needCaptcha', e => {
+      console.log('needCaptcha-e', e)
+    })
+    this.$IpcMain.on('needIvs', e => {
+      console.log('needIvs-e', e)
+    })
+  },
   methods: {
     // tableScroll({ scrollTop, scrollLeft, table, judgeFlse }) {
     //   // {scrollTop， scrollLeft, table, judgeFlse: 这个参数返回一个boolean值，为true则代表表格滚动到了底部了，false没有滚动到底部，必须开起大数据渲染模式才能有值哦}, event
@@ -616,6 +624,7 @@ export default {
           flat === 1 ? (item.LoginInfo = `<p style="color: red">登录失败：${res.data}</p>`) : this.writeLog(`(${i + 1}/${len})账号【${platform_mall_name}】授权失败：${res.data}`, false)
           continue
         }
+
         const mallId = res.data.mallId // 平台店铺ID
         const mallUId = res.data.mallUId // 平台卖家ID
         let mallDataInfo = null
