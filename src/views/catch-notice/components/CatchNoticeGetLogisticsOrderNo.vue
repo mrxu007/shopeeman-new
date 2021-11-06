@@ -70,10 +70,10 @@
           </el-select>
         </el-form-item>
         <el-form-item label="物流公司:" label-width="80px">
-          <el-input v-model="trackingNumber" size="mini" class="inputBox" />
+          <el-input v-model="trackingNumberCompany" size="mini" class="inputBox" />
         </el-form-item>
         <el-form-item label="物流单号:" label-width="80px">
-          <el-input v-model="trackingNumberCompany" size="mini" class="inputBox" />
+          <el-input v-model="trackingNumber" size="mini" class="inputBox" />
         </el-form-item>
       </el-form>
       <div style="color: red">

@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-10-08 14:16:18
- * @LastEditTime: 2021-11-06 17:55:59
+ * @LastEditTime: 2021-11-06 17:57:13
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shopeeman-new\src\views\mall-manager\components\MallManagerWithdrawalRecord.vue
@@ -343,15 +343,12 @@ export default {
                 !index && this.tableData.push(item)
                 this.total = this.tableData.length
                 this.dataCut()
-                console.log("index",index,item)
-                console.log(this.tableData,this.tableDataCut,"521321")
               })
             count && this.$refs.Logs.writeLog(`店铺【${mall.mall_alias_name || mall.platform_mall_name}】获取到第【${++page}】页店铺评价数据【${count}】条`, true)
             if (dataArr.length < data.data.page_info.total && data.data.list.length >= this.mallPageSize) {
               pageNumber++
               this.searchSingleMall(pageNumber, mall, dataArr, page)
             } else {
-              console.log(132434343)
               this.total += dataArr.length
               this.dataCut()
             }

@@ -593,11 +593,11 @@ export default {
         const platform_mall_name = item.platform_mall_name
         flat === 1 ? item.LoginInfo = '正在登陆中...' : this.writeLog(`(${i + 1}/${len})账号【${platform_mall_name}】开始授权`, true)
         // 0、检测
-        if (!this.forceLogin && flat === 1) {
+        if (this.forceLogin && flat === 1) {
           // 强制登陆不检测是否已经登录
           const userInfo = await this.mallListAPIInstance.getUserInfo(item)
           if (userInfo.code === 200) {
-            item.LoginInfo = `<p style="color: green">登录成功</p>`
+            item.LoginInfo = `<p style="color: green">快速登录成功</p>`
             continue
           }
         }
