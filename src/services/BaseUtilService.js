@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-10-22 11:35:50
- * @LastEditTime: 2021-11-05 20:39:53
+ * @LastEditTime: 2021-11-06 16:41:43
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shopeeman-new\src\services\BaseUtilService.js
@@ -82,11 +82,32 @@ export default class BaseUtilService {
    * @param {*} orderSn 订单号
    * @param {*} buyerAccount 买手号实体
    * @param {*} collectStatus ture 只获取揽收的物流 false 所有物流
-   */  
-   /// code:200=>有物流 401=》账号失效 402=》未获取到物流 403=》未揽收 405=》cookie解析异常 406=》物流匹配失败 407=>订单不存在 408=>未知平台 409 需要验证
-  getOriginLogistics(platform, orderSn, buyerAccount, collectStatus = false) { 
-    console.log(platform, orderSn, buyerAccount,"baseconfig")
+   */
+  /// code:200=>有物流 401=》账号失效 402=》未获取到物流 403=》未揽收 405=》cookie解析异常 406=》物流匹配失败 407=>订单不存在 408=>未知平台 409 需要验证
+  getOriginLogistics(platform, orderSn, buyerAccount, collectStatus = false) {
+    console.log(platform, orderSn, buyerAccount, "baseconfig")
     return this.nativeService.getOriginLogistics(platform, orderSn, buyerAccount, false)
+  }
+  /**
+   * @name : 代开订单详情等窗口
+   * @param  {*} 店铺id
+   * @param {*} shopId 
+   * @param {*} reqStr
+   * let reqStr = {
+       type: type, 
+           /// orderDetail(id(order list)):订单详情；
+           /// itemDetail(id(goods)):商品详情  
+           /// personalDetail（to_shop_id）:个人详情 
+           /// reportUser(to_shop_id):举报用户
+           /// shopVouchers:店铺优惠券 itemVouchers:商品优惠券  </param>
+           /// frontItemDetail: 前台商品查看
+           /// vouchersDetail：优惠券详情
+       shopId: shopId, 店铺id
+       id: id /// 商品id、或者优惠券id
+     }
+   */
+  async getOrderDetailInfo(shopId, reqStr) {
+    return await this.nativeService.getOrderDetailInfo(shopId, reqStr)
   }
 
 }
