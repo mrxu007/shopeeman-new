@@ -249,7 +249,7 @@ export default {
               !index && dataArr.push(params)
               // !index && this.UploadRecordData(mall.platform_mall_id,item)
             })
-          count && this.$refs.Logs.writeLog(`同步店铺【${mall.platform_mall_name}】【${type === 0 ? '已拨款' : '即将拨款'}】第【${++page}】页店铺评价数据【${count}】条`, true)
+          count && this.$refs.Logs.writeLog(`同步店铺【${mall.platform_mall_name}】【${type === 0 ? '已拨款' : '即将拨款'}】第【${++page}】页货款对账数据【${count}】条`, true)
           if (dataArr.length < data.data.page_info.total && data.data.list.length >= this.mallPageSize) {
             pageNumber++
             this.searchSingleMall(pageNumber, mall, dataArr, page)
