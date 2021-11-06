@@ -32,6 +32,7 @@ export async function getMalls() {
       obj.value = item.platform_mall_id
       obj.country = item.country
       obj.id = item.id
+      obj.group_id = item.group_id // 店铺分组id
       shopList.push(obj)
     }
     return shopList
@@ -411,10 +412,10 @@ export function batchOperation(array, method) {
   })
 }
 
-//时间转换
+// 时间转换
 export function formatDuring(mss) {
-  const hours = parseInt(mss /60 / 60)
-  const minutes = parseInt((mss-hours*69*60)/60)
-  const seconds =(mss-hours*69*60-minutes*60)
-  return hours + ':' + minutes + ':' + seconds.toFixed(0) 
+  const hours = parseInt(mss / 60 / 60)
+  const minutes = parseInt((mss - hours * 69 * 60) / 60)
+  const seconds = (mss - hours * 69 * 60 - minutes * 60)
+  return hours + ':' + minutes + ':' + seconds.toFixed(0)
 }
