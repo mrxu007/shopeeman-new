@@ -21,66 +21,19 @@
         操作指引：若订单自动取消时间有误，请点击同步此订单，若订单未填写采购物流单号，请填写采购物流单号；如订单没有平台物流单号，请进行平台物流单号的申请或者手动填写第三方平台物流单号；若没有面单信息，请同步面单信息。
       </div>
     </div>
-    <el-table
-      :header-cell-style="{background:'#f5f7fa'}"
-      :data="tableData"
-      border
-      style="width: 100%"
-      height="calc(100vh - 160px)"
-    >
-      <el-table-column
-        type="index"
-        label="序列号"
-        width="80"
-      />
-      <el-table-column
-        label="站点"
-        prop="country"
-      />
-      <el-table-column
-        prop="platform_mall_name"
-        label="店铺名称"
-      />
-      <el-table-column
-        prop="order_sn"
-        label="订单编号"
-      />
-      <el-table-column
-        prop="created_time"
-        label="订单创建时间"
-      />
-      <el-table-column
-        prop="ship_by_date"
-        label="订单自动取消时间"
-        width="140"
-      />
-      <el-table-column
-        prop="shot_status"
-        label="采购状态"
-        :formatter="formatterShotStatus"
-      />
-      <el-table-column
-        prop="original_tracking_number"
-        label="采购物流单号"
-      />
-      <el-table-column
-        prop="logistics_id"
-        label="Shopee物流公司"
-        width="140"
-      />
-      <el-table-column
-        prop="logistics_id"
-        label="Shopee物流单号"
-        width="140"
-      />
-      <el-table-column
-        prop="package_status"
-        label="仓库包裹状态"
-      />
-      <el-table-column
-        label="操作"
-        width="300px"
-      >
+    <el-table v-loading="buttonStatus.search" :header-cell-style="{ background: '#f5f7fa' }" :data="tableData" border style="width: 100%" height="calc(100vh - 160px)">
+      <el-table-column type="index" label="序列号" width="80" />
+      <el-table-column label="站点" prop="country" />
+      <el-table-column prop="platform_mall_name" label="店铺名称" />
+      <el-table-column prop="order_sn" label="订单编号" />
+      <el-table-column prop="created_time" label="订单创建时间" />
+      <el-table-column prop="ship_by_date" label="订单自动取消时间" width="140" />
+      <el-table-column prop="shot_status" label="采购状态" :formatter="formatterShotStatus" />
+      <el-table-column prop="original_tracking_number" label="采购物流单号" />
+      <el-table-column prop="logistics_id" label="Shopee物流公司" width="140" />
+      <el-table-column prop="logistics_id" label="Shopee物流单号" width="140" />
+      <el-table-column prop="package_status" label="仓库包裹状态" />
+      <el-table-column label="操作" width="300px">
         <template slot-scope="scope">
           <el-button size="mini" type="primary">同步此订单</el-button>
           <el-button size="mini" type="primary">填写采购物流单号</el-button>
@@ -99,7 +52,10 @@ export default {
         orderSn: '' // 订单编号
       },
       // 表格数据
-      tableData: []
+      tableData: [],
+      buttonStatus: {
+        search: false
+      }
     }
   },
   mounted() {
@@ -108,12 +64,17 @@ export default {
   methods: {
     // 搜索
     async searchHandle() {
+      if (this.buttonStatus.search) {
+        return
+      }
+      this.buttonStatus.search = true
       const result = await this.$api.getExceptionExpiredOrderIndex(this.form)
       if (result.data.code === 200) {
         this.tableData = result.data.data.data
       } else {
         this.$message.error(result.data.message)
       }
+      this.buttonStatus.search = false
     },
     // 格式化采购状态
     formatterShotStatus(row, column) {
@@ -154,33 +115,33 @@ export default {
 </script>
 
 <style lang="less" scoped>
-.CatchNoticeExpiringOrder{
-    padding: 16px;
-    background: #fff;
+.CatchNoticeExpiringOrder {
+  padding: 16px;
+  background: #fff;
 }
 //上面查询条件部分
-.search{
-    white-space: nowrap;
-    overflow-y: auto;
-    &>div{
-        margin: 10px 0;
-        &:first-child{
-          margin-top: 0;
-        }
+.search {
+  white-space: nowrap;
+  overflow-y: auto;
+  & > div {
+    margin: 10px 0;
+    &:first-child {
+      margin-top: 0;
     }
-    .rowOne{
-        display: flex;
-        align-items: center;
-        //订单编号
-        .orderNumber{
-          margin-right: 10px;
-            .el-input {
+  }
+  .rowOne {
+    display: flex;
+    align-items: center;
+    //订单编号
+    .orderNumber {
+      margin-right: 10px;
+      .el-input {
         width: 150px;
       }
     }
   }
-  .rowTwo{
-    font-size:13px ;
+  .rowTwo {
+    font-size: 13px;
   }
   .rowThree {
     color: red;
@@ -188,7 +149,7 @@ export default {
   }
 }
 //表格部分
-.el-table{
+.el-table {
   margin-top: 10px;
 }
 </style>

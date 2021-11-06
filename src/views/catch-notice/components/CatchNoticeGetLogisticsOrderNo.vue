@@ -14,7 +14,7 @@
         <el-button size="mini" type="primary" @click="loginHandler(1)">登录拼多多</el-button>
         <el-button size="mini" type="primary" @click="loginHandler(0)">登录淘宝</el-button>
         <el-button size="mini" type="primary" @click="loginHandler(5)">登录1688</el-button>
-        <el-button size="mini" type="primary" @click="siteChooseVisible = true">登录Lazada</el-button>
+        <el-button size="mini" type="primary" @click="siteChooseVisible = true" v-show="false">登录Lazada</el-button>
         <el-button size="mini" type="primary" @click="syncLogistics('new')">获取采购物流单号</el-button>
         <el-checkbox v-model="showConsole" style="margin-left: 15px">隐藏日志</el-checkbox>
       </div>
@@ -63,17 +63,17 @@
     </el-dialog>
     <!--填写采购物流单号dialog-->
     <el-dialog title="采购物流单号填写" :visible.sync="logisticsOrderNoDialogFormVisible" width="500px">
-      <el-form :model="logisticsOrderNoDialogForm">
+      <el-form :model="logisticsOrderNoDialogForm" class="dialog-center">
         <el-form-item label="绑定仓库:" label-width="80px">
-          <el-select v-model="warehouseId" size="mini">
-            <el-option v-for="item in logisticsOrderNoDialogWarehouseOptions" :key="item.id" :label="item.label" :value="item.value" />
+          <el-select v-model="warehouseId" size="mini" class="inputBox">
+            <el-option v-for="item in logisticsOrderNoDialogWarehouseOptions" :key="item.value" :label="item.label" :value="item.value" />
           </el-select>
         </el-form-item>
         <el-form-item label="物流公司:" label-width="80px">
-          <el-input v-model="trackingNumber" size="mini" />
+          <el-input v-model="trackingNumber" size="mini" class="inputBox" />
         </el-form-item>
         <el-form-item label="物流单号:" label-width="80px">
-          <el-input v-model="trackingNumberCompany" size="mini" />
+          <el-input v-model="trackingNumberCompany" size="mini" class="inputBox" />
         </el-form-item>
       </el-form>
       <div style="color: red">
@@ -104,13 +104,11 @@ export default {
       warehouseId: '',
       logisticsOrderNoDialogWarehouseOptions: [
         {
-          id: 1,
-          value: '星卓越泰国海外仓',
+          value: '1',
           label: '星卓越泰国海外仓',
         },
         {
-          id: 2,
-          value: '东莞华夏本土仓',
+          value: '2',
           label: '东莞华夏本土仓',
         },
       ],
@@ -210,7 +208,7 @@ export default {
       }
       return accountType
     },
-    changeShotOrderPlatform(type){
+    changeShotOrderPlatform(type) {
       let shotOrderPlatform = type
       switch (type) {
         case 1:
@@ -243,13 +241,11 @@ export default {
         AccountType: this.changeAccountType(account.type),
         Ua: account.ua,
         Country: account.country || '',
+        type: account.type,
       }
       const key = params.AccountType + params.UserName
-      console.log(params)
-      console.log(key)
-      console.log(account,params)
-      let res = await this.$appConfig.UpdateCacheInfo('buyerInfo', key, params)
-      console.log(res)
+      console.log(account, params, key)
+      await this.$appConfig.UpdateCacheInfo('buyerInfo', key, params)
     },
     // 查询
     async searchHandle() {
@@ -261,7 +257,6 @@ export default {
       const result = await this.$api.getExceptionNoTrackingNumberIndex(this.form)
       if (result.data.code === 200) {
         this.tableData = result.data.data.data
-        console.log('tableData', this.tableData)
       } else {
         this.$message.error(result.data.message)
       }
@@ -271,8 +266,15 @@ export default {
     },
     // 填写采购物流单号
     async logisticsOrderNoHandle(row) {
-      this.rowInfo = row
-      this.logisticsOrderNoDialogFormVisible = true
+      try {
+        this.rowInfo = row
+        this.logisticsOrderNoDialogFormVisible = true
+        let res = await this.$appConfig.getWarehouseInfo(row.platform_mall_id)
+        let resObj = res && JSON.parse(res)
+        this.warehouseId = resObj && resObj[0] && resObj[0].warehouse_id
+      } catch (error) {
+        console.log(error)
+      }
     },
     // 采购物流单号dialog保存
     async logisticsOrderNoDialogHandle() {
@@ -282,6 +284,7 @@ export default {
         warehouseId: this.warehouseId,
       }
       const res = await this.$api.updateOrderTrackingNumber(params)
+      console.log(res, 'logisticsOrderNoDialogHandle')
       if (res.data.code === 200) {
         this.logisticsOrderNoDialogFormVisible = false
         this.$message({
@@ -314,7 +317,7 @@ export default {
       } else {
         service.start(this, buyerAccountList)
       }
-      console.log(buyerAccountList,resObj)
+      console.log(buyerAccountList, resObj)
     },
     // 获取物流单号订单列表
     async getExceptionNoTrackingNumberIndex() {
@@ -382,5 +385,11 @@ export default {
       height: calc(100vh - 160px);
     }
   }
+}
+.inputBox {
+  width: 200px;
+}
+.el-form-item {
+  margin: 0 auto;
 }
 </style>
