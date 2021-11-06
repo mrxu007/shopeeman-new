@@ -112,7 +112,11 @@
           </el-table-column>
           <el-table-column align="center" prop="seller_id" label="买家支付宝用户号" min-width="180px" />
           <el-table-column align="center" prop="buyer_id" label="买家支付宝唯一用户号" min-width="180px" />
-          <el-table-column align="center" prop="remark" label="备注" min-width="100px" />
+          <el-table-column align="center" prop="remark" label="备注" min-width="100px">
+            <template slot-scope="{row}">
+              {{ row.remark?row.remark.replace('"','').replace('"',''):'--' }}
+            </template>
+          </el-table-column>
           <el-table-column align="center" label="支付时间" min-width="180px">
             <template slot-scope="scope"> {{ $dayjs(scope.row.pay_time * 1000).format('YYYY-MM-DD') }} </template>
           </el-table-column>
@@ -291,6 +295,7 @@ export default {
   },
   methods: {
     async userRecharge() {
+      if (Number(this.rechargeMoney) < 35) return this.$message.warning('最低不能小于35元')
       window.open(`http://user.xzy.17hyj.com/externalPay?amount=${this.rechargeMoney}&app_uid=${this.muid}&remark=${this.rechargeRemark}`)
     },
     async exportTableData() {
@@ -375,7 +380,7 @@ export default {
                     <td>${item.is_recharge ? (item.is_recharge === 1 ? '是' : '否') : '' + '\t'}</td>
                     <td style="mso-number-format:'\@';">${item.seller_id ? item.seller_id : '' + '\t'}</td>
                     <td style="mso-number-format:'\@';">${item.buyer_id ? item.buyer_id : '' + '\t'}</td>
-                    <td>${item.remark ? item.remark : '' + '\t'}</td>
+                    <td>${item.remark ? item.remark.replace('"', '').replace('"', '') : '' + '\t'}</td>
                     <td>${item.pay_time ? this.$dayjs(item.pay_time * 1000).format('YYYY-MM-DD') : '' + '\t'}</td>
                     <td>${item.gmt_create ? this.$dayjs(item.gmt_create * 1000).format('YYYY-MM-DD') : '' + '\t'}</td>
                 </tr>`
