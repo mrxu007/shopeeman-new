@@ -58,10 +58,17 @@
           </div>
         </div>
       </div>
-      <div class="condition_box" style="padding-left: 20px;">
+      <div class="condition_box" style="padding-left: 20px">
         <div class="condition_item">
           <el-button size="mini" type="primary" @click="search">搜索</el-button>
-          <el-button size="mini" type="primary" @click="cancelActive = false;updataMall()">同步数据</el-button>
+          <el-button
+            size="mini"
+            type="primary"
+            @click="
+              cancelActive = false
+              updataMall()
+            "
+          >同步数据</el-button>
           <el-button size="mini" type="primary" @click="cancelActive = true">取消同步</el-button>
           <el-button size="mini" type="primary" @click="clearLog">清空日志</el-button>
           <el-button size="mini" type="primary" @click="export_table((query.page = 1)), (exportList = [])">导出
@@ -434,91 +441,91 @@ export default {
 }
 </script>
 <style lang="less">
-  .content {
-    min-width: 1200px;
-    // padding: 5px;
-    // margin: 10px;
-    // margin-right:10px ;
-    .overdata_view,
-    .all_condition,
-    .table_clo {
-      .account-box {
-        border: 1px solid #dcdcdc;
-        border-radius: 4px;
-        padding: 16px;
-        position: relative;
+.content {
+  min-width: 1200px;
+  // padding: 5px;
+  // margin: 10px;
+  // margin-right:10px ;
+  .overdata_view,
+  .all_condition,
+  .table_clo {
+    .account-box {
+      border: 1px solid #dcdcdc;
+      border-radius: 4px;
+      padding: 16px;
+      position: relative;
 
-        .account-title {
-          padding: 0 5px;
-          display: inline-block;
-          height: 20px;
-          line-height: 20px;
-          text-align: center;
-          background: #fff;
-          position: absolute;
-          left: 10px;
-          top: -10px;
-        }
-
-        .account-item {
-          display: flex;
-          align-items: center;
-
-          span {
-            margin-right: 20px;
-            display: inline-block;
-          }
-
-          .acount-item-sub {
-            display: flex;
-            align-items: center;
-          }
-
-          .warning-style {
-            color: red;
-            font-size: 16px;
-          }
-        }
+      .account-title {
+        padding: 0 5px;
+        display: inline-block;
+        height: 20px;
+        line-height: 20px;
+        text-align: center;
+        background: #fff;
+        position: absolute;
+        left: 10px;
+        top: -10px;
       }
 
-      background-color: white;
-      padding: 5px;
-      margin: 10px;
-      border-radius: 10px;
-    }
-
-    .overdata_view {
-      padding: 10px;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .table_clo {
-      border-radius: 0px;
-      padding: 2px;
-    }
-
-    .all_condition {
-      .condition_box {
+      .account-item {
         display: flex;
         align-items: center;
-        .condition_item {
-          width: auto;
-          display: inline-block !important;
-          margin-bottom: 8px;
-          margin-right: 10px;
 
-          span {
-            margin-right: 5px;
-          }
+        span {
+          margin-right: 20px;
+          display: inline-block;
+        }
+
+        .acount-item-sub {
+          display: flex;
+          align-items: center;
+        }
+
+        .warning-style {
+          color: red;
+          font-size: 16px;
         }
       }
     }
 
-    .w80 {
-      display: inline-block;
-      text-align: right;
-      width: 80px;
+    background-color: white;
+    padding: 5px;
+    margin: 10px;
+    border-radius: 10px;
+  }
+
+  .overdata_view {
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .table_clo {
+    border-radius: 0px;
+    padding: 2px;
+  }
+
+  .all_condition {
+    .condition_box {
+      display: flex;
+      align-items: center;
+      .condition_item {
+        width: auto;
+        display: inline-block !important;
+        margin-bottom: 8px;
+        margin-right: 10px;
+
+        span {
+          margin-right: 5px;
+        }
+      }
     }
   }
+
+  .w80 {
+    display: inline-block;
+    text-align: right;
+    width: 80px;
+  }
+}
 </style>

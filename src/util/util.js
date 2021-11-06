@@ -277,15 +277,19 @@ export function exportExcelDataCommon(fileName, str) {
                 </head><body><table>${str}</table></body></html>`
   // 下载模板
   // let template = templates.replace(/<td/g,`<td style="mso-number-format:'\@';"`)
+  // const blob = new Blob([template], {
+  //   type: 'html',
+  //   name: worksheet
+  // })
   const blob = new Blob([template], {
-    type: 'html',
+    type: 'application/vnd.ms-excel',
     name: worksheet
   })
   const a = document.createElement('a')
   document.body.appendChild(a)
   // a.href = uri + this.base64(template)
   a.href = URL.createObjectURL(blob)
-  a.download = `${fileName}${new Date(Date.now() + 8 * 3600 * 1000).toISOString().slice(0, 10)}.xls`
+  a.download = `${fileName}${new Date(Date.now() + 8 * 3600 * 1000).toISOString().slice(0, 10)}.xlsx`
   a.click()
   document.body.removeChild(a)
 }

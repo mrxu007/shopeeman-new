@@ -5,7 +5,7 @@ export default class buyerAccountService {
   constructor() {
     this.nativeService = window['buyerAccountService']
   }
-/**
+/**拍单模块
  *      TaoBao, 0
         PinDuoduo, 1
         JingDong, 2
@@ -16,6 +16,21 @@ export default class buyerAccountService {
         Lazada, 7
         Shopee, 8
         CrossBorder 9
+ */
+/** shopee ppx项目
+ *  public const int PddPlatform = 1; //拼多多
+        public const int TbPlatform = 2; //淘宝
+        public const int TmPlatform = 3; //天猫
+        public const int JdPlatform = 4; //京东
+        public const int JxPlatform = 10; //京喜
+        public const int OwnPlatform = 5; //自有
+        public const int PpxiasGHPT = 6; //皮皮虾供货平台
+        public const int AlibabaPlatform = 8; //皮皮虾供货平台
+        public const int HyjPlatform = 7; //货源甲
+        public const int ShopeePlatform = 11;//Shopee平台
+        public const int AliExpress = 12;//Shopee平台
+        public const int HlbOverseasPlatform = 15;//货老板云仓
+        public const int TmallCrossBorderPlatform = 13;//天猫淘宝海外平台
  */
   platformCode = {
     'Tb': 2,
@@ -50,40 +65,40 @@ export default class buyerAccountService {
     '1688': 'https://login.1688.com/member/signin.htm?tracelog=member_signout_signin',
     'jx': 'https://plogin.m.jd.com/login/login'
   }
-  async buyerCenterLogin(platform, url) {
-    this.nativeService.buyerLogin(platform, url)
+  async buyerCenterLogin(platform, url,ShotOrderBuyerAccount) {
+    this.nativeService.buyerLogin(platform, url,ShotOrderBuyerAccount)
   }
   /**
    * 1688登陆
    */
   alibabaLogin() {
-    return this.nativeService.buyerLogin(5, 'https://login.1688.com/member/signin.htm?tracelog=member_signout_signin')
+    return this.nativeService.buyerLogin(5, 'https://login.1688.com/member/signin.htm?tracelog=member_signout_signin',null)
   }
   /**
    * taobao登陆
    */
   taobaoLogin() {
     console.log(2)
-    return this.nativeService.buyerLogin(0, 'https://login.taobao.com/member/login.jhtml?from=taobaoindex&f=top&style=&sub=true&redirect_url=https%3A%2F%2Fmember1.taobao.com%2Fmember%2Ffresh%2Fdeliver_address.html')
+    return this.nativeService.buyerLogin(0, 'https://login.taobao.com/member/login.jhtml?from=taobaoindex&f=top&style=&sub=true&redirect_url=https%3A%2F%2Fmember1.taobao.com%2Fmember%2Ffresh%2Fdeliver_address.html',null)
   }
   /**
    * pdd登陆
    */
   pddLogin() {
-    return this.nativeService.buyerLogin(1, 'http://mobile.yangkeduo.com/login.html')
+    return this.nativeService.buyerLogin(1, 'http://mobile.yangkeduo.com/login.html',null)
   }
   /**
    * jx登陆
    */
   jingxiLogin() {
-    return this.nativeService.buyerLogin(3, 'https://plogin.m.jd.com/login/login')
+    return this.nativeService.buyerLogin(3, 'https://plogin.m.jd.com/login/login',null)
   }
   /**
    * lazada登陆
    */
   lazadaLogin(country) {
     const url = this.lazada[country] +'/user/profile#/'
-    console.log(url)
-    return this.nativeService.buyerLogin(7, url)
+    console.log(7,url,country)
+    return this.nativeService.buyerLogin(7, url,{"Country":country})
   }
 }

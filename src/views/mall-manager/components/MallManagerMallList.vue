@@ -92,7 +92,7 @@
 
         <el-table-column align="center" prop="mall_account_info" label="店铺真实名称">
           <template v-slot="{ row }">
-            {{ row.mall_account_info.userRealName }}
+            {{ row.mall_account_info.userRealName || row.platform_mall_name }}
           </template>
         </el-table-column>
         <el-table-column align="center" prop="platform_mall_id" label="店铺ID" />
@@ -101,7 +101,11 @@
             {{ row.good_mall_status === '-1' ? '否' : '是' }}
           </template>
         </el-table-column>
-        <el-table-column align="center" prop="platform_mall_name" label="店铺账号" />
+        <el-table-column align="center" prop="platform_mall_name" label="店铺账号">
+          <template v-slot="{ row }">
+            {{ row.mall_account_info.username }}
+          </template>
+        </el-table-column>
         <el-table-column align="center" prop="watermark" label="店铺水印文字" />
         <el-table-column align="center" prop="item_limit" label="店铺额度" />
         <el-table-column align="center" prop="mall_alias_name" label="店铺别名" />
@@ -495,6 +499,7 @@ export default {
       this.percentage = 100
       this.hideConsole = true
       this.buttonStatus.async = false
+      this.getMallList()
     },
     async  asyncMallInfo(item, count = { count: 1 }) {
       const platform_mall_name = item.platform_mall_name
@@ -549,7 +554,7 @@ export default {
         const platform_mall_name = item.platform_mall_name
         const res = await this.mallListAPIInstance.closeOrOpenMallVacation(item, isOpen)
         if (res.code === 200) {
-          this.$refs.Logs.writeLog(`店铺【${platform_mall_name}】休闲模式${isOpen ? '开启' : '关闭'}成功`, false)
+          this.$refs.Logs.writeLog(`店铺【${platform_mall_name}】休闲模式${isOpen ? '开启' : '关闭'}成功`, true)
         } else {
           this.$refs.Logs.writeLog(`店铺【${platform_mall_name}】休闲模式${isOpen ? '开启' : '关闭'}失败：${res.data}`, false)
         }
@@ -698,9 +703,9 @@ export default {
         <tr>
           <td style="text-align:left;">${item.group_name || ''}</td>
           <td style="text-align:left;">${this.$filters.chineseSite(item.country) || ''}</td>
-          <td style="text-align:left;">${item?.mall_account_info?.userRealName || ''}</td>
+          <td style="text-align:left;">${item?.mall_account_info?.userRealName || item.platform_mall_name || ''}</td>
           <td style="text-align:left;">${item.platform_mall_id}</td>
-          <td style="text-align:left;">${item.platform_mall_name}</td>
+          <td style="text-align:left;">${item?.mall_account_info?.username}</td>
           <td style="text-align:left;">${item.watermark || ''}</td>
           <td style="text-align:left;">${item.item_limit || ''}</td>
           <td style="text-align:left;">${item.mall_alias_name || ''}</td>
@@ -772,7 +777,7 @@ export default {
               this.writeLog(`(${index + 1}/${len}) 店铺平台ID填写有误`)
             }
           } else {
-            this.writeLog(`(${index + 1}/${len}) 请填写店铺平台ID`)
+            this.writeLog(`(${index + 1}/${len}) 店铺ID(必填)`)
           }
         })
         const res = await this.mallListAPIInstance.updateWatermark(params)
@@ -823,6 +828,7 @@ export default {
           this.writeLog(`(${index + 1}/${len})修改成功`, true)
         }
         this.writeLog(`共导入店铺【${len}】个,成功【${succsessNum}】个, 失败【${failNum}】个`, true)
+        this.getMallList()
       }
       this.importTemplateData = null
     },
