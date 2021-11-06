@@ -1,10 +1,10 @@
 <!--仓库公众号绑定-->
 <template>
   <div class="CatchNoticeOfficialAccountBind">
-    <div class=" content">
+    <div class="content">
       <h2 style="text-align:center">软件绑定星卓越公众号流程</h2>
       <div><span>为了更好的开展国内中转仓异常包裹处理服务，星卓越已经推出异常包裹信息微信推送功能，请各位用户务必按照以下流程绑定星卓越公众号，绑定后即可通过微信了解到异常包裹信息并进行处理。</span></div>
-      <h3 style="margin-top:20px">绑定流程:</h3>
+      <h3>绑定流程:</h3>
       <img :src="qrCodeImage1" style="width:200px;height:200px" alt="">
       <div class="step1">
         1、扫描上方的星卓越公众号二维码，<span style="color:red">点击关注</span>,收到公众号回复即为<span style="color:red">关注成功</span>
@@ -88,10 +88,27 @@ export default {
   overflow: hidden;
   height: 100vh;
   overflow-y: auto;
+  div{
+    font-size: 14px !important;
+  }
+  span{
+    font-size: 14px !important;
+  }
+  ol>li{
+    font-size: 14px !important;
+  }
 }
 .content{
   width: 1200px;
   margin: auto;
+  h2{
+   font-size: 20px !important;
+   margin-bottom: 10px;
+  }
+  h3{
+    font-size: 16px !important;
+    margin-top:10px
+  }
 }
 .step1,.step2{
   .arrow{
