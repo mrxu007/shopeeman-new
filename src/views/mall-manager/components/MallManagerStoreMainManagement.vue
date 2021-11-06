@@ -80,7 +80,7 @@
     <div style="margin:10px">
       <div
         style="font-size: smaller;
-        color: rebeccapurple;"
+        color: red;"
       >
         温馨提示：1.因为IP为实时购买，所以购买后不会立即生成IP信息。IP信息会在三分钟内生成
         2.一个主体IP最多绑定10个店铺 3.若状态为【已绑定，已分配店铺】，但绑定店铺为空，则表示
@@ -88,7 +88,7 @@
       </div>
       <div
         style="font-size: smaller;
-        color: rebeccapurple;margin-left:60px"
+        color: red;margin-left:60px;margin-top:5px"
       >
         3.对于系统的香港IP（非香港名称），IP过期后，将无法进行续费，请在IP有效期内续费。
         4、系统的香港IP（非香港名称）过期后，会被自动回收，回收后将不在显示代理IP信息
