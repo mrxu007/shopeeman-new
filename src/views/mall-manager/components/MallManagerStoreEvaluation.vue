@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-10-08 14:16:18
- * @LastEditTime: 2021-11-06 16:58:04
+ * @LastEditTime: 2021-11-06 17:12:38
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shopeeman-new\src\views\mall-manager\components\MallManagerWithdrawalRecord.vue
@@ -82,7 +82,7 @@
         </u-table-column>
         <u-table-column align="center" prop="order_sn" label="订单编号" min-width="120">
           <template slot-scope="scope">
-            <p class="tableActive" @click="viewDetails('orderDetail', scope.row.product_id, scope.row.platform_mall_id)">{{ scope.row.order_sn }}</p>
+            <p class="tableActive" @click="viewDetails('orderDetail', scope.row.order_id, scope.row.platform_mall_id)">{{ scope.row.order_sn }}</p>
           </template>
         </u-table-column>
         <u-table-column align="center" prop="product_name" label="商品名称" min-width="80" show-overflow-tooltip />
@@ -289,7 +289,7 @@ export default {
         console.log(error)
         this.tableLoading = false
       }
-      this.tableLoading = true
+      this.tableLoading = false
     },
     //查询
     async searchSingleMall(pageNumber, mall, dataArr = [], page = 0) {

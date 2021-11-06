@@ -1448,7 +1448,7 @@ export default {
       params.expiration_dates = this.cloumn_date && this.cloumn_date.length > 0 ? this.cloumn_date.join('/').toString() : ''
       params.mall_ids = this.query.mall_ids.toString() || ''
       // debugger
-      console.log(params)
+      console.log(params,"getTableList")
       this.loading = true
       try {
         const res = await this.$YipService.GetIpList(JSON.stringify(params))
