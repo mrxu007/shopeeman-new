@@ -6,7 +6,7 @@
         <div class="account-item">
           <span>即将拨款：</span>
           <h3>{{ to_back_amount }}{{ site_query.typeCoin }}</h3>
-          <div style="width: 20px"/>
+          <div style="width: 20px" />
           <span>已完成拨款：</span>
           <h3>{{ haved_amount }}{{ site_query.typeCoin }}</h3>
         </div>
@@ -16,98 +16,104 @@
     <div class="all_condition">
       <div class="condition_box">
         <div class="condition_item">
-          <storeChoose :is-all="true" @changeMallList="changeMallList"/>
+          <storeChoose :is-all="true" @changeMallList="changeMallList" />
         </div>
         <div class="condition_item">
           <span class="w80">平台店铺ID：</span>
-          <el-input v-model="plantform_mallID" clearable placeholder="输入多个ID请使用,隔开" size="mini" style="width: 180px"/>
+          <el-input v-model="plantform_mallID" clearable placeholder="输入多个ID请使用,隔开" size="mini" style="width: 180px" />
         </div>
       </div>
       <div class="condition_box">
         <div class="condition_item">
           <span class="w80">状态：</span>
-          <el-select v-model="query.status" size="mini" style="width: 100px;" placeholder="站点">
-            <el-option value="" label="全部"/>
-            <el-option label="已拨款" value="1"/>
-            <el-option label="即将拨款" value="2"/>
+          <el-select v-model="query.status" size="mini" style="width: 100px" placeholder="站点">
+            <el-option value="" label="全部" />
+            <el-option label="已拨款" value="1" />
+            <el-option label="即将拨款" value="2" />
           </el-select>
         </div>
         <div class="condition_item">
           <span class="w80">订单编号：</span>
-          <el-input v-model="query.orderSn" placeholder="订单编号" size="mini" style="width: 180px" clearable/>
+          <el-input v-model="query.orderSn" placeholder="订单编号" size="mini" style="width: 180px" clearable />
         </div>
         <div class="condition_item">
           <span class="w80">拨款时间：</span>
           <el-date-picker
-              v-model="cloumn_date"
-              size="mini"
-              style="width: 240px"
-              type="daterange"
-              value-format="yyyy-MM-dd"
-              range-separator="-"
-              :picker-options="pickerOptions"
-              start-placeholder="开始日期"
-              end-placeholder="结束日期"
+            v-model="cloumn_date"
+            size="mini"
+            style="width: 240px"
+            type="daterange"
+            value-format="yyyy-MM-dd"
+            range-separator="-"
+            :picker-options="pickerOptions"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
           />
         </div>
         <div class="condition_item">
           <div>
-            <el-switch v-model="showRMB" active-color="#13ce66" inactive-color="grey" @change="compete_Coin()"/>
+            <el-switch v-model="showRMB" active-color="#13ce66" inactive-color="grey" @change="compete_Coin()" />
             <span>显示人民币：</span>
             <span>(当前汇率:{{ this.site_query.rate_coin }})</span>
           </div>
         </div>
       </div>
-      <div class="condition_box" style="padding-left: 20px;">
+      <div class="condition_box" style="padding-left: 20px">
         <div class="condition_item">
           <el-button size="mini" type="primary" @click="search">搜索</el-button>
-          <el-button size="mini" type="primary" @click="cancelActive = false;updataMall()">同步数据</el-button>
+          <el-button
+            size="mini"
+            type="primary"
+            @click="
+              cancelActive = false
+              updataMall()
+            "
+            >同步数据</el-button
+          >
           <el-button size="mini" type="primary" @click="cancelActive = true">取消同步</el-button>
           <el-button size="mini" type="primary" @click="clearLog">清空日志</el-button>
-          <el-button size="mini" type="primary" @click="export_table((query.page = 1)), (exportList = [])">导出
-          </el-button>
-          <el-checkbox style="margin-left: 10px;" v-model="showConsole"> 隐藏日志</el-checkbox>
+          <el-button size="mini" type="primary" @click="export_table((query.page = 1)), (exportList = [])">导出 </el-button>
+          <el-checkbox style="margin-left: 10px" v-model="showConsole"> 隐藏日志</el-checkbox>
         </div>
       </div>
     </div>
     <div class="table_clo">
       <div class="data_table" style="height: 100%; background-color: white">
-        <el-table height="calc(100vh - 281px)" :data="tableList" :row-style="{ height: '50px' }"
-                  style="width: 100%; height: calc(100vh - 260px)" :header-cell-style="{ background: '#f7fafa' }">
-          <el-table-column label="序号" width="60" type="index" align="center"/>
+        <el-table height="calc(100vh - 281px)" :data="tableList" :row-style="{ height: '50px' }" style="width: 100%; height: calc(100vh - 260px)" :header-cell-style="{ background: '#f7fafa' }">
+          <el-table-column label="序号" width="60" type="index" align="center" />
           <el-table-column prop="country" width="120px" label="站点" align="center">
             <template slot-scope="{ row }">
               {{ row.country | chineseSite }}
             </template>
           </el-table-column>
-          <el-table-column prop="platform_mall_name" min-width="120px" label="店铺名称" align="center"/>
-          <el-table-column prop="order_id" label="订单编号" min-width="120px" align="center"/>
+          <el-table-column prop="platform_mall_name" min-width="120px" label="店铺名称" align="center" />
+          <el-table-column prop="order_id" label="订单编号" min-width="120px" align="center" />
           <el-table-column prop="" min-width="80px" label="状态" align="center">
             <template slot-scope="{ row }">{{ Number(row.status) === 1 ? '已拨款 ' : '即将拨款' }}</template>
           </el-table-column>
-          <el-table-column prop="bill_num" width="100px" label="拨款单号" align="center"/>
-          <el-table-column prop="appropriate_amount" label="拨款金额" align="center"/>
+          <el-table-column prop="bill_num" width="100px" label="拨款单号" align="center" />
+          <el-table-column prop="appropriate_amount" label="拨款金额" align="center" />
           <el-table-column prop="" label="拨款金额(RMB)" align="center">
             <template slot-scope="{ row }">{{ (row.appropriate_amount * site_query.rate_coin).toFixed(2) }}</template>
           </el-table-column>
-          <el-table-column prop="created_at" label="拨款时间" width="160px" align="center"/>
+          <el-table-column prop="created_at" label="拨款时间" width="160px" align="center" />
           <!-- <el-table-column prop="" label="账单详情" align="center" /> -->
         </el-table>
         <div class="pagination" style="display: flex; justify-content: flex-end; margin: 4px 0px">
           <el-pagination
-              background
-              :current-page.sync="query.page"
-              :page-sizes="[20, 50, 100, 200]"
-              :page-size="query.pageSize"
-              layout="total, sizes, prev, pager, next, jumper"
-              :total="total"
-              @size-change="handleSizeChange"
-              @current-change="handleCurrentChange"
+            background
+            :current-page.sync="query.page"
+            :page-sizes="[20, 50, 100, 200]"
+            :page-size="query.pageSize"
+            layout="total, sizes, prev, pager, next, jumper"
+            :total="total"
+            @size-change="handleSizeChange"
+            @current-change="handleCurrentChange"
           />
         </div>
       </div>
     </div>
-    <Logs ref="Logs" clear v-model="showConsole"/>
+    <Logs ref="Logs" clear v-model="showConsole" />
   </div>
 </template>
 <script>
@@ -244,15 +250,14 @@
               !index && dataArr.push(params)
               // !index && this.UploadRecordData(mall.platform_mall_id,item)
             })
-            count && this.$refs.Logs.writeLog(`同步店铺【${mall.platform_mall_name}】【${type === 0 ? '已拨款' : '即将拨款'}】第【${++page}】页店铺评价数据【${count}】条`, true)
-            if (dataArr.length < data.data.page_info.total && data.data.list.length >= this.mallPageSize) {
-              pageNumber++
-              this.searchSingleMall(pageNumber, mall, dataArr, page)
-            } else {
-              console.log(dataArr, 'dataArr')
-              if (dataArr.length) {
-                this.UploadRecordData(mall.platform_mall_id, dataArr)
-              }
+          count && this.$refs.Logs.writeLog(`同步店铺【${mall.platform_mall_name}】【${type === 0 ? '已拨款' : '即将拨款'}】第【${++page}】页货款对账数据【${count}】条`, true)
+          if (dataArr.length < data.data.page_info.total && data.data.list.length >= this.mallPageSize) {
+            pageNumber++
+            this.searchSingleMall(pageNumber, mall, dataArr, page)
+          } else {
+            console.log(dataArr, 'dataArr')
+            if (dataArr.length) {
+              this.UploadRecordData(mall.platform_mall_id, dataArr)
             }
           }
         } else if (resObj && resObj.status === 403) {
@@ -429,91 +434,91 @@
   }
 </script>
 <style lang="less">
-  .content {
-    min-width: 1200px;
-    // padding: 5px;
-    // margin: 10px;
-    // margin-right:10px ;
-    .overdata_view,
-    .all_condition,
-    .table_clo {
-      .account-box {
-        border: 1px solid #dcdcdc;
-        border-radius: 4px;
-        padding: 16px;
-        position: relative;
+.content {
+  min-width: 1200px;
+  // padding: 5px;
+  // margin: 10px;
+  // margin-right:10px ;
+  .overdata_view,
+  .all_condition,
+  .table_clo {
+    .account-box {
+      border: 1px solid #dcdcdc;
+      border-radius: 4px;
+      padding: 16px;
+      position: relative;
 
-        .account-title {
-          padding: 0 5px;
-          display: inline-block;
-          height: 20px;
-          line-height: 20px;
-          text-align: center;
-          background: #fff;
-          position: absolute;
-          left: 10px;
-          top: -10px;
-        }
-
-        .account-item {
-          display: flex;
-          align-items: center;
-
-          span {
-            margin-right: 20px;
-            display: inline-block;
-          }
-
-          .acount-item-sub {
-            display: flex;
-            align-items: center;
-          }
-
-          .warning-style {
-            color: red;
-            font-size: 16px;
-          }
-        }
+      .account-title {
+        padding: 0 5px;
+        display: inline-block;
+        height: 20px;
+        line-height: 20px;
+        text-align: center;
+        background: #fff;
+        position: absolute;
+        left: 10px;
+        top: -10px;
       }
 
-      background-color: white;
-      padding: 5px;
-      margin: 10px;
-      border-radius: 10px;
-    }
-
-    .overdata_view {
-      padding: 10px;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .table_clo {
-      border-radius: 0px;
-      padding: 2px;
-    }
-
-    .all_condition {
-      .condition_box {
+      .account-item {
         display: flex;
         align-items: center;
-        .condition_item {
-          width: auto;
-          display: inline-block !important;
-          margin-bottom: 8px;
-          margin-right: 10px;
 
-          span {
-            margin-right: 5px;
-          }
+        span {
+          margin-right: 20px;
+          display: inline-block;
+        }
+
+        .acount-item-sub {
+          display: flex;
+          align-items: center;
+        }
+
+        .warning-style {
+          color: red;
+          font-size: 16px;
         }
       }
     }
 
-    .w80 {
-      display: inline-block;
-      text-align: right;
-      width: 80px;
+    background-color: white;
+    padding: 5px;
+    margin: 10px;
+    border-radius: 10px;
+  }
+
+  .overdata_view {
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .table_clo {
+    border-radius: 0px;
+    padding: 2px;
+  }
+
+  .all_condition {
+    .condition_box {
+      display: flex;
+      align-items: center;
+      .condition_item {
+        width: auto;
+        display: inline-block !important;
+        margin-bottom: 8px;
+        margin-right: 10px;
+
+        span {
+          margin-right: 5px;
+        }
+      }
     }
   }
+
+  .w80 {
+    display: inline-block;
+    text-align: right;
+    width: 80px;
+  }
+}
 </style>

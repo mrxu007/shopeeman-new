@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-10-08 14:16:18
- * @LastEditTime: 2021-11-04 17:08:10
+ * @LastEditTime: 2021-11-06 15:53:28
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shopeeman-new\src\views\mall-manager\components\MallManagerWithdrawalRecord.vue
@@ -11,7 +11,7 @@
     <div class="tool-bar">
       <div class="tool-row">
         <storeChoose @changeMallList="changeMallList" :spanWidth="'80px'"></storeChoose>
-         <div class="tool-item ">
+        <div class="tool-item">
           <el-input placeholder="请输入内容" v-model="userName" size="mini" class="input-with-select" clearable>
             <el-select v-model="userTypeSelect" slot="prepend" placeholder="用户名称" class="miniSelectBox">
               <el-option v-for="(item, index) in userType" :key="index" :label="item.label" :value="item.value" />
@@ -46,7 +46,7 @@
             <el-option v-for="(item, index) in replayTypeList" :key="index" :label="item.label" :value="item.value" />
           </el-select>
         </div>
-        <el-button type="primary" size="mini"  style="width:75px;" @click="searchRate" :disabled="tableLoading">查  询</el-button>
+        <el-button type="primary" size="mini" style="width: 75px" @click="searchRate" :disabled="tableLoading">查 询</el-button>
         <el-button type="primary" size="mini" class="mar-right btnbox" @click="batchReplay" :disabled="tableLoading">批量回复</el-button>
         <el-button type="primary" size="mini" class="mar-right btnbox" @click="cancelAction = true">取消操作</el-button>
         <el-button type="primary" size="mini" class="mar-right btnbox" @click="exportData" :disabled="tableLoading">导出数据</el-button>
@@ -57,73 +57,85 @@
       </div>
     </div>
     <div class="content">
-      <el-table v-loading="tableLoading" ref="multipleTable" :data="tableDataCut" tooltip-effect="dark" height="calc(100vh - 215px)" @selection-change="selectionChange">
-        <el-table-column type="selection" width="55"> </el-table-column>
-        <el-table-column align="center" type="index" label="序号" width="50">
+      <u-table
+        v-loading="tableLoading"
+        ref="multipleTable"
+        :data="tableDataCut"
+        tooltip-effect="dark"
+        max-height="630px"
+        @selection-change="selectionChange"
+        use-virtual
+        :big-data-checkbox="checked"
+        :data-changes-scroll-top="false"
+      >
+        <u-table-column type="selection" width="55"> </u-table-column>
+        <u-table-column align="center" type="index" label="序号" width="50">
           <template slot-scope="scope">{{ (currentPage - 1) * pageSize + scope.$index + 1 }}</template>
-        </el-table-column>
-        <el-table-column width="120px" label="站点" prop="country" align="center">
+        </u-table-column>
+        <u-table-column width="120px" label="站点" prop="country" align="center">
           <template slot-scope="scope">{{ scope.row.country | chineseSite }}</template>
-        </el-table-column>
-        <el-table-column min-width="100px" label="店铺名称" prop="platform_mall_name" align="center">
+        </u-table-column>
+        <u-table-column min-width="100px" label="店铺名称" prop="platform_mall_name" align="center">
           <template slot-scope="scope">
             <p>{{ scope.row.mall_alias_name ? scope.row.mall_alias_name : scope.row.platform_mall_name }}</p>
           </template>
-        </el-table-column>
-        <el-table-column align="center" prop="order_sn" label="订单编号" min-width="120">
+        </u-table-column>
+        <u-table-column align="center" prop="order_sn" label="订单编号" min-width="120">
           <template slot-scope="scope">
-            <p class="tableActive">{{ scope.row.order_sn }}</p>
+            <p class="tableActive" @click="viewDetails('frontItemDetail', scope.row.product_id, scope.row.platform_mall_id)">{{ scope.row.order_sn }}</p>
           </template>
-        </el-table-column>
-        <el-table-column align="center" prop="product_name" label="商品名称" min-width="80" show-overflow-tooltip />
-        <el-table-column align="center" prop="product_id" label="商品ID" width="120">
+        </u-table-column>
+        <u-table-column align="center" prop="product_name" label="商品名称" min-width="80" show-overflow-tooltip />
+        <u-table-column align="center" prop="product_id" label="商品ID" width="120">
           <template slot-scope="scope">
             <p class="tableActive" @click="openUrl(scope.row)">{{ scope.row.product_id }}</p>
           </template>
-        </el-table-column>
-        <el-table-column label="商品图片" prop="product_cover" align="center">
+        </u-table-column>
+        <u-table-column label="商品图片" prop="product_cover" align="center">
           <template slot-scope="scope">
             <el-tooltip effect="light" placement="right-end" :visible-arrow="false" :enterable="false" style="width: 56px; height: 56px; display: inline-block">
               <div slot="content">
-                <el-image v-bind:src="[scope.row.country, scope.row.platform_mall_id, scope.row.product_cover] | imageRender" style="width:400px;height:400px;" ></el-image>
+                <el-image v-bind:src="[scope.row.country, scope.row.platform_mall_id, scope.row.product_cover] | imageRender" style="width: 400px; height: 400px"></el-image>
               </div>
-              <el-image v-bind:src="[scope.row.country, scope.row.platform_mall_id, scope.row.product_cover] | imageRender" style="width:56px;height:56px;" ></el-image>
+              <el-image v-bind:src="[scope.row.country, scope.row.platform_mall_id, scope.row.product_cover] | imageRender" style="width: 56px; height: 56px"></el-image>
             </el-tooltip>
           </template>
-        </el-table-column>
-        <el-table-column prop="user_name" label="买家姓名" align="center" min-width="90px" />
-        <el-table-column align="center" prop="rating_star" label="评价星数" min-width="100">
+        </u-table-column>
+        <u-table-column prop="user_name" label="买家姓名" align="center" min-width="90px" />
+        <u-table-column align="center" prop="rating_star" label="评价星数" min-width="100">
           <template slot-scope="scope">
             <el-rate v-model="scope.row.rating_star" />
           </template>
-        </el-table-column>
-        <el-table-column align="center" prop="ctime" label="评价时间" min-width="70">
+        </u-table-column>
+        <u-table-column align="center" prop="ctime" label="评价时间" min-width="70">
           <template slot-scope="scope">
             {{ $dayjs(scope.row.ctime * 1000).format('YYYY-MM-DD HH:MM') }}
           </template>
-        </el-table-column>
-        <el-table-column align="center" prop="comment" label="评价内容" min-width="80" show-overflow-tooltip />
-        <el-table-column align="center" label="您的回复" min-width="80" show-overflow-tooltip>
+        </u-table-column>
+        <u-table-column align="center" prop="comment" label="评价内容" min-width="80" show-overflow-tooltip />
+        <u-table-column align="center" label="您的回复" min-width="80" show-overflow-tooltip>
           <template slot-scope="scope">
             <div v-if="scope.row.reply && scope.row.reply.comment">{{ scope.row.reply.comment }}</div>
             <div v-else>
               <el-button type="primary" size="mini" @click="singleReplay(scope.$index)">回复</el-button>
             </div>
           </template>
-        </el-table-column>
-        <el-table-column align="center" label="回复时间" min-width="80">
+        </u-table-column>
+        <u-table-column align="center" label="回复时间" min-width="80">
           <template slot-scope="scope" v-if="scope.row.reply">
             {{ $dayjs(scope.row.reply.ctime * 1000).format('YYYY-MM-DD HH:MM') }}
           </template>
-        </el-table-column>
-        <el-table-column align="center" prop="replyStatus" label="操作状态" min-width="70" show-overflow-tooltip>
-          <template slot-scope="scope"> {{ scope.row.replyStatus }}</template>
-        </el-table-column>
-      </el-table>
+        </u-table-column>
+        <u-table-column align="center" prop="replyStatus" label="操作状态" min-width="70" show-overflow-tooltip>
+          <template slot-scope="scope">
+            <span :style="scope.row.statusColor && 'color:' + scope.row.statusColor"> {{ scope.row.replyStatus }}</span>
+          </template>
+        </u-table-column>
+      </u-table>
       <div class="pagination">
         <el-pagination
           background
-          :page-sizes="[10, 20, 50, 100]"
+          :page-sizes="[1000, 2000, 5000, 10000]"
           :page-size="pageSize"
           layout="total, sizes, prev, pager, next, jumper"
           :total="total"
@@ -151,6 +163,7 @@ export default {
   },
   data() {
     return {
+      checked: true,
       pickerOptions: {
         disabledDate(time) {
           return time.getTime() > Date.now()
@@ -222,8 +235,8 @@ export default {
           label: '规格名称',
         },
       ],
-      showConsole: true,//日志
-      pageSize: 20, //页码
+      showConsole: true, //日志
+      pageSize: 1000, //页码
       currentPage: 1, //页码
       total: 0, //表格总数
       replayTextVisible: false, //回复弹窗
@@ -234,10 +247,22 @@ export default {
       cancelAction: false,
       rowInfo: {},
       mallPageSize: 50,
+      rowIndex: null,
     }
   },
   mounted() {},
   methods: {
+    //打开订单页面
+    viewDetails(type, id, shopId) {
+      // let mallId = this.currentMall.platform_mall_id || ''
+      // shopId = shopId || mallId
+      // let reqStr = {
+      //   type: type,
+      //   shopId: shopId,
+      //   id: id
+      // }
+      // this.$mallServer.getOrderDetailInfo(mallId, JSON.stringify(reqStr))
+    },
     //查询列表
     async searchRate() {
       this.cancelAction = false
@@ -250,9 +275,10 @@ export default {
       this.tableData = []
       this.tableDataCut = []
       this.total = 0
-      this.tableLoading = true
+      
       try {
         for (let i = 0; i < this.selectMallList.length; i++) {
+          this.tableLoading = true
           if (this.cancelAction) {
             this.tableLoading = false
             this.$refs.Logs.writeLog(`操作已取消！`, true)
@@ -266,8 +292,6 @@ export default {
         console.log(error)
         this.tableLoading = false
       }
-      this.dataCut()
-      this.tableLoading = false
     },
     //查询
     async searchSingleMall(pageNumber, mall, dataArr = [], page = 0) {
@@ -303,18 +327,18 @@ export default {
         let resObj = JSON.parse(res)
         if (resObj.status === 200) {
           let data = JSON.parse(resObj.data)
+          console.log('data', data)
           if (data.code === 0) {
             let count = data.data.list.length
-            if (count === 0) {
-              this.$refs.Logs.writeLog(`店铺【${mall.mall_alias_name || mall.platform_mall_name}】获取到第【${++page}】页店铺评价数据【${count}】条`, true)
-            }
             data.data.list &&
-              data.data.list.forEach((item) => {
+              data.data.list.forEach(async (item) => {
                 item.country = mall.country
                 item.platform_mall_name = mall.platform_mall_name
                 item.mall_alias_name = mall.mall_alias_name
                 item.platform_mall_id = mall.platform_mall_id
-                item.replyStatus = '123'
+                item.replyStatus = ''
+                item.statusColor = ''
+                item.productUrl = await this.productUrl(item)
                 let index = dataArr.filter((i) => i.comment_id === item.comment_id)[0] || ''
                 index && count--
                 !index && dataArr.push(item)
@@ -326,6 +350,8 @@ export default {
               this.searchSingleMall(pageNumber, mall, dataArr, page)
             } else {
               this.total += dataArr.length
+              this.dataCut()
+              this.tableLoading = false
             }
           } else {
             this.$refs.Logs.writeLog(`店铺【${mall.platform_mall_name}】${data.message}！`, false)
@@ -340,10 +366,11 @@ export default {
       }
     },
     //导出数据
-    exportData() {
+    async exportData() {
       if (!this.tableData.length) {
         return this.$message.warning('没有可以导出的订单')
       }
+      console.log('点击导出13')
       let num = 1
       let str = `<tr>
               <td>编号</td>
@@ -362,17 +389,18 @@ export default {
             </tr>`
       for (let i = 0; i < this.tableData.length; i++) {
         let item = this.tableData[i]
+        console.log(item.product_name, '13')
         str += `<tr><td>${num++}</td>
                     <td style="mso-number-format:'\@';">${item.country ? this.$filters.chineseSite(item.country) : '' + '\t'}</td>
                     <td>${item.platform_mall_name ? item.platform_mall_name : '' + '\t'}</td>
                     <td style="mso-number-format:'\@';">${item.order_sn && item.order_sn + '\t'}</td>
-                    <td>${item.product_id ? location.origin + '/product' + '/' + item.platform_mall_id + '/' + item.product_id : '' + '\t'}</td>
+                    <td>${item.productUrl ? item.productUrl : '' + '\t'}</td>
                     <td>${item.product_cover ? this.$filters.imageRender([item.country, item.platform_mall_id, item.product_cover]) : '' + '\t'}</td>
-                    <td>${item.product_name ? item.product_name : '' + '\t'}</td>
+                    <td>${(item.product_name || '111') + '\t'}</td>
                     <td>${item.user_name ? item.user_name : '' + '\t'}</td>
                     <td>${item.rating_star ? item.rating_star : '' + '\t'}</td>
                     <td>${item.ctime ? this.$dayjs(item.ctime * 1000).format('YYYY-MM-DD HH:MM') : '' + '\t'}</td>
-                    <td>${item.user_portrait ? item.user_portrait : '' + '\t'}</td>
+                    <td>${item.comment ? item.comment : '' + '\t'}</td>
                     <td>${item.reply && item.reply.comment ? item.reply.comment : '' + '\t'}</td>
                     <td>${item.reply && item.reply.ctime ? this.$dayjs(item.reply.ctime * 1000).format('YYYY-MM-DD HH:MM') : '' + '\t'}</td>
                 </tr>`
@@ -404,9 +432,13 @@ export default {
       let index = this.tableData.findIndex((n) => {
         return n.comment_id === row.comment_id
       })
+      let indexCut = this.tableDataCut.findIndex((n) => {
+        return n.comment_id === row.comment_id
+      })
       if (row.reply && row.reply.ctime) {
         this.tableData[index].replyStatus = '已经回复过了'
-        this.$refs.multipleTable.toggleRowSelection(this.tableData[index], false)
+        this.tableData[index].statusColor = 'green'
+        this.$refs.multipleTable.toggleRowSelection(this.tableDataCut[indexCut], false)
         return
       }
       let res = await this.$shopeemanService.replyShopRating(row.country, params)
@@ -423,14 +455,17 @@ export default {
             this.tableData[index].reply.ctime = Math.round(new Date().getTime() / 1000)
           }
           this.tableData[index].replyStatus = '回复成功'
+          this.tableData[index].statusColor = 'green'
           this.replayTextVisible = false
-          this.$refs.multipleTable.toggleRowSelection(this.tableData[index], false)
+          this.$refs.multipleTable.toggleRowSelection(this.tableDataCut[indexCut], false)
         } else {
           this.tableData[index].replyStatus = data.message
         }
       } else if (resObj.status === 403) {
+        this.tableData[index].statusColor = 'red'
         this.tableData[index].replyStatus = '请检查店铺是否登录'
       } else {
+        this.tableData[index].statusColor = 'red'
         this.tableData[index].replyStatus = '操作失败'
       }
     },
@@ -442,17 +477,23 @@ export default {
       } else {
         this.userReplay(this.tableData[this.rowIndex])
       }
+      this.isBatchReplay = false
+    },
+    async productUrl(row) {
+      let webUrl = await this.$shopeeManConfig.getSiteWebUrl(row.country)
+      let url = webUrl + '/product' + '/' + row.platform_mall_id + '/' + row.product_id
+      return url
     },
     //打开外部窗口
     async openUrl(row) {
       let webUrl = await this.$shopeeManConfig.getSiteWebUrl(row.country)
-      console.log(webUrl)
       let url = webUrl + '/product' + '/' + row.platform_mall_id + '/' + row.product_id
       this.$BaseUtilService.openUrl(url)
     },
     //   表格选择
     selectionChange(val) {
       this.multipleSelection = val
+      console.log(val)
     },
     changeMallList(val) {
       this.selectMallList = val
@@ -486,11 +527,11 @@ export default {
 .mar-right {
   margin-right: 10px;
 }
-.miniSelectBox{
-  width:100px;
+.miniSelectBox {
+  width: 100px;
 }
-.btnbox{
-  width:80px;
+.btnbox {
+  width: 80px;
 }
 .activeColor {
   color: red;
@@ -498,18 +539,18 @@ export default {
 .tool-bar {
   height: 100px;
   background: #fff;
-  overflow-x: auto ;
+  overflow-x: auto;
   .tool-row {
-    margin:10px 10px 0 0;
+    margin: 10px 10px 0 0;
     display: flex;
     align-items: center;
     // flex-wrap: wrap;
     .tool-item {
       display: flex;
       align-items: center;
-      span{
-        display:inline-block;
-        width:80px;
+      span {
+        display: inline-block;
+        width: 80px;
         text-align: right;
       }
       // .el-select{
@@ -521,7 +562,7 @@ export default {
 .content {
   margin: 20px 0;
   background: #fff;
-  height: calc(100vh - 160px);
+  height: calc(100vh - 150px);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
