@@ -171,8 +171,8 @@ export default class logisticeSyncService {
     for (let index = 0; index < ordersLen; index++) {
       const item = orders[index]
       console.log(item, "56656")
-      // const shot_order_sn = item.shot_order_sn || '211006-434498446080098' 
-      const shot_order_sn = '2229427695828657966' //tb
+      const shot_order_sn = item.shot_order_sn || '' 
+      // const shot_order_sn = '2229427695828657966' //tb
       // const shot_order_sn = '2161702586001984947' //1688
       try {
         console.log(buyerAccount.shotOrderPlatform, shot_order_sn, JSON.stringify(buyerAccount), "=========================")
