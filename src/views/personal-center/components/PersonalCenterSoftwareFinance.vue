@@ -68,7 +68,7 @@
           <el-col :span="8">
             <div class="transactionType">
               <label>交易类型：</label>
-              <el-select v-model="form.transactionType" size="mini" multiple collapse-tags clearable @change="changeSelect($event, 'transactionType')">
+              <el-select v-model="form.transactionType" style="width: 198px;" size="mini" multiple collapse-tags clearable @change="changeSelect($event, 'transactionType')">
                 <el-option label="全部" value="全部" @click.native="selectAll('transactionType', transactionType)" />
                 <el-option v-for="item in transactionType" :key="item.id" :label="item.name" :value="item.id" />
               </el-select>
@@ -688,7 +688,9 @@ export default {
     //资金流向和交易类型
     .moneyFlow,
     .transactionType {
+
       display: flex;
+    align-items: baseline;
       // margin: 0 10px;
       /deep/.el-checkbox {
         margin-right: 16px;
@@ -706,6 +708,8 @@ export default {
     //资金流向
     .moneyFlow {
       margin: 0 10px;
+      display: flex;
+      align-items: baseline;
     }
   }
   .rowThree {
@@ -722,9 +726,9 @@ export default {
     }
     //卓越大包号
     .bigBagNumber {
-      margin: 0 10px;
+      margin: 0 -15px;
       .el-input {
-        width: 178px;
+        width: 204px;
       }
     }
     .searchRowThreeBottonGroup {

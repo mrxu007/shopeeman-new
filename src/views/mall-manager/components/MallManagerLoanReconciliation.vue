@@ -26,7 +26,11 @@
       <div class="condition_box">
         <div class="condition_item">
           <span class="w80">状态：</span>
+<<<<<<< HEAD
           <el-select v-model="query.status" size="mini" style="width: 100px" placeholder="站点">
+=======
+          <el-select v-model="query.status" size="mini" style="width: 100px;" placeholder="站点">
+>>>>>>> bf0d5963a9836544c25b3fb79bb108d1c777dd02
             <el-option value="" label="全部" />
             <el-option label="已拨款" value="1" />
             <el-option label="即将拨款" value="2" />
@@ -72,14 +76,30 @@
           >
           <el-button size="mini" type="primary" @click="cancelActive = true">取消同步</el-button>
           <el-button size="mini" type="primary" @click="clearLog">清空日志</el-button>
+<<<<<<< HEAD
           <el-button size="mini" type="primary" @click="export_table((query.page = 1)), (exportList = [])">导出 </el-button>
           <el-checkbox v-model="showConsole" style="margin-left: 10px"> 隐藏日志</el-checkbox>
+=======
+          <el-button size="mini" type="primary" @click="export_table((query.page = 1)), (exportList = [])">导出
+          </el-button>
+          <el-checkbox v-model="showConsole" style="margin-left: 10px;"> 隐藏日志</el-checkbox>
+>>>>>>> bf0d5963a9836544c25b3fb79bb108d1c777dd02
         </div>
       </div>
     </div>
     <div class="table_clo">
       <div class="data_table" style="height: 100%; background-color: white">
+<<<<<<< HEAD
         <el-table height="calc(100vh - 281px)" :data="tableList" :row-style="{ height: '50px' }" style="width: 100%; height: calc(100vh - 260px)" :header-cell-style="{ background: '#f7fafa' }">
+=======
+        <el-table
+          height="calc(100vh - 281px)"
+          :data="tableList"
+          :row-style="{ height: '50px' }"
+          style="width: 100%; height: calc(100vh - 260px)"
+          :header-cell-style="{ background: '#f7fafa' }"
+        >
+>>>>>>> bf0d5963a9836544c25b3fb79bb108d1c777dd02
           <el-table-column label="序号" width="60" type="index" align="center" />
           <el-table-column prop="country" width="120px" label="站点" align="center">
             <template slot-scope="{ row }">
@@ -176,7 +196,11 @@ export default {
       this.selectMallList = val
       this.site_query['country'] = this.selectMallList[0] ? this.selectMallList[0].country : ''
       this.exchangeRateList()
+<<<<<<< HEAD
       console.log(this.site_query['country'])
+=======
+      console.log('111', this.site_query['country'])
+>>>>>>> bf0d5963a9836544c25b3fb79bb108d1c777dd02
       console.log('changeMallList', val)
     },
     // 同步信息
@@ -250,7 +274,11 @@ export default {
               !index && dataArr.push(params)
               // !index && this.UploadRecordData(mall.platform_mall_id,item)
             })
+<<<<<<< HEAD
           count && this.$refs.Logs.writeLog(`同步店铺【${mall.platform_mall_name}】【${type === 0 ? '已拨款' : '即将拨款'}】第【${++page}】页货款对账数据【${count}】条`, true)
+=======
+          count && this.$refs.Logs.writeLog(`同步店铺【${mall.platform_mall_name}】【${type === 0 ? '已拨款' : '即将拨款'}】第【${++page}】页店铺评价数据【${count}】条`, true)
+>>>>>>> bf0d5963a9836544c25b3fb79bb108d1c777dd02
           if (dataArr.length < data.data.page_info.total && data.data.list.length >= this.mallPageSize) {
             pageNumber++
             this.searchSingleMall(pageNumber, mall, dataArr, page)
@@ -260,15 +288,18 @@ export default {
               this.UploadRecordData(mall.platform_mall_id, dataArr)
             }
           }
-        } else if (resObj && resObj.status === 403) {
-          if (this.query.status !== '' || type !== 2) {
-            this.$refs.Logs.writeLog(`店铺【${mall.platform_mall_name}】请检查店铺是否登录！`, false)
-          }
-        } else {
-          if (this.query.status !== '' || type !== 2) {
-            this.$refs.Logs.writeLog(`店铺【${mall.platform_mall_name}】获取失败！`, false)
-          }
         }
+<<<<<<< HEAD
+=======
+      } else if (resObj && resObj.status === 403) {
+        if (this.query.status !== '' || type !== 2) {
+          this.$refs.Logs.writeLog(`店铺【${mall.platform_mall_name}】请检查店铺是否登录！`, false)
+        }
+      } else {
+        if (this.query.status !== '' || type !== 2) {
+          this.$refs.Logs.writeLog(`店铺【${mall.platform_mall_name}】获取失败！`, false)
+        }
+>>>>>>> bf0d5963a9836544c25b3fb79bb108d1c777dd02
       }
     },
     // 上传服务端
