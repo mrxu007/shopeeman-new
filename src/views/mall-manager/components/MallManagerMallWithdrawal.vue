@@ -176,10 +176,12 @@
     },
     created() {
       this.resizeHeight()
-      this.getBankList()
       window.addEventListener('resize', (event) => {
         this.resizeHeight()
       })
+    },
+    mounted(){
+      this.getBankList()
     },
     watch: {
       selectData(val, oldval) {
@@ -333,6 +335,7 @@
       },
       allTiedCard() {
         this.cardCode = ''
+        this.seed = ''
         if (this.selectData.length || type) {
           if (this.selectIndex < 0) {
             this.selectIndex = 0
@@ -373,6 +376,11 @@
         }
       },
       async tiedCard() {
+        if (!this.seed || !this.cardCode) {
+          let  error = !this.seed &&　'请发送验证码，并输入' || '请输入验证码'
+          this.$message.error(error)
+          return
+        }
         let param = {
           mallId:this.active.platform_mall_id,
           // phone:this.active.phone,
