@@ -7,7 +7,7 @@
  * @FilePath: \shopeeman-new\src\services\XzyNetMessageService.js
  */
 export default class XzyNetMessageService {
-  baseUrl = 'http://api.xzy.com'
+  baseUrl = 'http://api.xzy.com/api/route'
   // baseUrl = 'http://api.xzygyl.com/api/route'
   baseUrlA = 'http://user.xzygyl.com'
   constructor() {
@@ -20,7 +20,7 @@ export default class XzyNetMessageService {
     return this.nativeService.get(this.baseUrl + apiName, JSON.stringify(params))
   }
   post(apiName, data, options = { 'Content-Type': 'application/json' }) {
-    console.log(this.baseUrl,apiName,JSON.stringify({ headers: options }),JSON.stringify(data))
+    console.log(this.baseUrl, apiName, JSON.stringify({ headers: options }), JSON.stringify(data))
     return this.nativeService.post(`${this.baseUrl}`, apiName, JSON.stringify({ headers: options }), data ? JSON.stringify(data) : null)
   }
 }
