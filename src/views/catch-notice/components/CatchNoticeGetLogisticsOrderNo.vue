@@ -287,10 +287,13 @@ export default {
       console.log(res, 'logisticsOrderNoDialogHandle')
       if (res.data.code === 200) {
         this.logisticsOrderNoDialogFormVisible = false
+        this.trackingNumber = ''
+        this.trackingNumberCompany = ''
         this.$message({
           message: '采购物流单号添加成功',
           type: 'success',
         })
+        this.getExceptionNoTrackingNumberIndex()
       } else {
         this.$message.error(res.data.message)
       }
