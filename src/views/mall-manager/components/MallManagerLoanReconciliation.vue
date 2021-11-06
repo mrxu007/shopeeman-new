@@ -73,7 +73,7 @@
           <el-button size="mini" type="primary" @click="cancelActive = true">取消同步</el-button>
           <el-button size="mini" type="primary" @click="clearLog">清空日志</el-button>
           <el-button size="mini" type="primary" @click="export_table((query.page = 1)), (exportList = [])">导出 </el-button>
-          <el-checkbox style="margin-left: 10px" v-model="showConsole"> 隐藏日志</el-checkbox>
+          <el-checkbox v-model="showConsole" style="margin-left: 10px"> 隐藏日志</el-checkbox>
         </div>
       </div>
     </div>
@@ -113,131 +113,131 @@
         </div>
       </div>
     </div>
-    <Logs ref="Logs" clear v-model="showConsole" />
+    <Logs ref="Logs" v-model="showConsole" clear />
   </div>
 </template>
 <script>
-  import storeChoose from '../../../components/store-choose'
-  import { exportExcelDataCommon, creatDate } from '../../../util/util'
+import storeChoose from '../../../components/store-choose'
+import { exportExcelDataCommon, creatDate } from '../../../util/util'
 
-  export default {
-    components: { storeChoose },
-    data() {
-      return {
-        orgin: '',
-        to_back_amount: '', // 即将拨款
-        haved_amount: '', // 已拨款
-        exportList: [], // 导出
-        tableList: [],
-        total: 0,
-        mallList_gruop: [],
-        mallList_mall: [],
-        site_query: {
-          // 站点参数
-          country: 'TH', // 站点
-          typeCoin: '฿', // 币种
-          rate_coin: '' // 汇率
-        },
-        plantform_mallID: '', // 平台店铺ID
-        mallGroupId: [], // 店铺分组
-        all_mallgruopID: [], // 店铺分组-全选
-        query: {
-          sysMallId: [],
-          orderSn: '',
-          status: '',
-          appropriateTime: '',
-          page: 1,
-          pageSize: 20
-        },
-        cloumn_date: [],
-        pickerOptions: {
-          disabledDate(time) {
-            return time.getTime() > Date.now()
+export default {
+  components: { storeChoose },
+  data() {
+    return {
+      orgin: '',
+      to_back_amount: '', // 即将拨款
+      haved_amount: '', // 已拨款
+      exportList: [], // 导出
+      tableList: [],
+      total: 0,
+      mallList_gruop: [],
+      mallList_mall: [],
+      site_query: {
+        // 站点参数
+        country: 'TH', // 站点
+        typeCoin: '฿', // 币种
+        rate_coin: '' // 汇率
+      },
+      plantform_mallID: '', // 平台店铺ID
+      mallGroupId: [], // 店铺分组
+      all_mallgruopID: [], // 店铺分组-全选
+      query: {
+        sysMallId: [],
+        orderSn: '',
+        status: '',
+        appropriateTime: '',
+        page: 1,
+        pageSize: 20
+      },
+      cloumn_date: [],
+      pickerOptions: {
+        disabledDate(time) {
+          return time.getTime() > Date.now()
+        }
+      },
+      showRMB: false,
+      showConsole: true,
+      selectMallList: [],
+      mallPageSize: 50,
+      cancelActive: false
+    }
+  },
+  mounted() {
+    // 初始化时间
+    this.cloumn_date = creatDate(31)
+    this.getTableList() // 初始化table
+    this.exchangeRateList() // 获取汇率
+  },
+  methods: {
+    clearLog() {
+      this.$refs.Logs.consoleMsg = ''
+    },
+    changeMallList(val) {
+      this.selectMallList = val
+      this.site_query['country'] = this.selectMallList[0] ? this.selectMallList[0].country : ''
+      this.exchangeRateList()
+      console.log(this.site_query['country'])
+      console.log('changeMallList', val)
+    },
+    // 同步信息
+    async updataMall() {
+      // this.uploadVisible = false
+      if (!this.selectMallList.length) {
+        this.$message.warning('请选择要同步的店铺！')
+      }
+      this.showConsole = false
+      this.$refs.Logs.consoleMsg = ''
+      this.$refs.Logs.writeLog(`开始同步`, true)
+      try {
+        for (let i = 0; i < this.selectMallList.length; i++) {
+          if (this.cancelActive) {
+            this.$refs.Logs.writeLog(`操作已取消！`, true)
+            return
           }
-        },
-        showRMB: false,
-        showConsole: true,
-        selectMallList: [],
-        mallPageSize: 50,
-        cancelActive: false
+          const mall = this.selectMallList[i]
+          const pageNumber = 1
+          this.$refs.Logs.writeLog(`开始同步店铺【${mall.platform_mall_name}】对账信息`, true)
+          if (this.query.status === '') {
+            await this.searchSingleMall(pageNumber, mall, 0)
+            await this.searchSingleMall(pageNumber, mall, 2)
+          } else if (this.query.status === '1') {
+            await this.searchSingleMall(pageNumber, mall, 0)
+          } else if (this.query.status === '2') {
+            await this.searchSingleMall(pageNumber, mall, 2)
+          }
+        }
+      } catch (error) {
+        console.log(error)
       }
     },
-    mounted() {
-      // 初始化时间
-      this.cloumn_date = creatDate(31)
-      this.getTableList() // 初始化table
-      this.exchangeRateList() // 获取汇率
-    },
-    methods: {
-      clearLog() {
-        this.$refs.Logs.consoleMsg = ''
-      },
-      changeMallList(val) {
-        this.selectMallList = val
-        this.site_query['country'] = this.selectMallList[0] ? this.selectMallList[0].country : ''
-        this.exchangeRateList()
-        console.log(this.site_query['country'])
-        console.log('changeMallList', val)
-      },
-      // 同步信息
-      async updataMall() {
-        // this.uploadVisible = false
-        if (!this.selectMallList.length) {
-          this.$message.warning('请选择要同步的店铺！')
-        }
-        this.showConsole = false
-        this.$refs.Logs.consoleMsg = ''
-        this.$refs.Logs.writeLog(`开始同步`, true)
-        try {
-          for (let i = 0; i < this.selectMallList.length; i++) {
-            if (this.cancelActive) {
-              this.$refs.Logs.writeLog(`操作已取消！`, true)
-              return
-            }
-            let mall = this.selectMallList[i]
-            let pageNumber = 1
-            this.$refs.Logs.writeLog(`开始同步店铺【${mall.platform_mall_name}】对账信息`, true)
-            if (this.query.status === '') {
-              await this.searchSingleMall(pageNumber, mall, 0)
-              await this.searchSingleMall(pageNumber, mall, 2)
-            } else if (this.query.status === '1') {
-              await this.searchSingleMall(pageNumber, mall, 0)
-            } else if (this.query.status === '2') {
-              await this.searchSingleMall(pageNumber, mall, 2)
-            }
-          }
-        } catch (error) {
-          console.log(error)
-        }
-      },
-      async searchSingleMall(pageNumber, mall, type, dataArr = [], page = 0) {
-        if (this.cancelActive) {
-          this.$refs.Logs.writeLog(`操作已取消！`, true)
-          return
-        }
-        let params = {
-          tran_type: type, //0,2  type:0-status:1 付款转账完成    type:2-status:0 等待订单完成
-          page_number: pageNumber,
-          page_size: this.mallPageSize,
-          shop_id: mall.platform_mall_id
-          // start_date: '',
-          // end_date: '',
-        }
-        if (type === 0) {
-          params['start_date'] = this.cloumn_date[0]
-          params['end_date'] = this.cloumn_date[1]
-        }
-        let res = await this.$shopeemanService.getIncomeTransaction(mall.country, params)
-        let resObj = res && JSON.parse(res)
-        if (resObj && resObj.status === 200) {
-          let data = JSON.parse(resObj.data)
-          console.log(data, 'searchSingleMall')
-          if (data.code === 0) {
-            let count = data.data.list.length
-            data.data.list &&
+    async searchSingleMall(pageNumber, mall, type, dataArr = [], page = 0) {
+      if (this.cancelActive) {
+        this.$refs.Logs.writeLog(`操作已取消！`, true)
+        return
+      }
+      const params = {
+        tran_type: type, // 0,2  type:0-status:1 付款转账完成    type:2-status:0 等待订单完成
+        page_number: pageNumber,
+        page_size: this.mallPageSize,
+        shop_id: mall.platform_mall_id
+        // start_date: '',
+        // end_date: '',
+      }
+      if (type === 0) {
+        params['start_date'] = this.cloumn_date[0]
+        params['end_date'] = this.cloumn_date[1]
+      }
+      const res = await this.$shopeemanService.getIncomeTransaction(mall.country, params)
+      const resObj = res && JSON.parse(res)
+      if (resObj && resObj.status === 200) {
+        const data = JSON.parse(resObj.data)
+        console.log(data, 'searchSingleMall')
+        if (data.code === 0) {
+          let count = data.data.list.length
+          data.data.list &&
             data.data.list.forEach((item) => {
               console.log(item)
-              let params = {
+              const params = {
                 order_id: item.order_id + '',
                 status: item.status === 1 ? '1' : '2',
                 bill_num: item.id + '',
@@ -245,7 +245,7 @@
                 using_wallet: item.using_wallet ? '1' : '0',
                 release_time: this.$dayjs(item.release_time).format('YYYY-MM-DD HH:mm:ss')
               }
-              let index = dataArr.filter((i) => i.bill_num === params.bill_num)[0] || ''
+              const index = dataArr.filter((i) => i.bill_num === params.bill_num)[0] || ''
               index && count--
               !index && dataArr.push(params)
               // !index && this.UploadRecordData(mall.platform_mall_id,item)
@@ -269,97 +269,98 @@
             this.$refs.Logs.writeLog(`店铺【${mall.platform_mall_name}】获取失败！`, false)
           }
         }
-      },
-      //上传服务端
-      async UploadRecordData(mallID, dataArr) {
-        let params = {
-          mallId: mallID,
-          bills: dataArr
+      }
+    },
+    // 上传服务端
+    async UploadRecordData(mallID, dataArr) {
+      const params = {
+        mallId: mallID,
+        bills: dataArr
+      }
+      const res = await this.$api.uploadPaymentList(params)
+      console.log(res)
+    },
+    // 计算汇率
+    compete_Coin() {
+      if (this.showRMB === false) {
+        this.to_back_amount = (this.to_back_amount / this.site_query.rate_coin).toFixed(2)
+        this.haved_amount = (this.haved_amount / this.site_query.rate_coin).toFixed(2)
+        this.site_query.typeCoin = this.orgin
+      } else {
+        this.orgin = this.site_query.typeCoin
+        this.to_back_amount = (this.site_query.rate_coin * this.to_back_amount).toFixed(2)
+        this.haved_amount = (this.site_query.rate_coin * this.haved_amount).toFixed(2)
+        this.site_query.typeCoin = '￥'
+      }
+    },
+    // 获取汇率
+    async exchangeRateList() {
+      const data = await this.$api.exchangeRateList()
+      console.log(data.data)
+      if (data.data.code === 200) {
+        switch (this.site_query.country) {
+          case 'MY':
+            this.site_query.rate_coin = data.data.data.MY
+            this.site_query.typeCoin = 'RM'
+            break
+          case 'SG':
+            this.site_query.rate_coin = data.data.data.SG
+            this.site_query.typeCoin = '$'
+            break
+          case 'PH':
+            this.site_query.rate_coin = data.data.data.PH
+            this.site_query.typeCoin = '₱'
+            break
+          case 'TH':
+            this.site_query.rate_coin = data.data.data.TH
+            this.site_query.typeCoin = '฿'
+            break
+          case 'ID':
+            this.site_query.rate_coin = data.data.data.ID
+            this.site_query.typeCoin = 'Rp'
+            break
+          case 'TW':
+            this.site_query.rate_coin = data.data.data.TW
+            this.site_query.typeCoin = '$'
+            break
+          case 'VN':
+            this.site_query.rate_coin = data.data.data.VN
+            this.site_query.typeCoin = '₫'
+            break
+          case 'BR':
+            this.site_query.rate_coin = data.data.data.BR
+            this.site_query.typeCoin = 'R$'
+            break
+          case 'US':
+            this.site_query.rate_coin = data.data.data.US
+            this.site_query.typeCoin = '$'
+            break
+          case 'MX':
+            this.site_query.rate_coin = ''
+            this.site_query.typeCoin = 'MX$'
+            break
+          case 'CL':
+            this.site_query.rate_coin = ''
+            this.site_query.typeCoin = '$'
+            break
+          case 'CO':
+            this.site_query.rate_coin = ''
+            this.site_query.typeCoin = '$'
+            break
+          default:
+            // this.site_query.typeCoin = '￥'
+            break
         }
-        let res = await this.$api.uploadPaymentList(params)
-        console.log(res)
-      },
-      // 计算汇率
-      compete_Coin() {
-        if (this.showRMB === false) {
-          this.to_back_amount = (this.to_back_amount / this.site_query.rate_coin).toFixed(2)
-          this.haved_amount = (this.haved_amount / this.site_query.rate_coin).toFixed(2)
-          this.site_query.typeCoin = this.orgin
-        } else {
-          this.orgin = this.site_query.typeCoin
-          this.to_back_amount = (this.site_query.rate_coin * this.to_back_amount).toFixed(2)
-          this.haved_amount = (this.site_query.rate_coin * this.haved_amount).toFixed(2)
-          this.site_query.typeCoin = '￥'
-        }
-      },
-      // 获取汇率
-      async exchangeRateList() {
-        const data = await this.$api.exchangeRateList()
-        console.log(data.data)
-        if (data.data.code === 200) {
-          switch (this.site_query.country) {
-            case 'MY':
-              this.site_query.rate_coin = data.data.data.MY
-              this.site_query.typeCoin = 'RM'
-              break
-            case 'SG':
-              this.site_query.rate_coin = data.data.data.SG
-              this.site_query.typeCoin = '$'
-              break
-            case 'PH':
-              this.site_query.rate_coin = data.data.data.PH
-              this.site_query.typeCoin = '₱'
-              break
-            case 'TH':
-              this.site_query.rate_coin = data.data.data.TH
-              this.site_query.typeCoin = '฿'
-              break
-            case 'ID':
-              this.site_query.rate_coin = data.data.data.ID
-              this.site_query.typeCoin = 'Rp'
-              break
-            case 'TW':
-              this.site_query.rate_coin = data.data.data.TW
-              this.site_query.typeCoin = '$'
-              break
-            case 'VN':
-              this.site_query.rate_coin = data.data.data.VN
-              this.site_query.typeCoin = '₫'
-              break
-            case 'BR':
-              this.site_query.rate_coin = data.data.data.BR
-              this.site_query.typeCoin = 'R$'
-              break
-            case 'US':
-              this.site_query.rate_coin = data.data.data.US
-              this.site_query.typeCoin = '$'
-              break
-            case 'MX':
-              this.site_query.rate_coin = ''
-              this.site_query.typeCoin = 'MX$'
-              break
-            case 'CL':
-              this.site_query.rate_coin = ''
-              this.site_query.typeCoin = '$'
-              break
-            case 'CO':
-              this.site_query.rate_coin = ''
-              this.site_query.typeCoin = '$'
-              break
-            default:
-              // this.site_query.typeCoin = '￥'
-              break
-          }
-        } else {
-          this.$message.warning('网络请求失败')
-        }
-      },
-      // 导出
-      export_table(page) {
-        // 结尾page=1
-        this.query.page = page
-        if (this.exportList.length >= this.total) {
-          let str = `<tr>
+      } else {
+        this.$message.warning('网络请求失败')
+      }
+    },
+    // 导出
+    export_table(page) {
+      // 结尾page=1
+      this.query.page = page
+      if (this.exportList.length >= this.total) {
+        let str = `<tr>
               <td>序号</td>
               <td>站点</td>
               <td>店铺名称</td>
@@ -370,8 +371,8 @@
               <td>拨款金额（RMB）</td>
               <td>拨款时间</td>
             </tr>`
-          this.exportList.forEach((item, index) => {
-            str += `<tr>
+        this.exportList.forEach((item, index) => {
+          str += `<tr>
               <td>${index + 1}</td>
               <td>${item.country ? this.$filters.chineseSite(item.country) : '-' + '\t'}</td>
               <td>${item.platform_mall_name ? item.platform_mall_name : '-' + '\t'}</td>
@@ -382,56 +383,56 @@
               <td>${item.appropriate_amount ? (item.appropriate_amount * this.site_query.rate_coin).toFixed(2) : '-' + '\t'}</td>
               <td>${item.created_at ? item.created_at : '-' + '\t'}</td>
             </tr>`
-          })
-          exportExcelDataCommon('货款对账详情', str)
-          this.query.page = 1 // 还原
-        } else {
-          this.getTableList()
-          this.exportList.push(...this.tableList)
-          this.export_table(page + 1)
-        }
-      },
-      // 搜索
-      search() {
-        const params = this.query
-        let sysMallId = ''
-        this.selectMallList.forEach((item, index) => {
-          if (index === 0) {
-            sysMallId = item.id
-          } else {
-            sysMallId = sysMallId + ',' + item.id
-          }
         })
-        params.sysMallId = (sysMallId + '') || ''
-        params.appropriateTime = this.cloumn_date.length >= 0 ? this.cloumn_date[0] + ' 00:00:00/' + this.cloumn_date[1] + ' 23:59:59' : ''
-        this.getTableList(params)
-      },
-      // 初始化tableList
-      async getTableList(params) {
-        const data = await this.$api.getPaymentList(params)
-        if (data.data.code === 200) {
-          // this.tableList = data.data.data.data
-          this.tableList = data.data.data.data
-          // this.query.page = data.data.data.last_page
-          // this.query.pageSize = data.data.data.per_page
-          this.total = data.data.data.total
-          this.to_back_amount = data.data.data.to_back_amount
-          this.haved_amount = data.data.data.haved_amount
-        } else {
-          this.$message.warning('数据请求失败！')
-        }
-        console.log(data.data.data)
-      },
-      handleSizeChange(val) {
-        this.query.pageSize = val
-        this.search()
-      },
-      handleCurrentChange(val) {
-        this.query.page = val
-        this.search()
+        exportExcelDataCommon('货款对账详情', str)
+        this.query.page = 1 // 还原
+      } else {
+        this.getTableList()
+        this.exportList.push(...this.tableList)
+        this.export_table(page + 1)
       }
+    },
+    // 搜索
+    search() {
+      const params = this.query
+      let sysMallId = ''
+      this.selectMallList.forEach((item, index) => {
+        if (index === 0) {
+          sysMallId = item.id
+        } else {
+          sysMallId = sysMallId + ',' + item.id
+        }
+      })
+      params.sysMallId = (sysMallId + '') || ''
+      params.appropriateTime = this.cloumn_date.length >= 0 ? this.cloumn_date[0] + ' 00:00:00/' + this.cloumn_date[1] + ' 23:59:59' : ''
+      this.getTableList(params)
+    },
+    // 初始化tableList
+    async getTableList(params) {
+      const data = await this.$api.getPaymentList(params)
+      if (data.data.code === 200) {
+        // this.tableList = data.data.data.data
+        this.tableList = data.data.data.data
+        // this.query.page = data.data.data.last_page
+        // this.query.pageSize = data.data.data.per_page
+        this.total = data.data.data.total
+        this.to_back_amount = data.data.data.to_back_amount
+        this.haved_amount = data.data.data.haved_amount
+      } else {
+        this.$message.warning('数据请求失败！')
+      }
+      console.log(data.data.data)
+    },
+    handleSizeChange(val) {
+      this.query.pageSize = val
+      this.search()
+    },
+    handleCurrentChange(val) {
+      this.query.page = val
+      this.search()
     }
   }
+}
 </script>
 <style lang="less">
 .content {
