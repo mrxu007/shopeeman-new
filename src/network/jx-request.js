@@ -108,6 +108,7 @@ export default {
   deleteBindMall: (data) => AppRequest.post('/bindMall/deleteMall', data), // 删除店铺信息
   saveMallAuthInfo: (data) => AppRequest.post('/bindMall/saveMallAuthInfo', data), // 上报保存店铺信息
   updateMallInfo: (data) => AppRequest.post('/bindMall/updateMallInfo', data), // 上报更新店铺信息
+  getBankList: (data) => AppRequest.get('/getBankList', data), //获取银行卡信息
   // 店铺分组
   getMallGroup: (data) => AppRequest.get('/mallGroup/index', { params: data }), // 获取店铺分组列表
   addGroup: (data) => AppRequest.post('/mallGroup/save', data), // 新增分组

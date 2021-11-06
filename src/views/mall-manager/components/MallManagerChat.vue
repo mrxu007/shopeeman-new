@@ -54,7 +54,7 @@
                         active-color="#13ce66"
                         inactive-color="#ff4949">
                     </el-switch>
-                    <div v-if="scope.row.auto_reply_status && scope.row.auto_reply_content" class="reply_content">
+                    <div class="reply_content">
                       {{scope.row.auto_reply_content}}
                     </div>
                   </div>
@@ -69,7 +69,7 @@
                         active-color="#13ce66"
                         inactive-color="#ff4949">
                     </el-switch>
-                    <div v-if="scope.row.status && scope.row.content" class="reply_content">
+                    <div class="reply_content">
                       {{scope.row.content}}
                     </div>
                   </div>
@@ -225,7 +225,7 @@
       </el-tab-pane>
     </el-tabs>
     <div class="autoReply_dialog">
-      <el-dialog :title="autoReplyTitle" :visible.sync="autoReplyVisible" :close-on-click-modal="false" width="40%">
+      <el-dialog :title="autoReplyTitle" :visible.sync="autoReplyVisible" :close-on-click-modal="false" width="800px">
         <div>
           <el-input size="mini" type="textarea" :rows="12"
                     placeholder="请输入内容" resize="none"
@@ -240,7 +240,7 @@
     </div>
     <div class="FAQAssistant_dialog">
       <el-dialog :title="FAQAssistantTitle" :visible.sync="FAQAssistantVisible" :close-on-click-modal="false"
-                 width="40%">
+                 width="800px">
         <div class="FAQAssistant_box" v-if="FAQAssistantAction">
           <div class="FAQAssistant_title">
             <div style="width: 110px;padding-right: 10px;text-align: right">分组</div>
@@ -305,7 +305,7 @@
     </div>
     <div class="messageQuickly_dialog">
       <el-dialog :title="messageQuicklyTitle" :visible.sync="messageQuicklyVisible" :close-on-click-modal="false"
-                 width="60%">
+                 width="800px">
         <div class="messageQuickly_box">
           <div class="messageQuickly_title">
             <div style="width: 80px;">群组名称</div>
@@ -454,7 +454,7 @@
         })
         let setChatSettingRes = JSON.parse(setChatSettingJson)
         console.log('setChatSettingRes', setChatSettingRes)
-        if (setChatSettingRes.state >= 200 && setChatSettingRes.state < 300) {
+        if (setChatSettingRes.status >= 200 && setChatSettingRes.status < 300) {
           this.$refs.autoReplyLogs.writeLog(`店铺【${item.mall_alias_name || item.platform_mall_name}】的预设自动回复设置成功`, true)
           let data = JSON.parse(setChatSettingRes.data)
           let temp = Object.assign(item, data, { auto_reply_status: data.auto_reply_status === 'enabled' })
@@ -490,7 +490,7 @@
         let setOfflineReplyJson = await this.$shopeemanService.setOfflineReply(item.country, JSON.parse(param), { headers: { referer: '/portal/assistant/basic/autoReply' } })
         let setOfflineReplyRes = JSON.parse(setOfflineReplyJson)
         console.log(setOfflineReplyRes)
-        if (setOfflineReplyRes.state >= 200 && setOfflineReplyRes.state < 300) {
+        if (setOfflineReplyRes.status >= 200 && setOfflineReplyRes.status < 300) {
           this.$refs.autoReplyLogs.writeLog(`店铺【${item.mall_alias_name || item.platform_mall_name}】的预设离线回复设置成功`, true)
           let data = JSON.parse(setOfflineReplyRes.data)
           let temp = Object.assign(item, data, { status: data.status === 'enabled' })
