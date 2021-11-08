@@ -841,15 +841,17 @@ export default {
         const data = JSON.parse(res)
         console.log(data)
         if (data.code === 200) {
-          this.$notify({
-            type: 'success',
-            message: '解绑成功'
-          })
+          // this.$notify({
+          //   type: 'success',
+          //   message: '解绑成功'
+          // })
+          this.$message.success('解绑成功')
         } else {
-          this.$notify({
-            type: 'error',
-            message: data.message
-          })
+          // this.$notify({
+          //   type: 'error',
+          //   message: data.message
+          // })
+          this.$message.error(data.message)
         }
         this.loading = false
         // 清空数据 刷新
@@ -918,17 +920,19 @@ export default {
       const res = await this.$YipService.delInfor(targetId)
       const data = JSON.parse(res)
       if (data.code === -1) {
-        this.$notify({
-          title: '删除',
-          type: 'error',
-          message: data.message
-        })
+        // this.$notify({
+        //   title: '删除',
+        //   type: 'error',
+        //   message: data.message
+        // })
+        this.$message.error(data.message)
       } else {
-        this.$notify({
-          title: '删除',
-          type: 'success',
-          message: '删除成功'
-        })
+        // this.$notify({
+        //   title: '删除',
+        //   type: 'success',
+        //   message: '删除成功'
+        // })
+        this.$message.success('删除成功')
       }
       this.loading = false
       this.getTableList()
@@ -1082,17 +1086,19 @@ export default {
         const data = JSON.parse(res)
         console.log('updataDesc', data)
         if (data.code === 200) {
-          this.$notify({
-            title: '修改IP信息',
-            type: 'success',
-            message: '修改成功'
-          })
+          // this.$notify({
+          //   title: '修改IP信息',
+          //   type: 'success',
+          //   message: '修改成功'
+          // })
+          this.$message.success('修改成功')
         } else {
-          this.$notify({
-            title: '修改IP信息',
-            type: 'error',
-            message: data.message
-          })
+          // this.$notify({
+          //   title: '修改IP信息',
+          //   type: 'error',
+          //   message: data.message
+          // })
+          this.$message.error(data.message)
         }
         // 关闭弹窗 清空数据 刷新数据
         this.loading = false
@@ -1159,17 +1165,19 @@ export default {
         const data = JSON.parse(res)
 
         if (data.code !== 200) {
-          this.$notify({
-            title: '绑定店铺',
-            type: 'error',
-            message: data.message
-          })
+          // this.$notify({
+          //   title: '绑定店铺',
+          //   type: 'error',
+          //   message: data.message
+          // })
+          this.$message.error(data.message)
         } else {
-          this.$notify({
-            title: '绑定店铺',
-            type: 'success',
-            message: '绑定成功'
-          })
+          // this.$notify({
+          //   title: '绑定店铺',
+          //   type: 'success',
+          //   message: '绑定成功'
+          // })
+          this.$message.success('绑定成功')
         }
         this.loading = false
       } catch (error) {
@@ -1322,17 +1330,19 @@ export default {
       const res = await this.$YipService.AddSelfIP(JSON.stringify(this.query_person))
       const resMsg = JSON.parse(res)
       if (resMsg.code !== 200) {
-        this.$notify({
-          title: '新增自有IP公司主体',
-          type: 'error',
-          message: resMsg.message
-        })
+        // this.$notify({
+        //   title: '新增自有IP公司主体',
+        //   type: 'error',
+        //   message: resMsg.message
+        // })
+        this.$message.error(resMsg.message)
       } else {
-        this.$notify({
-          title: '新增自有IP公司主体',
-          type: 'success',
-          message: `IP保存成功`
-        })
+        // this.$notify({
+        //   title: '新增自有IP公司主体',
+        //   type: 'success',
+        //   message: `IP保存成功`
+        // })
+        this.$message.success('IP保存成功')
         this.loading = false
         // 附加店铺绑定
         this.targetId = resMsg.data
@@ -1425,17 +1435,19 @@ export default {
       const data = await this.$commodityService.addIPMaster(params)
       const resMsg = JSON.parse(data)
       if (resMsg.code === '-1') {
-        this.$notify({
-          title: '新增公司主体',
-          type: 'error',
-          message: resMsg.message
-        })
+        // this.$notify({
+        //   title: '新增公司主体',
+        //   type: 'error',
+        //   message: resMsg.message
+        // })
+        this.$message.error('新增公司主体')
       } else {
-        this.$notify({
-          title: '新增公司主体',
-          type: 'success',
-          message: `新增成功`
-        })
+        // this.$notify({
+        //   title: '新增公司主体',
+        //   type: 'success',
+        //   message: `新增成功`
+        // })
+        this.$message.success('新增成功')
         this.loading = false
         // 附加店铺绑定
         this.targetId = resMsg.data
