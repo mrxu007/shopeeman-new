@@ -594,7 +594,7 @@
                 type="primary"
                 size="mini"
                 @click="updataDesc()"
-              >更改绑定店铺</el-button>
+              >更新主体IP信息</el-button>
             </div>
           </div>
 
@@ -645,7 +645,7 @@
               </el-table>
             </div>
             <div style="display:flex;justify-content: center;margin-top:5px">
-              <el-button v-show="showButton" type="primary" size="mini" @click="updataMallList()">绑定店铺</el-button>
+              <el-button v-show="showButton" type="primary" size="mini" @click="updataMallList()">更改绑定店铺信息</el-button>
             </div>
           </div>
         </div>
