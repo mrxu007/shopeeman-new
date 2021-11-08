@@ -108,15 +108,43 @@
         </el-table-column>
         <el-table-column align="center" prop="watermark" label="店铺水印文字">
           <template v-slot="{ row }">
-            <span v-if="row.isCheckedWaterMark">
-              <el-input v-model="row.watermark" v-focus size="mini" type="textarea" resize="none" :autosize="{ minRows: 2, maxRows: 4 }" placeholder="店铺水印" @blur="updateWateMark(row)" />
-            </span>
+            <el-input
+              v-if="row.isCheckedWaterMark"
+              v-model="row.watermark"
+              v-focus
+              size="mini"
+              type="textarea"
+              resize="none"
+              :autosize="{ minRows: 2, maxRows: 4 }"
+              placeholder="店铺水印"
+              @blur="updateWateMark(row)"
+            />
 
-            <span v-else @click="row.isCheckedWaterMark = true"> {{ row.watermark }}</span>
+            <span v-else @click="row.isCheckedWaterMark = true">
+              <el-input v-model="row.watermark" :disabled="!row.isCheckedWaterMark" size="mini" type="textarea" resize="none" :autosize="{ minRows: 2, maxRows: 2 }" />
+            </span>
           </template>
         </el-table-column>
         <el-table-column align="center" prop="item_limit" label="店铺额度" />
-        <el-table-column align="center" prop="mall_alias_name" label="店铺别名" />
+        <el-table-column align="center" prop="mall_alias_name" label="店铺别名">
+          <template v-slot="{ row }">
+            <el-input
+              v-if="row.isCheckedWaterMark2"
+              v-model="row.mall_alias_name"
+              v-focus
+              size="mini"
+              type="textarea"
+              resize="none"
+              :autosize="{ minRows: 2, maxRows: 4 }"
+              placeholder="店铺别名"
+              @blur="updateMallAliasName(row)"
+            />
+
+            <span v-else @click="row.isCheckedWaterMark2 = true">
+              <el-input v-model="row.mall_alias_name" :disabled="!row.isCheckedWaterMark2" size="mini" type="textarea" resize="none" :autosize="{ minRows: 2, maxRows: 2 }" />
+            </span>
+          </template>
+        </el-table-column>
         <el-table-column align="center" prop="web_login_info" label="登录状态" show-overflow-tooltip="">
           <template v-slot="{ row }">
             <span v-html="row.LoginInfo" />
@@ -849,11 +877,28 @@ export default {
       }
       this.importTemplateData = null
     },
-    async updateWateMark(row) {
-      row.isCheckedWaterMark = false
-      if (!row.watermark) {
+
+    async updateMallAliasName(row) {
+      row.isCheckedWaterMark2 = false
+      // if (!row.mall_alias_name) {
+      //   return
+      // }
+      const params = { lists: [{
+        sysMallId: row.id,
+        mallAliasName: row.mall_alias_name
+      }] }
+      const res = await this.mallListAPIInstance.updateMallAliasName(params)
+      if (res.code !== 200) {
+        this.$message.error(`修改失败:${res.data}`, false)
         return
       }
+      this.$message.success(`修改成功`, true)
+    },
+    async updateWateMark(row) {
+      row.isCheckedWaterMark = false
+      // if (!row.watermark) {
+      //   return
+      // }
       const params = { lists: [{
         sysMallId: row.id,
         watermark: row.watermark
