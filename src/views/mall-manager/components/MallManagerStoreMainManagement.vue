@@ -607,7 +607,7 @@
                     flex-flow: column;"
             >
               <div style="display:flex">
-                <Storechoosemall :show-mall="false" style="margin-left: -20px;" @changeMallList="changeMallList2" @getSite="changeSite" />
+                <Storechoosemall :is-all="true" :show-mall="false" style="margin-left: -20px;" @changeMallList="changeMallList2" @getSite="changeSite" />
                 <el-button
                   type="primary"
                   size="mini"
@@ -687,7 +687,7 @@ export default {
     }
     return {
       dialogMallquery: {
-        country: 'TH',
+        country: '',
         mallGroupIds: []
       },
       rowData: '', // 选中行
@@ -1092,6 +1092,7 @@ export default {
           //   message: '修改成功'
           // })
           this.$message.success('修改成功')
+          const data = await this.$BaseUtilService.UpdateProxy()// 壳更新
         } else {
           // this.$notify({
           //   title: '修改IP信息',
@@ -1140,7 +1141,6 @@ export default {
         country: this.dialogMallquery.country,
         mallGroupIds: this.dialogMallquery.mallGroupIds.toString()
       }
-      // console.log('----', params)
       this.loading = true
       const res = await this.$api.ddMallGoodsGetMallList({ params })
       if (res.data.code === 200) {
@@ -1149,6 +1149,7 @@ export default {
         this.$message.warning('网络异常！')
       }
       this.loading = false
+      this.bindedMall()
     },
     // 绑定用户信息
     async  updataMallList() {
