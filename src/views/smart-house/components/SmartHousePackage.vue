@@ -9,25 +9,11 @@
             unlink-panels
             size="mini"
             type="datetimerange"
-            range-separator="至"
+            range-separator="-"
             start-placeholder="开始日期"
             end-placeholder="结束日期"
           />
         </li>
-        <li>
-          <span>申请退件时间：</span>
-          <el-date-picker
-            v-model="form.applyReturnTime"
-            unlink-panels
-            size="mini"
-            type="datetimerange"
-            range-separator="至"
-            start-placeholder="开始日期"
-            end-placeholder="结束日期"
-          />
-        </li>
-      </ul>
-      <ul>
         <li>
           <span>包裹状态：</span>
           <el-select
@@ -48,6 +34,21 @@
             />
           </el-select>
         </li>
+      </ul>
+      <ul>
+        <li>
+          <span>申请退件时间：</span>
+          <el-date-picker
+            v-model="form.applyReturnTime"
+            unlink-panels
+            size="mini"
+            type="datetimerange"
+            range-separator="-"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
+          />
+        </li>
+
         <li>
           <span>订单编号：</span>
           <el-input
@@ -94,7 +95,7 @@
       <el-table
         ref="plTable"
         v-loading="isShowLoading"
-        height="calc(100vh - 205px)"
+        height="calc(100vh - 210px)"
         :data="tableData"
         :header-cell-style="{
           backgroundColor: '#f5f7fa',
@@ -159,7 +160,7 @@
         <el-table-column
           prop="package_time"
           label="签收时间"
-          width="110"
+          width="95"
         />
         <el-table-column
           prop="status"
@@ -234,7 +235,7 @@
         <el-table-column
           prop="return_time"
           label="退件时间"
-          width="100"
+          width="95"
         />
         <el-table-column
           prop="return_shipping_name"

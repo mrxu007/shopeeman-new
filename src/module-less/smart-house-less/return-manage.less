@@ -1,64 +1,73 @@
 .contaniner{
-    margin: 10px;
-    .header {
-      background: white;
-      padding: 16px;
-      min-width: 1280px;
-      overflow: auto;
-      ul{
-        display: flex;
-          li{
-            line-height: 24px;
-            display: flex;
-              margin-right: 20px;
-              /deep/.el-range-editor--mini{
-                width: 228px;
-                /deep/.el-range-input{
-                  width: 62px !important;
-              }
-              /deep/.el-range-separator{
-                  width: 42px!important;
-                  text-align: center;
-              }
+  margin: 10px;
+  .header {
+    background: white;
+    padding: 16px;
+    overflow: auto;
+    ul{
+      display: flex;
+      width: 1085px;
+        li{
+          line-height: 24px;
+          display: flex;
+            margin-right: 20px;
+            /deep/.el-range-editor--mini{
+              width: 228px;
+              /deep/.el-range-input{
+                width: 67px !important;
             }
-            /deep/.el-input{
-              width: 150px !important;
+            /deep/.el-range-separator{
+                width: 42px!important;
+                text-align: center;
             }
           }
-      }
+          /deep/.el-input{
+            width: 155px !important;
+          }
+        }
     }
-    #article {
-      background: white;
+  }
+  #article {
+    // min-width: 1280px;
+    background: white;
+    margin-top: 10px;
+    padding: 16px;
+    overflow: hidden;
+    .pagination{
+      float: right;
       margin-top: 10px;
-      padding: 16px;
-      min-width: 1280px;
-      .pagination{
-        float: right;
-        margin-top: 10px;
-      }
     }
-    .water-dialog {
-      .header-opt {
-        display: flex;
+  }
+  .dialog {
+    /deep/.el-dialog__header {
+      padding: 5px 0 0 10px !important;
+    }
+    /deep/.el-dialog__title {
+      font-size: 12px !important;
+      color: #3031337a !important;
+    }
+      /deep/.el-checkbox-group {
+        width: 250px !important;
+
+        /deep/.el-checkbox {
+          margin-right: 5px !important;
+          /deep/.el-checkbox__label {
+            padding-left: 5px !important;
+          }
+        }
       }
-      .text-label {
-        margin-top: 10px;
-      }
-      .text-log {
-        margin-top: 10px;
-        width: 570px;
-        height: 270px;
-        border: 1px solid #ccc;
-        overflow-y: auto;
-        .text-log-content {
-          padding: 16px;
+      /deep/.el-form {
+        width: 350px;
+        /deep/.el-form-item {
+          margin-bottom: 10px !important;
+          // text-align: center !important;
         }
       }
     }
     .copyIcon {
-      // color: var(--themeColor);
+      color: var(--themeColor);
       margin-left: 1px;
       font-size: 16px;
       cursor: pointer;
     }
-  }
+}
