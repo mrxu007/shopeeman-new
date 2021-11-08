@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-10-08 14:16:18
- * @LastEditTime: 2021-11-06 15:12:31
+ * @LastEditTime: 2021-11-08 16:06:36
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shopeeman-new\src\network\jx-request.js
@@ -125,7 +125,8 @@ export default {
   applicationForreJection: (data) => AppRequest.post('/packageReturn/apply', data), // 申请退件
 
   // 待获取物流单号
-  getExceptionNoTrackingNumberIndex: (data) => AppRequest.get('/exceptionNoTrackingNumberIndex', { params: data }), // 订单列表
+  getExceptionNoTrackingNumberIndex: (data) => AppRequest.get('/exceptionNoTrackingNumberIndex', { params: data }), // 异常物流订单列表
+  getOriginalTrackingNumberEmpty: (data) => AppRequest.get('/order/originalTrackingNumberEmpty', { params: data }), // 获取订单列表
   updateOrderTrackingNumber: (data) => AppRequest.post('/order/updateOrderTrackingNumber', data), // 添加采购物流单号
   uploadTrackingNumber: (data) => AppRequest.post('/order/uploadOrderTrackingNumber', data), // 上报同步物流单号 
 

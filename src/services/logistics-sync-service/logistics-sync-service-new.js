@@ -57,7 +57,7 @@ export default class logisticeSyncService {
     for (let i = 0; i < ordersLen; i++) {
       const item = orders[i]
       console.log(item)
-      const buyer_name = item.buy_account_info ? item.buy_account_info.name : ''
+      const buyer_name = item.shot_order_info.buy_account_info ? item.shot_order_info.buy_account_info.name : ''
       // const buyer_name = "tt939242551"
       console.log(buyer_name)
       const shot_order_sn = item.shot_order_sn
@@ -101,12 +101,12 @@ export default class logisticeSyncService {
   }
   async getOrdersFromServerCycle() {
     try {
-      const res = await this.$api.getExceptionNoTrackingNumberIndex()
+      const res = await this.$api.getOriginalTrackingNumberEmpty()
       console.log(res, "getOrdersFromServerCycle")
       if (res.data.code === 200) {
         const data = {
-          total: res.data.data.count,
-          orderList: res.data.data.data
+          total: res.data.data.length,
+          orderList: res.data.data
         }
         return {
           code: 200,
@@ -171,7 +171,7 @@ export default class logisticeSyncService {
     for (let index = 0; index < ordersLen; index++) {
       const item = orders[index]
       console.log(item, "56656")
-      const shot_order_sn = item.shot_order_sn || '' 
+      const shot_order_sn = item.shot_order_info.shot_order_sn || '' 
       // const shot_order_sn = '2229427695828657966' //tb
       // const shot_order_sn = '2161702586001984947' //1688
       try {
@@ -188,7 +188,7 @@ export default class logisticeSyncService {
         }
         const tbshippingName = this.changetbOrderName(logisticInfo.TrackingName)
         const params = {
-          sysOrderId: item.sys_order_id, //系统订单id
+          sysOrderId: item.id, //系统订单id
           trackingNumber: logisticInfo.TrackingNumber, //平台物流单号
           // shippingId: logisticInfo.TrackCode, //物流公司id
           // deliveryTime: logisticInfo.DeliveryTime, //上家发货时间
