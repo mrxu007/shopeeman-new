@@ -3,7 +3,7 @@
     <ul class="storeChooseUL">
       <li>
         <span :style="{ width: spanWidth }">所属站点：</span>
-        <el-select v-model="countryVal" size="mini" filterable class="siteSelectBox">
+        <el-select v-model="countryVal" size="mini" filterable class="siteSelectBox" @change="getsite">
           <el-option v-if="isAll" label="全部" :value="''" />
           <el-option v-for="(item, index) in countries" :key="index" :label="item.label" :value="item.value" />
         </el-select>
@@ -137,6 +137,11 @@ export default {
     this.countryVal = (!this.isAll && 'TH') || ''
   },
   methods: {
+    getsite(val) {
+      const site = val
+      this.$emit('getSite', site)
+    },
+
     async changeSelect(val) {
       console.log(val)
     },

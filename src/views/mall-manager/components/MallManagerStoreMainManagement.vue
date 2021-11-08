@@ -607,7 +607,7 @@
                     flex-flow: column;"
             >
               <div style="display:flex">
-                <Storechoosemall :show-mall="false" style="margin-left: -20px;" @changeMallList="changeMallList2" />
+                <Storechoosemall :show-mall="false" style="margin-left: -20px;" @changeMallList="changeMallList2" @getSite="changeSite" />
                 <el-button
                   type="primary"
                   size="mini"
@@ -687,7 +687,7 @@ export default {
     }
     return {
       dialogMallquery: {
-        country: '',
+        country: 'TH',
         mallGroupIds: []
       },
       rowData: '', // 选中行
@@ -947,7 +947,7 @@ export default {
           this.query.mall_ids.push(item.id)
           this.dialogMallquery.mallGroupIds.push(item.group_id)
         })
-        this.initDate()
+        // this.initDate()
         this.getTableList()
         // console.log('6565656', this.dialogMallquery.mallGroupIds)
         this.getMallList()
@@ -1137,9 +1137,10 @@ export default {
     // 初始化店铺列表 查询
     async getMallList() {
       const params = {
-        country: '',
+        country: this.dialogMallquery.country,
         mallGroupIds: this.dialogMallquery.mallGroupIds.toString()
       }
+      // console.log('----', params)
       this.loading = true
       const res = await this.$api.ddMallGoodsGetMallList({ params })
       if (res.data.code === 200) {
@@ -1494,6 +1495,10 @@ export default {
         })
       }
     },
+    // 获取店铺站点
+    changeSite(val) {
+      this.dialogMallquery.country = val
+    },
     // 获取IP区域列表
     async GetCloudIPAreaList() {
       const data = await this.$YipService.GetCloudIPAreaList()
@@ -1561,14 +1566,14 @@ export default {
       // params.expiration_datesg = '2021-10-06 23:59:59/2021-11-06 23:59:59'
       params.mall_ids = this.query.mall_ids.toString() || ''
       // debugger
-      console.log(params, 'getTableList')
+      // console.log(params, 'getTableList')
       this.loading = true
       try {
         const res = await this.$YipService.GetIpList(JSON.stringify(params))
         this.tableList = []
         const data = JSON.parse(res)
         this.loading = false
-        console.log('----------', data)
+        // console.log('----------', data)
         if (data.code === 200 && this.shopAccountList.length > 0) {
           if (data.data && data.data.length > 0) {
             data.data.forEach((item, index) => {
@@ -1595,7 +1600,7 @@ export default {
           } else {
             this.tableList = []
           }
-          console.log('tableList', this.tableList)
+          // console.log('tableList', this.tableList)
           // 分页
           this.chang()
         } else {
