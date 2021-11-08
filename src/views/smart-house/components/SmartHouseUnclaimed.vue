@@ -13,9 +13,8 @@
           type="primary"
           size="mini"
           :loading="serchDataLoading"
-          style="width:80px;height:30px"
           @click="serchData"
-        >搜索</el-button>
+        >搜 索</el-button>
       </div>
     </div>
     <div class="table-box">
@@ -156,19 +155,13 @@ export default {
       try {
         const res = await this.$api.getUnclaimedPackage({ packageCode: query })
         const data = res.data
-        console.log(data, '--------')
+        console.log(data)
         if (data.code === 200 && data.data && data.data.length) {
           this.tableData = data.data
         } else if (data.code === 200) {
-          this.$message({
-            type: 'success',
-            message: data.message
-          })
+          this.$message.success(data.message)
         } else {
-          this.$message({
-            type: 'error',
-            message: data.message
-          })
+          this.$message.error(data.message)
         }
         this.serchDataLoading = false
         this.isLoading = false
@@ -186,7 +179,7 @@ export default {
     },
     async markPackageToMy() {
       if (!this.orderSn) {
-        this.$message.warning('请输入订单号')
+        this.$message('请输入订单号')
         return
       }
       this.isLoading = true
@@ -196,16 +189,10 @@ export default {
       }
       const { data } = await this.$api.markPackageToMy(query)
       if (data.code === 200) {
-        this.$message({
-          type: 'success',
-          message: '标记成功'
-        })
+        this.$message.success('标记成功')
         this.closeDialog()
       } else {
-        this.$message({
-          type: 'error',
-          message: data.message
-        })
+        this.$message.error(data.message)
       }
 
       this.isLoading = false

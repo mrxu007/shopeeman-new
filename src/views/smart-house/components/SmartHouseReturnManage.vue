@@ -29,47 +29,15 @@
             unlink-panels
             size="mini"
             type="datetimerange"
-            range-separator="至"
+            range-separator="-"
             start-placeholder="开始日期"
             end-placeholder="结束日期"
-          />
-        </li>
-        <li>
-          <span>退件时间：</span>
-          <el-date-picker
-            v-model="form.returnTime"
-            unlink-panels
-            size="mini"
-            type="datetimerange"
-            range-separator="至"
-            start-placeholder="开始日期"
-            end-placeholder="结束日期"
-          />
-        </li>
-      </ul>
-      <ul>
-        <li>
-          <span>订单编号：</span>
-          <el-input
-            v-model="form.orderNum"
-            clearable
-            size="mini"
-            oninput="value=value.replace(/\s+/g,'')"
           />
         </li>
         <li>
           <span>包裹物流编号：</span>
           <el-input
             v-model="form.logisticsNum"
-            clearable
-            size="mini"
-            oninput="value=value.replace(/\s+/g,'')"
-          />
-        </li>
-        <li>
-          <span>退件物流单号：</span>
-          <el-input
-            v-model="form.returnLogisticsNum"
             clearable
             size="mini"
             oninput="value=value.replace(/\s+/g,'')"
@@ -84,6 +52,40 @@
             oninput="value=value.replace(/\s+/g,'')"
           />
         </li>
+      </ul>
+      <ul>
+        <li>
+          <span>订单编号：</span>
+          <el-input
+            v-model="form.orderNum"
+            clearable
+            size="mini"
+            oninput="value=value.replace(/\s+/g,'')"
+          />
+        </li>
+        <li>
+          <span style="width:84px;text-align:right;">退件时间：</span>
+          <el-date-picker
+            v-model="form.returnTime"
+            unlink-panels
+            size="mini"
+            type="datetimerange"
+            range-separator="-"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
+          />
+        </li>
+
+        <li>
+          <span>退件物流单号：</span>
+          <el-input
+            v-model="form.returnLogisticsNum"
+            clearable
+            size="mini"
+            oninput="value=value.replace(/\s+/g,'')"
+          />
+        </li>
+
         <li>
           <el-button
             type="primary"
@@ -106,7 +108,7 @@
       <el-table
         ref="plTable"
         v-loading="isShowLoading"
-        height="calc(100vh - 205px)"
+        height="calc(100vh - 210px)"
         :data="tableData"
         :header-cell-style="{
           backgroundColor: '#f5f7fa',
@@ -181,7 +183,7 @@
         <el-table-column
           prop="appli_return_time"
           label="申请退件时间"
-          width="110"
+          width="95"
         />
         <el-table-column
           prop="return_contact"
@@ -229,7 +231,7 @@
         <el-table-column
           prop="return_time"
           label="退件时间"
-          width="110"
+          width="95"
         />
         <el-table-column
           prop="warehouse_remarks"

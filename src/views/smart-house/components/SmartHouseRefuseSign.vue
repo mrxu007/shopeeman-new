@@ -2,19 +2,19 @@
   <div v-loading="isLoading" class="refuse-sign">
     <div class="operating-box">
       <div class="form-item">
-        <span style="margin-left: 20px">添加时间：</span>
+        <!-- <span style="margin-left: 20px">添加时间：</span>
         <el-date-picker
           v-model="createdAt"
           size="mini"
           value-format="yyyy-MM-dd"
           type="daterange"
-          style="width: 195px;margin-right: 20px"
+          style="width: 206px;margin-right: 20px"
           range-separator="-"
           :picker-options="pickerOptions"
           start-placeholder="开始日期"
           end-placeholder="结束日期"
-        />
-        <span class="title">类别：</span>
+        /> -->
+        <!-- <span class="title">类别：</span>
         <el-select
           v-model="Type"
           style="width: 100px;margin-right: 20px"
@@ -26,7 +26,7 @@
             :label="item.label"
             :value="item.value"
           />
-        </el-select>
+        </el-select> -->
         <span class="title">采购物流单号：</span>
         <el-input
           v-model="trackingNumber"
@@ -39,15 +39,15 @@
           type="primary"
           size="mini"
           :loading="serchLoading"
-          style="width:80px;height:30px"
+          style="width:80px;"
           @click="serchData(1)"
-        >搜索</el-button>
+        >搜 索</el-button>
         <el-button
           type="primary"
           size="mini"
-          style="margin-left: 10px;width:80px;height:30px"
+          style="margin-left: 10px;width:80px;"
           @click="dialogVisible=true"
-        >添加</el-button>
+        >添 加</el-button>
       </div>
     </div>
     <div class="table-box">
@@ -129,7 +129,7 @@
           :value="item.value"
         />
       </el-select></p>
-      <p style="font-size: 14px;padding: 12px 14px 0 60px"><span style="color: red">*</span>仓库：<el-select
+      <p style="font-size: 14px;padding: 12px 14px 0 55px"><span style="color: red">*</span>仓库： <el-select
         v-model="warehouseUserId"
         size="mini"
         style="width: 180px;"
@@ -142,7 +142,7 @@
         />
       </el-select></p>
 
-      <p style="font-size: 14px;padding: 12px 14px 0 4px"><span style="color: red">*</span>采购物流单号： <el-input
+      <p style="font-size: 14px;padding: 12px 14px 0 7px"><span style="color: red">*</span>采购物流单号： <el-input
         v-model="trackingNumberAdd"
         style="width: 180px;"
         clearable
@@ -166,7 +166,7 @@ export default {
   data() {
     return {
       warehouseUserList: [],
-      warehouseUserId: '', // 仓库id
+      warehouseUserId: 1, // 仓库id
       serchLoading: false,
       trackingNumber: '', // 采购物流单号
       tableData: [],
@@ -250,7 +250,7 @@ export default {
           this.total = data.data.total
           this.tableData = list
         } else {
-          this.$notify({
+          this.$message({
             type: 'error',
             message: data.message
           })
@@ -266,13 +266,13 @@ export default {
     // 添加拒签
     async packageSign() {
       if (!this.trackingNumberAdd) {
-        return this.$notify({
+        return this.$message({
           type: 'error',
           message: '请填写物流单号'
         })
       }
       if (!this.warehouseUserId) {
-        return this.$notify({
+        return this.$message({
           type: 'error',
           message: '请选择物流仓库'
         })
@@ -288,19 +288,19 @@ export default {
         if (data.code === 200) {
           this.dialogVisible = false
           this.serchData()
-          this.$notify({
+          this.$message({
             type: 'success',
             message: '添加成功'
           })
         } else {
-          this.$notify({
+          this.$message({
             type: 'error',
             message: data.message
           })
         }
       } catch (err) {
         console.log(err)
-        // this.$message.error('添加失败')
+        // this.$messagessage.error('添加失败')
       }
     },
     // 取消拒收 删除
@@ -315,12 +315,12 @@ export default {
         if (data.code === 200) {
           this.serchData()
 
-          this.$notify({
+          this.$message({
             type: 'success',
             message: '删除成功'
           })
         } else {
-          this.$notify({
+          this.$message({
             type: 'error',
             message: data.message
           })
@@ -331,7 +331,7 @@ export default {
         console.log(err)
         this.isLoading = false
         this.serchData()
-        // this.$message.error('删除失败')
+        // this.$messagessage.error('删除失败')
       }
     },
     // 日期选择器时间处理
@@ -354,7 +354,7 @@ export default {
         window.getSelection().addRange(range)
         document.execCommand('copy')
         window.getSelection().removeAllRanges()
-        this.$notify({
+        this.$message({
           type: 'success',
           message: '复制成功'
         })

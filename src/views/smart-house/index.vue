@@ -21,7 +21,7 @@
     <main v-if="activeVal === '3'"><SmartHouseUnclaimed /></main>
 
     <!--拒签收管理 -->
-    <main v-if="activeVal === '5'"><SmartHouseRefuseSign /></main>
+    <main v-if="activeVal === '4'"><SmartHouseRefuseSign /></main>
 
     <!--我的赔付 -->
     <main v-if="activeVal === '5'"><SmartHouseAbnormalPayment /></main>
