@@ -1,3 +1,5 @@
+import { base64 } from 'js-md5'
+
 // import api from '../../network/jx-request'
 export default class MallListAPI {
   constructor(that) {
@@ -110,6 +112,30 @@ export default class MallListAPI {
     }
   }
 
+  // 先上传图片：/api/v3/general/upload_image/（POST） 使用字节流上传，获取到resource_id（即图片的ID）
+  async get_image_resource_id(mallInfo, base64File) {
+    try {
+      const { country, platform_mall_id } = mallInfo
+      const params = {
+        'platform_mall_id': platform_mall_id,
+        'ratio': 2
+      }
+      let res = await this._this.$shopeemanService.postChineseImageFile(country, '/api/v3/general/upload_image/', params, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          'upImgType': 'file'
+        }
+      }, base64File)
+      debugger
+      res = JSON.parse(JSON.parse(res).data)
+      if (res.code === 0) {
+        return { code: 200, data: '操作成功' }// Errors within expectations  开启关闭太频繁，需冷却三小时
+      }
+      return { code: res.code, data: `${res.code} ${res.message.indexOf('Errors within expectations') > -1 ? '开启关闭太频繁，需冷却3小时' : res.message}` }
+    } catch (error) {
+      return { code: -2, data: `getMallInfo-catch: ${error}` }
+    }
+  }
   // 本地服务接口----------------------------------------------------
   // 获取店铺列表
   async getMallList(params) {

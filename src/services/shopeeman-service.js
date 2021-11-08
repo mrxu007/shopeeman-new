@@ -1,6 +1,6 @@
 import { sha256 } from 'js-sha256'
 import md5 from 'js-md5'
-import { FormItem } from 'element-ui'
+import { getImgMd5 } from '../util/util'
 export default class NetMessageBridgeService {
   NetMessageBridgeService() {
     return window['NetMessageBridgeService']
@@ -91,7 +91,22 @@ export default class NetMessageBridgeService {
     }
     return this.NetMessageBridgeService().post(url, JSON.stringify(options), JSON.stringify(data))
   }
-
+  async postChineseImageFile(country, api, data, options = {}, base64File) {
+    const url = await this.getUrlPrefix(country) + api
+    options['extrainfo'] = this.getExtraInfo(data)
+    const referer = options['headers'] && options['headers'].referer
+    if (referer) {
+      options['headers'] = Object.assign(options['headers'],
+        {
+          origin: url,
+          referer: url + referer
+        })
+    }
+    const base64 = base64File.dataURL
+    const ext = base64File.ext
+    const filename = `${getImgMd5(base64)}.${ext}`
+    return this.NetMessageBridgeService().uploadFile(url, JSON.stringify(data), JSON.stringify(options), null, base64, filename, 'multipart/form-data')
+  }
   async putChinese(country, api, data, options = {}) {
     const url = await this.getUrlPrefix(country) + api
     options['extrainfo'] = this.getExtraInfo(data)
@@ -204,9 +219,8 @@ export default class NetMessageBridgeService {
         }
       }, copy_mallInfo)
       res = JSON.parse(res)
-      debugger
-      const data = JSON.parse(res.data)
       if (res.status === 200) {
+        const data = JSON.parse(res.data)
         // const data = {
         //   'username': 'hellohappy586',
         //   'shopid': 213693788,
@@ -295,16 +309,16 @@ export default class NetMessageBridgeService {
         }
         return { code: 200, data: obj }
       }
-      let message = data.raw_response.debug_msg
-      const code = data.error_code
-      if (message.indexOf('has at most 30 chars') > -1) {
-        message = '登录异常，店铺账号过长。店铺账号长度应小于等于30'
-      }
-      return { code, data: `${code} ${message}` }
+      return { code: res.status, data: `${res.status} ${res.data} ` }
     } catch (e) {
       console.log('e', e)
       return { code: -2, data: `login -catch: ${e} ` }
     }
+  }
+
+  // 上传图片
+  async uploadFile(mallInfo) {
+
   }
 
   // 获取自动回复数据
