@@ -56,6 +56,12 @@ const routes = [
     name: 'test-api',
     component: () =>
       import('../views/test-api/index.vue')
+  },
+  {
+    path: '/order-manager', // 订单管理
+    name: '/order-manager',
+    component: () =>
+      import('../views/order-manager/index.vue')
   }
 ]
 const originalPush = VueRouter.prototype.push
