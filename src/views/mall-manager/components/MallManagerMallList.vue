@@ -42,7 +42,7 @@
             <el-button type="primary" size="mini" @click="exportMall">导出店铺</el-button>
             <el-button type="primary" size="mini" @click="editWaterMall('update')">修改账号登录密码</el-button>
             <el-button type="primary" size="mini" @click="editWaterMall('edit')">修改店铺水印文字</el-button>
-            <el-button type="primary" size="mini" disabled>设置店铺封面</el-button>
+            <el-button type="primary" size="mini" @click="handlerSelectTableOperating('openMallBKSetting')">设置店铺封面</el-button>
           </el-row>
           <el-row class="btn-row">
             <el-button type="primary" size="mini" :loading="buttonStatus.refresh" @click="refreshStatus">刷新登录状态</el-button>
@@ -285,6 +285,43 @@
       </span>
     </el-dialog>
     <Logs ref="Logs" v-model="hideConsole" clear />
+    <!-- 店铺封面设置弹框 -->
+    <el-dialog
+      class="mall-BK-Setting-Dialog"
+      title="店铺封面设置"
+      :visible.sync="mallBKSettingDialog"
+      width="500px"
+      :before-close="handleClose3"
+      :close-on-click-modal="false"
+      :close-on-press-escape="false"
+      center
+    >
+      <ul>
+        <li>
+          <p>图片设置：</p>
+          <el-radio-group v-model="imageOrigin" @change="selectImageOrigin">
+            <el-radio label="1">使用默认图片</el-radio>
+            <el-radio label="2">使用本地图片</el-radio>
+          </el-radio-group>
+        </li>
+        <li>
+          <p>站点选择：</p>
+          <el-radio-group v-model="imageSiteVal" @change="selectImageSiteVal">
+            <el-radio label="3">繁体版</el-radio>
+            <el-radio label="4">英文版</el-radio>
+          </el-radio-group>
+        </li>
+        <el-upload v-if="imageOrigin === '2'" class="avatar-uploader" :show-file-list="false" action="" :on-error="imgSaveToUrl2" :before-upload="beforeAvatarUpload2">
+          <img v-if="imageUrl" :src="imageUrl" class="avatar" style="width: 460px; height: 450px" />
+          <i v-else class="el-icon-plus avatar-uploader-icon" />
+        </el-upload>
+        <img v-else :src="imageUrl" style="width: 460px; height: 450px" />
+      </ul>
+      <span slot="footer" class="dialog-footer">
+        <el-button type="primary" size="mini" @click="asyncUpdateMallBk">确 定</el-button>
+        <el-button size="mini" @click="cancel3">取 消</el-button>
+      </span>
+    </el-dialog>
   </el-row>
 </template>
 
@@ -302,6 +339,7 @@ export default {
       mallListAPIInstance: new MallListAPI(this),
       consoleMsg: '',
       buttonStatus: {
+        updateBK: false,
         mallList: false,
         login: false,
         delMall: false,
@@ -352,6 +390,12 @@ export default {
       // dialog
       waterDialogVisible: false,
       importMallDialogVisible: false,
+      mallBKSettingDialog: false,
+      imageOrigin: '1',
+      imageSiteVal: '3',
+      imageUrl: 'https://taobaotj.oss-cn-shenzhen.aliyuncs.com/image/privateGoods/2021/11/69981640.png',
+      imageType: 'png',
+      imageInfo: null,
       delMallDialog: false,
 
       // 导入
@@ -410,6 +454,11 @@ export default {
       this.delMallDialog = false
       this.reset()
     },
+    cancel3() {
+      this.mallBKSettingDialog = false
+      this.reset2()
+    },
+
     openDeleteMallDialog() {
       const len = this.multipleSelection.length
       if (!len) {
@@ -421,6 +470,171 @@ export default {
         return
       }
       this.delMallDialog = true
+    },
+    selectImageOrigin() {
+      console.log('this.imageOrigin', this.imageOrigin)
+      if (this.imageOrigin === '1') {
+        if (this.imageSiteVal === '3') {
+          this.imageUrl = 'https://taobaotj.oss-cn-shenzhen.aliyuncs.com/image/privateGoods/2021/11/69981640.png'
+        } else {
+          this.imageUrl = 'https://taobaotj.oss-cn-shenzhen.aliyuncs.com/image/privateGoods/2021/11/76528659.png'
+        }
+      } else {
+        this.imageUrl = ''
+      }
+
+      console.log('this.imageSiteVal', this.imageSiteVal)
+      //
+    },
+    selectImageSiteVal() {
+      if (this.imageOrigin === '1') {
+        if (this.imageSiteVal === '3') {
+          this.imageUrl = 'https://taobaotj.oss-cn-shenzhen.aliyuncs.com/image/privateGoods/2021/11/69981640.png'
+        } else {
+          this.imageUrl = 'https://taobaotj.oss-cn-shenzhen.aliyuncs.com/image/privateGoods/2021/11/76528659.png'
+        }
+      }
+    },
+    // 转base64 上传详情图
+    imgSaveToUrl2(err, file) {
+      const type = file.raw.type
+      const reader = new FileReader()
+      reader.readAsDataURL(file.raw)
+      reader.onload = () => {
+        const base64Str = reader.result
+        this.imageUrl = base64Str
+        this.imageType = type
+      }
+    },
+    beforeAvatarUpload2(file) {
+      var reader = new FileReader()
+      reader.onload = function(event) {
+        var txt = event.target.result
+        var img = document.createElement('img')
+        img.src = txt
+        img.onload = function() {
+          console.log(img.width)
+          console.log(img.height)
+        }
+      }
+      reader.readAsDataURL(file)
+      const isPNG = file.type === 'image/png'
+      const isJPG = file.type === 'image/jpg'
+      const isJPEG = file.type === 'image/jpeg'
+      const flag = isPNG || isJPG || isJPEG
+      console.log(flag, 'isJPG')
+      // const isLt2M = file.size / 800 / 800 < 2
+      if (!flag) {
+        this.$message2.error('上传商品图片只能是 PNG、JPG、JPEG 格式!')
+      }
+      // if (!isLt2M) {
+      //   this.$message2.error('上传商品图片大小不能超过 2MB!')
+      // }
+      // return flag && isLt2M
+      return flag
+    },
+    // base64 -> blob
+    convertBase64UrlToBlob(base64) {
+      var urlData = base64.dataURL
+      var type = base64.type
+      var bytes = window.atob(urlData.split(',')[1]) // 去掉url的头，并转换为byte
+      // 处理异常,将ascii码小于0的转换为大于0
+      var ab = new ArrayBuffer(bytes.length)
+      var ia = new Uint8Array(ab)
+      for (var i = 0; i < bytes.length; i++) {
+        ia[i] = bytes.charCodeAt(i)
+      }
+      return new Blob([ab], { type: type })
+    },
+    // base64
+    getBase64Image(img) {
+      var canvas = document.createElement('canvas')
+      canvas.width = img.width
+      canvas.height = img.height
+      var ctx = canvas.getContext('2d')
+      ctx.drawImage(img, 0, 0, img.width, img.height)
+      var ext = img.src.substring(img.src.lastIndexOf('.') + 1).toLowerCase()
+      var dataURL = canvas.toDataURL('image/' + ext)
+      return {
+        code: 200,
+        data: {
+          dataURL: dataURL,
+          // type: 'image/' + ext,
+          ext
+        }
+      }
+    },
+    // url-> base64 -> blob
+    getUrlToBolb() {
+      return new Promise((resolve, reject) => {
+        const image = new Image()
+        image.crossOrigin = ''
+        image.src = this.imageUrl
+        const that = this
+        image.onload = function() {
+          const base64File = that.getBase64Image(image)
+          resolve({ code: 200, data: base64File.data })
+        }
+        image.onerror = function(e) {
+          resolve({ code: -2, data: e })
+        }
+      })
+    },
+    async asyncUpdateMallBk() {
+      if (!this.imageUrl) {
+        return this.$message.error('请上传背景图')
+      }
+      let res = {}
+      if (this.imageOrigin === '1') { // 如果为默认图需要将url->base64—> blob
+        res = await this.getUrlToBolb()
+      } else { // 使用用户上传  base64 -> blob 少了url那步
+        res = { code: 200, data: { dataURL: this.imageUrl, ext: this.imageType }}
+      }
+      if (res.code !== 200) {
+        this.$message.error('转换背景图失败')
+        return
+      }
+      this.imageInfo = res.data
+      const data = this.multipleSelection
+      this.buttonStatus.updateBK = true
+      this.hideConsole = false
+      const len = data.length
+      this.percentage = 0
+      this.addPercentage = 100 / len
+      await batchOperation(data, this.setMall)
+      console.log(1, '完成', res)
+      this.percentage = 100
+      this.hideConsole = true
+      this.buttonStatus.updateBK = false
+      this.mallBKSettingDialog = false
+      this.reset2()
+    },
+    async setMall(item, count = { count: 1 }) {
+      const platform_mall_name = item.platform_mall_name
+      try {
+        console.log('item - count', item, count)
+        if (!this.imageInfo) {
+          this.$refs.Logs.writeLog(`请先上传背景图`, false)
+          return
+        }
+        const resourceInfo = await this.mallListAPIInstance.get_image_resource_id(item, this.imageInfo)
+        if (resourceInfo.code !== 200) {
+          this.$refs.Logs.writeLog(`店铺【${platform_mall_name}】设置背景图失败(1)：${resourceInfo.data}`, false)
+          return
+        }
+        const updateInfo = await this.mallListAPIInstance.updateMallBK(item, resourceInfo.data)
+        if (updateInfo.code !== 200) {
+          this.$refs.Logs.writeLog(`店铺【${platform_mall_name}】设置背景图失败(2)：${updateInfo.data}`, false)
+          return
+        }
+        this.$refs.Logs.writeLog(`店铺【${platform_mall_name}】更新背景图片成功`, true)
+      } catch (e) {
+        console.log('错误', e)
+        this.$refs.Logs.writeLog(`店铺【${platform_mall_name}】设置背景图失败：${e}`, false)
+      } finally {
+        --count.count
+        this.percentage += this.addPercentage
+      }
     },
     getIP() {
       this.$BaseUtilService
@@ -464,6 +678,11 @@ export default {
     reset() {
       this.comfirmText = ''
       this.delOrderType = 1
+    },
+    reset2() {
+      this.imageOrigin = '1'
+      this.imageSiteVal = '3'
+      this.imageUrl = 'https://taobaotj.oss-cn-shenzhen.aliyuncs.com/image/privateGoods/2021/11/69981640.png'
     },
     handleSelectionChange(val) {
       this.multipleSelection = val
@@ -528,6 +747,13 @@ export default {
       } else {
         this[OperatingName](this.mallList)
       }
+    },
+    openMallBKSetting() {
+      const mallLen = this.multipleSelection.length
+      if (!mallLen) {
+        return this.$message.error(`请选择店铺`)
+      }
+      this.mallBKSettingDialog = true
     },
     async asyncMallData(data) {
       if (!data) {
@@ -1071,15 +1297,14 @@ export default {
       //   .catch(_ => {})
     },
     handleClose2(done) {
-      // this.$confirm('确认关闭？')
-      //   .then(_ => {
       done()
       this.importMallListData = []
       this.consoleMsg = ''
-      //   })
-      //   .catch(_ => {})
     },
-
+    handleClose3(done) {
+      done()
+      this.reset2()
+    },
     writeLog(msg, success, setcolor) {
       if (!msg) return
       let color = success ? 'green' : 'red'
