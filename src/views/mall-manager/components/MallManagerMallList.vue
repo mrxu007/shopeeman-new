@@ -47,7 +47,13 @@
           <el-row class="btn-row">
             <el-button type="primary" size="mini" :loading="buttonStatus.refresh" @click="refreshStatus">刷新登录状态</el-button>
             <el-button type="primary" size="mini" :loading="buttonStatus.async" @click="handlerSelectTableOperating('asyncMallData')">同步店铺信息</el-button>
-            <el-button type="primary" size="mini" disabled>更新浏览器识别码</el-button>
+            <el-button
+              type="primary"
+              size="mini"
+              @click="
+                codeDialogVisible = true
+                getMallCodeData()"
+            >更新浏览器识别码</el-button>
             <el-button type="primary" size="mini" @click="openDeleteMallDialog">一键解绑店铺</el-button>
             <el-button type="primary" size="mini" :loading="buttonStatus.openVacation" :disabled="buttonStatus.closeVacation" @click="closeOrOpenMallVacation(true)">开启店铺休假模式</el-button>
             <el-button type="primary" size="mini" :loading="buttonStatus.closeVacation" :disabled="buttonStatus.openVacation" @click="closeOrOpenMallVacation(false)">关闭店铺休假模式</el-button>
@@ -284,6 +290,121 @@
         <el-button type="primary" size="mini" @click="chekedDelMall">确 定</el-button>
       </span>
     </el-dialog>
+    <!-- 更新浏览器识别码弹窗 -->
+    <el-dialog
+      class="code-mall-dialog"
+      title="批量更新浏览器识别码"
+      :visible.sync="codeDialogVisible"
+      width="1010px"
+      :before-close="handleClose4"
+      :close-on-click-modal="false"
+      :close-on-press-escape="false"
+    >
+      <span class="tip">温馨提示：1、浏览器识别码，用户防止店铺频繁接收手机验证码，需区分站点&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2、每个店铺的SPC_EC与SPC_SC_TK数据都不一样，请注意区分</span>
+      <ul>
+        <li>
+          <span style="width:54px">站点：</span>
+          <el-select
+            v-model="codeCountryVal"
+            :disabled="isUpdateCode"
+            placeholder=""
+            size="mini"
+            filterable
+            @change="queryMallCode"
+          >
+            <el-option v-for="(item, index) in countries" :key="index" :label="item.label" :value="item.value" />
+          </el-select>
+        </li>
+        <li>
+          <span style="width:50px">店铺ID：</span>
+          <el-input
+            v-model="mallCodeIdVal"
+            style="width: 118px;"
+            oninput="value=value.replace(/\s+/g,'')"
+            size="mini"
+            clearable
+            :disabled="isUpdateCode"
+          />
+        </li>
+        <li>
+          <el-button
+            :disabled="isUpdateCode"
+            type="primary"
+            size="mini"
+            @click="queryMallCode"
+          >查 询</el-button>
+        </li>
+        <li>
+          <span style="width:120px">游览器识别码：</span>
+          <el-input
+            v-model="browserCodeVal"
+            :disabled="isUpdateCode"
+            oninput="value=value.replace(/\s+/g,'')"
+            size="mini"
+            clearable
+          />
+        </li>
+        <li>
+          <el-button :disabled="isUpdateCode" type="primary" size="mini" @click="batchUpdateList">批量更新列表</el-button>
+          <el-button type="primary" size="mini">下载教程</el-button>
+        </li>
+      </ul>
+      <el-table
+        v-loading="isLoading"
+        height="420"
+        :data="mallCodeData"
+        :header-cell-style="{
+          backgroundColor: '#f5f7fa',
+        }"
+        :row-style="{
+          color: 'black',
+          height: '50px',
+        }"
+        @selection-change="handleSelectionChange"
+      >
+        <el-table-column width="50" align="center" type="index" label="序号" />
+        <el-table-column width="80" align="center" label="站点">
+          <template slot-scope="{row}">
+            {{ row.country | chineseSite }}
+          </template>
+        </el-table-column>
+        <el-table-column width="100" align="center" prop="platform_mall_name" label="店铺名称" />
+        <el-table-column width="100" align="center" prop="platform_mall_id" label="店铺ID" />
+        <el-table-column width="90" align="center" prop="" label="更新时间">
+          <template slot-scope="{row}">
+            {{ row.web_login_info.spcf_update_time }}
+          </template>
+        </el-table-column>
+        <el-table-column width="380" align="center" prop="" label="浏览器识别码">
+          <template slot-scope="{row}">
+            <el-form label-position="right" label-width="80px">
+              <el-form-item label="SPC_F:">
+                <el-input v-model="row.web_login_info.SPC_F" type="textarea" size="mini" :rows="1" />
+              </el-form-item>
+              <el-form-item label="SPC_EC:">
+                <el-input v-model="row.web_login_info.SPC_EC" type="textarea" size="mini" :rows="1" />
+              </el-form-item>
+              <el-form-item label="SPC_SC_TK:">
+                <el-input v-model="row.web_login_info.SPC_SC_TK" type="textarea" size="mini" :rows="1" />
+              </el-form-item>
+            </el-form>
+          </template>
+        </el-table-column>
+        <el-table-column width="90" align="center" prop="" label="操作">
+          <template slot-scope="{row}">
+            <el-button type="primary" size="mini" @click="updateCodeData(row,1)">单个更新</el-button>
+          </template>
+        </el-table-column>
+        <el-table-column width="80" show-overflow-tooltip align="center" label="操作状态">
+          <template slot-scope="{row}">
+            <span :style="row.color && 'color:' + row.color">{{ row.status }}</span>
+          </template>
+        </el-table-column>
+      </el-table>
+      <div class="batch-but">
+        <el-button :loading="isUpdateCode" type="primary" size="mini" @click="updateCodeData(mallCodeData,2)">批量上传</el-button>
+      </div>
+    </el-dialog>
     <Logs ref="Logs" v-model="hideConsole" clear />
     <!-- 店铺封面设置弹框 -->
     <el-dialog
@@ -312,10 +433,10 @@
           </el-radio-group>
         </li>
         <el-upload v-if="imageOrigin === '2'" class="avatar-uploader" :show-file-list="false" action="" :on-error="imgSaveToUrl2" :before-upload="beforeAvatarUpload2">
-          <img v-if="imageUrl" :src="imageUrl" class="avatar" style="width: 460px; height: 450px" />
+          <img v-if="imageUrl" :src="imageUrl" class="avatar" style="width: 460px; height: 450px">
           <i v-else class="el-icon-plus avatar-uploader-icon" />
         </el-upload>
-        <img v-else :src="imageUrl" style="width: 460px; height: 450px" />
+        <img v-else :src="imageUrl" style="width: 460px; height: 450px">
       </ul>
       <span slot="footer" class="dialog-footer">
         <el-button type="primary" size="mini" @click="setMall">确 定</el-button>
@@ -386,6 +507,7 @@ export default {
       },
       groupId: 0,
       groupList: [],
+
       // dialog
       waterDialogVisible: false,
       importMallDialogVisible: false,
@@ -394,6 +516,7 @@ export default {
       imageSiteVal: '3',
       imageUrl: 'https://taobaotj.oss-cn-shenzhen.aliyuncs.com/image/privateGoods/2021/11/69981640.png',
       delMallDialog: false,
+      codeDialogVisible: false,
 
       // 导入
       importTemplateData: '',
@@ -406,7 +529,15 @@ export default {
       hideConsole: true,
       isShowProgress: true,
       percentage: 0,
-      addPercentage: 0
+      addPercentage: 0,
+
+      isLoading: false,
+      mallCodeIdVal: '',
+      browserCodeVal: '',
+      mallCodeData: [],
+      mallCodeAllData: [],
+      codeCountryVal: 'TH',
+      isUpdateCode: false
     }
   },
   computed: {},
@@ -926,6 +1057,77 @@ export default {
         this.getMallList()
       }
       this.buttonStatus.login = false
+    },
+    // 获取浏览器识别码数据
+    async getMallCodeData() {
+      this.isLoading = true
+      for (let index = 0; index < this.mallListTemp.length; index++) {
+        const element = this.mallListTemp[index]
+        const res = await this.$appConfig.getGlobalCacheInfo('mallInfo', element.platform_mall_id)
+        const jsonData = JSON.parse(res)
+        this.mallCodeAllData.push(jsonData)
+      }
+      this.mallCodeData = this.mallCodeAllData.filter(item => {
+        return item.country === 'TH'
+      })
+      this.isLoading = false
+    },
+    // 查询浏览器识别码数据
+    queryMallCode() {
+      this.mallCodeData = this.mallCodeAllData.filter(item => {
+        return item.country === this.codeCountryVal && this.mallCodeIdVal ? item.platform_mall_id === this.mallCodeIdVal : item.country === this.codeCountryVal
+      })
+    },
+    // 单个/批量更新浏览器识别码
+    async updateCodeData(val, type) {
+      const codeData = []
+      if (type === 1) {
+        codeData.push(val)
+      } else {
+        val.forEach(item => {
+          codeData.push(item)
+        })
+      }
+      await this.updateCode(codeData, type)
+    },
+    // 壳/服务器浏览器识别码更新
+    async updateCode(val, type) {
+      if (type === 2) this.isUpdateCode = true
+      for (let index = 0; index < val.length; index++) {
+        const element = val[index]
+        await this.$appConfig.updateInfoMall(element.platform_mall_id, JSON.stringify(element)) // 更新壳内数据
+        const params = {
+          mallId: element.platform_mall_id,
+          webLoginInfo: JSON.stringify(element)
+        }
+        const res = await this.mallListAPIInstance.uploadMallCookie(params) // 更新服务器数据
+        if (res.code === 200) {
+          this.$set(element, 'status', '更新成功')
+          this.$set(element, 'color', 'green')
+        } else {
+          this.$set(element, 'status', `更新失败:${res.data}`)
+          this.$set(element, 'color', 'red')
+        }
+      }
+      this.isUpdateCode = false
+    },
+
+    // 批量更新列表
+    batchUpdateList() {
+      if (!this.browserCodeVal) return this.$message('浏览器识别码不能为空')
+      this.mallCodeData.map(item => {
+        item.web_login_info.SPC_F = this.browserCodeVal
+      })
+    },
+    // 更新浏览器识别码弹窗关闭
+    handleClose4(done) {
+      if (this.isUpdateCode) return this.$message('正在更新数据,请勿关闭')
+      done()
+      this.mallCodeData = []
+      this.mallCodeAllData = []
+      this.codeCountryVal = 'TH'
+      this.mallCodeIdVal = ''
+      this.browserCodeVal = ''
     },
     importMall(val) {
       this.importType = val
