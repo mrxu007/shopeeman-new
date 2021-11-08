@@ -68,8 +68,7 @@
               cancelActive = false
               updataMall()
             "
-            >同步数据</el-button
-          >
+          >同步数据</el-button>
           <el-button size="mini" type="primary" @click="cancelActive = true">取消同步</el-button>
           <el-button size="mini" type="primary" @click="clearLog">清空日志</el-button>
           <el-button size="mini" type="primary" @click="export_table((query.page = 1)), (exportList = [])">导出 </el-button>

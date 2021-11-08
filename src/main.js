@@ -106,6 +106,12 @@ Vue.directive('fo', {
     el.querySelector('input').focus()
   }
 })
+Vue.directive('focus', {
+  inserted(el, binding, vnode) {
+    // 聚焦元素
+    el.querySelector('textarea').focus()
+  }
+})
 
 Vue.config.productionTip = false
 new Vue({

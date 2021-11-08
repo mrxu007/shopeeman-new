@@ -304,19 +304,19 @@ export default {
       this.$refs.Logs.writeLog(`获取采购物流轨迹开始`, true)
       const service = new LogisticeSyncService(this.writeLog, mode)
       let buyers = await this.$appConfig.getGlobalCacheInfo('buyerInfo', 'key')
-      // if (!buyers) {
-      //   this.$refs.Logs.writeLog(`没有买手号`, false) 
-      //   return this.$message.warning("没有买手号,请登录！")
-      // }
+      if (!buyers) {
+        this.$refs.Logs.writeLog(`没有买手号`, false) 
+        return this.$message.warning("没有买手号,请登录！")
+      }
       let resObj = JSON.parse(buyers)
       let buyerAccountList = []
       for (const key in resObj) {
         buyerAccountList.push(resObj[key])
       }
-      // if (!buyerAccountList.length) {
-      //   this.$refs.Logs.writeLog(`没有买手号，请登录买手号`, false)
-      //   return this.$message.warning("没有买手号,请登录！")
-      // }
+      if (!buyerAccountList.length) {
+        this.$refs.Logs.writeLog(`没有买手号，请登录买手号`, false)
+        return this.$message.warning("没有买手号,请登录！")
+      }
       if (this.multipleSelection.length > 0) {
         service.start(this, buyerAccountList, this.multipleSelection)
       } else {

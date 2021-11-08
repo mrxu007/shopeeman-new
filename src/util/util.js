@@ -32,6 +32,7 @@ export async function getMalls() {
       obj.value = item.platform_mall_id
       obj.country = item.country
       obj.id = item.id
+      obj.group_id = item.group_id // 店铺分组id
       shopList.push(obj)
     }
     return shopList
@@ -289,7 +290,7 @@ export function exportExcelDataCommon(fileName, str) {
   document.body.appendChild(a)
   // a.href = uri + this.base64(template)
   a.href = URL.createObjectURL(blob)
-  a.download = `${fileName}${new Date(Date.now() + 8 * 3600 * 1000).toISOString().slice(0, 10)}.xlsx`
+  a.download = `${fileName}${new Date(Date.now() + 8 * 3600 * 1000).toISOString().slice(0, 10)}.xls`
   a.click()
   document.body.removeChild(a)
 }
@@ -344,7 +345,7 @@ export function exportCsvDataCommon(fileName, str) {
 export function debounce(fun, wait, immediate) {
   let timeout = null
   let result = null
-  return function() {
+  return function () {
     const context = this
     const args = arguments
     if (timeout) {
@@ -403,7 +404,7 @@ export function batchOperation(array, method) {
       }
     }, 1000)
     function manage(completeCount) {
-      for (;(submitCount - completeCount) < 10 && submitCount < number; ++submitCount) {
+      for (; (submitCount - completeCount) < 10 && submitCount < number; ++submitCount) {
         const item = array[submitCount]
         method(item, countObj)
       }
@@ -411,10 +412,10 @@ export function batchOperation(array, method) {
   })
 }
 
-//时间转换
+// 时间转换
 export function formatDuring(mss) {
-  const hours = parseInt(mss /60 / 60)
-  const minutes = parseInt((mss-hours*69*60)/60)
-  const seconds =(mss-hours*69*60-minutes*60)
-  return hours + ':' + minutes + ':' + seconds.toFixed(0) 
+  const hours = parseInt(mss / 60 / 60)
+  const minutes = parseInt((mss - hours * 69 * 60) / 60)
+  const seconds = (mss - hours * 69 * 60 - minutes * 60)
+  return hours + ':' + minutes + ':' + seconds.toFixed(0)
 }

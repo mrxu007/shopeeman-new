@@ -106,9 +106,45 @@
             {{ row.mall_account_info.username }}
           </template>
         </el-table-column>
-        <el-table-column align="center" prop="watermark" label="店铺水印文字" />
+        <el-table-column align="center" prop="watermark" label="店铺水印文字">
+          <template v-slot="{ row }">
+            <el-input
+              v-if="row.isCheckedWaterMark"
+              v-model="row.watermark"
+              v-focus
+              size="mini"
+              type="textarea"
+              resize="none"
+              :autosize="{ minRows: 2, maxRows: 4 }"
+              placeholder="店铺水印"
+              @blur="updateWateMark(row)"
+            />
+
+            <span v-else @click="row.isCheckedWaterMark = true">
+              <el-input v-model="row.watermark" :disabled="!row.isCheckedWaterMark" size="mini" type="textarea" resize="none" :autosize="{ minRows: 2, maxRows: 2 }" />
+            </span>
+          </template>
+        </el-table-column>
         <el-table-column align="center" prop="item_limit" label="店铺额度" />
-        <el-table-column align="center" prop="mall_alias_name" label="店铺别名" />
+        <el-table-column align="center" prop="mall_alias_name" label="店铺别名">
+          <template v-slot="{ row }">
+            <el-input
+              v-if="row.isCheckedWaterMark2"
+              v-model="row.mall_alias_name"
+              v-focus
+              size="mini"
+              type="textarea"
+              resize="none"
+              :autosize="{ minRows: 2, maxRows: 4 }"
+              placeholder="店铺别名"
+              @blur="updateMallAliasName(row)"
+            />
+
+            <span v-else @click="row.isCheckedWaterMark2 = true">
+              <el-input v-model="row.mall_alias_name" :disabled="!row.isCheckedWaterMark2" size="mini" type="textarea" resize="none" :autosize="{ minRows: 2, maxRows: 2 }" />
+            </span>
+          </template>
+        </el-table-column>
         <el-table-column align="center" prop="web_login_info" label="登录状态" show-overflow-tooltip="">
           <template v-slot="{ row }">
             <span v-html="row.LoginInfo" />
@@ -354,6 +390,14 @@ export default {
     this.getGroup()
     this.getIP()
   },
+  mounted() {
+    this.$IpcMain.on('needCaptcha', e => {
+      console.log('needCaptcha-e', e)
+    })
+    this.$IpcMain.on('needIvs', e => {
+      console.log('needIvs-e', e)
+    })
+  },
   methods: {
     // tableScroll({ scrollTop, scrollLeft, table, judgeFlse }) {
     //   // {scrollTop， scrollLeft, table, judgeFlse: 这个参数返回一个boolean值，为true则代表表格滚动到了底部了，false没有滚动到底部，必须开起大数据渲染模式才能有值哦}, event
@@ -593,11 +637,11 @@ export default {
         const platform_mall_name = item.platform_mall_name
         flat === 1 ? item.LoginInfo = '正在登陆中...' : this.writeLog(`(${i + 1}/${len})账号【${platform_mall_name}】开始授权`, true)
         // 0、检测
-        if (!this.forceLogin && flat === 1) {
+        if (this.forceLogin && flat === 1) {
           // 强制登陆不检测是否已经登录
           const userInfo = await this.mallListAPIInstance.getUserInfo(item)
           if (userInfo.code === 200) {
-            item.LoginInfo = `<p style="color: green">登录成功</p>`
+            item.LoginInfo = `<p style="color: green">快速登录成功</p>`
             continue
           }
         }
@@ -608,6 +652,7 @@ export default {
           flat === 1 ? (item.LoginInfo = `<p style="color: red">登录失败：${res.data}</p>`) : this.writeLog(`(${i + 1}/${len})账号【${platform_mall_name}】授权失败：${res.data}`, false)
           continue
         }
+
         const mallId = res.data.mallId // 平台店铺ID
         const mallUId = res.data.mallUId // 平台卖家ID
         let mallDataInfo = null
@@ -831,6 +876,39 @@ export default {
         this.getMallList()
       }
       this.importTemplateData = null
+    },
+
+    async updateMallAliasName(row) {
+      row.isCheckedWaterMark2 = false
+      // if (!row.mall_alias_name) {
+      //   return
+      // }
+      const params = { lists: [{
+        sysMallId: row.id,
+        mallAliasName: row.mall_alias_name
+      }] }
+      const res = await this.mallListAPIInstance.updateMallAliasName(params)
+      if (res.code !== 200) {
+        this.$message.error(`修改失败:${res.data}`, false)
+        return
+      }
+      this.$message.success(`修改成功`, true)
+    },
+    async updateWateMark(row) {
+      row.isCheckedWaterMark = false
+      // if (!row.watermark) {
+      //   return
+      // }
+      const params = { lists: [{
+        sysMallId: row.id,
+        watermark: row.watermark
+      }] }
+      const res = await this.mallListAPIInstance.updateWatermark(params)
+      if (res.code !== 200) {
+        this.$message.error(`修改失败:${res.data}`, false)
+        return
+      }
+      this.$message.success(`修改成功`, true)
     },
     async importMallName() {
       // 站点(马来站，台湾站，泰国站，印尼站，菲律宾站，新加坡站，越南站)(必填)

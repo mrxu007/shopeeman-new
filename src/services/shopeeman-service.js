@@ -148,7 +148,7 @@ export default class NetMessageBridgeService {
   }
   // 回复商店评价
   replyShopRating(country, data) {
-    return this.postChinese(country, '/api/v3/settings/reply_shop_rating', data, { Headers: { 'Content-Type': ' application/json' }})
+    return this.postChinese(country, '/api/v3/settings/reply_shop_rating', data, { Headers: { 'Content-Type': ' application/json' } })
   }
   // 店铺提现记录
   getWithDrawalRecord(country, data) {
@@ -204,8 +204,9 @@ export default class NetMessageBridgeService {
         }
       }, copy_mallInfo)
       res = JSON.parse(res)
+      debugger
+      const data = JSON.parse(res.data)
       if (res.status === 200) {
-        const data = JSON.parse(res.data)
         // const data = {
         //   'username': 'hellohappy586',
         //   'shopid': 213693788,
@@ -294,7 +295,12 @@ export default class NetMessageBridgeService {
         }
         return { code: 200, data: obj }
       }
-      return { code: res.status, data: `${res.status} ${res.data} ` }
+      let message = data.raw_response.debug_msg
+      const code = data.error_code
+      if (message.indexOf('has at most 30 chars') > -1) {
+        message = '登录异常，店铺账号过长。店铺账号长度应小于等于30'
+      }
+      return { code, data: `${code} ${message}` }
     } catch (e) {
       console.log('e', e)
       return { code: -2, data: `login -catch: ${e} ` }
@@ -388,17 +394,17 @@ export default class NetMessageBridgeService {
   }
 
   // 提取金额
-  verifyPaymentPass(country, data,option) {
-    return this.getChinese(country, '/api/v3/finance/verify_payment_pass/', data,option)
+  verifyPaymentPass(country, data, option) {
+    return this.getChinese(country, '/api/v3/finance/verify_payment_pass/', data, option)
   }
 
   // 验证码
-  getWalletOtpSeed(country, data,option) {
-    return this.getChinese(country, '/api/v3/general/get_wallet_otp_seed', data,option)
+  getWalletOtpSeed(country, data, option) {
+    return this.getChinese(country, '/api/v3/general/get_wallet_otp_seed', data, option)
   }
   // 绑卡
-  bindBankAccount(country, data,option) {
-    return this.postChinese(country, '/api/v3/finance/bind_bank_account/', data,option)
+  bindBankAccount(country, data, option) {
+    return this.postChinese(country, '/api/v3/finance/bind_bank_account/', data, option)
   }
 }
 

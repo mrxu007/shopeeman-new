@@ -7,7 +7,7 @@
       </div>
       <div class="search">
         <div class="top">
-          <storeChoose :is-all="true" @changeMallList="changeMallList"></storeChoose>      
+          <storeChoose :is-all="true" @changeMallList="changeMallList" />
         </div>
         <div class="bottom">
           <div class="historyChart">
@@ -19,8 +19,8 @@
           <div>
             <span>实时概况：</span>
             <el-date-picker
-            style="width:260px;"
               v-model="dateTime"
+              style="width:260px;"
               size="mini"
               value-format="yyyy-MM-dd"
               type="daterange"
@@ -28,8 +28,7 @@
               start-placeholder="开始日期"
               end-placeholder="结束日期"
               :picker-options="pickerOptions"
-            >
-            </el-date-picker>
+            />
           </div>
           <div>
             <el-button
@@ -39,9 +38,8 @@
                 getOrderListData()
                 getChartData()
               "
-              >查询</el-button
-            >
-            <el-button type="primary" size="mini" @click="detailVisible = true" >查看列表数据</el-button>
+            >查询</el-button>
+            <el-button type="primary" size="mini" @click="detailVisible = true">查看列表数据</el-button>
             <el-button type="primary" size="mini" plain @click="exportData">导出</el-button>
           </div>
         </div>
@@ -52,37 +50,37 @@
         <el-card shadow="never">
           <div class="item-box">
             <div class="item">
-              <img :src="transactionAmountPng" />
-              <span>成交金额（元）</span>
+              <img :src="transactionAmountPng">
+              <span class="item-name">成交金额（元）</span>
               <el-tooltip effect="dark" content="订单收入-订单状态为已取消的订单收入" placement="bottom-start">
-                <img :src="questionPng" />
+                <img :src="questionPng">
               </el-tooltip>
-              ：
+              :
               <span>{{ orderListData.totalDealAmount }}</span>
             </div>
             <div class="item">
-              <img :src="orderNumberPng" />
-              <span>shopee订单数（单）</span>
+              <img :src="orderNumberPng">
+              <span class="item-name">shopee订单数（单）</span>
               <el-tooltip effect="dark" content="shopee平台的订单数" placement="bottom-start">
-                <img :src="questionPng" />
+                <img :src="questionPng">
               </el-tooltip>
               :
               <span>{{ orderListData.platformOrderCount }}</span>
             </div>
             <div class="item">
-              <img :src="purchasePng" />
-              <span>已采购单数（单）</span>
+              <img :src="purchasePng">
+              <span class="item-name">已采购单数（单）</span>
               <el-tooltip effect="dark" content="采购总单数" placement="bottom-start">
-                <img :src="questionPng" />
+                <img :src="questionPng">
               </el-tooltip>
               :
               <span>{{ orderListData.totalCompletedShotNum }}</span>
             </div>
             <div class="item">
-              <img :src="waitPurchasePng" />
-              <span>待采购单数（单）</span>
+              <img :src="waitPurchasePng">
+              <span class="item-name">待采购单数（单）</span>
               <el-tooltip effect="dark" content="近7天待采购数量总和" placement="bottom-start">
-                <img :src="questionPng" />
+                <img :src="questionPng">
               </el-tooltip>
               :
               <span>{{ orderListData.waitShotNum }}</span>
@@ -90,28 +88,28 @@
           </div>
           <div class="item-box">
             <div class="item">
-              <img :src="cancelOrderPng" />
-              <span>已取消订金额（元）</span>
+              <img :src="cancelOrderPng">
+              <span class="item-name">已取消订金额（元）</span>
               <el-tooltip effect="dark" content="已取消订单收入总和" placement="bottom-start">
-                <img :src="questionPng" />
+                <img :src="questionPng">
               </el-tooltip>
               :
               <span>{{ orderListData.totalCanceledEscrowAmount }}</span>
             </div>
             <div class="item">
-              <img :src="alreadyCancelPng" />
-              <span>已取消订单数（单）</span>
+              <img :src="alreadyCancelPng">
+              <span class="item-name">已取消订单数（单）</span>
               <el-tooltip effect="dark" content="订单状态为已取消的订单数量" placement="bottom-start">
-                <img :src="questionPng" />
+                <img :src="questionPng">
               </el-tooltip>
               :
               <span>{{ orderListData.platformCancelOrderCount }}</span>
             </div>
             <div class="item">
-              <img :src="purchasedPng" />
-              <span>已采购金额（元）</span>
+              <img :src="purchasedPng">
+              <span class="item-name">已采购金额（元）</span>
               <el-tooltip effect="dark" content="采购总金额" placement="bottom-start">
-                <img :src="questionPng" />
+                <img :src="questionPng">
               </el-tooltip>
               :
               <span>{{ orderListData.totalCompletedShotAmount }}</span>
@@ -119,28 +117,28 @@
           </div>
           <div class="item-box">
             <div class="item">
-              <img :src="cancelPng" />
-              <span>订单即将取消（单）</span>
+              <img :src="cancelPng">
+              <span class="item-name">订单即将取消（单）</span>
               <el-tooltip effect="dark" content="还有两天就即将取消的订单数量总和" placement="bottom-start">
-                <img :src="questionPng" />
+                <img :src="questionPng">
               </el-tooltip>
               :
               <span>{{ orderListData.shipDelayingNum }}</span>
             </div>
             <div class="item">
-              <img :src="warehouseDeliveryPng" />
-              <span>仓库发货订单数（单）</span>
+              <img :src="warehouseDeliveryPng">
+              <span class="item-name">仓库发货订单数（单）</span>
               <el-tooltip effect="dark" content="仓库发货状态为已出库的订单数量总和" placement="bottom-start">
-                <img :src="questionPng" />
+                <img :src="questionPng">
               </el-tooltip>
               :
               <span>{{ orderListData.totalOutboundNum }}</span>
             </div>
             <div class="item">
-              <img :src="outMoneyPng" />
-              <span>仓库出库金额（元）</span>
+              <img :src="outMoneyPng">
+              <span class="item-name">仓库出库金额（元）</span>
               <el-tooltip effect="dark" content="仓库发货状态为已出库并生成账单流水的金额总和" placement="bottom-start">
-                <img :src="questionPng" />
+                <img :src="questionPng">
               </el-tooltip>
               :
               <span>{{ orderListData.totalOutStockAmount }}</span>
@@ -148,19 +146,19 @@
           </div>
           <div class="item-box">
             <div class="item">
-              <img :src="noOrderPng" />
-              <span>匹配不到订单数（单）</span>
+              <img :src="noOrderPng">
+              <span class="item-name">匹配不到订单数（单）</span>
               <el-tooltip effect="dark" content="今日匹配不到订单的包裹数量总和" placement="bottom-start">
-                <img :src="questionPng" />
+                <img :src="questionPng">
               </el-tooltip>
               :
               <span>{{ orderListData.noOrderNum }}</span>
             </div>
             <div class="item">
-              <img :src="printFailPng" />
-              <span>页面打印失败数（单）</span>
+              <img :src="printFailPng">
+              <span class="item-name">页面打印失败数（单）</span>
               <el-tooltip effect="dark" content="今日面单打印失败的订单数量总和" placement="bottom-start">
-                <img :src="questionPng" />
+                <img :src="questionPng">
               </el-tooltip>
               :
               <span>{{ orderListData.printOrderFailNum }}</span>
@@ -332,14 +330,14 @@ import Echart from '../components/chart.vue'
 export default {
   components: {
     Echart,
-    storeChoose,
+    storeChoose
   },
   data() {
     return {
       pickerOptions: {
         disabledDate(time) {
           return time.getTime() > Date.now()
-        },
+        }
       },
       // 订单列表数据
       orderListData: {
@@ -354,7 +352,7 @@ export default {
         shipDelayingNum: '0',
         totalOutboundNum: '0',
         noOrderNum: '0',
-        printOrderFailNum: '0',
+        printOrderFailNum: '0'
       },
       // 问号图标
       questionPng: require('@/assets/image/data-statistics/question.png'),
@@ -388,46 +386,46 @@ export default {
       historyData: [
         {
           value: 7,
-          label: '近7天',
+          label: '近7天'
         },
         {
           value: 30,
-          label: '近30天',
+          label: '近30天'
         },
         {
           value: 60,
-          label: '近60天',
-        },
+          label: '近60天'
+        }
       ],
       // 销售统计图表数据
       saleCountOption: {
         tooltip: {
-          trigger: 'axis',
+          trigger: 'axis'
         },
         legend: {
           top: 20,
-          data: ['系统订单数量', '虾皮订单数量', '订单收入'],
+          data: ['系统订单数量', '虾皮订单数量', '订单收入']
         },
         grid: {
           top: '60px',
           left: '50px',
           right: '50px',
-          bottom: '20px',
+          bottom: '20px'
         },
         xAxis: {
           type: 'category',
           boundaryGap: false,
-          data: [],
+          data: []
         },
         yAxis: [
           {
             type: 'value',
-            name: '销售数量',
+            name: '销售数量'
           },
           {
             type: 'value',
-            name: '销售金额',
-          },
+            name: '销售金额'
+          }
         ],
         series: [
           {
@@ -435,57 +433,57 @@ export default {
             type: 'line',
             data: [],
             itemStyle: {
-              color: '#5ae214',
-            },
+              color: '#5ae214'
+            }
           },
           {
             name: '虾皮订单数量',
             type: 'line',
             data: [],
             itemStyle: {
-              color: '#2389f3',
-            },
+              color: '#2389f3'
+            }
           },
           {
             name: '订单收入',
             type: 'line',
             data: [],
             itemStyle: {
-              color: '#F32823',
+              color: '#F32823'
             },
-            yAxisIndex: 1,
-          },
-        ],
+            yAxisIndex: 1
+          }
+        ]
       },
       // 售后统计图表数据
       afterSaleCountOption: {
         tooltip: {
-          trigger: 'axis',
+          trigger: 'axis'
         },
         grid: {
           top: '120px',
           left: '50px',
           right: '50px',
-          bottom: '20px',
+          bottom: '20px'
         },
         xAxis: {
           type: 'category',
           boundaryGap: false,
-          data: [],
+          data: []
         },
         yAxis: [
           {
             type: 'value',
-            name: '订单数量',
+            name: '订单数量'
           },
           {
             type: 'value',
-            name: '订单金额',
-          },
+            name: '订单金额'
+          }
         ],
         legend: {
           top: 30,
-          data: ['新增售后金额', '订单已取消新增采购单数', '订单已取消新增采购金额', '新增售后单数', '已采购售后退款成功金额', '已采购售后退款成功数', '订单已取消单数'],
+          data: ['新增售后金额', '订单已取消新增采购单数', '订单已取消新增采购金额', '新增售后单数', '已采购售后退款成功金额', '已采购售后退款成功数', '订单已取消单数']
         },
         series: [
           {
@@ -493,91 +491,91 @@ export default {
             type: 'line',
             data: [],
             itemStyle: {
-              color: '#5ae214',
+              color: '#5ae214'
             },
-            yAxisIndex: 1,
+            yAxisIndex: 1
           },
           {
             name: '订单已取消新增采购单数',
             type: 'line',
             data: [],
             itemStyle: {
-              color: '#23e9f3',
-            },
+              color: '#23e9f3'
+            }
           },
           {
             name: '订单已取消新增采购金额',
             type: 'line',
             data: [],
             itemStyle: {
-              color: '#919494',
+              color: '#919494'
             },
-            yAxisIndex: 1,
+            yAxisIndex: 1
           },
           {
             name: '新增售后单数',
             type: 'line',
             data: [],
             itemStyle: {
-              color: '#bba433',
-            },
+              color: '#bba433'
+            }
           },
           {
             name: '已采购售后退款成功金额',
             type: 'line',
             data: [],
             itemStyle: {
-              color: '#a633bb',
+              color: '#a633bb'
             },
-            yAxisIndex: 1,
+            yAxisIndex: 1
           },
           {
             name: '已采购售后退款成功数',
             type: 'line',
             data: [],
             itemStyle: {
-              color: '#333dbb',
-            },
+              color: '#333dbb'
+            }
           },
           {
             name: '订单已取消单数',
             type: 'line',
             data: [],
             itemStyle: {
-              color: '#d41a1a',
-            },
-          },
-        ],
+              color: '#d41a1a'
+            }
+          }
+        ]
       },
       // 采购统计图表数据
       purchaseOption: {
         tooltip: {
-          trigger: 'axis',
+          trigger: 'axis'
         },
         grid: {
           top: '60px',
           left: '50px',
           right: '50px',
-          bottom: '20px',
+          bottom: '20px'
         },
         xAxis: {
           type: 'category',
           boundaryGap: false,
-          data: [],
+          data: []
         },
         yAxis: [
           {
             type: 'value',
-            name: '采购数量',
+            name: '采购数量'
           },
           {
             type: 'value',
-            name: '采购金额',
-          },
+            name: '采购金额'
+          }
         ],
         legend: {
           top: 20,
-          data: ['采购数量', '采购金额'],
+          data: ['采购数量', '采购金额']
         },
         series: [
           {
@@ -585,43 +583,43 @@ export default {
             type: 'line',
             data: [],
             itemStyle: {
-              color: '#5ae214',
-            },
+              color: '#5ae214'
+            }
           },
           {
             name: '采购金额',
             type: 'line',
             data: [],
             itemStyle: {
-              color: '#2389f3',
+              color: '#2389f3'
             },
-            yAxisIndex: 1,
-          },
-        ],
+            yAxisIndex: 1
+          }
+        ]
       },
       // 仓库发货统计图表数据
       shipmentStatisticsOption: {
         tooltip: {
-          trigger: 'axis',
+          trigger: 'axis'
         },
         grid: {
           top: '60px',
           left: '50px',
           right: '50px',
-          bottom: '20px',
+          bottom: '20px'
         },
         xAxis: {
           type: 'category',
           boundaryGap: false,
-          data: [],
+          data: []
         },
         yAxis: {
           type: 'value',
-          name: '数量',
+          name: '数量'
         },
         legend: {
           top: 20,
-          data: ['签收', '入库', '出库', '拒收', '匹配不到订单', '等待子订单', '页面打印失败', '其它异常'],
+          data: ['签收', '入库', '出库', '拒收', '匹配不到订单', '等待子订单', '页面打印失败', '其它异常']
         },
         series: [
           {
@@ -629,70 +627,70 @@ export default {
             type: 'line',
             data: [],
             itemStyle: {
-              color: '#5ae214',
-            },
+              color: '#5ae214'
+            }
           },
           {
             name: '入库',
             type: 'line',
             data: [],
             itemStyle: {
-              color: '#23e9f3',
-            },
+              color: '#23e9f3'
+            }
           },
           {
             name: '出库',
             type: 'line',
             data: [],
             itemStyle: {
-              color: '#919494',
-            },
+              color: '#919494'
+            }
           },
           {
             name: '拒收',
             type: 'line',
             data: [],
             itemStyle: {
-              color: '#bba433',
-            },
+              color: '#bba433'
+            }
           },
           {
             name: '匹配不到订单',
             type: 'line',
             data: [],
             itemStyle: {
-              color: '#a633bb',
-            },
+              color: '#a633bb'
+            }
           },
           {
             name: '等待子订单',
             type: 'line',
             data: [],
             itemStyle: {
-              color: '#333dbb',
-            },
+              color: '#333dbb'
+            }
           },
           {
             name: '页面打印失败',
             type: 'line',
             data: [],
             itemStyle: {
-              color: '#d41a1a',
-            },
+              color: '#d41a1a'
+            }
           },
           {
             name: '其它异常',
             type: 'line',
             data: [],
             itemStyle: {
-              color: '#5f4009',
-            },
-          },
-        ],
+              color: '#5f4009'
+            }
+          }
+        ]
       },
       selectMallList: [],
       statisticsDetailData: [],
-      detailVisible: false,
+      detailVisible: false
     }
   },
   mounted() {
@@ -701,7 +699,7 @@ export default {
     this.getChartData()
   },
   methods: {
-    //数据导出
+    // 数据导出
     exportData() {
       if (!this.statisticsDetailData.length) {
         return this.$message.warning('没有可导出的数据')
@@ -735,7 +733,7 @@ export default {
               <td>退件包裹数</td>
             </tr>`
       for (let i = 0; i < this.statisticsDetailData.length; i++) {
-        let item = this.statisticsDetailData[i]
+        const item = this.statisticsDetailData[i]
         str += `<tr><td>${num++}</td>
                     <td>${item.date || '' + '\t'}</td>
                     <td>${item.order ? item.order.shopee_order_num : 0 + '\t'}</td>
@@ -783,7 +781,7 @@ export default {
       if (days > 60) {
         this.$alert('只支持查询或导出60天内的数据,请重新选择时间！', '提示', {
           confirmButtonText: '确定',
-          type: 'warning',
+          type: 'warning'
         })
         return
       }
@@ -796,9 +794,9 @@ export default {
         }
       })
       const dateTime = this.dateTime.length ? this.dateTime[0] + ' 00:00:00' + '/' + this.dateTime[1] + ' 23:59:59' : ''
-      let params = {
+      const params = {
         sysMallIds: '',
-        dateTime: dateTime,
+        dateTime: dateTime
       }
       const result = await this.$api.getDrderBasicStatV2(params)
       if (result.data.code == 200) {
@@ -817,9 +815,9 @@ export default {
           sysMallIds = sysMallIds + ',' + item.platform_mall_id
         }
       })
-      let params = {
+      const params = {
         sysMallIds: sysMallIds,
-        days: this.history,
+        days: this.history
       }
       const result = await this.$api.getDataStat(params)
       console.log(result)
@@ -852,8 +850,8 @@ export default {
       this.shipmentStatisticsOption.series[5].data = []
       this.shipmentStatisticsOption.series[6].data = []
       this.shipmentStatisticsOption.series[7].data = []
-      let xAxisData = []
-      let options = {}
+      const xAxisData = []
+      const options = {}
       options['shopee_order_num'] = []
       options['ppxias_order_num'] = []
       options['escrow_amount'] = []
@@ -884,10 +882,10 @@ export default {
       options['today_print_order_fail_num'] = []
       options['other_abnormal'] = []
       options['returned_num'] = []
-      let lineData = data ? data.reverse() : []
+      const lineData = data ? data.reverse() : []
       this.statisticsDetailData = data || []
       for (let i = 0; i < lineData.length; i++) {
-        let item = lineData[i]
+        const item = lineData[i]
         xAxisData.push(item.date)
         options['shopee_order_num'].push(Number(item.order.shopee_order_num))
         options['ppxias_order_num'].push(Number(item.order.ppxias_order_num))
@@ -949,8 +947,8 @@ export default {
       this.shipmentStatisticsOption.series[5].data = options['today_wait_order_num']
       this.shipmentStatisticsOption.series[6].data = options['today_print_order_fail_num']
       this.shipmentStatisticsOption.series[7].data = options['other_abnormal']
-    },
-  },
+    }
+  }
 }
 </script>
 
@@ -1006,7 +1004,10 @@ export default {
     /deep/.el-card__body {
       display: flex;
       justify-content: space-between;
-
+      .item-name{
+        width: 110px !important;
+        display: block;
+      }
       // 1px solid #EBEEF5;
     }
     /deep/.el-card {
