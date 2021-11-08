@@ -318,7 +318,7 @@
         <img v-else :src="imageUrl" style="width: 460px; height: 450px" />
       </ul>
       <span slot="footer" class="dialog-footer">
-        <el-button type="primary" size="mini" @click="setMall">确 定</el-button>
+        <el-button type="primary" size="mini" @click="asyncUpdateMallBk">确 定</el-button>
         <el-button size="mini" @click="cancel3">取 消</el-button>
       </span>
     </el-dialog>
@@ -339,6 +339,7 @@ export default {
       mallListAPIInstance: new MallListAPI(this),
       consoleMsg: '',
       buttonStatus: {
+        updateBK: false,
         mallList: false,
         login: false,
         delMall: false,
@@ -389,10 +390,12 @@ export default {
       // dialog
       waterDialogVisible: false,
       importMallDialogVisible: false,
-      mallBKSettingDialog: true,
+      mallBKSettingDialog: false,
       imageOrigin: '1',
       imageSiteVal: '3',
       imageUrl: 'https://taobaotj.oss-cn-shenzhen.aliyuncs.com/image/privateGoods/2021/11/69981640.png',
+      imageType: 'png',
+      imageInfo: null,
       delMallDialog: false,
 
       // 导入
@@ -500,6 +503,7 @@ export default {
       reader.onload = () => {
         const base64Str = reader.result
         this.imageUrl = base64Str
+        this.imageType = type
       }
     },
     beforeAvatarUpload2(file) {
@@ -555,7 +559,7 @@ export default {
         code: 200,
         data: {
           dataURL: dataURL,
-          type: 'image/' + ext,
+          // type: 'image/' + ext,
           ext
         }
       }
@@ -569,14 +573,14 @@ export default {
         const that = this
         image.onload = function() {
           const base64File = that.getBase64Image(image)
-          resolve({ code: 200, data: base64File })
+          resolve({ code: 200, data: base64File.data })
         }
         image.onerror = function(e) {
           resolve({ code: -2, data: e })
         }
       })
     },
-    async setMall() {
+    async asyncUpdateMallBk() {
       if (!this.imageUrl) {
         return this.$message.error('请上传背景图')
       }
@@ -584,19 +588,53 @@ export default {
       if (this.imageOrigin === '1') { // 如果为默认图需要将url->base64—> blob
         res = await this.getUrlToBolb()
       } else { // 使用用户上传  base64 -> blob 少了url那步
-        res = this.getBase64Image(this.imageUrl)
+        res = { code: 200, data: { dataURL: this.imageUrl, ext: this.imageType }}
       }
       if (res.code !== 200) {
-        this.$message.error(`设置失败：${res.data}`)
-      } else {
-        const mall = this.multipleSelection
-        debugger
-        mall.forEach(async item => {
-          await this.mallListAPIInstance.get_image_resource_id(item, res.data)
-        })
+        this.$message.error('转换背景图失败')
+        return
       }
-      // this.mallBKSettingDialog = false
-      // this.reset2()
+      this.imageInfo = res.data
+      const data = this.multipleSelection
+      this.buttonStatus.updateBK = true
+      this.hideConsole = false
+      const len = data.length
+      this.percentage = 0
+      this.addPercentage = 100 / len
+      await batchOperation(data, this.setMall)
+      console.log(1, '完成', res)
+      this.percentage = 100
+      this.hideConsole = true
+      this.buttonStatus.updateBK = false
+      this.mallBKSettingDialog = false
+      this.reset2()
+    },
+    async setMall(item, count = { count: 1 }) {
+      const platform_mall_name = item.platform_mall_name
+      try {
+        console.log('item - count', item, count)
+        if (!this.imageInfo) {
+          this.$refs.Logs.writeLog(`请先上传背景图`, false)
+          return
+        }
+        const resourceInfo = await this.mallListAPIInstance.get_image_resource_id(item, this.imageInfo)
+        if (resourceInfo.code !== 200) {
+          this.$refs.Logs.writeLog(`店铺【${platform_mall_name}】设置背景图失败(1)：${resourceInfo.data}`, false)
+          return
+        }
+        const updateInfo = await this.mallListAPIInstance.updateMallBK(item, resourceInfo.data)
+        if (updateInfo.code !== 200) {
+          this.$refs.Logs.writeLog(`店铺【${platform_mall_name}】设置背景图失败(2)：${updateInfo.data}`, false)
+          return
+        }
+        this.$refs.Logs.writeLog(`店铺【${platform_mall_name}】更新背景图片成功`, true)
+      } catch (e) {
+        console.log('错误', e)
+        this.$refs.Logs.writeLog(`店铺【${platform_mall_name}】设置背景图失败：${e}`, false)
+      } finally {
+        --count.count
+        this.percentage += this.addPercentage
+      }
     },
     getIP() {
       this.$BaseUtilService
@@ -644,6 +682,7 @@ export default {
     reset2() {
       this.imageOrigin = '1'
       this.imageSiteVal = '3'
+      this.imageUrl = 'https://taobaotj.oss-cn-shenzhen.aliyuncs.com/image/privateGoods/2021/11/69981640.png'
     },
     handleSelectionChange(val) {
       this.multipleSelection = val
@@ -652,21 +691,6 @@ export default {
     handleSelectionChange2(val) {
       this.multipleSelection2 = val
     },
-    // handleAvatarSuccess(res, file) {
-    //   this.imageUrl = URL.createObjectURL(file.raw)
-    // },
-    // beforeAvatarUpload(file) {
-    //   const isJPG = file.type === 'image/jpeg'
-    //   const isLt2M = file.size / 1024 / 1024 < 2
-
-    //   if (!isJPG) {
-    //     this.$message.error('上传头像图片只能是 JPG 格式!')
-    //   }
-    //   if (!isLt2M) {
-    //     this.$message.error('上传头像图片大小不能超过 2MB!')
-    //   }
-    //   return isJPG && isLt2M
-    // },
     async getGroup() {
       const params = {}
       this.countryVal ? params['country'] = this.countryVal : ''

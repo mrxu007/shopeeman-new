@@ -92,8 +92,10 @@ export default class NetMessageBridgeService {
     return this.NetMessageBridgeService().post(url, JSON.stringify(options), JSON.stringify(data))
   }
   async postChineseImageFile(country, api, data, options = {}, base64File) {
+    // options {extrainfo // 第三方接口, params, header}
     const url = await this.getUrlPrefix(country) + api
     options['extrainfo'] = this.getExtraInfo(data)
+    options['params'] = data
     const referer = options['headers'] && options['headers'].referer
     if (referer) {
       options['headers'] = Object.assign(options['headers'],
@@ -105,7 +107,8 @@ export default class NetMessageBridgeService {
     const base64 = base64File.dataURL
     const ext = base64File.ext
     const filename = `${getImgMd5(base64)}.${ext}`
-    return this.NetMessageBridgeService().uploadFile(url, JSON.stringify(data), JSON.stringify(options), null, base64, filename, 'multipart/form-data')
+    debugger
+    return this.NetMessageBridgeService().uploadFile(url, JSON.stringify(options), null, base64, filename, 'multipart/form-data')
   }
   async putChinese(country, api, data, options = {}) {
     const url = await this.getUrlPrefix(country) + api

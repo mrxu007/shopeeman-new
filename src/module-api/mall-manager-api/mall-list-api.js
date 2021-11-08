@@ -118,7 +118,7 @@ export default class MallListAPI {
       const { country, platform_mall_id } = mallInfo
       const params = {
         'platform_mall_id': platform_mall_id,
-        'ratio': 2
+        'ratio': '2'
       }
       let res = await this._this.$shopeemanService.postChineseImageFile(country, '/api/v3/general/upload_image/', params, {
         headers: {
@@ -126,12 +126,34 @@ export default class MallListAPI {
           'upImgType': 'file'
         }
       }, base64File)
+      res = JSON.parse(JSON.parse(res).data)
       debugger
+      if (res.code === 0) {
+        return { code: 200, data: res.data.resource_id }// Errors within expectations  开启关闭太频繁，需冷却三小时
+      }
+      return { code: res.errcode, data: `${res.errcode} ${res.message.indexOf('token not found') > -1 ? '请先登录' : res.message}` }
+    } catch (error) {
+      return { code: -2, data: `getMallInfo-catch: ${error}` }
+    }
+  }
+  // 更新店铺背景图片
+  async updateMallBK(mallInfo, resource_id) {
+    try {
+      const { country, platform_mall_id } = mallInfo
+      const params = {
+        'platform_mall_id': platform_mall_id,
+        'cover': resource_id
+      }
+      let res = await this._this.$shopeemanService.putChinese(country, '/api/marketing/v4/shop/profile/?', params, {
+        headers: {
+          'Content-Type': 'application/json;charset=UTF-8'
+        }
+      })
       res = JSON.parse(JSON.parse(res).data)
       if (res.code === 0) {
-        return { code: 200, data: '操作成功' }// Errors within expectations  开启关闭太频繁，需冷却三小时
+        return { code: 200, data: '更新店铺背景图片成功' }// Errors within expectations  开启关闭太频繁，需冷却三小时
       }
-      return { code: res.code, data: `${res.code} ${res.message.indexOf('Errors within expectations') > -1 ? '开启关闭太频繁，需冷却3小时' : res.message}` }
+      return { code: res.code, data: `${res.code} ${res.message}` }
     } catch (error) {
       return { code: -2, data: `getMallInfo-catch: ${error}` }
     }
