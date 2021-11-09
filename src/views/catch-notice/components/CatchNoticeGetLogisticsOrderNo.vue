@@ -26,7 +26,7 @@
     <!-- 下面表格部分 -->
     <div class="bottom">
       <el-table v-loading="isStart" :header-cell-style="{ background: '#f5f7fa' }" :data="tableData" border style="width: 100%" height="calc(100vh - 160px)" @selection-change="handleSelectionChange">
-        <el-table-column align="center" type="selection" width="50" />
+        <!-- <el-table-column align="center" type="selection" width="50" /> -->
         <el-table-column type="index" label="序列号" width="80" />
         <el-table-column label="订单号" prop="order_sn" />
         <el-table-column prop="ori_platform" label="采购类型" />
@@ -305,7 +305,8 @@ export default {
       const service = new LogisticeSyncService(this.writeLog, mode)
       let buyers = await this.$appConfig.getGlobalCacheInfo('buyerInfo', 'key')
       if (!buyers) {
-        return this.$refs.Logs.writeLog(`没有买手号`, false)
+        this.$refs.Logs.writeLog(`没有买手号`, false) 
+        return this.$message.warning("没有买手号,请登录！")
       }
       let resObj = JSON.parse(buyers)
       let buyerAccountList = []
@@ -313,7 +314,8 @@ export default {
         buyerAccountList.push(resObj[key])
       }
       if (!buyerAccountList.length) {
-        return this.$refs.Logs.writeLog(`没有买手号`, false)
+        this.$refs.Logs.writeLog(`没有买手号，请登录买手号`, false)
+        return this.$message.warning("没有买手号,请登录！")
       }
       if (this.multipleSelection.length > 0) {
         service.start(this, buyerAccountList, this.multipleSelection)
@@ -343,6 +345,7 @@ export default {
 }
 //上面查询条件部分
 .search {
+  height:100px;
   white-space: nowrap;
   overflow-y: auto;
   & > div {
