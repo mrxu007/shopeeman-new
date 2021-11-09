@@ -65,6 +65,8 @@
             <el-button type="primary" size="mini" @click="getMallList">查询</el-button>
             <el-button type="primary" size="mini" @click="openUpdateExpressdialog">批量修改物流方式</el-button>
             <el-button type="primary" size="mini" :disabled="!countryVal" @click="addressDialog = true">批量设置店铺地址</el-button>
+            <el-button type="primary" size="mini" @click="openPromise">开启</el-button>
+            <el-button type="primary" size="mini" @click="closePromise">关闭</el-button>
             <el-checkbox v-model="hideConsole">隐藏日志</el-checkbox>
             <li style="display: inline-block">
               <el-progress v-show="isShowProgress" style="width: 230px" :text-inside="true" :stroke-width="16" :percentage="percentage" status="success" />
@@ -208,7 +210,7 @@
           <el-upload ref="importRef" accept=".xls, .xlsx" action="https://jsonplaceholder.typicode.com/posts/" :on-change="importTemplateEvent" :show-file-list="false" :auto-upload="false">
             <el-button :data="importTemplateData" size="mini" type="primary" style="margin-right: 10px"> 批量导入 </el-button>
           </el-upload>
-          <el-button type="primary" size="mini" :loading="isStopDisable" :disabled="!buttonStatus.login" @click="isStop = true">取消导入</el-button>
+          <el-button type="primary" size="mini" :loading="!isStop" :disabled="!buttonStatus.login" @click="isStop = true">取消导入</el-button>
           <el-button type="primary" size="mini" @click="downloadTemplate">下载模板</el-button>
         </div>
         <div class="container-dialog">
@@ -451,6 +453,7 @@
         <el-button size="mini" @click="cancel4">取 消</el-button>
       </span>
     </el-dialog>
+    <!-- 批量设置店铺地址 -->
     <div class="storeAddress_dialog">
       <el-dialog title="设置店铺地址" :visible.sync="addressDialog" top="10vh" width="500px" :close-on-click-modal="false">
         <div class="dialog_box">
@@ -534,8 +537,35 @@
           </div>
         </div>
       </el-dialog>
-    </div></el-row
-  >
+    </div>
+    <!-- 手机验证码 -->
+    <el-dialog
+      class="phone_code_dialog"
+      title="手机短信验证码"
+      center
+      :visible.sync="phoneCodeVisiable"
+      width="500px"
+      :before-close="handleClose6"
+      :close-on-click-modal="false"
+      :close-on-press-escape="false"
+    >
+      <ul class="container">
+        <li>
+          <p class="li_1_lf" style="">当前账号：{{ phoneInfo_accountName }}</p>
+          <div class="li_1_rt">
+            <el-button type="primary" size="mini">中断操作</el-button>
+          </div>
+        </li>
+        <li>
+          <el-input v-model="phoneInfo_message_code" placeholder="请输入手机验证码" />
+        </li>
+      </ul>
+      <span slot="footer" class="dialog-footer">
+        <el-button type="primary" size="mini" @click="closePhoneCodeDialog">确 定</el-button>
+        <el-button size="mini">重新发送短信验证码</el-button>
+      </span>
+    </el-dialog>
+  </el-row>
 </template>
 
 <script>
@@ -624,7 +654,7 @@ export default {
       comfirmText: '',
       delOrderType: 1,
       isStop: false,
-      isStopDisable: false,
+      // isStopDisable: false,
       importType: null,
       hideConsole: true,
       isShowProgress: true,
@@ -654,7 +684,14 @@ export default {
         take: false,
         backMail: false,
         mask: '0'
-      }
+      },
+      obj: null,
+      timeId: null,
+      phoneCodeVisiable: false,
+      phoneInfo_accountName: '',
+      phoneInfo_message_code: '',
+      needIvsInfo: null, // 存放ivs验证
+      needCaptchaInfo: null // 存放图形验证码
     }
   },
   computed: {},
@@ -662,15 +699,15 @@ export default {
     isStop: {
       handler(val) {
         console.log('我监听到了isStop', val)
-        if (val) {
-          this.isStopDisable = true
-        } else {
-          this.isStopDisable = false
-        }
-        setTimeout(() => {
-          this.isStop = false
-          console.log('isStop还原', val)
-        }, 10000)
+        // if (val) {
+        //   this.isStopDisable = true
+        // } else {
+        //   this.isStopDisable = false
+        // }
+        // setTimeout(() => {
+        //
+        //   console.log('isStop还原', val)
+        // }, 10000)
       }
     },
     addressDialog(val) {
@@ -710,14 +747,59 @@ export default {
     this.getIP()
   },
   mounted() {
-    // this.$IpcMain.on('needCaptcha', e => {
-    //   console.log('needCaptcha-e', e)
-    // })
-    // this.$IpcMain.on('needIvs', e => {
-    //   console.log('needIvs-e', e)
-    // })
+    try {
+      this.$IpcMain.on('needIvs', e => { // 点听
+        console.log('needIvs-e', typeof e)
+        if (e) {
+          this.needIvsInfo = JSON.parse(e)
+        }
+      })
+      this.$IpcMain.on('needCaptcha', e => { // 监听图形验证码
+        console.log('needCaptcha-e', typeof e)
+        if (e) {
+          this.needCaptchaInfo = JSON.parse(e)
+        }
+      })
+    } catch (error) {
+      console.log('监听', error)
+    }
   },
   methods: {
+    closePhoneCodeDialog() {
+      const message_code = this.phoneInfo_message_code.trim()
+      if (!message_code) {
+        return this.$message.error('请输入手机验证码')
+      }
+      this.phoneCodeVisiable = false
+      this.closePromise()
+    },
+    // 传入一个正在执行的promise
+    getPromiseWithAbort(p) {
+      const obj = {}
+      // 内部定一个新的promise，用来终止执行
+      const p1 = new Promise(function(resolve, reject) {
+        obj.abort = resolve
+      })
+      obj.promise = Promise.race([p, p1])
+      return obj
+    },
+    async openPromise(time = 1000 * 60 * 60 * 24 * 365) { // 延长1年
+      var promise = new Promise((resolve) => {
+        this.timeId = setTimeout(() => {
+          resolve('123')
+          console.log('1234')
+        }, time)
+      })
+      this.obj = this.getPromiseWithAbort(promise)
+      await this.obj.promise
+    },
+    closePromise() {
+      if (this.obj) {
+        this.obj.abort('取消执行')
+        this.timeId && clearTimeout(this.timeId)
+        this.timeId = null
+      }
+    },
     // tableScroll({ scrollTop, scrollLeft, table, judgeFlse }) {
     //   // {scrollTop， scrollLeft, table, judgeFlse: 这个参数返回一个boolean值，为true则代表表格滚动到了底部了，false没有滚动到底部，必须开起大数据渲染模式才能有值哦}, event
     //   console.log(scrollTop, scrollLeft, table, judgeFlse)
@@ -1386,6 +1468,7 @@ export default {
       if (this.buttonStatus.login) {
         return
       }
+      this.isStop = false
       let flat = 1 // 默认一键登陆
       let len = null
       let selectMall = null
@@ -1406,6 +1489,10 @@ export default {
       this.buttonStatus.login = true
       let successNum = 0
       for (let i = 0; i < len; i++) {
+        if (this.isStop) {
+          this.writeLog('取消导入', false)
+          break
+        }
         const item = selectMall[i]
         const platform_mall_name = item.platform_mall_name
         flat === 1 ? item.LoginInfo = '正在登陆中...' : this.writeLog(`(${i + 1}/${len})账号【${platform_mall_name}】开始授权`, true)
@@ -1421,22 +1508,25 @@ export default {
             item.loginStatus = 'fail'
           }
         }
-
+        if (this.isStop) {
+          this.writeLog('取消导入', false)
+          break
+        }
         // 2、shopeeMan官方登录
-        const res = await this.$shopeemanService.login(item, flat)
+        let res = await this.$shopeemanService.login(item, flat)
         if (res.code !== 200) {
           flat === 1 ? (item.LoginInfo = `<p style="color: red">登录失败：${res.data}</p>`) : this.writeLog(`(${i + 1}/${len})账号【${platform_mall_name}】授权失败：${res.data}`, false)
-          // const loginResult = await this.handleRereturnLogin(item, res)
-          // if (loginResult.code === 200) { // 3、处理登录弹框
-
-          // } else {
-          //         item.loginStatus = 'fail'
-          //   continue
-          //   }
-          item.loginStatus = 'fail'
-          continue
+          const handleResult = await this.handleReturnLogin(item, res, flat)
+          // debugger
+          if (handleResult.code === 200) { // 3、处理登录弹框
+            res = handleResult
+          } else {
+            item.loginStatus = 'fail'
+            flat === 1 ? (item.LoginInfo = `<p style="color: red">登录失败：${handleResult.data}</p>`) : this.writeLog(`(${i + 1}/${len})账号【${platform_mall_name}】授权失败：${handleResult.data}`, false)
+            continue
+          }
         }
-
+        // debugger
         const mallId = res.data.mallId // 平台店铺ID
         const mallUId = res.data.mallUId // 平台卖家ID
         let mallDataInfo = null
@@ -1504,29 +1594,45 @@ export default {
         successNum++
         flat === 1 ? (item.LoginInfo = '<p style="color: green">登录成功</p>') : this.writeLog(`(${i + 1}/${len})账号【${platform_mall_name}】授权成功`, true)
         item.loginStatus = 'success'
+        if (this.isStop) {
+          this.writeLog('取消导入', false)
+          break
+        }
       }
       if (flat === 2 && successNum) { // 导入店铺、并且有导入成功的店铺 满足刷新
         this.getMallList()
       }
       this.buttonStatus.login = false
     },
-    async handleRereturnLogin(mallInfo, result) {
-      const code = result.code
-      const message = result.message
-      const dataResult = null
-      const platform_mall_id = mallInfo.platform_mall_id
+    async handleReturnLogin(mallInfo, result, flat) {
+      // debugger
+      let code = result.code
+      let message = result.data
+      const platform_mall_id = mallInfo.platform_mall_id + ''
+      this.phoneInfo_accountName = mallInfo.platform_mall_name
       try {
-        if (code === 'error_need_ivs') { // 调LoginNeedPopUps 服务弹框
+        if (code === 'error_need_ivs') { // 需要进行IVS验证 调LoginNeedPopUps 服务弹框
           // const loginInfo = await window.BaseUtilBridgeService.loginNeedPopUps('needIvs', JSON.stringify({ 'loginType': 'login', 'isOpenAuthMallProxy': 'true', 'mallId': platform_mall_id }))
-        } else if (code === 'error_require_captcha') { // 调LoginNeedPopUps 服务弹框
-          // const captchaInfo = await window.BaseUtilBridgeService.loginNeedPopUps('needCaptcha', JSON.stringify({ 'mallId': platform_mall_id }))
+          console.log('this.needIvsInfo', this.needIvsInfo)
+        } else if (code === 'error_require_captcha') { // 需要图片或者滑块验证 调LoginNeedPopUps 服务弹框
+          await window.BaseUtilBridgeService.loginNeedPopUps('needCaptcha', JSON.stringify({ 'mallId': platform_mall_id }))
+          if (this.needCaptchaInfo?.code === 200) {
+            const sortData = this.mallListAPIInstance.sortMallData(mallInfo, this.needCaptchaInfo.data)
+            return { code: 200, data: sortData }
+          }
         } else if (code === 'error_need_otp') { // 输入手机验证码即可
-
+          // 1、打开弹框，让用户输入验证码
+          this.phoneCodeVisiable = true
+          // 2、打开中断
+          await this.openPromise()
+          // 3、走登录接口
+          const error_need_otp_info = await this.$shopeemanService.login(mallInfo, flat, { vcode: this.phoneInfo_message_code }) // 返回数据结构要和外面的统一
+          code = error_need_otp_info.code
+          message = error_need_otp_info.data
         }
-        return { code, data: { message, dataResult }}
+        return { code, data: message }
       } catch (error) {
-        console.log('error', error)
-        return { code: -2, data: { message: error, dataResult }}
+        return { code: -2, data: `handleReturnLogin-catch${error}` }
       }
     },
     // 获取浏览器识别码数据
@@ -1796,6 +1902,7 @@ export default {
       // 店铺别名(选填)
       const len = this.importTemplateData.length
       const importMallArr = []
+      this.isStop = false
       for (let i = 0; i < len; i++) {
         if (this.isStop) {
           this.writeLog('取消导入', false)
@@ -1960,6 +2067,10 @@ export default {
       this.reset2()
     },
     handleClose5(done) {
+      done()
+      this.reset3()
+    },
+    handleClose6(done) {
       done()
       this.reset3()
     },

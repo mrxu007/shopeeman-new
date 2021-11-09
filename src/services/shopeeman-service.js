@@ -77,8 +77,8 @@ export default class NetMessageBridgeService {
     options['extrainfo'] = this.getExtraInfo(data)
     if (exportInfo) { // 适配店铺管理---导入店铺
       options['extrainfo']['exportInfo'] = exportInfo
+      delete data.mallId // body 里面不能带店铺id
     }
-    delete data.mallId // body 里面不能带店铺id
 
     // options['params'] = {}
     const referer = options['headers'] && options['headers'].referer
@@ -89,7 +89,6 @@ export default class NetMessageBridgeService {
           referer: url + referer
         })
     }
-    console.log(country, url, data, options, exportInfo)
     return this.NetMessageBridgeService().post(url, JSON.stringify(options), JSON.stringify(data))
   }
   async postChineseImageFile(country, api, data, options = {}, base64File) {
@@ -108,7 +107,6 @@ export default class NetMessageBridgeService {
     const base64 = base64File.dataURL
     const ext = base64File.ext
     const filename = `${getImgMd5(base64)}.${ext}`
-    debugger
     return this.NetMessageBridgeService().uploadFile(url, JSON.stringify(options), null, base64, filename, 'multipart/form-data')
   }
   async putChinese(country, api, data, options = {}) {
@@ -182,7 +180,7 @@ export default class NetMessageBridgeService {
     return this.getChinese(country, '/api/v3/finance/income_transaction_histories', data)
   }
   // 店铺登录
-  async login(mallInfo, flat) {
+  async login(mallInfo, flat, options = {}) {
     const { country, mall_account_info, platform_mall_id } = mallInfo
     const accountName = mall_account_info.username
     const encryptPwd = sha256(md5(mall_account_info.password))
@@ -209,6 +207,7 @@ export default class NetMessageBridgeService {
       params['phone'] = phone
       acccount_info['username'] = phone
     }
+    options.vcode ? params['vcode'] = options.vcode : ''
     let copy_mallInfo = null
     if (flat === 2) { // 导入店铺必须参数   flat 1 一键登陆  2导入店铺
       copy_mallInfo = JSON.parse(JSON.stringify(mallInfo))
@@ -313,7 +312,52 @@ export default class NetMessageBridgeService {
         }
         return { code: 200, data: obj }
       }
-      return { code: res.status, data: `${res.status} ${res.data} ` }
+      let message = res.data
+      let code = res.status
+      if (message.indexOf('username: ensure this value has at most 30 chars') > -1) {
+        code = 'username: ensure this value has at most 30 chars'
+        message = `账号${accountName}：登录异常，店铺账号过长。店铺账号长度应小于等于30`
+      } else if (message.indexOf('username: ensure this value matches') > -1) {
+        code = 'username: ensure this value matches'
+        message = `账号${accountName}：登录异常，店铺账号名包含的字符不规范, 字符应在 A-Z a-z 0-9 之间`
+      } else if (message.indexOf('error_api') > -1) {
+        code = 'error_api'
+        message = `账号${accountName}：登录失败，手机验证码发送频繁`
+      } else if (message.indexOf('error_need_otp') > -1 || message.indexOf('error_need_vcode') > -1) {
+        code = 'error_need_otp'
+        message = `账号${accountName}：账号或主账号手机验证码`
+      } else if (message.indexOf('error_need_ivs') > -1) {
+        code = 'error_need_ivs'
+        message = `账号${accountName}：需要进行IVS验证`
+      } else if (message.indexOf('error_require_captcha') > -1 || message.indexOf('error_captcha_trigger') > -1) {
+        code = 'error_require_captcha'
+        message = `账号${accountName}：需要图片或者滑块验证`
+      } else if (message.indexOf('error_name') > -1 || message.indexOf('incorrect') > -1 || message.indexOf('error_password') > -1) {
+        code = 'error_name'
+        message = `账号${accountName}：登录失败，请检查账号密码：${message}`
+      } else if (message.indexOf('error_notfound') > -1) {
+        code = 'error_notfound'
+        message = '登录失败，账号不存在，账号：' + accountName
+      } else if (message.indexOf('error_perm') > -1) { // 账号密码错误
+        code = 'error_perm'
+        message = '登录失败，请检查账号密码，账号：' + accountName + ' 密码：' + mall_account_info.password
+      } else if (message.indexOf('error_banned') > -1) {
+        code = 'error_banned'
+        message = '您的登录被拒绝是因为您的帐户有不当行为'
+      } else if (message.indexOf('error_otp') > -1) {
+        code = 'error_otp'
+        message = '登录失败，手机验证码错误。'
+      } else if (message.indexOf('error_shop_binded2merchant') > -1) {
+        code = 'error_shop_binded2merchant'
+        message = '检测到您的账号为子母账号，请使用带(:main)格式的账号登录'
+      } else if (message.indexOf('error_invalid_vcode') > -1) {
+        code = 'error_invalid_vcode'
+        message = '无效的验证码'
+      } else if (message.indexOf('has_shop_upgraded') > -1) {
+        code = 'has_shop_upgraded'
+        message = '已升级为全球店铺，请更换店铺类型进行导入'
+      }
+      return { code, data: `${message} ` }
     } catch (e) {
       console.log('e', e)
       return { code: -2, data: `login -catch: ${e} ` }
@@ -450,6 +494,5 @@ export default class NetMessageBridgeService {
   setShopAddress(country, data, option) {
     return this.postChinese(country, '/api/v3/settings/set_shop_address', data, option)
   }
-
 }
 
