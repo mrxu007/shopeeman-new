@@ -149,5 +149,8 @@ export default {
   updataUserGoods: (data) => AppRequest.post('/userStock/update', data), // 编辑自有商品
   deleteUserGoods: (data) => AppRequest.post('/userStock/deleteGoods', data), // 删除自有商品
   setUserRemark: (data) => AppRequest.post('/orderPackage/setUserRemark', data), // 批量更新用户备注
-  deleteUserSku: (data) => AppRequest.post('/userStock/deleteSkus', data)// 删除sku
+  deleteUserSku: (data) => AppRequest.post('/userStock/deleteSkus', data), // 删除sku
+
+  // 订单管理
+  shotAmountRecord: (data) => AppRequest.get('/shotAmountRecord/index', data) // 采购价变更记录
 }
