@@ -69,7 +69,7 @@
             unlink-panels
             type="datetimerange"
             :picker-options="pickerOptions"
-            range-separator="-"
+            range-separator="至"
             start-placeholder="开始日期"
             end-placeholder="结束日期"
             size="mini"
@@ -101,7 +101,7 @@
       <el-table
         ref="plTable"
         v-loading="isShowLoading"
-        height="calc(100vh - 210px)"
+        height="calc(100vh - 205px)"
         :data="tableData"
         :header-cell-style="{
           backgroundColor: '#f5f7fa',
@@ -178,7 +178,6 @@
               :key="index"
             >
               <el-tooltip
-                v-if="item"
                 effect="light"
                 placement="right-end"
                 :visible-arrow="false"

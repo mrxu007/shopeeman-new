@@ -77,8 +77,8 @@ export default class NetMessageBridgeService {
     options['extrainfo'] = this.getExtraInfo(data)
     if (exportInfo) { // 适配店铺管理---导入店铺
       options['extrainfo']['exportInfo'] = exportInfo
-      delete data.mallId // body 里面不能带店铺id
     }
+    delete data.mallId // body 里面不能带店铺id
 
     // options['params'] = {}
     const referer = options['headers'] && options['headers'].referer
@@ -89,6 +89,7 @@ export default class NetMessageBridgeService {
           referer: url + referer
         })
     }
+    console.log(country, url, data, options, exportInfo)
     return this.NetMessageBridgeService().post(url, JSON.stringify(options), JSON.stringify(data))
   }
   async postChineseImageFile(country, api, data, options = {}, base64File) {
@@ -419,9 +420,36 @@ export default class NetMessageBridgeService {
   getWalletOtpSeed(country, data, option) {
     return this.getChinese(country, '/api/v3/general/get_wallet_otp_seed', data, option)
   }
+
   // 绑卡
   bindBankAccount(country, data, option) {
     return this.postChinese(country, '/api/v3/finance/bind_bank_account/', data, option)
   }
+
+  // 获取地址
+  getNextLevelAddresses(country, data, option) {
+    return this.getChinese(country, '/api/v3/general/get_next_level_addresses', data, option)
+  }
+
+  // 获取邮编
+  getZipCodeByAddressId(country, data, option) {
+    return this.getChinese(country, '/api/v3/general/get_zip_code_by_address_id', data, option)
+  }
+
+  // 添加地址
+  addAddress(country, data, option) {
+    return this.postChinese(country, '/api/v3/settings/add_address', data, option)
+  }
+
+  // 设置默认的地址
+  setDefaultAddress(country, data, option) {
+    return this.postChinese(country, '/api/v3/settings/set_default_address', data, option)
+  }
+
+  // 设置店铺的地址
+  setShopAddress(country, data, option) {
+    return this.postChinese(country, '/api/v3/settings/set_shop_address', data, option)
+  }
+
 }
 
