@@ -11,18 +11,18 @@
     <!-- btn区 -->
     <div class="tool-bar">
       <div class="tool-row">
-        <div class="tool-item mar-right">
-          <span style="width:60px;text-align:right;">站点：</span>
+         <div class="tool-item mar-right">
+          <span style="width:60px;">站点：</span>
           <el-select v-model="countryVal" size="mini" filterable>
             <el-option v-for="(item, index) in countries" :key="index" :label="item.label" :value="item.value" />
           </el-select>
         </div>
-        <div class="tool-item mar-right">
-          <span style="width:80px;text-align:right;">商品ID：</span>
+         <div class="tool-item mar-right">
+          <span>商品ID：</span>
           <el-input v-model="goodsID" placeholder="" size="mini" clearable />
         </div>
         <div class="tool-item mar-right">
-          <span style="width:80px;text-align:right;">查询时间：</span>
+          <span>查询时间：</span>
           <el-date-picker
             v-model="searchTime"
             size="mini"
@@ -269,7 +269,7 @@ export default {
       goodsID: '',
       countryVal: 'TH',
       searchTime: [],
-      countries: this.$filters.countries_option,
+      countries:this.$filters.countries_option,
       pageSize: 20, // 页码
       currentPage: 1, // 页码
       total: 0, // 表格总数

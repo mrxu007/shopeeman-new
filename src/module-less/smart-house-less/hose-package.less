@@ -3,10 +3,10 @@
     .header {
       background: white;
       padding: 16px;
+      min-width: 1280px;
       overflow: auto;
       ul{
         display: flex;
-        width: 1180px;
           li{
             line-height: 24px;
             display: flex;
@@ -14,7 +14,7 @@
               /deep/.el-range-editor--mini{
                 width: 228px;
                 /deep/.el-range-input{
-                  width: 67px !important;
+                  width: 62px !important;
               }
               /deep/.el-range-separator{
                   width: 42px!important;
@@ -22,14 +22,13 @@
               }
             }
             /deep/.el-input{
-              width: 155px !important;
+              width: 200px !important;
             }
           }
       }
     }
     #article {
-      // min-width: 1280px;
-      overflow: hidden;
+      min-width: 1280px;
       background: white;
       margin-top: 10px;
       padding: 16px;
@@ -65,7 +64,7 @@
         }
       }
       .copyIcon {
-        color: var(--themeColor);
+        // color: var(--themeColor);
         margin-left: 1px;
         font-size: 16px;
         cursor: pointer;

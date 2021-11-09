@@ -81,6 +81,7 @@ export default class SonAccountService {
     let res = await this.nativeService().post('method.buyer.add', JSON.stringify(params))
     res = JSON.parse(res)
     console.log('method.buyer.add', res)
+    debugger
     if (res.status === 200) {
       return { code: 200, data: JSON.parse(res.data) }
     }
@@ -91,6 +92,7 @@ export default class SonAccountService {
     let res = await this.nativeService().post('method.buyer.setShare', JSON.stringify(params))
     res = JSON.parse(res)
     console.log('method.buyer.setShare', res)
+    debugger
     if (res.status === 200) {
       return { code: 200, data: JSON.parse(res.data) }
     }

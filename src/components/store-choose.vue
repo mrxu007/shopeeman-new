@@ -173,12 +173,16 @@ export default {
     },
     changeMallList() {
       const mallList = []
-      this.site.forEach((item) => {
-        if (item) {
-          const temp = this.siteList.filter((i) => i.platform_mall_id === item)
-          mallList.push(temp[0])
-        }
-      })
+      if (this.countryVal.indexOf('')>=0 && this.groupId.indexOf('')>=0 && this.site.indexOf('')>=0) {
+        mallList.push('')
+      }else{
+        this.site.forEach((item) => {
+          if (item) {
+            const temp = this.siteList.filter((i) => i.platform_mall_id === item)
+            mallList.push(temp[0])
+          }
+        })
+      }
       if (this.source) {
         this.$emit('changeMallList', { mallList: mallList, source: this.source })
       } else {
