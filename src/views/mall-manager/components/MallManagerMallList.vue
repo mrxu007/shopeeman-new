@@ -326,7 +326,7 @@
         </li>
         <li>
           <el-button :disabled="isUpdateCode" type="primary" size="mini" @click="batchUpdateList">批量更新列表</el-button>
-          <el-button type="primary" size="mini">下载教程</el-button>
+          <el-button type="primary" size="mini" @click="downloadTutorial">下载教程</el-button>
         </li>
       </ul>
       <el-table
@@ -1705,6 +1705,10 @@ export default {
       this.codeCountryVal = 'TH'
       this.mallCodeIdVal = ''
       this.browserCodeVal = ''
+    },
+    // 下载教程
+    downloadTutorial() {
+      window.open(`https://shopeeman.oss-cn-shenzhen.aliyuncs.com/files/shopeemanFiles/appFiles/20211109/20211109143252618a1614f309e.pdf`)
     },
     importMall(val) {
       this.importType = val
