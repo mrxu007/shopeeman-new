@@ -1,4 +1,3 @@
-import { base64 } from 'js-md5'
 
 // import api from '../../network/jx-request'
 export default class MallListAPI {
@@ -127,11 +126,10 @@ export default class MallListAPI {
         }
       }, base64File)
       res = JSON.parse(JSON.parse(res).data)
-      debugger
       if (res.code === 0) {
-        return { code: 200, data: res.data.resource_id }// Errors within expectations  开启关闭太频繁，需冷却三小时
+        return { code: 200, data: res.data.resource_id }
       }
-      return { code: res.errcode, data: `${res.errcode} ${res.message.indexOf('token not found') > -1 ? '请先登录' : res.message}` }
+      return { code: res.errcode || res.code, data: `${res.errcode || res.code} ${res.message.indexOf('token not found') > -1 ? '请先登录' : res.message}` }
     } catch (error) {
       return { code: -2, data: `getMallInfo-catch: ${error}` }
     }
@@ -158,6 +156,43 @@ export default class MallListAPI {
       return { code: -2, data: `getMallInfo-catch: ${error}` }
     }
   }
+  // 获取店铺物流
+  async getMallExpress(mallInfo) {
+    try {
+      const { country, platform_mall_id } = mallInfo
+      const params = {
+        'platform_mall_id': platform_mall_id
+      }
+      let res = await this._this.$shopeemanService.getChinese(country, '/api/v3/logistics/get_channel_list?', params)
+      res = JSON.parse(JSON.parse(res).data)
+      debugger
+      if (res.code === 0) {
+        // const obj = { '小明': [{ 'isChecked': false, 'name': '顺丰' }] }
+        const listsObj = {}
+        const isRepeat = {}
+        const activeNames = []
+        const data = res.data.list
+        if (data.service_type !== '' && data.service_type_priority !== 0) { // service_type 类型数据
+          data.map(item => {
+            if (item.service_type && !isRepeat[`${item.service_type}`]) {
+              isRepeat[`${item.service_type}`] = '111'
+              listsObj[item.service_type] = []
+              activeNames.push(item.service_type)
+            }
+            listsObj[item.service_type].push({ 'isChecked': false, 'name': item.name })
+          })
+          console.log('listsObj', listsObj)
+        } else { // 父级自己ID关系
+
+        }
+        return { code: 200, data: { activeNames, listsObj } }
+      }
+      return { code: res.code, data: `${res.code} ${res.message}` }
+    } catch (error) {
+      return { code: -2, data: `getMallInfo-catch: ${error}` }
+    }
+  }
+
   // 本地服务接口----------------------------------------------------
   // 获取店铺列表
   async getMallList(params) {
@@ -168,6 +203,7 @@ export default class MallListAPI {
           item.LoginInfo = '<p>等待检测...</p>'
           item.isCheckedWaterMark = false
           item.isCheckedWaterMark2 = false
+          item.loginStatus = 'fail'
           return item
         })
         this.mallList = mallArr
@@ -186,7 +222,7 @@ export default class MallListAPI {
         const groupList = []
         const isRepeatObj = {}
         res.data.data.map(item => {
-          if (!isRepeatObj[item.group_id]) {
+          if (!isRepeatObj[item.group_id] && item.group_name) {
             isRepeatObj[item.group_id] = '123'
             const obj = {
               label: item.group_name,

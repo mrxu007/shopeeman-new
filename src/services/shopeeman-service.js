@@ -107,7 +107,6 @@ export default class NetMessageBridgeService {
     const base64 = base64File.dataURL
     const ext = base64File.ext
     const filename = `${getImgMd5(base64)}.${ext}`
-    debugger
     return this.NetMessageBridgeService().uploadFile(url, JSON.stringify(options), null, base64, filename, 'multipart/form-data')
   }
   async putChinese(country, api, data, options = {}) {
@@ -312,6 +311,7 @@ export default class NetMessageBridgeService {
         }
         return { code: 200, data: obj }
       }
+      debugger
       return { code: res.status, data: `${res.status} ${res.data} ` }
     } catch (e) {
       console.log('e', e)
