@@ -447,7 +447,7 @@
       </div>
 
       <span slot="footer" class="dialog-footer">
-        <el-button type="primary" size="mini" @click="BatchUpdateMallExpress">确 定</el-button>
+        <el-button type="primary" size="mini" :loading="buttonStatus.getExpress2" @click="BatchUpdateMallExpress">确 定</el-button>
         <el-button size="mini" @click="cancel4">取 消</el-button>
       </span>
     </el-dialog>
@@ -463,69 +463,8 @@ import xlsx from 'xlsx'
 export default {
   data() {
     return {
-      LogisticsList: {
-        'Standard': [
-          {
-            'isChecked': false,
-            'name': 'Standard Delivery - ส่งธรรมดาในประเทศ'
-          },
-          {
-            'isChecked': false,
-            'name': 'Standard Delivery Bulky - ส่งสินค้าขนาดใหญ่'
-          },
-          {
-            'isChecked': false,
-            'name': 'EMS - Thailand Post'
-          },
-          {
-            'isChecked': false,
-            'name': 'Shopee Express'
-          },
-          {
-            'isChecked': false,
-            'name': 'Ninja Van'
-          },
-          {
-            'isChecked': false,
-            'name': 'J&T Express'
-          },
-          {
-            'isChecked': false,
-            'name': 'Best Express'
-          },
-          {
-            'isChecked': false,
-            'name': 'Kerry'
-          },
-          {
-            'isChecked': false,
-            'name': 'DHL Domestic'
-          },
-          {
-            'isChecked': false,
-            'name': 'Flash Express'
-          },
-          {
-            'isChecked': false,
-            'name': 'Shopee Express Bulky'
-          },
-          {
-            'isChecked': false,
-            'name': 'DB Schenker Bulky'
-          },
-          {
-            'isChecked': false,
-            'name': 'Flash Express Bulky'
-          }
-        ],
-        'Economy': [
-          {
-            'isChecked': false,
-            'name': 'Registered Mail - Thailand Post'
-          }
-        ]
-      },
-      activeNames: ['Standard'],
+      LogisticsList: {},
+      activeNames: [],
       height: 300,
       rowHeight: 50,
       mallListAPIInstance: new MallListAPI(this),
@@ -538,7 +477,9 @@ export default {
         refresh: false,
         async: false,
         openVacation: false,
-        closeVacation: false
+        closeVacation: false,
+        getExpress: false,
+        getExpress2: false
       },
       forceLogin: false,
       mallList: [],
@@ -547,7 +488,7 @@ export default {
       importMallListData: [],
       multipleSelection: [],
       multipleSelection2: [],
-      countryVal: 'TH',
+      countryVal: '',
       countries: this.$filters.countries_option,
       mallSearchConditionVal: 'mallName',
       mallSearchCondition: [
@@ -665,7 +606,7 @@ export default {
     },
     cancel4() {
       this.batchExpressDialog = false
-      // this.reset2()
+      this.reset3()
     },
 
     openDeleteMallDialog() {
@@ -810,12 +751,12 @@ export default {
       const len = data.length
       this.percentage = 0
       this.addPercentage = 100 / len
+      this.mallBKSettingDialog = false
       await batchOperation(data, this.setMall)
       // console.log(1, '完成', res)
       this.percentage = 100
       this.hideConsole = true
       this.buttonStatus.updateBK = false
-      this.mallBKSettingDialog = false
       this.reset2()
     },
     async setMall(item, count = { count: 1 }) {
@@ -846,54 +787,84 @@ export default {
         this.$message.error('批量修改物流方式只支持选择单个站点, 请重新选择')
         return
       }
-      const mall = this.multipleSelection.filter(item => item.loginStatus === 'success')
-      if (!mall.length) {
-        return this.$message.error('请登录店铺并选中数据后再操作')
-      }
+
       if (!this.multipleSelection.length) {
         this.$message.error('请选择店铺')
         return
       }
+      const mall = this.multipleSelection.filter(item => item.loginStatus === 'success')
+      if (!mall.length) {
+        return this.$message.error('请登录店铺并选中数据后再操作')
+      }
+
       this.batchExpressDialog = true
       this.getMallExpress(mall[0])
     },
     async getMallExpress(row) {
+      if (this.buttonStatus.getExpress) {
+        return
+      }
+      this.buttonStatus.getExpress = true
       const res = await this.mallListAPIInstance.getMallExpress(row)
-      debugger
       if (res.code !== 200) {
         return this.$message.error(`店铺【${row.platform_mall_name}】: ${res.data}`)
       }
+      this.LogisticsList = res.data.listsObj
+      this.activeNames = res.data.activeNames[0]
+      this.buttonStatus.getExpress = false
     },
     async BatchUpdateMallExpress() {
+      if (!Object.keys(this.LogisticsList).length) {
+        return this.$message.error('获取物流信息失败,无法设置')
+      }
+      if (this.buttonStatus.getExpress2) {
+        return
+      }
       const data = this.multipleSelection
-      this.buttonStatus.updateBK = true
+      this.buttonStatus.getExpress2 = true
       this.hideConsole = false
       const len = data.length
       this.percentage = 0
       this.addPercentage = 100 / len
-      await batchOperation(data, this.setMall)
+      this.batchExpressDialog = false
+      await batchOperation(data, this.setMallExpress)
       // console.log(1, '完成', res)
       this.percentage = 100
       this.hideConsole = true
-      this.buttonStatus.updateBK = false
-      this.mallBKSettingDialog = false
-      // this.reset2()
+      this.buttonStatus.getExpress2 = false
+      this.reset3()
     },
     async setMallExpress(item, count = { count: 1 }) {
       const platform_mall_name = item.platform_mall_name
       try {
-        console.log('item - count', item, count)
-        const resourceInfo = await this.mallListAPIInstance.get_image_resource_id(item, this.imageInfo)
-        if (resourceInfo.code !== 200) {
-          this.$refs.Logs.writeLog(`店铺【${platform_mall_name}】设置背景图失败(1)：${resourceInfo.data}`, false)
-          return
+        let arr = []
+        for (const key in this.LogisticsList) {
+          arr.push(...this.LogisticsList[key])
         }
-        const updateInfo = await this.mallListAPIInstance.updateMallBK(item, resourceInfo.data)
-        if (updateInfo.code !== 200) {
-          this.$refs.Logs.writeLog(`店铺【${platform_mall_name}】设置背景图失败(2)：${updateInfo.data}`, false)
-          return
-        }
-        this.$refs.Logs.writeLog(`店铺【${platform_mall_name}】更新背景图片成功`, true)
+
+        arr.map(async(channelInfo) => {
+          const res = await this.mallListAPIInstance.setMallExpress(item, channelInfo)
+          if (res.code !== 200) {
+            // 这个提示过滤掉 Sorry that this channel can't be enabled
+            res.data.indexOf(`Sorry that this channel can't be enabled`) === -1 ? this.$refs.Logs.writeLog(`店铺【${platform_mall_name}】更改物流 【${channelInfo.name}】失败：${res.data}`, false) : ''
+            return
+          }
+          this.$refs.Logs.writeLog(`店铺【${platform_mall_name}】更改物流 【${channelInfo.name}】成功`, true)
+          await delay(1000)
+        })
+        arr = null
+        // console.log('item - count', item, count)
+        // const resourceInfo = await this.mallListAPIInstance.get_image_resource_id(item, this.imageInfo)
+        // if (resourceInfo.code !== 200) {
+        //   this.$refs.Logs.writeLog(`店铺【${platform_mall_name}】设置背景图失败(1)：${resourceInfo.data}`, false)
+        //   return
+        // }
+        // const updateInfo = await this.mallListAPIInstance.updateMallBK(item, resourceInfo.data)
+        // if (updateInfo.code !== 200) {
+        //   this.$refs.Logs.writeLog(`店铺【${platform_mall_name}】设置背景图失败(2)：${updateInfo.data}`, false)
+        //   return
+        // }
+        // this.$refs.Logs.writeLog(`店铺【${platform_mall_name}】更新背景图片成功`, true)
       } catch (e) {
         console.log('错误', e)
         this.$refs.Logs.writeLog(`店铺【${platform_mall_name}】设置背景图失败：${e}`, false)
@@ -949,6 +920,10 @@ export default {
       this.imageOrigin = '1'
       this.imageSiteVal = '3'
       this.imageUrl = 'https://taobaotj.oss-cn-shenzhen.aliyuncs.com/image/privateGoods/2021/11/69981640.png'
+    },
+    reset3() {
+      this.LogisticsList = {}
+      this.activeNames = []
     },
     handleSelectionChange(val) {
       this.multipleSelection = val
@@ -1655,7 +1630,7 @@ export default {
     },
     handleClose5(done) {
       done()
-      // this.reset2()
+      this.reset3()
     },
     writeLog(msg, success, setcolor) {
       if (!msg) return

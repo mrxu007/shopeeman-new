@@ -311,8 +311,52 @@ export default class NetMessageBridgeService {
         }
         return { code: 200, data: obj }
       }
-      debugger
-      return { code: res.status, data: `${res.status} ${res.data} ` }
+      let message = res.data
+      let code = res.status
+      if (message.indexOf('username: ensure this value has at most 30 chars') > -1) {
+        code = 'username: ensure this value has at most 30 chars'
+        message = `账号${accountName}：登录异常，店铺账号过长。店铺账号长度应小于等于30`
+      } else if (message.indexOf('username: ensure this value matches') > -1) {
+        code = 'username: ensure this value matches'
+        message = `账号${accountName}：登录异常，店铺账号名包含的字符不规范, 字符应在 A-Z a-z 0-9 之间`
+      } else if (message.indexOf('error_api') > -1) {
+        code = 'error_api'
+        message = `账号${accountName}：登录失败，手机验证码发送频繁`
+      } else if (message.indexOf('error_need_otp') > -1 || message.indexOf('error_need_vcode') > -1) {
+        code = 'error_need_otp'
+        message = `账号${accountName}：账号或主账号手机验证码`
+      } else if (message.indexOf('error_need_ivs') > -1) {
+        code = 'error_need_ivs'
+        message = `账号${accountName}：需要进行IVS验证`
+      } else if (message.indexOf('error_require_captcha') > -1 || message.indexOf('error_captcha_trigger') > -1) {
+        code = 'error_require_captcha'
+        message = `账号${accountName}：需要图片或者滑块验证`
+      } else if (message.indexOf('error_name') > -1 || message.indexOf('incorrect') > -1 || message.indexOf('error_password') > -1) {
+        code = 'error_name'
+        message = `账号${accountName}：登录失败，请检查账号密码`
+      } else if (message.indexOf('error_notfound') > -1) {
+        code = 'error_notfound'
+        message = '登录失败，账号不存在，账号：' + accountName
+      } else if (message.indexOf('error_perm') > -1) { // 账号密码错误
+        code = 'error_perm'
+        message = '登录失败，请检查账号密码，账号：' + accountName + ' 密码：' + mall_account_info.password
+      } else if (message.indexOf('error_banned') > -1) {
+        code = 'error_banned'
+        message = '您的登录被拒绝是因为您的帐户有不当行为'
+      } else if (message.indexOf('error_otp') > -1) {
+        code = 'error_otp'
+        message = '登录失败，手机验证码错误。'
+      } else if (message.indexOf('error_shop_binded2merchant') > -1) {
+        code = 'error_shop_binded2merchant'
+        message = '检测到您的账号为子母账号，请使用带(:main)格式的账号登录'
+      } else if (message.indexOf('error_invalid_vcode') > -1) {
+        code = 'error_invalid_vcode'
+        message = '无效的验证码'
+      } else if (message.indexOf('has_shop_upgraded') > -1) {
+        code = 'has_shop_upgraded'
+        message = '已升级为全球店铺，请更换店铺类型进行导入'
+      }
+      return { code, data: `${message} ` }
     } catch (e) {
       console.log('e', e)
       return { code: -2, data: `login -catch: ${e} ` }
