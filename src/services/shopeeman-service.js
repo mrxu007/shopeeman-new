@@ -333,7 +333,7 @@ export default class NetMessageBridgeService {
         message = `账号${accountName}：需要图片或者滑块验证`
       } else if (message.indexOf('error_name') > -1 || message.indexOf('incorrect') > -1 || message.indexOf('error_password') > -1) {
         code = 'error_name'
-        message = `账号${accountName}：登录失败，请检查账号密码`
+        message = `账号${accountName}：登录失败，请检查账号密码：${message}`
       } else if (message.indexOf('error_notfound') > -1) {
         code = 'error_notfound'
         message = '登录失败，账号不存在，账号：' + accountName

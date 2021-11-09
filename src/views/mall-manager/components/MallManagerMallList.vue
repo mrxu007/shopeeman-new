@@ -36,7 +36,7 @@
         </el-col>
         <el-col :span="20" class="header-rht">
           <el-row class="btn-row">
-            <el-checkbox>强制登录</el-checkbox>
+            <el-checkbox v-model="forceLogin">强制登录</el-checkbox>
             <el-button type="primary" size="mini" :loading="buttonStatus.login" @click="alotOfLogined(null)">一键登录</el-button>
             <el-button type="primary" size="mini" @click="importMall('authorization')">导入店铺</el-button>
             <el-button type="primary" size="mini" @click="exportMall">导出店铺</el-button>
@@ -421,13 +421,13 @@
         <el-button size="mini" @click="cancel3">取 消</el-button>
       </span>
     </el-dialog>
-    <!-- 店铺封面设置弹框 -->
+    <!-- 批量更改物流弹框 -->
     <el-dialog
       class="mall-express-Dialog"
       title="批量修改物流方式"
       :visible.sync="batchExpressDialog"
       width="500px"
-      :before-close="handleClose4"
+      :before-close="handleClose5"
       :close-on-click-modal="false"
       :close-on-press-escape="false"
     >
@@ -578,12 +578,12 @@ export default {
     this.getIP()
   },
   mounted() {
-    this.$IpcMain.on('needCaptcha', e => {
-      console.log('needCaptcha-e', e)
-    })
-    this.$IpcMain.on('needIvs', e => {
-      console.log('needIvs-e', e)
-    })
+    // this.$IpcMain.on('needCaptcha', e => {
+    //   console.log('needCaptcha-e', e)
+    // })
+    // this.$IpcMain.on('needIvs', e => {
+    //   console.log('needIvs-e', e)
+    // })
   },
   methods: {
     // tableScroll({ scrollTop, scrollLeft, table, judgeFlse }) {
@@ -1104,8 +1104,8 @@ export default {
         const item = selectMall[i]
         const platform_mall_name = item.platform_mall_name
         flat === 1 ? item.LoginInfo = '正在登陆中...' : this.writeLog(`(${i + 1}/${len})账号【${platform_mall_name}】开始授权`, true)
-        // 0、检测
-        if (this.forceLogin === false && flat === 1) {
+        // 1、检测
+        if (!this.forceLogin && flat === 1) { // 一键登陆、不强制登陆，就走检测功能
           // 强制登陆不检测是否已经登录
           const userInfo = await this.mallListAPIInstance.getUserInfo(item)
           if (userInfo.code === 200) {
@@ -1117,10 +1117,17 @@ export default {
           }
         }
 
-        // 1、shopeeMan官方登录
+        // 2、shopeeMan官方登录
         const res = await this.$shopeemanService.login(item, flat)
         if (res.code !== 200) {
           flat === 1 ? (item.LoginInfo = `<p style="color: red">登录失败：${res.data}</p>`) : this.writeLog(`(${i + 1}/${len})账号【${platform_mall_name}】授权失败：${res.data}`, false)
+          // const loginResult = await this.handleRereturnLogin(item, res)
+          // if (loginResult.code === 200) { // 3、处理登录弹框
+
+          // } else {
+          //         item.loginStatus = 'fail'
+          //   continue
+          //   }
           item.loginStatus = 'fail'
           continue
         }
@@ -1141,20 +1148,20 @@ export default {
           mallDataInfo.web_login_info['ShopeeUid'] = Cookie.ShopeeUid
           mallDataInfo.web_login_info['shopeeuid'] = Cookie.ShopeeUid
           mallDataInfo.web_login_info['shopid'] = Cookie.shopid
-          // 2、更新壳信息
+          // 4、更新壳信息
           await this.$appConfig.updateInfoMall(mallId, JSON.stringify(mallDataInfo)) // 更新里面店铺的cookie （壳）
         } else { // 导入店铺
-          // 2、更新壳信息
+          // 4、更新壳信息
           mallDataInfo = res.data.mallInfo_new
           console.log(mallId, JSON.stringify(mallDataInfo))
           await this.$appConfig.updateInfoMall(mallId, JSON.stringify(mallDataInfo)) // 更新里面店铺的cookie （壳）
-          // 4、判断物流信息是否是普通店铺 (店铺导入独有)
+          // 4-1、判断物流信息是否是普通店铺 (店铺导入独有)
           const res3 = await this.mallListAPIInstance.isNormalMall(mallDataInfo)
           if (res3.code !== 200 || !res3.data) {
             this.writeLog(`(${i + 1}/${len})账号【${platform_mall_name}】授权失败：该账号属于跨境店铺`, false)
             continue
           }
-          // 5、获取信息额度 (店铺导入独有)
+          // 4-2、获取信息额度 (店铺导入独有)
           const params2 = {
             platformMallId: mallId,
             platformMallUid: mallUId,
@@ -1171,14 +1178,14 @@ export default {
           }
           const res4 = await this.mallListAPIInstance.getMallGoodsAmount(mallDataInfo)
           res4.code === 200 ? (params2['itemLimit'] = res4.data.count_for_limit) : ''
-          // 6、上报店铺信息(店铺导入独有) 如果是导入店铺,在上报cookie之前应该先上报店铺
+          // 4-3、上报店铺信息(店铺导入独有) 如果是导入店铺,在上报cookie之前应该先上报店铺
           const res5 = await this.mallListAPIInstance.saveMallAuthInfo(params2) // 导入店铺信息（服务端）
           if (res5.code !== 200) {
             this.writeLog(`(${i + 1}/${len})账号【${platform_mall_name}】授权失败：${res5.data}`, false)
             continue
           }
         }
-        // 7、上报cookie信息
+        // 5、上报cookie信息
         const params = {
           mallId: mallId,
           webLoginInfo: JSON.stringify(res.data.Cookie)
@@ -1197,6 +1204,25 @@ export default {
         this.getMallList()
       }
       this.buttonStatus.login = false
+    },
+    async handleRereturnLogin(mallInfo, result) {
+      const code = result.code
+      const message = result.message
+      const dataResult = null
+      const platform_mall_id = mallInfo.platform_mall_id
+      try {
+        if (code === 'error_need_ivs') { // 调LoginNeedPopUps 服务弹框
+          // const loginInfo = await window.BaseUtilBridgeService.loginNeedPopUps('needIvs', JSON.stringify({ 'loginType': 'login', 'isOpenAuthMallProxy': 'true', 'mallId': platform_mall_id }))
+        } else if (code === 'error_require_captcha') { // 调LoginNeedPopUps 服务弹框
+          // const captchaInfo = await window.BaseUtilBridgeService.loginNeedPopUps('needCaptcha', JSON.stringify({ 'mallId': platform_mall_id }))
+        } else if (code === 'error_need_otp') { // 输入手机验证码即可
+
+        }
+        return { code, data: { message, dataResult }}
+      } catch (error) {
+        console.log('error', error)
+        return { code: -2, data: { message: error, dataResult }}
+      }
     },
     // 获取浏览器识别码数据
     async getMallCodeData() {
