@@ -81,6 +81,7 @@ export default {
   methods: {
     // 初始化数据 查询
     async getTableList() {
+
     },
     // 分页
     handleSizeChange(val) { this.query.pageSize = val },

@@ -7,10 +7,10 @@
         <div class="row_item">
           <label>创建时间：</label>
           <el-date-picker
-            v-model="cloumn_date"
+            v-model="cloumn_date1"
             size="mini"
-            style="width: 180px"
-            type="date"
+            style="width: 324px"
+            type="datetimerange"
             value-format="yyyy-MM-dd HH:mm:ss"
             range-separator="-"
             :picker-options="pickerOptions"
@@ -30,14 +30,14 @@
 
         <div class="row_item">
           <label>采购状态：</label>
-          <el-select v-model="query.buyStatus" size="mini">
+          <el-select v-model="query.buyStatus" size="mini" style="width: 180px;">
             <el-option label="">全部</el-option>
           </el-select>
         </div>
 
         <div class="row_item">
           <label>颜色标识：</label>
-          <el-select v-model="query.color" size="mini">
+          <el-select v-model="query.color" size="mini" style="width: 180px;">
             <el-option label="">全部</el-option>
           </el-select>
         </div>
@@ -45,10 +45,10 @@
         <div class="row_item">
           <label>申请时间：</label>
           <el-date-picker
-            v-model="cloumn_date"
+            v-model="cloumn_date2"
             size="mini"
-            style="width: 180px"
-            type="date"
+            style="width: 324px"
+            type="datetimerange"
             value-format="yyyy-MM-dd HH:mm:ss"
             range-separator="-"
             :picker-options="pickerOptions"
@@ -67,24 +67,27 @@
           <el-input v-model="inputDes" size="mini" style="width:180px" clearable />
         </div>
         <div class="row_item">
-          <el-button size="mini" type="primary">搜索</el-button>
+          <el-button size="mini" type="primary" style="margin-right:10px">搜索</el-button>
           <el-checkbox v-model="shoeLog">隐藏日志</el-checkbox>
         </div>
       </div>
-      <div class="row">
-        <el-button class="row_item" size="mini" type="primary">采购状态变更</el-button>
-        <el-button class="row_item" size="mini" type="primary">批量拒绝买家取消订单</el-button>
-        <el-button class="row_item" size="mini" type="primary">批量标记颜色标识</el-button>
-        <el-button class="row_item" size="mini" type="primary">批量接受买家取消订单</el-button>
-        <el-button class="row_item" size="mini" type="primary">导出数据</el-button>
-        <el-button class="row_item" size="mini" type="primary">售后同步</el-button>
-        <el-checkbox v-model="mall_compare" class="row_item">全店同步</el-checkbox>
+      <div class="row" style="margin-top:10px">
+        <div class="row_item">
+
+          <el-button size="mini" type="primary">采购状态变更</el-button>
+          <el-button size="mini" type="primary">批量拒绝买家取消订单</el-button>
+          <el-button size="mini" type="primary">批量标记颜色标识</el-button>
+          <el-button size="mini" type="primary">批量接受买家取消订单</el-button>
+          <el-button size="mini" type="primary">导出数据</el-button>
+          <el-button size="mini" type="primary">售后同步</el-button>
+          <el-checkbox v-model="mall_compare" class="row_item">全店同步</el-checkbox>
+        </div>
       </div>
     </div>
 
     <div class="table-form">
       <el-table
-        height="calc(100vh - 90px)"
+        height="calc(100vh - 213px)"
         :data="tableList"
         :header-cell-style="{ background: '#f7fafa' }"
       >
@@ -122,9 +125,9 @@
       <div class="pagination" style="display:flex;justify-content: flex-end;">
         <el-pagination
           background
-          :current-page.sync="page"
+          :current-page.sync="query.page"
           :page-sizes="[20, 50, 100, 200]"
-          :page-size="pageSize"
+          :page-size="query.pageSize"
           layout="total, sizes, prev, pager, next, jumper"
           :total="total"
           @size-change="handleSizeChange"
@@ -144,11 +147,17 @@ export default {
   },
   data() {
     return {
+      pickerOptions: {
+        disabledDate(time) {
+          return time.getTime() > Date.now()
+        }
+      },
       mall_compare: false, // 全店同步
       shoeLog: false, // 隐藏日志
       selType: '1', // 订单编号 采购物流单号 采购单号
       inputDes: '',
-      cloumn_date: '',
+      cloumn_date1: '',
+      cloumn_date2: '',
       query: {
         mallIds: '', // 店铺ids
         cerateTime: '', // 创建时间
@@ -158,7 +167,9 @@ export default {
         applyTime: '', // 申请时间
         orderId: '', // 订单编号
         packageId: '', // 采购物流单号
-        buyid: ''// 采购单号
+        buyid: '', // 采购单号
+        page: 1,
+        pageSize: 20
       },
       total: 0,
       tableList: [],
@@ -216,7 +227,8 @@ export default {
                display: flex;
                margin-bottom: 5px;
                .row_item{
-                 margin-left: 23px;
+                 margin-left: 20px;
+                 margin-right: 10px;
                }
             }
         }
