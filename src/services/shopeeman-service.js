@@ -89,6 +89,7 @@ export default class NetMessageBridgeService {
           referer: url + referer
         })
     }
+    console.log(country, url, data, options, exportInfo)
     return this.NetMessageBridgeService().post(url, JSON.stringify(options), JSON.stringify(data))
   }
   async postChineseImageFile(country, api, data, options = {}, base64File) {

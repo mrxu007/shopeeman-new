@@ -861,10 +861,10 @@ export default {
           }
           const defaultAddressJson = await this.$shopeemanService.setDefaultAddress(item.country, param)
           const defaultAddressRes = JSON.parse(defaultAddressJson)
+          console.log('defaultAddressRes', defaultAddressRes)
           if (defaultAddressRes.status >= 200 && defaultAddressRes.status < 300) {
             const defaultAddressData = JSON.parse(defaultAddressRes.data)
             this.$refs.Logs.writeLog(`店铺【${name}】默认地址设置成功`, true)
-            console.log('defaultAddressData', defaultAddressData)
           } else {
             this.$refs.Logs.writeLog(`店铺【${name}】默认地址设置失败`, false)
           }
@@ -882,11 +882,11 @@ export default {
           }
           const shopAddressJson = await this.$shopeemanService.setShopAddress(item.country, param)
           const shopAddressRes = JSON.parse(shopAddressJson)
+          console.log('shopAddressRes', shopAddressRes)
           if (shopAddressRes.status >= 200 && shopAddressRes.status < 300) {
             const shopAddressData = JSON.parse(shopAddressRes.data)
             this.$refs.Logs.writeLog(`店铺【${name}】
             ${this.addressQuery.take && '取件地址'}${this.addressQuery.backMail && '取件地址'}设置成功`, true)
-            console.log('shopAddressData', shopAddressData)
           } else {
             this.$refs.Logs.writeLog(`店铺【${name}】
             ${this.addressQuery.take && '取件地址'}${this.addressQuery.backMail && '取件地址'}设置失败`, false)
