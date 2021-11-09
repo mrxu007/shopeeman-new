@@ -2,22 +2,25 @@
   <div v-loading="loading" class="detai">
     <div class="condition">
       <div class="condition—item">
-        <el-select v-model="selType" size="mini" style="width:120px;margin-right:3px">
+        <el-select v-model="query.type" size="mini" style="width:120px;margin-right:3px">
           <el-option label="订单号后八位" value="1" />
           <el-option label="系统订单ID" value="2" />
           <el-option label="商品规格" value="3" />
         </el-select>
-        <el-input v-model="inputDes" size="mini" style="width:180px" clearable />
+        <el-input v-model="query.data" size="mini" style="width:180px" clearable />
       </div>
       <div class="condition—item">
         <label>包裹图片上的时间：</label>
         <el-date-picker
-          v-model="query.goodsTime"
-          type="date"
-          placeholder="选择日期时间"
-          value-format="yyyy-MM-dd"
+          v-model="cloumn_date"
           size="mini"
-          style="width:150px"
+          style="width: 324px"
+          type="datetimerange"
+          value-format="yyyy-MM-dd HH:mm:ss"
+          range-separator="-"
+          :picker-options="pickerOptions"
+          start-placeholder="开始日期"
+          end-placeholder="结束日期"
         />
       </div>
       <el-button class="condition—item" type="primary" size="mini" @click="getTableList">查询丢失信息</el-button>
@@ -29,7 +32,7 @@
         :data="tableList"
         :header-cell-style="{ background: '#f7fafa' }"
       >
-        <el-table-column label="订单号" prop="order_sn" min-width="300px">
+        <el-table-column label="订单号" prop="" min-width="300px">
           <template slot-scope="{ row }">
             <span>{{ row.order_sn }}
               <el-button
@@ -42,18 +45,6 @@
           </template>
         </el-table-column>
       </el-table>
-      <div class="pagination" style="display:flex;justify-content: flex-end;">
-        <el-pagination
-          background
-          :current-page.sync="page"
-          :page-sizes="[20, 50, 100, 200]"
-          :page-size="pageSize"
-          layout="total, sizes, prev, pager, next, jumper"
-          :total="total"
-          @size-change="handleSizeChange"
-          @current-change="handleCurrentChange"
-        />
-      </div>
     </div>
   </div>
 </template>
@@ -61,27 +52,47 @@
 export default {
   data() {
     return {
-      selType: '1',
       inputDes: '',
       query: {
-        order: '', // 订单号后八位
-        orderID: '', // 系统订单ID
-        goodModel: '', // 系统订单ID
-        goodsTime: ''// 包裹时间
+        type: '1', // 类型
+        data: '', // 值
+        shottedAt: ''// 包裹时间
       },
       total: 0,
       tableList: [],
-      loading: false
+      loading: false,
+      cloumn_date: [],
+      pickerOptions: {
+        disabledDate(time) {
+          return time.getTime() > Date.now()
+        }
+      }
     }
   },
   created() {
+    this.initFor()// 时间
     this.getTableList()// 初始化数据
-    this.query.goodsTime = new Date()
+    // this.query.shottedAt = new Date()
   },
   methods: {
+    initFor() {
+      const d = new Date()
+      const d1 = d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate() + ' 00:00:00'
+      const d2 = d.getFullYear() + '-' + d.getMonth() + '-' + d.getDate() + ' 23:59:59'
+      this.cloumn_date = [d2, d1]
+      // this.cloumn_date && this.cloumn_date.length > 0 ? this.cloumn_date.join('/').toString() : ''
+      console.log(this.cloumn_date)
+    },
     // 初始化数据 查询
     async getTableList() {
-
+      // this.query.shottedAt = this.cloumn_date && this.cloumn_date.length > 0 ? this.cloumn_date.join('/').toString() : ''
+      const params = {
+        type: this.query.type,
+        data: this.query.data,
+        shottedAt: this.cloumn_date && this.cloumn_date.length > 0 ? this.cloumn_date.join('/').toString() : ''
+      }
+      const res = await this.$api.getOrderSn({ params })
+      console.log(res)
     },
     // 分页
     handleSizeChange(val) { this.query.pageSize = val },
@@ -111,7 +122,7 @@ export default {
 </script>
 <style lang="less">
     .detai{
-        min-width: 1280px;
+        min-width: 1200px;
         padding: 10px;
         .condition{
             display: flex;

@@ -23,22 +23,32 @@
       <div class="row">
         <div class="row_item">
           <label>售后状态：</label>
-          <el-select v-model="query.saleStatus" size="mini" style="width:100px">
+          <el-select v-model="query.shotOrderStatus" size="mini" style="width:100px">
             <el-option label="全部" value="" />
+            <el-option label="取消中" value="5" />
+            <el-option label="已取消" value="6" />
+            <el-option label="退货退款中" value="7" />
+            <el-option label="退款成功" value="9" />
+            <el-option label="退款失败" value="10" />
           </el-select>
         </div>
 
         <div class="row_item">
           <label>采购状态：</label>
-          <el-select v-model="query.buyStatus" size="mini" style="width: 180px;">
+          <el-select v-model="query.refundStatus" size="mini" style="width: 180px;">
             <el-option label="全部" value="" />
+            <el-option label="待拍单" value="1" />
+            <el-option label="拍单中" value="2" />
+            <el-option label="拍单成功" value="3" />
+            <el-option label="拍单失败" value="4" />
           </el-select>
         </div>
 
         <div class="row_item">
           <label>颜色标识：</label>
-          <el-select v-model="query.color" size="mini" style="width: 180px;">
+          <el-select v-model="query.colorLabelId" size="mini" style="width: 180px;">
             <el-option label="全部" value="" />
+            <el-option v-for="item in colorLogoList" :key="item.id" :label="item.label" :value="item.id" :style="item.color" />
           </el-select>
         </div>
 
@@ -141,6 +151,7 @@
 </template>
 <script>
 import storeChoose from '../../../components/store-choose.vue'
+import { colorLabelList, getMalls } from '../../../util/util'
 
 export default {
   components: {
@@ -153,6 +164,7 @@ export default {
           return time.getTime() > Date.now()
         }
       },
+      colorLogoList: [],
       mall_compare: false, // 全店同步
       shoeLog: false, // 隐藏日志
       selType: '1', // 订单编号 采购物流单号 采购单号
@@ -160,15 +172,19 @@ export default {
       cloumn_date1: '',
       cloumn_date2: '',
       query: {
-        mallIds: '', // 店铺ids
+        sysMallIds: '', // 店铺ids
         cerateTime: '', // 创建时间
         saleStatus: '', // 售后状态
-        buyStatus: '', // 采购状态
+        refundStatus: '', // 采购状态
         color: '', // 颜色标识
         applyTime: '', // 申请时间
-        orderId: '', // 订单编号
-        packageId: '', // 采购物流单号
-        buyid: '', // 采购单号
+        orderSn: '', // 订单编号
+        trackingNumber: '', // 采购物流单号
+        shotOrderSn: '', // 采购单号
+        shotOrderStatus: '', // 拍单状态
+        afterApplyTime: '', // 申请时间
+        createdTime: '', // 创建时间
+        colorLabelId: '', // 颜色标识id
         page: 1,
         pageSize: 20
       },
@@ -178,13 +194,31 @@ export default {
     }
   },
   created() {
-    this.getTableList()// 初始化数据
+    this.getInfo()// 获取颜色
   },
   methods: {
-    changeMallList() {},
-    // 初始化数据 查询
-    async getTableList() {
+    async getInfo() {
+      colorLabelList().then((res) => {
+        // console.log('color', res)
+        this.colorLogoList = res
+      })
 
+      getMalls().then(res => {
+        this.shopAccountList = res
+        this.query.sysMallIds = [] // 初始化systemMallids
+        this.shopAccountList.forEach(item => {
+          this.query.sysMallIds.push(item.id)
+        })
+        this.getTableList()// 初始化数据
+      })
+    },
+    changeMallList(val) {
+      console.log(val)
+    },
+    // 初始化数据 查询
+    async getTableList(params) {
+      const res = await this.$api.aftermarket(params)
+      console.log(res)
     },
     // 分页
     handleSizeChange(val) { this.query.pageSize = val },

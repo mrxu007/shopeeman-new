@@ -149,5 +149,8 @@ export default {
   deleteUserSku: (data) => AppRequest.post('/userStock/deleteSkus', data), // 删除sku
 
   // 订单管理
-  shotAmountRecord: (data) => AppRequest.get('/shotAmountRecord/index', data) // 采购价变更记录
+  shotAmountRecord: (data) => AppRequest.get('/shotAmountRecord/index', data), // 采购价变更记录
+  getOrderSn: (data) => AppRequest.get('/order/getOrderSn', data), // 丢件查询
+  aftermarket: (data) => AppRequest.post('/aftermarket', data) // 虾皮售后
+
 }
