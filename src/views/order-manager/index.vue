@@ -1,27 +1,27 @@
 <template>
   <div class="catch-notice-style">
     <!--虾皮售后 -->
-    <main v-if="activeVal === '1'"><AfterSale /></main>
+    <main v-if="activeVal === '1'"><OrderManagerAfterSale /></main>
 
     <!--丢件信息查询 -->
-    <main v-if="activeVal === '4'"><LostSearch /></main>
+    <main v-if="activeVal === '4'"><OrderManagerLostSearch /></main>
 
     <!--采购信息查询 -->
-    <main v-if="activeVal === '5'"><PriceChangeRecorde /></main>
+    <main v-if="activeVal === '5'"><OrderManagerPriceChangeRecorde /></main>
   </div>
 </template>
 
 <script>
 import {
-  AfterSale,
-  LostSearch,
-  PriceChangeRecorde
+  OrderManagerAfterSale,
+  OrderManagerLostSearch,
+  OrderManagerPriceChangeRecorde
 } from './index'
 export default {
   components: {
-    AfterSale,
-    LostSearch,
-    PriceChangeRecorde
+    OrderManagerAfterSale,
+    OrderManagerLostSearch,
+    OrderManagerPriceChangeRecorde
   },
   data() {
     return {
