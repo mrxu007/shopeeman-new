@@ -27,6 +27,16 @@
             end-placeholder="结束日期"
             :picker-options="pickerOptions"
           />
+          <!-- <el-date-picker
+            v-model="statisticsTime"
+            size="mini"
+            type="daterange"
+            style="width: 300px"
+            range-separator="-"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
+            :default-time="['00:00:00', '23:59:59']"
+          /> -->
         </div>
         <el-button type="primary" size="mini" class="mar-right" @click="searchTableList">查 询</el-button>
         <el-button type="primary" size="mini" class="mar-right" @click="exportData">导 出</el-button>
@@ -45,7 +55,7 @@
         <el-table-column min-width="60px" label="店铺分组" prop="group_name" align="center" />
         <el-table-column min-width="60px" label="上架总量" prop="upCount" align="center" />
       </el-table>
-      <div class="pagination">
+      <!-- <div class="pagination">
         <el-pagination
           background
           :page-sizes="[10, 20, 50, 100]"
@@ -55,7 +65,7 @@
           @current-change="handleCurrentChange"
           @size-change="handleSizeChange"
         />
-      </div>
+      </div> -->
     </div>
   </div>
 </template>
@@ -87,7 +97,7 @@ export default {
   },
   async mounted() {
     const end = new Date().getTime()
-    const start = end - 3 * 24 * 60 * 60 * 1000
+    const start = end - 30 * 24 * 60 * 60 * 1000
     this.statisticsTime = [this.$dayjs(start).format('YYYY-MM-DD'), this.$dayjs(end).format('YYYY-MM-DD')]
     setTimeout(() => {
       this.searchTableList()
@@ -96,7 +106,6 @@ export default {
   methods: {
     changeMallList(val) {
       this.mallData = val
-      console.log(val)
     },
     // 导出数据
     exportData() {
@@ -124,25 +133,21 @@ export default {
     },
     // 查询
     async searchTableList() {
-      console.log(this.statisticsTime)
+      // console.log('12465', this.statisticsTime)
       // const params = [this.statisticsTime[0] + ' 00:00:00', this.statisticsTime[1] + ' 23:59:59']
       const params = this.statisticsTime && [this.statisticsTime[0] + ' 00:00:00', this.statisticsTime[1] + ' 23:59:59'] || ''
-
       this.tableLoading = true
+      this.statisticData = []
       const res = await this.$commodityService.getStatisticsNew(params)
-      // if (!res) {
-      //   this.tableLoading = false
-      //   return
-      // }
-      // debugger
-      const resObj = res && JSON.parse(res)
-      if (resObj.code !== 200) {
-        this.$message.error('网络请求错误')
+      if (!res) {
         this.tableLoading = false
         return
       }
-      // debugger
+      const resObj = res && JSON.parse(res)
+
       const statisticData = resObj.data || []
+      // console.log('statisticData', statisticData)
+      console.log('statisticData', this.statisticData)
       for (let i = 0; i < this.mallData.length; i++) {
         const mall = this.mallData[i]
         mall.upCount = 0
@@ -155,11 +160,27 @@ export default {
         })
         this.tableData.push(mall)
       }
-      this.total = this.tableData.length
-      this.dataCut()
+      // this.total = this.tableData.length
+      // this.dataCut()
       // console.log(res, this.mallData, this.tableData)
       this.tableLoading = false
     },
+    // 店铺筛选
+    search() {
+      if (this.mallData.length === 1) {
+        // 全选
+        this.searchTableList()
+      } else {
+        // 部分this.statisticData
+        let arr = []
+        this.mallData.forEach(item => {
+          arr += this.statisticData.filter(e => { return (e.platform_mall_name = item.platform_mall_name) })
+        })
+        // this.statisticData=arr 过滤数据
+        // console.log(arr);
+      }
+    },
+
     //   表格选择
     selectionChange(val) {
       this.multipleSelection = val
@@ -189,10 +210,9 @@ export default {
   margin-right: 10px;
 }
 .tool-bar {
-  // height: 100px;
   height: 60px;
-  display: flex;
   background: #fff;
+  display: flex;
   .tool-row {
     // padding: 16px 16px 0 16px;
     display: flex;
