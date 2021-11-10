@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-11-09 10:17:44
- * @LastEditTime: 2021-11-10 17:17:06
+ * @LastEditTime: 2021-11-10 22:02:40
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shopeeman-new\src\views\order-manager\components\OrderManagerOrderCenter.vue
@@ -27,7 +27,7 @@
               <span class="base-title">列表筛选操作</span>
               <div class="base-item">
                 <el-row class="row-style">
-                  <storeChoose :is-all="true" @changeMallList="changeMallList" :spanWidth="'80px'" :selectWidth="'180px'"></storeChoose>
+                  <storeChoose :is-all="true" @changeMallList="changeMallList" :spanWidth="'80px'" :selectWidth="'180px'" :source="'orderCenter'"></storeChoose>
                   <div class="tool-item">
                     <el-select v-model="selectForm.timeType" placeholder="" size="mini" filterable style="width: 140px">
                       <el-option :label="item.label" :value="item.value" v-for="(item, index) in timeTypeList" :key="index" />
@@ -48,15 +48,15 @@
                 <el-row class="row-style">
                   <div class="tool-item mar-right">
                     <span>发货状态：</span>
-                    <el-select v-model="orderStatus" placeholder="" size="mini" filterable　class="inputBox">
-                      <el-option label="全部" :value="''" />
+                    <el-select v-model="orderStatus" placeholder="" size="mini" multiple collapse-tags filterable　class="inputBox">
+                      <el-option label="全部" :value="''"  @click.native="selectAll('orderStatus', orderStatusList)"/>
                       <el-option :label="item.label" :value="item.value" v-for="(item, index) in orderStatusList" :key="index" />
                     </el-select>
                   </div>
                   <div class="tool-item mar-right">
                     <span>采购状态：</span>
-                    <el-select v-model="shotStatus" placeholder="" size="mini" filterable　class="inputBox">
-                      <el-option label="全部" :value="''" />
+                    <el-select v-model="shotStatus" placeholder="" size="mini"  multiple collapse-tags filterable　class="inputBox">
+                      <el-option label="全部" :value="''" @click.native="selectAll('shotStatus', shotStatusList)"/>
                       <el-option :label="item.label" :value="item.value" v-for="(item, index) in shotStatusList" :key="index" />
                     </el-select>
                   </div>
@@ -70,7 +70,7 @@
                   <div class="tool-item mar-right">
                     <span>创建时间：</span>
                     <el-date-picker
-                      v-model="selectForm.createTime"
+                      v-model="createTime"
                       size="mini"
                       value-format="yyyy-MM-dd"
                       type="daterange"
@@ -133,8 +133,9 @@
                   </div>
                   <div class="tool-item mar-right">
                     <span>物流方式：</span>
-                    <el-select v-model="logisticsIds" placeholder="" size="mini" filterable　class="inputBox">
-                      <el-option label="全部物流" :value="''" />
+                    <el-select v-model="logisticsIds" placeholder="" size="mini"   multiple collapse-tags filterable　class="inputBox">
+                      <el-option label="全部物流" :value="''" @click.native="selectAll('logisticsIds', shipTypeList)"/>
+                      <el-option :label="item.ShipName" :value="item.ShipId" v-for="(item, index) in shipTypeList" :key="index" />
                     </el-select>
                   </div>
                   <div class="tool-item mar-right">
@@ -474,17 +475,18 @@ export default {
         sysMallId: '', //系统店铺id  多个用英文逗号隔开
         logisticsIds: '', //物流方式
       },
+      createTime:[],//创建时间
       logisticsIds: [], //物流方式
       orderStatus: [], ///订单状态
       shotStatus: [], //采购状态
       inputType: 'orderSn',
       inputContent: '',
-      orderStatusList: orderStatusList,
-      shotStatusList: shotStatusList,
-      timeTypeList: timeTypeList,
+      orderStatusList: orderStatusList, //订单状态
+      shotStatusList: shotStatusList, //采购状态
+      timeTypeList: timeTypeList, //其它时间类型
       inputTypeList: inputTypeList,
-      goodsSourceList: goodsSourceList,
-      shipTypeList: [],
+      goodsSourceList: goodsSourceList, //商品来源
+      shipTypeList: [], //物流方式
       tableLoading: false,
       tableData: [],
       pageSize: 20,
@@ -552,9 +554,7 @@ export default {
   mounted() {
     this.getBuyers()
     this.getOrderList()
-    // this.shipTypeList = siteShip(this.selectMallList[0].country || '')
-    console.log(this.shipTypeList)
-    this.selectForm.createTime = creatDate(15)
+    this.createTime = creatDate(15)
   },
   methods: {
     //获取订单列表数据
@@ -562,9 +562,9 @@ export default {
       let sysMallId = ''
       this.selectMallList.forEach((item, index) => {
         if (index === 0) {
-          sysMallId = item.platform_mall_id
+          sysMallId = item.id
         } else {
-          sysMallId = sysMallId + ',' + item.platform_mall_id
+          sysMallId = sysMallId + ',' + item.id
         }
       })
       let params = JSON.parse(JSON.stringify(this.selectForm))
@@ -572,6 +572,10 @@ export default {
       params['pageSize'] = this.pageSize
       params['sysMallId'] = sysMallId
       params[this.inputType] = this.inputContent
+      params['orderStatus'] = this.orderStatus.join(',')
+      params['shotStatus'] = this.shotStatus.join(',')
+      params['logisticsIds'] = this.logisticsIds.join(',')
+      params['createTime'] = this.createTime.length?this.createTime[0]+' 00:00:00' +'/' +this.createTime[1] + ' 23:59:59':''
       let res = await this.$api.getOrderList(params)
       if (res.data.code === 200) {
         this.tableData = res.data.data.data
@@ -590,8 +594,21 @@ export default {
       })
       console.log('buyers', resObj, this.buyerAccountList)
     },
+    //全选
+    selectAll(key, baseData) {
+      if (this[key].length < baseData.length) {
+        this[key] = []
+        // this[key].push('')
+        baseData.map((item) => {
+          this[key].push(item.value || item.ShipId)
+        })
+      } else {
+        this[key] = []
+      }
+    },
     changeMallList(val) {
-      this.selectMallList = val
+      this.selectMallList = val.mallList
+      this.shipTypeList = siteShip(val.country || '') //物流方式
     },
     handleCurrentChange(val) {
       this.currentPage = val

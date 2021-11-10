@@ -26,6 +26,7 @@ export default class buyerAccountService {
           public const int OwnPlatform = 5; //自有
           public const int PpxiasGHPT = 6; //皮皮虾供货平台
           public const int AlibabaPlatform = 8; //皮皮虾供货平台
+          9 //lazada
           public const int HyjPlatform = 7; //货源甲
           public const int ShopeePlatform = 11;//Shopee平台
           public const int AliExpress = 12;//Shopee平台
@@ -117,25 +118,25 @@ export default class buyerAccountService {
    * pdd个人中心
    */
   pddUserCenter(account) {
-    return this.nativeService.UserCenter(1, 'http://mobile.yangkeduo.com/personal.html',account)
+    return this.nativeService.userCenter(1, 'http://mobile.yangkeduo.com/personal.html',account)
   }
   /**
    * taobao个人中心
    */
   taobaoUserCenter(account) {
-    return this.nativeService.UserCenter(0, 'https://www.taobao.com',account)
+    return this.nativeService.userCenter(0, 'https://www.taobao.com',account)
   }
   /**
    * jingxi个人中心
    */
   jingxiUserCenter(account) {
-    return this.nativeService.UserCenter(3, 'https://home.m.jd.com/myJd/newhome.action',account)
+    return this.nativeService.userCenter(3, 'https://home.m.jd.com/myJd/newhome.action',account)
   }
   /**
    * 1688个人中心
    */
   AlibabaUserCenter(account) {
-    return this.nativeService.UserCenter(5, 'https://work.1688.com/home/buyer.htm?',account)
+    return this.nativeService.userCenter(5, 'https://work.1688.com/home/buyer.htm?',account)
   }
   /**
    * lazada个人中心
@@ -143,7 +144,7 @@ export default class buyerAccountService {
   lazadaUserCenter(country,account) {
     const url = this.lazada[country] + '/user/profile#/'
     console.log(7, url, country)
-    return this.nativeService.UserCenter(7, url, account)
+    return this.nativeService.userCenter(7, url, account)
   }
   /**
    * shopee个人中心
@@ -151,7 +152,7 @@ export default class buyerAccountService {
   shopeeUserCenter(country,account) {
     const url = this.shopee[country] + '/user/account/address'
     console.log(8, url, country)
-    return this.nativeService.buyerLogin(8, url, account)
+    return this.nativeService.userCenter(8, url, account)
   }
 
 }

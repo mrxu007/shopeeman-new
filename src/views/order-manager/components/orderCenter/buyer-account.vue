@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-11-09 10:14:02
- * @LastEditTime: 2021-11-10 17:32:03
+ * @LastEditTime: 2021-11-10 22:27:08
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shopeeman-new\src\components\buyer-account.vue
@@ -30,7 +30,7 @@
               />
             </el-option>
           </el-select>
-          <el-button :size="item.size || 'mini'" style="margin-right: 6px; width: 165px" @click="publicCenter(selectAccount[platformValue[item.platform]], item.platform)">
+          <el-button :size="item.size || 'mini'" style="margin-right: 6px; width: 165px" @click="publicCenter(selectAccount[platformValue[item.AccountType]], item.AccountType)">
             {{ item.centerTitle }}</el-button
           >
         </div>
@@ -347,6 +347,7 @@ export default {
     },
     // 公共个人中心
     publicCenter(id, platform) {
+      console.log(id)
       switch (platform) {
         case 1:
           this.pddUserCenterHandler(id)
@@ -399,8 +400,9 @@ export default {
       const serives = this.gotouser(id)
       if (serives) {
         console.log(serives, 11)
-        serives.loginCookies = this.getBuyerLoginCookies(serives.login_info)
-        var accounts = await this.$buyerAccountService.pddUserCenter(serives, url)
+        // serives.loginCookies = this.getBuyerLoginCookies(serives.login_info)
+        serives.loginCookies = serives.LoginedCookies
+        var accounts = await this.$buyerAccountService.pddUserCenter(serives)
         console.log(accounts)
       }
     },
@@ -419,7 +421,7 @@ export default {
       console.log(serives, 1)
       if (serives) {
         console.log(serives, 11)
-        var accounts = await this.$buyerAccountService.taobaoUserCenter(serives, url)
+        var accounts = await this.$buyerAccountService.taobaoUserCenter(serives)
         console.log(accounts)
       }
     },
@@ -437,7 +439,7 @@ export default {
     async jingxiUserCenter(id) {
       const serives = this.gotouser(id)
       if (serives) {
-        var accounts = await this.$buyerAccountService.jingxiUserCenter(serives, url)
+        var accounts = await this.$buyerAccountService.jingxiUserCenter(serives)
       }
     },
     // 1688登录
@@ -455,7 +457,7 @@ export default {
       console.log(serives, 1)
       if (serives) {
         console.log(serives, 11)
-        var accounts = await this.$buyerAccountService.AlibabaUserCenter(serives, url)
+        var accounts = await this.$buyerAccountService.AlibabaUserCenter(serives)
         console.log(accounts)
       }
     },
@@ -474,7 +476,7 @@ export default {
       console.log(serives, 1)
       if (serives) {
         console.log(serives, 11)
-        var accounts = await this.$buyerAccountService.lazadaUserCenter(serives, url)
+        var accounts = await this.$buyerAccountService.lazadaUserCenter(this.siteCode,serives)
         console.log(accounts)
       }
     },
@@ -493,7 +495,7 @@ export default {
       console.log(serives, 1)
       if (serives) {
         console.log(serives, 11)
-        var accounts = await this.$buyerAccountService.shopeeUserCenter(this.siteCode)
+        var accounts = await this.$buyerAccountService.shopeeUserCenter(this.siteCode,serives)
         console.log(accounts)
       }
     },
@@ -503,7 +505,7 @@ export default {
       console.log(id, 1234)
       if (id) {
         this.buyerAccountList.forEach((item) => {
-          if (item.id === id) {
+          if (item.UserName === id) {
             userInfo = item
           }
         })

@@ -184,7 +184,7 @@ export default {
         }
       })
       if (this.source) {
-        this.$emit('changeMallList', { mallList: mallList, source: this.source })
+        this.$emit('changeMallList', { mallList: mallList, source: this.source,country: this.countryVal })
       } else {
         this.$emit('changeMallList', mallList)
       }
