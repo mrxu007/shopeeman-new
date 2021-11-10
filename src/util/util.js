@@ -1,8 +1,6 @@
 import { setTimeout } from 'core-js'
 import md5 from 'js-md5'
 import Vue from 'vue'
-import html2Canvas from 'html2canvas'
-import JsPDF from 'jspdf'
 
 const instance = new Vue()
 
@@ -353,7 +351,7 @@ export function exportPdfData(id, name) {
     // height:5072,
     dpi: window.devicePixelRatio * 4, // 将分辨率提高到特定的DPI 提高四倍
     scale: 4 // 按比例增加分辨率
-  }).then(function(canvas) {
+  }).then(function (canvas) {
     const contentWidth = canvas.width
     const contentHeight = canvas.height
     const pageHeight = contentWidth / 592.28 * 841.89
@@ -383,7 +381,7 @@ export function exportPdfData(id, name) {
 export function debounce(fun, wait, immediate) {
   let timeout = null
   let result = null
-  return function() {
+  return function () {
     const context = this
     const args = arguments
     if (timeout) {
