@@ -456,7 +456,17 @@ export default {
     // 充值
     async recharge() {
       const params = { amount: this.amount }
-      const res = await this.$api.getChargeUrlV2(params)
+      try {
+        const res = await this.$api.getChargeUrlV2(params)
+        if (res.data.code === 200) {
+          this.$message.success('充值成功')
+        } else {
+          this.$message.success(res.data.message)
+        }
+      } catch (error) {
+        console.log(error)
+        this.$message.error('充值失败')
+      }
     },
     // 获取今日翻译费用
     async getTranslateAmount() {
@@ -469,7 +479,7 @@ export default {
     async getTransDetail(row) {
       console.log(row)
       this.translateDetailVisible = true
-      const date = row ? row.created_at.split(' ')[0] : ''
+      const date = row ? row.trans_time ? row.trans_time.split(' ')[0] : '' : ''
       const todayStart = creatDate(0)[0] + ' 00:00:00'
       const todayEnd = creatDate(0)[0] + ' 23:23:23'
       this.chooseDate = row ? [date + ' 00:00:00', date + ' 23:59:59'] : [todayStart, todayEnd]

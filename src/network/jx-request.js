@@ -61,7 +61,7 @@ export default {
   getAccountAmount: (data) => AppRequest.get('/user/accountAmount', { data }), // 查询用户账号余额
   getAccountAmountDetailList: (data) => AppRequest.post('/user/accountAmountDetailList', data), // 查询用户账号余额
   getTranslateDetail: (data) => AppRequest.get('/translate/getTranslateDetail', { params: data }), // 获取翻译明细数据
-  getChargeUrlV2: (data) => AppRequest.get('/emptyBag/chargeUrlV2', { params: data }), // 充值
+  getChargeUrlV2: (data) => AppRequest.get('/emptyBag/chargeUrl', { params: data }), // 充值
   getTranslateAmount: (data) => AppRequest.get('/translate/getTranslateAmount', { params: data }), // 获取今日翻译费用
   getOrderStatisticsList: (data) => AppRequest.get('/orderStatistics/index', { params: data }), // 账单核算：列表
   getChildUserList: (data) => AppRequest.post('/user/childUserList', data), // 团队管理-查询子账号列表
