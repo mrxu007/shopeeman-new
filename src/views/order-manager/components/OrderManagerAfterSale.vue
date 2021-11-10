@@ -102,36 +102,49 @@
         :data="tableList"
         :header-cell-style="{ background: '#f7fafa' }"
       >
-        <el-table-column label="站点" prop="order_sn" min-width="100px" fixed align="center" />
-        <el-table-column label="店铺名称" prop="order_sn" min-width="120px" fixed align="center" />
-        <el-table-column label="店铺分组" prop="order_sn" min-width="120px" align="center" />
-        <el-table-column label="颜色标识" prop="order_sn" min-width="100px" align="center" />
-        <el-table-column label="标识名称" prop="order_sn" min-width="120px" align="center" />
-        <el-table-column label="订单编号" prop="order_sn" min-width="180px" align="center" />
-        <el-table-column label="退款金额" prop="order_sn" min-width="100px" align="center" />
-        <el-table-column label="售后状态" prop="order_sn" min-width="100px" align="center" />
-        <el-table-column label="申请时间" prop="order_sn" min-width="180px" align="center" />
-        <el-table-column label="售后原因" prop="order_sn" min-width="100px" align="center" />
-        <el-table-column label="本地备注" prop="order_sn" min-width="100px" align="center" />
-        <el-table-column label="商品ID" prop="order_sn" min-width="150px" align="center" />
-        <el-table-column label="商品数量" prop="order_sn" min-width="150px" align="center" />
-        <el-table-column label="商品图片" prop="order_sn" min-width="300px" align="center" />
-        <el-table-column label="商品类目" prop="order_sn" min-width="100px" align="center" />
-        <el-table-column label="商品规格" prop="order_sn" min-width="100px" align="center" />
-        <el-table-column label="采购商品ID" prop="order_sn" min-width="180px" align="center" />
-        <el-table-column label="采购订单号" prop="order_sn" min-width="180px" align="center" />
-        <el-table-column label="采购状态" prop="order_sn" min-width="100px" align="center" />
-        <el-table-column label="采购价" prop="order_sn" min-width="100px" align="center" />
-        <el-table-column label="采购时间" prop="order_sn" min-width="180px" align="center" />
-        <el-table-column label="采购物流单号" prop="order_sn" min-width="180px" align="center" />
-        <el-table-column label="采购账号" prop="order_sn" min-width="180px" align="center" />
-        <el-table-column label="订单创建时间" prop="order_sn" min-width="180px" align="center" />
-        <el-table-column label="订单截止发货时间" prop="order_sn" min-width="180px" align="center" />
-        <el-table-column label="退货物流号" prop="order_sn" min-width="180px" align="center" />
-        <el-table-column label="退件发货地址" prop="order_sn" min-width="200px" align="center" />
-        <el-table-column label="退货地址" prop="order_sn" min-width="200px" align="center" />
-        <el-table-column label="退货邮寄地址" prop="order_sn" min-width="200px" align="center" />
-        <el-table-column label="操作状态" prop="order_sn" min-width="150px" fixed="right" align="center" />
+        <el-table-column label="站点" prop="country" min-width="100px" fixed align="center" />
+        <el-table-column label="店铺名称" prop="" min-width="120px" fixed align="center" />
+        <el-table-column label="店铺分组" prop="" min-width="120px" align="center" />
+        <el-table-column label="颜色标识" prop="" min-width="100px" align="center" />
+        <el-table-column label="标识名称" prop="" min-width="120px" align="center" />
+        <el-table-column label="订单编号" prop="" min-width="180px" align="center" />
+        <el-table-column label="退款金额" prop="" min-width="100px" align="center" />
+        <el-table-column label="售后状态" prop="" min-width="100px" align="center" />
+        <el-table-column label="申请时间" prop="" min-width="180px" align="center" />
+        <el-table-column label="售后原因" prop="" min-width="100px" align="center" />
+        <el-table-column label="本地备注" prop="" min-width="100px" align="center" />
+        <el-table-column label="商品ID" prop="" min-width="150px" align="center" />
+        <el-table-column label="商品数量" prop="" min-width="150px" align="center" />
+        <el-table-column label="商品图片" prop="" min-width="300px" align="center" />
+        <el-table-column label="商品类目" prop="" min-width="100px" align="center" />
+        <el-table-column label="商品规格" prop="" min-width="100px" align="center" />
+        <el-table-column label="采购商品ID" prop="" min-width="180px" align="center" />
+        <el-table-column label="采购订单号" prop="" min-width="180px" align="center" />
+        <el-table-column label="采购状态" prop="" min-width="100px" align="center" />
+        <el-table-column label="采购价" prop="" min-width="100px" align="center" />
+        <el-table-column label="采购时间" prop="" min-width="180px" align="center" />
+        <el-table-column label="采购物流单号" prop="" min-width="180px" align="center" />
+        <el-table-column label="采购账号" prop="" min-width="180px" align="center" />
+        <el-table-column label="订单创建时间" prop="" min-width="180px" align="center" />
+        <el-table-column label="订单截止发货时间" prop="" min-width="180px" align="center" />
+        <el-table-column label="退货物流号" prop="" min-width="180px" align="center" />
+        <el-table-column label="退件发货地址" prop="" min-width="200px" align="center" />
+        <el-table-column label="退货地址" prop="" min-width="200px" align="center" />
+        <el-table-column label="退货邮寄地址" prop="" min-width="200px" align="center" />
+        <el-table-column label="操作状态" prop="" min-width="150px" fixed="right" align="center">
+          <el-dropdown>
+            <el-button type="primary" size="mini">
+              更多<i class="el-icon-arrow-down el-icon--right"></i>
+            </el-button>
+            <el-dropdown-menu slot="dropdown">
+              <el-dropdown-item>删除商品</el-dropdown-item>
+              <el-dropdown-item>下架商品</el-dropdown-item>
+              <el-dropdown-item>修改采购状态</el-dropdown-item>
+              <el-dropdown-item>同步此店铺售后订单</el-dropdown-item>
+              <el-dropdown-item>标记颜色标识</el-dropdown-item>
+            </el-dropdown-menu>
+          </el-dropdown>
+        </el-table-column>
       </el-table>
       <div class="pagination" style="display:flex;justify-content: flex-end;">
         <el-pagination

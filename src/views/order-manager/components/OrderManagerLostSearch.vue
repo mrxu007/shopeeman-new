@@ -85,7 +85,6 @@ export default {
     },
     // 初始化数据 查询
     async getTableList() {
-      // this.query.shottedAt = this.cloumn_date && this.cloumn_date.length > 0 ? this.cloumn_date.join('/').toString() : ''
       const params = {
         type: this.query.type,
         data: this.query.data,
