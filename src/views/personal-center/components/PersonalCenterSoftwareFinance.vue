@@ -342,6 +342,7 @@ export default {
       amount: '',
       exportDataList: [],
       uuid: '',
+      uid: '',
       amountLoading: false
     }
   },
@@ -358,6 +359,8 @@ export default {
     // 获取翻译费用
     this.getTranslateAmount()
     this.selectList()
+    // 获取用户信息
+    this.getUserInfo()
   },
   methods: {
     async exportData() {
@@ -475,6 +478,18 @@ export default {
         this.account.translationCosts = res.data.data.amount
       }
     },
+    // 用户信息
+    async getUserInfo() {
+      try {
+        const data = await this.$appConfig.getUserInfo()
+        this.uid = data.muid
+        this.uuid = data.child_id
+        console.log('login', data)
+      } catch (error) {
+        this.$message.error('获取用户信息失败')
+        console.log(error)
+      }
+    },
     // 获取翻译明细
     async getTransDetail(row) {
       console.log(row)
@@ -485,7 +500,8 @@ export default {
       this.chooseDate = row ? [date + ' 00:00:00', date + ' 23:59:59'] : [todayStart, todayEnd]
       // this.chooseDate = ['2021-09-17 00:00:00','2021-09-17 23:59:59']
       const params = {
-        uuid: row ? row.uid : '',
+        uid: this.uid,
+        uuid: this.uuid,
         startTime: this.chooseDate[0],
         endTime: this.chooseDate[1]
       }
