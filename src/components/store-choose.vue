@@ -3,7 +3,7 @@
     <ul class="storeChooseUL">
       <li>
         <span :style="{ width: spanWidth }">所属站点：</span>
-        <el-select v-model="countryVal" size="mini" filterable class="siteSelectBox">
+        <el-select v-model="countryVal" size="mini" filterable class="siteSelectBox" :style="{ width: selectWidth }">
           <el-option v-if="isAll" label="全部" :value="''" />
           <el-option v-for="(item, index) in countries" :key="index" :label="item.label" :value="item.value" />
         </el-select>
@@ -32,6 +32,10 @@ import MallListAPI from '../module-api/mall-manager-api/mall-list-api'
 export default {
   name: 'StoreChoose',
   props: {
+    selectWidth:{
+      type: String,
+      default: '100px'
+    },
     spanWidth: {
       type: String,
       default: '80px'

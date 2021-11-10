@@ -200,9 +200,9 @@ export default {
         case 8:
           accountType = 6 //1688
           break
-        case 8:
-          accountType = 8 //lazada
-          break
+        // case 8:
+        //   accountType = 8 //lazada
+        //   break
         default:
           break
       }

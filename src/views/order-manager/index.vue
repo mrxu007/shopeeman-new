@@ -1,5 +1,15 @@
+<!--
+ * @Author: your name
+ * @Date: 2021-11-09 10:09:21
+ * @LastEditTime: 2021-11-09 10:20:56
+ * @LastEditors: your name
+ * @Description: In User Settings Edit
+ * @FilePath: \shopeeman-new\src\views\order-manager\index.vue
+-->
 <template>
   <div class="catch-notice-style">
+    <!--订单列表 -->
+    <main v-if="activeVal === '0'"><OrderManagerOrderCenter /></main>
     <!--虾皮售后 -->
     <main v-if="activeVal === '1'"><OrderManagerAfterSale /></main>
 
@@ -15,13 +25,15 @@
 import {
   OrderManagerAfterSale,
   OrderManagerLostSearch,
-  OrderManagerPriceChangeRecorde
+  OrderManagerPriceChangeRecorde,
+  OrderManagerOrderCenter
 } from './index'
 export default {
   components: {
     OrderManagerAfterSale,
     OrderManagerLostSearch,
-    OrderManagerPriceChangeRecorde
+    OrderManagerPriceChangeRecorde,
+    OrderManagerOrderCenter
   },
   data() {
     return {

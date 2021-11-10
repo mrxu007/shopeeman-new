@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-10-08 14:16:18
- * @LastEditTime: 2021-11-08 17:06:58
+ * @LastEditTime: 2021-11-10 14:36:30
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shopeeman-new\src\network\jx-request.js
@@ -152,5 +152,7 @@ export default {
   deleteUserSku: (data) => AppRequest.post('/userStock/deleteSkus', data), // 删除sku
 
   // 订单管理
-  shotAmountRecord: (data) => AppRequest.get('/shotAmountRecord/index', data) // 采购价变更记录
+  shotAmountRecord: (data) => AppRequest.get('/shotAmountRecord/index', data), // 采购价变更记录
+  upLoadBuyAccount: (data) => AppRequest.post('/buyerAccount', data), // 上传买手号
+  getOrderList: (data) => AppRequest.post('/order', data), // 获取订单列表
 }
