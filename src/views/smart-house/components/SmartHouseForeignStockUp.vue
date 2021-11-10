@@ -524,9 +524,7 @@
               <el-button
                 type="primary"
                 size="mini"
-                @click="
-                  itselfGoodsVisible=true
-                  itselfGoodsImport()"
+                @click="itselfGoodsImport"
               >自有商品导入</el-button>
               <el-upload ref="importRef" style="margin:0 10px" accept=".xls, .xlsx" action="https://jsonplaceholder.typicode.com/posts/" :on-change="importTemplate" :show-file-list="false" :auto-upload="false">
                 <el-button :data="importTemplateData" size="mini" type="primary"> 批量Excel导入 </el-button>
@@ -1345,9 +1343,32 @@ export default {
     skuDetails() {
 
     },
+    // 仓库选择提示
+    warehouseTips() {
+      let warehouseName = ''
+      let childName = ''
+      this.widList.map(item => {
+        if (item.id === this.dialogWid) {
+          warehouseName = item.warehouse_name
+        }
+      })
+      this.dialogOverseaWidList.map(item => {
+        if (item.id === this.dialogOverseaWid) {
+          childName = item.warehouse_name
+        }
+      })
+      return { warehouseName, childName }
+    },
     // 自有商品导入
     itselfGoodsImport() {
-
+      const { warehouseName, childName } = this.warehouseTips()
+      this.$confirm(`确定预报到中转仓库:${warehouseName},目的仓库:${childName}`, '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        this.itselfGoodsVisible = true
+      })
     },
     // 查看详情
     getDetails(val) {

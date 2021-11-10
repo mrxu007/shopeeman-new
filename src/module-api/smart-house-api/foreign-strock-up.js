@@ -56,7 +56,7 @@ export default class ForeginStrockUp {
       }
       return { code: res.data.code, data: `${res.data.message}` }
     } catch (error) {
-      return { code: -2, data: `deleteForecast-catch： ${error}` }
+      return { code: -2, data: `getOverseasWarehouse-catch： ${error}` }
     }
   }
 }
