@@ -15,7 +15,10 @@ const ProductPutOnBandlibrary = () => import('./components/ProductPutOnBandlibra
 
 // 类目黑名单
 const ProductPutOnCategoryblack = () => import('./components/ProductPutOnCategoryblack.vue')
-
+// l拼多多买手号
+const ProductPutOnPDD = () => import('./components/ProductPutOnPDD.vue')
+// 天猫淘宝海外平台
+const ProductPutOnTaobao = () => import('./components/ProductPutOnTaobao.vue')
 // 导出
 export {
   ProductPutOnPopularSelection,
@@ -23,5 +26,7 @@ export {
   ProductPutOnHotWord,
   ProductPutOnStatistics,
   ProductPutOnBandlibrary,
-  ProductPutOnCategoryblack
+  ProductPutOnCategoryblack,
+  ProductPutOnPDD,
+  ProductPutOnTaobao
 }

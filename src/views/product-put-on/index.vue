@@ -25,6 +25,12 @@
 
     <!--类目黑名单 -->
     <main v-if="activeVal === '5'"><ProductPutOnCategoryblack /></main>
+
+    <!-- 拼多多买手号 -->
+    <main v-if="activeVal === '10'"><ProductPutOnPDD /></main>
+
+    <!-- 天猫淘宝海外平台 -->
+    <main v-if="activeVal === '11'"><ProductPutOnTaobao /></main>
   </div>
 </template>
 
@@ -35,7 +41,9 @@ import {
   ProductPutOnHotWord,
   ProductPutOnStatistics,
   ProductPutOnBandlibrary,
-  ProductPutOnCategoryblack
+  ProductPutOnCategoryblack,
+  ProductPutOnPDD,
+  ProductPutOnTaobao
 } from './index'
 export default {
   components: {
@@ -44,7 +52,9 @@ export default {
     ProductPutOnHotWord,
     ProductPutOnStatistics,
     ProductPutOnBandlibrary,
-    ProductPutOnCategoryblack
+    ProductPutOnCategoryblack,
+    ProductPutOnPDD,
+    ProductPutOnTaobao
   },
   data() {
     return {
