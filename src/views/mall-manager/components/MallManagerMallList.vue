@@ -574,7 +574,6 @@
 import MallListAPI from '../../../module-api/mall-manager-api/mall-list-api'
 import { delay, exportExcelDataCommon } from '../../../util/util'
 import { batchOperation } from '@/util/util'
-import testData from './testData'
 
 import xlsx from 'xlsx'
 export default {
