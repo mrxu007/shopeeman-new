@@ -14,8 +14,20 @@
         <storeChoose :is-all="true" @changeMallList="changeMallList" />
       </div>
       <div class="tool-row">
-        <div class="tool-item mar-right" style="margin: 0px 15px;">
+        <div class="tool-item mar-right">
           <span>查询时间：</span>
+          <!-- <el-date-picker
+            v-model="statisticsTime"
+            size="mini"
+            value-format="yyyy-MM-dd"
+            type="daterange"
+            style="width: 200px"
+            range-separator="-"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
+            :picker-options="pickerOptions"
+            :default-time="['00:00:00', '23:59:59']"
+          /> -->
           <el-date-picker
             v-model="statisticsTime"
             size="mini"
@@ -125,23 +137,14 @@ export default {
     // 查询
     async searchTableList() {
       console.log(this.statisticsTime)
-      // const params = [this.statisticsTime[0] + ' 00:00:00', this.statisticsTime[1] + ' 23:59:59']
-      const params = this.statisticsTime && [this.statisticsTime[0] + ' 00:00:00', this.statisticsTime[1] + ' 23:59:59'] || ''
-
+      const params = [this.statisticsTime[0] + ' 00:00:00', this.statisticsTime[1] + ' 23:59:59']
       this.tableLoading = true
       const res = await this.$commodityService.getStatisticsNew(params)
-      // if (!res) {
-      //   this.tableLoading = false
-      //   return
-      // }
-      // debugger
-      const resObj = res && JSON.parse(res)
-      if (resObj.code !== 200) {
-        this.$message.error('网络请求错误')
+      if (!res) {
         this.tableLoading = false
         return
       }
-      // debugger
+      const resObj = res && JSON.parse(res)
       const statisticData = resObj.data || []
       for (let i = 0; i < this.mallData.length; i++) {
         const mall = this.mallData[i]
@@ -190,11 +193,11 @@ export default {
 }
 .tool-bar {
   // height: 100px;
-  height: 60px;
-  display: flex;
+  height: 50px;
   background: #fff;
+  display: flex;
   .tool-row {
-    // padding: 16px 16px 0 16px;
+    // padding: 10px 16px 0 0px;
     display: flex;
     align-items: center;
     flex-wrap: wrap;
