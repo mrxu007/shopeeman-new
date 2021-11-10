@@ -482,73 +482,85 @@
       :close-on-click-modal="false"
       :close-on-press-escape="false"
     >
-      <ul>
-        <li>
-          <span>中转仓库：</span>
-          <el-select
-            v-model="dialogWid"
-            size="mini"
-            filterable
-            @change="
-              dialogOverseaWid = ''
-              widCollect(2)"
-          >
-            <el-option
-              v-for="(item, index) in widList"
-              :key="index"
-              :label="item.warehouse_name"
-              :value="item.id"
-            />
-          </el-select>
-        </li>
-        <li>
-          <span>目的仓库：</span>
-          <el-select
-            v-model="dialogOverseaWid"
-            size="mini"
-            filterable
-          >
-            <el-option
-              v-for="(item, index) in dialogOverseaWidList"
-              :key="index"
-              :label="item.warehouse_name"
-              :value="item.id"
-            />
-          </el-select>
-        </li>
-        <li>
-          <p style="color:red;">
+      <div style="display:flex;">
+        <div>
+          <ul>
+            <li>
+              <span>中转仓库：</span>
+              <el-select
+                v-model="dialogWid"
+                size="mini"
+                filterable
+                @change="
+                  dialogOverseaWid = ''
+                  widCollect(2)"
+              >
+                <el-option
+                  v-for="(item, index) in widList"
+                  :key="index"
+                  :label="item.warehouse_name"
+                  :value="item.id"
+                />
+              </el-select>
+            </li>
+            <li>
+              <span>目的仓库：</span>
+              <el-select
+                v-model="dialogOverseaWid"
+                size="mini"
+                filterable
+              >
+                <el-option
+                  v-for="(item, index) in dialogOverseaWidList"
+                  :key="index"
+                  :label="item.warehouse_name"
+                  :value="item.id"
+                />
+              </el-select>
+            </li>
+          </ul>
+          <ul>
+            <li>
+              <el-button
+                type="primary"
+                size="mini"
+                @click="
+                  itselfGoodsVisible=true
+                  itselfGoodsImport()"
+              >自有商品导入</el-button>
+              <el-upload ref="importRef" style="margin:0 10px" accept=".xls, .xlsx" action="https://jsonplaceholder.typicode.com/posts/" :on-change="importTemplate" :show-file-list="false" :auto-upload="false">
+                <el-button :data="importTemplateData" size="mini" type="primary"> 批量Excel导入 </el-button>
+              </el-upload>
+              <el-button
+                type="primary"
+                size="mini"
+                @click="downloadTemplate"
+              >下载预报模板</el-button>
+              <el-button
+                type="primary"
+                size="mini"
+              >导出勾选数据</el-button>
+            </li>
+          </ul>
+          <span style="color:red">提示：1：应仓库要求，预报单中需包含商品的体积(长宽高)，需下载最新版的预报模板</span>
+        </div>
+        <div class="wid-info">
+          <p>
             {{ `${widInfo.warehouse_name}` }}
-            {{ `地址：${widInfo.full_address}` }}
+          </p>
+          <p>
+            <el-tooltip class="item" effect="dark" :content="widInfo.full_address" placement="top">
+              <p class="address">{{ `地址：${widInfo.full_address}` }}</p>
+            </el-tooltip>
+          </p>
+          <p>
             {{ `收件人：${widInfo.receiving_name}` }}
+          </p>
+          <p>
             {{ `联系电话：${widInfo.receiving_tel}` }}
           </p>
-        </li>
-      </ul>
-      <ul>
-        <li>
-          <el-button
-            type="primary"
-            size="mini"
-            @click="
-              itselfGoodsVisible=true
-              itselfGoodsImport()"
-          >自有商品导入</el-button>
-          <el-upload ref="importRef" style="margin:0 10px" accept=".xls, .xlsx" action="https://jsonplaceholder.typicode.com/posts/" :on-change="importTemplate" :show-file-list="false" :auto-upload="false">
-            <el-button :data="importTemplateData" size="mini" type="primary"> 批量Excel导入 </el-button>
-          </el-upload>
-          <el-button
-            type="primary"
-            size="mini"
-            @click="downloadTemplate"
-          >下载预报模板</el-button>
-          <el-button
-            type="primary"
-            size="mini"
-          >导出勾选数据</el-button>
-        </li>
-      </ul>
-      <span style="color:red">提示：1：应仓库要求，预报单中需包含商品的体积(长宽高)，需下载最新版的预报模板</span>
+        </div>
+      </div>
       <el-table
         height="420"
         :data="foreignData"
