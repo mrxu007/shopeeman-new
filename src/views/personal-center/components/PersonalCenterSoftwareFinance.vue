@@ -11,7 +11,7 @@
       </div>
       <div>今日翻译费用：{{ account.translationCosts }}元</div>
       <div style="margin-left:10px;">
-        <el-button v-if="account.translationCosts>0" type="primary" size="mini" @click="getTransDetail('')">翻译明细</el-button>
+        <el-button v-if="account.translationCosts>'0'" type="primary" size="mini" @click="getTransDetail('')">翻译明细</el-button>
       </div>
     </div>
     <!-- 上面查询条件部分 -->
@@ -359,8 +359,6 @@ export default {
     // 获取翻译费用
     this.getTranslateAmount()
     this.selectList()
-    // 获取用户信息
-    this.getUserInfo()
   },
   methods: {
     async exportData() {
@@ -462,7 +460,7 @@ export default {
       try {
         const res = await this.$api.getChargeUrlV2(params)
         if (res.data.code === 200) {
-          this.$message.success('充值成功')
+          window.open(res.data.data.url)
         } else {
           this.$message.success(res.data.message)
         }
@@ -478,18 +476,6 @@ export default {
         this.account.translationCosts = res.data.data.amount
       }
     },
-    // 用户信息
-    async getUserInfo() {
-      try {
-        const data = await this.$appConfig.getUserInfo()
-        this.uid = data.muid
-        this.uuid = data.child_id
-        console.log('login', data)
-      } catch (error) {
-        this.$message.error('获取用户信息失败')
-        console.log(error)
-      }
-    },
     // 获取翻译明细
     async getTransDetail(row) {
       console.log(row)
@@ -500,8 +486,8 @@ export default {
       this.chooseDate = row ? [date + ' 00:00:00', date + ' 23:59:59'] : [todayStart, todayEnd]
       // this.chooseDate = ['2021-09-17 00:00:00','2021-09-17 23:59:59']
       const params = {
-        uid: this.uid,
-        uuid: this.uuid,
+        uid: row ? row.uid : '',
+        uuid: row ? row.uuid : '',
         startTime: this.chooseDate[0],
         endTime: this.chooseDate[1]
       }
