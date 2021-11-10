@@ -1,7 +1,7 @@
 <template>
   <div>
     <ul class="storeChooseUL">
-      <li>
+      <li v-show="isShow">
         <span :style="{ width: spanWidth }">所属站点：</span>
         <el-select v-model="countryVal" size="mini" filterable class="siteSelectBox">
           <el-option v-if="isAll" label="全部" :value="''" />
@@ -32,6 +32,10 @@ import MallListAPI from '../module-api/mall-manager-api/mall-list-api'
 export default {
   name: 'StoreChoose',
   props: {
+    isShow:{
+      type: Boolean,
+      default: true
+    },
     spanWidth: {
       type: String,
       default: '80px'
@@ -183,11 +187,12 @@ export default {
           }
         })
       }
-      if (this.source) {
-        this.$emit('changeMallList', { mallList: mallList, source: this.source })
-      } else {
-        this.$emit('changeMallList', mallList)
-      }
+      this.$emit('changeMallList', mallList)
+      // if (this.source) {
+      //   this.$emit('changeMallList', { mallList: mallList, source: this.source })
+      // } else {
+      //   this.$emit('changeMallList', mallList)
+      // }
     }
   }
 }
