@@ -16,7 +16,7 @@
     <div class="all_condition">
       <div class="condition_box">
         <div class="condition_item">
-          <storeChoose :is-all="true" :isShow="false" @changeMallList="changeMallList" />
+          <storeChoose :is-all="false" @changeMallList="changeMallList" />
         </div>
         <div class="condition_item">
           <span class="w80">平台店铺ID：</span>
