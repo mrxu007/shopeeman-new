@@ -58,8 +58,10 @@
 
       <div class="des_conditon">
         <div class="condition_item" style="margin-left: 15px;">
-          <el-button size="mini" type="primary" @click="(Typeis='ipMaster',dialogvisible=true,showButton=false,dialog_title='新增公司主体')">新增公司主体</el-button>
-          <el-button size="mini" type="primary" @click="(Typeis='ipPerson',dialogvisible=true,showButton=false,dialog_title='新增自有IP公司主体')">新增自有IP公司主体</el-button>
+          <el-button size="mini" type="primary" @click="addFun">新增公司主体</el-button>
+          <!-- <el-button size="mini" type="primary" @click="(Typeis='ipMaster',dialogvisible=true,showButton=false,dialog_title='新增公司主体',changeIndex=changeIndex+1)">新增公司主体</el-button> -->
+          <el-button size="mini" type="primary" @click="addSelfFun">新增自有IP公司主体</el-button>
+          <!-- <el-button size="mini" type="primary" @click="(Typeis='ipPerson',dialogvisible=true,showButton=false,dialog_title='新增自有IP公司主体',changeIndex=changeIndex+1)">新增自有IP公司主体</el-button> -->
           <el-button size="mini" type="primary" @click="clearIP()">清除IP缓存</el-button>
           <el-button size="mini" type="primary" @click="lostIP">解绑主体IP</el-button>
           <el-button size="mini" type="primary" @click="timeToMonth(1)">续费一个月</el-button>
@@ -607,7 +609,7 @@
                     flex-flow: column;"
             >
               <div style="display:flex">
-                <Storechoosemall :show-mall="false" style="margin-left: -20px;" @changeMallList="changeMallList2" @getSite="changeSite" />
+                <Storechoosemall :key="changeIndex" :is-all="true" :show-mall="false" style="margin-left: -20px;" @changeMallList="changeMallList2" @getSite="changeSite" />
                 <el-button
                   type="primary"
                   size="mini"
@@ -686,8 +688,9 @@ export default {
       }
     }
     return {
+      changeIndex: 0, // dialog店铺分组 组件
       dialogMallquery: {
-        country: 'TH',
+        country: '',
         mallGroupIds: []
       },
       rowData: '', // 选中行
@@ -812,6 +815,40 @@ export default {
     // this.getMallList()// 初始化店铺列表
   },
   methods: {
+    // 新增公司主体
+    async addFun() {
+      this.Typeis = 'ipMaster'
+      this.dialogvisible = true
+      this.showButton = false
+      this.dialog_title = '新增公司主体'
+      // 列表重新刷新
+      this.changeIndex++
+      this.loading = true
+      const res = await this.$api.ddMallGoodsGetMallList()
+      if (res.data.code === 200) {
+        this.dialog_mallList = res.data.data
+      } else {
+        this.$message.warning('网络异常！')
+      }
+      this.loading = false
+    },
+    // 新增自有IP公司主体
+    async addSelfFun() {
+      this.Typeis = 'ipPerson'
+      this.dialogvisible = true
+      this.showButton = false
+      this.dialog_title = '新增自有IP公司主体'
+      // 列表重新刷新
+      this.changeIndex++
+      this.loading = true
+      const res = await this.$api.ddMallGoodsGetMallList()
+      if (res.data.code === 200) {
+        this.dialog_mallList = res.data.data
+      } else {
+        this.$message.warning('网络异常！')
+      }
+      this.loading = false
+    },
     // IP解绑
     lostIP() {
       if (this.mulSelect.length <= 0 || this.mulSelect.length > 1) {
@@ -980,6 +1017,7 @@ export default {
     },
     // 展示修改绑定店铺信息
     showupdateVisible(val, d) {
+      this.changeIndex++ // 组件刷新
       this.showButton = true
       this.dialogvisible = true
       this.dialog_title = '修改绑定店铺'
@@ -987,8 +1025,10 @@ export default {
       this.targetId = val
       this.bindindex = [] // 清空绑定数据
       this.bindMalList = [] // 清空绑定数据
+      this.dialogMallquery.country = ''
       // 列表渲染
       this.rowData = d
+      this.getMallList() // 列表刷新
       // this.selectFun()
       // this.$nextTick(() => {
       //   if (this.$refs.multipleTable_dialog) {
@@ -1140,7 +1180,6 @@ export default {
         country: this.dialogMallquery.country,
         mallGroupIds: this.dialogMallquery.mallGroupIds.toString()
       }
-      // console.log('----', params)
       this.loading = true
       const res = await this.$api.ddMallGoodsGetMallList({ params })
       if (res.data.code === 200) {
@@ -1149,13 +1188,14 @@ export default {
         this.$message.warning('网络异常！')
       }
       this.loading = false
+      this.bindedMall()
     },
     // 绑定用户信息
     async  updataMallList() {
-      if (this.dialog_selectMallList.length === 0) {
-        this.$message.warning('请至少选择一个店铺')
-        return
-      }
+      // if (this.dialog_selectMallList.length === 0) {
+      //   this.$message.warning('请至少选择一个店铺')
+      //   return
+      // }
       const userInfo = await this.$appConfig.getUserInfo()
       const uid = userInfo.muid.toString()
       const targetId = this.targetId.toString()
@@ -1179,6 +1219,7 @@ export default {
           //   message: '绑定成功'
           // })
           this.$message.success('绑定成功')
+          const data = await this.$BaseUtilService.UpdateProxy()// 壳更新
         }
         this.loading = false
       } catch (error) {
