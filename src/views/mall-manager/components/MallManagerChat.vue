@@ -384,7 +384,8 @@
     },
     methods: {
       changeMallList(data) {
-        if (data.mallList.length > 0) {
+        console.log(data,"val")
+        if (data.mallList&&data.mallList.length > 0) {
           this.source = data.source
           this.SiteList[data.source] = data.mallList
         }
@@ -892,6 +893,7 @@
         this.messageQuicklyVisible = true
       },
       messageShortcutsGroups_dialog() {
+        this.messageQuicklyShowConsole = false
         this.messageQuicklyVisible = false
         let type = this.messageQuicklyTitle === '编辑快捷讯息'
         if (type) {
