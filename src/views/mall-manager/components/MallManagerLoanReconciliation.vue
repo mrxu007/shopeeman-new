@@ -16,7 +16,7 @@
     <div class="all_condition">
       <div class="condition_box">
         <div class="condition_item">
-          <storeChoose :is-all="true"  @changeMallList="changeMallList" />
+          <storeChoose :is-all="true" :isShow="false" @changeMallList="changeMallList" />
         </div>
         <div class="condition_item">
           <span class="w80">平台店铺ID：</span>
@@ -165,7 +165,7 @@ export default {
   mounted() {
     // 初始化时间
     this.cloumn_date = creatDate(31)
-    this.getTableList() // 初始化table
+    this.search() // 初始化table
     this.exchangeRateList() // 获取汇率
   },
   methods: {
@@ -255,6 +255,9 @@ export default {
             pageNumber++
             this.searchSingleMall(pageNumber, mall, dataArr, page)
           } else {
+            if (this.query.status !== '' || type !== 2) {
+              this.$refs.Logs.writeLog(`同步店铺【${mall.platform_mall_name}】数据完成`, true)
+            }
             console.log(dataArr, 'dataArr')
             if (dataArr.length) {
               this.UploadRecordData(mall.platform_mall_id, dataArr)
