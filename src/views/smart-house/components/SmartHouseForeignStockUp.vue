@@ -551,19 +551,19 @@
         </div>
         <div class="wid-info">
           <p>
-            {{ `${widInfo.warehouse_name}` }}
+            {{ `${widInfo.warehouse_name?widInfo.warehouse_name:''}` }}
           </p>
           <p>
             <!-- <el-tooltip class="item" effect="dark" :content="widInfo.full_address" placement="top">
               <p class="address">{{ `地址：${widInfo.full_address}` }}</p>
             </el-tooltip> -->
-            {{ `地址：${widInfo.full_address}` }}
+            {{ `地址：${widInfo.full_address?widInfo.full_address:''}` }}
           </p>
           <p>
-            {{ `收件人：${widInfo.receiving_name}` }}
+            {{ `收件人：${widInfo.receiving_name?widInfo.receiving_name:''}` }}
           </p>
           <p>
-            {{ `联系电话：${widInfo.receiving_tel}` }}
+            {{ `联系电话：${widInfo.receiving_tel?widInfo.receiving_tel:''}` }}
           </p>
         </div>
       </div>
@@ -871,6 +871,7 @@
                   <li>
                     <span>物流单号：</span>
                     <el-input
+                      v-model="foreignSku.package_code"
                       clearable
                       size="mini"
                       oninput="value=value.replace(/\s+/g,'')"
@@ -879,6 +880,7 @@
                   <li>
                     <span>商品数量：</span>
                     <el-input
+                      v-model="foreignSku.sku_num"
                       clearable
                       size="mini"
                       oninput="value=value.replace(/\s+/g,'')"
@@ -887,56 +889,66 @@
                   <li>
                     <span>运输方式：</span>
                     <el-select
+                      v-model="foreignSku.ship_type"
                       size="mini"
                       filterable
                     >
                       <el-option
-                        v-for="(item, index) in 2"
+                        v-for="(item, index) in shipTypeList"
                         :key="index"
+                        :label="item.name"
+                        :value="item.value"
                       />
                     </el-select>
                   </li>
                 </ul>
                 <ul>
-                  <li>
+                  <li class="goods-volume">
                     <span>商品体积：</span>
                     <el-input
+                      v-model="foreignSku.sku_long"
                       size="mini"
-                      style="width:36px"
+                      style="padding:0px"
                       oninput="value=value.replace(/\s+/g,'')"
                     />*
                     <el-input
+                      v-model="foreignSku.sku_width"
                       size="mini"
-                      style="width:36px"
                       oninput="value=value.replace(/\s+/g,'')"
                     />*
                     <el-input
+                      v-model="foreignSku.sku_height"
                       size="mini"
-                      style="width:36px"
                       oninput="value=value.replace(/\s+/g,'')"
                     />
                   </li>
                   <li>
                     <span>贴单服务：</span>
                     <el-select
+                      v-model="foreignSku.is_wainscot"
                       size="mini"
                       filterable
                     >
                       <el-option
-                        v-for="(item, index) in 2"
+                        v-for="(item, index) in serviceList"
                         :key="index"
+                        :label="item.name"
+                        :value="item.value"
                       />
                     </el-select>
                   </li>
                   <li>
                     <span style="width:81px;text-align:right;">质检服务：</span>
                     <el-select
+                      v-model="foreignSku.is_checked"
                       size="mini"
                       filterable
                     >
                       <el-option
-                        v-for="(item, index) in 2"
+                        v-for="(item, index) in serviceList"
                         :key="index"
+                        :label="item.name"
+                        :value="item.value"
                       />
                     </el-select>
                   </li>
@@ -945,6 +957,7 @@
                   <li>
                     <span>备注信息：</span>
                     <el-input
+                      v-model="foreignSku.remark"
                       clearable
                       size="mini"
                       oninput="value=value.replace(/\s+/g,'')"
@@ -955,6 +968,7 @@
                       style="margin-left:10px"
                       size="mini"
                       type="primary"
+                      @click="batchSetUp"
                     >批量设置</el-button>
                     <el-button
                       style="margin-left:10px"
@@ -1230,16 +1244,6 @@ export default {
       showConsole: true,
       isforeignClose: false,
       ForeginStrockUp: new ForeginStrockUp(this),
-      form: {
-        wid: '', // 中转仓id
-        oversea_wid: '', // 海外仓id
-        package_code: '', // 物流单号
-        forecast_code: '', // 海外仓单号
-        created_time: '', // 预报时间
-        sign_Time: '', // 签收时间
-        store_time: '', // 入库时间
-        is_verify: '' // 是否审核 -1: 未审核 1:审核成功 2:审核失败
-      },
       total: 0,
       pageSize: 30,
       page: 1,
@@ -1251,7 +1255,28 @@ export default {
       foreignData: [], // 批量导入预报数据
       foreignWid: '', // 预报海外仓备货商品中转仓id
       foreignOverseaWid: '', // 预报海外仓备货商品目的仓id
-      widInfo: {},
+      widInfo: {}, // 中转仓数据
+      form: { // 条件搜索
+        wid: '', // 中转仓id
+        oversea_wid: '', // 海外仓id
+        package_code: '', // 物流单号
+        forecast_code: '', // 海外仓单号
+        created_time: '', // 预报时间
+        sign_Time: '', // 签收时间
+        store_time: '', // 入库时间
+        is_verify: '' // 是否审核 -1: 未审核 1:审核成功 2:审核失败
+      },
+      foreignSku: { // 预报SKU
+        package_code: '', // 物流单号
+        sku_num: '', // 商品数量
+        ship_type: '', // 运输方式
+        sku_long: '', // 长
+        sku_width: '', // 宽
+        sku_height: '', // 高
+        is_wainscot: '', // 贴单服务
+        is_checked: '', // 质检服务
+        remark: ''// 备注
+      },
       statusObj: {
         1: '用户已下单',
         2: '预报单已签收'
@@ -1263,13 +1288,12 @@ export default {
       },
       shipTypeNameObj: {
         '陆运': 1,
-        '海运': 2,
-        '空运': 3
+        '海运': 2
       },
       isVerifyObj: {
         '-1': '未审核',
-        1: '审核通过',
-        2: '审核拒绝'
+        '1': '审核通过',
+        '2': '审核拒绝'
       },
       skuStatusObj: {
         1: '用户已下单',
@@ -1307,6 +1331,26 @@ export default {
           value: '2',
           name: '审核失败'
         }
+      ],
+      shipTypeList: [// 运输方式
+        {
+          value: '1',
+          name: '陆运'
+        },
+        {
+          value: '2',
+          name: '海运'
+        }
+      ],
+      serviceList: [// 质检,贴单服务
+        {
+          value: '1',
+          name: '是'
+        },
+        {
+          value: '-1',
+          name: '否'
+        }
       ]
     }
   },
@@ -1320,6 +1364,14 @@ export default {
     await this.init()
   },
   methods: {
+    // 预报SKU批量设置
+    batchSetUp() {
+      if (!this.foreignSku.package_code) return this.$message('物流单号不能为空')
+      if (!this.foreignSku.sku_num || Number(this.foreignSku.sku_num) <= 0) return this.$message('商品数量不能小于或等于0')
+      if (!this.foreignSku.sku_long || Number(this.foreignSku.sku_long) <= 0) return this.$message('商品长度不能小于或等于0')
+      if (!this.foreignSku.sku_width || Number(this.foreignSku.sku_width) <= 0) return this.$message('商品宽度不能小于或等于0')
+      if (!this.foreignSku.sku_height || Number(this.foreignSku.sku_height) <= 0) return this.$message('商品高度不能小于或等于0')
+    },
     // 下载教程
     downTutorial() {
       window.open('https://shopeeman.oss-cn-shenzhen.aliyuncs.com/files/shopeemanFiles/appFiles/20211111/20211111141313618cb47981eb1.pdf')
@@ -1546,6 +1598,18 @@ export default {
         }
         if (!ship_type) {
           this.$refs.Logs.writeLog(`【${index + 1}】运输方式为空`, false)
+          continue
+        }
+        if (!this.isYnObj[is_wainscot]) {
+          this.$refs.Logs.writeLog(`【${index + 1}】贴单服务未找到引用值`, false)
+          continue
+        }
+        if (!this.isYnObj[is_checked]) {
+          this.$refs.Logs.writeLog(`【${index + 1}】质检服务未找到引用值`, false)
+          continue
+        }
+        if (!this.shipTypeNameObj[ship_type]) {
+          this.$refs.Logs.writeLog(`【${index + 1}】运输方式未找到引用值`, false)
           continue
         }
         const obj = {
@@ -1800,7 +1864,7 @@ export default {
         <td>${item.sign_time ? item.sign_time : '' + '\t'}</td>
         <td>${item.store_time ? item.store_time : '' + '\t'}</td>
         <td>${item.status ? this.statusObj[item.status] ? this.statusObj[item.status] : '已拦截(其他原因)' : '' + '\t'}</td>
-        <td>${this.servicebj[item.is_wainscot] + '/' + this.servicebj[item.is_checked] + '\t'}</td>
+        <td>${item.is_wainscot && item.is_checked ? this.servicebj[item.is_wainscot] + '/' + this.servicebj[item.is_checked] : '' + '\t'}</td>
         <td>${item.ship_type ? this.shipTypeObj[item.ship_type] : '' + '\t'}</td>
         <td>${item.is_verify ? this.isVerifyObj[item.is_verify] : '' + '\t'}</td>
         <td>${item.verify_remark ? item.verify_remark : '' + '\t'}</td>
