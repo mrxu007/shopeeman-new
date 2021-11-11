@@ -28,7 +28,10 @@ const SmartHouseAbnormalPayment = () => import('./components/SmartHouseAbnormalP
 const SmartHousePrivateWarehouse = () => import('./components/SmartHousePrivateWarehouse.vue')
 
 // 商品备货-海外仓商品备货
-const SmartHouseForeignStockUp = () => import('./components/SmartHouseForeignStockUp.vue')
+const SmartHouseStockUpForeign = () => import('./components/SmartHouseStockUpForeign.vue')
+
+// 商品备货-国内仓商品备货
+const SmartHouseStockUpDomestic = () => import('./components/SmartHouseStockUpDomestic.vue')
 
 // 导出
 export {
@@ -39,5 +42,6 @@ export {
   SmartHouseUnclaimed,
   SmartHouseAbnormalPayment,
   SmartHousePrivateWarehouse,
-  SmartHouseForeignStockUp
+  SmartHouseStockUpForeign,
+  SmartHouseStockUpDomestic
 }

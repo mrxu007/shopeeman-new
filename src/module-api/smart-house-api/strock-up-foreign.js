@@ -1,4 +1,7 @@
-export default class ForeginStrockUp {
+/**
+ * 海外商品备货
+ */
+export default class StrockUpForegin {
   constructor(that) {
     this._this = that
   }

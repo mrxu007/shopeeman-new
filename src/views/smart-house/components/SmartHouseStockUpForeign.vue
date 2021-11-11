@@ -1225,7 +1225,7 @@
 </template>
 
 <script>
-import ForeginStrockUp from '../../../module-api/smart-house-api/foreign-strock-up'
+import StrockUpForegin from '../../../module-api/smart-house-api/strock-up-foreign'
 import { exportExcelDataCommon, exportPdfData, delay } from '../../../util/util'
 import ProductChoose from '../../../components/product-choose.vue'
 import XLSX from 'xlsx'
@@ -1243,7 +1243,7 @@ export default {
       isDeleteLoading: false,
       showConsole: true,
       isforeignClose: false,
-      ForeginStrockUp: new ForeginStrockUp(this),
+      StrockUpForegin: new StrockUpForegin(this),
       total: 0,
       pageSize: 30,
       page: 1,
@@ -1378,7 +1378,7 @@ export default {
     },
     // 获取中转仓库和目的仓库列表(海外仓备货)
     async getOverseasWarehouse() {
-      const res = await this.ForeginStrockUp.getOverseasWarehouse()
+      const res = await this.StrockUpForegin.getOverseasWarehouse()
       if (res.code === 200) {
         this.widList = res.data
         console.log(this.widList)
@@ -1487,7 +1487,7 @@ export default {
     },
     delForecast(data) {
       data.forEach(async item => {
-        const res = await this.ForeginStrockUp.deleteForecast(item)
+        const res = await this.StrockUpForegin.deleteForecast(item)
         if (res.code === 200) {
           this.$refs.Logs.writeLog(`单号【${item}】:删除成功`, true)
         } else {
@@ -1500,7 +1500,7 @@ export default {
       this.isShowLoading = true
       this.form.page = this.page
       this.form.pageSize = this.pageSize
-      const res = await this.ForeginStrockUp.getStockingForecastLists(this.form)
+      const res = await this.StrockUpForegin.getStockingForecastLists(this.form)
       console.log(res)
       if (res.code === 200) {
         this.total = res.data.total
@@ -1660,7 +1660,7 @@ export default {
         element.is_wainscot = this.isYnObj[element.is_wainscot]
         element.is_checked = this.isYnObj[element.is_checked]
         element.ship_type = this.shipTypeNameObj[element.ship_type]
-        const res = await this.ForeginStrockUp.stockingForecastUpload(element)
+        const res = await this.StrockUpForegin.stockingForecastUpload(element)
         if (res.code === 200) {
           this.foreignData.map(item => {
             if (item.package_code === element.package_code) {
@@ -1786,7 +1786,7 @@ export default {
       for (let index = 0; index < len; index++) {
         this.form.page = index
         this.form.pageSize = this.pageSize
-        const res = await this.ForeginStrockUp.getStockingForecastLists(this.form)
+        const res = await this.StrockUpForegin.getStockingForecastLists(this.form)
         if (res.code === 200) {
           const resData = res.data.data
           resData.forEach(item => {
@@ -1910,5 +1910,5 @@ export default {
 </script>
 
 <style lang="less" scoped>
-@import '../../../module-less/smart-house-less/foreign-stock-up.less';
+@import '../../../module-less/smart-house-less/strock-up-foreign.less';
 </style>

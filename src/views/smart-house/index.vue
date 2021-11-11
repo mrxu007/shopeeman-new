@@ -30,7 +30,10 @@
     <main v-if="activeVal === '6'"><SmartHousePrivateWarehouse /></main>
 
     <!--商品备货-海外仓商品备货 -->
-    <main v-if="activeVal === '7'"><SmartHouseForeignStockUp /></main>
+    <main v-if="activeVal === '7'"><SmartHouseStockUpForeign /></main>
+
+    <!--商品备货-国内仓商品备货 -->
+    <main v-if="activeVal === '8'"><SmartHouseStockUpDomestic /></main>
   </div>
 </template>
 
@@ -43,7 +46,8 @@ import {
   SmartHouseAbnormalPayment,
   SmartHousePrivateWarehouse,
   SmartHouseRefuseSign,
-  SmartHouseForeignStockUp
+  SmartHouseStockUpForeign,
+  SmartHouseStockUpDomestic
 } from './index'
 export default {
   components: {
@@ -54,7 +58,8 @@ export default {
     SmartHouseAbnormalPayment,
     SmartHousePrivateWarehouse,
     SmartHouseRefuseSign,
-    SmartHouseForeignStockUp
+    SmartHouseStockUpForeign,
+    SmartHouseStockUpDomestic
   },
   data() {
     return {
