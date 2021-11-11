@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-11-09 10:17:44
- * @LastEditTime: 2021-11-10 22:02:40
+ * @LastEditTime: 2021-11-11 22:06:46
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shopeeman-new\src\views\order-manager\components\OrderManagerOrderCenter.vue
@@ -440,11 +440,12 @@
         />
       </div>
     </div>
+    <Logs ref="Logs" clear v-model="showConsole" />
   </div>
 </template>
 
 <script>
-import { orderStatusList, shotStatusList, timeTypeList, inputTypeList, goodsSourceList, siteShip } from '../components/orderCenter/selectData'
+import { orderStatusList, shotStatusList, timeTypeList, inputTypeList, goodsSourceList, siteShip } from '../components/orderCenter/orderCenter'
 import { exportExcelDataCommon, creatDate } from '../../../util/util'
 import storeChoose from '../../../components/store-choose'
 import BuyerAccount from './orderCenter/buyer-account.vue'
@@ -549,6 +550,7 @@ export default {
       accountjx: [],
       accountlazada: [],
       accountshopee: [],
+      showConsole: true, //日志
     }
   },
   mounted() {
@@ -589,7 +591,7 @@ export default {
       let res = await this.$appConfig.getGlobalCacheInfo('buyerInfo', 'key')
       let resObj = res && JSON.parse(res)
       this.buyerAccountList = []
-      resObj.forEach((item) => {
+      resObj && resObj.forEach((item) => {
         this.buyerAccountList.push(JSON.parse(item.BuyerDetail))
       })
       console.log('buyers', resObj, this.buyerAccountList)

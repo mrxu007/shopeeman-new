@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-11-09 10:14:02
- * @LastEditTime: 2021-11-10 22:27:08
+ * @LastEditTime: 2021-11-11 22:09:45
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shopeeman-new\src\components\buyer-account.vue
@@ -136,6 +136,8 @@
 </template>
 
 <script>
+import { syncStatus } from './orderCenter'
+import orderSync from '../../../../services/timeOrder'
 export default {
   name: 'BuyerAccount',
   props: {
@@ -233,6 +235,7 @@ export default {
       deleteAccount: false,
       proxyType: '',
       proxyList: [],
+      isOrderSelectAllMall: false, //是否全店同步
     }
   },
   computed: {
@@ -266,8 +269,43 @@ export default {
   },
   mounted() {
     this.defaultSelect()
+    console.log(this.$parent)
   },
   methods: {
+    //同步订单按钮
+    async SyncOrder() {
+      let mallList = []
+      this.$parent.showConsole = false //打开日志
+      this.$parent.$refs.Logs.consoleMsg = ''
+      if (this.isOrderSelectAllMall) {
+        //全店同步
+        let res = await this.$appConfig.getGlobalCacheInfo('allMallInfo', 'key')
+        let mallObject = res && JSON.parse(res) 
+        if(mallObject){
+          for(const key in mallObject){
+            mallList.push(mallObject[key])
+          }
+        }
+        console.log(mallList,JSON.parse(res))
+      } else {
+        mallList = this.$parent.selectMallList
+      }
+      if (mallList.length == 0) {
+        this.$parent.$refs.Logs.writeLog('店铺数据为空，同步操作已取消!', false)
+        return
+      }
+      this.$parent.$refs.Logs.writeLog('开始同步，请耐心等待!', true)
+      for (let mI = 0; mI < mallList.length; mI++) {
+        let mall = mallList[mI]
+        for (let i = 0; i < syncStatus.length; i++) {
+          //同步状态
+          let statusObj = syncStatus[i]
+          const orderService = new orderSync(mall, statusObj, this,`${mI+1}/${mallList.length}`,'manual')
+          await orderService.start()
+        }
+      }
+      this.$parent.$refs.Logs.writeLog('订单同步已完成！！！', true)
+    },
     //获取代理主体
     async getProxy() {
       let params = {}
@@ -310,7 +348,7 @@ export default {
           this.getProxy()
           return
         case 2:
-          this.getPddCoupon()
+          this.SyncOrder()
           return
         case 3:
           this.buyerAccount(true)
@@ -328,10 +366,10 @@ export default {
     publicAccount(id) {
       switch (id) {
         case 1:
-          console.log(this.pddAccount,"pddAccount")
+          // console.log(this.pddAccount, 'pddAccount')
           return this.pddAccount
         case 2:
-          console.log(this.tbAccount,"tbAccount")
+          // console.log(this.tbAccount, 'tbAccount')
           return this.tbAccount
         case 8:
           return this.albbAccount
@@ -476,7 +514,7 @@ export default {
       console.log(serives, 1)
       if (serives) {
         console.log(serives, 11)
-        var accounts = await this.$buyerAccountService.lazadaUserCenter(this.siteCode,serives)
+        var accounts = await this.$buyerAccountService.lazadaUserCenter(this.siteCode, serives)
         console.log(accounts)
       }
     },
@@ -495,7 +533,7 @@ export default {
       console.log(serives, 1)
       if (serives) {
         console.log(serives, 11)
-        var accounts = await this.$buyerAccountService.shopeeUserCenter(this.siteCode,serives)
+        var accounts = await this.$buyerAccountService.shopeeUserCenter(this.siteCode, serives)
         console.log(accounts)
       }
     },
@@ -582,7 +620,7 @@ export default {
             return item.AccountType === 1
           })[0].UserName
         : ''
-        console.log(this.selectAccount.accountpdd,"accountpdd")
+      console.log(this.selectAccount.accountpdd, 'accountpdd')
       this.selectAccount.accounttaobao = this.$parent[this.upData].filter((item) => {
         return item.AccountType === 2
       })[0]
@@ -590,7 +628,7 @@ export default {
             return item.AccountType === 2
           })[0].UserName
         : ''
-         console.log(this.selectAccount.accounttaobao,"accounttaobao")
+      console.log(this.selectAccount.accounttaobao, 'accounttaobao')
       this.selectAccount.account1688 = this.$parent[this.upData].filter((item) => {
         return item.AccountType === 8
       })[0]
