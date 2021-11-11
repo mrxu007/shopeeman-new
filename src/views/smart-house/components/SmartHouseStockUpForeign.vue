@@ -735,13 +735,13 @@
               <span>产品中心商品</span>
             </div>
             <div style="display:flex">
-              <product-choose />
+              <product-choose ref="isClean" @CateId="CateId" />
               <div class="left-wrap">
                 <ul style="display:block;">
                   <li>
                     <span>商品名称：</span>
                     <el-input
-                      v-model="form.package_code"
+                      v-model="productFrom.ProductName"
                       clearable
                       size="mini"
                       oninput="value=value.replace(/\s+/g,'')"
@@ -750,14 +750,7 @@
                   <li>
                     <span>商品编码：</span>
                     <el-input
-                      clearable
-                      size="mini"
-                      oninput="value=value.replace(/\s+/g,'')"
-                    />
-                  </li>
-                  <li>
-                    <span>SKU编码：</span>
-                    <el-input
+                      v-model="productFrom.ProductId"
                       clearable
                       size="mini"
                       oninput="value=value.replace(/\s+/g,'')"
@@ -766,6 +759,24 @@
                       style="margin-left:10px"
                       size="mini"
                       type="primary"
+                      @click="cleanProductFrom()"
+                    >清 空</el-button>
+                  </li>
+                  <li>
+                    <span>SKU编码：</span>
+                    <el-input
+                      v-model="productFrom.SkuId"
+                      clearable
+                      size="mini"
+                      oninput="value=value.replace(/\s+/g,'')"
+                    />
+                    <el-button
+                      style="margin-left:10px"
+                      size="mini"
+                      type="primary"
+                      @click="
+                        productPage=1
+                        getProductList()"
                     >搜 索</el-button>
                   </li>
                 </ul>
@@ -773,7 +784,7 @@
             </div>
             <el-table
               height="420"
-              :data="foreignData"
+              :data="productData"
               :header-cell-style="{
                 backgroundColor: '#f5f7fa',
               }"
@@ -786,13 +797,13 @@
                 width="100"
                 align="center"
                 label="商品ID"
-                prop="package_code"
+                prop="product_id"
               />
               <el-table-column
                 width="160"
                 align="center"
                 label="商品名称"
-                prop="package_code"
+                prop="product_name"
               />
               <el-table-column
                 width="80"
@@ -801,7 +812,7 @@
               >
                 <template slot-scope="{row}">
                   <el-tooltip
-                    v-if="row.sku_list[0].sku_image"
+                    v-if="row.image_url"
                     effect="light"
                     placement="right-end"
                     :visible-arrow="false"
@@ -810,14 +821,14 @@
                   >
                     <div slot="content">
                       <img
-                        :src="row.sku_list[0].sku_image"
+                        :src="row.image_url"
                         width="300px"
                         height="300px"
                       >
                     </div>
                     <el-image
                       style="width: 40px; height: 40px"
-                      :src="row.sku_list[0].sku_image"
+                      :src="row.image_url"
                     />
                   </el-tooltip>
                 </template>
@@ -826,7 +837,7 @@
                 width="120"
                 align="center"
                 label="商品价格"
-                prop="ship_type"
+                prop="price"
               />
               <el-table-column
                 width="103"
@@ -840,7 +851,7 @@
                     type="primary"
                     @click="
                       skuDetailsVisible=true
-                      skuDetails()
+                      getProductSkuList(row)
                     "
                   >SKU详情</el-button>
                 </template>
@@ -849,13 +860,13 @@
             <div class="pagination">
               <el-pagination
                 background
-                :current-page="page"
+                :current-page="productPage"
                 :page-sizes="[50, 100, 200]"
-                :page-size="pageSize"
+                :page-size="productPageSize"
                 layout="total, sizes, prev, pager, next, jumper"
-                :total="total"
-                @size-change="handleSizeChange"
-                @current-change="handleCurrentChange"
+                :total="productTotal"
+                @size-change="productSizeChange"
+                @current-change="productCurrentChange"
               />
             </div>
           </el-card>
@@ -974,6 +985,7 @@
                       style="margin-left:10px"
                       size="mini"
                       type="primary"
+                      @click="addForecast"
                     >添加到预报单</el-button>
                   </li>
                 </ul>
@@ -981,7 +993,7 @@
             </div>
             <el-table
               height="420"
-              :data="foreignData"
+              :data="goodsForeignData"
               :header-cell-style="{
                 backgroundColor: '#f5f7fa',
               }"
@@ -994,13 +1006,13 @@
                 width="100"
                 align="center"
                 label="SkuID"
-                prop="package_code"
+                prop="sku_id"
               />
               <el-table-column
                 width="160"
                 align="center"
                 label="Sku名称"
-                prop="package_code"
+                prop="sku_name"
               />
               <el-table-column
                 width="80"
@@ -1009,7 +1021,7 @@
               >
                 <template slot-scope="{row}">
                   <el-tooltip
-                    v-if="row.sku_list[0].sku_image"
+                    v-if="row.image_url"
                     effect="light"
                     placement="right-end"
                     :visible-arrow="false"
@@ -1018,14 +1030,14 @@
                   >
                     <div slot="content">
                       <img
-                        :src="row.sku_list[0].sku_image"
+                        :src="row.image_url"
                         width="300px"
                         height="300px"
                       >
                     </div>
                     <el-image
                       style="width: 40px; height: 40px"
-                      :src="row.sku_list[0].sku_image"
+                      :src="row.image_url"
                     />
                   </el-tooltip>
                 </template>
@@ -1034,7 +1046,7 @@
                 width="120"
                 align="center"
                 label="Sku价格"
-                prop="ship_type"
+                prop="price"
               />
               <el-table-column
                 width="450"
@@ -1045,60 +1057,80 @@
                   <div style="display:flex;">
                     <el-form label-position="right" label-width="80px">
                       <el-form-item label="备注:">
-                        <el-input size="mini" />
+                        <el-input
+                          v-model="row.remark"
+                          size="mini"
+                          oninput="value=value.replace(/\s+/g,'')"
+                        />
                       </el-form-item>
                       <el-form-item label="体积:">
                         <el-input
+                          v-model="row.sku_long"
                           size="mini"
                           style="width:36px"
                           oninput="value=value.replace(/\s+/g,'')"
                         />*
                         <el-input
+                          v-model="row.sku_width"
                           size="mini"
                           style="width:36px"
                           oninput="value=value.replace(/\s+/g,'')"
                         />*
                         <el-input
+                          v-model="row.sku_height"
                           size="mini"
                           style="width:36px"
                           oninput="value=value.replace(/\s+/g,'')"
                         />
                       </el-form-item>
                       <el-form-item label="物流单号:">
-                        <el-input size="mini" />
+                        <el-input
+                          v-model="row.package_code"
+                          size="mini"
+                          oninput="value=value.replace(/\s+/g,'')"
+                        />
                       </el-form-item>
                     </el-form>
                     <el-form label-position="right" label-width="80px">
                       <el-form-item label="运输方式:">
                         <el-select
+                          v-model="row.ship_type"
                           size="mini"
                           filterable
                         >
                           <el-option
-                            v-for="(item, index) in 2"
+                            v-for="(item, index) in shipTypeList"
                             :key="index"
+                            :label="item.name"
+                            :value="item.value"
                           />
                         </el-select>
                       </el-form-item>
                       <el-form-item label="贴单服务:">
                         <el-select
+                          v-model="row.is_wainscot"
                           size="mini"
                           filterable
                         >
                           <el-option
-                            v-for="(item, index) in 2"
+                            v-for="(item, index) in serviceList"
                             :key="index"
+                            :label="item.name"
+                            :value="item.value"
                           />
                         </el-select>
                       </el-form-item>
                       <el-form-item label="质检服务:">
                         <el-select
+                          v-model="row.is_checked"
                           size="mini"
                           filterable
                         >
                           <el-option
-                            v-for="(item, index) in 2"
+                            v-for="(item, index) in serviceList"
                             :key="index"
+                            :label="item.name"
+                            :value="item.value"
                           />
                         </el-select>
                       </el-form-item>
@@ -1110,7 +1142,7 @@
                 width="120"
                 align="center"
                 label="Sku库存"
-                prop="ship_type"
+                prop="stock"
               />
               <el-table-column
                 width="120"
@@ -1119,7 +1151,12 @@
                 prop="ship_type"
               >
                 <template slot-scope="{row}">
-                  <el-input size="mini" />
+                  <el-input
+                    v-model="row.sku_num"
+                    v-focus
+                    size="mini"
+                    oninput="value=value.replace(/\s+/g,'')"
+                  />
                 </template>
               </el-table-column>
               <el-table-column
@@ -1129,11 +1166,12 @@
                 prop="remark"
                 fixed="right"
               >
-                <template slot-scope="{row}">
+                <template slot-scope="scope">
                   <el-button
                     size="mini"
                     type="primary"
-                  >移除</el-button>
+                    @click="reGoodsForeignData(scope.$index)"
+                  >移 除</el-button>
                 </template>
               </el-table-column>
             </el-table>
@@ -1146,13 +1184,13 @@
       class="sku-details-dialog"
       title="选择需要预报的SKU"
       :visible.sync="skuDetailsVisible"
-      width="570px"
+      width="620px"
       :close-on-click-modal="false"
       :close-on-press-escape="false"
     >
       <el-table
         height="420"
-        :data="detailsData"
+        :data="skuDetailsData"
         :header-cell-style="{
           backgroundColor: '#f5f7fa',
         }"
@@ -1160,7 +1198,13 @@
           color: 'black',
           height: '50px',
         }"
+        @selection-change="skuDetailsSelectionChange"
       >
+        <el-table-column
+          align="center"
+          type="selection"
+          width="50"
+        />
         <el-table-column
           width="50"
           align="center"
@@ -1171,13 +1215,13 @@
           width="100"
           align="center"
           label="SkuID"
-          prop="package_code"
+          prop="sku_id"
         />
         <el-table-column
           width="100"
           align="center"
           label="Sku名称"
-          prop="package_code"
+          prop="sku_name"
         />
         <el-table-column
           width="80"
@@ -1186,7 +1230,7 @@
         >
           <template slot-scope="{row}">
             <el-tooltip
-              v-if="row.sku_image"
+              v-if="row.image_url"
               effect="light"
               placement="right-end"
               :visible-arrow="false"
@@ -1195,14 +1239,14 @@
             >
               <div slot="content">
                 <img
-                  :src="row.sku_image"
+                  :src="row.image_url"
                   width="300px"
                   height="300px"
                 >
               </div>
               <el-image
                 style="width: 40px; height: 40px"
-                :src="row.sku_image"
+                :src="row.image_url"
               />
             </el-tooltip>
           </template>
@@ -1211,15 +1255,23 @@
           width="100"
           align="center"
           label="Sku价格"
-          prop="package_code"
+          prop="price"
         />
         <el-table-column
           width="100"
           align="center"
           label="Sku库存"
-          prop="package_code"
+          prop="stock"
         />
       </el-table>
+      <div style="text-align:right;padding-top: 10px;">
+        <el-button
+          style="margin-left:10px"
+          size="mini"
+          type="primary"
+          @click="confirmSku()"
+        >确 认</el-button>
+      </div>
     </el-dialog>
   </el-row>
 </template>
@@ -1237,18 +1289,24 @@ export default {
     return {
       detailsVisible: false,
       foreignVisible: false,
-      itselfGoodsVisible: false,
+      itselfGoodsVisible: true,
       skuDetailsVisible: false,
       isShowLoading: false,
       isDeleteLoading: false,
       showConsole: true,
       isforeignClose: false,
       StrockUpForegin: new StrockUpForegin(this),
+
       total: 0,
       pageSize: 30,
       page: 1,
+      productTotal: 0,
+      productPageSize: 50,
+      productPage: 1,
+
       tableData: [], // 表格数据
       detailsData: [], // 预报商品详情数据
+      skuDetailsSelection: [], // SKU详情勾选数据
       foreignSelection: [], // 预报海外仓备货商品勾选数据
       multipleSelection: [], // 选择数据
       importTemplateData: '', // 批量导入数据
@@ -1256,6 +1314,11 @@ export default {
       foreignWid: '', // 预报海外仓备货商品中转仓id
       foreignOverseaWid: '', // 预报海外仓备货商品目的仓id
       widInfo: {}, // 中转仓数据
+      productData: [], // 产品中心数据
+      excelForeignData: [], // 表格导入的预报单上传数据
+      goodsForeignData: [], // 自有商品导入的预报单上传数据
+      skuDetailsData: [], // 选择需要预报的SKU详情数据
+
       form: { // 条件搜索
         wid: '', // 中转仓id
         oversea_wid: '', // 海外仓id
@@ -1277,6 +1340,24 @@ export default {
         is_checked: '', // 质检服务
         remark: ''// 备注
       },
+      productFrom: { // 产品中心条件搜索
+        CateId: 0, // 类目ID
+        ProductName: '', // 商品名称
+        ProductId: '', // 商品编码
+        SkuId: '', // SKU编码
+        Status: '-1' // 商品状态
+      },
+      // row: { // 预报SKU单行设置数据
+      //   package_code: '', // 物流单号
+      //   sku_num: '', // 商品数量
+      //   ship_type: '1', // 运输方式
+      //   sku_long: '', // 长
+      //   sku_width: '', // 宽
+      //   sku_height: '', // 高
+      //   is_wainscot: '1', // 贴单服务
+      //   is_checked: '1', // 质检服务
+      //   remark: ''// 备注
+      // },
       statusObj: {
         1: '用户已下单',
         2: '预报单已签收'
@@ -1364,6 +1445,61 @@ export default {
     await this.init()
   },
   methods: {
+    // 移除预报SKU数据
+    reGoodsForeignData(index) {
+      this.goodsForeignData.splice(index, 1)
+    },
+    // 选择需要预报的SKU确认
+    confirmSku() {
+      if (!this.skuDetailsSelection?.length) return this.$message('请选择需要预报的SKU')
+      this.goodsForeignData = this.skuDetailsSelection
+      this.skuDetailsVisible = false
+    },
+    // 获取产品中心列表数据
+    async getProductList() {
+      this.productFrom.Page = this.productPage
+      this.productFrom.PageSize = this.productPageSize
+      this.productFrom.Status = Number(this.productFrom.Status)
+      const res = await this.StrockUpForegin.getProductList(this.productFrom)
+      if (res.code !== 200) {
+        this.$message.error(res.data)
+      }
+      this.productTotal = res.data.total
+      this.productData = res.data.data
+    },
+    // 发起商品预报
+    async stockingForecastUpload(data, type) {
+      for (let index = 0; index < data.length; index++) {
+        const element = data[index]
+        element.is_wainscot = this.isYnObj[element.is_wainscot]
+        element.is_checked = this.isYnObj[element.is_checked]
+        element.ship_type = this.shipTypeNameObj[element.ship_type]
+        const res = await this.StrockUpForegin.stockingForecastUpload(element)
+        if (res.code === 200) {
+          if (type === 1) {
+            this.foreignData.map(item => {
+              if (item.package_code === element.package_code) {
+                this.$set(item, 'status', '预报成功')
+                this.$set(item, 'color', 'green')
+              }
+            })
+          }
+        } else {
+          if (type === 1) {
+            this.foreignData.map(item => {
+              if (item.package_code === element.package_code) {
+                this.$set(item, 'status', res.data)
+                this.$set(item, 'color', 'red')
+              }
+            })
+          }
+        }
+      }
+    },
+    // 添加到预报单
+    addForecast() {
+
+    },
     // 预报SKU批量设置
     batchSetUp() {
       if (!this.foreignSku.package_code) return this.$message('物流单号不能为空')
@@ -1371,6 +1507,12 @@ export default {
       if (!this.foreignSku.sku_long || Number(this.foreignSku.sku_long) <= 0) return this.$message('商品长度不能小于或等于0')
       if (!this.foreignSku.sku_width || Number(this.foreignSku.sku_width) <= 0) return this.$message('商品宽度不能小于或等于0')
       if (!this.foreignSku.sku_height || Number(this.foreignSku.sku_height) <= 0) return this.$message('商品高度不能小于或等于0')
+      this.$confirm('是否覆盖已单独设置的选项', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+      })
     },
     // 下载教程
     downTutorial() {
@@ -1430,8 +1572,12 @@ export default {
       // exportPdfData('#bar_code_id', 'cc')
     },
     // SKU详情
-    skuDetails() {
-
+    async getProductSkuList(row) {
+      const res = await this.StrockUpForegin.getProductSkuList(row.product_id)
+      if (res.code !== 200) {
+        this.$message.error(res.data)
+      }
+      this.skuDetailsData = res.data
     },
     // 仓库选择提示
     warehouseTips() {
@@ -1524,7 +1670,7 @@ export default {
     // 批量导入Excel导入
     async batchImport() {
       const data = []
-      const newData = []
+      this.excelForeignData = []
       this.foreignData = []
       const myMap = new Map()
       const dataSum = this.importTemplateData.length
@@ -1648,35 +1794,14 @@ export default {
       })
       const copyData = JSON.parse(JSON.stringify(this.foreignData))
       copyData.forEach(item => {
-        const result = newData.findIndex(i => { return item.package_code === i.package_code })
+        const result = this.excelForeignData.findIndex(i => { return item.package_code === i.package_code })
         if (result !== -1) {
-          newData[result].sku_list.push(item.sku_list[0])
+          this.excelForeignData[result].sku_list.push(item.sku_list[0])
         } else {
-          newData.push(item)
+          this.excelForeignData.push(item)
         }
       })
-      for (let index = 0; index < newData.length; index++) {
-        const element = newData[index]
-        element.is_wainscot = this.isYnObj[element.is_wainscot]
-        element.is_checked = this.isYnObj[element.is_checked]
-        element.ship_type = this.shipTypeNameObj[element.ship_type]
-        const res = await this.StrockUpForegin.stockingForecastUpload(element)
-        if (res.code === 200) {
-          this.foreignData.map(item => {
-            if (item.package_code === element.package_code) {
-              this.$set(item, 'status', '预报成功')
-              this.$set(item, 'color', 'green')
-            }
-          })
-        } else {
-          this.foreignData.map(item => {
-            if (item.package_code === element.package_code) {
-              this.$set(item, 'status', res.data)
-              this.$set(item, 'color', 'red')
-            }
-          })
-        }
-      }
+      this.stockingForecastUpload(this.excelForeignData, 1)
       this.isforeignClose = false
     },
     // 表格导入
@@ -1899,11 +2024,32 @@ export default {
       this.page = val
       this.getStockingForecastLists()
     },
+    productSizeChange(val) {
+      this.productPage = 1
+      this.productPageSize = val
+      this.getProductList()
+    },
+    productCurrentChange(val) {
+      this.productPage = val
+      this.getProductList()
+    },
     handleSelectionChange(val) {
       this.multipleSelection = val
     },
     foreignSelectionChange(val) {
       this.foreignSelection = val
+    },
+    skuDetailsSelectionChange(val) {
+      this.skuDetailsSelection = val
+    },
+    CateId(val) {
+      this.productFrom.CateId = val
+    },
+    cleanProductFrom() {
+      this.productFrom.ProductName = ''
+      this.productFrom.ProductId = ''
+      this.productFrom.SkuId = ''
+      this.$refs.isClean.cleanData()
     }
   }
 }
