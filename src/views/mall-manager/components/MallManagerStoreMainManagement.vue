@@ -2,7 +2,7 @@
   <div v-loading="loading" class="content">
     <div class="all_condition">
       <div class="des_conditon">
-        <storeChoose :is-all="true" :show-mall="true" @changeMallList="changeMallList" />
+        <storeChoose :is-all="true" :showMallAll="true" @changeMallList="changeMallList" />
         <div style="margin-left: 20px">
           <span>过期时间：</span>
           <el-date-picker
@@ -1132,7 +1132,6 @@ export default {
           //   message: '修改成功'
           // })
           this.$message.success('修改成功')
-          const data = await this.$BaseUtilService.UpdateProxy()// 壳更新
         } else {
           // this.$notify({
           //   title: '修改IP信息',
@@ -1193,10 +1192,10 @@ export default {
     },
     // 绑定用户信息
     async  updataMallList() {
-      if (this.dialog_selectMallList.length === 0) {
-        this.$message.warning('请至少选择一个店铺')
-        return
-      }
+      // if (this.dialog_selectMallList.length === 0) {
+      //   this.$message.warning('请至少选择一个店铺')
+      //   return
+      // }
       const userInfo = await this.$appConfig.getUserInfo()
       const uid = userInfo.muid.toString()
       const targetId = this.targetId.toString()
@@ -1220,6 +1219,7 @@ export default {
           //   message: '绑定成功'
           // })
           this.$message.success('绑定成功')
+          const data = await this.$BaseUtilService.UpdateProxy()// 壳更新
         }
         this.loading = false
       } catch (error) {

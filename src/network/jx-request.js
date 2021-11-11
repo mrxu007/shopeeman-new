@@ -10,7 +10,7 @@ import axios from 'axios'
 import jxAdapter from './jx-apdater'
 import tbAdaptert from './gateway/gateway-adapter'
 const AppRequest = axios.create({ // 壳内转发请求
-  baseURL: process.env.VUE_APP_BASE_API,
+  baseURL: 'http://release.shopeeman.com/api' || process.env.VUE_APP_BASE_API,
   timeout: 5000,
   headers: {
     'Accept': 'application/vnd.ppxias.v3+json'
@@ -61,7 +61,7 @@ export default {
   getAccountAmount: (data) => AppRequest.get('/user/accountAmount', { data }), // 查询用户账号余额
   getAccountAmountDetailList: (data) => AppRequest.post('/user/accountAmountDetailList', data), // 查询用户账号余额
   getTranslateDetail: (data) => AppRequest.get('/translate/getTranslateDetail', { params: data }), // 获取翻译明细数据
-  getChargeUrlV2: (data) => AppRequest.get('/emptyBag/chargeUrlV2', { params: data }), // 充值
+  getChargeUrlV2: (data) => AppRequest.get('/emptyBag/chargeUrl', { params: data }), // 充值
   getTranslateAmount: (data) => AppRequest.get('/translate/getTranslateAmount', { params: data }), // 获取今日翻译费用
   getOrderStatisticsList: (data) => AppRequest.get('/orderStatistics/index', { params: data }), // 账单核算：列表
   getChildUserList: (data) => AppRequest.post('/user/childUserList', data), // 团队管理-查询子账号列表
@@ -151,6 +151,9 @@ export default {
   // 订单管理
   shotAmountRecord: (data) => AppRequest.get('/shotAmountRecord/index', data), // 采购价变更记录
   getOrderSn: (data) => AppRequest.get('/order/getOrderSn', data), // 丢件查询
-  aftermarket: (data) => AppRequest.post('/aftermarket', data) // 虾皮售后
+  aftermarket: (data) => AppRequest.post('/aftermarket', data), // 虾皮售后
 
+  getStockingForecastLists: (data) => AppRequest.get('/warehouse/stockingForecastLists', { params: data }), // 海外仓商品备货-预报单列表
+  deleteForecast: (data) => AppRequest.post('/warehouse/stockingForecastDestroy', data), // 海外仓商品备货-删除预报单
+  getOverseasWarehouse: (data) => AppRequest.get('/warehouse/getOverseasWarehouse', data) // 获取中转仓库和目标仓库列表(海外仓备货)
 }

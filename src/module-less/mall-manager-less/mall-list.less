@@ -59,6 +59,10 @@
       border: 1px solid #333;
       background:  #ccc;
     }
+    .copyIcon {
+      cursor: pointer;
+      color: var(--themeColor);
+    }
   }
   .water-dialog {
     .header-opt {
@@ -150,6 +154,44 @@
     }
     
   }
+  .code-mall-dialog {
+    .tip{
+      color:red;
+      display: block;
+    }
+    ul {
+      display: flex;
+      margin-top: 20px;
+      li {
+        display: flex;
+        margin: 5px;
+        line-height: 27px;
+        span{
+          text-align: right;
+        }
+        .el-select{
+          width: 110px;
+        }
+      }
+    }
+    .el-table{
+      .el-form{
+        .el-form-item{
+          margin: 0px;
+          .el-form-item__label{
+            height: 30px;
+          }
+          .el-form-item__content{
+            height: 30px;
+          }
+        }
+      }
+    }
+    .batch-but{
+      margin-top: 20px;
+      text-align: center;
+    }
+  } 
   .mall-BK-Setting-Dialog {
     ul {
       li {
@@ -185,5 +227,32 @@
       display: block;
     }
   }
- 
+  .phone_code_dialog {
+    .container{
+   
+      li {
+        display: flex;
+        line-height: 28px;
+        margin: 10px;
+        .li_1_lf{
+          width: 70%;
+          font-size: 16px !important;
+          margin-left: 40px;
+          overflow: hidden;
+          text-overflow:ellipsis;
+          white-space: nowrap;
+        }
+        .li_1_rt{
+          width: 50%;
+          .copyIcon {
+            cursor: pointer;
+            color: var(--themeColor);
+          }
+          .el-button {
+            margin-left: 10px;
+          }
+        }
+      }
+    }
+  }
 }

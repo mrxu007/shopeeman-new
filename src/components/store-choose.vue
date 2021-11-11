@@ -32,22 +32,26 @@ import MallListAPI from '../module-api/mall-manager-api/mall-list-api'
 export default {
   name: 'StoreChoose',
   props: {
+    showMallAll: {
+      type: Boolean,
+      default: false,
+    },
     spanWidth: {
       type: String,
-      default: '80px'
+      default: '80px',
     },
     isAll: {
       type: Boolean,
       default() {
         return false
-      }
+      },
     },
     source: {
       type: String,
       default() {
         return ''
-      }
-    }
+      },
+    },
   },
   data() {
     return {
@@ -59,7 +63,7 @@ export default {
       site: [],
       siteList: [],
       countries: this.$filters.countries_option,
-      mallListAPIInstance: new MallListAPI(this)
+      mallListAPIInstance: new MallListAPI(this),
     }
   },
   watch: {
@@ -70,7 +74,7 @@ export default {
         this.groupIdList = []
         this.ddMallGoodsGetMallList(1)
       },
-      deep: true
+      deep: true,
     },
     groupId: {
       handler(val, oldVal) {
@@ -98,7 +102,7 @@ export default {
           }, 10)
         }
       },
-      deep: true
+      deep: true,
     },
     site: {
       handler(val, oldVal) {
@@ -126,8 +130,8 @@ export default {
           })
         }
       },
-      deep: true
-    }
+      deep: true,
+    },
   },
   mounted() {
     this.countryVal = (!this.isAll && 'TH') || ''
@@ -142,7 +146,7 @@ export default {
       const groupId = (this.groupId.indexOf('') > -1 && this.groupId.slice(1).toString()) || this.groupId.toString()
       const param = {
         country: country,
-        mallGroupIds: groupId
+        mallGroupIds: groupId,
       }
       const res = await this.mallListAPIInstance.ddMallGoodsGetMallList(param)
       // console.log('ddMallGoodsGetMallList - res', res)
@@ -156,7 +160,7 @@ export default {
             if (item.group_name && index < 0) {
               this.groupIdList.push({
                 group_name: item.group_name,
-                id: item.group_id
+                id: item.group_id,
               })
               this.groupId.push(item.group_id)
             }
@@ -173,19 +177,24 @@ export default {
     },
     changeMallList() {
       const mallList = []
+      // if (this.countryVal.indexOf('')>=0 && this.groupId.indexOf('')>=0 && this.site.indexOf('')>=0) {
+      //   mallList.push('')
+      // }else{
       this.site.forEach((item) => {
         if (item) {
           const temp = this.siteList.filter((i) => i.platform_mall_id === item)
           mallList.push(temp[0])
         }
       })
+      // }
+      this.$emit('changeMallList', mallList)
       if (this.source) {
         this.$emit('changeMallList', { mallList: mallList, source: this.source })
       } else {
         this.$emit('changeMallList', mallList)
       }
-    }
-  }
+    },
+  },
 }
 </script>
 
