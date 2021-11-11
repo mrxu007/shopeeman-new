@@ -38,7 +38,8 @@ export default class ForeginStrockUp {
     }
     try {
       const res = await this._this.$api.deleteForecast(params)
-      if (res.data.code === 200) {
+      console.log(res)
+      if (res.code === 200) {
         return { code: 200 }
       }
       return { code: res.data.code, data: `${res.data.message}` }
@@ -57,6 +58,18 @@ export default class ForeginStrockUp {
       return { code: res.data.code, data: `${res.data.message}` }
     } catch (error) {
       return { code: -2, data: `getOverseasWarehouse-catch： ${error}` }
+    }
+  }
+  // 海外仓商品备货：发起商品预报
+  async stockingForecastUpload(item) {
+    try {
+      const res = await this._this.$api.stockingForecastUpload(item)
+      if (res.data.code === 200) {
+        return { code: 200, data: res.data.data }
+      }
+      return { code: res.data.code, data: `${res.data.message}` }
+    } catch (error) {
+      return { code: -2, data: `stockingForecastUpload-catch： ${error}` }
     }
   }
 }

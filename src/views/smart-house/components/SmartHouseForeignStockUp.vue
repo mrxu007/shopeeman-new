@@ -129,15 +129,18 @@
           <el-button
             type="primary"
             size="mini"
+            :loading="isDeleteLoading"
             @click="deleteForecast(multipleSelection,2)"
           >批量删除</el-button>
           <el-button
             type="primary"
             size="mini"
+            @click="exportTableData"
           >导出数据</el-button>
           <el-button
             type="primary"
             size="mini"
+            @click="downTutorial"
           >海外仓商品预报教程下载</el-button>
         </li>
       </ul>
@@ -306,11 +309,14 @@
           width="140"
         />
         <el-table-column
-          prop=""
           label="增值服务(贴单/质检)"
           align="center"
           width="150"
-        />
+        >
+          <template slot-scope="{row}">
+            {{ `${row.is_wainscot?servicebj[row.is_wainscot]:''}/${row.is_checked?servicebj[row.is_checked]:''}` }}
+          </template>
+        </el-table-column>
         <el-table-column
           prop="remark"
           label="备注"
@@ -476,11 +482,12 @@
     <!-- 发起预报弹窗 -->
     <el-dialog
       class="foreign-dialog"
-      title="预报商品详情"
+      title="预报海外仓备货商品"
       :visible.sync="foreignVisible"
-      width="1000px"
+      width="1200px"
       :close-on-click-modal="false"
       :close-on-press-escape="false"
+      :before-close="foreignClose"
     >
       <div style="display:flex;">
         <div>
@@ -488,11 +495,11 @@
             <li>
               <span>中转仓库：</span>
               <el-select
-                v-model="dialogWid"
+                v-model="foreignWid"
                 size="mini"
                 filterable
                 @change="
-                  dialogOverseaWid = ''
+                  foreignOverseaWid = ''
                   widCollect(2)"
               >
                 <el-option
@@ -506,12 +513,12 @@
             <li>
               <span>目的仓库：</span>
               <el-select
-                v-model="dialogOverseaWid"
+                v-model="foreignOverseaWid"
                 size="mini"
                 filterable
               >
                 <el-option
-                  v-for="(item, index) in dialogOverseaWidList"
+                  v-for="(item, index) in foreignOverseaWidList"
                   :key="index"
                   :label="item.warehouse_name"
                   :value="item.id"
@@ -537,19 +544,20 @@
               <el-button
                 type="primary"
                 size="mini"
+                @click="exportTickData"
               >导出勾选数据</el-button>
             </li>
           </ul>
-          <span style="color:red">提示：1：应仓库要求，预报单中需包含商品的体积(长宽高)，需下载最新版的预报模板</span>
         </div>
         <div class="wid-info">
           <p>
             {{ `${widInfo.warehouse_name}` }}
           </p>
           <p>
-            <el-tooltip class="item" effect="dark" :content="widInfo.full_address" placement="top">
+            <!-- <el-tooltip class="item" effect="dark" :content="widInfo.full_address" placement="top">
               <p class="address">{{ `地址：${widInfo.full_address}` }}</p>
-            </el-tooltip>
+            </el-tooltip> -->
+            {{ `地址：${widInfo.full_address}` }}
           </p>
           <p>
             {{ `收件人：${widInfo.receiving_name}` }}
@@ -559,6 +567,10 @@
           </p>
         </div>
       </div>
+      <span style="color:red">
+        提示：1：应仓库要求，预报单中需包含商品的体积(长宽高)，需下载最新版的预报模板
+        &nbsp;&nbsp;&nbsp;&nbsp;2：导入商品会导入到对应的中转仓库和目的仓库，请选择好再导入
+      </span>
       <el-table
         height="420"
         :data="foreignData"
@@ -569,6 +581,7 @@
           color: 'black',
           height: '50px',
         }"
+        @selection-change="foreignSelectionChange"
       >
         <el-table-column
           align="center"
@@ -697,9 +710,13 @@
           width="100"
           align="center"
           label="操作状态"
-          prop="sku_url"
+          prop="status"
           fixed="right"
-        />
+        >
+          <template slot-scope="{ row }">
+            <span :style="row.color && 'color:' + row.color">{{ row.status }}</span>
+          </template>
+        </el-table-column>
       </el-table>
     </el-dialog>
     <!--自有商品导入弹窗-->
@@ -713,7 +730,7 @@
     >
       <ul>
         <li>
-          <el-card class="box-card">
+          <el-card shadow="never">
             <div slot="header" class="clearfix">
               <span>产品中心商品</span>
             </div>
@@ -844,7 +861,7 @@
           </el-card>
         </li>
         <li>
-          <el-card class="box-card">
+          <el-card shadow="never">
             <div slot="header" class="clearfix">
               <span>预报SKU</span>
             </div>
@@ -1006,12 +1023,12 @@
                 prop="ship_type"
               />
               <el-table-column
-                width="120"
+                width="450"
                 align="center"
                 label="基本设置"
               >
                 <template slot-scope="{row}">
-                  <div>
+                  <div style="display:flex;">
                     <el-form label-position="right" label-width="80px">
                       <el-form-item label="备注:">
                         <el-input size="mini" />
@@ -1096,6 +1113,7 @@
                 align="center"
                 label="操作"
                 prop="remark"
+                fixed="right"
               >
                 <template slot-scope="{row}">
                   <el-button
@@ -1194,7 +1212,7 @@
 
 <script>
 import ForeginStrockUp from '../../../module-api/smart-house-api/foreign-strock-up'
-import { exportExcelDataCommon, exportPdfData } from '../../../util/util'
+import { exportExcelDataCommon, exportPdfData, delay } from '../../../util/util'
 import ProductChoose from '../../../components/product-choose.vue'
 import XLSX from 'xlsx'
 export default {
@@ -1208,7 +1226,9 @@ export default {
       itselfGoodsVisible: false,
       skuDetailsVisible: false,
       isShowLoading: false,
+      isDeleteLoading: false,
       showConsole: true,
+      isforeignClose: false,
       ForeginStrockUp: new ForeginStrockUp(this),
       form: {
         wid: '', // 中转仓id
@@ -1225,11 +1245,12 @@ export default {
       page: 1,
       tableData: [], // 表格数据
       detailsData: [], // 预报商品详情数据
+      foreignSelection: [], // 预报海外仓备货商品勾选数据
       multipleSelection: [], // 选择数据
       importTemplateData: '', // 批量导入数据
       foreignData: [], // 批量导入预报数据
-      dialogWid: '', // 弹窗中转仓id
-      dialogOverseaWid: '', // 弹窗目的仓id
+      foreignWid: '', // 预报海外仓备货商品中转仓id
+      foreignOverseaWid: '', // 预报海外仓备货商品目的仓id
       widInfo: {},
       statusObj: {
         1: '用户已下单',
@@ -1239,6 +1260,11 @@ export default {
         1: '陆运',
         2: '海运',
         3: '空运'
+      },
+      shipTypeNameObj: {
+        '陆运': 1,
+        '海运': 2,
+        '空运': 3
       },
       isVerifyObj: {
         '-1': '未审核',
@@ -1257,9 +1283,17 @@ export default {
         9: '海外仓已入库',
         10: '海外仓已上架'
       },
+      isYnObj: {
+        '是': '1',
+        '否': '-1'
+      },
+      servicebj: {
+        '1': '是',
+        '-1': '否'
+      },
       widList: [], // 中转仓/目的仓库
       overseaWidList: [], // 海外
-      dialogOverseaWidList: [], // 目的仓库
+      foreignOverseaWidList: [], // 目的仓库
       isVerifyList: [ // 是否审核
         {
           value: '-1',
@@ -1286,6 +1320,10 @@ export default {
     await this.init()
   },
   methods: {
+    // 下载教程
+    downTutorial() {
+      window.open('https://shopeeman.oss-cn-shenzhen.aliyuncs.com/files/shopeemanFiles/appFiles/20211111/20211111141313618cb47981eb1.pdf')
+    },
     // 获取中转仓库和目的仓库列表(海外仓备货)
     async getOverseasWarehouse() {
       const res = await this.ForeginStrockUp.getOverseasWarehouse()
@@ -1310,14 +1348,14 @@ export default {
         this.form.oversea_wid = childList[0].id
       } else {
         this.widList.map(item => {
-          if (item.id === this.dialogWid) {
+          if (item.id === this.foreignWid) {
             childList = item.child
             widInfo = item
           }
         })
         this.widInfo = widInfo
-        this.dialogOverseaWidList = childList
-        this.dialogOverseaWid = childList[0].id
+        this.foreignOverseaWidList = childList
+        this.foreignOverseaWid = childList[0].id
       }
     },
     // 初始仓库
@@ -1325,19 +1363,19 @@ export default {
       this.form.wid = this.widList[0].id
       this.form.oversea_wid = this.widList[0].child[0].id
       this.overseaWidList = this.widList[0].child
-      this.dialogWid = this.widList[0].id
-      this.dialogOverseaWid = this.widList[0].child[0].id
-      this.dialogOverseaWidList = this.widList[0].child
+      this.foreignWid = this.widList[0].id
+      this.foreignOverseaWid = this.widList[0].child[0].id
+      this.foreignOverseaWidList = this.widList[0].child
       this.widInfo = this.widList[0]
     },
     // 下载条形码
     downBarCode() {
-      const template = `条形码`
-      const createDiv = document.createElement('div')
-      createDiv.id = 'bar_code_id'
-      createDiv.innerHTML = template
-      document.body.appendChild(createDiv)// 添加到BODY节点中
-      exportPdfData('#bar_code_id', 'cc')
+      // const template = `条形码`
+      // const createDiv = document.createElement('div')
+      // createDiv.id = 'bar_code_id'
+      // createDiv.innerHTML = template
+      // document.body.appendChild(createDiv)// 添加到BODY节点中
+      // exportPdfData('#bar_code_id', 'cc')
     },
     // SKU详情
     skuDetails() {
@@ -1348,12 +1386,12 @@ export default {
       let warehouseName = ''
       let childName = ''
       this.widList.map(item => {
-        if (item.id === this.dialogWid) {
+        if (item.id === this.foreignWid) {
           warehouseName = item.warehouse_name
         }
       })
-      this.dialogOverseaWidList.map(item => {
-        if (item.id === this.dialogOverseaWid) {
+      this.foreignOverseaWidList.map(item => {
+        if (item.id === this.foreignOverseaWid) {
           childName = item.warehouse_name
         }
       })
@@ -1361,14 +1399,14 @@ export default {
     },
     // 自有商品导入
     itselfGoodsImport() {
-      const { warehouseName, childName } = this.warehouseTips()
-      this.$confirm(`确定预报到中转仓库:${warehouseName},目的仓库:${childName}`, '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }).then(() => {
-        this.itselfGoodsVisible = true
-      })
+      // const { warehouseName, childName } = this.warehouseTips()
+      // this.$confirm(`确定预报到中转仓库:${warehouseName},目的仓库:${childName}`, '提示', {
+      //   confirmButtonText: '确定',
+      //   cancelButtonText: '取消',
+      //   type: 'warning'
+      // }).then(() => {
+      this.itselfGoodsVisible = true
+      // })
     },
     // 查看详情
     getDetails(val) {
@@ -1378,29 +1416,32 @@ export default {
       })
     },
     // 删除/批量删除预报单
-    deleteForecast(val, type) {
+    async deleteForecast(val, type) {
       const data = []
       if (type === 1) {
         data.push(val.forecast_code)
       } else {
         if (val.length === 0) return this.$message('请先选择需要删除的数据')
+        this.isDeleteLoading = true
         val.forEach(item => {
           data.push(item.forecast_code)
         })
       }
       this.delForecast(data)
+      await delay(1000)
+      this.getStockingForecastLists()
+      this.showConsole = false
+      this.isDeleteLoading = false
     },
     delForecast(data) {
       data.forEach(async item => {
         const res = await this.ForeginStrockUp.deleteForecast(item)
-        if (res === 200) {
+        if (res.code === 200) {
           this.$refs.Logs.writeLog(`单号【${item}】:删除成功`, true)
         } else {
           this.$refs.Logs.writeLog(`单号【${item}】:${res.data}`, false)
         }
       })
-      this.showConsole = false
-      this.getStockingForecastLists()
     },
     // 获取数据
     async getStockingForecastLists() {
@@ -1429,18 +1470,19 @@ export default {
       this.isShowLoading = false
     },
     // 批量导入Excel导入
-    batchImport() {
+    async batchImport() {
+      const data = []
+      const newData = []
+      this.foreignData = []
+      const myMap = new Map()
       const dataSum = this.importTemplateData.length
       if (dataSum <= 0) {
         this.$refs.Logs.writeLog('表格数据为空', false)
         this.showConsole = false
         return
       }
-      this.showConsole = false
+      this.isforeignClose = true
       this.$refs.Logs.writeLog('开始读取数据...', true)
-      const data = []
-      const newData = []
-      const myMap = new Map()
       for (let index = 0; index < dataSum; index++) {
         const element = this.importTemplateData[index]
         const package_code = element['物流单号(必填：多个SKU可对应同一物流单号)']
@@ -1507,6 +1549,8 @@ export default {
           continue
         }
         const obj = {
+          wid: this.foreignWid,
+          oversea_wid: this.foreignOverseaWid,
           package_code: package_code,
           is_wainscot: is_wainscot,
           is_checked: is_checked,
@@ -1540,7 +1584,6 @@ export default {
       })
       const copyData = JSON.parse(JSON.stringify(this.foreignData))
       copyData.forEach(item => {
-        console.log(item)
         const result = newData.findIndex(i => { return item.package_code === i.package_code })
         if (result !== -1) {
           newData[result].sku_list.push(item.sku_list[0])
@@ -1548,7 +1591,29 @@ export default {
           newData.push(item)
         }
       })
-      console.log(newData)
+      for (let index = 0; index < newData.length; index++) {
+        const element = newData[index]
+        element.is_wainscot = this.isYnObj[element.is_wainscot]
+        element.is_checked = this.isYnObj[element.is_checked]
+        element.ship_type = this.shipTypeNameObj[element.ship_type]
+        const res = await this.ForeginStrockUp.stockingForecastUpload(element)
+        if (res.code === 200) {
+          this.foreignData.map(item => {
+            if (item.package_code === element.package_code) {
+              this.$set(item, 'status', '预报成功')
+              this.$set(item, 'color', 'green')
+            }
+          })
+        } else {
+          this.foreignData.map(item => {
+            if (item.package_code === element.package_code) {
+              this.$set(item, 'status', res.data)
+              this.$set(item, 'color', 'red')
+            }
+          })
+        }
+      }
+      this.isforeignClose = false
     },
     // 表格导入
     importTemplate(file) {
@@ -1616,6 +1681,151 @@ export default {
       `
       exportExcelDataCommon('海外仓备货预报模板', template)
     },
+    // 导出勾选数据
+    exportTickData() {
+      if (!this.foreignSelection?.length) return this.$message('请选择需要导出的数据')
+      let str = `<tr>
+          <td>预报物流单号</td>
+          <td>商品编号(SKU)</td>
+          <td>商品名称</td>
+          <td>商品数量</td>
+          <td>商品单价(RMB)</td>
+          <td>商品规格</td>
+          <td>商品图片</td>
+          <td>商品链接</td>
+          <td>运输方式</td>
+          <td>备注</td>
+          <td>操作状态</td>
+        </td>`
+      this.foreignSelection.forEach(item => {
+        str += `<tr>
+        <td>${item.package_code ? item.package_code : '' + '\t'}</td>
+        <td>${item.sku_list[0].sku_id ? item.sku_list[0].sku_id : '' + '\t'}</td>
+        <td>${item.sku_list[0].goods_name ? item.sku_list[0].goods_name : '' + '\t'}</td>
+        <td>${item.sku_list[0].sku_num ? item.sku_list[0].sku_num : '' + '\t'}</td>
+        <td>${item.sku_list[0].sku_price ? item.sku_list[0].sku_price : '' + '\t'}</td>
+        <td>${item.sku_list[0].sku_name ? item.sku_list[0].sku_name : '' + '\t'}</td>
+        <td>${item.sku_list[0].sku_image ? item.sku_list[0].sku_image : '' + '\t'}</td>
+        <td>${item.sku_list[0].sku_url ? item.sku_list[0].sku_url : '' + '\t'}</td>
+        <td>${item.ship_type ? item.ship_type : '' + '\t'}</td>
+        <td>${item.remark ? item.remark : '' + '\t'}</td>
+        <td>${item.status ? item.status : '' + '\t'}</td>
+        </tr>`
+      })
+      exportExcelDataCommon('预报海外仓备货商品数据', str)
+    },
+    // 导出数据
+    async exportTableData() {
+      this.isShowLoading = true
+      const exportData = []
+      const len = this.total % 30 === 0 ? this.total / 30 : Math.floor(this.total / 30) + 1
+      for (let index = 0; index < len; index++) {
+        this.form.page = index
+        this.form.pageSize = this.pageSize
+        const res = await this.ForeginStrockUp.getStockingForecastLists(this.form)
+        if (res.code === 200) {
+          const resData = res.data.data
+          resData.forEach(item => {
+            item.sku_list.forEach(skuItem => {
+              const obj = {}
+              obj['package_code'] = item.package_code
+              obj['forecast_code'] = item.forecast_code
+              obj['wid'] = item.wid
+              obj['oversea_wid'] = item.oversea_wid
+              obj['created_at'] = item.created_at
+              obj['sign_time'] = item.sign_time
+              obj['store_time'] = item.store_time
+              obj['status'] = item.status
+              obj['is_wainscot'] = item.is_wainscot
+              obj['is_checked'] = item.is_checked
+              obj['ship_type'] = item.ship_type
+              obj['is_verify'] = item.is_verify
+              obj['verify_remark'] = item.verify_remark
+              obj['remark'] = item.remark
+              obj['warehouse_remark'] = item.warehouse_remark
+              obj['skuStatus'] = skuItem.status
+              obj['sku_id'] = skuItem.sku_id
+              obj['sys_sku_id'] = skuItem.sku_id
+              obj['goods_name'] = skuItem.goods_name
+              obj['sku_num'] = skuItem.sku_num
+              obj['sku_price'] = skuItem.sku_price
+              obj['sku_name'] = skuItem.sku_name
+              obj['sku_image'] = skuItem.sku_image
+              obj['sku_url'] = skuItem.sku_url
+              exportData.push(obj)
+            })
+          })
+        } else {
+          this.$refs.Logs.writeLog('导出数据错误', res.data)
+        }
+      }
+      console.log(exportData)
+      if (!exportData?.length) {
+        this.isShowLoading = false
+        this.$message('暂无数据导出')
+        return
+      }
+      let str = `<tr>
+          <td>预报物流单号</td>
+          <td>海外仓单号</td>
+          <td>中转仓库</td>
+          <td>海外仓库</td>
+          <td>预报时间(RMB)</td>
+          <td>签收时间</td>
+          <td>中转仓入库时间</td>
+          <td>预报单状态</td>
+          <td>增值服务(贴单/质检)</td>
+          <td>运输方式</td>
+          <td>审核状态</td>
+          <td>审核备注</td>
+          <td>备注</td>
+          <td>仓库备注</td>
+          <td>商品状态</td>
+          <td>商品编号(SKU)</td>
+          <td>系统商品编码</td>
+          <td>商品名称</td>
+          <td>商品数量</td>
+          <td>商品单价(RMB)</td>
+          <td>商品规格</td>
+          <td>商品图片</td>
+          <td>商品链接</td>
+        </td>`
+      exportData.forEach(item => {
+        str += `<tr>
+        <td>${item.package_code ? item.package_code : '' + '\t'}</td>
+        <td>${item.forecast_code ? item.forecast_code : '' + '\t'}</td>
+        <td>${item.wid ? item.wid : '' + '\t'}</td>
+        <td>${item.oversea_wid ? item.oversea_wid : '' + '\t'}</td>
+        <td>${item.created_at ? item.created_at : '' + '\t'}</td>
+        <td>${item.sign_time ? item.sign_time : '' + '\t'}</td>
+        <td>${item.store_time ? item.store_time : '' + '\t'}</td>
+        <td>${item.status ? this.statusObj[item.status] ? this.statusObj[item.status] : '已拦截(其他原因)' : '' + '\t'}</td>
+        <td>${this.servicebj[item.is_wainscot] + '/' + this.servicebj[item.is_checked] + '\t'}</td>
+        <td>${item.ship_type ? this.shipTypeObj[item.ship_type] : '' + '\t'}</td>
+        <td>${item.is_verify ? this.isVerifyObj[item.is_verify] : '' + '\t'}</td>
+        <td>${item.verify_remark ? item.verify_remark : '' + '\t'}</td>
+        <td>${item.remark ? item.remark : '' + '\t'}</td>
+        <td>${item.warehouse_remark ? item.warehouse_remark : '' + '\t'}</td>
+        <td>${item.skuStatus ? this.skuStatusObj[item.skuStatus] ? this.skuStatusObj[item.skuStatus] : '' : '' + '\t'}</td>
+        <td>${item.sku_id ? item.sku_id : '' + '\t'}</td>
+        <td>${item.goods_name ? item.goods_name : '' + '\t'}</td>
+        <td>${item.sku_num ? item.sku_num : '' + '\t'}</td>
+        <td>${item.sku_price ? item.sku_price : '' + '\t'}</td>
+        <td>${item.sku_name ? item.sku_name : '' + '\t'}</td>
+        <td>${item.sku_image ? item.sku_image : '' + '\t'}</td>
+        <td>${item.sku_url ? item.sku_url : '' + '\t'}</td>
+        </tr>`
+      })
+      this.isShowLoading = false
+      exportExcelDataCommon('预报单数据', str)
+    },
+    foreignClose(done) {
+      if (this.isforeignClose) return this.$message('正在发起商品预报,请勿关闭')
+      done()
+      this.getStockingForecastLists()
+      this.foreignData = []
+      this.init()
+    },
     handleSizeChange(val) {
       this.page = 1
       this.pageSize = val
@@ -1627,6 +1837,9 @@ export default {
     },
     handleSelectionChange(val) {
       this.multipleSelection = val
+    },
+    foreignSelectionChange(val) {
+      this.foreignSelection = val
     }
   }
 }
