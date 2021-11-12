@@ -16,7 +16,7 @@ export default class MallListAPI {
         version: '3.1.0'
       }
       // cnsc_shop_id  店铺类型为 2 or 3时，需要此参数
-      let res = await this._this.$shopeemanService.getChinese(country, '/api/v3/product/get_product_statistical_data/?', params, { headers: { referer: '/portal/product/list/all' } })
+      let res = await this._this.$shopeemanService.getChinese(country, '/api/v3/product/get_product_statistical_data/?', params, { headers: { referer: '/portal/product/list/all' }})
       res = JSON.parse(JSON.parse(res).data)
       if (res.code === 0) {
         return { code: 200, data: res.data } // count_for_limit

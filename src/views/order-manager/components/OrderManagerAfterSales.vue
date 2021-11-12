@@ -85,9 +85,9 @@
         <div class="row_item">
 
           <el-button size="mini" type="primary" @click="setShotStatusFun">采购状态变更</el-button>
-          <el-button size="mini" type="primary">批量拒绝买家取消订单</el-button>
+          <el-button size="mini" type="primary" @click="optionOrder('reject')">批量拒绝买家取消订单</el-button>
           <el-button size="mini" type="primary" @click="setColorLabelFun">批量标记颜色标识</el-button>
-          <el-button size="mini" type="primary">批量接受买家取消订单</el-button>
+          <el-button size="mini" type="primary" @click="optionOrder('accept')">批量接受买家取消订单</el-button>
           <el-button size="mini" type="primary" @click="tableToExcel">导出数据</el-button>
           <el-button size="mini" type="primary">售后同步</el-button>
           <el-checkbox v-model="mall_compare" class="row_item">全店同步</el-checkbox>
@@ -210,6 +210,7 @@
 
 </template>
 <script>
+import orderApi from '../../../module-api/order-manager-api/order-data'
 import storeChoose from '../../../components/store-choose.vue'
 import { colorLabelList, getMalls, getValue, exportExcelDataCommon } from '../../../util/util'
 
@@ -286,13 +287,33 @@ export default {
       },
       total: 0,
       tableList: [],
-      loading: false
+      loading: false,
+      orderInstance: new orderApi(this)
     }
   },
   created() {
     this.getInfo()// 初始化数据
   },
   methods: {
+
+    // 批量同意/拒绝买家取消订单
+    async optionOrder(type) {
+      if (!this.multipleSelection.length) {
+        this.$message.warning('请选择要处理的数据')
+        return
+      }
+      const list = []
+      this.multipleSelection.forEach(item => {
+        const orderinfo = {
+          type: type,
+          order_id: item.order_id,
+          country: item.country
+        }
+        // debugger
+        this.orderInstance.refuseCancerOrder(orderinfo).then(res => { list.push(res) })
+      })
+      console.log('222', list)
+    },
     // 初始化时间
     initDate() {
       const d = new Date()
@@ -538,7 +559,7 @@ export default {
       this.query.afterApplyTime = this.cloumn_date2 && this.cloumn_date2.length > 0 ? this.cloumn_date2.join('/').toString() : ''
       const params = this.query
       params.sysMallIds = this.query.sysMallIds.toString() || ''
-      console.log('123', params)
+
       this.getTableList(params)
     },
     // 初始化数据
