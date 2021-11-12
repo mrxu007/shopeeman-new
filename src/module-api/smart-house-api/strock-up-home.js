@@ -1,36 +1,30 @@
 /**
- * 国内商品备货
+ * 海外商品备货
  */
-export default class StrockUpForegin {
+export default class StrockUpHome {
   constructor(that) {
     this._this = that
   }
 
   // 获取预报单列表
-  async getStockingForecastLists(item) {
+  async getHomeWarehouse(item) {
     try {
       const created_time = item.created_time ? `${this._this.$dayjs(item.created_time[0]).format('YYYY-MM-DD 00:00:00')}/${this._this.$dayjs(item.created_time[1]).format('YYYY-MM-DD 23:59:59')}` : ''
-      const sign_Time = item.sign_Time ? `${this._this.$dayjs(item.sign_Time[0]).format('YYYY-MM-DD 00:00:00')}/${this._this.$dayjs(item.sign_Time[1]).format('YYYY-MM-DD 23:59:59')}` : ''
-      const store_time = item.store_time ? `${this._this.$dayjs(item.store_time[0]).format('YYYY-MM-DD 00:00:00')}/${this._this.$dayjs(item.store_time[1]).format('YYYY-MM-DD 23:59:59')}` : ''
       const parmas = {
         wid: item.wid,
-        oversea_wid: item.oversea_wid,
-        package_code: item.package_code,
-        forecast_code: item.forecast_code,
+        purchaseOrderSn: item.purchaseOrderSn,
+        packageCode: item.packageCode,
         created_time: created_time,
-        sign_Time: sign_Time,
-        store_time: store_time,
-        is_verify: item.is_verify,
         page: item.page,
         pageSize: item.pageSize
       }
-      const res = await this._this.$api.getStockingForecastLists(parmas)
+      const res = await this._this.$api.getHomeWarehouse(parmas)
       if (res.data.code === 200) {
         return { code: 200, data: res.data.data }
       }
       return { code: res.data.code, data: `${res.data.message}` }
     } catch (error) {
-      return { code: -2, data: `getStockingForecastLists-catch： ${error}` }
+      return { code: -2, data: `getHomeWarehouse-catch： ${error}` }
     }
   }
 
@@ -41,7 +35,6 @@ export default class StrockUpForegin {
     }
     try {
       const res = await this._this.$api.deleteForecast(params)
-      console.log(res)
       if (res.code === 200) {
         return { code: 200 }
       }
@@ -73,6 +66,32 @@ export default class StrockUpForegin {
       return { code: res.data.code, data: `${res.data.message}` }
     } catch (error) {
       return { code: -2, data: `stockingForecastUpload-catch： ${error}` }
+    }
+  }
+  // 获取产品中心列表
+  async getProductList(item) {
+    try {
+      const res = await this._this.$commodityService.getProductList(item)
+      const jsonData = JSON.parse(res)
+      if (jsonData.status_code === 200) {
+        return { code: 200, data: jsonData.data }
+      }
+      return { code: jsonData.status_code, data: `${jsonData.message}` }
+    } catch (error) {
+      return { code: -2, data: `getProductList-catch： ${error}` }
+    }
+  }
+  // 获取产品中心产品skulist
+  async getProductSkuList(item) {
+    try {
+      const res = await this._this.$commodityService.getProductSkuList(item)
+      const jsonData = JSON.parse(res)
+      if (jsonData.status_code === 200) {
+        return { code: 200, data: jsonData.data }
+      }
+      return { code: jsonData.status_code, data: `${jsonData.message}` }
+    } catch (error) {
+      return { code: -2, data: `getProductSkuList-catch： ${error}` }
     }
   }
 }

@@ -201,13 +201,13 @@
           align="center"
         />
         <el-table-column
-          prop="wid"
+          prop="warehouse_name"
           label="中转仓"
           align="center"
-          width="120"
+          width="150"
         />
         <el-table-column
-          prop="oversea_wid"
+          prop="oversea_warehouse_name"
           label="海外仓"
           align="center"
           width="130"
@@ -471,12 +471,19 @@
           </template>
         </el-table-column>
         <el-table-column
-          width="350"
+          width="150"
           align="center"
           label="商品链接"
-          prop="sku_url"
-          show-overflow-tooltip
-        />
+        >
+          <template slot-scope="{row}">
+            <el-button
+              v-if="row.sku_url"
+              type="primary"
+              size="mini"
+              @click="openUrl(row.sku_url)"
+            >商品链接</el-button>
+          </template>
+        </el-table-column>
       </el-table>
     </el-dialog>
     <!-- 发起预报弹窗 -->
@@ -683,22 +690,28 @@
           </template>
         </el-table-column>
         <el-table-column
-          width="350"
+          width="150"
           align="center"
           label="商品链接"
-          prop="sku_url"
-          show-overflow-tooltip
         >
           <template slot-scope="{row}">
-            {{ row.sku_list[0].sku_url }}
+            <el-button
+              v-if="row.sku_list[0].sku_url"
+              type="primary"
+              size="mini"
+              @click="openUrl(row.sku_list[0].sku_url)"
+            >商品链接</el-button>
           </template>
         </el-table-column>
         <el-table-column
           width="120"
           align="center"
           label="运输方式"
-          prop="ship_type"
-        />
+        >
+          <template slot-scope="{row}">
+            {{ shipTypeObj[row.ship_type]?shipTypeObj[row.ship_type]:row.ship_type }}
+          </template>
+        </el-table-column>
         <el-table-column
           width="100"
           align="center"
@@ -1053,39 +1066,39 @@
                 align="center"
                 label="基本设置"
               >
-                <template slot-scope="{row}">
+                <template slot-scope="scope">
                   <div style="display:flex;">
                     <el-form label-position="right" label-width="80px">
                       <el-form-item label="备注:">
                         <el-input
-                          v-model="row.remark"
+                          v-model="skuList.remark[scope.$index]"
                           size="mini"
                           oninput="value=value.replace(/\s+/g,'')"
                         />
                       </el-form-item>
                       <el-form-item label="体积:">
                         <el-input
-                          v-model="row.sku_long"
+                          v-model="skuList.sku_long[scope.$index]"
                           size="mini"
-                          style="width:36px"
+                          class="volume"
                           oninput="value=value.replace(/\s+/g,'')"
                         />*
                         <el-input
-                          v-model="row.sku_width"
+                          v-model="skuList.sku_width[scope.$index]"
                           size="mini"
-                          style="width:36px"
+                          class="volume"
                           oninput="value=value.replace(/\s+/g,'')"
                         />*
                         <el-input
-                          v-model="row.sku_height"
+                          v-model="skuList.sku_height[scope.$index]"
                           size="mini"
-                          style="width:36px"
+                          class="volume"
                           oninput="value=value.replace(/\s+/g,'')"
                         />
                       </el-form-item>
                       <el-form-item label="物流单号:">
                         <el-input
-                          v-model="row.package_code"
+                          v-model="skuList.package_code[scope.$index]"
                           size="mini"
                           oninput="value=value.replace(/\s+/g,'')"
                         />
@@ -1094,7 +1107,7 @@
                     <el-form label-position="right" label-width="80px">
                       <el-form-item label="运输方式:">
                         <el-select
-                          v-model="row.ship_type"
+                          v-model="skuList.ship_type[scope.$index]"
                           size="mini"
                           filterable
                         >
@@ -1108,7 +1121,7 @@
                       </el-form-item>
                       <el-form-item label="贴单服务:">
                         <el-select
-                          v-model="row.is_wainscot"
+                          v-model="skuList.is_wainscot[scope.$index]"
                           size="mini"
                           filterable
                         >
@@ -1122,7 +1135,7 @@
                       </el-form-item>
                       <el-form-item label="质检服务:">
                         <el-select
-                          v-model="row.is_checked"
+                          v-model="skuList.is_checked[scope.$index]"
                           size="mini"
                           filterable
                         >
@@ -1150,10 +1163,9 @@
                 label="Sku数量"
                 prop="ship_type"
               >
-                <template slot-scope="{row}">
+                <template slot-scope="scope">
                   <el-input
-                    v-model="row.sku_num"
-                    v-focus
+                    v-model="skuList.sku_num[scope.$index]"
                     size="mini"
                     oninput="value=value.replace(/\s+/g,'')"
                   />
@@ -1170,7 +1182,7 @@
                   <el-button
                     size="mini"
                     type="primary"
-                    @click="reGoodsForeignData(scope.$index)"
+                    @click="goodsForeignData.splice(scope.$index, 1)"
                   >移 除</el-button>
                 </template>
               </el-table-column>
@@ -1212,7 +1224,7 @@
           label="序号"
         />
         <el-table-column
-          width="100"
+          width="110"
           align="center"
           label="SkuID"
           prop="sku_id"
@@ -1281,6 +1293,7 @@ import StrockUpForegin from '../../../module-api/smart-house-api/strock-up-forei
 import { exportExcelDataCommon, exportPdfData, delay } from '../../../util/util'
 import ProductChoose from '../../../components/product-choose.vue'
 import XLSX from 'xlsx'
+import { data } from 'cheerio/lib/api/attributes'
 export default {
   components: {
     ProductChoose
@@ -1289,7 +1302,7 @@ export default {
     return {
       detailsVisible: false,
       foreignVisible: false,
-      itselfGoodsVisible: true,
+      itselfGoodsVisible: false,
       skuDetailsVisible: false,
       isShowLoading: false,
       isDeleteLoading: false,
@@ -1319,6 +1332,17 @@ export default {
       goodsForeignData: [], // 自有商品导入的预报单上传数据
       skuDetailsData: [], // 选择需要预报的SKU详情数据
 
+      skuList: {
+        remark: [],
+        sku_long: [],
+        sku_width: [],
+        sku_height: [],
+        package_code: [],
+        ship_type: [],
+        is_wainscot: [],
+        is_checked: [],
+        sku_num: []
+      },
       form: { // 条件搜索
         wid: '', // 中转仓id
         oversea_wid: '', // 海外仓id
@@ -1331,13 +1355,13 @@ export default {
       },
       foreignSku: { // 预报SKU
         package_code: '', // 物流单号
-        sku_num: '', // 商品数量
-        ship_type: '', // 运输方式
-        sku_long: '', // 长
-        sku_width: '', // 宽
-        sku_height: '', // 高
-        is_wainscot: '', // 贴单服务
-        is_checked: '', // 质检服务
+        sku_num: '0', // 商品数量
+        ship_type: '1', // 运输方式
+        sku_long: '0', // 长
+        sku_width: '0', // 宽
+        sku_height: '0', // 高
+        is_wainscot: '1', // 贴单服务
+        is_checked: '1', // 质检服务
         remark: ''// 备注
       },
       productFrom: { // 产品中心条件搜索
@@ -1347,17 +1371,6 @@ export default {
         SkuId: '', // SKU编码
         Status: '-1' // 商品状态
       },
-      // row: { // 预报SKU单行设置数据
-      //   package_code: '', // 物流单号
-      //   sku_num: '', // 商品数量
-      //   ship_type: '1', // 运输方式
-      //   sku_long: '', // 长
-      //   sku_width: '', // 宽
-      //   sku_height: '', // 高
-      //   is_wainscot: '1', // 贴单服务
-      //   is_checked: '1', // 质检服务
-      //   remark: ''// 备注
-      // },
       statusObj: {
         1: '用户已下单',
         2: '预报单已签收'
@@ -1445,73 +1458,58 @@ export default {
     await this.init()
   },
   methods: {
-    // 移除预报SKU数据
-    reGoodsForeignData(index) {
-      this.goodsForeignData.splice(index, 1)
-    },
-    // 选择需要预报的SKU确认
-    confirmSku() {
-      if (!this.skuDetailsSelection?.length) return this.$message('请选择需要预报的SKU')
-      this.goodsForeignData = this.skuDetailsSelection
-      this.skuDetailsVisible = false
-    },
-    // 获取产品中心列表数据
-    async getProductList() {
-      this.productFrom.Page = this.productPage
-      this.productFrom.PageSize = this.productPageSize
-      this.productFrom.Status = Number(this.productFrom.Status)
-      const res = await this.StrockUpForegin.getProductList(this.productFrom)
-      if (res.code !== 200) {
-        this.$message.error(res.data)
+    // 获取数据
+    async getStockingForecastLists() {
+      this.isShowLoading = true
+      this.form.page = this.page
+      this.form.pageSize = this.pageSize
+      const res = await this.StrockUpForegin.getStockingForecastLists(this.form)
+      if (res.code === 200) {
+        this.total = res.data.total
+        this.tableData = res.data.data
+        this.tableData.map(item => {
+          let goods_total = 0
+          let goods_price_total = 0
+          item.sku_list.forEach(skuItem => {
+            goods_total += skuItem.sku_num ? skuItem.sku_num : 0
+            goods_price_total += skuItem.sku_price ? parseInt(skuItem.sku_price) * skuItem.sku_num : 0
+          })
+          item.goods_total = goods_total
+          item.goods_price_total = goods_price_total
+        })
+        console.log('tableData', this.tableData)
+      } else {
+        this.$message.error(`${res.data}`)
       }
-      this.productTotal = res.data.total
-      this.productData = res.data.data
+      this.isShowLoading = false
     },
-    // 发起商品预报
-    async stockingForecastUpload(data, type) {
-      for (let index = 0; index < data.length; index++) {
-        const element = data[index]
-        element.is_wainscot = this.isYnObj[element.is_wainscot]
-        element.is_checked = this.isYnObj[element.is_checked]
-        element.ship_type = this.shipTypeNameObj[element.ship_type]
-        const res = await this.StrockUpForegin.stockingForecastUpload(element)
+    // 删除/批量删除预报单
+    async deleteForecast(val, type) {
+      const data = []
+      if (type === 1) {
+        data.push(val.forecast_code)
+      } else {
+        if (val.length === 0) return this.$message('请先选择需要删除的数据')
+        this.isDeleteLoading = true
+        val.forEach(item => {
+          data.push(item.forecast_code)
+        })
+      }
+      this.delForecast(data)
+      delay(1000)
+      this.getStockingForecastLists()
+      this.showConsole = false
+      this.isDeleteLoading = false
+      this.$forceUpdate()
+    },
+    delForecast(data) {
+      data.forEach(async item => {
+        const res = await this.StrockUpForegin.deleteForecast(item)
         if (res.code === 200) {
-          if (type === 1) {
-            this.foreignData.map(item => {
-              if (item.package_code === element.package_code) {
-                this.$set(item, 'status', '预报成功')
-                this.$set(item, 'color', 'green')
-              }
-            })
-          }
+          this.$refs.Logs.writeLog(`单号【${item}】:删除成功`, true)
         } else {
-          if (type === 1) {
-            this.foreignData.map(item => {
-              if (item.package_code === element.package_code) {
-                this.$set(item, 'status', res.data)
-                this.$set(item, 'color', 'red')
-              }
-            })
-          }
+          this.$refs.Logs.writeLog(`单号【${item}】:${res.data}`, false)
         }
-      }
-    },
-    // 添加到预报单
-    addForecast() {
-
-    },
-    // 预报SKU批量设置
-    batchSetUp() {
-      if (!this.foreignSku.package_code) return this.$message('物流单号不能为空')
-      if (!this.foreignSku.sku_num || Number(this.foreignSku.sku_num) <= 0) return this.$message('商品数量不能小于或等于0')
-      if (!this.foreignSku.sku_long || Number(this.foreignSku.sku_long) <= 0) return this.$message('商品长度不能小于或等于0')
-      if (!this.foreignSku.sku_width || Number(this.foreignSku.sku_width) <= 0) return this.$message('商品宽度不能小于或等于0')
-      if (!this.foreignSku.sku_height || Number(this.foreignSku.sku_height) <= 0) return this.$message('商品高度不能小于或等于0')
-      this.$confirm('是否覆盖已单独设置的选项', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }).then(() => {
       })
     },
     // 下载教程
@@ -1523,7 +1521,6 @@ export default {
       const res = await this.StrockUpForegin.getOverseasWarehouse()
       if (res.code === 200) {
         this.widList = res.data
-        console.log(this.widList)
       } else {
         this.$message.error(`${res.data}`)
       }
@@ -1562,6 +1559,143 @@ export default {
       this.foreignOverseaWidList = this.widList[0].child
       this.widInfo = this.widList[0]
     },
+    // 打开商品链接
+    openUrl(row) {
+      window.open(row)
+    },
+    // 选择需要预报的SKU确认
+    confirmSku() {
+      if (!this.skuDetailsSelection?.length) return this.$message('请选择需要预报的SKU')
+      this.skuDetailsSelection.map(item => {
+        this.goodsForeignData.push(item)
+      })
+      this.goodsForeignData.map((item, index) => {
+        this.skuList.sku_long[index] = '0'
+        this.skuList.sku_width[index] = '0'
+        this.skuList.sku_height[index] = '0'
+        this.skuList.ship_type[index] = '1'
+        this.skuList.is_wainscot[index] = '1'
+        this.skuList.is_checked[index] = '1'
+        this.skuList.sku_num[index] = '1'
+        this.skuList.package_code[index] = ''
+        this.skuList.remark[index] = ''
+      })
+      this.skuDetailsVisible = false
+    },
+    // 获取产品中心列表数据
+    async getProductList() {
+      this.productFrom.Page = this.productPage
+      this.productFrom.PageSize = this.productPageSize
+      this.productFrom.Status = Number(this.productFrom.Status)
+      const res = await this.StrockUpForegin.getProductList(this.productFrom)
+      if (res.code !== 200) {
+        this.$message.error(res.data)
+      }
+      this.productTotal = res.data.total
+      this.productData = res.data.data
+      console.log('productData', this.productData)
+    },
+    // 发起商品预报
+    async stockingForecastUpload() {
+      this.isforeignClose = true
+      console.log(this.foreignData)
+      const copyData = JSON.parse(JSON.stringify(this.foreignData))
+      copyData.forEach(item => {
+        const result = this.excelForeignData.findIndex(i => { return item.package_code === i.package_code })
+        if (result !== -1) {
+          this.excelForeignData[result].sku_list.push(item.sku_list[0])
+        } else {
+          this.excelForeignData.push(item)
+        }
+      })
+      for (let index = 0; index < this.excelForeignData.length; index++) {
+        const element = this.excelForeignData[index]
+        element.is_wainscot = this.isYnObj[element.is_wainscot] ? this.isYnObj[element.is_wainscot] : element.is_wainscot
+        element.is_checked = this.isYnObj[element.is_checked] ? this.isYnObj[element.is_checked] : element.is_checked
+        element.ship_type = this.shipTypeNameObj[element.ship_type] ? this.shipTypeNameObj[element.ship_type] : element.ship_type
+        const res = await this.StrockUpForegin.stockingForecastUpload(element)
+        if (res.code === 200) {
+          this.foreignData.map(item => {
+            if (item.package_code === element.package_code) {
+              this.$set(item, 'status', '预报成功')
+              this.$set(item, 'color', 'green')
+            }
+          })
+        } else {
+          this.foreignData.map(item => {
+            if (item.package_code === element.package_code) {
+              this.$set(item, 'status', res.data)
+              this.$set(item, 'color', 'red')
+            }
+          })
+        }
+      }
+      console.log('预报上传数据', this.excelForeignData)
+      this.isforeignClose = false
+    },
+    // 添加到预报单
+    addForecast() {
+      if (!this.goodsForeignData?.length) return this.$message('请先选择需要预报的SKU')
+      const isNull = this.goodsForeignData.some((item, index) => {
+        return this.skuList.package_code[index] === ''
+      })
+      if (isNull) return this.$message('请先【设置】sku的其他信息')
+      this.excelForeignData = []
+      this.goodsForeignData.map((item, index) => {
+        const obj = {
+          wid: this.foreignWid,
+          oversea_wid: this.foreignOverseaWid,
+          package_code: this.skuList.package_code[index],
+          is_wainscot: this.skuList.is_wainscot[index],
+          is_checked: this.skuList.is_checked[index],
+          ship_type: this.skuList.ship_type[index],
+          remark: this.skuList.remark[index],
+          sku_list: [
+            {
+              sku_id: item.sku_id,
+              goods_name: item.goods_name,
+              sku_num: this.skuList.sku_num[index],
+              sku_price: item.price,
+              sku_name: item.sku_name,
+              sku_long: this.skuList.sku_long[index],
+              sku_width: this.skuList.sku_width[index],
+              sku_height: this.skuList.sku_height[index],
+              sku_image: item.image_url,
+              sku_url: item.purchase_goods_url
+            }
+          ]
+        }
+        this.foreignData.push(obj)
+      })
+      this.stockingForecastUpload(data)
+      this.itselfGoodsVisible = false
+    },
+    // 预报SKU批量设置
+    batchSetUp() {
+      if (!this.foreignSku.package_code) return this.$message('物流单号不能为空')
+      if (!this.foreignSku.sku_num || Number(this.foreignSku.sku_num) <= 0) return this.$message('商品数量不能小于或等于0')
+      if (!this.foreignSku.sku_long || Number(this.foreignSku.sku_long) <= 0) return this.$message('商品长度不能小于或等于0')
+      if (!this.foreignSku.sku_width || Number(this.foreignSku.sku_width) <= 0) return this.$message('商品宽度不能小于或等于0')
+      if (!this.foreignSku.sku_height || Number(this.foreignSku.sku_height) <= 0) return this.$message('商品高度不能小于或等于0')
+      this.$confirm('是否覆盖已单独设置的选项', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(async() => {
+        this.goodsForeignData.map((item, index) => {
+          this.skuList.sku_long[index] = this.foreignSku.sku_long
+          this.skuList.sku_width[index] = this.foreignSku.sku_width
+          this.skuList.sku_height[index] = this.foreignSku.sku_height
+          this.skuList.ship_type[index] = this.foreignSku.ship_type
+          this.skuList.is_wainscot[index] = this.foreignSku.is_wainscot
+          this.skuList.is_checked[index] = this.foreignSku.is_checked
+          this.skuList.sku_num[index] = this.foreignSku.sku_num
+          this.skuList.package_code[index] = this.foreignSku.package_code
+          this.skuList.remark[index] = this.foreignSku.remark
+          this.$forceUpdate() // 强制视图更新
+        })
+      })
+    },
     // 下载条形码
     downBarCode() {
       // const template = `条形码`
@@ -1578,33 +1712,49 @@ export default {
         this.$message.error(res.data)
       }
       this.skuDetailsData = res.data
+      this.skuDetailsData.map(item => {
+        item.goods_name = row.product_name
+      })
+      console.log('skuDetailsData', this.skuDetailsData)
     },
     // 仓库选择提示
-    warehouseTips() {
-      let warehouseName = ''
-      let childName = ''
-      this.widList.map(item => {
-        if (item.id === this.foreignWid) {
-          warehouseName = item.warehouse_name
-        }
-      })
-      this.foreignOverseaWidList.map(item => {
-        if (item.id === this.foreignOverseaWid) {
-          childName = item.warehouse_name
-        }
-      })
-      return { warehouseName, childName }
-    },
+    // warehouseTips() {
+    //   let warehouseName = ''
+    //   let childName = ''
+    //   this.widList.map(item => {
+    //     if (item.id === this.foreignWid) {
+    //       warehouseName = item.warehouse_name
+    //     }
+    //   })
+    //   this.foreignOverseaWidList.map(item => {
+    //     if (item.id === this.foreignOverseaWid) {
+    //       childName = item.warehouse_name
+    //     }
+    //   })
+    //   return { warehouseName, childName }
+    // },
     // 自有商品导入
     itselfGoodsImport() {
-      // const { warehouseName, childName } = this.warehouseTips()
-      // this.$confirm(`确定预报到中转仓库:${warehouseName},目的仓库:${childName}`, '提示', {
-      //   confirmButtonText: '确定',
-      //   cancelButtonText: '取消',
-      //   type: 'warning'
-      // }).then(() => {
+      this.productFrom.CateId = 0
+      this.productFrom.ProductName = ''
+      this.productFrom.ProductId = ''
+      this.productFrom.SkuId = ''
+      this.productFrom.Status = '-1'
+
+      this.foreignSku.package_code = ''
+      this.foreignSku.sku_num = '0'
+      this.foreignSku.ship_type = '1'
+      this.foreignSku.sku_long = '0'
+      this.foreignSku.sku_width = '0'
+      this.foreignSku.sku_height = '0'
+      this.foreignSku.is_wainscot = '1'
+      this.foreignSku.is_checked = '1'
+      this.foreignSku.remark = ''
+
+      this.productData = []
+      this.goodsForeignData = []
       this.itselfGoodsVisible = true
-      // })
+      this.$refs.isClean.cleanData()
     },
     // 查看详情
     getDetails(val) {
@@ -1613,60 +1763,7 @@ export default {
         item.package_code = val.package_code
       })
     },
-    // 删除/批量删除预报单
-    async deleteForecast(val, type) {
-      const data = []
-      if (type === 1) {
-        data.push(val.forecast_code)
-      } else {
-        if (val.length === 0) return this.$message('请先选择需要删除的数据')
-        this.isDeleteLoading = true
-        val.forEach(item => {
-          data.push(item.forecast_code)
-        })
-      }
-      this.delForecast(data)
-      await delay(1000)
-      this.getStockingForecastLists()
-      this.showConsole = false
-      this.isDeleteLoading = false
-    },
-    delForecast(data) {
-      data.forEach(async item => {
-        const res = await this.StrockUpForegin.deleteForecast(item)
-        if (res.code === 200) {
-          this.$refs.Logs.writeLog(`单号【${item}】:删除成功`, true)
-        } else {
-          this.$refs.Logs.writeLog(`单号【${item}】:${res.data}`, false)
-        }
-      })
-    },
-    // 获取数据
-    async getStockingForecastLists() {
-      this.isShowLoading = true
-      this.form.page = this.page
-      this.form.pageSize = this.pageSize
-      const res = await this.StrockUpForegin.getStockingForecastLists(this.form)
-      console.log(res)
-      if (res.code === 200) {
-        this.total = res.data.total
-        this.tableData = res.data.data
-        this.tableData.map(item => {
-          let goods_total = 0
-          let goods_price_total = 0
-          item.sku_list.forEach(skuItem => {
-            goods_total += skuItem.sku_num ? skuItem.sku_num : 0
-            goods_price_total += skuItem.sku_price ? parseInt(skuItem.sku_price) * skuItem.sku_num : 0
-          })
-          item.goods_total = goods_total
-          item.goods_price_total = goods_price_total
-        })
-        console.log('tableData', this.tableData)
-      } else {
-        this.$message.error(`${res.data}`)
-      }
-      this.isShowLoading = false
-    },
+
     // 批量导入Excel导入
     async batchImport() {
       const data = []
@@ -1679,7 +1776,6 @@ export default {
         this.showConsole = false
         return
       }
-      this.isforeignClose = true
       this.$refs.Logs.writeLog('开始读取数据...', true)
       for (let index = 0; index < dataSum; index++) {
         const element = this.importTemplateData[index]
@@ -1792,17 +1888,7 @@ export default {
           this.$refs.Logs.writeLog(`过滤重复物流订单号【${item.package_code}】,商品编号(SKU)【${item.sku_list[0].sku_id}】`, false)
         }
       })
-      const copyData = JSON.parse(JSON.stringify(this.foreignData))
-      copyData.forEach(item => {
-        const result = this.excelForeignData.findIndex(i => { return item.package_code === i.package_code })
-        if (result !== -1) {
-          this.excelForeignData[result].sku_list.push(item.sku_list[0])
-        } else {
-          this.excelForeignData.push(item)
-        }
-      })
-      this.stockingForecastUpload(this.excelForeignData, 1)
-      this.isforeignClose = false
+      this.stockingForecastUpload(this.excelForeignData)
     },
     // 表格导入
     importTemplate(file) {
@@ -1896,7 +1982,7 @@ export default {
         <td>${item.sku_list[0].sku_name ? item.sku_list[0].sku_name : '' + '\t'}</td>
         <td>${item.sku_list[0].sku_image ? item.sku_list[0].sku_image : '' + '\t'}</td>
         <td>${item.sku_list[0].sku_url ? item.sku_list[0].sku_url : '' + '\t'}</td>
-        <td>${item.ship_type ? item.ship_type : '' + '\t'}</td>
+        <td>${this.shipTypeObj[item.ship_type] ? this.shipTypeObj[item.ship_type] : item.ship_type + '\t'}</td>
         <td>${item.remark ? item.remark : '' + '\t'}</td>
         <td>${item.status ? item.status : '' + '\t'}</td>
         </tr>`
@@ -1919,8 +2005,8 @@ export default {
               const obj = {}
               obj['package_code'] = item.package_code
               obj['forecast_code'] = item.forecast_code
-              obj['wid'] = item.wid
-              obj['oversea_wid'] = item.oversea_wid
+              obj['warehouse_name'] = item.warehouse_name
+              obj['oversea_warehouse_name'] = item.oversea_warehouse_name
               obj['created_at'] = item.created_at
               obj['sign_time'] = item.sign_time
               obj['store_time'] = item.store_time
@@ -1948,7 +2034,6 @@ export default {
           this.$refs.Logs.writeLog('导出数据错误', res.data)
         }
       }
-      console.log(exportData)
       if (!exportData?.length) {
         this.isShowLoading = false
         this.$message('暂无数据导出')
@@ -1983,8 +2068,8 @@ export default {
         str += `<tr>
         <td>${item.package_code ? item.package_code : '' + '\t'}</td>
         <td>${item.forecast_code ? item.forecast_code : '' + '\t'}</td>
-        <td>${item.wid ? item.wid : '' + '\t'}</td>
-        <td>${item.oversea_wid ? item.oversea_wid : '' + '\t'}</td>
+        <td>${item.warehouse_name ? item.warehouse_name : '' + '\t'}</td>
+        <td>${item.oversea_warehouse_name ? item.oversea_warehouse_name : '' + '\t'}</td>
         <td>${item.created_at ? item.created_at : '' + '\t'}</td>
         <td>${item.sign_time ? item.sign_time : '' + '\t'}</td>
         <td>${item.store_time ? item.store_time : '' + '\t'}</td>

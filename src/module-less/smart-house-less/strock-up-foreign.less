@@ -118,6 +118,7 @@
                     }
                   }
                 }
+                
                 .el-select{
                   width: 100px;
                   .el-input{
@@ -130,6 +131,12 @@
               }
               /deep/.el-form-item{
                 margin: 0px !important;
+                .volume{
+                  width: 36px;
+                    .el-input__inner{
+                      padding: 0px;
+                    }
+                }
               }
               .pagination{
                 float: right;
@@ -143,6 +150,14 @@
               }
             }
           }
+        }
+      }
+      .sku-details-dialog{
+        /deep/.el-dialog__header{
+          padding:15px 8px 10px !important;
+        }
+        /deep/.el-dialog__body{
+          padding:0 15px 15px 15px !important;
         }
       }
   }
