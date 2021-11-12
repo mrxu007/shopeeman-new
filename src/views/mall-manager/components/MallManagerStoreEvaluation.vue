@@ -10,10 +10,10 @@
   <div class="store-evaluation">
     <div class="tool-bar">
       <div class="tool-row">
-        <storeChoose @changeMallList="changeMallList" :spanWidth="'80px'"></storeChoose>
+        <storeChoose :span-width="'80px'" @changeMallList="changeMallList" />
         <div class="tool-item">
-          <el-input placeholder="请输入内容" v-model="userName" size="mini" class="input-with-select" clearable>
-            <el-select v-model="userTypeSelect" slot="prepend" placeholder="用户名称" class="miniSelectBox">
+          <el-input v-model="userName" placeholder="请输入内容" size="mini" class="input-with-select" clearable>
+            <el-select slot="prepend" v-model="userTypeSelect" placeholder="用户名称" class="miniSelectBox">
               <el-option v-for="(item, index) in userType" :key="index" :label="item.label" :value="item.value" />
             </el-select>
           </el-input>
@@ -46,10 +46,10 @@
             <el-option v-for="(item, index) in replayTypeList" :key="index" :label="item.label" :value="item.value" />
           </el-select>
         </div>
-        <el-button type="primary" size="mini" style="width: 75px" @click="searchRate" :disabled="tableLoading">查 询</el-button>
-        <el-button type="primary" size="mini" class="mar-right btnbox" @click="batchReplay" :disabled="tableLoading">批量回复</el-button>
+        <el-button type="primary" size="mini" style="width: 75px" :disabled="tableLoading" @click="searchRate">查 询</el-button>
+        <el-button type="primary" size="mini" class="mar-right btnbox" :disabled="tableLoading" @click="batchReplay">批量回复</el-button>
         <el-button type="primary" size="mini" class="mar-right btnbox" @click="cancelAction = true">取消操作</el-button>
-        <el-button type="primary" size="mini" class="mar-right btnbox" @click="exportData" :disabled="tableLoading">导出数据</el-button>
+        <el-button type="primary" size="mini" class="mar-right btnbox" :disabled="tableLoading" @click="exportData">导出数据</el-button>
         <el-button type="primary" size="mini" class="mar-right btnbox" @click="clearLog">清除日志</el-button>
         <div class="tool-item mar-right">
           <el-checkbox v-model="showConsole">隐藏日志</el-checkbox>
@@ -58,17 +58,17 @@
     </div>
     <div class="content">
       <u-table
-        v-loading="tableLoading"
         ref="multipleTable"
+        v-loading="tableLoading"
         :data="tableDataCut"
         tooltip-effect="dark"
         max-height="630px"
-        @selection-change="selectionChange"
         use-virtual
         :big-data-checkbox="checked"
         :data-changes-scroll-top="false"
+        @selection-change="selectionChange"
       >
-        <u-table-column type="selection" width="55"> </u-table-column>
+        <u-table-column type="selection" width="55" />
         <u-table-column align="center" type="index" label="序号" width="50">
           <template slot-scope="scope">{{ (currentPage - 1) * pageSize + scope.$index + 1 }}</template>
         </u-table-column>
@@ -95,9 +95,10 @@
           <template slot-scope="scope">
             <el-tooltip effect="light" placement="right-end" :visible-arrow="false" :enterable="false" style="width: 56px; height: 56px; display: inline-block">
               <div slot="content">
-                <el-image v-bind:src="[scope.row.country, scope.row.platform_mall_id, scope.row.product_cover] | imageRender" style="width: 400px; height: 400px"></el-image>
+                {{ product_cover }}
+                <el-image :src="[scope.row.country, scope.row.platform_mall_id, scope.row.product_cover] | imageRender" style="width: 400px; height: 400px" />
               </div>
-              <el-image v-bind:src="[scope.row.country, scope.row.platform_mall_id, scope.row.product_cover] | imageRender" style="width: 56px; height: 56px"></el-image>
+              <el-image :src="[scope.row.country, scope.row.platform_mall_id, scope.row.product_cover] | imageRender" style="width: 56px; height: 56px" />
             </el-tooltip>
           </template>
         </u-table-column>
@@ -122,7 +123,7 @@
           </template>
         </u-table-column>
         <u-table-column align="center" label="回复时间" min-width="80">
-          <template slot-scope="scope" v-if="scope.row.reply">
+          <template v-if="scope.row.reply" slot-scope="scope">
             {{ $dayjs(scope.row.reply.ctime * 1000).format('YYYY-MM-DD HH:MM') }}
           </template>
         </u-table-column>
@@ -144,10 +145,10 @@
         />
       </div>
     </div>
-    <Logs ref="Logs" clear v-model="showConsole" />
+    <Logs ref="Logs" v-model="showConsole" clear />
     <el-dialog title="回复内容编辑" :visible.sync="replayTextVisible" width="30%">
       <div class="replay-dialog">
-        <el-input type="textarea" :rows="8" placeholder="请输入内容" v-model="replayText"> </el-input>
+        <el-input v-model="replayText" type="textarea" :rows="8" placeholder="请输入内容" />
         <el-button type="primary" size="mini" class="btn" @click="userReplaySave">确定</el-button>
       </div>
     </el-dialog>
@@ -159,7 +160,7 @@ import { exportExcelDataCommon } from '../../../util/util'
 import storeChoose from '../../../components/store-choose'
 export default {
   components: {
-    storeChoose,
+    storeChoose
   },
   data() {
     return {
@@ -167,7 +168,7 @@ export default {
       pickerOptions: {
         disabledDate(time) {
           return time.getTime() > Date.now()
-        },
+        }
       },
       countryVal: '',
       groupId: '',
@@ -181,65 +182,65 @@ export default {
       replayTypeList: [
         {
           value: '',
-          label: '全部',
+          label: '全部'
         },
         {
           value: '1',
-          label: '待回复',
+          label: '待回复'
         },
         {
           value: '2',
-          label: '已回复',
-        },
+          label: '已回复'
+        }
       ],
       startNum: '',
       startNumList: [
         {
           value: '',
-          label: '全部',
+          label: '全部'
         },
         {
           value: '5',
-          label: '五颗星',
+          label: '五颗星'
         },
         {
           value: '4',
-          label: '四颗星',
+          label: '四颗星'
         },
         {
           value: '3',
-          label: '三颗星',
+          label: '三颗星'
         },
         {
           value: '2',
-          label: '两颗星',
+          label: '两颗星'
         },
         {
           value: '1',
-          label: '一颗星',
-        },
+          label: '一颗星'
+        }
       ],
       userName: '',
       userTypeSelect: '1',
       userType: [
         {
           value: '1',
-          label: '用户名称',
+          label: '用户名称'
         },
         {
           value: '2',
-          label: '商品名称',
+          label: '商品名称'
         },
         {
           value: '3',
-          label: '规格名称',
-        },
+          label: '规格名称'
+        }
       ],
-      showConsole: true, //日志
-      pageSize: 1000, //页码
-      currentPage: 1, //页码
-      total: 0, //表格总数
-      replayTextVisible: false, //回复弹窗
+      showConsole: true, // 日志
+      pageSize: 1000, // 页码
+      currentPage: 1, // 页码
+      total: 0, // 表格总数
+      replayTextVisible: false, // 回复弹窗
       replayText: '',
       isBatchReplay: false,
       multipleSelection: [],
@@ -247,21 +248,21 @@ export default {
       cancelAction: false,
       rowInfo: {},
       mallPageSize: 50,
-      rowIndex: null,
+      rowIndex: null
     }
   },
   mounted() {},
   methods: {
-    //打开订单页面
+    // 打开订单页面
     viewDetails(type, id, shopId) {
-      let reqStr = {
+      const reqStr = {
         type: type,
         shopId: shopId,
         id: id
       }
-      this.$BaseUtilService.getOrderDetailInfo(shopId,JSON.stringify(reqStr))
+      this.$BaseUtilService.getOrderDetailInfo(shopId, JSON.stringify(reqStr))
     },
-    //查询列表
+    // 查询列表
     async searchRate() {
       this.cancelAction = false
       if (!this.selectMallList.length) {
@@ -281,8 +282,8 @@ export default {
             this.$refs.Logs.writeLog(`操作已取消！`, true)
             return
           }
-          let mall = this.selectMallList[i]
-          let pageNumber = 1
+          const mall = this.selectMallList[i]
+          const pageNumber = 1
           await this.searchSingleMall(pageNumber, mall)
         }
       } catch (error) {
@@ -291,13 +292,13 @@ export default {
       }
       this.tableLoading = false
     },
-    //查询
+    // 查询
     async searchSingleMall(pageNumber, mall, dataArr = [], page = 0) {
-      let params = {
+      const params = {
         page_number: pageNumber,
         page_size: this.mallPageSize,
         cursor: 0,
-        shop_id: mall.platform_mall_id,
+        shop_id: mall.platform_mall_id
       }
       if (this.assessTime.length) {
         params.ctime_start = Math.round(new Date(this.assessTime[0]).getTime() / 1000)
@@ -321,15 +322,15 @@ export default {
         params.replied = true
       }
       try {
-        let res = await this.$shopeemanService.getShopEvaluateList(mall.country, params)
-        let resObj = JSON.parse(res)
+        const res = await this.$shopeemanService.getShopEvaluateList(mall.country, params)
+        const resObj = JSON.parse(res)
         if (resObj.status === 200) {
-          let data = JSON.parse(resObj.data)
+          const data = JSON.parse(resObj.data)
           console.log('data', data)
           if (data.code === 0) {
-            let count = data.data.list.length
+            const count = data.data.list.length
             data.data.list &&
-              data.data.list.forEach(async (item) => {
+              data.data.list.forEach(async(item) => {
                 item.country = mall.country
                 item.platform_mall_name = mall.platform_mall_name
                 item.mall_alias_name = mall.mall_alias_name
@@ -337,8 +338,8 @@ export default {
                 item.replyStatus = ''
                 item.statusColor = ''
                 item.productUrl = await this.productUrl(item)
-                let index = dataArr.filter((i) => i.comment_id === item.comment_id)[0] || ''
-                console.log("index",index)
+                const index = dataArr.filter((i) => i.comment_id === item.comment_id)[0] || ''
+                console.log('index', index)
                 !index && dataArr.push(item)
                 !index && this.tableData.push(item)
                 this.total = this.tableData.length
@@ -364,7 +365,7 @@ export default {
         console.log(error)
       }
     },
-    //导出数据
+    // 导出数据
     async exportData() {
       if (!this.tableData.length) {
         return this.$message.warning('没有可以导出的订单')
@@ -387,7 +388,7 @@ export default {
               <td>回复时间</td>
             </tr>`
       for (let i = 0; i < this.tableData.length; i++) {
-        let item = this.tableData[i]
+        const item = this.tableData[i]
         console.log(item.product_name, '13')
         str += `<tr><td>${num++}</td>
                     <td style="mso-number-format:'\@';">${item.country ? this.$filters.chineseSite(item.country) : '' + '\t'}</td>
@@ -406,12 +407,12 @@ export default {
       }
       exportExcelDataCommon('商店评价信息', str)
     },
-    //单个回复
+    // 单个回复
     singleReplay(index) {
       this.rowIndex = index
       this.replayTextVisible = true
     },
-    //批量回复
+    // 批量回复
     batchReplay() {
       if (!this.multipleSelection.length) {
         return this.$message.warning('请先勾选数据！')
@@ -419,19 +420,19 @@ export default {
       this.isBatchReplay = true
       this.replayTextVisible = true
     },
-    //回复信息
+    // 回复信息
     async userReplay(row) {
-      let params = {
+      const params = {
         order_id: row.order_id,
         comment_id: row.comment_id,
         comment: this.replayText,
-        shop_id: row.platform_mall_id,
+        shop_id: row.platform_mall_id
       }
       console.log(params)
-      let index = this.tableData.findIndex((n) => {
+      const index = this.tableData.findIndex((n) => {
         return n.comment_id === row.comment_id
       })
-      let indexCut = this.tableDataCut.findIndex((n) => {
+      const indexCut = this.tableDataCut.findIndex((n) => {
         return n.comment_id === row.comment_id
       })
       if (row.reply && row.reply.ctime) {
@@ -440,10 +441,10 @@ export default {
         this.$refs.multipleTable.toggleRowSelection(this.tableDataCut[indexCut], false)
         return
       }
-      let res = await this.$shopeemanService.replyShopRating(row.country, params)
-      let resObj = JSON.parse(res)
+      const res = await this.$shopeemanService.replyShopRating(row.country, params)
+      const resObj = JSON.parse(res)
       if (resObj.status === 200) {
-        let data = JSON.parse(resObj.data)
+        const data = JSON.parse(resObj.data)
         if (data.code === 0) {
           if (this.tableData[index].reply) {
             this.tableData[index].reply.ctime = Math.round(new Date().getTime() / 1000)
@@ -479,14 +480,14 @@ export default {
       this.isBatchReplay = false
     },
     async productUrl(row) {
-      let webUrl = await this.$shopeeManConfig.getSiteWebUrl(row.country)
-      let url = webUrl + '/product' + '/' + row.platform_mall_id + '/' + row.product_id
+      const webUrl = await this.$shopeeManConfig.getSiteWebUrl(row.country)
+      const url = webUrl + '/product' + '/' + row.platform_mall_id + '/' + row.product_id
       return url
     },
-    //打开外部窗口
+    // 打开外部窗口
     async openUrl(row) {
-      let webUrl = await this.$shopeeManConfig.getSiteWebUrl(row.country)
-      let url = webUrl + '/product' + '/' + row.platform_mall_id + '/' + row.product_id
+      const webUrl = await this.$shopeeManConfig.getSiteWebUrl(row.country)
+      const url = webUrl + '/product' + '/' + row.platform_mall_id + '/' + row.product_id
       this.$BaseUtilService.openUrl(url)
     },
     //   表格选择
@@ -510,11 +511,11 @@ export default {
       this.pageSize = size
       this.dataCut()
     },
-    //清除日志
+    // 清除日志
     clearLog() {
       this.$refs.Logs.consoleMsg = ''
-    },
-  },
+    }
+  }
 }
 </script>
 

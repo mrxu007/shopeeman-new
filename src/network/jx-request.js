@@ -155,5 +155,8 @@ export default {
 
   getStockingForecastLists: (data) => AppRequest.get('/warehouse/stockingForecastLists', { params: data }), // 海外仓商品备货-预报单列表
   deleteForecast: (data) => AppRequest.post('/warehouse/stockingForecastDestroy', data), // 海外仓商品备货-删除预报单
-  getOverseasWarehouse: (data) => AppRequest.get('/warehouse/getOverseasWarehouse', data) // 获取中转仓库和目标仓库列表(海外仓备货)
+  getOverseasWarehouse: (data) => AppRequest.get('/warehouse/getOverseasWarehouse', data), // 获取中转仓库和目标仓库列表(海外仓备货)
+
+  updateShotStatus: (data) => AppRequest.post('/aftermarket/updateShotStatus', data)// 采购状态变更
+
 }
