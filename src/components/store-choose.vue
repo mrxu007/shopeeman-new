@@ -1,7 +1,7 @@
 <template>
   <div>
     <ul class="storeChooseUL">
-      <li v-show="isShow">
+      <li>
         <span :style="{ width: spanWidth }">所属站点：</span>
         <el-select v-model="countryVal" size="mini" filterable class="siteSelectBox">
           <el-option v-if="isAll" label="全部" :value="''" />
@@ -35,10 +35,6 @@ export default {
     showMallAll: {
       type: Boolean,
       default: false,
-    },
-    isShow: {
-      type: Boolean,
-      default: true,
     },
     spanWidth: {
       type: String,
