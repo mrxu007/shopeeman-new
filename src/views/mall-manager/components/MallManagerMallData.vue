@@ -113,11 +113,11 @@
             </template>
           </el-table-column>
           <el-table-column align="center" prop="recent_order_create_time" label="最近订单创建时间" min-width="150" />
-          <el-table-column align="center" label="距今无订单天数" min-width="150">
+          <!-- <el-table-column align="center" label="距今无订单天数" min-width="150">
             <template slot-scope="{ row }">
               {{ row.not_order_time }}
             </template>
-          </el-table-column>
+          </el-table-column> -->
           <el-table-column align="center" prop="yesterday_order_num" label="昨日订单数" min-width="90" />
           <el-table-column align="center" prop="week_order_num" label="近7天订单数" min-width="100" />
           <el-table-column align="center" prop="history_order_num" label="历史订单数" min-width="90" />

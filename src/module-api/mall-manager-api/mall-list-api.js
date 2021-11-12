@@ -1,4 +1,3 @@
-import { base64 } from 'js-md5'
 
 // import api from '../../network/jx-request'
 export default class MallListAPI {
@@ -127,7 +126,6 @@ export default class MallListAPI {
         }
       }, base64File)
       res = JSON.parse(JSON.parse(res).data)
-      debugger
       if (res.code === 0) {
         return { code: 200, data: res.data.resource_id }// Errors within expectations  开启关闭太频繁，需冷却三小时
       }
@@ -158,6 +156,27 @@ export default class MallListAPI {
       return { code: -2, data: `getMallInfo-catch: ${error}` }
     }
   }
+  // 发送短信
+  async sendMessage(mallInfo, messageHeader) {
+    try {
+      const { country, platform_mall_id } = mallInfo
+      const params = {
+        platform_mall_id: platform_mall_id
+      }
+      const headers = {
+        'cookies': []
+      }
+      messageHeader ? headers['cookies'].push({ 'name': 'RO_T', value: messageHeader }) : ''
+      let res = await this._this.$shopeemanService.getChinese(country, '/api/selleraccount/vcode/resend/?', params, messageHeader ? { headers } : null)
+      res = JSON.parse(JSON.parse(res).data)
+      if (res.code === 0) {
+        return { code: 200, data: '短信验证发送成功' }
+      }
+      return { code: res.errcode, data: `${res.errcode} ${res.message}` }
+    } catch (error) {
+      return { code: -2, data: `getMallGoodsAmount-catch: ${error}` }
+    }
+  }
   // 本地服务接口----------------------------------------------------
   // 获取店铺列表
   async getMallList(params) {
@@ -170,7 +189,9 @@ export default class MallListAPI {
           item.isCheckedWaterMark2 = false
           return item
         })
-        this.mallList = mallArr
+        if (!params.country && !params.groupId) {
+          this.mallList = mallArr
+        }
         return { code: 200, data: mallArr }
       }
       return { code: -2, data: '获取店铺列表失败' }
@@ -204,7 +225,7 @@ export default class MallListAPI {
   }
   // 根据 店铺频台id 找到店铺系统id
   getMallID(platform_mall_id) {
-    return this.mallList.find(item => item.platform_mall_id === platform_mall_id)?.id
+    return this.mallList.find(item => item.platform_mall_id === platform_mall_id - 0)?.id
   }
   // 更新店铺水印
   async updateWatermark(params) {
@@ -303,5 +324,81 @@ export default class MallListAPI {
     } catch (error) {
       return { code: -2, data: `getBankList-catch: ${error}` }
     }
+  }
+  // 整理登录数据  和  shopeeMan-service 的login 接口成功反出去的结果一样
+  sortMallData(mallInfo, data) {
+    const mallId = `${data.shopid}` // 平台店铺ID
+    const mallUId = `${data.id}` // 平台店铺ID
+    const username = data.username
+
+    const Cookie = {} // (一键登陆专用)
+    Cookie['SPC_EC'] = data.sso
+    Cookie['SPC_SC_TK'] = data.token
+    Cookie['ShopeeUid'] = mallUId // 虾皮平台用户Uid
+    Cookie['shopid'] = mallId // 平台店铺ID
+
+    const Cookie_new = { // 店铺cookie信息(导入店铺专用)(更新壳)
+      'SPC_CDS_VER': '2',
+      'SPC_EC': data.sso,
+      'ShopeeUid': mallUId,
+      'SPC_F': '',
+      'CNSC_SSO': '',
+      'SPC_CNSC_TK': '',
+      'SPC_CNSC_UD': '',
+      'SC_DFP': '',
+      'SPC_SC_SA_UD': '',
+      'SPC_SC_SA_TK': '',
+      'SPC_SC_UD': '',
+      'token': data.token,
+      'cstoken': data.cs_token,
+      'satoken': '',
+      'sso': data.sso,
+      'shopeeuid': mallUId,
+      'shopid': mallId,
+      'portrait': data.portrait,
+      'userRealName': username,
+      'mainAccountId': '',
+      'spc_f': '',
+      'SPC_SC_TK': data.token,
+      'OtherCookieInfo': '',
+      'spcf_update_time': ''
+    }
+
+    const mallInfo_new = { // 通知壳更新店铺信息 (导入店铺、一键登陆) 数据结构与壳内店铺信息一致
+      'IPIsExpired': true,
+      'IsOpenSIP': false,
+      'ProxyType': 'ssr',
+      'IsTransit': 0,
+      'IPType': '',
+      'GroupName': mallInfo.group_name, // 店铺分组
+      'web_login_info': Cookie_new, // 店铺cookie
+      'MallMainName': mallInfo.MallMainName,
+      'id': 0,
+      'uid': 0,
+      'country': mallInfo.country, // 国家
+      'platform_mall_name': mallInfo.mall_account_info.username,
+      'platform_mall_id': mallId, // 店铺平台ID
+      'platform_mall_uid': mallUId, // 店铺平台卖家ID
+      'is_global': 0,
+      'mall_main_id': 0,
+      'mall_account_info': mallInfo.mall_account_info, // 店铺账户信息(导入模板里面的信息)
+      //  { 'password': 'Bibbyrunp888',
+      //   'username': 'bibbyrunp1907',
+      //   'userRealName': 'bibbyrunp1907',
+      //   'subsiteindex': 0
+      // },
+      'watermark': mallInfo.watermark, // 店铺水印
+      'mall_alias_name': mallInfo.mall_alias_name, // 店铺别名
+      'mall_type': mallInfo.mall_type, // 店铺类型
+      'mall_group_id': mallInfo.mall_group_id // 店铺分组id
+    }
+    const obj = {
+      mallId,
+      mallUId,
+      username,
+      Cookie,
+      mallInfo_new
+    }
+    return obj
   }
 }

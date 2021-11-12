@@ -16,7 +16,7 @@
     <div class="all_condition">
       <div class="condition_box">
         <div class="condition_item">
-          <storeChoose :is-all="true" @changeMallList="changeMallList" />
+          <storeChoose :is-all="false" @changeMallList="changeMallList" />
         </div>
         <div class="condition_item">
           <span class="w80">平台店铺ID：</span>
@@ -145,9 +145,10 @@ export default {
         orderSn: '',
         status: '',
         appropriateTime: '',
-        page: 1,
-        pageSize: 20
+        
       },
+      page: 1,
+      pageSize: 20,
       cloumn_date: [],
       pickerOptions: {
         disabledDate(time) {
@@ -164,7 +165,7 @@ export default {
   mounted() {
     // 初始化时间
     this.cloumn_date = creatDate(31)
-    this.getTableList() // 初始化table
+    this.search() // 初始化table
     this.exchangeRateList() // 获取汇率
   },
   methods: {
@@ -254,6 +255,9 @@ export default {
             pageNumber++
             this.searchSingleMall(pageNumber, mall, dataArr, page)
           } else {
+            if (this.query.status !== '' || type !== 2) {
+              this.$refs.Logs.writeLog(`同步店铺【${mall.platform_mall_name}】数据完成`, true)
+            }
             console.log(dataArr, 'dataArr')
             if (dataArr.length) {
               this.UploadRecordData(mall.platform_mall_id, dataArr)
@@ -393,6 +397,7 @@ export default {
     },
     // 搜索
     search() {
+      console.log(this.selectMallList)
       const params = this.query
       let sysMallId = ''
       this.selectMallList.forEach((item, index) => {
@@ -402,8 +407,11 @@ export default {
           sysMallId = sysMallId + ',' + item.id
         }
       })
-      params.sysMallId = (sysMallId + '') || ''
+      params.sysMallId = sysMallId
       params.appropriateTime = this.cloumn_date.length >= 0 ? this.cloumn_date[0] + ' 00:00:00/' + this.cloumn_date[1] + ' 23:59:59' : ''
+      params.page = this.page
+      params.pageSize = this.pageSize
+      console.log(params,"params")
       this.getTableList(params)
     },
     // 初始化tableList
@@ -423,11 +431,11 @@ export default {
       console.log(data.data.data)
     },
     handleSizeChange(val) {
-      this.query.pageSize = val
+      this.pageSize = val
       this.search()
     },
     handleCurrentChange(val) {
-      this.query.page = val
+      this.page = val
       this.search()
     }
   }

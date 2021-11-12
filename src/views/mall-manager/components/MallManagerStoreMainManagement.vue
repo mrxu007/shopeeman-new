@@ -2,7 +2,7 @@
   <div v-loading="loading" class="content">
     <div class="all_condition">
       <div class="des_conditon">
-        <storeChoose :is-all="true" :show-mall="true" @changeMallList="changeMallList" />
+        <storeChoose :is-all="true" :showMallAll="true" @changeMallList="changeMallList" />
         <div style="margin-left: 20px">
           <span>过期时间：</span>
           <el-date-picker
