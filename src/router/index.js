@@ -40,7 +40,7 @@ const routes = [
       import('../views/product-put-on/index.vue')
   },
   {
-    path: '/smart-house', // 选品上新
+    path: '/smart-house', // 智能仓库
     name: 'smart-house',
     component: () =>
       import('../views/smart-house/index.vue')
