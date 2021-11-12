@@ -78,8 +78,8 @@ export default class NetMessageBridgeService {
     if (exportInfo) { // 适配店铺管理---导入店铺
       options['extrainfo']['exportInfo'] = exportInfo
       // body 里面不能带店铺id
-      delete data.mallId
     }
+    delete data.mallId
     // options['params'] = {}
     const referer = options['headers'] && options['headers'].referer
     if (referer) {
@@ -89,8 +89,10 @@ export default class NetMessageBridgeService {
           referer: url + referer
         })
     }
+    debugger
     return this.NetMessageBridgeService().post(url, JSON.stringify(options), JSON.stringify(data))
   }
+
   async postChineseImageFile(country, api, data, options = {}, base64File) {
     // options {extrainfo // 第三方接口, params, header}
     const url = await this.getUrlPrefix(country) + api

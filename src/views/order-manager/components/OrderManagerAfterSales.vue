@@ -120,10 +120,10 @@
         <el-table-column label="售后状态" prop="status" min-width="100px" align="center">
           <template slot-scope="{row}"><div>{{ sta[row.status] }}</div></template></el-table-column>
         <el-table-column label="申请时间" prop="update_time" min-width="180px" align="center" />
+        <el-table-column label="采购状态" prop="shot_order_info.shot_status" min-width="90px" align="center">
+          <template slot-scope="{row}"><span>{{ shot_status[row.shot_order_info.shot_status] }}</span></template></el-table-column>
         <el-table-column label="售后原因" prop="after_reason" min-width="100px" align="center" />
         <el-table-column label="本地备注" prop="remark" min-width="100px" align="center" />
-        <el-table-column label="采购状态" prop="shot_order_info.shot_status" min-width="100px" align="center">
-          <template slot-scope="{row}"><span>{{ shot_status[row.shot_order_info.shot_status] }}</span></template></el-table-column>
         <el-table-column label="商品ID" prop="goods_info.goods_id" min-width="150px" align="center" />
         <el-table-column label="商品数量" prop="goods_info.goods_count" min-width="150px" align="center" />
         <el-table-column label="商品图片" prop="goods_info.goods_img" min-width="100px" align="center">
@@ -156,7 +156,7 @@
                 更多操作<i class="el-icon-arrow-down el-icon--right" />
               </el-button>
               <el-dropdown-menu slot="dropdown">
-                <el-dropdown-item><div class="dropdownItem" @click="delGoods()"> 删除商品</div></el-dropdown-item>
+                <el-dropdown-item><div class="dropdownItem" @click="delGoods(row)"> 删除商品</div></el-dropdown-item>
                 <el-dropdown-item><div class="dropdownItem"> 下架商品</div></el-dropdown-item>
                 <el-dropdown-item><div class="dropdownItem" @click="shotVisible = true,rowData=row"> 修改采购状态</div></el-dropdown-item>
                 <el-dropdown-item><div class="dropdownItem"> 同步此店铺售后订单</div></el-dropdown-item>
@@ -230,8 +230,8 @@ export default {
       shotstatusList: [
         { label: '待拍单', value: 1 },
         { label: '拍单中', value: 2 },
-        { label: '拍单完成，待上家发货', value: 3 },
-        { label: '上家已发货', value: 4 },
+        { label: '拍单成功', value: 3 },
+        { label: '拍单失败', value: 4 },
         { label: '待支付', value: 5 },
         { label: '已完成', value: 6 },
         { label: '已取消', value: 7 },
@@ -295,24 +295,47 @@ export default {
     this.getInfo()// 初始化数据
   },
   methods: {
-
+    // 删除
+    delGoods(row) {
+      this.$confirm('是否要删除该商品', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        this.delGoodsFun(row)
+      })
+    },
+    async delGoodsFun(row) {
+      const orderinfo = {
+        country: row.country,
+        platform_mall_id: row.mall_info.platform_mall_id,
+        product_id_list: [Number(row.goods_info.goods_id)]
+      }
+      this.loading = true
+      const res = await this.orderInstance.deleteProduct(orderinfo)
+      this.loading = false
+      console.log('del', res)
+      this.search()
+    },
     // 批量同意/拒绝买家取消订单
     async optionOrder(type) {
-      if (!this.multipleSelection.length) {
-        this.$message.warning('请选择要处理的数据')
-        return
-      }
-      const list = []
-      this.multipleSelection.forEach(item => {
-        const orderinfo = {
-          type: type,
-          order_id: item.order_id,
-          country: item.country
-        }
-        // debugger
-        this.orderInstance.refuseCancerOrder(orderinfo).then(res => { list.push(res) })
-      })
-      console.log('222', list)
+      // 暂时没有需要处理的数据
+      this.$message.warning('暂无需要处理的数据')
+      // if (!this.multipleSelection.length) {
+      //   this.$message.warning('请选择要处理的数据')
+      //   return
+      // }
+      // const list = []
+      // this.multipleSelection.forEach(item => {
+      //   const orderinfo = {
+      //     type: type,
+      //     order_id: item.order_id,
+      //     country: item.country,
+      //     platform_mall_id: item.mall_info.platform_mall_id
+      //   }
+      //   // debugger
+      //   this.orderInstance.refuseCancerOrder(orderinfo).then(res => { list.push(res) })
+      // })
     },
     // 初始化时间
     initDate() {
@@ -404,7 +427,7 @@ export default {
       this.isLoading = true
       const list = []
       const query = {
-        sysOrderId: '',
+        sysOrderIds: '',
         status: this.shotstatus
       }
       // rowData为空时,为多选,不同状态sysOrderIds不一样
@@ -568,7 +591,6 @@ export default {
       this.tableList = []
       try {
         const res = await this.$api.aftermarket(params)
-        console.log('2', res)
         if (res.status === 200) {
           const list = res.data.data.data || []
           list.forEach(i => {
