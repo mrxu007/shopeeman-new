@@ -40,7 +40,7 @@ const routes = [
       import('../views/product-put-on/index.vue')
   },
   {
-    path: '/smart-house', // 选品上新
+    path: '/smart-house', // 智能仓库
     name: 'smart-house',
     component: () =>
       import('../views/smart-house/index.vue')
@@ -50,12 +50,6 @@ const routes = [
     name: 'user-config',
     component: () =>
       import('../views/user-config/index.vue')
-  },
-  {
-    path: '/test-api', // 测试联调接口
-    name: 'test-api',
-    component: () =>
-      import('../views/test-api/index.vue')
   }
 ]
 const originalPush = VueRouter.prototype.push

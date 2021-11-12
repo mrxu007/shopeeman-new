@@ -14,7 +14,7 @@
     <!--包裹列表 -->
     <main v-if="activeVal === '1'"><SmartHousePackage /></main>
 
-    <!--国内仓退件管理 -->
+    <!--退件管理 -->
     <main v-if="activeVal === '2'"><SmartHouseReturnManage /></main>
 
     <!--失物招领 -->
@@ -24,10 +24,10 @@
     <main v-if="activeVal === '5'"><SmartHouseRefuseSign /></main>
 
     <!--我的赔付 -->
-    <main v-if="activeVal === '5'"><SmartHouseAbnormalPayment /></main>
+    <main v-if="activeVal === '6'"><SmartHouseAbnormalPayment /></main>
 
     <!--自有仓库 -->
-    <main v-if="activeVal === '6'"><SmartHousePrivateWarehouse /></main>
+    <main v-if="activeVal === '7'"><SmartHousePrivateWarehouse /></main>
 
     <!--商品备货-海外仓商品备货 -->
     <main v-if="activeVal === '7'"><SmartHouseStockUpForeign /></main>
