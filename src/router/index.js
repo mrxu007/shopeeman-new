@@ -1,3 +1,11 @@
+/*
+ * @Author: your name
+ * @Date: 2021-10-08 14:16:18
+ * @LastEditTime: 2021-11-12 10:26:19
+ * @LastEditors: your name
+ * @Description: 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
+ * @FilePath: \shopeeman-new\src\router\index.js
+ */
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 Vue.use(VueRouter)
@@ -62,6 +70,12 @@ const routes = [
     name: '/order-manager',
     component: () =>
       import('../views/order-manager/index.vue')
+  },
+  {
+    path: '/orderAuto', // 订单管理
+    name: '/orderAuto',
+    component: () =>
+      import('../views/order-manager/components/orderCenter/autoUploadOrder.vue')
   }
 ]
 const originalPush = VueRouter.prototype.push

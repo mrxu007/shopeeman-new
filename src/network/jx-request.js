@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-10-08 14:16:18
- * @LastEditTime: 2021-11-10 14:36:30
+ * @LastEditTime: 2021-11-12 19:03:28
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shopeeman-new\src\network\jx-request.js
@@ -153,6 +153,10 @@ export default {
 
   // 订单管理
   shotAmountRecord: (data) => AppRequest.get('/shotAmountRecord/index', data), // 采购价变更记录
-  upLoadBuyAccount: (data) => AppRequest.post('/buyerAccount', data), // 上传买手号
+  upLoadBuyAccount: (data) => AppRequest.post('/buyerAccount/save', data), // 上传买手号
+  getBuyerList: (data) => AppRequest.get('/buyerAccount/index', data), // 下载买手号
   getOrderList: (data) => AppRequest.post('/order', data), // 获取订单列表
+  checkAfterOrderSnStatus: (data) => AppRequest.get('/order/checkAfterOrderSnStatus', data), // 售后订单检测
+  checkOrderSnStatus: (data) => AppRequest.get('/order/checkOrderSnStatus', data), // 正常订单检测 
+  uploadOrderSave: (data) => AppRequest.post('/order/saveOrder', data), // 正常订单检测 /order/saveOrder
 }

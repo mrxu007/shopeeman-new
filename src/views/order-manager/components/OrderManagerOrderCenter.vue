@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-11-09 10:17:44
- * @LastEditTime: 2021-11-11 22:06:46
+ * @LastEditTime: 2021-11-12 19:13:59
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shopeeman-new\src\views\order-manager\components\OrderManagerOrderCenter.vue
@@ -49,14 +49,14 @@
                   <div class="tool-item mar-right">
                     <span>发货状态：</span>
                     <el-select v-model="orderStatus" placeholder="" size="mini" multiple collapse-tags filterable　class="inputBox">
-                      <el-option label="全部" :value="''"  @click.native="selectAll('orderStatus', orderStatusList)"/>
+                      <el-option label="全部" :value="''" @click.native="selectAll('orderStatus', orderStatusList)" />
                       <el-option :label="item.label" :value="item.value" v-for="(item, index) in orderStatusList" :key="index" />
                     </el-select>
                   </div>
                   <div class="tool-item mar-right">
                     <span>采购状态：</span>
-                    <el-select v-model="shotStatus" placeholder="" size="mini"  multiple collapse-tags filterable　class="inputBox">
-                      <el-option label="全部" :value="''" @click.native="selectAll('shotStatus', shotStatusList)"/>
+                    <el-select v-model="shotStatus" placeholder="" size="mini" multiple collapse-tags filterable　class="inputBox">
+                      <el-option label="全部" :value="''" @click.native="selectAll('shotStatus', shotStatusList)" />
                       <el-option :label="item.label" :value="item.value" v-for="(item, index) in shotStatusList" :key="index" />
                     </el-select>
                   </div>
@@ -133,8 +133,8 @@
                   </div>
                   <div class="tool-item mar-right">
                     <span>物流方式：</span>
-                    <el-select v-model="logisticsIds" placeholder="" size="mini"   multiple collapse-tags filterable　class="inputBox">
-                      <el-option label="全部物流" :value="''" @click.native="selectAll('logisticsIds', shipTypeList)"/>
+                    <el-select v-model="logisticsIds" placeholder="" size="mini" multiple collapse-tags filterable　class="inputBox">
+                      <el-option label="全部物流" :value="''" @click.native="selectAll('logisticsIds', shipTypeList)" />
                       <el-option :label="item.ShipName" :value="item.ShipId" v-for="(item, index) in shipTypeList" :key="index" />
                     </el-select>
                   </div>
@@ -476,7 +476,7 @@ export default {
         sysMallId: '', //系统店铺id  多个用英文逗号隔开
         logisticsIds: '', //物流方式
       },
-      createTime:[],//创建时间
+      createTime: [], //创建时间
       logisticsIds: [], //物流方式
       orderStatus: [], ///订单状态
       shotStatus: [], //采购状态
@@ -523,14 +523,13 @@ export default {
           { title: '下载账号信息', type: 'primary', key: 7 },
         ],
         center: [
-          { title: '拼多多账号', platform: 1, centerTitle: '拼多多个人中心', AccountType: 1 },
-          { title: '淘宝账号', platform: 0, centerTitle: '淘宝个人中心', AccountType: 2 },
-          { title: '1688账号', platform: 5, centerTitle: '1688个人中心', AccountType: 8 },
-          { title: '京喜账号', platform: 10, centerTitle: '京喜个人中心', AccountType: 10 },
-          { title: 'lazada账号', platform: 7, centerTitle: 'lazada个人中心', AccountType: 9 },
-          { title: 'shopee账号', platform: 8, centerTitle: 'shopee个人中心', AccountType: 11 },
-          { title: '天猫淘宝海外账号', platform: 8, centerTitle: '刷新天猫淘宝海外平台账号', AccountType: 888 },
-          // { title: '京东账号', platform: 4 }
+          { title: '拼多多账号', platform: 1, centerTitle: '拼多多个人中心' },
+          { title: '淘宝账号', platform: 2, centerTitle: '淘宝个人中心' },
+          { title: '1688账号', platform: 8, centerTitle: '1688个人中心' },
+          { title: '京喜账号', platform: 10, centerTitle: '京喜个人中心' },
+          { title: 'lazada账号', platform: 9, centerTitle: 'lazada个人中心' },
+          { title: 'shopee账号', platform: 11, centerTitle: 'shopee个人中心' },
+          { title: '天猫淘宝海外账号', platform: 888, centerTitle: '刷新天猫淘宝海外平台账号' },
         ],
         right: [
           { title: '批量推送订单至仓库 ', key: 8, type: 'primary' },
@@ -554,7 +553,7 @@ export default {
     }
   },
   mounted() {
-    this.getBuyers()
+    this.getBuyerList()
     this.getOrderList()
     this.createTime = creatDate(15)
   },
@@ -577,7 +576,7 @@ export default {
       params['orderStatus'] = this.orderStatus.join(',')
       params['shotStatus'] = this.shotStatus.join(',')
       params['logisticsIds'] = this.logisticsIds.join(',')
-      params['createTime'] = this.createTime.length?this.createTime[0]+' 00:00:00' +'/' +this.createTime[1] + ' 23:59:59':''
+      params['createTime'] = this.createTime.length ? this.createTime[0] + ' 00:00:00' + '/' + this.createTime[1] + ' 23:59:59' : ''
       let res = await this.$api.getOrderList(params)
       if (res.data.code === 200) {
         this.tableData = res.data.data.data
@@ -586,14 +585,23 @@ export default {
         this.$message.error(res.data.message)
       }
     },
+    //获取买手号（服务端）
+    async getBuyerList() {
+      let res = await this.$api.getBuyerList()
+      if (res.data.code === 200) {
+        this.buyerAccountList = res.data.data
+      }
+      console.log('getBuyerList', this.buyerAccountList)
+    },
     //获取买手号（壳）
     async getBuyers() {
       let res = await this.$appConfig.getGlobalCacheInfo('buyerInfo', 'key')
       let resObj = res && JSON.parse(res)
       this.buyerAccountList = []
-      resObj && resObj.forEach((item) => {
-        this.buyerAccountList.push(JSON.parse(item.BuyerDetail))
-      })
+      resObj &&
+        resObj.forEach((item) => {
+          this.buyerAccountList.push(JSON.parse(item.BuyerDetail))
+        })
       console.log('buyers', resObj, this.buyerAccountList)
     },
     //全选

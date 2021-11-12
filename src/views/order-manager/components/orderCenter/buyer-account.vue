@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-11-09 10:14:02
- * @LastEditTime: 2021-11-11 22:09:45
+ * @LastEditTime: 2021-11-12 19:13:42
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shopeeman-new\src\components\buyer-account.vue
@@ -17,9 +17,9 @@
       <div class="center">
         <div v-for="(item, index) in operation.center" :key="index" class="account-item">
           <span>{{ item.title }}</span>
-          <el-select v-model="selectAccount[platformValue[item.AccountType]]" :size="item.size || 'mini'" clearable placeholder="请选择" @change="accountChange()">
-            <el-option v-for="(items, index) in publicAccount(item.AccountType)" :key="index" :label="items.UserName" :value="items.UserName">
-              <span>{{ items.UserName }}</span>
+          <el-select v-model="selectAccount[platformValue[item.platform]]" :size="item.size || 'mini'" clearable placeholder="请选择" @change="accountChange()">
+            <el-option v-for="(items, index) in publicAccount(item.platform)" :key="index" :label="items.name" :value="items.id">
+              <span>{{ items.name }}</span>
               <i
                 class="el-icon-delete"
                 style="float: right; color: #8492a6; font-size: 14px; margin: 10px -10px 0 0"
@@ -30,7 +30,7 @@
               />
             </el-option>
           </el-select>
-          <el-button :size="item.size || 'mini'" style="margin-right: 6px; width: 165px" @click="publicCenter(selectAccount[platformValue[item.AccountType]], item.AccountType)">
+          <el-button :size="item.size || 'mini'" style="margin-right: 6px; width: 165px" @click="publicCenter(selectAccount[platformValue[item.platform]], item.platform)">
             {{ item.centerTitle }}</el-button
           >
         </div>
@@ -167,13 +167,13 @@ export default {
           upData: 'buyerAccountList',
           left: [{ title: '登录买手号', type: 'primary', key: 1 }],
           center: [
-            { title: '拼多多账号', platform: 1, centerTitle: '拼多多个人中心', AccountType: 1 },
-            { title: '淘宝账号', platform: 0, centerTitle: '淘宝个人中心', AccountType: 2 },
-            { title: '1688账号', platform: 5, centerTitle: '1688个人中心', AccountType: 8 },
-            { title: '京喜账号', platform: 10, centerTitle: '京喜个人中心', AccountType: 10 },
-            { title: 'lazada账号', platform: 7, centerTitle: 'lazada个人中心', AccountType: 9 },
-            { title: 'shopee账号', platform: 8, centerTitle: 'shopee个人中心', AccountType: 11 },
-            { title: '天猫淘宝海外账号', platform: 8, centerTitle: '刷新天猫淘宝海外平台账号', AccountType: 888 },
+            { title: '拼多多账号', platform: 1, centerTitle: '拼多多个人中心' },
+            { title: '淘宝账号', platform: 2, centerTitle: '淘宝个人中心' },
+            { title: '1688账号', platform: 8, centerTitle: '1688个人中心'},
+            { title: '京喜账号', platform: 10, centerTitle: '京喜个人中心' },
+            { title: 'lazada账号', platform: 9, centerTitle: 'lazada个人中心' },
+            { title: 'shopee账号', platform: 11, centerTitle: 'shopee个人中心'},
+            { title: '天猫淘宝海外账号', platform: 888, centerTitle: '刷新天猫淘宝海外平台账号'},
             // { title: '京东账号', platform: 4 }
           ],
           right: [
@@ -223,7 +223,7 @@ export default {
       },
       platformValue: {
         1: 'accountpdd',
-        3: 'accounttaobao',
+        2: 'accounttaobao',
         8: 'account1688',
         10: 'accountjx',
         9: 'accountlazada',
@@ -240,22 +240,22 @@ export default {
   },
   computed: {
     pddAccount() {
-      return this.buyerAccountList.filter((item) => item.AccountType == 1)
+      return this.buyerAccountList.filter((item) => item.type == 1)
     },
     tbAccount() {
-      return this.buyerAccountList.filter((item) => item.AccountType == 2)
+      return this.buyerAccountList.filter((item) => item.type == 2)
     },
     albbAccount() {
-      return this.buyerAccountList.filter((item) => item.AccountType == 8)
+      return this.buyerAccountList.filter((item) => item.type == 8)
     },
     jxAccount() {
-      return this.buyerAccountList.filter((item) => item.AccountType == 10)
+      return this.buyerAccountList.filter((item) => item.type == 10)
     },
     lazadaAccount() {
-      return this.buyerAccountList.filter((item) => item.AccountType == 9)
+      return this.buyerAccountList.filter((item) => item.type == 9)
     },
     shopeeAccount() {
-      return this.buyerAccountList.filter((item) => item.AccountType == 11)
+      return this.buyerAccountList.filter((item) => item.type == 11)
     },
   },
   watch: {
@@ -300,8 +300,8 @@ export default {
         for (let i = 0; i < syncStatus.length; i++) {
           //同步状态
           let statusObj = syncStatus[i]
-          const orderService = new orderSync(mall, statusObj, this,`${mI+1}/${mallList.length}`,'manual')
-          await orderService.start()
+          const orderService = new orderSync(mall, statusObj, this,this.$parent.$refs.Logs.writeLog)
+          await orderService.start(`${mI+1}/${mallList.length}`,'manual',)
         }
       }
       this.$parent.$refs.Logs.writeLog('订单同步已完成！！！', true)
@@ -366,7 +366,7 @@ export default {
     publicAccount(id) {
       switch (id) {
         case 1:
-          // console.log(this.pddAccount, 'pddAccount')
+          console.log(this.pddAccount, 'pddAccount')
           return this.pddAccount
         case 2:
           // console.log(this.tbAccount, 'tbAccount')
@@ -385,7 +385,7 @@ export default {
     },
     // 公共个人中心
     publicCenter(id, platform) {
-      console.log(id)
+      console.log(id,"id")
       switch (platform) {
         case 1:
           this.pddUserCenterHandler(id)
@@ -393,14 +393,17 @@ export default {
         case 2:
           this.taobaoUserCenter(id)
           break
-        case 4:
-          this.jingDongUserCenter(id)
-          break
         case 8:
           this.AlibabaUserCenter(id)
           break
+        case 9:
+          this.lazadaUserCenter(id)
+          break
         case 10:
           this.jingxiUserCenter(id)
+          break
+        case 11:
+          this.shopeeUserCenter(id)
           break
         default:
           break
@@ -423,13 +426,52 @@ export default {
       console.log(account, params, key, 'adddddddddd')
       await this.$appConfig.UpdateCacheInfo('buyerInfo', key, params)
     },
+    //转换拍单平台type
+    changeType(type){
+      switch (type) {
+        //pdd
+        case 1:
+          return 1
+        //tb
+        case 2:
+          return 0
+        //1688
+        case 8:
+          return 5
+        //jingxi
+        case 10:
+          return 3
+        //lazada
+        case 9:
+          return 7
+        //shopee
+        case 11:
+          return 8
+        default:
+          return type
+      }
+    },
+    //转换参数为壳需要
+    changeAccountParams(account){
+      let params = {
+        UserNameCache: account.cache_path,
+        Password: '',
+        shotOrderPlatform: this.changeType(account.type),
+        LoginedCookies: account.login_info,
+        UserName: account.name,
+        Cookiestr: JSON.stringify(account.login_info),
+        AccountType: account.type,
+        Ua: account.ua,
+        Country: account.site || '',
+      }
+      return params
+    },
     // 拼多多买手号登录
     async pddLoginHandler() {
       if (this.$buyerAccountService) {
         const account = await this.$buyerAccountService.pddLogin()
         console.log(account, 'pddLoginHandler')
         if (account) {
-          this.upBuyerAccountMedia(account, 1)
           this.upBuyerAccountList(account)
         }
       }
@@ -437,11 +479,8 @@ export default {
     async pddUserCenterHandler(id) {
       const serives = this.gotouser(id)
       if (serives) {
-        console.log(serives, 11)
-        // serives.loginCookies = this.getBuyerLoginCookies(serives.login_info)
-        serives.loginCookies = serives.LoginedCookies
-        var accounts = await this.$buyerAccountService.pddUserCenter(serives)
-        console.log(accounts)
+        let account = this.changeAccountParams(serives)
+        await this.$buyerAccountService.pddUserCenter(account)
       }
     },
     // 淘宝登录
@@ -450,17 +489,14 @@ export default {
         const account = await this.$buyerAccountService.taobaoLogin()
         if (account) {
           this.upBuyerAccountList(account)
-          this.upBuyerAccountMedia(account, 0)
         }
       }
     },
     async taobaoUserCenter(id) {
       const serives = this.gotouser(id)
-      console.log(serives, 1)
       if (serives) {
-        console.log(serives, 11)
-        var accounts = await this.$buyerAccountService.taobaoUserCenter(serives)
-        console.log(accounts)
+        let account = this.changeAccountParams(serives)
+        await this.$buyerAccountService.taobaoUserCenter(account)
       }
     },
     // 京喜登录
@@ -469,7 +505,6 @@ export default {
         const account = await this.$buyerAccountService.jingxiLogin()
         if (account) {
           this.upBuyerAccountList(account)
-          this.upBuyerAccountMedia(account, 3)
         }
       }
     },
@@ -477,7 +512,8 @@ export default {
     async jingxiUserCenter(id) {
       const serives = this.gotouser(id)
       if (serives) {
-        var accounts = await this.$buyerAccountService.jingxiUserCenter(serives)
+        let account = this.changeAccountParams(serives)
+        await this.$buyerAccountService.jingxiUserCenter(account)
       }
     },
     // 1688登录
@@ -486,17 +522,14 @@ export default {
         const account = await this.$buyerAccountService.alibabaLogin()
         if (account) {
           this.upBuyerAccountList(account)
-          this.upBuyerAccountMedia(account, 5)
         }
       }
     },
     async AlibabaUserCenter(id) {
       const serives = this.gotouser(id)
-      console.log(serives, 1)
       if (serives) {
-        console.log(serives, 11)
-        var accounts = await this.$buyerAccountService.AlibabaUserCenter(serives)
-        console.log(accounts)
+        let account = this.changeAccountParams(serives)
+        await this.$buyerAccountService.AlibabaUserCenter(account)
       }
     },
     //lazada登录
@@ -505,7 +538,6 @@ export default {
         const account = await this.$buyerAccountService.lazadaLogin(this.siteCode)
         if (account) {
           this.upBuyerAccountList(account)
-          this.upBuyerAccountMedia(account, 7)
         }
       }
     },
@@ -513,9 +545,8 @@ export default {
       const serives = this.gotouser(id)
       console.log(serives, 1)
       if (serives) {
-        console.log(serives, 11)
-        var accounts = await this.$buyerAccountService.lazadaUserCenter(this.siteCode, serives)
-        console.log(accounts)
+        let account = this.changeAccountParams(serives)
+        await this.$buyerAccountService.lazadaUserCenter(this.siteCode, account)
       }
     },
     //shopee登录
@@ -524,32 +555,27 @@ export default {
         const account = await this.$buyerAccountService.shopeeLogin(this.siteCode)
         if (account) {
           this.upBuyerAccountList(account)
-          this.upBuyerAccountMedia(account, 8)
         }
       }
     },
     async shopeeUserCenter(id) {
       const serives = this.gotouser(id)
-      console.log(serives, 1)
       if (serives) {
-        console.log(serives, 11)
-        var accounts = await this.$buyerAccountService.shopeeUserCenter(this.siteCode, serives)
-        console.log(accounts)
+        let account = this.changeAccountParams(serives)
+        await this.$buyerAccountService.shopeeUserCenter(this.siteCode, account)
       }
     },
     // 个人中心
     gotouser(id) {
       let userInfo = null
-      console.log(id, 1234)
       if (id) {
         this.buyerAccountList.forEach((item) => {
-          if (item.UserName === id) {
+          if (item.id === id) {
             userInfo = item
           }
         })
         return userInfo
       } else {
-        // this.$message.error('请选择账户')
         this.$notify({
           title: '买手号个人中心',
           type: 'error',
@@ -557,19 +583,20 @@ export default {
         })
       }
     },
-    // 更新买手号列表(自动上传)
+    // 更新买手号列表(自动上传)服务端
     async upBuyerAccountList(account) {
       let params = {
-        name: account.type,
-        password: account.name,
-        type: account.login_info,
-        site: account.cache_path,
-        login_info: account.oldName,
+        name: account.name,
+        password: '',
+        type: account.type,
+        site: account.country || '',
+        loginInfo: account.login_info,
+        ua: account.ua,
+        cachePath: account.cache_path
       }
-      // const { data } = await this.$api.upBuyerAccount(Account)
       const { data } = await this.$api.upLoadBuyAccount(params)
       if (data.code === 200) {
-        this.buyerAccount()
+        // this.buyerAccount()
         //  this.syncLogistics(account)
       } else {
         this.$notify({
@@ -614,48 +641,48 @@ export default {
     defaultSelect() {
       console.log(this.$parent[this.upData])
       this.selectAccount.accountpdd = this.$parent[this.upData].filter((item) => {
-        return item.AccountType === 1
+        return item.type === 1
       })[0]
         ? this.$parent[this.upData].filter((item) => {
-            return item.AccountType === 1
-          })[0].UserName
+            return item.type === 1
+          })[0].id
         : ''
       console.log(this.selectAccount.accountpdd, 'accountpdd')
       this.selectAccount.accounttaobao = this.$parent[this.upData].filter((item) => {
-        return item.AccountType === 2
+        return item.type === 2
       })[0]
         ? this.$parent[this.upData].filter((item) => {
-            return item.AccountType === 2
-          })[0].UserName
+            return item.type === 2
+          })[0].id
         : ''
       console.log(this.selectAccount.accounttaobao, 'accounttaobao')
       this.selectAccount.account1688 = this.$parent[this.upData].filter((item) => {
-        return item.AccountType === 8
+        return item.type === 8
       })[0]
         ? this.$parent[this.upData].filter((item) => {
-            return item.AccountType === 8
-          })[0].UserName
+            return item.type === 8
+          })[0].id
         : ''
       this.selectAccount.accountjx = this.$parent[this.upData].filter((item) => {
-        return item.AccountType === 10
+        return item.type === 10
       })[0]
         ? this.$parent[this.upData].filter((item) => {
-            return item.AccountType === 10
-          })[0].UserName
+            return item.type === 10
+          })[0].id
         : ''
       this.selectAccount.accountlazada = this.$parent[this.upData].filter((item) => {
-        return item.AccountType === 9
+        return item.type === 9
       })[0]
         ? this.$parent[this.upData].filter((item) => {
-            return item.AccountType === 9
-          })[0].UserName
+            return item.type === 9
+          })[0].id
         : ''
       this.selectAccount.accountshopee = this.$parent[this.upData].filter((item) => {
-        return item.AccountType === 11
+        return item.type === 11
       })[0]
         ? this.$parent[this.upData].filter((item) => {
-            return item.AccountType === 11
-          })[0].UserName
+            return item.type === 11
+          })[0].id
         : ''
     },
     // 删除买手号

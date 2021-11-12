@@ -459,7 +459,7 @@ export default class NetMessageBridgeService {
   }
   // 同步订单详情
   async getDetailsByOrderIds(country, data) {
-    const res =  await this.postChinese(country, '/api/v3/order/get_compact_order_list_by_order_ids_multi_shop?', data, { 
+    const res =  await this.postChinese(country, '/api/v3/order/get_order_list_by_order_ids_multi_shop', data, { 
       Headers: {
         'Content-Type': ' application/json'
       }
@@ -543,6 +543,54 @@ export default class NetMessageBridgeService {
       }
     }else{
       return { code: resObj.status , data: `订单历史轨迹${resObj.statusText}`}
+    }
+  }
+  //获取状态to ship的订单
+  async getToShipOrderIdList(country, data){
+    const res = await this.getChinese(country, '/api/v3/order/get_package_list', data)
+    const resObj = res && JSON.parse(res)
+    console.log(resObj)
+    if(resObj && resObj.status===200){
+      const info = JSON.parse(resObj.data)
+      if(info && info.code === 0){
+        return { code:200,data:info.data || [] }
+      }else{
+        return { code:50001,data:info.message || [] }
+      }
+    }else{
+      return { code: resObj.status , data: `获取失败${resObj.statusText}`}
+    }
+  }
+  //获取状态Refund的订单
+  async getRefundOrderIdList(country, data){
+    const res = await this.getChinese(country, '/api/v1/return/list', data)
+    const resObj = res && JSON.parse(res)
+    console.log(resObj)
+    if(resObj && resObj.status===200){
+      const info = JSON.parse(resObj.data)
+      if(info && info.code === 0){
+        return { code:200,data:info.data || [] }
+      }else{
+        return { code:50001,data:info.message || [] }
+      }
+    }else{
+      return { code: resObj.status , data: `获取失败${resObj.statusText}`}
+    }
+  }
+  //申请运单号
+  async getForderLogistics(country, data){
+    const res = await this.getChinese(country, '/api/v3/order/get_forder_logistics/', data)
+    const resObj = res && JSON.parse(res)
+    console.log(resObj)
+    if(resObj && resObj.status===200){
+      const info = JSON.parse(resObj.data)
+      if(info && info.code === 0){
+        return { code:200,data:info.data || [] }
+      }else{
+        return { code:50001,data:info.message || [] }
+      }
+    }else{
+      return { code: resObj.status , data: `获取失败${resObj.statusText}`}
     }
   }
 }
