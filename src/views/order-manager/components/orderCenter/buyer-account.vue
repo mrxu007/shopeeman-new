@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-11-09 10:14:02
- * @LastEditTime: 2021-11-12 19:13:42
+ * @LastEditTime: 2021-11-15 14:33:23
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shopeeman-new\src\components\buyer-account.vue
@@ -349,9 +349,6 @@ export default {
           return
         case 2:
           this.SyncOrder()
-          return
-        case 3:
-          this.buyerAccount(true)
           return
       }
       if (clickEvent) {

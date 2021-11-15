@@ -425,7 +425,7 @@ export default class {
           "escrow_amount": Math.abs(order.transactionHistoryDetail.amount),
           "needCheckactualShippingCost": Math.abs(order.transactionHistoryDetail.payment_info.shipping_subtotal.shipping_fee_paid_by_shopee_on_your_behalf),
           "return_id": order.return_id,
-          // "items": [],
+          "items": this.getItems(order),
           "apply_time": this.getApplyTime(order),
           "log_current_status": order.ordeTrackingHistory.history[0].new_status,
           "order_logistics_info": "",
@@ -434,10 +434,27 @@ export default class {
         }
         paramsArr.push(params)
         console.log(paramsArr)
-        let res = await this.$api.uploadOrderSave({
-          paramsArr
-        })
-        console.log(res, "上报")
+        //线上接口
+        // let res = await this.$api.uploadOrderSave({
+        //   paramsArr
+        // })
+        //测试接口
+        if(this.syncStatus.value === 'refund'){
+          let res = await this.$api.uploadOrderAfterSale({
+            "afterOrderData": paramsArr,
+            "sysMallId": this.mall.id,
+            "mallId": this.mall.mallId
+          })
+          console.log(this.mall, "上报after",res)
+        }else{
+          let res = await this.$api.uploadOrderSaveTest({
+            "orderData": paramsArr,
+            "sysMallId": this.mall.id,
+            "mallId": this.mall.mallId
+          })
+          console.log(this.mall, "上报",res)
+        }
+       
       }
     } catch (error) {
       console.log(error)
@@ -541,6 +558,113 @@ export default class {
       res = order.ordeTrackingHistory.history[0].ctime
     }
     return res
+  }
+  //处理items
+  getItems(order){
+    let orderItem = []
+    order.order_items.forEach(item=>{
+      let product = item.product
+      let itemModel= item.item_model
+      let bundleDealProducts = item.bundle_deal_product
+      let bundleDealModels = item.bundle_deal_model
+
+      let is_wholesale = item.is_wholesale === true ? "1" : "0";
+      let item_status = item.status;
+      let item_lists = item.item_list || [];
+      let item_lists_arr = []
+      let actual_item_price = 0
+      let rate = 0
+      if(item_lists.length){
+        item_lists.forEach(itemList=>{
+          actual_item_price += itemList.item_price
+        })
+        rate = item.order_price/actual_item_price
+        item_lists.forEach(itemList=>{
+          let itemListObj = {
+            "actual_item_price": itemList.item_price * rate,
+            "amount": itemList.amount,
+            "snapshotid": itemList.snapshot_id,
+            "modelid": itemList.model_id,
+          }
+          item_lists_arr.push(itemListObj)
+        })
+      }
+      else{
+        let itemListObj = {
+          "actual_item_price": item.order_price,
+          "amount": item.amount,
+          "snapshotid": item.snapshot_id,
+          "modelid": item.model_id,
+        }
+        item_lists_arr.push(itemListObj)
+      }
+
+      item_lists_arr.forEach((arrItem,i)=>{
+        let variation_discounted_price = arrItem["actual_item_price"];
+        let variation_quantity_purchased = arrItem["amount"];
+        let snapshotid = arrItem["snapshotid"];
+        let modelid = arrItem["modelid"];
+
+        let item_sku = "";
+        let item_name = "";
+        let catid = "";
+        let images = [];
+        let variation_original_price = "0";
+        let item_id = "0";
+        let variation_id = "0";
+        let variation_name = "";
+        let variation_sku = "";
+        let ctime = "";//商品创建时间
+        
+        if(bundleDealProducts.length>0){
+          item_sku = bundleDealProducts[i]["sku"];
+          item_name = bundleDealProducts[i]["name"];
+          catid = bundleDealProducts[i]["cat_id"];
+          images = (bundleDealProducts[i]["images"]);
+          variation_original_price = bundleDealProducts[i]["price_before_discount"];
+          item_id = bundleDealProducts[i]["item_id"];
+          variation_discounted_price = bundleDealProducts[i]["price"];
+
+          variation_id = bundleDealModels[i]["model_id"];
+          variation_name = bundleDealModels[i]["name"];
+          variation_sku = bundleDealModels[i]["sku"];
+          ctime = bundleDealModels[i]("ctime");
+        } else
+        {
+            item_sku = product["sku"];
+            item_name = product["name"];
+            catid = product["cat_id"];
+            images = product["images"];
+            variation_original_price = product["price_before_discount"];
+            item_id = product["item_id"];
+
+            variation_id = itemModel["model_id"];
+            variation_name = itemModel["name"];
+            variation_sku = itemModel["sku"];
+            ctime = itemModel["ctime"];
+        }
+
+        let itemPrams = {}
+        itemPrams["is_wholesale"] = is_wholesale.toString();
+        itemPrams["variation_quantity_purchased"] = variation_quantity_purchased.toString();
+        itemPrams["item_sku"] = item_sku.toString();
+        itemPrams["item_name"] = item_name.toString();
+        itemPrams["variation_id"] = variation_id.toString();
+        itemPrams["variation_name"] = variation_name.toString();
+        itemPrams["variation_sku"] = variation_sku.toString();
+        itemPrams["variation_discounted_price"] = variation_discounted_price.toString();
+        itemPrams["variation_original_price"] = variation_original_price.toString();
+        itemPrams["item_id"] = item_id.toString();
+        itemPrams["item_cat_id"] = catid.toString();
+        itemPrams["item_images"] = images;
+        itemPrams["weight"] = 0;
+        itemPrams["item_status"] = item_status.toString();
+        itemPrams["item_ctime"] = ctime.toString();
+        orderItem.push(itemPrams)
+      })
+    })
+    console.log(orderItem,"orderItem")
+    return orderItem
   }
 
 

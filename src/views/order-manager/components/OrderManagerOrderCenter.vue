@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-11-09 10:17:44
- * @LastEditTime: 2021-11-12 19:13:59
+ * @LastEditTime: 2021-11-15 14:32:26
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shopeeman-new\src\views\order-manager\components\OrderManagerOrderCenter.vue
@@ -449,6 +449,7 @@ import { orderStatusList, shotStatusList, timeTypeList, inputTypeList, goodsSour
 import { exportExcelDataCommon, creatDate } from '../../../util/util'
 import storeChoose from '../../../components/store-choose'
 import BuyerAccount from './orderCenter/buyer-account.vue'
+import LogisticeSyncService from '../../../services/logistics-sync-service/logistics-sync-service-new-copy'
 export default {
   components: {
     BuyerAccount,
@@ -514,9 +515,9 @@ export default {
         },
         upData: 'buyerAccountList',
         left: [
-          { title: '登录买手号', type: 'primary', key: 1 },
+          { title: '登录买手号', type: 'primary', key: 1},
           { title: '同步订单', type: 'primary', key: 2 },
-          { title: '获取物流单号', type: 'primary', key: 3 },
+          { title: '获取物流单号', type: 'primary', key: 3,click:"syncLogistics" },
           { title: '批量拍单', type: 'primary', key: 4 },
           { title: '配置自定义列', type: 'primary', key: 5 },
           { title: '上传账号信息', type: 'primary', key: 6 },
@@ -558,6 +559,23 @@ export default {
     this.createTime = creatDate(15)
   },
   methods: {
+        //同步物流单号
+    async syncLogistics() {
+      this.showConsole = false //打开日志
+      this.$refs.Logs.consoleMsg = ''
+      this.$refs.Logs.writeLog(`获取采购物流轨迹开始`, true)
+      const service = new LogisticeSyncService(this.$refs.Logs.writeLog)
+      if (!this.buyerAccountList.length) {
+        this.$refs.Logs.writeLog(`没有买手号，请登录买手号`, false)
+        return this.$message.warning("没有买手号,请登录！")
+      }
+      if (this.multipleSelection.length > 0) {
+        service.start(this, this.buyerAccountList, this.multipleSelection)
+      } else {
+        service.start(this, this.buyerAccountList)
+      }
+      console.log(this.buyerAccountList)
+    },
     //获取订单列表数据
     async getOrderList() {
       let sysMallId = ''
