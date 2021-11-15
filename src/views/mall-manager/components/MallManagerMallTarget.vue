@@ -511,7 +511,7 @@ export default {
     async exportSearch() {
       this.isLoading = true
       const exportData = []
-      const len = this.total % 700 === 0 ? (this.total / 700) : (Math.floor(this.total / 700) + 1)
+      const len = this.total % 20 === 0 ? (this.total / 20) : (Math.floor(this.total / 20) + 1)
       for (let index = 1; index <= len; index++) {
         const parmas = {
           country: this.form.site,
