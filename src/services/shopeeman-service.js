@@ -57,6 +57,7 @@ export default class NetMessageBridgeService {
    * @param options 头部 referer只需要添加尾缀
    */
   async getChinese(country, api, data, options = {}) {
+    data = JSON.parse(JSON.stringify(data))
     const url = await this.getUrlPrefix(country) + api
     options['extrainfo'] = this.getExtraInfo(data)
     delete data.mallId // body 里面不能带店铺id
@@ -73,13 +74,14 @@ export default class NetMessageBridgeService {
   }
 
   async postChinese(country, api, data, options = {}, exportInfo) {
+    data = JSON.parse(JSON.stringify(data))
     const url = await this.getUrlPrefix(country) + api
     options['extrainfo'] = this.getExtraInfo(data)
     if (exportInfo) { // 适配店铺管理---导入店铺
       options['extrainfo']['exportInfo'] = exportInfo
       // body 里面不能带店铺id
-      delete data.mallId
     }
+    delete data.mallId
     // options['params'] = {}
     const referer = options['headers'] && options['headers'].referer
     if (referer) {
@@ -92,6 +94,7 @@ export default class NetMessageBridgeService {
     return this.NetMessageBridgeService().post(url, JSON.stringify(options), JSON.stringify(data))
   }
   async postChineseImageFile(country, api, data, options = {}, base64File) {
+    data = JSON.parse(JSON.stringify(data))
     // options {extrainfo // 第三方接口, params, header}
     const url = await this.getUrlPrefix(country) + api
     options['extrainfo'] = this.getExtraInfo(data)
@@ -110,6 +113,7 @@ export default class NetMessageBridgeService {
     return this.NetMessageBridgeService().uploadFile(url, JSON.stringify(options), null, base64, filename, 'multipart/form-data')
   }
   async putChinese(country, api, data, options = {}) {
+    data = JSON.parse(JSON.stringify(data))
     const url = await this.getUrlPrefix(country) + api
     options['extrainfo'] = this.getExtraInfo(data)
     delete data.mallId // body 里面不能带店铺id
@@ -123,8 +127,8 @@ export default class NetMessageBridgeService {
     }
     return this.NetMessageBridgeService().put(url, JSON.stringify(options), JSON.stringify(data))
   }
-
   async deleteChinese(country, api, data, options = {}) {
+    data = JSON.parse(JSON.stringify(data))
     const url = await this.getUrlPrefix(country) + api
     options['extrainfo'] = this.getExtraInfo(data)
     delete data.mallId // body 里面不能带店铺id
