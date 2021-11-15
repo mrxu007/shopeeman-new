@@ -129,7 +129,7 @@ export default class MallListAPI {
       if (res.code === 0) {
         return { code: 200, data: res.data.resource_id }// Errors within expectations  开启关闭太频繁，需冷却三小时
       }
-      return { code: res.errcode, data: `${res.errcode} ${res.message.indexOf('token not found') > -1 ? '请先登录' : res.message}` }
+      return { code: res.code, data: `${res.errcode} ${res.message.indexOf('token not found') > -1 ? '请先登录' : res.message}` }
     } catch (error) {
       return { code: -2, data: `getMallInfo-catch: ${error}` }
     }
