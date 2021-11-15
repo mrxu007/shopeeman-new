@@ -20,6 +20,9 @@ body {
   font-family: Microsoft YaHei;
   font-size: 12px !important;
 }
+#app{
+  overflow: auto;
+}
 .el-loading-mask.is-fullscreen {
   background-color: rgba(10, 10, 10, 0.5);
 }
