@@ -9,12 +9,12 @@ export default class StrockUpHome {
   // 获取预报单列表
   async getHomeWarehouse(item) {
     try {
-      const created_time = item.created_time ? `${this._this.$dayjs(item.created_time[0]).format('YYYY-MM-DD 00:00:00')}/${this._this.$dayjs(item.created_time[1]).format('YYYY-MM-DD 23:59:59')}` : ''
+      const createdAt = item.created_time ? `${this._this.$dayjs(item.created_time[0]).format('YYYY-MM-DD 00:00:00')}/${this._this.$dayjs(item.created_time[1]).format('YYYY-MM-DD 23:59:59')}` : ''
       const parmas = {
         wid: item.wid,
         purchaseOrderSn: item.purchaseOrderSn,
         packageCode: item.packageCode,
-        created_time: created_time,
+        createdAt: createdAt,
         page: item.page,
         pageSize: item.pageSize
       }
@@ -29,43 +29,52 @@ export default class StrockUpHome {
   }
 
   // 删除预报单
-  async deleteForecast(forecast_code) {
+  async deleteHomeForecast(mainId) {
     const params = {
-      purchase_order_sn: forecast_code
+      mainId: mainId
     }
     try {
-      const res = await this._this.$api.deleteForecast(params)
+      const res = await this._this.$api.deleteHomeForecast(params)
       if (res.code === 200) {
         return { code: 200 }
       }
       return { code: res.data.code, data: `${res.data.message}` }
     } catch (error) {
-      return { code: -2, data: `deleteForecast-catch： ${error}` }
+      return { code: -2, data: `deleteHomeForecast-catch： ${error}` }
     }
   }
 
-  // 获取中转仓库和目标仓库列表(海外仓备货)
-  async getOverseasWarehouse() {
+  // 获取中转仓
+  async getWarehouseList() {
     try {
-      const res = await this._this.$api.getOverseasWarehouse()
+      const res = await this._this.$api.getWarehouseList()
       if (res.data.code === 200) {
         return { code: 200, data: res.data.data }
       }
       return { code: res.data.code, data: `${res.data.message}` }
     } catch (error) {
-      return { code: -2, data: `getOverseasWarehouse-catch： ${error}` }
+      return { code: -2, data: `getWarehouseList-catch： ${error}` }
+    }
+  }
+  // 获取用户信息，用来判断中转仓的显示
+  async getUserInfo() {
+    try {
+      const res = await this._this.$appConfig.getUserInfo()
+      return { code: 200, data: res }
+    } catch (error) {
+      return { code: -2, data: `getUserInfo-catch： ${error}` }
     }
   }
   // 海外仓商品备货：发起商品预报
-  async stockingForecastUpload(item) {
+  async stockingHomeUpload(item) {
     try {
-      const res = await this._this.$api.stockingForecastUpload(item)
+      const res = await this._this.$api.stockingHomeUpload(item)
       if (res.data.code === 200) {
         return { code: 200, data: res.data.data }
       }
       return { code: res.data.code, data: `${res.data.message}` }
     } catch (error) {
-      return { code: -2, data: `stockingForecastUpload-catch： ${error}` }
+      return { code: -2, data: `stockingHomeUpload-catch： ${error}` }
     }
   }
   // 获取产品中心列表

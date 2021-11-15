@@ -540,8 +540,13 @@
                 size="mini"
                 @click="itselfGoodsImport"
               >自有商品导入</el-button>
-              <el-upload ref="importRef" style="margin:0 10px" accept=".xls, .xlsx" action="https://jsonplaceholder.typicode.com/posts/" :on-change="importTemplate" :show-file-list="false" :auto-upload="false">
-                <el-button :data="importTemplateData" size="mini" type="primary"> 批量Excel导入 </el-button>
+              <el-upload ref="importRef" :disabled="isforeignClose" style="margin:0 10px" accept=".xls, .xlsx" action="https://jsonplaceholder.typicode.com/posts/" :on-change="importTemplate" :show-file-list="false" :auto-upload="false">
+                <el-button
+                  :disabled="isforeignClose"
+                  :data="importTemplateData"
+                  size="mini"
+                  type="primary"
+                > 批量Excel导入 </el-button>
               </el-upload>
               <el-button
                 type="primary"
@@ -551,6 +556,7 @@
               <el-button
                 type="primary"
                 size="mini"
+                :disabled="isforeignClose"
                 @click="exportTickData"
               >导出勾选数据</el-button>
             </li>
@@ -1754,7 +1760,9 @@ export default {
       this.productData = []
       this.goodsForeignData = []
       this.itselfGoodsVisible = true
-      this.$refs.isClean.cleanData()
+      this.$nextTick(() => {
+        this.$refs.isClean.cleanData()
+      })
     },
     // 查看详情
     getDetails(val) {
@@ -1769,7 +1777,6 @@ export default {
       const data = []
       this.excelForeignData = []
       this.foreignData = []
-      const myMap = new Map()
       const dataSum = this.importTemplateData.length
       if (dataSum <= 0) {
         this.$refs.Logs.writeLog('表格数据为空', false)
@@ -1879,15 +1886,16 @@ export default {
         }
         data.push(obj)
       }
-      data.map(item => {
-        if (!myMap.has(item.package_code && item.sku_list[0].sku_id)) {
-          myMap.set(item.package_code)
-          myMap.set(item.sku_list[0].sku_id)
-          this.foreignData.push(item)
-        } else {
-          this.$refs.Logs.writeLog(`过滤重复物流订单号【${item.package_code}】,商品编号(SKU)【${item.sku_list[0].sku_id}】`, false)
+      const cache = []
+      for (const t of data) {
+        const flag = cache.find(c => c.package_code === t.package_code && c.sku_list[0].sku_id === t.sku_list[0].sku_id)
+        if (flag) {
+          this.$refs.Logs.writeLog(`过滤重复物流订单号【${flag.package_code}】,商品编号(SKU)【${flag.sku_list[0].sku_id}】`, false)
+          continue
         }
-      })
+        cache.push(t)
+        this.foreignData.push(t)
+      }
       this.stockingForecastUpload(this.excelForeignData)
     },
     // 表格导入
@@ -2091,7 +2099,7 @@ export default {
         </tr>`
       })
       this.isShowLoading = false
-      exportExcelDataCommon('预报单数据', str)
+      exportExcelDataCommon('海外仓预报单数据', str)
     },
     foreignClose(done) {
       if (this.isforeignClose) return this.$message('正在发起商品预报,请勿关闭')
