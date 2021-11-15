@@ -1,5 +1,5 @@
 /**
- * 海外商品备货
+ * 国内商品备货
  */
 export default class StrockUpHome {
   constructor(that) {
@@ -9,7 +9,7 @@ export default class StrockUpHome {
   // 获取预报单列表
   async getHomeWarehouse(item) {
     try {
-      const createdAt = item.created_time ? `${this._this.$dayjs(item.created_time[0]).format('YYYY-MM-DD 00:00:00')}/${this._this.$dayjs(item.created_time[1]).format('YYYY-MM-DD 23:59:59')}` : ''
+      const createdAt = item.createdAt ? `${this._this.$dayjs(item.createdAt[0]).format('YYYY-MM-DD 00:00:00')}/${this._this.$dayjs(item.createdAt[1]).format('YYYY-MM-DD 23:59:59')}` : ''
       const parmas = {
         wid: item.wid,
         purchaseOrderSn: item.purchaseOrderSn,
@@ -65,7 +65,7 @@ export default class StrockUpHome {
       return { code: -2, data: `getUserInfo-catch： ${error}` }
     }
   }
-  // 海外仓商品备货：发起商品预报
+  // 国内仓商品备货：发起商品预报
   async stockingHomeUpload(item) {
     try {
       const res = await this._this.$api.stockingHomeUpload(item)

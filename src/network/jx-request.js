@@ -154,5 +154,6 @@ export default {
   getHomeWarehouse: (data) => AppRequest.get('/homeStockingForecast/index', { params: data }), // 国内仓备货预报单: 列表
   getWarehouseList: (data) => AppRequest.get('/homeStockingForecast/getWarehouseList', data), // 国内中转备货预报单: 获取国内仓库地址
   stockingHomeUpload: (data) => AppRequest.post('/homeStockingForecast/upload', data), // 国内中转备货预报单: 上报
-  deleteHomeForecast: (data) => AppRequest.post('/homeStockingForecast/delete', data) // 国内中转备货预报单: 删除
+  deleteHomeForecast: (data) => AppRequest.post('/homeStockingForecast/delete', data), // 国内中转备货预报单: 删除
+  getOutOfStockList: (data) => AppRequest.get('/warehouse/outOfStockList', { params: data }) // 海外仓出库订单：列表
 }

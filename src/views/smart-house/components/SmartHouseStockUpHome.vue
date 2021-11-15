@@ -40,7 +40,7 @@
         <li>
           <span>预报时间：</span>
           <el-date-picker
-            v-model="form.created_time"
+            v-model="form.createdAt"
             unlink-panels
             size="mini"
             type="daterange"
@@ -1093,7 +1093,7 @@ export default {
         wid: '', // 仓库id
         purchaseOrderSn: '', // 采购单号
         packageCode: '', // 采购物流单号
-        created_time: '' // 预报时间
+        createdAt: '' // 预报时间
       },
       foreignSku: { // 预报SKU
         packageCode: '', // 物流单号
@@ -1122,7 +1122,7 @@ export default {
     }
   },
   async mounted() {
-    this.form.created_time = [new Date().getTime() - 3600 * 1000 * 24 * 30, new Date()]
+    this.form.createdAt = [new Date().getTime() - 3600 * 1000 * 24 * 30, new Date()]
     // 获取用户信息，用来判断中转仓的显示
     await this.getUserInfo()
     // 获取中转仓库和目的仓库列表(海外仓备货)
