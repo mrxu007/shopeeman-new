@@ -34,14 +34,9 @@
       >
         <el-table-column label="订单号" prop="" min-width="300px">
           <template slot-scope="{ row }">
-            <span>{{ row.order_sn }}
-              <el-button
-                type="text"
-                class="copyIcon"
-                @click="copy(row.order_sn)"
-              ><i
-                class="el-icon-document-copy"
-              /></el-button></span>
+            <span>{{ row }}
+              <el-button type="text" class="copyIcon" @click="copy(row)">
+                <i class="el-icon-document-copy" /></el-button></span>
           </template>
         </el-table-column>
       </el-table>
@@ -71,7 +66,7 @@ export default {
   },
   created() {
     this.initFor()// 时间
-    this.getTableList()// 初始化数据
+    // this.getTableList()// 初始化数据
     // this.query.shottedAt = new Date()
   },
   methods: {
@@ -83,15 +78,30 @@ export default {
       // this.cloumn_date && this.cloumn_date.length > 0 ? this.cloumn_date.join('/').toString() : ''
       console.log(this.cloumn_date)
     },
-    // 初始化数据 查询
+    // 数据 查询
     async getTableList() {
+      if (!this.query.data) {
+        this.$message.warning('查询信息不能为空')
+        return
+      }
       const params = {
         type: this.query.type,
         data: this.query.data,
         shottedAt: this.cloumn_date && this.cloumn_date.length > 0 ? this.cloumn_date.join('/').toString() : ''
       }
-      const res = await this.$api.getOrderSn({ params })
-      console.log(res)
+      this.loading = true
+      try {
+        const res = await this.$api.getOrderSn({ params })
+        this.loading = false
+        if (res.data.code === 200) {
+          this.tableList = res.data.data
+        } else {
+          this.$message.warning('数据请求失败！')
+        }
+        console.log(res)
+      } catch (error) {
+        this.$message.error(error)
+      }
     },
     // 分页
     handleSizeChange(val) { this.query.pageSize = val },

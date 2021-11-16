@@ -89,7 +89,7 @@ export default class NetMessageBridgeService {
           referer: url + referer
         })
     }
-    debugger
+    // console.log(url, JSON.stringify(options), JSON.stringify(data))
     return this.NetMessageBridgeService().post(url, JSON.stringify(options), JSON.stringify(data))
   }
 

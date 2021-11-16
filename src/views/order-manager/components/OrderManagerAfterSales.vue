@@ -104,10 +104,10 @@
         height="calc(100vh - 213px)"
         :data="tableList"
         :header-cell-style="{ background: '#f7fafa' }"
-        :row-key="generateUUID"
         @selection-change="handleSelectionChange"
       >
-        <el-table-column type="selection" width="55" :index="indexMethod" fixed />
+        <!-- :row-key="generateUUID" -->
+        <el-table-column type="selection" width="55" fixed />
         <el-table-column label="站点" prop="country" min-width="100px" fixed align="center">
           <template slot-scope="{row}"><span>{{ row.mall_info.country | chineseSite }}</span></template> </el-table-column>
         <el-table-column label="店铺名称" prop="mall_info.platform_mall_name" min-width="120px" fixed align="center" />
@@ -115,7 +115,16 @@
         <!-- <el-table-column label="颜色标识" prop="color_id" min-width="100px" align="center" /> -->
         <el-table-column label="颜色标识" prop="colorText" min-width="100px" align="center" />
         <!-- <el-table-column label="标识名称" prop="" min-width="120px" align="center" /> -->
-        <el-table-column label="订单编号" prop="order_sn" min-width="180px" align="center" />
+        <el-table-column label="订单编号" prop="order_sn" min-width="180px" align="center">
+          <template slot-scope="{ row }">
+            <span>
+              <el-button type="text" @click.native="open('itemDetail', row.goods_info.goods_id, row.mall_info.platform_mall_id,'orderID')">
+                {{ row.order_sn }}
+              </el-button>
+              <el-button type="text" class="copyIcon" @click="copy(row.order_sn)">
+                <i class="el-icon-document-copy" /></el-button></span>
+          </template>
+        </el-table-column>
         <el-table-column label="退款金额" prop="refund_amount" min-width="100px" align="center" />
         <el-table-column label="售后状态" prop="status" min-width="100px" align="center">
           <template slot-scope="{row}"><div>{{ sta[row.status] }}</div></template></el-table-column>
@@ -123,8 +132,32 @@
         <el-table-column label="采购状态" prop="shot_order_info.shot_status" min-width="90px" align="center">
           <template slot-scope="{row}"><span>{{ shot_status[row.shot_order_info.shot_status] }}</span></template></el-table-column>
         <el-table-column label="售后原因" prop="after_reason" min-width="100px" align="center" />
-        <el-table-column label="本地备注" prop="remark" min-width="100px" align="center" />
-        <el-table-column label="商品ID" prop="goods_info.goods_id" min-width="150px" align="center" />
+        <el-table-column label="本地备注" prop="remark" min-width="180px" align="center">
+          <template v-slot="{ row }">
+            <el-input
+              v-if="row.isChecked"
+              v-model="row.remark"
+              v-fo
+              size="mini"
+              resize="none"
+              placeholder="本地备注"
+              @blur="changeRemark(row)"
+            />
+            <span v-else @click="row.isChecked = true">
+              <el-input v-model="row.remark" :disabled="!row.isChecked" size="mini" />
+            </span>
+          </template>
+        </el-table-column>
+        <el-table-column label="商品ID" prop="goods_info.goods_id" min-width="150px" align="center">
+          <template slot-scope="{ row }">
+            <span>
+              <el-button type="text" @click.native="open(null, row.goods_info.goods_id, row.mall_info.platform_mall_id,'goodsID')">
+                {{ row.goods_info.goods_id }}
+              </el-button>
+              <el-button type="text" class="copyIcon" @click="copy(row.goods_info.goods_id)">
+                <i class="el-icon-document-copy" /></el-button></span>
+          </template>
+        </el-table-column>
         <el-table-column label="商品数量" prop="goods_info.goods_count" min-width="150px" align="center" />
         <el-table-column label="商品图片" prop="goods_info.goods_img" min-width="100px" align="center">
           <template slot-scope="{row}">
@@ -137,11 +170,35 @@
           </template> </el-table-column>
         <el-table-column label="商品类目" prop="goods_info.goods_category_id" min-width="100px" align="center" />
         <el-table-column label="商品规格" prop="goods_info.goods_spec" min-width="100px" align="center" />
-        <el-table-column label="采购商品ID" prop="goods_info.ori_goods_id" min-width="180px" align="center" />
-        <el-table-column label="采购订单号" prop="shot_order_info.shot_order_sn" min-width="180px" align="center" />
+        <el-table-column label="采购商品ID" prop="goods_info.ori_goods_id" min-width="180px" align="center">
+          <template slot-scope="{ row }">
+            <span v-if="row.goods_info.ori_goods_id">
+              <el-button type="text" @click.native="open('itemDetail', row.goods_info.goods_id, row.mall_info.platform_mall_id,'orderID')">
+                {{ row.goods_info.ori_goods_id }}
+              </el-button>
+              <el-button type="text" class="copyIcon" @click="copy(row.goods_info.ori_goods_id)">
+                <i class="el-icon-document-copy" /></el-button></span>
+          </template>
+        </el-table-column>
+        <el-table-column label="采购订单号" prop="shot_order_info.shot_order_sn" min-width="180px" align="center">
+          <template slot-scope="{ row }">
+            <span v-if="row.shot_order_info.shot_order_sn">
+              <el-button type="text" @click.native="open('itemDetail', row.goods_info.goods_id, row.mall_info.platform_mall_id,'orderID')">
+                {{ row.shot_order_info.shot_order_sn }}
+              </el-button>
+              <el-button type="text" class="copyIcon" @click="copy(row.shot_order_info.shot_order_sn)">
+                <i class="el-icon-document-copy" /></el-button></span>
+          </template>
+        </el-table-column>
         <!-- <el-table-column label="采购价" prop="" min-width="100px" align="center" /> -->
         <el-table-column label="采购时间" prop="shot_order_info.shotted_at" min-width="180px" align="center" />
-        <el-table-column label="采购物流单号" prop="shot_order_info.shot_tracking_number" min-width="180px" align="center" />
+        <el-table-column label="采购物流单号" prop="shot_order_info.shot_tracking_number" min-width="180px" align="center">
+          <template slot-scope="{ row }">
+            <span v-if="row.shot_order_info.shot_tracking_number">{{ row.shot_order_info.shot_tracking_number }}
+              <el-button type="text" class="copyIcon" @click="copy(row.shot_order_info.shot_tracking_number)">
+                <i class="el-icon-document-copy" /></el-button></span>
+          </template>
+        </el-table-column>
         <el-table-column label="采购账号" prop="shot_order_info.buy_account" min-width="180px" align="center" />
         <el-table-column label="订单创建时间" prop="after_created_at" min-width="180px" align="center" />
         <!-- <el-table-column label="订单截止发货时间" prop="" min-width="180px" align="center" /> -->
@@ -157,7 +214,7 @@
               </el-button>
               <el-dropdown-menu slot="dropdown">
                 <el-dropdown-item><div class="dropdownItem" @click="delGoods(row)"> 删除商品</div></el-dropdown-item>
-                <el-dropdown-item><div class="dropdownItem"> 下架商品</div></el-dropdown-item>
+                <el-dropdown-item><div class="dropdownItem" @click="deList(row)"> 下架商品</div></el-dropdown-item>
                 <el-dropdown-item><div class="dropdownItem" @click="shotVisible = true,rowData=row"> 修改采购状态</div></el-dropdown-item>
                 <el-dropdown-item><div class="dropdownItem"> 同步此店铺售后订单</div></el-dropdown-item>
                 <el-dropdown-item><div class="dropdownItem" @click="colorVisible = true,rowData=row"> 订单颜色标识</div></el-dropdown-item>
@@ -225,6 +282,8 @@ export default {
           return time.getTime() > Date.now()
         }
       },
+      orderRemark: '',
+      activeRemarkID: 0,
       shotVisible: false,
       shotstatus: '', // 采购状态
       shotstatusList: [
@@ -295,6 +354,65 @@ export default {
     this.getInfo()// 初始化数据
   },
   methods: {
+    // 修改备注
+    editRemark(index, activeRemarkID) {
+      this.activeRemarkID = activeRemarkID
+      this.orderRemark = this.tableList[index].remark
+    },
+    async changeRemark(row) {
+      row.isChecked = false
+      const res = await this.$api.orderSaveRemark({
+        id: row.order_id,
+        remark: row.remark
+      })
+      // debugger
+      if (res.data.code !== 200) {
+        this.$message.error(`修改失败:${res.data.message}`, false)
+        return
+      }
+      this.$message.success(`修改成功`, true)
+    },
+    // 下架商品
+    deList(row) {
+      this.$confirm('是否下架该商品', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        this.deListFun(row)
+      })
+    },
+    async deListFun(val) {
+      const product_id_list = [{ id: Number(val.goods_info.goods_id), unlisted: true }]// unlisted:true 下架  false 发布
+      const orderinfo = {
+        country: val.country,
+        platform_mall_id: val.mall_info.platform_mall_id,
+        product_id_list
+      }
+      this.loading = true
+      const res = await this.orderInstance.deListProduct(orderinfo)
+      this.loading = false
+      if (res.code === 200) {
+        this.$message.success('下架成功')
+      } else {
+        this.$message.error(res.data)
+      }
+      this.search()
+    },
+    // 打开第三方窗口
+    open(type, goodsid, shopId, des) {
+      if (des === 'orderID') { // 订单ID
+        const reqStr = {
+          type: type,
+          shopId: shopId,
+          id: goodsid
+        }
+        this.$BaseUtilService.getOrderDetailInfo(shopId, JSON.stringify(reqStr))
+      }
+      if (des === 'goodsID') { // 商品ID
+        this.$BaseUtilService.getOrderDetailInfo(shopId, JSON.stringify({ id: goodsid }))
+      }
+    },
     // 删除
     delGoods(row) {
       this.$confirm('是否要删除该商品', '提示', {
@@ -315,6 +433,11 @@ export default {
       const res = await this.orderInstance.deleteProduct(orderinfo)
       this.loading = false
       console.log('del', res)
+      if (res.code === 200) {
+        this.$message.success('删除成功')
+      } else {
+        this.$message.error(res.data)
+      }
       this.search()
     },
     // 批量同意/拒绝买家取消订单
@@ -405,6 +528,7 @@ export default {
     // 多选
     handleSelectionChange(val) {
       this.multipleSelection = val
+      console.log('multipleSelection', this.multipleSelection)
     },
     // 递增
     indexMethod(index) {
@@ -595,6 +719,7 @@ export default {
           const list = res.data.data.data || []
           list.forEach(i => {
             i.colorText = getValue(this.colorLogoList, 'label', 'id', i.color_id) || '-'
+            i.isChecked = false
             // i.goods_img= i.goods_info.goods_img
           })
           this.tableList = list

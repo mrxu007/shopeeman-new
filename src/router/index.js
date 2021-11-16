@@ -51,12 +51,12 @@ const routes = [
     component: () =>
       import('../views/user-config/index.vue')
   },
-  {
-    path: '/test-api', // 测试联调接口
-    name: 'test-api',
-    component: () =>
-      import('../views/test-api/index.vue')
-  },
+  // {
+  //   path: '/test-api', // 测试联调接口
+  //   name: 'test-api',
+  //   component: () =>
+  //     import('../views/test-api/index.vue')
+  // },
   {
     path: '/order-manager', // 订单管理
     name: '/order-manager',

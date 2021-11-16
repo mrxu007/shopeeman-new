@@ -109,6 +109,7 @@ Vue.directive('fo', {
 Vue.directive('focus', {
   inserted(el, binding, vnode) {
     // 聚焦元素
+    console.log('el', el)
     el.querySelector('textarea').focus()
   }
 })
