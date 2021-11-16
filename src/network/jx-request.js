@@ -10,7 +10,7 @@ import axios from 'axios'
 import jxAdapter from './jx-apdater'
 import tbAdaptert from './gateway/gateway-adapter'
 const AppRequest = axios.create({ // 壳内转发请求
-  baseURL: 'http://release.shopeeman.com/api' || process.env.VUE_APP_BASE_API,
+  baseURL: process.env.VUE_APP_BASE_API,
   timeout: 5000,
   headers: {
     'Accept': 'application/vnd.ppxias.v3+json'
@@ -149,5 +149,6 @@ export default {
   deleteUserSku: (data) => AppRequest.post('/userStock/deleteSkus', data), // 删除sku
   getStockingForecastLists: (data) => AppRequest.get('/warehouse/stockingForecastLists', { params: data }), // 海外仓商品备货-预报单列表
   deleteForecast: (data) => AppRequest.post('/warehouse/stockingForecastDestroy', data), // 海外仓商品备货-删除预报单
-  getOverseasWarehouse: (data) => AppRequest.get('/warehouse/getOverseasWarehouse', data) // 获取中转仓库和目标仓库列表(海外仓备货)
+  getOverseasWarehouse: (data) => AppRequest.get('/warehouse/getOverseasWarehouse', data), // 获取中转仓库和目标仓库列表(海外仓备货)
+  getsecondlist: (data) => AppRequest.post('/overseasTansferPackage/index', data) // 获取二次销售列表
 }

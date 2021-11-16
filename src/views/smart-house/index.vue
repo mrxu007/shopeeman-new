@@ -20,17 +20,20 @@
     <!--失物招领 -->
     <main v-if="activeVal === '3'"><SmartHouseUnclaimed /></main>
 
+    <!--二次销售列表 -->
+    <main v-if="activeVal === '4'"><SmartHouseTheSecondSaleList /></main>
+
     <!--拒签收管理 -->
     <main v-if="activeVal === '5'"><SmartHouseRefuseSign /></main>
 
     <!--我的赔付 -->
-    <main v-if="activeVal === '5'"><SmartHouseAbnormalPayment /></main>
+    <main v-if="activeVal === '6'"><SmartHouseAbnormalPayment /></main>
 
     <!--自有仓库 -->
-    <main v-if="activeVal === '6'"><SmartHousePrivateWarehouse /></main>
+    <main v-if="activeVal === '7'"><SmartHousePrivateWarehouse /></main>
 
     <!--商品备货-海外仓商品备货 -->
-    <main v-if="activeVal === '7'"><SmartHouseForeignStockUp /></main>
+    <main v-if="activeVal === '8'"><SmartHouseForeignStockUp /></main>
   </div>
 </template>
 
@@ -40,6 +43,7 @@ import {
   SmartHousePackage,
   SmartHouseReturnManage,
   SmartHouseUnclaimed,
+  SmartHouseTheSecondSaleList,
   SmartHouseAbnormalPayment,
   SmartHousePrivateWarehouse,
   SmartHouseRefuseSign,
@@ -51,6 +55,7 @@ export default {
     SmartHousePackage,
     SmartHouseReturnManage,
     SmartHouseUnclaimed,
+    SmartHouseTheSecondSaleList,
     SmartHouseAbnormalPayment,
     SmartHousePrivateWarehouse,
     SmartHouseRefuseSign,

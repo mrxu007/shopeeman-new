@@ -18,6 +18,9 @@ const SmartHouseReturnManage = () => import('./components/SmartHouseReturnManage
 // 拒签收管理
 const SmartHouseRefuseSign = () => import('./components/SmartHouseRefuseSign.vue')
 
+// 二次销售列表
+const SmartHouseTheSecondSaleList = () => import('./components/SmartHouseTheSecondSaleList.vue')
+
 // 失物招领
 const SmartHouseUnclaimed = () => import('./components/SmartHouseUnclaimed.vue')
 
@@ -36,6 +39,7 @@ export {
   SmartHousePackage,
   SmartHouseReturnManage,
   SmartHouseRefuseSign,
+  SmartHouseTheSecondSaleList,
   SmartHouseUnclaimed,
   SmartHouseAbnormalPayment,
   SmartHousePrivateWarehouse,
