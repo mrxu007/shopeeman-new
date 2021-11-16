@@ -161,5 +161,7 @@ export default {
 
   orderSaveRemark: (data) => AppRequest.post('/order/remark', data), // 添加店铺备注
 
-  getsecondlist: (data) => AppRequest.post('/overseasTansferPackage/index', data) // 获取二次销售列表
+  getsecondlist: (data) => AppRequest.post('/overseasTansferPackage/index', data), // 获取二次销售列表
+
+  getBuyerList: (data) => AppRequest.get('/buyerAccount/index', data) // 下载买手号
 }

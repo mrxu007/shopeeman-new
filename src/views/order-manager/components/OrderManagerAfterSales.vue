@@ -173,7 +173,7 @@
         <el-table-column label="采购商品ID" prop="goods_info.ori_goods_id" min-width="180px" align="center">
           <template slot-scope="{ row }">
             <span v-if="row.goods_info.ori_goods_id">
-              <el-button type="text" @click.native="open('itemDetail', row.goods_info.goods_id, row.mall_info.platform_mall_id,'orderID')">
+              <el-button type="text" @click.native="open(null, row.goods_info.goods_id, null,'orderGoodsID')">
                 {{ row.goods_info.ori_goods_id }}
               </el-button>
               <el-button type="text" class="copyIcon" @click="copy(row.goods_info.ori_goods_id)">
@@ -183,7 +183,7 @@
         <el-table-column label="采购订单号" prop="shot_order_info.shot_order_sn" min-width="180px" align="center">
           <template slot-scope="{ row }">
             <span v-if="row.shot_order_info.shot_order_sn">
-              <el-button type="text" @click.native="open('itemDetail', row.goods_info.goods_id, row.mall_info.platform_mall_id,'orderID')">
+              <el-button type="text" @click.native="getorderDetail(row)">
                 {{ row.shot_order_info.shot_order_sn }}
               </el-button>
               <el-button type="text" class="copyIcon" @click="copy(row.shot_order_info.shot_order_sn)">
@@ -347,11 +347,13 @@ export default {
       total: 0,
       tableList: [],
       loading: false,
-      orderInstance: new orderApi(this)
+      orderInstance: new orderApi(this),
+      buyerAccountList: []
     }
   },
   created() {
     this.getInfo()// 初始化数据
+    this.getBuyerList()// 获取买手号信息
   },
   methods: {
     // 修改备注
@@ -410,7 +412,26 @@ export default {
         this.$BaseUtilService.getOrderDetailInfo(shopId, JSON.stringify(reqStr))
       }
       if (des === 'goodsID') { // 商品ID
-        this.$BaseUtilService.getOrderDetailInfo(shopId, JSON.stringify({ id: goodsid }))
+        window.BaseUtilBridgeService.openUrl('https://id.xiapibuy.com/product/' + shopId + '/' + goodsid)
+      }
+
+      if (des === 'orderGoodsID') { // 采购商品id
+        window.BaseUtilBridgeService.openUrl('http://mobile.yangkeduo.com/goods.html?goods_id=' + goodsid)
+      }
+    },
+    // 获取订单详情
+    async getBuyerList() {
+      const res = await this.$api.getBuyerList()
+      if (res.data.code === 200) {
+        this.buyerAccountList = res.data.data
+      }
+      console.log('getBuyerList', this.buyerAccountList)
+    },
+    getorderDetail(row) {
+      console.log('row', row)
+      if (!row.shot_order_info.buy_account_info) {
+        this.$message.warning('云端没有此账户信息，请让拍单人员上传或登录')
+        return
       }
     },
     // 删除
