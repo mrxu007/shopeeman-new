@@ -159,6 +159,7 @@ export default {
 
   updateShotStatus: (data) => AppRequest.post('/aftermarket/updateShotStatus', data), // 采购状态变更
 
-  orderSaveRemark: (data) => AppRequest.post('/order/remark', data) // 添加店铺备注
+  orderSaveRemark: (data) => AppRequest.post('/order/remark', data), // 添加店铺备注
 
+  getsecondlist: (data) => AppRequest.post('/overseasTansferPackage/index', data) // 获取二次销售列表
 }

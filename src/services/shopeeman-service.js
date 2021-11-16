@@ -57,6 +57,7 @@ export default class NetMessageBridgeService {
    * @param options 头部 referer只需要添加尾缀
    */
   async getChinese(country, api, data, options = {}) {
+    data = JSON.parse(JSON.stringify(data))
     const url = await this.getUrlPrefix(country) + api
     options['extrainfo'] = this.getExtraInfo(data)
     delete data.mallId // body 里面不能带店铺id
@@ -73,6 +74,7 @@ export default class NetMessageBridgeService {
   }
 
   async postChinese(country, api, data, options = {}, exportInfo) {
+    data = JSON.parse(JSON.stringify(data))
     const url = await this.getUrlPrefix(country) + api
     options['extrainfo'] = this.getExtraInfo(data)
     if (exportInfo) { // 适配店铺管理---导入店铺
@@ -94,6 +96,7 @@ export default class NetMessageBridgeService {
   }
 
   async postChineseImageFile(country, api, data, options = {}, base64File) {
+    data = JSON.parse(JSON.stringify(data))
     // options {extrainfo // 第三方接口, params, header}
     const url = await this.getUrlPrefix(country) + api
     options['extrainfo'] = this.getExtraInfo(data)
@@ -112,6 +115,7 @@ export default class NetMessageBridgeService {
     return this.NetMessageBridgeService().uploadFile(url, JSON.stringify(options), null, base64, filename, 'multipart/form-data')
   }
   async putChinese(country, api, data, options = {}) {
+    data = JSON.parse(JSON.stringify(data))
     const url = await this.getUrlPrefix(country) + api
     options['extrainfo'] = this.getExtraInfo(data)
     delete data.mallId // body 里面不能带店铺id
@@ -125,8 +129,8 @@ export default class NetMessageBridgeService {
     }
     return this.NetMessageBridgeService().put(url, JSON.stringify(options), JSON.stringify(data))
   }
-
   async deleteChinese(country, api, data, options = {}) {
+    data = JSON.parse(JSON.stringify(data))
     const url = await this.getUrlPrefix(country) + api
     options['extrainfo'] = this.getExtraInfo(data)
     delete data.mallId // body 里面不能带店铺id
