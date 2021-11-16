@@ -433,6 +433,21 @@ export default {
         this.$message.warning('云端没有此账户信息，请让拍单人员上传或登录')
         return
       }
+      const userInfo = null
+      // if (row.shot_order_info.buy_account_info.) {
+      //   this.buyerAccountList.forEach((item) => {
+      //     if (item.id === id) {
+      //       userInfo = item
+      //     }
+      //   })
+      //   return userInfo
+      // } else {
+      //   this.$notify({
+      //     title: '买手号个人中心',
+      //     type: 'error',
+      //     message: `请选择账户`,
+      //   })
+      // }
     },
     // 删除
     delGoods(row) {
