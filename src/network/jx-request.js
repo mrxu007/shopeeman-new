@@ -147,8 +147,19 @@ export default {
   deleteUserGoods: (data) => AppRequest.post('/userStock/deleteGoods', data), // 删除自有商品
   setUserRemark: (data) => AppRequest.post('/orderPackage/setUserRemark', data), // 批量更新用户备注
   deleteUserSku: (data) => AppRequest.post('/userStock/deleteSkus', data), // 删除sku
+
+  // 订单管理
+  shotAmountRecord: (data) => AppRequest.get('/shotAmountRecord/index', data), // 采购价变更记录
+  getOrderSn: (data) => AppRequest.get('/order/getOrderSn', data), // 丢件查询
+  aftermarket: (data) => AppRequest.post('/aftermarket', data), // 虾皮售后
+
   getStockingForecastLists: (data) => AppRequest.get('/warehouse/stockingForecastLists', { params: data }), // 海外仓商品备货-预报单列表
   deleteForecast: (data) => AppRequest.post('/warehouse/stockingForecastDestroy', data), // 海外仓商品备货-删除预报单
   getOverseasWarehouse: (data) => AppRequest.get('/warehouse/getOverseasWarehouse', data), // 获取中转仓库和目标仓库列表(海外仓备货)
+
+  updateShotStatus: (data) => AppRequest.post('/aftermarket/updateShotStatus', data), // 采购状态变更
+
+  orderSaveRemark: (data) => AppRequest.post('/order/remark', data), // 添加店铺备注
+
   getsecondlist: (data) => AppRequest.post('/overseasTansferPackage/index', data) // 获取二次销售列表
 }

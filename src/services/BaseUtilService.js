@@ -76,28 +76,28 @@ export default class BaseUtilService {
     return this.nativeService.getAddressIP()
   }
   /**
-   * @name : 
+   * @name :
    * @param  {*}
    * @param {*} platform 平台
    * @param {*} orderSn 订单号
    * @param {*} buyerAccount 买手号实体
    * @param {*} collectStatus ture 只获取揽收的物流 false 所有物流
    */
-  /// code:200=>有物流 401=》账号失效 402=》未获取到物流 403=》未揽收 405=》cookie解析异常 406=》物流匹配失败 407=>订单不存在 408=>未知平台 409 需要验证
+  // / code:200=>有物流 401=》账号失效 402=》未获取到物流 403=》未揽收 405=》cookie解析异常 406=》物流匹配失败 407=>订单不存在 408=>未知平台 409 需要验证
   getOriginLogistics(platform, orderSn, buyerAccount, collectStatus = false) {
-    console.log(platform, orderSn, buyerAccount, "baseconfig")
+    console.log(platform, orderSn, buyerAccount, 'baseconfig')
     return this.nativeService.getOriginLogistics(platform, orderSn, buyerAccount, false)
   }
   /**
    * @name : 代开订单详情等窗口
    * @param  {*} 店铺id
-   * @param {*} shopId 
+   * @param {*} shopId
    * @param {*} reqStr
    * let reqStr = {
-       type: type, 
+       type: type,
            /// orderDetail(id(order list)):订单详情；
-           /// itemDetail(id(goods)):商品详情  
-           /// personalDetail（to_shop_id）:个人详情 
+           /// itemDetail(id(goods)):商品详情
+           /// personalDetail（to_shop_id）:个人详情
            /// reportUser(to_shop_id):举报用户
            /// shopVouchers:店铺优惠券 itemVouchers:商品优惠券  </param>
            /// frontItemDetail: 前台商品查看
@@ -109,5 +109,4 @@ export default class BaseUtilService {
   async getOrderDetailInfo(shopId, reqStr) {
     return await this.nativeService.getOrderDetailInfo(shopId, reqStr)
   }
-
 }
