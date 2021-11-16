@@ -324,7 +324,7 @@
 </template>
 
 <script>
-import { creatDate, exportExcelDataCommon } from '../../../util/util'
+import { creatDate, exportExcelDataCommon, delay } from '../../../util/util'
 import storeChoose from '../../../components/store-choose'
 import Echart from '../components/chart.vue'
 export default {
@@ -795,11 +795,11 @@ export default {
       })
       const dateTime = this.dateTime.length ? this.dateTime[0] + ' 00:00:00' + '/' + this.dateTime[1] + ' 23:59:59' : ''
       const params = {
-        sysMallIds: '',
+        sysMallIds: sysMallIds,
         dateTime: dateTime
       }
       const result = await this.$api.getDrderBasicStatV2(params)
-      if (result.data.code == 200) {
+      if (result.data.code === 200) {
         this.orderListData = result.data.data
       } else {
         this.$message.error(result.data.message)
@@ -810,9 +810,9 @@ export default {
       let sysMallIds = ''
       this.selectMallList.forEach((item, index) => {
         if (index === 0) {
-          sysMallIds = item.platform_mall_id
+          sysMallIds = item.id
         } else {
-          sysMallIds = sysMallIds + ',' + item.platform_mall_id
+          sysMallIds = sysMallIds + ',' + item.id
         }
       })
       const params = {

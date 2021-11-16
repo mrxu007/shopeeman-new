@@ -434,7 +434,7 @@ export default {
         this.orderBatchDealDialogForm.id.push(item.id)
       })
       const params = {
-        id: this.orderBatchDealDialogForm.id.toString(),
+        ids: this.orderBatchDealDialogForm.id.toString(),
         wechatStatus: this.orderBatchDealDialogForm.wechatStatus
       }
       const result = await this.$api.uploadDealExceptionStatus(params)
@@ -479,7 +479,7 @@ export default {
     },
     // 订单处理
     orderDealHandle(row) {
-      this.orderDealDialogForm.id = row.id
+      this.orderDealDialogForm.ids = row.id
       this.orderDealDialogFormVisible = true
     },
     // 格式化仓库异常类型
