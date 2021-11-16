@@ -40,8 +40,7 @@
                   page = 1
                   getMallStatistics()
                 "
-                >查询</el-button
-              >
+              >查询</el-button>
               <el-button type="primary" size="mini" @click="exportSearch()">导出数据</el-button>
               <el-button type="primary" size="mini" @click="handlerSelectTableOperating('syncMallData')">同步店铺数据</el-button>
             </li>
@@ -53,24 +52,17 @@
       </el-row>
       <el-row class="header-two">
         <el-col :span="24" class="header-two-top">
-          <span
-            >当前条件下，待拨款总订单数：
+          <span>当前条件下，待拨款总订单数：
             <p>{{ frozenAmountOrders }}</p>
           </span>
-          <span
-            >待拨款总金额：
-            <p>{{ parseFloat(frozenAmount).toFixed(2) }}</p></span
-          >
-          <span
-            >本周已拨款总金额：
-            <p>{{ parseFloat(weekAmount).toFixed(2) }}</p></span
-          >
-          <span
-            >本月已拨款总金额：
+          <span>待拨款总金额：
+            <p>{{ parseFloat(frozenAmount).toFixed(2) }}</p></span>
+          <span>本周已拨款总金额：
+            <p>{{ parseFloat(weekAmount).toFixed(2) }}</p></span>
+          <span>本月已拨款总金额：
             <p>{{ parseFloat(monthAmount).toFixed(2) }}</p>
           </span>
-          <span
-            >全部已拨款总金额：
+          <span>全部已拨款总金额：
             <p>{{ parseFloat(availableAmount).toFixed(2) }}</p>
           </span>
         </el-col>
@@ -113,11 +105,11 @@
             </template>
           </el-table-column>
           <el-table-column align="center" prop="recent_order_create_time" label="最近订单创建时间" min-width="150" />
-          <el-table-column align="center" label="距今无订单天数" min-width="150">
+          <!-- <el-table-column align="center" label="距今无订单天数" min-width="150">
             <template slot-scope="{ row }">
               {{ row.not_order_time }}
             </template>
-          </el-table-column>
+          </el-table-column> -->
           <el-table-column align="center" prop="yesterday_order_num" label="昨日订单数" min-width="90" />
           <el-table-column align="center" prop="week_order_num" label="近7天订单数" min-width="100" />
           <el-table-column align="center" prop="history_order_num" label="历史订单数" min-width="90" />
@@ -523,7 +515,7 @@ export default {
     async exportSearch() {
       this.isLoading = true
       const exportData = []
-      const len = this.total % 700 === 0 ? this.total / 700 : Math.floor(this.total / 700) + 1
+      const len = this.total % this.pageSize === 0 ? this.total / this.pageSize : Math.floor(this.total / this.pageSize) + 1
       const shopSelectVal = this.form.shopSelectVal
       for (let index = 1; index <= len; index++) {
         const parmas = {
@@ -532,7 +524,8 @@ export default {
           mallName: this.form.shopSelect === '0' ? shopSelectVal : '',
           mallId: this.form.shopSelect === '1' ? shopSelectVal : '',
           mallAliasName: this.form.shopSelect === '2' ? shopSelectVal : '',
-          page: index
+          page: index,
+          pageSize: this.pageSize
         }
         try {
           const { data } = await this.$api.getMallStatistics(parmas)

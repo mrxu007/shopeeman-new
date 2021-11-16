@@ -63,13 +63,13 @@
         <div class="con-lft">
           <ul>
             <li v-show="typeOpt">
-              <p>分组列表：</p>
+              <p style="width: 72px">分组列表：</p>
               <el-select v-model="groupId" placeholder="" size="mini" @change="switchSelectMallStatus">
                 <el-option v-for="(item, index) in groupList" :key="index" :value="item.id" :label="item.group_name" />
               </el-select>
             </li>
-            <li v-show="!typeOpt">
-              <p>新增分组：</p>
+            <li>
+              <p>{{ !typeOpt ? '新增分组：' : '修改分组名：' }}</p>
               <el-input v-model.trim="addGroupName" placeholder="" size="mini" />
             </li>
             <li class="btn">
@@ -511,7 +511,7 @@ export default {
         res = await this.$api.addGroup(params)
       } else {
         const groupName = this.groupList.find(item => item.id === this.groupId)?.group_name
-        params['groupName'] = groupName // 分组名
+        params['groupName'] = this.addGroupName || groupName // 分组名
         params['groupId'] = this.groupId // 分组id
         res = await this.$api.updateGroup(params)
       }
@@ -523,13 +523,10 @@ export default {
       this.$message.success(`店铺分组${TypeName}成功`)
       this.buttonStatus.addGroup = false
       this.editGroupDialogVisible = false
-      if (!typeOpt) { // 创建分组操作
-        console.log('我刷新分组信息了')
-        this.getGroup()
-      } else { // 更新店铺绑定分组操作
-        this.updateClientData()
-        this.getMallList()
-      }
+      this.addGroupName = ''
+      this.updateClientData()
+      this.getMallList()
+      this.getGroup()
     },
     async updateClientData() {
       console.log('this.bindMallListObj', this.bindMallListObj)

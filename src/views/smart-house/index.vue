@@ -14,20 +14,50 @@
     <!--包裹列表 -->
     <main v-if="activeVal === '1'"><SmartHousePackage /></main>
 
-    <!--国内仓退件管理 -->
+    <!--退件管理 -->
     <main v-if="activeVal === '2'"><SmartHouseReturnManage /></main>
 
+    <!--二次销售列表 -->
+    <main v-if="activeVal === '3'"><SmartHouseSecondarySalesList /></main>
+
     <!--失物招领 -->
-    <main v-if="activeVal === '3'"><SmartHouseUnclaimed /></main>
+    <main v-if="activeVal === '4'"><SmartHouseUnclaimed /></main>
 
     <!--拒签收管理 -->
     <main v-if="activeVal === '5'"><SmartHouseRefuseSign /></main>
 
     <!--我的赔付 -->
-    <main v-if="activeVal === '5'"><SmartHouseAbnormalPayment /></main>
+    <main v-if="activeVal === '6'"><SmartHouseAbnormalPayment /></main>
 
     <!--自有仓库 -->
-    <main v-if="activeVal === '6'"><SmartHousePrivateWarehouse /></main>
+    <main v-if="activeVal === '7'"><SmartHousePrivateWarehouse /></main>
+
+    <!--商品备货-海外仓商品备货 -->
+    <main v-if="activeVal === '8'"><SmartHouseStockUpForeign /></main>
+
+    <!--商品备货-国内仓商品备货 -->
+    <main v-if="activeVal === '9'"><SmartHouseStockUpHome /></main>
+
+    <!-- 库存列表-海外仓库存 -->
+    <main v-if="activeVal === '10'"><SmartHouseaBroadStock /></main>
+
+    <!-- 库存列表-海外仓共享库存管理 -->
+    <main v-if="activeVal === '11'"><SmartHouseShareBroadStockManager /></main>
+
+    <!-- 库存列表-共享给我的海外仓库存 -->
+    <main v-if="activeVal === '12'"><SmartHouseShareMyBroadStock /></main>
+
+    <!-- 库存列表-国内仓库存 -->
+    <main v-if="activeVal === '13'"><SmartHouseChineseStock /></main>
+
+    <!-- 出库订单-海外仓出库订单 -->
+    <main v-if="activeVal === '14'"><SmartHouseBroadDeliveryOrder /></main>
+
+    <!-- 出库订单-国内仓出库订单 -->
+    <main v-if="activeVal === '15'"><SmartHouseChineseDeliveryOrder /></main>
+
+    <!-- 海外仓补件列表 -->
+    <main v-if="activeVal === '16'"><SmartHouseBroadPickUpList /></main>
   </div>
 </template>
 
@@ -36,20 +66,40 @@ import {
   SmartHouseWorkBench,
   SmartHousePackage,
   SmartHouseReturnManage,
+  SmartHouseSecondarySalesList,
   SmartHouseUnclaimed,
   SmartHouseAbnormalPayment,
   SmartHousePrivateWarehouse,
-  SmartHouseRefuseSign
+  SmartHouseRefuseSign,
+  SmartHouseStockUpForeign,
+  SmartHouseStockUpHome,
+  SmartHouseaBroadStock,
+  SmartHouseShareBroadStockManager,
+  SmartHouseShareMyBroadStock,
+  SmartHouseChineseStock,
+  SmartHouseBroadDeliveryOrder,
+  SmartHouseChineseDeliveryOrder,
+  SmartHouseBroadPickUpList
 } from './index'
 export default {
   components: {
     SmartHouseWorkBench,
     SmartHousePackage,
     SmartHouseReturnManage,
+    SmartHouseSecondarySalesList,
     SmartHouseUnclaimed,
     SmartHouseAbnormalPayment,
     SmartHousePrivateWarehouse,
-    SmartHouseRefuseSign
+    SmartHouseRefuseSign,
+    SmartHouseStockUpForeign,
+    SmartHouseStockUpHome,
+    SmartHouseaBroadStock,
+    SmartHouseShareBroadStockManager,
+    SmartHouseShareMyBroadStock,
+    SmartHouseChineseStock,
+    SmartHouseBroadDeliveryOrder,
+    SmartHouseChineseDeliveryOrder,
+    SmartHouseBroadPickUpList
   },
   data() {
     return {

@@ -1,7 +1,11 @@
 /*
  * @Author: your name
  * @Date: 2021-10-08 14:16:18
+<<<<<<< HEAD
  * @LastEditTime: 2021-11-16 16:55:55
+=======
+ * @LastEditTime: 2021-11-06 15:12:31
+>>>>>>> 9faaa32611c36acfc0276324652193c179978c56
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shopeeman-new\src\network\jx-request.js
@@ -10,7 +14,7 @@ import axios from 'axios'
 import jxAdapter from './jx-apdater'
 import tbAdaptert from './gateway/gateway-adapter'
 const AppRequest = axios.create({ // 壳内转发请求
-  baseURL: process.env.VUE_APP_BASE_API,
+  baseURL: 'http://release.shopeeman.com/api' || process.env.VUE_APP_BASE_API,
   timeout: 5000,
   headers: {
     'Accept': 'application/vnd.ppxias.v3+json'
@@ -61,7 +65,7 @@ export default {
   getAccountAmount: (data) => AppRequest.get('/user/accountAmount', { data }), // 查询用户账号余额
   getAccountAmountDetailList: (data) => AppRequest.post('/user/accountAmountDetailList', data), // 查询用户账号余额
   getTranslateDetail: (data) => AppRequest.get('/translate/getTranslateDetail', { params: data }), // 获取翻译明细数据
-  getChargeUrlV2: (data) => AppRequest.get('/emptyBag/chargeUrlV2', { params: data }), // 充值
+  getChargeUrlV2: (data) => AppRequest.get('/emptyBag/chargeUrl', { params: data }), // 充值
   getTranslateAmount: (data) => AppRequest.get('/translate/getTranslateAmount', { params: data }), // 获取今日翻译费用
   getOrderStatisticsList: (data) => AppRequest.get('/orderStatistics/index', { params: data }), // 账单核算：列表
   getChildUserList: (data) => AppRequest.post('/user/childUserList', data), // 团队管理-查询子账号列表
@@ -76,6 +80,7 @@ export default {
   setIpCheck: (data) => AppRequest.post('/user/setIpCheck', data), // 信任IP-设置信任IP是否开启
   getPhoneLists: (data) => AppRequest.get('/user/getPhoneLists', data), // 信任IP-获取手机号码列表
   updatePhoneListForIp: (data) => AppRequest.post('/user/updatePhoneListForIp', data), // 信任IP-配置接收手机验证码的手机号
+  getUserInfo: (data) => AppRequest.get('/user/info', data), // 获取用户信息
 
   // 数据统计-------------------------------------------------------------------
   getDrderBasicStatV2: (data) => AppRequest.post('/mallDataStatistics/orderBasicStatV2', data), // 数据统计获取订单列表数据
@@ -111,10 +116,7 @@ export default {
   getExceptionNoOrderIndex: (data) => AppRequest.get('/exceptionNoOrderIndex', { params: data }), // 签收包裹异常列表
   markPackageToMy: (data) => AppRequest.post('/signPackage/markPackageToMy', data), // 标记为我的
   applicationForreJection: (data) => AppRequest.post('/packageReturn/apply', data), // 申请退件
-
-  // 待获取物流单号
-  getExceptionNoTrackingNumberIndex: (data) => AppRequest.get('/exceptionNoTrackingNumberIndex', { params: data }), // 异常物流订单列表
-  getOriginalTrackingNumberEmpty: (data) => AppRequest.get('/order/originalTrackingNumberEmpty', { params: data }), // 获取订单列表
+  getExceptionNoTrackingNumberIndex: (data) => AppRequest.get('/exceptionNoTrackingNumberIndex', { params: data }), // 订单列表
   updateOrderTrackingNumber: (data) => AppRequest.post('/order/updateOrderTrackingNumber', data), // 添加采购物流单号
   uploadTrackingNumber: (data) => AppRequest.post('/order/uploadOrderTrackingNumber', data), // 上报同步物流单号
   apply: (data) => AppRequest.post('/packageReturn/apply', data), // 异常公告签收包裹异常：申请退件
@@ -168,4 +170,13 @@ export default {
   batchUpdateShotOrder: (data) => AppRequest.post('/order/batchUpdateShotOrder', data), // 批量上传拍单信息  
   pushOrderToStore: (data) => AppRequest.post('/warehouseAddress/uploadWarehouseOrder', data), // 推送订单至仓库 
   getDetail: (data) => AppRequest.get('/orderAmountDetail/getDetail', {params:data}), // 订单列表: 订单金额详情
+  getStockingForecastLists: (data) => AppRequest.get('/warehouse/stockingForecastLists', { params: data }), // 海外仓商品备货-预报单列表
+  deleteForecast: (data) => AppRequest.post('/warehouse/stockingForecastDestroy', data), // 海外仓商品备货-删除预报单
+  getOverseasWarehouse: (data) => AppRequest.get('/warehouse/getOverseasWarehouse', data), // 获取中转仓库和目标仓库列表(海外仓备货)
+  stockingForecastUpload: (data) => AppRequest.post('/warehouse/stockingForecastUpload', data), // 海外仓商品备货：发起商品预报
+  getHomeWarehouse: (data) => AppRequest.get('/homeStockingForecast/index', { params: data }), // 国内仓备货预报单: 列表
+  getWarehouseList: (data) => AppRequest.get('/homeStockingForecast/getWarehouseList', data), // 国内中转备货预报单: 获取国内仓库地址
+  stockingHomeUpload: (data) => AppRequest.post('/homeStockingForecast/upload', data), // 国内中转备货预报单: 上报
+  deleteHomeForecast: (data) => AppRequest.post('/homeStockingForecast/delete', data), // 国内中转备货预报单: 删除
+  getOutOfStockList: (data) => AppRequest.get('/warehouse/outOfStockList', { params: data }) // 海外仓出库订单：列表
 }

@@ -334,7 +334,7 @@ export default {
     // 获取退件信息
     async getReturnManage() {
       this.isShowLoading = true
-      const returnTime = this.form.signingTime ? `${this.$dayjs(this.form.returnTime[0]).format('YYYY-MM-DD HH:mm:ss')}/${this.$dayjs(this.form.returnTime[1]).format('YYYY-MM-DD HH:mm:ss')}` : ''
+      const returnTime = this.form.returnTime ? `${this.$dayjs(this.form.returnTime[0]).format('YYYY-MM-DD HH:mm:ss')}/${this.$dayjs(this.form.returnTime[1]).format('YYYY-MM-DD HH:mm:ss')}` : ''
       const applyReturnTime = this.form.applyReturnTime
         ? `${this.$dayjs(this.form.applyReturnTime[0]).format('YYYY-MM-DD HH:mm:ss')}/${this.$dayjs(this.form.applyReturnTime[1]).format('YYYY-MM-DD HH:mm:ss')}`
         : ''
