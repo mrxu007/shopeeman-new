@@ -62,7 +62,7 @@
             <div class="moneyFlow">
               <label>资金流向：</label>
               <el-select v-model="form.moneyFlow" style="width: 207px;" size="mini" multiple collapse-tags clearable @change="changeSelect($event, 'moneyFlow')">
-                <el-option label="全部" value="全部" @click.native="selectAll('moneyFlow', moneyFlow)" />
+                <el-option label="全部" :value="0" @click.native="selectAll('moneyFlow', moneyFlow)" />
                 <el-option v-for="item in moneyFlow" :key="item.id" :label="item.label" :value="item.id" />
               </el-select>
             </div>
@@ -72,7 +72,7 @@
             <div class="transactionType">
               <label>交易类型：</label>
               <el-select v-model="form.transactionType" style="width: 198px;" size="mini" multiple collapse-tags clearable @change="changeSelect($event, 'transactionType')">
-                <el-option label="全部" value="全部" @click.native="selectAll('transactionType', transactionType)" />
+                <el-option label="全部" :value="0" @click.native="selectAll('transactionType', transactionType)" />
                 <el-option v-for="item in transactionType" :key="item.id" :label="item.name" :value="item.id" />
               </el-select>
             </div>
@@ -346,19 +346,19 @@ export default {
       amountLoading: false
     }
   },
-  mounted() {
-    this.form.moneyFlow.push('全部')
+  async mounted() {
+    this.form.moneyFlow.push(0)
     this.moneyFlow.map((item) => {
       this.form.moneyFlow.push(item.id)
     })
     this.form.creationTime = creatDate(31)
     // 查询交易类型
-    this.getTransType()
+    await this.getTransType()
     // 查询用户账号余额
-    this.getAccountAmount()
+    await this.getAccountAmount()
     // 获取翻译费用
-    this.getTranslateAmount()
-    this.selectList()
+    await this.getTranslateAmount()
+    await this.selectList()
   },
   methods: {
     async exportData() {
@@ -543,7 +543,7 @@ export default {
       const res = await this.$api.getTransType()
       if (res.data.code === 200) {
         this.transactionType = res.data.data
-        this.form.transactionType.push('全部')
+        this.form.transactionType.push(0)
         this.transactionType.map((item) => {
           this.form.transactionType.push(item.id)
         })
@@ -580,7 +580,7 @@ export default {
     selectAll(key, baseData) {
       if (this.form[key].length < baseData.length) {
         this.form[key] = []
-        this.form[key].push('全部')
+        this.form[key].push(0)
         baseData.map((item) => {
           this.form[key].push(item.id)
         })
@@ -589,10 +589,10 @@ export default {
       }
     },
     changeSelect(val, key) {
-      if (!val.includes('全部') && val.length === this.form[key].length) {
-      } else if (val.includes('全部') && val.length - 1 < this.form[key].length) {
+      if (!val.includes(0) && val.length === this.form[key].length) {
+      } else if (val.includes(0) && val.length - 1 < this.form[key].length) {
         this.form[key] = this.form[key].filter((item) => {
-          return item !== '全部'
+          return item !== 0
         })
       }
     },
