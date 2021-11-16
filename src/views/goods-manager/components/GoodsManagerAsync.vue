@@ -1193,7 +1193,7 @@
 </template>
 
 <script>
-import ForeginStrockUp from '../../../module-api/smart-house-api/foreign-strock-up'
+import ForeginStrockUp from '../../../module-api/smart-house-api/strock-up-foreign'
 import { exportExcelDataCommon, exportPdfData } from '../../../util/util'
 import ProductChoose from '../../../components/product-choose.vue'
 import XLSX from 'xlsx'
@@ -1633,5 +1633,5 @@ export default {
 </script>
 
 <style lang="less" scoped>
-@import '../../../module-less/smart-house-less/foreign-stock-up.less';
+@import '../../../module-less/smart-house-less/strock-up-foreign.less';
 </style>

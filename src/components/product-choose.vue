@@ -12,45 +12,59 @@
       <li>
         <span>一级类目：</span>
         <el-select
-          v-model="selectCategroyList.selectCategroyList1"
-          clearable
+          v-model="categroyVal1"
           filterable
           placeholder="请选择"
           size="mini"
           @change="
-            selectCategroyList.selectCategroyList2 = ''
-            CategroyCollect()
+            categroyVal2 = ''
+            categroyVal3 = ''
+            handleChange01()
           "
         >
-          <el-option v-for="(item, index) in CategroyList.pddCategroyList1" :key="item.id" :label="item.CatName" :value="item.CatId1 + '-' + item.CatName" />
+          <el-option
+            v-for="(item, index) in categroyList1"
+            :key="item.id"
+            :label="item.cat_name"
+            :value="item.id "
+          />
         </el-select>
       </li>
       <li>
         <span>二级类目：</span>
         <el-select
-          v-model="selectCategroyList.selectCategroyList2"
-          :disabled="selectCategroyList.selectCategroyList1 ? false : true"
+          v-model="categroyVal2"
+          :disabled="categroyVal1 ? false : true"
           placeholder="请选择"
           size="mini"
           @change="
-            selectCategroyList.selectCategroyList3 = ''
-            CategroyCollect()
+            categroyVal3 = ''
+            handleChange02()
           "
         >
-          <el-option v-for="(item, index) in CategroyList.pddCategroyList2" :key="item.id" :label="item.CatName" :value="item.CatId2 + '-' + item.CatName" />
+          <el-option
+            v-for="(item, index) in categroyList2"
+            :key="item.id"
+            :label="item.cat_name"
+            :value="item.id "
+          />
         </el-select>
       </li>
       <li>
         <span>三级类目：</span>
         <el-select
-          v-model="selectCategroyList.selectCategroyList3"
-          clearable
-          :disabled="selectCategroyList.selectCategroyList2 ? false : true"
+          v-model="categroyVal3"
+          :disabled="categroyVal2 ? false : true"
           placeholder="请选择"
           size="mini"
-          @change="CategroyCollect()"
+          @change="handleChange03()"
         >
-          <el-option v-for="(item, index) in CategroyList.pddCategroyList3" :key="item.id" :label="item.CatName" :value="item.CatId3 + '-' + item.CatName" />
+          <el-option
+            v-for="(item, index) in categroyList3"
+            :key="item.id"
+            :label="item.cat_name"
+            :value="item.id "
+          />
         </el-select>
       </li>
     </ul></div>
@@ -60,34 +74,72 @@
 export default {
   name: 'ProductChoose',
   props: {
-    // spanWidth: {
-    //   type: String,
-    //   default: '80px'
-    // },
+    isClean: {
+      type: Boolean,
+      default: false
+    }
   },
   data() {
     return {
       // 类目列表
-      CategroyList: {
-        selectAllCategroyList: [],
-        allJdCategroyList: [],
-        pddCategroyList1: [],
-        pddCategroyList2: [],
-        pddCategroyList3: []
-      },
+      categroyList1: [],
+      categroyList2: [],
+      categroyList3: [],
       // 选中的类目
-      selectCategroyList: {
-        selectCategroyList1: '',
-        selectCategroyList2: '',
-        selectCategroyList3: ''
-      }
+      categroyVal1: '',
+      categroyVal2: '',
+      categroyVal3: '',
+      categroyData: []
     }
   },
   watch: {
   },
   mounted() {
+    this.init()
   },
   methods: {
+    cleanData() {
+      this.categroyVal1 = ''
+      this.categroyVal2 = ''
+      this.categroyVal3 = ''
+      this.$emit('CateId', 0)
+    },
+    async init() {
+      await this.getCategoryInfo(0)
+      this.categroyList1 = this.categroyData
+    },
+    async handleChange01() {
+      await this.getCategoryInfo(this.categroyVal1)
+      // this.categroyVal2 = this.categroyData[0].id
+      this.categroyList2 = this.categroyData
+      this.$emit('CateId', this.categroyVal1)
+    },
+    async handleChange02() {
+      await this.getCategoryInfo(this.categroyVal2)
+      // this.categroyVal3 = this.categroyData[0].id
+      this.categroyList3 = this.categroyData
+      this.$emit('CateId', this.categroyVal2)
+    },
+    async handleChange03() {
+      this.$emit('CateId', this.categroyVal3)
+    },
+    async getCategoryInfo(id) {
+      let res = ''
+      try {
+        res = await this.$commodityService.getCategoryInfo(id)
+        const jsonData = JSON.parse(res)
+        if (jsonData.status_code === 200) {
+          this.categroyData = jsonData.data
+          console.log('categoryData', jsonData)
+        } else {
+          this.$message.error(jsonData.message)
+        }
+      } catch (error) {
+        this.$message.error('产品中心类目获取失败')
+        console.log(error)
+      }
+    }
+
   }
 }
 </script>

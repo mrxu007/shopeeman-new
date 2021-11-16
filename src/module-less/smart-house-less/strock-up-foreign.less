@@ -6,7 +6,7 @@
       overflow: auto;
       ul{
         display: flex;
-        width: 1363px;
+        width: 1380px;
           li{
             line-height: 24px;
             display: flex;
@@ -50,7 +50,7 @@
       .foreign-dialog{
         ul{
           display: flex;
-          width: 480px;
+          width: 477px;
           margin-bottom: 10px;
             li{
               line-height: 24px;
@@ -66,10 +66,10 @@
         }
         .wid-info{
           color: red;
-          line-height: 22px;
+          line-height: 17px;
           .address{
             overflow: hidden;
-            width: 498px;
+            width: 600px;
             text-overflow:ellipsis;
             white-space: nowrap;
           }
@@ -86,7 +86,7 @@
             }
         }
         /deep/.el-dialog__header{
-          padding: 4px 8px 5px !important;
+          padding: 4px 8px 10px !important;
         }
         /deep/.el-dialog__body{
           padding:0 5px 5px 5px !important;
@@ -105,9 +105,20 @@
                 }
               }
               .right-wrap{
-                ul>li{
-                  margin-bottom: 10px;
+                ul{
+                  li{
+                    margin-bottom: 10px;
+                  }
+                  .goods-volume{
+                    .el-input{
+                      width:36px;
+                      .el-input__inner{
+                        padding: 0px;
+                      }
+                    }
+                  }
                 }
+                
                 .el-select{
                   width: 100px;
                   .el-input{
@@ -116,6 +127,15 @@
                 }
                 .el-input{
                   width: 120px;
+                }
+              }
+              /deep/.el-form-item{
+                margin: 0px !important;
+                .volume{
+                  width: 36px;
+                    .el-input__inner{
+                      padding: 0px;
+                    }
                 }
               }
               .pagination{
@@ -130,6 +150,14 @@
               }
             }
           }
+        }
+      }
+      .sku-details-dialog{
+        /deep/.el-dialog__header{
+          padding:15px 8px 10px !important;
+        }
+        /deep/.el-dialog__body{
+          padding:0 15px 15px 15px !important;
         }
       }
   }
