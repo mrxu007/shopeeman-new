@@ -1,4 +1,7 @@
-export default class ForeginStrockUp {
+/**
+ * 海外商品备货
+ */
+export default class StrockUpForegin {
   constructor(that) {
     this._this = that
   }
@@ -27,7 +30,7 @@ export default class ForeginStrockUp {
       }
       return { code: res.data.code, data: `${res.data.message}` }
     } catch (error) {
-      return { code: -2, data: `getStockingForecastLists-catch： ${error}` }
+      return { code: -2, data: `获取数据异常： ${error}` }
     }
   }
 
@@ -38,12 +41,12 @@ export default class ForeginStrockUp {
     }
     try {
       const res = await this._this.$api.deleteForecast(params)
-      if (res.data.code === 200) {
+      if (res.code === 200) {
         return { code: 200 }
       }
       return { code: res.data.code, data: `${res.data.message}` }
     } catch (error) {
-      return { code: -2, data: `deleteForecast-catch： ${error}` }
+      return { code: -2, data: `删除预报单异常： ${error}` }
     }
   }
 
@@ -56,7 +59,45 @@ export default class ForeginStrockUp {
       }
       return { code: res.data.code, data: `${res.data.message}` }
     } catch (error) {
-      return { code: -2, data: `getOverseasWarehouse-catch： ${error}` }
+      return { code: -2, data: `获取仓库列表异常： ${error}` }
+    }
+  }
+  // 海外仓商品备货：发起商品预报
+  async stockingForecastUpload(item) {
+    try {
+      const res = await this._this.$api.stockingForecastUpload(item)
+      if (res.data.code === 200) {
+        return { code: 200, data: res.data.data }
+      }
+      return { code: res.data.code, data: `${res.data.message}` }
+    } catch (error) {
+      return { code: -2, data: `发起商品预报异常： ${error}` }
+    }
+  }
+  // 获取产品中心列表
+  async getProductList(item) {
+    try {
+      const res = await this._this.$commodityService.getProductList(item)
+      const jsonData = JSON.parse(res)
+      if (jsonData.status_code === 200) {
+        return { code: 200, data: jsonData.data }
+      }
+      return { code: jsonData.status_code, data: `${jsonData.message}` }
+    } catch (error) {
+      return { code: -2, data: `获取产品中心数据异常： ${error}` }
+    }
+  }
+  // 获取产品中心产品skulist
+  async getProductSkuList(item) {
+    try {
+      const res = await this._this.$commodityService.getProductSkuList(item)
+      const jsonData = JSON.parse(res)
+      if (jsonData.status_code === 200) {
+        return { code: 200, data: jsonData.data }
+      }
+      return { code: jsonData.status_code, data: `${jsonData.message}` }
+    } catch (error) {
+      return { code: -2, data: `获取产品中心SKU列表异常： ${error}` }
     }
   }
 }
