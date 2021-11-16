@@ -34,10 +34,10 @@ const SmartHouseAbnormalPayment = () => import('./components/SmartHouseAbnormalP
 const SmartHousePrivateWarehouse = () => import('./components/SmartHousePrivateWarehouse.vue')
 
 // 商品备货-海外仓商品备货
-const SmartHouseForeignStockUp = () => import('./components/SmartHouseForeignStockUp.vue')
+const SmartHouseStockUpForeign = () => import('./components/SmartHouseStockUpForeign.vue')
 
 // 商品备货-国内仓商品备货
-const SmartHouseChineseStockUp = () => import('./components/SmartHouseChineseStockUp.vue')
+const SmartHouseStockUpHome = () => import('./components/SmartHouseStockUpHome.vue')
 
 // 库存列表-海外仓库存
 const SmartHouseaBroadStock = () => import('./components/SmartHouseaBroadStock.vue')
@@ -71,8 +71,8 @@ export {
   SmartHouseSecondarySalesList,
   SmartHouseAbnormalPayment,
   SmartHousePrivateWarehouse,
-  SmartHouseForeignStockUp,
-  SmartHouseChineseStockUp,
+  SmartHouseStockUpForeign,
+  SmartHouseStockUpHome,
   SmartHouseaBroadStock,
   SmartHouseShareBroadStockManager,
   SmartHouseShareMyBroadStock,
