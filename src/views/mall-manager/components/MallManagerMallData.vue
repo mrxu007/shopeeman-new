@@ -95,7 +95,7 @@
               {{ row.mall_alias_name ? row.mall_alias_name : row.platform_mall_name }}
             </template>
           </u-table-column>
-          <u-table-column align="center" label="店铺分组">
+          <u-table-column align="center" label="店铺分组" min-width="100">
             <template slot-scope="{ row }">
               {{ row.group_name === 'All' ? '' : row.group_name }}
             </template>

@@ -283,7 +283,7 @@ export function exportExcelDataCommon(fileName, str) {
   //   name: worksheet
   // })
   const blob = new Blob([template], {
-    type: 'application/vnd.ms-excel',
+    type: 'application/vnd.ms-excel;charset=utf-8',
     name: worksheet
   })
   const a = document.createElement('a')
