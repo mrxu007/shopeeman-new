@@ -2,7 +2,7 @@
   <div v-loading="loading" class="content">
     <div class="all_condition">
       <div class="des_conditon">
-        <storeChoose :is-all="true" :showMallAll="true" @changeMallList="changeMallList" />
+        <storeChoose :is-all="true" :show-mall-all="true" @changeMallList="changeMallList" />
         <div style="margin-left: 20px">
           <span>过期时间：</span>
           <el-date-picker
@@ -984,7 +984,7 @@ export default {
         this.query.mall_ids = [] // 初始化店铺数据
         this.dialogMallquery.mallGroupIds = [] // 初始化绑定店铺分组
         this.shopAccountList.forEach(item => {
-          this.query.mall_ids.push(item.id)
+          // this.query.mall_ids.push(item.id)
           this.dialogMallquery.mallGroupIds.push(item.group_id)
         })
         // this.initDate()
@@ -1375,6 +1375,7 @@ export default {
       // 新增
       this.loading = true
       const res = await this.$YipService.AddSelfIP(JSON.stringify(this.query_person))
+      this.loading = false
       const resMsg = JSON.parse(res)
       if (resMsg.code !== 200) {
         // this.$notify({
@@ -1390,7 +1391,6 @@ export default {
         //   message: `IP保存成功`
         // })
         this.$message.success('IP保存成功')
-        this.loading = false
         // 附加店铺绑定
         this.targetId = resMsg.data
         if (this.dialog_selectMallList.length > 0) {
