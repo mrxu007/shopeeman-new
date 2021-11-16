@@ -30,7 +30,7 @@ export default class StrockUpForegin {
       }
       return { code: res.data.code, data: `${res.data.message}` }
     } catch (error) {
-      return { code: -2, data: `getStockingForecastLists-catch： ${error}` }
+      return { code: -2, data: `获取数据异常： ${error}` }
     }
   }
 
@@ -46,7 +46,7 @@ export default class StrockUpForegin {
       }
       return { code: res.data.code, data: `${res.data.message}` }
     } catch (error) {
-      return { code: -2, data: `deleteForecast-catch： ${error}` }
+      return { code: -2, data: `删除预报单异常： ${error}` }
     }
   }
 
@@ -59,7 +59,7 @@ export default class StrockUpForegin {
       }
       return { code: res.data.code, data: `${res.data.message}` }
     } catch (error) {
-      return { code: -2, data: `getOverseasWarehouse-catch： ${error}` }
+      return { code: -2, data: `获取仓库列表异常： ${error}` }
     }
   }
   // 海外仓商品备货：发起商品预报
@@ -71,7 +71,7 @@ export default class StrockUpForegin {
       }
       return { code: res.data.code, data: `${res.data.message}` }
     } catch (error) {
-      return { code: -2, data: `stockingForecastUpload-catch： ${error}` }
+      return { code: -2, data: `发起商品预报异常： ${error}` }
     }
   }
   // 获取产品中心列表
@@ -84,7 +84,7 @@ export default class StrockUpForegin {
       }
       return { code: jsonData.status_code, data: `${jsonData.message}` }
     } catch (error) {
-      return { code: -2, data: `getProductList-catch： ${error}` }
+      return { code: -2, data: `获取产品中心数据异常： ${error}` }
     }
   }
   // 获取产品中心产品skulist
@@ -97,7 +97,7 @@ export default class StrockUpForegin {
       }
       return { code: jsonData.status_code, data: `${jsonData.message}` }
     } catch (error) {
-      return { code: -2, data: `getProductSkuList-catch： ${error}` }
+      return { code: -2, data: `获取产品中心SKU列表异常： ${error}` }
     }
   }
 }

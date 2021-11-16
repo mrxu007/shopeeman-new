@@ -24,7 +24,7 @@ export default class StrockUpHome {
       }
       return { code: res.data.code, data: `${res.data.message}` }
     } catch (error) {
-      return { code: -2, data: `getHomeWarehouse-catch： ${error}` }
+      return { code: -2, data: `数据获取失败： ${error}` }
     }
   }
 
@@ -40,7 +40,7 @@ export default class StrockUpHome {
       }
       return { code: res.data.code, data: `${res.data.message}` }
     } catch (error) {
-      return { code: -2, data: `deleteHomeForecast-catch： ${error}` }
+      return { code: -2, data: `删除预报单异常： ${error}` }
     }
   }
 
@@ -53,7 +53,7 @@ export default class StrockUpHome {
       }
       return { code: res.data.code, data: `${res.data.message}` }
     } catch (error) {
-      return { code: -2, data: `getWarehouseList-catch： ${error}` }
+      return { code: -2, data: `获取中转仓异常： ${error}` }
     }
   }
   // 获取用户信息，用来判断中转仓的显示
@@ -62,7 +62,7 @@ export default class StrockUpHome {
       const res = await this._this.$appConfig.getUserInfo()
       return { code: 200, data: res }
     } catch (error) {
-      return { code: -2, data: `getUserInfo-catch： ${error}` }
+      return { code: -2, data: `获取用户信息异常： ${error}` }
     }
   }
   // 国内仓商品备货：发起商品预报
@@ -74,7 +74,7 @@ export default class StrockUpHome {
       }
       return { code: res.data.code, data: `${res.data.message}` }
     } catch (error) {
-      return { code: -2, data: `stockingHomeUpload-catch： ${error}` }
+      return { code: -2, data: `发起商品预报异常： ${error}` }
     }
   }
   // 获取产品中心列表
@@ -87,7 +87,7 @@ export default class StrockUpHome {
       }
       return { code: jsonData.status_code, data: `${jsonData.message}` }
     } catch (error) {
-      return { code: -2, data: `getProductList-catch： ${error}` }
+      return { code: -2, data: `获取产品中心数据异常： ${error}` }
     }
   }
   // 获取产品中心产品skulist
@@ -100,7 +100,7 @@ export default class StrockUpHome {
       }
       return { code: jsonData.status_code, data: `${jsonData.message}` }
     } catch (error) {
-      return { code: -2, data: `getProductSkuList-catch： ${error}` }
+      return { code: -2, data: `获取产品SKU数据异常： ${error}` }
     }
   }
 }

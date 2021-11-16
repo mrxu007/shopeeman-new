@@ -515,7 +515,7 @@ export default {
     async exportSearch() {
       this.isLoading = true
       const exportData = []
-      const len = this.total % 20 === 0 ? this.total / 20 : Math.floor(this.total / 20) + 1
+      const len = this.total % this.pageSize === 0 ? this.total / this.pageSize : Math.floor(this.total / this.pageSize) + 1
       const shopSelectVal = this.form.shopSelectVal
       for (let index = 1; index <= len; index++) {
         const parmas = {
@@ -524,7 +524,8 @@ export default {
           mallName: this.form.shopSelect === '0' ? shopSelectVal : '',
           mallId: this.form.shopSelect === '1' ? shopSelectVal : '',
           mallAliasName: this.form.shopSelect === '2' ? shopSelectVal : '',
-          page: index
+          page: index,
+          pageSize: this.pageSize
         }
         try {
           const { data } = await this.$api.getMallStatistics(parmas)

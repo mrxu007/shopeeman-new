@@ -1456,12 +1456,12 @@ export default {
   },
   async mounted() {
     this.form.created_time = [new Date().getTime() - 3600 * 1000 * 24 * 30, new Date()]
-    // 获取数据
-    await this.getStockingForecastLists()
     // 获取中转仓库和目的仓库列表(海外仓备货)
     await this.getOverseasWarehouse()
     // 初始仓库
     await this.init()
+    // 获取数据
+    await this.getStockingForecastLists()
   },
   methods: {
     // 获取数据
@@ -2001,7 +2001,7 @@ export default {
     async exportTableData() {
       this.isShowLoading = true
       const exportData = []
-      const len = this.total % 30 === 0 ? this.total / 30 : Math.floor(this.total / 30) + 1
+      const len = this.total % this.pageSize === 0 ? this.total / this.pageSize : Math.floor(this.total / this.pageSize) + 1
       for (let index = 0; index < len; index++) {
         this.form.page = index
         this.form.pageSize = this.pageSize

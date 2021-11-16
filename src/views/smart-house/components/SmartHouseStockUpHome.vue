@@ -851,7 +851,8 @@
                   <el-form label-position="right" label-width="80px">
                     <el-form-item label="备注信息:">
                       <el-input
-                        v-model="skuList.remark[scope.$index]"
+                        v-model="row.remark"
+                        v-fo
                         size="mini"
                         oninput="value=value.replace(/\s+/g,'')"
                       />
@@ -1243,7 +1244,7 @@ export default {
         this.skuList.purchase_num[index] = '1'
         this.skuList.packageCode[index] = ''
         this.skuList.purchaseOrderSn[index] = ''
-        this.skuList.remark[index] = ''
+        item.remark = ''
       })
       this.skuDetailsVisible = false
     },
@@ -1626,7 +1627,7 @@ export default {
     async exportTableData() {
       this.isShowLoading = true
       const exportData = []
-      const len = this.total % 30 === 0 ? this.total / 30 : Math.floor(this.total / 30) + 1
+      const len = this.total % this.pageSize === 0 ? this.total / this.pageSize : Math.floor(this.total / this.pageSize) + 1
       for (let index = 0; index < len; index++) {
         this.form.page = index
         this.form.pageSize = this.pageSize
