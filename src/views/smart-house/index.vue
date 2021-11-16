@@ -22,6 +22,9 @@
 
     <!--失物招领 -->
     <main v-if="activeVal === '4'"><SmartHouseUnclaimed /></main>
+    <!--
+    二次销售列表
+    <main v-if="activeVal === '4'"><SmartHouseTheSecondSaleList /></main> -->
 
     <!--拒签收管理 -->
     <main v-if="activeVal === '5'"><SmartHouseRefuseSign /></main>
@@ -68,6 +71,7 @@ import {
   SmartHouseReturnManage,
   SmartHouseSecondarySalesList,
   SmartHouseUnclaimed,
+  // SmartHouseTheSecondSaleList,
   SmartHouseAbnormalPayment,
   SmartHousePrivateWarehouse,
   SmartHouseRefuseSign,
@@ -88,6 +92,7 @@ export default {
     SmartHouseReturnManage,
     SmartHouseSecondarySalesList,
     SmartHouseUnclaimed,
+    // SmartHouseTheSecondSaleList,
     SmartHouseAbnormalPayment,
     SmartHousePrivateWarehouse,
     SmartHouseRefuseSign,
