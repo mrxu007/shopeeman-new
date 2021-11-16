@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-11-10 12:02:05
- * @LastEditTime: 2021-11-15 15:58:01
+ * @LastEditTime: 2021-11-16 12:05:42
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shopeeman-new\src\views\order-manager\components\orderCenter\selectData.js
@@ -88,6 +88,24 @@ const shotStatusList = [{
     value: 9,
     label: '退款成功'
   }
+]
+const shotStatuForEdit = [
+  {
+    value: 1,
+    label: '待采购'
+  },
+  {
+    value: 3,
+    label: '采购成功'
+  },
+  {
+    value: 4,
+    label: '采购上家已发货'
+  },
+  {
+    value: 6,
+    label: '已完成'
+  },
 ]
 //时间类型  timeType : 订单支付时间  shopeeDeliveryTime: 发货时间  sourceShippingTime:采购发货时间   shipByDate: 订单截止发货时间
 const timeTypeList = [{
@@ -802,5 +820,6 @@ export {
   statusListSecond,
   statusListThird,
   site_mall,
+  shotStatuForEdit,
   siteShip
 }

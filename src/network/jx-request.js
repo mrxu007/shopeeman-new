@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-10-08 14:16:18
- * @LastEditTime: 2021-11-15 18:46:04
+ * @LastEditTime: 2021-11-16 16:55:55
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shopeeman-new\src\network\jx-request.js
@@ -164,5 +164,8 @@ export default {
   getColumnsConfig: (data) => AppRequest.get('/columnsConfig/index', data), // 获取表格列配置 
   uploadColumnsConfig: (data) => AppRequest.post('/columnsConfig/save', data), // 上报表格列配置 
   markGoodsIsOverseas: (data) => AppRequest.post('/order/markGoodsIsOverseas', data), // 标记海外商品
-  setLocalRemark: (data) => AppRequest.post('/order/remark', data), // 标记本地备注
+  setLocalRemark: (data) => AppRequest.post('/order/remark', data), // 标记本地备注 
+  batchUpdateShotOrder: (data) => AppRequest.post('/order/batchUpdateShotOrder', data), // 批量上传拍单信息  
+  pushOrderToStore: (data) => AppRequest.post('/warehouseAddress/uploadWarehouseOrder', data), // 推送订单至仓库 
+  getDetail: (data) => AppRequest.get('/orderAmountDetail/getDetail', {params:data}), // 订单列表: 订单金额详情
 }

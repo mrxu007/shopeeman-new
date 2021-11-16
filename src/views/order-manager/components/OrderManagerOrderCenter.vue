@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-11-09 10:17:44
- * @LastEditTime: 2021-11-15 18:45:42
+ * @LastEditTime: 2021-11-16 17:16:45
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shopeeman-new\src\views\order-manager\components\OrderManagerOrderCenter.vue
@@ -163,7 +163,7 @@
                 </el-row>
                 <el-row class="row-style">
                   <el-button type="primary" size="mini" class="btnMini">查看禁运品</el-button>
-                  <el-button type="primary" size="mini" class="btnMedium">自有仓库商品出库</el-button>
+                  <el-button type="primary" size="mini" class="btnMedium" @click="outStoreBefore('自有仓库商品出库','1')">自有仓库商品出库</el-button>
                   <el-button type="primary" size="mini" class="btnLong">产品中心商品出库</el-button>
                   <el-button type="primary" size="mini" class="btnLong">海外仓备货商品出库</el-button>
                   <el-button type="primary" size="mini" class="btnLong">国内仓备货商品出局</el-button>
@@ -445,7 +445,7 @@
       <div class="column-style">
         <div class="column-item" v-for="(item, index) in columnConfigList" :key="index">
           <span>{{ item.column_header }}</span>
-          <el-switch style="display: block" v-model="item.is_show" active-color="#13ce66" inactive-color="#a9a9a9"> </el-switch>
+          <el-switch style="display: block" v-model="item.is_show" active-color="#13ce66" inactive-color="#a9a9a9" :active-value="1" :inactive-value="-1"> </el-switch>
         </div>
       </div>
       <span slot="footer">
@@ -472,6 +472,37 @@
         <el-button type="primary" size="mini" @click="batchSetRemark">批量添加</el-button>
       </span>
     </el-dialog>
+    <el-dialog title="选择颜色标识" :visible.sync="colorVisible" width="600px">
+      <div class="color-style">
+        <el-table ref="colorTable" :data="colorList" tooltip-effect="dark" style="width: 100%" height="500">
+          <el-table-column label="标识选择" width="100">
+            <template slot-scope="scope">
+              <el-radio :label="scope.$index" v-model="colorRadio" @change.native="getCurrentRow(scope.row)"></el-radio>
+            </template>
+          </el-table-column>
+          <el-table-column prop="name" label="颜色">
+            <template slot-scope="scope">
+              <div class="colorBox" :style="{ background: scope.row.color }"></div>
+            </template>
+          </el-table-column>
+          <el-table-column prop="name" label="标识名称"></el-table-column>
+        </el-table>
+      </div>
+      <span slot="footer">
+        <el-button type="primary" size="mini" @click="setColor">设置颜色</el-button>
+      </span>
+    </el-dialog>
+    <el-dialog title="批量编辑采购信息" :visible.sync="purchaseInfoVisible" width="500px">
+      <purchase-info :chooseData="multipleSelection" :buyerAccountList="buyerAccountList" @close="close"></purchase-info>
+    </el-dialog>
+    <el-dialog title="同步数据至仓库" :visible.sync="pushOrderToStoreVisible" width="1200px">
+      <push-order :chooseData="multipleSelection"></push-order>
+    </el-dialog>
+    <!-- 四类商品出库 -->
+    <el-dialog :visible.sync="goodsOutStoreVisible" width="1400px" top="5vh" :close-on-click-modal="false" v-if="goodsOutStoreVisible">
+      <div slot="title">{{outStoreTitle}}</div>
+      <goods-out-store :chooseData="multipleSelection" :type="outStoreType"></goods-out-store>
+    </el-dialog>
   </div>
 </template>
 
@@ -481,10 +512,16 @@ import { exportExcelDataCommon, creatDate } from '../../../util/util'
 import storeChoose from '../../../components/store-choose'
 import BuyerAccount from './orderCenter/buyer-account.vue'
 import LogisticeSyncService from '../../../services/logistics-sync-service/logistics-sync-service-new-copy'
+import PurchaseInfo from './orderCenter/purchaseInfo.vue'
+import PushOrder from './orderCenter/pushOrderToStore.vue'
+import GoodsOutStore from './orderCenter/goodsOutStore.vue'
 export default {
   components: {
     BuyerAccount,
     storeChoose,
+    PurchaseInfo,
+    PushOrder,
+    GoodsOutStore
   },
   data() {
     return {
@@ -565,7 +602,7 @@ export default {
         ],
         right: [
           { title: '批量推送订单至仓库 ', key: 8, type: 'primary' },
-          { title: '批量标记颜色', key: 9, type: 'primary' },
+          { title: '批量标记颜色', key: 9, type: 'primary', click: 'getColorList' },
           { title: '批量标记海外商品', key: 10, type: 'primary' },
           { title: '批量添加采购信息', key: 11, type: 'primary' },
         ],
@@ -589,6 +626,15 @@ export default {
       indexLoading: false,
       localRamarkVisible: false, //本地备注
       localRamark: '', //本地备注
+      colorVisible: false, //颜色标识
+      colorList: [],
+      colorRadio: '',
+      colorRow: {}, //选择的颜色行
+      purchaseInfoVisible: false, //批量添加采购信息
+      pushOrderToStoreVisible: false, //推送订单至仓库
+      goodsOutStoreVisible:true,//商品出库
+      outStoreTitle:'自有商品出库',
+      outStoreType:"1",
     }
   },
   mounted() {
@@ -602,9 +648,57 @@ export default {
     }, 2000)
   },
   methods: {
-    openBefore(){
+    //打开商品出库弹窗
+    outStoreBefore(title,type){
       if(!this.multipleSelection.length){
-         return this.$message.warning('请先选择需要备注的商品！')
+        return this.$message.warning("请选择数据")
+      }
+      this.outStoreTitle = title
+      this.outStoreType = type
+      this.goodsOutStoreVisible = true
+   
+    },
+    close(){ 
+      this.purchaseInfoVisible = false
+    },
+    //设置颜色
+    async setColor() {
+      let ids = ''
+      this.multipleSelection.forEach((item, index) => {
+        if (index === 0) {
+          ids = item.id
+        } else {
+          ids = ids + ',' + item.id
+        }
+      })
+      let params = {
+        sysOrderIds: ids,
+        id: this.colorRow.id,
+      }
+      let res = await this.$api.setColorLabel(params)
+      if (res.data.code === 200) {
+        this.$message.success('设置成功')
+        this.colorVisible = false
+      } else {
+        this.$message.error(`设置失败-${res.data.message}`)
+      }
+      console.log(res, 'color')
+    },
+    //获取标识选择
+    async getColorList() {
+      let res = await this.$api.colorLabelList()
+      if (res.data.code === 200) {
+        this.colorList = res.data.data
+      }
+      console.log(res, 'color')
+    },
+    //颜色标识
+    getCurrentRow(row) {
+      this.colorRow = row
+    },
+    openBefore() {
+      if (!this.multipleSelection.length) {
+        return this.$message.warning('请先选择需要备注的商品！')
       }
       this.localRamarkVisible = true
     },
@@ -617,8 +711,8 @@ export default {
       this.$refs.Logs.consoleMsg = ''
       this.multipleSelection.forEach(async (item) => {
         let params = {
-          "id": item.id,
-          "remark": this.localRamark,
+          id: item.id,
+          remark: this.localRamark,
         }
         let res = await this.$api.setLocalRemark(params)
         if (res.data.code === 200) {
@@ -820,6 +914,9 @@ export default {
 .order-center {
   margin: 10px;
   overflow: hidden;
+  /deep/.el-dialog__body {
+    padding: 10px 20px;
+  }
 }
 .content {
   margin: 20px 0;
@@ -946,12 +1043,16 @@ export default {
   }
 }
 .abroad-style {
-  span{
+  span {
     display: inline-block;
-    width:80px;
+    width: 80px;
   }
   display: flex;
   align-items: center;
   justify-content: space-between;
+}
+.colorBox {
+  height: 30px;
+  width: 80px;
 }
 </style>

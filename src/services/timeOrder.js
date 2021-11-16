@@ -386,7 +386,7 @@ export default class {
           "create_time": order.create_time,
           "update_time": order.ordeTrackingHistory && order.ordeTrackingHistory.history && order.ordeTrackingHistory.history[0] && order.ordeTrackingHistory.history[0].ctime || 0,
           "pay_time": order.shipping_confirm_time,
-          // "credit_card_number": order.credit_card_number,
+          "credit_card_number": null,
           "ship_by_date": order.ship_by_date,
           "delivery_time": this.getDeliveryTime(order),
           "tracking_no": order.shipping_traceno || this.getTrackingNo(order),
@@ -407,8 +407,8 @@ export default class {
           "status_ext": order.status_ext,
           "return_id": order.return_id,
           "order_status": "",
-          // "sip_shop_id": order.sip_shop_id,
-          // "country_ext": order.country_ext,
+          "sip_shop_id": "",
+          "country_ext":"",
           "income_detail": JSON.stringify(order.transactionHistoryDetail),
           "total_amount": this.getTotalAmount(order),
           "goods_price": Math.abs(order.transactionHistoryDetail.payment_info.merchant_subtotal.product_price),
@@ -424,7 +424,6 @@ export default class {
           "shopee_rebate": Math.abs(order.transactionHistoryDetail.payment_info.rebate_and_voucher.product_discount_rebate_from_shopee),
           "escrow_amount": Math.abs(order.transactionHistoryDetail.amount),
           "needCheckactualShippingCost": Math.abs(order.transactionHistoryDetail.payment_info.shipping_subtotal.shipping_fee_paid_by_shopee_on_your_behalf),
-          "return_id": order.return_id,
           "items": this.getItems(order),
           "apply_time": this.getApplyTime(order),
           "log_current_status": order.ordeTrackingHistory.history[0].new_status,
@@ -443,14 +442,14 @@ export default class {
           let res = await this.$api.uploadOrderAfterSale({
             "afterOrderData": paramsArr,
             "sysMallId": this.mall.id,
-            "mallId": this.mall.mallId
+            "mallId": this.mall.platform_mall_id
           })
           console.log(this.mall, "上报after",res)
         }else{
           let res = await this.$api.uploadOrderSaveTest({
             "orderData": paramsArr,
             "sysMallId": this.mall.id,
-            "mallId": this.mall.mallId
+            "mallId": this.mall.platform_mall_id
           })
           console.log(this.mall, "上报",res)
         }

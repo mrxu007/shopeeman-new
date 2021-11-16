@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-11-09 10:14:02
- * @LastEditTime: 2021-11-15 18:06:25
+ * @LastEditTime: 2021-11-16 12:14:12
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shopeeman-new\src\components\buyer-account.vue
@@ -169,11 +169,11 @@ export default {
           center: [
             { title: '拼多多账号', platform: 1, centerTitle: '拼多多个人中心' },
             { title: '淘宝账号', platform: 2, centerTitle: '淘宝个人中心' },
-            { title: '1688账号', platform: 8, centerTitle: '1688个人中心'},
+            { title: '1688账号', platform: 8, centerTitle: '1688个人中心' },
             { title: '京喜账号', platform: 10, centerTitle: '京喜个人中心' },
             { title: 'lazada账号', platform: 9, centerTitle: 'lazada个人中心' },
-            { title: 'shopee账号', platform: 11, centerTitle: 'shopee个人中心'},
-            { title: '天猫淘宝海外账号', platform: 888, centerTitle: '刷新天猫淘宝海外平台账号'},
+            { title: 'shopee账号', platform: 11, centerTitle: 'shopee个人中心' },
+            { title: '天猫淘宝海外账号', platform: 888, centerTitle: '刷新天猫淘宝海外平台账号' },
             // { title: '京东账号', platform: 4 }
           ],
           right: [
@@ -280,13 +280,13 @@ export default {
       if (this.isOrderSelectAllMall) {
         //全店同步
         let res = await this.$appConfig.getGlobalCacheInfo('allMallInfo', 'key')
-        let mallObject = res && JSON.parse(res) 
-        if(mallObject){
-          for(const key in mallObject){
+        let mallObject = res && JSON.parse(res)
+        if (mallObject) {
+          for (const key in mallObject) {
             mallList.push(mallObject[key])
           }
         }
-        console.log(mallList,JSON.parse(res))
+        console.log(mallList, JSON.parse(res))
       } else {
         mallList = this.$parent.selectMallList
       }
@@ -300,8 +300,8 @@ export default {
         for (let i = 0; i < syncStatus.length; i++) {
           //同步状态
           let statusObj = syncStatus[i]
-          const orderService = new orderSync(mall, statusObj, this,this.$parent.$refs.Logs.writeLog)
-          await orderService.start(`${mI+1}/${mallList.length}`,'manual',)
+          const orderService = new orderSync(mall, statusObj, this, this.$parent.$refs.Logs.writeLog)
+          await orderService.start(`${mI + 1}/${mallList.length}`, 'manual')
         }
       }
       this.$parent.$refs.Logs.writeLog('订单同步已完成！！！', true)
@@ -356,14 +356,33 @@ export default {
         case 6: //上传买手号
           this.batchUpBuyer(1)
           return
-        case 7: //下载买手号
+        case 7: //下载买手号 
           this.buyerAccount(1)
           return
-        case 10: //配置列
-          if(!this.$parent['multipleSelection'].length){
-            return this.$message.warning("请先选择需要标记的商品！")
+        case 8: //同步数据至仓库
+          if (!this.$parent['multipleSelection'].length) {
+            return this.$message.warning('请先选择商品！')
+          }
+          this.$parent['pushOrderToStoreVisible'] = true
+          return
+        case 9: //颜色标识
+          if (!this.$parent['multipleSelection'].length) {
+            return this.$message.warning('请先选择需要标记的商品！')
+          }
+          this.$parent['colorVisible'] = true
+          this.$parent[clickEvent]()
+          return
+        case 10: //配置列 
+          if (!this.$parent['multipleSelection'].length) {
+            return this.$message.warning('请先选择需要标记的商品！')
           }
           this.$parent['abroadVisible'] = true
+          return
+        case 11: //设置采购信息
+          if (!this.$parent['multipleSelection'].length) {
+            return this.$message.warning('请先选择商品！')
+          }
+          this.$parent['purchaseInfoVisible'] = true
           return
       }
       if (clickEvent) {
@@ -397,7 +416,7 @@ export default {
     },
     // 公共个人中心
     publicCenter(id, platform) {
-      console.log(id,"id")
+      console.log(id, 'id')
       switch (platform) {
         case 1:
           this.pddUserCenterHandler(id)
@@ -439,7 +458,7 @@ export default {
       await this.$appConfig.UpdateCacheInfo('buyerInfo', key, params)
     },
     //转换拍单平台type
-    changeType(type){
+    changeType(type) {
       switch (type) {
         //pdd
         case 1:
@@ -464,7 +483,7 @@ export default {
       }
     },
     //转换参数为壳需要
-    changeAccountParams(account){
+    changeAccountParams(account) {
       let params = {
         UserNameCache: account.cache_path,
         Password: '',
@@ -596,8 +615,8 @@ export default {
       }
     },
     //上传买手号
-    async batchUpBuyer(){
-      for(let i=0;i<this.buyerAccountList;i++){
+    async batchUpBuyer() {
+      for (let i = 0; i < this.buyerAccountList; i++) {
         let account = this.buyerAccountList[i]
         this.upBuyerAccountList(account)
       }
@@ -611,7 +630,7 @@ export default {
         site: account.country || '',
         loginInfo: account.login_info,
         ua: account.ua,
-        cachePath: account.cache_path
+        cachePath: account.cache_path,
       }
       const { data } = await this.$api.upLoadBuyAccount(params)
       if (data.code === 200) {
