@@ -1,11 +1,14 @@
 /*
  * @Author: your name
  * @Date: 2021-11-10 12:02:05
- * @LastEditTime: 2021-11-12 18:08:06
+ * @LastEditTime: 2021-11-15 15:58:01
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shopeeman-new\src\views\order-manager\components\orderCenter\selectData.js
  */
+
+import { rearg } from "lodash"
+
 //订单状态  1:待支付 2:待发货 3:已发货 4:已完成  5:取消中 6:已取消 7:退款/退货 8:确认签收 9:退款成功 10:退款失败  20:无售后订单
 const orderStatusList = [{
     value: 1,
@@ -771,6 +774,7 @@ function siteShip(country) {
   })
   return arr
 }
+
 //syncType： 订单同步类型：auto:自动(后台自动同步订单)     manual：手动同步（页面点击同步）   single ：单个订单同步（选择订单列表单个订单进行同步）
 const upLoadType = [{
     label: '自动',

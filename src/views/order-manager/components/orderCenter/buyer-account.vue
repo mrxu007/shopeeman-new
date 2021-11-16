@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-11-09 10:14:02
- * @LastEditTime: 2021-11-15 14:33:23
+ * @LastEditTime: 2021-11-15 18:06:25
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shopeeman-new\src\components\buyer-account.vue
@@ -343,12 +343,27 @@ export default {
     // 公共按钮
     handelBtn(key, clickEvent, params) {
       switch (key) {
-        case 1:
+        case 1: //登录买手号
           this.loginAccount = true
           this.getProxy()
           return
-        case 2:
+        case 2: //同步订单
           this.SyncOrder()
+          return
+        case 5: //配置列
+          this.$parent['columnVisible'] = true
+          return
+        case 6: //上传买手号
+          this.batchUpBuyer(1)
+          return
+        case 7: //下载买手号
+          this.buyerAccount(1)
+          return
+        case 10: //配置列
+          if(!this.$parent['multipleSelection'].length){
+            return this.$message.warning("请先选择需要标记的商品！")
+          }
+          this.$parent['abroadVisible'] = true
           return
       }
       if (clickEvent) {
@@ -580,6 +595,13 @@ export default {
         })
       }
     },
+    //上传买手号
+    async batchUpBuyer(){
+      for(let i=0;i<this.buyerAccountList;i++){
+        let account = this.buyerAccountList[i]
+        this.upBuyerAccountList(account)
+      }
+    },
     // 更新买手号列表(自动上传)服务端
     async upBuyerAccountList(account) {
       let params = {
@@ -593,7 +615,7 @@ export default {
       }
       const { data } = await this.$api.upLoadBuyAccount(params)
       if (data.code === 200) {
-        // this.buyerAccount()
+        this.buyerAccount()
         //  this.syncLogistics(account)
       } else {
         this.$notify({
@@ -606,19 +628,14 @@ export default {
     },
     // 更新买手号列表(获取买手号列表)
     async buyerAccount(i) {
-      // const { data } = await this.$api.buyerAccount()
-      if (this.operation?.url?.getAccount?.click) {
-        return this.$parent[this.operation.url.getAccount.click](i)
-      }
-      const { data } = await this.$apiRequest.get(this.operation?.url?.getAccount?.path || '/api/buyerAccount')
+      const { data } = await this.$api.getBuyerList()
       let sortData = null
       if (data.code === 200) {
         if (this.operation?.url?.getAccount?.sort) {
           // 根据时间排序
-          const sortParams = this.operation?.url?.getAccount?.sort || 'updated_at'
           sortData = data.data.sort(function (a, b) {
-            var x = a[sortParams].replace(/:/g, '').replace(/-/g, '').replace(' ', '')
-            var y = b[sortParams].replace(/:/g, '').replace(/-/g, '').replace(' ', '')
+            var x = a['updated_at'].replace(/:/g, '').replace(/-/g, '').replace(' ', '')
+            var y = b['updated_at'].replace(/:/g, '').replace(/-/g, '').replace(' ', '')
             return x < y ? 1 : x > y ? -1 : 0
           })
         }
