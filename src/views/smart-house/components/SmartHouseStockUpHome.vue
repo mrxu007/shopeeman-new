@@ -1190,6 +1190,7 @@ export default {
     },
     // 获取中转仓
     async getWarehouseList() {
+      const myMap = new Map()
       const res = await this.StrockUpHome.getWarehouseList()
       if (res.code === 200) {
         res.data.forEach(item => {
@@ -1208,6 +1209,7 @@ export default {
             }
           }
         })
+        this.widList = this.widList.filter((item) => !myMap.has(item.id) && myMap.set(item.id, 1))
       } else {
         this.$message.error(`${res.data}`)
       }

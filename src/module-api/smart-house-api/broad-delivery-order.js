@@ -16,10 +16,25 @@ export default class BroadDeliveryOrder {
         created_time: created_time,
         status: item.status
       }
-      const res = await this._this.getOutOfStockList(pamars)
-      console.log(res)
+      const res = await this._this.$api.getOutOfStockList(pamars)
+      if (res.data.code === 200) {
+        return { code: 200, data: res.data.data }
+      }
+      return { code: res.data.code, data: `${res.data.message}` }
     } catch (error) {
-      return { code: -2, data: `getOutOfStockList-catch：${error}` }
+      return { code: -2, data: `获取数据异常：${error}` }
+    }
+  }
+  // 获取仓库
+  async getOverseasWarehouse() {
+    try {
+      const res = await this._this.$api.getOverseasWarehouse()
+      if (res.data.code === 200) {
+        return { code: 200, data: res.data.data }
+      }
+      return { code: res.data.code, data: `${res.data.message}` }
+    } catch (error) {
+      return { code: -2, data: `获取仓库列表异常： ${error}` }
     }
   }
 }
