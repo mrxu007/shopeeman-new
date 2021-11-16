@@ -68,131 +68,132 @@
         </el-col>
       </el-row>
       <el-row class="article">
-        <el-table
+        <u-table
+          ref="plTable"
           v-loading="isLoading"
-          height="calc(100vh - 225px)"
+          use-virtual
+          :height="height"
+          :row-height="rowHeight"
           :data-changes-scroll-top="false"
           :border="false"
-          :data="tableData"
           :header-cell-style="{
             textAlign: 'center',
             backgroundColor: '#f5f7fa',
           }"
-          @table-body-scroll="tableScroll"
           @selection-change="handleSelectionChange"
         >
-          <el-table-column align="center" type="selection" width="50" />
-          <el-table-column align="center" type="index" label="序列号" width="80" />
-          <el-table-column align="center" prop="country" label="站点">
+          <u-table-column align="center" type="selection" width="50" />
+          <u-table-column align="center" type="index" label="序列号" width="80" />
+          <u-table-column align="center" prop="country" label="站点">
             <template slot-scope="{ row }">
               {{ row.country | chineseSite }}
             </template>
-          </el-table-column>
-          <el-table-column align="center" prop="platform_mall_id" label="店铺ID" min-width="120" />
-          <el-table-column align="center" label="店铺名称" min-width="130">
+          </u-table-column>
+          <u-table-column align="center" prop="platform_mall_id" label="店铺ID" min-width="120" />
+          <u-table-column align="center" label="店铺名称" min-width="130">
             <template slot-scope="{ row }">
               {{ row.mall_alias_name ? row.mall_alias_name : row.platform_mall_name }}
             </template>
-          </el-table-column>
-          <el-table-column align="center" label="店铺分组">
+          </u-table-column>
+          <u-table-column align="center" label="店铺分组" min-width="100">
             <template slot-scope="{ row }">
               {{ row.group_name === 'All' ? '' : row.group_name }}
             </template>
-          </el-table-column>
-          <el-table-column align="center" label="操作状态" min-width="100" show-overflow-tooltip>
+          </u-table-column>
+          <u-table-column align="center" label="操作状态" min-width="100" show-overflow-tooltip>
             <template slot-scope="{ row }">
               <span :style="row.color && 'color:' + row.color">{{ row.status }}</span>
             </template>
-          </el-table-column>
-          <el-table-column align="center" prop="recent_order_create_time" label="最近订单创建时间" min-width="150" />
-          <!-- <el-table-column align="center" label="距今无订单天数" min-width="150">
+          </u-table-column>
+          <u-table-column align="center" prop="recent_order_create_time" label="最近订单创建时间" min-width="150" />
+          <!-- <u-table-column align="center" label="距今无订单天数" min-width="150">
             <template slot-scope="{ row }">
               {{ row.not_order_time }}
             </template>
-          </el-table-column> -->
-          <el-table-column align="center" prop="yesterday_order_num" label="昨日订单数" min-width="90" />
-          <el-table-column align="center" prop="week_order_num" label="近7天订单数" min-width="100" />
-          <el-table-column align="center" prop="history_order_num" label="历史订单数" min-width="90" />
-          <el-table-column align="center" prop="mall_quota" label="店铺额度" />
-          <el-table-column align="center" prop="all_product_num" label="全部产品数" min-width="90" />
-          <el-table-column align="center" prop="active_product_num" label="上架产品数" min-width="100" />
-          <el-table-column align="center" prop="soldout_product_num" label="售空产品数" min-width="90" />
-          <el-table-column align="center" prop="banned_product_num" label="禁卖产品数" min-width="90" />
-          <el-table-column align="center" prop="unlisted_product_num" label="未上架产品数" min-width="110" />
-          <el-table-column align="center" prop="chat_response_rate" label="聊聊回复率" min-width="90" />
-          <el-table-column align="center" prop="rating_star" label="卖场评价" />
-          <el-table-column align="center" prop="order_non_fulfillment_rate" label="订单未完成率" min-width="110" />
-          <el-table-column align="center" prop="followers_number" label="关注量" />
-          <el-table-column align="center" prop="fans_number" label="粉丝量" />
-          <el-table-column align="center" prop="today_view_product_count" label="商品浏览量" min-width="90" />
-          <el-table-column align="center" prop="yesterday_view_product_count" label="昨日商品浏览量" min-width="120" />
-          <el-table-column align="center" prop="week_view_product_count" label="近7天商品浏览量" min-width="130" />
-          <el-table-column align="center" prop="month_view_product_count" label="近30天商品浏览量" min-width="140" />
-          <el-table-column align="center" prop="today_view_person_count" label="访客数" />
-          <el-table-column align="center" prop="yesterday_view_person_count" label="昨日访客数" min-width="90" />
-          <el-table-column align="center" prop="week_view_person_count" label="近7日访客数" min-width="100" />
-          <el-table-column align="center" prop="month_view_person_count" label="近30日访客数" min-width="110" />
-          <el-table-column align="center" label="客服不重复访客数" min-width="140">
+          </u-table-column> -->
+          <u-table-column align="center" prop="yesterday_order_num" label="昨日订单数" min-width="90" />
+          <u-table-column align="center" prop="week_order_num" label="近7天订单数" min-width="100" />
+          <u-table-column align="center" prop="history_order_num" label="历史订单数" min-width="90" />
+          <u-table-column align="center" prop="mall_quota" label="店铺额度" />
+          <u-table-column align="center" prop="all_product_num" label="全部产品数" min-width="90" />
+          <u-table-column align="center" prop="active_product_num" label="上架产品数" min-width="100" />
+          <u-table-column align="center" prop="soldout_product_num" label="售空产品数" min-width="90" />
+          <u-table-column align="center" prop="banned_product_num" label="禁卖产品数" min-width="90" />
+          <u-table-column align="center" prop="unlisted_product_num" label="未上架产品数" min-width="110" />
+          <u-table-column align="center" prop="chat_response_rate" label="聊聊回复率" min-width="90" />
+          <u-table-column align="center" prop="rating_star" label="卖场评价" />
+          <u-table-column align="center" prop="order_non_fulfillment_rate" label="订单未完成率" min-width="110" />
+          <u-table-column align="center" prop="followers_number" label="关注量" />
+          <u-table-column align="center" prop="fans_number" label="粉丝量" />
+          <u-table-column align="center" prop="today_view_product_count" label="商品浏览量" min-width="90" />
+          <u-table-column align="center" prop="yesterday_view_product_count" label="昨日商品浏览量" min-width="120" />
+          <u-table-column align="center" prop="week_view_product_count" label="近7天商品浏览量" min-width="130" />
+          <u-table-column align="center" prop="month_view_product_count" label="近30天商品浏览量" min-width="140" />
+          <u-table-column align="center" prop="today_view_person_count" label="访客数" />
+          <u-table-column align="center" prop="yesterday_view_person_count" label="昨日访客数" min-width="90" />
+          <u-table-column align="center" prop="week_view_person_count" label="近7日访客数" min-width="100" />
+          <u-table-column align="center" prop="month_view_person_count" label="近30日访客数" min-width="110" />
+          <u-table-column align="center" label="客服不重复访客数" min-width="140">
             <template slot-scope="{ row }">
               {{ row.mall_datas && row.mall_datas.ChatShopUvData ? row.mall_datas.ChatShopUvData : '-' }}
             </template>
-          </el-table-column>
-          <el-table-column align="center" label="客服询问数" min-width="90">
+          </u-table-column>
+          <u-table-column align="center" label="客服询问数" min-width="90">
             <template slot-scope="{ row }">
               {{ row.mall_datas && row.mall_datas.ChatsEnquiredData ? row.mall_datas.ChatsEnquiredData : '-' }}
             </template>
-          </el-table-column>
-          <el-table-column align="center" label="客服访客询问数" min-width="120">
+          </u-table-column>
+          <u-table-column align="center" label="客服访客询问数" min-width="120">
             <template slot-scope="{ row }">
               {{ row.mall_datas && row.mall_datas.ChatVisitorsEnquiredData ? row.mall_datas.ChatVisitorsEnquiredData : '-' }}
             </template>
-          </el-table-column>
-          <el-table-column align="center" label="客服已回应数" min-width="110">
+          </u-table-column>
+          <u-table-column align="center" label="客服已回应数" min-width="110">
             <template slot-scope="{ row }">
               {{ row.mall_datas && row.mall_datas.ChatRespondedChatsData ? row.mall_datas.ChatRespondedChatsData : '-' }}
             </template>
-          </el-table-column>
-          <el-table-column align="center" label="客服无回应数" min-width="110">
+          </u-table-column>
+          <u-table-column align="center" label="客服无回应数" min-width="110">
             <template slot-scope="{ row }">
               {{ row.mall_datas && row.mall_datas.ChatNonRespondedChatsData ? row.mall_datas.ChatNonRespondedChatsData : '-' }}
             </template>
-          </el-table-column>
-          <el-table-column align="center" label="客服咨询买家数" min-width="120">
+          </u-table-column>
+          <u-table-column align="center" label="客服咨询买家数" min-width="120">
             <template slot-scope="{ row }">
               {{ row.mall_datas && row.mall_datas.ChatBuyersData ? row.mall_datas.ChatBuyersData : '-' }}
             </template>
-          </el-table-column>
-          <el-table-column align="center" label="客服咨询订单数" min-width="120">
+          </u-table-column>
+          <u-table-column align="center" label="客服咨询订单数" min-width="120">
             <template slot-scope="{ row }">
               {{ row.mall_datas && row.mall_datas.ChatOrdersData ? row.mall_datas.ChatOrdersData : '-' }}
             </template>
-          </el-table-column>
-          <el-table-column align="center" label="客服咨询件数" min-width="110">
+          </u-table-column>
+          <u-table-column align="center" label="客服咨询件数" min-width="110">
             <template slot-scope="{ row }">
               {{ row.mall_datas && row.mall_datas.ChatUnitsData ? row.mall_datas.ChatUnitsData : '-' }}
             </template>
-          </el-table-column>
-          <el-table-column align="center" label="客服咨询销售额" min-width="120">
+          </u-table-column>
+          <u-table-column align="center" label="客服咨询销售额" min-width="120">
             <template slot-scope="{ row }">
               {{ row.mall_datas && row.mall_datas.ChatSalesData ? row.mall_datas.ChatSalesData : '-' }}
             </template>
-          </el-table-column>
-          <el-table-column align="center" label="客服平均回应时间" min-width="140">
+          </u-table-column>
+          <u-table-column align="center" label="客服平均回应时间" min-width="140">
             <template slot-scope="{ row }">
               {{ row.mall_datas && row.mall_datas.ChatResponseTimeData ? row.mall_datas.ChatResponseTimeData : '-' }}
             </template>
-          </el-table-column>
-          <el-table-column align="center" prop="frozen_amount_orders" label="待拨款订单数" min-width="110" />
-          <el-table-column align="center" prop="frozen_amount" label="待拨款金额" min-width="110" />
-          <el-table-column align="center" prop="lastweek_amount" label="本周已拨款" min-width="110" />
-          <el-table-column align="center" prop="lastmonth_amount" label="本月已拨款" min-width="110" />
-          <el-table-column align="center" prop="available_amount" label="全部已拨款" min-width="100" />
-        </el-table>
+          </u-table-column>
+          <u-table-column align="center" prop="frozen_amount_orders" label="待拨款订单数" min-width="110" />
+          <u-table-column align="center" prop="frozen_amount" label="待拨款金额" min-width="110" />
+          <u-table-column align="center" prop="lastweek_amount" label="本周已拨款" min-width="110" />
+          <u-table-column align="center" prop="lastmonth_amount" label="本月已拨款" min-width="110" />
+          <u-table-column align="center" prop="available_amount" label="全部已拨款" min-width="100" />
+        </u-table>
         <div class="pagination">
           <el-pagination
             background
             :current-page="page"
-            :page-sizes="[700, 1000, 1500, 2000]"
+            :page-sizes="[200, 700, 1000, 2000]"
             :page-size="pageSize"
             layout="total, sizes, prev, pager, next, jumper"
             :total="total"
@@ -218,7 +219,9 @@ export default {
       mallDataApiInstance: new MallDataApi(this),
       page: 1,
       total: 0,
-      pageSize: 700,
+      pageSize: 200,
+      height: 630,
+      rowHeight: 50,
       isLoading: false,
       percentage: 0, // 进度条数据
       isShowProgress: false,
@@ -442,7 +445,6 @@ export default {
             const element = this.tableData[index]
             const res = await this.$appConfig.getGlobalCacheInfo('mallInfo', element.platform_mall_id)
             const jsonData = JSON.parse(res)
-            // element.country = this.$filters.chineseSite(element.country)
             element.mall_datas = JSON.parse(element.mall_datas)
             element.available_amount = element.available_amount ? parseInt(element.available_amount) : 0
             element.lastmonth_amount = element.lastmonth_amount ? parseInt(element.lastmonth_amount) : 0
@@ -454,29 +456,15 @@ export default {
             this.weekAmount += element.lastweek_amount
             this.frozenAmount += element.frozen_amount
             this.frozenAmountOrders += element.frozen_amount_orders
-            element.not_order_time = this.formatDay(element.recent_order_create_time)
             element.group_name = jsonData.GroupName
-            // element['status']= ''
-            // element['color'] = ''
           }
         }
         this.isLoading = false
+        this.$refs.plTable.reloadData(this.tableData)
         console.log('tableData', this.tableData)
       } else {
         this.$message.error(`${data.message}`)
         this.isLoading = false
-      }
-    },
-    formatDay(val) {
-      if (val) {
-        const day2 = new Date(val)
-        const s1 = new Date().getTime()
-        const s2 = day2.getTime()
-        const total = (s1 - s2) / 1000
-        const day = parseInt(total / (24 * 60 * 60))
-        return day
-      } else {
-        return '无订单记录'
       }
     },
     // 勾选表格操作
@@ -538,7 +526,6 @@ export default {
                 const jsonData = JSON.parse(res)
                 element.country = this.$filters.chineseSite(element.country)
                 element.mall_datas = JSON.parse(element.mall_datas)
-                element.not_order_time = this.formatDay(element.recent_order_create_time)
                 element.group_name = jsonData.GroupName
               }
             }
@@ -566,7 +553,6 @@ export default {
           <td>店铺名称</td>
           <td>店铺分组</td>
           <td>最近创建订单时间</td>
-          <td>距今无订单数</td>
           <td>昨日订单数</td>
           <td>近7天订单数</td>
           <td>历史订单总数</td>
@@ -612,7 +598,6 @@ export default {
         <td>${item.mall_alias_name ? item.mall_alias_name : item.platform_mall_name + '\t'}</td>
         <td>${item.group_name ? item.group_name : '' + '\t'}</td>
         <td>${item.recent_order_create_time ? item.recent_order_create_time : '' + '\t'}</td>
-        <td>${item.not_order_time ? item.not_order_time : '' + '\t'}</td>
         <td>${item.yesterday_order_num ? item.yesterday_order_num : '' + '\t'}</td>
         <td>${item.week_order_num ? item.week_order_num : '' + '\t'}</td>
         <td>${item.history_order_num ? item.history_order_num : '' + '\t'}</td>
@@ -658,7 +643,6 @@ export default {
     getGroupId(data) {
       this.form.groupId = data
     },
-    tableScroll() {},
     handleSizeChange(val) {
       this.pageSize = val
       this.getMallStatistics()

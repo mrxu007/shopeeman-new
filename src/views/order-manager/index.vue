@@ -24,7 +24,7 @@
     <main v-if="activeVal === '5'"><OrderManagerLostInfoQuery /></main>
 
     <!--采购价变更记录 -->
-    <main v-if="activeVal === '5'"><OrderManagerChangeRecord /></main>
+    <main v-if="activeVal === '6'"><OrderManagerChangeRecord /></main>
   </div>
 </template>
 

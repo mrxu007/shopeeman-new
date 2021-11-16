@@ -1145,10 +1145,11 @@ export default {
         // console.log('color', res)
         const data = res.data
         if (data.code === 200) {
-          this.$notify({
-            type: 'success',
-            message: '操作成功'
-          })
+          // this.$notify({
+          //   type: 'success',
+          //   message: '操作成功'
+          // })
+          this.$message.success('操作成功')
         } else {
           let message = ''
           for (let i = 0; i < data.data.length; i++) {
@@ -1158,10 +1159,11 @@ export default {
               break
             }
           }
-          this.$notify({
-            type: 'error',
-            message: message
-          })
+          // this.$notify({
+          //   type: 'error',
+          //   message: message
+          // })
+          this.$message.warning(message)
         }
         this.setSelect()
         this.colorVisible = false
