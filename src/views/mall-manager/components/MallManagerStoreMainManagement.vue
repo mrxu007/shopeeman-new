@@ -105,7 +105,6 @@
           :row-style="{ height: '50px' }"
           style="width: 100%;height: calc(100vh - 233px)"
           :header-cell-style="{ background: '#f7fafa' }"
-          :row-key="generateUUID"
           @selection-change="handleSelectionChange"
         >
           <el-table-column
@@ -183,14 +182,14 @@
                 <el-option v-for="(item,index) in time_ipList" :key="'time'+index" :label="item.period+'个月 / '+item.price+' 元'" :value="item.period" />
               </el-select>
             </div>
-            <div class="left_item">
+            <!-- <div class="left_item">
               是否预售：
               <el-radio-group v-model="ipMaster_params.isPresale" size="mini">
                 <el-radio label="1">是</el-radio>
                 <el-radio label="2">否</el-radio>
               </el-radio-group>
-            </div>
-            <div class="left_item">
+            </div> -->
+            <div class="left_item" style="margin-left:-12px">
               主体名称：<el-input v-model="ipMaster_params.ipAlias" clearable style="width:180px" size="mini" />
               <!-- <span v-show="ipMaster_params.ipAlias===''" style="color:red">(必填)</span> -->
               <span style="color:red;margin-left:200px">(必填)</span>
@@ -628,7 +627,6 @@
                 ref="multipleTable_dialog"
                 height="400px"
                 :header-cell-style="{'background': '#f7fafa'}"
-                :row-key="generateUUID"
                 :data="dialog_mallList"
                 @selection-change="handleSelectionChangeDialog"
               >
@@ -1189,7 +1187,7 @@ export default {
       if (res.data.code === 200) {
         this.dialog_mallList = res.data.data
       } else {
-        this.$message.warning('网络异常！')
+        this.$message.warning('店铺列表获取失败！')
       }
       this.loading = false
       this.bindedMall()
@@ -1208,7 +1206,6 @@ export default {
         this.loading = true
         const res = await this.$commodityService.newBangdingMall(uid, targetId, mallIds)
         const data = JSON.parse(res)
-
         if (data.code !== 200) {
           // this.$notify({
           //   title: '绑定店铺',
