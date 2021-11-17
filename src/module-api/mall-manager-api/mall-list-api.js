@@ -16,7 +16,7 @@ export default class MallListAPI {
         version: '3.1.0'
       }
       // cnsc_shop_id  店铺类型为 2 or 3时，需要此参数
-      let res = await this._this.$shopeemanService.getChinese(country, '/api/v3/product/get_product_statistical_data/?', params, { headers: { referer: '/portal/product/list/all' }})
+      let res = await this._this.$shopeemanService.getChinese(country, '/api/v3/product/get_product_statistical_data/?', params, { headers: { referer: '/portal/product/list/all' } })
       res = JSON.parse(JSON.parse(res).data)
       if (res.code === 0) {
         return { code: 200, data: res.data } // count_for_limit
@@ -183,16 +183,16 @@ export default class MallListAPI {
     try {
       const res = await this._this.$api.getMallList(params)
       if (res.data.code === 200) {
-        const mallArr = res.data.data.map(item => {
+        const mallArr = res.data.data.data.map(item => {
           item.LoginInfo = '<p>等待检测...</p>'
           item.isCheckedWaterMark = false
           item.isCheckedWaterMark2 = false
           return item
         })
-        if (!params.country && !params.groupId) {
-          this.mallList = mallArr
-        }
-        return { code: 200, data: mallArr }
+        // if (!params.country && !params.groupId) {
+        //   this.mallList = mallArr
+        // }
+        return { code: 200, data: { total: res.data.data.total, mallArr } }
       }
       return { code: -2, data: '获取店铺列表失败' }
     } catch (error) {
