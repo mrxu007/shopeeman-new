@@ -433,21 +433,55 @@ export default {
         this.$message.warning('云端没有此账户信息，请让拍单人员上传或登录')
         return
       }
-      const userInfo = null
-      // if (row.shot_order_info.buy_account_info.) {
-      //   this.buyerAccountList.forEach((item) => {
-      //     if (item.id === id) {
-      //       userInfo = item
-      //     }
-      //   })
-      //   return userInfo
-      // } else {
-      //   this.$notify({
-      //     title: '买手号个人中心',
-      //     type: 'error',
-      //     message: `请选择账户`,
-      //   })
-      // }
+      let userInfo = null
+      this.buyerAccountList.forEach((item) => {
+        if (item.name === row.shot_order_info.buy_account_info.name && item.type === row.shot_order_info.buy_account_info.name) {
+          userInfo = item
+        }
+      })
+      const account = this.changeAccountParams(userInfo)// 获取账号全部信息
+      const type = this.changeType(account)
+      const params = this.changeAccountParams(account)
+      // type
+    },
+    changeType(type) {
+      switch (type) {
+        // pdd
+        case 1:
+          return 1
+        // tb
+        case 2:
+          return 0
+        // 1688
+        case 8:
+          return 5
+        // jingxi
+        case 10:
+          return 3
+        // lazada
+        case 9:
+          return 7
+        // shopee
+        case 11:
+          return 8
+        default:
+          return type
+      }
+    },
+    // 转换参数为壳需要
+    changeAccountParams(account) {
+      const params = {
+        UserNameCache: account.cache_path,
+        Password: '',
+        shotOrderPlatform: this.changeType(account.type),
+        LoginedCookies: account.login_info,
+        UserName: account.name,
+        Cookiestr: JSON.stringify(account.login_info),
+        AccountType: account.type,
+        Ua: account.ua,
+        Country: account.site || ''
+      }
+      return params
     },
     // 删除
     delGoods(row) {
