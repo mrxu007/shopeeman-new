@@ -123,7 +123,7 @@
 </template>
 <script>
 import storeChoose from '../../../components/store-choose'
-import { exportExcelDataCommon, creatDate } from '../../../util/util'
+import { exportExcelDataCommon } from '../../../util/util'
 
 export default {
   components: { storeChoose },
@@ -187,7 +187,7 @@ export default {
       this.selectMallList = val
       this.site_query['country'] = this.selectMallList['country']
       this.exchangeRateList()
-      console.log('111', this.site_query['country'])
+      console.log('country', this.site_query['country'])
       console.log('changeMallList', val)
     },
     // 同步信息
@@ -311,66 +311,9 @@ export default {
     // 获取汇率
     async exchangeRateList() {
       const data = await this.$api.exchangeRateList()
-      console.log(data.data)
+      console.log(data.data.data)
       if (data.data.code === 200) {
-        console.log(this.site_query.country)
-        switch (this.site_query.country) {
-          case 'MY':// 马来
-            this.site_query.rate_coin = data.data.data.MY
-            this.site_query.typeCoin = 'RM'
-            break
-          case 'SG':// 新加坡
-            this.site_query.rate_coin = data.data.data.SG
-            this.site_query.typeCoin = '$'
-            break
-          case 'PH':// 菲律宾
-            this.site_query.rate_coin = data.data.data.PH
-            this.site_query.typeCoin = '₱'
-            break
-          case 'TH':// 泰国
-            this.site_query.rate_coin = data.data.data.TH
-            this.site_query.typeCoin = '฿'
-            break
-          case 'ID':// 印尼
-            this.site_query.rate_coin = data.data.data.ID
-            this.site_query.typeCoin = 'Rp'
-            break
-          case 'TW':// 台湾
-            this.site_query.rate_coin = data.data.data.TW
-            this.site_query.typeCoin = '$'
-            break
-          case 'VN':// 越南
-            this.site_query.rate_coin = data.data.data.VN
-            this.site_query.typeCoin = '₫'
-            break
-          case 'BR':// 巴西
-            this.site_query.rate_coin = data.data.data.BR
-            this.site_query.typeCoin = 'R$'
-            break
-          case 'US':// 美国
-            this.site_query.rate_coin = data.data.data.US
-            this.site_query.typeCoin = '$'
-            break
-          case 'MX':// 墨西哥
-            this.site_query.rate_coin = data.data.data.MX
-            this.site_query.typeCoin = 'MX$'
-            break
-          case 'CL':// 智利
-            this.site_query.rate_coin = data.data.data.CL
-            this.site_query.typeCoin = '$'
-            break
-          case 'CO':// 哥伦比亚
-            this.site_query.rate_coin = data.data.data.CO
-            this.site_query.typeCoin = '$'
-            break
-          case 'PL':// 波兰
-            this.site_query.rate_coin = data.data.data.PL
-            this.site_query.typeCoin = 'zł'
-            break
-          default:
-            // this.site_query.typeCoin = '￥'
-            break
-        }
+        this.site_query.rate_coin = data.data.data[this.site_query.country]
       } else {
         this.$message.warning('网络请求失败')
       }
@@ -415,7 +358,6 @@ export default {
     // 搜索
     search() {
       this.isLoading = true
-      console.log(this.selectMallList)
       const params = this.query
       let sysMallId = ''
       this.selectMallList.forEach((item, index) => {
@@ -443,6 +385,10 @@ export default {
         this.total = data.data.data.total
         this.to_back_amount = data.data.data.to_back_amount
         this.haved_amount = data.data.data.haved_amount
+        this.site_query.typeCoin = this.$shopeeManConfig.getSiteCoinSymbol(this.site_query.country)
+        if (this.selectMallList?.length === 0) {
+          this.tableList = []
+        }
       } else {
         this.$message.warning('数据请求失败！')
       }
