@@ -182,6 +182,7 @@ export default {
       for (let i = 0; i < keyLen; i++) {
         const keyItem = key[i]
         const res = await this.CollectKeyWordApInstance.keywordSearch(keyItem)
+
         debugger
       }
       key = null

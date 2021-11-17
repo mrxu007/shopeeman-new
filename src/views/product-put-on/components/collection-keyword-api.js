@@ -53,6 +53,10 @@ class CollectKeyWordApI {
             let res = await this._this.$collectService.querySpuByKeyworld(this.platformId, params)
             res = JSON.parse(res)
             console.log(item, res)
+            if (res.Code !== 200) {
+              this.writeLog(`(${StartPage + 1}/ ${EndPage})采集失败：${res.Code}-${res.Msg}`)
+            }
+
             debugger
             if (StartPage > EndPage) {
               break
