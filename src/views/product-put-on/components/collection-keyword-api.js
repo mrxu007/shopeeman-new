@@ -14,6 +14,10 @@ class CollectKeyWordApI {
   keywordSearch(key) {
     let StartPage = this.commonAttr.StartPage
     const EndPage = this.commonAttr.EndPage
+    const StartPrice = this.commonAttr.StartPrice
+    const EndPrice = this.commonAttr.EndPrice
+    const StartSales = this.commonAttr.StartSales
+    const EndSales = this.commonAttr.EndSales
     return new Promise((resolve, reject) => {
       const GoodsData = []
       const len = key.length
@@ -56,7 +60,13 @@ class CollectKeyWordApI {
             if (res.Code !== 200) {
               this.writeLog(`(${StartPage + 1}/ ${EndPage})采集失败：${res.Code}-${res.Msg}`)
             }
+            if (!res?.ListItem?.length) {
+              break
+            }
+            // 过滤操作
+            res = res.ListItem.map(item => {
 
+            })
             debugger
             if (StartPage > EndPage) {
               break
