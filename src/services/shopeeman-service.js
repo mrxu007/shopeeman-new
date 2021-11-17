@@ -79,10 +79,8 @@ export default class NetMessageBridgeService {
     options['extrainfo'] = this.getExtraInfo(data)
     if (exportInfo) { // 适配店铺管理---导入店铺
       options['extrainfo']['exportInfo'] = exportInfo
-      // body 里面不能带店铺id
     }
     delete data.mallId
-    // options['params'] = {}
     const referer = options['headers'] && options['headers'].referer
     if (referer) {
       options['headers'] = Object.assign(options['headers'],
@@ -649,6 +647,13 @@ export default class NetMessageBridgeService {
   // 设置店铺的地址
   setShopAddress(country, data, option) {
     return this.postChinese(country, '/api/v3/settings/set_shop_address', data, option)
+  }
+
+  //-----------------一键上新--------------------//
+  //创建活动
+  discount(country, data, option){
+    console.log(country, data, option)
+    return this.postChinese(country,'/api/marketing/v3/discount/',data,option)
   }
 }
 
