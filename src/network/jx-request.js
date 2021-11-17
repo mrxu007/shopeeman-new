@@ -83,7 +83,8 @@ export default {
   getDataStat: (data) => AppRequest.post('/mallDataStatistics/dataStat', data), // 数据统计图表数据
 
   // 店铺管理 ------------------------------------------------------------------
-  ddMallGoodsGetMallList: (data) => AppRequest.get('/ddMallGoods/getMallList', data), // 联动站点分组获取店铺列表
+  // ddMallGoodsGetMallList: (data) => AppRequest.get('/ddMallGoods/getMallList', data), // 联动站点分组获取店铺列表
+  ddMallGoodsGetMallList: (data) => AppRequest.post('/ddMallGoods/getMallList', data), // 联动站点分组获取店铺列表
   mallGroupIndex: (data) => AppRequest.get('/mallGroup/index', { params: data }), // 获取店铺分组列表
   getMallList: (data) => AppRequest.get('/bindMall/mallList', { params: data }), // 获取店铺列表
   getGroupList: (data) => AppRequest.get('/ddMallGoods/getMallList', { params: data }), // 获取店铺分组
