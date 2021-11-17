@@ -158,7 +158,7 @@
           prop="status"
           label="状态"
           align="center"
-          min-width="140"
+          min-width="150"
         >
           <template slot-scope="{row}">
             {{ row.status?statusObj[row.status]:'' }}
@@ -459,62 +459,47 @@
         <el-table-column
           width="100"
           align="center"
-          label="预报物流单号"
+          label="仓库名称"
           prop="packageCode"
           fixed
         />
         <el-table-column
           width="120"
           align="center"
-          label="采购单号"
+          label="系统商品编号"
           prop="purchaseOrderSn"
         />
         <el-table-column
           width="120"
           align="center"
-          label="商品编号(SKU)"
-        >
-          <template slot-scope="{row}">
-            {{ row.skuList[0].sku_id }}
-          </template>
-        </el-table-column>
+          label="商品编号(SkuId)"
+        />
         <el-table-column
           width="130"
           align="center"
           label="商品名称"
-        >
-          <template slot-scope="{row}">
-            {{ row.skuList[0].goods_name }}
-          </template>
-        </el-table-column>
+        />
         <el-table-column
           width="150"
           align="center"
-          label="商品数量"
-        >
-          <template slot-scope="{row}">
-            {{ row.skuList[0].purchase_num }}
-          </template>
-        </el-table-column>
+          label="商品规格"
+        />
+        <el-table-column
+          width="150"
+          align="center"
+          label="库存数量"
+        />
         <el-table-column
           width="150"
           align="center"
           label="商品单价(RMB)"
-        >
-          <template slot-scope="{row}">
-            {{ row.skuList[0].sku_price }}
-          </template>
-        </el-table-column>
+        />
         <el-table-column
           width="100"
           align="center"
-          label="商品规格"
+          label="商品链接"
           show-overflow-tooltip
-        >
-          <template slot-scope="{row}">
-            {{ row.skuList[0].sku_spec }}
-          </template>
-        </el-table-column>
+        />
         <el-table-column
           width="80"
           align="center"
@@ -546,33 +531,26 @@
         <el-table-column
           width="150"
           align="center"
-          label="商品链接"
-        >
-          <template slot-scope="{row}">
-            <el-button
-              v-if="row.skuList[0].goods_url"
-              type="primary"
-              size="mini"
-              @click="openUrl(row.skuList[0].goods_url)"
-            >查看商品链接</el-button>
-          </template>
-        </el-table-column>
-        <el-table-column
-          width="100"
-          align="center"
-          label="备注"
-          prop="remark"
-          show-overflow-tooltip
+          label="货架仓位"
         />
         <el-table-column
           width="100"
           align="center"
-          label="操作状态"
+          label="补件数量"
+          prop="remark"
+        />
+        <el-table-column
+          width="100"
+          align="center"
+          label="操作"
           prop="status"
           fixed="right"
         >
           <template slot-scope="{ row }">
-            <span :style="row.color && 'color:' + row.color">{{ row.status }}</span>
+            <el-button
+              type="primary"
+              size="mini"
+            >补 件</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -711,7 +689,7 @@ export default {
       for (let index = 0; index < len; index++) {
         this.form.page = index
         this.form.pageSize = this.pageSize
-        const res = await this.StrockUpHome.getHomeWarehouse(this.form)
+        const res = await this.StrockUpHome.getOutOfStockList(this.form)
         if (res.code === 200) {
           const resData = res.data.data
           exportData = exportData.concat(resData)
@@ -762,11 +740,11 @@ export default {
     handleSizeChange(val) {
       this.page = 1
       this.pageSize = val
-      this.getHomeWarehouse()
+      this.getOutOfStockList()
     },
     handleCurrentChange(val) {
       this.page = val
-      this.getHomeWarehouse()
+      this.getOutOfStockList()
     },
     handleSelectionChange(val) {
       this.multipleSelection = val
