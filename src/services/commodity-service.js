@@ -539,10 +539,10 @@ export default class CommodityService {
  * data[2] categoryPTree:[]父级类目id集合
  * }
  */
- addBlackCategory(data) {
-  return this.nativeService.callCategoryFunction('AddCategoryBlackInfo',data[0]+'',data[1]+'',JSON.stringify(data[2]))
-}
-/**
+  addBlackCategory(data) {
+    return this.nativeService.callCategoryFunction('AddCategoryBlackInfo', data[0] + '', data[1] + '', JSON.stringify(data[2]))
+  }
+  /**
   addBlackCategory(data) {
     return this.nativeService.callCategoryFunction('AddCategoryBlackInfo', data[0] + '', data[1] + '', data[2] + '')
   }
@@ -552,22 +552,21 @@ export default class CommodityService {
  * id:黑名单id（系统id）
  * }
  */
- deleteBlackCategory(id) {
-  return this.nativeService.callCategoryFunction('DeleteCategoryBlackInfo',id+'')
-}
-/**
- * @name : 
+  deleteBlackCategory(id) {
+    return this.nativeService.callCategoryFunction('DeleteCategoryBlackInfo', id + '')
+  }
+  /**
+ * @name :
  * @param  {
  * data[0]:startTime:yyyy-MM-dd 00:00:00
  * data[1]:endTime:yyyy-MM-dd 23:59:59
  * }
  */
- getStatisticsNew(data) {
-  return this.nativeService.callFunction('GetStatisticsNew',data[0],data[1])
-}
+  getStatisticsNew(data) {
+    return this.nativeService.callFunction('GetStatisticsNew', data[0], data[1])
+  }
 
-
-/**
+  /**
   deleteBlackCategory(id) {
     return this.nativeService.callCategoryFunction('DeleteCategoryBlackInfo', id + '')
   }
@@ -648,6 +647,24 @@ export default class CommodityService {
    */
   deleteDannedWord(data) {
     return this.nativeService.callCategoryFunction('DeleteDannedWord', data.toString())
+  }
+  /**
+   * 获取产品中心类目
+   */
+  getCategoryInfo(data) {
+    return this.nativeService.callProductCenter('GetCategoryInfo', data.toString())
+  }
+  /**
+   * 获取产品中心列表数据
+   */
+  getProductList(data) {
+    return this.nativeService.callProductCenter('GetProductList', JSON.stringify(data))
+  }
+  /**
+   * 获取产品中心产品skulist
+   */
+  getProductSkuList(data) {
+    return this.nativeService.callProductCenter('GetProductSkuList', data.toString())
   }
 }
 

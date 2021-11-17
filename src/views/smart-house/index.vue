@@ -22,6 +22,9 @@
 
     <!--失物招领 -->
     <main v-if="activeVal === '4'"><SmartHouseUnclaimed /></main>
+    <!--
+    二次销售列表
+    <main v-if="activeVal === '4'"><SmartHouseTheSecondSaleList /></main> -->
 
     <!--拒签收管理 -->
     <main v-if="activeVal === '5'"><SmartHouseRefuseSign /></main>
@@ -33,10 +36,10 @@
     <main v-if="activeVal === '7'"><SmartHousePrivateWarehouse /></main>
 
     <!--商品备货-海外仓商品备货 -->
-    <main v-if="activeVal === '8'"><SmartHouseForeignStockUp /></main>
+    <main v-if="activeVal === '8'"><SmartHouseStockUpForeign /></main>
 
-    <!-- 商品备货-国内仓商品备货 -->
-    <main v-if="activeVal === '9'"><SmartHouseChineseStockUp /></main>
+    <!--商品备货-国内仓商品备货 -->
+    <main v-if="activeVal === '9'"><SmartHouseStockUpHome /></main>
 
     <!-- 库存列表-海外仓库存 -->
     <main v-if="activeVal === '10'"><SmartHouseaBroadStock /></main>
@@ -68,11 +71,12 @@ import {
   SmartHouseReturnManage,
   SmartHouseSecondarySalesList,
   SmartHouseUnclaimed,
+  // SmartHouseTheSecondSaleList,
   SmartHouseAbnormalPayment,
   SmartHousePrivateWarehouse,
   SmartHouseRefuseSign,
-  SmartHouseForeignStockUp,
-  SmartHouseChineseStockUp,
+  SmartHouseStockUpForeign,
+  SmartHouseStockUpHome,
   SmartHouseaBroadStock,
   SmartHouseShareBroadStockManager,
   SmartHouseShareMyBroadStock,
@@ -88,11 +92,12 @@ export default {
     SmartHouseReturnManage,
     SmartHouseSecondarySalesList,
     SmartHouseUnclaimed,
+    // SmartHouseTheSecondSaleList,
     SmartHouseAbnormalPayment,
     SmartHousePrivateWarehouse,
     SmartHouseRefuseSign,
-    SmartHouseForeignStockUp,
-    SmartHouseChineseStockUp,
+    SmartHouseStockUpForeign,
+    SmartHouseStockUpHome,
     SmartHouseaBroadStock,
     SmartHouseShareBroadStockManager,
     SmartHouseShareMyBroadStock,

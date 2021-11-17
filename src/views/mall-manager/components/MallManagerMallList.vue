@@ -77,46 +77,54 @@
     </el-row>
     <el-row id="article">
       <!-- @table-body-scroll="tableScroll" -->
-      <el-table
+      <u-table
         ref="plTable"
         v-loading="buttonStatus.mallList"
-        height="calc(100vh - 245px)"
-        :data="mallListTemp"
+        :max-height="Height"
+        use-virtual
+        :data-changes-scroll-top="false"
         :header-cell-style="{
           backgroundColor: '#f5f7fa',
         }"
+        row-key="id"
+        :big-data-checkbox="true"
         :row-style="{
           color: 'black',
           height: '50px',
         }"
+        :border="false"
         @selection-change="handleSelectionChange"
       >
-        <el-table-column align="center" type="selection" width="50" />
-        <el-table-column align="center" type="index" label="序号" />
-        <el-table-column align="center" prop="group_name" label="分组" />
-        <el-table-column align="center" prop="" label="站点">
+        <u-table-column align="center" type="selection" width="50" />
+        <u-table-column align="center" type="index" label="序号">
+          <template v-slot="{ $index }">
+            {{ (currentPage - 1) * pageSize + $index + 1 }}
+          </template>
+        </u-table-column>
+        <u-table-column align="center" prop="group_name" label="分组" />
+        <u-table-column align="center" prop="" label="站点">
           <template v-slot="{ row }">
             {{ row.country | chineseSite }}
           </template>
-        </el-table-column>
+        </u-table-column>
 
-        <el-table-column align="center" prop="mall_account_info" label="店铺真实名称">
+        <u-table-column align="center" prop="mall_account_info" label="店铺真实名称">
           <template v-slot="{ row }">
             {{ row.mall_account_info.userRealName || row.platform_mall_name }}
           </template>
-        </el-table-column>
-        <el-table-column align="center" prop="platform_mall_id" label="店铺ID" />
-        <el-table-column align="center" prop="good_mall_status" label="是否优质店铺">
+        </u-table-column>
+        <u-table-column align="center" prop="platform_mall_id" label="店铺ID" />
+        <u-table-column align="center" prop="good_mall_status" label="是否优质店铺">
           <template v-slot="{ row }">
             {{ row.good_mall_status === '-1' ? '否' : '是' }}
           </template>
-        </el-table-column>
-        <el-table-column align="center" prop="platform_mall_name" label="店铺账号">
+        </u-table-column>
+        <u-table-column align="center" prop="platform_mall_name" label="店铺账号">
           <template v-slot="{ row }">
             {{ row.mall_account_info.username }}
           </template>
-        </el-table-column>
-        <el-table-column align="center" prop="watermark" label="店铺水印文字">
+        </u-table-column>
+        <u-table-column align="center" prop="watermark" label="店铺水印文字">
           <template v-slot="{ row }">
             <el-input
               v-if="row.isCheckedWaterMark"
@@ -134,9 +142,9 @@
               <el-input v-model="row.watermark" :disabled="!row.isCheckedWaterMark" size="mini" type="textarea" resize="none" :autosize="{ minRows: 2, maxRows: 2 }" />
             </span>
           </template>
-        </el-table-column>
-        <el-table-column align="center" prop="item_limit" label="店铺额度" />
-        <el-table-column align="center" prop="mall_alias_name" label="店铺别名">
+        </u-table-column>
+        <u-table-column align="center" prop="item_limit" label="店铺额度" />
+        <u-table-column align="center" prop="mall_alias_name" label="店铺别名">
           <template v-slot="{ row }">
             <el-input
               v-if="row.isCheckedWaterMark2"
@@ -154,21 +162,34 @@
               <el-input v-model="row.mall_alias_name" :disabled="!row.isCheckedWaterMark2" size="mini" type="textarea" resize="none" :autosize="{ minRows: 2, maxRows: 2 }" />
             </span>
           </template>
-        </el-table-column>
-        <el-table-column align="center" prop="web_login_info" label="登录状态" show-overflow-tooltip="">
+        </u-table-column>
+        <u-table-column align="center" prop="web_login_info" label="登录状态" show-overflow-tooltip="">
           <template v-slot="{ row }">
             <span v-html="row.LoginInfo" />
             <span class="copyIcon" @click="copy(row.LoginInfo)"><i class="el-icon-document-copy" /></span>
           </template>
-        </el-table-column>
-        <el-table-column align="center" prop="mall_status" label="店铺状态">
+        </u-table-column>
+        <u-table-column align="center" prop="mall_status" label="店铺状态">
           <template v-slot="{ row }">
             {{ mallStatusObj[row.mall_status] }}
           </template>
-        </el-table-column>
-        <el-table-column align="center" prop="created_at" label="授权日期" min-width="120px" />
-      </el-table>
+        </u-table-column>
+        <u-table-column align="center" prop="created_at" label="授权日期" min-width="120px" />
+      </u-table>
+      <div class="pagination">
+        <el-pagination
+          background
+          layout="total, sizes, prev, pager, next"
+          :total="total"
+          :current-page="currentPage"
+          :page-sizes="[200, 500]"
+          :page-size="pageSize"
+          @size-change="handleSizeChange"
+          @current-change="handleCurrentChange"
+        />
+      </div>
     </el-row>
+
     <!-- 修改店铺水印弹框 -->
     <el-dialog
       class="water-dialog"
@@ -579,6 +600,7 @@ import xlsx from 'xlsx'
 export default {
   data() {
     return {
+      Height: 580,
       LogisticsList: {},
       activeNames: [],
       height: 300,
@@ -698,7 +720,12 @@ export default {
       sendMessageHeader: null, // 短信重要信息
       setInterId: null,
       needIvsInfo: null, // 存放ivs验证
-      needCaptchaInfo: null // 存放图形验证码
+      needCaptchaInfo: null, // 存放图形验证码
+
+      // 分页
+      total: 0,
+      currentPage: 1,
+      pageSize: 200
     }
   },
   computed: {},
@@ -772,6 +799,17 @@ export default {
     }
   },
   methods: {
+    handleSizeChange(val) {
+      console.log(`每页 ${val} 条`)
+      this.pageSize = val
+      this.currentPage = 1
+      this.getMallList()
+    },
+    handleCurrentChange(val) {
+      console.log(`当前页: ${val}`)
+      this.currentPage = val
+      this.getMallList()
+    },
     closePhoneCodeDialog() {
       if (!this.phoneInfo_message_code) {
         return this.$message.error('请输入手机验证码')
@@ -957,7 +995,7 @@ export default {
     },
     async setAddresses(item, count = { count: 1 }) {
       console.log(item)
-      let name = item.mall_alias_name || item.platform_mall_name || ''
+      const name = item.mall_alias_name || item.platform_mall_name || ''
       try {
         delete item.mall_alias_name
         delete item.platform_mall_name
@@ -968,9 +1006,9 @@ export default {
         console.log('addAddressRes', addAddressRes)
         if (addAddressRes.status >= 200 && addAddressRes.status < 300) {
           const addAddressData = JSON.parse(addAddressRes.data)
-          let success =  addAddressData.code === 0
+          const success = addAddressData.code === 0
           address_id = addAddressData.data.address_id
-          this.$refs.Logs.writeLog(`店铺【${name}】添加地址${success &&'成功' || '失败'}`, success)
+          this.$refs.Logs.writeLog(`店铺【${name}】添加地址${success && '成功' || '失败'}`, success)
         } else if (addAddressRes.status === 403) {
           this.$refs.Logs.writeLog(`店铺【${name}】尚未登陆无法设置地址`, false)
           return
@@ -983,13 +1021,13 @@ export default {
             mallId: item.mallId,
             address_id: address_id
           }
-          const defaultAddressJson = await this.$shopeemanService.setDefaultAddress(item.country, param,option)
+          const defaultAddressJson = await this.$shopeemanService.setDefaultAddress(item.country, param, option)
           const defaultAddressRes = JSON.parse(defaultAddressJson)
           console.log('defaultAddressRes', defaultAddressRes)
           if (defaultAddressRes.status >= 200 && defaultAddressRes.status < 300) {
             const defaultAddressData = JSON.parse(defaultAddressRes.data)
-            let success =  defaultAddressData.code === 0
-            this.$refs.Logs.writeLog(`店铺【${name}】默认地址设置${success &&'成功' || '失败'}`, success)
+            const success = defaultAddressData.code === 0
+            this.$refs.Logs.writeLog(`店铺【${name}】默认地址设置${success && '成功' || '失败'}`, success)
           } else {
             this.$refs.Logs.writeLog(`店铺【${name}】默认地址设置失败`, false)
           }
@@ -1005,14 +1043,14 @@ export default {
           if (this.addressQuery.backMail) {
             param['return_address_id'] = address_id
           }
-          const shopAddressJson = await this.$shopeemanService.setShopAddress(item.country, param,option)
+          const shopAddressJson = await this.$shopeemanService.setShopAddress(item.country, param, option)
           const shopAddressRes = JSON.parse(shopAddressJson)
           console.log('shopAddressRes', shopAddressRes)
           if (shopAddressRes.status >= 200 && shopAddressRes.status < 300) {
             const shopAddressData = JSON.parse(shopAddressRes.data)
-            let success =  shopAddressData.code === 0
+            const success = shopAddressData.code === 0
             this.$refs.Logs.writeLog(`店铺【${name}】
-            ${this.addressQuery.take && '取件地址'}${this.addressQuery.backMail && '取件地址'}设置${success &&'成功' || '失败'}`, success)
+            ${this.addressQuery.take && '取件地址'}${this.addressQuery.backMail && '取件地址'}设置${success && '成功' || '失败'}`, success)
           } else {
             this.$refs.Logs.writeLog(`店铺【${name}】
             ${this.addressQuery.take && '取件地址'}${this.addressQuery.backMail && '取件地址'}设置失败`, false)
@@ -1561,7 +1599,7 @@ export default {
         // 2、shopeeMan官方登录
         let res = await this.$shopeemanService.login(item, flat)
         if (res.code !== 200) {
-          flat === 1 ? (item.LoginInfo = `<p style="color: red">登录失败：${res.data}</p>`) : this.writeLog(`(${i + 1}/${len})账号【${platform_mall_name}】授权失败：${res.data}`, false)
+          flat === 1 ? (item.LoginInfo = `<p style="color: red">登录失败：${res.data.message}</p>`) : this.writeLog(`(${i + 1}/${len})账号【${platform_mall_name}】授权失败：${res.data.message}`, false)
           const handleResult = await this.handleReturnLogin(item, res, flat)
           if (handleResult.code === 200) { // 3、处理登录弹框
             res = handleResult
@@ -1724,8 +1762,8 @@ export default {
     // 获取浏览器识别码数据
     async getMallCodeData() {
       this.isLoading = true
-      for (let index = 0; index < this.mallListTemp.length; index++) {
-        const element = this.mallListTemp[index]
+      for (let index = 0; index < this.mallList.length; index++) {
+        const element = this.mallList[index]
         const res = await this.$appConfig.getGlobalCacheInfo('mallInfo', element.platform_mall_id)
         const jsonData = JSON.parse(res)
         this.mallCodeAllData.push(jsonData)
@@ -2117,7 +2155,10 @@ export default {
       fileReader.readAsBinaryString(files[0])
     },
     async getMallList() {
-      const params = {}
+      const params = {
+        page: this.currentPage,
+        pageSize: this.pageSize
+      }
       if (this.buttonStatus.mallList) {
         return
       }
@@ -2131,12 +2172,15 @@ export default {
         this.$message.error(`获取店铺列表失败: ${res.data}`)
         return
       }
-      this.mallList = res.data
-      this.mallListTemp = this.mallList
+      this.mallList = res.data.mallArr
+      this.total = res.data.total
+      this.$refs.plTable.reloadData(this.mallList)
+      // this.mallListTemp = this.mallList
       this.buttonStatus.mallList = false
       this.$nextTick(() => {
-        this.$refs.plTable.clearSelection()
-        this.$refs.plTable.toggleAllSelection()
+        this.$refs.plTable.partRowSelections(this.mallList, true)
+        // this.$refs.plTable.clearSelection()
+        // this.$refs.plTable.toggleAllSelection()
       })
       this.getGroup()
       console.log('this.malllist', this.mallList)

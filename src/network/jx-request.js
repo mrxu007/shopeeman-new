@@ -10,7 +10,7 @@ import axios from 'axios'
 import jxAdapter from './jx-apdater'
 import tbAdaptert from './gateway/gateway-adapter'
 const AppRequest = axios.create({ // 壳内转发请求
-  baseURL: 'http://release.shopeeman.com/api' || process.env.VUE_APP_BASE_API,
+  baseURL: process.env.VUE_APP_BASE_API,
   timeout: 5000,
   headers: {
     'Accept': 'application/vnd.ppxias.v3+json'
@@ -76,6 +76,7 @@ export default {
   setIpCheck: (data) => AppRequest.post('/user/setIpCheck', data), // 信任IP-设置信任IP是否开启
   getPhoneLists: (data) => AppRequest.get('/user/getPhoneLists', data), // 信任IP-获取手机号码列表
   updatePhoneListForIp: (data) => AppRequest.post('/user/updatePhoneListForIp', data), // 信任IP-配置接收手机验证码的手机号
+  getUserInfo: (data) => AppRequest.get('/user/info', data), // 获取用户信息
 
   // 数据统计-------------------------------------------------------------------
   getDrderBasicStatV2: (data) => AppRequest.post('/mallDataStatistics/orderBasicStatV2', data), // 数据统计获取订单列表数据
@@ -147,7 +148,22 @@ export default {
   deleteUserGoods: (data) => AppRequest.post('/userStock/deleteGoods', data), // 删除自有商品
   setUserRemark: (data) => AppRequest.post('/orderPackage/setUserRemark', data), // 批量更新用户备注
   deleteUserSku: (data) => AppRequest.post('/userStock/deleteSkus', data), // 删除sku
+
+  // 订单管理
+  shotAmountRecord: (data) => AppRequest.get('/shotAmountRecord/index', data), // 采购价变更记录
+  getOrderSn: (data) => AppRequest.get('/order/getOrderSn', data), // 丢件查询
+  aftermarket: (data) => AppRequest.post('/aftermarket', data), // 虾皮售后
+
   getStockingForecastLists: (data) => AppRequest.get('/warehouse/stockingForecastLists', { params: data }), // 海外仓商品备货-预报单列表
   deleteForecast: (data) => AppRequest.post('/warehouse/stockingForecastDestroy', data), // 海外仓商品备货-删除预报单
-  getOverseasWarehouse: (data) => AppRequest.get('/warehouse/getOverseasWarehouse', data) // 获取中转仓库和目标仓库列表(海外仓备货)
+  getOverseasWarehouse: (data) => AppRequest.get('/warehouse/getOverseasWarehouse', data), // 获取中转仓库和目标仓库列表(海外仓备货)
+  updateShotStatus: (data) => AppRequest.post('/aftermarket/updateShotStatus', data), // 采购状态变更
+  orderSaveRemark: (data) => AppRequest.post('/order/remark', data), // 添加店铺备注
+  stockingForecastUpload: (data) => AppRequest.post('/warehouse/stockingForecastUpload', data), // 海外仓商品备货：发起商品预报
+  getHomeWarehouse: (data) => AppRequest.get('/homeStockingForecast/index', { params: data }), // 国内仓备货预报单: 列表
+  getWarehouseList: (data) => AppRequest.get('/homeStockingForecast/getWarehouseList', data), // 国内中转备货预报单: 获取国内仓库地址
+  stockingHomeUpload: (data) => AppRequest.post('/homeStockingForecast/upload', data), // 国内中转备货预报单: 上报
+  deleteHomeForecast: (data) => AppRequest.post('/homeStockingForecast/delete', data), // 国内中转备货预报单: 删除
+  getOutOfStockList: (data) => AppRequest.get('/warehouse/outOfStockList', { params: data }), // 海外仓出库订单：列表
+  getsecondlist: (data) => AppRequest.post('/overseasTansferPackage/index', data) // 获取二次销售列表
 }

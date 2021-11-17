@@ -28,6 +28,18 @@ const routes = [
       import('../views/mall-manager/index.vue')
   },
   {
+    path: '/order-manager', // 订单管理
+    name: 'order-manager',
+    component: () =>
+      import('../views/order-manager/index.vue')
+  },
+  {
+    path: '/goods-manager', // 商品管理
+    name: 'goods-manager',
+    component: () =>
+      import('../views/goods-manager/index.vue')
+  },
+  {
     path: '/data-statistics', // 数据统计
     name: 'data-statistics',
     component: () =>
@@ -50,6 +62,18 @@ const routes = [
     name: 'user-config',
     component: () =>
       import('../views/user-config/index.vue')
+  },
+  // {
+  //   path: '/test-api', // 测试联调接口
+  //   name: 'test-api',
+  //   component: () =>
+  //     import('../views/test-api/index.vue')
+  // },
+  {
+    path: '/order-manager', // 订单管理
+    name: '/order-manager',
+    component: () =>
+      import('../views/order-manager/index.vue')
   }
 ]
 const originalPush = VueRouter.prototype.push
