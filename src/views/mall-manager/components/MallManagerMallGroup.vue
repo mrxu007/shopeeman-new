@@ -106,6 +106,7 @@
           <div class="con-rht-table">
             <u-table
               ref="plTable2"
+              v-loading="buttonStatus.mallList"
               :height="420"
               use-virtual
               :header-cell-style="{
@@ -117,7 +118,11 @@
             >
               <!-- @table-body-scroll="tableScroll" -->
               <!-- <el-table-column align="center" type="selection" /> -->
-              <el-table-column align="center" type="index" label="序号" />
+              <u-table-column align="center" type="index" label="序号">
+                <template v-slot="{ $index }">
+                  {{ (currentPage - 1) * pageSize + $index + 1 }}
+                </template>
+              </u-table-column>
               <el-table-column align="center" prop="" label="站点">
                 <template v-slot="{ row }">
                   {{ row.country | chineseSite }}
@@ -132,7 +137,19 @@
                   <el-button v-else size="mini" style="margin: 0" plain @click="addbingingMall(row)">添加</el-button>
                 </template>
               </u-table-column>
-            </u-table>
+              </el-table-column></u-table>
+            <div class="pagination">
+              <el-pagination
+                background
+                layout="total, sizes, prev, pager, next"
+                :total="total"
+                :current-page="currentPage"
+                :page-sizes="[200, 500]"
+                :page-size="pageSize"
+                @size-change="handleSizeChange"
+                @current-change="handleCurrentChange"
+              />
+            </div>
           </div>
         </div>
       </el-row>
@@ -182,7 +199,8 @@ export default {
       buttonStatus: {
         search: false,
         addGroup: false,
-        delGroup: false
+        delGroup: false,
+        mallList: false
       },
 
       // table
@@ -206,7 +224,12 @@ export default {
         add: {}
       },
       firstReFresh: true,
-      importTemplateData: ''
+      importTemplateData: '',
+
+      // 分页
+      total: 0,
+      currentPage: 1,
+      pageSize: 200
 
     }
   },
@@ -215,6 +238,16 @@ export default {
     this.getMallList()
   },
   methods: {
+    handleSizeChange(val) {
+      console.log(`每页 ${val} 条`)
+      this.pageSize = val
+      this.getMallList()
+    },
+    handleCurrentChange(val) {
+      console.log(`当前页: ${val}`)
+      this.currentPage = val
+      this.getMallList()
+    },
     handleSelectionChange(val) {
       this.multipleSelection = val
     },
@@ -586,20 +619,30 @@ export default {
       this.buttonStatus.delGroup = false
     },
     async getMallList() {
-      const params = {
-        'country': ''
+      if (this.buttonStatus.mallList) {
+        return
       }
+      const params = {
+        'country': '',
+        page: this.currentPage,
+        pageSize: this.pageSize
+      }
+      this.buttonStatus.mallList = true
       const res = await this.$api.getMallList(params)
       if (res.data.code !== 200) {
         this.$message.error('获取店铺列表失败')
+        this.buttonStatus.mallList = false
         return
       }
-      this.mallList = res.data.data.map(item => {
+      this.mallList = res.data.data.data.map(item => {
         item.isSelected = false
         return item
       })
       this.mallListTemp = this.mallList
+      this.total = res.data.data.total
       console.log('this.mallListTemp', this.mallListTemp)
+      this.buttonStatus.mallList = false
+
       // this.$refs.plTable2?.reloadData(this.mallListTemp)
     },
     writeLog(msg, success, setcolor) {
