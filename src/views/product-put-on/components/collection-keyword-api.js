@@ -18,6 +18,8 @@ class CollectKeyWordApI {
     this.GoodsData = []
     let StartPage = this.commonAttr.StartPage - 0
     const EndPage = this.commonAttr.EndPage - 0
+    const StartPrice = this.commonAttr.StartPrice - 0
+    const EndPrice = this.commonAttr.EndPrice - 0
     const params = {}
     params['key'] = key
     try {
@@ -28,6 +30,9 @@ class CollectKeyWordApI {
             params['page'] = StartPage // 页码
             break
           case 2: // '淘宝'  3: '天猫',  天猫 === 淘宝
+            params['page'] = StartPage // 页码
+            params['StartPrice'] = StartPrice // 页码
+            params['EndPrice'] = EndPrice // 页码
             break
           case 4: // '京东'
             break
@@ -54,10 +59,10 @@ class CollectKeyWordApI {
         let res = await this._this.$collectService.querySpuByKeyworld(this.platformId, params)
         res = JSON.parse(res)
         if (res.Code !== 200) {
-          this.writeLog(`采集第${StartPage}页第一部分失败：${res.Code}-${res.Msg}`, false)
+          this.writeLog(`采集${key}关键词第${StartPage}页第一部分失败：${res.Code}-${res.Msg}`, false)
         }
         const len = res?.ListItem?.length
-        this.writeLog(`采集第${StartPage}页第一部分，采集到约${len}条`, true)
+        this.writeLog(`采集${key}关键词第${StartPage}页第一部分，采集到约${len}条`, true)
         if (!len) {
           break
         }
@@ -72,7 +77,7 @@ class CollectKeyWordApI {
         StartPage++
       }
     } catch (error) {
-      this.writeLog(`采集第${StartPage}页第一部分，捕获错误${error}`, false)
+      this.writeLog(`采集${key}关键词第${StartPage}页第一部分，捕获错误${error}`, false)
     }
     // 处理所需参数
     this.GoodsData = this.GoodsData.map((item, index) => {
@@ -97,10 +102,10 @@ class CollectKeyWordApI {
         let res = await this._this.$collectService.querySpuByKeyworld(1.1, params)
         res = JSON.parse(res)
         if (res.Code !== 200) {
-          this.writeLog(`采集第${StartPage}页第二部分失败：${res.Code}-${res.Msg}`, false)
+          this.writeLog(`采集${key}关键词第${StartPage}页第二部分失败：${res.Code}-${res.Msg}`, false)
         }
         const len = res?.ListItem?.length
-        this.writeLog(`采集第${StartPage}页第二部分，采集到约${len}条`, true)
+        this.writeLog(`采集${key}关键词第${StartPage}页第二部分，采集到约${len}条`, true)
         if (!len) {
           break
         }
@@ -113,7 +118,7 @@ class CollectKeyWordApI {
         StartPage++
       }
     } catch (error) {
-      this.writeLog(`采集第${StartPage}页第二部分，捕获错误${error}`, false)
+      this.writeLog(`采集${key}关键词第${StartPage}页第二部分，捕获错误${error}`, false)
     }
     // 处理所需参数
     this.GoodsData = this.GoodsData.map((item, index) => {

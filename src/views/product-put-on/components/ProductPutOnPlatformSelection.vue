@@ -250,7 +250,7 @@ export default {
 
       for (let i = 0; i < keyLen; i++) {
         const item = key[i]
-        this.writeLog(`采集关键字：${item}`, true)
+        // this.writeLog(`采集关键字：${item}`, true)
         const res2 = await this.CollectKeyWordApInstance.keywordSearch(item)
         if (res2.code !== 200) {
           continue
@@ -260,7 +260,7 @@ export default {
       if (platForm === 1) { // 如果当前平台为拼多多需额外调用 拼多多补充接口  1.1-------------------------
         for (let i = 0; i < keyLen; i++) {
           const item = key[i]
-          this.writeLog(`采集关键字：${item}`, true)
+          // this.writeLog(`采集关键字：${item}`, true)
           const res2 = await this.CollectKeyWordApInstance.keywordSearchTwo(item)
           if (res2.code !== 200) {
             continue

@@ -5,8 +5,8 @@ node_modules
 /Debug
 /Release
 xu_test.js
-testData.js
-testData1.js
+# testData.js
+# testData1.js
 # local env files
 .env.local
 .env.*.local
