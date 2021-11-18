@@ -93,7 +93,7 @@
         <u-table-column align="center" label="主图">
           <template v-slot="{ row }">
             <div style="justify-content: center; display: flex">
-              <img :src="row.Image" style="width: 56px; height: 56px" />
+              <img :src="row.Image" style="width: 56px; height: 56px">
             </div>
           </template>
         </u-table-column>
@@ -122,7 +122,6 @@
 <script>
 import CollectKeyWordApI from './collection-keyword-api'
 import getPlatform from './collection-platformId'
-import testData from './testData'
 export default {
   props: {
     baseConfig: {
