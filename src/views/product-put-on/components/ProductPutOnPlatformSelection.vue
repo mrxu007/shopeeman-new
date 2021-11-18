@@ -9,6 +9,7 @@
             </div>
             <div class="keyword-banner-content">
               <div class="con-sub-1">
+                <!-- 公共属性 -->
                 <div class="item">
                   <p>开始页码:</p>
                   <el-input v-model="commonAttr.StartPage" size="mini" />
@@ -26,6 +27,27 @@
                   <el-input v-model="commonAttr.StartPrice" size="mini" />
                   <p>-</p>
                   <el-input v-model="commonAttr.EndPrice" size="mini" />
+                </div>
+                <!-- 虾皮 -->
+                <div class="item">
+                  <p>站点:</p>
+                  <el-select v-model="shopeeAttr.siteCode" placeholder="" size="mini" @change="getPlace">
+                    <el-option v-for="(item, index) in getSite" :key="index" :label="item.label" :value="item.value" />
+                  </el-select>
+                  <p>排序方式:</p>
+                  <el-select v-model="shopeeAttr.goodsPlace" placeholder="" size="mini">
+                    <el-option v-for="(item, index) in getPlace" :key="index" :label="item.label" :value="item.value" />
+                  </el-select>
+                </div>
+                <div class="item">
+                  <p>出货地点:</p>
+                  <el-select v-model="shopeeAttr.goodsPlace" placeholder="" size="mini">
+                    <el-option v-for="(item, index) in getPlace" :key="index" :label="item.label" :value="item.value" />
+                  </el-select>
+                </div>
+                <div class="item">
+                  <p>创建时间:</p>
+                  <el-input size="mini" />
                 </div>
               </div>
               <div class="con-sub-2">
@@ -100,12 +122,12 @@
         <u-table-column align="center" label="上家ID" prop="GoodsId" />
         <u-table-column align="center" label="标题" prop="Title" width="500px" fit>
           <template v-slot="{ row }">
-            <p style="height: 56px; white-space: normal">{{ row.Title }}</p>
+            <p style="white-space: normal">{{ row.Title }}</p>
           </template>
         </u-table-column>
         <u-table-column align="center" label="类目" prop="CategoryName">
           <template v-slot="{ row }">
-            <p style="height: 56px; white-space: normal">{{ row.CategoryName }}</p>
+            <p style="white-space: normal">{{ row.CategoryName }}</p>
           </template>
         </u-table-column>
         <u-table-column align="center" label="价格" prop="Price" />
@@ -121,7 +143,7 @@
 
 <script>
 import CollectKeyWordApI from './collection-keyword-api'
-import { getPlatform, platformObj } from './collection-platformId'
+import { getPlatform, platformObj, getSitePlace, siteRelation } from './collection-platformId'
 import testData from './testData'
 export default {
   props: {
@@ -153,7 +175,7 @@ export default {
         keyword: false
       },
       // keyWord search
-      currentKeywordPlatform: 1,
+      currentKeywordPlatform: 11,
       commonAttr: {
         StartPage: 1,
         EndPage: 2,
@@ -165,7 +187,14 @@ export default {
       },
       key: '',
       consoleMsg: '',
+      // 拼多多参数
       keywordAttr: {
+      },
+      // 淘宝参数
+      // 虾皮参数
+      shopeeAttr: {
+        siteCode: 'TW',
+        goodsPlace: ''
       }
     }
   },
@@ -173,7 +202,11 @@ export default {
     keyworBar() {
       const value = getPlatform(this.baseConfig.keywordConfig)
       return value
+    },
+    getSite() {
+      return siteRelation
     }
+
   },
   created() {
 
@@ -184,6 +217,11 @@ export default {
     // console.log('this.goodsList', this.goodsList)
   },
   methods: {
+    getPlace() {
+      this.shopeeAttr.goodsPlace = ''
+      const value = getSitePlace(this.shopeeAttr.siteCode)
+      return value
+    },
     handleClick(tab, event) {
       // console.log(tab, event)
     },

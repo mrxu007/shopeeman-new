@@ -6,7 +6,7 @@
           <ul>
             <li>
               <span>站点：</span>
-              <el-select v-model="countryVal" placeholder="" size="mini" filterable class="unnormal2" @change="getMallList">
+              <el-select v-model="countryVal" placeholder="" size="mini" filterable class="unnormal2" @change="getGroup">
                 <el-option label="全部" :value="''" />
                 <el-option v-for="(item, index) in countries" :key="index" :label="item.label" :value="item.value" />
               </el-select>
@@ -20,7 +20,7 @@
             </li>
             <li>
               <span>店铺分组：</span>
-              <el-select v-model="groupId" placeholder="" size="mini" filterable class="unnormal2" @change="getMallList">
+              <el-select v-model="groupId" placeholder="" size="mini" filterable class="unnormal2">
                 <el-option label="全部" :value="''" />
                 <el-option label="无分组" :value="-1" />
                 <el-option v-for="(item, index) in groupList" :key="index" :label="item.label" :value="item.value" />
@@ -62,7 +62,7 @@
             <el-button type="primary" size="mini" :loading="buttonStatus.closeVacation" :disabled="buttonStatus.openVacation" @click="closeOrOpenMallVacation(false)">关闭店铺休假模式</el-button>
           </el-row>
           <el-row class="btn-row">
-            <el-button type="primary" size="mini" @click="getMallList">查询</el-button>
+            <el-button type="primary" size="mini" :disabled="buttonStatus.refresh || buttonStatus.login" @click="getMallList">查询</el-button>
             <el-button type="primary" size="mini" @click="openUpdateExpressdialog">批量修改物流方式</el-button>
             <el-button type="primary" size="mini" :disabled="!countryVal" @click="addressDialog = true">批量设置店铺地址</el-button>
 
@@ -110,7 +110,7 @@
 
         <u-table-column align="center" prop="mall_account_info" label="店铺真实名称">
           <template v-slot="{ row }">
-            {{ row.mall_account_info.userRealName || row.platform_mall_name }}
+            <p style="white-space: normal">{{ row.mall_account_info.userRealName || row.platform_mall_name }}</p>
           </template>
         </u-table-column>
         <u-table-column align="center" prop="platform_mall_id" label="店铺ID" />
@@ -121,7 +121,7 @@
         </u-table-column>
         <u-table-column align="center" prop="platform_mall_name" label="店铺账号">
           <template v-slot="{ row }">
-            {{ row.mall_account_info.username }}
+            <p style="white-space: normal">{{ row.mall_account_info.username }}</p>
           </template>
         </u-table-column>
         <u-table-column align="center" prop="watermark" label="店铺水印文字">
@@ -492,9 +492,9 @@
           </div>
           <h2 style="margin: 10px 0">地址</h2>
           <div class="dialog_item">
-            <div class="item_name" style="display: flex;justify-content: space-between;align-items: center">
+            <div class="item_name" style="display: flex; justify-content: space-between; align-items: center">
               <div>地址</div>
-              <el-checkbox size="mini" v-model="isChineseShow">翻译成中文</el-checkbox>
+              <el-checkbox v-model="isChineseShow" size="mini">翻译成中文</el-checkbox>
             </div>
             <div class="item_content">
               <div class="inputDiv" @click="isAddress = !isAddress">{{ addressQuery.city }}</div>
@@ -505,7 +505,7 @@
                   <div class="mask">
                     <span style="margin-left: 10px; display: inline-block" />
                     <el-button v-for="item in addressList[0]" :key="item.id" type="text" style="margin-top: 5px" size="mini" @click="addressLevel = item">
-                      {{ isChineseShow && item.chineseName || item.name }}
+                      {{ (isChineseShow && item.chineseName) || item.name }}
                     </el-button>
                   </div>
                 </el-tab-pane>
@@ -513,7 +513,7 @@
                   <div class="mask">
                     <span style="margin-left: 10px; display: inline-block" />
                     <el-button v-for="item in addressList[1]" v-if="addressList[1]" :key="item.id" type="text" style="margin-top: 5px" size="mini" @click="addressLevel = item">
-                      {{ isChineseShow && item.chineseName || item.name }}
+                      {{ (isChineseShow && item.chineseName) || item.name }}
                     </el-button>
                   </div>
                 </el-tab-pane>
@@ -521,7 +521,7 @@
                   <div class="mask">
                     <span style="margin-left: 10px; display: inline-block" />
                     <el-button v-for="item in addressList[2]" v-if="addressList[2]" :key="item.id" type="text" style="margin-top: 5px" size="mini" @click="addressLevel = item">
-                      {{ isChineseShow && item.chineseName || item.name }}
+                      {{ (isChineseShow && item.chineseName) || item.name }}
                     </el-button>
                   </div>
                 </el-tab-pane>
@@ -529,7 +529,7 @@
                   <div class="mask">
                     <span style="margin-left: 10px; display: inline-block" />
                     <el-button v-for="item in addressList[3]" v-if="addressList[3]" :key="item.id" type="text" style="margin-top: 5px" size="mini" @click="addressLevel = item">
-                      {{ isChineseShow && item.chineseName || item.name }}
+                      {{ (isChineseShow && item.chineseName) || item.name }}
                     </el-button>
                   </div>
                 </el-tab-pane>
@@ -728,7 +728,7 @@ export default {
       total: 0,
       currentPage: 1,
       pageSize: 200,
-      isChineseShow:false,
+      isChineseShow: false
     }
   },
   computed: {},
@@ -753,7 +753,7 @@ export default {
       }
     },
     addressLevel(data) {
-      const val =this.isChineseShow && data.chineseName || data.name
+      const val = this.isChineseShow && data.chineseName || data.name
       const id = data.id
       if (this.addressQuery.mask == '0') {
         this.addressQuery.city = val + '/'
@@ -778,9 +778,9 @@ export default {
         this.addressQuery.mask = '0'
       }
     },
-    isChineseShow(value){
+    isChineseShow(value) {
       this.addressQuery.city = ''
-      this.addressQuery.mask = 0;
+      this.addressQuery.mask = 0
       this.getNextLevelAddresses()
     }
   },
@@ -922,22 +922,22 @@ export default {
         if (nextLevelAddressesRes.status >= 200 && nextLevelAddressesRes.status < 300) {
           const nextLevelAddressesData = JSON.parse(nextLevelAddressesRes.data)
           const list = JSON.parse(JSON.stringify(this.addressList))
-          let tempList = nextLevelAddressesData.data.list
-          if(this.isChineseShow){
+          const tempList = nextLevelAddressesData.data.list
+          if (this.isChineseShow) {
             // tempList.forEach(async (item,index)=>{
             //   item.chineseName = await this.$BaseUtilService.getLocalTranslationThesaurus(item.name)
             // })
             let word = ''
-            tempList.forEach(item=>{word += item.name+' , '})
+            tempList.forEach(item => { word += item.name + ' , ' })
             console.log(word)
             let chineseStr = await this.$BaseUtilService.getLocalTranslationThesaurus(word)
             console.log(chineseStr)
-            chineseStr = chineseStr.replaceAll('|','、')
-            chineseStr = chineseStr.replaceAll(',','、')
-            chineseStr = chineseStr.replaceAll('，','、')
-            chineseStr = chineseStr.replaceAll('。','、')
-            let chineseList = chineseStr.split('、')
-            tempList.forEach((item,index)=>{
+            chineseStr = chineseStr.replaceAll('|', '、')
+            chineseStr = chineseStr.replaceAll(',', '、')
+            chineseStr = chineseStr.replaceAll('，', '、')
+            chineseStr = chineseStr.replaceAll('。', '、')
+            const chineseList = chineseStr.split('、')
+            tempList.forEach((item, index) => {
               item.chineseName = chineseList[index]
             })
           }
@@ -995,7 +995,6 @@ export default {
       }
     },
     confirmAddresses() {
-
       this.hideConsole = false
       const names = this.addressQuery.city
       const phone = this.$shopeemanService.getTelephoneNumberIsTrue(this.countryVal, this.addressQuery.phone)
