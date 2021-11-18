@@ -788,9 +788,9 @@ export default {
       let sysMallIds = ''
       this.selectMallList.forEach((item, index) => {
         if (index === 0) {
-          sysMallIds = item.platform_mall_id
+          sysMallIds = item.id
         } else {
-          sysMallIds = sysMallIds + ',' + item.platform_mall_id
+          sysMallIds = sysMallIds + ',' + item.id
         }
       })
       const dateTime = this.dateTime.length ? this.dateTime[0] + ' 00:00:00' + '/' + this.dateTime[1] + ' 23:59:59' : ''

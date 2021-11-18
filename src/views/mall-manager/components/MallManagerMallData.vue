@@ -28,7 +28,7 @@
             </li>
             <li>
               <span>客服数据统计时间(仅用于同步数据)：</span>
-              <el-select v-model="form.serviceDataTime" class="unnormal3" placeholder="" size="mini" filterable>
+              <el-select v-model="serviceDataTime" class="unnormal3" placeholder="" size="mini" filterable>
                 <el-option v-for="(item, index) in serviceDataTimeList" :key="index" :label="item.label" :value="item.value" />
               </el-select>
             </li>
@@ -238,7 +238,6 @@ export default {
         agoNoneOrderDays: '0', // 距今无订单天数
         site: 0, // 站点
         shopSelect: '0', // 店铺选择
-        serviceDataTime: 'real_time', // 客服数据统计时间
         shopSelectVal: '' // 店铺选择值
       },
       // agoNoneOrderDaysList: [
@@ -253,6 +252,7 @@ export default {
         { value: '1', label: '店铺ID' },
         { value: '2', label: '店铺别名' }
       ],
+      serviceDataTime: 'real_time', // 客服数据统计时间
       serviceDataTimeList: [
         { value: 'yesterday', label: '昨天' },
         { value: 'real_time', label: '今天' },
@@ -271,8 +271,6 @@ export default {
         return this.$message('暂无同步数据')
       }
       console.log(data, 'syncMallData')
-      // const url = this.shopeeConfig.getSiteDomainCrossBk('VN')
-      // console.log(url)
       this.isShowProgress = true
       this.percentage = 0
       const res = await batchOperation(data, this.syncMall)
@@ -371,14 +369,15 @@ export default {
           await this.mallDataApiInstance.uploadMallData(item)
           return
         }
-        // 近30天聊天
-        const paramsChat30 = {
+        // 今日/昨日/过去七天/三十天实时聊天
+        const { startTime, endTime } = this.getTimeStamp(this.serviceDataTime)
+        const params = {
           mallId: item.platform_mall_id,
-          start_time: Math.round(todayEnd / 1000),
-          end_time: Math.round((todayEnd - 30 * 24 * 60 * 60) / 1000),
-          period: 'past30days'
+          start_time: startTime,
+          end_time: endTime,
+          period: this.serviceDataTime
         }
-        const res8 = await this.mallDataApiInstance.getChatDashboard(item, '/api/mydata/v2/chat/dashboard/funnel/', paramsChat30, 'past30days')
+        const res8 = await this.mallDataApiInstance.getChatDashboard(item, '/api/mydata/v2/chat/dashboard/funnel/', params, this.serviceDataTime)
         console.log(res8, 'res8')
         if (res8.code === 403) {
           this.$set(item, 'status', '店铺未登录')
@@ -386,8 +385,8 @@ export default {
           await this.mallDataApiInstance.uploadMallData(item)
           return
         }
-        // 拨款信息
-        const res9 = await this.mallDataApiInstance.getIncomeMeta(item, '/api/v3/finance/get_income_meta/')
+        // 账单验证
+        const res9 = await this.mallDataApiInstance.getBankAccounts(item, '/api/v3/finance/get_bank_accounts/')
         console.log(res9, 'res9')
         if (res9.code === 403) {
           this.$set(item, 'status', '店铺未登录')
@@ -395,11 +394,29 @@ export default {
           await this.mallDataApiInstance.uploadMallData(item)
           return
         }
+        // 拨款信息
+        const res10 = await this.mallDataApiInstance.getIncomeMeta(item, '/api/v3/finance/get_income_meta/')
+        console.log(res10, 'res10')
+        if (res10.code === 403) {
+          this.$set(item, 'status', '店铺未登录')
+          this.$set(item, 'color', 'red')
+          await this.mallDataApiInstance.uploadMallData(item)
+          return
+        }
+        // 待拨款订单数
+        const res11 = await this.mallDataApiInstance.getFrozenAmountOrders(item, '/api/v3/finance/income_transaction_histories/')
+        console.log(res11, 'res11')
+        if (res11.code === 403) {
+          this.$set(item, 'status', '店铺未登录')
+          this.$set(item, 'color', 'red')
+          await this.mallDataApiInstance.uploadMallData(item)
+          return
+        }
         this.$set(item, 'status', '同步完成')
         this.$set(item, 'color', 'green')
-        const res10 = await this.mallDataApiInstance.uploadMallData(item)
-        console.log(res10, 'res10')
-        if (res10.code === 200) {
+        const res12 = await this.mallDataApiInstance.uploadMallData(item)
+        console.log(res12, 'res12')
+        if (res12.code === 200) {
           this.$set(item, 'status', '同步成功-上报成功')
           this.$set(item, 'color', 'green')
         } else {
@@ -477,25 +494,26 @@ export default {
     },
     // 获取时间戳
     getTimeStamp(val) {
-      const toData = new Date(new Date().toLocaleDateString()).getTime()
+      const todayStart = new Date(new Date().toLocaleDateString()).getTime()
+      const todayEnd = new Date(new Date().toLocaleDateString()).getTime() + 24 * 60 * 60 * 1000 - 1
       let startTime = ''
       let endTime = ''
       switch (val) {
         case 'yesterday':
-          startTime = toData - 3600 * 24 * 1000
-          endTime = startTime + 24 * 60 * 60 * 1000 - 1
+          startTime = Math.round((todayStart - 1 * 24 * 60 * 60) / 1000)
+          endTime = Math.round((todayEnd - 1 * 24 * 60 * 60) / 1000)
           return { startTime, endTime }
         case 'real_time':
-          startTime = toData
-          endTime = startTime + 24 * 60 * 60 * 1000 - 1
+          startTime = Math.round(todayStart / 1000)
+          endTime = Math.round(todayEnd / 1000)
           return { startTime, endTime }
         case 'past7days':
-          startTime = toData - 7 * 3600 * 24 * 1000
-          endTime = startTime + 24 * 60 * 60 * 1000 - 1
+          startTime = Math.round(todayEnd / 1000)
+          endTime = Math.round((todayEnd - 7 * 24 * 60 * 60) / 1000)
           return { startTime, endTime }
         case 'past30days':
-          startTime = toData - 30 * 3600 * 24 * 1000
-          endTime = startTime + 24 * 60 * 60 * 1000 - 1
+          startTime = Math.round(todayEnd / 1000)
+          endTime = Math.round((todayEnd - 30 * 24 * 60 * 60) / 1000)
           return { startTime, endTime }
       }
     },

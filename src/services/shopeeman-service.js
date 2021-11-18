@@ -227,7 +227,6 @@ export default class NetMessageBridgeService {
         }
       }, copy_mallInfo)
       res = JSON.parse(res)
-
       if (res.status === 200) {
         const data = JSON.parse(res.data)
         // const data = {

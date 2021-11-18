@@ -71,7 +71,7 @@
           >同步数据</el-button>
           <el-button size="mini" type="primary" @click="cancelActive = true">取消同步</el-button>
           <el-button size="mini" type="primary" @click="clearLog">清空日志</el-button>
-          <el-button size="mini" type="primary" @click="export_table((query.page = 1)), (exportList = [])">导出 </el-button>
+          <el-button size="mini" type="primary" @click="export_table(1), (exportList = [])">导出 </el-button>
           <el-checkbox v-model="showConsole" style="margin-left: 10px"> 隐藏日志</el-checkbox>
         </div>
       </div>
@@ -123,7 +123,7 @@
 </template>
 <script>
 import storeChoose from '../../../components/store-choose'
-import { exportExcelDataCommon, creatDate } from '../../../util/util'
+import { exportExcelDataCommon } from '../../../util/util'
 
 export default {
   components: { storeChoose },
@@ -187,7 +187,7 @@ export default {
       this.selectMallList = val
       this.site_query['country'] = this.selectMallList['country']
       this.exchangeRateList()
-      console.log('111', this.site_query['country'])
+      console.log('country', this.site_query['country'])
       console.log('changeMallList', val)
     },
     // 同步信息
@@ -311,76 +311,22 @@ export default {
     // 获取汇率
     async exchangeRateList() {
       const data = await this.$api.exchangeRateList()
-      console.log(data.data)
+      console.log(data.data.data)
       if (data.data.code === 200) {
-        console.log(this.site_query.country)
-        switch (this.site_query.country) {
-          case 'MY':// 马来
-            this.site_query.rate_coin = data.data.data.MY
-            this.site_query.typeCoin = 'RM'
-            break
-          case 'SG':// 新加坡
-            this.site_query.rate_coin = data.data.data.SG
-            this.site_query.typeCoin = '$'
-            break
-          case 'PH':// 菲律宾
-            this.site_query.rate_coin = data.data.data.PH
-            this.site_query.typeCoin = '₱'
-            break
-          case 'TH':// 泰国
-            this.site_query.rate_coin = data.data.data.TH
-            this.site_query.typeCoin = '฿'
-            break
-          case 'ID':// 印尼
-            this.site_query.rate_coin = data.data.data.ID
-            this.site_query.typeCoin = 'Rp'
-            break
-          case 'TW':// 台湾
-            this.site_query.rate_coin = data.data.data.TW
-            this.site_query.typeCoin = '$'
-            break
-          case 'VN':// 越南
-            this.site_query.rate_coin = data.data.data.VN
-            this.site_query.typeCoin = '₫'
-            break
-          case 'BR':// 巴西
-            this.site_query.rate_coin = data.data.data.BR
-            this.site_query.typeCoin = 'R$'
-            break
-          case 'US':// 美国
-            this.site_query.rate_coin = data.data.data.US
-            this.site_query.typeCoin = '$'
-            break
-          case 'MX':// 墨西哥
-            this.site_query.rate_coin = data.data.data.MX
-            this.site_query.typeCoin = 'MX$'
-            break
-          case 'CL':// 智利
-            this.site_query.rate_coin = data.data.data.CL
-            this.site_query.typeCoin = '$'
-            break
-          case 'CO':// 哥伦比亚
-            this.site_query.rate_coin = data.data.data.CO
-            this.site_query.typeCoin = '$'
-            break
-          case 'PL':// 波兰
-            this.site_query.rate_coin = data.data.data.PL
-            this.site_query.typeCoin = 'zł'
-            break
-          default:
-            // this.site_query.typeCoin = '￥'
-            break
-        }
+        this.site_query.rate_coin = data.data.data[this.site_query.country]
       } else {
         this.$message.warning('网络请求失败')
       }
     },
     // 导出
     export_table(page) {
-      // 结尾page=1
-      this.query.page = page
-      if (this.exportList.length >= this.total) {
-        let str = `<tr>
+      const params = this.query
+      params.page = page
+      this.getTableList(params)
+      if (this.tableList.length > 0) {
+        this.exportList.push(...this.tableList)
+        if (this.exportList.length >= this.total) {
+          let str = `<tr>
               <td>序号</td>
               <td>站点</td>
               <td>店铺名称</td>
@@ -391,8 +337,8 @@ export default {
               <td>拨款金额（RMB）</td>
               <td>拨款时间</td>
             </tr>`
-        this.exportList.forEach((item, index) => {
-          str += `<tr>
+          this.exportList.forEach((item, index) => {
+            str += `<tr>
               <td>${index + 1}</td>
               <td>${item.country ? this.$filters.chineseSite(item.country) : '-' + '\t'}</td>
               <td>${item.platform_mall_name ? item.platform_mall_name : '-' + '\t'}</td>
@@ -403,19 +349,18 @@ export default {
               <td>${item.appropriate_amount ? (item.appropriate_amount * this.site_query.rate_coin).toFixed(2) : '-' + '\t'}</td>
               <td>${item.created_at ? item.created_at : '-' + '\t'}</td>
             </tr>`
-        })
-        exportExcelDataCommon('货款对账详情', str)
-        this.query.page = 1 // 还原
+          })
+          exportExcelDataCommon('货款对账详情', str)
+        } else {
+          this.export_table(page + 1)
+        }
       } else {
-        this.getTableList()
-        this.exportList.push(...this.tableList)
-        this.export_table(page + 1)
+        this.$message.warning('暂无数据导出')
       }
     },
     // 搜索
     search() {
       this.isLoading = true
-      console.log(this.selectMallList)
       const params = this.query
       let sysMallId = ''
       this.selectMallList.forEach((item, index) => {
@@ -426,7 +371,7 @@ export default {
         }
       })
       params.sysMallId = sysMallId
-      params.appropriateTime = this.cloumn_date.length >= 0 ? this.$dayjs(this.cloumn_date[0]).format('YYYY-MM-DD') + ' 00:00:00/' + this.$dayjs(this.cloumn_date[1]).format('YYYY-MM-DD') + ' 23:59:59' : ''
+      params.appropriateTime = this.cloumn_date?.length >= 0 ? this.$dayjs(this.cloumn_date[0]).format('YYYY-MM-DD') + ' 00:00:00/' + this.$dayjs(this.cloumn_date[1]).format('YYYY-MM-DD') + ' 23:59:59' : ''
       params.page = this.page
       params.pageSize = this.pageSize
       console.log(params, 'params')
@@ -443,6 +388,10 @@ export default {
         this.total = data.data.data.total
         this.to_back_amount = data.data.data.to_back_amount
         this.haved_amount = data.data.data.haved_amount
+        this.site_query.typeCoin = this.$shopeeManConfig.getSiteCoinSymbol(this.site_query.country)
+        if (this.selectMallList?.length === 0) {
+          this.tableList = []
+        }
       } else {
         this.$message.warning('数据请求失败！')
       }
