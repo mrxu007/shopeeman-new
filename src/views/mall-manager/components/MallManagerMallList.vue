@@ -492,7 +492,10 @@
           </div>
           <h2 style="margin: 10px 0">地址</h2>
           <div class="dialog_item">
-            <div class="item_name">地区</div>
+            <div class="item_name" style="display: flex;justify-content: space-between;align-items: center">
+              <div>地址</div>
+              <el-checkbox size="mini" v-model="isChineseShow">翻译成中文</el-checkbox>
+            </div>
             <div class="item_content">
               <div class="inputDiv" @click="isAddress = !isAddress">{{ addressQuery.city }}</div>
             </div>
@@ -501,31 +504,33 @@
                 <el-tab-pane label="州/省" name="0">
                   <div class="mask">
                     <span style="margin-left: 10px; display: inline-block" />
-                    <el-button v-for="item in addressList[0]" :key="item.id" type="text" style="margin-top: 5px" size="mini" @click="addressLevel = item">{{ item.name }}</el-button>
+                    <el-button v-for="item in addressList[0]" :key="item.id" type="text" style="margin-top: 5px" size="mini" @click="addressLevel = item">
+                      {{ isChineseShow && item.chineseName || item.name }}
+                    </el-button>
                   </div>
                 </el-tab-pane>
                 <el-tab-pane v-if="maskNumber > 1" label="城市" name="1" :disabled="!(addressQuery.mask >= 1 || addressQuery.city.split('/').length > 1)">
                   <div class="mask">
                     <span style="margin-left: 10px; display: inline-block" />
-                    <el-button v-for="item in addressList[1]" v-if="addressList[1]" :key="item.id" type="text" style="margin-top: 5px" size="mini" @click="addressLevel = item">{{
-                      item.name
-                    }}</el-button>
+                    <el-button v-for="item in addressList[1]" v-if="addressList[1]" :key="item.id" type="text" style="margin-top: 5px" size="mini" @click="addressLevel = item">
+                      {{ isChineseShow && item.chineseName || item.name }}
+                    </el-button>
                   </div>
                 </el-tab-pane>
                 <el-tab-pane v-if="maskNumber > 2" label="区" name="2" :disabled="!(addressQuery.mask >= 2 || addressQuery.city.split('/').length > 2)">
                   <div class="mask">
                     <span style="margin-left: 10px; display: inline-block" />
-                    <el-button v-for="item in addressList[2]" v-if="addressList[2]" :key="item.id" type="text" style="margin-top: 5px" size="mini" @click="addressLevel = item">{{
-                      item.name
-                    }}</el-button>
+                    <el-button v-for="item in addressList[2]" v-if="addressList[2]" :key="item.id" type="text" style="margin-top: 5px" size="mini" @click="addressLevel = item">
+                      {{ isChineseShow && item.chineseName || item.name }}
+                    </el-button>
                   </div>
                 </el-tab-pane>
                 <el-tab-pane v-if="maskNumber > 3" label="镇" name="3" :disabled="!(addressQuery.mask >= 3 || addressQuery.city.split('/').length > 3)">
                   <div class="mask">
                     <span style="margin-left: 10px; display: inline-block" />
-                    <el-button v-for="item in addressList[3]" v-if="addressList[3]" :key="item.id" type="text" style="margin-top: 5px" size="mini" @click="addressLevel = item">{{
-                      item.name
-                    }}</el-button>
+                    <el-button v-for="item in addressList[3]" v-if="addressList[3]" :key="item.id" type="text" style="margin-top: 5px" size="mini" @click="addressLevel = item">
+                      {{ isChineseShow && item.chineseName || item.name }}
+                    </el-button>
                   </div>
                 </el-tab-pane>
               </el-tabs>
@@ -725,7 +730,8 @@ export default {
       // 分页
       total: 0,
       currentPage: 1,
-      pageSize: 200
+      pageSize: 200,
+      isChineseShow:false,
     }
   },
   computed: {},
@@ -750,7 +756,7 @@ export default {
       }
     },
     addressLevel(data) {
-      const val = data.name
+      const val =this.isChineseShow && data.chineseName || data.name
       const id = data.id
       if (this.addressQuery.mask == '0') {
         this.addressQuery.city = val + '/'
@@ -774,6 +780,11 @@ export default {
         this.isAddress = false
         this.addressQuery.mask = '0'
       }
+    },
+    isChineseShow(value){
+      this.addressQuery.city = ''
+      this.addressQuery.mask = 0;
+      this.getNextLevelAddresses()
     }
   },
   created() {
@@ -914,8 +925,27 @@ export default {
         if (nextLevelAddressesRes.status >= 200 && nextLevelAddressesRes.status < 300) {
           const nextLevelAddressesData = JSON.parse(nextLevelAddressesRes.data)
           const list = JSON.parse(JSON.stringify(this.addressList))
-          list[this.addressQuery.mask] = nextLevelAddressesData.data.list
-          this.addressList = JSON.parse(JSON.stringify(list))
+          let tempList = nextLevelAddressesData.data.list
+          if(this.isChineseShow){
+            // tempList.forEach(async (item,index)=>{
+            //   item.chineseName = await this.$BaseUtilService.getLocalTranslationThesaurus(item.name)
+            // })
+            let word = ''
+            tempList.forEach(item=>{word += item.name+' , '})
+            console.log(word)
+            let chineseStr = await this.$BaseUtilService.getLocalTranslationThesaurus(word)
+            console.log(chineseStr)
+            chineseStr = chineseStr.replaceAll('|','、')
+            chineseStr = chineseStr.replaceAll(',','、')
+            chineseStr = chineseStr.replaceAll('，','、')
+            chineseStr = chineseStr.replaceAll('。','、')
+            let chineseList = chineseStr.split('、')
+            tempList.forEach((item,index)=>{
+              item.chineseName = chineseList[index]
+            })
+          }
+          list[this.addressQuery.mask] = tempList
+          this.addressList = list
           console.log('nextLevelAddressesData', nextLevelAddressesData, this.addressList)
         } else if (nextLevelAddressesRes.status === 403) {
 
@@ -968,6 +998,8 @@ export default {
       }
     },
     confirmAddresses() {
+
+      this.hideConsole = false
       const names = this.addressQuery.city
       const phone = this.$shopeemanService.getTelephoneNumberIsTrue(this.countryVal, this.addressQuery.phone)
       const nameList = names.split('/')
