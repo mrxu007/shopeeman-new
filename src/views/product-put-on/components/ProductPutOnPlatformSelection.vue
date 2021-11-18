@@ -121,7 +121,8 @@
 
 <script>
 import CollectKeyWordApI from './collection-keyword-api'
-import getPlatform from './collection-platformId'
+import { getPlatform, platformObj } from './collection-platformId'
+import testData from './testData'
 export default {
   props: {
     baseConfig: {
