@@ -977,7 +977,6 @@ export default {
     },
     async getInfo() {
       getMalls().then(res => {
-        console.log()
         this.shopAccountList = res
         this.query.mall_ids = [] // 初始化店铺数据
         this.dialogMallquery.mallGroupIds = [] // 初始化绑定店铺分组
@@ -1258,7 +1257,6 @@ export default {
         this.dialog_mallList = list
         this.$refs.multipleTable_dialog.clearSelection()
         //  bindMalList
-        // debugger
       }
     },
     // dialog多选
@@ -1485,7 +1483,6 @@ export default {
         const data = await this.$commodityService.addIPMaster(params)
         this.loading = false
         const resMsg = JSON.parse(data)
-        // debugger
         if (resMsg.code === -1) {
           // this.$notify({
           //   title: '新增公司主体',
@@ -1601,7 +1598,9 @@ export default {
       // this.site.forEach(e => {
       //   this.query.mall_ids.push(e.id)
       // })
-      if (val && val.length > 0) {
+      if (val.country === '' && val.length === 0 || val.length === this.shopAccountList.length) { // 点击站点  三个全选
+        this.query.mall_ids = []
+      } else {
         val.forEach(item => {
           this.query.mall_ids.push(item.id)
         })
@@ -1624,7 +1623,6 @@ export default {
       params.expiration_datesg = this.cloumn_date && this.cloumn_date.length > 0 ? this.cloumn_date.join('/').toString() : ''
       // params.expiration_datesg = '2021-10-06 23:59:59/2021-11-06 23:59:59'
       params.mall_ids = this.query.mall_ids.toString() || ''
-      // debugger
       // console.log(params, 'getTableList')
       try {
         const res = await this.$YipService.GetIpList(JSON.stringify(params))
@@ -1639,7 +1637,10 @@ export default {
               if (item.target_mall_info && item.target_mall_info.length > 0) {
                 const mall = []
                 item.target_mall_info.forEach(i => {
-                  mall.push(MallgetValue(this.shopAccountList, 'label', 'id', i.mall_id))
+                  const dd = MallgetValue(this.shopAccountList, 'label', 'id', i.mall_id)
+                  if (dd) mall.push(dd)
+                  // mall.push(MallgetValue(this.shopAccountList, 'label', 'id', i.mall_id))
+                  // debugger
                 })
                 item.mall_alias_name = mall.toString()
               }

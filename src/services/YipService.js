@@ -119,7 +119,7 @@ export default class YipService {
        * @param  { object }
        */
   async GetIpList(param) {
-    return await this.nativeService().callCloudIpFunction('GetIpList', param)
+    return await this.nativeService().callCloudIpFunction('GetIpListNew', param)
   }
   /**
        * 绑定主体IP
