@@ -28,7 +28,7 @@ export async function getMalls() {
     for (let index = 0; index < data.data.length; index++) {
       const item = data.data[index]
       const obj = {}
-      obj.label = item.mall_alias_name
+      obj.label = item.mall_alias_name ? item.mall_alias_name : item.platform_mall_name
       obj.value = item.platform_mall_id
       obj.country = item.country
       obj.id = item.id
@@ -420,5 +420,5 @@ export function formatDuring(mss) {
 }
 
 export function exportPdfData(){
-  
+
 }

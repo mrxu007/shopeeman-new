@@ -96,7 +96,11 @@
         @selection-change="handleSelectionChange"
       >
         <u-table-column align="center" type="selection" width="50" />
-        <u-table-column align="center" type="index" label="序号" />
+        <u-table-column align="center" type="index" label="序号">
+          <template v-slot="{ $index }">
+            {{ (currentPage - 1) * pageSize + $index + 1 }}
+          </template>
+        </u-table-column>
         <u-table-column align="center" prop="group_name" label="分组" />
         <u-table-column align="center" prop="" label="站点">
           <template v-slot="{ row }">
@@ -167,12 +171,25 @@
         </u-table-column>
         <u-table-column align="center" prop="mall_status" label="店铺状态">
           <template v-slot="{ row }">
-            {{ mallStatusObj[row.mall_status] }}
+            {{ mallStatusObj[row.mall_status]?mallStatusObj[row.mall_status]:'冻结' }}
           </template>
         </u-table-column>
         <u-table-column align="center" prop="created_at" label="授权日期" min-width="120px" />
       </u-table>
+      <div class="pagination">
+        <el-pagination
+          background
+          layout="total, sizes, prev, pager, next"
+          :total="total"
+          :current-page="currentPage"
+          :page-sizes="[200, 500]"
+          :page-size="pageSize"
+          @size-change="handleSizeChange"
+          @current-change="handleCurrentChange"
+        />
+      </div>
     </el-row>
+
     <!-- 修改店铺水印弹框 -->
     <el-dialog
       class="water-dialog"
@@ -417,10 +434,10 @@
           </el-radio-group>
         </li>
         <el-upload v-if="imageOrigin === '2'" class="avatar-uploader" :show-file-list="false" action="" :on-error="imgSaveToUrl2" :before-upload="beforeAvatarUpload2">
-          <img v-if="imageUrl" :src="imageUrl" class="avatar" style="width: 460px; height: 450px" />
+          <img v-if="imageUrl" :src="imageUrl" class="avatar" style="width: 460px; height: 450px">
           <i v-else class="el-icon-plus avatar-uploader-icon" />
         </el-upload>
-        <img v-else :src="imageUrl" style="width: 460px; height: 450px" />
+        <img v-else :src="imageUrl" style="width: 460px; height: 450px">
       </ul>
       <span slot="footer" class="dialog-footer">
         <el-button type="primary" size="mini" @click="BatchUpdateMallBk">确 定</el-button>
@@ -530,9 +547,9 @@
           </div>
           <div class="dialog_item">
             <el-checkbox v-model="addressQuery.default" style="margin: 5px 0" label="设为默认地址" />
-            <br />
+            <br>
             <el-checkbox v-model="addressQuery.take" style="margin: 5px 0" label="设为取件地址" />
-            <br />
+            <br>
             <el-checkbox v-model="addressQuery.backMail" style="margin: 5px 0" label="设为回邮地址" />
           </div>
           <div class="dialog_item">
@@ -583,7 +600,7 @@ import xlsx from 'xlsx'
 export default {
   data() {
     return {
-      Height: 620,
+      Height: 580,
       LogisticsList: {},
       activeNames: [],
       height: 300,
@@ -630,14 +647,11 @@ export default {
       mallStausVal: '',
       mallStatus: [
         { label: '正常', value: 1 }, // 0 1 都是正常
-        { label: '冻结', value: 2 },
-        { label: '禁止', value: 3 }
+        { label: '冻结', value: 3 }
       ],
       mallStatusObj: {
         0: '正常',
-        1: '正常',
-        2: '冻结',
-        3: '禁止'
+        1: '正常'
       },
       groupId: '',
       groupList: [],
@@ -703,7 +717,12 @@ export default {
       sendMessageHeader: null, // 短信重要信息
       setInterId: null,
       needIvsInfo: null, // 存放ivs验证
-      needCaptchaInfo: null // 存放图形验证码
+      needCaptchaInfo: null, // 存放图形验证码
+
+      // 分页
+      total: 0,
+      currentPage: 1,
+      pageSize: 200
     }
   },
   computed: {},
@@ -777,6 +796,17 @@ export default {
     }
   },
   methods: {
+    handleSizeChange(val) {
+      console.log(`每页 ${val} 条`)
+      this.pageSize = val
+      this.currentPage = 1
+      this.getMallList()
+    },
+    handleCurrentChange(val) {
+      console.log(`当前页: ${val}`)
+      this.currentPage = val
+      this.getMallList()
+    },
     closePhoneCodeDialog() {
       if (!this.phoneInfo_message_code) {
         return this.$message.error('请输入手机验证码')
@@ -962,7 +992,7 @@ export default {
     },
     async setAddresses(item, count = { count: 1 }) {
       console.log(item)
-      let name = item.mall_alias_name || item.platform_mall_name || ''
+      const name = item.mall_alias_name || item.platform_mall_name || ''
       try {
         delete item.mall_alias_name
         delete item.platform_mall_name
@@ -973,9 +1003,9 @@ export default {
         console.log('addAddressRes', addAddressRes)
         if (addAddressRes.status >= 200 && addAddressRes.status < 300) {
           const addAddressData = JSON.parse(addAddressRes.data)
-          let success =  addAddressData.code === 0
+          const success = addAddressData.code === 0
           address_id = addAddressData.data.address_id
-          this.$refs.Logs.writeLog(`店铺【${name}】添加地址${success &&'成功' || '失败'}`, success)
+          this.$refs.Logs.writeLog(`店铺【${name}】添加地址${success && '成功' || '失败'}`, success)
         } else if (addAddressRes.status === 403) {
           this.$refs.Logs.writeLog(`店铺【${name}】尚未登陆无法设置地址`, false)
           return
@@ -988,13 +1018,13 @@ export default {
             mallId: item.mallId,
             address_id: address_id
           }
-          const defaultAddressJson = await this.$shopeemanService.setDefaultAddress(item.country, param,option)
+          const defaultAddressJson = await this.$shopeemanService.setDefaultAddress(item.country, param, option)
           const defaultAddressRes = JSON.parse(defaultAddressJson)
           console.log('defaultAddressRes', defaultAddressRes)
           if (defaultAddressRes.status >= 200 && defaultAddressRes.status < 300) {
             const defaultAddressData = JSON.parse(defaultAddressRes.data)
-            let success =  defaultAddressData.code === 0
-            this.$refs.Logs.writeLog(`店铺【${name}】默认地址设置${success &&'成功' || '失败'}`, success)
+            const success = defaultAddressData.code === 0
+            this.$refs.Logs.writeLog(`店铺【${name}】默认地址设置${success && '成功' || '失败'}`, success)
           } else {
             this.$refs.Logs.writeLog(`店铺【${name}】默认地址设置失败`, false)
           }
@@ -1010,14 +1040,14 @@ export default {
           if (this.addressQuery.backMail) {
             param['return_address_id'] = address_id
           }
-          const shopAddressJson = await this.$shopeemanService.setShopAddress(item.country, param,option)
+          const shopAddressJson = await this.$shopeemanService.setShopAddress(item.country, param, option)
           const shopAddressRes = JSON.parse(shopAddressJson)
           console.log('shopAddressRes', shopAddressRes)
           if (shopAddressRes.status >= 200 && shopAddressRes.status < 300) {
             const shopAddressData = JSON.parse(shopAddressRes.data)
-            let success =  shopAddressData.code === 0
+            const success = shopAddressData.code === 0
             this.$refs.Logs.writeLog(`店铺【${name}】
-            ${this.addressQuery.take && '取件地址'}${this.addressQuery.backMail && '取件地址'}设置${success &&'成功' || '失败'}`, success)
+            ${this.addressQuery.take && '取件地址'}${this.addressQuery.backMail && '取件地址'}设置${success && '成功' || '失败'}`, success)
           } else {
             this.$refs.Logs.writeLog(`店铺【${name}】
             ${this.addressQuery.take && '取件地址'}${this.addressQuery.backMail && '取件地址'}设置失败`, false)
@@ -1832,7 +1862,7 @@ export default {
           <td style="text-align:left;">${item.watermark || ''}</td>
           <td style="text-align:left;">${item.item_limit || ''}</td>
           <td style="text-align:left;">${item.mall_alias_name || ''}</td>
-          <td style="text-align:left;">${this.mallStatusObj[item.mall_status]}</td>
+          <td style="text-align:left;">${this.mallStatusObj[item.mall_status] ? this.mallStatusObj[item.mall_status] : '冻结'}</td>
           <td style="text-align:left;">${item.created_at}</td>
         </tr>
         `
@@ -2122,7 +2152,10 @@ export default {
       fileReader.readAsBinaryString(files[0])
     },
     async getMallList() {
-      const params = {}
+      const params = {
+        page: this.currentPage,
+        pageSize: this.pageSize
+      }
       if (this.buttonStatus.mallList) {
         return
       }
@@ -2136,7 +2169,8 @@ export default {
         this.$message.error(`获取店铺列表失败: ${res.data}`)
         return
       }
-      this.mallList = res.data
+      this.mallList = res.data.mallArr
+      this.total = res.data.total
       this.$refs.plTable.reloadData(this.mallList)
       // this.mallListTemp = this.mallList
       this.buttonStatus.mallList = false

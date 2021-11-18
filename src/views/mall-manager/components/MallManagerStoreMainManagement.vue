@@ -2,7 +2,7 @@
   <div v-loading="loading" class="content">
     <div class="all_condition">
       <div class="des_conditon">
-        <storeChoose :is-all="true" :showMallAll="true" @changeMallList="changeMallList" />
+        <storeChoose :is-all="true" :show-mall-all="true" @changeMallList="changeMallList" />
         <div style="margin-left: 20px">
           <span>过期时间：</span>
           <el-date-picker
@@ -105,7 +105,6 @@
           :row-style="{ height: '50px' }"
           style="width: 100%;height: calc(100vh - 233px)"
           :header-cell-style="{ background: '#f7fafa' }"
-          :row-key="generateUUID"
           @selection-change="handleSelectionChange"
         >
           <el-table-column
@@ -183,14 +182,14 @@
                 <el-option v-for="(item,index) in time_ipList" :key="'time'+index" :label="item.period+'个月 / '+item.price+' 元'" :value="item.period" />
               </el-select>
             </div>
-            <div class="left_item">
+            <!-- <div class="left_item">
               是否预售：
               <el-radio-group v-model="ipMaster_params.isPresale" size="mini">
                 <el-radio label="1">是</el-radio>
                 <el-radio label="2">否</el-radio>
               </el-radio-group>
-            </div>
-            <div class="left_item">
+            </div> -->
+            <div class="left_item" style="margin-left:-12px">
               主体名称：<el-input v-model="ipMaster_params.ipAlias" clearable style="width:180px" size="mini" />
               <!-- <span v-show="ipMaster_params.ipAlias===''" style="color:red">(必填)</span> -->
               <span style="color:red;margin-left:200px">(必填)</span>
@@ -628,7 +627,6 @@
                 ref="multipleTable_dialog"
                 height="400px"
                 :header-cell-style="{'background': '#f7fafa'}"
-                :row-key="generateUUID"
                 :data="dialog_mallList"
                 @selection-change="handleSelectionChangeDialog"
               >
@@ -827,12 +825,12 @@ export default {
       this.changeIndex++
       this.loading = true
       const res = await this.$api.ddMallGoodsGetMallList()
+      this.loading = false
       if (res.data.code === 200) {
         this.dialog_mallList = res.data.data
       } else {
         this.$message.warning('网络异常！')
       }
-      this.loading = false
     },
     // 新增自有IP公司主体
     async addSelfFun() {
@@ -844,12 +842,12 @@ export default {
       this.changeIndex++
       this.loading = true
       const res = await this.$api.ddMallGoodsGetMallList()
+      this.loading = false
       if (res.data.code === 200) {
         this.dialog_mallList = res.data.data
       } else {
         this.$message.warning('网络异常！')
       }
-      this.loading = false
     },
     // IP解绑
     lostIP() {
@@ -877,6 +875,7 @@ export default {
       const target_id = this.mulSelect[0].id.toString()
       try {
         const res = await this.$YipService.BusinessunbindiP(target_id)
+        this.loading = false
         const data = JSON.parse(res)
         console.log(data)
         if (data.code === 200) {
@@ -892,7 +891,6 @@ export default {
           // })
           this.$message.error(data.message)
         }
-        this.loading = false
         // 清空数据 刷新
         this.$refs.multipleTable.clearSelection()
         this.getTableList()
@@ -958,6 +956,7 @@ export default {
       const targetId = val.toString()
       this.loading = true
       const res = await this.$YipService.delInfor(targetId)
+      this.loading = false
       const data = JSON.parse(res)
       if (data.code === -1) {
         // this.$notify({
@@ -974,17 +973,15 @@ export default {
         // })
         this.$message.success('删除成功')
       }
-      this.loading = false
       this.getTableList()
     },
     async getInfo() {
       getMalls().then(res => {
-        console.log()
         this.shopAccountList = res
         this.query.mall_ids = [] // 初始化店铺数据
         this.dialogMallquery.mallGroupIds = [] // 初始化绑定店铺分组
         this.shopAccountList.forEach(item => {
-          this.query.mall_ids.push(item.id)
+          // this.query.mall_ids.push(item.id)
           this.dialogMallquery.mallGroupIds.push(item.group_id)
         })
         // this.initDate()
@@ -1126,6 +1123,7 @@ export default {
       try {
         this.loading = true
         const res = await this.$YipService.UpdateSelfIP(JSON.stringify(this.query_person))
+        this.loading = false
         const data = JSON.parse(res)
         console.log('updataDesc', data)
         if (data.code === 200) {
@@ -1144,7 +1142,6 @@ export default {
           this.$message.error(data.message)
         }
         // 关闭弹窗 清空数据 刷新数据
-        this.loading = false
         this.dialogvisible = false
         this.getTableList()
         this.closeDialog1()
@@ -1185,13 +1182,14 @@ export default {
         mallGroupIds: this.dialogMallquery.mallGroupIds.toString()
       }
       this.loading = true
-      const res = await this.$api.ddMallGoodsGetMallList({ params })
+      // const res = await this.$api.ddMallGoodsGetMallList({ params })
+      const res = await this.$api.ddMallGoodsGetMallList(params)
+      this.loading = false
       if (res.data.code === 200) {
         this.dialog_mallList = res.data.data
       } else {
-        this.$message.warning('网络异常！')
+        this.$message.warning('店铺列表获取失败！')
       }
-      this.loading = false
       this.bindedMall()
     },
     // 绑定用户信息
@@ -1207,8 +1205,8 @@ export default {
       try {
         this.loading = true
         const res = await this.$commodityService.newBangdingMall(uid, targetId, mallIds)
+        this.loading = false
         const data = JSON.parse(res)
-
         if (data.code !== 200) {
           // this.$notify({
           //   title: '绑定店铺',
@@ -1225,7 +1223,6 @@ export default {
           this.$message.success('绑定成功')
           const data = await this.$BaseUtilService.UpdateProxy()// 壳更新
         }
-        this.loading = false
       } catch (error) {
         console.log('店铺绑定', error)
         this.loading = false
@@ -1260,7 +1257,6 @@ export default {
         this.dialog_mallList = list
         this.$refs.multipleTable_dialog.clearSelection()
         //  bindMalList
-        // debugger
       }
     },
     // dialog多选
@@ -1290,10 +1286,10 @@ export default {
     async clearIP() {
       this.loading = true
       const data = await this.$BaseUtilService.UpdateProxy()
+      this.loading = false
       if (data === null) {
         this.$message.success('清理成功')
       }
-      this.loading = false
     },
     // 确认绑定店铺信息
     updataMall() {
@@ -1375,6 +1371,7 @@ export default {
       // 新增
       this.loading = true
       const res = await this.$YipService.AddSelfIP(JSON.stringify(this.query_person))
+      this.loading = false
       const resMsg = JSON.parse(res)
       if (resMsg.code !== 200) {
         // this.$notify({
@@ -1390,7 +1387,6 @@ export default {
         //   message: `IP保存成功`
         // })
         this.$message.success('IP保存成功')
-        this.loading = false
         // 附加店铺绑定
         this.targetId = resMsg.data
         if (this.dialog_selectMallList.length > 0) {
@@ -1433,6 +1429,7 @@ export default {
         const uuid = '0'
 
         const res = await this.$YipService.RenewIP(targetId, uid, uuid, String(period))
+        this.loading = false
         // this.$message.error(JSON.parse(data).message)
         const data = JSON.parse(res)
         if (data.code === -1) {
@@ -1440,7 +1437,6 @@ export default {
         } else {
           this.$message.success('续费成功')
         }
-        this.loading = false
         // 清空多选
         this.$refs.multipleTable.clearSelection()
       }
@@ -1485,8 +1481,8 @@ export default {
       this.loading = true
       try {
         const data = await this.$commodityService.addIPMaster(params)
+        this.loading = false
         const resMsg = JSON.parse(data)
-        // debugger
         if (resMsg.code === -1) {
           // this.$notify({
           //   title: '新增公司主体',
@@ -1506,7 +1502,6 @@ export default {
           // })
           this.$message.success('新增成功')
         }
-        this.loading = false
         // 附加店铺绑定
         // this.targetId = resMsg.data
         // if (this.dialog_selectMallList.length > 0) {
@@ -1517,6 +1512,7 @@ export default {
         this.closeDialog1()
       } catch (error) {
         console.log('新增公司主体', error)
+        this.loading = false
       }
     },
     // dialog 多选
@@ -1562,10 +1558,10 @@ export default {
     // 获取IP区域列表
     async GetCloudIPAreaList() {
       const data = await this.$YipService.GetCloudIPAreaList()
+      this.loading = false
       const resMsg = JSON.parse(data)
       if (resMsg.code === -1) {
         this.$message.error('ip数据请求失败')
-        this.loading = false
       } else {
         this.region_ipList = []
         resMsg.data.forEach(item => {
@@ -1602,7 +1598,9 @@ export default {
       // this.site.forEach(e => {
       //   this.query.mall_ids.push(e.id)
       // })
-      if (val && val.length > 0) {
+      if (val.country === '' && val.length === 0 || val.length === this.shopAccountList.length) { // 点击站点  三个全选
+        this.query.mall_ids = []
+      } else {
         val.forEach(item => {
           this.query.mall_ids.push(item.id)
         })
@@ -1625,14 +1623,12 @@ export default {
       params.expiration_datesg = this.cloumn_date && this.cloumn_date.length > 0 ? this.cloumn_date.join('/').toString() : ''
       // params.expiration_datesg = '2021-10-06 23:59:59/2021-11-06 23:59:59'
       params.mall_ids = this.query.mall_ids.toString() || ''
-      // debugger
       // console.log(params, 'getTableList')
-      this.loading = true
       try {
         const res = await this.$YipService.GetIpList(JSON.stringify(params))
+        this.loading = false
         this.tableList = []
         const data = JSON.parse(res)
-        this.loading = false
         // console.log('----------', data)
         if (data.code === 200 && this.shopAccountList.length > 0) {
           if (data.data && data.data.length > 0) {
@@ -1641,7 +1637,10 @@ export default {
               if (item.target_mall_info && item.target_mall_info.length > 0) {
                 const mall = []
                 item.target_mall_info.forEach(i => {
-                  mall.push(MallgetValue(this.shopAccountList, 'label', 'id', i.mall_id))
+                  const dd = MallgetValue(this.shopAccountList, 'label', 'id', i.mall_id)
+                  if (dd) mall.push(dd)
+                  // mall.push(MallgetValue(this.shopAccountList, 'label', 'id', i.mall_id))
+                  // debugger
                 })
                 item.mall_alias_name = mall.toString()
               }

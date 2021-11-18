@@ -94,9 +94,10 @@ export default class NetMessageBridgeService {
         referer: url + referer
       })
     }
-    console.log(url, JSON.stringify(options), JSON.stringify(data))
+    // console.log(url, JSON.stringify(options), JSON.stringify(data))
     return this.NetMessageBridgeService().post(url, JSON.stringify(options), JSON.stringify(data))
   }
+
   async postChineseImageFile(country, api, data, options = {}, base64File) {
     data = JSON.parse(JSON.stringify(data))
     // options {extrainfo // 第三方接口, params, header}
@@ -161,7 +162,7 @@ export default class NetMessageBridgeService {
       'CL': '56',
       'PL': '48'
     }
-    return country === 'SG' ? account : reg[country] + account
+    return country === 'SG' || country === 'ID' ? account : reg[country] + account
   }
 
   // 获取店铺评价列表

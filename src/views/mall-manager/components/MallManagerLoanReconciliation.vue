@@ -43,7 +43,7 @@
             size="mini"
             style="width: 240px"
             type="daterange"
-            value-format="yyyy-MM-dd"
+            unlink-panels
             range-separator="-"
             :picker-options="pickerOptions"
             start-placeholder="开始日期"
@@ -54,7 +54,7 @@
           <div>
             <el-switch v-model="showRMB" active-color="#13ce66" inactive-color="grey" @change="compete_Coin()" />
             <span>显示人民币：</span>
-            <span>(当前汇率:{{ this.site_query.rate_coin }})</span>
+            <span>(当前汇率：{{ site_query.rate_coin?site_query.rate_coin:'暂无该站点的汇率' }})</span>
           </div>
         </div>
       </div>
@@ -71,14 +71,20 @@
           >同步数据</el-button>
           <el-button size="mini" type="primary" @click="cancelActive = true">取消同步</el-button>
           <el-button size="mini" type="primary" @click="clearLog">清空日志</el-button>
-          <el-button size="mini" type="primary" @click="export_table((query.page = 1)), (exportList = [])">导出 </el-button>
+          <el-button size="mini" type="primary" @click="export_table(1), (exportList = [])">导出 </el-button>
           <el-checkbox v-model="showConsole" style="margin-left: 10px"> 隐藏日志</el-checkbox>
         </div>
       </div>
     </div>
     <div class="table_clo">
       <div class="data_table" style="height: 100%; background-color: white">
-        <el-table height="calc(100vh - 281px)" :data="tableList" :row-style="{ height: '50px' }" style="width: 100%; height: calc(100vh - 260px)" :header-cell-style="{ background: '#f7fafa' }">
+        <el-table
+          v-loading="isLoading"
+          height="calc(100vh - 281px)"
+          :data="tableList"
+          :row-style="{ height: '50px' }"
+          :header-cell-style="{ background: '#f7fafa' }"
+        >
           <el-table-column label="序号" width="60" type="index" align="center" />
           <el-table-column prop="country" width="120px" label="站点" align="center">
             <template slot-scope="{ row }">
@@ -86,7 +92,7 @@
             </template>
           </el-table-column>
           <el-table-column prop="platform_mall_name" min-width="120px" label="店铺名称" align="center" />
-          <el-table-column prop="order_id" label="订单编号" min-width="120px" align="center" />
+          <el-table-column prop="order_sn" label="订单编号" min-width="120px" align="center" />
           <el-table-column prop="" min-width="80px" label="状态" align="center">
             <template slot-scope="{ row }">{{ Number(row.status) === 1 ? '已拨款 ' : '即将拨款' }}</template>
           </el-table-column>
@@ -117,12 +123,13 @@
 </template>
 <script>
 import storeChoose from '../../../components/store-choose'
-import { exportExcelDataCommon, creatDate } from '../../../util/util'
+import { exportExcelDataCommon } from '../../../util/util'
 
 export default {
   components: { storeChoose },
   data() {
     return {
+      isLoading: false,
       orgin: '',
       to_back_amount: '', // 即将拨款
       haved_amount: '', // 已拨款
@@ -144,16 +151,16 @@ export default {
         sysMallId: [],
         orderSn: '',
         status: '',
-        appropriateTime: '',
-        
+        appropriateTime: ''
+
       },
       page: 1,
       pageSize: 20,
       cloumn_date: [],
       pickerOptions: {
-        disabledDate(time) {
-          return time.getTime() > Date.now()
-        }
+        // disabledDate(time) {
+        //   return time.getTime() > Date.now()
+        // }
       },
       showRMB: false,
       showConsole: true,
@@ -164,7 +171,11 @@ export default {
   },
   mounted() {
     // 初始化时间
-    this.cloumn_date = creatDate(31)
+    this.cloumn_date = [
+      new Date().getTime() - 3600 * 1000 * 24 * 10,
+      new Date().getTime() + 3600 * 1000 * 24 * 20
+    ]
+    // this.cloumn_date = creatDate(31)
     this.search() // 初始化table
     this.exchangeRateList() // 获取汇率
   },
@@ -174,9 +185,9 @@ export default {
     },
     changeMallList(val) {
       this.selectMallList = val
-      this.site_query['country'] = this.selectMallList[0] ? this.selectMallList[0].country : ''
+      this.site_query['country'] = this.selectMallList['country']
       this.exchangeRateList()
-      console.log('111', this.site_query['country'])
+      console.log('country', this.site_query['country'])
       console.log('changeMallList', val)
     },
     // 同步信息
@@ -209,6 +220,7 @@ export default {
       } catch (error) {
         console.log(error)
       }
+      this.search()
     },
     async searchSingleMall(pageNumber, mall, type, dataArr = [], page = 0) {
       if (this.cancelActive) {
@@ -224,8 +236,8 @@ export default {
         // end_date: '',
       }
       if (type === 0) {
-        params['start_date'] = this.cloumn_date[0]
-        params['end_date'] = this.cloumn_date[1]
+        params['start_date'] = this.$dayjs(this.cloumn_date[0]).format('YYYY-MM-DD')
+        params['end_date'] = this.$dayjs(this.cloumn_date[1]).format('YYYY-MM-DD')
       }
       const res = await this.$shopeemanService.getIncomeTransaction(mall.country, params)
       const resObj = res && JSON.parse(res)
@@ -253,7 +265,7 @@ export default {
           count && this.$refs.Logs.writeLog(`同步店铺【${mall.platform_mall_name}】【${type === 0 ? '已拨款' : '即将拨款'}】第【${++page}】页货款对账数据【${count}】条`, true)
           if (dataArr.length < data.data.page_info.total && data.data.list.length >= this.mallPageSize) {
             pageNumber++
-            this.searchSingleMall(pageNumber, mall, dataArr, page)
+            this.searchSingleMall(pageNumber, mall, type, dataArr, page)
           } else {
             if (this.query.status !== '' || type !== 2) {
               this.$refs.Logs.writeLog(`同步店铺【${mall.platform_mall_name}】数据完成`, true)
@@ -299,71 +311,22 @@ export default {
     // 获取汇率
     async exchangeRateList() {
       const data = await this.$api.exchangeRateList()
-      console.log(data.data)
+      console.log(data.data.data)
       if (data.data.code === 200) {
-        switch (this.site_query.country) {
-          case 'MY':
-            this.site_query.rate_coin = data.data.data.MY
-            this.site_query.typeCoin = 'RM'
-            break
-          case 'SG':
-            this.site_query.rate_coin = data.data.data.SG
-            this.site_query.typeCoin = '$'
-            break
-          case 'PH':
-            this.site_query.rate_coin = data.data.data.PH
-            this.site_query.typeCoin = '₱'
-            break
-          case 'TH':
-            this.site_query.rate_coin = data.data.data.TH
-            this.site_query.typeCoin = '฿'
-            break
-          case 'ID':
-            this.site_query.rate_coin = data.data.data.ID
-            this.site_query.typeCoin = 'Rp'
-            break
-          case 'TW':
-            this.site_query.rate_coin = data.data.data.TW
-            this.site_query.typeCoin = '$'
-            break
-          case 'VN':
-            this.site_query.rate_coin = data.data.data.VN
-            this.site_query.typeCoin = '₫'
-            break
-          case 'BR':
-            this.site_query.rate_coin = data.data.data.BR
-            this.site_query.typeCoin = 'R$'
-            break
-          case 'US':
-            this.site_query.rate_coin = data.data.data.US
-            this.site_query.typeCoin = '$'
-            break
-          case 'MX':
-            this.site_query.rate_coin = ''
-            this.site_query.typeCoin = 'MX$'
-            break
-          case 'CL':
-            this.site_query.rate_coin = ''
-            this.site_query.typeCoin = '$'
-            break
-          case 'CO':
-            this.site_query.rate_coin = ''
-            this.site_query.typeCoin = '$'
-            break
-          default:
-            // this.site_query.typeCoin = '￥'
-            break
-        }
+        this.site_query.rate_coin = data.data.data[this.site_query.country]
       } else {
         this.$message.warning('网络请求失败')
       }
     },
     // 导出
     export_table(page) {
-      // 结尾page=1
-      this.query.page = page
-      if (this.exportList.length >= this.total) {
-        let str = `<tr>
+      const params = this.query
+      params.page = page
+      this.getTableList(params)
+      if (this.tableList.length > 0) {
+        this.exportList.push(...this.tableList)
+        if (this.exportList.length >= this.total) {
+          let str = `<tr>
               <td>序号</td>
               <td>站点</td>
               <td>店铺名称</td>
@@ -374,30 +337,30 @@ export default {
               <td>拨款金额（RMB）</td>
               <td>拨款时间</td>
             </tr>`
-        this.exportList.forEach((item, index) => {
-          str += `<tr>
+          this.exportList.forEach((item, index) => {
+            str += `<tr>
               <td>${index + 1}</td>
               <td>${item.country ? this.$filters.chineseSite(item.country) : '-' + '\t'}</td>
               <td>${item.platform_mall_name ? item.platform_mall_name : '-' + '\t'}</td>
-              <td>${item.order_id ? item.order_id : '-' + '\t'}</td>
+              <td>${item.order_sn ? item.order_sn : '-' + '\t'}</td>
               <td>${item.status && Number(item.status) === 1 ? '已拨款' : '即将拨款' + '\t'}</td>
               <td>${item.bill_num ? item.bill_num : '-' + '\t'}</td>
               <td>${item.appropriate_amount ? item.appropriate_amount : '-' + '\t'}</td>
               <td>${item.appropriate_amount ? (item.appropriate_amount * this.site_query.rate_coin).toFixed(2) : '-' + '\t'}</td>
               <td>${item.created_at ? item.created_at : '-' + '\t'}</td>
             </tr>`
-        })
-        exportExcelDataCommon('货款对账详情', str)
-        this.query.page = 1 // 还原
+          })
+          exportExcelDataCommon('货款对账详情', str)
+        } else {
+          this.export_table(page + 1)
+        }
       } else {
-        this.getTableList()
-        this.exportList.push(...this.tableList)
-        this.export_table(page + 1)
+        this.$message.warning('暂无数据导出')
       }
     },
     // 搜索
     search() {
-      console.log(this.selectMallList)
+      this.isLoading = true
       const params = this.query
       let sysMallId = ''
       this.selectMallList.forEach((item, index) => {
@@ -408,10 +371,10 @@ export default {
         }
       })
       params.sysMallId = sysMallId
-      params.appropriateTime = this.cloumn_date.length >= 0 ? this.cloumn_date[0] + ' 00:00:00/' + this.cloumn_date[1] + ' 23:59:59' : ''
+      params.appropriateTime = this.cloumn_date?.length >= 0 ? this.$dayjs(this.cloumn_date[0]).format('YYYY-MM-DD') + ' 00:00:00/' + this.$dayjs(this.cloumn_date[1]).format('YYYY-MM-DD') + ' 23:59:59' : ''
       params.page = this.page
       params.pageSize = this.pageSize
-      console.log(params,"params")
+      console.log(params, 'params')
       this.getTableList(params)
     },
     // 初始化tableList
@@ -425,10 +388,15 @@ export default {
         this.total = data.data.data.total
         this.to_back_amount = data.data.data.to_back_amount
         this.haved_amount = data.data.data.haved_amount
+        this.site_query.typeCoin = this.$shopeeManConfig.getSiteCoinSymbol(this.site_query.country)
+        if (this.selectMallList?.length === 0) {
+          this.tableList = []
+        }
       } else {
         this.$message.warning('数据请求失败！')
       }
       console.log(data.data.data)
+      this.isLoading = false
     },
     handleSizeChange(val) {
       this.pageSize = val

@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-10-08 14:16:18
- * @LastEditTime: 2021-11-16 17:48:09
+ * @LastEditTime: 2021-11-18 16:12:05
  * @LastEditors: Please set LastEditors
  * @Description: 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  * @FilePath: \shopeeman-new\src\router\index.js
@@ -71,17 +71,17 @@ const routes = [
     component: () =>
       import('../views/user-config/index.vue')
   },
+  // {
+  //   path: '/test-api', // 测试联调接口
+  //   name: 'test-api',
+  //   component: () =>
+  //     import('../views/test-api/index.vue')
+  // },
   {
     path: '/order-manager', // 订单管理
     name: '/order-manager',
     component: () =>
       import('../views/order-manager/index.vue')
-  },
-  {
-    path: '/orderAuto', // 订单管理
-    name: '/orderAuto',
-    component: () =>
-      import('../views/order-manager/components/orderCenter/autoUploadOrder.vue')
   }
 ]
 const originalPush = VueRouter.prototype.push
