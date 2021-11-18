@@ -49,7 +49,7 @@
           />
         </li>
       </ul>
-      <ul style="margin-bottom: 10px">
+      <ul>
         <li>
           <span>订单编号：</span>
           <el-input
@@ -79,8 +79,7 @@
           <el-button
             type="primary"
             size="mini"
-            :loading="isDeleteLoading"
-            @click="deleteHomeForecast(multipleSelection,2)"
+            @click="cancelOverseaOrder(multipleSelection,2)"
           >批量取消订单</el-button>
           <el-button
             type="primary"
@@ -94,7 +93,7 @@
       <el-table
         ref="plTable"
         v-loading="isShowLoading"
-        height="calc(100vh - 220px)"
+        height="calc(100vh - 205px)"
         :data="tableData"
         :header-cell-style="{
           backgroundColor: '#f5f7fa',
@@ -111,12 +110,13 @@
           align="center"
           type="index"
           label="序号"
+          width="50"
           fixed
         />
         <el-table-column
           prop="country"
           label="站点"
-          min-width="120"
+          min-width="100"
           align="center"
           fixed
         >
@@ -127,17 +127,17 @@
         <el-table-column
           prop="oversea_order_sn"
           label="订单编号"
-          min-width="150"
+          min-width="135"
           align="center"
+          fixed
         />
         <el-table-column
           prop="logistic_no"
           label="平台物流单号"
           align="center"
-          min-width="150"
+          min-width="130"
         />
         <el-table-column
-          prop="wid"
           label="所属仓库"
           align="center"
           min-width="100"
@@ -167,7 +167,7 @@
         <el-table-column
           label="出库商品详情"
           align="center"
-          min-width="130"
+          min-width="125"
         >
           <template slot-scope="{row}">
             <el-button
@@ -183,7 +183,7 @@
           prop="goods_num"
           label="出库商品总数"
           align="center"
-          min-width="100"
+          min-width="95"
         />
         <el-table-column
           prop="remark"
@@ -195,7 +195,7 @@
           prop="goods_price"
           label="出库商品总价(RMB)"
           align="center"
-          min-width="140"
+          min-width="135"
         />
         <el-table-column
           label="出库商品详情"
@@ -203,24 +203,29 @@
         >
           <template slot-scope="{row}">
             <el-button
-              v-if="row.status!=3"
+              v-if="row.status!=5 && row.status !=3"
               size="mini"
               type="primary"
+              @click="cancelOverseaOrder(row,1)"
             >取消订单</el-button>
             <el-button
               size="mini"
               type="primary"
-              @click="reissueVisible = true"
-            >补件</el-button>
+              @click="setUid(row)"
+            >补 件</el-button>
           </template>
         </el-table-column>
         <el-table-column
-          prop="remark"
           label="操作状态"
           align="center"
-          min-width="100"
+          min-width="140"
           fixed="right"
-        />
+          show-overflow-tooltip
+        >
+          <template slot-scope="{ row }">
+            <span :style="row.color && 'color:' + row.color">{{ row.orderStatus }}</span>
+          </template>
+        </el-table-column>
       </el-table>
       <div class="pagination">
         <el-pagination
@@ -316,7 +321,6 @@
           align="center"
           label="商品规格"
           prop="sku_name"
-          show-overflow-tooltip
         />
         <el-table-column
           width="80"
@@ -376,10 +380,11 @@
         <li>
           <span>仓库名称：</span>
           <el-select
-            v-model="form.wid"
+            v-model="stockForm.wid"
             size="mini"
             filterable
           >
+            <el-option :value="'0'" label="全部" />
             <el-option
               v-for="(item, index) in widList"
               :key="index"
@@ -391,7 +396,7 @@
         <li>
           <span>系统商品编号：</span>
           <el-input
-            v-model="form.oversea_order_sn"
+            v-model="stockForm.sys_sku_id"
             clearable
             size="mini"
             oninput="value=value.replace(/\s+/g,'')"
@@ -400,7 +405,7 @@
         <li>
           <span>商品编号：</span>
           <el-input
-            v-model="form.logistic_no"
+            v-model="stockForm.sku_id"
             clearable
             size="mini"
             oninput="value=value.replace(/\s+/g,'')"
@@ -409,10 +414,9 @@
         <li>
           <span>商品规格：</span>
           <el-input
-            v-model="form.oversea_order_sn"
+            v-model="stockForm.sku_name"
             clearable
             size="mini"
-            oninput="value=value.replace(/\s+/g,'')"
           />
         </li>
         <li>
@@ -423,15 +427,18 @@
             type="primary"
             size="mini"
             @click="
-              page =1"
+              page =1
+              getStock()"
           >搜 索</el-button>
           <el-button
             type="primary"
             size="mini"
+            @click="batchReissue"
           >批量补件</el-button>
         </li>
       </ul>
       <el-table
+        v-loading="reissueLoading"
         height="420"
         :data="reissueData"
         :header-cell-style="{
@@ -467,38 +474,47 @@
           width="120"
           align="center"
           label="系统商品编号"
-          prop="purchaseOrderSn"
+          prop="sys_sku_id"
         />
         <el-table-column
           width="120"
           align="center"
           label="商品编号(SkuId)"
+          prop="sku_id"
         />
         <el-table-column
           width="130"
           align="center"
           label="商品名称"
+          prop="goods_name"
         />
         <el-table-column
           width="150"
           align="center"
           label="商品规格"
+          prop="sku_name"
         />
         <el-table-column
           width="150"
           align="center"
           label="库存数量"
+          prop="stock_num"
         />
         <el-table-column
           width="150"
           align="center"
           label="商品单价(RMB)"
-        />
+          prop="sku_price"
+        >
+          <template slot-scope="{row}">
+            {{ row.sku_price?row.sku_price/100:'' }}
+          </template>
+        </el-table-column>
         <el-table-column
-          width="100"
+          width="150"
           align="center"
           label="商品链接"
-          show-overflow-tooltip
+          prop="sku_url"
         />
         <el-table-column
           width="80"
@@ -507,7 +523,7 @@
         >
           <template slot-scope="{row}">
             <el-tooltip
-              v-if="row.skuList[0].sku_image"
+              v-if="row.sku_image"
               effect="light"
               placement="right-end"
               :visible-arrow="false"
@@ -516,57 +532,87 @@
             >
               <div slot="content">
                 <img
-                  :src="row.skuList[0].sku_image"
+                  :src="row.sku_image"
                   width="300px"
                   height="300px"
                 >
               </div>
               <el-image
                 style="width: 40px; height: 40px"
-                :src="row.skuList[0].sku_image"
-              />
+                :src="row.sku_image"
+              >
+                <div slot="placeholder" class="image-slot">
+                  加载中<span class="dot">...</span>
+                </div>
+              </el-image>
             </el-tooltip>
           </template>
         </el-table-column>
         <el-table-column
-          width="150"
+          width="130"
           align="center"
           label="货架仓位"
+          prop="position"
         />
-        <el-table-column
-          width="100"
-          align="center"
-          label="补件数量"
-          prop="remark"
-        />
-        <el-table-column
-          width="100"
-          align="center"
-          label="操作"
-          prop="status"
-          fixed="right"
-        >
-          <template slot-scope="{ row }">
-            <el-button
-              type="primary"
-              size="mini"
-            >补 件</el-button>
-          </template>
-        </el-table-column>
       </el-table>
+      <div class="pagination">
+        <el-pagination
+          background
+          :current-page="stockPage"
+          :page-sizes="[30, 50, 100]"
+          :page-size="stockPageSize"
+          layout="total, sizes, prev, pager, next, jumper"
+          :total="stockTotal"
+          @size-change="reissueSizeChange"
+          @current-change="reissueCurrentChange"
+        />
+      </div>
+    </el-dialog>
+    <!--批量补件弹窗-->
+    <el-dialog
+      class="batchrei-dialog"
+      title="批量补件"
+      :visible.sync="batchreiVisible"
+      width="300px"
+      :close-on-click-modal="false"
+      :close-on-press-escape="false"
+      :show-close="!batchreiLoading"
+      @close="batchreiClose"
+    >
+      <div class="wrap">
+        <span>补件数量：</span>
+        <el-input
+          v-model="reissueNum"
+          clearable
+          size="mini"
+          oninput="value=value.replace(/\s+/g,'')"
+        />
+      </div>
+      <div class="footer">
+        <el-button
+          :loading="batchreiLoading"
+          size="mini"
+          type="primary"
+          @click="addReissueStore(reissueSelection)"
+        >确 定</el-button>
+      </div>
     </el-dialog>
   </el-row>
 </template>
 
 <script>
 import BroadDeliveryOrder from '../../../module-api/smart-house-api/broad-delivery-order'
-import { exportExcelDataCommon, delay } from '../../../util/util'
+import { exportExcelDataCommon } from '../../../util/util'
 export default {
   data() {
     return {
-      detailsVisible: false,
+      showConsole: true,
       isShowLoading: false,
-      reissueVisible: true,
+      reissueLoading: false,
+      detailsVisible: false,
+      reissueVisible: false,
+      batchreiVisible: false,
+      batchreiLoading: false,
       BroadDeliveryOrder: new BroadDeliveryOrder(this),
 
       filterZero: false,
@@ -574,10 +620,17 @@ export default {
       total: 0,
       pageSize: 30,
       page: 1,
+      stockTotal: 0,
+      stockPageSize: 30,
+      stockPage: 1,
 
       tableData: [], // 表格数据
       multipleSelection: [], // 选择数据
+      reissueSelection: [], // 海外仓补件选择数据
       detailsData: [], // 商品详情数据
+      reissueData: [], // 海外仓补件数据
+      reissueNum: '', // 补件数量
+      overseaOrderSn: '', // 补件出库单号
 
       form: { // 条件搜索
         wid: '', // 仓库id
@@ -587,6 +640,15 @@ export default {
         status: ''// 订单出库状态
       },
 
+      stockForm: { // 仓库条件搜索
+        app_uid: '', // 用户id
+        wid: '0', // 仓库id
+        sku_id: '', // 商品编号
+        sku_name: '', // 商品规格名
+        is_zero_filter: 0, // 过滤0库存
+        sys_sku_id: '', // 系统商品编号
+        type: 'query'
+      },
       statusObj: {
         1: '初始化数据(推送出库单)',
         2: '已构建出库单',
@@ -635,6 +697,101 @@ export default {
     await this.getOutOfStockList()
   },
   methods: {
+    // 取消/批量取消订单
+    async cancelOverseaOrder(val, type) {
+      let data = []
+      if (type === 1) {
+        data.push(val)
+      } else {
+        data = val
+      }
+      for (let index = 0; index < data.length; index++) {
+        const element = data[index]
+        if (element.status !== 5 && element.status !== 3) {
+          const pamars = {}
+          pamars['wid'] = element.wid
+          pamars['overseaOrderSn'] = element.oversea_order_sn
+          const res = await this.BroadDeliveryOrder.cancelOverseaOrder(pamars)
+          if (res.code === 200) {
+            this.$set(element, 'orderStatus', '取消订单成功')
+            this.$set(element, 'color', 'green')
+          } else {
+            this.$set(element, 'orderStatus', res.data)
+            this.$set(element, 'color', 'red')
+          }
+        }
+      }
+    },
+    // 批量补件
+    batchReissue() {
+      if (!this.reissueSelection?.length) return this.$message('请选择需要补件的商品')
+      const flag = this.reissueSelection.every(item => item.wid === this.reissueSelection[0].wid)
+      if (flag) {
+        this.batchreiVisible = true
+      } else {
+        this.$message.error('无法同时补件不同仓库的商品')
+      }
+    },
+    // 海外仓补件
+    async addReissueStore(val) {
+      const skuLists = []
+      const pamars = {}
+      let flag = false
+      if (!(/(^[1-9]\d*$)/.test(Number(this.reissueNum)))) return this.$message('请输入大于0的正整数')
+      for (let index = 0; index < val.length; index++) {
+        const element = val[index]
+        if (Number(element.stock_num) < Number(this.reissueNum)) {
+          this.$refs.Logs.writeLog(`商品【${element.goods_name}】:库存数小于补件数`, false)
+          flag = true
+        } else {
+          const obj = {
+            sku_id: element.sku_id,
+            sys_sku_id: element.sys_sku_id,
+            sku_name: element.sku_name,
+            goods_name: element.goods_name,
+            number: this.reissueNum
+          }
+          skuLists.push(obj)
+        }
+      }
+      pamars['overseaOrderSn'] = this.overseaOrderSn
+      pamars['wid'] = val[0].wid
+      pamars['skuLists'] = skuLists
+      if (!skuLists?.length) return this.$message('库存数小于补件数')
+      this.batchreiLoading = true
+      const res = await this.BroadDeliveryOrder.addReissueStore(pamars)
+      if (res.code === 200) {
+        this.$message.success('补件成功')
+        this.batchreiVisible = false
+      } else {
+        this.$message.error(res.data)
+      }
+      if (flag) this.showConsole = false
+      this.batchreiLoading = false
+    },
+    // 设置uid
+    setUid(row) {
+      this.overseaOrderSn = row.oversea_order_sn
+      this.stockForm.app_uid = row.uid
+      this.reissueVisible = true
+      this.getStock()
+    },
+    // 获取库存
+    async getStock() {
+      this.reissueLoading = true
+      this.stockForm.page_num = this.stockPageSize
+      this.stockForm.page = this.stockPage
+      this.stockForm.is_zero_filter = this.filterZero ? 1 : 0
+      const res = await this.BroadDeliveryOrder.getStock(this.stockForm)
+      if (res.code === 200) {
+        this.stockTotal = res.data.total
+        this.reissueData = res.data.data
+        console.log('reissueData', this.reissueData)
+      } else {
+        this.$message.error(res.data)
+      }
+      this.reissueLoading = false
+    },
     // 获取仓库
     async getOverseasWarehouse() {
       const myMap = new Map()
@@ -684,15 +841,36 @@ export default {
     // 导出数据
     async exportTableData() {
       this.isShowLoading = true
-      let exportData = []
-      const len = this.total % 30 === 0 ? this.total / 30 : Math.floor(this.total / 30) + 1
+      const exportData = []
+      const len = this.total % this.pageSize === 0 ? this.total / this.pageSize : Math.floor(this.total / this.pageSize) + 1
       for (let index = 0; index < len; index++) {
-        this.form.page = index
+        this.form.page = index + 1
         this.form.pageSize = this.pageSize
-        const res = await this.StrockUpHome.getOutOfStockList(this.form)
+        const res = await this.BroadDeliveryOrder.getOutOfStockList(this.form)
         if (res.code === 200) {
           const resData = res.data.data
-          exportData = exportData.concat(resData)
+          resData.forEach(item => {
+            item.sku_list.forEach(skuItem => {
+              const obj = {}
+              obj['country'] = item.country
+              obj['oversea_order_sn'] = item.oversea_order_sn
+              obj['logistic_no'] = item.logistic_no
+              obj['created_at'] = item.created_at
+              obj['deliver_time'] = item.deliver_time
+              obj['status'] = item.status
+              obj['sys_sku_id'] = skuItem.sys_sku_id
+              obj['sku_id'] = skuItem.sku_id
+              obj['goods_name'] = skuItem.goods_name
+              obj['sku_num'] = skuItem.sku_num
+              obj['sku_id'] = skuItem.sku_id
+              obj['goods_name'] = skuItem.goods_name
+              obj['sku_price'] = skuItem.sku_price
+              obj['sku_name'] = skuItem.sku_name
+              obj['sku_image'] = skuItem.sku_image
+              obj['sku_url'] = skuItem.sku_url
+              exportData.push(obj)
+            })
+          })
         } else {
           this.$refs.Logs.writeLog('导出数据错误', res.data)
         }
@@ -703,39 +881,43 @@ export default {
         return
       }
       let str = `<tr>
-          <td>预报物流单号</td>
-          <td>采购单号</td>
-          <td>中转仓</td>
-          <td>预报时间</td>
-          <td>商品预购买数量</td>
-          <td>商品签收数量</td>
-          <td>备注</td>
-          <td>商品状态</td>
-          <td>商品编号(SKU)</td>
+          <td>站点</td>
+          <td>订单编号</td>
+          <td>平台物流单号</td>
+          <td>所属仓库</td>
+          <td>出库单创建时间</td>
+          <td>订单出库时间</td>
+          <td>状态</td>
+          <td>系统商品编号</td>
+          <td>商品编号</td>
           <td>商品名称</td>
+          <td>出库数量</td>
+          <td>商品单价(RMB)</td>
           <td>商品规格</td>
           <td>商品图片</td>
           <td>商品链接</td>
         </td>`
       exportData.forEach(item => {
         str += `<tr>
-        <td>${item.package_code ? item.package_code : '' + '\t'}</td>
-        <td>${item.purchase_order_sn ? item.purchase_order_sn : '' + '\t'}</td>
-        <td>${item.wid ? item.wid : '' + '\t'}</td>
+        <td>${item.country ? this.$filters.chineseSite(item.country) : '' + '\t'}</td>
+        <td>${item.oversea_order_sn ? item.oversea_order_sn : '' + '\t'}</td>
+        <td>${item.logistic_no ? item.logistic_no : '' + '\t'}</td>
+        <td>${'' + '\t'}</td>
         <td>${item.created_at ? item.created_at : '' + '\t'}</td>
-        <td>${item.purchase_num ? item.purchase_num : '' + '\t'}</td>
-        <td>${item.sign_num ? item.sign_num : '' + '\t'}</td>
-        <td>${item.remark ? item.remark : '' + '\t'}</td>
-        <td>${item.status ? this.skuStatusObj[item.status] : '' + '\t'}</td>
+        <td>${item.deliver_time ? item.deliver_time : '' + '\t'}</td>
+        <td>${this.statusObj[item.status] ? this.statusObj[item.status] : '' + '\t'}</td>
+        <td>${item.sys_sku_id ? item.sys_sku_id : '' + '\t'}</td>
         <td>${item.sku_id ? item.sku_id : '' + '\t'}</td>
         <td>${item.goods_name ? item.goods_name : '' + '\t'}</td>
-        <td>${item.sku_spec ? item.sku_spec : '' + '\t'}</td>
+        <td>${item.sku_num ? item.sku_num : '' + '\t'}</td>
+         <td>${item.sku_price ? item.sku_price : '' + '\t'}</td>
+        <td>${item.sku_name ? item.sku_name : '' + '\t'}</td>
         <td>${item.sku_image ? item.sku_image : '' + '\t'}</td>
         <td>${item.goods_url ? item.goods_url : '' + '\t'}</td>
         </tr>`
       })
       this.isShowLoading = false
-      exportExcelDataCommon('国内仓预报单数据', str)
+      exportExcelDataCommon('海外仓出库订单数据', str)
     },
     handleSizeChange(val) {
       this.page = 1
@@ -748,6 +930,32 @@ export default {
     },
     handleSelectionChange(val) {
       this.multipleSelection = val
+    },
+    reissueSizeChange(val) {
+      this.stockPage = 1
+      this.stockPageSize = val
+      this.getStock()
+    },
+    reissueCurrentChange(val) {
+      this.stockPage = val
+      this.getStock()
+    },
+    reissueSelectionChange(val) {
+      this.reissueSelection = val
+    },
+    reissueClose(done) {
+      done()
+      this.stockForm.wid = '0'
+      this.stockForm.app_uid = ''
+      this.stockForm.sku_id = ''
+      this.stockForm.sku_name = ''
+      this.stockForm.is_zero_filter = 0
+      this.stockForm.sys_sku_id = ''
+      this.filterZero = false
+      this.overseaOrderSn = ''
+    },
+    batchreiClose() {
+      this.reissueNum = ''
     }
   }
 }

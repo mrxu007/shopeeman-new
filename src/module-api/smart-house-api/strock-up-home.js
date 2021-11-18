@@ -7,16 +7,16 @@ export default class StrockUpHome {
   }
 
   // 获取预报单列表
-  async getHomeWarehouse(item) {
+  async getHomeWarehouse(val) {
     try {
-      const createdAt = item.createdAt ? `${this._this.$dayjs(item.createdAt[0]).format('YYYY-MM-DD 00:00:00')}/${this._this.$dayjs(item.createdAt[1]).format('YYYY-MM-DD 23:59:59')}` : ''
+      const createdAt = val.createdAt ? `${this._this.$dayjs(val.createdAt[0]).format('YYYY-MM-DD 00:00:00')}/${this._this.$dayjs(val.createdAt[1]).format('YYYY-MM-DD 23:59:59')}` : ''
       const parmas = {
-        wid: item.wid,
-        purchaseOrderSn: item.purchaseOrderSn,
-        packageCode: item.packageCode,
+        wid: val.wid,
+        purchaseOrderSn: val.purchaseOrderSn,
+        packageCode: val.packageCode,
         createdAt: createdAt,
-        page: item.page,
-        pageSize: item.pageSize
+        page: val.page,
+        pageSize: val.pageSize
       }
       const res = await this._this.$api.getHomeWarehouse(parmas)
       if (res.data.code === 200) {
@@ -66,9 +66,9 @@ export default class StrockUpHome {
     }
   }
   // 国内仓商品备货：发起商品预报
-  async stockingHomeUpload(item) {
+  async stockingHomeUpload(val) {
     try {
-      const res = await this._this.$api.stockingHomeUpload(item)
+      const res = await this._this.$api.stockingHomeUpload(val)
       if (res.data.code === 200) {
         return { code: 200, data: res.data.data }
       }
@@ -78,9 +78,9 @@ export default class StrockUpHome {
     }
   }
   // 获取产品中心列表
-  async getProductList(item) {
+  async getProductList(val) {
     try {
-      const res = await this._this.$commodityService.getProductList(item)
+      const res = await this._this.$commodityService.getProductList(val)
       const jsonData = JSON.parse(res)
       if (jsonData.status_code === 200) {
         return { code: 200, data: jsonData.data }
@@ -91,9 +91,9 @@ export default class StrockUpHome {
     }
   }
   // 获取产品中心产品skulist
-  async getProductSkuList(item) {
+  async getProductSkuList(val) {
     try {
-      const res = await this._this.$commodityService.getProductSkuList(item)
+      const res = await this._this.$commodityService.getProductSkuList(val)
       const jsonData = JSON.parse(res)
       if (jsonData.status_code === 200) {
         return { code: 200, data: jsonData.data }

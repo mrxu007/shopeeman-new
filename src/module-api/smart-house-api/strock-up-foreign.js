@@ -7,22 +7,22 @@ export default class StrockUpForegin {
   }
 
   // 获取预报单列表
-  async getStockingForecastLists(item) {
+  async getStockingForecastLists(val) {
     try {
-      const created_time = item.created_time ? `${this._this.$dayjs(item.created_time[0]).format('YYYY-MM-DD 00:00:00')}/${this._this.$dayjs(item.created_time[1]).format('YYYY-MM-DD 23:59:59')}` : ''
-      const sign_Time = item.sign_Time ? `${this._this.$dayjs(item.sign_Time[0]).format('YYYY-MM-DD 00:00:00')}/${this._this.$dayjs(item.sign_Time[1]).format('YYYY-MM-DD 23:59:59')}` : ''
-      const store_time = item.store_time ? `${this._this.$dayjs(item.store_time[0]).format('YYYY-MM-DD 00:00:00')}/${this._this.$dayjs(item.store_time[1]).format('YYYY-MM-DD 23:59:59')}` : ''
+      const created_time = val.created_time ? `${this._this.$dayjs(val.created_time[0]).format('YYYY-MM-DD 00:00:00')}/${this._this.$dayjs(val.created_time[1]).format('YYYY-MM-DD 23:59:59')}` : ''
+      const sign_Time = val.sign_Time ? `${this._this.$dayjs(val.sign_Time[0]).format('YYYY-MM-DD 00:00:00')}/${this._this.$dayjs(val.sign_Time[1]).format('YYYY-MM-DD 23:59:59')}` : ''
+      const store_time = val.store_time ? `${this._this.$dayjs(val.store_time[0]).format('YYYY-MM-DD 00:00:00')}/${this._this.$dayjs(val.store_time[1]).format('YYYY-MM-DD 23:59:59')}` : ''
       const parmas = {
-        wid: item.wid,
-        oversea_wid: item.oversea_wid,
-        package_code: item.package_code,
-        forecast_code: item.forecast_code,
+        wid: val.wid,
+        oversea_wid: val.oversea_wid,
+        package_code: val.package_code,
+        forecast_code: val.forecast_code,
         created_time: created_time,
         sign_Time: sign_Time,
         store_time: store_time,
-        is_verify: item.is_verify,
-        page: item.page,
-        pageSize: item.pageSize
+        is_verify: val.is_verify,
+        page: val.page,
+        pageSize: val.pageSize
       }
       const res = await this._this.$api.getStockingForecastLists(parmas)
       if (res.data.code === 200) {
@@ -63,9 +63,9 @@ export default class StrockUpForegin {
     }
   }
   // 海外仓商品备货：发起商品预报
-  async stockingForecastUpload(item) {
+  async stockingForecastUpload(val) {
     try {
-      const res = await this._this.$api.stockingForecastUpload(item)
+      const res = await this._this.$api.stockingForecastUpload(val)
       if (res.data.code === 200) {
         return { code: 200, data: res.data.data }
       }
@@ -75,9 +75,9 @@ export default class StrockUpForegin {
     }
   }
   // 获取产品中心列表
-  async getProductList(item) {
+  async getProductList(val) {
     try {
-      const res = await this._this.$commodityService.getProductList(item)
+      const res = await this._this.$commodityService.getProductList(val)
       const jsonData = JSON.parse(res)
       if (jsonData.status_code === 200) {
         return { code: 200, data: jsonData.data }
@@ -88,9 +88,9 @@ export default class StrockUpForegin {
     }
   }
   // 获取产品中心产品skulist
-  async getProductSkuList(item) {
+  async getProductSkuList(val) {
     try {
-      const res = await this._this.$commodityService.getProductSkuList(item)
+      const res = await this._this.$commodityService.getProductSkuList(val)
       const jsonData = JSON.parse(res)
       if (jsonData.status_code === 200) {
         return { code: 200, data: jsonData.data }
