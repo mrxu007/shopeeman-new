@@ -1,8 +1,8 @@
 /*
  * @Author: your name
  * @Date: 2021-10-08 14:16:18
- * @LastEditTime: 2021-11-12 10:26:19
- * @LastEditors: your name
+ * @LastEditTime: 2021-11-16 17:48:09
+ * @LastEditors: Please set LastEditors
  * @Description: 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  * @FilePath: \shopeeman-new\src\router\index.js
  */
@@ -70,12 +70,6 @@ const routes = [
     name: 'user-config',
     component: () =>
       import('../views/user-config/index.vue')
-  },
-  {
-    path: '/test-api', // 测试联调接口
-    name: 'test-api',
-    component: () =>
-      import('../views/test-api/index.vue')
   },
   {
     path: '/order-manager', // 订单管理

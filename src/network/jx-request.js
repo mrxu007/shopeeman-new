@@ -1,20 +1,9 @@
-/*
- * @Author: your name
- * @Date: 2021-10-08 14:16:18
-<<<<<<< HEAD
- * @LastEditTime: 2021-11-16 16:55:55
-=======
- * @LastEditTime: 2021-11-06 15:12:31
->>>>>>> 9faaa32611c36acfc0276324652193c179978c56
- * @LastEditors: Please set LastEditors
- * @Description: In User Settings Edit
- * @FilePath: \shopeeman-new\src\network\jx-request.js
- */
+
 import axios from 'axios'
 import jxAdapter from './jx-apdater'
 import tbAdaptert from './gateway/gateway-adapter'
 const AppRequest = axios.create({ // 壳内转发请求
-  baseURL: 'http://release.shopeeman.com/api' || process.env.VUE_APP_BASE_API,
+  baseURL: process.env.VUE_APP_BASE_API,
   timeout: 5000,
   headers: {
     'Accept': 'application/vnd.ppxias.v3+json'
@@ -178,5 +167,6 @@ export default {
   getWarehouseList: (data) => AppRequest.get('/homeStockingForecast/getWarehouseList', data), // 国内中转备货预报单: 获取国内仓库地址
   stockingHomeUpload: (data) => AppRequest.post('/homeStockingForecast/upload', data), // 国内中转备货预报单: 上报
   deleteHomeForecast: (data) => AppRequest.post('/homeStockingForecast/delete', data), // 国内中转备货预报单: 删除
-  getOutOfStockList: (data) => AppRequest.get('/warehouse/outOfStockList', { params: data }) // 海外仓出库订单：列表
+  getOutOfStockList: (data) => AppRequest.get('/warehouse/outOfStockList', { params: data }), // 海外仓出库订单：列表
+  deleteBuyAccount:   (data) => AppRequest.post('/buyerAccount/destroy', data), //删除买手号
 }

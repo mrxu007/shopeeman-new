@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-10-25 16:40:41
- * @LastEditTime: 2021-11-02 21:21:55
+ * @LastEditTime: 2021-11-16 21:05:13
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shopeeman-new\src\views\smart-house\components\PrivateWarehouse.vue
@@ -558,6 +558,8 @@ export default {
         createTime: ''
       }
       params.createTime = this.$dayjs(this.searchTime[0]).format('YYYY-MM-DD') + ' 00:00:00' + '/' + this.$dayjs(this.searchTime[1]).format('YYYY-MM-DD') + ' 23:59:59'
+      params.page = this.currentPage
+      params.pageSize = this.pageSize
       this.tableLoading = true
       const res = await this.$api.getUserStore(params)
       if (res && res.data.code === 200) {

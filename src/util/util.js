@@ -32,7 +32,6 @@ export async function getMalls() {
       obj.value = item.platform_mall_id
       obj.country = item.country
       obj.id = item.id
-      obj.group_id = item.group_id // 店铺分组id
       shopList.push(obj)
     }
     return shopList
@@ -283,14 +282,14 @@ export function exportExcelDataCommon(fileName, str) {
   //   name: worksheet
   // })
   const blob = new Blob([template], {
-    type: 'application/vnd.ms-excel',
+    type: 'html',
     name: worksheet
   })
   const a = document.createElement('a')
   document.body.appendChild(a)
   // a.href = uri + this.base64(template)
   a.href = URL.createObjectURL(blob)
-  a.download = `${fileName}${new Date(Date.now() + 8 * 3600 * 1000).toISOString().slice(0, 10)}.xls`
+  a.download = `${fileName}${new Date(Date.now() + 8 * 3600 * 1000).toISOString().slice(0, 10)}.xlsx`
   a.click()
   document.body.removeChild(a)
 }
@@ -341,43 +340,7 @@ export function exportCsvDataCommon(fileName, str) {
   a.click()
   document.body.removeChild(a)
 }
-// 导出PDF
-export function exportPdfData(id, name) {
-  // html2Canvas(document.querySelector(id), {
-  //   allowTaint: true,
-  //   taintTest: false,
-  //   useCORS: true,
-  //   // width:960,
-  //   // height:5072,
-  //   dpi: window.devicePixelRatio * 4, // 将分辨率提高到特定的DPI 提高四倍
-  //   scale: 4 // 按比例增加分辨率
-  // }).then(function (canvas) {
-  //   const contentWidth = canvas.width
-  //   const contentHeight = canvas.height
-  //   const pageHeight = contentWidth / 592.28 * 841.89
-  //   let leftHeight = contentHeight
-  //   let position = 0
-  //   const imgWidth = 595.28
-  //   const imgHeight = 592.28 / contentWidth * contentHeight
-  //   const pageData = canvas.toDataURL('image/jpeg', 1.0)
-  //   const PDF = new JsPDF('', 'pt', 'a4')
-  //   if (leftHeight < pageHeight) {
-  //     PDF.addImage(pageData, 'JPEG', 0, 0, imgWidth, imgHeight)
-  //   } else {
-  //     while (leftHeight > 0) {
-  //       PDF.addImage(pageData, 'JPEG', 0, position, imgWidth, imgHeight)
-  //       leftHeight -= pageHeight
-  //       position -= 841.89
-  //       if (leftHeight > 0) {
-  //         PDF.addPage()
-  //       }
-  //     }
-  //   }
-  //   PDF.save(name + '.pdf')
-  // }
-  // )
-  // document.querySelector(id).parentElement.removeChild(document.querySelector(id))
-}
+
 export function debounce(fun, wait, immediate) {
   let timeout = null
   let result = null
@@ -426,32 +389,36 @@ export function randomWord(randomFlag, min, max) {
  */
 export function batchOperation(array, method) {
   return new Promise(resolve => {
-    const number = array.length
-    const countObj = { count: number }
+    let number = array.length
+    let countObj = { count: number }
     let submitCount = 0
-    let setIn = setInterval(() => {
-      const num = countObj.count
-      if (num === 0) {
+    let setIn = setInterval(()=>{
+      let num = countObj.count
+      if (num === 0){
         clearInterval(setIn)
         setIn = null
         resolve('完成')
-      } else {
+      }else {
         manage(number - num)
       }
-    }, 1000)
+    },1000)
     function manage(completeCount) {
-      for (; (submitCount - completeCount) < 10 && submitCount < number; ++submitCount) {
-        const item = array[submitCount]
-        method(item, countObj)
+      for (;(submitCount - completeCount) < 10 && submitCount<number; ++submitCount) {
+        let item = array[submitCount]
+        method(item,countObj)
       }
     }
   })
 }
 
-// 时间转换
+//时间转换
 export function formatDuring(mss) {
-  const hours = parseInt(mss / 60 / 60)
-  const minutes = parseInt((mss - hours * 69 * 60) / 60)
-  const seconds = (mss - hours * 69 * 60 - minutes * 60)
-  return hours + ':' + minutes + ':' + seconds.toFixed(0)
+  const hours = parseInt(mss /60 / 60)
+  const minutes = parseInt((mss-hours*69*60)/60)
+  const seconds =(mss-hours*69*60-minutes*60)
+  return hours + ':' + minutes + ':' + seconds.toFixed(0) 
+}
+
+export function exportPdfData(){
+  
 }

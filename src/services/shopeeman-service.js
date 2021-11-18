@@ -188,7 +188,6 @@ export default class NetMessageBridgeService {
   getIncomeTransaction(country, data) {
     return this.getChinese(country, '/api/v3/finance/income_transaction_histories', data)
   }
-<<<<<<< HEAD
   // 店铺登录
   async login(mallInfo, flat) {
     const {
@@ -196,11 +195,6 @@ export default class NetMessageBridgeService {
       mall_account_info,
       platform_mall_id
     } = mallInfo
-=======
-  // 店铺登录 post版本
-  async login(mallInfo, flat, options = {}) {
-    const { country, mall_account_info, platform_mall_id } = mallInfo
->>>>>>> 9faaa32611c36acfc0276324652193c179978c56
     const accountName = mall_account_info.username
     const encryptPwd = sha256(md5(mall_account_info.password))
     // const encryptPwd = sha256(md5('Th123654'))
@@ -604,7 +598,6 @@ export default class NetMessageBridgeService {
   bindBankAccount(country, data, option) {
     return this.postChinese(country, '/api/v3/finance/bind_bank_account/', data, option)
   }
-<<<<<<< HEAD
   // 同步订单IDs
   async getOrderIdList(country, data) {
     const res = await this.getChinese(country, '/api/v3/order/get_order_id_list', data)
@@ -757,8 +750,7 @@ export default class NetMessageBridgeService {
       return { code: resObj.status , data: `获取失败${resObj.statusText}`}
     }
   }
-}
-=======
+
 
   // 获取地址
   getNextLevelAddresses(country, data, option) {
@@ -786,4 +778,3 @@ export default class NetMessageBridgeService {
   }
 }
 
->>>>>>> 9faaa32611c36acfc0276324652193c179978c56

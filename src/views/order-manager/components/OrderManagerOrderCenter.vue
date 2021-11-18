@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-11-09 10:17:44
- * @LastEditTime: 2021-11-16 17:16:45
+ * @LastEditTime: 2021-11-18 15:39:39
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shopeeman-new\src\views\order-manager\components\OrderManagerOrderCenter.vue
@@ -163,7 +163,7 @@
                 </el-row>
                 <el-row class="row-style">
                   <el-button type="primary" size="mini" class="btnMini">查看禁运品</el-button>
-                  <el-button type="primary" size="mini" class="btnMedium" @click="outStoreBefore('自有仓库商品出库','1')">自有仓库商品出库</el-button>
+                  <el-button type="primary" size="mini" class="btnMedium" @click="outStoreBefore('自有仓库商品出库', '1')">自有仓库商品出库</el-button>
                   <el-button type="primary" size="mini" class="btnLong">产品中心商品出库</el-button>
                   <el-button type="primary" size="mini" class="btnLong">海外仓备货商品出库</el-button>
                   <el-button type="primary" size="mini" class="btnLong">国内仓备货商品出局</el-button>
@@ -204,7 +204,7 @@
           <template slot-scope="scope" v-if="scope.row.mall_info">{{ scope.row.mall_info.platform_mall_name }}</template>
         </el-table-column>
         <el-table-column align="center" label="采购绑定仓库" min-width="120" v-if="showTableColumn('采购绑定仓库')">
-          <template slot-scope="scope">{{ scope.row.shot_order_info.warehouse_user_id }}</template>
+          <template slot-scope="scope">{{ scope.row.shot_order_info.warehouse_name }}</template>
         </el-table-column>
         <el-table-column align="center" prop="color_id" label="颜色标识" min-width="70" v-if="showTableColumn('颜色标识')" />
         <el-table-column align="center" prop="color_id" label="标识名称" min-width="70" v-if="showTableColumn('标识名称')" />
@@ -500,7 +500,7 @@
     </el-dialog>
     <!-- 四类商品出库 -->
     <el-dialog :visible.sync="goodsOutStoreVisible" width="1400px" top="5vh" :close-on-click-modal="false" v-if="goodsOutStoreVisible">
-      <div slot="title">{{outStoreTitle}}</div>
+      <div slot="title">{{ outStoreTitle }}</div>
       <goods-out-store :chooseData="multipleSelection" :type="outStoreType"></goods-out-store>
     </el-dialog>
   </div>
@@ -515,13 +515,15 @@ import LogisticeSyncService from '../../../services/logistics-sync-service/logis
 import PurchaseInfo from './orderCenter/purchaseInfo.vue'
 import PushOrder from './orderCenter/pushOrderToStore.vue'
 import GoodsOutStore from './orderCenter/goodsOutStore.vue'
+import _ from 'lodash'
+import ShotOrderService from '../../../services/short-order/shot-order-service'
 export default {
   components: {
     BuyerAccount,
     storeChoose,
     PurchaseInfo,
     PushOrder,
-    GoodsOutStore
+    GoodsOutStore,
   },
   data() {
     return {
@@ -586,7 +588,7 @@ export default {
           { title: '登录买手号', type: 'primary', key: 1 },
           { title: '同步订单', type: 'primary', key: 2 },
           { title: '获取物流单号', type: 'primary', key: 3, click: 'syncLogistics' },
-          { title: '批量拍单', type: 'primary', key: 4 },
+          { title: '批量拍单', type: 'primary', key: 4, click: 'purchaseHandler' },
           { title: '配置自定义列', type: 'primary', key: 5 },
           { title: '上传账号信息', type: 'primary', key: 6 },
           { title: '下载账号信息', type: 'primary', key: 7 },
@@ -612,12 +614,13 @@ export default {
       productID: '',
       multipleSelection: [],
       buyerAccountList: [],
-      accountpdd: [],
-      accounttaobao: [],
-      account1688: [],
-      accountjx: [],
-      accountlazada: [],
-      accountshopee: [],
+      accountpdd: null,
+      accounttaobao: null,
+      account1688: null,
+      accountjx: null,
+      accountlazada: null,
+      accountshopee: null,
+      accountCrossBorder: null,
       showConsole: true, //日志
       columnConfigList: [], //自定义配置列
       columnVisible: false, //自定义配置列弹窗
@@ -632,9 +635,9 @@ export default {
       colorRow: {}, //选择的颜色行
       purchaseInfoVisible: false, //批量添加采购信息
       pushOrderToStoreVisible: false, //推送订单至仓库
-      goodsOutStoreVisible:true,//商品出库
-      outStoreTitle:'自有商品出库',
-      outStoreType:"1",
+      goodsOutStoreVisible: false, //商品出库
+      outStoreTitle: '自有商品出库',
+      outStoreType: '1',
     }
   },
   mounted() {
@@ -648,17 +651,152 @@ export default {
     }, 2000)
   },
   methods: {
+    //批量拍单
+    async purchaseHandler() {
+      if (!this.multipleSelection.length) {
+        return this.$notify({
+          title: '拍单管理',
+          type: 'warning',
+          message: `请选择要操作的订单`,
+        })
+      }
+      console.log('4544656')
+      const waitOrders = JSON.parse(JSON.stringify(this.multipleSelection))
+      let purchasesIdTb = {}
+      let abroadShopeeCountry = {}
+      let abroadLazadaCountry = {}
+      let purchasesId = {}
+      //若存在以下几种情况，提示后不在继续拍单
+      // 1.若同时存在阿里巴巴和淘宝天猫的订单则提示 “淘宝(天猫)与1688的订单请分开拍单”
+      waitOrders.forEach((item) => {
+        purchasesId[item.goods_info.ori_platform_id] = item.goods_info.ori_platform_id
+        if (item.goods_info.ori_platform_id && (item.goods_info.ori_platform_id == 2 || item.goods_info.ori_platform_id == 3)) {
+          purchasesIdTb['tb'] = 'tb'
+        } else if (item.goods_info.ori_platform_id && item.goods_info.ori_platform_id == 8) {
+          purchasesIdTb['1688'] = '1688'
+        } else if (item.goods_info.ori_platform_id && item.goods_info.ori_platform_id == 9) {
+          abroadLazadaCountry[item.goods_info.ori_country] = item.goods_info.ori_country
+          purchasesId[item.goods_info.ori_platform_id] = item.goods_info.ori_country
+        } else if (item.goods_info.ori_platform_id && item.goods_info.ori_platform_id == 11) {
+          abroadShopeeCountry[item.goods_info.ori_country] = item.goods_info.ori_country
+          purchasesId[item.goods_info.ori_platform_id] = item.goods_info.ori_country
+        }
+      })
+      console.log()
+      if (Object.keys(purchasesIdTb).length > 1) {
+        return this.$notify({
+          title: '拍单管理',
+          type: 'error',
+          message: '淘宝(天猫)与1688的订单请分开拍单！',
+        })
+      }
+      //2.存在上家类型为速卖通提示 “请先将速卖通的采购链接更换成国内的采购链接再进行拍单！”
+      let smtFilter = waitOrders.filter((item) => {
+        return item.goods_info.ori_platform_id && item.goods_info.ori_platform_id == 12
+      })
+      if (smtFilter.length > 0) {
+        return this.$notify({
+          title: '拍单管理',
+          type: 'error',
+          message: '请先将速卖通的采购链接更换成国内的采购链接再进行拍单！',
+        })
+      }
+      //3.若上家类型为11:shopee、9:lazada，并且同时存在不同的站点订单提示  “目前只支持单个站点的Shopee/lazada批量拍单,请区分站点”  goods_info.ori_country
+      if (Object.keys(abroadLazadaCountry).length > 1) {
+        return this.$notify({
+          title: '拍单管理',
+          type: 'error',
+          message: '目前只支持单个站点的Shopee/lazada批量拍单,请区分站点！',
+        })
+      }
+      if (Object.keys(abroadShopeeCountry).length > 1) {
+        return this.$notify({
+          title: '拍单管理',
+          type: 'error',
+          message: '目前只支持单个站点的Shopee/lazada批量拍单,请区分站点！',
+        })
+      }
+      //4.若上家类型为shopee、lazada  判断选择的买手号是否与选择的订单的站点是否一致，若不一致则提示 “请登录并选择对应站点的Shopee/Lazada拍单账号”
+      //5.都需要判断是否登录并选择拍单号，若有某个上家平台的订单但是，单业务未选择买手号则提示  “请登录并选择1688（相应平台（淘宝天猫、拼多多等））拍单账号”
+      let account = []
+      account[1] = this.accountpdd
+      account[2] = this.accounttaobao
+      account[3] = this.accounttaobao
+      account[10] = this.accountjx
+      account[4] = this.accountjd
+      account[8] = this.account1688
+      account[9] = this.accountlazada
+      account[11] = this.accountshopee
+      account[13] = this.accountCrossBorder
+      const pddAccount = this.getAccountById(this.accountpdd)
+      const taobaoAccount = this.getAccountById(this.accounttaobao)
+      const jdAccount = this.getAccountById(this.accountjd)
+      const jxAccount = this.getAccountById(this.accountjx)
+      const AlibabaAccount = this.getAccountById(this.account1688)
+      const lazadaAccount = this.getAccountById(this.accountlazada)
+      const shopeeAccount = this.getAccountById(this.accountshopee)
+      const crossBorderAccount = this.getAccountById(this.accountCrossBorder)
+      console.log(purchasesId, 'purchasesId', this.accountpdd, this.accounttaobao, this.account1688, this.accountjx, this.accountlazada, this.accountshopee, pddAccount)
+      for (const key in purchasesId) {
+        console.log(key)
+        if (!account[key]) {
+          return this.$notify({
+            title: '拍单管理',
+            type: 'error',
+            message: `请登录并选择${this.changeTypeName(key, this.goodsSourceList)}拍单账号`,
+          })
+        }
+        if (key == 9 && account[9] && lazadaAccount) {
+          if (lazadaAccount.site != purchasesId[key]) {
+            return this.$notify({
+              title: '拍单管理',
+              type: 'error',
+              message: `请登录并选择对应站点的Shopee/Lazada拍单账号`,
+            })
+          }
+        }
+        if (key == 11 && account[11] && shopeeAccount) {
+          if (shopeeAccount.site != purchasesId[key]) {
+            return this.$notify({
+              title: '拍单管理',
+              type: 'error',
+              message: `请登录并选择对应站点的Shopee/Lazada拍单账号`,
+            })
+          }
+        }
+      }
+      //
+      const buyerAccount = _.remove(
+        [pddAccount, taobaoAccount, jdAccount, jxAccount, AlibabaAccount,lazadaAccount,shopeeAccount],
+        (n) => {
+          return n != null && n !== undefined
+        }
+      )
+      this.showConsole = false
+      const service = new ShotOrderService(waitOrders, buyerAccount,this)
+      service.start(this.$refs.Logs.writeLog)
+    },
+    getAccountById(id) {
+      let userInfo = null
+      if (id) {
+        this.buyerAccountList.forEach((item) => {
+          if (item.id === id) {
+            userInfo = item
+          }
+        })
+      }
+      return userInfo
+    },
     //打开商品出库弹窗
-    outStoreBefore(title,type){
-      if(!this.multipleSelection.length){
-        return this.$message.warning("请选择数据")
+    outStoreBefore(title, type) {
+      if (!this.multipleSelection.length) {
+        return this.$message.warning('请选择数据')
       }
       this.outStoreTitle = title
       this.outStoreType = type
       this.goodsOutStoreVisible = true
-   
     },
-    close(){ 
+    close() {
       this.purchaseInfoVisible = false
     },
     //设置颜色
@@ -863,7 +1001,7 @@ export default {
     //商品来源中文信息
     changeTypeName(code, arr) {
       let res = arr.find((item) => {
-        return item.value === code
+        return item.value == code
       })
       return (res && res.label) || ''
     },

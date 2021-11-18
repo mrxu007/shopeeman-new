@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-11-09 10:14:02
- * @LastEditTime: 2021-11-16 12:14:12
+ * @LastEditTime: 2021-11-18 15:30:20
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shopeeman-new\src\components\buyer-account.vue
@@ -350,6 +350,10 @@ export default {
         case 2: //同步订单
           this.SyncOrder()
           return
+         case 4: //批量拍单
+         console.log(this.$parent)
+          this.$parent[clickEvent]()
+          return
         case 5: //配置列
           this.$parent['columnVisible'] = true
           return
@@ -452,6 +456,7 @@ export default {
         AccountType: account.type,
         Ua: account.ua,
         Country: account.country || '',
+        proxyId: this.proxyType
       }
       const key = params.AccountType + params.UserName
       console.log(account, params, key, 'adddddddddd')
@@ -567,6 +572,7 @@ export default {
     async lazadaLogin() {
       if (this.$buyerAccountService) {
         const account = await this.$buyerAccountService.lazadaLogin(this.siteCode)
+        console.log("lazadaLogin",account)
         if (account) {
           this.upBuyerAccountList(account)
         }
@@ -631,6 +637,7 @@ export default {
         loginInfo: account.login_info,
         ua: account.ua,
         cachePath: account.cache_path,
+        proxyId: this.proxyType
       }
       const { data } = await this.$api.upLoadBuyAccount(params)
       if (data.code === 200) {
@@ -650,14 +657,12 @@ export default {
       const { data } = await this.$api.getBuyerList()
       let sortData = null
       if (data.code === 200) {
-        if (this.operation?.url?.getAccount?.sort) {
           // 根据时间排序
           sortData = data.data.sort(function (a, b) {
             var x = a['updated_at'].replace(/:/g, '').replace(/-/g, '').replace(' ', '')
             var y = b['updated_at'].replace(/:/g, '').replace(/-/g, '').replace(' ', '')
             return x < y ? 1 : x > y ? -1 : 0
           })
-        }
         this.$parent[this.upData] = sortData || data.data // await this.$buyerAccountService.getLocalAccounts()
         this.defaultSelect()
         if (i) {
@@ -717,20 +722,17 @@ export default {
             return item.type === 11
           })[0].id
         : ''
+        this.accountChange()
     },
     // 删除买手号
     async removebuyerAccount() {
       const Account = {
         type: this.activeAccount.type,
         name: this.activeAccount.name,
+        site: this.activeAccount.site
       }
-      if (this.operation?.url?.removeAccount?.click) {
-        return this.$parent[this.operation?.url.removeAccount.click](Account)
-      }
-      // const { data } = await this.$api.removeBuyerAccount(Account)
-      const { data } = await this.$apiRequest.post(this.operation?.url?.removeAccount?.path || '/api/buyerAccount/destroy', Account)
+      const { data } = await this.$api.deleteBuyAccount( Account)
       if (data.code === 200) {
-        //  this.$message.success('买手号删除成功')
         this.$notify({
           title: '买手号管理',
           type: 'success',
