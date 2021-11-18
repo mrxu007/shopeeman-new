@@ -2003,7 +2003,7 @@ export default {
       const exportData = []
       const len = this.total % this.pageSize === 0 ? this.total / this.pageSize : Math.floor(this.total / this.pageSize) + 1
       for (let index = 0; index < len; index++) {
-        this.form.page = index
+        this.form.page = index + 1
         this.form.pageSize = this.pageSize
         const res = await this.StrockUpForegin.getStockingForecastLists(this.form)
         if (res.code === 200) {
