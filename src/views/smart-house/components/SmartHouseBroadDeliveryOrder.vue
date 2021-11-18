@@ -141,6 +141,7 @@
           label="所属仓库"
           align="center"
           min-width="100"
+          prop="warehouse_name"
         />
         <el-table-column
           prop="created_at"
@@ -703,6 +704,7 @@ export default {
       if (type === 1) {
         data.push(val)
       } else {
+        if (!val?.length) return this.$message('请选择需要取消订单的商品')
         data = val
       }
       for (let index = 0; index < data.length; index++) {
@@ -864,6 +866,7 @@ export default {
           obj['country'] = item.country
           obj['oversea_order_sn'] = item.oversea_order_sn
           obj['logistic_no'] = item.logistic_no
+          obj['warehouse_name'] = item.warehouse_name
           obj['created_at'] = item.created_at
           obj['deliver_time'] = item.deliver_time
           obj['status'] = item.status
@@ -902,7 +905,7 @@ export default {
         <td>${item.country ? this.$filters.chineseSite(item.country) : '' + '\t'}</td>
         <td>${item.oversea_order_sn ? item.oversea_order_sn : '' + '\t'}</td>
         <td>${item.logistic_no ? item.logistic_no : '' + '\t'}</td>
-        <td>${'' + '\t'}</td>
+        <td>${item.warehouse_name ? item.warehouse_name : '' + '\t'}</td>
         <td>${item.created_at ? item.created_at : '' + '\t'}</td>
         <td>${item.deliver_time ? item.deliver_time : '' + '\t'}</td>
         <td>${this.statusObj[item.status] ? this.statusObj[item.status] : '' + '\t'}</td>
