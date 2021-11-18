@@ -1440,8 +1440,18 @@ export default {
         item.LoginInfo = `<p>正在检测登录状态....</p>`
         if (res.code === 200) {
           item.LoginInfo = `<p style="color: green">登录成功</p>`
+          item.loginStatus = 'success'
+          this.$nextTick(() => {
+            this.$refs.plTable.toggleRowSelection([
+              {
+                row: item,
+                selected: false
+              }
+            ])
+          })
         } else {
           item.LoginInfo = `<p style="color: red">未登录(已掉线)</p>`
+          item.loginStatus = 'fail'
         }
         if (index === len - 1) {
           this.buttonStatus.refresh = false
@@ -1678,6 +1688,14 @@ export default {
           successNum++
           flat === 1 ? (item.LoginInfo = '<p style="color: green">登录成功</p>') : this.writeLog(`(${i + 1}/${len})账号【${platform_mall_name}】授权成功`, true)
           item.loginStatus = 'success'
+          this.$nextTick(() => {
+            this.$refs.plTable.toggleRowSelection([
+              {
+                row: item,
+                selected: false
+              }
+            ])
+          })
           if (this.isStop) {
           // this.writeLog('取消导入', false)
             this.buttonStatus.login = false
@@ -2190,8 +2208,6 @@ export default {
       this.buttonStatus.mallList = false
       this.$nextTick(() => {
         this.$refs.plTable.partRowSelections(this.mallList, true)
-        // this.$refs.plTable.clearSelection()
-        // this.$refs.plTable.toggleAllSelection()
       })
       this.getGroup()
       console.log('this.malllist', this.mallList)

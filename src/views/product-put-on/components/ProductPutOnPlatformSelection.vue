@@ -257,8 +257,18 @@ export default {
         }
         this.goodsList.push(...res2.data)
       }
+      if (platForm === 1) { // 如果当前平台为拼多多需额外调用 拼多多补充接口  1.1-------------------------
+        for (let i = 0; i < keyLen; i++) {
+          const item = key[i]
+          this.writeLog(`采集关键字：${item}`, true)
+          const res2 = await this.CollectKeyWordApInstance.keywordSearchTwo(item)
+          if (res2.code !== 200) {
+            continue
+          }
+          this.goodsList.push(...res2.data)
+        }
+      }
       this.writeLog(`${platformObj[platForm]}：共采集：${this.goodsList.length}条`, true)
-
       this.writeLog(`${platformObj[platForm]}的商品采集完毕........`, true)
       key = null
       this.buttonStatus.keyword = false

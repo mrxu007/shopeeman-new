@@ -82,14 +82,13 @@ class CollectKeyWordApI {
     })
     return { code: 200, data: this.GoodsData }
   }
-  async keywordSearchTwo(key) { // 采集关键字模块
+  async keywordSearchTwo(key) { // 如果当前平台为拼多多需额外调用 拼多多补充接口  1.1-------------------------
     this.GoodsData = null
     this.GoodsData = []
     let StartPage = this.commonAttr.StartPage - 0
     const EndPage = this.commonAttr.EndPage - 0
     const params = {}
     params['key'] = key
-    // 如果当前平台为拼多多需额外调用 拼多多补充接口  1.1-------------------------
     StartPage = this.commonAttr.StartPage - 0
     try {
       while (StartPage) {
