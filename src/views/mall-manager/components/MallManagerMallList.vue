@@ -171,7 +171,7 @@
         </u-table-column>
         <u-table-column align="center" prop="mall_status" label="店铺状态">
           <template v-slot="{ row }">
-            {{ mallStatusObj[row.mall_status] }}
+            {{ mallStatusObj[row.mall_status]?mallStatusObj[row.mall_status]:'冻结' }}
           </template>
         </u-table-column>
         <u-table-column align="center" prop="created_at" label="授权日期" min-width="120px" />
@@ -647,14 +647,11 @@ export default {
       mallStausVal: '',
       mallStatus: [
         { label: '正常', value: 1 }, // 0 1 都是正常
-        { label: '冻结', value: 2 },
-        { label: '禁止', value: 3 }
+        { label: '冻结', value: 3 }
       ],
       mallStatusObj: {
         0: '正常',
-        1: '正常',
-        2: '冻结',
-        3: '禁止'
+        1: '正常'
       },
       groupId: '',
       groupList: [],
@@ -1865,7 +1862,7 @@ export default {
           <td style="text-align:left;">${item.watermark || ''}</td>
           <td style="text-align:left;">${item.item_limit || ''}</td>
           <td style="text-align:left;">${item.mall_alias_name || ''}</td>
-          <td style="text-align:left;">${this.mallStatusObj[item.mall_status]}</td>
+          <td style="text-align:left;">${this.mallStatusObj[item.mall_status] ? this.mallStatusObj[item.mall_status] : '冻结'}</td>
           <td style="text-align:left;">${item.created_at}</td>
         </tr>
         `

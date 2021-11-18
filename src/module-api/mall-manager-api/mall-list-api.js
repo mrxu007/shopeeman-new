@@ -267,7 +267,8 @@ export default class MallListAPI {
   // 联动站点分组获取店铺列表
   async ddMallGoodsGetMallList(params) {
     try {
-      const res = await this._this.$api.ddMallGoodsGetMallList({ params })
+      // const res = await this._this.$api.ddMallGoodsGetMallList({ params })
+      const res = await this._this.$api.ddMallGoodsGetMallList(params)
       if (res.data.code === 200) {
         return { code: 200, data: res.data.data }
       }

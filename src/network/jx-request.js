@@ -83,10 +83,10 @@ export default {
   getDataStat: (data) => AppRequest.post('/mallDataStatistics/dataStat', data), // 数据统计图表数据
 
   // 店铺管理 ------------------------------------------------------------------
-  ddMallGoodsGetMallList: (data) => AppRequest.get('/ddMallGoods/getMallList', data), // 联动站点分组获取店铺列表
+  ddMallGoodsGetMallList: (data) => AppRequest.post('/ddMallGoods/getMallList', data), // 联动站点分组获取店铺列表
   mallGroupIndex: (data) => AppRequest.get('/mallGroup/index', { params: data }), // 获取店铺分组列表
   getMallList: (data) => AppRequest.get('/bindMall/mallList', { params: data }), // 获取店铺列表
-  getGroupList: (data) => AppRequest.get('/ddMallGoods/getMallList', { params: data }), // 获取店铺分组
+  getGroupList: (data) => AppRequest.post('/ddMallGoods/getMallList', data), // 获取店铺分组
   getMallStatistics: (data) => AppRequest.get('/mallStatistics/index', { params: data }), // 店铺数据+店铺指标列表
   syncMallData: (data) => AppRequest.post('/mallStatistics/save', data), // 上报店铺数据+店铺指标列表
   updateWatermark: (data) => AppRequest.post('/bindMall/updateWatermark', data), // 修改店铺水印
@@ -104,7 +104,7 @@ export default {
   mallStatisticsSave: (data) => AppRequest.post('/mallStatistics/save', data), // 上报数据
   getMallManagerStoreMainManagementList: (data) => AppRequest.get('/yunip/api/myiplist', { params: data }), // 店铺主体管理列表
   getPaymentList: (data) => AppRequest.post('/mallAccountBill', data), // 货款对账列表
-  getMallSite: (data) => AppRequest.get('/ddMallGoods/getMallList', { params: data }), // 店铺站点信息
+  getMallSite: (data) => AppRequest.post('/ddMallGoods/getMallList', data), // 店铺站点信息
   exchangeRateList: (data) => AppRequest.get('/exchangeRateList', { params: data }), // 获取汇率
   uploadPaymentList: (data) => AppRequest.post('/mallAccountBill/save', data), // 上报货款对账单
 
@@ -159,11 +159,15 @@ export default {
   getOverseasWarehouse: (data) => AppRequest.get('/warehouse/getOverseasWarehouse', data), // 获取中转仓库和目标仓库列表(海外仓备货)
   updateShotStatus: (data) => AppRequest.post('/aftermarket/updateShotStatus', data), // 采购状态变更
   orderSaveRemark: (data) => AppRequest.post('/order/remark', data), // 添加店铺备注
+
+  getsecondlist: (data) => AppRequest.post('/overseasTansferPackage/index', data), // 获取二次销售列表
+
+  getBuyerList: (data) => AppRequest.get('/buyerAccount/index', data), // 下载买手号
   stockingForecastUpload: (data) => AppRequest.post('/warehouse/stockingForecastUpload', data), // 海外仓商品备货：发起商品预报
   getHomeWarehouse: (data) => AppRequest.get('/homeStockingForecast/index', { params: data }), // 国内仓备货预报单: 列表
   getWarehouseList: (data) => AppRequest.get('/homeStockingForecast/getWarehouseList', data), // 国内中转备货预报单: 获取国内仓库地址
   stockingHomeUpload: (data) => AppRequest.post('/homeStockingForecast/upload', data), // 国内中转备货预报单: 上报
   deleteHomeForecast: (data) => AppRequest.post('/homeStockingForecast/delete', data), // 国内中转备货预报单: 删除
-  getOutOfStockList: (data) => AppRequest.get('/warehouse/outOfStockList', { params: data }), // 海外仓出库订单：列表
-  getsecondlist: (data) => AppRequest.post('/overseasTansferPackage/index', data) // 获取二次销售列表
+  getOutOfStockList: (data) => AppRequest.get('/warehouse/outOfStockList', { params: data }) // 海外仓出库订单：列表
+  // getsecondlist: (data) => AppRequest.post('/overseasTansferPackage/index', data) // 获取二次销售列表
 }

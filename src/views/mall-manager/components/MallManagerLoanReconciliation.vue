@@ -71,7 +71,7 @@
           >同步数据</el-button>
           <el-button size="mini" type="primary" @click="cancelActive = true">取消同步</el-button>
           <el-button size="mini" type="primary" @click="clearLog">清空日志</el-button>
-          <el-button size="mini" type="primary" @click="export_table((query.page = 1)), (exportList = [])">导出 </el-button>
+          <el-button size="mini" type="primary" @click="export_table(1), (exportList = [])">导出 </el-button>
           <el-checkbox v-model="showConsole" style="margin-left: 10px"> 隐藏日志</el-checkbox>
         </div>
       </div>
@@ -320,10 +320,13 @@ export default {
     },
     // 导出
     export_table(page) {
-      // 结尾page=1
-      this.query.page = page
-      if (this.exportList.length >= this.total) {
-        let str = `<tr>
+      const params = this.query
+      params.page = page
+      this.getTableList(params)
+      if (this.tableList.length > 0) {
+        this.exportList.push(...this.tableList)
+        if (this.exportList.length >= this.total) {
+          let str = `<tr>
               <td>序号</td>
               <td>站点</td>
               <td>店铺名称</td>
@@ -334,8 +337,8 @@ export default {
               <td>拨款金额（RMB）</td>
               <td>拨款时间</td>
             </tr>`
-        this.exportList.forEach((item, index) => {
-          str += `<tr>
+          this.exportList.forEach((item, index) => {
+            str += `<tr>
               <td>${index + 1}</td>
               <td>${item.country ? this.$filters.chineseSite(item.country) : '-' + '\t'}</td>
               <td>${item.platform_mall_name ? item.platform_mall_name : '-' + '\t'}</td>
@@ -346,13 +349,13 @@ export default {
               <td>${item.appropriate_amount ? (item.appropriate_amount * this.site_query.rate_coin).toFixed(2) : '-' + '\t'}</td>
               <td>${item.created_at ? item.created_at : '-' + '\t'}</td>
             </tr>`
-        })
-        exportExcelDataCommon('货款对账详情', str)
-        this.query.page = 1 // 还原
+          })
+          exportExcelDataCommon('货款对账详情', str)
+        } else {
+          this.export_table(page + 1)
+        }
       } else {
-        this.getTableList()
-        this.exportList.push(...this.tableList)
-        this.export_table(page + 1)
+        this.$message.warning('暂无数据导出')
       }
     },
     // 搜索
@@ -368,7 +371,7 @@ export default {
         }
       })
       params.sysMallId = sysMallId
-      params.appropriateTime = this.cloumn_date.length >= 0 ? this.$dayjs(this.cloumn_date[0]).format('YYYY-MM-DD') + ' 00:00:00/' + this.$dayjs(this.cloumn_date[1]).format('YYYY-MM-DD') + ' 23:59:59' : ''
+      params.appropriateTime = this.cloumn_date?.length >= 0 ? this.$dayjs(this.cloumn_date[0]).format('YYYY-MM-DD') + ' 00:00:00/' + this.$dayjs(this.cloumn_date[1]).format('YYYY-MM-DD') + ' 23:59:59' : ''
       params.page = this.page
       params.pageSize = this.pageSize
       console.log(params, 'params')

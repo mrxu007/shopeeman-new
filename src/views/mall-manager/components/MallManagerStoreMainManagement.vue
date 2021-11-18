@@ -105,7 +105,6 @@
           :row-style="{ height: '50px' }"
           style="width: 100%;height: calc(100vh - 233px)"
           :header-cell-style="{ background: '#f7fafa' }"
-          :row-key="generateUUID"
           @selection-change="handleSelectionChange"
         >
           <el-table-column
@@ -183,14 +182,14 @@
                 <el-option v-for="(item,index) in time_ipList" :key="'time'+index" :label="item.period+'个月 / '+item.price+' 元'" :value="item.period" />
               </el-select>
             </div>
-            <div class="left_item">
+            <!-- <div class="left_item">
               是否预售：
               <el-radio-group v-model="ipMaster_params.isPresale" size="mini">
                 <el-radio label="1">是</el-radio>
                 <el-radio label="2">否</el-radio>
               </el-radio-group>
-            </div>
-            <div class="left_item">
+            </div> -->
+            <div class="left_item" style="margin-left:-12px">
               主体名称：<el-input v-model="ipMaster_params.ipAlias" clearable style="width:180px" size="mini" />
               <!-- <span v-show="ipMaster_params.ipAlias===''" style="color:red">(必填)</span> -->
               <span style="color:red;margin-left:200px">(必填)</span>
@@ -628,7 +627,6 @@
                 ref="multipleTable_dialog"
                 height="400px"
                 :header-cell-style="{'background': '#f7fafa'}"
-                :row-key="generateUUID"
                 :data="dialog_mallList"
                 @selection-change="handleSelectionChangeDialog"
               >
@@ -827,12 +825,12 @@ export default {
       this.changeIndex++
       this.loading = true
       const res = await this.$api.ddMallGoodsGetMallList()
+      this.loading = false
       if (res.data.code === 200) {
         this.dialog_mallList = res.data.data
       } else {
         this.$message.warning('网络异常！')
       }
-      this.loading = false
     },
     // 新增自有IP公司主体
     async addSelfFun() {
@@ -844,12 +842,12 @@ export default {
       this.changeIndex++
       this.loading = true
       const res = await this.$api.ddMallGoodsGetMallList()
+      this.loading = false
       if (res.data.code === 200) {
         this.dialog_mallList = res.data.data
       } else {
         this.$message.warning('网络异常！')
       }
-      this.loading = false
     },
     // IP解绑
     lostIP() {
@@ -877,6 +875,7 @@ export default {
       const target_id = this.mulSelect[0].id.toString()
       try {
         const res = await this.$YipService.BusinessunbindiP(target_id)
+        this.loading = false
         const data = JSON.parse(res)
         console.log(data)
         if (data.code === 200) {
@@ -892,7 +891,6 @@ export default {
           // })
           this.$message.error(data.message)
         }
-        this.loading = false
         // 清空数据 刷新
         this.$refs.multipleTable.clearSelection()
         this.getTableList()
@@ -958,6 +956,7 @@ export default {
       const targetId = val.toString()
       this.loading = true
       const res = await this.$YipService.delInfor(targetId)
+      this.loading = false
       const data = JSON.parse(res)
       if (data.code === -1) {
         // this.$notify({
@@ -974,7 +973,6 @@ export default {
         // })
         this.$message.success('删除成功')
       }
-      this.loading = false
       this.getTableList()
     },
     async getInfo() {
@@ -1126,6 +1124,7 @@ export default {
       try {
         this.loading = true
         const res = await this.$YipService.UpdateSelfIP(JSON.stringify(this.query_person))
+        this.loading = false
         const data = JSON.parse(res)
         console.log('updataDesc', data)
         if (data.code === 200) {
@@ -1144,7 +1143,6 @@ export default {
           this.$message.error(data.message)
         }
         // 关闭弹窗 清空数据 刷新数据
-        this.loading = false
         this.dialogvisible = false
         this.getTableList()
         this.closeDialog1()
@@ -1185,13 +1183,14 @@ export default {
         mallGroupIds: this.dialogMallquery.mallGroupIds.toString()
       }
       this.loading = true
-      const res = await this.$api.ddMallGoodsGetMallList({ params })
+      // const res = await this.$api.ddMallGoodsGetMallList({ params })
+      const res = await this.$api.ddMallGoodsGetMallList(params)
+      this.loading = false
       if (res.data.code === 200) {
         this.dialog_mallList = res.data.data
       } else {
-        this.$message.warning('网络异常！')
+        this.$message.warning('店铺列表获取失败！')
       }
-      this.loading = false
       this.bindedMall()
     },
     // 绑定用户信息
@@ -1207,8 +1206,8 @@ export default {
       try {
         this.loading = true
         const res = await this.$commodityService.newBangdingMall(uid, targetId, mallIds)
+        this.loading = false
         const data = JSON.parse(res)
-
         if (data.code !== 200) {
           // this.$notify({
           //   title: '绑定店铺',
@@ -1225,7 +1224,6 @@ export default {
           this.$message.success('绑定成功')
           const data = await this.$BaseUtilService.UpdateProxy()// 壳更新
         }
-        this.loading = false
       } catch (error) {
         console.log('店铺绑定', error)
         this.loading = false
@@ -1290,10 +1288,10 @@ export default {
     async clearIP() {
       this.loading = true
       const data = await this.$BaseUtilService.UpdateProxy()
+      this.loading = false
       if (data === null) {
         this.$message.success('清理成功')
       }
-      this.loading = false
     },
     // 确认绑定店铺信息
     updataMall() {
@@ -1433,6 +1431,7 @@ export default {
         const uuid = '0'
 
         const res = await this.$YipService.RenewIP(targetId, uid, uuid, String(period))
+        this.loading = false
         // this.$message.error(JSON.parse(data).message)
         const data = JSON.parse(res)
         if (data.code === -1) {
@@ -1440,7 +1439,6 @@ export default {
         } else {
           this.$message.success('续费成功')
         }
-        this.loading = false
         // 清空多选
         this.$refs.multipleTable.clearSelection()
       }
@@ -1485,6 +1483,7 @@ export default {
       this.loading = true
       try {
         const data = await this.$commodityService.addIPMaster(params)
+        this.loading = false
         const resMsg = JSON.parse(data)
         // debugger
         if (resMsg.code === -1) {
@@ -1506,7 +1505,6 @@ export default {
           // })
           this.$message.success('新增成功')
         }
-        this.loading = false
         // 附加店铺绑定
         // this.targetId = resMsg.data
         // if (this.dialog_selectMallList.length > 0) {
@@ -1517,6 +1515,7 @@ export default {
         this.closeDialog1()
       } catch (error) {
         console.log('新增公司主体', error)
+        this.loading = false
       }
     },
     // dialog 多选
@@ -1562,10 +1561,10 @@ export default {
     // 获取IP区域列表
     async GetCloudIPAreaList() {
       const data = await this.$YipService.GetCloudIPAreaList()
+      this.loading = false
       const resMsg = JSON.parse(data)
       if (resMsg.code === -1) {
         this.$message.error('ip数据请求失败')
-        this.loading = false
       } else {
         this.region_ipList = []
         resMsg.data.forEach(item => {
@@ -1627,12 +1626,11 @@ export default {
       params.mall_ids = this.query.mall_ids.toString() || ''
       // debugger
       // console.log(params, 'getTableList')
-      this.loading = true
       try {
         const res = await this.$YipService.GetIpList(JSON.stringify(params))
+        this.loading = false
         this.tableList = []
         const data = JSON.parse(res)
-        this.loading = false
         // console.log('----------', data)
         if (data.code === 200 && this.shopAccountList.length > 0) {
           if (data.data && data.data.length > 0) {
