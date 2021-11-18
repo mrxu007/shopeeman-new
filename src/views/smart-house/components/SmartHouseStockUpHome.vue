@@ -22,7 +22,7 @@
               v-for="(item, index) in widList"
               :key="index"
               :label="item.warehouse_name"
-              :value="item.id"
+              :value="item.wid"
             />
           </el-select>
         </li>
@@ -133,11 +133,14 @@
           align="center"
         />
         <el-table-column
-          prop="wid"
           label="中转仓"
           align="center"
           min-width="150"
-        />
+        >
+          <template slot-scope="{row}">
+            {{ row.warehouse_address?row.warehouse_address.warehouse_name:'' }}
+          </template>
+        </el-table-column>
         <el-table-column
           prop="created_at"
           label="预报时间"
@@ -355,7 +358,7 @@
                   v-for="(item, index) in foreignWidList"
                   :key="index"
                   :label="`${item.warehouse_name}(${item.detail_address})`"
-                  :value="item.id"
+                  :value="item.wid"
                 />
               </el-select>
             </li>
@@ -851,8 +854,7 @@
                   <el-form label-position="right" label-width="80px">
                     <el-form-item label="备注信息:">
                       <el-input
-                        v-model="row.remark"
-                        v-fo
+                        v-model="skuList.remark[scope.$index]"
                         size="mini"
                         oninput="value=value.replace(/\s+/g,'')"
                       />
@@ -1039,7 +1041,7 @@
 
 <script>
 import StrockUpHome from '../../../module-api/smart-house-api/strock-up-home'
-import { exportExcelDataCommon, exportPdfData, delay } from '../../../util/util'
+import { exportExcelDataCommon, exportPdfData } from '../../../util/util'
 import ProductChoose from '../../../components/product-choose.vue'
 import XLSX from 'xlsx'
 import { data } from 'cheerio/lib/api/attributes'
@@ -1172,21 +1174,19 @@ export default {
         })
       }
       this.delHomeForecast(data)
-      delay(1000)
-      this.getHomeWarehouse()
-      this.showConsole = false
-      this.isDeleteLoading = false
-      this.$forceUpdate()
     },
     delHomeForecast(data) {
       data.forEach(async item => {
         const res = await this.StrockUpHome.deleteHomeForecast(item.id)
         if (res.code === 200) {
           this.$refs.Logs.writeLog(`单号【${item.package_code}】:删除成功`, true)
+          this.tableData.splice(this.tableData.findIndex(tItem => tItem.id === item.id), 1)
         } else {
           this.$refs.Logs.writeLog(`单号【${item.package_code}】:${res.data}`, false)
         }
       })
+      this.showConsole = false
+      this.isDeleteLoading = false
     },
     // 获取中转仓
     async getWarehouseList() {
@@ -1225,8 +1225,8 @@ export default {
     },
     // 初始仓库
     init() {
-      this.form.wid = this.widList[0].id
-      this.foreignWid = this.foreignWidList[0].id
+      this.form.wid = this.widList[0].wid
+      this.foreignWid = this.foreignWidList[0].wid
     },
     // 打开商品链接
     openUrl(row) {
@@ -1246,7 +1246,7 @@ export default {
         this.skuList.purchase_num[index] = '1'
         this.skuList.packageCode[index] = ''
         this.skuList.purchaseOrderSn[index] = ''
-        item.remark = ''
+        this.skuList.remark[index] = ''
       })
       this.skuDetailsVisible = false
     },
@@ -1324,7 +1324,8 @@ export default {
               width: this.skuList.width[index],
               height: this.skuList.height[index],
               weight: this.skuList.weight[index],
-              purchase_num: this.skuList.purchase_num[index]
+              purchase_num: this.skuList.purchase_num[index],
+              remark: this.skuList.remark[index]
             }
           ]
         }
@@ -1650,7 +1651,7 @@ export default {
           const obj = {}
           obj['package_code'] = item.package_code
           obj['purchase_order_sn'] = item.purchase_order_sn
-          obj['wid'] = item.wid
+          obj['warehouse_name'] = item.warehouse_address.warehouse_name
           obj['created_at'] = item.created_at
           obj['purchase_num'] = skuItem.purchase_num
           obj['sign_num'] = skuItem.sign_num
@@ -1683,7 +1684,7 @@ export default {
         str += `<tr>
         <td>${item.package_code ? item.package_code : '' + '\t'}</td>
         <td>${item.purchase_order_sn ? item.purchase_order_sn : '' + '\t'}</td>
-        <td>${item.wid ? item.wid : '' + '\t'}</td>
+        <td>${item.warehouse_name ? item.warehouse_name : '' + '\t'}</td>
         <td>${item.created_at ? item.created_at : '' + '\t'}</td>
         <td>${item.purchase_num ? item.purchase_num : '' + '\t'}</td>
         <td>${item.sign_num ? item.sign_num : '' + '\t'}</td>

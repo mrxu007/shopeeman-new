@@ -1296,7 +1296,7 @@
 
 <script>
 import StrockUpForegin from '../../../module-api/smart-house-api/strock-up-foreign'
-import { exportExcelDataCommon, exportPdfData, delay } from '../../../util/util'
+import { exportExcelDataCommon, exportPdfData } from '../../../util/util'
 import ProductChoose from '../../../components/product-choose.vue'
 import XLSX from 'xlsx'
 import { data } from 'cheerio/lib/api/attributes'
@@ -1502,21 +1502,19 @@ export default {
         })
       }
       this.delForecast(data)
-      delay(1000)
-      this.getStockingForecastLists()
-      this.showConsole = false
-      this.isDeleteLoading = false
-      this.$forceUpdate()
     },
     delForecast(data) {
       data.forEach(async item => {
         const res = await this.StrockUpForegin.deleteForecast(item)
         if (res.code === 200) {
           this.$refs.Logs.writeLog(`单号【${item}】:删除成功`, true)
+          this.tableData.splice(this.tableData.findIndex(tItem => tItem.forecast_code === item), 1)
         } else {
           this.$refs.Logs.writeLog(`单号【${item}】:${res.data}`, false)
         }
       })
+      this.showConsole = false
+      this.isDeleteLoading = false
     },
     // 下载教程
     downTutorial() {
