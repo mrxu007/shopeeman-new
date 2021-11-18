@@ -178,9 +178,9 @@ export default {
 
   },
   mounted() {
-    this.goodsList = testData.data
-    this.$refs.plTable.reloadData(this.goodsList)
-    console.log('this.goodsList', this.goodsList)
+    // this.goodsList = testData.data
+    // this.$refs.plTable.reloadData(this.goodsList)
+    // console.log('this.goodsList', this.goodsList)
   },
   methods: {
     handleClick(tab, event) {
@@ -216,17 +216,17 @@ export default {
           return { code: -3, data: '参数不能为空' }
         }
         keyword = this.key.replace(/\s/g, ';').split(';')
-        const data = [[]]
-        let index = 0
-        keyword.map(item => { // 分组
-          if (data[index].length >= num) {
-            index++
-            data[index] = []
-          }
-          data[index].push(item)
-        })
-        keyword = null
-        return { code: 200, data }
+        // const data = [[]]
+        // let index = 0
+        // keyword.map(item => { // 分组
+        //   if (data[index].length >= num) {
+        //     index++
+        //     data[index] = []
+        //   }
+        //   data[index].push(item)
+        // })
+        // keyword = null
+        return { code: 200, data: keyword }
       } catch (error) {
         return { code: -2, data: `关键词格式不规范：${error}` }
       }
@@ -241,16 +241,38 @@ export default {
       const platForm = this.currentKeywordPlatform
       this.buttonStatus.keyword = true
       this.consoleMsg = ''
+      this.goodsList = []
+      this.$refs.plTable.reloadData(this.goodsList)
       this.CollectKeyWordApInstance._initKeyWord(platForm, this.commonAttr)
+      this.writeLog('开始采集搜索........', true)
+      this.writeLog(`开始采集${platformObj[platForm]}的商品.......`, true)
+
       for (let i = 0; i < keyLen; i++) {
-        const keyItem = key[i]
-        const res2 = await this.CollectKeyWordApInstance.keywordSearch(keyItem)
-        this.writeLog('关键词采集完毕', true)
-        debugger
+        const item = key[i]
+        // this.writeLog(`采集关键字：${item}`, true)
+        const res2 = await this.CollectKeyWordApInstance.keywordSearch(item)
+        if (res2.code !== 200) {
+          continue
+        }
+        this.goodsList.push(...res2.data)
       }
+      if (platForm === 1) { // 如果当前平台为拼多多需额外调用 拼多多补充接口  1.1-------------------------
+        for (let i = 0; i < keyLen; i++) {
+          const item = key[i]
+          // this.writeLog(`采集关键字：${item}`, true)
+          const res2 = await this.CollectKeyWordApInstance.keywordSearchTwo(item)
+          if (res2.code !== 200) {
+            continue
+          }
+          this.goodsList.push(...res2.data)
+        }
+      }
+      this.writeLog(`${platformObj[platForm]}：共采集：${this.goodsList.length}条`, true)
+      this.writeLog(`${platformObj[platForm]}的商品采集完毕........`, true)
       key = null
       this.buttonStatus.keyword = false
     },
+
     linksSearch() {
     },
     entireMallSearch() {
@@ -263,7 +285,7 @@ export default {
       if (!msg) { return }
       const color = success ? 'green' : 'red'
       const time = this.dateFormat(new Date(Date.now()), 'hh:mm:ss')
-      this.consoleMsg = `<p style="color:${color}; margin-top: 5px;">${time}:${msg}</p>` + this.consoleMsg
+      this.consoleMsg += `<p style="color:${color}; margin-top: 5px;">${time}:${msg}</p>`
     },
     dateFormat(time, fmt) {
       var o = {
