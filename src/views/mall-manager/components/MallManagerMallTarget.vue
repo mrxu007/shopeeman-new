@@ -453,16 +453,16 @@ export default {
         if (res3[0].code === 200 && res3[1].code === 200) {
           params['violationScore'] = res3[0].data.totalPoints
           const des = res3[1].data
-          item.order_service_indicators['BuyerSatisfaction'] = des.buyer_satisfaction
-          item.order_service_indicators['WeekBuyerSatisfaction'] = des.buyer_satisfaction_last // 上期买家满意度
+          item.order_service_indicators['BuyerSatisfaction'] = des.buyer_satisfaction ? parseInt(Number(des.buyer_satisfaction) / 1000000) : ''
+          item.order_service_indicators['WeekBuyerSatisfaction'] = des.buyer_satisfaction_last ? parseInt(Number(des.buyer_satisfaction_last) / 1000000) : '' // 上期买家满意度
           item.order_service_indicators['BuyerSatisfactionPoint'] = des.BuyerSatisfactionPoint // 买家满意度计分
           item.order_service_indicators['UnOrderRate'] = des.non_performance_rate ? des.non_performance_rate + '%' : 0 // 订单未完成率
           item.order_service_indicators['CancellOrderRate'] = des.cancel_rate ? des.cancel_rate + '%' : 0// 订单取消率
           item.order_service_indicators['ReturnOrRefundRate'] = des.return_rate ? (Number(des.return_rate) / 10000).toFixed(2) + '%' : '' // 退货/退款率
           item.order_service_indicators['OverTimeDeliveryRate'] = des.delay_rate // 逾期出货率
           item.order_service_indicators['PrepareTime'] = des.ready_time ? (Number(des.ready_time) / 3600 / 24).toFixed(2) + '天' : '' // 订单准备时间
-          item.order_service_indicators['WeekUnOrderRate'] = des.non_performance_rate_last // 上期订单未完成率
-          item.order_service_indicators['WeekCancellOrderRate'] = des.cancel_rate_last // 上期订单取消率
+          item.order_service_indicators['WeekUnOrderRate'] = des.non_performance_rate_last ? des.non_performance_rate_last + '%' : '' // 上期订单未完成率
+          item.order_service_indicators['WeekCancellOrderRate'] = des.cancel_rate_last ? des.cancel_rate_last + '%' : ''// 上期订单取消率
           item.order_service_indicators['WeekReturnOrRefundRate'] = des.return_rate_last ? (Number(des.return_rate_last) / 10000).toFixed(2) + '%' : '' // 上期订单退货/退款率
           item.order_service_indicators['WeekOverTimeDeliveryRate'] = des.delay_rate_last // 上期订单逾期出货率
           item.order_service_indicators['WeekPrepareTime'] = des.ready_time_last ? (Number(des.ready_time_last) / 3600 / 24).toFixed(2) + '天' : ''// 上期订单准备时间
@@ -476,6 +476,7 @@ export default {
           item.order_service_indicators['CounterfeitGoods'] = des.knowledge_Protect // 仿冒品或侵犯知识产权商品数
           item.order_service_indicators['ProhibitedGoods'] = des.lawless_goods // 违禁商品数
           item.order_service_indicators['PreOrderedGoodsRate'] = des.pre_order_list ? (Number(des.pre_order_list) / 10000).toFixed(2) + '%' : '' // 预购商品的%
+
           item.order_service_indicators['PreOrderedOverTarget'] = des.violation_days // 预购商品的天数%超过目标
           item.order_service_indicators['OtherViolatingGoods'] = des.other_error // 违反其它上架规范数
           item.order_service_indicators['WeekViolatingGoods'] = des.serious_listing_violations_last // 上期严重违规商品数
@@ -493,43 +494,43 @@ export default {
           item.order_service_indicators['PreOrderedOverTargetPoint'] = des.PreOrderedOverTargetPoint // 预购商品的天数%超过目标计分
           item.order_service_indicators['OtherViolatingGoodsPoint'] = des.OtherViolatingGoodsPoint // 违反其它上架规范计分
           item.order_service_indicators['ChatResponse'] = des.response_speed ? (Number(des.response_speed) / 10000).toFixed(2) + '%' : '' // 聊天回应
-          item.order_service_indicators['ResponseSpeed'] = des.response_time ? (Number(des.response_time) / 86400).toFixed(2) + '%' : '' // 回应速度
-          item.order_service_indicators['WeekChatResponse'] = des.response_speed_last// 上期聊天回应
-          item.order_service_indicators['WeekResponseSpeed'] = des.response_time_last // 上期回应速度
+          item.order_service_indicators['ResponseSpeed'] = des.response_time ? (Number(des.response_time) / 86400).toFixed(2) > 1 ? (Number(des.response_time) / 86400).toFixed(2) : 1 + '天以内' : '', // 回应速度
+          item.order_service_indicators['WeekChatResponse'] = des.response_speed_last ? (Number(des.response_speed_last) / 10000).toFixed(2) + '%' : ''// 上期聊天回应
+          item.order_service_indicators['WeekResponseSpeed'] = des.response_time_last ? (Number(des.response_time_last) / 86400).toFixed(2) > 1 ? (Number(des.response_time_last) / 86400).toFixed(2) : 1 + '天以内' : ''// 上期回应速度
           item.order_service_indicators['ChatResponsePoint'] = des.ChatResponsePoint // 聊天回应计分
           item.order_service_indicators['ResponseSpeedPoint'] = des.ResponseSpeedPoint // 回应速度计分
           item.order_service_indicators['SumPoints'] = res3[0].data.totalPoints // 季度计分
 
-          item.order_service_indicators['BuyerSatisfactionMetricId'] = des.BuyerSatisfactionMetricId // 买家满意度的MetricId
-          item.order_service_indicators['UnOrderRateMetricId'] = des.UnOrderRateMetricId // 订单未完成率的MetricId
-          item.order_service_indicators['CancellOrderRateMetricId'] = des.CancellOrderRateMetricId // 订单取消率的MetricId
-          item.order_service_indicators['ReturnOrRefundRateMetricId'] = des.ReturnOrRefundRateMetricId // 退货/退款率的MetricId
-          item.order_service_indicators['OverTimeDeliveryRateMetricId'] = des.OverTimeDeliveryRateMetricId // 逾期出货的MetricId
-          item.order_service_indicators['PrepareTimeMetricId'] = des.PrepareTimeMetricId // 订单准备时间的MetricId
-          item.order_service_indicators['ViolatingGoodsMetricId'] = des.ViolatingGoodsMetricId // 严重违规商品的MetricId
-          item.order_service_indicators['JunkGoodsMetricId'] = des.JunkGoodsMetricId // 垃圾商品的MetricId
-          item.order_service_indicators['CounterfeitGoodsMetricId'] = des.CounterfeitGoodsMetricId // 仿冒品或者侵权的MetricId
-          item.order_service_indicators['ProhibitedGoodsMetricId'] = des.ProhibitedGoodsMetricId // 违禁商品的MetricId
-          item.order_service_indicators['PreOrderedGoodsRateMetricId'] = des.PreOrderedGoodsRateMetricId // 预购商品的 %的MetricId
-          item.order_service_indicators['PreOrderedOverTargetMetricId'] = des.PreOrderedOverTargetMetricId // 预购商品的天数%超过目标的MetricId
-          item.order_service_indicators['OtherViolatingGoodsMetricId'] = des.OtherViolatingGoodsMetricId // 违反其它上架规范的MetricId
-          item.order_service_indicators['ChatResponseMetricId'] = des.ChatResponseMetricId // 聊天回应的MetricId
-          item.order_service_indicators['ResponseSpeedMetricId'] = des.ResponseSpeedMetricId // 回应速度的MetricId
+          // item.order_service_indicators['BuyerSatisfactionMetricId'] = des.BuyerSatisfactionMetricId // 买家满意度的MetricId
+          // item.order_service_indicators['UnOrderRateMetricId'] = des.UnOrderRateMetricId // 订单未完成率的MetricId
+          // item.order_service_indicators['CancellOrderRateMetricId'] = des.CancellOrderRateMetricId // 订单取消率的MetricId
+          // item.order_service_indicators['ReturnOrRefundRateMetricId'] = des.ReturnOrRefundRateMetricId // 退货/退款率的MetricId
+          // item.order_service_indicators['OverTimeDeliveryRateMetricId'] = des.OverTimeDeliveryRateMetricId // 逾期出货的MetricId
+          // item.order_service_indicators['PrepareTimeMetricId'] = des.PrepareTimeMetricId // 订单准备时间的MetricId
+          // item.order_service_indicators['ViolatingGoodsMetricId'] = des.ViolatingGoodsMetricId // 严重违规商品的MetricId
+          // item.order_service_indicators['JunkGoodsMetricId'] = des.JunkGoodsMetricId // 垃圾商品的MetricId
+          // item.order_service_indicators['CounterfeitGoodsMetricId'] = des.CounterfeitGoodsMetricId // 仿冒品或者侵权的MetricId
+          // item.order_service_indicators['ProhibitedGoodsMetricId'] = des.ProhibitedGoodsMetricId // 违禁商品的MetricId
+          // item.order_service_indicators['PreOrderedGoodsRateMetricId'] = des.PreOrderedGoodsRateMetricId // 预购商品的 %的MetricId
+          // item.order_service_indicators['PreOrderedOverTargetMetricId'] = des.PreOrderedOverTargetMetricId // 预购商品的天数%超过目标的MetricId
+          // item.order_service_indicators['OtherViolatingGoodsMetricId'] = des.OtherViolatingGoodsMetricId // 违反其它上架规范的MetricId
+          // item.order_service_indicators['ChatResponseMetricId'] = des.ChatResponseMetricId // 聊天回应的MetricId
+          // item.order_service_indicators['ResponseSpeedMetricId'] = des.ResponseSpeedMetricId // 回应速度的MetricId
           const tagetdes = {
-            BuyerSatisfaction: des.buyer_satisfaction, // 买家满意度
-            WeekBuyerSatisfaction: des.buyer_satisfaction_last, // 上期买家满意度
+            BuyerSatisfaction: des.buyer_satisfaction ? parseInt(Number(des.buyer_satisfaction) / 1000000) : '', // 买家满意度
+            WeekBuyerSatisfaction: des.buyer_satisfaction_last ? parseInt(Number(des.buyer_satisfaction_last) / 1000000) : '', // 上期买家满意度
             BuyerSatisfactionPoint: des.BuyerSatisfactionPoint, // 买家满意度计分
             UnOrderRate: des.non_performance_rate ? des.non_performance_rate + '%' : 0, // 订单未完成率
             CancellOrderRate: des.cancel_rate ? des.cancel_rate + '%' : 0, // 订单取消率
             ReturnOrRefundRate: des.return_rate ? (Number(des.return_rate) / 10000).toFixed(2) + '%' : '', // 退货/退款率
             OverTimeDeliveryRate: des.delay_rate ? des.delay_rate + '%' : 0, // 逾期出货率
             PrepareTime: des.ready_time ? (Number(des.ready_time) / 3600 / 24).toFixed(2) + '天' : '', // 订单准备时间
-            WeekUnOrderRate: des.non_performance_rate_last + '%', // 上期订单未完成率
-            WeekCancellOrderRate: des.cancel_rate_last + '%', // 上期订单取消率
+            WeekUnOrderRate: des.non_performance_rate_last ? des.non_performance_rate_last + '%' : '', // 上期订单未完成率
+            WeekCancellOrderRate: des.cancel_rate_last ? des.cancel_rate_last + '%' : '', // 上期订单取消率
             WeekReturnOrRefundRate: des.return_rate_last ? (Number(des.return_rate_last) / 10000).toFixed(2) + '%' : '', // 上期订单退货/退款率
             WeekOverTimeDeliveryRate: des.delay_rate_last, // 上期订单逾期出货率
             WeekPrepareTime: des.ready_time_last ? (Number(des.ready_time_last) / 3600 / 24).toFixed(2) + '天' : '', // 上期订单准备时间
-            UnOrderRatePoint: des.UnOrderRatePoint + '%', // 订单未完成率计分
+            UnOrderRatePoint: des.UnOrderRatePoint ? des.UnOrderRatePoint + '%' : '', // 订单未完成率计分
             CancellOrderRatePoint: des.CancellOrderRatePoint ? des.CancellOrderRatePoint + '%' : 0, // 订单取消率计分
             ReturnOrRefundRatePoint: des.ReturnOrRefundRatePoint ? des.ReturnOrRefundRatePoint + '%' : 0, // 订单退货/退款率计分
             OverTimeDeliveryRatePoint: des.OverTimeDeliveryRatePoint ? des.OverTimeDeliveryRatePoint + '%' : 0, // 订单逾期出货率计分
@@ -556,28 +557,28 @@ export default {
             PreOrderedOverTargetPoint: des.PreOrderedOverTargetPoint, // 预购商品的天数%超过目标计分
             OtherViolatingGoodsPoint: des.OtherViolatingGoodsPoint, // 违反其它上架规范计分
             ChatResponse: des.response_speed ? (Number(des.response_speed) / 10000).toFixed(2) + '%' : '', // 聊天回应
-            ResponseSpeed: des.response_time ? (Number(des.response_time) / 86400).toFixed(2) + '%' : '', // 回应速度
-            WeekChatResponse: des.response_speed_last, // 上期聊天回应
-            WeekResponseSpeed: des.response_time_last, // 上期回应速度
+            ResponseSpeed: des.response_time ? (Number(des.response_time) / 86400).toFixed(2) > 1 ? (Number(des.response_time) / 86400).toFixed(2) : 1 + '天以内' : '', // 回应速度
+            WeekChatResponse: des.response_speed_last ? (Number(des.response_speed_last) / 10000).toFixed(2) + '%' : '', // 上期聊天回应
+            WeekResponseSpeed: des.response_time_last ? (Number(des.response_time_last) / 86400).toFixed(2) > 1 ? (Number(des.response_time_last) / 86400).toFixed(2) : 1 + '天以内' : '', // 上期回应速度
             ChatResponsePoint: des.ChatResponsePoint, // 聊天回应计分
             ResponseSpeedPoint: des.ResponseSpeedPoint, // 回应速度计分
-            SumPoints: res3[0].data.totalPoints, // 季度计分
+            SumPoints: res3[0].data.totalPoints // 季度计分
 
-            BuyerSatisfactionMetricId: des.BuyerSatisfactionMetricId, // 买家满意度的MetricId
-            UnOrderRateMetricId: des.UnOrderRateMetricId, // 订单未完成率的MetricId
-            CancellOrderRateMetricId: des.CancellOrderRateMetricId, // 订单取消率的MetricId
-            ReturnOrRefundRateMetricId: des.ReturnOrRefundRateMetricId, // 退货/退款率的MetricId
-            OverTimeDeliveryRateMetricId: des.OverTimeDeliveryRateMetricId, // 逾期出货的MetricId
-            PrepareTimeMetricId: des.PrepareTimeMetricId, // 订单准备时间的MetricId
-            ViolatingGoodsMetricId: des.ViolatingGoodsMetricId, // 严重违规商品的MetricId
-            JunkGoodsMetricId: des.JunkGoodsMetricId, // 垃圾商品的MetricId
-            CounterfeitGoodsMetricId: des.CounterfeitGoodsMetricId, // 仿冒品或者侵权的MetricId
-            ProhibitedGoodsMetricId: des.ProhibitedGoodsMetricId, // 违禁商品的MetricId
-            PreOrderedGoodsRateMetricId: des.PreOrderedGoodsRateMetricId, // 预购商品的 %的MetricId
-            PreOrderedOverTargetMetricId: des.PreOrderedOverTargetMetricId, // 预购商品的天数%超过目标的MetricId
-            OtherViolatingGoodsMetricId: des.OtherViolatingGoodsMetricId, // 违反其它上架规范的MetricId
-            ChatResponseMetricId: des.ChatResponseMetricId, // 聊天回应的MetricId
-            ResponseSpeedMetricId: des.ResponseSpeedMetricId // 回应速度的MetricId
+            // BuyerSatisfactionMetricId: des.BuyerSatisfactionMetricId, // 买家满意度的MetricId
+            // UnOrderRateMetricId: des.UnOrderRateMetricId, // 订单未完成率的MetricId
+            // CancellOrderRateMetricId: des.CancellOrderRateMetricId, // 订单取消率的MetricId
+            // ReturnOrRefundRateMetricId: des.ReturnOrRefundRateMetricId, // 退货/退款率的MetricId
+            // OverTimeDeliveryRateMetricId: des.OverTimeDeliveryRateMetricId, // 逾期出货的MetricId
+            // PrepareTimeMetricId: des.PrepareTimeMetricId, // 订单准备时间的MetricId
+            // ViolatingGoodsMetricId: des.ViolatingGoodsMetricId, // 严重违规商品的MetricId
+            // JunkGoodsMetricId: des.JunkGoodsMetricId, // 垃圾商品的MetricId
+            // CounterfeitGoodsMetricId: des.CounterfeitGoodsMetricId, // 仿冒品或者侵权的MetricId
+            // ProhibitedGoodsMetricId: des.ProhibitedGoodsMetricId, // 违禁商品的MetricId
+            // PreOrderedGoodsRateMetricId: des.PreOrderedGoodsRateMetricId, // 预购商品的 %的MetricId
+            // PreOrderedOverTargetMetricId: des.PreOrderedOverTargetMetricId, // 预购商品的天数%超过目标的MetricId
+            // OtherViolatingGoodsMetricId: des.OtherViolatingGoodsMetricId, // 违反其它上架规范的MetricId
+            // ChatResponseMetricId: des.ChatResponseMetricId, // 聊天回应的MetricId
+            // ResponseSpeedMetricId: des.ResponseSpeedMetricId // 回应速度的MetricId
           }
           params['orderServiceIndicators'] = tagetdes
           // console.log('***************', params)
@@ -731,23 +732,23 @@ export default {
           <td>上期客服回应速度</td>
           <td>客服聊天回应计分</td>
           <td>客服回应速度计分</td>
-          <td>买家满意度的MetricId</td>
-          <td>订单未完成率的MetricId</td>
-          <td>订单取消率的MetricId</td>
-          <td>退货/退款率的MetricId</td>
-          <td>逾期出货的MetricId</td>
-          <td>订单准备时间的MetricId</td>
-          <td>严重违规商品的MetricId</td>
-          <td>垃圾商品的MetricId</td>
-          <td>仿冒品或者侵权的MetricId</td>
-          <td>违禁商品的MetricId</td>
-          <td>预购商品的 %的MetricId</td>
-          <td>预购商品的天数%超过目标的MetricId</td>
-          <td>违反其它上架规范的MetricId</td>
-          <td>聊天回应的MetricId</td>
-          <td>回应速度的MetricId</td>
 
         </tr>`
+      // <td>买家满意度的MetricId</td>
+      // <td>订单未完成率的MetricId</td>
+      // <td>订单取消率的MetricId</td>
+      // <td>退货/退款率的MetricId</td>
+      // <td>逾期出货的MetricId</td>
+      // <td>订单准备时间的MetricId</td>
+      // <td>严重违规商品的MetricId</td>
+      // <td>垃圾商品的MetricId</td>
+      // <td>仿冒品或者侵权的MetricId</td>
+      // <td>违禁商品的MetricId</td>
+      // <td>预购商品的 %的MetricId</td>
+      // <td>预购商品的天数%超过目标的MetricId</td>
+      // <td>违反其它上架规范的MetricId</td>
+      // <td>聊天回应的MetricId</td>
+      // <td>回应速度的MetricId</td>
       jsonData.forEach((item) => {
         str += `<tr>
         <td>${item.country ? this.$filters.chineseSite(item.country) : '' + '\t'}</td>
@@ -800,23 +801,23 @@ export default {
         <td>${item.order_service_indicators && item.order_service_indicators.ChatResponsePoint ? item.order_service_indicators.ChatResponsePoint : '' + '\t'}</td>
         <td>${item.order_service_indicators && item.order_service_indicators.ResponseSpeedPoint ? item.order_service_indicators.ResponseSpeedPoint : '' + '\t'}</td>
 
-        <td>${item.order_service_indicators && item.order_service_indicators.BuyerSatisfactionMetricId ? item.order_service_indicators.BuyerSatisfactionMetricId : '' + '\t'}</td>
-        <td>${item.order_service_indicators && item.order_service_indicators.UnOrderRateMetricId ? item.order_service_indicators.UnOrderRateMetricId : '' + '\t'}</td>
-        <td>${item.order_service_indicators && item.order_service_indicators.CancellOrderRateMetricId ? item.order_service_indicators.CancellOrderRateMetricId : '' + '\t'}</td>
-        <td>${item.order_service_indicators && item.order_service_indicators.ReturnOrRefundRateMetricId ? item.order_service_indicators.ReturnOrRefundRateMetricId : '' + '\t'}</td>
-        <td>${item.order_service_indicators && item.order_service_indicators.OverTimeDeliveryRateMetricId ? item.order_service_indicators.OverTimeDeliveryRateMetricId : '' + '\t'}</td>
-        <td>${item.order_service_indicators && item.order_service_indicators.PrepareTimeMetricId ? item.order_service_indicators.PrepareTimeMetricId : '' + '\t'}</td>
-        <td>${item.order_service_indicators && item.order_service_indicators.ViolatingGoodsMetricId ? item.order_service_indicators.ViolatingGoodsMetricId : '' + '\t'}</td>
-        <td>${item.order_service_indicators && item.order_service_indicators.JunkGoodsMetricId ? item.order_service_indicators.JunkGoodsMetricId : '' + '\t'}</td>
-        <td>${item.order_service_indicators && item.order_service_indicators.CounterfeitGoodsMetricId ? item.order_service_indicators.CounterfeitGoodsMetricId : '' + '\t'}</td>
-        <td>${item.order_service_indicators && item.order_service_indicators.ProhibitedGoodsMetricId ? item.order_service_indicators.ProhibitedGoodsMetricId : '' + '\t'}</td>
-        <td>${item.order_service_indicators && item.order_service_indicators.PreOrderedGoodsRateMetricId ? item.order_service_indicators.PreOrderedGoodsRateMetricId : '' + '\t'}</td>
-        <td>${item.order_service_indicators && item.order_service_indicators.PreOrderedOverTargetMetricId ? item.order_service_indicators.PreOrderedOverTargetMetricId : '' + '\t'}</td>
-        <td>${item.order_service_indicators && item.order_service_indicators.OtherViolatingGoodsMetricId ? item.order_service_indicators.OtherViolatingGoodsMetricId : '' + '\t'}</td>
-        <td>${item.order_service_indicators && item.order_service_indicators.ChatResponseMetricId ? item.order_service_indicators.ChatResponseMetricId : '' + '\t'}</td>
-        <td>${item.order_service_indicators && item.order_service_indicators.ResponseSpeedMetricId ? item.order_service_indicators.ResponseSpeedMetricId : '' + '\t'}</td>
                                                        
         </tr>`
+        // <td>${item.order_service_indicators && item.order_service_indicators.BuyerSatisfactionMetricId ? item.order_service_indicators.BuyerSatisfactionMetricId : '' + '\t'}</td>
+        // <td>${item.order_service_indicators && item.order_service_indicators.UnOrderRateMetricId ? item.order_service_indicators.UnOrderRateMetricId : '' + '\t'}</td>
+        // <td>${item.order_service_indicators && item.order_service_indicators.CancellOrderRateMetricId ? item.order_service_indicators.CancellOrderRateMetricId : '' + '\t'}</td>
+        // <td>${item.order_service_indicators && item.order_service_indicators.ReturnOrRefundRateMetricId ? item.order_service_indicators.ReturnOrRefundRateMetricId : '' + '\t'}</td>
+        // <td>${item.order_service_indicators && item.order_service_indicators.OverTimeDeliveryRateMetricId ? item.order_service_indicators.OverTimeDeliveryRateMetricId : '' + '\t'}</td>
+        // <td>${item.order_service_indicators && item.order_service_indicators.PrepareTimeMetricId ? item.order_service_indicators.PrepareTimeMetricId : '' + '\t'}</td>
+        // <td>${item.order_service_indicators && item.order_service_indicators.ViolatingGoodsMetricId ? item.order_service_indicators.ViolatingGoodsMetricId : '' + '\t'}</td>
+        // <td>${item.order_service_indicators && item.order_service_indicators.JunkGoodsMetricId ? item.order_service_indicators.JunkGoodsMetricId : '' + '\t'}</td>
+        // <td>${item.order_service_indicators && item.order_service_indicators.CounterfeitGoodsMetricId ? item.order_service_indicators.CounterfeitGoodsMetricId : '' + '\t'}</td>
+        // <td>${item.order_service_indicators && item.order_service_indicators.ProhibitedGoodsMetricId ? item.order_service_indicators.ProhibitedGoodsMetricId : '' + '\t'}</td>
+        // <td>${item.order_service_indicators && item.order_service_indicators.PreOrderedGoodsRateMetricId ? item.order_service_indicators.PreOrderedGoodsRateMetricId : '' + '\t'}</td>
+        // <td>${item.order_service_indicators && item.order_service_indicators.PreOrderedOverTargetMetricId ? item.order_service_indicators.PreOrderedOverTargetMetricId : '' + '\t'}</td>
+        // <td>${item.order_service_indicators && item.order_service_indicators.OtherViolatingGoodsMetricId ? item.order_service_indicators.OtherViolatingGoodsMetricId : '' + '\t'}</td>
+        // <td>${item.order_service_indicators && item.order_service_indicators.ChatResponseMetricId ? item.order_service_indicators.ChatResponseMetricId : '' + '\t'}</td>
+        // <td>${item.order_service_indicators && item.order_service_indicators.ResponseSpeedMetricId ? item.order_service_indicators.ResponseSpeedMetricId : '' + '\t'}</td>
       })
       exportExcelDataCommon('店铺指标', str)
       this.isLoading = false
