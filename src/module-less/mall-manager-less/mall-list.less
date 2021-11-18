@@ -52,12 +52,20 @@
   #article {
     background: white;
     margin-top: 10px;
-    padding: 16px;;
+    padding: 16px;
     .show-watermark-style {
       width: 106px;
       height: 47px;
       border: 1px solid #333;
       background:  #ccc;
+    }
+    .copyIcon {
+      cursor: pointer;
+      color: var(--themeColor);
+    }
+    .pagination {
+      text-align: right;
+      margin-top: 20px;
     }
   }
   .water-dialog {
@@ -233,10 +241,20 @@
         .li_1_lf{
           width: 70%;
           font-size: 16px !important;
-          margin-left: 50px;
+          margin-left: 40px;
+          overflow: hidden;
+          text-overflow:ellipsis;
+          white-space: nowrap;
         }
         .li_1_rt{
           width: 50%;
+          .copyIcon {
+            cursor: pointer;
+            color: var(--themeColor);
+          }
+          .el-button {
+            margin-left: 10px;
+          }
         }
       }
     }

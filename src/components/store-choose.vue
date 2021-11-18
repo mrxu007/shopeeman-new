@@ -32,6 +32,10 @@ import MallListAPI from '../module-api/mall-manager-api/mall-list-api'
 export default {
   name: 'StoreChoose',
   props: {
+    showMallAll: {
+      type: Boolean,
+      default: false
+    },
     spanWidth: {
       type: String,
       default: '80px'
@@ -173,19 +177,23 @@ export default {
     },
     changeMallList() {
       const mallList = []
-      if (this.countryVal.indexOf('')>=0 && this.groupId.indexOf('')>=0 && this.site.indexOf('')>=0) {
-        mallList.push('')
-      }else{
-        this.site.forEach((item) => {
-          if (item) {
-            const temp = this.siteList.filter((i) => i.platform_mall_id === item)
-            mallList.push(temp[0])
-          }
-        })
-      }
+      // if (this.countryVal.indexOf('')>=0 && this.groupId.indexOf('')>=0 && this.site.indexOf('')>=0) {
+      //   mallList.push('')
+      // }else{
+      this.site.forEach((item) => {
+        if (item) {
+          const temp = this.siteList.filter((i) => i.platform_mall_id === item)
+          mallList.push(temp[0])
+        }
+      })
+      // }
+      mallList['country'] = this.countryVal
+      this.$emit('changeMallList', mallList)
       if (this.source) {
+        mallList['country'] = this.countryVal
         this.$emit('changeMallList', { mallList: mallList, source: this.source })
       } else {
+        mallList['country'] = this.countryVal
         this.$emit('changeMallList', mallList)
       }
     }

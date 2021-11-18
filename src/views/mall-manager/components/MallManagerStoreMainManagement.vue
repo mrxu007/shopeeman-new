@@ -2,7 +2,7 @@
   <div v-loading="loading" class="content">
     <div class="all_condition">
       <div class="des_conditon">
-        <storeChoose :is-all="true" :show-mall="true" @changeMallList="changeMallList" />
+        <storeChoose :is-all="true" :show-mall-all="true" @changeMallList="changeMallList" />
         <div style="margin-left: 20px">
           <span>过期时间：</span>
           <el-date-picker
@@ -180,7 +180,7 @@
             <div class="left_item">
               ip周期：
               <el-select v-model="ipMaster_params.period" size="mini">
-                <el-option v-for="(item,index) in time_ipList" :key="'time'+index" :label="item.period+'个月'" :value="item.period" />
+                <el-option v-for="(item,index) in time_ipList" :key="'time'+index" :label="item.period+'个月 / '+item.price+' 元'" :value="item.period" />
               </el-select>
             </div>
             <div class="left_item">
@@ -642,12 +642,14 @@
                     {{ row.country | chineseSite }}
                   </template>
                 </el-table-column>
-                <el-table-column prop="mall_alias_name" label="店铺名称" align="center" />
+                <el-table-column prop="mall_alias_name" label="店铺名称" align="center">
+                  <template slot-scope="{row}"> <span>{{ row.mall_alias_name? row.mall_alias_name:row.platform_mall_name }}</span> </template>
+                </el-table-column>
                 <el-table-column prop="main_name" label="已绑定公司主体名称" />
               </el-table>
             </div>
             <div style="display:flex;justify-content: center;margin-top:5px">
-              <el-button v-show="showButton" type="primary" size="mini" @click="updataMallList()">更改绑定店铺信息</el-button>
+              <el-button v-show="showButton" type="primary" size="mini" @click="updataMallList()">更新绑定店铺信息</el-button>
             </div>
           </div>
         </div>
@@ -660,7 +662,7 @@
 import ShopeeConfig from '@/services/shopeeman-config'
 import Storechoosemall from '../../../components/store-choose-mall'
 import storeChoose from '../../../components/store-choose'
-import { getMalls, MallgetValue, getValue, creatDate } from '../../../util/util'
+import { getMalls, MallgetValue, getValue, creatDate, delay } from '../../../util/util'
 import { encryptionList, ipTypeList, protocolList, confuseList, region_ipListSelf } from '../../../util/MallManagerStoredata'
 import Index from '@/views/catch-notice/index.vue'
 export default {
@@ -937,6 +939,7 @@ export default {
       }
 
       this.showUserIP = false
+      this.rowData = ''
       this.$refs.multipleTable_dialog.clearSelection()
     },
     // 删除
@@ -981,7 +984,7 @@ export default {
         this.query.mall_ids = [] // 初始化店铺数据
         this.dialogMallquery.mallGroupIds = [] // 初始化绑定店铺分组
         this.shopAccountList.forEach(item => {
-          this.query.mall_ids.push(item.id)
+          // this.query.mall_ids.push(item.id)
           this.dialogMallquery.mallGroupIds.push(item.group_id)
         })
         // this.initDate()
@@ -1144,30 +1147,31 @@ export default {
         this.loading = false
         this.dialogvisible = false
         this.getTableList()
-        this.$refs.multipleTable_dialog.clearSelection()
-        this.query_person = {
-          username: '', // 用户名
-          password: '', // 密码
-          ip_address: '', // IP地址
-          ip_port: '', //	端口号
-          ip_alias: '', // IP别名（主体名称）
-          ip_agency: 'SSR', // 代理方式
-          encryption: '', // 加密方式
-          protocol: '', // 协议类型
-          confuse: '', // 混淆方式
-          uid: '', // 用户主账号ID
-          uuid: '', // 用户子账号ID
-          channel_code: '', // 渠道代号
-          channel_name: '', // 渠道名称
-          region_name: '', //	区域名
-          area_name: '', // 地区名
-          parameter: '', // 协议参数
-          argument: '', // 混淆参数
-          map_ip_address: '', // 代理IP
-          map_ip_port: '', // 代理端口
-          IPLink: '', // 链接
-          dataTime: '' // 有效日期
-        }
+        this.closeDialog1()
+        // this.$refs.multipleTable_dialog.clearSelection()
+        // this.query_person = {
+        //   username: '', // 用户名
+        //   password: '', // 密码
+        //   ip_address: '', // IP地址
+        //   ip_port: '', //	端口号
+        //   ip_alias: '', // IP别名（主体名称）
+        //   ip_agency: 'SSR', // 代理方式
+        //   encryption: '', // 加密方式
+        //   protocol: '', // 协议类型
+        //   confuse: '', // 混淆方式
+        //   uid: '', // 用户主账号ID
+        //   uuid: '', // 用户子账号ID
+        //   channel_code: '', // 渠道代号
+        //   channel_name: '', // 渠道名称
+        //   region_name: '', //	区域名
+        //   area_name: '', // 地区名
+        //   parameter: '', // 协议参数
+        //   argument: '', // 混淆参数
+        //   map_ip_address: '', // 代理IP
+        //   map_ip_port: '', // 代理端口
+        //   IPLink: '', // 链接
+        //   dataTime: '' // 有效日期
+        // }
       } catch (error) {
         this.loading = false
         console.log('udpata', error)
@@ -1227,6 +1231,7 @@ export default {
         this.loading = false
       }
       this.dialogvisible = false
+      this.rowData = ''
       this.getTableList()
       this.$refs.multipleTable_dialog.clearSelection()
     },
@@ -1370,6 +1375,7 @@ export default {
       // 新增
       this.loading = true
       const res = await this.$YipService.AddSelfIP(JSON.stringify(this.query_person))
+      this.loading = false
       const resMsg = JSON.parse(res)
       if (resMsg.code !== 200) {
         // this.$notify({
@@ -1385,7 +1391,6 @@ export default {
         //   message: `IP保存成功`
         // })
         this.$message.success('IP保存成功')
-        this.loading = false
         // 附加店铺绑定
         this.targetId = resMsg.data
         if (this.dialog_selectMallList.length > 0) {
@@ -1468,36 +1473,50 @@ export default {
         this.$message.warning('主体名称不能为空！')
         return false
       }
+      if (this.dialog_selectMallList.length > 0) {
+        this.$message.warning('新增IP主体时不能同时绑定店铺，购买成功后再进行绑定店铺！')
+        return false
+      }
       // this.$message.warning('数据请求中.......')
       const userInfo = await this.$appConfig.getUserInfo()
       this.ipMaster_params.uid = userInfo.muid
       this.ipMaster_params.uuid = 0
       const params = this.ipMaster_params
       this.loading = true
-      const data = await this.$commodityService.addIPMaster(params)
-      const resMsg = JSON.parse(data)
-      if (resMsg.code === '-1') {
-        // this.$notify({
-        //   title: '新增公司主体',
-        //   type: 'error',
-        //   message: resMsg.message
-        // })
-        this.$message.error('新增公司主体')
-      } else {
-        // this.$notify({
-        //   title: '新增公司主体',
-        //   type: 'success',
-        //   message: `新增成功`
-        // })
-        this.$message.success('新增成功')
+      try {
+        const data = await this.$commodityService.addIPMaster(params)
+        const resMsg = JSON.parse(data)
+        // debugger
+        if (resMsg.code === -1) {
+          // this.$notify({
+          //   title: '新增公司主体',
+          //   type: 'error',
+          //   message: resMsg.message
+          // })
+          this.$confirm(resMsg.message, '提示', {
+            confirmButtonText: '确定',
+            type: 'warning'
+          })
+          // this.$message.warning(resMsg.message)
+        } else {
+          // this.$notify({
+          //   title: '新增公司主体',
+          //   type: 'success',
+          //   message: `新增成功`
+          // })
+          this.$message.success('新增成功')
+        }
         this.loading = false
         // 附加店铺绑定
-        this.targetId = resMsg.data
-        if (this.dialog_selectMallList.length > 0) {
-          this.updataMallList()
-        }
+        // this.targetId = resMsg.data
+        // if (this.dialog_selectMallList.length > 0) {
+        //   this.updataMallList()
+        // }
         this.getTableList()
         this.dialogvisible = false
+        this.closeDialog1()
+      } catch (error) {
+        console.log('新增公司主体', error)
       }
     },
     // dialog 多选
@@ -1645,10 +1664,11 @@ export default {
           // 分页
           this.chang()
         } else {
-          this.$message.error('网络请求失败')
+          // this.$message.error('网络请求失败')
         }
       } catch (error) {
         this.loading = false
+        this.$message.error(error)
         console.log('error', error)
       }
     },

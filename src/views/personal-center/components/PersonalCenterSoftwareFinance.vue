@@ -10,6 +10,9 @@
         <el-button type="primary" size="mini" @click="rechargeVisible = true">充值</el-button>
       </div>
       <div>今日翻译费用：{{ account.translationCosts }}元</div>
+      <div style="margin-left:10px;">
+        <el-button v-if="account.translationCosts>'0'" type="primary" size="mini" @click="getTransDetail('')">翻译明细</el-button>
+      </div>
     </div>
     <!-- 上面查询条件部分 -->
     <div class="search">
@@ -59,7 +62,7 @@
             <div class="moneyFlow">
               <label>资金流向：</label>
               <el-select v-model="form.moneyFlow" style="width: 207px;" size="mini" multiple collapse-tags clearable @change="changeSelect($event, 'moneyFlow')">
-                <el-option label="全部" value="全部" @click.native="selectAll('moneyFlow', moneyFlow)" />
+                <el-option label="全部" :value="0" @click.native="selectAll('moneyFlow', moneyFlow)" />
                 <el-option v-for="item in moneyFlow" :key="item.id" :label="item.label" :value="item.id" />
               </el-select>
             </div>
@@ -69,7 +72,7 @@
             <div class="transactionType">
               <label>交易类型：</label>
               <el-select v-model="form.transactionType" style="width: 198px;" size="mini" multiple collapse-tags clearable @change="changeSelect($event, 'transactionType')">
-                <el-option label="全部" value="全部" @click.native="selectAll('transactionType', transactionType)" />
+                <el-option label="全部" :value="0" @click.native="selectAll('transactionType', transactionType)" />
                 <el-option v-for="item in transactionType" :key="item.id" :label="item.name" :value="item.id" />
               </el-select>
             </div>
@@ -162,10 +165,10 @@
           <p v-if="scope.row.trans_type > 0">{{ changeTypeName(scope.row.trans_status, tranStatus) }}</p>
         </template>
         </el-table-column>
-        <el-table-column prop="trans_time" label="交易时间" align="center" min-width="180px">
+        <el-table-column prop="trans_time" label="交易时间" align="center" min-width="140px">
           <template slot-scope="scope"> {{ scope.row.trans_time }} </template>
         </el-table-column>
-        <el-table-column prop="created_at" label="创建时间" align="center" min-width="180px">
+        <el-table-column prop="created_at" label="创建时间" align="center" min-width="140px">
           <template slot-scope="scope"> {{ scope.row.created_at }} </template>
         </el-table-column>
         <el-table-column align="center" prop="amount" label="交易金额" min-width="70px" />
@@ -175,12 +178,12 @@
         <el-table-column
           align="center"
           label="费用明细"
-          min-width="70px"
+          min-width="90px"
         ><template slot-scope="scope">
           <el-button v-if="scope.row.trans_type === 2" type="primary" size="mini" @click="getTransDetail(scope.row)">翻译明细</el-button>
         </template>
         </el-table-column>
-        <el-table-column align="center" prop="remark" label="备注" min-width="120px" show-overflow-tooltip fixed="right" />
+        <el-table-column align="center" prop="remark" label="备注" min-width="150px" show-overflow-tooltip fixed="right" />
       </el-table>
       <div class="pagination">
         <el-pagination
@@ -339,22 +342,23 @@ export default {
       amount: '',
       exportDataList: [],
       uuid: '',
+      uid: '',
       amountLoading: false
     }
   },
-  mounted() {
-    this.form.moneyFlow.push('全部')
+  async mounted() {
+    this.form.moneyFlow.push(0)
     this.moneyFlow.map((item) => {
       this.form.moneyFlow.push(item.id)
     })
     this.form.creationTime = creatDate(31)
     // 查询交易类型
-    this.getTransType()
+    await this.getTransType()
     // 查询用户账号余额
-    this.getAccountAmount()
+    await this.getAccountAmount()
     // 获取翻译费用
-    this.getTranslateAmount()
-    this.selectList()
+    await this.getTranslateAmount()
+    await this.selectList()
   },
   methods: {
     async exportData() {
@@ -453,7 +457,17 @@ export default {
     // 充值
     async recharge() {
       const params = { amount: this.amount }
-      const res = await this.$api.getChargeUrlV2(params)
+      try {
+        const res = await this.$api.getChargeUrlV2(params)
+        if (res.data.code === 200) {
+          window.open(res.data.data.url)
+        } else {
+          this.$message.success(res.data.message)
+        }
+      } catch (error) {
+        console.log(error)
+        this.$message.error('充值失败')
+      }
     },
     // 获取今日翻译费用
     async getTranslateAmount() {
@@ -466,11 +480,14 @@ export default {
     async getTransDetail(row) {
       console.log(row)
       this.translateDetailVisible = true
-      const date = row.created_at.split(' ')[0]
-      this.chooseDate = [date + ' 00:00:00', date + ' 23:59:59']
+      const date = row ? row.trans_time ? row.trans_time.split(' ')[0] : '' : ''
+      const todayStart = creatDate(0)[0] + ' 00:00:00'
+      const todayEnd = creatDate(0)[0] + ' 23:23:23'
+      this.chooseDate = row ? [date + ' 00:00:00', date + ' 23:59:59'] : [todayStart, todayEnd]
       // this.chooseDate = ['2021-09-17 00:00:00','2021-09-17 23:59:59']
       const params = {
-        uuid: row.uid,
+        uid: row ? row.uid : '',
+        uuid: row ? row.uuid : '',
         startTime: this.chooseDate[0],
         endTime: this.chooseDate[1]
       }
@@ -526,7 +543,7 @@ export default {
       const res = await this.$api.getTransType()
       if (res.data.code === 200) {
         this.transactionType = res.data.data
-        this.form.transactionType.push('全部')
+        this.form.transactionType.push(0)
         this.transactionType.map((item) => {
           this.form.transactionType.push(item.id)
         })
@@ -544,6 +561,7 @@ export default {
         this.$message.error(res.data.message)
       }
       this.amountLoading = false
+      this.getTranslateAmount()
     },
     // 日期选择器时间处理
     setDateFmt(data) {
@@ -562,7 +580,7 @@ export default {
     selectAll(key, baseData) {
       if (this.form[key].length < baseData.length) {
         this.form[key] = []
-        this.form[key].push('全部')
+        this.form[key].push(0)
         baseData.map((item) => {
           this.form[key].push(item.id)
         })
@@ -571,10 +589,10 @@ export default {
       }
     },
     changeSelect(val, key) {
-      if (!val.includes('全部') && val.length === this.form[key].length) {
-      } else if (val.includes('全部') && val.length - 1 < this.form[key].length) {
+      if (!val.includes(0) && val.length === this.form[key].length) {
+      } else if (val.includes(0) && val.length - 1 < this.form[key].length) {
         this.form[key] = this.form[key].filter((item) => {
-          return item !== '全部'
+          return item !== 0
         })
       }
     },

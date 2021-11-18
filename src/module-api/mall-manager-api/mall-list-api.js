@@ -1,4 +1,3 @@
-import { base64 } from 'js-md5'
 
 // import api from '../../network/jx-request'
 export default class MallListAPI {
@@ -127,11 +126,10 @@ export default class MallListAPI {
         }
       }, base64File)
       res = JSON.parse(JSON.parse(res).data)
-      debugger
       if (res.code === 0) {
         return { code: 200, data: res.data.resource_id }// Errors within expectations  开启关闭太频繁，需冷却三小时
       }
-      return { code: res.errcode, data: `${res.errcode} ${res.message.indexOf('token not found') > -1 ? '请先登录' : res.message}` }
+      return { code: res.code, data: `${res.errcode} ${res.message.indexOf('token not found') > -1 ? '请先登录' : res.message}` }
     } catch (error) {
       return { code: -2, data: `getMallInfo-catch: ${error}` }
     }
@@ -158,20 +156,43 @@ export default class MallListAPI {
       return { code: -2, data: `getMallInfo-catch: ${error}` }
     }
   }
+  // 发送短信
+  async sendMessage(mallInfo, messageHeader) {
+    try {
+      const { country, platform_mall_id } = mallInfo
+      const params = {
+        platform_mall_id: platform_mall_id
+      }
+      const headers = {
+        'cookies': []
+      }
+      messageHeader ? headers['cookies'].push({ 'name': 'RO_T', value: messageHeader }) : ''
+      let res = await this._this.$shopeemanService.getChinese(country, '/api/selleraccount/vcode/resend/?', params, messageHeader ? { headers } : null)
+      res = JSON.parse(JSON.parse(res).data)
+      if (res.code === 0) {
+        return { code: 200, data: '短信验证发送成功' }
+      }
+      return { code: res.errcode, data: `${res.errcode} ${res.message}` }
+    } catch (error) {
+      return { code: -2, data: `getMallGoodsAmount-catch: ${error}` }
+    }
+  }
   // 本地服务接口----------------------------------------------------
   // 获取店铺列表
   async getMallList(params) {
     try {
       const res = await this._this.$api.getMallList(params)
       if (res.data.code === 200) {
-        const mallArr = res.data.data.map(item => {
+        const mallArr = res.data.data.data.map(item => {
           item.LoginInfo = '<p>等待检测...</p>'
           item.isCheckedWaterMark = false
           item.isCheckedWaterMark2 = false
           return item
         })
-        this.mallList = mallArr
-        return { code: 200, data: mallArr }
+        // if (!params.country && !params.groupId) {
+        //   this.mallList = mallArr
+        // }
+        return { code: 200, data: { total: res.data.data.total, mallArr } }
       }
       return { code: -2, data: '获取店铺列表失败' }
     } catch (error) {
@@ -204,7 +225,7 @@ export default class MallListAPI {
   }
   // 根据 店铺频台id 找到店铺系统id
   getMallID(platform_mall_id) {
-    return this.mallList.find(item => item.platform_mall_id === platform_mall_id)?.id
+    return this.mallList.find(item => item.platform_mall_id === platform_mall_id - 0)?.id
   }
   // 更新店铺水印
   async updateWatermark(params) {

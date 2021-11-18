@@ -207,14 +207,16 @@ export default {
     // 用户信息
     async getUserInfo() {
       try {
-        const data = await this.$appConfig.getUserInfo()
-        const trustIpCount = localStorage.getItem('trustIpCount')
-        const isOpenIpCheck = localStorage.getItem('isOpenIpCheck')
-        const phoneTableData = localStorage.getItem('phoneTableData')
-        this.isOpenIpCheck = isOpenIpCheck ? isOpenIpCheck + '' : data.is_open_ip_check + ''
-        this.trustIpCount = trustIpCount || data.trust_ip_count
-        this.phoneTableData = phoneTableData ? phoneTableData.split(',') : data.phone_list
-        console.log('login', data)
+        const res = await this.$api.getUserInfo()
+        if (res.data.code === 200) {
+          const data = res.data.data
+          this.isOpenIpCheck = data.is_open_ip_check + ''
+          this.trustIpCount = data.trust_ip_count
+          this.phoneTableData = data.phone_list
+        } else {
+          this.$message.error(`获取用户信息失败${res.data.message}`)
+        }
+        console.log('login', res)
       } catch (error) {
         console.log(error)
       }
@@ -236,8 +238,6 @@ export default {
       const { data } = await this.$api.setIpCheck(params)
       if (data.code === 200) {
         this.$message.success(`保存成功`)
-        localStorage.setItem('isOpenIpCheck', this.isOpenIpCheck)
-        localStorage.setItem('trustIpCount', this.trustIpCount)
       } else {
         this.$message.error(`保存失败${data.message}`)
       }
@@ -299,7 +299,7 @@ export default {
               this.$message('手机号码格式有误')
               return
             }
-            if (this.phoneTableData.length >= 3) {
+            if (this.phoneTableData?.length >= 3) {
               this.$message('最多只能添加3个手机号码')
               return
             }
@@ -327,16 +327,7 @@ export default {
       if (data.code === 200) {
         if (params.action === 1) {
           this.phoneTableData.push(params.phone)
-          localStorage.setItem('phoneTableData', this.phoneTableData)
         } else {
-          const phoneTableData = localStorage.getItem('phoneTableData')
-          if (phoneTableData) {
-            let localPhoneTableData = phoneTableData.split(',')
-            localPhoneTableData = localPhoneTableData.filter(item => {
-              return item !== params.phone
-            })
-            localStorage.setItem('phoneTableData', localPhoneTableData)
-          }
           this.phoneTableData = this.phoneTableData.filter(item => {
             return item !== params.phone
           })

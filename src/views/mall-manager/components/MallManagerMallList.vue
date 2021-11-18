@@ -65,8 +65,7 @@
             <el-button type="primary" size="mini" @click="getMallList">查询</el-button>
             <el-button type="primary" size="mini" @click="openUpdateExpressdialog">批量修改物流方式</el-button>
             <el-button type="primary" size="mini" :disabled="!countryVal" @click="addressDialog = true">批量设置店铺地址</el-button>
-            <el-button type="primary" size="mini" @click="openPromise">开启</el-button>
-            <el-button type="primary" size="mini" @click="closePromise">关闭</el-button>
+
             <el-checkbox v-model="hideConsole">隐藏日志</el-checkbox>
             <li style="display: inline-block">
               <el-progress v-show="isShowProgress" style="width: 230px" :text-inside="true" :stroke-width="16" :percentage="percentage" status="success" />
@@ -78,46 +77,54 @@
     </el-row>
     <el-row id="article">
       <!-- @table-body-scroll="tableScroll" -->
-      <el-table
+      <u-table
         ref="plTable"
         v-loading="buttonStatus.mallList"
-        height="calc(100vh - 245px)"
-        :data="mallListTemp"
+        :max-height="Height"
+        use-virtual
+        :data-changes-scroll-top="false"
         :header-cell-style="{
           backgroundColor: '#f5f7fa',
         }"
+        row-key="id"
+        :big-data-checkbox="true"
         :row-style="{
           color: 'black',
           height: '50px',
         }"
+        :border="false"
         @selection-change="handleSelectionChange"
       >
-        <el-table-column align="center" type="selection" width="50" />
-        <el-table-column align="center" type="index" label="序号" />
-        <el-table-column align="center" prop="group_name" label="分组" />
-        <el-table-column align="center" prop="" label="站点">
+        <u-table-column align="center" type="selection" width="50" />
+        <u-table-column align="center" type="index" label="序号">
+          <template v-slot="{ $index }">
+            {{ (currentPage - 1) * pageSize + $index + 1 }}
+          </template>
+        </u-table-column>
+        <u-table-column align="center" prop="group_name" label="分组" />
+        <u-table-column align="center" prop="" label="站点">
           <template v-slot="{ row }">
             {{ row.country | chineseSite }}
           </template>
-        </el-table-column>
+        </u-table-column>
 
-        <el-table-column align="center" prop="mall_account_info" label="店铺真实名称">
+        <u-table-column align="center" prop="mall_account_info" label="店铺真实名称">
           <template v-slot="{ row }">
             {{ row.mall_account_info.userRealName || row.platform_mall_name }}
           </template>
-        </el-table-column>
-        <el-table-column align="center" prop="platform_mall_id" label="店铺ID" />
-        <el-table-column align="center" prop="good_mall_status" label="是否优质店铺">
+        </u-table-column>
+        <u-table-column align="center" prop="platform_mall_id" label="店铺ID" />
+        <u-table-column align="center" prop="good_mall_status" label="是否优质店铺">
           <template v-slot="{ row }">
             {{ row.good_mall_status === '-1' ? '否' : '是' }}
           </template>
-        </el-table-column>
-        <el-table-column align="center" prop="platform_mall_name" label="店铺账号">
+        </u-table-column>
+        <u-table-column align="center" prop="platform_mall_name" label="店铺账号">
           <template v-slot="{ row }">
             {{ row.mall_account_info.username }}
           </template>
-        </el-table-column>
-        <el-table-column align="center" prop="watermark" label="店铺水印文字">
+        </u-table-column>
+        <u-table-column align="center" prop="watermark" label="店铺水印文字">
           <template v-slot="{ row }">
             <el-input
               v-if="row.isCheckedWaterMark"
@@ -135,9 +142,9 @@
               <el-input v-model="row.watermark" :disabled="!row.isCheckedWaterMark" size="mini" type="textarea" resize="none" :autosize="{ minRows: 2, maxRows: 2 }" />
             </span>
           </template>
-        </el-table-column>
-        <el-table-column align="center" prop="item_limit" label="店铺额度" />
-        <el-table-column align="center" prop="mall_alias_name" label="店铺别名">
+        </u-table-column>
+        <u-table-column align="center" prop="item_limit" label="店铺额度" />
+        <u-table-column align="center" prop="mall_alias_name" label="店铺别名">
           <template v-slot="{ row }">
             <el-input
               v-if="row.isCheckedWaterMark2"
@@ -155,20 +162,34 @@
               <el-input v-model="row.mall_alias_name" :disabled="!row.isCheckedWaterMark2" size="mini" type="textarea" resize="none" :autosize="{ minRows: 2, maxRows: 2 }" />
             </span>
           </template>
-        </el-table-column>
-        <el-table-column align="center" prop="web_login_info" label="登录状态" show-overflow-tooltip="">
+        </u-table-column>
+        <u-table-column align="center" prop="web_login_info" label="登录状态" show-overflow-tooltip="">
           <template v-slot="{ row }">
             <span v-html="row.LoginInfo" />
+            <span class="copyIcon" @click="copy(row.LoginInfo)"><i class="el-icon-document-copy" /></span>
           </template>
-        </el-table-column>
-        <el-table-column align="center" prop="mall_status" label="店铺状态">
+        </u-table-column>
+        <u-table-column align="center" prop="mall_status" label="店铺状态">
           <template v-slot="{ row }">
             {{ mallStatusObj[row.mall_status] }}
           </template>
-        </el-table-column>
-        <el-table-column align="center" prop="created_at" label="授权日期" min-width="120px" />
-      </el-table>
+        </u-table-column>
+        <u-table-column align="center" prop="created_at" label="授权日期" min-width="120px" />
+      </u-table>
+      <div class="pagination">
+        <el-pagination
+          background
+          layout="total, sizes, prev, pager, next"
+          :total="total"
+          :current-page="currentPage"
+          :page-sizes="[200, 500]"
+          :page-size="pageSize"
+          @size-change="handleSizeChange"
+          @current-change="handleCurrentChange"
+        />
+      </div>
     </el-row>
+
     <!-- 修改店铺水印弹框 -->
     <el-dialog
       class="water-dialog"
@@ -210,7 +231,7 @@
           <el-upload ref="importRef" accept=".xls, .xlsx" action="https://jsonplaceholder.typicode.com/posts/" :on-change="importTemplateEvent" :show-file-list="false" :auto-upload="false">
             <el-button :data="importTemplateData" size="mini" type="primary" style="margin-right: 10px"> 批量导入 </el-button>
           </el-upload>
-          <el-button type="primary" size="mini" :loading="!isStop" :disabled="!buttonStatus.login" @click="isStop = true">取消导入</el-button>
+          <el-button type="primary" size="mini" :disabled="!buttonStatus.login" @click="isStop = true">取消导入</el-button>
           <el-button type="primary" size="mini" @click="downloadTemplate">下载模板</el-button>
         </div>
         <div class="container-dialog">
@@ -413,10 +434,10 @@
           </el-radio-group>
         </li>
         <el-upload v-if="imageOrigin === '2'" class="avatar-uploader" :show-file-list="false" action="" :on-error="imgSaveToUrl2" :before-upload="beforeAvatarUpload2">
-          <img v-if="imageUrl" :src="imageUrl" class="avatar" style="width: 460px; height: 450px" />
+          <img v-if="imageUrl" :src="imageUrl" class="avatar" style="width: 460px; height: 450px">
           <i v-else class="el-icon-plus avatar-uploader-icon" />
         </el-upload>
-        <img v-else :src="imageUrl" style="width: 460px; height: 450px" />
+        <img v-else :src="imageUrl" style="width: 460px; height: 450px">
       </ul>
       <span slot="footer" class="dialog-footer">
         <el-button type="primary" size="mini" @click="BatchUpdateMallBk">确 定</el-button>
@@ -526,9 +547,9 @@
           </div>
           <div class="dialog_item">
             <el-checkbox v-model="addressQuery.default" style="margin: 5px 0" label="设为默认地址" />
-            <br />
+            <br>
             <el-checkbox v-model="addressQuery.take" style="margin: 5px 0" label="设为取件地址" />
-            <br />
+            <br>
             <el-checkbox v-model="addressQuery.backMail" style="margin: 5px 0" label="设为回邮地址" />
           </div>
           <div class="dialog_item">
@@ -553,16 +574,18 @@
         <li>
           <p class="li_1_lf" style="">当前账号：{{ phoneInfo_accountName }}</p>
           <div class="li_1_rt">
-            <el-button type="primary" size="mini">中断操作</el-button>
+            <span class="copyIcon" @click="copy(phoneInfo_accountName)"><i class="el-icon-document-copy" /></span>
+            <el-button type="primary" size="mini" @click="stopOperation">中断操作</el-button>
           </div>
         </li>
         <li>
-          <el-input v-model="phoneInfo_message_code" placeholder="请输入手机验证码" />
+          <el-input v-model.trim="phoneInfo_message_code" placeholder="请输入手机验证码" oninput="value=value.replace(/[^\d]/g,'')" />
         </li>
       </ul>
       <span slot="footer" class="dialog-footer">
         <el-button type="primary" size="mini" @click="closePhoneCodeDialog">确 定</el-button>
-        <el-button size="mini">重新发送短信验证码</el-button>
+        <el-button size="mini" style="width: 140px" :disabled="sendMessageStaus" @click="sendMessage">{{ sendMessageText }}</el-button>
+        <!--  重新发送短信验证码 -->
       </span>
     </el-dialog>
   </el-row>
@@ -577,6 +600,7 @@ import xlsx from 'xlsx'
 export default {
   data() {
     return {
+      Height: 580,
       LogisticsList: {},
       activeNames: [],
       height: 300,
@@ -685,13 +709,23 @@ export default {
         backMail: false,
         mask: '0'
       },
-      obj: null,
+      pauseTask: null,
       timeId: null,
       phoneCodeVisiable: false,
       phoneInfo_accountName: '',
       phoneInfo_message_code: '',
+      sendMessageStaus: false,
+      sendMessageText: '重新发送短信验证码',
+      sendMessageCurrent: null, // 需要发送短信目标店铺信息
+      sendMessageHeader: null, // 短信重要信息
+      setInterId: null,
       needIvsInfo: null, // 存放ivs验证
-      needCaptchaInfo: null // 存放图形验证码
+      needCaptchaInfo: null, // 存放图形验证码
+
+      // 分页
+      total: 0,
+      currentPage: 1,
+      pageSize: 200
     }
   },
   computed: {},
@@ -749,15 +783,15 @@ export default {
   mounted() {
     try {
       this.$IpcMain.on('needIvs', e => { // 点听
-        console.log('needIvs-e', typeof e)
+        console.log('needIvs-e', e)
         if (e) {
-          this.needIvsInfo = JSON.parse(e)
+          this.needIvsInfo = e
         }
       })
       this.$IpcMain.on('needCaptcha', e => { // 监听图形验证码
-        console.log('needCaptcha-e', typeof e)
+        console.log('needCaptcha-e2', e)
         if (e) {
-          this.needCaptchaInfo = JSON.parse(e)
+          this.needCaptchaInfo = e
         }
       })
     } catch (error) {
@@ -765,12 +799,31 @@ export default {
     }
   },
   methods: {
+    handleSizeChange(val) {
+      console.log(`每页 ${val} 条`)
+      this.pageSize = val
+      this.currentPage = 1
+      this.getMallList()
+    },
+    handleCurrentChange(val) {
+      console.log(`当前页: ${val}`)
+      this.currentPage = val
+      this.getMallList()
+    },
     closePhoneCodeDialog() {
-      const message_code = this.phoneInfo_message_code.trim()
-      if (!message_code) {
+      if (!this.phoneInfo_message_code) {
         return this.$message.error('请输入手机验证码')
       }
       this.phoneCodeVisiable = false
+      this.closePromise()
+    },
+    stopOperation() {
+      // 中断操作
+      // 1、打开暂停操作
+      this.isStop = true //
+      // 2、关闭弹框
+      this.phoneCodeVisiable = false
+      // 3、关闭断点
       this.closePromise()
     },
     // 传入一个正在执行的promise
@@ -790,16 +843,41 @@ export default {
           console.log('1234')
         }, time)
       })
-      this.obj = this.getPromiseWithAbort(promise)
-      await this.obj.promise
+      this.pauseTask = this.getPromiseWithAbort(promise)
+      await this.pauseTask.promise
+    },
+    async sendMessage() {
+      let seconds = 60
+      this.sendMessageStaus = true
+      this.sendMessageText = seconds + 's'
+      this.setInterId = setInterval(() => {
+        seconds--
+        this.sendMessageText = seconds + 's'
+        if (seconds === 0) {
+          this.sendMessageStaus = false
+          this.setInterId && clearInterval(this.setInterId)
+          this.setInterId = null
+          this.sendMessageStaus = false
+          this.sendMessageText = '重新发送短信验证码'
+        }
+      }, 1000)
+      const res = await this.mallListAPIInstance.sendMessage(this.sendMessageCurrent, this.sendMessageHeader)
+      if (res.code !== 200) {
+        return this.$message.error(`短信发送失败:${res.code} ${res.data}`)
+      }
+      this.$message.success('短信发送成功,请注意接收')
     },
     closePromise() {
-      if (this.obj) {
-        this.obj.abort('取消执行')
+        this.pauseTask?.abort('取消执行')
         this.timeId && clearTimeout(this.timeId)
         this.timeId = null
-      }
+        this.pauseTask = null
+        this.setInterId && clearInterval(this.setInterId)
+        this.setInterId = null
+        this.sendMessageStaus = false
+        this.sendMessageText = '重新发送短信验证码'
     },
+
     // tableScroll({ scrollTop, scrollLeft, table, judgeFlse }) {
     //   // {scrollTop， scrollLeft, table, judgeFlse: 这个参数返回一个boolean值，为true则代表表格滚动到了底部了，false没有滚动到底部，必须开起大数据渲染模式才能有值哦}, event
     //   console.log(scrollTop, scrollLeft, table, judgeFlse)
@@ -910,14 +988,15 @@ export default {
       this.multipleSelection.forEach(item => {
         if (item.country === param.country) {
           console.log(item)
-          data.push(Object.assign(param, { mallId: item.platform_mall_id, platform_mall_name: item.platform_mall_name, mall_alias_name: item.mall_alias_name }))
+          data.push(Object.assign(JSON.parse(JSON.stringify(param)), { mallId: item.platform_mall_id, platform_mall_name: item.platform_mall_name, mall_alias_name: item.mall_alias_name }))
         }
       })
       batchOperation(data, this.setAddresses)
     },
     async setAddresses(item, count = { count: 1 }) {
+      console.log(item)
+      const name = item.mall_alias_name || item.platform_mall_name || ''
       try {
-        const name = item.mall_alias_name || item.platform_mall_name
         delete item.mall_alias_name
         delete item.platform_mall_name
         const option = { headers: { 'Content-Type': 'application/json;charset=UTF-8', 'Accept': 'application/json, text/plain, */*' }}
@@ -927,8 +1006,9 @@ export default {
         console.log('addAddressRes', addAddressRes)
         if (addAddressRes.status >= 200 && addAddressRes.status < 300) {
           const addAddressData = JSON.parse(addAddressRes.data)
+          const success = addAddressData.code === 0
           address_id = addAddressData.data.address_id
-          this.$refs.Logs.writeLog(`店铺【${name}】添加地址成功`, true)
+          this.$refs.Logs.writeLog(`店铺【${name}】添加地址${success && '成功' || '失败'}`, success)
         } else if (addAddressRes.status === 403) {
           this.$refs.Logs.writeLog(`店铺【${name}】尚未登陆无法设置地址`, false)
           return
@@ -941,12 +1021,13 @@ export default {
             mallId: item.mallId,
             address_id: address_id
           }
-          const defaultAddressJson = await this.$shopeemanService.setDefaultAddress(item.country, param)
+          const defaultAddressJson = await this.$shopeemanService.setDefaultAddress(item.country, param, option)
           const defaultAddressRes = JSON.parse(defaultAddressJson)
           console.log('defaultAddressRes', defaultAddressRes)
           if (defaultAddressRes.status >= 200 && defaultAddressRes.status < 300) {
             const defaultAddressData = JSON.parse(defaultAddressRes.data)
-            this.$refs.Logs.writeLog(`店铺【${name}】默认地址设置成功`, true)
+            const success = defaultAddressData.code === 0
+            this.$refs.Logs.writeLog(`店铺【${name}】默认地址设置${success && '成功' || '失败'}`, success)
           } else {
             this.$refs.Logs.writeLog(`店铺【${name}】默认地址设置失败`, false)
           }
@@ -962,13 +1043,14 @@ export default {
           if (this.addressQuery.backMail) {
             param['return_address_id'] = address_id
           }
-          const shopAddressJson = await this.$shopeemanService.setShopAddress(item.country, param)
+          const shopAddressJson = await this.$shopeemanService.setShopAddress(item.country, param, option)
           const shopAddressRes = JSON.parse(shopAddressJson)
           console.log('shopAddressRes', shopAddressRes)
           if (shopAddressRes.status >= 200 && shopAddressRes.status < 300) {
             const shopAddressData = JSON.parse(shopAddressRes.data)
+            const success = shopAddressData.code === 0
             this.$refs.Logs.writeLog(`店铺【${name}】
-            ${this.addressQuery.take && '取件地址'}${this.addressQuery.backMail && '取件地址'}设置成功`, true)
+            ${this.addressQuery.take && '取件地址'}${this.addressQuery.backMail && '取件地址'}设置${success && '成功' || '失败'}`, success)
           } else {
             this.$refs.Logs.writeLog(`店铺【${name}】
             ${this.addressQuery.take && '取件地址'}${this.addressQuery.backMail && '取件地址'}设置失败`, false)
@@ -1490,7 +1572,8 @@ export default {
       let successNum = 0
       for (let i = 0; i < len; i++) {
         if (this.isStop) {
-          this.writeLog('取消导入', false)
+          // this.writeLog('取消导入', false)
+          this.buttonStatus.login = false
           break
         }
         const item = selectMall[i]
@@ -1509,15 +1592,15 @@ export default {
           }
         }
         if (this.isStop) {
-          this.writeLog('取消导入', false)
+          // this.writeLog('取消导入', false)
+          this.buttonStatus.login = false
           break
         }
         // 2、shopeeMan官方登录
         let res = await this.$shopeemanService.login(item, flat)
         if (res.code !== 200) {
-          flat === 1 ? (item.LoginInfo = `<p style="color: red">登录失败：${res.data}</p>`) : this.writeLog(`(${i + 1}/${len})账号【${platform_mall_name}】授权失败：${res.data}`, false)
+          flat === 1 ? (item.LoginInfo = `<p style="color: red">登录失败：${res.data.message}</p>`) : this.writeLog(`(${i + 1}/${len})账号【${platform_mall_name}】授权失败：${res.data.message}`, false)
           const handleResult = await this.handleReturnLogin(item, res, flat)
-          // debugger
           if (handleResult.code === 200) { // 3、处理登录弹框
             res = handleResult
           } else {
@@ -1526,7 +1609,6 @@ export default {
             continue
           }
         }
-        // debugger
         const mallId = res.data.mallId // 平台店铺ID
         const mallUId = res.data.mallUId // 平台卖家ID
         let mallDataInfo = null
@@ -1595,7 +1677,8 @@ export default {
         flat === 1 ? (item.LoginInfo = '<p style="color: green">登录成功</p>') : this.writeLog(`(${i + 1}/${len})账号【${platform_mall_name}】授权成功`, true)
         item.loginStatus = 'success'
         if (this.isStop) {
-          this.writeLog('取消导入', false)
+          // this.writeLog('取消导入', false)
+          this.buttonStatus.login = false
           break
         }
       }
@@ -1605,30 +1688,71 @@ export default {
       this.buttonStatus.login = false
     },
     async handleReturnLogin(mallInfo, result, flat) {
-      // debugger
       let code = result.code
-      let message = result.data
-      const platform_mall_id = mallInfo.platform_mall_id + ''
-      this.phoneInfo_accountName = mallInfo.platform_mall_name
+      let message = result.data.message
+      const returnData = result.data.data
+      const mallId = mallInfo.platform_mall_id + ''
+      this.phoneInfo_accountName = mallInfo.mall_account_info.username
+      // this.needIvsInfo = testData
       try {
         if (code === 'error_need_ivs') { // 需要进行IVS验证 调LoginNeedPopUps 服务弹框
-          // const loginInfo = await window.BaseUtilBridgeService.loginNeedPopUps('needIvs', JSON.stringify({ 'loginType': 'login', 'isOpenAuthMallProxy': 'true', 'mallId': platform_mall_id }))
-          console.log('this.needIvsInfo', this.needIvsInfo)
+          await window.BaseUtilBridgeService.loginNeedPopUps('needIvs', JSON.stringify({ 'loginType': 'login', 'isOpenAuthMallProxy': 'true', 'mallId': mallId }))
+          if (this.needIvsInfo?.code === 200) {
+            // console.log('this.needIvsInfo', this.needIvsInfo)
+            const mallCookieInfos = this.needIvsInfo.mallCookieInfos
+            const SPC_EC = mallCookieInfos.find(item => item.Name === 'SPC_EC')
+            const SPC_SC_TK = mallCookieInfos.find(item => item.Name === 'SPC_SC_TK')
+            const SPC_F = mallCookieInfos.find(item => item.Name === 'SPC_F')
+            const SPC_STK = mallCookieInfos.find(item => item.Name === 'SPC_STK')
+            // 1、拿到cookie信息更新壳内 SPC_EC 、SPC_SC_TK 、SPC_F、SPC_STK 其它cookie信息存入OtherCookieInfo中）
+            let mallDataInfo = await this.$appConfig.getGlobalCacheInfo('mallInfo', mallId)
+            let cookieObj = {}
+            mallDataInfo = JSON.parse(mallDataInfo)
+            mallDataInfo.web_login_info['SPC_EC'] = SPC_EC.Value
+            mallDataInfo.web_login_info['SPC_SC_TK'] = SPC_SC_TK.Value
+            mallDataInfo.web_login_info['SPC_F'] = SPC_F.Value
+            mallDataInfo.web_login_info['spc_f'] = SPC_F.Value
+            mallDataInfo.web_login_info['SPC_STK'] = SPC_STK.Value
+            mallCookieInfos.map(item => {
+              cookieObj[item.Name] = item.Value
+            })
+            mallDataInfo.web_login_info['OtherCookieInfo'] = JSON.stringify(cookieObj)
+            cookieObj = null
+            await this.$appConfig.updateInfoMall(mallId, JSON.stringify(mallDataInfo)) // 更新里面店铺的cookie （壳）
+            mallDataInfo = null
+            // 2、更新cookie信息后，在调用登录接口： /api/v2/login/   get方法  无参 获取到接口响应头部cookie  再次更新cookie信息即可
+            const loginInfo2 = await this.$shopeemanService.getLogin(mallInfo)
+            if (loginInfo2 === 200) {
+              code = loginInfo2.code
+              message = loginInfo2.data
+            }
+            this.needIvsInfo = null
+          }
+          this.needIvsInfo?.code?.isBreakLogin === true ? this.isStop = true : '' // 用户是否中断操作
         } else if (code === 'error_require_captcha') { // 需要图片或者滑块验证 调LoginNeedPopUps 服务弹框
-          await window.BaseUtilBridgeService.loginNeedPopUps('needCaptcha', JSON.stringify({ 'mallId': platform_mall_id }))
+          await window.BaseUtilBridgeService.loginNeedPopUps('needCaptcha', JSON.stringify({ 'mallId': mallId }))
           if (this.needCaptchaInfo?.code === 200) {
             const sortData = this.mallListAPIInstance.sortMallData(mallInfo, this.needCaptchaInfo.data)
+            this.needCaptchaInfo = null
             return { code: 200, data: sortData }
           }
         } else if (code === 'error_need_otp') { // 输入手机验证码即可
           // 1、打开弹框，让用户输入验证码
           this.phoneCodeVisiable = true
-          // 2、打开中断
+          // 2、记录当前店铺信息
+          this.sendMessageCurrent = mallInfo
+          // 3、存储短信头信息
+          this.sendMessageHeader = JSON.parse(returnData)?.data
+          // 4、打开中断
           await this.openPromise()
-          // 3、走登录接口
-          const error_need_otp_info = await this.$shopeemanService.login(mallInfo, flat, { vcode: this.phoneInfo_message_code }) // 返回数据结构要和外面的统一
-          code = error_need_otp_info.code
-          message = error_need_otp_info.data
+          // 5、走登录接口
+          if (this.phoneInfo_message_code) { // 如果验证码存在
+            const error_need_otp_info = await this.$shopeemanService.login(mallInfo, flat, { vcode: this.phoneInfo_message_code }) // 返回数据结构要和外面的统一
+            if (error_need_otp_info.code === 200) {
+              code = error_need_otp_info.code
+              message = error_need_otp_info.data
+            }
+          }
         }
         return { code, data: message }
       } catch (error) {
@@ -1638,8 +1762,8 @@ export default {
     // 获取浏览器识别码数据
     async getMallCodeData() {
       this.isLoading = true
-      for (let index = 0; index < this.mallListTemp.length; index++) {
-        const element = this.mallListTemp[index]
+      for (let index = 0; index < this.mallList.length; index++) {
+        const element = this.mallList[index]
         const res = await this.$appConfig.getGlobalCacheInfo('mallInfo', element.platform_mall_id)
         const jsonData = JSON.parse(res)
         this.mallCodeAllData.push(jsonData)
@@ -1657,6 +1781,7 @@ export default {
     },
     // 单个/批量更新浏览器识别码
     async updateCodeData(val, type) {
+      if (val?.length === 0) return this.$message('暂无数据上传')
       const codeData = []
       if (type === 1) {
         codeData.push(val)
@@ -1692,6 +1817,7 @@ export default {
     // 批量更新列表
     batchUpdateList() {
       if (!this.browserCodeVal) return this.$message('浏览器识别码不能为空')
+      if (this.mallCodeData?.length === 0) return this.$message('暂无数据更新')
       this.mallCodeData.map(item => {
         item.web_login_info.SPC_F = this.browserCodeVal
       })
@@ -1988,6 +2114,7 @@ export default {
       }
       this.importMallListData = importMallArr
       this.writeLog(`导入成功, 共【${this.importMallListData.length}】条数据`, true)
+      this.$message.success(`导入成功, 共【${this.importMallListData.length}】条数据`)
       this.importTemplateData = null
     },
     // 表格导入
@@ -2028,7 +2155,10 @@ export default {
       fileReader.readAsBinaryString(files[0])
     },
     async getMallList() {
-      const params = {}
+      const params = {
+        page: this.currentPage,
+        pageSize: this.pageSize
+      }
       if (this.buttonStatus.mallList) {
         return
       }
@@ -2042,12 +2172,15 @@ export default {
         this.$message.error(`获取店铺列表失败: ${res.data}`)
         return
       }
-      this.mallList = res.data
-      this.mallListTemp = this.mallList
+      this.mallList = res.data.mallArr
+      this.total = res.data.total
+      this.$refs.plTable.reloadData(this.mallList)
+      // this.mallListTemp = this.mallList
       this.buttonStatus.mallList = false
       this.$nextTick(() => {
-        this.$refs.plTable.clearSelection()
-        this.$refs.plTable.toggleAllSelection()
+        this.$refs.plTable.partRowSelections(this.mallList, true)
+        // this.$refs.plTable.clearSelection()
+        // this.$refs.plTable.toggleAllSelection()
       })
       this.getGroup()
       console.log('this.malllist', this.mallList)
@@ -2076,7 +2209,7 @@ export default {
     },
     handleClose6(done) {
       done()
-      this.reset3()
+      this.closePromise()
     },
     writeLog(msg, success, setcolor) {
       if (!msg) return
@@ -2106,6 +2239,26 @@ export default {
         }
       }
       return fmt
+    },
+    // 点击复制
+    copy(attr) {
+      const target = document.createElement('div')
+      target.id = 'tempTarget'
+      target.style.opacity = '0'
+      target.innerText = attr
+      document.body.appendChild(target)
+      try {
+        const range = document.createRange()
+        range.selectNode(target)
+        window.getSelection().removeAllRanges()
+        window.getSelection().addRange(range)
+        document.execCommand('copy')
+        window.getSelection().removeAllRanges()
+        this.$message.success('复制成功')
+      } catch (e) {
+        // console.log('复制失败')
+      }
+      target.parentElement.removeChild(target)
     }
   }
 }
