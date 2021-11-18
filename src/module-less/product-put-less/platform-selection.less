@@ -1,14 +1,14 @@
 .contaniner{
-  
+
   header {
     background: #ffffff;
     padding: 16px 16px 0 16px;
-    .keyword {
-      .keyword-container{
+    // overflow: auto;
+    // .keyword {
+    .keyword-container{
         overflow: auto;
         .keyword-banner-bar {
           display: flex;
-          min-width: 1200px;
           .barChilren {
             margin: 5px 10px 5px  10px;
             white-space: nowrap;
@@ -21,7 +21,7 @@
         .keyword-banner-content {
           padding: 5px 10px 5px  10px;
           display: flex;
-          min-width: 1200px;
+          // min-width: 1200px;
           .con-sub-1{ 
             .item{
               display:flex;
@@ -45,7 +45,6 @@
             }
           }
           .con-sub-3 {
-            width: 200px;
             .el-button {
               margin: 5px;
               width: 88px;
@@ -56,6 +55,7 @@
                 white-space: nowrap;
                 line-height: 28px;
                 margin: 0 5px 0 5px;
+                
               }
               .el-input {
                 width: 70px;
@@ -63,17 +63,20 @@
             }
           }
           .con-sub-4 {
-            width: 300px;
-            height: 180px;
+            margin-top: 12px;
+            min-width: 350px;
+            height: 156px;
             overflow: auto;
+            border: 1px solid #ccc;
           }
         }
       }
-    }
+    // }
     
   }
   article {
-
+    background: #ffffff;
+    padding: 16px;
   }
   .active{
     border: 1px solid rgb(253, 61, 55);
