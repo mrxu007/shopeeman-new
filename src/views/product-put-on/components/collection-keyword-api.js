@@ -7,100 +7,122 @@ class CollectKeyWordApI {
     this.commonAttr = null
     this.keywordAttr = null
     this.delayTime = 1000
+    this.GoodsData = null
   }
   _initKeyWord(platformId, commonAttr) { // 初始化过滤条件  平台ID、
     this.platformId = platformId // 关键词采集----平台ID
     this.commonAttr = commonAttr // // 关键词采集----公共参数
   }
-  keywordSearch(key) { // 采集关键字模块
-    // const StartPrice = this.commonAttr.StartPrice - 0
-    // const EndPrice = this.commonAttr.EndPrice - 0
-    // const StartSales = this.commonAttr.StartSales - 0
-    // const EndSales = this.commonAttr.EndSales - 0
-    return new Promise((resolve, reject) => {
-      let GoodsData = []
-      const len = key.length
-      const params = {}
-      key.map(async (item, index) => {
-        let StartPage = this.commonAttr.StartPage - 0
-        const EndPage = this.commonAttr.EndPage - 0
-        try {
-          while (StartPage) {
-            // 各个平台参数
-            switch (this.platformId) {
-              case 1: // 拼多多  1 拼多多接口、  1.1 拼多多补充接口、  1.2 拼多多优惠采集
-              case 1.2:
-                params['page'] = StartPage // 页码
-                break
-              case 2: // '淘宝'  3: '天猫',  天猫 === 淘宝
-                break
-              case 4: // '京东'
-                break
-              case 5: // '自有'
-                break
-              case 7: // '货源甲'
-                break
-              case 8: // '1688'
-                break
-              case 9: // 'Lazada'
-                break
-              case 10: // '京喜'
-                break
-              case 11: // '虾皮'
-                break
-              case 12: // '速卖通'
-                break
-              case 13: // '天猫淘宝海外平台'
-                break
-              case 15: // '货老板云仓
-                break
-            }
-
-            // 关键词
-            params['key'] = item
-
-            // 关键词请求
-            let res = await this._this.$collectService.querySpuByKeyworld(this.platformId, params)
-            res = JSON.parse(res)
-            if (res.Code !== 200) {
-              this.writeLog(`采集第${StartPage}页失败：${res.Code}-${res.Msg}`, false)
-            }
-            const len = res?.ListItem?.length
-            this.writeLog(`采集第${StartPage}页成功: ${len}条数据`, true)
-            if (!len) {
-              break
-            }
-
-            // 存放采集数据
-            GoodsData.push(...res.ListItem)
-
-            // 采集初始页大于总页码
-            if (StartPage >= EndPage) {
-              break
-            }
-            StartPage++
-          }
-        } catch (error) {
-          // console.log('keywordSearch-catch', error)
-          // return { code: -2, data: `keywordSearch-catch: ${error}` }
-          this.writeLog(`采集关键字模块第${StartPage}页-catch: ${error}`, false)
+  async keywordSearch(key) { // 采集关键字模块
+    this.GoodsData = null
+    this.GoodsData = []
+    let StartPage = this.commonAttr.StartPage - 0
+    const EndPage = this.commonAttr.EndPage - 0
+    const params = {}
+    params['key'] = key
+    try {
+      while (StartPage) {
+        switch (this.platformId) {
+          case 1: // 拼多多  1 拼多多接口、  1.1 拼多多补充接口、  1.2 拼多多优惠采集
+          case 1.2:
+            params['page'] = StartPage // 页码
+            break
+          case 2: // '淘宝'  3: '天猫',  天猫 === 淘宝
+            break
+          case 4: // '京东'
+            break
+          case 5: // '自有'
+            break
+          case 7: // '货源甲'
+            break
+          case 8: // '1688'
+            break
+          case 9: // 'Lazada'
+            break
+          case 10: // '京喜'
+            break
+          case 11: // '虾皮'
+            break
+          case 12: // '速卖通'
+            break
+          case 13: // '天猫淘宝海外平台'
+            break
+          case 15: // '货老板云仓
+            break
         }
-        if (this.platformId === 1) { // 如果当前平台为拼多多需额外调用 拼多多补充接口  1.1
-          this.writeLog(`采集补充数据`, true)
+        // 关键词请求
+        let res = await this._this.$collectService.querySpuByKeyworld(this.platformId, params)
+        res = JSON.parse(res)
+        if (res.Code !== 200) {
+          this.writeLog(`采集第${StartPage}页第一部分失败：${res.Code}-${res.Msg}`, false)
         }
-        // 判断当前采集作用域的最后一页
-        if (index === len - 1) {
-          // 处理所需参数
-          GoodsData = GoodsData.map((item, index) => {
-            item.id = index + 1
-            item.information = ''
-            return item
-          })
+        const len = res?.ListItem?.length
+        this.writeLog(`采集第${StartPage}页第一部分，采集到约${len}条`, true)
+        if (!len) {
+          break
+        }
 
-          resolve({ code: 200, data: GoodsData })
+        // 存放采集数据
+        this.GoodsData.push(...res.ListItem)
+
+        // 采集初始页大于总页码
+        if (StartPage >= EndPage) {
+          break
         }
-      })
+        StartPage++
+      }
+    } catch (error) {
+      this.writeLog(`采集第${StartPage}页第一部分，捕获错误${error}`, false)
+    }
+    // 处理所需参数
+    this.GoodsData = this.GoodsData.map((item, index) => {
+      item.id = index + 1
+      item.information = ''
+      return item
     })
+    return { code: 200, data: this.GoodsData }
+  }
+  async keywordSearchTwo(key) { // 采集关键字模块
+    this.GoodsData = null
+    this.GoodsData = []
+    let StartPage = this.commonAttr.StartPage - 0
+    const EndPage = this.commonAttr.EndPage - 0
+    const params = {}
+    params['key'] = key
+    // 如果当前平台为拼多多需额外调用 拼多多补充接口  1.1-------------------------
+    StartPage = this.commonAttr.StartPage - 0
+    try {
+      while (StartPage) {
+        params['page'] = StartPage // 页码
+        // 关键词请求
+        let res = await this._this.$collectService.querySpuByKeyworld(1.1, params)
+        res = JSON.parse(res)
+        if (res.Code !== 200) {
+          this.writeLog(`采集第${StartPage}页第二部分失败：${res.Code}-${res.Msg}`, false)
+        }
+        const len = res?.ListItem?.length
+        this.writeLog(`采集第${StartPage}页第二部分，采集到约${len}条`, true)
+        if (!len) {
+          break
+        }
+        // 存放采集数据
+        this.GoodsData.push(...res.ListItem)
+        // 采集初始页大于总页码
+        if (StartPage >= EndPage) {
+          break
+        }
+        StartPage++
+      }
+    } catch (error) {
+      this.writeLog(`采集第${StartPage}页第二部分，捕获错误${error}`, false)
+    }
+    // 处理所需参数
+    this.GoodsData = this.GoodsData.map((item, index) => {
+      item.id = index + 1
+      item.information = ''
+      return item
+    })
+    return { code: 200, data: this.GoodsData }
   }
   writeLog(msg, success = true) {
     if (this._this.consoleMsg === undefined) {
@@ -109,7 +131,7 @@ class CollectKeyWordApI {
     if (!msg) { return }
     const color = success ? 'green' : 'red'
     const time = this.dateFormat(new Date(Date.now()), 'hh:mm:ss')
-    this._this.consoleMsg = `<p style="color:${color}; margin-top: 5px;">${time}:${msg}</p>` + this._this.consoleMsg
+    this._this.consoleMsg += `<p style="color:${color}; margin-top: 5px;">${time}:${msg}</p>`
   }
   dateFormat(time, fmt) {
     var o = {

@@ -60,4 +60,4 @@ function getPlatform(platformIdArr) {
   })
   return platformArr
 }
-export default getPlatform
+export { getPlatform, platformObj }
