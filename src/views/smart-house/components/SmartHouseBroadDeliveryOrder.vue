@@ -840,46 +840,46 @@ export default {
     },
     // 导出数据
     async exportTableData() {
+      if (this.total === 0) return this.$message('暂无导出数据')
       this.isShowLoading = true
       const exportData = []
-      const len = this.total % this.pageSize === 0 ? this.total / this.pageSize : Math.floor(this.total / this.pageSize) + 1
-      for (let index = 0; index < len; index++) {
-        this.form.page = index + 1
-        this.form.pageSize = this.pageSize
-        const res = await this.BroadDeliveryOrder.getOutOfStockList(this.form)
+      let resData = []
+      const params = this.form
+      params.pageSize = this.pageSize
+      params.page = 1
+      while (resData.length < this.total) {
+        const res = await this.BroadDeliveryOrder.getOutOfStockList(params)
         if (res.code === 200) {
-          const resData = res.data.data
-          resData.forEach(item => {
-            item.sku_list.forEach(skuItem => {
-              const obj = {}
-              obj['country'] = item.country
-              obj['oversea_order_sn'] = item.oversea_order_sn
-              obj['logistic_no'] = item.logistic_no
-              obj['created_at'] = item.created_at
-              obj['deliver_time'] = item.deliver_time
-              obj['status'] = item.status
-              obj['sys_sku_id'] = skuItem.sys_sku_id
-              obj['sku_id'] = skuItem.sku_id
-              obj['goods_name'] = skuItem.goods_name
-              obj['sku_num'] = skuItem.sku_num
-              obj['sku_id'] = skuItem.sku_id
-              obj['goods_name'] = skuItem.goods_name
-              obj['sku_price'] = skuItem.sku_price
-              obj['sku_name'] = skuItem.sku_name
-              obj['sku_image'] = skuItem.sku_image
-              obj['sku_url'] = skuItem.sku_url
-              exportData.push(obj)
-            })
-          })
+          resData = resData.concat(res.data.data)
+          params.page++
         } else {
           this.$refs.Logs.writeLog('导出数据错误', res.data)
+          this.isShowLoading = false
+          break
         }
       }
-      if (!exportData?.length) {
-        this.isShowLoading = false
-        this.$message('暂无数据导出')
-        return
-      }
+      resData.forEach(item => {
+        item.sku_list.forEach(skuItem => {
+          const obj = {}
+          obj['country'] = item.country
+          obj['oversea_order_sn'] = item.oversea_order_sn
+          obj['logistic_no'] = item.logistic_no
+          obj['created_at'] = item.created_at
+          obj['deliver_time'] = item.deliver_time
+          obj['status'] = item.status
+          obj['sys_sku_id'] = skuItem.sys_sku_id
+          obj['sku_id'] = skuItem.sku_id
+          obj['goods_name'] = skuItem.goods_name
+          obj['sku_num'] = skuItem.sku_num
+          obj['sku_id'] = skuItem.sku_id
+          obj['goods_name'] = skuItem.goods_name
+          obj['sku_price'] = skuItem.sku_price
+          obj['sku_name'] = skuItem.sku_name
+          obj['sku_image'] = skuItem.sku_image
+          obj['sku_url'] = skuItem.sku_url
+          exportData.push(obj)
+        })
+      })
       let str = `<tr>
           <td>站点</td>
           <td>订单编号</td>

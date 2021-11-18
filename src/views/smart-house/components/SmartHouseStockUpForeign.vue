@@ -1999,54 +1999,54 @@ export default {
     },
     // 导出数据
     async exportTableData() {
+      if (this.total === 0) return this.$message('暂无导出数据')
       this.isShowLoading = true
       const exportData = []
-      const len = this.total % this.pageSize === 0 ? this.total / this.pageSize : Math.floor(this.total / this.pageSize) + 1
-      for (let index = 0; index < len; index++) {
-        this.form.page = index + 1
-        this.form.pageSize = this.pageSize
-        const res = await this.StrockUpForegin.getStockingForecastLists(this.form)
+      let resData = []
+      const params = this.form
+      params.pageSize = this.pageSize
+      params.page = 1
+      while (resData.length < this.total) {
+        const res = await this.StrockUpForegin.getStockingForecastLists(params)
         if (res.code === 200) {
-          const resData = res.data.data
-          resData.forEach(item => {
-            item.sku_list.forEach(skuItem => {
-              const obj = {}
-              obj['package_code'] = item.package_code
-              obj['forecast_code'] = item.forecast_code
-              obj['warehouse_name'] = item.warehouse_name
-              obj['oversea_warehouse_name'] = item.oversea_warehouse_name
-              obj['created_at'] = item.created_at
-              obj['sign_time'] = item.sign_time
-              obj['store_time'] = item.store_time
-              obj['status'] = item.status
-              obj['is_wainscot'] = item.is_wainscot
-              obj['is_checked'] = item.is_checked
-              obj['ship_type'] = item.ship_type
-              obj['is_verify'] = item.is_verify
-              obj['verify_remark'] = item.verify_remark
-              obj['remark'] = item.remark
-              obj['warehouse_remark'] = item.warehouse_remark
-              obj['skuStatus'] = skuItem.status
-              obj['sku_id'] = skuItem.sku_id
-              obj['sys_sku_id'] = skuItem.sku_id
-              obj['goods_name'] = skuItem.goods_name
-              obj['sku_num'] = skuItem.sku_num
-              obj['sku_price'] = skuItem.sku_price
-              obj['sku_name'] = skuItem.sku_name
-              obj['sku_image'] = skuItem.sku_image
-              obj['sku_url'] = skuItem.sku_url
-              exportData.push(obj)
-            })
-          })
+          resData = resData.concat(res.data.data)
+          params.page++
         } else {
           this.$refs.Logs.writeLog('导出数据错误', res.data)
+          this.isShowLoading = false
+          break
         }
       }
-      if (!exportData?.length) {
-        this.isShowLoading = false
-        this.$message('暂无数据导出')
-        return
-      }
+      resData.forEach(item => {
+        item.sku_list.forEach(skuItem => {
+          const obj = {}
+          obj['package_code'] = item.package_code
+          obj['forecast_code'] = item.forecast_code
+          obj['warehouse_name'] = item.warehouse_name
+          obj['oversea_warehouse_name'] = item.oversea_warehouse_name
+          obj['created_at'] = item.created_at
+          obj['sign_time'] = item.sign_time
+          obj['store_time'] = item.store_time
+          obj['status'] = item.status
+          obj['is_wainscot'] = item.is_wainscot
+          obj['is_checked'] = item.is_checked
+          obj['ship_type'] = item.ship_type
+          obj['is_verify'] = item.is_verify
+          obj['verify_remark'] = item.verify_remark
+          obj['remark'] = item.remark
+          obj['warehouse_remark'] = item.warehouse_remark
+          obj['skuStatus'] = skuItem.status
+          obj['sku_id'] = skuItem.sku_id
+          obj['sys_sku_id'] = skuItem.sku_id
+          obj['goods_name'] = skuItem.goods_name
+          obj['sku_num'] = skuItem.sku_num
+          obj['sku_price'] = skuItem.sku_price
+          obj['sku_name'] = skuItem.sku_name
+          obj['sku_image'] = skuItem.sku_image
+          obj['sku_url'] = skuItem.sku_url
+          exportData.push(obj)
+        })
+      })
       let str = `<tr>
           <td>预报物流单号</td>
           <td>海外仓单号</td>

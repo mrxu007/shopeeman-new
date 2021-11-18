@@ -1627,43 +1627,43 @@ export default {
     },
     // 导出数据
     async exportTableData() {
+      if (this.total === 0) return this.$message('暂无导出数据')
       this.isShowLoading = true
       const exportData = []
-      const len = this.total % this.pageSize === 0 ? this.total / this.pageSize : Math.floor(this.total / this.pageSize) + 1
-      for (let index = 0; index < len; index++) {
-        this.form.page = index + 1
-        this.form.pageSize = this.pageSize
-        const res = await this.StrockUpHome.getHomeWarehouse(this.form)
+      let resData = []
+      const params = this.form
+      params.pageSize = this.pageSize
+      params.page = 1
+      while (resData.length < this.total) {
+        const res = await this.StrockUpHome.getHomeWarehouse(params)
         if (res.code === 200) {
-          const resData = res.data.data
-          resData.forEach(item => {
-            item.home_stocking_forecast_sub.forEach(skuItem => {
-              const obj = {}
-              obj['package_code'] = item.package_code
-              obj['purchase_order_sn'] = item.purchase_order_sn
-              obj['wid'] = item.wid
-              obj['created_at'] = item.created_at
-              obj['purchase_num'] = skuItem.purchase_num
-              obj['sign_num'] = skuItem.sign_num
-              obj['remark'] = item.remark
-              obj['status'] = skuItem.status
-              obj['sku_id'] = skuItem.sku_id
-              obj['goods_name'] = skuItem.goods_name
-              obj['sku_spec'] = skuItem.sku_spec
-              obj['sku_image'] = skuItem.sku_image
-              obj['goods_url'] = skuItem.goods_url
-              exportData.push(obj)
-            })
-          })
+          resData = resData.concat(res.data.data)
+          params.page++
         } else {
           this.$refs.Logs.writeLog('导出数据错误', res.data)
+          this.isShowLoading = false
+          break
         }
       }
-      if (!exportData?.length) {
-        this.isShowLoading = false
-        this.$message('暂无数据导出')
-        return
-      }
+      resData.forEach(item => {
+        item.home_stocking_forecast_sub.forEach(skuItem => {
+          const obj = {}
+          obj['package_code'] = item.package_code
+          obj['purchase_order_sn'] = item.purchase_order_sn
+          obj['wid'] = item.wid
+          obj['created_at'] = item.created_at
+          obj['purchase_num'] = skuItem.purchase_num
+          obj['sign_num'] = skuItem.sign_num
+          obj['remark'] = item.remark
+          obj['status'] = skuItem.status
+          obj['sku_id'] = skuItem.sku_id
+          obj['goods_name'] = skuItem.goods_name
+          obj['sku_spec'] = skuItem.sku_spec
+          obj['sku_image'] = skuItem.sku_image
+          obj['goods_url'] = skuItem.goods_url
+          exportData.push(obj)
+        })
+      })
       let str = `<tr>
           <td>预报物流单号</td>
           <td>采购单号</td>
