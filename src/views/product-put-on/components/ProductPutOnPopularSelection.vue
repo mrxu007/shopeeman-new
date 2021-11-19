@@ -61,6 +61,9 @@
       </div>
       <el-button size="mini" style="margin-bottom: 10px" type="primary" @click="searchShopeeHotGoods">查询</el-button>
       <el-button size="mini" style="margin-bottom: 10px" @click="exportData">导出</el-button>
+      <el-button size="mini" style="margin-bottom: 10px" type="primary" @click="fasterToken">一键采集商品</el-button>
+      <el-button size="mini" style="margin-bottom: 10px" type="primary" @click="watchDBData">查看电霸数据</el-button>
+
     </div>
     <div class="content">
       <el-table
@@ -137,17 +140,17 @@
     </div>
   </div>
 </template>
-
 <script>
 import CategoryChoose from '../../../components/category-choose.vue'
 import { exportExcelDataCommon, dateFormat } from '../../../util/util'
-
+import PopularSelectionApi from '../../../module-api/smart-house-api/popularSelection'
 export default {
   components: {
     CategoryChoose
   },
   data() {
     return {
+      popularSelectionApiInstance: new PopularSelectionApi(this),
       tableData: [],
       country: '',
       platformId: 0,
@@ -201,6 +204,33 @@ export default {
   mounted() {
   },
   methods: {
+    // 一键采集
+    fasterToken() {
+      this.$router.push({
+        path: '/payment',
+        query: {
+          tit: index,
+          price: this.cost[index].price,
+          sid: sid
+        }
+      })
+    },
+    // 查看电霸数据
+    async watchDBData() {
+      const userInfo = await this.$appConfig.getUserInfo()
+      console.log('userinfo', userInfo)
+      const params = {
+        uid: userInfo.muid,
+        phone: userInfo.phone_list[0],
+        platform: 'shopee',
+        time: Date.parse(new Date()).toString().substr(0, 10),
+        appKey: 'dbyEOmrAqF7unG2Mxj5L',
+        appSecret: 'umzrnpsQhLvFiYXKXLFXHoYlf7ryvKAg'
+      }
+      const res = await this.popularSelectionApiInstance.tokenDianBdata(params)
+
+      // window.location.href = `http://open.dianba6.com/?uid=${params.uid}&mobile=${params.phone}&platform=${params.platform}&time=${params.time}&invite_code=WrmSR3&version=1.0&sign=${params.sign}&app_key=${params.appKey}`
+    },
     setCategory(select) {
       this.country = select.country
       this.platformId = select.platformId
