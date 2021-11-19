@@ -15,6 +15,10 @@ export default class NetMessageBridgeService {
   async getUrlPrefix(country) {
     const response = await window['ConfigBridgeService'].getUserConfig()
     const data = JSON.parse(response)
+
+    //     auto 1、auto  2、mallinfo.MallMainId  3、IPType  包含 大陆   或者  ‘1’
+    // local 国内
+    // Abroad 本土
     const dominType = data.SwitchDominTypeSetting === 'Local'
     return dominType && this.site_domain_chinese_bk[country] || this.site_domain_local_bk[country]
   }
@@ -678,10 +682,10 @@ export default class NetMessageBridgeService {
     return this.postChinese(country, '/api/v3/settings/set_shop_address', data, option)
   }
 
-  //-----------------一键上新--------------------//
-  //创建活动
-  discount(country, data, option){
-    return this.postChinese(country,'/api/marketing/v3/discount/',data,option)
+  // -----------------一键上新--------------------//
+  // 创建活动
+  discount(country, data, option) {
+    return this.postChinese(country, '/api/marketing/v3/discount/', data, option)
   }
 }
 
