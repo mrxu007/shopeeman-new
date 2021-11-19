@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-11-16 20:01:09
- * @LastEditTime: 2021-11-19 18:23:38
+ * @LastEditTime: 2021-11-19 18:42:30
  * @LastEditors: Please set LastEditors
  * @Description: 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  * @FilePath: \shopeeman-new\src\views\order-manager\components\orderCenter\SelfGoodsStore.vue
@@ -24,13 +24,18 @@
         />
       </div>
       <div class="item-box">
-        <span style="width: 60px">站点：</span>
-        <el-select v-model="countryVal" size="mini" filterable>
-          <el-option label="全部" value="''" />
-          <el-option v-for="(item, index) in countries" :key="index" :label="item.label" :value="item.value" />
-        </el-select>
+        <span style="width: 60px">商品名称:</span>
+        <el-input v-model="goodsName" size="mini" clearable class="inputBox" />
       </div>
-      <el-button type="primary" size="mini" @click="searchTableList">搜 索</el-button>
+       <div class="item-box">
+        <span style="width: 60px">商品编码:</span>
+        <el-input v-model="goodsCode" size="mini" clearable class="inputBox" />
+      </div>
+       <div class="item-box">
+        <span style="width: 60px">SKU编码:</span>
+        <el-input v-model="skuCode" size="mini" clearable class="inputBox" />
+      </div>
+      <el-button type="primary" size="mini" >搜 索</el-button>
     </div>
     <el-table ref="multipleTable" :data="tableData" tooltip-effect="dark" max-height="500">
       <el-table-column align="center" type="index" label="序号" width="50">
@@ -82,7 +87,7 @@
 <script>
 import { creatDate } from '../../../../util/util'
 export default {
-  name: 'SelfGoodsStore',
+  name: 'ProductGoodsStore',
   data() {
     return {
       pickerOptions: {
@@ -94,9 +99,10 @@ export default {
       total: 0,
       pageSize: 20,
       currentPage: 1,
-      countries: this.$filters.countries_option,
-      countryVal: '',
-      searchTime:[]
+      searchTime:[],
+      goodsName:'',//商品名称
+      goodsCode:'',
+      skuCode:''
     }
   },
   mounted() {
@@ -110,32 +116,41 @@ export default {
     },
     // 列表
     async searchTableList() {
-      const params = {
-        country: this.countryVal,
-        createTime: '',
+      // 获取产品中心列表数据
+      let params = {
+        ProductName : this.goodsName,
+        ProductId : this.goodsCode,
+        SkuId : this.skuCode,
+        CateId: 0,
+        Status: '-1'
       }
-      params.createTime = this.$dayjs(this.searchTime[0]).format('YYYY-MM-DD') + ' 00:00:00' + '/' + this.$dayjs(this.searchTime[1]).format('YYYY-MM-DD') + ' 23:59:59'
       params['page'] = this.currentPage
       params['pageSize'] = this.pageSize
-      const res = await this.$api.getUserStore(params)
-      if (res && res.data.code === 200) {
-        this.total = res.data.data.total
-        let array = res.data.data.data
-        array.forEach((item) => {
-          item.user_stocks_skus.forEach((subItem) => {
-            let obj = {
-              goods_id: item.id,
-              goods_name: item.goods_name,
-              goods_url:item.goods_url
-            }
-            obj = Object.assign(obj, subItem)
-            this.tableData.push(obj)
-          })
-        })
-        // this.tableData = res.data.data.data
-      } else {
-        this.$message.error(res.data.message)
-      }
+      const res = await this.$commodityService.getProductList(params)
+      console.log(res,"4")
+     
+      // params.createTime = this.$dayjs(this.searchTime[0]).format('YYYY-MM-DD') + ' 00:00:00' + '/' + this.$dayjs(this.searchTime[1]).format('YYYY-MM-DD') + ' 23:59:59'
+      // params['page'] = this.currentPage
+      // params['pageSize'] = this.pageSize
+      // const res = await this.$api.getUserStore(params)
+      // if (res && res.data.code === 200) {
+      //   this.total = res.data.data.total
+      //   let array = res.data.data.data
+      //   array.forEach((item) => {
+      //     item.user_stocks_skus.forEach((subItem) => {
+      //       let obj = {
+      //         goods_id: item.id,
+      //         goods_name: item.goods_name,
+      //         goods_url:item.goods_url
+      //       }
+      //       obj = Object.assign(obj, subItem)
+      //       this.tableData.push(obj)
+      //     })
+      //   })
+      //   // this.tableData = res.data.data.data
+      // } else {
+      //   this.$message.error(res.data.message)
+      // }
       console.log(this.tableData)
     },
     // 计算总库存

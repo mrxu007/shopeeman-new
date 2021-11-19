@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-11-09 10:17:44
- * @LastEditTime: 2021-11-18 15:39:39
+ * @LastEditTime: 2021-11-19 18:18:20
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shopeeman-new\src\views\order-manager\components\OrderManagerOrderCenter.vue
@@ -156,17 +156,17 @@
                 <el-row class="row-style">
                   <el-button type="primary" size="mini" class="btnMini" @click="getOrderList">搜索</el-button>
                   <el-button type="primary" size="mini" class="btnMedium">一键同步上家库存</el-button>
-                  <el-button type="primary" size="mini" class="btnLong">批量添加采购物流单号</el-button>
+                  <el-button type="primary" size="mini" class="btnLong" @click="batchShipInfo">批量添加采购物流单号</el-button>
                   <el-button type="primary" size="mini" class="btnLong">批量获取Lazada付款方式</el-button>
-                  <el-button type="primary" size="mini" class="btnLong">上报仓库发货金额</el-button>
+                  <el-button type="primary" size="mini" class="btnLong" @click="uploadStoreShipAmountVisible=true">上报仓库发货金额</el-button>
                   <el-button type="primary" size="mini" class="btnMedium" @click="openBefore">批量添加本地备注</el-button>
                 </el-row>
                 <el-row class="row-style">
                   <el-button type="primary" size="mini" class="btnMini">查看禁运品</el-button>
                   <el-button type="primary" size="mini" class="btnMedium" @click="outStoreBefore('自有仓库商品出库', '1')">自有仓库商品出库</el-button>
-                  <el-button type="primary" size="mini" class="btnLong">产品中心商品出库</el-button>
-                  <el-button type="primary" size="mini" class="btnLong">海外仓备货商品出库</el-button>
-                  <el-button type="primary" size="mini" class="btnLong">国内仓备货商品出局</el-button>
+                  <el-button type="primary" size="mini" class="btnLong" @click="outStoreBefore('产品中心商品出库', '2')">产品中心商品出库</el-button>
+                  <el-button type="primary" size="mini" class="btnLong" @click="outStoreBefore('海外仓备货商品出库', '3')">海外仓备货商品出库</el-button>
+                  <el-button type="primary" size="mini" class="btnLong" @click="outStoreBefore('国内仓备货商品出局', '4')">国内仓备货商品出局</el-button>
                   <el-button type="primary" size="mini" class="btnMedium">批量评价订单买家</el-button>
                 </el-row>
                 <el-row class="row-style">
@@ -331,11 +331,6 @@
             <el-button type="primary" size="mini">拍单</el-button>
           </template>
         </el-table-column>
-        <el-table-column align="center" prop="" label="操作" min-width="80" v-if="showTableColumn('操作')">
-          <template slot-scope="scope">
-            <el-button type="primary" size="mini">操作</el-button>
-          </template>
-        </el-table-column>
         <el-table-column align="center" label="采购状态" min-width="120" v-if="showTableColumn('采购状态')">
           <template slot-scope="scope">{{ changeTypeName(scope.row.shot_order_info.shot_status, shotStatusList) }}</template>
         </el-table-column>
@@ -427,6 +422,21 @@
         <el-table-column align="center" prop="update_time" label="订单更新时间" min-width="140" v-if="showTableColumn('订单更新时间')">
           <template slot-scope="scope">{{ scope.row.update_time }}</template>
         </el-table-column>
+        <el-table-column align="center" prop="" label="操作" min-width="120" v-if="showTableColumn('操作')" fixed="right">
+          <template slot-scope="scope">
+            <el-dropdown style="width: 100px;margin-left: 10px;">
+              <el-button style="width: 100px;" size="mini" plain type="primary">
+               操作<i class="el-icon-arrow-down el-icon--right" />
+              </el-button>
+              <el-dropdown-menu slot="dropdown">
+                <el-dropdown-item> <div  class="dropdownItem" > 续费IP</div></el-dropdown-item>
+                <el-dropdown-item> <div  class="dropdownItem" > 编辑</div></el-dropdown-item>
+                <el-dropdown-item> <div class="dropdownItem" > 删除</div></el-dropdown-item>
+              </el-dropdown-menu>
+            </el-dropdown>
+            <!-- <el-button type="primary" size="mini">操作</el-button> -->
+          </template>
+        </el-table-column>
       </el-table>
       <div class="pagination">
         <el-pagination
@@ -492,12 +502,37 @@
         <el-button type="primary" size="mini" @click="setColor">设置颜色</el-button>
       </span>
     </el-dialog>
-    <el-dialog title="批量编辑采购信息" :visible.sync="purchaseInfoVisible" width="500px">
+    <el-dialog title="批量添加采购信息" :visible.sync="purchaseInfoVisible" width="500px">
       <purchase-info :chooseData="multipleSelection" :buyerAccountList="buyerAccountList" @close="close"></purchase-info>
     </el-dialog>
     <el-dialog title="同步数据至仓库" :visible.sync="pushOrderToStoreVisible" width="1200px">
       <push-order :chooseData="multipleSelection"></push-order>
     </el-dialog>
+    <el-dialog title="批量添加采购物流单号" :visible.sync="shipInfoVisible" width="400px">
+      <div>
+        <div class="item-box">
+          <span>绑定仓库：</span>
+          <el-select v-model="shipBindStore" size="mini" class="btnLongMax">
+            <el-option :label="item.warehouse_name" :value="item.warehouse_id" v-for="(item, index) in shipStoreList" :key="index"></el-option>
+          </el-select>
+        </div>
+        <div class="item-box">
+          <span>采购物流单号：</span>
+          <el-input v-model="shipNo" size="mini" clearable class="btnLongMax" />
+        </div>
+        <div class="item-box">
+          <span>采购物流公司：</span>
+          <el-input v-model="shipCompany" size="mini" clearable class="btnLongMax" />
+        </div>
+      </div>
+      <span slot="footer">
+        <el-button type="primary" size="mini" @click="batchSaveShipInfo">确定</el-button>
+      </span>
+    </el-dialog>
+    <el-dialog title="上报仓库发货金额" :visible.sync="uploadStoreShipAmountVisible" width="1200px" v-if="uploadStoreShipAmountVisible">
+      <upload-store-ship-amount></upload-store-ship-amount>
+    </el-dialog>
+    
     <!-- 四类商品出库 -->
     <el-dialog :visible.sync="goodsOutStoreVisible" width="1400px" top="5vh" :close-on-click-modal="false" v-if="goodsOutStoreVisible">
       <div slot="title">{{ outStoreTitle }}</div>
@@ -515,6 +550,7 @@ import LogisticeSyncService from '../../../services/logistics-sync-service/logis
 import PurchaseInfo from './orderCenter/purchaseInfo.vue'
 import PushOrder from './orderCenter/pushOrderToStore.vue'
 import GoodsOutStore from './orderCenter/goodsOutStore.vue'
+import UploadStoreShipAmount from './orderCenter/uploadStoreShipAmount.vue'
 import _ from 'lodash'
 import ShotOrderService from '../../../services/short-order/shot-order-service'
 export default {
@@ -524,6 +560,7 @@ export default {
     PurchaseInfo,
     PushOrder,
     GoodsOutStore,
+    UploadStoreShipAmount
   },
   data() {
     return {
@@ -638,6 +675,12 @@ export default {
       goodsOutStoreVisible: false, //商品出库
       outStoreTitle: '自有商品出库',
       outStoreType: '1',
+      shipInfoVisible: false, //批量添加采购物流单号
+      shipBindStore: '',
+      shipStoreList: [],
+      shipNo: '',
+      shipCompany: '',
+      uploadStoreShipAmountVisible:false,//上报仓库发货金额
     }
   },
   mounted() {
@@ -651,6 +694,73 @@ export default {
     }, 2000)
   },
   methods: {
+    //保存-批量添加采购物流单号
+    async batchSaveShipInfo() {
+      if (!this.shipNo) {
+        return this.$message.error('物流单号不能为空！')
+      }
+      let message = ''
+      for (let i = 0; i < this.multipleSelection.length; i++) {
+        let item = this.multipleSelection[i]
+        let params = {
+          sysOrderId: item.id,
+          lists: [
+            {
+              id: '0',
+              trackingNumber: this.shipNo,
+              trackingNumberCompany: this.shipCompany,
+            },
+          ],
+          warehouseId: this.shipBindStore,
+        }
+        let res = await this.$api.updateOrderTrackingNumber(params)
+        if (res.data.code === 200) {
+          message = message + `${item.order_sn}添加成功`
+        } else {
+          message = message + `${item.order_sn}添加失败${res.data.message}`
+        }
+      }
+      this.$alert(message, '提示', {
+        confirmButtonText: '确定',
+      })
+    },
+    //批量添加采购物流单号
+    async batchShipInfo() {
+      let sameId = {}
+      if (!this.multipleSelection.length) {
+        return this.$message.warning('请选择订单数据！')
+      }
+      this.multipleSelection.forEach((item) => {
+        sameId[Number(item.goods_info.ori_platform_id)] = item.goods_info.ori_platform_id
+      })
+      console.log(sameId)
+      if (Object.keys(sameId).length > 1) {
+        return this.$message.warning('只能批量添加同一个采购平台的物流信息！')
+      }
+      let storeInfo = null
+      for (let i = 0; i < this.multipleSelection.length; i++) {
+        let order = this.multipleSelection[i]
+        let orderType = 0
+        if ([1, 2, 3, 5, 8, 10].indexOf(Number(order.goods_info.ori_platform_id)) > -1) {
+          orderType = 0
+        } else if ([9, 11, 12, 15, 13].indexOf(Number(order.goods_info.ori_platform_id)) > -1) {
+          orderType = 3
+        }
+        let res = await this.$appConfig.getWarehouseInfo(order.mall_info.platform_mall_id)
+        let warehouseList = (res && JSON.parse(res)) || []
+        console.log(warehouseList, 'warehouseList', orderType)
+        storeInfo = warehouseList.find((item) => {
+          return item.type == orderType
+        })
+        console.log(storeInfo, 'storeInfo')
+        if (storeInfo) {
+          break
+        }
+      }
+      this.shipStoreList = [storeInfo]
+      console.log('223')
+      this.shipInfoVisible = true
+    },
     //批量拍单
     async purchaseHandler() {
       if (!this.multipleSelection.length) {
@@ -766,14 +876,11 @@ export default {
         }
       }
       //
-      const buyerAccount = _.remove(
-        [pddAccount, taobaoAccount, jdAccount, jxAccount, AlibabaAccount,lazadaAccount,shopeeAccount],
-        (n) => {
-          return n != null && n !== undefined
-        }
-      )
+      const buyerAccount = _.remove([pddAccount, taobaoAccount, jdAccount, jxAccount, AlibabaAccount, lazadaAccount, shopeeAccount], (n) => {
+        return n != null && n !== undefined
+      })
       this.showConsole = false
-      const service = new ShotOrderService(waitOrders, buyerAccount,this)
+      const service = new ShotOrderService(waitOrders, buyerAccount, this)
       service.start(this.$refs.Logs.writeLog)
     },
     getAccountById(id) {
@@ -1192,5 +1299,17 @@ export default {
 .colorBox {
   height: 30px;
   width: 80px;
+}
+.item-box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+  span {
+    display: inline-block;
+    width: 120px;
+    text-align: right;
+    margin-right: 10px;
+  }
 }
 </style>

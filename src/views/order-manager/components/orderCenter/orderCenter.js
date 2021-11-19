@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-11-10 12:02:05
- * @LastEditTime: 2021-11-16 12:05:42
+ * @LastEditTime: 2021-11-18 20:21:25
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shopeeman-new\src\views\order-manager\components\orderCenter\selectData.js
@@ -793,6 +793,13 @@ function siteShip(country) {
   return arr
 }
 
+function sourceName(val){
+  let name = ''
+  let info = goodsSourceList.find(item=>{return item.value == val})
+  name = info?info.label:''
+  return name
+}
+
 //syncType： 订单同步类型：auto:自动(后台自动同步订单)     manual：手动同步（页面点击同步）   single ：单个订单同步（选择订单列表单个订单进行同步）
 const upLoadType = [{
     label: '自动',
@@ -808,6 +815,24 @@ const upLoadType = [{
   }
 ]
 
+const warehouseType = [
+  {
+    label:"国内中转仓",
+    value:0
+  },
+  {
+    label:"存储转运仓",
+    value:1
+  },
+  {
+    label:"海外存储仓",
+    value:2
+  },
+  {
+    label:"海外中转仓",
+    value:3
+  }
+]
 
 export {
   orderStatusList,
@@ -821,5 +846,7 @@ export {
   statusListThird,
   site_mall,
   shotStatuForEdit,
+  warehouseType,
+  sourceName,
   siteShip
 }

@@ -5,6 +5,35 @@ export default class buyerAccountService {
   constructor() {
     this.nativeService = window['buyerAccountService']
   }
+  ShotOrderPlatform ={
+    /// 淘宝
+    TaoBao : 0,
+    /// 拼多多
+    PinDuoduo : 1,
+    /// 京东
+    JingDong : 2,
+    /// 京喜
+    /// </summary>
+    JingXi : 3,
+    /// 1688
+    Alibaba : 4,
+    /// 拼多多云拍单
+    YunPaiDan : 5,
+    /// lazada
+    Lazada : 6,
+    /// shopee
+    Shopee : 7,
+    /// 淘宝天猫海外
+    CrossBorder : 8,
+    /// 自有商品
+    OwnPlatform : 9,
+    /// 皮皮虾供货平台
+    PpxiasGhpt : 10,
+    /// 速卖通
+    AliExpressPlatform : 11,
+    /// 货老板
+    HYJ : 12
+}
   /**拍单模块
    *      TaoBao, 0
           PinDuoduo, 1
@@ -73,26 +102,26 @@ export default class buyerAccountService {
    * 1688登陆
    */
   alibabaLogin() {
-    return this.nativeService.buyerLogin(5, 'https://login.1688.com/member/signin.htm?tracelog=member_signout_signin', null)
+    return this.nativeService.buyerLogin(this.ShotOrderPlatform.Alibaba, 'https://login.1688.com/member/signin.htm?tracelog=member_signout_signin', null)
   }
   /**
    * taobao登陆
    */
   taobaoLogin() {
     console.log(2)
-    return this.nativeService.buyerLogin(0, 'https://login.taobao.com/member/login.jhtml?from=taobaoindex&f=top&style=&sub=true&redirect_url=https%3A%2F%2Fmember1.taobao.com%2Fmember%2Ffresh%2Fdeliver_address.html', null)
+    return this.nativeService.buyerLogin(this.ShotOrderPlatform.TaoBao, 'https://login.taobao.com/member/login.jhtml?from=taobaoindex&f=top&style=&sub=true&redirect_url=https%3A%2F%2Fmember1.taobao.com%2Fmember%2Ffresh%2Fdeliver_address.html', null)
   }
   /**
    * pdd登陆
    */
   pddLogin() {
-    return this.nativeService.buyerLogin(1, 'http://mobile.yangkeduo.com/login.html', null)
+    return this.nativeService.buyerLogin(this.ShotOrderPlatform.PinDuoduo, 'http://mobile.yangkeduo.com/login.html', null)
   }
   /**
    * jx登陆
    */
   jingxiLogin() {
-    return this.nativeService.buyerLogin(3, 'https://plogin.m.jd.com/login/login', null)
+    return this.nativeService.buyerLogin(this.ShotOrderPlatform.JingXi, 'https://plogin.m.jd.com/login/login', null)
   }
   /**
    * lazada登陆
@@ -100,7 +129,7 @@ export default class buyerAccountService {
   lazadaLogin(country) {
     const url = this.lazada[country] + '/user/profile#/'
     console.log(7, url, country)
-    return this.nativeService.buyerLogin(7, url, {
+    return this.nativeService.buyerLogin(this.ShotOrderPlatform.Lazada, url, {
       "Country": country
     })
   }
@@ -110,7 +139,7 @@ export default class buyerAccountService {
   shopeeLogin(country) {
     const url = this.shopee[country] + '/user/account/address'
     console.log(8, url, country)
-    return this.nativeService.buyerLogin(8, url, {
+    return this.nativeService.buyerLogin(this.ShotOrderPlatform.Shopee, url, {
       "Country": country
     })
   }
@@ -118,25 +147,25 @@ export default class buyerAccountService {
    * pdd个人中心
    */
   pddUserCenter(account) {
-    return this.nativeService.userCenter(1, 'http://mobile.yangkeduo.com/personal.html',account)
+    return this.nativeService.userCenter(this.ShotOrderPlatform.PinDuoduo, 'http://mobile.yangkeduo.com/personal.html',account)
   }
   /**
    * taobao个人中心
    */
   taobaoUserCenter(account) {
-    return this.nativeService.userCenter(0, 'https://www.taobao.com',account)
+    return this.nativeService.userCenter(this.ShotOrderPlatform.TaoBao, 'https://www.taobao.com',account)
   }
   /**
    * jingxi个人中心
    */
   jingxiUserCenter(account) {
-    return this.nativeService.userCenter(3, 'https://home.m.jd.com/myJd/newhome.action',account)
+    return this.nativeService.userCenter(this.ShotOrderPlatform.JingXi, 'https://home.m.jd.com/myJd/newhome.action',account)
   }
   /**
    * 1688个人中心
    */
   AlibabaUserCenter(account) {
-    return this.nativeService.userCenter(5, 'https://work.1688.com/home/buyer.htm?',account)
+    return this.nativeService.userCenter(this.ShotOrderPlatform.Alibaba, 'https://work.1688.com/home/buyer.htm?',account)
   }
   /**
    * lazada个人中心
@@ -144,7 +173,7 @@ export default class buyerAccountService {
   lazadaUserCenter(country,account) {
     const url = this.lazada[country] + '/user/profile#/'
     console.log(7, url, country)
-    return this.nativeService.userCenter(7, url, account)
+    return this.nativeService.userCenter(this.ShotOrderPlatform.Lazada, url, account)
   }
   /**
    * shopee个人中心
@@ -152,7 +181,8 @@ export default class buyerAccountService {
   shopeeUserCenter(country,account) {
     const url = this.shopee[country] + '/user/account/address'
     console.log(8, url, country)
-    return this.nativeService.userCenter(8, url, account)
+    return this.nativeService.userCenter(this.ShotOrderPlatform.Shopee, url, account)
   }
+  
 
 }

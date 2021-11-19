@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-11-09 10:14:02
- * @LastEditTime: 2021-11-18 15:30:20
+ * @LastEditTime: 2021-11-19 16:46:31
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shopeeman-new\src\components\buyer-account.vue
@@ -312,6 +312,7 @@ export default {
       const userInfo = await this.$appConfig.getUserInfo()
       params.uid = userInfo.muid
       const res = await this.$YipService.GetIpList(JSON.stringify(params))
+      // console.log(res,JSON.stringify(params))
       let resObj = JSON.parse(res)
       this.proxyList = (resObj && resObj.data) || []
       console.log('getProxy', resObj)

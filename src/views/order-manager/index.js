@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-11-09 10:09:21
- * @LastEditTime: 2021-11-18 16:16:09
+ * @LastEditTime: 2021-11-18 16:19:36
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shopeeman-new\src\views\order-manager\index.js
@@ -14,12 +14,15 @@
 // const OrderManagerPriceChangeRecorde = () => import('./components/OrderManagerPriceChangeRecorde.vue')
 // 订单列表
 const OrderManagerOrderCenter = () => import('./components/OrderManagerOrderCenter.vue')
+//仓库收货地址设置
+const OrderManagerStoreAdressSet = () => import('./components/OrderManagerStoreAdressSet.vue')
 
 // 导出
 export {
   // OrderManagerAfterSale,
   // OrderManagerLostSearch,
   // OrderManagerPriceChangeRecorde,
-  OrderManagerOrderCenter
+  OrderManagerOrderCenter,
+  OrderManagerStoreAdressSet
 }
 

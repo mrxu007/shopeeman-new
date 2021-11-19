@@ -133,7 +133,7 @@ export default {
   cancelSign: (data) => AppRequest.post('/interceptConfig/delete', data), // 取消拒收/签收信息
   packageSign: (data) => AppRequest.post('/interceptConfig/save', data), // 仓库包裹拒签/签收
   warehouseAddress: () => AppRequest.get('/warehouseAddress/userIndex'), // 获取仓库信息
-  uploadWarehouseOrder: (data) => AppRequest.post('/warehouseAddress/uploadWarehouseOrder', data), // 获取仓库信息
+  uploadWarehouseOrder: (data) => AppRequest.post('/warehouseAddress/uploadWarehouseOrder', data), // 推送订单至仓库
   setColorLabel: (data) => AppRequest.post(`/colorLabel/setOrder`, data), // 设置订单颜色标识
   getUserStore: (data) => AppRequest.get('/userStock/get', { params: data }), // 自有仓库列表
   insertUserGoods: (data) => AppRequest.post('/userStock/save', data), // 新增自有商品
@@ -178,5 +178,8 @@ export default {
   deleteHomeForecast: (data) => AppRequest.post('/homeStockingForecast/delete', data), // 国内中转备货预报单: 删除
   getOutOfStockList: (data) => AppRequest.get('/warehouse/outOfStockList', { params: data }), // 海外仓出库订单：列表
   deleteBuyAccount:   (data) => AppRequest.post('/buyerAccount/destroy', data), //删除买手号
-  // getsecondlist: (data) => AppRequest.post('/overseasTansferPackage/index', data) // 获取二次销售列表
+  getUserWarehouse:  (data) => AppRequest.get('/warehouseAddress/userIndex', { params: data }),  //仓库收货地址设置---获取列表 
+  getPurchaseLists:  (data) => AppRequest.post('/getPurchaseLists', data), //删除买手号 order/getSimpleOrderInfo
+  getOrderBySn:  (data) => AppRequest.post('/order/getSimpleOrderInfo', data), //根据订单号获取订单 
+
 }

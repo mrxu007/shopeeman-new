@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-11-16 15:41:36
- * @LastEditTime: 2021-11-18 15:32:48
+ * @LastEditTime: 2021-11-19 18:19:51
  * @LastEditors: Please set LastEditors
  * @Description: 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  * @FilePath: \shopeeman-new\src\views\order-manager\components\orderCenter\goodsOutStore.vue
@@ -160,17 +160,20 @@
       </div>
     </div>
     <el-dialog title="自有仓库列表" :visible.sync="selfGoodsStoreVisible" width="1200px" append-to-body top="5vh">
-      <self-goods-store @getChooseData="getChooseData"></self-goods-store>
+      <self-goods-store @getChooseData="getChooseData" v-if="outStoreType==='1'"></self-goods-store>
+      <product-goods-store @getChooseData="getChooseData" v-if="outStoreType==='2'"></product-goods-store>
     </el-dialog>
   </div>
 </template>
 
 <script>
 import SelfGoodsStore from './SelfGoodsStore'
+import ProductGoodsStore from './productGoodsStore'
 export default {
   name: 'GoodsOutStore',
   components: {
     SelfGoodsStore,
+    ProductGoodsStore
   },
   props: {
     chooseData: {
