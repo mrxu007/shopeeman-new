@@ -27,10 +27,10 @@ class CollectKeyWordApI {
         switch (this.platformId) {
           case 1: // 拼多多  1 拼多多接口、  1.1 拼多多补充接口、  1.2 拼多多优惠采集
           case 1.2:
-            params['page'] = StartPage // 页码
+            params['Page'] = StartPage // 页码
             break
           case 2: // '淘宝'  3: '天猫',  天猫 === 淘宝
-            params['page'] = StartPage // 页码
+            params['Page'] = StartPage // 页码
             params['StartPrice'] = StartPrice // 页码
             params['EndPrice'] = EndPrice // 页码
             break
@@ -47,6 +47,13 @@ class CollectKeyWordApI {
           case 10: // '京喜'
             break
           case 11: // '虾皮'
+            // params['Page'] = StartPage // 页码
+            // params['By'] = By // 根据什么排序
+            // params['order'] = order // 排序方式
+            // params['StartPrice'] = StartPrice // 价格范围
+            // params['EndPrice'] = EndPrice //
+            // params['Site'] = Site // 站点
+            // params['Location'] = Location.join(',') // 发货位置
             break
           case 12: // '速卖通'
             break

@@ -26,6 +26,7 @@ const platformCode = {
   PpxiasGHPT: 6, // 皮皮虾供货平台
   HyjPlatform: 7, // 货源甲
   AlibabaPlatform: 8, // 阿里巴巴供货平台
+  LazadaPlatform: 9, // lazada
   JxPlatform: 10, // 京喜
   ShopeePlatform: 11, // Shopee平台
   AliExpress: 12, // 速卖通
