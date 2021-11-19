@@ -1,0 +1,52 @@
+.contaniner{
+  margin: 10px;
+  .header {
+    background: white;
+    padding: 16px;
+    overflow: auto;
+    ul{
+      display: flex;
+      width: 1380px;
+        li{
+          line-height: 24px;
+          display: flex;
+          margin-right: 20px;
+          /deep/.el-input{
+            width: 155px !important;
+          }
+        }
+        .status{
+          /deep/.el-input{
+            width: 85px !important;
+          }
+        }
+    }
+  }
+  #article {
+    overflow: hidden;
+    background: white;
+    margin-top: 10px;
+    padding: 16px;
+  }
+  .bind-user-dialog{
+    margin-top: 12vh;
+    ul>li{
+      display: flex;
+      line-height: 24px;
+      justify-content: center;
+      .el-input{
+        width: 178px !important;
+      }
+      .el-button{
+        float: right;
+      }
+    }
+    /deep/.el-dialog__body{
+      padding: 10px 20px !important;
+    }
+  }
+  .pagination{
+    text-align: right;
+    margin-top: 10px;
+  }
+}

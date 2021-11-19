@@ -17,6 +17,22 @@
             />
           </el-select>
         </li>
+        <li class="status">
+          <span>商品状态：</span>
+          <el-select
+            v-model="form.status"
+            size="mini"
+            filterable
+          >
+            <el-option :value="''" label="全部" />
+            <el-option
+              v-for="(item, index) in statusList"
+              :key="index"
+              :value="item.value"
+              :label="item.label"
+            />
+          </el-select>
+        </li>
         <li>
           <span>订单编号：</span>
           <el-input
@@ -32,7 +48,7 @@
             size="mini"
             @click="
               page =1
-              getOutOfStockList()"
+              stockSharedList()"
           >搜 索</el-button>
           <el-button
             type="primary"
@@ -46,7 +62,7 @@
       <el-table
         ref="plTable"
         v-loading="isShowLoading"
-        height="calc(100vh - 205px)"
+        height="calc(100vh - 165px)"
         :data="tableData"
         :header-cell-style="{
           backgroundColor: '#f5f7fa',
@@ -70,6 +86,7 @@
           label="仓库名称"
           align="center"
           min-width="100"
+          fixed
         />
         <el-table-column
           prop="oversea_order_sn"
@@ -161,6 +178,7 @@
             <el-button
               size="mini"
               type="primary"
+              @click="getSharedUserList"
             >查看绑定用户</el-button>
           </template>
         </el-table-column>
@@ -181,12 +199,14 @@
         <el-table-column
           label="操作"
           align="center"
-          min-width="125"
+          min-width="175"
+          fixed="right"
         >
           <template slot-scope="{row}">
             <el-button
               size="mini"
               type="primary"
+              @click="bindUserVisible=true"
             >绑定用户</el-button>
             <el-button
               size="mini"
@@ -211,12 +231,12 @@
     <div class="logging">
       <Logs ref="Logs" v-model="showConsole" clear />
     </div>
-    <!-- 查看出库商品详情弹窗 -->
+    <!-- 共享库存绑定用户弹窗 -->
     <el-dialog
-      class="details-dialog"
-      title="出库商品详情"
-      :visible.sync="detailsVisible"
-      width="800px"
+      class="shared-user-dialog"
+      title="共享库存绑定用户"
+      :visible.sync="sharedUserVisible"
+      width="400px"
       :close-on-click-modal="false"
       :close-on-press-escape="false"
     >
@@ -236,575 +256,127 @@
           align="center"
           type="index"
           label="序号"
-          fixed
         />
         <el-table-column
           prop="order_sn"
           width="150"
           align="center"
-          label="订单编号"
-          fixed
+          label="平台名称"
         />
-        <el-table-column
-          width="100"
-          align="center"
-          label="出库商品状态"
-        >
-          <template slot-scope="{row}">
-            {{ row.status?skuStatusObj[row.status]:'' }}
-          </template>
-        </el-table-column>
         <el-table-column
           width="150"
           align="center"
-          label="系统商品编号(SysSku)"
+          label="用户名称"
           prop="sys_sku_id"
         />
         <el-table-column
           width="150"
           align="center"
-          label="商品编号(SKU)"
+          label="操作"
           prop="sku_id"
-        />
-        <el-table-column
-          width="100"
-          align="center"
-          label="商品名称"
-          prop="goods_name"
-        />
-        <el-table-column
-          width="100"
-          align="center"
-          label="出库数量"
-          prop="sku_num"
-        />
-        <el-table-column
-          width="120"
-          align="center"
-          label="商品单价(RMB)"
-          prop="sku_price"
-        />
-        <el-table-column
-          width="100"
-          align="center"
-          label="商品规格"
-          prop="sku_name"
-        />
-        <el-table-column
-          width="80"
-          align="center"
-          label="商品图片"
-        >
-          <template slot-scope="{row}">
-            <el-tooltip
-              v-if="row.sku_image"
-              effect="light"
-              placement="right-end"
-              :visible-arrow="false"
-              :enterable="false"
-              style="width: 50px; height: 50px"
-            >
-              <div slot="content">
-                <img
-                  :src="row.sku_image"
-                  width="300px"
-                  height="300px"
-                >
-              </div>
-              <el-image
-                style="width: 40px; height: 40px"
-                :src="row.sku_image"
-              />
-            </el-tooltip>
-          </template>
-        </el-table-column>
-        <el-table-column
-          width="150"
-          align="center"
-          label="商品链接"
         >
           <template slot-scope="{row}">
             <el-button
               v-if="row.sku_url"
               type="primary"
               size="mini"
-              @click="openUrl(row.sku_url)"
-            >查看商品链接</el-button>
+            >删除用户</el-button>
           </template>
         </el-table-column>
       </el-table>
     </el-dialog>
-    <!-- 海外仓补件弹窗 -->
+    <!-- 添加共享库存绑定用户弹窗 -->
     <el-dialog
-      class="reissue-dialog"
-      title="海外仓补件"
-      :visible.sync="reissueVisible"
-      width="1200px"
-      :close-on-click-modal="false"
-      :close-on-press-escape="false"
-      :before-close="reissueClose"
-    >
-      <ul>
-        <li>
-          <span>仓库名称：</span>
-          <el-select
-            v-model="stockForm.wid"
-            size="mini"
-            filterable
-          >
-            <el-option :value="'0'" label="全部" />
-            <el-option
-              v-for="(item, index) in widList"
-              :key="index"
-              :value="item.id"
-              :label="item.warehouse_name"
-            />
-          </el-select>
-        </li>
-        <li>
-          <span>系统商品编号：</span>
-          <el-input
-            v-model="stockForm.sys_sku_id"
-            clearable
-            size="mini"
-            oninput="value=value.replace(/\s+/g,'')"
-          />
-        </li>
-        <li>
-          <span>商品编号：</span>
-          <el-input
-            v-model="stockForm.sku_id"
-            clearable
-            size="mini"
-            oninput="value=value.replace(/\s+/g,'')"
-          />
-        </li>
-        <li>
-          <span>商品规格：</span>
-          <el-input
-            v-model="stockForm.sku_name"
-            clearable
-            size="mini"
-          />
-        </li>
-        <li>
-          <el-checkbox v-model="filterZero">过滤0库存</el-checkbox>
-        </li>
-        <li>
-          <el-button
-            type="primary"
-            size="mini"
-            @click="
-              page =1
-              getStock()"
-          >搜 索</el-button>
-          <el-button
-            type="primary"
-            size="mini"
-            @click="batchReissue"
-          >批量补件</el-button>
-        </li>
-      </ul>
-      <el-table
-        v-loading="reissueLoading"
-        height="420"
-        :data="reissueData"
-        :header-cell-style="{
-          backgroundColor: '#f5f7fa',
-        }"
-        :row-style="{
-          color: 'black',
-          height: '50px',
-        }"
-        @selection-change="reissueSelectionChange"
-      >
-        <el-table-column
-          align="center"
-          type="selection"
-          width="50"
-          fixed
-        />
-        <el-table-column
-          width="50"
-          align="center"
-          type="index"
-          label="序号"
-          fixed
-        />
-        <el-table-column
-          width="100"
-          align="center"
-          label="仓库名称"
-          prop="packageCode"
-          fixed
-        />
-        <el-table-column
-          width="120"
-          align="center"
-          label="系统商品编号"
-          prop="sys_sku_id"
-        />
-        <el-table-column
-          width="120"
-          align="center"
-          label="商品编号(SkuId)"
-          prop="sku_id"
-        />
-        <el-table-column
-          width="130"
-          align="center"
-          label="商品名称"
-          prop="goods_name"
-        />
-        <el-table-column
-          width="150"
-          align="center"
-          label="商品规格"
-          prop="sku_name"
-        />
-        <el-table-column
-          width="150"
-          align="center"
-          label="库存数量"
-          prop="stock_num"
-        />
-        <el-table-column
-          width="150"
-          align="center"
-          label="商品单价(RMB)"
-          prop="sku_price"
-        >
-          <template slot-scope="{row}">
-            {{ row.sku_price?row.sku_price/100:'' }}
-          </template>
-        </el-table-column>
-        <el-table-column
-          width="150"
-          align="center"
-          label="商品链接"
-          prop="sku_url"
-        />
-        <el-table-column
-          width="80"
-          align="center"
-          label="商品图片"
-        >
-          <template slot-scope="{row}">
-            <el-tooltip
-              v-if="row.sku_image"
-              effect="light"
-              placement="right-end"
-              :visible-arrow="false"
-              :enterable="false"
-              style="width: 50px; height: 50px"
-            >
-              <div slot="content">
-                <img
-                  :src="row.sku_image"
-                  width="300px"
-                  height="300px"
-                >
-              </div>
-              <el-image
-                style="width: 40px; height: 40px"
-                :src="row.sku_image"
-              >
-                <div slot="placeholder" class="image-slot">
-                  加载中<span class="dot">...</span>
-                </div>
-              </el-image>
-            </el-tooltip>
-          </template>
-        </el-table-column>
-        <el-table-column
-          width="130"
-          align="center"
-          label="货架仓位"
-          prop="position"
-        />
-      </el-table>
-      <div class="pagination">
-        <el-pagination
-          background
-          :current-page="stockPage"
-          :page-sizes="[30, 50, 100]"
-          :page-size="stockPageSize"
-          layout="total, sizes, prev, pager, next, jumper"
-          :total="stockTotal"
-          @size-change="reissueSizeChange"
-          @current-change="reissueCurrentChange"
-        />
-      </div>
-    </el-dialog>
-    <!--批量补件弹窗-->
-    <el-dialog
-      class="batchrei-dialog"
-      title="批量补件"
-      :visible.sync="batchreiVisible"
+      class="bind-user-dialog"
+      title="添加共享库存绑定用户"
+      :visible.sync="bindUserVisible"
       width="300px"
       :close-on-click-modal="false"
       :close-on-press-escape="false"
-      :show-close="!batchreiLoading"
-      @close="batchreiClose"
     >
-      <div class="wrap">
-        <span>补件数量：</span>
-        <el-input
-          v-model="reissueNum"
-          clearable
-          size="mini"
-          oninput="value=value.replace(/\s+/g,'')"
-        />
-      </div>
-      <div class="footer">
-        <el-button
-          :loading="batchreiLoading"
-          size="mini"
-          type="primary"
-          @click="addReissueStore(reissueSelection)"
-        >确 定</el-button>
-      </div>
+      <ul>
+        <li style="margin-bottom: 15px;">
+          <span>共享平台：</span>
+          <el-select
+            size="mini"
+            filterable
+          >
+            <el-option
+              v-for="(item,index) in 3"
+              :key="index"
+            />
+          </el-select>
+        </li>
+        <li style="margin-bottom: 15px;">
+          <span>用户名称：</span>
+          <el-input
+            clearable
+            size="mini"
+            oninput="value=value.replace(/\s+/g,'')"
+          />
+        </li>
+        <li>
+          <el-button
+            type="primary"
+            size="mini"
+          >添 加</el-button>
+        </li>
+      </ul>
     </el-dialog>
   </el-row>
 </template>
 
 <script>
-import BroadDeliveryOrder from '../../../module-api/smart-house-api/broad-delivery-order'
+import ShareBroadStock from '../../../module-api/smart-house-api/share-broad-stock'
 import { exportExcelDataCommon } from '../../../util/util'
+import { statusList } from './warehouse'
 export default {
   data() {
     return {
       showConsole: true,
       isShowLoading: false,
-      reissueLoading: false,
-      detailsVisible: false,
-      reissueVisible: false,
-      batchreiVisible: false,
-      batchreiLoading: false,
-      BroadDeliveryOrder: new BroadDeliveryOrder(this),
-
-      filterZero: false,
+      sharedUserVisible: false,
+      bindUserVisible: false,
+      ShareBroadStock: new ShareBroadStock(this),
 
       total: 0,
       pageSize: 30,
       page: 1,
-      stockTotal: 0,
-      stockPageSize: 30,
-      stockPage: 1,
 
       tableData: [], // 表格数据
       multipleSelection: [], // 选择数据
-      reissueSelection: [], // 海外仓补件选择数据
-      detailsData: [], // 商品详情数据
-      reissueData: [], // 海外仓补件数据
-      reissueNum: '', // 补件数量
-      overseaOrderSn: '', // 补件出库单号
 
       form: { // 条件搜索
-        wid: '', // 仓库id
-        oversea_order_sn: '', // 出库单号
-        logistic_no: '', // 物流单号
-        created_time: '', // 创建时间
-        status: ''// 订单出库状态
+        app_uid: '', // 用户ID
+        wid: '', // 仓库ID
+        sys_sku_id: '', // sku
+        status: '' // 1正常 2已完成 3弃用
       },
 
-      stockForm: { // 仓库条件搜索
-        app_uid: '', // 用户id
-        wid: '0', // 仓库id
-        sku_id: '', // 商品编号
-        sku_name: '', // 商品规格名
-        is_zero_filter: 0, // 过滤0库存
-        sys_sku_id: '', // 系统商品编号
-        type: 'query'
-      },
-      statusObj: {
-        1: '初始化数据(推送出库单)',
-        2: '已构建出库单',
-        3: '海外仓订单出库',
-        4: '海外仓订单申请退件',
-        5: '海外仓订单已交运'
-      },
-      skuStatusObj: {
-        '-1': '未出库',
-        '1': '订单初始化',
-        '2': '预扣库存',
-        '3': '已出库',
-        '4': '已签收'
-      },
-
-      widList: [], // 仓库列表
       statusList: [
         {
           value: 1,
-          lable: '初始化数据(推送出库单)'
+          label: '正常'
         },
         {
           value: 2,
-          lable: '已构建出库单'
+          label: '已完成'
         },
         {
           value: 3,
-          lable: '海外仓订单出库'
-        },
-        {
-          value: 4,
-          lable: '海外仓订单申请退件'
-        },
-        {
-          value: 5,
-          lable: '海外仓订单已交运'
+          label: '弃用'
         }
       ]
     }
   },
   async mounted() {
-    this.form.created_time = [new Date().getTime() - 3600 * 1000 * 24 * 15, new Date()]
-    // 获取仓库
-    await this.getOverseasWarehouse()
     // 获取数据
-    await this.getOutOfStockList()
+    await this.stockSharedList()
   },
   methods: {
-    // 取消/批量取消订单
-    async cancelOverseaOrder(val, type) {
-      let data = []
-      if (type === 1) {
-        data.push(val)
-      } else {
-        data = val
-      }
-      for (let index = 0; index < data.length; index++) {
-        const element = data[index]
-        if (element.status !== 5 && element.status !== 3) {
-          const pamars = {}
-          pamars['wid'] = element.wid
-          pamars['overseaOrderSn'] = element.oversea_order_sn
-          const res = await this.BroadDeliveryOrder.cancelOverseaOrder(pamars)
-          if (res.code === 200) {
-            this.$set(element, 'orderStatus', '取消订单成功')
-            this.$set(element, 'color', 'green')
-          } else {
-            this.$set(element, 'orderStatus', res.data)
-            this.$set(element, 'color', 'red')
-          }
-        }
-      }
-    },
-    // 批量补件
-    batchReissue() {
-      if (!this.reissueSelection?.length) return this.$message('请选择需要补件的商品')
-      const flag = this.reissueSelection.every(item => item.wid === this.reissueSelection[0].wid)
-      if (flag) {
-        this.batchreiVisible = true
-      } else {
-        this.$message.error('无法同时补件不同仓库的商品')
-      }
-    },
-    // 海外仓补件
-    async addReissueStore(val) {
-      const skuLists = []
-      const pamars = {}
-      let flag = false
-      if (!(/(^[1-9]\d*$)/.test(Number(this.reissueNum)))) return this.$message('请输入大于0的正整数')
-      for (let index = 0; index < val.length; index++) {
-        const element = val[index]
-        if (Number(element.stock_num) < Number(this.reissueNum)) {
-          this.$refs.Logs.writeLog(`商品【${element.goods_name}】:库存数小于补件数`, false)
-          flag = true
-        } else {
-          const obj = {
-            sku_id: element.sku_id,
-            sys_sku_id: element.sys_sku_id,
-            sku_name: element.sku_name,
-            goods_name: element.goods_name,
-            number: this.reissueNum
-          }
-          skuLists.push(obj)
-        }
-      }
-      pamars['overseaOrderSn'] = this.overseaOrderSn
-      pamars['wid'] = val[0].wid
-      pamars['skuLists'] = skuLists
-      if (!skuLists?.length) return this.$message('库存数小于补件数')
-      this.batchreiLoading = true
-      const res = await this.BroadDeliveryOrder.addReissueStore(pamars)
-      if (res.code === 200) {
-        this.$message.success('补件成功')
-        this.batchreiVisible = false
-      } else {
-        this.$message.error(res.data)
-      }
-      if (flag) this.showConsole = false
-      this.batchreiLoading = false
-    },
-    // 设置uid
-    setUid(row) {
-      this.overseaOrderSn = row.oversea_order_sn
-      this.stockForm.app_uid = row.uid
-      this.reissueVisible = true
-      this.getStock()
-    },
-    // 获取库存
-    async getStock() {
-      this.reissueLoading = true
-      this.stockForm.page_num = this.stockPageSize
-      this.stockForm.page = this.stockPage
-      this.stockForm.is_zero_filter = this.filterZero ? 1 : 0
-      const res = await this.BroadDeliveryOrder.getStock(this.stockForm)
-      if (res.code === 200) {
-        this.stockTotal = res.data.total
-        this.reissueData = res.data.data
-        console.log('reissueData', this.reissueData)
-      } else {
-        this.$message.error(res.data)
-      }
-      this.reissueLoading = false
-    },
-    // 获取仓库
-    async getOverseasWarehouse() {
-      const myMap = new Map()
-      const res = await this.BroadDeliveryOrder.getOverseasWarehouse()
-      if (res.code === 200) {
-        res.data.forEach(item => {
-          this.widList = this.widList.concat(item.child)
-        })
-      } else {
-        this.$message.error(res.data)
-      }
-      this.widList = this.widList.filter((item) => !myMap.has(item.id) && myMap.set(item.id, 1))
-      this.form.wid = this.widList[0].id
-    },
-    // 获取数据
-    async getOutOfStockList() {
-      this.isShowLoading = true
-      this.form.page = this.page
-      this.form.pageSize = this.pageSize
-      const res = await this.BroadDeliveryOrder.getOutOfStockList(this.form)
-      console.log('tableData', res)
-      if (res.code === 200) {
-        this.tableData = res.data.data
-        this.tableData.map(item => {
-          let goods_num = 0
-          let goods_price = 0
-          item.sku_list.forEach(skuItem => {
-            goods_num += skuItem.stock_num ? skuItem.stock_num : 0
-            goods_price += skuItem.sku_price ? parseInt(skuItem.sku_price) : 0
-          })
-          item.goods_num = goods_num
-          item.goods_price = goods_price
-        })
-        this.total = res.data.total
-      } else {
-        this.$message.error(res.data)
-      }
-      this.isShowLoading = false
-    },
-    // 查看商品详情
-    getDetails(row) {
-      this.detailsData = row.sku_list
-      this.detailsData.map(item => {
-        item.order_sn = row.oversea_order_sn
-      })
+    // 查看绑定用户
+    getSharedUserList() {
+
     },
     // 导出数据
     async exportTableData() {
@@ -816,7 +388,7 @@ export default {
       params.pageSize = this.pageSize
       params.page = 1
       while (resData.length < this.total) {
-        const res = await this.BroadDeliveryOrder.getOutOfStockList(params)
+        const res = await this.ShareBroadStock.stockSharedList(params)
         if (res.code === 200) {
           resData = resData.concat(res.data.data)
           params.page++
@@ -890,45 +462,19 @@ export default {
     handleSizeChange(val) {
       this.page = 1
       this.pageSize = val
-      this.getOutOfStockList()
+      this.stockSharedList()
     },
     handleCurrentChange(val) {
       this.page = val
-      this.getOutOfStockList()
+      this.stockSharedList()
     },
     handleSelectionChange(val) {
       this.multipleSelection = val
-    },
-    reissueSizeChange(val) {
-      this.stockPage = 1
-      this.stockPageSize = val
-      this.getStock()
-    },
-    reissueCurrentChange(val) {
-      this.stockPage = val
-      this.getStock()
-    },
-    reissueSelectionChange(val) {
-      this.reissueSelection = val
-    },
-    reissueClose(done) {
-      done()
-      this.stockForm.wid = '0'
-      this.stockForm.app_uid = ''
-      this.stockForm.sku_id = ''
-      this.stockForm.sku_name = ''
-      this.stockForm.is_zero_filter = 0
-      this.stockForm.sys_sku_id = ''
-      this.filterZero = false
-      this.overseaOrderSn = ''
-    },
-    batchreiClose() {
-      this.reissueNum = ''
     }
   }
 }
 </script>
 
 <style lang="less" scoped>
-@import '../../../module-less/smart-house-less/broad-deliver-order.less';
+@import '../../../module-less/smart-house-less/share-broad-stock.less';
 </style>
