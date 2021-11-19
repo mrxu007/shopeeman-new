@@ -441,7 +441,6 @@ export default {
     // 撤销共享库存
     async delSharedInventory(row) {
       const { id, wid, app_uid } = row
-      console.log(row)
       const parmas = {}
       parmas['app_uid'] = app_uid
       parmas['shared_id'] = id
@@ -565,11 +564,11 @@ export default {
       params.page = 1
       while (resData.length < this.total) {
         const res = await this.ShareBroadStock.stockSharedList(params)
-        if (res.code === 200) {
+        if (res.code !== 200) {
           resData = resData.concat(res.data.data)
           params.page++
         } else {
-          this.$refs.Logs.writeLog('导出数据错误', res.data)
+          this.$message.error('导出数据错误', res.data)
           this.isShowLoading = false
           break
         }
