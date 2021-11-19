@@ -1627,6 +1627,14 @@ export default {
             if (userInfo.code === 200) {
               item.LoginInfo = `<p style="color: green">快速登录成功</p>`
               item.loginStatus = 'success'
+              this.$nextTick(() => {
+                this.$refs.plTable.toggleRowSelection([
+                  {
+                    row: item,
+                    selected: false
+                  }
+                ])
+              })
               continue
             } else {
               item.loginStatus = 'fail'
