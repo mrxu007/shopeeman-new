@@ -179,80 +179,82 @@ export default class ShopeemanConfig {
         {
           'Country': '泰国站',
           'CountryCode': 'TH',
-          'IsDeafult': 'true',
-          'IsSelected': 'true',
+          'IsDeafult': true,
+          'IsSelected': true,
           'ShipId': '7000',
           'ShipName': 'Standard Delivery - ส่งธรรมดาในประเทศ'
         },
         {
           'Country': '泰国站',
           'CountryCode': 'TH',
-          'IsDeafult': 'true',
-          'IsSelected': 'false',
+          'IsDeafult': true,
+          'IsSelected': false,
           'ShipId': '7001',
           'ShipName': 'Standard Delivery Bulky - ส่งสินค้าขนาดใหญ่'
         },
         {
           'Country': '泰国站',
           'CountryCode': 'TH',
-          'IsDeafult': 'true',
-          'IsSelected': 'false',
+          'IsDeafult': true,
+          'IsSelected': false,
           'ShipId': '70021',
           'ShipName': 'Kerry'
         },
         {
           'Country': '泰国站',
           'CountryCode': 'TH',
-          'IsDeafult': 'true',
-          'IsSelected': 'true',
+          'IsDeafult': true,
+          'IsSelected': true,
           'ShipId': '70023',
           'ShipName': 'Best Express'
         },
         {
           'Country': '泰国站',
           'CountryCode': 'TH',
-          'IsDeafult': 'true',
-          'IsSelected': 'true',
+          'IsDeafult': true,
+          'IsSelected': true,
           'ShipId': '70022',
           'ShipName': 'J&T Express'
         },
         {
           'Country': '泰国站',
           'CountryCode': 'TH',
-          'IsDeafult': 'true',
-          'IsSelected': 'false',
+          'IsDeafult': true,
+          'IsSelected': false,
           'ShipId': '70020',
           'ShipName': 'DHL Domestic'
         },
         {
           'Country': '泰国站',
           'CountryCode': 'TH',
-          'IsDeafult': 'true',
-          'IsSelected': 'false',
+          'IsDeafult': true,
+          'IsSelected': false,
           'ShipId': '70024',
           'ShipName': 'DHL Bulky'
         },
         {
           'Country': '泰国站',
           'CountryCode': 'TH',
-          'IsDeafult': 'false',
-          'IsSelected': 'false',
+          'IsDeafult': false,
+          'IsSelected': false,
+          'IsCustomShipFee': true,
           'ShipId': '70016',
           'ShipName': 'Thailand Post - Registered Mail'
         },
         {
           'Country': '泰国站',
           'CountryCode': 'TH',
-          'IsDeafult': 'false',
-          'IsSelected': 'false',
+          'IsDeafult': false,
+          'IsSelected': false,
+          'IsCustomShipFee': true,
           'ShipId': '70015',
           'ShipName': 'Thailand Post - EMS'
         },
         {
           'Country': '泰国站',
           'CountryCode': 'TH',
-          'IsDeafult': 'false',
-          'IsSelected': 'false',
+          'IsDeafult': false,
+          'IsSelected': false,
           'ShipId': '79003',
           'ShipName': 'Seller Own Fleet'
         }
@@ -261,104 +263,110 @@ export default class ShopeemanConfig {
         {
           'Country': '台湾站',
           'CountryCode': 'TW',
-          'IsDeafult': 'true',
-          'IsSelected': 'true',
+          'IsDeafult': true,
+          'IsSelected': true,
           'ShipId': '30005',
           'ShipName': '7-11'
         },
         {
           'Country': '台湾站',
           'CountryCode': 'TW',
-          'IsDeafult': 'true',
-          'IsSelected': 'true',
+          'IsDeafult': true,
+          'IsSelected': true,
           'ShipId': '30013',
           'ShipName': '蝦皮店到店'
         },
         {
           'Country': '台湾站',
           'CountryCode': 'TW',
-          'IsDeafult': 'true',
-          'IsSelected': 'true',
+          'IsDeafult': true,
+          'IsSelected': true,
           'ShipId': '30007',
           'ShipName': '萊爾富'
         },
         {
           'Country': '台湾站',
           'CountryCode': 'TW',
-          'IsDeafult': 'true',
-          'IsSelected': 'true',
+          'IsDeafult': true,
+          'IsSelected': true,
           'ShipId': '30006',
           'ShipName': '全家'
         },
         {
           'Country': '台湾站',
           'CountryCode': 'TW',
-          'IsDeafult': 'true',
-          'IsSelected': 'true',
+          'IsDeafult': true,
+          'IsSelected': true,
           'ShipId': '30001',
           'ShipName': '黑貓宅急配'
         },
         {
           'Country': '台湾站',
           'CountryCode': 'TW',
-          'IsDeafult': 'true',
-          'IsSelected': 'true',
+          'IsDeafult': true,
+          'IsSelected': true,
           'ShipId': '30008',
           'ShipName': 'OK Mart'
         },
         {
           'Country': '台湾站',
           'CountryCode': 'TW',
-          'IsDeafult': 'false',
-          'IsSelected': 'false',
+          'IsDeafult': false,
+          'IsSelected': false,
           'ShipId': '30010',
           'ShipName': '萊爾富-經濟包'
         },
         {
           'Country': '台湾站',
           'CountryCode': 'TW',
-          'IsDeafult': 'false',
-          'IsSelected': 'false',
+          'IsDeafult': false,
+          'IsSelected': false,
+          'IsCustomShipFee': true,
           'ShipId': '39303',
           'ShipName': '中華郵政'
         },
         {
           'Country': '台湾站',
           'CountryCode': 'TW',
-          'IsDeafult': 'false',
-          'IsSelected': 'false',
+          'IsDeafult': false,
+          'IsSelected': false,
+          'IsCustomShipFee': true,
           'ShipId': '39304',
           'ShipName': '賣家宅配'
         },
         {
           'Country': '台湾站',
           'CountryCode': 'TW',
-          'IsDeafult': 'false',
-          'IsSelected': 'false',
+          'IsDeafult': false,
+          'IsSelected': false,
+          'IsCustomShipFee': true,
           'ShipId': '39312',
           'ShipName': '賣家宅配：大型/超重物品運送'
         },
         {
           'Country': '台湾站',
           'CountryCode': 'TW',
-          'IsDeafult': 'true',
-          'IsSelected': 'false',
+          'IsDeafult': true,
+          'IsSelected': false,
+          'IsCustomShipFee': true,
           'ShipId': '39308',
           'ShipName': '賣家宅配：箱購'
         },
         {
           'Country': '台湾站',
           'CountryCode': 'TW',
-          'IsDeafult': 'false',
-          'IsSelected': 'false',
+          'IsDeafult': false,
+          'IsSelected': false,
+          'IsCustomShipFee': true,
           'ShipId': '39013',
           'ShipName': '賣家宅配：虛擬物品'
         },
         {
           'Country': '台湾站',
           'CountryCode': 'TW',
-          'IsDeafult': 'false',
-          'IsSelected': 'false',
+          'IsDeafult': false,
+          'IsSelected': false,
+          'IsCustomShipFee': true,
           'ShipId': '30012',
           'ShipName': '蝦皮宅配'
         }
@@ -367,64 +375,67 @@ export default class ShopeemanConfig {
         {
           'Country': '马来站',
           'CountryCode': 'MY',
-          'IsDeafult': 'true',
-          'IsSelected': 'false',
+          'IsDeafult': true,
+          'IsSelected': false,
           'ShipId': '20021',
           'ShipName': 'Ninja Van'
         },
         {
           'Country': '马来站',
           'CountryCode': 'MY',
-          'IsDeafult': 'true',
-          'IsSelected': 'false',
+          'IsDeafult': true,
+          'IsSelected': false,
           'ShipId': '20010',
           'ShipName': 'DHL eCommerce'
         },
         {
           'Country': '马来站',
           'CountryCode': 'MY',
-          'IsDeafult': 'true',
-          'IsSelected': 'true',
+          'IsDeafult': true,
+          'IsSelected': true,
           'ShipId': '20011',
           'ShipName': 'J&T Express'
         },
         {
           'Country': '马来站',
           'CountryCode': 'MY',
-          'IsDeafult': 'false',
-          'IsSelected': 'false',
+          'IsDeafult': false,
+          'IsSelected': false,
           'ShipId': '20007',
           'ShipName': 'Poslaju'
         },
         {
           'Country': '马来站',
           'CountryCode': 'MY',
-          'IsDeafult': 'true',
-          'IsSelected': 'true',
+          'IsDeafult': true,
+          'IsSelected': true,
           'ShipId': '2000',
           'ShipName': 'Standard Delivery'
         },
         {
           'Country': '马来站',
           'CountryCode': 'MY',
-          'IsDeafult': 'false',
-          'IsSelected': 'false',
+          'IsDeafult': false,
+          'IsSelected': false,
+          'IsCustomShipFee': true,
           'ShipId': '20023',
           'ShipName': 'City-Link Express'
         },
         {
           'Country': '马来站',
           'CountryCode': 'MY',
-          'IsDeafult': 'false',
-          'IsSelected': 'false',
+          'IsDeafult': false,
+          'IsSelected': false,
+          'IsCustomShipFee': true,
           'ShipId': '29910',
           'ShipName': 'Others (West Malaysia)'
         },
         {
           'Country': '马来站',
           'CountryCode': 'MY',
-          'IsDeafult': 'false',
-          'IsSelected': 'false',
+          'IsDeafult': false,
+          'IsSelected': false,
+          'IsCustomShipFee': true,
           'ShipId': '29911',
           'ShipName': 'Others (East Malaysia)'
         }
@@ -433,48 +444,48 @@ export default class ShopeemanConfig {
         {
           'Country': '菲律宾站',
           'CountryCode': 'PH',
-          'IsDeafult': 'true',
-          'IsSelected': 'true',
+          'IsDeafult': true,
+          'IsSelected': true,
           'ShipId': '40018',
           'ShipName': 'J&T Express'
         },
         {
           'Country': '菲律宾站',
           'CountryCode': 'PH',
-          'IsDeafult': 'true',
-          'IsSelected': 'false',
+          'IsDeafult': true,
+          'IsSelected': false,
           'ShipId': '40012',
           'ShipName': 'XPost Integrated'
         },
         {
           'Country': '菲律宾站',
           'CountryCode': 'PH',
-          'IsDeafult': 'true',
-          'IsSelected': 'false',
+          'IsDeafult': true,
+          'IsSelected': false,
           'ShipId': '40017',
           'ShipName': 'Ninja Van Own Packaging'
         },
         {
           'Country': '菲律宾站',
           'CountryCode': 'PH',
-          'IsDeafult': 'true',
-          'IsSelected': 'false',
+          'IsDeafult': true,
+          'IsSelected': false,
           'ShipId': '40066',
           'ShipName': 'Standard Delivery'
         },
         {
           'Country': '菲律宾站',
           'CountryCode': 'PH',
-          'IsDeafult': 'false',
-          'IsSelected': 'false',
+          'IsDeafult': false,
+          'IsSelected': false,
           'ShipId': '40021',
           'ShipName': 'GoGo Xpress'
         },
         {
           'Country': '菲律宾站',
           'CountryCode': 'PH',
-          'IsDeafult': 'true',
-          'IsSelected': 'true',
+          'IsDeafult': true,
+          'IsSelected': true,
           'ShipId': '4000',
           'ShipName': 'Standard Local'
         },
@@ -489,64 +500,64 @@ export default class ShopeemanConfig {
         {
           'Country': '越南站',
           'CountryCode': 'VN',
-          'IsDeafult': 'true',
-          'IsSelected': 'true',
+          'IsDeafult': true,
+          'IsSelected': true,
           'ShipId': '50016',
           'ShipName': 'VNPost Tiết Kiệm'
         },
         {
           'Country': '越南站',
           'CountryCode': 'VN',
-          'IsDeafult': 'true',
-          'IsSelected': 'true',
+          'IsDeafult': true,
+          'IsSelected': true,
           'ShipId': '50018',
           'ShipName': 'J&T Express'
         },
         {
           'Country': '越南站',
           'CountryCode': 'VN',
-          'IsDeafult': 'true',
-          'IsSelected': 'true',
+          'IsDeafult': true,
+          'IsSelected': true,
           'ShipId': '50020',
           'ShipName': 'GrabExpress'
         },
         {
           'Country': '越南站',
           'CountryCode': 'VN',
-          'IsDeafult': 'true',
-          'IsSelected': 'true',
+          'IsDeafult': true,
+          'IsSelected': true,
           'ShipId': '50022',
           'ShipName': 'NowShip'
         },
         {
           'Country': '越南站',
           'CountryCode': 'VN',
-          'IsDeafult': 'true',
-          'IsSelected': 'true',
+          'IsDeafult': true,
+          'IsSelected': true,
           'ShipId': '50023',
           'ShipName': 'Ninja Van'
         },
         {
           'Country': '越南站',
           'CountryCode': 'VN',
-          'IsDeafult': 'true',
-          'IsSelected': 'true',
+          'IsDeafult': true,
+          'IsSelected': true,
           'ShipId': '50024',
           'ShipName': 'BEST Express'
         },
         {
           'Country': '越南站',
           'CountryCode': 'VN',
-          'IsDeafult': 'true',
-          'IsSelected': 'true',
+          'IsDeafult': true,
+          'IsSelected': true,
           'ShipId': '50010',
           'ShipName': 'Viettel Post'
         },
         {
           'Country': '越南站',
           'CountryCode': 'VN',
-          'IsDeafult': 'true',
-          'IsSelected': 'true',
+          'IsDeafult': true,
+          'IsSelected': true,
           'ShipId': '50011',
           'ShipName': 'Giao Hàng Nhanh'
         },
@@ -561,32 +572,32 @@ export default class ShopeemanConfig {
         {
           'Country': '越南站',
           'CountryCode': 'VN',
-          'IsDeafult': 'true',
-          'IsSelected': 'true',
+          'IsDeafult': true,
+          'IsSelected': true,
           'ShipId': '50015',
           'ShipName': 'VNPost Nhanh'
         },
         {
           'Country': '越南站',
           'CountryCode': 'VN',
-          'IsDeafult': 'true',
-          'IsSelected': 'true',
+          'IsDeafult': true,
+          'IsSelected': true,
           'ShipId': '5001',
           'ShipName': 'Nhanh'
         },
         {
           'Country': '越南站',
           'CountryCode': 'VN',
-          'IsDeafult': 'true',
-          'IsSelected': 'false',
+          'IsDeafult': true,
+          'IsSelected': false,
           'ShipId': '5002',
           'ShipName': 'Tiết kiệm'
         },
         {
           'Country': '越南站',
           'CountryCode': 'VN',
-          'IsDeafult': 'true',
-          'IsSelected': 'false',
+          'IsDeafult': true,
+          'IsSelected': false,
           'ShipId': '5000',
           'ShipName': 'Hoả Tốc'
         }
@@ -595,32 +606,32 @@ export default class ShopeemanConfig {
         {
           'Country': '新加坡站',
           'CountryCode': 'SG',
-          'IsDeafult': 'true',
-          'IsSelected': 'true',
+          'IsDeafult': true,
+          'IsSelected': true,
           'ShipId': '18035',
           'ShipName': 'SpeedPost Economy'
         },
         {
           'Country': '新加坡站',
           'CountryCode': 'SG',
-          'IsDeafult': 'true',
-          'IsSelected': 'true',
+          'IsDeafult': true,
+          'IsSelected': true,
           'ShipId': '10014',
           'ShipName': 'J&T Express'
         },
         {
           'Country': '新加坡站',
           'CountryCode': 'SG',
-          'IsDeafult': 'true',
-          'IsSelected': 'true',
+          'IsDeafult': true,
+          'IsSelected': true,
           'ShipId': '10007',
           'ShipName': 'Ninja Van (Home Delivery)'
         },
         {
           'Country': '新加坡站',
           'CountryCode': 'SG',
-          'IsDeafult': 'false',
-          'IsSelected': 'false',
+          'IsDeafult': false,
+          'IsSelected': false,
           'ShipId': '19100',
           'ShipName': 'Singpost - Normal Mail'
         }
@@ -629,64 +640,64 @@ export default class ShopeemanConfig {
         {
           'Country': '印尼站',
           'CountryCode': 'ID',
-          'IsDeafult': 'true',
-          'IsSelected': 'true',
+          'IsDeafult': true,
+          'IsSelected': true,
           'ShipId': '8003',
           'ShipName': 'Reguler (Cashless)'
         },
         {
           'Country': '印尼站',
           'CountryCode': 'ID',
-          'IsDeafult': 'true',
-          'IsSelected': 'true',
+          'IsDeafult': true,
+          'IsSelected': true,
           'ShipId': '8005',
           'ShipName': 'Hemat'
         },
         {
           'Country': '印尼站',
           'CountryCode': 'ID',
-          'IsDeafult': 'true',
-          'IsSelected': 'true',
+          'IsDeafult': true,
+          'IsSelected': true,
           'ShipId': '8001',
           'ShipName': 'Same Day'
         },
         {
           'Country': '印尼站',
           'CountryCode': 'ID',
-          'IsDeafult': 'true',
-          'IsSelected': 'true',
+          'IsDeafult': true,
+          'IsSelected': true,
           'ShipId': '8000',
           'ShipName': 'Instant'
         },
         {
           'Country': '印尼站',
           'CountryCode': 'ID',
-          'IsDeafult': 'true',
-          'IsSelected': 'true',
+          'IsDeafult': true,
+          'IsSelected': true,
           'ShipId': '8002',
           'ShipName': 'Next Day'
         },
         {
           'Country': '印尼站',
           'CountryCode': 'ID',
-          'IsDeafult': 'false',
-          'IsSelected': 'false',
+          'IsDeafult': false,
+          'IsSelected': false,
           'ShipId': '80008',
           'ShipName': 'JNE Trucking (JTR)'
         },
         {
           'Country': '印尼站',
           'CountryCode': 'ID',
-          'IsDeafult': 'false',
-          'IsSelected': 'false',
+          'IsDeafult': false,
+          'IsSelected': false,
           'ShipId': '80031',
           'ShipName': 'Sicepat Gokil'
         },
         {
           'Country': '印尼站',
           'CountryCode': 'ID',
-          'IsDeafult': 'true',
-          'IsSelected': 'true',
+          'IsDeafult': true,
+          'IsSelected': true,
           'ShipId': '80024',
           'ShipName': 'J&T Jemari'
         }
@@ -725,7 +736,7 @@ export default class ShopeemanConfig {
     }
     return params
   }
-  getSiteMall() { // 各站点对应店铺
+  getLogisticsList() { // 各站点对应店铺
     return this.site_mall
   }
   getSiteCode(val) { // 站点及简码对应关系

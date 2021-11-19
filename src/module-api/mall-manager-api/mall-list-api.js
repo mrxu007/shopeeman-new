@@ -36,7 +36,7 @@ export default class MallListAPI {
       }
       let res = await this._this.$shopeemanService.getChinese(country, '/api/v3/logistics/get_channel_list/?', params)
       res = JSON.parse(JSON.parse(res).data)
-      const siteMall = this._this.$shopeeManConfig.getSiteMall()
+      const siteMall = this._this.$shopeeManConfig.getLogisticsList()
       const isNormal = siteMall[country].some(item => {
         return res.data.list.some(resitem => {
           return Number(item.ShipId) === resitem.channel_id

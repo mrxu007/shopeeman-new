@@ -358,8 +358,8 @@ export default class CommodityService {
    * @param {string} labelName 标签名称
    * @param {number} sysLabelId 标签id,修改需要传值，新增不需要传值
    */
-  addGoodsTag(labelName, sysLabelId = 0) {
-    return this.nativeService.callFunction('AddGoodsTag', labelName, sysLabelId)
+  addGoodsTag(labelName, sysLabelId = "0") {
+      return this.nativeService.callFunction('AddGoodsTag', labelName, sysLabelId)
   }
 
   /**

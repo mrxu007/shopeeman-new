@@ -2,13 +2,14 @@
   <div class="contaniner">
     <header>
       <el-tabs v-model="activeName" type="card" @tab-click="handleClick">
-        <el-tab-pane label="关键词采集" name="first" class="keyword">
+        <el-tab-pane label="关键词采集" name="first">
           <div class="keyword-container">
             <div class="keyword-banner-bar">
               <div v-for="item in keyworBar" :key="item.value" class="barChilren" :class="{ active: currentKeywordPlatform === item.value }" @click="selectPlatform(item)">{{ item.label }}</div>
             </div>
             <div class="keyword-banner-content">
               <div class="con-sub-1">
+                <!-- 公共属性 -->
                 <div class="item">
                   <p>开始页码:</p>
                   <el-input v-model="commonAttr.StartPage" size="mini" />
@@ -27,6 +28,28 @@
                   <p>-</p>
                   <el-input v-model="commonAttr.EndPrice" size="mini" />
                 </div>
+                <!-- 虾皮 -->
+                <div class="item">
+                  <p>站点:</p>
+                  <el-select v-model="shopeeAttr.siteCode" placeholder="" size="mini" @change="getShopeePlace">
+                    <el-option v-for="(item, index) in getSite" :key="index" :label="item.label" :value="item.value" />
+                  </el-select>
+                  <p>排序方式:</p>
+                  <el-select v-model="commonAttr.sortWayVal" placeholder="" size="mini">
+                    <el-option v-for="(item, index) in commonAttr.sortWay" :key="index" :label="item.label" :value="item.value" />
+                  </el-select>
+                </div>
+                <div class="item">
+                  <p>出货地点:</p>
+                  <el-select v-model="shopeeAttr.placeVal" placeholder="" size="mini" multiple collapse-tags @change="selectPlaceValEvent">
+                    <el-checkbox v-model="shopeeAttr.isSelectAll" label="全部" @change="selectAllEvent" />
+                    <el-option v-for="(item, index) in shopeeAttr.placeOrigin" :key="index" :label="item.label" :value="item.value" />
+                  </el-select>
+                </div>
+                <div class="item">
+                  <p>创建时间:</p>
+                  <el-input size="mini" />
+                </div>
               </div>
               <div class="con-sub-2">
                 <div class="item">
@@ -40,23 +63,31 @@
               </div>
               <!-- 复用操作按钮 -->
               <div class="con-sub-3">
-                <el-button type="primary" size="mini" @click="StartCollection">开始采集</el-button>
-                <el-button type="primary" size="mini">取消采集</el-button>
+                <div class="item">
+                  <el-button type="primary" size="mini" @click="StartCollection">开始采集</el-button>
+                  <el-button type="primary" size="mini">取消采集</el-button>
+                </div>
                 <div class="item">
                   <p>起:</p>
                   <el-input size="mini" placeholder="" />
                   <p>止:</p>
                   <el-input size="mini" placeholder="" />
                 </div>
-                <el-button type="primary" size="mini">收藏商品</el-button>
-                <el-button type="primary" size="mini">编辑上新</el-button>
-                <el-button type="primary" size="mini">插件采集</el-button>
-                <el-button type="primary" size="mini">清理全部</el-button>
-                <el-button type="primary" size="mini">导出数据</el-button>
-                <el-button type="primary" size="mini">批量删除</el-button>
+                <div class="item">
+                  <el-button type="primary" size="mini">收藏商品</el-button>
+                  <el-button type="primary" size="mini">编辑上新</el-button>
+                </div>
+                <div class="item">
+                  <el-button type="primary" size="mini">插件采集</el-button>
+                  <el-button type="primary" size="mini">清理全部</el-button>
+                </div>
+                <div class="item">
+                  <el-button type="primary" size="mini">导出数据</el-button>
+                  <el-button type="primary" size="mini">批量删除</el-button>
+                </div>
               </div>
               <div class="con-sub-4">
-                <div class="con-sub5-log" />
+                <div class="con-sub5-log" v-html="consoleMsg" />
               </div>
             </div>
           </div>
@@ -66,13 +97,55 @@
         <el-tab-pane label="定时任务补偿" name="fourth" />
       </el-tabs>
     </header>
-    <article>123</article>
+    <article>
+      <u-table
+        ref="plTable"
+        :max-height="Height"
+        use-virtual
+        :data-changes-scroll-top="false"
+        :header-cell-style="{
+          backgroundColor: '#f5f7fa',
+        }"
+        row-key="id"
+        :big-data-checkbox="true"
+        :border="false"
+        @selection-change="handleSelectionChange"
+      >
+        <u-table-column align="center" type="selection" />
+        <u-table-column align="center" type="index" label="序号" />
+        <u-table-column align="center" label="主图">
+          <template v-slot="{ row }">
+            <div style="justify-content: center; display: flex">
+              <img :src="row.Image" style="width: 56px; height: 56px" />
+            </div>
+          </template>
+        </u-table-column>
+        <u-table-column align="center" label="上家ID" prop="GoodsId" />
+        <u-table-column align="center" label="标题" prop="Title" width="500px" fit>
+          <template v-slot="{ row }">
+            <p style="white-space: normal">{{ row.Title }}</p>
+          </template>
+        </u-table-column>
+        <u-table-column align="center" label="类目" prop="CategoryName">
+          <template v-slot="{ row }">
+            <p style="white-space: normal">{{ row.CategoryName }}</p>
+          </template>
+        </u-table-column>
+        <u-table-column align="center" label="价格" prop="Price" />
+        <u-table-column align="center" label="销量" prop="Sales" />
+        <u-table-column align="center" label="发货地" />
+        <u-table-column align="center" label="来源" prop="Origin" />
+        <u-table-column align="center" label="操作" />
+        <u-table-column align="center" label="操作结果" />
+      </u-table>
+    </article>
   </div>
 </template>
 
 <script>
 import CollectKeyWordApI from './collection-keyword-api'
-import getPlatform from './collection-platformId'
+import { getPlatform, platformObj, getSitePlace, siteRelation } from './collection-platformId'
+import testData from './testData'
 export default {
   props: {
     baseConfig: {
@@ -80,7 +153,7 @@ export default {
       required: false,
       default: () => {
         return {
-          keywordConfig: [1, 1.2, 2, 8, 9, 10, 11, 12] // 关键词采集配置
+          keywordConfig: [1, 2, 11, 8, 1.2, 10, 12, 9] // 关键词采集配置
           // linkConfig: { // 链接采集配置
           // },
           // entireMallConfig: { // 整店采集配置
@@ -91,27 +164,47 @@ export default {
   },
   data() {
     return {
+      Height: 650,
       activeName: 'first',
       CollectKeyWordApInstance: new CollectKeyWordApI(this),
+      // table attr
+      multipleSelection: [],
+      goodsList: [],
 
       // button
       buttonStatus: {
         keyword: false
       },
       // keyWord search
-      currentKeywordPlatform: 1,
+      currentKeywordPlatform: 11,
       commonAttr: {
         StartPage: 1,
-        EndPage: 20,
+        EndPage: 2,
         StartSales: 0,
-        EndSales: 0,
+        EndSales: 999999999,
         StartPrice: 0,
         EndPrice: 999999999,
         keyFilter: '',
-        consoleMsg: ''
+        sortWay: [
+          { label: '价格从低到高', value: 'price,asc' },
+          { label: '价格从高到低', value: 'price,desc' },
+          { label: '销量从低到高', value: 'sales,asc' },
+          { label: '销量从高到低', value: 'sales,desc' }
+        ],
+        sortWayVal: 'price,asc'
       },
       key: '',
+      consoleMsg: '',
+      // 拼多多参数
       keywordAttr: {
+      },
+      // 淘宝参数
+      // 虾皮参数
+      shopeeAttr: {
+        placeOrigin: '',
+        siteCode: 'TW',
+        placeVal: [],
+        isSelectAll: false
       }
     }
   },
@@ -119,13 +212,48 @@ export default {
     keyworBar() {
       const value = getPlatform(this.baseConfig.keywordConfig)
       return value
+    },
+    getSite() {
+      return siteRelation
     }
   },
   created() {
+    this.getShopeePlace()
+  },
+  mounted() {
+    // this.goodsList = testData.data
+    // this.$refs.plTable.reloadData(this.goodsList)
+    // console.log('this.goodsList', this.goodsList)
   },
   methods: {
+    selectPlaceValEvent() {
+      console.log('this.shopeeAttr.placeOrigin', this.shopeeAttr.placeOrigin)
+      console.log('this.shopeeAttr.placeVal', this.shopeeAttr.placeVal)
+      if (this.shopeeAttr.placeOrigin.length === this.shopeeAttr.placeVal.length) {
+        this.shopeeAttr.isSelectAll = true
+      } else {
+        this.shopeeAttr.isSelectAll = false
+      }
+    },
+    selectAllEvent() {
+      if (this.shopeeAttr.isSelectAll) {
+        this.shopeeAttr.placeOrigin.map(item => {
+          this.shopeeAttr.placeVal.push(item.value)
+        })
+      } else {
+        this.shopeeAttr.placeVal = []
+      }
+    },
+    getShopeePlace() {
+      this.shopeeAttr.placeVal = []
+      this.shopeeAttr.isSelectAll = false
+      this.shopeeAttr.placeOrigin = getSitePlace(this.shopeeAttr.siteCode)
+    },
     handleClick(tab, event) {
       // console.log(tab, event)
+    },
+    handleSelectionChange(val) {
+      this.multipleSelection = val
     },
     selectPlatform(row) { // 关键词选择平台
       this.currentKeywordPlatform = row.value
@@ -154,17 +282,17 @@ export default {
           return { code: -3, data: '参数不能为空' }
         }
         keyword = this.key.replace(/\s/g, ';').split(';')
-        const data = [[]]
-        let index = 0
-        keyword.map(item => { // 分组
-          if (data[index].length >= num) {
-            index++
-            data[index] = []
-          }
-          data[index].push(item)
-        })
-        keyword = null
-        return { code: 200, data }
+        // const data = [[]]
+        // let index = 0
+        // keyword.map(item => { // 分组
+        //   if (data[index].length >= num) {
+        //     index++
+        //     data[index] = []
+        //   }
+        //   data[index].push(item)
+        // })
+        // keyword = null
+        return { code: 200, data: keyword }
       } catch (error) {
         return { code: -2, data: `关键词格式不规范：${error}` }
       }
@@ -178,19 +306,78 @@ export default {
       const keyLen = res.data.length
       const platForm = this.currentKeywordPlatform
       this.buttonStatus.keyword = true
+      this.consoleMsg = ''
+      this.goodsList = []
+      this.$refs.plTable.reloadData(this.goodsList)
       this.CollectKeyWordApInstance._initKeyWord(platForm, this.commonAttr)
-      for (let i = 0; i < keyLen; i++) {
-        const keyItem = key[i]
-        const res = await this.CollectKeyWordApInstance.keywordSearch(keyItem)
+      this.writeLog('开始采集搜索........', true)
+      this.writeLog(`开始采集${platformObj[platForm]}的商品.......`, true)
 
-        debugger
+      for (let i = 0; i < keyLen; i++) {
+        const item = key[i]
+        // this.writeLog(`采集关键字：${item}`, true)
+        const res2 = await this.CollectKeyWordApInstance.keywordSearch(item)
+        if (res2.code !== 200) {
+          continue
+        }
+        this.goodsList.push(...res2.data)
       }
+      if (platForm === 1) { // 如果当前平台为拼多多需额外调用 拼多多补充接口  1.1-------------------------
+        for (let i = 0; i < keyLen; i++) {
+          const item = key[i]
+          // this.writeLog(`采集关键字：${item}`, true)
+          const res2 = await this.CollectKeyWordApInstance.keywordSearchTwo(item)
+          if (res2.code !== 200) {
+            continue
+          }
+          this.goodsList.push(...res2.data)
+        }
+      }
+      this.writeLog(`${platformObj[platForm]}：共采集：${this.goodsList.length}条`, true)
+      this.writeLog(`${platformObj[platForm]}的商品采集完毕........`, true)
       key = null
       this.buttonStatus.keyword = false
     },
+
     linksSearch() {
     },
     entireMallSearch() {
+    },
+    // 辅助-----------------------------
+    writeLog(msg, success = true) {
+      if (this.consoleMsg === undefined) {
+        return
+      }
+      if (!msg) { return }
+      const color = success ? 'green' : 'red'
+      const time = this.dateFormat(new Date(Date.now()), 'hh:mm:ss')
+      this.consoleMsg += `<p style="color:${color}; margin-top: 5px;">${time}:${msg}</p>`
+    },
+    dateFormat(time, fmt) {
+      var o = {
+        'M+': time.getMonth() + 1, // 月份
+        'd+': time.getDate(), // 日
+        'h+': time.getHours(), // 小时
+        'm+': time.getMinutes(), // 分
+        's+': time.getSeconds(), // 秒
+        'q+': Math.floor((time.getMonth() + 3) / 3), // 季度
+        'S': time.getMilliseconds() // 毫秒
+      }
+      if (/(y+)/.test(fmt)) { fmt = fmt.replace(RegExp.$1, (time.getFullYear() + '').substr(4 - RegExp.$1.length)) }
+      for (var k in o) {
+        if (new RegExp('(' + k + ')').test(fmt)) {
+          fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (('00' + o[k]).substr(('' + o[k]).length)))
+        }
+      }
+      return fmt
+    },
+    async delay(time) {
+      return new Promise(resolve => {
+        const timeId = setTimeout(() => {
+          clearTimeout(timeId)
+          resolve(true)
+        }, time)
+      })
     }
   }
 }

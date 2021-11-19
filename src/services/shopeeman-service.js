@@ -107,10 +107,8 @@ export default class NetMessageBridgeService {
     options['extrainfo'] = this.getExtraInfo(data)
     if (exportInfo) { // 适配店铺管理---导入店铺
       options['extrainfo']['exportInfo'] = exportInfo
-      // body 里面不能带店铺id
     }
     delete data.mallId
-    // options['params'] = {}
     const referer = options['headers'] && options['headers'].referer
     if (referer) {
       options['headers'] = Object.assign(options['headers'],
@@ -119,7 +117,7 @@ export default class NetMessageBridgeService {
           referer: url + referer
         })
     }
-    // console.log(url, JSON.stringify(options), JSON.stringify(data))
+    console.log(url, JSON.stringify(options), JSON.stringify(data))
     return this.NetMessageBridgeService().post(url, JSON.stringify(options), JSON.stringify(data))
   }
 
@@ -257,7 +255,6 @@ export default class NetMessageBridgeService {
         }
       }, copy_mallInfo)
       res = JSON.parse(res)
-
       if (res.status === 200) {
         const data = JSON.parse(res.data)
         // const data = {
@@ -679,6 +676,12 @@ export default class NetMessageBridgeService {
   // 设置店铺的地址
   setShopAddress(country, data, option) {
     return this.postChinese(country, '/api/v3/settings/set_shop_address', data, option)
+  }
+
+  //-----------------一键上新--------------------//
+  //创建活动
+  discount(country, data, option){
+    return this.postChinese(country,'/api/marketing/v3/discount/',data,option)
   }
 }
 

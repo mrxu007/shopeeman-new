@@ -30,8 +30,10 @@ class MallTargetApi {
         const data = {}
         data['buyer_satisfaction'] = customerSatisfaction[0].my === null ? null : customerSatisfaction[0].my// 买家满意度
 
-        data['non_performance_rate'] = fulFillMent[0].my === null ? null : fulFillMent[0].my / 10000 // 不履行率
-        data['cancel_rate'] = fulFillMent[0].children[0].my === null ? null : fulFillMent[0].children[0].my / 10000 // 取消率
+        // data['non_performance_rate'] = fulFillMent[0].my === null ? null : fulFillMent[0].my / 10000 // 不履行率
+        data['non_performance_rate'] = fulFillMent[0].my === null ? null : (fulFillMent[0].my / 10000).toFixed(2) // 不履行率
+        // data['cancel_rate'] = fulFillMent[0].children[0].my === null ? null : fulFillMent[0].children[0].my / 10000 // 取消率
+        data['cancel_rate'] = fulFillMent[0].children[0].my === null ? null : (fulFillMent[0].children[0].my / 10000).toFixed(2) // 取消率
         data['return_rate'] = fulFillMent[0].children[1].my// 退货/退款率
         data['delay_rate'] = fulFillMent[1].my === null ? null : fulFillMent[1].my / 10000 // 延迟发货率
         data['ready_time'] = fulFillMent[2].my// 准备时间
@@ -49,10 +51,11 @@ class MallTargetApi {
 
         data['buyer_satisfaction_last'] = customerSatisfaction[0].lastPeriod// 上期买家满意度
 
-        data['non_performance_rate_last'] = fulFillMent[0].lastPeriod === null ? null : fulFillMent[0].lastPeriod / 10000 // 上期不履行率
-        data['cancel_rate_last'] = fulFillMent[0].children[0].lastPeriod === null ? null : fulFillMent[0].children[0].lastPeriod / 10000 // 上期取消率
-        data['return_rate_last'] = fulFillMent[0].children[1].lastPeriod === null ? null : fulFillMent[0].children[1].lastPeriod / 10000 // 上期退货/退款率
-        data['delay_rate_last'] = fulFillMent[1].lastPeriod === null ? null : fulFillMent[1].lastPeriod / 10000 // 上期延迟发货率
+        // data['non_performance_rate_last'] = fulFillMent[0].lastPeriod === null ? null : fulFillMent[0].lastPeriod / 10000 // 上期不履行率
+        data['non_performance_rate_last'] = fulFillMent[0].lastPeriod === null ? null : (fulFillMent[0].lastPeriod / 10000).toFixed(2) // 上期不履行率
+        data['cancel_rate_last'] = fulFillMent[0].children[0].lastPeriod === null ? null : (fulFillMent[0].children[0].lastPeriod / 10000).toFixed(2) // 上期取消率
+        data['return_rate_last'] = fulFillMent[0].children[1].lastPeriod === null ? null : (fulFillMent[0].children[1].lastPeriod / 10000).toFixed(2) // 上期退货/退款率
+        data['delay_rate_last'] = fulFillMent[1].lastPeriod === null ? null : (fulFillMent[1].lastPeriod / 10000).toFixed(2) // 上期延迟发货率
         data['ready_time_last'] = fulFillMent[2].lastPeriod// 上期准备时间
 
         data['serious_listing_violations_last'] = listingViolations[0].lastPeriod// 上期严重的上市违规
@@ -81,7 +84,7 @@ class MallTargetApi {
         data['JunkGoodsPoint'] = listingViolations[0].children[0].Point // 垃圾商品计分
         data['CounterfeitGoodsPoint'] = listingViolations[0].children[1].Point// 仿冒品或者侵权商品计分
         data['ProhibitedGoodsPoint'] = listingViolations[0].children[2].Point// 违禁商品计分
-        data['PreOrderedGoodsRatePoint'] = listingViolations[1].Point / 10000// 预购商品的%计分（除以10000，保留2位
+        data['PreOrderedGoodsRatePoint'] = listingViolations[1].Point ? (Number(listingViolations[1].Point) / 10000).toFixed(2) + '%' : ''// 预购商品的%计分（除以10000，保留2位
         data['PreOrderedOverTargetPoint'] = listingViolations[1].children[0].Point// 预购商品的天数%超过目标计分
         data['OtherViolatingGoodsPoint'] = listingViolations[2].Point// 违反其它上架规范计分
         data['ChatResponsePoint'] = customerService[0].Point// 聊天回应计分

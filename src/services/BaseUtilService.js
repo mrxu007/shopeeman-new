@@ -109,4 +109,7 @@ export default class BaseUtilService {
   async getOrderDetailInfo(shopId, reqStr) {
     return await this.nativeService.getOrderDetailInfo(shopId, reqStr)
   }
+  async getLocalTranslationThesaurus(word) {
+    return await this.nativeService.getLocalTranslationThesaurus('auto',"zh-Hans", word)
+  }
 }
