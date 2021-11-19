@@ -39,7 +39,7 @@
     <main v-if="activeVal === '9'"><ProductPutOnBandlibrary /></main>
 
     <!--类目黑名单 -->
-    <main v-if="activeVal === '5'"><ProductPutOnCategoryblack /></main>
+    <main v-if="activeVal === '13'"><ProductPutOnCategoryblack /></main>
 
     <!-- 拼多多买手号 -->
     <main v-if="activeVal === '10'"><ProductPutOnPDD /></main>
