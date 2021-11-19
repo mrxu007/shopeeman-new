@@ -778,6 +778,10 @@ export default {
       this.reissueVisible = true
       this.getStock()
     },
+    // 打开商品链接
+    openUrl(row) {
+      window.open(row)
+    },
     // 获取库存
     async getStock() {
       this.reissueLoading = true
