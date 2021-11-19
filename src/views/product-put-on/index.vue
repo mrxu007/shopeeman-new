@@ -46,7 +46,7 @@
 
     <!-- 天猫淘宝海外平台 -->
     <main v-if="activeVal === '12'"><ProductPutOnTaobao /></main>
-    <main v-if="activeVal === '10'"><ProductPutOnCategoryblack /></main>
+    <!-- <main v-if="activeVal === '10'"><ProductPutOnCategoryblack /></main> -->
 
     <!-- 拼多多选品库 -->
     <main v-if="activeVal === '11'"><ProductPutOnPddAccount /></main>
