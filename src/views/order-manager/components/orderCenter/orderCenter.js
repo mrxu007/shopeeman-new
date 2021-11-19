@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-11-10 12:02:05
- * @LastEditTime: 2021-11-18 20:21:25
+ * @LastEditTime: 2021-11-19 22:48:55
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shopeeman-new\src\views\order-manager\components\orderCenter\selectData.js
@@ -746,18 +746,18 @@ const syncStatus = [
   //   label: '运送中',
   //   value: 'shipping'
   // },
-  {
-    label: '已完成',
-    value: 'completed'
-  },
+  // {
+  //   label: '已完成',
+  //   value: 'completed'
+  // },
   // {
   //   label: '取消中',
   //   value: 'cancelled'
   // }, //cancelled  //cancelled_all
-  // {
-  //   label: '退款中',
-  //   value: 'refund'
-  // },
+  {
+    label: '退款中',
+    value: 'refund'
+  },
 ]
 
 //每隔30分钟同步一次
@@ -796,6 +796,12 @@ function siteShip(country) {
 function sourceName(val){
   let name = ''
   let info = goodsSourceList.find(item=>{return item.value == val})
+  name = info?info.label:''
+  return name
+}
+function orderStatusName(val){
+  let name = ''
+  let info = orderStatusList.find(item=>{return item.value == val})
   name = info?info.label:''
   return name
 }
@@ -848,5 +854,6 @@ export {
   shotStatuForEdit,
   warehouseType,
   sourceName,
+  orderStatusName,
   siteShip
 }

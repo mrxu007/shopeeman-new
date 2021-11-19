@@ -2,8 +2,9 @@
 import axios from 'axios'
 import jxAdapter from './jx-apdater'
 import tbAdaptert from './gateway/gateway-adapter'
+const baseURL = window.appInfo.route
 const AppRequest = axios.create({ // 壳内转发请求
-  baseURL: process.env.VUE_APP_BASE_API,
+  baseURL,
   timeout: 5000,
   headers: {
     'Accept': 'application/vnd.ppxias.v3+json'
@@ -181,5 +182,6 @@ export default {
   getUserWarehouse:  (data) => AppRequest.get('/warehouseAddress/userIndex', { params: data }),  //仓库收货地址设置---获取列表 
   getPurchaseLists:  (data) => AppRequest.post('/getPurchaseLists', data), //删除买手号 order/getSimpleOrderInfo
   getOrderBySn:  (data) => AppRequest.post('/order/getSimpleOrderInfo', data), //根据订单号获取订单 
+  uploadOrderWarehourseShipAmount:  (data) => AppRequest.post('/order/uploadOrderWarehourseShipAmount', data), //上报仓库发货金额  
 
 }

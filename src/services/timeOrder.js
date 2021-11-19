@@ -26,7 +26,7 @@ export default class {
   writeLog = undefined
   constructor(mall, syncStatus, that, writeLog) {
     this.mall = mall,
-      this._this = that
+    this._this = that
     this.syncStatus = syncStatus
     this.writeLog = writeLog
   }
@@ -386,17 +386,17 @@ export default class {
           "create_time": order.create_time,
           "update_time": order.ordeTrackingHistory && order.ordeTrackingHistory.history && order.ordeTrackingHistory.history[0] && order.ordeTrackingHistory.history[0].ctime || 0,
           "pay_time": order.shipping_confirm_time,
-          "credit_card_number": null,
+          // "credit_card_number": null,
           "ship_by_date": order.ship_by_date,
           "delivery_time": this.getDeliveryTime(order),
           "tracking_no": order.shipping_traceno || this.getTrackingNo(order),
           "buyer_cancel_reason": order.buyer_cancel_reason,
           "message_to_seller": order.remark,
-          "voucher_absorbed_by_seller": order.voucher_absorbed_by_seller,
-          "service_code": "",
-          "cod": 0,
+          // "voucher_absorbed_by_seller": order.voucher_absorbed_by_seller,
+          // "service_code": "",
+          // "cod": 0,
           "goods_to_declare": 0,
-          "buyer_username": order.buyer_user.user_name,
+          // "buyer_username": order.buyer_user.user_name,
           "recipient_address": {
             "phone": order.buyer_address_phone,
             "name": order.buyer_address_name,

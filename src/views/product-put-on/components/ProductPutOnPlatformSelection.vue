@@ -9,6 +9,7 @@
             </div>
             <div class="keyword-banner-content">
               <div class="con-sub-1">
+                <!-- 公共属性 -->
                 <div class="item">
                   <p>开始页码:</p>
                   <el-input v-model="commonAttr.StartPage" size="mini" />
@@ -26,6 +27,28 @@
                   <el-input v-model="commonAttr.StartPrice" size="mini" />
                   <p>-</p>
                   <el-input v-model="commonAttr.EndPrice" size="mini" />
+                </div>
+                <!-- 虾皮 -->
+                <div class="item">
+                  <p>站点:</p>
+                  <el-select v-model="commonAttr.siteCode" placeholder="" size="mini" @change="getShopeePlace">
+                    <el-option v-for="(item, index) in getSite" :key="index" :label="item.label" :value="item.value" />
+                  </el-select>
+                  <p>排序方式:</p>
+                  <el-select v-model="commonAttr.sortWayVal" placeholder="" size="mini">
+                    <el-option v-for="(item, index) in commonAttr.sortWay" :key="index" :label="item.label" :value="item.value" />
+                  </el-select>
+                </div>
+                <div class="item">
+                  <p>出货地点:</p>
+                  <el-select v-model="commonAttr.placeVal" placeholder="" size="mini" multiple collapse-tags @change="selectPlaceValEvent">
+                    <el-checkbox v-model="isSelectAll" label="全部" @change="selectAllEvent" />
+                    <el-option v-for="(item, index) in commonAttr.placeOrigin" :key="index" :label="item.label" :value="item.value" />
+                  </el-select>
+                </div>
+                <div class="item">
+                  <p>创建时间:</p>
+                  <el-input size="mini" />
                 </div>
               </div>
               <div class="con-sub-2">
@@ -100,12 +123,12 @@
         <u-table-column align="center" label="上家ID" prop="GoodsId" />
         <u-table-column align="center" label="标题" prop="Title" width="500px" fit>
           <template v-slot="{ row }">
-            <p style="height: 56px; white-space: normal">{{ row.Title }}</p>
+            <p style="white-space: normal">{{ row.Title }}</p>
           </template>
         </u-table-column>
         <u-table-column align="center" label="类目" prop="CategoryName">
           <template v-slot="{ row }">
-            <p style="height: 56px; white-space: normal">{{ row.CategoryName }}</p>
+            <p style="white-space: normal">{{ row.CategoryName }}</p>
           </template>
         </u-table-column>
         <u-table-column align="center" label="价格" prop="Price" />
@@ -121,8 +144,8 @@
 
 <script>
 import CollectKeyWordApI from './collection-keyword-api'
-import getPlatform from './collection-platformId'
-// import testData from './testData'
+import { getPlatform, platformObj, getSitePlace, siteRelation } from './collection-platformId'
+import testData from './testData'
 export default {
   props: {
     baseConfig: {
@@ -130,7 +153,7 @@ export default {
       required: false,
       default: () => {
         return {
-          keywordConfig: [1, 1.2, 2, 8, 9, 10, 11, 12] // 关键词采集配置
+          keywordConfig: [1, 2, 11, 8, 1.2, 10, 12, 9] // 关键词采集配置
           // linkConfig: { // 链接采集配置
           // },
           // entireMallConfig: { // 整店采集配置
@@ -153,37 +176,75 @@ export default {
         keyword: false
       },
       // keyWord search
-      currentKeywordPlatform: 1,
+      currentKeywordPlatform: 11,
       commonAttr: {
+        // 拼多多 淘宝 参数
         StartPage: 1,
         EndPage: 2,
         StartSales: 0,
         EndSales: 999999999,
         StartPrice: 0,
         EndPrice: 999999999,
-        keyFilter: ''
+        // shopee参数
+        sortWay: [
+          { label: '价格从低到高', value: 'price,asc' },
+          { label: '价格从高到低', value: 'price,desc' },
+          { label: '销量从低到高', value: 'sales,asc' },
+          { label: '销量从高到低', value: 'sales,desc' }
+        ],
+        sortWayVal: 'price,asc',
+        placeOrigin: '',
+        siteCode: 'TW',
+        placeVal: []
       },
+      // 基础参数
       key: '',
-      consoleMsg: '',
-      keywordAttr: {
-      }
+      keyFilter: '',
+      isSelectAll: false,
+      consoleMsg: ''
     }
   },
   computed: {
     keyworBar() {
       const value = getPlatform(this.baseConfig.keywordConfig)
       return value
+    },
+    getSite() {
+      return siteRelation
     }
   },
   created() {
-
+    this.getShopeePlace()
   },
   mounted() {
-    this.goodsList = testData.data
-    this.$refs.plTable.reloadData(this.goodsList)
-    console.log('this.goodsList', this.goodsList)
+    // this.goodsList = testData.data
+    // this.$refs.plTable.reloadData(this.goodsList)
+    // console.log('this.goodsList', this.goodsList)
   },
   methods: {
+    selectPlaceValEvent() {
+      console.log('this.commonAttr.placeOrigin', this.commonAttr.placeOrigin)
+      console.log('this.commonAttr.placeVal', this.commonAttr.placeVal)
+      if (this.commonAttr.placeOrigin.length === this.commonAttr.placeVal.length) {
+        this.isSelectAll = true
+      } else {
+        this.isSelectAll = false
+      }
+    },
+    selectAllEvent() {
+      if (this.isSelectAll) {
+        this.commonAttr.placeOrigin.map(item => {
+          this.commonAttr.placeVal.push(item.value)
+        })
+      } else {
+        this.commonAttr.placeVal = []
+      }
+    },
+    getShopeePlace() {
+      this.commonAttr.placeVal = []
+      this.isSelectAll = false
+      this.commonAttr.placeOrigin = getSitePlace(this.commonAttr.siteCode)
+    },
     handleClick(tab, event) {
       // console.log(tab, event)
     },
@@ -217,17 +278,17 @@ export default {
           return { code: -3, data: '参数不能为空' }
         }
         keyword = this.key.replace(/\s/g, ';').split(';')
-        const data = [[]]
-        let index = 0
-        keyword.map(item => { // 分组
-          if (data[index].length >= num) {
-            index++
-            data[index] = []
-          }
-          data[index].push(item)
-        })
-        keyword = null
-        return { code: 200, data }
+        // const data = [[]]
+        // let index = 0
+        // keyword.map(item => { // 分组
+        //   if (data[index].length >= num) {
+        //     index++
+        //     data[index] = []
+        //   }
+        //   data[index].push(item)
+        // })
+        // keyword = null
+        return { code: 200, data: keyword }
       } catch (error) {
         return { code: -2, data: `关键词格式不规范：${error}` }
       }
@@ -242,16 +303,38 @@ export default {
       const platForm = this.currentKeywordPlatform
       this.buttonStatus.keyword = true
       this.consoleMsg = ''
+      this.goodsList = []
+      this.$refs.plTable.reloadData(this.goodsList)
       this.CollectKeyWordApInstance._initKeyWord(platForm, this.commonAttr)
+      this.writeLog('开始采集搜索........', true)
+      this.writeLog(`开始采集${platformObj[platForm]}的商品.......`, true)
+
       for (let i = 0; i < keyLen; i++) {
-        const keyItem = key[i]
-        const res2 = await this.CollectKeyWordApInstance.keywordSearch(keyItem)
-        this.writeLog('关键词采集完毕', true)
-        debugger
+        const item = key[i]
+        // this.writeLog(`采集关键字：${item}`, true)
+        const res2 = await this.CollectKeyWordApInstance.keywordSearch(item)
+        if (res2.code !== 200) {
+          continue
+        }
+        this.goodsList.push(...res2.data)
       }
+      if (platForm === 1) { // 如果当前平台为拼多多需额外调用 拼多多补充接口  1.1-------------------------
+        for (let i = 0; i < keyLen; i++) {
+          const item = key[i]
+          // this.writeLog(`采集关键字：${item}`, true)
+          const res2 = await this.CollectKeyWordApInstance.keywordSearchTwo(item)
+          if (res2.code !== 200) {
+            continue
+          }
+          this.goodsList.push(...res2.data)
+        }
+      }
+      this.writeLog(`${platformObj[platForm]}：共采集：${this.goodsList.length}条`, true)
+      this.writeLog(`${platformObj[platForm]}的商品采集完毕........`, true)
       key = null
       this.buttonStatus.keyword = false
     },
+
     linksSearch() {
     },
     entireMallSearch() {
@@ -264,7 +347,7 @@ export default {
       if (!msg) { return }
       const color = success ? 'green' : 'red'
       const time = this.dateFormat(new Date(Date.now()), 'hh:mm:ss')
-      this.consoleMsg = `<p style="color:${color}; margin-top: 5px;">${time}:${msg}</p>` + this.consoleMsg
+      this.consoleMsg += `<p style="color:${color}; margin-top: 5px;">${time}:${msg}</p>`
     },
     dateFormat(time, fmt) {
       var o = {
