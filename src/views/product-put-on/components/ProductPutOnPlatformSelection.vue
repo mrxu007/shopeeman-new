@@ -31,18 +31,19 @@
                 <!-- 虾皮 -->
                 <div class="item">
                   <p>站点:</p>
-                  <el-select v-model="shopeeAttr.siteCode" placeholder="" size="mini" @change="getPlace">
+                  <el-select v-model="shopeeAttr.siteCode" placeholder="" size="mini" @change="getShopeePlace">
                     <el-option v-for="(item, index) in getSite" :key="index" :label="item.label" :value="item.value" />
                   </el-select>
                   <p>排序方式:</p>
-                  <el-select v-model="shopeeAttr.goodsPlace" placeholder="" size="mini">
-                    <el-option v-for="(item, index) in getPlace" :key="index" :label="item.label" :value="item.value" />
+                  <el-select v-model="commonAttr.sortWayVal" placeholder="" size="mini">
+                    <el-option v-for="(item, index) in commonAttr.sortWay" :key="index" :label="item.label" :value="item.value" />
                   </el-select>
                 </div>
                 <div class="item">
                   <p>出货地点:</p>
-                  <el-select v-model="shopeeAttr.goodsPlace" placeholder="" size="mini">
-                    <el-option v-for="(item, index) in getPlace" :key="index" :label="item.label" :value="item.value" />
+                  <el-select v-model="shopeeAttr.placeVal" placeholder="" size="mini" multiple collapse-tags @change="selectPlaceValEvent">
+                    <el-checkbox v-model="shopeeAttr.isSelectAll" label="全部" @change="selectAllEvent" />
+                    <el-option v-for="(item, index) in shopeeAttr.placeOrigin" :key="index" :label="item.label" :value="item.value" />
                   </el-select>
                 </div>
                 <div class="item">
@@ -152,7 +153,7 @@ export default {
       required: false,
       default: () => {
         return {
-          keywordConfig: [1, 1.2, 2, 8, 9, 10, 11, 12] // 关键词采集配置
+          keywordConfig: [1, 2, 11, 8, 1.2, 10, 12, 9] // 关键词采集配置
           // linkConfig: { // 链接采集配置
           // },
           // entireMallConfig: { // 整店采集配置
@@ -183,7 +184,14 @@ export default {
         EndSales: 999999999,
         StartPrice: 0,
         EndPrice: 999999999,
-        keyFilter: ''
+        keyFilter: '',
+        sortWay: [
+          { label: '价格从低到高', value: 'price,asc' },
+          { label: '价格从高到低', value: 'price,desc' },
+          { label: '销量从低到高', value: 'sales,asc' },
+          { label: '销量从高到低', value: 'sales,desc' }
+        ],
+        sortWayVal: 'price,asc'
       },
       key: '',
       consoleMsg: '',
@@ -193,8 +201,10 @@ export default {
       // 淘宝参数
       // 虾皮参数
       shopeeAttr: {
+        placeOrigin: '',
         siteCode: 'TW',
-        goodsPlace: ''
+        placeVal: [],
+        isSelectAll: false
       }
     }
   },
@@ -206,10 +216,9 @@ export default {
     getSite() {
       return siteRelation
     }
-
   },
   created() {
-
+    this.getShopeePlace()
   },
   mounted() {
     // this.goodsList = testData.data
@@ -217,10 +226,28 @@ export default {
     // console.log('this.goodsList', this.goodsList)
   },
   methods: {
-    getPlace() {
-      this.shopeeAttr.goodsPlace = ''
-      const value = getSitePlace(this.shopeeAttr.siteCode)
-      return value
+    selectPlaceValEvent() {
+      console.log('this.shopeeAttr.placeOrigin', this.shopeeAttr.placeOrigin)
+      console.log('this.shopeeAttr.placeVal', this.shopeeAttr.placeVal)
+      if (this.shopeeAttr.placeOrigin.length === this.shopeeAttr.placeVal.length) {
+        this.shopeeAttr.isSelectAll = true
+      } else {
+        this.shopeeAttr.isSelectAll = false
+      }
+    },
+    selectAllEvent() {
+      if (this.shopeeAttr.isSelectAll) {
+        this.shopeeAttr.placeOrigin.map(item => {
+          this.shopeeAttr.placeVal.push(item.value)
+        })
+      } else {
+        this.shopeeAttr.placeVal = []
+      }
+    },
+    getShopeePlace() {
+      this.shopeeAttr.placeVal = []
+      this.shopeeAttr.isSelectAll = false
+      this.shopeeAttr.placeOrigin = getSitePlace(this.shopeeAttr.siteCode)
     },
     handleClick(tab, event) {
       // console.log(tab, event)
