@@ -35,7 +35,7 @@
           </el-select>
         </li>
         <li>
-          <span>订单编号：</span>
+          <span>系统商品编号：</span>
           <el-input
             v-model="form.sys_sku_id"
             clearable
@@ -564,7 +564,7 @@ export default {
       params.page = 1
       while (resData.length < this.total) {
         const res = await this.ShareBroadStock.stockSharedList(params)
-        if (res.code !== 200) {
+        if (res.code === 200) {
           resData = resData.concat(res.data.data)
           params.page++
         } else {
@@ -602,7 +602,7 @@ export default {
         </tr>`
       })
       this.isShowLoading = false
-      exportExcelDataCommon('海外仓出库订单数据', str)
+      exportExcelDataCommon('海外共享库存管理数据', str)
     },
     handleSizeChange(val) {
       this.page = 1
