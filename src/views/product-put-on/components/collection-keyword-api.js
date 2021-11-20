@@ -20,6 +20,14 @@ class CollectKeyWordApI {
     const EndPage = this.commonAttr.EndPage - 0
     const StartPrice = this.commonAttr.StartPrice - 0
     const EndPrice = this.commonAttr.EndPrice - 0
+
+    const sortWayVal = this.commonAttr.sortWayVal
+    const By = sortWayVal.split(',')[0]
+    const Order = sortWayVal.split(',')[1]
+
+    const siteCode = this.commonAttr.siteCode
+    const Location = this.commonAttr.placeVal
+
     const params = {}
     params['key'] = key
     try {
@@ -31,8 +39,8 @@ class CollectKeyWordApI {
             break
           case 2: // '淘宝'  3: '天猫',  天猫 === 淘宝
             params['Page'] = StartPage // 页码
-            params['StartPrice'] = StartPrice // 页码
-            params['EndPrice'] = EndPrice // 页码
+            params['StartPrice'] = StartPrice // 价格范围
+            params['EndPrice'] = EndPrice
             break
           case 4: // '京东'
             break
@@ -47,13 +55,13 @@ class CollectKeyWordApI {
           case 10: // '京喜'
             break
           case 11: // '虾皮'
-            // params['Page'] = StartPage // 页码
-            // params['By'] = By // 根据什么排序
-            // params['order'] = order // 排序方式
-            // params['StartPrice'] = StartPrice // 价格范围
-            // params['EndPrice'] = EndPrice //
-            // params['Site'] = Site // 站点
-            // params['Location'] = Location.join(',') // 发货位置
+            params['Page'] = StartPage // 页码
+            params['By'] = By // 排序名称
+            params['Order'] = Order // 排序方式
+            params['StartPrice'] = StartPrice // 价格范围
+            params['EndPrice'] = EndPrice
+            params['Site'] = siteCode.toLowerCase() // 站点
+            params['Location'] = Location.join(',') // 发货位置
             break
           case 12: // '速卖通'
             break
@@ -63,6 +71,7 @@ class CollectKeyWordApI {
             break
         }
         // 关键词请求
+        debugger
         let res = await this._this.$collectService.querySpuByKeyworld(this.platformId, params)
         res = JSON.parse(res)
         if (res.Code !== 200) {

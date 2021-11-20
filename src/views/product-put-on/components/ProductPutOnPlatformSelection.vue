@@ -31,7 +31,7 @@
                 <!-- 虾皮 -->
                 <div class="item">
                   <p>站点:</p>
-                  <el-select v-model="shopeeAttr.siteCode" placeholder="" size="mini" @change="getShopeePlace">
+                  <el-select v-model="commonAttr.siteCode" placeholder="" size="mini" @change="getShopeePlace">
                     <el-option v-for="(item, index) in getSite" :key="index" :label="item.label" :value="item.value" />
                   </el-select>
                   <p>排序方式:</p>
@@ -41,9 +41,9 @@
                 </div>
                 <div class="item">
                   <p>出货地点:</p>
-                  <el-select v-model="shopeeAttr.placeVal" placeholder="" size="mini" multiple collapse-tags @change="selectPlaceValEvent">
-                    <el-checkbox v-model="shopeeAttr.isSelectAll" label="全部" @change="selectAllEvent" />
-                    <el-option v-for="(item, index) in shopeeAttr.placeOrigin" :key="index" :label="item.label" :value="item.value" />
+                  <el-select v-model="commonAttr.placeVal" placeholder="" size="mini" multiple collapse-tags @change="selectPlaceValEvent">
+                    <el-checkbox v-model="isSelectAll" label="全部" @change="selectAllEvent" />
+                    <el-option v-for="(item, index) in commonAttr.placeOrigin" :key="index" :label="item.label" :value="item.value" />
                   </el-select>
                 </div>
                 <div class="item">
@@ -178,34 +178,30 @@ export default {
       // keyWord search
       currentKeywordPlatform: 11,
       commonAttr: {
+        // 拼多多 淘宝 参数
         StartPage: 1,
         EndPage: 2,
         StartSales: 0,
         EndSales: 999999999,
         StartPrice: 0,
         EndPrice: 999999999,
-        keyFilter: '',
+        // shopee参数
         sortWay: [
           { label: '价格从低到高', value: 'price,asc' },
           { label: '价格从高到低', value: 'price,desc' },
           { label: '销量从低到高', value: 'sales,asc' },
           { label: '销量从高到低', value: 'sales,desc' }
         ],
-        sortWayVal: 'price,asc'
-      },
-      key: '',
-      consoleMsg: '',
-      // 拼多多参数
-      keywordAttr: {
-      },
-      // 淘宝参数
-      // 虾皮参数
-      shopeeAttr: {
+        sortWayVal: 'price,asc',
         placeOrigin: '',
         siteCode: 'TW',
-        placeVal: [],
-        isSelectAll: false
-      }
+        placeVal: []
+      },
+      // 基础参数
+      key: '',
+      keyFilter: '',
+      isSelectAll: false,
+      consoleMsg: ''
     }
   },
   computed: {
@@ -227,27 +223,27 @@ export default {
   },
   methods: {
     selectPlaceValEvent() {
-      console.log('this.shopeeAttr.placeOrigin', this.shopeeAttr.placeOrigin)
-      console.log('this.shopeeAttr.placeVal', this.shopeeAttr.placeVal)
-      if (this.shopeeAttr.placeOrigin.length === this.shopeeAttr.placeVal.length) {
-        this.shopeeAttr.isSelectAll = true
+      console.log('this.commonAttr.placeOrigin', this.commonAttr.placeOrigin)
+      console.log('this.commonAttr.placeVal', this.commonAttr.placeVal)
+      if (this.commonAttr.placeOrigin.length === this.commonAttr.placeVal.length) {
+        this.isSelectAll = true
       } else {
-        this.shopeeAttr.isSelectAll = false
+        this.isSelectAll = false
       }
     },
     selectAllEvent() {
-      if (this.shopeeAttr.isSelectAll) {
-        this.shopeeAttr.placeOrigin.map(item => {
-          this.shopeeAttr.placeVal.push(item.value)
+      if (this.isSelectAll) {
+        this.commonAttr.placeOrigin.map(item => {
+          this.commonAttr.placeVal.push(item.value)
         })
       } else {
-        this.shopeeAttr.placeVal = []
+        this.commonAttr.placeVal = []
       }
     },
     getShopeePlace() {
-      this.shopeeAttr.placeVal = []
-      this.shopeeAttr.isSelectAll = false
-      this.shopeeAttr.placeOrigin = getSitePlace(this.shopeeAttr.siteCode)
+      this.commonAttr.placeVal = []
+      this.isSelectAll = false
+      this.commonAttr.placeOrigin = getSitePlace(this.commonAttr.siteCode)
     },
     handleClick(tab, event) {
       // console.log(tab, event)
