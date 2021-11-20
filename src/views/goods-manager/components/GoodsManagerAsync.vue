@@ -5,9 +5,9 @@
       style="display: flex;"
     >
       <Storechoosemall :show-mall="true" @changeMallList="changeMallList" @getSite="changeSite" />
-      <el-button type="primary" size="mini" @click="startCompare">开始同步</el-button>
-      <el-button type="primary" size="mini">取消同步</el-button>
-      <el-button type="primary" size="mini" @click="clearlog()">清空日志</el-button>
+      <el-button type="primary" size="mini" :loading="isStart" @click="startCompare">开始同步</el-button>
+      <el-button type="primary" size="mini" @click="cancerCompare">取消同步</el-button>
+      <el-button type="primary" size="mini" @click="closelogData">清空日志</el-button>
       <el-checkbox v-model="showlog" style="margin: 4px">隐藏日志</el-checkbox>
     </div>
     <div style="color:red;margin:10px 0px ">温馨提示：此功能为同步虾皮后台已删除商品至云端</div>
@@ -37,6 +37,8 @@ export default {
   components: { Storechoosemall },
   data() {
     return {
+      isStart: false,
+      dataRuning: false,
       loading: false,
       showlog: true,
       tableList: [],
@@ -53,14 +55,25 @@ export default {
   },
   methods: {
     // 清空日志
-    clearLog() {
-      this.$refs.Logs.consoleMsg = ''
+    closelogData() {
+      this.$refs.autoReplyLogs.consoleMsg = ''
+    },
+    // 取消同步
+    cancerCompare() {
+      // alert(this.dataRuning)
+      this.dataRuning = true
     },
     // 开始同步
     async startCompare() {
+      this.isStart = true
       this.showlog = false
+      this.dataRuning = false
       await this.getinfo()
       for (var i = 0; i < this.tableList.length; i++) {
+        if (this.dataRuning) { // 终止循环
+          this.$refs.autoReplyLogs.writeLog(`取消同步`, true)
+          break
+        }
         const goodsinfo = {
           country: this.query.country,
           page_number: 1,
@@ -72,6 +85,9 @@ export default {
 
         // 循环获取平台商品
         for (let index = 1; index <= arrIndex; index++) {
+          if (this.dataRuning) { // 终止循环
+            break
+          }
           goodsinfo.page_number = index
           this.$refs.autoReplyLogs.writeLog(`店铺【${this.tableList[i].mall_alias_name || this.tableList[i].platform_mall_name}】正在获取虾皮商品数据...`, true)
           const res = await this.GoodsManagerAPIInstance.getSkuList(goodsinfo)
@@ -84,6 +100,9 @@ export default {
             this.$refs.autoReplyLogs.writeLog(`店铺【${this.tableList[i].mall_alias_name || this.tableList[i].platform_mall_name}】正获取第【${index}】页数据,一页${goodsinfo.page_size}个`, true)
             const lol = res.data.list
             this.plantDate.push(...lol)
+            this.tableList[i].totalGoods = total
+            this.tableList[i].getGoods = this.plantDate.length
+            this.$set(this.tableList, i, this.tableList[i])
             if (index === arrIndex) { // 平台商品获取结束
               this.$refs.autoReplyLogs.writeLog(`店铺【${this.tableList[i].mall_alias_name || this.tableList[i].platform_mall_name}】虾皮商品数据获取完毕，开始获取服务端商品数据`, true)
               // 获取服务器商品
@@ -136,6 +155,7 @@ export default {
           }
         }
       }
+      this.isStart = false
     },
     async getinfo() {
       const params = {
@@ -145,8 +165,14 @@ export default {
       this.loading = true
       const res = await this.$api.ddMallGoodsGetMallList(params)
       this.loading = false
+      this.tableList = []
       if (res.data.code === 200) {
-        this.tableList = res.data.data
+        // this.tableList = res.data.data
+        res.data.data.forEach(el => {
+          el.totalGoods = 0
+          el.getGoods = 0
+          this.tableList.push(el)
+        })
       } else {
         this.$message.warning('店铺列表获取失败！')
       }
