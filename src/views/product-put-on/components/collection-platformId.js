@@ -17,22 +17,22 @@
 //      public const int LazadaPlatform = 9;
 
 // 拼多多优惠采集platform=1，但是调用此方法是为和拼多多区分传参1.2
-const platformCode = {
-  PddPlatform: 1, // 拼多多
-  TbPlatform: 2, // 淘宝
-  TmPlatform: 3, // 天猫
-  JdPlatform: 4, // 京东
-  OwnPlatform: 5, // 自有
-  PpxiasGHPT: 6, // 皮皮虾供货平台
-  HyjPlatform: 7, // 货源甲
-  AlibabaPlatform: 8, // 阿里巴巴供货平台
-  LazadaPlatform: 9, // lazada
-  JxPlatform: 10, // 京喜
-  ShopeePlatform: 11, // Shopee平台
-  AliExpress: 12, // 速卖通
-  TmallCrossBorderPlatform: 13, // 天猫淘宝海外平台
-  HlbOverseasPlatform: 15 // 货老板云仓
-}
+// const platformCode = {
+//   PddPlatform: 1, // 拼多多
+//   TbPlatform: 2, // 淘宝
+//   TmPlatform: 3, // 天猫
+//   JdPlatform: 4, // 京东
+//   OwnPlatform: 5, // 自有
+//   PpxiasGHPT: 6, // 皮皮虾供货平台
+//   HyjPlatform: 7, // 货源甲
+//   AlibabaPlatform: 8, // 阿里巴巴供货平台
+//   LazadaPlatform: 9, // lazada
+//   JxPlatform: 10, // 京喜
+//   ShopeePlatform: 11, // Shopee平台
+//   AliExpress: 12, // 速卖通
+//   TmallCrossBorderPlatform: 13, // 天猫淘宝海外平台
+//   HlbOverseasPlatform: 15 // 货老板云仓
+// }
 
 // 虾皮出货地点
 const sitePlace = {
@@ -180,14 +180,428 @@ const siteRelation = [
   { value: 'TH', label: '泰国' },
   { value: 'BR', label: '巴西' },
   { value: 'MX', label: '墨西哥' }
-
 ]
+// Lazada采集站点
+const siteRelation2 = [
+  // { value: 'TW', label: '台湾' },
+  { value: 'TH', label: '泰国' },
+  { value: 'MY', label: '马来' },
+  { value: 'ID', label: '印尼' },
+  { value: 'VN', label: '越南' },
+  { value: 'SG', label: '新加坡' },
+  { value: 'PH', label: '菲律宾' }
+  // { value: 'BR', label: '巴西' },
+  // { value: 'MX', label: '墨西哥' }
+]
+// Lazada
+const lazadaSitePlace = {
+  'ID': {
+    'Lokal（本地）：': [
+      {
+        label: 'Jawa Barat（西爪哇）',
+        value: '1794'
+      },
+
+      {
+        label: 'DKI Jakarta（雅加达DKI）',
+        value: '1796'
+      },
+
+      {
+        label: 'Jawa Timur（东爪哇）',
+        value: '1795'
+      },
+
+      {
+        label: 'Banten（万丹）',
+        value: '1791'
+      },
+
+      {
+        label: 'Jawa Tengah（中爪哇省）',
+        value: '1797'
+      },
+
+      {
+        label: 'North Sumatra（北苏门答腊）',
+        value: '1817'
+      },
+
+      {
+        label: 'Riau Islands（廖内群岛）',
+        value: '1800'
+      },
+
+      {
+        label: 'Di Yogyakarta（在日惹）',
+        value: '1818'
+      },
+
+      {
+        label: 'South Sumatra（南苏门答腊）',
+        value: '1815'
+      },
+
+      {
+        label: 'Sulawesi Selatan（南苏拉威西岛）',
+        value: '1813'
+      },
+
+      {
+        label: 'Riau（廖内）',
+        value: '1809'
+      },
+
+      {
+        label: 'West Sumatra（西苏门答腊）',
+        value: '1811'
+      },
+
+      {
+        label: 'Bali（巴厘岛）',
+        value: '1788'
+      },
+
+      {
+        label: 'West Kalimantan（西加里曼丹）',
+        value: '1798'
+      }
+    ],
+    'Luar Negeri（海外）：': [
+
+      {
+        label: 'Tiongkok（中国）',
+        value: '-49'
+      },
+
+      {
+        label: 'Amerika Serikat（美国）',
+        value: '-231'
+      },
+
+      {
+        label: 'India（印度）',
+        value: '-105'
+      },
+
+      {
+        label: 'Jerman（德国）',
+        value: '-57'
+      },
+
+      {
+        label: 'Korea Selatan（南韩）',
+        value: '-122'
+      },
+
+      {
+        label: 'Taiwan（台湾）',
+        value: '-226'
+      },
+
+      {
+        label: 'Makau SAR Tiongkok（澳门）',
+        value: '-148'
+      },
+
+      {
+        label: 'Malaysia（马来西亚）',
+        value: '-158'
+      },
+
+      {
+        label: 'Kanada（加拿大）',
+        value: '-39'
+      }
+    ]
+  },
+  'MY': {
+    'Local（本地）：': [
+
+      {
+        label: 'West Malaysia（西马）',
+        value: 'West Malaysia'
+      },
+
+      {
+        label: 'East Malaysia（东马）',
+        value: 'East Malaysia'
+      }
+    ],
+    'Overseas（海外）：': [
+
+      {
+        value: '-49',
+        label: 'China（中国）'
+      },
+
+      {
+        value: '-226',
+        label: 'Taiwan（台湾）'
+      },
+
+      {
+        value: '-15',
+        label: 'Australia（澳大利亚）'
+      },
+
+      {
+        value: '-105',
+        label: 'India（印度）'
+      },
+
+      {
+        value: '-231',
+        label: 'United States（美国）'
+      },
+
+      {
+        value: '-122',
+        label: 'South Korea（韩国）'
+      },
+
+      {
+        value: '-148',
+        label: 'Macau SAR China（澳门）'
+      },
+
+      {
+        value: '-114',
+        label: 'Japan（日本）'
+      },
+
+      {
+        value: '-47',
+        label: 'Chile（智利）'
+      },
+
+      {
+        value: '-75',
+        label: 'France（法国）'
+      },
+
+      {
+        value: '-14',
+        label: 'Austria（奥地利）'
+      },
+
+      {
+        value: '-7',
+        label: 'Albania（阿尔巴尼亚）'
+      },
+
+      {
+        value: '-167',
+        label: 'Norway（挪威）'
+      },
+
+      {
+        value: '-4',
+        label: 'Afghanistan（阿富汗）'
+      },
+
+      {
+        value: '-177',
+        label: 'Philippines（菲律宾）'
+      },
+
+      {
+        value: '-22',
+        label: 'Belgium（比利时）'
+      },
+
+      {
+        value: '-39',
+        label: 'Canada（加拿大）'
+      },
+
+      {
+        value: '-77',
+        label: 'United Kingdom（英国）'
+      },
+
+      {
+        value: '-117',
+        label: 'Cambodia（柬埔寨）'
+      },
+
+      {
+        value: '-171',
+        label: 'New Zealand（新西兰）'
+      }
+    ]
+  },
+  'SG': {
+    'Location（位置）：': [
+
+      {
+        label: 'Singapore（新加坡）',
+        value: 'local'
+      },
+
+      {
+        label: 'China（中国）',
+        value: '-49'
+      },
+
+      {
+        label: 'Malaysia（马来西亚）',
+        value: '-158'
+      },
+
+      {
+        label: 'South Korea（南韩）',
+        value: '-122'
+      },
+
+      {
+        label: 'Germany（德国）',
+        value: '-57'
+      },
+
+      {
+        label: 'United States（美国）',
+        value: '-231'
+      },
+
+      {
+        label: 'Macau SAR China（澳门）',
+        value: '-148'
+      },
+
+      {
+        label: 'Canada（加拿大）',
+        value: '-39'
+      }
+    ]
+  },
+  'PH': {
+    'Location（位置）：': [
+
+      {
+        label: 'NCR',
+        value: 'NCR'
+      },
+
+      {
+        label: 'South Luzon（南吕宋）',
+        value: 'South Luzon'
+      },
+
+      {
+        label: 'Visayas（米沙鄢）',
+        value: 'Visayas'
+      },
+
+      {
+        label: 'Mindanao（棉兰老）',
+        value: 'Mindanao'
+      },
+
+      {
+        label: 'North Luzon（北吕宋）',
+        value: 'North Luzon'
+      },
+
+      {
+        label: 'Overseas（海外）',
+        value: 'overseas'
+      }
+    ]
+  },
+  'VN': {
+    'Nội địa（本地）：': [
+      {
+        label: 'Hồ Chí Minh（胡志明市）',
+        value: 'Ho Chi Minh'
+      },
+      {
+        label: 'Hà Nội（河内）',
+        value: 'Hanoi'
+      },
+      {
+        label: 'Miền Nam（南方）',
+        value: 'South'
+      },
+
+      {
+        label: 'Miền Bắc（北方）',
+        value: 'North'
+      },
+
+      {
+        label: 'Miền Trung（中央）',
+        value: 'Middle'
+      }
+    ],
+    'Nước ngoài（海外）：': [
+
+      {
+        value: '-49',
+        label: 'Trung Quốc（中国）'
+      },
+
+      {
+        value: '-57',
+        label: 'Germany（德国）'
+      },
+
+      {
+        value: '-231',
+        label: 'Hoa Kỳ（美国）'
+      },
+
+      {
+        value: '-226',
+        label: 'Đài Loan（台湾）'
+      }
+    ]
+  },
+  'TH': {
+    'สถานที่（本地）：': [
+      {
+        value: 'local',
+        label: 'ในประเทศ（本地）'
+      },
+
+      {
+        value: '-49',
+        label: 'จีน（中国）'
+      },
+
+      {
+        value: '-231',
+        label: 'สหรัฐอเมริกา（美国）'
+      },
+
+      {
+        value: '-226',
+        label: 'ไต้หวัน（台湾）'
+      },
+
+      {
+        value: '-148',
+        label: 'มาเก๊า（澳门）'
+      },
+
+      {
+        value: '-8',
+        label: 'อาร์เมเนีย（亚美尼亚）'
+      },
+
+      {
+        value: '-57',
+        label: 'เยอรมัน（德语）'
+      }
+    ]
+  }
+}
 // 关键词采集banner
 const platformObj = {
   1: '拼多多', // 拼多多接口： 1 拼多多接口、  1.1 拼多多补充接口、  1.2 拼多多优惠采集
   1.2: '拼多多优惠采集',
   2: '淘宝', // 3: '天猫',  天猫 === 淘宝
-  4: '京东',
+  4: '京东', // 京喜就是京东
   5: '自有',
   // 6: '皮皮虾供货平台',   平台已废弃
   7: '货源甲',
@@ -214,4 +628,16 @@ function getPlatform(platformIdArr) {
 function getSitePlace(siteCode) {
   return sitePlace[siteCode]
 }
-export { getPlatform, getSitePlace, platformObj, siteRelation }
+function getSiteRelation(platformId) {
+  if (platformId === 11) {
+    return siteRelation
+  } else if (platformId === 9) {
+    return siteRelation2
+  } else {
+    return []
+  }
+}
+function getLazadaSitePlace(siteCode) {
+  return lazadaSitePlace[siteCode]
+}
+export { getPlatform, getSitePlace, platformObj, getSiteRelation, getLazadaSitePlace }
