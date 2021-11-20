@@ -187,6 +187,9 @@ export default class NetMessageBridgeService {
       'CL': '56',
       'PL': '48'
     }
+    if (account.startsWith('0')) {
+      account = account.substring(1)
+    }
     return country === 'SG' || country === 'ID' ? account : reg[country] + account
   }
 
