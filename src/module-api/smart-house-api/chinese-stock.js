@@ -5,6 +5,19 @@ export default class ChineseStock {
   constructor(that) {
     this._this = that
   }
+  // 获取仓库中文名
+  async transferWarehouse(wid) {
+    try {
+      const res = await this._this.$appConfig.getGlobalCacheInfo('transferWarehouse', wid)
+      if (res !== 'null') {
+        const jsonData = JSON.parse(res)
+        return { code: 200, data: jsonData.warehouse_name }
+      }
+      return { code: 200, data: '' }
+    } catch (error) {
+      return { code: -2, data: `获取仓库中文名异常： ${error}` }
+    }
+  }
   // 获取数据
   async getStock(val) {
     try {
@@ -22,7 +35,6 @@ export default class ChineseStock {
   async getWarehouseList() {
     try {
       const res = await this._this.$api.getWarehouseList()
-      debugger
       if (res.data.code === 200) {
         return { code: 200, data: res.data.data }
       }

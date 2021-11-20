@@ -465,10 +465,10 @@
           fixed
         />
         <el-table-column
-          width="100"
+          width="130"
           align="center"
           label="仓库名称"
-          prop="packageCode"
+          prop="warehouse_name"
           fixed
         />
         <el-table-column
@@ -524,7 +524,7 @@
         >
           <template slot-scope="{row}">
             <el-tooltip
-              v-if="row.sku_image"
+              v-if="row.sku_image || row.real_image_url"
               effect="light"
               placement="right-end"
               :visible-arrow="false"
@@ -533,14 +533,14 @@
             >
               <div slot="content">
                 <img
-                  :src="row.sku_image"
+                  :src="row.sku_image || row.real_image_url"
                   width="300px"
                   height="300px"
                 >
               </div>
               <el-image
                 style="width: 40px; height: 40px"
-                :src="row.sku_image"
+                :src="row.sku_image || row.real_image_url"
               >
                 <div slot="placeholder" class="image-slot">
                   加载中<span class="dot">...</span>
@@ -792,6 +792,14 @@ export default {
       if (res.code === 200) {
         this.stockTotal = res.data.total
         this.reissueData = res.data.data
+        for (let index = 0; index < this.reissueData.length; index++) {
+          const element = this.reissueData[index]
+          // 获取海外仓库中文名
+          const resName = await this.BroadDeliveryOrder.overseasWh(element.wid)
+          if (resName.code === 200) {
+            this.$set(element, 'warehouse_name', resName.data)
+          }
+        }
         console.log('reissueData', this.reissueData)
       } else {
         this.$message.error(res.data)

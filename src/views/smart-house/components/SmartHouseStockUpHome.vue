@@ -394,6 +394,7 @@
         &nbsp;&nbsp;&nbsp;&nbsp;2：导入商品会导入到对应的中转仓库，请选择好再导入
       </span>
       <el-table
+        v-loading="productLoading"
         height="420"
         :data="foreignData"
         :header-cell-style="{
@@ -952,6 +953,7 @@
       :close-on-press-escape="false"
     >
       <el-table
+        v-loading="productSkuLoading"
         height="420"
         :data="skuDetailsData"
         :header-cell-style="{
@@ -1057,6 +1059,8 @@ export default {
       skuDetailsVisible: false,
       isShowLoading: false,
       isDeleteLoading: false,
+      productLoading: false,
+      productSkuLoading: false,
       showConsole: true,
       isforeignClose: false,
       StrockUpHome: new StrockUpHome(this),
@@ -1252,6 +1256,7 @@ export default {
     },
     // 获取产品中心列表数据
     async getProductList() {
+      this.productLoading = true
       this.productFrom.Page = this.productPage
       this.productFrom.PageSize = this.productPageSize
       this.productFrom.Status = Number(this.productFrom.Status)
@@ -1261,6 +1266,7 @@ export default {
       }
       this.productTotal = res.data.total
       this.productData = res.data.data
+      this.productLoading = false
       console.log('productData', this.productData)
     },
     // 发起商品预报
@@ -1372,6 +1378,7 @@ export default {
     },
     // SKU详情
     async getProductSkuList(row) {
+      this.productSkuLoading = true
       const res = await this.StrockUpHome.getProductSkuList(row.product_id)
       if (res.code !== 200) {
         this.$message.error(res.data)
@@ -1380,6 +1387,7 @@ export default {
       this.skuDetailsData.map(item => {
         item.goods_name = row.product_name
       })
+      this.productSkuLoading = false
       console.log('skuDetailsData', this.skuDetailsData)
     },
     // 自有商品导入

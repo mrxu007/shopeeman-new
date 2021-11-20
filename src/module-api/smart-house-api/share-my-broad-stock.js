@@ -5,6 +5,19 @@ export default class ShareMyBroadStock {
   constructor(that) {
     this._this = that
   }
+  // 获取海外仓库中文名
+  async overseasWh(wid) {
+    try {
+      const res = await this._this.$appConfig.getGlobalCacheInfo('overseasWh', wid)
+      if (res !== 'null') {
+        const jsonData = JSON.parse(res)
+        return { code: 200, data: jsonData.warehouse_name }
+      }
+      return { code: 200, data: '' }
+    } catch (error) {
+      return { code: -2, data: `获取海外仓库中文名异常： ${error}` }
+    }
+  }
   // 获取数据
   async getSharedIndex(val) {
     try {

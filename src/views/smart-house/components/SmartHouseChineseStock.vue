@@ -61,24 +61,25 @@
         <el-table-column
           label="仓库名称"
           align="center"
-          min-width="100"
+          min-width="130"
+          prop="warehouse_name"
         />
         <el-table-column
           label="商品编号(SkuId)"
           align="center"
-          min-width="100"
+          min-width="150"
           prop="sku_id"
         />
         <el-table-column
           label="商品名称"
           align="center"
-          min-width="100"
+          min-width="150"
           prop="goods_name"
         />
         <el-table-column
           label="商品规格"
           align="center"
-          min-width="100"
+          min-width="150"
           prop="sku_name"
         />
         <el-table-column
@@ -90,30 +91,25 @@
         <el-table-column
           label="仓库库存"
           align="center"
-          min-width="100"
+          min-width="90"
           prop="stock"
         />
         <el-table-column
           label="在途库存"
           align="center"
-          min-width="100"
+          min-width="90"
           prop="transport_num"
         />
         <el-table-column
           label="总库存"
           align="center"
-          min-width="120"
+          min-width="90"
+          :render-header="allStockTooltip"
         >
           <template slot-scope="{row}">
             {{ row.transport_num+row.stock }}
           </template>
         </el-table-column>
-        <el-table-column
-          label="占用库存"
-          align="center"
-          min-width="100"
-          prop="frozen_num"
-        />
         <el-table-column
           label="占用库存"
           align="center"
@@ -229,6 +225,14 @@ export default {
       if (res.code === 200) {
         this.tableData = res.data.data
         this.total = res.data.total
+        for (let index = 0; index < this.tableData.length; index++) {
+          const element = this.tableData[index]
+          // 获取海外仓库中文名
+          const resName = await this.ChineseStock.transferWarehouse(element.wid)
+          if (resName.code === 200) {
+            this.$set(element, 'warehouse_name', resName.data)
+          }
+        }
         console.log('tableData', this.tableData)
       } else {
         this.$message.error(res.data)
@@ -268,14 +272,19 @@ export default {
     async exportTableData() {
       if (this.total === 0) return this.$message('暂无导出数据')
       this.isShowLoading = true
-      let resData = []
+      const exportData = []
       const params = this.form
       params.pageSize = this.pageSize
       params.page = 1
-      while (resData.length < this.total) {
+      while (exportData.length < this.total) {
         const res = await this.ChineseStock.getStock(params)
         if (res.code === 200) {
-          resData = resData.concat(res.data.data)
+          const resData = res.data.data
+          resData.forEach(async item => {
+            const resName = await this.ShareBroadStock.overseasWh(item.wid)
+            item.warehouse_name = resName.data
+            exportData.push(item)
+          })
           params.page++
         } else {
           this.$message.error('导出数据错误', res.data)
@@ -298,9 +307,9 @@ export default {
           <td>商品链接</td>
           <td>货架仓位</td>
         </td>`
-      resData.forEach(item => {
+      exportData.forEach(item => {
         str += `<tr>
-        <td>${'' + '\t'}</td>
+        <td>${item.warehouse_name ? item.warehouse_name : '' + '\t'}</td>
         <td>${item.sku_id ? item.sku_id : '' + '\t'}</td>
         <td>${item.goods_name ? item.goods_name : '' + '\t'}</td>
         <td>${item.sku_name ? item.sku_name : '' + '\t'}</td>
@@ -317,6 +326,16 @@ export default {
       })
       this.isShowLoading = false
       exportExcelDataCommon('国内仓库存数据', str)
+    },
+    allStockTooltip(h, { column }) {
+      return [
+        column.label,
+        h('el-tooltip', {
+          props: { content: '仓库库存+在途库存', placement: 'top' }
+        },
+        [h('span', { class: { 'el-icon-question': true }})]
+        )
+      ]
     },
     handleSizeChange(val) {
       this.page = 1

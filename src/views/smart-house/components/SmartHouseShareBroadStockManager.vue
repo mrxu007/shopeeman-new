@@ -84,7 +84,8 @@
         <el-table-column
           label="仓库名称"
           align="center"
-          min-width="100"
+          min-width="130"
+          prop="warehouse_name"
         />
         <el-table-column
           prop="sys_sku_id"
@@ -349,7 +350,7 @@
 
 <script>
 import ShareBroadStock from '../../../module-api/smart-house-api/share-broad-stock'
-import { exportExcelDataCommon } from '../../../util/util'
+import { exportExcelDataCommon, delay } from '../../../util/util'
 export default {
   data() {
     return {
@@ -466,7 +467,7 @@ export default {
       const res = await this.ShareBroadStock.delbindUser(this.delBindUserFrom)
       if (res.code === 200) {
         this.$message.success('删除成功')
-        this.sharedUserData.splice(this.sharedUserData.findIndex(item => item.app_uid === app_uid), 1)
+        this.sharedUserData = this.sharedUserData.splice(this.sharedUserData.findIndex(item => item.app_uid === app_uid && item.username === username), -1)
       } else {
         this.$message.error(res.data)
       }
@@ -478,6 +479,7 @@ export default {
     },
     // 添加绑定用户
     async addSharedBindUser() {
+      this.addBindUserFrom['userList'] = []
       if (!this.platformUserFrom.username) return this.$message('请输入用户名称')
       this.addBindUserLoading = true
       // 查询平台用户
@@ -517,6 +519,7 @@ export default {
       const res = await this.ShareBroadStock.getSharedUserList(obj)
       if (res.code === 200) {
         this.sharedUserData = res.data
+        console.log('sharedUserData', this.sharedUserData)
       } else {
         this.$message.error(res.data)
       }
@@ -531,6 +534,14 @@ export default {
       if (res.code === 200) {
         this.tableData = res.data.data
         this.total = res.data.total
+        for (let index = 0; index < this.tableData.length; index++) {
+          const element = this.tableData[index]
+          // 获取海外仓库中文名
+          const resName = await this.ShareBroadStock.overseasWh(element.wid)
+          if (resName.code === 200) {
+            this.$set(element, 'warehouse_name', resName.data)
+          }
+        }
         console.log('tableData', this.tableData)
       } else {
         this.$message.error(res.data)
@@ -558,14 +569,19 @@ export default {
     async exportTableData() {
       if (this.total === 0) return this.$message('暂无导出数据')
       this.isShowLoading = true
-      let resData = []
+      const exportData = []
       const params = this.form
       params.pageSize = this.pageSize
       params.page = 1
-      while (resData.length < this.total) {
+      while (exportData.length < this.total) {
         const res = await this.ShareBroadStock.stockSharedList(params)
         if (res.code === 200) {
-          resData = resData.concat(res.data.data)
+          const resData = res.data.data
+          resData.forEach(async item => {
+            const resName = await this.ShareBroadStock.overseasWh(item.wid)
+            item.warehouse_name = resName.data
+            exportData.push(item)
+          })
           params.page++
         } else {
           this.$message.error('导出数据错误', res.data)
@@ -586,9 +602,9 @@ export default {
           <td>商品图片</td>
           <td>商品链接</td>
         </td>`
-      resData.forEach(item => {
+      exportData.forEach(async item => {
         str += `<tr>
-        <td>${'' + '\t'}</td>
+        <td>${item.warehouse_name ? item.warehouse_name : '' + '\t'}</td>
         <td>${item.sys_sku_id ? item.sys_sku_id : '' + '\t'}</td>
         <td>${item.stock && item.stock.sku_id ? item.stock.sku_id : '' + '\t'}</td>
         <td>${item.stock && item.stock.goods_name ? item.stock.goods_name : '' + '\t'}</td>
@@ -620,7 +636,6 @@ export default {
       this.platformUserFrom['username'] = ''
       this.platformUserFrom['platform_ids'] = '1'
       this.addBindUserFrom['shared_id'] = ''
-      this.addBindUserFrom['userList'] = []
     }
   }
 }

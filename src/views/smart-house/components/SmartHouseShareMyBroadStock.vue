@@ -63,6 +63,7 @@
           label="仓库名称"
           align="center"
           min-width="100"
+          prop="warehouse_name"
         />
         <el-table-column
           prop="sys_sku_id"
@@ -236,6 +237,14 @@ export default {
       if (res.code === 200) {
         this.tableData = res.data.data
         this.total = res.data.total
+        for (let index = 0; index < this.tableData.length; index++) {
+          const element = this.tableData[index]
+          // 获取海外仓库中文名
+          const resName = await this.ShareMyBroadStock.overseasWh(element.wid)
+          if (resName.code === 200) {
+            this.$set(element, 'warehouse_name', resName.data)
+          }
+        }
         console.log('tableData', this.tableData)
       } else {
         this.$message.error(res.data)
@@ -263,14 +272,19 @@ export default {
     async exportTableData() {
       if (this.total === 0) return this.$message('暂无导出数据')
       this.isShowLoading = true
-      let resData = []
+      const exportData = []
       const params = this.form
       params.pageSize = this.pageSize
       params.page = 1
-      while (resData.length < this.total) {
+      while (exportData.length < this.total) {
         const res = await this.ShareMyBroadStock.getSharedIndex(params)
         if (res.code === 200) {
-          resData = resData.concat(res.data.data)
+          const resData = res.data.data
+          resData.forEach(async item => {
+            const resName = await this.ShareBroadStock.overseasWh(item.wid)
+            item.warehouse_name = resName.data
+            exportData.push(item)
+          })
           params.page++
         } else {
           this.$message.error('导出数据错误', res.data)
@@ -291,9 +305,9 @@ export default {
           <td>商品图片</td>
           <td>商品链接</td>
         </td>`
-      resData.forEach(item => {
+      exportData.forEach(item => {
         str += `<tr>
-        <td>${'' + '\t'}</td>
+        <td>${item.warehouse_name ? item.warehouse_name : '' + '\t'}</td>
         <td>${item.sys_sku_id ? item.sys_sku_id : '' + '\t'}</td>
         <td>${item.stock && item.stock.sku_id ? item.stock.sku_id : '' + '\t'}</td>
         <td>${item.stock && item.stock.goods_name ? item.stock.goods_name : '' + '\t'}</td>
