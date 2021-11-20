@@ -5,7 +5,7 @@
         <el-tab-pane label="关键词采集" name="first">
           <div class="keyword-container">
             <div class="keyword-banner-bar">
-              <div v-for="item in keyworBar" :key="item.value" class="barChilren" :class="{ active: currentKeywordPlatform === item.value }" @click="selectPlatform(item)">{{ item.label }}</div>
+              <div v-for="item in keyworBar" :key="item.value" class="barChilren" :class="{ active: currentKeywordPlatform === item.value }" @click="switchPlatform(item)">{{ item.label }}</div>
             </div>
             <div class="keyword-banner-content">
               <div class="con-sub-1">
@@ -31,14 +31,30 @@
                 <!-- 虾皮 -->
                 <div class="item">
                   <p>站点:</p>
-                  <el-select v-model="commonAttr.siteCode" placeholder="" size="mini" @change="getShopeePlace">
-                    <el-option v-for="(item, index) in getSite" :key="index" :label="item.label" :value="item.value" />
+                  <el-select v-model="commonAttr.shopeeSiteCode" placeholder="" size="mini" @change="getShopeeGoodsPlace">
+                    <el-option v-for="(item, index) in commonAttr.shopeeSite" :key="index" :label="item.label" :value="item.value" />
+                  </el-select>
+                  <p>站点2:</p>
+                  <el-select v-model="commonAttr.lazadaSiteCode" placeholder="" size="mini" @change="getShopeeGoodsPlace">
+                    <el-option v-for="(item, index) in commonAttr.lazadaSite" :key="index" :label="item.label" :value="item.value" />
                   </el-select>
                   <p>排序方式:</p>
-                  <el-select v-model="commonAttr.sortWayVal" placeholder="" size="mini">
-                    <el-option v-for="(item, index) in commonAttr.sortWay" :key="index" :label="item.label" :value="item.value" />
+                  <el-select v-model="commonAttr.shopeeSortTypeVal" placeholder="" size="mini">
+                    <el-option v-for="(item, index) in commonAttr.shopeeSortType" :key="index" :label="item.label" :value="item.value" />
+                  </el-select>
+                  <p>排序方式alibaba:</p>
+                  <el-select v-model="commonAttr.alibabaSortTypeVal" placeholder="" size="mini">
+                    <el-option v-for="(item, index) in commonAttr.alibabaSortType" :key="index" :label="item.label" :value="item.value" />
                   </el-select>
                 </div>
+                <div v-for="(item, itemKey, index) in commonAttr.lazadaPlace" :key="index" class="item">
+                  <p>{{ itemKey }}</p>
+                  <el-select v-model="commonAttr.lazadaPlaceVal[index]" placeholder="" size="mini" multiple collapse-tags @change="selectPlaceValEvent2(index)">
+                    <el-checkbox v-model="isSelectAll2[index]" label="全部" @change="selectAllEvent2(index)" />
+                    <el-option v-for="(subItem, subIndex) in item" :key="subIndex" :label="subItem.label" :value="subItem.value" />
+                  </el-select>
+                </div>
+
                 <div class="item">
                   <p>出货地点:</p>
                   <el-select v-model="commonAttr.placeVal" placeholder="" size="mini" multiple collapse-tags @change="selectPlaceValEvent">
@@ -144,7 +160,7 @@
 
 <script>
 import CollectKeyWordApI from './collection-keyword-api'
-import { getPlatform, platformObj, getSitePlace, siteRelation } from './collection-platformId'
+import { getPlatform, platformObj, getSitePlace, getSiteRelation, getLazadaSitePlace } from './collection-platformId'
 import testData from './testData'
 export default {
   props: {
@@ -186,21 +202,40 @@ export default {
         StartPrice: 0,
         EndPrice: 999999999,
         // shopee参数
-        sortWay: [
+        shopeeSortType: [
           { label: '价格从低到高', value: 'price,asc' },
           { label: '价格从高到低', value: 'price,desc' },
           { label: '销量从低到高', value: 'sales,asc' },
           { label: '销量从高到低', value: 'sales,desc' }
         ],
-        sortWayVal: 'price,asc',
+        shopeeSortTypeVal: 'price,asc',
         placeOrigin: '',
-        siteCode: 'TW',
-        placeVal: []
+        placeVal: [],
+        shopeeSite: [],
+        lazadaSite: [],
+        shopeeSiteCode: 'TW',
+        lazadaSiteCode: 'ID',
+        // 1688 参数
+        alibabaSortType: [
+          { label: '综合排序', value: 'pop' },
+          { label: '价格从低到高', value: 'price_fale' },
+          { label: '价格从高到低', value: 'price_true' },
+          { label: '销量从低到高', value: 'booked_false' },
+          { label: '销量从高到低', value: 'booked_true' }
+        ],
+        alibabaSortTypeVal: 'pop',
+
+        // Lazada
+        lazadaPlace: {},
+        lazadaPlaceVal: [[], []]
       },
       // 基础参数
       key: '',
       keyFilter: '',
       isSelectAll: false,
+      isSelectAll2: [
+        false, false
+      ],
       consoleMsg: ''
     }
   },
@@ -208,13 +243,13 @@ export default {
     keyworBar() {
       const value = getPlatform(this.baseConfig.keywordConfig)
       return value
-    },
-    getSite() {
-      return siteRelation
     }
+
   },
   created() {
-    this.getShopeePlace()
+    this.getShopeeGoodsPlace()
+    this.getSite()
+    // this.getLazadaGoodsPlace()
   },
   mounted() {
     // this.goodsList = testData.data
@@ -222,16 +257,14 @@ export default {
     // console.log('this.goodsList', this.goodsList)
   },
   methods: {
-    selectPlaceValEvent() {
-      console.log('this.commonAttr.placeOrigin', this.commonAttr.placeOrigin)
-      console.log('this.commonAttr.placeVal', this.commonAttr.placeVal)
+    selectPlaceValEvent() { // 出货地点全选事件
       if (this.commonAttr.placeOrigin.length === this.commonAttr.placeVal.length) {
         this.isSelectAll = true
       } else {
         this.isSelectAll = false
       }
     },
-    selectAllEvent() {
+    selectAllEvent() { // 出货地点全选事件
       if (this.isSelectAll) {
         this.commonAttr.placeOrigin.map(item => {
           this.commonAttr.placeVal.push(item.value)
@@ -240,10 +273,46 @@ export default {
         this.commonAttr.placeVal = []
       }
     },
-    getShopeePlace() {
-      this.commonAttr.placeVal = []
+    selectPlaceValEvent2(index) { // lazada地点全选事件
+      console.log('index', index)
+      console.log('this.commonAttr.lazadaPlaceVal', this.commonAttr.lazadaPlaceVal)
+
+      // if (this.commonAttr.placeOrigin.length === this.commonAttr.lazadaPlaceVal.length) {
+      //   this.isSelectAll[index] = true
+      // } else {
+      //   this.isSelectAll[index] = false
+      // }
+    },
+    selectAllEvent2(index) { // lazada出货地点全选事件
+      // if (this.isSelectAll[index]) {
+      //   this.commonAttr.placeOrigin.map(item => {
+      //     this.commonAttr.placeVal.push(item.value)
+      //   })
+      // } else {
+      //   this.commonAttr.placeVal = []
+      // }
+    },
+    getSite() { // 获取站点
+      const value = getSiteRelation(this.currentKeywordPlatform)
+      // if (this.currentKeywordPlatform === 11) {
+      this.commonAttr.site = value
+      this.commonAttr.siteCode = value[0]?.value || '' // 站点的值
+    },
+    getShopeeGoodsPlace() { // 出货地点
       this.isSelectAll = false
-      this.commonAttr.placeOrigin = getSitePlace(this.commonAttr.siteCode)
+      this.commonAttr.placeOrigin = []
+      if (this.currentKeywordPlatform === 11) {
+        this.commonAttr.placeOrigin = getSitePlace(this.commonAttr.siteCode)
+      } else if (this.currentKeywordPlatform === 9) {
+        this.commonAttr.lazadaPlaceVal[0] = []
+        this.commonAttr.lazadaPlaceVal[1] = []
+        this.getLazadaGoodsPlace()
+      }
+    },
+    getLazadaGoodsPlace() { // 获取Lazada站点地点
+      const value = getLazadaSitePlace(this.commonAttr.siteCode)
+      debugger
+      this.commonAttr.lazadaPlace = value
     },
     handleClick(tab, event) {
       // console.log(tab, event)
@@ -251,8 +320,19 @@ export default {
     handleSelectionChange(val) {
       this.multipleSelection = val
     },
-    selectPlatform(row) { // 关键词选择平台
+    switchPlatform(row) { // 关键词选择平台
       this.currentKeywordPlatform = row.value
+      this.commonAttr.placeVal = [] // 选择的出货地点
+      if (this.currentKeywordPlatform === 11) {
+        this.getSite()
+        this.commonAttr.lazadaPlace = {}
+        this.commonAttr.lazadaPlaceVal = [[], []]
+        this.getShopeeGoodsPlace()
+      } else if (this.currentKeywordPlatform === 9) {
+        this.getSite()
+        this.commonAttr.placeOrigin = []
+        this.getLazadaGoodsPlace()
+      }
     },
     // 开始采集
     StartCollection() {

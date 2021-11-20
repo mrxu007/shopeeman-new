@@ -16,20 +16,26 @@ class CollectKeyWordApI {
   async keywordSearch(key) { // 采集关键字模块
     this.GoodsData = null
     this.GoodsData = []
+    // 公共
     let StartPage = this.commonAttr.StartPage - 0
     const EndPage = this.commonAttr.EndPage - 0
+
+    // 淘宝
     const StartPrice = this.commonAttr.StartPrice - 0
     const EndPrice = this.commonAttr.EndPrice - 0
 
-    const sortWayVal = this.commonAttr.sortWayVal
-    const By = sortWayVal.split(',')[0]
-    const Order = sortWayVal.split(',')[1]
-
+    // shopee
+    const shopeeSortTypeVal = this.commonAttr.shopeeSortTypeVal
+    const By = shopeeSortTypeVal.split(',')[0]
+    const Order = shopeeSortTypeVal.split(',')[1]
     const siteCode = this.commonAttr.siteCode
     const Location = this.commonAttr.placeVal
 
+    // 1688
+    const alibabaSortTypeVal = this.commonAttr.alibabaSortTypeVal
+
     const params = {}
-    params['key'] = key
+    params['Key'] = key
     try {
       while (StartPage) {
         switch (this.platformId) {
@@ -42,19 +48,18 @@ class CollectKeyWordApI {
             params['StartPrice'] = StartPrice // 价格范围
             params['EndPrice'] = EndPrice
             break
-          case 4: // '京东'
-            break
-          case 5: // '自有'
-            break
-          case 7: // '货源甲'
-            break
           case 8: // '1688'
+            params['Page'] = StartPage // 页码
+            params['SortType'] = alibabaSortTypeVal // 页码
             break
           case 9: // 'Lazada'
             break
-          case 10: // '京喜'
+          case 10: // '京喜/京东'
+            params['Page'] = StartPage // 页码
+            // params['StartPrice'] = StartPrice // 价格范围
+            // params['EndPrice'] = EndPrice
             break
-          case 11: // '虾皮'
+          case 11: // 'shopee'
             params['Page'] = StartPage // 页码
             params['By'] = By // 排序名称
             params['Order'] = Order // 排序方式
@@ -64,14 +69,11 @@ class CollectKeyWordApI {
             params['Location'] = Location.join(',') // 发货位置
             break
           case 12: // '速卖通'
-            break
-          case 13: // '天猫淘宝海外平台'
-            break
-          case 15: // '货老板云仓
+            params['Page'] = StartPage // 页码
             break
         }
-        // 关键词请求
         debugger
+        // 关键词请求
         let res = await this._this.$collectService.querySpuByKeyworld(this.platformId, params)
         res = JSON.parse(res)
         if (res.Code !== 200) {
