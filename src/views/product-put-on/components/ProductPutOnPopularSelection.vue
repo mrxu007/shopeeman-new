@@ -206,14 +206,19 @@ export default {
   methods: {
     // 一键采集
     fasterToken() {
-      this.$router.push({
-        path: '/payment',
-        query: {
-          tit: index,
-          price: this.cost[index].price,
-          sid: sid
-        }
+      const linkList = []
+      this.tableData.forEach(e => {
+        const link = `https://xiapi.xiapibuy.com/product/${e.shopid}/${e.itemid}`
+        linkList.push(link)
       })
+      this.$message.success('链接添加成功，请手动点击采集！')
+      // 平台采集模块，商品添加链接部分还没做
+      // this.$router.push({
+      //   path: '/product-put?activeVal=0',
+      //   query: {
+      //     goodsLinkList: linkList
+      //   }
+      // })
     },
     // 查看电霸数据
     async watchDBData() {
@@ -221,15 +226,14 @@ export default {
       console.log('userinfo', userInfo)
       const params = {
         uid: userInfo.muid,
-        phone: userInfo.phone_list[0],
-        platform: 'shopee',
+        phone: userInfo.Phone,
         time: Date.parse(new Date()).toString().substr(0, 10),
-        appKey: 'dbyEOmrAqF7unG2Mxj5L',
-        appSecret: 'umzrnpsQhLvFiYXKXLFXHoYlf7ryvKAg'
+        sign: ''
       }
-      const res = await this.popularSelectionApiInstance.tokenDianBdata(params)
-
-      // window.location.href = `http://open.dianba6.com/?uid=${params.uid}&mobile=${params.phone}&platform=${params.platform}&time=${params.time}&invite_code=WrmSR3&version=1.0&sign=${params.sign}&app_key=${params.appKey}`
+      await window.BaseUtilBridgeService.getDianBaDataSign(params.time).then(res => {
+        params.sign = res
+      })
+      window.BaseUtilBridgeService.openUrl('http://open.dianba6.com/?uid=' + params.uid + '&mobile=' + params.phone + '&platform=shopee&time=' + params.time + '&invite_code=Wr38mSR3&version=1.0&sign=' + params.sign + '&app_key=dbyEOmrAqF7unG2Mxj5L')
     },
     setCategory(select) {
       this.country = select.country
@@ -239,6 +243,7 @@ export default {
       this.categoryThird = select.categoryThird
     },
     async searchShopeeHotGoods() {
+      debugger
       const price = this.minPrice + '_' + this.maxPrice
       const month_sales = this.minSales + '_' + this.maxSales
       const increment_like_count = this.minGive + '_' + this.maxGive

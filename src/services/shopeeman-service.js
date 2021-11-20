@@ -15,7 +15,6 @@ export default class NetMessageBridgeService {
   async getUrlPrefix(country) {
     const response = await window['ConfigBridgeService'].getUserConfig()
     const data = JSON.parse(response)
-
     //     auto 1、auto  2、mallinfo.MallMainId  3、IPType  包含 大陆   或者  ‘1’
     // local 国内
     // Abroad 本土
@@ -74,6 +73,7 @@ export default class NetMessageBridgeService {
           referer: url + referer
         })
     }
+    // console.log('-----', url, JSON.stringify(options))
     return this.NetMessageBridgeService().get(url, JSON.stringify(options))
   }
 

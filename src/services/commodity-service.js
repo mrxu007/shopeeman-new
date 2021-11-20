@@ -6,6 +6,14 @@ export default class CommodityService {
   user = ''
   nativeService = window['CommodityBridgeService'];
 
+  //* *删除服务端商品 */
+  delCloudItems(itemList) {
+    return this.nativeService.callFunction('DeleteCloudItems', itemList)
+  }
+  /** 获取服务端商品上新记录 */
+  getMallAllRecordList(sysMallId) {
+    return this.nativeService.callFunction('MallAllList', sysMallId)
+  }
   /**
    * 新增公司主体(系统)
    * @param {string} uid 主账号ID
@@ -358,8 +366,8 @@ export default class CommodityService {
    * @param {string} labelName 标签名称
    * @param {number} sysLabelId 标签id,修改需要传值，新增不需要传值
    */
-  addGoodsTag(labelName, sysLabelId = "0") {
-      return this.nativeService.callFunction('AddGoodsTag', labelName, sysLabelId)
+  addGoodsTag(labelName, sysLabelId = '0') {
+    return this.nativeService.callFunction('AddGoodsTag', labelName, sysLabelId)
   }
 
   /**
