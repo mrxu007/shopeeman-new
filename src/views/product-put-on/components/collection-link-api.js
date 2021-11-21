@@ -1,5 +1,5 @@
 import { dateFormat, delay } from '../../../util/util'
-class CollectKeyWordApI {
+class CollectLinkApI {
   _this = null // vue 实例
   constructor(that) {
     this._this = that
@@ -169,4 +169,4 @@ class CollectKeyWordApI {
   }
 }
 
-export default CollectKeyWordApI
+export default CollectLinkApI
