@@ -487,9 +487,9 @@ export default class {
         "return_detail_info": {
           "buyer_images": order.refundDetail.buyer_images,
           "return_pickup_address": order.refundDetail.return_pickup_address?order.refundDetail.return_pickup_address:'',
-          "return_address": order.refundDetail.return_address.address.replace('\n',""),
+          "return_address": order.refundDetail.return_address.address.replace('\n',"") || '',
           "requested_time": '',
-          "tracking_number": order.refundDetail.tracking_number,
+          "tracking_number": order.refundDetail.tracking_number || '',
           "buyer": {
             "portrait": order.buyer.portrait || '',
             "shop_id": order.buyer.shop_id || '',
@@ -506,7 +506,7 @@ export default class {
         "text_reason": order.refundDetail.text_reason,
         "reason_id": order.refundDetail.reason,
         "ctime":  this.dealWithCtime(order),//  order.return_header.attribute_list, //return_attributes
-        // "mtime": order, //
+        "mtime": 0, //
         "refund_amount": order.refund_amount, //
         "refund_total_price": order.amount_before_discount, //
         "status": order.status, //

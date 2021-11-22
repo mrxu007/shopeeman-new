@@ -47,9 +47,10 @@ export default class {
       buyerList.push(buyerItem)
       buyerMap.set(buyerItem.shotOrderPlatform, buyerItem)
       this.shopBuyerAccount.push(buyerItem)
+      console.log(buyerMap,this.shopBuyerAccount,"48")
     })
     //淘宝天猫海外平台cook
-    this.crossBorderAccessToken = buyerMap.get(shotOrderPlatform.CrossBorder) ? buyerMap.get(shotOrderPlatform.CrossBorder).Cookiestr : '1'
+    this.crossBorderAccessToken = buyerMap.get(shotOrderPlatform.CrossBorder) ? buyerMap.get(shotOrderPlatform.CrossBorder).Cookiestr : ''
     //支付信息
     const payAccount = {
       UserName: '',
@@ -101,11 +102,8 @@ export default class {
       SkipColleague: false,
       SoftDomain: '',
       Muid: '',
-
-      // TaoBaoCache: this.getCache(buyerMap, shotOrderPlatform.TaoBao),
-      TaoBaoCache: '',
-      // PinduoduoCache: this.getCache(buyerMap, shotOrderPlatform.PinDuoduo),
-      PinduoduoCache: '',
+      TaoBaoCache: this.getCache(buyerMap, shotOrderPlatform.TaoBao),
+      PinduoduoCache: this.getCache(buyerMap, shotOrderPlatform.PinDuoduo),
       ListShotOrdes: orders,
       UseLifeSpanHandler: false,
       Currency: '￥',
@@ -168,6 +166,7 @@ export default class {
     //cefLanguage：选择的网页翻译的语种
     //crossBorderAccessToken：天猫淘宝海外cookie
     //shortConfigInfoJson : shortGlobalInfo
+    console.log(this.crossBorderAccessToken,"this.crossBorderAccessToken")
     this.nativeService.start(JSON.stringify(shortGlobalInfo), configInfo.language_set, this.crossBorderAccessToken)
   }
   // 单个拍单设置相应的缓存 多个拍单保留全部
@@ -323,7 +322,7 @@ export default class {
         OriBuyNum: itemOrder.goods_info.goods_count, //后面需要根据是否聚合拍单再做调整
         Price: Math.round(Number(itemOrder.escrow_amount) / Number(this.rateList[itemOrder.country.toUpperCase()])), //订单收入转换为人民币  
         ExchangePrice: itemOrder.escrow_amount, //汇率订单收入     
-        RedirectUrl: this.GetRedirectUrl(itemOrder.goods_info.ori_goods_id, nickInfo), //获取优惠调转链接
+        RedirectUrl: this.GetRedirectUrl(itemOrder, nickInfo), //获取优惠调转链接
         PddReamrk: itemOrder.note, //平台备注
         LocalReamrk: itemOrder.remark, //本地备注
         OtherInfo: this._that.$filters.chineseSite(itemOrder.country), //站点中文
@@ -400,7 +399,7 @@ export default class {
       let par = {
         Note: item.note, //备注信息
         Url: item.purchase_url, /// 采购链接
-        RedirectUrl: this.GetRedirectUrl(itemOrder, nickInfo,goods_id), // 跳转链接
+        RedirectUrl: this.GetRedirectUrl(itemOrder, nickInfo), // 跳转链接
         PurchaseGoodsId: item.purchase_platform_id, //上家id
       }
       shipList.push(par)
@@ -424,17 +423,17 @@ export default class {
     console.log("buildPurchaseList", this.goodBuyUrlList)
     //  return paramsList
   }
-  GetRedirectUrl(itemOrder, nickInfo,goods_id) {
+  GetRedirectUrl(itemOrder, nickInfo) {
     let redirectUrl = "";
     switch (itemOrder.goods_info.ori_platform_id) {
       case 1:
         redirectUrl = itemOrder.goods_info.ori_url;
-        redirectUrl = "http://" + process.env.VUE_APP_ddk + "/ddk/singlePromotion?goodsId=" + goods_id + "&muid=" + nickInfo.muid;
+        redirectUrl = "http://" + process.env.VUE_APP_ddk + "/ddk/singlePromotion?goodsId=" + itemOrder.goods_info.ori_goods_id + "&muid=" + nickInfo.muid;
         break;
       case 2:
       case 3:
         redirectUrl = itemOrder.goods_info.ori_url;
-        redirectUrl = "http://" + process.env.VUE_APP_ddk + "/tbk/singlePromotion?goodsId=" + goods_id + "&muid=" + nickInfo.muid;
+        redirectUrl = "http://" + process.env.VUE_APP_ddk + "/tbk/singlePromotion?goodsId=" + itemOrder.goods_info.ori_goods_id + "&muid=" + nickInfo.muid;
         break;
       default:
         redirectUrl = itemOrder.goods_info.ori_url
@@ -494,6 +493,7 @@ export default class {
     //处理 provId/cityId/distId
     if (itemOrder.goods_info.ori_platform_id == 2 || itemOrder.goods_info.ori_platform_id == 3 || itemOrder.goods_info.ori_platform_id == 8) {
       let res = await window['BaseUtilBridgeService'].getTbAddress()
+      console.log('BaseUtilBridgeService',res)
     } else if (itemOrder.goods_info.ori_platform_id == 9 && warehouseInfo.country === 'SG') {
       let res = await window['BaseUtilBridgeService'].getTbAddress(warehouseInfo.distinct_id)
       console.log(res, 'SG')
@@ -516,6 +516,22 @@ export default class {
    * 转换为拍单系统买手号模型
    */
   conver2BuyerAccount(account) {
+    if(account.type === 13){
+      let params = {
+        UserNameCache: '',
+        Password: '',
+        shotOrderPlatform: this.getShortOrderBuyerAccountPlatform(account.type),
+        LoginedCookies: [],
+        UserName: account.account,
+        Cookiestr: account.access_token,
+        AccountType: account.type,
+        Ua: '',
+        Country: account.site || '',
+        ShopId: '',
+        OrderType: ''
+      }
+      return params
+    }
     console.log(account, "account")
     let params = {
       // UserNameCache: account.cache_path,
@@ -524,7 +540,7 @@ export default class {
       shotOrderPlatform: this.getShortOrderBuyerAccountPlatform(account.type),
       LoginedCookies: account.login_info,
       UserName: account.name,
-      // Cookiestr: JSON.stringify(account.login_info),
+      Cookiestr: JSON.stringify(account.login_info),
       Cookiestr: '',
       AccountType: account.type,
       Ua: account.ua,

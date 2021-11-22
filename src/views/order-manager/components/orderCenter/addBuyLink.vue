@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-11-20 21:08:11
- * @LastEditTime: 2021-11-22 16:16:19
+ * @LastEditTime: 2021-11-22 20:48:43
  * @LastEditors: Please set LastEditors
  * @Description: 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  * @FilePath: \shopeeman-new\src\views\order-manager\components\orderCenter\addBuyLink.vue
@@ -10,10 +10,10 @@
 <template>
   <div class="buy-link">
     <div class="link-show">
-      <div class="item-box" v-for="(item, index) in buyLinks" :key="index">
+      <div class="item-box" v-for="(item, index) in platformLinkList" :key="index">
         <span>{{ item.label }}</span>
-        <p>{{ item.link }}</p>
-        <i class="el-icon-s-order" @click="copyItem(item.link)"></i>
+        <p>{{ item.purchase_url_all }}</p>
+        <i class="el-icon-s-order" @click="copyItem(item.purchase_url_all)"></i>
       </div>
     </div>
     <div class="buy-content">
@@ -64,19 +64,19 @@
 </template>
 
 <script>
-import { buyLinks, goodsSourceListLink, platformList } from './orderCenter'
+import {  goodsSourceListLink, platformLinkList } from './orderCenter'
 export default {
   name: 'BuyLink',
   data() {
     return {
       rowBuyLinks: [], //目标行采购链接
-      buyLinks: buyLinks,
       createUrlByIdVisible: false,
       radio: true,
       goodID: '',
       sourceType: '1',
       goodsSourceListLink: goodsSourceListLink,
       indexLink: -1,
+      platformLinkList:platformLinkList
     }
   },
   props: {
@@ -91,13 +91,13 @@ export default {
   methods: {
     changeSourceType(e, index) {
       console.log(e, index)
-      let res = platformList.find((item) => {
+      let res = this.platformLinkList.find((item) => {
         return item.purchase_platform_id == e
       })
       this.rowBuyLinks[index].purchase_url = res.purchase_url_all
     },
     creatLink() {
-      let res = platformList.find((item) => {
+      let res = this.platformLinkList.find((item) => {
         return item.purchase_platform_id == this.sourceType
       })
       let url = res ? res.purchase_url + this.goodID : ''

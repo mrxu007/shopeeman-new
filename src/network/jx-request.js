@@ -185,6 +185,7 @@ export default {
   getOrderBySn:  (data) => AppRequest.post('/order/getSimpleOrderInfo', data), //根据订单号获取订单 
   uploadOrderWarehourseShipAmount:  (data) => AppRequest.post('/order/uploadOrderWarehourseShipAmount', data), //上报仓库发货金额  
 
-  savePurchase:   (data) => AppRequest.post('/purchase', data),  //上报采购链接
+  savePurchase:   (data) => AppRequest.post('/purchase', data),  //上报采购链接 
+  getOrderTrackingNumber:  (data) => AppRequest.get('/order/getOrderTrackingNumber', { params: data }), //获取多物流单号列表
 
 }

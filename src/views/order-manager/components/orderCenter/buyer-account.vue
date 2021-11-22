@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-11-09 10:14:02
- * @LastEditTime: 2021-11-20 18:15:14
+ * @LastEditTime: 2021-11-22 20:04:34
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shopeeman-new\src\components\buyer-account.vue
@@ -35,6 +35,15 @@
           <el-button :size="item.size || 'mini'" style="margin-right: 6px; width: 165px" @click="publicCenter(selectAccount[platformValue[item.platform]], item.platform)">
             {{ item.centerTitle }}</el-button
           >
+        </div>
+        <div class="account-item">
+          <span>天猫淘宝海外账号</span>
+          <el-select v-model="selectAccount[platformValue[13]]" size="mini" clearable placeholder="请选择" @change="accountChange()">
+            <el-option v-for="(items, index) in buyerAccountListGlobal" :key="index" :label="items.account" :value="items.id">
+              <span>{{ items.account }}</span>
+            </el-option>
+          </el-select>
+          <el-button size="mini" @click="reFreshGlobal" style="margin-right: 6px; width: 165px" >刷新天猫淘宝海外平台账号</el-button>
         </div>
       </div>
       <div class="right">
@@ -144,10 +153,10 @@ import LogisticeSyncService from '../../../../services/logistics-sync-service/lo
 export default {
   name: 'BuyerAccount',
   props: {
-    buyerAccountList: {
-      type: Array,
-      default: () => [],
-    },
+    // buyerAccountList: {
+    //   type: Array,
+    //   default: () => [],
+    // },
     upData: {
       type: String,
       default: 'buyerAccountList',
@@ -223,6 +232,7 @@ export default {
         accountjx: '',
         accountlazada: '',
         accountshopee: '',
+        accountCrossBorder: '',
       },
       platformValue: {
         1: 'accountpdd',
@@ -231,6 +241,7 @@ export default {
         10: 'accountjx',
         9: 'accountlazada',
         11: 'accountshopee',
+        13: 'accountCrossBorder',
       },
       activeAccount: null,
       loginAccount: false,
@@ -240,6 +251,8 @@ export default {
       proxyList: [],
       isOrderSelectAllMall: true, //是否全店同步
       isCheckOrderShip: false, //勾选订单同步物流
+      buyerAccountList:[],
+      buyerAccountListGlobal:[]
     }
   },
   computed: {
@@ -261,6 +274,9 @@ export default {
     shopeeAccount() {
       return this.buyerAccountList.filter((item) => item.type == 11)
     },
+    globalAccount() {
+      return this.buyerAccountList.filter((item) => item.type == 13)
+    },
   },
   watch: {
     'buyerAccountList.length': {
@@ -271,11 +287,58 @@ export default {
       },
     },
   },
-  mounted() {
+  async mounted() {
+    await this.buyerAccount()
+    await this.getGlobalAccount()
     this.defaultSelect()
     console.log(this.$parent)
   },
   methods: {
+    //刷新天猫淘宝海外平台账号
+    async reFreshGlobal(){
+       this.buyerAccountListGlobal.forEach(async item => {
+        let params = {
+          userId: item.user_id
+        }
+       await  this.$shopeemanService.postChineseLaiZan('http://api.laizand.com/api/open/refreshAccessToken', params, { // options
+          headers: {
+            'Content-Type':	'application/x-www-form-urlencoded'
+          }
+        })
+      })
+      await this.getGlobalAccount()
+      this.$message.success('刷新成功!')
+    },
+    //获取天猫淘宝海外账号
+    async getGlobalAccount(){
+      const userInfo = await this.$appConfig.getUserInfo()
+      let params = {
+        uid: userInfo.muid,
+        uuid: '0',
+        account: '',
+        accountAliasName: '',
+        app_key: 'KYsyQGFviz2i0uQF'
+      }
+      let res = await this.$shopeemanService.getChineseLaiZan('http://api.laizand.com/api/open/getTbGlobalUser?', params, { // options
+        headers: {
+          'Accept': 'application/json, application/xml, text/json, text/x-json, text/javascript, text/xml',
+          'Accept-Encoding': ' gzip, deflate',
+          'User-Agent': 'RestSharp/106.3.1.0'
+        }
+      })
+      const data = JSON.parse(res)
+      const des = data && JSON.parse(data.data)
+      if(des&&des.code === 200){
+        let arr = des.data.data || []
+        arr.forEach(item=>{
+          item.type = 13
+        })
+        this.buyerAccountListGlobal = arr
+        this.$parent['buyerAccountListGlobal'] = arr
+        console.log(this.buyerAccountListGlobal,"buyerAccountListGlobal")
+        this.defaultSelect()
+      }
+    },
     //同步物流单号
     async syncLogistics() {
       const service = new LogisticeSyncService(this.$parent.$refs.Logs.writeLog)
@@ -446,6 +509,8 @@ export default {
           return this.jxAccount
         case 11:
           return this.shopeeAccount
+        case 13:
+          return this.globalAccount
         default:
           return []
       }
@@ -695,7 +760,8 @@ export default {
           var y = b['updated_at'].replace(/:/g, '').replace(/-/g, '').replace(' ', '')
           return x < y ? 1 : x > y ? -1 : 0
         })
-        this.$parent[this.upData] = sortData || data.data // await this.$buyerAccountService.getLocalAccounts()
+        this.buyerAccountList = sortData || data.data
+        this.$parent['buyerAccountList'] = sortData || data.data // await this.$buyerAccountService.getLocalAccounts()
         this.defaultSelect()
         if (i) {
           // this.$message.success('账户信息已更新')
@@ -754,6 +820,7 @@ export default {
             return item.type === 11
           })[0].id
         : ''
+        this.selectAccount.accountCrossBorder = this.buyerAccountListGlobal[0]?this.buyerAccountListGlobal[0].id : ''
       this.accountChange()
     },
     // 删除买手号
@@ -808,6 +875,7 @@ export default {
       this.$parent.accountjx = this.selectAccount.accountjx
       this.$parent.accountlazada = this.selectAccount.accountlazada
       this.$parent.accountshopee = this.selectAccount.accountshopee
+      this.$parent.accountCrossBorder = this.selectAccount.accountCrossBorder
       return {
         accountpdd: this.selectAccount.accountpdd,
         accounttaobao: this.selectAccount.accounttaobao,
@@ -815,6 +883,7 @@ export default {
         accountjx: this.selectAccount.accountjx,
         accountlazada: this.selectAccount.accountlazada,
         accountshopee: this.selectAccount.accountshopee,
+        accountCrossBorder: this.selectAccount.accountCrossBorder,
       }
     },
   },

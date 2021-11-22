@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-11-09 10:17:44
- * @LastEditTime: 2021-11-22 16:16:02
+ * @LastEditTime: 2021-11-22 22:02:04
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shopeeman-new\src\views\order-manager\components\OrderManagerOrderCenter.vue
@@ -162,7 +162,7 @@
                   <el-button type="primary" size="mini" class="btnMedium" @click="openBefore">批量添加本地备注</el-button>
                 </el-row>
                 <el-row class="row-style">
-                  <el-button type="primary" size="mini" class="btnMini">查看禁运品</el-button>
+                  <el-button type="primary" size="mini" class="btnMini" @click="lookForbidVisible = true">查看禁运品</el-button>
                   <el-button type="primary" size="mini" class="btnMedium" @click="outStoreBefore('自有仓库商品出库', '1')">自有仓库商品出库</el-button>
                   <el-button type="primary" size="mini" class="btnLong" @click="outStoreBefore('产品中心商品出库', '2')">产品中心商品出库</el-button>
                   <el-button type="primary" size="mini" class="btnLong" @click="outStoreBefore('海外仓备货商品出库', '3')">海外仓备货商品出库</el-button>
@@ -429,7 +429,7 @@
               <el-dropdown-menu slot="dropdown">
                 <el-dropdown-item> <div class="dropdownItem" @click="singleBuyInfo(scope.row)">采购信息编辑</div></el-dropdown-item>
                 <el-dropdown-item> <div class="dropdownItem" @click="addPurchaseLink(scope.row, scope.$index)">添加采购链接</div></el-dropdown-item>
-                <el-dropdown-item> <div class="dropdownItem">删除</div></el-dropdown-item>
+                <el-dropdown-item> <div class="dropdownItem" @click="addMoreTrackingNumber(scope.row, scope.$index)">添加多物流单号</div></el-dropdown-item>
               </el-dropdown-menu>
             </el-dropdown>
             <!-- <el-button type="primary" size="mini">操作</el-button> -->
@@ -449,7 +449,7 @@
       </div>
     </div>
     <Logs ref="Logs" clear v-model="showConsole" />
-    <el-dialog title="配置订单列表显示列" :visible.sync="columnVisible" width="800px" top="5vh">
+    <el-dialog title="配置订单列表显示列" :visible.sync="columnVisible" width="800px" top="5vh" :close-on-click-modal="false">
       <div class="column-style">
         <div class="column-item" v-for="(item, index) in columnConfigList" :key="index">
           <span>{{ item.column_header }}</span>
@@ -462,7 +462,7 @@
         <el-button type="primary" size="mini" @click="uploadColumn">应用</el-button>
       </span>
     </el-dialog>
-    <el-dialog title="标记为海外商品" :visible.sync="abroadVisible" width="400px">
+    <el-dialog title="标记为海外商品" :visible.sync="abroadVisible" width="400px" :close-on-click-modal="false">
       <div class="abroad-style">
         <el-radio v-model="isAbroadGood" :label="1">海外商品</el-radio>
         <el-radio v-model="isAbroadGood" :label="-1">非海外商品</el-radio>
@@ -471,7 +471,7 @@
         <el-button type="primary" size="mini" @click="setAbroadGood">确 定</el-button>
       </span>
     </el-dialog>
-    <el-dialog title="批量添加本地备注" :visible.sync="localRamarkVisible" width="400px" @open="openBefore">
+    <el-dialog title="批量添加本地备注" :visible.sync="localRamarkVisible" width="400px" @open="openBefore" :close-on-click-modal="false">
       <div class="abroad-style">
         <span>本地备注</span>
         <el-input type="textarea" :rows="4" placeholder="请输入内容" v-model="localRamark"> </el-input>
@@ -480,7 +480,7 @@
         <el-button type="primary" size="mini" @click="batchSetRemark">批量添加</el-button>
       </span>
     </el-dialog>
-    <el-dialog title="选择颜色标识" :visible.sync="colorVisible" width="600px">
+    <el-dialog title="选择颜色标识" :visible.sync="colorVisible" width="600px" :close-on-click-modal="false">
       <div class="color-style">
         <el-table ref="colorTable" :data="colorList" tooltip-effect="dark" style="width: 100%" height="500">
           <el-table-column label="标识选择" width="100">
@@ -500,13 +500,13 @@
         <el-button type="primary" size="mini" @click="setColor">设置颜色</el-button>
       </span>
     </el-dialog>
-    <el-dialog title="批量添加采购信息" :visible.sync="purchaseInfoVisible" width="500px" top="5vh" v-if="purchaseInfoVisible">
+    <el-dialog title="批量添加采购信息" :visible.sync="purchaseInfoVisible" width="500px" top="5vh" v-if="purchaseInfoVisible" :close-on-click-modal="false">
       <purchase-info :chooseData="multipleSelection" :buyerAccountList="buyerAccountList" @close="close" :dealType="dealType"></purchase-info>
     </el-dialog>
-    <el-dialog title="同步数据至仓库" :visible.sync="pushOrderToStoreVisible" width="1200px">
+    <el-dialog title="同步数据至仓库" :visible.sync="pushOrderToStoreVisible" width="1200px" :close-on-click-modal="false">
       <push-order :chooseData="multipleSelection"></push-order>
     </el-dialog>
-    <el-dialog title="批量添加采购物流单号" :visible.sync="shipInfoVisible" width="400px">
+    <el-dialog title="批量添加采购物流单号" :visible.sync="shipInfoVisible" width="400px" :close-on-click-modal="false">
       <div>
         <div class="item-box">
           <span>绑定仓库：</span>
@@ -527,22 +527,58 @@
         <el-button type="primary" size="mini" @click="batchSaveShipInfo">确定</el-button>
       </span>
     </el-dialog>
-    <el-dialog title="上报仓库发货金额" :visible.sync="uploadStoreShipAmountVisible" width="1200px" v-if="uploadStoreShipAmountVisible">
+    <el-dialog title="上报仓库发货金额" :visible.sync="uploadStoreShipAmountVisible" width="1200px" v-if="uploadStoreShipAmountVisible" :close-on-click-modal="false">
       <upload-store-ship-amount></upload-store-ship-amount>
     </el-dialog>
     <!-- 四类商品出库 -->
-    <el-dialog :visible.sync="goodsOutStoreVisible" width="1400px" top="5vh" :close-on-click-modal="false" v-if="goodsOutStoreVisible">
+    <el-dialog :visible.sync="goodsOutStoreVisible" width="1400px" top="5vh" v-if="goodsOutStoreVisible" :close-on-click-modal="false">
       <div slot="title">{{ outStoreTitle }}</div>
-      <goods-out-store :chooseData="multipleSelection" :type="outStoreType" ></goods-out-store>
+      <goods-out-store :chooseData="multipleSelection" :type="outStoreType"></goods-out-store>
     </el-dialog>
-    <el-dialog title="添加采购链接" :visible.sync="addBuyLinkVisible" width="1200px" v-if="addBuyLinkVisible" append-to-body>
-     <buy-link :linkRow="linkRow" @close="close"></buy-link>
+    <el-dialog title="添加采购链接" :visible.sync="addBuyLinkVisible" width="1200px" v-if="addBuyLinkVisible" append-to-body :close-on-click-modal="false">
+      <buy-link :linkRow="clickRow" @close="close"></buy-link>
+    </el-dialog>
+    <el-dialog title="查看禁运品" :visible.sync="lookForbidVisible" width="1200px" :close-on-click-modal="false">
+      <div class="forbid">
+        <div class="forbid-left">
+          <p class="title">航空禁运品</p>
+          <p v-for="(item, index) in forbidData" :key="index">({{ index + 1 }}) {{ item }}</p>
+        </div>
+        <div class="forbid-right">
+          <p class="title">泰国海关禁止进口商品</p>
+          <div class="right-col">
+            <p v-for="(item, index) in forbidTHData" :key="index" class="half">({{ index + 1 }}) {{ item }}</p>
+          </div>
+        </div>
+      </div>
+    </el-dialog>
+    <el-dialog title="添加多物流单号" :visible.sync="addMoreTraNumberVisible" width="700px" :close-on-click-modal="false" v-if="addMoreTraNumberVisible" @close="closeDialog">
+      <div class="tra-style">
+        <div class="item-box">
+          <span style="width:60px;">绑定仓库</span>
+          <el-select v-model="bindStore" size="mini" class="inputWidth">
+            <el-option :label="item.warehouse_name" :value="item.warehouse_id" v-for="(item, index) in warehouseData" :key="index"></el-option>
+          </el-select>
+        </div>
+        <div v-for="(item, index) in trackingNumberList" :key="index" class="tra-content">
+          <div class="item-box">
+            <span style="width:80px;">物流单号{{ index+1 }}</span>
+            <el-input v-model="item.original_tracking_number" size="mini" class="inputWidth"></el-input>
+          </div>
+          <div class="item-box">
+            <span style="width:80px;">物流公司{{ index+1 }}</span>
+            <el-input v-model="item.original_logistics_company" size="mini" class="inputWidth mar-right"></el-input>
+          </div>
+          <el-button type="primary" size="mini" @click="deleteTraNumber(index)" class="item-box mar-right" >删除</el-button>
+          <el-button type="primary" size="mini" v-if="index === trackingNumberList.length - 1" @click="addTraNumber" class="item-box">添加</el-button>
+        </div>
+      </div>
     </el-dialog>
   </div>
 </template>
 
 <script>
-import { orderStatusList, shotStatusList, timeTypeList, inputTypeList, goodsSourceList, siteShip, columnData } from '../components/orderCenter/orderCenter'
+import { orderStatusList, shotStatusList, timeTypeList, inputTypeList, goodsSourceList, siteShip, columnData, forbidData, forbidTHData } from '../components/orderCenter/orderCenter'
 import { exportExcelDataCommon, creatDate } from '../../../util/util'
 import storeChoose from '../../../components/store-choose'
 import BuyerAccount from './orderCenter/buyer-account.vue'
@@ -562,7 +598,7 @@ export default {
     PushOrder,
     GoodsOutStore,
     UploadStoreShipAmount,
-    BuyLink
+    BuyLink,
   },
   data() {
     return {
@@ -598,6 +634,8 @@ export default {
       inputTypeList: inputTypeList,
       goodsSourceList: goodsSourceList, //商品来源
       columnConfigList: columnData, //自定义配置列
+      forbidData: forbidData,
+      forbidTHData: forbidTHData,
       shipTypeList: [], //物流方式
       tableLoading: false,
       tableData: [],
@@ -612,17 +650,6 @@ export default {
       },
       isShow: true,
       operation: {
-        url: {
-          getAccount: {
-            path: '/api/buyerAccount/',
-          },
-          upAccount: {
-            path: '/api/buyerAccount/store',
-          },
-          removeAccount: {
-            path: '/api/buyerAccount/destroy',
-          },
-        },
         upData: 'buyerAccountList',
         left: [
           { title: '登录买手号', type: 'primary', key: 1 },
@@ -640,7 +667,7 @@ export default {
           { title: '京喜账号', platform: 10, centerTitle: '京喜个人中心' },
           { title: 'lazada账号', platform: 9, centerTitle: 'lazada个人中心' },
           { title: 'shopee账号', platform: 11, centerTitle: 'shopee个人中心' },
-          { title: '天猫淘宝海外账号', platform: 888, centerTitle: '刷新天猫淘宝海外平台账号' },
+          // { title: '天猫淘宝海外账号', platform: 888, centerTitle: '刷新天猫淘宝海外平台账号' },
         ],
         right: [
           { title: '批量推送订单至仓库 ', key: 8, type: 'primary' },
@@ -654,6 +681,7 @@ export default {
       productID: '',
       multipleSelection: [],
       buyerAccountList: [],
+      buyerAccountListGlobal: [],
       accountpdd: null,
       accounttaobao: null,
       account1688: null,
@@ -686,13 +714,18 @@ export default {
       dealType: 'batch', //添加采购信息状态
       singleRow: [],
       addBuyLinkVisible: false, //添加采购链接
-      linkRow:{}
+      clickRow: {},
+      lookForbidVisible: false, //查看禁运品
+      addMoreTraNumberVisible: false, //添加多物流公司
+      warehouseData: [],
+      trackingNumberList: [],
+      bindStore: '', //绑定仓库-多物流
     }
   },
   mounted() {
     this.indexLoading = true
     this.createTime = creatDate(30)
-    this.getBuyerList()
+    // this.getBuyerList()
     this.getColumnsConfig()
     setTimeout(() => {
       this.getOrderList()
@@ -700,9 +733,53 @@ export default {
     }, 2000)
   },
   methods: {
+    //关弹窗
+    closeDialog(){
+      this.trackingNumberList = []
+    },
+    //添加多物流单号
+    async addMoreTrackingNumber(row, index) {
+      this.addMoreTraNumberVisible = true
+      let res = await this.$appConfig.getWarehouseInfo(row.mall_info.platform_mall_id)
+      let warehouseList = (res && JSON.parse(res)) || []
+      if ([1, 2, 3, 5, 8, 10].indexOf(Number(row.goods_info.ori_platform_id)) > -1) {
+        this.warehouseData = warehouseList.filter((item) => {
+          return item.type == 0
+        })
+      } else if ([9, 11, 12, 15, 13].indexOf(Number(row.goods_info.ori_platform_id)) > -1) {
+        this.warehouseData = warehouseList.filter((item) => {
+          return item.type == 3
+        })
+      }
+      console.log(this.warehouseData, 'this.warehouseData')
+      let params = {
+        sysOrderId: row.id,
+      }
+      let resF = await this.$api.getOrderTrackingNumber(params)
+      console.log('resF', resF)
+      if (resF.data.code === 200 && resF.data.data.length) {
+        this.trackingNumberList = resF.data.data
+      } else {
+        this.addTraNumber()
+      }
+    },
+    //删除多物流
+    deleteTraNumber(index) {
+      this.trackingNumberList.splice(index, 1)
+    },
+    //添加多物流
+    addTraNumber() {
+      let par = {
+        id: '',
+        original_tracking_number: '',
+        original_logistics_company: '',
+        warehouse_user_id: '',
+      }
+      this.trackingNumberList.push(par)
+    },
     //添加采购链接
     async addPurchaseLink(row, index) {
-      this.linkRow = row
+      this.clickRow = row
       this.addBuyLinkVisible = true
     },
     //单个采购信息编辑
@@ -863,8 +940,9 @@ export default {
       const AlibabaAccount = this.getAccountById(this.account1688)
       const lazadaAccount = this.getAccountById(this.accountlazada)
       const shopeeAccount = this.getAccountById(this.accountshopee)
-      const crossBorderAccount = this.getAccountById(this.accountCrossBorder)
-      console.log(purchasesId, 'purchasesId', this.accountpdd, this.accounttaobao, this.account1688, this.accountjx, this.accountlazada, this.accountshopee, pddAccount)
+      const crossBorderAccount = this.getAccountGlobalById(this.accountCrossBorder)
+      console.log('accountCrossBorder', this.accountCrossBorder, this.buyerAccountListGlobal, this.buyerAccountList)
+      console.log(purchasesId, 'purchasesId', this.accountpdd, this.accounttaobao, this.account1688, this.accountjx, this.accountlazada, this.accountshopee, pddAccount, crossBorderAccount)
       for (const key in purchasesId) {
         console.log(key)
         if (!account[key]) {
@@ -894,12 +972,23 @@ export default {
         }
       }
       //
-      const buyerAccount = _.remove([pddAccount, taobaoAccount, jdAccount, jxAccount, AlibabaAccount, lazadaAccount, shopeeAccount], (n) => {
+      const buyerAccount = _.remove([pddAccount, taobaoAccount, jdAccount, jxAccount, AlibabaAccount, lazadaAccount, shopeeAccount, crossBorderAccount], (n) => {
         return n != null && n !== undefined
       })
       this.showConsole = false
       const service = new ShotOrderService(waitOrders, buyerAccount, this)
       service.start(this.$refs.Logs.writeLog)
+    },
+    getAccountGlobalById(id) {
+      let userInfo = null
+      if (id) {
+        this.buyerAccountListGlobal.forEach((item) => {
+          if (item.id === id) {
+            userInfo = item
+          }
+        })
+      }
+      return userInfo
     },
     getAccountById(id) {
       let userInfo = null
@@ -1123,19 +1212,20 @@ export default {
       if (res.data.code === 200) {
         this.buyerAccountList = res.data.data
       }
+
       console.log('getBuyerList', this.buyerAccountList)
     },
     //获取买手号（壳）
-    async getBuyers() {
-      let res = await this.$appConfig.getGlobalCacheInfo('buyerInfo', 'key')
-      let resObj = res && JSON.parse(res)
-      this.buyerAccountList = []
-      resObj &&
-        resObj.forEach((item) => {
-          this.buyerAccountList.push(JSON.parse(item.BuyerDetail))
-        })
-      console.log('buyers', resObj, this.buyerAccountList)
-    },
+    // async getBuyers() {
+    //   let res = await this.$appConfig.getGlobalCacheInfo('buyerInfo', 'key')
+    //   let resObj = res && JSON.parse(res)
+    //   this.buyerAccountList = []
+    //   resObj &&
+    //     resObj.forEach((item) => {
+    //       this.buyerAccountList.push(JSON.parse(item.BuyerDetail))
+    //     })
+    //   console.log('buyers', resObj, this.buyerAccountList)
+    // },
     //商品来源中文信息
     changeTypeName(code, arr) {
       let res = arr.find((item) => {
@@ -1356,7 +1446,7 @@ export default {
 .item-box {
   display: flex;
   align-items: center;
-  justify-content: center;
+  // justify-content: center;
   margin-bottom: 20px;
   span {
     display: inline-block;
@@ -1371,5 +1461,37 @@ export default {
     cursor: pointer;
   }
 }
-
+.forbid {
+  display: flex;
+  /deep/.el-dialog__body {
+    padding: 10px 20px;
+  }
+  .title {
+    font-weight: 900;
+    font-size: 14px !important;
+  }
+  p {
+    height: 26px;
+  }
+  .forbid-left {
+    flex: 6;
+  }
+  .forbid-right {
+    flex: 4;
+    .right-col {
+      display: flex;
+      flex-wrap: wrap;
+      .half {
+        width: 50%;
+      }
+    }
+  }
+}
+.tra-style{
+  display:flex;
+  flex-direction: column;
+  .tra-content{
+    display:flex;
+  }
+}
 </style>
