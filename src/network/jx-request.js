@@ -9,8 +9,9 @@
 import axios from 'axios'
 import jxAdapter from './jx-apdater'
 import tbAdaptert from './gateway/gateway-adapter'
+const baseURL = window.appInfo.route
 const AppRequest = axios.create({ // 壳内转发请求
-  baseURL: process.env.VUE_APP_BASE_API,
+  baseURL,
   timeout: 5000,
   headers: {
     'Accept': 'application/vnd.ppxias.v3+json'

@@ -5,6 +5,9 @@ export default class NetMessageBridgeService {
   NetMessageBridgeService() {
     return window['NetMessageBridgeService']
   }
+  ConfigBridgeService() {
+    return window['ConfigBridgeService']
+  }
 
   getExtraInfo(data) {
     return {
@@ -12,15 +15,38 @@ export default class NetMessageBridgeService {
       isEmoticons: false
     }
   }
-  async getUrlPrefix(country) {
-    const response = await window['ConfigBridgeService'].getUserConfig()
-    const data = JSON.parse(response)
-    const domain_switch = data.SwitchDominTypeSetting || data.domain_switch
-    const domainType = domain_switch === 'Local' ||  domain_switch === 'Auto'
-    return domainType && this.site_domain_chinese_bk[country] || this.site_domain_local_bk[country]
+  // async getUrlPrefix(country) {
+  //   const response = await window['ConfigBridgeService'].getUserConfig()
+  //   const data = JSON.parse(response)
+
+  //   //     auto 1、auto  2、mallinfo.MallMainId  3、IPType  包含 大陆   或者  ‘1’
+  //   // local 国内
+  //   // Abroad 本土
+  //   const dominType = data.SwitchDominTypeSetting === 'Local'
+  //   return dominType && this.site_domain_chinese_bk[country] || this.site_domain_local_bk[country]
+  // }
+
+  async getUrlPrefix(country, data) {
+    const mallId = data.mallId || data.platform_mall_id || data.shop_id
+    let userSettings = await this.ConfigBridgeService().getUserConfig()
+    userSettings = JSON.parse(userSettings)
+    const mallInfo = await this.ConfigBridgeService().getGlobalCacheInfo('mallInfo', mallId)
+    const { mall_main_id, IPType } = JSON.parse(mallInfo)
+    // auto 1、auto  2、mallinfo.MallMainId  3、IPType  包含 大陆   或者  ‘1’
+    // local 国内
+    // Abroad 本土
+    let url = this.site_domain_chinese_bk[country]
+    if (userSettings.domain_switch === 'Abroad') {
+      url = this.site_domain_local_bk[country]
+    } else if (userSettings.domain_switch === 'Auto' && mall_main_id > 0 && (IPType.indexOf('大陆') === -1 || IPType === '1')) {
+      url = this.site_domain_local_bk[country]
+    }
+    return url
+    // const dominType = data.SwitchDominTypeSetting === 'Local'
+    // return dominType && this.site_domain_chinese_bk[country] || this.site_domain_local_bk[country]
   }
 
-  // 大陆后台
+  // 大陆后台（国内）
   site_domain_chinese_bk = {
     'MY': 'https://seller.my.shopee.cn',
     'TW': 'https://seller.xiapi.shopee.cn',
@@ -35,7 +61,7 @@ export default class NetMessageBridgeService {
     'CL': 'https://seller.cl.shopee.cn',
     'PL': 'https://seller.pl.shopee.cn'
   }
-  // 本土后台
+  // 本土后台（国外）
   site_domain_local_bk = {
     'MY': 'https://seller.shopee.com.my',
     'TW': 'https://seller.shopee.tw',
@@ -59,7 +85,7 @@ export default class NetMessageBridgeService {
    */
   async getChinese(country, api, data, options = {}) {
     data = JSON.parse(JSON.stringify(data))
-    const url = await this.getUrlPrefix(country) + api
+    const url = await this.getUrlPrefix(country, data) + api
     options['extrainfo'] = this.getExtraInfo(data)
     delete data.mallId // body 里面不能带店铺id
     options['params'] = data
@@ -77,7 +103,7 @@ export default class NetMessageBridgeService {
 
   async postChinese(country, api, data, options = {}, exportInfo) {
     data = JSON.parse(JSON.stringify(data))
-    const url = await this.getUrlPrefix(country) + api
+    const url = await this.getUrlPrefix(country, data) + api
     options['extrainfo'] = this.getExtraInfo(data)
     if (exportInfo) { // 适配店铺管理---导入店铺
       options['extrainfo']['exportInfo'] = exportInfo
@@ -98,7 +124,7 @@ export default class NetMessageBridgeService {
   async postChineseImageFile(country, api, data, options = {}, base64File) {
     data = JSON.parse(JSON.stringify(data))
     // options {extrainfo // 第三方接口, params, header}
-    const url = await this.getUrlPrefix(country) + api
+    const url = await this.getUrlPrefix(country, data) + api
     options['extrainfo'] = this.getExtraInfo(data)
     options['params'] = data
     const referer = options['headers'] && options['headers'].referer
@@ -116,7 +142,7 @@ export default class NetMessageBridgeService {
   }
   async putChinese(country, api, data, options = {}) {
     data = JSON.parse(JSON.stringify(data))
-    const url = await this.getUrlPrefix(country) + api
+    const url = await this.getUrlPrefix(country, data) + api
     options['extrainfo'] = this.getExtraInfo(data)
     delete data.mallId // body 里面不能带店铺id
     const referer = options['headers'] && options['headers'].referer
@@ -131,7 +157,7 @@ export default class NetMessageBridgeService {
   }
   async deleteChinese(country, api, data, options = {}) {
     data = JSON.parse(JSON.stringify(data))
-    const url = await this.getUrlPrefix(country) + api
+    const url = await this.getUrlPrefix(country, data) + api
     options['extrainfo'] = this.getExtraInfo(data)
     delete data.mallId // body 里面不能带店铺id
     const referer = options['headers'] && options['headers'].referer
@@ -161,6 +187,9 @@ export default class NetMessageBridgeService {
       'CO': '57',
       'CL': '56',
       'PL': '48'
+    }
+    if (account.startsWith('0')) {
+      account = account.substring(1)
     }
     return country === 'SG' || country === 'ID' ? account : reg[country] + account
   }

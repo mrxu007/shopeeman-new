@@ -3,76 +3,423 @@
   header {
     background: #ffffff;
     padding: 16px 16px 0 16px;
-    // overflow: auto;
-    // .keyword {
     .keyword-container{
-        overflow: auto;
-        .keyword-banner-bar {
-          display: flex;
-          .barChilren {
-            margin: 5px 10px 5px  10px;
-            white-space: nowrap;
-            padding: 8px;
-            width: 102px;
-            text-align: center;
-            border-radius: 5px;
-          }
+      overflow: auto;
+      .keyword-banner-bar {
+        display: flex;
+        .barChilren {
+          margin: 5px 10px 5px  0;
+          white-space: nowrap;
+          padding: 8px;
+          width: 102px;
+          text-align: center;
+          border-radius: 5px;
         }
-        .keyword-banner-content {
-          padding: 5px 10px 5px  10px;
-          display: flex;
-          // min-width: 1200px;
-          .con-sub-1{ 
-            .item{
-              display:flex;
-              margin: 5px;
-              p{
-                white-space: nowrap;
-                line-height: 28px;
-              }
-              .el-input {
-                width: 70px;
-                margin: 0 0 0 5px;
-              }
+      }
+      .keyword-banner-content {
+        padding: 5px 10px 5px  10px;
+        display: flex;
+        overflow: auto;
+        .item {
+          flex: 1;
+          margin: 5px 0 10px 0;
+          .text {
+            margin: 5px 0 10px 0;
+          }
+          .li-item-2{
+            p:nth-child(3){
+              margin-left: 12px;
             }
           }
-          .con-sub-2{
-            display: flex;
-            .item {
-              .el-textarea {
-                width: 200px;
-              }
-            }
-          }
-          .con-sub-3 {
-            .el-button {
-              margin: 5px;
-              width: 88px;
-            }
-            .item {
-              display: flex;
-              p {
-                white-space: nowrap;
-                line-height: 28px;
-                margin: 0 5px 0 5px;
-                
-              }
-              .el-input {
-                width: 70px;
-              }
-            }
-          }
-          .con-sub-4 {
-            margin-top: 12px;
-            min-width: 400px;
+          .con-sub-5 {
+            width: 450px;
             height: 156px;
             overflow: auto;
             border: 1px solid #ccc;
           }
         }
+        .con-sub-1 {
+          li {
+            display: flex;
+            line-height: 28px;
+            margin: 5px;
+            p {
+              white-space: nowrap;
+              min-width: 60px;
+              text-align: right;
+            }
+            .el-input {
+              width: 120px;
+            }
+            .el-button {
+              width: 100px;
+            }
+            .el-select {
+              width: 120px;
+            }
+            .tip {
+              color: red;
+              white-space: nowrap;
+              margin-left: 10px;
+            }
+            .slot {
+              margin: 0 10px;
+            }
+          }
+          .li-shopee {
+            .li-shopee-spec {
+              margin-left: 10px;
+            }
+          }
+        }
+        .con-sub-2 {
+          max-width: 211px;
+          margin: 0 20px;
+          li {
+            display: flex;
+            line-height: 28px;
+            margin: 5px;
+            .el-input {
+              width: 75px;
+            }
+            .el-button {
+              width: 100px;
+            }
+          }
+        }
+        .con-sub-3 {
+          min-width: 200px;
+          margin: 0 10px;
+        }
       }
-    // }
-    
+    }
+    .link-container {
+      padding: 5px 10px 5px  10px;
+      display: flex;
+      overflow: auto;
+      .item {
+        flex: 1;
+        .text {
+          margin: 5px 0 10px 0;
+        }
+        .li-item-2{
+          p:nth-child(3){
+            margin-left: 12px;
+          }
+        }
+        .linkcon-sub-4 {
+          width: 450px;
+          height: 156px;
+          overflow: auto;
+          border: 1px solid #ccc;
+        }
+      }
+      ul {
+        margin: 0 20px;
+        li {
+          display: flex;
+          line-height: 28px;
+          margin: 5px;
+          .el-input {
+            width: 75px;
+          }
+          .el-button {
+            width: 100px;
+          }
+        }
+      }
+      .linkcon-sub-1{
+      min-width: 410px;
+      }
+      .linkcon-sub-2{
+        max-width: 211px;
+      }
+    }
+    .entires-container {
+      padding: 5px 10px 5px  10px;
+      display: flex;
+      overflow: auto;
+      .item {
+        flex: 1;
+        margin: 5px 0 10px 0;
+        .text {
+          margin: 5px 0 10px 0;
+        }
+        .li-item-2{
+          p:nth-child(3){
+            margin-left: 12px;
+          }
+        }
+        .con-sub-5 {
+          width: 450px;
+          height: 156px;
+          overflow: auto;
+          border: 1px solid #ccc;
+        }
+      }
+      .con-sub-1 {
+        li {
+          display: flex;
+          line-height: 28px;
+          margin: 5px;
+          p {
+            white-space: nowrap;
+            min-width: 60px;
+            text-align: right;
+          }
+          .el-input {
+            width: 120px;
+          }
+          .el-button {
+            width: 100px;
+          }
+          .el-select {
+            width: 120px;
+          }
+          .tip {
+            color: red;
+            white-space: nowrap;
+            margin-left: 10px;
+          }
+          .slot {
+            margin: 0 10px;
+          }
+        }
+        .li-shopee {
+          .li-shopee-spec {
+            margin-left: 10px;
+          }
+        }
+      }
+      .con-sub-2 {
+        max-width: 211px;
+        margin: 0 20px;
+        li {
+          display: flex;
+          line-height: 28px;
+          margin: 5px;
+          .el-input {
+            width: 75px;
+          }
+          .el-button {
+            width: 100px;
+          }
+        }
+      }
+      .con-sub-3 {
+        min-width: 200px;
+        margin: 0 10px;
+      }
+    }
+    .picture-container {
+      padding: 5px 10px 5px  10px;
+      display: flex;
+      overflow: auto;
+      .item {
+        // flex: 1;
+        margin: 5px 0 10px 0;
+        .text {
+          margin: 5px 0 10px 0;
+        }
+        .li-item-2{
+          p:nth-child(3){
+            margin-left: 12px;
+          }
+        }
+        .con-sub-5 {
+          width: 450px;
+          height: 156px;
+          overflow: auto;
+          border: 1px solid #ccc;
+        }
+      }
+      .con-sub-1 {
+        li {
+          display: flex;
+          line-height: 28px;
+          margin: 5px;
+          p {
+            white-space: nowrap;
+            min-width: 60px;
+            text-align: right;
+          }
+          .el-input {
+            width: 120px;
+          }
+          .el-button {
+            width: 100px;
+          }
+          .el-select {
+            width: 120px;
+          }
+          .tip {
+            color: red;
+            white-space: nowrap;
+            margin-left: 10px;
+          }
+          .slot {
+            margin: 0 10px;
+          }
+        }
+        .li-shopee {
+          .li-shopee-spec {
+            margin-left: 10px;
+          }
+        }
+      }
+      .con-sub-2 {
+        max-width: 211px;
+        margin: 0 20px;
+        li {
+          display: flex;
+          line-height: 28px;
+          margin: 5px;
+          .el-input {
+            width: 75px;
+          }
+          .el-button {
+            width: 100px;
+          }
+        }
+      }
+      .con-sub-3 {
+        min-width: 200px;
+        margin: 0 10px;
+        width: 200px;
+        height: 156px;
+        // overflow: auto;
+        border: 1px solid #ccc;
+      }
+    }
+    .TMTB-container {
+      padding: 5px 10px 5px  10px;
+      display: flex;
+      overflow: auto;
+      .item {
+        // flex: 1;
+        margin: 5px 0 10px 0;
+        .text {
+          margin: 5px 0 10px 0;
+        }
+        .li-item-2{
+          p:nth-child(3){
+            margin-left: 12px;
+          }
+        }
+        .con-sub-5 {
+          width: 450px;
+          height: 156px;
+          overflow: auto;
+          border: 1px solid #ccc;
+        }
+      }
+      .con-sub-1 {
+        li {
+          display: flex;
+          line-height: 28px;
+          margin: 5px;
+          p {
+            white-space: nowrap;
+            min-width: 60px;
+            text-align: right;
+          }
+          .el-input {
+            width: 120px;
+          }
+          .el-button {
+            width: 100px;
+          }
+          .el-select {
+            width: 120px;
+          }
+          .tip {
+            color: red;
+            white-space: nowrap;
+            margin-left: 10px;
+          }
+          .slot {
+            margin: 0 10px;
+          }
+        }
+        .li-shopee {
+          .li-shopee-spec {
+            margin-left: 10px;
+          }
+        }
+      }
+      .con-sub-2 {
+        max-width: 211px;
+        margin: 0 20px;
+        li {
+          display: flex;
+          line-height: 28px;
+          margin: 5px;
+          .el-input {
+            width: 75px;
+          }
+          .el-button {
+            width: 100px;
+          }
+        }
+      }
+      .con-sub-3 {
+        min-width: 200px;
+        margin: 0 10px;
+        width: 200px;
+        height: 156px;
+        // overflow: auto;
+        border: 1px solid #ccc;
+      }
+    }
+    .collection-settings {
+      display: flex;
+      padding: 16px;
+      .item {
+      position: relative;
+      border-radius: 5px;
+        li {
+          margin: 10px;
+          display: flex;
+          line-height: 28px;
+          height: 28px;
+          .tip {
+            color: red;
+          }
+          .tip2 {
+            margin-left: 10px;
+          }
+          .el-input {
+            width: 120px;
+          }
+          span {
+            margin: 0 10px;
+          }
+          .el-checkbox {
+            color: #1a1a1a;
+          }
+        }
+        .text {
+          position: absolute;
+          background: white;
+          padding: 5px;
+          top: -29px;
+          left: 9px;
+        }
+        p {
+          white-space: nowrap;
+        }
+      }
+      .left {
+        border: 1px solid #ccc;
+        flex: 1;
+       
+      }
+      .right {
+        border: 1px solid #ccc;
+        flex: 1;
+
+      }
+    }
   }
   article {
     background: #ffffff;

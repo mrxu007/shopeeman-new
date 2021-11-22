@@ -1,7 +1,7 @@
 /**
  * 私有商品库服务
  */
-import userInfo from './application-config'
+import applicationConfig from '../services/application-config'
 
 export default class CommodityService {
   user = ''
@@ -92,8 +92,8 @@ export default class CommodityService {
    * }} req
    */
   async getCollectGoodsV2(req) {
-    await this.getUserInfo()
-    req.uuid = this.user.child_id
+    const res = await new applicationConfig().getUserInfo()
+    req.uuid = res.child_id
     console.log(req, 'req=====GetCollectGoodsV2')
     return this.nativeService.callFunction('GetCollectGoodsV2', JSON.stringify(req))
   }
