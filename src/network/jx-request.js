@@ -113,6 +113,7 @@ export default {
   getExceptionExpiredOrderIndex: (data) => AppRequest.get('/exceptionExpiredOrderIndex', { params: data }), // 异常公告即将过期订单列表
   getExceptionWarehouse: (data) => AppRequest.get('/exceptionWarehouse', { params: data }), // 异常公告仓库异常信息列表
   uploadDealExceptionStatus: (data) => AppRequest.post('/uploadDealExceptionStatus', data), // 异常公告仓库异常处理状态上报
+  getOriginalTrackingNumberEmpty: (data) => AppRequest.get('/order/originalTrackingNumberEmpty', { params: data }), // 获取订单列表
 
   // 智能仓库-------------------------------------------------------------------
   getSignPackageList: (data) => AppRequest.post('/signPackage', data), // 获取包裹列表
@@ -180,8 +181,10 @@ export default {
   getOutOfStockList: (data) => AppRequest.get('/warehouse/outOfStockList', { params: data }), // 海外仓出库订单：列表
   deleteBuyAccount:   (data) => AppRequest.post('/buyerAccount/destroy', data), //删除买手号
   getUserWarehouse:  (data) => AppRequest.get('/warehouseAddress/userIndex', { params: data }),  //仓库收货地址设置---获取列表 
-  getPurchaseLists:  (data) => AppRequest.post('/getPurchaseLists', data), //删除买手号 order/getSimpleOrderInfo
+  getPurchaseLists:  (data) => AppRequest.post('/getPurchaseLists', data), //获取采购链接
   getOrderBySn:  (data) => AppRequest.post('/order/getSimpleOrderInfo', data), //根据订单号获取订单 
   uploadOrderWarehourseShipAmount:  (data) => AppRequest.post('/order/uploadOrderWarehourseShipAmount', data), //上报仓库发货金额  
+
+  savePurchase:   (data) => AppRequest.post('/purchase', data),  //上报采购链接
 
 }

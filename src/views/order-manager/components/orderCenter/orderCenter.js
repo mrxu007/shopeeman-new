@@ -1,13 +1,15 @@
 /*
  * @Author: your name
  * @Date: 2021-11-10 12:02:05
- * @LastEditTime: 2021-11-19 22:48:55
+ * @LastEditTime: 2021-11-22 15:43:59
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shopeeman-new\src\views\order-manager\components\orderCenter\selectData.js
  */
 
-import { rearg } from "lodash"
+import {
+  rearg
+} from "lodash"
 
 //订单状态  1:待支付 2:待发货 3:已发货 4:已完成  5:取消中 6:已取消 7:退款/退货 8:确认签收 9:退款成功 10:退款失败  20:无售后订单
 const orderStatusList = [{
@@ -89,8 +91,7 @@ const shotStatusList = [{
     label: '退款成功'
   }
 ]
-const shotStatuForEdit = [
-  {
+const shotStatuForEdit = [{
     value: 1,
     label: '待采购'
   },
@@ -204,6 +205,39 @@ const goodsSourceList = [{
   {
     value: 15,
     label: '货老板海外'
+  },
+]
+const goodsSourceListLink = [{
+    value: "1",
+    label: '拼多多'
+  },
+  {
+    value: "2",
+    label: '淘宝'
+  },
+  {
+    value: "3",
+    label: '天猫'
+  },
+  {
+    value: "8",
+    label: '1688'
+  },
+  {
+    value: "9",
+    label: 'Lazada'
+  },
+  {
+    value: "10",
+    label: '京喜'
+  },
+  {
+    value: "11",
+    label: 'shopee'
+  },
+  {
+    value: "13",
+    label: '天猫淘宝海外平台'
   },
 ]
 //各站点物流
@@ -793,16 +827,21 @@ function siteShip(country) {
   return arr
 }
 
-function sourceName(val){
+function sourceName(val) {
   let name = ''
-  let info = goodsSourceList.find(item=>{return item.value == val})
-  name = info?info.label:''
+  let info = goodsSourceList.find(item => {
+    return item.value == val
+  })
+  name = info ? info.label : ''
   return name
 }
-function orderStatusName(val){
+
+function orderStatusName(val) {
   let name = ''
-  let info = orderStatusList.find(item=>{return item.value == val})
-  name = info?info.label:''
+  let info = orderStatusList.find(item => {
+    return item.value == val
+  })
+  name = info ? info.label : ''
   return name
 }
 
@@ -820,25 +859,398 @@ const upLoadType = [{
     value: 'single'
   }
 ]
-
-const warehouseType = [
-  {
-    label:"国内中转仓",
-    value:0
+//配置列表
+const columnData = [{
+    column_header: '站点',
+    is_show: 1,
+    first_column_is_checkbox: -1
   },
   {
-    label:"存储转运仓",
-    value:1
+    column_header: '店铺分组',
+    is_show: 1,
+    first_column_is_checkbox: -1
+  }, {
+    column_header: '店铺名称',
+    is_show: 1,
+    first_column_is_checkbox: -1
+  }, {
+    column_header: '采购绑定仓库',
+    is_show: 1,
+    first_column_is_checkbox: -1
+  }, {
+    column_header: '颜色标识',
+    is_show: 1,
+    first_column_is_checkbox: -1
+  }, {
+    column_header: '标识名称',
+    is_show: 1,
+    first_column_is_checkbox: -1
+  }, {
+    column_header: '订单编号',
+    is_show: 1,
+    first_column_is_checkbox: -1
+  }, {
+    column_header: '订单创建时间',
+    is_show: 1,
+    first_column_is_checkbox: -1
+  }, {
+    column_header: '发货状态',
+    is_show: 1,
+    first_column_is_checkbox: -1
+  }, {
+    column_header: '发货时间',
+    is_show: 1,
+    first_column_is_checkbox: -1
+  }, {
+    column_header: '采购类型',
+    is_show: 1,
+    first_column_is_checkbox: -1
+  }, {
+    column_header: '查看采购地址',
+    is_show: 1,
+    first_column_is_checkbox: -1
+  }, {
+    column_header: '是否可二次销售',
+    is_show: 1,
+    first_column_is_checkbox: -1
+  }, {
+    column_header: '商品ID',
+    is_show: 1,
+    first_column_is_checkbox: -1
+  }, {
+    column_header: '商品创建时间',
+    is_show: 1,
+    first_column_is_checkbox: -1
+  }, {
+    column_header: '商品图片',
+    is_show: 1,
+    first_column_is_checkbox: -1
+  }, {
+    column_header: '商品单价',
+    is_show: 1,
+    first_column_is_checkbox: -1
+  }, {
+    column_header: '商品数量',
+    is_show: 1,
+    first_column_is_checkbox: -1
+  }, {
+    column_header: '商品标题',
+    is_show: 1,
+    first_column_is_checkbox: -1
+  }, {
+    column_header: '搜同款',
+    is_show: 1,
+    first_column_is_checkbox: -1
+  }, {
+    column_header: '商品类目',
+    is_show: 1,
+    first_column_is_checkbox: -1
+  }, {
+    column_header: '规格编号',
+    is_show: 1,
+    first_column_is_checkbox: -1
+  }, {
+    column_header: '商品规格',
+    is_show: 1,
+    first_column_is_checkbox: -1
+  }, {
+    column_header: '商品货号',
+    is_show: 1,
+    first_column_is_checkbox: -1
+  }, {
+    column_header: '是否为海外仓商品',
+    is_show: 1,
+    first_column_is_checkbox: -1
+  }, {
+    column_header: '买家付款金额',
+    is_show: 1,
+    first_column_is_checkbox: -1
+  }, {
+    column_header: '订单收入',
+    is_show: 1,
+    first_column_is_checkbox: -1
+  }, {
+    column_header: '订单收入(RMB)',
+    is_show: 1,
+    first_column_is_checkbox: -1
+  }, {
+    column_header: '实际总邮费',
+    is_show: 1,
+    first_column_is_checkbox: -1
+  }, {
+    column_header: '卖家补贴邮费',
+    is_show: 1,
+    first_column_is_checkbox: -1
+  }, {
+    column_header: '采购价',
+    is_show: 1,
+    first_column_is_checkbox: -1
+  }, {
+    column_header: '采购价(RMB)',
+    is_show: 1,
+    first_column_is_checkbox: -1
+  }, {
+    column_header: '仓库发货金额',
+    is_show: 1,
+    first_column_is_checkbox: -1
+  }, {
+    column_header: '仓库发货金额(RMB)',
+    is_show: 1,
+    first_column_is_checkbox: -1
+  }, {
+    column_header: '含邮费毛利',
+    is_show: 1,
+    first_column_is_checkbox: -1
+  }, {
+    column_header: '含邮费毛利(RMB)',
+    is_show: 1,
+    first_column_is_checkbox: -1
+  }, {
+    column_header: '最终毛利',
+    is_show: 1,
+    first_column_is_checkbox: -1
+  }, {
+    column_header: '最终毛利(RMB)',
+    is_show: 1,
+    first_column_is_checkbox: -1
+  }, {
+    column_header: '付款账号',
+    is_show: 1,
+    first_column_is_checkbox: -1
+  }, {
+    column_header: '采购账号',
+    is_show: 1,
+    first_column_is_checkbox: -1
+  }, {
+    column_header: '账单明细',
+    is_show: 1,
+    first_column_is_checkbox: -1
+  }, {
+    column_header: '拍单',
+    is_show: 1,
+    first_column_is_checkbox: -1
+  }, {
+    column_header: '采购状态',
+    is_show: 1,
+    first_column_is_checkbox: -1
+  }, {
+    column_header: '采购时间',
+    is_show: 1,
+    first_column_is_checkbox: -1
+  }, {
+    column_header: '采购订单号',
+    is_show: 1,
+    first_column_is_checkbox: -1
+  }, {
+    column_header: '采购付款方式',
+    is_show: 1,
+    first_column_is_checkbox: -1
+  }, {
+    column_header: '平台付款方式',
+    is_show: 1,
+    first_column_is_checkbox: -1
+  }, {
+    column_header: '采购物流公司',
+    is_show: 1,
+    first_column_is_checkbox: -1
+  }, {
+    column_header: '采购物流单号',
+    is_show: 1,
+    first_column_is_checkbox: -1
+  }, {
+    column_header: '采购发货时间',
+    is_show: 1,
+    first_column_is_checkbox: -1
+  }, {
+    column_header: '采购物流轨迹',
+    is_show: 1,
+    first_column_is_checkbox: -1
+  }, {
+    column_header: '商户订单号',
+    is_show: 1,
+    first_column_is_checkbox: -1
+  }, {
+    column_header: '运输方式',
+    is_show: 1,
+    first_column_is_checkbox: -1
+  }, {
+    column_header: '货物类型',
+    is_show: 1,
+    first_column_is_checkbox: -1
+  }, {
+    column_header: '虾皮物流',
+    is_show: 1,
+    first_column_is_checkbox: -1
+  }, {
+    column_header: '虾皮物流单号',
+    is_show: 1,
+    first_column_is_checkbox: -1
+  }, {
+    column_header: '虾皮物流轨迹',
+    is_show: 1,
+    first_column_is_checkbox: -1
+  }, {
+    column_header: '截止发货时间',
+    is_show: 1,
+    first_column_is_checkbox: -1
+  }, {
+    column_header: '仓库发货状态',
+    is_show: 1,
+    first_column_is_checkbox: -1
+  }, {
+    column_header: '入库时间',
+    is_show: 1,
+    first_column_is_checkbox: -1
+  }, {
+    column_header: '出库时间',
+    is_show: 1,
+    first_column_is_checkbox: -1
+  }, {
+    column_header: '本地备注',
+    is_show: 1,
+    first_column_is_checkbox: -1
+  }, {
+    column_header: 'shopee备注',
+    is_show: 1,
+    first_column_is_checkbox: -1
+  }, {
+    column_header: 'shopee备注更新时间',
+    is_show: 1,
+    first_column_is_checkbox: -1
+  }, {
+    column_header: '买家姓名',
+    is_show: 1,
+    first_column_is_checkbox: -1
+  }, {
+    column_header: '买家地址',
+    is_show: 1,
+    first_column_is_checkbox: -1
+  }, {
+    column_header: '手机号',
+    is_show: 1,
+    first_column_is_checkbox: -1
+  }, {
+    column_header: '订单支付时间',
+    is_show: 1,
+    first_column_is_checkbox: -1
+  }, {
+    column_header: '订单轨迹',
+    is_show: 1,
+    first_column_is_checkbox: -1
+  }, {
+    column_header: '订单更新时间',
+    is_show: 1,
+    first_column_is_checkbox: -1
+  }, {
+    column_header: '操作',
+    is_show: 1,
+    first_column_is_checkbox: -1
   },
-  {
-    label:"海外存储仓",
-    value:2
-  },
-  {
-    label:"海外中转仓",
-    value:3
-  }
 ]
+//链接表
+const buyLinks = [{
+    label: "拼多多",
+    value: 1,
+    link: "http://mobile.yangkeduo.com/goods.html?goods_id=2459375892"
+  },
+  {
+    label: "淘宝",
+    value: 2,
+    link: "https://item.taobao.com/item.htm?id=561870475654"
+  }, {
+    label: "天猫",
+    value: 3,
+    link: "https://detail.tmall.com/item.htm?id=20601016004"
+  }, {
+    label: "京喜",
+    value: 10,
+    link: "https://m.jingxi.com/item/view?sku=20601016004" //https://item.m.jd.com/product/69229062806.html
+  }, {
+    label: "1688",
+    value: 8,
+    link: "https://detail.1688.com/offer/635819118296.html"
+  }, {
+    label: "shopee",
+    value: 11,
+    link: "https://xiapi.xiapibuy.com/product/60119183/2677842767"
+  },
+  {
+    label: "天猫淘宝海外平台",
+    value: 13,
+    link: "https://distributor.taobao.global/apps/product/detail?mpId=60003345"
+  }, {
+    label: "lazada",
+    value: 9,
+    link: "https://www.lazada.com.my/products/i1143594827.html"
+  },
+]
+const platformList = [
+    {
+      purchase_platform_id: 1,
+      purchase_url: 'http://mobile.yangkeduo.com/goods.html?goods_id=',
+      purchase_url_all: 'http://mobile.yangkeduo.com/goods.html?goods_id=',
+      lab: '拼多多'
+    },
+    {
+      purchase_platform_id: 2,
+      purchase_url: 'https://item.taobao.com/item.htm?id=',
+      purchase_url_all: 'https://item.taobao.com/item.htm?id=',
+      lab: '淘宝'
+    },
+    {
+      purchase_platform_id: 3,
+      purchase_url: 'https://detail.tmall.com/item.htm?id=',
+      purchase_url_all: 'https://detail.tmall.com/item.htm?id=',
+      lab: '天猫'
+    },
+    {
+      purchase_platform_id: 8,
+      purchase_url: 'https://detail.1688.com/offer/',
+      purchase_url_all: 'https://detail.1688.com/offer/635819118296.html',
+      lab: '1688'
+    },
+    {
+      purchase_platform_id: 10,
+      purchase_url: 'https://m.jingxi.com/item/view?sku=',
+      purchase_url_all: 'https://m.jingxi.com/item/view?sku=',
+      lab: '京喜'
+    },
+    {
+      purchase_platform_id: 9,
+      purchase_url: 'https://www.lazada.com.my/products/i',
+      purchase_url_all: 'https://www.lazada.com.my/products/i1143594827.html',
+      lab: 'lazada'
+    },
+    {
+      purchase_platform_id: 11,
+      purchase_url: 'https://xiapi.xiapibuy.com/product/60119183/',
+      purchase_url_all: 'https://xiapi.xiapibuy.com/product/60119183/2677842767',
+      lab: 'shopee'
+    },
+    {
+      purchase_platform_id: 13,
+      purchase_url: 'https://distributor.taobao.global/apps/product/detail?mpId=',
+      purchase_url_all: 'https://distributor.taobao.global/apps/product/detail?mpId=',
+      lab: '天猫淘宝海外平台'
+    },
+  ]
+  const warehouseType = [{
+      label: "国内中转仓",
+      value: 0
+    },
+    {
+      label: "存储转运仓",
+      value: 1
+    },
+    {
+      label: "海外存储仓",
+      value: 2
+    },
+    {
+      label: "海外中转仓",
+      value: 3
+    }
+  ]
 
 export {
   orderStatusList,
@@ -853,6 +1265,10 @@ export {
   site_mall,
   shotStatuForEdit,
   warehouseType,
+  columnData,
+  buyLinks,
+  goodsSourceListLink,
+  platformList,
   sourceName,
   orderStatusName,
   siteShip

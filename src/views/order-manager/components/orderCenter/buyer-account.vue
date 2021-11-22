@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-11-09 10:14:02
- * @LastEditTime: 2021-11-19 16:46:31
+ * @LastEditTime: 2021-11-20 18:15:14
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shopeeman-new\src\components\buyer-account.vue
@@ -12,6 +12,8 @@
       <div class="left" style="margin-right: 10px">
         <div v-for="(item, index) in operation.left" :key="index" class="btn-item">
           <el-button :type="item.type || ''" :size="item.size || 'mini'" @click="handelBtn(item.key, item.click, item.clickParams)">{{ item.title }}</el-button>
+          <el-checkbox v-if="item.check === 'order'" v-model="isOrderSelectAllMall" style="margin-left: 5px">全店同步</el-checkbox>
+          <el-checkbox v-if="item.check === 'ship'" v-model="isCheckOrderShip" style="margin-left: 5px">勾选订单同步</el-checkbox>
         </div>
       </div>
       <div class="center">
@@ -138,6 +140,7 @@
 <script>
 import { syncStatus } from './orderCenter'
 import orderSync from '../../../../services/timeOrder'
+import LogisticeSyncService from '../../../../services/logistics-sync-service/logistics-sync-service-new-copy'
 export default {
   name: 'BuyerAccount',
   props: {
@@ -235,7 +238,8 @@ export default {
       deleteAccount: false,
       proxyType: '',
       proxyList: [],
-      isOrderSelectAllMall: false, //是否全店同步
+      isOrderSelectAllMall: true, //是否全店同步
+      isCheckOrderShip: false, //勾选订单同步物流
     }
   },
   computed: {
@@ -272,6 +276,29 @@ export default {
     console.log(this.$parent)
   },
   methods: {
+    //同步物流单号
+    async syncLogistics() {
+      const service = new LogisticeSyncService(this.$parent.$refs.Logs.writeLog)
+      if (!this.buyerAccountList.length) {
+        this.$refs.Logs.writeLog(`没有买手号，请登录买手号`, false)
+        return this.$message.warning('没有买手号,请登录！')
+      }
+      if (this.isCheckOrderShip) {
+        if (!this.$parent.multipleSelection.length) {
+          return this.$message.warning('请先选择订单数据！')
+        }
+        this.$parent.showConsole = false //打开日志
+        this.$parent.$refs.Logs.consoleMsg = ''
+        this.$parent.$refs.Logs.writeLog(`获取采购物流轨迹开始`, true)
+        service.start(this, this.buyerAccountList, this.$parent.multipleSelection)
+      } else {
+        this.$parent.showConsole = false //打开日志
+        this.$parent.$refs.Logs.consoleMsg = ''
+        this.$parent.$refs.Logs.writeLog(`获取采购物流轨迹开始`, true)
+        service.start(this, this.buyerAccountList)
+      }
+      console.log(this.buyerAccountList)
+    },
     //同步订单按钮
     async SyncOrder() {
       let mallList = []
@@ -351,8 +378,11 @@ export default {
         case 2: //同步订单
           this.SyncOrder()
           return
-         case 4: //批量拍单
-         console.log(this.$parent)
+        case 3: //同步物流
+          this.syncLogistics()
+          return
+        case 4: //批量拍单
+          console.log(this.$parent)
           this.$parent[clickEvent]()
           return
         case 5: //配置列
@@ -361,7 +391,7 @@ export default {
         case 6: //上传买手号
           this.batchUpBuyer(1)
           return
-        case 7: //下载买手号 
+        case 7: //下载买手号
           this.buyerAccount(1)
           return
         case 8: //同步数据至仓库
@@ -377,7 +407,7 @@ export default {
           this.$parent['colorVisible'] = true
           this.$parent[clickEvent]()
           return
-        case 10: //配置列 
+        case 10: //配置列
           if (!this.$parent['multipleSelection'].length) {
             return this.$message.warning('请先选择需要标记的商品！')
           }
@@ -387,6 +417,7 @@ export default {
           if (!this.$parent['multipleSelection'].length) {
             return this.$message.warning('请先选择商品！')
           }
+          this.$parent['dealType'] = 'batch'
           this.$parent['purchaseInfoVisible'] = true
           return
       }
@@ -457,7 +488,7 @@ export default {
         AccountType: account.type,
         Ua: account.ua,
         Country: account.country || '',
-        proxyId: this.proxyType
+        proxyId: this.proxyType,
       }
       const key = params.AccountType + params.UserName
       console.log(account, params, key, 'adddddddddd')
@@ -573,7 +604,7 @@ export default {
     async lazadaLogin() {
       if (this.$buyerAccountService) {
         const account = await this.$buyerAccountService.lazadaLogin(this.siteCode)
-        console.log("lazadaLogin",account)
+        console.log('lazadaLogin', account)
         if (account) {
           this.upBuyerAccountList(account)
         }
@@ -638,7 +669,7 @@ export default {
         loginInfo: account.login_info,
         ua: account.ua,
         cachePath: account.cache_path,
-        proxyId: this.proxyType
+        proxyId: this.proxyType,
       }
       const { data } = await this.$api.upLoadBuyAccount(params)
       if (data.code === 200) {
@@ -658,12 +689,12 @@ export default {
       const { data } = await this.$api.getBuyerList()
       let sortData = null
       if (data.code === 200) {
-          // 根据时间排序
-          sortData = data.data.sort(function (a, b) {
-            var x = a['updated_at'].replace(/:/g, '').replace(/-/g, '').replace(' ', '')
-            var y = b['updated_at'].replace(/:/g, '').replace(/-/g, '').replace(' ', '')
-            return x < y ? 1 : x > y ? -1 : 0
-          })
+        // 根据时间排序
+        sortData = data.data.sort(function (a, b) {
+          var x = a['updated_at'].replace(/:/g, '').replace(/-/g, '').replace(' ', '')
+          var y = b['updated_at'].replace(/:/g, '').replace(/-/g, '').replace(' ', '')
+          return x < y ? 1 : x > y ? -1 : 0
+        })
         this.$parent[this.upData] = sortData || data.data // await this.$buyerAccountService.getLocalAccounts()
         this.defaultSelect()
         if (i) {
@@ -723,16 +754,16 @@ export default {
             return item.type === 11
           })[0].id
         : ''
-        this.accountChange()
+      this.accountChange()
     },
     // 删除买手号
     async removebuyerAccount() {
       const Account = {
         type: this.activeAccount.type,
         name: this.activeAccount.name,
-        site: this.activeAccount.site
+        site: this.activeAccount.site,
       }
-      const { data } = await this.$api.deleteBuyAccount( Account)
+      const { data } = await this.$api.deleteBuyAccount(Account)
       if (data.code === 200) {
         this.$notify({
           title: '买手号管理',
@@ -798,10 +829,11 @@ export default {
     display: flex;
   }
   .left {
-    width: 94px;
+    width: 120px;
     display: flex;
     flex-direction: column;
     .btn-item {
+      display: flex;
       padding-bottom: 8px;
       button {
         width: 100%;
@@ -823,6 +855,8 @@ export default {
   }
   .account-item {
     padding-bottom: 8px;
+    display: flex;
+    align-items: center;
     > span {
       display: inline-block;
       width: 120px;

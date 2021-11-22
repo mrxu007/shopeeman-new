@@ -26,7 +26,7 @@ export default class {
   writeLog = undefined
   constructor(mall, syncStatus, that, writeLog) {
     this.mall = mall,
-    this._this = that
+      this._this = that
     this.syncStatus = syncStatus
     this.writeLog = writeLog
   }
@@ -76,6 +76,7 @@ export default class {
           total
         } = res.data
         let orderDetailListCount = 0
+        let orderDetailListFa = []
         while (package_list.length) {
           //orderLen-a<5
           for (let a = 0; a < orders.length; a = a + 5) {
@@ -98,11 +99,7 @@ export default class {
                 await this.getOrderOtherInfo(orderDetailListFilter)
                 //检测订单是否需要上报
                 let checkedList = []
-                if (this.syncStatus.value === 'refund') {
-                  checkedList = await this.checkAfterOrderSnStatus(orderDetailListFilter)
-                } else {
-                  checkedList = await this.checkOrderSnStatus(orderDetailListFilter)
-                }
+                checkedList = await this.checkOrderSnStatus(orderDetailListFilter)
                 checkedList.length && await this.upLoadOrders(checkedList)
               }
             }
@@ -150,33 +147,26 @@ export default class {
         let orderDetailListCount = 0
         while (list.length) {
           //orderLen-a<5
-          for (let a = 0; a < orders.length; a = a + 5) {
-            let orderArr = orders.slice(a, a + 5)
-            let resDetail = await this.$shopeemanService.getDetailsByOrderIds(this.mall.country, {
-              from_seller_data: false,
-              orders: this.changeParams(orderArr),
+          for (let a = 0; a < list.length; a++) {
+            let order = list[a]
+            let par = {
+              return_sn: order.return_sn,
               shop_id: this.mall.platform_mall_id
-            })
-            console.log(resDetail, "resDetail")
+            }
+            let resDetail = await this.$shopeemanService.getRefundOrderDetail(this.mall.country, par)
+            console.log("resDetail",resDetail)
             if (resDetail.code === 200) {
-              let orderDetailList = resDetail.data && resDetail.data.orders || []
-              orderDetailListFa = orderDetailListFa.concat(resDetail.data.orders)
-              if (orderDetailList && orderDetailList.length) {
-                //过滤不是今天的订单 new Date().getTime()-item.create_time*1000 < 1*24*60*60*1000
-                let orderDetailListFilter = orderDetailList.filter(item => {
-                  return new Date().getTime() - item.create_time * 1000 > 1 * 24 * 60 * 60 * 1000
-                })
-                orderDetailListCount += orderDetailListFilter.length
-                await this.getOrderOtherInfo(orderDetailListFilter)
-                //检测订单是否需要上报
-                let checkedList = []
-                if (this.syncStatus.value === 'refund') {
-                  checkedList = await this.checkAfterOrderSnStatus(orderDetailListFilter)
-                } else {
-                  checkedList = await this.checkOrderSnStatus(orderDetailListFilter)
+              order.refundDetail = resDetail.data
+              await this.getOrderOtherInfoRefund(order)
+              let checkFlag = await this.checkAfterOrderSnStatus(order)
+              if(checkFlag){
+                let afterRes = await this.afterUpLoadOrders(order)
+                if(afterRes){
+                  orderDetailListCount++
                 }
-                checkedList.length && await this.upLoadOrders(checkedList)
               }
+              // checkFlag && this.afterUpLoadOrders(order)
+              // console.log(order, "refund-order")
             }
           }
           //自动翻页
@@ -184,7 +174,7 @@ export default class {
             list = []
           } else {
             params.page_number++
-            let pageUp = await this.$shopeemanService.getToShipOrderIdList(this.mall.country, params)
+            let pageUp = await this.$shopeemanService.getRefundOrderIdList(this.mall.country, params)
             list = pageUp && pageUp.data && pageUp.data.list || []
           }
         }
@@ -244,11 +234,7 @@ export default class {
                 await this.getOrderOtherInfo(orderDetailListFilter)
                 //检测订单是否需要上报
                 let checkedList = []
-                if (this.syncStatus.value === 'refund') {
-                  checkedList = await this.checkAfterOrderSnStatus(orderDetailListFilter)
-                } else {
-                  checkedList = await this.checkOrderSnStatus(orderDetailListFilter)
-                }
+                checkedList = await this.checkOrderSnStatus(orderDetailListFilter)
                 console.log(checkedList, "checkedList")
                 checkedList.length && await this.upLoadOrders(checkedList)
               }
@@ -327,8 +313,45 @@ export default class {
       console.log(res6, "res6")
     }
   }
-
+  //售后订单
+  async getOrderOtherInfoRefund(order) {
+    let params = {
+      order_id: order.order_id,
+      shop_id: this.mall.platform_mall_id
+    }
+    //3、获取订单交易记录
+    let res3 = await this.$shopeemanService.getIncomeTransactionHistoryDetail(this.mall.country, params)
+    console.log(res3, "res3")
+    if (res3.code === 200) {
+      order['transactionHistoryDetail'] = res3.data
+    }
+    //4、获取订单历史轨迹
+    let res4 = await this.$shopeemanService.getOrdeTrackingHistory(this.mall.country, params)
+    console.log(res4, "res4")
+    if (res4.code === 200) {
+      order['ordeTrackingHistory'] = res4.data
+    }
+    //5、获取物流轨迹的发货时间 
+    let params5 = {
+      order_id: order.order_id,
+      shop_id: this.mall.platform_mall_id,
+      log_id:1
+    }
+    let res5 = await this.$shopeemanService.getLogisticsTrackingHistoryRefund(this.mall.country, params5)
+    console.log(res5.data, "res5-res5")
+    if (res5.code === 200) {
+      order['logisticsTrackingHistory'] = res5.data
+    }
+    console.log(order, "orderAll")
+    //6、申请运单号
+    let res6 = await this.$shopeemanService.getForderLogistics(this.mall.country, params)
+    if (res6.code === 200) {
+      order['forderLogistics'] = res6.data
+    }
+    console.log(res6, "res6")
+  }
   //服务端检测订单 ---正常订单
+
   //orderKey组装： main_order_sn  + status  +   status_ext  + logistics_status + log_current_status  + actual_shipping_cost
   //其中： log_current_status  为此接口（获取历史记录节点）：/api/v3/order/get_order_tracking_history/  中的new_status，如无，则为''
   //其中： actual_shipping_cost 为此接口（订单收入明细）：/api/v3/finance/income_transaction_history_detail  中的 shipping_fee_paid_by_shopee_on_your_behalf ，若无，则为0
@@ -351,22 +374,18 @@ export default class {
   }
   //服务端检测订单 ---售后订单
   //key组成：return_id +   status + mtime （若mtime没有值，则为0）
-  async checkAfterOrderSnStatus(orderDetailListFilter) {
-    let checkList = []
-    for (let i = 0; i < orderDetailListFilter.length; i++) {
-      let order = orderDetailListFilter[i]
-      let key = `${order.return_id}'_'${order.status}'_'${order.mtime?order.mtime:0}`
-      let res = await this.$api.checkOrderSnStatus({
-        orderKey: key
-      })
-      if (!res.data.orderKey) {
-        checkList.push(order)
-      }
-      console.log(res, "checkAfterOrderSnStatus")
+  async checkAfterOrderSnStatus(order) {
+    let flag = false
+    let key = `${order.return_id}'_'${order.status}'_'${order.mtime?order.mtime:0}`
+    let res = await this.$api.checkOrderSnStatus({
+      orderKey: key
+    })
+    console.log(res, "checkAfterOrderSnStatus")
+    if (!res.data.orderKey) {
+      flag = true
     }
-    return checkList
+    return flag
   }
-
   //订单上报
   async upLoadOrders(checkedList) {
     try {
@@ -408,7 +427,7 @@ export default class {
           "return_id": order.return_id,
           "order_status": "",
           "sip_shop_id": "",
-          "country_ext":"",
+          "country_ext": "",
           "income_detail": JSON.stringify(order.transactionHistoryDetail),
           "total_amount": this.getTotalAmount(order),
           "goods_price": Math.abs(order.transactionHistoryDetail.payment_info.merchant_subtotal.product_price),
@@ -438,27 +457,122 @@ export default class {
         //   paramsArr
         // })
         //测试接口
-        if(this.syncStatus.value === 'refund'){
+        if (this.syncStatus.value === 'refund') {
           let res = await this.$api.uploadOrderAfterSale({
             "afterOrderData": paramsArr,
             "sysMallId": this.mall.id,
             "mallId": this.mall.platform_mall_id
           })
-          console.log(this.mall, "上报after",res)
-        }else{
+          console.log(this.mall, "上报after", res)
+        } else {
           let res = await this.$api.uploadOrderSaveTest({
             "orderData": paramsArr,
             "sysMallId": this.mall.id,
             "mallId": this.mall.platform_mall_id
           })
-          console.log(this.mall, "上报",res)
+          console.log(this.mall, "上报", res)
         }
-       
+
       }
     } catch (error) {
       console.log(error)
     }
 
+  }
+  //售后订单上报
+  async afterUpLoadOrders(order) {
+    try {
+      let paramsArr = []
+      let params = {
+        "return_detail_info": {
+          "buyer_images": order.refundDetail.buyer_images,
+          "return_pickup_address": order.refundDetail.return_pickup_address?order.refundDetail.return_pickup_address:'',
+          "return_address": order.refundDetail.return_address.address.replace('\n',""),
+          "requested_time": '',
+          "tracking_number": order.refundDetail.tracking_number,
+          "buyer": {
+            "portrait": order.buyer.portrait || '',
+            "shop_id": order.buyer.shop_id || '',
+            "followed": true,
+            "id": order.buyer.id || '',
+            "name": order.buyer.name || ''
+          },
+          "return_delivery_time": ''
+        },
+        "return_id": order.return_id,
+        "return_sn": order.return_sn,
+        "order_id": order.order_id,
+        "return_channel_id": order.return_channel_id?order.return_channel_id:0,
+        "text_reason": order.refundDetail.text_reason,
+        "reason_id": order.refundDetail.reason,
+        "ctime":  this.dealWithCtime(order),//  order.return_header.attribute_list, //return_attributes
+        // "mtime": order, //
+        "refund_amount": order.refund_amount, //
+        "refund_total_price": order.amount_before_discount, //
+        "status": order.status, //
+        // "currency":"", //不传
+        // "judging_time":"", //不传
+        // "accepted_time":"", //不传
+        // "cancelled_time":"", //不传
+        "closed_time":order.refundDetail.closed_time, //售后关闭时间
+        // "refund_paid_time":"", //不传
+        // "requested_time":"", //不传
+        "return_item":this.dealWithReturnTime(order),
+        "ckeckAfterOrderSnKey": this.getCheckRefundKey(order)
+      }
+      paramsArr.push(params)
+      console.log(paramsArr)
+      //线上接口
+      // let res = await this.$api.uploadOrderSave({
+      //   paramsArr
+      // })
+      //测试接口
+      let res = await this.$api.uploadOrderAfterSale({
+        "afterOrderData": paramsArr,
+        "sysMallId": this.mall.id,
+        "mallId": this.mall.platform_mall_id
+      })
+      if(res.data.code === 200){
+        return true
+      }else{
+        return false
+      }
+      console.log(this.mall, "上报after", res)
+    } catch (error) {
+      console.log(error)
+    }
+
+  }
+  //chulictime
+  dealWithCtime(order){
+    let ctime = 0
+    if(order.return_header&&order.return_header.attribute_list&&order.return_header.attribute_list.return_attributes){
+      let par = order.return_header.attribute_list.return_attributes.find(item=>{return item.key === 'heimao_contact_by'})
+      ctime = par.value || 0
+    }
+    return ctime
+  }
+  //处理售后验证key //return_id_status_mtime 组成
+  getCheckRefundKey(order){
+    let key = ''
+    key = `${order.return_id}'_'${order.status}'_'${order.mtime?order.mtime:0}`
+    return key
+  }
+  //处理return_item 取：order_product_list，若存在捆绑销售的活动，售后获取商品信息则取：bundle_deal_product_list
+  dealWithReturnTime(order){
+    let list = []
+    order.order_product_list.forEach(item=>{
+      let params = {
+        "price": item.model.price,
+        "modelid":item.model.id,
+        "sku":item.model.sku,
+        "itemid":item.product.id,
+        "id":item.product.id,
+        "price_before_discount":item.product.price,
+      }
+      list.push(params)
+    })
+    return list
   }
   //处理delivery_time
   getDeliveryTime(order) {
@@ -468,7 +582,7 @@ export default class {
       return item.ShipId == order.logistics_channel
     })
     console.log(logi)
-    if(!logi){
+    if (!logi) {
       return res
     }
     if (order.logistics_status > 1) {
@@ -559,11 +673,11 @@ export default class {
     return res
   }
   //处理items
-  getItems(order){
+  getItems(order) {
     let orderItem = []
-    order.order_items.forEach(item=>{
+    order.order_items.forEach(item => {
       let product = item.product
-      let itemModel= item.item_model
+      let itemModel = item.item_model
       let bundleDealProducts = item.bundle_deal_product
       let bundleDealModels = item.bundle_deal_model
 
@@ -573,12 +687,12 @@ export default class {
       let item_lists_arr = []
       let actual_item_price = 0
       let rate = 0
-      if(item_lists.length){
-        item_lists.forEach(itemList=>{
+      if (item_lists.length) {
+        item_lists.forEach(itemList => {
           actual_item_price += itemList.item_price
         })
-        rate = item.order_price/actual_item_price
-        item_lists.forEach(itemList=>{
+        rate = item.order_price / actual_item_price
+        item_lists.forEach(itemList => {
           let itemListObj = {
             "actual_item_price": itemList.item_price * rate,
             "amount": itemList.amount,
@@ -587,8 +701,7 @@ export default class {
           }
           item_lists_arr.push(itemListObj)
         })
-      }
-      else{
+      } else {
         let itemListObj = {
           "actual_item_price": item.order_price,
           "amount": item.amount,
@@ -598,7 +711,7 @@ export default class {
         item_lists_arr.push(itemListObj)
       }
 
-      item_lists_arr.forEach((arrItem,i)=>{
+      item_lists_arr.forEach((arrItem, i) => {
         let variation_discounted_price = arrItem["actual_item_price"];
         let variation_quantity_purchased = arrItem["amount"];
         let snapshotid = arrItem["snapshotid"];
@@ -613,9 +726,9 @@ export default class {
         let variation_id = "0";
         let variation_name = "";
         let variation_sku = "";
-        let ctime = "";//商品创建时间
-        
-        if(bundleDealProducts.length>0){
+        let ctime = ""; //商品创建时间
+
+        if (bundleDealProducts.length > 0) {
           item_sku = bundleDealProducts[i]["sku"];
           item_name = bundleDealProducts[i]["name"];
           catid = bundleDealProducts[i]["cat_id"];
@@ -628,19 +741,18 @@ export default class {
           variation_name = bundleDealModels[i]["name"];
           variation_sku = bundleDealModels[i]["sku"];
           ctime = bundleDealModels[i]("ctime");
-        } else
-        {
-            item_sku = product["sku"];
-            item_name = product["name"];
-            catid = product["cat_id"];
-            images = product["images"];
-            variation_original_price = product["price_before_discount"];
-            item_id = product["item_id"];
+        } else {
+          item_sku = product["sku"];
+          item_name = product["name"];
+          catid = product["cat_id"];
+          images = product["images"];
+          variation_original_price = product["price_before_discount"];
+          item_id = product["item_id"];
 
-            variation_id = itemModel["model_id"];
-            variation_name = itemModel["name"];
-            variation_sku = itemModel["sku"];
-            ctime = itemModel["ctime"];
+          variation_id = itemModel["model_id"];
+          variation_name = itemModel["name"];
+          variation_sku = itemModel["sku"];
+          ctime = itemModel["ctime"];
         }
 
         let itemPrams = {}
@@ -662,7 +774,7 @@ export default class {
         orderItem.push(itemPrams)
       })
     })
-    console.log(orderItem,"orderItem")
+    console.log(orderItem, "orderItem")
     return orderItem
   }
 

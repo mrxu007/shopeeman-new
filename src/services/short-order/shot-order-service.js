@@ -19,6 +19,7 @@ export default class {
   IsBatchOrder = false
   crossBorderAccessToken = ''
   goodBuyUrlList = [] //采购地址
+  shopBuyerAccount = []
   constructor(orders, buyerAccounts, that, IsPddBatchOrder) {
     this.orders = orders
     this.buyerAccounts = buyerAccounts
@@ -26,7 +27,7 @@ export default class {
     this.nativeService = window['ShotOrderBridgeService']
     this.IsPddBatchOrder = IsPddBatchOrder
   }
- 
+
   /**
    * 开始拍单
    */
@@ -45,6 +46,7 @@ export default class {
       const buyerItem = this.conver2BuyerAccount(element)
       buyerList.push(buyerItem)
       buyerMap.set(buyerItem.shotOrderPlatform, buyerItem)
+      this.shopBuyerAccount.push(buyerItem)
     })
     //淘宝天猫海外平台cook
     this.crossBorderAccessToken = buyerMap.get(shotOrderPlatform.CrossBorder) ? buyerMap.get(shotOrderPlatform.CrossBorder).Cookiestr : '1'
@@ -54,11 +56,12 @@ export default class {
       PayPassword: '',
       Password: ""
     }
-    payAccount.UserName = configInfo?configInfo.pay_account:''
-    payAccount.PayPassword = configInfo?configInfo.pay_pass:''
+    payAccount.UserName = configInfo ? configInfo.pay_account : ''
+    payAccount.PayPassword = configInfo ? configInfo.pay_pass : ''
     //获取采购地址
     await this.buildPurchaseList(this.orders)
-    const res = await this.getShortOrders(buyerMap, payAccount,configInfo,nickInfo)
+    console.log("buildPurchaseList", this.goodBuyUrlList)
+    const res = await this.getShortOrders(buyerMap, payAccount, configInfo, nickInfo)
     let orders = []
     if (res.code === 200) {
       orders = res.data
@@ -89,9 +92,9 @@ export default class {
       StpBackGround: '#1f74fa',
       BtnGround: '#f4a000',
       H5x5sec: '', //非固定传参的字段(暂时默认)
-      TaobaoCookieForImg: buyerMap.get(shotOrderPlatform.TaoBao)&&buyerMap.get(shotOrderPlatform.TaoBao).Cookiestr || '',
-      TaobaoRemark:  configInfo.taobao_leave_content,//'请不要放价格单,不要放好评卡', //非固定传参的字段(暂时默认)
-      AlibabaRemark: '', //非固定传参的字段(暂时默认)
+      TaobaoCookieForImg: buyerMap.get(shotOrderPlatform.TaoBao) && buyerMap.get(shotOrderPlatform.TaoBao).Cookiestr || [],
+      TaobaoRemark: configInfo.taobao_leave_content, //'请不要放价格单,不要放好评卡', //非固定传参的字段(暂时默认)
+      AlibabaRemark: '请不要放价格单', //非固定传参的字段(暂时默认)
       ZhiFuBaoAwid: '',
       ProfitRate: 100,
       SkipPreSale: false,
@@ -99,8 +102,10 @@ export default class {
       SoftDomain: '',
       Muid: '',
 
-      TaoBaoCache: this.getCache(buyerMap, shotOrderPlatform.TaoBao),
-      PinduoduoCache: this.getCache(buyerMap, shotOrderPlatform.PinDuoduo),
+      // TaoBaoCache: this.getCache(buyerMap, shotOrderPlatform.TaoBao),
+      TaoBaoCache: '',
+      // PinduoduoCache: this.getCache(buyerMap, shotOrderPlatform.PinDuoduo),
+      PinduoduoCache: '',
       ListShotOrdes: orders,
       UseLifeSpanHandler: false,
       Currency: '￥',
@@ -126,7 +131,7 @@ export default class {
 
       LocalProxy: '',
       WebProxy: '',
-      PddBuyAccounts: this.buyerAccounts,
+      PddBuyAccounts: this.shopBuyerAccount,
       IsRandomChangePddAccount: false,
       IsCloudShot: false,
       IsForceCloudAccount: false,
@@ -138,13 +143,13 @@ export default class {
       IsRemarkPddOrder: false,
       IsPddBatchOrder: false, //非固定传参的字段(暂时默认)
       TransTypeList: {
-        '陆运': '1',
-        '空运': '2',
-        '海运': '3'
+        "陆运": '1',
+        "空运": '2',
+        "海运": '3'
       },
       GoodsTypeList: {
-        '普货': '1',
-        '敏感货': '2'
+        "普货": '1',
+        "敏感货": '2'
       },
     }
     // this.orders.forEach(item => {
@@ -163,8 +168,7 @@ export default class {
     //cefLanguage：选择的网页翻译的语种
     //crossBorderAccessToken：天猫淘宝海外cookie
     //shortConfigInfoJson : shortGlobalInfo
-    console.log(JSON.stringify(shortGlobalInfo), configInfo.language_set, this.crossBorderAccessToken)
-    this.nativeService.start(shortGlobalInfo,JSON.stringify(shortGlobalInfo), configInfo.language_set, this.crossBorderAccessToken)
+    this.nativeService.start(JSON.stringify(shortGlobalInfo), configInfo.language_set, this.crossBorderAccessToken)
   }
   // 单个拍单设置相应的缓存 多个拍单保留全部
   setCache(selectShotOrderPlatform, shortGlobalInfo, buyerMap) {
@@ -189,13 +193,13 @@ export default class {
     }
     return null
   }
-  async getShortOrders(buyerMap, payAccount,configInfo,nickInfo) {
+  async getShortOrders(buyerMap, payAccount, configInfo, nickInfo) {
     const data = await this.$api.exchangeRateList()
     if (data.data.code === 200) {
       this.rateList = data.data.data
     }
     console.log(this.rateList)
-    
+
     const shorOrders = []
     for (let index = 0; index < this.orders.length; index++) {
       const itemOrder = this.orders[index]
@@ -279,7 +283,7 @@ export default class {
       //处理拍单姓名、地址、手机号
       let buyerInfoRes = await this.dealWithBuyerBaseInfo(warehouseInfo, itemOrder, configInfo, nickInfo)
       let buyerInfo = {}
-      console.log(buyerInfoRes,"buyerInfoRes")
+      console.log(buyerInfoRes, "buyerInfoRes")
       if (buyerInfoRes.code === 200) {
         buyerInfo = buyerInfoRes.data
       } else {
@@ -307,31 +311,32 @@ export default class {
         Country: warehouseInfo.country ? warehouseInfo.country : '',
       }
       //处理goodsInfo
+      console.log(itemOrder,itemOrder.goods_info.ori_url,"处理goodsInfo")
       let goodsInfo = {
-        Purchaselist: this.dealWithPurchaseList(itemOrder,nickInfo), //组装商品采购链接列表
         UrlAddress: itemOrder.goods_info.ori_url,
         GoodsTitle: itemOrder.goods_info.goods_name,
         OriGoodsId: itemOrder.goods_info.ori_goods_id,
-        GoodsMainImage: itemOrder.goods_info.goods_img,
+        GoodsMainImage: this._that.$filters.imageRender([itemOrder.mall_info.country, itemOrder.mall_info.platform_mall_id, itemOrder.goods_info.goods_img]), //[scope.row.country, scope.row.platform_mall_id, scope.row.product_cover] | imageRender
         SkuId: "",
         OriSkuId: itemOrder.goods_info.ori_sku_id,
         SkuName: itemOrder.goods_info.variation_sku !== '' ? itemOrder.goods_info.variation_sku : itemOrder.goods_info.variation_name,
         OriBuyNum: itemOrder.goods_info.goods_count, //后面需要根据是否聚合拍单再做调整
-        Price: Math.round(Number(itemOrder.escrow_amount) * this.rateList[itemOrder.country.toUpperCase()]), //订单收入转换为人民币  
+        Price: Math.round(Number(itemOrder.escrow_amount) / Number(this.rateList[itemOrder.country.toUpperCase()])), //订单收入转换为人民币  
         ExchangePrice: itemOrder.escrow_amount, //汇率订单收入     
-        RedirectUrl: this.GetRedirectUrl(itemOrder, nickInfo), //获取优惠调转链接
+        RedirectUrl: this.GetRedirectUrl(itemOrder.goods_info.ori_goods_id, nickInfo), //获取优惠调转链接
         PddReamrk: itemOrder.note, //平台备注
         LocalReamrk: itemOrder.remark, //本地备注
         OtherInfo: this._that.$filters.chineseSite(itemOrder.country), //站点中文
         CountryCode: itemOrder.country,
         CurrentExchangeRate: this.rateList[itemOrder.country.toUpperCase()],
-        oritype: this.getShortOrderBuyerAccountPlatform(itemOrder.goods_info.ori_platform_id)
+        oritype: this.getShortOrderBuyerAccountPlatform(itemOrder.goods_info.ori_platform_id),
+        Purchaselist: this.dealWithPurchaseList(itemOrder, nickInfo), //组装商品采购链接列表
       };
 
       //处理shotOrderInfo
       let shotOrderInfo = {
         OrderNumber: itemOrder.order_sn, //shopee订单编号
-        OrderPriceCnt: Math.round(itemOrder.escrowAmount * this.rateList[itemOrder.country.toUpperCase()]),
+        OrderPriceCnt: Math.round(Number(itemOrder.escrow_amount) / Number(this.rateList[itemOrder.country.toUpperCase()])) || 0,
         OrdeExchangerPriceCnt: itemOrder.escrow_amount, //汇率价格
         Tag: {
           SysOrderId: itemOrder.id,
@@ -341,7 +346,13 @@ export default class {
           CookieStr: '', //暂先为空值
           Status: itemOrder.order_status, //拍单状态
           Note: itemOrder.note
-        }
+        },
+        SystemOrderId: 0,
+        KidPayAmount: '',
+        MallName: "",
+        MallId: "",
+        IsGiftOrder: false,
+        IsUseHuaWeiCloudPhone: false,
       }
       let paramaAll = {
         buyerAccount: buyerMap.get(this.getShortOrderBuyerAccountPlatform(itemOrder.goods_info.ori_platform_id)),
@@ -351,7 +362,7 @@ export default class {
         shotOrderInfo: shotOrderInfo
       }
       shorOrders.push(paramaAll)
-      console.log("paramaAll",paramaAll)
+      console.log("paramaAll", paramaAll)
     }
     return {
       code: 200,
@@ -359,47 +370,71 @@ export default class {
     }
   }
   //处理采购地址
-  dealWithPurchaseList(itemOrder){
+  dealWithPurchaseList(itemOrder,nickInfo) {
     let shipList = []
-    let res = this.goodBuyUrlList.filter(item=>{return item.goods_id === itemOrder.goods_info.ori_goods_id})
-    res&&res.purchase_detail&&res.purchase_detail.length&&res.purchase_detail.forEach(item=>{
+    let res = this.goodBuyUrlList.find(item => {
+      return item.goods_id === itemOrder.goods_info.goods_id
+    })
+    let execPlatform = /(yangkeduo.com)|(taobao.com)|(jingxi.com)|(jd.com)|(1688.com)|(tmall.com)|(pinduoduo.com)|(xiapi.xiapibuy.com)|(taobao.global)|(lazada.com)/g
+    let execGoods = /goods_id=([0-9]*)/
+    let execIDs = /id=([0-9]*)/
+    let jxIDs = /sku=([0-9]*)/
+    let tmGlobalIDs = /mpId=([0-8]*)/
+    let jdlazada1688IDs = /(\d+)\.html/
+    let shopeeIDs =  /[^\/]+(?!.*\/)/
+    let goods_id = ''
+    res && res.purchase_detail && res.purchase_detail.length && res.purchase_detail.forEach(item => {
+      if (item.purchase_url.match(execGoods)) {
+        goods_id = item.purchase_url.match(execGoods)[1]
+      } else if (item.purchase_url.match(execIDs)) {
+        goods_id = item.purchase_url.match(execIDs)[1]
+      } else if (item.purchase_url.match(jxIDs)) {
+        goods_id = item.purchase_url.match(jxIDs)[1]
+      } else if (item.purchase_url.match(tmGlobalIDs)) {
+        goods_id = item.purchase_url.match(tmGlobalIDs)[1]
+      } else if (item.purchase_url.match(jdlazada1688IDs)) {
+        goods_id = item.purchase_url.match(jdlazada1688IDs)[1]
+      } else if (item.purchase_url.match(shopeeIDs)) {
+        goods_id = item.purchase_url.match(shopeeIDs)[0]
+      }
       let par = {
-        Note: item.note,//备注信息
-        Url : item.purchase_url,/// 采购链接
-        RedirectUrl : this.GetRedirectUrl(itemOrder, nickInfo),// 跳转链接
-        PurchaseGoodsId: item.purchase_platform_id,//上家id
+        Note: item.note, //备注信息
+        Url: item.purchase_url, /// 采购链接
+        RedirectUrl: this.GetRedirectUrl(itemOrder, nickInfo,goods_id), // 跳转链接
+        PurchaseGoodsId: item.purchase_platform_id, //上家id
       }
       shipList.push(par)
     })
+    console.log(res,res.purchase_detail,shipList,"shipList")
     return shipList
   }
   //获取采购地址
   async buildPurchaseList(orders) {
     let goodsIdLists = []
-    orders.forEach((item)=>{
-      goodsIdLists.push(item.goods_info.goods_id) 
+    orders.forEach((item) => {
+      goodsIdLists.push(item.goods_info.goods_id)
     })
     let params = {
-      goodsIdLists:goodsIdLists.join(',')
+      goodsIdLists: goodsIdLists.join(',')
     }
     let res = await this.$api.getPurchaseLists(params)
-    if(res.data.code===0){
+    if (res.data.code === 200) {
       this.goodBuyUrlList = res.data.data
     }
-    console.log("buildPurchaseList",this.goodBuyUrlList)
-  //  return paramsList
+    console.log("buildPurchaseList", this.goodBuyUrlList)
+    //  return paramsList
   }
-  GetRedirectUrl(itemOrder, nickInfo) {
+  GetRedirectUrl(itemOrder, nickInfo,goods_id) {
     let redirectUrl = "";
     switch (itemOrder.goods_info.ori_platform_id) {
       case 1:
         redirectUrl = itemOrder.goods_info.ori_url;
-        redirectUrl = "http://" + process.env.VUE_APP_PPXDOMAIN + "/ddk/singlePromotion?goodsId=" + itemOrder.goods_info.ori_goods_id + "&muid=" + nickInfo.muid;
+        redirectUrl = "http://" + process.env.VUE_APP_ddk + "/ddk/singlePromotion?goodsId=" + goods_id + "&muid=" + nickInfo.muid;
         break;
       case 2:
       case 3:
         redirectUrl = itemOrder.goods_info.ori_url;
-        redirectUrl = "http://" + process.env.VUE_APP_PPXDOMAIN + "/tbk/singlePromotion?goodsId=" + itemOrder.goods_info.ori_goods_id + "&muid=" + nickInfo.muid;
+        redirectUrl = "http://" + process.env.VUE_APP_ddk + "/tbk/singlePromotion?goodsId=" + goods_id + "&muid=" + nickInfo.muid;
         break;
       default:
         redirectUrl = itemOrder.goods_info.ori_url
@@ -481,8 +516,10 @@ export default class {
    * 转换为拍单系统买手号模型
    */
   conver2BuyerAccount(account) {
+    console.log(account, "account")
     let params = {
-      UserNameCache: account.cache_path,
+      // UserNameCache: account.cache_path,
+      UserNameCache: '',
       Password: '',
       shotOrderPlatform: this.getShortOrderBuyerAccountPlatform(account.type),
       LoginedCookies: account.login_info,
@@ -492,10 +529,9 @@ export default class {
       AccountType: account.type,
       Ua: account.ua,
       Country: account.site || '',
-      ShopId :'',
+      ShopId: '',
       OrderType: ''
     }
-    console.log(JSON.stringify(account.login_info),"6565")
     return params
   }
   // conver2BuyerAccount(buyerAccount) {
@@ -513,7 +549,8 @@ export default class {
   //     AccountType: buyerAccount.type,
   //     LoginedCookies: buyerAccount.type === 3 || buyerAccount.type === 2 || buyerAccount.type === 10 || buyerAccount.type === 8 ? buyerAccount.loginCookies : [loginCookies],
   //     Cookiestr: this.getCookieStr(buyerAccount.loginCookies, buyerAccount.type),
-  //     Ua: buyerAccount.ua ? buyerAccount.ua : ''
+  //     Ua: buyerAccount.ua ? buyerAccount.ua : '',
+  //     Country: buyerAccount.site || '',
   //   }
   // }
   converterCookies(cookies) {
@@ -522,7 +559,7 @@ export default class {
       console.log("result", result)
       return result
     } catch (error) {
-      console.log(error, "error")
+      console.log(error, "error", cookies)
       const items = cookies.split(';')
       if (items) {
         const resultCookie = []

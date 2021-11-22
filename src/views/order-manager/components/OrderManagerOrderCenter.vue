@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-11-09 10:17:44
- * @LastEditTime: 2021-11-19 18:18:20
+ * @LastEditTime: 2021-11-22 16:16:02
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shopeeman-new\src\views\order-manager\components\OrderManagerOrderCenter.vue
@@ -158,7 +158,7 @@
                   <el-button type="primary" size="mini" class="btnMedium">一键同步上家库存</el-button>
                   <el-button type="primary" size="mini" class="btnLong" @click="batchShipInfo">批量添加采购物流单号</el-button>
                   <el-button type="primary" size="mini" class="btnLong">批量获取Lazada付款方式</el-button>
-                  <el-button type="primary" size="mini" class="btnLong" @click="uploadStoreShipAmountVisible=true">上报仓库发货金额</el-button>
+                  <el-button type="primary" size="mini" class="btnLong" @click="uploadStoreShipAmountVisible = true">上报仓库发货金额</el-button>
                   <el-button type="primary" size="mini" class="btnMedium" @click="openBefore">批量添加本地备注</el-button>
                 </el-row>
                 <el-row class="row-style">
@@ -424,14 +424,12 @@
         </el-table-column>
         <el-table-column align="center" prop="" label="操作" min-width="120" v-if="showTableColumn('操作')" fixed="right">
           <template slot-scope="scope">
-            <el-dropdown style="width: 100px;margin-left: 10px;">
-              <el-button style="width: 100px;" size="mini" plain type="primary">
-               操作<i class="el-icon-arrow-down el-icon--right" />
-              </el-button>
+            <el-dropdown style="width: 100px; margin-left: 10px">
+              <el-button style="width: 100px" size="mini" plain type="primary"> 操作<i class="el-icon-arrow-down el-icon--right" /> </el-button>
               <el-dropdown-menu slot="dropdown">
-                <el-dropdown-item> <div  class="dropdownItem" > 续费IP</div></el-dropdown-item>
-                <el-dropdown-item> <div  class="dropdownItem" > 编辑</div></el-dropdown-item>
-                <el-dropdown-item> <div class="dropdownItem" > 删除</div></el-dropdown-item>
+                <el-dropdown-item> <div class="dropdownItem" @click="singleBuyInfo(scope.row)">采购信息编辑</div></el-dropdown-item>
+                <el-dropdown-item> <div class="dropdownItem" @click="addPurchaseLink(scope.row, scope.$index)">添加采购链接</div></el-dropdown-item>
+                <el-dropdown-item> <div class="dropdownItem">删除</div></el-dropdown-item>
               </el-dropdown-menu>
             </el-dropdown>
             <!-- <el-button type="primary" size="mini">操作</el-button> -->
@@ -451,7 +449,7 @@
       </div>
     </div>
     <Logs ref="Logs" clear v-model="showConsole" />
-    <el-dialog title="配置订单列表显示列" :visible.sync="columnVisible" width="800px">
+    <el-dialog title="配置订单列表显示列" :visible.sync="columnVisible" width="800px" top="5vh">
       <div class="column-style">
         <div class="column-item" v-for="(item, index) in columnConfigList" :key="index">
           <span>{{ item.column_header }}</span>
@@ -459,8 +457,8 @@
         </div>
       </div>
       <span slot="footer">
-        <el-button type="primary" size="mini" @click="checkAllColumn(true)">显示所有列</el-button>
-        <el-button type="primary" size="mini" @click="checkAllColumn(false)">隐藏所有列</el-button>
+        <el-button type="primary" size="mini" @click="checkAllColumn(1)">显示所有列</el-button>
+        <el-button type="primary" size="mini" @click="checkAllColumn(-1)">隐藏所有列</el-button>
         <el-button type="primary" size="mini" @click="uploadColumn">应用</el-button>
       </span>
     </el-dialog>
@@ -502,8 +500,8 @@
         <el-button type="primary" size="mini" @click="setColor">设置颜色</el-button>
       </span>
     </el-dialog>
-    <el-dialog title="批量添加采购信息" :visible.sync="purchaseInfoVisible" width="500px">
-      <purchase-info :chooseData="multipleSelection" :buyerAccountList="buyerAccountList" @close="close"></purchase-info>
+    <el-dialog title="批量添加采购信息" :visible.sync="purchaseInfoVisible" width="500px" top="5vh" v-if="purchaseInfoVisible">
+      <purchase-info :chooseData="multipleSelection" :buyerAccountList="buyerAccountList" @close="close" :dealType="dealType"></purchase-info>
     </el-dialog>
     <el-dialog title="同步数据至仓库" :visible.sync="pushOrderToStoreVisible" width="1200px">
       <push-order :chooseData="multipleSelection"></push-order>
@@ -532,17 +530,19 @@
     <el-dialog title="上报仓库发货金额" :visible.sync="uploadStoreShipAmountVisible" width="1200px" v-if="uploadStoreShipAmountVisible">
       <upload-store-ship-amount></upload-store-ship-amount>
     </el-dialog>
-    
     <!-- 四类商品出库 -->
     <el-dialog :visible.sync="goodsOutStoreVisible" width="1400px" top="5vh" :close-on-click-modal="false" v-if="goodsOutStoreVisible">
       <div slot="title">{{ outStoreTitle }}</div>
-      <goods-out-store :chooseData="multipleSelection" :type="outStoreType"></goods-out-store>
+      <goods-out-store :chooseData="multipleSelection" :type="outStoreType" ></goods-out-store>
+    </el-dialog>
+    <el-dialog title="添加采购链接" :visible.sync="addBuyLinkVisible" width="1200px" v-if="addBuyLinkVisible" append-to-body>
+     <buy-link :linkRow="linkRow" @close="close"></buy-link>
     </el-dialog>
   </div>
 </template>
 
 <script>
-import { orderStatusList, shotStatusList, timeTypeList, inputTypeList, goodsSourceList, siteShip } from '../components/orderCenter/orderCenter'
+import { orderStatusList, shotStatusList, timeTypeList, inputTypeList, goodsSourceList, siteShip, columnData } from '../components/orderCenter/orderCenter'
 import { exportExcelDataCommon, creatDate } from '../../../util/util'
 import storeChoose from '../../../components/store-choose'
 import BuyerAccount from './orderCenter/buyer-account.vue'
@@ -550,6 +550,7 @@ import LogisticeSyncService from '../../../services/logistics-sync-service/logis
 import PurchaseInfo from './orderCenter/purchaseInfo.vue'
 import PushOrder from './orderCenter/pushOrderToStore.vue'
 import GoodsOutStore from './orderCenter/goodsOutStore.vue'
+import BuyLink from './orderCenter/addBuyLink.vue'
 import UploadStoreShipAmount from './orderCenter/uploadStoreShipAmount.vue'
 import _ from 'lodash'
 import ShotOrderService from '../../../services/short-order/shot-order-service'
@@ -560,7 +561,8 @@ export default {
     PurchaseInfo,
     PushOrder,
     GoodsOutStore,
-    UploadStoreShipAmount
+    UploadStoreShipAmount,
+    BuyLink
   },
   data() {
     return {
@@ -595,6 +597,7 @@ export default {
       timeTypeList: timeTypeList, //其它时间类型
       inputTypeList: inputTypeList,
       goodsSourceList: goodsSourceList, //商品来源
+      columnConfigList: columnData, //自定义配置列
       shipTypeList: [], //物流方式
       tableLoading: false,
       tableData: [],
@@ -623,8 +626,8 @@ export default {
         upData: 'buyerAccountList',
         left: [
           { title: '登录买手号', type: 'primary', key: 1 },
-          { title: '同步订单', type: 'primary', key: 2 },
-          { title: '获取物流单号', type: 'primary', key: 3, click: 'syncLogistics' },
+          { title: '同步订单', type: 'primary', key: 2, check: 'order' },
+          { title: '获取物流单号', type: 'primary', key: 3, check: 'ship' },
           { title: '批量拍单', type: 'primary', key: 4, click: 'purchaseHandler' },
           { title: '配置自定义列', type: 'primary', key: 5 },
           { title: '上传账号信息', type: 'primary', key: 6 },
@@ -659,7 +662,6 @@ export default {
       accountshopee: null,
       accountCrossBorder: null,
       showConsole: true, //日志
-      columnConfigList: [], //自定义配置列
       columnVisible: false, //自定义配置列弹窗
       abroadVisible: false, //标记为海外商品
       isAbroadGood: 0, //标记为海外商品
@@ -680,12 +682,16 @@ export default {
       shipStoreList: [],
       shipNo: '',
       shipCompany: '',
-      uploadStoreShipAmountVisible:false,//上报仓库发货金额
+      uploadStoreShipAmountVisible: false, //上报仓库发货金额
+      dealType: 'batch', //添加采购信息状态
+      singleRow: [],
+      addBuyLinkVisible: false, //添加采购链接
+      linkRow:{}
     }
   },
   mounted() {
     this.indexLoading = true
-    this.createTime = creatDate(15)
+    this.createTime = creatDate(30)
     this.getBuyerList()
     this.getColumnsConfig()
     setTimeout(() => {
@@ -694,6 +700,18 @@ export default {
     }, 2000)
   },
   methods: {
+    //添加采购链接
+    async addPurchaseLink(row, index) {
+      this.linkRow = row
+      this.addBuyLinkVisible = true
+    },
+    //单个采购信息编辑
+    singleBuyInfo(row) {
+      this.dealType = 'single'
+      this.multipleSelection = []
+      this.multipleSelection.push(row)
+      this.purchaseInfoVisible = true
+    },
     //保存-批量添加采购物流单号
     async batchSaveShipInfo() {
       if (!this.shipNo) {
@@ -905,6 +923,8 @@ export default {
     },
     close() {
       this.purchaseInfoVisible = false
+      this.addBuyLinkVisible = false
+      this.multipleSelection = []
     },
     //设置颜色
     async setColor() {
@@ -1001,8 +1021,13 @@ export default {
     //表头显示处理
     showTableColumn(name) {
       let hasName = this.columnConfigList.find((item) => item.column_header == name)
-      // return hasName
-      return true
+      // console.log(hasName,"hasName")
+      // return true
+      if (hasName.is_show === 1) {
+        return true
+      } else {
+        return false
+      }
     },
     //显示、隐藏所有列
     checkAllColumn(val) {
@@ -1016,7 +1041,7 @@ export default {
       this.columnConfigList.forEach((item) => {
         let params = {
           columnHeader: item.column_header,
-          isShow: item.is_show ? 1 : -1,
+          isShow: item.is_show,
           firstColumnIsCheckbox: item.first_column_is_checkbox,
         }
         arr.push(params)
@@ -1037,9 +1062,15 @@ export default {
     async getColumnsConfig() {
       let { data } = await this.$api.getColumnsConfig()
       if (data.code === 200) {
-        this.columnConfigList = data.data
+        let resData = data.data
+        if (!resData) {
+          return
+        } else {
+          this.columnConfigList = resData
+        }
+        // resData.forEach()
       }
-      console.log(this.columnConfigList, 'getColumnsConfig')
+      console.log(data.data, 'getColumnsConfig')
     },
     //同步物流单号
     async syncLogistics() {
@@ -1140,6 +1171,26 @@ export default {
     handleSelectionChange(val) {
       this.multipleSelection = val
     },
+    //点击复制
+    copyItem(attr) {
+      let target = document.createElement('div')
+      target.id = 'tempTarget'
+      target.style.opacity = '0'
+      target.innerText = attr
+      document.body.appendChild(target)
+      try {
+        let range = document.createRange()
+        range.selectNode(target)
+        window.getSelection().removeAllRanges()
+        window.getSelection().addRange(range)
+        document.execCommand('copy')
+        window.getSelection().removeAllRanges()
+        this.$message.success('复制成功')
+      } catch (e) {
+        //console.log('复制失败')
+      }
+      target.parentElement.removeChild(target)
+    },
   },
 }
 </script>
@@ -1187,7 +1238,7 @@ export default {
   background: #fff;
   overflow: auto;
   .left-box {
-    width: 710px;
+    width: 730px;
   }
   .right-box {
     flex: 1;
@@ -1268,6 +1319,8 @@ export default {
   width: 220px;
 }
 .column-style {
+  overflow: auto;
+  height: 600px;
   display: flex;
   // justify-content: center;
   flex-wrap: wrap;
@@ -1311,5 +1364,12 @@ export default {
     text-align: right;
     margin-right: 10px;
   }
+  i {
+    font-size: 18px !important;
+    color: red;
+    margin-left: 10px;
+    cursor: pointer;
+  }
 }
+
 </style>

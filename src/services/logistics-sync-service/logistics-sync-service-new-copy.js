@@ -50,10 +50,11 @@ export default class logisticeSyncService {
     const accountMapOrderId = new Map()
     for (let i = 0; i < orders.length; i++) {
       const item = orders[i]
-      const buyer_name = item.shot_order_info.buy_account_info ? item.shot_order_info.buy_account_info.name : ''
+      console.log(item,"item")
+      const buyer_name =  item.shot_order_info.buy_account_info ? item.shot_order_info.buy_account_info.name : '' 
       // const buyer_name = "tt939242551"
       console.log(buyer_name,"buyer_name")
-      const shot_order_sn = item.shot_order_sn
+      const shot_order_sn = item.shot_order_sn || item.order_sn
       const account = buyerAccounts.find(buyer => buyer.name === buyer_name)
       if (!account) {
         this.writeLog(`订单【${shot_order_sn}】对应的买手号【${buyer_name}】没有找到，请登录对应买手号.`, false)
@@ -269,7 +270,7 @@ export default class logisticeSyncService {
 
   async saveOrderLogistics(params) { // 上报/更新 物流信息
     try {
-      const res = await this._that.$api.uploadTrackingNumber(params)
+      const res = await  this.$api.uploadTrackingNumber(params)
       console.log(res, "saveOrderLogistics")
       if (res.data.code === 200) {
         return {

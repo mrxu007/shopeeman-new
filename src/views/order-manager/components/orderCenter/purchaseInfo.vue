@@ -1,14 +1,14 @@
 <!--
  * @Author: your name
  * @Date: 2021-11-16 11:42:09
- * @LastEditTime: 2021-11-16 16:54:26
+ * @LastEditTime: 2021-11-22 14:31:42
  * @LastEditors: Please set LastEditors
  * @Description: 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  * @FilePath: \shopeeman-new\src\views\order-manager\components\orderCenter\purchaseInfo.vue
 -->
 <template>
   <div class="purchase-info">
-    <el-form ref="form" :model="form" label-width="140px" label-position="right" :rules="rules">
+    <el-form ref="form" :model="form" label-width="150px" label-position="right" :rules="rules">
       <el-form-item label="采购状态:" prop="shotStatus">
         <el-select v-model="form.shotStatus" placeholder="请选择活动区域" size="mini" class="inputWidth">
           <el-option :label="item.label" :value="item.value" v-for="(item, index) in shotStatuForEdit" :key="index"></el-option>
@@ -21,7 +21,19 @@
         <el-input v-model="shopeeLink" size="mini" class="inputWidth"></el-input>
       </el-form-item>
       <p style="color: red; margin-bottom: 10px">注:shopee订单详情链接,请在个人中心订单详情页,右键复制当前链接植入</p>
-      <el-form-item label="采购价格:" prop="shotAmountRmb">
+      <el-form-item prop="shotAmount" v-if="dealType === 'single'">
+        <div slot="label">
+          <el-select v-model="amountType" size="mini" style="width: 150px" @change="changeAmount">
+            <el-option label="采购价RMB->采购价" :value="1"></el-option>
+            <el-option label="采购价->采购价RMB" :value="2"></el-option>
+          </el-select>
+        </div>
+        <el-input v-model="shotAmount" size="mini" class="inputWidthMini" style="margin-left: 10px" @change="changeAmount"></el-input>
+        <span style="margin: 0 10px">{{ amountType === 1 ? '元' : $filters.siteCoin(form.Country) }}</span>
+        <el-input v-model="shotAmountRmb" size="mini" class="inputWidthMini"></el-input>
+        <span>{{ amountType === 1 ? $filters.siteCoin(form.Country) : '元' }}</span>
+      </el-form-item>
+      <el-form-item label="采购价格:" prop="shotAmountRmb" v-if="dealType === 'batch'">
         <el-input v-model="form.shotAmountRmb" size="mini" class="inputWidth"></el-input>
       </el-form-item>
       <el-form-item label="平台类型:" prop="platformId">
@@ -33,6 +45,9 @@
         <el-select v-model="form.buyAccountInfo" placeholder="请选择活动区域" size="mini" class="inputWidth">
           <el-option :label="item.name" :value="JSON.stringify(item)" v-for="(item, index) in buyerAccountListFilter" :key="index"></el-option>
         </el-select>
+      </el-form-item>
+      <el-form-item label="绑定仓库:" prop="warehouseName" v-if="dealType === 'single'">
+        <el-input v-model="form.warehouseName" size="mini" class="inputWidth" disabled></el-input>
       </el-form-item>
       <el-form-item label="提示1:">
         <span style="color: red">添加采购信息前,请务必确认好已绑定仓库收货地址</span>
@@ -54,6 +69,10 @@
           <el-radio label="3">商检货</el-radio>
         </el-radio-group>
       </el-form-item>
+      <div>
+        <span>备注:</span>
+        <el-input v-model="remark" size="mini" type="textarea" :rows="2"></el-input>
+      </div>
       <el-form-item>
         <el-button type="primary" @click="saveBatchSetting" size="mini">保 存</el-button>
       </el-form-item>
@@ -74,9 +93,13 @@ export default {
         packageType: '1', //货物类型
         platformId: '', //拍单平台
         shotAmountRmb: '', //拍单金额(rmb)
+        shotAmount: '', //拍单金额(rmb)
         buyAccountInfo: '', //买家账号信息 传json格式
         shotOrderSn: '', //拍单订单号
+        country: '',
+        remark: '',
       },
+      amountType: 1,
       shotStatuForEdit: shotStatuForEdit,
       goodsSourceList: goodsSourceList,
       buyerAccountListFilter: [],
@@ -87,6 +110,10 @@ export default {
         platformId: [{ required: true, message: '请选择平台类型', trigger: 'change' }],
       },
       shopeeLink: '',
+      remark: '',
+      shotAmount: '',
+      shotAmountRmb: '',
+      rateList:[],
     }
   },
   props: {
@@ -98,15 +125,53 @@ export default {
       type: Array,
       default: [],
     },
+    dealType: {
+      type: String,
+      default: 'batch',
+    },
+  },
+  mounted() {
+    if (this.dealType === 'single') {
+      let data = this.chooseData[0]
+      this.form.shotOrderSn = data.shot_order_info.order_sn
+      this.form.shotStatus = data.shot_order_info.shot_status
+      this.form.shotAmount = data.shot_order_info.shot_amount
+      this.form.shotAmountRmb = data.shot_order_info.shot_amount_rmb
+      this.form.platformId = data.shot_order_info.platform_id
+      this.form.warehouseName = data.shot_order_info.warehouse_name
+      this.form.country = data.country
+      this.shotAmount = data.shot_order_info.shot_amount
+      this.shotAmountRmb = data.shot_order_info.shot_amount_rmb
+      console.log('single', data, this.chooseData)
+    }
+    this.getRate()
   },
   methods: {
+   async getRate(){
+        const data = await this.$api.exchangeRateList()
+        if (data.data.code === 200) {
+        this.rateList = data.data.data
+        }
+        console.log(this.rateList)
+        },
+    changeAmount() {
+      if (this.amountType === 1) {
+          this.form.shotAmountRmb = this.shotAmount
+          this.form.shotAmount =(Number(this.shotAmount) * Number(this.rateList[this.form.country.toUpperCase()])).toFixed(2)
+          this.shotAmountRmb =(Number(this.shotAmount) * Number(this.rateList[this.form.country.toUpperCase()])).toFixed(2)
+      }else{
+          this.form.shotAmount = this.shotAmount
+          this.form.shotAmountRmb =(Number(this.shotAmount) / Number(this.rateList[this.form.country.toUpperCase()])).toFixed(2)
+          this.shotAmountRmb =(Number(this.shotAmount) / Number(this.rateList[this.form.country.toUpperCase()])).toFixed(2)
+      }
+    },
     changePlatform(val) {
       this.form.buyAccountInfo = ''
       this.buyerAccountListFilter = this.buyerAccountList.filter((item) => {
         return item.type === val
       })
     },
-    //保存
+    //batch保存
     async saveBatchSetting() {
       this.$refs['form'].validate(async (valid) => {
         if (!valid) {
@@ -122,6 +187,11 @@ export default {
         })
         let params = this.form
         params.sysOrderIds = ids
+        // let buy = params.buyAccountInfo&&JSON.stringify(params.buyAccountInfo)||{}
+        // params.buyAccountInfo = {
+        //     name: buy.name,
+        //     type: buy.type
+        // }
         if (this.shopeeLink) {
           let shopid = this.shopeeLink.match(/shopid=(\d+)/)
           shopid = shopid ? shopid[1] : ''
@@ -131,7 +201,7 @@ export default {
         let res = await this.$api.batchUpdateShotOrder(params)
         if (res.data.code === 200) {
           this.$message.success('设置成功!')
-          this.$emit('close',false)
+          this.$emit('close', false)
         } else {
           this.$message.error(`设置失败-${res.data.message}`)
         }
@@ -145,10 +215,13 @@ export default {
 <style lang="less" scoped>
 .purchase-info {
   /deep/.el-form-item {
-    margin-bottom: 10px;
+    margin-bottom: 5px;
   }
 }
 .inputWidth {
   width: 200px;
+}
+.inputWidthMini {
+  width: 80px;
 }
 </style>
