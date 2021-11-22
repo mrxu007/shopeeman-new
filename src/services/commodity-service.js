@@ -1,7 +1,7 @@
 /**
  * 私有商品库服务
  */
-import userInfo from './application-config'
+import applicationConfig from '../services/application-config'
 export default class CommodityService {
   user = ''
   nativeService = window['CommodityBridgeService'];
@@ -87,8 +87,8 @@ export default class CommodityService {
    * }} req
    */
   async getCollectGoodsV2(req) {
-    await this.getUserInfo()
-    req.uuid = this.user.child_id
+    const res = await new applicationConfig().getUserInfo()
+    req.uuid = res.child_id
     console.log(req, 'req=====GetCollectGoodsV2')
     return this.nativeService.callFunction('GetCollectGoodsV2', JSON.stringify(req))
   }
@@ -358,8 +358,8 @@ export default class CommodityService {
    * @param {string} labelName 标签名称
    * @param {number} sysLabelId 标签id,修改需要传值，新增不需要传值
    */
-  addGoodsTag(labelName, sysLabelId = "0") {
-      return this.nativeService.callFunction('AddGoodsTag', labelName, sysLabelId)
+  addGoodsTag(labelName, sysLabelId = '0') {
+    return this.nativeService.callFunction('AddGoodsTag', labelName, sysLabelId)
   }
 
   /**
