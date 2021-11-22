@@ -424,7 +424,7 @@ export function randomWord(randomFlag, min, max) {
  * @param method // 请求函数
  * @returns {Promise<any>}
  */
-export function batchOperation(array, method) {
+export function batchOperation(array, method,count = 5) {
   return new Promise(resolve => {
     const number = array.length
     const countObj = { count: number }
@@ -440,7 +440,7 @@ export function batchOperation(array, method) {
       }
     }, 1000)
     function manage(completeCount) {
-      for (; (submitCount - completeCount) < 10 && submitCount < number; ++submitCount) {
+      for (; (submitCount - completeCount) < count && submitCount < number; ++submitCount) {
         const item = array[submitCount]
         method(item, countObj)
       }

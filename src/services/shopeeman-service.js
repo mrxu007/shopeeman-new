@@ -15,8 +15,9 @@ export default class NetMessageBridgeService {
   async getUrlPrefix(country) {
     const response = await window['ConfigBridgeService'].getUserConfig()
     const data = JSON.parse(response)
-    const dominType = data.SwitchDominTypeSetting === 'Local'
-    return dominType && this.site_domain_chinese_bk[country] || this.site_domain_local_bk[country]
+    const domain_switch = data.SwitchDominTypeSetting || data.domain_switch
+    const domainType = domain_switch === 'Local' ||  domain_switch === 'Auto'
+    return domainType && this.site_domain_chinese_bk[country] || this.site_domain_local_bk[country]
   }
 
   // 大陆后台
@@ -70,6 +71,7 @@ export default class NetMessageBridgeService {
           referer: url + referer
         })
     }
+    // console.log(url, JSON.stringify(options))
     return this.NetMessageBridgeService().get(url, JSON.stringify(options))
   }
 
@@ -654,6 +656,16 @@ export default class NetMessageBridgeService {
   //创建活动
   discount(country, data, option){
     return this.postChinese(country,'/api/marketing/v3/discount/',data,option)
+  }
+
+  //获取品牌词库
+  getBrandList(country, data, option){
+    return this.getChinese(country,'/api/v3/category/get_brand_list',data,option)
+  }
+
+  //获取类目属性
+  getAttributeTree(country, data, option){
+    return this.getChinese(country,'/api/v3/category/get_attribute_tree/',data,option)
   }
 }
 
