@@ -1757,6 +1757,7 @@ export default {
       const mallId = mallInfo.platform_mall_id + ''
       this.phoneInfo_accountName = mallInfo.mall_account_info.username
       // this.needIvsInfo = testData
+      debugger
       try {
         if (code === 'error_need_ivs') { // 需要进行IVS验证 调LoginNeedPopUps 服务弹框
           await window.BaseUtilBridgeService.loginNeedPopUps('needIvs', JSON.stringify({ 'loginType': 'login', 'isOpenAuthMallProxy': 'true', 'mallId': mallId }))

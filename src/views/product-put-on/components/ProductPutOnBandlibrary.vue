@@ -2,27 +2,27 @@
   <div class="contaniner">
     <div class="operation">
       <div class="o-item">
-        <span>站点：</span>
-        <el-select v-model="form.site" class="unnormal" placeholder="" size="mini" filterable>
+        <span style="white-space: nowrap">站点：</span>
+        <el-select v-model="form.site" class="unnormal" placeholder="" size="mini" filterable style="width:100px">
           <el-option label="全部" :value="''" />
           <el-option v-for="(item, index) in countries" :key="index" :label="item.label" :value="item.value" />
         </el-select>
       </div>
       <div class="o-item">
         <span style="min-width:84px">关键字类别：</span>
-        <el-select v-model="form.type" placeholder="" size="mini" filterable>
+        <el-select v-model="form.type" placeholder="" size="mini" filterable style="width:100px">
           <el-option v-for="(item, index) in typeList" :key="index" :label="item.label" :value="item.value" />
         </el-select>
       </div>
       <div class="o-item">
         <span style="min-width:57px">词来源：</span>
-        <el-select v-model="form.source" placeholder="" size="mini" filterable>
+        <el-select v-model="form.source" placeholder="" size="mini" filterable style="width:100px">
           <el-option v-for="(item, index) in sourceList" :key="index" :label="item.label" :value="item.value" />
         </el-select>
       </div>
       <div class="o-item">
         <span style="min-width:57px">关键词：</span>
-        <el-input v-model="form.keyWord" size="mini" placeholder="请输入关键词" clearable oninput="value=value.replace(/\s+/g,'')" />
+        <el-input v-model="form.keyWord" size="mini" placeholder="请输入关键词" style="width:130px" clearable oninput="value=value.replace(/\s+/g,'')" />
       </div>
       <div class="o-item">
         <el-button
@@ -36,10 +36,9 @@
         <el-button type="primary" size="mini" @click="batchDelete()">批量删除</el-button>
         <el-button type="primary" size="mini" @click="dialogBanWordVisible= true"> 批量导入 </el-button>
         <el-button type="primary" size="mini" @click="exportSearch()">导出数据</el-button>
+        <el-checkbox v-model="showConsole" style="margin-left:10px">隐藏日志</el-checkbox>
       </div>
-      <div class="o-item">
-        <el-checkbox v-model="showConsole">隐藏日志</el-checkbox>
-      </div>
+      <div class="o-item" />
     </div>
     <div class="table-content">
       <el-table
@@ -53,17 +52,17 @@
         }"
         @selection-change="handleSelectionChange"
       >
-        <el-table-column type="index" align="center" label="序号" min-width="50">
+        <el-table-column type="index" align="center" label="序号" min-width="50" fixed>
           <template slot-scope="scope">
             {{ scope.$index + 1 }}
           </template>
         </el-table-column>
-        <el-table-column type="selection" align="center" min-width="55" />
+        <el-table-column type="selection" align="center" min-width="55" fixed />
         <el-table-column prop="country" align="center" label="站点" min-width="80" />
         <el-table-column prop="uid" align="center" label="词来源" min-width="80" />
         <el-table-column prop="type" align="center" label="词类型" min-width="80" />
         <el-table-column prop="word" align="center" show-overflow-tooltip label="关键词" min-width="180" />
-        <el-table-column prop="created_at" align="center" show-overflow-tooltip label="添加时间" min-width="100" />
+        <el-table-column prop="created_at" align="center" show-overflow-tooltip label="添加时间" min-width="100" fixed="right" />
 
       </el-table>
     </div>
@@ -471,4 +470,15 @@ export default {
 
 <style lang="less">
 @import '../../../module-less/product-put-less/band-library.less';
+
+.contaniner{
+  min-width: 1280px;
+  .operation{
+      display: flex;
+      height: 40px;
+     .o-item{
+      //  display: flex;
+     }
+  }
+}
 </style>

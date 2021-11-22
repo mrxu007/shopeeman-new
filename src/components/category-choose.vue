@@ -45,9 +45,9 @@
 export default {
   name: 'CategoryChoose',
   props: {
-    spanWidth:{
-       type: String,
-       default: "80px"
+    spanWidth: {
+      type: String,
+      default: ''
     },
     isAll: {
       type: Boolean,
@@ -82,7 +82,7 @@ export default {
         'MX': '9',
         'CO': '10',
         'CL': '11',
-        'PL': '12',
+        'PL': '12'
       },
       category1: '',
       categoryList1: [],
@@ -200,6 +200,7 @@ export default {
   flex-wrap: wrap;
   li {
     display: flex;
+    align-items: center;
     margin-right: 10px;
     .el-select {
       display: flex;
@@ -213,7 +214,7 @@ export default {
   margin-bottom: 10px;
   span {
     display: inline-block;
-    width: 80px;
+    // width: 80px;
     text-align: right;
   }
 }

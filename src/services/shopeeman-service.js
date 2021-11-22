@@ -104,6 +104,34 @@ export default class NetMessageBridgeService {
     return this.NetMessageBridgeService().get(url, JSON.stringify(options))
   }
 
+  async getChineseLaiZan(url, data, options = {}) {
+    options['params'] = data
+    const referer = options['headers'] && options['headers'].referer
+    if (referer) {
+      options['headers'] = Object.assign(options['headers'],
+        {
+          origin: url,
+          referer: url + referer
+        })
+    }
+    // console.log('-----', url, JSON.stringify(options))
+    return this.NetMessageBridgeService().get(url, JSON.stringify(options))
+  }
+
+  async postChineseLaiZan(url, data, options = {}) {
+    options['params'] = data
+    const referer = options['headers'] && options['headers'].referer
+    if (referer) {
+      options['headers'] = Object.assign(options['headers'],
+        {
+          origin: url,
+          referer: url + referer
+        })
+    }
+    console.log(url, JSON.stringify(options), JSON.stringify(data))
+    return this.NetMessageBridgeService().post(url, JSON.stringify(options), JSON.stringify(data))
+  }
+
   async postChinese(country, api, data, options = {}, exportInfo) {
     data = JSON.parse(JSON.stringify(data))
     const url = await this.getUrlPrefix(country, data) + api
@@ -186,6 +214,9 @@ export default class NetMessageBridgeService {
       'CO': '57',
       'CL': '56',
       'PL': '48'
+    }
+    if (account.startsWith('0')) {
+      account = account.substring(1)
     }
     return country === 'SG' || country === 'ID' ? account : reg[country] + account
   }
@@ -517,7 +548,7 @@ export default class NetMessageBridgeService {
         code = 'has_shop_upgraded'
         message = '已升级为全球店铺，请更换店铺类型进行导入'
       }
-      return { code, 'data': { 'message': message, 'data': res.data } }
+      return { code, 'data': { 'message': message, 'data': res.data }}
     } catch (e) {
       console.log('e', e)
       return { code: -2, data: `login -catch: ${e} ` }
