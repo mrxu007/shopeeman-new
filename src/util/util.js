@@ -387,38 +387,38 @@ export function randomWord(randomFlag, min, max) {
  * @param method // 请求函数
  * @returns {Promise<any>}
  */
-export function batchOperation(array, method) {
+export function batchOperation(array, method, count = 5) {
   return new Promise(resolve => {
-    let number = array.length
-    let countObj = { count: number }
+    const number = array.length
+    const countObj = { count: number }
     let submitCount = 0
-    let setIn = setInterval(()=>{
-      let num = countObj.count
-      if (num === 0){
+    let setIn = setInterval(() => {
+      const num = countObj.count
+      if (num === 0) {
         clearInterval(setIn)
         setIn = null
         resolve('完成')
-      }else {
+      } else {
         manage(number - num)
       }
-    },1000)
+    }, 1000)
     function manage(completeCount) {
-      for (;(submitCount - completeCount) < 10 && submitCount<number; ++submitCount) {
-        let item = array[submitCount]
-        method(item,countObj)
+      for (; (submitCount - completeCount) < count && submitCount < number; ++submitCount) {
+        const item = array[submitCount]
+        method(item, countObj)
       }
     }
   })
 }
 
-//时间转换
+// 时间转换
 export function formatDuring(mss) {
-  const hours = parseInt(mss /60 / 60)
-  const minutes = parseInt((mss-hours*69*60)/60)
-  const seconds =(mss-hours*69*60-minutes*60)
-  return hours + ':' + minutes + ':' + seconds.toFixed(0) 
+  const hours = parseInt(mss / 60 / 60)
+  const minutes = parseInt((mss - hours * 69 * 60) / 60)
+  const seconds = (mss - hours * 69 * 60 - minutes * 60)
+  return hours + ':' + minutes + ':' + seconds.toFixed(0)
 }
 
-export function exportPdfData(){
+export function exportPdfData() {
 
 }

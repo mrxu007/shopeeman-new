@@ -1,10 +1,11 @@
 /**
  * 私有商品库服务
  */
-import userInfo from './application-config'
+import applicationConfig from '../services/application-config'
+
 export default class CommodityService {
   user = ''
-  nativeService = window['CommodityBridgeService'];
+  nativeService = window['CommodityBridgeService']
 
   //* *删除服务端商品 */
   delCloudItems(itemList) {
@@ -44,6 +45,7 @@ export default class CommodityService {
       parmas.period.toString(),
       parmas.isPresale.toString())
   }
+
   /**
    * 获取商品详情
    * @param {number} sysId 商品id
@@ -57,6 +59,7 @@ export default class CommodityService {
   getSpuDetailByIdV2(sysId) {
     return this.nativeService.callFunction('GetPrivateSelectionByIdTwo', sysId.toString())
   }
+
   /**
    * 获取信息 tier varation 定义为对象
    * @param {number} sysId
@@ -64,6 +67,7 @@ export default class CommodityService {
   getPrivateSelectionByIdV1(sysId) {
     return this.nativeService.callFunction('GetPrivateSelectionById', sysId.toString())
   }
+
   /**
    * 获取信息
    * @param {string} sysId
@@ -72,6 +76,7 @@ export default class CommodityService {
   getPrivateSelectionByGoodsId(sysId, language) {
     return this.nativeService.callFunction('GetPrivateSelectionByGoodsId', sysId, language)
   }
+
   /**
    *
    * @param {{uuid:number,//子账号id
@@ -95,11 +100,12 @@ export default class CommodityService {
    * }} req
    */
   async getCollectGoodsV2(req) {
-    await this.getUserInfo()
-    req.uuid = this.user.child_id
+    const res = await new applicationConfig().getUserInfo()
+    req.uuid = res.child_id
     console.log(req, 'req=====GetCollectGoodsV2')
     return this.nativeService.callFunction('GetCollectGoodsV2', JSON.stringify(req))
   }
+
   /**
    * 根据id获取信息
    * @param {number} sysId
@@ -107,6 +113,7 @@ export default class CommodityService {
   getDetailInfo(sysId) {
     return this.nativeService.callFunction('GetDetailInfo', sysId.toString())
   }
+
   /**
    * 上报采集数据,新增收藏商品
    * @param {{uuid:string,
@@ -139,6 +146,7 @@ export default class CommodityService {
     console.log(data, '=====>')
     return this.nativeService.callFunction('UploadCollectGoods', JSON.stringify(data))
   }
+
   /**
    * 删除用户收藏的商品信息
    * @param {number[]} ids
@@ -146,6 +154,7 @@ export default class CommodityService {
   deleteCollectGoodsInfo(ids) {
     return this.nativeService.callFunction('DeleteCollectGoodsInfo', JSON.stringify(ids))
   }
+
   /**
    * 删除sku
    * @param {string} skuId
@@ -153,6 +162,7 @@ export default class CommodityService {
   deleteCollectGoodsSku(skuId) {
     return this.nativeService.callFunction('DeleteCollectGoodsSku', skuId)
   }
+
   /**
    * 修改sku信息
    * @param {any[]} skus
@@ -160,6 +170,7 @@ export default class CommodityService {
   uploadUpdatedSku(skus) {
     return this.nativeService.callFunction('UploadUpdatedSku', JSON.stringify(skus))
   }
+
   /**
    * 获取sku详情
    * @param {number} skuId
@@ -167,6 +178,7 @@ export default class CommodityService {
   getSkuDetail(skuId) {
     return this.nativeService.callFunction('GetSkuDetail', skuId.toString())
   }
+
   /**
    * 获取商品描述信息
    * @param {number} goodsId
@@ -178,6 +190,7 @@ export default class CommodityService {
   storeGoodsSizeImages(selectionId, imageUrl) {
     return this.nativeService.callFunction('StoreGoodsSizeImages', selectionId, imageUrl)
   }
+
   /**
    * 批量更新商品图片
    * @param {number} sysGoodsId
@@ -195,6 +208,7 @@ export default class CommodityService {
   batchUpdateDescImage(sysGoodsId, imageList) {
     return this.nativeService.callFunction('BatchUpdateDescImage', sysGoodsId.toString(), JSON.stringify(imageList))
   }
+
   /**
    * 添加详情图和尺寸图
    * @param {number} selectionId 私有选品库ID
@@ -204,6 +218,7 @@ export default class CommodityService {
   storeGoodsImage(selectionId, type, imageUrl) {
     return this.nativeService.callFunction('StoreGoodsImage', selectionId.toString(), type.toString(), imageUrl)
   }
+
   /**
    * 删除图片
    * @param {number} type 1轮播图，2尺寸图片
@@ -213,6 +228,7 @@ export default class CommodityService {
   deleteGoodsImage(type, sysGoodsId, imageId) {
     return this.nativeService.callFunction('DeleteGoodsImage', type.toString(), sysGoodsId.toString(), imageId)
   }
+
   /**
    * 删除详情图
    * @param {{mageId:string,sysGoodsId:string}} req
@@ -220,6 +236,7 @@ export default class CommodityService {
   deleteDescImage(req) {
     return this.nativeService.callFunction('DeleteDescImage', JSON.stringify(req))
   }
+
   /**
    * 添加详情图
    * @param {string} imageUrl
@@ -228,6 +245,7 @@ export default class CommodityService {
   addDescImage(imageUrl, sysGoodsId) {
     return this.nativeService.callFunction('AddDescImage', imageUrl, sysGoodsId.toString())
   }
+
   /**
    * 添加尺寸图
    * @param {string} imageUrl
@@ -236,6 +254,7 @@ export default class CommodityService {
   addSizeImageByUrl(imageUrl, sysGoodsId) {
     return this.nativeService.callFunction('AddSizeImageByUrl', imageUrl, sysGoodsId.toString())
   }
+
   /**
    * 添加轮播图or尺寸图
    * @param {number} sysGoodsId 系统商品id
@@ -246,6 +265,7 @@ export default class CommodityService {
   addImage(sysGoodsId, type, imageUrl, sizeImageId = 0) {
     return this.nativeService.callFunction('AddImage', sysGoodsId.toString(), type.toString(), imageUrl, sizeImageId.toString())
   }
+
   /**
    * 修改详情图片OR图片交换
    * @param {number} sysGoodsId 商品系统id
@@ -257,6 +277,7 @@ export default class CommodityService {
   updateGoodsDescImage(sysGoodsId, type, imageUrl, imageId, toImageId) {
     return this.nativeService.callFunction('UpdateGoodsDescImage', sysGoodsId.toString(), type.toString(), imageUrl, imageId.toString(), toImageId.toString())
   }
+
   /**
    * 更新轮播图信息
    * @param {number} type 1替换图片；2设置成主图片
@@ -268,6 +289,7 @@ export default class CommodityService {
   updateGoodsImage(type, sysGoodsId, imageId, imageUrl, toImageId) {
     return this.nativeService.callFunction('UpdateGoodsImage', type.toString(), sysGoodsId.toString(), imageId.toString(), imageUrl, toImageId.toString())
   }
+
   /**
    * 修改sku图片OR图片交换
    * @param {number} sysGoodsId 商品系统id
@@ -277,6 +299,7 @@ export default class CommodityService {
   updateGoodsSkuImage(sysGoodsId, newImageUrl, imageUrl) {
     return this.nativeService.callFunction('UpdateGoodsSkuImage', sysGoodsId.toString(), newImageUrl, imageUrl)
   }
+
   /**
    * 添加OR替换主图
    * @param {number} sysGoodsId 商品系统id
@@ -285,6 +308,7 @@ export default class CommodityService {
   addGoodsMainImage(sysGoodsId, imageUrl) {
     return this.nativeService.callFunction('AddGoodsMainImage', sysGoodsId.toString(), imageUrl)
   }
+
   /**
    *
    * @param {number} sysGoodsId 商品系统id
@@ -293,6 +317,7 @@ export default class CommodityService {
   saveAndUpdateSkuDatas(sysGoodsId, skuList) {
     return this.nativeService.callFunction('SaveAndUpdateSkuDatas', sysGoodsId.toString(), JSON.stringify(skuList))
   }
+
   /**
    * 更新商品
    * @param {{sysGoodsId:number,title:string,description:string,weight:string,long:string,width:string,height:string}} req
@@ -300,6 +325,7 @@ export default class CommodityService {
   updateGoods(req) {
     return this.nativeService.callFunction('UpdateGoods', JSON.stringify(req))
   }
+
   /**
    * 修改商品的信息
    * @param {{sysGoodsId:number,title?:string,description?:string,spec1?:string,spec2?:string}} data
@@ -307,6 +333,7 @@ export default class CommodityService {
   updateCollectGoodsInfo(data) {
     return this.nativeService.callFunction('UpdateCollectGoodsInfo', JSON.stringify(data))
   }
+
   /**
    * 获取上新统计数据
    * @param {number} withYesterday
@@ -314,6 +341,7 @@ export default class CommodityService {
   getStatistics(withYesterday = 1) {
     return this.nativeService.callFunction('GetStatistics', withYesterday.toString())
   }
+
   /**
    * 修改商品所有图片
    * @param {*} req
@@ -321,6 +349,7 @@ export default class CommodityService {
   updateGoodsAllImage(req) {
     return this.nativeService.callFunction('UpdateGoodsAllImage', JSON.stringify(req))
   }
+
   /**
    * 保存平台图片
    * @param {string} goodsId 商品id
@@ -331,6 +360,7 @@ export default class CommodityService {
   savePlatformImage(goodsId, platformId, imageId, imageUrl) {
     return this.nativeService.callFunction('SavePlatformImage', goodsId, platformId.toString(), imageId, imageUrl)
   }
+
   /**
    * 获取平台图片
    * @param {*} goodsId 商品id
@@ -340,6 +370,7 @@ export default class CommodityService {
   getPlatformImage(goodsId, platformId, imageUrl) {
     return this.nativeService.callFunction('GetPlatformImage', goodsId, platformId.toString(), imageUrl)
   }
+
   /**
    * 标记选品库优选商品
    * @param {number[]} sysGoodsIds 系统商品id集合
@@ -348,6 +379,7 @@ export default class CommodityService {
   markPreferredGoods(sysGoodsIds, isFeatured) {
     return this.nativeService.callFunction('MarkPreferredGoods', JSON.stringify(sysGoodsIds), isFeatured)
   }
+
   /**
    * 通过产品id获取上家产品的信息
    * @param {string} lastProductId 上家产品id
@@ -355,12 +387,14 @@ export default class CommodityService {
   getLastShopProductInfo(lastProductId) {
     return this.nativeService.callFunction('GetLastShopProductInfo', lastProductId)
   }
+
   /**
    * 获取标签列表
    */
   getGoodsTagList(labelName = '') {
     return this.nativeService.callFunction('GetGoodsTagList', labelName)
   }
+
   /**
    * 新增标签
    * @param {string} labelName 标签名称
@@ -376,8 +410,10 @@ export default class CommodityService {
    * @param {number[]} sysGoodsIds
    */
   addGoodsToTag(sysLabelId, sysGoodsIds) {
+    console.log(sysLabelId, sysGoodsIds)
     return this.nativeService.callFunction('AddGoodsToTag', sysLabelId, JSON.stringify(sysGoodsIds))
   }
+
   /**
    * 删除标签
    * @param {number[]} sysLabelIds
@@ -385,6 +421,7 @@ export default class CommodityService {
   deleteGoodsTag(sysLabelIds) {
     return this.nativeService.callFunction('DeleteGoodsTag', JSON.stringify(sysLabelIds))
   }
+
   /**
    * 获取店铺的商品列表数据
    * @param {string} sysMallId
@@ -392,6 +429,7 @@ export default class CommodityService {
   mallAllList(sysMallId) {
     return this.nativeService.callFunction('MallAllList', sysMallId)
   }
+
   /**
    * 检查上新商品是否重复上新
    * @param {object} data
@@ -408,6 +446,7 @@ export default class CommodityService {
     } = data
     return this.nativeService.callFunction('CheckListingRepeat', sysMallId, platformType, itemSku, title, country, dimension)
   }
+
   /**
    *
    * @param {object} data
@@ -428,6 +467,7 @@ export default class CommodityService {
 
     return this.nativeService.callFunction('SaveListingRecord', sysMallId, platformType, itemSku, title, listingId, country, mallId, categoryId, skuDatas)
   }
+
   /**
    * 取消保存的商品ID
    * @param {Array} data
@@ -436,15 +476,19 @@ export default class CommodityService {
   DeleteCloudItems(data) {
     return this.nativeService.callFunction('Dictionary', data)
   }
+
   /**
    * 类目映射
-   * @param {string} sysMallId
+   * @param relationCategoryId 上家类目id
+   * @param country 站点
+   * @param platformId 上家平台
+   * @param isUseCommon
    */
-  getCategoryRelation(data) {
-    // console.log('值', data)
-
-    return this.nativeService.callCategoryFunction('GetCategoryRelation', data[0] + '', data[1], data[2] + '', data[3])
+  getCategoryRelation(relationCategoryId,country, platformId, isUseCommon = '0') {
+    // console.log(relationCategoryId, country, platformId, isUseCommon)
+    return this.nativeService.callCategoryFunction('GetCategoryRelation',relationCategoryId,country, platformId, isUseCommon)
   }
+
   /**
    * 保存映射
    * @param {string} sysMallId
@@ -453,33 +497,34 @@ export default class CommodityService {
     // console.log(JSON.stringify(data))
     return this.nativeService.callCategoryFunction('SaveCategoryRelation', JSON.stringify(data))
   }
+
   /**
    * 获取类目
-   * @param {array} data
+   * @param country :country站点
+   * @param categoryId :categoryId类目id
+   * @param isParent :isParent 类目的父级标识：1传入的类目作为父级查询；0当前类目查询
+   * @param tableType : string
    */
-  getTbCategory(data) {
-    // console.log(JSON.stringify(data))
-    return this.nativeService.callCategoryFunction('GetCategoryInfo', data[0] + '', data[1] + '', data[2] + '', data[3])
+  getCategoryTbInfo(country, categoryId="0", isParent = "1", tableType) {
+    return this.nativeService.callCategoryFunction('GetCategoryInfo',country, categoryId, isParent, tableType)
   }
-  /**
-   * 获取类目
-   * @param {array} data
-   * data[0]:country站点
-   * data[1]:categoryId类目id
-   * data[2]:isParent 类目的父级标识：1传入的类目作为父级查询；0当前类目查询
-   * data[3]: 'tbCategory'
-   */
-  getCategory(data) {
-    // console.log(JSON.stringify(data))
-    return this.nativeService.callCategoryFunction('GetCategoryInfo', data[0] + '', data[1] + '', data[2] + '', data[3])
-  }
+
   /**
    * 获取类目属性
    * @param {array} data
    */
-  getTbCategoryAttr(data) {
+  getAttributeInfo(country, categoryId="0", isNewOpen="0", tableType,isMandatoryAttr = "1") {
     // console.log(JSON.stringify(data))
-    return this.nativeService.callCategoryFunction('GetAttributeInfo', data[0] + '', data[1] + '', data[2] + '', data[3] + '', data[4] + '')
+    return this.nativeService.callCategoryFunction('GetAttributeInfo',country, categoryId, isNewOpen, tableType,isMandatoryAttr)
+  }
+
+  /**
+   * 同步类目属性
+   * @param list 数组
+   * @param isNative shopee 1 皮皮虾 2
+   */
+  uploadCateGoryAttr(list,isNative = "1") {
+    return this.nativeService.callCategoryFunction('UploadCateGoryAttr',JSON.stringify(list),isNative )
   }
 
   /**
@@ -495,6 +540,7 @@ export default class CommodityService {
   getMapCategoryRelationReq(data) {
     return this.nativeService.callCategoryFunction('GetCategoryMapInfo', JSON.stringify(data))
   }
+
   /**
    *
    * @param {string} categoryId // 公共服务淘宝类目完整路径
@@ -503,9 +549,11 @@ export default class CommodityService {
   getParentsCategoryInfo(categoryId) {
     return this.nativeService.callCategoryFunction('GetParentsCategoryInfo', 'CN', categoryId)
   }
+
   getPlatformCategoryNameInfo(categoryId, platformId) {
     return this.nativeService.callCategoryFunction('GetPlatformCategoryNameInfo', 'CN', categoryId, platformId)
   }
+
   uploadSpecByCategoryId(data) {
     const {
       country,
@@ -516,6 +564,7 @@ export default class CommodityService {
     } = data
     return this.nativeService.callCategoryFunction('UploadSpecByCategoryId', country, categoryId + '', JSON.stringify(dataSource), maxAmount, minAmount)
   }
+
   UploadTbCatAttr(data) {
     const {
       categoryId,
@@ -523,62 +572,66 @@ export default class CommodityService {
     } = data
     return this.nativeService.callCategoryFunction('UploadTbCatAttr', categoryId + '', JSON.stringify(dataSource))
   }
+
   /**
- * @name :
- * @param  {
- * page:1,
- * country:'MY'
- * categoryId:'123'
- * type:'0' 类目来源
- * perpage:10,
- * parentCategoryTree:[]
- * }
-  站点选择全部的时候 country为null
-  parentCategoryTree：类目id父级集合
- */
+   * @name :
+   * @param  {
+   * page:1,
+   * country:'MY'
+   * categoryId:'123'
+   * type:'0' 类目来源
+   * perpage:10,
+   * parentCategoryTree:[]
+   * }
+    站点选择全部的时候 country为null
+   parentCategoryTree：类目id父级集合
+   */
   getBlackCategory(data) {
     return this.nativeService.callCategoryFunction('GetCategoryBlackList', JSON.stringify(data))
   }
+
   /**
- * @name :
- * @param  {
- * data[0] categoryId:类目id,
- * data[1] country:站点,
- * data[2] categoryPTree:[]父级类目id集合
- * }
- */
+   * @name :
+   * @param  {
+   * data[0] categoryId:类目id,
+   * data[1] country:站点,
+   * data[2] categoryPTree:[]父级类目id集合
+   * }
+   */
   addBlackCategory(data) {
     return this.nativeService.callCategoryFunction('AddCategoryBlackInfo', data[0] + '', data[1] + '', JSON.stringify(data[2]))
   }
+
   /**
-  addBlackCategory(data) {
+   addBlackCategory(data) {
     return this.nativeService.callCategoryFunction('AddCategoryBlackInfo', data[0] + '', data[1] + '', data[2] + '')
   }
-  /**
- * @name :
- * @param  {
- * id:黑名单id（系统id）
- * }
- */
+   /**
+   * @name :
+   * @param  {
+   * id:黑名单id（系统id）
+   * }
+   */
   deleteBlackCategory(id) {
     return this.nativeService.callCategoryFunction('DeleteCategoryBlackInfo', id + '')
   }
+
   /**
- * @name :
- * @param  {
- * data[0]:startTime:yyyy-MM-dd 00:00:00
- * data[1]:endTime:yyyy-MM-dd 23:59:59
- * }
- */
+   * @name :
+   * @param  {
+   * data[0]:startTime:yyyy-MM-dd 00:00:00
+   * data[1]:endTime:yyyy-MM-dd 23:59:59
+   * }
+   */
   getStatisticsNew(data) {
     return this.nativeService.callFunction('GetStatisticsNew', data[0], data[1])
   }
 
   /**
-  deleteBlackCategory(id) {
+   deleteBlackCategory(id) {
     return this.nativeService.callCategoryFunction('DeleteCategoryBlackInfo', id + '')
   }
-  /**
+   /**
    * 成交价格建议
    * @param {
    *  platform_id:站点ID
@@ -592,42 +645,44 @@ export default class CommodityService {
   getAvgPrice(data) {
     return this.nativeService.callDianBaShopeeInfo('GetAvgPrice', JSON.stringify(data))
   }
+
   /**
- * @name :获取热搜词列表
- * @param : {
- * platform_id: '',国家code
- * cat_id_1: '',
- * cat_id_2: '',
- * }
- *
- */
+   * @name :获取热搜词列表
+   * @param : {
+   * platform_id: '',国家code
+   * cat_id_1: '',
+   * cat_id_2: '',
+   * }
+   *
+   */
   getKeyWord(data) {
     data['order_by'] = 'keyword_month_sales'
     return this.nativeService.callDianBaShopeeInfo('GetKeyWord', JSON.stringify(data))
   }
 
   /**
- * @name :获取爆款选品列表
- * @param : {
- * page：页码
- * page_size：页数据量
- * platform_id：参考成交价格建议
- * cat_id：当前选中的类目id（当前选中二级类目，三级类目未选择，这里传选择的二级类目id）
- * level：类目级别（一级 or 二级 or ）
- * price：12_35 价格范围
- * month_sales：12_35 月销量
- * increment_like_count：12_35 点赞数
- * increment_item_rating：12_35 评论数
- * location： -1   （-1：本地  -2：海外）出货地点
- * shopType：2   （2：全部  1：官方店铺  0：非官方店铺） 店铺类型
- * sortBy：1  （1：飙升  2：热门 ）排序
- *}
- */
+   * @name :获取爆款选品列表
+   * @param : {
+   * page：页码
+   * page_size：页数据量
+   * platform_id：参考成交价格建议
+   * cat_id：当前选中的类目id（当前选中二级类目，三级类目未选择，这里传选择的二级类目id）
+   * level：类目级别（一级 or 二级 or ）
+   * price：12_35 价格范围
+   * month_sales：12_35 月销量
+   * increment_like_count：12_35 点赞数
+   * increment_item_rating：12_35 评论数
+   * location： -1   （-1：本地  -2：海外）出货地点
+   * shopType：2   （2：全部  1：官方店铺  0：非官方店铺） 店铺类型
+   * sortBy：1  （1：飙升  2：热门 ）排序
+   *}
+   */
   searchShopeeHotGoods(data) {
     return this.nativeService.callDianBaShopeeInfo('SearchShopeeHotGoods'
       , data.page, data.page_size, data.platform_id, data.cat_id, data.level, data.price, data.month_sales,
       data.increment_like_count, data.increment_item_rating, data.location, data.shopType, data.sortBy)
   }
+
   /**
    * @name :品牌词库
    * @param : {
@@ -644,30 +699,35 @@ export default class CommodityService {
   getBannedWordList(data) {
     return this.nativeService.callCategoryFunction('GetBannedWordList', JSON.stringify(data))
   }
+
   /**
    * @name :品牌词库添加
    */
   addBannedWord(data) {
     return this.nativeService.callCategoryFunction('AddBannedWord', data.word, data.country, data.type)
   }
+
   /**
    * @name :品牌词库删除
    */
   deleteDannedWord(data) {
     return this.nativeService.callCategoryFunction('DeleteDannedWord', data.toString())
   }
+
   /**
    * 获取产品中心类目
    */
   getCategoryInfo(data) {
     return this.nativeService.callProductCenter('GetCategoryInfo', data.toString())
   }
+
   /**
    * 获取产品中心列表数据
    */
   getProductList(data) {
     return this.nativeService.callProductCenter('GetProductList', JSON.stringify(data))
   }
+
   /**
    * 获取产品中心产品skulist
    */
