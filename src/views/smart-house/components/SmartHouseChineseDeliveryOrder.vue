@@ -12,7 +12,7 @@
             <el-option
               v-for="(item, index) in widList"
               :key="index"
-              :value="item.id"
+              :value="item.wid"
               :label="item.warehouse_name"
             />
           </el-select>
@@ -39,7 +39,7 @@
         <li>
           <span>出库单创建时间：</span>
           <el-date-picker
-            v-model="form.created_time"
+            v-model="form.createdAt"
             unlink-panels
             size="mini"
             type="daterange"
@@ -53,7 +53,7 @@
         <li>
           <span>订单编号：</span>
           <el-input
-            v-model="form.oversea_order_sn"
+            v-model="form.homeOrderSn"
             clearable
             size="mini"
             oninput="value=value.replace(/\s+/g,'')"
@@ -62,7 +62,7 @@
         <li>
           <span>平台物流单号：</span>
           <el-input
-            v-model="form.logistic_no"
+            v-model="form.platformTrackingNumber"
             clearable
             size="mini"
             oninput="value=value.replace(/\s+/g,'')"
@@ -74,7 +74,7 @@
             size="mini"
             @click="
               page =1
-              getOutOfStockList()"
+              getHomeOutStockOrder()"
           >搜 索</el-button>
           <el-button
             type="primary"
@@ -125,14 +125,14 @@
           </template>
         </el-table-column>
         <el-table-column
-          prop="oversea_order_sn"
+          prop="homeOrderSn"
           label="订单编号"
           min-width="135"
           align="center"
           fixed
         />
         <el-table-column
-          prop="logistic_no"
+          prop="platformTrackingNumber"
           label="平台物流单号"
           align="center"
           min-width="130"
@@ -602,7 +602,7 @@
 </template>
 
 <script>
-import BroadDeliveryOrder from '../../../module-api/smart-house-api/broad-delivery-order'
+import ChineseDeliveryOrder from '../../../module-api/smart-house-api/chinese-delivery-order'
 import { exportExcelDataCommon } from '../../../util/util'
 export default {
   data() {
@@ -614,7 +614,7 @@ export default {
       reissueVisible: false,
       batchreiVisible: false,
       batchreiLoading: false,
-      BroadDeliveryOrder: new BroadDeliveryOrder(this),
+      ChineseDeliveryOrder: new ChineseDeliveryOrder(this),
 
       filterZero: false,
 
@@ -635,9 +635,9 @@ export default {
 
       form: { // 条件搜索
         wid: '', // 仓库id
-        oversea_order_sn: '', // 出库单号
-        logistic_no: '', // 物流单号
-        created_time: '', // 创建时间
+        homeOrderSn: '', // 出库单号
+        platformTrackingNumber: '', // 物流单号
+        createdAt: '', // 创建时间
         status: ''// 订单出库状态
       },
 
@@ -691,11 +691,11 @@ export default {
     }
   },
   async mounted() {
-    this.form.created_time = [new Date().getTime() - 3600 * 1000 * 24 * 15, new Date()]
+    this.form.createdAt = [new Date().getTime() - 3600 * 1000 * 24 * 15, new Date()]
     // 获取仓库
-    await this.getOverseasWarehouse()
+    await this.getWarehouseList()
     // 获取数据
-    await this.getOutOfStockList()
+    await this.getHomeOutStockOrder()
   },
   methods: {
     // 取消/批量取消订单
@@ -712,8 +712,8 @@ export default {
         if (element.status !== 5 && element.status !== 3) {
           const pamars = {}
           pamars['wid'] = element.wid
-          pamars['overseaOrderSn'] = element.oversea_order_sn
-          const res = await this.BroadDeliveryOrder.cancelOverseaOrder(pamars)
+          pamars['overseaOrderSn'] = element.homeOrderSn
+          const res = await this.ChineseDeliveryOrder.cancelOverseaOrder(pamars)
           if (res.code === 200) {
             this.$set(element, 'orderStatus', '取消订单成功')
             this.$set(element, 'color', 'green')
@@ -761,7 +761,7 @@ export default {
       pamars['skuLists'] = skuLists
       if (!skuLists?.length) return this.$message('库存数小于补件数')
       this.batchreiLoading = true
-      const res = await this.BroadDeliveryOrder.addReissueStore(pamars)
+      const res = await this.ChineseDeliveryOrder.addReissueStore(pamars)
       if (res.code === 200) {
         this.$message.success('补件成功')
         this.batchreiVisible = false
@@ -773,7 +773,7 @@ export default {
     },
     // 设置uid
     setUid(row) {
-      this.overseaOrderSn = row.oversea_order_sn
+      this.overseaOrderSn = row.homeOrderSn
       this.stockForm.app_uid = row.uid
       this.reissueVisible = true
       this.getStock()
@@ -788,14 +788,14 @@ export default {
       this.stockForm.page_num = this.stockPageSize
       this.stockForm.page = this.stockPage
       this.stockForm.is_zero_filter = this.filterZero ? 1 : 0
-      const res = await this.BroadDeliveryOrder.getStock(this.stockForm)
+      const res = await this.ChineseDeliveryOrder.getStock(this.stockForm)
       if (res.code === 200) {
         this.stockTotal = res.data.total
         this.reissueData = res.data.data
         for (let index = 0; index < this.reissueData.length; index++) {
           const element = this.reissueData[index]
           // 获取海外仓库中文名
-          const resName = await this.BroadDeliveryOrder.overseasWh(element.wid)
+          const resName = await this.ChineseDeliveryOrder.overseasWh(element.wid)
           if (resName.code === 200) {
             this.$set(element, 'warehouse_name', resName.data)
           }
@@ -807,25 +807,36 @@ export default {
       this.reissueLoading = false
     },
     // 获取仓库
-    async getOverseasWarehouse() {
+    async getWarehouseList() {
       const myMap = new Map()
-      const res = await this.BroadDeliveryOrder.getOverseasWarehouse()
+      const res = await this.ChineseDeliveryOrder.getWarehouseList()
       if (res.code === 200) {
         res.data.forEach(item => {
-          this.widList = this.widList.concat(item.child)
+          if (item.user_ids) {
+            const flag = item.user_ids.some(uItem => {
+              return uItem === this.muid
+            })
+            if (flag) {
+              this.widList.push(item)
+            }
+          } else {
+            if (item.status !== 2) {
+              this.widList.push(item)
+            }
+          }
         })
+        this.widList = this.widList.filter((item) => !myMap.has(item.id) && myMap.set(item.id, 1))
+        this.form.wid = this.widList[0].wid
       } else {
-        this.$message.error(res.data)
+        this.$message.error(`${res.data}`)
       }
-      this.widList = this.widList.filter((item) => !myMap.has(item.id) && myMap.set(item.id, 1))
-      this.form.wid = this.widList[0].id
     },
     // 获取数据
-    async getOutOfStockList() {
+    async getHomeOutStockOrder() {
       this.isShowLoading = true
       this.form.page = this.page
       this.form.pageSize = this.pageSize
-      const res = await this.BroadDeliveryOrder.getOutOfStockList(this.form)
+      const res = await this.ChineseDeliveryOrder.getHomeOutStockOrder(this.form)
       console.log('tableData', res)
       if (res.code === 200) {
         this.tableData = res.data.data
@@ -849,7 +860,7 @@ export default {
     getDetails(row) {
       this.detailsData = row.sku_list
       this.detailsData.map(item => {
-        item.order_sn = row.oversea_order_sn
+        item.order_sn = row.homeOrderSn
       })
     },
     // 导出数据
@@ -862,7 +873,7 @@ export default {
       params.pageSize = this.pageSize
       params.page = 1
       while (resData.length < this.total) {
-        const res = await this.BroadDeliveryOrder.getOutOfStockList(params)
+        const res = await this.ChineseDeliveryOrder.getHomeOutStockOrder(params)
         if (res.code === 200) {
           resData = resData.concat(res.data.data)
           params.page++
@@ -876,8 +887,8 @@ export default {
         item.sku_list.forEach(skuItem => {
           const obj = {}
           obj['country'] = item.country
-          obj['oversea_order_sn'] = item.oversea_order_sn
-          obj['logistic_no'] = item.logistic_no
+          obj['homeOrderSn'] = item.homeOrderSn
+          obj['platformTrackingNumber'] = item.platformTrackingNumber
           obj['warehouse_name'] = item.warehouse_name
           obj['created_at'] = item.created_at
           obj['deliver_time'] = item.deliver_time
@@ -915,8 +926,8 @@ export default {
       exportData.forEach(item => {
         str += `<tr>
         <td>${item.country ? this.$filters.chineseSite(item.country) : '' + '\t'}</td>
-        <td>${item.oversea_order_sn ? item.oversea_order_sn : '' + '\t'}</td>
-        <td>${item.logistic_no ? item.logistic_no : '' + '\t'}</td>
+        <td>${item.homeOrderSn ? item.homeOrderSn : '' + '\t'}</td>
+        <td>${item.platformTrackingNumber ? item.platformTrackingNumber : '' + '\t'}</td>
         <td>${item.warehouse_name ? item.warehouse_name : '' + '\t'}</td>
         <td>${item.created_at ? item.created_at : '' + '\t'}</td>
         <td>${item.deliver_time ? item.deliver_time : '' + '\t'}</td>
@@ -932,16 +943,16 @@ export default {
         </tr>`
       })
       this.isShowLoading = false
-      exportExcelDataCommon('海外仓出库订单数据', str)
+      exportExcelDataCommon('国内仓出库订单数据', str)
     },
     handleSizeChange(val) {
       this.page = 1
       this.pageSize = val
-      this.getOutOfStockList()
+      this.getHomeOutStockOrder()
     },
     handleCurrentChange(val) {
       this.page = val
-      this.getOutOfStockList()
+      this.getHomeOutStockOrder()
     },
     handleSelectionChange(val) {
       this.multipleSelection = val

@@ -8,13 +8,21 @@
  */
 // 虾皮售后
 // const OrderManagerAfterSale = () => import('./components/OrderManagerAfterSale.vue')
+const OrderManagerAfterSales = () => import('./components/OrderManagerAfterSales.vue')
+
+// 仓库收货地址设置
+const OrderManagerReceivingAddress = () => import('./components/OrderManagerReceivingAddress.vue')
+
+// 发货管理
+const OrderManagerDeliveryManagement = () => import('./components/OrderManagerDeliveryManagement.vue')
+
 // 丢件信息查询
 // const OrderManagerLostSearch = () => import('./components/OrderManagerLostSearch.vue')
 // 采购信息查询
 // const OrderManagerPriceChangeRecorde = () => import('./components/OrderManagerPriceChangeRecorde.vue')
 // 订单列表
 const OrderManagerOrderCenter = () => import('./components/OrderManagerOrderCenter.vue')
-//仓库收货地址设置
+// 仓库收货地址设置
 const OrderManagerStoreAdressSet = () => import('./components/OrderManagerStoreAdressSet.vue')
 
 // 导出
@@ -23,6 +31,12 @@ export {
   // OrderManagerLostSearch,
   // OrderManagerPriceChangeRecorde,
   OrderManagerOrderCenter,
-  OrderManagerStoreAdressSet
+  OrderManagerStoreAdressSet,
+  // OrderManagerList,
+  OrderManagerAfterSales,
+  OrderManagerReceivingAddress,
+  OrderManagerDeliveryManagement
+  // OrderManagerLostInfoQuery,
+  // OrderManagerChangeRecord,
 }
 

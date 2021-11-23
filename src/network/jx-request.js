@@ -134,7 +134,6 @@ export default {
   getNotHaveLogisticsInformations: () => AppRequest.get('/orderPackage/getNotHaveLogisticsInformations'), // 获取面单信息
   cancelSign: (data) => AppRequest.post('/interceptConfig/delete', data), // 取消拒收/签收信息
   packageSign: (data) => AppRequest.post('/interceptConfig/save', data), // 仓库包裹拒签/签收
-  warehouseAddress: () => AppRequest.get('/warehouseAddress/userIndex'), // 获取仓库信息
   uploadWarehouseOrder: (data) => AppRequest.post('/warehouseAddress/uploadWarehouseOrder', data), // 推送订单至仓库
   setColorLabel: (data) => AppRequest.post(`/colorLabel/setOrder`, data), // 设置订单颜色标识
   getUserStore: (data) => AppRequest.get('/userStock/get', { params: data }), // 自有仓库列表
@@ -163,6 +162,7 @@ export default {
   getDetail: (data) => AppRequest.get('/orderAmountDetail/getDetail', { params: data }), // 订单列表: 订单金额详情
   getOrderSn: (data) => AppRequest.get('/order/getOrderSn', data), // 丢件查询
   aftermarket: (data) => AppRequest.post('/aftermarket', data), // 虾皮售后
+  xzyAllIndex: (data) => AppRequest.get('/warehouseAddress/xzyAllIndex', data), // 仓库地址设置：获取星卓越地址
 
   getStockingForecastLists: (data) => AppRequest.get('/warehouse/stockingForecastLists', { params: data }), // 海外仓商品备货-预报单列表
   deleteForecast: (data) => AppRequest.post('/warehouse/stockingForecastDestroy', data), // 海外仓商品备货-删除预报单
@@ -189,6 +189,7 @@ export default {
   uploadOrderWarehourseShipAmount: (data) => AppRequest.post('/order/uploadOrderWarehourseShipAmount', data), // 上报仓库发货金额
 
   savePurchase: (data) => AppRequest.post('/purchase', data), // 上报采购链接
-  getOrderTrackingNumber: (data) => AppRequest.get('/order/getOrderTrackingNumber', { params: data }) // 获取多物流单号列表
+  getOrderTrackingNumber: (data) => AppRequest.get('/order/getOrderTrackingNumber', { params: data }), // 获取多物流单号列表
 
+  getHomeOutStockOrder: (data) => AppRequest.get('/homeOutStockOrder/index', { params: data }) // 国内出库单: 列表
 }
