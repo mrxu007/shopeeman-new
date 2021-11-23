@@ -635,4 +635,63 @@ function getShopeeSitePlace(siteCode) {
 function getLazadaSitePlace(siteCode) {
   return lazadaSitePlace[siteCode]
 }
-export { shopeeSite, lazadaSite, pictureSearchOrigin, getPlatform, getShopeeSitePlace, platformObj, getLazadaSitePlace }
+
+// 私有选品库
+
+// 采购来源
+const source = [
+  {
+    value: '1',
+    label: '拼多多'
+  },
+  {
+    value: '2',
+    label: '淘宝'
+  },
+  {
+    value: '3',
+    label: '天猫'
+  },
+  {
+    value: '4',
+    label: '京东'
+  },
+  {
+    value: '10',
+    label: '京喜'
+  },
+  {
+    value: '8',
+    label: '1688'
+  },
+  {
+    value: '6',
+    label: '货老板'
+  },
+  {
+    value: '7',
+    label: '多多进宝'
+  }
+]
+
+const sourceObj = {
+  '1': '拼多多',
+  '2': '淘宝',
+  '3': '天猫',
+  '4': '京东',
+  '10': '京喜',
+  '8': '1688',
+  '6': '货老版',
+  '7': '多多进宝'
+}
+export {
+  getPlatform,
+  getShopeeSitePlace,
+  getLazadaSitePlace,
+  shopeeSite,
+  lazadaSite,
+  pictureSearchOrigin,
+  platformObj,
+  sourceObj,
+  source
+}
