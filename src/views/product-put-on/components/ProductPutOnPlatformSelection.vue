@@ -114,7 +114,7 @@
               <!--操作按钮 -->
               <ul class="item con-sub-2">
                 <li>
-                  <el-button type="primary" size="mini" @click="StartCollection">开始采集</el-button>
+                  <el-button type="primary" size="mini" :disabled="buttonStatus.keyword" @click="StartCollection">开始采集</el-button>
                   <el-button type="primary" size="mini">取消采集</el-button>
                 </li>
                 <li class="li-item-2">
@@ -153,7 +153,7 @@
             </div>
             <ul class="item linkcon-sub-2">
               <li>
-                <el-button type="primary" size="mini" @click="StartCollection">开始采集</el-button>
+                <el-button type="primary" size="mini" :disabled="buttonStatus.keyword" @click="StartCollection">开始采集</el-button>
                 <el-button type="primary" size="mini">取消采集</el-button>
               </li>
               <li class="li-item-2">
@@ -214,7 +214,7 @@
             <!--操作按钮 -->
             <ul class="item con-sub-2">
               <li>
-                <el-button type="primary" size="mini" @click="StartCollection">开始采集</el-button>
+                <el-button type="primary" size="mini" :disabled="buttonStatus.keyword" @click="StartCollection">开始采集</el-button>
                 <el-button type="primary" size="mini">取消采集</el-button>
               </li>
               <li class="li-item-2">
@@ -265,7 +265,7 @@
             <!--操作按钮 -->
             <ul class="item con-sub-2">
               <li>
-                <el-button type="primary" size="mini" @click="StartCollection">开始采集</el-button>
+                <el-button type="primary" size="mini" :disabled="buttonStatus.keyword" @click="StartCollection">开始采集</el-button>
                 <el-button type="primary" size="mini">取消采集</el-button>
               </li>
               <li class="li-item-2">
@@ -323,7 +323,7 @@
             <!--操作按钮 -->
             <ul class="item con-sub-2">
               <li>
-                <el-button type="primary" size="mini" @click="StartCollection">开始采集</el-button>
+                <el-button type="primary" size="mini" :disabled="buttonStatus.keyword" @click="StartCollection">开始采集</el-button>
                 <el-button type="primary" size="mini">取消采集</el-button>
               </li>
               <li class="li-item-2">
@@ -440,7 +440,7 @@
         <u-table-column align="center" label="主图">
           <template v-slot="{ row }">
             <div style="justify-content: center; display: flex">
-              <img :src="row.Image" style="width: 56px; height: 56px">
+              <img :src="row.Image" style="width: 56px; height: 56px" />
             </div>
           </template>
         </u-table-column>
@@ -742,7 +742,7 @@ export default {
       try {
         let keyword = this.key.trim()
         if (!keyword) {
-          return { code: -3, data: '参数不能为空' }
+          return { code: -3, data: '关键词不能为空' }
         }
         keyword = this.key.replace(/\s/g, ';').split(';')
         // const data = [[]]
@@ -763,7 +763,7 @@ export default {
     async keywordSearch() {
       const res = this.handleKeyFactory() // 处理关键词
       if (res.code !== 200) {
-        return res.code === -2 ? this.$message.error('') : undefined
+        return this.$message.error(res.data)
       }
       let key = res.data
       const keyLen = res.data.length

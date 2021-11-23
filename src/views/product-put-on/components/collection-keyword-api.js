@@ -8,6 +8,8 @@ class CollectKeyWordApI {
     this.keywordAttr = null
     this.delayTime = 1000
     this.GoodsData = null
+
+    this.errorCatchText = null // 日志收集
   }
   _initKeyWord(platformId, commonAttr) { // 初始化过滤条件  平台ID、
     this.platformId = platformId // 关键词采集----平台ID
@@ -103,9 +105,8 @@ class CollectKeyWordApI {
         StartPage++
       }
     } catch (error) {
-      const errorOrigin = JSON.stringify(error)
-      const errText = errorOrigin.replace(/\s/g, '').match(/:(.+)数据列表为空/)
-      this.writeLog(`采集${key}关键词第${StartPage}页第一部分，捕获错误${errText[0] || errorOrigin}`, false)
+      this.errorCatchText = error
+      this.handleError(`采集${key}关键词第${StartPage}页第一部分`)
     }
     // 处理所需参数
     this.GoodsData = this.GoodsData.map((item, index) => {
@@ -146,9 +147,8 @@ class CollectKeyWordApI {
         StartPage++
       }
     } catch (error) {
-      const errorOrigin = JSON.stringify(error)
-      const errText = errorOrigin.replace(/\s/g, '').match(/:(.+)数据列表为空/)
-      this.writeLog(`采集${key}关键词第${StartPage}页第二部分，捕获错误${errText[0] || errorOrigin}`, false)
+      this.errorCatchText = error
+      this.handleError(`采集${key}关键词第${StartPage}页第二部分`)
     }
     // 处理所需参数
     this.GoodsData = this.GoodsData.map((item, index) => {
@@ -157,6 +157,16 @@ class CollectKeyWordApI {
       return item
     })
     return { code: 200, data: this.GoodsData }
+  }
+  handleError(text) {
+    let errorText = JSON.stringify(this.errorCatchText).replace(/\s/g, '')
+    if (errorText.indexOf('数据列表为空') > -1) {
+      errorText = '数据列表为空'
+    } else if (errorText.indexOf('返回数据不能为空') > -1) {
+      errorText = '返回数据不能为空'
+    }
+    this.errorCatchText = null
+    this.writeLog(`${text},捕获错误${errorText}`, false)
   }
   writeLog(msg, success = true) {
     if (this._this.consoleMsg === undefined) {

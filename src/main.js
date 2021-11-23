@@ -113,7 +113,11 @@ Vue.directive('focus', {
     el.querySelector('textarea').focus()
   }
 })
-
+async function getUserInfo() {
+  const res = await new ShopeemanConfig().getUserInfo()
+  Vue.prototype.userInfo = res
+}
+getUserInfo()
 Vue.config.productionTip = false
 new Vue({
   router,
