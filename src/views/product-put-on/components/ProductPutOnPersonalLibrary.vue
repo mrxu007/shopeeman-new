@@ -161,6 +161,9 @@
 
 <script>
 import PersonalLibraryAPI from '../../../module-api/product-put-on-api/personal-library-api'
+import editorOnNewGoods from '../../../components/editor_on_new_goods'
+import { batchOperation } from '../../../util/util'
+
 export default {
   data() {
     return {
@@ -190,6 +193,7 @@ export default {
       pageSize: 30
     }
   },
+  components: { editorOnNewGoods },
   mounted() {
     this.getGoodsList()
   },
