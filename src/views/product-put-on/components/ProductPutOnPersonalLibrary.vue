@@ -125,7 +125,7 @@
         <u-table-column align="center" label="主图" prop="Sales">
           <template v-slot="{ row }">
             <div style="justify-content: center; display: flex">
-              <img :src="row.image" style="width: 56px; height: 56px" />
+              <img :src="row.image" style="width: 56px; height: 56px">
             </div>
           </template>
         </u-table-column>
@@ -376,6 +376,10 @@ export default {
     },
     async markPreferredGoods(type) {
       let selectElement = this.multipleSelection
+      if (selectElement.length === 0) {
+        selectElement = null
+        return this.$message.error('请先选择商品')
+      }
       const sysGoodsIds = []
       // 归类
       selectElement.forEach(item => {
