@@ -10,7 +10,7 @@
           <el-option v-for="(item, index) in sortList" :key="index" :label="item.label" :value="item.value" />
         </el-select>
       </div>
-      <div class="o-item">
+      <div class="o-item" style="margin-left:10px">
         <el-button type="primary" size="mini" @click="getAvgPrice">搜索</el-button>
       </div>
     </div>
@@ -19,18 +19,18 @@
         v-loading="isloading"
         :data="tableData"
         :border="false"
-        height="calc(100vh - 105px)"
+        height="calc(100vh - 135px)"
         :header-cell-style="{
           textAlign: 'center',
           backgroundColor: '#f5f7fa',
         }"
       >
-        <el-table-column type="index" align="center" label="序号" min-width="50">
+        <el-table-column type="index" align="center" label="序号" min-width="50" fixed>
           <template slot-scope="scope">
             {{ scope.$index + 1 }}
           </template>
         </el-table-column>
-        <el-table-column prop="platform_id" align="center" show-overflow-tooltip label="站点" min-width="80" />
+        <el-table-column prop="platform_id" align="center" show-overflow-tooltip label="站点" min-width="80" fixed />
         <el-table-column prop="date" align="center" show-overflow-tooltip label="日期" min-width="90" />
         <el-table-column prop="category1" align="center" show-overflow-tooltip label="一级类目" min-width="150" />
         <el-table-column prop="category2" align="center" show-overflow-tooltip label="二级类目" min-width="150" />
@@ -39,7 +39,7 @@
         <el-table-column prop="goods_count_rise_day" align="center" show-overflow-tooltip label="商品日增长数" min-width="110" />
         <el-table-column prop="sales_rate_day" align="center" show-overflow-tooltip label="动销率(日)" min-width="90" />
         <el-table-column prop="goods_count" align="center" show-overflow-tooltip label="商品总数(日)" min-width="110" />
-        <el-table-column prop="has_sales_goods_count_day" align="center" show-overflow-tooltip label="有销量的商品数(日)" min-width="150" />
+        <el-table-column prop="has_sales_goods_count_day" align="center" show-overflow-tooltip label="有销量的商品数(日)" min-width="150" fixed="right" />
       </el-table>
     </div>
   </div>
@@ -149,4 +149,16 @@ export default {
 
 <style lang="less">
 @import '../../../module-less/product-put-less/hot-suggest.less';
+
+.contaniner{
+   min-width: 1200px;
+  .operation{
+    display: flex;
+    flex-wrap: wrap;
+    height: 40px;
+    .o-item{
+      margin-right: 0px;
+    }
+  }
+}
 </style>

@@ -14,17 +14,17 @@
     <!-- 平台选品库：采集设置 -->
     <main v-if="activeVal === '1'"><ProductPutOnSettings /></main>
 
+    <!--爆款选品 -->
+    <main v-if="activeVal === '2'"><ProductPutOnPopularSelection /></main>
+
     <!-- 私有选品库 -->
-    <main v-if="activeVal === '2'"><ProductPutOnPersonalLibrary /></main>
+    <main v-if="activeVal === '3'"><ProductPutOnPersonalLibrary /></main>
 
     <!-- 一键上新 -->
-    <main v-if="activeVal === '3'"><ProductPutOnShangxin /></main>
+    <main v-if="activeVal === '4'"><ProductPutOnShangxin /></main>
 
     <!-- 定时刊登 -->
-    <main v-if="activeVal === '4'"><ProductPutOnTimerPublish /></main>
-
-    <!--爆款选品 -->
-    <main v-if="activeVal === '5'"><ProductPutOnPopularSelection /></main>
+    <main v-if="activeVal === '5'"><ProductPutOnTimerPublish /></main>
 
     <!--成交价格建议 -->
     <main v-if="activeVal === '6'"><ProductPutOnHotSuggest /></main>
@@ -41,8 +41,15 @@
     <!--类目黑名单 -->
     <main v-if="activeVal === '10'"><ProductPutOnCategoryblack /></main>
 
+    <!-- 拼多多买手号 -->
+    <main v-if="activeVal === '11'"><ProductPutOnPDD /></main>
+
+    <!-- 天猫淘宝海外平台 -->
+    <main v-if="activeVal === '12'"><ProductPutOnTaobao /></main>
+    <!-- <main v-if="activeVal === '10'"><ProductPutOnCategoryblack /></main> -->
+
     <!-- 拼多多选品库 -->
-    <main v-if="activeVal === '11'"><ProductPutOnPddAccount /></main>
+    <main v-if="activeVal === '13'"><ProductPutOnPddAccount /></main>
   </div>
 </template>
 
@@ -59,6 +66,8 @@ import {
   ProductPutOnStatistics,
   ProductPutOnBandlibrary,
   ProductPutOnCategoryblack,
+  ProductPutOnPDD,
+  ProductPutOnTaobao,
   ProductPutOnPddAccount
 } from './index'
 export default {
@@ -74,6 +83,8 @@ export default {
     ProductPutOnStatistics,
     ProductPutOnBandlibrary,
     ProductPutOnCategoryblack,
+    ProductPutOnPDD,
+    ProductPutOnTaobao,
     ProductPutOnPddAccount
 
   },
