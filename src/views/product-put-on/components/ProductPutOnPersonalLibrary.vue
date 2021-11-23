@@ -82,7 +82,7 @@
       <u-table
         ref="plTable"
         v-loading="buttonStatus.getList"
-        :max-height="Height"
+        :height="Height"
         use-virtual
         :data-changes-scroll-top="false"
         :header-cell-style="{
@@ -372,7 +372,6 @@ export default {
         this.goodsList.push(...res.data.data)
         console.log('this.goodsList', this.goodsList)
       }
-      await delay(1000)
       this.buttonStatus.getList = false
     },
     async markPreferredGoods(type) {
