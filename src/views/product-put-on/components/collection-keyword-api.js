@@ -106,7 +106,7 @@ class CollectKeyWordApI {
       }
     } catch (error) {
       this.errorCatchText = error
-      this.handleError(`采集${key}关键词第${StartPage}页第一部分，`)
+      this.handleError(`采集${key}关键词第${StartPage}页第一部分`)
     }
     // 处理所需参数
     this.GoodsData = this.GoodsData.map((item, index) => {
@@ -148,7 +148,7 @@ class CollectKeyWordApI {
       }
     } catch (error) {
       this.errorCatchText = error
-      this.handleError(`采集${key}关键词第${StartPage}页第二部分，`)
+      this.handleError(`采集${key}关键词第${StartPage}页第二部分`)
     }
     // 处理所需参数
     this.GoodsData = this.GoodsData.map((item, index) => {
@@ -158,7 +158,7 @@ class CollectKeyWordApI {
     })
     return { code: 200, data: this.GoodsData }
   }
-  handleError() {
+  handleError(text) {
     let errorText = JSON.stringify(this.errorCatchText).replace(/\s/g, '')
     if (errorText.indexOf('数据列表为空') > -1) {
       errorText = '数据列表为空'
@@ -166,7 +166,7 @@ class CollectKeyWordApI {
       errorText = '返回数据不能为空'
     }
     this.errorCatchText = null
-    this.writeLog(`捕获错误${errorText}`, false)
+    this.writeLog(`${text},捕获错误${errorText}`, false)
   }
   writeLog(msg, success = true) {
     if (this._this.consoleMsg === undefined) {
