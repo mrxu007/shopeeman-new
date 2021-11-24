@@ -163,6 +163,13 @@ export default {
   getOrderSn: (data) => AppRequest.get('/order/getOrderSn', data), // 丢件查询
   aftermarket: (data) => AppRequest.post('/aftermarket', data), // 虾皮售后
   xzyAllIndex: (data) => AppRequest.get('/warehouseAddress/xzyAllIndex', data), // 仓库地址设置：获取星卓越地址
+  xzyIndex: (data) => AppRequest.get('/warehouseAddress/xzyIndex', { params: data }), // 仓库地址设置：系统仓库获取
+  adduserStore: (data) => AppRequest.post('/warehouseAddress/userStore', data), // 仓库地址设置：添加国内自有仓库地址
+  updateOwnPhone: (data) => AppRequest.post('/warehouseAddress/updateOwnPhone', data), // 仓库地址设置：配置手机号码
+  deleteOwnStore: (data) => AppRequest.post('/warehouseAddress/delete', data), // 仓库地址设置：删除自有仓库
+  getBindMall: (data) => AppRequest.get('/warehouseAddress/getBindMall', { params: data }), // 仓库地址设置：绑定店铺、申请仓库的店铺列表
+  addXzyStore: (data) => AppRequest.post('/warehouseAddress/xzyStore', data), // 仓库地址设置：新增系统仓库
+  updateData: (data) => AppRequest.post('/warehouseAddress/update', data), // 仓库地址设置：修改绑定店铺、修改仓库自用地址
 
   getStockingForecastLists: (data) => AppRequest.get('/warehouse/stockingForecastLists', { params: data }), // 海外仓商品备货-预报单列表
   deleteForecast: (data) => AppRequest.post('/warehouse/stockingForecastDestroy', data), // 海外仓商品备货-删除预报单

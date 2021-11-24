@@ -1196,6 +1196,7 @@ export default {
     async getWarehouseList() {
       const myMap = new Map()
       const res = await this.StrockUpHome.getWarehouseList()
+      console.log(res)
       if (res.code === 200) {
         res.data.forEach(item => {
           if (item.user_ids) {

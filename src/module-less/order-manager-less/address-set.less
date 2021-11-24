@@ -2,13 +2,13 @@
     margin: 10px;
     padding:16px;
     background: #fff;
+      /deep/.el-dialog__body{
+        padding: 0px 20px 30px 20px !important;
+    }
+      /deep/.el-form-item{
+        margin-bottom: 0px !important;
+    }
     .select-dialog{
-        /deep/.el-form-item{
-            margin-bottom: 0px !important;
-        }
-        /deep/.el-dialog__body{
-            padding: 0px 20px 30px 20px !important;
-        }
         .el-input{
             width: 177px;
         }
@@ -23,6 +23,22 @@
                 color: red;
             }
         }
+    }
+    .sys-store-dialog{
+      /deep/.el-dialog__body{
+        display: flex !important;
+        .dialog-left{
+          width: 300px;
+          .footer{
+            margin-top: 10px;
+            text-align: center;
+        }
+        }
+        .dialog-right{
+          margin-left: 20px;
+          width: 620px;
+        }
+      }
     }
   }
   .mar-right {

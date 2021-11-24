@@ -65,6 +65,7 @@ export default {
   },
   data() {
     return {
+
       provinceList: [],
       cityList: [],
       distinctList: [],
@@ -72,38 +73,76 @@ export default {
       province: '',
       city: '',
       distinct: '',
+      provinceName: '',
+      cityName: '',
+      distinctName: '',
 
-      addressData: []
+      addressData: [],
+
+      flag: false
     }
   },
   watch: {
     province: {
       handler(n, o) {
+        let newData = []
         this.getPddAddressModel(this.province, 'cityList', 'city')
+        newData = this.provinceList.filter(item => {
+          return item.RegionId === this.province
+        })
+        this.addressData['province_id'] = newData[0].RegionId
+        this.addressData['province_text'] = newData[0].RegionName
+        this.sendData()
       },
       deep: true
     },
     city: {
       handler(n, o) {
+        let newData = []
         this.getPddAddressModel(this.city, 'distinctList', 'distinct')
+        newData = this.cityList.filter(item => {
+          return item.RegionId === this.city
+        })
+        this.addressData['city_id'] = newData[0].RegionId
+        this.addressData['city_text'] = newData[0].RegionName
+        this.sendData()
+      },
+      deep: true
+    },
+    distinct: {
+      handler(n, o) {
+        let newData = []
+        newData = this.distinctList.filter(item => {
+          return item.RegionId === this.distinct
+        })
+        this.addressData['distinct_id'] = newData[0].RegionId
+        this.addressData['distinct_text'] = newData[0].RegionName
+        this.sendData()
       },
       deep: true
     }
   },
   mounted() {
-    this.init()
+    // this.init()
   },
   methods: {
+    async update(province, city, distinct) {
+      await this.getPddAddressModel('0', 'provinceList', 'province')
+      this.province = province
+      this.city = city
+      this.distinct = distinct
+    },
     async init() {
       await this.getPddAddressModel('0', 'provinceList', 'province')
     },
     async getPddAddressModel(id, list, val) {
       const res = await this.$BaseUtilService.getPddAddressModel(id)
       this[list] = res
-      this[val] = this[list][0].RegionId
-      this.addressData[val + '_id'] = this[list][0].RegionId
-      this.addressData[val + '_text'] = this[list][0].RegionName
-      this.$emit('addressData', this.addressData)
+      this[val] = this.flag ? this[val] : this[list][0].RegionId
+      console.log(this[val])
+    },
+    sendData() {
+      this.$emit('sendData', this.addressData)
     }
   }
 }

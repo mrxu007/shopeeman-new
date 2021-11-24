@@ -5,6 +5,15 @@ export default class ChineseDeliveryOrder {
   constructor(that) {
     this._this = that
   }
+  // 获取用户信息，用来判断中转仓的显示
+  async getUserInfo() {
+    try {
+      const res = await this._this.$appConfig.getUserInfo()
+      return { code: 200, data: res }
+    } catch (error) {
+      return { code: -2, data: `获取用户信息异常： ${error}` }
+    }
+  }
   // 获取海外仓库中文名
   async overseasWh(wid) {
     try {
