@@ -1,9 +1,18 @@
 import { dateFormat, delay } from '../../../util/util'
-class CollectPicAndtaobaoApI {
+class CollectOtherApI {
   _this = null // vue 实例
   constructor(that) {
     this._this = that
     this.GoodsData = null
+  }
+  async picSearch(params) {
+    try {
+      const res = await this._this.$collectService.imgSearch(params)
+      debugger
+      return { code: 200, data: '' }
+    } catch (error) {
+      return { code: -2, data: `整店链接不规范：${error}` }
+    }
   }
 
   // 辅助--------------------------------------------
@@ -53,4 +62,4 @@ class CollectPicAndtaobaoApI {
   }
 }
 
-export default CollectEntireApI
+export default CollectOtherApI

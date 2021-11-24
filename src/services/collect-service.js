@@ -65,4 +65,9 @@ export default class CollectService {
     searchExpressMallGoodsAsync(mallInformationModel) {
         return this.nativeService.callFunction('searchExpressMallGoodsAsync', JSON.stringify(mallInformationModel))
     }
+
+    // 以图搜图
+    imgSearch(params) {
+        return this.nativeService.imgSearch(JSON.stringify(params))
+    }
 }
