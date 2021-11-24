@@ -38,11 +38,19 @@
           type="selection"
           width="55"
         />
-        <el-table-column label="买手号" prop="" min-width="200px" />
-        <el-table-column label="登录状态" prop="" min-width="200px" />
-        <el-table-column label="采集状态" prop="" min-width="200px" />
+        <el-table-column label="买手号" prop="mobile" min-width="200px" />
+        <el-table-column label="登录状态" prop="" min-width="200px">
+          <template slot-scope="{row}">{{ row.status===1?'已登录':'已失效' }}</template>
+        </el-table-column>
+        <el-table-column label="采集状态" prop="" min-width="200px">
+          <template slot-scope="{row}">{{ row.crawler_is_enable===1?'可用':'不可用' }}</template>
+        </el-table-column>
         <el-table-column label="是否需要验证" prop="" min-width="200px" />
-        <el-table-column label="采集成功数量" prop="" min-width="200px" />
+        <el-table-column label="采集成功数量" prop="" min-width="200px">
+          <template>
+            <span>0</span>
+          </template>
+        </el-table-column>
       </el-table>
     </div>
     <!-- dialog -->
@@ -83,12 +91,15 @@ export default {
   data() {
     return {
       dialogVisible_phone: false,
-      dialogVisible_token: true,
+      dialogVisible_token: false,
       phoneList: [],
       TokenList: [],
       radio: '1',
       tableList: []
     }
+  },
+  created() {
+    // this.gettableList()// 初始化
   },
   methods: {
     // 清理弹窗
@@ -102,6 +113,26 @@ export default {
     // 多选
     handleSelectionChange(val) {
     // 获取参数
+    },
+    // 初始化
+    async gettableList() {
+      this.tableList = []
+      const res = await this.$api.getpddBuyerAccount()
+      console.log(res)
+      if (res.data.code === 200) {
+        const list = res.data.data
+        this.tableList = list
+        // list.forEach(el => {
+        //   el.tokenInfo = JSON.parse(el.auto_info)
+        //   this.tableList.push(el)
+        // })
+        this.tableList.forEach(el => {
+          // 先检测买手号是否能用，再检测能否采集
+
+        })
+      } else {
+        this.$message.error('列表数据请求失败！')
+      }
     }
   }
 }

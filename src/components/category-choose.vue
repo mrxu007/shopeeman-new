@@ -11,7 +11,7 @@
     <ul :class="['category-content', { 'category-column': isColumn === true }]">
       <li :class="[{ 'column-item': isColumn === true }]">
         <span :style="{'width':spanWidth}">站点：</span>
-        <el-select v-model="countryVal" size="mini" filterable>
+        <el-select v-model="countryVal" size="mini" filterable :disabled="isSelect">
           <el-option v-if="isAll" label="全部" :value="''" />
           <el-option v-for="(item, index) in countries" :key="index" :label="item.label" :value="item.value" />
         </el-select>
@@ -45,6 +45,14 @@
 export default {
   name: 'CategoryChoose',
   props: {
+    countryVal: {
+      type: String,
+      default: null
+    }, // 商品分类关联站点
+    isSelect: {
+      type: Boolean,
+      default: false
+    },
     spanWidth: {
       type: String,
       default: ''
