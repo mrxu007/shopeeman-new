@@ -15,10 +15,11 @@
           filterable
           placeholder="请选择"
           size="mini"
+          @change="flag = false"
         >
           <el-option
             v-for="(item, index) in provinceList"
-            :key="item.id"
+            :key="index"
             :label="item.RegionName"
             :value="item.RegionId"
           />
@@ -30,10 +31,11 @@
           :disabled="province ? false : true"
           placeholder="请选择"
           size="mini"
+          @change="flag = false"
         >
           <el-option
             v-for="(item, index) in cityList"
-            :key="item.id"
+            :key="index"
             :label="item.RegionName"
             :value="item.RegionId"
           />
@@ -45,10 +47,11 @@
           :disabled="city ? false : true"
           placeholder="请选择"
           size="mini"
+          @change="flag = false"
         >
           <el-option
             v-for="(item, index) in distinctList"
-            :key="item.id"
+            :key="index"
             :label="item.RegionName"
             :value="item.RegionId"
           />
@@ -85,8 +88,8 @@ export default {
   watch: {
     province: {
       handler(n, o) {
-        let newData = []
         this.getPddAddressModel(this.province, 'cityList', 'city')
+        let newData = []
         newData = this.provinceList.filter(item => {
           return item.RegionId === this.province
         })
@@ -127,19 +130,22 @@ export default {
   },
   methods: {
     async update(province, city, distinct) {
+      this.flag = true
       await this.getPddAddressModel('0', 'provinceList', 'province')
-      this.province = province
-      this.city = city
-      this.distinct = distinct
+      this.province = province.toString()
+      await this.getPddAddressModel(this.province, 'cityList', 'city')
+      this.city = city.toString()
+      await this.getPddAddressModel(this.city, 'distinctList', 'distinctList')
+      this.distinct = distinct.toString()
     },
     async init() {
+      this.flag = false
       await this.getPddAddressModel('0', 'provinceList', 'province')
     },
     async getPddAddressModel(id, list, val) {
       const res = await this.$BaseUtilService.getPddAddressModel(id)
       this[list] = res
       this[val] = this.flag ? this[val] : this[list][0].RegionId
-      console.log(this[val])
     },
     sendData() {
       this.$emit('sendData', this.addressData)

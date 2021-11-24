@@ -463,6 +463,9 @@ export default {
       this.$nextTick(() => {
         this.$refs.addressModel.update(row.province_id, row.city_id, row.distinct_id)
       })
+      console.log(this.itselfProvinceText)
+      console.log(this.itselfCityText)
+      console.log(this.itselfDistinctText)
     },
     // 修改绑定店铺弹窗
     async updateBindMall(row) {
@@ -793,6 +796,7 @@ export default {
       this.changeIndex++
     },
     sendData(val) {
+      console.log('addressData', val)
       this.itselfProvinceId = val.province_id
       this.itselfProvinceText = val.province_text
       this.itselfPityId = val.city_id
