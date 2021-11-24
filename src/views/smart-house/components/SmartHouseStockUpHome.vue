@@ -22,7 +22,7 @@
               v-for="(item, index) in widList"
               :key="index"
               :label="item.warehouse_name"
-              :value="item.id"
+              :value="item.wid"
             />
           </el-select>
         </li>
@@ -133,11 +133,14 @@
           align="center"
         />
         <el-table-column
-          prop="wid"
           label="中转仓"
           align="center"
           min-width="150"
-        />
+        >
+          <template slot-scope="{row}">
+            {{ row.warehouse_address?row.warehouse_address.warehouse_name:'' }}
+          </template>
+        </el-table-column>
         <el-table-column
           prop="created_at"
           label="预报时间"
@@ -355,7 +358,7 @@
                   v-for="(item, index) in foreignWidList"
                   :key="index"
                   :label="`${item.warehouse_name}(${item.detail_address})`"
-                  :value="item.id"
+                  :value="item.wid"
                 />
               </el-select>
             </li>
@@ -391,6 +394,7 @@
         &nbsp;&nbsp;&nbsp;&nbsp;2：导入商品会导入到对应的中转仓库，请选择好再导入
       </span>
       <el-table
+        v-loading="productLoading"
         height="420"
         :data="foreignData"
         :header-cell-style="{
@@ -851,8 +855,7 @@
                   <el-form label-position="right" label-width="80px">
                     <el-form-item label="备注信息:">
                       <el-input
-                        v-model="row.remark"
-                        v-fo
+                        v-model="skuList.remark[scope.$index]"
                         size="mini"
                         oninput="value=value.replace(/\s+/g,'')"
                       />
@@ -950,6 +953,7 @@
       :close-on-press-escape="false"
     >
       <el-table
+        v-loading="productSkuLoading"
         height="420"
         :data="skuDetailsData"
         :header-cell-style="{
@@ -1039,7 +1043,7 @@
 
 <script>
 import StrockUpHome from '../../../module-api/smart-house-api/strock-up-home'
-import { exportExcelDataCommon, exportPdfData, delay } from '../../../util/util'
+import { exportExcelDataCommon, exportPdfData } from '../../../util/util'
 import ProductChoose from '../../../components/product-choose.vue'
 import XLSX from 'xlsx'
 import { data } from 'cheerio/lib/api/attributes'
@@ -1055,6 +1059,8 @@ export default {
       skuDetailsVisible: false,
       isShowLoading: false,
       isDeleteLoading: false,
+      productLoading: false,
+      productSkuLoading: false,
       showConsole: true,
       isforeignClose: false,
       StrockUpHome: new StrockUpHome(this),
@@ -1172,24 +1178,23 @@ export default {
         })
       }
       this.delHomeForecast(data)
-      delay(1000)
-      this.getHomeWarehouse()
-      this.showConsole = false
-      this.isDeleteLoading = false
-      this.$forceUpdate()
     },
     delHomeForecast(data) {
       data.forEach(async item => {
         const res = await this.StrockUpHome.deleteHomeForecast(item.id)
         if (res.code === 200) {
           this.$refs.Logs.writeLog(`单号【${item.package_code}】:删除成功`, true)
+          this.tableData.splice(this.tableData.findIndex(tItem => tItem.id === item.id), 1)
         } else {
           this.$refs.Logs.writeLog(`单号【${item.package_code}】:${res.data}`, false)
         }
       })
+      this.showConsole = false
+      this.isDeleteLoading = false
     },
     // 获取中转仓
     async getWarehouseList() {
+      const myMap = new Map()
       const res = await this.StrockUpHome.getWarehouseList()
       if (res.code === 200) {
         res.data.forEach(item => {
@@ -1208,6 +1213,7 @@ export default {
             }
           }
         })
+        this.widList = this.widList.filter((item) => !myMap.has(item.id) && myMap.set(item.id, 1))
       } else {
         this.$message.error(`${res.data}`)
       }
@@ -1223,8 +1229,8 @@ export default {
     },
     // 初始仓库
     init() {
-      this.form.wid = this.widList[0].id
-      this.foreignWid = this.foreignWidList[0].id
+      this.form.wid = this.widList[0].wid
+      this.foreignWid = this.foreignWidList[0].wid
     },
     // 打开商品链接
     openUrl(row) {
@@ -1244,12 +1250,13 @@ export default {
         this.skuList.purchase_num[index] = '1'
         this.skuList.packageCode[index] = ''
         this.skuList.purchaseOrderSn[index] = ''
-        item.remark = ''
+        this.skuList.remark[index] = ''
       })
       this.skuDetailsVisible = false
     },
     // 获取产品中心列表数据
     async getProductList() {
+      this.productLoading = true
       this.productFrom.Page = this.productPage
       this.productFrom.PageSize = this.productPageSize
       this.productFrom.Status = Number(this.productFrom.Status)
@@ -1259,6 +1266,7 @@ export default {
       }
       this.productTotal = res.data.total
       this.productData = res.data.data
+      this.productLoading = false
       console.log('productData', this.productData)
     },
     // 发起商品预报
@@ -1322,7 +1330,8 @@ export default {
               width: this.skuList.width[index],
               height: this.skuList.height[index],
               weight: this.skuList.weight[index],
-              purchase_num: this.skuList.purchase_num[index]
+              purchase_num: this.skuList.purchase_num[index],
+              remark: this.skuList.remark[index]
             }
           ]
         }
@@ -1369,6 +1378,7 @@ export default {
     },
     // SKU详情
     async getProductSkuList(row) {
+      this.productSkuLoading = true
       const res = await this.StrockUpHome.getProductSkuList(row.product_id)
       if (res.code !== 200) {
         this.$message.error(res.data)
@@ -1377,6 +1387,7 @@ export default {
       this.skuDetailsData.map(item => {
         item.goods_name = row.product_name
       })
+      this.productSkuLoading = false
       console.log('skuDetailsData', this.skuDetailsData)
     },
     // 自有商品导入
@@ -1625,43 +1636,43 @@ export default {
     },
     // 导出数据
     async exportTableData() {
+      if (this.total === 0) return this.$message('暂无导出数据')
       this.isShowLoading = true
       const exportData = []
-      const len = this.total % this.pageSize === 0 ? this.total / this.pageSize : Math.floor(this.total / this.pageSize) + 1
-      for (let index = 0; index < len; index++) {
-        this.form.page = index
-        this.form.pageSize = this.pageSize
-        const res = await this.StrockUpHome.getHomeWarehouse(this.form)
+      let resData = []
+      const params = this.form
+      params.pageSize = this.pageSize
+      params.page = 1
+      while (resData.length < this.total) {
+        const res = await this.StrockUpHome.getHomeWarehouse(params)
         if (res.code === 200) {
-          const resData = res.data.data
-          resData.forEach(item => {
-            item.home_stocking_forecast_sub.forEach(skuItem => {
-              const obj = {}
-              obj['package_code'] = item.package_code
-              obj['purchase_order_sn'] = item.purchase_order_sn
-              obj['wid'] = item.wid
-              obj['created_at'] = item.created_at
-              obj['purchase_num'] = skuItem.purchase_num
-              obj['sign_num'] = skuItem.sign_num
-              obj['remark'] = item.remark
-              obj['status'] = skuItem.status
-              obj['sku_id'] = skuItem.sku_id
-              obj['goods_name'] = skuItem.goods_name
-              obj['sku_spec'] = skuItem.sku_spec
-              obj['sku_image'] = skuItem.sku_image
-              obj['goods_url'] = skuItem.goods_url
-              exportData.push(obj)
-            })
-          })
+          resData = resData.concat(res.data.data)
+          params.page++
         } else {
           this.$refs.Logs.writeLog('导出数据错误', res.data)
+          this.isShowLoading = false
+          break
         }
       }
-      if (!exportData?.length) {
-        this.isShowLoading = false
-        this.$message('暂无数据导出')
-        return
-      }
+      resData.forEach(item => {
+        item.home_stocking_forecast_sub.forEach(skuItem => {
+          const obj = {}
+          obj['package_code'] = item.package_code
+          obj['purchase_order_sn'] = item.purchase_order_sn
+          obj['warehouse_name'] = item.warehouse_address.warehouse_name
+          obj['created_at'] = item.created_at
+          obj['purchase_num'] = skuItem.purchase_num
+          obj['sign_num'] = skuItem.sign_num
+          obj['remark'] = item.remark
+          obj['status'] = skuItem.status
+          obj['sku_id'] = skuItem.sku_id
+          obj['goods_name'] = skuItem.goods_name
+          obj['sku_spec'] = skuItem.sku_spec
+          obj['sku_image'] = skuItem.sku_image
+          obj['goods_url'] = skuItem.goods_url
+          exportData.push(obj)
+        })
+      })
       let str = `<tr>
           <td>预报物流单号</td>
           <td>采购单号</td>
@@ -1681,7 +1692,7 @@ export default {
         str += `<tr>
         <td>${item.package_code ? item.package_code : '' + '\t'}</td>
         <td>${item.purchase_order_sn ? item.purchase_order_sn : '' + '\t'}</td>
-        <td>${item.wid ? item.wid : '' + '\t'}</td>
+        <td>${item.warehouse_name ? item.warehouse_name : '' + '\t'}</td>
         <td>${item.created_at ? item.created_at : '' + '\t'}</td>
         <td>${item.purchase_num ? item.purchase_num : '' + '\t'}</td>
         <td>${item.sign_num ? item.sign_num : '' + '\t'}</td>

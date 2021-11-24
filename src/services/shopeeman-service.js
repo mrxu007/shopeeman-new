@@ -100,7 +100,7 @@ export default class NetMessageBridgeService {
         referer: url + referer
       })
     }
-    console.log(url,JSON.stringify(options))
+    console.log(url, JSON.stringify(options))
     return this.NetMessageBridgeService().get(url, JSON.stringify(options))
   }
 
@@ -114,7 +114,7 @@ export default class NetMessageBridgeService {
           referer: url + referer
         })
     }
-    // console.log('-----', url, JSON.stringify(options))
+    // console.log(url, JSON.stringify(options))
     return this.NetMessageBridgeService().get(url, JSON.stringify(options))
   }
 
@@ -659,186 +659,185 @@ export default class NetMessageBridgeService {
     const res = await this.getChinese(country, '/api/v3/order/get_order_id_list', data)
     const resObj = res && JSON.parse(res)
     console.log(resObj)
-    if(resObj && resObj.status===200){
+    if (resObj && resObj.status === 200) {
       const info = JSON.parse(resObj.data)
-      if(info && info.code === 0){
-        return { code:200,data:info.data || [] }
-      }else{
-        return { code:50001,data:info.message || [] }
+      if (info && info.code === 0) {
+        return { code: 200, data: info.data || [] }
+      } else {
+        return { code: 50001, data: info.message || [] }
       }
-    }else{
-      return { code: resObj.status , data: `获取失败${resObj.statusText}`}
+    } else {
+      return { code: resObj.status, data: `获取失败${resObj.statusText}` }
     }
   }
   // 同步订单详情
   async getDetailsByOrderIds(country, data) {
-    const res =  await this.postChinese(country, '/api/v3/order/get_order_list_by_order_ids_multi_shop', data, { 
+    const res = await this.postChinese(country, '/api/v3/order/get_order_list_by_order_ids_multi_shop', data, {
       Headers: {
         'Content-Type': ' application/json'
       }
     })
     const resObj = res && JSON.parse(res)
     console.log(resObj)
-    if(resObj && resObj.status===200){
+    if (resObj && resObj.status === 200) {
       const info = JSON.parse(resObj.data)
-      if(info && info.code === 0){
-        return { code:200,data:info.data || [] }
-      }else{
-        return { code:50001,data:info.message || [] }
+      if (info && info.code === 0) {
+        return { code: 200, data: info.data || [] }
+      } else {
+        return { code: 50001, data: info.message || [] }
       }
-    }else{
-      return { code: resObj.status , data: `获取详情失败${resObj.statusText}`}
+    } else {
+      return { code: resObj.status, data: `获取详情失败${resObj.statusText}` }
     }
   }
-    // 同步单个订单详情
-    async getDetailsSinger(country, data) {
-      const res =  await this.postChinese(country, '/api/v3/order/get_one_order', data, { 
-        Headers: {
-          'Content-Type': ' application/json'
-        }
-      })
-      const resObj = res && JSON.parse(res)
-      console.log(resObj)
-      if(resObj && resObj.status===200){
-        const info = JSON.parse(resObj.data)
-        if(info && info.code === 0){
-          return { code:200,data:info.data || [] }
-        }else{
-          return { code:50001,data:info.message || [] }
-        }
-      }else{
-        return { code: resObj.status , data: `获取详情失败${resObj.statusText}`}
+  // 同步单个订单详情
+  async getDetailsSinger(country, data) {
+    const res = await this.postChinese(country, '/api/v3/order/get_one_order', data, {
+      Headers: {
+        'Content-Type': ' application/json'
       }
-    }
-  // 获取订单历史轨迹
-  async getOrdeTrackingHistory(country, data) {
-    const res =  await this.getChinese(country, '/api/v3/order/get_order_tracking_history/', data)
+    })
     const resObj = res && JSON.parse(res)
     console.log(resObj)
-    if(resObj && resObj.status===200){
+    if (resObj && resObj.status === 200) {
       const info = JSON.parse(resObj.data)
-      if(info && info.code === 0){
-        return { code:200,data:info.data || [] }
-      }else{
-        return { code:50001,data:info.message || [] }
+      if (info && info.code === 0) {
+        return { code: 200, data: info.data || [] }
+      } else {
+        return { code: 50001, data: info.message || [] }
       }
-    }else{
-      return { code: resObj.status , data: `订单历史轨迹${resObj.statusText}`}
+    } else {
+      return { code: resObj.status, data: `获取详情失败${resObj.statusText}` }
+    }
+  }
+  // 获取订单历史轨迹
+  async getOrdeTrackingHistory(country, data) {
+    const res = await this.getChinese(country, '/api/v3/order/get_order_tracking_history/', data)
+    const resObj = res && JSON.parse(res)
+    console.log(resObj)
+    if (resObj && resObj.status === 200) {
+      const info = JSON.parse(resObj.data)
+      if (info && info.code === 0) {
+        return { code: 200, data: info.data || [] }
+      } else {
+        return { code: 50001, data: info.message || [] }
+      }
+    } else {
+      return { code: resObj.status, data: `订单历史轨迹${resObj.statusText}` }
     }
   }
   // 获取订单交易记录
   async getIncomeTransactionHistoryDetail(country, data) {
-    const res =  await this.getChinese(country, '/api/v3/finance/income_transaction_history_detail/', data)
+    const res = await this.getChinese(country, '/api/v3/finance/income_transaction_history_detail/', data)
     const resObj = res && JSON.parse(res)
     console.log(resObj)
-    if(resObj && resObj.status===200){
+    if (resObj && resObj.status === 200) {
       const info = JSON.parse(resObj.data)
-      if(info && info.code === 0){
-        return { code:200,data:info.data || [] }
-      }else{
-        return { code:50001,data:info.message || [] }
+      if (info && info.code === 0) {
+        return { code: 200, data: info.data || [] }
+      } else {
+        return { code: 50001, data: info.message || [] }
       }
-    }else{
-      return { code: resObj.status , data: `订单历史轨迹${resObj.statusText}`}
+    } else {
+      return { code: resObj.status, data: `订单历史轨迹${resObj.statusText}` }
     }
   }
-  //获取物流轨迹的发货时间
+  // 获取物流轨迹的发货时间
   async getLogisticsTrackingHistory(country, data) {
-    const res =  await this.getChinese(country, '/api/v3/logistics/get_logistics_tracking_history', data)
+    const res = await this.getChinese(country, '/api/v3/logistics/get_logistics_tracking_history', data)
     const resObj = res && JSON.parse(res)
     console.log(resObj)
-    if(resObj && resObj.status===200){
+    if (resObj && resObj.status === 200) {
       const info = JSON.parse(resObj.data)
-      if(info && info.code === 0){
-        return { code:200,data:info.data || [] }
-      }else{
-        return { code:50001,data:info.message || [] }
+      if (info && info.code === 0) {
+        return { code: 200, data: info.data || [] }
+      } else {
+        return { code: 50001, data: info.message || [] }
       }
-    }else{
-      return { code: resObj.status , data: `订单历史轨迹${resObj.statusText}`}
+    } else {
+      return { code: resObj.status, data: `订单历史轨迹${resObj.statusText}` }
     }
   }
-   //获取物流轨迹的发货时间 ---单个退货退款订单物流详情---售后订单
-   async getLogisticsTrackingHistoryRefund(country, data) {
-    const res =  await this.getChinese(country, '/api/v1/return/reverse_logistics_tracking_history/ ', data)
+  // 获取物流轨迹的发货时间 ---单个退货退款订单物流详情---售后订单
+  async getLogisticsTrackingHistoryRefund(country, data) {
+    const res = await this.getChinese(country, '/api/v1/return/reverse_logistics_tracking_history/ ', data)
     const resObj = res && JSON.parse(res)
     console.log(resObj)
-    if(resObj && resObj.status===200){
+    if (resObj && resObj.status === 200) {
       const info = JSON.parse(resObj.data)
-      if(info && info.code === 0){
-        return { code:200,data:info.data || [] }
-      }else{
-        return { code:50001,data:info.message || [] }
+      if (info && info.code === 0) {
+        return { code: 200, data: info.data || [] }
+      } else {
+        return { code: 50001, data: info.message || [] }
       }
-    }else{
-      return { code: resObj.status , data: `订单历史轨迹${resObj.statusText}`}
+    } else {
+      return { code: resObj.status, data: `订单历史轨迹${resObj.statusText}` }
     }
   }
-  //获取状态to ship的订单
-  async getToShipOrderIdList(country, data){
+  // 获取状态to ship的订单
+  async getToShipOrderIdList(country, data) {
     const res = await this.getChinese(country, '/api/v3/order/get_package_list', data)
     const resObj = res && JSON.parse(res)
     console.log(resObj)
-    if(resObj && resObj.status===200){
+    if (resObj && resObj.status === 200) {
       const info = JSON.parse(resObj.data)
-      if(info && info.code === 0){
-        return { code:200,data:info.data || [] }
-      }else{
-        return { code:50001,data:info.message || [] }
+      if (info && info.code === 0) {
+        return { code: 200, data: info.data || [] }
+      } else {
+        return { code: 50001, data: info.message || [] }
       }
-    }else{
-      return { code: resObj.status , data: `获取失败${resObj.statusText}`}
+    } else {
+      return { code: resObj.status, data: `获取失败${resObj.statusText}` }
     }
   }
-  //获取状态Refund的订单
-  async getRefundOrderIdList(country, data){
+  // 获取状态Refund的订单
+  async getRefundOrderIdList(country, data) {
     const res = await this.getChinese(country, '/api/v1/return/list', data)
     const resObj = res && JSON.parse(res)
     console.log(resObj)
-    if(resObj && resObj.status===200){
+    if (resObj && resObj.status === 200) {
       const info = JSON.parse(resObj.data)
-      if(info && info.code === 0){
-        return { code:200,data:info.data || [] }
-      }else{
-        return { code:50001,data:info.message || [] }
+      if (info && info.code === 0) {
+        return { code: 200, data: info.data || [] }
+      } else {
+        return { code: 50001, data: info.message || [] }
       }
-    }else{
-      return { code: resObj.status , data: `获取失败${resObj.statusText}`}
+    } else {
+      return { code: resObj.status, data: `获取失败${resObj.statusText}` }
     }
   }
-    //获取状态Refund的订单详情
-    async getRefundOrderDetail(country, data){
-      const res = await this.getChinese(country, '/api/v1/return/detail', data)
-      const resObj = res && JSON.parse(res)
-      console.log(resObj)
-      if(resObj && resObj.status===200){
-        const info = JSON.parse(resObj.data)
-        if(info && info.code === 0){
-          return { code:200,data:info.data || [] }
-        }else{
-          return { code:50001,data:info.message || [] }
-        }
-      }else{
-        return { code: resObj.status , data: `获取失败${resObj.statusText}`}
+  // 获取状态Refund的订单详情
+  async getRefundOrderDetail(country, data) {
+    const res = await this.getChinese(country, '/api/v1/return/detail', data)
+    const resObj = res && JSON.parse(res)
+    console.log(resObj)
+    if (resObj && resObj.status === 200) {
+      const info = JSON.parse(resObj.data)
+      if (info && info.code === 0) {
+        return { code: 200, data: info.data || [] }
+      } else {
+        return { code: 50001, data: info.message || [] }
       }
+    } else {
+      return { code: resObj.status, data: `获取失败${resObj.statusText}` }
     }
-  //申请运单号
-  async getForderLogistics(country, data){
+  }
+  // 申请运单号
+  async getForderLogistics(country, data) {
     const res = await this.getChinese(country, '/api/v3/order/get_forder_logistics/', data)
     const resObj = res && JSON.parse(res)
     console.log(resObj)
-    if(resObj && resObj.status===200){
+    if (resObj && resObj.status === 200) {
       const info = JSON.parse(resObj.data)
-      if(info && info.code === 0){
-        return { code:200,data:info.data || [] }
-      }else{
-        return { code:50001,data:info.message || [] }
+      if (info && info.code === 0) {
+        return { code: 200, data: info.data || [] }
+      } else {
+        return { code: 50001, data: info.message || [] }
       }
-    }else{
-      return { code: resObj.status , data: `获取失败${resObj.statusText}`}
+    } else {
+      return { code: resObj.status, data: `获取失败${resObj.statusText}` }
     }
   }
-
 
   // 获取地址
   getNextLevelAddresses(country, data, option) {
@@ -869,6 +868,16 @@ export default class NetMessageBridgeService {
   // 创建活动
   discount(country, data, option) {
     return this.postChinese(country, '/api/marketing/v3/discount/', data, option)
+  }
+
+  // 获取品牌词库
+  getBrandList(country, data, option) {
+    return this.getChinese(country, '/api/v3/category/get_brand_list', data, option)
+  }
+
+  // 获取类目属性
+  getAttributeTree(country, data, option) {
+    return this.getChinese(country, '/api/v3/category/get_attribute_tree/', data, option)
   }
 }
 

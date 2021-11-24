@@ -1,7 +1,7 @@
 /**
  * 海外仓出库订单
  */
-export default class BroadDeliveryOrder {
+export default class ChineseDeliveryOrder {
   constructor(that) {
     this._this = that
   }
@@ -55,15 +55,15 @@ export default class BroadDeliveryOrder {
       return { code: -2, data: `获取海外仓补件数据异常${error}` }
     }
   }
-  // 海外仓出库订单：列表
-  async getOutOfStockList(val) {
+  // 国内出库单: 列表
+  async getHomeOutStockOrder(val) {
     try {
-      const created_time = val.created_time ? `
-      ${this._this.$dayjs(val.created_time[0]).format('YYYY-MM-DD 00:00:00')}/
-      ${this._this.$dayjs(val.created_time[1]).format('YYYY-MM-DD 23:59:59')}` : ''
+      const createdAt = val.createdAt ? `
+      ${this._this.$dayjs(val.createdAt[0]).format('YYYY-MM-DD 00:00:00')}/
+      ${this._this.$dayjs(val.createdAt[1]).format('YYYY-MM-DD 23:59:59')}` : ''
       const pamars = JSON.parse(JSON.stringify(val))
-      pamars.created_time = created_time
-      const res = await this._this.$api.getOutOfStockList(pamars)
+      pamars.createdAt = createdAt
+      const res = await this._this.$api.getHomeOutStockOrder(pamars)
       if (res.data.code === 200) {
         return { code: 200, data: res.data.data }
       }
@@ -73,15 +73,15 @@ export default class BroadDeliveryOrder {
     }
   }
   // 获取仓库
-  async getOverseasWarehouse() {
+  async getWarehouseList() {
     try {
-      const res = await this._this.$api.getOverseasWarehouse()
+      const res = await this._this.$api.getWarehouseList()
       if (res.data.code === 200) {
         return { code: 200, data: res.data.data }
       }
       return { code: res.data.code, data: `${res.data.message}` }
     } catch (error) {
-      return { code: -2, data: `获取仓库列表异常： ${error}` }
+      return { code: -2, data: `获取仓库异常： ${error}` }
     }
   }
 }

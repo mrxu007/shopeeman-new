@@ -8,112 +8,420 @@
               <div v-for="item in keyworBar" :key="item.value" class="barChilren" :class="{ active: currentKeywordPlatform === item.value }" @click="switchPlatform(item)">{{ item.label }}</div>
             </div>
             <div class="keyword-banner-content">
-              <div class="con-sub-1">
+              <ul class="item con-sub-1">
                 <!-- 公共属性 -->
-                <div class="item">
-                  <p>开始页码:</p>
+                <li v-show="isShowPdd">
+                  <el-radio v-model="commonAttr.pddRadio" :label="1">云端采集(无需账号)</el-radio>
+                  <!-- <el-radio v-model="radio" label="2">备选项</el-radio> -->
+                </li>
+                <li v-show="isShowPage">
+                  <p>开始页码：</p>
                   <el-input v-model="commonAttr.StartPage" size="mini" />
-                  <p>总页码:</p>
+                  <p>总页码：</p>
                   <el-input v-model="commonAttr.EndPage" size="mini" />
-                </div>
-                <div class="item">
-                  <p>销售区间:</p>
-                  <el-input v-model="commonAttr.StartSales" size="mini" />
-                  <p>-</p>
-                  <el-input v-model="commonAttr.EndSales" size="mini" />
-                </div>
-                <div class="item">
-                  <p>价格区间:</p>
-                  <el-input v-model="commonAttr.StartPrice" size="mini" />
-                  <p>-</p>
-                  <el-input v-model="commonAttr.EndPrice" size="mini" />
-                </div>
-                <!-- 虾皮 -->
-                <div class="item">
-                  <p>站点:</p>
-                  <el-select v-model="commonAttr.shopeeSiteCode" placeholder="" size="mini" @change="getShopeeGoodsPlace">
-                    <el-option v-for="(item, index) in commonAttr.shopeeSite" :key="index" :label="item.label" :value="item.value" />
-                  </el-select>
-                  <p>站点2:</p>
-                  <el-select v-model="commonAttr.lazadaSiteCode" placeholder="" size="mini" @change="getShopeeGoodsPlace">
-                    <el-option v-for="(item, index) in commonAttr.lazadaSite" :key="index" :label="item.label" :value="item.value" />
-                  </el-select>
-                  <p>排序方式:</p>
+                  <span v-show="isShowPageSize20" class="tip">20条/页</span>
+                  <span v-show="isShowPageSize50" class="tip">50条/页,最多50页</span>
+                </li>
+                <li v-show="isShowTaobao">
+                  <p>排序方式：</p>
                   <el-select v-model="commonAttr.shopeeSortTypeVal" placeholder="" size="mini">
                     <el-option v-for="(item, index) in commonAttr.shopeeSortType" :key="index" :label="item.label" :value="item.value" />
                   </el-select>
-                  <p>排序方式alibaba:</p>
+                </li>
+                <li v-show="isShowTaobao">
+                  <p>单词最大：</p>
+                  <el-input v-model="wordLimit" placeholder="" size="mini" />
+                </li>
+
+                <li v-show="isShowSales">
+                  <p>销量区间：</p>
+                  <el-input v-model="commonAttr.StartSales" size="mini" />
+                  <span class="slot">-</span>
+                  <el-input v-model="commonAttr.EndSales" size="mini" />
+                </li>
+                <li v-show="isShowPrice">
+                  <p>价格区间：</p>
+                  <el-input v-model="commonAttr.StartPrice" size="mini" />
+                  <span class="slot">-</span>
+                  <el-input v-model="commonAttr.EndPrice" size="mini" />
+                </li>
+
+                <!-- 虾皮 -->
+                <li v-show="isShowShopeeSite" class="li-shopee">
+                  <p>站点：</p>
+                  <el-select v-model="commonAttr.shopeeSiteCode" placeholder="" size="mini" @change="getShopeeGoodsPlace">
+                    <el-option v-for="(item, index) in commonAttr.shopeeSite" :key="index" :label="item.label" :value="item.value" />
+                  </el-select>
+                  <p class="li-shopee-spec">排序方式：</p>
+                  <el-select v-model="commonAttr.shopeeSortTypeVal" placeholder="" size="mini">
+                    <el-option v-for="(item, index) in commonAttr.shopeeSortType" :key="index" :label="item.label" :value="item.value" />
+                  </el-select>
+                </li>
+                <li v-show="isShowShopeeSite" class="li-shopee">
+                  <p>出货地点：</p>
+                  <el-select v-model="commonAttr.shopeePlaceVal" placeholder="" size="mini" multiple collapse-tags @change="selectShopeePlaceValEvent">
+                    <el-checkbox v-model="isSelectAll" label="全部" @change="selectShopeeAllEvent" />
+                    <el-option v-for="(item, index) in commonAttr.shopeePlaceOrigin" :key="index" :label="item.label" :value="item.value" />
+                  </el-select>
+                  <el-checkbox v-model="commonAttr.isShopeeOffice" class="li-shopee-spec" label="全部">过滤虾皮官方店铺商品</el-checkbox>
+                </li>
+                <!-- lazada -->
+                <li v-show="isShowLazadaSite">
+                  <p>站点：</p>
+                  <el-select v-model="commonAttr.lazadaSiteCode" placeholder="" size="mini" @change="getLazadaGoodsPlace">
+                    <el-option v-for="(item, index) in commonAttr.lazadaSite" :key="index" :label="item.label" :value="item.value" />
+                  </el-select>
+                </li>
+                <li v-show="isShowLazadaSite">
+                  <div v-for="(item, itemKey, index) in commonAttr.lazadaPlaceOrigin" :key="index">
+                    <p style="min-width: 128px">{{ itemKey }}</p>
+                    <el-select v-model="commonAttr[`lazadaPlaceVal${index}`]" placeholder="" size="mini" multiple collapse-tags @change="selectLazadaPlaceValEvent(itemKey, index)">
+                      <el-checkbox v-model="isSelectAll2[index]" label="全部" @change="selectLazadaAllEvent(itemKey, index)" />
+                      <el-option v-for="(subItem, subIndex) in item" :key="subIndex" :label="subItem.label" :value="subItem.value" />
+                    </el-select>
+                  </div>
+                </li>
+                <li v-show="isShowSort">
+                  <p>排序方式：</p>
                   <el-select v-model="commonAttr.alibabaSortTypeVal" placeholder="" size="mini">
                     <el-option v-for="(item, index) in commonAttr.alibabaSortType" :key="index" :label="item.label" :value="item.value" />
                   </el-select>
-                </div>
-                <div v-for="(item, itemKey, index) in commonAttr.lazadaPlace" :key="index" class="item">
-                  <p>{{ itemKey }}</p>
-                  <el-select v-model="commonAttr.lazadaPlaceVal[index]" placeholder="" size="mini" multiple collapse-tags @change="selectPlaceValEvent2(index)">
-                    <el-checkbox v-model="isSelectAll2[index]" label="全部" @change="selectAllEvent2(index)" />
-                    <el-option v-for="(subItem, subIndex) in item" :key="subIndex" :label="subItem.label" :value="subItem.value" />
-                  </el-select>
-                </div>
-
-                <div class="item">
-                  <p>出货地点:</p>
-                  <el-select v-model="commonAttr.placeVal" placeholder="" size="mini" multiple collapse-tags @change="selectPlaceValEvent">
-                    <el-checkbox v-model="isSelectAll" label="全部" @change="selectAllEvent" />
-                    <el-option v-for="(item, index) in commonAttr.placeOrigin" :key="index" :label="item.label" :value="item.value" />
-                  </el-select>
-                </div>
-                <div class="item">
-                  <p>创建时间:</p>
-                  <el-input size="mini" />
-                </div>
+                </li>
+                <li v-show="isShowCreateAt">
+                  <p>创建时间：</p>
+                  <el-date-picker
+                    v-model="value2"
+                    type="daterange"
+                    align="right"
+                    unlink-panels
+                    range-separator="-"
+                    start-placeholder="开始日期"
+                    end-placeholder="结束日期"
+                    :picker-options="pickerOptions"
+                    value-format="yyyy-MM-dd"
+                    size="mini"
+                  />
+                </li>
+              </ul>
+              <div class="item con-sub-3">
+                <p class="text">关键词(一行一个)<span v-show="isShowKeyTip" style="color: red">（采集请使用对应的站点语言搜索）</span></p>
+                <el-input v-model="key" size="mini" type="textarea" :rows="8" resize="none" />
               </div>
-              <div class="con-sub-2">
-                <div class="item">
-                  <p>关键词(一行一个)</p>
-                  <el-input v-model="key" size="mini" type="textarea" :rows="8" resize="none" />
-                </div>
-                <div class="item">
-                  <p>过滤关键词(一行一个)</p>
-                  <el-input v-model="commonAttr.keyFilter" size="mini" type="textarea" :rows="8" resize="none" />
-                </div>
+              <div class="item con-sub-3">
+                <p class="text">过滤关键词(一行一个)</p>
+                <el-input v-model="commonAttr.keyFilter" size="mini" type="textarea" :rows="8" resize="none" />
               </div>
-              <!-- 复用操作按钮 -->
-              <div class="con-sub-3">
-                <div class="item">
+              <!--操作按钮 -->
+              <ul class="item con-sub-2">
+                <li>
                   <el-button type="primary" size="mini" @click="StartCollection">开始采集</el-button>
                   <el-button type="primary" size="mini">取消采集</el-button>
-                </div>
-                <div class="item">
-                  <p>起:</p>
+                </li>
+                <li class="li-item-2">
+                  <p>起：</p>
                   <el-input size="mini" placeholder="" />
-                  <p>止:</p>
+                  <p>止：</p>
                   <el-input size="mini" placeholder="" />
-                </div>
-                <div class="item">
+                </li>
+                <li>
                   <el-button type="primary" size="mini">收藏商品</el-button>
                   <el-button type="primary" size="mini">编辑上新</el-button>
-                </div>
-                <div class="item">
+                </li>
+                <li>
                   <el-button type="primary" size="mini">插件采集</el-button>
                   <el-button type="primary" size="mini">清理全部</el-button>
-                </div>
-                <div class="item">
+                </li>
+                <li>
                   <el-button type="primary" size="mini">导出数据</el-button>
                   <el-button type="primary" size="mini">批量删除</el-button>
+                </li>
+              </ul>
+              <div class="item">
+                <p class="text">执行日志</p>
+                <div class="con-sub-5">
+                  <div class="con-sub-5-log" v-html="consoleMsg" />
                 </div>
-              </div>
-              <div class="con-sub-4">
-                <div class="con-sub5-log" v-html="consoleMsg" />
               </div>
             </div>
           </div>
         </el-tab-pane>
-        <el-tab-pane label="商品链接采集" name="second" />
-        <el-tab-pane label="整店采集" name="third" />
-        <el-tab-pane label="定时任务补偿" name="fourth" />
+        <el-tab-pane label="商品链接采集" name="second">
+          <div class="link-container">
+            <div class="item linkcon-sub-1">
+              <p class="text">商品链接: 一行一个</p>
+              <el-input v-model="linkKey" size="mini" type="textarea" :rows="8" resize="none" />
+            </div>
+            <ul class="item linkcon-sub-2">
+              <li>
+                <el-button type="primary" size="mini" @click="StartCollection">开始采集</el-button>
+                <el-button type="primary" size="mini">取消采集</el-button>
+              </li>
+              <li class="li-item-2">
+                <p>起：</p>
+                <el-input size="mini" placeholder="" />
+                <p>止：</p>
+                <el-input size="mini" placeholder="" />
+              </li>
+              <li>
+                <el-button type="primary" size="mini">收藏商品</el-button>
+                <el-button type="primary" size="mini">编辑上新</el-button>
+              </li>
+              <li>
+                <el-button type="primary" size="mini">插件采集</el-button>
+                <el-button type="primary" size="mini">清理全部</el-button>
+              </li>
+              <li>
+                <el-button type="primary" size="mini">下载模板</el-button>
+                <el-button type="primary" size="mini">链接导入</el-button>
+              </li>
+              <li>
+                <el-button type="primary" size="mini">导出数据</el-button>
+                <el-button type="primary" size="mini">批量删除</el-button>
+              </li>
+            </ul>
+            <div class="item">
+              <p class="text">执行日志</p>
+              <div class="linkcon-sub-4">
+                <div class="linkcon-sub-4-log" v-html="consoleMsg" />
+              </div>
+            </div>
+          </div>
+        </el-tab-pane>
+        <el-tab-pane label="整店采集" name="third">
+          <div class="entires-container">
+            <ul class="item con-sub-1">
+              <li v-show="isShowSales">
+                <p>销量区间：</p>
+                <el-input v-model="commonAttr.StartSales" size="mini" />
+                <span class="slot">-</span>
+                <el-input v-model="commonAttr.EndSales" size="mini" />
+              </li>
+              <li v-show="isShowPrice">
+                <p>价格区间：</p>
+                <el-input v-model="commonAttr.StartPrice" size="mini" />
+                <span class="slot">-</span>
+                <el-input v-model="commonAttr.EndPrice" size="mini" />
+              </li>
+            </ul>
+            <div class="item con-sub-3">
+              <p class="text">店铺链接：一行一个<span v-show="isShowKeyTip" style="color: red">（采集请使用对应的站点语言搜索）</span></p>
+              <el-input v-model="key" size="mini" type="textarea" :rows="8" resize="none" />
+            </div>
+            <div class="item con-sub-3">
+              <p class="text">过滤违规词：一行一个</p>
+              <el-input v-model="commonAttr.keyFilter" size="mini" type="textarea" :rows="8" resize="none" />
+            </div>
+            <!--操作按钮 -->
+            <ul class="item con-sub-2">
+              <li>
+                <el-button type="primary" size="mini" @click="StartCollection">开始采集</el-button>
+                <el-button type="primary" size="mini">取消采集</el-button>
+              </li>
+              <li class="li-item-2">
+                <p>起：</p>
+                <el-input size="mini" placeholder="" />
+                <p>止：</p>
+                <el-input size="mini" placeholder="" />
+              </li>
+              <li>
+                <el-button type="primary" size="mini">收藏商品</el-button>
+                <el-button type="primary" size="mini">编辑上新</el-button>
+              </li>
+              <li>
+                <el-button type="primary" size="mini">插件采集</el-button>
+                <el-button type="primary" size="mini">清理全部</el-button>
+              </li>
+              <li>
+                <el-button type="primary" size="mini">导出数据</el-button>
+                <el-button type="primary" size="mini">批量删除</el-button>
+              </li>
+            </ul>
+            <div class="item">
+              <p class="text">执行日志</p>
+              <div class="con-sub-5">
+                <div class="con-sub-5-log" v-html="consoleMsg" />
+              </div>
+            </div>
+          </div>
+        </el-tab-pane>
+        <el-tab-pane label="图搜同款" name="fourth">
+          <div class="picture-container">
+            <ul class="item con-sub-1">
+              <li>
+                <p>价格：</p>
+                <el-input v-model="commonAttr.StartPrice" size="mini" />
+                <span class="slot">-</span>
+                <el-input v-model="commonAttr.EndPrice" size="mini" />
+              </li>
+              <li>
+                <p>平台：</p>
+                <el-select v-model="commonAttr.pictureSearchPlatformId" placeholder="" size="mini">
+                  <el-option v-for="(item, index) in pictureSearchOrigin" :key="index" :label="item.label" :value="item.value" />
+                </el-select>
+                <el-button type="primary" size="mini">选择图片</el-button>
+              </li>
+            </ul>
+            <div class="item con-sub-3" />
+            <!--操作按钮 -->
+            <ul class="item con-sub-2">
+              <li>
+                <el-button type="primary" size="mini" @click="StartCollection">开始采集</el-button>
+                <el-button type="primary" size="mini">取消采集</el-button>
+              </li>
+              <li class="li-item-2">
+                <p>起：</p>
+                <el-input v-model="start" size="mini" placeholder="" />
+                <p>止：</p>
+                <el-input v-model="end" size="mini" placeholder="" />
+              </li>
+              <li>
+                <el-button type="primary" size="mini">收藏商品</el-button>
+                <el-button type="primary" size="mini">编辑上新</el-button>
+              </li>
+              <li>
+                <el-button type="primary" size="mini">插件采集</el-button>
+                <el-button type="primary" size="mini">清理全部</el-button>
+              </li>
+              <li>
+                <el-button type="primary" size="mini">导出数据</el-button>
+                <el-button type="primary" size="mini">批量删除</el-button>
+              </li>
+            </ul>
+            <div class="item">
+              <p class="text">执行日志</p>
+              <div class="con-sub-5">
+                <div class="con-sub-5-log" v-html="consoleMsg" />
+              </div>
+            </div>
+          </div>
+        </el-tab-pane>
+        <el-tab-pane label="天猫淘宝海外平台采集" name="fifith">
+          <div class="TMTB-container">
+            <ul class="item con-sub-1">
+              <li>
+                <p>选择账号：</p>
+                <el-select v-model="commonAttr.alibabaSortTypeVal" placeholder="" size="mini">
+                  <el-option v-for="(item, index) in commonAttr.alibabaSortType" :key="index" :label="item.label" :value="item.value" />
+                </el-select>
+              </li>
+              <li>
+                <p>起始时间：</p>
+                <el-date-picker
+                  v-model="value2"
+                  type="daterange"
+                  align="right"
+                  unlink-panels
+                  range-separator="-"
+                  start-placeholder="开始日期"
+                  end-placeholder="结束日期"
+                  :picker-options="pickerOptions"
+                  value-format="yyyy-MM-dd"
+                  size="mini"
+                />
+              </li>
+            </ul>
+            <!--操作按钮 -->
+            <ul class="item con-sub-2">
+              <li>
+                <el-button type="primary" size="mini" @click="StartCollection">开始采集</el-button>
+                <el-button type="primary" size="mini">取消采集</el-button>
+              </li>
+              <li class="li-item-2">
+                <p>起：</p>
+                <el-input v-model="start" size="mini" placeholder="" />
+                <p>止：</p>
+                <el-input v-model="end" size="mini" placeholder="" />
+              </li>
+              <li>
+                <el-button type="primary" size="mini">收藏商品</el-button>
+                <el-button type="primary" size="mini">编辑上新</el-button>
+              </li>
+              <li>
+                <el-button type="primary" size="mini">插件采集</el-button>
+                <el-button type="primary" size="mini">清理全部</el-button>
+              </li>
+              <li>
+                <el-button type="primary" size="mini">导出数据</el-button>
+                <el-button type="primary" size="mini">批量删除</el-button>
+              </li>
+            </ul>
+            <div class="item">
+              <p class="text">执行日志</p>
+              <div class="con-sub-5">
+                <div class="con-sub-5-log" v-html="consoleMsg" />
+              </div>
+            </div>
+          </div>
+        </el-tab-pane>
+        <el-tab-pane label="采集设置" name="sixth">
+          <div class="collection-settings">
+            <ul class="item left">
+              <li class="text">采集设置</li>
+              <li>
+                <el-checkbox label="启动买手号采集" />
+                <p class="tip">（开启买手号，可提高收藏收藏率）</p>
+              </li>
+              <li>
+                <el-checkbox label="过滤多余的SKU" />
+                <p class="tip">（勾选多余的SKU，删除所有sku图）</p>
+              </li>
+              <li>
+                <el-checkbox label="规格图重复时，删除所有sku图" />
+              </li>
+              <li>
+                <el-checkbox label="启动lazada发货天数过滤商品" />
+                <p class="tip2">lazada发货天数：</p>
+                <el-input placeholder="" size="mini" />
+                <span>--</span>
+                <el-input placeholder="" size="mini" />
+              </li>
+              <li>
+                <el-checkbox label="启动虾皮发货天数过滤商品" />
+                <p class="tip2">虾皮发货天数：</p>
+                <el-input placeholder="" size="mini" />
+                <span>--</span>
+                <el-input placeholder="" size="mini" />
+              </li>
+              <li>
+                <p class="tip">收藏时过滤掉不在此发货天数区间的商品</p>
+              </li>
+              <li>
+                <el-checkbox label="采集描述为空的数据" />
+              </li>
+              <li>
+                <p>收藏时过滤商品发货地址（仅Shopee可用）：</p>
+                <el-select placeholder="" size="mini">
+                  <el-option />
+                </el-select>
+              </li>
+            </ul>
+            <ul class="item right">
+              <li class="text">翻译设置</li>
+              <li>
+                <p>翻译缓存时间：</p>
+                <el-date-picker
+                  v-model="value2"
+                  type="daterange"
+                  align="right"
+                  unlink-panels
+                  range-separator="-"
+                  start-placeholder="开始日期"
+                  end-placeholder="结束日期"
+                  :picker-options="pickerOptions"
+                  value-format="yyyy-MM-dd"
+                  size="mini"
+                />
+                <el-button type="primary" size="mini">清理</el-button>
+              </li>
+              <li>
+                <el-button type="primary" size="mini">清理缓存数据</el-button>
+              </li>
+            </ul>
+          </div>
+        </el-tab-pane>
       </el-tabs>
     </header>
-    <article>
+    <article v-show="activeName !== 'sixth'">
       <u-table
         ref="plTable"
         :max-height="Height"
@@ -132,7 +440,7 @@
         <u-table-column align="center" label="主图">
           <template v-slot="{ row }">
             <div style="justify-content: center; display: flex">
-              <img :src="row.Image" style="width: 56px; height: 56px" />
+              <img :src="row.Image" style="width: 56px; height: 56px">
             </div>
           </template>
         </u-table-column>
@@ -160,7 +468,10 @@
 
 <script>
 import CollectKeyWordApI from './collection-keyword-api'
-import { getPlatform, platformObj, getSitePlace, getSiteRelation, getLazadaSitePlace } from './collection-platformId'
+import CollectLinkApI from './collection-link-api'
+import { dateFormat, delay } from '../../../util/util'
+// getSiteRelation
+import { shopeeSite, lazadaSite, pictureSearchOrigin, getPlatform, platformObj, getShopeeSitePlace, getLazadaSitePlace } from './collection-platformId'
 import testData from './testData'
 export default {
   props: {
@@ -181,8 +492,10 @@ export default {
   data() {
     return {
       Height: 650,
-      activeName: 'first',
-      CollectKeyWordApInstance: new CollectKeyWordApI(this),
+      activeName: 'sixth',
+      CollectKeyWordApInstance: new CollectKeyWordApI(this), // 关键词采集
+      CollectLinkApInstance: new CollectLinkApI(this), // 链接采集
+
       // table attr
       multipleSelection: [],
       goodsList: [],
@@ -192,15 +505,19 @@ export default {
         keyword: false
       },
       // keyWord search
-      currentKeywordPlatform: 11,
+      currentKeywordPlatform: 1,
       commonAttr: {
         // 拼多多 淘宝 参数
+        pddRadio: 1,
         StartPage: 1,
         EndPage: 2,
         StartSales: 0,
         EndSales: 999999999,
         StartPrice: 0,
         EndPrice: 999999999,
+
+        // 淘宝参数
+        wordLimit: 10,
         // shopee参数
         shopeeSortType: [
           { label: '价格从低到高', value: 'price,asc' },
@@ -208,13 +525,46 @@ export default {
           { label: '销量从低到高', value: 'sales,asc' },
           { label: '销量从高到低', value: 'sales,desc' }
         ],
+        isShopeeOffice: false,
         shopeeSortTypeVal: 'price,asc',
-        placeOrigin: '',
-        placeVal: [],
         shopeeSite: [],
-        lazadaSite: [],
         shopeeSiteCode: 'TW',
+        shopeePlaceOrigin: '',
+        shopeePlaceVal: [],
+        // Lazada
+        lazadaSite: [],
         lazadaSiteCode: 'ID',
+        lazadaPlaceOrigin: {},
+        lazadaPlaceVal0: [],
+        lazadaPlaceVal1: [],
+        pickerOptions: {
+          shortcuts: [{
+            text: '最近一周',
+            onClick(picker) {
+              const end = new Date()
+              const start = new Date()
+              start.setTime(start.getTime() - 3600 * 1000 * 24 * 7)
+              picker.$emit('pick', [start, end])
+            }
+          }, {
+            text: '最近一个月',
+            onClick(picker) {
+              const end = new Date()
+              const start = new Date()
+              start.setTime(start.getTime() - 3600 * 1000 * 24 * 30)
+              picker.$emit('pick', [start, end])
+            }
+          }, {
+            text: '最近三个月',
+            onClick(picker) {
+              const end = new Date()
+              const start = new Date()
+              start.setTime(start.getTime() - 3600 * 1000 * 24 * 90)
+              picker.$emit('pick', [start, end])
+            }
+          }]
+        },
+        value2: '',
         // 1688 参数
         alibabaSortType: [
           { label: '综合排序', value: 'pop' },
@@ -224,32 +574,90 @@ export default {
           { label: '销量从高到低', value: 'booked_true' }
         ],
         alibabaSortTypeVal: 'pop',
-
-        // Lazada
-        lazadaPlace: {},
-        lazadaPlaceVal: [[], []]
+        pictureSearchPlatformId: ''
       },
       // 基础参数
+      start: 1,
+      end: 5000,
       key: '',
+      linkKey: '',
       keyFilter: '',
       isSelectAll: false,
       isSelectAll2: [
         false, false
       ],
-      consoleMsg: ''
+      consoleMsg: '',
+      // 图搜同款
+      pictureSearchOrigin: []
     }
   },
   computed: {
     keyworBar() {
-      const value = getPlatform(this.baseConfig.keywordConfig)
-      return value
+      return getPlatform(this.baseConfig.keywordConfig)
+    },
+    // 1 拼多多    2 淘宝/天猫  11 虾皮    8 1688   1.2 拼多多优惠采集
+    // 10 京喜/京东     12 速卖通    9  lazada
+    isShowPdd() { // 是否显示页码
+      const supportPlarm = [1]
+      return supportPlarm.includes(this.currentKeywordPlatform)
+    },
+    isShowPage() { // 是否显示页码
+      const supportPlarm = [1, 11, 8, 1.2, 10, 12, 9]
+      return supportPlarm.includes(this.currentKeywordPlatform)
+    },
+
+    isShowPageSize20() { // 是否显示页码
+      const supportPlarm = [1, 8, 1.2]
+      return supportPlarm.includes(this.currentKeywordPlatform)
+    },
+    isShowPageSize50() { // 是否显示页码
+      const supportPlarm = [11]
+      return supportPlarm.includes(this.currentKeywordPlatform)
+    },
+    isShowSales() { // 销量区间
+      const supportPlarm = [1, 2, 11, 8, 1.2, 10, 12]
+      return supportPlarm.includes(this.currentKeywordPlatform)
+    },
+    isShowPrice() { // 价格区间
+      const supportPlarm = [1, 2, 11, 8, 1.2, 10, 12, 9]
+      return supportPlarm.includes(this.currentKeywordPlatform)
+    },
+    isShowTaobao() {
+      const supportPlarm = [2]
+      return supportPlarm.includes(this.currentKeywordPlatform)
+    },
+    isShowShopeeSite() {
+      const supportPlarm = [11]
+      return supportPlarm.includes(this.currentKeywordPlatform)
+    },
+    isShowLazadaSite() {
+      const supportPlarm = [9]
+      return supportPlarm.includes(this.currentKeywordPlatform)
+    },
+    isShowKeyTip() {
+      const supportPlarm = [11, 9]
+      return supportPlarm.includes(this.currentKeywordPlatform)
+    },
+    isShowSort() {
+      const supportPlarm = [8]
+      return supportPlarm.includes(this.currentKeywordPlatform)
+    },
+    isShowCreateAt() {
+      const supportPlarm = [11]
+      return supportPlarm.includes(this.currentKeywordPlatform)
     }
+    // isShowPrice() { //
+    //   const supportPlarm = [1, 11, 8, 1.2, 10, 12, 9]
+    //   return supportPlarm.includes(this.currentKeywordPlatform)
+    // }
 
   },
   created() {
+    this.commonAttr.shopeeSite = shopeeSite
+    this.commonAttr.lazadaSite = lazadaSite
+    this.pictureSearchOrigin = pictureSearchOrigin
     this.getShopeeGoodsPlace()
-    this.getSite()
-    // this.getLazadaGoodsPlace()
+    this.getLazadaGoodsPlace()
   },
   mounted() {
     // this.goodsList = testData.data
@@ -257,62 +665,52 @@ export default {
     // console.log('this.goodsList', this.goodsList)
   },
   methods: {
-    selectPlaceValEvent() { // 出货地点全选事件
-      if (this.commonAttr.placeOrigin.length === this.commonAttr.placeVal.length) {
+    selectShopeePlaceValEvent() { // 出货地点全选事件
+      if (this.commonAttr.shopeePlaceOrigin.length === this.commonAttr.shopeePlaceVal.length) {
         this.isSelectAll = true
       } else {
         this.isSelectAll = false
       }
     },
-    selectAllEvent() { // 出货地点全选事件
+    selectShopeeAllEvent() { // 出货地点全选事件
       if (this.isSelectAll) {
-        this.commonAttr.placeOrigin.map(item => {
-          this.commonAttr.placeVal.push(item.value)
+        this.commonAttr.shopeePlaceOrigin.map(item => {
+          this.commonAttr.shopeePlaceVal.push(item.value)
         })
       } else {
-        this.commonAttr.placeVal = []
+        this.commonAttr.shopeePlaceVal = []
       }
     },
-    selectPlaceValEvent2(index) { // lazada地点全选事件
-      console.log('index', index)
-      console.log('this.commonAttr.lazadaPlaceVal', this.commonAttr.lazadaPlaceVal)
-
-      // if (this.commonAttr.placeOrigin.length === this.commonAttr.lazadaPlaceVal.length) {
-      //   this.isSelectAll[index] = true
-      // } else {
-      //   this.isSelectAll[index] = false
-      // }
+    selectLazadaPlaceValEvent(name, index) { // lazada地点全选事件
+      if (this.commonAttr.lazadaPlaceOrigin[name].length === this.commonAttr[`lazadaPlaceVal${index}`].length) {
+        this.isSelectAll2[index] = true
+      } else {
+        this.isSelectAll2[index] = false
+      }
     },
-    selectAllEvent2(index) { // lazada出货地点全选事件
-      // if (this.isSelectAll[index]) {
-      //   this.commonAttr.placeOrigin.map(item => {
-      //     this.commonAttr.placeVal.push(item.value)
-      //   })
-      // } else {
-      //   this.commonAttr.placeVal = []
-      // }
+    selectLazadaAllEvent(name, index) { // lazada出货地点全选事件
+      if (this.isSelectAll2[index]) {
+        console.log(name, index)
+        console.log('this.commonAttr.lazadaPlaceOrigin[name]', this.commonAttr.lazadaPlaceOrigin[name])
+        this.commonAttr.lazadaPlaceOrigin[name].map(item => {
+          this.commonAttr[`lazadaPlaceVal${index}`].push(item.value)
+        })
+      } else {
+        this.commonAttr[`lazadaPlaceVal${index}`] = []
+      }
+      console.log('this.commonAttr[`lazadaPlaceVal${index}`]', this.commonAttr[`lazadaPlaceVal${index}`])
     },
-    getSite() { // 获取站点
-      const value = getSiteRelation(this.currentKeywordPlatform)
-      // if (this.currentKeywordPlatform === 11) {
-      this.commonAttr.site = value
-      this.commonAttr.siteCode = value[0]?.value || '' // 站点的值
-    },
-    getShopeeGoodsPlace() { // 出货地点
+    getShopeeGoodsPlace() { // 获取shopee出货地点
       this.isSelectAll = false
-      this.commonAttr.placeOrigin = []
-      if (this.currentKeywordPlatform === 11) {
-        this.commonAttr.placeOrigin = getSitePlace(this.commonAttr.siteCode)
-      } else if (this.currentKeywordPlatform === 9) {
-        this.commonAttr.lazadaPlaceVal[0] = []
-        this.commonAttr.lazadaPlaceVal[1] = []
-        this.getLazadaGoodsPlace()
-      }
+      this.commonAttr.shopeePlaceVal = []
+      this.commonAttr.shopeePlaceOrigin = getShopeeSitePlace(this.commonAttr.shopeeSiteCode)
     },
-    getLazadaGoodsPlace() { // 获取Lazada站点地点
-      const value = getLazadaSitePlace(this.commonAttr.siteCode)
-      debugger
-      this.commonAttr.lazadaPlace = value
+    getLazadaGoodsPlace() { // 获取Lazada出货地点
+      this.isSelectAll2[0] = false
+      this.isSelectAll2[1] = false
+      this.commonAttr.lazadaPlaceVal0 = []
+      this.commonAttr.lazadaPlaceVal1 = []
+      this.commonAttr.lazadaPlaceOrigin = getLazadaSitePlace(this.commonAttr.lazadaSiteCode)
     },
     handleClick(tab, event) {
       // console.log(tab, event)
@@ -322,17 +720,6 @@ export default {
     },
     switchPlatform(row) { // 关键词选择平台
       this.currentKeywordPlatform = row.value
-      this.commonAttr.placeVal = [] // 选择的出货地点
-      if (this.currentKeywordPlatform === 11) {
-        this.getSite()
-        this.commonAttr.lazadaPlace = {}
-        this.commonAttr.lazadaPlaceVal = [[], []]
-        this.getShopeeGoodsPlace()
-      } else if (this.currentKeywordPlatform === 9) {
-        this.getSite()
-        this.commonAttr.placeOrigin = []
-        this.getLazadaGoodsPlace()
-      }
     },
     // 开始采集
     StartCollection() {
@@ -426,34 +813,8 @@ export default {
       }
       if (!msg) { return }
       const color = success ? 'green' : 'red'
-      const time = this.dateFormat(new Date(Date.now()), 'hh:mm:ss')
+      const time = dateFormat(new Date(Date.now()), 'hh:mm:ss')
       this.consoleMsg += `<p style="color:${color}; margin-top: 5px;">${time}:${msg}</p>`
-    },
-    dateFormat(time, fmt) {
-      var o = {
-        'M+': time.getMonth() + 1, // 月份
-        'd+': time.getDate(), // 日
-        'h+': time.getHours(), // 小时
-        'm+': time.getMinutes(), // 分
-        's+': time.getSeconds(), // 秒
-        'q+': Math.floor((time.getMonth() + 3) / 3), // 季度
-        'S': time.getMilliseconds() // 毫秒
-      }
-      if (/(y+)/.test(fmt)) { fmt = fmt.replace(RegExp.$1, (time.getFullYear() + '').substr(4 - RegExp.$1.length)) }
-      for (var k in o) {
-        if (new RegExp('(' + k + ')').test(fmt)) {
-          fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (('00' + o[k]).substr(('' + o[k]).length)))
-        }
-      }
-      return fmt
-    },
-    async delay(time) {
-      return new Promise(resolve => {
-        const timeId = setTimeout(() => {
-          clearTimeout(timeId)
-          resolve(true)
-        }, time)
-      })
     }
   }
 }

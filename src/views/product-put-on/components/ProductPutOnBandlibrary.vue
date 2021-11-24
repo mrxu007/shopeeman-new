@@ -57,13 +57,28 @@
             {{ scope.$index + 1 }}
           </template>
         </el-table-column>
-        <el-table-column type="selection" align="center" min-width="55" fixed />
-        <el-table-column prop="country" align="center" label="站点" min-width="80" />
-        <el-table-column prop="uid" align="center" label="词来源" min-width="80" />
-        <el-table-column prop="type" align="center" label="词类型" min-width="80" />
+        <el-table-column type="selection" align="center" min-width="55" />
+        <el-table-column prop="country" align="center" label="站点" min-width="80">
+          <template slot-scope="{row}">
+            {{ row.country|chineseSite }}
+          </template>
+        </el-table-column>
+        <el-table-column prop="uid" align="center" label="词来源" min-width="80">
+          <template slot-scope="{row}">
+            {{ row.uid === 0 ? '系统' : '用户' }}
+          </template>
+        </el-table-column>
+        <el-table-column prop="type" align="center" label="词类型" min-width="80">
+          <template slot-scope="{row}">
+            {{ row.type?typeReObj[row.type]:'' }}
+          </template>
+        </el-table-column>
         <el-table-column prop="word" align="center" show-overflow-tooltip label="关键词" min-width="180" />
-        <el-table-column prop="created_at" align="center" show-overflow-tooltip label="添加时间" min-width="100" fixed="right" />
-
+        <el-table-column prop="created_at" align="center" show-overflow-tooltip label="添加时间" min-width="100">
+          <template slot-scope="{row}">
+            {{ row.created_at?row.created_at.replace('T', ' ').replace('Z', ''):'' }}
+          </template>
+        </el-table-column>
       </el-table>
     </div>
     <div class="pagination">
@@ -180,6 +195,11 @@ export default {
         '品牌词': '2',
         '违规词': '3'
       },
+      typeReObj: {
+        1: '禁运词',
+        2: '品牌词',
+        3: '违规词'
+      },
       tableData: [] // 表格数据
     }
   },
@@ -189,32 +209,31 @@ export default {
   methods: {
     // 导出excel
     async exportSearch() {
+      if (this.total === 0) return this.$message('暂无导出数据')
       this.isloading = true
       const data = []
-      const len = this.total % 10 === 0 ? (this.total / 10) : (Math.floor(this.total / 10) + 1)
-      for (let index = 1; index <= len; index++) {
-        const parmas = {
-          page: index,
-          word: this.form.keyWord,
-          country: this.form.site,
-          source: Number(this.form.source),
-          type: Number(this.form.type)
-        }
+      const parmas = {
+        page: 1,
+        word: this.form.keyWord,
+        country: this.form.site,
+        source: Number(this.form.source),
+        type: Number(this.form.type),
+        pageSize: this.pageSize
+      }
+      while (data.length < this.total) {
         try {
           const res = await this.$commodityService.getBannedWordList(parmas)
           const jsonData = JSON.parse(res).data.data
           jsonData.forEach(item => {
             data.push(item)
           })
+          parmas.page++
         } catch (error) {
           console.log(error)
+          this.$message.error('导出数据错误')
+          this.isloading = false
+          break
         }
-      }
-      this.isloading = false
-      if (!data?.length) {
-        this.isloading = false
-        this.$message('暂无导出数据')
-        return
       }
       let str =
       `<tr>
@@ -225,25 +244,16 @@ export default {
           <td>添加时间</td>
       </tr>`
       data.forEach((item) => {
-        item.created_at = item.created_at.replace('T', ' ').replace('Z', '')
-        item.country = this.$filters.chineseSite(item.country)
-        item.uid = item.uid === 0 ? '系统' : '用户'
-        if (item.type === 2) {
-          item.type = '品牌词'
-        } else if (item.type === 3) {
-          item.type = '违规词'
-        } else {
-          item.type = '禁运词'
-        }
         str += `<tr>
-        <td>${item.country ? item.country : '' + '\t'}</td>
-        <td>${item.uid ? item.uid : '' + '\t'}</td>
-        <td>${item.type ? item.type : '' + '\t'}</td>
+        <td>${item.country ? this.$filters.chineseSite(item.country) : '' + '\t'}</td>
+        <td>${item.uid === 0 ? '系统' : '用户' + '\t'}</td>
+        <td>${item.type ? this.typeReObj[item.type] : '' + '\t'}</td>
         <td>${item.word ? item.word : '' + '\t'}</td>
-        <td>${item.created_at ? item.created_at : '' + '\t'}</td>
+        <td>${item.created_at ? item.created_at.replace('T', ' ').replace('Z', '') : '' + '\t'}</td>
         </tr>`
       })
       exportExcelDataCommon('品牌词库', str)
+      this.isloading = false
     },
     // 批量删除
     async batchDelete() {
@@ -386,20 +396,6 @@ export default {
         console.log('tableData', jsonData)
         if (jsonData.code === 200) {
           this.tableData = jsonData.data.data
-          if (this.tableData) {
-            this.tableData.map(item => {
-              item.created_at = item.created_at.replace('T', ' ').replace('Z', '')
-              item.country = this.$filters.chineseSite(item.country)
-              item.uid = item.uid === 0 ? '系统' : '用户'
-              if (item.type === 2) {
-                item.type = '品牌词'
-              } else if (item.type === 3) {
-                item.type = '违规词'
-              } else {
-                item.type = '禁运词'
-              }
-            })
-          }
           this.total = jsonData.data.total
           this.isloading = false
         } else {

@@ -519,20 +519,20 @@ export default {
     },
     // 导出excel
     async exportSearch() {
+      if (this.total === 0) return this.$message('暂无导出数据')
       this.isLoading = true
       const exportData = []
-      const len = this.total % this.pageSize === 0 ? this.total / this.pageSize : Math.floor(this.total / this.pageSize) + 1
       const shopSelectVal = this.form.shopSelectVal
-      for (let index = 1; index <= len; index++) {
-        const parmas = {
-          country: this.form.site,
-          groupId: this.form.groupId,
-          mallName: this.form.shopSelect === '0' ? shopSelectVal : '',
-          mallId: this.form.shopSelect === '1' ? shopSelectVal : '',
-          mallAliasName: this.form.shopSelect === '2' ? shopSelectVal : '',
-          page: index,
-          pageSize: this.pageSize
-        }
+      const parmas = {
+        country: this.form.site,
+        groupId: this.form.groupId,
+        mallName: this.form.shopSelect === '0' ? shopSelectVal : '',
+        mallId: this.form.shopSelect === '1' ? shopSelectVal : '',
+        mallAliasName: this.form.shopSelect === '2' ? shopSelectVal : '',
+        page: 1,
+        pageSize: this.pageSize
+      }
+      while (exportData.length < this.total) {
         try {
           const { data } = await this.$api.getMallStatistics(parmas)
           if (data.code === 200) {
@@ -550,6 +550,7 @@ export default {
             resData.forEach((item) => {
               exportData.push(item)
             })
+            parmas.page++
           } else {
             this.$message.error(`${data.message}`)
             this.isLoading = false
@@ -557,13 +558,8 @@ export default {
         } catch (error) {
           console.log(error)
           this.isLoading = false
+          break
         }
-      }
-      const jsonData = exportData
-      if (!jsonData?.length) {
-        this.isLoading = false
-        this.$message('暂无导出数据')
-        return
       }
       let str = `<tr>
           <td>站点</td>
@@ -609,7 +605,7 @@ export default {
           <td>本月已拨款</td>
           <td>全部已拨款</td>
         </tr>`
-      jsonData.forEach((item) => {
+      exportData.forEach((item) => {
         str += `<tr>
         <td>${item.country ? this.$filters.chineseSite(item.country) : '' + '\t'}</td>
         <td>${item.platform_mall_id ? item.platform_mall_id : '' + '\t'}</td>
@@ -660,6 +656,7 @@ export default {
     },
     getGroupId(data) {
       this.form.groupId = data
+      this.page = 1
     },
     handleSizeChange(val) {
       this.pageSize = val

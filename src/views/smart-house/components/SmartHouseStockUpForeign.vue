@@ -585,6 +585,7 @@
         &nbsp;&nbsp;&nbsp;&nbsp;2：导入商品会导入到对应的中转仓库和目的仓库，请选择好再导入
       </span>
       <el-table
+        v-loading="productLoading"
         height="420"
         :data="foreignData"
         :header-cell-style="{
@@ -1207,6 +1208,7 @@
       :close-on-press-escape="false"
     >
       <el-table
+        v-loading="productSkuLoading"
         height="420"
         :data="skuDetailsData"
         :header-cell-style="{
@@ -1296,7 +1298,7 @@
 
 <script>
 import StrockUpForegin from '../../../module-api/smart-house-api/strock-up-foreign'
-import { exportExcelDataCommon, exportPdfData, delay } from '../../../util/util'
+import { exportExcelDataCommon, exportPdfData } from '../../../util/util'
 import ProductChoose from '../../../components/product-choose.vue'
 import XLSX from 'xlsx'
 import { data } from 'cheerio/lib/api/attributes'
@@ -1312,6 +1314,8 @@ export default {
       skuDetailsVisible: false,
       isShowLoading: false,
       isDeleteLoading: false,
+      productLoading: false,
+      productSkuLoading: false,
       showConsole: true,
       isforeignClose: false,
       StrockUpForegin: new StrockUpForegin(this),
@@ -1502,21 +1506,19 @@ export default {
         })
       }
       this.delForecast(data)
-      delay(1000)
-      this.getStockingForecastLists()
-      this.showConsole = false
-      this.isDeleteLoading = false
-      this.$forceUpdate()
     },
     delForecast(data) {
       data.forEach(async item => {
         const res = await this.StrockUpForegin.deleteForecast(item)
         if (res.code === 200) {
           this.$refs.Logs.writeLog(`单号【${item}】:删除成功`, true)
+          this.tableData.splice(this.tableData.findIndex(tItem => tItem.forecast_code === item), 1)
         } else {
           this.$refs.Logs.writeLog(`单号【${item}】:${res.data}`, false)
         }
       })
+      this.showConsole = false
+      this.isDeleteLoading = false
     },
     // 下载教程
     downTutorial() {
@@ -1590,6 +1592,7 @@ export default {
     },
     // 获取产品中心列表数据
     async getProductList() {
+      this.productLoading = true
       this.productFrom.Page = this.productPage
       this.productFrom.PageSize = this.productPageSize
       this.productFrom.Status = Number(this.productFrom.Status)
@@ -1599,6 +1602,7 @@ export default {
       }
       this.productTotal = res.data.total
       this.productData = res.data.data
+      this.productLoading = false
       console.log('productData', this.productData)
     },
     // 发起商品预报
@@ -1713,6 +1717,7 @@ export default {
     },
     // SKU详情
     async getProductSkuList(row) {
+      this.productSkuLoading = true
       const res = await this.StrockUpForegin.getProductSkuList(row.product_id)
       if (res.code !== 200) {
         this.$message.error(res.data)
@@ -1721,6 +1726,7 @@ export default {
       this.skuDetailsData.map(item => {
         item.goods_name = row.product_name
       })
+      this.productSkuLoading = false
       console.log('skuDetailsData', this.skuDetailsData)
     },
     // 仓库选择提示
@@ -1999,54 +2005,54 @@ export default {
     },
     // 导出数据
     async exportTableData() {
+      if (this.total === 0) return this.$message('暂无导出数据')
       this.isShowLoading = true
       const exportData = []
-      const len = this.total % this.pageSize === 0 ? this.total / this.pageSize : Math.floor(this.total / this.pageSize) + 1
-      for (let index = 0; index < len; index++) {
-        this.form.page = index
-        this.form.pageSize = this.pageSize
-        const res = await this.StrockUpForegin.getStockingForecastLists(this.form)
+      let resData = []
+      const params = this.form
+      params.pageSize = this.pageSize
+      params.page = 1
+      while (resData.length < this.total) {
+        const res = await this.StrockUpForegin.getStockingForecastLists(params)
         if (res.code === 200) {
-          const resData = res.data.data
-          resData.forEach(item => {
-            item.sku_list.forEach(skuItem => {
-              const obj = {}
-              obj['package_code'] = item.package_code
-              obj['forecast_code'] = item.forecast_code
-              obj['warehouse_name'] = item.warehouse_name
-              obj['oversea_warehouse_name'] = item.oversea_warehouse_name
-              obj['created_at'] = item.created_at
-              obj['sign_time'] = item.sign_time
-              obj['store_time'] = item.store_time
-              obj['status'] = item.status
-              obj['is_wainscot'] = item.is_wainscot
-              obj['is_checked'] = item.is_checked
-              obj['ship_type'] = item.ship_type
-              obj['is_verify'] = item.is_verify
-              obj['verify_remark'] = item.verify_remark
-              obj['remark'] = item.remark
-              obj['warehouse_remark'] = item.warehouse_remark
-              obj['skuStatus'] = skuItem.status
-              obj['sku_id'] = skuItem.sku_id
-              obj['sys_sku_id'] = skuItem.sku_id
-              obj['goods_name'] = skuItem.goods_name
-              obj['sku_num'] = skuItem.sku_num
-              obj['sku_price'] = skuItem.sku_price
-              obj['sku_name'] = skuItem.sku_name
-              obj['sku_image'] = skuItem.sku_image
-              obj['sku_url'] = skuItem.sku_url
-              exportData.push(obj)
-            })
-          })
+          resData = resData.concat(res.data.data)
+          params.page++
         } else {
           this.$refs.Logs.writeLog('导出数据错误', res.data)
+          this.isShowLoading = false
+          break
         }
       }
-      if (!exportData?.length) {
-        this.isShowLoading = false
-        this.$message('暂无数据导出')
-        return
-      }
+      resData.forEach(item => {
+        item.sku_list.forEach(skuItem => {
+          const obj = {}
+          obj['package_code'] = item.package_code
+          obj['forecast_code'] = item.forecast_code
+          obj['warehouse_name'] = item.warehouse_name
+          obj['oversea_warehouse_name'] = item.oversea_warehouse_name
+          obj['created_at'] = item.created_at
+          obj['sign_time'] = item.sign_time
+          obj['store_time'] = item.store_time
+          obj['status'] = item.status
+          obj['is_wainscot'] = item.is_wainscot
+          obj['is_checked'] = item.is_checked
+          obj['ship_type'] = item.ship_type
+          obj['is_verify'] = item.is_verify
+          obj['verify_remark'] = item.verify_remark
+          obj['remark'] = item.remark
+          obj['warehouse_remark'] = item.warehouse_remark
+          obj['skuStatus'] = skuItem.status
+          obj['sku_id'] = skuItem.sku_id
+          obj['sys_sku_id'] = skuItem.sku_id
+          obj['goods_name'] = skuItem.goods_name
+          obj['sku_num'] = skuItem.sku_num
+          obj['sku_price'] = skuItem.sku_price
+          obj['sku_name'] = skuItem.sku_name
+          obj['sku_image'] = skuItem.sku_image
+          obj['sku_url'] = skuItem.sku_url
+          exportData.push(obj)
+        })
+      })
       let str = `<tr>
           <td>预报物流单号</td>
           <td>海外仓单号</td>
