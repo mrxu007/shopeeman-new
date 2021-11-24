@@ -166,14 +166,7 @@
           label="状态"
         >
           <template slot-scope="{ row }">
-            <span v-if="row.status === 1">已签收</span>
-            <span v-else-if="row.status === 2">已经拒收</span>
-            <span v-else-if="row.status === 3">匹配不到订单包</span>
-            <span v-else-if="row.status === 4">包裹已销毁</span>
-            <span v-else-if="row.status === 5">包裹丢件</span>
-            <span v-else-if="row.status === 6">申请退件</span>
-            <span v-else-if="row.status === 7">已退件</span>
-            <span v-else />
+            {{ statusObj[row.status]?statusObj[row.status]:'' }}
           </template>
         </el-table-column>
         <el-table-column
@@ -480,6 +473,15 @@ export default {
         { value: '6', label: '申请退件' },
         { value: '7', label: '已退件' }
       ],
+      statusObj: {
+        1: '已签收',
+        2: '已经拒收',
+        3: '匹配不到订单包',
+        4: '包裹已销毁',
+        5: '包裹丢件',
+        6: '申请退件',
+        7: '已退件'
+      },
       returnMsgDialog: false,
       returnInfoDialog: false, // 退件详情
       multipleSelection: [],

@@ -11,12 +11,12 @@
     <!-- btn区 -->
     <div class="tool-bar">
       <div class="tool-row">
-        <storeChoose :is-all="true" @changeMallList="changeMallList"></storeChoose>
+        <storeChoose :is-all="true" @changeMallList="changeMallList" />
       </div>
       <div class="tool-row">
         <div class="tool-item mar-right">
           <span>查询时间：</span>
-          <el-date-picker
+          <!-- <el-date-picker
             v-model="statisticsTime"
             size="mini"
             value-format="yyyy-MM-dd"
@@ -27,16 +27,26 @@
             end-placeholder="结束日期"
             :picker-options="pickerOptions"
             :default-time="['00:00:00', '23:59:59']"
-          >
-          </el-date-picker>
+          /> -->
+          <el-date-picker
+            v-model="statisticsTime"
+            size="mini"
+            value-format="yyyy-MM-dd"
+            type="daterange"
+            style="width: 220px"
+            range-separator="-"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
+            :picker-options="pickerOptions"
+          />
         </div>
-        <el-button type="primary" size="mini" @click="searchTableList" class="mar-right">查 询</el-button>
-        <el-button type="primary" size="mini" @click="exportData" class="mar-right">导 出</el-button>
+        <el-button type="primary" size="mini" class="mar-right" @click="searchTableList">查 询</el-button>
+        <el-button type="primary" size="mini" class="mar-right" @click="exportData">导 出</el-button>
       </div>
     </div>
     <!-- 表格区 -->
     <div class="content">
-      <el-table v-loading="tableLoading" ref="multipleTable" :data="tableDataCut" tooltip-effect="dark" max-height="650">
+      <el-table ref="multipleTable" v-loading="tableLoading" :data="tableDataCut" tooltip-effect="dark" max-height="650">
         <el-table-column align="center" type="index" label="序号" width="50">
           <template slot-scope="scope">{{ (currentPage - 1) * pageSize + scope.$index + 1 }}</template>
         </el-table-column>
@@ -67,40 +77,40 @@ import storeChoose from '../../../components/store-choose'
 import { exportExcelDataCommon } from '../../../util/util'
 export default {
   components: {
-    storeChoose,
+    storeChoose
   },
   data() {
     return {
       pickerOptions: {
         disabledDate(time) {
           return time.getTime() > Date.now()
-        },
+        }
       },
       statisticsTime: [],
-      pageSize: 20, //页码
-      currentPage: 1, //页码
-      total: 0, //表格总数
+      pageSize: 20, // 页码
+      currentPage: 1, // 页码
+      total: 0, // 表格总数
       multipleSelection: [],
       tableLoading: false,
       tableData: [],
       mallData: [],
-      tableDataCut: [],
+      tableDataCut: []
     }
   },
   async mounted() {
-    let end = new Date().getTime()
-    let start = end - 3 * 24 * 60 * 60 * 1000
+    const end = new Date().getTime()
+    const start = end - 3 * 24 * 60 * 60 * 1000
     this.statisticsTime = [this.$dayjs(start).format('YYYY-MM-DD'), this.$dayjs(end).format('YYYY-MM-DD')]
-    setTimeout(()=>{
+    setTimeout(() => {
       this.searchTableList()
-    },1000)
+    }, 1000)
   },
   methods: {
     changeMallList(val) {
       this.mallData = val
       console.log(val)
     },
-    //导出数据
+    // 导出数据
     exportData() {
       if (!this.tableData.length) {
         return this.$message.warning('没有可导出的数据！')
@@ -114,7 +124,7 @@ export default {
                 <td>店铺总量</td>
                 </tr>`
       for (let i = 0; i < this.tableData.length; i++) {
-        let item = this.tableData[i]
+        const item = this.tableData[i]
         str += `<tr><td>${num++}</td>
                         <td>${item.country ? this.$filters.chineseSite(item.country) : '' + '\t'}</td>
                         <td>${item.platform_mall_name ? item.platform_mall_name : '' + '\t'}</td>
@@ -124,20 +134,20 @@ export default {
       }
       exportExcelDataCommon('店铺上架数量统计', str)
     },
-    //查询
+    // 查询
     async searchTableList() {
       console.log(this.statisticsTime)
-      let params = [this.statisticsTime[0] + ' 00:00:00', this.statisticsTime[1] + ' 23:59:59']
+      const params = [this.statisticsTime[0] + ' 00:00:00', this.statisticsTime[1] + ' 23:59:59']
       this.tableLoading = true
-      let res = await this.$commodityService.getStatisticsNew(params)
+      const res = await this.$commodityService.getStatisticsNew(params)
       if (!res) {
         this.tableLoading = false
         return
       }
-      let resObj = res && JSON.parse(res)
-      let statisticData = resObj.data || []
+      const resObj = res && JSON.parse(res)
+      const statisticData = resObj.data || []
       for (let i = 0; i < this.mallData.length; i++) {
-        let mall = this.mallData[i]
+        const mall = this.mallData[i]
         mall.upCount = 0
         statisticData.forEach((item) => {
           item.list.forEach((subItem) => {
@@ -168,8 +178,8 @@ export default {
     handleSizeChange(size) {
       this.pageSize = size
       this.dataCut()
-    },
-  },
+    }
+  }
 }
 </script>
 
@@ -182,10 +192,12 @@ export default {
   margin-right: 10px;
 }
 .tool-bar {
-  height: 100px;
+  // height: 100px;
+  height: 50px;
   background: #fff;
+  display: flex;
   .tool-row {
-    padding: 16px 16px 0 16px;
+    // padding: 10px 16px 0 0px;
     display: flex;
     align-items: center;
     flex-wrap: wrap;

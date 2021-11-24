@@ -8,7 +8,7 @@
 -->
 <template>
   <div>
-    <ul>
+    <ul class="wrap">
       <li>
         <span>一级类目：</span>
         <el-select
@@ -145,7 +145,7 @@ export default {
 </script>
 
 <style lang="less" scoped>
-  ul{
+  .wrap{
     // display: flex;
     li{
       margin: 0 20px 10px 0;
