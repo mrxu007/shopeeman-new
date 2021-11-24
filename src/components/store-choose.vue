@@ -22,12 +22,9 @@
           <el-option v-for="(item, index) in siteList" :key="index" :label="item.mall_alias_name || item.platform_mall_name" :value="item.platform_mall_id" />
         </el-select>
       </li>
-<<<<<<< HEAD
-=======
-      <li v-if="isReset" style="margin-bottom: 5px;margin-left: 25px;">
+      <li v-if="isReset" style="margin-bottom: 5px; margin-left: 25px">
         <el-button size="mini" type="primary" style="justify-self: self-end" @click="reset">　刷　　新　</el-button>
       </li>
->>>>>>> 382242836dabc5f9cf2180aaf1b48d3f073f0e98
     </ul>
   </div>
 </template>
@@ -38,26 +35,26 @@ import MallListAPI from '../module-api/mall-manager-api/mall-list-api'
 export default {
   name: 'StoreChoose',
   props: {
-    selectWidth:{
+    selectWidth: {
       type: String,
       default: '100px'
     },
     spanWidth: {
       type: String,
-      default: '80px',
+      default: '80px'
     },
     isAll: {
       type: Boolean,
       default() {
         return false
-      },
+      }
     },
     source: {
       type: String,
       default() {
         return ''
-      },
-    },
+      }
+    }
   },
   data() {
     return {
@@ -69,7 +66,7 @@ export default {
       site: [],
       siteList: [],
       countries: this.$filters.countries_option,
-      mallListAPIInstance: new MallListAPI(this),
+      mallListAPIInstance: new MallListAPI(this)
     }
   },
   watch: {
@@ -80,7 +77,7 @@ export default {
         this.groupIdList = []
         this.ddMallGoodsGetMallList(1)
       },
-      deep: true,
+      deep: true
     },
     groupId: {
       handler(val, oldVal) {
@@ -108,7 +105,7 @@ export default {
           }, 10)
         }
       },
-      deep: true,
+      deep: true
     },
     site: {
       handler(val, oldVal) {
@@ -136,22 +133,19 @@ export default {
           })
         }
       },
-      deep: true,
-    },
+      deep: true
+    }
   },
   mounted() {
     this.countryVal = (!this.isAll && 'TH') || ''
   },
   methods: {
-<<<<<<< HEAD
-=======
     reset() {
       this.isAllowSet2 = false
       this.groupId = []
       this.groupIdList = []
       this.ddMallGoodsGetMallList(1)
     },
->>>>>>> 382242836dabc5f9cf2180aaf1b48d3f073f0e98
     async changeSelect(val) {
       console.log(val)
     },
@@ -161,7 +155,7 @@ export default {
       const groupId = (this.groupId.indexOf('') > -1 && this.groupId.slice(1).toString()) || this.groupId.toString()
       const param = {
         country: country,
-        mallGroupIds: groupId,
+        mallGroupIds: groupId
       }
       const res = await this.mallListAPIInstance.ddMallGoodsGetMallList(param)
       // console.log('ddMallGoodsGetMallList - res', res)
@@ -175,7 +169,7 @@ export default {
             if (item.group_name && index < 0) {
               this.groupIdList.push({
                 group_name: item.group_name,
-                id: item.group_id,
+                id: item.group_id
               })
               this.groupId.push(item.group_id)
             }
@@ -199,21 +193,17 @@ export default {
         if (item) {
           const temp = this.siteList.filter((i) => i.platform_mall_id === item)
           mallList.push(temp[0])
-<<<<<<< HEAD
-=======
-          searchAll += (item + ',')
->>>>>>> 382242836dabc5f9cf2180aaf1b48d3f073f0e98
         }
       })
       // }
       this.$emit('changeMallList', mallList)
       if (this.source) {
-        this.$emit('changeMallList', { mallList: mallList, source: this.source,country: this.countryVal })
+        this.$emit('changeMallList', { mallList: mallList, source: this.source, country: this.countryVal })
       } else {
         this.$emit('changeMallList', mallList)
       }
-    },
-  },
+    }
+  }
 }
 </script>
 
