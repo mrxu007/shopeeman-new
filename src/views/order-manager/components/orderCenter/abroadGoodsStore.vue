@@ -1,41 +1,25 @@
 <!--
  * @Author: your name
  * @Date: 2021-11-16 20:01:09
- * @LastEditTime: 2021-11-24 11:29:53
+ * @LastEditTime: 2021-11-24 11:41:54
  * @LastEditors: Please set LastEditors
  * @Description: 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  * @FilePath: \shopeeman-new\src\views\order-manager\components\orderCenter\SelfGoodsStore.vue
 -->
 <template>
-  <div class="product-store">
+  <div class="abroad-store">
     <div class="btn-header">
       <div class="item-box mar-right">
-        <span>创建时间：</span>
-        <el-date-picker
-          v-model="searchTime"
-          size="mini"
-          value-format="yyyy-MM-dd"
-          type="daterange"
-          style="width: 200px"
-          range-separator="-"
-          start-placeholder="开始日期"
-          end-placeholder="结束日期"
-          :picker-options="pickerOptions"
-        />
+        <span>仓库名称：</span>
+        <el-select v-model="warehouseName" size="mini" filterable>
+          <el-option v-for="(item, index) in widList" :key="index" :label="item.warehouse_name" :value="item.wid" />
+        </el-select>
       </div>
       <div class="item-box">
-        <span style="width: 80px">商品名称:</span>
-        <el-input v-model="goodsName" size="mini" clearable class="inputBox" />
+        <span style="width: 80px">商品编号:</span>
+        <el-input v-model="sku_id" clearable size="mini" oninput="value=value.replace(/\s+/g,'')" />
       </div>
-       <div class="item-box">
-        <span style="width: 80px">商品编码:</span>
-        <el-input v-model="goodsCode" size="mini" clearable class="inputBox" />
-      </div>
-       <div class="item-box">
-        <span style="width: 80px">SKU编码:</span>
-        <el-input v-model="skuCode" size="mini" clearable class="inputBox" />
-      </div>
-      <el-button type="primary" size="mini" style="margin-left:10px;" @click="searchTableList">搜 索</el-button>
+      <el-button type="primary" size="mini" style="margin-left: 10px" @click="searchTableList">搜 索</el-button>
     </div>
     <el-table ref="multipleTable" :data="tableData" tooltip-effect="dark" max-height="500">
       <el-table-column align="center" type="index" label="序号" width="50">
@@ -43,7 +27,7 @@
       </el-table-column>
       <el-table-column align="center" type="index" label="仓库名称" width="80">
         <template slot-scope="scope">
-          <span>产品中心</span>
+          <span>国内仓库</span>
         </template>
       </el-table-column>
       <el-table-column width="120px" label="系统商品ID" prop="id" align="center" />
@@ -85,9 +69,8 @@
 </template>
 
 <script>
-import { creatDate } from '../../../../util/util'
 export default {
-  name: 'ProductGoodsStore',
+  name: 'AbroadGoodsStore',
   data() {
     return {
       pickerOptions: {
@@ -95,57 +78,65 @@ export default {
           return time.getTime() > Date.now()
         },
       },
-      tableData:[],
+      tableData: [],
       total: 0,
       pageSize: 20,
       currentPage: 1,
-      searchTime:[],
-      goodsName:'',//商品名称
-      goodsCode:'',
-      skuCode:''
+      warehouseName: '', //仓库名
+      widList: [],
+      sku_id: '',
     }
   },
   mounted() {
-    this.searchTime = creatDate(30)
+    this.getWareHouseList()
     this.searchTableList()
   },
   methods: {
-      //添加到出库单
-    async addTo(row){
-        this.$emit('getChooseData',row)
+    async getWareHouseList() {
+      let appinfo = await this.$appConfig.getUserInfo()
+      let res = await this.$api.getWarehouseList()
+      if(res.data.code === 200){
+        let arr = res.data.data || []
+        console.log(arr,"arr")
+        this.widList = arr.filter(item=>{
+          return item.status!==2 && item.user_ids && item.user_ids.indexOf(appinfo.muid)
+        })
+      }
+    },
+    //添加到出库单
+    async addTo(row) {
+      this.$emit('getChooseData', row)
     },
     // 列表
     async searchTableList() {
-      // 获取产品中心列表数据
+      // 获取列表数据
       let params = {
-        ProductName : this.goodsName,
-        ProductId : this.goodsCode,
-        SkuId : this.skuCode,
-        CateId: 0,
-        Status: '-1'
+        wid: this.warehouseName,
+        sku_id: this.sku_id,
+        Status: '-1',
       }
       params['page'] = this.currentPage
-      params['pageSize'] = this.pageSize
-      const res = await this.$commodityService.getProductList(params)
-      let resObj = res&&JSON.parse(res)
-      console.log(resObj,"4")
-     if(resObj.status_code === 200){
-       this.total = resObj.data.total
-       let arr = resObj.data.data
-       arr.forEach(async item=>{
-         await this.getProductSkuList(item)
-       })
-     }
+      params['page_size'] = this.pageSize
+      const res = await this.$XzyNetMessageService.post('xzy.shopifyV2.get_stock', params)
+      let resObj = res && JSON.parse(res)
+      console.log(resObj, '4')
+      if (resObj.status_code === 200) {
+        this.total = resObj.data.total
+        let arr = resObj.data.data
+        arr.forEach(async (item) => {
+          await this.getProductSkuList(item)
+        })
+      }
       console.log(this.tableData)
     },
     // SKU详情
     async getProductSkuList(row) {
       const res = await this.$commodityService.getProductSkuList(row.product_id)
-      let resObj = res&&JSON.parse(res)
+      let resObj = res && JSON.parse(res)
       console.log('skuDetailsData', resObj)
-      if(resObj.status_code === 200){
+      if (resObj.status_code === 200) {
         let skuDetailsData = resObj.data
-        skuDetailsData.forEach(item=>{
+        skuDetailsData.forEach((item) => {
           item.goods_name = row.product_name
           item.stock_num = item.stock
           item.sku_price = item.price
@@ -177,8 +168,8 @@ export default {
 </script>
 
 <style lang="less" scoped>
-.product-store {
-    /deep/.el-dialog__body {
+.abroad-store {
+  /deep/.el-dialog__body {
     padding: 10px 20px;
   }
 }
@@ -187,7 +178,7 @@ export default {
 }
 .btn-header {
   display: flex;
-  margin-top:10px;
+  margin-top: 10px;
   .item-box {
     display: flex;
     align-items: center;
@@ -198,11 +189,11 @@ export default {
     }
   }
 }
-  .pagination {
-    display: flex;
-    justify-content: flex-end;
-    margin-top: 20px;
-    height: 35px;
-  }
+.pagination {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 20px;
+  height: 35px;
+}
 </style>
 

@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-11-09 10:17:44
- * @LastEditTime: 2021-11-23 21:19:08
+ * @LastEditTime: 2021-11-24 10:55:17
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shopeeman-new\src\views\order-manager\components\OrderManagerOrderCenter.vue
@@ -166,7 +166,7 @@
                   <el-button type="primary" size="mini" class="btnMedium" @click="outStoreBefore('自有仓库商品出库', '1')">自有仓库商品出库</el-button>
                   <el-button type="primary" size="mini" class="btnLong" @click="outStoreBefore('产品中心商品出库', '2')">产品中心商品出库</el-button>
                   <el-button type="primary" size="mini" class="btnLong" @click="outStoreBefore('海外仓备货商品出库', '3')">海外仓备货商品出库</el-button>
-                  <el-button type="primary" size="mini" class="btnLong" @click="outStoreBefore('国内仓备货商品出局', '4')">国内仓备货商品出局</el-button>
+                  <el-button type="primary" size="mini" class="btnLong" @click="outStoreBefore('国内仓备货商品出库', '4')">国内仓备货商品出局</el-button>
                   <el-button type="primary" size="mini" class="btnMedium">批量评价订单买家</el-button>
                 </el-row>
                 <el-row class="row-style">
@@ -550,8 +550,8 @@
     </el-dialog>
     <!-- 四类商品出库 -->
     <el-dialog :visible.sync="goodsOutStoreVisible" width="1400px" top="5vh" v-if="goodsOutStoreVisible" :close-on-click-modal="false">
-      <div slot="title">{{ outStoreTitle }}</div>
-      <goods-out-store :chooseData="multipleSelection" :outStoreType="outStoreType"></goods-out-store>
+         <div slot="title">{{ outStoreTitle }}</div>
+          <goods-out-store :chooseData="multipleSelection" :outStoreType="outStoreType"></goods-out-store>
     </el-dialog>
     <el-dialog title="添加采购链接" :visible.sync="addBuyLinkVisible" width="1200px" v-if="addBuyLinkVisible" append-to-body :close-on-click-modal="false">
       <buy-link :linkRow="clickRow" @close="closeDialog"></buy-link>
@@ -1665,4 +1665,5 @@ export default {
     margin-bottom: 10px;
   }
 }
+
 </style>

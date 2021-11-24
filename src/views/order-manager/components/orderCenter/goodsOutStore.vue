@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-11-16 15:41:36
- * @LastEditTime: 2021-11-23 21:17:05
+ * @LastEditTime: 2021-11-24 11:42:46
  * @LastEditors: Please set LastEditors
  * @Description: 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  * @FilePath: \shopeeman-new\src\views\order-manager\components\orderCenter\goodsOutStore.vue
@@ -11,7 +11,7 @@
     <div class="out-header">
       <span>{{ chooseData.length - chooseDataCopy.length + 1 }}/{{ chooseData.length }}</span>
       <el-button type="primary" size="mini" @click="goNext">{{ chooseData.length > 1 ? '匹配下一单' : '关闭' }}</el-button>
-      <span style="color:blue;" v-if="flag">自有仓库出库成功</span>
+      <span style="color: blue" v-if="flag">自有仓库出库成功</span>
       <p>温馨提示: 1、请确保该主订单下所有子订单商品在海外仓都有库存，如果只有部分订单有库存商品，请不要出库，否则会导致没有库存的商品无法发货；</p>
       <p>温馨提示: 2、商品出库前，请确保平台物流和面单已申请</p>
       <p>温馨提示: 3、共享库存暂不能作为赠品进行出库</p>
@@ -150,18 +150,22 @@
           </div>
         </div>
         <div class="item">
-            <span>毛利</span>
-            <p class="content color">{{  grossProfit }}元</p>
+          <span>毛利</span>
+          <p class="content color">{{ grossProfit }}元</p>
         </div>
         <div class="item">
-            <span>利率</span>
-            <p class="content color">{{ interestRate }}%</p>
+          <span>利率</span>
+          <p class="content color">{{ interestRate }}%</p>
         </div>
       </div>
     </div>
     <el-dialog title="自有仓库列表" :visible.sync="selfGoodsStoreVisible" width="1200px" append-to-body top="5vh">
-      <self-goods-store @getChooseData="getChooseData" v-if="outStoreType==='1'"></self-goods-store>
-      <product-goods-store @getChooseData="getChooseData" v-if="outStoreType==='2'"></product-goods-store>
+      <div class="go-out-store">
+        <self-goods-store @getChooseData="getChooseData" v-if="outStoreType === '1'"></self-goods-store>
+        <product-goods-store @getChooseData="getChooseData" v-if="outStoreType === '2'"></product-goods-store>
+        <abroad-goods-store @getChooseData="getChooseData" v-if="outStoreType === '3'"></abroad-goods-store>
+        <inLand-goods-store @getChooseData="getChooseData" v-if="outStoreType === '4'"></inLand-goods-store>
+      </div>
     </el-dialog>
   </div>
 </template>
@@ -169,11 +173,15 @@
 <script>
 import SelfGoodsStore from './SelfGoodsStore'
 import ProductGoodsStore from './productGoodsStore'
+import InLandGoodsStore from './inLandGoodsStore.vue'
+import AbroadGoodsStore from './abroadGoodsStore'
 export default {
   name: 'GoodsOutStore',
   components: {
     SelfGoodsStore,
-    ProductGoodsStore
+    ProductGoodsStore,
+    InLandGoodsStore,
+    AbroadGoodsStore
   },
   props: {
     chooseData: {
@@ -198,12 +206,12 @@ export default {
       outStock: [],
       showInput: [],
       rateList: {},
-      outTotalPrice:0,
-      outTotalPriceRmb:0,
-      outTotalStock:0,
-      flag:false,
-      grossProfit:null,
-      interestRate:null
+      outTotalPrice: 0,
+      outTotalPriceRmb: 0,
+      outTotalStock: 0,
+      flag: false,
+      grossProfit: null,
+      interestRate: null,
     }
   },
   mounted() {
@@ -219,7 +227,7 @@ export default {
   methods: {
     totalPrice() {
       let arr = this.matchOrderList.filter((item) => Number(item.outStock) > 0)
-      console.log(arr,"arr")
+      console.log(arr, 'arr')
       let price = 0
       let numberS = 0
       arr.forEach((item) => {
@@ -228,9 +236,9 @@ export default {
       })
       this.outTotalStock = numberS
       this.outTotalPriceRmb = price
-      this.outTotalPrice = (price*Number(this.rateList[this.orderInfo.country])).toFixed(2)
-      this.grossProfit = ((this.income-this.outTotalPrice)/Number(this.rateList[this.orderInfo.country])).toFixed(2)
-      this.interestRate = Math.ceil(this.grossProfit/this.outTotalPriceRmb*100)
+      this.outTotalPrice = (price * Number(this.rateList[this.orderInfo.country])).toFixed(2)
+      this.grossProfit = ((this.income - this.outTotalPrice) / Number(this.rateList[this.orderInfo.country])).toFixed(2)
+      this.interestRate = Math.ceil((this.grossProfit / this.outTotalPriceRmb) * 100)
       console.log(this.rateList[this.orderInfo.country])
     },
     // 获取汇率
@@ -244,16 +252,16 @@ export default {
     //立即下单
     async placeOrder() {
       let arr = this.matchOrderList.filter((item) => Number(item.outStock) > 0)
-      arr.forEach(async (item,index) => {
+      arr.forEach(async (item, index) => {
         let params = {
           sysOrderIds: this.orderInfo.id,
           orderSn: item.order_sn,
           shotStatus: '6',
-          buyAccountInfo:JSON.stringify( {
+          buyAccountInfo: JSON.stringify({
             name: '自有商品发货 ',
             type: 10000,
           }),
-          payAccountInfo: JSON.stringify( {
+          payAccountInfo: JSON.stringify({
             name: '自有商品发货 ',
             type: 10000,
           }),
@@ -273,18 +281,18 @@ export default {
           platformId: 10000,
         }
         let res = await this.$api.batchUpdateShotOrder(params)
-        if(res.data.code === 200){
-            this.flag = true
-        }else{
-            this.flag = false
+        if (res.data.code === 200) {
+          this.flag = true
+        } else {
+          this.flag = false
         }
         console.log(res, 'placeOrder')
-        if(this.flag && index === arr.length-1){
+        if (this.flag && index === arr.length - 1) {
           this.$message.success('下单成功')
           this.matchOrderList = []
           this.totalPrice()
           console.log(this.matchOrderList)
-      }
+        }
       })
     },
     deleteMatchData(index) {
@@ -357,6 +365,9 @@ export default {
 
 <style lang="less" scoped>
 .out-store {
+  /deep/.el-dialog__body {
+    padding: 10px 20px;
+  }
   .out-header {
     height: 80px;
     color: red;
@@ -394,28 +405,28 @@ export default {
     width: 20%;
     margin-left: 10px;
     .item {
-        margin-top:10px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin-bottom: 10px;
-        margin-left: -26px;
-        span {
-          display: inline-block;
-          width: 80px;
-          text-align: right;
-          margin-right: 10px;
-        }
-        .content {
-          width: 200px;
-          border: 1px solid #dcdcdc;
-          padding: 5px;
-          min-height: 26px;
-        }
-        .color{
-            color:red;
-        }
+      margin-top: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 10px;
+      margin-left: -26px;
+      span {
+        display: inline-block;
+        width: 80px;
+        text-align: right;
+        margin-right: 10px;
       }
+      .content {
+        width: 200px;
+        border: 1px solid #dcdcdc;
+        padding: 5px;
+        min-height: 26px;
+      }
+      .color {
+        color: red;
+      }
+    }
   }
 }
 .order-box {
@@ -459,7 +470,11 @@ export default {
       }
     }
   }
-  
+}
+.go-out-store {
+  /deep/.el-dialog__body {
+    padding: 10px 20px;
+  }
 }
 </style>>
 
