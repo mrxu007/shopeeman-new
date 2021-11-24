@@ -3,15 +3,17 @@ class CollectOtherApI {
   _this = null // vue 实例
   constructor(that) {
     this._this = that
-    this.GoodsData = null
   }
-  async picSearch(params) {
+  async picSearch(platform, params) {
     try {
-      const res = await this._this.$collectService.imgSearch(params)
-      debugger
-      return { code: 200, data: '' }
+      let res = await this._this.$collectService.imgSearch(platform, params)
+      res = this.isJsonString(res)
+      if (typeof res === 'object' && res.Code === 0) {
+        return { code: 200, data: res.ListItem }
+      }
+      return { code: -2, data: typeof res === 'string' ? res : res.Msg }
     } catch (error) {
-      return { code: -2, data: `整店链接不规范：${error}` }
+      return { code: -2, data: `picSearch-catch: ${error}` }
     }
   }
 
@@ -25,18 +27,6 @@ class CollectOtherApI {
     }
     this.errorCatchText = null
     return JSON.stringify({ Code: -2, Msg: `捕获错误${errorText}` })
-  }
-  handleEntireKeyFactory(key) {
-    try {
-      let keyword = key.trim()
-      if (!keyword) {
-        return { code: -3, data: '整店链接不能为空' }
-      }
-      keyword = keyword.replace(/\s/g, ';').split(';')
-      return { code: 200, data: keyword }
-    } catch (error) {
-      return { code: -2, data: `整店链接不规范：${error}` }
-    }
   }
   writeLog(msg, success = true) {
     if (this._this.consoleMsg === undefined) {

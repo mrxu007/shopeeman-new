@@ -264,7 +264,7 @@
               </li>
             </ul>
             <div class="item con-sub-3">
-              <img v-if="this.base64Str" style="width: 200px; height: 156px" :src="base64Str" class="avatar" />
+              <img v-if="base64Str" style="width: 200px; height: 156px" :src="base64Str" class="avatar" />
             </div>
             <!--操作按钮 -->
             <ul class="item con-sub-2">
@@ -474,6 +474,7 @@
 import CollectKeyWordApI from './collection-keyword-api'
 import CollectLinkApI from './collection-link-api'
 import CollectEntireApI from './collection-entire-api'
+import CollectOtherApI from './collection-other-api'
 import { dateFormat, delay } from '../../../util/util'
 // getSiteRelation
 import { shopeeSite, lazadaSite, pictureSearchOrigin, getPlatform, platformObj, getShopeeSitePlace, getLazadaSitePlace } from './collection-platformId'
@@ -501,6 +502,7 @@ export default {
       CollectKeyWordApInstance: new CollectKeyWordApI(this), // 关键词采集
       collectLinkApInstance: new CollectLinkApI(this), // 链接采集
       collectEntireApInstance: new CollectEntireApI(this), // 整店采集
+      collectOtherApInstance: new CollectOtherApI(this), // 整店采集
 
       // table attr
       multipleSelection: [],
@@ -580,7 +582,7 @@ export default {
           { label: '销量从高到低', value: 'booked_true' }
         ],
         alibabaSortTypeVal: 'pop',
-        pictureSearchPlatformId: ''
+        pictureSearchPlatformId: '2'
       },
       // 基础参数
       start: 1,
@@ -832,7 +834,6 @@ export default {
       for (let i = 0; i < len; i++) {
         const item = data[i]
         const res2 = await this.collectEntireApInstance.mallSearch(item)
-        debugger
         if (res2.code !== 200) {
           this.writeLog(`店铺链接: ${item} 采集失败: ${res2.data}`, false)
           continue
@@ -854,20 +855,22 @@ export default {
       this.consoleMsg = ''
       this.goodsList = []
       this.$refs.plTable.reloadData(this.goodsList)
-      this.writeLog('开始图搜采集搜索........', true)
-      // const item = data[i]
-      // const res2 = await this.collectEntireApInstance.mallSearch(item)
-      // debugger
-      // if (res2.code !== 200) {
-      //   this.writeLog(`店铺链接: ${item} 采集失败: ${res2.data}`, false)
-      //   continue
-      // } else {
-      //   this.writeLog(`(${i + 1}/${len})店铺链接: ${item} 采集成功`)
-      //   this.goodsList.push(...res2.data)
-      // }
+      const Name = this.commonAttr.pictureSearchPlatformId === '8' ? '1688' : '淘宝'
+      this.writeLog(`开始 ${Name} 图搜采集搜索........`, true)
+      const params = {
+        ImageBase64: this.base64Str
+      }
+      this.commonAttr.pictureSearchPlatformId === '8' ? params['Page'] = 1 : '' // 1688 加页码
+      const res = await this.collectOtherApInstance.picSearch(this.commonAttr.pictureSearchPlatformId, params)
+      if (res.code !== 200) {
+        this.writeLog(`图搜采集: 采集失败: ${res.data}`, false)
+      } else {
+        this.writeLog('图搜采集: 采集成功', true)
+        this.goodsList.push(...res.data)
+      }
       console.log('this.goodsList', this.goodsList)
       this.writeLog(`图搜：共采集：${this.goodsList.length}条`, true)
-      this.writeLog(`图搜采集完毕........`, true)
+      this.writeLog(`${Name} 图搜采集完毕........`, true)
       this.buttonStatus.start = false
     },
     // 辅助-----------------------------

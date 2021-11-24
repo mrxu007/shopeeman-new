@@ -67,7 +67,7 @@ export default class CollectService {
     }
 
     // 以图搜图
-    imgSearch(params) {
-        return this.nativeService.imgSearch(JSON.stringify(params))
+    imgSearch(platform, params) {
+        return this.nativeService.imgSearch(platform - 0, JSON.stringify(params))
     }
 }
