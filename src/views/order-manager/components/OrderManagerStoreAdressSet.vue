@@ -173,8 +173,19 @@
           <span>国内中转仓</span>
         </el-form-item>
         <el-form-item label="仓库站点：">
-          <el-select v-model="itselfCountry" placeholder="" size="mini" filterable>
-            <el-option v-for="(item, index) in countries" :key="index" :label="item.label" :value="item.value" />
+          <el-select
+            v-model="itselfCountry"
+            :disabled="!flag3"
+            placeholder=""
+            size="mini"
+            filterable
+          >
+            <el-option
+              v-for="(item, index) in countries"
+              :key="index"
+              :label="item.label"
+              :value="item.value"
+            />
           </el-select>
         </el-form-item>
         <el-form-item label="仓库名称：">
@@ -222,7 +233,7 @@
             />
             <el-option
               v-for="(item, index) in warehouseList"
-              :key="item.id"
+              :key="index"
               :label="item.warehouse_name"
               :value="item.id"
             />
@@ -236,9 +247,16 @@
           法精准匹配,会有无法出库的风险
         </span>
         <el-button
+          v-if="flag3"
           type="primary"
           size="mini"
-          @click="adduserStore"
+          @click="itselfUpdate(1)"
+        >确 定</el-button>
+        <el-button
+          v-else
+          type="primary"
+          size="mini"
+          @click="itselfUpdate(2)"
         >确 定</el-button>
       </div>
     </el-dialog>
@@ -246,7 +264,7 @@
     <el-dialog
       :close-on-click-modal="false"
       class="sys-store-dialog"
-      title="申请系统仓库地址"
+      :title="flag?'申请系统仓库地址':'修改仓库地址信息'"
       width="1000px"
       :visible.sync="sysAdderssVisible"
       @close="handleClose2"
@@ -409,6 +427,7 @@ export default {
       isOverseasApplyAddress: false,
       flag: true, // 新增/修改
       flag2: true, // 系统/自有
+      flag3: true, // 添加地址 新增/修改
       countries: this.$filters.countries_option,
       AddressSet: new AddressSet(this),
       activeName: 'landStore',
@@ -428,14 +447,13 @@ export default {
       warehouseName: '', // 仓库名称
       wareHouseTel: '', // 联系电话
       receivingName: '', // 收件人
-      itemData: {},
+      itemData: {}, // 修改绑定店铺item
 
-      itselfId: 0, // ?
       itselfWarehouseName: '', // 仓库名称
       itselfCountry: 'TH', // 仓库站点
       itselfProvinceId: '',
       itselfProvinceText: '', // 收货省
-      itselfPityId: '',
+      itselfCityId: '',
       itselfCityText: '', // 收货市
       itselfDistinctId: '',
       itselfDistinctText: '', // 收货区
@@ -445,8 +463,9 @@ export default {
       itselfReceivingTel: '', // 电话号码
       itselfWarehouseId: 0, // 所属仓库
       itselfShopeeMapId: '',
-      itselfType: 0, // ?
-      warehouseList: [] // 所属仓库数据
+      warehouseList: [], // 所属仓库数据
+      itselfItemId: null // 修改自有仓库地址id
+
     }
   },
   mounted() {
@@ -458,14 +477,25 @@ export default {
   methods: {
     // 修改自有仓库弹窗
     async updateItself(row) {
-      console.log(row)
+      this.itselfItemId = row.id
+      this.flag3 = false
       this.itselfAddressVisible = true
       this.$nextTick(() => {
         this.$refs.addressModel.update(row.province_id, row.city_id, row.distinct_id)
       })
-      console.log(this.itselfProvinceText)
-      console.log(this.itselfCityText)
-      console.log(this.itselfDistinctText)
+      this.xzyAllIndex()
+      this.itselfWarehouseName = row.warehouse_name
+      this.itselfDetailAddress = row.detail_address
+      this.itselfReceivingName = row.receiving_name
+      this.itselfReceivingTel = row.receiving_tel
+      this.itselfCountry = row.country
+    },
+    // 修改自有仓库
+    async updateItselfData(params) {
+      params['id'] = this.itselfItemId
+      params['warehouseId'] = this.itselfWarehouseId
+      await this.updateData(params)
+      this.itselfAddressVisible = false
     },
     // 修改绑定店铺弹窗
     async updateBindMall(row) {
@@ -514,7 +544,6 @@ export default {
       params['address']['province_text'] = this.itemData.province_text
       params['address']['receiving_name'] = this.receivingName
       params['address']['receiving_tel'] = this.wareHouseTel
-
       this.multipleSelection.forEach(item => {
         params['mallId'].push(item.sysMallId)
       })
@@ -558,9 +587,7 @@ export default {
     sysWarehouseChange() {
       let arr = {}
       this.warehouseData.forEach(item => {
-        if (item.id === this.sysWarehouseId) {
-          arr = item
-        }
+        if (item.id === this.sysWarehouseId) arr = item
       })
       this.warehouseAddress = arr.full_address
       this.wareHouseTel = arr.receiving_tel
@@ -623,12 +650,8 @@ export default {
         this.$message.error(res.data)
       }
     },
-    // 添加国内自有仓库
-    async adduserStore() {
+    itselfUpdate(type) {
       let arr = {}
-      const params = {
-        address: {}
-      }
       const reg = /^1([38]\d|5[0-35-9]|7[3678])\d{8}$/
       if (!this.itselfWarehouseName) return this.$message('仓库名称不能为空')
       if (!this.itselfDetailAddress) return this.$message('详细地址不能为空')
@@ -643,9 +666,7 @@ export default {
       }).then(async() => {
         if (this.itselfWarehouseId !== 0) {
           this.warehouseList.forEach(item => {
-            if (this.itselfWarehouseId === item.id) {
-              arr = item
-            }
+            if (this.itselfWarehouseId === item.id) arr = item
           })
           if (this.itselfProvinceText !== arr.province_text ||
               this.itselfCityText !== arr.city_text ||
@@ -654,18 +675,20 @@ export default {
             this.$message('自有出库地址与归属出库地址省份信息不匹配')
             return
           }
+          if (this.itselfDetailAddress === arr.detail_address) return this.$message('自有仓库地址不能和系统仓库地址完全相同')
+        }
+        const params = {
+          address: {}
         }
         this.itselfFullAddress =
         this.itselfProvinceText + ' ' +
         this.itselfCityText + ' ' +
         this.itselfDistinctText + ' ' +
         this.itselfDetailAddress
-        params['id'] = this.itselfId
         params['warehouseName'] = this.itselfWarehouseName
-        params['address']['country'] = this.itselfCountry
         params['address']['province_id'] = this.itselfProvinceId
         params['address']['province_text'] = this.itselfProvinceText
-        params['address']['city_id'] = this.itselfPityId
+        params['address']['city_id'] = this.itselfCityId
         params['address']['city_text'] = this.itselfCityText
         params['address']['distinct_id'] = this.itselfDistinctId
         params['address']['distinct_text'] = this.itselfDistinctText
@@ -673,22 +696,35 @@ export default {
         params['address']['full_address'] = this.itselfFullAddress
         params['address']['receiving_name'] = this.itselfReceivingName
         params['address']['receiving_tel'] = this.itselfReceivingTel
-        params['address']['warehouseId'] = this.itselfWarehouseId
-        params['address']['shopee_map_id'] = this.itselfShopeeMapId
-        params['address']['type'] = this.itselfType
-        console.log(params)
-        const res = await this.AddressSet.adduserStore(params)
-        if (res.code === 200) {
-          this.$message.success('添加国内自有仓库成功')
-          this.itselfAddressVisible = false
-        } else {
-          this.$message.error(res.data)
+        switch (type) {
+          case 1:
+            this.adduserStore(params)
+            break
+          case 2:
+            this.updateItselfData(params)
+            break
         }
       })
+    },
+    // 添加国内自有仓库
+    async adduserStore(params) {
+      params['id'] = 0
+      params['address']['country'] = this.itselfCountry
+      params['address']['warehouseId'] = this.itselfWarehouseId
+      params['address']['shopee_map_id'] = this.itselfShopeeMapId
+      params['address']['type'] = 0 // 国内
+      const res = await this.AddressSet.adduserStore(params)
+      if (res.code === 200) {
+        this.$message.success('添加国内自有仓库成功')
+        this.itselfAddressVisible = false
+      } else {
+        this.$message.error(res.data)
+      }
     },
     // 添加国内自有仓库弹窗
     homeAddress() {
       this.itselfAddressVisible = true
+      this.flag3 = true
       this.$nextTick(() => {
         this.$refs.addressModel.init()
       })
@@ -771,12 +807,11 @@ export default {
     },
     handleClose1() {
       this.getUserWarehouse()
-      this.itselfId = 0
       this.itselfWarehouseName = ''
       this.itselfCountry = 'TH'
       this.itselfProvinceId = ''
       this.itselfProvinceText = ''
-      this.itselfPityId = ''
+      this.itselfCityId = ''
       this.itselfCityText = ''
       this.itselfDistinctId = ''
       this.itselfDistinctText = ''
@@ -786,7 +821,6 @@ export default {
       this.itselfReceivingTel = ''
       this.itselfWarehouseId = 0
       this.itselfShopeeMapId = ''
-      this.itselfType = 0
     },
     handleClose2() {
       this.xzyIndex()
@@ -799,7 +833,7 @@ export default {
       console.log('addressData', val)
       this.itselfProvinceId = val.province_id
       this.itselfProvinceText = val.province_text
-      this.itselfPityId = val.city_id
+      this.itselfCityId = val.city_id
       this.itselfCityText = val.city_text
       this.itselfDistinctId = val.distinct_id
       this.itselfDistinctText = val.distinct_text
