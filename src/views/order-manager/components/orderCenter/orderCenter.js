@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-11-10 12:02:05
- * @LastEditTime: 2021-11-22 21:02:26
+ * @LastEditTime: 2021-11-23 22:50:59
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shopeeman-new\src\views\order-manager\components\orderCenter\selectData.js
@@ -771,7 +771,10 @@ const syncStatusAll = [
   },
 ]
 const syncStatus = [
-  // { label: '未支付', value: 'unpaid'},
+  // {
+  //   label: '未支付',
+  //   value: 'unpaid'
+  // // },
   // {
   //   label: '待发货',
   //   value: 'toship'
@@ -1147,167 +1150,130 @@ const columnData = [{
     first_column_is_checkbox: -1
   },
 ]
-//链接表
-const buyLinks = [{
-    label: "拼多多",
-    value: 1,
-    link: "http://mobile.yangkeduo.com/goods.html?goods_id=2459375892"
+
+const platformLinkList = [{
+    purchase_platform_id: 1,
+    purchase_url: 'http://mobile.yangkeduo.com/goods.html?goods_id=',
+    purchase_url_all: 'http://mobile.yangkeduo.com/goods.html?goods_id=2459375892',
+    label: '拼多多'
   },
   {
-    label: "淘宝",
-    value: 2,
-    link: "https://item.taobao.com/item.htm?id=561870475654"
-  }, {
-    label: "天猫",
-    value: 3,
-    link: "https://detail.tmall.com/item.htm?id=20601016004"
-  }, {
-    label: "京喜",
-    value: 10,
-    link: "https://m.jingxi.com/item/view?sku=20601016004" //https://item.m.jd.com/product/69229062806.html
-  }, {
-    label: "1688",
-    value: 8,
-    link: "https://detail.1688.com/offer/635819118296.html"
-  }, {
-    label: "shopee",
-    value: 11,
-    link: "https://xiapi.xiapibuy.com/product/60119183/2677842767"
+    purchase_platform_id: 2,
+    purchase_url: 'https://item.taobao.com/item.htm?id=',
+    purchase_url_all: 'https://item.taobao.com/item.htm?id=561870475654',
+    label: '淘宝'
   },
   {
-    label: "天猫淘宝海外平台",
-    value: 13,
-    link: "https://distributor.taobao.global/apps/product/detail?mpId=60003345"
-  }, {
-    label: "lazada",
-    value: 9,
-    link: "https://www.lazada.com.my/products/i1143594827.html"
+    purchase_platform_id: 3,
+    purchase_url: 'https://detail.tmall.com/item.htm?id=',
+    purchase_url_all: 'https://detail.tmall.com/item.htm?id=20601016004',
+    label: '天猫'
+  },
+  {
+    purchase_platform_id: 8,
+    purchase_url: 'https://detail.1688.com/offer/',
+    purchase_url_all: 'https://detail.1688.com/offer/635819118296.html',
+    label: '1688'
+  },
+  {
+    purchase_platform_id: 10,
+    purchase_url: 'https://m.jingxi.com/item/view?sku=',
+    purchase_url_all: 'https://m.jingxi.com/item/view?sku=20601016004',
+    label: '京喜'
+  },
+  {
+    purchase_platform_id: 9,
+    purchase_url: 'https://www.lazada.com.my/products/i',
+    purchase_url_all: 'https://www.lazada.com.my/products/i1143594827.html',
+    label: 'lazada'
+  },
+  {
+    purchase_platform_id: 11,
+    purchase_url: 'https://xiapi.xiapibuy.com/product/60119183/',
+    purchase_url_all: 'https://xiapi.xiapibuy.com/product/60119183/2677842767',
+    label: 'shopee'
+  },
+  {
+    purchase_platform_id: 13,
+    purchase_url: 'https://distributor.taobao.global/apps/product/detail?mpId=',
+    purchase_url_all: 'https://distributor.taobao.global/apps/product/detail?mpId=60003345',
+    label: '天猫淘宝海外平台'
   },
 ]
-const platformLinkList = [
-    {
-      purchase_platform_id: 1,
-      purchase_url: 'http://mobile.yangkeduo.com/goods.html?goods_id=',
-      purchase_url_all: 'http://mobile.yangkeduo.com/goods.html?goods_id=2459375892',
-      label: '拼多多'
-    },
-    {
-      purchase_platform_id: 2,
-      purchase_url: 'https://item.taobao.com/item.htm?id=',
-      purchase_url_all: 'https://item.taobao.com/item.htm?id=561870475654',
-      label: '淘宝'
-    },
-    {
-      purchase_platform_id: 3,
-      purchase_url: 'https://detail.tmall.com/item.htm?id=',
-      purchase_url_all: 'https://detail.tmall.com/item.htm?id=20601016004',
-      label: '天猫'
-    },
-    {
-      purchase_platform_id: 8,
-      purchase_url: 'https://detail.1688.com/offer/',
-      purchase_url_all: 'https://detail.1688.com/offer/635819118296.html',
-      label: '1688'
-    },
-    {
-      purchase_platform_id: 10,
-      purchase_url: 'https://m.jingxi.com/item/view?sku=',
-      purchase_url_all: 'https://m.jingxi.com/item/view?sku=20601016004',
-      label: '京喜'
-    },
-    {
-      purchase_platform_id: 9,
-      purchase_url: 'https://www.lazada.com.my/products/i',
-      purchase_url_all: 'https://www.lazada.com.my/products/i1143594827.html',
-      label: 'lazada'
-    },
-    {
-      purchase_platform_id: 11,
-      purchase_url: 'https://xiapi.xiapibuy.com/product/60119183/',
-      purchase_url_all: 'https://xiapi.xiapibuy.com/product/60119183/2677842767',
-      label: 'shopee'
-    },
-    {
-      purchase_platform_id: 13,
-      purchase_url: 'https://distributor.taobao.global/apps/product/detail?mpId=',
-      purchase_url_all: 'https://distributor.taobao.global/apps/product/detail?mpId=60003345',
-      label: '天猫淘宝海外平台'
-    },
-  ]
-  const warehouseType = [{
-      label: "国内中转仓",
-      value: 0
-    },
-    {
-      label: "存储转运仓",
-      value: 1
-    },
-    {
-      label: "海外存储仓",
-      value: 2
-    },
-    {
-      label: "海外中转仓",
-      value: 3
-    }
-  ]
-  const forbidData = [
-    "爆炸性、易燃性、腐蚀性、放射性和毒性等危险物品",
-    "货币、支票、有价证券、有价金属、人造钻石、珠宝或其他贵重物品",
-    "形仿武器、弹药",
-    "燃料矿物、矿物油及其蒸馏产品、可燃易燃性气体、液体、固体，打火机，火柴",
-    "沥青矿物；矿物蜡；润滑油、油漆；指甲油、指甲胶",
-    "药物（麻醉药物、精神药物）、急救箱",
-    "淫秽物品、性用品",
-    "活体动、植物",
-    "种子、水果、食品、茶叶",
-    "液体、粉末，毛皮、皮肤",
-    "烟、酒",
-    "仿牌货物",
-    "发光、发热、烟花类物品",
-    "含马达、发动机",
-    "磁类货物",
-    "纯电池和配套电池货物",
-    "反动书籍、报刊、杂志、光碟",
-    "证件：身份证、护照、驾照等",
-    "压缩类气体；以及其他航司及目的地海关及法律禁运货限运的物品"
-  ]
-  const forbidTHData = [
-    "食品",
-    "食材",
-    "酱料",
-    "零食",
-    "纯电池",
-    "移动电源",
-    "电动车",
-    "航模飞机",
-    "台式主机",
-    "美容美发",
-    "医疗产品",
-    "清洁剂",
-    "胶水",
-    "油漆",
-    "摩托车（头盔，轮胎）",
-    "化妆品（成品无牌）",
-    "卷尺",
-    "蚊香",
-    "肥皂",
-    "洗头水",
-    "沐浴露",
-    "牙膏",
-    "足膜足贴",
-    "运动健身贴",
-    "仿产地",
-    "摩托车排气管",
-    "特殊危险敏感贵重货物",
-    "手机及平板",
-    "性用品（药品，情趣用品）",
-    "电子烟",
-    "赌具",
-    "香烟",
-    "酒",
-    "古董"
-  ]
+const warehouseType = [{
+    label: "国内中转仓",
+    value: 0
+  },
+  {
+    label: "存储转运仓",
+    value: 1
+  },
+  {
+    label: "海外存储仓",
+    value: 2
+  },
+  {
+    label: "海外中转仓",
+    value: 3
+  }
+]
+const forbidData = [
+  "爆炸性、易燃性、腐蚀性、放射性和毒性等危险物品",
+  "货币、支票、有价证券、有价金属、人造钻石、珠宝或其他贵重物品",
+  "形仿武器、弹药",
+  "燃料矿物、矿物油及其蒸馏产品、可燃易燃性气体、液体、固体，打火机，火柴",
+  "沥青矿物；矿物蜡；润滑油、油漆；指甲油、指甲胶",
+  "药物（麻醉药物、精神药物）、急救箱",
+  "淫秽物品、性用品",
+  "活体动、植物",
+  "种子、水果、食品、茶叶",
+  "液体、粉末，毛皮、皮肤",
+  "烟、酒",
+  "仿牌货物",
+  "发光、发热、烟花类物品",
+  "含马达、发动机",
+  "磁类货物",
+  "纯电池和配套电池货物",
+  "反动书籍、报刊、杂志、光碟",
+  "证件：身份证、护照、驾照等",
+  "压缩类气体；以及其他航司及目的地海关及法律禁运货限运的物品"
+]
+const forbidTHData = [
+  "食品",
+  "食材",
+  "酱料",
+  "零食",
+  "纯电池",
+  "移动电源",
+  "电动车",
+  "航模飞机",
+  "台式主机",
+  "美容美发",
+  "医疗产品",
+  "清洁剂",
+  "胶水",
+  "油漆",
+  "摩托车（头盔，轮胎）",
+  "化妆品（成品无牌）",
+  "卷尺",
+  "蚊香",
+  "肥皂",
+  "洗头水",
+  "沐浴露",
+  "牙膏",
+  "足膜足贴",
+  "运动健身贴",
+  "仿产地",
+  "摩托车排气管",
+  "特殊危险敏感贵重货物",
+  "手机及平板",
+  "性用品（药品，情趣用品）",
+  "电子烟",
+  "赌具",
+  "香烟",
+  "酒",
+  "古董"
+]
 
 export {
   orderStatusList,

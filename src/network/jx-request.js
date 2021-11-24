@@ -150,7 +150,7 @@ export default {
   getBuyerList: (data) => AppRequest.get('/buyerAccount/index', data), // 下载买手号
   getOrderList: (data) => AppRequest.post('/order', data), // 获取订单列表
   checkAfterOrderSnStatus: (data) => AppRequest.get('/order/checkAfterOrderSnStatus', data), // 售后订单检测
-  checkOrderSnStatus: (data) => AppRequest.get('/order/checkOrderSnStatus', data), // 正常订单检测 
+  checkOrderSnStatus: (data) => AppRequest.get('/order/checkOrderSnStatus', {params:data}), // 正常订单检测 
   uploadOrderSave: (data) => AppRequest.post('/order/saveOrder', data), // 上报接口--线上
   uploadOrderSaveTest: (data) => AppRequest.post('/order/uploadOrder', data), // 上报接口--测试 
   uploadOrderAfterSale: (data) => AppRequest.post('/order/uploadAfter', data), // 售后订单上报接口--测试 

@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-11-09 10:14:02
- * @LastEditTime: 2021-11-22 20:04:34
+ * @LastEditTime: 2021-11-23 15:04:45
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shopeeman-new\src\components\buyer-account.vue
@@ -150,6 +150,7 @@
 import { syncStatus } from './orderCenter'
 import orderSync from '../../../../services/timeOrder'
 import LogisticeSyncService from '../../../../services/logistics-sync-service/logistics-sync-service-new-copy'
+import shotOrderPlatform from '../../../../services/short-order/shot-order-platform'
 export default {
   name: 'BuyerAccount',
   props: {
@@ -185,7 +186,7 @@ export default {
             { title: '京喜账号', platform: 10, centerTitle: '京喜个人中心' },
             { title: 'lazada账号', platform: 9, centerTitle: 'lazada个人中心' },
             { title: 'shopee账号', platform: 11, centerTitle: 'shopee个人中心' },
-            { title: '天猫淘宝海外账号', platform: 888, centerTitle: '刷新天猫淘宝海外平台账号' },
+            { title: '天猫淘宝海外账号', platform: 13, centerTitle: '刷新天猫淘宝海外平台账号' },
             // { title: '京东账号', platform: 4 }
           ],
           right: [
@@ -291,7 +292,6 @@ export default {
     await this.buyerAccount()
     await this.getGlobalAccount()
     this.defaultSelect()
-    console.log(this.$parent)
   },
   methods: {
     //刷新天猫淘宝海外平台账号
@@ -335,7 +335,7 @@ export default {
         })
         this.buyerAccountListGlobal = arr
         this.$parent['buyerAccountListGlobal'] = arr
-        console.log(this.buyerAccountListGlobal,"buyerAccountListGlobal")
+        // console.log(this.buyerAccountListGlobal,"buyerAccountListGlobal")
         this.defaultSelect()
       }
     },
@@ -562,27 +562,26 @@ export default {
     //转换拍单平台type
     changeType(type) {
       switch (type) {
-        //pdd
-        case 1:
-          return 1
-        //tb
-        case 2:
-          return 0
-        //1688
-        case 8:
-          return 5
-        //jingxi
-        case 10:
-          return 3
-        //lazada
-        case 9:
-          return 7
-        //shopee
-        case 11:
-          return 8
-        default:
-          return type
-      }
+      case 1:
+        return shotOrderPlatform.PinDuoduo
+      case 2:
+      case 3:
+        return shotOrderPlatform.TaoBao
+      case 4:
+        return shotOrderPlatform.JingDong
+      case 8:
+        return shotOrderPlatform.Alibaba
+      case 9:
+        return shotOrderPlatform.Lazada
+      case 10:
+        return shotOrderPlatform.JingXi
+      case 11:
+        return shotOrderPlatform.Shopee
+      case 13:
+        return shotOrderPlatform.CrossBorder
+      default:
+        return shotOrderPlatform.PinDuoduo
+    }
     },
     //转换参数为壳需要
     changeAccountParams(account) {
@@ -775,7 +774,6 @@ export default {
     },
     // 默认选中第一个账户信息
     defaultSelect() {
-      console.log(this.$parent[this.upData])
       this.selectAccount.accountpdd = this.$parent[this.upData].filter((item) => {
         return item.type === 1
       })[0]
@@ -783,7 +781,6 @@ export default {
             return item.type === 1
           })[0].id
         : ''
-      console.log(this.selectAccount.accountpdd, 'accountpdd')
       this.selectAccount.accounttaobao = this.$parent[this.upData].filter((item) => {
         return item.type === 2
       })[0]
@@ -791,7 +788,6 @@ export default {
             return item.type === 2
           })[0].id
         : ''
-      console.log(this.selectAccount.accounttaobao, 'accounttaobao')
       this.selectAccount.account1688 = this.$parent[this.upData].filter((item) => {
         return item.type === 8
       })[0]

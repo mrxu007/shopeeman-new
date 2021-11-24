@@ -6,46 +6,20 @@ export default class buyerAccountService {
     this.nativeService = window['buyerAccountService']
   }
   ShotOrderPlatform ={
-    /// 淘宝
-    TaoBao : 0,
-    /// 拼多多
-    PinDuoduo : 1,
-    /// 京东
-    JingDong : 2,
-    /// 京喜
-    /// </summary>
-    JingXi : 3,
-    /// 1688
-    Alibaba : 4,
-    /// 拼多多云拍单
-    YunPaiDan : 5,
-    /// lazada
-    Lazada : 6,
-    /// shopee
-    Shopee : 7,
-    /// 淘宝天猫海外
-    CrossBorder : 8,
-    /// 自有商品
-    OwnPlatform : 9,
-    /// 皮皮虾供货平台
-    PpxiasGhpt : 10,
-    /// 速卖通
-    AliExpressPlatform : 11,
-    /// 货老板
-    HYJ : 12
+     TaoBao : 0,
+     PinDuoduo : 1,
+     JingDong : 2,
+     JingXi : 3,
+     HYJ : 4,
+     Alibaba : 5,
+     YunPaiDan : 6,
+     Lazada : 7,
+     Shopee : 8,
+     CrossBorder : 9,
+     OwnPlatform : 10,
+     PpxiasGhpt : 11,
+     AliExpressPlatform : 12
 }
-  /**拍单模块
-   *      TaoBao, 0
-          PinDuoduo, 1
-          JingDong, 2
-          JingXi, 3
-          HYJ, 4
-          Alibaba, 5
-          YunPaiDan, 6
-          Lazada, 7
-          Shopee, 8
-          CrossBorder 9
-   */
   /** shopee ppx项目
    *  public const int PddPlatform = 1; //拼多多
           public const int TbPlatform = 2; //淘宝

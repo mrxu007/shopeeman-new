@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-11-09 10:17:44
- * @LastEditTime: 2021-11-22 22:02:04
+ * @LastEditTime: 2021-11-23 21:19:08
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shopeeman-new\src\views\order-manager\components\OrderManagerOrderCenter.vue
@@ -220,7 +220,9 @@
           <template slot-scope="scope">{{ changeTypeName(scope.row.goods_info.ori_platform_id, goodsSourceList) }}</template>
         </el-table-column>
         <el-table-column align="center" prop="123456" label="查看采购地址" min-width="120" v-if="showTableColumn('查看采购地址')">
-          <template slot-scope="scope">{{}}</template>
+          <template slot-scope="scope">
+            <el-button size="mini" type="primary" @click="openUrl(scope.row.goods_info.ori_url)">查看采购地址</el-button>
+          </template>
         </el-table-column>
         <el-table-column align="center" prop="123456" label="是否可二次销售" min-width="120" v-if="showTableColumn('是否可二次销售')">
           <template slot-scope="scope">{{}}</template>
@@ -321,11 +323,11 @@
         <el-table-column align="center" prop="buy_account_info" label="采购账号" min-width="120" v-if="showTableColumn('采购账号')">
           <template slot-scope="scope">{{ scope.row.shot_order_info.buy_account_info ? scope.row.shot_order_info.buy_account_info.name : '' }}</template>
         </el-table-column>
-        <el-table-column align="center" prop="" label="账单明细" min-width="80" v-if="showTableColumn('账单明细')">
+        <!-- <el-table-column align="center" prop="" label="账单明细" min-width="80" v-if="showTableColumn('账单明细')">
           <template slot-scope="scope">
             <el-button type="primary" size="mini">账单明细</el-button>
           </template>
-        </el-table-column>
+        </el-table-column> -->
         <el-table-column align="center" prop="" label="拍单" min-width="80" v-if="showTableColumn('拍单')">
           <template slot-scope="scope">
             <el-button type="primary" size="mini">拍单</el-button>
@@ -357,7 +359,7 @@
         </el-table-column>
         <el-table-column align="center" prop="123456" label="采购物流轨迹" min-width="120" v-if="showTableColumn('采购物流轨迹')">
           <template slot-scope="scope">
-            <el-button type="primary" size="mini">采购物流轨迹</el-button>
+            <el-button type="primary" size="mini" @click="trackPathVisible = true">采购物流轨迹</el-button>
           </template>
         </el-table-column>
         <el-table-column align="center" prop="merchant_no" label="商户订单号" min-width="120" v-if="showTableColumn('商户订单号')">
@@ -372,15 +374,15 @@
         <!-- <el-table-column align="center" prop="note" label="买家备注" min-width="80">
           <template slot-scope="scope">{{  }}</template>
         </el-table-column> -->
-        <el-table-column align="center" prop="logistics_id" label="虾皮物流" min-width="80" v-if="showTableColumn('虾皮物流')">
-          <template slot-scope="scope">{{ scope.row.logistics_id }}</template>
+        <el-table-column align="center" prop="logistics_name" label="虾皮物流" min-width="80" v-if="showTableColumn('虾皮物流')">
+          <template slot-scope="scope">{{ scope.row.logistics_name }}</template>
         </el-table-column>
         <el-table-column align="center" prop="tracking_no" label="虾皮物流单号" min-width="120" v-if="showTableColumn('虾皮物流单号')">
           <template slot-scope="scope">{{ scope.row.tracking_no }}</template>
         </el-table-column>
         <el-table-column align="center" prop="123456" label="虾皮物流轨迹" min-width="120" v-if="showTableColumn('虾皮物流轨迹')">
           <template slot-scope="scope">
-            <el-button type="primary" size="mini">虾皮物流轨迹</el-button>
+            <el-button type="primary" size="mini" @click="getSHtrackPath(scope.row)">虾皮物流轨迹</el-button>
           </template>
         </el-table-column>
         <el-table-column align="center" prop="ship_by_date" label="截止发货时间" min-width="140" v-if="showTableColumn('截止发货时间')">
@@ -430,6 +432,22 @@
                 <el-dropdown-item> <div class="dropdownItem" @click="singleBuyInfo(scope.row)">采购信息编辑</div></el-dropdown-item>
                 <el-dropdown-item> <div class="dropdownItem" @click="addPurchaseLink(scope.row, scope.$index)">添加采购链接</div></el-dropdown-item>
                 <el-dropdown-item> <div class="dropdownItem" @click="addMoreTrackingNumber(scope.row, scope.$index)">添加多物流单号</div></el-dropdown-item>
+                <el-dropdown-item> <div class="dropdownItem" @click="setColorSingle(scope.row, scope.$index)">标记颜色标识</div></el-dropdown-item>
+                <el-dropdown-item>
+                  <div
+                    class="dropdownItem"
+                    @click="
+                      clickRow = scope.row
+                      billsDetailVisible = true
+                    "
+                  >
+                    账单明细
+                  </div></el-dropdown-item
+                >
+                <el-dropdown-item> <div class="dropdownItem" @click="SyncOrder(scope.row)">同步此店铺订单</div></el-dropdown-item>
+                <el-dropdown-item> <div class="dropdownItem" @click="SyncOrderSingle(scope.row)">同步订单</div></el-dropdown-item>
+                <el-dropdown-item> <div class="dropdownItem" @click="syncLogisticsSingle(scope.row)">同步此订单物流</div></el-dropdown-item>
+                <el-dropdown-item> <div class="dropdownItem" @click="getSHtrackPath(scope.row)">虾皮物流轨迹</div></el-dropdown-item>
               </el-dropdown-menu>
             </el-dropdown>
             <!-- <el-button type="primary" size="mini">操作</el-button> -->
@@ -480,7 +498,7 @@
         <el-button type="primary" size="mini" @click="batchSetRemark">批量添加</el-button>
       </span>
     </el-dialog>
-    <el-dialog title="选择颜色标识" :visible.sync="colorVisible" width="600px" :close-on-click-modal="false">
+    <el-dialog title="选择颜色标识" :visible.sync="colorVisible" width="600px" :close-on-click-modal="false" v-if="colorVisible">
       <div class="color-style">
         <el-table ref="colorTable" :data="colorList" tooltip-effect="dark" style="width: 100%" height="500">
           <el-table-column label="标识选择" width="100">
@@ -497,11 +515,11 @@
         </el-table>
       </div>
       <span slot="footer">
-        <el-button type="primary" size="mini" @click="setColor">设置颜色</el-button>
+        <el-button type="primary" size="mini" @click="setColor(multipleSelection)">设置颜色</el-button>
       </span>
     </el-dialog>
     <el-dialog title="批量添加采购信息" :visible.sync="purchaseInfoVisible" width="500px" top="5vh" v-if="purchaseInfoVisible" :close-on-click-modal="false">
-      <purchase-info :chooseData="multipleSelection" :buyerAccountList="buyerAccountList" @close="close" :dealType="dealType"></purchase-info>
+      <purchase-info :chooseData="multipleSelection" :buyerAccountList="buyerAccountList" @close="closeDialog" :dealType="dealType"></purchase-info>
     </el-dialog>
     <el-dialog title="同步数据至仓库" :visible.sync="pushOrderToStoreVisible" width="1200px" :close-on-click-modal="false">
       <push-order :chooseData="multipleSelection"></push-order>
@@ -533,10 +551,10 @@
     <!-- 四类商品出库 -->
     <el-dialog :visible.sync="goodsOutStoreVisible" width="1400px" top="5vh" v-if="goodsOutStoreVisible" :close-on-click-modal="false">
       <div slot="title">{{ outStoreTitle }}</div>
-      <goods-out-store :chooseData="multipleSelection" :type="outStoreType"></goods-out-store>
+      <goods-out-store :chooseData="multipleSelection" :outStoreType="outStoreType"></goods-out-store>
     </el-dialog>
     <el-dialog title="添加采购链接" :visible.sync="addBuyLinkVisible" width="1200px" v-if="addBuyLinkVisible" append-to-body :close-on-click-modal="false">
-      <buy-link :linkRow="clickRow" @close="close"></buy-link>
+      <buy-link :linkRow="clickRow" @close="closeDialog"></buy-link>
     </el-dialog>
     <el-dialog title="查看禁运品" :visible.sync="lookForbidVisible" width="1200px" :close-on-click-modal="false">
       <div class="forbid">
@@ -555,22 +573,54 @@
     <el-dialog title="添加多物流单号" :visible.sync="addMoreTraNumberVisible" width="700px" :close-on-click-modal="false" v-if="addMoreTraNumberVisible" @close="closeDialog">
       <div class="tra-style">
         <div class="item-box">
-          <span style="width:60px;">绑定仓库</span>
+          <span style="width: 60px">绑定仓库</span>
           <el-select v-model="bindStore" size="mini" class="inputWidth">
             <el-option :label="item.warehouse_name" :value="item.warehouse_id" v-for="(item, index) in warehouseData" :key="index"></el-option>
           </el-select>
         </div>
         <div v-for="(item, index) in trackingNumberList" :key="index" class="tra-content">
           <div class="item-box">
-            <span style="width:80px;">物流单号{{ index+1 }}</span>
+            <span style="width: 80px">物流单号{{ index + 1 }}</span>
             <el-input v-model="item.original_tracking_number" size="mini" class="inputWidth"></el-input>
           </div>
           <div class="item-box">
-            <span style="width:80px;">物流公司{{ index+1 }}</span>
+            <span style="width: 80px">物流公司{{ index + 1 }}</span>
             <el-input v-model="item.original_logistics_company" size="mini" class="inputWidth mar-right"></el-input>
           </div>
-          <el-button type="primary" size="mini" @click="deleteTraNumber(index)" class="item-box mar-right" >删除</el-button>
+          <el-button type="primary" size="mini" @click="deleteTraNumber(index)" class="item-box mar-right">删除</el-button>
           <el-button type="primary" size="mini" v-if="index === trackingNumberList.length - 1" @click="addTraNumber" class="item-box">添加</el-button>
+        </div>
+        <p>关于绑定仓库选项:</p>
+        <p>1、仅显示当前订单店铺绑定的仓库</p>
+        <p>2、采购类型如果为国内平台时，显示国内中转仓，如果为国外平台则显示海外仓</p>
+      </div>
+      <span slot="footer">
+        <el-button type="primary" size="mini" @click="saveAddMoreTra">保 存</el-button>
+      </span>
+    </el-dialog>
+    <el-dialog title="账单明细" :visible.sync="billsDetailVisible"  top="5vh" width="1200px" :close-on-click-modal="false" v-if="billsDetailVisible" @close="closeDialog">
+      <bill-detail :chooseData="clickRow"></bill-detail>
+    </el-dialog>
+    <el-dialog title="物流轨迹" :visible.sync="trackPathVisible" width="400px" :close-on-click-modal="false" v-if="trackPathVisible" @close="closeDialog">
+      <el-steps direction="vertical" :active="1">
+        <el-step title="暂无物流信息" :description="$dayjs(new Date()).format('YYYY-MM-DD HH:mm')"></el-step>
+      </el-steps>
+    </el-dialog>
+    <el-dialog title="虾皮物流轨迹" :visible.sync="spTrackPathVisible" width="600px" :close-on-click-modal="false" v-if="spTrackPathVisible" @close="closeDialog">
+      <div class="track-step">
+        <div class="step-header">
+          <span>物流名称：</span>
+          <span>{{ clickRow.logistics_name }}</span>
+          <span>物流编号:</span>
+          <span>{{ clickRow.tracking_no }}</span>
+        </div>
+        <div v-if="spTrackPath.length">
+          <el-steps direction="vertical" :active="1">
+            <el-step title="暂无物流信息" :description="$dayjs(new Date()).format('YYYY-MM-DD HH:mm')"></el-step>
+          </el-steps>
+        </div>
+        <div v-else>
+          <p>暂无</p>
         </div>
       </div>
     </el-dialog>
@@ -578,7 +628,7 @@
 </template>
 
 <script>
-import { orderStatusList, shotStatusList, timeTypeList, inputTypeList, goodsSourceList, siteShip, columnData, forbidData, forbidTHData } from '../components/orderCenter/orderCenter'
+import { orderStatusList, shotStatusList, timeTypeList, inputTypeList, goodsSourceList, siteShip, columnData, forbidData, forbidTHData, syncStatus } from '../components/orderCenter/orderCenter'
 import { exportExcelDataCommon, creatDate } from '../../../util/util'
 import storeChoose from '../../../components/store-choose'
 import BuyerAccount from './orderCenter/buyer-account.vue'
@@ -587,9 +637,11 @@ import PurchaseInfo from './orderCenter/purchaseInfo.vue'
 import PushOrder from './orderCenter/pushOrderToStore.vue'
 import GoodsOutStore from './orderCenter/goodsOutStore.vue'
 import BuyLink from './orderCenter/addBuyLink.vue'
+import BillDetail from './orderCenter/billDetail.vue'
 import UploadStoreShipAmount from './orderCenter/uploadStoreShipAmount.vue'
 import _ from 'lodash'
 import ShotOrderService from '../../../services/short-order/shot-order-service'
+import orderSync from '../../../services/timeOrder'
 export default {
   components: {
     BuyerAccount,
@@ -599,6 +651,7 @@ export default {
     GoodsOutStore,
     UploadStoreShipAmount,
     BuyLink,
+    BillDetail,
   },
   data() {
     return {
@@ -720,6 +773,10 @@ export default {
       warehouseData: [],
       trackingNumberList: [],
       bindStore: '', //绑定仓库-多物流
+      billsDetailVisible: false, //账单明细
+      trackPathVisible: false, //采购物流轨迹
+      spTrackPathVisible: false, //虾皮物流轨迹
+      spTrackPath: [], //虾皮物流轨迹
     }
   },
   mounted() {
@@ -733,12 +790,109 @@ export default {
     }, 2000)
   },
   methods: {
+    //获取虾皮物流轨迹
+    async getSHtrackPath(row) {
+      this.clickRow = row
+      let params = {
+        order_id: row.order_id,
+        shop_id: row.mall_info.platform_mall_id,
+      }
+      if (row.order_status === 7) {
+        let res = await this.$shopeemanService.getLogisticsTrackingHistory(row.mall_info.country, params)
+        if (res.code === 200) {
+          this.spTrackPath = res.data
+        }
+      } else {
+        let res = await this.$shopeemanService.getLogisticsTrackingHistoryRefund(row.mall_info.country, params)
+        if (res.code === 200) {
+          this.spTrackPath = res.data
+        }
+        console.log(res, 'getSHtrackPath')
+      }
+      this.spTrackPathVisible = true
+    },
+    //同步此订单物流
+    async syncLogisticsSingle(row) {
+      this.showConsole = false //打开日志
+      this.$refs.Logs.consoleMsg = ''
+      const service = new LogisticeSyncService(this.$refs.Logs.writeLog)
+      if (!this.buyerAccountList.length) {
+        this.$refs.Logs.writeLog(`没有买手号，请登录买手号`, false)
+      }
+      this.$refs.Logs.writeLog(`【${row.order_id}】获取采购物流轨迹开始`, true)
+      service.start(this, this.buyerAccountList, [row])
+    },
+    //同步此订单
+    async SyncOrderSingle(row) {
+      this.showConsole = false //打开日志
+      this.$refs.Logs.consoleMsg = ''
+      this.$refs.Logs.writeLog(`【${row.order_id}】开始同步，请耐心等待!`, true)
+      const orderService = new orderSync()
+      await orderService.startSingel(row, this.$refs.Logs.writeLog)
+    },
+    //同步此店铺订单
+    async SyncOrder(row) {
+      console.log(row, this.selectMallList)
+      let mallList = [row.mall_info]
+      this.showConsole = false //打开日志
+      this.$refs.Logs.consoleMsg = ''
+      if (mallList.length == 0) {
+        this.$refs.Logs.writeLog('没有获取到店铺数据，同步操作已取消!', false)
+        return
+      }
+      this.$refs.Logs.writeLog('开始同步，请耐心等待!', true)
+      for (let mI = 0; mI < mallList.length; mI++) {
+        let mall = mallList[mI]
+        for (let i = 0; i < syncStatus.length; i++) {
+          //同步状态
+          let statusObj = syncStatus[i]
+          const orderService = new orderSync(mall, statusObj, this, this.$refs.Logs.writeLog)
+          await orderService.start(`${mI + 1}/${mallList.length}`, 'manual')
+        }
+      }
+      this.$refs.Logs.writeLog('订单同步已完成！！！', true)
+    },
+    // 打开外部窗口
+    async openUrl(url) {
+      this.$BaseUtilService.openUrl(url)
+    },
     //关弹窗
-    closeDialog(){
+    closeDialog() {
       this.trackingNumberList = []
+      this.clickRow = {}
+      this.purchaseInfoVisible = false
+      this.addBuyLinkVisible = false
+      this.multipleSelection = []
+      this.billsDetailVisible = false
+    },
+    //保存多物流
+    async saveAddMoreTra() {
+      let list = []
+      this.trackingNumberList.forEach((item) => {
+        let obj = {
+          id: item.id,
+          trackingNumber: item.original_tracking_number,
+          trackingNumberCompany: item.original_logistics_company,
+        }
+        list.push(obj)
+      })
+      let params = {
+        sysOrderId: this.clickRow.id,
+        lists: list,
+        warehouseId: this.bindStore,
+      }
+      let res = await this.$api.updateOrderTrackingNumber(params)
+      if (res.data.code === 200) {
+        this.$message.success('添加成功!')
+        this.addMoreTraNumberVisible = false
+      } else {
+        this.$message.error(`添加失败,${res.data.message}`)
+      }
+      console.log(res, 'res')
     },
     //添加多物流单号
     async addMoreTrackingNumber(row, index) {
+      this.clickRow = row
       this.addMoreTraNumberVisible = true
       let res = await this.$appConfig.getWarehouseInfo(row.mall_info.platform_mall_id)
       let warehouseList = (res && JSON.parse(res)) || []
@@ -770,7 +924,7 @@ export default {
     //添加多物流
     addTraNumber() {
       let par = {
-        id: '',
+        id: '0',
         original_tracking_number: '',
         original_logistics_company: '',
         warehouse_user_id: '',
@@ -1008,17 +1162,24 @@ export default {
       }
       this.outStoreTitle = title
       this.outStoreType = type
+      console.log(this.outStoreType,"79")
       this.goodsOutStoreVisible = true
     },
-    close() {
-      this.purchaseInfoVisible = false
-      this.addBuyLinkVisible = false
-      this.multipleSelection = []
+    // close() {
+    //   this.purchaseInfoVisible = false
+    //   this.addBuyLinkVisible = false
+    //   this.multipleSelection = []
+    // },
+    async setColorSingle(row, index) {
+      this.clickRow = row
+      this.multipleSelection = [row]
+      this.colorVisible = true
+      await this.getColorList()
     },
     //设置颜色
-    async setColor() {
+    async setColor(arrData) {
       let ids = ''
-      this.multipleSelection.forEach((item, index) => {
+      arrData.forEach((item, index) => {
         if (index === 0) {
           ids = item.id
         } else {
@@ -1145,7 +1306,6 @@ export default {
         this.columnVisible = false
         this.getColumnsConfig()
       }
-      console.log(res)
     },
     //获取自定义配置列
     async getColumnsConfig() {
@@ -1157,9 +1317,8 @@ export default {
         } else {
           this.columnConfigList = resData
         }
-        // resData.forEach()
       }
-      console.log(data.data, 'getColumnsConfig')
+      // console.log(data.data, 'getColumnsConfig')
     },
     //同步物流单号
     async syncLogistics() {
@@ -1487,11 +1646,23 @@ export default {
     }
   }
 }
-.tra-style{
-  display:flex;
+.tra-style {
+  display: flex;
   flex-direction: column;
-  .tra-content{
-    display:flex;
+  .tra-content {
+    display: flex;
+  }
+  p {
+    color: red;
+    height: 26px;
+  }
+}
+.track-step {
+  .step-header {
+    display: flex;
+    // justify-content: center;
+    align-items: center;
+    margin-bottom: 10px;
   }
 }
 </style>
