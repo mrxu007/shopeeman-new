@@ -60,6 +60,11 @@ const SmartHouseChineseDeliveryOrder = () => import('./components/SmartHouseChin
 // 海外仓补件列表
 const SmartHouseBroadPickUpList = () => import('./components/SmartHouseBroadPickUpList.vue')
 
+// 海外仓共享库存管理
+const SmartHouseOverseasWarehouse = () => import('./components/SmartHouseOverseasWarehouse.vue')
+
+// 海外仓补件列表
+const SmartHouseOverseasLupplementList = () => import('./components/OverseasLupplementList.vue')
 // 导出
 export {
   SmartHouseWorkBench,
@@ -79,5 +84,7 @@ export {
   SmartHouseChineseStock,
   SmartHouseBroadDeliveryOrder,
   SmartHouseChineseDeliveryOrder,
-  SmartHouseBroadPickUpList
+  SmartHouseBroadPickUpList,
+  SmartHouseOverseasWarehouse,
+  SmartHouseOverseasLupplementList
 }

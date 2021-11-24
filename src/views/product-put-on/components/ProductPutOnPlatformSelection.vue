@@ -2,7 +2,7 @@
   <div class="contaniner">
     <header>
       <el-tabs v-model="activeName" type="card" @tab-click="handleClick">
-        <el-tab-pane label="关键词采集" name="first">
+        <el-tab-pane label="关键词采集" name="keyPage">
           <div class="keyword-container">
             <div class="keyword-banner-bar">
               <div v-for="item in keyworBar" :key="item.value" class="barChilren" :class="{ active: currentKeywordPlatform === item.value }" @click="switchPlatform(item)">{{ item.label }}</div>
@@ -114,7 +114,7 @@
               <!--操作按钮 -->
               <ul class="item con-sub-2">
                 <li>
-                  <el-button type="primary" size="mini" @click="StartCollection">开始采集</el-button>
+                  <el-button type="primary" size="mini" :disabled="buttonStatus.start" @click="StartCollection">开始采集</el-button>
                   <el-button type="primary" size="mini">取消采集</el-button>
                 </li>
                 <li class="li-item-2">
@@ -145,7 +145,7 @@
             </div>
           </div>
         </el-tab-pane>
-        <el-tab-pane label="商品链接采集" name="second">
+        <el-tab-pane label="商品链接采集" name="linkPage">
           <div class="link-container">
             <div class="item linkcon-sub-1">
               <p class="text">商品链接: 一行一个</p>
@@ -153,7 +153,7 @@
             </div>
             <ul class="item linkcon-sub-2">
               <li>
-                <el-button type="primary" size="mini" @click="StartCollection">开始采集</el-button>
+                <el-button type="primary" size="mini" :disabled="buttonStatus.start" @click="StartCollection">开始采集</el-button>
                 <el-button type="primary" size="mini">取消采集</el-button>
               </li>
               <li class="li-item-2">
@@ -214,7 +214,7 @@
             <!--操作按钮 -->
             <ul class="item con-sub-2">
               <li>
-                <el-button type="primary" size="mini" @click="StartCollection">开始采集</el-button>
+                <el-button type="primary" size="mini" :disabled="buttonStatus.start" @click="StartCollection">开始采集</el-button>
                 <el-button type="primary" size="mini">取消采集</el-button>
               </li>
               <li class="li-item-2">
@@ -265,7 +265,7 @@
             <!--操作按钮 -->
             <ul class="item con-sub-2">
               <li>
-                <el-button type="primary" size="mini" @click="StartCollection">开始采集</el-button>
+                <el-button type="primary" size="mini" :disabled="buttonStatus.start" @click="StartCollection">开始采集</el-button>
                 <el-button type="primary" size="mini">取消采集</el-button>
               </li>
               <li class="li-item-2">
@@ -323,7 +323,7 @@
             <!--操作按钮 -->
             <ul class="item con-sub-2">
               <li>
-                <el-button type="primary" size="mini" @click="StartCollection">开始采集</el-button>
+                <el-button type="primary" size="mini" :disabled="buttonStatus.start" @click="StartCollection">开始采集</el-button>
                 <el-button type="primary" size="mini">取消采集</el-button>
               </li>
               <li class="li-item-2">
@@ -440,7 +440,7 @@
         <u-table-column align="center" label="主图">
           <template v-slot="{ row }">
             <div style="justify-content: center; display: flex">
-              <img :src="row.Image" style="width: 56px; height: 56px">
+              <img :src="row.Image" style="width: 56px; height: 56px" />
             </div>
           </template>
         </u-table-column>
@@ -492,9 +492,9 @@ export default {
   data() {
     return {
       Height: 650,
-      activeName: 'sixth',
+      activeName: 'linkPage',
       CollectKeyWordApInstance: new CollectKeyWordApI(this), // 关键词采集
-      CollectLinkApInstance: new CollectLinkApI(this), // 链接采集
+      collectLinkApInstance: new CollectLinkApI(this), // 链接采集
 
       // table attr
       multipleSelection: [],
@@ -502,7 +502,7 @@ export default {
 
       // button
       buttonStatus: {
-        keyword: false
+        start: false
       },
       // keyWord search
       currentKeywordPlatform: 1,
@@ -724,11 +724,11 @@ export default {
     // 开始采集
     StartCollection() {
       switch (this.activeName) {
-        case 'first': // 关键字采集
+        case 'keyPage': // 关键字采集
           this['keywordSearch']()
           break
-        case 'second': // 链接采集
-          this['linksSearch']()
+        case 'linkPage': // 链接采集
+          this['linksSearch'](null)
           break
         case 'third': // 整店采集
           this['entireMallSearch']()
@@ -738,43 +738,21 @@ export default {
           break
       }
     },
-    handleKeyFactory(num = 3) {
-      try {
-        let keyword = this.key.trim()
-        if (!keyword) {
-          return { code: -3, data: '参数不能为空' }
-        }
-        keyword = this.key.replace(/\s/g, ';').split(';')
-        // const data = [[]]
-        // let index = 0
-        // keyword.map(item => { // 分组
-        //   if (data[index].length >= num) {
-        //     index++
-        //     data[index] = []
-        //   }
-        //   data[index].push(item)
-        // })
-        // keyword = null
-        return { code: 200, data: keyword }
-      } catch (error) {
-        return { code: -2, data: `关键词格式不规范：${error}` }
-      }
-    },
     async keywordSearch() {
-      const res = this.handleKeyFactory() // 处理关键词
+      const res = this.CollectKeyWordApInstance.handleKeyFactory(this.key) // 处理关键词
       if (res.code !== 200) {
-        return res.code === -2 ? this.$message.error('') : undefined
+        return this.$message.error(res.data)
       }
       let key = res.data
       const keyLen = res.data.length
       const platForm = this.currentKeywordPlatform
-      this.buttonStatus.keyword = true
+      this.buttonStatus.start = true
       this.consoleMsg = ''
       this.goodsList = []
       this.$refs.plTable.reloadData(this.goodsList)
       this.CollectKeyWordApInstance._initKeyWord(platForm, this.commonAttr)
       this.writeLog('开始采集搜索........', true)
-      this.writeLog(`开始采集${platformObj[platForm]}的商品.......`, true)
+      this.writeLog(`开始采集${platformObj[platForm]}商品.......`, true)
 
       for (let i = 0; i < keyLen; i++) {
         const item = key[i]
@@ -797,12 +775,35 @@ export default {
         }
       }
       this.writeLog(`${platformObj[platForm]}：共采集：${this.goodsList.length}条`, true)
-      this.writeLog(`${platformObj[platForm]}的商品采集完毕........`, true)
+      this.writeLog(`${platformObj[platForm]}商品采集完毕........`, true)
       key = null
-      this.buttonStatus.keyword = false
+      this.buttonStatus.start = false
     },
-
-    linksSearch() {
+    async linksSearch(type) {
+      const res = this.collectLinkApInstance.handleLinkKeyFactory(type === null ? this.linkKey : this.multipleSelection) // 处理数据
+      if (res.code !== 200) {
+        return this.$message.error(res.data)
+      }
+      this.buttonStatus.start = true
+      this.consoleMsg = ''
+      this.goodsList = []
+      this.$refs.plTable.reloadData(this.goodsList)
+      const data = res.data
+      const len = data.length
+      this.writeLog('开始采集搜索........', true)
+      for (let i = 0; i < len; i++) {
+        const item = data[i]
+        const res2 = await this.collectLinkApInstance.getGoodsDeail(item)
+        if (res2.code !== 200) {
+          this.writeLog(`商品ID: ${item.GoodsId} 采集失败: ${res2.data}`, false)
+          continue
+        } else {
+          this.writeLog(`(${i + 1}/${len})商品ID: ${item.GoodsId}采集成功`)
+          this.goodsList.push(res2.data)
+        }
+      }
+      this.writeLog(`商品采集完毕........`, true)
+      this.buttonStatus.start = false
     },
     entireMallSearch() {
     },

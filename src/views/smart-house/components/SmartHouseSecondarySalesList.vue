@@ -44,9 +44,7 @@
         </li>
       </ul>
       <ul>
-        <span style="color: red; margin-top: 15px"
-          >温馨提示：此模块展示数据为海外仓退回仓库的包裹数据，若需将此模块包裹数据进行二次销售，请前往【订单管理】使用二次销售功能进行匹配（不支持拆包出库）</span
-        >
+        <span style="color: red; margin-top: 15px">温馨提示：此模块展示数据为海外仓退回仓库的包裹数据，若需将此模块包裹数据进行二次销售，请前往【订单管理】使用二次销售功能进行匹配（不支持拆包出库）</span>
       </ul>
       <el-row id="article">
         <el-table
