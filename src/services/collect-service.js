@@ -49,4 +49,8 @@ export default class CollectService {
     queryDetailById(platformId, collectGoodsLinkModel, isUserCache) { // collectGoodsLinkModel 这个参数国内没有
         return this.nativeService.queryDetailById(platformId, collectGoodsLinkModel, isUserCache)
     }
+    // 检查店铺链接是否合规，并获取店铺信息
+    getMallByLink(link) {
+        return this.nativeService.getMallByLink(link)
+    }
 }

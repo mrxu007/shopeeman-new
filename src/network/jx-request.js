@@ -206,5 +206,8 @@ export default {
   // 产品中心------------------------------------------------------------------------
   getproductlist: (data) => AppRequest.get('/product/list', { params: data }), // 获取产品列表
   deleteproduct: (data) => AppRequest.post('/product/delete', data), // 删除产品
-  saveproduct: (data) => AppRequest.post('/product/save', data) // 保存产品
+  saveproduct: (data) => AppRequest.post('/product/save', data), // 保存产品
+
+  getpddBuyerAccount: (data) => AppRequest.get('/pddBuyerAccount/index', { params: data }) // 拼多多买手号-列表
+
 }

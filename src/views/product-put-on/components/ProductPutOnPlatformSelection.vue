@@ -30,7 +30,7 @@
                 </li>
                 <li v-show="isShowTaobao">
                   <p>单词最大：</p>
-                  <el-input v-model="wordLimit" placeholder="" size="mini" />
+                  <el-input v-model="commonAttr.wordLimit" placeholder="" size="mini" />
                 </li>
 
                 <li v-show="isShowSales">
@@ -90,14 +90,14 @@
                 <li v-show="isShowCreateAt">
                   <p>创建时间：</p>
                   <el-date-picker
-                    v-model="value2"
+                    v-model="commonAttr.value2"
                     type="daterange"
                     align="right"
                     unlink-panels
                     range-separator="-"
                     start-placeholder="开始日期"
                     end-placeholder="结束日期"
-                    :picker-options="pickerOptions"
+                    :picker-options="commonAttr.pickerOptions"
                     value-format="yyyy-MM-dd"
                     size="mini"
                   />
@@ -187,7 +187,7 @@
             </div>
           </div>
         </el-tab-pane>
-        <el-tab-pane label="整店采集" name="third">
+        <el-tab-pane label="整店采集" name="entriresShopPage">
           <div class="entires-container">
             <ul class="item con-sub-1">
               <li v-show="isShowSales">
@@ -205,7 +205,7 @@
             </ul>
             <div class="item con-sub-3">
               <p class="text">店铺链接：一行一个<span v-show="isShowKeyTip" style="color: red">（采集请使用对应的站点语言搜索）</span></p>
-              <el-input v-model="key" size="mini" type="textarea" :rows="8" resize="none" />
+              <el-input v-model="mallLinkKey" size="mini" type="textarea" :rows="8" resize="none" />
             </div>
             <div class="item con-sub-3">
               <p class="text">过滤违规词：一行一个</p>
@@ -307,14 +307,14 @@
               <li>
                 <p>起始时间：</p>
                 <el-date-picker
-                  v-model="value2"
+                  v-model="commonAttr.value2"
                   type="daterange"
                   align="right"
                   unlink-panels
                   range-separator="-"
                   start-placeholder="开始日期"
                   end-placeholder="结束日期"
-                  :picker-options="pickerOptions"
+                  :picker-options="commonAttr.pickerOptions"
                   value-format="yyyy-MM-dd"
                   size="mini"
                 />
@@ -390,9 +390,9 @@
               </li>
               <li>
                 <p>收藏时过滤商品发货地址（仅Shopee可用）：</p>
-                <el-select placeholder="" size="mini">
+                <!-- <el-select placeholder="" size="mini">
                   <el-option />
-                </el-select>
+                </el-select> -->
               </li>
             </ul>
             <ul class="item right">
@@ -400,14 +400,14 @@
               <li>
                 <p>翻译缓存时间：</p>
                 <el-date-picker
-                  v-model="value2"
+                  v-model="commonAttr.value2"
                   type="daterange"
                   align="right"
                   unlink-panels
                   range-separator="-"
                   start-placeholder="开始日期"
                   end-placeholder="结束日期"
-                  :picker-options="pickerOptions"
+                  :picker-options="commonAttr.pickerOptions"
                   value-format="yyyy-MM-dd"
                   size="mini"
                 />
@@ -424,7 +424,7 @@
     <article v-show="activeName !== 'sixth'">
       <u-table
         ref="plTable"
-        :max-height="Height"
+        :height="Height"
         use-virtual
         :data-changes-scroll-top="false"
         :header-cell-style="{
@@ -469,6 +469,7 @@
 <script>
 import CollectKeyWordApI from './collection-keyword-api'
 import CollectLinkApI from './collection-link-api'
+import CollectEntireApI from './collection-entire-api'
 import { dateFormat, delay } from '../../../util/util'
 // getSiteRelation
 import { shopeeSite, lazadaSite, pictureSearchOrigin, getPlatform, platformObj, getShopeeSitePlace, getLazadaSitePlace } from './collection-platformId'
@@ -492,9 +493,10 @@ export default {
   data() {
     return {
       Height: 650,
-      activeName: 'linkPage',
+      activeName: 'entriresShopPage',
       CollectKeyWordApInstance: new CollectKeyWordApI(this), // 关键词采集
       collectLinkApInstance: new CollectLinkApI(this), // 链接采集
+      collectEntireApInstance: new CollectEntireApI(this), // 整店采集
 
       // table attr
       multipleSelection: [],
@@ -581,6 +583,7 @@ export default {
       end: 5000,
       key: '',
       linkKey: '',
+      mallLinkKey: '',
       keyFilter: '',
       isSelectAll: false,
       isSelectAll2: [
@@ -730,8 +733,8 @@ export default {
         case 'linkPage': // 链接采集
           this['linksSearch'](null)
           break
-        case 'third': // 整店采集
-          this['entireMallSearch']()
+        case 'entriresShopPage': // 整店采集
+          this['entriresShopPage']()
           break
         default:
           this.$message.error('采集操作非法！！！！')
@@ -790,7 +793,7 @@ export default {
       this.$refs.plTable.reloadData(this.goodsList)
       const data = res.data
       const len = data.length
-      this.writeLog('开始采集搜索........', true)
+      this.writeLog('开始商品链接采集搜索........', true)
       for (let i = 0; i < len; i++) {
         const item = data[i]
         const res2 = await this.collectLinkApInstance.getGoodsDeail(item)
@@ -802,10 +805,35 @@ export default {
           this.goodsList.push(res2.data)
         }
       }
-      this.writeLog(`商品采集完毕........`, true)
+      this.writeLog(`商品链接采集完毕........`, true)
       this.buttonStatus.start = false
     },
-    entireMallSearch() {
+    async entriresShopPage() {
+      const res = this.collectEntireApInstance.handleEntireKeyFactory(this.mallLinkKey) // 处理关键词
+      if (res.code !== 200) {
+        return this.$message.error(res.data)
+      }
+      debugger
+      this.buttonStatus.start = true
+      this.consoleMsg = ''
+      this.goodsList = []
+      this.$refs.plTable.reloadData(this.goodsList)
+      this.writeLog('开始整店链接采集搜索........', true)
+      const data = res.data
+      const len = data.length
+      for (let i = 0; i < len; i++) {
+        const item = data[i]
+        const res2 = await this.collectEntireApInstance.mallSearch(item)
+        if (res2.code !== 200) {
+          this.writeLog(`店铺链接: ${item} 采集失败: ${res2.data}`, false)
+          continue
+        } else {
+          this.writeLog(`(${i + 1}/${len})店铺链接: ${item}采集成功`)
+          this.goodsList.push(res2.data)
+        }
+      }
+      this.writeLog(`整店链接采集完毕........`, true)
+      this.buttonStatus.start = false
     },
     // 辅助-----------------------------
     writeLog(msg, success = true) {

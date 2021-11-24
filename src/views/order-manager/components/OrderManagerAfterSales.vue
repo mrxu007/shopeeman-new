@@ -443,6 +443,7 @@ export default {
       const type = this.changeType(account)
       const params = this.changeAccountParams(account)
       // type
+      // 暂无数据****
     },
     changeType(type) {
       switch (type) {
