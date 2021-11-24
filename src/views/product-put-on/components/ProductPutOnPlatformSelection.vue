@@ -119,9 +119,9 @@
                 </li>
                 <li class="li-item-2">
                   <p>起：</p>
-                  <el-input size="mini" placeholder="" />
+                  <el-input v-model="start" size="mini" placeholder="" />
                   <p>止：</p>
-                  <el-input size="mini" placeholder="" />
+                  <el-input v-model="end" size="mini" placeholder="" />
                 </li>
                 <li>
                   <el-button type="primary" size="mini">收藏商品</el-button>
@@ -158,9 +158,9 @@
               </li>
               <li class="li-item-2">
                 <p>起：</p>
-                <el-input size="mini" placeholder="" />
+                <el-input v-model="start" size="mini" placeholder="" />
                 <p>止：</p>
-                <el-input size="mini" placeholder="" />
+                <el-input v-model="end" size="mini" placeholder="" />
               </li>
               <li>
                 <el-button type="primary" size="mini">收藏商品</el-button>
@@ -219,9 +219,9 @@
               </li>
               <li class="li-item-2">
                 <p>起：</p>
-                <el-input size="mini" placeholder="" />
+                <el-input v-model="start" size="mini" placeholder="" />
                 <p>止：</p>
-                <el-input size="mini" placeholder="" />
+                <el-input v-model="end" size="mini" placeholder="" />
               </li>
               <li>
                 <el-button type="primary" size="mini">收藏商品</el-button>
@@ -244,7 +244,7 @@
             </div>
           </div>
         </el-tab-pane>
-        <el-tab-pane label="图搜同款" name="fourth">
+        <el-tab-pane label="图搜同款" name="picToPicPage">
           <div class="picture-container">
             <ul class="item con-sub-1">
               <li>
@@ -258,10 +258,14 @@
                 <el-select v-model="commonAttr.pictureSearchPlatformId" placeholder="" size="mini">
                   <el-option v-for="(item, index) in pictureSearchOrigin" :key="index" :label="item.label" :value="item.value" />
                 </el-select>
-                <el-button type="primary" size="mini">选择图片</el-button>
+                <el-upload class="avatar-uploader" action="#" :show-file-list="false" :on-error="imgSaveToUrl">
+                  <el-button type="primary" size="mini">选择图片</el-button>
+                </el-upload>
               </li>
             </ul>
-            <div class="item con-sub-3" />
+            <div class="item con-sub-3">
+              <img v-if="base64Str" style="width: 200px; height: 156px" :src="base64Str" class="avatar" />
+            </div>
             <!--操作按钮 -->
             <ul class="item con-sub-2">
               <li>
@@ -470,6 +474,7 @@
 import CollectKeyWordApI from './collection-keyword-api'
 import CollectLinkApI from './collection-link-api'
 import CollectEntireApI from './collection-entire-api'
+import CollectOtherApI from './collection-other-api'
 import { dateFormat, delay } from '../../../util/util'
 // getSiteRelation
 import { shopeeSite, lazadaSite, pictureSearchOrigin, getPlatform, platformObj, getShopeeSitePlace, getLazadaSitePlace } from './collection-platformId'
@@ -493,10 +498,11 @@ export default {
   data() {
     return {
       Height: 650,
-      activeName: 'entriresShopPage',
+      activeName: 'picToPicPage',
       CollectKeyWordApInstance: new CollectKeyWordApI(this), // 关键词采集
       collectLinkApInstance: new CollectLinkApI(this), // 链接采集
       collectEntireApInstance: new CollectEntireApI(this), // 整店采集
+      collectOtherApInstance: new CollectOtherApI(this), // 整店采集
 
       // table attr
       multipleSelection: [],
@@ -576,7 +582,7 @@ export default {
           { label: '销量从高到低', value: 'booked_true' }
         ],
         alibabaSortTypeVal: 'pop',
-        pictureSearchPlatformId: ''
+        pictureSearchPlatformId: '2'
       },
       // 基础参数
       start: 1,
@@ -591,7 +597,8 @@ export default {
       ],
       consoleMsg: '',
       // 图搜同款
-      pictureSearchOrigin: []
+      pictureSearchOrigin: [],
+      base64Str: ''
     }
   },
   computed: {
@@ -734,7 +741,10 @@ export default {
           this['linksSearch'](null)
           break
         case 'entriresShopPage': // 整店采集
-          this['entriresShopPage']()
+          this['entriresShopSearch']()
+          break
+        case 'picToPicPage': // 整店采集
+          this['picToPicSearch']()
           break
         default:
           this.$message.error('采集操作非法！！！！')
@@ -805,15 +815,15 @@ export default {
           this.goodsList.push(res2.data)
         }
       }
+      this.writeLog(`商品链接：共采集：${this.goodsList.length}条`, true)
       this.writeLog(`商品链接采集完毕........`, true)
       this.buttonStatus.start = false
     },
-    async entriresShopPage() {
+    async entriresShopSearch() {
       const res = this.collectEntireApInstance.handleEntireKeyFactory(this.mallLinkKey) // 处理关键词
       if (res.code !== 200) {
         return this.$message.error(res.data)
       }
-      debugger
       this.buttonStatus.start = true
       this.consoleMsg = ''
       this.goodsList = []
@@ -828,11 +838,39 @@ export default {
           this.writeLog(`店铺链接: ${item} 采集失败: ${res2.data}`, false)
           continue
         } else {
-          this.writeLog(`(${i + 1}/${len})店铺链接: ${item}采集成功`)
-          this.goodsList.push(res2.data)
+          this.writeLog(`(${i + 1}/${len})店铺链接: ${item} 采集成功`)
+          this.goodsList.push(...res2.data)
         }
       }
+      console.log('this.goodsList', this.goodsList)
+      this.writeLog(`整店链接：共采集：${this.goodsList.length}条`, true)
       this.writeLog(`整店链接采集完毕........`, true)
+      this.buttonStatus.start = false
+    },
+    async picToPicSearch() {
+      if (!this.base64Str) {
+        return this.$message.error('请上传图片')
+      }
+      this.buttonStatus.start = true
+      this.consoleMsg = ''
+      this.goodsList = []
+      this.$refs.plTable.reloadData(this.goodsList)
+      const Name = this.commonAttr.pictureSearchPlatformId === '8' ? '1688' : '淘宝'
+      this.writeLog(`开始 ${Name} 图搜采集搜索........`, true)
+      const params = {
+        ImageBase64: this.base64Str
+      }
+      this.commonAttr.pictureSearchPlatformId === '8' ? params['Page'] = 1 : '' // 1688 加页码
+      const res = await this.collectOtherApInstance.picSearch(this.commonAttr.pictureSearchPlatformId, params)
+      if (res.code !== 200) {
+        this.writeLog(`图搜采集: 采集失败: ${res.data}`, false)
+      } else {
+        this.writeLog('图搜采集: 采集成功', true)
+        this.goodsList.push(...res.data)
+      }
+      console.log('this.goodsList', this.goodsList)
+      this.writeLog(`图搜：共采集：${this.goodsList.length}条`, true)
+      this.writeLog(`${Name} 图搜采集完毕........`, true)
       this.buttonStatus.start = false
     },
     // 辅助-----------------------------
@@ -844,6 +882,16 @@ export default {
       const color = success ? 'green' : 'red'
       const time = dateFormat(new Date(Date.now()), 'hh:mm:ss')
       this.consoleMsg += `<p style="color:${color}; margin-top: 5px;">${time}:${msg}</p>`
+    },
+    // 转base64 上传详情图
+    imgSaveToUrl(err, file) {
+      this.base64Str = null
+      const reader = new FileReader()
+      reader.readAsDataURL(file.raw)
+      const that = this
+      reader.onload = () => {
+        that.base64Str = reader.result
+      }
     }
   }
 }
