@@ -169,6 +169,14 @@ export default {
   getWarehouseList: (data) => AppRequest.get('/homeStockingForecast/getWarehouseList', data), // 国内中转备货预报单: 获取国内仓库地址
   stockingHomeUpload: (data) => AppRequest.post('/homeStockingForecast/upload', data), // 国内中转备货预报单: 上报
   deleteHomeForecast: (data) => AppRequest.post('/homeStockingForecast/delete', data), // 国内中转备货预报单: 删除
-  getOutOfStockList: (data) => AppRequest.get('/warehouse/outOfStockList', { params: data }) // 海外仓出库订单：列表
+  getOutOfStockList: (data) => AppRequest.get('/warehouse/outOfStockList', { params: data }), // 海外仓出库订单：列表
   // getsecondlist: (data) => AppRequest.post('/overseasTansferPackage/index', data) // 获取二次销售列表
+  // getsecondlist: (data) => AppRequest.post('/overseasTansferPackage/index', data), // 获取二次销售列表
+  getlupplementlist: (data) => AppRequest.get('/getReissueStoreList', { params: data }), // 获取海外仓补件列表
+  cancelsupplement: (data) => AppRequest.post('/cancelReissueOrder', data), // 取消补件
+
+  // 产品中心------------------------------------------------------------------------
+  getproductlist: (data) => AppRequest.get('/product/list', { params: data }), // 获取产品列表
+  deleteproduct: (data) => AppRequest.post('/product/delete', data), // 删除产品
+  saveproduct: (data) => AppRequest.post('/product/save', data) // 保存产品
 }
