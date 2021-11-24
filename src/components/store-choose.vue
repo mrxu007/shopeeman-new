@@ -22,6 +22,12 @@
           <el-option v-for="(item, index) in siteList" :key="index" :label="item.mall_alias_name || item.platform_mall_name" :value="item.platform_mall_id" />
         </el-select>
       </li>
+<<<<<<< HEAD
+=======
+      <li v-if="isReset" style="margin-bottom: 5px;margin-left: 25px;">
+        <el-button size="mini" type="primary" style="justify-self: self-end" @click="reset">　刷　　新　</el-button>
+      </li>
+>>>>>>> 382242836dabc5f9cf2180aaf1b48d3f073f0e98
     </ul>
   </div>
 </template>
@@ -137,6 +143,15 @@ export default {
     this.countryVal = (!this.isAll && 'TH') || ''
   },
   methods: {
+<<<<<<< HEAD
+=======
+    reset() {
+      this.isAllowSet2 = false
+      this.groupId = []
+      this.groupIdList = []
+      this.ddMallGoodsGetMallList(1)
+    },
+>>>>>>> 382242836dabc5f9cf2180aaf1b48d3f073f0e98
     async changeSelect(val) {
       console.log(val)
     },
@@ -184,6 +199,10 @@ export default {
         if (item) {
           const temp = this.siteList.filter((i) => i.platform_mall_id === item)
           mallList.push(temp[0])
+<<<<<<< HEAD
+=======
+          searchAll += (item + ',')
+>>>>>>> 382242836dabc5f9cf2180aaf1b48d3f073f0e98
         }
       })
       // }
