@@ -61,6 +61,12 @@
 
     <!-- 海外仓补件列表 -->
     <main v-if="activeVal === '16'"><SmartHouseBroadPickUpList /></main>
+
+    <!-- 海外仓共享库存管理 -->
+    <main v-if="activeVal === '17'"><SmartHouseOverseasWarehouse /></main>
+
+    <!-- 海外仓补件列表 -->
+    <main v-if="activeVal === '18'"><SmartHouseOverseasLupplementList /></main>
   </div>
 </template>
 
@@ -83,7 +89,9 @@ import {
   SmartHouseChineseStock,
   SmartHouseBroadDeliveryOrder,
   SmartHouseChineseDeliveryOrder,
-  SmartHouseBroadPickUpList
+  SmartHouseBroadPickUpList,
+  SmartHouseOverseasWarehouse,
+  SmartHouseOverseasLupplementList
 } from './index'
 export default {
   components: {
@@ -104,7 +112,9 @@ export default {
     SmartHouseChineseStock,
     SmartHouseBroadDeliveryOrder,
     SmartHouseChineseDeliveryOrder,
-    SmartHouseBroadPickUpList
+    SmartHouseBroadPickUpList,
+    SmartHouseOverseasWarehouse,
+    SmartHouseOverseasLupplementList
   },
   data() {
     return {
