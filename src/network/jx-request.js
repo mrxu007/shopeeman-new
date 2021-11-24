@@ -198,7 +198,7 @@ export default {
   savePurchase: (data) => AppRequest.post('/purchase', data), // 上报采购链接
   getOrderTrackingNumber: (data) => AppRequest.get('/order/getOrderTrackingNumber', { params: data }), // 获取多物流单号列表
 
-  getHomeOutStockOrder: (data) => AppRequest.get('/homeOutStockOrder/index', { params: data }) // 国内出库单: 列表
+  getHomeOutStockOrder: (data) => AppRequest.get('/homeOutStockOrder/index', { params: data }), // 国内出库单: 列表
   // getsecondlist: (data) => AppRequest.post('/overseasTansferPackage/index', data), // 获取二次销售列表
   getlupplementlist: (data) => AppRequest.get('/getReissueStoreList', { params: data }), // 获取海外仓补件列表
   cancelsupplement: (data) => AppRequest.post('/cancelReissueOrder', data), // 取消补件
