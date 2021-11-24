@@ -41,8 +41,12 @@ export default class CollectService {
     // searchJxMallGoodsAsync(mallInformationModel) {
     //     return this.nativeService.callFunction('SearchJxMallGoodsAsync', JSON.stringify(mallInformationModel))
     // }
-
+    // 关键词采集
     querySpuByKeyworld(platformId, params) {
         return this.nativeService.querySpuByKeyworld(platformId, JSON.stringify(params))
+    }
+    // 采集商品详情
+    queryDetailById(platformId, collectGoodsLinkModel, isUserCache) { // collectGoodsLinkModel 这个参数国内没有
+        return this.nativeService.queryDetailById(platformId, collectGoodsLinkModel, isUserCache)
     }
 }
