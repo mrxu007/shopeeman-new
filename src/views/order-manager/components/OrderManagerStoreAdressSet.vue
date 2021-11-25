@@ -40,6 +40,7 @@
               type="primary"
               size="mini"
               class="mar-right"
+              @click="sysApplyAddress()"
             >申请系统仓库地址</el-button>
             <div class="warning-text activeColor">
               <p>温馨提示：1、绑定自有仓库时，订单信息将不会推送至对应站点的系统仓库，如使用软件合作物流，请申请绑定系统仓库！</p>
@@ -67,7 +68,7 @@
             align="center"
             fixed
           />
-          <el-table-column min-width="120px" label="仓库" fixed prop="warehouse_name" />
+          <el-table-column min-width="140px" label="仓库" fixed prop="warehouse_name" />
           <el-table-column min-width="300px" label="地址" prop="full_address" show-overflow-tooltip />
           <el-table-column min-width="120px" label="收件人" prop="receiving_name" />
           <el-table-column prop="type" label="仓库类型" min-width="100px">
@@ -264,7 +265,7 @@
     <el-dialog
       :close-on-click-modal="false"
       class="sys-store-dialog"
-      :title="flag?'申请系统仓库地址':'修改仓库地址信息'"
+      :title="flag1?'申请系统仓库地址':'修改仓库地址信息'"
       width="1000px"
       :visible.sync="sysAdderssVisible"
       @close="handleClose2"
@@ -272,11 +273,11 @@
       <div class="dialog-left">
         <el-form label-position="right" label-width="80px">
           <el-form-item label="仓库类型:">
-            <span>{{ flag?'系统仓库':flag2?'系统仓库':'自有仓库' }}</span>
+            <span>{{ flag1?'系统仓库':flag2?'系统仓库':'自有仓库' }}</span>
           </el-form-item>
           <el-form-item label="仓库名称:">
             <el-select
-              v-if="flag"
+              v-if="flag1"
               v-model="sysWarehouseId"
               placeholder="请选择"
               size="mini"
@@ -290,7 +291,7 @@
               />
             </el-select>
             <el-input
-              v-if="!flag"
+              v-if="!flag1"
               v-model="warehouseName"
               :disabled="flag2"
               size="mini"
@@ -321,7 +322,7 @@
           <el-form-item label="联系电话：">
             <el-input
               v-model="wareHouseTel"
-              :disabled="flag || flag2"
+              :disabled="flag1 || flag2"
               clearable
               size="mini"
               oninput="value=value.replace(/\s+/g,'')"
@@ -330,7 +331,7 @@
         </el-form>
         <div class="footer">
           <el-button
-            v-if="flag"
+            v-if="flag1"
             type="primary"
             size="mini"
             @click="addXzyStore"
@@ -425,7 +426,7 @@ export default {
       sysAdderssVisible: false,
       isHomeApplyAddress: false,
       isOverseasApplyAddress: false,
-      flag: true, // 新增/修改
+      flag1: true, // 新增/修改
       flag2: true, // 系统/自有
       flag3: true, // 添加地址 新增/修改
       countries: this.$filters.countries_option,
@@ -500,7 +501,7 @@ export default {
     // 修改绑定店铺弹窗
     async updateBindMall(row) {
       this.itemData = row
-      this.flag = false
+      this.flag1 = false
       this.flag2 = row.isUser === 0
       this.sysAdderssVisible = true
       this.warehouseName = row.warehouse_name
@@ -594,7 +595,7 @@ export default {
     },
     // 申请系统仓库地址
     sysApplyAddress() {
-      this.flag = true
+      this.flag1 = true
       this.sysAdderssVisible = true
       this.getBindMall()
     },
@@ -772,7 +773,7 @@ export default {
           this.$message.error(res.data)
         }
       }
-      console.log('resData', resData)
+      console.log('sysWarehouseData', resData)
       if (resData?.length) {
         if (resData[0].data?.length > 0) {
           this.isHomeApplyAddress = true
@@ -783,7 +784,15 @@ export default {
         } else {
           this.isHomeApplyAddress = false
         }
-        this.isOverseasApplyAddress = resData[1].data?.length > 0
+        if (resData[1].data?.length > 0) {
+          this.isOverseasApplyAddress = true
+          this.warehouseData = resData[1].data
+          this.sysWarehouseId = resData[1].data[0].id
+          this.warehouseAddress = resData[1].data[0].full_address
+          this.wareHouseTel = resData[1].data[0].receiving_tel
+        } else {
+          this.isOverseasApplyAddress = false
+        }
       }
     },
     // 获取数据
@@ -795,11 +804,11 @@ export default {
         this.tableDataAll.map(item => {
           item.is_use_own_phone = item.is_use_own_phone === '1'
         })
-        this.tableData = this.tableDataAll.filter(item => { return item.type === 0 })
+        this.handleClick()
       } else {
         this.$message.error(res.data)
       }
-      console.log(res)
+      console.log('tableDataAll', res)
       this.isShowLoading = false
     },
     changeMallList(val) {
