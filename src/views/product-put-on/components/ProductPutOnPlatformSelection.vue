@@ -264,7 +264,7 @@
               </li>
             </ul>
             <div class="item con-sub-3">
-              <img v-if="base64Str" style="width: 200px; height: 156px" :src="base64Str" class="avatar" />
+              <img v-if="base64Str" style="width: 200px; height: 156px" :src="base64Str" class="avatar">
             </div>
             <!--操作按钮 -->
             <ul class="item con-sub-2">
@@ -312,15 +312,14 @@
               <li>
                 <p>起始时间：</p>
                 <el-date-picker
-                  v-model="commonAttr.value2"
+                  v-model="taobaoTimeAt"
                   type="daterange"
                   align="right"
                   unlink-panels
                   range-separator="-"
                   start-placeholder="开始日期"
                   end-placeholder="结束日期"
-                  :picker-options="commonAttr.pickerOptions"
-                  value-format="yyyy-MM-dd"
+                  value-format="timestamp"
                   size="mini"
                 />
               </li>
@@ -445,7 +444,7 @@
         <u-table-column align="center" label="主图">
           <template v-slot="{ row }">
             <div style="justify-content: center; display: flex">
-              <img :src="row.Image" style="width: 56px; height: 56px" />
+              <img :src="row.Image" style="width: 56px; height: 56px">
             </div>
           </template>
         </u-table-column>
@@ -499,7 +498,7 @@ export default {
   data() {
     return {
       Height: 650,
-      activeName: 'taobaoAbroadPage',
+      activeName: 'keyPage',
       CollectKeyWordApInstance: new CollectKeyWordApI(this), // 关键词采集
       collectLinkApInstance: new CollectLinkApI(this), // 链接采集
       collectEntireApInstance: new CollectEntireApI(this), // 整店采集
@@ -603,6 +602,7 @@ export default {
       // 淘宝天猫海外账号
       TaobaoAbroadAccount: [],
       TaobaoAbroadAccountId: [],
+      taobaoTimeAt: [],
       isSelectAllTaobaoAccount: false
 
     }
@@ -672,14 +672,13 @@ export default {
     this.commonAttr.shopeeSite = shopeeSite
     this.commonAttr.lazadaSite = lazadaSite
     this.pictureSearchOrigin = pictureSearchOrigin
+    const dataTime = new Date() - 0
+    this.taobaoTimeAt = [dataTime - 3600 * 1000 * 24 * 5, dataTime]
     this.getShopeeGoodsPlace()
     this.getLazadaGoodsPlace()
     this.getTaobaoAbroadAccount()
   },
   mounted() {
-    // this.goodsList = testData.data
-    // this.$refs.plTable.reloadData(this.goodsList)
-    // console.log('this.goodsList', this.goodsList)
   },
   methods: {
     selectShopeePlaceValEvent() { // 出货地点全选事件
@@ -907,9 +906,6 @@ export default {
       this.TaobaoAbroadAccount = res.data
     },
     async taobaoAbroadSearch() {
-      // if (!this.base64Str) {
-      //   return this.$message.error('请上传图片')
-      // }
       if (this.TaobaoAbroadAccountId.length === 0) {
         return this.$message.error('请选择账号')
       }
@@ -918,15 +914,18 @@ export default {
       this.goodsList = []
       this.$refs.plTable.reloadData(this.goodsList)
       this.writeLog(`开始 淘宝天猫海外 采集搜索........`, true)
+      for (let i = 0; i < this.TaobaoAbroadAccountId.length; i++) {
+        const accountID = this.TaobaoAbroadAccountId[i]
+        const account = this.TaobaoAbroadAccount.find(item => item.id === accountID)
+        const res = await this.collectOtherApInstance.queryTmCrossBorder(account, this.taobaoTimeAt)
+        if (res.code !== 200) {
+          this.writeLog(`淘宝天猫海外: 采集失败: ${res.data}`, false)
+        } else {
+          // this.writeLog('淘宝天猫海外: 采集成功', true)
+          this.goodsList.push(...res.data)
+        }
+      }
 
-      // this.commonAttr.pictureSearchPlatformId === '8' ? params['Page'] = 1 : '' // 1688 加页码
-      // const res = await this.collectOtherApInstance.picSearch(this.commonAttr.pictureSearchPlatformId, params)
-      // if (res.code !== 200) {
-      //   this.writeLog(`淘宝天猫海外: 采集失败: ${res.data}`, false)
-      // } else {
-      //   this.writeLog('淘宝天猫海外: 采集成功', true)
-      //   this.goodsList.push(...res.data)
-      // }
       console.log('this.goodsList', this.goodsList)
       this.writeLog(`淘宝天猫海外：共采集：${this.goodsList.length}条`, true)
       this.writeLog('淘宝天猫海外采集完毕........', true)

@@ -3,6 +3,8 @@ class CollectOtherApI {
   _this = null // vue 实例
   constructor(that) {
     this._this = that
+    this.errorCatchText = null
+    this.GoodsData = null
   }
   // 以图搜图
   async picSearch(platform, params) {
@@ -44,6 +46,56 @@ class CollectOtherApI {
     } catch (error) {
       return { code: -2, data: `getTaobaoAbroadAccount-catch: ${error}` }
     }
+  }
+  async queryTmCrossBorder(account, time) {
+    this.GoodsData = null
+    this.GoodsData = []
+    let StartPage = 1
+    const params = {
+      'Page': StartPage,
+      'pageSize': 100,
+      'SortType': 'DESC',
+      'StartModifiedTime': time[0],
+      'EndModifiedTime': time[1],
+      'SortField': 'modified',
+      'Status': 'NORMAL'
+    }
+    while (StartPage) {
+      params['Page'] = StartPage
+      let res = null
+      try {
+        res = await this._this.$collectService.queryTmCrossBorder(account.access_token, params)
+      } catch (error) {
+        this.errorCatchText = error
+        res = this.handleError()
+      }
+      res = JSON.parse(res)
+      if (res.data.item_id !== 0) {
+        this.writeLog(`采集第${StartPage}页失败：${JSON.stringify(res.data)}`, false)
+        break
+      } else {
+        let data = res.data.product_list
+        if (data.length === 0) { // 如果商品长度为0 跳出
+          break
+        }
+        // 存放采集数据
+        this.writeLog(`采集第${StartPage}页，采集到约${data.length}条`, true)
+        data = data.map(item => {
+          item.Image = item.images[0]
+          item.GoodsId = item.item_id
+          item.Title = item.title
+          item.CategoryName = item.category_name
+          item.Price = item.price
+          item.Sales = 0
+          item.Origin = '天猫淘宝海外平台'
+          return item
+        })
+        this.GoodsData.push(...data)
+      }
+      // 采集初始页大于总页码
+      StartPage++
+    }
+    return { code: 200, data: this.GoodsData }
   }
   // 辅助--------------------------------------------
   handleError() {
