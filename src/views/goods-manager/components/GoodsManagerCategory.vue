@@ -121,7 +121,7 @@
             <el-input v-model="searchContent" size="mini" style="width:115px" clearable />
           </div>
 
-          <div style="margin-left: 33px">
+          <!-- <div style="margin-left: 33px">
             <label>排序：</label>
             <el-select v-model="orderType" style="width:180px;" size="mini">
               <el-option label="默认排序" value="1" />
@@ -130,7 +130,7 @@
               <el-option label="价格从低往高" value="4" />
               <el-option label="价格从高往低" value="5" />
             </el-select>
-          </div>
+          </div> -->
 
           <div style="margin-left: 8px;">
             <label>价格区间：</label>
