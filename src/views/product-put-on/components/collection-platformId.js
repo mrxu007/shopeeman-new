@@ -33,9 +33,20 @@
 //   TmallCrossBorderPlatform: 13, // 天猫淘宝海外平台
 //   HlbOverseasPlatform: 15 // 货老板云仓
 // }
-
+// 虾皮采集站点
+const shopeeSite = [
+  { value: 'TW', label: '台湾' },
+  { value: 'ID', label: '印尼' },
+  { value: 'MY', label: '马来' },
+  { value: 'SG', label: '新加坡' },
+  { value: 'PH', label: '菲律宾' },
+  { value: 'VN', label: '越南' },
+  { value: 'TH', label: '泰国' },
+  { value: 'BR', label: '巴西' },
+  { value: 'MX', label: '墨西哥' }
+]
 // 虾皮出货地点
-const sitePlace = {
+const shopeeSitePlace = {
   'TW': [
     { label: '本地', value: '-1' },
     { label: '海外', value: '-2' }
@@ -169,20 +180,8 @@ const sitePlace = {
     { label: '海外', value: '-2' }
   ]
 }
-// 虾皮采集站点
-const siteRelation = [
-  { value: 'TW', label: '台湾' },
-  { value: 'ID', label: '印尼' },
-  { value: 'MY', label: '马来' },
-  { value: 'SG', label: '新加坡' },
-  { value: 'PH', label: '菲律宾' },
-  { value: 'VN', label: '越南' },
-  { value: 'TH', label: '泰国' },
-  { value: 'BR', label: '巴西' },
-  { value: 'MX', label: '墨西哥' }
-]
 // Lazada采集站点
-const siteRelation2 = [
+const lazadaSite = [
   // { value: 'TW', label: '台湾' },
   { value: 'TH', label: '泰国' },
   { value: 'MY', label: '马来' },
@@ -596,11 +595,17 @@ const lazadaSitePlace = {
     ]
   }
 }
+// 图搜同款平台
+const pictureSearchOrigin = [
+  { value: '2', label: '淘宝' },
+  { value: '8', label: '1688' }
+]
 // 关键词采集banner
 const platformObj = {
   1: '拼多多', // 拼多多接口： 1 拼多多接口、  1.1 拼多多补充接口、  1.2 拼多多优惠采集
   1.2: '拼多多优惠采集',
-  2: '淘宝', // 3: '天猫',  天猫 === 淘宝
+  2: '淘宝', //  天猫 === 淘宝
+  3: '天猫',
   4: '京东', // 京喜就是京东
   5: '自有',
   // 6: '皮皮虾供货平台',   平台已废弃
@@ -625,19 +630,69 @@ function getPlatform(platformIdArr) {
   })
   return platformArr
 }
-function getSitePlace(siteCode) {
-  return sitePlace[siteCode]
-}
-function getSiteRelation(platformId) {
-  if (platformId === 11) {
-    return siteRelation
-  } else if (platformId === 9) {
-    return siteRelation2
-  } else {
-    return []
-  }
+function getShopeeSitePlace(siteCode) {
+  return shopeeSitePlace[siteCode]
 }
 function getLazadaSitePlace(siteCode) {
   return lazadaSitePlace[siteCode]
 }
-export { getPlatform, getSitePlace, platformObj, getSiteRelation, getLazadaSitePlace }
+
+// 私有选品库
+
+// 采购来源
+const source = [
+  {
+    value: '1',
+    label: '拼多多'
+  },
+  {
+    value: '2',
+    label: '淘宝'
+  },
+  {
+    value: '3',
+    label: '天猫'
+  },
+  {
+    value: '4',
+    label: '京东'
+  },
+  {
+    value: '10',
+    label: '京喜'
+  },
+  {
+    value: '8',
+    label: '1688'
+  },
+  {
+    value: '6',
+    label: '货老板'
+  },
+  {
+    value: '7',
+    label: '多多进宝'
+  }
+]
+
+const sourceObj = {
+  '1': '拼多多',
+  '2': '淘宝',
+  '3': '天猫',
+  '4': '京东',
+  '10': '京喜',
+  '8': '1688',
+  '6': '货老版',
+  '7': '多多进宝'
+}
+export {
+  getPlatform,
+  getShopeeSitePlace,
+  getLazadaSitePlace,
+  shopeeSite,
+  lazadaSite,
+  pictureSearchOrigin,
+  platformObj,
+  sourceObj,
+  source
+}

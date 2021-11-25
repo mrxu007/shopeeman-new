@@ -1,0 +1,99 @@
+.personal-container{
+  margin: 10px;
+  header {
+    background: white;
+    overflow: auto;
+    padding: 16px;
+    display: flex;
+    .header-left {
+      min-width: 470px;
+      max-width: 470px;
+      position: relative;
+      border: 1px solid #ccc;
+      border-radius: 3px;
+      padding: 16px;
+      margin-right: 20px;
+      .text{
+        position: absolute;
+        padding: 5px;
+        background: white;
+        top: -12px;
+        left: 9px;
+      }
+      .el-button {
+        margin: 5px;
+        width: 134px;
+      }
+    }
+    .header-right {
+      min-width: 800px;
+      position: relative;
+      border: 1px solid #ccc;
+      border-radius: 3px;
+      padding: 16px;
+      margin-right: 20px;
+      .text{
+        position: absolute;
+        padding: 5px;
+        background: white;
+        top: -12px;
+        left: 9px;
+      }
+      .search-list {
+        display: flex;
+        flex-wrap: wrap;
+        li {
+          display: flex;
+          margin: 5px;
+          line-height: 28px;
+          p{
+            white-space: nowrap;
+            min-width: 60px;
+            text-align: right;
+          }
+          .el-select {
+            width: 120px;
+          }
+          .el-date-editor{
+            margin-left: 5px;
+            width: 320px
+          }
+          .el-input {
+            width: 120px;
+          }
+          .slot {
+            margin: 0 5px;
+          }
+        }
+      }
+    }
+  }
+  article{
+    .tip {
+      color: red;
+      padding: 5px;
+    }
+    .pagination {
+      text-align: right;
+      margin-top: 10px;
+    }
+  }
+  .lable-settings {
+    ul {
+      li {
+        display: flex;
+        margin: 5px;
+        p {
+          white-space: nowrap;
+          line-height: 28px;
+        }
+        .el-select {
+          width: 150px;
+        }
+        .el-input {
+          width: 150px;
+        }
+      }
+    }
+  }
+}
