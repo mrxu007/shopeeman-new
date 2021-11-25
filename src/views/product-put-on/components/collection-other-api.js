@@ -4,6 +4,7 @@ class CollectOtherApI {
   constructor(that) {
     this._this = that
   }
+  // 以图搜图
   async picSearch(platform, params) {
     try {
       let res = await this._this.$collectService.imgSearch(platform, params)
@@ -17,6 +18,33 @@ class CollectOtherApI {
     }
   }
 
+  // 天猫淘宝海外平台账号
+  async getTaobaoAbroadAccount() {
+    try {
+      const { muid } = this._this.userInfo // 变量已注入全局
+      const params = {
+        uid: muid,
+        uuid: '0',
+        account: '',
+        accountAliasName: '',
+        app_key: 'KYsyQGFviz2i0uQF'
+      }
+      let res = await this._this.$shopeemanService.getChineseLaiZan('http://api.laizand.com/api/open/getTbGlobalUser?', params, { // options
+        headers: {
+          'Accept': 'application/json, application/xml, text/json, text/x-json, text/javascript, text/xml',
+          'Accept-Encoding': ' gzip, deflate',
+          'User-Agent': 'RestSharp/106.3.1.0'
+        }
+      })
+      res = JSON.parse(JSON.parse(res).data)
+      if (res.code === 200) {
+        return { code: 200, data: res.data.data }
+      }
+      return { code: res.code, data: res.message }
+    } catch (error) {
+      return { code: -2, data: `getTaobaoAbroadAccount-catch: ${error}` }
+    }
+  }
   // 辅助--------------------------------------------
   handleError() {
     let errorText = JSON.stringify(this.errorCatchText).replace(/\s/g, '')
