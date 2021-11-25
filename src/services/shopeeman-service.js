@@ -15,17 +15,6 @@ export default class NetMessageBridgeService {
       isEmoticons: false
     }
   }
-  // async getUrlPrefix(country) {
-  //   const response = await window['ConfigBridgeService'].getUserConfig()
-  //   const data = JSON.parse(response)
-
-  //   //     auto 1、auto  2、mallinfo.MallMainId  3、IPType  包含 大陆   或者  ‘1’
-  //   // local 国内
-  //   // Abroad 本土
-  //   const dominType = data.SwitchDominTypeSetting === 'Local'
-  //   return dominType && this.site_domain_chinese_bk[country] || this.site_domain_local_bk[country]
-  // }
-
   async getUrlPrefix(country, data) {
     const mallId = data.mallId || data.platform_mall_id || data.shop_id
     let userSettings = await this.ConfigBridgeService().getUserConfig()
@@ -36,9 +25,9 @@ export default class NetMessageBridgeService {
     // local 国内
     // Abroad 本土
     let url = this.site_domain_chinese_bk[country]
-    if (userSettings.domain_switch === 'Abroad') {
+    if (userSettings.SwitchDominTypeSetting === 'Abroad') {
       url = this.site_domain_local_bk[country]
-    } else if (userSettings.domain_switch === 'Auto' && mall_main_id > 0 && (IPType.indexOf('大陆') === -1 || IPType === '1')) {
+    } else if (userSettings.SwitchDominTypeSetting === 'Auto' && mall_main_id > 0 && (IPType.indexOf('大陆') === -1 || IPType === '1')) {
       url = this.site_domain_local_bk[country]
     }
     return url
@@ -46,7 +35,7 @@ export default class NetMessageBridgeService {
     // return dominType && this.site_domain_chinese_bk[country] || this.site_domain_local_bk[country]
   }
 
-  // 大陆后台（国内）
+  // 大陆后台 (国内)
   site_domain_chinese_bk = {
     'MY': 'https://seller.my.shopee.cn',
     'TW': 'https://seller.xiapi.shopee.cn',
@@ -61,7 +50,7 @@ export default class NetMessageBridgeService {
     'CL': 'https://seller.cl.shopee.cn',
     'PL': 'https://seller.pl.shopee.cn'
   }
-  // 本土后台（国外）
+  // 本土后台(国外)
   site_domain_local_bk = {
     'MY': 'https://seller.shopee.com.my',
     'TW': 'https://seller.shopee.tw',
@@ -228,7 +217,7 @@ export default class NetMessageBridgeService {
   }
   // 回复商店评价
   replyShopRating(country, data) {
-    return this.postChinese(country, '/api/v3/settings/reply_shop_rating', data, { Headers: { 'Content-Type': ' application/json' }})
+    return this.postChinese(country, '/api/v3/settings/reply_shop_rating', data, { Headers: { 'Content-Type': ' application/json' } })
   }
   // 店铺提现记录
   getWithDrawalRecord(country, data) {
@@ -421,7 +410,7 @@ export default class NetMessageBridgeService {
         code = 'has_shop_upgraded'
         message = '已升级为全球店铺，请更换店铺类型进行导入'
       }
-      return { code, 'data': { 'message': message, 'data': res.data }}
+      return { code, 'data': { 'message': message, 'data': res.data } }
     } catch (e) {
       console.log('e', e)
       return { code: -2, data: `login -catch: ${e} ` }
@@ -577,7 +566,7 @@ export default class NetMessageBridgeService {
         code = 'has_shop_upgraded'
         message = '已升级为全球店铺，请更换店铺类型进行导入'
       }
-      return { code, 'data': { 'message': message, 'data': res.data }}
+      return { code, 'data': { 'message': message, 'data': res.data } }
     } catch (e) {
       console.log('e', e)
       return { code: -2, data: `login -catch: ${e} ` }

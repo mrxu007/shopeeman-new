@@ -6,7 +6,17 @@
           <ul>
             <li>
               <span>站点：</span>
-              <el-select v-model="countryVal" placeholder="" size="mini" filterable class="unnormal2" @change="getGroup">
+              <el-select
+                v-model="countryVal"
+                placeholder=""
+                size="mini"
+                filterable
+                class="unnormal2"
+                @change="
+                  groupId = ''
+                  getGroup
+                "
+              >
                 <el-option label="全部" :value="''" />
                 <el-option v-for="(item, index) in countries" :key="index" :label="item.label" :value="item.value" />
               </el-select>
@@ -101,7 +111,11 @@
             {{ (currentPage - 1) * pageSize + $index + 1 }}
           </template>
         </u-table-column>
-        <u-table-column align="center" prop="group_name" label="分组" />
+        <u-table-column align="center" prop="group_name" label="分组">
+          <template v-slot="{ row }">
+            <p style="white-space: normal">{{ row.group_name }}</p>
+          </template>
+        </u-table-column>
         <u-table-column align="center" prop="" label="站点">
           <template v-slot="{ row }">
             {{ row.country | chineseSite }}
@@ -146,21 +160,38 @@
         <u-table-column align="center" prop="item_limit" label="店铺额度" />
         <u-table-column align="center" prop="mall_alias_name" label="店铺别名">
           <template v-slot="{ row }">
-            <el-input
-              v-if="row.isCheckedWaterMark2"
-              v-model="row.mall_alias_name"
-              v-focus
-              size="mini"
-              type="textarea"
-              resize="none"
-              :autosize="{ minRows: 2, maxRows: 4 }"
-              placeholder="店铺别名"
-              @blur="updateMallAliasName(row)"
-            />
-
-            <span v-else @click="row.isCheckedWaterMark2 = true">
-              <el-input v-model="row.mall_alias_name" :disabled="!row.isCheckedWaterMark2" size="mini" type="textarea" resize="none" :autosize="{ minRows: 2, maxRows: 2 }" />
-            </span>
+            <div v-show="row.mall_alias_name">
+              <el-input
+                v-if="row.isCheckedWaterMark2"
+                v-model="row.mall_alias_name"
+                v-focus
+                size="mini"
+                type="textarea"
+                resize="none"
+                :autosize="{ minRows: 2, maxRows: 4 }"
+                placeholder="店铺别名"
+                @blur="updateMallAliasName(row)"
+              />
+              <span v-else @click="row.isCheckedWaterMark2 = true">
+                <el-input v-model="row.mall_alias_name" :disabled="!row.isCheckedWaterMark2" size="mini" type="textarea" resize="none" :autosize="{ minRows: 2, maxRows: 2 }" />
+              </span>
+            </div>
+            <div v-show="!row.mall_alias_name">
+              <el-input
+                v-if="row.isCheckedWaterMark2"
+                v-model="row.platform_mall_name"
+                v-focus
+                size="mini"
+                type="textarea"
+                resize="none"
+                :autosize="{ minRows: 2, maxRows: 4 }"
+                placeholder="店铺别名"
+                @blur="updateMallAliasName(row)"
+              />
+              <span v-else @click="row.isCheckedWaterMark2 = true">
+                <el-input v-model="row.platform_mall_name" :disabled="!row.isCheckedWaterMark2" size="mini" type="textarea" resize="none" :autosize="{ minRows: 2, maxRows: 2 }" />
+              </span>
+            </div>
           </template>
         </u-table-column>
         <u-table-column align="center" prop="web_login_info" label="登录状态" show-overflow-tooltip="">
@@ -263,7 +294,11 @@
             <el-table-column align="center" prop="userRealName" label="店铺真实名称" />
             <el-table-column align="center" prop="platform_mall_name" label="店铺账号" />
             <!-- <el-table-column align="center" prop="watermark" label="店铺水印文字" /> -->
-            <el-table-column align="center" prop="mall_alias_name" label="店铺别名" />
+            <el-table-column align="center" prop="mall_alias_name" label="店铺别名">
+              <template v-slot="{ row }">
+                {{ row.mall_alias_name || row.platform_mall_name }}
+              </template>
+            </el-table-column>
             <el-table-column align="center" label="登录识别码" width="200">
               <template v-slot="{ row }">
                 <div>
@@ -2065,7 +2100,7 @@ export default {
       // }
       const params = { lists: [{
         sysMallId: row.id,
-        mallAliasName: row.mall_alias_name
+        mallAliasName: row.mall_alias_name || row.platform_mall_name
       }] }
       const res = await this.mallListAPIInstance.updateMallAliasName(params)
       if (res.code !== 200) {
