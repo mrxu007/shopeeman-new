@@ -203,7 +203,7 @@
 
             </div>
             <div class="left_item" style="display: flex;justify-content: center;">
-              <el-button size="mini" type="primary" @click="addMaster()">确定</el-button>
+              <el-button size="mini" type="primary" @click="addMasterFun()">确定</el-button>
             </div>
           </div>
           <!-- 新增自有IP公司主体-->
@@ -1475,6 +1475,18 @@ export default {
     //   const res = await this.$YipService.AddSelfIP(JSON.stringify(this.query_person))
     // },
     // 新增公司主体---提交
+    addMasterFun() {
+      this.$confirm('您确定要购买一个新的IP吗?', '购买提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        this.addMaster()
+      }).catch(() => {
+        // this.dialogvisible = false
+        // this.closeDialog1()
+      })
+    },
     async addMaster() {
       if (this.ipMaster_params.ipAlias === '') {
         this.$message.warning('主体名称不能为空！')
@@ -1491,6 +1503,7 @@ export default {
       const params = this.ipMaster_params
       this.loading = true
       try {
+        console.log(params)
         const data = await this.$commodityService.addIPMaster(params)
         this.loading = false
         // 返回值类型处理
@@ -1510,7 +1523,7 @@ export default {
           //   type: 'error',
           //   message: resMsg.message
           // })
-          this.$confirm(resMsg.message, '提示', {
+          this.$confirm(resMsg.message, '购买提示', {
             confirmButtonText: '确定',
             type: 'warning'
           })
