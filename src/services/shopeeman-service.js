@@ -86,7 +86,36 @@ export default class NetMessageBridgeService {
           referer: url + referer
         })
     }
+    // console.log('-----', url, JSON.stringify(options))
     return this.NetMessageBridgeService().get(url, JSON.stringify(options))
+  }
+
+  async getChineseLaiZan(url, data, options = {}) {
+    options['params'] = data
+    const referer = options['headers'] && options['headers'].referer
+    if (referer) {
+      options['headers'] = Object.assign(options['headers'],
+        {
+          origin: url,
+          referer: url + referer
+        })
+    }
+    // console.log('-----', url, JSON.stringify(options))
+    return this.NetMessageBridgeService().get(url, JSON.stringify(options))
+  }
+
+  async postChineseLaiZan(url, data, options = {}) {
+    options['params'] = data
+    const referer = options['headers'] && options['headers'].referer
+    if (referer) {
+      options['headers'] = Object.assign(options['headers'],
+        {
+          origin: url,
+          referer: url + referer
+        })
+    }
+    // console.log(url, JSON.stringify(options), JSON.stringify(data))
+    return this.NetMessageBridgeService().post(url, JSON.stringify(options), JSON.stringify(data))
   }
 
   async postChinese(country, api, data, options = {}, exportInfo) {

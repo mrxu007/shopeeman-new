@@ -23,7 +23,7 @@
         </el-select>
       </li>
       <li v-if="isReset" style="margin-bottom: 5px;margin-left: 25px;">
-        <el-button size="mini" type="primary" @click="reset" style="justify-self: self-end">　刷　　新　</el-button>
+        <el-button size="mini" type="primary" style="justify-self: self-end" @click="reset">　刷　　新　</el-button>
       </li>
     </ul>
   </div>
@@ -142,7 +142,7 @@ export default {
     this.countryVal = (!this.isAll && 'TH') || ''
   },
   methods: {
-    reset(){
+    reset() {
       this.isAllowSet2 = false
       this.groupId = []
       this.groupIdList = []
@@ -193,7 +193,7 @@ export default {
         if (item) {
           const temp = this.siteList.filter((i) => i.platform_mall_id === item)
           mallList.push(temp[0])
-          searchAll += (item+',')
+          searchAll += (item + ',')
         }
       })
       mallList['country'] = this.countryVal
