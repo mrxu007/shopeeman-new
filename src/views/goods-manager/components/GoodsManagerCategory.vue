@@ -114,11 +114,11 @@
         <!-- row2 -->
         <div class="row">
           <div>
-            <el-select v-model="searchType" style="width:100px" size="mini">
+            <el-select v-model="add_query.searchType" style="width:100px" size="mini">
               <el-option label="关键字" value="1" />
               <el-option label="商品编号" value="2" />
             </el-select>
-            <el-input v-model="searchContent" size="mini" style="width:115px" clearable />
+            <el-input v-model="add_query.searchContent" size="mini" style="width:115px" clearable />
           </div>
 
           <!-- <div style="margin-left: 33px">
@@ -134,9 +134,9 @@
 
           <div style="margin-left: 8px;">
             <label>价格区间：</label>
-            <el-input v-model="price_min" onkeyup="value=value.replace(/[^\d]/g,0)" size="mini" style="width:84px" clearable />
+            <el-input v-model="add_query.price_min" onkeyup="value=value.replace(/[^\d]/g,0)" size="mini" style="width:84px" clearable />
             -
-            <el-input v-model="price_max" onkeyup="value=value.replace(/[^\d]/g,0)" size="mini" style="width:84px" clearable />
+            <el-input v-model="add_query.price_max" onkeyup="value=value.replace(/[^\d]/g,0)" size="mini" style="width:84px" clearable />
           </div>
 
           <el-checkbox v-model="showfit" style="margin-left: 8px;">仅显示适用商品</el-checkbox>
@@ -145,8 +145,10 @@
         <!-- row3 -->
         <div class="row" style="align-items: center;">
           <div>
-            <label>每个店铺商品数量：</label>
-            <el-input v-model="mall_goodsNum" onkeyup="value=value.replace(/[^\d]/g,0)" size="mini" style="width:85px" clearable />
+            <label>商品库存：</label>
+            <el-input v-model="add_query.stock_min" onkeyup="value=value.replace(/[^\d]/g,0)" size="mini" style="width:84px" clearable />
+            -
+            <el-input v-model="add_query.stock_max" onkeyup="value=value.replace(/[^\d]/g,0)" size="mini" style="width:84px" clearable />
           </div>
 
           <div style="margin-left: 8px;">
@@ -156,12 +158,12 @@
 
           <div style="margin-left: 8px;">
             <label>销量区间：</label>
-            <el-input v-model="sale_min" onkeyup="value=value.replace(/[^\d]/g,0)" size="mini" style="width:84px" clearable />
+            <el-input v-model="add_query.sale_min" onkeyup="value=value.replace(/[^\d]/g,0)" size="mini" style="width:84px" clearable />
             -
-            <el-input v-model="sale_max" onkeyup="value=value.replace(/[^\d]/g,0)" size="mini" style="width:84px" clearable />
+            <el-input v-model="add_query.sale_max" onkeyup="value=value.replace(/[^\d]/g,0)" size="mini" style="width:84px" clearable />
           </div>
 
-          <el-button size="mini" type="primary" style="margin-left: 8px;">查询商品</el-button>
+          <el-button size="mini" type="primary" style="margin-left: 8px;" @click="search_addGoods">查询商品</el-button>
           <el-button size="mini" type="primary">取消操作</el-button>
           <el-button size="mini" type="primary">添加已选商品</el-button>
 
@@ -170,8 +172,9 @@
       </div>
       <div class="detail_table">
         <el-table
+          v-loading="loading_table"
           :data="tableList_add"
-          height="calc(100vh - 312px)"
+          height="calc(100vh - 353px)"
           :header-cell-style="{ background: '#f7fafa' }"
           @selection-change="handleSelectionChange"
         >
@@ -194,19 +197,19 @@
           <el-table-column prop="totalStock" label="库存" sortable align="center" min-width="100px" />
           <el-table-column prop="totSale" label="销量" sortable align="center" min-width="100px" />
           <el-table-column prop="minprice" label="价格" sortable align="center" min-width="100px" />
-          <!-- <div class="pagination">
+        </el-table>
+        <div class="pagination" style="margin-left: 476px; margin-top: 10px;">
           <el-pagination
-            background
-            :current-page.sync="page"
+            :current-page.sync="add_query.page"
             :page-sizes="[20, 50, 100, 200]"
-            :page-size="pageSize"
+            :page-size="add_query.pageSize"
+            :pager-count="5"
             layout="total, sizes, prev, pager, next, jumper"
             :total="total"
             @size-change="handleSizeChange"
             @current-change="handleCurrentChange"
           />
-        </div> -->
-        </el-table>
+        </div>
       </div>
     </el-dialog>
   </div>
@@ -215,7 +218,7 @@
 import GoodsChoose from '../../../components/goods-choose.vue'
 import categoryChoose from '../../../components/category-choose.vue'
 import GoodsManagerAPI from '../../../module-api/goods-manager-api/goods-data'
-import { GoodsMallgetValue, getMalls, delay } from '../../../util/util'
+import { GoodsMallgetValue, getMalls } from '../../../util/util'
 export default {
   components: {
     GoodsChoose,
@@ -225,20 +228,14 @@ export default {
     return {
       selectList: [],
       loading: false,
+      loading_table: false,
       searchLoading: false,
       mallinfo: '', // 店铺信息
       GoodsManagerAPIInstance: new GoodsManagerAPI(this),
       mall_goodsID: '', // 过滤商品编号
-      mall_goodsNum: '', // 每个店铺商品数量
       showlog: false, // 显示日志
       showfit: false, // 适用商品
-      sale_min: '', // 销量区间
-      sale_max: '', // 销量区间
-      price_min: '', // 价格区间
-      price_max: '', // 价格区间
       orderType: '1', // 排序
-      searchType: '1', // 添加商品--按商品类别搜索商品
-      searchContent: '', // 添加商品--搜索商品
       tableList_add: [], // 添加商品列表
       dialogVisible_addGoods: false, // 添加商品
       dialogVisible_detail: false, // 查看详情弹窗
@@ -246,12 +243,61 @@ export default {
       isShow_master: true, // 是否展示,
       addtypeName: '', // 添加分类名称
       uptypeName: '', // 修改分类名称
-      tableList_detail: [] // 编辑分类列表
+      tableList_detail: [], // 编辑分类列表
+      add_query: {
+        searchType: '1', // 添加商品--按商品类别搜索商品
+        // mall_goodsNum: 10, // 每个店铺商品数量
+        stock_max: 9999,
+        stock_min: 0,
+        searchContent: '', // 添加商品--搜索商品
+        sale_min: 0, // 销量区间
+        sale_max: 99999, // 销量区间
+        price_min: 0, // 价格区间
+        price_max: 99999, // 价格区间
+        selcategory_id: '', // dialogVisible_addGoods--搜索
+        pageSize: 20, // dialogVisible_addGoods--分页
+        page: 1, // dialogVisible_addGoods--分页
+        cursor: ''
+      },
+      total: 0 // dialogVisible_addGoods--分页
     }
   },
   created() {
   },
   methods: {
+    // 分页
+    handleSizeChange(val) {
+      this.add_query.pageSize = val
+      // 1 如果条件为空，则走 getaddGoodsList()
+      // 2 不为空，则走 search_addGoods()
+      // if (this.add_query.mall_goodsNum === '' &&
+      //    this.add_query.searchContent === '' &&
+      //    this.add_query.sale_min === '' &&
+      //    this.add_query.sale_max === '' &&
+      //    this.add_query.price_min === '' &&
+      //    this.add_query.price_max === '') {
+      //   this.getaddGoodsList()
+      // } else {
+      //   this.search_addGoods()
+      // }
+      this.search_addGoods()
+    },
+    handleCurrentChange(val) {
+      this.add_query.page = val
+      // 1 如果条件为空，则走 getaddGoodsList()
+      // 2 不为空，则走 search_addGoods()
+      // if (this.add_query.mall_goodsNum === '' &&
+      //    this.add_query.searchContent === '' &&
+      //    this.add_query.sale_min === '' &&
+      //    this.add_query.sale_max === '' &&
+      //    this.add_query.price_min === '' &&
+      //    this.add_query.price_max === '') {
+      //   this.getaddGoodsList()
+      // } else {
+      //   this.search_addGoods()
+      // }
+      this.search_addGoods()
+    },
     // 获取店铺名称
     async getinfo() {
       getMalls().then(res => {
@@ -279,70 +325,95 @@ export default {
       this.$nextTick(() => {
         this.$refs.goodsCategory.chageSite(this.mallinfo.country) // 联动dialogVisible_addGoods 品类选择组件
       })
-      this.getaddGoodsList() // 获取列表
+      // 0、 获取列表
+      this.search_addGoods()
       // 1、 添加商品列表展示
       // 2、检索类目获取，与master站点联动
       // 3、 查询商品：检索条件 关键字 排序 价格区间 每个店铺商品数量 过滤商品编号 销量区间 ，取消操作
       // 4、 添加已选商品 最后要刷新列表
       // 5、 隐藏日志显示
-      // 6、仅显示适用商品
+      // 6、仅显示适用商品 true-- list_type:all false--list_type:live
     },
-    async getaddGoodsList() {
+    // 查询商品
+    async search_addGoods() {
+      if (this.add_query.price_max <= 0 || this.add_query.price_max === '' &&
+         this.add_query.price_max === '' &&
+          this.add_query.sale_max <= 0 || this.add_query.sale_max === '' &&
+        this.add_query.sale_min === '') {
+        this.$message.warning('价格区间、销量区间必须是大于0的整数')
+        return
+      }
+      if (this.add_query.stock_min === '' ||
+      this.add_query.stock_max === 0 || this.add_query.stock_max === '') {
+        this.$message.warning('请输入有效库存数量')
+        return
+      }
       const param = {
         country: this.mallinfo.country,
         mallId: this.mallinfo.mallID,
-        search_type: '',
-        keyword: '',
-        stock_max: '',
-        stock_min: '',
-        sold_max: '',
-        sold_min: '',
-        category_id: '',
-        list_type: 'active_only_and_sold_out',
-        list_order_type: 'sales_dsc',
-        page_number: 1,
-        page_size: 20
+        search_type: Number(this.add_query.searchType) === 1 ? 'name' : 'id',
+        keyword: this.add_query.searchContent,
+        stock_max: this.add_query.stock_max,
+        stock_min: this.add_query.stock_min,
+        sold_max: this.add_query.sale_max,
+        sold_min: this.add_query.sale_min,
+        category_id: this.add_query.selcategory_id,
+        list_type: this.showfit ? 'live' : 'all',
+        page_number: this.add_query.page,
+        page_size: this.add_query.pageSize,
+        cursor: this.add_query.cursor
       }
-      const res = await this.GoodsManagerAPIInstance.getMpskuList(param)
+      console.log('cursor1', this.add_query.cursor)
+      this.loading_table = true
+      const res = await this.GoodsManagerAPIInstance.searchList(param)
+      this.loading_table = false
       console.log('addtablelist', res)
       this.tableList_add = []
-      const arr = res.data.list
-      for (let i = 0; i < arr.length; i++) {
-        try {
-          // 获取类目名称'
-          const index = arr[i].category_path.length
-          const categoryID = arr[i].category_path[index - 1]
-          const fes = await window.CommodityBridgeService.callCategoryFunction('GetCategoryInfo', this.mallinfo.country, categoryID.toString(), '0', '')
-          const des = JSON.parse(fes)
-          if (des.code === 200) {
-            arr[i].categoryName = des.data.categories[0].category_name
-            // 获取stock price
-            const modelList = arr[i].model_list
-            let stock = 0
-            let minPrice = 0
-            let sale = 0
-            modelList.forEach((el, index) => {
-              stock = stock + Number(el.stock_info.normal_stock) // 累计库存
-              sale = sale + Number(el.sold) // 累计销量
-              if (index === 0) { // 获取最小价格
-                minPrice = Number(el.price_info.normal_price)
-              } else {
-                minPrice = minPrice > Number(el.price_info.normal_price) ? Number(el.price_info.normal_price) : minPrice
-              }
-            })
-            arr[i].totalStock = stock
-            arr[i].minprice = minPrice
-            arr[i].totSale = sale
-            arr[i].isSel = false // 默认没有被选
-            this.tableList_add.push(arr[i])
+      if (res.ecode === 0) {
+        this.add_query.page = res.data.page_info.page_number
+        this.add_query.page_size = res.data.page_info.page_size
+        this.total = res.data.page_info.total
+        this.add_query.cursor = res.data.page_info.cursor
+        console.log('cursor2', this.add_query.cursor)
+        const arr = res.data.list
+        for (let i = 0; i < arr.length; i++) {
+          try {
+            // 获取类目名称'
+            const index = arr[i].category_path.length
+            const categoryID = arr[i].category_path[index - 1]
+            const fes = await window.CommodityBridgeService.callCategoryFunction('GetCategoryInfo', this.mallinfo.country, categoryID.toString(), '0', '')
+            const des = JSON.parse(fes)
+            if (des.code === 200) {
+              arr[i].categoryName = des.data.categories[0].category_name
+              // 获取stock price
+              const modelList = arr[i].model_list
+              let stock = 0
+              let minPrice = 0
+              let sale = 0
+              modelList.forEach((el, index) => {
+                stock = stock + Number(el.stock_info.normal_stock) // 累计库存
+                sale = sale + Number(el.sold) // 累计销量
+                if (index === 0) { // 获取最小价格
+                  minPrice = Number(el.price_info.normal_price)
+                } else {
+                  minPrice = minPrice > Number(el.price_info.normal_price) ? Number(el.price_info.normal_price) : minPrice
+                }
+              })
+              arr[i].totalStock = stock
+              arr[i].minprice = minPrice
+              arr[i].totSale = sale
+              arr[i].isSel = false // 默认没有被选
+              this.tableList_add.push(arr[i])
+            }
+          } catch (error) {
+            console.log('获取类目名称', error)
+            continue
           }
-        } catch (error) {
-          console.log('获取类目名称', error)
-          continue
         }
+      } else {
+        this.$message.error(res.message)
       }
     },
-    // 添加商品列表获取
 
     // 批量开启/关闭知名度
     async startShow(type) {
@@ -464,7 +535,9 @@ export default {
     // 多选
     handleSelectionChange(val) { this.selectList = []; this.selectList = val },
     // 类别选择
-    setCategory() {},
+    setCategory(val) {
+      this.add_query.selcategory_id = val.categoryList.length && val.categoryList[val.categoryList.length - 1].toString() || ''
+    },
     // 店铺选择
     getmall(val) { this.mallinfo = val },
     // 关闭弹窗
@@ -516,6 +589,11 @@ export default {
           height: 500px;
         }
       }
+    }
+  }
+  .dialogVisible_add{
+    /deep/.el-dialog__body{
+      padding-bottom: 10px;
     }
   }
 }

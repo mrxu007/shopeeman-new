@@ -164,35 +164,16 @@ export default class GoodsManagerAPI {
   // 获取商品列表
   async getMpskuList(goodsinfo) {
     try {
-      const { country,
-        mallId,
-        search_type,
-        keyword,
-        stock_max,
-        stock_min,
-        sold_max,
-        sold_min,
-        category_id,
-        list_type,
-        page_number,
-        page_size,
-        list_order_type } = goodsinfo
+      const { country, mallId, page_number, page_size } = goodsinfo
       const params = {
         mallId,
-        // search_type: search_type, // name 、id
-        // keyword: keyword,
-        // stock_max: stock_max,
-        // stock_min: stock_min,
-        // sold_max: sold_max,
-        // sold_min: sold_min,
-        // category_id: category_id,
         page_number: page_number,
         page_size: page_size,
-        list_type: list_type,
-        list_order_type: list_order_type,
-        version: '4.0.0'
+        list_type: 'all',
+        source: 'seller_center',
+        version: '1.0.0'
       }
-      const res = await this._this.$shopeemanService.getChinese(country, '/api/v3/product/search_product_list/?', params, {
+      const res = await this._this.$shopeemanService.getChinese(country, '/api/v3/mpsku/get_mpsku_list/?', params, {
         headers: {
           'content-type': 'application/json; charset=utf-8'
         }
@@ -209,6 +190,60 @@ export default class GoodsManagerAPI {
       return { ecode, data, message }
     } catch (error) {
       return { code: -2, data: `getMpskuList-catch: ${error}` }
+    }
+  }
+
+  // 搜索商品列表
+  async searchList(goodsinfo) {
+    try {
+      const { country,
+        mallId,
+        search_type,
+        keyword,
+        stock_max,
+        stock_min,
+        sold_max,
+        sold_min,
+        category_id,
+        list_type,
+        page_number,
+        page_size,
+        cursor
+      } = goodsinfo
+      const params = {
+        mallId,
+        page_number: page_number,
+        search_type: search_type,
+        keyword: keyword,
+        page_size: page_size,
+        cursor: cursor,
+        stock_max: stock_max,
+        stock_min: stock_min,
+        sold_max: sold_max,
+        sold_min: sold_min,
+        category_id: category_id,
+        list_type: list_type, // live all
+        count_list_types: 'sold_out,banned,deboosted,deleted,unlisted',
+        version: '4.0.0'
+      }
+      const res = await this._this.$shopeemanService.getChinese(country, '/api/v3/product/search_product_list/?', params, {
+        headers: {
+          'content-type': 'application/json; charset=utf-8',
+          Referer: `/portal/product/list/active?category=${category_id}&soldMax=${sold_max}&soldMin=${sold_min}&stockMax=${stock_max}&stockMin=${stock_min}&page=${page_number}&size=${page_size}`
+        }
+      })
+      const des = JSON.parse(JSON.parse(res).data)
+      let ecode = des.code ? des.code : des.errcode
+      if (des.errcode) {
+        ecode = des.errcode
+      } else {
+        ecode = des.code
+      }
+      const data = des.data
+      const message = des.message
+      return { ecode, data, message }
+    } catch (error) {
+      return { code: -2, data: `searchList-catch: ${error}` }
     }
   }
 }
