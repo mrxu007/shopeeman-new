@@ -45,10 +45,6 @@
 export default {
   name: 'CategoryChoose',
   props: {
-    countryVal: {
-      type: String,
-      default: null
-    }, // 商品分类关联站点
     isSelect: {
       type: Boolean,
       default: false
@@ -131,6 +127,10 @@ export default {
     this.countryVal = (!this.isAll && 'TH') || ''
   },
   methods: {
+    // 商品分类店铺联动
+    chageSite(site) {
+      this.countryVal = site
+    },
     async getCategory(categoryID, level) {
       if (!this.countryVal) {
         this.sendParent()

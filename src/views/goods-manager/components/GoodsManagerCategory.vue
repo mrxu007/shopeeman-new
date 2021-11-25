@@ -109,7 +109,7 @@
       <div class="detail_conditon" style="display:flex;flex-wrap: wrap;">
         <!-- row1 -->
         <div class="row">
-          <category-choose :level="3" :is-select="true" :country-val="mallinfo.country" @setCategory="setCategory" />
+          <category-choose ref="goodsCategory" :level="3" :is-select="true" @setCategory="setCategory" />
         </div>
         <!-- row2 -->
         <div class="row">
@@ -176,14 +176,36 @@
           @selection-change="handleSelectionChange"
         >
           <el-table-column type="selection" width="55" fixed />
-          <el-table-column prop="" label="店铺名称" align="center" min-width="100px" fixed />
-          <el-table-column prop="" label="类目" align="center" min-width="100px" />
-          <el-table-column prop="" label="主图" align="center" min-width="100px" />
-          <el-table-column prop="" label="商品ID" align="center" min-width="100px" />
-          <el-table-column prop="" label="商品标题" align="center" min-width="100px" />
-          <el-table-column prop="" label="库存" align="center" min-width="100px" />
-          <el-table-column prop="" label="销量" align="center" min-width="100px" />
-          <el-table-column prop="" label="价格" align="center" min-width="100px" />
+          <el-table-column prop="mallinfo.mallName" label="店铺名称" align="center" min-width="100px" fixed>
+            <template><span>{{ mallinfo.mallName }}</span></template></el-table-column>
+          <el-table-column prop="categoryName" label="类目" align="center" min-width="100px" />
+          <el-table-column prop="" label="主图" align="center" min-width="100px">
+            <template slot-scope="scope">
+              <el-tooltip effect="light" placement="right-end" :visible-arrow="false" :enterable="false" style="width: 56px; height: 56px; display: inline-block">
+                <div slot="content">
+                  <el-image :src="[mallinfo.country, scope.row.id, scope.row.images[0]] | imageRender" style="width: 200px; height: 200px" />
+                </div>
+                <el-image :src="[mallinfo.country, scope.row.id, scope.row.images[0]] | imageRender" style="width: 56px; height: 56px" />
+              </el-tooltip>
+            </template>
+          </el-table-column>
+          <el-table-column prop="id" label="商品ID" align="center" min-width="100px" />
+          <el-table-column prop="name" label="商品标题" align="center" min-width="100px" />
+          <el-table-column prop="totalStock" label="库存" sortable align="center" min-width="100px" />
+          <el-table-column prop="totSale" label="销量" sortable align="center" min-width="100px" />
+          <el-table-column prop="minprice" label="价格" sortable align="center" min-width="100px" />
+          <!-- <div class="pagination">
+          <el-pagination
+            background
+            :current-page.sync="page"
+            :page-sizes="[20, 50, 100, 200]"
+            :page-size="pageSize"
+            layout="total, sizes, prev, pager, next, jumper"
+            :total="total"
+            @size-change="handleSizeChange"
+            @current-change="handleCurrentChange"
+          />
+        </div> -->
         </el-table>
       </div>
     </el-dialog>
@@ -193,7 +215,7 @@
 import GoodsChoose from '../../../components/goods-choose.vue'
 import categoryChoose from '../../../components/category-choose.vue'
 import GoodsManagerAPI from '../../../module-api/goods-manager-api/goods-data'
-
+import { GoodsMallgetValue, getMalls, delay } from '../../../util/util'
 export default {
   components: {
     GoodsChoose,
@@ -204,7 +226,7 @@ export default {
       selectList: [],
       loading: false,
       searchLoading: false,
-      mallinfo: '', // 店铺集合
+      mallinfo: '', // 店铺信息
       GoodsManagerAPIInstance: new GoodsManagerAPI(this),
       mall_goodsID: '', // 过滤商品编号
       mall_goodsNum: '', // 每个店铺商品数量
@@ -218,7 +240,7 @@ export default {
       searchType: '1', // 添加商品--按商品类别搜索商品
       searchContent: '', // 添加商品--搜索商品
       tableList_add: [], // 添加商品列表
-      dialogVisible_addGoods: true, // 添加商品
+      dialogVisible_addGoods: false, // 添加商品
       dialogVisible_detail: false, // 查看详情弹窗
       tableList_master: [],
       isShow_master: true, // 是否展示,
@@ -230,10 +252,15 @@ export default {
   created() {
   },
   methods: {
+    // 获取店铺名称
+    async getinfo() {
+      getMalls().then(res => {
+        this.mallinfo.mallName = GoodsMallgetValue(res, 'label', 'value', this.mallinfo.mallID)
+      })
+    },
     // 搜索
-    search() {
-      this.gettableList()
-      this.getaddGoodsList()// 获取添加商品列表
+    async search() {
+      await this.gettableList()
     },
     // 查看详情
     checkDetail() {
@@ -249,6 +276,10 @@ export default {
     // 添加商品
     addGoods() {
       this.dialogVisible_addGoods = true
+      this.$nextTick(() => {
+        this.$refs.goodsCategory.chageSite(this.mallinfo.country) // 联动dialogVisible_addGoods 品类选择组件
+      })
+      this.getaddGoodsList() // 获取列表
       // 1、 添加商品列表展示
       // 2、检索类目获取，与master站点联动
       // 3、 查询商品：检索条件 关键字 排序 价格区间 每个店铺商品数量 过滤商品编号 销量区间 ，取消操作
@@ -260,12 +291,56 @@ export default {
       const param = {
         country: this.mallinfo.country,
         mallId: this.mallinfo.mallID,
+        search_type: '',
+        keyword: '',
+        stock_max: '',
+        stock_min: '',
+        sold_max: '',
+        sold_min: '',
+        category_id: '',
+        list_type: 'active_only_and_sold_out',
+        list_order_type: 'sales_dsc',
         page_number: 1,
-        page_size: 24,
-        list_type: ''
+        page_size: 20
       }
       const res = await this.GoodsManagerAPIInstance.getMpskuList(param)
       console.log('addtablelist', res)
+      this.tableList_add = []
+      const arr = res.data.list
+      for (let i = 0; i < arr.length; i++) {
+        try {
+          // 获取类目名称'
+          const index = arr[i].category_path.length
+          const categoryID = arr[i].category_path[index - 1]
+          const fes = await window.CommodityBridgeService.callCategoryFunction('GetCategoryInfo', this.mallinfo.country, categoryID.toString(), '0', '')
+          const des = JSON.parse(fes)
+          if (des.code === 200) {
+            arr[i].categoryName = des.data.categories[0].category_name
+            // 获取stock price
+            const modelList = arr[i].model_list
+            let stock = 0
+            let minPrice = 0
+            let sale = 0
+            modelList.forEach((el, index) => {
+              stock = stock + Number(el.stock_info.normal_stock) // 累计库存
+              sale = sale + Number(el.sold) // 累计销量
+              if (index === 0) { // 获取最小价格
+                minPrice = Number(el.price_info.normal_price)
+              } else {
+                minPrice = minPrice > Number(el.price_info.normal_price) ? Number(el.price_info.normal_price) : minPrice
+              }
+            })
+            arr[i].totalStock = stock
+            arr[i].minprice = minPrice
+            arr[i].totSale = sale
+            arr[i].isSel = false // 默认没有被选
+            this.tableList_add.push(arr[i])
+          }
+        } catch (error) {
+          console.log('获取类目名称', error)
+          continue
+        }
+      }
     },
     // 添加商品列表获取
 
@@ -287,7 +362,6 @@ export default {
               mallId: this.mallinfo.mallID
             }
             await this.GoodsManagerAPIInstance.updateShopCollection(param).then(res => {
-              console.log('show', res)
             })
           } else {
             // this.$message.warning(this.selectList[i].name + '数量不足无法开启')
@@ -350,7 +424,6 @@ export default {
       }
       this.loading = true
       const res = await this.GoodsManagerAPIInstance.createShopCollection(params)
-      console.log(res)
       this.loading = false
       if (res.ecode === 0) {
         // this.$message.success('添加成功~')
@@ -407,9 +480,9 @@ export default {
         country: this.mallinfo.country,
         mallId: this.mallinfo.mallID
       }
+      this.getinfo()// 获取店铺名称
       this.searchLoading = true
       const res = await this.GoodsManagerAPIInstance.getcollectionlist(params)
-      // console.log('mall-res', res)
       this.searchLoading = false
       if (res.ecode === 0) {
         res.data.list.forEach(el => {

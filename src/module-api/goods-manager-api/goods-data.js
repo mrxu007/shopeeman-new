@@ -1,3 +1,5 @@
+import { lowerCase } from 'lodash'
+
 export default class GoodsManagerAPI {
   constructor(that) {
     this._this = that
@@ -162,16 +164,35 @@ export default class GoodsManagerAPI {
   // 获取商品列表
   async getMpskuList(goodsinfo) {
     try {
-      const { country, mallId, page_number, page_size, list_type } = goodsinfo
+      const { country,
+        mallId,
+        search_type,
+        keyword,
+        stock_max,
+        stock_min,
+        sold_max,
+        sold_min,
+        category_id,
+        list_type,
+        page_number,
+        page_size,
+        list_order_type } = goodsinfo
       const params = {
-        mallId: mallId,
+        mallId,
+        // search_type: search_type, // name 、id
+        // keyword: keyword,
+        // stock_max: stock_max,
+        // stock_min: stock_min,
+        // sold_max: sold_max,
+        // sold_min: sold_min,
+        // category_id: category_id,
         page_number: page_number,
         page_size: page_size,
         list_type: list_type,
-        source: 'seller_center',
-        version: '1.0.0'
+        list_order_type: list_order_type,
+        version: '4.0.0'
       }
-      const res = await this._this.$shopeemanService.getChinese(country, '/api/v3/mpsku/get_mpsku_list/?', params, {
+      const res = await this._this.$shopeemanService.getChinese(country, '/api/v3/product/search_product_list/?', params, {
         headers: {
           'content-type': 'application/json; charset=utf-8'
         }
