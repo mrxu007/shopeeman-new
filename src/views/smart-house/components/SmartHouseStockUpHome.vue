@@ -1043,7 +1043,8 @@
 
 <script>
 import StrockUpHome from '../../../module-api/smart-house-api/strock-up-home'
-import { exportExcelDataCommon, exportPdfData } from '../../../util/util'
+import { exportExcelDataCommon } from '../../../util/util'
+import { exportPdfData, downloadZip } from '../../../util/download'
 import ProductChoose from '../../../components/product-choose.vue'
 import XLSX from 'xlsx'
 import { data } from 'cheerio/lib/api/attributes'
@@ -1369,13 +1370,57 @@ export default {
       })
     },
     // 下载条形码
-    downBarCode() {
-      // const template = `条形码`
-      // const createDiv = document.createElement('div')
-      // createDiv.id = 'bar_code_id'
-      // createDiv.innerHTML = template
-      // document.body.appendChild(createDiv)// 添加到BODY节点中
-      // exportPdfData('#bar_code_id', 'cc')
+    async downBarCode() {
+      const arrPDF = []
+      if (!this.multipleSelection?.length) return this.$message('请选择需要导出的数据')
+      this.showConsole = false
+      this.$refs.Logs.writeLog('开始批量生成预报单条形码...', true)
+      for (let index = 0; index < this.multipleSelection.length; index++) {
+        const element1 = this.multipleSelection[index]
+        for (let index = 0; index < element1.home_stocking_forecast_sub.length; index++) {
+          const element2 = element1.home_stocking_forecast_sub[index]
+          const template = `
+              <div id="${'faceId' + element1.id}" style="width:300px;height:340px;">
+                <div style="width: 270px;height: 310px;float: right;padding-top:40px">
+                  <img id="barcode" style="width:240px;height:88px;margin-bottom:10px">
+                  <ul>
+                    <li style="margin-bottom:10px">
+                      <span>物流单号：${element1.package_code}</span>
+                    </li>
+                    <li style="margin-bottom:10px">
+                      <span>采购单号：${element1.purchase_order_sn}</span>
+                    </li>
+                    <li style="margin-bottom:10px">
+                      <span>商品SkuId：${element2.sku_id}</span>
+                    </li>
+                    <li style="margin-bottom:10px">
+                      <span>商品数量：${element2.purchase_num}</span>
+                    </li>
+                    <li style="margin-bottom:10px">
+                      <span>系统SkuId：${element2.sys_sku_id}</span>
+                    </li>
+                    <li style="margin-bottom:10px">
+                      <span>商品名称：${element2.sku_spec}</span>
+                    </li>
+                  </ul>
+                </div>
+            </div>
+            `
+          const createDiv = document.createElement('div')
+          createDiv.innerHTML = template
+          document.body.appendChild(createDiv)// 添加到BODY节点中
+          const pdfBase64 = await exportPdfData('#barcode', element2.sys_sku_id, `#${'faceId' + element1.id}`)
+          document.querySelector(`#${'faceId' + element1.id}`).parentElement.removeChild(document.querySelector(`#${'faceId' + element1.id}`))
+          const obj = {
+            fileUrl: pdfBase64,
+            renameFileName: `${element1.package_code}-${element2.sys_sku_id}.pdf`
+          }
+          arrPDF.push(obj)
+          this.$refs.Logs.writeLog(`【${element2.sys_sku_id}】条形码生成成功`, true)
+        }
+      }
+      await downloadZip(arrPDF, '预报单条形码')
+      this.$refs.Logs.writeLog(`批量生成条形码完成`, true)
     },
     // SKU详情
     async getProductSkuList(row) {
