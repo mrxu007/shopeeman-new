@@ -4,9 +4,10 @@
       <div class="condition_item">
         <el-button type="primary" size="mini" @click="dialogVisible_token = true">新增授权</el-button>
         <el-button type="primary" size="mini" @click="refeshSatua">刷新状态</el-button>
-        <el-button type="primary" size="mini"> <a :href="downPDF" style="color: white">下载教程</a></el-button>
-        <!-- <el-button type="text" size="mini"> <span class="linkdec">注册淘宝天猫海外平台账号</span> </el-button> -->
-        <el-link type="primary" class="linkdec" href="https://distributor.taobao.global/apps/seller/login">注册淘宝天猫海外平台账号</el-link>
+        <!-- <el-button type="primary" size="mini" @click="open('1')"> <a :href="downPDF" style="color: white">下载教程</a></el-button> -->
+        <el-button type="primary" size="mini" @click="open('1')"> 下载教程</el-button>
+        <el-button type="text" size="mini" @click="open('2')"> <span class="linkdec">注册淘宝天猫海外平台账号</span> </el-button>
+        <!-- <el-link type="primary" class="linkdec" href="https://distributor.taobao.global/apps/seller/login">注册淘宝天猫海外平台账号</el-link> -->
       </div>
       <div class="condition_item">
         <div class="conditon_item_dec">
@@ -55,7 +56,7 @@
       </div>
     </el-dialog>
     <!-- 天猫淘宝海外平台授权 -->
-    <el-dialog title="天猫淘宝海外平台授权" :visible.sync="dialogVisible_token" width="30%" @closed="clearVisible">
+    <el-dialog title="天猫淘宝海外平台授权" :visible.sync="dialogVisible_token" width="400px" @closed="clearVisible">
       <div style="display: flex; justify-content: center; flex-wrap: wrap">
         <div style="display: flex; align-items: baseline">
           <span>账号别名：</span>
@@ -94,7 +95,15 @@ export default {
     // this.getTableList()
   },
   methods: {
-
+    // 注册天猫海外平台
+    open(type) {
+      // 1 下载教程  2 注册海外平台
+      if (type === '1') {
+        window.open(this.downPDF)
+      } else {
+        window.BaseUtilBridgeService.openUrl('https://distributor.taobao.global/apps/seller/login"')
+      }
+    },
     // 新增授权
     async getToken() {
       if (!this.tokenName) {
@@ -108,7 +117,8 @@ export default {
       console.log('token', res)
       if (res.code === 200) {
         const url = res.data.url
-        window.location.href = url
+        // window.location.href = url
+        window.BaseUtilBridgeService.openUrl(url)
       } else {
         this.$message.error(res.data)
       }

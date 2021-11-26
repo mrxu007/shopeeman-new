@@ -45,7 +45,7 @@
     <main v-if="activeVal === '11'"><ProductPutOnPDD /></main> -->
 
     <!-- 拼多多买手号 -->
-    <main v-if="activeVal === '10'"><ProductPutOnPddAccount /></main>
+    <!-- <main v-if="activeVal === '10'"><ProductPutOnPddAccount /></main> -->
     <!-- 天猫淘宝海外平台 -->
     <main v-if="activeVal === '11'"><ProductPutOnTaobaoAbroad /></main>
     <!-- <main v-if="activeVal === '10'"><ProductPutOnCategoryblack /></main> -->
