@@ -109,6 +109,18 @@ const site_coin_symbol = {
   'PL': 'zł'
 }
 
+// 各站点平台
+const site_platform = {
+  'MY': '0',
+  'TW': '1',
+  'VN': '2',
+  'ID': '3',
+  'PH': '4',
+  'TH': '5',
+  'SG': '6',
+  'BR': '7'
+}
+
 const special_characters = [
   '♞', '♘', '♙', '♟', '♕', '♛', '☬', '♝', '☫', '♚', '☃', '☸', '♗', '☊', '☋', '❡', '๑', '♨', '❖', '☇', '☈', '۞', '۩', '♤',
   '♠', '♧', '♣', '◇', '◆', '▧', '◘', '▩', '▣', '◙', '▨', '▤', '▥', '▦', '✠', '☜', '☞', '☎', '☏', '♂', '♀', '☼', '♈',
@@ -124,13 +136,13 @@ var chineseSite = function(val) {
   return countries[attribute] || attribute
 }
 var imageRender = function(data) {
-  let country = data[0]
-  let shop_id = data[1]
-  let image_value = data[2]
-  let isArr = data[3] || ''
+  const country = data[0]
+  const shop_id = data[1]
+  const image_value = data[2]
+  const isArr = data[3] || ''
   let attribute = country && (country + '').toLocaleUpperCase() || country
   attribute = countries_id[attribute] || attribute
-  let url = countries_image[attribute] && (countries_image[attribute] + '/file/' + shop_id + '/' + image_value) || ''
+  const url = countries_image[attribute] && (countries_image[attribute] + '/file/' + shop_id + '/' + image_value) || ''
   return isArr && [url] || url
 }
 var siteCoin = function(val) {
@@ -138,4 +150,9 @@ var siteCoin = function(val) {
   attribute = countries_id[attribute] || attribute
   return site_coin_symbol[attribute] || attribute
 }
-export { chineseSite, imageRender, siteCoin, countries_option, countries_site }
+var sitePlatform = function(val) {
+  let attribute = val && (val + '').toLocaleUpperCase() || val
+  attribute = site_platform[attribute] || attribute
+  return site_platform[attribute] || attribute
+}
+export { chineseSite, imageRender, siteCoin, sitePlatform, countries_option, countries_site }

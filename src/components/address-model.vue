@@ -89,37 +89,38 @@ export default {
     province: {
       handler(n, o) {
         this.getPddAddressModel(this.province, 'cityList', 'city')
-        let arr = {}
         this.provinceList.forEach(item => {
-          if (item.RegionId === this.province) arr = item
+          if (item.RegionId === this.province) {
+            this.addressData['province_id'] = item.RegionId
+            this.addressData['province_text'] = item.RegionName
+          }
         })
-        this.addressData['province_id'] = arr.RegionId
-        this.addressData['province_text'] = arr.RegionName
+
         this.sendData()
       },
       deep: true
     },
     city: {
       handler(n, o) {
-        let arr = {}
         this.getPddAddressModel(this.city, 'distinctList', 'distinct')
         this.cityList.forEach(item => {
-          if (item.RegionId === this.city) arr = item
+          if (item.RegionId === this.city) {
+            this.addressData['city_id'] = item.RegionId
+            this.addressData['city_text'] = item.RegionName
+          }
         })
-        this.addressData['city_id'] = arr.RegionId
-        this.addressData['city_text'] = arr.RegionName
         this.sendData()
       },
       deep: true
     },
     distinct: {
       handler(n, o) {
-        let arr = {}
         this.distinctList.forEach(item => {
-          if (item.RegionId === this.distinct) arr = item
+          if (item.RegionId === this.distinct) {
+            this.addressData['distinct_id'] = item.RegionId
+            this.addressData['distinct_text'] = item.RegionName
+          }
         })
-        this.addressData['distinct_id'] = arr.RegionId
-        this.addressData['distinct_text'] = arr.RegionName
         this.sendData()
       },
       deep: true
@@ -129,6 +130,8 @@ export default {
     // this.init()
   },
   methods: {
+
+    // 修改
     async update(province, city, distinct) {
       this.flag = true
       await this.getPddAddressModel('0', 'provinceList', 'province')
@@ -139,11 +142,13 @@ export default {
       this.distinct = distinct.toString()
       this.sendData()
     },
+    // 初始
     async init() {
       this.flag = false
       await this.getPddAddressModel('0', 'provinceList', 'province')
       this.sendData()
     },
+    // 获取数据
     async getPddAddressModel(id, list, val) {
       const res = await this.$BaseUtilService.getPddAddressModel(id)
       this[list] = res
