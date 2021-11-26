@@ -70,4 +70,9 @@ export default class CollectService {
     imgSearch(platform, params) {
         return this.nativeService.imgSearch(platform - 0, JSON.stringify(params))
     }
+
+    // 天猫海外采集
+    queryTmCrossBorder(token, params) {
+        return this.nativeService.queryTmCrossBorder(token, JSON.stringify(params))
+    }
 }

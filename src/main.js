@@ -114,7 +114,7 @@ Vue.directive('focus', {
   }
 })
 async function getUserInfo() {
-  const res = await new ShopeemanConfig().getUserInfo()
+  const res = await new applicationConfig().getUserInfo()
   Vue.prototype.userInfo = res
 }
 getUserInfo()
