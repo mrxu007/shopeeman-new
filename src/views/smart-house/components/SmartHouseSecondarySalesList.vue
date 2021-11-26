@@ -18,22 +18,24 @@
         </li>
         <li>
           <span>包裹创建时间：</span>
-          <el-date-picker v-model="form.returnCreateTime" unlink-panels size="mini" type="datetimerange" range-separator="至" start-placeholder="开始日期" end-placeholder="结束日期" />
+          <el-date-picker v-model="form.returnCreateTime" unlink-panels size="mini" type="datetimerange" range-separator="-" start-placeholder="开始日期" end-placeholder="结束日期" />
         </li>
       </ul>
-      <ul>
-        <li>
+      <ul style="margin-bottom: 10px">
+        <li style="margin-left: 35px;">
           <span>商品ID：</span>
           <el-input v-model="form.returnGoodsId" clearable size="mini" oninput="value=value.replace(/\s+/g,'')" />
         </li>
-        <li>
+        <li style="margin-left: 38px;">
           <span>SkuID：</span>
           <el-input v-model="form.returnSkuId" clearable size="mini" oninput="value=value.replace(/\s+/g,'')" />
         </li>
-        <li>
+        <li style="margin-left: 25px;">
           <span>主订单号：</span>
-          <el-input v-model="form.returnMainOrderNum" clearable size="mini" oninput="value=value.replace(/\s+/g,'')" />
+          <el-input v-model="form.returnMainOrderNum" style="width:228px!important" clearable size="mini" oninput="value=value.replace(/\s+/g,'')" />
         </li>
+      </ul>
+      <ul>
         <li>
           <span>平台物流单号：</span>
           <el-input v-model="form.returnLogisticsDocNum" clearable size="mini" oninput="value=value.replace(/\s+/g,'')" />
@@ -51,39 +53,59 @@
           ref="plTable"
           v-loading="Loading3"
           header-align="center"
-          height="calc(100vh - 205px)"
+          height="calc(100vh - 283px)"
           :data="tableData"
           :header-cell-style="{
             backgroundColor: '#f5f7fa',
           }"
           @selection-change="handleSelectionChange"
         >
-          <el-table-column align="center" type="selection" width="50" />
-          <el-table-column align="center" label="站点" width="70" prop="id" fixed />
-          <el-table-column align="center" prop="receive_wid" label="包裹所在仓库" width="110" fixed />
-          <el-table-column align="center" prop="platform_tracking_number" label="平台物流单号" width="130" />
-          <el-table-column prop="resale_order_sn" label="订单编号" width="100" align="center" />
-          <el-table-column prop="type" label="二次销售类型" width="120" align="center" />
-          <el-table-column prop="status" label="二次销售状态" width="150" align="center" />
-          <el-table-column prop="goods_id" label="商品ID" width="100" align="center" />
-          <el-table-column prop="goods_img" label="商品图片" width="100" align="center">
+          <el-table-column align="center" type="selection" min-width="50px" />
+          <el-table-column align="center" label="站点" min-width="70px" prop="country" fixed>
+            <template slot-scope="{row}"><span>{{ row.country | chineseSite }}</span></template>
+          </el-table-column>
+          <el-table-column align="center" prop="receive_warehouse_name" label="包裹所在仓库" min-width="150px" fixed />
+          <el-table-column align="center" prop="platform_tracking_number" label="平台物流单号" min-width="150px" />
+          <el-table-column prop="platform_tracking_number" label="订单编号" min-width="150px" align="center" />
+          <el-table-column prop="type" label="二次销售类型" min-width="120px" align="center">
+            <template slot-scope="{row}"><span>{{ returnType[row.type].label }}</span></template>
+          </el-table-column>
+          <el-table-column prop="status" label="二次销售状态" min-width="120px" align="center">
+            <template slot-scope="{row}"><span>{{ returnStatusList[row.status].label }}</span></template>
+          </el-table-column>
+          <el-table-column prop="goods_id" label="商品ID" min-width="120px" align="center">
+            <template slot-scope="{ row }">
+              <span>
+                <el-button type="text" @click.native="open(row)">
+                  {{ row.goods_id }}
+                </el-button>
+              </span></template>
+          </el-table-column>
+          <el-table-column prop="goods_img" label="商品图片" min-width="100px" align="center">
             <template slot-scope="scope">
               <el-tooltip effect="light" placement="right-end" :visible-arrow="false" :enterable="false" style="width: 56px; height: 56px; display: inline-block">
                 <div slot="content">
-                  <el-image :src="[scope.row.country, scope.row.platform_mall_id, scope.row.goods_img] | imageRender" style="width: 200px; height: 200px" />
+                  <el-image :src="[scope.row.country, scope.row.platform_mall_id, scope.row.goods_img] | imageRender" style="width: 250px; height: 250px" />
                 </div>
                 <el-image :src="[scope.row.country, scope.row.platform_mall_id, scope.row.goods_img] | imageRender" style="width: 56px; height: 56px" />
               </el-tooltip>
             </template>
           </el-table-column>
-          <el-table-column prop="goods_count" label="商品数量" width="100" align="center" />
-          <el-table-column prop="goods_price" label="商品价格" width="100" align="center" />
-          <el-table-column prop="variation_name" label="商品规格" width="100" align="center" />
-          <el-table-column prop="variation_id" label="商品货号（skuid）" width="140" align="center" />
-          <el-table-column prop="goods_name" label="商品名称" width="150" align="center" />
-          <el-table-column prop="return_create_time" label="包裹创建时间" width="150" align="center" />
-          <el-table-column prop="expired_at" label="过期时间" width="100" align="center" />
-          <el-table-column prop="ext.free_storage_days" label="免租天数" width="100" align="center" />
+          <el-table-column prop="goods_count" label="商品数量" min-width="120px" align="center" />
+          <el-table-column prop="goods_price" label="商品价格" min-width="120px" align="center" />
+          <el-table-column prop="variation_name" label="商品规格" min-width="180px" align="center" />
+          <el-table-column prop="variation_id" label="商品货号（skuid）" min-width="140px" align="center" />
+          <el-table-column prop="goods_name" label="商品名称" min-width="150px" align="center">
+            <template slot-scope="{row}">
+              <el-tooltip v-if="row.goods_name" effect="dark" placement="top-start">
+                <div slot="content" style="width:200px;height:auto">{{ row.goods_name }}</div>
+                <el-button type="text" class="bindmallclass">{{ row.goods_name }}</el-button>
+              </el-tooltip>
+            </template>
+          </el-table-column>
+          <el-table-column prop="return_create_time" label="包裹创建时间" min-width="150px" align="center" />
+          <el-table-column prop="expired_at" label="过期时间" min-width="180px" align="center" />
+          <el-table-column prop="ext.free_storage_days" label="免租天数" min-width="100px" align="center" fixed="right" />
         </el-table>
         <div class="pagination">
           <el-pagination
@@ -142,6 +164,12 @@ export default {
     this.getSencondSales()
   },
   methods: {
+    // 打开网页
+    open(row) {
+      const url = this.$filters.countryShopeebuyCom(row.country)
+      // window.BaseUtilBridgeService.openUrl('https://th.xiapibuy.com/product/' + row.platform_mall_id + '/' + row.goods_id)
+      window.BaseUtilBridgeService.openUrl(`${url}/product/${row.platform_mall_id}/${row.goods_id}`)
+    },
     // 搜索功能
     async getSencondSales() {
       this.Loading1 = true
@@ -208,11 +236,11 @@ export default {
           msg += `
         <tr>
           <td style="text-align:left;">${item.id || ''}</td>
-          <td style="text-align:left;">${item.receive_wid || ''}</td>
-          <td style="text-align:left;">${item.platform_tracking_number || ''}</td>
+          <td style="text-align:left;">${this.$filters.chineseSite(item.country) || ''}</td>
+          <td style="text-align:left;mso-number-format:'\@';">${item.platform_tracking_number || ''}</td>
           <td style="text-align:left;">${item.resale_order_sn || ''}</td>1
-          <td style="text-align:left;">${item.type || ''}</td>
-          <td style="text-align:left;">${item.status}</td>
+          <td style="text-align:left;">${this.returnType[item.type].label || ''}</td>
+          <td style="text-align:left;">${this.returnStatusList[item.status].label || ''}</td>
           <td style="text-align:left;">${item.goods_id || ''}</td>
           <td style="text-align:left;">${item.goods_img ? this.$filters.imageRender([item.country, item.platform_mall_id, item.goods_img]) : '' + '\t'}</td>
           <td style="text-align:left;">${item.goods_count || ''}</td>
@@ -254,4 +282,11 @@ export default {
 </script>
 <style lang="less" scoped>
 @import '../../../module-less/smart-house-less/return-secondsale.less';
+.bindmallclass{
+   width: 200px;
+      // height: 50px;
+      overflow: hidden;
+      text-overflow:ellipsis;
+      white-space: nowrap;
+}
 </style>
