@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-11-16 15:41:36
- * @LastEditTime: 2021-11-19 18:19:51
+ * @LastEditTime: 2021-11-26 10:05:17
  * @LastEditors: Please set LastEditors
  * @Description: 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  * @FilePath: \shopeeman-new\src\views\order-manager\components\orderCenter\goodsOutStore.vue
@@ -11,7 +11,8 @@
     <div class="out-header">
       <span>{{ chooseData.length - chooseDataCopy.length + 1 }}/{{ chooseData.length }}</span>
       <el-button type="primary" size="mini" @click="goNext">{{ chooseData.length > 1 ? '匹配下一单' : '关闭' }}</el-button>
-      <span style="color:blue;" v-if="flag">自有仓库出库成功</span>
+      <el-button type="primary" size="mini" @click="getSheetInfo" v-if="outStoreType === '3' || outStoreType === '4'">获取面单信息</el-button>
+      <span class="warning-style">{{ flagText }}</span>
       <p>温馨提示: 1、请确保该主订单下所有子订单商品在海外仓都有库存，如果只有部分订单有库存商品，请不要出库，否则会导致没有库存的商品无法发货；</p>
       <p>温馨提示: 2、商品出库前，请确保平台物流和面单已申请</p>
       <p>温馨提示: 3、共享库存暂不能作为赠品进行出库</p>
@@ -37,27 +38,32 @@
                   <el-image v-bind:src="[scope.row.country, scope.row.platform_mall_id, scope.row.goods_img] | imageRender" style="width: 56px; height: 56px"></el-image>
                 </template>
               </el-table-column>
-              <el-table-column align="center" prop="escrow_amount" label="订单收入" width="80">
+              <el-table-column align="center" prop="escrow_amount" label="订单收入" width="100">
                 <template slot-scope="scope">{{ scope.row.escrow_amount }}{{ orderInfo.currency }}</template>
               </el-table-column>
               <el-table-column align="center" prop="ori_platform_id" label="操作" width="180">
                 <template slot-scope="scope">
-                  <div style="display: flex">
+                  <div style="display: flex; justify-content: center">
                     <el-button
                       type="primary"
                       size="mini"
                       @click="
                         isGift = false
                         selfGoodsStoreVisible = true
+                        addGiftAbroad = ''
+                        clickRow = scope.row
                       "
                       >匹配商品</el-button
                     >
                     <el-button
+                      v-if="outStoreType !== '4'"
                       type="primary"
                       size="mini"
                       @click="
                         isGift = true
                         selfGoodsStoreVisible = true
+                        addGiftAbroad = 'gift'
+                        clickRow = scope.row
                       "
                       >添加赠品</el-button
                     >
@@ -106,7 +112,7 @@
           <span class="mar-right">{{ outTotalPriceRmb }}</span>
           <span class="mar-right">出库总价</span>
           <span class="mar-right">{{ outTotalPrice }}</span>
-          <el-button size="mini" type="primary" @click="placeOrder">立即下单</el-button>
+          <el-button size="mini" type="primary" @click="outStore">立即下单</el-button>
         </div>
       </div>
       <div class="content-right">
@@ -150,18 +156,23 @@
           </div>
         </div>
         <div class="item">
-            <span>毛利</span>
-            <p class="content color">{{  grossProfit }}元</p>
+          <span>毛利</span>
+          <p class="content color">{{ grossProfit }}元</p>
         </div>
         <div class="item">
-            <span>利率</span>
-            <p class="content color">{{ interestRate }}%</p>
+          <span>利率</span>
+          <p class="content color">{{ interestRate }}%</p>
         </div>
       </div>
     </div>
-    <el-dialog title="自有仓库列表" :visible.sync="selfGoodsStoreVisible" width="1200px" append-to-body top="5vh">
-      <self-goods-store @getChooseData="getChooseData" v-if="outStoreType==='1'"></self-goods-store>
-      <product-goods-store @getChooseData="getChooseData" v-if="outStoreType==='2'"></product-goods-store>
+    <el-dialog :visible.sync="selfGoodsStoreVisible" width="1200px" append-to-body top="5vh" v-if="selfGoodsStoreVisible">
+      <div slot="title">{{ title[Number(outStoreType)] }}</div>
+      <div class="go-out-store">
+        <self-goods-store @getChooseData="getChooseData" v-if="outStoreType === '1'"></self-goods-store>
+        <product-goods-store @getChooseData="getChooseData" v-if="outStoreType === '2'"></product-goods-store>
+        <abroad-goods-store @getChooseData="getChooseData" v-if="outStoreType === '3'" :addGiftAbroad="addGiftAbroad"></abroad-goods-store>
+        <inLand-goods-store @getChooseData="getChooseData" v-if="outStoreType === '4'"></inLand-goods-store>
+      </div>
     </el-dialog>
   </div>
 </template>
@@ -169,11 +180,15 @@
 <script>
 import SelfGoodsStore from './SelfGoodsStore'
 import ProductGoodsStore from './productGoodsStore'
+import InLandGoodsStore from './inLandGoodsStore.vue'
+import AbroadGoodsStore from './abroadGoodsStore'
 export default {
   name: 'GoodsOutStore',
   components: {
     SelfGoodsStore,
-    ProductGoodsStore
+    ProductGoodsStore,
+    InLandGoodsStore,
+    AbroadGoodsStore,
   },
   props: {
     chooseData: {
@@ -198,27 +213,35 @@ export default {
       outStock: [],
       showInput: [],
       rateList: {},
-      outTotalPrice:0,
-      outTotalPriceRmb:0,
-      outTotalStock:0,
-      flag:false,
-      grossProfit:null,
-      interestRate:null
+      outTotalPrice: 0,
+      outTotalPriceRmb: 0,
+      outTotalStock: 0,
+      grossProfit: null,
+      interestRate: null,
+      flagText: '',
+      wid: '', //海外仓仓库ID
+      sheetInfo: {},
+      addGiftAbroad: '',
+      title: ['', '自用仓库商品列表', '产品中心库存列表', '海外仓库存列表', '国内仓库存列表'],
+      clickRow: {},
     }
   },
   mounted() {
+    console.log(this.outStoreType)
     this.chooseDataCopy = JSON.parse(JSON.stringify(this.chooseData))
     this.total = this.chooseDataCopy.length
     this.orderInfo = this.chooseDataCopy[0]
     this.income = 0
     this.getDetail(this.orderInfo)
     this.exchangeRateList()
-    console.log(this.chooseDataCopy)
+    if (this.outStoreType === '3' || this.outStoreType === '4') {
+      this.getSheetInfo()
+    }
   },
   methods: {
     totalPrice() {
       let arr = this.matchOrderList.filter((item) => Number(item.outStock) > 0)
-      console.log(arr,"arr")
+      // console.log(arr, 'arr')
       let price = 0
       let numberS = 0
       arr.forEach((item) => {
@@ -227,10 +250,24 @@ export default {
       })
       this.outTotalStock = numberS
       this.outTotalPriceRmb = price
-      this.outTotalPrice = (price*Number(this.rateList[this.orderInfo.country])).toFixed(2)
-      this.grossProfit = ((this.income-this.outTotalPrice)/Number(this.rateList[this.orderInfo.country])).toFixed(2)
-      this.interestRate = Math.ceil(this.grossProfit/this.outTotalPriceRmb*100)
-      console.log(this.rateList[this.orderInfo.country])
+      this.outTotalPrice = (price * Number(this.rateList[this.orderInfo.country])).toFixed(2)
+      this.grossProfit = ((this.income - this.outTotalPrice) / Number(this.rateList[this.orderInfo.country])).toFixed(2)
+      this.interestRate = this.outTotalPriceRmb ? Math.ceil((this.grossProfit / this.outTotalPriceRmb) * 100) : 100
+      // console.log(this.rateList[this.orderInfo.country])
+    },
+    //获取面单信息
+    async getSheetInfo() {
+      let params = {
+        mainOrderSns: this.orderInfo.main_order_sn,
+      }
+      let res = await this.$api.getLogisticsInformationBatch(params)
+      console.log(res, 'res')
+      if (res.data.code === 200) {
+        this.flagText = '面单信息获取成功'
+        this.sheetInfo = res.data.data[0] || []
+      } else {
+        this.flagText = '面单信息获取失败'
+      }
     },
     // 获取汇率
     async exchangeRateList() {
@@ -240,19 +277,157 @@ export default {
       }
       console.log(this.rateList)
     },
+    async outStore() {
+      let arrFilter = this.matchOrderList.filter((item) => !item.isGift)
+      if (this.orderList.length !== arrFilter.length) {
+        this.$confirm('订单信息不匹配，是否确认出库?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning',
+        })
+          .then(() => {
+            if (this.outStoreType === '4') {
+              this.homePlaceOrder()
+            } else if (this.outStoreType === '3') {
+              this.abroadPlaceOrder()
+            } else {
+              this.placeOrder()
+            }
+          })
+          .catch(() => {
+            this.$message({
+              type: 'info',
+              message: '已取消出库',
+            })
+          })
+      } else {
+        if (this.outStoreType === '4') {
+          await this.homePlaceOrder()
+        } else if (this.outStoreType === '3') {
+          await this.abroadPlaceOrder()
+        } else {
+          await this.placeOrder()
+        }
+      }
+    },
+    async abroadPlaceOrder() {
+      if (!this.matchOrderList.length) {
+        return this.$message.warning('请先选择商品！')
+      }
+      let arr = this.matchOrderList.filter((item) => Number(item.outStock) > 0)
+      if (!arr.length) {
+        return this.$message.warning('出库数量不能为零！')
+      }
+      let list = []
+      let widInfo = {}
+      arr.forEach((item) => {
+        widInfo[item.wid] = item.wid
+        let obj = {
+          sys_sku_id: item.sys_sku_id,
+          sku_id: item.sku_id,
+          sku_name: item.sku_name,
+          stock_num: item.outStock,
+          sku_num: item.stock_num,
+          goods_name: item.goods_name,
+          sku_price: item.sku_price,
+          sku_image: item.sku_image,
+          sku_url: item.sku_url,
+          is_gift: item.isGift ? 1 : 2,
+          shared_id: item.shared_id ? item.shared_id + '' : '0',
+        }
+        list.push(obj)
+      })
+      if (Object.keys(widInfo).length > 1) {
+        return this.$message.warning('只能出库同一个仓库的商品！')
+      }
+      let params = {
+        wid: arr[0].wid,
+        oversea_order_sn: this.orderInfo.main_order_sn,
+        express_pdf: this.sheetInfo.url,
+        type: this.orderInfo.logistics_id,
+        logistic_no: this.orderInfo.tracking_no,
+        country: this.orderInfo.country,
+        sku_list: list,
+      }
+      let res = await this.$api.outOfStockAbroad(params)
+      if (res.data.code === 200) {
+        this.$message.success('下单成功')
+        this.flagText = '出库成功'
+        this.matchOrderList = []
+        this.totalPrice()
+      } else {
+        this.flagText = `出库失败，${res.data.message}`
+        return this.$message.error(`出库失败，${res.data.message}`)
+      }
+      console.log(res, 'abroadPlaceOrder')
+    },
+    async homePlaceOrder() {
+      if (!this.matchOrderList.length) {
+        return this.$message.warning('请先选择商品！')
+      }
+      let arr = this.matchOrderList.filter((item) => Number(item.outStock) == 0)
+      if (arr.length) {
+        return this.$message.warning('出库数量不能为零！')
+      }
+      let itemF = this.matchOrderList[0]
+      let lists = []
+      let widInfo = {}
+      this.matchOrderList.forEach((item) => {
+        widInfo[item.wid] = item.wid
+        let obj = {
+          sku_id: item.sku_id,
+          goods_name: item.goods_name,
+          goods_img: item.sku_image,
+          goods_url: item.purchase_goods_url,
+          goods_describe: item.sku_spec,
+          goods_count: item.outStock,
+          goods_price: item.sku_price,
+          sys_order_id: this.orderInfo.id,
+        }
+        lists.push(obj)
+      })
+      if (Object.keys(widInfo).length > 1) {
+        return this.$message.warning('只能出库同一个仓库的商品！')
+      }
+      let params = {
+        wid: itemF.wid,
+        homeOrderSn: this.orderInfo.main_order_sn,
+        platformTrackingNumber: this.orderInfo.logistics_name,
+        platformLogisticsType: this.orderInfo.tracking_no,
+        goodsList: lists,
+      }
+      let res = await this.$api.homeOutStockOrder(params)
+      if (res.data.code === 200) {
+        this.$message.success('下单成功')
+        this.flagText = '出库成功'
+        this.matchOrderList = []
+        this.totalPrice()
+      } else {
+        this.flagText = `出库失败，${res.data.message}`
+        return this.$message.error(`出库失败，${res.data.message}`)
+      }
+      console.log(res, 'placeOrder')
+    },
     //立即下单
     async placeOrder() {
+      if (!this.matchOrderList.length) {
+        return this.$message.warning('请先选择商品！')
+      }
       let arr = this.matchOrderList.filter((item) => Number(item.outStock) > 0)
-      arr.forEach(async (item,index) => {
+      if (!arr.length) {
+        return this.$message.warning('出库数量不能为零！')
+      }
+      for (let index = 0; index < arr.length; index++) {
+        let item = arr[index]
         let params = {
           sysOrderIds: this.orderInfo.id,
           orderSn: item.order_sn,
           shotStatus: '6',
-          buyAccountInfo:JSON.stringify( {
+          buyAccountInfo: JSON.stringify({
             name: '自有商品发货 ',
             type: 10000,
           }),
-          payAccountInfo: JSON.stringify( {
+          payAccountInfo: JSON.stringify({
             name: '自有商品发货 ',
             type: 10000,
           }),
@@ -272,19 +447,19 @@ export default {
           platformId: 10000,
         }
         let res = await this.$api.batchUpdateShotOrder(params)
-        if(res.data.code === 200){
-            this.flag = true
-        }else{
-            this.flag = false
+        if (res.data.code === 200) {
+          if (index === arr.length - 1) {
+            this.$message.success('下单成功')
+            this.flagText = '出库成功'
+            this.matchOrderList = []
+            this.totalPrice()
+            console.log(this.matchOrderList)
+          }
+        } else {
+          this.flagText = `出库失败，${res.data.message}`
+          return this.$message.error(`出库失败，${res.data.message}`)
         }
-        console.log(res, 'placeOrder')
-        if(this.flag && index === arr.length-1){
-          this.$message.success('下单成功')
-          this.matchOrderList = []
-          this.totalPrice()
-          console.log(this.matchOrderList)
       }
-      })
     },
     deleteMatchData(index) {
       this.matchOrderList.splice(index, 1)
@@ -302,14 +477,15 @@ export default {
       //   this.matchOrderList[index].outStock = this.outStock
     },
     getChooseData(val) {
+      console.log(val, 'val,wid')
       val.isGift = this.isGift
       val.outStock = 0
-      val.orderSn = this.orderInfo.order_sn
+      val.orderSn = this.clickRow.order_sn
       if (this.isGift) {
         this.matchOrderList.push(val)
         this.outStock[this.matchOrderList.length - 1] = '0'
       } else {
-        let index = this.matchOrderList.findIndex((item) => !item.isGift)
+        let index = this.matchOrderList.findIndex((item) => !item.isGift && item.orderSn === val.orderSn)
         if (index > -1) {
           this.matchOrderList[index] = val
         } else {
@@ -342,9 +518,12 @@ export default {
       this.grossProfit = null
       this.interestRate = null
       this.chooseDataCopy.splice(0, 1)
-      this.flag = false
+      this.flagText = ''
       if (this.chooseDataCopy.length > 0) {
         this.orderInfo = this.chooseDataCopy[0]
+        if (this.outStoreType === '3' || this.outStoreType === '4') {
+          this.getSheetInfo()
+        }
         this.getDetail(this.orderInfo)
       } else {
         this.$emit('close')
@@ -356,9 +535,17 @@ export default {
 
 <style lang="less" scoped>
 .out-store {
+  /deep/.el-dialog__body {
+    padding: 10px 20px;
+  }
   .out-header {
     height: 80px;
     color: red;
+    .warning-style {
+      color: blue;
+      font-size: 16px !important;
+      margin-left: 20px;
+    }
     span {
       margin-right: 10px;
     }
@@ -393,28 +580,28 @@ export default {
     width: 20%;
     margin-left: 10px;
     .item {
-        margin-top:10px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin-bottom: 10px;
-        margin-left: -26px;
-        span {
-          display: inline-block;
-          width: 80px;
-          text-align: right;
-          margin-right: 10px;
-        }
-        .content {
-          width: 200px;
-          border: 1px solid #dcdcdc;
-          padding: 5px;
-          min-height: 26px;
-        }
-        .color{
-            color:red;
-        }
+      margin-top: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 10px;
+      margin-left: -26px;
+      span {
+        display: inline-block;
+        width: 80px;
+        text-align: right;
+        margin-right: 10px;
       }
+      .content {
+        width: 200px;
+        border: 1px solid #dcdcdc;
+        padding: 5px;
+        min-height: 26px;
+      }
+      .color {
+        color: red;
+      }
+    }
   }
 }
 .order-box {
@@ -458,7 +645,11 @@ export default {
       }
     }
   }
-  
+}
+.go-out-store {
+  /deep/.el-dialog__body {
+    padding: 10px 20px;
+  }
 }
 </style>>
 

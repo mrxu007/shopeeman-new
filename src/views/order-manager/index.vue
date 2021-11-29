@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-11-09 10:09:21
- * @LastEditTime: 2021-11-18 16:16:18
+ * @LastEditTime: 2021-11-24 10:29:44
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shopeeman-new\src\views\order-manager\index.vue
@@ -34,22 +34,24 @@
 
 <script>
 import {
-  OrderManagerList,
+  OrderManagerOrderCenter,
+  // OrderManagerList,
   OrderManagerAfterSales,
   OrderManagerReceivingAddress,
   OrderManagerDeliveryManagement,
-  OrderManagerLostInfoQuery,
-  OrderManagerChangeRecord,
+  // OrderManagerLostInfoQuery,
+  // OrderManagerChangeRecord,
   OrderManagerStoreAdressSet
 } from './index'
 export default {
   components: {
-    OrderManagerList,
+    OrderManagerOrderCenter,
+    // OrderManagerList,
     OrderManagerAfterSales,
     OrderManagerReceivingAddress,
     OrderManagerDeliveryManagement,
-    OrderManagerLostInfoQuery,
-    OrderManagerChangeRecord,
+    // OrderManagerLostInfoQuery,
+    // OrderManagerChangeRecord,
     OrderManagerStoreAdressSet
   },
   data() {

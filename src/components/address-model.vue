@@ -15,10 +15,11 @@
           filterable
           placeholder="请选择"
           size="mini"
+          @change="flag = false"
         >
           <el-option
             v-for="(item, index) in provinceList"
-            :key="item.id"
+            :key="index"
             :label="item.RegionName"
             :value="item.RegionId"
           />
@@ -30,10 +31,11 @@
           :disabled="province ? false : true"
           placeholder="请选择"
           size="mini"
+          @change="flag = false"
         >
           <el-option
             v-for="(item, index) in cityList"
-            :key="item.id"
+            :key="index"
             :label="item.RegionName"
             :value="item.RegionId"
           />
@@ -45,10 +47,11 @@
           :disabled="city ? false : true"
           placeholder="请选择"
           size="mini"
+          @change="flag = false"
         >
           <el-option
             v-for="(item, index) in distinctList"
-            :key="item.id"
+            :key="index"
             :label="item.RegionName"
             :value="item.RegionId"
           />
@@ -85,38 +88,39 @@ export default {
   watch: {
     province: {
       handler(n, o) {
-        let newData = []
         this.getPddAddressModel(this.province, 'cityList', 'city')
-        newData = this.provinceList.filter(item => {
-          return item.RegionId === this.province
+        this.provinceList.forEach(item => {
+          if (item.RegionId === this.province) {
+            this.addressData['province_id'] = item.RegionId
+            this.addressData['province_text'] = item.RegionName
+          }
         })
-        this.addressData['province_id'] = newData[0].RegionId
-        this.addressData['province_text'] = newData[0].RegionName
+
         this.sendData()
       },
       deep: true
     },
     city: {
       handler(n, o) {
-        let newData = []
         this.getPddAddressModel(this.city, 'distinctList', 'distinct')
-        newData = this.cityList.filter(item => {
-          return item.RegionId === this.city
+        this.cityList.forEach(item => {
+          if (item.RegionId === this.city) {
+            this.addressData['city_id'] = item.RegionId
+            this.addressData['city_text'] = item.RegionName
+          }
         })
-        this.addressData['city_id'] = newData[0].RegionId
-        this.addressData['city_text'] = newData[0].RegionName
         this.sendData()
       },
       deep: true
     },
     distinct: {
       handler(n, o) {
-        let newData = []
-        newData = this.distinctList.filter(item => {
-          return item.RegionId === this.distinct
+        this.distinctList.forEach(item => {
+          if (item.RegionId === this.distinct) {
+            this.addressData['distinct_id'] = item.RegionId
+            this.addressData['distinct_text'] = item.RegionName
+          }
         })
-        this.addressData['distinct_id'] = newData[0].RegionId
-        this.addressData['distinct_text'] = newData[0].RegionName
         this.sendData()
       },
       deep: true
@@ -126,20 +130,29 @@ export default {
     // this.init()
   },
   methods: {
+
+    // 修改
     async update(province, city, distinct) {
+      this.flag = true
       await this.getPddAddressModel('0', 'provinceList', 'province')
-      this.province = province
-      this.city = city
-      this.distinct = distinct
+      this.province = province.toString()
+      await this.getPddAddressModel(this.province, 'cityList', 'city')
+      this.city = city.toString()
+      await this.getPddAddressModel(this.city, 'distinctList', 'distinctList')
+      this.distinct = distinct.toString()
+      this.sendData()
     },
+    // 初始
     async init() {
+      this.flag = false
       await this.getPddAddressModel('0', 'provinceList', 'province')
+      this.sendData()
     },
+    // 获取数据
     async getPddAddressModel(id, list, val) {
       const res = await this.$BaseUtilService.getPddAddressModel(id)
       this[list] = res
       this[val] = this.flag ? this[val] : this[list][0].RegionId
-      console.log(this[val])
     },
     sendData() {
       this.$emit('sendData', this.addressData)
