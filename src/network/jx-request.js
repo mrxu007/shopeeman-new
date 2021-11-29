@@ -150,7 +150,7 @@ export default {
   getBuyerList: (data) => AppRequest.get('/buyerAccount/index', data), // 下载买手号
   getOrderList: (data) => AppRequest.post('/order', data), // 获取订单列表
   checkAfterOrderSnStatus: (data) => AppRequest.get('/order/checkAfterOrderSnStatus', data), // 售后订单检测
-  checkOrderSnStatus: (data) => AppRequest.get('/order/checkOrderSnStatus', data), // 正常订单检测
+  checkOrderSnStatus: (data) => AppRequest.get('/order/checkOrderSnStatus', { params: data }), // 正常订单检测
   uploadOrderSave: (data) => AppRequest.post('/order/saveOrder', data), // 上报接口--线上
   uploadOrderSaveTest: (data) => AppRequest.post('/order/uploadOrder', data), // 上报接口--测试
   uploadOrderAfterSale: (data) => AppRequest.post('/order/uploadAfter', data), // 售后订单上报接口--测试
@@ -180,7 +180,7 @@ export default {
 
   getsecondlist: (data) => AppRequest.post('/overseasTansferPackage/index', data), // 获取二次销售列表
 
-  getBuyerList: (data) => AppRequest.get('/buyerAccount/index', data), // 下载买手号
+  // getBuyerList: (data) => AppRequest.get('/buyerAccount/index', data), // 下载买手号
   stockingForecastUpload: (data) => AppRequest.post('/warehouse/stockingForecastUpload', data), // 海外仓商品备货：发起商品预报
   getHomeWarehouse: (data) => AppRequest.get('/homeStockingForecast/index', { params: data }), // 国内仓备货预报单: 列表
   getWarehouseList: (data) => AppRequest.get('/homeStockingForecast/getWarehouseList', data), // 国内中转备货预报单: 获取国内仓库地址
@@ -209,6 +209,13 @@ export default {
   deleteproduct: (data) => AppRequest.post('/product/delete', data), // 删除产品
   saveproduct: (data) => AppRequest.post('/product/save', data), // 保存产品
 
-  getpddBuyerAccount: (data) => AppRequest.get('/pddBuyerAccount/index', { params: data }) // 拼多多买手号-列表
+  getpddBuyerAccount: (data) => AppRequest.get('/pddBuyerAccount/index', { params: data }), // 拼多多买手号-列表
 
+  // getHomeOutStockOrder: (data) => AppRequest.get('/homeOutStockOrder/index', { params: data }), // 国内出库单: 列表
+  homeOutStockOrder: (data) => AppRequest.post('/homeOutStockOrder/add', data), // 国内仓出库
+  outOfStockAbroad: (data) => AppRequest.post('/warehouse/outOfStock', data), // 海外仓出库
+  getLogisticsInformationBatch: (data) => AppRequest.post('/getLogisticsInformationBatch', data), // 获取面单信息
+  getAsyncExportOrder: (data) => AppRequest.get('/getAsyncExportOrder', { params: data }), // 获取导出报表信息
+  applyAsyncExportOrder: (data) => AppRequest.post('/applyAsyncExportOrder', { params: data }), // 点击导出报表信息
+  saveUserConfig: (data) => AppRequest.post('/user/saveUserConfig', data) // 保存回复评论设置
 }

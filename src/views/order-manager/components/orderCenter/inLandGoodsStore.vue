@@ -1,36 +1,25 @@
 <!--
  * @Author: your name
  * @Date: 2021-11-16 20:01:09
- * @LastEditTime: 2021-11-23 21:34:01
+ * @LastEditTime: 2021-11-26 10:04:33
  * @LastEditors: Please set LastEditors
  * @Description: 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  * @FilePath: \shopeeman-new\src\views\order-manager\components\orderCenter\SelfGoodsStore.vue
 -->
 <template>
-  <div class="self-store">
+  <div class="inland-store">
     <div class="btn-header">
       <div class="item-box mar-right">
-        <span>创建时间：</span>
-        <el-date-picker
-          v-model="searchTime"
-          size="mini"
-          value-format="yyyy-MM-dd"
-          type="daterange"
-          style="width: 200px"
-          range-separator="-"
-          start-placeholder="开始日期"
-          end-placeholder="结束日期"
-          :picker-options="pickerOptions"
-        />
-      </div>
-      <div class="item-box">
-        <span style="width: 60px">站点：</span>
-        <el-select v-model="countryVal" size="mini" filterable>
-          <el-option label="全部" value="''" />
-          <el-option v-for="(item, index) in countries" :key="index" :label="item.label" :value="item.value" />
+        <span>仓库名称：</span>
+        <el-select v-model="wid" size="mini" filterable>
+          <el-option v-for="(item, index) in widList" :key="index" :label="item.warehouse_name" :value="item.wid" />
         </el-select>
       </div>
-      <el-button type="primary" size="mini" @click="searchTableList">搜 索</el-button>
+      <div class="item-box">
+        <span style="width: 80px">商品编号:</span>
+        <el-input v-model="sku_id" clearable size="mini" oninput="value=value.replace(/\s+/g,'')" />
+      </div>
+      <el-button type="primary" size="mini" style="margin-left: 10px" @click="searchTableList">搜 索</el-button>
     </div>
     <el-table ref="multipleTable" :data="tableData" tooltip-effect="dark" max-height="500">
       <el-table-column align="center" type="index" label="序号" width="50">
@@ -38,11 +27,11 @@
       </el-table-column>
       <el-table-column align="center" type="index" label="仓库名称" width="80">
         <template slot-scope="scope">
-          <span>自有仓库</span>
+          <span>{{scope.row.wid}}</span>
         </template>
       </el-table-column>
       <el-table-column width="120px" label="系统商品ID" prop="id" align="center" />
-      <el-table-column width="120px" label="商品ID" prop="sku_id" align="center" />
+      <el-table-column width="130px" label="商品ID" prop="sku_id" align="center" />
       <el-table-column width="80px" label="商品名称" prop="goods_name" align="center" show-overflow-tooltip />
       <el-table-column width="80px" label="商品规格" prop="sku_name" align="center" />
       <el-table-column width="80px" label="库存数量" prop="stock_num" align="center" />
@@ -80,9 +69,8 @@
 </template>
 
 <script>
-import { creatDate } from '../../../../util/util'
 export default {
-  name: 'SelfGoodsStore',
+  name: 'InLandGoodsStore',
   data() {
     return {
       pickerOptions: {
@@ -90,53 +78,58 @@ export default {
           return time.getTime() > Date.now()
         },
       },
-      tableData:[],
+      tableData: [],
       total: 0,
       pageSize: 20,
       currentPage: 1,
-      countries: this.$filters.countries_option,
-      countryVal: '',
-      searchTime:[]
+      wid: '', //仓库名
+      widList: [],
+      sku_id: '',
     }
   },
-  mounted() {
-    this.searchTime = creatDate(30)
-    this.searchTableList()
+  async mounted() {
+    await this.getWareHouseList()
+    await this.searchTableList()
   },
   methods: {
-      //添加到出库单
-    async addTo(row){
-        this.$emit('getChooseData',row)
+    async getWareHouseList() {
+      let appinfo = await this.$appConfig.getUserInfo()
+      let res = await this.$api.getWarehouseList()
+      if(res.data.code === 200){
+        let arr = res.data.data || []
+        let arrFilter = arr.filter(item=>{
+          return item.status!==2 && item.user_ids && item.user_ids.indexOf(appinfo.muid)>-1
+        })
+        // if(!arrFilter)
+        this.widList = arrFilter.length ? arrFilter : arr
+        this.wid = this.widList[0].wid || ''
+      }
+    },
+    //添加到出库单
+    async addTo(row) {
+      this.$emit('getChooseData', row)
     },
     // 列表
     async searchTableList() {
-      const params = {
-        country: this.countryVal,
-        createTime: '',
+      // 获取列表数据
+      let params = {
+        wid: this.wid,
+        sku_id: this.sku_id
       }
-      params.createTime = this.$dayjs(this.searchTime[0]).format('YYYY-MM-DD') + ' 00:00:00' + '/' + this.$dayjs(this.searchTime[1]).format('YYYY-MM-DD') + ' 23:59:59'
       params['page'] = this.currentPage
-      params['pageSize'] = this.pageSize
-      const res = await this.$api.getUserStore(params)
-      if (res && res.data.code === 200) {
-        this.total = res.data.data.total
-        let array = res.data.data.data
-        array.forEach((item) => {
-          item.user_stocks_skus.forEach((subItem) => {
-            let obj = {
-              goods_id: item.id,
-              goods_name: item.goods_name,
-              goods_url:item.goods_url
-            }
-            obj = Object.assign(obj, subItem)
-            this.tableData.push(obj)
-          })
+      params['page_size'] = this.pageSize
+      console.log("params",params)
+      const res = await this.$XzyNetMessageService.post('xzy.shopifyV2.get_stock', params)
+      let resObj = res && JSON.parse(res)
+      let data = resObj && JSON.parse(resObj.data)
+      if (data && data.code === 200) {
+        this.total = data.data.total
+        let arr = data.data.data
+        arr.forEach(async (item) => {
+          item.stock_num = item.stock
         })
-        // this.tableData = res.data.data.data
-      } else {
-        this.$message.error(res.data.message)
+        this.tableData = arr
       }
-      console.log(this.tableData)
     },
     // 计算总库存
     totalStock(data) {
@@ -159,8 +152,8 @@ export default {
 </script>
 
 <style lang="less" scoped>
-.self-store {
-    /deep/.el-dialog__body {
+.inland-store {
+  /deep/.el-dialog__body {
     padding: 10px 20px;
   }
 }
@@ -169,7 +162,7 @@ export default {
 }
 .btn-header {
   display: flex;
-  margin-top:10px;
+  margin-top: 10px;
   .item-box {
     display: flex;
     align-items: center;
@@ -180,11 +173,11 @@ export default {
     }
   }
 }
-  .pagination {
-    display: flex;
-    justify-content: flex-end;
-    margin-top: 20px;
-    height: 35px;
-  }
+.pagination {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 20px;
+  height: 35px;
+}
 </style>
 
