@@ -203,7 +203,7 @@ export default class NetMessageBridgeService {
     console.log(url, JSON.stringify(options), JSON.stringify(data))
     return this.NetMessageBridgeService().post(url, JSON.stringify(options), JSON.stringify(data))
   }
-  async postChineseShop(country, api, data,params, options = {}, exportInfo) {
+  async postChineseShop(country, api, data, params, options = {}, exportInfo) {
     data = JSON.parse(JSON.stringify(data))
     const url = await this.getUrlPrefix(country, data) + api
     options['extrainfo'] = this.getExtraInfo(data)
@@ -1048,14 +1048,14 @@ export default class NetMessageBridgeService {
     }
   }
   // 商品下架
-  async handleGoodsDelist(country, data,params) {
-    const res = await this.postChineseShop(country, '/api/v3/product/update_product/', data, params,{
+  async handleGoodsDelist(country, data, params) {
+    const res = await this.postChineseShop(country, '/api/v3/product/update_product/', data, params, {
       Headers: {
         'Content-Type': ' application/json'
       },
-      params:{
-        version:'3.1.0',
-        source:'seller_center'
+      params: {
+        version: '3.1.0',
+        source: 'seller_center'
       }
     })
     const resObj = res && JSON.parse(res)
@@ -1074,11 +1074,11 @@ export default class NetMessageBridgeService {
         }
       }
     } else {
-      if(resObj.status === 403){
-          return {
-            code: resObj.status,
-            data: `商品下架失败，店铺未登录！`
-          }
+      if (resObj.status === 403) {
+        return {
+          code: resObj.status,
+          data: `商品下架失败，店铺未登录！`
+        }
       }
       return {
         code: resObj.status,
@@ -1086,82 +1086,120 @@ export default class NetMessageBridgeService {
       }
     }
   }
-    // 商品删除
-    async handleGoodsDelete(country, data) {
-      const res = await this.postChinese(country, '/api/v3/product/delete_product/', data,{
-        Headers: {
-          'Content-Type': ' application/json'
-        },
-        params:{
-          version:'3.1.0'
-        }
-      })
-      const resObj = res && JSON.parse(res)
-      console.log(resObj)
-      if (resObj && resObj.status === 200) {
-        const info = JSON.parse(resObj.data)
-        if (info && info.code === 0) {
-          return {
-            code: 200,
-            data: info.data || []
-          }
-        } else {
-          return {
-            code: 50001,
-            data: info.message || resObj.statusText || ''
-          }
+  // 商品删除
+  async handleGoodsDelete(country, data) {
+    const res = await this.postChinese(country, '/api/v3/product/delete_product/', data, {
+      Headers: {
+        'Content-Type': ' application/json'
+      },
+      params: {
+        version: '3.1.0'
+      }
+    })
+    const resObj = res && JSON.parse(res)
+    console.log(resObj)
+    if (resObj && resObj.status === 200) {
+      const info = JSON.parse(resObj.data)
+      if (info && info.code === 0) {
+        return {
+          code: 200,
+          data: info.data || []
         }
       } else {
-        if(resObj.status === 403){
-            return {
-              code: resObj.status,
-              data: `商品删除失败，店铺未登录！`
-            }
-        }
         return {
-          code: resObj.status,
-          data: `商品删除失败${resObj.statusText}`
+          code: 50001,
+          data: info.message || resObj.statusText || ''
         }
       }
-    }
-     // 商品置顶
-     async handleGoodsTop(country, data) {
-      const res = await this.postChinese(country, '/api/v3/product/boost_product/', data,{
-        Headers: {
-          'Content-Type': ' application/json'
-        },
-        params:{
-          version:'3.1.0'
+    } else {
+      if (resObj.status === 403) {
+        return {
+          code: resObj.status,
+          data: `商品删除失败，店铺未登录！`
         }
-      })
-      const resObj = res && JSON.parse(res)
-      console.log(resObj)
-      if (resObj && resObj.status === 200) {
-        const info = JSON.parse(resObj.data)
-        if (info && info.code === 0) {
-          return {
-            code: 200,
-            data: info.data || []
-          }
-        } else {
-          return {
-            code: 50001,
-            data: info.message || resObj.statusText || ''
-          }
+      }
+      return {
+        code: resObj.status,
+        data: `商品删除失败${resObj.statusText}`
+      }
+    }
+  }
+  // 商品置顶
+  async handleGoodsTop(country, data) {
+    const res = await this.postChinese(country, '/api/v3/product/boost_product/', data, {
+      Headers: {
+        'Content-Type': ' application/json'
+      },
+      params: {
+        version: '3.1.0'
+      }
+    })
+    const resObj = res && JSON.parse(res)
+    console.log(resObj)
+    if (resObj && resObj.status === 200) {
+      const info = JSON.parse(resObj.data)
+      if (info && info.code === 0) {
+        return {
+          code: 200,
+          data: info.data || []
         }
       } else {
-        if(resObj.status === 403){
-            return {
-              code: resObj.status,
-              data: `商品置顶失败，店铺未登录！`
-            }
-        }
         return {
-          code: resObj.status,
-          data: `商品置顶失败${resObj.statusText}`
+          code: 50001,
+          data: info.message || resObj.statusText || ''
         }
       }
+    } else {
+      if (resObj.status === 403) {
+        return {
+          code: resObj.status,
+          data: `商品置顶失败，店铺未登录！`
+        }
+      }
+      return {
+        code: resObj.status,
+        data: `商品置顶失败${resObj.statusText}`
+      }
     }
+  }
+  // 回复买家
+  async rateOrder(country, data) {
+    const res = await this.postChinese(country, '/api/v3/order/rate_order/', data, {
+      Headers: {
+        'Content-Type': ' application/json'
+      },
+      params: {
+        version: '3.1.0'
+      }
+    })
+    const resObj = res && JSON.parse(res)
+    console.log(resObj)
+    if (resObj && resObj.status === 200) {
+      const info = JSON.parse(resObj.data)
+      if (info && info.code === 0) {
+        return {
+          code: 200,
+          data: info.data || []
+        }
+      } else {
+        return {
+          code: 50001,
+          data: info.message || resObj.statusText || ''
+        }
+      }
+    } else {
+      if (resObj.status === 403) {
+        return {
+          code: resObj.status,
+          data: `评论回复失败，店铺未登录！`
+        }
+      }
+      return {
+        code: resObj.status,
+        data: `评论回复失败${resObj.statusText}`
+      }
+    }
+  }
 
   // 获取地址
   getNextLevelAddresses(country, data, option) {

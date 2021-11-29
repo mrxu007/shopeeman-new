@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-11-10 12:02:05
- * @LastEditTime: 2021-11-29 12:30:28
+ * @LastEditTime: 2021-11-29 17:38:28
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shopeeman-new\src\views\order-manager\components\orderCenter\selectData.js
@@ -779,22 +779,22 @@ const syncStatus = [
   //   label: '未支付',
   //   value: 'unpaid'
   // // },
-  {
-    label: '待发货',
-    value: 'toship'
-  },
-  {
-    label: '运送中',
-    value: 'shipping'
-  },
-  {
-    label: '已完成',
-    value: 'completed'
-  },
-  {
-    label: '取消中',
-    value: 'cancelled'
-  }, //cancelled  //cancelled_all
+  // {
+  //   label: '待发货',
+  //   value: 'toship'
+  // },
+  // {
+  //   label: '运送中',
+  //   value: 'shipping'
+  // },
+  // {
+  //   label: '已完成',
+  //   value: 'completed'
+  // },
+  // {
+  //   label: '取消中',
+  //   value: 'cancelled'
+  // }, //cancelled  //cancelled_all
   {
     label: '退款中',
     value: 'refund'

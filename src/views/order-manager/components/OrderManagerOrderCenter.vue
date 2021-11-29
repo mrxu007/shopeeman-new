@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-11-09 10:17:44
- * @LastEditTime: 2021-11-29 15:40:21
+ * @LastEditTime: 2021-11-29 18:01:13
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shopeeman-new\src\views\order-manager\components\OrderManagerOrderCenter.vue
@@ -208,9 +208,10 @@
         </el-table-column>
         <el-table-column align="center" prop="color_id" label="颜色标识" min-width="70" v-if="showTableColumn('颜色标识')" />
         <el-table-column align="center" prop="color_id" label="标识名称" min-width="70" v-if="showTableColumn('标识名称')" />
-        <el-table-column prop="order_sn" label="订单编号" align="center" min-width="150px" v-if="showTableColumn('订单编号')">
+        <el-table-column prop="order_sn" label="订单编号" align="center" min-width="170px" v-if="showTableColumn('订单编号')">
           <template slot-scope="scope">
-            <p class="tableActive" @click="viewDetails('orderDetail', scope.row.order_id, scope.row.mall_info.platform_mall_id)">{{ scope.row.order_sn }}</p>
+            <span class="tableActive" @click="viewDetails('orderDetail', scope.row.order_id, scope.row.mall_info.platform_mall_id)">{{ scope.row.order_sn }}</span>
+            <i class="el-icon-s-order" style="margin-left:8px;cursor: pointer;" @click="copyItem(scope.row.order_sn)"></i>
           </template>
         </el-table-column>
         <el-table-column align="center" prop="created_time" label="订单创建时间" min-width="140" v-if="showTableColumn('订单创建时间')" />
@@ -446,6 +447,7 @@
                 <el-dropdown-item> <div class="dropdownItem" @click="getSHtrackPath(scope.row)">虾皮物流轨迹</div></el-dropdown-item>
                 <el-dropdown-item> <div class="dropdownItem" @click="getorderPath(scope.row)">订单轨迹</div></el-dropdown-item>
                 <el-dropdown-item> <div class="dropdownItem" @click="handleOutOrder(scope.row)">手动发货</div></el-dropdown-item>
+                <el-dropdown-item> <div class="dropdownItem" @click="batchReplyOrderBuyer([scope.row])">回复订单评论</div></el-dropdown-item>
                 <el-dropdown-item> <div class="dropdownItem" @click="viewDetails('itemDetail', scope.row.goods_info.goods_id, scope.row.mall_info.platform_mall_id)">商品编辑</div></el-dropdown-item>
                 <el-dropdown-item> <div class="dropdownItem" @click="goodsDelist(scope.row)">商品下架</div></el-dropdown-item>
                 <el-dropdown-item> <div class="dropdownItem" @click="goodsDelete(scope.row)">商品删除</div></el-dropdown-item>
@@ -640,7 +642,7 @@
       <export-report></export-report>
     </el-dialog>
     <el-dialog title="批量回复订单买家" :visible.sync="replayOrderBuyerVisible" top="5vh" width="600px" :close-on-click-modal="false" v-if="replayOrderBuyerVisible" @close="closeDialog">
-      <reply-buyer :chooseData="replyBuyerData"></reply-buyer>
+      <reply-buyer :chooseData="replyBuyerData" @close="closeDialog"></reply-buyer>
     </el-dialog>
     <el-dialog title="填写发货单号" :visible.sync="handOutOrderVisible" top="5vh" width="500px" :close-on-click-modal="false" v-if="handOutOrderVisible" @close="closeDialog">
       <div class="handle-out">
@@ -1167,13 +1169,14 @@ export default {
     //关弹窗
     closeDialog() {
       this.trackingNumberList = []
-      this.clickRow = {}
       this.purchaseInfoVisible = false
       this.addBuyLinkVisible = false
-      this.multipleSelection = []
-      this.$refs.multipleTable.toggleAllSelection(false)
       this.billsDetailVisible = false
       this.handOutOrderVisible = false
+      this.replayOrderBuyerVisible = false
+      this.clickRow = {}
+      this.multipleSelection = []
+      this.$refs.multipleTable.clearSelection()
     },
     //保存多物流
     async saveAddMoreTra() {

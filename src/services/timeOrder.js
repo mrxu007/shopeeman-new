@@ -29,6 +29,7 @@ export default class {
     this._this = that
     this.syncStatus = syncStatus
     this.writeLog = writeLog
+    console.log("mall",this.mall)
   }
   //单个订单同步
   async startSingel(order, writeLog) {
@@ -181,8 +182,8 @@ export default class {
               await this.getOrderOtherInfoRefund(order)
               let checkFlag = await this.checkAfterOrderSnStatus(order)
               if (checkFlag) {
-                // debugger
                 let afterRes = await this.afterUpLoadOrders(order)
+                debugger
                 if (afterRes) {
                   orderDetailListCount++
                 }

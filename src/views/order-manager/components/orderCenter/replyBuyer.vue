@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-11-26 11:02:21
- * @LastEditTime: 2021-11-29 14:27:37
+ * @LastEditTime: 2021-11-29 17:33:17
  * @LastEditors: Please set LastEditors
  * @Description: 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  * @FilePath: \shopeeman-new\src\views\order-manager\components\orderCenter\replayBuyer.vue
@@ -53,7 +53,6 @@ export default {
   methods: {
     async getReplyData(){
       let res = await this.$api.getUserInfo()
-      console.log(res,"fd")
       if(res.data.code === 200 && res.data.data.evaluate_order_buyer_config && JSON.parse(res.data.data.evaluate_order_buyer_config).length>0){
         let data = JSON.parse(res.data.data.evaluate_order_buyer_config)
         this.replyData = data
@@ -78,11 +77,34 @@ export default {
       let res = await this.$api.saveUserConfig(params)
       if(res.data.code===200){
         this.$message.success('设置成功')
+        await this.getReplyData()
+        await this.replyOrderBuyer()
+        this.$emit('close')
       }else{
         this.$message.error(`设置失败，${res.data.message}`)
       }
-      console.log(res,"57587")
-    }
+    },
+    async replyOrderBuyer(){
+      this.$parent.$parent.showConsole = false //打开日志
+      this.$parent.$parent.$refs.Logs.consoleMsg = ''
+      for(let i=0;i<this.chooseData.length;i++){
+        let item = this.chooseData[i]
+        let replyInfo = this.replyData.find(n=>{return n.country === item.country})
+        let params = {
+          order_id: item.order_id,
+          rate_star: replyInfo.rate,
+          rate_comment: replyInfo.replyText,
+          shop_id: item.mall_info.platform_mall_id
+        }
+        let res = await this.$shopeemanService.rateOrder(item.country,params)
+        if(res.code === 200){
+          this.$parent.$parent.$refs.Logs.writeLog(`【${item.order_sn}】回复成功`,true)
+        }else{
+          this.$parent.$parent.$refs.Logs.writeLog(`【${item.order_sn}】，${res.data}`,false)
+        }
+      }
+      this.$parent.$parent.$refs.Logs.writeLog(`回复结束，请至客服聊聊查看回复信息`,true)
+    },
   }
 }
 </script>
