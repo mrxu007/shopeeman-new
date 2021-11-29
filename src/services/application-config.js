@@ -48,7 +48,7 @@ export default class applicationConfig {
     * @param {*} type user.type
     * @param {*} key key值的组合规则用type+用户昵称+手机号
     * @param {*} value
-    */ 
+    */
    async UpdateCacheInfo(type,key,value) {
     return await this.nativeService.updateCacheInfo(type,key,value)
   }

@@ -5,7 +5,7 @@
         <p class="text">基础操作</p>
         <el-button type="primary" size="mini" disabled>批量添加尺寸图</el-button>
         <el-button type="primary" size="mini" disabled>批量删除尺寸图</el-button>
-        <el-button type="primary" size="mini" disabled>一键上新</el-button>
+        <el-button type="primary" size="mini" @click="isEditorVisible = true">一键上新</el-button>
         <el-button type="primary" size="mini" disabled>批量映射虾皮类目</el-button>
         <el-button type="primary" size="mini" @click="markPreferredGoods('1')">标记优选商品</el-button>
         <el-button type="primary" size="mini" @click="markPreferredGoods('-1')">取消标记优选商品</el-button>
@@ -205,6 +205,19 @@
         <el-button type="primary" size="mini" @click="markGoodsLabel">添加商品到当前标签</el-button>
       </span>
     </el-dialog>
+    <div class="on_new_dialog">
+      <el-dialog width="1313px" :close-on-click-modal="false" top="6vh" :visible.sync="isEditorVisible">
+        <template slot="title">
+          <div style="display: flex;align-items: center">
+            <div style="margin-right: 25px;">上新编辑</div>
+            <el-button size="mini" :type="isNoFoldShow && 'primary' || ''" @click.native.stop="setIsNoFoldShow">
+              {{isNoFoldShow && '折叠' || '展开'}}
+            </el-button>
+          </div>
+        </template>
+        <editor-on-new-goods  ref="editor_on_new_goods" :mall-table="multipleSelection"></editor-on-new-goods>
+      </el-dialog>
+    </div>
   </div>
 </template>
 
@@ -212,9 +225,12 @@
 import { delay } from '../../../util/util'
 import PersonalLibraryAPI from '../../../module-api/product-put-on-api/personal-library-api'
 import { source, sourceObj } from './collection-platformId'
+import editorOnNewGoods from '../../../components/editor_on_new_goods'
 export default {
   data() {
     return {
+      isNoFoldShow:true,
+      isEditorVisible: false,
       Height: 500,
       personalLibraryAPInstance: new PersonalLibraryAPI(this),
       // el-dialog
@@ -292,6 +308,7 @@ export default {
     }
 
   },
+  components: { editorOnNewGoods },
   created() {
     this.sourceObj = sourceObj // 采购映射
     this.source = source // 采购来源
@@ -302,6 +319,10 @@ export default {
     this.getGoodsList()
   },
   methods: {
+    setIsNoFoldShow(){
+      this.isNoFoldShow = !this.isNoFoldShow;
+      this.$refs.editor_on_new_goods.setIsNoFoldShow()
+    },
     handleClose1(done) {
       done()
       this.labelId2 = this.labelList[0].id
@@ -485,4 +506,58 @@ export default {
 
 <style lang="less" scoped>
 @import '../../../module-less/product-put-less/personal-library.less';
+</style>
+<style lang="less">
+  .basisInstall {
+    .el-checkbox-group {
+      display: flex;
+      flex-flow: wrap;
+      align-items: center;
+    }
+  }
+  .on_new_dialog {
+    .el-dialog{
+      margin-bottom: 0;
+    }
+    .el-dialog__header {
+      padding: 10px;
+
+      .el-dialog__headerbtn {
+        top: 10px;
+      }
+
+      .el-dialog__title {
+        font-weight: 700;
+        font-size: 14px;
+      }
+    }
+
+    .el-dialog__body {
+      padding: 5px 16px 10px;
+
+      .el-upload {
+        width: 60px;
+        height: 60px;
+
+        .el-upload-dragger {
+          width: 100%;
+          height: 100%;
+        }
+
+        .avatar-uploader-icon {
+          font-size: 20px;
+          color: #8c939d;
+          width: 60px;
+          height: 60px;
+          line-height: 60px;
+          text-align: center;
+        }
+
+        img {
+          width: 100%;
+          height: 100%;
+        }
+      }
+    }
+  }
 </style>

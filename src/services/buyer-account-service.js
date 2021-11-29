@@ -101,4 +101,11 @@ export default class buyerAccountService {
     console.log(7,url,country)
     return this.nativeService.buyerLogin(7, url,{"Country":country})
   }
+
+  /**
+   *登录阿里云翻译
+   */
+  loginAliTranslation() {
+    return this.nativeService.aliTranslateLogin()
+  }
 }
