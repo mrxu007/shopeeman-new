@@ -718,7 +718,7 @@ export default {
         ipAlias: '', // 主体名称）（默认IP）
         num: '1', // 购买数量 默认1
         period: '', // 购买时长
-        isPresale: ''// 是否预售
+        isPresale: '2'// 是否预售
       },
       dialog_title: '',
       Typeis: '',
@@ -940,7 +940,7 @@ export default {
         ipAlias: '', // 主体名称）（默认IP）
         num: '1', // 购买数量 默认1
         period: '', // 购买时长
-        isPresale: ''// 是否预售
+        isPresale: '2'// 是否预售
       }
 
       this.showUserIP = false
@@ -1262,7 +1262,11 @@ export default {
           list.push(item)
         })
         this.dialog_mallList = list
-        this.$refs.multipleTable_dialog.clearSelection()
+        if (this.dialogvisible) {
+          this.$nextTick(() => {
+            this.$refs.multipleTable_dialog.clearSelection()
+          })
+        }
         //  bindMalList
       }
     },
@@ -1489,6 +1493,16 @@ export default {
       try {
         const data = await this.$commodityService.addIPMaster(params)
         this.loading = false
+        // 返回值类型处理
+        try {
+          if (typeof (JSON.parse(data)) === 'string') {
+            this.$message.error(data)
+            return
+          }
+        } catch (error) {
+          this.$message.error(data)
+          return
+        }
         const resMsg = JSON.parse(data)
         if (resMsg.code === -1) {
           // this.$notify({

@@ -16,6 +16,18 @@ export function MallgetValue(arr, label, id, relID) {
   }
   return data
 }
+// 匹配对象数组值(商品店铺绑定)
+export function GoodsMallgetValue(arr, label, value, relID) {
+  let data = ''
+  for (let i = 0; i < arr.length; i++) {
+    const item = arr[i]
+    if (Number(item[value]) === Number(relID)) {
+      data = item[label]
+      break
+    }
+  }
+  return data
+}
 // 获取店铺信息
 export async function getMalls() {
   // await instance.$api.logFun()

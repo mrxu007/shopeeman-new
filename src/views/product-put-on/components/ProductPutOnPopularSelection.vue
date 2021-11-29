@@ -1,10 +1,10 @@
 <template>
   <div class="product-put-on-popular-selection">
     <div class="category-choose-box">
-      <category-choose :level="3" @setCategory="setCategory" />
-      <div class="conditions-box">
+      <category-choose :level="3" style="margin-left: 25px;" @setCategory="setCategory" />
+      <div class="conditions-box" style="margin-left: 10px;">
         <span>出货地点：</span>
-        <el-select v-model="deliveryPlace" placeholder="" value="" size="mini" filterable>
+        <el-select v-model="deliveryPlace" placeholder="" value="" size="mini" filterable style="width:180px">
           <el-option
             v-for="(item, index) in deliveryPlaceList"
             :key="index"
@@ -24,7 +24,7 @@
           />
         </el-select>
       </div>
-      <div class="conditions-box">
+      <div class="conditions-box" style="margin-left:25px">
         <span>排行：</span>
         <el-select v-model="sortBy" placeholder="" value="" size="mini" filterable>
           <el-option
@@ -35,34 +35,37 @@
           />
         </el-select>
       </div>
-      <div class="conditions-box conditions-input">
+      <div class="conditions-box conditions-input" style="margin-left:12px">
         <span>月销量：</span>
-        <el-input v-model="minSales" size="mini" />
+        <el-input v-model="minSales" size="mini" style="width:81px;" />
         <div style="width: 6px;height: 1px;background: #111;margin: 0 5px" />
-        <el-input v-model="maxSales" size="mini" />
+        <el-input v-model="maxSales" size="mini" style="width:81px" />
       </div>
-      <div class="conditions-box conditions-input">
+      <div class="conditions-box conditions-input" style="margin-left:-10px">
         <span>新增点赞数：</span>
-        <el-input v-model="minGive" size="mini" />
+        <el-input v-model="minGive" size="mini" style="width:80px;" />
         <div style="width: 6px;height: 1px;background: #111;margin: 0 5px" />
-        <el-input v-model="maxGive" size="mini" />
+        <el-input v-model="maxGive" size="mini" style="width:80px;" />
       </div>
       <div class="conditions-box conditions-input">
         <span>新增评论数：</span>
-        <el-input v-model="minComments" size="mini" />
+        <el-input v-model="minComments" size="mini" style="width:80px;" />
         <div style="width: 6px;height: 1px;background: #111;margin: 0 5px" />
-        <el-input v-model="maxComments" size="mini" />
+        <el-input v-model="maxComments" size="mini" style="width:80px;" />
       </div>
-      <div class="conditions-box conditions-input">
-        <span>价格区间(当地币种)：</span>
-        <el-input v-model="minPrice" size="mini" />
-        <div style="width: 6px;height: 1px;background: #111;margin: 0 5px" />
-        <el-input v-model="maxPrice" size="mini" />
+
+      <div class="conditions-box">
+        <div class="conditions-box conditions-input">
+          <span>价格区间(当地币种)：</span>
+          <el-input v-model="minPrice" size="mini" style="width:80px;" />
+          <div style="width: 6px;height: 1px;background: #111;margin: 0 5px" />
+          <el-input v-model="maxPrice" size="mini" style="width:80px;" />
+        </div>
+        <el-button size="mini" style="margin-bottom: 10px;margin-left:10px" type="primary" @click="searchShopeeHotGoods">查询</el-button>
+        <el-button size="mini" style="margin-bottom: 10px" type="primary" @click="exportData">导出</el-button>
+        <el-button size="mini" style="margin-bottom: 10px" type="primary" @click="fasterToken">一键采集商品</el-button>
+        <el-button size="mini" style="margin-bottom: 10px" type="primary" @click="watchDBData">查看电霸数据</el-button>
       </div>
-      <el-button size="mini" style="margin-bottom: 10px" type="primary" @click="searchShopeeHotGoods">查询</el-button>
-      <el-button size="mini" style="margin-bottom: 10px" @click="exportData">导出</el-button>
-      <el-button size="mini" style="margin-bottom: 10px" type="primary" @click="fasterToken">一键采集商品</el-button>
-      <el-button size="mini" style="margin-bottom: 10px" type="primary" @click="watchDBData">查看电霸数据</el-button>
 
     </div>
     <div class="content">
@@ -71,7 +74,8 @@
         v-loading="tableLoading"
         :data="tableData"
         tooltip-effect="dark"
-        :height="'calc(100vh - 150px)'"
+        :row-style="{ height: '100px' }"
+        :height="'calc(100vh - 215px)'"
       >
         <el-table-column align="center" type="index" label="序号" width="50">
           <template slot-scope="scope">{{ (currentPage - 1) * pageSize + scope.$index + 1 }}</template>
@@ -80,7 +84,7 @@
           <template slot-scope="scope">{{ scope.row.platform | chineseSite }}</template>
         </el-table-column>
         <el-table-column width="120px" label="商品ID" prop="country" align="center">
-          <template slot-scope="scope">{{ scope.row.itemid }}</template>
+          <template slot-scope="scope"><el-button type="text" @click="getLink(scope.row)">{{ scope.row.itemid }}</el-button></template>
         </el-table-column>
         <el-table-column width="100px" label="商品图片" prop="country" align="center">
           <template slot-scope="scope">
@@ -102,7 +106,7 @@
         </el-table-column>
         <el-table-column min-width="60px" label="一级类目" prop="" align="center">
           <template slot-scope="scope">{{
-            scope.row.cat_path.split('>')[0] }}({{ scope.row.display_path_cn.split('>')[0] }})
+            scope.row.cat_path && scope.row.cat_path.split('>')[0] }}({{ scope.row.display_path_cn && scope.row.display_path_cn.split('>')[0] }})
           </template>
         </el-table-column>
         <el-table-column min-width="70px" label="二级类目" prop="" align="center">
@@ -126,7 +130,7 @@
           <template slot-scope="scope">{{ scope.row.price || '' }}</template>
         </el-table-column>
       </el-table>
-      <div class="pagination">
+      <div class="pagination" style="display: flex;flex-flow: row-reverse;margin-top: 10px;">
         <el-pagination
           background
           :page-sizes="[10, 20, 50, 100]"
@@ -153,7 +157,7 @@ export default {
       popularSelectionApiInstance: new PopularSelectionApi(this),
       tableData: [],
       country: '',
-      platformId: 0,
+      platformId: 4,
       categoryFirst: '',
       categorySecond: '',
       categoryThird: '',
@@ -201,9 +205,15 @@ export default {
       maxPrice: 1000
     }
   },
-  mounted() {
+  created() {
+    this.searchShopeeHotGoods()
   },
   methods: {
+    // 链接跳转
+    getLink(row) {
+      console.log('--', row)
+      window.BaseUtilBridgeService.openUrl('https://xiapi.xiapibuy.com/product/' + row.shopid + '/' + row.itemid)
+    },
     // 一键采集
     fasterToken() {
       const linkList = []
@@ -243,7 +253,6 @@ export default {
       this.categoryThird = select.categoryThird
     },
     async searchShopeeHotGoods() {
-      debugger
       const price = this.minPrice + '_' + this.maxPrice
       const month_sales = this.minSales + '_' + this.maxSales
       const increment_like_count = this.minGive + '_' + this.maxGive
@@ -345,7 +354,7 @@ export default {
       flex-flow: wrap;
 
       .el-select, .el-input {
-        width: 150px;
+        // width: 150px;
       }
 
       .conditions-box {

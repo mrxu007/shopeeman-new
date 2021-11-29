@@ -146,12 +146,13 @@ export default {
       }
       const resObj = res && JSON.parse(res)
       const statisticData = resObj.data || []
+      this.tableData = []
       for (let i = 0; i < this.mallData.length; i++) {
         const mall = this.mallData[i]
         mall.upCount = 0
         statisticData.forEach((item) => {
           item.list.forEach((subItem) => {
-            if (subItem.mallId == mall.platform_mall_id) {
+            if (subItem.mallId === mall.platform_mall_id) {
               mall.upCount += subItem.cnt
             }
           })

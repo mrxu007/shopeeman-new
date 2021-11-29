@@ -92,6 +92,7 @@ export default {
   updateMallInfo: (data) => AppRequest.post('/bindMall/updateMallInfo', data), // 上报更新店铺信息
   getBankList: (data) => AppRequest.get('/getBankList', data), // 获取银行卡信息
   getMallGroup: (data) => AppRequest.get('/mallGroup/index', { params: data }), // 获取店铺分组列表
+  getMallGroupList: (data) => AppRequest.get('/ddMallGoods/getMallGroupList', { params: data }), // 根据站点 获取分组
   addGroup: (data) => AppRequest.post('/mallGroup/save', data), // 新增分组
   updateGroup: (data) => AppRequest.post('/mallGroup/update', data), // 修改分组
   deleteGroup: (data) => AppRequest.post('/mallGroup/delete', data), // 删除分组

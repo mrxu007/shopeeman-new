@@ -202,25 +202,20 @@ export default class MallListAPI {
   // 根据站点获取分组
   async getGroup(params) {
     try {
-      const res = await this._this.$api.getGroupList(params)
+      const res = await this._this.$api.getMallGroupList(params)
       if (res.data.code === 200) {
         const groupList = []
-        const isRepeatObj = {}
         res.data.data.map(item => {
-          if (!isRepeatObj[item.group_id]) {
-            isRepeatObj[item.group_id] = '123'
-            const obj = {
-              label: item.group_name,
-              value: item.group_id
-            }
-            groupList.push(obj)
-          }
+          groupList.push({
+            label: item.group_name,
+            value: item.group_id
+          })
         })
         return { code: 200, data: groupList }
       }
-      return { code: res.status, data: '获取店铺列表失败' }
+      return { code: res.status, data: '获取店铺分组失败' }
     } catch (error) {
-      return { code: -2, data: `getMallList-catch: ${error}` }
+      return { code: -2, data: `getGroup-catch: ${error}` }
     }
   }
   // 根据 店铺频台id 找到店铺系统id

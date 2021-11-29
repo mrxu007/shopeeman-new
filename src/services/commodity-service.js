@@ -678,6 +678,7 @@ export default class CommodityService {
    *}
    */
   searchShopeeHotGoods(data) {
+    console.log('*-**-', data)
     return this.nativeService.callDianBaShopeeInfo('SearchShopeeHotGoods'
       , data.page, data.page_size, data.platform_id, data.cat_id, data.level, data.price, data.month_sales,
       data.increment_like_count, data.increment_item_rating, data.location, data.shopType, data.sortBy)
@@ -712,6 +713,19 @@ export default class CommodityService {
    */
   deleteDannedWord(data) {
     return this.nativeService.callCategoryFunction('DeleteDannedWord', data.toString())
+  }
+
+  /**
+   * 获取类目
+   * @param {array} data
+   * data[0]:country站点
+   * data[1]:categoryId类目id
+   * data[2]:isParent 类目的父级标识：1传入的类目作为父级查询；0当前类目查询
+   * data[3]: 'tbCategory'
+   */
+  getCategory(data) {
+    // console.log(JSON.stringify(data))
+    return this.nativeService.callCategoryFunction('GetCategoryInfo', data[0] + '', data[1] + '', data[2] + '', data[3])
   }
 
   /**

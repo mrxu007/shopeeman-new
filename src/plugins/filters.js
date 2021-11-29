@@ -120,6 +120,23 @@ const site_platform = {
   'SG': '6',
   'BR': '7'
 }
+// 各站点shoppeman商品ID跳转页面http前缀
+const site_http_com = {
+  'MY': 'https://my.xiapibuy.com',
+  'TW': 'https://xiapi.xiapibuy.com',
+  'VN': 'https://vn.xiapibuy.com',
+  'ID': 'https://id.xiapibuy.com',
+  'PH': 'https://ph.xiapibuy.com',
+  'TH': 'https://th.xiapibuy.com',
+  'SG': 'https://sg.xiapibuy.com',
+  'BR': 'https://br.xiapibuy.com',
+  'MX': 'https://mx.xiapibuy.com',
+  'CO': 'https://co.xiapibuy.com', // 暂时无效
+  'CL': 'https://cl.xiapibuy.com', // 暂时无效
+  'PL': 'https://pl.xiapibuy.com', // 暂时无效
+  'FR': 'https://fr.xiapibuy.com', // 暂时无效
+  'ES': 'https://es.xiapibuy.com' // 暂时无效
+}
 
 const special_characters = [
   '♞', '♘', '♙', '♟', '♕', '♛', '☬', '♝', '☫', '♚', '☃', '☸', '♗', '☊', '☋', '❡', '๑', '♨', '❖', '☇', '☈', '۞', '۩', '♤',
@@ -156,3 +173,10 @@ var sitePlatform = function(val) {
   return site_platform[attribute] || attribute
 }
 export { chineseSite, imageRender, siteCoin, sitePlatform, countries_option, countries_site }
+
+var countryShopeebuyCom = function(val) {
+  let attribute = val && (val + '').toLocaleUpperCase() || val
+  attribute = site_http_com[attribute] || attribute
+  return site_http_com[attribute] || attribute
+}
+export { chineseSite, imageRender, siteCoin, countries_option, countries_site, countryShopeebuyCom }
