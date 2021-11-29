@@ -35,6 +35,12 @@ import MallListAPI from '../module-api/mall-manager-api/mall-list-api'
 export default {
   name: 'StoreChoose',
   props: {
+    isReset: {
+      type: Boolean,
+      default() {
+        return false
+      }
+    },
     selectWidth: {
       type: String,
       default: '100px'

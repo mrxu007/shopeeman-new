@@ -1,11 +1,4 @@
-<!--
- * @Author: your name
- * @Date: 2021-11-18 15:59:48
- * @LastEditTime: 2021-11-18 20:22:44
- * @LastEditors: Please set LastEditors
- * @Description: 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
- * @FilePath: \shopeeman-new\src\views\order-manager\components\OrderManagerStoreAdressSet.vue
--->
+
 <template>
   <div class="store-address">
     <!-- tab区 -->
@@ -13,19 +6,8 @@
       <el-tabs v-model="activeName" @tab-click="handleClick">
         <el-tab-pane label="国内仓设置" name="landStore">
           <div class="btn-tool">
-            <el-button
-              type="primary"
-              size="mini"
-              class="mar-right"
-              @click="homeAddress"
-            >添加国内自有仓库地址</el-button>
-            <el-button
-              v-if="isHomeApplyAddress"
-              type="primary"
-              size="mini"
-              class="mar-right"
-              @click="sysApplyAddress()"
-            >申请系统仓库地址</el-button>
+            <el-button type="primary" size="mini" class="mar-right" @click="homeAddress">添加国内自有仓库地址</el-button>
+            <el-button v-if="isHomeApplyAddress" type="primary" size="mini" class="mar-right" @click="sysApplyAddress()">申请系统仓库地址</el-button>
             <div class="warning-text activeColor">
               <p>温馨提示：1、绑定自有仓库时，订单信息将不会推送至对应站点的系统仓库，如使用软件合作物流，请申请绑定系统仓库！</p>
               <p>温馨提示：2、拍单平台为京喜时，收件人姓名只能由中文和字母组成，且在拍单时，软件不会自动增加买家姓名的拍单标识！</p>
@@ -34,19 +16,8 @@
         </el-tab-pane>
         <el-tab-pane label="海外仓设置" name="abroadStore">
           <div class="btn-tool">
-            <el-button
-              type="primary"
-              size="mini"
-              class="mar-right"
-              @click="oversearAddress"
-            >添加国外自有仓库地址</el-button>
-            <el-button
-              v-if="isOverseasApplyAddress"
-              type="primary"
-              size="mini"
-              class="mar-right"
-              @click="sysApplyAddress()"
-            >申请系统仓库地址</el-button>
+            <el-button type="primary" size="mini" class="mar-right" @click="oversearAddress">添加国外自有仓库地址</el-button>
+            <el-button v-if="isOverseasApplyAddress" type="primary" size="mini" class="mar-right" @click="sysApplyAddress()">申请系统仓库地址</el-button>
             <div class="warning-text activeColor">
               <p>温馨提示：1、绑定自有仓库时，订单信息将不会推送至对应站点的系统仓库，如使用软件合作物流，请申请绑定系统仓库！</p>
               <p>温馨提示：2、拍单平台为lazada时，收件人姓名不能带有特殊字符，如下划线，加号等，且菲律宾站点不能带有#字符！</p>
@@ -58,74 +29,36 @@
       <div class="content">
         <el-table
           ref="multipleTable"
-          v-loading="isShowLoading"
           :data="tableData"
           tooltip-effect="dark"
-          height="calc(100vh - 195px)"
+          height="calc(100vh - 206px)"
           :header-cell-style="{
             backgroundColor: '#f5f7fa',
           }"
         >
-          <el-table-column
-            type="index"
-            label="序号"
-            min-width="50px"
-            align="center"
-            fixed
-          />
+          <el-table-column type="index" label="序号" min-width="50px" align="center" fixed />
           <el-table-column min-width="140px" label="仓库" fixed prop="warehouse_name" />
           <el-table-column min-width="300px" label="地址" prop="full_address" show-overflow-tooltip />
           <el-table-column min-width="120px" label="收件人" prop="receiving_name" />
           <el-table-column prop="type" label="仓库类型" min-width="100px">
             <template slot-scope="scope"> {{ typeObj[scope.row.type] }} </template>
           </el-table-column>
-          <el-table-column
-            min-width="100px"
-            label="联系电话"
-            prop="receiving_tel"
-          />
-          <el-table-column
-            min-width="130px"
-            label="自有手机号"
-            prop="own_phone"
-          >
-            <template slot-scope="{row}">
+          <el-table-column min-width="100px" label="联系电话" prop="receiving_tel" />
+          <el-table-column min-width="130px" label="自有手机号" prop="own_phone">
+            <template slot-scope="{ row }">
               <div v-if="row.isUser === 0">
-                <el-input
-                  v-if="row.isPhone"
-                  v-model="row.own_phone"
-                  v-fo
-                  size="mini"
-                  @blur="updateOwnPhone(row)"
-                />
+                <el-input v-if="row.isPhone" v-model="row.own_phone" v-fo size="mini" @blur="updateOwnPhone(row)" />
 
-                <span
-                  v-else
-                  @click="isShowPhone(row)"
-                >
-                  <el-input
-                    v-model="row.own_phone"
-                    :disabled="!row.isPhone"
-                    size="mini"
-                  />
+                <span v-else @click="isShowPhone(row)">
+                  <el-input v-model="row.own_phone" :disabled="!row.isPhone" size="mini" />
                 </span>
               </div>
             </template>
           </el-table-column>
           <el-table-column min-width="80px" label="邮编" prop="post_code" />
-          <el-table-column
-            min-width="140px"
-            label="是否使用自有手机号"
-            align="center"
-          >
-            <template slot-scope="{row}">
-              <el-switch
-                v-model="row.is_use_own_phone"
-                :disabled="row.isUser === 1 || row.own_phone === ''"
-                active-color="#13ce66"
-                inactive-color="#ff4949"
-                @change="updateOwnPhone(row)"
-              />
+          <el-table-column min-width="140px" label="是否使用自有手机号" align="center">
+            <template slot-scope="{ row }">
+              <el-switch v-model="row.is_use_own_phone" :disabled="row.isUser === 1 || row.own_phone === ''" active-color="#13ce66" inactive-color="#ff4949" @change="updateOwnPhone(row)" />
             </template>
           </el-table-column>
           <el-table-column min-width="100px" label="绑定店铺数量">
@@ -137,28 +70,11 @@
           <el-table-column min-width="120px" label="绑定的店铺" show-overflow-tooltip>
             <template slot-scope="scope"> {{ bindMallName(scope.row.mallInfo) }} </template>
           </el-table-column>
-          <el-table-column
-            label="操作"
-            min-width="360px"
-          >
-            <template slot-scope="{row}">
-              <el-button
-                type="primary"
-                size="mini"
-                @click="updateBindMall(row)"
-              >修改绑定店铺</el-button>
-              <el-button
-                v-if="row.isUser === 1"
-                type="primary"
-                size="mini"
-                @click="updateItself(row,flag4?1:2)"
-              >修改自有仓库地址</el-button>
-              <el-button
-                v-if="row.isUser === 1"
-                type="primary"
-                size="mini"
-                @click="deleteOwnStore(row)"
-              >删除仓库</el-button>
+          <el-table-column label="操作" min-width="360px">
+            <template slot-scope="{ row }">
+              <el-button type="primary" size="mini" @click="updateBindMall(row)">修改绑定店铺</el-button>
+              <el-button v-if="row.isUser === 1" type="primary" size="mini" @click="updateItself(row, flag4 ? 1 : 2)">修改自有仓库地址</el-button>
+              <el-button v-if="row.isUser === 1" type="primary" size="mini" @click="deleteOwnStore(row)">删除仓库</el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -177,32 +93,15 @@
     >
       <el-form label-position="right" label-width="80px">
         <el-form-item label="仓库类型：">
-          <span>{{ flag4?'国内中转仓':'海外中转仓' }}</span>
+          <span>{{ flag4 ? '国内中转仓' : '海外中转仓' }}</span>
         </el-form-item>
         <el-form-item label="仓库站点：">
-          <el-select
-            v-model="itselfCountry"
-            :disabled="!flag3"
-            placeholder=""
-            size="mini"
-            filterable
-            @change="handlerChange3"
-          >
-            <el-option
-              v-for="(item, index) in countries"
-              :key="index"
-              :label="item.label"
-              :value="item.value"
-            />
+          <el-select v-model="itselfCountry" :disabled="!flag3" placeholder="" size="mini" filterable @change="handlerChange3">
+            <el-option v-for="(item, index) in countries" :key="index" :label="item.label" :value="item.value" />
           </el-select>
         </el-form-item>
         <el-form-item label="仓库名称：">
-          <el-input
-            v-model="itselfWarehouseName"
-            clearable
-            size="mini"
-            oninput="value=value.replace(/\s+/g,'')"
-          />
+          <el-input v-model="itselfWarehouseName" clearable size="mini" oninput="value=value.replace(/\s+/g,'')" />
         </el-form-item>
         <div v-if="flag4">
           <address-model ref="addressModel" @sendData="sendData" />
@@ -218,14 +117,10 @@
                   size="mini"
                   @change="
                     flag5 = false
-                    handlerChange1()"
+                    handlerChange1()
+                  "
                 >
-                  <el-option
-                    v-for="(item, index) in provinceList"
-                    :key="index"
-                    :label="item.Province"
-                    :value="item.ProvinceId"
-                  />
+                  <el-option v-for="(item, index) in provinceList" :key="index" :label="item.Province" :value="item.ProvinceId" />
                 </el-select>
               </el-form-item>
               <el-form-item label="收货市：">
@@ -236,211 +131,88 @@
                   size="mini"
                   @change="
                     flag5 = false
-                    handlerChange2()"
+                    handlerChange2()
+                  "
                 >
-                  <el-option
-                    v-for="(item, index) in cityList"
-                    :key="index"
-                    :label="item.City"
-                    :value="item.CityId"
-                  />
+                  <el-option v-for="(item, index) in cityList" :key="index" :label="item.City" :value="item.CityId" />
                 </el-select>
               </el-form-item>
               <el-form-item label="收货区：">
-                <el-select
-                  v-model="itselfDistrictId"
-                  :disabled="itselfCityId ? false : true"
-                  placeholder="请选择"
-                  size="mini"
-                  @change="flag5 = false"
-                >
-                  <el-option
-                    v-for="(item, index) in distinctList"
-                    :key="index"
-                    :label="item.District"
-                    :value="item.DistrictId"
-                  />
+                <el-select v-model="itselfDistrictId" :disabled="itselfCityId ? false : true" placeholder="请选择" size="mini" @change="flag5 = false">
+                  <el-option v-for="(item, index) in distinctList" :key="index" :label="item.District" :value="item.DistrictId" />
                 </el-select>
               </el-form-item>
             </el-form>
           </div>
           <div v-else>
             <el-form-item label="邮政编码：">
-              <el-input
-                v-model="itselfPostCode"
-                clearable
-                size="mini"
-                oninput="value=value.replace(/\s+/g,'')"
-              />
+              <el-input v-model="itselfPostCode" clearable size="mini" oninput="value=value.replace(/\s+/g,'')" />
             </el-form-item>
           </div>
         </div>
         <el-form-item label="详细地址：">
-          <el-input
-            v-model="itselfDetailAddress"
-            clearable
-            size="mini"
-            oninput="value=value.replace(/\s+/g,'')"
-          />
+          <el-input v-model="itselfDetailAddress" clearable size="mini" oninput="value=value.replace(/\s+/g,'')" />
         </el-form-item>
         <el-form-item label="收件人：">
-          <el-input
-            v-model="itselfReceivingName"
-            clearable
-            size="mini"
-            oninput="value=value.replace(/\s+/g,'')"
-          />
+          <el-input v-model="itselfReceivingName" clearable size="mini" oninput="value=value.replace(/\s+/g,'')" />
         </el-form-item>
         <el-form-item label="电话号码：">
-          <el-input
-            v-model="itselfReceivingTel"
-            clearable
-            size="mini"
-            oninput="value=value.replace(/\s+/g,'')"
-          />
+          <el-input v-model="itselfReceivingTel" clearable size="mini" oninput="value=value.replace(/\s+/g,'')" />
         </el-form-item>
         <el-form-item label="归属仓库：">
-          <el-select
-            v-model="itselfWarehouseId"
-            placeholder="请选择"
-            size="mini"
-          >
-            <el-option
-              label="不绑定"
-              :value="0"
-            />
-            <el-option
-              v-for="(item, index) in warehouseList"
-              :key="index"
-              :label="item.warehouse_name"
-              :value="item.id"
-            />
+          <el-select v-model="itselfWarehouseId" placeholder="请选择" size="mini">
+            <el-option label="不绑定" :value="0" />
+            <el-option v-for="(item, index) in warehouseList" :key="index" :label="item.warehouse_name" :value="item.id" />
           </el-select>
         </el-form-item>
       </el-form>
       <div class="footer">
-        <span>
-          温馨提示：若新增的自有仓库和系统仓库地址相同,
-          请绑定对应的归属仓库,若未绑定归属仓库,仓库无
-          法精准匹配,会有无法出库的风险
-        </span>
+        <span> 温馨提示：若新增的自有仓库和系统仓库地址相同, 请绑定对应的归属仓库,若未绑定归属仓库,仓库无 法精准匹配,会有无法出库的风险 </span>
         <span v-if="!flag4">
-          1：收件人尽量不要有特殊字符,如#,+,_,@等<br>
-          2：海外菲律宾仓的买家姓名至少包含2个英文单词,
-          如：(China Boy)<br>
-          3：海外新加坡仓地址必须带楼层单元号并以#隔开且
-          置于最后,如(1 SoonLeeStreet,Industrial
-          Cres,#01-02)
+          1：收件人尽量不要有特殊字符,如#,+,_,@等<br />
+          2：海外菲律宾仓的买家姓名至少包含2个英文单词, 如：(China Boy)<br />
+          3：海外新加坡仓地址必须带楼层单元号并以#隔开且 置于最后,如(1 SoonLeeStreet,Industrial Cres,#01-02)
         </span>
-        <el-button
-          type="primary"
-          size="mini"
-          @click="itselfUpdate(flag3?1:2)"
-        >确 定</el-button>
+        <el-button type="primary" size="mini" @click="itselfUpdate(flag3 ? 1 : 2)">确 定</el-button>
       </div>
     </el-dialog>
     <!--系统仓库地址弹窗-->
-    <el-dialog
-      :close-on-click-modal="false"
-      class="sys-store-dialog"
-      :title="flag1?'申请系统仓库地址':'修改仓库地址信息'"
-      width="1000px"
-      :visible.sync="sysAdderssVisible"
-      @close="handleClose2"
-    >
+    <el-dialog :close-on-click-modal="false" class="sys-store-dialog" :title="flag1 ? '申请系统仓库地址' : '修改仓库地址信息'" width="1000px" :visible.sync="sysAdderssVisible" @close="handleClose2">
       <div class="dialog-left">
         <!--?-->
         <div v-if="!flag4 && flag1" class="header">
-          <el-button
-            type="primary"
-            size="mini"
-          >下载海外仓地址设置指南</el-button>
+          <el-button type="primary" size="mini">下载海外仓地址设置指南</el-button>
           <p>使用海外仓服务前，请先下载使用指南查看</p>
         </div>
         <el-form label-position="right" label-width="80px">
           <el-form-item label="仓库类型:">
-            <span>{{ flag1?'系统仓库':flag2?'系统仓库':'自有仓库' }}</span>
+            <span>{{ flag1 ? '系统仓库' : flag2 ? '系统仓库' : '自有仓库' }}</span>
           </el-form-item>
           <el-form-item label="仓库名称:">
-            <el-select
-              v-if="flag1"
-              v-model="sysWarehouseId"
-              placeholder="请选择"
-              size="mini"
-              @change="sysWarehouseChange"
-            >
-              <el-option
-                v-for="(item, index) in warehouseData"
-                :key="index"
-                :value="item.id"
-                :label="item.warehouse_name"
-              />
+            <el-select v-if="flag1" v-model="sysWarehouseId" placeholder="请选择" size="mini" @change="sysWarehouseChange">
+              <el-option v-for="(item, index) in warehouseData" :key="index" :value="item.id" :label="item.warehouse_name" />
             </el-select>
-            <el-input
-              v-if="!flag1"
-              v-model="warehouseName"
-              :disabled="flag2"
-              size="mini"
-              clearable
-              oninput="value=value.replace(/\s+/g,'')"
-            />
+            <el-input v-if="!flag1" v-model="warehouseName" :disabled="flag2" size="mini" clearable oninput="value=value.replace(/\s+/g,'')" />
           </el-form-item>
           <el-form-item label="地址全称:" class="addressFull">
-            <el-input
-              v-model="warehouseAddress"
-              :disabled="true"
-              size="mini"
-              type="textarea"
-              resize="none"
-              :autosize="{ minRows: 2, maxRows: 4 }"
-              clearable
-              oninput="value=value.replace(/\s+/g,'')"
-            />
+            <el-input v-model="warehouseAddress" :disabled="true" size="mini" type="textarea" resize="none" :autosize="{ minRows: 2, maxRows: 4 }" clearable oninput="value=value.replace(/\s+/g,'')" />
           </el-form-item>
           <el-form-item label="收件人：">
-            <el-input
-              v-model="receivingName"
-              clearable
-              size="mini"
-              oninput="value=value.replace(/\s+/g,'')"
-            />
+            <el-input v-model="receivingName" clearable size="mini" oninput="value=value.replace(/\s+/g,'')" />
           </el-form-item>
           <el-form-item label="联系电话：">
-            <el-input
-              v-model="wareHouseTel"
-              :disabled="flag1 || flag2"
-              clearable
-              size="mini"
-              oninput="value=value.replace(/\s+/g,'')"
-            />
+            <el-input v-model="wareHouseTel" :disabled="flag1 || flag2" clearable size="mini" oninput="value=value.replace(/\s+/g,'')" />
           </el-form-item>
         </el-form>
         <div class="footer">
-          <el-button
-            v-if="flag1"
-            :loading="butLoading"
-            type="primary"
-            size="mini"
-            @click="addXzyStore"
-          >新增仓库</el-button>
-          <el-button
-            v-else
-            :loading="butLoading"
-            type="primary"
-            size="mini"
-            @click="updateWarehouse"
-          >修改仓库</el-button>
+          <el-button v-if="flag1" :loading="butLoading" type="primary" size="mini" @click="addXzyStore">新增仓库</el-button>
+          <el-button v-else :loading="butLoading" type="primary" size="mini" @click="updateWarehouse">修改仓库</el-button>
         </div>
       </div>
       <div class="dialog-right">
-        <div style="display:flex">
+        <div style="display: flex">
           <store-choose-mall :key="changeIndex" :is-all="true" :show-mall="false" @changeMallList="changeMallList" />
-          <el-button
-            style="margin-left: 15px"
-            type="primary"
-            size="mini"
-            @click="getBindMall"
-          >查 询</el-button>
+          <el-button style="margin-left: 15px" type="primary" size="mini" @click="getBindMall">查 询</el-button>
         </div>
         <el-table
           ref="bindMallDataRef"
@@ -452,46 +224,24 @@
           :row-key="getRowKey"
           @selection-change="handleSelectionChange"
         >
-          <el-table-column
-            type="selection"
-            align="center"
-            min-width="45"
-            :reserve-selection="true"
-          />
-          <el-table-column
-            prop="country"
-            align="center"
-            label="站点"
-            min-width="90"
-          >
-            <template slot-scope="{row}">
+          <el-table-column type="selection" align="center" min-width="45" :reserve-selection="true" />
+          <el-table-column prop="country" align="center" label="站点" min-width="90">
+            <template slot-scope="{ row }">
               {{ row.country | chineseSite }}
             </template>
           </el-table-column>
-          <el-table-column
-            align="center"
-            label="店铺名称"
-            min-width="120"
-          >
-            <template slot-scope="{row}">
-              {{ row.mallAliasName?row.mallAliasName:row.platformMallName }}
+          <el-table-column align="center" label="店铺名称" min-width="120">
+            <template slot-scope="{ row }">
+              {{ row.mallAliasName ? row.mallAliasName : row.platformMallName }}
             </template>
           </el-table-column>
-          <el-table-column
-            align="center"
-            label="绑定国内仓"
-            min-width="120"
-          >
-            <template slot-scope="{row}">
+          <el-table-column align="center" label="绑定国内仓" min-width="120">
+            <template slot-scope="{ row }">
               {{ row.address.warehouse_name }}
             </template>
           </el-table-column>
-          <el-table-column
-            align="center"
-            label="绑定海外仓"
-            min-width="120"
-          >
-            <template slot-scope="{row}">
+          <el-table-column align="center" label="绑定海外仓" min-width="120">
+            <template slot-scope="{ row }">
               {{ row.overseas_address.warehouse_name }}
             </template>
           </el-table-column>
@@ -499,76 +249,33 @@
       </div>
     </el-dialog>
     <!--Shopee地址设置弹窗-->
-    <el-dialog
-      v-if="shopeeAddressVisible"
-      class="shopee-dialog"
-      title="Shopee地址设置"
-      :visible.sync="shopeeAddressVisible"
-      width="310px"
-      :close-on-click-modal="false"
-      :close-on-press-escape="false"
-    >
+    <el-dialog v-if="shopeeAddressVisible" class="shopee-dialog" title="Shopee地址设置" :visible.sync="shopeeAddressVisible" width="310px" :close-on-click-modal="false" :close-on-press-escape="false">
       <el-form label-position="right" label-width="80px">
         <el-form-item label="仓库站点：">
           <span>{{ itselfCountry | chineseSite }}</span>
         </el-form-item>
         <el-form label-position="right" label-width="80px">
           <el-form-item label="收货省：">
-            <el-select
-              v-model="sProvince"
-              filterable
-              placeholder="请选择"
-              size="mini"
-              @change="handlerChange4()"
-            >
-              <el-option
-                v-for="(item, index) in sProvinceList"
-                :key="index"
-                :value="item.id"
-                :label="item.division_name"
-              />
+            <el-select v-model="sProvince" filterable placeholder="请选择" size="mini" @change="handlerChange4()">
+              <el-option v-for="(item, index) in sProvinceList" :key="index" :value="item.id" :label="item.division_name" />
             </el-select>
           </el-form-item>
           <el-form-item label="收货市：">
-            <el-select
-              v-model="sCity"
-              :disabled="sProvince ? false : true"
-              placeholder="请选择"
-              size="mini"
-              @change="handlerChange5()"
-            >
-              <el-option
-                v-for="(item, index) in sCityList"
-                :key="index"
-                :value="item.id"
-                :label="item.division_name"
-              />
+            <el-select v-model="sCity" :disabled="sProvince ? false : true" placeholder="请选择" size="mini" @change="handlerChange5()">
+              <el-option v-for="(item, index) in sCityList" :key="index" :value="item.id" :label="item.division_name" />
             </el-select>
           </el-form-item>
           <el-form-item label="收货区：">
-            <el-select
-              v-model="sPDistinct"
-              :disabled="sCity ? false : true"
-              placeholder="请选择"
-              size="mini"
-            >
-              <el-option
-                v-for="(item, index) in sDistinctList"
-                :key="index"
-                :value="item.id"
-                :label="item.division_name"
-              />
+            <el-select v-model="sPDistinct" :disabled="sCity ? false : true" placeholder="请选择" size="mini">
+              <el-option v-for="(item, index) in sDistinctList" :key="index" :value="item.id" :label="item.division_name" />
             </el-select>
           </el-form-item>
         </el-form>
         <div class="footer">
-          <el-button
-            type="primary"
-            size="mini"
-            @click="test"
-          >确 定</el-button>
+          <el-button type="primary" size="mini" @click="test">确 定</el-button>
         </div>
-      </el-form></el-dialog>
+      </el-form></el-dialog
+    >
   </div>
 </template>
 
@@ -651,7 +358,6 @@ export default {
     }
   },
   mounted() {
-    // 获取数据
     this.getUserWarehouse()
     // 获取系统仓库，用来判断是否显示申请系统仓库地址
     this.xzyIndex()
@@ -1222,5 +928,27 @@ export default {
 </script>
 
 <style lang="less" scoped>
-@import '../../../module-less/order-manager-less/address-set.less';
+.store-address {
+  margin: 10px;
+  padding: 16px;
+  background: #fff;
+}
+.mar-right {
+  margin-right: 10px;
+}
+.activeColor {
+  color: red;
+}
+.btn-tool {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 10px;
+  .warning-text {
+    p {
+      height: 26px;
+    }
+  }
+}
+.content {
+}
 </style>

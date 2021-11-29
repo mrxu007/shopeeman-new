@@ -204,7 +204,8 @@ export default {
 }
 .category-content {
   display: flex;
-  align-items: center;
+  // align-items: center;
+  align-items: flex-end;
   flex-wrap: wrap;
   li {
     display: flex;

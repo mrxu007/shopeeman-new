@@ -42,6 +42,7 @@ import aliyunOssService from './services/aliyun-oss-service'
 import viewManagerService from './services/view-manager-service'
 import SonAccountService from './services/son-acccount-service'
 import shopeemanService from './services/shopeeman-service'
+import translationBridgeService from './services/translation-bridge-service'
 import { Logs } from 'cyt-pl-plug'
 
 import * as echarts from 'echarts'
@@ -85,6 +86,7 @@ Vue.prototype.$appConfig = new applicationConfig()
 Vue.prototype.$shopeeManConfig = new ShopeemanConfig()
 Vue.prototype.$mallService = new mallServce()
 Vue.prototype.$commodityService = new commodityService()
+Vue.prototype.$translationBridgeService = new translationBridgeService()
 Vue.prototype.$buyerAccountService = new buyerAccountService()
 Vue.prototype.$BaseUtilService = new BaseUtilService()
 Vue.prototype.$CloudLogBridgeService = new CloudLogBridgeService()
@@ -115,9 +117,10 @@ Vue.directive('focus', {
 })
 async function getUserInfo() {
   const res = await new applicationConfig().getUserInfo()
-  Vue.prototype.userInfo = res
+  Vue.prototype.$userInfo = res
 }
 getUserInfo()
+
 Vue.config.productionTip = false
 new Vue({
   router,

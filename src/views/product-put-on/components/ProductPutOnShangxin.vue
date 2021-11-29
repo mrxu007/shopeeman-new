@@ -338,7 +338,8 @@
         <el-button size="mini">取消发布</el-button>
         <el-button size="mini" type="primary">清理全部</el-button>
         <el-button size="mini" type="primary">设置定时任务</el-button>
-        <el-button size="mini" type="primary" @click="enterCategory(categoryId = '0', index = 0 , 1) ">批量映射虾皮类目</el-button>
+        <el-button size="mini" type="primary" @click="enterCategory(categoryId = '0', index = 0 , 1) ">批量映射虾皮类目
+        </el-button>
         <el-button size="mini" :type="isNoFoldShow && 'primary'" @click="isNoFoldShow = !isNoFoldShow">
           {{isNoFoldShow && '折叠' || '展开'}}
         </el-button>
@@ -716,7 +717,7 @@
       return {
         goodsTable: [], // 商品列表
         goodsTableSelect: [], // 商品列表所选
-        goodsCurrent:'',
+        goodsCurrent: '',
         mallList: [], // 店铺列表
         country: '',  // 店铺站点
         sourceCategoryList: [], //源商品类目
@@ -730,7 +731,7 @@
         categoryList: [],
         categoryAction: [],
         attributesList: [],
-        attributesCurrent:[],
+        attributesCurrent: [],
 
         goodsTagVisible: false, //标签弹窗
         goodsTagList: [],
@@ -928,6 +929,11 @@
       },
       goodsTagAction(val) {
         this.goodsTagCurrent = val
+      },
+      goodsTable: {
+        handler(val) {
+        },
+        deep: true
       }
     },
     mounted() {
@@ -1000,62 +1006,63 @@
         if (attributeRes.code === 200) {
           let attributeList = attributeRes.data && attributeRes.data.attributes
           attributeList.forEach(item => {
-            let index = this.attributesCurrent.findIndex(i=>i.attribute_id === item.attribute_id)
+            let index = this.attributesCurrent.findIndex(i => i.attribute_id === item.attribute_id)
             let attributesCurrent = this.attributesCurrent[index] && this.attributesCurrent[index].value_id || 0
             item.new_options_obj = JSON.parse(item.new_options)
-            item.options = index> -1 && parseInt(attributesCurrent) || item.new_options_obj[0].value_id
+            item.options = index > -1 && parseInt(attributesCurrent) || item.new_options_obj[0].value_id
             this.attributesList.push(item)
           })
           this.attributesCurrent = []
         }
       },
-      async confirmCategory( index = 0) {
+      async confirmCategory(index = 0) {
         this.categoryVisible = false
-        if (this.goodsCurrent){
-          if (this.goodsCurrent.goodsId){
-            let index = this.goodsTable.findIndex(i=>i.goodsId === this.goodsCurrent.goodsId)
+        if (this.goodsCurrent) {
+          if (this.goodsCurrent.goodsId) {
+            let index = this.goodsTable.findIndex(i => i.goodsId === this.goodsCurrent.goodsId)
             let categoryId = this.categoryAction[this.categoryAction.length - 1]
-            let category = this.categoryList[this.categoryList.length - 1].filter(i=>i.category_id === categoryId)[0]
-            let temp = Object.assign(JSON.parse(JSON.stringify(this.goodsTable[index])),{
+            let category = this.categoryList[this.categoryList.length - 1].filter(i => i.category_id === categoryId)[0]
+            let temp = Object.assign(JSON.parse(JSON.stringify(this.goodsTable[index])), {
               categoryIdList: this.categoryAction,
               categoryId: categoryId,
-              categoryName: category.category_name+'('+category.category_cn_name+')',
+              categoryName: category.category_name + '(' + category.category_cn_name + ')'
             })
-            this.goodsTable.splice(index,1,temp)
-            let categoryAttributes= []
-            this.attributesList.forEach(item=>{
-              let son = item.new_options_obj.filter(i=>i.value_id === item.options)[0]
+            this.goodsTable[index] = temp
+            // this.goodsTable.splice(index,1,temp)
+            let categoryAttributes = []
+            this.attributesList.forEach(item => {
+              let son = item.new_options_obj.filter(i => i.value_id === item.options)[0]
               categoryAttributes.push({
                 attributeId: item.attribute_id,
                 attributeName: item.attribute_name,
-                valueId:son.value_id,
-                value:son.value,
+                valueId: son.value_id,
+                value: son.value
               })
             })
             let param = {
               relationCategoryId: this.goodsCurrent.originCategoryId,
               country: this.country,
-              platformId: this.goodsCurrent.platform ,
+              platformId: this.goodsCurrent.platform,
               platformCategoryId: categoryId,
-              categoryAttributes: categoryAttributes,
+              categoryAttributes: categoryAttributes
             }
-            console.log('saveCategoryRelation - param',param)
-            this.$commodityService.saveCategoryRelation(param).then(res=>{
-              console.log('categoryRelationRes',res)
+            console.log('saveCategoryRelation - param', param)
+            this.$commodityService.saveCategoryRelation(param).then(res => {
+              console.log('categoryRelationRes', res)
             })
-          } else{
-            this.goodsTableSelect.forEach(item=>{
-              let index = this.goodsTable.findIndex(i=>i.goodsId === item.goodsId)
+          } else {
+            this.goodsTableSelect.forEach(item => {
+              let index = this.goodsTable.findIndex(i => i.goodsId === item.goodsId)
               let categoryId = this.categoryAction[this.categoryAction.length - 1]
-              let category = this.categoryList[this.categoryList.length - 1].filter(i=>i.category_id === categoryId)[0]
-              let temp = Object.assign(JSON.parse(JSON.stringify(this.goodsTable[index])),{
+              let category = this.categoryList[this.categoryList.length - 1].filter(i => i.category_id === categoryId)[0]
+              let temp = Object.assign(JSON.parse(JSON.stringify(this.goodsTable[index])), {
                 categoryIdList: this.categoryAction,
                 categoryId: categoryId,
-                categoryName: category.category_name+'('+category.category_cn_name+')',
+                categoryName: category.category_name + '(' + category.category_cn_name + ')'
               })
               item = temp
-              // this.goodsTable[index] = temp
-              this.goodsTable.splice(index,1,temp)
+              this.goodsTable[index] = temp
+              // this.goodsTable.splice(index,1,temp)
             })
             console.log(this.goodsTableSelect)
           }
@@ -1088,8 +1095,8 @@
                 'attribute_type': 'STRING_TYPE',
                 'country': this.country,
                 'options': JSON.stringify(brand_option),
-                "attribute_label": '',
-                "is_key_attribute": 1
+                'attribute_label': '',
+                'is_key_attribute': 1
               }]
               try {
                 let attributeTreeJson = await this.$shopeemanService.getAttributeTree(this.country, param, { headers: { 'Content-Type': 'text/plain; charset=UTF-8' } })
@@ -1098,8 +1105,8 @@
                 let attribute_tree = attributeTreeData && attributeTreeData.data && attributeTreeData.data.list[0] && attributeTreeData.data.list[0].attribute_tree || []
                 attribute_tree.forEach(item => {
                   let option = []
-                  item.children.forEach(son=>{
-                    option.push({value:son.display_name || son.name,value_id:son.value_id})
+                  item.children.forEach(son => {
+                    option.push({ value: son.display_name || son.name, value_id: son.value_id })
                   })
                   uploadCateGoryAttrReq.push({
                     'category_id': category_ids,
@@ -1110,18 +1117,18 @@
                     'attribute_type': 'STRING_TYPE',
                     'country': this.country,
                     'options': JSON.stringify(option),
-                    "attribute_label": '',
-                    "is_key_attribute": 0
+                    'attribute_label': '',
+                    'is_key_attribute': 0
                   })
                 })
               } catch (e) {
                 console.log(e)
-              }finally {
+              } finally {
                 let uploadCateGoryAttrJson = await this.$commodityService.uploadCateGoryAttr(uploadCateGoryAttrReq)
                 let uploadCateGoryAttrRes = JSON.parse(uploadCateGoryAttrJson)
                 if (uploadCateGoryAttrRes.code === 200) {
                   this.$message.success('同步成功')
-                }else{
+                } else {
                   this.$message.error('同步失败')
                 }
               }
@@ -1136,13 +1143,13 @@
         this.categoryAction.splice(index + 1, this.categoryAction.length - index)
         this.enterCategory(val + '', ++index)
       },
-      async enterCategory(categoryId = '0', index = 0 , row = null) {
+      async enterCategory(categoryId = '0', index = 0, row = null) {
         if (index === 0) {
           this.categoryAction = row && row.categoryIdList || []
-          if (row && row.goodsId || this.goodsTableSelect.length > 0){
+          if (row && row.goodsId || this.goodsTableSelect.length > 0) {
             this.goodsCurrent = row
-            if (row && row.goodsId ){
-              let categoryRelationJson = await this.$commodityService.getCategoryRelation(row.originCategoryId,this.country,row.platform+'')
+            if (row && row.goodsId) {
+              let categoryRelationJson = await this.$commodityService.getCategoryRelation(row.originCategoryId, this.country, row.platform + '')
               let categoryRelationRes = JSON.parse(categoryRelationJson)
               this.attributesCurrent = categoryRelationRes.data && categoryRelationRes.data.attributes
             }

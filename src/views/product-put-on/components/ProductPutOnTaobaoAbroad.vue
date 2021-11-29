@@ -193,18 +193,16 @@ export default {
     },
     // 表格
     async getTableList() {
-      console.log(this._this.userInfo)
-      debugger
-      // const params = {
-      //   uid: this.user_uid,
-      //   uuid: this.user_uuid,
-      //   account: this.query.account,
-      //   accountAliasName: this.query.account_alies
-      // }
+      // console.log(this._this.userInfo)
+      const params = {
+        uid: this.user_uid,
+        uuid: this.user_uuid,
+        account: this.query.account,
+        accountAliasName: this.query.account_alies
+      }
 
       this.loading = true
       const res = await this.TBApiInstance.getTbGlobalUser(params)
-      debugger
       this.loading = false
       if (res.code === 200) {
         this.tableList = res.data.data

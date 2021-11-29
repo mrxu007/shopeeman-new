@@ -6,7 +6,7 @@
       <el-button size="mini" @click="exportData">导出</el-button>
     </div>
     <div class="content">
-      <el-table ref="multipleTable" v-loading="tableLoading" :row-style="{ height: '80px' }" :data="tableData" tooltip-effect="dark" :height="'calc(100vh - 80px)'">
+      <el-table ref="multipleTable" v-loading="tableLoading" :row-style="{ height: '50px' }" :data="tableData" tooltip-effect="dark" :height="'calc(100vh - 80px)'">
         <el-table-column align="center" type="index" label="序号" min-width="50" fixed>
           <template slot-scope="scope">{{ (currentPage - 1) * pageSize + scope.$index + 1 }}</template>
         </el-table-column>
