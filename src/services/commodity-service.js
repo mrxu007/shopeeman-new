@@ -799,14 +799,22 @@ export default class CommodityService {
   }
 
   /**
+   * 获取shopee地址
+   */
+  getShopeeAddress(platform, type, parant) {
+    return this.nativeService.callAddrHelper('GetAddress', platform, type, parant.toString())
+  }
+}
+
+  /**
    * @name : 获取Lazada的订单详情
    * @param  {country} 站点
    * @param  {cookieStr} 登录信息
    * @param  {orderId} 拍单订单id
    */
   async getLazadaOrderDetail(country, cookieStr, orderId) {
-    return await this.nativeService.callLazadaService('callLazadaService', country, cookieStr, orderId)
-  }
+  return await this.nativeService.callLazadaService('callLazadaService', country, cookieStr, orderId)
+}
   /**
    * @name : 获取订单支付方式
    * @param  {country} 站点
@@ -815,6 +823,6 @@ export default class CommodityService {
    * @param  {shotOrderSn} 拍单订单号
    */
   async getPayMethod(country, cookieStr, orderDetial, shotOrderSn) {
-    return await this.nativeService.callLazadaService('GetPayMethod', country, cookieStr, orderDetial, shotOrderSn)
-  }
+  return await this.nativeService.callLazadaService('GetPayMethod', country, cookieStr, orderDetial, shotOrderSn)
+}
 }
