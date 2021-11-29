@@ -24,7 +24,7 @@
     <main v-if="activeVal === '3'"><OrderManagerDeliveryManagement /></main>
 
     <!--丢件信息查询 -->
-    <!-- <main v-if="activeVal === '4'"><OrderManagerLostSearch /></main> -->
+    <main v-if="activeVal === '4'"><OrderManagerLostSearch /></main>
 
     <!--采购价变更记录 -->
     <main v-if="activeVal === '6'"><OrderManagerChangeRecord /></main>
