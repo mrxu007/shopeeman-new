@@ -131,7 +131,7 @@
         @close="dialogClose"
       >
         <div style="display: flex;">
-          <el-upload ref="importRef" accept=".xls,.xlsx " action="https://jsonplaceholder.typicode.com/posts/" :on-change="importTemplateEvent" :show-file-list="false" :auto-upload="false">
+          <el-upload ref="importRef" accept=".xlsx,.xls" action="https://jsonplaceholder.typicode.com/posts/" :on-change="importTemplateEvent" :show-file-list="false" :auto-upload="false">
             <el-button :data="importTemplateData" size="mini" type="primary" style="margin-right: 10px"> 批量导入 </el-button>
           </el-upload>
           <el-button type="primary" size="mini" @click="downloadTemplate()">下载模板</el-button>

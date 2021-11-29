@@ -21,7 +21,7 @@
     <main v-if="activeVal === '3'"><SmartHouseSecondarySalesList /></main>
 
     <!--失物招领 -->
-    <main v-if="activeVal === '4'"><SmartHouseUnclaimed /></main>
+    <!-- <main v-if="activeVal === '4'"><SmartHouseUnclaimed /></main> -->
     <!--
     二次销售列表
     <main v-if="activeVal === '4'"><SmartHouseTheSecondSaleList /></main> -->

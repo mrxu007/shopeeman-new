@@ -35,7 +35,7 @@
           <el-input v-model="form.returnMainOrderNum" style="width:228px!important" clearable size="mini" oninput="value=value.replace(/\s+/g,'')" />
         </li>
       </ul>
-      <ul>
+      <ul style="align-items: center;">
         <li>
           <span>平台物流单号：</span>
           <el-input v-model="form.returnLogisticsDocNum" clearable size="mini" oninput="value=value.replace(/\s+/g,'')" />
@@ -44,9 +44,12 @@
           <el-button type="primary" :disabled="Loading1" size="mini" @click="getSencondSales">搜索</el-button>
           <el-button type="primary" size="mini" :loading="Loading2" @click="DerivedData">导出数据</el-button>
         </li>
+        <li>
+          <span style="color: red;width:444px">温馨提示：此模块展示数据为海外仓退回仓库的包裹数据，若需将此模块包裹数据进行二次销售，请前往【订单管理】使用二次销售功能进行匹配（不支持拆包出库）</span>
+        </li>
       </ul>
       <ul>
-        <span style="color: red; margin-top: 15px">温馨提示：此模块展示数据为海外仓退回仓库的包裹数据，若需将此模块包裹数据进行二次销售，请前往【订单管理】使用二次销售功能进行匹配（不支持拆包出库）</span>
+        <!-- <span style="color: red; margin-top: 15px">温馨提示：此模块展示数据为海外仓退回仓库的包裹数据，若需将此模块包裹数据进行二次销售，请前往【订单管理】使用二次销售功能进行匹配（不支持拆包出库）</span> -->
       </ul>
       <el-row id="article">
         <el-table
@@ -66,7 +69,7 @@
           </el-table-column>
           <el-table-column align="center" prop="receive_warehouse_name" label="包裹所在仓库" min-width="150px" fixed />
           <el-table-column align="center" prop="platform_tracking_number" label="平台物流单号" min-width="150px" />
-          <el-table-column prop="platform_tracking_number" label="订单编号" min-width="150px" align="center" />
+          <el-table-column prop="order_sn" label="订单编号" min-width="150px" align="center" />
           <el-table-column prop="type" label="二次销售类型" min-width="120px" align="center">
             <template slot-scope="{row}"><span>{{ returnType[row.type].label }}</span></template>
           </el-table-column>
@@ -238,7 +241,7 @@ export default {
           <td style="text-align:left;">${item.id || ''}</td>
           <td style="text-align:left;">${this.$filters.chineseSite(item.country) || ''}</td>
           <td style="text-align:left;mso-number-format:'\@';">${item.platform_tracking_number || ''}</td>
-          <td style="text-align:left;">${item.resale_order_sn || ''}</td>1
+          <td style="text-align:left;">${item.order_sn || ''}</td>1
           <td style="text-align:left;">${this.returnType[item.type].label || ''}</td>
           <td style="text-align:left;">${this.returnStatusList[item.status].label || ''}</td>
           <td style="text-align:left;">${item.goods_id || ''}</td>

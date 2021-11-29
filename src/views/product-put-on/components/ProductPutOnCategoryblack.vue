@@ -227,8 +227,13 @@ export default {
         return this.$message.warning('请勾选要删除的数据！')
       }
       for (let i = 0; i < this.multipleSelection.length; i++) {
+        if (this.multipleSelection[i].uid === 0) {
+          this.$message.warning('公有数据不可删除！')
+          continue
+        }
         const id = this.multipleSelection[i].id
         const res = await this.$commodityService.deleteBlackCategory(id)
+        debugger
         if (!res) {
           return this.$message.warning('删除失败')
         }
