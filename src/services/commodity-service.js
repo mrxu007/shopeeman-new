@@ -60,6 +60,10 @@ export default class CommodityService {
     return this.nativeService.callFunction('GetPrivateSelectionByIdTwo', sysId.toString())
   }
 
+  getNeededTranslateInfoV2(sysId) {
+    return this.nativeService.callFunction('GetNeededTranslateInfoTwo', sysId.toString())
+  }
+
   /**
    * 获取信息 tier varation 定义为对象
    * @param {number} sysId
@@ -328,7 +332,7 @@ export default class CommodityService {
 
   /**
    * 修改商品的信息
-   * @param {{sysGoodsId:number,title?:string,description?:string,spec1?:string,spec2?:string}} data
+   * @param {{sysGoodsId:string,title?:string,description?:string,spec1?:string,spec2?:string}} data
    */
   updateCollectGoodsInfo(data) {
     return this.nativeService.callFunction('UpdateCollectGoodsInfo', JSON.stringify(data))
@@ -428,6 +432,41 @@ export default class CommodityService {
    */
   mallAllList(sysMallId) {
     return this.nativeService.callFunction('MallAllList', sysMallId)
+  }
+
+  /**
+   * 保存翻译商品之后信息
+   * @param dataReq 保存
+   */
+  saveTranslationData(dataReq) {
+    console.log(JSON.stringify(dataReq))
+    return this.nativeService.callFunction('SaveTranslationData', JSON.stringify(dataReq))
+  }
+
+  /**
+   * 获取描述模板
+   * @param {string} sysMallId
+   */
+  descriptionTemplateList(templateType,noDescription) {
+    return this.nativeService.callFunction('DescriptionTemplateList', templateType,noDescription)
+  }
+  /**
+   * 删除描述模板
+   * @param {string} sysMallId
+   */
+  deleteDescriptionTemplate(id) {
+    return this.nativeService.callFunction('DeleteDescriptionTemplate', JSON.stringify(id))
+  }
+
+  /**
+   * 保存描述模板
+   * @param lableName sysMallId
+   * @param description sysMallId
+   * @param templateType sysMallId
+   */
+  uploadDescriptionTemplate(lableName,description,templateType) {
+    templateType = description.length < 68 && '1' || '2'
+    return this.nativeService.callFunction('UploadDescriptionTemplate', lableName,description,templateType)
   }
 
   /**

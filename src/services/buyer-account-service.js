@@ -184,5 +184,11 @@ export default class buyerAccountService {
     return this.nativeService.userCenter(this.ShotOrderPlatform.Shopee, url, account)
   }
   
+  /**
+   *登录阿里云翻译
+   */
+  loginAliTranslation() {
+    return this.nativeService.aliTranslateLogin()
+  }
 
 }
