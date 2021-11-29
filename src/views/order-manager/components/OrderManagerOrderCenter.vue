@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-11-09 10:17:44
- * @LastEditTime: 2021-11-26 19:09:30
+ * @LastEditTime: 2021-11-29 14:52:40
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shopeeman-new\src\views\order-manager\components\OrderManagerOrderCenter.vue
@@ -223,7 +223,7 @@
         <el-table-column align="center" prop="ori_platform_id" label="采购类型" min-width="120" v-if="showTableColumn('采购类型')">
           <template slot-scope="scope">{{ changeTypeName(scope.row.goods_info.ori_platform_id, goodsSourceList) }}</template>
         </el-table-column>
-        <el-table-column align="center" prop="123456" label="查看采购地址" min-width="120" v-if="showTableColumn('查看采购地址')">
+        <el-table-column align="center" prop="123456" label="查看采购地址" min-width="130" v-if="showTableColumn('查看采购地址')">
           <template slot-scope="scope">
             <el-button size="mini" type="primary" @click="openUrl(scope.row.goods_info.ori_url)">查看采购地址</el-button>
           </template>
@@ -264,7 +264,7 @@
         <el-table-column align="center" label="商品标题" min-width="120" show-overflow-tooltip v-if="showTableColumn('商品标题')">
           <template slot-scope="scope">{{ scope.row.goods_info.goods_name }}</template>
         </el-table-column>
-        <el-table-column align="center" label="搜同款" min-width="80" v-if="showTableColumn('搜同款')">
+        <el-table-column align="center" label="搜同款" min-width="100" v-if="showTableColumn('搜同款')">
           <template slot-scope="scope">
             <el-button type="primary" size="mini">搜同款</el-button>
           </template>
@@ -363,7 +363,7 @@
         <el-table-column align="center" label="采购发货时间" min-width="120" v-if="showTableColumn('采购发货时间')">
           <template slot-scope="scope">{{ scope.row.shot_order_info.shot_shipping_time }}</template>
         </el-table-column>
-        <el-table-column align="center" prop="123456" label="采购物流轨迹" min-width="120" v-if="showTableColumn('采购物流轨迹')">
+        <el-table-column align="center" prop="123456" label="采购物流轨迹" min-width="130" v-if="showTableColumn('采购物流轨迹')">
           <template slot-scope="scope">
             <el-button type="primary" size="mini" @click="trackPathVisible = true">采购物流轨迹</el-button>
           </template>
@@ -386,7 +386,7 @@
         <el-table-column align="center" prop="tracking_no" label="虾皮物流单号" min-width="150" v-if="showTableColumn('虾皮物流单号')">
           <template slot-scope="scope">{{ scope.row.tracking_no }}</template>
         </el-table-column>
-        <el-table-column align="center" prop="123456" label="虾皮物流轨迹" min-width="120" v-if="showTableColumn('虾皮物流轨迹')">
+        <el-table-column align="center" prop="123456" label="虾皮物流轨迹" min-width="130" v-if="showTableColumn('虾皮物流轨迹')">
           <template slot-scope="scope">
             <el-button type="primary" size="mini" @click="getSHtrackPath(scope.row)">虾皮物流轨迹</el-button>
           </template>
@@ -439,17 +439,7 @@
                 <el-dropdown-item> <div class="dropdownItem" @click="addPurchaseLink(scope.row, scope.$index)">添加采购链接</div></el-dropdown-item>
                 <el-dropdown-item> <div class="dropdownItem" @click="addMoreTrackingNumber(scope.row, scope.$index)">添加多物流单号</div></el-dropdown-item>
                 <el-dropdown-item> <div class="dropdownItem" @click="setColorSingle(scope.row, scope.$index)">标记颜色标识</div></el-dropdown-item>
-                <el-dropdown-item>
-                  <div
-                    class="dropdownItem"
-                    @click="
-                      clickRow = scope.row
-                      billsDetailVisible = true
-                    "
-                  >
-                    账单明细
-                  </div></el-dropdown-item
-                >
+                <el-dropdown-item> <div class="dropdownItem" @click="clickRow = scope.row;billsDetailVisible = true;" >账单明细</div></el-dropdown-item>
                 <el-dropdown-item> <div class="dropdownItem" @click="SyncOrder(scope.row)">同步此店铺订单</div></el-dropdown-item>
                 <el-dropdown-item> <div class="dropdownItem" @click="SyncOrderSingle(scope.row)">同步此订单</div></el-dropdown-item>
                 <el-dropdown-item> <div class="dropdownItem" @click="syncLogisticsSingle(scope.row)">同步此订单物流</div></el-dropdown-item>
@@ -457,8 +447,9 @@
                 <el-dropdown-item> <div class="dropdownItem" @click="getorderPath(scope.row)">订单轨迹</div></el-dropdown-item>
                 <el-dropdown-item> <div class="dropdownItem" @click="handleOutOrder(scope.row)">手动发货</div></el-dropdown-item>
                 <el-dropdown-item> <div class="dropdownItem" @click="viewDetails('itemDetail', scope.row.goods_info.goods_id, scope.row.mall_info.platform_mall_id)">商品编辑</div></el-dropdown-item>
-                <el-dropdown-item> <div class="dropdownItem" >商品下架</div></el-dropdown-item>
-                <el-dropdown-item> <div class="dropdownItem" >商品删除</div></el-dropdown-item>
+                <el-dropdown-item> <div class="dropdownItem" @click="goodsDelist(scope.row)">商品下架</div></el-dropdown-item>
+                <el-dropdown-item> <div class="dropdownItem" @click="goodsDelete(scope.row)">商品删除</div></el-dropdown-item>
+                <el-dropdown-item> <div class="dropdownItem" @click="goodsTop(scope.row)">商品置顶</div></el-dropdown-item>
               </el-dropdown-menu>
             </el-dropdown>
             <!-- <el-button type="primary" size="mini">操作</el-button> -->
@@ -655,17 +646,17 @@
       <div class="handle-out">
         <div class="item">
           <span>当前订单状态：</span>
-          <p>{{ changeTypeName(clickRow.order_status, orderStatusList)}}</p>
+          <p>{{ changeTypeName(clickRow.order_status, orderStatusList) }}</p>
           <!-- <el-input size="mini" v-model="clickRow.order_status" disabled></el-input> -->
         </div>
-         <div class="item">
+        <div class="item">
           <span>订单号：</span>
-          <p>{{clickRow.order_sn}}</p>
+          <p>{{ clickRow.order_sn }}</p>
           <!-- <el-input size="mini" v-model="clickRow.order_sn" disabled></el-input> -->
         </div>
         <div class="item">
           <span>站点：</span>
-          <p>{{clickRow.country | chineseSite}}</p>
+          <p>{{ clickRow.country | chineseSite }}</p>
           <!-- <el-input size="mini" v-model="clickRow.country" disabled></el-input> -->
         </div>
         <div class="item">
@@ -699,7 +690,7 @@ import {
   changePackageType,
   changeDeliveryStatus,
   lazadaUrlList,
-  changeBuyerType
+  changeBuyerType,
 } from '../components/orderCenter/orderCenter'
 import { exportExcelDataCommon, creatDate } from '../../../util/util'
 import storeChoose from '../../../components/store-choose'
@@ -861,9 +852,9 @@ export default {
       orderReportVisible: false, //订单报表
       replayOrderBuyerVisible: false, //回复买家
       replyBuyerData: [], //批量回复买家
-      handOutOrderVisible:false,//手动发货
-      shippingProof:'',//手动出库物流名
-      shippingTraceNo:'',//手动出库物流单号
+      handOutOrderVisible: false, //手动发货
+      shippingProof: '', //手动出库物流名
+      shippingTraceNo: '', //手动出库物流单号
     }
   },
   mounted() {
@@ -877,25 +868,96 @@ export default {
     }, 2000)
   },
   methods: {
-    async saveHandleOut(){
+    //商品置顶
+    async goodsTop(row){
+      let params = {
+        id: Number(row.goods_info.goods_id),
+        shop_id: row.mall_info.platform_mall_id
+      }
+       let res = await this.$shopeemanService.handleGoodsTop(row.country, params)
+      if(res === 200){
+        this.$message.success(`商品置顶成功！`)
+      }else{
+        this.$message.error(`${res.data}`)
+      }
+    },
+    //商品删除
+    async goodsDelete(row){
+       this.$confirm('是否删除该商品?', '商品删除', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning',
+      })
+        .then(() => {
+          this.setGoodsDelete(row)
+        })
+        .catch(() => {})
+    },
+    //商品删除
+    async setGoodsDelete(row){
+      let params = {
+        product_id_list:[ Number(row.goods_info.goods_id)],
+        shop_id: row.mall_info.platform_mall_id
+      }
+       let res = await this.$shopeemanService.handleGoodsDelete(row.country, params)
+      if(res === 200){
+        this.$message.success(`商品删除成功！`)
+      }else{
+        this.$message.error(`${res.data}`)
+      }
+    },
+    //商品下架
+    async goodsDelist(row) {
+      // this.clickRow = row
+      this.$confirm('是否下架该商品?', '商品下架', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning',
+      })
+        .then(() => {
+          this.setGoodsDelist(row)
+        })
+        .catch(() => {})
+    },
+    //商品下架
+    async setGoodsDelist(row) {
+      let params = [
+        {
+          id: Number(row.goods_info.goods_id),
+          unlisted: true,
+        },
+      ]
+      let data = {
+        shop_id: row.mall_info.platform_mall_id,
+      }
+      let res = await this.$shopeemanService.handleGoodsDelist(row.country, data, params)
+      if(res === 200){
+        this.$message.success(`商品下架成功！`)
+      }else{
+        this.$message.error(`${res.data}`)
+      }
+      console.log(res, 'res')
+    },
+    //订单出库
+    async saveHandleOut() {
       let params = {
         order_id: this.clickRow.order_id,
         shipping_proof: this.shippingProof,
         shipping_trace_no: this.shippingTraceNo,
         channel_id: 79900,
-        integrated:'',
-        shop_id:this.clickRow.mall_info.platform_mall_id
+        integrated: '',
+        shop_id: this.clickRow.mall_info.platform_mall_id,
       }
-      let res = await this.$shopeemanService.handleOutOrder(this.clickRow.country,params)
-      if(res.data===200){
+      let res = await this.$shopeemanService.handleOutOrder(this.clickRow.country, params)
+      if (res.data === 200) {
         this.$message.success('发货成功！')
         this.closeDialog()
-      }else{
+      } else {
         this.$message.error(`发货失败，${res.data}`)
       }
-      console.log(res,"saveHandleOut")
+      console.log(res, 'saveHandleOut')
     },
-    handleOutOrder(row){
+    handleOutOrder(row) {
       this.clickRow = row
       this.handOutOrderVisible = true
       this.shippingProof = row.logistics_name
@@ -905,8 +967,8 @@ export default {
     async openPddDisount() {
       let pddBuys = []
       let buyFilter = this.buyerAccountList.filter((item) => item.type === 1)
-      if(buyFilter.length){
-        buyFilter.forEach(item=>{
+      if (buyFilter.length) {
+        buyFilter.forEach((item) => {
           let buy = this.changeAccountParams(item)
           pddBuys.push(buy)
         })
@@ -1143,9 +1205,9 @@ export default {
       this.clickRow = row
       this.addMoreTraNumberVisible = true
       let res = await this.$appConfig.getWarehouseInfo(row.mall_info.platform_mall_id)
-      let resObj = res && JSON.parse(res) || {}
+      let resObj = (res && JSON.parse(res)) || {}
       let warehouseList = []
-      for(const key in resObj){
+      for (const key in resObj) {
         warehouseList.push(resObj[key])
       }
       if ([1, 2, 3, 5, 8, 10].indexOf(Number(row.goods_info.ori_platform_id)) > -1) {
@@ -1973,25 +2035,25 @@ export default {
     overflow: auto;
   }
 }
-.handle-out{
-  .item{
-    display:flex;
+.handle-out {
+  .item {
+    display: flex;
     align-items: center;
-    span{
+    span {
       line-height: 28px;
       height: 28px;
       display: inline-block;
-      width:120px;
+      width: 120px;
       text-align: right;
     }
-    .inputWidth{
+    .inputWidth {
       width: 200px;
     }
-    p{
+    p {
       height: 28px;
       line-height: 28px;
     }
-    margin-bottom:10px;
+    margin-bottom: 10px;
   }
 }
 </style>

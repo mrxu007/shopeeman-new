@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-11-26 11:02:21
- * @LastEditTime: 2021-11-26 11:28:05
+ * @LastEditTime: 2021-11-29 14:27:37
  * @LastEditors: Please set LastEditors
  * @Description: 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  * @FilePath: \shopeeman-new\src\views\order-manager\components\orderCenter\replayBuyer.vue
@@ -11,17 +11,20 @@
     <div class="reply-box">
       <div class="reply-item" v-for="(item,index) in replyData" :key="index">
         <div class="item">
-          <span>马来站</span>
+          <span>{{item.countryLabel}}</span>
         </div>
         <div class="item box-center mar-right">
           <p>评论：</p>
-          <el-input type="textarea" :rows="2" placeholder="请输入内容" v-model="textarea"> </el-input>
+          <el-input type="textarea" :rows="2" placeholder="请输入内容" v-model="item.replyText"> </el-input>
         </div>
         <div class="item box-right">
           <p>星级</p>
-          <el-rate v-model="value1" class="rateSize"></el-rate>
+          <el-rate v-model="item.rate" class="rateSize"></el-rate>
         </div>
       </div>
+    </div>
+    <div class="reply-btn">
+      <el-button type="primary" size="mini" @click="setReplyData">确定</el-button>
     </div>
   </div>
 </template>
@@ -33,7 +36,8 @@ export default {
     return {
       textarea:'',
       value1:5,
-      replyData:[0,0]
+      replyData:[],
+      country:this.$filters.countries_option
     }
   },
   props: {
@@ -42,6 +46,44 @@ export default {
       default: [],
     },
   },
+  mounted(){
+    console.log("country",this.country)
+    this.getReplyData()
+  },
+  methods: {
+    async getReplyData(){
+      let res = await this.$api.getUserInfo()
+      console.log(res,"fd")
+      if(res.data.code === 200 && res.data.data.evaluate_order_buyer_config && JSON.parse(res.data.data.evaluate_order_buyer_config).length>0){
+        let data = JSON.parse(res.data.data.evaluate_order_buyer_config)
+        this.replyData = data
+      }else{
+        let list = []
+        this.country.forEach(item => {
+          let obj = {
+            country: item.value,
+            countryLabel: item.label,
+            replyText:"",
+            rate:0,
+          }
+          list.push(obj)
+        });
+        this.replyData = list
+      }
+    },
+    async setReplyData(){
+      let params = {
+        evaluateOrderBuyerConfig:JSON.stringify(this.replyData)
+      }
+      let res = await this.$api.saveUserConfig(params)
+      if(res.data.code===200){
+        this.$message.success('设置成功')
+      }else{
+        this.$message.error(`设置失败，${res.data.message}`)
+      }
+      console.log(res,"57587")
+    }
+  }
 }
 </script>
 
@@ -78,6 +120,10 @@ export default {
         align-items: center;
       }
     }
+  }
+  .reply-btn{
+    display:flex;
+    justify-content: center;
   }
 }
 </style>
