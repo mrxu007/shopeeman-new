@@ -1,7 +1,7 @@
 <template>
   <el-row class="contaniner">
     <el-row class="header">
-      <ul style="margin-bottom: 10px">
+      <ul style="margin-bottom: 10px;margin-left:25px">
         <li>
           <span>退件状态：</span>
           <el-select
@@ -29,7 +29,7 @@
             unlink-panels
             size="mini"
             type="datetimerange"
-            range-separator="至"
+            range-separator="-"
             start-placeholder="开始日期"
             end-placeholder="结束日期"
           />
@@ -41,44 +41,50 @@
             unlink-panels
             size="mini"
             type="datetimerange"
-            range-separator="至"
+            range-separator="-"
             start-placeholder="开始日期"
             end-placeholder="结束日期"
           />
         </li>
       </ul>
-      <ul>
+      <ul style="margin-left:25px">
         <li>
-          <span>订单编号：</span>
+          <span style="width: 80px;">订单编号：</span>
           <el-input
             v-model="form.orderNum"
+            style="width: 180px;margin-left: -20px;"
             clearable
             size="mini"
             oninput="value=value.replace(/\s+/g,'')"
           />
         </li>
         <li>
-          <span>包裹物流编号：</span>
+          <span style="width:118px">包裹物流编号：</span>
           <el-input
             v-model="form.logisticsNum"
+            style="margin-left: -35px;width: 227px;"
             clearable
             size="mini"
             oninput="value=value.replace(/\s+/g,'')"
           />
         </li>
         <li>
-          <span>退件物流单号：</span>
+          <span style="width: 120px;">退件物流单号：</span>
           <el-input
             v-model="form.returnLogisticsNum"
+            style="width:200px;margin-left:-32px"
             clearable
             size="mini"
             oninput="value=value.replace(/\s+/g,'')"
           />
         </li>
+      </ul>
+      <ul style="margin-top:10px">
         <li>
-          <span>退件人手机号：</span>
+          <span style="width: 120px;">退件人手机号：</span>
           <el-input
             v-model="form.returnPhone"
+            style="width: 180px;margin-left: -35px;"
             clearable
             size="mini"
             oninput="value=value.replace(/\s+/g,'')"
@@ -106,7 +112,7 @@
       <el-table
         ref="plTable"
         v-loading="isShowLoading"
-        height="calc(100vh - 205px)"
+        height="calc(100vh - 249px)"
         :data="tableData"
         :header-cell-style="{
           backgroundColor: '#f5f7fa',
@@ -122,13 +128,13 @@
           align="center"
           type="index"
           label="序号"
-          width="50"
+          min-width="50px"
           fixed
         />
         <el-table-column
           prop="need_return_package_code"
           label="包裹物流单号"
-          width="150"
+          min-width="180px"
           fixed
         >
           <template slot-scope="{ row }">
@@ -145,7 +151,7 @@
         <el-table-column
           prop="order_sn"
           label="订单编号"
-          width="180"
+          min-width="180px"
         >
           <template slot-scope="{ row }">
             <span>
@@ -162,12 +168,12 @@
         <el-table-column
           prop="warehouse_name"
           label="签收仓库"
-          width="130"
+          min-width="130px"
         />
         <el-table-column
           prop="status"
           label="状态"
-          width="80"
+          min-width="80px"
         >
           <template slot-scope="{ row }">
             <span v-if="row.status === 1">退件中</span>
@@ -181,32 +187,32 @@
         <el-table-column
           prop="appli_return_time"
           label="申请退件时间"
-          width="110"
+          min-width="150px"
         />
         <el-table-column
           prop="return_contact"
           label="退件人"
-          width="80"
+          min-width="80px"
         />
         <el-table-column
           prop="return_phone_number"
           label="退件电话"
-          width="120"
+          min-width="120px"
         />
         <el-table-column
           prop="return_address"
           label="退件地址"
-          width="150"
+          min-width="180px"
         />
         <el-table-column
           prop="return_remarks"
           label="退件备注"
-          width="100"
+          min-width="150px"
         />
         <el-table-column
           prop="return_shipping_number"
           label="退件物流单号"
-          width="180"
+          min-width="180px"
         >
           <template slot-scope="{ row }">
             <span>
@@ -224,20 +230,20 @@
         <el-table-column
           prop="return_shipping_name"
           label="退件物流公司"
-          width="110"
+          min-width="150px"
         />
         <el-table-column
           prop="return_time"
           label="退件时间"
-          width="110"
+          min-width="150px"
         />
         <el-table-column
           prop="warehouse_remarks"
           label="仓库备注"
-          width="100"
+          min-width="150px"
         />
         <el-table-column
-          width="120"
+          min-width="120px"
           label="操作"
           fixed="right"
           align="center"

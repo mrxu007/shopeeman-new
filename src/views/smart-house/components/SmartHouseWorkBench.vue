@@ -34,48 +34,24 @@
         <div class="line" />
         <div class="form-items">
           <div class="select-item">
-            <storeChoose @change="setMallId" />
-          </div>
-          <div class="select-item">
-            <span class="search-title">订单创建时间：</span>
-            <el-date-picker
-              v-model="createdTime"
-              size="mini"
-              value-format="yyyy-MM-dd"
-              type="daterange"
-              style="width: 195px"
-              range-separator="-"
-              :picker-options="pickerOptions"
-              start-placeholder="开始日期"
-              end-placeholder="结束日期"
-            />
+            <storeChoose style="margin-left:5px" @change="setMallId" />
           </div>
         </div>
+        <div class="select-item" style="margin-bottom: 5px;">
+          <span class="search-title">订单创建时间：</span>
+          <el-date-picker
+            v-model="createdTime"
+            size="mini"
+            value-format="yyyy-MM-dd"
+            type="daterange"
+            style="width: 220px"
+            range-separator="-"
+            :picker-options="pickerOptions"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
+          />
+        </div>
         <div class="form-items">
-          <div class="select-item">
-            <span class="search-title">订单发货状态：</span>
-            <el-select
-              v-model="deliveryStatus"
-              size="mini"
-              style="width: 120px"
-              clearable
-              placeholder="全部"
-            ><el-option label="全部" value="" />
-              <el-option v-for="item in deliverStateList" :key="item.deliveryStatus" :label="item.label" :value="item.deliveryStatus" />
-            </el-select>
-          </div>
-          <div class="select-item">
-            <span class="search-title">包裹异常类型：</span>
-            <el-select
-              v-model="exceptionType"
-              size="mini"
-              style="width: 120px"
-              clearable
-              placeholder="全部"
-            ><el-option label="全部" value="" />
-              <el-option v-for="item in abnormalTypeList" :key="item.exception_type" :label="item.label" :value="item.exception_type" />
-            </el-select>
-          </div>
           <div class="select-item">
             <span class="search-title">包裹入库时间：</span>
             <el-date-picker
@@ -83,20 +59,59 @@
               size="mini"
               value-format="yyyy-MM-dd"
               type="daterange"
-              style="width: 195px"
+              style="width: 220px"
               range-separator="-"
               :picker-options="pickerOptions"
               start-placeholder="开始日期"
               end-placeholder="结束日期"
             />
           </div>
-        </div>
-        <div class="form-items">
-          <div class="select-item">
+
+          <div class="select-item" style="margin-left:25px">
             <span class="search-title">订单编号：</span>
             <el-input v-model="packageOrderSn" size="mini" style="width: 180px" clearable />
             <span style="margin-left: 8px" class="search-title">采购物流单号：</span>
             <el-input v-model="statuoriginalTrackingNumbers" size="mini" style="width: 180px" clearable />
+          </div>
+        </div>
+        <div class="form-items">
+          <div class="select-item">
+            <span class="search-title">包裹出库时间：</span>
+            <el-date-picker
+              v-model="outboundTime"
+              size="mini"
+              value-format="yyyy-MM-dd"
+              type="daterange"
+              style="width: 220px"
+              range-separator="-"
+              :picker-options="pickerOptions"
+              start-placeholder="开始日期"
+              end-placeholder="结束日期"
+            />
+          </div>
+          <div class="select-item">
+            <span class="search-title">订单发货状态：</span>
+            <el-select
+              v-model="deliveryStatus"
+              size="mini"
+              style="width: 180px"
+              clearable
+              placeholder="全部"
+            ><el-option label="全部" value="" />
+              <el-option v-for="item in deliverStateList" :key="item.deliveryStatus" :label="item.label" :value="item.deliveryStatus" />
+            </el-select>
+          </div>
+          <div class="select-item" style="margin-left:5px">
+            <span class="search-title">包裹异常类型：</span>
+            <el-select
+              v-model="exceptionType"
+              size="mini"
+              style="width: 180px"
+              clearable
+              placeholder="全部"
+            ><el-option label="全部" value="" />
+              <el-option v-for="item in abnormalTypeList" :key="item.exception_type" :label="item.label" :value="item.exception_type" />
+            </el-select>
           </div>
           <!--         <span class="search-title ">颜色标识：</span>
           <el-select
@@ -114,26 +129,12 @@
               :style="item.color"
             />
           </el-select> -->
-          <div class="select-item">
-            <span class="search-title">包裹出库时间：</span>
-            <el-date-picker
-              v-model="outboundTime"
-              size="mini"
-              value-format="yyyy-MM-dd"
-              type="daterange"
-              style="width: 195px"
-              range-separator="-"
-              :picker-options="pickerOptions"
-              start-placeholder="开始日期"
-              end-placeholder="结束日期"
-            />
-          </div>
-          <div class="select-item">
-            <el-button type="primary" style="margin-left: 4px" size="mini" class="m-80" :loading="orderPackageLoading" @click="orderPackage">搜索</el-button>
-            <el-button v-if="!isExport" type="primary" size="mini" class="m-80" @click="tableToExcel">导出数据</el-button>
-            <el-progress v-else style="width: 160px; display: inline-block; margin-left: 10px" :text-inside="true" :stroke-width="26" :percentage="((exportNum * 100) / total).toFixed(2) - 0" />
-            <el-button type="primary" size="mini" class="m-80" style="width:120px" @click="remarkFun">批量更新用户备注</el-button>
-          </div>
+        </div>
+        <div class="select-item">
+          <el-button type="primary" style="margin-left: 4px" size="mini" class="m-80" :loading="orderPackageLoading" @click="orderPackage">搜索</el-button>
+          <el-button v-if="!isExport" type="primary" size="mini" class="m-80" @click="tableToExcel">导出数据</el-button>
+          <el-progress v-else style="width: 160px; display: inline-block; margin-left: 10px" :text-inside="true" :stroke-width="26" :percentage="((exportNum * 100) / total).toFixed(2) - 0" />
+          <el-button type="primary" size="mini" class="m-80" style="width:120px" @click="remarkFun">批量更新用户备注</el-button>
         </div>
       </div>
     </div>
@@ -158,26 +159,26 @@
             {{ scope.$index + 1 + (currentPage - 1) * pageSize }}
           </template>
         </el-table-column>
-        <el-table-column label="店铺名称" width="120" prop="mall_alias_name" fixed />
-        <el-table-column label="站点" width="80" prop="country" />
-        <el-table-column label="仓库" width="80" prop="warehouse_name" />
-        <el-table-column label="颜色标识" width="100" prop="colorText">
+        <el-table-column label="店铺名称" min-width="150px" prop="mall_alias_name" fixed />
+        <el-table-column label="站点" min-width="80px" prop="country" />
+        <el-table-column label="仓库" min-width="120px" prop="warehouse_name" />
+        <el-table-column label="颜色标识" min-width="100px" prop="colorText">
           <!-- <template slot-scope="{ row }">
             <span :style="row.color">{{ row.label }}</span>
           </template> -->
         </el-table-column>
-        <el-table-column label="订单编号" width="180" prop="package_order_sn">
+        <el-table-column label="订单编号" min-width="180px" prop="package_order_sn">
           <template slot-scope="scope">
             <span>{{ scope.row.package_order_sn }} <span class="copyIcon" @click="copy(scope.row.package_order_sn)"><i class="el-icon-document-copy" /></span></span>
           </template>
         </el-table-column>
-        <el-table-column label="数量" width="60" prop="goodsCount" />
-        <el-table-column label="商品详情" width="110">
+        <el-table-column label="数量" min-width="100px" prop="goodsCount" />
+        <el-table-column label="商品详情" min-width="110px">
           <template slot-scope="scope">
             <p><el-button type="primary" size="mini" @click="getGoodsInfo(scope.row.package_order_sn)">查看签收详情</el-button></p>
           </template>
         </el-table-column>
-        <el-table-column label="包裹重量" width="80">
+        <el-table-column label="包裹重量" min-width="100px">
           <template slot-scope="scope">
             <p>{{ scope.row.package_weight }}g</p>
             <!--  <p>
@@ -190,21 +191,21 @@
           width="100"
           prop="package_weight"
         /> -->
-        <el-table-column label="等待子包裹发货" width="120" prop="statusText">
+        <el-table-column label="等待子包裹发货" min-width="120px" prop="statusText">
           <template slot-scope="scope">
             <div class="goods-detail">
               {{ scope.row.is_mark_outbound > 0 ? '否' : '是' }}
             </div>
           </template>
         </el-table-column>
-        <el-table-column label="订单发货状态" width="100" prop="statusText" />
-        <el-table-column label="异常类型" width="100" prop="exceptionText" />
-        <el-table-column label="订单创建时间" width="150" prop="order_created_time" />
-        <el-table-column label="订单平台状态" width="110" prop="orderStatusText" />
-        <el-table-column label="截止发货时间" width="150" prop="latest_ship_date" />
-        <el-table-column label="入库时间" width="150" prop="storage_time" />
-        <el-table-column label="出库时间" width="150" prop="outbound_time" />
-        <el-table-column label="入库图片" width="80">
+        <el-table-column label="订单发货状态" min-width="100px" prop="statusText" />
+        <el-table-column label="异常类型" min-width="100px" prop="exceptionText" />
+        <el-table-column label="订单创建时间" min-width="150px" prop="order_created_time" />
+        <el-table-column label="订单平台状态" min-width="110px" prop="orderStatusText" />
+        <el-table-column label="截止发货时间" min-width="150px" prop="latest_ship_date" />
+        <el-table-column label="入库时间" min-width="150px" prop="storage_time" />
+        <el-table-column label="出库时间" min-width="150px" prop="outbound_time" />
+        <el-table-column label="入库图片" min-width="150px">
           <template slot-scope="scope">
             <el-tooltip v-if="scope.row.storage_image" effect="light" placement="right-end" :visible-arrow="false" :enterable="false" style="width: 56px; height: 56px">
               <div slot="content">
@@ -214,7 +215,7 @@
             </el-tooltip>
           </template>
         </el-table-column>
-        <el-table-column label="出库图片" width="80">
+        <el-table-column label="出库图片" min-width="150px">
           <template slot-scope="scope">
             <el-tooltip v-if="scope.row.outbound_image" effect="light" placement="right-end" :visible-arrow="false" :enterable="false" style="width: 56px; height: 56px">
               <div slot="content">
@@ -224,10 +225,10 @@
             </el-tooltip>
           </template>
         </el-table-column>
-        <el-table-column min-width="240px" align="left" label="备注">
+        <el-table-column min-width="240px" align="left" label="备注" fixed="right">
           <template slot-scope="scope">
-            <p style="text-align: left">仓库备注：{{ scope.row.ext_service && scope.row.ext_service.remark }}</p>
-            <p style="text-align: left">
+            <p style="text-align: left;margin-left:10px">仓库备注：{{ scope.row.ext_service && scope.row.ext_service.remark }}</p>
+            <p style="text-align: left;margin-left:10px">
               用户备注：
               <span v-show="!(scope.row.id === activeRemarkID ? true : false)">{{ scope.row.user_remark }}</span>
               <!-- <el-input type="text" v-model="orderRemark" size="mini"></el-input> -->
@@ -1436,7 +1437,7 @@ export default {
 
 <style lang="less" scoped>
 .workbench {
-  min-width: 1200px;
+  min-width: 1280px;
   padding: 0 5px;
   /deep/ .el-table .cell {
     padding-left: 2px !important;

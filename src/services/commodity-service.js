@@ -7,6 +7,14 @@ export default class CommodityService {
   user = ''
   nativeService = window['CommodityBridgeService']
 
+  //* *删除服务端商品 */
+  delCloudItems(itemList) {
+    return this.nativeService.callFunction('DeleteCloudItems', itemList)
+  }
+  /** 获取服务端商品上新记录 */
+  getMallAllRecordList(sysMallId) {
+    return this.nativeService.callFunction('MallAllList', sysMallId)
+  }
   /**
    * 新增公司主体(系统)
    * @param {string} uid 主账号ID
@@ -515,9 +523,9 @@ export default class CommodityService {
    * @param platformId 上家平台
    * @param isUseCommon
    */
-  getCategoryRelation(relationCategoryId,country, platformId, isUseCommon = '0') {
+  getCategoryRelation(relationCategoryId, country, platformId, isUseCommon = '0') {
     // console.log(relationCategoryId, country, platformId, isUseCommon)
-    return this.nativeService.callCategoryFunction('GetCategoryRelation',relationCategoryId,country, platformId, isUseCommon)
+    return this.nativeService.callCategoryFunction('GetCategoryRelation', relationCategoryId, country, platformId, isUseCommon)
   }
 
   /**
@@ -536,17 +544,17 @@ export default class CommodityService {
    * @param isParent :isParent 类目的父级标识：1传入的类目作为父级查询；0当前类目查询
    * @param tableType : string
    */
-  getCategoryTbInfo(country, categoryId="0", isParent = "1", tableType) {
-    return this.nativeService.callCategoryFunction('GetCategoryInfo',country, categoryId, isParent, tableType)
+  getCategoryTbInfo(country, categoryId = '0', isParent = '1', tableType) {
+    return this.nativeService.callCategoryFunction('GetCategoryInfo', country, categoryId, isParent, tableType)
   }
 
   /**
    * 获取类目属性
    * @param {array} data
    */
-  getAttributeInfo(country, categoryId="0", isNewOpen="0", tableType,isMandatoryAttr = "1") {
+  getAttributeInfo(country, categoryId = '0', isNewOpen = '0', tableType, isMandatoryAttr = '1') {
     // console.log(JSON.stringify(data))
-    return this.nativeService.callCategoryFunction('GetAttributeInfo',country, categoryId, isNewOpen, tableType,isMandatoryAttr)
+    return this.nativeService.callCategoryFunction('GetAttributeInfo', country, categoryId, isNewOpen, tableType, isMandatoryAttr)
   }
 
   /**
@@ -554,8 +562,8 @@ export default class CommodityService {
    * @param list 数组
    * @param isNative shopee 1 皮皮虾 2
    */
-  uploadCateGoryAttr(list,isNative = "1") {
-    return this.nativeService.callCategoryFunction('UploadCateGoryAttr',JSON.stringify(list),isNative )
+  uploadCateGoryAttr(list, isNative = '1') {
+    return this.nativeService.callCategoryFunction('UploadCateGoryAttr', JSON.stringify(list), isNative)
   }
 
   /**
@@ -709,6 +717,7 @@ export default class CommodityService {
    *}
    */
   searchShopeeHotGoods(data) {
+    console.log('*-**-', data)
     return this.nativeService.callDianBaShopeeInfo('SearchShopeeHotGoods'
       , data.page, data.page_size, data.platform_id, data.cat_id, data.level, data.price, data.month_sales,
       data.increment_like_count, data.increment_item_rating, data.location, data.shopType, data.sortBy)
@@ -743,6 +752,19 @@ export default class CommodityService {
    */
   deleteDannedWord(data) {
     return this.nativeService.callCategoryFunction('DeleteDannedWord', data.toString())
+  }
+
+  /**
+   * 获取类目
+   * @param {array} data
+   * data[0]:country站点
+   * data[1]:categoryId类目id
+   * data[2]:isParent 类目的父级标识：1传入的类目作为父级查询；0当前类目查询
+   * data[3]: 'tbCategory'
+   */
+  getCategory(data) {
+    // console.log(JSON.stringify(data))
+    return this.nativeService.callCategoryFunction('GetCategoryInfo', data[0] + '', data[1] + '', data[2] + '', data[3])
   }
 
   /**

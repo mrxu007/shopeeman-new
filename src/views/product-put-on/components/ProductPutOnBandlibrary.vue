@@ -2,27 +2,27 @@
   <div class="contaniner">
     <div class="operation">
       <div class="o-item">
-        <span>站点：</span>
-        <el-select v-model="form.site" class="unnormal" placeholder="" size="mini" filterable>
+        <span style="white-space: nowrap">站点：</span>
+        <el-select v-model="form.site" class="unnormal" placeholder="" size="mini" filterable style="width:100px">
           <el-option label="全部" :value="''" />
           <el-option v-for="(item, index) in countries" :key="index" :label="item.label" :value="item.value" />
         </el-select>
       </div>
       <div class="o-item">
         <span style="min-width:84px">关键字类别：</span>
-        <el-select v-model="form.type" placeholder="" size="mini" filterable>
+        <el-select v-model="form.type" placeholder="" size="mini" filterable style="width:100px">
           <el-option v-for="(item, index) in typeList" :key="index" :label="item.label" :value="item.value" />
         </el-select>
       </div>
       <div class="o-item">
         <span style="min-width:57px">词来源：</span>
-        <el-select v-model="form.source" placeholder="" size="mini" filterable>
+        <el-select v-model="form.source" placeholder="" size="mini" filterable style="width:100px">
           <el-option v-for="(item, index) in sourceList" :key="index" :label="item.label" :value="item.value" />
         </el-select>
       </div>
       <div class="o-item">
         <span style="min-width:57px">关键词：</span>
-        <el-input v-model="form.keyWord" size="mini" placeholder="请输入关键词" clearable oninput="value=value.replace(/\s+/g,'')" />
+        <el-input v-model="form.keyWord" size="mini" placeholder="请输入关键词" style="width:130px" clearable oninput="value=value.replace(/\s+/g,'')" />
       </div>
       <div class="o-item">
         <el-button
@@ -36,10 +36,9 @@
         <el-button type="primary" size="mini" @click="batchDelete()">批量删除</el-button>
         <el-button type="primary" size="mini" @click="dialogBanWordVisible= true"> 批量导入 </el-button>
         <el-button type="primary" size="mini" @click="exportSearch()">导出数据</el-button>
+        <el-checkbox v-model="showConsole" style="margin-left:10px">隐藏日志</el-checkbox>
       </div>
-      <div class="o-item">
-        <el-checkbox v-model="showConsole">隐藏日志</el-checkbox>
-      </div>
+      <div class="o-item" />
     </div>
     <div class="table-content">
       <el-table
@@ -53,18 +52,33 @@
         }"
         @selection-change="handleSelectionChange"
       >
-        <el-table-column type="index" align="center" label="序号" min-width="50">
+        <el-table-column type="index" align="center" label="序号" min-width="50" fixed>
           <template slot-scope="scope">
             {{ scope.$index + 1 }}
           </template>
         </el-table-column>
         <el-table-column type="selection" align="center" min-width="55" />
-        <el-table-column prop="country" align="center" label="站点" min-width="80" />
-        <el-table-column prop="uid" align="center" label="词来源" min-width="80" />
-        <el-table-column prop="type" align="center" label="词类型" min-width="80" />
+        <el-table-column prop="country" align="center" label="站点" min-width="80">
+          <template slot-scope="{row}">
+            {{ row.country|chineseSite }}
+          </template>
+        </el-table-column>
+        <el-table-column prop="uid" align="center" label="词来源" min-width="80">
+          <template slot-scope="{row}">
+            {{ row.uid === 0 ? '系统' : '用户' }}
+          </template>
+        </el-table-column>
+        <el-table-column prop="type" align="center" label="词类型" min-width="80">
+          <template slot-scope="{row}">
+            {{ row.type?typeReObj[row.type]:'' }}
+          </template>
+        </el-table-column>
         <el-table-column prop="word" align="center" show-overflow-tooltip label="关键词" min-width="180" />
-        <el-table-column prop="created_at" align="center" show-overflow-tooltip label="添加时间" min-width="100" />
-
+        <el-table-column prop="created_at" align="center" show-overflow-tooltip label="添加时间" min-width="100">
+          <template slot-scope="{row}">
+            {{ row.created_at?row.created_at.replace('T', ' ').replace('Z', ''):'' }}
+          </template>
+        </el-table-column>
       </el-table>
     </div>
     <div class="pagination">
@@ -87,7 +101,7 @@
         @close="dialogClose"
       >
         <span>
-          <el-form label-position="right" label-width="80px">
+          <el-form label-position="right" label-width="80px" style="margin-left:-30px">
             <el-form-item label="站点:">
               <el-select v-model="dialogSite" class="unnormal" placeholder="" size="mini" filterable>
                 <el-option v-for="(item, index) in countries" :key="index" :label="item.label" :value="item.value" />
@@ -99,11 +113,11 @@
               </el-select>
             </el-form-item>
             <el-form-item label="关键词:">
-              <el-input v-model="dialogkeyWord" size="mini" placeholder="请输入关键词" clearable oninput="value=value.replace(/\s+/g,'')" />
+              <el-input v-model="dialogkeyWord" style="width:180px" size="mini" placeholder="请输入关键词" clearable oninput="value=value.replace(/\s+/g,'')" />
             </el-form-item>
             <el-form-item>
-              <el-button style="margin-right:20px" size="mini" type="primary" @click="addBannedWord()">确 定</el-button>
-              <el-button type="primary" size="mini" @click="dialogVisible = false">取 消</el-button>
+              <el-button style="margin-left:-10px" size="mini" type="primary" @click="addBannedWord()">确 定</el-button>
+              <el-button style="margin-left:20px" type="primary" size="mini" @click="dialogVisible = false">取 消</el-button>
             </el-form-item>
           </el-form>
         </span>
@@ -181,6 +195,11 @@ export default {
         '品牌词': '2',
         '违规词': '3'
       },
+      typeReObj: {
+        1: '禁运词',
+        2: '品牌词',
+        3: '违规词'
+      },
       tableData: [] // 表格数据
     }
   },
@@ -190,32 +209,31 @@ export default {
   methods: {
     // 导出excel
     async exportSearch() {
+      if (this.total === 0) return this.$message('暂无导出数据')
       this.isloading = true
       const data = []
-      const len = this.total % 10 === 0 ? (this.total / 10) : (Math.floor(this.total / 10) + 1)
-      for (let index = 1; index <= len; index++) {
-        const parmas = {
-          page: index,
-          word: this.form.keyWord,
-          country: this.form.site,
-          source: Number(this.form.source),
-          type: Number(this.form.type)
-        }
+      const parmas = {
+        page: 1,
+        word: this.form.keyWord,
+        country: this.form.site,
+        source: Number(this.form.source),
+        type: Number(this.form.type),
+        pageSize: this.pageSize
+      }
+      while (data.length < this.total) {
         try {
           const res = await this.$commodityService.getBannedWordList(parmas)
           const jsonData = JSON.parse(res).data.data
           jsonData.forEach(item => {
             data.push(item)
           })
+          parmas.page++
         } catch (error) {
           console.log(error)
+          this.$message.error('导出数据错误')
+          this.isloading = false
+          break
         }
-      }
-      this.isloading = false
-      if (!data?.length) {
-        this.isloading = false
-        this.$message('暂无导出数据')
-        return
       }
       let str =
       `<tr>
@@ -226,33 +244,30 @@ export default {
           <td>添加时间</td>
       </tr>`
       data.forEach((item) => {
-        item.created_at = item.created_at.replace('T', ' ').replace('Z', '')
-        item.country = this.$filters.chineseSite(item.country)
-        item.uid = item.uid === 0 ? '系统' : '用户'
-        if (item.type === 2) {
-          item.type = '品牌词'
-        } else if (item.type === 3) {
-          item.type = '违规词'
-        } else {
-          item.type = '禁运词'
-        }
         str += `<tr>
-        <td>${item.country ? item.country : '' + '\t'}</td>
-        <td>${item.uid ? item.uid : '' + '\t'}</td>
-        <td>${item.type ? item.type : '' + '\t'}</td>
+        <td>${item.country ? this.$filters.chineseSite(item.country) : '' + '\t'}</td>
+        <td>${item.uid === 0 ? '系统' : '用户' + '\t'}</td>
+        <td>${item.type ? this.typeReObj[item.type] : '' + '\t'}</td>
         <td>${item.word ? item.word : '' + '\t'}</td>
-        <td>${item.created_at ? item.created_at : '' + '\t'}</td>
+        <td>${item.created_at ? item.created_at.replace('T', ' ').replace('Z', '') : '' + '\t'}</td>
         </tr>`
       })
       exportExcelDataCommon('品牌词库', str)
+      this.isloading = false
     },
     // 批量删除
     async batchDelete() {
       if (this.multipleSelection.length <= 0) return this.$message('请选择要删除的数据')
       for (let index = 0; index < this.multipleSelection.length; index++) {
         const element = this.multipleSelection[index]
+        if (element.uid === 0) {
+          // row.uid === 0 ? '系统' : '用户'
+          this.$refs.Logs.writeLog(`违规词来源【系统】不可删除`, true)
+          continue
+        }
         const res = await this.$commodityService.deleteDannedWord(element.id)
         const jsonData = JSON.parse(res)
+        console.log('---', jsonData)
         if (jsonData.code === 200) {
           this.$refs.Logs.writeLog(`违规词【${element.word}】删除成功`, true)
         } else {
@@ -387,20 +402,6 @@ export default {
         console.log('tableData', jsonData)
         if (jsonData.code === 200) {
           this.tableData = jsonData.data.data
-          if (this.tableData) {
-            this.tableData.map(item => {
-              item.created_at = item.created_at.replace('T', ' ').replace('Z', '')
-              item.country = this.$filters.chineseSite(item.country)
-              item.uid = item.uid === 0 ? '系统' : '用户'
-              if (item.type === 2) {
-                item.type = '品牌词'
-              } else if (item.type === 3) {
-                item.type = '违规词'
-              } else {
-                item.type = '禁运词'
-              }
-            })
-          }
           this.total = jsonData.data.total
           this.isloading = false
         } else {
@@ -471,4 +472,15 @@ export default {
 
 <style lang="less">
 @import '../../../module-less/product-put-less/band-library.less';
+
+.contaniner{
+  min-width: 1280px;
+  .operation{
+      display: flex;
+      height: 40px;
+     .o-item{
+      //  display: flex;
+     }
+  }
+}
 </style>

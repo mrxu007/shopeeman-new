@@ -8,11 +8,14 @@
 -->
 <template>
   <div class="product-put-on-style">
-    <!-- 平台选品库 ：关键词采集、商品链接采集、整店采集、图搜同款、天猫淘宝海外平台采集 -->
+    <!-- 平台选品库 ：关键词采集、商品链接采集、整店采集、图搜同款、天猫淘宝海外平台采集\采集设置 -->
     <main v-if="activeVal === '0'"><ProductPutOnPlatformSelection /></main>
 
     <!-- 平台选品库：采集设置 -->
-    <main v-if="activeVal === '1'"><ProductPutOnSettings /></main>
+    <!-- <main v-if="activeVal === '1'"><ProductPutOnSettings /></main> -->
+
+    <!--爆款选品 -->
+    <main v-if="activeVal === '1'"><ProductPutOnPopularSelection /></main>
 
     <!-- 私有选品库 -->
     <main v-if="activeVal === '2'"><ProductPutOnPersonalLibrary /></main>
@@ -23,33 +26,36 @@
     <!-- 定时刊登 -->
     <main v-if="activeVal === '4'"><ProductPutOnTimerPublish /></main>
 
-    <!--爆款选品 -->
-    <main v-if="activeVal === '5'"><ProductPutOnPopularSelection /></main>
-
     <!--成交价格建议 -->
-    <main v-if="activeVal === '6'"><ProductPutOnHotSuggest /></main>
+    <main v-if="activeVal === '5'"><ProductPutOnHotSuggest /></main>
 
     <!--热搜词推荐 -->
-    <main v-if="activeVal === '7'"><ProductPutOnHotWord /></main>
+    <main v-if="activeVal === '6'"><ProductPutOnHotWord /></main>
 
     <!--上新统计 -->
-    <main v-if="activeVal === '8'"><ProductPutOnStatistics /></main>
+    <main v-if="activeVal === '7'"><ProductPutOnStatistics /></main>
 
     <!--品牌词库 -->
-    <main v-if="activeVal === '9'"><ProductPutOnBandlibrary /></main>
+    <main v-if="activeVal === '8'"><ProductPutOnBandlibrary /></main>
 
     <!--类目黑名单 -->
-    <main v-if="activeVal === '10'"><ProductPutOnCategoryblack /></main>
+    <main v-if="activeVal === '9'"><ProductPutOnCategoryblack /></main>
 
-    <!-- 拼多多选品库 -->
-    <main v-if="activeVal === '11'"><ProductPutOnPddAccount /></main>
+    <!-- 拼多多买手号
+    <main v-if="activeVal === '11'"><ProductPutOnPDD /></main> -->
+
+    <!-- 拼多多买手号 -->
+    <!-- <main v-if="activeVal === '10'"><ProductPutOnPddAccount /></main> -->
+    <!-- 天猫淘宝海外平台 -->
+    <main v-if="activeVal === '11'"><ProductPutOnTaobaoAbroad /></main>
+    <!-- <main v-if="activeVal === '10'"><ProductPutOnCategoryblack /></main> -->
   </div>
 </template>
 
 <script>
 import {
   ProductPutOnPlatformSelection,
-  ProductPutOnSettings,
+  // ProductPutOnSettings,
   ProductPutOnPersonalLibrary,
   ProductPutOnShangxin,
   ProductPutOnTimerPublish,
@@ -59,12 +65,14 @@ import {
   ProductPutOnStatistics,
   ProductPutOnBandlibrary,
   ProductPutOnCategoryblack,
+  // ProductPutOnPDD,
+  ProductPutOnTaobaoAbroad,
   ProductPutOnPddAccount
 } from './index'
 export default {
   components: {
     ProductPutOnPlatformSelection,
-    ProductPutOnSettings,
+    // ProductPutOnSettings,
     ProductPutOnPersonalLibrary,
     ProductPutOnShangxin,
     ProductPutOnTimerPublish,
@@ -74,6 +82,8 @@ export default {
     ProductPutOnStatistics,
     ProductPutOnBandlibrary,
     ProductPutOnCategoryblack,
+    ProductPutOnTaobaoAbroad,
+    // ProductPutOnPDD,
     ProductPutOnPddAccount
 
   },

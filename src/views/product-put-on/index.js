@@ -1,8 +1,8 @@
-// 平台选品库 ：关键词采集、商品链接采集、整店采集、图搜同款、天猫淘宝海外平台采集
+// 平台选品库 ：关键词采集、商品链接采集、整店采集、图搜同款、天猫淘宝海外平台采集  采集设置
 const ProductPutOnPlatformSelection = () => import('./components/ProductPutOnPlatformSelection.vue')
 
 // 平台选品库：采集设置
-const ProductPutOnSettings = () => import('./components/ProductPutOnSettings.vue')
+// const ProductPutOnSettings = () => import('./components/ProductPutOnSettings.vue')
 
 // 私有选品库
 const ProductPutOnPersonalLibrary = () => import('./components/ProductPutOnPersonalLibrary.vue')
@@ -30,14 +30,17 @@ const ProductPutOnBandlibrary = () => import('./components/ProductPutOnBandlibra
 
 // 类目黑名单
 const ProductPutOnCategoryblack = () => import('./components/ProductPutOnCategoryblack.vue')
-
-// 拼多多选品库
+// const ProductPutOnPDD = () => import('./components/ProductPutOnPDD.vue')
+// 拼多多买手号
 const ProductPutOnPddAccount = () => import('./components/ProductPutOnPddAccount.vue')
+
+// 天猫淘宝海外平台
+const ProductPutOnTaobaoAbroad = () => import('./components/ProductPutOnTaobaoAbroad.vue')
 
 // 导出
 export {
   ProductPutOnPlatformSelection,
-  ProductPutOnSettings,
+  // ProductPutOnSettings,
   ProductPutOnPersonalLibrary,
   ProductPutOnShangxin,
   ProductPutOnTimerPublish,
@@ -47,5 +50,7 @@ export {
   ProductPutOnStatistics,
   ProductPutOnBandlibrary,
   ProductPutOnCategoryblack,
+  ProductPutOnTaobaoAbroad,
+  // ProductPutOnPDD,
   ProductPutOnPddAccount
 }

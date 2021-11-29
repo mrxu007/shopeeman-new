@@ -28,7 +28,6 @@
 
 <script>
 import MallListAPI from '../module-api/mall-manager-api/mall-list-api'
-
 export default {
   name: 'Storechoosemall',
   props: {
@@ -189,8 +188,10 @@ export default {
         }
       })
       if (this.source) {
+        mallList['country'] = this.countryVal
         this.$emit('changeMallList', { mallList: mallList, source: this.source })
       } else {
+        mallList['country'] = this.countryVal
         this.$emit('changeMallList', mallList)
       }
     }

@@ -1,736 +1,600 @@
 <template>
-  <el-row class="contaniner">
-    <el-row class="header">
-      <ul style="margin-bottom: 10px">
-        <li>
-          <span>包裹签收时间：</span>
-          <el-date-picker
-            v-model="form.signingTime"
-            unlink-panels
-            size="mini"
-            type="datetimerange"
-            range-separator="至"
-            start-placeholder="开始日期"
-            end-placeholder="结束日期"
-          />
-        </li>
-        <li>
-          <span>申请退件时间：</span>
-          <el-date-picker
-            v-model="form.applyReturnTime"
-            unlink-panels
-            size="mini"
-            type="datetimerange"
-            range-separator="至"
-            start-placeholder="开始日期"
-            end-placeholder="结束日期"
-          />
-        </li>
-      </ul>
-      <ul>
-        <li>
-          <span>包裹状态：</span>
-          <el-select
-            v-model="form.packageStatus"
-            placeholder=""
-            size="mini"
-            filterable
-          >
-            <el-option
-              label="全部"
-              :value="0"
-            />
-            <el-option
-              v-for="(item, index) in packageStatusList"
-              :key="index"
-              :label="item.label"
-              :value="item.value"
-            />
-          </el-select>
-        </li>
-        <li>
-          <span>订单编号：</span>
-          <el-input
-            v-model="form.orderNum"
-            clearable
-            size="mini"
-            oninput="value=value.replace(/\s+/g,'')"
-          />
-        </li>
-        <li>
-          <span>包裹物流编号：</span>
-          <el-input
-            v-model="form.logisticsNum"
-            clearable
-            size="mini"
-            oninput="value=value.replace(/\s+/g,'')"
-          />
-        </li>
-        <li>
-          <el-button
-            type="primary"
-            size="mini"
-            :disabled="cancelLoading"
-            @click="
-              page =1
-              getSignPackageList()"
-          >查询</el-button>
-          <el-button
-            type="primary"
-            size="mini"
-            :disabled="cancelLoading"
-            @click="returnParts(multipleSelection)"
-          >批量申请退件</el-button>
-          <el-button
-            type="primary"
-            size="mini"
-            :loading="cancelLoading"
-            @click="cancelReturn(multipleSelection)"
-          >批量取消退件</el-button>
-        </li>
-      </ul>
-    </el-row>
-    <el-row id="article">
+  <div v-loading="loading" class="detail">
+    <div class="conditon">
+      <!-- row1 -->
+      <div class="row">
+        <GoodsChoose @getmall="getmall" />
+        <el-button style="margin-left:8px" size="mini" type="primary" :loading="searchLoading" @click="search">搜 索</el-button>
+        <el-button size="mini" type="primary">刷新</el-button>
+      </div>
+      <!-- row2 -->
+      <div class="row">
+        <div style="display:flex;align-items: baseline;margin-left: 19px;margin-right: 10px;">
+          <label style="width: 80px;">分类名称：</label> <el-input v-model="addtypeName" size="mini" />
+        </div>
+        <el-button size="mini" type="primary" @click="addCatorgry">添加</el-button>
+        <el-button size="mini" type="primary" @click="delCategory('2',null)">批量删除</el-button>
+        <el-button size="mini" type="primary" @click="startShow('start')">批量开启知名度</el-button>
+        <el-button size="mini" type="primary" @click="startShow('close')">批量关闭知名度</el-button>
+      </div>
+    </div>
+
+    <div class="tableDetail">
       <el-table
-        ref="plTable"
-        v-loading="isShowLoading"
-        height="calc(100vh - 205px)"
-        :data="tableData"
-        :header-cell-style="{
-          backgroundColor: '#f5f7fa',
-        }"
+        height="calc(100vh - 70px)"
+        :data="tableList_master"
+        :header-cell-style="{ background: '#f7fafa' }"
         @selection-change="handleSelectionChange"
       >
-        <el-table-column
-          align="center"
-          type="selection"
-          width="50"
-          fixed
-        />
-        <el-table-column
-          align="center"
-          type="index"
-          label="序号"
-          fixed
-        />
-        <el-table-column
-          prop="package_code"
-          label="包裹物流单号"
-          width="150"
-          fixed
-        >
-          <template slot-scope="{ row }">
-            <span>
-              {{ row.package_code }}
-              <span
-                v-if="row.package_code"
-                class="copyIcon"
-                @click="copy(row.package_code)"
-              ><i class="el-icon-document-copy" /></span>
-            </span>
-          </template>
+        <el-table-column type="selection" width="55" fixed />
+        <el-table-column prop="name" label="分类名称" align="center" min-width="100px" fixed />
+        <el-table-column prop="id" label="分类名称ID" align="center" min-width="100px" />
+        <el-table-column prop="type" label="属性" align="center" min-width="100px">
+          <template slot-scope="{ row }"><div>{{ row.type==="customized"?'自定义':row.type==='on_sale'?'Shopee|促销中':'Shopee|新上架' }}</div></template>
         </el-table-column>
-        <el-table-column
-          prop="order_sn"
-          label="订单编号"
-          width="180"
-        >
-          <template slot-scope="{ row }">
-            <span>
-              {{ row.order_sn }}
-              <span
-                v-if="row.order_sn"
-                class="copyIcon"
-                @click="copy(row.order_sn)"
-              ><i class="el-icon-document-copy" />
-              </span></span>
-          </template>
+        <el-table-column prop="product_count" label="商品数量" align="center" min-width="100px" />
+        <el-table-column prop="status" label="知名度" align="center" min-width="100px">
+          <!-- 根据商品数量进行操作，数量为0不能开启 -->
+          <template slot-scope="scope"><div><el-switch v-model="scope.row.isShow" :disabled="scope.row.product_count===0" @change="changeShow(scope.row,scope.$index)" /></div></template>
         </el-table-column>
-        <el-table-column
-          prop="variation_sku"
-          label="商品规格"
-          width="120"
-        />
-        <el-table-column
-          prop="warehouse_name"
-          label="签收仓库"
-          width="130"
-        />
-        <el-table-column
-          prop="package_time"
-          label="签收时间"
-          width="110"
-        />
-        <el-table-column
-          prop="status"
-          label="状态"
-        >
-          <template slot-scope="{ row }">
-            <span v-if="row.status === 1">已签收</span>
-            <span v-else-if="row.status === 2">已经拒收</span>
-            <span v-else-if="row.status === 3">匹配不到订单包</span>
-            <span v-else-if="row.status === 4">包裹已销毁</span>
-            <span v-else-if="row.status === 5">包裹丢件</span>
-            <span v-else-if="row.status === 6">申请退件</span>
-            <span v-else-if="row.status === 7">已退件</span>
-            <span v-else />
-          </template>
-        </el-table-column>
-        <el-table-column
-          prop="package_image"
-          label="签收图片"
-          width="120px"
-          align="center"
-        >
-          <template slot-scope="{ row }">
-            <el-tooltip
-              v-if="row.package_image"
-              effect="light"
-              placement="right-end"
-              :visible-arrow="false"
-              :enterable="false"
-              style="width: 50px; height: 50px"
-            >
-              <div slot="content">
-                <img
-                  :src="row.package_image"
-                  width="300px"
-                  height="300px"
-                >
-              </div>
-              <el-image
-                :src="row.package_image"
-                alt=""
-              >
-                <div slot="error" class="image-slot" />
-              </el-image>
-            </el-tooltip>
-          </template>
-        </el-table-column>
-        <el-table-column
-          label="退件信息"
-          width="100"
-          align="center"
-        >
-          <template slot-scope="{ row }">
-            <el-button
-              v-if="row.isApplyReturn === 2"
-              type="primary"
-              size="mini"
-              @click="getReturnInfo(row)"
-            >查看</el-button>
-          </template>
-        </el-table-column>
-        <el-table-column
-          prop="appli_return_time"
-          label="申请退件时间"
-          width="110"
-        />
-        <el-table-column
-          prop="return_shipping_number"
-          label="退件物流单号"
-          width="130"
-        />
-        <el-table-column
-          prop="return_time"
-          label="退件时间"
-          width="100"
-        />
-        <el-table-column
-          prop="return_shipping_name"
-          label="退件物流公司"
-          width="180"
-        />
-        <el-table-column
-          label="操作"
-          width="100px"
-          fixed="right"
-          align="center"
-        >
-          <template slot-scope="{ row }">
-            <el-button
-              v-if="row.isApplyReturn === 1"
-              :disabled="cancelLoading"
-              type="primary"
-              size="mini"
-              @click="returnParts(row)"
-            >退件</el-button>
-            <el-button
-              v-if="row.isApplyReturn === 2"
-              :disabled="cancelLoading"
-              type="primary"
-              size="mini"
-              @click="cancelReturn(row)"
-            >取消退件</el-button>
+        <el-table-column prop="" label="操作" align="center" min-width="100px">
+          <template slot-scope="{row}">
+            <div style="display: flex;">
+              <!-- 商品数量>0时 -->
+              <el-button v-if=" row.product_count>0" size="mini" type="primary" @click="checkDetail">查看详情</el-button>
+              <!-- 商品数量=0时 -->
+              <el-button v-if=" row.product_count===0" size="mini" type="primary" @click="addGoods">添加商品</el-button>
+              <!-- 属性为自定义时 -->
+              <el-button v-if="row.type=='customized'" size="mini" type="primary" @click.native="delCategory('1',row)">删除</el-button>
+            </div>
           </template>
         </el-table-column>
       </el-table>
-      <div class="pagination">
-        <el-pagination
-          background
-          :current-page="page"
-          :page-sizes="[30, 50, 100]"
-          :page-size="pageSize"
-          layout="total, sizes, prev, pager, next, jumper"
-          :total="total"
-          @size-change="handleSizeChange"
-          @current-change="handleCurrentChange"
-        />
-      </div>
-    </el-row>
-    <el-dialog
-      class="dialog"
-      title="填写退件信息"
-      :close-on-click-modal="false"
-      :visible.sync="returnMsgDialog"
-      width="400px"
-      :close-on-press-escape="false"
-      :show-close="!isButLoading"
-      @close="handleClose"
-    >
-      <el-form label-position="right" label-width="80px">
-        <el-form-item label="收件人">
-          <el-input
-            v-model="returnMsg.returnContact"
-            clearable
-            placeholder="请填写收件人"
-            size="mini"
-            oninput="value=value.replace(/\s+/g,'')"
-          />
-        </el-form-item>
-        <el-form-item label="联系电话">
-          <el-input
-            v-model="returnMsg.returnPhoneNumber"
-            clearable
-            placeholder="请填写联系电话"
-            size="mini"
-            oninput="value=value.replace(/\s+/g,'')"
-          />
-        </el-form-item>
-        <el-form-item label="退件地区">
-          <el-cascader
-            ref="refTbCate"
-            v-model="applyRegion"
-            :props="props"
-            size="mini"
-            @change="targetCate"
-          />
-        </el-form-item>
-        <el-form-item label="详细地址">
-          <el-input
-            v-model="returnMsg.returnAddress"
-            type="textarea"
-            placeholder="请填写详细地址"
-            size="mini"
-            oninput="value=value.replace(/\s+/g,'')"
-          />
-        </el-form-item>
-        <div v-if="isOverseas">
-          <p style="color: red">shoppe平台包裹：上传平台返回的退件包裹二维码</p>
-          <p style="color: red">Lazada平台包裹：上传平台返回的退件包裹PDF文件</p>
-          <el-form-item label="包裹文件">
-            <div style="display: flex">
-              <div>
-                <el-button
-                  :loading="upFileLiadding"
-                  type="primary"
-                  size="mini"
-                  @click="reupload"
-                >
-                  <i class="el-icon-upload el-icon--right"> 上传文件 </i>
-                </el-button>
-              </div>
-              <div class="img-box" style="width: 40px; height: 40px; margin-left:5px">
-                <img
-                  :src="returnMsg.returnFile"
-                  alt=""
-                  width="40px"
-                  height="40px"
-                >
-              </div>
-            </div>
-          </el-form-item>
-        </div>
-        <el-form-item label="退件备注">
-          <el-input
-            v-model="returnMsg.returnRemarks"
-            type="textarea"
-            size="mini"
-            placeholder="请填写退件备注"
-            oninput="value=value.replace(/\s+/g,'')"
-          />
-        </el-form-item>
-      </el-form>
-      <div style="text-align: center">
-        <el-button
-          :loading="isButLoading"
-          type="primary"
-          size="mini"
-          style="width: 100px"
-          @click="saveReturnMsg"
-        >保存</el-button>
-      </div>
-    </el-dialog>
-    <!--退件详情-->
-    <el-dialog class="dialog" title="退件详情" :close-on-click-modal="false" :visible.sync="returnInfoDialog" width="400px" @close="handleClose">
-      <el-form label-position="right" label-width="100px">
-        <el-form-item label="退件人">
-          <el-input
-            v-model="returnInfoVal.return_contact"
-            size="mini"
-          />
-        </el-form-item>
-        <el-form-item label="退件电话">
-          <el-input
-            v-model="returnInfoVal.return_phone_number"
-            size="mini"
-          />
-        </el-form-item>
-        <el-form-item label="退件金额">
-          <el-input
-            v-model="returnInfoVal.return_amount"
-            size="mini"
-          />
-        </el-form-item>
-        <el-form-item label="退件物流单号">
-          <el-input
-            v-model="returnInfoVal.return_shipping_number"
-            size="mini"
-          />
-        </el-form-item>
-        <el-form-item label="退件物流公司">
-          <el-input
-            v-model="returnInfoVal.return_shipping_name"
-            size="mini"
-          />
-        </el-form-item>
-        <el-form-item label="退件地址">
-          <el-input
-            v-model="returnInfoVal.return_address"
-            type="textarea"
-            size="mini"
-          />
-        </el-form-item>
-        <el-form-item label="退件备注">
-          <el-input
-            v-model="returnInfoVal.return_remarks"
-            type="textarea"
-            size="mini"
-          />
-        </el-form-item>
-      </el-form>
-    </el-dialog>
-    <div class="logging">
-      <Logs ref="Logs" v-model="showConsole" clear />
     </div>
-  </el-row>
-</template>
+    <!-- 查看详情 -->
+    <el-dialog
+      title="编辑分类"
+      :visible.sync="dialogVisible_detail"
+      width="1000px"
+      top="5vh"
+      class="dialogVisible_detail"
+      @closed="clearDialog"
+    >
+      <div class="detail_conditon" style="display:flex;align-items: center;">
+        <div style="display:flex;align-items: baseline;margin-right: 10px;">
+          <label style="width: 80px;">分类名称：</label> <el-input v-model="uptypeName" size="mini" />
+        </div>
+        <el-button size="mini" type="primary">重新命名</el-button>
+        <el-button size="mini" type="primary" @click="dialogVisible_addGoods=true">添加商品</el-button>
+        <el-button size="mini" type="primary">批量删除</el-button>
+        <!-- 选中行 isshow=true -->
+        <!-- <span style="margin: 4px;">次分类目前已在shoppe页面展示</span> -->
+        <!-- 选中行 isshow=false -->
+        <span style="margin: 4px;">点选显示，让买家看到此分类</span>
+        <el-switch v-model="isShow_master" active-color="#13ce66" inactive-color="#ff4949" />
+      </div>
+      <div class="detail_table">
+        <el-table
+          :data="tableList_detail"
+          height="calc(100vh - 202px)"
+          :header-cell-style="{ background: '#f7fafa' }"
+          @selection-change="handleSelectionChange"
+        >
+          <el-table-column type="selection" width="55" fixed />
+          <el-table-column prop="" label="商品ID" align="center" min-width="100px" fixed />
+          <el-table-column prop="" label="商品图片" align="center" min-width="100px" />
+          <el-table-column prop="" label="标题" align="center" min-width="100px" />
+          <el-table-column prop="" label="价格" align="center" min-width="100px" />
+          <el-table-column prop="" label="数量" align="center" min-width="100px" />
+          <el-table-column prop="" label="操作" align="center" min-width="100px">
+            <template>
+              <div>
+                <el-button size="mini" type="primary">删除</el-button>
+              </div>
+            </template>
+          </el-table-column>
+        </el-table>
+      </div>
+    </el-dialog>
 
+    <!-- 添加商品 -->
+    <el-dialog
+      title="添加商品"
+      :visible.sync="dialogVisible_addGoods"
+      width="1100px"
+      top="5vh"
+      class="dialogVisible_add"
+      @closed="clearDialog"
+    >
+      <div class="detail_conditon" style="display:flex;flex-wrap: wrap;">
+        <!-- row1 -->
+        <div class="row">
+          <category-choose ref="goodsCategory" :level="3" :is-select="true" @setCategory="setCategory" />
+        </div>
+        <!-- row2 -->
+        <div class="row">
+          <div>
+            <el-select v-model="add_query.searchType" style="width:100px" size="mini">
+              <el-option label="关键字" value="1" />
+              <el-option label="商品编号" value="2" />
+            </el-select>
+            <el-input v-model="add_query.searchContent" size="mini" style="width:115px" clearable />
+          </div>
+
+          <!-- <div style="margin-left: 33px">
+            <label>排序：</label>
+            <el-select v-model="orderType" style="width:180px;" size="mini">
+              <el-option label="默认排序" value="1" />
+              <el-option label="销量从低往高" value="2" />
+              <el-option label="销量从高往低" value="3" />
+              <el-option label="价格从低往高" value="4" />
+              <el-option label="价格从高往低" value="5" />
+            </el-select>
+          </div> -->
+
+          <div style="margin-left: 8px;">
+            <label>价格区间：</label>
+            <el-input v-model="add_query.price_min" onkeyup="value=value.replace(/[^\d]/g,0)" size="mini" style="width:84px" clearable />
+            -
+            <el-input v-model="add_query.price_max" onkeyup="value=value.replace(/[^\d]/g,0)" size="mini" style="width:84px" clearable />
+          </div>
+
+          <el-checkbox v-model="showfit" style="margin-left: 8px;">仅显示适用商品</el-checkbox>
+          <el-checkbox v-model="showlog" style="margin-left:-18px;">隐藏日志</el-checkbox>
+        </div>
+        <!-- row3 -->
+        <div class="row" style="align-items: center;">
+          <div>
+            <label>商品库存：</label>
+            <el-input v-model="add_query.stock_min" onkeyup="value=value.replace(/[^\d]/g,0)" size="mini" style="width:84px" clearable />
+            -
+            <el-input v-model="add_query.stock_max" onkeyup="value=value.replace(/[^\d]/g,0)" size="mini" style="width:84px" clearable />
+          </div>
+
+          <div style="margin-left: 8px;">
+            <label>过滤商品编号：</label>
+            <el-input v-model="mall_goodsID" onkeyup="value=value.replace(/[^\d]/g,0)" size="mini" style="width:180px" clearable />
+          </div>
+
+          <div style="margin-left: 8px;">
+            <label>销量区间：</label>
+            <el-input v-model="add_query.sale_min" onkeyup="value=value.replace(/[^\d]/g,0)" size="mini" style="width:84px" clearable />
+            -
+            <el-input v-model="add_query.sale_max" onkeyup="value=value.replace(/[^\d]/g,0)" size="mini" style="width:84px" clearable />
+          </div>
+
+          <el-button size="mini" type="primary" style="margin-left: 8px;" @click="search_addGoods">查询商品</el-button>
+          <el-button size="mini" type="primary">取消操作</el-button>
+          <el-button size="mini" type="primary">添加已选商品</el-button>
+
+        </div>
+
+      </div>
+      <div class="detail_table">
+        <el-table
+          v-loading="loading_table"
+          :data="tableList_add"
+          height="calc(100vh - 353px)"
+          :header-cell-style="{ background: '#f7fafa' }"
+          @selection-change="handleSelectionChange"
+        >
+          <el-table-column type="selection" width="55" fixed />
+          <el-table-column prop="mallinfo.mallName" label="店铺名称" align="center" min-width="100px" fixed>
+            <template><span>{{ mallinfo.mallName }}</span></template></el-table-column>
+          <el-table-column prop="categoryName" label="类目" align="center" min-width="100px" />
+          <el-table-column prop="" label="主图" align="center" min-width="100px">
+            <template slot-scope="scope">
+              <el-tooltip effect="light" placement="right-end" :visible-arrow="false" :enterable="false" style="width: 56px; height: 56px; display: inline-block">
+                <div slot="content">
+                  <el-image :src="[mallinfo.country, scope.row.id, scope.row.images[0]] | imageRender" style="width: 200px; height: 200px" />
+                </div>
+                <el-image :src="[mallinfo.country, scope.row.id, scope.row.images[0]] | imageRender" style="width: 56px; height: 56px" />
+              </el-tooltip>
+            </template>
+          </el-table-column>
+          <el-table-column prop="id" label="商品ID" align="center" min-width="100px" />
+          <el-table-column prop="name" label="商品标题" align="center" min-width="100px" />
+          <el-table-column prop="totalStock" label="库存" sortable align="center" min-width="100px" />
+          <el-table-column prop="totSale" label="销量" sortable align="center" min-width="100px" />
+          <el-table-column prop="minprice" label="价格" sortable align="center" min-width="100px" />
+        </el-table>
+        <div class="pagination" style="margin-left: 476px; margin-top: 10px;">
+          <el-pagination
+            :current-page.sync="add_query.page"
+            :page-sizes="[20, 50, 100, 200]"
+            :page-size="add_query.pageSize"
+            :pager-count="5"
+            layout="total, sizes, prev, pager, next, jumper"
+            :total="total"
+            @size-change="handleSizeChange"
+            @current-change="handleCurrentChange"
+          />
+        </div>
+      </div>
+    </el-dialog>
+  </div>
+</template>
 <script>
+import GoodsChoose from '../../../components/goods-choose.vue'
+import categoryChoose from '../../../components/category-choose.vue'
+import GoodsManagerAPI from '../../../module-api/goods-manager-api/goods-data'
+import { GoodsMallgetValue, getMalls } from '../../../util/util'
 export default {
+  components: {
+    GoodsChoose,
+    categoryChoose
+  },
   data() {
     return {
-      isOverseas: false, // 是否国外仓
-      showConsole: true,
-      applyRegion: [], // 退件地址
-      selectAddress: { // 选择地址
-        province: '',
-        city: '',
-        area: '',
-        address: ''
+      selectList: [],
+      loading: false,
+      loading_table: false,
+      searchLoading: false,
+      mallinfo: '', // 店铺信息
+      GoodsManagerAPIInstance: new GoodsManagerAPI(this),
+      mall_goodsID: '', // 过滤商品编号
+      showlog: false, // 显示日志
+      showfit: false, // 适用商品
+      orderType: '1', // 排序
+      tableList_add: [], // 添加商品列表
+      dialogVisible_addGoods: false, // 添加商品
+      dialogVisible_detail: false, // 查看详情弹窗
+      tableList_master: [],
+      isShow_master: true, // 是否展示,
+      addtypeName: '', // 添加分类名称
+      uptypeName: '', // 修改分类名称
+      tableList_detail: [], // 编辑分类列表
+      add_query: {
+        searchType: '1', // 添加商品--按商品类别搜索商品
+        // mall_goodsNum: 10, // 每个店铺商品数量
+        stock_max: 9999,
+        stock_min: 0,
+        searchContent: '', // 添加商品--搜索商品
+        sale_min: 0, // 销量区间
+        sale_max: 99999, // 销量区间
+        price_min: 0, // 价格区间
+        price_max: 99999, // 价格区间
+        selcategory_id: '', // dialogVisible_addGoods--搜索
+        pageSize: 20, // dialogVisible_addGoods--分页
+        page: 1, // dialogVisible_addGoods--分页
+        cursor: ''
       },
-      returnMsg: { // 退件信息
-        lists: [],
-        returnContact: '',
-        returnPhoneNumber: '',
-        returnAddress: '',
-        returnRemarks: '',
-        returnFile: ''
-      },
-      returnInfoVal: { // 退件详情
-        return_contact: '',
-        return_phone_number: '',
-        return_amount: '',
-        return_shipping_number: '',
-        return_shipping_name: '',
-        return_address: '',
-        return_remarks: ''
-      },
-      isShowLoading: false,
-      isButLoading: false,
-      cancelLoading: false,
-      upFileLiadding: false,
-      form: {
-        signingTime: [new Date().getTime() - 3600 * 1000 * 24 * 7, new Date()], // 包裹签收时间
-        applyReturnTime: '', // 申请退件时间
-        packageStatus: 0, // 包裹状态
-        orderNum: '', // 订单编号
-        logisticsNum: '' // 包裹物流编号
-      },
-      total: 0,
-      pageSize: 30,
-      page: 1,
-      tableData: [],
-      packageStatusList: [
-        { value: '1', label: '已签收' },
-        { value: '2', label: '已经拒收' },
-        { value: '3', label: '匹配不到订单包' },
-        { value: '4', label: '包裹已销毁' },
-        { value: '5', label: '包裹丢件' },
-        { value: '6', label: '申请退件' },
-        { value: '7', label: '已退件' }
-      ],
-      returnMsgDialog: false,
-      returnInfoDialog: false, // 退件详情
-      multipleSelection: [],
-      packageCodes: [],
-      props: {
-        lazy: true,
-        that: this,
-        lazyLoad(node, resolve) {
-          const { level } = node
-          setTimeout(async() => {
-            let nodes = []
-            if (level === 0) {
-              const res = await this.that.$BaseUtilService.getPddAddressModel('0')
-              nodes = res.map((item) => {
-                item.label = item.RegionName
-                item.leaf = item.RegionType >= 3
-                item.value = item.RegionId
-                return item
+      total: 0 // dialogVisible_addGoods--分页
+    }
+  },
+  created() {
+  },
+  methods: {
+    // 分页
+    handleSizeChange(val) {
+      this.add_query.pageSize = val
+      // 1 如果条件为空，则走 getaddGoodsList()
+      // 2 不为空，则走 search_addGoods()
+      // if (this.add_query.mall_goodsNum === '' &&
+      //    this.add_query.searchContent === '' &&
+      //    this.add_query.sale_min === '' &&
+      //    this.add_query.sale_max === '' &&
+      //    this.add_query.price_min === '' &&
+      //    this.add_query.price_max === '') {
+      //   this.getaddGoodsList()
+      // } else {
+      //   this.search_addGoods()
+      // }
+      this.search_addGoods()
+    },
+    handleCurrentChange(val) {
+      this.add_query.page = val
+      // 1 如果条件为空，则走 getaddGoodsList()
+      // 2 不为空，则走 search_addGoods()
+      // if (this.add_query.mall_goodsNum === '' &&
+      //    this.add_query.searchContent === '' &&
+      //    this.add_query.sale_min === '' &&
+      //    this.add_query.sale_max === '' &&
+      //    this.add_query.price_min === '' &&
+      //    this.add_query.price_max === '') {
+      //   this.getaddGoodsList()
+      // } else {
+      //   this.search_addGoods()
+      // }
+      this.search_addGoods()
+    },
+    // 获取店铺名称
+    async getinfo() {
+      getMalls().then(res => {
+        this.mallinfo.mallName = GoodsMallgetValue(res, 'label', 'value', this.mallinfo.mallID)
+      })
+    },
+    // 搜索
+    async search() {
+      await this.gettableList()
+    },
+    // 查看详情
+    checkDetail() {
+      this.dialogVisible_detail = true
+      // 1 商品列表获取
+      // 3 添加商品 弹窗显示 添加后的商品与 商品列表同步更新【在1的基础上叠加】
+      // 2 分类名称获取and 重新命名
+      // 4 是否展示知名度 【调用现有功能】 this.$set
+      // 5.展示商品详情 【不勾选】
+      // 6.删除商品 批量删除商品
+      // 7. 更新master商品列表 gettablelist
+    },
+    // 添加商品
+    addGoods() {
+      this.dialogVisible_addGoods = true
+      this.$nextTick(() => {
+        this.$refs.goodsCategory.chageSite(this.mallinfo.country) // 联动dialogVisible_addGoods 品类选择组件
+      })
+      // 0、 获取列表
+      this.search_addGoods()
+      // 1、 添加商品列表展示
+      // 2、检索类目获取，与master站点联动
+      // 3、 查询商品：检索条件 关键字 排序 价格区间 每个店铺商品数量 过滤商品编号 销量区间 ，取消操作
+      // 4、 添加已选商品 最后要刷新列表
+      // 5、 隐藏日志显示
+      // 6、仅显示适用商品 true-- list_type:all false--list_type:live
+    },
+    // 查询商品
+    async search_addGoods() {
+      if (this.add_query.price_max <= 0 || this.add_query.price_max === '' &&
+         this.add_query.price_max === '' &&
+          this.add_query.sale_max <= 0 || this.add_query.sale_max === '' &&
+        this.add_query.sale_min === '') {
+        this.$message.warning('价格区间、销量区间必须是大于0的整数')
+        return
+      }
+      if (this.add_query.stock_min === '' ||
+      this.add_query.stock_max === 0 || this.add_query.stock_max === '') {
+        this.$message.warning('请输入有效库存数量')
+        return
+      }
+      const param = {
+        country: this.mallinfo.country,
+        mallId: this.mallinfo.mallID,
+        search_type: Number(this.add_query.searchType) === 1 ? 'name' : 'id',
+        keyword: this.add_query.searchContent,
+        stock_max: this.add_query.stock_max,
+        stock_min: this.add_query.stock_min,
+        sold_max: this.add_query.sale_max,
+        sold_min: this.add_query.sale_min,
+        category_id: this.add_query.selcategory_id,
+        list_type: this.showfit ? 'live' : 'all',
+        page_number: this.add_query.page,
+        page_size: this.add_query.pageSize,
+        cursor: this.add_query.cursor
+      }
+      console.log('cursor1', this.add_query.cursor)
+      this.loading_table = true
+      const res = await this.GoodsManagerAPIInstance.searchList(param)
+      this.loading_table = false
+      console.log('addtablelist', res)
+      this.tableList_add = []
+      if (res.ecode === 0) {
+        this.add_query.page = res.data.page_info.page_number
+        this.add_query.page_size = res.data.page_info.page_size
+        this.total = res.data.page_info.total
+        this.add_query.cursor = res.data.page_info.cursor
+        console.log('cursor2', this.add_query.cursor)
+        const arr = res.data.list
+        for (let i = 0; i < arr.length; i++) {
+          try {
+            // 获取类目名称'
+            const index = arr[i].category_path.length
+            const categoryID = arr[i].category_path[index - 1]
+            const fes = await window.CommodityBridgeService.callCategoryFunction('GetCategoryInfo', this.mallinfo.country, categoryID.toString(), '0', '')
+            const des = JSON.parse(fes)
+            if (des.code === 200) {
+              arr[i].categoryName = des.data.categories[0].category_name
+              // 获取stock price
+              const modelList = arr[i].model_list
+              let stock = 0
+              let minPrice = 0
+              let sale = 0
+              modelList.forEach((el, index) => {
+                stock = stock + Number(el.stock_info.normal_stock) // 累计库存
+                sale = sale + Number(el.sold) // 累计销量
+                if (index === 0) { // 获取最小价格
+                  minPrice = Number(el.price_info.normal_price)
+                } else {
+                  minPrice = minPrice > Number(el.price_info.normal_price) ? Number(el.price_info.normal_price) : minPrice
+                }
               })
-            } else {
-              const res = await this.that.$BaseUtilService.getPddAddressModel(node.value)
-              nodes = res.map((item) => {
-                item.label = item.RegionName
-                item.leaf = item.RegionType >= 3
-                item.value = item.RegionId
-                return item
-              })
+              arr[i].totalStock = stock
+              arr[i].minprice = minPrice
+              arr[i].totSale = sale
+              arr[i].isSel = false // 默认没有被选
+              this.tableList_add.push(arr[i])
             }
-            // 通过调用resolve将子节点数据返回，通知组件数据加载完成
-            resolve(nodes || [])
-          }, 1000)
+          } catch (error) {
+            console.log('获取类目名称', error)
+            continue
+          }
+        }
+      } else {
+        this.$message.error(res.message)
+      }
+    },
+
+    // 批量开启/关闭知名度
+    async startShow(type) {
+      if (!this.selectList.length) {
+        this.$message.warning('请选择要操作的数据')
+        return
+      }
+      this.loading = true
+      const unlist = [] // 开启失败的店铺
+      try {
+        for (let i = 0; i < this.selectList.length; i++) {
+          if (this.selectList[i].product_count > 0) {
+            const param = {
+              status: type === 'start' ? 'active' : 'inactive', // active开启 inactive关闭
+              id: this.selectList[i].id,
+              country: this.mallinfo.country,
+              mallId: this.mallinfo.mallID
+            }
+            await this.GoodsManagerAPIInstance.updateShopCollection(param).then(res => {
+            })
+          } else {
+            // this.$message.warning(this.selectList[i].name + '数量不足无法开启')
+            unlist.push('【' + this.selectList[i].name + '】')
+            continue
+          }
+        }
+        if (unlist.length > 0) {
+          this.$message.warning(unlist.toString(`、`) + '分组，数量不足无法开启')
+        }
+        this.loading = false
+      } catch (error) {
+        this.$message.error(error)
+        this.loading = false
+      }
+      this.gettableList()
+    },
+    // 删除
+    async delCategory(type, data) {
+      // 1 单行删除 2 多行删除
+      const list = []
+      if (type === '1') {
+        list.push(data)
+      }
+      if (type === '2') {
+        list.push(...this.selectList)
+      }
+      this.loading = true
+      try {
+        for (let i = 0; i < list.length; i++) {
+          const param = {
+            id: list[i].id,
+            country: this.mallinfo.country,
+            mallId: this.mallinfo.mallID
+          }
+          await this.GoodsManagerAPIInstance.delShopCollection(param).then(res => {
+          })
+        }
+        this.loading = true
+      } catch (error) {
+        this.loading = false
+        this.$message.error(error)
+      }
+      this.gettableList()
+    },
+    // 添加分类
+    async addCatorgry() {
+      if (this.addtypeName === '') {
+        this.$message.warning('分类名称不能为空！')
+        return
+      }
+      if (this.mallinfo.mallID === '') {
+        this.$message.warning('店铺不能为空！')
+        return
+      }
+      const params = {
+        country: this.mallinfo.country,
+        mallId: this.mallinfo.mallID,
+        name: this.addtypeName
+      }
+      this.loading = true
+      const res = await this.GoodsManagerAPIInstance.createShopCollection(params)
+      this.loading = false
+      if (res.ecode === 0) {
+        // this.$message.success('添加成功~')
+      } else {
+        this.$message.error(res.message)
+      }
+      this.gettableList()
+      this.addtypeName = ''
+    },
+    // 改变知名度
+    async  changeShow(row, index) {
+      // if (row.product_count < 0) {
+      //   this.$message.warning('商品数量不足，无法开启')
+      //   return
+      // }
+      const param = {
+        status: row.isShow ? 'active' : 'inactive', // active开启 inactive关闭
+        id: row.id,
+        country: this.mallinfo.country,
+        mallId: this.mallinfo.mallID
+      }
+      this.loading = true
+      try {
+        await this.GoodsManagerAPIInstance.updateShopCollection(param).then(res => {
+          this.loading = false
+          console.log('show', res)
+          if (res.ecode === 0) {
+            this.$message.success('操作成功~')
+          } else {
+            this.$message.error(res.message)
+          }
+        })
+      } catch (error) {
+        this.loading = false
+        console.log('status', error)
+      }
+    },
+    // 多选
+    handleSelectionChange(val) { this.selectList = []; this.selectList = val },
+    // 类别选择
+    setCategory(val) {
+      this.add_query.selcategory_id = val.categoryList.length && val.categoryList[val.categoryList.length - 1].toString() || ''
+    },
+    // 店铺选择
+    getmall(val) { this.mallinfo = val },
+    // 关闭弹窗
+    clearDialog() {},
+    // 初始化数据
+    async gettableList() {
+      if (this.mallinfo.mallID === '') {
+        this.$message.warning('请选择要查询的店铺')
+        return
+      }
+      this.tableList_master = []
+      const params = {
+        country: this.mallinfo.country,
+        mallId: this.mallinfo.mallID
+      }
+      this.getinfo()// 获取店铺名称
+      this.searchLoading = true
+      const res = await this.GoodsManagerAPIInstance.getcollectionlist(params)
+      this.searchLoading = false
+      if (res.ecode === 0) {
+        res.data.list.forEach(el => {
+          el.isShow = el.status === 'active'
+          this.tableList_master.push(el)
+        })
+      } else {
+        this.$message.warning('当前店铺暂无信息')
+      }
+    }
+  }
+
+}
+
+</script>
+<style lang="less" scoped>
+.detail{
+  min-width: 1280px;
+  padding-top: 10px;
+  .row{
+    display: flex;
+    margin-bottom: 10px;
+  }
+  .dialogVisible_detail{
+    /deep/.el-dialog__body{
+      padding: 10px 20px;
+      .detail_conditon{
+        margin-bottom: 10px;
+
+        .el-dialog{
+          height: 500px;
         }
       }
     }
-  },
-  mounted() {
-    this.getSignPackageList()
-  },
-  methods: {
-    // 上传文件
-    reupload() {
-      const input = document.createElement('input')
-      input.type = 'file'
-      input.onchange = () => {
-        const fileData = input.files[0]
-        if (!/\.(jpg|png|pdf)$/.test(fileData.name.toLowerCase())) {
-          this.$refs.Logs.writeLog('格式错误,请上传jpg、png、pdf格式的文件', false)
-          this.showConsole = false
-          return
-        }
-        const reader = new FileReader()
-        reader.readAsDataURL(fileData) // 异步读取文件内容，结果用data:url的字符串形式表示
-        /* 当读取操作成功完成时调用*/
-        reader.onload = async(e) => {
-          console.log(e) // 查看对象属性里面有个result属性，属性值，是一大串的base64格式的东西，这个就是我们要的图片
-          const base64Str = reader.result // 取得数据 这里的this指向FileReader（）对象的实例reader
-          this.upFileLiadding = true
-          const imageUrl = await this.$ossService.uploadFile(base64Str, Math.round(Math.random() * 100000000) + '.png')
-          console.log(imageUrl, 'imageUrl')
-          this.returnMsg.returnFile = ''
-          this.returnMsg.returnFile = imageUrl
-          this.upFileLiadding = false
-        }
-      }
-      const event = new MouseEvent('click')
-      input.dispatchEvent(event)
-    },
-    // 用户选择后最终的类目id
-    async targetCate(val) {
-      if (val.length > 0) {
-        console.log('val', val)
-        this.selectCateFinally = ''
-        const finallyname = this.$refs.refTbCate.getCheckedNodes()[0]
-        console.log('finallyname', finallyname)
-        const nameArr = {}
-        finallyname.pathLabels.map((item) => {
-          if (!nameArr[item]) {
-            nameArr[item] = '1'
-          }
-        })
-        this.returnMsg.returnAddress = Object.keys(nameArr).toString().replace(/,/g, '')
-      }
-    },
-    // 查看退件详情
-    async getReturnInfo(row) {
-      const parmas = {
-        packageCode: row.package_code,
-        gpcId: row.gpcId
-      }
-      const { data } = await this.$api.getReturnInfo(parmas)
-      if (data.code === 200) {
-        this.returnInfoDialog = true
-        this.returnInfoVal = {
-          return_contact: data.data.return_contact,
-          return_phone_number: data.data.return_phone_number,
-          return_amount: data.data.return_amount,
-          return_shipping_number: data.data.return_shipping_number,
-          return_shipping_name: data.data.return_shipping_name,
-          return_address: data.data.return_address,
-          return_remarks: data.data.return_remarks
-        }
-      } else {
-        this.$message.error(data.message)
-      }
-    },
-    // 取消退件/批量取消退件
-    async cancelReturn(val) {
-      this.packageCodes = []
-      if (Array.isArray(val)) {
-        if (!val.length) return this.$message('请选择需要取消退件的包裹')
-        val.map((item) => {
-          this.packageCodes.push(item.package_code)
-        })
-      } else {
-        this.packageCodes.push(val.package_code)
-      }
-      this.cancelLoading = true
-      const res = await this.$api.cancelReturn({ packageCodes: this.packageCodes })
-      console.log('res', res)
-      if (res.data.code === 200) {
-        this.getSignPackageList()
-        this.$message.success('取消退件成功')
-      } else {
-        this.$message.error(res.data.message)
-      }
-      this.cancelLoading = false
-    },
-    // 退件/批量申请退件
-    returnParts(val) {
-      this.returnMsg.returnFile = ''
-      this.isOverseas = false
-      this.returnMsg.lists = []
-      if (Array.isArray(val)) {
-        if (!val.length) return this.$message('请选择需要申请退件的包裹')
-        if (val.every(item => item.warehouse_type === val[0].warehouse_type)) {
-          val.map((item) => {
-            this.returnMsg.lists.push({ gpcId: item.gpcId, packageCode: item.package_code })
-            if (item.warehouse_type === 3) this.isOverseas = true
-          })
-          this.returnMsgDialog = true
-        } else {
-          this.$message.error('无法同时退不同仓库的包裹')
-        }
-      } else {
-        this.returnMsg.lists.push({ gpcId: val.gpcId, packageCode: val.package_code })
-        if (val.warehouse_type === 3) this.isOverseas = true
-        this.returnMsgDialog = true
-      }
-    },
-    // 保存退件信息
-    async saveReturnMsg() {
-      const reg = /^1([38]\d|5[0-35-9]|7[3678])\d{8}$/
-      if (!this.returnMsg.returnContact) return this.$message('收件人不能为空')
-      if (!this.returnMsg.returnPhoneNumber) return this.$message('联系电话不能为空')
-      if (!reg.test(this.returnMsg.returnPhoneNumber)) return this.$message('联系电话码格式有误')
-      if (!this.applyRegion || !this.applyRegion.length) return this.$message('退件地区不能为空')
-      if (!this.returnMsg.returnAddress) return this.$message('详细地址不能为空')
-      this.isButLoading = true
-      console.log('this.returnMsg', this.returnMsg)
-      const { data } = await this.$api.applicationForreJection(this.returnMsg)
-      if (data.code === 200) {
-        data.data.forEach((item) => {
-          this.$refs.Logs.writeLog(`物流单号【${item.split('：')[0]}】申请退件成功`, true)
-        })
-      } else {
-        data.data.forEach((item) => {
-          this.$refs.Logs.writeLog(`【${item.split('：')[0]}】${item.split('：')[1]}`, false)
-        })
-        console.log(data)
-      }
-      this.showConsole = false
-      this.getSignPackageList()
-      this.returnMsgDialog = false
-      this.isButLoading = false
-    },
-    // 获取数据
-    async getSignPackageList() {
-      this.isShowLoading = true
-      const signingTime = this.form.signingTime ? `${this.$dayjs(this.form.signingTime[0]).format('YYYY-MM-DD HH:mm:ss')}/${this.$dayjs(this.form.signingTime[1]).format('YYYY-MM-DD HH:mm:ss')}` : ''
-      const applyReturnTime = this.form.applyReturnTime
-        ? `${this.$dayjs(this.form.applyReturnTime[0]).format('YYYY-MM-DD HH:mm:ss')}/${this.$dayjs(this.form.applyReturnTime[1]).format('YYYY-MM-DD HH:mm:ss')}`
-        : ''
-      const parmas = {
-        packageCode: this.form.logisticsNum,
-        mainOrderSn: this.form.orderNum,
-        status: Number(this.form.packageStatus),
-        packageTime: signingTime,
-        appliReturnTime: applyReturnTime,
-        page: this.page,
-        pageSize: this.pageSize
-      }
-      console.log(parmas)
-      try {
-        const { data } = await this.$api.getSignPackageList(parmas)
-        if (data.code === 200) {
-          this.total = data.data.total
-          const resData = data.data.data
-          if (resData) {
-            this.tableData = resData
-            console.log('data', resData)
-          }
-        } else {
-          this.$message.error('获取数据失败', data.message)
-        }
-      } catch (error) {
-        console.log(error)
-      }
-      this.isShowLoading = false
-    },
-    // 点击复制
-    copy(attr) {
-      const target = document.createElement('div')
-      target.id = 'tempTarget'
-      target.style.opacity = '0'
-      target.innerText = attr
-      document.body.appendChild(target)
-      try {
-        const range = document.createRange()
-        range.selectNode(target)
-        window.getSelection().removeAllRanges()
-        window.getSelection().addRange(range)
-        document.execCommand('copy')
-        window.getSelection().removeAllRanges()
-        this.$message.success('复制成功')
-      } catch (e) {
-        // console.log('复制失败')
-      }
-      target.parentElement.removeChild(target)
-    },
-    handleSizeChange(val) {
-      this.page = 1
-      this.pageSize = val
-      this.getSignPackageList()
-    },
-    handleCurrentChange(val) {
-      this.page = val
-      this.getSignPackageList()
-    },
-    handleClose() {
-      this.returnMsg = {}
-      this.applyRegion = []
-      this.returnInfoVal = {}
-      this.isButLoading = false
-    },
-    handleSelectionChange(val) {
-      this.multipleSelection = val
+  }
+  .dialogVisible_add{
+    /deep/.el-dialog__body{
+      padding-bottom: 10px;
     }
   }
 }
-</script>
-
-<style lang="less" scoped>
-@import '../../../module-less/smart-house-less/hose-package.less';
 </style>

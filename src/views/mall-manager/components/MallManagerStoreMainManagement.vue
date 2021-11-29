@@ -127,7 +127,14 @@
           <el-table-column prop="status" label="状态" align="center" min-width="150px" />
           <el-table-column prop="main_order_sn" label="订单号" align="center" min-width="200px" />
           <el-table-column prop="expiration_time" label="有效日期" align="center" min-width="200px" />
-          <el-table-column prop="mall_alias_name" label="绑定店铺" align="center" min-width="100px" />
+          <el-table-column prop="mall_alias_name" label="绑定店铺" align="center" min-width="200px">
+            <template slot-scope="{row}">
+              <el-tooltip v-if="row.mall_alias_name" effect="dark" placement="top-start">
+                <div slot="content" style="width:200px;height:auto">{{ row.mall_alias_name }}</div>
+                <el-button type="text" class="bindmallclass">{{ row.mall_alias_name }}</el-button>
+              </el-tooltip>
+            </template>
+          </el-table-column>
           <el-table-column prop="" label="操作" align="center" min-width="330px" fixed="right">
             <template slot-scope="{ row }">
               <div>
@@ -711,7 +718,7 @@ export default {
         ipAlias: '', // 主体名称）（默认IP）
         num: '1', // 购买数量 默认1
         period: '', // 购买时长
-        isPresale: ''// 是否预售
+        isPresale: '2'// 是否预售
       },
       dialog_title: '',
       Typeis: '',
@@ -933,7 +940,7 @@ export default {
         ipAlias: '', // 主体名称）（默认IP）
         num: '1', // 购买数量 默认1
         period: '', // 购买时长
-        isPresale: ''// 是否预售
+        isPresale: '2'// 是否预售
       }
 
       this.showUserIP = false
@@ -1194,10 +1201,10 @@ export default {
     },
     // 绑定用户信息
     async  updataMallList() {
-      // if (this.dialog_selectMallList.length === 0) {
-      //   this.$message.warning('请至少选择一个店铺')
-      //   return
-      // }
+      if (this.dialog_selectMallList.length > 10) {
+        this.$message.warning('一个主体最多绑定10个店铺')
+        return
+      }
       const userInfo = await this.$appConfig.getUserInfo()
       const uid = userInfo.muid.toString()
       const targetId = this.targetId.toString()
@@ -1255,7 +1262,11 @@ export default {
           list.push(item)
         })
         this.dialog_mallList = list
-        this.$refs.multipleTable_dialog.clearSelection()
+        if (this.dialogvisible) {
+          this.$nextTick(() => {
+            this.$refs.multipleTable_dialog.clearSelection()
+          })
+        }
         //  bindMalList
       }
     },
@@ -1482,6 +1493,16 @@ export default {
       try {
         const data = await this.$commodityService.addIPMaster(params)
         this.loading = false
+        // 返回值类型处理
+        try {
+          if (typeof (JSON.parse(data)) === 'string') {
+            this.$message.error(data)
+            return
+          }
+        } catch (error) {
+          this.$message.error(data)
+          return
+        }
         const resMsg = JSON.parse(data)
         if (resMsg.code === -1) {
           // this.$notify({
@@ -1824,5 +1845,12 @@ export default {
        .el-dialog{
         margin-top: 10vh !important;
       }
+    }
+    .bindmallclass{
+      width: 200px;
+      // height: 50px;
+      overflow: hidden;
+      text-overflow:ellipsis;
+      white-space: nowrap;
     }
 </style>
