@@ -172,11 +172,9 @@ var sitePlatform = function(val) {
   attribute = site_platform[attribute] || attribute
   return site_platform[attribute] || attribute
 }
-export { chineseSite, imageRender, siteCoin, sitePlatform, countries_option, countries_site }
-
 var countryShopeebuyCom = function(val) {
   let attribute = val && (val + '').toLocaleUpperCase() || val
   attribute = site_http_com[attribute] || attribute
   return site_http_com[attribute] || attribute
 }
-export { chineseSite, imageRender, siteCoin, countries_option, countries_site, countryShopeebuyCom }
+export { chineseSite, imageRender, siteCoin, sitePlatform, countryShopeebuyCom, countries_option, countries_site }
