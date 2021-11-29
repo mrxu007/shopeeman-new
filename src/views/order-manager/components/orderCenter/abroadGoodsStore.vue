@@ -1,23 +1,38 @@
 <!--
  * @Author: your name
  * @Date: 2021-11-16 20:01:09
- * @LastEditTime: 2021-11-24 11:41:54
+ * @LastEditTime: 2021-11-24 22:27:47
  * @LastEditors: Please set LastEditors
  * @Description: 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  * @FilePath: \shopeeman-new\src\views\order-manager\components\orderCenter\SelfGoodsStore.vue
 -->
 <template>
   <div class="abroad-store">
+    <div>
+      <el-tabs v-model="activeName" @tab-click="handleClick">
+        <el-tab-pane label="我的海外仓库存列表" name="myStore"> </el-tab-pane>
+        <el-tab-pane label="共享我的海外仓库存" name="shareStore" v-if="addGiftAbroad!=='gift'"> </el-tab-pane>
+      </el-tabs>
+    </div>
     <div class="btn-header">
       <div class="item-box mar-right">
         <span>仓库名称：</span>
-        <el-select v-model="warehouseName" size="mini" filterable>
-          <el-option v-for="(item, index) in widList" :key="index" :label="item.warehouse_name" :value="item.wid" />
+        <el-select v-model="wid" size="mini" filterable>
+          <el-option label="全部" value="0" />
+          <el-option v-for="(item, index) in widList" :key="index" :label="item.warehouse_name" :value="item.id" />
         </el-select>
       </div>
       <div class="item-box">
+        <span style="width: 90px">系统商品编号:</span>
+        <el-input v-model="sys_sku_id" clearable size="mini" oninput="value=value.replace(/\s+/g,'')" class="inputWidth" />
+      </div>
+      <div class="item-box" v-if="activeName==='myStore'">
         <span style="width: 80px">商品编号:</span>
-        <el-input v-model="sku_id" clearable size="mini" oninput="value=value.replace(/\s+/g,'')" />
+        <el-input v-model="sku_id" clearable size="mini" oninput="value=value.replace(/\s+/g,'')" class="inputWidth" />
+      </div>
+      <div class="item-box" v-if="activeName==='myStore'">
+        <span style="width: 80px">商品规格:</span>
+        <el-input v-model="sku_name" clearable size="mini" oninput="value=value.replace(/\s+/g,'')" class="inputWidth" />
       </div>
       <el-button type="primary" size="mini" style="margin-left: 10px" @click="searchTableList">搜 索</el-button>
     </div>
@@ -30,7 +45,7 @@
           <span>国内仓库</span>
         </template>
       </el-table-column>
-      <el-table-column width="120px" label="系统商品ID" prop="id" align="center" />
+      <el-table-column width="120px" label="系统商品ID" prop="sys_sku_id" align="center" />
       <el-table-column width="130px" label="商品ID" prop="sku_id" align="center" />
       <el-table-column width="80px" label="商品名称" prop="goods_name" align="center" show-overflow-tooltip />
       <el-table-column width="80px" label="商品规格" prop="sku_name" align="center" />
@@ -82,69 +97,112 @@ export default {
       total: 0,
       pageSize: 20,
       currentPage: 1,
-      warehouseName: '', //仓库名
+      wid: '0', //仓库名
       widList: [],
       sku_id: '',
+      sys_sku_id: '',
+      sku_name: '',
+      activeName: 'myStore',
     }
   },
-  mounted() {
-    this.getWareHouseList()
-    this.searchTableList()
+  props:{
+    addGiftAbroad:{
+      type:String,
+      default:''
+    }
+  },
+  async mounted() {
+    this.tableData = []
+    await this.getWareHouseList()
+    await this.searchTableList()
   },
   methods: {
+    //切换tab
+    handleClick() {
+      this.currentPage = 1
+      this.wid = '0'
+      this.sku_id = ''
+      this.sys_sku_id = ''
+      this.sku_name = ''
+      this.total = 0 
+      this.tableData = []
+      this.searchTableList()
+    },
     async getWareHouseList() {
-      let appinfo = await this.$appConfig.getUserInfo()
-      let res = await this.$api.getWarehouseList()
-      if(res.data.code === 200){
+      let myMap = new Map()
+      let res = await this.$api.getOverseasWarehouse()
+      console.log(res, '123')
+      if (res.data.code === 200) {
         let arr = res.data.data || []
-        console.log(arr,"arr")
-        this.widList = arr.filter(item=>{
-          return item.status!==2 && item.user_ids && item.user_ids.indexOf(appinfo.muid)
+        arr.forEach((item) => {
+          this.widList = this.widList.concat(item.child)
         })
+      } else {
+        this.$message.error(res.data)
       }
+      this.widList = this.widList.filter((item) => !myMap.has(item.id) && myMap.set(item.id, 1))
+      console.log(this.widList)
     },
     //添加到出库单
     async addTo(row) {
       this.$emit('getChooseData', row)
     },
-    // 列表
-    async searchTableList() {
-      // 获取列表数据
+    //获取共享海外仓
+    async getAbroadShareList() {
+      this.tableData = []
       let params = {
-        wid: this.warehouseName,
-        sku_id: this.sku_id,
-        Status: '-1',
+        wid: this.wid,
+        sys_sku_id: this.sys_sku_id,
       }
       params['page'] = this.currentPage
-      params['page_size'] = this.pageSize
-      const res = await this.$XzyNetMessageService.post('xzy.shopifyV2.get_stock', params)
+      params['page_num'] = this.pageSize
+      let res = await this.$XzyNetMessageService.post('xzy.getSharedIndex', params) //item.shared_id = item.id
       let resObj = res && JSON.parse(res)
-      console.log(resObj, '4')
-      if (resObj.status_code === 200) {
-        this.total = resObj.data.total
-        let arr = resObj.data.data
-        arr.forEach(async (item) => {
-          await this.getProductSkuList(item)
-        })
+      let data = resObj && JSON.parse(resObj.data)
+      let arrList = []
+      if(data.code === 200){
+         this.total = data.data.total
+         let arr = data.data.data
+         arr.forEach(item=>{
+           let obj = item.stock
+           item = obj
+           item.shared_id = item.id
+           this.tableData.push(item)
+        })  
       }
-      console.log(this.tableData)
+      console.log(this.tableData, '4')
     },
-    // SKU详情
-    async getProductSkuList(row) {
-      const res = await this.$commodityService.getProductSkuList(row.product_id)
+    //获取海外仓
+    async getAbroadList() {
+      let params = {
+        wid: this.wid,
+        sku_id: this.sku_id,
+        sys_sku_id: this.sys_sku_id,
+        sku_name: this.sku_name,
+      }
+      params['page'] = this.currentPage
+      params['page_num'] = this.pageSize
+      console.log(params)
+      let res = await this.$XzyNetMessageService.post('xzy.stock.index', params)
       let resObj = res && JSON.parse(res)
-      console.log('skuDetailsData', resObj)
-      if (resObj.status_code === 200) {
-        let skuDetailsData = resObj.data
-        skuDetailsData.forEach((item) => {
-          item.goods_name = row.product_name
-          item.stock_num = item.stock
-          item.sku_price = item.price
-          item.goods_url = item.image_url
-          item.id = item.Id
-          this.tableData.push(item)
-          console.log(this.tableData)
+      let data = resObj && JSON.parse(resObj.data)
+      if(data.code===200){
+        this.total = data.data.total
+        let arr = data.data.data
+        arr.forEach(item=>{
+          item.stock_num = item.stock_num
         })
+        this.tableData = arr
+      }
+      console.log(data, '4454')
+    },
+    // 列表
+    async searchTableList() {
+      this.tableData = []
+      if (this.activeName === 'myStore') {
+        this.getAbroadList()
+      } else {
+        this.getAbroadShareList()
       }
     },
     // 计算总库存
@@ -187,6 +245,9 @@ export default {
       display: inline-block;
       text-align: right;
     }
+  }
+  .inputWidth {
+    width: 180px;
   }
 }
 .pagination {

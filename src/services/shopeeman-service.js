@@ -29,7 +29,26 @@ export default class NetMessageBridgeService {
   //   const dominType = data.SwitchDominTypeSetting === 'Local'
   //   return dominType && this.site_domain_chinese_bk[country] || this.site_domain_local_bk[country]
   // }
-
+  async getWebUrl(country, data) {
+    const mallId = data.mallId || data.platform_mall_id || data.shop_id
+    let userSettings = await this.ConfigBridgeService().getUserConfig()
+    userSettings = JSON.parse(userSettings)
+    const mallInfo = await this.ConfigBridgeService().getGlobalCacheInfo('mallInfo', mallId)
+    const { mall_main_id, IPType } = JSON.parse(mallInfo)
+    // auto 1、auto  2、mallinfo.MallMainId  3、IPType  包含 大陆   或者  ‘1’
+    // local 国内
+    // Abroad 本土
+    let url = this.site_domain_chinese_pre[country]
+    if (userSettings.domain_switch === 'Abroad') {
+      url = this.site_domain_local_pre[country]
+    } else if (userSettings.domain_switch === 'Auto' && mall_main_id > 0 && (IPType.indexOf('大陆') === -1 || IPType === '1')) {
+      url = this.site_domain_chinese_pre[country]
+    }
+    return url
+    // const dominType = data.SwitchDominTypeSetting === 'Local'
+    // return dominType && this.site_domain_chinese_bk[country] || this.site_domain_local_bk[country]
+  }
+  
   async getUrlPrefix(country, data) {
     const mallId = data.mallId || data.platform_mall_id || data.shop_id
     let userSettings = await this.ConfigBridgeService().getUserConfig()
@@ -48,6 +67,36 @@ export default class NetMessageBridgeService {
     return url
     // const dominType = data.SwitchDominTypeSetting === 'Local'
     // return dominType && this.site_domain_chinese_bk[country] || this.site_domain_local_bk[country]
+  }
+  // 各站点大陆前台网址
+  site_domain_chinese_pre = {
+    'MY': 'https://my.xiapibuy.com',
+    'TW': 'https://xiapi.xiapibuy.com',
+    'VN': 'https://vn.xiapibuy.com',
+    'ID': 'https://id.xiapibuy.com',
+    'PH': 'https://ph.xiapibuy.com',
+    'TH': 'https://th.xiapibuy.com',
+    'SG': 'https://sg.xiapibuy.com',
+    'BR': 'https://br.xiapibuy.com',
+    'MX': 'https://mx.xiapibuy.com',
+    'CO': 'https://co.xiapibuy.com',
+    'CL': 'https://cl.xiapibuy.com',
+    'PL': 'https://pl.xiapibuy.com'
+  }
+   // 各站点本土前台网址
+   site_domain_local_pre = {
+    'MY': 'https://shopee.com.my',
+    'TW': 'https://shopee.tw',
+    'VN': 'https://shopee.vn',
+    'ID': 'https://shopee.co.id',
+    'PH': 'https://shopee.ph',
+    'TH': 'https://shopee.co.th',
+    'SG': 'https://shopee.sg',
+    'BR': 'https://shopee.com.br',
+    'MX': 'https://shopee.com.mx',
+    'CO': 'https://shopee.com.co',
+    'CL': 'https://shopee.cl',
+    'PL': 'https://shopee.pl'
   }
 
   // 大陆后台（国内）
@@ -690,13 +739,29 @@ export default class NetMessageBridgeService {
       return { code: resObj.status, data: `获取详情失败${resObj.statusText}` }
     }
   }
+    // 手动发货
+    async handleOutOrder(country, data) {
+      const res = await this.postChinese(country, '/api/v3/shipment/init_order/', data, {
+        Headers: {
+          'Content-Type': ' application/json'
+        }
+      })
+      const resObj = res && JSON.parse(res)
+      console.log(resObj)
+      if (resObj && resObj.status === 200) {
+        const info = JSON.parse(resObj.data)
+        if (info && info.code === 0) {
+          return { code: 200, data: info.data || [] }
+        } else {
+          return { code: 50001, data: info.message || resObj.statusText || '' }
+        }
+      } else {
+        return { code: resObj.status, data: `手动发货失败${resObj.statusText}` }
+      }
+    }
   // 同步单个订单详情
   async getDetailsSinger(country, data) {
-    const res = await this.postChinese(country, '/api/v3/order/get_one_order', data, {
-      Headers: {
-        'Content-Type': ' application/json'
-      }
-    })
+    const res = await this.getChinese(country, '/api/v3/order/get_one_order', data)
     const resObj = res && JSON.parse(res)
     console.log(resObj)
     if (resObj && resObj.status === 200) {
@@ -811,12 +876,12 @@ export default class NetMessageBridgeService {
     const res = await this.getChinese(country, '/api/v1/return/detail', data)
     const resObj = res && JSON.parse(res)
     console.log(resObj)
-    if (resObj && resObj.status === 200) {
+    if (resObj) {
       const info = JSON.parse(resObj.data)
       if (info && info.code === 0) {
         return { code: 200, data: info.data || [] }
       } else {
-        return { code: 50001, data: info.message || [] }
+        return { code: 50001, data: info.message || resObj.statusText || [] }
       }
     } else {
       return { code: resObj.status, data: `获取失败${resObj.statusText}` }

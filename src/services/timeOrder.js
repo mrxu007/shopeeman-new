@@ -25,23 +25,38 @@ export default class {
   upLoadType = ''
   writeLog = undefined
   constructor(mall, syncStatus, that, writeLog) {
-    this.mall = mall,
-      this._this = that
+    this.mall = mall
+    this._this = that
     this.syncStatus = syncStatus
     this.writeLog = writeLog
   }
   //单个订单同步
   async startSingel(order, writeLog) {
+    console.log(order,"startSingel")
     this.writeLog = writeLog
-    let params = {
-      order_id: order.order_id,
-      shop_id: order.shop_id
-    }
+    this.mall = order.mall_info
     if (order.order_status === 7) {
-      let resDetail = await this.$shopeemanService.getRefundOrderDetail(this.mall.country, par)
-
+      let params = {
+        return_sn: order.order_sn,
+        shop_id: order.mall_info.platform_mall_id
+      }
+      let res = await this.$shopeemanService.getRefundOrderDetail(order.country, params)
+      console.log("startSingel-after",res)
+      if (res.code === 200) {
+        let orderDetail = [res.data]
+        await this.getOrderOtherInfoRefund(orderDetail)
+        await this.afterUpLoadOrders(orderDetail)
+        this.writeLog(`【${order.order_id}】订单同步成功`, true)
+      } else {
+        this.writeLog(`【${order.order_id}】订单同步失败${res.data}`, false)
+      }
     } else {
+      let params = {
+        "order_id": order.order_id,
+        "shop_id": order.mall_info.platform_mall_id
+      }
       let res = await this.$shopeemanService.getDetailsSinger(order.country, params)
+      console.log("startSingel",res)
       if (res.code === 200) {
         let orderDetail = [res.data]
         await this.getOrderOtherInfo(orderDetail)
@@ -166,7 +181,7 @@ export default class {
               await this.getOrderOtherInfoRefund(order)
               let checkFlag = await this.checkAfterOrderSnStatus(order)
               if (checkFlag) {
-                debugger
+                // debugger
                 let afterRes = await this.afterUpLoadOrders(order)
                 if (afterRes) {
                   orderDetailListCount++
@@ -235,7 +250,7 @@ export default class {
               if (orderDetailList && orderDetailList.length) {
                 //过滤不是今天的订单 new Date().getTime()-item.create_time*1000 < 1*24*60*60*1000
                 let orderDetailListFilter = orderDetailList.filter(item => {
-                  return new Date().getTime() - item.create_time * 1000 > 1 * 24 * 60 * 60 * 1000
+                  return new Date().getTime() - item.create_time * 1000 < 1 * 24 * 60 * 60 * 1000
                 })
                 orderDetailListCount += orderDetailListFilter.length
                 await this.getOrderOtherInfo(orderDetailListFilter)
@@ -247,7 +262,9 @@ export default class {
             }
           }
           //自动翻页
-          if (orders.length < 40) {
+          let lastTime = ''
+          lastTime = orderDetailListFa[orderDetailListFa.length-1].create_time
+          if (orders.length < 40 || (lastTime && (new Date().getTime() - lastTime * 1000 > 1 * 24 * 60 * 60 * 1000))) {
             orders = []
           } else {
             params.page_number++
@@ -374,10 +391,11 @@ export default class {
       if (!res.data.orderKey) {
         checkList.push(order)
       }
-      if (i === orderDetailListFilter.length - 1) {
-        return checkList
-      }
+      // if (i === orderDetailListFilter.length - 1) {
+      //   return checkList
+      // }
     }
+    return checkList
   }
   //服务端检测订单 ---售后订单
   //key组成：return_id +   status + mtime （若mtime没有值，则为0）
@@ -466,21 +484,12 @@ export default class {
       //   paramsArr
       // })
       //测试接口
-      if (this.syncStatus.value === 'refund') {
-        let res = await this.$api.uploadOrderAfterSale({
-          "afterOrderData": paramsArr,
-          "sysMallId": this.mall.id,
-          "mallId": this.mall.platform_mall_id
-        })
-        console.log(this.mall, "上报after", res)
-      } else {
         let res = await this.$api.uploadOrderSaveTest({
           "orderData": paramsArr,
           "sysMallId": this.mall.id,
           "mallId": this.mall.platform_mall_id
         })
-        console.log(this.mall, "上报", res)
-      }
+        console.log(paramsArr, "上报", res)
     } catch (error) {
       console.log(error)
     }
@@ -539,16 +548,15 @@ export default class {
         "sysMallId": this.mall.id,
         "mallId": this.mall.platform_mall_id
       })
+      console.log(this.mall, "上报after", res)
       if (res.data.code === 200) {
         return true
       } else {
         return false
       }
-      console.log(this.mall, "上报after", res)
     } catch (error) {
       console.log(error)
     }
-
   }
   //chulictime
   dealWithCtime(order) {
@@ -557,7 +565,7 @@ export default class {
       let par = order.return_header.attribute_list.return_attributes.find(item => {
         return item.key === 'heimao_contact_by'
       })
-      ctime = par.value || 0
+      ctime = par && par.value || 0
     }
     return ctime
   }

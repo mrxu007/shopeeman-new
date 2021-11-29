@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-11-09 10:14:02
- * @LastEditTime: 2021-11-23 15:04:45
+ * @LastEditTime: 2021-11-26 10:02:59
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shopeeman-new\src\components\buyer-account.vue
@@ -496,7 +496,7 @@ export default {
     publicAccount(id) {
       switch (id) {
         case 1:
-          console.log(this.pddAccount, 'pddAccount')
+          // console.log(this.pddAccount, 'pddAccount')
           return this.pddAccount
         case 2:
           // console.log(this.tbAccount, 'tbAccount')
@@ -686,6 +686,7 @@ export default {
     async shopeeLogin() {
       if (this.$buyerAccountService) {
         const account = await this.$buyerAccountService.shopeeLogin(this.siteCode)
+        console.log('shopee', account)
         if (account) {
           this.upBuyerAccountList(account)
         }
@@ -729,7 +730,8 @@ export default {
         name: account.name,
         password: '',
         type: account.type,
-        site: account.country || '',
+        // site: account.country || '', 
+        site: this.siteCode || '', 
         loginInfo: account.login_info,
         ua: account.ua,
         cachePath: account.cache_path,

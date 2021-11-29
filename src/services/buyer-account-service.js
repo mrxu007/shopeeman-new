@@ -157,6 +157,12 @@ export default class buyerAccountService {
     console.log(8, url, country)
     return this.nativeService.userCenter(this.ShotOrderPlatform.Shopee, url, account)
   }
-  
+  /**
+   * @name : 拼多多月卡
+   * @param  {*}
+   */  
+   pddCouponWindow(arr){
+    return this.nativeService.callPddCouponWindow(arr)
+   }
 
 }

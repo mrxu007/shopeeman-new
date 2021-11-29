@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-11-16 20:01:09
- * @LastEditTime: 2021-11-24 11:54:49
+ * @LastEditTime: 2021-11-26 10:04:33
  * @LastEditors: Please set LastEditors
  * @Description: 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  * @FilePath: \shopeeman-new\src\views\order-manager\components\orderCenter\SelfGoodsStore.vue
@@ -27,7 +27,7 @@
       </el-table-column>
       <el-table-column align="center" type="index" label="仓库名称" width="80">
         <template slot-scope="scope">
-          <span>国内仓库</span>
+          <span>{{scope.row.wid}}</span>
         </template>
       </el-table-column>
       <el-table-column width="120px" label="系统商品ID" prop="id" align="center" />
@@ -97,10 +97,11 @@ export default {
       let res = await this.$api.getWarehouseList()
       if(res.data.code === 200){
         let arr = res.data.data || []
-        console.log(arr,"arr")
-        this.widList = arr.filter(item=>{
-          return item.status!==2 && item.user_ids && item.user_ids.indexOf(appinfo.muid)
+        let arrFilter = arr.filter(item=>{
+          return item.status!==2 && item.user_ids && item.user_ids.indexOf(appinfo.muid)>-1
         })
+        // if(!arrFilter)
+        this.widList = arrFilter.length ? arrFilter : arr
         this.wid = this.widList[0].wid || ''
       }
     },
@@ -121,32 +122,13 @@ export default {
       const res = await this.$XzyNetMessageService.post('xzy.shopifyV2.get_stock', params)
       let resObj = res && JSON.parse(res)
       let data = resObj && JSON.parse(resObj.data)
-      console.log(data, '4')
       if (data && data.code === 200) {
-        this.total = 0
-        // let arr = resObj.data.data
-        // arr.forEach(async (item) => {
-        //   await this.getProductSkuList(item)
-        // })
-      }
-      console.log(this.tableData)
-    },
-    // SKU详情
-    async getProductSkuList(row) {
-      const res = await this.$commodityService.getProductSkuList(row.product_id)
-      let resObj = res && JSON.parse(res)
-      console.log('skuDetailsData', resObj)
-      if (resObj.status_code === 200) {
-        let skuDetailsData = resObj.data
-        skuDetailsData.forEach((item) => {
-          item.goods_name = row.product_name
+        this.total = data.data.total
+        let arr = data.data.data
+        arr.forEach(async (item) => {
           item.stock_num = item.stock
-          item.sku_price = item.price
-          item.goods_url = item.image_url
-          item.id = item.Id
-          this.tableData.push(item)
-          console.log(this.tableData)
         })
+        this.tableData = arr
       }
     },
     // 计算总库存

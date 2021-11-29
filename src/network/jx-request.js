@@ -188,8 +188,13 @@ export default {
   getOrderBySn: (data) => AppRequest.post('/order/getSimpleOrderInfo', data), // 根据订单号获取订单
   uploadOrderWarehourseShipAmount: (data) => AppRequest.post('/order/uploadOrderWarehourseShipAmount', data), // 上报仓库发货金额
 
-  savePurchase: (data) => AppRequest.post('/purchase', data), // 上报采购链接
+  savePurchase: (data) => AppRequest.post('/purchase', data), // 上报采购链接 
   getOrderTrackingNumber: (data) => AppRequest.get('/order/getOrderTrackingNumber', { params: data }), // 获取多物流单号列表
-
-  getHomeOutStockOrder: (data) => AppRequest.get('/homeOutStockOrder/index', { params: data }) // 国内出库单: 列表
+  getHomeOutStockOrder: (data) => AppRequest.get('/homeOutStockOrder/index', { params: data }), // 国内出库单: 列表 
+  homeOutStockOrder: (data) => AppRequest.post('/homeOutStockOrder/add', data), // 国内仓出库 
+  outOfStockAbroad: (data) => AppRequest.post('/warehouse/outOfStock', data), // 海外仓出库 
+  getLogisticsInformationBatch: (data) => AppRequest.post('/getLogisticsInformationBatch', data), // 获取面单信息 
+  getAsyncExportOrder: (data) => AppRequest.get('/getAsyncExportOrder', { params: data }), // 获取导出报表信息 
+  applyAsyncExportOrder: (data) => AppRequest.post('/applyAsyncExportOrder', { params: data }), // 点击导出报表信息 
+  saveUserConfig: (data) => AppRequest.post('/user/saveUserConfig', { params: data }), // 保存回复评论设置
 }

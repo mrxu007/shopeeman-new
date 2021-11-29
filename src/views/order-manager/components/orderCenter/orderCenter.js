@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-11-10 12:02:05
- * @LastEditTime: 2021-11-23 22:50:59
+ * @LastEditTime: 2021-11-26 17:25:59
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shopeeman-new\src\views\order-manager\components\orderCenter\selectData.js
@@ -57,6 +57,10 @@ const orderStatusList = [{
     label: '无售后订单'
   }
 ]
+function changeOrderStatus(val){
+  let obj = orderStatusList.find(item=>item.value == val)
+ return obj && obj.label || ''
+}
 //采购状态  1:待采购  3:采购成功  4:采购上家已发货 5:待支付 6:已完成  7:已取消 8:已申请退款 9:退款成功
 const shotStatusList = [{
     value: 1,
@@ -110,7 +114,7 @@ const shotStatuForEdit = [{
 ]
 //时间类型  timeType : 订单支付时间  shopeeDeliveryTime: 发货时间  sourceShippingTime:采购发货时间   shipByDate: 订单截止发货时间
 const timeTypeList = [{
-    value: 'timeType',
+    value: 'payTime',
     label: '订单支付时间'
   },
   {
@@ -796,6 +800,68 @@ const syncStatus = [
     value: 'refund'
   },
 ]
+//货物类型
+const packageType = [
+  {
+    label:"普货",
+    value:1
+  },
+  {
+    label:"敏感货",
+    value:2
+  },
+  {
+    label:"商检货",
+    value:3
+  },
+]
+function changePackageType(val){
+  let obj = packageType.find(item=>item.value == val)
+ return obj && obj.label || '普货'
+}
+//仓库发货状态 //1：待入库 2：等待包裹  3: 紧急入库  4: 待出库 5: 已出库 6: 已完成 7:订单作废 8:暂停发货 9:异常
+const deliveryStatus  = [
+  {
+    label:"待入库",
+    value:1
+  },
+  {
+    label:"等待包裹",
+    value:2
+  },
+  {
+    label:"紧急入库",
+    value:3
+  },
+  {
+    label:"待出库",
+    value:4
+  },
+  {
+    label:"已出库",
+    value:5
+  },
+  {
+    label:"已完成",
+    value:6
+  },
+  {
+    label:"订单作废",
+    value:7
+  },
+  {
+    label:"暂停发货",
+    value:8
+  },
+  {
+    label:"异常",
+    value:9
+  },
+]
+function changeDeliveryStatus(val){
+  let obj = deliveryStatus.find(item=>item.value == val)
+ return obj && obj.label || ''
+}
 
 //每隔30分钟同步一次
 const statusListSecond = [{
@@ -1217,6 +1283,14 @@ const warehouseType = [{
     value: 3
   }
 ]
+const lazadaUrlList =  {
+  "TH" : "https://acs-m.lazada.co.th",
+  "MY" : "https://acs-m.lazada.com.my",
+  "VN" : "https://acs-m.lazada.vn",
+  "ID" : "https://acs-m.lazada.co.id",
+  "PH" : "https://acs-m.lazada.com.ph",
+  "SG" : "https://acs-m.lazada.sg",
+};
 const forbidData = [
   "爆炸性、易燃性、腐蚀性、放射性和毒性等危险物品",
   "货币、支票、有价证券、有价金属、人造钻石、珠宝或其他贵重物品",
@@ -1274,7 +1348,45 @@ const forbidTHData = [
   "酒",
   "古董"
 ]
-
+const shotOrderPlatform = {
+  /// 淘宝
+  TaoBao : 0,
+  PinDuoduo : 1,
+  JingDong : 2,
+  JingXi : 3,
+  HYJ : 4,
+  Alibaba : 5,
+  YunPaiDan : 6,
+  Lazada : 7,
+  Shopee : 8,
+  CrossBorder : 9,
+  OwnPlatform : 10,
+  PpxiasGhpt : 11,
+  AliExpressPlatform : 12
+}
+function  changeBuyerType(type) {
+  switch (type) {
+  case 1:
+    return shotOrderPlatform.PinDuoduo
+  case 2:
+  case 3:
+    return shotOrderPlatform.TaoBao
+  case 4:
+    return shotOrderPlatform.JingDong
+  case 8:
+    return shotOrderPlatform.Alibaba
+  case 9:
+    return shotOrderPlatform.Lazada
+  case 10:
+    return shotOrderPlatform.JingXi
+  case 11:
+    return shotOrderPlatform.Shopee
+  case 13:
+    return shotOrderPlatform.CrossBorder
+  default:
+    return shotOrderPlatform.PinDuoduo
+}
+}
 export {
   orderStatusList,
   shotStatusList,
@@ -1293,6 +1405,12 @@ export {
   platformLinkList,
   forbidData,
   forbidTHData,
+  packageType,
+  lazadaUrlList,
+  changeBuyerType,
+  changeOrderStatus,
+  changeDeliveryStatus,
+  changePackageType,
   sourceName,
   orderStatusName,
   siteShip

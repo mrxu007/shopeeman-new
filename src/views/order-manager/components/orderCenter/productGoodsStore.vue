@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-11-16 20:01:09
- * @LastEditTime: 2021-11-24 11:29:53
+ * @LastEditTime: 2021-11-24 15:47:33
  * @LastEditors: Please set LastEditors
  * @Description: 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  * @FilePath: \shopeeman-new\src\views\order-manager\components\orderCenter\SelfGoodsStore.vue
@@ -149,7 +149,7 @@ export default {
           item.goods_name = row.product_name
           item.stock_num = item.stock
           item.sku_price = item.price
-          item.goods_url = item.image_url
+          item.sku_image = item.image_url
           item.id = item.Id
           this.tableData.push(item)
           console.log(this.tableData)
