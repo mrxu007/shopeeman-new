@@ -18,19 +18,21 @@ export function exportPdfData(id, sysSkuId, faceId) {
     taintTest: false,
     useCORS: true,
     // width: 300,
-    // height: 340,
-    dpi: window.devicePixelRatio * 4, // 将分辨率提高到特定的DPI 提高四倍
-    scale: 4 // 按比例增加分辨率
-  }).then(function(canvas) {
+    height: 300,
+    dpi: window.devicePixelRatio * 2, // 将分辨率提高到特定的DPI 提高四倍
+    scale: 2 // 按比例增加分辨率
+  }).then(canvas => {
     const contentWidth = canvas.width
     const contentHeight = canvas.height
     const pageHeight = contentWidth / 592.28 * 841.89
     let leftHeight = contentHeight
     let position = 0
-    const imgWidth = 595.28
-    const imgHeight = 592.28 / contentWidth * contentHeight
+    const imgWidth = 13.38
+    const imgHeight = 16 / contentWidth * contentHeight
     const pageData = canvas.toDataURL('image/jpeg', 1.0)
-    const PDF = new JsPDF('', 'pt', 'a4')
+    const PDF = new JsPDF('', 'in', [3.07086614173, 3.4645669])
+    // const PDF = new JsPDF('', 'pt', 'a4')
+    // 当内容未超过pdf一页显示的范围，无需分页
     if (leftHeight < pageHeight) {
       PDF.addImage(pageData, 'JPEG', 0, 0, imgWidth, imgHeight)
     } else {
@@ -38,6 +40,7 @@ export function exportPdfData(id, sysSkuId, faceId) {
         PDF.addImage(pageData, 'JPEG', 0, position, imgWidth, imgHeight)
         leftHeight -= pageHeight
         position -= 841.89
+        // 避免添加空白页
         if (leftHeight > 0) {
           PDF.addPage()
         }
