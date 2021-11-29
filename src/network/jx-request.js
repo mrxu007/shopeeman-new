@@ -170,6 +170,7 @@ export default {
   getBindMall: (data) => AppRequest.get('/warehouseAddress/getBindMall', { params: data }), // 仓库地址设置：绑定店铺、申请仓库的店铺列表
   addXzyStore: (data) => AppRequest.post('/warehouseAddress/xzyStore', data), // 仓库地址设置：新增系统仓库
   updateData: (data) => AppRequest.post('/warehouseAddress/update', data), // 仓库地址设置：修改绑定店铺、修改仓库自用地址
+  cancelHomeOrder: (data) => AppRequest.post('/homeOutStockOrder/cancel', data), // 国内出库单: 删除
 
   getStockingForecastLists: (data) => AppRequest.get('/warehouse/stockingForecastLists', { params: data }), // 海外仓商品备货-预报单列表
   deleteForecast: (data) => AppRequest.post('/warehouse/stockingForecastDestroy', data), // 海外仓商品备货-删除预报单
