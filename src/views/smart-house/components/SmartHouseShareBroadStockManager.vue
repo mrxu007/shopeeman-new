@@ -350,7 +350,7 @@
 
 <script>
 import ShareBroadStock from '../../../module-api/smart-house-api/share-broad-stock'
-import { exportExcelDataCommon, delay } from '../../../util/util'
+import { exportExcelDataCommon } from '../../../util/util'
 export default {
   data() {
     return {

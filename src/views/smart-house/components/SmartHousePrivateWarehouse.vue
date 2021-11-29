@@ -11,13 +11,14 @@
     <!-- btn区 -->
     <div class="tool-bar">
       <div class="tool-row">
-         <div class="tool-item mar-right">
-          <span style="width:60px;">站点：</span>
+        <div class="tool-item mar-right">
+          <span style="width:40px;">站点：</span>
           <el-select v-model="countryVal" size="mini" filterable>
+            <el-option label="全部" :value="'0'" />
             <el-option v-for="(item, index) in countries" :key="index" :label="item.label" :value="item.value" />
           </el-select>
         </div>
-         <div class="tool-item mar-right">
+        <div class="tool-item mar-right">
           <span>商品ID：</span>
           <el-input v-model="goodsID" placeholder="" size="mini" clearable />
         </div>
@@ -28,7 +29,7 @@
             size="mini"
             value-format="yyyy-MM-dd"
             type="daterange"
-            style="width: 200px"
+            style="width: 230px"
             range-separator="-"
             start-placeholder="开始日期"
             end-placeholder="结束日期"
@@ -50,13 +51,19 @@
         <el-table-column min-width="80" label="商品链接" prop="goods_url" align="center" show-overflow-tooltip>
           <template slot-scope="scope">
             <div v-if="scope.row.goods_url">
-              <el-button type="primary" size="mini">查看商品</el-button>
+              <el-button type="primary" size="mini" @click="openGoodsUrl(scope.row.goods_url)">查看商品</el-button>
             </div>
           </template>
         </el-table-column>
         <el-table-column label="商品图片" width="80">
           <template slot-scope="scope">
-            <el-image :src="scope.row.goods_img" style="width: 60px; height: 60px" />
+            <el-image
+              :src="scope.row.goods_img"
+              style="width: 60px; height: 60px"
+              :preview-src-list="[scope.row.goods_img]"
+            >
+              <div slot="error" class="image-slot" />
+            </el-image>
           </template>
         </el-table-column>
         <el-table-column min-width="60px" label="库存" align="center">
@@ -92,8 +99,8 @@
             </div>
           </template>
         </el-table-column>
-        <el-table-column min-width="60px" label="创建时间" prop="created_at" align="center" />
-        <el-table-column label="操作" min-width="60px">
+        <el-table-column min-width="100px" label="创建时间" prop="created_at" align="center" />
+        <el-table-column label="操作" min-width="90px">
           <template slot-scope="scope">
             <div>
               <el-button type="primary" size="mini" class="mar-right" @click="deleteGoods(scope.row)">删 除</el-button>
@@ -130,8 +137,8 @@
               </div>
               <div class="tool-item">
                 <div class="tool-item mar-right">
-                  <span>站点：</span>
-                  <el-select v-model="goodsCountry" size="mini" filterable style="min-width: 100px; flex: 1">
+                  <span style="width:40px">站点：</span>
+                  <el-select v-model="goodsCountry" size="mini" filterable style="width: 100px; flex: 1">
                     <el-option v-for="(item, index) in countries" :key="index" :label="item.label" :value="item.value" />
                   </el-select>
                 </div>
@@ -160,7 +167,12 @@
                     <div class="sku-item-box">
                       <div v-for="(item, i) in skuSpec1" :key="i + 'spec1'" class="sku-Spec">
                         <el-input v-model="item.sku_name" placeholder="" size="mini" clearable :disabled="item.sku_disabled" @input="sepcInput($event, i)" />
-                        <i class="el-icon-plus" />
+                        <div v-if="item.sku_image" class="tool-item">
+                          <el-image :src="item.sku_image" style="width: 42px; height: 42x;margin: 1px" @click="item.sku_image = ''" />
+                        </div>
+                        <div v-else class="tool-item">
+                          <el-upload class="sku-image-uploader" action="#" :show-file-list="false" list-type="picture-card" :on-change="handleChange2" />
+                        </div>
                         <el-button type="primary" size="mini" @click="deleteSpec1(i)">删除</el-button>
                       </div>
                     </div>
@@ -237,7 +249,13 @@
                 <el-input v-model="scope.row.remark" placeholder="" size="mini" />
               </template>
             </el-table-column>
-            <el-table-column min-width="60px" label="规格图" prop="platform_mall_name" align="center" />
+            <el-table-column min-width="60px" label="规格图" prop="sku_image" align="center">
+              <template slot-scope="scope">
+                <el-image :src="scope.row.sku_image" style="width: 42px; height: 42px">
+                  <div slot="error" class="image-slot" />
+                </el-image>
+              </template>
+            </el-table-column>
             <el-table-column width="140px" label="SKU ID" prop="sku_name" align="center">
               <template slot-scope="scope">{{ scope.row.sku_id }}</template>
             </el-table-column>
@@ -267,9 +285,9 @@ export default {
         }
       },
       goodsID: '',
-      countryVal: 'TH',
+      countryVal: '0',
       searchTime: [],
-      countries:this.$filters.countries_option,
+      countries: this.$filters.countries_option,
       pageSize: 20, // 页码
       currentPage: 1, // 页码
       total: 0, // 表格总数
@@ -299,6 +317,10 @@ export default {
     this.searchTableList()
   },
   methods: {
+    // 查看商品
+    openGoodsUrl(url) {
+      window.open(url)
+    },
     // 保存新增
     async saveInsert() {
       if (!this.skuList.length) {
@@ -313,7 +335,7 @@ export default {
             sku_name: item2.sku_name ? item1.sku_name + ',' + item2.sku_name : item1.sku_name,
             stock_num: 0,
             sku_price: 0,
-            sku_image: '',
+            sku_image: item1.sku_image,
             remark: '',
             created_at: null
           })
@@ -360,6 +382,7 @@ export default {
         goodsId: this.editInfo.goodsId,
         goodsName: this.goodsName,
         goodsImg: this.goodsImage,
+        goodsUrl: this.goodsUrl,
         userStocksSkus: JSON.stringify(userStocksSkus)
       }
       const res = await this.$api.updataUserGoods(params)
@@ -401,7 +424,8 @@ export default {
     // 添加spec1
     addSpec1() {
       const params = {
-        sku_name: ''
+        sku_name: '',
+        sku_image: ''
       }
       this.skuSpec1.push(params)
       this.createSkuList()
@@ -584,6 +608,24 @@ export default {
         this.goodsImage = res
       }
     },
+    // 上传规格图
+    async handleChange2(file) {
+      const that = this
+      const localFile = file.raw
+      const reader = new FileReader()
+      reader.readAsDataURL(localFile)
+      reader.onload = async() => {
+        that.imgData = reader.result
+        const name = randomWord(false, 32) + '_' + new Date().getTime()
+        const res = await this.$ossService.uploadFile(that.imgData, name)
+        this.skuSpec1.map(item => {
+          item.sku_image = res
+        })
+        this.skuList.map(item => {
+          item.sku_image = res
+        })
+      }
+    },
     // 删除商品
     async deleteGoods(row) {
       const params = {
@@ -599,7 +641,7 @@ export default {
       console.log(res)
     },
     closeDialog() {
-      this.countryVal = 'TH'
+      this.countryVal = '0'
       this.goodsName = ''
       this.goodsUrl = ''
       this.goodsImage = ''
@@ -618,10 +660,11 @@ export default {
       this.goodsImage = row.goods_img
       row.user_stocks_skus.forEach((item, index) => {
         const specArr = item.sku_name.split(',') || []
-        if (specArr.length == 1) {
+        if (specArr.length === 1) {
           item.sku_name1 = specArr[0]
           const params = {
             sku_name: specArr[0],
+            sku_image: item.sku_image,
             sku_disabled: true
           }
           const obj = this.skuSpec1.find((item) => {
@@ -635,6 +678,7 @@ export default {
           item.sku_name2 = specArr[1]
           const params1 = {
             sku_name: specArr[0],
+            sku_image: item.sku_image,
             sku_disabled: true
           }
           const params2 = {
@@ -701,6 +745,9 @@ export default {
     .tool-item {
       display: flex;
       align-items: center;
+      .el-select{
+        width: 100px;
+      }
       span {
         display: inline-block;
         width: 80px;
@@ -724,6 +771,21 @@ export default {
     justify-content: flex-end;
     margin-top: 20px;
     height: 35px;
+  }
+  /deep/.el-table__expand-icon:after{
+    content: "查看SKU详情" !important;
+    color: var(--themeColor);
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    margin-left: -34px;
+    margin-top: -10px;
+  }
+  /deep/.el-table__expand-icon >i{
+    display: none !important;
+  }
+  /deep/.el-table__expand-icon--expanded{
+    transform: rotate(0deg) !important;
   }
 }
 .goodsInsert-dialog {
@@ -767,6 +829,16 @@ export default {
             display: flex;
             align-items: center;
             margin: 10px;
+            .tool-item{
+              margin-bottom: 0px !important;
+            }
+            .sku-image-uploader{
+              /deep/.el-upload--picture-card{
+                width: 42px !important;
+                height: 42px !important;
+                margin: 1px !important;
+              }
+            }
             i {
               font-size: 20px;
               margin: 0 10px;

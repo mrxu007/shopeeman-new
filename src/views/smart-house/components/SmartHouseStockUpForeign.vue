@@ -495,6 +495,7 @@
       title="预报海外仓备货商品"
       :visible.sync="foreignVisible"
       width="1200px"
+      top="8vh"
       :close-on-click-modal="false"
       :close-on-press-escape="false"
       :before-close="foreignClose"
@@ -543,7 +544,7 @@
                 size="mini"
                 @click="itselfGoodsImport"
               >自有商品导入</el-button>
-              <el-upload ref="importRef" :disabled="isforeignClose" style="margin:0 10px" accept=".xls, .xlsx" action="https://jsonplaceholder.typicode.com/posts/" :on-change="importTemplate" :show-file-list="false" :auto-upload="false">
+              <el-upload ref="importRef" :disabled="isforeignClose" style="margin:0 10px" accept=".xlsx,.xls" action="https://jsonplaceholder.typicode.com/posts/" :on-change="importTemplate" :show-file-list="false" :auto-upload="false">
                 <el-button
                   :disabled="isforeignClose"
                   :data="importTemplateData"
@@ -748,6 +749,7 @@
       title="导入预报"
       :visible.sync="itselfGoodsVisible"
       width="1200px"
+      top="8vh"
       :close-on-click-modal="false"
       :close-on-press-escape="false"
     >
@@ -1305,7 +1307,6 @@ import { exportExcelDataCommon } from '../../../util/util'
 import { exportPdfData, downloadZip } from '../../../util/download'
 import ProductChoose from '../../../components/product-choose.vue'
 import XLSX from 'xlsx'
-import { data } from 'cheerio/lib/api/attributes'
 export default {
   components: {
     ProductChoose
@@ -1681,7 +1682,7 @@ export default {
         }
         this.foreignData.push(obj)
       })
-      this.stockingForecastUpload(data)
+      this.stockingForecastUpload()
       this.itselfGoodsVisible = false
     },
     // 预报SKU批量设置
@@ -1960,7 +1961,7 @@ export default {
         cache.push(t)
         this.foreignData.push(t)
       }
-      this.stockingForecastUpload(this.excelForeignData)
+      this.stockingForecastUpload()
     },
     // 表格导入
     importTemplate(file) {
