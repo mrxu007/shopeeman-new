@@ -45,12 +45,12 @@ export default class {
     this.buyerAccounts.forEach(element => {
       const buyerItem = this.conver2BuyerAccount(element)
       buyerList.push(buyerItem)
-      buyerMap.set(buyerItem.shotOrderPlatform, buyerItem)
+      buyerMap.set(Number(buyerItem.shotOrderPlatform), buyerItem)
       this.shopBuyerAccount.push(buyerItem)
-      console.log(buyerMap,this.shopBuyerAccount,"48")
+      console.log(buyerMap, this.shopBuyerAccount, "48")
     })
     //淘宝天猫海外平台cook
-    this.crossBorderAccessToken = buyerMap.get(shotOrderPlatform.CrossBorder) ? buyerMap.get(shotOrderPlatform.CrossBorder).Cookiestr : ''
+    this.crossBorderAccessToken = buyerMap.get(Number(shotOrderPlatform.CrossBorder)) ? buyerMap.get(Number(shotOrderPlatform.CrossBorder)).Cookiestr : ''
     //支付信息
     const payAccount = {
       UserName: '',
@@ -93,7 +93,7 @@ export default class {
       StpBackGround: '#1f74fa',
       BtnGround: '#f4a000',
       H5x5sec: '', //非固定传参的字段(暂时默认)
-      TaobaoCookieForImg: buyerMap.get(shotOrderPlatform.TaoBao) && buyerMap.get(shotOrderPlatform.TaoBao).Cookiestr || [],
+      TaobaoCookieForImg: buyerMap.get(Number(shotOrderPlatform.TaoBao)) && buyerMap.get(Number(shotOrderPlatform.TaoBao)).Cookiestr || [],
       TaobaoRemark: configInfo.taobao_leave_content, //'请不要放价格单,不要放好评卡', //非固定传参的字段(暂时默认)
       AlibabaRemark: '请不要放价格单', //非固定传参的字段(暂时默认)
       ZhiFuBaoAwid: '',
@@ -102,8 +102,8 @@ export default class {
       SkipColleague: false,
       SoftDomain: '',
       Muid: '',
-      TaoBaoCache: this.getCache(buyerMap, shotOrderPlatform.TaoBao),
-      PinduoduoCache: this.getCache(buyerMap, shotOrderPlatform.PinDuoduo),
+      TaoBaoCache: this.getCache(buyerMap, Number(shotOrderPlatform.TaoBao)),
+      PinduoduoCache: this.getCache(buyerMap, Number(shotOrderPlatform.PinDuoduo)),
       ListShotOrdes: orders,
       UseLifeSpanHandler: false,
       Currency: '￥',
@@ -166,7 +166,7 @@ export default class {
     //cefLanguage：选择的网页翻译的语种
     //crossBorderAccessToken：天猫淘宝海外cookie
     //shortConfigInfoJson : shortGlobalInfo
-    console.log(this.crossBorderAccessToken,"this.crossBorderAccessToken")
+    console.log(JSON.stringify(shortGlobalInfo))
     this.nativeService.start(JSON.stringify(shortGlobalInfo), configInfo.language_set, this.crossBorderAccessToken)
   }
   // 单个拍单设置相应的缓存 多个拍单保留全部
@@ -224,7 +224,7 @@ export default class {
           return item.type == 3
         })
       }
-      console.log(warehouseInfo)
+      console.log(warehouseInfo, "warehouseInfo")
       //仓库信息为空或者仓库信息中的仓库id为空（warehouse_id）提示   $"店铺【{orderinfo.mallname}】未绑定收货地址，请前往【仓库收货地址设置】进行设置。"
       if (!warehouseInfo) {
         return {
@@ -302,7 +302,7 @@ export default class {
         Street: buyerInfo['streetText'],
         PostCode: warehouseInfo.post_code ? warehouseInfo.post_code : '000000',
         Address: buyerInfo["buyerAddress"],
-        Remark: itemOrder.node, //itemOrderinfo.buyer_memo
+        Remark: itemOrder.node || '', //itemOrderinfo.buyer_memo
         ProviceId: buyerInfo["provId"],
         CityId: buyerInfo["cityId"],
         TownId: buyerInfo["distId"],
@@ -310,17 +310,19 @@ export default class {
         Country: warehouseInfo.country ? warehouseInfo.country : '',
       }
       //处理goodsInfo
-      console.log(itemOrder,itemOrder.goods_info.ori_url,"处理goodsInfo")
+      console.log(itemOrder, itemOrder.goods_info.ori_url, "处理goodsInfo")
       let goodsInfo = {
+        "OwnGoodsId": itemOrder.goods_info.goods_id,
         UrlAddress: itemOrder.goods_info.ori_url,
         GoodsTitle: itemOrder.goods_info.goods_name,
         OriGoodsId: itemOrder.goods_info.ori_goods_id,
         GoodsMainImage: this._that.$filters.imageRender([itemOrder.mall_info.country, itemOrder.mall_info.platform_mall_id, itemOrder.goods_info.goods_img]), //[scope.row.country, scope.row.platform_mall_id, scope.row.product_cover] | imageRender
-        SkuId: "",
+        SkuId: itemOrder.goods_info.variation_id,
         OriSkuId: itemOrder.goods_info.ori_sku_id,
         SkuName: itemOrder.goods_info.variation_sku !== '' ? itemOrder.goods_info.variation_sku : itemOrder.goods_info.variation_name,
         OriBuyNum: itemOrder.goods_info.goods_count, //后面需要根据是否聚合拍单再做调整
-        Price: Math.round(Number(itemOrder.escrow_amount) / Number(this.rateList[itemOrder.country.toUpperCase()])), //订单收入转换为人民币  
+        ShotNumber: itemOrder.goods_info.goods_count,
+        Price: Math.round(Number(itemOrder.escrow_amount) * Number(this.rateList[itemOrder.country.toUpperCase()])), //订单收入转换为人民币  
         ExchangePrice: itemOrder.escrow_amount, //汇率订单收入     
         RedirectUrl: this.GetRedirectUrl(itemOrder, nickInfo), //获取优惠调转链接
         PddReamrk: itemOrder.note, //平台备注
@@ -328,15 +330,18 @@ export default class {
         OtherInfo: this._that.$filters.chineseSite(itemOrder.country), //站点中文
         CountryCode: itemOrder.country,
         CurrentExchangeRate: this.rateList[itemOrder.country.toUpperCase()],
-        oritype: this.getShortOrderBuyerAccountPlatform(itemOrder.goods_info.ori_platform_id),
+        oritype: this.getShortOrderBuyerAccountPlatform(Number(itemOrder.goods_info.ori_platform_id)),
+        "ForceQuickOrder": 0,
+        "GroupGoodsModels": [],
+        "IsOrderDetail": false,
         Purchaselist: this.dealWithPurchaseList(itemOrder, nickInfo), //组装商品采购链接列表
       };
 
       //处理shotOrderInfo
       let shotOrderInfo = {
         OrderNumber: itemOrder.order_sn, //shopee订单编号
-        OrderPriceCnt: Math.round(Number(itemOrder.escrow_amount) / Number(this.rateList[itemOrder.country.toUpperCase()])) || 0,
-        OrdeExchangerPriceCnt: itemOrder.escrow_amount, //汇率价格
+        OrderPriceCnt: Math.round(Number(itemOrder.escrow_amount) * Number(this.rateList[itemOrder.country.toUpperCase()])) || 0,
+        OrdeExchangerPriceCnt: itemOrder.escrow_amount + this._that.$filters.siteCoin(itemOrder.country), //汇率价格
         Tag: {
           SysOrderId: itemOrder.id,
           MallId: itemOrder.mall_info.platform_mall_id,
@@ -346,16 +351,17 @@ export default class {
           Status: itemOrder.order_status, //拍单状态
           Note: itemOrder.note
         },
-        SystemOrderId: 0,
+        SystemOrderId: itemOrder.id,
         KidPayAmount: '',
         MallName: "",
         MallId: "",
         IsGiftOrder: false,
         IsUseHuaWeiCloudPhone: false,
       }
+      console.log("itemOrder.goods_info.ori_platform_id",itemOrder.goods_info.ori_platform_id)
       let paramaAll = {
-        buyerAccount: buyerMap.get(this.getShortOrderBuyerAccountPlatform(itemOrder.goods_info.ori_platform_id)),
         payAccount: payAccount,
+        buyerAccount: buyerMap.get(this.getShortOrderBuyerAccountPlatform(Number(itemOrder.goods_info.ori_platform_id))),
         receiveUserInfo: receiveUserInfo,
         goodsInfo: goodsInfo,
         shotOrderInfo: shotOrderInfo
@@ -369,7 +375,7 @@ export default class {
     }
   }
   //处理采购地址
-  dealWithPurchaseList(itemOrder,nickInfo) {
+  dealWithPurchaseList(itemOrder, nickInfo) {
     let shipList = []
     let res = this.goodBuyUrlList.find(item => {
       return item.goods_id === itemOrder.goods_info.goods_id
@@ -380,7 +386,7 @@ export default class {
     let jxIDs = /sku=([0-9]*)/
     let tmGlobalIDs = /mpId=([0-8]*)/
     let jdlazada1688IDs = /(\d+)\.html/
-    let shopeeIDs =  /[^\/]+(?!.*\/)/
+    let shopeeIDs = /[^\/]+(?!.*\/)/
     let goods_id = ''
     res && res.purchase_detail && res.purchase_detail.length && res.purchase_detail.forEach(item => {
       if (item.purchase_url.match(execGoods)) {
@@ -404,7 +410,7 @@ export default class {
       }
       shipList.push(par)
     })
-    console.log(res,res.purchase_detail,shipList,"shipList")
+    console.log(res, res.purchase_detail, shipList, "shipList")
     return shipList
   }
   //获取采购地址
@@ -428,12 +434,12 @@ export default class {
     switch (itemOrder.goods_info.ori_platform_id) {
       case 1:
         redirectUrl = itemOrder.goods_info.ori_url;
-        redirectUrl = "http://" + process.env.VUE_APP_ddk + "/ddk/singlePromotion?goodsId=" + itemOrder.goods_info.ori_goods_id + "&muid=" + nickInfo.muid;
+        // redirectUrl = "http://" + process.env.VUE_APP_ddk + "/ddk/singlePromotion?goodsId=" + itemOrder.goods_info.ori_goods_id + "&muid=" + nickInfo.muid;
         break;
       case 2:
       case 3:
         redirectUrl = itemOrder.goods_info.ori_url;
-        redirectUrl = "http://" + process.env.VUE_APP_ddk + "/tbk/singlePromotion?goodsId=" + itemOrder.goods_info.ori_goods_id + "&muid=" + nickInfo.muid;
+        // redirectUrl = "http://" + process.env.VUE_APP_ddk + "/tbk/singlePromotion?goodsId=" + itemOrder.goods_info.ori_goods_id + "&muid=" + nickInfo.muid;
         break;
       default:
         redirectUrl = itemOrder.goods_info.ori_url
@@ -452,6 +458,7 @@ export default class {
     addressUserInfo["cityText"] = warehouseInfo.city_text
     addressUserInfo["distinctText"] = warehouseInfo.distinct_text
     addressUserInfo["streetText"] = ''
+    // addressUserInfo["postCode"] = warehouseInfo.post_code
 
     let buyerName = nickInfo.Nickname + "#" + warehouseInfo.receiving_name;
     if (warehouseInfo.isUser === 1) {
@@ -492,19 +499,60 @@ export default class {
     addressUserInfo["buyerAddress"] = detailAddress;
     //处理 provId/cityId/distId
     if (itemOrder.goods_info.ori_platform_id == 2 || itemOrder.goods_info.ori_platform_id == 3 || itemOrder.goods_info.ori_platform_id == 8) {
-      let res = await window['BaseUtilBridgeService'].getTbAddress()
-      console.log('BaseUtilBridgeService',res)
-    } else if (itemOrder.goods_info.ori_platform_id == 9 && warehouseInfo.country === 'SG') {
-      let res = await window['BaseUtilBridgeService'].getTbAddress(warehouseInfo.distinct_id)
-      console.log(res, 'SG')
+      // province,distinct
+      let res = await window['BaseUtilBridgeService'].getTbAddress(warehouseInfo.province_text, warehouseInfo.distinct_text)
+      console.log('BaseUtilBridgeService', res)
+      if (res) {
+        addressUserInfo["provId"] = res.ProvinceId
+        addressUserInfo["cityId"] = res.CityId
+        addressUserInfo["distId"] = res.DistrictId
+        addressUserInfo["streetId"] = ''
+        addressUserInfo["provinceText"] = res.Province
+        addressUserInfo["cityText"] = res.City
+        addressUserInfo["distinctText"] = res.District
+        addressUserInfo["streetText"] = ''
+        // addressUserInfo["postCode"] = res.Post
+      }
+    } else if (itemOrder.goods_info.ori_platform_id == 9 && warehouseInfo.country !== 'SG') {
+      let res = await window['BaseUtilBridgeService'].getLazadaAddress(warehouseInfo.distinct_id)
+      console.log(res,"6865546")
+      if (res) {
+        if (!res.DistrictId) {
+          return {
+            code: 50001,
+            data: `【${itemOrder.order_sn}】未匹配到用户的地址ID`
+          }
+        }
+        addressUserInfo["provId"] = res.ProvinceId
+        addressUserInfo["cityId"] = res.CityId
+        addressUserInfo["distId"] = res.DistrictId
+        addressUserInfo["streetId"] = ''
+        addressUserInfo["provinceText"] = res.Province.includes("/") ? res.Province.split('/')[0].trim() : res.Province;
+        addressUserInfo["cityText"] = res.City.includes("/") ? res.City.split('/')[0].trim() : res.City;
+        addressUserInfo["distinctText"] = res.District
+        addressUserInfo["streetText"] = ''
+        // addressUserInfo["postCode"] = res.Post
+      }
+      if (nickInfo.Nickname.includes("_") || nickInfo.Nickname.includes("+")) {
+        return {
+          code: 50001,
+          data: `【用户昵称含有特殊字符，Lazada平台不支持使用特殊字符创建收件人，请联系客服修改`
+        }
+      }
+      if (itemOrder.country == "PH") {
+        //菲律宾站点名称不能包含#字符，且必须使用空格分隔，直接使用买家姓名
+        buyerName = nickInfo.Nickname + " " + warehouseInfo.receiving_name + "-" + "SPM";
+      }
+      addressUserInfo['buyerName'] = buyerName.replace("#", "-");
     } else if (itemOrder.goods_info.ori_platform_id == 11) {
-      if (warehouseInfo.country === 'SG' && warehouseInfo.type === 3) {
+      if (warehouseInfo.country !== 'SG' && warehouseInfo.type === 3) {
         if (!warehouseInfo.shopee_map_id) {
           return {
             code: 50001,
             data: '该仓库未映射shopee地址，请重新映射'
           }
         }
+
       }
     }
     return {
@@ -516,7 +564,7 @@ export default class {
    * 转换为拍单系统买手号模型
    */
   conver2BuyerAccount(account) {
-    if(account.type === 13){
+    if (account.type === 13) {
       let params = {
         UserNameCache: '',
         Password: '',
@@ -789,14 +837,8 @@ export default class {
       case 2:
       case 3:
         return shotOrderPlatform.TaoBao
-        // case 3:
-        //   return shotOrderPlatform.TaoBao
       case 4:
         return shotOrderPlatform.JingDong
-        // case 2:
-        //   return shotOrderPlatform.HYJ
-      case 5:
-        return shotOrderPlatform.Alibaba
       case 8:
         return shotOrderPlatform.Alibaba
       case 9:

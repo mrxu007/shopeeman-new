@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-11-09 10:17:44
- * @LastEditTime: 2021-11-22 22:02:04
+ * @LastEditTime: 2021-11-29 18:01:13
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shopeeman-new\src\views\order-manager\components\OrderManagerOrderCenter.vue
@@ -157,7 +157,7 @@
                   <el-button type="primary" size="mini" class="btnMini" @click="getOrderList">搜索</el-button>
                   <el-button type="primary" size="mini" class="btnMedium">一键同步上家库存</el-button>
                   <el-button type="primary" size="mini" class="btnLong" @click="batchShipInfo">批量添加采购物流单号</el-button>
-                  <el-button type="primary" size="mini" class="btnLong">批量获取Lazada付款方式</el-button>
+                  <el-button type="primary" size="mini" class="btnLong" @click="getLazadaPayType">批量获取Lazada付款方式</el-button>
                   <el-button type="primary" size="mini" class="btnLong" @click="uploadStoreShipAmountVisible = true">上报仓库发货金额</el-button>
                   <el-button type="primary" size="mini" class="btnMedium" @click="openBefore">批量添加本地备注</el-button>
                 </el-row>
@@ -166,16 +166,16 @@
                   <el-button type="primary" size="mini" class="btnMedium" @click="outStoreBefore('自有仓库商品出库', '1')">自有仓库商品出库</el-button>
                   <el-button type="primary" size="mini" class="btnLong" @click="outStoreBefore('产品中心商品出库', '2')">产品中心商品出库</el-button>
                   <el-button type="primary" size="mini" class="btnLong" @click="outStoreBefore('海外仓备货商品出库', '3')">海外仓备货商品出库</el-button>
-                  <el-button type="primary" size="mini" class="btnLong" @click="outStoreBefore('国内仓备货商品出局', '4')">国内仓备货商品出局</el-button>
-                  <el-button type="primary" size="mini" class="btnMedium">批量评价订单买家</el-button>
+                  <el-button type="primary" size="mini" class="btnLong" @click="outStoreBefore('国内仓备货商品出库', '4')">国内仓备货商品出局</el-button>
+                  <el-button type="primary" size="mini" class="btnMedium" @click="batchReplyOrderBuyer(multipleSelection)">批量评价订单买家</el-button>
                 </el-row>
                 <el-row class="row-style">
-                  <el-button size="mini" class="btnMini">导出数据</el-button>
-                  <el-button size="mini" class="btnMedium">导出数据报表</el-button>
+                  <el-button size="mini" class="btnMini" @click="applyAsyncExportOrder">导出数据</el-button>
+                  <el-button size="mini" class="btnMedium" @click="orderReportVisible = true">导出数据报表</el-button>
                   <el-button type="primary" size="mini" class="btnLong">批量打印面单</el-button>
                   <el-button type="primary" size="mini" class="btnLong">批量天猫淘宝海外平台拍单</el-button>
                   <el-button type="primary" size="mini" class="btnLongMax">批量获取天猫淘宝海外平台订单信息</el-button>
-                  <el-button type="primary" size="mini" class="btnLong">拼多多月卡优惠券查询</el-button>
+                  <el-button type="primary" size="mini" class="btnLong" @click="openPddDisount">拼多多月卡优惠券查询</el-button>
                 </el-row>
                 <el-checkbox v-model="showConsole" class="mar-right">隐藏日志</el-checkbox>
               </div>
@@ -208,9 +208,14 @@
         </el-table-column>
         <el-table-column align="center" prop="color_id" label="颜色标识" min-width="70" v-if="showTableColumn('颜色标识')" />
         <el-table-column align="center" prop="color_id" label="标识名称" min-width="70" v-if="showTableColumn('标识名称')" />
-        <el-table-column prop="order_sn" label="订单编号" align="center" min-width="140px" v-if="showTableColumn('订单编号')" />
+        <el-table-column prop="order_sn" label="订单编号" align="center" min-width="170px" v-if="showTableColumn('订单编号')">
+          <template slot-scope="scope">
+            <span class="tableActive" @click="viewDetails('orderDetail', scope.row.order_id, scope.row.mall_info.platform_mall_id)">{{ scope.row.order_sn }}</span>
+            <i class="el-icon-s-order" style="margin-left:8px;cursor: pointer;" @click="copyItem(scope.row.order_sn)"></i>
+          </template>
+        </el-table-column>
         <el-table-column align="center" prop="created_time" label="订单创建时间" min-width="140" v-if="showTableColumn('订单创建时间')" />
-        <el-table-column align="center" prop="order_status" label="发货状态" min-width="70" v-if="showTableColumn('发货状态')">
+        <el-table-column align="center" prop="order_status" label="发货状态" min-width="100" v-if="showTableColumn('发货状态')">
           <template slot-scope="scope">{{ changeTypeName(scope.row.order_status, orderStatusList) }}</template>
         </el-table-column>
         <el-table-column align="center" prop="shopee_delivery_time" label="发货时间" min-width="140" v-if="showTableColumn('发货时间')">
@@ -219,14 +224,18 @@
         <el-table-column align="center" prop="ori_platform_id" label="采购类型" min-width="120" v-if="showTableColumn('采购类型')">
           <template slot-scope="scope">{{ changeTypeName(scope.row.goods_info.ori_platform_id, goodsSourceList) }}</template>
         </el-table-column>
-        <el-table-column align="center" prop="123456" label="查看采购地址" min-width="120" v-if="showTableColumn('查看采购地址')">
-          <template slot-scope="scope">{{}}</template>
+        <el-table-column align="center" prop="123456" label="查看采购地址" min-width="130" v-if="showTableColumn('查看采购地址')">
+          <template slot-scope="scope">
+            <el-button size="mini" type="primary" @click="openUrl(scope.row.goods_info.ori_url)">查看采购地址</el-button>
+          </template>
         </el-table-column>
         <el-table-column align="center" prop="123456" label="是否可二次销售" min-width="120" v-if="showTableColumn('是否可二次销售')">
           <template slot-scope="scope">{{}}</template>
         </el-table-column>
         <el-table-column align="center" label="商品ID" min-width="120" v-if="showTableColumn('商品ID')">
-          <template slot-scope="scope">{{ scope.row.goods_info.goods_id }}</template>
+          <template slot-scope="scope">
+            <p class="tableActive" @click="openUrl(scope.row, 'product')">{{ scope.row.goods_info.goods_id }}</p>
+          </template>
         </el-table-column>
         <el-table-column align="center" label="商品创建时间" min-width="140" v-if="showTableColumn('商品创建时间')">
           <template slot-scope="scope">{{ scope.row.goods_info.created_at }}</template>
@@ -256,13 +265,13 @@
         <el-table-column align="center" label="商品标题" min-width="120" show-overflow-tooltip v-if="showTableColumn('商品标题')">
           <template slot-scope="scope">{{ scope.row.goods_info.goods_name }}</template>
         </el-table-column>
-        <el-table-column align="center" label="搜同款" min-width="80" v-if="showTableColumn('搜同款')">
+        <el-table-column align="center" label="搜同款" min-width="100" v-if="showTableColumn('搜同款')">
           <template slot-scope="scope">
             <el-button type="primary" size="mini">搜同款</el-button>
           </template>
         </el-table-column>
         <el-table-column align="center" label="商品类目" min-width="80" v-if="showTableColumn('商品类目')">
-          <template slot-scope="scope">{{ scope.row.goods_info.goods_category_id }}</template>
+          <template slot-scope="scope">{{ getCategoryInfo(scope.row.country, scope.row.goods_info.goods_category_id) }}</template>
         </el-table-column>
         <el-table-column align="center" label="规格编号" min-width="80" v-if="showTableColumn('规格编号')">
           <template slot-scope="scope">{{ scope.row.goods_info.sku_id }}</template>
@@ -321,14 +330,14 @@
         <el-table-column align="center" prop="buy_account_info" label="采购账号" min-width="120" v-if="showTableColumn('采购账号')">
           <template slot-scope="scope">{{ scope.row.shot_order_info.buy_account_info ? scope.row.shot_order_info.buy_account_info.name : '' }}</template>
         </el-table-column>
-        <el-table-column align="center" prop="" label="账单明细" min-width="80" v-if="showTableColumn('账单明细')">
+        <!-- <el-table-column align="center" prop="" label="账单明细" min-width="80" v-if="showTableColumn('账单明细')">
           <template slot-scope="scope">
             <el-button type="primary" size="mini">账单明细</el-button>
           </template>
-        </el-table-column>
+        </el-table-column> -->
         <el-table-column align="center" prop="" label="拍单" min-width="80" v-if="showTableColumn('拍单')">
-          <template slot-scope="scope">
-            <el-button type="primary" size="mini">拍单</el-button>
+          <template slot-scope="scope" v-if="scope.row.shot_order_info.shot_status == 1">
+            <el-button type="primary" size="mini" @click="singlePurchase(scope.row)">采购</el-button>
           </template>
         </el-table-column>
         <el-table-column align="center" label="采购状态" min-width="120" v-if="showTableColumn('采购状态')">
@@ -337,7 +346,7 @@
         <el-table-column align="center" label="采购时间" min-width="140" v-if="showTableColumn('采购时间')">
           <template slot-scope="scope">{{ scope.row.shot_order_info.shotted_at }}</template>
         </el-table-column>
-        <el-table-column align="center" label="采购订单号" min-width="140" v-if="showTableColumn('采购订单号')">
+        <el-table-column align="center" label="采购订单号" min-width="150" v-if="showTableColumn('采购订单号')">
           <template slot-scope="scope">{{ scope.row.shot_order_info.order_sn }}</template>
         </el-table-column>
         <el-table-column align="center" label="采购付款方式" min-width="120" v-if="showTableColumn('采购付款方式')">
@@ -355,9 +364,9 @@
         <el-table-column align="center" label="采购发货时间" min-width="120" v-if="showTableColumn('采购发货时间')">
           <template slot-scope="scope">{{ scope.row.shot_order_info.shot_shipping_time }}</template>
         </el-table-column>
-        <el-table-column align="center" prop="123456" label="采购物流轨迹" min-width="120" v-if="showTableColumn('采购物流轨迹')">
+        <el-table-column align="center" prop="123456" label="采购物流轨迹" min-width="130" v-if="showTableColumn('采购物流轨迹')">
           <template slot-scope="scope">
-            <el-button type="primary" size="mini">采购物流轨迹</el-button>
+            <el-button type="primary" size="mini" @click="trackPathVisible = true">采购物流轨迹</el-button>
           </template>
         </el-table-column>
         <el-table-column align="center" prop="merchant_no" label="商户订单号" min-width="120" v-if="showTableColumn('商户订单号')">
@@ -367,27 +376,27 @@
           <template slot-scope="scope">{{ scope.row.transport_type === 1 ? '空运' : scope.row.transport_type === 2 ? '陆运' : '' }}</template>
         </el-table-column>
         <el-table-column align="center" prop="package_type" label="货物类型" min-width="80" v-if="showTableColumn('货物类型')">
-          <template slot-scope="scope">{{ scope.row.package_type }}</template>
+          <template slot-scope="scope">{{ changePackageType(scope.row.package_type) }}</template>
         </el-table-column>
         <!-- <el-table-column align="center" prop="note" label="买家备注" min-width="80">
           <template slot-scope="scope">{{  }}</template>
         </el-table-column> -->
-        <el-table-column align="center" prop="logistics_id" label="虾皮物流" min-width="80" v-if="showTableColumn('虾皮物流')">
-          <template slot-scope="scope">{{ scope.row.logistics_id }}</template>
+        <el-table-column align="center" prop="logistics_name" label="虾皮物流" min-width="80" v-if="showTableColumn('虾皮物流')">
+          <template slot-scope="scope">{{ scope.row.logistics_name }}</template>
         </el-table-column>
-        <el-table-column align="center" prop="tracking_no" label="虾皮物流单号" min-width="120" v-if="showTableColumn('虾皮物流单号')">
+        <el-table-column align="center" prop="tracking_no" label="虾皮物流单号" min-width="150" v-if="showTableColumn('虾皮物流单号')">
           <template slot-scope="scope">{{ scope.row.tracking_no }}</template>
         </el-table-column>
-        <el-table-column align="center" prop="123456" label="虾皮物流轨迹" min-width="120" v-if="showTableColumn('虾皮物流轨迹')">
+        <el-table-column align="center" prop="123456" label="虾皮物流轨迹" min-width="130" v-if="showTableColumn('虾皮物流轨迹')">
           <template slot-scope="scope">
-            <el-button type="primary" size="mini">虾皮物流轨迹</el-button>
+            <el-button type="primary" size="mini" @click="getSHtrackPath(scope.row)">虾皮物流轨迹</el-button>
           </template>
         </el-table-column>
         <el-table-column align="center" prop="ship_by_date" label="截止发货时间" min-width="140" v-if="showTableColumn('截止发货时间')">
           <template slot-scope="scope">{{ scope.row.ship_by_date }}</template>
         </el-table-column>
         <el-table-column align="center" prop="delivery_status" label="仓库发货状态" min-width="100" v-if="showTableColumn('仓库发货状态')">
-          <template slot-scope="scope">{{ scope.row.delivery_status }}</template>
+          <template slot-scope="scope">{{ changeDeliveryStatus(scope.row.delivery_status) }}</template>
         </el-table-column>
         <el-table-column align="center" prop="arrival_time" label="入库时间" min-width="140" v-if="showTableColumn('入库时间')">
           <template slot-scope="scope">{{ scope.row.arrival_time }}</template>
@@ -414,11 +423,11 @@
         <el-table-column align="center" prop="pay_time " label="订单支付时间" min-width="140" v-if="showTableColumn('订单支付时间')">
           <template slot-scope="scope">{{ scope.row.pay_time }}</template>
         </el-table-column>
-        <el-table-column align="center" prop="123456" label="订单轨迹" min-width="80" v-if="showTableColumn('订单轨迹')">
+        <!-- <el-table-column align="center" prop="123456" label="订单轨迹" min-width="80" v-if="showTableColumn('订单轨迹')">
           <template slot-scope="scope">
             <el-button type="primary" size="mini">订单轨迹</el-button>
           </template>
-        </el-table-column>
+        </el-table-column> -->
         <el-table-column align="center" prop="update_time" label="订单更新时间" min-width="140" v-if="showTableColumn('订单更新时间')">
           <template slot-scope="scope">{{ scope.row.update_time }}</template>
         </el-table-column>
@@ -430,6 +439,19 @@
                 <el-dropdown-item> <div class="dropdownItem" @click="singleBuyInfo(scope.row)">采购信息编辑</div></el-dropdown-item>
                 <el-dropdown-item> <div class="dropdownItem" @click="addPurchaseLink(scope.row, scope.$index)">添加采购链接</div></el-dropdown-item>
                 <el-dropdown-item> <div class="dropdownItem" @click="addMoreTrackingNumber(scope.row, scope.$index)">添加多物流单号</div></el-dropdown-item>
+                <el-dropdown-item> <div class="" @click="setColorSingle(scope.row, scope.$index)">标记颜色标识</div></el-dropdown-item>
+                <el-dropdown-item> <div class="dropdownItemdropdownItem" @click="clickRow = scope.row;billsDetailVisible = true;" >账单明细</div></el-dropdown-item>
+                <el-dropdown-item> <div class="dropdownItem" @click="SyncOrder(scope.row)">同步此店铺订单</div></el-dropdown-item>
+                <el-dropdown-item> <div class="dropdownItem" @click="SyncOrderSingle(scope.row)">同步此订单</div></el-dropdown-item>
+                <el-dropdown-item> <div class="dropdownItem" @click="syncLogisticsSingle(scope.row)">同步此订单物流</div></el-dropdown-item>
+                <el-dropdown-item> <div class="dropdownItem" @click="getSHtrackPath(scope.row)">虾皮物流轨迹</div></el-dropdown-item>
+                <el-dropdown-item> <div class="dropdownItem" @click="getorderPath(scope.row)">订单轨迹</div></el-dropdown-item>
+                <el-dropdown-item> <div class="dropdownItem" @click="handleOutOrder(scope.row)">手动发货</div></el-dropdown-item>
+                <el-dropdown-item> <div class="dropdownItem" @click="batchReplyOrderBuyer([scope.row])">回复订单评论</div></el-dropdown-item>
+                <el-dropdown-item> <div class="dropdownItem" @click="viewDetails('itemDetail', scope.row.goods_info.goods_id, scope.row.mall_info.platform_mall_id)">商品编辑</div></el-dropdown-item>
+                <el-dropdown-item> <div class="dropdownItem" @click="goodsDelist(scope.row)">商品下架</div></el-dropdown-item>
+                <el-dropdown-item> <div class="dropdownItem" @click="goodsDelete(scope.row)">商品删除</div></el-dropdown-item>
+                <el-dropdown-item> <div class="dropdownItem" @click="goodsTop(scope.row)">商品置顶</div></el-dropdown-item>
               </el-dropdown-menu>
             </el-dropdown>
             <!-- <el-button type="primary" size="mini">操作</el-button> -->
@@ -480,7 +502,7 @@
         <el-button type="primary" size="mini" @click="batchSetRemark">批量添加</el-button>
       </span>
     </el-dialog>
-    <el-dialog title="选择颜色标识" :visible.sync="colorVisible" width="600px" :close-on-click-modal="false">
+    <el-dialog title="选择颜色标识" :visible.sync="colorVisible" width="600px" :close-on-click-modal="false" v-if="colorVisible">
       <div class="color-style">
         <el-table ref="colorTable" :data="colorList" tooltip-effect="dark" style="width: 100%" height="500">
           <el-table-column label="标识选择" width="100">
@@ -497,13 +519,13 @@
         </el-table>
       </div>
       <span slot="footer">
-        <el-button type="primary" size="mini" @click="setColor">设置颜色</el-button>
+        <el-button type="primary" size="mini" @click="setColor(multipleSelection)">设置颜色</el-button>
       </span>
     </el-dialog>
     <el-dialog title="批量添加采购信息" :visible.sync="purchaseInfoVisible" width="500px" top="5vh" v-if="purchaseInfoVisible" :close-on-click-modal="false">
-      <purchase-info :chooseData="multipleSelection" :buyerAccountList="buyerAccountList" @close="close" :dealType="dealType"></purchase-info>
+      <purchase-info :chooseData="multipleSelection" :buyerAccountList="buyerAccountList" @close="closeDialog" :dealType="dealType"></purchase-info>
     </el-dialog>
-    <el-dialog title="同步数据至仓库" :visible.sync="pushOrderToStoreVisible" width="1200px" :close-on-click-modal="false">
+    <el-dialog title="同步数据至仓库" :visible.sync="pushOrderToStoreVisible" width="1200px" :close-on-click-modal="false" v-if="pushOrderToStoreVisible" @close="closeDialog">
       <push-order :chooseData="multipleSelection"></push-order>
     </el-dialog>
     <el-dialog title="批量添加采购物流单号" :visible.sync="shipInfoVisible" width="400px" :close-on-click-modal="false">
@@ -533,10 +555,10 @@
     <!-- 四类商品出库 -->
     <el-dialog :visible.sync="goodsOutStoreVisible" width="1400px" top="5vh" v-if="goodsOutStoreVisible" :close-on-click-modal="false">
       <div slot="title">{{ outStoreTitle }}</div>
-      <goods-out-store :chooseData="multipleSelection" :type="outStoreType"></goods-out-store>
+      <goods-out-store :chooseData="multipleSelection" :outStoreType="outStoreType"></goods-out-store>
     </el-dialog>
     <el-dialog title="添加采购链接" :visible.sync="addBuyLinkVisible" width="1200px" v-if="addBuyLinkVisible" append-to-body :close-on-click-modal="false">
-      <buy-link :linkRow="clickRow" @close="close"></buy-link>
+      <buy-link :linkRow="clickRow" @close="closeDialog"></buy-link>
     </el-dialog>
     <el-dialog title="查看禁运品" :visible.sync="lookForbidVisible" width="1200px" :close-on-click-modal="false">
       <div class="forbid">
@@ -555,30 +577,123 @@
     <el-dialog title="添加多物流单号" :visible.sync="addMoreTraNumberVisible" width="700px" :close-on-click-modal="false" v-if="addMoreTraNumberVisible" @close="closeDialog">
       <div class="tra-style">
         <div class="item-box">
-          <span style="width:60px;">绑定仓库</span>
+          <span style="width: 60px">绑定仓库</span>
           <el-select v-model="bindStore" size="mini" class="inputWidth">
             <el-option :label="item.warehouse_name" :value="item.warehouse_id" v-for="(item, index) in warehouseData" :key="index"></el-option>
           </el-select>
         </div>
         <div v-for="(item, index) in trackingNumberList" :key="index" class="tra-content">
           <div class="item-box">
-            <span style="width:80px;">物流单号{{ index+1 }}</span>
+            <span style="width: 80px">物流单号{{ index + 1 }}</span>
             <el-input v-model="item.original_tracking_number" size="mini" class="inputWidth"></el-input>
           </div>
           <div class="item-box">
-            <span style="width:80px;">物流公司{{ index+1 }}</span>
+            <span style="width: 80px">物流公司{{ index + 1 }}</span>
             <el-input v-model="item.original_logistics_company" size="mini" class="inputWidth mar-right"></el-input>
           </div>
-          <el-button type="primary" size="mini" @click="deleteTraNumber(index)" class="item-box mar-right" >删除</el-button>
+          <el-button type="primary" size="mini" @click="deleteTraNumber(index)" class="item-box mar-right">删除</el-button>
           <el-button type="primary" size="mini" v-if="index === trackingNumberList.length - 1" @click="addTraNumber" class="item-box">添加</el-button>
         </div>
+        <p>关于绑定仓库选项:</p>
+        <p>1、仅显示当前订单店铺绑定的仓库</p>
+        <p>2、采购类型如果为国内平台时，显示国内中转仓，如果为国外平台则显示海外仓</p>
       </div>
+      <span slot="footer">
+        <el-button type="primary" size="mini" @click="saveAddMoreTra">保 存</el-button>
+      </span>
+    </el-dialog>
+    <el-dialog title="账单明细" :visible.sync="billsDetailVisible" top="5vh" width="1200px" :close-on-click-modal="false" v-if="billsDetailVisible" @close="closeDialog">
+      <bill-detail :chooseData="clickRow"></bill-detail>
+    </el-dialog>
+    <el-dialog title="物流轨迹" :visible.sync="trackPathVisible" width="400px" :close-on-click-modal="false" v-if="trackPathVisible" @close="closeDialog">
+      <el-steps direction="vertical" :active="1">
+        <el-step title="暂无物流信息" :description="$dayjs(new Date()).format('YYYY-MM-DD HH:mm')"></el-step>
+      </el-steps>
+    </el-dialog>
+    <el-dialog title="虾皮物流轨迹" :visible.sync="spTrackPathVisible" width="500px" :close-on-click-modal="false" v-if="spTrackPathVisible" @close="closeDialog">
+      <div class="track-step">
+        <div class="step-header">
+          <div class="step-item">
+            <span>物流名称：</span>
+            <p>{{ clickRow.logistics_name }}</p>
+          </div>
+          <div class="step-item">
+            <span>物流编号:</span>
+            <p>{{ clickRow.tracking_no }}</p>
+          </div>
+        </div>
+        <div class="step-content" v-loading="shipInfoLoading">
+          <el-steps direction="vertical" :active="1" space="80px">
+            <el-step icon="el-icon-s-help" :title="item.description" :description="$dayjs(item.ctime * 1000).format('YYYY-MM-DD HH:mm')" v-for="(item, index) in spTrackPath" :key="index"></el-step>
+          </el-steps>
+        </div>
+      </div>
+    </el-dialog>
+    <el-dialog title="订单轨迹" :visible.sync="orderPathVisible" width="500px" :close-on-click-modal="false" v-if="orderPathVisible" @close="closeDialog">
+      <div class="track-step">
+        <div class="step-content" v-loading="orderPathInfoLoading">
+          <el-steps direction="vertical" :active="1" space="80px">
+            <el-step icon="el-icon-s-help" :title="item[0]" :description="item[1]" v-for="(item, index) in orderTrackPath" :key="index"></el-step>
+          </el-steps>
+        </div>
+      </div>
+    </el-dialog>
+    <el-dialog title="订单报表" :visible.sync="orderReportVisible" top="5vh" width="800px" :close-on-click-modal="false" v-if="orderReportVisible" @close="closeDialog">
+      <export-report></export-report>
+    </el-dialog>
+    <el-dialog title="批量回复订单买家" :visible.sync="replayOrderBuyerVisible" top="5vh" width="600px" :close-on-click-modal="false" v-if="replayOrderBuyerVisible" @close="closeDialog">
+      <reply-buyer :chooseData="replyBuyerData" @close="closeDialog"></reply-buyer>
+    </el-dialog>
+    <el-dialog title="填写发货单号" :visible.sync="handOutOrderVisible" top="5vh" width="500px" :close-on-click-modal="false" v-if="handOutOrderVisible" @close="closeDialog">
+      <div class="handle-out">
+        <div class="item">
+          <span>当前订单状态：</span>
+          <p>{{ changeTypeName(clickRow.order_status, orderStatusList) }}</p>
+          <!-- <el-input size="mini" v-model="clickRow.order_status" disabled></el-input> -->
+        </div>
+        <div class="item">
+          <span>订单号：</span>
+          <p>{{ clickRow.order_sn }}</p>
+          <!-- <el-input size="mini" v-model="clickRow.order_sn" disabled></el-input> -->
+        </div>
+        <div class="item">
+          <span>站点：</span>
+          <p>{{ clickRow.country | chineseSite }}</p>
+          <!-- <el-input size="mini" v-model="clickRow.country" disabled></el-input> -->
+        </div>
+        <div class="item">
+          <span>发货物流名称：</span>
+          <el-input size="mini" v-model="shippingProof" class="inputWidth"></el-input>
+        </div>
+        <div class="item">
+          <span>发货物流单号：</span>
+          <el-input size="mini" v-model="shippingTraceNo" class="inputWidth"></el-input>
+        </div>
+      </div>
+      <span slot="footer">
+        <el-button type="primary" size="mini" @click="saveHandleOut">保 存</el-button>
+      </span>
     </el-dialog>
   </div>
 </template>
 
 <script>
-import { orderStatusList, shotStatusList, timeTypeList, inputTypeList, goodsSourceList, siteShip, columnData, forbidData, forbidTHData } from '../components/orderCenter/orderCenter'
+import {
+  orderStatusList,
+  shotStatusList,
+  timeTypeList,
+  inputTypeList,
+  goodsSourceList,
+  siteShip,
+  columnData,
+  forbidData,
+  forbidTHData,
+  syncStatus,
+  changePackageType,
+  changeDeliveryStatus,
+  lazadaUrlList,
+  changeBuyerType,
+} from '../components/orderCenter/orderCenter'
 import { exportExcelDataCommon, creatDate } from '../../../util/util'
 import storeChoose from '../../../components/store-choose'
 import BuyerAccount from './orderCenter/buyer-account.vue'
@@ -587,9 +702,13 @@ import PurchaseInfo from './orderCenter/purchaseInfo.vue'
 import PushOrder from './orderCenter/pushOrderToStore.vue'
 import GoodsOutStore from './orderCenter/goodsOutStore.vue'
 import BuyLink from './orderCenter/addBuyLink.vue'
+import BillDetail from './orderCenter/billDetail.vue'
+import ExportReport from './orderCenter/exportReport.vue'
+import ReplyBuyer from './orderCenter/replyBuyer.vue'
 import UploadStoreShipAmount from './orderCenter/uploadStoreShipAmount.vue'
 import _ from 'lodash'
 import ShotOrderService from '../../../services/short-order/shot-order-service'
+import orderSync from '../../../services/timeOrder'
 export default {
   components: {
     BuyerAccount,
@@ -599,6 +718,9 @@ export default {
     GoodsOutStore,
     UploadStoreShipAmount,
     BuyLink,
+    BillDetail,
+    ExportReport,
+    ReplyBuyer,
   },
   data() {
     return {
@@ -636,6 +758,7 @@ export default {
       columnConfigList: columnData, //自定义配置列
       forbidData: forbidData,
       forbidTHData: forbidTHData,
+      lazadaUrlList: lazadaUrlList,
       shipTypeList: [], //物流方式
       tableLoading: false,
       tableData: [],
@@ -720,6 +843,20 @@ export default {
       warehouseData: [],
       trackingNumberList: [],
       bindStore: '', //绑定仓库-多物流
+      billsDetailVisible: false, //账单明细
+      trackPathVisible: false, //采购物流轨迹
+      spTrackPathVisible: false, //虾皮物流轨迹
+      spTrackPath: [], //虾皮物流轨迹
+      shipInfoLoading: false, //虾皮物流轨迹
+      orderPathVisible: false, //订单轨迹
+      orderPathInfoLoading: false, //订单轨迹
+      orderTrackPath: [], //订单轨迹
+      orderReportVisible: false, //订单报表
+      replayOrderBuyerVisible: false, //回复买家
+      replyBuyerData: [], //批量回复买家
+      handOutOrderVisible: false, //手动发货
+      shippingProof: '', //手动出库物流名
+      shippingTraceNo: '', //手动出库物流单号
     }
   },
   mounted() {
@@ -733,15 +870,349 @@ export default {
     }, 2000)
   },
   methods: {
+    //商品置顶
+    async goodsTop(row){
+      let params = {
+        id: Number(row.goods_info.goods_id),
+        shop_id: row.mall_info.platform_mall_id
+      }
+       let res = await this.$shopeemanService.handleGoodsTop(row.country, params)
+      if(res === 200){
+        this.$message.success(`商品置顶成功！`)
+      }else{
+        this.$message.error(`${res.data}`)
+      }
+    },
+    //商品删除
+    async goodsDelete(row){
+       this.$confirm('是否删除该商品?', '商品删除', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning',
+      })
+        .then(() => {
+          this.setGoodsDelete(row)
+        })
+        .catch(() => {})
+    },
+    //商品删除
+    async setGoodsDelete(row){
+      let params = {
+        product_id_list:[ Number(row.goods_info.goods_id)],
+        shop_id: row.mall_info.platform_mall_id
+      }
+       let res = await this.$shopeemanService.handleGoodsDelete(row.country, params)
+      if(res === 200){
+        this.$message.success(`商品删除成功！`)
+      }else{
+        this.$message.error(`${res.data}`)
+      }
+    },
+    //商品下架
+    async goodsDelist(row) {
+      // this.clickRow = row
+      this.$confirm('是否下架该商品?', '商品下架', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning',
+      })
+        .then(() => {
+          this.setGoodsDelist(row)
+        })
+        .catch(() => {})
+    },
+    //商品下架
+    async setGoodsDelist(row) {
+      let params = [
+        {
+          id: Number(row.goods_info.goods_id),
+          unlisted: true,
+        },
+      ]
+      let data = {
+        shop_id: row.mall_info.platform_mall_id,
+      }
+      let res = await this.$shopeemanService.handleGoodsDelist(row.country, data, params)
+      if(res === 200){
+        this.$message.success(`商品下架成功！`)
+      }else{
+        this.$message.error(`${res.data}`)
+      }
+      console.log(res, 'res')
+    },
+    //订单出库
+    async saveHandleOut() {
+      let params = {
+        order_id: this.clickRow.order_id,
+        shipping_proof: this.shippingProof,
+        shipping_trace_no: this.shippingTraceNo,
+        channel_id: 79900,
+        integrated: '',
+        shop_id: this.clickRow.mall_info.platform_mall_id,
+      }
+      let res = await this.$shopeemanService.handleOutOrder(this.clickRow.country, params)
+      if (res.data === 200) {
+        this.$message.success('发货成功！')
+        this.closeDialog()
+      } else {
+        this.$message.error(`发货失败，${res.data}`)
+      }
+      console.log(res, 'saveHandleOut')
+    },
+    handleOutOrder(row) {
+      this.clickRow = row
+      this.handOutOrderVisible = true
+      this.shippingProof = row.logistics_name
+      this.shippingTraceNo = row.tracking_no
+    },
+    //拼多多月卡优惠券查询
+    async openPddDisount() {
+      let pddBuys = []
+      let buyFilter = this.buyerAccountList.filter((item) => item.type === 1)
+      if (buyFilter.length) {
+        buyFilter.forEach((item) => {
+          let buy = this.changeAccountParams(item)
+          pddBuys.push(buy)
+        })
+      }
+      await this.$buyerAccountService.pddCouponWindow(pddBuys)
+    },
+    //转换参数为壳需要
+    changeAccountParams(account) {
+      let params = {
+        UserNameCache: account.cache_path,
+        Password: '',
+        shotOrderPlatform: changeBuyerType(account.type),
+        LoginedCookies: account.login_info,
+        UserName: account.name,
+        Cookiestr: JSON.stringify(account.login_info),
+        AccountType: account.type,
+        Ua: account.ua,
+        Country: account.site || '',
+      }
+      return params
+    },
+    //获取类目
+    getCategoryInfo(country, cateId) {
+      this.$commodityService.getCategoryTbInfo(country, cateId + '').then((res) => {
+        let str = ''
+        let resObj = res && JSON.parse(res)
+        if (resObj && resObj.code === 200) {
+          if (resObj.data.categories) {
+            str = ''
+          }
+        } else {
+          str = ''
+        }
+        return ''
+      })
+      // console.log(resObj, 'getCategoryInfo')
+    },
+    // 打开订单页面
+    viewDetails(type, id, shopId) {
+      const reqStr = {
+        type: type,
+        shopId: shopId,
+        id: id,
+      }
+      this.$BaseUtilService.getOrderDetailInfo(shopId, JSON.stringify(reqStr))
+    },
+    //批量回复订单买家
+    async batchReplyOrderBuyer(arr) {
+      if (!arr.length) {
+        return this.$message.warning('请选择数据！')
+      }
+      this.replyBuyerData = arr
+      this.replayOrderBuyerVisible = true
+    },
+    //批量获取lazada付款方式
+    async getLazadaPayType() {
+      let arr = this.multipleSelection.filter((item) => item.goods_info.ori_platform_id == 9)
+      if (!arr.length) {
+        return this.$message.warning('请选择采购类型为lazada的数据')
+      }
+      let buyersFilter = this.buyerAccountList.filter((item) => item.type === 9)
+      this.showConsole = false
+      if (!buyersFilter.length) {
+        this.$refs.Logs.writeLog(`请登录lazada买手号`, false)
+        return this.$message.warning('请登录lazada买手号')
+      }
+      console.log(buyersFilter)
+      this.$refs.Logs.writeLog(`开始获取lazada付款方式`, true) //country,cookieStr,orderId
+      for (let i = 0; i < arr.length; i++) {
+        let order = arr[i]
+        console.log(order)
+        if (!order.shot_order_info.buy_account_info) {
+          this.$refs.Logs.writeLog(`【${order.order_sn}】，当前没有拍单信息，无法获取！`, true)
+          continue
+        } else {
+          let buyer_name = order.shot_order_info.buy_account_info.name
+          let buy = buyersFilter.find((item) => item.name === buyer_name)
+          if (buy) {
+            let res = await this.$commodityService.getLazadaOrderDetail(order.country, JSON.stringify(buy.login_info), order.shot_order_info.shot_order_sn)
+            console.log(res, 'getLazadaOrderDetail')
+          } else {
+            this.$refs.Logs.writeLog(`【${order.order_sn}】，对应的买手号【${buyer_name}】没有找到，请登录对应买手号！`, true)
+            continue
+          }
+        }
+      }
+    },
+    changePackageType, //货物类型
+    changeDeliveryStatus, //仓库状态
+    //获取订单轨迹
+    async getorderPath(row) {
+      this.orderTrackPath = []
+      this.clickRow = row
+      this.orderPathVisible = true
+      let params = {
+        package_order_sn: row.order_sn,
+        // package_order_sn: '210516S654NNU9',
+      }
+      this.orderPathInfoLoading = true
+      let res = await this.$XzyNetMessageService.post('xzy.orderTrajectoryV2', params)
+      let resObj = (res && JSON.parse(res) && JSON.parse(res).data && JSON.parse(JSON.parse(res).data)) || undefined
+      if (resObj && resObj.code === 200) {
+        this.orderTrackPath = resObj.data.reverse()
+      }
+      if (!this.orderTrackPath.length) {
+        let params = ['暂无订单信息', this.$dayjs(new Date()).format('YYYY-MM-DD HH:ss')]
+        this.orderTrackPath.push(params)
+      }
+      this.orderPathInfoLoading = false
+      console.log(resObj, 'getorderPath')
+    },
+    //获取虾皮物流轨迹
+    async getSHtrackPath(row) {
+      console.log(row)
+      this.spTrackPathVisible = true
+      this.clickRow = row
+      let params = {
+        order_id: row.order_id,
+        shop_id: row.mall_info.platform_mall_id,
+      }
+      this.shipInfoLoading = true
+      if (row.order_status == 7) {
+        let res = await this.$shopeemanService.getLogisticsTrackingHistoryRefund(row.mall_info.country, params)
+        if (res.code === 200) {
+          this.spTrackPath = res.data.history
+        }
+      } else {
+        let res = await this.$shopeemanService.getLogisticsTrackingHistory(row.mall_info.country, params)
+        if (res.code === 200) {
+          this.spTrackPath = (res.data.list && res.data.list.length && res.data.list[0].tracking_info) || []
+        }
+      }
+      if (!this.spTrackPath.length) {
+        let params = {
+          ctime: Math.round(new Date().getTime() / 1000),
+          description: '暂无物流信息',
+        }
+        this.spTrackPath.push(params)
+      }
+      this.shipInfoLoading = false
+    },
+    //同步此订单物流
+    async syncLogisticsSingle(row) {
+      this.showConsole = false //打开日志
+      this.$refs.Logs.consoleMsg = ''
+      const service = new LogisticeSyncService(this.$refs.Logs.writeLog)
+      if (!this.buyerAccountList.length) {
+        this.$refs.Logs.writeLog(`没有买手号，请登录买手号`, false)
+      }
+      this.$refs.Logs.writeLog(`【${row.order_id}】获取采购物流轨迹开始`, true)
+      service.start(this, this.buyerAccountList, [row])
+    },
+    //同步此订单
+    async SyncOrderSingle(row) {
+      this.showConsole = false //打开日志
+      this.$refs.Logs.consoleMsg = ''
+      this.$refs.Logs.writeLog(`【${row.order_id}】开始同步，请耐心等待!`, true)
+      const orderService = new orderSync()
+      await orderService.startSingel(row, this.$refs.Logs.writeLog)
+    },
+    //同步此店铺订单
+    async SyncOrder(row) {
+      console.log(row, this.selectMallList)
+      let mallList = [row.mall_info]
+      this.showConsole = false //打开日志
+      this.$refs.Logs.consoleMsg = ''
+      if (mallList.length == 0) {
+        this.$refs.Logs.writeLog('没有获取到店铺数据，同步操作已取消!', false)
+        return
+      }
+      this.$refs.Logs.writeLog('开始同步，请耐心等待!', true)
+      for (let mI = 0; mI < mallList.length; mI++) {
+        let mall = mallList[mI]
+        for (let i = 0; i < syncStatus.length; i++) {
+          //同步状态
+          let statusObj = syncStatus[i]
+          const orderService = new orderSync(mall, statusObj, this, this.$refs.Logs.writeLog)
+          await orderService.start(`${mI + 1}/${mallList.length}`, 'manual')
+        }
+      }
+      this.$refs.Logs.writeLog('订单同步已完成！！！', true)
+    },
+    // 打开外部窗口
+    async openUrl(data, type) {
+      let url = data
+      if (type === 'product') {
+        let params = {
+          platform_mall_id: data.mall_info.platform_mall_id,
+        }
+        const webUrl = await this.$shopeemanService.getWebUrl(data.country, params)
+        console.log(webUrl, 'webUrl', data.country)
+        url = webUrl + '/product' + '/' + data.mall_info.platform_mall_id + '/' + data.goods_info.goods_id
+      }
+      this.$BaseUtilService.openUrl(url)
+    },
     //关弹窗
-    closeDialog(){
+    closeDialog() {
       this.trackingNumberList = []
+      this.purchaseInfoVisible = false
+      this.addBuyLinkVisible = false
+      this.billsDetailVisible = false
+      this.handOutOrderVisible = false
+      this.replayOrderBuyerVisible = false
+      this.clickRow = {}
+      this.multipleSelection = []
+      this.$refs.multipleTable.clearSelection()
+    },
+    //保存多物流
+    async saveAddMoreTra() {
+      let list = []
+      this.trackingNumberList.forEach((item) => {
+        let obj = {
+          id: item.id,
+          trackingNumber: item.original_tracking_number,
+          trackingNumberCompany: item.original_logistics_company,
+        }
+        list.push(obj)
+      })
+      let params = {
+        sysOrderId: this.clickRow.id,
+        lists: list,
+        warehouseId: this.bindStore,
+      }
+      let res = await this.$api.updateOrderTrackingNumber(params)
+      if (res.data.code === 200) {
+        this.$message.success('添加成功!')
+        this.addMoreTraNumberVisible = false
+      } else {
+        this.$message.error(`添加失败,${res.data.message}`)
+      }
+      console.log(res, 'res')
     },
     //添加多物流单号
     async addMoreTrackingNumber(row, index) {
+      this.clickRow = row
       this.addMoreTraNumberVisible = true
       let res = await this.$appConfig.getWarehouseInfo(row.mall_info.platform_mall_id)
-      let warehouseList = (res && JSON.parse(res)) || []
+      let resObj = (res && JSON.parse(res)) || {}
+      let warehouseList = []
+      for (const key in resObj) {
+        warehouseList.push(resObj[key])
+      }
       if ([1, 2, 3, 5, 8, 10].indexOf(Number(row.goods_info.ori_platform_id)) > -1) {
         this.warehouseData = warehouseList.filter((item) => {
           return item.type == 0
@@ -770,7 +1241,7 @@ export default {
     //添加多物流
     addTraNumber() {
       let par = {
-        id: '',
+        id: '0',
         original_tracking_number: '',
         original_logistics_company: '',
         warehouse_user_id: '',
@@ -855,6 +1326,11 @@ export default {
       this.shipStoreList = [storeInfo]
       console.log('223')
       this.shipInfoVisible = true
+    },
+    async singlePurchase(row) {
+      this.multipleSelection = []
+      this.multipleSelection.push(row)
+      this.purchaseHandler()
     },
     //批量拍单
     async purchaseHandler() {
@@ -1006,19 +1482,37 @@ export default {
       if (!this.multipleSelection.length) {
         return this.$message.warning('请选择数据')
       }
+      let arrFilter = this.multipleSelection.filter((item) => item.order_status === 2)
+      if (!arrFilter.length) {
+        return this.$message.warning('只有待发货的订单，才能进行出货！')
+      }
+      let single = {}
+      this.multipleSelection.forEach((item) => {
+        single[item.order_status] = item.order_status
+      })
+      if (Object.keys(single).length > 1) {
+        return this.$message.warning('只有待发货的订单，才能进行出货！')
+      }
       this.outStoreTitle = title
       this.outStoreType = type
+      console.log(this.outStoreType, '79')
       this.goodsOutStoreVisible = true
     },
-    close() {
-      this.purchaseInfoVisible = false
-      this.addBuyLinkVisible = false
-      this.multipleSelection = []
+    // close() {
+    //   this.purchaseInfoVisible = false
+    //   this.addBuyLinkVisible = false
+    //   this.multipleSelection = []
+    // },
+    async setColorSingle(row, index) {
+      this.clickRow = row
+      this.multipleSelection = [row]
+      this.colorVisible = true
+      await this.getColorList()
     },
     //设置颜色
-    async setColor() {
+    async setColor(arrData) {
       let ids = ''
-      this.multipleSelection.forEach((item, index) => {
+      arrData.forEach((item, index) => {
         if (index === 0) {
           ids = item.id
         } else {
@@ -1145,7 +1639,6 @@ export default {
         this.columnVisible = false
         this.getColumnsConfig()
       }
-      console.log(res)
     },
     //获取自定义配置列
     async getColumnsConfig() {
@@ -1157,9 +1650,8 @@ export default {
         } else {
           this.columnConfigList = resData
         }
-        // resData.forEach()
       }
-      console.log(data.data, 'getColumnsConfig')
+      // console.log(data.data, 'getColumnsConfig')
     },
     //同步物流单号
     async syncLogistics() {
@@ -1177,6 +1669,41 @@ export default {
         service.start(this, this.buyerAccountList)
       }
       console.log(this.buyerAccountList)
+    },
+    //导出数据
+    async applyAsyncExportOrder() {
+      let sysMallId = ''
+      this.selectMallList.forEach((item, index) => {
+        if (index === 0) {
+          sysMallId = item.id
+        } else {
+          sysMallId = sysMallId + ',' + item.id
+        }
+      })
+      let params = JSON.parse(JSON.stringify(this.selectForm))
+      params['page'] = this.currentPage
+      params['pageSize'] = this.pageSize
+      params['sysMallId'] = sysMallId
+      params[this.inputType] = this.inputContent
+      params['orderStatus'] = this.orderStatus.join(',')
+      params['shotStatus'] = this.shotStatus.join(',')
+      params['logisticsIds'] = this.logisticsIds.join(',')
+      params['createTime'] = this.createTime.length ? this.createTime[0] + ' 00:00:00' + '/' + this.createTime[1] + ' 23:59:59' : ''
+      let res = await this.$api.applyAsyncExportOrder(params)
+      console.log(res, 'applyAsyncExportOrder')
+      if (res.data.code === 200) {
+        return this.$notify({
+          title: '导出数据',
+          type: 'success',
+          message: `导出数据请求成功，可点击【导出数据报表】按钮查看导出状态`,
+        })
+      } else {
+        return this.$notify({
+          title: '导出数据',
+          type: 'error',
+          message: `请求失败，${res.data.message}`,
+        })
+      }
     },
     //获取订单列表数据
     async getOrderList() {
@@ -1215,17 +1742,6 @@ export default {
 
       console.log('getBuyerList', this.buyerAccountList)
     },
-    //获取买手号（壳）
-    // async getBuyers() {
-    //   let res = await this.$appConfig.getGlobalCacheInfo('buyerInfo', 'key')
-    //   let resObj = res && JSON.parse(res)
-    //   this.buyerAccountList = []
-    //   resObj &&
-    //     resObj.forEach((item) => {
-    //       this.buyerAccountList.push(JSON.parse(item.BuyerDetail))
-    //     })
-    //   console.log('buyers', resObj, this.buyerAccountList)
-    // },
     //商品来源中文信息
     changeTypeName(code, arr) {
       let res = arr.find((item) => {
@@ -1302,6 +1818,10 @@ export default {
   overflow: hidden;
   /deep/.el-dialog__body {
     padding: 10px 20px;
+  }
+  .tableActive {
+    color: red;
+    cursor: pointer;
   }
 }
 .content {
@@ -1487,11 +2007,56 @@ export default {
     }
   }
 }
-.tra-style{
-  display:flex;
+.tra-style {
+  display: flex;
   flex-direction: column;
-  .tra-content{
-    display:flex;
+  .tra-content {
+    display: flex;
+  }
+  p {
+    color: red;
+    height: 26px;
+  }
+}
+.track-step {
+  .step-header {
+    .step-item {
+      display: flex;
+      span {
+        font-weight: 900;
+        font-size: 14px !important;
+      }
+    }
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+  .step-content {
+    height: 500px;
+    overflow: auto;
+  }
+}
+.handle-out {
+  .item {
+    display: flex;
+    align-items: center;
+    span {
+      line-height: 28px;
+      height: 28px;
+      display: inline-block;
+      width: 120px;
+      text-align: right;
+    }
+    .inputWidth {
+      width: 200px;
+    }
+    p {
+      height: 28px;
+      line-height: 28px;
+    }
+    margin-bottom: 10px;
   }
 }
 </style>

@@ -110,6 +110,10 @@ export default class BaseUtilService {
     return await this.nativeService.getOrderDetailInfo(shopId, reqStr)
   }
   async getLocalTranslationThesaurus(word) {
-    return await this.nativeService.getLocalTranslationThesaurus('auto',"zh-Hans", word)
+    return await this.nativeService.getLocalTranslationThesaurus('auto', 'zh-Hans', word)
+  }
+  // 获取海外地址信息
+  async getLazadaDetailAddress(provinceid, contry) {
+    return await this.nativeService.getLazadaDetailAddress(provinceid, contry)
   }
 }

@@ -9,6 +9,9 @@
         margin-bottom: 0px !important;
     }
     .select-dialog{
+      /deep/.el-dialog{
+      margin-top: 10vh !important;
+    }
         .el-input{
             width: 177px;
         }
@@ -29,6 +32,13 @@
         display: flex !important;
         .dialog-left{
           width: 300px;
+          .header{
+            margin-left: 10px;
+            p{
+              color: red;
+              margin-top: 10px;
+            }
+          }
           .footer{
             margin-top: 10px;
             text-align: center;
@@ -39,6 +49,12 @@
           width: 620px;
         }
       }
+    }
+    .shopee-dialog{
+      .footer{
+        margin-top: 10px;
+        text-align: center;
+    }
     }
   }
   .mar-right {

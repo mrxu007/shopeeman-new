@@ -833,8 +833,8 @@ export default {
           let goods_num = 0
           let goods_price = 0
           item.sku_list.forEach(skuItem => {
-            goods_num += skuItem.stock_num ? skuItem.stock_num : 0
-            goods_price += skuItem.sku_price ? parseInt(skuItem.sku_price) : 0
+            goods_num += skuItem.sku_num ? skuItem.sku_num : 0
+            goods_price += skuItem.sku_price ? parseInt(skuItem.sku_price) * skuItem.sku_num : 0
           })
           item.goods_num = goods_num
           item.goods_price = goods_price
@@ -928,7 +928,7 @@ export default {
          <td>${item.sku_price ? item.sku_price : '' + '\t'}</td>
         <td>${item.sku_name ? item.sku_name : '' + '\t'}</td>
         <td>${item.sku_image ? item.sku_image : '' + '\t'}</td>
-        <td>${item.goods_url ? item.goods_url : '' + '\t'}</td>
+        <td>${item.sku_url ? item.sku_url : '' + '\t'}</td>
         </tr>`
       })
       this.isShowLoading = false

@@ -109,6 +109,17 @@ const site_coin_symbol = {
   'PL': 'zł'
 }
 
+// 各站点平台
+const site_platform = {
+  'MY': '0',
+  'TW': '1',
+  'VN': '2',
+  'ID': '3',
+  'PH': '4',
+  'TH': '5',
+  'SG': '6',
+  'BR': '7'
+}
 // 各站点shoppeman商品ID跳转页面http前缀
 const site_http_com = {
   'MY': 'https://my.xiapibuy.com',
@@ -156,10 +167,14 @@ var siteCoin = function(val) {
   attribute = countries_id[attribute] || attribute
   return site_coin_symbol[attribute] || attribute
 }
-
+var sitePlatform = function(val) {
+  let attribute = val && (val + '').toLocaleUpperCase() || val
+  attribute = site_platform[attribute] || attribute
+  return site_platform[attribute] || attribute
+}
 var countryShopeebuyCom = function(val) {
   let attribute = val && (val + '').toLocaleUpperCase() || val
   attribute = site_http_com[attribute] || attribute
   return site_http_com[attribute] || attribute
 }
-export { chineseSite, imageRender, siteCoin, countries_option, countries_site, countryShopeebuyCom }
+export { chineseSite, imageRender, siteCoin, sitePlatform, countryShopeebuyCom, countries_option, countries_site }

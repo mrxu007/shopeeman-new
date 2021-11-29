@@ -824,7 +824,7 @@ export default {
     },
     setMallId(ids) {
       this.shopAccount = ids || []
-      // console.log(this.shopAccount, ids)
+      console.log(this.shopAccount, ids)
     },
     // 查询列表
     async orderPackage() {
@@ -1044,30 +1044,38 @@ export default {
     },
     // 修改单个备注
     async changeRemark(id, activeOrder) {
-      this.isLoading = true
+      // this.isLoading = true
       const res = await this.$api.setUserRemark({
         packageOrderSn: id,
         remark: this.orderRemark
       })
-      const data = res.data
-      this.isLoading = false
-      if (data.code === 200) {
-        this.$notify({
-          title: '备注管理',
-          type: 'success',
-          message: `设置备注成功`
-        })
-        this.tableData[activeOrder].user_remark = this.orderRemark
-        this.isfocus = true
-        this.activeRemarkID = ''
+      this.tableData[activeOrder].user_remark = this.orderRemark
+      this.isfocus = true
+      this.activeRemarkID = ''
+      if (res.data.code !== 200) {
+        this.$message.error(`修改失败:${res.data.message}`, false)
         return
       }
-      this.$notify({
-        title: '备注管理',
-        type: 'error',
-        message: data.message
-      })
-      this.activeRemarkID = ''
+      this.$message.success(`修改成功`, true)
+      // const data = res.data
+      // this.isLoading = false
+      // if (data.code === 200) {
+      //   this.$notify({
+      //     title: '备注管理',
+      //     type: 'success',
+      //     message: `设置备注成功`
+      //   })
+      //   this.tableData[activeOrder].user_remark = this.orderRemark
+      //   this.isfocus = true
+      //   this.activeRemarkID = ''
+      //   return
+      // }
+      // this.$notify({
+      //   title: '备注管理',
+      //   type: 'error',
+      //   message: data.message
+      // })
+      // this.activeRemarkID = ''
     },
     // 采购物流单号变更
     trackingNumberChangeOrderFun() {

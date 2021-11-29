@@ -53,7 +53,7 @@ export default class logisticeSyncService {
       console.log(item,"item")
       const buyer_name =  item.shot_order_info.buy_account_info ? item.shot_order_info.buy_account_info.name : '' 
       // const buyer_name = "tt939242551"
-      console.log(buyer_name,"buyer_name")
+      // console.log(buyer_name,"buyer_name")
       const shot_order_sn = item.shot_order_sn || item.order_sn
       const account = buyerAccounts.find(buyer => buyer.name === buyer_name)
       if (!account) {

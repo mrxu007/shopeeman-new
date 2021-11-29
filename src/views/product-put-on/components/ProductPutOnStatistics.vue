@@ -46,14 +46,23 @@
     </div>
     <!-- 表格区 -->
     <div class="content">
-      <el-table ref="multipleTable" v-loading="tableLoading" :data="tableDataCut" tooltip-effect="dark" max-height="650">
+      <el-table
+        ref="multipleTable"
+        v-loading="tableLoading"
+        :data="tableDataCut"
+        tooltip-effect="dark"
+        height="calc(100vh - 163px)"
+      >
+        <!-- height="calc(100vh - 106px)" -->
         <el-table-column align="center" type="index" label="序号" width="50">
           <template slot-scope="scope">{{ (currentPage - 1) * pageSize + scope.$index + 1 }}</template>
         </el-table-column>
         <el-table-column width="120px" label="站点" prop="country" align="center">
           <template slot-scope="scope">{{ scope.row.country | chineseSite }}</template>
         </el-table-column>
-        <el-table-column min-width="60px" label="店铺" prop="platform_mall_name" align="center" />
+        <el-table-column min-width="60px" label="店铺" prop="platform_mall_name" align="center">
+          <template slot-scope="{row}">{{ row.platform_mall_name ? row.mall_alias_name :row.platform_mall_name }}</template>
+        </el-table-column>
         <el-table-column min-width="60px" label="店铺分组" prop="group_name" align="center" />
         <el-table-column min-width="60px" label="上架总量" prop="upCount" align="center" />
       </el-table>
@@ -211,8 +220,8 @@ export default {
 .content {
   margin: 20px 0;
   background: #fff;
-  height: calc(100vh - 150px);
-  display: flex;
+  // height: calc(100vh - 108px);
+  // display: flex;
   flex-direction: column;
   justify-content: space-between;
   .pagination {
