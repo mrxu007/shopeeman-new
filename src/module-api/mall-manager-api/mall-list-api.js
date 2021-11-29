@@ -397,4 +397,52 @@ export default class MallListAPI {
     }
     return obj
   }
+
+  // 云IP主体列表
+  async getMainMainList(MallMainName) {
+    try {
+      const params = {
+        'uid': this._this.$userInfo.muid,
+        'uuid': '0',
+        ip_id: '',
+        ip_alias: MallMainName + '',
+        source: '',
+        statius: '',
+        ip_address: '',
+        supplier_info: '',
+        expiration_datesg: '',
+        mall_ids: ''
+      }
+      let res = await this._this.$YipService.GetIpList(JSON.stringify(params))
+      res = JSON.parse(res)
+      if (res.code === 200 && res.data.length > 0) {
+        const item = res.data[0]
+        // 解析ip
+        // let res2 = await this._this.$YipService.GetIPinfor(item.ip_info)
+        // const res3 = await this._this.$YipService.GetIPinfor(item.trans_info)
+        // res2 = JSON.parse(res2)
+        // res3 = JSON.parse(res3)
+        // item.poxyID = res2.id
+        // item.poxyIP = res2.map_ip_address
+        return { code: 200, data: item }
+      }
+      return { code: -2, data: '获取店铺主体失败' }
+    } catch (error) {
+      return { code: -2, data: `getMainMainList-catch: ${error}` }
+    }
+  }
+
+  // 绑定店铺主体
+  async bindMainName(main_main_id, mallIds) {
+    try {
+      let res = await this._this.$commodityService.newBangdingMall(this._this.$userInfo, main_main_id + '', mallIds + '')
+      res = JSON.parse(res)
+      if (res.code === 200) {
+        return { code: 200, data: '绑定主体成功' }
+      }
+      return { code: -2, data: '绑定主体失败' }
+    } catch (error) {
+      return { code: -2, data: `bindMainName-catch: ${error}` }
+    }
+  }
 }

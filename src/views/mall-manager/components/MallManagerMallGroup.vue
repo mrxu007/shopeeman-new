@@ -132,12 +132,15 @@
               <el-table-column align="center" prop="platform_mall_name" label="店铺名称" />
               <el-table-column align="center" prop="group_name" label="已绑定分组" />
               <u-table-column align="center" label="操作">
+                <template slot="header" slot-scope="scope">
+                  <el-checkbox v-model="isSelectAll" label="全选" @change="selectAllEvent" />
+                </template>
                 <template v-slot="{ row }">
-                  <el-button v-if="row.isSelected" size="mini" type="primary" style="margin: 0" @click="delbingingMall(row)">删除</el-button>
-                  <el-button v-else size="mini" style="margin: 0" plain @click="addbingingMall(row)">添加</el-button>
+                  <el-button v-if="row.isSelected" size="mini" type="primary" style="margin: 0" @click="delbingingMall(row, true)">删除</el-button>
+                  <el-button v-else size="mini" style="margin: 0" plain @click="addbingingMall(row, true)">添加</el-button>
                 </template>
               </u-table-column>
-              </el-table-column></u-table>
+            </u-table>
             <div class="pagination">
               <el-pagination
                 background
@@ -205,6 +208,7 @@ export default {
 
       // table
       multipleSelection: [],
+      isSelectAll: false,
 
       // 店铺分组弹框
       typeOpt: '',
@@ -393,26 +397,52 @@ export default {
       // {scrollTop， scrollLeft, table, judgeFlse: 这个参数返回一个boolean值，为true则代表表格滚动到了底部了，false没有滚动到底部，必须开起大数据渲染模式才能有值哦}, event
       console.log(scrollTop, scrollLeft, table, judgeFlse)
     },
-    delbingingMall(row) { // 删除绑定店铺
+    delbingingMall(row, batchType) { // 删除绑定店铺
       const index = this.bindMallList.findIndex(item => {
         return item.id === row.id
       })
       row.isSelected = false
-      if (!this.bindMallListObj['del'][row.id]) {
+      if (!this.bindMallListObj['del'][row.id]) { // 用来更新壳数据
         this.bindMallListObj['del'][row.id] = row
         this.bindMallListObj['add'][row.id] ? delete this.bindMallListObj['add'][row.id] : '' // 如果删除操作查找到在添加存档里面有存档，就抹除
       }
-      console.log('bindMallListObj', this.bindMallListObj)
+      // console.log('bindMallListObj', this.bindMallListObj)
       this.bindMallList.splice(index, 1)
+      if (batchType) {
+        if (this.bindMallList.length === this.total) {
+          this.isSelectAll = true
+        } else {
+          this.isSelectAll = false
+        }
+      }
     },
-    addbingingMall(row) { // 添加绑定店铺
+    addbingingMall(row, batchType) { // 添加绑定店铺
       this.bindMallList.push(row)
-      if (!this.bindMallListObj['add'][row.id]) {
+      if (!this.bindMallListObj['add'][row.id]) { // 用来更新壳数据
         this.bindMallListObj['add'][row.id] = row
         this.bindMallListObj['del'][row.id] ? delete this.bindMallListObj['del'][row.id] : '' // 如果添加操作查找到在删除存档里面有存档，就抹除
       }
-      console.log('bindMallListObj', this.bindMallListObj)
+      // console.log('bindMallListObj', this.bindMallListObj)
       row.isSelected = true
+      if (batchType) {
+        if (this.bindMallList.length === this.total) {
+          this.isSelectAll = true
+        } else {
+          this.isSelectAll = false
+        }
+      }
+    },
+    selectAllEvent() {
+      this.bindMallList = []
+      if (this.isSelectAll) { // 全选
+        this.mallListTemp.map(item => {
+          this.addbingingMall(item, null)
+        })
+      } else { // 取消
+        this.mallListTemp.map(item => {
+          this.delbingingMall(item, null)
+        })
+      }
     },
     search() {
       let attrLen = 0
@@ -454,6 +484,7 @@ export default {
       this.bindMallList = []
       this.bindMallListObj['del'] = {}
       this.bindMallListObj['add'] = {}
+      this.isSelectAll = false
     },
     async switchSelectMallStatus() {
       this.reset()
