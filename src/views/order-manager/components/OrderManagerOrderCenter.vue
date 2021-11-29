@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-11-09 10:17:44
- * @LastEditTime: 2021-11-29 14:52:40
+ * @LastEditTime: 2021-11-29 15:40:21
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shopeeman-new\src\views\order-manager\components\OrderManagerOrderCenter.vue
@@ -438,8 +438,8 @@
                 <el-dropdown-item> <div class="dropdownItem" @click="singleBuyInfo(scope.row)">采购信息编辑</div></el-dropdown-item>
                 <el-dropdown-item> <div class="dropdownItem" @click="addPurchaseLink(scope.row, scope.$index)">添加采购链接</div></el-dropdown-item>
                 <el-dropdown-item> <div class="dropdownItem" @click="addMoreTrackingNumber(scope.row, scope.$index)">添加多物流单号</div></el-dropdown-item>
-                <el-dropdown-item> <div class="dropdownItem" @click="setColorSingle(scope.row, scope.$index)">标记颜色标识</div></el-dropdown-item>
-                <el-dropdown-item> <div class="dropdownItem" @click="clickRow = scope.row;billsDetailVisible = true;" >账单明细</div></el-dropdown-item>
+                <el-dropdown-item> <div class="" @click="setColorSingle(scope.row, scope.$index)">标记颜色标识</div></el-dropdown-item>
+                <el-dropdown-item> <div class="dropdownItemdropdownItem" @click="clickRow = scope.row;billsDetailVisible = true;" >账单明细</div></el-dropdown-item>
                 <el-dropdown-item> <div class="dropdownItem" @click="SyncOrder(scope.row)">同步此店铺订单</div></el-dropdown-item>
                 <el-dropdown-item> <div class="dropdownItem" @click="SyncOrderSingle(scope.row)">同步此订单</div></el-dropdown-item>
                 <el-dropdown-item> <div class="dropdownItem" @click="syncLogisticsSingle(scope.row)">同步此订单物流</div></el-dropdown-item>
