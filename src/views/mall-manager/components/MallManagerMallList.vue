@@ -743,7 +743,9 @@ export default {
       total: 0,
       currentPage: 1,
       pageSize: 200,
-      isChineseShow: false
+      isChineseShow: false,
+
+      userInfo:null
     }
   },
   computed: {},
@@ -803,7 +805,7 @@ export default {
     this.getMallList()
     this.getIP()
   },
-  mounted() {
+  async mounted() {
     try {
       this.$IpcMain.on('needIvs', e => { // 点听
         console.log('needIvs-e', e)
@@ -820,6 +822,8 @@ export default {
     } catch (error) {
       console.log('监听', error)
     }
+    let userInfo = await this.$appConfig.getUserInfo()
+    this.userInfo = userInfo
   },
   methods: {
     handleSizeChange(val) {
@@ -1456,6 +1460,10 @@ export default {
       console.log('this.groupList', this.groupList)
     },
     mallAuthorization() {
+      if(this.userInfo.child_id > 0){
+        this.$message.error('子账户没有授权权限')
+        return
+      }
       // 店铺授权
       if (!this.importMallListData.length) {
         return this.$message.error('请导入店铺')
