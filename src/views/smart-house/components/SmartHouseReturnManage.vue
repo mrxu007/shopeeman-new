@@ -28,51 +28,49 @@
             v-model="form.applyReturnTime"
             unlink-panels
             size="mini"
-            type="datetimerange"
+            type="daterange"
             range-separator="-"
             start-placeholder="开始日期"
             end-placeholder="结束日期"
           />
         </li>
         <li>
-          <span>退件时间：</span>
-          <el-date-picker
-            v-model="form.returnTime"
-            unlink-panels
+          <span>包裹物流编号：</span>
+          <el-input
+            v-model="form.logisticsNum"
+            clearable
             size="mini"
-            type="datetimerange"
-            range-separator="-"
-            start-placeholder="开始日期"
-            end-placeholder="结束日期"
+            oninput="value=value.replace(/\s+/g,'')"
           />
         </li>
       </ul>
       <ul style="margin-left:25px">
         <li>
-          <span style="width: 80px;">订单编号：</span>
+          <span>订单编号：</span>
           <el-input
             v-model="form.orderNum"
-            style="width: 180px;margin-left: -20px;"
             clearable
             size="mini"
             oninput="value=value.replace(/\s+/g,'')"
           />
         </li>
         <li>
-          <span style="width:118px">包裹物流编号：</span>
-          <el-input
-            v-model="form.logisticsNum"
-            style="margin-left: -35px;width: 227px;"
-            clearable
+          <span style="text-align: right;width: 84px;">退件时间：</span>
+          <el-date-picker
+            v-model="form.returnTime"
+            unlink-panels
             size="mini"
-            oninput="value=value.replace(/\s+/g,'')"
+            type="daterange"
+            range-separator="-"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
           />
         </li>
+
         <li>
-          <span style="width: 120px;">退件物流单号：</span>
+          <span>退件物流单号：</span>
           <el-input
             v-model="form.returnLogisticsNum"
-            style="width:200px;margin-left:-32px"
             clearable
             size="mini"
             oninput="value=value.replace(/\s+/g,'')"
@@ -81,10 +79,9 @@
       </ul>
       <ul style="margin-top:10px">
         <li>
-          <span style="width: 120px;">退件人手机号：</span>
+          <span>退件人手机号：</span>
           <el-input
             v-model="form.returnPhone"
-            style="width: 180px;margin-left: -35px;"
             clearable
             size="mini"
             oninput="value=value.replace(/\s+/g,'')"
@@ -198,21 +195,25 @@
           prop="return_phone_number"
           label="退件电话"
           min-width="120px"
+          show-overflow-tooltip
         />
         <el-table-column
           prop="return_address"
           label="退件地址"
           min-width="180px"
+          show-overflow-tooltip
         />
         <el-table-column
           prop="return_remarks"
           label="退件备注"
           min-width="150px"
+          show-overflow-tooltip
         />
         <el-table-column
           prop="return_shipping_number"
           label="退件物流单号"
           min-width="180px"
+          show-overflow-tooltip
         >
           <template slot-scope="{ row }">
             <span>
@@ -231,6 +232,7 @@
           prop="return_shipping_name"
           label="退件物流公司"
           min-width="150px"
+          show-overflow-tooltip
         />
         <el-table-column
           prop="return_time"
@@ -241,6 +243,7 @@
           prop="warehouse_remarks"
           label="仓库备注"
           min-width="150px"
+          show-overflow-tooltip
         />
         <el-table-column
           min-width="120px"
@@ -340,9 +343,9 @@ export default {
     // 获取退件信息
     async getReturnManage() {
       this.isShowLoading = true
-      const returnTime = this.form.returnTime ? `${this.$dayjs(this.form.returnTime[0]).format('YYYY-MM-DD HH:mm:ss')}/${this.$dayjs(this.form.returnTime[1]).format('YYYY-MM-DD HH:mm:ss')}` : ''
+      const returnTime = this.form.returnTime ? `${this.$dayjs(this.form.returnTime[0]).format('YYYY-MM-DD 00:00:00')}/${this.$dayjs(this.form.returnTime[1]).format('YYYY-MM-DD 23:59:59')}` : ''
       const applyReturnTime = this.form.applyReturnTime
-        ? `${this.$dayjs(this.form.applyReturnTime[0]).format('YYYY-MM-DD HH:mm:ss')}/${this.$dayjs(this.form.applyReturnTime[1]).format('YYYY-MM-DD HH:mm:ss')}`
+        ? `${this.$dayjs(this.form.applyReturnTime[0]).format('YYYY-MM-DD 00:00:00')}/${this.$dayjs(this.form.applyReturnTime[1]).format('YYYY-MM-DD 23:59:59')}`
         : ''
       const parmas = {
         packageCode: this.form.logisticsNum,

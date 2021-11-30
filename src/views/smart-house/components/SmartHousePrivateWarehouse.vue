@@ -83,7 +83,13 @@
                 <el-table-column label="序号" type="index" align="center" />
                 <el-table-column label="SKU图片" width="80" align="center">
                   <template slot-scope="scope">
-                    <el-image :src="scope.row.sku_image" style="width: 60px; height: 60px" />
+                    <el-image
+                      :src="scope.row.sku_image"
+                      style="width: 60px; height: 60px"
+                      :preview-src-list="[scope.row.sku_image]"
+                    >
+                      <div slot="error" class="image-slot" />
+                    </el-image>
                   </template>
                 </el-table-column>
                 <el-table-column label="SKU ID" prop="sku_id" align="center" />
@@ -122,7 +128,7 @@
       </div>
     </div>
     <!-- 编辑新增弹窗 -->
-    <el-dialog title="自有商品编辑" :visible.sync="insertGoodsVisible" width="1200px" top="5vh" @close="closeDialog">
+    <el-dialog title="自有商品编辑" :visible.sync="insertGoodsVisible" width="1200px" top="3vh" @close="closeDialog">
       <div class="goodsInsert-dialog">
         <div class="header-btn">
           <el-row style="width: 100%">
@@ -148,8 +154,16 @@
                 </div>
                 <div v-else class="tool-item">
                   <span>商品主图：</span>
-                  <el-upload class="avatar-uploader" action="#" :show-file-list="false" list-type="picture-card" :on-change="handleChange">
-                    <i class="el-icon-plus" />
+                  <el-upload
+                    accept=".jpg,.jpeg,.png,.webp"
+                    class="avatar-uploader"
+                    action="#"
+                    :show-file-list="false"
+                    :auto-upload="false"
+                    list-type="picture-card"
+                    :on-change="handleChange"
+                  >
+                    <i class="el-icon-plus" @click="setFlag" />
                   </el-upload>
                 </div>
               </div>
@@ -171,7 +185,17 @@
                           <el-image :src="item.sku_image" style="width: 42px; height: 42x;margin: 1px" @click="item.sku_image = ''" />
                         </div>
                         <div v-else class="tool-item">
-                          <el-upload class="sku-image-uploader" action="#" :show-file-list="false" list-type="picture-card" :on-change="handleChange2" />
+                          <el-upload
+                            accept=".jpg,.jpeg,.png,.webp"
+                            class="sku-image-uploader"
+                            action="#"
+                            :auto-upload="false"
+                            :show-file-list="false"
+                            list-type="picture-card"
+                            :on-change="handleChange"
+                          >
+                            <i class="el-icon-plus" @click="getSkuIndex(i)" />
+                          </el-upload>
                         </div>
                         <el-button type="primary" size="mini" @click="deleteSpec1(i)">删除</el-button>
                       </div>
@@ -307,7 +331,9 @@ export default {
       skuStock: 0,
       spec1name: '规格一',
       spec2name: '规格二',
-      skuListCopy: []
+      skuListCopy: [],
+      skuIndex: 0,
+      flag: false
     }
   },
   mounted() {
@@ -529,7 +555,7 @@ export default {
               sku_name2: '',
               stock_num: 0,
               sku_price: 0,
-              sku_image: '',
+              sku_image: item.sku_image,
               remark: '',
               created_at: null
             }
@@ -565,7 +591,7 @@ export default {
                 sku_name2: item2.sku_name,
                 stock_num: 0,
                 sku_price: 0,
-                sku_image: '',
+                sku_image: item1.sku_image,
                 remark: '',
                 created_at: null
               })
@@ -599,32 +625,32 @@ export default {
     async handleChange(file) {
       const that = this
       const localFile = file.raw
+      if (!/\.(jpg|jpeg|png|webp)$/.test(localFile.name.toLowerCase())) {
+        this.$message('上传格式不对,请上传jpg、jpeg、png、webp格式的图片')
+        return
+      }
       const reader = new FileReader()
       reader.readAsDataURL(localFile)
       reader.onload = async() => {
         that.imgData = reader.result
         const name = randomWord(false, 32) + '_' + new Date().getTime()
         const res = await this.$ossService.uploadFile(that.imgData, name)
-        this.goodsImage = res
+        if (this.flag) {
+          this.goodsImage = res
+        } else {
+          this.skuSpec1[this.skuIndex].sku_image = res
+          this.skuList[this.skuIndex].sku_image = res
+        }
       }
     },
-    // 上传规格图
-    async handleChange2(file) {
-      const that = this
-      const localFile = file.raw
-      const reader = new FileReader()
-      reader.readAsDataURL(localFile)
-      reader.onload = async() => {
-        that.imgData = reader.result
-        const name = randomWord(false, 32) + '_' + new Date().getTime()
-        const res = await this.$ossService.uploadFile(that.imgData, name)
-        this.skuSpec1.map(item => {
-          item.sku_image = res
-        })
-        this.skuList.map(item => {
-          item.sku_image = res
-        })
-      }
+    // 商品主图点击事件
+    setFlag() {
+      this.flag = true
+    },
+    // 规格图点击事件 获取规格一数据下标
+    getSkuIndex(val) {
+      this.skuIndex = val
+      this.flag = false
     },
     // 删除商品
     async deleteGoods(row) {
@@ -733,6 +759,14 @@ export default {
 }
 .mar-right {
   margin-right: 10px;
+    .avatar-uploader{
+      /deep/.el-icon-plus{
+        width: 148px;
+        height: 148px;
+        line-height: 148px;
+        margin: 0px 0px;
+      }
+  }
 }
 .tool-bar {
   height: 60px;
@@ -837,6 +871,13 @@ export default {
                 width: 42px !important;
                 height: 42px !important;
                 margin: 1px !important;
+                line-height: 40px !important;
+              }
+              /deep/.el-icon-plus{
+                width: 42px;
+                height: 42px;
+                line-height: 42px;
+                margin: 0px 0px;
               }
             }
             i {

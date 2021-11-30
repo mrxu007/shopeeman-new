@@ -157,26 +157,13 @@
           label="商品图片"
         >
           <template slot-scope="{row}">
-            <el-tooltip
-              v-if="row.stock.sku_image || row.stock.real_image_url"
-              effect="light"
-              placement="right-end"
-              :visible-arrow="false"
-              :enterable="false"
-              style="width: 50px; height: 50px"
+            <el-image
+              style="width: 40px; height: 40px"
+              :src="row.stock.sku_image || row.stock.real_image_url"
+              :preview-src-list="[row.stock.sku_image || row.stock.real_image_url]"
             >
-              <div slot="content">
-                <img
-                  :src="row.stock.sku_image || row.stock.real_image_url"
-                  width="300px"
-                  height="300px"
-                >
-              </div>
-              <el-image
-                style="width: 40px; height: 40px"
-                :src="row.stock.sku_image || row.stock.real_image_url"
-              />
-            </el-tooltip>
+              <div slot="error" class="image-slot" />
+            </el-image>
           </template>
         </el-table-column>
         <el-table-column

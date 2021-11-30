@@ -215,12 +215,12 @@
       class="details-dialog"
       title="预报商品详情"
       :visible.sync="detailsVisible"
-      width="800px"
+      width="1000px"
       :close-on-click-modal="false"
       :close-on-press-escape="false"
     >
       <el-table
-        height="420"
+        height="450"
         :data="detailsData"
         :header-cell-style="{
           backgroundColor: '#f5f7fa',
@@ -254,10 +254,11 @@
           </template>
         </el-table-column>
         <el-table-column
-          width="120"
+          width="140"
           align="center"
           label="商品编号(SKU)"
           prop="sku_id"
+          show-overflow-tooltip
         />
         <el-table-column
           width="150"
@@ -270,6 +271,7 @@
           align="center"
           label="商品名称"
           prop="goods_name"
+          show-overflow-tooltip
         />
         <el-table-column
           width="100"
@@ -314,7 +316,9 @@
               <el-image
                 style="width: 40px; height: 40px"
                 :src="row.sku_image"
-              />
+              >
+                <div slot="error" class="image-slot" />
+              </el-image>
             </el-tooltip>
           </template>
         </el-table-column>
@@ -340,6 +344,7 @@
       title="预报中转仓备货商品"
       :visible.sync="foreignVisible"
       width="1200px"
+      top="8vh"
       :close-on-click-modal="false"
       :close-on-press-escape="false"
       :before-close="foreignClose"
@@ -502,7 +507,9 @@
               <el-image
                 style="width: 40px; height: 40px"
                 :src="row.skuList[0].sku_image"
-              />
+              >
+                <div slot="error" class="image-slot" />
+              </el-image>
             </el-tooltip>
           </template>
         </el-table-column>
@@ -546,6 +553,7 @@
       title="导入预报"
       :visible.sync="itselfGoodsVisible"
       width="1200px"
+      top="8vh"
       :close-on-click-modal="false"
       :close-on-press-escape="false"
     >
@@ -801,16 +809,18 @@
               }"
             >
               <el-table-column
-                width="100"
+                width="120"
                 align="center"
                 label="SkuID"
                 prop="sku_id"
+                show-overflow-tooltip
               />
               <el-table-column
-                width="160"
+                width="100"
                 align="center"
                 label="Sku名称"
                 prop="sku_name"
+                show-overflow-tooltip
               />
               <el-table-column
                 width="80"
@@ -836,7 +846,9 @@
                     <el-image
                       style="width: 40px; height: 40px"
                       :src="row.image_url"
-                    />
+                    >
+                      <div slot="error" class="image-slot" />
+                    </el-image>
                   </el-tooltip>
                 </template>
               </el-table-column>
@@ -977,16 +989,18 @@
           label="序号"
         />
         <el-table-column
-          width="110"
+          width="120"
           align="center"
           label="SkuID"
           prop="sku_id"
+          show-overflow-tooltip
         />
         <el-table-column
           width="100"
           align="center"
           label="Sku名称"
           prop="sku_name"
+          show-overflow-tooltip
         />
         <el-table-column
           width="80"
@@ -1012,7 +1026,9 @@
               <el-image
                 style="width: 40px; height: 40px"
                 :src="row.image_url"
-              />
+              >
+                <div slot="error" class="image-slot" />
+              </el-image>
             </el-tooltip>
           </template>
         </el-table-column>
@@ -1241,9 +1257,17 @@ export default {
     // 选择需要预报的SKU确认
     confirmSku() {
       if (!this.skuDetailsSelection?.length) return this.$message('请选择需要预报的SKU')
-      this.skuDetailsSelection.map(item => {
-        this.goodsForeignData.push(item)
-      })
+      for (let index = 0; index < this.skuDetailsSelection.length; index++) {
+        const element1 = this.skuDetailsSelection[index]
+        for (let index = 0; index < this.goodsForeignData.length; index++) {
+          const element2 = this.goodsForeignData[index]
+          if (element1.sku_id === element2.sku_id) {
+            this.$message(`SkuID【${element1.sku_id}】已存在，请勿重复添加`)
+            return
+          }
+        }
+        this.goodsForeignData.push(element1)
+      }
       this.goodsForeignData.map((item, index) => {
         this.skuList.long[index] = '0'
         this.skuList.width[index] = '0'

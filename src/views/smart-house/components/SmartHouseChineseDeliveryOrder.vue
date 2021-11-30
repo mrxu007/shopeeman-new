@@ -17,7 +17,7 @@
             />
           </el-select>
         </li>
-        <li>
+        <li class="status">
           <span>订单出库状态：</span>
           <el-select
             v-model="form.status"
@@ -93,7 +93,7 @@
       <el-table
         ref="plTable"
         v-loading="isShowLoading"
-        height="calc(100vh - 205px)"
+        height="calc(100vh - 210px)"
         :data="tableData"
         :header-cell-style="{
           backgroundColor: '#f5f7fa',
@@ -200,20 +200,15 @@
         />
         <el-table-column
           label="出库商品详情"
-          min-width="180"
+          min-width="100"
         >
           <template slot-scope="{row}">
             <el-button
-              v-if="row.status!=5 && row.status !=3"
+              v-if="row.status!=5 && row.status !=6"
               size="mini"
               type="primary"
               @click="cancelHomeOrder(row,1)"
             >取消订单</el-button>
-            <el-button
-              size="mini"
-              type="primary"
-              @click="setUid(row)"
-            >补 件</el-button>
           </template>
         </el-table-column>
         <el-table-column
@@ -409,6 +404,32 @@ export default {
     await this.getHomeOutStockOrder()
   },
   methods: {
+    // 取消/批量取消订单
+    async cancelHomeOrder(val, type) {
+      let data = []
+      if (type === 1) {
+        data.push(val)
+      } else {
+        if (!val?.length) return this.$message('请选择需要取消订单的商品')
+        data = val
+      }
+      for (let index = 0; index < data.length; index++) {
+        const element = data[index]
+        if (element.status !== 5 && element.status !== 6) {
+          const pamars = {}
+          pamars['id'] = element.id
+          const res = await this.ChineseDeliveryOrder.cancelHomeOrder(pamars)
+          console.log('cancelHomeOrder', res)
+          if (res.code === 200) {
+            this.$set(element, 'orderStatus', '取消订单成功')
+            this.$set(element, 'color', 'green')
+          } else {
+            this.$set(element, 'orderStatus', res.data)
+            this.$set(element, 'color', 'red')
+          }
+        }
+      }
+    },
     // 设置uid
     setUid(row) {
       this.overseaOrderSn = row.homeOrderSn
@@ -593,5 +614,5 @@ export default {
 </script>
 
 <style lang="less" scoped>
-@import '../../../module-less/smart-house-less/broad-deliver-order.less';
+@import '../../../module-less/smart-house-less/chinese-deliver-order.less';
 </style>

@@ -299,7 +299,7 @@
           width="90"
         >
           <template slot-scope="{row}">
-            {{ isVerifyObj[row.is_verify] }}
+            <span :style="colorObj[row.is_verify] && 'color:'+colorObj[row.is_verify]">{{ row.is_verify ?isVerifyObj[row.is_verify]:'' }}</span>
           </template>
         </el-table-column>
         <el-table-column
@@ -354,12 +354,12 @@
       class="details-dialog"
       title="预报商品详情"
       :visible.sync="detailsVisible"
-      width="800px"
+      width="1000px"
       :close-on-click-modal="false"
       :close-on-press-escape="false"
     >
       <el-table
-        height="420"
+        height="450"
         :data="detailsData"
         :header-cell-style="{
           backgroundColor: '#f5f7fa',
@@ -377,10 +377,11 @@
           fixed
         />
         <el-table-column
-          width="100"
+          width="130"
           align="center"
           label="预报物流单号"
           prop="package_code"
+          show-overflow-tooltip
           fixed
         />
         <el-table-column
@@ -393,9 +394,10 @@
           </template>
         </el-table-column>
         <el-table-column
-          width="120"
+          width="140"
           align="center"
           label="商品编号(SKU)"
+          show-overflow-tooltip
           prop="sku_id"
         />
         <el-table-column
@@ -403,6 +405,7 @@
           align="center"
           label="系统商品编码"
           prop="sys_sku_id"
+          show-overflow-tooltip
         />
         <el-table-column
           width="150"
@@ -469,7 +472,9 @@
               <el-image
                 style="width: 40px; height: 40px"
                 :src="row.sku_image"
-              />
+              >
+                <div slot="error" class="image-slot" />
+              </el-image>
             </el-tooltip>
           </template>
         </el-table-column>
@@ -615,15 +620,17 @@
           fixed
         />
         <el-table-column
-          width="100"
+          width="130"
           align="center"
           label="预报物流单号"
           prop="package_code"
+          show-overflow-tooltip
           fixed
         />
         <el-table-column
           width="120"
           align="center"
+          show-overflow-tooltip
           label="商品编号(SKU)"
           prop="sku_id"
         >
@@ -635,6 +642,7 @@
           width="130"
           align="center"
           label="商品名称"
+          show-overflow-tooltip
           prop="goods_name"
         >
           <template slot-scope="{row}">
@@ -696,7 +704,9 @@
               <el-image
                 style="width: 40px; height: 40px"
                 :src="row.sku_list[0].sku_image"
-              />
+              >
+                <div slot="error" class="image-slot" />
+              </el-image>
             </el-tooltip>
           </template>
         </el-table-column>
@@ -1028,16 +1038,18 @@
               }"
             >
               <el-table-column
-                width="100"
+                width="120"
                 align="center"
                 label="SkuID"
                 prop="sku_id"
+                show-overflow-tooltip
               />
               <el-table-column
-                width="160"
+                width="100"
                 align="center"
                 label="Sku名称"
                 prop="sku_name"
+                show-overflow-tooltip
               />
               <el-table-column
                 width="80"
@@ -1063,7 +1075,9 @@
                     <el-image
                       style="width: 40px; height: 40px"
                       :src="row.image_url"
-                    />
+                    >
+                      <div slot="error" class="image-slot" />
+                    </el-image>
                   </el-tooltip>
                 </template>
               </el-table-column>
@@ -1237,16 +1251,18 @@
           label="序号"
         />
         <el-table-column
-          width="110"
+          width="120"
           align="center"
           label="SkuID"
           prop="sku_id"
+          show-overflow-tooltip
         />
         <el-table-column
           width="100"
           align="center"
           label="Sku名称"
           prop="sku_name"
+          show-overflow-tooltip
         />
         <el-table-column
           width="80"
@@ -1272,7 +1288,9 @@
               <el-image
                 style="width: 40px; height: 40px"
                 :src="row.image_url"
-              />
+              >
+                <div slot="error" class="image-slot" />
+              </el-image>
             </el-tooltip>
           </template>
         </el-table-column>
@@ -1401,8 +1419,12 @@ export default {
       },
       isVerifyObj: {
         '-1': '未审核',
-        '1': '审核通过',
-        '2': '审核拒绝'
+        '1': '审核成功',
+        '2': '审核失败'
+      },
+      colorObj: {
+        1: 'green',
+        2: 'red'
       },
       skuStatusObj: {
         1: '用户已下单',
@@ -1579,9 +1601,17 @@ export default {
     // 选择需要预报的SKU确认
     confirmSku() {
       if (!this.skuDetailsSelection?.length) return this.$message('请选择需要预报的SKU')
-      this.skuDetailsSelection.map(item => {
-        this.goodsForeignData.push(item)
-      })
+      for (let index = 0; index < this.skuDetailsSelection.length; index++) {
+        const element1 = this.skuDetailsSelection[index]
+        for (let index = 0; index < this.goodsForeignData.length; index++) {
+          const element2 = this.goodsForeignData[index]
+          if (element1.sku_id === element2.sku_id) {
+            this.$message(`SkuID【${element1.sku_id}】已存在，请勿重复添加`)
+            return
+          }
+        }
+        this.goodsForeignData.push(element1)
+      }
       this.goodsForeignData.map((item, index) => {
         this.skuList.sku_long[index] = '0'
         this.skuList.sku_width[index] = '0'

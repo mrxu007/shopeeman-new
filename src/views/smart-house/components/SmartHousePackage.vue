@@ -8,30 +8,48 @@
             v-model="form.signingTime"
             unlink-panels
             size="mini"
-            type="datetimerange"
+            type="daterange"
             range-separator="-"
             start-placeholder="开始日期"
             end-placeholder="结束日期"
           />
         </li>
+        <li>
+          <span>订单编号：</span>
+          <el-input
+            v-model="form.orderNum"
+            clearable
+            size="mini"
+            oninput="value=value.replace(/\s+/g,'')"
+          />
+        </li>
+        <li>
+          <span>包裹物流编号：</span>
+          <el-input
+            v-model="form.logisticsNum"
+            clearable
+            size="mini"
+            oninput="value=value.replace(/\s+/g,'')"
+          />
+        </li>
+      </ul>
+      <ul>
         <li>
           <span>申请退件时间：</span>
           <el-date-picker
             v-model="form.applyReturnTime"
             unlink-panels
             size="mini"
-            type="datetimerange"
+            type="daterange"
             range-separator="-"
             start-placeholder="开始日期"
             end-placeholder="结束日期"
           />
         </li>
-
         <li>
           <span>包裹状态：</span>
           <el-select
             v-model="form.packageStatus"
-            style="width:130px"
             placeholder=""
             size="mini"
             filterable
@@ -47,29 +65,6 @@
               :value="item.value"
             />
           </el-select>
-        </li>
-      </ul>
-      <ul>
-
-        <li style="margin-left:25px">
-          <span>订单编号：</span>
-          <el-input
-            v-model="form.orderNum"
-            style="width: 227px !important;"
-            clearable
-            size="mini"
-            oninput="value=value.replace(/\s+/g,'')"
-          />
-        </li>
-        <li>
-          <span>包裹物流编号：</span>
-          <el-input
-            v-model="form.logisticsNum"
-            style="width: 227px !important;"
-            clearable
-            size="mini"
-            oninput="value=value.replace(/\s+/g,'')"
-          />
         </li>
         <li>
           <el-button
@@ -99,7 +94,7 @@
       <el-table
         ref="plTable"
         v-loading="isShowLoading"
-        height="calc(100vh - 205px)"
+        height="calc(100vh - 210px)"
         :data="tableData"
         :header-cell-style="{
           backgroundColor: '#f5f7fa',
@@ -666,9 +661,9 @@ export default {
     // 获取数据
     async getSignPackageList() {
       this.isShowLoading = true
-      const signingTime = this.form.signingTime ? `${this.$dayjs(this.form.signingTime[0]).format('YYYY-MM-DD HH:mm:ss')}/${this.$dayjs(this.form.signingTime[1]).format('YYYY-MM-DD HH:mm:ss')}` : ''
+      const signingTime = this.form.signingTime ? `${this.$dayjs(this.form.signingTime[0]).format('YYYY-MM-DD 00:00:00')}/${this.$dayjs(this.form.signingTime[1]).format('YYYY-MM-DD 23:59:59')}` : ''
       const applyReturnTime = this.form.applyReturnTime
-        ? `${this.$dayjs(this.form.applyReturnTime[0]).format('YYYY-MM-DD HH:mm:ss')}/${this.$dayjs(this.form.applyReturnTime[1]).format('YYYY-MM-DD HH:mm:ss')}`
+        ? `${this.$dayjs(this.form.applyReturnTime[0]).format('YYYY-MM-DD 00:00:00')}/${this.$dayjs(this.form.applyReturnTime[1]).format('YYYY-MM-DD 23:59:59')}`
         : ''
       const parmas = {
         packageCode: this.form.logisticsNum,
