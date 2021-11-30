@@ -424,6 +424,7 @@
           align="center"
           label="商品名称"
           prop="goods_name"
+          show-overflow-tooltip
         />
         <el-table-column
           width="80"
@@ -839,6 +840,7 @@
                 align="center"
                 label="商品名称"
                 prop="product_name"
+                show-overflow-tooltip
               />
               <el-table-column
                 width="80"
@@ -1743,66 +1745,114 @@ export default {
     },
     // 下载条形码
     async downBarCode() {
-      const arrPDF = []
+      const params = {
+        BarCodeList: []
+      }
       if (!this.multipleSelection?.length) return this.$message('请选择需要导出的数据')
       this.showConsole = false
-      this.$refs.Logs.writeLog('开始批量生成预报单条形码(压缩包保存之后桌面不显示请刷新桌面)...', true)
-      for (let index = 0; index < this.multipleSelection.length; index++) {
-        const element1 = this.multipleSelection[index]
-        for (let index = 0; index < element1.sku_list.length; index++) {
-          const element2 = element1.sku_list[index]
-          if (!element2.sku_num) {
-            this.$refs.Logs.writeLog(`【${element1.package_code}】的商品SkuId【${element2.sku_id}】对应的商品数量为空`, false)
+      this.$refs.Logs.writeLog('开始批量生成预报单条形码...', true)
+      console.log(this.multipleSelection)
+      for (let i = 0; i < this.multipleSelection.length; i++) {
+        const item1 = this.multipleSelection[i]
+        params['UniqueCode'] = item1.package_code
+        params['AllFilePath'] = `海外仓预报单条形码\\${item1.package_code}\\${item1.package_code}合并面单.PDF`
+        params['DirectoryName'] = `海外仓预报单条形码\\${item1.package_code}`
+        params['FileWidth'] = 220
+        params['FileHeight'] = 250
+        for (let j = 0; j < item1.sku_list.length; j++) {
+          const item2 = item1.sku_list[j]
+          if (!item2.sku_num) {
+            this.$refs.Logs.writeLog(`【${item1.package_code}】的商品SkuId【${item2.sku_id}】对应的商品数量为空`, false)
             continue
           }
-          if (!element2.sys_sku_id) {
-            this.$refs.Logs.writeLog(`【${element1.package_code}】的商品SkuId【${element2.sku_id}】对应的系统商品ID为空`, false)
+          if (!item2.sys_sku_id) {
+            this.$refs.Logs.writeLog(`【${item1.package_code}】的商品SkuId【${item2.sku_id}】对应的系统商品ID为空`, false)
             continue
           }
-          if (!element2.sku_name) {
-            this.$refs.Logs.writeLog(`【${element1.package_code}】的商品SkuId【${element2.sku_id}】对应的商品名称为空`, false)
+          if (!item2.sku_name) {
+            this.$refs.Logs.writeLog(`【${item1.package_code}】的商品SkuId【${item2.sku_id}】对应的商品名称为空`, false)
             continue
           }
-          const template = `
-              <div id="faceId">
-                <img id="barcode" style="width:285px; style="padding:0 10px">
-                <ul style="padding:0 50px">
-                  <li style="margin-bottom:10px">
-                    <span>物流单号：${element1.package_code}</span>
-                  </li>
-                  <li style="margin-bottom:10px">
-                    <span>预报单号：${element1.forecast_code}</span>
-                  </li>
-                  <li style="margin-bottom:10px">
-                    <span>商品SkuId：${element2.sku_id}</span>
-                  </li>
-                  <li style="margin-bottom:10px">
-                    <span>商品数量：${element2.sku_num}</span>
-                  </li>
-                  <li style="margin-bottom:10px">
-                    <span>系统SkuId：${element2.sys_sku_id}</span>
-                  </li>
-                  <li>
-                    <span>商品名称：${element2.sku_name}</span>
-                  </li>
-                </ul>
-            </div>
-            `
-          const createDiv = document.createElement('div')
-          createDiv.innerHTML = template
-          document.body.appendChild(createDiv)// 添加到BODY节点中
-          const pdfBase64 = await exportPdfData('#barcode', element2.sys_sku_id, '#faceId')
-          document.querySelector('#faceId').parentElement.removeChild(document.querySelector('#faceId'))
           const obj = {
-            fileUrl: pdfBase64,
-            renameFileName: `${element1.package_code}-${element2.sys_sku_id}.pdf`
+            BarCodeContent: [
+              { '物流单号': item1.package_code },
+              { '预报单号': item1.forecast_code },
+              { '商品SkuId': item2.sku_id },
+              { '商品数量': item2.sku_num },
+              { '系统SkuId': item2.sys_sku_id },
+              { '商品名称': item2.sku_name }
+            ]
           }
-          arrPDF.push(obj)
-          this.$refs.Logs.writeLog(`【${element2.sys_sku_id}】条形码生成成功`, true)
+          obj['BarCode'] = item2.sys_sku_id
+          obj['BarCodeWidth'] = 200
+          obj['BarCodeHeight'] = 50
+          obj['FontSize'] = 11
+          obj['FilePath'] = `海外仓预报单条形码\\${item1.package_code}\\${item2.sys_sku_id}.PDF`
+          params['BarCodeList'].push(obj)
         }
+        console.log(params)
       }
-      await downloadZip(arrPDF, '海外仓商品备货预报单条形码')
-      this.$refs.Logs.writeLog(`批量生成条形码完成`, true)
+      // this.$BaseUtilService.downloadBarCode()
+      // const arrPDF = []
+      // if (!this.multipleSelection?.length) return this.$message('请选择需要导出的数据')
+      // this.showConsole = false
+      // this.$refs.Logs.writeLog('开始批量生成预报单条形码(压缩包保存之后桌面不显示请刷新桌面)...', true)
+      // for (let index = 0; index < this.multipleSelection.length; index++) {
+      //   const element1 = this.multipleSelection[index]
+      //   for (let index = 0; index < element1.sku_list.length; index++) {
+      //     const element2 = element1.sku_list[index]
+      //     if (!element2.sku_num) {
+      //       this.$refs.Logs.writeLog(`【${element1.package_code}】的商品SkuId【${element2.sku_id}】对应的商品数量为空`, false)
+      //       continue
+      //     }
+      //     if (!element2.sys_sku_id) {
+      //       this.$refs.Logs.writeLog(`【${element1.package_code}】的商品SkuId【${element2.sku_id}】对应的系统商品ID为空`, false)
+      //       continue
+      //     }
+      //     if (!element2.sku_name) {
+      //       this.$refs.Logs.writeLog(`【${element1.package_code}】的商品SkuId【${element2.sku_id}】对应的商品名称为空`, false)
+      //       continue
+      //     }
+      //     const template = `
+      //         <div id="faceId">
+      //           <img id="barcode" style="width:285px; style="padding:0 10px">
+      //           <ul style="padding:0 50px">
+      //             <li style="margin-bottom:10px">
+      //               <span>物流单号：${element1.package_code}</span>
+      //             </li>
+      //             <li style="margin-bottom:10px">
+      //               <span>预报单号：${element1.forecast_code}</span>
+      //             </li>
+      //             <li style="margin-bottom:10px">
+      //               <span>商品SkuId：${element2.sku_id}</span>
+      //             </li>
+      //             <li style="margin-bottom:10px">
+      //               <span>商品数量：${element2.sku_num}</span>
+      //             </li>
+      //             <li style="margin-bottom:10px">
+      //               <span>系统SkuId：${element2.sys_sku_id}</span>
+      //             </li>
+      //             <li>
+      //               <span>商品名称：${element2.sku_name}</span>
+      //             </li>
+      //           </ul>
+      //       </div>
+      //       `
+      //     const createDiv = document.createElement('div')
+      //     createDiv.innerHTML = template
+      //     document.body.appendChild(createDiv)// 添加到BODY节点中
+      //     const pdfBase64 = await exportPdfData('#barcode', element2.sys_sku_id, '#faceId')
+      //     document.querySelector('#faceId').parentElement.removeChild(document.querySelector('#faceId'))
+      //     const obj = {
+      //       fileUrl: pdfBase64,
+      //       renameFileName: `${element1.package_code}-${element2.sys_sku_id}.pdf`
+      //     }
+      //     arrPDF.push(obj)
+      //     this.$refs.Logs.writeLog(`【${element2.sys_sku_id}】条形码生成成功`, true)
+      //   }
+      // }
+      // await downloadZip(arrPDF, '海外仓商品备货预报单条形码')
+      // this.$refs.Logs.writeLog(`批量生成条形码完成`, true)
     },
     // SKU详情
     async getProductSkuList(row) {

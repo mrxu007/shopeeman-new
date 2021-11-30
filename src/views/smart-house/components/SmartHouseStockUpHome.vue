@@ -450,6 +450,7 @@
           width="130"
           align="center"
           label="商品名称"
+          show-overflow-tooltip
         >
           <template slot-scope="{row}">
             {{ row.skuList[0].goods_name }}
@@ -633,6 +634,7 @@
                 align="center"
                 label="商品名称"
                 prop="product_name"
+                show-overflow-tooltip
               />
               <el-table-column
                 width="80"
