@@ -56,7 +56,7 @@
                 <img :src="questionPng">
               </el-tooltip>
               :
-              <span>{{ orderListData.totalDealAmount }}</span>
+              <span class="item-num">{{ orderListData.totalDealAmount }}</span>
             </div>
             <div class="item">
               <img :src="orderNumberPng">
@@ -65,7 +65,7 @@
                 <img :src="questionPng">
               </el-tooltip>
               :
-              <span>{{ orderListData.platformOrderCount }}</span>
+              <span class="item-num">{{ orderListData.platformOrderCount }}</span>
             </div>
             <div class="item">
               <img :src="purchasePng">
@@ -74,7 +74,7 @@
                 <img :src="questionPng">
               </el-tooltip>
               :
-              <span>{{ orderListData.totalCompletedShotNum }}</span>
+              <span class="item-num">{{ orderListData.totalCompletedShotNum }}</span>
             </div>
             <div class="item">
               <img :src="waitPurchasePng">
@@ -83,7 +83,7 @@
                 <img :src="questionPng">
               </el-tooltip>
               :
-              <span>{{ orderListData.waitShotNum }}</span>
+              <span class="item-num">{{ orderListData.waitShotNum }}</span>
             </div>
           </div>
           <div class="item-box">
@@ -94,7 +94,7 @@
                 <img :src="questionPng">
               </el-tooltip>
               :
-              <span>{{ orderListData.totalCanceledEscrowAmount }}</span>
+              <span class="item-num">{{ orderListData.totalCanceledEscrowAmount }}</span>
             </div>
             <div class="item">
               <img :src="alreadyCancelPng">
@@ -103,7 +103,7 @@
                 <img :src="questionPng">
               </el-tooltip>
               :
-              <span>{{ orderListData.platformCancelOrderCount }}</span>
+              <span class="item-num">{{ orderListData.platformCancelOrderCount }}</span>
             </div>
             <div class="item">
               <img :src="purchasedPng">
@@ -112,7 +112,7 @@
                 <img :src="questionPng">
               </el-tooltip>
               :
-              <span>{{ orderListData.totalCompletedShotAmount }}</span>
+              <span class="item-num">{{ orderListData.totalCompletedShotAmount }}</span>
             </div>
           </div>
           <div class="item-box">
@@ -123,7 +123,7 @@
                 <img :src="questionPng">
               </el-tooltip>
               :
-              <span>{{ orderListData.shipDelayingNum }}</span>
+              <span class="item-num">{{ orderListData.shipDelayingNum }}</span>
             </div>
             <div class="item">
               <img :src="warehouseDeliveryPng">
@@ -132,7 +132,7 @@
                 <img :src="questionPng">
               </el-tooltip>
               :
-              <span>{{ orderListData.totalOutboundNum }}</span>
+              <span class="item-num">{{ orderListData.totalOutboundNum }}</span>
             </div>
             <div class="item">
               <img :src="outMoneyPng">
@@ -141,7 +141,7 @@
                 <img :src="questionPng">
               </el-tooltip>
               :
-              <span>{{ orderListData.totalOutStockAmount }}</span>
+              <span class="item-num">{{ orderListData.totalOutStockAmount }}</span>
             </div>
           </div>
           <div class="item-box">
@@ -152,7 +152,7 @@
                 <img :src="questionPng">
               </el-tooltip>
               :
-              <span>{{ orderListData.noOrderNum }}</span>
+              <span class="item-num">{{ orderListData.noOrderNum }}</span>
             </div>
             <div class="item">
               <img :src="printFailPng">
@@ -161,7 +161,7 @@
                 <img :src="questionPng">
               </el-tooltip>
               :
-              <span>{{ orderListData.printOrderFailNum }}</span>
+              <span class="item-num">{{ orderListData.printOrderFailNum }}</span>
             </div>
           </div>
         </el-card>
@@ -1019,8 +1019,12 @@ export default {
         display: flex;
         align-items: center;
         margin-bottom: 10px;
-        span {
+        span{
           margin: 0 10px;
+        }
+        .item-num{
+          font-size: 16px !important;
+          font-weight: bold;
         }
         img {
           width: 24px;

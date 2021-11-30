@@ -286,6 +286,7 @@ export function exportExcelDataCommon(fileName, str) {
                 <x:Name>${worksheet}</x:Name>
                 <x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet>
                 </x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]-->
+                <meta charset="utf-8">
                 </head><body><table>${str}</table></body></html>`
   // 下载模板
   // let template = templates.replace(/<td/g,`<td style="mso-number-format:'\@';"`)
