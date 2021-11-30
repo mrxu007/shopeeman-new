@@ -389,6 +389,8 @@ export default {
     async openGroupDialog(row) {
       this.typeOpt = row
       this.editGroupDialogVisible = true
+      this.siteId = ''
+      this.systemId = ''
       await this.getMallList()
       this.reset()
       if (row) {
@@ -485,8 +487,6 @@ export default {
       //  this.$refs.plTable2?.reloadData(this.mallListTemp)
     },
     reset() {
-      this.siteId = ''
-      this.systemId = ''
       this.bindMallList = []
       this.bindMallListObj['del'] = {}
       this.bindMallListObj['add'] = {}
