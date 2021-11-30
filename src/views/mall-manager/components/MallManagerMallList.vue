@@ -124,7 +124,7 @@
 
         <u-table-column align="center" prop="mall_account_info" label="店铺真实名称">
           <template v-slot="{ row }">
-            <p style="white-space: normal">{{ row.mall_account_info.userRealName || row.platform_mall_name }}</p>
+            <p style="white-space: normal">{{ row.platform_mall_name }}</p>
           </template>
         </u-table-column>
         <u-table-column align="center" prop="platform_mall_id" label="店铺ID" />
@@ -138,59 +138,34 @@
             <p style="white-space: normal">{{ row.mall_account_info.username }}</p>
           </template>
         </u-table-column>
-        <u-table-column align="center" prop="watermark" label="店铺水印文字">
+        <u-table-column align="center" prop="watermark" label="店铺水印文字" width="150">
           <template v-slot="{ row }">
             <el-input
-              v-if="row.isCheckedWaterMark"
               v-model="row.watermark"
-              v-focus
               size="mini"
               type="textarea"
               resize="none"
-              :autosize="{ minRows: 2, maxRows: 4 }"
-              placeholder="店铺水印"
-              @blur="updateWateMark(row)"
+              :autosize="{ minRows: 3, maxRows: 4 }"
+              placeholder=""
+              :spellcheck="false"
+              @keyup.enter.native="updateWateMark($event, row)"
             />
-
-            <span v-else @click="row.isCheckedWaterMark = true">
-              <el-input v-model="row.watermark" :disabled="!row.isCheckedWaterMark" size="mini" type="textarea" resize="none" :autosize="{ minRows: 2, maxRows: 2 }" />
-            </span>
           </template>
         </u-table-column>
         <u-table-column align="center" prop="item_limit" label="店铺额度" />
-        <u-table-column align="center" prop="mall_alias_name" label="店铺别名">
+        <u-table-column align="center" prop="mall_alias_name" label="店铺别名" width="150">
           <template v-slot="{ row }">
-            <div v-show="row.mall_alias_name">
+            <div>
               <el-input
-                v-if="row.isCheckedWaterMark2"
                 v-model="row.mall_alias_name"
-                v-focus
                 size="mini"
                 type="textarea"
                 resize="none"
-                :autosize="{ minRows: 2, maxRows: 4 }"
-                placeholder="店铺别名"
-                @blur="updateMallAliasName(row)"
+                :autosize="{ minRows: 3, maxRows: 4 }"
+                placeholder=""
+                :spellcheck="false"
+                @keyup.enter.native="updateMallAliasName($event, row)"
               />
-              <span v-else @click="row.isCheckedWaterMark2 = true">
-                <el-input v-model="row.mall_alias_name" :disabled="!row.isCheckedWaterMark2" size="mini" type="textarea" resize="none" :autosize="{ minRows: 2, maxRows: 2 }" />
-              </span>
-            </div>
-            <div v-show="!row.mall_alias_name">
-              <el-input
-                v-if="row.isCheckedWaterMark2"
-                v-model="row.platform_mall_name"
-                v-focus
-                size="mini"
-                type="textarea"
-                resize="none"
-                :autosize="{ minRows: 2, maxRows: 4 }"
-                placeholder="店铺别名"
-                @blur="updateMallAliasName(row)"
-              />
-              <span v-else @click="row.isCheckedWaterMark2 = true">
-                <el-input v-model="row.platform_mall_name" :disabled="!row.isCheckedWaterMark2" size="mini" type="textarea" resize="none" :autosize="{ minRows: 2, maxRows: 2 }" />
-              </span>
             </div>
           </template>
         </u-table-column>
@@ -264,6 +239,8 @@
           </el-upload>
           <el-button type="primary" size="mini" :disabled="!buttonStatus.login" @click="isStop = true">取消导入</el-button>
           <el-button type="primary" size="mini" @click="downloadTemplate">下载模板</el-button>
+          <el-radio v-model="isIPType" :label="0">不使用主体IP</el-radio>
+          <el-radio v-model="isIPType" :label="1">使用已有IP</el-radio>
         </div>
         <div class="container-dialog">
           <div>
@@ -646,8 +623,11 @@ export default {
       height: 300,
       rowHeight: 50,
       mallListAPIInstance: new MallListAPI(this),
+      isIPType: 0,
       consoleMsg: '',
       buttonStatus: {
+        updateWater: false,
+        updateAias: false,
         updateBK: false,
         mallList: false,
         login: false,
@@ -1693,8 +1673,6 @@ export default {
               continue
             }
           }
-          // const mallId = res.data.mallId // 平台店铺ID
-          // const mallUId = res.data.mallUId // 平台卖家ID
           mallId = res.data.mallId // 平台店铺ID
           mallUId = res.data.mallUId // 平台卖家ID
           let mallDataInfo = null
@@ -1714,9 +1692,28 @@ export default {
             // 4、更新壳信息
             await this.$appConfig.updateInfoMall(mallId, JSON.stringify(mallDataInfo)) // 更新里面店铺的cookie （壳）
           } else { // 导入店铺
-          // 4、更新壳信息
+          // 导入的店铺信息
             mallDataInfo = res.data.mallInfo_new
-            console.log(mallId, JSON.stringify(mallDataInfo))
+            // 导入店铺判断是否选择   使用已有IP
+            if (this.isIPType === 1) {
+              this.writeLog(`(${i + 1}/${len})账号【${platform_mall_name}】正在查询店铺主体信息有效性`, true)
+              const mallMainInfo = await this.mallListAPIInstance.getMainMainList(item.MallMainName)
+              if (mallMainInfo.code !== 200) {
+                this.writeLog(`(${i + 1}/${len})账号【${platform_mall_name}】 店铺主体名称 ${item.MallMainName} 不存在`, false)
+                continue
+              }
+              this.writeLog(`(${i + 1}/${len})账号【${platform_mall_name}】该店铺主体信息有效`, true)
+              mallDataInfo['mall_main_id'] = mallMainInfo.data.id // 更新店铺ID
+              if (mallMainInfo.data.target_mall_info.length === 0) { // 代表是一个新店铺没有绑定过IP，需要刷新壳缓存
+                this.writeLog(`(${i + 1}/${len})账号【${platform_mall_name}】正在刷新店铺主体信息缓存`, true)
+                await this.$BaseUtilService.UpdateProxy()
+                this.writeLog(`(${i + 1}/${len})账号【${platform_mall_name}】主体刷新成功`, true)
+              }
+              item.mall_main_id = mallMainInfo.data.id
+              item.hasMallMainInfo = true
+            }
+            // 4、更新壳信息
+            // console.log(mallId, JSON.stringify(mallDataInfo))
             await this.$appConfig.updateInfoMall(mallId, JSON.stringify(mallDataInfo)) // 更新里面店铺的cookie （壳）
             // 4-1、判断物流信息是否是普通店铺 (店铺导入独有)
             const res3 = await this.mallListAPIInstance.isNormalMall(mallDataInfo)
@@ -1770,6 +1767,15 @@ export default {
               }
             ])
           })
+          if (item.hasMallMainInfo) { // 是否走过导入程序.并导入成功
+            const bindInfo = await this.mallListAPIInstance.bindMainName(item.mall_main_id, mallId)
+            debugger
+            if (bindInfo.code !== 200) {
+              this.writeLog(`(${i + 1}/${len})账号【${platform_mall_name}】绑定店铺主体名称 ${item.MallMainName} 失败`, false)
+            } else {
+              this.writeLog(`(${i + 1}/${len})账号【${platform_mall_name}】绑定店铺主体名称 ${item.MallMainName} 成功`, true)
+            }
+          }
           if (this.isStop) {
           // this.writeLog('取消导入', false)
             this.buttonStatus.login = false
@@ -2022,31 +2028,41 @@ export default {
     async importEditWateNameOrUpdate() {
       const len = this.importTemplateData.length
       if (this.importType === 'edit') {
-        const params = { lists: [] }
+        const params = { 'lists': [] }
+        const platFormIDArr = []
         // {"lists":[{"sysMallId":"12","watermark":"MarlonStowe"},{"sysMallId":"41","watermark":"Queen- fashion"}]}
-        this.importTemplateData.forEach(async(item, index) => {
-          if (item['店铺ID(必填)']) {
-            const sysMallId = await this.getMallID(item['店铺ID(必填)'] + '')
+        for (let index = 0; index < len; index++) {
+          const item = this.importTemplateData[index]
+          const platform_mall_id = item['店铺ID(必填)']
+          const watermark = item['店铺文字水印'] || ''
+          if (platform_mall_id) {
+            const sysMallId = await this.getMallID(platform_mall_id + '')
             if (sysMallId) {
-              const obj = {
-                sysMallId,
-                watermark: item['店铺文字水印']
-              }
-              params['lists'].push(obj)
+              platFormIDArr.push({ platform_mall_id, watermark })
+              params['lists'].push({ sysMallId, watermark })
             } else {
               this.writeLog(`(${index + 1}/${len}) 店铺平台ID填写有误`)
             }
           } else {
             this.writeLog(`(${index + 1}/${len}) 店铺ID(必填)`)
           }
-        })
+        }
+        if (params['lists'].length === 0) {
+          return
+        }
         const res = await this.mallListAPIInstance.updateWatermark(params)
         if (res.code !== 200) {
           this.writeLog(`修改失败:${res.data}`, false)
           return
         }
         this.getMallList()
-        this.writeLog(`修改成功`, true)
+        this.writeLog(`成功修改${platFormIDArr.length}条数据`, true)
+        platFormIDArr.map(async item => {
+          let mallInfo = await this.$appConfig.getGlobalCacheInfo('mallInfo', item.platform_mall_id)
+          mallInfo = JSON.parse(mallInfo)
+          mallInfo['watermark'] = item.watermark
+          this.$appConfig.updateInfoMall(item.platform_mall_id, JSON.stringify(mallInfo)) // 更新里面店铺的cookie （壳）
+        })
       } else if (this.importType === 'update') {
         let succsessNum = 0
         let failNum = 0
@@ -2093,27 +2109,38 @@ export default {
       this.importTemplateData = null
     },
 
-    async updateMallAliasName(row) {
-      row.isCheckedWaterMark2 = false
-      // if (!row.mall_alias_name) {
-      //   return
-      // }
+    async updateMallAliasName(event, row) {
+      row.mall_alias_name = row.mall_alias_name.trim().replace(/\s/g, '')
+      if (this.buttonStatus.updateAias) {
+        return this.$message.error('操作太快哦!!修改店铺别名间隔5秒')
+      }
+      event.target.blur()
+      this.buttonStatus.updateAias = true
       const params = { lists: [{
         sysMallId: row.id,
-        mallAliasName: row.mall_alias_name || row.platform_mall_name
+        mallAliasName: row.mall_alias_name
       }] }
       const res = await this.mallListAPIInstance.updateMallAliasName(params)
       if (res.code !== 200) {
         this.$message.error(`修改失败:${res.data}`, false)
-        return
+      } else {
+        let mallInfo = await this.$appConfig.getGlobalCacheInfo('mallInfo', row.platform_mall_id)
+        mallInfo = JSON.parse(mallInfo)
+        mallInfo['mall_alias_name'] = row.mall_alias_name
+        this.$appConfig.updateInfoMall(row.platform_mall_id, JSON.stringify(mallInfo)) // 更新里面店铺的cookie （壳）
+        this.$message.success(`修改成功`, true)
       }
-      this.$message.success(`修改成功`, true)
+      await delay(5000)
+      this.buttonStatus.updateAias = false
     },
-    async updateWateMark(row) {
-      row.isCheckedWaterMark = false
-      // if (!row.watermark) {
-      //   return
-      // }
+    async updateWateMark(event, row) {
+      // row.isCheckedWaterMark = false
+      row.watermark = row.watermark.trim().replace(/\s/g, '')
+      if (this.buttonStatus.updateWater) {
+        return this.$message.error('操作太快哦!!修改水印间隔5秒')
+      }
+      event.target.blur()
+      this.buttonStatus.updateWater = true
       const params = { lists: [{
         sysMallId: row.id,
         watermark: row.watermark
@@ -2121,9 +2148,15 @@ export default {
       const res = await this.mallListAPIInstance.updateWatermark(params)
       if (res.code !== 200) {
         this.$message.error(`修改失败:${res.data}`, false)
-        return
+      } else {
+        let mallInfo = await this.$appConfig.getGlobalCacheInfo('mallInfo', row.platform_mall_id)
+        mallInfo = JSON.parse(mallInfo)
+        mallInfo['watermark'] = row.watermark
+        this.$appConfig.updateInfoMall(row.platform_mall_id, JSON.stringify(mallInfo)) // 更新里面店铺的cookie （壳）
+        this.$message.success(`修改成功`, true)
       }
-      this.$message.success(`修改成功`, true)
+      await delay(5000)
+      this.buttonStatus.updateWater = false
     },
     async importMallName() {
       // 站点(马来站，台湾站，泰国站，印尼站，菲律宾站，新加坡站，越南站)(必填)
@@ -2143,25 +2176,30 @@ export default {
           break
         }
         const item = this.importTemplateData[i]
+        const mallName = item['店铺真实名称(必填)']
+        if (!mallName) {
+          this.writeLog(`(${i + 1}/${len})未找到店铺真实名称(必填)`, false)
+          continue
+        }
         if (!item['站点(马来站，台湾站，泰国站，印尼站，菲律宾站，新加坡站，越南站)(必填)']) {
-          this.writeLog(`(${i + 1}/${len})未找到站点(马来站，台湾站，泰国站，印尼站，菲律宾站，新加坡站，越南站)(必填)`, false)
+          this.writeLog(`(${i + 1}/${len})${mallName} 未找到站点(马来站，台湾站，泰国站，印尼站，菲律宾站，新加坡站，越南站)(必填)`, false)
           continue
         }
         if (!item['账号(必填)(如果为手机号，请不要加国家区号)']) {
-          this.writeLog(`(${i + 1}/${len})未找到账号(必填)(如果为手机号，请不要加国家区号)`, false)
+          this.writeLog(`(${i + 1}/${len})${mallName} 未找到账号(必填)(如果为手机号，请不要加国家区号)`, false)
           continue
         }
         if (!item['密码(必填)']) {
-          this.writeLog(`(${i + 1}/${len})未找到密码(必填)`, false)
+          this.writeLog(`(${i + 1}/${len})${mallName} 未找到密码(必填)`, false)
           continue
         }
-        if (!item['店铺真实名称(必填)']) {
-          this.writeLog(`(${i + 1}/${len})未找到店铺真实名称(必填)`, false)
+        if (this.isIPType === 1 && !item['店铺主体名称(需申IP隔离必填)']) { // 使用已有IP 就检测是否填写
+          this.writeLog(`(${i + 1}/${len})${mallName} 店铺主体名称(需申IP隔离必填)，检测到您选择了 使用已有IP，但是未填写`, false)
           continue
         }
         const country = this.countries.filter((item2) => item2.label === item['站点(马来站，台湾站，泰国站，印尼站，菲律宾站，新加坡站，越南站)(必填)'])
         if (!country.length) {
-          this.writeLog(`(${i + 1}/${len})未找到[${item['站点(马来站，台湾站，泰国站，印尼站，菲律宾站，新加坡站，越南站)(必填)']}],站点填写有误`, false)
+          this.writeLog(`(${i + 1}/${len})${mallName} 未找到[${item['站点(马来站，台湾站，泰国站，印尼站，菲律宾站，新加坡站，越南站)(必填)']}],站点填写有误`, false)
           continue
         }
         // const obj = {
@@ -2189,7 +2227,7 @@ export default {
           platform_mall_name: username,
           platform_mall_id: '',
           platform_mall_uid: '',
-          MallMainName: MallMainName,
+          MallMainName: MallMainName + '',
           mall_account_info: {
             // 店铺账户信息(导入模板里面的信息)
             password: password + '',
@@ -2320,7 +2358,7 @@ export default {
         color = setcolor
       }
       const time = this.dateFormat(new Date(Date.now()), 'hh:mm:ss')
-      this.consoleMsg = `<p style="color:${color}">${time}:${msg}</p>` + this.consoleMsg
+      this.consoleMsg = `<p style="color:${color}; margin: 5px;">${time}:${msg}</p>` + this.consoleMsg
     },
     dateFormat(time, fmt) {
       var o = {

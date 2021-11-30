@@ -171,4 +171,11 @@ export default class buyerAccountService {
   pddCouponWindow(arr) {
     return this.nativeService.callPddCouponWindow(arr)
   }
+  /**
+   *登录阿里云翻译账户中心
+   */
+  aliTranslateCenter(data) {
+    console.log(JSON.stringify(data))
+    return this.nativeService.aliTranslateCenter(JSON.stringify(data))
+  }
 }

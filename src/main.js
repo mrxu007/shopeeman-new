@@ -117,9 +117,10 @@ Vue.directive('focus', {
 })
 async function getUserInfo() {
   const res = await new applicationConfig().getUserInfo()
-  Vue.prototype.userInfo = res
+  Vue.prototype.$userInfo = res
 }
 getUserInfo()
+
 Vue.config.productionTip = false
 new Vue({
   router,

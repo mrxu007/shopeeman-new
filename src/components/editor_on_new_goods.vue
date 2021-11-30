@@ -123,14 +123,16 @@
           </div>
           <div style="display: flex;align-items: center;margin-left: 10px;">
             <div>阿里翻译账号：</div>
-            <el-select v-model="aLiUsername" size="mini" style="width: 120px;" value="">
+            <el-select class="select-right-30" v-model="aLiUsername" size="mini" style="width: 120px;" value="">
               <el-option v-for="item in aLiUsernameList"
-                         :key="item.value"
-                         :label="item.label"
-                         :value="item.value">
+                         :key="item.id"
+                         :label="item.name"
+                         :value="item.name">
+                <span>{{item.name}}</span>
+                <span class="span-but" @click.stop="deleteAliTranslation(item.id)">X</span>
               </el-option>
             </el-select>
-            <el-button size="mini" @click="" style="margin-left: 5px">账号个人中心</el-button>
+            <el-button size="mini" @click="joinAliTranslation" style="margin-left: 5px">账号个人中心</el-button>
           </div>
         </div>
       </div>
@@ -332,6 +334,9 @@
           fySuccess: 0
         },
         goodsDescribeRadio: 1,
+        //翻译账户
+        aLiUsername: '',
+        aLiUsernameList: [],
         //翻译
         translationConfig: {
           titleChecked: true,
@@ -407,8 +412,6 @@
           }],
         filterSimplifiedChecked: false, //过滤简体
         threadNumber: '5', // 线程数量
-        aLiUsername: '',
-        aLiUsernameList: [],
         labelList: [],
         sourceObj: null,
         source: null,
@@ -458,7 +461,13 @@
       let userInfo = await this.$appConfig.getUserInfo()
       this.userInfo = Object.assign(JSON.parse(userJson), userInfo)
       this.statistics.count = this.mallTable.length
-      console.log('userInfo', this.userInfo)
+      let buyerList = await this.$api.getBuyerList()
+      buyerList.data.data.forEach(item=>{
+        if (item.type == 99 || item.type == -1){
+          this.aLiUsernameList.push(item)
+        }
+      })
+      console.log('buyerList', buyerList)
     },
     methods: {
       // 开启任务
@@ -559,7 +568,59 @@
       },
       async loginAliTranslation() {
         let login = await this.$buyerAccountService.loginAliTranslation()
-        console.log(login)
+        let params = {
+          name: login.name,
+          password: '',
+          type: 99,
+          site: login.country || '',
+          loginInfo: login.login_info,
+          ua: login.ua,
+          cachePath: login.cache_path,
+          proxyId: '',
+        }
+        const { data } = await this.$api.upLoadBuyAccount(params)
+        if (data.code === 200){
+          this.aLiUsername = params.name
+          let index = this.aLiUsernameList.findIndex(i=>i.name === params.name)
+          if(index >= 0){
+            this.aLiUsernameList[index] = params
+          }
+        }else{
+          this.$message.error('阿里翻译账户上报失败')
+        }
+      },
+      async joinAliTranslation(){
+        if (!this.aLiUsername){
+          this.$message.error('请选择一个阿里翻译账户')
+        }
+        let index = this.aLiUsernameList.findIndex(i=>i.name === this.aLiUsername)
+        let aLiUsername = this.aLiUsernameList[index]
+        let param = {
+          type: aLiUsername.type,
+          name : aLiUsername.name ,
+          login_info : JSON.stringify(aLiUsername.login_info),
+          cache_path : aLiUsername.cache_path,
+          ua : aLiUsername.ua,
+          loginCookies : aLiUsername.login_info,
+        }
+        console.log(param)
+        let data = await this.$buyerAccountService.aliTranslateCenter(param)
+        console.log(data)
+      },
+      async deleteAliTranslation(id) {
+        let index = this.aLiUsernameList.findIndex(i=>i.id === id)
+        let params = {
+          name:this.aLiUsernameList[index].name,
+          type:this.aLiUsernameList[index].type,
+          site:this.aLiUsernameList[index].site,
+        }
+        let {data} = await this.$api.deleteBuyAccount(params)
+        if (data.code === 200){
+          this.aLiUsername = ''
+          this.aLiUsernameList.splice(index,1)
+        }else{
+          this.$message.error('阿里翻译账户删除失败')
+        }
       },
       async selectDescribe(type) {
         if (type === 0) {
@@ -771,6 +832,12 @@
     .el-input--mini .el-input__inner {
       padding-left: 8px;
       padding-right: 8px;
+    }
+
+    .select-right-30{
+      .el-input--mini .el-input__inner{
+        padding-right: 30px;
+      }
     }
   }
 </style>
