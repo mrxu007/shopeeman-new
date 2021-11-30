@@ -118,6 +118,6 @@ export default class BaseUtilService {
   }
   // 下载条形码
   downloadBarCode(data) {
-    return this.nativeService.downloadBarCode(data)
+    return this.nativeService.downloadBarCode([data])
   }
 }
