@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-11-09 10:17:44
- * @LastEditTime: 2021-11-29 18:01:13
+ * @LastEditTime: 2021-11-30 17:31:15
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shopeeman-new\src\views\order-manager\components\OrderManagerOrderCenter.vue
@@ -189,7 +189,8 @@
       </div>
     </header>
     <div class="content">
-      <el-table v-loading="tableLoading" ref="multipleTable" :data="tableData" tooltip-effect="dark" height="400px" @selection-change="handleSelectionChange">
+      <p>温馨提示：1、最终毛利 = 订单收入-采购金额-仓库发货金额（生成仓库发货金额才会去计算，会有汇率差）；含邮费毛利 = 订单收入-采购价；2、若登录了Lazada买手号但点击采购订单号依旧提示登录，请使用编辑采购信息编辑重新保存下拍单信息</p>
+      <el-table v-loading="tableLoading" ref="multipleTable" :data="tableData" tooltip-effect="dark"  @selection-change="handleSelectionChange">
         <el-table-column align="center" type="selection" width="50" />
         <el-table-column align="center" type="index" label="序号" width="50">
           <template slot-scope="scope">{{ (currentPage - 1) * pageSize + scope.$index + 1 }}</template>
@@ -211,7 +212,7 @@
         <el-table-column prop="order_sn" label="订单编号" align="center" min-width="170px" v-if="showTableColumn('订单编号')">
           <template slot-scope="scope">
             <span class="tableActive" @click="viewDetails('orderDetail', scope.row.order_id, scope.row.mall_info.platform_mall_id)">{{ scope.row.order_sn }}</span>
-            <i class="el-icon-s-order" style="margin-left:8px;cursor: pointer;" @click="copyItem(scope.row.order_sn)"></i>
+            <i class="el-icon-s-order" style="margin-left: 8px; cursor: pointer" @click="copyItem(scope.row.order_sn)"></i>
           </template>
         </el-table-column>
         <el-table-column align="center" prop="created_time" label="订单创建时间" min-width="140" v-if="showTableColumn('订单创建时间')" />
@@ -229,8 +230,13 @@
             <el-button size="mini" type="primary" @click="openUrl(scope.row.goods_info.ori_url)">查看采购地址</el-button>
           </template>
         </el-table-column>
-        <el-table-column align="center" prop="123456" label="是否可二次销售" min-width="120" v-if="showTableColumn('是否可二次销售')">
-          <template slot-scope="scope">{{}}</template>
+        <el-table-column align="center" label="是否可二次销售" min-width="140" v-if="showTableColumn('是否可二次销售')">
+          <template slot-scope="scope">
+            <el-button v-if="scope.row.shot_order_info.buy_account_info && scope.row.shot_order_info.buy_account_info.second_sale_num" size="mini" type="primary" @click="cancelSecondSale(scope.row)"
+              >取消二次销售</el-button
+            >
+            <el-button v-if="scope.row.isSecond" size="mini" type="primary" @click="chooseSecondSale(scope.row)">{{ scope.row.secondSaleTitle }}</el-button>
+          </template>
         </el-table-column>
         <el-table-column align="center" label="商品ID" min-width="120" v-if="showTableColumn('商品ID')">
           <template slot-scope="scope">
@@ -440,7 +446,17 @@
                 <el-dropdown-item> <div class="dropdownItem" @click="addPurchaseLink(scope.row, scope.$index)">添加采购链接</div></el-dropdown-item>
                 <el-dropdown-item> <div class="dropdownItem" @click="addMoreTrackingNumber(scope.row, scope.$index)">添加多物流单号</div></el-dropdown-item>
                 <el-dropdown-item> <div class="" @click="setColorSingle(scope.row, scope.$index)">标记颜色标识</div></el-dropdown-item>
-                <el-dropdown-item> <div class="dropdownItemdropdownItem" @click="clickRow = scope.row;billsDetailVisible = true;" >账单明细</div></el-dropdown-item>
+                <el-dropdown-item>
+                  <div
+                    class="dropdownItemdropdownItem"
+                    @click="
+                      clickRow = scope.row
+                      billsDetailVisible = true
+                    "
+                  >
+                    账单明细
+                  </div></el-dropdown-item
+                >
                 <el-dropdown-item> <div class="dropdownItem" @click="SyncOrder(scope.row)">同步此店铺订单</div></el-dropdown-item>
                 <el-dropdown-item> <div class="dropdownItem" @click="SyncOrderSingle(scope.row)">同步此订单</div></el-dropdown-item>
                 <el-dropdown-item> <div class="dropdownItem" @click="syncLogisticsSingle(scope.row)">同步此订单物流</div></el-dropdown-item>
@@ -674,6 +690,9 @@
         <el-button type="primary" size="mini" @click="saveHandleOut">保 存</el-button>
       </span>
     </el-dialog>
+    <el-dialog title="二次销售" :visible.sync="secondSaleVisible" top="5vh" width="1500px" :close-on-click-modal="false" v-if="secondSaleVisible" @close="closeDialog">
+      <second-sale :chooseData="clickRow" :secondOrderData="secondOrderList" @close="closeDialog"></second-sale>
+    </el-dialog>
   </div>
 </template>
 
@@ -694,7 +713,7 @@ import {
   lazadaUrlList,
   changeBuyerType,
 } from '../components/orderCenter/orderCenter'
-import { exportExcelDataCommon, creatDate } from '../../../util/util'
+import { creatDate } from '../../../util/util'
 import storeChoose from '../../../components/store-choose'
 import BuyerAccount from './orderCenter/buyer-account.vue'
 import LogisticeSyncService from '../../../services/logistics-sync-service/logistics-sync-service-new-copy'
@@ -705,6 +724,7 @@ import BuyLink from './orderCenter/addBuyLink.vue'
 import BillDetail from './orderCenter/billDetail.vue'
 import ExportReport from './orderCenter/exportReport.vue'
 import ReplyBuyer from './orderCenter/replyBuyer.vue'
+import SecondSale from './orderCenter/secondSale.vue'
 import UploadStoreShipAmount from './orderCenter/uploadStoreShipAmount.vue'
 import _ from 'lodash'
 import ShotOrderService from '../../../services/short-order/shot-order-service'
@@ -721,11 +741,12 @@ export default {
     BillDetail,
     ExportReport,
     ReplyBuyer,
+    SecondSale,
   },
   data() {
     return {
       selectForm: {
-        timeType: 'timeType', //其它时间类型
+        timeType: 'payTime', //其它时间类型
         otherTime: '', //其它时间
         orderStatus: '', //订单状态
         shotStatus: '', //采购状态
@@ -857,6 +878,8 @@ export default {
       handOutOrderVisible: false, //手动发货
       shippingProof: '', //手动出库物流名
       shippingTraceNo: '', //手动出库物流单号
+      secondSaleVisible: false, //二次销售
+      secondOrderList: [], //二次销售列表
     }
   },
   mounted() {
@@ -864,28 +887,112 @@ export default {
     this.createTime = creatDate(30)
     // this.getBuyerList()
     this.getColumnsConfig()
+    this.getSecondSaleList()
     setTimeout(() => {
       this.getOrderList()
       this.indexLoading = false
     }, 2000)
   },
   methods: {
+    //取消二次销售
+    async cancelSecondSale(row){
+      let params = {
+        sysOrderId: row.id
+      }
+      let res = await this.$api.cancelSecondSale(params)
+      if(res.data.code === 200){
+        this.$message.success("取消成功！")
+        this.getOrderList()
+      }else{
+        this.$message.error(`取消失败，${res.data.message}`)
+      }
+    },
+    //二次销售列表
+    async getSecondSaleList() {
+      let params = {
+        goodsId: this.goodsId,
+        variationId: this.skuId,
+        goodsSpec: this.goodsNum,
+      }
+      let res = await this.$api.getsecondlist(params)
+      if (res.data.code === 200) {
+        this.secondOrderList = res.data.data
+      }
+    },
+    //判断二次销售
+    async isSecondSale(row,index) {
+      let flag = true
+      let secondSaleTitle = '自选出库'
+      let secondType = 'nomal'
+      if (row.order_sn != row.main_order_sn) {
+        flag = false
+      }
+      //1、如果为取消二次销售，显示出取消按钮
+      else if (row.shot_order_info.buy_account_info && row.shot_order_info.buy_account_info.second_sale_num) {
+        flag = false
+      }
+      //2、如果二次销售数据为空，则不显示按钮
+      else if (!this.secondOrderList.length) {
+        flag = false
+      }
+      //3、如果平台订单的发货状态为售后，不显示二次销售按钮
+      else if (Number(row.order_status >= 6)) {
+        flag = false
+      }
+      //4、如果订单的采购状态为上家已发货，不显示二次销售按钮
+      else if (Number(row.shot_order_info.shot_status) >= 4) {
+        flag = false
+      } else {
+        for (let i = 0; i < this.secondOrderList.length; i++) {
+          let item = this.secondOrderList[i]
+          if (row.goods_info.variation_id == item.variation_id && row.country == item.country && item.goods_count > 0) {
+            console.log('规格编号匹配出库')
+            secondSaleTitle = '规格编号匹配出库'
+            secondType = 'skuId'
+            flag = true
+            break
+          }
+          if (row.goods_info.goods_id == item.goods_id && row.country == item.country && item.goods_count > 0) {
+            console.log('商品ID匹配出库')
+            secondSaleTitle = '商品ID匹配出库'
+            secondType = 'goodsId'
+            flag = true
+            break
+          }
+          if (row.goods_info.goods_spec && row.goods_info.goods_spec == item.variation_name && row.country == item.country && item.goods_count > 0) {
+            console.log('商品货号匹配出库')
+            secondSaleTitle = '商品货号匹配出库'
+            secondType = 'skuName'
+            flag = true
+            break
+          }
+        }
+      }
+      this.$set(this.tableData[index],'secondSaleTitle',secondSaleTitle)
+      this.$set(this.tableData[index],'isSecond',flag)
+      this.$set(this.tableData[index],'secondType',secondType)
+    },
+    //二次销售自选出库
+    async chooseSecondSale(row) {
+      this.clickRow = row
+      this.secondSaleVisible = true
+    },
     //商品置顶
-    async goodsTop(row){
+    async goodsTop(row) {
       let params = {
         id: Number(row.goods_info.goods_id),
-        shop_id: row.mall_info.platform_mall_id
+        shop_id: row.mall_info.platform_mall_id,
       }
-       let res = await this.$shopeemanService.handleGoodsTop(row.country, params)
-      if(res === 200){
+      let res = await this.$shopeemanService.handleGoodsTop(row.country, params)
+      if (res === 200) {
         this.$message.success(`商品置顶成功！`)
-      }else{
+      } else {
         this.$message.error(`${res.data}`)
       }
     },
     //商品删除
-    async goodsDelete(row){
-       this.$confirm('是否删除该商品?', '商品删除', {
+    async goodsDelete(row) {
+      this.$confirm('是否删除该商品?', '商品删除', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning',
@@ -896,15 +1003,15 @@ export default {
         .catch(() => {})
     },
     //商品删除
-    async setGoodsDelete(row){
+    async setGoodsDelete(row) {
       let params = {
-        product_id_list:[ Number(row.goods_info.goods_id)],
-        shop_id: row.mall_info.platform_mall_id
+        product_id_list: [Number(row.goods_info.goods_id)],
+        shop_id: row.mall_info.platform_mall_id,
       }
-       let res = await this.$shopeemanService.handleGoodsDelete(row.country, params)
-      if(res === 200){
+      let res = await this.$shopeemanService.handleGoodsDelete(row.country, params)
+      if (res === 200) {
         this.$message.success(`商品删除成功！`)
-      }else{
+      } else {
         this.$message.error(`${res.data}`)
       }
     },
@@ -933,9 +1040,9 @@ export default {
         shop_id: row.mall_info.platform_mall_id,
       }
       let res = await this.$shopeemanService.handleGoodsDelist(row.country, data, params)
-      if(res === 200){
+      if (res === 200) {
         this.$message.success(`商品下架成功！`)
-      }else{
+      } else {
         this.$message.error(`${res.data}`)
       }
       console.log(res, 'res')
@@ -1043,16 +1150,22 @@ export default {
         let order = arr[i]
         console.log(order)
         if (!order.shot_order_info.buy_account_info) {
-          this.$refs.Logs.writeLog(`【${order.order_sn}】，当前没有拍单信息，无法获取！`, true)
+          this.$refs.Logs.writeLog(`【${order.order_sn}】，当前没有拍单信息，无法获取！`, false)
           continue
         } else {
           let buyer_name = order.shot_order_info.buy_account_info.name
-          let buy = buyersFilter.find((item) => item.name === buyer_name)
+          let buy = buyersFilter.find((item) => item.name === 'yingzi-deng')
+          // let buy = buyersFilter.find((item) => item.name === buyer_name)
           if (buy) {
-            let res = await this.$commodityService.getLazadaOrderDetail(order.country, JSON.stringify(buy.login_info), order.shot_order_info.shot_order_sn)
-            console.log(res, 'getLazadaOrderDetail')
+            try {
+              let res = await this.$commodityService.getLazadaOrderDetail(order.country, JSON.stringify(buy.login_info), order.shot_order_info.shot_order_sn)
+              console.log(res, 'getLazadaOrderDetail')
+            } catch (error) {
+              console.log(order.country, JSON.stringify(buy.login_info), order.shot_order_info.shot_order_sn)
+              console.log(error)
+            }
           } else {
-            this.$refs.Logs.writeLog(`【${order.order_sn}】，对应的买手号【${buyer_name}】没有找到，请登录对应买手号！`, true)
+            this.$refs.Logs.writeLog(`【${order.order_sn}】，对应的买手号【${buyer_name}】没有找到，请登录对应买手号！`, false)
             continue
           }
         }
@@ -1174,6 +1287,7 @@ export default {
       this.billsDetailVisible = false
       this.handOutOrderVisible = false
       this.replayOrderBuyerVisible = false
+      this.secondSaleVisible = false
       this.clickRow = {}
       this.multipleSelection = []
       this.$refs.multipleTable.clearSelection()
@@ -1728,6 +1842,10 @@ export default {
       if (res.data.code === 200) {
         this.tableData = res.data.data.data
         this.total = res.data.data.total
+        for(let i =0;i<this.tableData.length;i++){
+          let row = this.tableData[i]
+          this.isSecondSale(row,i)
+        }
       } else {
         this.$message.error(res.data.message)
       }
@@ -1825,6 +1943,11 @@ export default {
   }
 }
 .content {
+  p{
+    color:red;
+    height:26px;
+    padding: 10px;
+  }
   margin: 20px 0;
   background: #fff;
   height: calc(100vh - 420px);

@@ -753,7 +753,7 @@ export default class CommodityService {
    * @param  {orderId} 拍单订单id
    */  
   async getLazadaOrderDetail(country,cookieStr,orderId){
-    return await this.nativeService.callLazadaService('callLazadaService',country,cookieStr,orderId)
+    return await this.nativeService.callLazadaService('GetLazadaOrderDetail',country,cookieStr,orderId)
   }
   /**
    * @name : 获取订单支付方式
@@ -762,7 +762,7 @@ export default class CommodityService {
    * @param  {orderDetial} 获取Lazada的订单详情接口返回值
    * @param  {shotOrderSn} 拍单订单号
    */  
-  async getPayMethod(country,cookieStr,orderDetial,shotOrderSn){
+  async getLazadaPayMethod(country,cookieStr,orderDetial,shotOrderSn){
     return await this.nativeService.callLazadaService('GetPayMethod',country,cookieStr,orderDetial,shotOrderSn)
   }
 }

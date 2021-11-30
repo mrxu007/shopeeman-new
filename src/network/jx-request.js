@@ -170,7 +170,7 @@ export default {
   updateShotStatus: (data) => AppRequest.post('/aftermarket/updateShotStatus', data), // 采购状态变更
   orderSaveRemark: (data) => AppRequest.post('/order/remark', data), // 添加店铺备注
 
-  getsecondlist: (data) => AppRequest.post('/overseasTansferPackage/index', data), // 获取二次销售列表
+  getsecondlist: (data) => AppRequest.get('/overseasTansferPackage/indexAll', { params: data }), // 获取二次销售列表
 
   getBuyerList: (data) => AppRequest.get('/buyerAccount/index', data), // 下载买手号
   stockingForecastUpload: (data) => AppRequest.post('/warehouse/stockingForecastUpload', data), // 海外仓商品备货：发起商品预报
@@ -196,5 +196,7 @@ export default {
   getLogisticsInformationBatch: (data) => AppRequest.post('/getLogisticsInformationBatch', data), // 获取面单信息 
   getAsyncExportOrder: (data) => AppRequest.get('/getAsyncExportOrder', { params: data }), // 获取导出报表信息 
   applyAsyncExportOrder: (data) => AppRequest.post('/applyAsyncExportOrder', { params: data }), // 点击导出报表信息 
-  saveUserConfig: (data) => AppRequest.post('/user/saveUserConfig',  data ), // 保存回复评论设置
+  saveUserConfig: (data) => AppRequest.post('/user/saveUserConfig',  data ), // 保存回复评论设置 
+  cancelSecondSale: (data) => AppRequest.post('/overseasTansferPackage/cancelSecondSale',  data ),//取消二次销售数据 
+  uploadSecondSale: (data) => AppRequest.post('/overseasTansferPackage/uploadSecondSale',  data ),//二次销售出库上报
 }

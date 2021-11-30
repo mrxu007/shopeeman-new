@@ -1,15 +1,4 @@
-/*
- * @Author: your name
- * @Date: 2021-11-10 12:02:05
- * @LastEditTime: 2021-11-29 17:38:28
- * @LastEditors: Please set LastEditors
- * @Description: In User Settings Edit
- * @FilePath: \shopeeman-new\src\views\order-manager\components\orderCenter\selectData.js
- */
 
-import {
-  rearg
-} from "lodash"
 
 //订单状态  1:待支付 2:待发货 3:已发货 4:已完成  5:取消中 6:已取消 7:退款/退货 8:确认签收 9:退款成功 10:退款失败  20:无售后订单
 const orderStatusList = [{
@@ -95,6 +84,10 @@ const shotStatusList = [{
     label: '退款成功'
   }
 ]
+function changeShotStatus(val){
+  let obj = shotStatusList.find(item=>item.value == val)
+ return obj && obj.label || ''
+}
 const shotStatuForEdit = [{
     value: 1,
     label: '待采购'
@@ -779,22 +772,22 @@ const syncStatus = [
   //   label: '未支付',
   //   value: 'unpaid'
   // // },
-  // {
-  //   label: '待发货',
-  //   value: 'toship'
-  // },
-  // {
-  //   label: '运送中',
-  //   value: 'shipping'
-  // },
-  // {
-  //   label: '已完成',
-  //   value: 'completed'
-  // },
-  // {
-  //   label: '取消中',
-  //   value: 'cancelled'
-  // }, //cancelled  //cancelled_all
+  {
+    label: '待发货',
+    value: 'toship'
+  },
+  {
+    label: '运送中',
+    value: 'shipping'
+  },
+  {
+    label: '已完成',
+    value: 'completed'
+  },
+  {
+    label: '取消中',
+    value: 'cancelled'
+  }, //cancelled  //cancelled_all
   {
     label: '退款中',
     value: 'refund'
@@ -1407,6 +1400,7 @@ export {
   forbidTHData,
   packageType,
   lazadaUrlList,
+  changeShotStatus,
   changeBuyerType,
   changeOrderStatus,
   changeDeliveryStatus,

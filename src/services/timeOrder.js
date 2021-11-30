@@ -136,15 +136,15 @@ export default class {
             package_list = pageUp && pageUp.data && pageUp.data.package_list || []
           }
         }
-        this.writeLog(`${this.upLoadType !=='manual'?"【"+this.upLoadType+"】":'' }${this.mallNo} 店铺【${this.mall.platform_mall_name}】【${this.syncStatus.label}】成功-【${orderDetailListCount}】条`, true)
+        this.writeLog(`${this.upLoadType !=='manual'?"【"+this.upLoadType+"】":'' }${this.mallNo} 店铺【${this.mall.mall_alias_name || this.mall.platform_mall_name}】【${this.syncStatus.label}】成功-【${orderDetailListCount}】条`, true)
       } else if (res.code === 403) {
-        return this.writeLog(`${this.upLoadType !=='manual'?"【"+this.upLoadType+"】":'' }${this.mallNo} 店铺【${this.mall.platform_mall_name}】【${this.syncStatus.label}】未登录`, false)
+        return this.writeLog(`${this.upLoadType !=='manual'?"【"+this.upLoadType+"】":'' }${this.mallNo} 店铺【${this.mall.mall_alias_name || this.mall.platform_mall_name}】【${this.syncStatus.label}】未登录`, false)
       } else {
-        return this.writeLog(`${this.upLoadType !=='manual'?"【"+this.upLoadType+"】":'' }${this.mallNo} 店铺【${this.mall.platform_mall_name}】【${this.syncStatus.label}】${res.code}-${res.data}`, false)
+        return this.writeLog(`${this.upLoadType !=='manual'?"【"+this.upLoadType+"】":'' }${this.mallNo} 店铺【${this.mall.mall_alias_name || this.mall.platform_mall_name}】【${this.syncStatus.label}】${res.code}-${res.data}`, false)
       }
     } catch (e) {
       console.log(e)
-      return this.writeLog(`${this.upLoadType !=='manual'?"【"+this.upLoadType+"】":'' }${this.mallNo} 店铺【${this.mall.platform_mall_name}】【${this.syncStatus.label}】同步失败`, false)
+      return this.writeLog(`${this.upLoadType !=='manual'?"【"+this.upLoadType+"】":'' }${this.mallNo} 店铺【${this.mall.mall_alias_name || this.mall.platform_mall_name}】【${this.syncStatus.label}】同步失败`, false)
     }
   }
   //refund 类型的同步
@@ -168,7 +168,6 @@ export default class {
         } = res.data
         let orderDetailListCount = 0
         while (list.length) {
-          //orderLen-a<5
           for (let a = 0; a < list.length; a++) {
             let order = list[a]
             let par = {
@@ -183,13 +182,11 @@ export default class {
               let checkFlag = await this.checkAfterOrderSnStatus(order)
               if (checkFlag) {
                 let afterRes = await this.afterUpLoadOrders(order)
-                debugger
+                // debugger
                 if (afterRes) {
                   orderDetailListCount++
                 }
               }
-              // checkFlag && this.afterUpLoadOrders(order)
-              // console.log(order, "refund-order")
             }
           }
           //自动翻页
@@ -201,15 +198,15 @@ export default class {
             list = pageUp && pageUp.data && pageUp.data.list || []
           }
         }
-        this.writeLog(`${this.upLoadType !=='manual'?"【"+this.upLoadType+"】":'' }${this.mallNo} 店铺【${this.mall.platform_mall_name}】【${this.syncStatus.label}】成功-【${orderDetailListCount}】条`, true)
+        this.writeLog(`${this.upLoadType !=='manual'?"【"+this.upLoadType+"】":'' }${this.mallNo} 店铺【${this.mall.mall_alias_name || this.mall.platform_mall_name}】【${this.syncStatus.label}】成功-【${orderDetailListCount}】条`, true)
       } else if (res.code === 403) {
-        return this.writeLog(`${this.upLoadType !=='manual'?"【"+this.upLoadType+"】":'' }${this.mallNo} 店铺【${this.mall.platform_mall_name}】【${this.syncStatus.label}】未登录`, false)
+        return this.writeLog(`${this.upLoadType !=='manual'?"【"+this.upLoadType+"】":'' }${this.mallNo} 店铺【${this.mall.mall_alias_name || this.mall.platform_mall_name}】【${this.syncStatus.label}】未登录`, false)
       } else {
-        return this.writeLog(`${this.upLoadType !=='manual'?"【"+this.upLoadType+"】":'' }${this.mallNo} 店铺【${this.mall.platform_mall_name}】【${this.syncStatus.label}】${res.code}-${res.data}`, false)
+        return this.writeLog(`${this.upLoadType !=='manual'?"【"+this.upLoadType+"】":'' }${this.mallNo} 店铺【${this.mall.mall_alias_name || this.mall.platform_mall_name}】【${this.syncStatus.label}】${res.code}-${res.data}`, false)
       }
     } catch (e) {
       console.log(e)
-      return this.writeLog(`${this.upLoadType !=='manual'?"【"+this.upLoadType+"】":'' }${this.mallNo} 店铺【${this.mall.platform_mall_name}】【${this.syncStatus.label}】同步失败`, false)
+      return this.writeLog(`${this.upLoadType !=='manual'?"【"+this.upLoadType+"】":'' }${this.mallNo} 店铺【${this.mall.mall_alias_name || this.mall.platform_mall_name}】【${this.syncStatus.label}】同步失败`, false)
     }
   }
   //其它状态的同步
@@ -274,15 +271,15 @@ export default class {
             orders = pageUp && pageUp.data && pageUp.data.orders || []
           }
         }
-        this.writeLog(`${this.upLoadType !=='manual'?"【"+this.upLoadType+"】":'' }${this.mallNo} 店铺【${this.mall.platform_mall_name}】【${this.syncStatus.label}】成功-【${orderDetailListCount}】条`, true)
+        this.writeLog(`${this.upLoadType !=='manual'?"【"+this.upLoadType+"】":'' }${this.mallNo} 店铺【${this.mall.mall_alias_name || this.mall.platform_mall_name}】【${this.syncStatus.label}】成功-【${orderDetailListCount}】条`, true)
       } else if (res.code === 403) {
-        return this.writeLog(`${this.upLoadType !=='manual'?"【"+this.upLoadType+"】":'' }${this.mallNo} 店铺【${this.mall.platform_mall_name}】【${this.syncStatus.label}】未登录`, false)
+        return this.writeLog(`${this.upLoadType !=='manual'?"【"+this.upLoadType+"】":'' }${this.mallNo} 店铺【${this.mall.mall_alias_name || this.mall.platform_mall_name}】【${this.syncStatus.label}】未登录`, false)
       } else {
-        return this.writeLog(`${this.upLoadType !=='manual'?"【"+this.upLoadType+"】":'' }${this.mallNo} 店铺【${this.mall.platform_mall_name}】【${this.syncStatus.label}】${res.code}-${res.data}`, false)
+        return this.writeLog(`${this.upLoadType !=='manual'?"【"+this.upLoadType+"】":'' }${this.mallNo} 店铺【${this.mall.mall_alias_name || this.mall.platform_mall_name}】【${this.syncStatus.label}】${res.code}-${res.data}`, false)
       }
     } catch (e) {
       console.log(e)
-      return this.writeLog(`${this.upLoadType !=='manual'?"【"+this.upLoadType+"】":'' }${this.mallNo} 店铺【${this.mall.platform_mall_name}】【${this.syncStatus.label}】同步失败`, false)
+      return this.writeLog(`${this.upLoadType !=='manual'?"【"+this.upLoadType+"】":'' }${this.mallNo} 店铺【${this.mall.mall_alias_name || this.mall.platform_mall_name}】【${this.syncStatus.label}】同步失败`, false)
     }
   }
   //转换请求参数
