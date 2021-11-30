@@ -360,6 +360,7 @@
       <div>
         <el-table
           ref="workbenchTable"
+          v-loading="detailLoading"
           max-height="590px"
           :data="goodsList"
           tooltip-effect="dark"
@@ -532,6 +533,7 @@ export default {
   },
   data() {
     return {
+      detailLoading: false, // 查看订单包裹详情加载
       showlog: true,
       // colorStyle: 'width:50px;height:20px;background-color:',
       colorStyle: {
@@ -1395,13 +1397,15 @@ export default {
     },
     // 查看包裹信息弹窗
     async getGoodsInfo(packageOrderSn) {
+      this.dialogVisible2 = true
       const params = { packageOrderSn }
       try {
+        this.detailLoading = true
         const { data } = await this.$api.getGoodsInfo({ params })
+        this.detailLoading = false
         if (data.code === 200) {
           this.goodsList = data.data
           console.log('this.goodsList', this.goodsList)
-          this.dialogVisible2 = true
         } else {
           this.$message.error(data.message)
         }

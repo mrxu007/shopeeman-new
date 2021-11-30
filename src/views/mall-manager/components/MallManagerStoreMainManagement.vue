@@ -1084,7 +1084,6 @@ export default {
     // 修改绑定店铺数据
     async updataDesc() {
       // const params = this.query_person
-
       // 验证  source=2
       if (this.query_person.ip_agency === 'SSR') {
         if (this.query_person.ip_alias === '' ||
@@ -1201,10 +1200,10 @@ export default {
     },
     // 绑定用户信息
     async  updataMallList() {
-      if (this.dialog_selectMallList.length > 10) {
-        this.$message.warning('一个主体最多绑定10个店铺')
-        return
-      }
+      // if (this.rowData.source === '用户' && this.dialog_selectMallList.length > 10) {
+      //   this.$message.warning('一个主体最多绑定10个店铺')
+      //   return
+      // }
       const userInfo = await this.$appConfig.getUserInfo()
       const uid = userInfo.muid.toString()
       const targetId = this.targetId.toString()
