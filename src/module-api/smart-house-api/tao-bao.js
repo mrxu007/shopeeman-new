@@ -32,8 +32,8 @@ export default class taobaoAPI {
         uid: uid,
         uuid: uuid,
         account: account,
-        accountAliasName: accountAliasName,
-        app_key: 'KYsyQGFviz2i0uQF'
+        accountAliasName: accountAliasName
+        // app_key: 'KYsyQGFviz2i0uQF'
       }
       const res = await this._this.$shopeemanService.getChineseLaiZan('http://api.laizand.com/api/open/getTbGlobalUser?', params, { // options
         headers: {
@@ -57,8 +57,8 @@ export default class taobaoAPI {
       const params = {
         id: id,
         uuid: uuid,
-        accountAliasName: accountAliasName,
-        app_key: 'KYsyQGFviz2i0uQF'
+        accountAliasName: accountAliasName
+        // app_key: 'KYsyQGFviz2i0uQF'
       }
       const res = await this._this.$shopeemanService.postChineseLaiZan('http://api.laizand.com/api/open/updateAliasName', params, { // options
         headers: {
@@ -78,8 +78,8 @@ export default class taobaoAPI {
     try {
       const { id } = userinfo
       const params = {
-        id: id,
-        app_key: 'KYsyQGFviz2i0uQF'
+        id: id
+        // app_key: 'KYsyQGFviz2i0uQF'
       }
       const res = await this._this.$shopeemanService.postChineseLaiZan('http://api.laizand.com/api/open/deleteAccount', params, { // options
         headers: {
@@ -99,8 +99,8 @@ export default class taobaoAPI {
     try {
       const { accountAliasName } = userinfo
       const params = {
-        accountAliasName: accountAliasName,
-        app_key: 'KYsyQGFviz2i0uQF'
+        accountAliasName: accountAliasName
+        // app_key: 'KYsyQGFviz2i0uQF'
       }
       const res = await this._this.$shopeemanService.postChineseLaiZan('http://api.laizand.com/api/open/getTbGlobalAuthUrl', params, {
         headers: {
