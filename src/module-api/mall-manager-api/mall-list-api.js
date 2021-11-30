@@ -157,17 +157,41 @@ export default class MallListAPI {
     }
   }
   // 发送短信
-  async sendMessage(mallInfo, messageHeader) {
+  async sendMessage(mallInfo, messageHeader, flat) {
     try {
-      const { country, platform_mall_id } = mallInfo
+      const { country, platform_mall_id, mall_account_info } = mallInfo
+      const accountName = mall_account_info.username
       const params = {
-        platform_mall_id: platform_mall_id
+        platform_mall_id: platform_mall_id || '1111'
       }
       const headers = {
         'cookies': []
       }
       messageHeader ? headers['cookies'].push({ 'name': 'RO_T', value: messageHeader }) : ''
-      let res = await this._this.$shopeemanService.getChinese(country, '/api/selleraccount/vcode/resend/?', params, messageHeader ? { headers } : null)
+      const acccount_info = {
+        username: '',
+        password: mall_account_info.password
+      }
+      const reg = new RegExp('[\\u4E00-\\u9FFFa-zA-Z]+', 'g')
+      if (accountName.indexOf('@') > -1) {
+        params['email'] = accountName
+        acccount_info['username'] = accountName
+      } else if (reg.test(accountName)) {
+        params['username'] = accountName
+        acccount_info['username'] = accountName
+      } else {
+        const phone = this.getTelephoneNumberIsTrue(country, accountName)
+        params['phone'] = phone
+        acccount_info['username'] = phone
+      }
+      let copy_mallInfo = null
+      if (flat === 2) { // 导入店铺必须参数   flat 1 一键登陆  2导入店铺
+        copy_mallInfo = JSON.parse(JSON.stringify(mallInfo))
+        copy_mallInfo['accountName'] = acccount_info.username
+        copy_mallInfo['mall_account_info'] = acccount_info
+      }
+      debugger
+      let res = await this._this.$shopeemanService.getChinese(country, '/api/selleraccount/vcode/resend/?', params, messageHeader ? { headers } : null, copy_mallInfo)
       res = JSON.parse(JSON.parse(res).data)
       if (res.code === 0) {
         return { code: 200, data: '短信验证发送成功' }
@@ -176,6 +200,29 @@ export default class MallListAPI {
     } catch (error) {
       return { code: -2, data: `getMallGoodsAmount-catch: ${error}` }
     }
+  }
+
+  // 手机号是否符合各个国家的手机号
+  getTelephoneNumberIsTrue(country, account) {
+    const reg = {
+      'MY': '60',
+      'TW': '886',
+      'VN': '84',
+      'ID': '62',
+      'PH': '63',
+      'TH': '66',
+      'SG': '65',
+      'BR': '55',
+      'CN': '86',
+      'MX': '52',
+      'CO': '57',
+      'CL': '56',
+      'PL': '48'
+    }
+    if (account.startsWith('0')) {
+      account = account.substring(1)
+    }
+    return country === 'SG' || country === 'ID' ? account : reg[country] + account
   }
   // 本地服务接口----------------------------------------------------
   // 获取店铺列表

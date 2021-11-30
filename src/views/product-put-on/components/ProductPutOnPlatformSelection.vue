@@ -311,7 +311,6 @@ export default {
     },
     getLazadaGoodsPlace() { // 获取Lazada站点地点
       const value = getLazadaSitePlace(this.commonAttr.siteCode)
-      debugger
       this.commonAttr.lazadaPlace = value
     },
     handleClick(tab, event) {

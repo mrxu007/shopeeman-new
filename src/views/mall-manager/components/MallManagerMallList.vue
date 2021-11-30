@@ -745,7 +745,8 @@ export default {
       pageSize: 200,
       isChineseShow: false,
 
-      userInfo:null
+      userInfo: null,
+      flat: 1 // 1 一键登录  2 导入店铺
     }
   },
   computed: {},
@@ -822,7 +823,7 @@ export default {
     } catch (error) {
       console.log('监听', error)
     }
-    let userInfo = await this.$appConfig.getUserInfo()
+    const userInfo = await this.$appConfig.getUserInfo()
     this.userInfo = userInfo
   },
   methods: {
@@ -888,7 +889,7 @@ export default {
           this.sendMessageText = '重新发送短信验证码'
         }
       }, 1000)
-      const res = await this.mallListAPIInstance.sendMessage(this.sendMessageCurrent, this.sendMessageHeader)
+      const res = await this.mallListAPIInstance.sendMessage(this.sendMessageCurrent, this.sendMessageHeader, this.flat)
       if (res.code !== 200) {
         return this.$message.error(`短信发送失败:${res.code} ${res.data}`)
       }
@@ -1460,7 +1461,7 @@ export default {
       console.log('this.groupList', this.groupList)
     },
     mallAuthorization() {
-      if(this.userInfo.child_id > 0){
+      if (this.userInfo.child_id > 0) {
         this.$message.error('子账户没有授权权限')
         return
       }
@@ -1613,14 +1614,14 @@ export default {
         return
       }
       this.isStop = false
-      let flat = 1 // 默认一键登录
+      this.flat = 1 // 默认一键登录
       let len = null
       let selectMall = null
       if (mallArr) {
         // 导入店铺
         len = mallArr.length
         selectMall = mallArr
-        flat = 2
+        this.flat = 2
       } else {
         // 一键登录
         len = this.multipleSelection.length
@@ -1639,12 +1640,12 @@ export default {
         }
         const item = selectMall[i]
         const platform_mall_name = item.platform_mall_name
-        flat === 1 ? item.LoginInfo = '正在登录中...' : this.writeLog(`(${i + 1}/${len})账号【${platform_mall_name}】开始授权`, true)
+        this.flat === 1 ? item.LoginInfo = '正在登录中...' : this.writeLog(`(${i + 1}/${len})账号【${platform_mall_name}】开始授权`, true)
         let mallId = null// 平台店铺ID
         let mallUId = null // 平台卖家ID
         try {
           // 1、检测
-          if (!this.forceLogin && flat === 1) { // 一键登录、不强制登录，就走检测功能
+          if (!this.forceLogin && this.flat === 1) { // 一键登录、不强制登录，就走检测功能
           // 强制登录不检测是否已经登录
             const userInfo = await this.mallListAPIInstance.getUserInfo(item)
             if (userInfo.code === 200) {
@@ -1669,22 +1670,22 @@ export default {
             break
           }
           // 2、shopeeMan官方登录
-          let res = await this.$shopeemanService.login(item, flat)
+          let res = await this.$shopeemanService.login(item, this.flat)
           if (res.code !== 200) {
-            flat === 1 ? (item.LoginInfo = `<p style="color: red">登录失败：${res.data.message}</p>`) : this.writeLog(`(${i + 1}/${len})账号【${platform_mall_name}】授权失败：${res.data.message}`, false)
-            const handleResult = await this.handleReturnLogin(item, res, flat)
+            this.flat === 1 ? (item.LoginInfo = `<p style="color: red">登录失败：${res.data.message}</p>`) : this.writeLog(`(${i + 1}/${len})账号【${platform_mall_name}】授权失败：${res.data.message}`, false)
+            const handleResult = await this.handleReturnLogin(item, res)
             if (handleResult.code === 200) { // 3、处理登录弹框
               res = handleResult
             } else {
               item.loginStatus = 'fail'
-              flat === 1 ? (item.LoginInfo = `<p style="color: red">登录失败：${handleResult.data}</p>`) : this.writeLog(`(${i + 1}/${len})账号【${platform_mall_name}】授权失败：${handleResult.data}`, false)
+              this.flat === 1 ? (item.LoginInfo = `<p style="color: red">登录失败：${handleResult.data}</p>`) : this.writeLog(`(${i + 1}/${len})账号【${platform_mall_name}】授权失败：${handleResult.data}`, false)
               continue
             }
           }
           mallId = res.data.mallId // 平台店铺ID
           mallUId = res.data.mallUId // 平台卖家ID
           let mallDataInfo = null
-          if (flat === 1) {
+          if (this.flat === 1) {
           // 一键登录
           // 获取壳内店铺信息,组装
             const res1_flat1 = await this.$appConfig.getGlobalCacheInfo('mallInfo', mallId)
@@ -1765,7 +1766,7 @@ export default {
             continue
           }
           successNum++
-          flat === 1 ? (item.LoginInfo = '<p style="color: green">登录成功</p>') : this.writeLog(`(${i + 1}/${len})账号【${platform_mall_name}】授权成功`, true)
+          this.flat === 1 ? (item.LoginInfo = '<p style="color: green">登录成功</p>') : this.writeLog(`(${i + 1}/${len})账号【${platform_mall_name}】授权成功`, true)
           item.loginStatus = 'success'
           this.$nextTick(() => {
             this.$refs.plTable.toggleRowSelection([
@@ -1777,7 +1778,6 @@ export default {
           })
           if (item.hasMallMainInfo) { // 是否走过导入程序.并导入成功
             const bindInfo = await this.mallListAPIInstance.bindMainName(item.mall_main_id, mallId)
-            debugger
             if (bindInfo.code !== 200) {
               this.writeLog(`(${i + 1}/${len})账号【${platform_mall_name}】绑定店铺主体名称 ${item.MallMainName} 失败`, false)
             } else {
@@ -1790,16 +1790,16 @@ export default {
             break
           }
         } catch (error) {
-          flat === 1 ? (item.LoginInfo = `<p style="color: red">登录失败：（登录异常，店铺ID已被shopee官方更换，最新店铺ID为【${mallId}】，请联系客服更换后重试），然后重试店铺登录</p>`) : this.writeLog(`(${i + 1}/${len})账号【${platform_mall_name}】授权失败：${error}`, false)
+          this.flat === 1 ? (item.LoginInfo = `<p style="color: red">登录失败：（登录异常，店铺ID已被shopee官方更换，最新店铺ID为【${mallId}】，请联系客服更换后重试），然后重试店铺登录</p>`) : this.writeLog(`(${i + 1}/${len})账号【${platform_mall_name}】授权失败：${error}`, false)
           continue
         }
       }
-      if (flat === 2 && successNum) { // 导入店铺、并且有导入成功的店铺 满足刷新
+      if (this.flat === 2 && successNum) { // 导入店铺、并且有导入成功的店铺 满足刷新
         this.getMallList()
       }
       this.buttonStatus.login = false
     },
-    async handleReturnLogin(mallInfo, result, flat) {
+    async handleReturnLogin(mallInfo, result) {
       let code = result.code
       let message = result.data.message
       const returnData = result.data.data
@@ -1812,6 +1812,7 @@ export default {
           await window.BaseUtilBridgeService.loginNeedPopUps('needIvs', JSON.stringify({ 'loginType': 'login', 'isOpenAuthMallProxy': 'true', 'mallId': mallId }))
           if (this.needIvsInfo?.code === 200) {
             // console.log('this.needIvsInfo', this.needIvsInfo)
+            debugger
             const mallCookieInfos = this.needIvsInfo.mallCookieInfos
             const SPC_EC = mallCookieInfos.find(item => item.Name === 'SPC_EC')
             const SPC_SC_TK = mallCookieInfos.find(item => item.Name === 'SPC_SC_TK')
@@ -1860,7 +1861,7 @@ export default {
           await this.openPromise()
           // 5、走登录接口
           if (this.phoneInfo_message_code) { // 如果验证码存在
-            const error_need_otp_info = await this.$shopeemanService.login(mallInfo, flat, { vcode: this.phoneInfo_message_code }) // 返回数据结构要和外面的统一
+            const error_need_otp_info = await this.$shopeemanService.login(mallInfo, this.flat, { vcode: this.phoneInfo_message_code }) // 返回数据结构要和外面的统一
             if (error_need_otp_info.code === 200) {
               code = error_need_otp_info.code
               message = error_need_otp_info.data
