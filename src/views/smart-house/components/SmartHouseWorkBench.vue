@@ -21,7 +21,7 @@
           <el-button type="primary" size="mini" @click="extService_visible">批量添加增值服务</el-button>
         </div>
         <div class="btn-items">
-          <el-button type="primary" size="mini" @click="getPackage()">获取面单信息</el-button>
+          <!-- <el-button type="primary" size="mini" @click="getPackage()">获取面单信息</el-button> -->
           <!-- <el-button
             type="primary"
             size="mini"
@@ -37,20 +37,42 @@
             <storeChoose style="margin-left:5px" @change="setMallId" />
           </div>
         </div>
-        <div class="select-item" style="margin-bottom: 5px;">
-          <span class="search-title">订单创建时间：</span>
-          <el-date-picker
-            v-model="createdTime"
-            size="mini"
-            value-format="yyyy-MM-dd"
-            type="daterange"
-            style="width: 220px"
-            range-separator="-"
-            :picker-options="pickerOptions"
-            start-placeholder="开始日期"
-            end-placeholder="结束日期"
-          />
+        <div class="select-item" style="margin-bottom: 5px; display:flex">
+          <div>
+            <span class="search-title">订单创建时间：</span>
+            <el-date-picker
+              v-model="createdTime"
+              size="mini"
+              value-format="yyyy-MM-dd"
+              type="daterange"
+              style="width: 220px"
+              range-separator="-"
+              :picker-options="pickerOptions"
+              start-placeholder="开始日期"
+              end-placeholder="结束日期"
+            />
+          </div>
+
+          <div style="margin-left:30px">
+            <span class="search-title ">颜色标识：</span>
+            <el-select
+              v-model="colorLabelId"
+              size="mini"
+              style="width: 180px"
+              clearable
+              placeholder="全部"
+            >
+              <el-option
+                v-for="item in colorLogoList"
+                :key="item.id"
+                :label="item.name"
+                :value="item.id"
+                :style="item.color"
+              />
+            </el-select>
+          </div>
         </div>
+
         <div class="form-items">
           <div class="select-item">
             <span class="search-title">包裹入库时间：</span>
@@ -113,28 +135,16 @@
               <el-option v-for="item in abnormalTypeList" :key="item.exception_type" :label="item.label" :value="item.exception_type" />
             </el-select>
           </div>
-          <!--         <span class="search-title ">颜色标识：</span>
-          <el-select
-            v-model="colorLabelId"
-            size="mini"
-            style="width: 150px"
-            clearable
-            placeholder="全部"
-          >
-            <el-option
-              v-for="item in colorLogoList"
-              :key="item.id"
-              :label="item.label"
-              :value="item.id"
-              :style="item.color"
-            />
-          </el-select> -->
+
         </div>
-        <div class="select-item">
+        <div class="select-item" style="margin-top:10px">
           <el-button type="primary" style="margin-left: 4px" size="mini" class="m-80" :loading="orderPackageLoading" @click="orderPackage">搜索</el-button>
           <el-button v-if="!isExport" type="primary" size="mini" class="m-80" @click="tableToExcel">导出数据</el-button>
           <el-progress v-else style="width: 160px; display: inline-block; margin-left: 10px" :text-inside="true" :stroke-width="26" :percentage="((exportNum * 100) / total).toFixed(2) - 0" />
           <el-button type="primary" size="mini" class="m-80" style="width:120px" @click="remarkFun">批量更新用户备注</el-button>
+          <el-button type="primary" size="mini" @click="closelogData">清空日志</el-button>
+          <el-checkbox v-model="showlog" style="margin: 4px">隐藏日志</el-checkbox>
+
         </div>
       </div>
     </div>
@@ -159,13 +169,19 @@
             {{ scope.$index + 1 + (currentPage - 1) * pageSize }}
           </template>
         </el-table-column>
-        <el-table-column label="店铺名称" min-width="150px" prop="mall_alias_name" fixed />
-        <el-table-column label="站点" min-width="80px" prop="country" />
+        <el-table-column label="站点" min-width="80px" prop="country" fixed />
+        <el-table-column label="店铺名称" min-width="150px" prop="mall_alias_name">
+          <template slot-scope="{row}"><span>{{ row.mall_alias_name ? row.mall_alias_name :row.platform_mall_name }}</span></template>
+        </el-table-column>
         <el-table-column label="仓库" min-width="120px" prop="warehouse_name" />
         <el-table-column label="颜色标识" min-width="100px" prop="colorText">
-          <!-- <template slot-scope="{ row }">
-            <span :style="row.color">{{ row.label }}</span>
-          </template> -->
+          <template slot-scope="{ row }">
+            <!-- <span v-if="row.colorinfo" :style="row.color">{{ row.label }}</span> -->
+            <el-tooltip v-if="row.colorinfo" effect="dark" placement="top-start">
+              <div slot="content" style="width:auto;height:auto">{{ row.colorinfo.name }}</div>
+              <!-- <el-button type="text"><div :style="row.colorinfo.color"></div></el-button> -->
+              <div :style="{'backgroundColor':row.colorinfo.color.split(':')[1] , 'width':colorStyle.width , 'height':colorStyle.height}" /></el-tooltip>
+          </template>
         </el-table-column>
         <el-table-column label="订单编号" min-width="180px" prop="package_order_sn">
           <template slot-scope="scope">
@@ -198,10 +214,14 @@
             </div>
           </template>
         </el-table-column>
-        <el-table-column label="订单发货状态" min-width="100px" prop="statusText" />
+        <el-table-column label="订单发货状态" min-width="100px" prop="delivery_status">
+          <template slot-scope="{row}"><span>{{ delivery_statusList[row.delivery_status] }}</span></template>
+        </el-table-column>
         <el-table-column label="异常类型" min-width="100px" prop="exceptionText" />
         <el-table-column label="订单创建时间" min-width="150px" prop="order_created_time" />
-        <el-table-column label="订单平台状态" min-width="110px" prop="orderStatusText" />
+        <el-table-column label="订单平台状态" min-width="110px" prop="order_status">
+          <template scope="{row}"><span>{{ orderStatusList[row.order_status] }}</span></template>
+        </el-table-column>
         <el-table-column label="截止发货时间" min-width="150px" prop="latest_ship_date" />
         <el-table-column label="入库时间" min-width="150px" prop="storage_time" />
         <el-table-column label="出库时间" min-width="150px" prop="outbound_time" />
@@ -271,10 +291,21 @@
     <!-- 采购物流单号变更弹窗 -->
     <el-dialog title="采购物流单号变更" class="dialog-order" width="400px" top="6vh" :close-on-press-escape="false" :close-on-click-modal="false" :visible.sync="orderVisible" @closed="closeDialog1">
       <div class="order-dialog">
-        <div class="form-item">
-          <el-input v-model="newOrderSn" size="mini" clearable placeholder="请输入新的单号" />
-          <el-button type="primary" size="mini" @click="trackingNumberChangeOrder">保存</el-button>
-        </div>
+        <ul>
+          <li>
+            <label>原订单编号:</label>
+            <el-input v-model="oldOrderSn" size="mini" style="width:180px" clearable placeholder="原订单编号" />
+          </li>
+          <li style="margin-left:-15px">
+            <label>采购物流单号:</label>
+            <el-input v-model="package_code" size="mini" style="width:180px" clearable placeholder="采购物流单号" />
+          </li>
+          <li>
+            <label>新订单编号:</label>
+            <el-input v-model="newOrderSn" size="mini" style="width:180px" clearable placeholder="新订单编号" />
+          </li>
+          <el-button type="primary" style="margin-left:100px" size="mini" @click="trackingNumberChangeOrder">保存</el-button>
+        </ul>
       </div>
     </el-dialog>
     <!-- 批量标记颜色弹窗 -->
@@ -283,13 +314,13 @@
         <div class="form-item">
           <span class="search-title">颜色标识：</span>
           <el-select v-model="colorLabelId1" size="mini" style="width: 150px" clearable>
-            <el-option v-for="item in colorLogoList" :key="item.id" :label="item.label" :value="item.id" :style="item.color" />
+            <el-option v-for="item in colorLogoList" :key="item.id" :label="item.name" :value="item.id" :style="item.color" />
           </el-select>
           <el-button type="primary" size="mini" @click="setColorLabel">保存</el-button>
         </div>
       </div>
     </el-dialog>
-    <el-dialog title="包裹数据导出" :visible.sync="dialogVisible1" width="380px">
+    <!-- <el-dialog title="包裹数据导出" :visible.sync="dialogVisible1" width="380px">
       <p style="font-size: 16px; text-align: center">线上即将导出{{ multipleSelection.length ? multipleSelection.length : total }}条仓库包裹数据，是否生成？</p>
       <p v-if="total > 65000" style="text-align: center; color: red; margin-top: 10px; font-size: 16px">最多单次导出65000条数据, 请重新选择筛选条件。</p>
       <span slot="footer" class="dialog-footer">
@@ -305,7 +336,7 @@
           "
         >确 定</el-button>
       </span>
-    </el-dialog>
+    </el-dialog> -->
     <!-- 设置延时退单时间弹窗 -->
     <el-dialog
       title="设置延迟推单时间(小时)"
@@ -340,56 +371,60 @@
           :cell-style="{ textAlign: 'center' }"
           :row-style="{ height: '80px' }"
         >
-          <el-table-column label="订单编号" width="180" prop="order_sn" fixed />
-          <el-table-column label="商品名称" width="300" prop="">
+          <el-table-column label="订单编号" min-width="180px" prop="order_sn" fixed />
+          <el-table-column label="商品名称" min-width="300px" prop="">
             <template slot-scope="scope">
-              <div v-if="scope.row.goods" class="goods-detail">
+              <el-tooltip v-if="scope.row.goods" effect="dark" placement="top-start">
+                <div slot="content" style="width:200px;height:auto">{{ scope.row.goods.goods_name }}</div>
+                <el-button type="text" class="bindmallclass">{{ scope.row.goods.goods_name }}</el-button>
+              </el-tooltip>
+              <!-- <div v-if="scope.row.goods" class="goods-detail">
                 {{ scope.row.goods.goods_name }}
-              </div>
+              </div> -->
             </template>
           </el-table-column>
-          <el-table-column label="商品ID" width="110" prop="warehouse_name">
+          <el-table-column label="商品ID" min-width="110px" prop="warehouse_name">
             <template slot-scope="scope">
               <div v-if="scope.row.goods" class="goods-detail">
                 {{ scope.row.goods.goods_id }}
               </div>
             </template>
           </el-table-column>
-          <el-table-column label="数量" width="40" prop="goodsCount">
+          <el-table-column label="数量" min-width="40px" prop="goodsCount">
             <!-- <template slot-scope="scope">
               <div v-if="scope.row.goods" class="goods-detail">
                 {{ scope.row.goods.goodsCount }}
               </div>
             </template> -->
           </el-table-column>
-          <el-table-column label="拍单订单号" width="190" prop="package_order_sn">
+          <el-table-column label="拍单订单号" min-width="190px" prop="package_order_sn">
             <template slot-scope="scope">
               <div v-if="scope.row.shotOrder" class="goods-detail">
                 {{ scope.row.shotOrder.shot_order_sn }}
               </div>
             </template>
           </el-table-column>
-          <el-table-column label="拍单时间" width="90" prop="goods_count">
+          <el-table-column label="拍单时间" min-width="150px" prop="goods_count">
             <template slot-scope="scope">
               <div v-if="scope.row.shotOrder" class="goods-detail">
                 {{ scope.row.shotOrder.shotted_at }}
               </div>
             </template>
           </el-table-column>
-          <el-table-column label="物流单号" width="130" prop="package_code" />
-          <el-table-column label="状态" width="70">
+          <el-table-column label="物流单号" min-width="150px" prop="package_code" />
+          <el-table-column label="状态" min-width="70px">
             <template slot-scope="{ row }">
               <span>
                 {{ row.package && Number(row.package.status) === 1 ? '待处理' : '待处理' }}
               </span>
             </template>
           </el-table-column>
-          <el-table-column label="签收时间" width="90">
+          <el-table-column label="签收时间" min-width="150px">
             <template slot-scope="scope">
               <p v-if="scope.row.package">{{ scope.row.package.package_time }}</p>
             </template>
           </el-table-column>
-          <el-table-column label="包裹签收图片" width="90">
+          <el-table-column label="包裹签收图片" min-width="100px">
             <template slot-scope="scope">
               <el-tooltip v-if="scope.row.package" effect="light" placement="right-end" :visible-arrow="false" :enterable="false" style="width: 56px; height: 56px">
                 <div slot="content">
@@ -423,12 +458,12 @@
           <span> 增值服务: </span>
           <el-select v-model="extParams.name" size="mini" style="width: 200px">
             <!-- <el-option v-for="item in list" :value="" :label=""></el-option> -->
-            <el-option value="1" label="测试" />
+            <el-option :value="extParams.name" :label="extParams.name" />
           </el-select>
         </div>
         <div class="exe_item">
           <span> 服务价格: </span>
-          <el-input v-model="extParams.price" clearable size="mini" style="width: 200px" onkeyup="value=value.replace(/[^\d]/g,'')" />
+          <el-input v-model="extParams.price" disabled clearable size="mini" style="width: 200px" onkeyup="value=value.replace(/[^\d]/g,'')" />
         </div>
         <div class="exe_item">
           <span> 服务备注: </span>
@@ -444,6 +479,7 @@
 
     <!-- 同步数据至仓库 -->
     <el-dialog title="同步数据至仓库" :visible.sync="dialog_compareData" width="950px" @closed="closeDialog3">
+      <!-- <el-dialog title="同步数据至仓库" :visible.sync="dialog_compareData" width="950px" @closed="closeDialog3"> -->
       <div class="compareData_allItem">
         <div class="compareData_item">
           <span> 温馨提示：1：请务必确认订单对应店铺绑定的仓库是否正确 </span>
@@ -453,12 +489,15 @@
 
         <div class="compareData_item">
           <el-table :header-cell-style="{ background: '#f7fafa' }" :data="compareDataList" :row-style="{ height: '50px' }" max-height="400">
-            <el-table-column prop="country" label="站点" min-width="80px" align="center" />
-            <el-table-column prop="mall_alias_name" label="店铺名称" min-width="150px" align="center" />
+            <el-table-column prop="country" label="站点" min-width="80px" align="center" fixed />
+            <el-table-column prop="mall_alias_name" label="店铺名称" min-width="150px" align="center">
+              <template slot-scope="{row}"><span>{{ row.mall_alias_name ? row.mall_alias_name :row.platform_mall_name }}</span></template>
+            </el-table-column>
             <!-- <el-table-column prop="" label="采购类型" min-width="100px" align="center" /> -->
             <el-table-column prop="warehouse_name" label="当前绑定仓库" min-width="200px" align="center" />
             <el-table-column prop="" label="是否可同步" min-width="100px" align="center"><span>是</span></el-table-column>
-            <el-table-column prop="warehouse_num" label="主订单数" min-width="100px" align="center" />
+            <el-table-column prop="warehouse_num" label="主订单数" min-width="100px" align="center" fixed="right" />
+
           </el-table>
         </div>
         <div style="display: flex; justify-content: center; margin-top: 10px">
@@ -466,15 +505,19 @@
         </div>
       </div>
     </el-dialog>
+
+    <Logs ref="autoReplyLogs" v-model="showlog" clear />
+
   </div>
 </template>
 
 <script>
 // import { getSites, getMalls, colorLabelList, creatDate } from '../../utils/index'
-import { getValue, creatDate, colorLabelList, MallList } from '../../../util/util'
+import { getValue, getColorinfo, creatDate, colorLabelList, MallList } from '../../../util/util'
 import { statusList, exceptionList, orderStatusList, packageStatusList } from './warehouse'
 import storeChoose from '../../../components/store-choose.vue'
 import ShopeeConfig from '@/services/shopeeman-config'
+import { t } from 'umy-table/lib/locale'
 export default {
   components: {
     storeChoose // 店铺选择组件
@@ -489,6 +532,41 @@ export default {
   },
   data() {
     return {
+      showlog: true,
+      // colorStyle: 'width:50px;height:20px;background-color:',
+      colorStyle: {
+        width: '100px',
+        height: '20px'
+      },
+      orderStatusList: {
+        '1': '待支付',
+        '2': '待发货',
+        '3': '已发货',
+        '4': '已完成',
+        '5': '取消中',
+        '6': '已取消',
+        '7': '退款/退货',
+        '8': '确认签收',
+        '9': '退款成功',
+        '10': '退款失败',
+        '20': '无售后订单'
+      },
+      statusList: {
+        '1': '待发货',
+        '2': '订单作废',
+        '3': '暂停发货'
+      },
+      delivery_statusList: {
+        '1': '待入库',
+        '2': '等待包裹',
+        '3': '紧急入库',
+        '4': '待出库',
+        '5': '已出库',
+        '6': '已完成',
+        '7': '订单作废',
+        '8': '暂停发货',
+        '9': '异常'
+      },
       shopeeConfig: new ShopeeConfig(),
       compareDataList: [],
       dialog_compareData: false, // 同步数据至仓库
@@ -550,10 +628,12 @@ export default {
       colorVisible: false, // 显示标记颜色弹窗
       orderVisible: false, // 显示采购物流单号变更弹窗
       delayVisible: false, // 显示设置延时退单时间弹窗
-      newOrderSn: '', // 填写的变更单号
+      newOrderSn: '', // 新订单编号
+      oldOrderSn: '', // 原订单编号
+      package_code: '', // 采购物流单号
       delayTime: '24', // 设置延时退单时间
       exportOrderList: [],
-      dialogVisible1: false,
+      // dialogVisible1: false,
       dialogVisible2: false,
       goodsList: [],
       transportType: ['海运', '空运', '陆运'],
@@ -578,7 +658,10 @@ export default {
     // this.userInfo()
   },
   methods: {
-
+    // 清空日志
+    closelogData() {
+      this.$refs.autoReplyLogs.consoleMsg = ''
+    },
     // 打开备注弹窗
     remarkFun() {
       if (!this.multipleSelection.length) {
@@ -590,7 +673,8 @@ export default {
     // 备注
     async remarkServe() {
       if (this.newRemark === '') {
-        this.$notify('', '请输入备注', 'error')
+        // this.$notify('', '请输入备注', 'error')
+        this.$message.warning('请输入备注')
         return
       }
       this.isLoading = true
@@ -607,18 +691,20 @@ export default {
         // console.log('000000000', res)
         const data = res.data
         if (data.code === 200) {
-          this.$notify({
-            title: '批量备注',
-            type: 'success',
-            message: '操作成功'
-          })
+          // this.$notify({
+          //   title: '批量备注',
+          //   type: 'success',
+          //   message: '操作成功'
+          // })
+          this.$message.success('操作成功')
           this.orderPackage()
         } else {
-          this.$notify({
-            title: '批量备注',
-            type: 'error',
-            message: data.message
-          })
+          // this.$notify({
+          //   title: '批量备注',
+          //   type: 'error',
+          //   message: data.message
+          // })
+          this.$message.error(data.message)
         }
         this.closeDialog5()
         this.remarkVisible = false
@@ -633,12 +719,12 @@ export default {
     // 关闭备注弹窗
     closeDialog5() {
       this.newRemark = ''
-      this.setSelect()
+      // this.setSelect()
       this.remarkVisible = false
     },
     // 关闭同步弹窗
     closeDialog3() {
-      this.setSelect()
+      // this.setSelect()
       this.dialog_compareData = false
     },
     // 批量推送订单至仓库
@@ -669,34 +755,61 @@ export default {
     },
     // 批量推送订单至仓库
     async compareData() {
-      const list = []
-      this.compareDataList.forEach(item => {
-        // 参数 sysOrderId warehouseUserId
-        list.push({ sysOrderId: item.sys_order_id, warehouseUserId: item.warehouse_id })
-      })
+      // const list = []
+      // this.compareDataList.forEach(item => {
+      //   // 参数 sysOrderId warehouseUserId
+      //   list.push({ sysOrderId: item.sys_order_id, warehouseUserId: item.warehouse_id })
+      // })
       // console.log('0000', this.compareDataList)
-      const params = {
-        lists: list
-      }
-      const res = await this.$api.uploadWarehouseOrder(params)
-      // console.log('同步', res)
-      if (res.status === 200) {
-        if (res.data.code === 200) {
-          this.$notify({
-            title: '同步数据',
-            type: 'success',
-            message: '操作成功'
-          })
-        } else {
-          this.$notify({
-            title: '同步数据',
-            type: 'error',
-            message: res.data.message
-          })
+      this.showlog = false
+      this.$refs.autoReplyLogs.writeLog(`开始批量推送订单至仓库......`)
+      for (let i = 0; i < this.compareDataList.length; i++) {
+        try {
+          const params = {
+            sysOrderId: this.compareDataList[i].sys_order_id,
+            warehouseUserId: this.compareDataList[i].warehouse_id
+          }
+          const res = await this.$api.uploadWarehouseOrder(params)
+          if (res.status === 200) {
+            this.$refs.autoReplyLogs.writeLog(`订单号【${this.compareDataList[i].package_order_sn}】，推送成功`, true)
+          } else {
+            this.$refs.autoReplyLogs.writeLog(`订单号【${this.compareDataList[i].package_order_sn}】，推送成功`, false)
+            continue
+          }
+        } catch (error) {
+          this.$refs.autoReplyLogs.writeLog(`订单号【${this.compareDataList[i].package_order_sn}】，推送成功`, false)
+          break
         }
-      } else {
-        this.$message.error('网络走丢~~')
       }
+      this.$refs.autoReplyLogs.writeLog(`批量推送订单至仓库结束`)
+      // const params = {
+      //   lists: list
+      // }
+      // try {
+      //   const res = await this.$api.uploadWarehouseOrder(params)
+      //   // console.log('同步', res)
+      //   if (res.status === 200) {
+      //     if (res.data.code === 200) {
+      //       // this.$notify({
+      //       //   title: '同步数据',
+      //       //   type: 'success',
+      //       //   message: '操作成功'
+      //       // })
+      //       this.$message.success('操作成功')
+      //     } else {
+      //       // this.$notify({
+      //       //   title: '同步数据',
+      //       //   type: 'error',
+      //       //   message: res.data.message
+      //       // })
+      //       this.$message.error(res.data.message)
+      //     }
+      //   } else {
+      //     this.$message.error('网络走丢~~')
+      //   }
+      // } catch (error) {
+      //   this.$message.error(error)
+      // }
 
       this.closeDialog3()
     },
@@ -721,52 +834,59 @@ export default {
         price: '',
         remark: ''
       }
-      this.setSelect()
+      // this.setSelect()
       this.dialogExtService = false
     },
     // 增值服务
-    extService_visible() {
+    async extService_visible() {
       if (!this.multipleSelection.length) {
         this.$message.warning('请勾选需要操作的数据')
         return false
       }
+      const first = this.multipleSelection[0].warehouse_name
+
+      for (let i = 0; i < this.multipleSelection.length; i++) {
+        if (first !== this.multipleSelection[i].warehouse_name) {
+          this.$message.warning('只能批量给同一个仓库的包裹添加增值服务')
+          return
+        }
+      }
+      // 获取服务类型
+      const data = {
+        wid: this.multipleSelection[0].wid,
+        key: 'value_added_services'
+      }
+      const res = await this.$XzyNetMessageService.post('xzy.warehouse.config', data)
+      const date = JSON.parse(JSON.parse(res).data)
+      if (date.code !== 200) {
+        this.$message.error('获取服务增值信息失败')
+        return
+      }
+      this.extParams.name = date.data[0].name
+      this.extParams.price = date.data[0].price
+      this.extParams.remark = date.data[0].remark
       this.dialogExtService = true
     },
     async extService() {
       if (this.extParams.name === '' || this.extParams.price === '') {
-        this.$notify({
-          type: 'error',
-          message: '服务名、价格不能为空'
-        })
+        this.$message.warning('服务名、价格不能为空')
       } else {
-        // this.extParams.packageOrderSns = this.multipleSelection.toString()\
-        const arr = []
-        this.multipleSelection.forEach(item => {
-          arr.push(item.package_order_sn)
-        })
-        this.extParams.packageOrderSns = arr.toString()
-        const params = this.extParams
-        const data = await this.$api.uploadExtService(params)
-        // console.log('---------', data)
-        if (data.data.code === 200) {
-          this.$notify({
-            type: 'success',
-            message: '操作成功'
-          })
-        } else {
-          let message = ''
-          for (let i = 0; i < data.data.data.length; i++) {
-            const temp = data.data.data[i]
-            if (temp.code !== 200) {
-              message = temp.message
-              break
+        try {
+          this.showlog = false
+          this.$refs.autoReplyLogs.writeLog(`开始添加增值服务......`)
+          for (let i = 0; i < this.multipleSelection.length; i++) {
+            this.extParams.packageOrderSns = this.multipleSelection[i].package_order_sn
+            const data = await this.$api.uploadExtService(this.extParams)
+            if (data.data.code === 200) {
+              this.$refs.autoReplyLogs.writeLog(`订单号【${this.multipleSelection[i].package_order_sn}】，添加成功`, true)
+            } else {
+              this.$refs.autoReplyLogs.writeLog(`订单号【${this.multipleSelection[i].package_order_sn}】，${data.data.message}`, false)
+              continue
             }
           }
-          this.$notify({
-            type: 'error',
-            // message: message
-            message: data.data.message
-          })
+          this.$refs.autoReplyLogs.writeLog(`添加增值服务完成`)
+        } catch (error) {
+          this.$message.error(error)
         }
         // 清空数据
         this.extParams = {
@@ -776,9 +896,8 @@ export default {
           remark: ''
         }
         this.dialogExtService = false
-        this.setSelect()
+        // this.setSelect()
         this.orderPackage()
-        this.isLoading = false
       }
     },
     // 表格多选
@@ -797,12 +916,12 @@ export default {
     // 关闭标记颜色弹窗
     closeDialog() {
       this.colorLabelId1 = this.colorLogoList[0].id || ''
-      this.setSelect()
+      // this.setSelect()
       this.colorVisible = false
     },
     // 关闭采购物流单号变更弹窗
     closeDialog1() {
-      this.setSelect()
+      // this.setSelect()
       this.orderVisible = false
     },
     // 关闭设置延时退单时间弹窗
@@ -871,7 +990,8 @@ export default {
             item.statusText = getValue(statusList, 'label', 'deliveryStatus', item.delivery_status)
             item.exceptionText = getValue(exceptionList, 'label', 'exception_type', item.exception_type)
             item.orderStatusText = getValue(orderStatusList, 'label', 'order_status', item.order_status)
-            item.colorText = getValue(this.colorLogoList, 'label', 'id', item.color_id) || '无'
+            // item.colorText = getValue(this.colorLogoList, 'Colorinfo', 'id', item.color_id) || '无'
+            item.colorinfo = getColorinfo(this.colorLogoList, item.color_id) || ''
             item.country = this.shopeeConfig.getSiteCode(item.country)
             this.tableData.push(item)
           }
@@ -879,10 +999,11 @@ export default {
           // console.log('tableList', this.tableData)
           // this.tableData = data.data.data
         } else {
-          this.$notify({
-            type: 'error',
-            message: data.message
-          })
+          // this.$notify({
+          //   type: 'error',
+          //   message: data.message
+          // })
+          this.$message.error(data.message)
         }
         this.isLoading = false
       } catch (err) {
@@ -919,10 +1040,11 @@ export default {
         const res = await this.$api.setNoWait(query)
         const data = res.data
         if (data.code === 200) {
-          this.$notify({
-            type: 'success',
-            message: '操作成功'
-          })
+          // this.$notify({
+          //   type: 'success',
+          //   message: '操作成功'
+          // })
+          this.$message.success('操作成功')
         } else {
           let message = ''
           for (let i = 0; i < data.data.length; i++) {
@@ -932,16 +1054,17 @@ export default {
               break
             }
           }
-          this.$notify({
-            type: 'error',
-            message: message
-          })
+          // this.$notify({
+          //   type: 'error',
+          //   message: message
+          // })
+          this.$message.error(message)
         }
-        this.setSelect()
+        // this.setSelect()
         this.orderPackage()
         this.isLoading = false
       } catch (err) {
-        this.setSelect()
+        // this.setSelect()
         console.log(err)
         this.isLoading = false
       }
@@ -967,10 +1090,11 @@ export default {
         const res = await this.$api.markOrderNeedDeal(query)
         const data = res.data
         if (data.code === 200) {
-          this.$notify({
-            type: 'success',
-            message: '操作成功'
-          })
+          // this.$notify({
+          //   type: 'success',
+          //   message: '操作成功'
+          // })
+          this.$message.error('操作成功')
         } else {
           let message = ''
           for (let i = 0; i < data.data.length; i++) {
@@ -980,17 +1104,18 @@ export default {
               break
             }
           }
-          this.$notify({
-            type: 'error',
-            message: message
-          })
+          // this.$notify({
+          //   type: 'error',
+          //   message: message
+          // })
+          this.$message.error(message)
         }
-        this.setSelect()
+        // this.setSelect()
         this.orderPackage()
         this.isLoading = false
       } catch (err) {
         console.log(err)
-        this.setSelect()
+        // this.setSelect()
         this.isLoading = false
       }
     },
@@ -1017,23 +1142,25 @@ export default {
         const data = res.data
         // console.log('data', data.data)
         if (data.code === 200) {
-          this.$notify({
-            type: 'success',
-            message: '操作成功'
-          })
-          this.setSelect()
+          // this.$notify({
+          //   type: 'success',
+          //   message: '操作成功'
+          // })
+          this.$message.success('操作成功')
+          // this.setSelect()
           this.orderPackage()
         } else {
-          this.$notify({
-            type: 'error',
-            message: data.message
-          })
+          // this.$notify({
+          //   type: 'error',
+          //   message: data.message
+          // })
+          this.$message.error(data.message)
         }
 
         this.isLoading = false
-        this.setSelect()
+        // this.setSelect()
       } catch (err) {
-        this.setSelect()
+        // this.setSelect()
         console.log(err)
         this.isLoading = false
       }
@@ -1079,45 +1206,47 @@ export default {
     },
     // 采购物流单号变更
     trackingNumberChangeOrderFun() {
-      if (!this.multipleSelection.length || this.multipleSelection.length > 1) {
-        this.$message.warning('请勾选一条需要操作的数据')
-        return
-      }
+      // if (!this.multipleSelection.length || this.multipleSelection.length > 1) {
+      //   this.$message.warning('请勾选一条需要操作的数据')
+      //   return
+      // }
       this.orderVisible = true
     },
     async trackingNumberChangeOrder() {
-      if (this.newOrderSn === '') {
-        this.$notify('', '请填写新的单号', 'error')
+      if (this.newOrderSn === '' || this.oldOrderSn === '' || this.package_code === '') {
+        // this.$notify('', '请填写新的单号', 'error')
+        this.$message.error('请确保输入信息有效')
         return
       }
       this.isLoading = true
-      const list = this.multipleSelection
       try {
         const query = {
-          trackingNumber: list[0].platform_tracking_number,
-          primaryOrderSn: list[0].package_order_sn,
-          orderSn: this.newOrderSn
+          trackingNumber: this.package_code, // 采购物流单号
+          primaryOrderSn: this.oldOrderSn, // 原订单号
+          orderSn: this.newOrderSn // 新订单号
         }
         const res = await this.$api.trackingNumberChangeOrder(query)
 
         const data = res.data
         if (data.code === 200) {
-          this.$notify({
-            type: 'success',
-            message: '操作成功'
-          })
+          // this.$notify({
+          //   type: 'success',
+          //   message: '操作成功'
+          // })
+          this.$message.success('操作成功')
           this.orderPackage()
         } else {
-          this.$notify({
-            type: 'error',
-            message: data.message
-          })
+          // this.$notify({
+          //   type: 'error',
+          //   message: data.message
+          // })
+          this.$message.warning(data.message)
         }
-        this.setSelect()
+        // this.setSelect()
         this.orderVisible = false
         this.isLoading = false
       } catch (err) {
-        this.setSelect()
+        // this.setSelect()
         this.orderVisible = false
         console.log(err)
         this.isLoading = false
@@ -1132,7 +1261,6 @@ export default {
       this.colorVisible = true
     },
     async setColorLabel() {
-      this.isLoading = true
       // let sysOrderIds = ''
       // const list = this.multipleSelection
       // sysOrderIds = list[0].id
@@ -1145,44 +1273,58 @@ export default {
         list.push(item.sys_order_id)
       })
       try {
-        const query = {
-          // sysOrderIds,
-          sysOrderIds: list.toString() || '',
-          id: this.colorLabelId1
-        }
-        const res = await this.$api.setColorLabel(query)
-        // console.log('color', res)
-        const data = res.data
-        if (data.code === 200) {
-          // this.$notify({
-          //   type: 'success',
-          //   message: '操作成功'
-          // })
-          this.$message.success('操作成功')
-        } else {
-          let message = ''
-          for (let i = 0; i < data.data.length; i++) {
-            const temp = data.data[i]
-            if (temp.code !== 200) {
-              message = temp.message
-              break
-            }
+        this.showlog = false
+        this.$refs.autoReplyLogs.writeLog(`正在给订单号标识颜色......`)
+        for (let i = 0; i < this.multipleSelection.length; i++) {
+          const query = {
+            sysOrderIds: this.multipleSelection[i].sys_order_id,
+            id: this.colorLabelId1
           }
-          // this.$notify({
-          //   type: 'error',
-          //   message: message
-          // })
-          this.$message.warning(message)
+          const res = await this.$api.setColorLabel(query)
+          if (res.data.code === 200) {
+            this.$refs.autoReplyLogs.writeLog(`订单号【${this.multipleSelection[i].package_order_sn}】，标识成功`, true)
+          } else {
+            this.$refs.autoReplyLogs.writeLog(`订单号【${this.multipleSelection[i].package_order_sn}】，标识失败`, false)
+            continue
+          }
         }
-        this.setSelect()
+        this.$refs.autoReplyLogs.writeLog(`订单号标识颜色完成`)
+        // const query = {
+        //   // sysOrderIds,
+        //   sysOrderIds: list.toString() || '',
+        //   id: this.colorLabelId1
+        // }
+        // const res = await this.$api.setColorLabel(query)
+        // // console.log('color', res)
+        // const data = res.data
+        // if (data.code === 200) {
+        //   // this.$notify({
+        //   //   type: 'success',
+        //   //   message: '操作成功'
+        //   // })
+        //   this.$message.success('操作成功')
+        // } else {
+        //   let message = ''
+        //   for (let i = 0; i < data.data.length; i++) {
+        //     const temp = data.data[i]
+        //     if (temp.code !== 200) {
+        //       message = temp.message
+        //       break
+        //     }
+        //   }
+        //   // this.$notify({
+        //   //   type: 'error',
+        //   //   message: message
+        //   // })
+        //   this.$message.warning(message)
+        // }
+        // this.setSelect()
         this.colorVisible = false
         this.orderPackage()
-        this.isLoading = false
       } catch (err) {
-        this.setSelect()
+        // this.setSelect()
         this.colorVisible = false
         console.log(err)
-        this.isLoading = false
       }
     },
     // 设置延时退单时间
@@ -1205,15 +1347,18 @@ export default {
     timeDelay() {
       const delayTime = this.delayTime - 0
       if (delayTime === '') {
-        this.$notify('', '请输入延迟时间', 'error')
+        // this.$notify('', '请输入延迟时间', 'error')
+        this.$message.warning('请输入延迟时间')
         return
       }
       if (delayTime > 24) {
-        this.$notify('', '时间不能超过24小时', 'error')
+        // this.$notify('', '时间不能超过24小时', 'error')
+        this.$message.warning('时间不能超过24小时')
         return
       }
       if (delayTime < 10) {
-        this.$notify('', '时间不能少于10小时', 'error')
+        // this.$notify('', '时间不能少于10小时', 'error')
+        this.$message.warning('时间不能少于10小时')
         return
       }
       const query = {
@@ -1224,15 +1369,17 @@ export default {
         .then((res) => {
           // console.log(res)
           if (res.data.code === 200) {
-            this.$notify({
-              type: 'success',
-              message: '设置成功'
-            })
+            // this.$notify({
+            //   type: 'success',
+            //   message: '设置成功'
+            // })
+            this.$message.success('设置成功')
           } else {
-            this.$notify({
-              type: 'error',
-              message: res.data.message
-            })
+            // this.$notify({
+            //   type: 'error',
+            //   message: res.data.message
+            // })
+            this.$message.error(res.data.message)
           }
           this.closeDialog2()
         })
@@ -1249,16 +1396,17 @@ export default {
     // 查看包裹信息弹窗
     async getGoodsInfo(packageOrderSn) {
       const params = { packageOrderSn }
-      const { data } = await this.$api.getGoodsInfo({ params })
-      if (data.code === 200) {
-        this.goodsList = data.data
-        console.log('this.goodsList', this.goodsList)
-        this.dialogVisible2 = true
-      } else {
-        this.$notify({
-          type: 'error',
-          message: data.message
-        })
+      try {
+        const { data } = await this.$api.getGoodsInfo({ params })
+        if (data.code === 200) {
+          this.goodsList = data.data
+          console.log('this.goodsList', this.goodsList)
+          this.dialogVisible2 = true
+        } else {
+          this.$message.error(data.message)
+        }
+      } catch (error) {
+        this.$message.error(error)
       }
     },
     // 导出
@@ -1268,14 +1416,15 @@ export default {
         this.importBilling([this.multipleSelection])
       } else {
         if (!this.total) {
-          return this.$notify({
-            title: '订单信息',
-            type: 'warning',
-            message: `没有可以导出的订单`
-          })
+          // return this.$notify({
+          //   title: '订单信息',
+          //   type: 'warning',
+          //   message: `没有可以导出的订单`
+          // })
+          this.$message.warning('没有可以导出的订单')
         }
         this.exportOrderList = []
-        this.dialogVisible1 = true
+        // this.dialogVisible1 = true
       }
     },
     // 实时导出
@@ -1340,11 +1489,12 @@ export default {
         if (isRef) {
           this.isExport = false
 
-          this.$notify({
-            title: '仓库管理',
-            type: 'error',
-            message: data.message
-          })
+          // this.$notify({
+          //   title: '仓库管理',
+          //   type: 'error',
+          //   message: data.message
+          // })
+          this.$message.error(data.message)
         } else {
           this.exportOrders(params.page, true)
         }
@@ -1354,7 +1504,7 @@ export default {
     importBilling(exportOrderList) {
       // console.log(exportOrderList, this.exportIndex)
       let num = 1
-      let str = `<tr><td>编号</td><td>店铺名称</td><td>站点</td><td>仓库</td><td>颜色标识</td><td>订单编号</td><td>数量</td><td>商品名称</td><td>包裹重量(g)</td><td>运输方式</td><td>货物类型</td><td>是否等待子包裹发货</td>
+      let str = `<tr><td>编号</td><td>站点</td><td>店铺名称</td><td>仓库</td><td>颜色标识</td><td>订单编号</td><td>数量</td><td>商品名称</td><td>包裹重量(g)</td><td>运输方式</td><td>货物类型</td><td>是否等待子包裹发货</td>
             <td>订单发货状态</td><td>异常类型</td><td>订单创建时间</td><td>订单平台状态</td><td>截止发货时间</td><td>入库时间</td><td>出库时间</td>
             <td>入库图片</td><td>出库图片</td><td>仓库备注</td><td>用户备注</td>
             </tr>`
@@ -1363,8 +1513,8 @@ export default {
         console.log(jsonData)
         jsonData.forEach((item) => {
           str += `<tr><td>${num++}</td>
-                <td>${item.mall_alias_name}</td>
                 <td>${item.site + '\t'}</td>
+                <td>${item.mall_alias_name ? item.mall_alias_name : item.platform_mall_name}</td>
                 <td>${item.warehouse_name}</td>
                 <td>${item.colorText ? item.colorText : ''}</td>
                 <td style="mso-number-format:'\@';">${item.package_order_sn ? item.package_order_sn : ''}</td>
@@ -1430,10 +1580,11 @@ export default {
         window.getSelection().addRange(range)
         document.execCommand('copy')
         window.getSelection().removeAllRanges()
-        this.$notify({
-          type: 'success',
-          message: '复制成功'
-        })
+        // this.$notify({
+        //   type: 'success',
+        //   message: '复制成功'
+        // })
+        this.$message.success('复制成功')
       } catch (e) {
         // console.log('复制失败')
       }
@@ -1544,7 +1695,18 @@ export default {
 
   .dialog-order {
     .order-dialog {
+      margin-left:60px;
       margin-top: -20px;
+      ul{
+        li{
+          display: flex;
+          align-items: center;
+          margin-bottom: 10px;
+          label{
+            margin-right: 5px;
+          }
+        }
+      }
     }
   }
 
@@ -1595,6 +1757,7 @@ export default {
     .exe_item {
       margin-bottom: 10px;
       display: flex;
+      align-items: center;
       span {
         margin-right: 5px;
       }
@@ -1611,6 +1774,13 @@ export default {
       }
     }
   }
+}
+.bindmallclass{
+   width: 200px;
+      // height: 50px;
+      overflow: hidden;
+      text-overflow:ellipsis;
+      white-space: nowrap;
 }
 @media screen and (max-width: 1335px) {
 }
