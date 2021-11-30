@@ -101,7 +101,7 @@
           <el-table-column prop="" label="拨款金额(RMB)" align="center">
             <template slot-scope="{ row }">{{ (row.appropriate_amount * site_query.rate_coin).toFixed(2) }}</template>
           </el-table-column>
-          <el-table-column prop="created_at" label="拨款时间" width="160px" align="center" />
+          <el-table-column prop="appropriate_time" label="拨款时间" width="160px" align="center" />
           <!-- <el-table-column prop="" label="账单详情" align="center" /> -->
         </el-table>
         <div class="pagination" style="display: flex; justify-content: flex-end; margin: 4px 0px">
