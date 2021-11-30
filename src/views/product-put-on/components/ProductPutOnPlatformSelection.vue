@@ -124,7 +124,7 @@
                   <el-input v-model="end" size="mini" placeholder="" />
                 </li>
                 <li>
-                  <el-button type="primary" size="mini">收藏商品</el-button>
+                  <el-button type="primary" size="mini" @click="saveGoodsInfo">收藏商品</el-button>
                   <el-button type="primary" size="mini">编辑上新</el-button>
                 </li>
                 <li>
@@ -264,7 +264,7 @@
               </li>
             </ul>
             <div class="item con-sub-3">
-              <img v-if="base64Str" style="width: 200px; height: 156px" :src="base64Str" class="avatar">
+              <img v-if="base64Str" style="width: 200px; height: 156px" :src="base64Str" class="avatar" />
             </div>
             <!--操作按钮 -->
             <ul class="item con-sub-2">
@@ -444,7 +444,7 @@
         <u-table-column align="center" label="主图">
           <template v-slot="{ row }">
             <div style="justify-content: center; display: flex">
-              <img :src="row.Image" style="width: 56px; height: 56px">
+              <img :src="row.Image" style="width: 56px; height: 56px" />
             </div>
           </template>
         </u-table-column>
@@ -679,6 +679,11 @@ export default {
     this.getTaobaoAbroadAccount()
   },
   mounted() {
+    this.goodsList = testData.data
+    this.$refs.plTable.reloadData(this.goodsList)
+    const data = this.goodsList.slice(0, 500)
+    // data是数据，state是选中还是取消选中
+    this.$refs.plTable.partRowSelections(data, true)
   },
   methods: {
     selectShopeePlaceValEvent() { // 出货地点全选事件
@@ -760,7 +765,7 @@ export default {
           this['keywordSearch']()
           break
         case 'linkPage': // 链接采集
-          this['linksSearch'](null)
+          this['linksSearch']()
           break
         case 'entriresShopPage': // 整店采集
           this['entriresShopSearch']()
@@ -817,8 +822,8 @@ export default {
       key = null
       this.buttonStatus.start = false
     },
-    async linksSearch(type) {
-      const res = this.collectLinkApInstance.handleLinkKeyFactory(type === null ? this.linkKey : this.multipleSelection) // 处理数据
+    async linksSearch() {
+      const res = this.collectLinkApInstance.handleLinkKeyFactory(this.linkKey) // 处理数据
       if (res.code !== 200) {
         return this.$message.error(res.data)
       }
@@ -931,7 +936,34 @@ export default {
       this.writeLog('淘宝天猫海外采集完毕........', true)
       this.buttonStatus.start = false
     },
-
+    // 开始收藏
+    async saveGoodsInfo() {
+      if (this.multipleSelection.length === 0) {
+        this.$message.error('请选择商品')
+        return
+      }
+      this.buttonStatus.start = true
+      this.consoleMsg = ''
+      const len = this.multipleSelection.length
+      let success = 0
+      let fail = 0
+      this.writeLog('开始收藏商品........', true)
+      for (let i = 0; i < len; i++) {
+        const item = this.multipleSelection[i]
+        const res2 = await this.collectLinkApInstance.getGoodsDeail(item)
+        if (res2.code !== 200) {
+          this.writeLog(`商品ID: ${} 收藏失败: ${res2.data}`, false)
+          fail++
+          continue
+        } else {
+          this.writeLog(`(${i + 1}/${len})商品ID: ${}收藏成功`)
+          success++
+        }
+      }
+      this.writeLog(`共收藏成功：${success}个商品, 收藏失败：${fail}个商品`, true)
+      this.writeLog(`收藏商品完毕........`, true)
+      this.buttonStatus.start = false
+    },
     // 辅助-----------------------------
     writeLog(msg, success = true) {
       if (this.consoleMsg === undefined) {
