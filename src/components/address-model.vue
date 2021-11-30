@@ -15,10 +15,11 @@
           filterable
           placeholder="请选择"
           size="mini"
+          @change="flag = false"
         >
           <el-option
             v-for="(item, index) in provinceList"
-            :key="item.id"
+            :key="index"
             :label="item.RegionName"
             :value="item.RegionId"
           />
@@ -30,10 +31,11 @@
           :disabled="province ? false : true"
           placeholder="请选择"
           size="mini"
+          @change="flag = false"
         >
           <el-option
             v-for="(item, index) in cityList"
-            :key="item.id"
+            :key="index"
             :label="item.RegionName"
             :value="item.RegionId"
           />
@@ -45,10 +47,11 @@
           :disabled="city ? false : true"
           placeholder="请选择"
           size="mini"
+          @change="flag = false"
         >
           <el-option
             v-for="(item, index) in distinctList"
-            :key="item.id"
+            :key="index"
             :label="item.RegionName"
             :value="item.RegionId"
           />
@@ -65,6 +68,7 @@ export default {
   },
   data() {
     return {
+
       provinceList: [],
       cityList: [],
       distinctList: [],
@@ -72,38 +76,86 @@ export default {
       province: '',
       city: '',
       distinct: '',
+      provinceName: '',
+      cityName: '',
+      distinctName: '',
 
-      addressData: []
+      addressData: [],
+
+      flag: false
     }
   },
   watch: {
     province: {
       handler(n, o) {
         this.getPddAddressModel(this.province, 'cityList', 'city')
+        this.provinceList.forEach(item => {
+          if (item.RegionId === this.province) {
+            this.addressData['province_id'] = item.RegionId
+            this.addressData['province_text'] = item.RegionName
+          }
+        })
+
+        this.sendData()
       },
       deep: true
     },
     city: {
       handler(n, o) {
         this.getPddAddressModel(this.city, 'distinctList', 'distinct')
+        this.cityList.forEach(item => {
+          if (item.RegionId === this.city) {
+            this.addressData['city_id'] = item.RegionId
+            this.addressData['city_text'] = item.RegionName
+          }
+        })
+        this.sendData()
+      },
+      deep: true
+    },
+    distinct: {
+      handler(n, o) {
+        this.distinctList.forEach(item => {
+          if (item.RegionId === this.distinct) {
+            this.addressData['distinct_id'] = item.RegionId
+            this.addressData['distinct_text'] = item.RegionName
+          }
+        })
+        this.sendData()
       },
       deep: true
     }
   },
   mounted() {
-    this.init()
+    // this.init()
   },
   methods: {
-    async init() {
+
+    // 修改
+    async update(province, city, distinct) {
+      this.flag = true
       await this.getPddAddressModel('0', 'provinceList', 'province')
+      this.province = province.toString()
+      await this.getPddAddressModel(this.province, 'cityList', 'city')
+      this.city = city.toString()
+      await this.getPddAddressModel(this.city, 'distinctList', 'distinctList')
+      this.distinct = distinct.toString()
+      this.sendData()
     },
+    // 初始
+    async init() {
+      this.flag = false
+      await this.getPddAddressModel('0', 'provinceList', 'province')
+      this.sendData()
+    },
+    // 获取数据
     async getPddAddressModel(id, list, val) {
       const res = await this.$BaseUtilService.getPddAddressModel(id)
       this[list] = res
-      this[val] = this[list][0].RegionId
-      this.addressData[val + '_id'] = this[list][0].RegionId
-      this.addressData[val + '_text'] = this[list][0].RegionName
-      this.$emit('addressData', this.addressData)
+      this[val] = this.flag ? this[val] : this[list][0].RegionId
+    },
+    sendData() {
+      this.$emit('sendData', this.addressData)
     }
   }
 }

@@ -9,7 +9,7 @@
             unlink-panels
             size="mini"
             type="datetimerange"
-            range-separator="至"
+            range-separator="-"
             start-placeholder="开始日期"
             end-placeholder="结束日期"
           />
@@ -21,17 +21,17 @@
             unlink-panels
             size="mini"
             type="datetimerange"
-            range-separator="至"
+            range-separator="-"
             start-placeholder="开始日期"
             end-placeholder="结束日期"
           />
         </li>
-      </ul>
-      <ul>
+
         <li>
           <span>包裹状态：</span>
           <el-select
             v-model="form.packageStatus"
+            style="width:130px"
             placeholder=""
             size="mini"
             filterable
@@ -48,10 +48,14 @@
             />
           </el-select>
         </li>
-        <li>
+      </ul>
+      <ul>
+
+        <li style="margin-left:25px">
           <span>订单编号：</span>
           <el-input
             v-model="form.orderNum"
+            style="width: 227px !important;"
             clearable
             size="mini"
             oninput="value=value.replace(/\s+/g,'')"
@@ -61,6 +65,7 @@
           <span>包裹物流编号：</span>
           <el-input
             v-model="form.logisticsNum"
+            style="width: 227px !important;"
             clearable
             size="mini"
             oninput="value=value.replace(/\s+/g,'')"
@@ -104,7 +109,7 @@
         <el-table-column
           align="center"
           type="selection"
-          width="50"
+          min-width="50px"
           fixed
         />
         <el-table-column
@@ -116,7 +121,7 @@
         <el-table-column
           prop="package_code"
           label="包裹物流单号"
-          width="150"
+          min-width="150px"
           fixed
         >
           <template slot-scope="{ row }">
@@ -133,7 +138,7 @@
         <el-table-column
           prop="order_sn"
           label="订单编号"
-          width="180"
+          min-width="180px"
         >
           <template slot-scope="{ row }">
             <span>
@@ -149,21 +154,22 @@
         <el-table-column
           prop="variation_sku"
           label="商品规格"
-          width="120"
+          min-width="120px"
         />
         <el-table-column
           prop="warehouse_name"
           label="签收仓库"
-          width="130"
+          min-width="130px"
         />
         <el-table-column
           prop="package_time"
           label="签收时间"
-          width="110"
+          min-width="180px"
         />
         <el-table-column
           prop="status"
           label="状态"
+          min-width="60px"
         >
           <template slot-scope="{ row }">
             {{ statusObj[row.status]?statusObj[row.status]:'' }}
@@ -172,7 +178,7 @@
         <el-table-column
           prop="package_image"
           label="签收图片"
-          width="120px"
+          min-width="120px"
           align="center"
         >
           <template slot-scope="{ row }">
@@ -202,7 +208,7 @@
         </el-table-column>
         <el-table-column
           label="退件信息"
-          width="100"
+          min-width="180px"
           align="center"
         >
           <template slot-scope="{ row }">
@@ -217,26 +223,26 @@
         <el-table-column
           prop="appli_return_time"
           label="申请退件时间"
-          width="110"
+          min-width="180px"
         />
         <el-table-column
           prop="return_shipping_number"
           label="退件物流单号"
-          width="130"
+          min-width="180px"
         />
         <el-table-column
           prop="return_time"
           label="退件时间"
-          width="100"
+          min-width="180px"
         />
         <el-table-column
           prop="return_shipping_name"
           label="退件物流公司"
-          width="180"
+          min-width="180px"
         />
         <el-table-column
           label="操作"
-          width="100px"
+          min-width="120px"
           fixed="right"
           align="center"
         >

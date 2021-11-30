@@ -101,7 +101,7 @@
         @close="dialogClose"
       >
         <span>
-          <el-form label-position="right" label-width="80px">
+          <el-form label-position="right" label-width="80px" style="margin-left:-30px">
             <el-form-item label="站点:">
               <el-select v-model="dialogSite" class="unnormal" placeholder="" size="mini" filterable>
                 <el-option v-for="(item, index) in countries" :key="index" :label="item.label" :value="item.value" />
@@ -113,11 +113,11 @@
               </el-select>
             </el-form-item>
             <el-form-item label="关键词:">
-              <el-input v-model="dialogkeyWord" size="mini" placeholder="请输入关键词" clearable oninput="value=value.replace(/\s+/g,'')" />
+              <el-input v-model="dialogkeyWord" style="width:180px" size="mini" placeholder="请输入关键词" clearable oninput="value=value.replace(/\s+/g,'')" />
             </el-form-item>
             <el-form-item>
-              <el-button style="margin-right:20px" size="mini" type="primary" @click="addBannedWord()">确 定</el-button>
-              <el-button type="primary" size="mini" @click="dialogVisible = false">取 消</el-button>
+              <el-button style="margin-left:-10px" size="mini" type="primary" @click="addBannedWord()">确 定</el-button>
+              <el-button style="margin-left:20px" type="primary" size="mini" @click="dialogVisible = false">取 消</el-button>
             </el-form-item>
           </el-form>
         </span>
@@ -131,7 +131,7 @@
         @close="dialogClose"
       >
         <div style="display: flex;">
-          <el-upload ref="importRef" accept=".xls,.xlsx " action="https://jsonplaceholder.typicode.com/posts/" :on-change="importTemplateEvent" :show-file-list="false" :auto-upload="false">
+          <el-upload ref="importRef" accept=".xlsx,.xls" action="https://jsonplaceholder.typicode.com/posts/" :on-change="importTemplateEvent" :show-file-list="false" :auto-upload="false">
             <el-button :data="importTemplateData" size="mini" type="primary" style="margin-right: 10px"> 批量导入 </el-button>
           </el-upload>
           <el-button type="primary" size="mini" @click="downloadTemplate()">下载模板</el-button>
@@ -260,8 +260,14 @@ export default {
       if (this.multipleSelection.length <= 0) return this.$message('请选择要删除的数据')
       for (let index = 0; index < this.multipleSelection.length; index++) {
         const element = this.multipleSelection[index]
+        if (element.uid === 0) {
+          // row.uid === 0 ? '系统' : '用户'
+          this.$refs.Logs.writeLog(`违规词来源【系统】不可删除`, true)
+          continue
+        }
         const res = await this.$commodityService.deleteDannedWord(element.id)
         const jsonData = JSON.parse(res)
+        console.log('---', jsonData)
         if (jsonData.code === 200) {
           this.$refs.Logs.writeLog(`违规词【${element.word}】删除成功`, true)
         } else {

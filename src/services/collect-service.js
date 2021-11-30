@@ -2,26 +2,6 @@ export default class CollectService {
     nativeService = window['CollectBridgeService'];
 
     // /**
-    //  *拼多多整店采集
-    //  * @param {PddMallInformation:{
-    // *  ShopId:string,
-    // *  TokenParams:string, token_params={"token": "4NMSL7R342JS54P5Y2Y6MBFRF2E46G2LLYMZWNAXZTE3CX256YFQ1101851", "ua": "Mozilla/5.0 (Linux; Android 7.1.2; m3 note Build/NJH47F; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/69.0.3497.109 Mobile Safari/537.36 pddmt_android_version/2.5.10 pddmt_android_build/2051001 pddmt_android_channel/qihu360", "pdduid": "17752623061", "api_uid": "CiHWXF9pwc9gEQBZPLf+Ag==", "ip": "27.42.139.193:44288"}
-    // * }}  mallInformationModel
-    // */
-    // searchPddMallGoodsAsync(mallInformationModel) {
-    //     return this.nativeService.callFunction('SearchPddMallGoodsAsync', JSON.stringify(mallInformationModel))
-    // }
-    // /**
-    //  * 淘宝整店采集
-    //  * @param {TbMallInformation:{
-    //     *  ShopId:string,
-    //     *  TokenParams:string, token_params={"token": "4NMSL7R342JS54P5Y2Y6MBFRF2E46G2LLYMZWNAXZTE3CX256YFQ1101851", "ua": "Mozilla/5.0 (Linux; Android 7.1.2; m3 note Build/NJH47F; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/69.0.3497.109 Mobile Safari/537.36 pddmt_android_version/2.5.10 pddmt_android_build/2051001 pddmt_android_channel/qihu360", "pdduid": "17752623061", "api_uid": "CiHWXF9pwc9gEQBZPLf+Ag==", "ip": "27.42.139.193:44288"}
-    //     * }}  mallInformationModel
-    //  */
-    // searchtbMallGoodsAsync(mallInformationModel) {
-    //     return this.nativeService.callFunction('SearchTbMallGoodsAsync', JSON.stringify(mallInformationModel))
-    // }
-    // /**
     //  * 链接分析
     //  * @param {*} searchLink url链接
     //  */
@@ -41,8 +21,58 @@ export default class CollectService {
     // searchJxMallGoodsAsync(mallInformationModel) {
     //     return this.nativeService.callFunction('SearchJxMallGoodsAsync', JSON.stringify(mallInformationModel))
     // }
-
+    // 关键词采集
     querySpuByKeyworld(platformId, params) {
         return this.nativeService.querySpuByKeyworld(platformId, JSON.stringify(params))
+    }
+    // 采集商品详情
+    queryDetailById(platformId, collectGoodsLinkModel, isUserCache) { // collectGoodsLinkModel 这个参数国内没有
+        return this.nativeService.queryDetailById(platformId, collectGoodsLinkModel, isUserCache)
+    }
+    // 检查店铺链接是否合规，并获取店铺信息
+    getMallByLink(link) {
+        return this.nativeService.getMallByLink(link)
+    }
+    // 整店采集------------------------------
+
+    // *拼多多整店采集
+    searchPddMallGoodsAsync(mallInformationModel) {
+        return this.nativeService.callFunction('SearchPddMallGoodsAsync', JSON.stringify(mallInformationModel))
+    }
+
+    // 淘宝整店采集
+    searchTbMallGoodsAsync(mallInformationModel) {
+        return this.nativeService.callFunction('SearchTbMallGoodsAsync', JSON.stringify(mallInformationModel))
+    }
+
+    // 1688
+    searchAliBaBaMallGoodsAsync(mallInformationModel) {
+        return this.nativeService.callFunction('SearchAliBaBaMallGoodsAsync', JSON.stringify(mallInformationModel))
+    }
+    // lazada
+    searchLazadaMallGoodsAsync(mallInformationModel) {
+        return this.nativeService.callFunction('SearchLazadaMallGoodsAsync', JSON.stringify(mallInformationModel))
+    }
+    // 京喜/京东
+    searchJxMallGoodsAsync(mallInformationModel) {
+        return this.nativeService.callFunction('SearchJxMallGoodsAsync', JSON.stringify(mallInformationModel))
+    }
+    // shopee
+    searchShopeeMallGoodsAsync(mallInformationModel) {
+        return this.nativeService.callFunction('SearchShopeeMallGoodsAsync', JSON.stringify(mallInformationModel))
+    }
+    // 速卖通
+    searchExpressMallGoodsAsync(mallInformationModel) {
+        return this.nativeService.callFunction('searchExpressMallGoodsAsync', JSON.stringify(mallInformationModel))
+    }
+
+    // 以图搜图
+    imgSearch(platform, params) {
+        return this.nativeService.imgSearch(platform - 0, JSON.stringify(params))
+    }
+
+    // 天猫海外采集
+    queryTmCrossBorder(token, params) {
+        return this.nativeService.queryTmCrossBorder(token, JSON.stringify(params))
     }
 }

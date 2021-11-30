@@ -11,7 +11,7 @@
     <ul :class="['category-content', { 'category-column': isColumn === true }]">
       <li :class="[{ 'column-item': isColumn === true }]">
         <span :style="{'width':spanWidth}">站点：</span>
-        <el-select v-model="countryVal" size="mini" filterable>
+        <el-select v-model="countryVal" size="mini" filterable :disabled="isSelect">
           <el-option v-if="isAll" label="全部" :value="''" />
           <el-option v-for="(item, index) in countries" :key="index" :label="item.label" :value="item.value" />
         </el-select>
@@ -45,6 +45,10 @@
 export default {
   name: 'CategoryChoose',
   props: {
+    isSelect: {
+      type: Boolean,
+      default: false
+    },
     spanWidth: {
       type: String,
       default: ''
@@ -123,6 +127,10 @@ export default {
     this.countryVal = (!this.isAll && 'TH') || ''
   },
   methods: {
+    // 商品分类店铺联动
+    chageSite(site) {
+      this.countryVal = site
+    },
     async getCategory(categoryID, level) {
       if (!this.countryVal) {
         this.sendParent()
@@ -196,7 +204,8 @@ export default {
 }
 .category-content {
   display: flex;
-  align-items: center;
+  // align-items: center;
+  align-items: flex-end;
   flex-wrap: wrap;
   li {
     display: flex;

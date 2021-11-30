@@ -21,7 +21,7 @@
     <main v-if="activeVal === '3'"><SmartHouseSecondarySalesList /></main>
 
     <!--失物招领 -->
-    <main v-if="activeVal === '4'"><SmartHouseUnclaimed /></main>
+    <!-- <main v-if="activeVal === '4'"><SmartHouseUnclaimed /></main> -->
     <!--
     二次销售列表
     <main v-if="activeVal === '4'"><SmartHouseTheSecondSaleList /></main> -->
@@ -61,6 +61,12 @@
 
     <!-- 海外仓补件列表 -->
     <main v-if="activeVal === '16'"><SmartHouseBroadPickUpList /></main>
+
+    <!-- 海外仓共享库存管理 -->
+    <main v-if="activeVal === '17'"><SmartHouseOverseasWarehouse /></main>
+
+    <!-- 海外仓补件列表 -->
+    <main v-if="activeVal === '18'"><SmartHouseOverseasLupplementList /></main>
   </div>
 </template>
 
@@ -83,7 +89,9 @@ import {
   SmartHouseChineseStock,
   SmartHouseBroadDeliveryOrder,
   SmartHouseChineseDeliveryOrder,
-  SmartHouseBroadPickUpList
+  SmartHouseBroadPickUpList,
+  SmartHouseOverseasWarehouse,
+  SmartHouseOverseasLupplementList
 } from './index'
 export default {
   components: {
@@ -104,7 +112,9 @@ export default {
     SmartHouseChineseStock,
     SmartHouseBroadDeliveryOrder,
     SmartHouseChineseDeliveryOrder,
-    SmartHouseBroadPickUpList
+    SmartHouseBroadPickUpList,
+    SmartHouseOverseasWarehouse,
+    SmartHouseOverseasLupplementList
   },
   data() {
     return {

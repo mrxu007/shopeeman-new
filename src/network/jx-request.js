@@ -92,6 +92,7 @@ export default {
   updateMallInfo: (data) => AppRequest.post('/bindMall/updateMallInfo', data), // 上报更新店铺信息
   getBankList: (data) => AppRequest.get('/getBankList', data), // 获取银行卡信息
   getMallGroup: (data) => AppRequest.get('/mallGroup/index', { params: data }), // 获取店铺分组列表
+  getMallGroupList: (data) => AppRequest.get('/ddMallGoods/getMallGroupList', { params: data }), // 根据站点 获取分组
   addGroup: (data) => AppRequest.post('/mallGroup/save', data), // 新增分组
   updateGroup: (data) => AppRequest.post('/mallGroup/update', data), // 修改分组
   deleteGroup: (data) => AppRequest.post('/mallGroup/delete', data), // 删除分组
@@ -149,7 +150,7 @@ export default {
   getBuyerList: (data) => AppRequest.get('/buyerAccount/index', data), // 下载买手号
   getOrderList: (data) => AppRequest.post('/order', data), // 获取订单列表
   checkAfterOrderSnStatus: (data) => AppRequest.get('/order/checkAfterOrderSnStatus', data), // 售后订单检测
-  checkOrderSnStatus: (data) => AppRequest.get('/order/checkOrderSnStatus', {params:data}), // 正常订单检测 
+  checkOrderSnStatus: (data) => AppRequest.get('/order/checkOrderSnStatus', { params: data }), // 正常订单检测
   uploadOrderSave: (data) => AppRequest.post('/order/saveOrder', data), // 上报接口--线上
   uploadOrderSaveTest: (data) => AppRequest.post('/order/uploadOrder', data), // 上报接口--测试
   uploadOrderAfterSale: (data) => AppRequest.post('/order/uploadAfter', data), // 售后订单上报接口--测试
@@ -163,6 +164,14 @@ export default {
   getOrderSn: (data) => AppRequest.get('/order/getOrderSn', data), // 丢件查询
   aftermarket: (data) => AppRequest.post('/aftermarket', data), // 虾皮售后
   xzyAllIndex: (data) => AppRequest.get('/warehouseAddress/xzyAllIndex', data), // 仓库地址设置：获取星卓越地址
+  xzyIndex: (data) => AppRequest.get('/warehouseAddress/xzyIndex', { params: data }), // 仓库地址设置：系统仓库获取
+  adduserStore: (data) => AppRequest.post('/warehouseAddress/userStore', data), // 仓库地址设置：添加国内自有仓库地址
+  updateOwnPhone: (data) => AppRequest.post('/warehouseAddress/updateOwnPhone', data), // 仓库地址设置：配置手机号码
+  deleteOwnStore: (data) => AppRequest.post('/warehouseAddress/delete', data), // 仓库地址设置：删除自有仓库
+  getBindMall: (data) => AppRequest.get('/warehouseAddress/getBindMall', { params: data }), // 仓库地址设置：绑定店铺、申请仓库的店铺列表
+  addXzyStore: (data) => AppRequest.post('/warehouseAddress/xzyStore', data), // 仓库地址设置：新增系统仓库
+  updateData: (data) => AppRequest.post('/warehouseAddress/update', data), // 仓库地址设置：修改绑定店铺、修改仓库自用地址
+  cancelHomeOrder: (data) => AppRequest.post('/homeOutStockOrder/cancel', data), // 国内出库单: 删除
 
   getStockingForecastLists: (data) => AppRequest.get('/warehouse/stockingForecastLists', { params: data }), // 海外仓商品备货-预报单列表
   deleteForecast: (data) => AppRequest.post('/warehouse/stockingForecastDestroy', data), // 海外仓商品备货-删除预报单
@@ -172,7 +181,7 @@ export default {
 
   getsecondlist: (data) => AppRequest.get('/overseasTansferPackage/indexAll', { params: data }), // 获取二次销售列表
 
-  getBuyerList: (data) => AppRequest.get('/buyerAccount/index', data), // 下载买手号
+  // getBuyerList: (data) => AppRequest.get('/buyerAccount/index', data), // 下载买手号
   stockingForecastUpload: (data) => AppRequest.post('/warehouse/stockingForecastUpload', data), // 海外仓商品备货：发起商品预报
   getHomeWarehouse: (data) => AppRequest.get('/homeStockingForecast/index', { params: data }), // 国内仓备货预报单: 列表
   getWarehouseList: (data) => AppRequest.get('/homeStockingForecast/getWarehouseList', data), // 国内中转备货预报单: 获取国内仓库地址
@@ -187,8 +196,7 @@ export default {
   getPurchaseLists: (data) => AppRequest.post('/getPurchaseLists', data), // 获取采购链接
   getOrderBySn: (data) => AppRequest.post('/order/getSimpleOrderInfo', data), // 根据订单号获取订单
   uploadOrderWarehourseShipAmount: (data) => AppRequest.post('/order/uploadOrderWarehourseShipAmount', data), // 上报仓库发货金额
-
-  savePurchase: (data) => AppRequest.post('/purchase', data), // 上报采购链接 
+  savePurchase: (data) => AppRequest.post('/purchase', data), // 上报采购链接
   getOrderTrackingNumber: (data) => AppRequest.get('/order/getOrderTrackingNumber', { params: data }), // 获取多物流单号列表
   getHomeOutStockOrder: (data) => AppRequest.get('/homeOutStockOrder/index', { params: data }), // 国内出库单: 列表 
   homeOutStockOrder: (data) => AppRequest.post('/homeOutStockOrder/add', data), // 国内仓出库 
@@ -199,4 +207,12 @@ export default {
   saveUserConfig: (data) => AppRequest.post('/user/saveUserConfig',  data ), // 保存回复评论设置 
   cancelSecondSale: (data) => AppRequest.post('/overseasTansferPackage/cancelSecondSale',  data ),//取消二次销售数据 
   uploadSecondSale: (data) => AppRequest.post('/overseasTansferPackage/uploadSecondSale',  data ),//二次销售出库上报
+  // getsecondlist: (data) => AppRequest.post('/overseasTansferPackage/index', data), // 获取二次销售列表
+  getlupplementlist: (data) => AppRequest.get('/getReissueStoreList', { params: data }), // 获取海外仓补件列表
+  cancelsupplement: (data) => AppRequest.post('/cancelReissueOrder', data), // 取消补件
+  // 产品中心------------------------------------------------------------------------
+  getproductlist: (data) => AppRequest.get('/product/list', { params: data }), // 获取产品列表
+  deleteproduct: (data) => AppRequest.post('/product/delete', data), // 删除产品
+  saveproduct: (data) => AppRequest.post('/product/save', data), // 保存产品
+  getpddBuyerAccount: (data) => AppRequest.get('/pddBuyerAccount/index', { params: data }), // 拼多多买手号-列表
 }

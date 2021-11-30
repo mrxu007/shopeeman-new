@@ -60,6 +60,10 @@ export default class CommodityService {
     return this.nativeService.callFunction('GetPrivateSelectionByIdTwo', sysId.toString())
   }
 
+  getNeededTranslateInfoV2(sysId) {
+    return this.nativeService.callFunction('GetNeededTranslateInfoTwo', sysId.toString())
+  }
+
   /**
    * 获取信息 tier varation 定义为对象
    * @param {number} sysId
@@ -328,7 +332,7 @@ export default class CommodityService {
 
   /**
    * 修改商品的信息
-   * @param {{sysGoodsId:number,title?:string,description?:string,spec1?:string,spec2?:string}} data
+   * @param {{sysGoodsId:string,title?:string,description?:string,spec1?:string,spec2?:string}} data
    */
   updateCollectGoodsInfo(data) {
     return this.nativeService.callFunction('UpdateCollectGoodsInfo', JSON.stringify(data))
@@ -431,6 +435,41 @@ export default class CommodityService {
   }
 
   /**
+   * 保存翻译商品之后信息
+   * @param dataReq 保存
+   */
+  saveTranslationData(dataReq) {
+    console.log(JSON.stringify(dataReq))
+    return this.nativeService.callFunction('SaveTranslationData', JSON.stringify(dataReq))
+  }
+
+  /**
+   * 获取描述模板
+   * @param {string} sysMallId
+   */
+  descriptionTemplateList(templateType, noDescription) {
+    return this.nativeService.callFunction('DescriptionTemplateList', templateType, noDescription)
+  }
+  /**
+   * 删除描述模板
+   * @param {string} sysMallId
+   */
+  deleteDescriptionTemplate(id) {
+    return this.nativeService.callFunction('DeleteDescriptionTemplate', JSON.stringify(id))
+  }
+
+  /**
+   * 保存描述模板
+   * @param lableName sysMallId
+   * @param description sysMallId
+   * @param templateType sysMallId
+   */
+  uploadDescriptionTemplate(lableName, description, templateType) {
+    templateType = description.length < 68 && '1' || '2'
+    return this.nativeService.callFunction('UploadDescriptionTemplate', lableName, description, templateType)
+  }
+
+  /**
    * 检查上新商品是否重复上新
    * @param {object} data
    */
@@ -505,7 +544,7 @@ export default class CommodityService {
    * @param isParent :isParent 类目的父级标识：1传入的类目作为父级查询；0当前类目查询
    * @param tableType : string
    */
-   async getCategoryTbInfo(country, categoryId = "0", isParent = "1", tableType) {
+  async getCategoryTbInfo(country, categoryId = '0', isParent = '1', tableType) {
     return await this.nativeService.callCategoryFunction('GetCategoryInfo', country, categoryId, isParent, tableType)
   }
 
@@ -513,7 +552,7 @@ export default class CommodityService {
    * 获取类目属性
    * @param {array} data
    */
-  getAttributeInfo(country, categoryId = "0", isNewOpen = "0", tableType, isMandatoryAttr = "1") {
+  getAttributeInfo(country, categoryId = '0', isNewOpen = '0', tableType, isMandatoryAttr = '1') {
     // console.log(JSON.stringify(data))
     return this.nativeService.callCategoryFunction('GetAttributeInfo', country, categoryId, isNewOpen, tableType, isMandatoryAttr)
   }
@@ -523,7 +562,7 @@ export default class CommodityService {
    * @param list 数组
    * @param isNative shopee 1 皮皮虾 2
    */
-  uploadCateGoryAttr(list, isNative = "1") {
+  uploadCateGoryAttr(list, isNative = '1') {
     return this.nativeService.callCategoryFunction('UploadCateGoryAttr', JSON.stringify(list), isNative)
   }
 
@@ -714,6 +753,19 @@ export default class CommodityService {
   }
 
   /**
+   * 获取类目
+   * @param {array} data
+   * data[0]:country站点
+   * data[1]:categoryId类目id
+   * data[2]:isParent 类目的父级标识：1传入的类目作为父级查询；0当前类目查询
+   * data[3]: 'tbCategory'
+   */
+  getCategory(data) {
+    // console.log(JSON.stringify(data))
+    return this.nativeService.callCategoryFunction('GetCategoryInfo', data[0] + '', data[1] + '', data[2] + '', data[3])
+  }
+
+  /**
    * 获取产品中心类目
    */
   getCategoryInfo(data) {
@@ -745,6 +797,14 @@ export default class CommodityService {
     // console.log(JSON.stringify(data))
     return this.nativeService.callCategoryFunction('GetCategoryInfo', data[0] + '', data[1] + '', data[2] + '', data[3])
   }
+
+  /**
+   * 获取shopee地址
+   */
+  getShopeeAddress(platform, type, parant) {
+    return this.nativeService.callAddrHelper('GetAddress', platform, type, parant.toString())
+  }
+  // }
 
   /**
    * @name : 获取Lazada的订单详情

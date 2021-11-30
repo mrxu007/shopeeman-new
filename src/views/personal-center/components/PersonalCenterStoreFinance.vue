@@ -279,6 +279,7 @@ export default {
         }
       ],
       muid: null, // app_uid
+      mappingUid: null, // mapping_uid
       balanceLoading: false,
       userBalance: 0, // 余额
       exportDataList: [],
@@ -296,7 +297,7 @@ export default {
   methods: {
     async userRecharge() {
       if (Number(this.rechargeMoney) < 35) return this.$message.warning('最低不能小于35元')
-      window.open(`http://user.xzy.17hyj.com/externalPay?amount=${this.rechargeMoney}&app_uid=${this.muid}&remark=${this.rechargeRemark}`)
+      window.open(`http://user.xzy.17hyj.com/externalPay?amount=${this.rechargeMoney}&app_uid=${this.mappingUid}&remark=${this.rechargeRemark}`)
     },
     async exportTableData() {
       if (!this.total) {
@@ -429,6 +430,7 @@ export default {
     // app_uid
     async getAppUid() {
       const res = await this.$appConfig.getUserInfo()
+      this.mappingUid = res.mapping_uid
       this.muid = res.muid
     },
     // 用户账户余额查询

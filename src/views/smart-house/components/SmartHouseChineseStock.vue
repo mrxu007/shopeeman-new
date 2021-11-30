@@ -202,6 +202,7 @@ export default {
 
       tableData: [], // 表格数据
       widList: [], // 仓库数据
+      muid: 0,
 
       form: { // 条件搜索
         wid: '', // 仓库ID
@@ -238,6 +239,15 @@ export default {
         this.$message.error(res.data)
       }
       this.isShowLoading = false
+    },
+    // 获取用户muid
+    async getUserInfo() {
+      const res = await this.ChineseStock.getUserInfo()
+      if (res.code === 200) {
+        this.muid = res.data.muid
+      } else {
+        this.$message.error(res.data)
+      }
     },
     // 获取仓库
     async getWarehouseList() {

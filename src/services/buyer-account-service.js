@@ -5,21 +5,21 @@ export default class buyerAccountService {
   constructor() {
     this.nativeService = window['buyerAccountService']
   }
-  ShotOrderPlatform ={
-     TaoBao : 0,
-     PinDuoduo : 1,
-     JingDong : 2,
-     JingXi : 3,
-     HYJ : 4,
-     Alibaba : 5,
-     YunPaiDan : 6,
-     Lazada : 7,
-     Shopee : 8,
-     CrossBorder : 9,
-     OwnPlatform : 10,
-     PpxiasGhpt : 11,
-     AliExpressPlatform : 12
-}
+  ShotOrderPlatform = {
+    TaoBao: 0,
+    PinDuoduo: 1,
+    JingDong: 2,
+    JingXi: 3,
+    HYJ: 4,
+    Alibaba: 5,
+    YunPaiDan: 6,
+    Lazada: 7,
+    Shopee: 8,
+    CrossBorder: 9,
+    OwnPlatform: 10,
+    PpxiasGhpt: 11,
+    AliExpressPlatform: 12
+  }
   /** shopee ppx项目
    *  public const int PddPlatform = 1; //拼多多
           public const int TbPlatform = 2; //淘宝
@@ -43,25 +43,25 @@ export default class buyerAccountService {
     'jx': 10,
     'lazada': 9
   }
-  //lazada前台地址  [country] /user/profile#/
+  // lazada前台地址  [country] /user/profile#/
   'lazada' = {
-    "MY": "https://member.lazada.com.my",
-    "VN": "https://member.lazada.vn",
-    "ID": "https://member.lazada.co.id",
-    "PH": "https://member.lazada.com.ph",
-    "TH": "https://member.lazada.co.th",
-    "SG": "https://member.lazada.sg",
+    'MY': 'https://member.lazada.com.my',
+    'VN': 'https://member.lazada.vn',
+    'ID': 'https://member.lazada.co.id',
+    'PH': 'https://member.lazada.com.ph',
+    'TH': 'https://member.lazada.co.th',
+    'SG': 'https://member.lazada.sg'
   }
-  //shopee前台地址  [country] /user/account/address
+  // shopee前台地址  [country] /user/account/address
   'shopee' = {
-    "MY": "https://shopee.com.my",
-    "TW": "https://shopee.tw",
-    "VN": "https://shopee.vn",
-    "ID": "https://shopee.co.id",
-    "PH": "https://shopee.ph",
-    "TH": "https://shopee.co.th",
-    "SG": "https://shopee.sg",
-    "BR": "https://shopee.com.br",
+    'MY': 'https://shopee.com.my',
+    'TW': 'https://shopee.tw',
+    'VN': 'https://shopee.vn',
+    'ID': 'https://shopee.co.id',
+    'PH': 'https://shopee.ph',
+    'TH': 'https://shopee.co.th',
+    'SG': 'https://shopee.sg',
+    'BR': 'https://shopee.com.br'
   }
   chinessUrl = {
     'Tb': 'https://login.taobao.com/member/login.jhtml?from=taobaoindex&f=top&style=&sub=true&redirect_url=https%3A%2F%2Fmember1.taobao.com%2Fmember%2Ffresh%2Fdeliver_address.html',
@@ -104,7 +104,7 @@ export default class buyerAccountService {
     const url = this.lazada[country] + '/user/profile#/'
     console.log(7, url, country)
     return this.nativeService.buyerLogin(this.ShotOrderPlatform.Lazada, url, {
-      "Country": country
+      'Country': country
     })
   }
   /**
@@ -114,37 +114,37 @@ export default class buyerAccountService {
     const url = this.shopee[country] + '/user/account/address'
     console.log(8, url, country)
     return this.nativeService.buyerLogin(this.ShotOrderPlatform.Shopee, url, {
-      "Country": country
+      'Country': country
     })
   }
   /**
    * pdd个人中心
    */
   pddUserCenter(account) {
-    return this.nativeService.userCenter(this.ShotOrderPlatform.PinDuoduo, 'http://mobile.yangkeduo.com/personal.html',account)
+    return this.nativeService.userCenter(this.ShotOrderPlatform.PinDuoduo, 'http://mobile.yangkeduo.com/personal.html', account)
   }
   /**
    * taobao个人中心
    */
   taobaoUserCenter(account) {
-    return this.nativeService.userCenter(this.ShotOrderPlatform.TaoBao, 'https://www.taobao.com',account)
+    return this.nativeService.userCenter(this.ShotOrderPlatform.TaoBao, 'https://www.taobao.com', account)
   }
   /**
    * jingxi个人中心
    */
   jingxiUserCenter(account) {
-    return this.nativeService.userCenter(this.ShotOrderPlatform.JingXi, 'https://home.m.jd.com/myJd/newhome.action',account)
+    return this.nativeService.userCenter(this.ShotOrderPlatform.JingXi, 'https://home.m.jd.com/myJd/newhome.action', account)
   }
   /**
    * 1688个人中心
    */
   AlibabaUserCenter(account) {
-    return this.nativeService.userCenter(this.ShotOrderPlatform.Alibaba, 'https://work.1688.com/home/buyer.htm?',account)
+    return this.nativeService.userCenter(this.ShotOrderPlatform.Alibaba, 'https://work.1688.com/home/buyer.htm?', account)
   }
   /**
    * lazada个人中心
    */
-  lazadaUserCenter(country,account) {
+  lazadaUserCenter(country, account) {
     const url = this.lazada[country] + '/user/profile#/'
     console.log(7, url, country)
     return this.nativeService.userCenter(this.ShotOrderPlatform.Lazada, url, account)
@@ -152,17 +152,30 @@ export default class buyerAccountService {
   /**
    * shopee个人中心
    */
-  shopeeUserCenter(country,account) {
+  shopeeUserCenter(country, account) {
     const url = this.shopee[country] + '/user/account/address'
     console.log(8, url, country)
     return this.nativeService.userCenter(this.ShotOrderPlatform.Shopee, url, account)
   }
+
+  /**
+   *登录阿里云翻译
+   */
+  loginAliTranslation() {
+    return this.nativeService.aliTranslateLogin()
+  }
   /**
    * @name : 拼多多月卡
    * @param  {*}
-   */  
-   pddCouponWindow(arr){
+   */
+  pddCouponWindow(arr) {
     return this.nativeService.callPddCouponWindow(arr)
-   }
-
+  }
+  /**
+   *登录阿里云翻译账户中心
+   */
+  aliTranslateCenter(data) {
+    console.log(JSON.stringify(data))
+    return this.nativeService.aliTranslateCenter(JSON.stringify(data))
+  }
 }
