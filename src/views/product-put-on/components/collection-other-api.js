@@ -23,13 +23,13 @@ class CollectOtherApI {
   // 天猫淘宝海外平台账号
   async getTaobaoAbroadAccount() {
     try {
-      const { muid } = this._this.userInfo // 变量已注入全局
+      const { muid } = this._this.$userInfo // 变量已注入全局
       const params = {
         uid: muid,
         uuid: '0',
         account: '',
-        accountAliasName: '',
-        app_key: 'KYsyQGFviz2i0uQF'
+        accountAliasName: ''
+        // app_key: 'KYsyQGFviz2i0uQF'
       }
       let res = await this._this.$shopeemanService.getChineseLaiZan('http://api.laizand.com/api/open/getTbGlobalUser?', params, { // options
         headers: {
