@@ -190,7 +190,6 @@ export default class MallListAPI {
         copy_mallInfo['accountName'] = acccount_info.username
         copy_mallInfo['mall_account_info'] = acccount_info
       }
-      debugger
       let res = await this._this.$shopeemanService.getChinese(country, '/api/selleraccount/vcode/resend/?', params, messageHeader ? { headers } : null, copy_mallInfo)
       res = JSON.parse(JSON.parse(res).data)
       if (res.code === 0) {
@@ -337,7 +336,7 @@ export default class MallListAPI {
     try {
       const res = await this._this.$api.saveMallAuthInfo(mallInfo) // 导入店铺信息（服务端）
       if (res.data.code === 200) {
-        return { code: 200, data: res.data } // count_for_limit
+        return { code: 200, data: res.data.data.id + '' } // count_for_limit
       }
       return { code: res.status, data: `${res.status} ${res.data.message}` }
     } catch (error) {
@@ -480,9 +479,9 @@ export default class MallListAPI {
   }
 
   // 绑定店铺主体
-  async bindMainName(main_main_id, mallIds) {
+  async bindMainName(main_main_id, sys_mall_id) {
     try {
-      let res = await this._this.$commodityService.newBangdingMall(this._this.$userInfo, main_main_id + '', mallIds + '')
+      let res = await this._this.$commodityService.newBangdingMall(this._this.$userInfo.muid + '', main_main_id + '', sys_mall_id)
       res = JSON.parse(res)
       if (res.code === 200) {
         return { code: 200, data: '绑定主体成功' }
