@@ -40,9 +40,10 @@
                   page = 1
                   getMallStatistics()
                 "
-              >查询</el-button>
+                >查询</el-button
+              >
               <el-button type="primary" size="mini" @click="exportSearch()">导出数据</el-button>
-              <el-button type="primary" size="mini" @click="handlerSelectTableOperating('syncMallData')">同步店铺数据</el-button>
+              <el-button type="primary" size="mini" :disabled="buttonStatus.asyncData" @click="handlerSelectTableOperating('syncMallData')">同步店铺数据</el-button>
             </li>
             <li>
               <el-progress v-show="isShowProgress" style="width: 230px" :text-inside="true" :stroke-width="24" :percentage="percentage" status="success" />
@@ -52,17 +53,24 @@
       </el-row>
       <el-row class="header-two">
         <el-col :span="24" class="header-two-top">
-          <span>当前条件下，待拨款总订单数：
+          <span
+            >当前条件下，待拨款总订单数：
             <p>{{ frozenAmountOrders }}</p>
           </span>
-          <span>待拨款总金额：
-            <p>{{ parseFloat(frozenAmount).toFixed(2) }}</p></span>
-          <span>本周已拨款总金额：
-            <p>{{ parseFloat(weekAmount).toFixed(2) }}</p></span>
-          <span>本月已拨款总金额：
+          <span
+            >待拨款总金额：
+            <p>{{ parseFloat(frozenAmount).toFixed(2) }}</p></span
+          >
+          <span
+            >本周已拨款总金额：
+            <p>{{ parseFloat(weekAmount).toFixed(2) }}</p></span
+          >
+          <span
+            >本月已拨款总金额：
             <p>{{ parseFloat(monthAmount).toFixed(2) }}</p>
           </span>
-          <span>全部已拨款总金额：
+          <span
+            >全部已拨款总金额：
             <p>{{ parseFloat(availableAmount).toFixed(2) }}</p>
           </span>
         </el-col>
@@ -258,7 +266,11 @@ export default {
         { value: 'real_time', label: '今天' },
         { value: 'past7days', label: '7天' },
         { value: 'past30days', label: '30天' }
-      ]
+      ],
+      // btn
+      buttonStatus: {
+        asyncData: false
+      }
     }
   },
   mounted() {
@@ -270,12 +282,18 @@ export default {
       if (!data) {
         return this.$message('暂无同步数据')
       }
+      if (this.buttonStatus.asyncData) {
+        this.$message.error('操作过快, 数据正在同步中')
+        return
+      }
+      this.buttonStatus.asyncData = true
       console.log(data, 'syncMallData')
       this.isShowProgress = true
       this.percentage = 0
-      const res = await batchOperation(data, this.syncMall)
+      const res = await batchOperation(data, this.syncMall, 3)
       this.percentage = 100
       console.log(1, '完成', res)
+      this.buttonStatus.asyncData = false
     },
     async syncMall(item, count = { count: 1 }) {
       try {

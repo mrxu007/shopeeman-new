@@ -287,6 +287,7 @@ export function exportExcelDataCommon(fileName, str) {
                 <x:Name>${worksheet}</x:Name>
                 <x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet>
                 </x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]-->
+                <meta charset="utf-8">
                 </head><body><table>${str}</table></body></html>`
   // 下载模板
   // let template = templates.replace(/<td/g,`<td style="mso-number-format:'\@';"`)
@@ -436,7 +437,7 @@ export function randomWord(randomFlag, min, max) {
  * @param method // 请求函数
  * @returns {Promise<any>}
  */
-export function batchOperation(array, method) {
+export function batchOperation(array, method, count = 5) {
   return new Promise(resolve => {
     const number = array.length
     const countObj = { count: number }
@@ -452,7 +453,7 @@ export function batchOperation(array, method) {
       }
     }, 1000)
     function manage(completeCount) {
-      for (; (submitCount - completeCount) < 10 && submitCount < number; ++submitCount) {
+      for (; (submitCount - completeCount) < count && submitCount < number; ++submitCount) {
         const item = array[submitCount]
         method(item, countObj)
       }

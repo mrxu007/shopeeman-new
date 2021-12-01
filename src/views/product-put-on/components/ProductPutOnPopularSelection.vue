@@ -5,74 +5,52 @@
       <div class="conditions-box">
         <span>出货地点：</span>
         <el-select v-model="deliveryPlace" placeholder="" value="" size="mini" filterable>
-          <el-option
-            v-for="(item, index) in deliveryPlaceList"
-            :key="index"
-            :label="item.label"
-            :value="item.value"
-          />
+          <el-option v-for="(item, index) in deliveryPlaceList" :key="index" :label="item.label" :value="item.value" />
         </el-select>
       </div>
       <div class="conditions-box">
         <span>店铺类型：</span>
         <el-select v-model="shopType" placeholder="" value="" size="mini" filterable>
-          <el-option
-            v-for="(item, index) in shopTypeList"
-            :key="index"
-            :label="item.label"
-            :value="item.value"
-          />
+          <el-option v-for="(item, index) in shopTypeList" :key="index" :label="item.label" :value="item.value" />
         </el-select>
       </div>
       <div class="conditions-box">
         <span>排行：</span>
         <el-select v-model="sortBy" placeholder="" value="" size="mini" filterable>
-          <el-option
-            v-for="(item, index) in sortByList"
-            :key="index"
-            :label="item.label"
-            :value="item.value"
-          />
+          <el-option v-for="(item, index) in sortByList" :key="index" :label="item.label" :value="item.value" />
         </el-select>
       </div>
       <div class="conditions-box conditions-input">
         <span>月销量：</span>
         <el-input v-model="minSales" size="mini" />
-        <div style="width: 6px;height: 1px;background: #111;margin: 0 5px" />
+        <div style="width: 6px; height: 1px; background: #111; margin: 0 5px" />
         <el-input v-model="maxSales" size="mini" />
       </div>
       <div class="conditions-box conditions-input">
         <span>新增点赞数：</span>
         <el-input v-model="minGive" size="mini" />
-        <div style="width: 6px;height: 1px;background: #111;margin: 0 5px" />
+        <div style="width: 6px; height: 1px; background: #111; margin: 0 5px" />
         <el-input v-model="maxGive" size="mini" />
       </div>
       <div class="conditions-box conditions-input">
         <span>新增评论数：</span>
         <el-input v-model="minComments" size="mini" />
-        <div style="width: 6px;height: 1px;background: #111;margin: 0 5px" />
+        <div style="width: 6px; height: 1px; background: #111; margin: 0 5px" />
         <el-input v-model="maxComments" size="mini" />
       </div>
       <div class="conditions-box conditions-input">
         <span>价格区间(当地币种)：</span>
         <el-input v-model="minPrice" size="mini" />
-        <div style="width: 6px;height: 1px;background: #111;margin: 0 5px" />
+        <div style="width: 6px; height: 1px; background: #111; margin: 0 5px" />
         <el-input v-model="maxPrice" size="mini" />
       </div>
       <el-button size="mini" style="margin-bottom: 10px" type="primary" @click="searchShopeeHotGoods">查询</el-button>
       <el-button size="mini" style="margin-bottom: 10px" @click="exportData">导出</el-button>
       <el-button size="mini" style="margin-bottom: 10px" type="primary" @click="fasterToken">一键采集商品</el-button>
       <el-button size="mini" style="margin-bottom: 10px" type="primary" @click="watchDBData">查看电霸数据</el-button>
-
     </div>
     <div class="content">
-      <el-table
-        ref="multipleTable"
-        v-loading="tableLoading"
-        :data="tableData"
-        tooltip-effect="dark"
-        :height="'calc(100vh - 150px)'"
-      >
+      <el-table ref="multipleTable" v-loading="tableLoading" :data="tableData" tooltip-effect="dark" :height="'calc(100vh - 150px)'">
         <el-table-column align="center" type="index" label="序号" width="50">
           <template slot-scope="scope">{{ (currentPage - 1) * pageSize + scope.$index + 1 }}</template>
         </el-table-column>
@@ -84,13 +62,8 @@
         </el-table-column>
         <el-table-column width="100px" label="商品图片" prop="country" align="center">
           <template slot-scope="scope">
-            <el-image
-              :src="[scope.row.platform , scope.row.shopid , scope.row.image ]| imageRender"
-              :preview-src-list="[scope.row.platform , scope.row.shopid , scope.row.image ,1]| imageRender"
-            >
-              <div slot="placeholder" class="image-slot">
-                加载中<span class="dot">...</span>
-              </div>
+            <el-image :src="[scope.row.platform, scope.row.shopid, scope.row.image] | imageRender" :preview-src-list="[scope.row.platform, scope.row.shopid, scope.row.image, 1] | imageRender">
+              <div slot="placeholder" class="image-slot">加载中<span class="dot">...</span></div>
             </el-image>
           </template>
         </el-table-column>
@@ -98,29 +71,22 @@
           <template slot-scope="scope">{{ scope.row.name }}</template>
         </el-table-column>
         <el-table-column width="100px" label="官方店铺" prop="country" align="center">
-          <template slot-scope="scope">{{ scope.row.is_official_shop&& '是' || '否' }}</template>
+          <template slot-scope="scope">{{ (scope.row.is_official_shop && '是') || '否' }}</template>
         </el-table-column>
         <el-table-column min-width="60px" label="一级类目" prop="" align="center">
-          <template slot-scope="scope">{{
-            scope.row.cat_path.split('>')[0] }}({{ scope.row.display_path_cn.split('>')[0] }})
-          </template>
+          <template slot-scope="scope">{{ scope.row.cat_path.split('>')[0] }}({{ scope.row.display_path_cn.split('>')[0] }}) </template>
         </el-table-column>
         <el-table-column min-width="70px" label="二级类目" prop="" align="center">
-          <template slot-scope="scope">{{ scope.row.cat_path.split('>')[1] &&
-            (scope.row.cat_path.split('>')[1]+'('+scope.row.display_path_cn.split('>')[1]+')') || '' }}
-          </template>
+          <template slot-scope="scope">{{ (scope.row.cat_path.split('>')[1] && scope.row.cat_path.split('>')[1] + '(' + scope.row.display_path_cn.split('>')[1] + ')') || '' }} </template>
         </el-table-column>
         <el-table-column min-width="80px" label="三级类目" prop="" align="center">
-          <template slot-scope="scope">{{ scope.row.cat_path.split('>')[2] &&
-            (scope.row.cat_path.split('>')[2]+'('+scope.row.display_path_cn.split('>')[2]+')') || '' }}
-          </template>
+          <template slot-scope="scope">{{ (scope.row.cat_path.split('>')[2] && scope.row.cat_path.split('>')[2] + '(' + scope.row.display_path_cn.split('>')[2] + ')') || '' }} </template>
         </el-table-column>
         <el-table-column width="100px" label="创建时间" prop="created_at" align="center">
-          <template slot-scope="scope">{{ $dayjs(scope.row.ctime*1000).format('YYYY-MM-DD') }}</template>
+          <template slot-scope="scope">{{ $dayjs(scope.row.ctime * 1000).format('YYYY-MM-DD') }}</template>
         </el-table-column>
         <el-table-column width="100px" label="近30天销量" prop="warehouse_name" align="center">
-          <template slot-scope="scope">{{ scope.row.sold || '' }}
-          </template>
+          <template slot-scope="scope">{{ scope.row.sold || '' }} </template>
         </el-table-column>
         <el-table-column width="80px" label="价格" prop="warehouse_name" align="center">
           <template slot-scope="scope">{{ scope.row.price || '' }}</template>
@@ -243,7 +209,6 @@ export default {
       this.categoryThird = select.categoryThird
     },
     async searchShopeeHotGoods() {
-      debugger
       const price = this.minPrice + '_' + this.maxPrice
       const month_sales = this.minSales + '_' + this.maxSales
       const increment_like_count = this.minGive + '_' + this.maxGive
@@ -334,32 +299,33 @@ export default {
 </script>
 
 <style lang="less">
-  .product-put-on-popular-selection {
-    min-width: 1280px;
-    margin: 10px;
-    padding: 10px;
-    background: #fff;
+.product-put-on-popular-selection {
+  min-width: 1280px;
+  margin: 10px;
+  padding: 10px;
+  background: #fff;
 
-    .category-choose-box {
+  .category-choose-box {
+    display: flex;
+    flex-flow: wrap;
+
+    .el-select,
+    .el-input {
+      width: 150px;
+    }
+
+    .conditions-box {
       display: flex;
-      flex-flow: wrap;
+      align-items: center;
+      margin-bottom: 10px;
+      margin-right: 10px;
+    }
 
-      .el-select, .el-input {
-        width: 150px;
-      }
-
-      .conditions-box {
-        display: flex;
-        align-items: center;
-        margin-bottom: 10px;
-        margin-right: 10px;
-      }
-
-      .conditions-input {
-        .el-input {
-          width: 100px;
-        }
+    .conditions-input {
+      .el-input {
+        width: 100px;
       }
     }
   }
+}
 </style>

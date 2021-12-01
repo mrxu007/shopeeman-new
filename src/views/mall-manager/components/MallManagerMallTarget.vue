@@ -24,9 +24,11 @@
                 size="mini"
                 @click="
                   page = 1
-                  getMallStatistics()"
-              >查询</el-button>
-              <el-button type="primary" size="mini" @click="handlerSelectTableOperating('syncMallData')">同步店铺指标数据</el-button>
+                  getMallStatistics()
+                "
+                >查询</el-button
+              >
+              <el-button type="primary" size="mini" :disabled="buttonStatus.asyncData" @click="handlerSelectTableOperating('syncMallData')">同步店铺指标数据</el-button>
               <el-button type="primary" size="mini" @click="exportSearch()">导出数据</el-button>
             </li>
             <li>
@@ -87,7 +89,7 @@
           :row-height="rowHeight"
           :data-changes-scroll-top="false"
           :border="false"
-          @table-body-scroll="tableScroll"
+          beatiful
           @selection-change="handleSelectionChange"
         >
           <u-table-column align="center" type="selection" width="50" />
@@ -105,7 +107,7 @@
           </u-table-column>
           <u-table-column align="center" label="操作状态" min-width="100">
             <template slot-scope="{ row }">
-              <span :style="row.color &&('color:'+row.color)">{{ row.status }}</span>
+              <span :style="row.color && 'color:' + row.color">{{ row.status }}</span>
             </template>
           </u-table-column>
           <u-table-column align="center" label="本季度计分" min-width="100">
@@ -417,7 +419,11 @@ export default {
         { value: '2', label: '差' },
         { value: '3', label: '危险' }
       ],
-      addPercentage: 0
+      addPercentage: 0,
+      // btn
+      buttonStatus: {
+        asyncData: false
+      }
     }
   },
   mounted() {
@@ -429,13 +435,19 @@ export default {
       if (!data) {
         return this.$message('暂无同步数据')
       }
+      if (this.buttonStatus.asyncData) {
+        this.$message.error('操作过快, 数据正在同步中')
+        return
+      }
+      this.buttonStatus.asyncData = true
       this.isShowProgress = true
       this.percentage = 0
       const len = data.length
       this.addPercentage = 100 / len
-      const res = await batchOperation(data, this.syncMall)
+      const res = await batchOperation(data, this.syncMall, 3)
       console.log(1, '完成', res)
       this.percentage = 100
+      this.buttonStatus.asyncData = false
     },
     // 店铺同步
     async syncMall(item, count = { count: 1 }) {

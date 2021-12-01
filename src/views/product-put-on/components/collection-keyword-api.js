@@ -72,7 +72,6 @@ class CollectKeyWordApI {
             params['Page'] = StartPage // 页码
             break
         }
-        debugger
         // 关键词请求
         let res = await this._this.$collectService.querySpuByKeyworld(this.platformId, params)
         res = JSON.parse(res)
