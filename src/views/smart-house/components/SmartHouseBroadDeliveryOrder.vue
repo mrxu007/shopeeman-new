@@ -343,11 +343,12 @@
               style="width: 50px; height: 50px"
             >
               <div slot="content">
-                <img
+                <el-image
                   :src="row.sku_image"
-                  width="300px"
-                  height="300px"
+                  style="width: 400px; height: 400px"
                 >
+                  <div slot="error" class="image-slot" />
+                </el-image>
               </div>
               <el-image
                 style="width: 40px; height: 40px"
@@ -495,12 +496,14 @@
           align="center"
           label="商品名称"
           prop="goods_name"
+          show-overflow-tooltip
         />
         <el-table-column
           width="150"
           align="center"
           label="商品规格"
           prop="sku_name"
+          show-overflow-tooltip
         />
         <el-table-column
           width="150"
@@ -539,23 +542,27 @@
               style="width: 50px; height: 50px"
             >
               <div slot="content">
-                <img
+                <el-image
                   :src="row.sku_image || row.real_image_url"
-                  width="300px"
-                  height="300px"
+                  style="width: 400px; height: 400px"
                 >
-              </div>
-              <el-image
-                style="width: 40px; height: 40px"
-                :src="row.sku_image || row.real_image_url"
-              >
-                <div slot="placeholder" class="image-slot">
-                  加载中<span class="dot">...</span>
-                </div>
+                  <div slot="placeholder" class="image-slot">
+                    加载中<span class="dot">...</span>
+                  </div>
+                  >
+                  <div slot="error" class="image-slot" />
+                </el-image>
+                <el-image
+                  style="width: 40px; height: 40px"
+                  :src="row.sku_image || row.real_image_url"
                 >
-                <div slot="error" class="image-slot" />
-              </el-image>
-            </el-tooltip>
+                  <div slot="placeholder" class="image-slot">
+                    加载中<span class="dot">...</span>
+                  </div>
+                  >
+                  <div slot="error" class="image-slot" />
+                </el-image>
+              </div></el-tooltip>
           </template>
         </el-table-column>
         <el-table-column
