@@ -287,6 +287,7 @@ export function exportExcelDataCommon(fileName, str) {
                 <x:Name>${worksheet}</x:Name>
                 <x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet>
                 </x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]-->
+                <meta charset="utf-8">
                 </head><body><table>${str}</table></body></html>`
   // 下载模板
   // let template = templates.replace(/<td/g,`<td style="mso-number-format:'\@';"`)
@@ -393,7 +394,7 @@ export function exportPdfData(id, name) {
 export function debounce(fun, wait, immediate) {
   let timeout = null
   let result = null
-  return function () {
+  return function() {
     const context = this
     const args = arguments
     if (timeout) {

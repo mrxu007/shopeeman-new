@@ -10,12 +10,7 @@
         <!-- 采购物流单号 -->
         <div class="logisticsNumber">
           采购物流单号：
-          <el-input
-            v-model="form.packageCode"
-            size="mini"
-            clearable
-            oninput="value=value.replace(/\s+/g,'')"
-          />
+          <el-input v-model="form.packageCode" size="mini" clearable oninput="value=value.replace(/\s+/g,'')" />
         </div>
         <el-button size="mini" type="primary" @click="getExceptionNoOrderIndex">搜索</el-button>
       </div>
@@ -25,45 +20,18 @@
       <div class="rowThree">操作指引：请在此界面手动标记订单号或者在【订单列表】右键【同步此订单】获取订单信息</div>
     </div>
     <el-table v-loading="buttonStatus.getList" :header-cell-style="{ background: '#f5f7fa' }" :data="tableData" style="width: 100%" height="calc(100vh - 135px)">
-      <el-table-column
-        type="index"
-        label="序列号"
-        width="80"
-        align="center"
-      />
-      <el-table-column
-        label="仓库"
-        prop="warehouse_name"
-        min-width="100"
-        align="center"
-      />
-      <el-table-column
-        prop="package_time"
-        label="签收时间"
-        min-width="140"
-        align="center"
-      />
-      <el-table-column
-        label="包裹图片"
-        align="center"
-      >
+      <el-table-column type="index" label="序列号" width="80" align="center" />
+      <el-table-column label="仓库" prop="warehouse_name" min-width="100" align="center" />
+      <el-table-column prop="package_time" label="签收时间" min-width="140" align="center" />
+      <el-table-column label="包裹图片" align="center">
         <template slot-scope="scope">
           <el-image style="width: 40px; height: 40px" :src="scope.row.package_image" :preview-src-list="[scope.row.package_image]">
             <div slot="error" class="image-slot" />
           </el-image>
         </template>
       </el-table-column>
-      <el-table-column
-        prop="package_code"
-        label="采购物流单号"
-        min-width="140"
-        align="center"
-      />
-      <el-table-column
-        label="操作"
-        min-width="230"
-        align="center"
-      >
+      <el-table-column prop="package_code" label="采购物流单号" min-width="140" align="center" />
+      <el-table-column label="操作" min-width="230" align="center">
         <template slot-scope="scope">
           <el-button size="mini" type="primary" @click="markMyOrderHandle(scope.row)">标记为我的订单</el-button>
           <el-button size="mini" type="primary" @click="applyReturnPartsHandle(scope.row)">申请退件</el-button>
@@ -71,26 +39,11 @@
       </el-table-column>
     </el-table>
     <!--标记为我的订单dialog-->
-    <el-dialog
-      title="标记为我的订单"
-      :visible.sync="markMyOrderDialogFormVisible"
-      width="300px"
-    >
-      <span style="color: red;margin-left: 17px;">温馨提示：请填写子订单号</span>
-      <el-form
-        :model="markMyOrderDialogForm"
-        label-position="right"
-        label-width="80px"
-      >
+    <el-dialog title="标记为我的订单" :visible.sync="markMyOrderDialogFormVisible" width="300px">
+      <span style="color: red; margin-left: 17px">温馨提示：请填写子订单号</span>
+      <el-form :model="markMyOrderDialogForm" label-position="right" label-width="80px">
         <el-form-item label="订单编号:">
-          <el-input
-            v-model="markMyOrderDialogForm.orderSn"
-            autocomplete="off"
-            size="mini"
-            clearable
-            oninput="value=value.replace(/\s+/g,'')"
-            style="width:165px;"
-          />
+          <el-input v-model="markMyOrderDialogForm.orderSn" autocomplete="off" size="mini" clearable oninput="value=value.replace(/\s+/g,'')" style="width: 165px" />
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -99,65 +52,26 @@
     </el-dialog>
 
     <!--申请退件dialog-->
-    <el-dialog
-      title="填写退件信息"
-      :visible.sync="applyDialogFormVisible"
-      width="400px"
-    >
+    <el-dialog title="填写退件信息" :visible.sync="applyDialogFormVisible" width="400px">
       <!-- <span style="color: red">温馨提示：请填写子订单号</span> -->
-      <el-form
-        :model="applyForm"
-        label-position="right"
-        label-width="80px"
-      >
+      <el-form :model="applyForm" label-position="right" label-width="80px">
         <el-form-item label="包裹号:">
           <span style="color: red">{{ applyForm.lists[0].packageCode }}</span>
         </el-form-item>
         <el-form-item label="收件人:">
-          <el-input
-            v-model="applyForm.returnContact"
-            size="mini"
-            style="width:178px;"
-            clearable
-            oninput="value=value.replace(/\s+/g,'')"
-          />
+          <el-input v-model="applyForm.returnContact" size="mini" style="width: 178px" clearable oninput="value=value.replace(/\s+/g,'')" />
         </el-form-item>
         <el-form-item label="联系电话:">
-          <el-input
-            v-model="applyForm.returnPhoneNumber"
-            size="mini"
-            style="width:178px;"
-            clearable
-            oninput="value=value.replace(/\s+/g,'')"
-          />
+          <el-input v-model="applyForm.returnPhoneNumber" size="mini" style="width: 178px" clearable oninput="value=value.replace(/\s+/g,'')" />
         </el-form-item>
         <el-form-item label="退件地区:">
-          <el-cascader
-            ref="refTbCate"
-            v-model="applyRegion"
-            :props="props"
-            clearable
-            size="mini"
-            @change="targetCate"
-          />
+          <el-cascader ref="refTbCate" v-model="applyRegion" :props="props" clearable size="mini" @change="targetCate" />
         </el-form-item>
         <el-form-item label="详细地址:">
-          <el-input
-            v-model="applyForm.returnAddress"
-            type="textarea"
-            resize="none"
-            size="mini"
-            oninput="value=value.replace(/\s+/g,'')"
-          />
+          <el-input v-model="applyForm.returnAddress" type="textarea" resize="none" size="mini" oninput="value=value.replace(/\s+/g,'')" />
         </el-form-item>
         <el-form-item label="退件备注:">
-          <el-input
-            v-model="applyForm.returnRemarks"
-            type="textarea"
-            resize="none"
-            size="mini"
-            oninput="value=value.replace(/\s+/g,'')"
-          />
+          <el-input v-model="applyForm.returnRemarks" type="textarea" resize="none" size="mini" oninput="value=value.replace(/\s+/g,'')" />
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -296,7 +210,6 @@ export default {
     // 标记为我的订单dialog确定
     async markMyOrderDialogHandle() {
       const result = await this.$api.markPackageToMy(this.markMyOrderDialogForm)
-      debugger
       if (result.data.code === 200) {
         this.markMyOrderDialogFormVisible = false
         this.$message({
@@ -392,7 +305,7 @@ export default {
     .signingTime {
       /deep/.el-date-editor {
         width: 208px;
-        .el-range-separator{
+        .el-range-separator {
           text-align: center;
           padding: 0px;
         }
@@ -432,7 +345,7 @@ export default {
       }
     }
   }
-  .dialog-footer{
+  .dialog-footer {
     text-align: center;
   }
 }
