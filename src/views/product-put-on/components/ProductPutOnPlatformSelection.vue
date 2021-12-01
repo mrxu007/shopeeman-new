@@ -952,11 +952,11 @@ export default {
         const item = this.multipleSelection[i]
         const res2 = await this.collectLinkApInstance.getGoodsDeail(item)
         if (res2.code !== 200) {
-          this.writeLog(`商品ID:  收藏失败: ${res2.data}`, false)
+          this.writeLog(`商品ID: ${item} 收藏失败: ${res2.data}`, false)
           fail++
           continue
         } else {
-          this.writeLog(`(${i + 1}/${len})商品ID: 收藏成功`)
+          this.writeLog(`(${i + 1}/${len})商品ID: ${item}收藏成功`)
           success++
         }
       }

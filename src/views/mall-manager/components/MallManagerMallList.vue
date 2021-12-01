@@ -446,10 +446,10 @@
           </el-radio-group>
         </li>
         <el-upload v-if="imageOrigin === '2'" class="avatar-uploader" :show-file-list="false" action="" :on-error="imgSaveToUrl2" :before-upload="beforeAvatarUpload2">
-          <img v-if="imageUrl" :src="imageUrl" class="avatar" style="width: 460px; height: 450px" />
+          <img v-if="imageUrl" :src="imageUrl" class="avatar" style="width: 460px; height: 450px">
           <i v-else class="el-icon-plus avatar-uploader-icon" />
         </el-upload>
-        <img v-else :src="imageUrl" style="width: 460px; height: 450px" />
+        <img v-else :src="imageUrl" style="width: 460px; height: 450px">
       </ul>
       <span slot="footer" class="dialog-footer">
         <el-button type="primary" size="mini" @click="BatchUpdateMallBk">确 定</el-button>
@@ -564,9 +564,9 @@
           </div>
           <div class="dialog_item">
             <el-checkbox v-model="addressQuery.default" style="margin: 5px 0" label="设为默认地址" />
-            <br />
+            <br>
             <el-checkbox v-model="addressQuery.take" style="margin: 5px 0" label="设为取件地址" />
-            <br />
+            <br>
             <el-checkbox v-model="addressQuery.backMail" style="margin: 5px 0" label="设为回邮地址" />
           </div>
           <div class="dialog_item">
@@ -1295,22 +1295,34 @@ export default {
       }
     },
     openUpdateExpressdialog() { // 批量更改店铺物流
-      if (this.countryVal === '') {
-        this.$message.error('批量修改物流方式只支持选择单个站点, 请重新选择')
-        return
-      }
-
+      // if (this.countryVal === '') {
+      //   this.$message.error('批量修改物流方式只支持选择单个站点, 请重新选择')
+      //   return
+      // }
+      const len = this.multipleSelection.length
+      let success = 0
+      const siteMap = {}
       if (!this.multipleSelection.length) {
         this.$message.error('请选择店铺')
         return
       }
-      const mall = this.multipleSelection.filter(item => item.loginStatus === 'success')
-      if (!mall.length) {
-        return this.$message.error('请登录店铺并选中数据后再操作')
+      this.multipleSelection.filter(item => {
+        if (!siteMap[item.country]) {
+          siteMap[item.country] = '123'
+        }
+        if (item.loginStatus === 'success') {
+          success++
+        }
+      })
+      if (Object.keys(siteMap).length > 1) {
+        return this.$message.error('批量修改物流方式只支持选择单个站点, 请重新选择')
+      }
+      if (len !== success) {
+        return this.$message.error('选择店铺中有店铺未登录')
       }
 
       this.batchExpressDialog = true
-      this.getMallExpress(mall[0])
+      this.getMallExpress(this.multipleSelection[0])
     },
     async getMallExpress(row) {
       if (this.buttonStatus.getExpress) {
@@ -1319,6 +1331,7 @@ export default {
       this.buttonStatus.getExpress = true
       const res = await this.mallListAPIInstance.getMallExpress(row)
       if (res.code !== 200) {
+        this.buttonStatus.getExpress = false
         return this.$message.error(`店铺【${row.platform_mall_name}】: ${res.data}`)
       }
       this.LogisticsList = res.data.listsObj

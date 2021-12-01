@@ -555,7 +555,6 @@ export default {
   },
   data() {
     return {
-
       detailLoading: false, // 查看订单包裹详情加载
       showlog: true,
       // colorStyle: 'width:50px;height:20px;background-color:',
