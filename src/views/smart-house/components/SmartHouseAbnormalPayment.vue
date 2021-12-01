@@ -171,7 +171,8 @@
               v-for="(item,index) in row.images"
               :key="index"
             >
-              <!-- <el-tooltip
+              <el-tooltip
+                v-if="item"
                 effect="light"
                 placement="right-end"
                 :visible-arrow="false"
@@ -179,11 +180,12 @@
                 style="width: 50px; height: 50px"
               >
                 <div slot="content">
-                  <img
+                  <el-image
+                    style="width: 400px; height: 400px"
                     :src="item"
-                    width="300px"
-                    height="300px"
                   >
+                    <div slot="error" class="image-slot" />
+                  </el-image>
                 </div>
                 <el-image
                   style="width: 40px; height: 40px"
@@ -191,14 +193,7 @@
                 >
                   <div slot="error" class="image-slot" />
                 </el-image>
-              </el-tooltip> -->
-              <el-image
-                style="width: 40px; height: 40px"
-                :src="item"
-                :preview-src-list="[item]"
-              >
-                <div slot="error" class="image-slot" />
-              </el-image>
+              </el-tooltip>
             </div>
           </template>
         </el-table-column>

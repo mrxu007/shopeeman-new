@@ -106,6 +106,7 @@
           label="商品名称"
           align="center"
           min-width="140"
+          show-overflow-tooltip
         >
           <template slot-scope="{row}">
             {{ row.stock && row.stock.goods_name?row.stock.goods_name:'' }}
@@ -115,6 +116,7 @@
           label="商品规格"
           align="center"
           min-width="140"
+          show-overflow-tooltip
         >
           <template slot-scope="{row}">
             {{ row.stock && row.stock.sku_name?row.stock.sku_name:'' }}
@@ -157,13 +159,29 @@
           label="商品图片"
         >
           <template slot-scope="{row}">
-            <el-image
-              style="width: 40px; height: 40px"
-              :src="row.stock.sku_image || row.stock.real_image_url"
-              :preview-src-list="[row.stock.sku_image || row.stock.real_image_url]"
+            <el-tooltip
+              v-if="row.stock.sku_image || row.stock.real_image_url"
+              effect="light"
+              placement="right-end"
+              :visible-arrow="false"
+              :enterable="false"
+              style="width: 50px; height: 50px"
             >
-              <div slot="error" class="image-slot" />
-            </el-image>
+              <div slot="content">
+                <el-image
+                  style="width: 400px; height: 400px"
+                  :src="row.stock.sku_image || row.stock.real_image_url"
+                >
+                  <div slot="error" class="image-slot" />
+                </el-image>
+              </div>
+              <el-image
+                style="width: 40px; height: 40px"
+                :src="row.stock.sku_image || row.stock.real_image_url"
+              >
+                <div slot="error" class="image-slot" />
+              </el-image>
+            </el-tooltip>
           </template>
         </el-table-column>
         <el-table-column

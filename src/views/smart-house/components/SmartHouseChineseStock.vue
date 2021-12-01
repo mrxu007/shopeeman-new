@@ -75,12 +75,14 @@
           align="center"
           min-width="150"
           prop="goods_name"
+          show-overflow-tooltip
         />
         <el-table-column
           label="商品规格"
           align="center"
           min-width="150"
           prop="sku_name"
+          show-overflow-tooltip
         />
         <el-table-column
           label="采购数量"
@@ -128,13 +130,29 @@
           label="商品图片"
         >
           <template slot-scope="{row}">
-            <el-image
-              style="width: 40px; height: 40px"
-              :src="row.sku_image"
-              :preview-src-list="[row.sku_image]"
+            <el-tooltip
+              v-if="row.sku_image"
+              effect="light"
+              placement="right-end"
+              :visible-arrow="false"
+              :enterable="false"
+              style="width: 50px; height: 50px"
             >
-              <div slot="error" class="image-slot" />
-            </el-image>
+              <div slot="content">
+                <el-image
+                  style="width: 400px; height: 400px"
+                  :src="row.sku_image"
+                >
+                  <div slot="error" class="image-slot" />
+                </el-image>
+              </div>
+              <el-image
+                style="width: 40px; height: 40px"
+                :src="row.sku_image"
+              >
+                <div slot="error" class="image-slot" />
+              </el-image>
+            </el-tooltip>
           </template>
         </el-table-column>
         <el-table-column
@@ -156,6 +174,7 @@
           align="center"
           min-width="100"
           prop="position_code"
+          show-overflow-tooltip
         />
       </el-table>
       <div class="pagination">
@@ -278,7 +297,7 @@ export default {
         if (res.code === 200) {
           const resData = res.data.data
           resData.forEach(async item => {
-            const resName = await this.ShareBroadStock.overseasWh(item.wid)
+            const resName = await this.ChineseStock.transferWarehouse(item.wid)
             item.warehouse_name = resName.data
             exportData.push(item)
           })
