@@ -415,7 +415,7 @@
           <el-table-column label="状态" min-width="70px">
             <template slot-scope="{ row }">
               <span>
-                {{ row.package && Number(row.package.status) === 1 ? '待处理' : '待处理' }}
+                {{ row.package && packageStatus[row.package.status] }}
               </span>
             </template>
           </el-table-column>
@@ -434,16 +434,20 @@
               </el-tooltip>
             </template>
           </el-table-column>
-          <!--  <el-table-column
+          <el-table-column
             label="申请赔付"
             width="120"
-          > <template slot-scope="scope">
-            <p><el-button
-              type="primary"
-              size="mini"
-            >申请赔付</el-button></p>
-          </template>
-          </el-table-column> -->
+            fixed="right"
+          >
+            <template slot-scope="scope">
+              <el-button
+                v-if="scope.row.isAbnormslPayment !==1"
+                type="primary"
+                size="mini"
+                @click="applyDialog(scope.row)"
+              >申请赔付</el-button>
+            </template>
+          </el-table-column>
         </el-table>
       </div>
       <p slot="footer" style="text-align: center">
@@ -506,8 +510,120 @@
       </div>
     </el-dialog>
 
+    <!-- 申请赔付弹窗 -->
+    <el-dialog
+      class="apply-dialog"
+      title="申请赔付"
+      top="6vh"
+      :visible.sync="applyVisible"
+      width="800px"
+      :close-on-click-modal="false"
+      :close-on-press-escape="false"
+      @close="handleClose"
+    >
+      <div class="wrap">
+        <div class="left">
+          <el-form label-position="right" label-width="100px">
+            <el-form-item label="订单编号：">
+              {{ applyOrderSn }}
+            </el-form-item>
+            <el-form-item label="拍单订单号：">
+              {{ applyShotOrderSn }}
+            </el-form-item>
+            <el-form-item label="采购物流单号：">
+              {{ applyPackageCode }}
+            </el-form-item>
+            <el-form-item label="当前状态：">
+              {{ packageStatus[applyStatus]?packageStatus[applyStatus]:'' }}
+            </el-form-item>
+            <el-form-item label="包裹所属仓库：">
+              {{}}
+            </el-form-item>
+          </el-form>
+        </div>
+        <div class="right">
+          <el-form label-position="right" label-width="80px">
+            <el-form-item label="赔付类型：">
+              <el-select
+                v-model="applyType"
+                placeholder=""
+                size="mini"
+                filterable
+                @change="handleChange1"
+              >
+                <el-option
+                  v-for="(item, index) in applyTypeList"
+                  :key="index"
+                  :label="item.label"
+                  :value="item.value"
+                />
+              </el-select>
+              <span style="color:red;margin-left:5px">如需赔付清关费，请填写在备注中</span>
+            </el-form-item>
+            <el-form-item label="赔付金额：">
+              <span style="color:red">{{ applyMoney }}</span>
+            </el-form-item>
+            <el-form-item label="赔付原因：">
+              <el-select
+                v-model="applyTypeCause"
+                placeholder=""
+                size="mini"
+                filterable
+              >
+                <el-option
+                  v-for="(item, index) in applyTypeCauseList"
+                  :key="index"
+                  :label="item.label"
+                  :value="item.value"
+                />
+              </el-select>
+            </el-form-item>
+            <el-form-item label="图片凭证：">
+              <div v-for="(item, i) in applyImages" :key="i">
+                <div v-if="item">
+                  <el-image :src="item" @click="item = ''" />
+                </div>
+                <div v-else>
+                  <el-upload
+                    accept=".jpg,.jpeg,.png,.webp"
+                    action="#"
+                    :show-file-list="false"
+                    :auto-upload="false"
+                    list-type="picture-card"
+                    :on-change="handleChange2"
+                  >
+                    <i class="el-icon-plus" @click="getImagesIndex(i)" />
+                  </el-upload>
+                </div>
+              </div>
+            </el-form-item>
+            <el-form-item label="备注：">
+              <el-input
+                v-model="applyRemark"
+                type="textarea"
+                :rows="5"
+                size="mini"
+                resize="none"
+                placeholder="请输入内容"
+                maxlength="150"
+                show-word-limit
+              />
+            </el-form-item>
+          </el-form>
+        </div>
+      </div>
+      <div class="footer">
+        <el-button
+          type="primary"
+          size="mini"
+          :loading="applyLoading"
+          @click="applyCompensation"
+        >
+          申请赔付
+        </el-button>
+      </div>
+    </el-dialog>
     <Logs ref="autoReplyLogs" v-model="showlog" clear />
-
   </div>
 </template>
 
@@ -517,7 +633,7 @@ import { getValue, getColorinfo, creatDate, colorLabelList, MallList } from '../
 import { statusList, exceptionList, orderStatusList, packageStatusList } from './warehouse'
 import storeChoose from '../../../components/store-choose.vue'
 import ShopeeConfig from '@/services/shopeeman-config'
-import { t } from 'umy-table/lib/locale'
+import { randomWord } from '../../../util/util'
 export default {
   components: {
     storeChoose // 店铺选择组件
@@ -647,8 +763,40 @@ export default {
         }
       },
       remarkVisible: false,
-      newRemark: ''
+      newRemark: '',
 
+      // 申请赔付
+      applyVisible: false,
+      applyType: 1, // 类型
+      applyTypeCause: 1, // 原因
+      applyOrderSn: '', // 订单号
+      applyImages: ['', '', ''], // 图片凭证
+      applyRemark: '', // 备注
+      applyPackageCode: '', // 采购物流单号
+      applyShotOrderSn: '', // 拍单订单号
+      applyStatus: '',
+      applyMoney: '', // 赔付金额
+      imagesIndex: '', // 图片下标
+      applyLoading: false,
+
+      packageStatus: {
+        '-1': '未拒收',
+        '1': '已拒收',
+        '2': '已签收'
+      },
+      applyTypeList: [
+        { value: 1, label: '赔付运费' },
+        { value: 2, label: '赔付采购价' },
+        { value: 4, label: '赔付采购价+运费' }
+      ],
+      applyTypeCauseList: [
+        { value: 1, label: '仓库丢件' },
+        { value: 2, label: '仓库漏发' },
+        { value: 3, label: '超材出库' },
+        { value: 4, label: '买家收货不符' },
+        { value: 5, label: '包裹到齐48小时未出库' },
+        { value: 6, label: '已出库，虾皮仓未发货致订单取消' }
+      ]
     }
   },
   mounted() {
@@ -658,6 +806,84 @@ export default {
     // this.userInfo()
   },
   methods: {
+    // 申请赔付
+    async applyCompensation() {
+      const flag = this.applyImages.some(item => { return item !== '' })
+      if (!flag) return this.$message.warning('请上传图片凭证')
+      this.applyLoading = true
+      const params = {
+        type: this.applyType,
+        typeCause: this.applyTypeCause,
+        orderSn: this.applyOrderSn,
+        images: this.applyImages,
+        remark: this.applyRemark
+      }
+      try {
+        const { data } = await this.$api.applyCompensation(params)
+        if (data.code !== 200) {
+          this.$message.error(data.message)
+          this.applyLoading = false
+          return
+        }
+        this.$message.success('申请赔付成功')
+      } catch (error) {
+        this.$message.error('申请赔付异常', error)
+      }
+      this.applyLoading = false
+    },
+    // 申请赔付弹窗
+    applyDialog(row) {
+      this.applyVisible = true
+      this.applyOrderSn = row.order_sn
+      this.applyPackageCode = row.package_code
+      this.applyShotOrderSn = row.shotOrder && row.shotOrder.shot_order_sn ? row.shotOrder.shot_order_sn : ''
+      this.applyStatus = row.package && row.package.status ? row.package.status : ''
+      this.getMoney()
+    },
+    // 获取赔付金额
+    async getMoney() {
+      const params = {
+        type: this.applyType,
+        orderSn: this.applyOrderSn
+      }
+      try {
+        const { data } = await this.$api.getMoney(params)
+        if (data.code !== 200) {
+          this.$message.error(data.message)
+          return
+        }
+        this.applyMoney = data.data.amount
+      } catch (error) {
+        this.$message.error('获取赔付金额异常', error)
+      }
+    },
+    // 赔付类型
+    handleChange1() {
+      this.getMoney()
+    },
+    // 上传图片
+    async handleChange2(file) {
+      const that = this
+      const localFile = file.raw
+      if (!/\.(jpg|jpeg|png|webp)$/.test(localFile.name.toLowerCase())) {
+        this.showlog = false
+        this.$refs.autoReplyLogs.writeLog(`上传格式不对,请上传jpg、jpeg、png、webp格式的图片`, false)
+        return
+      }
+      const reader = new FileReader()
+      reader.readAsDataURL(localFile)
+      reader.onload = async() => {
+        that.imgData = reader.result
+        const name = randomWord(false, 32) + '_' + new Date().getTime()
+        const res = await this.$ossService.uploadFile(that.imgData, name)
+        this.applyImages[this.imagesIndex] = res
+        this.$forceUpdate()
+      }
+    },
+    // 获取图片下标
+    getImagesIndex(val) {
+      this.imagesIndex = val
+    },
     // 清空日志
     closelogData() {
       this.$refs.autoReplyLogs.consoleMsg = ''
@@ -1589,6 +1815,12 @@ export default {
         // console.log('复制失败')
       }
       target.parentElement.removeChild(target)
+    },
+    handleClose() {
+      this.applyType = 1
+      this.applyTypeCause = 1
+      this.applyRemark = ''
+      this.applyImages = ['', '', '']
     }
   }
 }
@@ -1771,6 +2003,49 @@ export default {
       color: rebeccapurple;
       span {
         margin-bottom: 5px;
+      }
+    }
+  }
+  .apply-dialog{
+    /deep/.el-dialog__body{
+      padding: 0 20px 20px 20px !important;
+      .wrap{
+        display: flex;
+        .el-form-item{
+          margin-bottom: 10px;
+        }
+        .left{
+          width: 290px;
+          margin-right: 10px;
+        }
+        .right{
+          width: 500px;
+          .el-form-item__content{
+            display: flex;
+          }
+          .el-image{
+            margin-right: 10px;
+            width: 80px !important;
+            height: 80px !important;
+            line-height: 80px !important;
+            border-radius: 6px;
+          }
+          .el-upload{
+            margin-right: 10px;
+            width: 80px !important;
+            height: 80px !important;
+            line-height: 80px !important;
+          }
+          /deep/.el-icon-plus{
+            width: 80px;
+            height: 80px;
+            line-height: 81px;
+            margin: 0px 0px;
+          }
+        }
+      }
+      .footer{
+        text-align: center;
       }
     }
   }
