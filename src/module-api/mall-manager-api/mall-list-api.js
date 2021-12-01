@@ -190,7 +190,6 @@ export default class MallListAPI {
         copy_mallInfo['accountName'] = acccount_info.username
         copy_mallInfo['mall_account_info'] = acccount_info
       }
-      debugger
       let res = await this._this.$shopeemanService.getChinese(country, '/api/selleraccount/vcode/resend/?', params, messageHeader ? { headers } : null, copy_mallInfo)
       res = JSON.parse(JSON.parse(res).data)
       if (res.code === 0) {
@@ -224,6 +223,90 @@ export default class MallListAPI {
     }
     return country === 'SG' || country === 'ID' ? account : reg[country] + account
   }
+  // 获取店铺物流
+  async getMallExpress(mallInfo) {
+    try {
+      const { country, platform_mall_id } = mallInfo
+      const params = {
+        'platform_mall_id': platform_mall_id
+      }
+      let res = await this._this.$shopeemanService.getChinese(country, '/api/v3/logistics/get_channel_list?', params)
+      res = JSON.parse(JSON.parse(res).data)
+      if (res.code === 0) {
+        // const obj = { '小明': [{ 'isChecked': false, 'name': '顺丰' }] }
+        const listsObj = {}
+        let listsObjTemp = {}
+        const idMapName = {}
+        const isRepeat = {}
+        const activeNames = []
+        const data = res.data.list
+        if (data[0].service_type !== '' && data[0].service_type_priority !== 0) { // service_type 类型数据
+          data.map(item => {
+            if (item.service_type && !isRepeat[`${item.service_type}`]) {
+              isRepeat[`${item.service_type}`] = '111'
+              listsObj[item.service_type] = []
+              activeNames.push(item.service_type)
+            }
+            item.service_type && listsObj[item.service_type].push({ 'isChecked': false, 'name': item.name, 'channel_id': item.channel_id })
+          })
+          console.log('listsObj', listsObj)
+        } else { // 父级自己ID关系
+          data.map(item => {
+            if (!idMapName[`${item.channel_id}`]) {
+              idMapName[item.channel_id] = item.name
+            }
+            if (item.parent_channel_id === 0) {
+              listsObjTemp[item.channel_id] = []
+            } else {
+              listsObjTemp[item.parent_channel_id].push({ 'isChecked': false, 'name': item.name, 'channel_id': item.channel_id })
+            }
+          })
+          for (const key in listsObjTemp) {
+            if (listsObjTemp[key].length > 0) {
+              activeNames.push(idMapName[key])
+              listsObj[idMapName[key]] = listsObjTemp[key]
+            }
+          }
+          listsObjTemp = null
+        }
+        return { code: 200, data: { activeNames, listsObj } }
+      }
+      return { code: res.code, data: `${res.code} ${res.message}` }
+    } catch (error) {
+      return { code: -2, data: `getMallExpress-catch: ${error}` }
+    }
+  }
+  // 设置店铺物流信息
+  async setMallExpress(mallInfo, channelInfo) {
+    try {
+      const { country, platform_mall_id } = mallInfo
+      const params = {
+        'platform_mall_id': platform_mall_id,
+        'command': 'set_enable'
+      }
+      params['channel_id'] = channelInfo.channel_id
+      if (channelInfo.isChecked) {
+        params['enabled'] = true
+      } else {
+        params['enabled'] = false
+        params['preferred'] = false
+      }
+      let res = await this._this.$shopeemanService.postChinese(country, '/api/v3/settings/update_channel_toggle?', params, { // options
+        headers: {
+          'Content-Type': 'application/json',
+          'charset': 'UTF-8'
+        }
+      })
+      res = JSON.parse(JSON.parse(res).data)
+      if (res.code === 0) {
+        return { code: 200, data: '操作成功' }
+      }
+      return { code: res.code, data: `${res.code} ${res.message}` }
+    } catch (error) {
+      return { code: -2, data: `getMallExpress-catch: ${error}` }
+    }
+  }
+
   // 本地服务接口----------------------------------------------------
   // 获取店铺列表
   async getMallList(params) {
@@ -337,7 +420,7 @@ export default class MallListAPI {
     try {
       const res = await this._this.$api.saveMallAuthInfo(mallInfo) // 导入店铺信息（服务端）
       if (res.data.code === 200) {
-        return { code: 200, data: res.data } // count_for_limit
+        return { code: 200, data: res.data.data.id + '' } // count_for_limit
       }
       return { code: res.status, data: `${res.status} ${res.data.message}` }
     } catch (error) {
@@ -480,9 +563,9 @@ export default class MallListAPI {
   }
 
   // 绑定店铺主体
-  async bindMainName(main_main_id, mallIds) {
+  async bindMainName(main_main_id, sys_mall_id) {
     try {
-      let res = await this._this.$commodityService.newBangdingMall(this._this.$userInfo, main_main_id + '', mallIds + '')
+      let res = await this._this.$commodityService.newBangdingMall(this._this.$userInfo.muid + '', main_main_id + '', sys_mall_id)
       res = JSON.parse(res)
       if (res.code === 200) {
         return { code: 200, data: '绑定主体成功' }
