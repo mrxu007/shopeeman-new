@@ -558,8 +558,7 @@
           <div class="dialog_item">
             <div class="item_name">邮编号码</div>
             <div class="item_content">
-              <el-select v-model="addressQuery.zip_code" size="mini" allow-create filterable
-                         default-first-option style="width: 100%" placeholder="请选择邮编号码">
+              <el-select v-model="addressQuery.zip_code" size="mini" allow-create filterable default-first-option style="width: 100%" placeholder="请选择邮编号码">
                 <el-option v-for="(item, index) in addressQueryNumber" :key="index" :label="item" :value="item" />
               </el-select>
             </div>
@@ -1303,22 +1302,34 @@ export default {
       }
     },
     openUpdateExpressdialog() { // 批量更改店铺物流
-      if (this.countryVal === '') {
-        this.$message.error('批量修改物流方式只支持选择单个站点, 请重新选择')
-        return
-      }
-
+      // if (this.countryVal === '') {
+      //   this.$message.error('批量修改物流方式只支持选择单个站点, 请重新选择')
+      //   return
+      // }
+      const len = this.multipleSelection.length
+      let success = 0
+      const siteMap = {}
       if (!this.multipleSelection.length) {
         this.$message.error('请选择店铺')
         return
       }
-      const mall = this.multipleSelection.filter(item => item.loginStatus === 'success')
-      if (!mall.length) {
-        return this.$message.error('请登录店铺并选中数据后再操作')
+      this.multipleSelection.filter(item => {
+        if (!siteMap[item.country]) {
+          siteMap[item.country] = '123'
+        }
+        if (item.loginStatus === 'success') {
+          success++
+        }
+      })
+      if (Object.keys(siteMap).length > 1) {
+        return this.$message.error('批量修改物流方式只支持选择单个站点, 请重新选择')
+      }
+      if (len !== success) {
+        return this.$message.error('选择店铺中有店铺未登录')
       }
 
       this.batchExpressDialog = true
-      this.getMallExpress(mall[0])
+      this.getMallExpress(this.multipleSelection[0])
     },
     async getMallExpress(row) {
       if (this.buttonStatus.getExpress) {
