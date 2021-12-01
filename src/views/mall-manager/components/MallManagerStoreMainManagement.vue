@@ -235,7 +235,7 @@
                 <el-input v-model="query_person.ip_port" placeholder="请输入端口" size="mini" style="width: 150px" clearable />
               </el-form-item>
               <el-form-item v-show="query_person.ip_agency !== '链接'" key="password" prop="password">
-                <span slot="label" style="color: red; margin-right: 3px">*</span>
+                <span v-show="query_person.ip_agency !== 'HTTP'" slot="label" style="color: red; margin-right: 3px">*</span>
                 <span slot="label">密码：</span>
                 <el-input v-model="query_person.password" placeholder="请输入密码" size="mini" style="width: 150px" clearable />
               </el-form-item>
@@ -272,7 +272,7 @@
                 </el-form-item>
               </div>
               <el-form-item v-show="query_person.ip_agency === 'HTTP'" prop="username">
-                <span slot="label" style="color: red; margin-right: 3px">*</span>
+                <!-- <span slot="label" style="color: red; margin-right: 3px" >*</span> -->
                 <span slot="label">用户名：</span>
                 <el-input v-model="query_person.username" placeholder="请输入用户名" size="mini" style="width: 150px" clearable />
               </el-form-item>
@@ -324,12 +324,14 @@
                 <span slot="label">服务器端口：</span>
                 <el-input v-model="query_person.ip_port" :disabled="source1" placeholder="请输入端口" size="mini" style="width: 150px" clearable />
               </el-form-item>
-              <div v-if="query_person.ip_agency === 'SS' || query_person.ip_agency === 'SSR'">
+              <div v-if="query_person.ip_agency === 'SS' || query_person.ip_agency === 'SSR' || query_person.ip_agency === 'HTTP'">
                 <el-form-item key="password" prop="password">
                   <span slot="label" style="color: red; margin-right: 3px">*</span>
                   <span slot="label">密码：</span>
                   <el-input v-model="query_person.password" placeholder="请输入密码" size="mini" style="width: 150px" clearable />
                 </el-form-item>
+              </div>
+              <div v-if="query_person.ip_agency === 'SS' || query_person.ip_agency === 'SSR'">
 
                 <el-form-item key="encryption" prop="encryption">
                   <span slot="label" style="color: red; margin-right: 3px">*</span>
@@ -1113,12 +1115,13 @@ export default {
           return
         }
       }
-
+      // this.query_person.username === ''
+      // this.query_person.password === ''
       if (this.query_person.ip_agency === 'HTTP') {
-        if (this.query_person.password === '' ||
-           this.query_person.ip_address === '' ||
-        this.query_person.ip_port === '' ||
-           this.query_person.username === '') {
+        if (
+          this.query_person.ip_address === '' ||
+           this.query_person.ip_port === ''
+        ) {
           this.$message.warning('必填信息不能为空')
           return
         }
@@ -1419,6 +1422,7 @@ export default {
         const res = await this.$YipService.GetIpList(JSON.stringify(params))
         this.loading = false
         this.tableList = []
+        this.bindMalltable = []// 有绑定店铺的IP主体 { main_name  bindmall}
         const data = JSON.parse(res)
         // console.log('----------', data)
         if (data.code === 200 && this.shopAccountList.length > 0) {
@@ -1427,6 +1431,7 @@ export default {
               // 获取店铺名称
               if (item.target_mall_info && item.target_mall_info.length > 0) {
                 const mall = []
+                this.bindMalltable.push({ main_name: item.ip_alias, bindmall: item.target_mall_info })
                 item.target_mall_info.forEach(i => {
                   const dd = MallgetValue(this.shopAccountList, 'label', 'id', i.mall_id)
                   if (dd) mall.push(dd)
@@ -1446,6 +1451,7 @@ export default {
               })
               this.tableList.push(item)
             })
+            console.log('+++++++++++++++', this.bindMalltable)
           } else {
             this.tableList = []
           }
