@@ -558,7 +558,8 @@
           <div class="dialog_item">
             <div class="item_name">邮编号码</div>
             <div class="item_content">
-              <el-select v-model="addressQuery.zip_code" size="mini" style="width: 100%" placeholder="请选择邮编号码">
+              <el-select v-model="addressQuery.zip_code" size="mini" allow-create filterable
+                         default-first-option style="width: 100%" placeholder="请选择邮编号码">
                 <el-option v-for="(item, index) in addressQueryNumber" :key="index" :label="item" :value="item" />
               </el-select>
             </div>
@@ -988,6 +989,7 @@ export default {
         if (zipCodeByAddressIdRes.status >= 200 && zipCodeByAddressIdRes.status < 300) {
           const zipCodeByAddressIdData = JSON.parse(zipCodeByAddressIdRes.data)
           this.addressQueryNumber = zipCodeByAddressIdData.data.list
+          this.addressQuery.zip_code = this.addressQueryNumber[0] || ''
           console.log('zipCodeByAddressIdData', zipCodeByAddressIdData)
         } else if (zipCodeByAddressIdRes.status === 403) {
 
