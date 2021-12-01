@@ -178,7 +178,7 @@
         </u-table-column>
         <u-table-column align="center" prop="mall_status" label="店铺状态">
           <template v-slot="{ row }">
-            {{ mallStatusObj[row.mall_status] ? mallStatusObj[row.mall_status] : '冻结' }}
+            {{ row.mall_status===1 ? '正常' : '冻结' }}
           </template>
         </u-table-column>
         <u-table-column align="center" prop="created_at" label="授权日期" min-width="120px" />
@@ -671,10 +671,10 @@ export default {
         { label: '正常', value: 1 }, // 0 1 都是正常
         { label: '冻结', value: 3 }
       ],
-      mallStatusObj: {
-        0: '正常',
-        1: '正常'
-      },
+      // mallStatusObj: {
+      //   0: '正常',
+      //   1: '正常'
+      // },
       groupId: '',
       groupList: [],
 
@@ -1564,7 +1564,7 @@ export default {
         const params = {
           'sysMallId': item.id,
           'platformMallName': data.shop_name,
-          'mallStatus': data.shop_status,
+          'mallStatus': data.user_status,
           'itemLimit': 500,
           'userEmail': data.user_email,
           'phone': data.phone,
@@ -1889,6 +1889,7 @@ export default {
         return item.country === 'TH'
       })
       this.isLoading = false
+      console.log('mallCodeData', this.mallCodeAllData)
     },
     // 查询浏览器识别码数据
     queryMallCode() {
@@ -1914,10 +1915,11 @@ export default {
       if (type === 2) this.isUpdateCode = true
       for (let index = 0; index < val.length; index++) {
         const element = val[index]
+        element.web_login_info.spc_f = element.web_login_info.SPC_F
         await this.$appConfig.updateInfoMall(element.platform_mall_id, JSON.stringify(element)) // 更新壳内数据
         const params = {
           mallId: element.platform_mall_id,
-          webLoginInfo: JSON.stringify(element)
+          webLoginInfo: JSON.stringify(element.web_login_info)
         }
         const res = await this.mallListAPIInstance.uploadMallCookie(params) // 更新服务器数据
         if (res.code === 200) {
@@ -1982,7 +1984,7 @@ export default {
           <td style="text-align:left;">${item.watermark || ''}</td>
           <td style="text-align:left;">${item.item_limit || ''}</td>
           <td style="text-align:left;">${item.mall_alias_name || ''}</td>
-          <td style="text-align:left;">${this.mallStatusObj[item.mall_status] ? this.mallStatusObj[item.mall_status] : '冻结'}</td>
+          <td style="text-align:left;">${item.mall_status === 1 ? '正常' : '冻结'}</td>
           <td style="text-align:left;">${item.created_at}</td>
         </tr>
         `
