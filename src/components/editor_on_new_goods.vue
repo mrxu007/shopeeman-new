@@ -8,7 +8,8 @@
             <el-button class="button_mini" size="mini" @click="batchDealWith(1)" type="primary">收藏数据</el-button>
             <el-button class="button_mini" size="mini" @click="batchDealWith(2,1)" type="primary">翻译数据</el-button>
           </div>
-          <el-button style="flex: 1;margin-left: 10px;" size="mini" @click="batchDealWith(3)" type="primary">批量编辑标题/描述</el-button>
+          <el-button style="flex: 1;margin-left: 10px;" size="mini" @click="batchDealWith(3)" type="primary">批量编辑标题/描述
+          </el-button>
           <el-button style="flex: 1" size="mini" @click="batchDealWith(4)" type="primary">批量添加尺寸图</el-button>
         </div>
         <div class="basisInstall-box">
@@ -37,7 +38,7 @@
       </div>
       <div class="basisInstall width_600" style="padding: 10px;">
         <div class="basisInstall-title">功能区</div>
-        <div class="basisInstall-box" style="color: red"s>
+        <div class="basisInstall-box" style="color: red" s>
           <div>温馨提示：</div>
           使用【翻译数据】【一键组装数据到上新】功能前，先配置以下信息
         </div>
@@ -101,33 +102,31 @@
             <el-button size="mini" type="text"><i class="el-icon-question" style="padding: 0 2px;"></i></el-button>
           </el-tooltip>
           <el-radio v-model="pictureConfig.typeRadio" :label="2">云图像翻译</el-radio>
-          <div style="display: flex;">
+          <div v-if="!pictureConfig.typeRadio" style="display: flex;">
             <div style="margin-left: 5px;">图片翻译检验：</div>
             <el-radio v-model="pictureConfig.checkedRadio" :label="1">检验</el-radio>
             <el-radio v-model="pictureConfig.checkedRadio" :label="0">不检验</el-radio>
           </div>
         </div>
-        <div v-if="!pictureConfig.typeRadio" class="basisInstall-box">
+        <div class="basisInstall-box">
           <div style="display: flex;align-items: center">
             <div>图片翻译：</div>
             <el-select v-model="translationConfig.before" size="mini" style="width: 80px;" value="">
-              <el-option label="不翻译" :value="'no'"></el-option>
-              <el-option label="中文" :value="'zh'"></el-option>
-              <el-option label="英文" :value="'en'"></el-option>
+              <el-option label="不翻译" :value="0"></el-option>
+              <el-option label="中文" :value="1"></el-option>
+              <el-option label="英文" :value="2"></el-option>
             </el-select>
             <div style="width: 10px;height: 1px;background-color: #333333;margin: 0 5px;"></div>
             <el-select v-model="translationConfig.after" size="mini" style="width: 80px;" value="">
-              <el-option v-for="item in pictureLanguagesList1" :key="item.value" :label="item.label"
-                         :value="item.value"></el-option>
+              <el-option v-for="item in pictureLanguagesList" :key="item.value" :label="item.label" :value="item.value"
+                         v-show="(pictureConfig.typeRadio !== 0 || translationConfig.before !==2) || item.free"
+                         v-if="item.isShow.indexOf(translationConfig.before)>=0"/>
             </el-select>
           </div>
-          <div style="display: flex;align-items: center;margin-left: 10px;">
+          <div v-if="!pictureConfig.typeRadio" style="display: flex;align-items: center;margin-left: 10px;">
             <div>阿里翻译账号：</div>
             <el-select class="select-right-30" v-model="aLiUsername" size="mini" style="width: 120px;" value="">
-              <el-option v-for="item in aLiUsernameList"
-                         :key="item.id"
-                         :label="item.name"
-                         :value="item.name">
+              <el-option v-for="item in aLiUsernameList" :key="item.id" :label="item.name" :value="item.name">
                 <span>{{item.name}}</span>
                 <span class="span-but" @click.stop="deleteAliTranslation(item.id)">X</span>
               </el-option>
@@ -344,7 +343,7 @@
           specChecked: true,
           languages: 'th', // 翻译语种
           failureType: '',  // 失败类型
-          before: 'no',  // 翻译前
+          before: 0,  // 翻译前
           after: ''  // 翻译后
         },  // 文字
         pictureConfig: {
@@ -384,31 +383,50 @@
             label: '不翻译',
             value: 'no'
           }],
-        pictureLanguagesList1: [
+        pictureLanguagesList: [
           {
             label: '英文',
+            isShow: '1',
             value: 'en'
           }, {
+            label: '中文',
+            isShow: '2',
+            free: true,
+            value: 'zh'
+          }, {
             label: '繁体',
-            value: 'zh-tw'
+            isShow: '1,2',
+            value: 'zh-TW'
           }, {
             label: '泰语',
+            isShow: '1,2',
             value: 'th'
           }, {
             label: '印尼语',
+            isShow: '1,2',
             value: 'id'
           }, {
             label: '马来语',
+            isShow: '1',
             value: 'ms'
           }, {
             label: '越南语',
+            isShow: '1,2',
             value: 'vi'
           }, {
-            label: '葡糖牙语',
+            label: '葡萄牙语',
+            isShow: '1,2',
+            free: true,
             value: 'pt'
           }, {
             label: '西班牙语',
+            isShow: '1,2',
+            free: true,
             value: 'es'
+          }, {
+            label: '法语',
+            isShow: '2',
+            value: 'fr'
           }],
         filterSimplifiedChecked: false, //过滤简体
         threadNumber: '5', // 线程数量
@@ -462,28 +480,27 @@
       this.userInfo = Object.assign(JSON.parse(userJson), userInfo)
       this.statistics.count = this.mallTable.length
       let buyerList = await this.$api.getBuyerList()
-      buyerList.data.data.forEach(item=>{
-        if (item.type == 99 || item.type == -1){
+      buyerList.data.data.forEach(item => {
+        if (item.type == 99 || item.type == -1) {
           this.aLiUsernameList.push(item)
         }
       })
-      console.log('buyerList', buyerList)
     },
     methods: {
       // 开启任务
-      batchDealWith(type,data) {
+      batchDealWith(type, data) {
         console.log('type:', type)
         if (this.mallTableSelect.length < 1) {
           this.$message.error('请选择一个商品信息')
           return false
         }
-        if(type === 1){
+        if (type === 1) {
 
-        }else if (type === 2) {
+        } else if (type === 2) {
           this.translationPrepare(data)
-        }else if (type === 3) {
+        } else if (type === 3) {
           this.titleDescribeVisible = true
-        }else if (type === 4) {
+        } else if (type === 4) {
         }
       },
 
@@ -496,73 +513,70 @@
         })
         let res = await batchOperation(params, this.titleDescribeUpdate)
       },
-      async titleDescribeUpdate(item, count = { count: 1 }){
+      async titleDescribeUpdate(item, count = { count: 1 }) {
         let index = this.mallTable.findIndex(i => i.id === item.id)
         this.$set(this.mallTable[index], 'operation_type', '正在更新...')
         try {
           let neededTranslateInfoJson = await this.$commodityService.getNeededTranslateInfoV2(item.id)
           let neededTranslateInfoData = JSON.parse(neededTranslateInfoJson) && JSON.parse(neededTranslateInfoJson).data
           let tempText = ''
-          if (this.titleDescribeTypeRadio){
+          if (this.titleDescribeTypeRadio) {
             let text = this.describeConfig.text || ''
-            if(this.titleGoodsDescribeRadio === 0){
+            if (this.titleGoodsDescribeRadio === 0) {
               let tier_variation = neededTranslateInfoData.tier_variation
               let spec1List = tier_variation[tier_variation.spec1].join('\n')
               let spec2List = tier_variation[tier_variation.spec2].join('\n')
-              tempText = text + '\n'+ spec1List+ '\n' +spec2List
-            }else if(this.titleGoodsDescribeRadio === 1){
+              tempText = text + '\n' + spec1List + '\n' + spec2List
+            } else if (this.titleGoodsDescribeRadio === 1) {
               tempText = neededTranslateInfoData.description
-            }else if(this.titleGoodsDescribeRadio === 2){
+            } else if (this.titleGoodsDescribeRadio === 2) {
               tempText = neededTranslateInfoData.description + text
-            }else if(this.titleGoodsDescribeRadio === 3){
+            } else if (this.titleGoodsDescribeRadio === 3) {
               tempText = text
             }
-          } else{
+          } else {
             tempText = neededTranslateInfoData.title
           }
           let keyList = this.titleDescribeKey.split(',')
-          if (this.titleDescribeHandleRadio === 0){
-            keyList.forEach(i=>{
-              tempText = tempText.replaceAll(i,'')
+          if (this.titleDescribeHandleRadio === 0) {
+            keyList.forEach(i => {
+              tempText = tempText.replaceAll(i, '')
             })
-          }
-          else if (this.titleDescribeHandleRadio === 1 || this.titleDescribeHandleRadio === 2){
+          } else if (this.titleDescribeHandleRadio === 1 || this.titleDescribeHandleRadio === 2) {
             let keyStr = keyList.join(' ')
-            tempText = this.titleDescribeHandleRadio === 1 ? (keyStr+ ' ' + tempText) : (tempText + ' '+ keyStr)
-          }
-          else if (this.titleDescribeHandleRadio === 3){
-            if (this.titleDescribeTypeRadio){
+            tempText = this.titleDescribeHandleRadio === 1 ? (keyStr + ' ' + tempText) : (tempText + ' ' + keyStr)
+          } else if (this.titleDescribeHandleRadio === 3) {
+            if (this.titleDescribeTypeRadio) {
               this.$message.error('此次操作为编辑商品描述')
               return false
             }
-          }
-          else if (this.titleDescribeHandleRadio === 4){
-            keyList.forEach(i=>{
+          } else if (this.titleDescribeHandleRadio === 4) {
+            keyList.forEach(i => {
               let key = i.split(';')
               let oldStr = key[0] || ''
               let newStr = key[1] || ''
-              tempText = tempText.replaceAll(oldStr,newStr)
+              tempText = tempText.replaceAll(oldStr, newStr)
             })
           }
           let param = {
-            sysGoodsId:item.id
+            sysGoodsId: item.id
           }
-          if(this.titleDescribeTypeRadio){
+          if (this.titleDescribeTypeRadio) {
             param.description = tempText
-          } else{
+          } else {
             param.title = tempText
           }
-          console.log('updateCollectGoodsInfo - param',param)
+          console.log('updateCollectGoodsInfo - param', param)
           let collectGoods = await this.$commodityService.updateCollectGoodsInfo(param)
-          console.log('collectGoods',collectGoods)
-          if(param.title){
-            this.$set(this.mallTable[index], 'title',param.title)
+          console.log('collectGoods', collectGoods)
+          if (param.title) {
+            this.$set(this.mallTable[index], 'title', param.title)
           }
           this.$set(this.mallTable[index], 'operation_type', '更新成功')
-        }catch (e) {
+        } catch (e) {
           this.$set(this.mallTable[index], 'operation_type', '更新失败')
           console.log('titleDescribeUpdate', e)
-        }finally {
+        } finally {
           count.count--
         }
       },
@@ -576,49 +590,49 @@
           loginInfo: login.login_info,
           ua: login.ua,
           cachePath: login.cache_path,
-          proxyId: '',
+          proxyId: ''
         }
         const { data } = await this.$api.upLoadBuyAccount(params)
-        if (data.code === 200){
+        if (data.code === 200) {
           this.aLiUsername = params.name
-          let index = this.aLiUsernameList.findIndex(i=>i.name === params.name)
-          if(index >= 0){
+          let index = this.aLiUsernameList.findIndex(i => i.name === params.name)
+          if (index >= 0) {
             this.aLiUsernameList[index] = params
           }
-        }else{
+        } else {
           this.$message.error('阿里翻译账户上报失败')
         }
       },
-      async joinAliTranslation(){
-        if (!this.aLiUsername){
+      async joinAliTranslation() {
+        if (!this.aLiUsername) {
           this.$message.error('请选择一个阿里翻译账户')
         }
-        let index = this.aLiUsernameList.findIndex(i=>i.name === this.aLiUsername)
+        let index = this.aLiUsernameList.findIndex(i => i.name === this.aLiUsername)
         let aLiUsername = this.aLiUsernameList[index]
         let param = {
           type: aLiUsername.type,
-          name : aLiUsername.name ,
-          login_info : JSON.stringify(aLiUsername.login_info),
-          cache_path : aLiUsername.cache_path,
-          ua : aLiUsername.ua,
-          loginCookies : aLiUsername.login_info,
+          name: aLiUsername.name,
+          login_info: JSON.stringify(aLiUsername.login_info),
+          cache_path: aLiUsername.cache_path,
+          ua: aLiUsername.ua,
+          loginCookies: aLiUsername.login_info
         }
         console.log(param)
         let data = await this.$buyerAccountService.aliTranslateCenter(param)
         console.log(data)
       },
       async deleteAliTranslation(id) {
-        let index = this.aLiUsernameList.findIndex(i=>i.id === id)
+        let index = this.aLiUsernameList.findIndex(i => i.id === id)
         let params = {
-          name:this.aLiUsernameList[index].name,
-          type:this.aLiUsernameList[index].type,
-          site:this.aLiUsernameList[index].site,
+          name: this.aLiUsernameList[index].name,
+          type: this.aLiUsernameList[index].type,
+          site: this.aLiUsernameList[index].site
         }
-        let {data} = await this.$api.deleteBuyAccount(params)
-        if (data.code === 200){
+        let { data } = await this.$api.deleteBuyAccount(params)
+        if (data.code === 200) {
           this.aLiUsername = ''
-          this.aLiUsernameList.splice(index,1)
-        }else{
+          this.aLiUsernameList.splice(index, 1)
+        } else {
           this.$message.error('阿里翻译账户删除失败')
         }
       },
@@ -663,100 +677,191 @@
       },
       async translationPrepare(type) {
         if (type === 1) {
-          let params = []
-          this.mallTableSelect.forEach(item => {
-            if (item.language.toLocaleUpperCase() !== this.translationConfig.languages.toLocaleUpperCase()) {
-              params.push(item)
-            }
-          })
-          let res = await batchOperation(params, this.translationDate)
+          let res = await batchOperation(this.mallTableSelect, this.translationDate)
         }
       },
       async translationDate(item, count = { count: 1 }) {
         let index = this.mallTable.findIndex(i => i.id === item.id)
         this.$set(this.mallTable[index], 'operation_type', '正在翻译...')
         try {
-          console.log('getNeededTranslateInfoV2 - param', item)
-          let neededTranslateInfoJson = await this.$commodityService.getNeededTranslateInfoV2(item.id)
-          let neededTranslateInfoData = JSON.parse(neededTranslateInfoJson) && JSON.parse(neededTranslateInfoJson).data
-          // console.log(neededTranslateInfoData)
-          let title = this.translationConfig.titleChecked && neededTranslateInfoData.title || ''
-          let description = this.translationConfig.describeChecked && neededTranslateInfoData.description || ''
-          let spec1 = this.translationConfig.specChecked && neededTranslateInfoData.spec1 || ''
-          let spec2 = this.translationConfig.specChecked && neededTranslateInfoData.spec2 || ''
-          let translationParam = [title, description]
-          let fromLanguage = item.language
-          let toLanguage = this.translationConfig.languages
-          let param = {
-            sysGoodsId: item.id,
-            uuid: this.userInfo.child_id,
-            language: toLanguage,
-            shortTitle: '',
-            spec1: spec1,
-            spec2: spec2
+          let success = true
+          if (item.language.toLocaleUpperCase() !== this.translationConfig.languages) {
+            success = await this.translationText(item, index)
           }
-          if (this.userInfo.translate_set == 1) {
-            let translationJson = await this.$translationBridgeService.getGoogleTransResult(translationParam, fromLanguage, toLanguage)
-            param.title = translationJson.Data[0] && translationJson.Data[0].DstText || neededTranslateInfoData.title
-            param.description = translationJson.Data[1] && translationJson.Data[1].DstText || neededTranslateInfoData.description
-            param.spec1 = translationJson.Data[2] && translationJson.Data[2].DstText || neededTranslateInfoData.spec1
-            param.spec2 = translationJson.Data[3] && translationJson.Data[3].DstText || neededTranslateInfoData.spec2
-            let tier_variation = neededTranslateInfoData.tier_variation
-            console.log(neededTranslateInfoData, param)
-            if (this.translationConfig.specChecked) {
-              let spec1List = tier_variation[tier_variation.spec1].join('<><>')
-              let spec2List = tier_variation[tier_variation.spec2].join('<><>')
-              let spec1ListJson = await this.$translationBridgeService.getGoogleTransResult([spec1List], fromLanguage, toLanguage)
-              let spec2ListJson = await this.$translationBridgeService.getGoogleTransResult([spec2List], fromLanguage, toLanguage)
-              console.log(spec1ListJson, spec2ListJson)
-              if (spec1ListJson.Code === 0 && spec2ListJson.Code === 0) {
-                let itemmodelsJson = JSON.stringify(neededTranslateInfoData.itemmodels)
-                let spec1ListDst = spec1ListJson.Data && spec1ListJson.Data[0] && spec1ListJson.Data[0].DstText.split('<><>')
-                let spec1ListSrc = spec1ListJson.Data && spec1ListJson.Data[0] && spec1ListJson.Data[0].SrcText.split('<><>')
-                let spec1List = this.getArraySrcLengthSort(spec1ListSrc)
-                console.log('spec1List', spec1ListDst, spec1List)
-                spec1List.forEach(item => {
-                  itemmodelsJson = itemmodelsJson.replaceAll(spec1ListSrc[item], spec1ListDst[item])
-                })
-                let spec2ListDst = spec2ListJson.Data && spec2ListJson.Data[0] && spec2ListJson.Data[0].DstText.split('<><>')
-                let spec2ListSrc = spec2ListJson.Data && spec2ListJson.Data[0] && spec2ListJson.Data[0].SrcText.split('<><>')
-                let spec2List = this.getArraySrcLengthSort(spec2ListSrc)
-                console.log('spec2List', spec2ListDst, spec2List)
-                spec2List.forEach(item => {
-                  itemmodelsJson = itemmodelsJson.replaceAll(spec2ListSrc[item], spec2ListDst[item])
-                })
-                let regId = /"id":[0-9]*,/ig
-                let regSelection_id = /"selection_id":[0-9]*,/ig
-                let skuId = /"skuId":[0-9]*,/ig
-                let sku = /"sku":"[^(",)]*",/ig
-                itemmodelsJson = itemmodelsJson.replaceAll('"sku_spec1":', '"spec1":')
-                itemmodelsJson = itemmodelsJson.replaceAll('"sku_spec2":', '"spec2":')
-                itemmodelsJson = itemmodelsJson.replaceAll('"sku_sn":', '"skuSn":')
-                itemmodelsJson = itemmodelsJson.replaceAll(regId, '')
-                itemmodelsJson = itemmodelsJson.replaceAll(regSelection_id, '')
-                itemmodelsJson = itemmodelsJson.replaceAll(skuId, '"skuId":"$0"')
-                // itemmodelsJson = itemmodelsJson.replaceAll(sku, '')
-                param['skuSpecs'] = itemmodelsJson
-                console.log(itemmodelsJson)
-              } else {
-                //谷歌翻译失败
-              }
-
-            }
-          } else {
-
+          if (this.translationConfig.before && (this.pictureConfig.shuffleChecked || this.pictureConfig.specChecked)) {
+            success = await this.translationPicture(item, index)
           }
           ++this.statistics.fySuccess
-          this.$set(this.mallTable[index], 'operation_type', '翻译成功')
-          console.log('saveTranslationData - param', param)
-          let translationDataJson = await this.$commodityService.saveTranslationData(param)
-          console.log(translationDataJson)
+          this.$set(this.mallTable[index], 'operation_type', success && '翻译完成' || '翻译失败')
         } catch (e) {
           this.$set(this.mallTable[index], 'operation_type', '翻译失败')
           console.log(e)
         } finally {
           count.count--
         }
+      },
+      translationText(item, index) {
+        return new Promise(async resolve => {
+          console.log('getNeededTranslateInfoV2 - param', item)
+          let success = true
+          try {
+            let neededTranslateInfoJson = await this.$commodityService.getNeededTranslateInfoV2(item.id)
+            let neededTranslateInfoData = JSON.parse(neededTranslateInfoJson) && JSON.parse(neededTranslateInfoJson).data
+            // console.log(neededTranslateInfoData)
+            let title = this.translationConfig.titleChecked && neededTranslateInfoData.title || ''
+            let description = this.translationConfig.describeChecked && neededTranslateInfoData.description || ''
+            let spec1 = this.translationConfig.specChecked && neededTranslateInfoData.spec1 || ''
+            let spec2 = this.translationConfig.specChecked && neededTranslateInfoData.spec2 || ''
+            let translationParam = [title, description]
+            let fromLanguage = item.language
+            let toLanguage = this.translationConfig.languages
+            let param = {
+              sysGoodsId: item.id,
+              uuid: this.userInfo.child_id,
+              language: toLanguage,
+              shortTitle: '',
+              spec1: spec1,
+              spec2: spec2
+            }
+            let itemmodelsJson = JSON.stringify(neededTranslateInfoData.itemmodels)
+            if (this.userInfo.translate_set == 1) {
+              let translationJson = await this.$translationBridgeService.getGoogleTransResult(translationParam, fromLanguage, toLanguage)
+              param.title = translationJson.Data[0] && translationJson.Data[0].DstText || neededTranslateInfoData.title
+              param.description = translationJson.Data[1] && translationJson.Data[1].DstText || neededTranslateInfoData.description
+              param.spec1 = translationJson.Data[2] && translationJson.Data[2].DstText || neededTranslateInfoData.spec1
+              param.spec2 = translationJson.Data[3] && translationJson.Data[3].DstText || neededTranslateInfoData.spec2
+              let tier_variation = neededTranslateInfoData.tier_variation
+              console.log(neededTranslateInfoData, param)
+              if (this.translationConfig.specChecked) {
+                let spec1List = tier_variation[tier_variation.spec1].join('<><>')
+                let spec2List = tier_variation[tier_variation.spec2].join('<><>')
+                let spec1ListJson = await this.$translationBridgeService.getGoogleTransResult([spec1List], fromLanguage, toLanguage)
+                let spec2ListJson = await this.$translationBridgeService.getGoogleTransResult([spec2List], fromLanguage, toLanguage)
+                console.log(spec1ListJson, spec2ListJson)
+                if (spec1ListJson.Code === 0 && spec2ListJson.Code === 0) {
+                  let spec1ListDst = spec1ListJson.Data && spec1ListJson.Data[0] && spec1ListJson.Data[0].DstText.split('<><>')
+                  let spec1ListSrc = spec1ListJson.Data && spec1ListJson.Data[0] && spec1ListJson.Data[0].SrcText.split('<><>')
+                  let spec1List = this.getArraySrcLengthSort(spec1ListSrc)
+                  console.log('spec1List', spec1ListDst, spec1List)
+                  spec1List.forEach(item => {
+                    itemmodelsJson = itemmodelsJson.replaceAll(spec1ListSrc[item], spec1ListDst[item])
+                  })
+                  let spec2ListDst = spec2ListJson.Data && spec2ListJson.Data[0] && spec2ListJson.Data[0].DstText.split('<><>')
+                  let spec2ListSrc = spec2ListJson.Data && spec2ListJson.Data[0] && spec2ListJson.Data[0].SrcText.split('<><>')
+                  let spec2List = this.getArraySrcLengthSort(spec2ListSrc)
+                  console.log('spec2List', spec2ListDst, spec2List)
+                  spec2List.forEach(item => {
+                    itemmodelsJson = itemmodelsJson.replaceAll(spec2ListSrc[item], spec2ListDst[item])
+                  })
+                } else {
+                  //谷歌翻译失败
+                }
+
+              }
+            } else {
+
+            }
+            let regId = /"id":[0-9]*,/ig
+            let regSelection_id = /"selection_id":[0-9]*,/ig
+            let skuId = /"skuId":[0-9]*,/ig
+            let sku = /"sku":"[^(",)]*",/ig
+            itemmodelsJson = itemmodelsJson.replaceAll('"sku_spec1":', '"spec1":')
+            itemmodelsJson = itemmodelsJson.replaceAll('"sku_spec2":', '"spec2":')
+            itemmodelsJson = itemmodelsJson.replaceAll('"sku_sn":', '"skuSn":')
+            itemmodelsJson = itemmodelsJson.replaceAll(regId, '')
+            itemmodelsJson = itemmodelsJson.replaceAll(regSelection_id, '')
+            itemmodelsJson = itemmodelsJson.replaceAll(skuId, '"skuId":"$0"')
+            // itemmodelsJson = itemmodelsJson.replaceAll(sku, '')
+            param['skuSpecs'] = itemmodelsJson
+            console.log(itemmodelsJson)
+            this.$set(this.mallTable[index], 'operation_type', '翻译成功')
+            param.language = toLanguage === 'zh' && 'zh-Hans' || toLanguage === 'zh-tw' && 'zh-Hant' || toLanguage
+            console.log('saveTranslationData - param', param)
+            let translationDataJson = await this.$commodityService.saveTranslationData(param)
+          } catch (e) {
+            success = false
+            this.$set(this.mallTable[index], 'operation_type', '翻译失败')
+            console.log(e)
+          } finally {
+            resolve(success)
+          }
+        })
+      },
+      translationPicture(item, index) {
+        return new Promise(async resolve => {
+          let success = true
+          this.$set(this.mallTable[index], 'operation_type', '正在获取商品图...')
+          try {
+            let neededTranslateInfoJson = await this.$commodityService.getSpuDetailByIdV2(item.id)
+            let neededTranslateInfoData = JSON.parse(neededTranslateInfoJson) && JSON.parse(neededTranslateInfoJson).data
+            console.log('getSpuDetailByIdV2 - data', neededTranslateInfoData)
+            if (this.pictureConfig.shuffleChecked) {
+              let image1List = neededTranslateInfoData.images1 || [] //轮播图
+              let image1ListLength = image1List.length
+              for (let i = 0; i < image1ListLength; i++) {
+                let son = image1List[i]
+                let imageData = ''
+                this.$set(this.mallTable[index], 'operation_type', `正在翻译轮播图(${(i + 1)}/${image1ListLength})`)
+                if (this.pictureConfig.typeRadio === 0) {
+
+                } else if (this.pictureConfig.typeRadio === 1) {
+                  let fromLa = this.translationConfig.before === 1 && 'zh' || 'en'
+                  let { Data } = await this.$translationBridgeService.getAliYunTranslateImg(son.img, fromLa, this.translationConfig.after)
+                  imageData = Data.Data && Data.Data.Url || son.img
+                } else if (this.pictureConfig.typeRadio === 2) {
+                  console.log(son.img, this.translationConfig.after)
+                  let json = await this.$translationBridgeService.getYunTranslateImg(son.img, this.translationConfig.after)
+                  console.log(json)
+                  if (json.Code === 200) {
+                    imageData = json.Data && json.Data.Url || son.img
+                  } else {
+                    imageData = son.img
+                  }
+                }
+                let res = await this.$commodityService.updateGoodsImage('1', item.id, son.id, imageData)
+                console.log(res)
+              }
+            }
+            if (this.pictureConfig.specChecked) {
+              let itemmodels = JSON.stringify(neededTranslateInfoData.itemmodels)
+              let spec_imageList = neededTranslateInfoData.spec_image || [] //规格图
+              let spec_imageListLength = spec_imageList.length
+              for (let i = 0; i < spec_imageListLength; i++) {
+                let son = spec_imageList[i]
+                let imageData = ''
+                this.$set(this.mallTable[index], 'operation_type', `正在翻译规格图(${(i + 1)}/${spec_imageListLength})`)
+                if (this.pictureConfig.typeRadio === 0) {
+
+                }
+                else if (this.pictureConfig.typeRadio === 1) {
+                  let fromLa = this.translationConfig.before === 1 && 'zh' || 'en'
+                  let { Data } = await this.$translationBridgeService.getAliYunTranslateImg(son, fromLa, this.translationConfig.after)
+                  imageData = Data.Data && Data.Data.Url || son
+                }
+                else if (this.pictureConfig.typeRadio === 2) {
+                  let json = await this.$translationBridgeService.getYunTranslateImg(son, this.translationConfig.after)
+                  console.log(json)
+                  if (json.Code === 200) {
+                    imageData = json.Data && json.Data.Url || son
+                  } else {
+                    imageData = son
+                  }
+                }
+                itemmodels = itemmodels.replaceAll(son,imageData)
+                let res = await this.$commodityService.updateGoodsSkuImage(item.id + '', imageData, son)
+                console.log(res)
+              }
+
+
+            }
+          } catch (e) {
+            console.log(e)
+            success = false
+            this.$set(this.mallTable[index], 'operation_type', '翻译失败...')
+          } finally {
+            resolve(success)
+          }
+        })
       },
       handleSelectionChange(val) {
         this.mallTableSelect = val
@@ -834,8 +939,8 @@
       padding-right: 8px;
     }
 
-    .select-right-30{
-      .el-input--mini .el-input__inner{
+    .select-right-30 {
+      .el-input--mini .el-input__inner {
         padding-right: 30px;
       }
     }

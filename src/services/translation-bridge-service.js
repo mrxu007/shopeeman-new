@@ -20,4 +20,18 @@ export default class TranslationBridgeService {
     return this.nativeService.getGoogleTransResult(JSON.stringify(content), fromLanguage, toLanguage)
   }
 
+  /**
+   * 阿里图片付费翻译
+   */
+  getAliYunTranslateImg(content, fromLanguage, toLanguage) {
+    return this.nativeService.getAliYunTranslateImg(content, fromLanguage, toLanguage)
+  }
+
+  /**
+   * 云图片翻译
+   */
+  getYunTranslateImg(content, toLanguage) {
+    return this.nativeService.getYunTranslateImg(content, toLanguage)
+  }
+
 }
