@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-11-20 21:08:11
- * @LastEditTime: 2021-11-22 20:48:43
+ * @LastEditTime: 2021-12-01 12:08:44
  * @LastEditors: Please set LastEditors
  * @Description: 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  * @FilePath: \shopeeman-new\src\views\order-manager\components\orderCenter\addBuyLink.vue
@@ -37,7 +37,7 @@
         >
         <span>备注:</span>
         <el-input v-model="item.note" size="mini" clearable style="width: 300px" class="mar-right" />
-        <el-radio v-model="item.is_default" label="1">默认</el-radio>
+        <el-radio v-model="item.is_default" label="1" @change="changeDefault(index)">默认</el-radio>
         <el-button size="mini" type="primary" @click="deleteLink(index)">删除</el-button>
       </div>
     </div>
@@ -89,6 +89,13 @@ export default {
     this.addPurchaseLink()
   },
   methods: {
+    changeDefault(index){
+      this.rowBuyLinks.forEach((item,i)=>{
+        if(i!==index){
+          item.is_default = ''
+        }
+      })
+    },
     changeSourceType(e, index) {
       console.log(e, index)
       let res = this.platformLinkList.find((item) => {

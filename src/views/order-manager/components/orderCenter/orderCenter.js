@@ -881,14 +881,14 @@ const statusListThird = [{
     value: 'completed'
   }
 ]
-
+//物流方式
 function siteShip(country) {
   let arr = site_mall.filter(item => {
-    return item.Country === country
+    return item.CountryCode === country
   })
   return arr
 }
-
+//采购平台
 function sourceName(val) {
   let name = ''
   let info = goodsSourceList.find(item => {
@@ -897,7 +897,7 @@ function sourceName(val) {
   name = info ? info.label : ''
   return name
 }
-
+//发货状态
 function orderStatusName(val) {
   let name = ''
   let info = orderStatusList.find(item => {

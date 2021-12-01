@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-11-30 10:53:52
- * @LastEditTime: 2021-11-30 17:11:27
+ * @LastEditTime: 2021-11-30 18:03:01
  * @LastEditors: Please set LastEditors
  * @Description: 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  * @FilePath: \shopeeman-new\src\views\order-manager\components\orderCenter\secondSale.vue
@@ -173,6 +173,7 @@ export default {
     console.log(this.chooseData)
   },
   methods: {
+    //二次销售出库
     async matchAndOut(row) {
         if(row.country !== this.chooseData.country){
             return  this.$notify({
@@ -194,6 +195,7 @@ export default {
             this.$message.error(`匹配出库失败，${res.data.message}`)
         }
     },
+    //搜索
     async getSecondSaleList() {
       let params = {
         goodsId: this.goodsId,
