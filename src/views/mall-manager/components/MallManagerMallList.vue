@@ -558,7 +558,7 @@
           <div class="dialog_item">
             <div class="item_name">邮编号码</div>
             <div class="item_content">
-              <el-select v-model="addressQuery.zip_code" size="mini" style="width: 100%" placeholder="请选择邮编号码">
+              <el-select v-model="addressQuery.zip_code" size="mini" allow-create filterable default-first-option style="width: 100%" placeholder="请选择邮编号码">
                 <el-option v-for="(item, index) in addressQueryNumber" :key="index" :label="item" :value="item" />
               </el-select>
             </div>
@@ -988,6 +988,7 @@ export default {
         if (zipCodeByAddressIdRes.status >= 200 && zipCodeByAddressIdRes.status < 300) {
           const zipCodeByAddressIdData = JSON.parse(zipCodeByAddressIdRes.data)
           this.addressQueryNumber = zipCodeByAddressIdData.data.list
+          this.addressQuery.zip_code = this.addressQueryNumber[0] || ''
           console.log('zipCodeByAddressIdData', zipCodeByAddressIdData)
         } else if (zipCodeByAddressIdRes.status === 403) {
 
@@ -1301,22 +1302,34 @@ export default {
       }
     },
     openUpdateExpressdialog() { // 批量更改店铺物流
-      if (this.countryVal === '') {
-        this.$message.error('批量修改物流方式只支持选择单个站点, 请重新选择')
-        return
-      }
-
+      // if (this.countryVal === '') {
+      //   this.$message.error('批量修改物流方式只支持选择单个站点, 请重新选择')
+      //   return
+      // }
+      const len = this.multipleSelection.length
+      let success = 0
+      const siteMap = {}
       if (!this.multipleSelection.length) {
         this.$message.error('请选择店铺')
         return
       }
-      const mall = this.multipleSelection.filter(item => item.loginStatus === 'success')
-      if (!mall.length) {
-        return this.$message.error('请登录店铺并选中数据后再操作')
+      this.multipleSelection.filter(item => {
+        if (!siteMap[item.country]) {
+          siteMap[item.country] = '123'
+        }
+        if (item.loginStatus === 'success') {
+          success++
+        }
+      })
+      if (Object.keys(siteMap).length > 1) {
+        return this.$message.error('批量修改物流方式只支持选择单个站点, 请重新选择')
+      }
+      if (len !== success) {
+        return this.$message.error('选择店铺中有店铺未登录')
       }
 
       this.batchExpressDialog = true
-      this.getMallExpress(mall[0])
+      this.getMallExpress(this.multipleSelection[0])
     },
     async getMallExpress(row) {
       if (this.buttonStatus.getExpress) {
@@ -1634,6 +1647,7 @@ export default {
       }
       this.buttonStatus.login = true
       let successNum = 0
+
       for (let i = 0; i < len; i++) {
         if (this.isStop) {
           this.buttonStatus.login = false
@@ -1641,6 +1655,7 @@ export default {
         }
         const item = selectMall[i]
         const platform_mall_name = item.platform_mall_name
+        let hasMallMainInfo = false
         this.flat === 1 ? item.LoginInfo = '正在登录中...' : this.writeLog(`(${i + 1}/${len})账号【${platform_mall_name}】开始授权`, true)
         let mallId = null// 平台店铺ID
         let mallUId = null // 平台卖家ID
@@ -1706,21 +1721,25 @@ export default {
             mallDataInfo = res.data.mallInfo_new
             // 导入店铺判断是否选择   使用已有IP
             if (this.isIPType === 1) {
+              if (!item.MallMainName) { // 使用已有IP 就检测是否填写
+                this.writeLog(`(${i + 1}/${len})账号【${platform_mall_name}】检测到您选择了 使用已有IP，但是未填写`, false)
+                continue
+              }
               this.writeLog(`(${i + 1}/${len})账号【${platform_mall_name}】正在查询店铺主体信息有效性`, true)
               const mallMainInfo = await this.mallListAPIInstance.getMainMainList(item.MallMainName)
               if (mallMainInfo.code !== 200) {
-                this.writeLog(`(${i + 1}/${len})账号【${platform_mall_name}】 店铺主体名称 ${item.MallMainName} 不存在`, false)
+                this.writeLog(`(${i + 1}/${len})账号【${platform_mall_name}】 店铺主体名称 【${item.MallMainName}】 不存在`, false)
                 continue
               }
-              this.writeLog(`(${i + 1}/${len})账号【${platform_mall_name}】该店铺主体信息有效`, true)
-              mallDataInfo['mall_main_id'] = mallMainInfo.data.id // 更新店铺ID
-              if (mallMainInfo.data.target_mall_info.length === 0) { // 代表是一个新店铺没有绑定过IP，需要刷新壳缓存
+              this.writeLog(`(${i + 1}/${len})账号【${platform_mall_name}】该店铺主体【${item.MallMainName}】信息有效`, true)
+              mallDataInfo['mall_main_id'] = mallMainInfo.data.id // 更新店铺主体ID
+              if (!mallMainInfo.data.target_mall_info || mallMainInfo.data.target_mall_info.length === 0) { // 代表是一个新店铺没有绑定过IP，需要刷新壳缓存
                 this.writeLog(`(${i + 1}/${len})账号【${platform_mall_name}】正在刷新店铺主体信息缓存`, true)
                 await this.$BaseUtilService.UpdateProxy()
                 this.writeLog(`(${i + 1}/${len})账号【${platform_mall_name}】主体刷新成功`, true)
               }
               item.mall_main_id = mallMainInfo.data.id
-              item.hasMallMainInfo = true
+              hasMallMainInfo = true
             }
             // 4、更新壳信息
             // console.log(mallId, JSON.stringify(mallDataInfo))
@@ -1738,7 +1757,7 @@ export default {
               mallAccountInfo: JSON.stringify(item.mall_account_info),
               mallGroup: item.group_name,
               itemLimit: 500,
-              platformMallName: platform_mall_name,
+              platformMallName: item.mall_account_info.userRealName,
               mallAliasName: item.mall_alias_name,
               mallMainName: item.MallMainName,
               country: item.country,
@@ -1754,6 +1773,7 @@ export default {
               this.writeLog(`(${i + 1}/${len})账号【${platform_mall_name}】授权失败：${res5.data}`, false)
               continue
             }
+            item.sys_mall_id = res5.data
           }
           // 5、上报cookie信息
           const params = {
@@ -1777,8 +1797,8 @@ export default {
               }
             ])
           })
-          if (item.hasMallMainInfo) { // 是否走过导入程序.并导入成功
-            const bindInfo = await this.mallListAPIInstance.bindMainName(item.mall_main_id, mallId)
+          if (hasMallMainInfo) { // 是否走过导入程序.并导入成功
+            const bindInfo = await this.mallListAPIInstance.bindMainName(item.mall_main_id, item.sys_mall_id)
             if (bindInfo.code !== 200) {
               this.writeLog(`(${i + 1}/${len})账号【${platform_mall_name}】绑定店铺主体名称 ${item.MallMainName} 失败`, false)
             } else {
@@ -1807,13 +1827,11 @@ export default {
       const mallId = mallInfo.platform_mall_id + ''
       this.phoneInfo_accountName = mallInfo.mall_account_info.username
       // this.needIvsInfo = testData
-      debugger
       try {
         if (code === 'error_need_ivs') { // 需要进行IVS验证 调LoginNeedPopUps 服务弹框
           await window.BaseUtilBridgeService.loginNeedPopUps('needIvs', JSON.stringify({ 'loginType': 'login', 'isOpenAuthMallProxy': 'true', 'mallId': mallId }))
           if (this.needIvsInfo?.code === 200) {
             // console.log('this.needIvsInfo', this.needIvsInfo)
-            debugger
             const mallCookieInfos = this.needIvsInfo.mallCookieInfos
             const SPC_EC = mallCookieInfos.find(item => item.Name === 'SPC_EC')
             const SPC_SC_TK = mallCookieInfos.find(item => item.Name === 'SPC_SC_TK')
@@ -1837,10 +1855,10 @@ export default {
             mallDataInfo = null
             // 2、更新cookie信息后，在调用登录接口： /api/v2/login/   get方法  无参 获取到接口响应头部cookie  再次更新cookie信息即可
             const loginInfo2 = await this.$shopeemanService.getLogin(mallInfo)
-            if (loginInfo2 === 200) {
-              code = loginInfo2.code
-              message = loginInfo2.data
-            }
+            // if (loginInfo2 === 200) {
+            code = loginInfo2.code
+            message = loginInfo2.data.message
+            // }
             this.needIvsInfo = null
           }
           this.needIvsInfo?.code?.isBreakLogin === true ? this.isStop = true : '' // 用户是否中断操作
@@ -1863,10 +1881,10 @@ export default {
           // 5、走登录接口
           if (this.phoneInfo_message_code) { // 如果验证码存在
             const error_need_otp_info = await this.$shopeemanService.login(mallInfo, this.flat, { vcode: this.phoneInfo_message_code }) // 返回数据结构要和外面的统一
-            if (error_need_otp_info.code === 200) {
-              code = error_need_otp_info.code
-              message = error_need_otp_info.data
-            }
+            // if (error_need_otp_info.code === 200) {
+            code = error_need_otp_info.code
+            message = error_need_otp_info.data.message
+            this.phoneInfo_message_code = ''
           }
         }
         return { code, data: message }
@@ -1915,7 +1933,7 @@ export default {
         await this.$appConfig.updateInfoMall(element.platform_mall_id, JSON.stringify(element)) // 更新壳内数据
         const params = {
           mallId: element.platform_mall_id,
-          webLoginInfo: JSON.stringify(element)
+          webLoginInfo: JSON.stringify(element.web_login_info)
         }
         const res = await this.mallListAPIInstance.uploadMallCookie(params) // 更新服务器数据
         if (res.code === 200) {

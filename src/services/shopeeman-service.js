@@ -81,7 +81,6 @@ export default class NetMessageBridgeService {
     }
     delete data.mallId // body 里面不能带店铺id
     options['params'] = data
-    debugger
     const referer = options['headers'] && options['headers'].referer
     if (referer) {
       options['headers'] = Object.assign(options['headers'],
@@ -90,7 +89,6 @@ export default class NetMessageBridgeService {
           referer: url + referer
         })
     }
-    debugger
     // console.log('-----', url, JSON.stringify(options))
     return this.NetMessageBridgeService().get(url, JSON.stringify(options))
   }
@@ -213,7 +211,8 @@ export default class NetMessageBridgeService {
     if (account.startsWith('0')) {
       account = account.substring(1)
     }
-    return country === 'SG' || country === 'ID' ? account : reg[country] + account
+    // return country === 'SG' || country === 'ID' ? account : reg[country] + account
+    return country === 'SG' ? account : reg[country] + account
   }
 
   // 获取店铺评价列表
@@ -265,7 +264,6 @@ export default class NetMessageBridgeService {
       acccount_info['username'] = phone
     }
     options.vcode ? params['vcode'] = options.vcode : ''
-
     let copy_mallInfo = null
     if (flat === 2) { // 导入店铺必须参数   flat 1 一键登陆  2导入店铺
       copy_mallInfo = JSON.parse(JSON.stringify(mallInfo))
