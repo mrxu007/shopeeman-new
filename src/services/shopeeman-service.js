@@ -36,7 +36,7 @@ export default class NetMessageBridgeService {
     if (userSettings.domain_switch === 'Abroad') {
       url = this.site_domain_local_pre[country]
     } else if (userSettings.domain_switch === 'Auto' && mall_main_id > 0 && (IPType.indexOf('大陆') === -1 || IPType === '1')) {
-      url = this.site_domain_chinese_pre[country]
+      url = this.site_domain_local_pre[country]
     }
     return url
   }

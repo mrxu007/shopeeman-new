@@ -114,14 +114,15 @@ export default class {
               orderDetailListFa = orderDetailListFa.concat(resDetail.data.orders)
               if (orderDetailList && orderDetailList.length) {
                 //过滤不是今天的订单 new Date().getTime()-item.create_time*1000 < 1*24*60*60*1000
-                let orderDetailListFilter = orderDetailList.filter(item => {
-                  return new Date().getTime() - item.create_time * 1000 > 1 * 24 * 60 * 60 * 1000
-                })
-                orderDetailListCount += orderDetailListFilter.length
-                await this.getOrderOtherInfo(orderDetailListFilter)
+                // let orderDetailListFilter = orderDetailList.filter(item => {
+                //   return new Date().getTime() - item.create_time * 1000 > 1 * 24 * 60 * 60 * 1000
+                // })
+                // orderDetailListCount += orderDetailListFilter.length
+                orderDetailListCount += orderDetailList.length
+                await this.getOrderOtherInfo(orderDetailList)
                 //检测订单是否需要上报
                 let checkedList = []
-                checkedList = await this.checkOrderSnStatus(orderDetailListFilter)
+                checkedList = await this.checkOrderSnStatus(orderDetailList)
                 checkedList.length && await this.upLoadOrders(checkedList)
               }
             }
@@ -247,14 +248,15 @@ export default class {
               orderDetailListFa = orderDetailListFa.concat(resDetail.data.orders)
               if (orderDetailList && orderDetailList.length) {
                 //过滤不是今天的订单 new Date().getTime()-item.create_time*1000 < 1*24*60*60*1000
-                let orderDetailListFilter = orderDetailList.filter(item => {
-                  return new Date().getTime() - item.create_time * 1000 < 1 * 24 * 60 * 60 * 1000
-                })
-                orderDetailListCount += orderDetailListFilter.length
-                await this.getOrderOtherInfo(orderDetailListFilter)
+                // let orderDetailListFilter = orderDetailList.filter(item => {
+                //   return new Date().getTime() - item.create_time * 1000 < 1 * 24 * 60 * 60 * 1000
+                // })
+                // orderDetailListCount += orderDetailListFilter.length
+                orderDetailListCount += orderDetailList.length
+                await this.getOrderOtherInfo(orderDetailList)
                 //检测订单是否需要上报
                 let checkedList = []
-                checkedList = await this.checkOrderSnStatus(orderDetailListFilter)
+                checkedList = await this.checkOrderSnStatus(orderDetailList)
                 checkedList.length && await this.upLoadOrders(checkedList)
               }
             }

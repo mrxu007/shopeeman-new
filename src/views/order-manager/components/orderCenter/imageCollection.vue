@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-12-01 10:57:37
- * @LastEditTime: 2021-12-01 15:13:11
+ * @LastEditTime: 2021-12-01 15:33:08
  * @LastEditors: Please set LastEditors
  * @Description: 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  * @FilePath: \shopeeman-new\src\views\order-manager\components\orderCenter\imageCollection.vue
@@ -168,10 +168,8 @@ export default {
           platform = '2'
           params = { ImageBase64: base64.replace('data:image/jpeg;base64,', '') }
         }
-
-        this.$collectService
-          .imgSearch(platform, JSON.stringify(params))
-          .then((res) => {
+        console.log(JSON.stringify(params))
+        this.$collectService.imgSearch(platform, JSON.stringify(params)).then((res) => {
             console.log('1111', res)
             this.tableLoading = false
             if (res.data.code === 0) {
@@ -182,29 +180,12 @@ export default {
                 this.tbSameList = res.data.data.data.offerList
                 // this.sameData.total = res.data.data.data.totalCount
               }
-              // 转为Number
-              //   this.$nextTick(() => {
-              //     this.tbSameList.length && this.tbSameList.map(item => {
-              //       if (item.tradePrice && item.tradePrice.offerPrice && item.tradePrice.offerPrice.valueString) {
-              //         item.tradePrice.offerPrice.valueString = Number(item.tradePrice.offerPrice.valueString)
-              //       }
-              //       if (item.tradeQuantity && item.tradeQuantity.saleQuantity) {
-              //         item.tradeQuantity.saleQuantity = Number(item.tradeQuantity.saleQuantity)
-              //       }
-              //       if (item.view_price) {
-              //         item.view_price = Number(item.view_price)
-              //       }
-              //       if (item.view_sales) {
-              //         item.view_sales = Number(item.view_sales.replace(/人付款/, ''))
-              //       }
-              //     })
-              //   })
             }
           })
-          .catch((err) => {
-            this.tableLoading = false
-            console.log(err)
-          })
+        //   .catch((err) => {
+        //     this.tableLoading = false
+        //     console.log(err)
+        //   })
       })
     },
     // url转base64

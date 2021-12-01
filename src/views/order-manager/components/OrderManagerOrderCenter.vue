@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-11-09 10:17:44
- * @LastEditTime: 2021-12-01 12:30:29
+ * @LastEditTime: 2021-12-01 15:24:39
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shopeeman-new\src\views\order-manager\components\OrderManagerOrderCenter.vue
@@ -1888,6 +1888,7 @@ export default {
       params['shotStatus'] = this.shotStatus.join(',')
       params['logisticsIds'] = this.logisticsIds.join(',')
       params['createTime'] = this.createTime.length ? this.createTime[0] + ' 00:00:00' + '/' + this.createTime[1] + ' 23:59:59' : ''
+      this.tableLoading = true
       let res = await this.$api.getOrderList(params)
       if (res.data.code === 200) {
         this.tableData = res.data.data.data
@@ -1899,6 +1900,7 @@ export default {
       } else {
         this.$message.error(res.data.message)
       }
+      this.tableLoading = false
       console.log(this.tableData)
     },
     //获取买手号（服务端）
