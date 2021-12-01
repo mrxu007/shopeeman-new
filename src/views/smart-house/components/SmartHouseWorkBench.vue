@@ -34,7 +34,9 @@
         <div class="line" />
         <div class="form-items">
           <div class="select-item">
-            <storeChoose style="margin-left:5px" @change="setMallId" />
+            <storeChoose :is-all="true" :show-mall-all="true" @changeMallList="setMallId" />
+
+            <!-- <storeChoose :is-all="true" style="margin-left:5px" @change="setMallId" /> -->
           </div>
         </div>
         <div class="select-item" style="margin-bottom: 5px; display:flex">
@@ -202,6 +204,9 @@
           </p> -->
           </template>
         </el-table-column>
+        <el-table-column label="发货金额" min-width="100px" prop="amount">
+          <template slot-scope="{row}"><span>{{ row.amount+'元' }}</span></template>
+        </el-table-column>
         <!-- <el-table-column
           label="运费参考(元)"
           width="100"
@@ -265,6 +270,23 @@
             </p>
           </template>
         </el-table-column>
+
+        <el-table-column label="运输方式" min-width="150px" prop="transport_type">
+          <template slot-scope="{row}"><span>{{ Number(row.transport_type)===1 ? '空运':'陆运' }}</span></template>
+        </el-table-column>
+        <el-table-column label="货物类型" min-width="150px" prop="package_type">
+          <template slot-scope="{row}"><span>{{ packageType[row.package_type] }}</span></template>
+        </el-table-column>
+        <el-table-column label="增值服务名称" min-width="150px" prop="">
+          <template slot-scope="{row}"><span>{{ row.ext_service && row.ext_service.name }}</span></template>
+        </el-table-column>
+        <el-table-column label="增值服务金额" min-width="150px" prop="">
+          <template slot-scope="{row}"><span>{{ row.ext_service && row.ext_service.price }}</span></template>
+        </el-table-column>
+        <el-table-column label="增值服务备注" min-width="150px" prop="">
+          <template slot-scope="{row}"><span>{{ row.ext_service && row.ext_service.remark }}</span></template>
+        </el-table-column>
+
       </el-table>
       <div class="pagination">
         <el-pagination
@@ -533,6 +555,7 @@ export default {
   },
   data() {
     return {
+
       detailLoading: false, // 查看订单包裹详情加载
       showlog: true,
       // colorStyle: 'width:50px;height:20px;background-color:',
@@ -679,43 +702,55 @@ export default {
         this.$message.warning('请输入备注')
         return
       }
-      this.isLoading = true
       const list = []
       this.multipleSelection.forEach(item => {
         list.push(item.package_order_sn)
       })
       try {
-        const query = {
-          packageOrderSn: list.toString(),
-          remark: this.newRemark
+        this.showlog = false
+        this.$refs.autoReplyLogs.writeLog(`批量备注订单开始......`)
+        for (let i = 0; i < this.multipleSelection.length; i++) {
+          const query = {
+            packageOrderSn: this.multipleSelection[i].package_order_sn,
+            remark: this.newRemark
+          }
+          const res = await this.$api.setUserRemark(query)
+          const data = res.data
+          if (data.code === 200) {
+            this.$refs.autoReplyLogs.writeLog(`订单号【${this.multipleSelection[i].package_order_sn}】，备注成功`, true)
+          } else {
+            this.$refs.autoReplyLogs.writeLog(`订单号【${this.multipleSelection[i].package_order_sn}】，${data.message}`, false)
+            continue
+          }
         }
-        const res = await this.$api.setUserRemark(query)
-        // console.log('000000000', res)
-        const data = res.data
-        if (data.code === 200) {
-          // this.$notify({
-          //   title: '批量备注',
-          //   type: 'success',
-          //   message: '操作成功'
-          // })
-          this.$message.success('操作成功')
-          this.orderPackage()
-        } else {
-          // this.$notify({
-          //   title: '批量备注',
-          //   type: 'error',
-          //   message: data.message
-          // })
-          this.$message.error(data.message)
-        }
+        this.$refs.autoReplyLogs.writeLog(`批量备注订单完成`)
+        // const query = {
+        //   packageOrderSn: list.toString(),
+        //   remark: this.newRemark
+        // }
+        // const res = await this.$api.setUserRemark(query)
+        // // console.log('000000000', res)
+        // const data = res.data
+        // if (data.code === 200) {
+        //   // this.$notify({
+        //   //   title: '批量备注',
+        //   //   type: 'success',
+        //   //   message: '操作成功'
+        //   // })
+        //   this.$message.success('操作成功')
+        //   this.orderPackage()
+        // } else {
+        //   // this.$notify({
+        //   //   title: '批量备注',
+        //   //   type: 'error',
+        //   //   message: data.message
+        //   // })
+        //   this.$message.error(data.message)
+        // }
         this.closeDialog5()
-        this.remarkVisible = false
-        this.isLoading = false
       } catch (err) {
         this.closeDialog5()
-        this.remarkVisible = false
-        console.log(err)
-        this.isLoading = false
+        // this.isLoading = false
       }
     },
     // 关闭备注弹窗
@@ -943,16 +978,24 @@ export default {
         this.shopAccountList = res
       })
     },
-    setMallId(ids) {
-      this.shopAccount = ids || []
-      console.log(this.shopAccount, ids)
+    setMallId(val) {
+      let arr = []
+      if (val.country === '' && val.length === 0 || val.length === this.shopAccountList.length) { // 点击站点  三个全选
+        arr = []
+      } else {
+        val.forEach(item => {
+          arr.push(item.id)
+        })
+      }
+      this.shopAccount = arr
     },
     // 查询列表
     async orderPackage() {
       this.orderPackageLoading = true
       this.tableData = []
       this.isLoading = true
-      const sysMallIds = this.shopAccount.join(',')
+      // const sysMallIds = this.shopAccount.join(',')
+      const sysMallIds = this.shopAccount.toString()
       const query = {
         page: this.currentPage,
         pageSize: this.pageSize,
@@ -1270,10 +1313,10 @@ export default {
       //   const item = list[i]
       //   sysOrderIds += ',' + item.id
       // }
-      const list = []
-      this.multipleSelection.forEach(item => {
-        list.push(item.sys_order_id)
-      })
+      // const list = []
+      // this.multipleSelection.forEach(item => {
+      //   list.push(item.sys_order_id)
+      // })
       try {
         this.showlog = false
         this.$refs.autoReplyLogs.writeLog(`正在给订单号标识颜色......`)
@@ -1441,7 +1484,8 @@ export default {
         exceptionType: this.exceptionType,
         deliveryStatus: this.deliveryStatus,
         colorLabelId: this.colorLabelId,
-        sysMallIds: this.shopAccount.join(',')
+        // sysMallIds: this.shopAccount.join(',')
+        sysMallIds: this.shopAccount.toString()
       }
       params.page = page
       params.pageSize = 200
@@ -1465,11 +1509,12 @@ export default {
             continue
           }
           item.mall_alias_name = getValue(this.shopAccountList, 'label', 'id', item.sys_mall_id)
-          item.site = getValue(this.siteList, 'label', 'value', item.country)
+          // item.site = getValue(this.siteList, 'label', 'value', item.country)
           item.statusText = getValue(statusList, 'label', 'deliveryStatus', item.delivery_status)
           item.exceptionText = getValue(exceptionList, 'label', 'exception_type', item.exception_type)
           item.orderStatusText = getValue(orderStatusList, 'label', 'order_status', item.order_status)
-          item.colorText = getValue(this.colorLogoList, 'label', 'id', item.color_id) || '无'
+          // item.colorText = getValue(this.colorLogoList, 'label', 'id', item.color_id) || '无'
+          item.colorinfo = getColorinfo(this.colorLogoList, item.color_id) || ''
         }
         this.total = data.data.total
         if (this.exportOrderList[this.exportIndex]) {
@@ -1508,37 +1553,42 @@ export default {
     importBilling(exportOrderList) {
       // console.log(exportOrderList, this.exportIndex)
       let num = 1
-      let str = `<tr><td>编号</td><td>站点</td><td>店铺名称</td><td>仓库</td><td>颜色标识</td><td>订单编号</td><td>数量</td><td>商品名称</td><td>包裹重量(g)</td><td>运输方式</td><td>货物类型</td><td>是否等待子包裹发货</td>
+      let str = `<tr><td>编号</td><td>站点</td><td>店铺名称</td><td>仓库</td><td>颜色标识</td><td>订单编号</td><td>数量</td><td>包裹重量(g)</td><td>发货金额</td><td>运输方式</td><td>货物类型</td><td>是否等待子包裹发货</td>
             <td>订单发货状态</td><td>异常类型</td><td>订单创建时间</td><td>订单平台状态</td><td>截止发货时间</td><td>入库时间</td><td>出库时间</td>
             <td>入库图片</td><td>出库图片</td><td>仓库备注</td><td>用户备注</td>
+            <td>增值服务名称</td><td>增值服务金额</td><td>增值服务备注</td>
             </tr>`
       for (let index = 0; index <= this.exportIndex; index++) {
         const jsonData = exportOrderList[index]
         console.log(jsonData)
         jsonData.forEach((item) => {
           str += `<tr><td>${num++}</td>
-                <td>${item.site + '\t'}</td>
-                <td>${item.mall_alias_name ? item.mall_alias_name : item.platform_mall_name}</td>
+                <td>${this.$filters.chineseSite(item.country) + '\t'}</td>
+                <td>${item.mall_alias_name ? item.mall_alias_name : '' + '\t'}</td>
                 <td>${item.warehouse_name}</td>
-                <td>${item.colorText ? item.colorText : ''}</td>
+                <td>${item.colorinfo ? item.colorinfo.name : '' + '\t'}</td>
                 <td style="mso-number-format:'\@';">${item.package_order_sn ? item.package_order_sn : ''}</td>
-                <td>${item.goods_count ? item.goods_count : ''}</td>
-                <td>${item.goods_name ? item.goods_name : ''}</td>
+                <td>${item.goodsCount ? item.goodsCount : ''}</td>
                 <td>${item.package_weight ? item.package_weight : ''}</td>
+                <td>${item.amount ? item.amount + '元' : ''}</td>
                 <td>${item.transport_type ? this.transportType[item.transport_type] : ''}</td>
                 <td>${item.package_type ? this.packageType[item.package_type] : ''}</td>
-                <td>${item.is_mark_outbound > 0 ? '否' : '是'}</td>
+                <td>${item.is_mark_outbound > 0 ? '是' : '否'}</td>
                 <td>${item.statusText ? item.statusText : ''}</td>
                 <td>${item.exceptionText ? item.exceptionText : ''}</td>
                 <td>${item.order_created_time}</td>
-                <td>${item.orderStatusText ? item.orderStatusText : ''}</td>
+                <td>${item.order_status ? this.orderStatusList[item.order_status] : ''}</td>
                 <td>${item.order_ship_by_date ? item.order_ship_by_date : ''}</td>
                 <td>${item.storage_time ? item.storage_time : ''}</td>
                 <td>${item.outbound_time ? item.outbound_time : ''}</td>
                 <td>${item.storage_image ? item.storage_image : '' + '\t'}</td>
                  <td>${item.outbound_image ? item.outbound_image : '' + '\t'}</td>
-              <td>${item.remark ? item.remark : '' + '\t'}</td>
+               <td>${item.remark ? item.remark : '' + '\t'}</td>
                <td>${item.user_remark ? item.user_remark : '' + '\t'}</td>
+               <td>${item.ext_service ? item.ext_service.name : '' + '\t'}</td>
+               <td>${item.ext_service ? item.ext_service.price : '' + '\t'}</td>
+               <td>${item.ext_service ? item.ext_service.remark : '' + '\t'}</td>
+
                 </tr>`
         })
       }

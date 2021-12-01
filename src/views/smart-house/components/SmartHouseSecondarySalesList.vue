@@ -95,7 +95,9 @@
             </template>
           </el-table-column>
           <el-table-column prop="goods_count" label="商品数量" min-width="120px" align="center" />
-          <el-table-column prop="goods_price" label="商品价格" min-width="120px" align="center" />
+          <el-table-column prop="goods_price" label="商品价格" min-width="120px" align="center">
+            <template slot-scope="{row}"><span>{{ row.goods_price }}{{ row.country | siteCoin }}</span></template>
+          </el-table-column>
           <el-table-column prop="variation_name" label="商品规格" min-width="180px" align="center" />
           <el-table-column prop="variation_id" label="商品货号（skuid）" min-width="140px" align="center" />
           <el-table-column prop="goods_name" label="商品名称" min-width="150px" align="center">
