@@ -129,7 +129,11 @@
                 </template>
               </el-table-column>
               <el-table-column align="center" prop="platform_mall_id" label="店铺ID" />
-              <el-table-column align="center" prop="platform_mall_name" label="店铺名称" />
+              <el-table-column align="center" label="店铺名称" show-overflow-tooltip>
+                <template v-slot="{ row }">
+                  {{ row.mall_alias_name ? row.mall_alias_name : row.platform_mall_name }}
+                </template>
+              </el-table-column>
               <el-table-column align="center" prop="group_name" label="已绑定分组" />
               <u-table-column align="center" label="操作">
                 <template slot="header" slot-scope="scope">

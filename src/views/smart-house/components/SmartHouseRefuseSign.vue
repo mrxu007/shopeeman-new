@@ -1,32 +1,7 @@
 <template>
-  <div v-loading="isLoading" class="refuse-sign">
+  <div class="refuse-sign">
     <div class="operating-box">
       <div class="form-item">
-        <span style="margin-left: 20px">添加时间：</span>
-        <el-date-picker
-          v-model="createdAt"
-          size="mini"
-          value-format="yyyy-MM-dd"
-          type="daterange"
-          style="width: 195px;margin-right: 20px"
-          range-separator="-"
-          :picker-options="pickerOptions"
-          start-placeholder="开始日期"
-          end-placeholder="结束日期"
-        />
-        <span class="title">类别：</span>
-        <el-select
-          v-model="Type"
-          style="width: 100px;margin-right: 20px"
-          size="mini"
-        > <el-option label="全部" :value="0" />
-          <el-option
-            v-for="item in typeList"
-            :key="item.value"
-            :label="item.label"
-            :value="item.value"
-          />
-        </el-select>
         <span class="title">采购物流单号：</span>
         <el-input
           v-model="trackingNumber"
@@ -39,20 +14,19 @@
           type="primary"
           size="mini"
           :loading="serchLoading"
-          style="width:80px;height:30px"
           @click="serchData(1)"
         >搜索</el-button>
         <el-button
           type="primary"
           size="mini"
-          style="margin-left: 10px;width:80px;height:30px"
           @click="dialogVisible=true"
         >添加</el-button>
       </div>
     </div>
     <div class="table-box">
       <el-table
-        height="calc(100vh - 170px)"
+        v-loading="isLoading"
+        height="calc(100vh - 150px)"
         :data="tableData"
         tooltip-effect="dark"
         style="width: 100%"
@@ -61,9 +35,10 @@
           backgroundColor: '#f5f7fa'
         }"
         :cell-style="{ textAlign: 'center' }"
-      >      <el-table-column label="序号" align="center" width="50px">
-               <template slot-scope="scope">{{ scope.$index + 1 }}</template>
-             </el-table-column>
+      >
+        <el-table-column label="序号" align="center" width="50px">
+          <template slot-scope="scope">{{ scope.$index + 1 }}</template>
+        </el-table-column>
         <el-table-column label="采购物流单号" prop="value" min-width="140px">
           <template slot-scope="scope">
             <span>{{ scope.row.value }}
@@ -75,6 +50,7 @@
               /></span></span>
           </template>
         </el-table-column>
+        <el-table-column label="仓库名称" prop="warehouse_name" min-width="90px" />
         <el-table-column label="类别" prop="orderType" min-width="90px" />
         <el-table-column label="添加时间" prop="created_at" min-width="150px" />
         <el-table-column label="拒收时间" prop="appli_rejected_time" min-width="150px" />
@@ -115,6 +91,8 @@
       title="添加签收管理信息"
       :visible.sync="dialogVisible"
       width="360px"
+      :close-on-press-escape="false"
+      :close-on-click-modal="false"
       @closed="trackingNumberAdd=''"
     >
       <p style="font-size: 14px;padding: 0px 14px 0 31px"><span style="color: red">*</span>申请类别：   <el-select
@@ -137,8 +115,8 @@
         <el-option
           v-for="item in warehouseUserList"
           :key="item.value"
-          :label="item.label"
-          :value="item.value"
+          :label="item.warehouse_name"
+          :value="item.id"
         />
       </el-select></p>
 
@@ -150,10 +128,16 @@
       /></p>
       <span slot="footer" style="text-align: center;display: block;margin:-10px 0 10px" class="dialog-footer">
         <el-button
-          size="small"
-          style="width: 80px;;margin-right:20px"
+          size="mini"
           @click="dialogVisible = false"
-        >取 消</el-button><el-button size="small" style="width: 80px;margin:0 " type="primary" @click="packageSign">确 定</el-button>
+        >取 消</el-button>
+        <el-button
+          :loading="addLoding"
+          size="mini"
+          type="primary"
+          style="margin-left:20px"
+          @click="packageSign"
+        >确 定</el-button>
       </span>
     </el-dialog>
   </div>
@@ -165,6 +149,7 @@ import { getValue, creatDate } from '../../../util/util'
 export default {
   data() {
     return {
+      addLoding: false,
       warehouseUserList: [],
       warehouseUserId: '', // 仓库id
       serchLoading: false,
@@ -200,19 +185,22 @@ export default {
   mounted() {
     this.createdAt = creatDate(30)
     this.serchData()
-    this.warehouseAddress()// 获取仓库信息
+    this.getUserWarehouse()// 获取仓库信息
     // this.getstory()
   },
   methods: {
-    async warehouseAddress() {
-      const res = await this.$api.warehouseAddress()
-      this.warehouseUserList = []
+    async getUserWarehouse() {
+      const res = await this.$api.getUserWarehouse()
+      this.warehouseUserList
       if (res.data.code === 200) {
-        res.data.data.forEach(e => {
-          this.warehouseUserList.push({ 'label': e.warehouse_name, 'value': e.id })
+        this.warehouseUserList = res.data.data.filter(item => {
+          return item.isUser === 0
         })
+        this.warehouseUserId = this.warehouseUserList[0].id
+        console.log('warehouseUserList', res.data.data)
+      } else {
+        this.$message.error('获取仓库数据失败')
       }
-      console.log(res.data)
     },
     // 翻页
     newPage(val) {
@@ -232,8 +220,7 @@ export default {
       const params = {
         pages: page || 1,
         pageSize: this.pageSize,
-        trackingNumber: this.trackingNumber,
-        type: this.Type
+        trackingNumber: this.trackingNumber
       }
       if (this.createdAt && this.createdAt.length) {
         params.createdAt = this.setDateFmt(this.createdAt).join('/')
@@ -249,8 +236,9 @@ export default {
           }
           this.total = data.data.total
           this.tableData = list
+          console.log('tableData', this.tableData)
         } else {
-          this.$notify({
+          this.$message({
             type: 'error',
             message: data.message
           })
@@ -266,17 +254,9 @@ export default {
     // 添加拒签
     async packageSign() {
       if (!this.trackingNumberAdd) {
-        return this.$notify({
-          type: 'error',
-          message: '请填写物流单号'
-        })
+        return this.$message('请填写物流单号')
       }
-      if (!this.warehouseUserId) {
-        return this.$notify({
-          type: 'error',
-          message: '请选择物流仓库'
-        })
-      }
+      this.addLoding = true
       const query = {
         trackingNumber: this.trackingNumberAdd,
         type: this.chooseType,
@@ -288,12 +268,12 @@ export default {
         if (data.code === 200) {
           this.dialogVisible = false
           this.serchData()
-          this.$notify({
+          this.$message({
             type: 'success',
             message: '添加成功'
           })
         } else {
-          this.$notify({
+          this.$message({
             type: 'error',
             message: data.message
           })
@@ -302,37 +282,43 @@ export default {
         console.log(err)
         // this.$message.error('添加失败')
       }
+      this.addLoding = false
     },
     // 取消拒收 删除
     async cancelSign(ids) {
-      this.isLoading = true
-      const query = {
-        ids
-      }
-      try {
-        const { data } = await this.$api.cancelSign(query)
-        console.log(data.code, '---')
-        if (data.code === 200) {
-          this.serchData()
-
-          this.$notify({
-            type: 'success',
-            message: '删除成功'
-          })
-        } else {
-          this.$notify({
-            type: 'error',
-            message: data.message
-          })
+      this.$confirm('数据无法恢复，确定删除吗, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(async() => {
+        this.isLoading = true
+        const query = {
+          ids
         }
-        this.isLoading = false
-        this.serchData()
-      } catch (err) {
-        console.log(err)
-        this.isLoading = false
-        this.serchData()
+        try {
+          const { data } = await this.$api.cancelSign(query)
+          if (data.code === 200) {
+            this.serchData()
+
+            this.$message({
+              type: 'success',
+              message: '删除成功'
+            })
+          } else {
+            this.$message({
+              type: 'error',
+              message: data.message
+            })
+          }
+          this.isLoading = false
+          this.serchData()
+        } catch (err) {
+          console.log(err)
+          this.isLoading = false
+          this.serchData()
         // this.$message.error('删除失败')
-      }
+        }
+      })
     },
     // 日期选择器时间处理
     setDateFmt(data) {
@@ -354,7 +340,7 @@ export default {
         window.getSelection().addRange(range)
         document.execCommand('copy')
         window.getSelection().removeAllRanges()
-        this.$notify({
+        this.$message({
           type: 'success',
           message: '复制成功'
         })
@@ -385,7 +371,7 @@ export default {
     .form-item {
       display: flex;
       align-items: center;
-
+      width: 450px;
       .title {
         text-align: right;
       }

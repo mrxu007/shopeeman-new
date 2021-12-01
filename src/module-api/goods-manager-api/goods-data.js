@@ -1,5 +1,3 @@
-import { lowerCase } from 'lodash'
-
 export default class GoodsManagerAPI {
   constructor(that) {
     this._this = that

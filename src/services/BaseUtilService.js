@@ -116,4 +116,8 @@ export default class BaseUtilService {
   async getLazadaDetailAddress(provinceid, contry) {
     return await this.nativeService.getLazadaDetailAddress(provinceid, contry)
   }
+  // 下载条形码
+  downloadBarCode(data) {
+    return this.nativeService.downloadBarCode([data])
+  }
 }

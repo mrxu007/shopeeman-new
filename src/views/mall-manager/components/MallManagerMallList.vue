@@ -90,6 +90,7 @@
       <u-table
         ref="plTable"
         v-loading="buttonStatus.mallList"
+        :row-height="rowHeight"
         :max-height="Height"
         use-virtual
         :data-changes-scroll-top="false"
@@ -446,10 +447,10 @@
           </el-radio-group>
         </li>
         <el-upload v-if="imageOrigin === '2'" class="avatar-uploader" :show-file-list="false" action="" :on-error="imgSaveToUrl2" :before-upload="beforeAvatarUpload2">
-          <img v-if="imageUrl" :src="imageUrl" class="avatar" style="width: 460px; height: 450px" />
+          <img v-if="imageUrl" :src="imageUrl" class="avatar" style="width: 460px; height: 450px">
           <i v-else class="el-icon-plus avatar-uploader-icon" />
         </el-upload>
-        <img v-else :src="imageUrl" style="width: 460px; height: 450px" />
+        <img v-else :src="imageUrl" style="width: 460px; height: 450px">
       </ul>
       <span slot="footer" class="dialog-footer">
         <el-button type="primary" size="mini" @click="BatchUpdateMallBk">确 定</el-button>
@@ -564,9 +565,9 @@
           </div>
           <div class="dialog_item">
             <el-checkbox v-model="addressQuery.default" style="margin: 5px 0" label="设为默认地址" />
-            <br />
+            <br>
             <el-checkbox v-model="addressQuery.take" style="margin: 5px 0" label="设为取件地址" />
-            <br />
+            <br>
             <el-checkbox v-model="addressQuery.backMail" style="margin: 5px 0" label="设为回邮地址" />
           </div>
           <div class="dialog_item">
@@ -621,7 +622,7 @@ export default {
       LogisticsList: {},
       activeNames: [],
       height: 300,
-      rowHeight: 50,
+      rowHeight: 100,
       mallListAPIInstance: new MallListAPI(this),
       isIPType: 0,
       consoleMsg: '',

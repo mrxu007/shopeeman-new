@@ -5,7 +5,33 @@ export default class StrockUpHome {
   constructor(that) {
     this._this = that
   }
-
+  // 下载条形码
+  async downloadBarCode(params) {
+    try {
+      const res = await this._this.$BaseUtilService.downloadBarCode(params)
+      const jsonData = this.isJsonString(res)
+      console.log(jsonData)
+      if (jsonData.code === 200) {
+        return { code: 200 }
+      }
+      return { code: jsonData.code, data: `${jsonData.msg}` }
+    } catch (error) {
+      return { code: -2, data: `下载条形码异常： ${error}` }
+    }
+  }
+  // 判断能否转JSON
+  isJsonString(str) {
+    if (typeof str === 'string') {
+      try {
+        JSON.parse(str)
+        return JSON.parse(str)
+      } catch (e) {
+        return str
+      }
+    } else {
+      return str
+    }
+  }
   // 获取预报单列表
   async getHomeWarehouse(val) {
     try {

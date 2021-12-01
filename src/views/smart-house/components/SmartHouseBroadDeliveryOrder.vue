@@ -93,7 +93,7 @@
       <el-table
         ref="plTable"
         v-loading="isShowLoading"
-        height="calc(100vh - 205px)"
+        height="calc(100vh - 210px)"
         :data="tableData"
         :header-cell-style="{
           backgroundColor: '#f5f7fa',
@@ -118,6 +118,7 @@
           label="站点"
           min-width="100"
           align="center"
+          show-overflow-tooltip
           fixed
         >
           <template slot-scope="{row}">
@@ -129,6 +130,7 @@
           label="订单编号"
           min-width="135"
           align="center"
+          show-overflow-tooltip
           fixed
         />
         <el-table-column
@@ -136,6 +138,7 @@
           label="平台物流单号"
           align="center"
           min-width="130"
+          show-overflow-tooltip
         />
         <el-table-column
           label="所属仓库"
@@ -160,6 +163,7 @@
           label="状态"
           align="center"
           min-width="150"
+          show-overflow-tooltip
         >
           <template slot-scope="{row}">
             {{ row.status?statusObj[row.status]:'' }}
@@ -190,7 +194,8 @@
           prop="remark"
           label="仓库备注"
           align="center"
-          min-width="100"
+          min-width="150"
+          show-overflow-tooltip
         />
         <el-table-column
           prop="goods_price"
@@ -347,7 +352,9 @@
               <el-image
                 style="width: 40px; height: 40px"
                 :src="row.sku_image"
-              />
+              >
+                <div slot="error" class="image-slot" />
+              </el-image>
             </el-tooltip>
           </template>
         </el-table-column>
@@ -545,6 +552,8 @@
                 <div slot="placeholder" class="image-slot">
                   加载中<span class="dot">...</span>
                 </div>
+                >
+                <div slot="error" class="image-slot" />
               </el-image>
             </el-tooltip>
           </template>
@@ -714,6 +723,7 @@ export default {
           pamars['wid'] = element.wid
           pamars['overseaOrderSn'] = element.oversea_order_sn
           const res = await this.BroadDeliveryOrder.cancelOverseaOrder(pamars)
+          console.log('cancelOverseaOrder', res)
           if (res.code === 200) {
             this.$set(element, 'orderStatus', '取消订单成功')
             this.$set(element, 'color', 'green')

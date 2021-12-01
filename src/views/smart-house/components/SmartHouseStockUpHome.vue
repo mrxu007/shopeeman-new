@@ -215,12 +215,12 @@
       class="details-dialog"
       title="预报商品详情"
       :visible.sync="detailsVisible"
-      width="800px"
+      width="1000px"
       :close-on-click-modal="false"
       :close-on-press-escape="false"
     >
       <el-table
-        height="420"
+        height="450"
         :data="detailsData"
         :header-cell-style="{
           backgroundColor: '#f5f7fa',
@@ -254,10 +254,11 @@
           </template>
         </el-table-column>
         <el-table-column
-          width="120"
+          width="140"
           align="center"
           label="商品编号(SKU)"
           prop="sku_id"
+          show-overflow-tooltip
         />
         <el-table-column
           width="150"
@@ -270,6 +271,7 @@
           align="center"
           label="商品名称"
           prop="goods_name"
+          show-overflow-tooltip
         />
         <el-table-column
           width="100"
@@ -314,7 +316,9 @@
               <el-image
                 style="width: 40px; height: 40px"
                 :src="row.sku_image"
-              />
+              >
+                <div slot="error" class="image-slot" />
+              </el-image>
             </el-tooltip>
           </template>
         </el-table-column>
@@ -340,6 +344,7 @@
       title="预报中转仓备货商品"
       :visible.sync="foreignVisible"
       width="1200px"
+      top="8vh"
       :close-on-click-modal="false"
       :close-on-press-escape="false"
       :before-close="foreignClose"
@@ -445,6 +450,7 @@
           width="130"
           align="center"
           label="商品名称"
+          show-overflow-tooltip
         >
           <template slot-scope="{row}">
             {{ row.skuList[0].goods_name }}
@@ -502,7 +508,9 @@
               <el-image
                 style="width: 40px; height: 40px"
                 :src="row.skuList[0].sku_image"
-              />
+              >
+                <div slot="error" class="image-slot" />
+              </el-image>
             </el-tooltip>
           </template>
         </el-table-column>
@@ -546,6 +554,7 @@
       title="导入预报"
       :visible.sync="itselfGoodsVisible"
       width="1200px"
+      top="8vh"
       :close-on-click-modal="false"
       :close-on-press-escape="false"
     >
@@ -625,6 +634,7 @@
                 align="center"
                 label="商品名称"
                 prop="product_name"
+                show-overflow-tooltip
               />
               <el-table-column
                 width="80"
@@ -801,16 +811,18 @@
               }"
             >
               <el-table-column
-                width="100"
+                width="120"
                 align="center"
                 label="SkuID"
                 prop="sku_id"
+                show-overflow-tooltip
               />
               <el-table-column
-                width="160"
+                width="100"
                 align="center"
                 label="Sku名称"
                 prop="sku_name"
+                show-overflow-tooltip
               />
               <el-table-column
                 width="80"
@@ -836,7 +848,9 @@
                     <el-image
                       style="width: 40px; height: 40px"
                       :src="row.image_url"
-                    />
+                    >
+                      <div slot="error" class="image-slot" />
+                    </el-image>
                   </el-tooltip>
                 </template>
               </el-table-column>
@@ -977,16 +991,18 @@
           label="序号"
         />
         <el-table-column
-          width="110"
+          width="120"
           align="center"
           label="SkuID"
           prop="sku_id"
+          show-overflow-tooltip
         />
         <el-table-column
           width="100"
           align="center"
           label="Sku名称"
           prop="sku_name"
+          show-overflow-tooltip
         />
         <el-table-column
           width="80"
@@ -1012,7 +1028,9 @@
               <el-image
                 style="width: 40px; height: 40px"
                 :src="row.image_url"
-              />
+              >
+                <div slot="error" class="image-slot" />
+              </el-image>
             </el-tooltip>
           </template>
         </el-table-column>
@@ -1044,7 +1062,6 @@
 <script>
 import StrockUpHome from '../../../module-api/smart-house-api/strock-up-home'
 import { exportExcelDataCommon } from '../../../util/util'
-import { exportPdfData, downloadZip } from '../../../util/download'
 import ProductChoose from '../../../components/product-choose.vue'
 import XLSX from 'xlsx'
 import { data } from 'cheerio/lib/api/attributes'
@@ -1241,9 +1258,17 @@ export default {
     // 选择需要预报的SKU确认
     confirmSku() {
       if (!this.skuDetailsSelection?.length) return this.$message('请选择需要预报的SKU')
-      this.skuDetailsSelection.map(item => {
-        this.goodsForeignData.push(item)
-      })
+      for (let index = 0; index < this.skuDetailsSelection.length; index++) {
+        const element1 = this.skuDetailsSelection[index]
+        for (let index = 0; index < this.goodsForeignData.length; index++) {
+          const element2 = this.goodsForeignData[index]
+          if (element1.sku_id === element2.sku_id) {
+            this.$message(`SkuID【${element1.sku_id}】已存在，请勿重复添加`)
+            return
+          }
+        }
+        this.goodsForeignData.push(element1)
+      }
       this.goodsForeignData.map((item, index) => {
         this.skuList.long[index] = '0'
         this.skuList.width[index] = '0'
@@ -1371,66 +1396,47 @@ export default {
     },
     // 下载条形码
     async downBarCode() {
-      const arrPDF = []
-      if (!this.multipleSelection?.length) return this.$message('请选择需要导出的数据')
+      const params = {
+        BarCodeList: []
+      }
+      if (!this.multipleSelection?.length) return this.$message('请选择需要下载的数据')
       this.showConsole = false
-      this.$refs.Logs.writeLog('开始批量生成预报单条形码...', true)
-      for (let index = 0; index < this.multipleSelection.length; index++) {
-        const element1 = this.multipleSelection[index]
-        for (let index = 0; index < element1.home_stocking_forecast_sub.length; index++) {
-          const element2 = element1.home_stocking_forecast_sub[index]
-          if (!element2.purchase_num) {
-            this.$refs.Logs.writeLog(`【${element1.package_code}】的商品SkuId【${element2.sku_id}】对应的商品数量为空`, false)
-            continue
-          }
-          if (!element2.sys_sku_id) {
-            this.$refs.Logs.writeLog(`【${element1.package_code}】的商品SkuId【${element2.sku_id}】对应的系统商品ID为空`, false)
-            continue
-          }
-          if (!element2.sku_spec) {
-            this.$refs.Logs.writeLog(`【${element1.package_code}】的商品SkuId【${element2.sku_id}】对应的商品名称为空`, false)
-            continue
-          }
-          const template = `
-              <div id="faceId">
-                <img id="barcode" style="width:285px;padding:0 10px">
-                <ul style="padding:0 50px">
-                  <li style="margin-bottom:10px">
-                    <span>物流单号：${element1.package_code}</span>
-                  </li>
-                  <li style="margin-bottom:10px">
-                    <span>采购单号：${element1.purchase_order_sn}</span>
-                  </li>
-                  <li style="margin-bottom:10px">
-                    <span>商品SkuId：${element2.sku_id}</span>
-                  </li>
-                  <li style="margin-bottom:10px">
-                    <span>商品数量：${element2.purchase_num}</span>
-                  </li>
-                  <li style="margin-bottom:10px">
-                    <span>系统SkuId：${element2.sys_sku_id}</span>
-                  </li>
-                  <li>
-                    <span>商品名称：${element2.sku_spec}</span>
-                  </li>
-                </ul>
-            </div>
-            `
-          const createDiv = document.createElement('div')
-          createDiv.innerHTML = template
-          document.body.appendChild(createDiv)// 添加到BODY节点中
-          const pdfBase64 = await exportPdfData('#barcode', element2.sys_sku_id, '#faceId')
-          document.querySelector('#faceId').parentElement.removeChild(document.querySelector('#faceId'))
+      this.$refs.Logs.writeLog('开始批量生成预报单条形码至软件安装目录...', true)
+      for (let i = 0; i < this.multipleSelection.length; i++) {
+        const item1 = this.multipleSelection[i]
+        params['UniqueCode'] = item1.package_code
+        params['AllFilePath'] = `中转仓预报单条形码\\${item1.package_code}\\${item1.package_code}合并面单.PDF`
+        params['DirectoryName'] = `中转仓预报单条形码\\${item1.package_code}`
+        params['FileWidth'] = 220
+        params['FileHeight'] = 250
+        params['BarCodeList'] = []
+        for (let j = 0; j < item1.home_stocking_forecast_sub.length; j++) {
+          const item2 = item1.home_stocking_forecast_sub[j]
           const obj = {
-            fileUrl: pdfBase64,
-            renameFileName: `${element1.package_code}-${element2.sys_sku_id}.pdf`
+            BarCodeContent: [
+              `物流单号:${item1.package_code}`,
+              `采购单号:${item1.purchase_order_sn}`,
+              `商品SkuId:${item2.sku_id}`,
+              `商品数量:${item2.purchase_num}`,
+              `系统SkuId:${item2.sys_sku_id}`,
+              `商品名称:${item2.sku_spec}`
+            ]
           }
-          arrPDF.push(obj)
-          this.$refs.Logs.writeLog(`【${element2.sys_sku_id}】条形码生成成功`, true)
+          obj['BarCode'] = item2.sys_sku_id
+          obj['BarCodeWidth'] = 200
+          obj['BarCodeHeight'] = 50
+          obj['FontSize'] = 11
+          obj['FilePath'] = `中转仓预报单条形码\\${item1.package_code}\\${item2.sys_sku_id}.PDF`
+          params['BarCodeList'].push(obj)
+        }
+        const res = await this.StrockUpHome.downloadBarCode(params)
+        if (res.code === 200) {
+          this.$refs.Logs.writeLog(`【${item1.package_code}】条形码生成成功`, true)
+        } else {
+          this.$refs.Logs.writeLog(`【${item1.package_code}】条形码生成失败：${res.data}`, false)
         }
       }
-      await downloadZip(arrPDF, '国内仓商品备货预报单条形码')
-      this.$refs.Logs.writeLog(`批量生成条形码完成`, true)
+      this.$refs.Logs.writeLog('批量生成条形码完成', true)
     },
     // SKU详情
     async getProductSkuList(row) {
