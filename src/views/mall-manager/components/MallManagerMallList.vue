@@ -12,11 +12,8 @@
                 size="mini"
                 filterable
                 class="unnormal2"
-                @change="
-                  groupId = ''
-                  getGroup
-                "
-              >
+                @change="groupId = ''
+                  getGroup">
                 <el-option label="全部" :value="''" />
                 <el-option v-for="(item, index) in countries" :key="index" :label="item.label" :value="item.value" />
               </el-select>
