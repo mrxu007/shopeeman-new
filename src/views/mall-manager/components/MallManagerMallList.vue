@@ -12,8 +12,11 @@
                 size="mini"
                 filterable
                 class="unnormal2"
-                @change="groupId = ''
-                  getGroup">
+                @change="
+                  groupId = ''
+                  getGroup
+                "
+              >
                 <el-option label="全部" :value="''" />
                 <el-option v-for="(item, index) in countries" :key="index" :label="item.label" :value="item.value" />
               </el-select>
@@ -175,7 +178,7 @@
         </u-table-column>
         <u-table-column align="center" prop="mall_status" label="店铺状态">
           <template v-slot="{ row }">
-            {{ row.mall_status===1 ? '正常' : '冻结' }}
+            {{ row.mall_status === 1 ? '正常' : '冻结' }}
           </template>
         </u-table-column>
         <u-table-column align="center" prop="created_at" label="授权日期" min-width="120px" />
@@ -1820,22 +1823,82 @@ export default {
     async handleReturnLogin(mallInfo, result) {
       let code = result.code
       let message = result.data.message
+      const SetCookie = result.data.SetCookie
       const returnData = result.data.data
-      const mallId = mallInfo.platform_mall_id + ''
+      mallInfo.platform_mall_id = `${mallInfo.platform_mall_id}`
       this.phoneInfo_accountName = mallInfo.mall_account_info.username
-      // this.needIvsInfo = testData
+      const mallInfo_new = { // 通知壳更新店铺信息 (导入店铺、一键登陆) 数据结构与壳内店铺信息一致
+        'IPIsExpired': true,
+        'IsOpenSIP': false,
+        'ProxyType': 'ssr',
+        'IsTransit': 0,
+        'IPType': '',
+        'GroupName': '', // 店铺分组
+        'web_login_info': { // 店铺cookie信息(导入店铺专用)(更新壳)
+          'SPC_CDS_VER': '2',
+          'SPC_EC': '',
+          'ShopeeUid': '',
+          'SPC_F': SetCookie,
+          'CNSC_SSO': '',
+          'SPC_CNSC_TK': '',
+          'SPC_CNSC_UD': '',
+          'SC_DFP': '',
+          'SPC_SC_SA_UD': '',
+          'SPC_SC_SA_TK': '',
+          'SPC_SC_UD': '',
+          'token': '',
+          'cstoken': '',
+          'satoken': '',
+          'sso': '',
+          'shopeeuid': '',
+          'shopid': '',
+          'portrait': '',
+          'userRealName': '',
+          'mainAccountId': '',
+          'spc_f': SetCookie,
+          'SPC_SC_TK': '',
+          'OtherCookieInfo': '',
+          'spcf_update_time': ''
+        }, // 店铺cookie
+        'MallMainName': '',
+        'id': 0,
+        'uid': 0,
+        'country': mallInfo.country, // 国家
+        'platform_mall_name': mallInfo.mall_account_info.username,
+        'platform_mall_id': mallInfo.platform_mall_id, // 店铺平台ID
+        'platform_mall_uid': '', // 店铺平台卖家ID
+        'is_global': 0,
+        'mall_main_id': 0,
+        'mall_account_info': mallInfo.mall_account_info, // 店铺账户信息(导入模板里面的信息)
+        //  { 'password': 'Bibbyrunp888',
+        //   'username': 'bibbyrunp1907',
+        //   'userRealName': 'bibbyrunp1907',
+        //   'subsiteindex': 0
+        // },
+        'watermark': '', // 店铺水印
+        'mall_alias_name': '', // 店铺别名
+        'mall_type': '1', // 店铺类型
+        'mall_group_id': '' // 店铺分组id
+      }
+      if (this.flat === 2) { // 导入店铺给建立一个临时模板
+        mallInfo.platform_mall_id = '8888888888'
+        await this.$appConfig.updateInfoMall(mallInfo.platform_mall_id, JSON.stringify(mallInfo_new)) // 更新里面店铺的cookie （壳）
+      }
+      // code = 'error_need_ivs'
       try {
         if (code === 'error_need_ivs') { // 需要进行IVS验证 调LoginNeedPopUps 服务弹框
-          await window.BaseUtilBridgeService.loginNeedPopUps('needIvs', JSON.stringify({ 'loginType': 'login', 'isOpenAuthMallProxy': 'true', 'mallId': mallId }))
+          // debugger
+          await window.BaseUtilBridgeService.loginNeedPopUps('needIvs', JSON.stringify({ 'loginType': 'login', 'isOpenAuthMallProxy': 'true', 'mallId': mallInfo.platform_mall_id }))
           if (this.needIvsInfo?.code === 200) {
             // console.log('this.needIvsInfo', this.needIvsInfo)
             const mallCookieInfos = this.needIvsInfo.mallCookieInfos
+            // debugger
             const SPC_EC = mallCookieInfos.find(item => item.Name === 'SPC_EC')
             const SPC_SC_TK = mallCookieInfos.find(item => item.Name === 'SPC_SC_TK')
             const SPC_F = mallCookieInfos.find(item => item.Name === 'SPC_F')
             const SPC_STK = mallCookieInfos.find(item => item.Name === 'SPC_STK')
             // 1、拿到cookie信息更新壳内 SPC_EC 、SPC_SC_TK 、SPC_F、SPC_STK 其它cookie信息存入OtherCookieInfo中）
-            let mallDataInfo = await this.$appConfig.getGlobalCacheInfo('mallInfo', mallId)
+            let mallDataInfo = await this.$appConfig.getGlobalCacheInfo('mallInfo', mallInfo.platform_mall_id)
             let cookieObj = {}
             mallDataInfo = JSON.parse(mallDataInfo)
             mallDataInfo.web_login_info['SPC_EC'] = SPC_EC.Value
@@ -1848,19 +1911,23 @@ export default {
             })
             mallDataInfo.web_login_info['OtherCookieInfo'] = JSON.stringify(cookieObj)
             cookieObj = null
-            await this.$appConfig.updateInfoMall(mallId, JSON.stringify(mallDataInfo)) // 更新里面店铺的cookie （壳）
+            await this.$appConfig.updateInfoMall(mallInfo.platform_mall_id, JSON.stringify(mallDataInfo)) // 更新里面店铺的cookie （壳）
             mallDataInfo = null
             // 2、更新cookie信息后，在调用登录接口： /api/v2/login/   get方法  无参 获取到接口响应头部cookie  再次更新cookie信息即可
             const loginInfo2 = await this.$shopeemanService.getLogin(mallInfo)
-            // if (loginInfo2 === 200) {
-            code = loginInfo2.code
-            message = loginInfo2.data.message
-            // }
+            if (loginInfo2 === 200) {
+              code = loginInfo2.code
+              message = loginInfo2.data
+              await this.$appConfig.updateInfoMall(loginInfo2.data.mallId, JSON.stringify(mallInfo_new)) // 更新里面店铺的cookie （壳）
+            } else {
+              code = loginInfo2.code
+              message = loginInfo2.data.message
+            }
             this.needIvsInfo = null
           }
           this.needIvsInfo?.code?.isBreakLogin === true ? this.isStop = true : '' // 用户是否中断操作
         } else if (code === 'error_require_captcha') { // 需要图片或者滑块验证 调LoginNeedPopUps 服务弹框
-          await window.BaseUtilBridgeService.loginNeedPopUps('needCaptcha', JSON.stringify({ 'mallId': mallId }))
+          await window.BaseUtilBridgeService.loginNeedPopUps('needCaptcha', JSON.stringify({ 'mallId': mallInfo.platform_mall_id }))
           if (this.needCaptchaInfo?.code === 200) {
             const sortData = this.mallListAPIInstance.sortMallData(mallInfo, this.needCaptchaInfo.data)
             this.needCaptchaInfo = null
@@ -1878,10 +1945,22 @@ export default {
           // 5、走登录接口
           if (this.phoneInfo_message_code) { // 如果验证码存在
             const error_need_otp_info = await this.$shopeemanService.login(mallInfo, this.flat, { vcode: this.phoneInfo_message_code }) // 返回数据结构要和外面的统一
-            // if (error_need_otp_info.code === 200) {
-            code = error_need_otp_info.code
-            message = error_need_otp_info.data.message
+            if (error_need_otp_info.code === 200) {
+              code = 200
+              message = error_need_otp_info.data
+            } else {
+              code = error_need_otp_info.code
+              message = error_need_otp_info.data.message
+            }
             this.phoneInfo_message_code = ''
+          }
+        } else if (code === 0 && message === '' && mallInfo.platform_mall_id !== '8888888888') { // 无任何返回信息，去查看绑定ip是否过期
+          let mallData = await this.$appConfig.getGlobalCacheInfo('mallInfo', mallInfo.platform_mall_id)
+          mallData = JSON.parse(mallData)
+          console.log('mallData', mallData)
+          const isExpired = new Date(mallData.IpExpirationTime) - 0 - new Date()
+          if (isExpired < 0) {
+            message = '店铺隔离IP已经过期请续费，或者手动解绑IP'
           }
         }
         return { code, data: message }
