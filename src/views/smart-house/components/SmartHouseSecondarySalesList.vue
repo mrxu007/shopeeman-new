@@ -18,7 +18,15 @@
         </li>
         <li>
           <span>包裹创建时间：</span>
-          <el-date-picker v-model="form.returnCreateTime" unlink-panels size="mini" type="datetimerange" range-separator="-" start-placeholder="开始日期" end-placeholder="结束日期" />
+          <el-date-picker
+            v-model="form.returnCreateTime"
+            unlink-panels
+            size="mini"
+            type="daterange"
+            range-separator="-"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
+          />
         </li>
       </ul>
       <ul style="margin-bottom: 10px">
