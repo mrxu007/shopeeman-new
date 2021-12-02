@@ -143,6 +143,8 @@ export default {
   deleteUserGoods: (data) => AppRequest.post('/userStock/deleteGoods', data), // 删除自有商品
   setUserRemark: (data) => AppRequest.post('/orderPackage/setUserRemark', data), // 批量更新用户备注
   deleteUserSku: (data) => AppRequest.post('/userStock/deleteSkus', data), // 删除sku
+  getMoney: (data) => AppRequest.get('/warehouseAbnormalPayment/getMoney', { params: data }), // 仓库工作台：获取赔付金额
+  applyCompensation: (data) => AppRequest.post('/warehouseAbnormalPayment/apply', data), // 仓库工作台：申请赔付
 
   // 订单管理
   shotAmountRecord: (data) => AppRequest.get('/shotAmountRecord/index', data), // 采购价变更记录
@@ -189,7 +191,7 @@ export default {
   deleteHomeForecast: (data) => AppRequest.post('/homeStockingForecast/delete', data), // 国内中转备货预报单: 删除
   getOutOfStockList: (data) => AppRequest.get('/warehouse/outOfStockList', { params: data }), // 海外仓出库订单：列表
   // getsecondlist: (data) => AppRequest.post('/overseasTansferPackage/index', data) // 获取二次销售列表
-  addReissueStore: (data) => AppRequest.post('/warehouse/addReissueStore', JSON.stringify(data)), // 海外仓补件：新增补件
+  addReissueStore: (data) => AppRequest.post('/addReissueStore', JSON.stringify(data)), // 海外仓补件：新增补件
   cancelOverseaOrder: (data) => AppRequest.post('/warehouse/cancelOverseaOrder', data), // 海外仓出库订单：批量取消订单
   deleteBuyAccount: (data) => AppRequest.post('/buyerAccount/destroy', data), // 删除买手号
   getUserWarehouse: (data) => AppRequest.get('/warehouseAddress/userIndex', { params: data }), // 仓库收货地址设置---获取列表

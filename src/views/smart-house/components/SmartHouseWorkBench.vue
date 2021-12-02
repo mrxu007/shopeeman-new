@@ -413,14 +413,14 @@
               </div>
             </template>
           </el-table-column>
-          <el-table-column label="数量" min-width="40px" prop="goodsCount">
+          <el-table-column label="数量" min-width="40px" prop="goods_count">
             <!-- <template slot-scope="scope">
               <div v-if="scope.row.goods" class="goods-detail">
                 {{ scope.row.goods.goodsCount }}
               </div>
             </template> -->
           </el-table-column>
-          <el-table-column label="拍单订单号" min-width="190px" prop="package_order_sn">
+          <el-table-column label="拍单订单号" min-width="190px" prop="shot_order_sn">
             <template slot-scope="scope">
               <div v-if="scope.row.shotOrder" class="goods-detail">
                 {{ scope.row.shotOrder.shot_order_sn }}

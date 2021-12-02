@@ -84,6 +84,7 @@
           label="商品名称"
           align="center"
           min-width="140"
+          show-overflow-tooltip
         >
           <template slot-scope="{row}">
             {{ row.stock && row.stock.goods_name?row.stock.goods_name:'' }}
@@ -93,6 +94,7 @@
           label="商品规格"
           align="center"
           min-width="140"
+          show-overflow-tooltip
         >
           <template slot-scope="{row}">
             {{ row.stock && row.stock.sku_name?row.stock.sku_name:'' }}
@@ -136,7 +138,7 @@
         >
           <template slot-scope="{row}">
             <el-tooltip
-              v-if="row.stock.sku_image || row.stock.real_image_url"
+              v-if="row.stock.sku_image"
               effect="light"
               placement="right-end"
               :visible-arrow="false"
@@ -144,16 +146,19 @@
               style="width: 50px; height: 50px"
             >
               <div slot="content">
-                <img
-                  :src="row.stock.sku_image || row.stock.real_image_url"
-                  width="300px"
-                  height="300px"
+                <el-image
+                  style="width: 400px; height: 400px"
+                  :src="row.stock.sku_image"
                 >
+                  <div slot="error" class="image-slot" />
+                </el-image>
               </div>
               <el-image
                 style="width: 40px; height: 40px"
-                :src="row.stock.sku_image || row.stock.real_image_url"
-              />
+                :src="row.stock.sku_image"
+              >
+                <div slot="error" class="image-slot" />
+              </el-image>
             </el-tooltip>
           </template>
         </el-table-column>
@@ -281,8 +286,10 @@ export default {
         if (res.code === 200) {
           const resData = res.data.data
           resData.forEach(async item => {
-            const resName = await this.ShareBroadStock.overseasWh(item.wid)
-            item.warehouse_name = resName.data
+            const resName = await this.ShareMyBroadStock.overseasWh(item.wid)
+            if (resName.code === 200) {
+              item.warehouse_name = resName.data
+            }
             exportData.push(item)
           })
           params.page++

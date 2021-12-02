@@ -69,7 +69,7 @@
             unlink-panels
             type="datetimerange"
             :picker-options="pickerOptions"
-            range-separator="至"
+            range-separator="-"
             start-placeholder="开始日期"
             end-placeholder="结束日期"
             size="mini"
@@ -148,7 +148,7 @@
         />
         <el-table-column
           prop="amount"
-          label="实际赔付金融"
+          label="实际赔付金额"
           min-width="120"
         />
         <el-table-column
@@ -157,13 +157,7 @@
           min-width="80"
         >
           <template slot-scope="{ row }">
-            <span
-              v-if="row.status=== '审核通过'"
-              style="color:#00bfa5;"
-            >
-              {{ row.status }}
-            </span>
-            <span v-else>{{ row.status }}</span>
+            <span :style="colorObj[row.status] && 'color:'+colorObj[row.status]">{{ row.status }}</span>
           </template>
         </el-table-column>
         <el-table-column
@@ -178,6 +172,7 @@
               :key="index"
             >
               <el-tooltip
+                v-if="item"
                 effect="light"
                 placement="right-end"
                 :visible-arrow="false"
@@ -185,16 +180,19 @@
                 style="width: 50px; height: 50px"
               >
                 <div slot="content">
-                  <img
+                  <el-image
+                    style="width: 400px; height: 400px"
                     :src="item"
-                    width="300px"
-                    height="300px"
                   >
+                    <div slot="error" class="image-slot" />
+                  </el-image>
                 </div>
                 <el-image
                   style="width: 40px; height: 40px"
                   :src="item"
-                />
+                >
+                  <div slot="error" class="image-slot" />
+                </el-image>
               </el-tooltip>
             </div>
           </template>
@@ -273,6 +271,10 @@ export default {
         { value: 5, label: '包裹到齐48小时未出库' },
         { value: 6, label: '已出库，虾皮仓未发货致订单取消' }
       ],
+      colorObj: {
+        '审核通过': 'green',
+        '审核失败': 'red'
+      },
       total: 0,
       pageSize: 50,
       page: 1,

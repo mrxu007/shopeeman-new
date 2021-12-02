@@ -48,9 +48,29 @@
         align="center"
       >
         <template slot-scope="scope">
-          <el-image style="width: 40px; height: 40px" :src="scope.row.package_image" :preview-src-list="[scope.row.package_image]">
-            <div slot="error" class="image-slot" />
-          </el-image>
+          <el-tooltip
+            v-if="scope.row.package_image"
+            effect="light"
+            placement="right-end"
+            :visible-arrow="false"
+            :enterable="false"
+            style="width: 50px; height: 50px"
+          >
+            <div slot="content">
+              <el-image
+                style="width: 400px; height: 400px"
+                :src="scope.row.package_image"
+              >
+                <div slot="error" class="image-slot" />
+              </el-image>
+            </div>
+            <el-image
+              style="width: 40px; height: 40px"
+              :src="scope.row.package_image"
+            >
+              <div slot="error" class="image-slot" />
+            </el-image>
+          </el-tooltip>
         </template>
       </el-table-column>
       <el-table-column

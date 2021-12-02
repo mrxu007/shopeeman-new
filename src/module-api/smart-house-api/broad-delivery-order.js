@@ -22,10 +22,10 @@ export default class BroadDeliveryOrder {
   async cancelOverseaOrder(val) {
     try {
       const res = await this._this.$api.cancelOverseaOrder(val)
-      if (res.data.code === 200) {
+      if (Number(res.data.code) === 200) {
         return { code: 200 }
       }
-      return { code: res.data.code, data: `${res.data.message}` }
+      return { code: Number(res.data.code), data: `${res.data.message}` }
     } catch (error) {
       return { code: -2, data: `取消订单异常： ${error}` }
     }

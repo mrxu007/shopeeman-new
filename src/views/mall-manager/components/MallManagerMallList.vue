@@ -90,6 +90,7 @@
       <u-table
         ref="plTable"
         v-loading="buttonStatus.mallList"
+        :row-height="rowHeight"
         :max-height="Height"
         use-virtual
         :data-changes-scroll-top="false"
@@ -621,7 +622,7 @@ export default {
       LogisticsList: {},
       activeNames: [],
       height: 300,
-      rowHeight: 50,
+      rowHeight: 100,
       mallListAPIInstance: new MallListAPI(this),
       isIPType: 0,
       consoleMsg: '',

@@ -93,7 +93,7 @@
       <el-table
         ref="plTable"
         v-loading="isShowLoading"
-        height="calc(100vh - 205px)"
+        height="calc(100vh - 210px)"
         :data="tableData"
         :header-cell-style="{
           backgroundColor: '#f5f7fa',
@@ -118,6 +118,7 @@
           label="站点"
           min-width="100"
           align="center"
+          show-overflow-tooltip
           fixed
         >
           <template slot-scope="{row}">
@@ -129,6 +130,7 @@
           label="订单编号"
           min-width="135"
           align="center"
+          show-overflow-tooltip
           fixed
         />
         <el-table-column
@@ -136,6 +138,7 @@
           label="平台物流单号"
           align="center"
           min-width="130"
+          show-overflow-tooltip
         />
         <el-table-column
           label="所属仓库"
@@ -160,6 +163,7 @@
           label="状态"
           align="center"
           min-width="150"
+          show-overflow-tooltip
         >
           <template slot-scope="{row}">
             {{ row.status?statusObj[row.status]:'' }}
@@ -190,7 +194,8 @@
           prop="remark"
           label="仓库备注"
           align="center"
-          min-width="100"
+          min-width="150"
+          show-overflow-tooltip
         />
         <el-table-column
           prop="goods_price"
@@ -249,7 +254,7 @@
       class="details-dialog"
       title="出库商品详情"
       :visible.sync="detailsVisible"
-      width="800px"
+      width="1000px"
       :close-on-click-modal="false"
       :close-on-press-escape="false"
     >
@@ -338,16 +343,19 @@
               style="width: 50px; height: 50px"
             >
               <div slot="content">
-                <img
+                <el-image
                   :src="row.sku_image"
-                  width="300px"
-                  height="300px"
+                  style="width: 400px; height: 400px"
                 >
+                  <div slot="error" class="image-slot" />
+                </el-image>
               </div>
               <el-image
                 style="width: 40px; height: 40px"
                 :src="row.sku_image"
-              />
+              >
+                <div slot="error" class="image-slot" />
+              </el-image>
             </el-tooltip>
           </template>
         </el-table-column>
@@ -488,12 +496,14 @@
           align="center"
           label="商品名称"
           prop="goods_name"
+          show-overflow-tooltip
         />
         <el-table-column
           width="150"
           align="center"
           label="商品规格"
           prop="sku_name"
+          show-overflow-tooltip
         />
         <el-table-column
           width="150"
@@ -532,21 +542,27 @@
               style="width: 50px; height: 50px"
             >
               <div slot="content">
-                <img
+                <el-image
                   :src="row.sku_image || row.real_image_url"
-                  width="300px"
-                  height="300px"
+                  style="width: 400px; height: 400px"
                 >
-              </div>
-              <el-image
-                style="width: 40px; height: 40px"
-                :src="row.sku_image || row.real_image_url"
-              >
-                <div slot="placeholder" class="image-slot">
-                  加载中<span class="dot">...</span>
-                </div>
-              </el-image>
-            </el-tooltip>
+                  <div slot="placeholder" class="image-slot">
+                    加载中<span class="dot">...</span>
+                  </div>
+                  >
+                  <div slot="error" class="image-slot" />
+                </el-image>
+                <el-image
+                  style="width: 40px; height: 40px"
+                  :src="row.sku_image || row.real_image_url"
+                >
+                  <div slot="placeholder" class="image-slot">
+                    加载中<span class="dot">...</span>
+                  </div>
+                  >
+                  <div slot="error" class="image-slot" />
+                </el-image>
+              </div></el-tooltip>
           </template>
         </el-table-column>
         <el-table-column
@@ -714,6 +730,7 @@ export default {
           pamars['wid'] = element.wid
           pamars['overseaOrderSn'] = element.oversea_order_sn
           const res = await this.BroadDeliveryOrder.cancelOverseaOrder(pamars)
+          console.log('cancelOverseaOrder', res)
           if (res.code === 200) {
             this.$set(element, 'orderStatus', '取消订单成功')
             this.$set(element, 'color', 'green')
@@ -778,9 +795,13 @@ export default {
       this.reissueVisible = true
       this.getStock()
     },
-    // 打开商品链接
-    openUrl(row) {
-      window.open(row)
+    // 打开外部链接
+    async openUrl(url) {
+      try {
+        await this.$BaseUtilService.openUrl(url)
+      } catch (error) {
+        this.$message.error(`打开链接【${url}】失败`)
+      }
     },
     // 获取库存
     async getStock() {
@@ -833,8 +854,8 @@ export default {
           let goods_num = 0
           let goods_price = 0
           item.sku_list.forEach(skuItem => {
-            goods_num += skuItem.sku_num ? skuItem.sku_num : 0
-            goods_price += skuItem.sku_price ? parseInt(skuItem.sku_price) * skuItem.sku_num : 0
+            goods_num += skuItem.sku_num ? Number(skuItem.sku_num) : 0
+            goods_price += skuItem.sku_price ? Number(skuItem.sku_price) * skuItem.sku_num : 0
           })
           item.goods_num = goods_num
           item.goods_price = goods_price
