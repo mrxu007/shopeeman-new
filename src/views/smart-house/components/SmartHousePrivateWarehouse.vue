@@ -51,7 +51,7 @@
         <el-table-column min-width="80" label="商品链接" prop="goods_url" align="center" show-overflow-tooltip>
           <template slot-scope="scope">
             <div v-if="scope.row.goods_url">
-              <el-button type="primary" size="mini" @click="openGoodsUrl(scope.row.goods_url)">查看商品</el-button>
+              <el-button type="primary" size="mini" @click="openUrl(scope.row.goods_url)">查看商品</el-button>
             </div>
           </template>
         </el-table-column>
@@ -375,9 +375,13 @@ export default {
     this.searchTableList()
   },
   methods: {
-    // 查看商品
-    openGoodsUrl(url) {
-      window.open(url)
+    // 打开外部链接
+    async openUrl(url) {
+      try {
+        await this.$BaseUtilService.openUrl(url)
+      } catch (error) {
+        this.$message.error(`打开链接【${url}】失败`)
+      }
     },
     // 保存新增
     async saveInsert() {

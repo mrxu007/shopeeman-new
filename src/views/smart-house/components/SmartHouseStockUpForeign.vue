@@ -420,7 +420,7 @@
           prop="store_time"
         />
         <el-table-column
-          width="100"
+          width="150"
           align="center"
           label="商品名称"
           prop="goods_name"
@@ -429,7 +429,7 @@
         <el-table-column
           width="80"
           align="center"
-          label="商品数据量"
+          label="商品数量"
           prop="sku_num"
         />
         <el-table-column
@@ -641,7 +641,7 @@
           </template>
         </el-table-column>
         <el-table-column
-          width="130"
+          width="150"
           align="center"
           label="商品名称"
           show-overflow-tooltip
@@ -652,7 +652,7 @@
           </template>
         </el-table-column>
         <el-table-column
-          width="150"
+          width="80"
           align="center"
           label="商品数量"
           prop="sku_num"
@@ -662,7 +662,7 @@
           </template>
         </el-table-column>
         <el-table-column
-          width="150"
+          width="110"
           align="center"
           label="商品单价(RMB)"
           prop="sku_price"
@@ -672,7 +672,7 @@
           </template>
         </el-table-column>
         <el-table-column
-          width="100"
+          width="120"
           align="center"
           label="商品规格"
           prop="sku_name"
@@ -714,7 +714,7 @@
           </template>
         </el-table-column>
         <el-table-column
-          width="150"
+          width="100"
           align="center"
           label="商品链接"
         >
@@ -737,7 +737,7 @@
           </template>
         </el-table-column>
         <el-table-column
-          width="100"
+          width="150"
           align="center"
           label="备注"
           prop="remark"
@@ -1501,6 +1501,14 @@ export default {
     await this.getStockingForecastLists()
   },
   methods: {
+    // 打开外部链接
+    async openUrl(url) {
+      try {
+        await this.$BaseUtilService.openUrl(url)
+      } catch (error) {
+        this.$message.error(`打开链接【${url}】失败`)
+      }
+    },
     // 获取数据
     async getStockingForecastLists() {
       this.isShowLoading = true
@@ -1599,10 +1607,6 @@ export default {
       this.foreignOverseaWid = this.widList[0].child[0].id
       this.foreignOverseaWidList = this.widList[0].child
       this.widInfo = this.widList[0]
-    },
-    // 打开商品链接
-    openUrl(row) {
-      window.open(row)
     },
     // 选择需要预报的SKU确认
     confirmSku() {

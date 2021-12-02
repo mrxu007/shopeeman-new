@@ -324,6 +324,10 @@
             filterable
           >
             <el-option
+              value=""
+              label="请选择平台"
+            />
+            <el-option
               v-for="(item,index) in platformList"
               :key="index"
               :value="item.value"
@@ -382,7 +386,7 @@ export default {
       },
       platformUserFrom: { // 查询平台用户
         username: '',
-        platform_ids: '1'
+        platform_ids: ''
       },
       addBindUserFrom: {
         shared_id: '',
@@ -444,6 +448,14 @@ export default {
     await this.stockSharedList()
   },
   methods: {
+    // 打开外部链接
+    async openUrl(url) {
+      try {
+        await this.$BaseUtilService.openUrl(url)
+      } catch (error) {
+        this.$message.error(`打开链接【${url}】失败`)
+      }
+    },
     // 撤销共享库存
     async delSharedInventory(row) {
       const { id, wid, app_uid } = row
@@ -485,6 +497,7 @@ export default {
     // 添加绑定用户
     async addSharedBindUser() {
       this.addBindUserFrom['userList'] = []
+      if (!this.platformUserFrom.platform_ids) return this.$message('请先选择共享平台')
       if (!this.platformUserFrom.username) return this.$message('请输入用户名称')
       this.addBindUserLoading = true
       // 查询平台用户
@@ -566,10 +579,6 @@ export default {
       }
       this.widList = this.widList.filter((item) => !myMap.has(item.id) && myMap.set(item.id, 1))
     },
-    // 打开商品链接
-    openUrl(row) {
-      window.open(row)
-    },
     // 导出数据
     async exportTableData() {
       if (this.total === 0) return this.$message('暂无导出数据')
@@ -584,7 +593,9 @@ export default {
           const resData = res.data.data
           resData.forEach(async item => {
             const resName = await this.ShareBroadStock.overseasWh(item.wid)
-            item.warehouse_name = resName.data
+            if (resName.code === 200) {
+              item.warehouse_name = resName.data
+            }
             exportData.push(item)
           })
           params.page++
@@ -639,7 +650,7 @@ export default {
     },
     bindUserClose() {
       this.platformUserFrom['username'] = ''
-      this.platformUserFrom['platform_ids'] = '1'
+      this.platformUserFrom['platform_ids'] = ''
       this.addBindUserFrom['shared_id'] = ''
     }
   }

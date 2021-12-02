@@ -111,6 +111,7 @@
         v-loading="isShowLoading"
         height="calc(100vh - 249px)"
         :data="tableData"
+        :row-style="{height:'45px'}"
         :header-cell-style="{
           backgroundColor: '#f5f7fa',
         }"
@@ -129,6 +130,7 @@
           fixed
         />
         <el-table-column
+          align="center"
           prop="need_return_package_code"
           label="包裹物流单号"
           min-width="180px"
@@ -146,6 +148,7 @@
           </template>
         </el-table-column>
         <el-table-column
+          align="center"
           prop="order_sn"
           label="订单编号"
           min-width="180px"
@@ -163,11 +166,13 @@
           </template>
         </el-table-column>
         <el-table-column
+          align="center"
           prop="warehouse_name"
           label="签收仓库"
           min-width="130px"
         />
         <el-table-column
+          align="center"
           prop="status"
           label="状态"
           min-width="80px"
@@ -182,34 +187,41 @@
           </template>
         </el-table-column>
         <el-table-column
+          align="center"
           prop="appli_return_time"
           label="申请退件时间"
           min-width="150px"
         />
         <el-table-column
+          align="center"
           prop="return_contact"
           label="退件人"
-          min-width="80px"
+          min-width="100px"
+          show-overflow-tooltip
         />
         <el-table-column
+          align="center"
           prop="return_phone_number"
           label="退件电话"
           min-width="120px"
           show-overflow-tooltip
         />
         <el-table-column
+          align="center"
           prop="return_address"
           label="退件地址"
           min-width="180px"
           show-overflow-tooltip
         />
         <el-table-column
+          align="center"
           prop="return_remarks"
           label="退件备注"
           min-width="150px"
           show-overflow-tooltip
         />
         <el-table-column
+          align="center"
           prop="return_shipping_number"
           label="退件物流单号"
           min-width="180px"
@@ -229,27 +241,30 @@
           </template>
         </el-table-column>
         <el-table-column
+          align="center"
           prop="return_shipping_name"
           label="退件物流公司"
           min-width="150px"
           show-overflow-tooltip
         />
         <el-table-column
+          align="center"
           prop="return_time"
           label="退件时间"
           min-width="150px"
         />
         <el-table-column
+          align="center"
           prop="warehouse_remarks"
           label="仓库备注"
           min-width="150px"
           show-overflow-tooltip
         />
         <el-table-column
+          align="center"
           min-width="120px"
           label="操作"
           fixed="right"
-          align="center"
         >
           <template slot-scope="{ row }">
             <el-button

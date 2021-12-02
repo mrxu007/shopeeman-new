@@ -285,10 +285,11 @@ export default {
         const res = await this.ShareMyBroadStock.getSharedIndex(params)
         if (res.code === 200) {
           const resData = res.data.data
-          debugger
           resData.forEach(async item => {
             const resName = await this.ShareMyBroadStock.overseasWh(item.wid)
-            item.warehouse_name = resName.data
+            if (resName.code === 200) {
+              item.warehouse_name = resName.data
+            }
             exportData.push(item)
           })
           params.page++

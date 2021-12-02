@@ -254,7 +254,7 @@
       class="details-dialog"
       title="出库商品详情"
       :visible.sync="detailsVisible"
-      width="800px"
+      width="1000px"
       :close-on-click-modal="false"
       :close-on-press-escape="false"
     >
@@ -795,9 +795,13 @@ export default {
       this.reissueVisible = true
       this.getStock()
     },
-    // 打开商品链接
-    openUrl(row) {
-      window.open(row)
+    // 打开外部链接
+    async openUrl(url) {
+      try {
+        await this.$BaseUtilService.openUrl(url)
+      } catch (error) {
+        this.$message.error(`打开链接【${url}】失败`)
+      }
     },
     // 获取库存
     async getStock() {
@@ -850,8 +854,8 @@ export default {
           let goods_num = 0
           let goods_price = 0
           item.sku_list.forEach(skuItem => {
-            goods_num += skuItem.sku_num ? skuItem.sku_num : 0
-            goods_price += skuItem.sku_price ? parseInt(skuItem.sku_price) * skuItem.sku_num : 0
+            goods_num += skuItem.sku_num ? Number(skuItem.sku_num) : 0
+            goods_price += skuItem.sku_price ? Number(skuItem.sku_price) * skuItem.sku_num : 0
           })
           item.goods_num = goods_num
           item.goods_price = goods_price

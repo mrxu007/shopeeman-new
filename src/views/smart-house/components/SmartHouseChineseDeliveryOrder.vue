@@ -199,7 +199,8 @@
           min-width="135"
         />
         <el-table-column
-          label="出库商品详情"
+          align="center"
+          label="操作"
           min-width="100"
         >
           <template slot-scope="{row}">
@@ -244,7 +245,7 @@
       class="details-dialog"
       title="出库商品详情"
       :visible.sync="detailsVisible"
-      width="800px"
+      width="1000px"
       :close-on-click-modal="false"
       :close-on-press-escape="false"
     >
@@ -271,6 +272,7 @@
           width="150"
           align="center"
           label="订单编号"
+          show-overflow-tooltip
           fixed
         />
         <el-table-column
@@ -278,12 +280,14 @@
           align="center"
           label="商品编号(SKU)"
           prop="sku_id"
+          show-overflow-tooltip
         />
         <el-table-column
-          width="100"
+          width="150"
           align="center"
           label="商品名称"
           prop="goods_name"
+          show-overflow-tooltip
         />
         <el-table-column
           width="100"
@@ -312,16 +316,19 @@
               style="width: 50px; height: 50px"
             >
               <div slot="content">
-                <img
+                <el-image
                   :src="row.goods_img"
-                  width="300px"
-                  height="300px"
+                  style="width: 400px; height: 400px"
                 >
+                  <div slot="error" class="image-slot" />
+                </el-image>
               </div>
               <el-image
                 style="width: 40px; height: 40px"
                 :src="row.goods_img"
-              />
+              >
+                <div slot="error" class="image-slot" />
+              </el-image>
             </el-tooltip>
           </template>
         </el-table-column>
@@ -493,8 +500,8 @@ export default {
           let goods_num = 0
           let goods_price = 0
           item.home_out_stock_sku.forEach(skuItem => {
-            goods_num += skuItem.goods_count ? skuItem.goods_count : 0
-            goods_price += skuItem.goods_price ? parseInt(skuItem.goods_price) * skuItem.sku_num : 0
+            goods_num += skuItem.goods_count ? Number(skuItem.goods_count) : 0
+            goods_price += skuItem.goods_price ? Number(skuItem.goods_price) * skuItem.goods_count : 0
           })
           item.goods_num = goods_num
           item.goods_price = goods_price
@@ -507,7 +514,7 @@ export default {
     },
     // 查看商品详情
     getDetails(row) {
-      this.detailsData = row.sku_list
+      this.detailsData = row.home_out_stock_sku
       this.detailsData.map(item => {
         item.home_order_sn = row.home_order_sn
       })
@@ -551,8 +558,8 @@ export default {
           obj['sku_id'] = skuItem.sku_id
           obj['goods_name'] = skuItem.goods_name
           obj['goods_count'] = skuItem.goods_count
-          obj['goods_price'] = skuItem.goods_count
-          obj['goods_name'] = skuItem.goods_count
+          obj['goods_price'] = skuItem.goods_price
+          obj['goods_describe'] = skuItem.goods_describe
           obj['goods_img'] = skuItem.goods_img
           obj['goods_url'] = skuItem.goods_url
           data.push(obj)
@@ -588,8 +595,8 @@ export default {
         <td>${item.sku_id ? item.sku_id : '' + '\t'}</td>
         <td>${item.goods_name ? item.goods_name : '' + '\t'}</td>
         <td>${item.goods_count ? item.goods_count : '' + '\t'}</td>
-         <td>${item.sku_price ? item.sku_price : '' + '\t'}</td>
-        <td>${item.sku_name ? item.sku_name : '' + '\t'}</td>
+         <td>${item.goods_price ? item.goods_price : '' + '\t'}</td>
+        <td>${item.goods_describe ? item.goods_describe : '' + '\t'}</td>
         <td>${item.goods_img ? item.goods_img : '' + '\t'}</td>
         <td>${item.goods_url ? item.goods_url : '' + '\t'}</td>
         </tr>`

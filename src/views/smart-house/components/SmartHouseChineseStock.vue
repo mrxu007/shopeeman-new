@@ -234,7 +234,7 @@ export default {
         this.total = res.data.total
         for (let index = 0; index < this.tableData.length; index++) {
           const element = this.tableData[index]
-          // 获取海外仓库中文名
+          // 获取仓库中文名
           const resName = await this.ChineseStock.transferWarehouse(element.wid)
           if (resName.code === 200) {
             this.$set(element, 'warehouse_name', resName.data)
@@ -298,7 +298,9 @@ export default {
           const resData = res.data.data
           resData.forEach(async item => {
             const resName = await this.ChineseStock.transferWarehouse(item.wid)
-            item.warehouse_name = resName.data
+            if (resName.code === 200) {
+              item.warehouse_name = resName.data
+            }
             exportData.push(item)
           })
           params.page++
