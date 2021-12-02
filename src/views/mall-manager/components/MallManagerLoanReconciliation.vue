@@ -255,7 +255,7 @@ export default {
                 bill_num: item.id + '',
                 amount: item.amount + '',
                 using_wallet: item.using_wallet ? '1' : '0',
-                release_time: this.$dayjs(item.release_time).format('YYYY-MM-DD HH:mm:ss')
+                release_time: this.$dayjs(item.release_time * 1000).format('YYYY-MM-DD HH:mm:ss')
               }
               const index = dataArr.filter((i) => i.bill_num === params.bill_num)[0] || ''
               index && count--
@@ -292,6 +292,7 @@ export default {
         mallId: mallID,
         bills: dataArr
       }
+      console.log(params, '------------')
       const res = await this.$api.uploadPaymentList(params)
       console.log(res)
     },
@@ -347,7 +348,7 @@ export default {
               <td>${item.bill_num ? item.bill_num : '-' + '\t'}</td>
               <td>${item.appropriate_amount ? item.appropriate_amount : '-' + '\t'}</td>
               <td>${item.appropriate_amount ? (item.appropriate_amount * this.site_query.rate_coin).toFixed(2) : '-' + '\t'}</td>
-              <td>${item.created_at ? item.created_at : '-' + '\t'}</td>
+              <td>${item.appropriate_time ? item.appropriate_time : '-' + '\t'}</td>
             </tr>`
           })
           exportExcelDataCommon('货款对账详情', str)
