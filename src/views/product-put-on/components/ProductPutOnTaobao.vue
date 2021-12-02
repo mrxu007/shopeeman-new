@@ -30,14 +30,14 @@
         <el-table-column label="账号" prop="account" min-width="200px" />
         <el-table-column label="账号别名" prop="account_alias_name" min-width="200px" />
         <el-table-column label="授权状态" prop="status" min-width="200px">
-          <template scope="{row}">
+          <template slot-scope="{row}">
             <span>{{ Number(row.status)===1 ?'正常' :'授权过期' }}</span>
           </template>
         </el-table-column>
         <el-table-column label="创建时间" prop="created_at" min-width="200px" />
         <el-table-column label="更新时间" prop="updated_at" min-width="200px" />
         <el-table-column label="操作" prop="" min-width="250px">
-          <template scope="{ row }">
+          <template slot-scope="{ row }">
             <el-button type="primary" size="mini" @click="updataName(row)">修改账号别名</el-button>
             <el-button type="primary" size="mini" @click="delAccount(row)">删除账号</el-button>
           </template>
