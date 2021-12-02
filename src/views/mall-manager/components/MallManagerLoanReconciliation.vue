@@ -80,7 +80,7 @@
       <div class="data_table" style="height: 100%; background-color: white">
         <el-table
           v-loading="isLoading"
-          height="calc(100vh - 281px)"
+          height="calc(100vh - 276px)"
           :data="tableList"
           :row-style="{ height: '50px' }"
           :header-cell-style="{ background: '#f7fafa' }"
@@ -123,7 +123,7 @@
 </template>
 <script>
 import storeChoose from '../../../components/store-choose'
-import { exportExcelDataCommon } from '../../../util/util'
+import { delay, exportExcelDataCommon } from '../../../util/util'
 
 export default {
   components: { storeChoose },
@@ -169,15 +169,15 @@ export default {
       cancelActive: false
     }
   },
-  mounted() {
+  async mounted() {
     // 初始化时间
     this.cloumn_date = [
       new Date().getTime() - 3600 * 1000 * 24 * 10,
       new Date().getTime() + 3600 * 1000 * 24 * 20
     ]
     // this.cloumn_date = creatDate(31)
-    this.search() // 初始化table
-    this.exchangeRateList() // 获取汇率
+    await this.search() // 初始化table
+    await this.exchangeRateList() // 获取汇率
   },
   methods: {
     clearLog() {
@@ -360,7 +360,7 @@ export default {
       }
     },
     // 搜索
-    search() {
+    async search() {
       this.isLoading = true
       const params = this.query
       let sysMallId = ''
@@ -376,7 +376,8 @@ export default {
       params.page = this.page
       params.pageSize = this.pageSize
       console.log(params, 'params')
-      this.getTableList(params)
+      await delay(300)
+      await this.getTableList(params)
     },
     // 初始化tableList
     async getTableList(params) {
