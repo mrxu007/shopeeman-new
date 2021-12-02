@@ -107,7 +107,7 @@
         @selection-change="handleSelectionChange"
       >
         <u-table-column align="center" type="selection" width="50" />
-        <u-table-column align="center" type="index" label="序号">
+        <u-table-column align="center" type="index" label="序号" width="60">
           <template v-slot="{ $index }">
             {{ (currentPage - 1) * pageSize + $index + 1 }}
           </template>
@@ -117,7 +117,7 @@
             <p style="white-space: normal">{{ row.group_name }}</p>
           </template>
         </u-table-column>
-        <u-table-column align="center" prop="" label="站点">
+        <u-table-column align="center" prop="" label="站点" width="60">
           <template v-slot="{ row }">
             {{ row.country | chineseSite }}
           </template>
@@ -189,7 +189,7 @@
           layout="total, sizes, prev, pager, next"
           :total="total"
           :current-page="currentPage"
-          :page-sizes="[500,1000,1500,2000]"
+          :page-sizes="[500,1000,2000]"
           :page-size="pageSize"
           @size-change="handleSizeChange"
           @current-change="handleCurrentChange"
@@ -743,7 +743,7 @@ export default {
       // 分页
       total: 0,
       currentPage: 1,
-      pageSize: 200,
+      pageSize: 500,
       isChineseShow: false,
 
       userInfo: null,
