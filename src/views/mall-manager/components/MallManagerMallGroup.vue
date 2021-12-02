@@ -194,7 +194,7 @@
 </template>
 
 <script>
-import { exportExcelDataCommon } from '../../../util/util'
+import { exportExcelDataCommon, importOrder } from '../../../util/util'
 import xlsx from 'xlsx'
 import MallListAPI from '../../../module-api/mall-manager-api/mall-list-api'
 
@@ -369,22 +369,29 @@ export default {
       this.writeLog(`导入结束`, true)
       this.importTemplateData = null
     },
-    downExcelGroupTemplate() {
-      let template = `<tr>
-      <td style="width: 200px; text-align:left;">店铺名称<span style="color:red">(必填)</span></td>
-      <td style="width: 200px; text-align:left;">店铺ID<span style="color:red">(必填)</span></td>
-      <td style="width: 200px; text-align:left;">分组名称<span style="color:red">(必填)</span></td>
-      </tr>`
-      this.mallListTemp.map(item => {
-        template += `
-          <tr>
-            <td style="width: 200px; text-align:left;">${item.platform_mall_name}</td>
-            <td style="width: 200px; text-align:left;">${item.platform_mall_id}</td>
-            <td style="width: 200px; text-align:left;">${item.group_name || ''}</td>
-          </tr>
-        `
+    async downExcelGroupTemplate() {
+      let titleData = ['店铺名称(必填)','店铺ID(必填)','分组名称(必填)']
+      let jsonData = []
+      this.mallListTemp.forEach(item=>{
+        let temp = [item.platform_mall_name,item.platform_mall_id,item.group_name || '']
+        jsonData.push(temp)
       })
-      exportExcelDataCommon('批量导入分组', template)
+      await importOrder(titleData,jsonData,'分组模板')
+      // let template = `<tr>
+      // <td style="width: 200px; text-align:left;">店铺名称<span style="color:red">(必填)</span></td>
+      // <td style="width: 200px; text-align:left;">店铺ID<span style="color:red">(必填)</span></td>
+      // <td style="width: 200px; text-align:left;">分组名称<span style="color:red">(必填)</span></td>
+      // </tr>`
+      // this.mallListTemp.map(item => {
+      //   template += `
+      //     <tr>
+      //       <td style="width: 200px; text-align:left;">${item.platform_mall_name}</td>
+      //       <td style="width: 200px; text-align:left;">${item.platform_mall_id}</td>
+      //       <td style="width: 200px; text-align:left;">${item.group_name || ''}</td>
+      //     </tr>
+      //   `
+      // })
+      // exportExcelDataCommon('批量导入分组', template)
     },
     async openExcelDialog() {
       this.ExcelDialogVisible = true
