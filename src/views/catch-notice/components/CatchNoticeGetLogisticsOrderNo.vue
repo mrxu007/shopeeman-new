@@ -5,9 +5,9 @@
     <div class="search">
       <!-- 第一行 -->
       <div class="rowOne">
-        <!-- 采购物流编号 -->
+        <!-- 采购订单编号 -->
         <div class="flowNumber">
-          采购物流编号：
+          采购订单编号：
           <el-input v-model="form.shotOrderSn" size="mini" clearable />
         </div>
         <el-button size="mini" type="primary" @click="searchHandle">搜索</el-button>
@@ -111,7 +111,7 @@ export default {
       logisticsOrderNoDialogWarehouseOptions: [],
       //   搜索条件
       form: {
-        shotOrderSn: '' // 采购物流编号
+        shotOrderSn: '' // 采购订单编号
       },
       showConsole: true, // 隐藏日志
       // 表格数据
@@ -264,15 +264,14 @@ export default {
     },
     // 填写采购物流单号
     async logisticsOrderNoHandle(row) {
-      // const myMap = new Map()
+      const myMap = new Map()
       try {
         this.rowInfo = row
         this.logisticsOrderNoDialogFormVisible = true
         const res = await this.$appConfig.getWarehouseInfo(row.platform_mall_id)
         const resObj = res && JSON.parse(res)
-        console.log(JSON.parse(res))
         this.logisticsOrderNoDialogWarehouseOptions = resObj
-        // this.logisticsOrderNoDialogWarehouseOptions = this.logisticsOrderNoDialogWarehouseOptions.filter((item) => !myMap.has(item.id) && myMap.set(item.id, 1))
+        this.logisticsOrderNoDialogWarehouseOptions = this.logisticsOrderNoDialogWarehouseOptions.filter((item) => !myMap.has(item.id) && myMap.set(item.id, 1))
         console.log('warehouse', resObj)
         this.warehouseId = resObj && resObj[0] && resObj[0].id
       } catch (error) {

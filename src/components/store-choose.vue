@@ -206,6 +206,7 @@ export default {
           country: this.countryVal.toLocaleUpperCase()
         })
       } else {
+        mallList['country'] = this.countryVal
         this.$emit('changeMallList', mallList)
       }
     }
