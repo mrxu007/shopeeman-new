@@ -447,10 +447,10 @@
           </el-radio-group>
         </li>
         <el-upload v-if="imageOrigin === '2'" class="avatar-uploader" :show-file-list="false" action="" :on-error="imgSaveToUrl2" :before-upload="beforeAvatarUpload2">
-          <img v-if="imageUrl" :src="imageUrl" class="avatar" style="width: 460px; height: 450px" />
+          <img v-if="imageUrl" :src="imageUrl" class="avatar" style="width: 460px; height: 450px">
           <i v-else class="el-icon-plus avatar-uploader-icon" />
         </el-upload>
-        <img v-else :src="imageUrl" style="width: 460px; height: 450px" />
+        <img v-else :src="imageUrl" style="width: 460px; height: 450px">
       </ul>
       <span slot="footer" class="dialog-footer">
         <el-button type="primary" size="mini" @click="BatchUpdateMallBk">确 定</el-button>
@@ -565,9 +565,9 @@
           </div>
           <div class="dialog_item">
             <el-checkbox v-model="addressQuery.default" style="margin: 5px 0" label="设为默认地址" />
-            <br />
+            <br>
             <el-checkbox v-model="addressQuery.take" style="margin: 5px 0" label="设为取件地址" />
-            <br />
+            <br>
             <el-checkbox v-model="addressQuery.backMail" style="margin: 5px 0" label="设为回邮地址" />
           </div>
           <div class="dialog_item">
@@ -1891,14 +1891,18 @@ export default {
         if (code === 'error_need_ivs') { // 需要进行IVS验证 调LoginNeedPopUps 服务弹框
           // debugger
           await window.BaseUtilBridgeService.loginNeedPopUps('needIvs', JSON.stringify({ 'loginType': 'login', 'isOpenAuthMallProxy': 'true', 'mallId': mallInfo.platform_mall_id }))
+          console.log('this.needIvsInfo', this.needIvsInfo)
+          debugger
           if (this.needIvsInfo?.code === 200) {
-            // console.log('this.needIvsInfo', this.needIvsInfo)
             const mallCookieInfos = this.needIvsInfo.mallCookieInfos
-            // debugger
+            debugger
             const SPC_EC = mallCookieInfos.find(item => item.Name === 'SPC_EC')
             const SPC_SC_TK = mallCookieInfos.find(item => item.Name === 'SPC_SC_TK')
             const SPC_F = mallCookieInfos.find(item => item.Name === 'SPC_F')
             const SPC_STK = mallCookieInfos.find(item => item.Name === 'SPC_STK')
+            const SPC_U = mallCookieInfos.find(item => item.Name === 'SPC_U')
+            const SPC_SC_UD = mallCookieInfos.find(item => item.Name === 'SPC_SC_UD')
+
             // 1、拿到cookie信息更新壳内 SPC_EC 、SPC_SC_TK 、SPC_F、SPC_STK 其它cookie信息存入OtherCookieInfo中）
             let mallDataInfo = await this.$appConfig.getGlobalCacheInfo('mallInfo', mallInfo.platform_mall_id)
             let cookieObj = {}
@@ -1908,6 +1912,8 @@ export default {
             mallDataInfo.web_login_info['SPC_F'] = SPC_F.Value
             mallDataInfo.web_login_info['spc_f'] = SPC_F.Value
             mallDataInfo.web_login_info['SPC_STK'] = SPC_STK.Value
+            mallDataInfo.web_login_info['SPC_U'] = SPC_U.Value
+            mallDataInfo.web_login_info['SPC_SC_UD'] = SPC_SC_UD.Value
             mallCookieInfos.map(item => {
               cookieObj[item.Name] = item.Value
             })
@@ -1927,7 +1933,7 @@ export default {
             }
             this.needIvsInfo = null
           }
-          this.needIvsInfo?.code?.isBreakLogin === true ? this.isStop = true : '' // 用户是否中断操作
+          this.needIvsInfo?.isBreakLogin === true ? this.isStop = true : '' // 用户是否中断操作
         } else if (code === 'error_require_captcha') { // 需要图片或者滑块验证 调LoginNeedPopUps 服务弹框
           await window.BaseUtilBridgeService.loginNeedPopUps('needCaptcha', JSON.stringify({ 'mallId': mallInfo.platform_mall_id }))
           if (this.needCaptchaInfo?.code === 200) {
