@@ -204,7 +204,7 @@
           min-width="135"
         />
         <el-table-column
-          label="出库商品详情"
+          label="操作"
           min-width="180"
         >
           <template slot-scope="{row}">
