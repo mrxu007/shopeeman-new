@@ -1714,6 +1714,8 @@ export default {
             mallDataInfo.web_login_info['ShopeeUid'] = Cookie.ShopeeUid
             mallDataInfo.web_login_info['shopeeuid'] = Cookie.ShopeeUid
             mallDataInfo.web_login_info['shopid'] = Cookie.shopid
+            mallDataInfo.web_login_info['SPC_F'] = Cookie.SPC_F
+            mallDataInfo.web_login_info['spc_f'] = Cookie.spc_f
             // 4、更新壳信息
             await this.$appConfig.updateInfoMall(mallId, JSON.stringify(mallDataInfo)) // 更新里面店铺的cookie （壳）
           } else { // 导入店铺
