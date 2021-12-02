@@ -462,7 +462,7 @@ export default class MallListAPI {
     Cookie['SPC_SC_TK'] = data.token
     Cookie['ShopeeUid'] = mallUId // 虾皮平台用户Uid
     Cookie['shopid'] = mallId // 平台店铺ID
-
+    debugger
     const Cookie_new = { // 店铺cookie信息(导入店铺专用)(更新壳)
       'SPC_CDS_VER': '2',
       'SPC_EC': data.sso,

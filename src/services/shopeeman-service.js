@@ -243,7 +243,7 @@ export default class NetMessageBridgeService {
     // const encryptPwd = sha256(md5('Th123654'))
     // const accountName = 'hellohappy586'
     const params = {
-      mallId: platform_mall_id || '1111', // 导入店铺初始没有mallId
+      mallId: platform_mall_id || '8888888888', // 导入店铺初始没有mallId
       remember: false,
       password_hash: encryptPwd
     }
@@ -278,6 +278,15 @@ export default class NetMessageBridgeService {
         }
       }, copy_mallInfo)
       res = JSON.parse(res)
+      let SetCookie = null
+      SetCookie = res.headers.find(item => item.Name === 'Set-Cookie')
+      if (SetCookie) {
+        try {
+          SetCookie = SetCookie.Value.split(';').find(item => item.indexOf('SPC_F') > -1).match(/SPC_F=(.+)/)[1]
+        } catch (error) {
+          SetCookie = null
+        }
+      }
       if (res.status === 200) {
         const data = JSON.parse(res.data)
         // const data = {
@@ -308,7 +317,7 @@ export default class NetMessageBridgeService {
           'SPC_CDS_VER': '2',
           'SPC_EC': data.sso,
           'ShopeeUid': mallUId,
-          'SPC_F': '',
+          'SPC_F': SetCookie || '',
           'CNSC_SSO': '',
           'SPC_CNSC_TK': '',
           'SPC_CNSC_UD': '',
@@ -325,7 +334,7 @@ export default class NetMessageBridgeService {
           'portrait': data.portrait,
           'userRealName': username,
           'mainAccountId': '',
-          'spc_f': '',
+          'spc_f': SetCookie || '',
           'SPC_SC_TK': data.token,
           'OtherCookieInfo': '',
           'spcf_update_time': ''
@@ -413,7 +422,7 @@ export default class NetMessageBridgeService {
         code = 'has_shop_upgraded'
         message = '已升级为全球店铺，请更换店铺类型进行导入'
       }
-      return { code, 'data': { 'message': message, 'data': res.data } }
+      return { code, 'data': { 'message': message, 'data': res.data, SetCookie } }
     } catch (e) {
       console.log('e', e)
       return { code: -2, data: `login -catch: ${e} ` }
@@ -434,6 +443,15 @@ export default class NetMessageBridgeService {
         }
       })
       res = JSON.parse(res)
+      let SetCookie = null
+      SetCookie = res.headers.find(item => item.Name === 'Set-Cookie')
+      if (SetCookie) {
+        try {
+          SetCookie = SetCookie.Value.split(';').find(item => item.indexOf('SPC_F') > -1).match(/SPC_F=(.+)/)[1]
+        } catch (error) {
+          SetCookie = null
+        }
+      }
       if (res.status === 200) {
         const data = JSON.parse(res.data)
         // const data = {
@@ -464,7 +482,7 @@ export default class NetMessageBridgeService {
           'SPC_CDS_VER': '2',
           'SPC_EC': data.sso,
           'ShopeeUid': mallUId,
-          'SPC_F': '',
+          'SPC_F': SetCookie || '',
           'CNSC_SSO': '',
           'SPC_CNSC_TK': '',
           'SPC_CNSC_UD': '',
@@ -481,7 +499,7 @@ export default class NetMessageBridgeService {
           'portrait': data.portrait,
           'userRealName': username,
           'mainAccountId': '',
-          'spc_f': '',
+          'spc_f': SetCookie || '',
           'SPC_SC_TK': data.token,
           'OtherCookieInfo': '',
           'spcf_update_time': ''
@@ -569,7 +587,7 @@ export default class NetMessageBridgeService {
         code = 'has_shop_upgraded'
         message = '已升级为全球店铺，请更换店铺类型进行导入'
       }
-      return { code, 'data': { 'message': message, 'data': res.data } }
+      return { code, 'data': { 'message': message, 'data': res.data, SetCookie } }
     } catch (e) {
       console.log('e', e)
       return { code: -2, data: `login -catch: ${e} ` }
