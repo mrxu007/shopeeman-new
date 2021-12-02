@@ -189,7 +189,7 @@
           layout="total, sizes, prev, pager, next"
           :total="total"
           :current-page="currentPage"
-          :page-sizes="[200, 500]"
+          :page-sizes="[500,1000,1500,2000]"
           :page-size="pageSize"
           @size-change="handleSizeChange"
           @current-change="handleCurrentChange"
