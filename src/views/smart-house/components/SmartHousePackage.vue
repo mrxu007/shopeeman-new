@@ -107,12 +107,12 @@
           min-width="50px"
           fixed
         />
-        <el-table-column
+        <!-- <el-table-column
           align="center"
           type="index"
           label="序号"
           fixed
-        />
+        /> -->
         <el-table-column
           align="center"
           prop="package_code"
@@ -658,7 +658,7 @@ export default {
           this.$message.error('获取数据失败', data.message)
         }
       } catch (error) {
-        console.log(error)
+        console.log(`${error}`)
       }
       this.isShowLoading = false
     },

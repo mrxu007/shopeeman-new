@@ -104,6 +104,9 @@ export default {
             this.tableList[i].getGoods = this.plantDate.length
             this.$set(this.tableList, i, this.tableList[i])
             if (index === arrIndex) { // 平台商品获取结束
+              if (this.dataRuning) { // 终止循环
+                break
+              }
               this.$refs.autoReplyLogs.writeLog(`店铺【${this.tableList[i].mall_alias_name || this.tableList[i].platform_mall_name}】虾皮商品数据获取完毕，开始获取服务端商品数据`, true)
               // 获取服务器商品
               const sysMallId = this.tableList[i].id
@@ -134,11 +137,16 @@ export default {
                     sysmallId: delarr.toString()
                   }
                   // 删除服务端数据
+                  if (this.dataRuning) { // 终止循环
+                    break
+                  }
                   const tes = await this.$commodityService.delCloudItems(query)
                   const jsontes = JSON.parse(tes)
                   if (jsontes.code === 200) {
                     this.$refs.autoReplyLogs.writeLog(`店铺【${this.tableList[i].mall_alias_name || this.tableList[i].platform_mall_name}】同步完成`, true)
                     // this.$refs.autoReplyLogs.writeLog(`店铺【${this.tableList[i].mall_alias_name || this.tableList[i].platform_mall_name}】服务端删除${}商品`, true)
+                  } else {
+                    this.$refs.autoReplyLogs.writeLog(`店铺【${this.tableList[i].mall_alias_name || this.tableList[i].platform_mall_name}】同步失败，服务端异常`, true)
                   }
                 } else {
                   this.$refs.autoReplyLogs.writeLog(`店铺【${this.tableList[i].mall_alias_name || this.tableList[i].platform_mall_name}】虾皮商品数据获取完毕，服务端商品数据获取失败`, false)

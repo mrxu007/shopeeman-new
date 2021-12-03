@@ -388,7 +388,7 @@ export default {
           this.$message.error('数据获取失败', data.message)
         }
       } catch (error) {
-        console.log(error)
+        console.log(`${error}`)
       }
       this.isShowLoading = false
       console.log('tableData', this.tableData)
