@@ -224,6 +224,7 @@
         <el-table-column label="订单发货状态" min-width="100px" prop="delivery_status">
           <template slot-scope="{row}"><span>{{ delivery_statusList[row.delivery_status] }}</span></template>
         </el-table-column>
+        <el-table-column label="尾程物流状态" min-width="100px" prop="logistics_track" />
         <el-table-column label="异常类型" min-width="100px" prop="exceptionText" />
         <el-table-column label="订单创建时间" min-width="150px" prop="order_created_time" />
         <el-table-column label="订单平台状态" min-width="110px" prop="order_status">
@@ -873,7 +874,7 @@ export default {
         }
         this.$message.success('申请赔付成功')
       } catch (error) {
-        this.$message.error('申请赔付异常', error)
+        this.$message.error('申请赔付异常', `${error}`)
       }
       this.applyLoading = false
     },
@@ -900,7 +901,7 @@ export default {
         }
         this.applyMoney = data.data.amount
       } catch (error) {
-        this.$message.error('获取赔付金额异常', error)
+        this.$message.error('获取赔付金额异常', `${error}`)
       }
     },
     // 赔付类型
@@ -1034,7 +1035,7 @@ export default {
         // console.log('8888888888', this.multipleSelection)
         this.dialog_compareData = true
       } catch (error) {
-        console.log(error)
+        console.log(`${error}`)
       }
     },
     // 批量推送订单至仓库
@@ -1170,7 +1171,7 @@ export default {
           }
           this.$refs.autoReplyLogs.writeLog(`添加增值服务完成`)
         } catch (error) {
-          this.$message.error(error)
+          this.$message.error(`${error}`)
         }
         // 清空数据
         this.extParams = {
@@ -1692,16 +1693,18 @@ export default {
       try {
         this.detailLoading = true
         const { data } = await this.$api.getGoodsInfo({ params })
-        this.detailLoading = false
         if (data.code === 200) {
           this.goodsList = data.data
           console.log('this.goodsList', this.goodsList)
         } else {
-          this.$message.error(data.message)
+          // this.$message.error(data.message)
+          console.log(data.message)
         }
       } catch (error) {
-        this.$message.error(error)
+        console.log(error)
+        this.$message.error(`${error}`)
       }
+      this.detailLoading = false
     },
     // 导出
     async tableToExcel(page) {
@@ -1746,7 +1749,7 @@ export default {
           this.$message.error(data.message)
         }
       } catch (err) {
-        this.$message.error(err)
+        this.$message.error(`${err}`)
       }
 
       if (this.exportOrderList.length < this.total) {
@@ -1836,7 +1839,7 @@ export default {
       // console.log(exportOrderList, this.exportIndex)
       let num = 1
       let str = `<tr><td>编号</td><td>站点</td><td>店铺名称</td><td>仓库</td><td>颜色标识</td><td>订单编号</td><td>数量</td><td>包裹重量(g)</td><td>发货金额</td><td>运输方式</td><td>货物类型</td><td>不等待子包裹发货</td>
-            <td>订单发货状态</td><td>异常类型</td><td>订单创建时间</td><td>订单平台状态</td><td>截止发货时间</td><td>入库时间</td><td>出库时间</td>
+            <td>订单发货状态</td><td>尾程物流状态</td><td>异常类型</td><td>订单创建时间</td><td>订单平台状态</td><td>截止发货时间</td><td>入库时间</td><td>出库时间</td>
             <td>入库图片</td><td>出库图片</td><td>仓库备注</td><td>用户备注</td>
             <td>增值服务名称</td><td>增值服务金额</td><td>增值服务备注</td>
             </tr>`
@@ -1854,6 +1857,7 @@ export default {
                 <td>${item.package_type ? this.packageType[item.package_type] : '' + '\t'}</td>
                 <td>${item.is_mark_outbound > 0 ? '是' : '否' + '\t'}</td>
                 <td>${item.delivery_status ? this.delivery_statusList[item.delivery_status] : '' + '\t'}</td>
+                <td>${item.logistics_track ? this.logistics_track : '' + '\t'}</td>
                 <td>${item.exceptionText ? item.exceptionText : '' + '\t'}</td>
                 <td>${item.order_created_time + '\t'}</td>
                 <td>${item.order_status ? this.orderStatusList[item.order_status] : '' + '\t'}</td>

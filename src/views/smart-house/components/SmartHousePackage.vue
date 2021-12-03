@@ -658,7 +658,7 @@ export default {
           this.$message.error('获取数据失败', data.message)
         }
       } catch (error) {
-        console.log(error)
+        console.log(`${error}`)
       }
       this.isShowLoading = false
     },

@@ -381,7 +381,7 @@ export default {
           this.$message.success('添加失败' + jsonData.msg)
         }
       } catch (error) {
-        console.log(error)
+        console.log(`${error}`)
       }
       this.dialogVisible = false
     },
