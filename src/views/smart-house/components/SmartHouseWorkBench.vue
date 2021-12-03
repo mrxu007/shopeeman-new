@@ -171,7 +171,7 @@
         </el-table-column>
         <el-table-column label="站点" min-width="80px" prop="country" fixed />
         <el-table-column label="店铺名称" min-width="150px" prop="mall_alias_name">
-          <template slot-scope="{row}"><span>{{ row.mall_alias_name ? row.mall_alias_name :row.platform_mall_name }}</span></template>
+          <!-- <template slot-scope="{row}"><span>{{ row.mall_alias_name ? row.mall_alias_name :row.platform_mall_name }}</span></template> -->
         </el-table-column>
         <el-table-column label="仓库" min-width="120px" prop="warehouse_name" />
         <el-table-column label="颜色标识" min-width="100px" prop="colorText">
@@ -207,10 +207,10 @@
           width="100"
           prop="package_weight"
         /> -->
-        <el-table-column label="等待子包裹发货" min-width="120px" prop="statusText">
+        <el-table-column label="不等待子包裹发货" min-width="120px" prop="is_mark_outbound">
           <template slot-scope="scope">
             <div class="goods-detail">
-              {{ scope.row.is_mark_outbound > 0 ? '否' : '是' }}
+              {{ scope.row.is_mark_outbound > 0 ? '是' : '否' }}
             </div>
           </template>
         </el-table-column>
@@ -222,7 +222,7 @@
         <el-table-column label="订单平台状态" min-width="110px" prop="order_status">
           <template scope="{row}"><span>{{ orderStatusList[row.order_status] }}</span></template>
         </el-table-column>
-        <el-table-column label="截止发货时间" min-width="150px" prop="latest_ship_date" />
+        <el-table-column label="截止发货时间" min-width="150px" prop="order_ship_by_date" />
         <el-table-column label="入库时间" min-width="150px" prop="storage_time" />
         <el-table-column label="出库时间" min-width="150px" prop="outbound_time" />
         <el-table-column label="入库图片" min-width="150px">
@@ -360,6 +360,7 @@
       <div>
         <el-table
           ref="workbenchTable"
+          v-loading="detailLoading"
           max-height="590px"
           :data="goodsList"
           tooltip-effect="dark"
@@ -513,7 +514,7 @@
 
 <script>
 // import { getSites, getMalls, colorLabelList, creatDate } from '../../utils/index'
-import { getValue, getColorinfo, creatDate, colorLabelList, MallList } from '../../../util/util'
+import { getValue, getColorinfo, creatDate, colorLabelList, MallList, getMalls } from '../../../util/util'
 import { statusList, exceptionList, orderStatusList, packageStatusList } from './warehouse'
 import storeChoose from '../../../components/store-choose.vue'
 import ShopeeConfig from '@/services/shopeeman-config'
@@ -532,6 +533,7 @@ export default {
   },
   data() {
     return {
+      detailLoading: false, // 查看订单包裹详情加载
       showlog: true,
       // colorStyle: 'width:50px;height:20px;background-color:',
       colorStyle: {
@@ -937,7 +939,7 @@ export default {
       // getSites().then(res => {
       //   this.siteList = this.siteList.concat(res)
       // })
-      MallList().then((res) => {
+      getMalls().then((res) => {
         this.shopAccountList = res
       })
     },
@@ -1395,13 +1397,15 @@ export default {
     },
     // 查看包裹信息弹窗
     async getGoodsInfo(packageOrderSn) {
+      this.dialogVisible2 = true
       const params = { packageOrderSn }
       try {
+        this.detailLoading = true
         const { data } = await this.$api.getGoodsInfo({ params })
+        this.detailLoading = false
         if (data.code === 200) {
           this.goodsList = data.data
           console.log('this.goodsList', this.goodsList)
-          this.dialogVisible2 = true
         } else {
           this.$message.error(data.message)
         }
@@ -1460,7 +1464,7 @@ export default {
           if (this.site !== '' && item.country !== this.site) {
             continue
           }
-          item.mall_alias_name = getValue(MallList, 'label', 'id', item.sys_mall_id)
+          item.mall_alias_name = getValue(this.shopAccountList, 'label', 'id', item.sys_mall_id)
           item.site = getValue(this.siteList, 'label', 'value', item.country)
           item.statusText = getValue(statusList, 'label', 'deliveryStatus', item.delivery_status)
           item.exceptionText = getValue(exceptionList, 'label', 'exception_type', item.exception_type)
@@ -1528,7 +1532,7 @@ export default {
                 <td>${item.exceptionText ? item.exceptionText : ''}</td>
                 <td>${item.order_created_time}</td>
                 <td>${item.orderStatusText ? item.orderStatusText : ''}</td>
-                <td>${item.latest_ship_date ? item.latest_ship_date : ''}</td>
+                <td>${item.order_ship_by_date ? item.order_ship_by_date : ''}</td>
                 <td>${item.storage_time ? item.storage_time : ''}</td>
                 <td>${item.outbound_time ? item.outbound_time : ''}</td>
                 <td>${item.storage_image ? item.storage_image : '' + '\t'}</td>
