@@ -122,7 +122,7 @@ export default {
 </script>
 <style lang="less">
     .detai{
-        min-width: 1280px;
+        min-width: 1200px;
         padding: 10px;
         .condition{
             display: flex;

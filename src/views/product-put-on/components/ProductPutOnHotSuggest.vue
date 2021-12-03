@@ -19,7 +19,8 @@
         v-loading="isloading"
         :data="tableData"
         :border="false"
-        height="calc(100vh - 135px)"
+        :row-style="{ height: '60px' }"
+        height="calc(100vh - 102px)"
         :header-cell-style="{
           textAlign: 'center',
           backgroundColor: '#f5f7fa',
