@@ -195,7 +195,7 @@
         <el-table-column label="数量" min-width="100px" prop="goodsCount" />
         <el-table-column label="商品详情" min-width="110px">
           <template slot-scope="scope">
-            <p><el-button type="primary" size="mini" @click="getGoodsInfo(scope.row.package_order_sn)">查看签收详情</el-button></p>
+            <p><el-button type="primary" size="mini" @click="getGoodsInfo(scope.row.package_order_sn),currenWarehouse=scope.row.warehouse_name">查看签收详情</el-button></p>
           </template>
         </el-table-column>
         <el-table-column label="包裹重量" min-width="100px">
@@ -575,7 +575,7 @@
               {{ packageStatus[applyStatus]?packageStatus[applyStatus]:'' }}
             </el-form-item>
             <el-form-item label="包裹所属仓库：">
-              {{}}
+              {{ currenWarehouse }}
             </el-form-item>
           </el-form>
         </div>
@@ -687,6 +687,7 @@ export default {
   },
   data() {
     return {
+      currenWarehouse: '',
       exportLoading: false,
       detailLoading: false, // 查看订单包裹详情加载
       showlog: true,
