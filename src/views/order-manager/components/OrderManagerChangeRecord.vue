@@ -19,7 +19,7 @@
       >
         <el-table-column label="订单号" prop="order_sn" min-width="300px">
           <template slot-scope="{ row }">
-            <span>{{ row.order_sn }}
+            <span v-if="row.order_sn">{{ row.order_sn }}
               <el-button
                 type="text"
                 class="copyIcon"
@@ -31,7 +31,7 @@
         </el-table-column>
         <el-table-column label="拍单号" prop="shot_order_sn" min-width="300px">
           <template slot-scope="{ row }">
-            <span>{{ row.shot_order_sn }}
+            <span v-if="row.shot_order_sn">{{ row.shot_order_sn }}
               <el-button
                 type="text"
                 class="copyIcon"
