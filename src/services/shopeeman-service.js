@@ -255,10 +255,12 @@ export default class NetMessageBridgeService {
     if (accountName.indexOf('@') > -1) {
       params['email'] = accountName
       acccount_info['username'] = accountName
-    } else if (reg.test(accountName)) {
+    }
+    else if (reg.test(accountName)) {
       params['username'] = accountName
       acccount_info['username'] = accountName
-    } else {
+    }
+    else {
       const phone = this.getTelephoneNumberIsTrue(country, accountName)
       params['phone'] = phone
       acccount_info['username'] = phone
@@ -278,6 +280,7 @@ export default class NetMessageBridgeService {
         }
       }, copy_mallInfo)
       res = JSON.parse(res)
+      console.log('postChinese',res)
       let SetCookie = null
       SetCookie = res.headers.find(item => item.Name === 'Set-Cookie')
       if (SetCookie) {
@@ -431,7 +434,7 @@ export default class NetMessageBridgeService {
     }
   }
   // 店铺登录 get版本
-  async getLogin(mallInfo) {
+  async getLogin(mallInfo,SPC_F) {
     const { country, mall_account_info, platform_mall_id } = mallInfo
     const params = {
       mallId: platform_mall_id
@@ -445,6 +448,7 @@ export default class NetMessageBridgeService {
         }
       })
       res = JSON.parse(res)
+      console.log('getLogin',res)
       let SetCookie = null
       SetCookie = res.headers.find(item => item.Name === 'Set-Cookie')
       if (SetCookie) {
@@ -479,14 +483,14 @@ export default class NetMessageBridgeService {
         Cookie['SPC_SC_TK'] = data.token
         Cookie['ShopeeUid'] = mallUId // 虾皮平台用户Uid
         Cookie['shopid'] = mallId // 平台店铺ID
-        Cookie['SPC_F'] = SetCookie // 短信验证码标识
-        Cookie['spc_f'] = SetCookie // 短信验证码标识
+        Cookie['SPC_F'] = SetCookie ||　SPC_F // 短信验证码标识
+        Cookie['spc_f'] = SetCookie ||　SPC_F // 短信验证码标识
 
         const Cookie_new = { // 店铺cookie信息(导入店铺专用)(更新壳)
           'SPC_CDS_VER': '2',
           'SPC_EC': data.sso,
           'ShopeeUid': mallUId,
-          'SPC_F': SetCookie || '',
+          'SPC_F': SetCookie || SPC_F,
           'CNSC_SSO': '',
           'SPC_CNSC_TK': '',
           'SPC_CNSC_UD': '',
@@ -503,7 +507,7 @@ export default class NetMessageBridgeService {
           'portrait': data.portrait,
           'userRealName': username,
           'mainAccountId': '',
-          'spc_f': SetCookie || '',
+          'spc_f': SetCookie || SPC_F,
           'SPC_SC_TK': data.token,
           'OtherCookieInfo': '',
           'spcf_update_time': ''
