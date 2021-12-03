@@ -385,9 +385,10 @@
           fixed
         />
         <el-table-column
-          width="80"
+          width="120"
           align="center"
           label="商品状态"
+          show-overflow-tooltip
         >
           <template slot-scope="{row}">
             {{ row.status?skuStatusObj[row.status]:'' }}
@@ -439,7 +440,7 @@
           prop="sku_price"
         />
         <el-table-column
-          width="100"
+          width="120"
           align="center"
           label="商品规格"
           prop="sku_name"
