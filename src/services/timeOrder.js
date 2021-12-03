@@ -1,8 +1,8 @@
 import orderService from './order-service'
 import jx from '../network/jx-request'
 import api from '../network/jx-request'
-import applicationConfig from '../services/application-config'
-import JSEncrypt from 'jsencrypt'
+// import applicationConfig from '../services/application-config'
+// import JSEncrypt from 'jsencrypt'
 import shopeemanService from '../services/shopeeman-service'
 import {
   site_mall
@@ -24,6 +24,7 @@ export default class {
   mallNo = ''
   upLoadType = ''
   writeLog = undefined
+  timeRange = 7
   constructor(mall, syncStatus, that, writeLog) {
     this.mall = mall
     this._this = that
@@ -38,8 +39,8 @@ export default class {
     this.mall = order.mall_info
     if (order.order_status === 7) {
       let params = {
-        return_sn: order.order_sn,
-        shop_id: order.mall_info.platform_mall_id
+        "return_sn": order.order_sn,
+        "shop_id": order.mall_info.platform_mall_id
       }
       let res = await this.$shopeemanService.getRefundOrderDetail(order.country, params)
       console.log("startSingel-after",res)
@@ -69,7 +70,8 @@ export default class {
     }
   }
   //手动同步/自动同步
-  async start(mallNo, upLoadType) {
+  async start(mallNo, upLoadType,timeRange) {
+    this.timeRange = timeRange
     if (this.syncStatus.value === 'refund') {
       await this.refund(mallNo, upLoadType)
     } else if (this.syncStatus.value === 'toShip') {
@@ -128,7 +130,10 @@ export default class {
             }
           }
           //自动翻页
-          if (package_list.length < 40) {
+          let lastTime = ''
+          lastTime = orderDetailListFa[orderDetailListFa.length-1].create_time
+          console.log(lastTime,"lastTime",(new Date().getTime() - lastTime * 1000 > this.timeRange * 24 * 60 * 60 * 1000))
+          if (package_list.length < 40 || (lastTime && (new Date().getTime() - lastTime * 1000 > this.timeRange * 24 * 60 * 60 * 1000))) {
             package_list = []
           } else {
             params.page_number++
@@ -264,7 +269,8 @@ export default class {
           //自动翻页
           let lastTime = ''
           lastTime = orderDetailListFa[orderDetailListFa.length-1].create_time
-          if (orders.length < 40 || (lastTime && (new Date().getTime() - lastTime * 1000 > 1 * 24 * 60 * 60 * 1000))) {
+          console.log(lastTime,"lastTime",(new Date().getTime() - lastTime * 1000 > this.timeRange * 24 * 60 * 60 * 1000))
+          if (orders.length < 40 || (lastTime && (new Date().getTime() - lastTime * 1000 > this.timeRange * 24 * 60 * 60 * 1000))) {
             orders = []
           } else {
             params.page_number++
@@ -311,29 +317,25 @@ export default class {
       }
       //3、获取订单交易记录
       let res3 = await this.$shopeemanService.getIncomeTransactionHistoryDetail(this.mall.country, params)
-      console.log(res3, "res3")
       if (res3.code === 200) {
         order['transactionHistoryDetail'] = res3.data
       }
       //4、获取订单历史轨迹
       let res4 = await this.$shopeemanService.getOrdeTrackingHistory(this.mall.country, params)
-      console.log(res4, "res4")
       if (res4.code === 200) {
         order['ordeTrackingHistory'] = res4.data
       }
       //5、获取物流轨迹的发货时间 
       let res5 = await this.$shopeemanService.getLogisticsTrackingHistory(this.mall.country, params)
-      console.log(res5, "res5")
       if (res5.code === 200) {
         order['logisticsTrackingHistory'] = res5.data
       }
-      console.log(order, "orderAll")
       //6、申请运单号
       let res6 = await this.$shopeemanService.getForderLogistics(this.mall.country, params)
       if (res6.code === 200) {
         order['forderLogistics'] = res6.data
       }
-      console.log(res6, "res6")
+      console.log(order, "orderAll")
     }
   }
   //售后订单
@@ -344,13 +346,11 @@ export default class {
     }
     //3、获取订单交易记录
     let res3 = await this.$shopeemanService.getIncomeTransactionHistoryDetail(this.mall.country, params)
-    console.log(res3, "res3")
     if (res3.code === 200) {
       order['transactionHistoryDetail'] = res3.data
     }
     //4、获取订单历史轨迹
     let res4 = await this.$shopeemanService.getOrdeTrackingHistory(this.mall.country, params)
-    console.log(res4, "res4")
     if (res4.code === 200) {
       order['ordeTrackingHistory'] = res4.data
     }
@@ -361,17 +361,15 @@ export default class {
       log_id: 1
     }
     let res5 = await this.$shopeemanService.getLogisticsTrackingHistoryRefund(this.mall.country, params5)
-    console.log(res5.data, "res5-res5")
     if (res5.code === 200) {
       order['logisticsTrackingHistory'] = res5.data
     }
-    console.log(order, "orderAll")
     //6、申请运单号
     let res6 = await this.$shopeemanService.getForderLogistics(this.mall.country, params)
     if (res6.code === 200) {
       order['forderLogistics'] = res6.data
     }
-    console.log(res6, "res6")
+    console.log(order, "orderAll")
   }
   //服务端检测订单 ---正常订单
 

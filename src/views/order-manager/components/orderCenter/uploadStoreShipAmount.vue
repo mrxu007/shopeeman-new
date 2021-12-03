@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-11-19 14:24:22
- * @LastEditTime: 2021-11-19 22:35:07
+ * @LastEditTime: 2021-12-03 11:31:57
  * @LastEditors: Please set LastEditors
  * @Description: 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  * @FilePath: \shopeeman-new\src\views\order-manager\components\orderCenter\uploadStoreShipAmount.vue
@@ -25,8 +25,8 @@
           <div v-html="consoleMsg" class="consoleBox"></div>
         </div>
         <div class="left-header-btn mar-top">
-          <el-button type="primary" size="mini" @click="batchUpload">批量上报</el-button>
-          <el-button type="primary" size="mini">关闭</el-button>
+          <el-button type="primary" size="mini" @click="batchUpload" :disabled="clickLoading">批量上报</el-button>
+          <el-button type="primary" size="mini" @click="closeWindow">关闭</el-button>
         </div>
       </div>
       <div class="content-right">
@@ -68,6 +68,7 @@ export default {
     return {
       consoleMsg: '',
       tableData: [],
+      clickLoading:false
     }
   },
   methods: {
@@ -115,6 +116,8 @@ export default {
           ids = ids + ',' + item.orderSn
         }
       })
+      try {
+      this.clickLoading = true
       let params = { orderSns: ids }
       let res = await this.$api.getOrderBySn(params)
       if (res.data.code === 200) {
@@ -148,6 +151,19 @@ export default {
           }
         }
       }
+      this.clickLoading = false
+      } catch (error) {
+        console.log(error)
+        this.clickLoading = false
+        return this.$notify({
+          title: '提示',
+          type: 'warning',
+          message: `操作失败，请重试`,
+        })
+      }
+    },
+    closeWindow(){
+      this.$emit('close')
     },
     uploadShip(file, fileList) {
       console.log('file', file)

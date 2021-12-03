@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-12-01 10:57:37
- * @LastEditTime: 2021-12-01 15:33:08
+ * @LastEditTime: 2021-12-03 10:15:37
  * @LastEditors: Please set LastEditors
  * @Description: 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  * @FilePath: \shopeeman-new\src\views\order-manager\components\orderCenter\imageCollection.vue
@@ -161,18 +161,20 @@ export default {
     async searchFromImg() {
       this.tableLoading = true
       let imgUrl = this.$filters.imageRender([this.chooseData.country, this.chooseData.mall_info ? this.chooseData.mall_info.platform_mall_id : '', this.chooseData.goods_info.goods_img])
+      console.log(imgUrl,"imgUrl")
       this.getBase64(imgUrl, (base64) => {
-        let params = { ImageBase64: base64.replace('data:image/jpeg;base64,', ''), Page: 1 }
-        let platform = '8'
+        let params = { file: encodeURIComponent(base64.replace('data:image/jpeg;base64,', '')), page: 1 }
+        let url = '/ycj/api/v1/1688/imgSearchGoods?ycr=1'
+
         if (this.collectType === '淘宝') {
-          platform = '2'
-          params = { ImageBase64: base64.replace('data:image/jpeg;base64,', '') }
+          url = '/ycj/api/v2/taobao/searchImg?ycr=1'
+          params = { imgBase64: encodeURIComponent(base64.replace('data:image/jpeg;base64,', '')) }
         }
-        console.log(JSON.stringify(params))
-        this.$collectService.imgSearch(platform, JSON.stringify(params)).then((res) => {
-            console.log('1111', res)
+        this.$gatewayService.post(url, params)
+          .then((res) => {
+              console.log(res,"er")
             this.tableLoading = false
-            if (res.data.code === 0) {
+            if (res.data && res.data.code === 0) {
               if (this.collectType === '淘宝') {
                 this.tbSameList = res.data.data.mods.itemlist.data.collections[0].auctions
               }
@@ -182,10 +184,11 @@ export default {
               }
             }
           })
-        //   .catch((err) => {
-        //     this.tableLoading = false
-        //     console.log(err)
-        //   })
+          .catch((err) => {
+            this.tableLoading = false
+            this.$message.error(`获取失败`)
+            console.log(err)
+          })
       })
     },
     // url转base64

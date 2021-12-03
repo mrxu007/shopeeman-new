@@ -34,11 +34,8 @@ export default class {
   async start(writeLog) {
     let configInfo = await this.$configService.getUserConfig()
     configInfo = configInfo && JSON.parse(configInfo)
-    console.log(configInfo, "configInfo")
     let nickInfo = await this.$configService.getUserInfo()
-    console.log(nickInfo, "nickInfo")
     this.writeLog = writeLog
-    console.log(this.orders, this.buyerAccounts, 'short order info')
     const buyerMap = new Map()
     const buyerList = []
 
@@ -47,7 +44,6 @@ export default class {
       buyerList.push(buyerItem)
       buyerMap.set(Number(buyerItem.shotOrderPlatform), buyerItem)
       this.shopBuyerAccount.push(buyerItem)
-      console.log(buyerMap, this.shopBuyerAccount, "48")
     })
     //淘宝天猫海外平台cook
     this.crossBorderAccessToken = buyerMap.get(Number(shotOrderPlatform.CrossBorder)) ? buyerMap.get(Number(shotOrderPlatform.CrossBorder)).Cookiestr : ''
@@ -61,7 +57,6 @@ export default class {
     payAccount.PayPassword = configInfo ? configInfo.pay_pass : ''
     //获取采购地址
     await this.buildPurchaseList(this.orders)
-    console.log("buildPurchaseList", this.goodBuyUrlList)
     const res = await this.getShortOrders(buyerMap, payAccount, configInfo, nickInfo)
     let orders = []
     if (res.code === 200) {
@@ -150,10 +145,6 @@ export default class {
         "敏感货": '2'
       },
     }
-    // this.orders.forEach(item => {
-    //   const selectShotOrderPlatform = item.purchases.purchase_platform_id
-    //   this.setCache(selectShotOrderPlatform, shortGlobalInfo, buyerMap)
-    // })
     console.log(shortGlobalInfo, '====All')
     // 最后检测买手号是否传了
     for (let index = 0; index < shortGlobalInfo.ListShotOrdes.length; index++) {
@@ -162,11 +153,13 @@ export default class {
         return this.writeLog(`暂无买手号信息`)
       }
     }
-    //Start( shortConfigInfoJson ，cefLanguage,crossBorderAccessToken)
-    //cefLanguage：选择的网页翻译的语种
-    //crossBorderAccessToken：天猫淘宝海外cookie
-    //shortConfigInfoJson : shortGlobalInfo
-    console.log(JSON.stringify(shortGlobalInfo))
+    /**
+     * @name : 
+     * @param  {*}shortConfigInfoJson : shortGlobalInfo
+     * @param  {*}cefLanguage：选择的网页翻译的语种
+     * @param  {*}crossBorderAccessToken：天猫淘宝海外cookie
+     */    
+    console.log(JSON.stringify(shortGlobalInfo),configInfo.language_set,this.crossBorderAccessToken)
     this.nativeService.start(JSON.stringify(shortGlobalInfo), configInfo.language_set, this.crossBorderAccessToken)
   }
   // 单个拍单设置相应的缓存 多个拍单保留全部
@@ -197,8 +190,6 @@ export default class {
     if (data.data.code === 200) {
       this.rateList = data.data.data
     }
-    console.log(this.rateList)
-
     const shorOrders = []
     for (let index = 0; index < this.orders.length; index++) {
       const itemOrder = this.orders[index]
@@ -300,14 +291,14 @@ export default class {
         City: buyerInfo["cityText"],
         Town: buyerInfo["distinctText"],
         Street: buyerInfo['streetText'],
-        PostCode: warehouseInfo.post_code ? warehouseInfo.post_code : '000000',
+        PostCode: buyerInfo['postCode'] ? buyerInfo['postCode'].toString() : '000000',
         Address: buyerInfo["buyerAddress"],
         Remark: itemOrder.node || '', //itemOrderinfo.buyer_memo
         ProviceId: buyerInfo["provId"],
         CityId: buyerInfo["cityId"],
         TownId: buyerInfo["distId"],
         StreetId: buyerInfo["streetId"],
-        Country: warehouseInfo.country ? warehouseInfo.country : '',
+        Country: buyerInfo["country"] ? buyerInfo["country"] : '',
       }
       //处理goodsInfo
       console.log(itemOrder, itemOrder.goods_info.ori_url, "处理goodsInfo")
@@ -358,7 +349,7 @@ export default class {
         IsGiftOrder: false,
         IsUseHuaWeiCloudPhone: false,
       }
-      console.log("itemOrder.goods_info.ori_platform_id",itemOrder.goods_info.ori_platform_id)
+      console.log("itemOrder.goods_info.ori_platform_id", itemOrder.goods_info.ori_platform_id)
       let paramaAll = {
         payAccount: payAccount,
         buyerAccount: buyerMap.get(this.getShortOrderBuyerAccountPlatform(Number(itemOrder.goods_info.ori_platform_id))),
@@ -458,7 +449,7 @@ export default class {
     addressUserInfo["cityText"] = warehouseInfo.city_text
     addressUserInfo["distinctText"] = warehouseInfo.distinct_text
     addressUserInfo["streetText"] = ''
-    // addressUserInfo["postCode"] = warehouseInfo.post_code
+    addressUserInfo["postCode"] = warehouseInfo.post_code
 
     let buyerName = nickInfo.Nickname + "#" + warehouseInfo.receiving_name;
     if (warehouseInfo.isUser === 1) {
@@ -497,11 +488,11 @@ export default class {
       detailAddress = configInfo.IsAutoAddBuyerSPM ? detailAddress + "-SPM" : detailAddress;
     }
     addressUserInfo["buyerAddress"] = detailAddress;
+
     //处理 provId/cityId/distId
     if (itemOrder.goods_info.ori_platform_id == 2 || itemOrder.goods_info.ori_platform_id == 3 || itemOrder.goods_info.ori_platform_id == 8) {
-      // province,distinct
       let res = await window['BaseUtilBridgeService'].getTbAddress(warehouseInfo.province_text, warehouseInfo.distinct_text)
-      console.log('BaseUtilBridgeService', res)
+      console.log("处理淘宝系地址", res)
       if (res) {
         addressUserInfo["provId"] = res.ProvinceId
         addressUserInfo["cityId"] = res.CityId
@@ -515,7 +506,7 @@ export default class {
       }
     } else if (itemOrder.goods_info.ori_platform_id == 9 && warehouseInfo.country !== 'SG') {
       let res = await window['BaseUtilBridgeService'].getLazadaAddress(warehouseInfo.distinct_id)
-      console.log(res,"6865546")
+      console.log(res, "处理lazada地址")
       if (res) {
         if (!res.DistrictId) {
           return {
@@ -546,18 +537,122 @@ export default class {
       addressUserInfo['buyerName'] = buyerName.replace("#", "-");
     } else if (itemOrder.goods_info.ori_platform_id == 11) {
       if (warehouseInfo.country !== 'SG' && warehouseInfo.type === 3) {
+        console.log('50009', warehouseInfo, warehouseInfo.shopee_map_id)
         if (!warehouseInfo.shopee_map_id) {
           return {
             code: 50001,
             data: '该仓库未映射shopee地址，请重新映射'
           }
         }
-
+        let resInfo = await window['BaseUtilBridgeService'].getLazadaAddress(warehouseInfo.distinct_id)
+        console.log("处理shopee地址",resInfo)
+        let allShopAdress = await this.getAllShopeeAddress(itemOrder.goods_info.ori_platform_id, warehouseInfo.country, warehouseInfo.shopee_map_id, 0)
+        if(!allShopAdress){
+          return {
+            code: 50001,
+            data: '该仓库未映射shopee地址，请重新映射'
+          }
+        }
+        console.log(allShopAdress, "处理shopee地址----allShopAdress")
+        if(allShopAdress.provinceInfo){
+          addressUserInfo["provId"] = allShopAdress.provinceInfo[Object.keys(allShopAdress.provinceInfo)[0]]
+          addressUserInfo["provinceText"] = Object.keys(allShopAdress.provinceInfo)[0]
+        }
+        if(allShopAdress.cityInfo){
+          addressUserInfo["cityId"] = allShopAdress.cityInfo[Object.keys(allShopAdress.cityInfo)[0]]
+          addressUserInfo["cityText"] = Object.keys(allShopAdress.cityInfo)[0]
+        }
+        if(allShopAdress.distinceInfo){
+          addressUserInfo["distId"] = allShopAdress.distinceInfo[Object.keys(allShopAdress.distinceInfo)[0]]
+          addressUserInfo["distinctText"] = Object.keys(allShopAdress.distinceInfo)[0]
+        }
+        if(allShopAdress.streetInfo){
+          addressUserInfo["streetId"] = allShopAdress.streetInfo[Object.keys(allShopAdress.streetInfo)[0]]
+          addressUserInfo["streetText"] = Object.keys(allShopAdress.streetInfo)[0]
+        }
+        if(addressUserInfo["provinceText"].includes('~')){
+          addressUserInfo["provinceText"] = addressUserInfo["provinceText"].split('~')[0];
+        }
+        let postCode = resInfo.Post
+        addressUserInfo["postCode"] = typeof postCode === 'number' ? postCode : warehouseInfo.post_code
+        addressUserInfo["country"] = warehouseInfo.country
+        // addressUserInfo["postCode"] = res.Post
       }
     }
     return {
       code: 200,
       data: addressUserInfo
+    }
+  }
+  async getAllShopeeAddress(platform, country, shopeeMapId, typeMark) {
+    let address = {}
+    let shopeeAddrMappingTree = await this.searchShopeeAddrMappingTree(platform, country, shopeeMapId, typeMark)
+    if (!shopeeAddrMappingTree || !shopeeAddrMappingTree.length) {
+      return null
+    }
+    let addressLevel = shopeeAddrMappingTree[0].level
+    let detailInfo = {}
+    detailInfo[shopeeAddrMappingTree[0].id] = shopeeAddrMappingTree[0].division_name
+    switch (addressLevel) {
+      case 1:
+        address["provinceInfo"] = detailInfo;
+        break;
+      case 2:
+        address["cityInfo"] = detailInfo;
+        break;
+      case 3:
+        address["distinceInfo"] = detailInfo;
+        break;
+      case 4:
+        address["streetInfo"] = detailInfo;
+        break;
+    }
+    return address
+  }
+  shopAdressPlatform = {
+    SPMY: '0',
+    SPTW: '1',
+    SPVN: '2',
+    SPID: '3',
+    SPPH: '4',
+    SPTH: '5',
+    SPSG: '6',
+    SPBR: '7',
+    LZDMY: '8',
+    LZDPH: '9',
+    LZDTH: '10',
+    LZDSG: '11',
+    LZDID: '12',
+    LZDVN: '13',
+  }
+  //shopee地址处理
+  async searchShopeeAddrMappingTree(platform, country, shopeeMapId, typeMark) {
+    let data = null
+    if (platform == 11) {
+      switch (country) {
+        case "MY":
+          data = await window['CommodityBridgeService'].callAddrHelper('GetAddress', this.shopAdressPlatform.SPMY, "0", shopeeMapId);
+          return data && JSON.parse(data) || null
+        case "ID":
+          data = await window['CommodityBridgeService'].callAddrHelper('GetAddress', this.shopAdressPlatform.SPID, "0", shopeeMapId);
+          return data && JSON.parse(data) || null
+        case "TH":
+          data = await window['CommodityBridgeService'].callAddrHelper('GetAddress', this.shopAdressPlatform.SPTH, "0", shopeeMapId);
+          return data && JSON.parse(data) || null
+        case "PH":
+          data = await window['CommodityBridgeService'].callAddrHelper('GetAddress', this.shopAdressPlatform.SPPH, "0", shopeeMapId);
+          return data && JSON.parse(data) || null
+        case "SG":
+          data = await window['CommodityBridgeService'].callAddrHelper('GetAddress', this.shopAdressPlatform.SPSG, "0", shopeeMapId);
+          return data && JSON.parse(data) || null
+        case "VN":
+          data = await window['CommodityBridgeService'].callAddrHelper('GetAddress', this.shopAdressPlatform.SPVN, "0", shopeeMapId);
+          return data && JSON.parse(data) || null
+        default:
+          return null;
+      }
+    } else {
+      return null
     }
   }
   /**
@@ -580,7 +675,6 @@ export default class {
       }
       return params
     }
-    console.log(account, "account")
     let params = {
       // UserNameCache: account.cache_path,
       UserNameCache: '',

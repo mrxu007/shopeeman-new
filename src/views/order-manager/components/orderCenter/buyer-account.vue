@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-11-09 10:14:02
- * @LastEditTime: 2021-11-26 10:02:59
+ * @LastEditTime: 2021-12-03 12:01:54
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shopeeman-new\src\components\buyer-account.vue
@@ -333,9 +333,13 @@ export default {
         arr.forEach(item=>{
           item.type = 13
         })
-        this.buyerAccountListGlobal = arr
+         let sortData = arr.sort(function (a, b) {
+          var x = a['updated_at'].replace(/:/g, '').replace(/-/g, '').replace(' ', '')
+          var y = b['updated_at'].replace(/:/g, '').replace(/-/g, '').replace(' ', '')
+          return x < y ? 1 : x > y ? -1 : 0
+        })
+        this.buyerAccountListGlobal = sortData || arr
         this.$parent['buyerAccountListGlobal'] = arr
-        // console.log(this.buyerAccountListGlobal,"buyerAccountListGlobal")
         this.defaultSelect()
       }
     },
@@ -384,14 +388,14 @@ export default {
         this.$parent.$refs.Logs.writeLog('店铺数据为空，同步操作已取消!', false)
         return
       }
-      this.$parent.$refs.Logs.writeLog('开始同步，请耐心等待!', true)
+      this.$parent.$refs.Logs.writeLog(`开始同步【近七天】订单，请耐心等待!`, true)
       for (let mI = 0; mI < mallList.length; mI++) {
         let mall = mallList[mI]
         for (let i = 0; i < syncStatus.length; i++) {
           //同步状态
           let statusObj = syncStatus[i]
           const orderService = new orderSync(mall, statusObj, this, this.$parent.$refs.Logs.writeLog)
-          await orderService.start(`${mI + 1}/${mallList.length}`, 'manual')
+          await orderService.start(`${mI + 1}/${mallList.length}`, 'manual',7)
         }
       }
       this.$parent.$refs.Logs.writeLog('订单同步已完成！！！', true)
@@ -470,7 +474,7 @@ export default {
           this.$parent['colorVisible'] = true
           this.$parent[clickEvent]()
           return
-        case 10: //配置列
+        case 10: //批量标记海外商品
           if (!this.$parent['multipleSelection'].length) {
             return this.$message.warning('请先选择需要标记的商品！')
           }
@@ -556,7 +560,6 @@ export default {
         proxyId: this.proxyType,
       }
       const key = params.AccountType + params.UserName
-      console.log(account, params, key, 'adddddddddd')
       await this.$appConfig.UpdateCacheInfo('buyerInfo', key, params)
     },
     //转换拍单平台type

@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-11-20 21:08:11
- * @LastEditTime: 2021-12-01 12:08:44
+ * @LastEditTime: 2021-12-02 18:02:56
  * @LastEditors: Please set LastEditors
  * @Description: 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  * @FilePath: \shopeeman-new\src\views\order-manager\components\orderCenter\addBuyLink.vue
@@ -146,9 +146,10 @@ export default {
       this.rowBuyLinks.forEach((item, index) => {
         let execPlatform = /(yangkeduo.com)|(taobao.com)|(jingxi.com)|(jd.com)|(1688.com)|(tmall.com)|(pinduoduo.com)|(xiapi.xiapibuy.com)|(taobao.global)|(lazada.com)/g
         let execGoods = /goods_id=([0-9]*)/
+        let pddGoods = /goodsId=(\d+)/
         let execIDs = /id=([0-9]*)/
         let jxIDs = /sku=([0-9]*)/
-        let tmGlobalIDs = /mpId=([0-8]*)/
+        let tmGlobalIDs = /mpId=(\d+)/
         let jdlazada1688IDs = /(\d+)\.html/
         let shopeeIDs =  /[^\/]+(?!.*\/)/
         let platform = item.purchase_url.match(execPlatform)
@@ -159,7 +160,7 @@ export default {
             message: `采购链接不能为空,请检查采购链接`,
           })
         }
-        console.log(item.purchase_url.match(execGoods))
+        console.log(item.purchase_url.match(pddGoods),"4646546554")
         if (item.purchase_url.match(execGoods)) {
           item.purchase_goods_id = item.purchase_url.match(execGoods)[1]
         } else if (item.purchase_url.match(execIDs)) {
@@ -172,6 +173,9 @@ export default {
           item.purchase_goods_id = item.purchase_url.match(jdlazada1688IDs)[1]
         } else if (item.purchase_url.match(shopeeIDs)) {
           item.purchase_goods_id = item.purchase_url.match(shopeeIDs)[0]
+        } else if (item.purchase_url.match(pddGoods)) {
+          console.log(item.purchase_url.match(pddGoods),"kfjhgkfhkjghfkjh")
+          item.purchase_goods_id = item.purchase_url.match(pddGoods)[1]
         } else {
           return this.$notify({
             title: '采购地址管理',

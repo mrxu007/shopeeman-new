@@ -1050,6 +1050,58 @@ export default class NetMessageBridgeService {
       }
     }
   }
+    // 查询商品
+    async searchProductList(country, data) {
+      const res = await this.getChinese(country, '/api/v3/product/search_product_list/', data)
+      console.log(res,"55263")
+      const resObj = res && JSON.parse(res)
+      console.log(resObj)
+      if (resObj && resObj.status === 200) {
+        const info = JSON.parse(resObj.data)
+        if (info && info.code === 0) {
+          return {
+            code: 200,
+            data: info.data || []
+          }
+        } else {
+          return {
+            code: 50001,
+            data: info.message || []
+          }
+        }
+      } else {
+        return {
+          code: resObj.status,
+          data: `获取失败${resObj.statusText}`
+        }
+      }
+    }
+    // 查询商品详情
+    async searchProductDetail(country, data) {
+      const res = await this.getChinese(country, '/api/v3/product/get_product_detail/', data)
+      console.log(res,"55263")
+      const resObj = res && JSON.parse(res)
+      console.log(resObj)
+      if (resObj && resObj.status === 200) {
+        const info = JSON.parse(resObj.data)
+        if (info && info.code === 0) {
+          return {
+            code: 200,
+            data: info.data || []
+          }
+        } else {
+          return {
+            code: 50001,
+            data: info.message || []
+          }
+        }
+      } else {
+        return {
+          code: resObj.status,
+          data: `获取失败${resObj.statusText}`
+        }
+      }
+    }
   // 商品下架
   async handleGoodsDelist(country, data, params) {
     const res = await this.postChineseShop(country, '/api/v3/product/update_product/', data, params, {
