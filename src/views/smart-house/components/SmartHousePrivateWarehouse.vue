@@ -124,8 +124,8 @@
                     </el-tooltip>
                   </template>
                 </el-table-column>
-                <el-table-column label="SKU ID" prop="sku_id" align="center" />
-                <el-table-column label="SKU名称" prop="sku_name" align="center" />
+                <el-table-column label="SKU ID" prop="sku_id" align="center" show-overflow-tooltip />
+                <el-table-column label="SKU名称" prop="sku_name" align="center" show-overflow-tooltip />
                 <el-table-column label="价格" prop="sku_price" align="center" />
                 <el-table-column label="库存" prop="stock_num" align="center" />
                 <el-table-column label="操作" width="80" align="center">
@@ -821,6 +821,7 @@ export default {
       span {
         display: inline-block;
         width: 80px;
+        text-align: right;
       }
     }
   }

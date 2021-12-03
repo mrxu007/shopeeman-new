@@ -437,11 +437,7 @@
           align="center"
           label="商品单价(RMB)"
           prop="sku_price"
-        >
-          <template slot-scope="{row}">
-            {{ row.sku_price?parseInt(row.sku_price):'' }}
-          </template>
-        </el-table-column>
+        />
         <el-table-column
           width="100"
           align="center"
@@ -1523,7 +1519,7 @@ export default {
           let goods_price_total = 0
           item.sku_list.forEach(skuItem => {
             goods_total += skuItem.sku_num ? skuItem.sku_num : 0
-            goods_price_total += skuItem.sku_price ? parseInt(skuItem.sku_price) * skuItem.sku_num : 0
+            goods_price_total += skuItem.sku_price ? parseFloat(skuItem.sku_price).toFixed(2) * skuItem.sku_num : 0
           })
           item.goods_total = goods_total
           item.goods_price_total = goods_price_total
@@ -1945,6 +1941,11 @@ export default {
         }
         if (!this.shipTypeNameObj[ship_type]) {
           this.$refs.Logs.writeLog(`【${index + 1}】运输方式未找到引用值`, false)
+          continue
+        }
+        var Regx = /^[A-Za-z0-9]*$/
+        if (!Regx.test(sku_id)) {
+          this.$refs.Logs.writeLog(`【${index + 1}】商品编号(sku)只能填字母或数字`, false)
           continue
         }
         const obj = {

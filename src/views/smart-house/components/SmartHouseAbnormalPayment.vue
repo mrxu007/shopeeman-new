@@ -67,8 +67,7 @@
           <el-date-picker
             v-model="form.createAt"
             unlink-panels
-            type="datetimerange"
-            :picker-options="pickerOptions"
+            type="daterange"
             range-separator="-"
             start-placeholder="开始日期"
             end-placeholder="结束日期"
@@ -101,7 +100,7 @@
       <el-table
         ref="plTable"
         v-loading="isShowLoading"
-        height="calc(100vh - 205px)"
+        height="calc(100vh - 210px)"
         :data="tableData"
         :header-cell-style="{
           backgroundColor: '#f5f7fa',
@@ -278,34 +277,7 @@ export default {
       total: 0,
       pageSize: 50,
       page: 1,
-      tableData: [],
-      pickerOptions: {
-        shortcuts: [{
-          text: '最近一周',
-          onClick(picker) {
-            const end = new Date()
-            const start = new Date()
-            start.setTime(start.getTime() - 3600 * 1000 * 24 * 7)
-            picker.$emit('pick', [start, end])
-          }
-        }, {
-          text: '最近一个月',
-          onClick(picker) {
-            const end = new Date()
-            const start = new Date()
-            start.setTime(start.getTime() - 3600 * 1000 * 24 * 30)
-            picker.$emit('pick', [start, end])
-          }
-        }, {
-          text: '最近三个月',
-          onClick(picker) {
-            const end = new Date()
-            const start = new Date()
-            start.setTime(start.getTime() - 3600 * 1000 * 24 * 90)
-            picker.$emit('pick', [start, end])
-          }
-        }]
-      }
+      tableData: []
     }
   },
   mounted() {
@@ -316,7 +288,7 @@ export default {
     async getAbnormalPayment() {
       this.isShowLoading = true
       const parmas = JSON.parse(JSON.stringify(this.form))
-      parmas.createAt = parmas.createAt ? `${this.$dayjs(parmas.createAt[0]).format('YYYY-MM-DD HH:mm:ss')}/${this.$dayjs(parmas.createAt[1]).format('YYYY-MM-DD HH:mm:ss')}` : ''
+      parmas.createAt = parmas.createAt ? `${this.$dayjs(parmas.createAt[0]).format('YYYY-MM-DD 00:00:00')}/${this.$dayjs(parmas.createAt[1]).format('YYYY-MM-DD 23:23:23')}` : ''
       parmas.page = this.page
       parmas.pageSize = this.pageSize
       try {

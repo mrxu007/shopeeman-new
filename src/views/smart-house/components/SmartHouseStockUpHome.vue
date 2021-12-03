@@ -966,7 +966,7 @@
       class="sku-details-dialog"
       title="选择需要预报的SKU"
       :visible.sync="skuDetailsVisible"
-      width="620px"
+      width="630px"
       :close-on-click-modal="false"
       :close-on-press-escape="false"
     >
@@ -1577,6 +1577,11 @@ export default {
         }
         if (!weight) {
           this.$refs.Logs.writeLog(`【${index + 1}】重量(g)为空`, false)
+          continue
+        }
+        var Regx = /^[A-Za-z0-9]*$/
+        if (!Regx.test(sku_id)) {
+          this.$refs.Logs.writeLog(`【${index + 1}】商品编号(sku)只能填字母或数字`, false)
           continue
         }
         const obj = {
