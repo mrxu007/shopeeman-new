@@ -118,7 +118,8 @@
           </el-table-column>
           <el-table-column prop="return_create_time" label="包裹创建时间" min-width="150px" align="center" />
           <el-table-column prop="expired_at" label="过期时间" min-width="180px" align="center" />
-          <el-table-column prop="ext.free_storage_days" label="免租天数" min-width="100px" align="center" fixed="right" />
+          <el-table-column prop="ext.free_storage_days" label="免租天数" min-width="100px" align="center" />
+          <el-table-column prop="resale_order_sn" label="二次销售订单号" min-width="150px" align="center" fixed="right" />
         </el-table>
         <div class="pagination">
           <el-pagination
@@ -244,6 +245,7 @@ export default {
         <td style="width: 200px; text-align:left;">包裹创建时间</td>
         <td style="width: 200px; text-align:left;">过期时间</td>
         <td style="width: 200px; text-align:left;">免租天数</td>
+        <td style="width: 200px; text-align:left;">二次销售订单号</td>
       </tr>`
         this.tableData.map((item) => {
           msg += `
@@ -264,6 +266,8 @@ export default {
           <td style="text-align:left;">${item.return_create_time || ''}</td>
           <td style="text-align:left;">${item.expired_at || ''}</td>
           <td style="text-align:left;">${item.ext.free_storage_days === null ? '' : item.ext.free_storage_days}</td>
+          <td style="text-align:left;">${item.resale_order_sn || ''}</td>
+      
         </tr>
         `
         })
