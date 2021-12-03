@@ -185,7 +185,7 @@ export default {
       pageSize: 50,
       page: 1,
       form: {
-        wherehouseName: 17, // 仓库名称
+        wherehouseName: 0, // 仓库名称
         returnStatus: 0, // 订单出库状态
         returnCreateTime: [new Date().getTime() - 3600 * 1000 * 24 * 30, new Date()], // 出单创建时间
         returnOrderNumber: '', // 订单编号

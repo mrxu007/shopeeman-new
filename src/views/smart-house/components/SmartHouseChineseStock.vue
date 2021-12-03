@@ -131,12 +131,9 @@
         >
           <template slot-scope="{row}">
             <el-tooltip
-              v-if="row.sku_image"
-              effect="light"
-              placement="right-end"
-              :visible-arrow="false"
-              :enterable="false"
-              style="width: 50px; height: 50px"
+              style="width: 40px; height: 40px"
+              :src="row.sku_image"
+              :preview-src-list="[row.sku_image]"
             >
               <div slot="content">
                 <el-image
