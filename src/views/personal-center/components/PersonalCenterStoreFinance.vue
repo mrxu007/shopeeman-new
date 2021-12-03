@@ -308,7 +308,7 @@ export default {
       if (this.activeName === 'rechargeRecord') {
         const params = {
           app_uid: this.muid,
-          page_size: this.pageSize,
+          page_size: 200,
           page: this.currentPage,
           trans_time: this.tradeTime.length ? this.tradeTime[0] + ' 00:00:00/' + this.tradeTime[1] + ' 23:59:59' : ''
         }
@@ -329,7 +329,7 @@ export default {
       } else if (this.activeName === 'accountRecord') {
         const params = {
           app_uid: this.muid,
-          page_size: this.pageSize,
+          page_size: 200,
           page: this.currentPage,
           trans_time: this.tradeTime.length ? this.tradeTime[0] + ' 00:00:00/' + this.tradeTime[1] + ' 23:59:59' : '',
           package_order_sn: this.orderNumber,
