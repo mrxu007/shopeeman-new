@@ -159,10 +159,13 @@
           label="商品图片"
         >
           <template slot-scope="{row}">
-            <el-image
-              style="width: 40px; height: 40px"
-              :src="row.stock.sku_image || row.stock.real_image_url"
-              :preview-src-list="[row.stock.sku_image || row.stock.real_image_url]"
+            <el-tooltip
+              v-if="row.stock.sku_image || row.stock.real_image_url"
+              effect="light"
+              placement="right-end"
+              :visible-arrow="false"
+              :enterable="false"
+              style="width: 50px; height: 50px"
             >
               <div slot="content">
                 <el-image
@@ -178,8 +181,8 @@
               >
                 <div slot="error" class="image-slot" />
               </el-image>
-              </el-tooltip>
-            </el-image></template>
+            </el-tooltip>
+          </template>
         </el-table-column>
         <el-table-column
           label="绑定用户"

@@ -130,7 +130,7 @@
           label="商品图片"
         >
           <template slot-scope="{row}">
-            <el-image
+            <el-tooltip
               style="width: 40px; height: 40px"
               :src="row.sku_image"
               :preview-src-list="[row.sku_image]"
@@ -149,8 +149,8 @@
               >
                 <div slot="error" class="image-slot" />
               </el-image>
-              </el-tooltip>
-            </el-image></template>
+            </el-tooltip>
+          </template>
         </el-table-column>
         <el-table-column
           min-width="130"
