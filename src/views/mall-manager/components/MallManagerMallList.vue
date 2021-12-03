@@ -1692,7 +1692,7 @@ export default {
           // 2、shopeeMan官方登录
           let res = await this.$shopeemanService.login(item, this.flat)
           console.log('login',res)
-          if (res.code !== 200 || true) {
+          if (res.code !== 200) {
             if(this.flat === 1){
               item.LoginInfo = `<p style="color: red">登录失败：${res.data.message || errorStr}</p>`
             }else{
@@ -1700,8 +1700,8 @@ export default {
             }
 
             console.log('handleResult - parm')
-            const handleResult = await this.handleReturnLogin(item, {code:'error_need_ivs',data:''})
-            // const handleResult = await this.handleReturnLogin(item, res)
+            // const handleResult = await this.handleReturnLogin(item, {code:'error_need_ivs',data:''})
+            const handleResult = await this.handleReturnLogin(item, res)
             console.log('handleResult',handleResult)
             if (handleResult.code === 200) { // 3、处理登录弹框
               res = handleResult
@@ -1731,10 +1731,9 @@ export default {
             mallDataInfo.web_login_info['ShopeeUid'] = Cookie.ShopeeUid
             mallDataInfo.web_login_info['shopeeuid'] = Cookie.ShopeeUid
             mallDataInfo.web_login_info['shopid'] = Cookie.shopid
-            mallDataInfo.web_login_info['SPC_F'] = Cookie.SPC_F
-            mallDataInfo.web_login_info['spc_f'] = Cookie.spc_f
+            mallDataInfo.web_login_info['SPC_F'] = Cookie.SPC_F || mallDataInfo.web_login_info['SPC_F']
+            mallDataInfo.web_login_info['spc_f'] = Cookie.spc_f || mallDataInfo.web_login_info['spc_f']
             // 4、更新壳信息
-            console.log('updateInfoMall',JSON.stringify(mallDataInfo))
             await this.$appConfig.updateInfoMall(mallId, JSON.stringify(mallDataInfo)) // 更新里面店铺的cookie （壳）
           } else { // 导入店铺
           // 导入的店铺信息
@@ -1833,7 +1832,7 @@ export default {
           }
         } catch (error) {
           console.log('error',error)
-          this.flat === 1 ? (item.LoginInfo = `<p style="color: red">登录失败：（登录异常，店铺ID已被shopee官方更换，最新店铺ID为【${mallId}】，请联系客服更换后重试），然后重试店铺登录</p>`) : this.writeLog(`(${i + 1}/${len})账号【${platform_mall_name}】授权失败：${error}`, false)
+          this.flat === 1 ? (item.LoginInfo = `<p style="color: red">登录失败：${error}</p>`) : this.writeLog(`(${i + 1}/${len})账号【${platform_mall_name}】授权失败：${error}`, false)
           continue
         }
       }
