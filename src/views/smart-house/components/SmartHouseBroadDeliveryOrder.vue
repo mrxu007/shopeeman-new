@@ -204,7 +204,7 @@
           min-width="135"
         />
         <el-table-column
-          label="出库商品详情"
+          label="操作"
           min-width="180"
         >
           <template slot-scope="{row}">
@@ -254,7 +254,7 @@
       class="details-dialog"
       title="出库商品详情"
       :visible.sync="detailsVisible"
-      width="800px"
+      width="1000px"
       :close-on-click-modal="false"
       :close-on-press-escape="false"
     >
@@ -343,11 +343,12 @@
               style="width: 50px; height: 50px"
             >
               <div slot="content">
-                <img
+                <el-image
                   :src="row.sku_image"
-                  width="300px"
-                  height="300px"
+                  style="width: 400px; height: 400px"
                 >
+                  <div slot="error" class="image-slot" />
+                </el-image>
               </div>
               <el-image
                 style="width: 40px; height: 40px"
@@ -495,12 +496,14 @@
           align="center"
           label="商品名称"
           prop="goods_name"
+          show-overflow-tooltip
         />
         <el-table-column
           width="150"
           align="center"
           label="商品规格"
           prop="sku_name"
+          show-overflow-tooltip
         />
         <el-table-column
           width="150"
@@ -539,23 +542,27 @@
               style="width: 50px; height: 50px"
             >
               <div slot="content">
-                <img
+                <el-image
                   :src="row.sku_image || row.real_image_url"
-                  width="300px"
-                  height="300px"
+                  style="width: 400px; height: 400px"
                 >
-              </div>
-              <el-image
-                style="width: 40px; height: 40px"
-                :src="row.sku_image || row.real_image_url"
-              >
-                <div slot="placeholder" class="image-slot">
-                  加载中<span class="dot">...</span>
-                </div>
+                  <div slot="placeholder" class="image-slot">
+                    加载中<span class="dot">...</span>
+                  </div>
+                  >
+                  <div slot="error" class="image-slot" />
+                </el-image>
+                <el-image
+                  style="width: 40px; height: 40px"
+                  :src="row.sku_image || row.real_image_url"
                 >
-                <div slot="error" class="image-slot" />
-              </el-image>
-            </el-tooltip>
+                  <div slot="placeholder" class="image-slot">
+                    加载中<span class="dot">...</span>
+                  </div>
+                  >
+                  <div slot="error" class="image-slot" />
+                </el-image>
+              </div></el-tooltip>
           </template>
         </el-table-column>
         <el-table-column
@@ -788,9 +795,13 @@ export default {
       this.reissueVisible = true
       this.getStock()
     },
-    // 打开商品链接
-    openUrl(row) {
-      window.open(row)
+    // 打开外部链接
+    async openUrl(url) {
+      try {
+        await this.$BaseUtilService.openUrl(url)
+      } catch (error) {
+        this.$message.error(`打开链接【${url}】失败`)
+      }
     },
     // 获取库存
     async getStock() {
@@ -843,8 +854,8 @@ export default {
           let goods_num = 0
           let goods_price = 0
           item.sku_list.forEach(skuItem => {
-            goods_num += skuItem.sku_num ? skuItem.sku_num : 0
-            goods_price += skuItem.sku_price ? parseInt(skuItem.sku_price) * skuItem.sku_num : 0
+            goods_num += skuItem.sku_num ? Number(skuItem.sku_num) : 0
+            goods_price += skuItem.sku_price ? Number(skuItem.sku_price) * skuItem.sku_num : 0
           })
           item.goods_num = goods_num
           item.goods_price = goods_price

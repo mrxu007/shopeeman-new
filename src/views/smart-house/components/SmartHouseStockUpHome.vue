@@ -307,11 +307,12 @@
               style="width: 50px; height: 50px"
             >
               <div slot="content">
-                <img
+                <el-image
                   :src="row.sku_image"
-                  width="300px"
-                  height="300px"
+                  style="width: 400px; height: 400px"
                 >
+                  <div slot="error" class="image-slot" />
+                </el-image>
               </div>
               <el-image
                 style="width: 40px; height: 40px"
@@ -376,7 +377,7 @@
                 :disabled="isforeignClose"
                 @click="itselfGoodsImport"
               >自有商品导入</el-button>
-              <el-upload ref="importRef" :disabled="isforeignClose" style="margin:0 10px" accept=".xls, .xlsx" action="https://jsonplaceholder.typicode.com/posts/" :on-change="importTemplate" :show-file-list="false" :auto-upload="false">
+              <el-upload ref="importRef" :disabled="isforeignClose" style="margin:0 10px" accept=".xlsx,.xls," action="https://jsonplaceholder.typicode.com/posts/" :on-change="importTemplate" :show-file-list="false" :auto-upload="false">
                 <el-button :disabled="isforeignClose" :data="importTemplateData" size="mini" type="primary"> 批量Excel导入 </el-button>
               </el-upload>
               <el-button
@@ -447,7 +448,7 @@
           </template>
         </el-table-column>
         <el-table-column
-          width="130"
+          width="150"
           align="center"
           label="商品名称"
           show-overflow-tooltip
@@ -457,7 +458,7 @@
           </template>
         </el-table-column>
         <el-table-column
-          width="150"
+          width="80"
           align="center"
           label="商品数量"
         >
@@ -466,7 +467,7 @@
           </template>
         </el-table-column>
         <el-table-column
-          width="150"
+          width="110"
           align="center"
           label="商品单价(RMB)"
         >
@@ -475,7 +476,7 @@
           </template>
         </el-table-column>
         <el-table-column
-          width="100"
+          width="120"
           align="center"
           label="商品规格"
           show-overflow-tooltip
@@ -499,11 +500,12 @@
               style="width: 50px; height: 50px"
             >
               <div slot="content">
-                <img
+                <el-image
                   :src="row.skuList[0].sku_image"
-                  width="300px"
-                  height="300px"
+                  style="width: 400px; height: 400px"
                 >
+                  <div slot="error" class="image-slot" />
+                </el-image>
               </div>
               <el-image
                 style="width: 40px; height: 40px"
@@ -515,7 +517,7 @@
           </template>
         </el-table-column>
         <el-table-column
-          width="150"
+          width="100"
           align="center"
           label="商品链接"
         >
@@ -525,11 +527,11 @@
               type="primary"
               size="mini"
               @click="openUrl(row.skuList[0].goods_url)"
-            >查看商品链接</el-button>
+            >商品链接</el-button>
           </template>
         </el-table-column>
         <el-table-column
-          width="100"
+          width="150"
           align="center"
           label="备注"
           prop="remark"
@@ -651,11 +653,12 @@
                     style="width: 50px; height: 50px"
                   >
                     <div slot="content">
-                      <img
+                      <el-image
                         :src="row.image_url"
-                        width="300px"
-                        height="300px"
+                        style="width: 400px; height: 400px"
                       >
+                        <div slot="error" class="image-slot" />
+                      </el-image>
                     </div>
                     <el-image
                       style="width: 40px; height: 40px"
@@ -839,11 +842,12 @@
                     style="width: 50px; height: 50px"
                   >
                     <div slot="content">
-                      <img
+                      <el-image
                         :src="row.image_url"
-                        width="300px"
-                        height="300px"
+                        style="width: 400px; height: 400px"
                       >
+                        <div slot="error" class="image-slot" />
+                      </el-image>
                     </div>
                     <el-image
                       style="width: 40px; height: 40px"
@@ -1019,11 +1023,12 @@
               style="width: 50px; height: 50px"
             >
               <div slot="content">
-                <img
+                <el-image
                   :src="row.image_url"
-                  width="300px"
-                  height="300px"
+                  style="width: 400px; height: 400px"
                 >
+                  <div slot="error" class="image-slot" />
+                </el-image>
               </div>
               <el-image
                 style="width: 40px; height: 40px"
@@ -1158,6 +1163,14 @@ export default {
     await this.getHomeWarehouse()
   },
   methods: {
+    // 打开外部链接
+    async openUrl(url) {
+      try {
+        await this.$BaseUtilService.openUrl(url)
+      } catch (error) {
+        this.$message.error(`打开链接【${url}】失败`)
+      }
+    },
     // 获取数据
     async getHomeWarehouse() {
       this.isShowLoading = true
@@ -1172,7 +1185,7 @@ export default {
           let goods_sign_total = 0
           item.home_stocking_forecast_sub.forEach(skuItem => {
             goods_total += skuItem.purchase_num ? skuItem.purchase_num : 0
-            goods_sign_total += skuItem.sign_num ? parseInt(skuItem.sign_num) * skuItem.sign_num : 0
+            goods_sign_total += skuItem.sign_num ? skuItem.sign_num : 0
           })
           item.goods_total = goods_total
           item.goods_sign_total = goods_sign_total
@@ -1250,10 +1263,6 @@ export default {
     init() {
       this.form.wid = this.widList[0].wid
       this.foreignWid = this.foreignWidList[0].wid
-    },
-    // 打开商品链接
-    openUrl(row) {
-      window.open(row)
     },
     // 选择需要预报的SKU确认
     confirmSku() {

@@ -100,7 +100,7 @@
             type="primary"
             size="mini"
             :loading="cancelLoading"
-            @click="batchCancelReturn()"
+            @click="cancelReturn(multipleSelection,2)"
           >批量取消退件</el-button>
         </li>
       </ul>
@@ -111,6 +111,7 @@
         v-loading="isShowLoading"
         height="calc(100vh - 249px)"
         :data="tableData"
+        :row-style="{height:'45px'}"
         :header-cell-style="{
           backgroundColor: '#f5f7fa',
         }"
@@ -129,6 +130,7 @@
           fixed
         />
         <el-table-column
+          align="center"
           prop="need_return_package_code"
           label="包裹物流单号"
           min-width="180px"
@@ -146,6 +148,7 @@
           </template>
         </el-table-column>
         <el-table-column
+          align="center"
           prop="order_sn"
           label="订单编号"
           min-width="180px"
@@ -163,53 +166,57 @@
           </template>
         </el-table-column>
         <el-table-column
+          align="center"
           prop="warehouse_name"
           label="签收仓库"
           min-width="130px"
         />
         <el-table-column
+          align="center"
           prop="status"
           label="状态"
           min-width="80px"
         >
           <template slot-scope="{ row }">
-            <span v-if="row.status === 1">退件中</span>
-            <span v-else-if="row.status === 2">已退件</span>
-            <span v-else-if="row.status === 3">退件失败</span>
-            <span v-else-if="row.status === 4">取消退件</span>
-            <span v-else-if="row.status === 5">仓库驳回</span>
-            <span v-else />
+            {{ statusObj[row.status]?statusObj[row.status]:'' }}
           </template>
         </el-table-column>
         <el-table-column
+          align="center"
           prop="appli_return_time"
           label="申请退件时间"
           min-width="150px"
         />
         <el-table-column
+          align="center"
           prop="return_contact"
           label="退件人"
-          min-width="80px"
+          min-width="100px"
+          show-overflow-tooltip
         />
         <el-table-column
+          align="center"
           prop="return_phone_number"
           label="退件电话"
           min-width="120px"
           show-overflow-tooltip
         />
         <el-table-column
+          align="center"
           prop="return_address"
           label="退件地址"
           min-width="180px"
           show-overflow-tooltip
         />
         <el-table-column
+          align="center"
           prop="return_remarks"
           label="退件备注"
           min-width="150px"
           show-overflow-tooltip
         />
         <el-table-column
+          align="center"
           prop="return_shipping_number"
           label="退件物流单号"
           min-width="180px"
@@ -229,34 +236,37 @@
           </template>
         </el-table-column>
         <el-table-column
+          align="center"
           prop="return_shipping_name"
           label="退件物流公司"
           min-width="150px"
           show-overflow-tooltip
         />
         <el-table-column
+          align="center"
           prop="return_time"
           label="退件时间"
           min-width="150px"
         />
         <el-table-column
+          align="center"
           prop="warehouse_remarks"
           label="仓库备注"
           min-width="150px"
           show-overflow-tooltip
         />
         <el-table-column
+          align="center"
           min-width="120px"
           label="操作"
           fixed="right"
-          align="center"
         >
           <template slot-scope="{ row }">
             <el-button
-              v-if="row.status != 4 && row.status != 2"
+              v-if="row.status != 4 && row.status != 2 && row.status != 3"
               type="primary"
               size="mini"
-              @click="cancelReturn(row)"
+              @click="cancelReturn(row,1)"
             >取消退件</el-button>
           </template>
         </el-table-column>
@@ -274,6 +284,9 @@
         />
       </div>
     </el-row>
+    <div class="logging">
+      <Logs ref="Logs" v-model="showConsole" clear />
+    </div>
   </el-row>
 </template>
 
@@ -282,6 +295,7 @@ export default {
   data() {
     return {
       cancelLoading: false,
+      showConsole: true,
       form: {
         returnTime: '', // 退件时间
         applyReturnTime: [new Date().getTime() - 3600 * 1000 * 24 * 30, new Date()], // 申请退件时间
@@ -305,40 +319,46 @@ export default {
       ],
       returnMsg: false,
       multipleSelection: [],
-      isShowLoading: false
+      isShowLoading: false,
+      statusObj: {
+        1: '退件中',
+        2: '已退件',
+        3: '退件失败',
+        4: '取消退件',
+        5: '仓库驳回'
+      }
     }
   },
   mounted() {
     this.getReturnManage()
   },
   methods: {
-    // 批量取消退件
-    async batchCancelReturn() {
-      if (!this.multipleSelection.length) return this.$message('请选择需要取消退件的包裹')
+    // 取消/批量取消
+    async cancelReturn(val, type) {
       this.packageCodes = []
-      this.multipleSelection.map((item) => {
-        this.packageCodes.push(item.need_return_package_code)
-      })
-      this.cancelLoading = true
-      await this.cancel()
-      this.cancelLoading = false
-    },
-    // 取消退件
-    async cancelReturn(row) {
-      this.packageCodes = []
-      this.packageCodes.push(row.need_return_package_code)
-      await this.cancel()
-    },
-    async cancel() {
+      if (type === 1) {
+        this.packageCodes.push(val.need_return_package_code)
+      } else {
+        if (!val.length) return this.$message('请选择需要取消退件的包裹')
+        this.cancelLoading = true
+        val.map((item) => {
+          this.packageCodes.push(item.need_return_package_code)
+        })
+      }
+      this.showConsole = false
+      this.$refs.Logs.writeLog(`开始取消退件...`, true)
       console.log('packageCodes', this.packageCodes)
       const res = await this.$api.cancelReturn({ packageCodes: this.packageCodes })
-      console.log('res', res)
       if (res.data.code === 200) {
         this.getReturnManage()
-        this.$message.success('取消退件成功')
+        this.$refs.Logs.writeLog(`取消退件成功`, true)
       } else {
-        this.$message.error(res.data.message)
+        res.data.data.forEach((item) => {
+          this.$refs.Logs.writeLog(`【${item.split('：')[0]}】${item.split('：')[1]}`, false)
+        })
+        console.log(res.data.data)
       }
+      this.cancelLoading = false
     },
     // 获取退件信息
     async getReturnManage() {

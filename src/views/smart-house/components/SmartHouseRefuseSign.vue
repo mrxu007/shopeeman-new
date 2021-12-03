@@ -50,10 +50,10 @@
               /></span></span>
           </template>
         </el-table-column>
-        <el-table-column label="仓库名称" prop="warehouse_name" min-width="90px" />
+        <el-table-column label="仓库名称" prop="warehouse_name" min-width="150px" />
         <el-table-column label="类别" prop="orderType" min-width="90px" />
         <el-table-column label="添加时间" prop="created_at" min-width="150px" />
-        <el-table-column label="拒收时间" prop="appli_rejected_time" min-width="150px" />
+        <el-table-column label="拒收时间" prop="rejected_time" min-width="150px" />
         <el-table-column label="状态" prop="status" min-width="70px">
           <template slot-scope="scope">
             <div v-if="scope.row.status" class="btn-box">

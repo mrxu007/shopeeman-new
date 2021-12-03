@@ -51,19 +51,35 @@
         <el-table-column min-width="80" label="商品链接" prop="goods_url" align="center" show-overflow-tooltip>
           <template slot-scope="scope">
             <div v-if="scope.row.goods_url">
-              <el-button type="primary" size="mini" @click="openGoodsUrl(scope.row.goods_url)">查看商品</el-button>
+              <el-button type="primary" size="mini" @click="openUrl(scope.row.goods_url)">查看商品</el-button>
             </div>
           </template>
         </el-table-column>
         <el-table-column label="商品图片" width="80">
           <template slot-scope="scope">
-            <el-image
-              :src="scope.row.goods_img"
-              style="width: 60px; height: 60px"
-              :preview-src-list="[scope.row.goods_img]"
+            <el-tooltip
+              v-if="scope.row.goods_img"
+              effect="light"
+              placement="right-end"
+              :visible-arrow="false"
+              :enterable="false"
+              style="width: 50px; height: 50px"
             >
-              <div slot="error" class="image-slot" />
-            </el-image>
+              <div slot="content">
+                <el-image
+                  style="width: 400px; height: 400px"
+                  :src="scope.row.goods_img"
+                >
+                  <div slot="error" class="image-slot" />
+                </el-image>
+              </div>
+              <el-image
+                style="width: 40px; height: 40px"
+                :src="scope.row.goods_img"
+              >
+                <div slot="error" class="image-slot" />
+              </el-image>
+            </el-tooltip>
           </template>
         </el-table-column>
         <el-table-column min-width="60px" label="库存" align="center">
@@ -83,13 +99,29 @@
                 <el-table-column label="序号" type="index" align="center" />
                 <el-table-column label="SKU图片" width="80" align="center">
                   <template slot-scope="scope">
-                    <el-image
-                      :src="scope.row.sku_image"
-                      style="width: 60px; height: 60px"
-                      :preview-src-list="[scope.row.sku_image]"
+                    <el-tooltip
+                      v-if="scope.row.sku_image"
+                      effect="light"
+                      placement="right-end"
+                      :visible-arrow="false"
+                      :enterable="false"
+                      style="width: 50px; height: 50px"
                     >
-                      <div slot="error" class="image-slot" />
-                    </el-image>
+                      <div slot="content">
+                        <el-image
+                          style="width: 400px; height: 400px"
+                          :src="scope.row.sku_image"
+                        >
+                          <div slot="error" class="image-slot" />
+                        </el-image>
+                      </div>
+                      <el-image
+                        style="width: 40px; height: 40px"
+                        :src="scope.row.sku_image"
+                      >
+                        <div slot="error" class="image-slot" />
+                      </el-image>
+                    </el-tooltip>
                   </template>
                 </el-table-column>
                 <el-table-column label="SKU ID" prop="sku_id" align="center" />
@@ -343,9 +375,13 @@ export default {
     this.searchTableList()
   },
   methods: {
-    // 查看商品
-    openGoodsUrl(url) {
-      window.open(url)
+    // 打开外部链接
+    async openUrl(url) {
+      try {
+        await this.$BaseUtilService.openUrl(url)
+      } catch (error) {
+        this.$message.error(`打开链接【${url}】失败`)
+      }
     },
     // 保存新增
     async saveInsert() {
