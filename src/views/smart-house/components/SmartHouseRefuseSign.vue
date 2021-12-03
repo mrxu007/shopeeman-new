@@ -26,7 +26,7 @@
     <div class="table-box">
       <el-table
         v-loading="isLoading"
-        height="calc(100vh - 150px)"
+        height="calc(100vh - 110px)"
         :data="tableData"
         tooltip-effect="dark"
         style="width: 100%"
@@ -73,7 +73,7 @@
           </template>
         </el-table-column>
       </el-table>
-      <div class="page_to">
+      <!-- <div class="page_to">
         <el-pagination
           style="display: inline-block;"
           background
@@ -85,7 +85,7 @@
           @size-change="handleSizeChange"
           @current-change="newPage"
         />
-      </div>
+      </div> -->
     </div>
     <el-dialog
       title="添加签收管理信息"
@@ -234,7 +234,7 @@ export default {
             const item = list[i]
             item.orderType = getValue(this.typeList, 'label', 'value', item.type)
           }
-          this.total = data.data.total
+          // this.total = data.data.total
           this.tableData = list
           console.log('tableData', this.tableData)
         } else {
