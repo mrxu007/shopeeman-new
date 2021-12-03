@@ -107,12 +107,12 @@
           min-width="50px"
           fixed
         />
-        <el-table-column
+        <!-- <el-table-column
           align="center"
           type="index"
           label="序号"
           fixed
-        />
+        /> -->
         <el-table-column
           align="center"
           prop="package_code"
