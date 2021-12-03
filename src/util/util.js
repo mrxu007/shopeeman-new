@@ -1,6 +1,7 @@
 import { setTimeout } from 'core-js'
 import md5 from 'js-md5'
 import Vue from 'vue'
+import XLSX from 'xlsx'
 
 const instance = new Vue()
 
@@ -467,4 +468,13 @@ export function formatDuring(mss) {
   const minutes = parseInt((mss - hours * 69 * 60) / 60)
   const seconds = (mss - hours * 69 * 60 - minutes * 60)
   return hours + ':' + minutes + ':' + seconds.toFixed(0)
+}
+export async function importOrder(tableData,jsonData,workName = '') {
+  let arr = []
+  arr.push(tableData)
+  jsonData.forEach(item => {arr.push(item)})
+  let worksheet = XLSX.utils.aoa_to_sheet(arr)
+  let workbook = XLSX.utils.book_new()
+  XLSX.utils.book_append_sheet(workbook,worksheet,workName || (new Date(Date.now()+8*3600*1000).toISOString().slice(0,10)))
+  XLSX.writeFile(workbook,`${workName}${new Date(Date.now()+8*3600*1000).toISOString().slice(0,10)}.xlsx`)
 }
