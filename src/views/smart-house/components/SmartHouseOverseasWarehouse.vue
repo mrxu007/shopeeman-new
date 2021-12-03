@@ -5,7 +5,7 @@
         <li>
           <span>仓库名称：</span>
           <el-select v-model="form.returnWheareHouseName" placeholder="" size="mini" filterable>
-            <el-option label="全部" :value="17" />
+            <el-option label="全部" :value="0" />
             <el-option v-for="(item, index) in returnWheareHouseNameList" :key="index" :label="item.label" :value="item.value" />
           </el-select>
         </li>
@@ -53,7 +53,7 @@
           <el-table-column prop="sku_name" label="商品规格" width="150" align="center" />
           <el-table-column prop="stock_num" label="可用库存" width="100" align="center" />
           <el-table-column prop="shared_num" label="共享库存" width="110" align="center" />
-          <el-table-column prop="sku_price" label="商品单价（RMB）" width="130" align="center" />
+          <el-table-column prop="sku_price" label="商品单价（RMB/分）" width="140" align="center" />
           <el-table-column prop="sku_url" label="商品链接" width="150" align="center" />
           <el-table-column prop="real_image_url" label="商品图片" width="100" align="center">
             <!-- <template slot-scope="scope">
@@ -113,7 +113,7 @@
                 <el-input v-model="rowx.sku_price" />
               </el-col>
               <el-col span="4">
-                <span>RMB</span>
+                <span>RMB(分)</span>
               </el-col>
             </el-row>
             <el-row>
@@ -124,7 +124,7 @@
                 <el-input v-model="rowx.newprice" />
               </el-col>
               <el-col span="4">
-                <span>RMB</span>
+                <span>RMB(元)</span>
               </el-col>
             </el-row>
             <el-form-item>
@@ -139,7 +139,7 @@
           class="edit-group-dialog"
           :visible.sync="changes1"
           width="25%"
-          title="添加共享库存"
+          title="修改共享库存"
         >
           <el-form>
             <el-row>
@@ -222,14 +222,9 @@ export default {
       filter: false,
       changes: false,
       changes1: false,
+      primarynum: '',
+      sharedtype: '',
       rowx: {
-        goods_name: '',
-        sku_name: '',
-        sku_id: '',
-        sku_price: 1,
-        newprice: 0
-      },
-      rowx1: {
         goods_name: '',
         sku_name: '',
         sku_id: '',
@@ -242,7 +237,7 @@ export default {
         sku_id: '',
         stock_num: 1,
         shared_num: 2,
-        sys_sku_id: '',
+        id: '',
         wid: ''
       },
       form: {
@@ -253,40 +248,86 @@ export default {
         sku_name: ''
       },
       returnWheareHouseNameList: [
-        { value: 2, label: '泰国存储仓' },
-        { value: 3, label: '星卓越菲律宾存储仓' },
-        { value: 4, label: '星卓越马来存储仓' },
-        { value: 5, label: '超世代（越南仓海外仓）' },
-        { value: 6, label: '锦汐越南海外仓' }
+        { value: 17, label: '泰国存储仓' },
+        { value: 27, label: '星卓越菲律宾存储仓' },
+        { value: 28, label: '星卓越马来存储仓' },
+        { value: 75, label: '超世代（越南仓海外仓）' },
+        { value: 110, label: '锦汐越南海外仓' }
       ]
     }
   },
   mounted() {
     this.getoverseaswarehouse()
+    this.test()
   },
   methods: {
     // 改价点击确定
     async onsubmit() {
       this.changes = false
+      const parmas = {
+        sku_id: this.rowx.sku_id,
+        app_uid: '',
+        price: Number(this.rowx.newprice)
+      }
+      console.log(parmas)
+      try {
+        let data = await this.$XzyNetMessageService.post('xzy.stock.editPrice', parmas)
+        data = JSON.parse(data)
+        data.data = JSON.parse(data.data)
+        if (data.status === 200) {
+          this.$message.success(`改价成功`)
+        } else {
+          this.$message.error(`改价失败${data.data.message}`)
+        }
+      } catch (error) {
+        console.log(error)
+      }
+      this.getoverseaswarehouse()
+    },
+    // 测试
+    async test() {
+      const parmas = {
+        app_uid: '',
+        wid: this.form.returnWheareHouseName,
+        uid: ''
+      }
+      try {
+        let data = await this.$XzyNetMessageService.post('xzy.getSharedIndex', parmas)
+        data = JSON.parse(data)
+        data.data = JSON.parse(data.data)
+        console.log(data)
+        if (data.data.code === 200) {
+          this.$message.success(`测试数据查询成功`)
+        } else {
+          this.$message.error(`测试数据查询失败${data.data.message}`)
+        }
+      } catch (error) {
+        console.log(error)
+      }
     },
     // 共享库存点击确定
     async onSubmit() {
       this.changes1 = false
+      if (this.rowy.shared_num > Number(this.primarynum)) {
+        this.sharedtype = 1
+      } else {
+        this.sharedtype = 2
+      }
       const parmas = {
-        sys_sku_id: this.rowy.sys_sku_id,
+        shared_id: this.rowy.id,
         shared_num: this.rowy.shared_num,
         app_uid: '',
-        wid: this.rowy.wid
+        type: this.sharedtype
       }
       console.log(parmas)
       try {
-        const data = await this.$XzyNetMessageService.post('/xzy.addSharedInventory', parmas)
-        console.log(data)
-        // console.log(data.data.data.lastItem.sku_list.lastItem.sku_num)
+        let data = await this.$XzyNetMessageService.post('xzy.addSharedInventoryStock', parmas)
+        data = JSON.parse(data)
+        data.data = JSON.parse(data.data)
         if (data.code === 200) {
           this.$message.success(`数据共享成功`)
         } else {
-          this.$message.error(`数据共享失败${data.message}`)
+          this.$message.error(`数据共享失败${data.data.message}`)
         }
       } catch (error) {
         console.log(error)
@@ -300,10 +341,6 @@ export default {
       this.rowx.sku_name = val.sku_name
       this.rowx.sku_id = val.sku_id
       this.rowx.sku_price = val.sku_price
-      this.rowx1.goods_name = val.goods_name
-      this.rowx1.sku_name = val.sku_name
-      this.rowx1.sku_id = val.sku_id
-      this.rowx1.sku_price = val.sku_price
     },
     // 共享功能
     async share(val) {
@@ -313,7 +350,8 @@ export default {
       this.rowy.sku_id = val.sku_id
       this.rowy.stock_num = val.stock_num
       this.rowy.shared_num = val.shared_num
-      this.rowy.sys_sku_id = val.sys_sku_id
+      this.primarynum = val.shared_num
+      this.rowy.id = val.id
       this.rowy.wid = val.wid
     },
     // 过滤功能
@@ -342,7 +380,7 @@ export default {
         data.data = JSON.parse(data.data)
         this.data1 = data.data.data.data
         const data2 = []
-        console.log(this.data1[0].stock_num)
+        // console.log(this.data1[0].stock_num)
         if (data.data.code === 200) {
           for (let i = 0; i < this.data1.length - 1; i++) {
             if (this.data1[i].stock_num !== 0) {
@@ -378,7 +416,7 @@ export default {
         <td style="width: 200px; text-align:left;">商品规格</td>
         <td style="width: 200px; text-align:left;">可用库存</td>
         <td style="width: 200px; text-align:left;">共享库存</td>
-        <td style="width: 200px; text-align:left;">商品单价（RMB）</td>
+        <td style="width: 200px; text-align:left;">商品单价（RMB/分）</td>
         <td style="width: 200px; text-align:left;">商品链接</td>
         <td style="width: 200px; text-align:left;">货架仓位</td>
         <td style="width: 200px; text-align:left;">库存更新时间</td>
@@ -392,8 +430,8 @@ export default {
           <td style="text-align:left;">${item.sku_id || ''}</td>
           <td style="text-align:left;">${item.goods_name || ''}</td>
           <td style="text-align:left;">${item.sku_name || ''}</td>
-          <td style="text-align:left;">${item.stock_num || ''}</td>
-          <td style="text-align:left;">${item.shared_num || ''}</td>
+          <td style="text-align:left;">${item.stock_num}</td>
+          <td style="text-align:left;">${item.shared_num}</td>
           <td style="text-align:left;">${item.sku_price || ''}</td>
           <td style="text-align:left;">${item.sku_url || ''}</td>
           <td style="text-align:left;">${item.position || ''}</td>
