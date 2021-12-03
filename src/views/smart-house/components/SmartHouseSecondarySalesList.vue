@@ -128,7 +128,7 @@
             :page-size="pageSize"
             layout="total,sizes, prev, pager, next, jumper"
             :total="total"
-            :page-sizes="[20, 50, 100, 200]"
+            :page-sizes="[100, 200]"
             @size-change="handleSizeChange"
             @current-change="handleCurrentChange"
           />
@@ -148,7 +148,7 @@ export default {
       currentPage: 1,
       tableData: [],
       total: 0,
-      pageSize: 50,
+      pageSize: 100,
       page: 1,
       form: {
         returnStatus: -1, // 二次销售状态

@@ -51,7 +51,7 @@
         v-loading="tableLoading"
         :data="tableDataCut"
         tooltip-effect="dark"
-        height="calc(100vh - 163px)"
+        height="calc(100vh - 145px)"
       >
         <!-- height="calc(100vh - 106px)" -->
         <el-table-column align="center" type="index" label="序号" width="50">
@@ -69,7 +69,7 @@
       <div class="pagination">
         <el-pagination
           background
-          :page-sizes="[10, 20, 50, 100]"
+          :page-sizes="[100,200]"
           :page-size="pageSize"
           layout="total, sizes, prev, pager, next, jumper"
           :total="total"
@@ -96,7 +96,7 @@ export default {
         }
       },
       statisticsTime: [],
-      pageSize: 20, // 页码
+      pageSize: 100, // 页码
       currentPage: 1, // 页码
       total: 0, // 表格总数
       multipleSelection: [],
@@ -195,7 +195,7 @@ export default {
 
 <style lang="less" scoped>
 .putOn-statistics {
-  min-width: 1280px;
+  min-width: 1200px;
   margin: 10px;
 }
 .mar-right {
@@ -218,7 +218,8 @@ export default {
   }
 }
 .content {
-  margin: 20px 0;
+      margin-top: 20px;
+  // margin: 20px 0;
   background: #fff;
   // height: calc(100vh - 108px);
   // display: flex;

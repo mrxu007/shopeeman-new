@@ -20,7 +20,7 @@
         :data="tableData"
         :border="false"
         :row-style="{ height: '60px' }"
-        height="calc(100vh - 102px)"
+        height="calc(100vh - 120px)"
         :header-cell-style="{
           textAlign: 'center',
           backgroundColor: '#f5f7fa',
