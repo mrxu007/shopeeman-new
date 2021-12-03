@@ -75,14 +75,27 @@ export default class StrockUpForegin {
     }
   }
 
-  // 获取中转仓库和目标仓库列表(海外仓备货)
+  // // 获取中转仓库和目标仓库列表(海外仓备货)
+  // async getOverseasWarehouse() {
+  //   try {
+  //     const res = await this._this.$api.getOverseasWarehouse()
+  //     if (res.data.code === 200) {
+  //       return { code: 200, data: res.data.data }
+  //     }
+  //     return { code: res.data.code, data: `${res.data.message}` }
+  //   } catch (error) {
+  //     return { code: -2, data: `获取仓库列表异常： ${error}` }
+  //   }
+  // }
+  // 获取中转仓库和目标仓库列表(海外仓备货) --- 壳
   async getOverseasWarehouse() {
     try {
-      const res = await this._this.$api.getOverseasWarehouse()
-      if (res.data.code === 200) {
-        return { code: 200, data: res.data.data }
+      const res = await this._this.$appConfig.getGlobalCacheInfo('allWh', '')
+      const jsonData = this.isJsonString(res)
+      if (jsonData?.length) {
+        return { code: 200, data: jsonData }
       }
-      return { code: res.data.code, data: `${res.data.message}` }
+      return { code: 201, data: `仓库列表为空` }
     } catch (error) {
       return { code: -2, data: `获取仓库列表异常： ${error}` }
     }

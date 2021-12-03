@@ -2123,7 +2123,7 @@ export default {
           obj['warehouse_remark'] = item.warehouse_remark
           obj['skuStatus'] = skuItem.status
           obj['sku_id'] = skuItem.sku_id
-          obj['sys_sku_id'] = skuItem.sku_id
+          obj['sys_sku_id'] = skuItem.sys_sku_id
           obj['goods_name'] = skuItem.goods_name
           obj['sku_num'] = skuItem.sku_num
           obj['sku_price'] = skuItem.sku_price
@@ -2176,6 +2176,7 @@ export default {
         <td>${item.warehouse_remark ? item.warehouse_remark : '' + '\t'}</td>
         <td>${item.skuStatus ? this.skuStatusObj[item.skuStatus] ? this.skuStatusObj[item.skuStatus] : '' : '' + '\t'}</td>
         <td>${item.sku_id ? item.sku_id : '' + '\t'}</td>
+        <td>${item.sys_sku_id ? item.sys_sku_id : '' + '\t'}</td>
         <td>${item.goods_name ? item.goods_name : '' + '\t'}</td>
         <td>${item.sku_num ? item.sku_num : '' + '\t'}</td>
         <td>${item.sku_price ? item.sku_price : '' + '\t'}</td>

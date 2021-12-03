@@ -1155,7 +1155,7 @@ export default {
     this.form.createdAt = [new Date().getTime() - 3600 * 1000 * 24 * 30, new Date()]
     // 获取用户信息，用来判断中转仓的显示
     await this.getUserInfo()
-    // 获取中转仓库和目的仓库列表(海外仓备货)
+    // 获取中转仓库
     await this.getWarehouseList()
     // 初始仓库
     await this.init()
@@ -1225,30 +1225,39 @@ export default {
     },
     // 获取中转仓
     async getWarehouseList() {
+      let data = []
       const myMap = new Map()
-      const res = await this.StrockUpHome.getWarehouseList()
-      console.log(res)
-      if (res.code === 200) {
-        res.data.forEach(item => {
-          if (item.user_ids) {
-            const flag = item.user_ids.some(uItem => {
-              return uItem === this.muid
-            })
-            if (flag) {
-              this.widList.push(item)
-              this.foreignWidList.push(item)
-            }
-          } else {
-            this.foreignWidList.push(item)
-            if (item.status !== 2) {
-              this.widList.push(item)
-            }
-          }
-        })
-        this.widList = this.widList.filter((item) => !myMap.has(item.id) && myMap.set(item.id, 1))
+      // 判断是否缓存 有则使用缓存数据 没有则调取服务端 然后缓存一份
+      const res1 = await this.StrockUpHome.temporaryCacheInfo('get', 'getWarehouseList', '')
+      if (res1.code === 200) {
+        data = res1.data
       } else {
-        this.$message.error(`${res.data}`)
+        const res2 = await this.StrockUpHome.getWarehouseList()
+        if (res2.code === 200) {
+          data = res2.data
+          await this.StrockUpHome.temporaryCacheInfo('save', 'getWarehouseList', data)
+        } else {
+          this.$message.error(res2.data)
+          return
+        }
       }
+      data.forEach(item => {
+        // 判断user_ids是否有值 没有则判断状态 有则只显示与muid对应的
+        if (item.user_ids) {
+          const flag = item.user_ids.some(uItem => { return uItem === this.muid })
+          if (flag) {
+            this.widList.push(item)
+            this.foreignWidList.push(item)
+          }
+        } else {
+          // 弹窗仓库列表不需要判断
+          this.foreignWidList.push(item)
+          if (item.status !== 2) {
+            this.widList.push(item)
+          }
+        }
+      })
+      this.widList = this.widList.filter((item) => !myMap.has(item.id) && myMap.set(item.id, 1))
     },
     // 获取用户muid
     async getUserInfo() {
@@ -1737,6 +1746,7 @@ export default {
           obj['remark'] = item.remark
           obj['status'] = skuItem.status
           obj['sku_id'] = skuItem.sku_id
+          obj['sign_time'] = skuItem.sign_time
           obj['goods_name'] = skuItem.goods_name
           obj['sku_spec'] = skuItem.sku_spec
           obj['sku_image'] = skuItem.sku_image
@@ -1754,6 +1764,7 @@ export default {
           <td>备注</td>
           <td>商品状态</td>
           <td>商品编号(SKU)</td>
+          <td>签收时间</td>
           <td>商品名称</td>
           <td>商品规格</td>
           <td>商品图片</td>
@@ -1770,6 +1781,7 @@ export default {
         <td>${item.remark ? item.remark : '' + '\t'}</td>
         <td>${item.status ? this.skuStatusObj[item.status] : '' + '\t'}</td>
         <td>${item.sku_id ? item.sku_id : '' + '\t'}</td>
+        <td>${item.sign_time ? item.sign_time : '' + '\t'}</td>
         <td>${item.goods_name ? item.goods_name : '' + '\t'}</td>
         <td>${item.sku_spec ? item.sku_spec : '' + '\t'}</td>
         <td>${item.sku_image ? item.sku_image : '' + '\t'}</td>
