@@ -121,7 +121,7 @@
               style="width: 180px"
               clearable
               placeholder="全部"
-            ><el-option label="全部" value="" />
+            >
               <el-option v-for="item in deliverStateList" :key="item.deliveryStatus" :label="item.label" :value="item.deliveryStatus" />
             </el-select>
           </div>
@@ -224,7 +224,6 @@
         <el-table-column label="订单发货状态" min-width="100px" prop="delivery_status">
           <template slot-scope="{row}"><span>{{ delivery_statusList[row.delivery_status] }}</span></template>
         </el-table-column>
-        <el-table-column label="尾程物流状态" min-width="100px" prop="logistics_track" />
         <el-table-column label="异常类型" min-width="100px" prop="exceptionText" />
         <el-table-column label="订单创建时间" min-width="150px" prop="order_created_time" />
         <el-table-column label="订单平台状态" min-width="110px" prop="order_status">
@@ -298,7 +297,7 @@
           :page-size="pageSize"
           layout="total,sizes, prev, pager, next, jumper"
           :total="total"
-          :page-sizes="[20, 50, 100, 200]"
+          :page-sizes="[100, 200]"
           @size-change="handleSizeChange"
           @current-change="handleCurrentChange"
         />
@@ -742,7 +741,7 @@ export default {
       tableData: [], // 表格数据
       multipleSelection: [], // 表格多选数据
       currentPage: 1, // 当前页\
-      pageSize: 20,
+      pageSize: 100,
       site: '', // 站点
       total: 0, // 数据总条数
       siteList: [
@@ -1344,14 +1343,16 @@ export default {
             const temp = data.data[i]
             if (temp.code !== 200) {
               message = temp.message
-              break
+              this.showlog = false
+              this.$refs.autoReplyLogs.writeLog(`订单号【${temp.package_order_sn}】标记失败，${message}`, false)
+              // break
             }
           }
           // this.$notify({
           //   type: 'error',
           //   message: message
           // })
-          this.$message.error(message)
+          // this.$message.error(message)
         }
         // this.setSelect()
         this.orderPackage()
@@ -1394,14 +1395,16 @@ export default {
             const temp = data.data[i]
             if (temp.code !== 200) {
               message = temp.message
-              break
+              this.showlog = false
+              this.$refs.autoReplyLogs.writeLog(`订单号【${temp.package_order_sn}】标记失败，${message}`, false)
+              // break
             }
           }
           // this.$notify({
           //   type: 'error',
           //   message: message
           // })
-          this.$message.error(message)
+          // this.$message.error(message)
         }
         // this.setSelect()
         this.orderPackage()
@@ -1435,19 +1438,21 @@ export default {
         const data = res.data
         // console.log('data', data.data)
         if (data.code === 200) {
-          // this.$notify({
-          //   type: 'success',
-          //   message: '操作成功'
-          // })
           this.$message.success('操作成功')
           // this.setSelect()
           this.orderPackage()
         } else {
-          // this.$notify({
-          //   type: 'error',
-          //   message: data.message
-          // })
-          this.$message.error(data.message)
+          let message = ''
+          for (let i = 0; i < data.data.length; i++) {
+            const temp = data.data[i]
+            if (temp.code !== 200) {
+              message = temp.message
+              this.showlog = false
+              this.$refs.autoReplyLogs.writeLog(`订单号【${temp.package_order_sn}】通知失败，${message}`, false)
+              // break
+            }
+          }
+          // this.$message.error(data.message)
         }
 
         this.isLoading = false
@@ -1839,7 +1844,7 @@ export default {
       // console.log(exportOrderList, this.exportIndex)
       let num = 1
       let str = `<tr><td>编号</td><td>站点</td><td>店铺名称</td><td>仓库</td><td>颜色标识</td><td>订单编号</td><td>数量</td><td>包裹重量(g)</td><td>发货金额</td><td>运输方式</td><td>货物类型</td><td>不等待子包裹发货</td>
-            <td>订单发货状态</td><td>尾程物流状态</td><td>异常类型</td><td>订单创建时间</td><td>订单平台状态</td><td>截止发货时间</td><td>入库时间</td><td>出库时间</td>
+            <td>订单发货状态</td><td>异常类型</td><td>订单创建时间</td><td>订单平台状态</td><td>截止发货时间</td><td>入库时间</td><td>出库时间</td>
             <td>入库图片</td><td>出库图片</td><td>仓库备注</td><td>用户备注</td>
             <td>增值服务名称</td><td>增值服务金额</td><td>增值服务备注</td>
             </tr>`
@@ -1857,7 +1862,6 @@ export default {
                 <td>${item.package_type ? this.packageType[item.package_type] : '' + '\t'}</td>
                 <td>${item.is_mark_outbound > 0 ? '是' : '否' + '\t'}</td>
                 <td>${item.delivery_status ? this.delivery_statusList[item.delivery_status] : '' + '\t'}</td>
-                <td>${item.logistics_track ? this.logistics_track : '' + '\t'}</td>
                 <td>${item.exceptionText ? item.exceptionText : '' + '\t'}</td>
                 <td>${item.order_created_time + '\t'}</td>
                 <td>${item.order_status ? this.orderStatusList[item.order_status] : '' + '\t'}</td>
