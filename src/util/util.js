@@ -478,3 +478,18 @@ export async function importOrder(tableData,jsonData,workName = '') {
   XLSX.utils.book_append_sheet(workbook,worksheet,workName || (new Date(Date.now()+8*3600*1000).toISOString().slice(0,10)))
   XLSX.writeFile(workbook,`${workName}${new Date(Date.now()+8*3600*1000).toISOString().slice(0,10)}.xlsx`)
 }
+
+export async function waitStart(prepare, num = 500) {
+  let count = 0;
+  let number = num && parseInt(num) || 500;
+  return new Promise((resolve, reject) => {
+    let ing = setInterval(() => {
+      ++count;
+      if (prepare() || count >= number) {
+        console.log('等待成功', prepare);
+        clearInterval(ing);
+        resolve(prepare())
+      }
+    }, 200);
+  })
+}

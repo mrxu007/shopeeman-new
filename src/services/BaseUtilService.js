@@ -112,4 +112,8 @@ export default class BaseUtilService {
   async getLocalTranslationThesaurus(word) {
     return await this.nativeService.getLocalTranslationThesaurus('auto',"zh-Hans", word)
   }
+
+  async loginNeedPopUps(name,data) {
+    return await this.nativeService.loginNeedPopUps(name,JSON.stringify(data))
+  }
 }
