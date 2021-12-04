@@ -402,7 +402,7 @@ export default {
     // 过滤功能
     async flt() {
       if (this.filter === true) {
-        this.is_zero_filter=0
+        this.is_zero_filter=1
         this.getoverseaswarehouse()
         // this.tableData = this.Partdata
       } else {
