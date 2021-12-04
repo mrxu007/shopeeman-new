@@ -189,7 +189,7 @@
         </el-table-column>
         <el-table-column label="订单编号" min-width="180px" prop="package_order_sn">
           <template slot-scope="scope">
-            <span>{{ scope.row.package_order_sn }} <span class="copyIcon" @click="copy(scope.row.package_order_sn)"><i class="el-icon-document-copy" /></span></span>
+            <span v-if="scope.row.package_order_sn">{{ scope.row.package_order_sn }} <span class="copyIcon" @click="copy(scope.row.package_order_sn)"><i class="el-icon-document-copy" /></span></span>
           </template>
         </el-table-column>
         <el-table-column label="数量" min-width="100px" prop="goodsCount" />
