@@ -1157,8 +1157,6 @@ export default {
     await this.getUserInfo()
     // 获取中转仓库
     await this.getWarehouseList()
-    // 初始仓库
-    await this.init()
     // 获取数据
     await this.getHomeWarehouse()
   },
@@ -1237,7 +1235,7 @@ export default {
           data = res2.data
           await this.StrockUpHome.temporaryCacheInfo('save', 'getWarehouseList', data)
         } else {
-          this.$message.error(res2.data)
+          this.$message.error(`${res2.data}`)
           return
         }
       }
@@ -1258,6 +1256,7 @@ export default {
         }
       })
       this.widList = this.widList.filter((item) => !myMap.has(item.id) && myMap.set(item.id, 1))
+      this.init()
     },
     // 获取用户muid
     async getUserInfo() {

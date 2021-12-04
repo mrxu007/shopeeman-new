@@ -268,7 +268,7 @@ export default {
           data = res2.data
           await this.ChineseStock.temporaryCacheInfo('save', 'getWarehouseList', data)
         } else {
-          this.$message.error(res2.data)
+          this.$message.error(`${res2.data}`)
           return
         }
       }
@@ -339,7 +339,7 @@ export default {
       exportData.forEach(item => {
         str += `<tr>
         <td>${item.warehouse_name ? item.warehouse_name : '' + '\t'}</td>
-        <td>${item.sku_id ? item.sku_id : '' + '\t'}</td>
+        <td style="mso-number-format:'\@';">${item.sku_id ? item.sku_id : '' + '\t'}</td>
         <td>${item.goods_name ? item.goods_name : '' + '\t'}</td>
         <td>${item.sku_name ? item.sku_name : '' + '\t'}</td>
         <td>${item.purchase_num ? item.purchase_num : '' + '\t'}</td>

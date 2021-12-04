@@ -626,7 +626,7 @@ export default {
         str += `<tr>
         <td>${item.warehouse_name ? item.warehouse_name : '' + '\t'}</td>
         <td>${item.sys_sku_id ? item.sys_sku_id : '' + '\t'}</td>
-        <td>${item.stock && item.stock.sku_id ? item.stock.sku_id : '' + '\t'}</td>
+        <td style="mso-number-format:'\@';">${item.stock && item.stock.sku_id ? item.stock.sku_id : '' + '\t'}</td>
         <td>${item.stock && item.stock.goods_name ? item.stock.goods_name : '' + '\t'}</td>
         <td>${item.stock && item.stock.sku_name ? item.stock.sku_name : '' + '\t'}</td>
         <td>${this.statusObj[item.status] ? this.statusObj[item.status] : '' + '\t'}</td>

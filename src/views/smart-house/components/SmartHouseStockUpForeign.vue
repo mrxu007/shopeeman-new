@@ -1492,8 +1492,6 @@ export default {
     this.form.created_time = [new Date().getTime() - 3600 * 1000 * 24 * 30, new Date()]
     // 获取中转仓库和目的仓库列表(海外仓备货)
     await this.getOverseasWarehouse()
-    // 初始仓库
-    await this.init()
     // 获取数据
     await this.getStockingForecastLists()
   },
@@ -1567,6 +1565,7 @@ export default {
       const res = await this.StrockUpForegin.getOverseasWarehouse()
       if (res.code === 200) {
         this.widList = res.data
+        this.init()
       } else {
         this.$message.error(`${res.data}`)
       }
