@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-11-09 10:17:44
- * @LastEditTime: 2021-12-04 17:17:44
+ * @LastEditTime: 2021-12-04 17:48:12
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shopeeman-new\src\views\order-manager\components\OrderManagerOrderCenter.vue
@@ -326,40 +326,40 @@
           <template slot-scope="scope">{{ scope.row.total_amount }}</template>
         </el-table-column>
         <el-table-column align="center" prop="escrow_amount" label="订单收入" min-width="80" v-if="showTableColumn('订单收入')">
-          <template slot-scope="scope">{{ scope.row.escrow_amount }}</template>
+          <template slot-scope="scope">{{ scope.row.escrow_amount }}{{scope.row.country | siteCoin}}</template>
         </el-table-column>
         <el-table-column align="center" prop="escrow_amount" label="订单收入(RMB)" min-width="120" v-if="showTableColumn('订单收入(RMB)')">
-          <template slot-scope="scope">{{ changeMoney(scope.row.escrow_amount,scope.row.country) }}</template>
+          <template slot-scope="scope">{{ changeMoney(scope.row.escrow_amount,scope.row.country) }}元</template>
         </el-table-column>
         <el-table-column align="center" prop="actual_shipping_cost" label="实际总邮费" min-width="80" v-if="showTableColumn('实际总邮费')">
-          <template slot-scope="scope">{{ scope.row.actual_shipping_cost }}</template>
+          <template slot-scope="scope">{{ scope.row.actual_shipping_cost }}{{scope.row.country | siteCoin}}</template>
         </el-table-column>
         <el-table-column align="center" prop="sell_shipping_cost" label="卖家补贴邮费" min-width="120" v-if="showTableColumn('卖家补贴邮费')">
-          <template slot-scope="scope">{{ scope.row.sell_shipping_cost }}</template>
+          <template slot-scope="scope">{{ scope.row.sell_shipping_cost }}{{scope.row.country | siteCoin}}</template>
         </el-table-column>
         <el-table-column align="center" prop="shot_amount" label="采购价" min-width="80" v-if="showTableColumn('采购价')">
-          <template slot-scope="scope">{{ scope.row.shot_order_info.shot_amount }}</template>
+          <template slot-scope="scope">{{ scope.row.shot_order_info.shot_amount }}{{scope.row.country | siteCoin}}</template>
         </el-table-column>
         <el-table-column align="center" prop="shot_amount_rmb" label="采购价(RMB)" min-width="100" v-if="showTableColumn('采购价(RMB)')">
-          <template slot-scope="scope">{{ scope.row.shot_order_info.shot_amount_rmb }}</template>
+          <template slot-scope="scope">{{ scope.row.shot_order_info.shot_amount_rmb }}元</template>
         </el-table-column>
         <el-table-column align="center" prop="warehouse_ship_amount" label="仓库发货金额" min-width="120" v-if="showTableColumn('仓库发货金额')">
-          <template slot-scope="scope">{{ scope.row.warehouse_ship_amount }}</template>
+          <template slot-scope="scope">{{ scope.row.warehouse_ship_amount }}{{scope.row.country | siteCoin}}</template>
         </el-table-column>
         <el-table-column align="center" prop="warehouse_ship_amount" label="仓库发货金额(RMB)" min-width="140" v-if="showTableColumn('仓库发货金额(RMB)')">
-          <template slot-scope="scope">{{ changeMoney(scope.row.warehouse_ship_amount,scope.row.country) }}</template>
+          <template slot-scope="scope">{{ changeMoney(scope.row.warehouse_ship_amount,scope.row.country) }}元</template>
         </el-table-column>
         <el-table-column align="center" prop="gross_profit" label="含邮费毛利" min-width="80" v-if="showTableColumn('含邮费毛利')">
-          <template slot-scope="scope">{{ scope.row.gross_profit }}</template>
+          <template slot-scope="scope">{{ scope.row.gross_profit }}{{scope.row.country | siteCoin}}</template>
         </el-table-column>
         <el-table-column align="center" prop="gross_profit" label="含邮费毛利(RMB)" min-width="120" v-if="showTableColumn('含邮费毛利(RMB)')">
-          <template slot-scope="scope">{{ changeMoney(scope.row.gross_profit,scope.row.country) }}</template>
+          <template slot-scope="scope">{{ changeMoney(scope.row.gross_profit,scope.row.country) }}元</template>
         </el-table-column>
         <el-table-column align="center" prop="real_gross_profit" label="最终毛利" min-width="80" v-if="showTableColumn('最终毛利')">
-          <template slot-scope="scope">{{ scope.row.real_gross_profit }}</template>
+          <template slot-scope="scope">{{ scope.row.real_gross_profit }}{{scope.row.country | siteCoin}}</template>
         </el-table-column>
         <el-table-column align="center" prop="real_gross_profit" label="最终毛利(RMB)" min-width="120" v-if="showTableColumn('最终毛利(RMB)')">
-          <template slot-scope="scope">{{ changeMoney(scope.row.real_gross_profit,scope.row.country) }}</template>
+          <template slot-scope="scope">{{ changeMoney(scope.row.real_gross_profit,scope.row.country) }}元</template>
         </el-table-column>
         <el-table-column align="center" prop="pay_account_info" label="付款账号" min-width="80" v-if="showTableColumn('付款账号')">
           <template slot-scope="scope">{{ scope.row.shot_order_info.pay_account_info ? scope.row.shot_order_info.pay_account_info.name : '' }}</template>
@@ -502,7 +502,6 @@
                 <el-dropdown-item> <div class="dropdownItem" @click="goodsTop(scope.row)">商品置顶</div></el-dropdown-item>
               </el-dropdown-menu>
             </el-dropdown>
-            <!-- <el-button type="primary" size="mini">操作</el-button> -->
           </template>
         </el-table-column>
       </el-table>
@@ -698,17 +697,14 @@
         <div class="item">
           <span>当前订单状态：</span>
           <p>{{ changeTypeName(clickRow.order_status, orderStatusList) }}</p>
-          <!-- <el-input size="mini" v-model="clickRow.order_status" disabled></el-input> -->
         </div>
         <div class="item">
           <span>订单号：</span>
           <p>{{ clickRow.order_sn }}</p>
-          <!-- <el-input size="mini" v-model="clickRow.order_sn" disabled></el-input> -->
         </div>
         <div class="item">
           <span>站点：</span>
           <p>{{ clickRow.country | chineseSite }}</p>
-          <!-- <el-input size="mini" v-model="clickRow.country" disabled></el-input> -->
         </div>
         <div class="item">
           <span>发货物流名称：</span>
@@ -858,8 +854,6 @@ export default {
         ],
       },
       selectMallList: [], //店铺选择
-      // chooseTime: [],
-      // productID: '',
       multipleSelection: [],
       buyerAccountList: [], //买手号
       buyerAccountListGlobal: [], //买手号天猫淘宝海外
@@ -892,7 +886,6 @@ export default {
       shipCompany: '', //批量添加采购物流单号
       uploadStoreShipAmountVisible: false, //上报仓库发货金额
       dealType: 'batch', //添加采购信息状态
-      // singleRow: [],
       addBuyLinkVisible: false, //添加采购链接
       clickRow: {}, //当前选中行
       lookForbidVisible: false, //查看禁运品
@@ -956,12 +949,12 @@ export default {
     })
   },
   methods: {
+    //获取汇率
     async getRate() {
       const data = await this.$api.exchangeRateList()
       if (data.data.code === 200) {
         this.rateList = data.data.data
       }
-      console.log(this.rateList)
     },
     changeMoney(data,country){
       let amount = data
@@ -1002,25 +995,6 @@ export default {
         OriGoodsId: row.ori_goods_id || '',
       }
       this.$buyerAccountService.getSkuRelation(skuInfo, buyer)
-      //  let params = {
-      //   OrderSn: '21120368VRF39S',
-      //   SysOrderId: '3749',
-      //   OriGoodsUrl: 'http://mobile.yangkeduo.com/goods.html?goods_id=133359372465',
-      //   GoodsTitle: '🍑NIKIROCCO🚚พร้อมส่ง🚚 ชุดเดรสชีฟองสีขาวห ญิงฤดูร้อนนักเรียนเกาหลีอินยาว  อารมณ์ใหม่เซ็กซี่เอวชุดนางฟ้าเดรส plus',
-      //   GoodsId: '5563383101',
-      //   GoodsSku: ' อารมณ์สีขาว =|= L ',
-      //   GoodsSkuId: '51858886234',
-      //   GoodsNum: '1',
-      //   GoodsPrice: '305.00',
-      //   OriGoodsTitle: '白色雪纺连衣裙女夏学生韩版ins长款2021新款气质性感收腰仙女裙',
-      //   OriGoodsSku: ' 气质白, M',
-      //   OriGoodsSkuId: '583279695451',
-      //   OriGoodsNum: '1',
-      //   OriGoodsId: '133359372465',
-      //   OriGoodsPlatform: 1,
-      // }
-      // let res11 = await this.$commodityService.saveSkuRelation(JSON.stringify(params))
-      // console.log(res11, 'res11',JSON.stringify(params))
     },
     //一键同步上家库存
     async syncOriginGoodsNum() {
@@ -1178,7 +1152,7 @@ export default {
         }
       }
     },
-    //changeColorLabel
+    //转换颜色标识名
     changeColorLabel(colorId, type) {
       let colorInfo = this.colorList.find((item) => item.id == colorId)
       if (type === 'name') {
@@ -1315,7 +1289,6 @@ export default {
     },
     //商品下架
     async goodsDelist(row) {
-      // this.clickRow = row
       this.$confirm('是否下架该商品?', '商品下架', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
@@ -1362,7 +1335,6 @@ export default {
       } else {
         this.$message.error(`发货失败，${res.data}`)
       }
-      console.log(res, 'saveHandleOut')
     },
     handleOutOrder(row) {
       this.clickRow = row
@@ -1399,7 +1371,6 @@ export default {
     },
     //获取类目
     getCategoryInfo(country, cateId) {
-      // console.log(country, cateId)
       this.$commodityService.getCategoryTbInfo(country, cateId + '').then((res) => {
         let str = ''
         let resObj = res && JSON.parse(res)
@@ -1764,7 +1735,6 @@ export default {
         }
       }
       this.shipStoreList = [storeInfo]
-      console.log('223')
       this.shipInfoVisible = true
     },
     async singlePurchase(row) {
@@ -1814,7 +1784,6 @@ export default {
           this.$refs.Logs.writeLog(`订单编号【${order.order_sn}】没有登录相应的买手号【${buyName}】`, false)
           continue
         }
-        console.log(order.shot_order_info.shot_order_sn)
         let res = await window['BaseUtilBridgeService'].getCrossBorderOrderInfo(buy.access_token, order.shot_order_info.shot_order_sn)
         let resObj = res && JSON.parse(res)
         if (resObj.success) {
@@ -2049,11 +2018,6 @@ export default {
       console.log(this.outStoreType, '79')
       this.goodsOutStoreVisible = true
     },
-    // close() {
-    //   this.purchaseInfoVisible = false
-    //   this.addBuyLinkVisible = false
-    //   this.multipleSelection = []
-    // },
     async setColorSingle(row, index) {
       this.clickRow = row
       this.multipleSelection = [row]
@@ -2081,7 +2045,6 @@ export default {
       } else {
         this.$message.error(`设置失败-${res.data.message}`)
       }
-      // console.log(res, 'color')
     },
     //获取标识选择
     async getColorList() {
@@ -2089,7 +2052,6 @@ export default {
       if (res.data.code === 200) {
         this.colorList = res.data.data
       }
-      // console.log(res, 'color')
     },
     //颜色标识
     getCurrentRow(row) {
@@ -2106,7 +2068,7 @@ export default {
       if (!this.multipleSelection.length) {
         return this.$message.warning('请先选择需要标记的商品！')
       }
-      // this.showConsole = false
+      this.showConsole = false
       // this.$refs.Logs.consoleMsg = ''
       this.multipleSelection.forEach(async (item) => {
         let params = {
@@ -2156,8 +2118,6 @@ export default {
     //表头显示处理
     showTableColumn(name) {
       let hasName = this.columnConfigList.find((item) => item.column_header == name)
-      // console.log(hasName,"hasName")
-      // return true
       if (hasName.is_show === 1) {
         return true
       } else {
@@ -2203,7 +2163,6 @@ export default {
           this.columnConfigList = resData
         }
       }
-      // console.log(data.data, 'getColumnsConfig')
     },
     //同步物流单号
     async syncLogistics() {
@@ -2220,7 +2179,6 @@ export default {
       } else {
         service.start(this, this.buyerAccountList)
       }
-      console.log(this.buyerAccountList)
     },
     //导出数据
     async applyAsyncExportOrder() {
@@ -2312,14 +2270,13 @@ export default {
       console.log(this.tableData)
     },
     //获取买手号（服务端）
-    async getBuyerList() {
-      let res = await this.$api.getBuyerList()
-      if (res.data.code === 200) {
-        this.buyerAccountList = res.data.data
-      }
-
-      console.log('getBuyerList', this.buyerAccountList)
-    },
+    // async getBuyerList() {
+    //   let res = await this.$api.getBuyerList()
+    //   if (res.data.code === 200) {
+    //     this.buyerAccountList = res.data.data
+    //   }
+    //   console.log('getBuyerList', this.buyerAccountList)
+    // },
     //商品来源中文信息
     changeTypeName(code, arr) {
       let res = arr.find((item) => {
@@ -2331,7 +2288,6 @@ export default {
     selectAll(key, baseData) {
       if (this[key].length < baseData.length) {
         this[key] = []
-        // this[key].push('')
         baseData.map((item) => {
           this[key].push(item.value || item.ShipId)
         })
@@ -2342,7 +2298,6 @@ export default {
     changeMallList(val) {
       this.selectMallList = val.mallList
       this.shipTypeList = siteShip(val.country) //物流方式
-      // console.log(val, this.shipTypeList)
     },
     handleCurrentChange(val) {
       this.currentPage = val
