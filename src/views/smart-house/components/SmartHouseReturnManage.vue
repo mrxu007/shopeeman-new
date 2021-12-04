@@ -200,7 +200,20 @@
           label="退件电话"
           min-width="120px"
           show-overflow-tooltip
-        />
+        >
+          <template slot-scope="{ row }">
+            <span>
+              {{ row.return_phone_number }}
+              <span
+                v-if="row.return_phone_number"
+                class="copyIcon"
+                @click="copy(row.return_phone_number)"
+              >
+                <i class="el-icon-document-copy" />
+              </span>
+            </span>
+          </template>
+        </el-table-column>
         <el-table-column
           align="center"
           prop="return_address"
