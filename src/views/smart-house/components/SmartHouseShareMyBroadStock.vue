@@ -48,6 +48,7 @@
         ref="plTable"
         v-loading="isShowLoading"
         height="calc(100vh - 165px)"
+        :row-style="{ height: '45px' }"
         :data="tableData"
         :header-cell-style="{
           backgroundColor: '#f5f7fa',
@@ -248,6 +249,8 @@ export default {
           const resName = await this.ShareMyBroadStock.overseasWh(element.wid)
           if (resName.code === 200) {
             this.$set(element, 'warehouse_name', resName.data)
+          } else {
+            this.$set(element, 'warehouse_name', '')
           }
         }
         console.log('tableData', this.tableData)
@@ -264,10 +267,10 @@ export default {
         res.data.forEach(item => {
           this.widList = this.widList.concat(item.child)
         })
+        this.widList = this.widList.filter((item) => !myMap.has(item.id) && myMap.set(item.id, 1))
       } else {
         this.$message.error(res.data)
       }
-      this.widList = this.widList.filter((item) => !myMap.has(item.id) && myMap.set(item.id, 1))
     },
     // 打开商品链接
     openUrl(row) {
@@ -289,6 +292,8 @@ export default {
             const resName = await this.ShareMyBroadStock.overseasWh(item.wid)
             if (resName.code === 200) {
               item.warehouse_name = resName.data
+            } else {
+              item.warehouse_name = ''
             }
             exportData.push(item)
           })
@@ -316,7 +321,7 @@ export default {
         str += `<tr>
         <td>${item.warehouse_name ? item.warehouse_name : '' + '\t'}</td>
         <td>${item.sys_sku_id ? item.sys_sku_id : '' + '\t'}</td>
-        <td>${item.stock && item.stock.sku_id ? item.stock.sku_id : '' + '\t'}</td>
+        <td style="mso-number-format:'\@';">${item.stock && item.stock.sku_id ? item.stock.sku_id : '' + '\t'}</td>
         <td>${item.stock && item.stock.goods_name ? item.stock.goods_name : '' + '\t'}</td>
         <td>${item.stock && item.stock.sku_name ? item.stock.sku_name : '' + '\t'}</td>
         <td>${this.statusObj[item.status] ? this.statusObj[item.status] : '' + '\t'}</td>

@@ -471,7 +471,7 @@ export default {
           data = res2.data
           await this.ChineseDeliveryOrder.temporaryCacheInfo('save', 'getWarehouseList', data)
         } else {
-          this.$message.error(res2.data)
+          this.$message.error(`${res2.data}`)
           return
         }
       }
@@ -506,12 +506,14 @@ export default {
           const resName = await this.ChineseDeliveryOrder.transferWarehouse(item.wid)
           if (resName.code === 200) {
             this.$set(item, 'warehouse_name', resName.data)
+          } else {
+            this.$set(item, 'warehouse_name', '')
           }
           let goods_num = 0
           let goods_price = 0
           item.home_out_stock_sku.forEach(skuItem => {
             goods_num += skuItem.goods_count ? Number(skuItem.goods_count) : 0
-            goods_price += skuItem.goods_price ? Number(skuItem.goods_price) * skuItem.goods_count : 0
+            goods_price += skuItem.goods_price ? parseFloat(skuItem.goods_price).toFixed(2) * skuItem.goods_count : 0
           })
           item.goods_num = goods_num
           item.goods_price = goods_price
@@ -544,7 +546,11 @@ export default {
           const resData = res.data.data
           resData.forEach(async item => {
             const resName = await this.ChineseDeliveryOrder.transferWarehouse(item.wid)
-            item.warehouse_name = resName.data
+            if (resName.code === 200) {
+              item.warehouse_name = resName.data
+            } else {
+              item.warehouse_name = ''
+            }
             exportData.push(item)
           })
           params.page++
