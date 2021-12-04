@@ -59,12 +59,16 @@ export default class MallListAPI {
         'platform_mall_id': platform_mall_id // 导入店铺初始没有mallId
       }
       let res = await this._this.$shopeemanService.getChinese(country, '/api/selleraccount/user_info/?', params)
+      console.log('getChinese',res)
       res = JSON.parse(JSON.parse(res).data)
       if (res.code === 0) {
         return { code: 200, data: '店铺已经登陆' }
       }
       return { code: res.errcode, data: `${res.errcode} ${res.message}` }
     } catch (error) {
+      if ((error+'').indexOf('Unexpected token < in JSON at')>=0 || (error+'').indexOf('of JSON input')>=0) {
+        return { code: 502, data: '请检测代理信息' }
+      }
       return { code: -2, data: `getUserInfo-catch: ${error}` }
     }
   }
@@ -462,7 +466,7 @@ export default class MallListAPI {
     Cookie['SPC_SC_TK'] = data.token
     Cookie['ShopeeUid'] = mallUId // 虾皮平台用户Uid
     Cookie['shopid'] = mallId // 平台店铺ID
-
+    debugger
     const Cookie_new = { // 店铺cookie信息(导入店铺专用)(更新壳)
       'SPC_CDS_VER': '2',
       'SPC_EC': data.sso,
