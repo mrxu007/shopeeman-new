@@ -248,6 +248,8 @@ export default {
           const resName = await this.ShareMyBroadStock.overseasWh(element.wid)
           if (resName.code === 200) {
             this.$set(element, 'warehouse_name', resName.data)
+          } else {
+            this.$set(element, 'warehouse_name', '')
           }
         }
         console.log('tableData', this.tableData)
@@ -289,6 +291,8 @@ export default {
             const resName = await this.ShareMyBroadStock.overseasWh(item.wid)
             if (resName.code === 200) {
               item.warehouse_name = resName.data
+            } else {
+              item.warehouse_name = ''
             }
             exportData.push(item)
           })

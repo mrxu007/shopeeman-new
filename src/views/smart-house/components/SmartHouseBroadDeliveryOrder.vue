@@ -819,6 +819,8 @@ export default {
           const resName = await this.BroadDeliveryOrder.overseasWh(element.wid)
           if (resName.code === 200) {
             this.$set(element, 'warehouse_name', resName.data)
+          } else {
+            this.$set(element, 'warehouse_name', '')
           }
         }
         console.log('reissueData', this.reissueData)
@@ -855,7 +857,7 @@ export default {
           let goods_price = 0
           item.sku_list.forEach(skuItem => {
             goods_num += skuItem.sku_num ? Number(skuItem.sku_num) : 0
-            goods_price += skuItem.sku_price ? Number(skuItem.sku_price) * skuItem.sku_num : 0
+            goods_price += skuItem.sku_price ? parseFloat(skuItem.sku_price).toFixed(2) * skuItem.sku_num : 0
           })
           item.goods_num = goods_num
           item.goods_price = goods_price

@@ -95,38 +95,47 @@
       :close-on-click-modal="false"
       @closed="trackingNumberAdd=''"
     >
-      <p style="font-size: 14px;padding: 0px 14px 0 31px"><span style="color: red">*</span>申请类别：   <el-select
-        v-model="chooseType"
-        size="mini"
-        style="width: 180px;"
-      >
-        <el-option
-          v-for="item in typeList"
-          :key="item.value"
-          :label="item.label"
-          :value="item.value"
-        />
-      </el-select></p>
-      <p style="font-size: 14px;padding: 12px 14px 0 60px"><span style="color: red">*</span>仓库：<el-select
-        v-model="warehouseUserId"
-        size="mini"
-        style="width: 180px;"
-      >
-        <el-option
-          v-for="item in warehouseUserList"
-          :key="item.value"
-          :label="item.warehouse_name"
-          :value="item.id"
-        />
-      </el-select></p>
-
-      <p style="font-size: 14px;padding: 12px 14px 0 4px"><span style="color: red">*</span>采购物流单号： <el-input
-        v-model="trackingNumberAdd"
-        style="width: 180px;"
-        clearable
-        size="mini"
-      /></p>
-      <span slot="footer" style="text-align: center;display: block;margin:-10px 0 10px" class="dialog-footer">
+      <el-form label-position="right" label-width="100px">
+        <el-form-item label="申请类别：">
+          <el-select
+            v-model="chooseType"
+            size="mini"
+            style="width: 180px;"
+          >
+            <el-option
+              v-for="item in typeList"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+            />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="仓库：">
+          <el-select
+            v-model="warehouseUserId"
+            size="mini"
+            style="width: 180px;"
+          >
+            <el-option
+              v-for="item in warehouseUserList"
+              :key="item.value"
+              :label="item.warehouse_name"
+              :value="item.id"
+            />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="采购物流单号：">
+          <li>
+            <el-input
+              v-model="trackingNumberAdd"
+              style="width: 180px;"
+              clearable
+              size="mini"
+            />
+          </li>
+        </el-form-item>
+      </el-form>
+      <div class="footer">
         <el-button
           size="mini"
           @click="dialogVisible = false"
@@ -138,7 +147,7 @@
           style="margin-left:20px"
           @click="packageSign"
         >确 定</el-button>
-      </span>
+      </div>
     </el-dialog>
   </div>
 </template>
@@ -406,6 +415,19 @@ export default {
       .page_to{
       text-align: right;
       padding: 10px 0 0;
+    }
+    /deep/.el-dialog__body{
+      padding: 12px 20px;
+      .el-form-item{
+        margin-bottom: 0px;
+        /deep/.el-form-item__label{
+          padding: 0 0 0 0 !important;
+        }
+      }
+      .footer{
+        text-align: center;
+        margin-top: 10px;
+      }
     }
 }
 
