@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-11-09 10:14:02
- * @LastEditTime: 2021-12-03 12:01:54
+ * @LastEditTime: 2021-12-04 16:08:26
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shopeeman-new\src\components\buyer-account.vue
@@ -20,8 +20,8 @@
         <div v-for="(item, index) in operation.center" :key="index" class="account-item">
           <span>{{ item.title }}</span>
           <el-select v-model="selectAccount[platformValue[item.platform]]" :size="item.size || 'mini'" clearable placeholder="请选择" @change="accountChange()">
-            <el-option v-for="(items, index) in publicAccount(item.platform)" :key="index" :label="items.name" :value="items.id">
-              <span>{{ items.name }}</span>
+            <el-option v-for="(items, index) in publicAccount(item.platform)" :key="index" :label="items.site?items.site+'-'+items.name:items.name" :value="items.id">
+              <span>{{items.site}}<span v-if="items.site">-</span>{{ items.name }}</span>
               <i
                 class="el-icon-delete"
                 style="float: right; color: #8492a6; font-size: 14px; margin: 10px -10px 0 0"
@@ -734,7 +734,7 @@ export default {
         password: '',
         type: account.type,
         // site: account.country || '', 
-        site: this.siteCode || '', 
+        site: account.type === 9 || account.type === 11 ? this.siteCode :'', 
         loginInfo: account.login_info,
         ua: account.ua,
         cachePath: account.cache_path,
@@ -776,6 +776,7 @@ export default {
           })
         }
       }
+      console.log(this.buyerAccountList)
     },
     // 默认选中第一个账户信息
     defaultSelect() {

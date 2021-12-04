@@ -772,18 +772,18 @@ const syncStatus = [
   //   label: '未支付',
   //   value: 'unpaid'
   // // },
-  {
-    label: '待发货',
-    value: 'toship'
-  },
+  // {
+  //   label: '待发货',
+  //   value: 'toship'
+  // },
   // {
   //   label: '运送中',
   //   value: 'shipping'
   // },
-  // {
-  //   label: '已完成',
-  //   value: 'completed'
-  // },
+  {
+    label: '已完成',
+    value: 'completed'
+  },
   // {
   //   label: '取消中',
   //   value: 'cancelled'

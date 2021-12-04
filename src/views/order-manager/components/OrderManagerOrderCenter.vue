@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-11-09 10:17:44
- * @LastEditTime: 2021-12-03 16:13:49
+ * @LastEditTime: 2021-12-04 17:17:44
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shopeeman-new\src\views\order-manager\components\OrderManagerOrderCenter.vue
@@ -308,8 +308,13 @@
         <el-table-column align="center" label="规格编号" min-width="80" v-if="showTableColumn('规格编号')">
           <template slot-scope="scope">{{ scope.row.goods_info.sku_id }}</template>
         </el-table-column>
-        <el-table-column align="center" label="商品规格" min-width="80" v-if="showTableColumn('商品规格')">
-          <template slot-scope="scope">{{ scope.row.goods_info.goods_spec }}</template>
+        <el-table-column align="center" label="商品规格" min-width="120" v-if="showTableColumn('商品规格')">
+          <template slot-scope="scope">
+            <span>{{ scope.row.goods_info.goods_spec }}</span>
+            <el-link  type="danger" v-if="scope.row.goods_info && Number(scope.row.goods_info.ori_platform_id) === 1" @click="setSKURelation(scope.row)">
+              {{ scope.row.empty_info ? '重新映射SKU' : '加入收藏' }}</el-link
+            >
+          </template>
         </el-table-column>
         <el-table-column align="center" label="商品货号" min-width="120" v-if="showTableColumn('商品货号')">
           <template slot-scope="scope">{{ scope.row.goods_info.variation_id }}</template>
@@ -324,7 +329,7 @@
           <template slot-scope="scope">{{ scope.row.escrow_amount }}</template>
         </el-table-column>
         <el-table-column align="center" prop="escrow_amount" label="订单收入(RMB)" min-width="120" v-if="showTableColumn('订单收入(RMB)')">
-          <template slot-scope="scope">{{ scope.row.escrow_amount }}</template>
+          <template slot-scope="scope">{{ changeMoney(scope.row.escrow_amount,scope.row.country) }}</template>
         </el-table-column>
         <el-table-column align="center" prop="actual_shipping_cost" label="实际总邮费" min-width="80" v-if="showTableColumn('实际总邮费')">
           <template slot-scope="scope">{{ scope.row.actual_shipping_cost }}</template>
@@ -342,19 +347,19 @@
           <template slot-scope="scope">{{ scope.row.warehouse_ship_amount }}</template>
         </el-table-column>
         <el-table-column align="center" prop="warehouse_ship_amount" label="仓库发货金额(RMB)" min-width="140" v-if="showTableColumn('仓库发货金额(RMB)')">
-          <template slot-scope="scope">{{ scope.row.warehouse_ship_amount }}</template>
+          <template slot-scope="scope">{{ changeMoney(scope.row.warehouse_ship_amount,scope.row.country) }}</template>
         </el-table-column>
         <el-table-column align="center" prop="gross_profit" label="含邮费毛利" min-width="80" v-if="showTableColumn('含邮费毛利')">
           <template slot-scope="scope">{{ scope.row.gross_profit }}</template>
         </el-table-column>
         <el-table-column align="center" prop="gross_profit" label="含邮费毛利(RMB)" min-width="120" v-if="showTableColumn('含邮费毛利(RMB)')">
-          <template slot-scope="scope">{{ scope.row.gross_profit }}</template>
+          <template slot-scope="scope">{{ changeMoney(scope.row.gross_profit,scope.row.country) }}</template>
         </el-table-column>
         <el-table-column align="center" prop="real_gross_profit" label="最终毛利" min-width="80" v-if="showTableColumn('最终毛利')">
           <template slot-scope="scope">{{ scope.row.real_gross_profit }}</template>
         </el-table-column>
         <el-table-column align="center" prop="real_gross_profit" label="最终毛利(RMB)" min-width="120" v-if="showTableColumn('最终毛利(RMB)')">
-          <template slot-scope="scope">{{ scope.row.real_gross_profit }}</template>
+          <template slot-scope="scope">{{ changeMoney(scope.row.real_gross_profit,scope.row.country) }}</template>
         </el-table-column>
         <el-table-column align="center" prop="pay_account_info" label="付款账号" min-width="80" v-if="showTableColumn('付款账号')">
           <template slot-scope="scope">{{ scope.row.shot_order_info.pay_account_info ? scope.row.shot_order_info.pay_account_info.name : '' }}</template>
@@ -804,7 +809,7 @@ export default {
       },
       createTime: [], //创建时间 --搜索
       logisticsIds: [''], //物流方式--搜索
-      orderStatus: [], ///订单状态--搜索
+      orderStatus: [20], ///发货状态--搜索
       shotStatus: [], //采购状态--搜索
       inputType: 'orderSn', //--搜索
       inputContent: '', //--搜索
@@ -913,6 +918,7 @@ export default {
       secondOrderList: [], //二次销售列表
       collectionVisible: false, //图搜同款
       collectType: '淘宝', //图搜同款
+      rateList:{},//汇率
     }
   },
   mounted() {
@@ -921,12 +927,101 @@ export default {
     this.getColorList()
     this.getColumnsConfig()
     this.getSecondSaleList()
+    this.getRate()
     setTimeout(() => {
       this.getOrderList(1)
       this.indexLoading = false
     }, 2000)
+    //保存sku映射
+    this.$IpcMain.on('skuRelation', async (response) => {
+      console.log('skuRelation', response)
+      response['OriGoodsPlatform '] = 1
+      console.log(JSON.stringify(response), 'response')
+      let res = await this.$commodityService.saveSkuRelation(JSON.stringify(response))
+      let resObj = res && JSON.parse(res)
+      console.log('res', resObj)
+      if (resObj && resObj.code === 200) {
+        return this.$notify({
+          title: 'sku收藏',
+          type: 'success',
+          message: `收藏成功`,
+        })
+      } else {
+        return this.$notify({
+          title: 'sku收藏',
+          type: 'error',
+          message: `收藏失败，${resObj.msg}`,
+        })
+      }
+    })
   },
   methods: {
+    async getRate() {
+      const data = await this.$api.exchangeRateList()
+      if (data.data.code === 200) {
+        this.rateList = data.data.data
+      }
+      console.log(this.rateList)
+    },
+    changeMoney(data,country){
+      let amount = data
+      if(this.rateList[country]){
+        amount = (Number(data)*Number(this.rateList[country])).toFixed(2)
+      }
+      return amount
+    },
+    //sku映射
+    async setSKURelation(row) {
+      if (!this.accountpdd) {
+        this.$message.error('请先选择拼多多买手号')
+        return
+      }
+      const pddAccount = this.getAccountById(this.accountpdd)
+      if (!pddAccount) {
+        return this.$notify({
+          title: 'sku收藏',
+          type: 'warning',
+          message: `没有找到拼多多买手号`,
+        })
+      }
+      let buyer = this.changeAccountParams(pddAccount)
+      let skuInfo = {
+        OrderSn: row.order_sn,
+        SysOrderId: row.id,
+        OriGoodsUrl: row.goods_info.ori_url,
+        GoodsTitle: row.goods_info.goods_name,
+        GoodsId: row.goods_info.goods_id,
+        GoodsSku: row.goods_info.variation_sku,
+        GoodsSkuId: row.goods_info.variation_id,
+        GoodsNum: row.goods_info.goods_count,
+        GoodsPrice: row.total_amount,
+        OriGoodsTitle: '',
+        OriGoodsSku: '',
+        OriGoodsSkuId: row.ori_sku_id || '',
+        OriGoodsNum: '',
+        OriGoodsId: row.ori_goods_id || '',
+      }
+      this.$buyerAccountService.getSkuRelation(skuInfo, buyer)
+      //  let params = {
+      //   OrderSn: '21120368VRF39S',
+      //   SysOrderId: '3749',
+      //   OriGoodsUrl: 'http://mobile.yangkeduo.com/goods.html?goods_id=133359372465',
+      //   GoodsTitle: '🍑NIKIROCCO🚚พร้อมส่ง🚚 ชุดเดรสชีฟองสีขาวห ญิงฤดูร้อนนักเรียนเกาหลีอินยาว  อารมณ์ใหม่เซ็กซี่เอวชุดนางฟ้าเดรส plus',
+      //   GoodsId: '5563383101',
+      //   GoodsSku: ' อารมณ์สีขาว =|= L ',
+      //   GoodsSkuId: '51858886234',
+      //   GoodsNum: '1',
+      //   GoodsPrice: '305.00',
+      //   OriGoodsTitle: '白色雪纺连衣裙女夏学生韩版ins长款2021新款气质性感收腰仙女裙',
+      //   OriGoodsSku: ' 气质白, M',
+      //   OriGoodsSkuId: '583279695451',
+      //   OriGoodsNum: '1',
+      //   OriGoodsId: '133359372465',
+      //   OriGoodsPlatform: 1,
+      // }
+      // let res11 = await this.$commodityService.saveSkuRelation(JSON.stringify(params))
+      // console.log(res11, 'res11',JSON.stringify(params))
+    },
     //一键同步上家库存
     async syncOriginGoodsNum() {
       if (!this.multipleSelection.length) {
@@ -957,25 +1052,114 @@ export default {
         let msg = ''
         try {
           let res = await this.$collectService.queryDetailById(Number(platformId), params, false)
+          msg = res
+          console.log(Number(platformId), params, '4654689')
           let resObj = res && JSON.parse(res)
-          console.log(resObj)
           if (resObj && resObj.Code === 200) {
             let { CollectGoodsSkus } = resObj
             let params = {
               product_id: order.goods_info.goods_id,
-              // product_id: '13250897193',
               version: '3.2.0',
               shop_id: order.mall_info.platform_mall_id,
             }
+            let shopeeSkuList = []
             let shopeeGoodsInfo = null
             let shopeeGoods = await this.$shopeemanService.searchProductDetail(order.country, params)
-            console.log(shopeeGoods, 'shopeeGoods')
+            let flag = false
+            // console.log(shopeeGoods, 'shopeeGoods')
             if (shopeeGoods.code === 200 && shopeeGoods.data) {
               shopeeGoodsInfo = shopeeGoods.data
+              shopeeSkuList = shopeeGoods.data.model_list || [] //shopee规格list
               for (const key in CollectGoodsSkus) {
                 let skuInfo = CollectGoodsSkus[key]
-                console.log(skuInfo, 'skuInfo')
+                // console.log(skuInfo, 'skuInfo')
+                let skuName = ''
+                //---------------------处理skuName--------------------------------//
+                if ((skuInfo.PddProps && !skuInfo.originProps) || (skuInfo.PddProps && skuInfo.originProps && skuInfo.PddProps.length >= skuInfo.originProps.length)) {
+                  if (skuInfo.PddProps.length === 1) {
+                    skuName = skuInfo.PddProps[0].spec_name
+                  } else if (skuInfo.PddProps.length >= 2) {
+                    skuName = skuInfo.PddProps[0].spec_name + ',' + skuInfo.PddProps[1].spec_name
+                  } else {
+                    skuName = ''
+                  }
+                } else if ((!skuInfo.PddProps && skuInfo.originProps) || (skuInfo.PddProps && skuInfo.originProps && skuInfo.PddProps.length <= skuInfo.originProps.length)) {
+                  if (skuInfo.originProps.length === 1) {
+                    skuName = skuInfo.originProps[0].name
+                  } else if (skuInfo.originProps.length >= 2) {
+                    skuName = skuInfo.originProps[0].name + ',' + skuInfo.originProps[1].name
+                  } else {
+                    skuName = ''
+                  }
+                } else {
+                  skuName = ''
+                }
+                //----------------------------------------------------------------//
+                let spIndex = shopeeSkuList.findIndex((n) => n.name == skuName)
+                if (spIndex > -1) {
+                  flag = true
+                  shopeeSkuList[spIndex].stock = Number(skuInfo.quantity)
+                }
               }
+              //-----------判断是否更新并组装数据--------------//
+              if (!flag) {
+                this.$refs.Logs.writeLog(`订单【${order.order_sn}】同步库存失败，未匹配到相同的规格信息！`, false)
+                continue
+              }
+              let totalStock = 0
+              let dealWithSkuList = []
+              shopeeSkuList.forEach((item) => {
+                totalStock += item.stock
+                let subItem = {
+                  id: item.id,
+                  sku: item.sku,
+                  tier_index: item.tier_index,
+                  is_default: item.is_default,
+                  name: item.name,
+                  item_price: '',
+                  stock: item.stock,
+                }
+                dealWithSkuList.push(subItem)
+              })
+              //组装数据
+              let editParams = {
+                id: shopeeGoodsInfo.id,
+                name: shopeeGoodsInfo.name,
+                brand_id: shopeeGoodsInfo.brand_id,
+                images: shopeeGoodsInfo.images,
+                description: shopeeGoodsInfo.description,
+                model_list: dealWithSkuList, //sku
+                category_path: shopeeGoodsInfo.category_path,
+                attributes: shopeeGoodsInfo.attributes,
+                parent_sku: shopeeGoodsInfo.parent_sku,
+                wholesale_list: shopeeGoodsInfo.wholesale_list,
+                installment_tenures: shopeeGoodsInfo.installment_tenures,
+                weight: shopeeGoodsInfo.weight,
+                dimension: shopeeGoodsInfo.dimension,
+                pre_order: shopeeGoodsInfo.pre_order,
+                days_to_ship: shopeeGoodsInfo.days_to_ship,
+                condition: shopeeGoodsInfo.condition,
+                size_chart: shopeeGoodsInfo.size_chart,
+                video_list: shopeeGoodsInfo.video_list,
+                tier_variation: shopeeGoodsInfo.tier_variation,
+                add_on_deal: shopeeGoodsInfo.add_on_deal,
+                dangerous_goods: shopeeGoodsInfo.dangerous_goods,
+                enable_model_level_dts: shopeeGoodsInfo.enable_model_level_dts,
+                price: shopeeGoodsInfo.price,
+                stock: totalStock, //总库存
+                logistics_channels: shopeeGoodsInfo.logistics_channels || [],
+                ds_cat_rcmd_id: '',
+                category_recommend: shopeeGoodsInfo.category_recommend,
+                ds_attr_rcmd_id: shopeeGoodsInfo.ds_attr_rcmd_id || '',
+                unlisted: shopeeGoodsInfo.unlisted || false,
+              }
+              let editRes = await this.$shopeemanService.handleProductEdit(order.country, editParams)
+              if (editRes.code === 200) {
+                this.$refs.Logs.writeLog(`同步库存失败，订单【${order.order_sn}】同步库存成功！`, true)
+              } else {
+                this.$refs.Logs.writeLog(`同步库存失败，订单【${order.order_sn}】同步库存失败，${editRes.data}！`, false)
+              }
+              //--------------------------------------------//
             } else {
               if (shopeeGoods.code === 403) {
                 this.$refs.Logs.writeLog(`同步库存失败，店铺【${order.mall_info.platform_mall_name}】未登录！`, false)
@@ -987,10 +1171,10 @@ export default {
           } else {
             msg = res
           }
-          console.log(resObj)
         } catch (error) {
-          console.log(error)
+          console.log('catch', error)
           this.$refs.Logs.writeLog(`订单【${order.order_sn}】同步上家库存失败，${msg}！`, false)
+          continue
         }
       }
     },
@@ -1215,9 +1399,11 @@ export default {
     },
     //获取类目
     getCategoryInfo(country, cateId) {
+      // console.log(country, cateId)
       this.$commodityService.getCategoryTbInfo(country, cateId + '').then((res) => {
         let str = ''
         let resObj = res && JSON.parse(res)
+        console.log(resObj, '类目')
         if (resObj && resObj.code === 200) {
           if (resObj.data.categories) {
             str = ''
@@ -1262,7 +1448,7 @@ export default {
       this.$refs.Logs.writeLog(`开始获取lazada付款方式`, true) //country,cookieStr,orderId
       for (let i = 0; i < arr.length; i++) {
         let order = arr[i]
-        if (!order.shot_order_info.buy_account_info ) {
+        if (!order.shot_order_info.buy_account_info) {
           this.$refs.Logs.writeLog(`【${order.order_sn}】，当前没有拍单信息，无法获取！`, false)
           continue
         }
@@ -1296,7 +1482,7 @@ export default {
           }
         } catch (error) {
           this.$refs.Logs.writeLog(`【${order.order_sn}】获取付款方式失败，买手号【${buyer_name}】${msg || error}`, false)
-          console.log("catch",msg)
+          console.log('catch', msg)
         }
       }
     },
@@ -1816,6 +2002,7 @@ export default {
         return n != null && n !== undefined
       })
       this.showConsole = false
+      this.$refs.Logs.consoleMsg = ''
       const service = new ShotOrderService(waitOrders, buyerAccount, this)
       service.start(this.$refs.Logs.writeLog)
     },
@@ -1894,7 +2081,7 @@ export default {
       } else {
         this.$message.error(`设置失败-${res.data.message}`)
       }
-      console.log(res, 'color')
+      // console.log(res, 'color')
     },
     //获取标识选择
     async getColorList() {
@@ -1902,7 +2089,7 @@ export default {
       if (res.data.code === 200) {
         this.colorList = res.data.data
       }
-      console.log(res, 'color')
+      // console.log(res, 'color')
     },
     //颜色标识
     getCurrentRow(row) {
@@ -2095,10 +2282,29 @@ export default {
       if (res.data.code === 200) {
         this.tableData = res.data.data.data
         this.total = res.data.data.total
-        for (let i = 0; i < this.tableData.length; i++) {
-          let row = this.tableData[i]
-          this.isSecondSale(row, i)
-        }
+        let sysOrders = ''
+        try {
+          this.tableData.forEach((row, i) => {
+            if (i === 0) {
+              sysOrders = row.id
+            } else {
+              sysOrders = sysOrders + ',' + row.id
+            }
+            this.isSecondSale(row, i)
+          })
+          let response = await this.$commodityService.getSkuRelation(sysOrders)
+          let skuInfo = response && JSON.parse(response)
+          if (skuInfo.code === 200) {
+            let list = skuInfo.data.data || []
+            for (let index = 0; index < list.length; index++) {
+              let item = list[index]
+              const tbIndex = this.tableData.findIndex((ele) => {
+                return ele.id === item.sysOrderId
+              })
+              this.$set(this.tableData[tbIndex], 'empty_info', tbIndex + 1 + 'success')
+            }
+          }
+        } catch (error) {}
       } else {
         this.$message.error(res.data.message)
       }
@@ -2136,7 +2342,7 @@ export default {
     changeMallList(val) {
       this.selectMallList = val.mallList
       this.shipTypeList = siteShip(val.country) //物流方式
-      console.log(val, this.shipTypeList)
+      // console.log(val, this.shipTypeList)
     },
     handleCurrentChange(val) {
       this.currentPage = val

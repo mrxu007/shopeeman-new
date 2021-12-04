@@ -1053,9 +1053,8 @@ export default class NetMessageBridgeService {
     // 查询商品
     async searchProductList(country, data) {
       const res = await this.getChinese(country, '/api/v3/product/search_product_list/', data)
-      console.log(res,"55263")
       const resObj = res && JSON.parse(res)
-      console.log(resObj)
+      // console.log(resObj)
       if (resObj && resObj.status === 200) {
         const info = JSON.parse(resObj.data)
         if (info && info.code === 0) {
@@ -1076,12 +1075,11 @@ export default class NetMessageBridgeService {
         }
       }
     }
-    // 查询商品详情
+    // 查询产品详情
     async searchProductDetail(country, data) {
       const res = await this.getChinese(country, '/api/v3/product/get_product_detail/', data)
-      console.log(res,"55263")
       const resObj = res && JSON.parse(res)
-      console.log(resObj)
+      // console.log(res,resObj)
       if (resObj && resObj.status === 200) {
         const info = JSON.parse(resObj.data)
         if (info && info.code === 0) {
@@ -1102,6 +1100,45 @@ export default class NetMessageBridgeService {
         }
       }
     }
+      // 产品编辑
+  async handleProductEdit(country, data, params) {
+    const res = await this.postChineseShop(country, '/api/v3/product/update_product/', data, params, {
+      Headers: {
+        'Content-Type': ' application/json'
+      },
+      params: {
+        version: '3.1.0',
+        source: 'seller_center'
+      }
+    })
+    const resObj = res && JSON.parse(res)
+    console.log(resObj)
+    if (resObj && resObj.status === 200) {
+      const info = JSON.parse(resObj.data)
+      if (info && info.code === 0) {
+        return {
+          code: 200,
+          data: info.data || []
+        }
+      } else {
+        return {
+          code: 50001,
+          data: info.message || resObj.statusText || ''
+        }
+      }
+    } else {
+      if (resObj.status === 403) {
+        return {
+          code: resObj.status,
+          data: `商品编辑失败，店铺未登录！`
+        }
+      }
+      return {
+        code: resObj.status,
+        data: `商品编辑失败${resObj.statusText}`
+      }
+    }
+  }
   // 商品下架
   async handleGoodsDelist(country, data, params) {
     const res = await this.postChineseShop(country, '/api/v3/product/update_product/', data, params, {

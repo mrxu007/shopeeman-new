@@ -825,4 +825,19 @@ export default class CommodityService {
   async getLazadaPayMethod(country,cookieStr,orderDetial,shotOrderSn){
     return await this.nativeService.callLazadaService('GetPayMethod',country,cookieStr,orderDetial,shotOrderSn)
   }
+/**
+ * @name : 
+ * @param  {String} sysOrderIds 系统订单id，用逗号隔开
+ */  
+async getSkuRelation(sysOrderIds){
+  return await this.nativeService.callSkuRelationClient('GetBySysOrderIds',sysOrderIds)
+}
+/**
+ * @name : 保存映射
+ * @param  {*}
+ * @param {*} SkuRelation
+ */
+async saveSkuRelation(SkuRelation){
+  return await this.nativeService.callSkuRelationClient('SaveGoodsSkuRelation',SkuRelation)
+}
 }

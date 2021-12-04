@@ -327,11 +327,13 @@ export default class {
       }
       //5、获取物流轨迹的发货时间 
       let res5 = await this.$shopeemanService.getLogisticsTrackingHistory(this.mall.country, params)
+      console.log(res6,"res6")
       if (res5.code === 200) {
         order['logisticsTrackingHistory'] = res5.data
       }
       //6、申请运单号
       let res6 = await this.$shopeemanService.getForderLogistics(this.mall.country, params)
+      console.log(res6,"res6")
       if (res6.code === 200) {
         order['forderLogistics'] = res6.data
       }
@@ -371,8 +373,14 @@ export default class {
     }
     console.log(order, "orderAll")
   }
-  //服务端检测订单 ---正常订单
 
+  //上报shop平台物流信息
+  async uploadOrderLogisticsInfo(){
+
+  }
+
+
+  //服务端检测订单 ---正常订单
   //orderKey组装： main_order_sn  + status  +   status_ext  + logistics_status + log_current_status  + actual_shipping_cost
   //其中： log_current_status  为此接口（获取历史记录节点）：/api/v3/order/get_order_tracking_history/  中的new_status，如无，则为''
   //其中： actual_shipping_cost 为此接口（订单收入明细）：/api/v3/finance/income_transaction_history_detail  中的 shipping_fee_paid_by_shopee_on_your_behalf ，若无，则为0
@@ -752,10 +760,10 @@ export default class {
           item_id = bundleDealProducts[i]["item_id"];
           variation_discounted_price = bundleDealProducts[i]["price"];
 
-          variation_id = bundleDealModels[i]["model_id"];
-          variation_name = bundleDealModels[i]["name"];
-          variation_sku = bundleDealModels[i]["sku"];
-          ctime = bundleDealModels[i]("ctime");
+          variation_id = bundleDealModels[i] && bundleDealModels[i]["model_id"] || '';
+          variation_name = bundleDealModels[i] && bundleDealModels[i]["name"] || '';
+          variation_sku = bundleDealModels[i] && bundleDealModels[i]["sku"] || '';
+          ctime = bundleDealModels[i] && bundleDealModels[i]["ctime"] || '';
         } else {
           item_sku = product["sku"];
           item_name = product["name"];

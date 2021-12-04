@@ -195,6 +195,7 @@ export default class {
       const itemOrder = this.orders[index]
       let res = await this.$configService.getWarehouseInfo(itemOrder.mall_info.platform_mall_id)
       let warehouseList = res && JSON.parse(res) || []
+      console.log(warehouseList,"warehouseList",res)
       //1.判断店铺是否有绑定仓库（未绑定提示：$"店铺【{mallname}】未匹配到收货地址，请前往【仓库收货地址设置】进行设置"  并返回不在继续拍单）
       if (!warehouseList.length) {
         return {
