@@ -275,7 +275,7 @@
         <el-pagination
           background
           :current-page="page"
-          :page-sizes="[30, 50, 100]"
+          :page-sizes="[100,200]"
           :page-size="pageSize"
           layout="total, sizes, prev, pager, next, jumper"
           :total="total"
@@ -474,7 +474,7 @@ export default {
         logisticsNum: '' // 包裹物流编号
       },
       total: 0,
-      pageSize: 30,
+      pageSize: 100,
       page: 1,
       tableData: [],
       packageStatusList: [
