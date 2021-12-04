@@ -825,4 +825,32 @@ export default class CommodityService {
   async getPayMethod(country, cookieStr, orderDetial, shotOrderSn) {
     return await this.nativeService.callLazadaService('GetPayMethod', country, cookieStr, orderDetial, shotOrderSn)
   }
+  /**
+   * 保存商品
+   */
+  SaveProduct(data) {
+    return this.nativeService.callProductCenter('SaveProduct', JSON.stringify(data))
+  }
+
+  /**
+   * 删除商品
+   */
+  delgoods(data) {
+    return this.nativeService.callProductCenter('DeleteProduct', data.productId, data.productUid)
+  }
+
+  /**
+   * 获取sku选项默认配置
+   */
+  getskucode() {
+    return this.nativeService.callProductCenter('GetStaticSkuCode')
+  }
+
+  /**
+   * 获取产品详情
+   */
+  getdetails(data) {
+    return this.nativeService.callProductCenter('GetProductDetail', data.priductid, data.language)
+  }
+
 }
