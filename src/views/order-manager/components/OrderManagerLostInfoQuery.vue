@@ -14,8 +14,8 @@
         <el-date-picker
           v-model="cloumn_date"
           size="mini"
-          style="width: 324px"
-          type="datetimerange"
+          style="width: 220px"
+          type="daterange"
           value-format="yyyy-MM-dd HH:mm:ss"
           range-separator="-"
           :picker-options="pickerOptions"

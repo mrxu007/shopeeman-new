@@ -141,7 +141,7 @@
         </div>
         <div class="select-item" style="margin-top:10px">
           <el-button type="primary" style="margin-left: 4px" size="mini" class="m-80" :loading="orderPackageLoading" @click="orderPackage">搜索</el-button>
-          <el-button v-if="!isExport" type="primary" size="mini" class="m-80" @click="tableToExcel">导出数据</el-button>
+          <el-button v-if="!isExport" :loading="exportLoading" style="width:100px" type="primary" size="mini" class="m-80" @click="tableToExcel(1)">导出数据</el-button>
           <el-progress v-else style="width: 160px; display: inline-block; margin-left: 10px" :text-inside="true" :stroke-width="26" :percentage="((exportNum * 100) / total).toFixed(2) - 0" />
           <el-button type="primary" size="mini" class="m-80" style="width:120px" @click="remarkFun">批量更新用户备注</el-button>
           <el-button type="primary" size="mini" @click="closelogData">清空日志</el-button>
@@ -171,7 +171,9 @@
             {{ scope.$index + 1 + (currentPage - 1) * pageSize }}
           </template>
         </el-table-column>
-        <el-table-column label="站点" min-width="80px" prop="country" fixed />
+        <el-table-column label="站点" min-width="80px" prop="country" fixed>
+          <template slot-scope="{row}"><span>{{ row.country | chineseSite }}</span></template>
+        </el-table-column>
         <el-table-column label="店铺名称" min-width="150px" prop="mall_alias_name">
           <!-- <template slot-scope="{row}"><span>{{ row.mall_alias_name ? row.mall_alias_name :row.platform_mall_name }}</span></template> -->
         </el-table-column>
@@ -193,7 +195,7 @@
         <el-table-column label="数量" min-width="100px" prop="goodsCount" />
         <el-table-column label="商品详情" min-width="110px">
           <template slot-scope="scope">
-            <p><el-button type="primary" size="mini" @click="getGoodsInfo(scope.row.package_order_sn)">查看签收详情</el-button></p>
+            <p><el-button type="primary" size="mini" @click="getGoodsInfo(scope.row.package_order_sn),currenWarehouse=scope.row.warehouse_name">查看签收详情</el-button></p>
           </template>
         </el-table-column>
         <el-table-column label="包裹重量" min-width="100px">
@@ -222,6 +224,7 @@
         <el-table-column label="订单发货状态" min-width="100px" prop="delivery_status">
           <template slot-scope="{row}"><span>{{ delivery_statusList[row.delivery_status] }}</span></template>
         </el-table-column>
+        <el-table-column label="尾程物流状态" min-width="100px" prop="logistics_track" />
         <el-table-column label="异常类型" min-width="100px" prop="exceptionText" />
         <el-table-column label="订单创建时间" min-width="150px" prop="order_created_time" />
         <el-table-column label="订单平台状态" min-width="110px" prop="order_status">
@@ -252,7 +255,7 @@
         </el-table-column>
         <el-table-column min-width="240px" align="left" label="备注" fixed="right">
           <template slot-scope="scope">
-            <p style="text-align: left;margin-left:10px">仓库备注：{{ scope.row.ext_service && scope.row.ext_service.remark }}</p>
+            <p style="text-align: left;margin-left:10px">仓库备注：{{ scope.row.remark }}</p>
             <p style="text-align: left;margin-left:10px">
               用户备注：
               <span v-show="!(scope.row.id === activeRemarkID ? true : false)">{{ scope.row.user_remark }}</span>
@@ -378,7 +381,7 @@
       </div>
     </el-dialog>
     <!-- 包裹详情弹窗 -->
-    <el-dialog title="包裹详情" class="dialog-order" width="1000px" top="6vh" :visible.sync="dialogVisible2">
+    <el-dialog title="包裹详情" class="dialog-order" width="1200px" top="6vh" :visible.sync="dialogVisible2">
       <div>
         <el-table
           ref="workbenchTable"
@@ -394,7 +397,11 @@
           :cell-style="{ textAlign: 'center' }"
           :row-style="{ height: '80px' }"
         >
-          <el-table-column label="订单编号" min-width="180px" prop="order_sn" fixed />
+          <el-table-column label="订单编号" min-width="180px" prop="order_sn" fixed>
+            <template slot-scope="{row}">
+              <span v-if="row.order_sn">{{ row.order_sn }} <span class="copyIcon" @click="copy(row.order_sn)"><i class="el-icon-document-copy" /></span></span>
+            </template>
+          </el-table-column>
           <el-table-column label="商品名称" min-width="300px" prop="">
             <template slot-scope="scope">
               <el-tooltip v-if="scope.row.goods" effect="dark" placement="top-start">
@@ -409,7 +416,10 @@
           <el-table-column label="商品ID" min-width="110px" prop="warehouse_name">
             <template slot-scope="scope">
               <div v-if="scope.row.goods" class="goods-detail">
-                {{ scope.row.goods.goods_id }}
+                <!-- {{ scope.row.goods.goods_id }} -->
+                <el-button type="text" @click.native="open(scope.row.ori_goods_id)">
+                  {{ scope.row.goods.goods_id }}
+                </el-button>
               </div>
             </template>
           </el-table-column>
@@ -422,23 +432,28 @@
           </el-table-column>
           <el-table-column label="拍单订单号" min-width="190px" prop="shot_order_sn">
             <template slot-scope="scope">
-              <div v-if="scope.row.shotOrder" class="goods-detail">
-                {{ scope.row.shotOrder.shot_order_sn }}
+              <div v-if="scope.row.shotOrder && scope.row.shotOrder.shot_order_sn" class="goods-detail">
+                {{ scope.row.shotOrder.shot_order_sn }}<span class="copyIcon" @click="copy(scope.row.shotOrder.shot_order_sn)"><i class="el-icon-document-copy" /></span>
               </div>
             </template>
           </el-table-column>
-          <el-table-column label="拍单时间" min-width="150px" prop="goods_count">
+          <el-table-column label="拍单时间" min-width="150px" prop="">
             <template slot-scope="scope">
               <div v-if="scope.row.shotOrder" class="goods-detail">
                 {{ scope.row.shotOrder.shotted_at }}
               </div>
             </template>
           </el-table-column>
-          <el-table-column label="物流单号" min-width="150px" prop="package_code" />
+          <el-table-column label="物流单号" min-width="150px" prop="package_code">
+            <template slot-scope="{row}">
+              <span v-if="row.package_code">{{ row.package_code }} <span class="copyIcon" @click="copy(row.package_code)"><i class="el-icon-document-copy" /></span></span>
+            </template>
+          </el-table-column>
           <el-table-column label="状态" min-width="70px">
             <template slot-scope="{ row }">
               <span>
-                {{ row.package && Number(row.package.status) === 1 ? '待处理' : '待处理' }}
+                <!-- {{ row.package && Number(row.package.status) === 1 ? '待处理' : '待处理' }} -->
+                {{ row.package && packageStatus[row.package.status] }}
               </span>
             </template>
           </el-table-column>
@@ -457,16 +472,20 @@
               </el-tooltip>
             </template>
           </el-table-column>
-          <!--  <el-table-column
+          <el-table-column
             label="申请赔付"
             width="120"
-          > <template slot-scope="scope">
-            <p><el-button
-              type="primary"
-              size="mini"
-            >申请赔付</el-button></p>
-          </template>
-          </el-table-column> -->
+            fixed="right"
+          >
+            <template slot-scope="scope">
+              <el-button
+                v-if="scope.row.isAbnormslPayment !==1"
+                type="primary"
+                size="mini"
+                @click="applyDialog(scope.row)"
+              >申请赔付</el-button>
+            </template>
+          </el-table-column>
         </el-table>
       </div>
       <p slot="footer" style="text-align: center">
@@ -512,7 +531,9 @@
 
         <div class="compareData_item">
           <el-table :header-cell-style="{ background: '#f7fafa' }" :data="compareDataList" :row-style="{ height: '50px' }" max-height="400">
-            <el-table-column prop="country" label="站点" min-width="80px" align="center" fixed />
+            <el-table-column prop="country" label="站点" min-width="80px" align="center" fixed>
+              <template slot-scope="{row}"><span>{{ row.country | chineseSite }}</span></template>
+            </el-table-column>
             <el-table-column prop="mall_alias_name" label="店铺名称" min-width="150px" align="center">
               <template slot-scope="{row}"><span>{{ row.mall_alias_name ? row.mall_alias_name :row.platform_mall_name }}</span></template>
             </el-table-column>
@@ -528,7 +549,119 @@
         </div>
       </div>
     </el-dialog>
-
+    <!-- 申请赔付弹窗 -->
+    <el-dialog
+      class="apply-dialog"
+      title="申请赔付"
+      top="6vh"
+      :visible.sync="applyVisible"
+      width="800px"
+      :close-on-click-modal="false"
+      :close-on-press-escape="false"
+      @close="handleClose"
+    >
+      <div class="wrap">
+        <div class="left">
+          <el-form label-position="right" label-width="100px">
+            <el-form-item label="订单编号：">
+              {{ applyOrderSn }}
+            </el-form-item>
+            <el-form-item label="拍单订单号：">
+              {{ applyShotOrderSn }}
+            </el-form-item>
+            <el-form-item label="采购物流单号：">
+              {{ applyPackageCode }}
+            </el-form-item>
+            <el-form-item label="当前状态：">
+              {{ packageStatus[applyStatus]?packageStatus[applyStatus]:'' }}
+            </el-form-item>
+            <el-form-item label="包裹所属仓库：">
+              {{ currenWarehouse }}
+            </el-form-item>
+          </el-form>
+        </div>
+        <div class="right">
+          <el-form label-position="right" label-width="80px">
+            <el-form-item label="赔付类型：">
+              <el-select
+                v-model="applyType"
+                placeholder=""
+                size="mini"
+                filterable
+                @change="handleChange1"
+              >
+                <el-option
+                  v-for="(item, index) in applyTypeList"
+                  :key="index"
+                  :label="item.label"
+                  :value="item.value"
+                />
+              </el-select>
+              <span style="color:red;margin-left:5px">如需赔付清关费，请填写在备注中</span>
+            </el-form-item>
+            <el-form-item label="赔付金额：">
+              <span style="color:red">{{ applyMoney }}</span>
+            </el-form-item>
+            <el-form-item label="赔付原因：">
+              <el-select
+                v-model="applyTypeCause"
+                placeholder=""
+                size="mini"
+                filterable
+              >
+                <el-option
+                  v-for="(item, index) in applyTypeCauseList"
+                  :key="index"
+                  :label="item.label"
+                  :value="item.value"
+                />
+              </el-select>
+            </el-form-item>
+            <el-form-item label="图片凭证：">
+              <div v-for="(item, i) in applyImages" :key="i">
+                <div v-if="item">
+                  <el-image :src="item" @click="item = ''" />
+                </div>
+                <div v-else>
+                  <el-upload
+                    accept=".jpg,.jpeg,.png,.webp"
+                    action="#"
+                    :show-file-list="false"
+                    :auto-upload="false"
+                    list-type="picture-card"
+                    :on-change="handleChange2"
+                  >
+                    <i class="el-icon-plus" @click="getImagesIndex(i)" />
+                  </el-upload>
+                </div>
+              </div>
+            </el-form-item>
+            <el-form-item label="备注：">
+              <el-input
+                v-model="applyRemark"
+                type="textarea"
+                :rows="5"
+                size="mini"
+                resize="none"
+                placeholder="请输入内容"
+                maxlength="150"
+                show-word-limit
+              />
+            </el-form-item>
+          </el-form>
+        </div>
+      </div>
+      <div class="footer">
+        <el-button
+          type="primary"
+          size="mini"
+          :loading="applyLoading"
+          @click="applyCompensation"
+        >
+          申请赔付
+        </el-button>
+      </div>
+    </el-dialog>
     <Logs ref="autoReplyLogs" v-model="showlog" clear />
 
   </div>
@@ -540,7 +673,7 @@ import { getValue, getColorinfo, creatDate, colorLabelList, MallList, getMalls }
 import { statusList, exceptionList, orderStatusList, packageStatusList } from './warehouse'
 import storeChoose from '../../../components/store-choose.vue'
 import ShopeeConfig from '@/services/shopeeman-config'
-import { t } from 'umy-table/lib/locale'
+import { randomWord } from '../../../util/util'
 export default {
   components: {
     storeChoose // 店铺选择组件
@@ -555,6 +688,8 @@ export default {
   },
   data() {
     return {
+      currenWarehouse: '',
+      exportLoading: false,
       detailLoading: false, // 查看订单包裹详情加载
       showlog: true,
       // colorStyle: 'width:50px;height:20px;background-color:',
@@ -671,7 +806,40 @@ export default {
         }
       },
       remarkVisible: false,
-      newRemark: ''
+      newRemark: '',
+
+      // 申请赔付
+      applyVisible: false,
+      applyType: 1, // 类型
+      applyTypeCause: 1, // 原因
+      applyOrderSn: '', // 订单号
+      applyImages: ['', '', ''], // 图片凭证
+      applyRemark: '', // 备注
+      applyPackageCode: '', // 采购物流单号
+      applyShotOrderSn: '', // 拍单订单号
+      applyStatus: '',
+      applyMoney: '', // 赔付金额
+      imagesIndex: '', // 图片下标
+      applyLoading: false,
+
+      packageStatus: {
+        '-1': '未拒收',
+        '1': '已拒收',
+        '2': '已签收'
+      },
+      applyTypeList: [
+        { value: 1, label: '赔付运费' },
+        { value: 2, label: '赔付采购价' },
+        { value: 4, label: '赔付采购价+运费' }
+      ],
+      applyTypeCauseList: [
+        { value: 1, label: '仓库丢件' },
+        { value: 2, label: '仓库漏发' },
+        { value: 3, label: '超材出库' },
+        { value: 4, label: '买家收货不符' },
+        { value: 5, label: '包裹到齐48小时未出库' },
+        { value: 6, label: '已出库，虾皮仓未发货致订单取消' }
+      ]
 
     }
   },
@@ -682,6 +850,87 @@ export default {
     // this.userInfo()
   },
   methods: {
+    open(val) {
+      window.BaseUtilBridgeService.openUrl(`https://item.taobao.com/item.htm?id=${val}`)
+    },
+    // 申请赔付
+    async applyCompensation() {
+      const flag = this.applyImages.some(item => { return item !== '' })
+      if (!flag) return this.$message.warning('请上传图片凭证')
+      this.applyLoading = true
+      const params = {
+        type: this.applyType,
+        typeCause: this.applyTypeCause,
+        orderSn: this.applyOrderSn,
+        images: this.applyImages,
+        remark: this.applyRemark
+      }
+      try {
+        const { data } = await this.$api.applyCompensation(params)
+        if (data.code !== 200) {
+          this.$message.error(data.message)
+          this.applyLoading = false
+          return
+        }
+        this.$message.success('申请赔付成功')
+      } catch (error) {
+        this.$message.error('申请赔付异常', `${error}`)
+      }
+      this.applyLoading = false
+    },
+    // 申请赔付弹窗
+    applyDialog(row) {
+      this.applyVisible = true
+      this.applyOrderSn = row.order_sn
+      this.applyPackageCode = row.package_code
+      this.applyShotOrderSn = row.shotOrder && row.shotOrder.shot_order_sn ? row.shotOrder.shot_order_sn : ''
+      this.applyStatus = row.package && row.package.status ? row.package.status : ''
+      this.getMoney()
+    },
+    // 获取赔付金额
+    async getMoney() {
+      const params = {
+        type: this.applyType,
+        orderSn: this.applyOrderSn
+      }
+      try {
+        const { data } = await this.$api.getMoney(params)
+        if (data.code !== 200) {
+          this.$message.error(data.message)
+          return
+        }
+        this.applyMoney = data.data.amount
+      } catch (error) {
+        this.$message.error('获取赔付金额异常', `${error}`)
+      }
+    },
+    // 赔付类型
+    handleChange1() {
+      this.getMoney()
+    },
+    // 上传图片
+    async handleChange2(file) {
+      const that = this
+      const localFile = file.raw
+      if (!/\.(jpg|jpeg|png|webp)$/.test(localFile.name.toLowerCase())) {
+        this.showlog = false
+        this.$refs.autoReplyLogs.writeLog(`上传格式不对,请上传jpg、jpeg、png、webp格式的图片`, false)
+        return
+      }
+      const reader = new FileReader()
+      reader.readAsDataURL(localFile)
+      reader.onload = async() => {
+        that.imgData = reader.result
+        const name = randomWord(false, 32) + '_' + new Date().getTime()
+        const res = await this.$ossService.uploadFile(that.imgData, name)
+        this.applyImages[this.imagesIndex] = res
+        this.$forceUpdate()
+      }
+    },
+    // 获取图片下标
+    getImagesIndex(val) {
+      this.imagesIndex = val
+    },
     // 清空日志
     closelogData() {
       this.$refs.autoReplyLogs.consoleMsg = ''
@@ -786,7 +1035,7 @@ export default {
         // console.log('8888888888', this.multipleSelection)
         this.dialog_compareData = true
       } catch (error) {
-        console.log(error)
+        console.log(`${error}`)
       }
     },
     // 批量推送订单至仓库
@@ -922,7 +1171,7 @@ export default {
           }
           this.$refs.autoReplyLogs.writeLog(`添加增值服务完成`)
         } catch (error) {
-          this.$message.error(error)
+          this.$message.error(`${error}`)
         }
         // 清空数据
         this.extParams = {
@@ -1031,12 +1280,12 @@ export default {
             }
             item.mall_alias_name = getValue(this.shopAccountList, 'label', 'id', item.sys_mall_id)
             // item.site = getValue(this.siteList, 'label', 'value', item.country)
-            item.statusText = getValue(statusList, 'label', 'deliveryStatus', item.delivery_status)
+            // item.statusText = getValue(statusList, 'label', 'deliveryStatus', item.delivery_status)
             item.exceptionText = getValue(exceptionList, 'label', 'exception_type', item.exception_type)
             item.orderStatusText = getValue(orderStatusList, 'label', 'order_status', item.order_status)
             // item.colorText = getValue(this.colorLogoList, 'Colorinfo', 'id', item.color_id) || '无'
             item.colorinfo = getColorinfo(this.colorLogoList, item.color_id) || ''
-            item.country = this.shopeeConfig.getSiteCode(item.country)
+            // item.country = this.shopeeConfig.getSiteCode(item.country)
             this.tableData.push(item)
           }
           // console.log('colorLogoList', this.colorLogoList)
@@ -1444,142 +1693,177 @@ export default {
       try {
         this.detailLoading = true
         const { data } = await this.$api.getGoodsInfo({ params })
-        this.detailLoading = false
         if (data.code === 200) {
           this.goodsList = data.data
           console.log('this.goodsList', this.goodsList)
         } else {
-          this.$message.error(data.message)
+          // this.$message.error(data.message)
+          console.log(data.message)
         }
       } catch (error) {
-        this.$message.error(error)
+        console.log(error)
+        this.$message.error(`${error}`)
       }
+      this.detailLoading = false
     },
     // 导出
-    tableToExcel() {
-      // 要导出的json数据
-      if (this.multipleSelection.length > 0) {
-        this.importBilling([this.multipleSelection])
-      } else {
-        if (!this.total) {
-          // return this.$notify({
-          //   title: '订单信息',
-          //   type: 'warning',
-          //   message: `没有可以导出的订单`
-          // })
-          this.$message.warning('没有可以导出的订单')
-        }
-        this.exportOrderList = []
-        // this.dialogVisible1 = true
-      }
-    },
-    // 实时导出
-    async exportOrders(page, isRef) {
-      this.isExport = this.isExport ? this.isExport : new Date() - 0
-      const params = {
+    async tableToExcel(page) {
+      this.exportLoading = true
+      const sysMallIds = this.shopAccount.toString()
+      const query = {
+        page: page,
+        pageSize: 200,
         status: '',
         packageOrderSn: this.packageOrderSn,
-        statuoriginalTrackingNumbers: this.statuoriginalTrackingNumbers,
+        originalTrackingNumber: this.statuoriginalTrackingNumbers,
         exceptionType: this.exceptionType,
         deliveryStatus: this.deliveryStatus,
         colorLabelId: this.colorLabelId,
-        // sysMallIds: this.shopAccount.join(',')
-        sysMallIds: this.shopAccount.toString()
+        sysMallIds
       }
-      params.page = page
-      params.pageSize = 200
-      params.isExport = this.isExport
       if (this.createdTime && this.createdTime.length) {
-        params.createdTime = this.setDateFmt(this.createdTime).join('/')
+        query.createdTime = this.setDateFmt(this.createdTime).join('/')
       }
       if (this.storageTime && this.storageTime.length) {
-        params.storageTime = this.setDateFmt(this.storageTime).join('/')
+        query.storageTime = this.setDateFmt(this.storageTime).join('/')
       }
       if (this.outboundTime && this.outboundTime.length) {
-        params.outboundTime = this.setDateFmt(this.outboundTime).join('/')
+        query.outboundTime = this.setDateFmt(this.outboundTime).join('/')
       }
-      const { data } = await this.$api.orderPackage(params)
-      // console.log(data, 2222)
-      if (data && data.data && data.data.data) {
-        const newData = data.data.data
-        for (let i = 0; i < newData.length; i++) {
-          const item = newData[i]
-          if (this.site !== '' && item.country !== this.site) {
-            continue
+      try {
+        const res = await this.$api.orderPackage(query)
+        const data = res.data
+        if (data.code === 200) {
+          const list = data.data.data
+          for (let i = 0; i < list.length; i++) {
+            const item = list[i]
+            if (this.site !== '' && item.country !== this.site) {
+              continue
+            }
+            item.mall_alias_name = getValue(this.shopAccountList, 'label', 'id', item.sys_mall_id)
+            item.exceptionText = getValue(exceptionList, 'label', 'exception_type', item.exception_type)
+            item.colorinfo = getColorinfo(this.colorLogoList, item.color_id) || ''
+            this.exportOrderList.push(item)
           }
-          item.mall_alias_name = getValue(this.shopAccountList, 'label', 'id', item.sys_mall_id)
-          // item.site = getValue(this.siteList, 'label', 'value', item.country)
-          item.statusText = getValue(statusList, 'label', 'deliveryStatus', item.delivery_status)
-          item.exceptionText = getValue(exceptionList, 'label', 'exception_type', item.exception_type)
-          item.orderStatusText = getValue(orderStatusList, 'label', 'order_status', item.order_status)
-          // item.colorText = getValue(this.colorLogoList, 'label', 'id', item.color_id) || '无'
-          item.colorinfo = getColorinfo(this.colorLogoList, item.color_id) || ''
-        }
-        this.total = data.data.total
-        if (this.exportOrderList[this.exportIndex]) {
-          this.exportOrderList[this.exportIndex].push(...newData)
         } else {
-          this.exportOrderList[this.exportIndex] = newData
-        }
-        if (this.exportOrderList[this.exportIndex].length >= 10000) {
-          this.exportOrderList[this.exportIndex + 1] = []
-          this.exportIndex++
-        }
-        this.exportNum = this.exportIndex * 10000 + this.exportOrderList[this.exportIndex].length
-        if (this.exportNum >= this.total) {
-          this.isExport = false
-          this.importBilling(this.exportOrderList)
-          //  loading.close()
-        } else {
-          this.exportOrders(params.page + 1)
-        }
-      } else {
-        if (isRef) {
-          this.isExport = false
-
-          // this.$notify({
-          //   title: '仓库管理',
-          //   type: 'error',
-          //   message: data.message
-          // })
           this.$message.error(data.message)
-        } else {
-          this.exportOrders(params.page, true)
         }
+      } catch (err) {
+        this.$message.error(`${err}`)
+      }
+
+      if (this.exportOrderList.length < this.total) {
+        this.tableToExcel(page + 1)
+      } else {
+        this.exportLoading = false
+        this.importBilling(this.exportOrderList)
       }
     },
+    // 实时导出
+    // async exportOrders(page, isRef) {
+    //   this.isExport = this.isExport ? this.isExport : new Date() - 0
+    //   const params = {
+    //     status: '',
+    //     packageOrderSn: this.packageOrderSn,
+    //     statuoriginalTrackingNumbers: this.statuoriginalTrackingNumbers,
+    //     exceptionType: this.exceptionType,
+    //     deliveryStatus: this.deliveryStatus,
+    //     colorLabelId: this.colorLabelId,
+    //     // sysMallIds: this.shopAccount.join(',')
+    //     sysMallIds: this.shopAccount.toString()
+    //   }
+    //   params.page = page
+    //   params.pageSize = 200
+    //   params.isExport = this.isExport
+    //   if (this.createdTime && this.createdTime.length) {
+    //     params.createdTime = this.setDateFmt(this.createdTime).join('/')
+    //   }
+    //   if (this.storageTime && this.storageTime.length) {
+    //     params.storageTime = this.setDateFmt(this.storageTime).join('/')
+    //   }
+    //   if (this.outboundTime && this.outboundTime.length) {
+    //     params.outboundTime = this.setDateFmt(this.outboundTime).join('/')
+    //   }
+    //   const { data } = await this.$api.orderPackage(params)
+    //   // console.log(data, 2222)
+    //   if (data && data.data && data.data.data) {
+    //     const newData = data.data.data
+    //     for (let i = 0; i < newData.length; i++) {
+    //       const item = newData[i]
+    //       if (this.site !== '' && item.country !== this.site) {
+    //         continue
+    //       }
+    //       item.mall_alias_name = getValue(this.shopAccountList, 'label', 'id', item.sys_mall_id)
+    //       // item.site = getValue(this.siteList, 'label', 'value', item.country)
+    //       // item.statusText = getValue(statusList, 'label', 'deliveryStatus', item.delivery_status)
+    //       item.exceptionText = getValue(exceptionList, 'label', 'exception_type', item.exception_type)
+    //       item.orderStatusText = getValue(orderStatusList, 'label', 'order_status', item.order_status)
+    //       // item.colorText = getValue(this.colorLogoList, 'label', 'id', item.color_id) || '无'
+    //       item.colorinfo = getColorinfo(this.colorLogoList, item.color_id) || ''
+    //     }
+    //     this.total = data.data.total
+    //     if (this.exportOrderList[this.exportIndex]) {
+    //       this.exportOrderList[this.exportIndex].push(...newData)
+    //     } else {
+    //       this.exportOrderList[this.exportIndex] = newData
+    //     }
+    //     if (this.exportOrderList[this.exportIndex].length >= 10000) {
+    //       this.exportOrderList[this.exportIndex + 1] = []
+    //       this.exportIndex++
+    //     }
+    //     this.exportNum = this.exportIndex * 10000 + this.exportOrderList[this.exportIndex].length
+    //     if (this.exportNum >= this.total) {
+    //       this.isExport = false
+    //       this.importBilling(this.exportOrderList)
+    //       //  loading.close()
+    //     } else {
+    //       this.exportOrders(params.page + 1)
+    //     }
+    //   } else {
+    //     if (isRef) {
+    //       this.isExport = false
+
+    //       // this.$notify({
+    //       //   title: '仓库管理',
+    //       //   type: 'error',
+    //       //   message: data.message
+    //       // })
+    //       this.$message.error(data.message)
+    //     } else {
+    //       this.exportOrders(params.page, true)
+    //     }
+    //   }
+    // },
     // 生成导出文件--订单
-    importBilling(exportOrderList) {
+    importBilling() {
       // console.log(exportOrderList, this.exportIndex)
       let num = 1
-      let str = `<tr><td>编号</td><td>站点</td><td>店铺名称</td><td>仓库</td><td>颜色标识</td><td>订单编号</td><td>数量</td><td>包裹重量(g)</td><td>发货金额</td><td>运输方式</td><td>货物类型</td><td>是否等待子包裹发货</td>
-            <td>订单发货状态</td><td>异常类型</td><td>订单创建时间</td><td>订单平台状态</td><td>截止发货时间</td><td>入库时间</td><td>出库时间</td>
+      let str = `<tr><td>编号</td><td>站点</td><td>店铺名称</td><td>仓库</td><td>颜色标识</td><td>订单编号</td><td>数量</td><td>包裹重量(g)</td><td>发货金额</td><td>运输方式</td><td>货物类型</td><td>不等待子包裹发货</td>
+            <td>订单发货状态</td><td>尾程物流状态</td><td>异常类型</td><td>订单创建时间</td><td>订单平台状态</td><td>截止发货时间</td><td>入库时间</td><td>出库时间</td>
             <td>入库图片</td><td>出库图片</td><td>仓库备注</td><td>用户备注</td>
             <td>增值服务名称</td><td>增值服务金额</td><td>增值服务备注</td>
             </tr>`
-      for (let index = 0; index <= this.exportIndex; index++) {
-        const jsonData = exportOrderList[index]
-        console.log(jsonData)
-        jsonData.forEach((item) => {
-          str += `<tr><td>${num++}</td>
-                <td>${this.$filters.chineseSite(item.country) + '\t'}</td>
+      this.exportOrderList.forEach(item => {
+        str += `<tr><td>${num++}</td>
+                <td>${item.country ? this.$filters.chineseSite(item.country) : '' + '\t'}</td>
                 <td>${item.mall_alias_name ? item.mall_alias_name : '' + '\t'}</td>
                 <td>${item.warehouse_name}</td>
                 <td>${item.colorinfo ? item.colorinfo.name : '' + '\t'}</td>
-                <td style="mso-number-format:'\@';">${item.package_order_sn ? item.package_order_sn : ''}</td>
-                <td>${item.goodsCount ? item.goodsCount : ''}</td>
-                <td>${item.package_weight ? item.package_weight : ''}</td>
-                <td>${item.amount ? item.amount + '元' : ''}</td>
-                <td>${item.transport_type ? this.transportType[item.transport_type] : ''}</td>
-                <td>${item.package_type ? this.packageType[item.package_type] : ''}</td>
-                <td>${item.is_mark_outbound > 0 ? '是' : '否'}</td>
-                <td>${item.statusText ? item.statusText : ''}</td>
-                <td>${item.exceptionText ? item.exceptionText : ''}</td>
-                <td>${item.order_created_time}</td>
-                <td>${item.order_status ? this.orderStatusList[item.order_status] : ''}</td>
-                <td>${item.order_ship_by_date ? item.order_ship_by_date : ''}</td>
-                <td>${item.storage_time ? item.storage_time : ''}</td>
-                <td>${item.outbound_time ? item.outbound_time : ''}</td>
+                <td style="mso-number-format:'\@';">${item.package_order_sn ? item.package_order_sn : '' + '\t'}</td>
+                <td>${item.goodsCount ? item.goodsCount : '' + '\t'}</td>
+                <td>${item.package_weight ? item.package_weight : '' + '\t'}</td>
+                <td>${item.amount ? item.amount + '元' : '' + '\t'}</td>
+                <td>${item.transport_type ? this.transportType[item.transport_type] : '' + '\t'}</td>
+                <td>${item.package_type ? this.packageType[item.package_type] : '' + '\t'}</td>
+                <td>${item.is_mark_outbound > 0 ? '是' : '否' + '\t'}</td>
+                <td>${item.delivery_status ? this.delivery_statusList[item.delivery_status] : '' + '\t'}</td>
+                <td>${item.logistics_track ? this.logistics_track : '' + '\t'}</td>
+                <td>${item.exceptionText ? item.exceptionText : '' + '\t'}</td>
+                <td>${item.order_created_time + '\t'}</td>
+                <td>${item.order_status ? this.orderStatusList[item.order_status] : '' + '\t'}</td>
+                <td>${item.order_ship_by_date ? item.order_ship_by_date : '' + '\t'}</td>
+                <td>${item.storage_time ? item.storage_time : '' + '\t'}</td>
+                <td>${item.outbound_time ? item.outbound_time : '' + '\t'}</td>
                 <td>${item.storage_image ? item.storage_image : '' + '\t'}</td>
                  <td>${item.outbound_image ? item.outbound_image : '' + '\t'}</td>
                <td>${item.remark ? item.remark : '' + '\t'}</td>
@@ -1587,10 +1871,8 @@ export default {
                <td>${item.ext_service ? item.ext_service.name : '' + '\t'}</td>
                <td>${item.ext_service ? item.ext_service.price : '' + '\t'}</td>
                <td>${item.ext_service ? item.ext_service.remark : '' + '\t'}</td>
-
                 </tr>`
-        })
-      }
+      })
       // Worksheet名
       const worksheet = `仓库包裹数据${new Date(Date.now() + 8 * 3600 * 1000).toISOString().slice(0, 10)}`
       // const uri = 'data:application/vnd.ms-excel;base64,'
@@ -1642,6 +1924,12 @@ export default {
         // console.log('复制失败')
       }
       target.parentElement.removeChild(target)
+    },
+    handleClose() {
+      this.applyType = 1
+      this.applyTypeCause = 1
+      this.applyRemark = ''
+      this.applyImages = ['', '', '']
     }
   }
 }
@@ -1824,6 +2112,49 @@ export default {
       color: rebeccapurple;
       span {
         margin-bottom: 5px;
+      }
+    }
+  }
+  .apply-dialog{
+    /deep/.el-dialog__body{
+      padding: 0 20px 20px 20px !important;
+      .wrap{
+        display: flex;
+        .el-form-item{
+          margin-bottom: 10px;
+        }
+        .left{
+          width: 290px;
+          margin-right: 10px;
+        }
+        .right{
+          width: 500px;
+          .el-form-item__content{
+            display: flex;
+          }
+          .el-image{
+            margin-right: 10px;
+            width: 80px !important;
+            height: 80px !important;
+            line-height: 80px !important;
+            border-radius: 6px;
+          }
+          .el-upload{
+            margin-right: 10px;
+            width: 80px !important;
+            height: 80px !important;
+            line-height: 80px !important;
+          }
+          /deep/.el-icon-plus{
+            width: 80px;
+            height: 80px;
+            line-height: 81px;
+            margin: 0px 0px;
+          }
+        }
+      }
+      .footer{
+        text-align: center;
       }
     }
   }
