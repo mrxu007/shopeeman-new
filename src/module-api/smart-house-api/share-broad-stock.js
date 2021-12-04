@@ -109,7 +109,7 @@ export default class ShareBroadStock {
       return { code: -2, data: `获取我共享的库存列表异常： ${error}` }
     }
   }
-  // // 获取仓库
+  // 获取仓库
   // async getOverseasWarehouse() {
   //   try {
   //     const res = await this._this.$api.getOverseasWarehouse()

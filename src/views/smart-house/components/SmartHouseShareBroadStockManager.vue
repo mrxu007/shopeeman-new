@@ -207,7 +207,7 @@
             <el-button
               size="mini"
               type="primary"
-              @click="getSharedUserList(row)"
+              @click="getSharedUserList(row.id)"
             >查看绑定用户</el-button>
           </template>
         </el-table-column>
@@ -554,7 +554,7 @@ export default {
       const res = await this.ShareBroadStock.delbindUser(this.delBindUserFrom)
       if (res.code === 200) {
         this.$message.success('删除成功')
-        this.sharedUserData = this.sharedUserData.splice(this.sharedUserData.findIndex(item => item.app_uid === app_uid && item.username === username), 0)
+        this.getSharedUserList(this.delBindUserFrom.shared_id)
       } else {
         this.$message.error(res.data)
       }
@@ -595,14 +595,12 @@ export default {
       this.addBindUserLoading = false
     },
     // 查看绑定用户
-    async getSharedUserList(row) {
+    async getSharedUserList(id) {
       this.sharedUserVisible = true
       this.sharedUserLoading = true
-      const { id, app_uid } = row
       this.delBindUserFrom['shared_id'] = id
       const obj = {
-        shared_id: id,
-        app_uid: app_uid
+        shared_id: id
       }
       const res = await this.ShareBroadStock.getSharedUserList(obj)
       if (res.code === 200) {
