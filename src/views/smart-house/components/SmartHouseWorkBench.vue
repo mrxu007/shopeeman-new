@@ -228,7 +228,7 @@
         <el-table-column label="异常类型" min-width="100px" prop="exceptionText" />
         <el-table-column label="订单创建时间" min-width="150px" prop="order_created_time" />
         <el-table-column label="订单平台状态" min-width="110px" prop="order_status">
-          <template scope="{row}"><span>{{ orderStatusList[row.order_status] }}</span></template>
+          <template slot-scope="{row}"><span>{{ orderStatusList[row.order_status] }}</span></template>
         </el-table-column>
         <el-table-column label="截止发货时间" min-width="150px" prop="order_ship_by_date" />
         <el-table-column label="入库时间" min-width="150px" prop="storage_time" />
