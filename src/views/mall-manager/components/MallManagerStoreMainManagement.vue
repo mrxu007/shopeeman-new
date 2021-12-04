@@ -106,7 +106,7 @@
           <el-table-column prop="poxyIP" label="代理IP" align="center" min-width="150px" />
           <el-table-column prop="" label="IP渠道" align="center">
             <template slot-scope="{ row }">
-              <span>{{ row.data_ipinfor && row.data_ipinfor.region_name }}</span>
+              <span>{{ row.data_ipinfor && row.data_ipinfor.channel_name ? row.data_ipinfor.area_name:row.data_ipinfor.channel_name }}</span>
             </template>
           </el-table-column>
           <el-table-column prop="source" label="IP来源" align="center" min-width="80px" />

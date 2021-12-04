@@ -62,6 +62,7 @@ export default {
     cancerCompare() {
       // alert(this.dataRuning)
       this.dataRuning = true
+      this.$message.success('正在取消同步，大概需要几秒，请耐心等待......')
     },
     // 开始同步
     async startCompare() {
@@ -70,8 +71,7 @@ export default {
       this.dataRuning = false
       await this.getinfo()
       for (var i = 0; i < this.tableList.length; i++) {
-        if (this.dataRuning) { // 终止循环
-          this.$refs.autoReplyLogs.writeLog(`取消同步`, true)
+        if (this.dataRuning) { // 终止循环---------
           break
         }
         const goodsinfo = {
@@ -85,12 +85,13 @@ export default {
 
         // 循环获取平台商品
         for (let index = 1; index <= arrIndex; index++) {
-          if (this.dataRuning) { // 终止循环
-            break
-          }
           goodsinfo.page_number = index
           this.$refs.autoReplyLogs.writeLog(`店铺【${this.tableList[i].mall_alias_name || this.tableList[i].platform_mall_name}】正在获取虾皮商品数据...`, true)
           const res = await this.GoodsManagerAPIInstance.getSkuList(goodsinfo)
+          if (this.dataRuning) { // 终止循环---------
+            this.$refs.autoReplyLogs.writeLog(`取消同步`)
+            break
+          }
           // console.log('************', res)
           if (res.ecode === 0) {
             const total = res.data.page_info.total
@@ -103,11 +104,16 @@ export default {
             this.tableList[i].totalGoods = total
             this.tableList[i].getGoods = this.plantDate.length
             this.$set(this.tableList, i, this.tableList[i])
+            if (this.dataRuning) { // 终止循环------------
+              this.$refs.autoReplyLogs.writeLog(`取消同步`)
+              break
+            }
             if (index === arrIndex) { // 平台商品获取结束
-              if (this.dataRuning) { // 终止循环
+              this.$refs.autoReplyLogs.writeLog(`店铺【${this.tableList[i].mall_alias_name || this.tableList[i].platform_mall_name}】虾皮商品数据获取完毕，开始获取服务端商品数据`, true)
+              if (this.dataRuning) { // 终止循环-----------
+                this.$refs.autoReplyLogs.writeLog(`取消同步`)
                 break
               }
-              this.$refs.autoReplyLogs.writeLog(`店铺【${this.tableList[i].mall_alias_name || this.tableList[i].platform_mall_name}】虾皮商品数据获取完毕，开始获取服务端商品数据`, true)
               // 获取服务器商品
               const sysMallId = this.tableList[i].id
               try {
@@ -128,6 +134,10 @@ export default {
                   })
                   console.log('48---------', this.plantDate, '**', serviceList, '**', delarr)
                   this.$refs.autoReplyLogs.writeLog(`店铺【${this.tableList[i].mall_alias_name || this.tableList[i].platform_mall_name}】开始同步商品数据`, true)
+                  if (this.dataRuning) { // 终止循环---------
+                    this.$refs.autoReplyLogs.writeLog(`取消同步`)
+                    break
+                  }
                   if (delarr.length === 0) {
                     this.$refs.autoReplyLogs.writeLog(`店铺【${this.tableList[i].mall_alias_name || this.tableList[i].platform_mall_name}】同步结束`, true)
                     break
@@ -137,7 +147,8 @@ export default {
                     sysmallId: delarr.toString()
                   }
                   // 删除服务端数据
-                  if (this.dataRuning) { // 终止循环
+                  if (this.dataRuning) { // 终止循环----------
+                    this.$refs.autoReplyLogs.writeLog(`取消同步`)
                     break
                   }
                   const tes = await this.$commodityService.delCloudItems(query)
