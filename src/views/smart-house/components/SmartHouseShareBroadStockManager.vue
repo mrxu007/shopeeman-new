@@ -145,6 +145,20 @@
           min-width="80"
         />
         <el-table-column
+          min-width="130"
+          align="center"
+          label="商品链接"
+        >
+          <template slot-scope="{row}">
+            <el-button
+              v-if="row.stock.sku_url"
+              type="primary"
+              size="mini"
+              @click="openUrl(row.stock.sku_url)"
+            >查看商品链接</el-button>
+          </template>
+        </el-table-column>
+        <el-table-column
           label="商品单价(RMB)"
           align="center"
           min-width="110"
@@ -193,28 +207,16 @@
             <el-button
               size="mini"
               type="primary"
-              @click="getSharedUserList(row)"
+              @click="getSharedUserList(row.id)"
             >查看绑定用户</el-button>
           </template>
         </el-table-column>
-        <el-table-column
-          min-width="130"
-          align="center"
-          label="商品链接"
-        >
-          <template slot-scope="{row}">
-            <el-button
-              v-if="row.stock.sku_url"
-              type="primary"
-              size="mini"
-              @click="openUrl(row.stock.sku_url)"
-            >查看商品链接</el-button>
-          </template>
-        </el-table-column>
+
         <el-table-column
           label="操作"
           align="center"
-          min-width="170"
+          min-width="260"
+          fixed="right"
         >
           <template slot-scope="{row}">
             <div v-if="row.status===1">
@@ -223,6 +225,11 @@
                 type="primary"
                 @click="bindUser(row)"
               >绑定用户</el-button>
+              <el-button
+                size="mini"
+                type="primary"
+                @click="editSharedInventory(row)"
+              >修改库存</el-button>
               <el-button
                 size="mini"
                 type="primary"
@@ -354,6 +361,44 @@
         </li>
       </ul>
     </el-dialog>
+    <!--修改库存弹窗-->
+    <el-dialog
+      class="edit-storck-dialog"
+      :visible.sync="editSharedVisible"
+      width="300px"
+      title="修改共享库存"
+    >
+      <el-form label-position="right" label-width="80px">
+        <el-form-item label="商品名称：">
+          {{ shareTockData.goods_name }}
+        </el-form-item>
+        <el-form-item label="商品规格：">
+          {{ shareTockData.sku_name }}
+        </el-form-item>
+        <el-form-item label="skuid：">
+          {{ shareTockData.sku_id }}
+        </el-form-item>
+        <el-form-item label="可用库存：">
+          {{ shareTockData.stock_num }}
+        </el-form-item>
+        <el-form-item label="共享库存：">
+          <el-input
+            v-model="shareTockData.shared_num"
+            size="mini"
+            style="width:150px"
+            onkeyup="value=value.replace(/[^\d]/g,0)"
+            clearable
+          />
+        </el-form-item>
+        <div class="footer">
+          <el-button
+            type="primary"
+            size="mini"
+            @click="addSharedInventory"
+          >确 定</el-button>
+        </div>
+      </el-form>
+    </el-dialog>
   </el-row>
 </template>
 
@@ -368,6 +413,7 @@ export default {
       addBindUserLoading: false,
       sharedUserVisible: false,
       bindUserVisible: false,
+      editSharedVisible: false,
       ShareBroadStock: new ShareBroadStock(this),
 
       total: 0,
@@ -378,6 +424,8 @@ export default {
       multipleSelection: [], // 选择数据
       widList: [], // 仓库数据
       sharedUserData: [], // 共享库存绑定用户数据
+      shareTockData: {}, // 修改共享库存数据
+      sharedNum: '', // 共享库存数
 
       form: { // 条件搜索
         wid: '0', // 仓库ID
@@ -448,6 +496,29 @@ export default {
     await this.stockSharedList()
   },
   methods: {
+    // 修改共享库存
+    async addSharedInventory() {
+      if (!this.shareTockData.shared_num) return this.$message('请输入共享库数')
+      if (Number(this.shareTockData.shared_num) > Number(this.shareTockData.stock_num)) return this.$message('共享库存数不能大于可用库存数')
+      const parmas = {}
+      parmas['wid'] = this.shareTockData.wid
+      parmas['shared_num'] = this.shareTockData.shared_num
+      parmas['sys_sku_id'] = this.shareTockData.sys_sku_id
+      const res = await this.ShareBroadStock.addSharedInventory(parmas)
+      if (res.code === 200) {
+        this.$message.success('修改共享库存成功')
+        this.editSharedVisible = false
+        this.stockSharedList()
+      } else {
+        this.$message.error(res.data)
+      }
+    },
+    // 修改共享库存弹窗
+    editSharedInventory(val) {
+      this.editSharedVisible = true
+      this.sharedNum = ''
+      this.shareTockData = val.stock
+    },
     // 打开外部链接
     async openUrl(url) {
       try {
@@ -458,9 +529,8 @@ export default {
     },
     // 撤销共享库存
     async delSharedInventory(row) {
-      const { id, wid, app_uid } = row
+      const { id, wid } = row
       const parmas = {}
-      parmas['app_uid'] = app_uid
       parmas['shared_id'] = id
       parmas['wid'] = wid
       const res = await this.ShareBroadStock.delSharedInventory(parmas)
@@ -484,7 +554,7 @@ export default {
       const res = await this.ShareBroadStock.delbindUser(this.delBindUserFrom)
       if (res.code === 200) {
         this.$message.success('删除成功')
-        this.sharedUserData = this.sharedUserData.splice(this.sharedUserData.findIndex(item => item.app_uid === app_uid && item.username === username), -1)
+        this.getSharedUserList(this.delBindUserFrom.shared_id)
       } else {
         this.$message.error(res.data)
       }
@@ -525,14 +595,12 @@ export default {
       this.addBindUserLoading = false
     },
     // 查看绑定用户
-    async getSharedUserList(row) {
+    async getSharedUserList(id) {
       this.sharedUserVisible = true
       this.sharedUserLoading = true
-      const { id, app_uid } = row
       this.delBindUserFrom['shared_id'] = id
       const obj = {
-        shared_id: id,
-        app_uid: app_uid
+        shared_id: id
       }
       const res = await this.ShareBroadStock.getSharedUserList(obj)
       if (res.code === 200) {
@@ -626,7 +694,7 @@ export default {
         str += `<tr>
         <td>${item.warehouse_name ? item.warehouse_name : '' + '\t'}</td>
         <td>${item.sys_sku_id ? item.sys_sku_id : '' + '\t'}</td>
-        <td>${item.stock && item.stock.sku_id ? item.stock.sku_id : '' + '\t'}</td>
+        <td style="mso-number-format:'\@';">${item.stock && item.stock.sku_id ? item.stock.sku_id : '' + '\t'}</td>
         <td>${item.stock && item.stock.goods_name ? item.stock.goods_name : '' + '\t'}</td>
         <td>${item.stock && item.stock.sku_name ? item.stock.sku_name : '' + '\t'}</td>
         <td>${this.statusObj[item.status] ? this.statusObj[item.status] : '' + '\t'}</td>

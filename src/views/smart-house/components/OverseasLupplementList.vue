@@ -6,10 +6,10 @@
           <span>仓库名称：</span>
           <el-select v-model="form.wherehouseName" placeholder="" size="mini" filterable>
             <el-option label="全部" :value="0" />
-            <el-option v-for="(item, index) in wherehouseNameList" :key="index" :label="item.label" :value="item.value" />
+            <el-option v-for="(item, index) in wherehouseNameList" :key="index" :label="item.warehouse_name" :value="item.id" />
           </el-select>
         </li>
-        <li>
+        <li class="status">
           <span>订单出库状态：</span>
           <el-select v-model="form.returnStatus" placeholder="" size="mini" filterable>
             <el-option label="全部" :value="0" />
@@ -18,7 +18,7 @@
         </li>
         <li>
           <span>出库单创建时间：</span>
-          <el-date-picker v-model="form.returnCreateTime" unlink-panels size="mini" type="datetimerange" range-separator="至" start-placeholder="开始日期" end-placeholder="结束日期" />
+          <el-date-picker v-model="form.returnCreateTime" unlink-panels size="mini" type="daterange" range-separator="-" start-placeholder="开始日期" end-placeholder="结束日期" />
         </li>
       </ul>
       <ul>
@@ -34,140 +34,150 @@
           <el-button type="primary" :disabled="Loading1" size="mini" @click="getoverseaslupplementlist">搜索</el-button>
         </li>
       </ul>
-      <el-row id="article">
+    </el-row>
+    <el-row id="article">
+      <el-table
+        ref="plTable"
+        v-loading="Loading3"
+        header-align="center"
+        height="calc(100vh - 205px)"
+        :data="tableData"
+        :header-cell-style="{
+          backgroundColor: '#f5f7fa',
+        }"
+        @selection-change="handleSelectionChange"
+      >
+        <el-table-column
+          align="center"
+          type="index"
+          label="序号"
+          fixed
+        />
+        <el-table-column align="center" prop="warehouse_name" label="所属仓库" min-width="160" show-overflow-tooltip />
+        <el-table-column align="center" prop="oversea_order_sn" label="订单编号" min-width="150" show-overflow-tooltip />
+        <el-table-column prop="reissue_order_sn" label="补件订单编号" min-width="140" align="center" show-overflow-tooltip />
+        <el-table-column prop="logistic_no" label="补件物流单号" min-width="160" align="center" show-overflow-tooltip />
+        <el-table-column prop="logistic_name" label="补件物流名称" min-width="120" align="center" show-overflow-tooltip />
+        <el-table-column prop="created_at" label="补件单创建时间" min-width="140" align="center" />
+        <el-table-column prop="updated_at" label="补件单更新时间" min-width="140" align="center" />
+        <el-table-column prop="status" label="状态" min-width="100" align="center">
+          <template v-slot="{row}">
+            {{ row.status?statusObj[row.status]:'' }}
+          </template>
+        </el-table-column>
+        <el-table-column label="补件商品详情" min-width="130" align="center">
+          <template slot-scope="{row}">
+            <el-button
+              size="mini"
+              type="primary"
+              @click="
+                detailsVisible = true
+                getDetails(row)"
+            >查看商品详情</el-button>
+          </template>
+        </el-table-column>
+        <el-table-column prop="goods_num" label="补件商品总数" width="100" align="center" />
+        <el-table-column
+          label="操作"
+          width="100"
+          align="center"
+        >
+          <template slot-scope="{ row }">
+            <el-button v-if="row.status===1" type="primary" size="mini" @click="del(row)">取消补件</el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+      <el-dialog
+        title="退件商品详情"
+        :visible.sync="detailsVisible"
+        :close-on-click-modal="false"
+        :close-on-press-escape="false"
+        width="800px"
+      >
         <el-table
-          ref="plTable"
-          v-loading="Loading3"
-          header-align="center"
-          height="calc(100vh - 205px)"
-          :data="tableData"
+          :data="detailsData"
+          height="450"
           :header-cell-style="{
             backgroundColor: '#f5f7fa',
           }"
-          @selection-change="handleSelectionChange"
+          :row-style="{
+            color: 'black',
+            height: '50px',
+          }"
         >
-          <el-table-column align="center" type="selection" width="50" />
-          <el-table-column align="center" label="序号" width="70" prop="id" fixed />
-          <el-table-column align="center" prop="wid" label="所属仓库" width="100" />
-          <el-table-column align="center" prop="oversea_order_sn" label="订单编号" width="150" />
-          <el-table-column prop="reissue_order_sn" label="补件订单编号" width="140" align="center" />
-          <el-table-column prop="logistic_no" label="补件物流单号" width="160" align="center" />
-          <el-table-column prop="logistic_type" label="补件物流类型" width="120" align="center" />
-          <el-table-column prop="created_at" label="补件单创建时间" width="140" align="center" />
-          <el-table-column prop="updated_at" label="补件单更新时间" width="140" align="center" />
-          <el-table-column prop="status" label="状态" width="100" align="center" />
-          <el-table-column label="补件商品详情" width="120" align="center">
-            <template slot-scope="{row}">
-              <el-button
-                size="mini"
-                type="primary"
-                @click="
-                  detailsVisible = true
-                  getDetails(row)"
-              >查看商品详情</el-button>
-            </template>
-          </el-table-column>
-          <el-table-column prop="sku_list.lastItem.sku_num" label="补件商品总数" width="100" align="center" />
-          <el-table-column label="操作" width="140" align="center">
-            <template slot-scope="{ row }">
-              <el-button v-if="row.status===1" type="primary" size="mini" @click="del(row)">取消补件</el-button>
-            </template>
-          </el-table-column>
-        </el-table>
-        <el-dialog title="数据详情" :visible.sync="detailsVisible" width="80%">
-          <el-table :data="detailsData">
-            <el-table-column
-              width="100"
-              align="center"
-              label="id"
-              prop="id"
-              fixed
-            />
-            <el-table-column
-              width="100"
-              align="center"
-              label="补发订单Id"
-              prop="reissue_order_id"
-              fixed
-            />
-            <el-table-column
-              width="150"
-              align="center"
-              label="星卓越系统产品编号"
-              prop="sys_sku_id"
-              fixed
-            />
-            <el-table-column
-              width="100"
-              align="center"
-              label="SkuId"
-              prop="sku_id"
-              fixed
-            />
-            <el-table-column
-              width="100"
-              align="center"
-              label="Sku数量"
-              prop="sku_num"
-              fixed
-            />
-            <el-table-column
-              width="100"
-              align="center"
-              label="Sku名称"
-              prop="sku_name"
-              fixed
-            />
-            <el-table-column
-              width="100"
-              align="center"
-              label="商品名称"
-              prop="goods_name"
-              fixed
-            />
-            <el-table-column
-              width="100"
-              align="center"
-              label="状态"
-              prop="status"
-              fixed
-            />
-            <el-table-column
-              width="150"
-              align="center"
-              label="删除时间"
-              prop="deleted_at"
-              fixed
-            />
-            <el-table-column
-              width="150"
-              align="center"
-              label="创建时间"
-              prop="created_at"
-              fixed
-            />
-            <el-table-column
-              width="150"
-              align="center"
-              label="更新时间"
-              prop="updated_at"
-              fixed
-            />
-          </el-table>
-        </el-dialog>
-        <div class="pagination">
-          <el-pagination
-            background
-            :current-page.sync="currentPage"
-            :page-size="pageSize"
-            layout="total,sizes, prev, pager, next, jumper"
-            :total="total"
-            :page-sizes="[20, 50, 100, 200]"
-            @size-change="handleSizeChange"
-            @current-change="handleCurrentChange"
+          <el-table-column
+            align="center"
+            type="index"
+            label="序号"
+            fixed
           />
-        </div>
-      </el-row>
+          <el-table-column
+            min-width="150"
+            align="center"
+            label="订单编号"
+            show-overflow-tooltip
+            fixed
+          >
+            <template>
+              {{ overseaOrderSn }}
+            </template>
+          </el-table-column>
+          <el-table-column
+            prop="status"
+            label="状态"
+            min-width="100"
+            align="center"
+          >
+            <template v-slot="{row}">
+              {{ row.status?statusObj[row.status]:'' }}
+            </template>
+          </el-table-column>
+          <el-table-column
+            min-width="150"
+            align="center"
+            label="系统商品编号(SysSKU)"
+            prop="sys_sku_id"
+          />
+          <el-table-column
+            min-width="120"
+            align="center"
+            label="商品编号(SKU)"
+            prop="sku_id"
+          />
+          <el-table-column
+            min-width="100"
+            align="center"
+            label="商品名称"
+            prop="goods_name"
+            show-overflow-tooltip
+          />
+          <el-table-column
+            min-width="100"
+            align="center"
+            label="数量"
+            prop="sku_num"
+          />
+          <el-table-column
+            min-width="100"
+            align="center"
+            label="商品规格"
+            show-overflow-tooltip
+            prop="sku_name"
+          />
+        </el-table>
+      </el-dialog>
+      <div class="pagination">
+        <el-pagination
+          background
+          :current-page.sync="currentPage"
+          :page-size="pageSize"
+          layout="total,sizes, prev, pager, next, jumper"
+          :total="total"
+          :page-sizes="[50, 100, 200]"
+          @size-change="handleSizeChange"
+          @current-change="handleCurrentChange"
+        />
+      </div>
     </el-row>
   </el-row>
 </template>
@@ -181,13 +191,14 @@ export default {
       detailsVisible: false,
       currentPage: 1,
       tableData: [],
+      overseaOrderSn: '',
       total: 0,
       pageSize: 50,
       page: 1,
       form: {
         wherehouseName: 0, // 仓库名称
         returnStatus: 0, // 订单出库状态
-        returnCreateTime: [new Date().getTime() - 3600 * 1000 * 24 * 30, new Date()], // 出单创建时间
+        returnCreateTime: [new Date().getTime() - 3600 * 1000 * 24 * 15, new Date()], // 出单创建时间
         returnOrderNumber: '', // 订单编号
         returnLogisticsDocNum: '' // 平台物流单号
       },
@@ -197,21 +208,55 @@ export default {
         { value: 3, label: '已出库' },
         { value: 4, label: '已取消' }
       ],
-      wherehouseNameList: [
-        { value: 17, label: '泰国存储仓' },
-        { value: 27, label: '星卓越菲律宾存储仓' },
-        { value: 28, label: '星卓越马来存储仓' },
-        { value: 75, label: '超世代（越南仓海外仓）' },
-        { value: 110, label: '锦汐越南海外仓' }
-      ]
+      wherehouseNameList: [],
+      statusObj: {
+        1: '已下单',
+        2: '已确认',
+        3: '已出库',
+        4: '已取消'
+      }
     }
   },
-  mounted() {
-    this.getoverseaslupplementlist()
+  async mounted() {
+    // 获取仓库
+    await this.getOverseasWarehouse()
+    await this.getoverseaslupplementlist()
   },
   methods: {
+    // 获取仓库 --- 壳
+    async getOverseasWarehouse() {
+      const myMap = new Map()
+      try {
+        const res = await this.$appConfig.getGlobalCacheInfo('allWh', '')
+        const jsonData = this.isJsonString(res)
+        if (jsonData?.length) {
+          jsonData.forEach(item => {
+            this.wherehouseNameList = this.wherehouseNameList.concat(item.child)
+          })
+          this.wherehouseNameList = this.wherehouseNameList.filter((item) => !myMap.has(item.id) && myMap.set(item.id, 1))
+        } else {
+          this.$message.error(`仓库列表为空`)
+        }
+      } catch (error) {
+        this.$message.error(`获取仓库列表异常： ${error}`)
+      }
+    },
+    // 判断能否转JSON
+    isJsonString(str) {
+      if (typeof str === 'string') {
+        try {
+          JSON.parse(str)
+          return JSON.parse(str)
+        } catch (e) {
+          return str
+        }
+      } else {
+        return str
+      }
+    },
     // 查看商品详情
     getDetails(val) {
+      this.overseaOrderSn = val.oversea_order_sn
       this.detailsData = val.sku_list
     },
     // 取消补件功能
@@ -242,7 +287,9 @@ export default {
         status: Number(this.form.returnStatus), // 订单出库状态
         createdTime: returnCreateTime, // 出单创建时间
         logisticNo: this.form.returnLogisticsDocNum, // 物流单号
-        overseaOrderSn: this.form.returnOrderNumber // 出库订单号
+        overseaOrderSn: this.form.returnOrderNumber, // 出库订单号
+        page: this.page,
+        pageSize: this.pageSize
       }
       console.log('parmas', parmas)
       try {
@@ -251,6 +298,13 @@ export default {
         // console.log(data.data.data.lastItem.sku_list.lastItem.sku_num)
         if (data.code === 200) {
           this.tableData = data.data.data
+          this.tableData.map(item => {
+            let goods_num = 0
+            item.sku_list.map(skuItem => {
+              goods_num += skuItem.sku_num ? Number(skuItem.sku_num) : 0
+            })
+            item.goods_num = goods_num
+          })
           console.log(this.tableData)
           this.total = data.data.total
         } else {

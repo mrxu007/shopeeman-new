@@ -471,7 +471,7 @@ export default {
           data = res2.data
           await this.ChineseDeliveryOrder.temporaryCacheInfo('save', 'getWarehouseList', data)
         } else {
-          this.$message.error(res2.data)
+          this.$message.error(`${res2.data}`)
           return
         }
       }

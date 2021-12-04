@@ -939,7 +939,7 @@ export default {
         str += `<tr>
         <td>${item.country ? this.$filters.chineseSite(item.country) : '' + '\t'}</td>
         <td>${item.oversea_order_sn ? item.oversea_order_sn : '' + '\t'}</td>
-        <td>${item.logistic_no ? item.logistic_no : '' + '\t'}</td>
+        <td style="mso-number-format:'\@';">${item.logistic_no ? item.logistic_no : '' + '\t'}</td>
         <td>${item.warehouse_name ? item.warehouse_name : '' + '\t'}</td>
         <td>${item.created_at ? item.created_at : '' + '\t'}</td>
         <td>${item.deliver_time ? item.deliver_time : '' + '\t'}</td>
