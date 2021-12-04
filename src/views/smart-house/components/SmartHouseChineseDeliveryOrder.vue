@@ -457,30 +457,40 @@ export default {
         this.$message.error(res.data)
       }
     },
-    // 获取仓库
+    // 获取中转仓
     async getWarehouseList() {
+      let data = []
       const myMap = new Map()
-      const res = await this.ChineseDeliveryOrder.getWarehouseList()
-      if (res.code === 200) {
-        res.data.forEach(item => {
-          if (item.user_ids) {
-            const flag = item.user_ids.some(uItem => {
-              return uItem === this.muid
-            })
-            if (flag) {
-              this.widList.push(item)
-            }
-          } else {
-            if (item.status !== 2) {
-              this.widList.push(item)
-            }
-          }
-        })
-        this.widList = this.widList.filter((item) => !myMap.has(item.id) && myMap.set(item.id, 1))
-        this.form.wid = this.widList[0].wid
+      // 判断是否缓存 有则使用缓存数据 没有则调取服务端 然后缓存一份
+      const res1 = await this.ChineseDeliveryOrder.temporaryCacheInfo('get', 'getWarehouseList', '')
+      if (res1.code === 200) {
+        data = res1.data
       } else {
-        this.$message.error(`${res.data}`)
+        const res2 = await this.ChineseDeliveryOrder.getWarehouseList()
+        if (res2.code === 200) {
+          data = res2.data
+          await this.ChineseDeliveryOrder.temporaryCacheInfo('save', 'getWarehouseList', data)
+        } else {
+          this.$message.error(res2.data)
+          return
+        }
       }
+      data.forEach(item => {
+        // 判断user_ids是否有值 没有则判断状态 有则只显示与muid对应的
+        if (item.user_ids) {
+          const flag = item.user_ids.some(uItem => { return uItem === this.muid })
+          if (flag) {
+            this.widList.push(item)
+          }
+        } else {
+          // 弹窗仓库列表不需要判断
+          if (item.status !== 2) {
+            this.widList.push(item)
+          }
+        }
+      })
+      this.widList = this.widList.filter((item) => !myMap.has(item.id) && myMap.set(item.id, 1))
+      this.form.wid = this.widList[0].wid
     },
     // 获取数据
     async getHomeOutStockOrder() {

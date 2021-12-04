@@ -82,6 +82,19 @@ export default class StrockUpHome {
       return { code: -2, data: `获取中转仓异常： ${error}` }
     }
   }
+  // 缓存中转仓
+  async temporaryCacheInfo(type, key, info) {
+    try {
+      const res = await this._this.$appConfig.temporaryCacheInfo(type, key, info)
+      const jsonData = this.isJsonString(res)
+      if (jsonData?.length) {
+        return { code: 200, data: jsonData }
+      }
+      return { code: 201 }
+    } catch (error) {
+      return { code: -2, data: `获取缓存中转仓异常： ${error}` }
+    }
+  }
   // 获取用户信息，用来判断中转仓的显示
   async getUserInfo() {
     try {
