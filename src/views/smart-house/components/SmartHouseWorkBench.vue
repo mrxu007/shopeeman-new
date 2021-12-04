@@ -306,8 +306,8 @@
     <!-- 批量更新用户备注 -->
     <el-dialog title="批量更新用户备注" class="dialog-order" width="400px" top="6vh" :close-on-press-escape="false" :close-on-click-modal="false" :visible.sync="remarkVisible" @closed="closeDialog5">
       <div class="order-dialog">
-        <div class="form-item">
-          <el-input v-model="newRemark" size="mini" clearable placeholder="请输入备注" />
+        <div class="form-item" style="margin-left: -28px;">
+          <el-input v-model="newRemark" size="mini" style="width:220px" clearable placeholder="请输入备注" />
           <el-button type="primary" size="mini" @click="remarkServe">提交</el-button>
         </div>
       </div>
@@ -335,7 +335,7 @@
     <!-- 批量标记颜色弹窗 -->
     <el-dialog title="标记颜色标识" class="dialog-color" width="400px" top="6vh" :close-on-press-escape="false" :close-on-click-modal="false" :visible.sync="colorVisible" @closed="closeDialog">
       <div class="color-dialog">
-        <div class="form-item">
+        <div class="form-item" style="margin-left:28px">
           <span class="search-title">颜色标识：</span>
           <el-select v-model="colorLabelId1" size="mini" style="width: 150px" clearable>
             <el-option v-for="item in colorLogoList" :key="item.id" :label="item.name" :value="item.id" :style="item.color" />
@@ -949,10 +949,10 @@ export default {
         this.$message.warning('请输入备注')
         return
       }
-      const list = []
-      this.multipleSelection.forEach(item => {
-        list.push(item.package_order_sn)
-      })
+      // const list = []
+      // this.multipleSelection.forEach(item => {
+      //   list.push(item.package_order_sn)
+      // })
       try {
         this.showlog = false
         this.$refs.autoReplyLogs.writeLog(`批量备注订单开始......`)
@@ -971,6 +971,7 @@ export default {
           }
         }
         this.$refs.autoReplyLogs.writeLog(`批量备注订单完成`)
+        this.orderPackage()
         // const query = {
         //   packageOrderSn: list.toString(),
         //   remark: this.newRemark
@@ -1146,9 +1147,9 @@ export default {
         this.$message.error('获取服务增值信息失败')
         return
       }
-      this.extParams.name = date.data[0].name
-      this.extParams.price = date.data[0].price
-      this.extParams.remark = date.data[0].remark
+      this.extParams.name = date?.data[0]?.name || ''
+      this.extParams.price = date?.data[0]?.price || ''
+      this.extParams.remark = date?.data[0]?.remark || ''
       this.dialogExtService = true
     },
     async extService() {
