@@ -1,12 +1,13 @@
 <template>
   <el-row class="contaniner">
     <el-row class="header">
-      <ul style="margin-bottom: 10px">
+      <ul style="margin-top: 10px">
         <li>
           <span>仓库名称：</span>
+
           <el-select v-model="form.returnWheareHouseName" placeholder="" size="mini" filterable>
-            <el-option label="全部" :value="0" />
-            <el-option v-for="(item, index) in returnWheareHouseNameList" :key="index" :label="item.label" :value="item.value" />
+            <el-option label="全部" value="" />
+            <el-option v-for="(item, index) in wherehouseNameList" :key="index" :label="item.warehouse_name" :value="item.id" />
           </el-select>
         </li>
         <li>
@@ -32,174 +33,194 @@
           <el-button type="primary" size="mini" :loading="Loading2" @click="DerivedData">导出数据</el-button>
         </li>
       </ul>
-      <el-row id="article">
-        <el-table
-          ref="plTable"
-          v-loading="Loading3"
-          header-align="center"
-          height="calc(100vh - 205px)"
-          :data="tableData"
-          :header-cell-style="{
-            backgroundColor: '#f5f7fa',
-          }"
-          @selection-change="handleSelectionChange"
-        >
-          <el-table-column align="center" type="selection" width="50" />
-          <el-table-column align="center" label="序列号" width="70" prop="id" />
-          <el-table-column align="center" prop="wid" label="仓库名称" width="110" />
-          <el-table-column align="center" prop="sys_sku_id" label="系统商品编号" width="130" />
-          <el-table-column prop="sku_id" label="商品编号（SkuId）" width="140" align="center" />
-          <el-table-column prop="goods_name" label="商品名称" width="120" align="center" />
-          <el-table-column prop="sku_name" label="商品规格" width="150" align="center" />
-          <el-table-column prop="stock_num" label="可用库存" width="100" align="center" />
-          <el-table-column prop="shared_num" label="共享库存" width="110" align="center" />
-          <el-table-column prop="sku_price" label="商品单价（RMB/分）" width="140" align="center" />
-          <el-table-column prop="sku_url" label="商品链接" width="150" align="center" />
-          <el-table-column prop="real_image_url" label="商品图片" width="100" align="center">
-            <!-- <template slot-scope="scope">
-              <el-tooltip effect="light" placement="right-end" :visible-arrow="false" :enterable="false" style="width: 56px; height: 56px; display: inline-block">
-                <div slot="content">
-                  <el-image :src="[scope.row.country, scope.row.platform_id, scope.row.goods_img] | imageRender" style="width: 200px; height: 200px" />
-                </div>
-                <el-image :src="[scope.row.country, scope.row.platform_id, scope.row.goods_img] | imageRender" style="width: 56px; height: 56px" />
-              </el-tooltip>
-            </template> -->
-          </el-table-column>
-          <el-table-column prop="position" label="货架仓位" width="120" align="center" />
-          <el-table-column prop="updated_at" label="库存更新时间" width="150" align="center" />
-          <el-table-column label="操作" width="200" align="center" fixed>
-            <template slot-scope="{ row }">
-              <el-button type="primary" size="mini" @click="change(row)">改价</el-button>
-              <el-button type="primary" size="mini" @click="share(row)">共享库存</el-button>
-            </template>
-          </el-table-column>
-        </el-table>
-        <el-dialog
-          class="edit-group-dialog"
-          :visible.sync="changes"
-          width="25%"
-          title="修改库存价格"
-        >
-          <el-form>
-            <el-row>
-              <el-col span="5">
-                <el-form-item label="商品名称：" />
-              </el-col>
-              <el-col span="19">
-                <el-input v-model="rowx.goods_name" />
-              </el-col>
-            </el-row>
-            <el-row>
-              <el-col span="5">
-                <el-form-item label="商品规格：" />
-              </el-col>
-              <el-col span="19">
-                <el-input v-model="rowx.sku_name" />
-              </el-col>
-            </el-row>
-            <el-row>
-              <el-col span="5">
-                <el-form-item label="skuid：" style="margin-left:19px" />
-              </el-col>
-              <el-col span="19">
-                <el-input v-model="rowx.sku_id" />
-              </el-col>
-            </el-row>
-            <el-row>
-              <el-col span="5">
-                <el-form-item label="原始价格：" />
-              </el-col>
-              <el-col span="15">
-                <el-input v-model="rowx.sku_price" />
-              </el-col>
-              <el-col span="4">
-                <span>RMB(分)</span>
-              </el-col>
-            </el-row>
-            <el-row>
-              <el-col span="5">
-                <el-form-item label="新价格：" style="margin-left:10px" />
-              </el-col>
-              <el-col span="15">
-                <el-input v-model="rowx.newprice" />
-              </el-col>
-              <el-col span="4">
-                <span>RMB(元)</span>
-              </el-col>
-            </el-row>
-            <el-form-item>
-              <span style="color: red">温馨提示：价格修改后，会将以当前商品出货但未发货的订单的拍单金额同步成新价格</span>
-            </el-form-item>
-            <el-form-item>
-              <el-button type="primary" style="margin-left:45%" @click="onsubmit">确定</el-button>
-            </el-form-item>
-          </el-form>
-        </el-dialog>
-        <el-dialog
-          class="edit-group-dialog"
-          :visible.sync="changes1"
-          width="25%"
-          title="修改共享库存"
-        >
-          <el-form>
-            <el-row>
-              <el-col span="5">
-                <el-form-item label="商品名称：" />
-              </el-col>
-              <el-col span="19">
-                <el-input v-model="rowy.goods_name" />
-              </el-col>
-            </el-row>
-            <el-row>
-              <el-col span="5">
-                <el-form-item label="商品规格：" />
-              </el-col>
-              <el-col span="19">
-                <el-input v-model="rowy.sku_name" />
-              </el-col>
-            </el-row>
-            <el-row>
-              <el-col span="5">
-                <el-form-item label="skuid：" style="margin-left:19px" />
-              </el-col>
-              <el-col span="19">
-                <el-input v-model="rowy.sku_id" />
-              </el-col>
-            </el-row>
-            <el-row>
-              <el-col span="5">
-                <el-form-item label="可用库存：" />
-              </el-col>
-              <el-col span="19">
-                <el-input v-model="rowy.stock_num" />
-              </el-col>
-            </el-row>
-            <el-row>
-              <el-col span="5">
-                <el-form-item label="共享库存：" style="margin-left:10px" />
-              </el-col>
-              <el-col span="19">
-                <el-input v-model="rowy.shared_num" />
-              </el-col>
-            </el-row>
-            <el-form-item>
-              <el-button type="primary" style="margin-left:45%" @click="onSubmit">确定</el-button>
-            </el-form-item>
-          </el-form>
-        </el-dialog>
-        <div class="pagination">
-          <el-pagination
-            background
-            :current-page.sync="currentPage"
-            :page-size="pageSize"
-            layout="total,sizes, prev, pager, next, jumper"
-            :total="total"
-            :page-sizes="[20, 50, 100, 200]"
-            @size-change="handleSizeChange"
-            @current-change="handleCurrentChange"
-          />
-        </div>
-      </el-row>
+    </el-row>
+    <el-row id="article">
+      <el-table
+        ref="plTable"
+        v-loading="Loading3"
+        header-align="center"
+        height="calc(100vh - 130px)"
+        style="margin-top: 20px;"
+        :data="tableData"
+        :header-cell-style="{
+          backgroundColor: '#f5f7fa',
+        }"
+        @selection-change="handleSelectionChange"
+      >
+        <!-- <el-table-column align="center" type="selection" width="50" fixed /> -->
+        <el-table-column align="center" label="序列号" min-width="70" type="index" fixed />
+        <el-table-column align="center" prop="wid" label="仓库名称" min-width="110" fixed />
+        <el-table-column align="center" prop="sys_sku_id" label="系统商品编号" min-width="130" />
+        <el-table-column prop="sku_id" label="商品编号（SkuId）" min-width="140" align="center" />
+        <el-table-column prop="goods_name" label="商品名称" min-width="150" align="center" />
+        <el-table-column prop="sku_name" label="商品规格" min-width="150" align="center" />
+        <el-table-column prop="stock_num" label="可用库存" min-width="100" align="center" />
+        <el-table-column prop="shared_num" label="共享库存" min-width="110" align="center" />
+        <el-table-column prop="sku_price" label="商品单价（RMB）" min-width="140" align="center" />
+        <el-table-column prop="sku_url" label="商品链接" min-width="150" align="center">
+          <template slot-scope="{row}"><el-button type="primary" size="mini" @click="open(row.sku_url)">查看商品链接</el-button> </template>
+        </el-table-column>
+        <el-table-column prop="real_image_url" label="商品图片" min-width="100" align="center">
+          <template slot-scope="{row}">
+            <el-tooltip
+              v-if="row.stock.sku_image || row.stock.real_image_url"
+              effect="light"
+              placement="right-end"
+              :visible-arrow="false"
+              :enterable="false"
+              style="width: 50px; height: 50px"
+            >
+              <div slot="content">
+                <el-image
+                  style="width: 400px; height: 400px"
+                  :src="row.stock.sku_image || row.stock.real_image_url"
+                >
+                  <div slot="error" class="image-slot" />
+                </el-image>
+              </div>
+              <el-image
+                style="width: 40px; height: 40px"
+                :src="row.stock.sku_image || row.stock.real_image_url"
+              >
+                <div slot="error" class="image-slot" />
+              </el-image>
+            </el-tooltip>
+          </template>
+        </el-table-column>
+        <el-table-column prop="position" label="货架仓位" min-width="120" align="center" />
+        <el-table-column prop="updated_at" label="库存更新时间" min-width="150" align="center" />
+        <el-table-column label="操作" min-width="200" align="center" fixed="right">
+          <template slot-scope="{ row }">
+            <el-button type="primary" size="mini" @click="change(row)">改价</el-button>
+            <el-button type="primary" size="mini" @click="share(row)">共享库存</el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+      <el-dialog
+        class="edit-group-dialog"
+        :visible.sync="changes"
+        width="25%"
+        title="修改库存价格"
+      >
+        <el-form>
+          <el-row>
+            <el-col span="5">
+              <el-form-item label="商品名称：" />
+            </el-col>
+            <el-col span="19">
+              <el-input v-model="rowx.goods_name" />
+            </el-col>
+          </el-row>
+          <el-row>
+            <el-col span="5">
+              <el-form-item label="商品规格：" />
+            </el-col>
+            <el-col span="19">
+              <el-input v-model="rowx.sku_name" />
+            </el-col>
+          </el-row>
+          <el-row>
+            <el-col span="5">
+              <el-form-item label="skuid：" style="margin-left:19px" />
+            </el-col>
+            <el-col span="19">
+              <el-input v-model="rowx.sku_id" />
+            </el-col>
+          </el-row>
+          <el-row>
+            <el-col span="5">
+              <el-form-item label="原始价格：" />
+            </el-col>
+            <el-col span="15">
+              <el-input v-model="rowx.sku_price" />
+            </el-col>
+            <el-col span="4">
+              <span>RMB(分)</span>
+            </el-col>
+          </el-row>
+          <el-row>
+            <el-col span="5">
+              <el-form-item label="新价格：" style="margin-left:10px" />
+            </el-col>
+            <el-col span="15">
+              <el-input v-model="rowx.newprice" />
+            </el-col>
+            <el-col span="4">
+              <span>RMB(元)</span>
+            </el-col>
+          </el-row>
+          <el-form-item>
+            <span style="color: red">温馨提示：价格修改后，会将以当前商品出货但未发货的订单的拍单金额同步成新价格</span>
+          </el-form-item>
+          <el-form-item>
+            <el-button type="primary" style="margin-left:45%" @click="onsubmit">确定</el-button>
+          </el-form-item>
+        </el-form>
+      </el-dialog>
+      <el-dialog
+        class="edit-group-dialog"
+        :visible.sync="changes1"
+        width="25%"
+        title="修改共享库存"
+      >
+        <el-form>
+          <el-row>
+            <el-col span="5">
+              <el-form-item label="商品名称：" />
+            </el-col>
+            <el-col span="19">
+              <el-input v-model="rowy.goods_name" />
+            </el-col>
+          </el-row>
+          <el-row>
+            <el-col span="5">
+              <el-form-item label="商品规格：" />
+            </el-col>
+            <el-col span="19">
+              <el-input v-model="rowy.sku_name" />
+            </el-col>
+          </el-row>
+          <el-row>
+            <el-col span="5">
+              <el-form-item label="skuid：" style="margin-left:19px" />
+            </el-col>
+            <el-col span="19">
+              <el-input v-model="rowy.sku_id" />
+            </el-col>
+          </el-row>
+          <el-row>
+            <el-col span="5">
+              <el-form-item label="可用库存：" />
+            </el-col>
+            <el-col span="19">
+              <el-input v-model="rowy.stock_num" />
+            </el-col>
+          </el-row>
+          <el-row>
+            <el-col span="5">
+              <el-form-item label="共享库存：" style="margin-left:10px" />
+            </el-col>
+            <el-col span="19">
+              <el-input v-model="rowy.shared_num" />
+            </el-col>
+          </el-row>
+          <el-form-item>
+            <el-button type="primary" style="margin-left:45%" @click="onSubmit">确定</el-button>
+          </el-form-item>
+        </el-form>
+      </el-dialog>
+      <div class="pagination">
+        <el-pagination
+          background
+          :current-page.sync="currentPage"
+          :page-size="pageSize"
+          layout="total,sizes, prev, pager, next, jumper"
+          :total="total"
+          :page-sizes="[20, 50, 100, 200]"
+          @size-change="handleSizeChange"
+          @current-change="handleCurrentChange"
+        />
+      </div>
     </el-row>
   </el-row>
 </template>
@@ -243,24 +264,65 @@ export default {
       form: {
         app_uid: '',
         skuid: '',
-        returnWheareHouseName: 17, // 仓库名称
+        returnWheareHouseName: '', // 仓库名称
+        // returnWheareHouseName: 17, // 仓库名称
         systemskuid: '', // 系统商品编号
         sku_name: ''
       },
-      returnWheareHouseNameList: [
-        { value: 17, label: '泰国存储仓' },
-        { value: 27, label: '星卓越菲律宾存储仓' },
-        { value: 28, label: '星卓越马来存储仓' },
-        { value: 75, label: '超世代（越南仓海外仓）' },
-        { value: 110, label: '锦汐越南海外仓' }
-      ]
+      // returnWheareHouseNameList: [
+      //   { value: 17, label: '泰国存储仓' },
+      //   { value: 27, label: '星卓越菲律宾存储仓' },
+      //   { value: 28, label: '星卓越马来存储仓' },
+      //   { value: 75, label: '超世代（越南仓海外仓）' },
+      //   { value: 110, label: '锦汐越南海外仓' }
+      // ]
+      wherehouseNameList: []
     }
   },
-  mounted() {
-    this.getoverseaswarehouse()
-    this.test()
+  async mounted() {
+    await this.getOverseasList()
+    await this.getoverseaswarehouse()
+    // this.test()
   },
   methods: {
+    // 获取仓库 --- 壳
+    async getOverseasList() {
+      const myMap = new Map()
+      try {
+        const res = await this.$appConfig.getGlobalCacheInfo('allWh', '')
+        const jsonData = this.isJsonString(res)
+        if (jsonData?.length) {
+          jsonData.forEach(item => {
+            this.wherehouseNameList = this.wherehouseNameList.concat(item.child)
+          })
+          this.wherehouseNameList = this.wherehouseNameList.filter((item) => !myMap.has(item.id) && myMap.set(item.id, 1))
+        } else {
+          this.$message.error(`仓库列表为空`)
+        }
+      } catch (error) {
+        this.$message.error(`获取仓库列表异常： ${error}`)
+      }
+    },
+    // 判断能否转JSON
+    isJsonString(str) {
+      if (typeof str === 'string') {
+        try {
+          JSON.parse(str)
+          return JSON.parse(str)
+        } catch (e) {
+          return str
+        }
+      } else {
+        return str
+      }
+    },
+    // 查看商品链接
+    open(val) {
+      if (!val) {
+        this.$message.warning('暂无商品链接')
+      }
+      window.BaseUtilBridgeService.openUrl(val)
+    },
     // 改价点击确定
     async onsubmit() {
       this.changes = false
@@ -285,26 +347,26 @@ export default {
       this.getoverseaswarehouse()
     },
     // 测试
-    async test() {
-      const parmas = {
-        app_uid: '',
-        wid: this.form.returnWheareHouseName,
-        uid: ''
-      }
-      try {
-        let data = await this.$XzyNetMessageService.post('xzy.getSharedIndex', parmas)
-        data = JSON.parse(data)
-        data.data = JSON.parse(data.data)
-        console.log(data)
-        if (data.data.code === 200) {
-          this.$message.success(`测试数据查询成功`)
-        } else {
-          this.$message.error(`测试数据查询失败${data.data.message}`)
-        }
-      } catch (error) {
-        console.log(error)
-      }
-    },
+    // async test() {
+    //   const parmas = {
+    //     app_uid: '',
+    //     wid: this.form.returnWheareHouseName,
+    //     uid: ''
+    //   }
+    //   try {
+    //     let data = await this.$XzyNetMessageService.post('xzy.getSharedIndex', parmas)
+    //     data = JSON.parse(data)
+    //     data.data = JSON.parse(data.data)
+    //     console.log(data)
+    //     if (data.data.code === 200) {
+    //       this.$message.success(`测试数据查询成功`)
+    //     } else {
+    //       this.$message.error(`测试数据查询失败${data.data.message}`)
+    //     }
+    //   } catch (error) {
+    //     console.log(error)
+    //   }
+    // },
     // 共享库存点击确定
     async onSubmit() {
       this.changes1 = false
@@ -379,6 +441,7 @@ export default {
         data = JSON.parse(data)
         data.data = JSON.parse(data.data)
         this.data1 = data.data.data.data
+        debugger
         const data2 = []
         // console.log(this.data1[0].stock_num)
         if (data.data.code === 200) {

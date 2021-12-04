@@ -62,8 +62,11 @@
               size="mini"
               style="width: 180px"
               clearable
-              placeholder="全部"
             >
+              <el-option label="全部" value="0" />
+              <el-option label="未标识" value="-1" />
+              <el-option label="已标识" value="-2" />
+
               <el-option
                 v-for="item in colorLogoList"
                 :key="item.id"
@@ -779,7 +782,7 @@ export default {
       statuoriginalTrackingNumbers: '', // 采购物流单号
       storageTime: [], // 包裹入库时间
       packageOrderSn: '', // 订单编号
-      colorLabelId: '', // 颜色标识
+      colorLabelId: '0', // 颜色标识
       colorLabelId1: '', // 标记弹窗选择颜色标识
       colorLogoList: [],
       outboundTime: [], // 包裹出库时间
