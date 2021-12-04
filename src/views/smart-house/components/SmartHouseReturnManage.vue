@@ -200,7 +200,20 @@
           label="退件电话"
           min-width="120px"
           show-overflow-tooltip
-        />
+        >
+          <template slot-scope="{ row }">
+            <span>
+              {{ row.return_phone_number }}
+              <span
+                v-if="row.return_phone_number"
+                class="copyIcon"
+                @click="copy(row.return_phone_number)"
+              >
+                <i class="el-icon-document-copy" />
+              </span>
+            </span>
+          </template>
+        </el-table-column>
         <el-table-column
           align="center"
           prop="return_address"
@@ -275,7 +288,7 @@
         <el-pagination
           background
           :current-page="page"
-          :page-sizes="[30, 50, 100]"
+          :page-sizes="[100,200]"
           :page-size="pageSize"
           layout="total, sizes, prev, pager, next, jumper"
           :total="total"
@@ -306,7 +319,7 @@ export default {
         returnPhone: '' // 退件人手机号
       },
       total: 0,
-      pageSize: 30,
+      pageSize: 100,
       page: 1,
       tableData: [],
       packageCodes: [],

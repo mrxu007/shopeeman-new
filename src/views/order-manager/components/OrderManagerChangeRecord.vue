@@ -49,7 +49,7 @@
         <el-pagination
           background
           :current-page.sync="page"
-          :page-sizes="[20, 50, 100, 200]"
+          :page-sizes="[100, 200]"
           :page-size="pageSize"
           layout="total, sizes, prev, pager, next, jumper"
           :total="total"
@@ -68,7 +68,7 @@ export default {
         orderSn: '', // 订单号
         shotOrderSn: '', // 拍单号
         page: 1,
-        pageSize: 20
+        pageSize: 100
       },
       total: 0,
       tableList: [],

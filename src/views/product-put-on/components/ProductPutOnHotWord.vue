@@ -21,7 +21,10 @@
             (scope.row.display_path.split('>')[1]+'('+scope.row.display_path_cn.split('>')[1]+')') || '' }}</template>
         </el-table-column>
         <el-table-column min-width="150px" label="热搜词分类类目" show-overflow-tooltip prop="" align="center">
-          <template slot-scope="scope">{{ scope.row.hotKeywords[0]&&scope.row.hotKeywords[0].keyword_name }}</template>
+          <template slot-scope="scope">{{ scope.row.display_path.split('>')[1] &&
+            (scope.row.display_path.split('>')[1]+'('+scope.row.display_path_cn.split('>')[1]+')') || '' }}</template>
+        </el-table-column>
+          <!-- <template slot-scope="scope">{{ scope.row.hotKeywords[0]&&scope.row.hotKeywords[0].keyword_name }}</template> -->
         </el-table-column>
         <el-table-column min-width="100px" label="热搜词名称" show-overflow-tooltip prop="" align="center">
           <template slot-scope="scope">{{ scope.row.hotKeywords[0]&&scope.row.hotKeywords[0].keyword_name || '' }}</template>
