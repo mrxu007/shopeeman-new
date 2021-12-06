@@ -289,9 +289,13 @@ export default {
       this.widList = this.widList.filter((item) => !myMap.has(item.id) && myMap.set(item.id, 1))
       this.form.wid = this.widList[0].wid
     },
-    // 打开商品链接
-    openUrl(row) {
-      window.open(row)
+    // 打开外部链接
+    async openUrl(url) {
+      try {
+        await this.$BaseUtilService.openUrl(url)
+      } catch (error) {
+        this.$message.error(`打开链接【${url}】失败`)
+      }
     },
     // 导出数据
     async exportTableData() {

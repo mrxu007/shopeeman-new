@@ -444,9 +444,13 @@ export default {
       this.reissueVisible = true
       this.getStock()
     },
-    // 打开商品链接
-    openUrl(row) {
-      window.open(row)
+    // 打开外部链接
+    async openUrl(url) {
+      try {
+        await this.$BaseUtilService.openUrl(url)
+      } catch (error) {
+        this.$message.error(`打开链接【${url}】失败`)
+      }
     },
     // 获取用户muid
     async getUserInfo() {
