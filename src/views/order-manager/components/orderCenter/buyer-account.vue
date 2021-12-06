@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-11-09 10:14:02
- * @LastEditTime: 2021-11-26 10:02:59
+ * @LastEditTime: 2021-12-04 16:08:26
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shopeeman-new\src\components\buyer-account.vue
@@ -20,8 +20,8 @@
         <div v-for="(item, index) in operation.center" :key="index" class="account-item">
           <span>{{ item.title }}</span>
           <el-select v-model="selectAccount[platformValue[item.platform]]" :size="item.size || 'mini'" clearable placeholder="请选择" @change="accountChange()">
-            <el-option v-for="(items, index) in publicAccount(item.platform)" :key="index" :label="items.name" :value="items.id">
-              <span>{{ items.name }}</span>
+            <el-option v-for="(items, index) in publicAccount(item.platform)" :key="index" :label="items.site?items.site+'-'+items.name:items.name" :value="items.id">
+              <span>{{items.site}}<span v-if="items.site">-</span>{{ items.name }}</span>
               <i
                 class="el-icon-delete"
                 style="float: right; color: #8492a6; font-size: 14px; margin: 10px -10px 0 0"
@@ -333,9 +333,13 @@ export default {
         arr.forEach(item=>{
           item.type = 13
         })
-        this.buyerAccountListGlobal = arr
+         let sortData = arr.sort(function (a, b) {
+          var x = a['updated_at'].replace(/:/g, '').replace(/-/g, '').replace(' ', '')
+          var y = b['updated_at'].replace(/:/g, '').replace(/-/g, '').replace(' ', '')
+          return x < y ? 1 : x > y ? -1 : 0
+        })
+        this.buyerAccountListGlobal = sortData || arr
         this.$parent['buyerAccountListGlobal'] = arr
-        // console.log(this.buyerAccountListGlobal,"buyerAccountListGlobal")
         this.defaultSelect()
       }
     },
@@ -384,14 +388,14 @@ export default {
         this.$parent.$refs.Logs.writeLog('店铺数据为空，同步操作已取消!', false)
         return
       }
-      this.$parent.$refs.Logs.writeLog('开始同步，请耐心等待!', true)
+      this.$parent.$refs.Logs.writeLog(`开始同步【近七天】订单，请耐心等待!`, true)
       for (let mI = 0; mI < mallList.length; mI++) {
         let mall = mallList[mI]
         for (let i = 0; i < syncStatus.length; i++) {
           //同步状态
           let statusObj = syncStatus[i]
           const orderService = new orderSync(mall, statusObj, this, this.$parent.$refs.Logs.writeLog)
-          await orderService.start(`${mI + 1}/${mallList.length}`, 'manual')
+          await orderService.start(`${mI + 1}/${mallList.length}`, 'manual',7)
         }
       }
       this.$parent.$refs.Logs.writeLog('订单同步已完成！！！', true)
@@ -470,7 +474,7 @@ export default {
           this.$parent['colorVisible'] = true
           this.$parent[clickEvent]()
           return
-        case 10: //配置列
+        case 10: //批量标记海外商品
           if (!this.$parent['multipleSelection'].length) {
             return this.$message.warning('请先选择需要标记的商品！')
           }
@@ -556,7 +560,6 @@ export default {
         proxyId: this.proxyType,
       }
       const key = params.AccountType + params.UserName
-      console.log(account, params, key, 'adddddddddd')
       await this.$appConfig.UpdateCacheInfo('buyerInfo', key, params)
     },
     //转换拍单平台type
@@ -731,7 +734,7 @@ export default {
         password: '',
         type: account.type,
         // site: account.country || '', 
-        site: this.siteCode || '', 
+        site: account.type === 9 || account.type === 11 ? this.siteCode :'', 
         loginInfo: account.login_info,
         ua: account.ua,
         cachePath: account.cache_path,
@@ -773,6 +776,7 @@ export default {
           })
         }
       }
+      console.log(this.buyerAccountList)
     },
     // 默认选中第一个账户信息
     defaultSelect() {
