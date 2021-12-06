@@ -40,8 +40,7 @@
                   page = 1
                   getMallStatistics()
                 "
-                >查询</el-button
-              >
+              >查询</el-button>
               <el-button type="primary" size="mini" @click="exportSearch()">导出数据</el-button>
               <el-button type="primary" size="mini" :disabled="buttonStatus.asyncData" @click="handlerSelectTableOperating('syncMallData')">同步店铺数据</el-button>
             </li>
@@ -53,24 +52,17 @@
       </el-row>
       <el-row class="header-two">
         <el-col :span="24" class="header-two-top">
-          <span
-            >当前条件下，待拨款总订单数：
+          <span>当前条件下，待拨款总订单数：
             <p>{{ frozenAmountOrders }}</p>
           </span>
-          <span
-            >待拨款总金额：
-            <p>{{ parseFloat(frozenAmount).toFixed(2) }}</p></span
-          >
-          <span
-            >本周已拨款总金额：
-            <p>{{ parseFloat(weekAmount).toFixed(2) }}</p></span
-          >
-          <span
-            >本月已拨款总金额：
+          <span>待拨款总金额：
+            <p>{{ parseFloat(frozenAmount).toFixed(2) }}</p></span>
+          <span>本周已拨款总金额：
+            <p>{{ parseFloat(weekAmount).toFixed(2) }}</p></span>
+          <span>本月已拨款总金额：
             <p>{{ parseFloat(monthAmount).toFixed(2) }}</p>
           </span>
-          <span
-            >全部已拨款总金额：
+          <span>全部已拨款总金额：
             <p>{{ parseFloat(availableAmount).toFixed(2) }}</p>
           </span>
         </el-col>
@@ -122,7 +114,7 @@
           <u-table-column align="center" prop="yesterday_order_num" label="昨日订单数" min-width="90" />
           <u-table-column align="center" prop="week_order_num" label="近7天订单数" min-width="100" />
           <u-table-column align="center" prop="history_order_num" label="历史订单数" min-width="90" />
-          <u-table-column align="center" prop="mall_quota" label="店铺额度" />
+          <u-table-column align="center" prop="mall_quota" label="店铺额度" min-width="100" sortable />
           <u-table-column align="center" prop="all_product_num" label="全部产品数" min-width="90" />
           <u-table-column align="center" prop="active_product_num" label="上架产品数" min-width="100" />
           <u-table-column align="center" prop="soldout_product_num" label="售空产品数" min-width="90" />
@@ -228,7 +220,7 @@ export default {
       page: 1,
       total: 0,
       pageSize: 200,
-      height: 630,
+      height: 638,
       rowHeight: 50,
       isLoading: false,
       percentage: 0, // 进度条数据
