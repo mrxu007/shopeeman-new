@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-11-12 10:09:55
- * @LastEditTime: 2021-11-12 11:29:31
+ * @LastEditTime: 2021-12-03 19:55:24
  * @LastEditors: Please set LastEditors
  * @Description: 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  * @FilePath: \shopeeman-new\src\views\order-manager\components\orderCenter\autoUploadOrder.vue
@@ -29,23 +29,23 @@ export default {
     this.getAllMall()
     //first task 每隔4小时同步一次
     setTimeout(() => {
-      this.syncOrders(this.statusListFirst, 'auto-first')
+      this.syncOrders(this.statusListFirst, 'auto-first',30)
       setInterval(() => {
-        this.syncOrders(this.statusListFirst, 'auto-first')
+        this.syncOrders(this.statusListFirst, 'auto-first',30)
       }, 4 * 60 * 60 * 1000)
     }, 5 * 60 * 1000)
     //second task 每隔30分钟同步一次
     setTimeout(() => {
-      this.syncOrders(this.statusListSecond, 'auto-second')
+      this.syncOrders(this.statusListSecond, 'auto-second',15)
       setInterval(() => {
-        this.syncOrders(this.statusListSecond, 'auto-second')
+        this.syncOrders(this.statusListSecond, 'auto-second',15)
       }, 30 * 60 * 1000)
     }, 8 * 60 * 1000)
     //third task 每隔60分钟同步一次
     setTimeout(() => {
-      this.syncOrders(this.statusListThird, 'auto-third')
+      this.syncOrders(this.statusListThird, 'auto-third',7)
       setInterval(() => {
-        this.syncOrders(this.statusListThird, 'auto-third')
+        this.syncOrders(this.statusListThird, 'auto-third',7)
       }, 60 * 60 * 1000)
     }, 8 * 60 * 1000)
   },
@@ -53,7 +53,7 @@ export default {
     //a.第一个定时任务（同步 toship、shipping、completed、cancelled、refund）：5分钟后启动后每隔4小时同步一次
     //b.第二个定时任务（同步 toship、cancelled、refund）：8分钟后启动后每隔30分钟同步一次
     //c.第三个定时任务（同步 shipping、completed）：8分钟后启动后每隔60分钟同步一次
-    async syncOrders(statusList, type) {
+    async syncOrders(statusList, type,timeRange) {
       this.$refs.Logs.writeLog(`【${type}】开始同步`, true)
       for (let mI = 0; mI < this.mallList.length; mI++) {
         let mall = this.mallList[mI]
@@ -61,7 +61,7 @@ export default {
           //同步状态
           let statusObj = statusList[i]
           const orderService = new orderSync(mall, statusObj, this, this.$refs.Logs.writeLog)
-          await orderService.start(`${mI + 1}/${this.mallList.length}`, type)
+          await orderService.start(`${mI + 1}/${this.mallList.length}`, type,timeRange)
         }
       }
     },
@@ -84,6 +84,7 @@ export default {
   /deep/.showLogBox {
     height: 600px;
     width: 800px;
+    bottom: 100px;
     .consoleBox {
       height: 600px;
       width: 800px;
