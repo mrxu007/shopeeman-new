@@ -306,7 +306,7 @@
           <el-col :span="2" style="padding:8px;margin-top:70px">
             <span>轮播图片</span>
           </el-col>
-          <el-col v-for="(item,index) in eiditRotationimg" :span="eiditRotationimg.length*2" style="padding:8px;">
+          <el-col v-for="(item,index) in eiditRotationimg" :span="eiditRotationimg.length*2" style="padding:8px;" :key="index">
             <el-image :src="item" style="width: 148px; height: 148px;margin-right:40px" @click="eiditRotationimg.splice(index,1)" />
           </el-col>
           <el-col :span="2" style="padding:8px;margin-left:60px">
@@ -319,7 +319,7 @@
           <el-col :span="2" style="padding:8px;margin-top:70px">
             <span>详情图片</span>
           </el-col>
-          <el-col v-for="(item,index) in eiditDetailsimg" :span="eiditDetailsimg.length*2" style="padding:8px;">
+          <el-col v-for="(item,index) in eiditDetailsimg" :span="eiditDetailsimg.length*2" style="padding:8px;" :key="index">
             <el-image :src="item" style="width: 148px; height: 148px" @click="eiditDetailsimg.splice(index,1)" />
           </el-col>
           <el-col :span="2" style="padding:8px;margin-left:60px">
@@ -332,7 +332,7 @@
           <el-col :span="2" style="padding:8px;margin-top:70px">
             <span>尺寸图片</span>
           </el-col>
-          <el-col v-for="(item,index) in eiditsizeimg" :span="eiditsizeimg.length*2" style="padding:8px;">
+          <el-col v-for="(item,index) in eiditsizeimg" :span="eiditsizeimg.length*2" style="padding:8px;" :key="index">
             <el-image :src="item" style="width: 148px; height: 148px" @click="eiditsizeimg.splice(index,1)" />
           </el-col>
           <el-col :span="2" style="padding:8px;margin-left:60px">

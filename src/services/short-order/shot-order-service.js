@@ -195,7 +195,7 @@ export default class {
       const itemOrder = this.orders[index]
       let res = await this.$configService.getWarehouseInfo(itemOrder.mall_info.platform_mall_id)
       let warehouseList = res && JSON.parse(res) || []
-      console.log(warehouseList,"warehouseList",res,itemOrder.mall_info.platform_mall_id)
+      // console.log(warehouseList,"warehouseList-================",res,itemOrder.mall_info.platform_mall_id)
       //1.判断店铺是否有绑定仓库（未绑定提示：$"店铺【{mallname}】未匹配到收货地址，请前往【仓库收货地址设置】进行设置"  并返回不在继续拍单）
       if (!warehouseList.length) {
         return {
@@ -556,20 +556,20 @@ export default class {
         }
         console.log(allShopAdress, "处理shopee地址----allShopAdress")
         if(allShopAdress.provinceInfo){
-          addressUserInfo["provId"] = allShopAdress.provinceInfo[Object.keys(allShopAdress.provinceInfo)[0]]
-          addressUserInfo["provinceText"] = Object.keys(allShopAdress.provinceInfo)[0]
+          addressUserInfo["provId"] = Object.keys(allShopAdress.provinceInfo)[0] 
+          addressUserInfo["provinceText"] = allShopAdress.provinceInfo[Object.keys(allShopAdress.provinceInfo)[0]]
         }
         if(allShopAdress.cityInfo){
-          addressUserInfo["cityId"] = allShopAdress.cityInfo[Object.keys(allShopAdress.cityInfo)[0]]
-          addressUserInfo["cityText"] = Object.keys(allShopAdress.cityInfo)[0]
+          addressUserInfo["cityId"] =  Object.keys(allShopAdress.cityInfo)[0]
+          addressUserInfo["cityText"] = allShopAdress.cityInfo[Object.keys(allShopAdress.cityInfo)[0]]
         }
         if(allShopAdress.distinceInfo){
-          addressUserInfo["distId"] = allShopAdress.distinceInfo[Object.keys(allShopAdress.distinceInfo)[0]]
-          addressUserInfo["distinctText"] = Object.keys(allShopAdress.distinceInfo)[0]
+          addressUserInfo["distId"] = Object.keys(allShopAdress.distinceInfo)[0] 
+          addressUserInfo["distinctText"] = allShopAdress.distinceInfo[Object.keys(allShopAdress.distinceInfo)[0]]
         }
         if(allShopAdress.streetInfo){
-          addressUserInfo["streetId"] = allShopAdress.streetInfo[Object.keys(allShopAdress.streetInfo)[0]]
-          addressUserInfo["streetText"] = Object.keys(allShopAdress.streetInfo)[0]
+          addressUserInfo["streetId"] = Object.keys(allShopAdress.streetInfo)[0]
+          addressUserInfo["streetText"] =  allShopAdress.streetInfo[Object.keys(allShopAdress.streetInfo)[0]]
         }
         if(addressUserInfo["provinceText"].includes('~')){
           addressUserInfo["provinceText"] = addressUserInfo["provinceText"].split('~')[0];
@@ -587,9 +587,11 @@ export default class {
   }
   async getAllShopeeAddress(platform, country, shopeeMapId, typeMark) {
     let address = {}
+    while(true){
     let shopeeAddrMappingTree = await this.searchShopeeAddrMappingTree(platform, country, shopeeMapId, typeMark)
     if (!shopeeAddrMappingTree || !shopeeAddrMappingTree.length) {
-      return null
+      break
+      // return null
     }
     let addressLevel = shopeeAddrMappingTree[0].level
     let detailInfo = {}
@@ -608,7 +610,9 @@ export default class {
         address["streetInfo"] = detailInfo;
         break;
     }
-    return address
+    shopeeMapId = shopeeAddrMappingTree[0].parant+''
+  }
+  return address
   }
   shopAdressPlatform = {
     SPMY: '0',

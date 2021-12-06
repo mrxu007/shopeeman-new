@@ -881,6 +881,16 @@ const statusListThird = [{
     value: 'completed'
   }
 ]
+const statusAfterList = [
+  {
+    label: '取消中',
+    value: 'cancelled'
+  },
+  {
+    label: '退款中',
+    value: 'refund'
+  }
+]
 //物流方式
 function siteShip(country) {
   let arr = site_mall.filter(item => {
@@ -1553,6 +1563,7 @@ export {
   packageType,
   lazadaUrlList,
   colorList,
+  statusAfterList,
   changeShotStatus,
   changeBuyerType,
   changeOrderStatus,
