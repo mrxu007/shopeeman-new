@@ -30,12 +30,15 @@
         </li>
         <li>
           <el-button type="primary" :disabled="Loading1" size="mini" @click="getoverseaswarehouse">搜索</el-button>
-          <el-button type="primary" size="mini" :loading="Loading2" @click="DerivedData">导出数据</el-button>
+          <el-button type="primary" size="mini" :loading="Loading2" @click="DerivedData(1)">导出数据</el-button>
         </li>
       </ul>
     </el-row>
-    <el-row id="article" style="margin-top: 10px;
-    padding: 4px;">
+    <el-row
+      id="article"
+      style="margin-top: 10px;
+    padding: 4px;"
+    >
       <el-table
         ref="plTable"
         v-loading="Loading3"
@@ -53,8 +56,8 @@
         <el-table-column align="center" prop="warehouse_name" label="仓库名称" min-width="150px" fixed />
         <el-table-column align="center" prop="sys_sku_id" label="系统商品编号" min-width="130px" />
         <el-table-column prop="sku_id" label="商品编号（SkuId）" min-width="140px" align="center" />
-        <el-table-column prop="goods_name" label="商品名称" min-width="150px" align="center" show-overflow-tooltip/>
-        <el-table-column prop="sku_name" label="商品规格" min-width="150px" align="center" show-overflow-tooltip/>
+        <el-table-column prop="goods_name" label="商品名称" min-width="150px" align="center" show-overflow-tooltip />
+        <el-table-column prop="sku_name" label="商品规格" min-width="150px" align="center" show-overflow-tooltip />
         <el-table-column prop="stock_num" label="可用库存" min-width="100px" align="center" />
         <el-table-column prop="shared_num" label="共享库存" min-width="110px" align="center" />
         <el-table-column prop="sku_price" label="商品单价（RMB）" min-width="140px" align="center" />
@@ -102,45 +105,45 @@
         :visible.sync="changes"
         width="330px"
         title="修改库存价格"
-         :close-on-click-modal="false"
-         :close-on-press-escape="false"
+        :close-on-click-modal="false"
+        :close-on-press-escape="false"
       >
-        <el-form  label-position="right" label-width="80px">
-        
-              <el-form-item label="商品名称：" >
-                {{rowx.goods_name}}
-              <!-- <el-input v-model="rowx.goods_name" size="mini" disabled/> -->
-              </el-form-item>
-         
-              <el-form-item label="商品规格：" >
-                {{rowx.sku_name}}
-              <!-- <el-input v-model="rowx.sku_name" size="mini" disabled/> -->
-              </el-form-item>
-          
-              <el-form-item label="skuid：">
-                {{rowx.sku_id}}
-              <!-- <el-input v-model="rowx.sku_id" size="mini" disabled/> -->
-              </el-form-item>
-           
-              <el-form-item label="原始价格：" >
-              <!-- <el-input v-model="rowx.sku_price" size="mini" style="width:100px"  disabled/> -->
-              <span style="font-weight: 600;font-family: sans-serif; margin-right: 2px;">{{rowx.sku_price}}</span>
-              <span style="color:#969393;">RMB</span>
-              </el-form-item>
-          
-              <el-form-item label="新价格：" style="margin-bottom: 10px;">
-              <el-input v-model="rowx.newprice" size="mini" style="width:100px" onkeyup="value=value.replace(/[^\d]/g,0)"/>
-              <span style="color:#969393;">RMB</span>
-              </el-form-item>
-           
-            <div style="color: red;line-height: 18px;margin-left: 20px;
-           width: 235px;">温馨提示：价格修改后，会将以当前商品出货但未发货的订单的拍单金额同步成新价格</div>
+        <el-form label-position="right" label-width="80px">
+
+          <el-form-item label="商品名称：">
+            {{ rowx.goods_name }}
+            <!-- <el-input v-model="rowx.goods_name" size="mini" disabled/> -->
+          </el-form-item>
+
+          <el-form-item label="商品规格：">
+            {{ rowx.sku_name }}
+            <!-- <el-input v-model="rowx.sku_name" size="mini" disabled/> -->
+          </el-form-item>
+
+          <el-form-item label="skuid：">
+            {{ rowx.sku_id }}
+            <!-- <el-input v-model="rowx.sku_id" size="mini" disabled/> -->
+          </el-form-item>
+
+          <el-form-item label="原始价格：">
+            <!-- <el-input v-model="rowx.sku_price" size="mini" style="width:100px"  disabled/> -->
+            <span style="font-weight: 600;font-family: sans-serif; margin-right: 2px;">{{ rowx.sku_price }}</span>
+            <span style="color:#969393;">RMB</span>
+          </el-form-item>
+
+          <el-form-item label="新价格：" style="margin-bottom: 10px;">
+            <el-input v-model="rowx.newprice" size="mini" style="width:100px" onkeyup="value=value.replace(/[^\d]/g,0)" />
+            <span style="color:#969393;">RMB</span>
+          </el-form-item>
+
+          <div
+            style="color: red;line-height: 18px;margin-left: 20px;
+           width: 235px;"
+          >温馨提示：价格修改后，会将以当前商品出货但未发货的订单的拍单金额同步成新价格</div>
           <el-form-item style="margin-top: 10px;">
             <el-button type="primary" size="mini" style="margin-left:10px;width:100px" @click="changePrice">确 定</el-button>
           </el-form-item>
-            
-            
-         
+
         </el-form>
       </el-dialog>
       <el-dialog
@@ -150,35 +153,35 @@
         title="修改共享库存"
       >
         <el-form label-position="right" label-width="80px">
-         
-              <el-form-item label="商品名称：" >
-                {{rowy.goods_name}}
-              <!-- <el-input v-model="rowy.goods_name" size="mini"/> -->
-              </el-form-item>
-          
-              <el-form-item label="商品规格：" >
-                {{rowy.sku_name}}
-              <!-- <el-input v-model="rowy.sku_name" size="mini"/> -->
-              </el-form-item>
-  
-              <el-form-item label="skuid：">
-                {{rowy.sku_id}}
-              <!-- <el-input v-model="rowy.sku_id" size="mini"/> -->
-              </el-form-item>
-         
-              <el-form-item label="可用库存：" >
-                {{rowy.stock_num}}
-              <!-- <el-input v-model="rowy.stock_num" size="mini"/> -->
-              </el-form-item>
-      
-              <el-form-item label="共享库存：" >
-              <el-input v-model="primarynum" size="mini" style="width:150px" onkeyup="value=value.replace(/[^\d]/g,0)" clearable/>
-                
-              <!-- <el-input v-model="rowy.shared_num" size="mini" style="width:150px" onkeyup="value=value.replace(/[^\d]/g,0)" clearable/> -->
-              </el-form-item>
-         
+
+          <el-form-item label="商品名称：">
+            {{ rowy.goods_name }}
+            <!-- <el-input v-model="rowy.goods_name" size="mini"/> -->
+          </el-form-item>
+
+          <el-form-item label="商品规格：">
+            {{ rowy.sku_name }}
+            <!-- <el-input v-model="rowy.sku_name" size="mini"/> -->
+          </el-form-item>
+
+          <el-form-item label="skuid：">
+            {{ rowy.sku_id }}
+            <!-- <el-input v-model="rowy.sku_id" size="mini"/> -->
+          </el-form-item>
+
+          <el-form-item label="可用库存：">
+            {{ rowy.stock_num }}
+            <!-- <el-input v-model="rowy.stock_num" size="mini"/> -->
+          </el-form-item>
+
+          <el-form-item label="共享库存：">
+            <el-input v-model="primarynum" size="mini" style="width:150px" onkeyup="value=value.replace(/[^\d]/g,0)" clearable />
+
+            <!-- <el-input v-model="rowy.shared_num" size="mini" style="width:150px" onkeyup="value=value.replace(/[^\d]/g,0)" clearable/> -->
+          </el-form-item>
+
           <el-form-item>
-            <el-button type="primary" size="mini" style="margin-left:10px;width:100px"  @click="shareStock">确定</el-button>
+            <el-button type="primary" size="mini" style="margin-left:10px;width:100px" @click="shareStock">确定</el-button>
           </el-form-item>
         </el-form>
       </el-dialog>
@@ -202,7 +205,8 @@ import { exportExcelDataCommon } from '../../../util/util'
 export default {
   data() {
     return {
-     is_zero_filter:0,
+      exportData: [],
+      is_zero_filter: 0,
       // ALLDdata:[],
       // Partdata:[],
       currentPage: 1,
@@ -240,7 +244,7 @@ export default {
       form: {
         app_uid: '',
         skuid: '',
-        returnWheareHouseName: 17, // 仓库名称
+        returnWheareHouseName: '0', // 仓库名称
         // returnWheareHouseName: 17, // 仓库名称
         systemskuid: '', // 系统商品编号
         sku_name: ''
@@ -305,8 +309,8 @@ export default {
       const parmas = {
         sku_id: this.rowx.sku_id,
         app_uid: '',
-        price: Number(this.rowx.newprice),
-       
+        price: Number(this.rowx.newprice)
+
       }
       console.log(parmas)
       try {
@@ -346,7 +350,7 @@ export default {
     // },
     // 共享库存点击确定
     async shareStock() {
-       if (Number(this.primarynum)>Number(this.rowy.stock_num) || Number(this.primarynum)<0) {
+      if (Number(this.primarynum) > Number(this.rowy.stock_num) || Number(this.primarynum) < 0) {
         this.$message.warning('请输入有效库存数')
         return
       }
@@ -358,9 +362,9 @@ export default {
       const parmas = {
         wid: this.rowy.wid,
         shared_num: this.primarynum,
-        sys_sku_id:this.rowy.sys_sku_id
+        sys_sku_id: this.rowy.sys_sku_id
         // app_uid: '',
-     
+
       }
       console.log(parmas)
       try {
@@ -397,58 +401,59 @@ export default {
       this.primarynum = Number(val.shared_num)
       this.rowy.id = val.id
       this.rowy.wid = val.wid
-      this.rowy.sys_sku_id=val.sys_sku_id
+      this.rowy.sys_sku_id = val.sys_sku_id
     },
     // 过滤功能
     async flt() {
       if (this.filter === true) {
-        this.is_zero_filter=1
+        this.is_zero_filter = 1
         this.getoverseaswarehouse()
         // this.tableData = this.Partdata
       } else {
-        this.is_zero_filter=0
+        this.is_zero_filter = 0
         this.getoverseaswarehouse()
         // this.tableData = this.ALLDdata
       }
     },
     // 搜索功能
     async getoverseaswarehouse() {
-      this.Loading1 = true
+      // this.Loading1 = true
       this.Loading3 = true
       const parmas = {
-        page_num:this.pageSize,
-        page:this.page,
+        page_num: this.pageSize,
+        page: this.page,
         wid: this.form.returnWheareHouseName,
         sys_sku_id: this.form.systemskuid,
         sku_id: this.form.skuid,
         sku_name: this.form.sku_name,
-        is_zero_filter:this.is_zero_filter,
-        type:'query',
-        app_uid: '',
+        is_zero_filter: this.is_zero_filter,
+        type: 'query',
+        app_uid: ''
       }
       console.log('parmas', parmas)
       try {
         let data = await this.$XzyNetMessageService.post('xzy.stock.index', parmas)
         data = JSON.parse(data)
-        const res=JSON.parse(data.data)
-        if (res.code!==200) {
+        const res = JSON.parse(data.data)
+        if (res.code !== 200) {
           this.$message.error(res.message)
-        }else{
-          const getdata=res.data.data ? res.data.data :[]
+        } else {
+          const getdata = res.data.data ? res.data.data : []
           this.total = res.data.total
           for (let i = 0; i < getdata.length; i++) {
-            //价格处理
-            getdata[i].sku_price=getdata[i].sku_price/100
-            //获取仓库名称
+            // 价格处理
+            getdata[i].sku_price = getdata[i].sku_price / 100
+            // 获取仓库名称
             const wareinfo = await this.$appConfig.getGlobalCacheInfo('overseasWh', Number(getdata[i].wid))
             if (JSON.parse(wareinfo).warehouse_name) {
-              getdata[i].warehouse_name=  JSON.parse(wareinfo).warehouse_name          
-            }else{
-              this.$message.error('仓库名称获取失败')
-              return
+              getdata[i].warehouse_name = JSON.parse(wareinfo).warehouse_name
+            } else {
+              // this.$message.error('仓库名称获取失败')
+              continue
+              // return
             }
           }
-          this.tableData=getdata
+          this.tableData = getdata
         }
         // data.data = JSON.parse(data.data)
         // const data2 = []
@@ -475,13 +480,54 @@ export default {
       } catch (error) {
         console.log(error)
       }
-      this.Loading1 = false
+      // this.Loading1 = false
       this.Loading3 = false
     },
     // 数据导出功能
-    async DerivedData() {
+    async DerivedData(page) {
       this.Loading2 = true
-      if (this.tableData.length) {
+      if (this.exportData.length < this.total) {
+        const parmas = {
+          page_num: this.pageSize,
+          page: page,
+          wid: this.form.returnWheareHouseName,
+          sys_sku_id: this.form.systemskuid,
+          sku_id: this.form.skuid,
+          sku_name: this.form.sku_name,
+          is_zero_filter: this.is_zero_filter,
+          type: 'query',
+          app_uid: ''
+        }
+
+        try {
+          let data = await this.$XzyNetMessageService.post('xzy.stock.index', parmas)
+          data = JSON.parse(data)
+          const res = JSON.parse(data.data)
+          if (res.code !== 200) {
+            this.$message.error(res.message)
+            return
+          } else {
+            const getdata = res.data.data ? res.data.data : []
+            for (let i = 0; i < getdata.length; i++) {
+            // 价格处理
+              getdata[i].sku_price = getdata[i].sku_price / 100
+              // 获取仓库名称
+              const wareinfo = await this.$appConfig.getGlobalCacheInfo('overseasWh', Number(getdata[i].wid))
+              if (JSON.parse(wareinfo).warehouse_name) {
+                getdata[i].warehouse_name = JSON.parse(wareinfo).warehouse_name
+              } else {
+              // this.$message.error('仓库名称获取失败')
+                continue
+              }
+            }
+            this.exportData.push(...getdata)
+            this.DerivedData(page + 1)
+          }
+        } catch (error) {
+          console.log(`${error}`)
+        }
+      } else {
+        this.Loading2 = false
         let msg = `<tr>
         <td style="width: 200px; text-align:left;">序列号</td>
         <td style="width: 200px; text-align:left;">仓库名称</td>
@@ -496,10 +542,10 @@ export default {
         <td style="width: 200px; text-align:left;">货架仓位</td>
         <td style="width: 200px; text-align:left;">库存更新时间</td>
       </tr>`
-        this.tableData.map((item) => {
+        this.exportData.forEach((item, index) => {
           msg += `
         <tr>
-          <td style="text-align:left;">${item.id || ''}</td>
+          <td style="text-align:left;">${index + 1}</td>
           <td style="text-align:left;">${item.warehouse_name || ''}</td>
           <td style="text-align:left;">${item.sys_sku_id || ''}</td>
           <td style="text-align:left;">${item.sku_id || ''}</td>
@@ -515,16 +561,9 @@ export default {
         `
         })
         exportExcelDataCommon('海外仓库存信息', msg)
-        this.Loading2 = false
-      } else {
-        this.Loading2 = false
-        return this.$notify({
-          title: '订单信息',
-          type: 'warning',
-          message: `没有可以导出的订单`
-        })
       }
     },
+
     handleSizeChange(val) {
       this.pageSize = val
       this.getoverseaswarehouse()
