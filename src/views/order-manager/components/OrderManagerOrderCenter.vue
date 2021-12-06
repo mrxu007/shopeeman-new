@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-11-09 10:17:44
- * @LastEditTime: 2021-12-04 17:48:12
+ * @LastEditTime: 2021-12-06 21:15:40
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shopeeman-new\src\views\order-manager\components\OrderManagerOrderCenter.vue
@@ -223,7 +223,7 @@
         <el-table-column prop="order_sn" label="订单编号" align="center" min-width="170px" v-if="showTableColumn('订单编号')">
           <template slot-scope="scope">
             <span class="tableActive" @click="viewDetails('orderDetail', scope.row.order_id, scope.row.mall_info.platform_mall_id)">{{ scope.row.order_sn }}</span>
-            <i class="el-icon-s-order" style="margin-left: 8px; cursor: pointer" @click="copyItem(scope.row.order_sn)"></i>
+            <i class="el-icon-document-copy" style="margin-left: 8px; cursor: pointer" @click="copyItem(scope.row.order_sn)"></i>
           </template>
         </el-table-column>
         <el-table-column align="center" prop="created_time" label="订单创建时间" min-width="140" v-if="showTableColumn('订单创建时间')" />
@@ -252,7 +252,7 @@
         <el-table-column align="center" label="商品ID" min-width="140" v-if="showTableColumn('商品ID')">
           <template slot-scope="scope">
             <span class="tableActive" @click="openUrl(scope.row, 'product')">{{ scope.row.goods_info.goods_id }}</span>
-            <i class="el-icon-s-order" style="margin-left: 8px; cursor: pointer" @click="copyItem(scope.row.goods_info.goods_id)"></i>
+            <i class="el-icon-document-copy" style="margin-left: 8px; cursor: pointer" @click="copyItem(scope.row.goods_info.goods_id)"></i>
           </template>
         </el-table-column>
         <el-table-column align="center" label="商品创建时间" min-width="140" v-if="showTableColumn('商品创建时间')">
@@ -744,6 +744,7 @@ import {
   changeDeliveryStatus,
   changeBuyerType,
 } from '../components/orderCenter/orderCenter'
+import { setGoodsDelist,setGoodsDelete } from './orderCenter/handleGoods'
 import { creatDate } from '../../../util/util'
 import storeChoose from '../../../components/store-choose'
 import BuyerAccount from './orderCenter/buyer-account.vue'
@@ -1270,23 +1271,24 @@ export default {
         type: 'warning',
       })
         .then(() => {
-          this.setGoodsDelete(row)
+          setGoodsDelete(this,row)
+          // this.setGoodsDelete(row)
         })
         .catch(() => {})
     },
     //商品删除
-    async setGoodsDelete(row) {
-      let params = {
-        product_id_list: [Number(row.goods_info.goods_id)],
-        shop_id: row.mall_info.platform_mall_id,
-      }
-      let res = await this.$shopeemanService.handleGoodsDelete(row.country, params)
-      if (res.code === 200) {
-        this.$message.success(`商品删除成功！`)
-      } else {
-        this.$message.error(`${res.data}`)
-      }
-    },
+    // async setGoodsDelete(row) {
+    //   let params = {
+    //     product_id_list: [Number(row.goods_info.goods_id)],
+    //     shop_id: row.mall_info.platform_mall_id,
+    //   }
+    //   let res = await this.$shopeemanService.handleGoodsDelete(row.country, params)
+    //   if (res.code === 200) {
+    //     this.$message.success(`商品删除成功！`)
+    //   } else {
+    //     this.$message.error(`${res.data}`)
+    //   }
+    // },
     //商品下架
     async goodsDelist(row) {
       this.$confirm('是否下架该商品?', '商品下架', {
@@ -1295,29 +1297,30 @@ export default {
         type: 'warning',
       })
         .then(() => {
-          this.setGoodsDelist(row)
+          setGoodsDelist(this,row)
+          // this.setGoodsDelist(row)
         })
         .catch(() => {})
     },
     //商品下架
-    async setGoodsDelist(row) {
-      let params = [
-        {
-          id: Number(row.goods_info.goods_id),
-          unlisted: true,
-        },
-      ]
-      let data = {
-        shop_id: row.mall_info.platform_mall_id,
-      }
-      let res = await this.$shopeemanService.handleGoodsDelist(row.country, data, params)
-      if (res.code === 200) {
-        this.$message.success(`商品下架成功！`)
-      } else {
-        this.$message.error(`${res.data}`)
-      }
-      console.log(res, 'res')
-    },
+    // async setGoodsDelist(row) {
+    //   let params = [
+    //     {
+    //       id: Number(row.goods_info.goods_id),
+    //       unlisted: true,
+    //     },
+    //   ]
+    //   let data = {
+    //     shop_id: row.mall_info.platform_mall_id,
+    //   }
+    //   let res = await this.$shopeemanService.handleGoodsDelist(row.country, data, params)
+    //   if (res.code === 200) {
+    //     this.$message.success(`商品下架成功！`)
+    //   } else {
+    //     this.$message.error(`${res.data}`)
+    //   }
+    //   console.log(res, 'res')
+    // },
     //订单出库
     async saveHandleOut() {
       let params = {
