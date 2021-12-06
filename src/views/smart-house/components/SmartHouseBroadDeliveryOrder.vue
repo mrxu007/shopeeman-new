@@ -93,7 +93,7 @@
       <el-table
         ref="plTable"
         v-loading="isShowLoading"
-        height="calc(100vh - 210px)"
+        height="calc(100vh - 200px)"
         :data="tableData"
         :header-cell-style="{
           backgroundColor: '#f5f7fa',
@@ -882,7 +882,7 @@ export default {
       const exportData = []
       let resData = []
       const params = this.form
-      params.pageSize = this.pageSize
+      params.pageSize = 200
       params.page = 1
       while (resData.length < this.total) {
         const res = await this.BroadDeliveryOrder.getOutOfStockList(params)

@@ -46,7 +46,7 @@
       <el-table
         ref="plTable"
         v-loading="isShowLoading"
-        height="calc(100vh - 165px)"
+        height="calc(100vh - 160px)"
         :data="tableData"
         :header-cell-style="{
           backgroundColor: '#f5f7fa',
@@ -299,7 +299,7 @@ export default {
       this.isShowLoading = true
       const exportData = []
       const params = this.form
-      params.pageSize = this.pageSize
+      params.page_size = 200
       params.page = 1
       while (exportData.length < this.total) {
         const res = await this.ChineseStock.getStock(params)

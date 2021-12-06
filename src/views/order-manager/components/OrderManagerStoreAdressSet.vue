@@ -537,6 +537,7 @@ export default {
         country: this.mallList.country,
         groupIds: groupIds.toString()
       }
+      console.log(params, '-----------')
       const res = await this.AddressSet.getBindMall(params)
       if (res.code === 200) {
         this.bindMallData = res.data
@@ -849,6 +850,7 @@ export default {
     },
     changeMallList(val) {
       this.mallList = val
+      console.log('changeMallList', val)
     },
     handleClose1() {
       // this.getUserWarehouse()

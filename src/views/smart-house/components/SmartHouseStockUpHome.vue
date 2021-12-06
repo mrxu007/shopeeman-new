@@ -100,7 +100,7 @@
       <el-table
         ref="plTable"
         v-loading="isShowLoading"
-        height="calc(100vh - 250px)"
+        height="calc(100vh - 240px)"
         :data="tableData"
         :header-cell-style="{
           backgroundColor: '#f5f7fa',
@@ -1429,6 +1429,10 @@ export default {
         params['BarCodeList'] = []
         for (let j = 0; j < item1.home_stocking_forecast_sub.length; j++) {
           const item2 = item1.home_stocking_forecast_sub[j]
+          if (!item2.sys_sku_id) {
+            this.$refs.Logs.writeLog(`【${item1.package_code}】的商品SkuId【${item2.sku_id}】对应的系统商品ID为空`, false)
+            continue
+          }
           const obj = {
             BarCodeContent: [
               `物流单号:${item1.package_code}`,
@@ -1725,7 +1729,7 @@ export default {
       const exportData = []
       let resData = []
       const params = this.form
-      params.pageSize = this.pageSize
+      params.pageSize = 200
       params.page = 1
       while (resData.length < this.total) {
         const res = await this.StrockUpHome.getHomeWarehouse(params)

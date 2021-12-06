@@ -47,7 +47,7 @@
       <el-table
         ref="plTable"
         v-loading="isShowLoading"
-        height="calc(100vh - 165px)"
+        height="calc(100vh - 160px)"
         :row-style="{ height: '45px' }"
         :data="tableData"
         :header-cell-style="{
@@ -282,7 +282,7 @@ export default {
       this.isShowLoading = true
       const exportData = []
       const params = this.form
-      params.pageSize = this.pageSize
+      params.page_num = 200
       params.page = 1
       while (exportData.length < this.total) {
         const res = await this.ShareMyBroadStock.getSharedIndex(params)

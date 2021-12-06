@@ -10,11 +10,8 @@
           </el-select>
         </li>
         <li>
-          <span>二次销售类型：</span>
-          <el-select v-model="form.returnType" placeholder="" size="mini" filterable>
-            <el-option label="全部" :value="-1" />
-            <el-option v-for="(item, index) in returnType" :key="index" :label="item.label" :value="item.value" />
-          </el-select>
+          <span>商品ID：</span>
+          <el-input v-model="form.returnGoodsId" clearable size="mini" oninput="value=value.replace(/\s+/g,'')" />
         </li>
         <li>
           <span>包裹创建时间：</span>
@@ -30,110 +27,125 @@
         </li>
       </ul>
       <ul style="margin-bottom: 10px">
-        <li style="margin-left: 35px;">
-          <span>商品ID：</span>
-          <el-input v-model="form.returnGoodsId" clearable size="mini" oninput="value=value.replace(/\s+/g,'')" />
+        <li>
+          <span>二次销售类型：</span>
+          <el-select v-model="form.returnType" placeholder="" size="mini" filterable>
+            <el-option label="全部" :value="-1" />
+            <el-option v-for="(item, index) in returnType" :key="index" :label="item.label" :value="item.value" />
+          </el-select>
         </li>
-        <li style="margin-left: 38px;">
+
+        <li style="margin-left:3px">
           <span>SkuID：</span>
           <el-input v-model="form.returnSkuId" clearable size="mini" oninput="value=value.replace(/\s+/g,'')" />
         </li>
-        <li style="margin-left: 25px;">
-          <span>主订单号：</span>
-          <el-input v-model="form.returnMainOrderNum" style="width:228px!important" clearable size="mini" oninput="value=value.replace(/\s+/g,'')" />
-        </li>
-      </ul>
-      <ul style="align-items: center;">
         <li>
           <span>平台物流单号：</span>
           <el-input v-model="form.returnLogisticsDocNum" clearable size="mini" oninput="value=value.replace(/\s+/g,'')" />
         </li>
         <li>
+          <span>主订单号：</span>
+          <el-input v-model="form.returnMainOrderNum" clearable size="mini" oninput="value=value.replace(/\s+/g,'')" />
+        </li>
+        <li>
           <el-button type="primary" :disabled="Loading1" size="mini" @click="getSencondSales">搜索</el-button>
           <el-button type="primary" size="mini" :loading="Loading2" @click="DerivedData">导出数据</el-button>
         </li>
-        <li>
-          <span style="color: red;width:444px">温馨提示：此模块展示数据为海外仓退回仓库的包裹数据，若需将此模块包裹数据进行二次销售，请前往【订单管理】使用二次销售功能进行匹配（不支持拆包出库）</span>
-        </li>
       </ul>
       <ul>
-        <!-- <span style="color: red; margin-top: 15px">温馨提示：此模块展示数据为海外仓退回仓库的包裹数据，若需将此模块包裹数据进行二次销售，请前往【订单管理】使用二次销售功能进行匹配（不支持拆包出库）</span> -->
+        <span style="color: red; margin-top: 10px">温馨提示：此模块展示数据为海外仓退回仓库的包裹数据，若需将此模块包裹数据进行二次销售，请前往【订单管理】使用二次销售功能进行匹配（不支持拆包出库）</span>
       </ul>
-      <el-row id="article">
-        <el-table
-          ref="plTable"
-          v-loading="Loading3"
-          header-align="center"
-          height="calc(100vh - 250px)"
-          :data="tableData"
-          :header-cell-style="{
-            backgroundColor: '#f5f7fa',
-          }"
-          @selection-change="handleSelectionChange"
-        >
-          <el-table-column align="center" type="selection" min-width="50px" />
-          <el-table-column align="center" label="站点" min-width="70px" prop="country" fixed>
-            <template slot-scope="{row}"><span>{{ row.country | chineseSite }}</span></template>
-          </el-table-column>
-          <el-table-column align="center" prop="receive_warehouse_name" label="包裹所在仓库" min-width="150px" fixed />
-          <el-table-column align="center" prop="platform_tracking_number" label="平台物流单号" min-width="150px" />
-          <el-table-column prop="order_sn" label="订单编号" min-width="150px" align="center" />
-          <el-table-column prop="type" label="二次销售类型" min-width="120px" align="center">
-            <template slot-scope="{row}"><span>{{ returnType[row.type].label }}</span></template>
-          </el-table-column>
-          <el-table-column prop="status" label="二次销售状态" min-width="120px" align="center">
-            <template slot-scope="{row}"><span>{{ returnStatusList[row.status].label }}</span></template>
-          </el-table-column>
-          <el-table-column prop="goods_id" label="商品ID" min-width="120px" align="center">
-            <template slot-scope="{ row }">
-              <span>
-                <el-button type="text" @click.native="open(row)">
-                  {{ row.goods_id }}
-                </el-button>
-              </span></template>
-          </el-table-column>
-          <el-table-column prop="goods_img" label="商品图片" min-width="100px" align="center">
-            <template slot-scope="scope">
-              <el-tooltip effect="light" placement="right-end" :visible-arrow="false" :enterable="false" style="width: 56px; height: 56px; display: inline-block">
-                <div slot="content">
-                  <el-image :src="[scope.row.country, scope.row.platform_mall_id, scope.row.goods_img] | imageRender" style="width: 400px; height: 400px" />
-                </div>
-                <el-image :src="[scope.row.country, scope.row.platform_mall_id, scope.row.goods_img] | imageRender" style="width: 56px; height: 56px" />
-              </el-tooltip>
-            </template>
-          </el-table-column>
-          <el-table-column prop="goods_count" label="商品数量" min-width="120px" align="center" />
-          <el-table-column prop="goods_price" label="商品价格" min-width="120px" align="center">
-            <template slot-scope="{row}"><span>{{ row.goods_price }}{{ row.country | siteCoin }}</span></template>
-          </el-table-column>
-          <el-table-column prop="variation_name" label="商品规格" min-width="180px" align="center" />
-          <el-table-column prop="variation_id" label="商品货号（skuid）" min-width="140px" align="center" />
-          <el-table-column prop="goods_name" label="商品名称" min-width="150px" align="center">
-            <template slot-scope="{row}">
-              <el-tooltip v-if="row.goods_name" effect="dark" placement="top-start">
-                <div slot="content" style="width:200px;height:auto">{{ row.goods_name }}</div>
-                <el-button type="text" class="bindmallclass">{{ row.goods_name }}</el-button>
-              </el-tooltip>
-            </template>
-          </el-table-column>
-          <el-table-column prop="return_create_time" label="包裹创建时间" min-width="150px" align="center" />
-          <el-table-column prop="expired_at" label="过期时间" min-width="180px" align="center" />
-          <el-table-column prop="ext.free_storage_days" label="免租天数" min-width="100px" align="center" />
-          <el-table-column prop="resale_order_sn" label="二次销售订单号" min-width="150px" align="center" fixed="right" />
-        </el-table>
-        <div class="pagination">
-          <el-pagination
-            background
-            :current-page.sync="currentPage"
-            :page-size="pageSize"
-            layout="total,sizes, prev, pager, next, jumper"
-            :total="total"
-            :page-sizes="[100, 200]"
-            @size-change="handleSizeChange"
-            @current-change="handleCurrentChange"
-          />
-        </div>
-      </el-row>
+    </el-row>
+    <el-row id="article">
+      <el-table
+        ref="plTable"
+        v-loading="Loading3"
+        header-align="center"
+        height="calc(100vh - 230px)"
+        :data="tableData"
+        :header-cell-style="{
+          backgroundColor: '#f5f7fa',
+        }"
+        @selection-change="handleSelectionChange"
+      >
+        <el-table-column align="center" type="selection" min-width="50px" />
+        <el-table-column align="center" label="站点" min-width="70px" prop="country" fixed>
+          <template slot-scope="{row}"><span>{{ row.country | chineseSite }}</span></template>
+        </el-table-column>
+        <el-table-column align="center" prop="receive_warehouse_name" label="包裹所在仓库" min-width="150px" fixed />
+        <el-table-column align="center" prop="platform_tracking_number" label="平台物流单号" min-width="150px" />
+        <el-table-column prop="order_sn" label="订单编号" min-width="150px" align="center">
+          <template slot-scope="{ row }">
+            <span>
+              {{ row.order_sn }}
+              <span
+                v-if="row.order_sn"
+                class="copyIcon"
+                @click="copy(row.order_sn)"
+              ><i class="el-icon-document-copy" /></span>
+            </span>
+          </template>
+        </el-table-column>
+        <el-table-column prop="type" label="二次销售类型" min-width="120px" align="center">
+          <template slot-scope="{row}"><span>{{ returnType[row.type].label }}</span></template>
+        </el-table-column>
+        <el-table-column prop="status" label="二次销售状态" min-width="120px" align="center">
+          <template slot-scope="{row}"><span>{{ returnStatusList[row.status].label }}</span></template>
+        </el-table-column>
+        <el-table-column prop="goods_id" label="商品ID" min-width="120px" align="center">
+          <template slot-scope="{ row }">
+            <span>
+              <el-button type="text" @click.native="open(row)">
+                {{ row.goods_id }}
+              </el-button>
+            </span>
+          </template>
+        </el-table-column>
+        <el-table-column prop="goods_img" label="商品图片" min-width="100px" align="center">
+          <template slot-scope="scope">
+            <el-tooltip effect="light" placement="right-end" :visible-arrow="false" :enterable="false" style="width: 56px; height: 56px; display: inline-block">
+              <div slot="content">
+                <el-image :src="[scope.row.country, scope.row.platform_mall_id, scope.row.goods_img] | imageRender" style="width: 400px; height: 400px" />
+              </div>
+              <el-image :src="[scope.row.country, scope.row.platform_mall_id, scope.row.goods_img] | imageRender" style="width: 56px; height: 56px" />
+            </el-tooltip>
+          </template>
+        </el-table-column>
+        <el-table-column prop="goods_count" label="商品数量" min-width="120px" align="center" />
+        <el-table-column prop="goods_price" label="商品价格" min-width="120px" align="center">
+          <template slot-scope="{row}"><span>{{ row.goods_price }}{{ row.country | siteCoin }}</span></template>
+        </el-table-column>
+        <el-table-column label="商品规格" min-width="180px" align="center">
+          <template v-slot="{row}">
+            {{ row.variation_sku?row.variation_sku:row.variation_name }}
+          </template>
+        </el-table-column>
+        <el-table-column prop="variation_id" label="商品货号（skuid）" min-width="140px" align="center" />
+        <el-table-column prop="goods_name" label="商品名称" min-width="150px" align="center">
+          <template slot-scope="{row}">
+            <el-tooltip v-if="row.goods_name" effect="dark" placement="top-start">
+              <div slot="content" style="width:200px;height:auto">{{ row.goods_name }}</div>
+              <el-button type="text" class="bindmallclass">{{ row.goods_name }}</el-button>
+            </el-tooltip>
+          </template>
+        </el-table-column>
+        <el-table-column prop="return_create_time" label="包裹创建时间" min-width="150px" align="center" />
+        <el-table-column prop="expired_at" label="过期时间" min-width="180px" align="center" />
+        <el-table-column prop="ext.free_storage_days" label="免租天数" min-width="100px" align="center" />
+        <el-table-column prop="resale_order_sn" label="二次销售订单号" min-width="150px" align="center" />
+      </el-table>
+      <div class="pagination">
+        <el-pagination
+          background
+          :current-page.sync="currentPage"
+          :page-size="pageSize"
+          layout="total,sizes, prev, pager, next, jumper"
+          :total="total"
+          :page-sizes="[100, 200]"
+          @size-change="handleSizeChange"
+          @current-change="handleCurrentChange"
+        />
+      </div>
     </el-row>
   </el-row>
 </template>
@@ -226,61 +238,83 @@ export default {
     },
     // 导出数据
     async DerivedData() {
+      if (this.total === 0) return this.$message('暂无导出数据')
       this.Loading2 = true
-      if (this.tableData.length) {
-        let msg = `<tr>
-        <td style="width: 200px; text-align:left;">站点</td>
-        <td style="width: 200px; text-align:left;">包裹所在仓库</td>
-        <td style="width: 200px; text-align:left;">平台物流单号</td>
-        <td style="width: 200px; text-align:left;">订单编号</td>
-        <td style="width: 200px; text-align:left;">二次销售类型</td>
-        <td style="width: 200px; text-align:left;">二次销售状态</td>
-        <td style="width: 200px; text-align:left;">商品ID</td>
-        <td style="width: 200px; text-align:left;">商品图片</td>
-        <td style="width: 200px; text-align:left;">商品数量</td>
-        <td style="width: 200px; text-align:left;">商品价格</td>
-        <td style="width: 200px; text-align:left;">商品规格</td>
-        <td style="width: 200px; text-align:left;">商品货号（skuid）</td>
-        <td style="width: 200px; text-align:left;">商品名称</td>
-        <td style="width: 200px; text-align:left;">包裹创建时间</td>
-        <td style="width: 200px; text-align:left;">过期时间</td>
-        <td style="width: 200px; text-align:left;">免租天数</td>
-        <td style="width: 200px; text-align:left;">二次销售订单号</td>
+      let resData = []
+      const returnCreateTime = this.form.returnCreateTime ? `${this.$dayjs(this.form.returnCreateTime[0]).format('YYYY-MM-DD HH:mm:ss')}/${this.$dayjs(this.form.returnCreateTime[1]).format('YYYY-MM-DD HH:mm:ss')}` : ''
+      const parmas = {
+        status: Number(this.form.returnStatus),
+        createTime: returnCreateTime,
+        type: Number(this.form.returnType),
+        goodsId: this.form.returnGoodsId,
+        variationId: this.form.returnSkuId,
+        orderSn: this.form.returnMainOrderNum,
+        platformTrackingNumber: this.form.returnLogisticsDocNum
+      }
+      parmas.pageSize = 200
+      parmas.page = 1
+      while (resData.length < this.total) {
+        try {
+          const { data } = await this.$api.getsecondlist(parmas)
+          if (data.code === 200) {
+            resData = resData.concat(data.data.data)
+            parmas.page++
+          } else {
+            this.$message.error('导出数据错误', data.message)
+            this.Loading2 = false
+            break
+          }
+        } catch (error) {
+          this.$message.error(`导出数据错误`)
+          this.Loading2 = false
+          break
+        }
+      }
+      let msg = `<tr>
+        <td>站点</td>
+        <td>发货仓库</td>
+        <td>收货仓库</td>
+        <td>平台物流单号</td>
+        <td>订单编号</td>
+        <td>二次销售类型</td>
+        <td>二次销售状态</td>
+        <td>商品ID</td>
+        <td>商品链接</td>
+        <td>商品数量</td>
+        <td>商品价格</td>
+        <td>价格币种</td>
+        <td>商品规格</td>
+        <td>商品货号（skuId）</td>
+        <td>商品名称</td>
+        <td>二次销售订单号</td>
+        <td>包裹创建时间</td>
       </tr>`
-        this.tableData.map((item) => {
-          msg += `
+      resData.forEach((item) => {
+        console.log(item)
+        msg += `
         <tr>
-          <td style="text-align:left;">${item.id || ''}</td>
-          <td style="text-align:left;">${this.$filters.chineseSite(item.country) || ''}</td>
+          <td>${this.$filters.chineseSite(item.country) || ''}</td>
+          <td>${item.warehouse_name || ''}</td>
+          <td>${item.receive_warehouse_name || ''}</td>
           <td style="text-align:left;mso-number-format:'\@';">${item.platform_tracking_number || ''}</td>
-          <td style="text-align:left;">${item.order_sn || ''}</td>1
-          <td style="text-align:left;">${this.returnType[item.type].label || ''}</td>
-          <td style="text-align:left;">${this.returnStatusList[item.status].label || ''}</td>
-          <td style="text-align:left;">${item.goods_id || ''}</td>
-          <td style="text-align:left;">${item.goods_img ? this.$filters.imageRender([item.country, item.platform_mall_id, item.goods_img]) : '' + '\t'}</td>
-          <td style="text-align:left;">${item.goods_count || ''}</td>
-          <td style="text-align:left;">${item.goods_price || ''}</td>
-          <td style="text-align:left;">${item.variation_name || ''}</td>
-          <td style="text-align:left;">${item.variation_id || ''}</td>
-          <td style="text-align:left;">${item.goods_name || ''}</td>
-          <td style="text-align:left;">${item.return_create_time || ''}</td>
-          <td style="text-align:left;">${item.expired_at || ''}</td>
-          <td style="text-align:left;">${item.ext.free_storage_days === null ? '' : item.ext.free_storage_days}</td>
-          <td style="text-align:left;">${item.resale_order_sn || ''}</td>
-      
+          <td>${item.order_sn || ''}</td>
+          <td>${this.returnType[item.type].label || ''}</td>
+          <td>${this.returnStatusList[item.status].label || ''}</td>
+          <td>${item.goods_id || ''}</td>
+          <td>${this.$filters.countryShopeebuyCom(item.country)}/product/${item.platform_mall_id}/${item.goods_id || ''}</td>
+          <td>${item.goods_count || ''}</td>
+          <td>${item.goods_price || ''}</td>
+          <td>${this.$filters.siteCoin(item.country) || ''}</td>
+          <td>${item.variation_sku ? item.variation_sku : item.variation_name || ''}</td>
+          <td>${item.variation_id || ''}</td>
+          <td>${item.goods_name || ''}</td>
+          <td>${item.resale_order_sn || ''}</td>
+          <td>${item.return_create_time || ''}</td>
         </tr>
         `
-        })
-        exportExcelDataCommon('二次销售信息', msg)
-        this.Loading2 = false
-      } else {
-        this.Loading2 = false
-        return this.$notify({
-          title: '订单信息',
-          type: 'warning',
-          message: `没有可以导出的订单`
-        })
-      }
+      })
+      exportExcelDataCommon('二次销售列表数据', msg)
+      this.Loading2 = false
     },
     handleSizeChange(val) {
       this.page = 1
@@ -293,6 +327,26 @@ export default {
     },
     handleSelectionChange(val) {
       this.multipleSelection = val
+    },
+    // 点击复制
+    copy(attr) {
+      const target = document.createElement('div')
+      target.id = 'tempTarget'
+      target.style.opacity = '0'
+      target.innerText = attr
+      document.body.appendChild(target)
+      try {
+        const range = document.createRange()
+        range.selectNode(target)
+        window.getSelection().removeAllRanges()
+        window.getSelection().addRange(range)
+        document.execCommand('copy')
+        window.getSelection().removeAllRanges()
+        this.$message.success('复制成功')
+      } catch (e) {
+        // console.log('复制失败')
+      }
+      target.parentElement.removeChild(target)
     }
   }
 }

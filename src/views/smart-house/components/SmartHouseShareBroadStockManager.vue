@@ -63,7 +63,7 @@
       <el-table
         ref="plTable"
         v-loading="isShowLoading"
-        height="calc(100vh - 165px)"
+        height="calc(100vh - 160px)"
         :data="tableData"
         :header-cell-style="{
           backgroundColor: '#f5f7fa',
@@ -426,6 +426,7 @@ export default {
       sharedUserData: [], // 共享库存绑定用户数据
       shareTockData: {}, // 修改共享库存数据
       sharedNum: '', // 共享库存数
+      sharedId: '',
 
       form: { // 条件搜索
         wid: '0', // 仓库ID
@@ -550,11 +551,12 @@ export default {
         platform_id: platform_id,
         username: username
       }
+      this.delBindUserFrom['shared_id'] = this.sharedId
       this.delBindUserFrom['app_uid_list'].push(obj)
       const res = await this.ShareBroadStock.delbindUser(this.delBindUserFrom)
       if (res.code === 200) {
         this.$message.success('删除成功')
-        this.getSharedUserList(this.delBindUserFrom.shared_id)
+        this.getSharedUserList(this.sharedId)
       } else {
         this.$message.error(res.data)
       }
@@ -598,7 +600,7 @@ export default {
     async getSharedUserList(id) {
       this.sharedUserVisible = true
       this.sharedUserLoading = true
-      this.delBindUserFrom['shared_id'] = id
+      this.sharedId = id
       const obj = {
         shared_id: id
       }
@@ -655,7 +657,7 @@ export default {
       this.isShowLoading = true
       const exportData = []
       const params = this.form
-      params.pageSize = this.pageSize
+      params.page_num = 200
       params.page = 1
       while (exportData.length < this.total) {
         const res = await this.ShareBroadStock.stockSharedList(params)

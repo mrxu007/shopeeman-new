@@ -109,7 +109,7 @@
       <el-table
         ref="plTable"
         v-loading="isShowLoading"
-        height="calc(100vh - 249px)"
+        height="calc(100vh - 239px)"
         :data="tableData"
         :row-style="{height:'45px'}"
         :header-cell-style="{
