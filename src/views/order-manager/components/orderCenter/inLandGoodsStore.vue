@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-11-16 20:01:09
- * @LastEditTime: 2021-11-26 10:04:33
+ * @LastEditTime: 2021-12-04 18:10:08
  * @LastEditors: Please set LastEditors
  * @Description: 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  * @FilePath: \shopeeman-new\src\views\order-manager\components\orderCenter\SelfGoodsStore.vue
@@ -11,7 +11,7 @@
     <div class="btn-header">
       <div class="item-box mar-right">
         <span>仓库名称：</span>
-        <el-select v-model="wid" size="mini" filterable>
+        <el-select v-model="wid" size="mini" filterable @change="searchTableList">
           <el-option v-for="(item, index) in widList" :key="index" :label="item.warehouse_name" :value="item.wid" />
         </el-select>
       </div>
@@ -21,7 +21,7 @@
       </div>
       <el-button type="primary" size="mini" style="margin-left: 10px" @click="searchTableList">搜 索</el-button>
     </div>
-    <el-table ref="multipleTable" :data="tableData" tooltip-effect="dark" max-height="500">
+    <el-table ref="multipleTable" :data="tableData" tooltip-effect="dark" height="500" v-loading="tableLoading">
       <el-table-column align="center" type="index" label="序号" width="50">
         <template slot-scope="scope">{{ (currentPage - 1) * pageSize + scope.$index + 1 }}</template>
       </el-table-column>
@@ -85,6 +85,7 @@ export default {
       wid: '', //仓库名
       widList: [],
       sku_id: '',
+      tableLoading: false,
     }
   },
   async mounted() {
@@ -118,7 +119,7 @@ export default {
       }
       params['page'] = this.currentPage
       params['page_size'] = this.pageSize
-      console.log("params",params)
+      this.tableLoading = true
       const res = await this.$XzyNetMessageService.post('xzy.shopifyV2.get_stock', params)
       let resObj = res && JSON.parse(res)
       let data = resObj && JSON.parse(resObj.data)
@@ -130,6 +131,7 @@ export default {
         })
         this.tableData = arr
       }
+      this.tableLoading = false
     },
     // 计算总库存
     totalStock(data) {

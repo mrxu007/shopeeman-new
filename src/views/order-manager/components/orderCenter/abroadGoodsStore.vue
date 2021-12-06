@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-11-16 20:01:09
- * @LastEditTime: 2021-11-24 22:27:47
+ * @LastEditTime: 2021-12-04 18:10:38
  * @LastEditors: Please set LastEditors
  * @Description: 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  * @FilePath: \shopeeman-new\src\views\order-manager\components\orderCenter\SelfGoodsStore.vue
@@ -17,7 +17,7 @@
     <div class="btn-header">
       <div class="item-box mar-right">
         <span>仓库名称：</span>
-        <el-select v-model="wid" size="mini" filterable>
+        <el-select v-model="wid" size="mini" filterable @change="searchTableList">
           <el-option label="全部" value="0" />
           <el-option v-for="(item, index) in widList" :key="index" :label="item.warehouse_name" :value="item.id" />
         </el-select>
@@ -36,7 +36,7 @@
       </div>
       <el-button type="primary" size="mini" style="margin-left: 10px" @click="searchTableList">搜 索</el-button>
     </div>
-    <el-table ref="multipleTable" :data="tableData" tooltip-effect="dark" max-height="500">
+    <el-table ref="multipleTable" :data="tableData" tooltip-effect="dark" height="500" v-loading="tableLoading">
       <el-table-column align="center" type="index" label="序号" width="50">
         <template slot-scope="scope">{{ (currentPage - 1) * pageSize + scope.$index + 1 }}</template>
       </el-table-column>
@@ -103,6 +103,7 @@ export default {
       sys_sku_id: '',
       sku_name: '',
       activeName: 'myStore',
+      tableLoading: false,
     }
   },
   props:{
@@ -131,7 +132,6 @@ export default {
     async getWareHouseList() {
       let myMap = new Map()
       let res = await this.$api.getOverseasWarehouse()
-      console.log(res, '123')
       if (res.data.code === 200) {
         let arr = res.data.data || []
         arr.forEach((item) => {
@@ -156,6 +156,7 @@ export default {
       }
       params['page'] = this.currentPage
       params['page_num'] = this.pageSize
+      this.tableLoading = true
       let res = await this.$XzyNetMessageService.post('xzy.getSharedIndex', params) //item.shared_id = item.id
       let resObj = res && JSON.parse(res)
       let data = resObj && JSON.parse(resObj.data)
@@ -170,7 +171,7 @@ export default {
            this.tableData.push(item)
         })  
       }
-      console.log(this.tableData, '4')
+      this.tableLoading = false
     },
     //获取海外仓
     async getAbroadList() {
@@ -183,6 +184,7 @@ export default {
       params['page'] = this.currentPage
       params['page_num'] = this.pageSize
       console.log(params)
+      this.tableLoading = true
       let res = await this.$XzyNetMessageService.post('xzy.stock.index', params)
       let resObj = res && JSON.parse(res)
       let data = resObj && JSON.parse(resObj.data)
@@ -194,7 +196,7 @@ export default {
         })
         this.tableData = arr
       }
-      console.log(data, '4454')
+      this.tableLoading = false
     },
     // 列表
     async searchTableList() {

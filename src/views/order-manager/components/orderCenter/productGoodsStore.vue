@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-11-16 20:01:09
- * @LastEditTime: 2021-11-24 15:47:33
+ * @LastEditTime: 2021-12-04 18:13:38
  * @LastEditors: Please set LastEditors
  * @Description: 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  * @FilePath: \shopeeman-new\src\views\order-manager\components\orderCenter\SelfGoodsStore.vue
@@ -37,7 +37,7 @@
       </div>
       <el-button type="primary" size="mini" style="margin-left:10px;" @click="searchTableList">搜 索</el-button>
     </div>
-    <el-table ref="multipleTable" :data="tableData" tooltip-effect="dark" max-height="500">
+    <el-table ref="multipleTable" :data="tableData" tooltip-effect="dark" height="500" v-loading="tableLoading">
       <el-table-column align="center" type="index" label="序号" width="50">
         <template slot-scope="scope">{{ (currentPage - 1) * pageSize + scope.$index + 1 }}</template>
       </el-table-column>
@@ -102,7 +102,8 @@ export default {
       searchTime:[],
       goodsName:'',//商品名称
       goodsCode:'',
-      skuCode:''
+      skuCode:'',
+      tableLoading:false,
     }
   },
   mounted() {
@@ -126,6 +127,7 @@ export default {
       }
       params['page'] = this.currentPage
       params['pageSize'] = this.pageSize
+      this.tableLoading = true
       const res = await this.$commodityService.getProductList(params)
       let resObj = res&&JSON.parse(res)
       console.log(resObj,"4")
@@ -136,6 +138,7 @@ export default {
          await this.getProductSkuList(item)
        })
      }
+     this.tableLoading = false
       console.log(this.tableData)
     },
     // SKU详情

@@ -195,7 +195,7 @@ export default class {
       const itemOrder = this.orders[index]
       let res = await this.$configService.getWarehouseInfo(itemOrder.mall_info.platform_mall_id)
       let warehouseList = res && JSON.parse(res) || []
-      console.log(warehouseList,"warehouseList",res)
+      console.log(warehouseList,"warehouseList",res,itemOrder.mall_info.platform_mall_id)
       //1.判断店铺是否有绑定仓库（未绑定提示：$"店铺【{mallname}】未匹配到收货地址，请前往【仓库收货地址设置】进行设置"  并返回不在继续拍单）
       if (!warehouseList.length) {
         return {
@@ -465,7 +465,7 @@ export default class {
       buyerName = "SPM-" + warehouseInfo.receiving_name;
     }
     if (configInfo.IsAutoAddOrderSnToBuyer) {
-      buyerName += "-" + itemOrder.order_sn.Substring(itemOrder.order_sn.Length - 6);
+      buyerName += "-" + itemOrder.order_sn.substring(itemOrder.order_sn.Length - 6);
     }
     addressUserInfo['buyerName'] = itemOrder.goods_info.ori_platform_id == 1 ? warehouseInfo.receiving_name : buyerName;
     //手机号处理
@@ -478,7 +478,7 @@ export default class {
         detailAddress += "#" + itemOrder.id;
       }
       if (configInfo.IsAutoAddOrderSnToAddress) {
-        detailAddress += "#" + itemOrder.order_sn.Substring(itemOrder.order_sn.Length - 6);
+        detailAddress += "#" + itemOrder.order_sn.substring(itemOrder.order_sn.Length - 6);
       }
     }
     if (itemOrder.goods_info.ori_platform_id == 1) {
