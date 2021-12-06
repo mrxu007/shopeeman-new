@@ -1962,6 +1962,7 @@ export default {
           this.needIvsInfo?.isBreakLogin === true ? this.isStop = true : '' // 用户是否中断操作
         }
         else if (code === 'error_require_captcha') { // 需要图片或者滑块验证 调LoginNeedPopUps 服务弹框
+          this.needCaptchaInfo = null
           await window.BaseUtilBridgeService.loginNeedPopUps('needCaptcha', JSON.stringify({ 'mallId': mallInfo.platform_mall_id }))
           await waitStart(()=>{
             return this.needCaptchaInfo
