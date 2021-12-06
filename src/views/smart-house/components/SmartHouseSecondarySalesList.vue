@@ -18,7 +18,15 @@
         </li>
         <li>
           <span>包裹创建时间：</span>
-          <el-date-picker v-model="form.returnCreateTime" unlink-panels size="mini" type="datetimerange" range-separator="-" start-placeholder="开始日期" end-placeholder="结束日期" />
+          <el-date-picker
+            v-model="form.returnCreateTime"
+            unlink-panels
+            size="mini"
+            type="daterange"
+            range-separator="-"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
+          />
         </li>
       </ul>
       <ul style="margin-bottom: 10px">
@@ -56,7 +64,7 @@
           ref="plTable"
           v-loading="Loading3"
           header-align="center"
-          height="calc(100vh - 283px)"
+          height="calc(100vh - 250px)"
           :data="tableData"
           :header-cell-style="{
             backgroundColor: '#f5f7fa',
@@ -88,14 +96,16 @@
             <template slot-scope="scope">
               <el-tooltip effect="light" placement="right-end" :visible-arrow="false" :enterable="false" style="width: 56px; height: 56px; display: inline-block">
                 <div slot="content">
-                  <el-image :src="[scope.row.country, scope.row.platform_mall_id, scope.row.goods_img] | imageRender" style="width: 250px; height: 250px" />
+                  <el-image :src="[scope.row.country, scope.row.platform_mall_id, scope.row.goods_img] | imageRender" style="width: 400px; height: 400px" />
                 </div>
                 <el-image :src="[scope.row.country, scope.row.platform_mall_id, scope.row.goods_img] | imageRender" style="width: 56px; height: 56px" />
               </el-tooltip>
             </template>
           </el-table-column>
           <el-table-column prop="goods_count" label="商品数量" min-width="120px" align="center" />
-          <el-table-column prop="goods_price" label="商品价格" min-width="120px" align="center" />
+          <el-table-column prop="goods_price" label="商品价格" min-width="120px" align="center">
+            <template slot-scope="{row}"><span>{{ row.goods_price }}{{ row.country | siteCoin }}</span></template>
+          </el-table-column>
           <el-table-column prop="variation_name" label="商品规格" min-width="180px" align="center" />
           <el-table-column prop="variation_id" label="商品货号（skuid）" min-width="140px" align="center" />
           <el-table-column prop="goods_name" label="商品名称" min-width="150px" align="center">
@@ -108,7 +118,8 @@
           </el-table-column>
           <el-table-column prop="return_create_time" label="包裹创建时间" min-width="150px" align="center" />
           <el-table-column prop="expired_at" label="过期时间" min-width="180px" align="center" />
-          <el-table-column prop="ext.free_storage_days" label="免租天数" min-width="100px" align="center" fixed="right" />
+          <el-table-column prop="ext.free_storage_days" label="免租天数" min-width="100px" align="center" />
+          <el-table-column prop="resale_order_sn" label="二次销售订单号" min-width="150px" align="center" fixed="right" />
         </el-table>
         <div class="pagination">
           <el-pagination
@@ -117,7 +128,7 @@
             :page-size="pageSize"
             layout="total,sizes, prev, pager, next, jumper"
             :total="total"
-            :page-sizes="[20, 50, 100, 200]"
+            :page-sizes="[100, 200]"
             @size-change="handleSizeChange"
             @current-change="handleCurrentChange"
           />
@@ -137,7 +148,7 @@ export default {
       currentPage: 1,
       tableData: [],
       total: 0,
-      pageSize: 50,
+      pageSize: 100,
       page: 1,
       form: {
         returnStatus: -1, // 二次销售状态
@@ -208,7 +219,7 @@ export default {
           this.$message.error('数据获取失败', data.message)
         }
       } catch (error) {
-        console.log(error)
+        console.log(`${error}`)
       }
       this.Loading1 = false
       this.Loading3 = false
@@ -234,6 +245,7 @@ export default {
         <td style="width: 200px; text-align:left;">包裹创建时间</td>
         <td style="width: 200px; text-align:left;">过期时间</td>
         <td style="width: 200px; text-align:left;">免租天数</td>
+        <td style="width: 200px; text-align:left;">二次销售订单号</td>
       </tr>`
         this.tableData.map((item) => {
           msg += `
@@ -254,6 +266,8 @@ export default {
           <td style="text-align:left;">${item.return_create_time || ''}</td>
           <td style="text-align:left;">${item.expired_at || ''}</td>
           <td style="text-align:left;">${item.ext.free_storage_days === null ? '' : item.ext.free_storage_days}</td>
+          <td style="text-align:left;">${item.resale_order_sn || ''}</td>
+      
         </tr>
         `
         })

@@ -5,7 +5,33 @@ export default class StrockUpHome {
   constructor(that) {
     this._this = that
   }
-
+  // 下载条形码
+  async downloadBarCode(params) {
+    try {
+      const res = await this._this.$BaseUtilService.downloadBarCode(params)
+      const jsonData = this.isJsonString(res)
+      console.log(jsonData)
+      if (jsonData.code === 200) {
+        return { code: 200 }
+      }
+      return { code: jsonData.code, data: `${jsonData.msg}` }
+    } catch (error) {
+      return { code: -2, data: `下载条形码异常： ${error}` }
+    }
+  }
+  // 判断能否转JSON
+  isJsonString(str) {
+    if (typeof str === 'string') {
+      try {
+        JSON.parse(str)
+        return JSON.parse(str)
+      } catch (e) {
+        return str
+      }
+    } else {
+      return str
+    }
+  }
   // 获取预报单列表
   async getHomeWarehouse(val) {
     try {
@@ -54,6 +80,19 @@ export default class StrockUpHome {
       return { code: res.data.code, data: `${res.data.message}` }
     } catch (error) {
       return { code: -2, data: `获取中转仓异常： ${error}` }
+    }
+  }
+  // 缓存中转仓
+  async temporaryCacheInfo(type, key, info) {
+    try {
+      const res = await this._this.$appConfig.temporaryCacheInfo(type, key, info)
+      const jsonData = this.isJsonString(res)
+      if (jsonData?.length) {
+        return { code: 200, data: jsonData }
+      }
+      return { code: 201 }
+    } catch (error) {
+      return { code: -2, data: `获取缓存中转仓异常： ${error}` }
     }
   }
   // 获取用户信息，用来判断中转仓的显示

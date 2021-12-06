@@ -22,10 +22,10 @@ export default class BroadDeliveryOrder {
   async cancelOverseaOrder(val) {
     try {
       const res = await this._this.$api.cancelOverseaOrder(val)
-      if (res.data.code === 200) {
+      if (Number(res.data.code) === 200) {
         return { code: 200 }
       }
-      return { code: res.data.code, data: `${res.data.message}` }
+      return { code: Number(res.data.code), data: `${res.data.message}` }
     } catch (error) {
       return { code: -2, data: `取消订单异常： ${error}` }
     }
@@ -72,16 +72,42 @@ export default class BroadDeliveryOrder {
       return { code: -2, data: `获取数据异常：${error}` }
     }
   }
-  // 获取仓库
+  // // 获取仓库
+  // async getOverseasWarehouse() {
+  //   try {
+  //     const res = await this._this.$api.getOverseasWarehouse()
+  //     if (res.data.code === 200) {
+  //       return { code: 200, data: res.data.data }
+  //     }
+  //     return { code: res.data.code, data: `${res.data.message}` }
+  //   } catch (error) {
+  //     return { code: -2, data: `获取仓库列表异常： ${error}` }
+  //   }
+  // }
+  // 获取仓库 --- 壳
   async getOverseasWarehouse() {
     try {
-      const res = await this._this.$api.getOverseasWarehouse()
-      if (res.data.code === 200) {
-        return { code: 200, data: res.data.data }
+      const res = await this._this.$appConfig.getGlobalCacheInfo('allWh', '')
+      const jsonData = this.isJsonString(res)
+      if (jsonData?.length) {
+        return { code: 200, data: jsonData }
       }
-      return { code: res.data.code, data: `${res.data.message}` }
+      return { code: 201, data: `仓库列表为空` }
     } catch (error) {
       return { code: -2, data: `获取仓库列表异常： ${error}` }
+    }
+  }
+  // 判断能否转JSON
+  isJsonString(str) {
+    if (typeof str === 'string') {
+      try {
+        JSON.parse(str)
+        return JSON.parse(str)
+      } catch (e) {
+        return str
+      }
+    } else {
+      return str
     }
   }
 }

@@ -65,6 +65,10 @@
 export default {
   name: 'AddressModel',
   props: {
+    isInit: {
+      type: Boolean,
+      default: false
+    }
   },
   data() {
     return {
@@ -127,7 +131,9 @@ export default {
     }
   },
   mounted() {
-    // this.init()
+    if (this.isInit) {
+      this.init()
+    }
   },
   methods: {
 

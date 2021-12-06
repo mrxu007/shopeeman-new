@@ -48,6 +48,7 @@
         ref="plTable"
         v-loading="isShowLoading"
         height="calc(100vh - 165px)"
+        :row-style="{ height: '45px' }"
         :data="tableData"
         :header-cell-style="{
           backgroundColor: '#f5f7fa',
@@ -84,6 +85,7 @@
           label="商品名称"
           align="center"
           min-width="140"
+          show-overflow-tooltip
         >
           <template slot-scope="{row}">
             {{ row.stock && row.stock.goods_name?row.stock.goods_name:'' }}
@@ -93,6 +95,7 @@
           label="商品规格"
           align="center"
           min-width="140"
+          show-overflow-tooltip
         >
           <template slot-scope="{row}">
             {{ row.stock && row.stock.sku_name?row.stock.sku_name:'' }}
@@ -136,7 +139,7 @@
         >
           <template slot-scope="{row}">
             <el-tooltip
-              v-if="row.stock.sku_image || row.stock.real_image_url"
+              v-if="row.stock.sku_image"
               effect="light"
               placement="right-end"
               :visible-arrow="false"
@@ -144,16 +147,19 @@
               style="width: 50px; height: 50px"
             >
               <div slot="content">
-                <img
-                  :src="row.stock.sku_image || row.stock.real_image_url"
-                  width="300px"
-                  height="300px"
+                <el-image
+                  style="width: 400px; height: 400px"
+                  :src="row.stock.sku_image"
                 >
+                  <div slot="error" class="image-slot" />
+                </el-image>
               </div>
               <el-image
                 style="width: 40px; height: 40px"
-                :src="row.stock.sku_image || row.stock.real_image_url"
-              />
+                :src="row.stock.sku_image"
+              >
+                <div slot="error" class="image-slot" />
+              </el-image>
             </el-tooltip>
           </template>
         </el-table-column>
@@ -243,6 +249,8 @@ export default {
           const resName = await this.ShareMyBroadStock.overseasWh(element.wid)
           if (resName.code === 200) {
             this.$set(element, 'warehouse_name', resName.data)
+          } else {
+            this.$set(element, 'warehouse_name', '')
           }
         }
         console.log('tableData', this.tableData)
@@ -259,10 +267,10 @@ export default {
         res.data.forEach(item => {
           this.widList = this.widList.concat(item.child)
         })
+        this.widList = this.widList.filter((item) => !myMap.has(item.id) && myMap.set(item.id, 1))
       } else {
         this.$message.error(res.data)
       }
-      this.widList = this.widList.filter((item) => !myMap.has(item.id) && myMap.set(item.id, 1))
     },
     // 打开商品链接
     openUrl(row) {
@@ -281,8 +289,12 @@ export default {
         if (res.code === 200) {
           const resData = res.data.data
           resData.forEach(async item => {
-            const resName = await this.ShareBroadStock.overseasWh(item.wid)
-            item.warehouse_name = resName.data
+            const resName = await this.ShareMyBroadStock.overseasWh(item.wid)
+            if (resName.code === 200) {
+              item.warehouse_name = resName.data
+            } else {
+              item.warehouse_name = ''
+            }
             exportData.push(item)
           })
           params.page++
@@ -309,7 +321,7 @@ export default {
         str += `<tr>
         <td>${item.warehouse_name ? item.warehouse_name : '' + '\t'}</td>
         <td>${item.sys_sku_id ? item.sys_sku_id : '' + '\t'}</td>
-        <td>${item.stock && item.stock.sku_id ? item.stock.sku_id : '' + '\t'}</td>
+        <td style="mso-number-format:'\@';">${item.stock && item.stock.sku_id ? item.stock.sku_id : '' + '\t'}</td>
         <td>${item.stock && item.stock.goods_name ? item.stock.goods_name : '' + '\t'}</td>
         <td>${item.stock && item.stock.sku_name ? item.stock.sku_name : '' + '\t'}</td>
         <td>${this.statusObj[item.status] ? this.statusObj[item.status] : '' + '\t'}</td>

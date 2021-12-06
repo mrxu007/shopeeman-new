@@ -24,7 +24,7 @@
     <main v-if="activeVal === '3'"><OrderManagerDeliveryManagement /></main>
 
     <!--丢件信息查询 -->
-    <main v-if="activeVal === '4'"><OrderManagerLostSearch /></main>
+    <main v-if="activeVal === '4'"><OrderManagerLostInfoQuery /></main>
 
     <!--采购价变更记录 -->
     <main v-if="activeVal === '6'"><OrderManagerChangeRecord /></main>
@@ -39,8 +39,8 @@ import {
   OrderManagerAfterSales,
   OrderManagerReceivingAddress,
   OrderManagerDeliveryManagement,
-  // OrderManagerLostInfoQuery,
-  // OrderManagerChangeRecord,
+  OrderManagerLostInfoQuery,
+  OrderManagerChangeRecord,
   OrderManagerStoreAdressSet
 } from './index'
 export default {
@@ -50,8 +50,8 @@ export default {
     OrderManagerAfterSales,
     OrderManagerReceivingAddress,
     OrderManagerDeliveryManagement,
-    // OrderManagerLostInfoQuery,
-    // OrderManagerChangeRecord,
+    OrderManagerLostInfoQuery,
+    OrderManagerChangeRecord,
     OrderManagerStoreAdressSet
   },
   data() {

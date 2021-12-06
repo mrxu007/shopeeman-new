@@ -3,36 +3,39 @@
     <div class="category-choose-box">
       <category-choose :level="2" @setCategory="setCategory" />
       <el-button size="mini" type="primary" @click="getKeyWord">查询</el-button>
-      <el-button size="mini" @click="exportData">导出</el-button>
+      <el-button size="mini" type="primary" @click="exportData">导出</el-button>
     </div>
     <div class="content">
-      <el-table ref="multipleTable" v-loading="tableLoading" :row-style="{ height: '50px' }" :data="tableData" tooltip-effect="dark" :height="'calc(100vh - 80px)'">
+      <el-table ref="multipleTable" v-loading="tableLoading" :row-style="{ height: '50px' }" :data="tableData" tooltip-effect="dark" :height="'calc(100vh - 120px)'">
         <el-table-column align="center" type="index" label="序号" min-width="50" fixed>
           <template slot-scope="scope">{{ (currentPage - 1) * pageSize + scope.$index + 1 }}</template>
         </el-table-column>
         <el-table-column min-width="80px" label="站点" prop="country" align="center" fixed>
           <template slot-scope="scope">{{ scope.row.platform_id | chineseSite }}</template>
         </el-table-column>
-        <el-table-column min-width="150px" label="一级类目" prop="" align="center">
+        <el-table-column min-width="150px" label="一级类目" show-overflow-tooltip prop="" align="center">
           <template slot-scope="scope">{{ scope.row.display_path.split('>')[0] }}({{ scope.row.display_path_cn.split('>')[0] }})</template>
         </el-table-column>
-        <el-table-column min-width="150px" label="二级类目" prop="" align="center">
+        <el-table-column min-width="150px" label="二级类目" show-overflow-tooltip prop="" align="center">
           <template slot-scope="scope">{{ scope.row.display_path.split('>')[1] &&
             (scope.row.display_path.split('>')[1]+'('+scope.row.display_path_cn.split('>')[1]+')') || '' }}</template>
         </el-table-column>
-        <el-table-column min-width="150px" label="热搜词分类类目" prop="" align="center">
-          <template slot-scope="scope">{{ scope.row.hotKeywords[0]&&scope.row.hotKeywords[0].keyword_name }}</template>
+        <el-table-column min-width="150px" label="热搜词分类类目" show-overflow-tooltip prop="" align="center">
+          <template slot-scope="scope">{{ scope.row.display_path.split('>')[1] &&
+            (scope.row.display_path.split('>')[1]+'('+scope.row.display_path_cn.split('>')[1]+')') || '' }}</template>
         </el-table-column>
-        <el-table-column min-width="100px" label="热搜词名称" prop="" align="center">
+          <!-- <template slot-scope="scope">{{ scope.row.hotKeywords[0]&&scope.row.hotKeywords[0].keyword_name }}</template> -->
+        </el-table-column>
+        <el-table-column min-width="100px" label="热搜词名称" show-overflow-tooltip prop="" align="center">
           <template slot-scope="scope">{{ scope.row.hotKeywords[0]&&scope.row.hotKeywords[0].keyword_name || '' }}</template>
         </el-table-column>
-        <el-table-column min-width="100px" label="产品数" prop="" align="center">
+        <el-table-column min-width="100px" label="产品数" show-overflow-tooltip prop="" align="center">
           <template slot-scope="scope">{{ scope.row.hotKeywords[0]&&scope.row.hotKeywords[0].total_count || '' }}</template>
         </el-table-column>
-        <el-table-column min-width="100px" label="更新时间" prop="created_at" align="center">
+        <el-table-column min-width="100px" label="更新时间" show-overflow-tooltip prop="created_at" align="center">
           <template slot-scope="scope">{{ $dayjs(scope.row.update_time*1000).format('YYYY-MM-DD') }}</template>
         </el-table-column>
-        <el-table-column min-width="100px" label="近30天销量" prop="warehouse_name" align="center" fixed="right">
+        <el-table-column min-width="100px" label="近30天销量" show-overflow-tooltip prop="warehouse_name" align="center" fixed="right">
           <template slot-scope="scope">{{ scope.row.hotKeywords[0]&&scope.row.hotKeywords[0].keyword_month_sales || '' }}</template>
         </el-table-column>
       </el-table>
@@ -69,7 +72,7 @@ export default {
       tableLoading: false,
       currentPage: 1,
       total: 0,
-      pageSize: 20
+      pageSize: 100
     }
   },
   mounted() {

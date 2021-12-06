@@ -75,12 +75,14 @@
           align="center"
           min-width="150"
           prop="goods_name"
+          show-overflow-tooltip
         />
         <el-table-column
           label="商品规格"
           align="center"
           min-width="150"
           prop="sku_name"
+          show-overflow-tooltip
         />
         <el-table-column
           label="采购数量"
@@ -129,24 +131,24 @@
         >
           <template slot-scope="{row}">
             <el-tooltip
-              v-if="row.sku_image"
-              effect="light"
-              placement="right-end"
-              :visible-arrow="false"
-              :enterable="false"
-              style="width: 50px; height: 50px"
+              style="width: 40px; height: 40px"
+              :src="row.sku_image"
+              :preview-src-list="[row.sku_image]"
             >
               <div slot="content">
-                <img
+                <el-image
+                  style="width: 400px; height: 400px"
                   :src="row.sku_image"
-                  width="300px"
-                  height="300px"
                 >
+                  <div slot="error" class="image-slot" />
+                </el-image>
               </div>
               <el-image
                 style="width: 40px; height: 40px"
                 :src="row.sku_image"
-              />
+              >
+                <div slot="error" class="image-slot" />
+              </el-image>
             </el-tooltip>
           </template>
         </el-table-column>
@@ -169,6 +171,7 @@
           align="center"
           min-width="100"
           prop="position_code"
+          show-overflow-tooltip
         />
       </el-table>
       <div class="pagination">
@@ -228,10 +231,12 @@ export default {
         this.total = res.data.total
         for (let index = 0; index < this.tableData.length; index++) {
           const element = this.tableData[index]
-          // 获取海外仓库中文名
+          // 获取仓库中文名
           const resName = await this.ChineseStock.transferWarehouse(element.wid)
           if (resName.code === 200) {
             this.$set(element, 'warehouse_name', resName.data)
+          } else {
+            this.$set(element, 'warehouse_name', '')
           }
         }
         console.log('tableData', this.tableData)
@@ -249,30 +254,40 @@ export default {
         this.$message.error(res.data)
       }
     },
-    // 获取仓库
+    // 获取中转仓
     async getWarehouseList() {
+      let data = []
       const myMap = new Map()
-      const res = await this.ChineseStock.getWarehouseList()
-      if (res.code === 200) {
-        res.data.forEach(item => {
-          if (item.user_ids) {
-            const flag = item.user_ids.some(uItem => {
-              return uItem === this.muid
-            })
-            if (flag) {
-              this.widList.push(item)
-            }
-          } else {
-            if (item.status !== 2) {
-              this.widList.push(item)
-            }
-          }
-        })
-        this.widList = this.widList.filter((item) => !myMap.has(item.id) && myMap.set(item.id, 1))
-        this.form.wid = this.widList[0].wid
+      // 判断是否缓存 有则使用缓存数据 没有则调取服务端 然后缓存一份
+      const res1 = await this.ChineseStock.temporaryCacheInfo('get', 'getWarehouseList', '')
+      if (res1.code === 200) {
+        data = res1.data
       } else {
-        this.$message.error(`${res.data}`)
+        const res2 = await this.ChineseStock.getWarehouseList()
+        if (res2.code === 200) {
+          data = res2.data
+          await this.ChineseStock.temporaryCacheInfo('save', 'getWarehouseList', data)
+        } else {
+          this.$message.error(`${res2.data}`)
+          return
+        }
       }
+      data.forEach(item => {
+        // 判断user_ids是否有值 没有则判断状态 有则只显示与muid对应的
+        if (item.user_ids) {
+          const flag = item.user_ids.some(uItem => { return uItem === this.muid })
+          if (flag) {
+            this.widList.push(item)
+          }
+        } else {
+          // 弹窗仓库列表不需要判断
+          if (item.status !== 2) {
+            this.widList.push(item)
+          }
+        }
+      })
+      this.widList = this.widList.filter((item) => !myMap.has(item.id) && myMap.set(item.id, 1))
+      this.form.wid = this.widList[0].wid
     },
     // 打开商品链接
     openUrl(row) {
@@ -291,8 +306,12 @@ export default {
         if (res.code === 200) {
           const resData = res.data.data
           resData.forEach(async item => {
-            const resName = await this.ShareBroadStock.overseasWh(item.wid)
-            item.warehouse_name = resName.data
+            const resName = await this.ChineseStock.transferWarehouse(item.wid)
+            if (resName.code === 200) {
+              item.warehouse_name = resName.data
+            } else {
+              item.warehouse_name = ''
+            }
             exportData.push(item)
           })
           params.page++
@@ -320,7 +339,7 @@ export default {
       exportData.forEach(item => {
         str += `<tr>
         <td>${item.warehouse_name ? item.warehouse_name : '' + '\t'}</td>
-        <td>${item.sku_id ? item.sku_id : '' + '\t'}</td>
+        <td style="mso-number-format:'\@';">${item.sku_id ? item.sku_id : '' + '\t'}</td>
         <td>${item.goods_name ? item.goods_name : '' + '\t'}</td>
         <td>${item.sku_name ? item.sku_name : '' + '\t'}</td>
         <td>${item.purchase_num ? item.purchase_num : '' + '\t'}</td>

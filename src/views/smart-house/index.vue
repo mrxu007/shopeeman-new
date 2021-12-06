@@ -42,7 +42,9 @@
     <main v-if="activeVal === '9'"><SmartHouseStockUpHome /></main>
 
     <!-- 库存列表-海外仓库存 -->
-    <main v-if="activeVal === '10'"><SmartHouseaBroadStock /></main>
+<!--    <main v-if="activeVal === '10'"><SmartHouseaBroadStock /></main>-->
+    <!-- 海外仓共享库存管理 -->
+    <main v-if="activeVal === '10'"><SmartHouseOverseasWarehouse /></main>
 
     <!-- 库存列表-海外仓共享库存管理 -->
     <main v-if="activeVal === '11'"><SmartHouseShareBroadStockManager /></main>
@@ -60,13 +62,10 @@
     <main v-if="activeVal === '15'"><SmartHouseChineseDeliveryOrder /></main>
 
     <!-- 海外仓补件列表 -->
-    <main v-if="activeVal === '16'"><SmartHouseBroadPickUpList /></main>
-
-    <!-- 海外仓共享库存管理 -->
-    <main v-if="activeVal === '17'"><SmartHouseOverseasWarehouse /></main>
+<!--    <main v-if="activeVal === '16'"><SmartHouseBroadPickUpList /></main>-->
 
     <!-- 海外仓补件列表 -->
-    <main v-if="activeVal === '18'"><SmartHouseOverseasLupplementList /></main>
+    <main v-if="activeVal === '16'"><SmartHouseOverseasLupplementList /></main>
   </div>
 </template>
 
