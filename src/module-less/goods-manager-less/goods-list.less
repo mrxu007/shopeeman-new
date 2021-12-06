@@ -1,0 +1,36 @@
+.contaniner{
+    margin:10px 10px 0 10px;
+    .header {
+      background: white;
+      padding: 16px;
+      overflow: auto;
+      border-radius: 5px;
+      ul{
+        display: flex;
+        width: 664px;
+          li{
+            line-height: 24px;
+            display: flex;
+            margin-right: 20px;
+            /deep/.el-input{
+              width: 155px !important;
+            }
+          }
+      }
+    }
+    #article {
+      border-radius: 5px;
+      overflow: hidden;
+      background: white;
+      margin-top: 10px;
+      padding: 16px;
+      /deep/.el-icon-question{
+        cursor: pointer !important;
+        margin-left: 2px;
+      }
+    }
+    .pagination{
+      text-align: right;
+      margin-top: 10px;
+    }
+  }
