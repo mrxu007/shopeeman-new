@@ -154,7 +154,7 @@
           </template>
         </u-table-column>
         <u-table-column align="center" prop="item_limit" label="店铺额度" />
-        <u-table-column align="center" prop="mall_alias_name" label="店铺别名" width="150">
+        <u-table-column align="center" prop="mall_alias_name" label="店铺别名" width="150" sortable>
           <template v-slot="{ row }">
             <div>
               <el-input
@@ -170,7 +170,7 @@
             </div>
           </template>
         </u-table-column>
-        <u-table-column align="center" prop="web_login_info" label="登录状态" show-overflow-tooltip="">
+        <u-table-column align="center" prop="LoginInfo" label="登录状态" show-overflow-tooltip sortable>
           <template v-slot="{ row }">
             <span v-html="row.LoginInfo" />
             <span class="copyIcon" @click="copy(row.LoginInfo)"><i class="el-icon-document-copy" /></span>
@@ -611,7 +611,7 @@
 
 <script>
 import MallListAPI from '../../../module-api/mall-manager-api/mall-list-api'
-import { delay, exportExcelDataCommon, waitStart ,importOrder } from '../../../util/util'
+import { delay, exportExcelDataCommon, waitStart, importOrder } from '../../../util/util'
 import { batchOperation } from '@/util/util'
 
 import xlsx from 'xlsx'
@@ -1666,7 +1666,7 @@ export default {
             // 一键登录、不强制登录，就走检测功能
           // 强制登录不检测是否已经登录
             const userInfo = await this.mallListAPIInstance.getUserInfo(item)
-            console.log('userInfo',userInfo)
+            console.log('userInfo', userInfo)
             if (userInfo.code === 200) {
               item.LoginInfo = `<p style="color: green">快速登录成功</p>`
               item.loginStatus = 'success'
@@ -1691,25 +1691,25 @@ export default {
           }
           // 2、shopeeMan官方登录
           let res = await this.$shopeemanService.login(item, this.flat)
-          console.log('login',res)
+          console.log('login', res)
           if (res.code !== 200) {
-            if(this.flat === 1){
+            if (this.flat === 1) {
               item.LoginInfo = `<p style="color: red">登录失败：${res.data.message || errorStr}</p>`
-            }else{
+            } else {
               this.writeLog(`(${i + 1}/${len})账号【${platform_mall_name}】授权失败：${res.data.message}`, false)
             }
 
             console.log('handleResult - parm')
             // const handleResult = await this.handleReturnLogin(item, {code:'error_need_ivs',data:''})
             const handleResult = await this.handleReturnLogin(item, res)
-            console.log('handleResult',handleResult)
+            console.log('handleResult', handleResult)
             if (handleResult.code === 200) { // 3、处理登录弹框
               res = handleResult
             } else {
               item.loginStatus = 'fail'
-              if(this.flat === 1){
+              if (this.flat === 1) {
                 item.LoginInfo = `<p style="color: red">登录失败：${handleResult.data || errorStr}</p>`
-              }else {
+              } else {
                 this.writeLog(`(${i + 1}/${len})账号【${platform_mall_name}】授权失败：${handleResult.data}`, false)
               }
               continue
@@ -1799,7 +1799,7 @@ export default {
             mallId: mallId,
             webLoginInfo: JSON.stringify(res.data.Cookie)
           }
-          console.log('uploadMallCookie',params)
+          console.log('uploadMallCookie', params)
           const res6 = await this.mallListAPIInstance.uploadMallCookie(params) // 上报店铺信息cookie (服务端)
           if (res6.code !== 200) {
           // console.log('店铺上传失败', res.data)
@@ -1831,7 +1831,7 @@ export default {
             break
           }
         } catch (error) {
-          console.log('error',error)
+          console.log('error', error)
           this.flat === 1 ? (item.LoginInfo = `<p style="color: red">登录失败：${error}</p>`) : this.writeLog(`(${i + 1}/${len})账号【${platform_mall_name}】授权失败：${error}`, false)
           continue
         }
@@ -1911,13 +1911,13 @@ export default {
           // 需要进行IVS验证 调LoginNeedPopUps 服务弹框
           // debugger
           this.needIvsInfo = null
-          let loginRes = await this.$BaseUtilService.loginNeedPopUps('needIvs',{ 'loginType': 'login', 'isOpenAuthMallProxy': 'true', 'mallId': mallInfo.platform_mall_id })
-          console.log('loginRes',loginRes)
-          let mallId= mallInfo.platform_mall_id
-          await waitStart(()=>{
-              return this.needIvsInfo && this.needIvsInfo.shopId == mallId
-          },300)
-          console.log('loginNeedPopUps',JSON.stringify(this.needIvsInfo))
+          const loginRes = await this.$BaseUtilService.loginNeedPopUps('needIvs', { 'loginType': 'login', 'isOpenAuthMallProxy': 'true', 'mallId': mallInfo.platform_mall_id })
+          console.log('loginRes', loginRes)
+          const mallId = mallInfo.platform_mall_id
+          await waitStart(() => {
+            return this.needIvsInfo && this.needIvsInfo.shopId == mallId
+          }, 300)
+          console.log('loginNeedPopUps', JSON.stringify(this.needIvsInfo))
           if (this.needIvsInfo?.code === 200) {
             const mallCookieInfos = this.needIvsInfo.mallCookieInfos
             const SPC_EC = mallCookieInfos.find(item => item.Name === 'SPC_EC')
@@ -1926,7 +1926,7 @@ export default {
             const SPC_STK = mallCookieInfos.find(item => item.Name === 'SPC_STK')
             const SPC_U = mallCookieInfos.find(item => item.Name === 'SPC_U')
             const SPC_SC_UD = mallCookieInfos.find(item => item.Name === 'SPC_SC_UD')
-            console.log('SPC_F',SPC_F)
+            console.log('SPC_F', SPC_F)
             // 1、拿到cookie信息更新壳内 SPC_EC 、SPC_SC_TK 、SPC_F、SPC_STK 其它cookie信息存入OtherCookieInfo中）
             let mallDataInfo = await this.$appConfig.getGlobalCacheInfo('mallInfo', mallInfo.platform_mall_id)
             let cookieObj = {}
@@ -1947,8 +1947,8 @@ export default {
             await this.$appConfig.updateInfoMall(mallInfo.platform_mall_id, JSON.stringify(mallDataInfo)) // 更新里面店铺的cookie （壳）
             mallDataInfo = null
             // 2、更新cookie信息后，在调用登录接口： /api/v2/login/   get方法  无参 获取到接口响应头部cookie  再次更新cookie信息即可
-            const loginInfo2 = await this.$shopeemanService.getLogin(mallInfo,SPC_F.Value)
-            console.log('loginInfo2',loginInfo2)
+            const loginInfo2 = await this.$shopeemanService.getLogin(mallInfo, SPC_F.Value)
+            console.log('loginInfo2', loginInfo2)
             if (loginInfo2.code === 200) {
               code = loginInfo2.code
               message = loginInfo2.data
@@ -1960,17 +1960,14 @@ export default {
             this.needIvsInfo = null
           }
           this.needIvsInfo?.isBreakLogin === true ? this.isStop = true : '' // 用户是否中断操作
-        }
-        else if (code === 'error_require_captcha') { // 需要图片或者滑块验证 调LoginNeedPopUps 服务弹框
+        } else if (code === 'error_require_captcha') { // 需要图片或者滑块验证 调LoginNeedPopUps 服务弹框
           await window.BaseUtilBridgeService.loginNeedPopUps('needCaptcha', JSON.stringify({ 'mallId': mallInfo.platform_mall_id }))
           if (this.needCaptchaInfo?.code === 200) {
             const sortData = this.mallListAPIInstance.sortMallData(mallInfo, this.needCaptchaInfo.data)
             this.needCaptchaInfo = null
             return { code: 200, data: sortData }
           }
-        }
-        else if (code === 'error_need_otp') {
-
+        } else if (code === 'error_need_otp') {
           // 输入手机验证码即可
           // 1、打开弹框，让用户输入验证码
           this.phoneCodeVisiable = true
@@ -1992,8 +1989,7 @@ export default {
             }
             this.phoneInfo_message_code = ''
           }
-        }
-        else if (code === 0 && message === '' && mallInfo.platform_mall_id !== '8888888888') { // 无任何返回信息，去查看绑定ip是否过期
+        } else if (code === 0 && message === '' && mallInfo.platform_mall_id !== '8888888888') { // 无任何返回信息，去查看绑定ip是否过期
           let mallData = await this.$appConfig.getGlobalCacheInfo('mallInfo', mallInfo.platform_mall_id)
           mallData = JSON.parse(mallData)
           console.log('mallData', mallData)
@@ -2002,7 +1998,7 @@ export default {
             message = '店铺隔离IP已经过期请续费，或者手动解绑IP'
           }
         }
-        console.log('message',message)
+        console.log('message', message)
         return { code, data: message }
       } catch (error) {
         return { code: -2, data: `handleReturnLogin-catch${error}` }
@@ -2053,7 +2049,7 @@ export default {
           mallId: element.platform_mall_id,
           webLoginInfo: JSON.stringify(element.web_login_info)
         }
-        console.log('uploadMallCookie',params)
+        console.log('uploadMallCookie', params)
         const res = await this.mallListAPIInstance.uploadMallCookie(params) // 更新服务器数据
         if (res.code === 200) {
           this.$set(element, 'status', '更新成功')
@@ -2093,10 +2089,10 @@ export default {
       this.importMallDialogVisible = true
     },
     async exportMall() {
-      let titleData = ['分组','站点','店铺真实名称','店铺ID','店铺账号','店铺水印文字','店铺额度','店铺别名','店铺状态','授权日期']
-      let jsonData = []
-      this.mallList.forEach(item=>{
-        let temp = []
+      const titleData = ['分组', '站点', '店铺真实名称', '店铺ID', '店铺账号', '店铺水印文字', '店铺额度', '店铺别名', '店铺状态', '授权日期']
+      const jsonData = []
+      this.mallList.forEach(item => {
+        const temp = []
         temp[0] = item.group_name || ''
         temp[1] = this.$filters.chineseSite(item.country) || ''
         temp[2] = item.platform_mall_name || ''
@@ -2109,7 +2105,7 @@ export default {
         temp[9] = item.created_at
         jsonData.push(temp)
       })
-      await importOrder(titleData,jsonData,'店铺信息')
+      await importOrder(titleData, jsonData, '店铺信息')
       // // 下载店铺信息
       // let template = `<tr>
       //   <td style="width: 200px; text-align:left;">分组</td>
