@@ -80,7 +80,7 @@
       <div class="data_table" style="height: 100%; background-color: white">
         <el-table
           v-loading="isLoading"
-          height="calc(100vh - 276px)"
+          height="calc(100vh - 266px)"
           :data="tableList"
           :row-style="{ height: '50px' }"
           :header-cell-style="{ background: '#f7fafa' }"
@@ -91,7 +91,11 @@
               {{ row.country | chineseSite }}
             </template>
           </el-table-column>
-          <el-table-column prop="platform_mall_name" min-width="120px" label="店铺名称" align="center" />
+          <el-table-column min-width="120px" label="店铺名称" align="center">
+            <template v-slot="{row}">
+              {{ row.mall_alias_name?row.mall_alias_name:row.platform_mall_name }}
+            </template>
+          </el-table-column>
           <el-table-column prop="order_sn" label="订单编号" min-width="120px" align="center" />
           <el-table-column prop="" min-width="80px" label="状态" align="center">
             <template slot-scope="{ row }">{{ Number(row.status) === 1 ? '已拨款 ' : '即将拨款' }}</template>
