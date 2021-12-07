@@ -320,7 +320,7 @@ export default class CommodityService {
    * @param {{skuId:string,skuSpec1:string,skuSpec2:string,skuImage:string,skuPrice:number,skuStock:string}[]} skuList sku数据集合
    */
   saveAndUpdateSkuDatas(sysGoodsId, skuList) {
-    return this.nativeService.callFunction('SaveAndUpdateSkuDatas', sysGoodsId.toString(), JSON.stringify(skuList))
+    return this.nativeService.callFunction('SaveAndUpdateSkuDatas', sysGoodsId.toString(), skuList)
   }
 
   /**

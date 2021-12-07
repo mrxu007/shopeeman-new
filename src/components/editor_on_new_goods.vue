@@ -47,7 +47,7 @@
           <span></span>
           <el-button size="mini" @click="" type="primary">保存配置信息</el-button>
           <el-button size="mini" @click="selectDescribe(0)" type="primary">选择模板</el-button>
-          <el-button size="mini" @click="loginAliTranslation" type="primary">登陆阿里翻译</el-button>
+          <el-button size="mini" @click="loginAliTranslation" type="primary">登录阿里翻译</el-button>
         </div>
         <div class="basisInstall-box">
           <div>商品描述：</div>
@@ -214,8 +214,8 @@
       <u-table-column align="left" label="操作" width="140">
         <template v-slot="scope">
           <div style="display: flex;align-items: center;">
-            <el-button size="mini" @click="">删除</el-button>
-            <el-button size="mini" @click="" type="primary">编辑</el-button>
+            <el-button size="mini" @click="updateGoodsEdit(scope.row)">删除</el-button>
+            <el-button size="mini" @click="updateGoodsEdit(scope.row,1)" type="primary">编辑</el-button>
           </div>
         </template>
       </u-table-column>
@@ -228,8 +228,11 @@
       </u-table-column>
     </u-table>
     <div class="on_new_dialog">
-      <el-dialog title="编辑标题描述" width="620px" :close-on-click-modal="false" :modal="false"
-                 :visible.sync="titleDescribeVisible">
+      <el-dialog title="商品编辑" width="1000px" top="8vh" :close-on-click-modal="false"
+                 :close-on-press-escape="false" :modal="false" :visible.sync="goodsEditorVisible">
+        <goods-edit-details v-if="goodsEditorVisible" :goodsEditor="goodsEditor"></goods-edit-details>
+      </el-dialog>
+      <el-dialog title="编辑标题描述" width="620px" :close-on-click-modal="false" :modal="false" :visible.sync="titleDescribeVisible">
         <div class="watermark_dialog">
           <div class="on_new_dialog_box">
             <div class="keepRight" style="width: 60px;">标签：</div>
@@ -267,8 +270,7 @@
           </div>
         </div>
       </el-dialog>
-      <el-dialog title="描述模板" width="500px" :close-on-click-modal="false" :modal="false"
-                 :visible.sync="describeVisible">
+      <el-dialog title="描述模板" width="500px" :close-on-click-modal="false" :modal="false" :visible.sync="describeVisible">
         <div class="watermark_dialog">
           <div class="on_new_dialog_box">
             <div style="display: flex;align-items: center;">
@@ -301,7 +303,8 @@
 
 <script>
   import { source, sourceObj } from '../views/product-put-on/components/collection-platformId'
-  import { batchOperation } from '../util/util'
+  import goodsEditDetails from './goods-edit-details'
+  import { batchOperation ,selfAliYunTransImage } from '../util/util'
 
   export default {
     name: 'editor_on_new_goods',
@@ -339,10 +342,10 @@
         //翻译
         translationConfig: {
           titleChecked: true,
-          describeChecked: true,
+          describeChecked: false,
           specChecked: true,
           languages: 'th', // 翻译语种
-          failureType: '',  // 失败类型
+          failureType: 1,  // 失败类型
           before: 0,  // 翻译前
           after: ''  // 翻译后
         },  // 文字
@@ -433,7 +436,10 @@
         labelList: [],
         sourceObj: null,
         source: null,
-        userInfo: null
+        userInfo: null,
+        goodsEditorVisible:false,
+        goodsEditor:null,
+        isTranslationText:true,
       }
     },
     props: {
@@ -456,6 +462,7 @@
         this.describeConfig.lable = item && item.lable || ''
       }
     },
+    components: { goodsEditDetails },
     computed: {
       // 获取标签名
       getLabelName() {
@@ -488,7 +495,7 @@
     },
     methods: {
       // 开启任务
-      batchDealWith(type, data) {
+      async batchDealWith(type, data) {
         console.log('type:', type)
         if (this.mallTableSelect.length < 1) {
           this.$message.error('请选择一个商品信息')
@@ -501,6 +508,43 @@
         } else if (type === 3) {
           this.titleDescribeVisible = true
         } else if (type === 4) {
+        } else if (type === 15) {
+          this.isTranslationText = false
+          let res = await batchOperation(this.mallTableSelect, this.translationDate,this.threadNumber)
+          this.isTranslationText = true
+        } else if (type === 16) {
+        } else if (type === 17) {
+          let length = this.mallTableSelect.length
+          this.$confirm('共选中'+length+'个商品是否删除?', '提示', {
+            confirmButtonText: '确定',
+            cancelButtonText: '取消',
+            type: 'warning'
+          }).then(() => {
+            this.mallTableSelect.forEach(item=>{
+              this.updateGoodsEdit(item)
+            })
+            this.$message({
+              type: 'success',
+              message: '删除成功!'
+            });
+          }).catch(() => {
+            this.$message({
+              type: 'info',
+              message: '已取消删除'
+            });
+          });
+        }
+      },
+      //商品编辑控制
+      async updateGoodsEdit(item,type){
+        if(type){
+          this.goodsEditor = item
+          this.goodsEditorVisible = true
+        }else{
+          let json = await this.$commodityService.deleteCollectGoodsInfo([item.id])
+          let index = this.mallTable.findIndex(i => i.id === item.id)
+          this.mallTable.splice(index, 1)
+          console.log(json)
         }
       },
 
@@ -511,7 +555,7 @@
             params.push(item)
           }
         })
-        let res = await batchOperation(params, this.titleDescribeUpdate)
+        let res = await batchOperation(params, this.titleDescribeUpdate, this.threadNumber)
       },
       async titleDescribeUpdate(item, count = { count: 1 }) {
         let index = this.mallTable.findIndex(i => i.id === item.id)
@@ -542,15 +586,18 @@
             keyList.forEach(i => {
               tempText = tempText.replaceAll(i, '')
             })
-          } else if (this.titleDescribeHandleRadio === 1 || this.titleDescribeHandleRadio === 2) {
+          }
+          else if (this.titleDescribeHandleRadio === 1 || this.titleDescribeHandleRadio === 2) {
             let keyStr = keyList.join(' ')
             tempText = this.titleDescribeHandleRadio === 1 ? (keyStr + ' ' + tempText) : (tempText + ' ' + keyStr)
-          } else if (this.titleDescribeHandleRadio === 3) {
+          }
+          else if (this.titleDescribeHandleRadio === 3) {
             if (this.titleDescribeTypeRadio) {
               this.$message.error('此次操作为编辑商品描述')
               return false
             }
-          } else if (this.titleDescribeHandleRadio === 4) {
+          }
+          else if (this.titleDescribeHandleRadio === 4) {
             keyList.forEach(i => {
               let key = i.split(';')
               let oldStr = key[0] || ''
@@ -598,14 +645,16 @@
           let index = this.aLiUsernameList.findIndex(i => i.name === params.name)
           if (index >= 0) {
             this.aLiUsernameList[index] = params
+          }else{
+            this.aLiUsernameList.push(params)
           }
         } else {
-          this.$message.error('阿里翻译账户上报失败')
+          this.$message.error('阿里翻译账号上报失败')
         }
       },
       async joinAliTranslation() {
         if (!this.aLiUsername) {
-          this.$message.error('请选择一个阿里翻译账户')
+          this.$message.error('请选择一个阿里翻译账号')
         }
         let index = this.aLiUsernameList.findIndex(i => i.name === this.aLiUsername)
         let aLiUsername = this.aLiUsernameList[index]
@@ -633,7 +682,7 @@
           this.aLiUsername = ''
           this.aLiUsernameList.splice(index, 1)
         } else {
-          this.$message.error('阿里翻译账户删除失败')
+          this.$message.error('阿里翻译账号删除失败')
         }
       },
       async selectDescribe(type) {
@@ -677,7 +726,7 @@
       },
       async translationPrepare(type) {
         if (type === 1) {
-          let res = await batchOperation(this.mallTableSelect, this.translationDate)
+          let res = await batchOperation(this.mallTableSelect, this.translationDate,this.threadNumber)
         }
       },
       async translationDate(item, count = { count: 1 }) {
@@ -685,10 +734,16 @@
         this.$set(this.mallTable[index], 'operation_type', '正在翻译...')
         try {
           let success = true
-          if (item.language.toLocaleUpperCase() !== this.translationConfig.languages) {
+          if (this.isTranslationText && item.language.toLocaleUpperCase() !== this.translationConfig.languages) {
             success = await this.translationText(item, index)
           }
           if (this.translationConfig.before && (this.pictureConfig.shuffleChecked || this.pictureConfig.specChecked)) {
+            let aLiUsernameIndex = this.aLiUsernameList.findIndex(i => i.name === this.aLiUsername)
+            let aliAccount = this.aLiUsernameList[aLiUsernameIndex]
+            if (!aliAccount && this.pictureConfig.typeRadio === 0) {
+              this.$message.error('阿里图片翻译账户尚未登陆')
+              return false
+            }
             success = await this.translationPicture(item, index)
           }
           ++this.statistics.fySuccess
@@ -737,7 +792,7 @@
                 let spec2List = tier_variation[tier_variation.spec2].join('<><>')
                 let spec1ListJson = await this.$translationBridgeService.getGoogleTransResult([spec1List], fromLanguage, toLanguage)
                 let spec2ListJson = await this.$translationBridgeService.getGoogleTransResult([spec2List], fromLanguage, toLanguage)
-                console.log(spec1ListJson, spec2ListJson)
+                // console.log(spec1ListJson, spec2ListJson)
                 if (spec1ListJson.Code === 0 && spec2ListJson.Code === 0) {
                   let spec1ListDst = spec1ListJson.Data && spec1ListJson.Data[0] && spec1ListJson.Data[0].DstText.split('<><>')
                   let spec1ListSrc = spec1ListJson.Data && spec1ListJson.Data[0] && spec1ListJson.Data[0].SrcText.split('<><>')
@@ -761,17 +816,13 @@
             } else {
 
             }
-            let regId = /"id":[0-9]*,/ig
-            let regSelection_id = /"selection_id":[0-9]*,/ig
-            let skuId = /"skuId":[0-9]*,/ig
-            let sku = /"sku":"[^(",)]*",/ig
             itemmodelsJson = itemmodelsJson.replaceAll('"sku_spec1":', '"spec1":')
             itemmodelsJson = itemmodelsJson.replaceAll('"sku_spec2":', '"spec2":')
             itemmodelsJson = itemmodelsJson.replaceAll('"sku_sn":', '"skuSn":')
-            itemmodelsJson = itemmodelsJson.replaceAll(regId, '')
-            itemmodelsJson = itemmodelsJson.replaceAll(regSelection_id, '')
-            itemmodelsJson = itemmodelsJson.replaceAll(skuId, '"skuId":"$0"')
-            // itemmodelsJson = itemmodelsJson.replaceAll(sku, '')
+            itemmodelsJson = itemmodelsJson.replaceAll( /"id":[0-9]*,/ig, '')
+            itemmodelsJson = itemmodelsJson.replaceAll(/"selection_id":[0-9]*,/ig, '')
+            itemmodelsJson = itemmodelsJson.replaceAll(/"skuId":([0-9]*),/ig, '"skuId":"$1",')
+            // itemmodelsJson = itemmodelsJson.replaceAll(/"sku":"[^(",)]*",/ig, '')
             param['skuSpecs'] = itemmodelsJson
             console.log(itemmodelsJson)
             this.$set(this.mallTable[index], 'operation_type', '翻译成功')
@@ -795,6 +846,9 @@
             let neededTranslateInfoJson = await this.$commodityService.getSpuDetailByIdV2(item.id)
             let neededTranslateInfoData = JSON.parse(neededTranslateInfoJson) && JSON.parse(neededTranslateInfoJson).data
             console.log('getSpuDetailByIdV2 - data', neededTranslateInfoData)
+            let aLiUsernameIndex = this.aLiUsernameList.findIndex(i => i.name === this.aLiUsername)
+            let aliAccount = this.aLiUsernameList[aLiUsernameIndex]
+            console.log('aliAccount',aliAccount)
             if (this.pictureConfig.shuffleChecked) {
               let image1List = neededTranslateInfoData.images1 || [] //轮播图
               let image1ListLength = image1List.length
@@ -803,12 +857,16 @@
                 let imageData = ''
                 this.$set(this.mallTable[index], 'operation_type', `正在翻译轮播图(${(i + 1)}/${image1ListLength})`)
                 if (this.pictureConfig.typeRadio === 0) {
-
-                } else if (this.pictureConfig.typeRadio === 1) {
+                  let fromLa = this.translationConfig.before === 1 && 'zh' || 'en'
+                  const result = await selfAliYunTransImage(son, {fromLanguage: fromLa, toLanguage: this.translationConfig.after}, aliAccount, this)
+                  if (result){imageData = result} else{continue}
+                }
+                else if (this.pictureConfig.typeRadio === 1) {
                   let fromLa = this.translationConfig.before === 1 && 'zh' || 'en'
                   let { Data } = await this.$translationBridgeService.getAliYunTranslateImg(son.img, fromLa, this.translationConfig.after)
                   imageData = Data.Data && Data.Data.Url || son.img
-                } else if (this.pictureConfig.typeRadio === 2) {
+                }
+                else if (this.pictureConfig.typeRadio === 2) {
                   console.log(son.img, this.translationConfig.after)
                   let json = await this.$translationBridgeService.getYunTranslateImg(son.img, this.translationConfig.after)
                   console.log(json)
@@ -831,7 +889,10 @@
                 let imageData = ''
                 this.$set(this.mallTable[index], 'operation_type', `正在翻译规格图(${(i + 1)}/${spec_imageListLength})`)
                 if (this.pictureConfig.typeRadio === 0) {
-
+                  let fromLa = this.translationConfig.before === 1 && 'zh' || 'en'
+                  const result = await selfAliYunTransImage(son, {fromLanguage: fromLa, toLanguage: this.translationConfig.after}, aliAccount, this)
+                  if (result){imageData = result} else{continue}
+                  console.log('selfAliYunTransImage',result)
                 }
                 else if (this.pictureConfig.typeRadio === 1) {
                   let fromLa = this.translationConfig.before === 1 && 'zh' || 'en'
@@ -851,8 +912,17 @@
                 let res = await this.$commodityService.updateGoodsSkuImage(item.id + '', imageData, son)
                 console.log(res)
               }
-
-
+              itemmodels = itemmodels.replaceAll(/"id":[0-9]*,/ig, '')
+              itemmodels = itemmodels.replaceAll(/"sku":"[^(",)]*",/ig, '')
+              itemmodels = itemmodels.replaceAll('"sku_spec1":', '"skuSpec1":')
+              itemmodels = itemmodels.replaceAll('"sku_spec2":', '"skuSpec2":')
+              itemmodels = itemmodels.replaceAll('"sku_image":', '"skuImage":')
+              itemmodels = itemmodels.replaceAll('"sku_sn":', '"skuSn":')
+              itemmodels = itemmodels.replaceAll('"sku_price":', '"skuPrice":')
+              itemmodels = itemmodels.replaceAll(/"sku_stock":([0-9]*),/ig, '"skuStock":"$1",')
+              console.log(itemmodels)
+              let andUpdateSku = await this.$commodityService.saveAndUpdateSkuDatas(item.id,itemmodels)
+              console.log(andUpdateSku)
             }
           } catch (e) {
             console.log(e)
@@ -945,4 +1015,5 @@
       }
     }
   }
+
 </style>

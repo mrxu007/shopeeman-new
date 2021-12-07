@@ -1,6 +1,7 @@
 import { setTimeout } from 'core-js'
 import md5 from 'js-md5'
 import Vue from 'vue'
+import XLSX from 'xlsx'
 
 const instance = new Vue()
 
@@ -431,6 +432,78 @@ export function formatDuring(mss) {
   return hours + ':' + minutes + ':' + seconds.toFixed(0)
 }
 
-export function exportPdfData() {
+export function exportPdfData() {}
 
+export async function selfAliYunTransImage(imgUrl, command, account, that) {
+  account.login_info = account.login_info || JSON.parse( account.loginInfo)
+  const _csrf = account.login_info.find(item => {
+    return item.Name == 'XSRF-TOKEN'
+  })
+  const url = `https://www.alifanyi.com/api/imagetranslate/submitOfflineImageTask?_csrf=${_csrf.Value}`
+  const data1 = await that.$api.jdRequest.post(url, {
+    'platform': 'ae',
+    'sourceLanguage': command.fromLanguage,
+    'targetLanguage': command.toLanguage,
+    'offlineImageBOList': [{
+      'groupName': '全部图片',
+      'imageUrls': [imgUrl]
+    }]
+  }, { headers: {
+      cookies: account.login_info
+    }})
+  console.log(data1)
+  if (data1.status == 200 && data1.data.code == 200) {
+    const url = `https://www.alifanyi.com/api/imagetranslate/composeDetail/${data1.data.data}/1?_csrf=${_csrf.Value}`
+    const data2 = await that.$api.jdRequest.post(url, {
+    }, { headers: {
+        cookies: account.login_info
+      }})
+    console.log(data2)
+    let res = ''
+    if (data2.data.data) {
+      res = data2.data
+    } else {
+      res = JSON.parse(data2.data.replace(/\\/g, '').replace(/"\{/g, '{').replace(/\}"/g, '}'))
+    }
+
+    if (res.code == 200 && res.data.finalImageUrl) {
+      return res.data.finalImageUrl
+    } else {
+      that.$message.error('图片翻译', '阿里图片翻译失败,请确认翻译图片数量是否到达上限', 'warning')
+    }
+  } else {
+    that.$message.error('图片翻译', '阿里图片翻译失败,请确认阿里账号是否掉线', 'warning')
+  }
+}
+
+/**
+ *
+ * @param tableData Array ['商品','订单号']
+ * @param jsonData Array[Array] [['goods1','id']]
+ * @param workName String 'name'默认时间戳
+ * @returns {Promise<void>}
+ */
+export async function importOrder(tableData,jsonData,workName = '') {
+  let arr = []
+  arr.push(tableData)
+  jsonData.forEach(item => {arr.push(item)})
+  let worksheet = XLSX.utils.aoa_to_sheet(arr)
+  let workbook = XLSX.utils.book_new()
+  XLSX.utils.book_append_sheet(workbook,worksheet,workName || (new Date(Date.now()+8*3600*1000).toISOString().slice(0,10)))
+  XLSX.writeFile(workbook,`${workName}${new Date(Date.now()+8*3600*1000).toISOString().slice(0,10)}.xlsx`)
+}
+
+export async function waitStart(prepare, num = 500) {
+  let count = 0;
+  let number = num && parseInt(num) || 500;
+  return new Promise((resolve, reject) => {
+    let ing = setInterval(() => {
+      ++count;
+      if (prepare() || count >= number) {
+        console.log('等待成功', prepare);
+        clearInterval(ing);
+        resolve(prepare())
+      }
+    }, 200);
+  })
 }

@@ -33,9 +33,18 @@ const ycjRequest = axios.create({ // 云采集请求
 const otherRequest = axios.create({ // 第三方请求
   timeout: 5000,
   headers: {
-    'User-Agent':
-      'Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/537.36',
+    'User-Agent': 'Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/537.36',
     'Accept': 'application/vnd.ppxias.v3+json'
+  },
+  withCredentials: true,
+  adapter: config => {
+    return jxAdapter(config)
+  }
+})
+const jdRequest = axios.create({
+  timeout: '50000',
+  headers: {
+    'User-Agent': 'Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/537.36'
   },
   withCredentials: true,
   adapter: config => {
@@ -44,6 +53,7 @@ const otherRequest = axios.create({ // 第三方请求
 })
 
 export default {
+  jdRequest,
   AppRequest, // 对接第三方请求
   ycjRequest, // 对接云采集请求
   otherRequest, // 对接第三方请求
