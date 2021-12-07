@@ -1659,7 +1659,9 @@ export default {
         this.flat === 1 ? item.LoginInfo = '正在登录中...' : this.writeLog(`(${i + 1}/${len})账号【${platform_mall_name}】开始授权`, true)
         let mallId = null// 平台店铺ID
         let mallUId = null // 平台卖家ID
+        let spc_f = ''
         let errorStr = ''
+        let cookieJson = ''
         try {
           // 1、检测
           if (!this.forceLogin && this.flat === 1) {
@@ -1691,14 +1693,12 @@ export default {
           }
           // 2、shopeeMan官方登录
           let res = await this.$shopeemanService.login(item, this.flat)
-          console.log('login', res)
           if (res.code !== 200) {
             if (this.flat === 1) {
-              item.LoginInfo = `<p style="color: red">登录失败：${res.data.message || errorStr}</p>`
+              item.LoginInfo = `<p style="color: red">1登录失败：${res.data.message || errorStr}</p>`
             } else {
               this.writeLog(`(${i + 1}/${len})账号【${platform_mall_name}】授权失败：${res.data.message}`, false)
             }
-
             console.log('handleResult - parm')
             // const handleResult = await this.handleReturnLogin(item, {code:'error_need_ivs',data:''})
             const handleResult = await this.handleReturnLogin(item, res)
@@ -1708,37 +1708,46 @@ export default {
             } else {
               item.loginStatus = 'fail'
               if (this.flat === 1) {
-                item.LoginInfo = `<p style="color: red">登录失败：${handleResult.data || errorStr}</p>`
+                item.LoginInfo = `<p style="color: red">2登录失败：${handleResult.data || errorStr}</p>`
               } else {
                 this.writeLog(`(${i + 1}/${len})账号【${platform_mall_name}】授权失败：${handleResult.data}`, false)
               }
               continue
             }
           }
+          console.log('login', res)
           mallId = res.data && res.data.mallId || null // 平台店铺ID
           mallUId = res.data && res.data.mallUId || null // 平台卖家ID
-          let mallDataInfo = null
-          const res1_flat1 = await this.$appConfig.getGlobalCacheInfo('mallInfo', mallId)
-          mallDataInfo = JSON.parse(res1_flat1)
-          let spc_f =  mallDataInfo.web_login_info['SPC_F'] || mallDataInfo.web_login_info['spc_f']
+          let mallDataInfo = {}
           if (this.flat === 1) {
+            if(mallId != item.platform_mall_id){
+              item.LoginInfo = `<p style="color: red">登录失败：（登录异常，店铺ID已被shopee官方更换，最新店铺ID为【${mallId}】，请联系客服更换后重试），然后重试店铺登录</p>`
+              continue
+            }
+            const res1_flat1 = await this.$appConfig.getGlobalCacheInfo('mallInfo', mallId)
+            mallDataInfo = JSON.parse(res1_flat1)
+            mallDataInfo = mallDataInfo.web_login_info && mallDataInfo || JSON.parse(res1_flat2)
+            spc_f = mallDataInfo.web_login_info && mallDataInfo.web_login_info['SPC_F']
           // 一键登录
           // 获取壳内店铺信息,组装getChinese
-            const Cookie = res.data.Cookie
-            spc_f = Cookie.SPC_F || spc_f
-            mallDataInfo.web_login_info['SPC_EC'] = Cookie.SPC_EC
-            mallDataInfo.web_login_info['sso'] = Cookie.SPC_EC
-            mallDataInfo.web_login_info['SPC_SC_TK'] = Cookie.SPC_SC_TK
-            mallDataInfo.web_login_info['token'] = Cookie.SPC_SC_TK
-            mallDataInfo.web_login_info['ShopeeUid'] = Cookie.ShopeeUid
-            mallDataInfo.web_login_info['shopeeuid'] = Cookie.ShopeeUid
-            mallDataInfo.web_login_info['shopid'] = Cookie.shopid
-            mallDataInfo.web_login_info['SPC_F'] = spc_f
-            mallDataInfo.web_login_info['spc_f'] = spc_f
+            cookieJson = res.data.Cookie
+            cookieJson.SPC_F = cookieJson.SPC_F || spc_f
+            cookieJson.spc_f = cookieJson.spc_f || spc_f
+            mallDataInfo.web_login_info['SPC_EC'] = cookieJson.SPC_EC
+            mallDataInfo.web_login_info['sso'] = cookieJson.SPC_EC
+            mallDataInfo.web_login_info['SPC_SC_TK'] = cookieJson.SPC_SC_TK
+            mallDataInfo.web_login_info['token'] = cookieJson.SPC_SC_TK
+            mallDataInfo.web_login_info['ShopeeUid'] = cookieJson.ShopeeUid
+            mallDataInfo.web_login_info['shopeeuid'] = cookieJson.ShopeeUid
+            mallDataInfo.web_login_info['shopid'] = cookieJson.shopid
+            mallDataInfo.web_login_info['SPC_F'] = cookieJson.SPC_F
+            mallDataInfo.web_login_info['spc_f'] = cookieJson.spc_f
             // 4、更新壳信息
+            console.log(mallId, JSON.stringify(mallDataInfo))
             await this.$appConfig.updateInfoMall(mallId, JSON.stringify(mallDataInfo)) // 更新里面店铺的cookie （壳）
-          } else { // 导入店铺
-          // 导入的店铺信息
+          }
+          else {
+            // 导入店铺 - 导入的店铺信息
             mallDataInfo = res.data.mallInfo_new
             // 导入店铺判断是否选择   使用已有IP
             if (this.isIPType === 1) {
@@ -1801,10 +1810,11 @@ export default {
           // 5、上报cookie信息
           const params = {
             mallId: mallId,
-            webLoginInfo: JSON.stringify(res.data.Cookie)
+            webLoginInfo: JSON.stringify(cookieJson)
           }
           console.log('uploadMallCookie', params)
           const res6 = await this.mallListAPIInstance.uploadMallCookie(params) // 上报店铺信息cookie (服务端)
+          console.log('uploadMallCookie',res6)
           if (res6.code !== 200) {
           // console.log('店铺上传失败', res.data)
             this.writeLog(`(${i + 1}/${len})账号【${platform_mall_name}】授权失败：上报店铺信息cookie失败`, false)
@@ -1953,7 +1963,7 @@ export default {
             await this.$appConfig.updateInfoMall(mallInfo.platform_mall_id, JSON.stringify(mallDataInfo)) // 更新里面店铺的cookie （壳）
             mallDataInfo = null
             // 2、更新cookie信息后，在调用登录接口： /api/v2/login/   get方法  无参 获取到接口响应头部cookie  再次更新cookie信息即可
-            const loginInfo2 = await this.$shopeemanService.getLogin(mallInfo, SPC_F.Value)
+            const loginInfo2 = await this.$shopeemanService.getLogin(mallInfo, spc_f)
             console.log('loginInfo2', loginInfo2)
             if (loginInfo2.code === 200) {
               code = loginInfo2.code
