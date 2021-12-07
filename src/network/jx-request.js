@@ -33,9 +33,18 @@ const ycjRequest = axios.create({ // 云采集请求
 const otherRequest = axios.create({ // 第三方请求
   timeout: 5000,
   headers: {
-    'User-Agent':
-      'Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/537.36',
+    'User-Agent': 'Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/537.36',
     'Accept': 'application/vnd.ppxias.v3+json'
+  },
+  withCredentials: true,
+  adapter: config => {
+    return jxAdapter(config)
+  }
+})
+const jdRequest = axios.create({
+  timeout: '50000',
+  headers: {
+    'User-Agent': 'Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/537.36'
   },
   withCredentials: true,
   adapter: config => {
@@ -44,6 +53,7 @@ const otherRequest = axios.create({ // 第三方请求
 })
 
 export default {
+  jdRequest,
   AppRequest, // 对接第三方请求
   ycjRequest, // 对接云采集请求
   otherRequest, // 对接第三方请求
@@ -130,14 +140,14 @@ export default {
   setNoWait: (data) => AppRequest.post('/orderPackage/setNoWait', data), // 订单设置不等待子订单
   trackingNumberChangeOrder: (data) => AppRequest.post('/order/trackingNumberChangeOrder', data), // 采购物流单号变更
   noticeTodeliver: (data) => AppRequest.post('/orderPackage/changeOrderDeliveryStatus', data), // 通知仓库发货/暂停发货
- // getGoodsInfo: (data) => AppRequest.get('/goodsPackageCode/getGoodsInfoV2 ', data), // 订单包裹详情
+  // getGoodsInfo: (data) => AppRequest.get('/goodsPackageCode/getGoodsInfoV2 ', data), // 订单包裹详情
   getGoodsInfo: (data) => AppRequest.get('/goodsPackageCode/getGoodsInfo ', data), // 订单包裹详情
   uploadExtService: (data) => AppRequest.post('/orderPackage/uploadExtService ', data), // 订单增值服务
   getNotHaveLogisticsInformations: () => AppRequest.get('/orderPackage/getNotHaveLogisticsInformations'), // 获取面单信息
   cancelSign: (data) => AppRequest.post('/interceptConfig/delete', data), // 取消拒收/签收信息
   packageSign: (data) => AppRequest.post('/interceptConfig/save', data), // 仓库包裹拒签/签收
-//  warehouseAddress: () => AppRequest.get('/warehouseAddress/userIndex'), // 获取仓库信息
-//  uploadWarehouseOrder: (data) => AppRequest.post('/warehouseAddress/uploadWarehouseOrder', data), // 获取仓库信息
+  //  warehouseAddress: () => AppRequest.get('/warehouseAddress/userIndex'), // 获取仓库信息
+  //  uploadWarehouseOrder: (data) => AppRequest.post('/warehouseAddress/uploadWarehouseOrder', data), // 获取仓库信息
   uploadWarehouseOrder: (data) => AppRequest.post('/warehouseAddress/uploadWarehouseOrder', data), // 推送订单至仓库
   setColorLabel: (data) => AppRequest.post(`/colorLabel/setOrder`, data), // 设置订单颜色标识
   getUserStore: (data) => AppRequest.get('/userStock/get', { params: data }), // 自有仓库列表

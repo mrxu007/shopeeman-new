@@ -290,8 +290,9 @@ export default class CommodityService {
    * @param {string} imageUrl 图片Url
    * @param {number} toImageId 旧主图id，当type为1时，toImageId默认为0
    */
-  updateGoodsImage(type, sysGoodsId, imageId, imageUrl, toImageId) {
-    return this.nativeService.callFunction('UpdateGoodsImage', type.toString(), sysGoodsId.toString(), imageId.toString(), imageUrl, toImageId.toString())
+  updateGoodsImage(type, sysGoodsId, imageId, imageUrl, toImageId ='0') {
+    console.log(type, sysGoodsId, imageId, imageUrl, toImageId)
+    return this.nativeService.callFunction('UpdateGoodsImage', type, sysGoodsId.toString(), imageId.toString(), imageUrl, toImageId)
   }
 
   /**
@@ -301,7 +302,7 @@ export default class CommodityService {
    * @param {string} imageUrl 原图片地址
    */
   updateGoodsSkuImage(sysGoodsId, newImageUrl, imageUrl) {
-    return this.nativeService.callFunction('UpdateGoodsSkuImage', sysGoodsId.toString(), newImageUrl, imageUrl)
+    return this.nativeService.callFunction('UpdateGoodsSkuImage', sysGoodsId, newImageUrl, imageUrl)
   }
 
   /**
@@ -310,7 +311,7 @@ export default class CommodityService {
    * @param {string} imageUrl 图片地址
    */
   addGoodsMainImage(sysGoodsId, imageUrl) {
-    return this.nativeService.callFunction('AddGoodsMainImage', sysGoodsId.toString(), imageUrl)
+    return this.nativeService.callFunction('AddGoodsMainImage', sysGoodsId, imageUrl)
   }
 
   /**
@@ -319,7 +320,7 @@ export default class CommodityService {
    * @param {{skuId:string,skuSpec1:string,skuSpec2:string,skuImage:string,skuPrice:number,skuStock:string}[]} skuList sku数据集合
    */
   saveAndUpdateSkuDatas(sysGoodsId, skuList) {
-    return this.nativeService.callFunction('SaveAndUpdateSkuDatas', sysGoodsId.toString(), JSON.stringify(skuList))
+    return this.nativeService.callFunction('SaveAndUpdateSkuDatas', sysGoodsId.toString(), skuList)
   }
 
   /**
@@ -439,7 +440,6 @@ export default class CommodityService {
    * @param dataReq 保存
    */
   saveTranslationData(dataReq) {
-    console.log(JSON.stringify(dataReq))
     return this.nativeService.callFunction('SaveTranslationData', JSON.stringify(dataReq))
   }
 
@@ -812,18 +812,18 @@ export default class CommodityService {
    * @param  {cookieStr} 登录信息
    * @param  {orderId} 拍单订单id
    */
-  async getLazadaOrderDetail(country, cookieStr, orderId) {
-    return await this.nativeService.callLazadaService('GetLazadaOrderDetail', country, cookieStr, orderId)
+  async getLazadaOrderDetail(country,cookieStr,orderId){
+    return await this.nativeService.callLazadaService('GetLazadaOrderDetail',country,cookieStr,orderId)
   }
   /**
    * @name : 获取订单支付方式
-   * @param  {country} 站点
-   * @param  {cookieStr} 登录信息
-   * @param  {orderDetial} 获取Lazada的订单详情接口返回值
-   * @param  {shotOrderSn} 拍单订单号
+   * @param  country 站点
+   * @param  cookieStr 登录信息
+   * @param  orderDetial 获取Lazada的订单详情接口返回值
+   * @param  shotOrderSn 拍单订单号
    */
-  async getLazadaPayMethod(country, cookieStr, orderDetial, shotOrderSn) {
-    return await this.nativeService.callLazadaService('GetPayMethod', country, cookieStr, orderDetial, shotOrderSn)
+  async getLazadaPayMethod(country,cookieStr,orderDetial,shotOrderSn){
+    return await this.nativeService.callLazadaService('GetPayMethod',country,cookieStr,orderDetial,shotOrderSn)
   }
   /**
    * 保存商品
@@ -853,11 +853,12 @@ export default class CommodityService {
     return this.nativeService.callProductCenter('GetProductDetail', data.priductid, data.language)
   }
 
-  /**
+/**
  * @name :
  * @param  {String} sysOrderIds 系统订单id，用逗号隔开
  */
-  async getSkuRelation(sysOrderIds) {
-    return await this.nativeService.callSkuRelationClient('GetBySysOrderIds', sysOrderIds)
-  }
+async getSkuRelation(sysOrderIds){
+  return await this.nativeService.callSkuRelationClient('GetBySysOrderIds',sysOrderIds)
+}
+
 }
