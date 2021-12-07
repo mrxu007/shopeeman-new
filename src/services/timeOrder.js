@@ -1,8 +1,8 @@
 import orderService from './order-service'
 import jx from '../network/jx-request'
 import api from '../network/jx-request'
-import applicationConfig from '../services/application-config'
-import JSEncrypt from 'jsencrypt'
+// import applicationConfig from '../services/application-config'
+// import JSEncrypt from 'jsencrypt'
 import shopeemanService from '../services/shopeeman-service'
 import {
   site_mall
@@ -24,6 +24,7 @@ export default class {
   mallNo = ''
   upLoadType = ''
   writeLog = undefined
+  timeRange = 7
   constructor(mall, syncStatus, that, writeLog) {
     this.mall = mall
     this._this = that
@@ -38,8 +39,8 @@ export default class {
     this.mall = order.mall_info
     if (order.order_status === 7) {
       let params = {
-        return_sn: order.order_sn,
-        shop_id: order.mall_info.platform_mall_id
+        "return_sn": order.order_sn,
+        "shop_id": order.mall_info.platform_mall_id
       }
       let res = await this.$shopeemanService.getRefundOrderDetail(order.country, params)
       console.log("startSingel-after",res)
@@ -69,7 +70,8 @@ export default class {
     }
   }
   //手动同步/自动同步
-  async start(mallNo, upLoadType) {
+  async start(mallNo, upLoadType,timeRange) {
+    this.timeRange = timeRange
     if (this.syncStatus.value === 'refund') {
       await this.refund(mallNo, upLoadType)
     } else if (this.syncStatus.value === 'toShip') {
@@ -114,20 +116,24 @@ export default class {
               orderDetailListFa = orderDetailListFa.concat(resDetail.data.orders)
               if (orderDetailList && orderDetailList.length) {
                 //过滤不是今天的订单 new Date().getTime()-item.create_time*1000 < 1*24*60*60*1000
-                let orderDetailListFilter = orderDetailList.filter(item => {
-                  return new Date().getTime() - item.create_time * 1000 > 1 * 24 * 60 * 60 * 1000
-                })
-                orderDetailListCount += orderDetailListFilter.length
-                await this.getOrderOtherInfo(orderDetailListFilter)
+                // let orderDetailListFilter = orderDetailList.filter(item => {
+                //   return new Date().getTime() - item.create_time * 1000 > 1 * 24 * 60 * 60 * 1000
+                // })
+                // orderDetailListCount += orderDetailListFilter.length
+                orderDetailListCount += orderDetailList.length
+                await this.getOrderOtherInfo(orderDetailList)
                 //检测订单是否需要上报
                 let checkedList = []
-                checkedList = await this.checkOrderSnStatus(orderDetailListFilter)
+                checkedList = await this.checkOrderSnStatus(orderDetailList)
                 checkedList.length && await this.upLoadOrders(checkedList)
               }
             }
           }
           //自动翻页
-          if (package_list.length < 40) {
+          let lastTime = ''
+          lastTime = orderDetailListFa[orderDetailListFa.length-1].create_time
+          console.log(lastTime,"lastTime",(new Date().getTime() - lastTime * 1000 > this.timeRange * 24 * 60 * 60 * 1000))
+          if (package_list.length < 40 || (lastTime && (new Date().getTime() - lastTime * 1000 > this.timeRange * 24 * 60 * 60 * 1000))) {
             package_list = []
           } else {
             params.page_number++
@@ -136,15 +142,15 @@ export default class {
             package_list = pageUp && pageUp.data && pageUp.data.package_list || []
           }
         }
-        this.writeLog(`${this.upLoadType !=='manual'?"【"+this.upLoadType+"】":'' }${this.mallNo} 店铺【${this.mall.platform_mall_name}】【${this.syncStatus.label}】成功-【${orderDetailListCount}】条`, true)
+        this.writeLog(`${this.upLoadType !=='manual'?"【"+this.upLoadType+"】":'' }${this.mallNo} 店铺【${this.mall.mall_alias_name || this.mall.platform_mall_name}】【${this.syncStatus.label}】成功-【${orderDetailListCount}】条`, true)
       } else if (res.code === 403) {
-        return this.writeLog(`${this.upLoadType !=='manual'?"【"+this.upLoadType+"】":'' }${this.mallNo} 店铺【${this.mall.platform_mall_name}】【${this.syncStatus.label}】未登录`, false)
+        return this.writeLog(`${this.upLoadType !=='manual'?"【"+this.upLoadType+"】":'' }${this.mallNo} 店铺【${this.mall.mall_alias_name || this.mall.platform_mall_name}】【${this.syncStatus.label}】未登录`, false)
       } else {
-        return this.writeLog(`${this.upLoadType !=='manual'?"【"+this.upLoadType+"】":'' }${this.mallNo} 店铺【${this.mall.platform_mall_name}】【${this.syncStatus.label}】${res.code}-${res.data}`, false)
+        return this.writeLog(`${this.upLoadType !=='manual'?"【"+this.upLoadType+"】":'' }${this.mallNo} 店铺【${this.mall.mall_alias_name || this.mall.platform_mall_name}】【${this.syncStatus.label}】${res.code}-${res.data}`, false)
       }
     } catch (e) {
       console.log(e)
-      return this.writeLog(`${this.upLoadType !=='manual'?"【"+this.upLoadType+"】":'' }${this.mallNo} 店铺【${this.mall.platform_mall_name}】【${this.syncStatus.label}】同步失败`, false)
+      return this.writeLog(`${this.upLoadType !=='manual'?"【"+this.upLoadType+"】":'' }${this.mallNo} 店铺【${this.mall.mall_alias_name || this.mall.platform_mall_name}】【${this.syncStatus.label}】同步失败`, false)
     }
   }
   //refund 类型的同步
@@ -168,7 +174,6 @@ export default class {
         } = res.data
         let orderDetailListCount = 0
         while (list.length) {
-          //orderLen-a<5
           for (let a = 0; a < list.length; a++) {
             let order = list[a]
             let par = {
@@ -183,13 +188,11 @@ export default class {
               let checkFlag = await this.checkAfterOrderSnStatus(order)
               if (checkFlag) {
                 let afterRes = await this.afterUpLoadOrders(order)
-                debugger
+                // debugger
                 if (afterRes) {
                   orderDetailListCount++
                 }
               }
-              // checkFlag && this.afterUpLoadOrders(order)
-              // console.log(order, "refund-order")
             }
           }
           //自动翻页
@@ -201,15 +204,15 @@ export default class {
             list = pageUp && pageUp.data && pageUp.data.list || []
           }
         }
-        this.writeLog(`${this.upLoadType !=='manual'?"【"+this.upLoadType+"】":'' }${this.mallNo} 店铺【${this.mall.platform_mall_name}】【${this.syncStatus.label}】成功-【${orderDetailListCount}】条`, true)
+        this.writeLog(`${this.upLoadType !=='manual'?"【"+this.upLoadType+"】":'' }${this.mallNo} 店铺【${this.mall.mall_alias_name || this.mall.platform_mall_name}】【${this.syncStatus.label}】成功-【${orderDetailListCount}】条`, true)
       } else if (res.code === 403) {
-        return this.writeLog(`${this.upLoadType !=='manual'?"【"+this.upLoadType+"】":'' }${this.mallNo} 店铺【${this.mall.platform_mall_name}】【${this.syncStatus.label}】未登录`, false)
+        return this.writeLog(`${this.upLoadType !=='manual'?"【"+this.upLoadType+"】":'' }${this.mallNo} 店铺【${this.mall.mall_alias_name || this.mall.platform_mall_name}】【${this.syncStatus.label}】未登录`, false)
       } else {
-        return this.writeLog(`${this.upLoadType !=='manual'?"【"+this.upLoadType+"】":'' }${this.mallNo} 店铺【${this.mall.platform_mall_name}】【${this.syncStatus.label}】${res.code}-${res.data}`, false)
+        return this.writeLog(`${this.upLoadType !=='manual'?"【"+this.upLoadType+"】":'' }${this.mallNo} 店铺【${this.mall.mall_alias_name || this.mall.platform_mall_name}】【${this.syncStatus.label}】${res.code}-${res.data}`, false)
       }
     } catch (e) {
       console.log(e)
-      return this.writeLog(`${this.upLoadType !=='manual'?"【"+this.upLoadType+"】":'' }${this.mallNo} 店铺【${this.mall.platform_mall_name}】【${this.syncStatus.label}】同步失败`, false)
+      return this.writeLog(`${this.upLoadType !=='manual'?"【"+this.upLoadType+"】":'' }${this.mallNo} 店铺【${this.mall.mall_alias_name || this.mall.platform_mall_name}】【${this.syncStatus.label}】同步失败`, false)
     }
   }
   //其它状态的同步
@@ -250,14 +253,15 @@ export default class {
               orderDetailListFa = orderDetailListFa.concat(resDetail.data.orders)
               if (orderDetailList && orderDetailList.length) {
                 //过滤不是今天的订单 new Date().getTime()-item.create_time*1000 < 1*24*60*60*1000
-                let orderDetailListFilter = orderDetailList.filter(item => {
-                  return new Date().getTime() - item.create_time * 1000 < 1 * 24 * 60 * 60 * 1000
-                })
-                orderDetailListCount += orderDetailListFilter.length
-                await this.getOrderOtherInfo(orderDetailListFilter)
+                // let orderDetailListFilter = orderDetailList.filter(item => {
+                //   return new Date().getTime() - item.create_time * 1000 < 1 * 24 * 60 * 60 * 1000
+                // })
+                // orderDetailListCount += orderDetailListFilter.length
+                orderDetailListCount += orderDetailList.length
+                await this.getOrderOtherInfo(orderDetailList)
                 //检测订单是否需要上报
                 let checkedList = []
-                checkedList = await this.checkOrderSnStatus(orderDetailListFilter)
+                checkedList = await this.checkOrderSnStatus(orderDetailList)
                 checkedList.length && await this.upLoadOrders(checkedList)
               }
             }
@@ -265,7 +269,8 @@ export default class {
           //自动翻页
           let lastTime = ''
           lastTime = orderDetailListFa[orderDetailListFa.length-1].create_time
-          if (orders.length < 40 || (lastTime && (new Date().getTime() - lastTime * 1000 > 1 * 24 * 60 * 60 * 1000))) {
+          console.log(lastTime,"lastTime",(new Date().getTime() - lastTime * 1000 > this.timeRange * 24 * 60 * 60 * 1000))
+          if (orders.length < 40 || (lastTime && (new Date().getTime() - lastTime * 1000 > this.timeRange * 24 * 60 * 60 * 1000))) {
             orders = []
           } else {
             params.page_number++
@@ -274,15 +279,15 @@ export default class {
             orders = pageUp && pageUp.data && pageUp.data.orders || []
           }
         }
-        this.writeLog(`${this.upLoadType !=='manual'?"【"+this.upLoadType+"】":'' }${this.mallNo} 店铺【${this.mall.platform_mall_name}】【${this.syncStatus.label}】成功-【${orderDetailListCount}】条`, true)
+        this.writeLog(`${this.upLoadType !=='manual'?"【"+this.upLoadType+"】":'' }${this.mallNo} 店铺【${this.mall.mall_alias_name || this.mall.platform_mall_name}】【${this.syncStatus.label}】成功-【${orderDetailListCount}】条`, true)
       } else if (res.code === 403) {
-        return this.writeLog(`${this.upLoadType !=='manual'?"【"+this.upLoadType+"】":'' }${this.mallNo} 店铺【${this.mall.platform_mall_name}】【${this.syncStatus.label}】未登录`, false)
+        return this.writeLog(`${this.upLoadType !=='manual'?"【"+this.upLoadType+"】":'' }${this.mallNo} 店铺【${this.mall.mall_alias_name || this.mall.platform_mall_name}】【${this.syncStatus.label}】未登录`, false)
       } else {
-        return this.writeLog(`${this.upLoadType !=='manual'?"【"+this.upLoadType+"】":'' }${this.mallNo} 店铺【${this.mall.platform_mall_name}】【${this.syncStatus.label}】${res.code}-${res.data}`, false)
+        return this.writeLog(`${this.upLoadType !=='manual'?"【"+this.upLoadType+"】":'' }${this.mallNo} 店铺【${this.mall.mall_alias_name || this.mall.platform_mall_name}】【${this.syncStatus.label}】${res.code}-${res.data}`, false)
       }
     } catch (e) {
       console.log(e)
-      return this.writeLog(`${this.upLoadType !=='manual'?"【"+this.upLoadType+"】":'' }${this.mallNo} 店铺【${this.mall.platform_mall_name}】【${this.syncStatus.label}】同步失败`, false)
+      return this.writeLog(`${this.upLoadType !=='manual'?"【"+this.upLoadType+"】":'' }${this.mallNo} 店铺【${this.mall.mall_alias_name || this.mall.platform_mall_name}】【${this.syncStatus.label}】同步失败`, false)
     }
   }
   //转换请求参数
@@ -312,29 +317,27 @@ export default class {
       }
       //3、获取订单交易记录
       let res3 = await this.$shopeemanService.getIncomeTransactionHistoryDetail(this.mall.country, params)
-      console.log(res3, "res3")
       if (res3.code === 200) {
         order['transactionHistoryDetail'] = res3.data
       }
       //4、获取订单历史轨迹
       let res4 = await this.$shopeemanService.getOrdeTrackingHistory(this.mall.country, params)
-      console.log(res4, "res4")
       if (res4.code === 200) {
         order['ordeTrackingHistory'] = res4.data
       }
       //5、获取物流轨迹的发货时间 
       let res5 = await this.$shopeemanService.getLogisticsTrackingHistory(this.mall.country, params)
-      console.log(res5, "res5")
+      console.log(res6,"res6")
       if (res5.code === 200) {
         order['logisticsTrackingHistory'] = res5.data
       }
-      console.log(order, "orderAll")
       //6、申请运单号
       let res6 = await this.$shopeemanService.getForderLogistics(this.mall.country, params)
+      console.log(res6,"res6")
       if (res6.code === 200) {
         order['forderLogistics'] = res6.data
       }
-      console.log(res6, "res6")
+      console.log(order, "orderAll")
     }
   }
   //售后订单
@@ -345,13 +348,11 @@ export default class {
     }
     //3、获取订单交易记录
     let res3 = await this.$shopeemanService.getIncomeTransactionHistoryDetail(this.mall.country, params)
-    console.log(res3, "res3")
     if (res3.code === 200) {
       order['transactionHistoryDetail'] = res3.data
     }
     //4、获取订单历史轨迹
     let res4 = await this.$shopeemanService.getOrdeTrackingHistory(this.mall.country, params)
-    console.log(res4, "res4")
     if (res4.code === 200) {
       order['ordeTrackingHistory'] = res4.data
     }
@@ -362,20 +363,24 @@ export default class {
       log_id: 1
     }
     let res5 = await this.$shopeemanService.getLogisticsTrackingHistoryRefund(this.mall.country, params5)
-    console.log(res5.data, "res5-res5")
     if (res5.code === 200) {
       order['logisticsTrackingHistory'] = res5.data
     }
-    console.log(order, "orderAll")
     //6、申请运单号
     let res6 = await this.$shopeemanService.getForderLogistics(this.mall.country, params)
     if (res6.code === 200) {
       order['forderLogistics'] = res6.data
     }
-    console.log(res6, "res6")
+    console.log(order, "orderAll")
   }
-  //服务端检测订单 ---正常订单
 
+  //上报shop平台物流信息
+  async uploadOrderLogisticsInfo(){
+
+  }
+
+
+  //服务端检测订单 ---正常订单
   //orderKey组装： main_order_sn  + status  +   status_ext  + logistics_status + log_current_status  + actual_shipping_cost
   //其中： log_current_status  为此接口（获取历史记录节点）：/api/v3/order/get_order_tracking_history/  中的new_status，如无，则为''
   //其中： actual_shipping_cost 为此接口（订单收入明细）：/api/v3/finance/income_transaction_history_detail  中的 shipping_fee_paid_by_shopee_on_your_behalf ，若无，则为0
@@ -755,10 +760,10 @@ export default class {
           item_id = bundleDealProducts[i]["item_id"];
           variation_discounted_price = bundleDealProducts[i]["price"];
 
-          variation_id = bundleDealModels[i]["model_id"];
-          variation_name = bundleDealModels[i]["name"];
-          variation_sku = bundleDealModels[i]["sku"];
-          ctime = bundleDealModels[i]("ctime");
+          variation_id = bundleDealModels[i] && bundleDealModels[i]["model_id"] || '';
+          variation_name = bundleDealModels[i] && bundleDealModels[i]["name"] || '';
+          variation_sku = bundleDealModels[i] && bundleDealModels[i]["sku"] || '';
+          ctime = bundleDealModels[i] && bundleDealModels[i]["ctime"] || '';
         } else {
           item_sku = product["sku"];
           item_name = product["name"];

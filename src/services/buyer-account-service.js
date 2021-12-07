@@ -178,4 +178,13 @@ export default class buyerAccountService {
     console.log(JSON.stringify(data))
     return this.nativeService.aliTranslateCenter(JSON.stringify(data))
   }
+  /**
+   * @name : 
+   * @param  {*}
+   * @param {*} skuInfo 订单信息
+   * @param {*} buyerAccount 买手号
+   */  
+  getSkuRelation(skuInfo,buyerAccount){
+    return this.nativeService.getSkuRelation(skuInfo,buyerAccount)
+  }
 }

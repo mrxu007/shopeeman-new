@@ -812,18 +812,18 @@ export default class CommodityService {
    * @param  {cookieStr} 登录信息
    * @param  {orderId} 拍单订单id
    */
-  async getLazadaOrderDetail(country, cookieStr, orderId) {
-    return await this.nativeService.callLazadaService('callLazadaService', country, cookieStr, orderId)
+  async getLazadaOrderDetail(country,cookieStr,orderId){
+    return await this.nativeService.callLazadaService('GetLazadaOrderDetail',country,cookieStr,orderId)
   }
   /**
    * @name : 获取订单支付方式
-   * @param  {country} 站点
-   * @param  {cookieStr} 登录信息
-   * @param  {orderDetial} 获取Lazada的订单详情接口返回值
-   * @param  {shotOrderSn} 拍单订单号
+   * @param  country 站点
+   * @param  cookieStr 登录信息
+   * @param  orderDetial 获取Lazada的订单详情接口返回值
+   * @param  shotOrderSn 拍单订单号
    */
-  async getPayMethod(country, cookieStr, orderDetial, shotOrderSn) {
-    return await this.nativeService.callLazadaService('GetPayMethod', country, cookieStr, orderDetial, shotOrderSn)
+  async getLazadaPayMethod(country,cookieStr,orderDetial,shotOrderSn){
+    return await this.nativeService.callLazadaService('GetPayMethod',country,cookieStr,orderDetial,shotOrderSn)
   }
   /**
    * 保存商品
@@ -852,5 +852,13 @@ export default class CommodityService {
   getdetails(data) {
     return this.nativeService.callProductCenter('GetProductDetail', data.priductid, data.language)
   }
+
+/**
+ * @name :
+ * @param  {String} sysOrderIds 系统订单id，用逗号隔开
+ */
+async getSkuRelation(sysOrderIds){
+  return await this.nativeService.callSkuRelationClient('GetBySysOrderIds',sysOrderIds)
+}
 
 }
