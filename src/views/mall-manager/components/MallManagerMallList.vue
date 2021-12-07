@@ -1718,12 +1718,14 @@ export default {
           mallId = res.data && res.data.mallId || null // 平台店铺ID
           mallUId = res.data && res.data.mallUId || null // 平台卖家ID
           let mallDataInfo = null
+          const res1_flat1 = await this.$appConfig.getGlobalCacheInfo('mallInfo', mallId)
+          mallDataInfo = JSON.parse(res1_flat1)
+          let spc_f =  mallDataInfo.web_login_info['SPC_F'] || mallDataInfo.web_login_info['spc_f']
           if (this.flat === 1) {
           // 一键登录
           // 获取壳内店铺信息,组装getChinese
-            const res1_flat1 = await this.$appConfig.getGlobalCacheInfo('mallInfo', mallId)
-            mallDataInfo = JSON.parse(res1_flat1)
             const Cookie = res.data.Cookie
+            spc_f = Cookie.SPC_F || spc_f
             mallDataInfo.web_login_info['SPC_EC'] = Cookie.SPC_EC
             mallDataInfo.web_login_info['sso'] = Cookie.SPC_EC
             mallDataInfo.web_login_info['SPC_SC_TK'] = Cookie.SPC_SC_TK
@@ -1731,8 +1733,8 @@ export default {
             mallDataInfo.web_login_info['ShopeeUid'] = Cookie.ShopeeUid
             mallDataInfo.web_login_info['shopeeuid'] = Cookie.ShopeeUid
             mallDataInfo.web_login_info['shopid'] = Cookie.shopid
-            mallDataInfo.web_login_info['SPC_F'] = Cookie.SPC_F || mallDataInfo.web_login_info['SPC_F']
-            mallDataInfo.web_login_info['spc_f'] = Cookie.spc_f || mallDataInfo.web_login_info['spc_f']
+            mallDataInfo.web_login_info['SPC_F'] = spc_f
+            mallDataInfo.web_login_info['spc_f'] = spc_f
             // 4、更新壳信息
             await this.$appConfig.updateInfoMall(mallId, JSON.stringify(mallDataInfo)) // 更新里面店铺的cookie （壳）
           } else { // 导入店铺
@@ -1761,7 +1763,9 @@ export default {
               hasMallMainInfo = true
             }
             // 4、更新壳信息
-            // console.log(mallId, JSON.stringify(mallDataInfo))
+            mallDataInfo.web_login_info['SPC_F'] = mallDataInfo.web_login_info['SPC_F'] || mallDataInfo.web_login_info['spc_f'] || spc_f
+            mallDataInfo.web_login_info['spc_f'] = mallDataInfo.web_login_info['SPC_F'] || mallDataInfo.web_login_info['spc_f'] || spc_f
+            console.log(mallId, JSON.stringify(mallDataInfo))
             await this.$appConfig.updateInfoMall(mallId, JSON.stringify(mallDataInfo)) // 更新里面店铺的cookie （壳）
             // 4-1、判断物流信息是否是普通店铺 (店铺导入独有)
             const res3 = await this.mallListAPIInstance.isNormalMall(mallDataInfo)
@@ -1918,6 +1922,8 @@ export default {
             return this.needIvsInfo && this.needIvsInfo.shopId == mallId
           }, 300)
           console.log('loginNeedPopUps', JSON.stringify(this.needIvsInfo))
+
+          let spc_f =  ''
           if (this.needIvsInfo?.code === 200) {
             const mallCookieInfos = this.needIvsInfo.mallCookieInfos
             const SPC_EC = mallCookieInfos.find(item => item.Name === 'SPC_EC')
@@ -1926,15 +1932,15 @@ export default {
             const SPC_STK = mallCookieInfos.find(item => item.Name === 'SPC_STK')
             const SPC_U = mallCookieInfos.find(item => item.Name === 'SPC_U')
             const SPC_SC_UD = mallCookieInfos.find(item => item.Name === 'SPC_SC_UD')
-            console.log('SPC_F', SPC_F)
+            spc_f = SPC_F.Value
             // 1、拿到cookie信息更新壳内 SPC_EC 、SPC_SC_TK 、SPC_F、SPC_STK 其它cookie信息存入OtherCookieInfo中）
             let mallDataInfo = await this.$appConfig.getGlobalCacheInfo('mallInfo', mallInfo.platform_mall_id)
             let cookieObj = {}
             mallDataInfo = JSON.parse(mallDataInfo)
             mallDataInfo.web_login_info['SPC_EC'] = SPC_EC.Value
             mallDataInfo.web_login_info['SPC_SC_TK'] = SPC_SC_TK.Value
-            mallDataInfo.web_login_info['SPC_F'] = SPC_F.Value
-            mallDataInfo.web_login_info['spc_f'] = SPC_F.Value
+            mallDataInfo.web_login_info['SPC_F'] = spc_f
+            mallDataInfo.web_login_info['spc_f'] = spc_f
             mallDataInfo.web_login_info['SPC_STK'] = SPC_STK.Value
             mallDataInfo.web_login_info['SPC_U'] = SPC_U.Value
             mallDataInfo.web_login_info['SPC_SC_UD'] = SPC_SC_UD.Value
@@ -1952,7 +1958,7 @@ export default {
             if (loginInfo2.code === 200) {
               code = loginInfo2.code
               message = loginInfo2.data
-              await this.$appConfig.updateInfoMall(loginInfo2.data.mallId, JSON.stringify(mallInfo_new)) // 更新里面店铺的cookie （壳）
+              // await this.$appConfig.updateInfoMall(loginInfo2.data.mallId, JSON.stringify(mallInfo_new)) // 更新里面店铺的cookie （壳）
             } else {
               code = loginInfo2.code
               message = loginInfo2.data.message
@@ -1960,7 +1966,8 @@ export default {
             this.needIvsInfo = null
           }
           this.needIvsInfo?.isBreakLogin === true ? this.isStop = true : '' // 用户是否中断操作
-        } else if (code === 'error_require_captcha') { // 需要图片或者滑块验证 调LoginNeedPopUps 服务弹框
+        }
+        else if (code === 'error_require_captcha') { // 需要图片或者滑块验证 调LoginNeedPopUps 服务弹框
           this.needCaptchaInfo = null
           await window.BaseUtilBridgeService.loginNeedPopUps('needCaptcha', JSON.stringify({ 'mallId': mallInfo.platform_mall_id }))
           await waitStart(() => {
@@ -1971,7 +1978,8 @@ export default {
             this.needCaptchaInfo = null
             return { code: 200, data: sortData }
           }
-        } else if (code === 'error_need_otp') {
+        }
+        else if (code === 'error_need_otp') {
           // 输入手机验证码即可
           // 1、打开弹框，让用户输入验证码
           this.phoneCodeVisiable = true
@@ -1993,7 +2001,8 @@ export default {
             }
             this.phoneInfo_message_code = ''
           }
-        } else if (code === 0 && message === '' && mallInfo.platform_mall_id !== '8888888888') { // 无任何返回信息，去查看绑定ip是否过期
+        }
+        else if (code === 0 && message === '' && mallInfo.platform_mall_id !== '8888888888') { // 无任何返回信息，去查看绑定ip是否过期
           let mallData = await this.$appConfig.getGlobalCacheInfo('mallInfo', mallInfo.platform_mall_id)
           mallData = JSON.parse(mallData)
           console.log('mallData', mallData)

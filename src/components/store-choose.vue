@@ -196,8 +196,10 @@ export default {
           searchAll += (item + ',')
         }
       })
-      mallList['country'] = this.countryVal
-      searchAll = mallList.length === this.siteList.length && searchAll || ''
+      if (!this.countryVal && this.groupId.indexOf('')>-1 ){
+        searchAll = mallList.length !== this.siteList.length && searchAll || ''
+      }
+      console.log('searchAll',searchAll)
       if (this.source) {
         this.$emit('changeMallList', {
           mallList: mallList,

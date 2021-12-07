@@ -2,7 +2,7 @@
   <div v-loading="loading" class="content">
     <div class="all_condition">
       <div class="des_conditon">
-        <storeChoose :is-all="true" :show-mall-all="true" @changeMallList="changeMallList" />
+        <storeChoose :is-all="true" :show-mall-all="true" :source="'true'" @changeMallList="changeMallList" />
         <div style="margin-left: 20px">
           <span>过期时间：</span>
           <el-date-picker
@@ -107,7 +107,7 @@
           <el-table-column prop="" label="IP渠道" align="center">
             <template slot-scope="{ row }">
               <!-- <span>{{ row.data_ipinfor && row.data_ipinfor.region_name }}</span> -->
-              <span>{{ row.data_ipinfor && row.data_ipinfor.channel_name ? row.data_ipinfor.area_name:row.data_ipinfor.channel_name }}</span>
+              <span v-if="row.data_ipinfor">{{ row.data_ipinfor.area_name || row.data_ipinfor.channel_name }}</span>
             </template>
           </el-table-column>
           <el-table-column prop="source" label="IP来源" align="center" min-width="80px" />
@@ -340,7 +340,7 @@
               </el-form-item>
               <el-form-item v-show="!query_person.linkType" key="password" prop="password">
                 <!-- <span v-show="query_person.ip_agency !== 'http'" slot="label" style="color: red; margin-right: 3p">*</span> -->
-                <span v-show="query_person.ip_agency !== 'HTTP'" slot="label" style="color: red; margin-right: 3p">*</span>
+                <span v-show="query_person.ip_agency !== 'HTTP'" slot="label" style="color: red; margin-right: 3px">*</span>
                 <span slot="label">密码：</span>
                 <el-input v-model="query_person.password" show-password placeholder="请输入密码" size="mini" style="width: 150px" clearable />
               </el-form-item>
@@ -762,7 +762,7 @@ export default {
     async getInfo() {
       getMalls().then(res => {
         this.shopAccountList = res
-        this.query.mall_ids = [] // 初始化店铺数据
+        this.query.mall_ids = '' // 初始化店铺数据
         this.dialogMallquery.mallGroupIds = [] // 初始化绑定店铺分组
         this.shopAccountList.forEach(item => {
           // this.query.mall_ids.push(item.id)
@@ -1447,18 +1447,9 @@ export default {
     },
     // 获取店铺信息
     changeMallList(val) {
-      this.query.mall_ids = []
-      // this.site = Object.assign(val)
-      // this.site.forEach(e => {
-      //   this.query.mall_ids.push(e.id)
-      // })
-      if (val.country === '' && val.length === 0 || val.length === this.shopAccountList.length) { // 点击站点  三个全选
-        this.query.mall_ids = []
-      } else {
-        val.forEach(item => {
-          this.query.mall_ids.push(item.id)
-        })
-      }
+      this.query.mall_ids = ''
+      console.log(val)
+      this.query.mall_ids = val.searchAll
     },
     // ip- tableList
     async getTableList() {
@@ -1476,7 +1467,7 @@ export default {
       params.supplier_info = this.query.supplier_info
       params.expiration_datesg = this.cloumn_date && this.cloumn_date.length > 0 ? this.cloumn_date.join('/').toString() : ''
       // params.expiration_datesg = '2021-10-06 23:59:59/2021-11-06 23:59:59'
-      params.mall_ids = this.query.mall_ids.toString() || ''
+      params.mall_ids = this.query.mall_ids || ''
       // console.log(params, 'getTableList')
       try {
         const res = await this.$YipService.GetIpList(JSON.stringify(params))
@@ -1532,6 +1523,7 @@ export default {
       this.total = this.tableList.length
       this.page = 1
       this.tableListEnd = this.tableList.slice((this.page - 1) * this.pageSize, this.page * this.pageSize)
+      console.log(this.tableListEnd)
     },
     // 分页递增
     indexMethod(index) {
@@ -1573,6 +1565,7 @@ export default {
           this.tableListEnd.push(list[from])
         }
       }
+      console.log(this.tableListEnd)
     }
   }
 }
