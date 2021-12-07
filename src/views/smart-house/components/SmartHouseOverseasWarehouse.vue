@@ -1,13 +1,12 @@
 <template>
   <el-row class="contaniner">
     <el-row class="header">
-      <ul style="margin: 5px 0px;">
-        <li class="wareName">
+      <ul style="margin-bottom: 10px">
+        <li>
           <span>仓库名称：</span>
-
           <el-select v-model="form.returnWheareHouseName" placeholder="" size="mini" filterable>
-            <el-option label="全部" :value="'0'" />
-            <el-option v-for="(item, index) in wherehouseNameList" :key="index" :label="item.warehouse_name" :value="item.id" />
+            <el-option label="全部" :value="0" />
+            <el-option v-for="(item, index) in returnWheareHouseNameList" :key="index" :label="item.label" :value="item.value" />
           </el-select>
         </li>
         <li>
@@ -76,7 +75,7 @@
             >
               <div slot="content">
                 <el-image
-                  style="width: 400px; height: 400px"
+                  style="width: 40px; height: 40px"
                   :src="row.real_image_url"
                 >
                   <div slot="error" class="image-slot" />
@@ -215,7 +214,7 @@ export default {
       tableData: [],
       data2: [],
       total: 0,
-      pageSize: 100,
+      pageSize: 50,
       page: 1,
       Loading1: false,
       Loading2: false,
@@ -223,7 +222,7 @@ export default {
       filter: false,
       changes: false,
       changes1: false,
-      primarynum: 0,
+      primarynum: '',
       sharedtype: '',
       rowx: {
         goods_name: '',
@@ -237,9 +236,9 @@ export default {
         sku_name: '',
         sku_id: '',
         stock_num: 1,
-        shared_num: 2,
         id: '',
-        wid: ''
+        wid: '',
+        sys_sku_id: ''
       },
       form: {
         app_uid: '',
@@ -249,68 +248,27 @@ export default {
         systemskuid: '', // 系统商品编号
         sku_name: ''
       },
-      // returnWheareHouseNameList: [
-      //   { value: 17, label: '泰国存储仓' },
-      //   { value: 27, label: '星卓越菲律宾存储仓' },
-      //   { value: 28, label: '星卓越马来存储仓' },
-      //   { value: 75, label: '超世代（越南仓海外仓）' },
-      //   { value: 110, label: '锦汐越南海外仓' }
-      // ]
-      wherehouseNameList: []
+      returnWheareHouseNameList: [
+        { value: 17, label: '泰国存储仓' },
+        { value: 27, label: '星卓越菲律宾存储仓' },
+        { value: 28, label: '星卓越马来存储仓' },
+        { value: 75, label: '超世代（越南仓海外仓）' },
+        { value: 110, label: '锦汐越南海外仓' }
+      ]
     }
   },
-  async mounted() {
-    await this.getOverseasList()
-    await this.getoverseaswarehouse()
-    // this.test()
+  mounted() {
+    this.getoverseaswarehouse()
+    this.test()
   },
   methods: {
-    // 获取仓库 --- 壳
-    async getOverseasList() {
-      const myMap = new Map()
-      try {
-        const res = await this.$appConfig.getGlobalCacheInfo('allWh', '')
-        const jsonData = this.isJsonString(res)
-        if (jsonData?.length) {
-          jsonData.forEach(item => {
-            this.wherehouseNameList = this.wherehouseNameList.concat(item.child)
-          })
-          this.wherehouseNameList = this.wherehouseNameList.filter((item) => !myMap.has(item.id) && myMap.set(item.id, 1))
-        } else {
-          this.$message.error(`仓库列表为空`)
-        }
-      } catch (error) {
-        this.$message.error(`获取仓库列表异常： ${error}`)
-      }
-    },
-    // 判断能否转JSON
-    isJsonString(str) {
-      if (typeof str === 'string') {
-        try {
-          JSON.parse(str)
-          return JSON.parse(str)
-        } catch (e) {
-          return str
-        }
-      } else {
-        return str
-      }
-    },
-    // 查看商品链接
-    open(val) {
-      if (!val) {
-        this.$message.warning('暂无商品链接')
-      }
-      window.BaseUtilBridgeService.openUrl(val)
-    },
     // 改价点击确定
-    async changePrice() {
+    async onsubmit() {
       this.changes = false
       const parmas = {
         sku_id: this.rowx.sku_id,
         app_uid: '',
         price: Number(this.rowx.newprice)
-
       }
       console.log(parmas)
       try {
@@ -327,27 +285,6 @@ export default {
       }
       this.getoverseaswarehouse()
     },
-    // 测试
-    // async test() {
-    //   const parmas = {
-    //     app_uid: '',
-    //     wid: this.form.returnWheareHouseName,
-    //     uid: ''
-    //   }
-    //   try {
-    //     let data = await this.$XzyNetMessageService.post('xzy.getSharedIndex', parmas)
-    //     data = JSON.parse(data)
-    //     data.data = JSON.parse(data.data)
-    //     console.log(data)
-    //     if (data.data.code === 200) {
-    //       this.$message.success(`测试数据查询成功`)
-    //     } else {
-    //       this.$message.error(`测试数据查询失败${data.data.message}`)
-    //     }
-    //   } catch (error) {
-    //     console.log(error)
-    //   }
-    // },
     // 共享库存点击确定
     async shareStock() {
       if (Number(this.primarynum) > Number(this.rowy.stock_num) || Number(this.primarynum) < 0) {
@@ -370,17 +307,17 @@ export default {
       try {
         let data = await this.$XzyNetMessageService.post('xzy.addSharedInventory', parmas)
         data = JSON.parse(data)
-        const res = JSON.parse(data.data)
-        if (res.code === 200) {
+        data.data = JSON.parse(data.data)
+        if (data.data.code === 200) {
           this.$message.success(`数据共享成功`)
         } else {
-          this.$message.error(`${res.message}`)
+          this.$message.error(`数据共享失败${data.data.message}`)
         }
       } catch (error) {
-        console.log(`${error}`)
+        console.log(error)
       }
-      this.getoverseaswarehouse()
       this.changes1 = false
+      this.getoverseaswarehouse()
     },
     // 改价功能
     async change(val) {
@@ -397,8 +334,6 @@ export default {
       this.rowy.sku_name = val.sku_name
       this.rowy.sku_id = val.sku_id
       this.rowy.stock_num = val.stock_num
-      this.rowy.shared_num = val.shared_num
-      this.primarynum = Number(val.shared_num)
       this.rowy.id = val.id
       this.rowy.wid = val.wid
       this.rowy.sys_sku_id = val.sys_sku_id
@@ -423,7 +358,6 @@ export default {
         page_num: this.pageSize,
         page: this.page,
         wid: this.form.returnWheareHouseName,
-        sys_sku_id: this.form.systemskuid,
         sku_id: this.form.skuid,
         sku_name: this.form.sku_name,
         is_zero_filter: this.is_zero_filter,
@@ -455,28 +389,6 @@ export default {
           }
           this.tableData = getdata
         }
-        // data.data = JSON.parse(data.data)
-        // const data2 = []
-        // this.data1 = data.data.data.data
-        // console.log(this.data1[0].stock_num)
-        // if (data.data.code === 200) {
-        //   for (let i = 0; i < this.data1.length - 1; i++) {
-        //     const wareinfo = await this.$appConfig.getGlobalCacheInfo('transferWarehouse', this.data1[i].wid)
-        //     this.data1[i].warehouse_name=wareinfo.warehouse_name
-        //     if (this.data1[i].stock_num !== 0) {
-        //       data2.push(this.data1[i])
-        //     }
-        //   }
-        //   this.data2 = data2
-        //   this.total = data.data.data.total
-        //   if (this.filter === true) {
-        //     this.tableData = data2
-        //   } else {
-        //     this.tableData = this.data1
-        //   }
-        // } else {
-        //   this.$message.error('数据获取失败:' +data.data.message)
-        // }
       } catch (error) {
         console.log(error)
       }
@@ -537,7 +449,7 @@ export default {
         <td style="width: 200px; text-align:left;">商品规格</td>
         <td style="width: 200px; text-align:left;">可用库存</td>
         <td style="width: 200px; text-align:left;">共享库存</td>
-        <td style="width: 200px; text-align:left;">商品单价（RMB）</td>
+        <td style="width: 200px; text-align:left;">商品单价（RMB/分）</td>
         <td style="width: 200px; text-align:left;">商品链接</td>
         <td style="width: 200px; text-align:left;">货架仓位</td>
         <td style="width: 200px; text-align:left;">库存更新时间</td>
@@ -565,6 +477,7 @@ export default {
     },
 
     handleSizeChange(val) {
+      this.page = 1
       this.pageSize = val
       this.getoverseaswarehouse()
     },

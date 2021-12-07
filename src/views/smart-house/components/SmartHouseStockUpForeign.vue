@@ -168,7 +168,7 @@
       <el-table
         ref="plTable"
         v-loading="isShowLoading"
-        height="calc(100vh - 250px)"
+        height="calc(100vh - 240px)"
         :data="tableData"
         :header-cell-style="{
           backgroundColor: '#f5f7fa',
@@ -1765,6 +1765,10 @@ export default {
         params['BarCodeList'] = []
         for (let j = 0; j < item1.sku_list.length; j++) {
           const item2 = item1.sku_list[j]
+          if (!item2.sys_sku_id) {
+            this.$refs.Logs.writeLog(`【${item1.package_code}】的商品SkuId【${item2.sku_id}】对应的系统商品ID为空`, false)
+            continue
+          }
           const obj = {
             BarCodeContent: [
               `物流单号:${item1.package_code}`,
@@ -1784,7 +1788,7 @@ export default {
         }
         const res = await this.StrockUpForegin.downloadBarCode(params)
         if (res.code === 200) {
-          this.$refs.Logs.writeLog(`【${item1.package_code}】条形码生成成功`, true)
+          this.$refs.Logs.writeLog(`【${item1.package_code}】条形码生成完成`, true)
         } else {
           this.$refs.Logs.writeLog(`【${item1.package_code}】条形码生成失败：${res.data}`, false)
         }
@@ -2091,7 +2095,7 @@ export default {
       const exportData = []
       let resData = []
       const params = this.form
-      params.pageSize = this.pageSize
+      params.pageSize = 200
       params.page = 1
       while (resData.length < this.total) {
         const res = await this.StrockUpForegin.getStockingForecastLists(params)

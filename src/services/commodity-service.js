@@ -290,8 +290,9 @@ export default class CommodityService {
    * @param {string} imageUrl 图片Url
    * @param {number} toImageId 旧主图id，当type为1时，toImageId默认为0
    */
-  updateGoodsImage(type, sysGoodsId, imageId, imageUrl, toImageId) {
-    return this.nativeService.callFunction('UpdateGoodsImage', type.toString(), sysGoodsId.toString(), imageId.toString(), imageUrl, toImageId.toString())
+  updateGoodsImage(type, sysGoodsId, imageId, imageUrl, toImageId ='0') {
+    console.log(type, sysGoodsId, imageId, imageUrl, toImageId)
+    return this.nativeService.callFunction('UpdateGoodsImage', type, sysGoodsId.toString(), imageId.toString(), imageUrl, toImageId)
   }
 
   /**
@@ -301,7 +302,7 @@ export default class CommodityService {
    * @param {string} imageUrl 原图片地址
    */
   updateGoodsSkuImage(sysGoodsId, newImageUrl, imageUrl) {
-    return this.nativeService.callFunction('UpdateGoodsSkuImage', sysGoodsId.toString(), newImageUrl, imageUrl)
+    return this.nativeService.callFunction('UpdateGoodsSkuImage', sysGoodsId, newImageUrl, imageUrl)
   }
 
   /**
@@ -310,7 +311,7 @@ export default class CommodityService {
    * @param {string} imageUrl 图片地址
    */
   addGoodsMainImage(sysGoodsId, imageUrl) {
-    return this.nativeService.callFunction('AddGoodsMainImage', sysGoodsId.toString(), imageUrl)
+    return this.nativeService.callFunction('AddGoodsMainImage', sysGoodsId, imageUrl)
   }
 
   /**
@@ -319,7 +320,7 @@ export default class CommodityService {
    * @param {{skuId:string,skuSpec1:string,skuSpec2:string,skuImage:string,skuPrice:number,skuStock:string}[]} skuList sku数据集合
    */
   saveAndUpdateSkuDatas(sysGoodsId, skuList) {
-    return this.nativeService.callFunction('SaveAndUpdateSkuDatas', sysGoodsId.toString(), JSON.stringify(skuList))
+    return this.nativeService.callFunction('SaveAndUpdateSkuDatas', sysGoodsId.toString(), skuList)
   }
 
   /**
@@ -439,7 +440,6 @@ export default class CommodityService {
    * @param dataReq 保存
    */
   saveTranslationData(dataReq) {
-    console.log(JSON.stringify(dataReq))
     return this.nativeService.callFunction('SaveTranslationData', JSON.stringify(dataReq))
   }
 
