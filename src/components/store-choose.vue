@@ -202,10 +202,13 @@ export default {
         }
       })
       // }
+      mallList['country'] = this.countryVal
       this.$emit('changeMallList', mallList)
       if (this.source) {
+        mallList['country'] = this.countryVal
         this.$emit('changeMallList', { mallList: mallList, source: this.source, country: this.countryVal })
       } else {
+        mallList['country'] = this.countryVal
         this.$emit('changeMallList', mallList)
       }
     }

@@ -43,7 +43,7 @@
           <el-table-column prop="type" label="仓库类型" min-width="100px">
             <template slot-scope="scope"> {{ typeObj[scope.row.type] }} </template>
           </el-table-column>
-          <el-table-column min-width="100px" label="联系电话" prop="receiving_tel" />
+          <el-table-column min-width="100px" label="联系电话" prop="receiving_tel" show-overflow-tooltip />
           <el-table-column min-width="130px" label="自有手机号" prop="own_phone">
             <template slot-scope="{ row }">
               <div v-if="row.isUser === 0">
@@ -56,7 +56,7 @@
             </template>
           </el-table-column>
           <el-table-column min-width="80px" label="邮编" prop="post_code" />
-          <el-table-column min-width="140px" label="是否使用自有手机号" align="center">
+          <el-table-column min-width="140px" label="是否开启自有手机号" align="center">
             <template slot-scope="{ row }">
               <el-switch v-model="row.is_use_own_phone" :disabled="row.isUser === 1 || row.own_phone === ''" active-color="#13ce66" inactive-color="#ff4949" @change="updateOwnPhone(row)" />
             </template>
@@ -169,8 +169,8 @@
       <div class="footer">
         <span> 温馨提示：若新增的自有仓库和系统仓库地址相同, 请绑定对应的归属仓库,若未绑定归属仓库,仓库无 法精准匹配,会有无法出库的风险 </span>
         <span v-if="!flag4">
-          1：收件人尽量不要有特殊字符,如#,+,_,@等<br />
-          2：海外菲律宾仓的买家姓名至少包含2个英文单词, 如：(China Boy)<br />
+          1：收件人尽量不要有特殊字符,如#,+,_,@等<br>
+          2：海外菲律宾仓的买家姓名至少包含2个英文单词, 如：(China Boy)<br>
           3：海外新加坡仓地址必须带楼层单元号并以#隔开且 置于最后,如(1 SoonLeeStreet,Industrial Cres,#01-02)
         </span>
         <el-button type="primary" size="mini" @click="itselfUpdate(flag3 ? 1 : 2)">确 定</el-button>
@@ -274,8 +274,7 @@
         <div class="footer">
           <el-button type="primary" size="mini" @click="test">确 定</el-button>
         </div>
-      </el-form></el-dialog
-    >
+      </el-form></el-dialog>
   </div>
 </template>
 
@@ -538,6 +537,7 @@ export default {
         country: this.mallList.country,
         groupIds: groupIds.toString()
       }
+      console.log(params, '-----------')
       const res = await this.AddressSet.getBindMall(params)
       if (res.code === 200) {
         this.bindMallData = res.data
@@ -580,13 +580,10 @@ export default {
     },
     itselfUpdate(type) {
       let arr = {}
-      const reg = /^1([38]\d|5[0-35-9]|7[3678])\d{8}$/
       if (!this.itselfWarehouseName) return this.$message('仓库名称不能为空')
       if (!this.itselfDetailAddress) return this.$message('详细地址不能为空')
       if (!this.itselfReceivingName) return this.$message('收件人不能为空')
-      if (!this.itselfReceivingTel || !reg.test(this.itselfReceivingTel)) {
-        return this.$message('电话号码格式有误')
-      }
+      if (!this.itselfReceivingTel) return this.$message('请输入电话号码')
       if (this.isSG) {
         if (this.itselfDetailAddress.indexOf('#') === -1) return this.$message('新加坡站点详细地址缺少#字符，请以#字符隔出楼层单元号')
         if (!this.itselfPostCode) return this.$message('新加坡的邮政编码不能为空')
@@ -853,6 +850,7 @@ export default {
     },
     changeMallList(val) {
       this.mallList = val
+      console.log('changeMallList', val)
     },
     handleClose1() {
       // this.getUserWarehouse()
@@ -928,27 +926,5 @@ export default {
 </script>
 
 <style lang="less" scoped>
-.store-address {
-  margin: 10px;
-  padding: 16px;
-  background: #fff;
-}
-.mar-right {
-  margin-right: 10px;
-}
-.activeColor {
-  color: red;
-}
-.btn-tool {
-  display: flex;
-  align-items: flex-start;
-  margin-bottom: 10px;
-  .warning-text {
-    p {
-      height: 26px;
-    }
-  }
-}
-.content {
-}
+@import '../../../module-less/order-manager-less/address-set.less';
 </style>

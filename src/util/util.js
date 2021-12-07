@@ -84,6 +84,7 @@ export async function colorLabelList() {
       obj.label = item.color_name
       obj.id = item.id
       obj.color = `color:${item.color}`
+      obj.name = item.name
       colorList.push(obj)
     }
     return colorList
@@ -109,6 +110,19 @@ export function getValue(arr, label, value, relValue) {
     const item = arr[i]
     if (item[value] === relValue) {
       data = item[label]
+      break
+    }
+  }
+  return data
+}
+
+// 匹配对象数组值(颜色)
+export function getColorinfo(arr, id) {
+  let data = ''
+  for (let i = 0; i < arr.length; i++) {
+    const item = arr[i]
+    if (item.id === id) {
+      data = item
       break
     }
   }
@@ -287,6 +301,7 @@ export function exportExcelDataCommon(fileName, str) {
                 <x:Name>${worksheet}</x:Name>
                 <x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet>
                 </x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]-->
+                <meta charset="utf-8">
                 </head><body><table>${str}</table></body></html>`
   // 下载模板
   // let template = templates.replace(/<td/g,`<td style="mso-number-format:'\@';"`)

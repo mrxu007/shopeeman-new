@@ -1,16 +1,3 @@
-/*
- * @Author: your name
- * @Date: 2021-11-10 12:02:05
- * @LastEditTime: 2021-11-29 17:38:28
- * @LastEditors: Please set LastEditors
- * @Description: In User Settings Edit
- * @FilePath: \shopeeman-new\src\views\order-manager\components\orderCenter\selectData.js
- */
-
-import {
-  rearg
-} from "lodash"
-
 //订单状态  1:待支付 2:待发货 3:已发货 4:已完成  5:取消中 6:已取消 7:退款/退货 8:确认签收 9:退款成功 10:退款失败  20:无售后订单
 const orderStatusList = [{
     value: 1,
@@ -57,9 +44,10 @@ const orderStatusList = [{
     label: '无售后订单'
   }
 ]
-function changeOrderStatus(val){
-  let obj = orderStatusList.find(item=>item.value == val)
- return obj && obj.label || ''
+
+function changeOrderStatus(val) {
+  let obj = orderStatusList.find(item => item.value == val)
+  return obj && obj.label || ''
 }
 //采购状态  1:待采购  3:采购成功  4:采购上家已发货 5:待支付 6:已完成  7:已取消 8:已申请退款 9:退款成功
 const shotStatusList = [{
@@ -95,6 +83,11 @@ const shotStatusList = [{
     label: '退款成功'
   }
 ]
+
+function changeShotStatus(val) {
+  let obj = shotStatusList.find(item => item.value == val)
+  return obj && obj.label || ''
+}
 const shotStatuForEdit = [{
     value: 1,
     label: '待采购'
@@ -787,80 +780,80 @@ const syncStatus = [
   //   label: '运送中',
   //   value: 'shipping'
   // },
-  // {
-  //   label: '已完成',
-  //   value: 'completed'
-  // },
+  {
+    label: '已完成',
+    value: 'completed'
+  },
   // {
   //   label: '取消中',
   //   value: 'cancelled'
-  // }, //cancelled  //cancelled_all
-  {
-    label: '退款中',
-    value: 'refund'
-  },
+  // }, 
+  // {
+  //   label: '退款中',
+  //   value: 'refund'
+  // },
 ]
 //货物类型
-const packageType = [
-  {
-    label:"普货",
-    value:1
+const packageType = [{
+    label: "普货",
+    value: 1
   },
   {
-    label:"敏感货",
-    value:2
+    label: "敏感货",
+    value: 2
   },
   {
-    label:"商检货",
-    value:3
+    label: "商检货",
+    value: 3
   },
 ]
-function changePackageType(val){
-  let obj = packageType.find(item=>item.value == val)
- return obj && obj.label || '普货'
+
+function changePackageType(val) {
+  let obj = packageType.find(item => item.value == val)
+  return obj && obj.label || '普货'
 }
 //仓库发货状态 //1：待入库 2：等待包裹  3: 紧急入库  4: 待出库 5: 已出库 6: 已完成 7:订单作废 8:暂停发货 9:异常
-const deliveryStatus  = [
-  {
-    label:"待入库",
-    value:1
+const deliveryStatus = [{
+    label: "待入库",
+    value: 1
   },
   {
-    label:"等待包裹",
-    value:2
+    label: "等待包裹",
+    value: 2
   },
   {
-    label:"紧急入库",
-    value:3
+    label: "紧急入库",
+    value: 3
   },
   {
-    label:"待出库",
-    value:4
+    label: "待出库",
+    value: 4
   },
   {
-    label:"已出库",
-    value:5
+    label: "已出库",
+    value: 5
   },
   {
-    label:"已完成",
-    value:6
+    label: "已完成",
+    value: 6
   },
   {
-    label:"订单作废",
-    value:7
+    label: "订单作废",
+    value: 7
   },
   {
-    label:"暂停发货",
-    value:8
+    label: "暂停发货",
+    value: 8
   },
   {
-    label:"异常",
-    value:9
+    label: "异常",
+    value: 9
   },
 ]
-function changeDeliveryStatus(val){
-  let obj = deliveryStatus.find(item=>item.value == val)
- return obj && obj.label || ''
+
+function changeDeliveryStatus(val) {
+  let obj = deliveryStatus.find(item => item.value == val)
+  return obj && obj.label || ''
 }
 
 //每隔30分钟同步一次
@@ -888,14 +881,14 @@ const statusListThird = [{
     value: 'completed'
   }
 ]
-
+//物流方式
 function siteShip(country) {
   let arr = site_mall.filter(item => {
-    return item.Country === country
+    return item.CountryCode === country
   })
   return arr
 }
-
+//采购平台
 function sourceName(val) {
   let name = ''
   let info = goodsSourceList.find(item => {
@@ -904,7 +897,7 @@ function sourceName(val) {
   name = info ? info.label : ''
   return name
 }
-
+//发货状态
 function orderStatusName(val) {
   let name = ''
   let info = orderStatusList.find(item => {
@@ -1283,13 +1276,13 @@ const warehouseType = [{
     value: 3
   }
 ]
-const lazadaUrlList =  {
-  "TH" : "https://acs-m.lazada.co.th",
-  "MY" : "https://acs-m.lazada.com.my",
-  "VN" : "https://acs-m.lazada.vn",
-  "ID" : "https://acs-m.lazada.co.id",
-  "PH" : "https://acs-m.lazada.com.ph",
-  "SG" : "https://acs-m.lazada.sg",
+const lazadaUrlList = {
+  "TH": "https://acs-m.lazada.co.th",
+  "MY": "https://acs-m.lazada.com.my",
+  "VN": "https://acs-m.lazada.vn",
+  "ID": "https://acs-m.lazada.co.id",
+  "PH": "https://acs-m.lazada.com.ph",
+  "SG": "https://acs-m.lazada.sg",
 };
 const forbidData = [
   "爆炸性、易燃性、腐蚀性、放射性和毒性等危险物品",
@@ -1348,44 +1341,196 @@ const forbidTHData = [
   "酒",
   "古董"
 ]
+const colorList = [{
+  "id": 1,
+  "uid": 974,
+  "color_name": "red",
+  "color": "#FF0000",
+  "name": "标识一",
+  "status": 1,
+  "created_at": "2020-06-30 11:12:54",
+  "updated_at": "2020-07-01 09:59:16",
+  "deleted_at": null
+}, {
+  "id": 2,
+  "uid": 974,
+  "color_name": "水绿色",
+  "color": "#00FFFF",
+  "name": "标识二",
+  "status": 1,
+  "created_at": "2020-06-30 11:12:55",
+  "updated_at": "2020-11-24 15:19:12",
+  "deleted_at": null
+}, {
+  "id": 3,
+  "uid": 974,
+  "color_name": "绿色",
+  "color": "#008000",
+  "name": "标识三",
+  "status": 1,
+  "created_at": "2020-06-30 11:12:55",
+  "updated_at": "2020-06-30 11:12:55",
+  "deleted_at": null
+}, {
+  "id": 4,
+  "uid": 974,
+  "color_name": "蓝色",
+  "color": "#0000FF",
+  "name": "标识四",
+  "status": 1,
+  "created_at": "2020-06-30 11:12:55",
+  "updated_at": "2020-06-30 11:12:55",
+  "deleted_at": null
+}, {
+  "id": 5,
+  "uid": 974,
+  "color_name": "紫色",
+  "color": "#800080",
+  "name": "标识五",
+  "status": 1,
+  "created_at": "2020-06-30 11:12:55",
+  "updated_at": "2020-06-30 11:12:55",
+  "deleted_at": null
+}, {
+  "id": 6,
+  "uid": 974,
+  "color_name": "棕色",
+  "color": "#8B4513",
+  "name": "标识六",
+  "status": 1,
+  "created_at": "2020-06-30 11:12:55",
+  "updated_at": "2020-06-30 11:12:55",
+  "deleted_at": null
+}, {
+  "id": 7,
+  "uid": 974,
+  "color_name": "橙色",
+  "color": "#FF8C00",
+  "name": "标识七",
+  "status": 1,
+  "created_at": "2020-06-30 11:12:55",
+  "updated_at": "2020-06-30 11:12:55",
+  "deleted_at": null
+}, {
+  "id": 8,
+  "uid": 974,
+  "color_name": "黑色",
+  "color": "#000000",
+  "name": "标识八",
+  "status": 1,
+  "created_at": "2020-06-30 11:12:55",
+  "updated_at": "2020-06-30 11:12:55",
+  "deleted_at": null
+}, {
+  "id": 9,
+  "uid": 974,
+  "color_name": "粉红",
+  "color": "#FFC0CB",
+  "name": "标识九",
+  "status": 1,
+  "created_at": "2020-06-30 11:12:55",
+  "updated_at": "2020-06-30 11:12:55",
+  "deleted_at": null
+}, {
+  "id": 10,
+  "uid": 974,
+  "color_name": "橄榄绿",
+  "color": "#808000",
+  "name": "标识十",
+  "status": 1,
+  "created_at": "2020-06-30 11:12:55",
+  "updated_at": "2020-06-30 11:12:55",
+  "deleted_at": null
+}, {
+  "id": 41,
+  "uid": 974,
+  "color_name": "杜若色",
+  "color": "#426ab3",
+  "name": "标识十一",
+  "status": 1,
+  "created_at": "2021-06-07 14:44:42",
+  "updated_at": "2021-06-07 14:44:42",
+  "deleted_at": null
+}, {
+  "id": 42,
+  "uid": 974,
+  "color_name": "黄色",
+  "color": "#ffd400",
+  "name": "标识十二",
+  "status": 1,
+  "created_at": "2021-06-07 14:44:42",
+  "updated_at": "2021-06-07 14:44:42",
+  "deleted_at": null
+}, {
+  "id": 43,
+  "uid": 974,
+  "color_name": "踯躅色",
+  "color": "#ef5b9c",
+  "name": "标识十三",
+  "status": 1,
+  "created_at": "2021-06-07 14:44:42",
+  "updated_at": "2021-06-07 14:44:42",
+  "deleted_at": null
+}, {
+  "id": 44,
+  "uid": 974,
+  "color_name": "若绿",
+  "color": "#7fb80e",
+  "name": "标识十四",
+  "status": 1,
+  "created_at": "2021-06-07 14:44:42",
+  "updated_at": "2021-06-07 14:44:42",
+  "deleted_at": null
+}, {
+  "id": 45,
+  "uid": 974,
+  "color_name": "群青色",
+  "color": "#4e72b8",
+  "name": "标识十五",
+  "status": 1,
+  "created_at": "2021-06-07 14:44:42",
+  "updated_at": "2021-06-07 14:44:42",
+  "deleted_at": null
+}]
 const shotOrderPlatform = {
   /// 淘宝
-  TaoBao : 0,
-  PinDuoduo : 1,
-  JingDong : 2,
-  JingXi : 3,
-  HYJ : 4,
-  Alibaba : 5,
-  YunPaiDan : 6,
-  Lazada : 7,
-  Shopee : 8,
-  CrossBorder : 9,
-  OwnPlatform : 10,
-  PpxiasGhpt : 11,
-  AliExpressPlatform : 12
+  TaoBao: 0,
+  PinDuoduo: 1,
+  JingDong: 2,
+  JingXi: 3,
+  HYJ: 4,
+  Alibaba: 5,
+  YunPaiDan: 6,
+  Lazada: 7,
+  Shopee: 8,
+  CrossBorder: 9,
+  OwnPlatform: 10,
+  PpxiasGhpt: 11,
+  AliExpressPlatform: 12
 }
-function  changeBuyerType(type) {
+
+function changeBuyerType(type) {
   switch (type) {
-  case 1:
-    return shotOrderPlatform.PinDuoduo
-  case 2:
-  case 3:
-    return shotOrderPlatform.TaoBao
-  case 4:
-    return shotOrderPlatform.JingDong
-  case 8:
-    return shotOrderPlatform.Alibaba
-  case 9:
-    return shotOrderPlatform.Lazada
-  case 10:
-    return shotOrderPlatform.JingXi
-  case 11:
-    return shotOrderPlatform.Shopee
-  case 13:
-    return shotOrderPlatform.CrossBorder
-  default:
-    return shotOrderPlatform.PinDuoduo
-}
+    case 1:
+      return shotOrderPlatform.PinDuoduo
+    case 2:
+    case 3:
+      return shotOrderPlatform.TaoBao
+    case 4:
+      return shotOrderPlatform.JingDong
+    case 8:
+      return shotOrderPlatform.Alibaba
+    case 9:
+      return shotOrderPlatform.Lazada
+    case 10:
+      return shotOrderPlatform.JingXi
+    case 11:
+      return shotOrderPlatform.Shopee
+    case 13:
+      return shotOrderPlatform.CrossBorder
+    default:
+      return shotOrderPlatform.PinDuoduo
+  }
 }
 export {
   orderStatusList,
@@ -1407,6 +1552,8 @@ export {
   forbidTHData,
   packageType,
   lazadaUrlList,
+  colorList,
+  changeShotStatus,
   changeBuyerType,
   changeOrderStatus,
   changeDeliveryStatus,

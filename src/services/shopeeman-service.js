@@ -36,7 +36,7 @@ export default class NetMessageBridgeService {
     if (userSettings.domain_switch === 'Abroad') {
       url = this.site_domain_local_pre[country]
     } else if (userSettings.domain_switch === 'Auto' && mall_main_id > 0 && (IPType.indexOf('大陆') === -1 || IPType === '1')) {
-      url = this.site_domain_chinese_pre[country]
+      url = this.site_domain_local_pre[country]
     }
     return url
   }
@@ -1047,6 +1047,95 @@ export default class NetMessageBridgeService {
       return {
         code: resObj.status,
         data: `获取失败${resObj.statusText}`
+      }
+    }
+  }
+    // 查询商品
+    async searchProductList(country, data) {
+      const res = await this.getChinese(country, '/api/v3/product/search_product_list/', data)
+      const resObj = res && JSON.parse(res)
+      // console.log(resObj)
+      if (resObj && resObj.status === 200) {
+        const info = JSON.parse(resObj.data)
+        if (info && info.code === 0) {
+          return {
+            code: 200,
+            data: info.data || []
+          }
+        } else {
+          return {
+            code: 50001,
+            data: info.message || []
+          }
+        }
+      } else {
+        return {
+          code: resObj.status,
+          data: `获取失败${resObj.statusText}`
+        }
+      }
+    }
+    // 查询产品详情
+    async searchProductDetail(country, data) {
+      const res = await this.getChinese(country, '/api/v3/product/get_product_detail/', data)
+      const resObj = res && JSON.parse(res)
+      // console.log(res,resObj)
+      if (resObj && resObj.status === 200) {
+        const info = JSON.parse(resObj.data)
+        if (info && info.code === 0) {
+          return {
+            code: 200,
+            data: info.data || []
+          }
+        } else {
+          return {
+            code: 50001,
+            data: info.message || []
+          }
+        }
+      } else {
+        return {
+          code: resObj.status,
+          data: `获取失败${resObj.statusText}`
+        }
+      }
+    }
+      // 产品编辑
+  async handleProductEdit(country, data, params) {
+    const res = await this.postChineseShop(country, '/api/v3/product/update_product/', data, params, {
+      Headers: {
+        'Content-Type': ' application/json'
+      },
+      params: {
+        version: '3.1.0',
+        source: 'seller_center'
+      }
+    })
+    const resObj = res && JSON.parse(res)
+    console.log(resObj)
+    if (resObj && resObj.status === 200) {
+      const info = JSON.parse(resObj.data)
+      if (info && info.code === 0) {
+        return {
+          code: 200,
+          data: info.data || []
+        }
+      } else {
+        return {
+          code: 50001,
+          data: info.message || resObj.statusText || ''
+        }
+      }
+    } else {
+      if (resObj.status === 403) {
+        return {
+          code: resObj.status,
+          data: `商品编辑失败，店铺未登录！`
+        }
+      }
+      return {
+        code: resObj.status,
+        data: `商品编辑失败${resObj.statusText}`
       }
     }
   }

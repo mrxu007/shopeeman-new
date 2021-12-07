@@ -33,6 +33,7 @@
         <el-table-column label="包裹图片">
           <template slot-scope="scope">
             <el-tooltip
+              v-if="scope.row.package_image"
               effect="light"
               placement="right-end"
               :visible-arrow="false"
@@ -40,16 +41,22 @@
               style="width: 56px; height: 56px"
             >
               <div slot="content">
-                <img :src="scope.row.package_image" width="400px" height="400px">
+                <el-image
+                  :src="scope.row.package_image"
+                  style="width: 400px; height: 400px"
+                >
+                  <div slot="error" class="image-slot" />
+                </el-image>
               </div>
               <el-image
-                v-if="scope.row.package_image"
                 :src="scope.row.package_image"
                 alt=""
                 width="56px"
                 height="56px"
                 style="border-radius: 4px;"
-              />
+              >
+                <div slot="error" class="image-slot" />
+              </el-image>
             </el-tooltip>
           </template>
         </el-table-column>

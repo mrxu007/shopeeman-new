@@ -19,7 +19,7 @@
       >
         <el-table-column label="订单号" prop="order_sn" min-width="300px">
           <template slot-scope="{ row }">
-            <span>{{ row.order_sn }}
+            <span v-if="row.order_sn">{{ row.order_sn }}
               <el-button
                 type="text"
                 class="copyIcon"
@@ -31,7 +31,7 @@
         </el-table-column>
         <el-table-column label="拍单号" prop="shot_order_sn" min-width="300px">
           <template slot-scope="{ row }">
-            <span>{{ row.shot_order_sn }}
+            <span v-if="row.shot_order_sn">{{ row.shot_order_sn }}
               <el-button
                 type="text"
                 class="copyIcon"
@@ -49,7 +49,7 @@
         <el-pagination
           background
           :current-page.sync="page"
-          :page-sizes="[20, 50, 100, 200]"
+          :page-sizes="[100, 200]"
           :page-size="pageSize"
           layout="total, sizes, prev, pager, next, jumper"
           :total="total"
@@ -68,7 +68,7 @@ export default {
         orderSn: '', // 订单号
         shotOrderSn: '', // 拍单号
         page: 1,
-        pageSize: 20
+        pageSize: 100
       },
       total: 0,
       tableList: [],
@@ -122,7 +122,7 @@ export default {
 </script>
 <style lang="less">
     .detai{
-        min-width: 1280px;
+        min-width: 1200px;
         padding: 10px;
         .condition{
             display: flex;

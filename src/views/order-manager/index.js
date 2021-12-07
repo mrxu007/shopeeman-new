@@ -17,9 +17,11 @@ const OrderManagerReceivingAddress = () => import('./components/OrderManagerRece
 const OrderManagerDeliveryManagement = () => import('./components/OrderManagerDeliveryManagement.vue')
 
 // 丢件信息查询
-// const OrderManagerLostSearch = () => import('./components/OrderManagerLostSearch.vue')
+const OrderManagerLostInfoQuery = () => import('./components/OrderManagerLostInfoQuery.vue')
 // 采购信息查询
 // const OrderManagerPriceChangeRecorde = () => import('./components/OrderManagerPriceChangeRecorde.vue')
+const OrderManagerChangeRecord = () => import('./components/OrderManagerChangeRecord.vue')
+
 // 订单列表
 const OrderManagerOrderCenter = () => import('./components/OrderManagerOrderCenter.vue')
 // 仓库收货地址设置
@@ -35,8 +37,8 @@ export {
   // OrderManagerList,
   OrderManagerAfterSales,
   OrderManagerReceivingAddress,
-  OrderManagerDeliveryManagement
-  // OrderManagerLostInfoQuery,
-  // OrderManagerChangeRecord,
+  OrderManagerDeliveryManagement,
+  OrderManagerLostInfoQuery,
+  OrderManagerChangeRecord
 }
 

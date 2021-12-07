@@ -42,7 +42,7 @@
       </el-table>
     </div>
     <!-- 修改别名 -->
-    <el-dialog title="修改账号别名" :visible.sync="dialogVisible_updata" width="30%" @closed="clearVisible">
+    <el-dialog title="修改账号别名" :visible.sync="dialogVisible_updata" width="400px" @closed="clearVisible">
       <div>
         <div style="display: flex; align-items: baseline">
           <span>当前账号别名：</span>

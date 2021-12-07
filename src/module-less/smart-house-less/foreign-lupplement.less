@@ -1,20 +1,26 @@
 .contaniner{
-    margin: 10px;
+  margin:10px 10px 0 10px;
     .header {
       background: white;
       padding: 16px;
-      min-width: 1280px;
       overflow: auto;
+      border-radius: 5px;
       ul{
+        width: 900px;
         display: flex;
+        // .status{
+        //   /deep/.el-input{
+        //     width: 95px !important;
+        //   }
+        // }
           li{
             line-height: 24px;
             display: flex;
               margin-right: 20px;
               /deep/.el-range-editor--mini{
-                width: 228px;
+                width: 212px;
                 /deep/.el-range-input{
-                  width: 62px !important;
+                  width: 69px !important;
               }
               /deep/.el-range-separator{
                   width: 42px!important;
@@ -28,10 +34,11 @@
       }
     }
     #article {
+      border-radius: 5px;
       background: white;
       margin-top: 10px;
       padding: 16px;
-      min-width: 1280px;
+      overflow: hidden;
       .pagination{
         float: right;
         margin-top: 10px;

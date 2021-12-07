@@ -140,11 +140,14 @@ export default {
   setNoWait: (data) => AppRequest.post('/orderPackage/setNoWait', data), // 订单设置不等待子订单
   trackingNumberChangeOrder: (data) => AppRequest.post('/order/trackingNumberChangeOrder', data), // 采购物流单号变更
   noticeTodeliver: (data) => AppRequest.post('/orderPackage/changeOrderDeliveryStatus', data), // 通知仓库发货/暂停发货
-  getGoodsInfo: (data) => AppRequest.get('/goodsPackageCode/getGoodsInfoV2 ', data), // 订单包裹详情
+ // getGoodsInfo: (data) => AppRequest.get('/goodsPackageCode/getGoodsInfoV2 ', data), // 订单包裹详情
+  getGoodsInfo: (data) => AppRequest.get('/goodsPackageCode/getGoodsInfo ', data), // 订单包裹详情
   uploadExtService: (data) => AppRequest.post('/orderPackage/uploadExtService ', data), // 订单增值服务
   getNotHaveLogisticsInformations: () => AppRequest.get('/orderPackage/getNotHaveLogisticsInformations'), // 获取面单信息
   cancelSign: (data) => AppRequest.post('/interceptConfig/delete', data), // 取消拒收/签收信息
   packageSign: (data) => AppRequest.post('/interceptConfig/save', data), // 仓库包裹拒签/签收
+//  warehouseAddress: () => AppRequest.get('/warehouseAddress/userIndex'), // 获取仓库信息
+//  uploadWarehouseOrder: (data) => AppRequest.post('/warehouseAddress/uploadWarehouseOrder', data), // 获取仓库信息
   uploadWarehouseOrder: (data) => AppRequest.post('/warehouseAddress/uploadWarehouseOrder', data), // 推送订单至仓库
   setColorLabel: (data) => AppRequest.post(`/colorLabel/setOrder`, data), // 设置订单颜色标识
   getUserStore: (data) => AppRequest.get('/userStock/get', { params: data }), // 自有仓库列表
@@ -153,6 +156,8 @@ export default {
   deleteUserGoods: (data) => AppRequest.post('/userStock/deleteGoods', data), // 删除自有商品
   setUserRemark: (data) => AppRequest.post('/orderPackage/setUserRemark', data), // 批量更新用户备注
   deleteUserSku: (data) => AppRequest.post('/userStock/deleteSkus', data), // 删除sku
+  getMoney: (data) => AppRequest.get('/warehouseAbnormalPayment/getMoney', { params: data }), // 仓库工作台：获取赔付金额
+  applyCompensation: (data) => AppRequest.post('/warehouseAbnormalPayment/apply', data), // 仓库工作台：申请赔付
 
   // 订单管理
   shotAmountRecord: (data) => AppRequest.get('/shotAmountRecord/index', data), // 采购价变更记录
@@ -189,7 +194,7 @@ export default {
   updateShotStatus: (data) => AppRequest.post('/aftermarket/updateShotStatus', data), // 采购状态变更
   orderSaveRemark: (data) => AppRequest.post('/order/remark', data), // 添加店铺备注
 
-  getsecondlist: (data) => AppRequest.post('/overseasTansferPackage/index', data), // 获取二次销售列表
+  getsecondlist: (data) => AppRequest.get('/overseasTansferPackage/indexAll', { params: data }), // 获取二次销售列表
 
   // getBuyerList: (data) => AppRequest.get('/buyerAccount/index', data), // 下载买手号
   stockingForecastUpload: (data) => AppRequest.post('/warehouse/stockingForecastUpload', data), // 海外仓商品备货：发起商品预报
@@ -199,34 +204,34 @@ export default {
   deleteHomeForecast: (data) => AppRequest.post('/homeStockingForecast/delete', data), // 国内中转备货预报单: 删除
   getOutOfStockList: (data) => AppRequest.get('/warehouse/outOfStockList', { params: data }), // 海外仓出库订单：列表
   // getsecondlist: (data) => AppRequest.post('/overseasTansferPackage/index', data) // 获取二次销售列表
-  addReissueStore: (data) => AppRequest.post('/warehouse/addReissueStore', JSON.stringify(data)), // 海外仓补件：新增补件
+  addReissueStore: (data) => AppRequest.post('/addReissueStore', JSON.stringify(data)), // 海外仓补件：新增补件
   cancelOverseaOrder: (data) => AppRequest.post('/warehouse/cancelOverseaOrder', data), // 海外仓出库订单：批量取消订单
   deleteBuyAccount: (data) => AppRequest.post('/buyerAccount/destroy', data), // 删除买手号
   getUserWarehouse: (data) => AppRequest.get('/warehouseAddress/userIndex', { params: data }), // 仓库收货地址设置---获取列表
   getPurchaseLists: (data) => AppRequest.post('/getPurchaseLists', data), // 获取采购链接
   getOrderBySn: (data) => AppRequest.post('/order/getSimpleOrderInfo', data), // 根据订单号获取订单
   uploadOrderWarehourseShipAmount: (data) => AppRequest.post('/order/uploadOrderWarehourseShipAmount', data), // 上报仓库发货金额
-
   savePurchase: (data) => AppRequest.post('/purchase', data), // 上报采购链接
   getOrderTrackingNumber: (data) => AppRequest.get('/order/getOrderTrackingNumber', { params: data }), // 获取多物流单号列表
-
-  getHomeOutStockOrder: (data) => AppRequest.get('/homeOutStockOrder/index', { params: data }), // 国内出库单: 列表
+  getHomeOutStockOrder: (data) => AppRequest.get('/homeOutStockOrder/index', { params: data }), // 国内出库单: 列表 
+  homeOutStockOrder: (data) => AppRequest.post('/homeOutStockOrder/add', data), // 国内仓出库 
+  outOfStockAbroad: (data) => AppRequest.post('/warehouse/outOfStock', data), // 海外仓出库 
+  getLogisticsInformationBatch: (data) => AppRequest.post('/getLogisticsInformationBatch', data), // 获取面单信息 
+  getAsyncExportOrder: (data) => AppRequest.get('/getAsyncExportOrder', { params: data }), // 获取导出报表信息 
+  applyAsyncExportOrder: (data) => AppRequest.post('/applyAsyncExportOrder', { params: data }), // 点击导出报表信息 
+  saveUserConfig: (data) => AppRequest.post('/user/saveUserConfig',  data ), // 保存回复评论设置 
+  cancelSecondSale: (data) => AppRequest.post('/overseasTansferPackage/cancelSecondSale',  data ),//取消二次销售数据 
+  uploadSecondSale: (data) => AppRequest.post('/overseasTansferPackage/uploadSecondSale',  data ),//二次销售出库上报
   // getsecondlist: (data) => AppRequest.post('/overseasTansferPackage/index', data), // 获取二次销售列表
   getlupplementlist: (data) => AppRequest.get('/getReissueStoreList', { params: data }), // 获取海外仓补件列表
   cancelsupplement: (data) => AppRequest.post('/cancelReissueOrder', data), // 取消补件
-
   // 产品中心------------------------------------------------------------------------
   getproductlist: (data) => AppRequest.get('/product/list', { params: data }), // 获取产品列表
   deleteproduct: (data) => AppRequest.post('/product/delete', data), // 删除产品
   saveproduct: (data) => AppRequest.post('/product/save', data), // 保存产品
+  getpddBuyerAccount: (data) => AppRequest.get('/pddBuyerAccount/index', { params: data }), // 拼多多买手号-列表 
+  uplaodLazadaPaymentMethod: (data) => AppRequest.post('/order/uplaodShotOrderPaymentMethod',  data ),//上报lazada付款方式 
+  uploadOrderLogisticsInfo: (data) => AppRequest.post('/order/uploadOrderLogisticsInfo',  data ),//上报shop平台的物流
 
-  getpddBuyerAccount: (data) => AppRequest.get('/pddBuyerAccount/index', { params: data }), // 拼多多买手号-列表
 
-  // getHomeOutStockOrder: (data) => AppRequest.get('/homeOutStockOrder/index', { params: data }), // 国内出库单: 列表
-  homeOutStockOrder: (data) => AppRequest.post('/homeOutStockOrder/add', data), // 国内仓出库
-  outOfStockAbroad: (data) => AppRequest.post('/warehouse/outOfStock', data), // 海外仓出库
-  getLogisticsInformationBatch: (data) => AppRequest.post('/getLogisticsInformationBatch', data), // 获取面单信息
-  getAsyncExportOrder: (data) => AppRequest.get('/getAsyncExportOrder', { params: data }), // 获取导出报表信息
-  applyAsyncExportOrder: (data) => AppRequest.post('/applyAsyncExportOrder', { params: data }), // 点击导出报表信息
-  saveUserConfig: (data) => AppRequest.post('/user/saveUserConfig', data) // 保存回复评论设置
 }

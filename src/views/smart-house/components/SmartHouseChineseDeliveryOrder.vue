@@ -17,7 +17,7 @@
             />
           </el-select>
         </li>
-        <li>
+        <li class="status">
           <span>订单出库状态：</span>
           <el-select
             v-model="form.status"
@@ -93,7 +93,7 @@
       <el-table
         ref="plTable"
         v-loading="isShowLoading"
-        height="calc(100vh - 205px)"
+        height="calc(100vh - 200px)"
         :data="tableData"
         :header-cell-style="{
           backgroundColor: '#f5f7fa',
@@ -199,21 +199,17 @@
           min-width="135"
         />
         <el-table-column
-          label="出库商品详情"
-          min-width="180"
+          align="center"
+          label="操作"
+          min-width="100"
         >
           <template slot-scope="{row}">
             <el-button
-              v-if="row.status!=5 && row.status !=3"
+              v-if="row.status!=5 && row.status !=6"
               size="mini"
               type="primary"
               @click="cancelHomeOrder(row,1)"
             >取消订单</el-button>
-            <el-button
-              size="mini"
-              type="primary"
-              @click="setUid(row)"
-            >补 件</el-button>
           </template>
         </el-table-column>
         <el-table-column
@@ -249,7 +245,7 @@
       class="details-dialog"
       title="出库商品详情"
       :visible.sync="detailsVisible"
-      width="800px"
+      width="1000px"
       :close-on-click-modal="false"
       :close-on-press-escape="false"
     >
@@ -276,6 +272,7 @@
           width="150"
           align="center"
           label="订单编号"
+          show-overflow-tooltip
           fixed
         />
         <el-table-column
@@ -283,12 +280,14 @@
           align="center"
           label="商品编号(SKU)"
           prop="sku_id"
+          show-overflow-tooltip
         />
         <el-table-column
-          width="100"
+          width="150"
           align="center"
           label="商品名称"
           prop="goods_name"
+          show-overflow-tooltip
         />
         <el-table-column
           width="100"
@@ -317,16 +316,19 @@
               style="width: 50px; height: 50px"
             >
               <div slot="content">
-                <img
+                <el-image
                   :src="row.goods_img"
-                  width="300px"
-                  height="300px"
+                  style="width: 400px; height: 400px"
                 >
+                  <div slot="error" class="image-slot" />
+                </el-image>
               </div>
               <el-image
                 style="width: 40px; height: 40px"
                 :src="row.goods_img"
-              />
+              >
+                <div slot="error" class="image-slot" />
+              </el-image>
             </el-tooltip>
           </template>
         </el-table-column>
@@ -409,6 +411,32 @@ export default {
     await this.getHomeOutStockOrder()
   },
   methods: {
+    // 取消/批量取消订单
+    async cancelHomeOrder(val, type) {
+      let data = []
+      if (type === 1) {
+        data.push(val)
+      } else {
+        if (!val?.length) return this.$message('请选择需要取消订单的商品')
+        data = val
+      }
+      for (let index = 0; index < data.length; index++) {
+        const element = data[index]
+        if (element.status !== 5 && element.status !== 6) {
+          const pamars = {}
+          pamars['id'] = element.id
+          const res = await this.ChineseDeliveryOrder.cancelHomeOrder(pamars)
+          console.log('cancelHomeOrder', res)
+          if (res.code === 200) {
+            this.$set(element, 'orderStatus', '取消订单成功')
+            this.$set(element, 'color', 'green')
+          } else {
+            this.$set(element, 'orderStatus', res.data)
+            this.$set(element, 'color', 'red')
+          }
+        }
+      }
+    },
     // 设置uid
     setUid(row) {
       this.overseaOrderSn = row.homeOrderSn
@@ -416,9 +444,13 @@ export default {
       this.reissueVisible = true
       this.getStock()
     },
-    // 打开商品链接
-    openUrl(row) {
-      window.open(row)
+    // 打开外部链接
+    async openUrl(url) {
+      try {
+        await this.$BaseUtilService.openUrl(url)
+      } catch (error) {
+        this.$message.error(`打开链接【${url}】失败`)
+      }
     },
     // 获取用户muid
     async getUserInfo() {
@@ -429,30 +461,40 @@ export default {
         this.$message.error(res.data)
       }
     },
-    // 获取仓库
+    // 获取中转仓
     async getWarehouseList() {
+      let data = []
       const myMap = new Map()
-      const res = await this.ChineseDeliveryOrder.getWarehouseList()
-      if (res.code === 200) {
-        res.data.forEach(item => {
-          if (item.user_ids) {
-            const flag = item.user_ids.some(uItem => {
-              return uItem === this.muid
-            })
-            if (flag) {
-              this.widList.push(item)
-            }
-          } else {
-            if (item.status !== 2) {
-              this.widList.push(item)
-            }
-          }
-        })
-        this.widList = this.widList.filter((item) => !myMap.has(item.id) && myMap.set(item.id, 1))
-        this.form.wid = this.widList[0].wid
+      // 判断是否缓存 有则使用缓存数据 没有则调取服务端 然后缓存一份
+      const res1 = await this.ChineseDeliveryOrder.temporaryCacheInfo('get', 'getWarehouseList', '')
+      if (res1.code === 200) {
+        data = res1.data
       } else {
-        this.$message.error(`${res.data}`)
+        const res2 = await this.ChineseDeliveryOrder.getWarehouseList()
+        if (res2.code === 200) {
+          data = res2.data
+          await this.ChineseDeliveryOrder.temporaryCacheInfo('save', 'getWarehouseList', data)
+        } else {
+          this.$message.error(`${res2.data}`)
+          return
+        }
       }
+      data.forEach(item => {
+        // 判断user_ids是否有值 没有则判断状态 有则只显示与muid对应的
+        if (item.user_ids) {
+          const flag = item.user_ids.some(uItem => { return uItem === this.muid })
+          if (flag) {
+            this.widList.push(item)
+          }
+        } else {
+          // 弹窗仓库列表不需要判断
+          if (item.status !== 2) {
+            this.widList.push(item)
+          }
+        }
+      })
+      this.widList = this.widList.filter((item) => !myMap.has(item.id) && myMap.set(item.id, 1))
+      this.form.wid = this.widList[0].wid
     },
     // 获取数据
     async getHomeOutStockOrder() {
@@ -468,12 +510,14 @@ export default {
           const resName = await this.ChineseDeliveryOrder.transferWarehouse(item.wid)
           if (resName.code === 200) {
             this.$set(item, 'warehouse_name', resName.data)
+          } else {
+            this.$set(item, 'warehouse_name', '')
           }
           let goods_num = 0
           let goods_price = 0
           item.home_out_stock_sku.forEach(skuItem => {
-            goods_num += skuItem.goods_count ? skuItem.goods_count : 0
-            goods_price += skuItem.goods_price ? parseInt(skuItem.goods_price) * skuItem.sku_num : 0
+            goods_num += skuItem.goods_count ? Number(skuItem.goods_count) : 0
+            goods_price += skuItem.goods_price ? parseFloat(skuItem.goods_price).toFixed(2) * skuItem.goods_count : 0
           })
           item.goods_num = goods_num
           item.goods_price = goods_price
@@ -486,7 +530,7 @@ export default {
     },
     // 查看商品详情
     getDetails(row) {
-      this.detailsData = row.sku_list
+      this.detailsData = row.home_out_stock_sku
       this.detailsData.map(item => {
         item.home_order_sn = row.home_order_sn
       })
@@ -498,7 +542,7 @@ export default {
       const data = []
       const exportData = []
       const params = this.form
-      params.pageSize = this.pageSize
+      params.pageSize = 200
       params.page = 1
       while (exportData.length < this.total) {
         const res = await this.ChineseDeliveryOrder.getHomeOutStockOrder(params)
@@ -506,7 +550,11 @@ export default {
           const resData = res.data.data
           resData.forEach(async item => {
             const resName = await this.ChineseDeliveryOrder.transferWarehouse(item.wid)
-            item.warehouse_name = resName.data
+            if (resName.code === 200) {
+              item.warehouse_name = resName.data
+            } else {
+              item.warehouse_name = ''
+            }
             exportData.push(item)
           })
           params.page++
@@ -530,8 +578,8 @@ export default {
           obj['sku_id'] = skuItem.sku_id
           obj['goods_name'] = skuItem.goods_name
           obj['goods_count'] = skuItem.goods_count
-          obj['goods_price'] = skuItem.goods_count
-          obj['goods_name'] = skuItem.goods_count
+          obj['goods_price'] = skuItem.goods_price
+          obj['goods_describe'] = skuItem.goods_describe
           obj['goods_img'] = skuItem.goods_img
           obj['goods_url'] = skuItem.goods_url
           data.push(obj)
@@ -567,8 +615,8 @@ export default {
         <td>${item.sku_id ? item.sku_id : '' + '\t'}</td>
         <td>${item.goods_name ? item.goods_name : '' + '\t'}</td>
         <td>${item.goods_count ? item.goods_count : '' + '\t'}</td>
-         <td>${item.sku_price ? item.sku_price : '' + '\t'}</td>
-        <td>${item.sku_name ? item.sku_name : '' + '\t'}</td>
+         <td>${item.goods_price ? item.goods_price : '' + '\t'}</td>
+        <td>${item.goods_describe ? item.goods_describe : '' + '\t'}</td>
         <td>${item.goods_img ? item.goods_img : '' + '\t'}</td>
         <td>${item.goods_url ? item.goods_url : '' + '\t'}</td>
         </tr>`
@@ -593,5 +641,5 @@ export default {
 </script>
 
 <style lang="less" scoped>
-@import '../../../module-less/smart-house-less/broad-deliver-order.less';
+@import '../../../module-less/smart-house-less/chinese-deliver-order.less';
 </style>

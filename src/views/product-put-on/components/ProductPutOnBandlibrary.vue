@@ -52,12 +52,12 @@
         }"
         @selection-change="handleSelectionChange"
       >
-        <el-table-column type="index" align="center" label="序号" min-width="50" fixed>
+        <el-table-column type="selection" align="center" min-width="55" fixed />
+        <!-- <el-table-column type="index" align="center" label="序号" min-width="50" fixed>
           <template slot-scope="scope">
             {{ scope.$index + 1 }}
           </template>
-        </el-table-column>
-        <el-table-column type="selection" align="center" min-width="55" />
+        </el-table-column> -->
         <el-table-column prop="country" align="center" label="站点" min-width="80">
           <template slot-scope="{row}">
             {{ row.country|chineseSite }}
@@ -85,7 +85,7 @@
       <el-pagination
         background
         :current-page="page"
-        :page-sizes="[10, 30, 50]"
+        :page-sizes="[100, 200]"
         :page-size="pageSize"
         layout="total, sizes, prev, pager, next, jumper"
         :total="total"
@@ -163,7 +163,7 @@ export default {
       dialogVisible: false,
       page: 1,
       total: 0,
-      pageSize: 30,
+      pageSize: 100,
       isloading: false,
       multipleSelection: [],
       importTemplateData: '', // 导入数据
@@ -218,7 +218,7 @@ export default {
         country: this.form.site,
         source: Number(this.form.source),
         type: Number(this.form.type),
-        pageSize: this.pageSize
+        pageSize: 200
       }
       while (data.length < this.total) {
         try {
@@ -381,7 +381,7 @@ export default {
           this.$message.success('添加失败' + jsonData.msg)
         }
       } catch (error) {
-        console.log(error)
+        console.log(`${error}`)
       }
       this.dialogVisible = false
     },

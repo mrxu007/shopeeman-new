@@ -264,7 +264,7 @@
               </li>
             </ul>
             <div class="item con-sub-3">
-              <img v-if="base64Str" style="width: 200px; height: 156px" :src="base64Str" class="avatar" />
+              <img v-if="base64Str" style="width: 200px; height: 156px" :src="base64Str" class="avatar">
             </div>
             <!--操作按钮 -->
             <ul class="item con-sub-2">
@@ -444,7 +444,7 @@
         <u-table-column align="center" label="主图">
           <template v-slot="{ row }">
             <div style="justify-content: center; display: flex">
-              <img :src="row.Image" style="width: 56px; height: 56px" />
+              <img :src="row.Image" style="width: 56px; height: 56px">
             </div>
           </template>
         </u-table-column>

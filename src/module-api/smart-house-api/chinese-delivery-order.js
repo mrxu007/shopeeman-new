@@ -31,10 +31,10 @@ export default class ChineseDeliveryOrder {
   async cancelHomeOrder(val) {
     try {
       const res = await this._this.$api.cancelHomeOrder(val)
-      if (res.data.code === 200) {
+      if (Number(res.data.code) === 200) {
         return { code: 200 }
       }
-      return { code: res.data.code, data: `${res.data.message}` }
+      return { code: Number(res.data.code), data: `${res.data.message}` }
     } catch (error) {
       return { code: -2, data: `取消订单异常： ${error}` }
     }
@@ -66,6 +66,32 @@ export default class ChineseDeliveryOrder {
       return { code: res.data.code, data: `${res.data.message}` }
     } catch (error) {
       return { code: -2, data: `获取仓库异常： ${error}` }
+    }
+  }
+  // 缓存中转仓
+  async temporaryCacheInfo(type, key, info) {
+    try {
+      const res = await this._this.$appConfig.temporaryCacheInfo(type, key, info)
+      const jsonData = this.isJsonString(res)
+      if (jsonData?.length) {
+        return { code: 200, data: jsonData }
+      }
+      return { code: 201 }
+    } catch (error) {
+      return { code: -2, data: `获取缓存中转仓异常： ${error}` }
+    }
+  }
+  // 判断能否转JSON
+  isJsonString(str) {
+    if (typeof str === 'string') {
+      try {
+        JSON.parse(str)
+        return JSON.parse(str)
+      } catch (e) {
+        return str
+      }
+    } else {
+      return str
     }
   }
 }
