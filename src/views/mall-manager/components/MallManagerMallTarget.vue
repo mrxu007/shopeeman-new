@@ -389,7 +389,7 @@ export default {
       page: 1,
       total: 0,
       pageSize: 200,
-      height: 680,
+      height: 692,
       rowHeight: 50,
       isLoading: false,
       tableData: [], // 表格数据

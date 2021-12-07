@@ -12,7 +12,7 @@
       ref="shopGroupTable"
       highlight-current-row
       width="100"
-      height="815"
+      height="825"
       :data-changes-scroll-top="false"
       :row-height="40"
       :border="false"
