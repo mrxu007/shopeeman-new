@@ -222,6 +222,7 @@ export default {
   getpddBuyerAccount: (data) => AppRequest.get('/pddBuyerAccount/index', { params: data }), // 拼多多买手号-列表 
   uplaodLazadaPaymentMethod: (data) => AppRequest.post('/order/uplaodShotOrderPaymentMethod',  data ),//上报lazada付款方式 
   uploadOrderLogisticsInfo: (data) => AppRequest.post('/order/uploadOrderLogisticsInfo',  data ),//上报shop平台的物流
+  getDeliveryList: (data) => AppRequest.post('/order/deliveryIndex',  data ),//发货管理列表
 
 
 }

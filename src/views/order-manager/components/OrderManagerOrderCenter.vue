@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-11-09 10:17:44
- * @LastEditTime: 2021-12-06 21:15:40
+ * @LastEditTime: 2021-12-07 12:10:34
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shopeeman-new\src\views\order-manager\components\OrderManagerOrderCenter.vue
@@ -199,7 +199,7 @@
           <template slot-scope="scope">{{ (currentPage - 1) * pageSize + scope.$index + 1 }}</template>
         </el-table-column>
         <el-table-column min-width="80px" label="站点" prop="country" align="center" v-if="showTableColumn('站点')">
-          <template slot-scope="scope" v-if="scope.row.mall_info">{{ scope.row.mall_info.country }}</template>
+          <template slot-scope="scope" v-if="scope.row.mall_info">{{ scope.row.mall_info.country | chineseSite}}</template>
         </el-table-column>
         <el-table-column min-width="80px" label="店铺分组" prop="country" align="center" v-if="showTableColumn('店铺分组')">
           <!-- <template slot-scope="scope">{{ scope.row.mall_info.country }}</template> -->

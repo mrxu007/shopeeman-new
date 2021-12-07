@@ -230,7 +230,7 @@
         <el-table-column label="退件发货地址" prop="return_delivery_time" min-width="200px" align="center" />
         <el-table-column label="退货地址" prop="return_address" min-width="200px" align="center" />
         <el-table-column label="退货邮寄地址" prop="return_pickup_address" min-width="200px" align="center" />
-        <el-table-column label="操作状态" prop="" min-width="150px" fixed="right" align="center">
+        <el-table-column label="操作" prop="" min-width="150px" fixed="right" align="center">
           <template v-slot="{ row, $index }">
             <el-dropdown style="width: 100px; margin-left: 10px">
               <el-button style="width: 100px" size="mini" plain type="primary"> 更多操作<i class="el-icon-arrow-down el-icon--right" /> </el-button>
@@ -708,6 +708,8 @@ export default {
       let params = this.query
       params.sysMallIds = sysMallId
       params[this.selType] = this.inputDes
+      params.page = 1
+      params.pageSize = 200
       this.loading = true
       const { data } = await this.$api.aftermarket(params)
       let exportData = []
