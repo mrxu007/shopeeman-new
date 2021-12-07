@@ -47,7 +47,7 @@
       <el-table
         ref="plTable"
         v-loading="isShowLoading"
-        height="calc(100vh - 165px)"
+        height="calc(100vh - 160px)"
         :row-style="{ height: '45px' }"
         :data="tableData"
         :header-cell-style="{
@@ -272,9 +272,13 @@ export default {
         this.$message.error(res.data)
       }
     },
-    // 打开商品链接
-    openUrl(row) {
-      window.open(row)
+    // 打开外部链接
+    async openUrl(url) {
+      try {
+        await this.$BaseUtilService.openUrl(url)
+      } catch (error) {
+        this.$message.error(`打开链接【${url}】失败`)
+      }
     },
     // 导出数据
     async exportTableData() {
@@ -282,7 +286,7 @@ export default {
       this.isShowLoading = true
       const exportData = []
       const params = this.form
-      params.pageSize = this.pageSize
+      params.page_num = 200
       params.page = 1
       while (exportData.length < this.total) {
         const res = await this.ShareMyBroadStock.getSharedIndex(params)
