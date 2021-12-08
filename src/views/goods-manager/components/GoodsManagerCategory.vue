@@ -458,6 +458,11 @@ export default {
         list.push(data)
       }
       if (type === '2') {
+        const index = this.selectList.findIndex(el => { el.type !== 'customized' })
+        if (index >= 0) {
+          this.$message.warning('只能删除自定义分类')
+          return
+        }
         list.push(...this.selectList)
       }
       this.loading = true
