@@ -244,5 +244,93 @@ export default class GoodsManagerAPI {
       return { code: -2, data: `searchList-catch: ${error}` }
     }
   }
+
+  // 获取商品详情 - first
+  async getGoodsDetail(goodsinfo) {
+    try {
+      const { country, mallId, collection_ids } = goodsinfo
+      const params = {
+        collection_ids: collection_ids,
+        mallId: mallId
+      }
+      const res = await this._this.$shopeemanService.getChinese(country, '/api/shopcategory/v3/category/get_collection/?', params, {
+        headers: {
+          'accept': 'application/json, text/plain, */*',
+          referer: `/portal/category/${collection_ids}`
+        }
+      })
+      const des = JSON.parse(JSON.parse(res).data)
+      let ecode = des.code ? des.code : des.errcode
+      if (des.errcode) {
+        ecode = des.errcode
+      } else {
+        ecode = des.code
+      }
+      const data = des.data
+      const message = des.message
+      return { ecode, data, message }
+    } catch (error) {
+      return { code: -2, data: `getGoodsDetail-catch: ${error}` }
+    }
+  }
+
+  // 获取商品详情 - second
+  async getGoodsDetailList(goodsinfo) {
+    try {
+      const { country, mallId, productIds, collection_ids } = goodsinfo
+      const params = {
+        mallId: mallId,
+        // query: 'query Products($productIds: [String], $statusType: Int) {' +
+        //   'products(productIds: $productIds, statusType: $statusType) {' +
+        // 'items {itemid,name,images,normalStock,normalSellerStock,normalWmsStock,sellerStock,' +
+        //   'wmsStock,stock,pffTag,' +
+        //    'modelList {inputOriginPrice,inputPromotionPrice,originPrice,promotionPrice}}'
+        query: `query Products($productIds: [String], $statusType: Int) {
+          products(productIds: $productIds, statusType: $statusType) {
+        items {
+          itemid,
+          name,
+          images,
+          normalStock,
+          normalSellerStock,
+          normalWmsStock,
+          sellerStock,
+          wmsStock,
+          stock,
+          pffTag,
+          modelList {
+            inputOriginPrice,
+            inputPromotionPrice,
+            originPrice,
+            promotionPrice
+          }
+        }
+      }
+        }`,
+        variables: {
+          productIds: productIds,
+          statusType: 0
+        }
+      }
+      const res = await this._this.$shopeemanService.postChineseReferer(country, '/api/marketing/v4/graphql/query/?', params, {
+        headers: {
+          'content-type': 'application/json',
+          referer: `/portal/category/${collection_ids}`
+        }
+      })
+      const des = JSON.parse(JSON.parse(res).data)
+      let ecode = des.code ? des.code : des.errcode
+      if (des.errcode) {
+        ecode = des.errcode
+      } else {
+        ecode = des.code
+      }
+      const data = des.data
+      const message = des.message
+      return { ecode, data, message }
+    } catch (error) {
+      return { code: -2, data: `getGoodsDetail-catch: ${error}` }
+    }
+  }
 }
 
