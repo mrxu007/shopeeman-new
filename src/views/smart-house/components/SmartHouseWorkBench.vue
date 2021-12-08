@@ -481,7 +481,7 @@
           >
             <template slot-scope="scope">
               <el-button
-                v-if="scope.row.isAbnormslPayment !==1"
+                v-if="scope.row.isAbnormslPayment !==1 || scope.row.package"
                 type="primary"
                 size="mini"
                 @click="applyDialog(scope.row)"

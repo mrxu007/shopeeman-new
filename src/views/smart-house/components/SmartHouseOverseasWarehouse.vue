@@ -5,7 +5,7 @@
         <li>
           <span>仓库名称：</span>
           <el-select v-model="form.returnWheareHouseName" placeholder="" size="mini" filterable>
-            <el-option label="全部" :value="0" />
+            <el-option label="全部" value="0" />
             <el-option v-for="(item, index) in returnWheareHouseNameList" :key="index" :label="item.label" :value="item.value" />
           </el-select>
         </li>
@@ -75,7 +75,7 @@
             >
               <div slot="content">
                 <el-image
-                  style="width: 40px; height: 40px"
+                  style="width: 400px; height: 400px"
                   :src="row.real_image_url"
                 >
                   <div slot="error" class="image-slot" />
