@@ -4,15 +4,20 @@
       <ul style="margin-bottom: 10px">
         <li>
           <span>商品创建时间：</span>
-          <el-date-picker v-model="form.returnCreateTime" unlink-panels size="mini" type="datetimerange" range-separator="至" start-placeholder="开始日期" end-placeholder="结束日期" />
+          <el-date-picker
+            v-model="form.returnCreateTime"
+            unlink-panels
+            size="mini"
+            type="daterange"
+            range-separator="-"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
+          />
         </li>
-        <div>
+        <li>
           <span>商品类目：</span>
-          <el-select v-model="form.returnCategory" placeholder="" size="mini" style="width:377px">
-            <el-option label="全部" :value="0" />
-            <el-option v-for="(item, index) in catecode" :key="index" :label="item.cat_name" :value="item.id" />
-          </el-select>
-        </div>
+          <product-choose ref="isClean" @CateId="CateId" />
+        </li>
         <li style="margin-left:19px">
           <span>商品状态：</span>
           <el-select v-model="form.returnStatus" placeholder="" size="mini" filterable>
@@ -24,7 +29,15 @@
       <ul>
         <li>
           <span>商品更新时间：</span>
-          <el-date-picker v-model="form.returnUpdateTime" unlink-panels size="mini" type="datetimerange" range-separator="至" start-placeholder="开始日期" end-placeholder="结束日期" />
+          <el-date-picker
+            v-model="form.returnUpdateTime"
+            unlink-panels
+            size="mini"
+            type="daterange"
+            range-separator="-"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
+          />
         </li>
         <li>
           <span>Sku编码：</span>
@@ -68,9 +81,11 @@
         <el-table-column align="center" prop="product_name" label="商品名称" width="100" />
         <el-table-column v-if="false" align="center" prop="weight" label="商品重量" width="100" />
         <el-table-column v-if="false" align="center" prop="volume" label="体积" width="100" />
-        <el-table-column align="center" prop="cate_id" label="商品类目" width="150" />
+        <el-table-column v-if="false" align="center" prop="uid" label="uid" width="100" />
+        <el-table-column v-if="false" align="center" prop="cate_id" label="商品类目id" width="150" />
+        <el-table-column align="center" prop="cate_name" label="商品类目" width="150" />
         <el-table-column
-          width="80"
+          width="90"
           align="center"
           label="商品主图"
         >
@@ -81,13 +96,13 @@
               placement="right-end"
               :visible-arrow="false"
               :enterable="false"
-              style="width: 50px; height: 50px"
+              style="width: 90px; height: 50px"
             >
               <div slot="content">
                 <img
                   :src="row.image_url"
-                  width="300px"
-                  height="300px"
+                  width="400px"
+                  height="280px"
                 >
               </div>
               <el-image
@@ -113,7 +128,7 @@
       <div class="logging">
         <Logs ref="Logs" v-model="showlog" clear />
       </div>
-      <el-dialog title="编辑商品" :visible.sync="eidtVisible" width="70%">
+      <el-dialog title="编辑商品" :visible.sync="eidtVisible" :before-close="bfClose" :close-on-click-modal="false" :close-on-press-escape="false" width="70%">
         <el-row>
           <el-col :span="1.5" style="padding:5px">
             <span>商品名称：</span>
@@ -128,12 +143,19 @@
             <span>商品类目：</span>
           </el-col>
           <el-col :span="19">
-            <el-select v-model="eiditcateid" placeholder="" size="mini" style="width:935px" filterable>
-              <el-option v-for="(item, index) in catecode" :key="index" :label="item.cat_name" :value="item.id" />
-            </el-select>
+            <el-input :value="eiditcatename" clearable size="mini" oninput="value=value.replace(/\s+/g,'')" @focus="clickhere" />
+            <!-- <product-choose ref="isClean" @CateId="EiditCateId" /> -->
           </el-col>
         </el-row>
-        <el-row>
+        <el-row v-if="showcatechoose" style="margin-top:10px">
+          <el-col :span="1.5" style="padding:5px">
+            <span>商品类目选择：</span>
+          </el-col>
+          <el-col :span="19">
+            <product-choose ref="isClean" @CateId="EiditCateId" />
+          </el-col>
+        </el-row>
+        <el-row style="margin-top:7px">
           <el-col :span="6" style="padding:5px">
             <span>商品状态： </span>
             <el-select v-model="eiditstatus" placeholder="" size="mini" filterable>
@@ -167,7 +189,7 @@
               </el-col>
               <el-col span="5" style="padding-top:10px;padding-left:8px">
                 <div id="creataddassembly1" style="border:1px solid black;width:260px;height:180px">
-                  <div v-for="(items,indexs) in EidittableData">
+                  <div v-for="(items,indexs) in EidittableData" :key="indexs">
                     <el-row>
                       <el-col :span="1.5">
                         <el-select v-model="items.eiditSpecification1" placeholder="" size="mini" filterable>
@@ -204,7 +226,7 @@
               </el-col>
               <el-col :span="5" style="padding-top:10px;padding-left:8px">
                 <div id="creataddassembly2" style="border:1px solid black;width:260px;height:180px">
-                  <div v-for="(items,indexs) in EidittableData">
+                  <div v-for="(items,indexs) in EidittableData" :key="indexs">
                     <el-row>
                       <el-col :span="1.5">
                         <el-select v-model="items.eiditSpecification2" placeholder="" :disabled="!eiditshowtwo" size="mini" filterable>
@@ -260,7 +282,7 @@
           <el-table-column
             width="80"
             align="center"
-            label="商品主图"
+            label="规格图"
           >
             <template slot-scope="{row}">
               <el-tooltip
@@ -306,10 +328,10 @@
           <el-col :span="2" style="padding:8px;margin-top:70px">
             <span>轮播图片</span>
           </el-col>
-          <el-col v-for="(item,index) in eiditRotationimg" :span="eiditRotationimg.length*2" style="padding:8px;">
+          <el-col v-for="(item,index) in eiditRotationimg" :key="index" :span="3" style="padding:8px;">
             <el-image :src="item" style="width: 148px; height: 148px;margin-right:40px" @click="eiditRotationimg.splice(index,1)" />
           </el-col>
-          <el-col :span="2" style="padding:8px;margin-left:60px">
+          <el-col :span="2" style="padding:8px;margin-left:10px">
             <el-upload class="avatar-uploader" action="#" :show-file-list="false" list-type="picture-card" :on-change="uploadeiditRotationimg">
               <i class="el-icon-plus" />
             </el-upload>
@@ -319,10 +341,10 @@
           <el-col :span="2" style="padding:8px;margin-top:70px">
             <span>详情图片</span>
           </el-col>
-          <el-col v-for="(item,index) in eiditDetailsimg" :span="eiditDetailsimg.length*2" style="padding:8px;">
+          <el-col v-for="(item,index) in eiditDetailsimg" :key="index" :span="3" style="padding:8px;">
             <el-image :src="item" style="width: 148px; height: 148px" @click="eiditDetailsimg.splice(index,1)" />
           </el-col>
-          <el-col :span="2" style="padding:8px;margin-left:60px">
+          <el-col :span="2" style="padding:8px;margin-left:10px">
             <el-upload class="avatar-uploader" action="#" :show-file-list="false" list-type="picture-card" :on-change="uploadeiditDetailsimg">
               <i class="el-icon-plus" />
             </el-upload>
@@ -332,10 +354,10 @@
           <el-col :span="2" style="padding:8px;margin-top:70px">
             <span>尺寸图片</span>
           </el-col>
-          <el-col v-for="(item,index) in eiditsizeimg" :span="eiditsizeimg.length*2" style="padding:8px;">
-            <el-image :src="item" style="width: 148px; height: 148px" @click="eiditsizeimg.splice(index,1)" />
+          <el-col v-for="(item,index) in eiditsizeimg" :key="index" :span="3" style="padding:8px;">
+            <el-image :src="item" style="width: 148px; height: 148px;margin-right:40px" @click="eiditsizeimg.splice(index,1)" />
           </el-col>
-          <el-col :span="2" style="padding:8px;margin-left:60px">
+          <el-col :span="2" style="padding:8px;margin-left:10px">
             <el-upload class="avatar-uploader" action="#" :show-file-list="false" list-type="picture-card" :on-change="uploadeiditsizeimg">
               <i class="el-icon-plus" />
             </el-upload>
@@ -385,7 +407,7 @@
         <input v-model="eiditdescribe" style="margin-left:8px;height:200px;width:100%">
         <el-button type="primary" size="mini" style="margin-left:50%;margin-top:10px;" @click="eiditsave">保存</el-button>
       </el-dialog>
-      <el-dialog title="创建商品" :visible.sync="CreateVisible" width="70%">
+      <el-dialog title="创建商品" :visible.sync="CreateVisible" :before-close="bfClose" :close-on-click-modal="false" :close-on-press-escape="false" width="70%">
         <el-row>
           <el-col :span="1.5" style="padding:5px">
             <span>商品名称：</span>
@@ -400,9 +422,7 @@
             <span>商品类目：</span>
           </el-col>
           <el-col :span="19">
-            <el-select v-model="newform.cate_id" placeholder="" size="mini" style="width:935px" filterable>
-              <el-option v-for="(item, index) in catecode" :key="index" :label="item.cat_name" :value="item.id" />
-            </el-select>
+            <product-choose ref="isClean" @CateId="CreatCateId" />
           </el-col>
         </el-row>
         <el-row>
@@ -439,7 +459,7 @@
               </el-col>
               <el-col span="5" style="padding-top:10px;padding-left:8px">
                 <div id="creataddassembly1" style="border:1px solid black;width:260px;height:180px">
-                  <div v-for="(items,indexs) in CreatetableData">
+                  <div v-for="(items,indexs) in CreatetableData" :key="indexs">
                     <el-row>
                       <el-col :span="1.5">
                         <el-select v-model="items.Specification1" placeholder="" size="mini" filterable>
@@ -476,7 +496,7 @@
               </el-col>
               <el-col :span="5" style="padding-top:10px;padding-left:8px">
                 <div id="creataddassembly2" style="border:1px solid black;width:260px;height:180px">
-                  <div v-for="(items,indexs) in CreatetableData">
+                  <div v-for="(items,indexs) in CreatetableData" :key="indexs">
                     <el-row>
                       <el-col :span="1.5">
                         <el-select v-model="items.Specification2" placeholder="" :disabled="!showtwo" size="mini" filterable>
@@ -527,12 +547,12 @@
           }"
         >
           <el-table-column align="center" type="selection" width="50" />
-          <el-table-column align="center" :label="Specifications1" width="70" prop="Specification1" fixed />
-          <el-table-column align="center" prop="Specification2" :label="Specifications2" width="100" />
+          <el-table-column align="center" :label="Specifications1" width="120" prop="Specification1" fixed />
+          <el-table-column align="center" prop="Specification2" :label="Specifications2" width="120" />
           <el-table-column
-            width="80"
+            width="100"
             align="center"
-            label="商品主图"
+            label="规格图"
           >
             <template slot-scope="{row}">
               <el-tooltip
@@ -574,57 +594,42 @@
           </el-table-column>
         </el-table><br><br>
         <span>|媒体管理</span><br><br><br>
-        <el-row v-if="newRotationimg">
+        <el-row>
           <el-col :span="2" style="padding:8px;margin-top:70px">
             <span>轮播图片</span>
           </el-col>
-          <el-col :span="2" style="padding:8px">
-            <el-image :src="newRotationimg" style="width: 148px; height: 148px" @click="newRotationimg = ''" />
+          <el-col v-for="(item,index) in newRotationimg" :key="index" :span="3" style="padding:8px;">
+            <el-image :src="item" style="width: 148px; height: 148px;margin-right:40px" @click="newRotationimg.splice(index,1)" />
           </el-col>
-        </el-row>
-        <el-row v-else>
-          <el-col :span="2" style="padding:8px;margin-top:70px">
-            <span>轮播图片</span>
-          </el-col>
-          <el-col :span="2" style="padding:8px">
+          <el-col :span="2" style="padding:8px;margin-left:10px">
             <el-upload class="avatar-uploader" action="#" :show-file-list="false" list-type="picture-card" :on-change="uploadnewRotationimg">
               <i class="el-icon-plus" />
             </el-upload>
           </el-col>
         </el-row>
-        <el-row v-if="newDetailsimg">
+        <el-row>
           <el-col :span="2" style="padding:8px;margin-top:70px">
             <span>详情图片</span>
           </el-col>
-          <el-col :span="2" style="padding:8px">
-            <el-image :src="newDetailsimg" style="width: 148px; height: 148px" @click="newDetailsimg = ''" />
+          <el-col v-for="(item,index) in newDetailsimg" :key="index" :span="3" style="padding:8px;">
+            <el-image :src="item" style="width: 148px; height: 148px" @click="newDetailsimg.splice(index,1)" />
           </el-col>
-        </el-row>
-        <el-row v-else>
-          <el-col :span="2" style="padding:8px;margin-top:70px">
-            <span>详情图片</span>
-          </el-col>
-          <el-col :span="2" style="padding:8px">
+          <el-col :span="2" style="padding:8px;margin-left:10px">
             <el-upload class="avatar-uploader" action="#" :show-file-list="false" list-type="picture-card" :on-change="uploadnewDetailsimg">
               <i class="el-icon-plus" />
             </el-upload>
           </el-col>
         </el-row>
-        <el-row v-if="newsizeimg">
+        <el-row>
           <el-col :span="2" style="padding:8px;margin-top:70px">
             <span>尺寸图片</span>
           </el-col>
-          <el-col :span="2" style="padding:8px">
-            <el-image :src="newsizeimg" style="width: 148px; height: 148px" @click="newsizeimg = ''" />
+          <el-col v-for="(item,index) in newsizeimg" :key="index" :span="3" style="padding:8px;">
+            <el-image :src="item" style="width: 148px; height: 148px;margin-right:40px" @click="newsizeimg.splice(index,1)" />
           </el-col>
-        </el-row>
-        <el-row v-else>
-          <el-col :span="2" style="padding:8px;margin-top:70px">
-            <span>尺寸图片</span>
-          </el-col>
-          <el-col :span="2" style="padding:8px">
+          <el-col :span="2" style="padding:8px;margin-left:10px">
             <el-upload class="avatar-uploader" action="#" :show-file-list="false" list-type="picture-card" :on-change="uploadnewsizeimg">
-              <i class="el-icon-plus" />
+              <i class="el-icon-plus" style="width:10px" />
             </el-upload>
           </el-col>
         </el-row><br><br>
@@ -692,10 +697,33 @@
 import { exportExcelDataCommon, randomWord } from '../../../util/util'
 import StrockUpForegin from '../../../module-api/product-center-api/owngoods-api'
 import XLSX from 'xlsx'
+import ProductChoose from '../../../components/product-choose-product-center.vue'
 export default {
+  components: {
+    ProductChoose
+  },
   data() {
     return {
+      exportdata: [],
+      ress: '',
+      creatidx: '',
+      eiditidx: '',
+      eiditcatename: '',
+      showcatechoose: false,
+      skulist1: [],
+      skulist2: [],
       eiditgoodname: '',
+      importzh_name1: '',
+      importzh_name2: '',
+      zh_name1: '',
+      zh_name2: '',
+      eiditsp1: '',
+      eiditsp2: '',
+      eiditzh_name1: '',
+      eiditzh_name2: '',
+      creatzh_name1: '',
+      creatzh_name2: '',
+      creatstock: '',
       eiditcateid: '',
       eiditstatus: '',
       eiditremark: '',
@@ -713,13 +741,14 @@ export default {
       eidity: '',
       eiditz: '',
       eiditdescribe: '',
+      eiditskuid: '',
       bindeiditprice: '',
       bindeiditnum: '',
       bindeiditskuid: '',
       bindeiditmainimg: '',
-      x: '',
-      y: '',
-      z: '',
+      x: 0,
+      y: 0,
+      z: 0,
       foreignData: [],
       imgData: '',
       newform: {
@@ -728,12 +757,12 @@ export default {
         price: 0,
         stock: '',
         status: '',
-        weight: '',
+        weight: 0,
         volume: '',
         cate_id: '',
-        carousel_gallery: '',
-        detail_gallery: '',
-        size_gallery: '',
+        carousel_gallery: [],
+        detail_gallery: [],
+        size_gallery: [],
         product_desc: '',
         remark: '',
         image_url: '',
@@ -761,9 +790,9 @@ export default {
           }
         ]
       },
-      newRotationimg: '',
-      newDetailsimg: '',
-      newsizeimg: '',
+      newRotationimg: [],
+      newDetailsimg: [],
+      newsizeimg: [],
       eiditRotationimg: [],
       eiditDetailsimg: [],
       eiditsizeimg: [],
@@ -783,14 +812,74 @@ export default {
         goodsvolume: '2 * 2 * 2',
         Details: '详情信息选填',
         status: 1,
-        Specifications1: 'A',
+        Specifications1: 'SB',
         Specifications2: '',
-        Specificationsimg: 'C:\Users\Administrator\Desktop\test1.png',
+        Specificationsimg: 'http://pkg.91cyt.com/tmp/1638518612974.png',
         skuprice: 19,
         skunum: 222,
-        Rotationimg: 'D:\商品图片\test1.png,D:\商品图片\test2.png,D:\商品图片\test3.png',
-        Detailsimg: 'D:\商品图片\test1.png,D:\商品图片\test2.png,D:\商品图片\test3.png',
-        sizeimg: 'D:\商品图片\test1.png,D:\商品图片\test2.png,D:\商品图片\test3.png'
+        Rotationimg: 'http://pkg.91cyt.com/tmp/1638518612974.png',
+        Detailsimg: 'http://pkg.91cyt.com/tmp/1638518612974.png',
+        sizeimg: 'http://pkg.91cyt.com/tmp/1638518612974.png'
+      }, {
+        goodsname: '导入测试鞋子类目',
+        skuid: 438,
+        goodsweight: 1,
+        goodsvolume: '2 * 2 * 2',
+        Details: '详情信息选填',
+        status: 1,
+        Specifications1: 'R',
+        Specifications2: '',
+        Specificationsimg: 'http://pkg.91cyt.com/tmp/1638518612974.png',
+        skuprice: 19,
+        skunum: 222,
+        Rotationimg: 'http://pkg.91cyt.com/tmp/1638518612974.png',
+        Detailsimg: 'http://pkg.91cyt.com/tmp/1638518612974.png',
+        sizeimg: 'http://pkg.91cyt.com/tmp/1638518612974.png'
+      }, {
+        goodsname: '导入测试鞋子类目',
+        skuid: 438,
+        goodsweight: 1,
+        goodsvolume: '2 * 2 * 2',
+        Details: '详情信息选填',
+        status: 1,
+        Specifications1: 'PD',
+        Specifications2: '',
+        Specificationsimg: 'http://pkg.91cyt.com/tmp/1638518612974.png',
+        skuprice: 19,
+        skunum: 222,
+        Rotationimg: 'http://pkg.91cyt.com/tmp/1638518612974.png',
+        Detailsimg: 'http://pkg.91cyt.com/tmp/1638518612974.png',
+        sizeimg: 'http://pkg.91cyt.com/tmp/1638518612974.png'
+      }, {
+        goodsname: '导入测试鞋子类目',
+        skuid: 438,
+        goodsweight: 1,
+        goodsvolume: '2 * 2 * 2',
+        Details: '详情信息选填',
+        status: 1,
+        Specifications1: 'DGR',
+        Specifications2: '',
+        Specificationsimg: 'http://pkg.91cyt.com/tmp/1638518612974.png',
+        skuprice: 19,
+        skunum: 222,
+        Rotationimg: 'http://pkg.91cyt.com/tmp/1638518612974.png',
+        Detailsimg: 'http://pkg.91cyt.com/tmp/1638518612974.png',
+        sizeimg: 'http://pkg.91cyt.com/tmp/1638518612974.png'
+      }, {
+        goodsname: '导入测试鞋子类目',
+        skuid: 438,
+        goodsweight: 1,
+        goodsvolume: '2 * 2 * 2',
+        Details: '详情信息选填',
+        status: 1,
+        Specifications1: 'PU',
+        Specifications2: '',
+        Specificationsimg: 'http://pkg.91cyt.com/tmp/1638518612974.png',
+        skuprice: 19,
+        skunum: 222,
+        Rotationimg: 'http://pkg.91cyt.com/tmp/1638518612974.png',
+        Detailsimg: 'http://pkg.91cyt.com/tmp/1638518612974.png',
+        sizeimg: 'http://pkg.91cyt.com/tmp/1638518612974.png'
       }, {
         goodsname: '导入测试鞋子类目',
         skuid: 438,
@@ -800,12 +889,12 @@ export default {
         status: 1,
         Specifications1: 'B',
         Specifications2: '',
-        Specificationsimg: 'C:\Users\Administrator\Desktop\test1.png',
+        Specificationsimg: 'http://pkg.91cyt.com/tmp/1638518612974.png',
         skuprice: 19,
         skunum: 222,
-        Rotationimg: 'D:\商品图片\test1.png,D:\商品图片\test2.png,D:\商品图片\test3.png',
-        Detailsimg: 'D:\商品图片\test1.png,D:\商品图片\test2.png,D:\商品图片\test3.png',
-        sizeimg: 'D:\商品图片\test1.png,D:\商品图片\test2.png,D:\商品图片\test3.png'
+        Rotationimg: 'http://pkg.91cyt.com/tmp/1638518612974.png',
+        Detailsimg: 'http://pkg.91cyt.com/tmp/1638518612974.png',
+        sizeimg: 'http://pkg.91cyt.com/tmp/1638518612974.png'
       }, {
         goodsname: '导入测试鞋子类目',
         skuid: 438,
@@ -813,14 +902,14 @@ export default {
         goodsvolume: '2 * 2 * 2',
         Details: '详情信息选填',
         status: 1,
-        Specifications1: 'c',
+        Specifications1: 'BL',
         Specifications2: '',
-        Specificationsimg: 'C:\Users\Administrator\Desktop\test1.png',
+        Specificationsimg: 'http://pkg.91cyt.com/tmp/1638518612974.png',
         skuprice: 19,
         skunum: 222,
-        Rotationimg: 'D:\商品图片\test1.png,D:\商品图片\test2.png,D:\商品图片\test3.png',
-        Detailsimg: 'D:\商品图片\test1.png,D:\商品图片\test2.png,D:\商品图片\test3.png',
-        sizeimg: 'D:\商品图片\test1.png,D:\商品图片\test2.png,D:\商品图片\test3.png'
+        Rotationimg: 'http://pkg.91cyt.com/tmp/1638518612974.png',
+        Detailsimg: 'http://pkg.91cyt.com/tmp/1638518612974.png',
+        sizeimg: 'http://pkg.91cyt.com/tmp/1638518612974.png'
       }, {
         goodsname: '导入测试鞋子类目',
         skuid: 438,
@@ -828,74 +917,14 @@ export default {
         goodsvolume: '2 * 2 * 2',
         Details: '详情信息选填',
         status: 1,
-        Specifications1: 'D',
+        Specifications1: 'Y',
         Specifications2: '',
-        Specificationsimg: 'C:\Users\Administrator\Desktop\test1.png',
+        Specificationsimg: 'http://pkg.91cyt.com/tmp/1638518612974.png',
         skuprice: 19,
         skunum: 222,
-        Rotationimg: 'D:\商品图片\test1.png,D:\商品图片\test2.png,D:\商品图片\test3.png',
-        Detailsimg: 'D:\商品图片\test1.png,D:\商品图片\test2.png,D:\商品图片\test3.png',
-        sizeimg: 'D:\商品图片\test1.png,D:\商品图片\test2.png,D:\商品图片\test3.png'
-      }, {
-        goodsname: '导入测试鞋子类目',
-        skuid: 438,
-        goodsweight: 1,
-        goodsvolume: '2 * 2 * 2',
-        Details: '详情信息选填',
-        status: 1,
-        Specifications1: 'E',
-        Specifications2: '',
-        Specificationsimg: 'C:\Users\Administrator\Desktop\test1.png',
-        skuprice: 19,
-        skunum: 222,
-        Rotationimg: 'D:\商品图片\test1.png,D:\商品图片\test2.png,D:\商品图片\test3.png',
-        Detailsimg: 'D:\商品图片\test1.png,D:\商品图片\test2.png,D:\商品图片\test3.png',
-        sizeimg: 'D:\商品图片\test1.png,D:\商品图片\test2.png,D:\商品图片\test3.png'
-      }, {
-        goodsname: '导入测试鞋子类目',
-        skuid: 438,
-        goodsweight: 1,
-        goodsvolume: '2 * 2 * 2',
-        Details: '详情信息选填',
-        status: 1,
-        Specifications1: 'F',
-        Specifications2: '',
-        Specificationsimg: 'C:\Users\Administrator\Desktop\test1.png',
-        skuprice: 19,
-        skunum: 222,
-        Rotationimg: 'D:\商品图片\test1.png,D:\商品图片\test2.png,D:\商品图片\test3.png',
-        Detailsimg: 'D:\商品图片\test1.png,D:\商品图片\test2.png,D:\商品图片\test3.png',
-        sizeimg: 'D:\商品图片\test1.png,D:\商品图片\test2.png,D:\商品图片\test3.png'
-      }, {
-        goodsname: '导入测试鞋子类目',
-        skuid: 438,
-        goodsweight: 1,
-        goodsvolume: '2 * 2 * 2',
-        Details: '详情信息选填',
-        status: 1,
-        Specifications1: 'G',
-        Specifications2: '',
-        Specificationsimg: 'C:\Users\Administrator\Desktop\test1.png',
-        skuprice: 19,
-        skunum: 222,
-        Rotationimg: 'D:\商品图片\test1.png,D:\商品图片\test2.png,D:\商品图片\test3.png',
-        Detailsimg: 'D:\商品图片\test1.png,D:\商品图片\test2.png,D:\商品图片\test3.png',
-        sizeimg: 'D:\商品图片\test1.png,D:\商品图片\test2.png,D:\商品图片\test3.png'
-      }, {
-        goodsname: '导入测试鞋子类目',
-        skuid: 438,
-        goodsweight: 1,
-        goodsvolume: '2 * 2 * 2',
-        Details: '详情信息选填',
-        status: 1,
-        Specifications1: 'H',
-        Specifications2: '',
-        Specificationsimg: 'C:\Users\Administrator\Desktop\test1.png',
-        skuprice: 19,
-        skunum: 222,
-        Rotationimg: 'D:\商品图片\test1.png,D:\商品图片\test2.png,D:\商品图片\test3.png',
-        Detailsimg: 'D:\商品图片\test1.png,D:\商品图片\test2.png,D:\商品图片\test3.png',
-        sizeimg: 'D:\商品图片\test1.png,D:\商品图片\test2.png,D:\商品图片\test3.png'
+        Rotationimg: 'http://pkg.91cyt.com/tmp/1638518612974.png',
+        Detailsimg: 'http://pkg.91cyt.com/tmp/1638518612974.png',
+        sizeimg: 'http://pkg.91cyt.com/tmp/1638518612974.png'
       }],
       CreatetableData: [],
       Specifications1: '规格一',
@@ -949,7 +978,7 @@ export default {
         const jsonData = JSON.parse(res)
         if (jsonData.status_code === 200) {
           this.catecode = jsonData.data
-          // console.log(this.catecode)
+          console.log(this.catecode)
           return
         }
       } catch (error) {
@@ -975,314 +1004,261 @@ export default {
     },
     // 创建商品点击保存
     async newsave() {
+      this.creatzh_name1 = ''
+      this.creatzh_name2 = ''
+      this.skulist2 = []
+      this.creatstock = 0
       for (let i = 0; i < this.CreatetableData.length; i++) {
-        const that = this
-        if (this.showtwo === false) {
-          const parmas = {
-            product_id: this.CreatetableData[i].skuid,
-            product_name: this.newform.product_name,
-            price: Number(that.CreatetableData[i].price),
+        if (this.showtwo === true) {
+          for (let j = 0; j < this.skucode.length; j++) {
+            if (this.CreatetableData[i].Specification1 === this.skucode[j].code) {
+              this.creatzh_name1 = this.skucode[j].zh_name
+              console.log(this.creatzh_name1)
+            }
+            if (this.EidittableData[i].Specification2 === this.skucode[j].code) {
+              this.creatzh_name2 = this.skucode[j].zh_name
+              console.log(this.creatzh_name2)
+            }
+          }
+          this.creatstock += this.CreatetableData[i].productnum
+          this.skulist2.push({
+            sku_id: this.CreatetableData[i].skuid,
+            sku_name: `${this.creatzh_name1}/${this.creatzh_name2}`,
+            price: Number(this.CreatetableData[i].price),
+            image_url: this.CreatetableData[i].img,
+            out_sku_id: this.CreatetableData[i].skuid,
             stock: this.CreatetableData[i].productnum,
-            status: this.newform.status,
             weight: this.newform.weight,
             volume: this.x * this.y * this.z,
-            cate_id: this.newform.cate_id,
-            carousel_gallery: this.newform.carousel_gallery,
-            detail_gallery: this.newform.detail_gallery,
-            size_gallery: this.newform.size_gallery,
-            product_desc: this.newform.product_desc,
-            remark: this.newform.remark,
-            image_url: this.CreatetableData[i].img,
-            sku_list: [
-              {
-                sku_id: this.CreatetableData[i].skuid,
-                price: Number(that.CreatetableData[i].price),
-                sku_name: this.newform.product_name,
-                image_url: this.CreatetableData[i].img,
-                stock: this.CreatetableData[i].productnum,
-                weight: this.newform.weight,
-                volume: this.x * this.y * this.z,
-                status: this.newform.status,
-                sku_spec: [
-                  {
-                    spec_id: this.CreatetableData[i].Specification1,
-                    spec_name: this.Specifications1,
-                    spec_value: 'this.CreatetableData[i].Specification1'
-                  }
-                // }, {
-                //   spec_id: this.CreatetableData[i].Specification2,
-                //   spec_name: 'this.skucode[this.CreatetableData[i].Specification2].zh_name',
-                //   spec_value: 'this.skucode[this.CreatetableData[i].Specification2].parent_att_name'
-                // }
-                ]
-              }
-            ]
-          }
-          if (!parmas.product_name) {
-            this.$message.error(`商品名称为空`)
-            return
-          }
-          if (!parmas.product_id) {
-            this.$message.error(`商品ID为空`)
-            return
-          }
-          if (!parmas.image_url) {
-            this.$message.error(`商品主图为空`)
-            return
-          }
-          if (!parmas.sku_list[0].sku_spec[0].spec_name) {
-            this.$message.error(`规格一为空`)
-            return
-          }
-          if (!parmas.price) {
-            this.$message.error(`商品价格为空`)
-            return
-          }
-          if (!parmas.stock) {
-            this.$message.error(`商品库存为空`)
-            return
-          }
-          const res = await this.StrockUpForegin.SaveProduct(parmas)
-          if (res.code === 200) {
-            this.$message.success('数据保存成功')
-            this.$refs.Logs.writeLog('数据保存成功', true)
-          } else {
-            this.$message.error(`数据保存失败${res.message}`)
-            this.$refs.Logs.writeLog(`数据保存失败,失败类型：${res.message}`, false)
-          }
+            status: this.newform.status,
+            sku_spec: [{
+              spec_id: this.CreatetableData[i].Specification1,
+              spec_name: this.Specifications1,
+              spec_value: this.creatzh_name1
+            }, {
+              spec_id: this.CreatetableData[i].Specification2,
+              spec_name: this.Specifications2,
+              spec_value: this.creatzh_name2
+            }]
+          })
         } else {
-          const parmas = {
-            product_id: this.CreatetableData[i].skuid,
-            product_name: this.newform.product_name,
-            price: Number(that.CreatetableData[i].price),
-            stock: this.CreatetableData[i].productnum,
-            status: this.newform.status,
-            weight: this.newform.weight,
-            volume: this.x * this.y * this.z,
-            cate_id: this.newform.cate_id,
-            carousel_gallery: [this.newform.carousel_gallery],
-            detail_gallery: [this.newform.detail_gallery],
-            size_gallery: [this.newform.size_gallery],
-            product_desc: this.newform.product_desc,
-            remark: this.newform.remark,
+          for (let j = 0; j < this.skucode.length; j++) {
+            if (this.CreatetableData[i].Specification1 === this.skucode[j].code) {
+              this.creatzh_name1 = this.skucode[j].zh_name
+              console.log(this.creatzh_name1)
+            }
+          }
+          this.creatstock += this.CreatetableData[i].productnum
+          this.skulist2.push({
+            sku_id: this.CreatetableData[i].skuid,
+            sku_name: this.creatzh_name1,
+            price: Number(this.CreatetableData[i].price),
             image_url: this.CreatetableData[i].img,
-            sku_list: [
-              {
-                sku_id: this.CreatetableData[i].skuid,
-                price: Number(that.CreatetableData[i].price),
-                sku_name: this.newform.product_name,
-                image_url: this.CreatetableData[i].img,
-                stock: this.CreatetableData[i].productnum,
-                weight: this.newform.weight,
-                volume: this.x * this.y * this.z,
-                status: this.newform.status,
-                sku_spec: [
-                  {
-                    spec_id: this.CreatetableData[i].Specification1,
-                    spec_name: this.Specifications1,
-                    spec_value: 'this.CreatetableData[i].Specification1'
-                  }, {
-                    spec_id: this.CreatetableData[i].Specification2,
-                    spec_name: this.Specifications2,
-                    spec_value: 'this.CreatetableData[i].Specification2'
-                  }
-                ]
-              }
-            ]
-          }
-          if (!parmas.product_name) {
-            this.$message.error(`商品名称为空`)
-            return
-          }
-          if (!parmas.product_id) {
-            this.$message.error(`商品ID为空`)
-            return
-          }
-          if (!parmas.image_url) {
-            this.$message.error(`商品主图为空`)
-            return
-          }
-          if (!parmas.sku_list[0].sku_spec[0].spec_name) {
+            out_sku_id: this.CreatetableData[i].skuid,
+            stock: this.CreatetableData[i].productnum,
+            weight: this.newform.weight,
+            volume: this.x * this.y * this.z, // this.x * this.y * this.z,
+            status: this.newform.status,
+            sku_spec: [{
+              spec_id: this.CreatetableData[i].Specification1,
+              spec_name: this.Specifications1,
+              spec_value: this.creatzh_name1
+            }]
+          })
+        }
+      }
+      const parmas = {
+        product_id: this.CreatetableData[0].skuid,
+        product_name: this.newform.product_name,
+        status: this.newform.status,
+        weight: this.newform.weight,
+        stock: this.creatstock,
+        image_url: this.newRotationimg[0],
+        volume: `${this.x}*${this.y}*${this.z}`, // this.x * this.y * this.z,`${this.x}*${this.y}*${this.z}`
+        price: this.CreatetableData[0].price,
+        cate_id: this.newform.cate_id,
+        carousel_gallery: this.newRotationimg,
+        detail_gallery: this.newDetailsimg,
+        size_gallery: this.newsizeimg,
+        product_desc: this.newform.product_desc,
+        remark: this.newform.remark,
+        sku_list: this.skulist2
+      }
+      if (!parmas.product_name) {
+        this.$message.error(`商品名称为空`)
+        return
+      }
+      if (!parmas.product_id) {
+        this.$message.error(`商品ID为空`)
+        return
+      }
+      if (!parmas.image_url) {
+        this.$message.error(`商品主图为空`)
+        return
+      }
+      for (let i = 0; i < this.skulist2.length; i++) {
+        if (this.showtwo === true) {
+          if (!this.skulist2[i].sku_spec[0].spec_id) {
             this.$message.error(`规格一为空`)
             return
           }
-          if (!parmas.sku_list[0].sku_spec[1].spec_name) {
+          if (!this.skulist2[i].sku_spec[1].spec_id) {
             this.$message.error(`规格二为空`)
             return
           }
-          if (!parmas.price) {
-            this.$message.error(`商品价格为空`)
+          if (!this.skulist2[i].image_url) {
+            this.$message.error(`规格图为空`)
             return
           }
-          if (!parmas.stock) {
-            this.$message.error(`商品库存为空`)
+        } else {
+          if (!this.skulist2[i].sku_spec[0].spec_id) {
+            this.$message.error(`规格一为空`)
             return
           }
-          const res = await this.StrockUpForegin.SaveProduct(parmas)
-          if (res.code === 200) {
-            this.$message.success('数据保存成功')
-            this.$refs.Logs.writeLog('数据保存成功', true)
-          } else {
-            this.$message.error(`数据保存失败${res.message}`)
-            this.$refs.Logs.writeLog(`数据保存失败,失败类型：${res.message}`, false)
+          if (!this.skulist2[i].image_url) {
+            this.$message.error(`规格图为空`)
+            return
           }
         }
+      }
+      console.log(parmas)
+      const res = await this.StrockUpForegin.SaveProduct(parmas)
+      if (res.code === 200) {
+        this.$message.success('数据保存成功')
+        this.$refs.Logs.writeLog('数据保存成功', true)
+      } else {
+        this.$message.error(`数据保存失败${res.data}`)
+        this.$refs.Logs.writeLog(`数据保存失败,失败类型：${res.data}`, false)
       }
     },
     // 编辑商品点击保存
     async eiditsave() {
+      this.eiditzh_name1 = ''
+      this.eiditzh_name2 = ''
+      this.skulist1 = []
+      this.eiditstock = 0
       for (let i = 0; i < this.EidittableData.length; i++) {
-        const that = this
-        if (this.eiditshowtwo === false) {
-          const parmas = {
-            product_id: this.EidittableData[i].productid,
-            product_name: this.eiditgoodname,
-            price: Number(that.EidittableData[i].price),
-            stock: this.EidittableData[i].stock,
-            status: this.eiditstatus,
-            weight: this.weight,
-            volume: this.eiditx * this.eidity * this.eiditz,
-            cate_id: this.eiditcateid,
-            carousel_gallery: [this.eiditRotationimg],
-            detail_gallery: [this.eiditDetailsimg],
-            size_gallery: [this.eiditsizeimg],
-            product_desc: this.eiditdescribe,
-            remark: this.eiditremark,
+        if (this.eiditshowtwo === true) {
+          for (let j = 0; j < this.skucode.length; j++) {
+            if (this.EidittableData[i].eiditSpecification1 === this.skucode[j].code) {
+              this.eiditzh_name1 = this.skucode[j].zh_name
+              console.log(this.eiditzh_name1)
+            }
+            if (this.EidittableData[i].eiditSpecification2 === this.skucode[j].code) {
+              this.eiditzh_name2 = this.skucode[j].zh_name
+              console.log(this.eiditzh_name2)
+            }
+          }
+          this.eiditstock += this.EidittableData[i].stock
+          this.skulist1.push({
+            sku_id: this.EidittableData[i].productid,
+            sku_name: `${this.eiditzh_name1}/${this.eiditzh_name2}`,
+            price: Number(this.EidittableData[i].price),
             image_url: this.EidittableData[i].img,
-            sku_list: [
-              {
-                sku_id: this.EidittableData[i].productid,
-                price: Number(that.EidittableData[i].price),
-                sku_name: this.eiditgoodname,
-                image_url: this.EidittableData[i].img,
-                stock: this.EidittableData[i].stock,
-                weight: this.eiditweight,
-                volume: this.eiditx * this.eidity * this.eiditz,
-                status: this.eiditstatus,
-                sku_spec: [
-                  {
-                    spec_id: this.EidittableData[i].eiditSpecification1,
-                    spec_name: this.eiditSpecifications1,
-                    spec_value: 'this.CreatetableData[i].eiditSpecification1'
-                  }
-                // }, {
-                //   spec_id: this.CreatetableData[i].Specification2,
-                //   spec_name: 'this.skucode[this.CreatetableData[i].Specification2].zh_name',
-                //   spec_value: 'this.skucode[this.CreatetableData[i].Specification2].parent_att_name'
-                // }
-                ]
-              }
-            ]
-          }
-          if (!parmas.product_name) {
-            this.$message.error(`商品名称为空`)
-            return
-          }
-          if (!parmas.product_id) {
-            this.$message.error(`商品ID为空`)
-            return
-          }
-          if (!parmas.image_url) {
-            this.$message.error(`商品主图为空`)
-            return
-          }
-          if (!parmas.sku_list[0].sku_spec[0].spec_name) {
-            this.$message.error(`规格一为空`)
-            return
-          }
-          if (!parmas.price) {
-            this.$message.error(`商品价格为空`)
-            return
-          }
-          if (!parmas.stock) {
-            this.$message.error(`商品库存为空`)
-            return
-          }
-          const res = await this.StrockUpForegin.SaveProduct(parmas)
-          if (res.code === 200) {
-            this.$message.success('数据保存成功')
-            this.$refs.Logs.writeLog('数据保存成功', true)
-          } else {
-            this.$message.error(`数据保存失败${res.message}`)
-            this.$refs.Logs.writeLog(`数据保存失败,失败类型：${res.message}`, false)
-          }
-        } else {
-          const parmas = {
-            product_id: this.EidittableData[i].productid,
-            product_name: this.eiditgoodname,
-            price: Number(that.EidittableData[i].price),
+            out_sku_id: this.EidittableData[i].productid,
             stock: this.EidittableData[i].stock,
-            status: this.eiditstatus,
             weight: this.eiditweight,
             volume: this.eiditx * this.eidity * this.eiditz,
-            cate_id: this.eiditcateid,
-            carousel_gallery: this.eiditRotationimg,
-            detail_gallery: this.eiditDetailsimg,
-            size_gallery: this.eiditsizeimg,
-            product_desc: this.eiditdescribe,
-            remark: this.eiditremark,
+            status: this.eiditstatus,
+            sku_spec: [{
+              spec_id: this.EidittableData[i].eiditSpecification1,
+              spec_name: this.eiditSpecifications1,
+              spec_value: this.eiditzh_name1
+            }, {
+              spec_id: this.EidittableData[i].eiditSpecification2,
+              spec_name: this.eiditSpecifications2,
+              spec_value: this.eiditzh_name2
+            }]
+          })
+        } else {
+          for (let j = 0; j < this.skucode.length; j++) {
+            if (this.EidittableData[i].eiditSpecification1 === this.skucode[j].code) {
+              this.eiditzh_name1 = this.skucode[j].zh_name
+              console.log(this.eiditzh_name1)
+            }
+          }
+          this.eiditstock += this.EidittableData[i].stock
+          this.skulist1.push({
+            sku_id: this.EidittableData[i].productid,
+            sku_name: this.eiditzh_name1,
+            price: Number(this.EidittableData[i].price),
             image_url: this.EidittableData[i].img,
-            sku_list: [
-              {
-                sku_id: this.EidittableData[i].productid,
-                price: Number(that.EidittableData[i].price),
-                sku_name: this.eiditgoodname,
-                image_url: this.EidittableData[i].img,
-                stock: this.EidittableData[i].stock,
-                weight: this.eiditweight,
-                volume: this.eiditx * this.eidity * this.eiditz,
-                status: this.eiditstatus,
-                sku_spec: [
-                  {
-                    spec_id: this.EidittableData[i].eiditSpecification1,
-                    spec_name: this.eiditSpecifications1,
-                    spec_value: 'this.CreatetableData[i].eiditSpecification1'
-                  }, {
-                    spec_id: this.EidittableData[i].eiditSpecification2,
-                    spec_name: this.eiditSpecifications2,
-                    spec_value: 'this.CreatetableData[i].eiditSpecification2'
-                  }
-                ]
-              }
-            ]
-          }
-          if (!parmas.product_name) {
-            this.$message.error(`商品名称为空`)
-            return
-          }
-          if (!parmas.product_id) {
-            this.$message.error(`商品ID为空`)
-            return
-          }
-          if (!parmas.image_url) {
-            this.$message.error(`商品主图为空`)
-            return
-          }
-          if (!parmas.sku_list[0].sku_spec[0].spec_name) {
+            out_sku_id: this.EidittableData[i].productid,
+            stock: this.EidittableData[i].stock,
+            weight: this.eiditweight,
+            volume: `${this.eiditx}*${this.eidity}*${this.eiditz}`, // this.eiditx * this.eidity * this.eiditz,
+            status: this.eiditstatus,
+            sku_spec: [{
+              spec_id: this.EidittableData[i].eiditSpecification1,
+              spec_name: this.eiditSpecifications1,
+              spec_value: this.eiditzh_name1
+            }]
+          })
+        }
+      }
+      console.log('-------------', this.skulist1)
+      const parmas = {
+        product_id: this.eiditskuid,
+        product_name: this.eiditgoodname,
+        status: this.eiditstatus,
+        weight: this.eiditweight,
+        stock: this.eiditstock,
+        image_url: this.eiditRotationimg[0],
+        volume: `${this.eiditx}*${this.eidity}*${this.eiditz}`, // this.eiditx * this.eidity * this.eiditz,
+        price: this.EidittableData[0].price,
+        cate_id: this.eiditcateid,
+        carousel_gallery: this.eiditRotationimg,
+        detail_gallery: this.eiditDetailsimg,
+        size_gallery: this.eiditsizeimg,
+        product_desc: this.eiditdescribe,
+        remark: this.eiditremark,
+        sku_list: this.skulist1
+      }
+      if (!parmas.product_name) {
+        this.$message.error(`商品名称为空`)
+        return
+      }
+      if (!parmas.product_id) {
+        this.$message.error(`商品ID为空`)
+        return
+      }
+      if (!parmas.image_url) {
+        this.$message.error(`商品主图为空`)
+        return
+      }
+      for (let i = 0; i < this.skulist1.length; i++) {
+        if (this.eiditshowtwo === true) {
+          if (!this.skulist1[i].sku_spec[0].spec_id) {
             this.$message.error(`规格一为空`)
             return
           }
-          if (!parmas.sku_list[0].sku_spec[1].spec_name) {
+          if (!this.skulist1[i].sku_spec[1].spec_id) {
             this.$message.error(`规格二为空`)
             return
           }
-          if (!parmas.price) {
-            this.$message.error(`商品价格为空`)
+          if (!this.skulist1[i].image_url) {
+            this.$message.error(`商品主图为空`)
             return
           }
-          if (!parmas.stock) {
-            this.$message.error(`商品库存为空`)
+        } else {
+          if (!this.skulist1[i].sku_spec[0].spec_id) {
+            this.$message.error(`规格一为空`)
             return
           }
-          const res = await this.StrockUpForegin.SaveProduct(parmas)
-          if (res.code === 200) {
-            this.$message.success('数据保存成功')
-            this.$refs.Logs.writeLog('数据保存成功', true)
-          } else {
-            this.$message.error(`数据保存失败${res.message}`)
-            this.$refs.Logs.writeLog(`数据保存失败,失败类型：${res.message}`, false)
+          if (!this.skulist1[i].image_url) {
+            this.$message.error(`商品主图为空`)
+            return
           }
         }
+      }
+      console.log(parmas)
+      const res = await this.StrockUpForegin.SaveProduct(parmas)
+      if (res.code === 200) {
+        this.$message.success('数据保存成功')
+        this.$refs.Logs.writeLog('数据保存成功', true)
+      } else {
+        this.$message.error(`数据保存失败${res.data}`)
+        this.$refs.Logs.writeLog(`数据保存失败,失败类型：${res.data}`, false)
       }
     },
     // 批量更新
@@ -1393,11 +1369,11 @@ export default {
     },
     // 添加主图时传入index赋值
     uploadindex(index) {
-      this.CreatetableData[index].img = this.mainimg
+      this.creatidx = index
     },
     // 添加编辑主图时传入index赋值
-    uploadeiditindex(index) {
-      this.EidittableData[index].img = this.bindeiditmainimg
+    async uploadeiditindex(index) {
+      this.eiditidx = index
     },
     // 添加主图
     async uploadmainimg(file) {
@@ -1410,6 +1386,7 @@ export default {
         const name = randomWord(false, 32) + '_' + new Date().getTime()
         const res = await this.$ossService.uploadFile(that.imgData, name)
         this.mainimg = res
+        this.CreatetableData[this.creatidx].img = this.mainimg
       }
     },
     // 添加编辑页面主图
@@ -1423,6 +1400,7 @@ export default {
         const name = randomWord(false, 32) + '_' + new Date().getTime()
         const res = await this.$ossService.uploadFile(that.imgData, name)
         this.bindeiditmainimg = res
+        this.EidittableData[this.eiditidx].img = this.bindeiditmainimg
       }
     },
     // 添加规格选项一
@@ -1431,7 +1409,7 @@ export default {
         Specification1: '',
         Specification2: '',
         img: '',
-        price: '',
+        price: 0,
         productnum: 0,
         skuid: ''
       })
@@ -1451,7 +1429,7 @@ export default {
           Specification1: '',
           Specification2: '',
           img: '',
-          price: '',
+          price: 0,
           productnum: 0,
           skuid: ''
         })
@@ -1463,8 +1441,8 @@ export default {
         eiditSpecification1: '',
         eiditSpecification2: '',
         img: '',
-        price: '',
-        stock: '',
+        price: 0,
+        stock: 0,
         productid: ''
       })
     },
@@ -1483,8 +1461,8 @@ export default {
           eiditSpecification1: '',
           eiditSpecification2: '',
           img: '',
-          price: '',
-          stock: '',
+          price: 0,
+          stock: 0,
           productid: ''
         })
       }
@@ -1495,6 +1473,7 @@ export default {
     },
     // 编辑商品
     async Eidtgoods(val) {
+      this.eiditsp1 = ''
       let data = await this.$commodityService.getdetails({
         priductid: val.product_id,
         language: ''
@@ -1502,42 +1481,80 @@ export default {
       data = JSON.parse(data)
       const dtl = data.data.detail
       const skulist = data.data.sku_list
-      console.log(skulist)
       this.EidittableData = []
       for (let i = 0; i < skulist.length; i++) {
         if (skulist[i].Sku_spec[1]) {
+          for (let j = 0; j < this.skucode.length; j++) {
+            if (this.skucode[j].zh_name === skulist[i].Sku_spec[0].Spec_value) {
+              this.eiditsp1 = this.skucode[j].code
+            }
+            if (this.skucode[j].zh_name === skulist[i].Sku_spec[1].Spec_value) {
+              this.eiditsp2 = this.skucode[j].code
+            }
+          }
           this.EidittableData.push({
-            eiditSpecification1: skulist[i].Sku_spec[0].Spec_value,
-            eiditSpecification2: skulist[i].Sku_spec[1].Spec_value,
+            eiditSpecification1: this.eiditsp1,
+            eiditSpecification2: this.eiditsp2,
             img: skulist[i].Image_url,
             price: skulist[i].Price,
             stock: skulist[i].Stock,
-            productid: skulist[i].Product_id
+            productid: skulist[i].Out_sku_id
           })
         } else {
+          for (let j = 0; j < this.skucode.length; j++) {
+            if (this.skucode[j].zh_name === skulist[i].Sku_spec[0].Spec_value) {
+              this.eiditsp1 = this.skucode[j].code
+            }
+          }
           this.EidittableData.push({
-            eiditSpecification1: skulist[i].Sku_spec[0].Spec_value,
+            eiditSpecification1: this.eiditsp1,
             eiditSpecification2: '',
             img: skulist[i].Image_url,
             price: skulist[i].Price,
             stock: skulist[i].Stock,
-            productid: skulist[i].Product_id
+            productid: skulist[i].Out_sku_id
           })
         }
       }
-      // if (this.EidittableData[0].eiditSpecification2.length > 0) {
-      //   this.eiditshowtwo = true
-      // } else {
-      //   this.eiditshowtwo = false
+      if (this.EidittableData[0].eiditSpecification2.length > 0) {
+        this.eiditshowtwo = true
+      } else {
+        this.eiditshowtwo = false
+      }
+      this.eiditgoodname = val.product_name
+      this.eiditskuid = val.product_id
+      this.eiditcatename = val.cate_name
+      this.eiditcateid = val.cate_id
+      // this.eiditcateid1 = 'ces'
+      // this.eiditcateid2 = 'ces'
+      // this.eiditcateid3 = 'ces'
+      // for (let i = 0; i < this.catecode.length; i++) {
+      //   if (this.catecode[i].id === this.eiditcateid) {
+      //     switch (this.catecode[i].level) {
+      //       case 1:
+      //         this.eiditcateid1 = this.eiditcateid
+      //         break
+      //       case 2:
+      //         this.eiditcateid1 = this.catecode[i].parent_id
+      //         this.eiditcateid2 = this.eiditcateid
+      //         break
+      //       case 3:
+      //         this.eiditcateid2 = this.catecode[i].parent_id
+      //         this.eiditcateid3 = this.eiditcateid
+      //         for (let j = 0; j < this.catecode.length; j++) {
+      //           if (this.catecode[j].id === this.catecode[i].parent_id) {
+      //             this.eiditcateid1 = this.catecode[j].parent_id
+      //           }
+      //         }
+      //     }
+      //   }
       // }
       this.eidtVisible = true
-      this.eiditgoodname = val.product_name
-      this.eiditcateid = val.cate_id
       this.eiditremark = val.remark
       this.eiditstatus = val.status
       this.eiditRotationimg = dtl.carousel_gallery
       this.eiditDetailsimg = dtl.detail_gallery
-      this.eiditsizeimg = dtl.detail_gallery
+      this.eiditsizeimg = dtl.size_gallery
       this.eiditweight = val.weight
       this.eiditx = val.volume.split('*')[0]
       this.eidity = val.volume.split('*')[1]
@@ -1551,19 +1568,19 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(async() => {
-        const { data } = await this.$commodityService.delgoods({
+        let res = await this.$commodityService.delgoods({
           productId: val.product_id,
-          productUid: ''
+          productUid: val.uid
         })
-        debugger
-        if (data.code === 200) {
+        res = JSON.parse(res)
+        if (res.status_code === 200) {
           this.$message.success(`删除成功`)
-          this.$refs.Logs.writeLog('删除成功', true)
+          this.$refs.Logs.writeLog('删除商品成功', true)
         } else {
-          this.$message.error(`删除失败${data.message}`)
+          this.$message.error(`删除失败${res.message}`)
           this.$refs.Logs.writeLog('删除商品失败', false)
         }
-        // this.getProductList()
+        this.getProductList()
       })
     },
     // 上传新建轮播图
@@ -1576,7 +1593,7 @@ export default {
         that.imgData = reader.result
         const name = randomWord(false, 32) + '_' + new Date().getTime()
         const res = await this.$ossService.uploadFile(that.imgData, name)
-        this.newRotationimg = res
+        this.newRotationimg.push(res)
       }
     },
     // 上传新建详情图
@@ -1589,7 +1606,7 @@ export default {
         that.imgData = reader.result
         const name = randomWord(false, 32) + '_' + new Date().getTime()
         const res = await this.$ossService.uploadFile(that.imgData, name)
-        this.newDetailsimg = res
+        this.newDetailsimg.push(res)
       }
     },
     // 上传新建尺寸图
@@ -1602,7 +1619,7 @@ export default {
         that.imgData = reader.result
         const name = randomWord(false, 32) + '_' + new Date().getTime()
         const res = await this.$ossService.uploadFile(that.imgData, name)
-        this.newsizeimg = res
+        this.newsizeimg.push(res)
       }
     },
     // 上传编辑轮播图
@@ -1649,12 +1666,12 @@ export default {
       const files = { 0: file.raw }
       if (!/\.(xls|xlsx)$/.test(files[0].name.toLowerCase())) {
         this.$refs.Logs.writeLog('格式错误,请上传xls、xlsx格式的文件', false)
-        this.showConsole = false
+        this.showlog = false
         return
       }
       if (files.length <= 0) {
         this.$refs.Logs.writeLog('表格为空', false)
-        this.showConsole = false
+        this.showlog = false
         return
       }
       const fileReader = new FileReader()
@@ -1677,10 +1694,10 @@ export default {
       const dataSum = this.importTemplateData.length
       if (dataSum <= 0) {
         this.$refs.Logs.writeLog('表格数据为空', false)
-        this.showConsole = false
+        this.showlog = false
         return
       }
-      this.showConsole = false
+      this.showlog = false
       this.$refs.Logs.writeLog('开始读取数据...', true)
       const data = []
       this.foreignData = []
@@ -1697,9 +1714,9 @@ export default {
         const Specificationsimg = element['规格图(必填，一行一张)']
         const skuprice = element['SKU价格(必填，一行一个价格)']
         const skunum = element['SKU库存(必填，一行一个库存)']
-        const Rotationimg = element["轮播图(选填，同一商品名称，只需要填写一次，使用英文逗号隔开(', '),默认第一张为主图)"]
-        const Detailsimg = element["详情图片(选填，同一商品名称，只需要填写一次，使用英文逗号隔开(', '))"]
-        const sizeimg = element["尺寸图片(选填，同一商品名称，只需要填写一次，使用英文逗号隔开(', '))"]
+        const Rotationimg = element["轮播图(选填，同一商品名称，只需要填写一次，使用英文逗号隔开(','),默认第一张为主图)"]
+        const Detailsimg = element["详情图片(选填，同一商品名称，只需要填写一次，使用英文逗号隔开(','))"]
+        const sizeimg = element["尺寸图片(选填，同一商品名称，只需要填写一次，使用英文逗号隔开(','))"]
         const status = element['商品状态(必填)']
         if (!goodsname) {
           this.$refs.Logs.writeLog(`【${index + 1}】商品名称为空`, false)
@@ -1725,44 +1742,99 @@ export default {
           this.$refs.Logs.writeLog(`【${index + 1}】SKU库存为空`, false)
           continue
         }
-        const obj = {
-          product_id: skuid,
-          product_name: goodsname,
-          price: skuprice,
-          stock: skunum,
-          status: status,
-          weight: goodsweight,
-          volume: goodsvolume,
-          cate_id: skuid,
-          carousel_gallery: [Rotationimg],
-          detail_gallery: [Detailsimg],
-          size_gallery: [sizeimg],
-          product_desc: Details,
-          sku_list: [
-            {
-              sku_id: skuid,
-              price: skuprice,
-              sku_name: goodsname,
-              image_url: Specificationsimg,
-              stock: skunum,
-              weight: goodsweight,
-              volume: goodsvolume,
-              status: status,
-              sku_spec: [
-                {
-                  spec_id: Specification1,
-                  spec_name: '规格一',
-                  spec_value: ''
-                }, {
-                  spec_id: Specification2,
-                  spec_name: '规格二',
-                  spec_value: ''
-                }
-              ]
+        if (Specification2) {
+          this.importzh_name1 = ''
+          this.importzh_name2 = ''
+          for (let i = 0; i < this.skucode.length; i++) {
+            if (Specification1 === this.skucode[i].code) {
+              this.importzh_name1 = this.skucode[i].zh_name
             }
-          ]
+            if (Specification2 === this.skucode[i].code) {
+              this.importzh_name2 = this.skucode[i].zh_name
+            }
+          }
+          const obj = {
+            product_id: skuid,
+            product_name: goodsname,
+            price: skuprice,
+            stock: skunum,
+            status: status,
+            weight: goodsweight,
+            volume: goodsvolume,
+            cate_id: skuid,
+            carousel_gallery: [Rotationimg],
+            detail_gallery: [Detailsimg],
+            size_gallery: [sizeimg],
+            product_desc: Details,
+            image_url: Rotationimg,
+            sku_list: [
+              {
+                sku_id: skuid,
+                price: skuprice,
+                sku_name: goodsname,
+                image_url: Specificationsimg,
+                stock: skunum,
+                weight: goodsweight,
+                volume: goodsvolume,
+                status: status,
+                sku_spec: [
+                  {
+                    spec_id: Specification1,
+                    spec_name: '规格一',
+                    spec_value: this.importzh_name1
+                  }, {
+                    spec_id: Specification2,
+                    spec_name: '规格二',
+                    spec_value: this.importzh_name2
+                  }
+                ]
+              }
+            ]
+          }
+          data.push(obj)
+        } else {
+          this.importzh_name1 = ''
+          for (let i = 0; i < this.skucode.length; i++) {
+            if (Specification1 === this.skucode[i].code) {
+              this.importzh_name1 = this.skucode[i].zh_name
+            }
+          }
+          const obj = {
+            product_id: skuid,
+            product_name: goodsname,
+            price: skuprice,
+            stock: skunum,
+            status: status,
+            weight: goodsweight,
+            volume: goodsvolume,
+            image_url: Rotationimg,
+            cate_id: skuid,
+            carousel_gallery: [Rotationimg],
+            detail_gallery: [Detailsimg],
+            size_gallery: [sizeimg],
+            product_desc: Details,
+            sku_list: [
+              {
+                sku_id: skuid,
+                price: skuprice,
+                sku_name: goodsname,
+                image_url: Specificationsimg,
+                stock: skunum,
+                weight: goodsweight,
+                volume: goodsvolume,
+                status: status,
+                sku_spec: [
+                  {
+                    spec_id: Specification1,
+                    spec_name: '规格一',
+                    spec_value: this.importzh_name1
+                  }
+                ]
+              }
+            ]
+          }
+          data.push(obj)
         }
-        data.push(obj)
       }
       data.map(item => {
         if (!myMap.has(item.sku_list[0].sku_id)) {
@@ -1775,9 +1847,13 @@ export default {
       this.foreignData.map(async item => {
         const res = await this.StrockUpForegin.SaveProduct(item)
         if (res.code === 200) {
-          this.$message.success('数据保存成功')
+          this.$message.success('数据导入成功')
+          this.$refs.Logs.writeLog('数据导入成功', true)
+          this.showlog = false
         } else {
-          this.$message.error(`数据保存失败${res.message}`)
+          this.$message.error(`数据导入失败${res.data}`)
+          this.$refs.Logs.writeLog(`数据导入失败${res.data}`, false)
+          this.showlog = false
         }
       })
     },
@@ -1845,20 +1921,20 @@ export default {
       parmas.ProductId = this.form.returnGoodsId
       parmas.SkuId = this.form.returnSkuId
       parmas.Status = this.form.returnStatus
-      console.log(parmas)
       const res = await this.StrockUpForegin.getProductList(parmas)
       if (res.code !== 200) {
         this.$message.error(res.data)
       }
       this.total = res.data.total
       this.tableData = res.data.data
+      this.exportdata = res.data.data
       console.log('tableData', this.tableData)
       this.Loading1 = false
       this.Loading3 = false
     },
     // 数据导出功能
     async DerivedData() {
-      if (this.tableData.length) {
+      if (this.exportdata.length) {
         let msg = `<tr>
         <td style="width: 200px; text-align:left;">商品ID</td>
         <td style="width: 200px; text-align:left;">商品名称</td>
@@ -1871,7 +1947,7 @@ export default {
         <td style="width: 200px; text-align:left;">创建时间</td>
         <td style="width: 200px; text-align:left;">更新时间</td>
       </tr>`
-        this.tableData.map((item) => {
+        this.exportdata.map((item) => {
           msg += `
         <tr>
           <td style="text-align:left;">${item.product_id || ''}</td>
@@ -1879,8 +1955,8 @@ export default {
           <td style="text-align:left;">${item.cate_id || ''}</td>
           <td style="text-align:left;">${item.image_url || ''}</td>
           <td style="text-align:left;">${item.status || ''}</td>
-          <td style="text-align:left;">${item.price || ''}</td>
-          <td style="text-align:left;">${item.stock || ''}</td>
+          <td style="text-align:left;">${item.price}</td>
+          <td style="text-align:left;">${item.stock}</td>
           <td style="text-align:left;">${item.remark || ''}</td>
           <td style="text-align:left;">${item.created_at || ''}</td>
           <td style="text-align:left;">${item.updated_at || ''}</td>
@@ -1896,6 +1972,22 @@ export default {
         })
       }
     },
+    bfClose(done) {
+      this.form.returnCreateTime = [new Date().getTime() - 3600 * 1000 * 24 * 30, new Date()]
+      this.form.returnUpdateTime = [new Date().getTime() - 3600 * 1000 * 24 * 30, new Date()]
+      this.getProductList()
+      this.showcatechoose = false
+      done()
+    },
+    CateId(val) {
+      this.form.returnCategory = val
+    },
+    CreatCateId(val) {
+      this.newform.cate_id = val
+    },
+    EiditCateId(val) {
+      this.eiditcateid = val
+    },
     handleSizeChange(val) {
       this.page = 1
       this.pageSize = val
@@ -1907,6 +1999,9 @@ export default {
     },
     handleSelectionChange(val) {
       this.multipleSelection = val
+    },
+    clickhere() {
+      this.showcatechoose = true
     }
   }
 }
