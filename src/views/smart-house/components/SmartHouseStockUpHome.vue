@@ -1248,10 +1248,9 @@ export default {
             this.foreignWidList.push(item)
           }
         } else {
-          // 弹窗仓库列表不需要判断
-          this.foreignWidList.push(item)
           if (item.status !== 2) {
             this.widList.push(item)
+            this.foreignWidList.push(item)
           }
         }
       })
