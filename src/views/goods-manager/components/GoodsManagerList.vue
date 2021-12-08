@@ -139,16 +139,18 @@
               </li>
               <li class="data-goods">
                 <el-input
+                  v-model="keyword"
                   size="mini"
                   class="input-with-select"
+                  oninput="value=value.replace(/\s+/g,'')"
                   clearable
                 >
                   <el-select
                     slot="prepend"
-                    v-model="goodsTypeSelect"
+                    v-model="searchType"
                   >
                     <el-option
-                      v-for="(item, index) in goodsTypeSelectList"
+                      v-for="(item, index) in searchTypeList"
                       :key="index"
                       :label="item.label"
                       :value="item.value"
@@ -174,9 +176,10 @@
               <el-button
                 type="primary"
                 size="mini"
+                :disabled="queryLoding"
               >一键查询100小时以上无流量商品</el-button>
-              <el-button type="primary" size="mini">一键查询200小时以上无流量商品</el-button>
-              <el-button type="primary" size="mini" :disabled="true">商品一键翻新1</el-button>
+              <el-button type="primary" size="mini" :disabled="queryLoding">一键查询200小时以上无流量商品</el-button>
+              <el-button type="primary" size="mini" :disabled="queryLoding">商品一键翻新1</el-button>
             </ul>
             <ul>
               <el-button type="primary" size="mini" :disabled="true">同步上家库存1</el-button>
@@ -201,18 +204,18 @@
               <span>操作选项</span>
             </div>
             <ul style="margin-bottom:3px">
-              <el-button type="primary" size="mini">批量删除</el-button>
-              <el-button type="primary" size="mini">批量下架</el-button>
-              <el-button type="primary" size="mini">批量编辑标题</el-button>
-              <el-button type="primary" size="mini">取消操作</el-button>
-              <el-button type="primary" size="mini">批量修改类目属性</el-button>
+              <el-button type="primary" size="mini" :disabled="queryLoding">批量删除</el-button>
+              <el-button type="primary" size="mini" :disabled="queryLoding">批量下架</el-button>
+              <el-button type="primary" size="mini" :disabled="queryLoding">批量编辑标题</el-button>
+              <el-button type="primary" size="mini" :disabled="!queryLoding" @click="flag=true">取消操作</el-button>
+              <el-button type="primary" size="mini" :disabled="queryLoding">批量修改类目属性</el-button>
             </ul>
             <ul style="margin-bottom:3px">
-              <el-button type="primary" size="mini">货源查找</el-button>
-              <el-button type="primary" size="mini">批量上架</el-button>
-              <el-button type="primary" size="mini">批量编辑描述</el-button>
-              <el-button type="primary" size="mini">导出数据</el-button>
-              <el-button type="primary" size="mini">一键查询禁卖商品</el-button>
+              <el-button type="primary" size="mini" :disabled="queryLoding">货源查找</el-button>
+              <el-button type="primary" size="mini" :disabled="queryLoding">批量上架</el-button>
+              <el-button type="primary" size="mini" :disabled="queryLoding">批量编辑描述</el-button>
+              <el-button type="primary" size="mini" :disabled="queryLoding">导出数据</el-button>
+              <el-button type="primary" size="mini" :disabled="queryLoding">一键查询禁卖商品</el-button>
             </ul>
             <ul>
               <li class="operation-input">
@@ -343,21 +346,63 @@
             {{ row.country | chineseSite }}
           </template>
         </el-table-column>
-        <el-table-column align="center" min-width="120" label="店铺名" prop="mallName" />
-        <el-table-column align="center" min-width="120" label="主图" />
+        <el-table-column align="center" min-width="120" label="店铺名" prop="mallName" show-overflow-tooltip />
+        <el-table-column align="center" min-width="120" label="主图">
+          <template v-slot="{row}">
+            <el-tooltip
+              v-if="row.images"
+              effect="light"
+              placement="right-end"
+              :visible-arrow="false"
+              :enterable="false"
+              style="width: 50px; height: 50px"
+            >
+              <div slot="content">
+                <el-image
+                  :src="[row.country ,row.platform_mall_id , row.images] | imageRender"
+                  style="width: 400px; height: 400px"
+                >
+                  <div slot="error" class="image-slot" />
+                  <div slot="placeholder" class="image-slot">
+                    加载中<span class="dot">...</span>
+                  </div>
+                </el-image>
+              </div>
+              <el-image
+                style="width: 40px; height: 40px"
+                :src="[row.country ,row.platform_mall_id , row.images] | imageRender"
+              >
+                <div slot="error" class="image-slot" />
+                <div slot="placeholder" class="image-slot">
+                  加载中<span class="dot">...</span>
+                </div>
+              </el-image>
+            </el-tooltip>
+          </template>
+        </el-table-column>
         <el-table-column align="center" min-width="120" label="上家类型" />
         <el-table-column align="center" min-width="120" label="上家链接" />
-        <el-table-column align="center" min-width="120" label="itemID" />
-        <el-table-column align="center" min-width="120" label="价格" />
-        <el-table-column align="center" min-width="120" label="库存" />
-        <el-table-column align="center" min-width="120" label="标题" />
-        <el-table-column align="center" min-width="120" label="状态" />
-        <el-table-column align="center" min-width="120" label="创建时间" />
-        <el-table-column align="center" min-width="120" label="更新时间" />
-        <el-table-column align="center" min-width="120" label="销售量" />
-        <el-table-column align="center" min-width="120" label="访客量" />
-        <el-table-column align="center" min-width="120" label="评星数" />
-        <el-table-column align="center" min-width="120" label="粉丝量" />
+        <el-table-column align="center" min-width="120" label="itemID">
+          <template v-slot="{row}">
+            <span class="green-span" @click="openUrl(row)">
+              {{ row.id }}
+            </span>
+          </template>
+        </el-table-column>
+        <el-table-column align="center" min-width="100" label="价格" prop="price" />
+        <el-table-column align="center" min-width="100" label="库存" prop="stock" />
+        <el-table-column align="center" min-width="150" label="标题" prop="name" show-overflow-tooltip>
+          <template v-slot="{row}">
+            <span class="red-span">{{ row.name }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column align="center" min-width="80" label="状态" />
+        <el-table-column align="center" min-width="120" label="创建时间" prop="create_time" />
+        <el-table-column align="center" min-width="120" label="更新时间" prop="modify_time" />
+        <el-table-column align="center" min-width="100" label="销售量" />
+        <el-table-column align="center" min-width="100" label="访客量" />
+        <el-table-column align="center" min-width="100" label="评星数" />
+        <el-table-column align="center" min-width="100" label="粉丝量" />
         <el-table-column align="center" min-width="120" label="操作状态" />
       </el-table>
     </el-row>
@@ -384,7 +429,6 @@ import GoodsList from '../../../module-api/goods-manager-api/goods-list'
 import StoreChoose from '../../../components/store-choose'
 import CategoryChoose from '../../../components/category-choose.vue'
 import { exportExcelDataCommon } from '../../../util/util'
-import { batchOperation } from '../../../util/util'
 export default {
   components: {
     StoreChoose,
@@ -399,18 +443,18 @@ export default {
       queryLoding: false,
       radio: '',
       checked: false,
+      flag: false,
       GoodsList: new GoodsList(this),
 
       selectMallList: '', // 选择的店铺分组数据
       tableData: [], // 表格数据
-
-      pageNumber: 1,
       pageSize: 48,
-
       sellStatus: 0, // 是否售空
       goodsStatus: 0, // 商品状态
-      goodsTypeSelect: 1, //
+      searchType: 'name', // 商品类型搜索条件
+      keyword: '', // 商品类型搜索值
       source: 0, // 上家来源
+
       sellStatusList: [
         { value: 1, label: '售空' },
         { value: 2, label: '非售空' }
@@ -424,12 +468,12 @@ export default {
         { value: 6, label: '禁卖shopee官方删除' },
         { value: 7, label: '已压制' }
       ],
-      goodsTypeSelectList: [
-        { value: 1, label: '商品名称' },
-        { value: 2, label: '主商品货号' },
-        { value: 3, label: '商品规格货号' },
-        { value: 4, label: '商品编号' },
-        { value: 5, label: '上家商品ID' }
+      searchTypeList: [
+        { value: 'name', label: '商品名称' },
+        { value: 'sku', label: '主商品货号' },
+        { value: 'msku', label: '商品规格货号' },
+        { value: 'variation', label: '商品编号' },
+        { value: 'id', label: '上家商品ID' }
       ],
       sourceList: [
         { value: 1, label: '拼多多' },
@@ -461,72 +505,58 @@ export default {
       this.queryLoding = true
       this.showConsole = false
       this.$refs.Logs.writeLog(`开始查询...`, true)
-      // for (let i = 0; i < this.selectMallList.length; i++) {
-      //   const element = this.selectMallList[i]
-      //   const mallData = element
-      //   const pageNumber = 1
-      //   const pageSize = 48
-      //   await this.getMpskuList(pageNumber, pageSize, mallData)
-      // }
-      const res = await batchOperation(this.selectMallList, this.getMpskuList)
+      for (let i = 0; i < this.selectMallList.length; i++) {
+        if (this.flag) {
+          break
+        }
+        const element = this.selectMallList[i]
+        const mallData = element
+        const pageNumber = 1
+        await this.getTableData(pageNumber, mallData)
+      }
       this.queryLoding = false
       this.$refs.Logs.writeLog(`查询完成`, true)
     },
-    async getMpskuList(item, count = { count: 1 }) {
-      const mallName = item.mall_alias_name || item.platform_mall_name
-      try {
-        console.log(this.queryLoding)
-        const res = await this.GoodsList.getMpskuList(this.pageNumber, this.pageSize, item)
-        if (res.code === 200) {
-          res.data.list.map(listItem => {
-            listItem.country = item.country
-            listItem.mallName = mallName
-            this.tableData.push(listItem)
+    // 获取数据
+    async getTableData(pageNumber, mallData) {
+      let res = ''
+      const params = { mallData, pageNumber, pageSize: this.pageSize }
+      const mallName = mallData.mall_alias_name || mallData.platform_mall_name
+      if (this.keyword) { // ?还有未判断数据
+        params['searchType'] = this.searchType
+        params['keyword'] = this.keyword
+        res = await this.GoodsList.searchProductList(params)
+      } else {
+        res = await this.GoodsList.getMpskuList(params)
+      }
+      if (res.code === 200) {
+        res.data.list.map(item => {
+          let stock = 0
+          const price = []
+          item.country = mallData.country
+          item.mallName = mallName
+          item.create_time = this.$dayjs(item.create_time * 1000).format('YYYY-MM-DD HH:mm:ss')
+          item.modify_time = this.$dayjs(item.modify_time * 1000).format('YYYY-MM-DD HH:mm:ss')
+          item.images = item.images[0]
+          item.platform_mall_id = mallData.platform_mall_id
+          item.model_list.forEach(mItem => {
+            price.push(Number(mItem.price_info.normal_price))
+            stock += mItem.stock_info.normal_stock
           })
-          console.log('list', res.data.list)
-          this.$refs.Logs.writeLog(`查询店铺【${mallName}】第【${this.pageNumber}】页数据：${res.data.list.length}`, true)
-          if (res.data.list.length >= this.pageSize) {
-            this.pageNumber++
-            await this.getMpskuList(item, count = { count: 1 })
-          }
-        } else if (res.code === 403) {
-          this.$refs.Logs.writeLog(`店铺【${mallName}】未登录，请登录后再查询`, false)
-        } else if (res.code === 0) {
-          this.$refs.Logs.writeLog(`店铺【${mallName}】异常，请检查代理`, false)
-        } else {
-          this.$refs.Logs.writeLog(`店铺【${mallName}】，${res.data}`, false)
+          item.stock = stock
+          item.price = Math.min.apply(null, price)
+          this.tableData.push(item)
+        })
+        console.log('list', res.data.list)
+        this.$refs.Logs.writeLog(`查询店铺【${mallName}】第【${pageNumber}】页数据：${res.data.list.length}`, true)
+        if (res.data.list.length >= this.pageSize) {
+          pageNumber++
+          await this.getTableData(pageNumber, mallData)
         }
-      } catch (e) {
-        this.$refs.refs.writeLog(`店铺【${mallName}】数据获取异常`, false)
-      } finally {
-        count.count--
+      } else {
+        this.$refs.Logs.writeLog(`店铺【${mallName}】${res.data}`, false)
       }
     },
-    // 获取数据
-    // async getMpskuList(pageNumber, pageSize, mallData) {
-    //   console.log(this.queryLoding)
-    //   const mallName = mallData.mall_alias_name || mallData.platform_mall_name
-    //   const res = await this.GoodsList.getMpskuList(pageNumber, pageSize, mallData)
-    //   if (res.code === 200) {
-    //     res.data.list.map(item => {
-    //       item.country = mallData.country
-    //       item.mallName = mallName
-    //       this.tableData.push(item)
-    //     })
-    //     console.log('list', res.data.list)
-    //     this.$refs.Logs.writeLog(`查询店铺【${mallName}】第【${pageNumber}】页数据：${res.data.list.length}`, true)
-    //     if (res.data.list.length >= pageSize) {
-    //       pageNumber++
-    //       await this.getMpskuList(pageNumber, pageSize, mallData)
-    //     }
-    //   } else if (res.code === 403) {
-    //     this.$refs.Logs.writeLog(`店铺【${mallName}】未登录，请登录后再查询`, false)
-    //   } else if (res.code === 0) {
-    //     this.$refs.Logs.writeLog(`店铺【${mallName}】异常，请检查代理`, false)
-    //   } else {
-    //     this.$refs.Logs.writeLog(`店铺【${mallName}】，${res.data}`, false)
-    //   }
-    // },
     // 全选
     selectAll(key, baseData) {
       if (this[key].length < baseData.length) {
@@ -549,11 +579,12 @@ export default {
       }
     },
     // 打开外部链接
-    async openUrl(url) {
+    async openUrl(row) {
       try {
-        await this.$BaseUtilService.openUrl(url)
+        const url = this.$filters.countryShopeebuyCom(row.country)
+        this.$BaseUtilService.openUrl(`${url}/product/${row.platform_mall_id}/${row.id}`)
       } catch (error) {
-        this.$message.error(`打开链接【${url}】失败`)
+        this.$message.error(`打开失败`)
       }
     },
     setCategory(val) {
