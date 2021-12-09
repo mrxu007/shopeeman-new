@@ -2383,7 +2383,8 @@ export default {
         }
         const item = this.importTemplateData[i]
         console.log('importTemplateData',item)
-        const siteName = ['站点(马来站，台湾站，泰国站，印尼站，菲律宾站，新加坡站，越南站)(必填)'] || ''
+
+        const siteName = item['站点(马来站，台湾站，泰国站，印尼站，菲律宾站，新加坡站，越南站)(必填)'] || ''
         const username = `${item['账号(必填)(如果为手机号，请不要加国家区号)']}`
         const password = item['密码(必填)']
         const mallName = item['店铺真实名称(必填)']
