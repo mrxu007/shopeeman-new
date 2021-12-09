@@ -30,7 +30,7 @@
             </li>
             <li>
               <div><el-checkbox v-model="showlog" style="margin: 4px" />不点赞（加购）浏览数小于 <el-input v-model="unlikeViewMinDay" size="mini" onkeyup="value=value.replace(/[^\d]/g,0)" style="width:60px;" />的商品</div>
-              <div style="margin-left:10px"><el-checkbox v-model="showlog" style="margin: 4px" />不点赞（加购）喜欢数小于 <el-input v-model="unlikeLikeMinDay" size="mini" onkeyup="value=value.replace(/[^\d]/g,0)" style="width:60px" />的商品</div>
+              <div style="margin-left:10px"><el-checkbox v-model="showlog" style="margin: 4px" />不点赞（加购）喜欢数大于 <el-input v-model="unlikeLikeMinDay" size="mini" onkeyup="value=value.replace(/[^\d]/g,0)" style="width:60px" />的商品</div>
             </li>
             <li>
               <div><el-checkbox v-model="showlog" style="margin: 4px" />随机点赞数小于 <el-input v-model="RandomLikeMinDay" size="mini" onkeyup="value=value.replace(/[^\d]/g,0)" style="width:60px" />的商品</div>

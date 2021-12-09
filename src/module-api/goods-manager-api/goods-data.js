@@ -314,7 +314,66 @@ export default class GoodsManagerAPI {
       }
       const res = await this._this.$shopeemanService.postChineseReferer(country, '/api/marketing/v4/graphql/query/?', params, {
         headers: {
-          'content-type': 'application/json',
+          'Content-Type': 'application/json',
+          referer: `/portal/category/${collection_ids}`
+        }
+      })
+      const des = JSON.parse(JSON.parse(res).data)
+      const ecode = des.data?.products ? 0 : -2
+      // if (des.errcode) {
+      //   ecode = des.errcode
+      // } else {
+      //   ecode = des.code
+      // }
+      const data = des.data
+      const message = des.message
+      return { ecode, data, message }
+    } catch (error) {
+      return { code: -2, data: `getGoodsDetail-catch: ${error}` }
+    }
+  }
+
+  // 删除-商品详情-商品
+  async getGoodsDetailListdel(goodsinfo) {
+    try {
+      const { country, mallId, product_id_list, collection_ids } = goodsinfo
+      const params = {
+        mallId: mallId,
+        collection_id: collection_ids,
+        product_id_list: product_id_list
+      }
+      const res = await this._this.$shopeemanService.postChineseReferer(country, '/api/shopcategory/v3/category/remove_collection_item/?', params, {
+        headers: {
+          'Content-Type': 'application/json',
+          referer: `/portal/category/${collection_ids}`
+        }
+      })
+      const des = JSON.parse(JSON.parse(res).data)
+      let ecode = des.code ? des.code : des.errcode
+      if (des.errcode) {
+        ecode = des.errcode
+      } else {
+        ecode = des.code
+      }
+      const data = des.data
+      const message = des.message
+      return { ecode, data, message }
+    } catch (error) {
+      return { code: -2, data: `getGoodsDetail-catch: ${error}` }
+    }
+  }
+  // 修改名字
+  async getGoodsDetailListUpdateName(goodsinfo) {
+    try {
+      const { country, mallId, name, collection_ids } = goodsinfo
+      const params = {
+        mallId: mallId,
+        id: collection_ids,
+        name: name
+      }
+      const res = await this._this.$shopeemanService.postChineseReferer(country, '/api/shopcategory/v3/category/update_shop_collection/?', params, {
+        headers: {
+          'Content-Type': 'application/json',
           referer: `/portal/category/${collection_ids}`
         }
       })
