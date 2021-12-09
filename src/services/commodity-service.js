@@ -290,7 +290,7 @@ export default class CommodityService {
    * @param {string} imageUrl 图片Url
    * @param {number} toImageId 旧主图id，当type为1时，toImageId默认为0
    */
-  updateGoodsImage(type, sysGoodsId, imageId, imageUrl, toImageId ='0') {
+  updateGoodsImage(type, sysGoodsId, imageId, imageUrl, toImageId = '0') {
     console.log(type, sysGoodsId, imageId, imageUrl, toImageId)
     return this.nativeService.callFunction('UpdateGoodsImage', type, sysGoodsId.toString(), imageId.toString(), imageUrl, toImageId)
   }
@@ -547,7 +547,6 @@ export default class CommodityService {
   async getCategoryTbInfo(country, categoryId = '0', isParent = '1', tableType) {
     return await this.nativeService.callCategoryFunction('GetCategoryInfo', country, categoryId, isParent, tableType)
   }
-
   /**
    * 获取类目属性
    * @param {array} data
@@ -812,8 +811,8 @@ export default class CommodityService {
    * @param  {cookieStr} 登录信息
    * @param  {orderId} 拍单订单id
    */
-  async getLazadaOrderDetail(country,cookieStr,orderId){
-    return await this.nativeService.callLazadaService('GetLazadaOrderDetail',country,cookieStr,orderId)
+  async getLazadaOrderDetail(country, cookieStr, orderId) {
+    return await this.nativeService.callLazadaService('GetLazadaOrderDetail', country, cookieStr, orderId)
   }
   /**
    * @name : 获取订单支付方式
@@ -822,8 +821,8 @@ export default class CommodityService {
    * @param  orderDetial 获取Lazada的订单详情接口返回值
    * @param  shotOrderSn 拍单订单号
    */
-  async getLazadaPayMethod(country,cookieStr,orderDetial,shotOrderSn){
-    return await this.nativeService.callLazadaService('GetPayMethod',country,cookieStr,orderDetial,shotOrderSn)
+  async getLazadaPayMethod(country, cookieStr, orderDetial, shotOrderSn) {
+    return await this.nativeService.callLazadaService('GetPayMethod', country, cookieStr, orderDetial, shotOrderSn)
   }
   /**
    * 保存商品
@@ -853,12 +852,14 @@ export default class CommodityService {
     return this.nativeService.callProductCenter('GetProductDetail', data.priductid, data.language)
   }
 
-/**
+  /**
  * @name :
  * @param  {String} sysOrderIds 系统订单id，用逗号隔开
  */
-async getSkuRelation(sysOrderIds){
-  return await this.nativeService.callSkuRelationClient('GetBySysOrderIds',sysOrderIds)
-}
-
+  async getSkuRelation(sysOrderIds) {
+    return await this.nativeService.callSkuRelationClient('GetBySysOrderIds', sysOrderIds)
+  }
+  async getCategoryName(country, categoryId, isParent, tableType) {
+    return await this.nativeService.callCategoryFunction('GetCategoryInfo', country, categoryId + '', isParent, tableType)
+  }
 }

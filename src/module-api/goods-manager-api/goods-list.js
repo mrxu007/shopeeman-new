@@ -2,22 +2,40 @@ export default class GoodsList {
   constructor(that) {
     this._this = that
   }
+  // 通过id获取类目信息
+  async getCategoryName(country, categoryId, isParent, tableType) {
+    try {
+      const res = await this._this.$commodityService.getCategoryName(country, categoryId, isParent, tableType)
+      const jsonData = this.isJsonString(res)
+      if (jsonData.code === 200) {
+        return { code: 200, data: jsonData.data }
+      }
+      return { code: 201, data: jsonData.msg }
+    } catch (error) {
+      return { code: -2, data: `获取类目名异常： ${error}` }
+    }
+  }
   // 输入条件时查询
   async searchProductList(val) {
-    const { mallData, pageNumber, pageSize, searchType, keyword } = val
+    const { mItem, pageSize, searchType, keyword, goodsMin, goodsMax, soldMin, soldMax, listType } = val
     try {
       const params = {
-        page_number: pageNumber,
+        page_number: mItem.pageNumber,
         page_size: pageSize,
-        mallId: mallData.platform_mall_id,
+        mallId: mItem.platform_mall_id,
         search_type: searchType,
         keyword: keyword,
-        list_type: 'all',
+        stock_min: goodsMin,
+        stock_max: goodsMax,
+        sold_min: soldMin,
+        sold_max: soldMax,
+        list_type: listType,
         count_list_types: 'sold_out,banned,deboosted,deleted,unlisted',
         source: 'seller_center',
         version: '4.0.0'
       }
-      const res = await this._this.$shopeemanService.getChinese(mallData.country, '/api/v3/product/search_product_list/?', params, { headers: { 'accept': 'application/json, text/plain, */*' }})
+      console.log(params)
+      const res = await this._this.$shopeemanService.getChinese(mItem.country, '/api/v3/product/search_product_list/?', params, { headers: { 'accept': 'application/json, text/plain, */*' }})
       const jsonData = this.isJsonString(res)
       if (jsonData.status === 200) {
         const data = this.isJsonString(jsonData.data)
@@ -34,25 +52,26 @@ export default class GoodsList {
       }
       return { code: jsonData.status, data: `${jsonData.statusText}` }
     } catch (error) {
-      // return { code: -2, data: `获取数据异常： ${error}`
-      return { code: -2, data: `获取数据异常`
+      return { code: -2, data: `获取数据异常： ${error}`
       }
     }
   }
   // 未输入条件时查询
   async getMpskuList(val) {
-    const { mallData, pageNumber, pageSize } = val
+    const { mItem, pageSize, listType } = val
     try {
       const params = {
-        page_number: pageNumber,
+        page_number: mItem.pageNumber,
         page_size: pageSize,
-        mallId: mallData.platform_mall_id,
-        list_type: 'all',
+        mallId: mItem.platform_mall_id,
+        list_type: listType,
         source: 'seller_center',
         version: '1.0.0'
       }
-      const res = await this._this.$shopeemanService.getChinese(mallData.country, '/api/v3/mpsku/get_mpsku_list/?', params, { headers: { 'accept': 'application/json, text/plain, */*' }})
+      // console.log(params, 'aaaaa')
+      const res = await this._this.$shopeemanService.getChinese(mItem.country, '/api/v3/mpsku/get_mpsku_list/?', params, { headers: { 'accept': 'application/json, text/plain, */*' }})
       const jsonData = this.isJsonString(res)
+      console.log(jsonData)
       if (jsonData.status === 200) {
         const data = this.isJsonString(jsonData.data)
         if (data.message === 'success') {

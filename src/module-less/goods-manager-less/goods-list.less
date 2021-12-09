@@ -17,6 +17,9 @@
           margin-right: 20px;
         }
         .data{
+          .base-box{
+            width: 575px;
+          }
           ul{
             display: flex;
             width: 557px;
@@ -33,6 +36,9 @@
           }
         }
         .operation{
+          .base-box{
+            width: 570px;
+          }
           .operation-input{
             /deep/.el-input{
               width: 130px;
@@ -46,6 +52,10 @@
             .item{
               width: 37px;
             }
+            /deep/.el-select__tags {
+              flex-wrap: nowrap !important;
+              overflow: hidden !important;
+            }
           }
           .operation-but{
             display: block;
@@ -58,32 +68,47 @@
           }
         }
         .progress{
-          ul{
-            width: 300px !important;
+          .base-box{
+            width: 300px;
+            padding:20px;
           }
         }
       }
-      /deep/.el-card__header{
-        padding:0 5px !important;
-      }
-      /deep/.el-card__body{
-        padding: 5px 20px!important;
-        .el-form-item {
-          margin-bottom: 0px;
-          .el-form-item__label{
-            padding: 0 0 0 0 !important;
-            line-height: 31px !important;
-          }
-          .el-form-item__content{
-            line-height: 31px !important;
-            /deep/.el-range-editor--mini{
-                width: 228px;
-                /deep/.el-range-input{
-                  width: 67px !important;
-              }
-              /deep/.el-range-separator{
-                  width: 42px!important;
-                  text-align: center;
+      .base-box {
+        border: 1px solid #dcdcdc;
+        border-radius: 4px;
+        padding:10px 10px 5px 10px;
+        position: relative;
+        height: 100%;
+        .base-title {
+          padding: 0 5px;
+          display: inline-block;
+          height: 20px;
+          line-height: 20px;
+          text-align: center;
+          background: #fff;
+          position: absolute;
+          left: 10px;
+          top: -10px;
+        }
+        .base-item{
+          /deep/.el-form-item {
+            margin-bottom: 0px !important;
+            /deep/.el-form-item__label{
+              padding: 0 0 0 0 !important;
+              line-height: 31px !important;
+            }
+            /deep/.el-form-item__content{
+              line-height: 31px !important;
+              /deep/.el-range-editor--mini{
+                  width: 228px;
+                  /deep/.el-range-input{
+                    width: 67px !important;
+                }
+                /deep/.el-range-separator{
+                    width: 42px!important;
+                    text-align: center;
+                }
               }
             }
           }
@@ -104,5 +129,11 @@
         cursor: pointer !important;
         margin-left: 2px;
       }
+    }
+    .copyIcon {
+      color: var(--themeColor);
+      margin-left: 1px;
+      font-size: 16px;
+      cursor: pointer;
     }
   }
