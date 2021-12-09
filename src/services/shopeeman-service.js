@@ -189,7 +189,27 @@ export default class NetMessageBridgeService {
         referer: url + referer
       })
     }
-    // console.log(url, JSON.stringify(options), JSON.stringify(data))
+    console.log(url, JSON.stringify(options), JSON.stringify(data))
+    return this.NetMessageBridgeService().post(url, JSON.stringify(options), JSON.stringify(data))
+  }
+  // refer 与url 不一样
+  async postChineseReferer(country, api, data, options = {}, exportInfo) {
+    data = JSON.parse(JSON.stringify(data))
+    const url = await this.getUrlPrefix(country, data) + api
+    const baseUrl = await this.getUrlPrefix(country, data)
+    options['extrainfo'] = this.getExtraInfo(data)
+    if (exportInfo) { // 适配店铺管理---导入店铺
+      options['extrainfo']['exportInfo'] = exportInfo
+    }
+    delete data.mallId
+    const referer = options['headers'] && options['headers'].referer
+    if (referer) {
+      options['headers'] = Object.assign(options['headers'], {
+        origin: baseUrl,
+        referer: baseUrl + referer
+      })
+    }
+    console.log(url, JSON.stringify(options), JSON.stringify(data))
     return this.NetMessageBridgeService().post(url, JSON.stringify(options), JSON.stringify(data))
   }
   async postChineseShop(country, api, data, params, options = {}, exportInfo) {

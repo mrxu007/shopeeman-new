@@ -280,7 +280,6 @@ export default {
             this.widList.push(item)
           }
         } else {
-          // 弹窗仓库列表不需要判断
           if (item.status !== 2) {
             this.widList.push(item)
           }

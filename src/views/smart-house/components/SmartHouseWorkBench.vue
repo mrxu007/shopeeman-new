@@ -2,7 +2,8 @@
   <div v-loading="isLoading" class="workbench">
     <div class="top-box">
       <div class="operate">
-        <div class="title">基础操作</div>
+        <!-- <div class="title">基础操作</div> -->
+        <div>基础操作</div>
         <div class="line" />
         <div class="btn-items">
           <el-button type="primary" size="mini" @click="markOrderNeedDeal">标记需仓库紧急处理</el-button>
@@ -30,7 +31,8 @@
         </div>
       </div>
       <div class="search-list">
-        <div class="title">列表筛选操作</div>
+        <!-- <div class="title">列表筛选操作</div> -->
+        <div>列表筛选操作</div>
         <div class="line" />
         <div class="form-items">
           <div class="select-item">
@@ -341,6 +343,7 @@
         <div class="form-item" style="margin-left:28px">
           <span class="search-title">颜色标识：</span>
           <el-select v-model="colorLabelId1" size="mini" style="width: 150px" clearable>
+            <el-option label="取消标识" value="0" />
             <el-option v-for="item in colorLogoList" :key="item.id" :label="item.name" :value="item.id" :style="item.color" />
           </el-select>
           <el-button type="primary" size="mini" @click="setColorLabel">保存</el-button>
@@ -481,7 +484,7 @@
           >
             <template slot-scope="scope">
               <el-button
-                v-if="scope.row.isAbnormslPayment !==1"
+                v-if="scope.row.isAbnormslPayment !==1 || scope.row.package"
                 type="primary"
                 size="mini"
                 @click="applyDialog(scope.row)"
@@ -783,7 +786,7 @@ export default {
       storageTime: [], // 包裹入库时间
       packageOrderSn: '', // 订单编号
       colorLabelId: '0', // 颜色标识
-      colorLabelId1: '', // 标记弹窗选择颜色标识
+      colorLabelId1: '0', // 标记弹窗选择颜色标识
       colorLogoList: [],
       outboundTime: [], // 包裹出库时间
       colorVisible: false, // 显示标记颜色弹窗
@@ -1203,7 +1206,8 @@ export default {
     },
     // 关闭标记颜色弹窗
     closeDialog() {
-      this.colorLabelId1 = this.colorLogoList[0].id || ''
+      // this.colorLabelId1 = this.colorLogoList[0].id || ''
+      this.colorLabelId1 = '0'
       // this.setSelect()
       this.colorVisible = false
     },
@@ -1220,7 +1224,7 @@ export default {
       colorLabelList().then((res) => {
         // console.log('color', res)
         this.colorLogoList = res
-        this.colorLabelId1 = res[0].id
+        // this.colorLabelId1 = res[0].id
       })
       // getSites().then(res => {
       //   this.siteList = this.siteList.concat(res)
