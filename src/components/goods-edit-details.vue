@@ -235,7 +235,7 @@
             <el-radio size="mini" v-model="presetTypeRadio" :label="0">增加</el-radio>
             <el-radio size="mini" v-model="presetTypeRadio" :label="1">减少</el-radio>
             <el-radio size="mini" v-model="presetTypeRadio" :label="2">重新设置</el-radio>
-            <el-button size="mini" type="primary" @click="">批量设置</el-button>
+            <el-button size="mini" type="primary" @click="priceStock">批量设置</el-button>
           </div>
           <u-table ref="goodsTable" :data="goodsDetails.itemmodels" use-virtual :data-changes-scroll-top="false"
                    :header-cell-style="{backgroundColor: '#f5f7fa',}" row-key="id" :border="false"
@@ -274,7 +274,10 @@
         </div>
       </el-tab-pane>
     </el-tabs>
-
+    <div style="display: flex; align-items: center;margin-top: 10px;justify-content: center">
+      <el-button size="mini" type="primary">确定</el-button>
+      <el-button size="mini" @click="cancel">取消</el-button>
+    </div>
     <div class="on_new_dialog upload_new">
       <el-dialog class="goods-edit-details" title="图片选择" width="830px" :close-on-click-modal="false"
                  :modal="false" :visible.sync="picturesChooseVisible" top="10vh">
@@ -351,7 +354,8 @@
               <el-button size="mini" @click="skuUpdateVisible=false" type="primary">
                 确定
               </el-button>
-              <el-button size="mini" @click="skuUpdateSpec = ''; skuUpdateVisible=false" style="margin-left: 25px">取消</el-button>
+              <el-button size="mini" @click="skuUpdateSpec = ''; skuUpdateVisible=false" style="margin-left: 25px">取消
+              </el-button>
             </div>
           </div>
         </div>
@@ -363,7 +367,7 @@
 <script>
   import JSZip from 'jszip'
   import FileSaver from 'file-saver'
-  import { randomWord, waitStart } from '../util/util'
+  import { randomWord, waitStart, getArraySrcLengthSort } from '../util/util'
 
   export default {
     name: 'goods-edit-details',
@@ -381,7 +385,7 @@
         skuUpdateVisible: false,
         skuUpdateRadio: 1,
         skuUpdateKey: '',
-        skuUpdateSpec:'',
+        skuUpdateSpec: '',
         //activeName = information //商品详情
         specImageCheck: [],
         specImageAllCheck: false,
@@ -517,35 +521,83 @@
           }
         }
       },
-      skuUpdateVisible(val){
-        if(!val && this.skuUpdateSpec){
-          let itemModelsList = []
-          console.log('itemModelsList',itemModelsList)
+      skuUpdateVisible(val) {
+        if (!val && this.skuUpdateSpec) {
+          let keyList = this.skuUpdateKey.split(',')
+          let spec1Name = this.goodsDetails.tier_variation['spec1']
+          let spec2Name = this.goodsDetails.tier_variation['spec2']
+          let spec1Json = JSON.stringify(this.goodsDetails.tier_variation[spec1Name])
+          let spec2Json = JSON.stringify(this.goodsDetails.tier_variation[spec2Name])
+          let itemModelsList = JSON.stringify(this.goodsDetails.itemmodels)
+          let skuBeforeList = []
+          let skuReplaceList = []
+          let skuDetailList = this['skuDetail' + this.skuUpdateSpec + 'Check']
+          skuDetailList.forEach((item, index) => {
+            if (item) {
+              let name = this.goodsDetails.tier_variation['spec'+this.skuUpdateSpec]
+              let specList = this.goodsDetails.tier_variation[name]
+              skuBeforeList.push(specList[index])
+            }
+          })
+          let arraySrcLengthSort = getArraySrcLengthSort(skuBeforeList)
           if (this.skuUpdateRadio === 0) {
-            this.goodsDetails.itemmodels.forEach(item=>{
-              let spec1 = '',spec2 = '';
-              if (this.skuUpdateSpec === 1){
-                spec1 = item['sku_spec' + this.skuUpdateSpec]
-                spec1 = spec1.replaceAll(this.skuUpdateKey , '')
-              }else{
-                spec2 = item['sku_spec' + this.skuUpdateSpec]
-                spec2 = spec2.replaceAll(this.skuUpdateKey , '')
+            arraySrcLengthSort.forEach(item => {
+              let spec = skuBeforeList[item]
+              keyList.forEach(son => {
+                spec = spec.replaceAll(son, '')
+              })
+              skuReplaceList.push({
+                before: skuBeforeList[item],
+                after: spec
+              })
+            })
+          } else if (this.skuUpdateRadio === 1 || this.skuUpdateRadio === 2) {
+            arraySrcLengthSort.forEach(item => {
+              let spec = skuBeforeList[item]
+              if (this.skuUpdateRadio === 1) {
+                spec = keyList.toString() + ' ' + spec
+              } else {
+                spec = spec + ' ' + keyList.toString()
               }
-              if (spec1) {
-                spec2 = item.sku_spec2
-              }else{
-                spec1 = item.sku_spec1
-              }
-              item.sku = spec1+'=|='+spec2
-              itemModelsList.push(item)
+              skuReplaceList.push({
+                before: skuBeforeList[item],
+                after: spec
+              })
+            })
+          } else if (this.skuUpdateRadio === 3) {
+            arraySrcLengthSort.forEach(item => {
+              let spec = skuBeforeList[item]
+              keyList.forEach(son => {
+                let tempList = son.split(';')
+                let tempBefore = tempList[0] || ''
+                let tempAfter = tempList[1] || ''
+                spec = spec.replaceAll(tempBefore, tempAfter)
+              })
+              skuReplaceList.push({
+                before: skuBeforeList[item],
+                after: spec
+              })
             })
           }
-          else if (this.skuUpdateRadio === 1 || this.skuUpdateRadio === 2) {
-
-          }
-          else if (this.skuUpdateRadio === 3) {
-
-          }
+          skuReplaceList.forEach(item => {
+            if (this.skuUpdateSpec === 1 || this.skuUpdateSpec === '1') {
+              itemModelsList = itemModelsList.replaceAll('"sku_spec1":"' + item.before + '"', '"sku_spec1":"' + item.after + '"')
+              itemModelsList = itemModelsList.replaceAll('"sku":"' + item.before + '=|=', '"sku":"' + item.after + '=|=')
+              spec1Json = spec1Json.replaceAll('"' + item.before + '"', '"' + item.after + '"')
+            } else {
+              itemModelsList = itemModelsList.replaceAll('@', 'MD&&ZZ&&MD')
+              itemModelsList = itemModelsList.replaceAll('=|=', '@')
+              itemModelsList = itemModelsList.replaceAll('"sku_spec2":"' + item.before + '"', '"sku_spec2":"' + item.after + '"')
+              itemModelsList = itemModelsList.replaceAll('@' + item.before + '"', '@' + item.after + '"')
+              itemModelsList = itemModelsList.replaceAll('@', '=|=')
+              itemModelsList = itemModelsList.replaceAll('MD&&ZZ&&MD', '@')
+              spec2Json = spec2Json.replaceAll('"' + item.before + '"', '"' + item.after + '"')
+            }
+          })
+          this.goodsDetails.itemmodels = JSON.parse(itemModelsList)
+          this.goodsDetails.tier_variation[spec1Name] = JSON.parse(spec1Json)
+          this.goodsDetails.tier_variation[spec2Name] = JSON.parse(spec2Json)
+          console.log(this.goodsDetails)
         }
       }
     },
@@ -641,6 +693,50 @@
             this.goodsDetails.itemmodels.push(temp)
           })
         }
+      },
+      priceStock(){
+        let itemmodels = []
+        if (!this.presetInventory && !this.presetPrice) {
+          this.$message.error('库存与价格至少有一个数据不为空')
+          return
+        }
+        let inventory = parseInt(this.presetInventory) || 0
+        let price = parseInt(this.presetPrice) || 0
+        this.goodsDetails.itemmodels.forEach(item=>{
+          let sku_price = item.sku_price
+          let sku_inventory = item.sku_stock
+          if (this.presetTypeRadio === 0){
+            sku_inventory += inventory
+            sku_price += price
+            this.goodsDetails.stock += inventory * this.goodsDetails.itemmodels.length
+            this.goodsDetails.price += price
+          }
+          else if (this.presetTypeRadio === 1){
+            sku_inventory -= inventory
+            sku_price -= price
+            sku_inventory = sku_inventory > 0 && sku_inventory || 0
+            sku_price = sku_price > 0 && sku_price || 0
+            this.goodsDetails.stock -= inventory * this.goodsDetails.itemmodels.length
+            this.goodsDetails.price -= price
+          }
+          else if (this.presetTypeRadio === 2){
+            sku_inventory = inventory
+            sku_price = price
+            this.goodsDetails.stock = inventory * this.goodsDetails.itemmodels.length
+            this.goodsDetails.price = price
+          }
+          let temp = JSON.parse(JSON.stringify(item))
+          if (inventory){
+            temp.sku_stock = sku_inventory
+            temp.stock = sku_inventory
+          }
+          if (price) {
+            temp.sku_price = sku_price
+            temp.price = sku_price
+          }
+          itemmodels.push(temp)
+        })
+        this.goodsDetails.itemmodels = itemmodels
       },
       imageUpload(file) {
         this.picturesChooseFile = file
@@ -898,6 +994,9 @@
         }
       },
       handleClick(val) {
+      },
+      cancel(){
+        this.$emit('goodsEditorCancel','')
       }
     }
   }
@@ -910,7 +1009,7 @@
 
     .edit-details-box {
       min-height: 400px;
-      max-height: 75vh;
+      max-height: 70vh;
       overflow: auto;
     }
 

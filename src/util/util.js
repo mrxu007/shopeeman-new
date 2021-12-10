@@ -522,3 +522,21 @@ export async function waitStart(prepare, num = 500) {
     }, 200);
   })
 }
+
+
+export function getArraySrcLengthSort(arr, type) {
+  let sort = []
+  for (let i = 0; i < arr.length; i++) {
+    let index = 0
+    for (let j = 0; j < arr.length; j++) {
+      if (arr[i].length > arr[j].length) {
+        ++index
+      }
+    }
+    while (sort[index] || sort[index] === 0) {
+      ++index
+    }
+    sort[index] = i
+  }
+  return type && sort || sort.reverse()
+}
