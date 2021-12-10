@@ -376,13 +376,18 @@
         }"
         @selection-change="handleSelectionChange"
       >
-        <el-table-column width="50" align="center" type="index" label="序号" />
-        <el-table-column width="80" align="center" label="站点">
+        <el-table-column width="40" align="center" type="index" label="序号" />
+        <el-table-column width="70" align="center" label="站点">
           <template slot-scope="{ row }">
             {{ row.country | chineseSite }}
           </template>
         </el-table-column>
-        <el-table-column width="100" align="center" prop="platform_mall_name" label="店铺名称" />
+        <el-table-column width="130" align="center" prop="mall_account_info.username" label="店铺账号" >
+          <template v-slot="{ row }">
+            <p style="white-space: normal">{{ row.mall_account_info.username }}</p>
+          </template>
+        </el-table-column>
+        <el-table-column width="150" align="center" prop="platform_mall_name" label="店铺名称" />
         <el-table-column width="100" align="center" prop="platform_mall_id" label="店铺ID" />
         <el-table-column width="90" align="center" prop="" label="更新时间">
           <template slot-scope="{ row }">
@@ -1842,7 +1847,8 @@ export default {
             continue
           }
           successNum++
-          this.flat === 1 ? (item.LoginInfo = '<p style="color: green">登录成功</p>') : this.writeLog(`(${i + 1}/${len})账号【${platform_mall_name}】授权成功`, true)
+          this.flat === 1 ? (item.LoginInfo = '<p style="color: green">登录成功</p>')
+            : this.writeLog(`(${i + 1}/${len})账号【${platform_mall_name}】授权成功`, true)
           item.loginStatus = 'success'
           this.$nextTick(() => {
             this.$refs.plTable.toggleRowSelection([
@@ -1927,11 +1933,6 @@ export default {
         'is_global': 0,
         'mall_main_id': 0,
         'mall_account_info': mallInfo.mall_account_info, // 店铺账户信息(导入模板里面的信息)
-        //  { 'password': 'Bibbyrunp888',
-        //   'username': 'bibbyrunp1907',
-        //   'userRealName': 'bibbyrunp1907',
-        //   'subsiteindex': 0
-        // },
         'watermark': '', // 店铺水印
         'mall_alias_name': '', // 店铺别名
         'mall_type': '1', // 店铺类型
@@ -1947,7 +1948,8 @@ export default {
           // 需要进行IVS验证 调LoginNeedPopUps 服务弹框
           // debugger
           this.needIvsInfo = null
-          const loginRes = await this.$BaseUtilService.loginNeedPopUps('needIvs', { 'loginType': 'login', 'isOpenAuthMallProxy': 'true', 'mallId': mallInfo.platform_mall_id })
+          const loginRes = await this.$BaseUtilService.loginNeedPopUps('needIvs',
+            { 'loginType': 'login', 'isOpenAuthMallProxy': 'true', 'mallId': mallInfo.platform_mall_id })
           console.log('loginRes', loginRes)
           const mallId = mallInfo.platform_mall_id
           await waitStart(() => {
@@ -2317,9 +2319,9 @@ export default {
 
     async updateMallAliasName(event, row) {
       row.mall_alias_name = row.mall_alias_name.trim().replace(/\s/g, '')
-      if (this.buttonStatus.updateAias) {
-        return this.$message.error('操作太快哦!!修改店铺别名间隔5秒')
-      }
+      // if (this.buttonStatus.updateAias) {
+      //   return this.$message.error('操作太快哦!!修改店铺别名间隔5秒')
+      // }
       event.target.blur()
       this.buttonStatus.updateAias = true
       const params = { lists: [{
@@ -2336,8 +2338,8 @@ export default {
         this.$appConfig.updateInfoMall(row.platform_mall_id, JSON.stringify(mallInfo)) // 更新里面店铺的cookie （壳）
         this.$message.success(`修改成功`, true)
       }
-      await delay(5000)
-      this.buttonStatus.updateAias = false
+      // await delay(5000)
+      // this.buttonStatus.updateAias = false
     },
     async updateWateMark(event, row) {
       // row.isCheckedWaterMark = false
