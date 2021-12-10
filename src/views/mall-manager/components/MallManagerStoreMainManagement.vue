@@ -247,19 +247,19 @@
                 <el-input v-model="query_person.ip_port" placeholder="请输入端口" size="mini" style="width: 150px" clearable />
               </el-form-item>
               <el-form-item v-show="query_person.ip_agency !== '链接'" key="password" prop="password">
-                <span v-show="query_person.ip_agency !== 'HTTP'" slot="label" style="color: red; margin-right: 3px">*</span>
+                <span v-show="query_person.ip_agency !== 'http'" slot="label" style="color: red; margin-right: 3px">*</span>
                 <span slot="label">密码：</span>
                 <el-input v-model="query_person.password" placeholder="请输入密码" size="mini" style="width: 150px" clearable />
               </el-form-item>
 
-              <el-form-item v-show="query_person.ip_agency === 'SSR' || query_person.ip_agency === 'SS'" key="encryption" prop="encryption">
+              <el-form-item v-show="query_person.ip_agency === 'ssr' || query_person.ip_agency === 'ss'" key="encryption" prop="encryption">
                 <span slot="label" style="color: red; margin-right: 3px">*</span>
                 <span slot="label">加密方式：</span>
                 <el-select v-model="query_person.encryption" placeholder="请选择" style="width: 150px" size="mini">
                   <el-option v-for="item in encryptionList" :key="item.value" :label="item.label" :value="item.value" />
                 </el-select>
               </el-form-item>
-              <div v-show="query_person.ip_agency === 'SSR'">
+              <div v-show="query_person.ip_agency === 'ssr'">
                 <el-form-item key="protocol" prop="protocol">
                   <span slot="label" style="color: red; margin-right: 3px">*</span>
                   <span slot="label">协议：</span>
@@ -283,7 +283,7 @@
                   <el-input v-model="query_person.argument" placeholder="请输入协议参数" size="mini" style="width: 150px" clearable />
                 </el-form-item>
               </div>
-              <el-form-item v-show="query_person.ip_agency === 'HTTP'" prop="username">
+              <el-form-item v-show="query_person.ip_agency === 'http'" prop="username">
                 <!-- <span slot="label" style="color: red; margin-right: 3px" >*</span> -->
                 <span slot="label">用户名：</span>
                 <el-input v-model="query_person.username" placeholder="请输入用户名" size="mini" style="width: 150px" clearable />
@@ -340,13 +340,13 @@
               </el-form-item>
               <el-form-item v-show="!query_person.linkType" key="password" prop="password">
                 <!-- <span v-show="query_person.ip_agency !== 'http'" slot="label" style="color: red; margin-right: 3p">*</span> -->
-                <span v-show="query_person.ip_agency !== 'HTTP'" slot="label" style="color: red; margin-right: 3px">*</span>
+                <span v-show="query_person.ip_agency !== 'http'" slot="label" style="color: red; margin-right: 3px">*</span>
                 <span slot="label">密码：</span>
                 <el-input v-model="query_person.password" show-password placeholder="请输入密码" size="mini" style="width: 150px" clearable />
               </el-form-item>
               <!-- <div v-if="query_person.ip_agency === 'SS' || query_person.ip_agency === 'SSR' || query_person.ip_agency === 'HTTP'">
               </div> -->
-              <div v-if="query_person.ip_agency === 'SSR'">
+              <div v-if="query_person.ip_agency === 'ssr'">
                 <!-- <div v-if="query_person.ip_agency === 'SS' || query_person.ip_agency === 'SSR'"> -->
                 <el-form-item key="encryption" prop="encryption">
                   <span slot="label" style="color: red; margin-right: 3px">*</span>
@@ -527,7 +527,7 @@ export default {
         ip_address: '', // IP地址
         ip_port: '', //	端口号
         ip_alias: '', // IP别名（主体名称）
-        ip_agency: 'SSR', // 代理方式
+        ip_agency: 'ssr', // 代理方式
         encryption: '', // 加密方式
         protocol: '', // 协议类型
         confuse: '', // 混淆方式
@@ -693,7 +693,7 @@ export default {
         ip_address: '', // IP地址
         ip_port: '', //	端口号
         ip_alias: '', // IP别名（主体名称）
-        ip_agency: 'SSR', // 代理方式
+        ip_agency: 'ssr', // 代理方式
         encryption: '', // 加密方式
         protocol: '', // 协议类型
         confuse: '', // 混淆方式
@@ -865,7 +865,7 @@ export default {
     async updataDesc() {
       const params = this.query_person
       // 验证  source=2
-      if (this.query_person.ip_agency === 'SSR') {
+      if (this.query_person.ip_agency === 'ssr') {
         if (this.query_person.ip_alias === '' ||
             this.query_person.ip_address === '' ||
             this.query_person.ip_port === '' ||
@@ -880,7 +880,7 @@ export default {
       }
 
       // this.query_person.encryption === ''
-      if (this.query_person.ip_agency === 'SS') {
+      if (this.query_person.ip_agency === 'ss') {
         if (this.query_person.ip_alias === '' ||
             this.query_person.ip_address === '' ||
             this.query_person.ip_port === '' ||
@@ -891,7 +891,7 @@ export default {
         }
       }
 
-      if (this.query_person.ip_agency === 'HTTP' || this.query_person.linkType) {
+      if (this.query_person.ip_agency === 'http' || this.query_person.linkType) {
         if (this.query_person.ip_alias === '' ||
             this.query_person.ip_address === '' ||
             this.query_person.ip_port === ''
@@ -1152,7 +1152,7 @@ export default {
         return
       }
       // IP类型 分类验证
-      if (this.query_person.ip_agency === 'SSR') {
+      if (this.query_person.ip_agency === 'ssr') {
         if (
           this.query_person.ip_address === '' ||
           this.query_person.ip_port === '' ||
@@ -1165,7 +1165,7 @@ export default {
           return
         }
       }
-      if (this.query_person.ip_agency === 'SS') {
+      if (this.query_person.ip_agency === 'ss') {
         if (this.query_person.ip_port === '' ||
            this.query_person.ip_address === '' ||
           this.query_person.password === '' ||
@@ -1177,7 +1177,7 @@ export default {
       }
       // this.query_person.username === ''
       // this.query_person.password === ''
-      if (this.query_person.ip_agency === 'HTTP') {
+      if (this.query_person.ip_agency === 'http') {
         if (
           this.query_person.ip_address === '' ||
            this.query_person.ip_port === ''
