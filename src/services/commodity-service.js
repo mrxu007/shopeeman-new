@@ -48,7 +48,7 @@ export default class CommodityService {
 
   /**
    * 获取商品详情
-   * @param {number} sysId 商品id
+   * @param {number} sysId 商品ida
    */
 
   async getUserInfo() {
@@ -290,7 +290,7 @@ export default class CommodityService {
    * @param {string} imageUrl 图片Url
    * @param {number} toImageId 旧主图id，当type为1时，toImageId默认为0
    */
-  updateGoodsImage(type, sysGoodsId, imageId, imageUrl, toImageId ='0') {
+  updateGoodsImage(type, sysGoodsId, imageId, imageUrl, toImageId = '0') {
     console.log(type, sysGoodsId, imageId, imageUrl, toImageId)
     return this.nativeService.callFunction('UpdateGoodsImage', type, sysGoodsId.toString(), imageId.toString(), imageUrl, toImageId)
   }
@@ -786,53 +786,6 @@ export default class CommodityService {
     return this.nativeService.callProductCenter('GetProductSkuList', data.toString())
   }
   /**
-   * 获取类目
-   * @param {array} data
-   * data[0]:country站点
-   * data[1]:categoryId类目id
-   * data[2]:isParent 类目的父级标识：1传入的类目作为父级查询；0当前类目查询
-   * data[3]: 'tbCategory'
-   */
-  getCategory(data) {
-    // console.log(JSON.stringify(data))
-    return this.nativeService.callCategoryFunction('GetCategoryInfo', data[0] + '', data[1] + '', data[2] + '', data[3])
-  }
-
-  /**
-   * 获取shopee地址
-   */
-  getShopeeAddress(platform, type, parant) {
-    return this.nativeService.callAddrHelper('GetAddress', platform, type, parant.toString())
-  }
-  // }
-
-  /**
-   * @name : 获取Lazada的订单详情
-   * @param  {country} 站点
-   * @param  {cookieStr} 登录信息
-   * @param  {orderId} 拍单订单id
-   */
-  async getLazadaOrderDetail(country,cookieStr,orderId){
-    return await this.nativeService.callLazadaService('GetLazadaOrderDetail',country,cookieStr,orderId)
-  }
-  /**
-   * @name : 获取订单支付方式
-   * @param  country 站点
-   * @param  cookieStr 登录信息
-   * @param  orderDetial 获取Lazada的订单详情接口返回值
-   * @param  shotOrderSn 拍单订单号
-   */
-  async getLazadaPayMethod(country,cookieStr,orderDetial,shotOrderSn){
-    return await this.nativeService.callLazadaService('GetPayMethod',country,cookieStr,orderDetial,shotOrderSn)
-  }
-  /**
-   * 保存商品
-   */
-  SaveProduct(data) {
-    return this.nativeService.callProductCenter('SaveProduct', JSON.stringify(data))
-  }
-
-  /**
    * 删除商品
    */
   delgoods(data) {
@@ -853,12 +806,44 @@ export default class CommodityService {
     return this.nativeService.callProductCenter('GetProductDetail', data.priductid, data.language)
   }
 
-/**
+  /**
+   * 获取shopee地址
+   */
+  getShopeeAddress(platform, type, parant) {
+    return this.nativeService.callAddrHelper('GetAddress', platform, type, parant.toString())
+  }
+  // }
+
+  /**
+   * @name : 获取Lazada的订单详情
+   * @param  {country} 站点
+   * @param  {cookieStr} 登录信息
+   * @param  {orderId} 拍单订单id
+   */
+  async getLazadaOrderDetail(country, cookieStr, orderId) {
+    return await this.nativeService.callLazadaService('GetLazadaOrderDetail', country, cookieStr, orderId)
+  }
+  /**
+   * @name : 获取订单支付方式
+   * @param  country 站点
+   * @param  cookieStr 登录信息
+   * @param  orderDetial 获取Lazada的订单详情接口返回值
+   * @param  shotOrderSn 拍单订单号
+   */
+  async getLazadaPayMethod(country, cookieStr, orderDetial, shotOrderSn) {
+    return await this.nativeService.callLazadaService('GetPayMethod', country, cookieStr, orderDetial, shotOrderSn)
+  }
+  /**
+   * 保存商品
+   */
+  SaveProduct(data) {
+    return this.nativeService.callProductCenter('SaveProduct', JSON.stringify(data))
+  }
+  /**
  * @name :
  * @param  {String} sysOrderIds 系统订单id，用逗号隔开
  */
-async getSkuRelation(sysOrderIds){
-  return await this.nativeService.callSkuRelationClient('GetBySysOrderIds',sysOrderIds)
-}
-
+  async getSkuRelation(sysOrderIds) {
+    return await this.nativeService.callSkuRelationClient('GetBySysOrderIds', sysOrderIds)
+  }
 }
