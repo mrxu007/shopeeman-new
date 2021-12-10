@@ -30,8 +30,9 @@ export default class GoodsManagerAPI {
         ecode = des.code
       }
       const data = des.data
+      const message = des.message
       //   console.log('=============', 'mallid:' + params.mallId, ecode, des)
-      return { ecode, data }
+      return { ecode, data, message }
     } catch (error) {
       return { code: -2, data: `getSkuList-catch: ${error}` }
     }
@@ -386,6 +387,40 @@ export default class GoodsManagerAPI {
       }
       const data = des.data
       const message = des.message
+      return { ecode, data, message }
+    } catch (error) {
+      return { code: -2, data: `getGoodsDetail-catch: ${error}` }
+    }
+  }
+  // 获取商品信息
+  async getGoodsDetailinfo(goodsinfo) {
+    try {
+      const { country, shopid, itemid } = goodsinfo
+      const params = {
+        shopid: shopid,
+        itemid: itemid.toString()
+      }
+      const query = {
+        platform_mall_id: shopid
+      }
+      const webUrl = await this._this.$shopeemanService.getWebUrl(country, query)
+      const url = `${webUrl}/api/v2/item/get?`
+      const res = await this._this.$shopeemanService.getChineseLaiZan(url, params, {
+        headers: {
+          Referer: `${webUrl}/product/${shopid}/${itemid}`,
+          'Accept': 'application/json, application/xml, text/json, text/x-json, text/javascript, text/xml'
+        }
+      })
+      const des = JSON.parse(JSON.parse(res).data)
+      let ecode = null
+      let message = null
+      if (des.item) {
+        ecode = 0
+      } else {
+        ecode = -2
+        message = '暂无数据'
+      }
+      const data = des.item
       return { ecode, data, message }
     } catch (error) {
       return { code: -2, data: `getGoodsDetail-catch: ${error}` }

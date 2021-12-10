@@ -450,7 +450,7 @@ export function formatDuring(mss) {
 export function exportPdfData() {}
 
 export async function selfAliYunTransImage(imgUrl, command, account, that) {
-  account.login_info = account.login_info || JSON.parse( account.loginInfo)
+  account.login_info = account.login_info || JSON.parse(account.loginInfo)
   const _csrf = account.login_info.find(item => {
     return item.Name == 'XSRF-TOKEN'
   })
@@ -464,15 +464,15 @@ export async function selfAliYunTransImage(imgUrl, command, account, that) {
       'imageUrls': [imgUrl]
     }]
   }, { headers: {
-      cookies: account.login_info
-    }})
+    cookies: account.login_info
+  }})
   console.log(data1)
   if (data1.status == 200 && data1.data.code == 200) {
     const url = `https://www.alifanyi.com/api/imagetranslate/composeDetail/${data1.data.data}/1?_csrf=${_csrf.Value}`
     const data2 = await that.$api.jdRequest.post(url, {
     }, { headers: {
-        cookies: account.login_info
-      }})
+      cookies: account.login_info
+    }})
     console.log(data2)
     let res = ''
     if (data2.data.data) {
@@ -498,27 +498,27 @@ export async function selfAliYunTransImage(imgUrl, command, account, that) {
  * @param workName String 'name'默认时间戳
  * @returns {Promise<void>}
  */
-export async function importOrder(tableData,jsonData,workName = '') {
-  let arr = []
+export async function importOrder(tableData, jsonData, workName = '') {
+  const arr = []
   arr.push(tableData)
-  jsonData.forEach(item => {arr.push(item)})
-  let worksheet = XLSX.utils.aoa_to_sheet(arr)
-  let workbook = XLSX.utils.book_new()
-  XLSX.utils.book_append_sheet(workbook,worksheet,workName || (new Date(Date.now()+8*3600*1000).toISOString().slice(0,10)))
-  XLSX.writeFile(workbook,`${workName}${new Date(Date.now()+8*3600*1000).toISOString().slice(0,10)}.xlsx`)
+  jsonData.forEach(item => { arr.push(item) })
+  const worksheet = XLSX.utils.aoa_to_sheet(arr)
+  const workbook = XLSX.utils.book_new()
+  XLSX.utils.book_append_sheet(workbook, worksheet, workName || (new Date(Date.now() + 8 * 3600 * 1000).toISOString().slice(0, 10)))
+  XLSX.writeFile(workbook, `${workName}${new Date(Date.now() + 8 * 3600 * 1000).toISOString().slice(0, 10)}.xlsx`)
 }
 
 export async function waitStart(prepare, num = 500) {
-  let count = 0;
-  let number = num && parseInt(num) || 500;
+  let count = 0
+  const number = num && parseInt(num) || 500
   return new Promise((resolve, reject) => {
-    let ing = setInterval(() => {
-      ++count;
+    const ing = setInterval(() => {
+      ++count
       if (prepare() || count >= number) {
-        console.log('等待成功', prepare);
-        clearInterval(ing);
+        console.log('等待成功', prepare)
+        clearInterval(ing)
         resolve(prepare())
       }
-    }, 200);
+    }, 200)
   })
 }
