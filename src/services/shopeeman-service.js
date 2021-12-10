@@ -1370,4 +1370,35 @@ export default class NetMessageBridgeService {
   getAttributeTree(country, data, option) {
     return this.getChinese(country, '/api/v3/category/get_attribute_tree/', data, option)
   }
+
+  // 获取类目属性
+  dashboard(country, data, option) {
+    return this.getChinese(country, '/api/mydata/v3/dashboard/key-metrics/', data, option)
+  }
+
+  // -------------------商业分析-------------------//
+  // 获取买家数据
+  getCustomers(country, data, option) {
+    return this.getChinese(country, '/api/mydata/v1/metrics/shop/customers/', data, option)
+  }
+
+  // 获取类目排行数据
+  getCateRank(country, data, option) {
+    return this.getChinese(country, '/api/mydata/v2/dashboard/category-rankings/', data, option)
+  }
+
+  // 获取排行数据
+  getRank(country, data, option) {
+    return this.getChinese(country, '/api/mydata/v2/dashboard/product-rankings/', data, option)
+  }
+
+  // 获取流量数据
+  getFlow(country, data, option) {
+    return this.getChinese(country, '/api/mydata/traffic/dashboard/overview/', data, option)
+  }
+
+  // 获取商品诊断数据
+  getdiagnosis(country, data, option) {
+    return this.getChinese(country, '/api/seller/mydata/prod_diagnosis/items/', data, option)
+  }
 }

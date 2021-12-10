@@ -1,16 +1,37 @@
 <template>
   <div class="personal-center-style">
-    <!--自有商品 -->
-    <main v-if="activeVal === '0'"><BusinessAnalysisDataScreening /></main>
+    <!--自有商品1 -->
+    <main v-if="activeVal === '0'"><BusinessAnalysisDataScreening1 /></main>
+
+    <!--自有商品2 -->
+    <main v-if="activeVal === '1'"><BusinessAnalysisDataScreening2 /></main>
+
+    <!--自有商品3 -->
+    <main v-if="activeVal === '2'"><BusinessAnalysisDataScreening3 /></main>
+
+    <!--流量 -->
+    <main v-if="activeVal === '3'"><BusinessAnalysisflow /></main>
+
+    <!--商品 -->
+    <main v-if="activeVal === '4'"><BusinessAnalysisCommodityDiagnosis /></main>
   </div>
 </template>
 
 <script>
 import {
-  BusinessAnalysisDataScreening } from './index.js'
+  BusinessAnalysisDataScreening1,
+  BusinessAnalysisDataScreening2,
+  BusinessAnalysisDataScreening3,
+  BusinessAnalysisflow,
+  BusinessAnalysisCommodityDiagnosis
+} from './index.js'
 export default {
   components: {
-    BusinessAnalysisDataScreening
+    BusinessAnalysisDataScreening1,
+    BusinessAnalysisDataScreening2,
+    BusinessAnalysisDataScreening3,
+    BusinessAnalysisflow,
+    BusinessAnalysisCommodityDiagnosis
   },
   data() {
     return {

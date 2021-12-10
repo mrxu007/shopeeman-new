@@ -230,7 +230,7 @@
     <div class="on_new_dialog">
       <el-dialog title="商品编辑" width="1000px" top="8vh" :close-on-click-modal="false"
                  :close-on-press-escape="false" :modal="false" :visible.sync="goodsEditorVisible">
-        <goods-edit-details v-if="goodsEditorVisible" :goodsEditor="goodsEditor"></goods-edit-details>
+        <goods-edit-details v-if="goodsEditorVisible" :goodsEditor="goodsEditor" @goodsEditorCancel="goodsEditorCancel"></goods-edit-details>
       </el-dialog>
       <el-dialog title="编辑标题描述" width="620px" :close-on-click-modal="false" :modal="false" :visible.sync="titleDescribeVisible">
         <div class="watermark_dialog">
@@ -977,6 +977,9 @@
           sort[index] = i
         }
         return type && sort || sort.reverse()
+      },
+      goodsEditorCancel(data){
+        this.goodsEditorVisible = false
       }
     }
   }
