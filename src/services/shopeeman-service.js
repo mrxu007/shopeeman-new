@@ -315,14 +315,14 @@ export default class NetMessageBridgeService {
         Cookie['SPC_SC_TK'] = data.token
         Cookie['ShopeeUid'] = mallUId // 虾皮平台用户Uid
         Cookie['shopid'] = mallId // 平台店铺ID
-        Cookie['SPC_F'] = SetCookie // 短信验证码标识
-        Cookie['spc_f'] = SetCookie // 短信验证码标识
+        Cookie['SPC_F'] = SetCookie || mallInfo.SPC_F// 短信验证码标识
+        Cookie['spc_f'] = SetCookie || mallInfo.SPC_F// 短信验证码标识
 
         const Cookie_new = { // 店铺cookie信息(导入店铺专用)(更新壳)
           'SPC_CDS_VER': '2',
           'SPC_EC': data.sso,
           'ShopeeUid': mallUId,
-          'SPC_F': SetCookie || '',
+          'SPC_F': SetCookie || mallInfo.SPC_F || '',
           'CNSC_SSO': '',
           'SPC_CNSC_TK': '',
           'SPC_CNSC_UD': '',
@@ -339,7 +339,7 @@ export default class NetMessageBridgeService {
           'portrait': data.portrait,
           'userRealName': username,
           'mainAccountId': '',
-          'spc_f': SetCookie || '',
+          'spc_f': SetCookie || mallInfo.SPC_F || '',
           'SPC_SC_TK': data.token,
           'OtherCookieInfo': '',
           'spcf_update_time': ''

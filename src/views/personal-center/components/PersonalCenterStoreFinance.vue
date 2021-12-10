@@ -297,7 +297,12 @@ export default {
   methods: {
     async userRecharge() {
       if (Number(this.rechargeMoney) < 35) return this.$message.warning('最低不能小于35元')
-      window.open(`http://user.xzy.17hyj.com/externalPay?amount=${this.rechargeMoney}&app_uid=${this.mappingUid}&remark=${this.rechargeRemark}`)
+      try {
+        await this.$BaseUtilService.openUrl(`http://user.xzy.17hyj.com/externalPay?amount=${this.rechargeMoney}&app_uid=${this.mappingUid}&remark=${this.rechargeRemark}`)
+      } catch (error) {
+        this.$message.error(`充值打开失败`)
+      }
+      // window.open(`http://user.xzy.17hyj.com/externalPay?amount=${this.rechargeMoney}&app_uid=${this.mappingUid}&remark=${this.rechargeRemark}`)
     },
     async exportTableData() {
       if (!this.total) {
@@ -502,7 +507,7 @@ export default {
     // 转换类型中文
     changeTypeName(value, baseData) {
       let str = ''
-      const data = baseData.find((item) => item.value == value)
+      const data = baseData.find((item) => item.value === value)
       str = data ? data.label : ''
       return str
     },
