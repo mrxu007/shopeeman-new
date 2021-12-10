@@ -138,6 +138,16 @@ const site_http_com = {
   'ES': 'https://es.xiapibuy.com' // 暂时无效
 }
 
+// lazada各站点链接
+const lazada_goods_url = {
+  'TH': 'https://www.lazada.co.th/products/i',
+  'MY': 'https://www.lazada.com.my/products/i', // 马来西亚
+  'VN': 'https://www.lazada.vn/products/i', // 越南
+  'ID': 'https://www.lazada.co.id/products/i', // 印度尼西亚
+  'PH': 'https://www.lazada.com.ph/products/i', // 菲律宾
+  'SG': 'https://www.lazada.sg/products/i'
+}
+
 const special_characters = [
   '♞', '♘', '♙', '♟', '♕', '♛', '☬', '♝', '☫', '♚', '☃', '☸', '♗', '☊', '☋', '❡', '๑', '♨', '❖', '☇', '☈', '۞', '۩', '♤',
   '♠', '♧', '♣', '◇', '◆', '▧', '◘', '▩', '▣', '◙', '▨', '▤', '▥', '▦', '✠', '☜', '☞', '☎', '☏', '♂', '♀', '☼', '♈',
@@ -177,4 +187,10 @@ var countryShopeebuyCom = function(val) {
   attribute = site_http_com[attribute] || attribute
   return site_http_com[attribute] || attribute
 }
-export { chineseSite, imageRender, siteCoin, sitePlatform, countryShopeebuyCom, countries_option, countries_site }
+
+var lazadaGoodsUrl = function(val) {
+  let attribute = val && (val + '').toLocaleUpperCase() || val
+  attribute = lazada_goods_url[attribute] || attribute
+  return lazada_goods_url[attribute] || attribute
+}
+export { chineseSite, imageRender, siteCoin, sitePlatform, countryShopeebuyCom, lazadaGoodsUrl, countries_option, countries_site }

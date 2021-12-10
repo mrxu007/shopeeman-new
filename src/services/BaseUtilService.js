@@ -120,4 +120,8 @@ export default class BaseUtilService {
   downloadBarCode(data) {
     return this.nativeService.downloadBarCode([data])
   }
+  // 解密sku
+  decGoodCode(itemSku) {
+    return this.nativeService.decGoodCode(itemSku)
+  }
 }

@@ -64,6 +64,7 @@
                     <el-form-item label="商品状态：">
                       <el-select
                         v-model="goodsStatus"
+                        :disabled="operationBut"
                         size="mini"
                         filterable
                         multiple
@@ -87,6 +88,7 @@
                     <el-form-item label="上家来源：">
                       <el-select
                         v-model="source"
+                        :disabled="operationBut"
                         size="mini"
                         filterable
                         multiple
@@ -109,6 +111,7 @@
                     <el-form-item label="更新时间：">
                       <el-date-picker
                         v-model="modifyTime"
+                        :disabled="operationBut"
                         unlink-panels
                         size="mini"
                         type="daterange"
@@ -120,6 +123,7 @@
                     <el-form-item label="创建时间：">
                       <el-date-picker
                         v-model="createTime"
+                        :disabled="operationBut"
                         unlink-panels
                         size="mini"
                         type="daterange"
@@ -211,16 +215,16 @@
             <span class="base-title">操作选项</span>
             <div class="base-item">
               <ul style="margin-bottom:3px">
-                <el-button type="primary" size="mini" :disabled="operationBut" @click="batchDelete">批量删除</el-button>
+                <el-button type="primary" size="mini" :disabled="operationBut" @click="operation('batchDelete')">批量删除</el-button>
                 <el-button
                   type="primary"
                   size="mini"
                   :disabled="operationBut"
-                  @click="batchUpDownProduct()
+                  @click="operation('batchUpDownProduct')
                           upDown = true"
                 >批量下架</el-button>
-                <el-button type="primary" size="mini" :disabled="operationBut" @click="batchTitle">批量编辑标题</el-button>
-                <el-button type="primary" size="mini" :disabled="!operationBut" @click="flag1=true">取消操作</el-button>
+                <el-button type="primary" size="mini" :disabled="operationBut" @click="titleVisible = true">批量编辑标题</el-button>
+                <el-button type="primary" size="mini" :disabled="!operationBut" @click="flag=true">取消操作</el-button>
                 <el-button type="primary" size="mini" :disabled="operationBut">批量修改类目属性</el-button>
               </ul>
               <ul style="margin-bottom:3px">
@@ -229,7 +233,7 @@
                   type="primary"
                   size="mini"
                   :disabled="operationBut"
-                  @click="batchUpDownProduct()
+                  @click="operation('batchUpDownProduct')
                           upDown = false"
                 >批量上架</el-button>
                 <el-button type="primary" size="mini" :disabled="operationBut">批量编辑描述</el-button>
@@ -413,11 +417,22 @@
             </el-tooltip>
           </template>
         </u-table-column>
-        <u-table-column align="center" min-width="100" label="上家类型" />
-        <u-table-column align="center" min-width="120" label="上家链接" />
+        <u-table-column align="center" min-width="100" label="上家类型" prop="platformTypeStr" />
+        <u-table-column align="center" min-width="120" label="上家链接">
+          <template v-slot="{row}">
+            <span class="green-span" @click="openUrl(row,2)">
+              {{ row.productId }}
+            </span>
+            <span
+              v-if="row.productId"
+              class="copyIcon"
+              @click="copy(row.productId)"
+            ><i class="el-icon-document-copy" /></span>
+          </template>
+        </u-table-column>
         <u-table-column align="center" min-width="120" label="itemID">
           <template v-slot="{row}">
-            <span class="green-span" @click="openUrl(row)">
+            <span class="green-span" @click="openUrl(row,1)">
               {{ row.id }}
             </span>
             <span
@@ -429,13 +444,12 @@
         </u-table-column>
         <u-table-column align="center" min-width="80" label="价格" prop="price" sortable />
         <u-table-column align="center" min-width="80" label="库存" prop="stock" sortable />
-        <!--？点击事件-->
         <u-table-column align="center" min-width="150" label="标题" prop="name" show-overflow-tooltip>
           <template v-slot="{row}">
-            <span class="red-span">{{ row.name }}</span>
+            <span class="red-span" style="cursor: pointer;" @click="viewDetails(row)">{{ row.name }}</span>
           </template>
         </u-table-column>
-        <u-table-column align="center" min-width="80" label="状态">
+        <u-table-column align="center" min-width="100" label="状态" show-overflow-tooltip>
           <template v-slot="{row}">
             <span :style="row.status && 'color:' + statusColor[row.status]">{{ statusObj[row.status] }}</span>
           </template>
@@ -474,13 +488,54 @@
       :close-on-click-modal="false"
       :close-on-press-escape="false"
     />
+    <!-- 批量编辑标题 -->
+    <el-dialog
+      v-if="titleVisible"
+      class="title-dialog"
+      title="批量编辑标题"
+      :visible.sync="titleVisible"
+      width="600px"
+      top="20vh"
+      :close-on-click-modal="false"
+      :close-on-press-escape="false"
+    >
+      <el-form label-position="right" label-width="110px">
+        <el-form-item label="编辑类型：">
+          <div>
+            <el-radio v-model="titleRadio" :label="1">新标题</el-radio>
+            <el-radio v-model="titleRadio" :label="2">新增关键词/标题前</el-radio>
+            <el-radio v-model="titleRadio" :label="3">新增关键词/标题后</el-radio>
+            <el-radio v-model="titleRadio" :label="4">删除关键词</el-radio>
+          </div>
+        </el-form-item>
+        <el-form-item>
+          <span class="red-span">新标题直接填入，需要添加或删除多个热搜词/关键词，请以英文';'间隔!</span>
+        </el-form-item>
+        <el-form-item label="新标题/关键字：">
+          <el-input
+            v-model="titleVal"
+            type="textarea"
+            :rows="6"
+            size="mini"
+            resize="none"
+            :maxlength="maxLength"
+            placeholder="请输入内容"
+            show-word-limit
+          />
+        </el-form-item>
+      </el-form>
+      <div class="footer">
+        <el-button type="primary" size="mini" @click="operation('batchTitle')">保 存</el-button>
+        <el-button type="primary" size="mini" @click="titleVisible = false">关 闭</el-button>
+      </div>
+    </el-dialog>
   </el-row>
 </template>
 
 <script>
 import GoodsList from '../../../module-api/goods-manager-api/goods-list'
 import StoreChoose from '../../../components/store-choose'
-import { exportExcelDataCommon, creatDate, batchOperation } from '../../../util/util'
+import { exportExcelDataCommon, batchOperation } from '../../../util/util'
 export default {
   components: {
     StoreChoose
@@ -491,11 +546,11 @@ export default {
       isShowLoading: false,
       showConsole: true,
       categoryVisible: false,
+      titleVisible: true,
       operationBut: false,
       radio: '',
       checked: false,
-      flag1: false, // 判断是否停止
-      flag2: false, // 判断商品状态
+      flag: false, // 判断是否停止
       upDown: true,
       GoodsList: new GoodsList(this),
 
@@ -529,8 +584,15 @@ export default {
       viewMax: 999999,
       likeMin: 0, // 粉丝量
       likeMax: 999999,
-
+      platformData: {}, // 上家平台数据
       logisticsList: [], // 物流列表
+
+      // 批量编辑标题
+      titleRadio: 1, // 批编辑类型
+      titleVal: '', // 新标题/关键字
+      maxLength: '',
+      minLength: '',
+
       sellStatusList: [
         { value: 1, label: '售空' },
         { value: 2, label: '非售空' }
@@ -573,21 +635,29 @@ export default {
         { value: 'originId', label: '上家商品ID' }
       ],
       sourceList: [
-        { value: 1, label: '拼多多' },
-        { value: 2, label: '淘宝' },
-        { value: 3, label: '天猫' },
-        { value: 4, label: '京东' },
-        { value: 5, label: '自有' },
-        { value: 6, label: '皮皮虾供货平台' },
-        { value: 7, label: '货源甲' },
-        { value: 8, label: '1688' },
-        { value: 9, label: 'Lazada' },
-        { value: 10, label: '京喜' },
-        { value: 11, label: 'Shopee' },
-        { value: 12, label: 'aliexpress' },
-        { value: 13, label: '天猫淘宝海外平台' },
-        { value: 15, label: '货老板海外' }
-      ]
+        { value: '拼多多', label: '拼多多' },
+        { value: '淘宝', label: '淘宝' },
+        { value: '天猫', label: '天猫' },
+        { value: '自有产品', label: '自有产品' },
+        { value: '皮皮虾供货平台', label: '皮皮虾供货平台' },
+        { value: '货老板', label: '货老板' },
+        { value: '1688', label: '1688' },
+        { value: 'Lazada', label: 'Lazada' },
+        { value: '京喜', label: '京喜' },
+        { value: 'Shopee', label: 'Shopee' },
+        { value: '速卖通', label: '速卖通' },
+        { value: '天猫淘宝海外平台', label: '天猫淘宝海外平台' }
+        // { value: 15, label: '货老板海外' }
+      ],
+      // lazada各站点链接
+      lazadaGoodsUrl: {
+        'TH': 'https://www.lazada.co.th/products/i',
+        'MY': 'https://www.lazada.com.my/products/i', // 马来西亚
+        'VN': 'https://www.lazada.vn/products/i', // 越南-
+        'ID': 'https://www.lazada.co.id/products/i', // 印度尼西亚
+        'PH': 'https://www.lazada.com.ph/products/i', // 菲律宾
+        'SG': 'https://www.lazada.sg/products/i'
+      }
     }
   },
   watch: {
@@ -603,17 +673,61 @@ export default {
   methods: {
     // 批量编辑标题
     async batchTitle() {
-
-    },
-    // 批量上下架
-    async  batchUpDownProduct() {
-      if (!this.multipleSelection?.length) return this.$message('没有可操作的商品，请选择')
       this.operationBut = true
       this.percentage = 0
       this.updateNum = 0
       this.successNum = 0
       this.failNum = 0
-      this.operationBut = false
+      this.$confirm(`确定更新商品标题吗`, '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(async() => {
+        this.operationBut = true
+        this.percentage = 0
+        this.updateNum = 0
+        this.successNum = 0
+        this.failNum = 0
+        await batchOperation(this.multipleSelection, this.getProductDetail)
+        this.percentage = 100
+        this.operationBut = false
+      })
+    },
+    // 获取商品详情
+    async getProductDetail(item, count = { count: 1 }) {
+      try {
+        const params = {
+          product_id: item.id,
+          version: '3.2.0',
+          shop_id: item.platform_mall_id
+        }
+        this.$set(item, 'batchStatus', '正在获取商品详情...')
+        const res = await this.$shopeemanService.searchProductDetail(item.country, params)
+        if (res.code === 200 && res.data) {
+          this.$set(item, 'batchStatus', '获取商品详情成功')
+          this.$set(item, 'color', 'green')
+        } else {
+          this.$set(item, 'batchStatus', '获取商品详情失败')
+          this.$set(item, 'color', 'red')
+        }
+      } catch (error) {
+        this.$set(item, '获取商品详情异常')
+        this.$set(item, 'color', 'red')
+      } finally {
+        --count.count
+      }
+    },
+    editTitle(item, count = { count: 1 }) {
+
+    },
+
+    // 批量上下架
+    async batchUpDownProduct() {
+      this.operationBut = true
+      this.percentage = 0
+      this.updateNum = 0
+      this.successNum = 0
+      this.failNum = 0
       await batchOperation(this.multipleSelection, this.upDownProduct)
       this.percentage = 100
       this.operationBut = false
@@ -644,7 +758,6 @@ export default {
     },
     // 批量删除
     async batchDelete() {
-      if (!this.multipleSelection?.length) return this.$message('没有可操作的商品，请选择')
       this.$confirm(`确定删除【${this.multipleSelection.length}】个商品吗`, '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
@@ -685,6 +798,19 @@ export default {
         --count.count
       }
     },
+    operation(operationName) {
+      if (!this.multipleSelection?.length) return this.$message('没有可操作的商品，请选择')
+      this[operationName]()
+    },
+    // 打开详情页面
+    viewDetails(row) {
+      const reqStr = {
+        type: 'itemDetail',
+        shopId: row.platform_mall_id,
+        id: row.id
+      }
+      this.$BaseUtilService.getOrderDetailInfo(row.platform_mall_id, JSON.stringify(reqStr))
+    },
     // 获取物流
     getLogistics() {
       let logisticsList = this.$shopeeManConfig.getLogisticsList()
@@ -717,49 +843,31 @@ export default {
       this.$refs.Logs.consoleMsg = ''
       this.operationBut = true
       this.showConsole = false
-      this.flag1 = false
+      this.flag = false
       this.$refs.Logs.writeLog(`开始查询...`, true)
       for (let i = 0; i < this.goodsStatus.length; i++) {
         const item = this.goodsStatus[i]
-        if (item === 0 || item === 4 || item === 6) {
-          this.flag2 = false
-          this.goodsStatusVal = item
+        this.goodsStatusVal = item
+        if (item === 0) {
+          this.goodsStatusName = ''
           this.selectMallList.forEach(item => { item.pageNumber = 1 })
           await batchOperation(this.selectMallList, this.getTableData)
           break
         } else {
-          this.flag2 = true
           this.goodsStatusName = this.statusFilter[item]
           this.selectMallList.forEach(item => { item.pageNumber = 1 })
           await batchOperation(this.selectMallList, this.getTableData)
         }
       }
-      // for (let i = 0; i < this.goodsStatus.length; i++) {
-      //   const item = this.goodsStatus[i]
-      //   if (item === 0) {
-      //     this.flag2 = false
-      //     this.goodsStatusVal = item
-      //     this.selectMallList.forEach(item => { item.pageNumber = 1 })
-      //     await batchOperation(this.selectMallList, this.getTableData)
-      //     break
-      //   } else {
-      //     if(item === 4 || item === 6){
-
-      //     }
-      //     this.flag2 = true
-      //     this.goodsStatusName = this.statusFilter[item]
-      //     this.selectMallList.forEach(item => { item.pageNumber = 1 })
-      //     await batchOperation(this.selectMallList, this.getTableData)
-      //   }
-      // }
       this.operationBut = false
       this.$refs.Logs.writeLog(`查询完成`, true)
     },
     // 获取数据
     async getTableData(mItem, count = { count: 1 }) {
       let res = ''
+      let mallName = ''
       try {
-        if (this.flag1) {
+        if (this.flag) {
           this.operationBut = false
           this.$refs.Logs.writeLog(`停止操作`, true)
           return
@@ -767,8 +875,8 @@ export default {
         const params = {}
         params['mItem'] = mItem
         params['pageSize'] = this.pageSize
-        params['listType'] = this.flag2 ? this.goodsStatusName : 'all'
-        const mallName = mItem.mall_alias_name || mItem.platform_mall_name
+        params['listType'] = this.goodsStatusName ? this.goodsStatusName : 'all'
+        mallName = mItem.mall_alias_name || mItem.platform_mall_name
         if ((this.searchType !== 'originId' && this.keyword) || this.goodsMax < 999999 || this.goodsMin > 0 || this.soldMin > 0 || this.soldMax < 999999) { // ？类目未判断
           if (this.keyword) {
             params['searchType'] = this.searchType
@@ -821,64 +929,27 @@ export default {
                 status = 6
               } else if (item.status === 1 && item.stock === 0) {
                 status = 11
-                // } else if (item.status === 1 && this.statusFilter[this.goodsStatus] === 'deboosted') {
-                //   status = 100
+              } else if (item.status === 1 && this.goodsStatusVal === 100) {
+                status = 100
               } else {
                 status = item.status
               }
               item.status = status
-              // 本地过滤
-              if (this.modifyTime?.length && !(item.modify_time >= this.modifyTime[0])) {
-                continue
-              }
-              if (this.modifyTime?.length && !(item.modify_time <= new Date(this.modifyTime[1]).getTime())) {
-                continue
-              }
-              if (!(item.create_time >= this.createTime[0])) {
-                continue
-              }
-              if (!(item.create_time <= new Date(this.createTime[1]).getTime())) {
-                continue
-              }
-              // if (this.goodsStatusVal && this.goodsStatusVal !== 0 && this.goodsStatusVal === 4 && item.status !== 4) {
-              //   continue
-              // }
-              // if (this.goodsStatusVal && this.goodsStatusVal !== 0 && this.goodsStatusVal === 6 && item.status !== 6) {
-              //   continue
-              // }
-              if (this.goodsStatusVal && this.goodsStatusVal === 4 && item.status !== 4) {
-                continue
-              }
-              if (this.goodsStatusVal && this.goodsStatusVal === 6 && item.status !== 6) {
-                continue
-              }
-              if (Number(this.sellStatus) === 1 && Number(stock) > 0) {
-                continue
-              }
-              if (Number(this.sellStatus) === 2 && Number(stock) === 0) {
-                continue
-              }
-              if (!(Number(item.price) >= Number(this.priceMin))) {
-                continue
-              }
-              if (!(Number(item.price) <= Number(this.priceMax))) {
-                continue
-              }
-              if (!(Number(item.view_count) >= Number(this.viewMin))) {
-                continue
-              }
-              if (!(Number(item.view_count) <= Number(this.viewMax))) {
-                continue
-              }
-              this.tableData.push(item)
+              // 获取上家类型,链接,id
+              await this.getPlatformData(item.parent_sku)
+              item.platformTypeStr = this.platformData['platformTypeStr']
+              item.productId = this.platformData['productId']
+              item.url = this.platformData['url']
             }
+            const newData = this.filterData(res.data.list)
+            this.tableData = this.tableData.concat(newData)
           }
           console.log('list', res.data.list)
         } else {
           this.$refs.Logs.writeLog(`店铺【${mallName}】${res.data}`, false)
         }
       } catch (error) {
-        console.log(error)
+        this.$refs.Logs.writeLog(`店铺【${mallName}】获取数据异常`, false)
       } finally {
         if (res.data.list.length >= this.pageSize) {
           mItem.pageNumber++
@@ -888,6 +959,260 @@ export default {
           this.percentage += temp
           --count.count
         }
+      }
+    },
+    // 本地过滤
+    filterData(data) {
+      const fData = []
+      for (let i = 0; i < data.length; i++) {
+        const item = data[i]
+        // 过滤上家商品ID
+        if (this.searchType === 'originId' && this.keyword && this.keyword !== item.productId) {
+          continue
+        }
+        // 过滤上家来源
+        if (this.source[0] !== 0 && !(this.source.includes(item.platformTypeStr))) {
+          continue
+        }
+        // 过滤更新时间
+        if (this.modifyTime?.length && !(item.modify_time >= this.modifyTime[0])) {
+          continue
+        }
+        if (this.modifyTime?.length && !(item.modify_time <= new Date(this.modifyTime[1]).getTime())) {
+          continue
+        }
+        // 过滤创建时间
+        if (this.createTime?.length && !(item.create_time >= this.createTime[0])) {
+          continue
+        }
+        if (this.createTime?.length && !(item.create_time <= new Date(this.createTime[1]).getTime())) {
+          continue
+        }
+        // 过滤商品状态 4：禁卖shopee官方删除 6：审核中
+        if (this.goodsStatusVal === 4 && item.status !== 4) {
+          continue
+        }
+        if (this.goodsStatusVal === 6 && item.status !== 6) {
+          continue
+        }
+        // 过滤是否售空
+        if (Number(this.sellStatus) === 1 && Number(item.stock) > 0) {
+          continue
+        }
+        if (Number(this.sellStatus) === 2 && Number(item.stock) === 0) {
+          continue
+        }
+        // 过滤价格
+        if (!(Number(item.price) >= Number(this.priceMin))) {
+          continue
+        }
+        if (!(Number(item.price) <= Number(this.priceMax))) {
+          continue
+        }
+        // 过滤粉丝量
+        if (!(Number(item.view_count) >= Number(this.viewMin))) {
+          continue
+        }
+        if (!(Number(item.view_count) <= Number(this.viewMax))) {
+          continue
+        }
+        fData.push(item)
+      }
+      return fData
+    },
+    // 获取上家类型,链接,id
+    async getPlatformData(itemSku) {
+      await this.decryptShopeeItemSku(itemSku)
+      let platform = this.platformData['platform']
+      const productId = this.platformData['productId']
+      if (platform === 5 && productId.toString().includes('-')) {
+        this.getSelfGoodsPlatform(itemSku)
+        if (this.platformData && this.platformData['platform']) {
+          platform = this.platformData['platform']
+        }
+      }
+      this.getGoodsUrl(platform)
+    },
+    // 解密ParentSKU
+    async decryptShopeeItemSku(itemSku) {
+      try {
+        const regexp = /^[+-]?\d*[.]?\d*$/
+        if (itemSku.length < 30) {
+          const res = await this.$userInfo.user_create_time
+          if (res) {
+            const userTime = new Date(res).getTime()
+            const encryptionTime = new Date('2018-12-20 00:00:00').getTime()
+            if (userTime > encryptionTime) {
+              this.platformData['platform'] = 5
+              this.platformData['productId'] = itemSku
+            }
+          }
+          if (itemSku.indexOf('_') > -1) {
+            const arr = itemSku.split('_')
+            if (regexp.test(arr[0]) && regexp.test(arr[1])) {
+              const intPlatform = Number(arr[1])
+              if (intPlatform === 1 || intPlatform === 2 || intPlatform === 3 || intPlatform === 5 || intPlatform === 6 || intPlatform === 7 || intPlatform === 8) {
+                this.platformData['platform'] = intPlatform
+                this.platformData['productId'] = arr[0]
+              } else {
+                this.platformData['platform'] = 5
+                this.platformData['productId'] = itemSku
+              }
+            } else {
+              this.platformData['platform'] = 5
+              this.platformData['productId'] = itemSku
+            }
+          } else {
+            if (regexp.test(itemSku)) {
+              this.platformData['platform'] = 1
+              this.platformData['productId'] = itemSku
+            } else {
+              this.platformData['platform'] = 5
+              this.platformData['productId'] = itemSku
+            }
+          }
+        } else {
+          const res = await this.$BaseUtilService.decGoodCode(itemSku)
+          if (res.indexOf('-') > -1) {
+            const arr = res.split('-')
+            this.getPlatformSimpleStr(arr[0], arr)
+          } else {
+            this.platformData['platform'] = 5
+            this.platformData['productId'] = itemSku
+          }
+        }
+      } catch (error) {
+        console.log('解密异常', error)
+      }
+    },
+    // 匹配上家平台
+    getPlatformSimpleStr(name, arr) {
+      try {
+        const id = arr[1]
+        if (name.toLocaleLowerCase() === 'pdd') {
+          this.platformData['platform'] = 1
+          this.platformData['productId'] = id
+        } else if (name.toLocaleLowerCase() === 'tb') {
+          this.platformData['platform'] = 2
+          this.platformData['productId'] = id
+        } else if (name.toLocaleLowerCase() === 'tm') {
+          this.platformData['platform'] = 2
+          this.platformData['productId'] = id
+        } else if (name.toLocaleLowerCase() === 'tb') {
+          this.platformData['platform'] = 3
+          this.platformData['productId'] = id
+        } else if (name.toLocaleLowerCase() === 'own') {
+          this.platformData['platform'] = 5
+          this.platformData['productId'] = id
+        } else if (name.toLocaleLowerCase() === 'ghpt') {
+          this.platformData['platform'] = 6
+          this.platformData['productId'] = id
+        } else if (name.toLocaleLowerCase() === 'alibaba') {
+          this.platformData['platform'] = 8
+          this.platformData['productId'] = id
+        } else if (name.toLocaleLowerCase() === 'hyj' || name.toLocaleLowerCase() === 'hlb') {
+          this.platformData['platform'] = 7
+          this.platformData['productId'] = id
+          this.platformData['site'] = arr[2]
+          this.platformData['shopId'] = arr[3]
+        } else if (name.toLocaleLowerCase() === 'shopee') {
+          this.platformData['platform'] = 11
+          this.platformData['productId'] = id
+        } else if (name.toLocaleLowerCase() === 'aliexpress') {
+          this.platformData['platform'] = 12
+          this.platformData['productId'] = id
+        } else if (name.toLocaleLowerCase() === 'lazada') {
+          this.platformData['platform'] = 9
+          this.platformData['productId'] = id
+          this.platformData['site'] = arr[2]
+        } else if (name.toLocaleLowerCase() === 'hyjhw') {
+          this.platformData['platform'] = 15
+          this.platformData['productId'] = id
+          this.platformData['site'] = arr[2]
+        } else if (name.toLocaleLowerCase() === 'jx') {
+          this.platformData['platform'] = 10
+          this.platformData['productId'] = id
+          this.platformData['site'] = arr[2]
+        } else if (name.toLocaleLowerCase() === 'crossbroder') {
+          this.platformData['platform'] = 13
+          this.platformData['productId'] = id
+          this.platformData['userId'] = arr.Length > 2 ? arr[2] : ''
+        }
+      } catch (error) {
+        console.log('匹配上家异常', error)
+      }
+    },
+    getSelfGoodsPlatform(itemSku) {
+      let platform = '5'
+      const id = ''
+      let arr = []
+      try {
+        if (itemSku.includes('-')) {
+          arr = itemSku.split('-')
+          platform = arr[0]
+        }
+        this.getPlatformSimpleStr(platform, arr)
+      } catch {
+        this.platformData['platform'] = platform
+        this.platformData['productId'] = id
+      }
+    },
+    // 拼接链接
+    getGoodsUrl(platform) {
+      try {
+        switch (platform) {
+          case 1:
+            this.platformData['url'] = `http://mobile.yangkeduo.com/goods.html?goods_id=${this.platformData['productId']}`
+            this.platformData['platformTypeStr'] = '拼多多'
+            break
+          case 2:
+            this.platformData['url'] = `https://item.taobao.com/item.htm?id=${this.platformData['productId']}`
+            this.platformData['platformTypeStr'] = '淘宝'
+            break
+          case 3:
+            this.platformData['url'] = `https://detail.tmall.com/item.htm?id=${this.platformData['productId']}`
+            this.platformData['platformTypeStr'] = '天猫'
+            break
+          case 5:
+            this.platformData['url'] = ''
+            this.platformData['platformTypeStr'] = '自有产品'
+            break
+          case 6:
+            this.platformData['url'] = `http://gh.ppxias.com/goods/${this.platformData['productId']}.html`
+            this.platformData['platformTypeStr'] = '皮皮虾供货平台'
+            break
+          case 15:
+          case 7:
+            this.platformData['url'] = `http://www.17hyj.com/detail?goodsid=${this.platformData['productId']}`
+            this.platformData['platformTypeStr'] = '货老板'
+            break
+          case 8:
+            this.platformData['url'] = `https://detail.1688.com/offer/${this.platformData['productId']}.html`
+            this.platformData['platformTypeStr'] = '1688'
+            break
+          case 11:
+            this.platformData['url'] = `${this.$filters.countryShopeebuyCom(this.platformData['site'])}/product/${this.platformData['shopId']}/${this.platformData['productId']}`
+            this.platformData['platformTypeStr'] = 'Shopee'
+            break
+          case 12:
+            this.platformData['url'] = `https://www.aliexpress.com/item/${this.platformData['productId']}.html`
+            this.platformData['platformTypeStr'] = '速卖通'
+            break
+          case 9:
+            this.platformData['url'] = `${this.$filters.lazadaGoodsUrl(this.platformData['site'])}${this.platformData['productId']}.html`
+            this.platformData['platformTypeStr'] = 'Lazada'
+            break
+          case 10:
+            this.platformData['url'] = `https://item.m.jd.com/product/${this.platformData['productId']}.html`
+            this.platformData['platformTypeStr'] = '京喜'
+            break
+          case 13:
+            this.platformData['url'] = `https://distributor.taobao.global/apps/product/detail?mpId=${this.platformData['productId']}`
+            this.platformData['platformTypeStr'] = '天猫淘宝海外平台'
+            break
+        }
+      } catch (error) {
+        console.log('拼接链接异常', error)
       }
     },
     // 全选
@@ -911,12 +1236,16 @@ export default {
       }
     },
     // 打开外部链接
-    async openUrl(row) {
-      try {
-        const url = this.$filters.countryShopeebuyCom(row.country)
-        this.$BaseUtilService.openUrl(`${url}/product/${row.platform_mall_id}/${row.id}`)
-      } catch (error) {
-        this.$message.error(`打开失败`)
+    async openUrl(row, type) {
+      if (type === 1) {
+        try {
+          const url = this.$filters.countryShopeebuyCom(row.country)
+          this.$BaseUtilService.openUrl(`${url}/product/${row.platform_mall_id}/${row.id}`)
+        } catch (error) {
+          this.$message.error(`打开失败`)
+        }
+      } else {
+        this.$BaseUtilService.openUrl(row.url)
       }
     },
     setCategory(val) {
