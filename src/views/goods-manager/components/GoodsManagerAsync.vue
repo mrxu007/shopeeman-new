@@ -4,7 +4,7 @@
       class="condition"
       style="display: flex;"
     >
-      <Storechoosemall :show-mall="true" @changeMallList="changeMallList" @getSite="changeSite" />
+      <Storechoosemall style="margin-left:-20px" :show-mall="true" @changeMallList="changeMallList" @getSite="changeSite" />
       <el-button type="primary" size="mini" :loading="isStart" @click="startCompare">开始同步</el-button>
       <el-button type="primary" size="mini" @click="cancerCompare">取消同步</el-button>
       <el-button type="primary" size="mini" @click="closelogData">清空日志</el-button>

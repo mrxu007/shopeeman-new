@@ -41,7 +41,7 @@
           <template slot-scope="{row}">
             <div style="display: flex;">
               <!-- 商品数量>0时 -->
-              <el-button v-if=" row.product_count>0" size="mini" type="primary" @click="checkDetail">查看详情</el-button>
+              <el-button v-if=" row.product_count>0" size="mini" type="primary" @click="checkDetail(row)">查看详情</el-button>
               <!-- 商品数量=0时 -->
               <el-button v-if=" row.product_count===0" size="mini" type="primary" @click="addGoods">添加商品</el-button>
               <!-- 属性为自定义时 -->
@@ -309,8 +309,9 @@ export default {
       await this.gettableList()
     },
     // 查看详情
-    checkDetail() {
+    checkDetail(row) {
       this.dialogVisible_detail = true
+      this.getDetailGoodsList(row)
       // 1 商品列表获取
       // 3 添加商品 弹窗显示 添加后的商品与 商品列表同步更新【在1的基础上叠加】
       // 2 分类名称获取and 重新命名
@@ -318,6 +319,38 @@ export default {
       // 5.展示商品详情 【不勾选】
       // 6.删除商品 批量删除商品
       // 7. 更新master商品列表 gettablelist
+    },
+    // 获取商品详情列表 1.获取id 2.获取详细信息
+    async getDetailGoodsList(row) {
+      const params = {
+        collection_ids: row.id,
+        country: this.mallinfo.country,
+        mallId: this.mallinfo.mallID
+      }
+      try {
+        const res = await this.GoodsManagerAPIInstance.getGoodsDetail(params)
+        if (res.ecode === 0) {
+          const getproductIds = res.data.list[0].product_id_list || ''
+          const productIds = []
+          getproductIds.forEach(el => {
+            productIds.push(el.toString())
+          })
+          if (productIds) {
+            const productparams = {
+              country: this.mallinfo.country,
+              mallId: this.mallinfo.mallID,
+              productIds: productIds,
+              collection_ids: row.id
+            }
+            const des = await this.GoodsManagerAPIInstance.getGoodsDetailList(productparams)
+            debugger
+            if (des.ecode === 0) {
+            }
+          }
+        }
+      } catch (error) {
+        this.$message.error(error)
+      }
     },
     // 添加商品
     addGoods() {
@@ -458,6 +491,11 @@ export default {
         list.push(data)
       }
       if (type === '2') {
+        const index = this.selectList.findIndex(el => { el.type !== 'customized' })
+        if (index >= 0) {
+          this.$message.warning('只能删除自定义分类')
+          return
+        }
         list.push(...this.selectList)
       }
       this.loading = true

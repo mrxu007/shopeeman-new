@@ -95,6 +95,24 @@ const routes = [
   //   component: () =>
   //     import('../views/test-api/index.vue')
   // },
+  {
+    path: '/order-manager', // 订单管理
+    name: '/order-manager',
+    component: () =>
+      import('../views/order-manager/index.vue')
+  },
+  {
+    path: '/product-center', // 产品中心
+    name: 'product-center',
+    component: () =>
+      import('../views/product-center/index.vue')
+  },
+  {
+    path: '/business-analysis', // 商业分析
+    name: 'business-analysis',
+    component: () =>
+      import('../views/business-analysis/index.vue')
+  }
 ]
 const originalPush = VueRouter.prototype.push
 

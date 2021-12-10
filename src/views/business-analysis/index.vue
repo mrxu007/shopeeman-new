@@ -1,16 +1,16 @@
 <template>
   <div class="personal-center-style">
     <!--自有商品 -->
-    <main v-if="activeVal === '0'"><ProductCenterOwnGoods /></main>
+    <main v-if="activeVal === '0'"><BusinessAnalysisDataScreening /></main>
   </div>
 </template>
 
 <script>
 import {
-  ProductCenterOwnGoods } from './index.js'
+  BusinessAnalysisDataScreening } from './index.js'
 export default {
   components: {
-    ProductCenterOwnGoods
+    BusinessAnalysisDataScreening
   },
   data() {
     return {
