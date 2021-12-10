@@ -48,7 +48,7 @@ export default class CommodityService {
 
   /**
    * 获取商品详情
-   * @param {number} sysId 商品id
+   * @param {number} sysId 商品ida
    */
 
   async getUserInfo() {
@@ -785,16 +785,24 @@ export default class CommodityService {
     return this.nativeService.callProductCenter('GetProductSkuList', data.toString())
   }
   /**
-   * 获取类目
-   * @param {array} data
-   * data[0]:country站点
-   * data[1]:categoryId类目id
-   * data[2]:isParent 类目的父级标识：1传入的类目作为父级查询；0当前类目查询
-   * data[3]: 'tbCategory'
+   * 删除商品
    */
-  getCategory(data) {
-    // console.log(JSON.stringify(data))
-    return this.nativeService.callCategoryFunction('GetCategoryInfo', data[0] + '', data[1] + '', data[2] + '', data[3])
+  delgoods(data) {
+    return this.nativeService.callProductCenter('DeleteProduct', data.productId, data.productUid)
+  }
+
+  /**
+   * 获取sku选项默认配置
+   */
+  getskucode() {
+    return this.nativeService.callProductCenter('GetStaticSkuCode')
+  }
+
+  /**
+   * 获取产品详情
+   */
+  getdetails(data) {
+    return this.nativeService.callProductCenter('GetProductDetail', data.priductid, data.language)
   }
 
   /**
@@ -829,27 +837,6 @@ export default class CommodityService {
    */
   SaveProduct(data) {
     return this.nativeService.callProductCenter('SaveProduct', JSON.stringify(data))
-  }
-
-  /**
-   * 删除商品
-   */
-  delgoods(data) {
-    return this.nativeService.callProductCenter('DeleteProduct', data.productId, data.productUid)
-  }
-
-  /**
-   * 获取sku选项默认配置
-   */
-  getskucode() {
-    return this.nativeService.callProductCenter('GetStaticSkuCode')
-  }
-
-  /**
-   * 获取产品详情
-   */
-  getdetails(data) {
-    return this.nativeService.callProductCenter('GetProductDetail', data.priductid, data.language)
   }
 
   /**
