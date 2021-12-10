@@ -2184,48 +2184,74 @@ export default {
       // })
       // exportExcelDataCommon('店铺信息', template)
     },
-    downloadTemplate() {
+    async downloadTemplate() {
+      let titleData = []
+      let jsonData = []
+      let importOrderName = ''
       // 下载修改店铺水印模板
       if (this.importType === 'edit') {
-        let template = `<tr>
-      <td style="width: 200px; text-align:left;">站点</td>
-      <td style="width: 200px; text-align:left;">店铺名称</td>
-      <td style="width: 200px; text-align:left;">店铺ID<span style="color:red">(必填)</span></td>
-      <td style="width: 200px; text-align:left;">店铺文字水印</td>
-      <td style="width: 200px; text-align:left;">分组</td>
-      </tr>`
+      //   let template = `<tr>
+      // <td style="width: 200px; text-align:left;">站点</td>
+      // <td style="width: 200px; text-align:left;">店铺名称</td>
+      // <td style="width: 200px; text-align:left;">店铺ID<span style="color:red">(必填)</span></td>
+      // <td style="width: 200px; text-align:left;">店铺文字水印</td>
+      // <td style="width: 200px; text-align:left;">分组</td>
+      // </tr>`
+      //   this.multipleSelection.map((item) => {
+      //     template += `
+      //   <tr>
+      //     <td style="text-align:left;">${this.$filters.chineseSite(item.country)}</td>
+      //     <td style="text-align:left;">${item.platform_mall_name}</td>
+      //     <td style="text-align:left;">${item.platform_mall_id}</td>
+      //     <td style="text-align:left;">${item.watermark || ''}</td>
+      //     <td style="text-align:left;">${item.group_name || ''}</td>
+      //   </tr>
+      //   `
+      //   })
+        // exportExcelDataCommon('修改店铺水印文字模板', template)
+        titleData = ['站点','店铺名称','店铺ID(必填)','店铺文字水印','分组']
+        importOrderName = '修改店铺水印文字模板'
         this.multipleSelection.map((item) => {
-          template += `
-        <tr>
-          <td style="text-align:left;">${this.$filters.chineseSite(item.country)}</td>
-          <td style="text-align:left;">${item.platform_mall_name}</td>
-          <td style="text-align:left;">${item.platform_mall_id}</td>
-          <td style="text-align:left;">${item.watermark || ''}</td>
-          <td style="text-align:left;">${item.group_name || ''}</td>
-        </tr>
-        `
+          let temp = []
+          temp.push(this.$filters.chineseSite(item.country))
+          temp.push(item.platform_mall_name)
+          temp.push(item.platform_mall_id)
+          temp.push(item.watermark || '')
+          temp.push(item.group_name || '')
+          jsonData.push(temp)
         })
-        exportExcelDataCommon('修改店铺水印文字模板', template)
       } else if (this.importType === 'update') {
-        const template = `<tr>
-        <td style="width: 200px; text-align:left;">SHOPEE店铺ID<span style="color:red">(必填)</span></td>
-        <td style="width: 200px; text-align:left;">店铺登录账号<span style="color:red">(必填)</span></td>
-        <td style="width: 200px; text-align:left;">密码(必填)</td>
-      </tr>`
-        exportExcelDataCommon('修改店铺密码模板', template)
+      //   const template = `<tr>
+      //   <td style="width: 200px; text-align:left;">SHOPEE店铺ID<span style="color:red">(必填)</span></td>
+      //   <td style="width: 200px; text-align:left;">店铺登录账号<span style="color:red">(必填)</span></td>
+      //   <td style="width: 200px; text-align:left;">密码(必填)</td>
+      // </tr>`
+      //   exportExcelDataCommon('修改店铺密码模板', template)
+        titleData = ['SHOPEE店铺ID(必填)','店铺登录账号(必填)','密码(必填)']
+        importOrderName = '修改店铺密码模板'
       } else {
-        const template = `<tr>
-      <td style="width: 400px">站点(马来站，台湾站，泰国站，印尼站，菲律宾站，新加坡站，越南站)<span style="color:red">(必填)</span></td>
-      <td style="width: 300px">账号<span style="color:red">(必填)(如果为手机号，请不要加国家区号)</span></td>
-      <td style="width: 200px">密码<span style="color:red">(必填)</span></span></td>
-      <td style="width: 200px">店铺真实名称<span style="color:red">(必填)</span></span></td>
-      <td style="width: 200px">分组<span style="color:orange">(选填)</span></td>
-      <td style="width: 200px">店铺主体名称<span style="color:red">(需申IP隔离必填)</span></td>
-      <td style="width: 200px">SPC_F<span style="color:red">(浏览识别码)</span></td>
-      <td style="width: 200px">店铺别名<span style="color:orange">(选填)</span></td>
-      </tr>`
-        exportExcelDataCommon('SHOPEE店铺批量授权模板', template)
+      //   const template = `<tr>
+      // <td style="width: 400px"><span style="color:red">(必填)</span></td>
+      // <td style="width: 300px">账号<span style="color:red">(必填)(如果为手机号，请不要加国家区号)</span></td>
+      // <td style="width: 200px">密码<span style="color:red">(必填)</span></span></td>
+      // <td style="width: 200px">店铺真实名称<span style="color:red">(必填)</span></span></td>
+      // <td style="width: 200px">分组<span style="color:orange">(选填)</span></td>
+      // <td style="width: 200px">店铺主体名称<span style="color:red">(需申IP隔离必填)</span></td>
+      // <td style="width: 200px">SPC_F<span style="color:red">(浏览识别码)</span></td>
+      // <td style="width: 200px">店铺别名<span style="color:orange">(选填)</span></td>
+      // </tr>`
+        // exportExcelDataCommon('SHOPEE店铺批量授权模板', template)
+        titleData = ['站点(马来站，台湾站，泰国站，印尼站，菲律宾站，新加坡站，越南站)(必填)',
+          '账号(必填)(如果为手机号，请不要加国家区号)',
+          '密码(必填)',
+          '店铺真实名称(必填)',
+          '分组(选填)',
+          '店铺主体名称(需申IP隔离必填)',
+          'SPC_F(必填)(浏览识别码)',
+          '店铺别名(必填)']
+        importOrderName = 'SHOPEE店铺批量授权模板'
       }
+      await importOrder(titleData, jsonData, importOrderName)
     },
     async getMallID(mallId) {
       let res = await this.$appConfig.getGlobalCacheInfo('mallInfo', mallId)
