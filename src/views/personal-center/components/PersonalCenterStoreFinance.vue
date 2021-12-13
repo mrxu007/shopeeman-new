@@ -318,12 +318,20 @@ export default {
           trans_time: this.tradeTime.length ? this.tradeTime[0] + ' 00:00:00/' + this.tradeTime[1] + ' 23:59:59' : ''
         }
         while (this.exportDataList.length < this.total) {
-          const resf = await this.$XzyNetMessageService.post('xzy.UserGetUserRecharge', params)
-          if (resf) {
+          try {
+            const resf = await this.$XzyNetMessageService.post('xzy.UserGetUserRecharge', params)
             const resObj = resf && JSON.parse(resf)
-            const info = resObj && resObj.data && JSON.parse(resObj.data)
-            this.exportDataList = this.exportDataList.concat(info.data.data)
-            params.page++
+            if (resObj.status === 200) {
+              const info = resObj && resObj.data && JSON.parse(resObj.data)
+              this.exportDataList = this.exportDataList.concat(info.data.data)
+              params.page++
+            } else {
+              this.$message.error('导出数据错误')
+              break
+            }
+          } catch (error) {
+            this.$message.error('导出数据异常')
+            break
           }
         }
         // const resf = await this.$XzyNetMessageService.post('xzy.UserGetUserRecharge', params)
@@ -350,12 +358,20 @@ export default {
           trans_type: this.tradeType
         }
         while (this.exportDataList.length < this.total) {
-          const resf = await this.$XzyNetMessageService.post('xzy.UserGetUserAccountAmount', params)
-          if (resf) {
+          try {
+            const resf = await this.$XzyNetMessageService.post('xzy.UserGetUserAccountAmount', params)
             const resObj = resf && JSON.parse(resf)
-            const info = resObj && resObj.data && JSON.parse(resObj.data)
-            this.exportDataList = this.exportDataList.concat(info.data.data)
-            params.page++
+            if (resObj.status === 200) {
+              const info = resObj && resObj.data && JSON.parse(resObj.data)
+              this.exportDataList = this.exportDataList.concat(info.data.data)
+              params.page++
+            } else {
+              this.$message.error('导出数据错误')
+              break
+            }
+          } catch (error) {
+            this.$message.error('导出数据异常')
+            break
           }
         }
         // const resf = await this.$XzyNetMessageService.post('xzy.UserGetUserAccountAmount', params)
