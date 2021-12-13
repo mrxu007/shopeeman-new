@@ -780,10 +780,10 @@ const syncStatus = [
   //   label: '运送中',
   //   value: 'shipping'
   // },
-  {
-    label: '已完成',
-    value: 'completed'
-  },
+  // {
+  //   label: '已完成',
+  //   value: 'completed'
+  // },
   // {
   //   label: '取消中',
   //   value: 'cancelled'

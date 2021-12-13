@@ -52,12 +52,16 @@ export default class logisticeSyncService {
       const item = orders[i]
       console.log(item,"item")
       const buyer_name =  item.shot_order_info.buy_account_info ? item.shot_order_info.buy_account_info.name : '' 
+      const shot_order_sn = item.shot_order_sn || item.order_sn
       // const buyer_name = "tt939242551"
       // console.log(buyer_name,"buyer_name")
-      const shot_order_sn = item.shot_order_sn || item.order_sn
+      if(!buyer_name){
+        this.writeLog(`【${i+1}/${orders.length}】订单【${shot_order_sn}】对应的买手号为空，请检查！`, false)
+        continue
+      }
       const account = buyerAccounts.find(buyer => buyer.name === buyer_name)
       if (!account) {
-        this.writeLog(`订单【${shot_order_sn}】对应的买手号【${buyer_name}】没有找到，请登录对应买手号.`, false)
+        this.writeLog(`【${i+1}/${orders.length}】订单【${shot_order_sn}】对应的买手号【${buyer_name}】没有找到，请登录对应买手号.`, false)
         continue
       }
       if (accountMapOrderId.has(account)) {

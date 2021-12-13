@@ -840,4 +840,46 @@ async getSkuRelation(sysOrderIds){
 async saveSkuRelation(SkuRelation){
   return await this.nativeService.callSkuRelationClient('SaveGoodsSkuRelation',SkuRelation)
 }
+
+/**上报面单信息
+ * @name : 
+ * @param  {*}
+ * @param {*} sysMallId
+ * @param {*} mallId
+ * @param {*} urlObj [{"url":"https://www.baidu.com","orderSn":"200310ERCFQE5NUT"}]
+ */
+async saveFaceSheetInfo( sysMallId,  mallId, urlObj){
+  return await this.nativeService.callOrderAndMallUpload('SaveFaceSheetInfo',sysMallId,  mallId,JSON.stringify(urlObj))
+}
+
+/**
+ * @name : 上报平台物流单号
+ * @param  {*}
+ * @param {*} sysMallId
+ * @param {*} mallId
+ * @param {*} trackObj [{"orderId":"","orderSn":"200310ERCFQE5NUT","channel_id":"","trackingNo":"9999595959595"}]
+ */
+async saveLogisticsInfo( sysMallId,  mallId, trackObj){
+  return await this.nativeService.callOrderAndMallUpload('SaveLogisticsInfo',sysMallId,  mallId,JSON.stringify(trackObj))
+}
+/**
+ * @name : 上报平台订单信息
+ * @param  {*}
+ * @param {*} sysMallId
+ * @param {*} mallId
+ * @param {*} orderData 
+ */
+ async saveLogisticsInfo( sysMallId,  mallId, orderData){
+  return await this.nativeService.callOrderAndMallUpload('SaveOrder',sysMallId,  mallId,JSON.stringify(orderData))
+}
+/**
+ * @name : 上报售后订单信息
+ * @param  {*}
+ * @param {*} sysMallId
+ * @param {*} mallId
+ * @param {*} afterOrderData 
+ */
+ async saveLogisticsInfo( sysMallId,  mallId, afterOrderData){
+  return await this.nativeService.callOrderAndMallUpload('SaveOrder',sysMallId,  mallId,JSON.stringify(afterOrderData))
+}
 }

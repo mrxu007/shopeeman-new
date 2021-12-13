@@ -1,19 +1,4 @@
-<!--
- * @Author: your name
- * @Date: 2021-11-16 12:10:07
- * @LastEditTime: 2021-11-18 21:27:46
- * @LastEditors: Please set LastEditors
- * @Description: 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
- * @FilePath: \shopeeman-new\src\views\order-manager\components\orderCenter\pushOrderToStore.vue
--->
-<!--
- * @Author: your name
- * @Date: 2021-11-16 11:42:09
- * @LastEditTime: 2021-11-16 12:09:00
- * @LastEditors: Please set LastEditors
- * @Description: 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
- * @FilePath: \shopeeman-new\src\views\order-manager\components\orderCenter\purchaseInfo.vue
--->
+
 <template>
   <div class="push-order">
     <p>温馨提示: 1:请务必确认当前订单对应店铺绑定的仓库是否正确</p>
@@ -136,19 +121,23 @@ export default {
         item.orderIDs = []
         item.sourceName = []
         item.sourceStoreType = typeName
-        console.log(this.sysStoreListAll,"123")
+        // console.log(this.sysStoreListAll,"123")
         let filterStore = this.sysStoreListAll.find(store=>{
           return store.mall_info_ids.indexOf(item.mall_info.platform_mall_id)>-1 && store.type == type
        })
         item.sourceNameStr = filterStore && filterStore.warehouse_name
         if (!map.has(item.sys_mall_id)) {
           item.orderIDs.push(item.id)
-          item.sourceName.push(sourceName(item.goods_info.ori_platform_id))
+          if(item.sourceName.indexOf(sourceName(item.goods_info.ori_platform_id)) == -1){
+            item.sourceName.push(sourceName(item.goods_info.ori_platform_id))
+          }
           map.set(item.sys_mall_id, item)
         } else {
             let resF = map.get(item.sys_mall_id)
             resF.orderIDs.push(item.id)
-            resF.sourceName.push(sourceName(item.goods_info.ori_platform_id))
+            if(resF.sourceName.indexOf(sourceName(item.goods_info.ori_platform_id)) == -1){
+              resF.sourceName.push(sourceName(item.goods_info.ori_platform_id))
+            }
         }
       }
       return [...map.values()]

@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-11-25 17:17:34
- * @LastEditTime: 2021-12-03 11:37:41
+ * @LastEditTime: 2021-12-13 21:46:27
  * @LastEditors: Please set LastEditors
  * @Description: 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  * @FilePath: \shopeeman-new\src\views\order-manager\components\orderCenter\exportReport.vue
@@ -16,7 +16,7 @@
           <span class="mar-right">报表生成人：</span>
           <p></p>
           <span class="mar-right">报表状态：</span>
-          <p>{{ exportStatus[item.status] }}</p>
+          <p :style="{'color': exportStatusColor[item.status]}">{{ exportStatus[item.status] }}</p>
         </div>
         <div class="content">
           <div class="item">
@@ -40,7 +40,7 @@
             <p></p>
           </div>
         </div>
-        <el-button size="mini" type="primary" :disabled="item.status!=1"><a :href="item.url"  style="color:#fff;" download="订单报表.xlsx">下载报表</a></el-button>
+        <el-button size="mini" ><a :href="item.url"  style="color:#000;" download="订单报表.xlsx">下载报表</a></el-button>
       </div>
     </div>
     <div class="pagination">
@@ -67,7 +67,8 @@ export default {
       total: 0,
       pageSize: 20,
       currentPage: 1,
-      exportStatus: ['', '可以下载', '生成中', '上传中', '已下载'],
+      exportStatus: ['', '可下载', '生成中', '上传中', '已下载'],
+      exportStatusColor:['#000','#0000FF','#FF0000','#FF8C00','#008000'],
       mallList: [],
       mall: '',
     }

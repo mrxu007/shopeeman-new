@@ -22,9 +22,9 @@
           </el-select>
         </div>
         <el-input v-model="shotAmount" size="mini" class="inputWidthMini" style="margin-left: 10px" @change="changeAmount"></el-input>
-        <span style="margin: 0 10px">{{ amountType === 1 ? '元' : $filters.siteCoin(form.Country) }}</span>
+        <span style="margin: 0 10px">{{ amountType === 1 ? '元' : $filters.siteCoin(country) }}</span>
         <el-input v-model="shotAmountRmb" size="mini" class="inputWidthMini"></el-input>
-        <span>{{ amountType === 1 ? $filters.siteCoin(form.Country) : '元' }}</span>
+        <span>{{ amountType === 1 ? $filters.siteCoin(country) : '元' }}</span>
       </el-form-item>
       <el-form-item label="采购价格:" prop="shotAmountRmb" v-if="dealType === 'batch'">
         <el-input v-model="form.shotAmountRmb" size="mini" class="inputWidth"></el-input>
@@ -40,13 +40,17 @@
         </el-select>
       </el-form-item>
       <el-form-item label="绑定仓库:" prop="warehouseName" v-if="dealType === 'single'">
-        <el-input v-model="form.warehouseName" size="mini" class="inputWidth" disabled></el-input>
+        <p>{{ form.warehouseName }}</p>
+        <!-- <el-input v-model="form.warehouseName" size="mini" class="inputWidth" disabled></el-input> -->
       </el-form-item>
-      <el-form-item label="提示1:">
+      <el-form-item label="提示1:" v-if="dealType !== 'single'">
         <span style="color: red">添加采购信息前,请务必确认好已绑定仓库收货地址</span>
       </el-form-item>
-      <el-form-item label="提示2:">
-        <span style="color: red">运输方式修改未读针对于主订单</span>
+      <el-form-item label="提示2:" v-if="dealType !== 'single'">
+        <span style="color: red">运输方式修改维度针对于主订单</span>
+      </el-form-item>
+      <el-form-item label="提示:" v-if="dealType === 'single'">
+        <span style="color: red">运输方式修改维度针对于主订单</span>
       </el-form-item>
       <el-form-item label="运输方式:">
         <el-radio-group v-model="form.transportType" size="mini">
@@ -62,9 +66,14 @@
           <el-radio label="3">商检货</el-radio>
         </el-radio-group>
       </el-form-item>
-      <div>
-        <span>备注:</span>
-        <el-input v-model="remark" size="mini" type="textarea" :rows="2"></el-input>
+      <div class="base-box" v-if="dealType !== 'single'">
+        <span class="base-title">备注修改</span>
+        <div class="base-item">
+          <div class="remark" >
+            <span>备注:</span>
+            <el-input v-model="remark" size="mini" type="textarea" :rows="2" style="width: 300px"></el-input>
+          </div>
+        </div>
       </div>
       <el-form-item>
         <el-button type="primary" @click="saveBatchSetting" size="mini">保 存</el-button>
@@ -82,14 +91,14 @@ export default {
       form: {
         shotOrderSn: '', //拍单订单号
         shotStatus: '', //采购状态
-        transportType: '', //运输方式
+        transportType: '1', //运输方式
         packageType: '1', //货物类型
         platformId: '', //拍单平台
         shotAmountRmb: '', //拍单金额(rmb)
         shotAmount: '', //拍单金额(rmb)
         buyAccountInfo: '', //买家账号信息 传json格式
         shotOrderSn: '', //拍单订单号
-        country: '',
+        // country: '',
         remark: '',
       },
       amountType: 1,
@@ -106,7 +115,8 @@ export default {
       remark: '',
       shotAmount: '',
       shotAmountRmb: '',
-      rateList:[],
+      rateList: [],
+      country:''
     }
   },
   props: {
@@ -124,38 +134,40 @@ export default {
     },
   },
   mounted() {
+    let data = this.chooseData[0]
+    this.form.platformId = Number(data.goods_info.ori_platform_id)
+    this.changePlatform(this.form.platformId)
     if (this.dealType === 'single') {
-      let data = this.chooseData[0]
       this.form.shotOrderSn = data.shot_order_info.order_sn
       this.form.shotStatus = data.shot_order_info.shot_status
       this.form.shotAmount = data.shot_order_info.shot_amount
       this.form.shotAmountRmb = data.shot_order_info.shot_amount_rmb
-      this.form.platformId = data.shot_order_info.platform_id
       this.form.warehouseName = data.shot_order_info.warehouse_name
-      this.form.country = data.country
+      this.country = data.country
       this.shotAmount = data.shot_order_info.shot_amount
       this.shotAmountRmb = data.shot_order_info.shot_amount_rmb
       console.log('single', data, this.chooseData)
     }
     this.getRate()
+    console.log("country",this.country)
   },
   methods: {
-   async getRate(){
-        const data = await this.$api.exchangeRateList()
-        if (data.data.code === 200) {
+    async getRate() {
+      const data = await this.$api.exchangeRateList()
+      if (data.data.code === 200) {
         this.rateList = data.data.data
-        }
-        console.log(this.rateList)
-        },
+      }
+      console.log(this.rateList)
+    },
     changeAmount() {
       if (this.amountType === 1) {
-          this.form.shotAmountRmb = this.shotAmount
-          this.form.shotAmount =(Number(this.shotAmount) * Number(this.rateList[this.form.country.toUpperCase()])).toFixed(2)
-          this.shotAmountRmb =(Number(this.shotAmount) * Number(this.rateList[this.form.country.toUpperCase()])).toFixed(2)
-      }else{
-          this.form.shotAmount = this.shotAmount
-          this.form.shotAmountRmb =(Number(this.shotAmount) / Number(this.rateList[this.form.country.toUpperCase()])).toFixed(2)
-          this.shotAmountRmb =(Number(this.shotAmount) / Number(this.rateList[this.form.country.toUpperCase()])).toFixed(2)
+        this.form.shotAmountRmb = this.shotAmount
+        this.form.shotAmount = (Number(this.shotAmount) * Number(this.rateList[this.country.toUpperCase()])).toFixed(2)
+        this.shotAmountRmb = (Number(this.shotAmount) * Number(this.rateList[this.country.toUpperCase()])).toFixed(2)
+      } else {
+        this.form.shotAmount = this.shotAmount
+        this.form.shotAmountRmb = (Number(this.shotAmount) / Number(this.rateList[this.country.toUpperCase()])).toFixed(2)
+        this.shotAmountRmb = (Number(this.shotAmount) / Number(this.rateList[this.country.toUpperCase()])).toFixed(2)
       }
     },
     changePlatform(val) {
@@ -163,6 +175,7 @@ export default {
       this.buyerAccountListFilter = this.buyerAccountList.filter((item) => {
         return item.type === val
       })
+      // this.form.buyAccountInfo = JSON.stringify(item)
     },
     //batch保存
     async saveBatchSetting() {
@@ -173,18 +186,15 @@ export default {
         let ids = ''
         this.chooseData.forEach((item, index) => {
           if (index === 0) {
-            ids = item.id
+            ids = item.id.toString()
           } else {
             ids = ids + ',' + item.id
           }
         })
         let params = this.form
         params.sysOrderIds = ids
-        // let buy = params.buyAccountInfo&&JSON.stringify(params.buyAccountInfo)||{}
-        // params.buyAccountInfo = {
-        //     name: buy.name,
-        //     type: buy.type
-        // }
+        params.platformId = params.platformId.toString()
+        params.shotStatus = params.shotStatus.toString()
         if (this.shopeeLink) {
           let shopid = this.shopeeLink.match(/shopid=(\d+)/)
           shopid = shopid ? shopid[1] : ''
@@ -192,6 +202,7 @@ export default {
           orderId = orderId ? orderId[1] : ''
         }
         let res = await this.$api.batchUpdateShotOrder(params)
+        console.log(res,"saveBatchSetting")
         if (res.data.code === 200) {
           this.$message.success('设置成功!')
           this.$emit('close', false)
@@ -216,5 +227,38 @@ export default {
 }
 .inputWidthMini {
   width: 80px;
+}
+.remark {
+  display: flex;
+  align-items: center;
+  span {
+    display: inline-block;
+    width: 80px;
+    text-align: right;
+  }
+}
+.base-box {
+  border: 1px solid #dcdcdc;
+  border-radius: 4px;
+  padding: 10px;
+  position: relative;
+  // min-width: 702px;
+  height: 100%;
+  .base-title {
+    padding: 0 5px;
+    display: inline-block;
+    height: 20px;
+    line-height: 20px;
+    text-align: center;
+    background: #fff;
+    position: absolute;
+    left: 10px;
+    top: -10px;
+  }
+  .base-item {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
 }
 </style>

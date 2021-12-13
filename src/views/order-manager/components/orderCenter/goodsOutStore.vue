@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-11-16 15:41:36
- * @LastEditTime: 2021-12-04 18:15:40
+ * @LastEditTime: 2021-12-13 18:37:01
  * @LastEditors: Please set LastEditors
  * @Description: 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  * @FilePath: \shopeeman-new\src\views\order-manager\components\orderCenter\goodsOutStore.vue
@@ -382,7 +382,7 @@ export default {
           goods_describe: item.sku_spec,
           goods_count: item.outStock,
           goods_price: item.sku_price,
-          sys_order_id: this.orderInfo.id,
+          order_sn: this.orderInfo.order_sn,
         }
         lists.push(obj)
       })

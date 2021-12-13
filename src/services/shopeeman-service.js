@@ -886,6 +886,31 @@ export default class NetMessageBridgeService {
       }
     }
   }
+  //查询订单 /api/v3/order/get_order_hint
+  async getOrderHint(country, data) {
+    const res = await this.getChinese(country, '/api/v3/order/get_order_hint', data)
+    const resObj = res && JSON.parse(res)
+    console.log(resObj)
+    if (resObj && resObj.status === 200) {
+      const info = JSON.parse(resObj.data)
+      if (info && info.code === 0) {
+        return {
+          code: 200,
+          data: info.data || []
+        }
+      } else {
+        return {
+          code: 50001,
+          data: info.message || []
+        }
+      }
+    } else {
+      return {
+        code: resObj.status,
+        data: `获取详情失败${resObj.statusText}`
+      }
+    }
+  }
   // 获取订单历史轨迹
   async getOrdeTrackingHistory(country, data) {
     const res = await this.getChinese(country, '/api/v3/order/get_order_tracking_history/', data)
@@ -1328,9 +1353,101 @@ export default class NetMessageBridgeService {
       }
     }
   }
-  // 获取面单类型
+  // 获取面单类型 
   async getPrintWaybillType(country, data) {
     const res = await this.getChinese(country, '/api/v3/logistics/get_print_waybill_type', data)
+    const resObj = res && JSON.parse(res)
+    // console.log(res,resObj)
+    if (resObj && resObj.status === 200) {
+      const info = JSON.parse(resObj.data)
+      if (info && info.code === 0) {
+        return {
+          code: 200,
+          data: info.data || []
+        }
+      } else {
+        return {
+          code: 50001,
+          data: info.message || []
+        }
+      }
+    } else {
+      return {
+        code: resObj.status,
+        data: `获取失败${resObj.statusText}`
+      }
+    }
+  }
+  // 取卖家真实姓名  
+  async getShopSellerRealName(country, data) {
+    const res = await this.getChinese(country, '/api/v3/logistics/get_shop_seller_real_name', data)
+    const resObj = res && JSON.parse(res)
+    // console.log(res,resObj)
+    if (resObj && resObj.status === 200) {
+      const info = JSON.parse(resObj.data)
+      if (info && info.code === 0) {
+        return info.data.seller_real_name || null
+
+      } else {
+        return null
+      }
+    } else {
+      return null
+    }
+  }
+  //获取店铺信息 
+  async getShop(country, data) {
+    const res = await this.getChinese(country, '/api/v3/general/get_shop/', data)
+    const resObj = res && JSON.parse(res)
+    // console.log(res,resObj)
+    if (resObj && resObj.status === 200) {
+      const info = JSON.parse(resObj.data)
+      if (info && info.code === 0) {
+        return {
+          code: 200,
+          data: info.data || []
+        }
+      } else {
+        return {
+          code: 50001,
+          data: info.message || []
+        }
+      }
+    } else {
+      return {
+        code: resObj.status,
+        data: `获取失败${resObj.statusText}`
+      }
+    }
+  }
+  //获取申请时间 /api/v3/shipment/get_drop_off
+  async getPickupTimeSlots(country, data) {
+    const res = await this.getChinese(country, '/api/v3/shipment/get_pickup_time_slots/', data)
+    const resObj = res && JSON.parse(res)
+    // console.log(res,resObj)
+    if (resObj && resObj.status === 200) {
+      const info = JSON.parse(resObj.data)
+      if (info && info.code === 0) {
+        return {
+          code: 200,
+          data: info.data || []
+        }
+      } else {
+        return {
+          code: 50001,
+          data: info.message || []
+        }
+      }
+    } else {
+      return {
+        code: resObj.status,
+        data: `获取失败${resObj.statusText}`
+      }
+    }
+  }
+  //获取虾皮物流单号
+  async getDropOff(country, data) {
+    const res = await this.getChinese(country, '/api/v3/shipment/get_drop_off', data)
     const resObj = res && JSON.parse(res)
     // console.log(res,resObj)
     if (resObj && resObj.status === 200) {
@@ -1412,6 +1529,9 @@ export default class NetMessageBridgeService {
     const res = await this.postChinese(country, '/api/v3/logistics/create_sd_jobs_multi_shop', data, {
       Headers: {
         'Content-Type': ' application/json'
+      },
+      params: {
+        async_sd_version:	'0.2'
       }
     })
     const resObj = res && JSON.parse(res)
@@ -1439,29 +1559,12 @@ export default class NetMessageBridgeService {
   //下载面单信息
   async downloadSdJob(country, data) {
     const res = await this.getChinese(country, '/api/v3/logistics/download_sd_job', data)
-    // console.log(res,"downloadSdJob")
-    return res
     const resObj = res && JSON.parse(res)
-    // console.log(res,resObj)
-    // if (resObj && resObj.status === 200) {
-    //   const info = JSON.parse(resObj.data)
-    //   if (info && info.code === 0) {
-    //     return {
-    //       code: 200,
-    //       data: info.data || []
-    //     }
-    //   } else {
-    //     return {
-    //       code: 50001,
-    //       data: info.message || []
-    //     }
-    //   }
-    // } else {
-    //   return {
-    //     code: resObj.status,
-    //     data: `获取失败${resObj.statusText}`
-    //   }
-    // }
+    if (resObj && resObj.status === 200) {
+      return resObj.data
+    } else {
+      return null
+    }
   }
 
   // 获取地址
