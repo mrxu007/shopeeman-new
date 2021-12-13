@@ -663,46 +663,7 @@
         </div>
       </el-dialog>
       <el-dialog title="类目映射" width="700px" top="25vh" :close-on-click-modal="false" :visible.sync="categoryVisible">
-        <div class="category_dialog">
-          <div class="category_box">
-            <div class="on_new_dialog_box" style="margin-bottom: 10px;">
-              <div class="keepRight">店铺站点：</div>
-              {{ country | chineseSite }}
-            </div>
-            <div class="on_new_dialog_box" v-for="(item,index) in categoryList" :key="index">
-              <div class="keepRight">{{index+1}}级类目：</div>
-              <el-select v-model="categoryAction[index]" @change="setCategory(categoryAction[index],index)" size="mini"
-                         style="width: 200px;">
-                <el-option
-                    v-for="son in item"
-                    :key="son.id"
-                    :label="son.category_name+'('+son.category_cn_name+')'"
-                    :value="son.category_id">
-                </el-option>
-              </el-select>
-            </div>
-          </div>
-          <div class="category_box" style="margin-left: 20px;">
-            <div class="on_new_dialog_box" style="margin-bottom: 10px;">
-              <div class="width_single_150">属性名称：</div>
-              <div>属性值<span style="color:red">(必填)</span></div>
-            </div>
-            <div class="on_new_dialog_box line_height_28" v-for="(item,index) in attributesList" :key="index">
-              <div class="width_single_150">{{item.attribute_name}}({{item.attribute_cn_name}})</div>
-              <div>
-                <el-select v-model="item.options" size="mini" style="width: 180px;">
-                  <el-option v-for="son in item.new_options_obj" :key="son.value_id" :label="son.value"
-                             :value="son.value_id">
-                  </el-option>
-                </el-select>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="on_new_dialog_box" style="margin-top: 25px;justify-content: space-evenly">
-          <el-button type="primary" size="mini" @click="confirmCategory()">　确　定　</el-button>
-          <el-button size="mini" @click="categoryVisible = false">　取　消　</el-button>
-        </div>
+        <categoryMapping />
       </el-dialog>
     </div>
   </el-row>
@@ -710,6 +671,7 @@
 
 <script>
   import storeChoose from '../../../components/store-choose'
+  import categoryMapping from '../../../components/category-mapping'
   import { batchOperation } from '../../../util/util'
 
   export default {
@@ -890,7 +852,7 @@
         }
       }
     },
-    components: { storeChoose },
+    components: { storeChoose, categoryMapping },
     watch: {
       country(value) {
         this.associatedConfig.onNewInterval = value !== 'ID' && '40' || '50'
@@ -1006,6 +968,7 @@
         if (attributeRes.code === 200) {
           let attributeList = attributeRes.data && attributeRes.data.attributes
           attributeList.forEach(item => {
+            console.log('attributesCurrent',this.attributesCurrent)
             let index = this.attributesCurrent.findIndex(i => i.attribute_id === item.attribute_id)
             let attributesCurrent = this.attributesCurrent[index] && this.attributesCurrent[index].value_id || 0
             item.new_options_obj = JSON.parse(item.new_options)
@@ -1151,7 +1114,8 @@
             if (row && row.goodsId) {
               let categoryRelationJson = await this.$commodityService.getCategoryRelation(row.originCategoryId, this.country, row.platform + '')
               let categoryRelationRes = JSON.parse(categoryRelationJson)
-              this.attributesCurrent = categoryRelationRes.data && categoryRelationRes.data.attributes
+              console.log('categoryRelationRes',categoryRelationRes)
+              this.attributesCurrent = categoryRelationRes.data && categoryRelationRes.data.attributes || []
             }
           } else if (row) {
             this.$message.error('请选择一个商品信息')
