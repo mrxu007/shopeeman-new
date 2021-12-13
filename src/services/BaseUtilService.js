@@ -120,4 +120,8 @@ export default class BaseUtilService {
   downloadBarCode(data) {
     return this.nativeService.downloadBarCode([data])
   }
+
+  async loginNeedPopUps(name,data) {
+    return await this.nativeService.loginNeedPopUps(name,JSON.stringify(data))
+  }
 }

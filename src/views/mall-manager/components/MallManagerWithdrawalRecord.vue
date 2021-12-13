@@ -10,7 +10,7 @@
   <div class="drawal-record">
     <div class="tool-bar">
       <div class="tool-row">
-        <storeChoose :is-all="true" @changeMallList="changeMallList" />
+        <storeChoose @changeMallList="changeMallList" />
       </div>
       <div class="tool-row">
         <div class="tool-item mar-right">
@@ -34,7 +34,7 @@
       </div>
     </div>
     <div class="content">
-      <el-table ref="multipleTable" v-loading="tableLoading" :data="tableData" tooltip-effect="dark" height="calc(100vh - 215px)">
+      <el-table ref="multipleTable" v-loading="tableLoading" :data="tableDataCut" tooltip-effect="dark" height="calc(100vh - 215px)">
         <el-table-column align="center" type="index" label="序号" width="50">
           <template slot-scope="scope">{{ (currentPage - 1) * pageSize + scope.$index + 1 }}</template>
         </el-table-column>
@@ -50,13 +50,13 @@
         <el-table-column prop="bank_account_number" label="银行卡号" align="center" min-width="120px" />
         <el-table-column align="center" prop="ic_number" label="IcNumber" min-width="100" />
         <el-table-column align="center" prop="amount" label="提现金额" min-width="70">
-          <template slot-scope="scope">{{ scope.row.amount }} {{ scope.row.country | siteCoin }}</template>
+          <template slot-scope="scope">{{ scope.row.amount*-1 }} {{ scope.row.country | siteCoin }}</template>
         </el-table-column>
         <el-table-column align="center" prop="ctime" label="提现时间" min-width="120">
           <template slot-scope="scope">{{ $dayjs(scope.row.ctime * 1000).format('YYYY-MM-DD HH:mm:ss') }}</template>
         </el-table-column>
         <el-table-column align="center" prop="complete_time" label="完成时间" min-width="120">
-          <template slot-scope="scope">{{ $dayjs(scope.row.complete_time * 1000).format('YYYY-MM-DD HH:mm:ss') }}</template>
+          <template slot-scope="scope">{{ scope.row.complete_time===0?'':$dayjs(scope.row.complete_time * 1000).format('YYYY-MM-DD HH:mm:ss') }}</template>
         </el-table-column>
         <el-table-column align="center" prop="status" label="提现状态" min-width="80">
           <template slot-scope="scope">{{ changeTypeName(scope.row.status, statusList) }}</template>
@@ -139,6 +139,7 @@ export default {
       if (!this.selectMallList.length) {
         return this.$message.warning('请选择店铺')
       }
+      this.totalAmount = 0
       this.showConsole = false
       this.$refs.Logs.consoleMsg = ''
       this.tableData = []
@@ -196,7 +197,8 @@ export default {
                 } else {
                   this.$refs.Logs.writeLog(`店铺【${mall.platform_mall_name}】获取失败！`, false)
                 }
-                this.totalAmount += (item.amount * -1) / 100
+                // this.totalAmount += (item.amount * -1) / 100
+                this.totalAmount += (item.amount * -1)
                 this.tableData.push(item)
                 this.total = this.tableData.length
               })
@@ -238,13 +240,13 @@ export default {
             </tr>`
       for (let i = 0; i < this.tableData.length; i++) {
         const item = this.tableData[i]
-        str += `<tr><td>${num++}</td> 
+        str += `<tr><td>${num++}</td>
                     <td>${item.country ? this.$filters.chineseSite(item.country) : '' + '\t'}</td>
                     <td>${item.platform_mall_name ? item.platform_mall_name : '' + '\t'}</td>
                     <td style="mso-number-format:'\@';">${item.transaction_id && item.transaction_id + '\t'}</td>
                     <td>${item.bank_name ? item.bank_name : '' + '\t'}</td>
                     <td>${item.bank_account_name ? item.bank_account_name : '' + '\t'}</td>
-                    <td>${item.bank_account_number ? item.bank_account_number : '' + '\t'}</td> 
+                    <td>${item.bank_account_number ? item.bank_account_number : '' + '\t'}</td>
                     <td style="mso-number-format:'\@';">${item.ic_number ? item.ic_number : '' + '\t'}</td>
                     <td>${item.amount ? item.amount * -1 : '' + '\t'}</td>
                     <td>${item.ctime ? this.$dayjs(item.ctime * 1000).format('YYYY-MM-DD HH:mm:ss') : '' + '\t'}</td>
@@ -300,6 +302,9 @@ export default {
     .tool-item {
       display: flex;
       align-items: center;
+      /deep/.el-range-input{
+        width: 68px !important;
+      }
       span{
         display: inline-block;
         width:80px;

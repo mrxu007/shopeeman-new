@@ -107,7 +107,7 @@
         @selection-change="handleSelectionChange"
       >
         <u-table-column align="center" type="selection" width="50" />
-        <u-table-column align="center" type="index" label="序号">
+        <u-table-column align="center" type="index" label="序号" width="60">
           <template v-slot="{ $index }">
             {{ (currentPage - 1) * pageSize + $index + 1 }}
           </template>
@@ -117,7 +117,7 @@
             <p style="white-space: normal">{{ row.group_name }}</p>
           </template>
         </u-table-column>
-        <u-table-column align="center" prop="" label="站点">
+        <u-table-column align="center" prop="" label="站点" width="60">
           <template v-slot="{ row }">
             {{ row.country | chineseSite }}
           </template>
@@ -154,7 +154,7 @@
           </template>
         </u-table-column>
         <u-table-column align="center" prop="item_limit" label="店铺额度" />
-        <u-table-column align="center" prop="mall_alias_name" label="店铺别名" width="150">
+        <u-table-column align="center" prop="mall_alias_name" label="店铺别名" width="150" sortable>
           <template v-slot="{ row }">
             <div>
               <el-input
@@ -170,7 +170,7 @@
             </div>
           </template>
         </u-table-column>
-        <u-table-column align="center" prop="web_login_info" label="登录状态" show-overflow-tooltip="">
+        <u-table-column align="center" prop="LoginInfo" label="登录状态" show-overflow-tooltip sortable>
           <template v-slot="{ row }">
             <span v-html="row.LoginInfo" />
             <span class="copyIcon" @click="copy(row.LoginInfo)"><i class="el-icon-document-copy" /></span>
@@ -178,7 +178,7 @@
         </u-table-column>
         <u-table-column align="center" prop="mall_status" label="店铺状态">
           <template v-slot="{ row }">
-            {{ mallStatusObj[row.mall_status] ? mallStatusObj[row.mall_status] : '冻结' }}
+            {{ row.mall_status === 1 ? '正常' : '冻结' }}
           </template>
         </u-table-column>
         <u-table-column align="center" prop="created_at" label="授权日期" min-width="120px" />
@@ -189,7 +189,7 @@
           layout="total, sizes, prev, pager, next"
           :total="total"
           :current-page="currentPage"
-          :page-sizes="[200, 500]"
+          :page-sizes="[500,1000,2000]"
           :page-size="pageSize"
           @size-change="handleSizeChange"
           @current-change="handleCurrentChange"
@@ -274,7 +274,7 @@
             <!-- <el-table-column align="center" prop="watermark" label="店铺水印文字" /> -->
             <el-table-column align="center" prop="mall_alias_name" label="店铺别名">
               <template v-slot="{ row }">
-                {{ row.mall_alias_name || row.platform_mall_name }}
+                {{ row.mall_alias_name }}
               </template>
             </el-table-column>
             <el-table-column align="center" label="登录识别码" width="200">
@@ -376,13 +376,18 @@
         }"
         @selection-change="handleSelectionChange"
       >
-        <el-table-column width="50" align="center" type="index" label="序号" />
-        <el-table-column width="80" align="center" label="站点">
+        <el-table-column width="40" align="center" type="index" label="序号" />
+        <el-table-column width="70" align="center" label="站点">
           <template slot-scope="{ row }">
             {{ row.country | chineseSite }}
           </template>
         </el-table-column>
-        <el-table-column width="100" align="center" prop="platform_mall_name" label="店铺名称" />
+        <el-table-column width="130" align="center" prop="mall_account_info.username" label="店铺账号" >
+          <template v-slot="{ row }">
+            <p style="white-space: normal">{{ row.mall_account_info.username }}</p>
+          </template>
+        </el-table-column>
+        <el-table-column width="150" align="center" prop="platform_mall_name" label="店铺名称" />
         <el-table-column width="100" align="center" prop="platform_mall_id" label="店铺ID" />
         <el-table-column width="90" align="center" prop="" label="更新时间">
           <template slot-scope="{ row }">
@@ -558,7 +563,7 @@
           <div class="dialog_item">
             <div class="item_name">邮编号码</div>
             <div class="item_content">
-              <el-select v-model="addressQuery.zip_code" size="mini" style="width: 100%" placeholder="请选择邮编号码">
+              <el-select v-model="addressQuery.zip_code" size="mini" allow-create filterable default-first-option style="width: 100%" placeholder="请选择邮编号码">
                 <el-option v-for="(item, index) in addressQueryNumber" :key="index" :label="item" :value="item" />
               </el-select>
             </div>
@@ -611,7 +616,7 @@
 
 <script>
 import MallListAPI from '../../../module-api/mall-manager-api/mall-list-api'
-import { delay, exportExcelDataCommon } from '../../../util/util'
+import { delay, exportExcelDataCommon, waitStart, importOrder } from '../../../util/util'
 import { batchOperation } from '@/util/util'
 
 import xlsx from 'xlsx'
@@ -670,10 +675,10 @@ export default {
         { label: '正常', value: 1 }, // 0 1 都是正常
         { label: '冻结', value: 3 }
       ],
-      mallStatusObj: {
-        0: '正常',
-        1: '正常'
-      },
+      // mallStatusObj: {
+      //   0: '正常',
+      //   1: '正常'
+      // },
       groupId: '',
       groupList: [],
 
@@ -743,8 +748,11 @@ export default {
       // 分页
       total: 0,
       currentPage: 1,
-      pageSize: 200,
-      isChineseShow: false
+      pageSize: 500,
+      isChineseShow: false,
+
+      userInfo: null,
+      flat: 1 // 1 一键登录  2 导入店铺
     }
   },
   computed: {},
@@ -804,7 +812,7 @@ export default {
     this.getMallList()
     this.getIP()
   },
-  mounted() {
+  async mounted() {
     try {
       this.$IpcMain.on('needIvs', e => { // 点听
         console.log('needIvs-e', e)
@@ -821,6 +829,24 @@ export default {
     } catch (error) {
       console.log('监听', error)
     }
+    const userInfo = await this.$appConfig.getUserInfo()
+    this.userInfo = userInfo;
+/*
+    const params = {
+      mallId: 607126856 ,
+      webLoginInfo: JSON.stringify({
+        SPC_EC: "/8O0dNBMVsjXUaCmp4nVQTrMr8HsSZDZ7u3/dcj3DGF1H88RHMjrus+5HNWBH5POfxf36Q1hxQqSCH/UHEeVehcxIFnXgvuopql7UAXgFA9LL/2dgfjT/OwPZ/MhEa0hwAvAnP/I2WEQKc4rwtemyFhT72iGrhyFe0mq1cTyCLU=",
+        SPC_SC_TK: "49f1f20cac264a7511fcb2f4de419e77",
+        ShopeeUid: "607146441",
+        shopid: "607126856",
+        SPC_F: "lFczSngKUgy3bRQeQzff45LOPzITW7ag",
+        spc_f: "lFczSngKUgy3bRQeQzff45LOPzITW7ag",
+      })
+    }
+    console.log('uploadMallCookie', params)
+    const res6 = await this.mallListAPIInstance.uploadMallCookie(params) // 上报店铺信息cookie (服务端)
+    console.log('uploadMallCookie',res6)
+*/
   },
   methods: {
     handleSizeChange(val) {
@@ -885,7 +911,7 @@ export default {
           this.sendMessageText = '重新发送短信验证码'
         }
       }, 1000)
-      const res = await this.mallListAPIInstance.sendMessage(this.sendMessageCurrent, this.sendMessageHeader)
+      const res = await this.mallListAPIInstance.sendMessage(this.sendMessageCurrent, this.sendMessageHeader, this.flat)
       if (res.code !== 200) {
         return this.$message.error(`短信发送失败:${res.code} ${res.data}`)
       }
@@ -983,6 +1009,7 @@ export default {
         if (zipCodeByAddressIdRes.status >= 200 && zipCodeByAddressIdRes.status < 300) {
           const zipCodeByAddressIdData = JSON.parse(zipCodeByAddressIdRes.data)
           this.addressQueryNumber = zipCodeByAddressIdData.data.list
+          this.addressQuery.zip_code = this.addressQueryNumber[0] || ''
           console.log('zipCodeByAddressIdData', zipCodeByAddressIdData)
         } else if (zipCodeByAddressIdRes.status === 403) {
 
@@ -1292,7 +1319,7 @@ export default {
         this.$refs.Logs.writeLog(`店铺【${platform_mall_name}】设置背景图失败：${e}`, false)
       } finally {
         --count.count
-        this.percentage += this.addPercentage
+        this.percentage =Math.floor(this.percentage + this.addPercentage)
       }
     },
     openUpdateExpressdialog() { // 批量更改店铺物流
@@ -1354,7 +1381,6 @@ export default {
       this.addPercentage = 100 / len
       this.batchExpressDialog = false
       await batchOperation(data, this.setMallExpress)
-      // console.log(1, '完成', res)
       this.percentage = 100
       this.hideConsole = true
       this.buttonStatus.getExpress2 = false
@@ -1396,7 +1422,7 @@ export default {
         this.$refs.Logs.writeLog(`店铺【${platform_mall_name}】设置背景图失败：${e}`, false)
       } finally {
         --count.count
-        this.percentage += this.addPercentage
+        this.percentage =Math.floor(this.percentage + this.addPercentage)
       }
     },
     getIP() {
@@ -1470,6 +1496,10 @@ export default {
       console.log('this.groupList', this.groupList)
     },
     mallAuthorization() {
+      if (this.userInfo.child_id > 0) {
+        this.$message.error('子账户没有授权权限')
+        return
+      }
       // 店铺授权
       if (!this.importMallListData.length) {
         return this.$message.error('请导入店铺')
@@ -1543,7 +1573,7 @@ export default {
       const len = data.length
       this.percentage = 0
       this.addPercentage = 100 / len
-      await batchOperation(data, this.asyncMallInfo)
+      await batchOperation(data, this.asyncMallInfo,1)
       // console.log(1, '完成', res)
       this.percentage = 100
       this.hideConsole = true
@@ -1566,7 +1596,7 @@ export default {
         const params = {
           'sysMallId': item.id,
           'platformMallName': data.shop_name,
-          'mallStatus': data.shop_status,
+          'mallStatus': data.user_status,
           'itemLimit': 500,
           'userEmail': data.user_email,
           'phone': data.phone,
@@ -1619,14 +1649,14 @@ export default {
         return
       }
       this.isStop = false
-      let flat = 1 // 默认一键登录
+      this.flat = 1 // 默认一键登录
       let len = null
       let selectMall = null
       if (mallArr) {
         // 导入店铺
         len = mallArr.length
         selectMall = mallArr
-        flat = 2
+        this.flat = 2
       } else {
         // 一键登录
         len = this.multipleSelection.length
@@ -1645,14 +1675,19 @@ export default {
         }
         const item = selectMall[i]
         const platform_mall_name = item.platform_mall_name
-        flat === 1 ? item.LoginInfo = '正在登录中...' : this.writeLog(`(${i + 1}/${len})账号【${platform_mall_name}】开始授权`, true)
+        let hasMallMainInfo = false
+        this.flat === 1 ? item.LoginInfo = '正在登录中...' : this.writeLog(`(${i + 1}/${len})账号【${platform_mall_name}】开始授权`, true)
         let mallId = null// 平台店铺ID
         let mallUId = null // 平台卖家ID
+        let errorStr = ''
+        let cookieJson = ''
         try {
           // 1、检测
-          if (!this.forceLogin && flat === 1) { // 一键登录、不强制登录，就走检测功能
+          if (!this.forceLogin && this.flat === 1) {
+            // 一键登录、不强制登录，就走检测功能
           // 强制登录不检测是否已经登录
             const userInfo = await this.mallListAPIInstance.getUserInfo(item)
+            console.log('userInfo', userInfo)
             if (userInfo.code === 200) {
               item.LoginInfo = `<p style="color: green">快速登录成功</p>`
               item.loginStatus = 'success'
@@ -1666,6 +1701,7 @@ export default {
               })
               continue
             } else {
+              errorStr = userInfo.data
               item.loginStatus = 'fail'
             }
           }
@@ -1675,62 +1711,90 @@ export default {
             break
           }
           // 2、shopeeMan官方登录
-          let res = await this.$shopeemanService.login(item, flat)
+          let res = await this.$shopeemanService.login(item, this.flat)
           if (res.code !== 200) {
-            flat === 1 ? (item.LoginInfo = `<p style="color: red">登录失败：${res.data.message}</p>`) : this.writeLog(`(${i + 1}/${len})账号【${platform_mall_name}】授权失败：${res.data.message}`, false)
-            const handleResult = await this.handleReturnLogin(item, res, flat)
+            if (this.flat === 1) {
+              item.LoginInfo = `<p style="color: red">登录失败：${res.data.message || errorStr}</p>`
+            } else {
+              this.writeLog(`(${i + 1}/${len})账号【${platform_mall_name}】授权失败：${res.data.message}`, false)
+            }
+            console.log('handleResult - parm',res)
+            const handleResult = await this.handleReturnLogin(item, res)
+            console.log('handleResult', handleResult)
             if (handleResult.code === 200) { // 3、处理登录弹框
               res = handleResult
             } else {
               item.loginStatus = 'fail'
-              flat === 1 ? (item.LoginInfo = `<p style="color: red">登录失败：${handleResult.data}</p>`) : this.writeLog(`(${i + 1}/${len})账号【${platform_mall_name}】授权失败：${handleResult.data}`, false)
+              if (this.flat === 1) {
+                item.LoginInfo = `<p style="color: red">登录失败：${handleResult.data || errorStr}</p>`
+              } else {
+                this.writeLog(`(${i + 1}/${len})账号【${platform_mall_name}】授权失败：${handleResult.data}`, false)
+              }
               continue
             }
           }
-          mallId = res.data.mallId // 平台店铺ID
-          mallUId = res.data.mallUId // 平台卖家ID
-          let mallDataInfo = null
-          if (flat === 1) {
-          // 一键登录
-          // 获取壳内店铺信息,组装
+          console.log('login', res)
+          mallId = res.data && res.data.mallId || null // 平台店铺ID
+          mallUId = res.data && res.data.mallUId || null // 平台卖家ID
+          let mallDataInfo = {}
+          cookieJson = res.data.Cookie
+          if (this.flat === 1) {
+            if(mallId != item.platform_mall_id){
+              item.LoginInfo = `<p style="color: red">登录失败：（登录异常，店铺ID已被shopee官方更换，最新店铺ID为【${mallId}】，请联系客服更换后重试），然后重试店铺登录</p>`
+              continue
+            }
             const res1_flat1 = await this.$appConfig.getGlobalCacheInfo('mallInfo', mallId)
             mallDataInfo = JSON.parse(res1_flat1)
-            const Cookie = res.data.Cookie
-            mallDataInfo.web_login_info['SPC_EC'] = Cookie.SPC_EC
-            mallDataInfo.web_login_info['sso'] = Cookie.SPC_EC
-            mallDataInfo.web_login_info['SPC_SC_TK'] = Cookie.SPC_SC_TK
-            mallDataInfo.web_login_info['token'] = Cookie.SPC_SC_TK
-            mallDataInfo.web_login_info['ShopeeUid'] = Cookie.ShopeeUid
-            mallDataInfo.web_login_info['shopeeuid'] = Cookie.ShopeeUid
-            mallDataInfo.web_login_info['shopid'] = Cookie.shopid
+            mallDataInfo = mallDataInfo.web_login_info && mallDataInfo
+            cookieJson.SPC_F = mallDataInfo.web_login_info && mallDataInfo.web_login_info['SPC_F'] || cookieJson.SPC_F
+            cookieJson.spc_f = mallDataInfo.web_login_info && mallDataInfo.web_login_info['SPC_F'] || cookieJson.spc_f
+            // 一键登录// 获取壳内店铺信息,组装getChinese
+            mallDataInfo.web_login_info['SPC_EC'] = cookieJson.SPC_EC
+            mallDataInfo.web_login_info['sso'] = cookieJson.SPC_EC
+            mallDataInfo.web_login_info['SPC_SC_TK'] = cookieJson.SPC_SC_TK
+            mallDataInfo.web_login_info['token'] = cookieJson.SPC_SC_TK
+            mallDataInfo.web_login_info['ShopeeUid'] = cookieJson.ShopeeUid
+            mallDataInfo.web_login_info['shopeeuid'] = cookieJson.ShopeeUid
+            mallDataInfo.web_login_info['shopid'] = cookieJson.shopid
+            mallDataInfo.web_login_info['SPC_F'] = cookieJson.SPC_F
+            mallDataInfo.web_login_info['spc_f'] = cookieJson.spc_f
             // 4、更新壳信息
+            console.log(mallId, JSON.stringify(mallDataInfo))
             await this.$appConfig.updateInfoMall(mallId, JSON.stringify(mallDataInfo)) // 更新里面店铺的cookie （壳）
-          } else { // 导入店铺
-          // 导入的店铺信息
+          }
+          else {
+            // 导入店铺 - 导入的店铺信息
             mallDataInfo = res.data.mallInfo_new
             // 导入店铺判断是否选择   使用已有IP
             if (this.isIPType === 1) {
+              if (!item.MallMainName) { // 使用已有IP 就检测是否填写
+                this.writeLog(`(${i + 1}/${len})账号【${platform_mall_name}】检测到您选择了 使用已有IP，但是未填写`, false)
+                continue
+              }
               this.writeLog(`(${i + 1}/${len})账号【${platform_mall_name}】正在查询店铺主体信息有效性`, true)
               const mallMainInfo = await this.mallListAPIInstance.getMainMainList(item.MallMainName)
               if (mallMainInfo.code !== 200) {
-                this.writeLog(`(${i + 1}/${len})账号【${platform_mall_name}】 店铺主体名称 ${item.MallMainName} 不存在`, false)
+                this.writeLog(`(${i + 1}/${len})账号【${platform_mall_name}】 店铺主体名称 【${item.MallMainName}】 不存在`, false)
                 continue
               }
-              this.writeLog(`(${i + 1}/${len})账号【${platform_mall_name}】该店铺主体信息有效`, true)
-              mallDataInfo['mall_main_id'] = mallMainInfo.data.id // 更新店铺ID
-              if (mallMainInfo.data.target_mall_info.length === 0) { // 代表是一个新店铺没有绑定过IP，需要刷新壳缓存
+              this.writeLog(`(${i + 1}/${len})账号【${platform_mall_name}】该店铺主体【${item.MallMainName}】信息有效`, true)
+              mallDataInfo['mall_main_id'] = mallMainInfo.data.id // 更新店铺主体ID
+              if (!mallMainInfo.data.target_mall_info || mallMainInfo.data.target_mall_info.length === 0) { // 代表是一个新店铺没有绑定过IP，需要刷新壳缓存
                 this.writeLog(`(${i + 1}/${len})账号【${platform_mall_name}】正在刷新店铺主体信息缓存`, true)
                 await this.$BaseUtilService.UpdateProxy()
                 this.writeLog(`(${i + 1}/${len})账号【${platform_mall_name}】主体刷新成功`, true)
               }
               item.mall_main_id = mallMainInfo.data.id
-              item.hasMallMainInfo = true
+              hasMallMainInfo = true
             }
             // 4、更新壳信息
-            // console.log(mallId, JSON.stringify(mallDataInfo))
+            mallDataInfo.web_login_info['SPC_F'] = mallDataInfo.web_login_info['SPC_F'] || mallDataInfo.web_login_info['spc_f'] || cookieJson.SPC_F
+            mallDataInfo.web_login_info['spc_f'] = mallDataInfo.web_login_info['SPC_F'] || mallDataInfo.web_login_info['spc_f'] || cookieJson.spc_f
+            console.log(mallId, JSON.stringify(mallDataInfo))
             await this.$appConfig.updateInfoMall(mallId, JSON.stringify(mallDataInfo)) // 更新里面店铺的cookie （壳）
             // 4-1、判断物流信息是否是普通店铺 (店铺导入独有)
             const res3 = await this.mallListAPIInstance.isNormalMall(mallDataInfo)
+            console.log('mallDataInfo',res3)
             if (res3.code !== 200 || !res3.data) {
               this.writeLog(`(${i + 1}/${len})账号【${platform_mall_name}】授权失败：该账号属于跨境店铺`, false)
               continue
@@ -1742,7 +1806,7 @@ export default {
               mallAccountInfo: JSON.stringify(item.mall_account_info),
               mallGroup: item.group_name,
               itemLimit: 500,
-              platformMallName: platform_mall_name,
+              platformMallName: item.mall_account_info.userRealName,
               mallAliasName: item.mall_alias_name,
               mallMainName: item.MallMainName,
               country: item.country,
@@ -1751,27 +1815,38 @@ export default {
               mall_type: 1 // 写死1 普通店铺
             }
             const res4 = await this.mallListAPIInstance.getMallGoodsAmount(mallDataInfo)
+            console.log('getMallGoodsAmount',res4)
             res4.code === 200 ? (params2['itemLimit'] = res4.data.count_for_limit) : ''
             // 4-3、上报店铺信息(店铺导入独有) 如果是导入店铺,在上报cookie之前应该先上报店铺
             const res5 = await this.mallListAPIInstance.saveMallAuthInfo(params2) // 导入店铺信息（服务端）
+            console.log('saveMallAuthInfo',res5)
             if (res5.code !== 200) {
               this.writeLog(`(${i + 1}/${len})账号【${platform_mall_name}】授权失败：${res5.data}`, false)
               continue
+            }else{
+              if (res5.data.indexOf('当前账户绑定店铺数达到上限，请升级会员版本绑定') >= 0){
+                this.writeLog(`(${i + 1}/${len})账号【${platform_mall_name}】授权失败：${res5.data}`, false)
+                continue
+              }
             }
+            item.sys_mall_id = res5.data
           }
           // 5、上报cookie信息
           const params = {
             mallId: mallId,
-            webLoginInfo: JSON.stringify(res.data.Cookie)
+            webLoginInfo: JSON.stringify(cookieJson)
           }
+          console.log('uploadMallCookie', params)
           const res6 = await this.mallListAPIInstance.uploadMallCookie(params) // 上报店铺信息cookie (服务端)
+          console.log('uploadMallCookie',res6)
           if (res6.code !== 200) {
           // console.log('店铺上传失败', res.data)
             this.writeLog(`(${i + 1}/${len})账号【${platform_mall_name}】授权失败：上报店铺信息cookie失败`, false)
             continue
           }
           successNum++
-          flat === 1 ? (item.LoginInfo = '<p style="color: green">登录成功</p>') : this.writeLog(`(${i + 1}/${len})账号【${platform_mall_name}】授权成功`, true)
+          this.flat === 1 ? (item.LoginInfo = '<p style="color: green">登录成功</p>')
+            : this.writeLog(`(${i + 1}/${len})账号【${platform_mall_name}】授权成功`, true)
           item.loginStatus = 'success'
           this.$nextTick(() => {
             this.$refs.plTable.toggleRowSelection([
@@ -1781,9 +1856,8 @@ export default {
               }
             ])
           })
-          if (item.hasMallMainInfo) { // 是否走过导入程序.并导入成功
-            const bindInfo = await this.mallListAPIInstance.bindMainName(item.mall_main_id, mallId)
-            debugger
+          if (hasMallMainInfo) { // 是否走过导入程序.并导入成功
+            const bindInfo = await this.mallListAPIInstance.bindMainName(item.mall_main_id, item.sys_mall_id)
             if (bindInfo.code !== 200) {
               this.writeLog(`(${i + 1}/${len})账号【${platform_mall_name}】绑定店铺主体名称 ${item.MallMainName} 失败`, false)
             } else {
@@ -1796,66 +1870,147 @@ export default {
             break
           }
         } catch (error) {
-          flat === 1 ? (item.LoginInfo = `<p style="color: red">登录失败：（登录异常，店铺ID已被shopee官方更换，最新店铺ID为【${mallId}】，请联系客服更换后重试），然后重试店铺登录</p>`) : this.writeLog(`(${i + 1}/${len})账号【${platform_mall_name}】授权失败：${error}`, false)
+          console.log('error', error)
+          this.flat === 1 ? (item.LoginInfo = `<p style="color: red">登录失败：${error}</p>`)
+            : this.writeLog(`(${i + 1}/${len})账号【${platform_mall_name}】授权失败：${error}`, false)
           continue
         }
       }
-      if (flat === 2 && successNum) { // 导入店铺、并且有导入成功的店铺 满足刷新
+      if (this.flat === 2 && successNum) { // 导入店铺、并且有导入成功的店铺 满足刷新
         this.getMallList()
       }
       this.buttonStatus.login = false
     },
-    async handleReturnLogin(mallInfo, result, flat) {
+    async handleReturnLogin(mallInfo, result) {
       let code = result.code
-      let message = result.data.message
+      let message = result.data.message || ''
+      const SetCookie = result.data.SetCookie || ''
       const returnData = result.data.data
-      const mallId = mallInfo.platform_mall_id + ''
+      mallInfo.platform_mall_id = `${mallInfo.platform_mall_id}`
       this.phoneInfo_accountName = mallInfo.mall_account_info.username
-      // this.needIvsInfo = testData
-      debugger
+      const mallInfo_new = { // 通知壳更新店铺信息 (导入店铺、一键登陆) 数据结构与壳内店铺信息一致
+        'IPIsExpired': true,
+        'IsOpenSIP': false,
+        'ProxyType': 'ssr',
+        'IsTransit': 0,
+        'IPType': '',
+        'GroupName': '', // 店铺分组
+        'web_login_info': { // 店铺cookie信息(导入店铺专用)(更新壳)
+          'SPC_CDS_VER': '2',
+          'SPC_EC': '',
+          'ShopeeUid': '',
+          'SPC_F': SetCookie,
+          'CNSC_SSO': '',
+          'SPC_CNSC_TK': '',
+          'SPC_CNSC_UD': '',
+          'SC_DFP': '',
+          'SPC_SC_SA_UD': '',
+          'SPC_SC_SA_TK': '',
+          'SPC_SC_UD': '',
+          'token': '',
+          'cstoken': '',
+          'satoken': '',
+          'sso': '',
+          'shopeeuid': '',
+          'shopid': '',
+          'portrait': '',
+          'userRealName': '',
+          'mainAccountId': '',
+          'spc_f': SetCookie,
+          'SPC_SC_TK': '',
+          'OtherCookieInfo': '',
+          'spcf_update_time': ''
+        }, // 店铺cookie
+        'MallMainName': '',
+        'id': 0,
+        'uid': 0,
+        'country': mallInfo.country, // 国家
+        'platform_mall_name': mallInfo.mall_account_info.username,
+        'platform_mall_id': mallInfo.platform_mall_id, // 店铺平台ID
+        'platform_mall_uid': '', // 店铺平台卖家ID
+        'is_global': 0,
+        'mall_main_id': 0,
+        'mall_account_info': mallInfo.mall_account_info, // 店铺账户信息(导入模板里面的信息)
+        'watermark': '', // 店铺水印
+        'mall_alias_name': '', // 店铺别名
+        'mall_type': '1', // 店铺类型
+        'mall_group_id': '' // 店铺分组id
+      }
+      if (this.flat === 2) { // 导入店铺给建立一个临时模板
+        mallInfo.platform_mall_id = '8888888888'
+        await this.$appConfig.updateInfoMall(mallInfo.platform_mall_id, JSON.stringify(mallInfo_new)) // 更新里面店铺的cookie （壳）
+      }
+      // code = 'error_need_ivs'
       try {
-        if (code === 'error_need_ivs') { // 需要进行IVS验证 调LoginNeedPopUps 服务弹框
-          await window.BaseUtilBridgeService.loginNeedPopUps('needIvs', JSON.stringify({ 'loginType': 'login', 'isOpenAuthMallProxy': 'true', 'mallId': mallId }))
-          if (this.needIvsInfo?.code === 200) {
-            // console.log('this.needIvsInfo', this.needIvsInfo)
+        if (code === 'error_need_ivs') {// 需要进行IVS验证 调LoginNeedPopUps 服务弹框
+          this.needIvsInfo = null
+          const mallId = mallInfo.platform_mall_id
+          await this.$BaseUtilService.loginNeedPopUps('needIvs', { 'loginType': 'login', 'isOpenAuthMallProxy': 'true', 'mallId': mallInfo.platform_mall_id })
+          console.log('error_need_ivs',mallId)
+          await waitStart(() => {
+            return this.needIvsInfo && this.needIvsInfo.shopId == mallId
+          }, 300)
+          console.log('loginNeedPopUps', JSON.stringify(this.needIvsInfo))
+          let spc_f =  ''
+          if (this.needIvsInfo?.code === 200 && this.needIvsInfo.autoClose) {
             const mallCookieInfos = this.needIvsInfo.mallCookieInfos
             const SPC_EC = mallCookieInfos.find(item => item.Name === 'SPC_EC')
             const SPC_SC_TK = mallCookieInfos.find(item => item.Name === 'SPC_SC_TK')
             const SPC_F = mallCookieInfos.find(item => item.Name === 'SPC_F')
             const SPC_STK = mallCookieInfos.find(item => item.Name === 'SPC_STK')
+            const SPC_U = mallCookieInfos.find(item => item.Name === 'SPC_U')
+            const SPC_SC_UD = mallCookieInfos.find(item => item.Name === 'SPC_SC_UD')
+            spc_f = SPC_F.Value
             // 1、拿到cookie信息更新壳内 SPC_EC 、SPC_SC_TK 、SPC_F、SPC_STK 其它cookie信息存入OtherCookieInfo中）
-            let mallDataInfo = await this.$appConfig.getGlobalCacheInfo('mallInfo', mallId)
+            let mallDataInfo = await this.$appConfig.getGlobalCacheInfo('mallInfo', mallInfo.platform_mall_id)
             let cookieObj = {}
             mallDataInfo = JSON.parse(mallDataInfo)
             mallDataInfo.web_login_info['SPC_EC'] = SPC_EC.Value
             mallDataInfo.web_login_info['SPC_SC_TK'] = SPC_SC_TK.Value
-            mallDataInfo.web_login_info['SPC_F'] = SPC_F.Value
-            mallDataInfo.web_login_info['spc_f'] = SPC_F.Value
+            mallDataInfo.web_login_info['SPC_F'] = spc_f
+            mallDataInfo.web_login_info['spc_f'] = spc_f
             mallDataInfo.web_login_info['SPC_STK'] = SPC_STK.Value
+            mallDataInfo.web_login_info['SPC_U'] = SPC_U.Value
+            mallDataInfo.web_login_info['SPC_SC_UD'] = SPC_SC_UD.Value
             mallCookieInfos.map(item => {
               cookieObj[item.Name] = item.Value
             })
             mallDataInfo.web_login_info['OtherCookieInfo'] = JSON.stringify(cookieObj)
             cookieObj = null
-            await this.$appConfig.updateInfoMall(mallId, JSON.stringify(mallDataInfo)) // 更新里面店铺的cookie （壳）
+            console.log(mallInfo.platform_mall_id, JSON.stringify(mallDataInfo))
+            await this.$appConfig.updateInfoMall(mallInfo.platform_mall_id, JSON.stringify(mallDataInfo)) // 更新里面店铺的cookie （壳）
             mallDataInfo = null
             // 2、更新cookie信息后，在调用登录接口： /api/v2/login/   get方法  无参 获取到接口响应头部cookie  再次更新cookie信息即可
-            const loginInfo2 = await this.$shopeemanService.getLogin(mallInfo)
-            if (loginInfo2 === 200) {
+            const loginInfo2 = await this.$shopeemanService.getLogin(mallInfo, spc_f)
+            console.log('loginInfo2', loginInfo2)
+            if (loginInfo2.code === 200) {
               code = loginInfo2.code
               message = loginInfo2.data
+              // await this.$appConfig.updateInfoMall(loginInfo2.data.mallId, JSON.stringify(mallInfo_new)) // 更新里面店铺的cookie （壳）
+            } else {
+              code = loginInfo2.code
+              message = loginInfo2.data.message
             }
             this.needIvsInfo = null
+          }else{
+            message = 'IVS登录验证失败，请重试'
           }
-          this.needIvsInfo?.code?.isBreakLogin === true ? this.isStop = true : '' // 用户是否中断操作
-        } else if (code === 'error_require_captcha') { // 需要图片或者滑块验证 调LoginNeedPopUps 服务弹框
-          await window.BaseUtilBridgeService.loginNeedPopUps('needCaptcha', JSON.stringify({ 'mallId': mallId }))
+          this.needIvsInfo?.isBreakLogin === true ? this.isStop = true : '' // 用户是否中断操作
+        }
+        else if (code === 'error_require_captcha') { // 需要图片或者滑块验证 调LoginNeedPopUps 服务弹框
+          this.needCaptchaInfo = null
+          await window.BaseUtilBridgeService.loginNeedPopUps('needCaptcha', JSON.stringify({ 'mallId': mallInfo.platform_mall_id }))
+          await waitStart(() => {
+            return this.needCaptchaInfo
+          }, 300)
           if (this.needCaptchaInfo?.code === 200) {
             const sortData = this.mallListAPIInstance.sortMallData(mallInfo, this.needCaptchaInfo.data)
             this.needCaptchaInfo = null
             return { code: 200, data: sortData }
           }
-        } else if (code === 'error_need_otp') { // 输入手机验证码即可
+        }
+        else if (code === 'error_need_otp') {
+          // 输入手机验证码即可
           // 1、打开弹框，让用户输入验证码
           this.phoneCodeVisiable = true
           // 2、记录当前店铺信息
@@ -1866,13 +2021,27 @@ export default {
           await this.openPromise()
           // 5、走登录接口
           if (this.phoneInfo_message_code) { // 如果验证码存在
-            const error_need_otp_info = await this.$shopeemanService.login(mallInfo, flat, { vcode: this.phoneInfo_message_code }) // 返回数据结构要和外面的统一
+            const error_need_otp_info = await this.$shopeemanService.login(mallInfo, this.flat, { vcode: this.phoneInfo_message_code }) // 返回数据结构要和外面的统一
             if (error_need_otp_info.code === 200) {
-              code = error_need_otp_info.code
+              code = 200
               message = error_need_otp_info.data
+            } else {
+              code = error_need_otp_info.code
+              message = error_need_otp_info.data.message
             }
+            this.phoneInfo_message_code = ''
           }
         }
+        else if (code === 0 && message === '' && mallInfo.platform_mall_id !== '8888888888') { // 无任何返回信息，去查看绑定ip是否过期
+          let mallData = await this.$appConfig.getGlobalCacheInfo('mallInfo', mallInfo.platform_mall_id)
+          mallData = JSON.parse(mallData)
+          console.log('mallData', mallData)
+          const isExpired = new Date(mallData.IpExpirationTime) - 0 - new Date()
+          if (isExpired < 0) {
+            message = '店铺隔离IP已经过期请续费，或者手动解绑IP'
+          }
+        }
+        console.log('message', message)
         return { code, data: message }
       } catch (error) {
         return { code: -2, data: `handleReturnLogin-catch${error}` }
@@ -1891,6 +2060,7 @@ export default {
         return item.country === 'TH'
       })
       this.isLoading = false
+      console.log('mallCodeData', this.mallCodeAllData)
     },
     // 查询浏览器识别码数据
     queryMallCode() {
@@ -1916,11 +2086,13 @@ export default {
       if (type === 2) this.isUpdateCode = true
       for (let index = 0; index < val.length; index++) {
         const element = val[index]
+        element.web_login_info.spc_f = element.web_login_info.SPC_F
         await this.$appConfig.updateInfoMall(element.platform_mall_id, JSON.stringify(element)) // 更新壳内数据
         const params = {
           mallId: element.platform_mall_id,
-          webLoginInfo: JSON.stringify(element)
+          webLoginInfo: JSON.stringify(element.web_login_info)
         }
+        console.log('uploadMallCookie', params)
         const res = await this.mallListAPIInstance.uploadMallCookie(params) // 更新服务器数据
         if (res.code === 200) {
           this.$set(element, 'status', '更新成功')
@@ -1959,80 +2131,123 @@ export default {
       this.importType = val
       this.importMallDialogVisible = true
     },
-    exportMall() {
-      // 下载店铺信息
-      let template = `<tr>
-        <td style="width: 200px; text-align:left;">分组</td>
-        <td style="width: 200px; text-align:left;">站点</td>
-        <td style="width: 200px; text-align:left;">店铺真实名称</td>
-        <td style="width: 200px; text-align:left;">店铺ID</td>
-        <td style="width: 200px; text-align:left;">店铺账号</td>
-        <td style="width: 200px; text-align:left;">店铺水印文字</td>
-        <td style="width: 200px; text-align:left;">店铺额度</td>
-        <td style="width: 200px; text-align:left;">店铺别名</td>
-        <td style="width: 200px; text-align:left;">店铺状态</td>
-        <td style="width: 200px; text-align:left;">授权日期</td>
-      </tr>`
-      this.mallList.map((item) => {
-        template += `
-        <tr>
-          <td style="text-align:left;">${item.group_name || ''}</td>
-          <td style="text-align:left;">${this.$filters.chineseSite(item.country) || ''}</td>
-          <td style="text-align:left;">${item?.mall_account_info?.userRealName || item.platform_mall_name || ''}</td>
-          <td style="text-align:left;">${item.platform_mall_id}</td>
-          <td style="text-align:left;">${item?.mall_account_info?.username}</td>
-          <td style="text-align:left;">${item.watermark || ''}</td>
-          <td style="text-align:left;">${item.item_limit || ''}</td>
-          <td style="text-align:left;">${item.mall_alias_name || ''}</td>
-          <td style="text-align:left;">${this.mallStatusObj[item.mall_status] ? this.mallStatusObj[item.mall_status] : '冻结'}</td>
-          <td style="text-align:left;">${item.created_at}</td>
-        </tr>
-        `
+    async exportMall() {
+      const titleData = ['分组', '站点', '店铺真实名称', '店铺ID', '店铺账号', '店铺水印文字', '店铺额度', '店铺别名', '店铺状态', '授权日期']
+      const jsonData = []
+      this.mallList.forEach(item => {
+        const temp = []
+        temp[0] = item.group_name || ''
+        temp[1] = this.$filters.chineseSite(item.country) || ''
+        temp[2] = item.platform_mall_name || ''
+        temp[3] = item.platform_mall_id || ''
+        temp[4] = item?.mall_account_info?.username || ''
+        temp[5] = item.watermark || ''
+        temp[6] = item.item_limit || ''
+        temp[7] = item.mall_alias_name || ''
+        temp[8] = item.mall_status === 1 ? '正常' : '冻结'
+        temp[9] = item.created_at
+        jsonData.push(temp)
       })
-      exportExcelDataCommon('店铺信息', template)
+      await importOrder(titleData, jsonData, '店铺信息')
+      // // 下载店铺信息
+      // let template = `<tr>
+      //   <td style="width: 200px; text-align:left;">分组</td>
+      //   <td style="width: 200px; text-align:left;">站点</td>
+      //   <td style="width: 200px; text-align:left;">店铺真实名称</td>
+      //   <td style="width: 200px; text-align:left;">店铺ID</td>
+      //   <td style="width: 200px; text-align:left;">店铺账号</td>
+      //   <td style="width: 200px; text-align:left;">店铺水印文字</td>
+      //   <td style="width: 200px; text-align:left;">店铺额度</td>
+      //   <td style="width: 200px; text-align:left;">店铺别名</td>
+      //   <td style="width: 200px; text-align:left;">店铺状态</td>
+      //   <td style="width: 200px; text-align:left;">授权日期</td>
+      // </tr>`
+      // this.mallList.map((item) => {
+      //   template += `
+      //   <tr>
+      //     <td style="text-align:left;">${item.group_name || ''}</td>
+      //     <td style="text-align:left;">${this.$filters.chineseSite(item.country) || ''}</td>
+      //     <td style="text-align:left;">${item?.mall_account_info?.userRealName || item.platform_mall_name || ''}</td>
+      //     <td style="text-align:left;">${item.platform_mall_id}</td>
+      //     <td style="text-align:left;">${item?.mall_account_info?.username}</td>
+      //     <td style="text-align:left;">${item.watermark || ''}</td>
+      //     <td style="text-align:left;">${item.item_limit || ''}</td>
+      //     <td style="text-align:left;">${item.mall_alias_name || ''}</td>
+      //     <td style="text-align:left;">${item.mall_status === 1 ? '正常' : '冻结'}</td>
+      //     <td style="text-align:left;">${item.created_at}</td>
+      //   </tr>
+      //   `
+      // })
+      // exportExcelDataCommon('店铺信息', template)
     },
-    downloadTemplate() {
+    async downloadTemplate() {
+      let titleData = []
+      let jsonData = []
+      let importOrderName = ''
       // 下载修改店铺水印模板
       if (this.importType === 'edit') {
-        let template = `<tr>
-      <td style="width: 200px; text-align:left;">站点</td>
-      <td style="width: 200px; text-align:left;">店铺名称</td>
-      <td style="width: 200px; text-align:left;">店铺ID<span style="color:red">(必填)</span></td>
-      <td style="width: 200px; text-align:left;">店铺文字水印</td>
-      <td style="width: 200px; text-align:left;">分组</td>
-      </tr>`
+      //   let template = `<tr>
+      // <td style="width: 200px; text-align:left;">站点</td>
+      // <td style="width: 200px; text-align:left;">店铺名称</td>
+      // <td style="width: 200px; text-align:left;">店铺ID<span style="color:red">(必填)</span></td>
+      // <td style="width: 200px; text-align:left;">店铺文字水印</td>
+      // <td style="width: 200px; text-align:left;">分组</td>
+      // </tr>`
+      //   this.multipleSelection.map((item) => {
+      //     template += `
+      //   <tr>
+      //     <td style="text-align:left;">${this.$filters.chineseSite(item.country)}</td>
+      //     <td style="text-align:left;">${item.platform_mall_name}</td>
+      //     <td style="text-align:left;">${item.platform_mall_id}</td>
+      //     <td style="text-align:left;">${item.watermark || ''}</td>
+      //     <td style="text-align:left;">${item.group_name || ''}</td>
+      //   </tr>
+      //   `
+      //   })
+        // exportExcelDataCommon('修改店铺水印文字模板', template)
+        titleData = ['站点','店铺名称','店铺ID(必填)','店铺文字水印','分组']
+        importOrderName = '修改店铺水印文字模板'
         this.multipleSelection.map((item) => {
-          template += `
-        <tr>
-          <td style="text-align:left;">${this.$filters.chineseSite(item.country)}</td>
-          <td style="text-align:left;">${item.platform_mall_name}</td>
-          <td style="text-align:left;">${item.platform_mall_id}</td>
-          <td style="text-align:left;">${item.watermark || ''}</td>
-          <td style="text-align:left;">${item.group_name || ''}</td>
-        </tr>
-        `
+          let temp = []
+          temp.push(this.$filters.chineseSite(item.country))
+          temp.push(item.platform_mall_name)
+          temp.push(item.platform_mall_id)
+          temp.push(item.watermark || '')
+          temp.push(item.group_name || '')
+          jsonData.push(temp)
         })
-        exportExcelDataCommon('修改店铺水印文字模板', template)
       } else if (this.importType === 'update') {
-        const template = `<tr>
-        <td style="width: 200px; text-align:left;">SHOPEE店铺ID<span style="color:red">(必填)</span></td>
-        <td style="width: 200px; text-align:left;">店铺登录账号<span style="color:red">(必填)</span></td>
-        <td style="width: 200px; text-align:left;">密码(必填)</td>
-      </tr>`
-        exportExcelDataCommon('修改店铺密码模板', template)
+      //   const template = `<tr>
+      //   <td style="width: 200px; text-align:left;">SHOPEE店铺ID<span style="color:red">(必填)</span></td>
+      //   <td style="width: 200px; text-align:left;">店铺登录账号<span style="color:red">(必填)</span></td>
+      //   <td style="width: 200px; text-align:left;">密码(必填)</td>
+      // </tr>`
+      //   exportExcelDataCommon('修改店铺密码模板', template)
+        titleData = ['SHOPEE店铺ID(必填)','店铺登录账号(必填)','密码(必填)']
+        importOrderName = '修改店铺密码模板'
       } else {
-        const template = `<tr>
-      <td style="width: 400px">站点(马来站，台湾站，泰国站，印尼站，菲律宾站，新加坡站，越南站)<span style="color:red">(必填)</span></td>
-      <td style="width: 300px">账号<span style="color:red">(必填)(如果为手机号，请不要加国家区号)</span></td>
-      <td style="width: 200px">密码<span style="color:red">(必填)</span></span></td>
-      <td style="width: 200px">店铺真实名称<span style="color:red">(必填)</span></span></td>
-      <td style="width: 200px">分组<span style="color:orange">(选填)</span></td>
-      <td style="width: 200px">店铺主体名称<span style="color:red">(需申IP隔离必填)</span></td>
-      <td style="width: 200px">SPC_F<span style="color:red">(浏览识别码)</span></td>
-      <td style="width: 200px">店铺别名<span style="color:orange">(选填)</span></td>
-      </tr>`
-        exportExcelDataCommon('SHOPEE店铺批量授权模板', template)
+      //   const template = `<tr>
+      // <td style="width: 400px"><span style="color:red">(必填)</span></td>
+      // <td style="width: 300px">账号<span style="color:red">(必填)(如果为手机号，请不要加国家区号)</span></td>
+      // <td style="width: 200px">密码<span style="color:red">(必填)</span></span></td>
+      // <td style="width: 200px">店铺真实名称<span style="color:red">(必填)</span></span></td>
+      // <td style="width: 200px">分组<span style="color:orange">(选填)</span></td>
+      // <td style="width: 200px">店铺主体名称<span style="color:red">(需申IP隔离必填)</span></td>
+      // <td style="width: 200px">SPC_F<span style="color:red">(浏览识别码)</span></td>
+      // <td style="width: 200px">店铺别名<span style="color:orange">(选填)</span></td>
+      // </tr>`
+        // exportExcelDataCommon('SHOPEE店铺批量授权模板', template)
+        titleData = ['站点(马来站，台湾站，泰国站，印尼站，菲律宾站，新加坡站，越南站)(必填)',
+          '账号(必填)(如果为手机号，请不要加国家区号)',
+          '密码(必填)',
+          '店铺真实名称(必填)',
+          '分组(选填)',
+          '店铺主体名称(需申IP隔离必填)',
+          'SPC_F(必填)(浏览识别码)',
+          '店铺别名(必填)']
+        importOrderName = 'SHOPEE店铺批量授权模板'
       }
+      await importOrder(titleData, jsonData, importOrderName)
     },
     async getMallID(mallId) {
       let res = await this.$appConfig.getGlobalCacheInfo('mallInfo', mallId)
@@ -2047,6 +2262,7 @@ export default {
         // {"lists":[{"sysMallId":"12","watermark":"MarlonStowe"},{"sysMallId":"41","watermark":"Queen- fashion"}]}
         for (let index = 0; index < len; index++) {
           const item = this.importTemplateData[index]
+          console.log(item)
           const platform_mall_id = item['店铺ID(必填)']
           const watermark = item['店铺文字水印'] || ''
           if (platform_mall_id) {
@@ -2125,9 +2341,9 @@ export default {
 
     async updateMallAliasName(event, row) {
       row.mall_alias_name = row.mall_alias_name.trim().replace(/\s/g, '')
-      if (this.buttonStatus.updateAias) {
-        return this.$message.error('操作太快哦!!修改店铺别名间隔5秒')
-      }
+      // if (this.buttonStatus.updateAias) {
+      //   return this.$message.error('操作太快哦!!修改店铺别名间隔5秒')
+      // }
       event.target.blur()
       this.buttonStatus.updateAias = true
       const params = { lists: [{
@@ -2144,8 +2360,8 @@ export default {
         this.$appConfig.updateInfoMall(row.platform_mall_id, JSON.stringify(mallInfo)) // 更新里面店铺的cookie （壳）
         this.$message.success(`修改成功`, true)
       }
-      await delay(5000)
-      this.buttonStatus.updateAias = false
+      // await delay(5000)
+      // this.buttonStatus.updateAias = false
     },
     async updateWateMark(event, row) {
       // row.isCheckedWaterMark = false
@@ -2190,49 +2406,41 @@ export default {
           break
         }
         const item = this.importTemplateData[i]
+        console.log('importTemplateData',item)
+
+        const siteName = item['站点(马来站，台湾站，泰国站，印尼站，菲律宾站，新加坡站，越南站)(必填)'] || ''
+        const username = `${item['账号(必填)(如果为手机号，请不要加国家区号)']}`
+        const password = item['密码(必填)']
         const mallName = item['店铺真实名称(必填)']
+        const GroupName = item['分组(选填)'] || ''
+        const MallMainName = item['店铺主体名称(需申IP隔离必填)'] || ''
+        const SPC_FName = item['SPC_F(浏览识别码)'] || ''
+        const mall_alias_name = item['店铺别名(选填)'] || ''
         if (!mallName) {
           this.writeLog(`(${i + 1}/${len})未找到店铺真实名称(必填)`, false)
           continue
         }
-        if (!item['站点(马来站，台湾站，泰国站，印尼站，菲律宾站，新加坡站，越南站)(必填)']) {
+        if (!siteName) {
           this.writeLog(`(${i + 1}/${len})${mallName} 未找到站点(马来站，台湾站，泰国站，印尼站，菲律宾站，新加坡站，越南站)(必填)`, false)
           continue
         }
-        if (!item['账号(必填)(如果为手机号，请不要加国家区号)']) {
+        if (!username) {
           this.writeLog(`(${i + 1}/${len})${mallName} 未找到账号(必填)(如果为手机号，请不要加国家区号)`, false)
           continue
         }
-        if (!item['密码(必填)']) {
+        if (!password) {
           this.writeLog(`(${i + 1}/${len})${mallName} 未找到密码(必填)`, false)
           continue
         }
-        if (this.isIPType === 1 && !item['店铺主体名称(需申IP隔离必填)']) { // 使用已有IP 就检测是否填写
+        if (this.isIPType === 1 && !MallMainName) { // 使用已有IP 就检测是否填写
           this.writeLog(`(${i + 1}/${len})${mallName} 店铺主体名称(需申IP隔离必填)，检测到您选择了 使用已有IP，但是未填写`, false)
           continue
         }
-        const country = this.countries.filter((item2) => item2.label === item['站点(马来站，台湾站，泰国站，印尼站，菲律宾站，新加坡站，越南站)(必填)'])
+        const country = this.countries.filter((item2) => item2.label === siteName)
         if (!country.length) {
-          this.writeLog(`(${i + 1}/${len})${mallName} 未找到[${item['站点(马来站，台湾站，泰国站，印尼站，菲律宾站，新加坡站，越南站)(必填)']}],站点填写有误`, false)
+          this.writeLog(`(${i + 1}/${len})${mallName} 未找到[${siteName}],站点填写有误`, false)
           continue
         }
-        // const obj = {
-        //   'accountName': item['账号(必填)(如果为手机号，请不要加国家区号)'] + '',
-        //   'mall_account_info': { username: item['账号(必填)(如果为手机号，请不要加国家区号)'] + '', password: item['密码(必填)'] },
-        //   'mallGroup': item['分组(选填)'] || '',
-        //   'platformMallName': item['店铺真实名称(必填)'],
-        //   'mallAliasName': ,
-        //   'mallMainName': item['店铺主体名称(需申IP隔离必填)'] || '',
-        //   'country': country[0].value,
-        //   'SPC_EC': '',
-        //   'SPC_SC_TK': ''
-        // }
-        const password = item['密码(必填)']
-        const username = `${item['账号(必填)(如果为手机号，请不要加国家区号)']}`
-        const mall_alias_name = item['店铺别名(选填)'] || ''
-        const GroupName = item['分组(选填)'] || ''
-        const MallMainName = item['店铺主体名称(需申IP隔离必填)'] || ''
-        const platformMallRealName = item['店铺真实名称(必填)']
         const obj = {
           // 数据结构与 店铺列表一致
           id: 0,
@@ -2246,7 +2454,7 @@ export default {
             // 店铺账户信息(导入模板里面的信息)
             password: password + '',
             username: username,
-            userRealName: platformMallRealName,
+            userRealName: mallName,
             subsiteindex: 0
           },
           item_limit: 500,
@@ -2262,9 +2470,10 @@ export default {
           mall_type: '',
 
           // 渲染导入列表用的字段
-          userRealName: platformMallRealName,
+          userRealName: mallName,
           SPC_EC: '',
-          SPC_SC_TK: ''
+          SPC_SC_TK: '',
+          SPC_F: SPC_FName
         }
         importMallArr.push(obj)
       }

@@ -1,28 +1,28 @@
 <template>
   <div>
     <ul class="storeChooseUL">
-      <li>
+      <li :style="isReset && 'margin-bottom: 5px'">
         <span :style="{ width: spanWidth }">所属站点：</span>
-        <el-select v-model="countryVal" size="mini" filterable class="siteSelectBox" :style="{ width: selectWidth }">
+        <el-select v-model="countryVal" size="mini" filterable class="siteSelectBox">
           <el-option v-if="isAll" label="全部" :value="''" />
           <el-option v-for="(item, index) in countries" :key="index" :label="item.label" :value="item.value" />
         </el-select>
       </li>
-      <li>
+      <li :style="isReset && 'margin-bottom: 5px'">
         <span :style="{ width: spanWidth }">店铺分组：</span>
         <el-select v-model="groupId" placeholder="" multiple collapse-tags size="mini" filterable class="selectBox">
           <el-option label="全部" :value="''" />
           <el-option v-for="(item, index) in groupIdList" :key="index" :label="item.group_name" :value="item.id" />
         </el-select>
       </li>
-      <li>
+      <li :style="isReset && 'margin-bottom: 5px'">
         <span :style="{ width: spanWidth }">店铺名称：</span>
         <el-select v-model="site" placeholder="" multiple collapse-tags size="mini" filterable class="selectBox">
           <el-option label="全部" :value="''" />
           <el-option v-for="(item, index) in siteList" :key="index" :label="item.mall_alias_name || item.platform_mall_name" :value="item.platform_mall_id" />
         </el-select>
       </li>
-      <li v-if="isReset" style="margin-bottom: 5px; margin-left: 25px">
+      <li v-if="isReset" style="margin-bottom: 5px;margin-left: 25px;">
         <el-button size="mini" type="primary" style="justify-self: self-end" @click="reset">　刷　　新　</el-button>
       </li>
     </ul>
@@ -35,21 +35,17 @@ import MallListAPI from '../module-api/mall-manager-api/mall-list-api'
 export default {
   name: 'StoreChoose',
   props: {
-    isReset: {
-      type: Boolean,
-      default() {
-        return false
-      }
-    },
-    selectWidth: {
-      type: String,
-      default: '100px'
-    },
     spanWidth: {
       type: String,
       default: '80px'
     },
     isAll: {
+      type: Boolean,
+      default() {
+        return false
+      }
+    },
+    isReset: {
       type: Boolean,
       default() {
         return false
@@ -192,21 +188,25 @@ export default {
     },
     changeMallList() {
       const mallList = []
-      // if (this.countryVal.indexOf('')>=0 && this.groupId.indexOf('')>=0 && this.site.indexOf('')>=0) {
-      //   mallList.push('')
-      // }else{
+      let searchAll = ''
       this.site.forEach((item) => {
         if (item) {
           const temp = this.siteList.filter((i) => i.platform_mall_id === item)
           mallList.push(temp[0])
+          searchAll += (item + ',')
         }
       })
-      // }
-      mallList['country'] = this.countryVal
-      this.$emit('changeMallList', mallList)
+      if (!this.countryVal && this.groupId.indexOf('')>-1 ){
+        searchAll = mallList.length !== this.siteList.length && searchAll || ''
+      }
+      console.log('searchAll',searchAll)
       if (this.source) {
-        mallList['country'] = this.countryVal
-        this.$emit('changeMallList', { mallList: mallList, source: this.source, country: this.countryVal })
+        this.$emit('changeMallList', {
+          mallList: mallList,
+          source: this.source,
+          searchAll: searchAll,
+          country: this.countryVal.toLocaleUpperCase()
+        })
       } else {
         mallList['country'] = this.countryVal
         this.$emit('changeMallList', mallList)
@@ -221,7 +221,6 @@ export default {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  // margin-bottom: 10px;
   li {
     display: flex;
     margin-right: 10px;

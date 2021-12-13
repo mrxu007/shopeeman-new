@@ -131,10 +131,13 @@ export default class NetMessageBridgeService {
    * @param data  参数
    * @param options 头部 referer只需要添加尾缀
    */
-  async getChinese(country, api, data, options = {}) {
+  async getChinese(country, api, data, options = {}, exportInfo) {
     data = JSON.parse(JSON.stringify(data))
     const url = await this.getUrlPrefix(country, data) + api
     options['extrainfo'] = this.getExtraInfo(data)
+    if (exportInfo) { // 适配店铺管理---导入店铺
+      options['extrainfo']['exportInfo'] = exportInfo
+    }
     delete data.mallId // body 里面不能带店铺id
     options['params'] = data
     const referer = options['headers'] && options['headers'].referer
@@ -180,6 +183,7 @@ export default class NetMessageBridgeService {
     options['extrainfo'] = this.getExtraInfo(data)
     if (exportInfo) { // 适配店铺管理---导入店铺
       options['extrainfo']['exportInfo'] = exportInfo
+      // Object.assign(options['extrainfo'],JSON.parse(JSON.stringify()))
     }
     delete data.mallId
     const referer = options['headers'] && options['headers'].referer
@@ -296,7 +300,8 @@ export default class NetMessageBridgeService {
     if (account.startsWith('0')) {
       account = account.substring(1)
     }
-    return country === 'SG' || country === 'ID' ? account : reg[country] + account
+    // return country === 'SG' || country === 'ID' ? account : reg[country] + account
+    return country === 'SG' ? account : reg[country] + account
   }
 
   // 获取店铺评价列表
@@ -305,7 +310,7 @@ export default class NetMessageBridgeService {
   }
   // 回复商店评价
   replyShopRating(country, data) {
-    return this.postChinese(country, '/api/v3/settings/reply_shop_rating', data, { Headers: { 'Content-Type': ' application/json' }})
+    return this.postChinese(country, '/api/v3/settings/reply_shop_rating', data, { Headers: { 'Content-Type': ' application/json' } })
   }
   // 店铺提现记录
   getWithDrawalRecord(country, data) {
@@ -321,13 +326,14 @@ export default class NetMessageBridgeService {
   }
   // 店铺登录 post版本
   async login(mallInfo, flat, options = {}) {
+    console.log('mallInfo',mallInfo)
     const { country, mall_account_info, platform_mall_id } = mallInfo
     const accountName = mall_account_info.username
     const encryptPwd = sha256(md5(mall_account_info.password))
     // const encryptPwd = sha256(md5('Th123654'))
     // const accountName = 'hellohappy586'
     const params = {
-      mallId: platform_mall_id || '1111', // 导入店铺初始没有mallId
+      mallId: platform_mall_id || '8888888888', // 导入店铺初始没有mallId
       remember: false,
       password_hash: encryptPwd
     }
@@ -339,30 +345,51 @@ export default class NetMessageBridgeService {
     if (accountName.indexOf('@') > -1) {
       params['email'] = accountName
       acccount_info['username'] = accountName
-    } else if (reg.test(accountName)) {
+    }
+    else if (reg.test(accountName)) {
       params['username'] = accountName
       acccount_info['username'] = accountName
-    } else {
+    }
+    else {
       const phone = this.getTelephoneNumberIsTrue(country, accountName)
       params['phone'] = phone
       acccount_info['username'] = phone
     }
     options.vcode ? params['vcode'] = options.vcode : ''
-
     let copy_mallInfo = null
     if (flat === 2) { // 导入店铺必须参数   flat 1 一键登陆  2导入店铺
-      copy_mallInfo = JSON.parse(JSON.stringify(mallInfo))
+      copy_mallInfo = {}
       copy_mallInfo['accountName'] = acccount_info.username
       copy_mallInfo['mall_account_info'] = acccount_info
+      copy_mallInfo['mallGroup'] = mallInfo.group_name
+      copy_mallInfo['mallMainName'] = mallInfo.MallMainName
+      copy_mallInfo['platformMallName'] = mall_account_info.userRealName
+      copy_mallInfo['mallAliasName'] = mallInfo.mall_alias_name
+      copy_mallInfo['country'] = mallInfo.country
+      copy_mallInfo['malltype'] = '1'
+      copy_mallInfo['SPC_EC'] =  mallInfo.SPC_EC
+      copy_mallInfo['SPC_SC_TK'] =  mallInfo.SPC_SC_TK
+      copy_mallInfo['SPC_F'] =  mallInfo.SPC_F
     }
+    console.log('copy_mallInfo',copy_mallInfo)
     try {
       let res = await this.postChinese(country, '/api/v2/login', params, { // option
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
-          'charset': 'UTF-8'
+          'charset': 'UTF-8',
         }
       }, copy_mallInfo)
       res = JSON.parse(res)
+      console.log('postChinese',res)
+      let SetCookie = null
+      SetCookie = res.headers.find(item => item.Name === 'Set-Cookie')
+      if (SetCookie) {
+        try {
+          SetCookie = SetCookie.Value.split(';').find(item => item.indexOf('SPC_F') > -1).match(/SPC_F=(.+)/)[1]
+        } catch (error) {
+          SetCookie = null
+        }
+      }
       if (res.status === 200) {
         const data = JSON.parse(res.data)
         // const data = {
@@ -388,12 +415,14 @@ export default class NetMessageBridgeService {
         Cookie['SPC_SC_TK'] = data.token
         Cookie['ShopeeUid'] = mallUId // 虾皮平台用户Uid
         Cookie['shopid'] = mallId // 平台店铺ID
+        Cookie['SPC_F'] = SetCookie || mallInfo.SPC_F// 短信验证码标识
+        Cookie['spc_f'] = SetCookie || mallInfo.SPC_F// 短信验证码标识
 
         const Cookie_new = { // 店铺cookie信息(导入店铺专用)(更新壳)
           'SPC_CDS_VER': '2',
           'SPC_EC': data.sso,
           'ShopeeUid': mallUId,
-          'SPC_F': '',
+          'SPC_F': SetCookie || mallInfo.SPC_F || '',
           'CNSC_SSO': '',
           'SPC_CNSC_TK': '',
           'SPC_CNSC_UD': '',
@@ -410,7 +439,7 @@ export default class NetMessageBridgeService {
           'portrait': data.portrait,
           'userRealName': username,
           'mainAccountId': '',
-          'spc_f': '',
+          'spc_f': SetCookie || mallInfo.SPC_F || '',
           'SPC_SC_TK': data.token,
           'OtherCookieInfo': '',
           'spcf_update_time': ''
@@ -498,7 +527,7 @@ export default class NetMessageBridgeService {
         code = 'has_shop_upgraded'
         message = '已升级为全球店铺，请更换店铺类型进行导入'
       }
-      return { code, 'data': { 'message': message, 'data': res.data }}
+      return { code, 'data': { 'message': message, 'data': res.data, SetCookie } }
     } catch (e) {
       console.log('e', e)
       return { code: -2, data: `login -catch: ${e} ` }
@@ -506,7 +535,7 @@ export default class NetMessageBridgeService {
   }
 
   // 店铺登录 get版本
-  async getLogin(mallInfo) {
+  async getLogin(mallInfo,SPC_F) {
     const { country, mall_account_info, platform_mall_id } = mallInfo
     const params = {
       mallId: platform_mall_id
@@ -520,6 +549,16 @@ export default class NetMessageBridgeService {
         }
       })
       res = JSON.parse(res)
+      console.log('getLogin',res)
+      let SetCookie = null
+      SetCookie = res.headers.find(item => item.Name === 'Set-Cookie')
+      if (SetCookie) {
+        try {
+          SetCookie = SetCookie.Value.split(';').find(item => item.indexOf('SPC_F') > -1).match(/SPC_F=(.+)/)[1]
+        } catch (error) {
+          SetCookie = null
+        }
+      }
       if (res.status === 200) {
         const data = JSON.parse(res.data)
         // const data = {
@@ -545,12 +584,14 @@ export default class NetMessageBridgeService {
         Cookie['SPC_SC_TK'] = data.token
         Cookie['ShopeeUid'] = mallUId // 虾皮平台用户Uid
         Cookie['shopid'] = mallId // 平台店铺ID
+        Cookie['SPC_F'] = SetCookie ||　SPC_F // 短信验证码标识
+        Cookie['spc_f'] = SetCookie ||　SPC_F // 短信验证码标识
 
         const Cookie_new = { // 店铺cookie信息(导入店铺专用)(更新壳)
           'SPC_CDS_VER': '2',
           'SPC_EC': data.sso,
           'ShopeeUid': mallUId,
-          'SPC_F': '',
+          'SPC_F': SetCookie || SPC_F,
           'CNSC_SSO': '',
           'SPC_CNSC_TK': '',
           'SPC_CNSC_UD': '',
@@ -567,7 +608,7 @@ export default class NetMessageBridgeService {
           'portrait': data.portrait,
           'userRealName': username,
           'mainAccountId': '',
-          'spc_f': '',
+          'spc_f': SetCookie || SPC_F,
           'SPC_SC_TK': data.token,
           'OtherCookieInfo': '',
           'spcf_update_time': ''
@@ -655,7 +696,7 @@ export default class NetMessageBridgeService {
         code = 'has_shop_upgraded'
         message = '已升级为全球店铺，请更换店铺类型进行导入'
       }
-      return { code, 'data': { 'message': message, 'data': res.data }}
+      return { code, 'data': { 'message': message, 'data': res.data, SetCookie } }
     } catch (e) {
       console.log('e', e)
       return { code: -2, data: `login -catch: ${e} ` }
