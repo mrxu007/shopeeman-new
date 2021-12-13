@@ -846,7 +846,4 @@ export default class CommodityService {
   async getSkuRelation(sysOrderIds) {
     return await this.nativeService.callSkuRelationClient('GetBySysOrderIds', sysOrderIds)
   }
-  async getCategoryName(country, categoryId, isParent, tableType) {
-    return await this.nativeService.callCategoryFunction('GetCategoryInfo', country, categoryId + '', isParent, tableType)
-  }
 }

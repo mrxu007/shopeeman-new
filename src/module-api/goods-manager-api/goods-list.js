@@ -5,7 +5,7 @@ export default class GoodsList {
   // 通过id获取类目信息
   async getCategoryName(country, categoryId, isParent, tableType) {
     try {
-      const res = await this._this.$commodityService.getCategoryName(country, categoryId, isParent, tableType)
+      const res = await this._this.$commodityService.getCategoryTbInfo(country, categoryId + '', isParent, tableType)
       const jsonData = this.isJsonString(res)
       if (jsonData.code === 200) {
         return { code: 200, data: jsonData.data }

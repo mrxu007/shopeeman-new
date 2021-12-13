@@ -223,7 +223,7 @@
                   @click="operation('batchUpDownProduct')
                           upDown = true"
                 >批量下架</el-button>
-                <el-button type="primary" size="mini" :disabled="operationBut" @click="titleVisible = true">批量编辑标题</el-button>
+                <el-button type="primary" size="mini" :disabled="operationBut" @click="operation('batchTitle')">批量编辑标题</el-button>
                 <el-button type="primary" size="mini" :disabled="!operationBut" @click="flag=true">取消操作</el-button>
                 <el-button type="primary" size="mini" :disabled="operationBut">批量修改类目属性</el-button>
               </ul>
@@ -236,7 +236,7 @@
                   @click="operation('batchUpDownProduct')
                           upDown = false"
                 >批量上架</el-button>
-                <el-button type="primary" size="mini" :disabled="operationBut">批量编辑描述</el-button>
+                <el-button type="primary" size="mini" :disabled="operationBut" @click="operation('batchDescrible')">批量编辑描述</el-button>
                 <el-button type="primary" size="mini" :disabled="operationBut">导出数据</el-button>
                 <el-button type="primary" size="mini" :disabled="operationBut">一键查询禁卖商品</el-button>
               </ul>
@@ -366,7 +366,7 @@
         :data="tableData"
         use-virtual
         :height="420"
-        :row-height="50"
+        :row-height="68"
         :data-changes-scroll-top="false"
         :border="false"
         :header-cell-style="{
@@ -468,7 +468,7 @@
         <u-table-column align="center" min-width="100" label="访客量" prop="view_count" sortable />
         <!-- <u-table-column align="center" min-width="100" label="评星数" /> -->
         <u-table-column align="center" min-width="100" label="粉丝量" prop="like_count" sortable />
-        <u-table-column align="center" min-width="120" label="操作状态" show-overflow-tooltip>
+        <u-table-column align="center" min-width="120" label="操作状态" show-overflow-tooltip fixed="right">
           <template v-slot="{ row }">
             <span :style="row.color && 'color:' + row.color">{{ row.batchStatus }}</span>
           </template>
@@ -488,9 +488,8 @@
       :close-on-click-modal="false"
       :close-on-press-escape="false"
     />
-    <!-- 批量编辑标题 -->
+    <!-- 批量编辑标题弹窗 -->
     <el-dialog
-      v-if="titleVisible"
       class="title-dialog"
       title="批量编辑标题"
       :visible.sync="titleVisible"
@@ -502,14 +501,25 @@
       <el-form label-position="right" label-width="110px">
         <el-form-item label="编辑类型：">
           <div>
-            <el-radio v-model="titleRadio" :label="1">新标题</el-radio>
+            <el-tooltip
+              placement="top"
+            >
+              <div slot="content">
+                <span>新标题直接填入</span>
+              </div>
+              <el-radio v-model="titleRadio" :label="1">新标题</el-radio>
+            </el-tooltip>
             <el-radio v-model="titleRadio" :label="2">新增关键词/标题前</el-radio>
             <el-radio v-model="titleRadio" :label="3">新增关键词/标题后</el-radio>
-            <el-radio v-model="titleRadio" :label="4">删除关键词</el-radio>
+            <el-tooltip
+              placement="top"
+            >
+              <div slot="content">
+                <span>需要删除多个热搜词/关键词，请以英文';'间隔!</span>
+              </div>
+              <el-radio v-model="titleRadio" :label="4">删除关键词</el-radio>
+            </el-tooltip>
           </div>
-        </el-form-item>
-        <el-form-item>
-          <span class="red-span">新标题直接填入，需要添加或删除多个热搜词/关键词，请以英文';'间隔!</span>
         </el-form-item>
         <el-form-item label="新标题/关键字：">
           <el-input
@@ -518,15 +528,104 @@
             :rows="6"
             size="mini"
             resize="none"
-            :maxlength="maxLength"
             placeholder="请输入内容"
             show-word-limit
           />
         </el-form-item>
       </el-form>
       <div class="footer">
-        <el-button type="primary" size="mini" @click="operation('batchTitle')">保 存</el-button>
+        <el-button type="primary" size="mini" @click="editProduct('标题')">保 存</el-button>
         <el-button type="primary" size="mini" @click="titleVisible = false">关 闭</el-button>
+      </div>
+    </el-dialog>
+    <!-- 获取描述模板弹窗 -->
+    <el-dialog
+      class="get-describe-dialog"
+      title="获取描述模板"
+      :visible.sync="getDescribeVisible"
+      width="550px"
+      top="20vh"
+      :close-on-click-modal="false"
+      :close-on-press-escape="false"
+    >
+      <el-form label-position="right" label-width="110px">
+        <el-form-item label="描述：">
+          <div>
+            <el-radio v-model="describeRadio" :label="1">新增关键词/描述前</el-radio>
+            <el-radio v-model="describeRadio" :label="2">新增关键词/描述后</el-radio>
+            <el-tooltip
+              placement="top"
+            >
+              <div slot="content">
+                <span>需要删除多个关键词，请以英文';'间隔!</span>
+              </div>
+              <el-radio v-model="describeRadio" :label="3">删除关键词</el-radio>
+            </el-tooltip>
+            <el-radio v-model="describeRadio" :label="4">模板</el-radio>
+            <el-radio v-model="describeRadio" :label="5">模板+SKU</el-radio>
+            <el-button type="primary" size="mini" @click="selectDescribe(0)">选择模板</el-button>
+          </div>
+        </el-form-item>
+        <el-form-item v-if="describeRadio === 1 ||describeRadio === 2 ||describeRadio === 3" label="关键词：">
+          <el-input
+            v-model="describeVal"
+            type="textarea"
+            :rows="6"
+            size="mini"
+            resize="none"
+            placeholder="请输入内容"
+            show-word-limit
+          />
+        </el-form-item>
+      </el-form>
+      <div class="footer">
+        <el-button type="primary" size="mini" @click="editProduct('描述')">确 认</el-button>
+        <el-button type="primary" size="mini" @click="describeVisible = false">取 消</el-button>
+      </div>
+    </el-dialog>
+    <!-- 描述模板 -->
+    <el-dialog
+      class="describe-dialog"
+      title="获取描述模板"
+      :visible.sync="describeVisible"
+      width="550px"
+      top="20vh"
+      :close-on-click-modal="false"
+      :close-on-press-escape="false"
+    >
+      <div>
+        <ul style="margin-bottom:10px">
+          <li>
+            <span>标签：</span>
+            <el-select v-model="describeConfigId" size="mini">
+              <el-option v-for="(item,index) in describeLabelList" :key="index" :label="item.lable" :value="item.id" />
+            </el-select>
+          </li>
+          <li>
+            <span>新增标签：</span>
+            <el-input v-model="describeConfig.tag" size="mini" style="width: 120px;" />
+          </li>
+        </ul>
+        <ul style="margin-bottom:10px">
+          <li>
+            <span>描述：</span>
+            <el-input
+              v-model="describeConfig.text"
+              type="textarea"
+              :rows="6"
+              resize="none"
+              style="width: 430px"
+              placeholder=""
+              size="mini"
+            />
+          </li>
+        </ul>
+        <div class="footer">
+          <el-button size="mini" type="primary" @click="selectDescribe(1)">保存</el-button>
+          <el-button size="mini" @click="selectDescribe(2)">删除</el-button>
+          <el-button size="mini" type="primary" @click="selectDescribe(3)">确定</el-button>
+          <el-button size="mini" @click="selectDescribe(4)">取消</el-button>
+        </div>
       </div>
     </el-dialog>
   </el-row>
@@ -546,13 +645,30 @@ export default {
       isShowLoading: false,
       showConsole: true,
       categoryVisible: false,
-      titleVisible: true,
+      titleVisible: false,
+      getDescribeVisible: false,
       operationBut: false,
       radio: '',
       checked: false,
       flag: false, // 判断是否停止
       upDown: true,
       GoodsList: new GoodsList(this),
+
+      titleRadio: 1, // 标题编辑类型
+      titleVal: '', // 新标题/关键字
+
+      describeRadio: 4, // 描述编辑类型
+      describeVal: '', // 关键词
+      describeConfig: {
+        describe: '',
+        text: '',
+        lable: '',
+        tag: ''
+      },
+      describeConfigId: '',
+      describeConfigText: '',
+      describeLabelList: [],
+      describeVisible: true,
 
       percentage: 0, // 进度条数据
       selectMallList: '', // 选择的店铺分组数据
@@ -586,12 +702,6 @@ export default {
       likeMax: 999999,
       platformData: {}, // 上家平台数据
       logisticsList: [], // 物流列表
-
-      // 批量编辑标题
-      titleRadio: 1, // 批编辑类型
-      titleVal: '', // 新标题/关键字
-      maxLength: '',
-      minLength: '',
 
       sellStatusList: [
         { value: 1, label: '售空' },
@@ -648,21 +758,18 @@ export default {
         { value: '速卖通', label: '速卖通' },
         { value: '天猫淘宝海外平台', label: '天猫淘宝海外平台' }
         // { value: 15, label: '货老板海外' }
-      ],
-      // lazada各站点链接
-      lazadaGoodsUrl: {
-        'TH': 'https://www.lazada.co.th/products/i',
-        'MY': 'https://www.lazada.com.my/products/i', // 马来西亚
-        'VN': 'https://www.lazada.vn/products/i', // 越南-
-        'ID': 'https://www.lazada.co.id/products/i', // 印度尼西亚
-        'PH': 'https://www.lazada.com.ph/products/i', // 菲律宾
-        'SG': 'https://www.lazada.sg/products/i'
-      }
+      ]
     }
   },
   watch: {
     country(val) {
       this.getLogistics()
+    },
+    describeConfigId(val) {
+      const item = this.describeLabelList.filter(i => i && i.id === val)[0]
+      this.describeConfig.text = item && item.description || ''
+      this.describeConfig.describe = item && item.description || ''
+      this.describeConfig.lable = item && item.lable || ''
     }
   },
   async mounted() {
@@ -671,31 +778,53 @@ export default {
     await this.selectAll('source', this.sourceList)
   },
   methods: {
-    // 批量编辑标题
-    async batchTitle() {
-      this.operationBut = true
-      this.percentage = 0
-      this.updateNum = 0
-      this.successNum = 0
-      this.failNum = 0
-      this.$confirm(`确定更新商品标题吗`, '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }).then(async() => {
-        this.operationBut = true
-        this.percentage = 0
-        this.updateNum = 0
-        this.successNum = 0
-        this.failNum = 0
-        await batchOperation(this.multipleSelection, this.getProductDetail)
-        this.percentage = 100
-        this.operationBut = false
-      })
+    // 选择模板
+    async selectDescribe(type) {
+      if (type === 0) {
+        const descriptionTemplateListJson = await this.$commodityService.descriptionTemplateList()
+        const descriptionTemplateListRes = JSON.parse(descriptionTemplateListJson)
+        this.describeLabelList = descriptionTemplateListRes.data || []
+        if (this.describeConfigId) {
+          const item = this.describeLabelList.filter(i => i && i.id === this.describeConfigId)[0]
+          this.describeConfig.text = item && item.description || this.describeConfig.text
+          this.describeConfig.describe = item && item.description || this.describeConfig.describe
+          this.describeConfig.lable = item && item.lable || ''
+        } else {
+          this.describeConfigId = this.describeLabelList[0] && this.describeLabelList[0].id || ''
+        }
+        this.describeVisible = true
+      } else {
+        if (type === 1) {
+          const label = this.describeConfig.tag || this.describeConfig.lable
+          const descriptionTemplate = await this.$commodityService.uploadDescriptionTemplate(label, this.describeConfig.text)
+          const data = JSON.parse(descriptionTemplate)
+          this.describeConfig.tag = ''
+          this.describeConfigId = parseInt(data.data)
+          this.describeConfig.describe = this.describeConfig.text
+        } else if (type === 2) {
+          const resJson = await this.$commodityService.deleteDescriptionTemplate(this.describeConfigId)
+          const res = JSON.parse(resJson)
+          if (res.code === 200) {
+            this.describeConfigId = ''
+            this.$message.success('删除成功')
+          } else {
+            this.$message.error('删除失败')
+          }
+        } else if (type === 3) {
+          this.describeConfig.describe = this.describeConfig.text
+        } else if (type === 4) {
+          this.describeConfig.text = this.describeConfig.describe
+        }
+        this.describeVisible = false
+      }
     },
     // 获取商品详情
     async getProductDetail(item, count = { count: 1 }) {
+      this.updateNum++
       try {
+        let productInfo = null
+        let max = 0
+        let min = 0
         const params = {
           product_id: item.id,
           version: '3.2.0',
@@ -706,21 +835,87 @@ export default {
         if (res.code === 200 && res.data) {
           this.$set(item, 'batchStatus', '获取商品详情成功')
           this.$set(item, 'color', 'green')
+          productInfo = res.data
+          if (item.edit === '标题') {
+            this.setTitle(productInfo)
+            const { maxLength, minLength } = this.getTitleLength(item.country)
+            max = maxLength
+            min = minLength
+          }
+          if (item.edit === '标题' && (productInfo.name.length > max || productInfo.name.length < min)) {
+            this.$set(item, 'batchStatus', '标题长度不符合，长度范围' + min + '-' + max)
+            this.$set(item, 'color', 'red')
+          } else {
+            try {
+              const data = { mallId: item.platform_mall_id }
+              const editProductRes = await this.$shopeemanService.handleProductEdit(item.country, data, [productInfo])
+              if (editProductRes.code === 200) {
+                this.successNum++
+                this.$set(item, 'batchStatus', `更新${item.edit}成功`)
+                this.$set(item, 'color', 'green')
+              } else {
+                this.failNum++
+                this.$set(item, 'batchStatus', `更新${item.edit}失败${editProductRes.data}`)
+                this.$set(item, 'color', 'red')
+              }
+            } catch (error) {
+              this.failNum++
+              this.$set(item, '更新商品异常')
+              this.$set(item, 'color', 'red')
+            }
+          }
         } else {
+          this.failNum++
           this.$set(item, 'batchStatus', '获取商品详情失败')
           this.$set(item, 'color', 'red')
         }
       } catch (error) {
+        this.failNum++
         this.$set(item, '获取商品详情异常')
         this.$set(item, 'color', 'red')
       } finally {
         --count.count
       }
     },
-    editTitle(item, count = { count: 1 }) {
-
+    editProduct(name) {
+      if (name === '标题' && this.titleRadio === 1 && !this.titleVal) return this.$message('新标题不能为空')
+      if (name === '标题' && (this.titleRadio === 2 || this.titleRadio === 3 || this.titleRadio === 4) && !this.titleVal) return this.$message('关键词不能为空')
+      this.$confirm(`确定更新商品吗`, '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(async() => {
+        this.operationBut = true
+        this.percentage = 0
+        this.updateNum = 0
+        this.successNum = 0
+        this.failNum = 0
+        this.titleVisible = false
+        this.multipleSelection.forEach(item => { item.edit = name })
+        await batchOperation(this.multipleSelection, this.getProductDetail)
+        this.percentage = 100
+        this.operationBut = false
+      })
     },
-
+    setTitle(productInfo) {
+      if (this.titleRadio === 1) {
+        productInfo['name'] = this.titleVal
+      } else if (this.titleRadio === 2) {
+        productInfo['name'] = this.titleVal + productInfo.name
+      } else if (this.titleRadio === 3) {
+        productInfo['name'] = productInfo.name + this.titleVal
+      } else {
+        if (this.titleVal.indexOf(';') > -1) {
+          const arr = this.titleVal.split(';')
+          for (let i = 0; i < arr.length; i++) {
+            const tItem = arr[i]
+            productInfo['name'] = productInfo.name.replaceAll(tItem, '')
+          }
+        } else {
+          productInfo['name'] = productInfo.name.replaceAll(this.titleVal, '')
+        }
+      }
+    },
     // 批量上下架
     async batchUpDownProduct() {
       this.operationBut = true
@@ -798,6 +993,52 @@ export default {
         --count.count
       }
     },
+    // 批量编辑标题
+    batchTitle() {
+      this.titleVisible = true
+      this.titleRadio = 1
+      this.titleVal = ''
+    },
+    // 批量编辑描述
+    batchDescrible() {
+      this.getDescribeVisible = true
+      this.describleRadio = 4
+      this.describleVal = ''
+    },
+    // 判断标题长度
+    getTitleLength(country) {
+      let maxLength = 0
+      let minLength = 0
+      switch (country) {
+        case 'TH':
+        case 'MY':
+          maxLength = 120
+          minLength = 20
+          break
+        case 'VN':
+        case 'SG':
+          maxLength = 120
+          minLength = 10
+          break
+        case 'TW':
+          maxLength = 60
+          minLength = 5
+          break
+        case 'PH':
+          maxLength = 100
+          minLength = 20
+          break
+        case 'ID':
+          maxLength = 100
+          minLength = 5
+          break
+        case 'BR':
+          maxLength = 120
+          minLength = 1
+          break
+      }
+      return { maxLength, minLength }
+    },
     operation(operationName) {
       if (!this.multipleSelection?.length) return this.$message('没有可操作的商品，请选择')
       this[operationName]()
@@ -860,6 +1101,7 @@ export default {
         }
       }
       this.operationBut = false
+      this.showConsole = true
       this.$refs.Logs.writeLog(`查询完成`, true)
     },
     // 获取数据
@@ -912,6 +1154,7 @@ export default {
                 stock += Number(modelItem.stock_info.normal_stock)
                 sold += Number(modelItem.sold)
               })
+              // 获取类目名
               for (let j = 0; j < item.category_path.length; j++) {
                 const cItem = item.category_path[j]
                 const res = await this.GoodsList.getCategoryName(item.country, cItem, '0', '')
@@ -919,6 +1162,7 @@ export default {
                   categoryName.push(res.data.categories ? `${res.data.categories[0].category_name}(${res.data.categories[0].category_cn_name})` : '')
                 } else {
                   categoryName = ''
+                  this.$refs.Logs.writeLog(`${res.data}`, false)
                 }
               }
               item.stock = stock // 库存
