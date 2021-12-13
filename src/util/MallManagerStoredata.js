@@ -107,16 +107,16 @@ const encryptionList = [
 const ipTypeList = [
 
   {
-    value: 'SSR',
-    label: 'SSR'
+    value: 'ssr',
+    label: 'ssr'
   },
   {
-    value: 'SS',
-    label: 'SS'
+    value: 'ss',
+    label: 'ss'
   },
   {
-    value: 'HTTP',
-    label: 'HTTP'
+    value: 'http',
+    label: 'http'
   },
   {
     value: '链接',

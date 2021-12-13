@@ -240,13 +240,13 @@ export default {
             </tr>`
       for (let i = 0; i < this.tableData.length; i++) {
         const item = this.tableData[i]
-        str += `<tr><td>${num++}</td> 
+        str += `<tr><td>${num++}</td>
                     <td>${item.country ? this.$filters.chineseSite(item.country) : '' + '\t'}</td>
                     <td>${item.platform_mall_name ? item.platform_mall_name : '' + '\t'}</td>
                     <td style="mso-number-format:'\@';">${item.transaction_id && item.transaction_id + '\t'}</td>
                     <td>${item.bank_name ? item.bank_name : '' + '\t'}</td>
                     <td>${item.bank_account_name ? item.bank_account_name : '' + '\t'}</td>
-                    <td>${item.bank_account_number ? item.bank_account_number : '' + '\t'}</td> 
+                    <td>${item.bank_account_number ? item.bank_account_number : '' + '\t'}</td>
                     <td style="mso-number-format:'\@';">${item.ic_number ? item.ic_number : '' + '\t'}</td>
                     <td>${item.amount ? item.amount * -1 : '' + '\t'}</td>
                     <td>${item.ctime ? this.$dayjs(item.ctime * 1000).format('YYYY-MM-DD HH:mm:ss') : '' + '\t'}</td>

@@ -237,6 +237,7 @@ export default class NetMessageBridgeService {
   }
   // 店铺登录 post版本
   async login(mallInfo, flat, options = {}) {
+    console.log('mallInfo',mallInfo)
     const { country, mall_account_info, platform_mall_id } = mallInfo
     const accountName = mall_account_info.username
     const encryptPwd = sha256(md5(mall_account_info.password))
@@ -267,16 +268,20 @@ export default class NetMessageBridgeService {
     }
     options.vcode ? params['vcode'] = options.vcode : ''
     let copy_mallInfo = null
+    let cookie = ''
     if (flat === 2) { // 导入店铺必须参数   flat 1 一键登陆  2导入店铺
       copy_mallInfo = JSON.parse(JSON.stringify(mallInfo))
       copy_mallInfo['accountName'] = acccount_info.username
       copy_mallInfo['mall_account_info'] = acccount_info
+      cookie = 'SPC_F='+mallInfo.SPC_F
     }
     try {
+      console.log(copy_mallInfo)
       let res = await this.postChinese(country, '/api/v2/login', params, { // option
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
-          'charset': 'UTF-8'
+          'charset': 'UTF-8',
+          cookie
         }
       }, copy_mallInfo)
       res = JSON.parse(res)
@@ -315,14 +320,14 @@ export default class NetMessageBridgeService {
         Cookie['SPC_SC_TK'] = data.token
         Cookie['ShopeeUid'] = mallUId // 虾皮平台用户Uid
         Cookie['shopid'] = mallId // 平台店铺ID
-        Cookie['SPC_F'] = SetCookie // 短信验证码标识
-        Cookie['spc_f'] = SetCookie // 短信验证码标识
+        Cookie['SPC_F'] = SetCookie || mallInfo.SPC_F// 短信验证码标识
+        Cookie['spc_f'] = SetCookie || mallInfo.SPC_F// 短信验证码标识
 
         const Cookie_new = { // 店铺cookie信息(导入店铺专用)(更新壳)
           'SPC_CDS_VER': '2',
           'SPC_EC': data.sso,
           'ShopeeUid': mallUId,
-          'SPC_F': SetCookie || '',
+          'SPC_F': SetCookie || mallInfo.SPC_F || '',
           'CNSC_SSO': '',
           'SPC_CNSC_TK': '',
           'SPC_CNSC_UD': '',
@@ -339,7 +344,7 @@ export default class NetMessageBridgeService {
           'portrait': data.portrait,
           'userRealName': username,
           'mainAccountId': '',
-          'spc_f': SetCookie || '',
+          'spc_f': SetCookie || mallInfo.SPC_F || '',
           'SPC_SC_TK': data.token,
           'OtherCookieInfo': '',
           'spcf_update_time': ''
