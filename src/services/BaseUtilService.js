@@ -124,4 +124,7 @@ export default class BaseUtilService {
   decGoodCode(itemSku) {
     return this.nativeService.decGoodCode(itemSku)
   }
+  async loginNeedPopUps(name, data) {
+    return await this.nativeService.loginNeedPopUps(name, JSON.stringify(data))
+  }
 }

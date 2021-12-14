@@ -301,7 +301,7 @@ export function exportExcelDataCommon(fileName, str) {
                 <x:Name>${worksheet}</x:Name>
                 <x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet>
                 </x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]-->
-                <meta charset="utf-8">
+                <meta charset="gbk2312">
                 </head><body><table>${str}</table></body></html>`
   // 下载模板
   // let template = templates.replace(/<td/g,`<td style="mso-number-format:'\@';"`)
@@ -310,14 +310,14 @@ export function exportExcelDataCommon(fileName, str) {
   //   name: worksheet
   // })
   const blob = new Blob([template], {
-    type: 'html',
+    type: 'application/vnd.ms-excel;charset=gbk2312',
     name: worksheet
   })
   const a = document.createElement('a')
   document.body.appendChild(a)
   // a.href = uri + this.base64(template)
   a.href = URL.createObjectURL(blob)
-  a.download = `${fileName}${new Date(Date.now() + 8 * 3600 * 1000).toISOString().slice(0, 10)}.xlsx`
+  a.download = `${fileName}${new Date(Date.now() + 8 * 3600 * 1000).toISOString().slice(0, 10)}.xls`
   a.click()
   document.body.removeChild(a)
 }
@@ -447,8 +447,43 @@ export function formatDuring(mss) {
   return hours + ':' + minutes + ':' + seconds.toFixed(0)
 }
 
-export function exportPdfData() {}
+/**
+ *
+ * @param tableData Array ['商品','订单号']
+ * @param jsonData Array[Array] [['goods1','id']]
+ * @param workName String 'name'默认时间戳
+ * @returns {Promise<void>}
+ */
 
+export async function importOrder(tableData, jsonData, workName = '') {
+  const arr = []
+  arr.push(tableData)
+  jsonData.forEach(item => { arr.push(item) })
+  const worksheet = XLSX.utils.aoa_to_sheet(arr)
+  console.log(fitToColumn(arr))
+  worksheet['!cols'] = fitToColumn(arr)
+  const workbook = XLSX.utils.book_new()
+  XLSX.utils.book_append_sheet(workbook, worksheet, workName || (new Date(Date.now() + 8 * 3600 * 1000).toISOString().slice(0, 10)))
+  XLSX.writeFile(workbook, `${workName}${new Date(Date.now() + 8 * 3600 * 1000).toISOString().slice(0, 10)}.xlsx`)
+  function fitToColumn(arrayOfArray) {
+    return arrayOfArray[0].map((a, i) => ({ wch: Math.max(...arrayOfArray.map(a2 => a2[i] ? a2[i].toString().length : 10)) * 1.5 }))
+  }
+}
+
+export async function waitStart(prepare, num = 500) {
+  let count = 0
+  const number = num && parseInt(num) || 500
+  return new Promise((resolve, reject) => {
+    const ing = setInterval(() => {
+      ++count
+      if (prepare() || count >= number) {
+        console.log('等待成功', prepare)
+        clearInterval(ing)
+        resolve(prepare())
+      }
+    }, 200)
+  })
+}
 export async function selfAliYunTransImage(imgUrl, command, account, that) {
   account.login_info = account.login_info || JSON.parse(account.loginInfo)
   const _csrf = account.login_info.find(item => {
@@ -491,41 +526,8 @@ export async function selfAliYunTransImage(imgUrl, command, account, that) {
   }
 }
 
-/**
- *
- * @param tableData Array ['商品','订单号']
- * @param jsonData Array[Array] [['goods1','id']]
- * @param workName String 'name'默认时间戳
- * @returns {Promise<void>}
- */
-export async function importOrder(tableData, jsonData, workName = '') {
-  const arr = []
-  arr.push(tableData)
-  jsonData.forEach(item => { arr.push(item) })
-  const worksheet = XLSX.utils.aoa_to_sheet(arr)
-  const workbook = XLSX.utils.book_new()
-  XLSX.utils.book_append_sheet(workbook, worksheet, workName || (new Date(Date.now() + 8 * 3600 * 1000).toISOString().slice(0, 10)))
-  XLSX.writeFile(workbook, `${workName}${new Date(Date.now() + 8 * 3600 * 1000).toISOString().slice(0, 10)}.xlsx`)
-}
-
-export async function waitStart(prepare, num = 500) {
-  let count = 0
-  const number = num && parseInt(num) || 500
-  return new Promise((resolve, reject) => {
-    const ing = setInterval(() => {
-      ++count
-      if (prepare() || count >= number) {
-        console.log('等待成功', prepare)
-        clearInterval(ing)
-        resolve(prepare())
-      }
-    }, 200)
-  })
-}
-
-
 export function getArraySrcLengthSort(arr, type) {
-  let sort = []
+  const sort = []
   for (let i = 0; i < arr.length; i++) {
     let index = 0
     for (let j = 0; j < arr.length; j++) {

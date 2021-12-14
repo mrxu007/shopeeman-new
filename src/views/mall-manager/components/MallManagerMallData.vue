@@ -42,7 +42,7 @@
                 "
               >查询</el-button>
               <el-button type="primary" size="mini" @click="exportSearch()">导出数据</el-button>
-              <el-button type="primary" size="mini" @click="handlerSelectTableOperating('syncMallData')">同步店铺数据</el-button>
+              <el-button type="primary" size="mini" :disabled="buttonStatus.asyncData" @click="handlerSelectTableOperating('syncMallData')">同步店铺数据</el-button>
             </li>
             <li>
               <el-progress v-show="isShowProgress" style="width: 230px" :text-inside="true" :stroke-width="24" :percentage="percentage" status="success" />
@@ -114,7 +114,7 @@
           <u-table-column align="center" prop="yesterday_order_num" label="昨日订单数" min-width="90" />
           <u-table-column align="center" prop="week_order_num" label="近7天订单数" min-width="100" />
           <u-table-column align="center" prop="history_order_num" label="历史订单数" min-width="90" />
-          <u-table-column align="center" prop="mall_quota" label="店铺额度" />
+          <u-table-column align="center" prop="mall_quota" label="店铺额度" min-width="100" sortable />
           <u-table-column align="center" prop="all_product_num" label="全部产品数" min-width="90" />
           <u-table-column align="center" prop="active_product_num" label="上架产品数" min-width="100" />
           <u-table-column align="center" prop="soldout_product_num" label="售空产品数" min-width="90" />
@@ -220,7 +220,7 @@ export default {
       page: 1,
       total: 0,
       pageSize: 200,
-      height: 630,
+      height: 638,
       rowHeight: 50,
       isLoading: false,
       percentage: 0, // 进度条数据
@@ -258,7 +258,11 @@ export default {
         { value: 'real_time', label: '今天' },
         { value: 'past7days', label: '7天' },
         { value: 'past30days', label: '30天' }
-      ]
+      ],
+      // btn
+      buttonStatus: {
+        asyncData: false
+      }
     }
   },
   mounted() {
@@ -270,12 +274,18 @@ export default {
       if (!data) {
         return this.$message('暂无同步数据')
       }
+      if (this.buttonStatus.asyncData) {
+        this.$message.error('操作过快, 数据正在同步中')
+        return
+      }
+      this.buttonStatus.asyncData = true
       console.log(data, 'syncMallData')
       this.isShowProgress = true
       this.percentage = 0
-      const res = await batchOperation(data, this.syncMall)
+      const res = await batchOperation(data, this.syncMall, 3)
       this.percentage = 100
       console.log(1, '完成', res)
+      this.buttonStatus.asyncData = false
     },
     async syncMall(item, count = { count: 1 }) {
       try {
