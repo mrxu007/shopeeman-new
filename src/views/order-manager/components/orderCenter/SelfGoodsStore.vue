@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-11-16 20:01:09
- * @LastEditTime: 2021-11-23 21:34:01
+ * @LastEditTime: 2021-12-14 21:49:01
  * @LastEditors: Please set LastEditors
  * @Description: 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  * @FilePath: \shopeeman-new\src\views\order-manager\components\orderCenter\SelfGoodsStore.vue
@@ -16,7 +16,7 @@
           size="mini"
           value-format="yyyy-MM-dd"
           type="daterange"
-          style="width: 200px"
+          style="width: 240px"
           range-separator="-"
           start-placeholder="开始日期"
           end-placeholder="结束日期"
@@ -30,7 +30,7 @@
           <el-option v-for="(item, index) in countries" :key="index" :label="item.label" :value="item.value" />
         </el-select>
       </div>
-      <el-button type="primary" size="mini" @click="searchTableList">搜 索</el-button>
+      <el-button type="primary" size="mini" @click="searchTableList" style="margin-left: 10px">搜 索</el-button>
     </div>
     <el-table ref="multipleTable" :data="tableData" tooltip-effect="dark" max-height="500">
       <el-table-column align="center" type="index" label="序号" width="50">
@@ -38,7 +38,7 @@
       </el-table-column>
       <el-table-column align="center" type="index" label="仓库名称" width="80">
         <template slot-scope="scope">
-          <span>自有仓库</span>
+          <span>{{country | chineseSite}}</span>
         </template>
       </el-table-column>
       <el-table-column width="120px" label="系统商品ID" prop="id" align="center" />
@@ -55,7 +55,7 @@
         </template>
       </el-table-column>
       <el-table-column label="商品图片" width="80">
-        <template slot-scope="scope">
+        <template slot-scope="scope" v-if="scope.row.sku_image">
           <el-image :src="scope.row.sku_image" style="width: 60px; height: 60px" />
         </template>
       </el-table-column>
@@ -90,26 +90,33 @@ export default {
           return time.getTime() > Date.now()
         },
       },
-      tableData:[],
+      tableData: [],
       total: 0,
       pageSize: 20,
       currentPage: 1,
       countries: this.$filters.countries_option,
       countryVal: '',
-      searchTime:[]
+      searchTime: [],
     }
+  },
+  props: {
+    country: {
+      type: String,
+      default: '',
+    },
   },
   mounted() {
     this.searchTime = creatDate(30)
     this.searchTableList()
   },
   methods: {
-      //添加到出库单
-    async addTo(row){
-        this.$emit('getChooseData',row)
+    //添加到出库单
+    async addTo(row) {
+      this.$emit('getChooseData', row)
     },
     // 列表
     async searchTableList() {
+      this.tableData = []
       const params = {
         country: this.countryVal,
         createTime: '',
@@ -126,7 +133,7 @@ export default {
             let obj = {
               goods_id: item.id,
               goods_name: item.goods_name,
-              goods_url:item.goods_url
+              goods_url: item.goods_url,
             }
             obj = Object.assign(obj, subItem)
             this.tableData.push(obj)
@@ -160,7 +167,7 @@ export default {
 
 <style lang="less" scoped>
 .self-store {
-    /deep/.el-dialog__body {
+  /deep/.el-dialog__body {
     padding: 10px 20px;
   }
 }
@@ -169,7 +176,7 @@ export default {
 }
 .btn-header {
   display: flex;
-  margin-top:10px;
+  margin-top: 10px;
   .item-box {
     display: flex;
     align-items: center;
@@ -180,11 +187,11 @@ export default {
     }
   }
 }
-  .pagination {
-    display: flex;
-    justify-content: flex-end;
-    margin-top: 20px;
-    height: 35px;
-  }
+.pagination {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 20px;
+  height: 35px;
+}
 </style>
 

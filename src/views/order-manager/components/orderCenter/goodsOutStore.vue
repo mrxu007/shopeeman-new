@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-11-16 15:41:36
- * @LastEditTime: 2021-12-13 18:37:01
+ * @LastEditTime: 2021-12-14 22:09:28
  * @LastEditors: Please set LastEditors
  * @Description: 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  * @FilePath: \shopeeman-new\src\views\order-manager\components\orderCenter\goodsOutStore.vue
@@ -9,8 +9,8 @@
 <template>
   <div class="out-store">
     <div class="out-header">
-      <span>{{ chooseData.length - chooseDataCopy.length + 1 }}/{{ chooseData.length }}</span>
-      <el-button type="primary" size="mini" @click="goNext">{{ chooseData.length > 1 ? '匹配下一单' : '关闭' }}</el-button>
+      <span>{{ chooseData.length - chooseDataCopy.length  }}/{{ chooseData.length }}</span>
+      <el-button type="primary" size="mini" @click="goNext">{{ chooseData.length - chooseDataCopy.length == chooseData.length ? '关闭' : '匹配下一单' }}</el-button>
       <el-button type="primary" size="mini" @click="getSheetInfo" v-if="outStoreType === '3' || outStoreType === '4'">获取面单信息</el-button>
       <span class="warning-style">{{ flagText }}</span>
       <p>温馨提示: 1、请确保该主订单下所有子订单商品在海外仓都有库存，如果只有部分订单有库存商品，请不要出库，否则会导致没有库存的商品无法发货；</p>
@@ -26,7 +26,7 @@
               <el-table-column align="center" type="index" label="序号" min-width="50px" />
               <el-table-column min-width="120px" label="订单编号" prop="order_sn" align="center" />
               <el-table-column width="80px" label="订单状态" prop="order_status" align="center">
-                <template slot-scope="scope" v-if="scope.row.order_status">{{ scope.row.order_status }}</template>
+                <template slot-scope="scope" v-if="scope.row.order_status">{{ changeOrderStatus(scope.row.order_status) }}</template>
               </el-table-column>
               <el-table-column min-width="120px" label="商品名称" prop="goods_name" align="center" show-overflow-tooltip />
               <el-table-column width="120px" label="SKUID" prop="variation_id" align="center" show-overflow-tooltip />
@@ -52,6 +52,7 @@
                         selfGoodsStoreVisible = true
                         addGiftAbroad = ''
                         clickRow = scope.row
+                        country = scope.row.country
                       "
                       >匹配商品</el-button
                     >
@@ -107,12 +108,12 @@
         </div>
         <div class="order-btn">
           <span class="mar-right">出库数</span>
-          <span class="mar-right">{{ outTotalStock }}</span>
+          <span class="mar-right activeColor">{{ outTotalStock }}</span>
           <span class="mar-right">出库总价（RMB）</span>
-          <span class="mar-right">{{ outTotalPriceRmb }}</span>
+          <span class="mar-right activeColor">{{ outTotalPriceRmb }}</span>
           <span class="mar-right">出库总价</span>
-          <span class="mar-right">{{ outTotalPrice }}</span>
-          <el-button size="mini" type="primary" @click="outStore">立即下单</el-button>
+          <span class="mar-right activeColor">{{ outTotalPrice }}</span>
+          <el-button size="mini" type="primary" @click="outStore" :disabled="!matchOrderList.length">立即下单</el-button>
         </div>
       </div>
       <div class="content-right">
@@ -122,7 +123,7 @@
             <div class="order-content-right">
               <div class="item">
                 <span>订单编号</span>
-                <p class="content">{{ orderInfo.order_sn }}</p>
+                <p class="content">{{ orderInfo.main_order_sn }}</p>
               </div>
               <div class="item">
                 <span>当前站点</span>
@@ -150,7 +151,7 @@
               </div>
               <div class="item">
                 <span>订单收入</span>
-                <p class="content">{{ income }}{{ orderInfo.currency }}</p>
+                <p class="content">{{ income.toFixed(2) }}{{ orderInfo.currency }}</p>
               </div>
             </div>
           </div>
@@ -168,7 +169,7 @@
     <el-dialog :visible.sync="selfGoodsStoreVisible" width="1200px" append-to-body top="5vh" v-if="selfGoodsStoreVisible">
       <div slot="title">{{ title[Number(outStoreType)] }}</div>
       <div class="go-out-store">
-        <self-goods-store @getChooseData="getChooseData" v-if="outStoreType === '1'"></self-goods-store>
+        <self-goods-store :country="country" @getChooseData="getChooseData" v-if="outStoreType === '1'"></self-goods-store>
         <product-goods-store @getChooseData="getChooseData" v-if="outStoreType === '2'"></product-goods-store>
         <abroad-goods-store @getChooseData="getChooseData" v-if="outStoreType === '3'" :addGiftAbroad="addGiftAbroad"></abroad-goods-store>
         <inLand-goods-store @getChooseData="getChooseData" v-if="outStoreType === '4'"></inLand-goods-store>
@@ -182,6 +183,7 @@ import SelfGoodsStore from './SelfGoodsStore'
 import ProductGoodsStore from './productGoodsStore'
 import InLandGoodsStore from './inLandGoodsStore.vue'
 import AbroadGoodsStore from './abroadGoodsStore'
+import { changeOrderStatus } from './orderCenter'
 export default {
   name: 'GoodsOutStore',
   components: {
@@ -222,15 +224,19 @@ export default {
       wid: '', //海外仓仓库ID
       sheetInfo: {},
       addGiftAbroad: '',
-      title: ['', '自用仓库商品列表', '产品中心库存列表', '海外仓库存列表', '国内仓库存列表'],
+      title: ['', '自有仓库商品列表', '产品中心库存列表', '海外仓库存列表', '国内仓库存列表'],
       clickRow: {},
+      country:''
     }
   },
   mounted() {
     console.log(this.outStoreType)
     this.chooseDataCopy = JSON.parse(JSON.stringify(this.chooseData))
+    console.log(this.country,"this.country")
     this.total = this.chooseDataCopy.length
     this.orderInfo = this.chooseDataCopy[0]
+    this.chooseDataCopy.splice(0, 1)
+    console.log(this.orderInfo,"this.orderInfo")
     this.income = 0
     this.getDetail(this.orderInfo)
     this.exchangeRateList()
@@ -252,7 +258,7 @@ export default {
       this.outTotalPriceRmb = price
       this.outTotalPrice = (price * Number(this.rateList[this.orderInfo.country])).toFixed(2)
       this.grossProfit = ((this.income - this.outTotalPrice) * Number(this.rateList[this.orderInfo.country])).toFixed(2)
-      this.interestRate = this.outTotalPriceRmb ? Math.ceil((this.grossProfit / this.outTotalPriceRmb) * 100) : 100
+      this.interestRate = this.outTotalPriceRmb ? (Math.ceil((this.grossProfit / this.outTotalPriceRmb) * 100)).toFixed(2) : 100
       // console.log(this.rateList[this.orderInfo.country])
     },
     //获取面单信息
@@ -529,6 +535,7 @@ export default {
         this.$emit('close')
       }
     },
+    changeOrderStatus
   },
 }
 </script>
@@ -559,6 +566,11 @@ export default {
 }
 .mar-right {
   margin-right: 10px;
+}
+.activeColor{
+  color:red;
+  font-weight: 900;
+  font-size:16px !important;
 }
 .order-content {
   margin-top: 10px;

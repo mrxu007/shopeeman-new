@@ -881,8 +881,7 @@ const statusListThird = [{
     value: 'completed'
   }
 ]
-const statusAfterList = [
-  {
+const statusAfterList = [{
     label: '取消中',
     value: 'cancelled'
   },
@@ -931,6 +930,213 @@ const upLoadType = [{
     value: 'single'
   }
 ]
+const buyPayMethod = {
+  0: '',
+  1: '货到付款',
+  2: '信用卡/借记卡',
+  3: 'lazada钱包',
+  4: 'Credit',
+  5: 'Gcash e-Wallet',
+  6: 'ShopeePay',
+  20: '未知，请联系客服'
+}
+
+const platformPayMethod = {
+  "ID": [{
+      label: '全部',
+      value: ''
+    },
+    {
+      label: 'Credit/Debit Card',
+      value: '1'
+    }, {
+      label: 'Indomaret',
+      value: '13'
+    }, {
+      label: 'Bank Transfer',
+      value: '2'
+    }, {
+      label: 'SPayLater',
+      value: '24'
+    },
+    {
+      label: 'ShopeePay',
+      value: '27'
+    },
+    {
+      label: 'Online Payment',
+      value: '41'
+    }, {
+      label: 'COD',
+      value: '6'
+    },
+  ],
+  "MY": [{
+    label: '全部',
+    value: ''
+  }, {
+    label: '信用卡',
+    value: '1'
+  }, {
+    label: '银行转账',
+    value: '2'
+  }, {
+    label: '卖家余额',
+    value: '20'
+  }, {
+    label: 'ShopeePay',
+    value: '27'
+  }, {
+    label: '在7-11的现金支付',
+    value: '34'
+  }, {
+    label: 'ibanking',
+    value: '37'
+  }, {
+    label: 'VISA金融卡',
+    value: '4'
+  }],
+  "PH": [{
+      label: '全部',
+      value: ''
+    },
+    {
+      label: 'Credit',
+      value: '1'
+    },
+    {
+      label: 'Bank Transfer',
+      value: '2'
+    }, {
+      label: 'ShopeePay',
+      value: '27'
+    }, {
+      label: 'Debit Card',
+      value: '4'
+    }, {
+      label: 'COD',
+      value: '6'
+    }
+  ],
+  "SG": [{
+      label: '全部',
+      value: ''
+    },
+    {
+      label: 'Credit/Debit Card',
+      value: '1'
+    },
+    {
+      label: 'Bank Transfer',
+      value: '2'
+    }, {
+      label: 'ShopeePay',
+      value: '27'
+    }, {
+      label: 'Online Payment',
+      value: '49'
+    }
+  ],
+  "TH": [{
+      label: '全部',
+      value: ''
+    }, {
+      label: 'Credit',
+      value: '18'
+    }, {
+      label: 'Bank Transfe',
+      value: '2'
+    }, {
+      label: 'SPayLater',
+      value: '24'
+    }, {
+      label: 'AirPay',
+      value: '28'
+    }, {
+      label: 'airpay_giro',
+      value: '30'
+    }, {
+      label: 'Debit Card',
+      value: '4'
+    }, {
+      label: 'free with promotion',
+      value: '5'
+    },
+    {
+      label: 'Online Payment',
+      value: '50'
+    },
+    {
+      label: 'COD',
+      value: '6'
+    }
+  ],
+  "TW": [{
+      label: '全部',
+      value: ''
+    }, {
+      label: '信用卡',
+      value: '1'
+    }, {
+      label: '银行转账',
+      value: '2'
+    }, {
+      label: '虾皮钱包',
+      value: '20'
+    }, {
+      label: '信用卡分期付款',
+      value: '23'
+    }, {
+      label: 'SPayLater',
+      value: '24'
+    }, {
+      label: '接口支付Local',
+      value: '33'
+    }, {
+      label: '接口支付Cross',
+      value: '36'
+    },
+    {
+      label: '撤销的款项',
+      value: '5'
+    },
+    {
+      label: '货到付款',
+      value: '6'
+    }
+  ],
+  "VN": [{
+      label: '全部',
+      value: ''
+    },
+    {
+      label: 'Credit/Debit Card',
+      value: '1'
+    },
+    {
+      label: 'Seller Balance',
+      value: '20'
+    }, {
+      label: 'AirPay',
+      value: '28'
+    }, {
+      label: 'airpay_giro',
+      value: '30'
+    }, {
+      label: 'COD',
+      value: '6'
+    }
+  ]
+}
+function changePlatformPayMethod(country,key){
+  let str = ''
+  let arr = platformPayMethod[country] || []
+  if(arr.length){
+    let res = arr.find(item => item.value == key)
+    str = res?res.label:''
+  }
+  return str
+}
 //配置列表
 const columnData = [{
     column_header: '站点',
@@ -1564,6 +1770,9 @@ export {
   lazadaUrlList,
   colorList,
   statusAfterList,
+  buyPayMethod,
+  platformPayMethod,
+  changePlatformPayMethod,
   changeShotStatus,
   changeBuyerType,
   changeOrderStatus,

@@ -216,12 +216,16 @@ export default class logisticeSyncService {
       const shot_order_sn = item.shot_order_info.shot_order_sn || ''
       // const shot_order_sn = '2229427695828657966' //tb
       // const shot_order_sn = '2161702586001984947' //1688
+      if(!shot_order_sn){
+        this.writeLog(`(${type})订单【${item.order_sn}】获取上家物流失败,订单无采购单号`, false)
+          continue
+      }
       try {
         console.log(buyerAccount.shotOrderPlatform, shot_order_sn, JSON.stringify(buyerAccount), "=========================")
         const logisticInfo = await this.$baseUtilService.getOriginLogistics(buyerAccount.shotOrderPlatform, shot_order_sn, buyerAccount)
         console.log(logisticInfo)
         if (logisticInfo.Code !== 200) {
-          this.writeLog(`(${type})订单【${shot_order_sn}获取上家物流失败原因: ${logisticInfo.Code} : ${logisticInfo.Msg}(买手号: ${buyerAccount.UserName})`, false)
+          this.writeLog(`(${type})订单【${shot_order_sn}】获取上家物流失败, ${logisticInfo.Msg}(买手号: ${buyerAccount.UserName})`, false)
           continue
         }
         if (!logisticInfo.TrackingNumber) {

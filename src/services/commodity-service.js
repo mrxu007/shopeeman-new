@@ -544,7 +544,7 @@ export default class CommodityService {
    * @param isParent :isParent 类目的父级标识：1传入的类目作为父级查询；0当前类目查询
    * @param tableType : string
    */
-  async getCategoryTbInfo(country, categoryId = '0', isParent = '1', tableType) {
+  async getCategoryTbInfo(country, categoryId = '0', isParent, tableType) {
     return await this.nativeService.callCategoryFunction('GetCategoryInfo', country, categoryId, isParent, tableType)
   }
 
@@ -764,14 +764,12 @@ export default class CommodityService {
     // console.log(JSON.stringify(data))
     return this.nativeService.callCategoryFunction('GetCategoryInfo', data[0] + '', data[1] + '', data[2] + '', data[3])
   }
-
   /**
    * 获取产品中心类目
    */
   getCategoryInfo(data) {
     return this.nativeService.callProductCenter('GetCategoryInfo', data.toString())
   }
-
   /**
    * 获取产品中心列表数据
    */
@@ -811,9 +809,9 @@ export default class CommodityService {
    * @param  {country} 站点
    * @param  {cookieStr} 登录信息
    * @param  {orderId} 拍单订单id
-   */  
-  async getLazadaOrderDetail(country,cookieStr,orderId){
-    return await this.nativeService.callLazadaService('GetLazadaOrderDetail',country,cookieStr,orderId)
+   */
+  async getLazadaOrderDetail(country, cookieStr, orderId) {
+    return await this.nativeService.callLazadaService('GetLazadaOrderDetail', country, cookieStr, orderId)
   }
   /**
    * @name : 获取订单支付方式
@@ -821,65 +819,65 @@ export default class CommodityService {
    * @param  {cookieStr} 登录信息
    * @param  {orderDetial} 获取Lazada的订单详情接口返回值
    * @param  {shotOrderSn} 拍单订单号
-   */  
-  async getLazadaPayMethod(country,cookieStr,orderDetial,shotOrderSn){
-    return await this.nativeService.callLazadaService('GetPayMethod',country,cookieStr,orderDetial,shotOrderSn)
+   */
+  async getLazadaPayMethod(country, cookieStr, orderDetial, shotOrderSn) {
+    return await this.nativeService.callLazadaService('GetPayMethod', country, cookieStr, orderDetial, shotOrderSn)
   }
-/**
- * @name : 
- * @param  {String} sysOrderIds 系统订单id，用逗号隔开
- */  
-async getSkuRelation(sysOrderIds){
-  return await this.nativeService.callSkuRelationClient('GetBySysOrderIds',sysOrderIds)
-}
-/**
- * @name : 保存映射
- * @param  {*}
- * @param {*} SkuRelation
- */
-async saveSkuRelation(SkuRelation){
-  return await this.nativeService.callSkuRelationClient('SaveGoodsSkuRelation',SkuRelation)
-}
+  /**
+   * @name : 
+   * @param  {String} sysOrderIds 系统订单id，用逗号隔开
+   */
+  async getSkuRelation(sysOrderIds) {
+    return await this.nativeService.callSkuRelationClient('GetBySysOrderIds', sysOrderIds)
+  }
+  /**
+   * @name : 保存映射
+   * @param  {*}
+   * @param {*} SkuRelation
+   */
+  async saveSkuRelation(SkuRelation) {
+    return await this.nativeService.callSkuRelationClient('SaveGoodsSkuRelation', SkuRelation)
+  }
 
-/**上报面单信息
- * @name : 
- * @param  {*}
- * @param {*} sysMallId
- * @param {*} mallId
- * @param {*} urlObj [{"url":"https://www.baidu.com","orderSn":"200310ERCFQE5NUT"}]
- */
-async saveFaceSheetInfo( sysMallId,  mallId, urlObj){
-  return await this.nativeService.callOrderAndMallUpload('SaveFaceSheetInfo',sysMallId,  mallId,JSON.stringify(urlObj))
-}
+  /**上报面单信息
+   * @name : 
+   * @param  {*}
+   * @param {*} sysMallId
+   * @param {*} mallId
+   * @param {*} urlObj [{"url":"https://www.baidu.com","orderSn":"200310ERCFQE5NUT"}]
+   */
+  async saveFaceSheetInfo(sysMallId, mallId, urlObj) {
+    return await this.nativeService.callOrderAndMallUpload('SaveFaceSheetInfo', sysMallId, mallId, JSON.stringify(urlObj))
+  }
 
-/**
- * @name : 上报平台物流单号
- * @param  {*}
- * @param {*} sysMallId
- * @param {*} mallId
- * @param {*} trackObj [{"orderId":"","orderSn":"200310ERCFQE5NUT","channel_id":"","trackingNo":"9999595959595"}]
- */
-async saveLogisticsInfo( sysMallId,  mallId, trackObj){
-  return await this.nativeService.callOrderAndMallUpload('SaveLogisticsInfo',sysMallId,  mallId,JSON.stringify(trackObj))
-}
-/**
- * @name : 上报平台订单信息
- * @param  {*}
- * @param {*} sysMallId
- * @param {*} mallId
- * @param {*} orderData 
- */
- async saveLogisticsInfo( sysMallId,  mallId, orderData){
-  return await this.nativeService.callOrderAndMallUpload('SaveOrder',sysMallId,  mallId,JSON.stringify(orderData))
-}
-/**
- * @name : 上报售后订单信息
- * @param  {*}
- * @param {*} sysMallId
- * @param {*} mallId
- * @param {*} afterOrderData 
- */
- async saveLogisticsInfo( sysMallId,  mallId, afterOrderData){
-  return await this.nativeService.callOrderAndMallUpload('SaveOrder',sysMallId,  mallId,JSON.stringify(afterOrderData))
-}
+  /**
+   * @name : 上报平台物流单号
+   * @param  {*}
+   * @param {*} sysMallId
+   * @param {*} mallId
+   * @param {*} trackObj [{"orderId":"","orderSn":"200310ERCFQE5NUT","channel_id":"","trackingNo":"9999595959595"}]
+   */
+  async saveLogisticsInfo(sysMallId, mallId, trackObj) {
+    return await this.nativeService.callOrderAndMallUpload('SaveLogisticsInfo', sysMallId, mallId, JSON.stringify(trackObj))
+  }
+  /**
+   * @name : 上报平台订单信息
+   * @param  {*}
+   * @param {*} sysMallId
+   * @param {*} mallId
+   * @param {*} orderData 
+   */
+  async saveLogisticsInfo(sysMallId, mallId, orderData) {
+    return await this.nativeService.callOrderAndMallUpload('SaveOrder', sysMallId, mallId, JSON.stringify(orderData))
+  }
+  /**
+   * @name : 上报售后订单信息
+   * @param  {*}
+   * @param {*} sysMallId
+   * @param {*} mallId
+   * @param {*} afterOrderData 
+   */
+  async saveLogisticsInfo(sysMallId, mallId, afterOrderData) {
+    return await this.nativeService.callOrderAndMallUpload('SaveOrder', sysMallId, mallId, JSON.stringify(afterOrderData))
+  }
 }

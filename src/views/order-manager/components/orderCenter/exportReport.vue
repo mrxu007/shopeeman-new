@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-11-25 17:17:34
- * @LastEditTime: 2021-12-13 21:46:27
+ * @LastEditTime: 2021-12-14 21:40:34
  * @LastEditors: Please set LastEditors
  * @Description: 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  * @FilePath: \shopeeman-new\src\views\order-manager\components\orderCenter\exportReport.vue
@@ -40,7 +40,8 @@
             <p></p>
           </div>
         </div>
-        <el-button size="mini" ><a :href="item.url"  style="color:#000;" download="订单报表.xlsx">下载报表</a></el-button>
+        <el-button size="mini" v-if="item.status==1"><a :href="item.url"  style="color:#000;" download="订单报表.xlsx">下载报表</a></el-button>
+        <el-button size="mini" disabled v-else>下载报表</el-button>
       </div>
     </div>
     <div class="pagination">

@@ -35,13 +35,13 @@
         </el-select>
       </el-form-item>
       <el-form-item label="采购账号:">
-        <el-select v-model="form.buyAccountInfo" placeholder="请选择活动区域" size="mini" class="inputWidth">
+        <el-select v-model="buyAccountInfo" placeholder="请选择活动区域" size="mini" class="inputWidth">
           <el-option :label="item.name" :value="JSON.stringify(item)" v-for="(item, index) in buyerAccountListFilter" :key="index"></el-option>
         </el-select>
       </el-form-item>
       <el-form-item label="绑定仓库:" prop="warehouseName" v-if="dealType === 'single'">
-        <p>{{ form.warehouseName }}</p>
-        <!-- <el-input v-model="form.warehouseName" size="mini" class="inputWidth" disabled></el-input> -->
+        <p>{{ warehouse.warehouse_name }}</p>
+        <!-- <el-input v-model="warehouse.warehouse_name" size="mini" class="inputWidth" disabled></el-input> -->
       </el-form-item>
       <el-form-item label="提示1:" v-if="dealType !== 'single'">
         <span style="color: red">添加采购信息前,请务必确认好已绑定仓库收货地址</span>
@@ -69,7 +69,7 @@
       <div class="base-box" v-if="dealType !== 'single'">
         <span class="base-title">备注修改</span>
         <div class="base-item">
-          <div class="remark" >
+          <div class="remark">
             <span>备注:</span>
             <el-input v-model="remark" size="mini" type="textarea" :rows="2" style="width: 300px"></el-input>
           </div>
@@ -101,6 +101,7 @@ export default {
         // country: '',
         remark: '',
       },
+      buyAccountInfo: '',
       amountType: 1,
       shotStatuForEdit: shotStatuForEdit,
       goodsSourceList: goodsSourceList,
@@ -116,7 +117,9 @@ export default {
       shotAmount: '',
       shotAmountRmb: '',
       rateList: [],
-      country:''
+      country: '',
+      warehouse:{},
+      warehouseList:[]
     }
   },
   props: {
@@ -133,7 +136,7 @@ export default {
       default: 'batch',
     },
   },
-  mounted() {
+   mounted() {
     let data = this.chooseData[0]
     this.form.platformId = Number(data.goods_info.ori_platform_id)
     this.changePlatform(this.form.platformId)
@@ -142,16 +145,28 @@ export default {
       this.form.shotStatus = data.shot_order_info.shot_status
       this.form.shotAmount = data.shot_order_info.shot_amount
       this.form.shotAmountRmb = data.shot_order_info.shot_amount_rmb
-      this.form.warehouseName = data.shot_order_info.warehouse_name
       this.country = data.country
       this.shotAmount = data.shot_order_info.shot_amount
       this.shotAmountRmb = data.shot_order_info.shot_amount_rmb
       console.log('single', data, this.chooseData)
+      this.getWareHouse(data.mall_info.platform_mall_id,data.goods_info.ori_platform_id)
     }
     this.getRate()
-    console.log("country",this.country)
   },
   methods: {
+    async getWareHouse(mallId,platformId){
+      console.log(mallId,"mallId")
+      let res = await this.$appConfig.getWarehouseInfo(mallId)
+      console.log(JSON.parse(res),"0---")
+      this.warehouseList = res && JSON.parse(res) || []
+      console.log(this.warehouseList,"warehouseList")
+      if([1, 2, 3, 5, 8, 10].indexOf(Number(platformId)) > -1){
+        this.warehouse = this.warehouseList.find(n=>n.type == 0)
+      }
+      if([9, 11, 12, 15, 13].indexOf(Number(platformId)) > -1){
+        this.warehouse = this.warehouseList.find(n=>n.type == 3)
+      }
+    },
     async getRate() {
       const data = await this.$api.exchangeRateList()
       if (data.data.code === 200) {
@@ -183,33 +198,46 @@ export default {
         if (!valid) {
           return false
         }
-        let ids = ''
-        this.chooseData.forEach((item, index) => {
-          if (index === 0) {
-            ids = item.id.toString()
-          } else {
-            ids = ids + ',' + item.id
+        let obj = {}
+        if (this.buyAccountInfo) {
+          let buy = JSON.parse(this.buyAccountInfo)
+          console.log(buy, 'buy')
+          obj = {
+            name: buy.name,
+            type: buy.type,
           }
-        })
-        let params = this.form
-        params.sysOrderIds = ids
-        params.platformId = params.platformId.toString()
-        params.shotStatus = params.shotStatus.toString()
-        if (this.shopeeLink) {
-          let shopid = this.shopeeLink.match(/shopid=(\d+)/)
-          shopid = shopid ? shopid[1] : ''
-          let orderId = this.shopeeLink.match(/orderId=(\d+)/)
-          orderId = orderId ? orderId[1] : ''
         }
-        let res = await this.$api.batchUpdateShotOrder(params)
-        console.log(res,"saveBatchSetting")
-        if (res.data.code === 200) {
-          this.$message.success('设置成功!')
-          this.$emit('close', false)
-        } else {
-          this.$message.error(`设置失败-${res.data.message}`)
+        for (let i = 0; i < this.chooseData.length; i++) {
+          let order = this.chooseData[i]
+          this.form.shotAmount = (Number(this.form.shotAmountRmb) / Number(this.rateList[order.country.toUpperCase()])).toFixed(2)
+          let params = this.form
+          params.sysOrderId = order.id
+          params.platformId = params.platformId.toString()
+          params.shotStatus = params.shotStatus.toString()
+          params.buyAccountInfo = JSON.stringify(obj)
+
+          if (this.shopeeLink) {
+            let shopid = this.shopeeLink.match(/shopid=(\d+)/)
+            params.shopid = shopid ? shopid[1] : ''
+            let orderId = this.shopeeLink.match(/orderId=(\d+)/)
+            orderId = orderId ? orderId[1] : ''
+          }
+          params.markStatus = '0'
+          if(this.dealType === 'single'){
+            params.warehouseUserId = this.warehouse.warehouse_id || ''
+          }  
+          let res = await this.$api.updateShotOrder(params)
+          console.log(res, 'saveBatchSetting')
+          if (res.data.code === 200 ) {
+            if(i === this.chooseData.length-1){
+              this.$message.success('设置成功!')
+              this.$emit('close', false)
+            }
+          } else {
+            this.$message.error(`设置失败-${res.data.message}`)
+          }
+          console.log(this.form, params, res)
         }
-        console.log(this.form, params, res)
       })
     },
   },

@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-11-26 11:02:21
- * @LastEditTime: 2021-11-29 17:33:17
+ * @LastEditTime: 2021-12-14 21:26:15
  * @LastEditors: Please set LastEditors
  * @Description: 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  * @FilePath: \shopeeman-new\src\views\order-manager\components\orderCenter\replayBuyer.vue
@@ -72,7 +72,7 @@ export default {
     },
     async setReplyData(){
       let params = {
-        evaluateOrderBuyerConfig:JSON.stringify(this.replyData)
+        evaluateOrderBuyerConfig: JSON.stringify(this.replyData)
       }
       let res = await this.$api.saveUserConfig(params)
       if(res.data.code===200){

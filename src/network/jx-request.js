@@ -223,6 +223,8 @@ export default {
   uplaodLazadaPaymentMethod: (data) => AppRequest.post('/order/uplaodShotOrderPaymentMethod',  data ),//上报lazada付款方式 
   uploadOrderLogisticsInfo: (data) => AppRequest.post('/order/uploadOrderLogisticsInfo',  data ),//上报shop平台的物流
   getDeliveryList: (data) => AppRequest.post('/order/deliveryIndex',  data ),//发货管理列表
+  updateShotOrder: (data) => AppRequest.post('/order/uploadShotOrderInfo', data), // 上传拍单信息
+
 
 
 }

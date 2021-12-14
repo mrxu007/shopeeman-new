@@ -1353,6 +1353,41 @@ export default class NetMessageBridgeService {
       }
     }
   }
+  // 更新买家留言
+  async updateNode(country, data) {
+    const res = await this.postChinese(country, '/api/v3/order/update_note/', data, {
+      Headers: {
+        'Content-Type': ' application/json'
+      }
+    })
+    const resObj = res && JSON.parse(res)
+    console.log(resObj)
+    if (resObj && resObj.status === 200) {
+      const info = JSON.parse(resObj.data)
+      if (info && info.code === 0) {
+        return {
+          code: 200,
+          data: info.data || []
+        }
+      } else {
+        return {
+          code: 50001,
+          data: info.message || resObj.statusText || ''
+        }
+      }
+    } else {
+      if (resObj.status === 403) {
+        return {
+          code: resObj.status,
+          data: `评论回复失败，店铺未登录！`
+        }
+      }
+      return {
+        code: resObj.status,
+        data: `评论回复失败${resObj.statusText}`
+      }
+    }
+  }
   // 获取面单类型 
   async getPrintWaybillType(country, data) {
     const res = await this.getChinese(country, '/api/v3/logistics/get_print_waybill_type', data)
