@@ -640,30 +640,11 @@
         </div>
       </el-dialog>
       <el-dialog title="商品标签" width="300px" top="25vh" :close-on-click-modal="false" :visible.sync="goodsTagVisible">
-        <div class="goods_tag_dialog">
-          <div class="on_new_dialog_box">
-            <div>商品标签：</div>
-            <el-select v-model="goodsTagAction" size="mini" style="width: 200px;">
-              <el-option
-                  v-for="item in goodsTagList"
-                  :key="item.id"
-                  :label="item.label_name"
-                  :value="item.label_name">
-              </el-option>
-            </el-select>
-          </div>
-          <div class="on_new_dialog_box" style="margin-top: 10px;">
-            <div>当前标签：</div>
-            <el-input size="mini" style="width: 200px;" v-model="goodsTagCurrent"></el-input>
-          </div>
-          <div class="on_new_dialog_box" style="justify-content: space-evenly;margin-top: 10px;">
-            <el-button type="primary" size="mini" @click="updateGoodsTag">　确　定　</el-button>
-            <el-button size="mini" @click="goodsTagVisible = false">　取　消　</el-button>
-          </div>
-        </div>
+        <goodsLabel v-if="goodsTagVisible" />
       </el-dialog>
       <el-dialog title="类目映射" width="700px" top="25vh" :close-on-click-modal="false" :visible.sync="categoryVisible">
-        <categoryMapping :country="country" :goodsCurrent="goodsCurrent"/>
+        <categoryMapping v-if="categoryVisible" :country="country" :goods-current="goodsCurrent" :mall-list="mallList"
+                         @categoryChange="categoryChange"/>
       </el-dialog>
     </div>
   </el-row>
@@ -672,7 +653,8 @@
 <script>
   import storeChoose from '../../../components/store-choose'
   import categoryMapping from '../../../components/category-mapping'
-  import { batchOperation } from '../../../util/util'
+  import goodsLabel from '../../../components/goods-label'
+  import {batchOperation} from '../../../util/util'
 
   export default {
     data() {
@@ -852,7 +834,7 @@
         }
       }
     },
-    components: { storeChoose, categoryMapping },
+    components: {storeChoose, categoryMapping, goodsLabel},
     watch: {
       country(value) {
         this.associatedConfig.onNewInterval = value !== 'ID' && '40' || '50'
@@ -960,26 +942,31 @@
       async synchronousCategory() {
 
       },
-      enterCategory(type = 0,row = null) {
-          this.goodsCurrent = row
-        if (type === 1 && this.mallList.length < 1){
+      enterCategory(type = 0, row = null) {
+        console.log(this.mallList);
+        if (type === 1 && this.mallList.length < 1) {
           this.$message.error('请选择一个店铺')
           return false
         }
-        if (type === 2 && this.goodsTableSelect.length < 1){
+        if (type === 2 && this.goodsTableSelect.length < 1) {
           this.$message.error('请选择一个商品信息')
           return false
         }
         this.categoryVisible = true
+        this.goodsCurrent = row
+      },
+      async categoryChange(val) {
+        console.log('categoryChange', val);
+        if (val) {
+
+        }
+        this.categoryVisible = false
       },
       async enterGoodsTag() {
         if (this.goodsTableSelect.length < 1) {
           this.$message.error('请至少选择一个商品')
           return
         }
-        let goodsTagListJson = await this.$commodityService.getGoodsTagList()
-        let goodsTagListRes = JSON.parse(goodsTagListJson)
-        this.goodsTagList = goodsTagListRes.data || []
         this.goodsTagVisible = true
       },
       async updateGoodsTag() {
@@ -999,13 +986,13 @@
         let temp = this.goodsTagList.filter(i => i.label_name === this.goodsTagAction)[0]
         let data = []
         this.goodsTableSelect.forEach(item => {
-          data.push(Object.assign(JSON.parse(JSON.stringify(item)), { sysLabelId: temp.id }))
+          data.push(Object.assign(JSON.parse(JSON.stringify(item)), {sysLabelId: temp.id}))
         })
         await batchOperation(data, this.setGoodsTag)
         console.log(data)
         this.goodsTagVisible = false
       },
-      async setGoodsTag(item, count = { count: 1 }) {
+      async setGoodsTag(item, count = {count: 1}) {
         try {
           let addGoodsToTagJson = await this.$commodityService.addGoodsToTag(item.sysLabelId, [item.id])
           console.log(addGoodsToTagJson)
@@ -1063,7 +1050,7 @@
               status: 1
             }
             let option = {
-              headers: { 'Content-Type': 'application/json;charset=UTF-8' }
+              headers: {'Content-Type': 'application/json;charset=UTF-8'}
             }
             let discountJson = await this.$shopeemanService.discount(this.country, param, option)
             let discountRes = JSON.parse(discountJson)
@@ -1145,10 +1132,8 @@
         })
       },
       changeMallList(data) {  //店铺列表
-        if (data.mallList && data.mallList.length > 0) {
-          this.mallList = data.mallList
-          this.country = data.country
-        }
+        this.mallList = data.mallList
+        this.country = data.country
       }
     }
   }
