@@ -213,7 +213,7 @@ export default class NetMessageBridgeService {
         referer: baseUrl + referer
       })
     }
-    console.log(url, JSON.stringify(options), JSON.stringify(data))
+    // console.log(url, JSON.stringify(options), JSON.stringify(data))
     return this.NetMessageBridgeService().post(url, JSON.stringify(options), JSON.stringify(data))
   }
   async getChineseReferer(country, api, data, options = {}) {
