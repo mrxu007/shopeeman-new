@@ -74,56 +74,18 @@
     methods: {
       async confirmCategory(index = 0) {
         if (this.goodsCurrent) {
-          if (this.goodsCurrent.goodsId) {
-            let index = this.goodsTable.findIndex(i => i.goodsId === this.goodsCurrent.goodsId)
-            let categoryId = this.categoryAction[this.categoryAction.length - 1]
-            let category = this.categoryList[this.categoryList.length - 1].filter(i => i.category_id === categoryId)[0]
-            let temp = Object.assign(JSON.parse(JSON.stringify(this.goodsTable[index])), {
-              categoryIdList: this.categoryAction,
-              categoryId: categoryId,
-              categoryName: category.category_name + '(' + category.category_cn_name + ')'
-            })
-            this.goodsTable[index] = temp
-            // this.goodsTable.splice(index,1,temp)
-            let categoryAttributes = []
-            this.attributesList.forEach(item => {
-              let son = item.new_options_obj.filter(i => i.value_id === item.options)[0]
-              categoryAttributes.push({
-                attributeId: item.attribute_id,
-                attributeName: item.attribute_name,
-                valueId: son.value_id,
-                value: son.value
-              })
-            })
-            let param = {
-              relationCategoryId: this.goodsCurrent.originCategoryId,
-              country: this.country,
-              platformId: this.goodsCurrent.platform,
-              platformCategoryId: categoryId,
-              categoryAttributes: categoryAttributes
-            }
-            console.log('saveCategoryRelation - param', param)
-            this.$commodityService.saveCategoryRelation(param).then(res => {
-              console.log('categoryRelationRes', res)
-            })
-          } else {
-            this.goodsTableSelect.forEach(item => {
-              let index = this.goodsTable.findIndex(i => i.goodsId === item.goodsId)
-              let categoryId = this.categoryAction[this.categoryAction.length - 1]
-              let category = this.categoryList[this.categoryList.length - 1].filter(i => i.category_id === categoryId)[0]
-              let temp = Object.assign(JSON.parse(JSON.stringify(this.goodsTable[index])), {
-                categoryIdList: this.categoryAction,
-                categoryId: categoryId,
-                categoryName: category.category_name + '(' + category.category_cn_name + ')'
-              })
-              item = temp
-              this.goodsTable[index] = temp
-              // this.goodsTable.splice(index,1,temp)
-            })
-            console.log(this.goodsTableSelect)
-          }
-        }
-        else {
+          let categoryList = []
+          let attributesList = []
+          this.categoryList.forEach((item,index)=>{
+            let temp = item.find(i=>i.category_id === this.categoryAction[index])
+            categoryList.push(temp)
+          })
+          this.attributesList.forEach((item,index)=>{
+            let temp = item.new_options_obj.find(i=>i.value_id === item.options)
+            attributesList.push(temp)
+          })
+          console.log('categoryList :',categoryList,'attributesList :',attributesList);
+        } else {
           let mall = this.mallList[index]
           let category_ids = this.categoryAction[this.categoryAction.length - 1]
           let param = {
@@ -203,9 +165,10 @@
         if (attributeRes.code === 200) {
           let attributeList = attributeRes.data && attributeRes.data.attributes
           attributeList.forEach(item => {
+            console.log('attributeList', item);
             let index = this.attributesCurrent.findIndex(i => i.attribute_id === item.attribute_id)
             let attributesCurrent = this.attributesCurrent[index] && this.attributesCurrent[index].value_id || 0
-            item.new_options_obj = JSON.parse(item.new_options)
+            item.new_options_obj = item.new_options && JSON.parse(item.new_options) || []
             item.options = index > -1 && parseInt(attributesCurrent) || item.new_options_obj[0].value_id
             this.attributesList.push(item)
           })
@@ -213,6 +176,7 @@
         }
       },
       setCategory(val, index) {
+        console.log('setCategory', val, index);
         this.categoryList.splice(index + 1, this.categoryList.length - index)
         this.categoryAction.splice(index + 1, this.categoryAction.length - index)
         this.enterCategory(val + '', ++index)
@@ -224,6 +188,7 @@
             let categoryRelationJson = await this.$commodityService.getCategoryRelation(
               this.goodsCurrent.originCategoryId, this.country, this.goodsCurrent.platform + '')
             let categoryRelationRes = JSON.parse(categoryRelationJson)
+            console.log('categoryRelationRes', categoryRelationRes);
             this.attributesCurrent = categoryRelationRes.data && categoryRelationRes.data.attributes || []
           }
         }
