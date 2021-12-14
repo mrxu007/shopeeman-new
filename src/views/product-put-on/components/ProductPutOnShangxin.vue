@@ -338,7 +338,7 @@
         <el-button size="mini">取消发布</el-button>
         <el-button size="mini" type="primary">清理全部</el-button>
         <el-button size="mini" type="primary">设置定时任务</el-button>
-        <el-button size="mini" type="primary" @click="enterCategory(categoryId = '0', index = 0 , 1) ">批量映射虾皮类目
+        <el-button size="mini" type="primary" @click="enterCategory('0', 0 , 1)">批量映射虾皮类目
         </el-button>
         <el-button size="mini" :type="isNoFoldShow && 'primary'" @click="isNoFoldShow = !isNoFoldShow">
           {{isNoFoldShow && '折叠' || '展开'}}
@@ -663,7 +663,7 @@
         </div>
       </el-dialog>
       <el-dialog title="类目映射" width="700px" top="25vh" :close-on-click-modal="false" :visible.sync="categoryVisible">
-        <categoryMapping />
+        <categoryMapping :country="country" />
       </el-dialog>
     </div>
   </el-row>
@@ -1029,7 +1029,8 @@
             })
             console.log(this.goodsTableSelect)
           }
-        } else {
+        }
+        else {
           let mall = this.mallList[index]
           let category_ids = this.categoryAction[this.categoryAction.length - 1]
           let param = {
