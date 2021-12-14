@@ -69,7 +69,6 @@ export default class ShopeemanConfig {
       'PL': 'zł'
     }
 
-
     // 各站点的网址(大陆、本土)和域名选择方式，根据页面（设置->基础设置->域名设置）配置来确定
 
     // 各站点大陆前台网址
@@ -367,7 +366,7 @@ export default class ShopeemanConfig {
           'CountryCode': 'TW',
           'IsDeafult': false,
           'IsSelected': false,
-          'IsCustomShipFee': true,
+          'IsCustomShipFee': false,
           'ShipId': '30012',
           'ShipName': '蝦皮宅配'
         }
