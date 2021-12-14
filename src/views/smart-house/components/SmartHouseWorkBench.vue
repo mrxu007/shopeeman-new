@@ -200,7 +200,7 @@
         <el-table-column label="数量" min-width="100px" prop="goodsCount" />
         <el-table-column label="商品详情" min-width="110px">
           <template slot-scope="scope">
-            <p><el-button type="primary" size="mini" @click="getGoodsInfo(scope.row.package_order_sn),currenWarehouse=scope.row.warehouse_name">查看签收详情</el-button></p>
+            <p><el-button type="primary" size="mini" @click="getGoodsInfo(scope.row.package_order_sn,scope.row.delivery_status),currenWarehouse=scope.row.warehouse_name">查看签收详情</el-button></p>
           </template>
         </el-table-column>
         <el-table-column label="包裹重量" min-width="100px">
@@ -271,6 +271,7 @@
                 style="width: 120px"
                 placeholder="请输入备注内容"
                 size="mini"
+                clearable
                 @blur="changeRemark(scope.row.package_order_sn, scope.$index)"
               />
               <i style="cursor: pointer" class="el-icon-edit-outline" @click="editRemark(scope.$index, scope.row.id)" />
@@ -469,7 +470,7 @@
           </el-table-column>
           <el-table-column label="包裹签收图片" min-width="100px">
             <template slot-scope="scope">
-              <el-tooltip v-if="scope.row.package" effect="light" placement="right-end" :visible-arrow="false" :enterable="false" style="width: 56px; height: 56px">
+              <el-tooltip v-if="scope.row.package && scope.row.package.package_image" effect="light" placement="right-end" :visible-arrow="false" :enterable="false" style="width: 56px; height: 56px">
                 <div slot="content">
                   <img :src="scope.row.package.package_image" width="400px" height="400px">
                 </div>
@@ -483,8 +484,9 @@
             fixed="right"
           >
             <template slot-scope="scope">
+              <!-- v-if="scope.row.isAbnormslPayment !==1 || scope.row.package || peifu" -->
               <el-button
-                v-if="scope.row.isAbnormslPayment !==1 || scope.row.package"
+                v-if="peifu"
                 type="primary"
                 size="mini"
                 @click="applyDialog(scope.row)"
@@ -693,6 +695,7 @@ export default {
   },
   data() {
     return {
+      peifu: false,
       currenWarehouse: '',
       exportLoading: false,
       detailLoading: false, // 查看订单包裹详情加载
@@ -1700,7 +1703,13 @@ export default {
       return data
     },
     // 查看包裹信息弹窗
-    async getGoodsInfo(packageOrderSn) {
+    async getGoodsInfo(packageOrderSn, delivery_status) {
+      // 待入库 已出库
+      if (Number(delivery_status) === 1 || Number(delivery_status) === 5) {
+        this.peifu = true
+      } else {
+        this.peifu = false
+      }
       this.dialogVisible2 = true
       const params = { packageOrderSn }
       try {

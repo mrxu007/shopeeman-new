@@ -455,37 +455,37 @@ export function formatDuring(mss) {
  * @returns {Promise<void>}
  */
 
-export async function importOrder(tableData,jsonData,workName = '') {
-  let arr = []
+export async function importOrder(tableData, jsonData, workName = '') {
+  const arr = []
   arr.push(tableData)
-  jsonData.forEach(item => {arr.push(item)})
-  let worksheet = XLSX.utils.aoa_to_sheet(arr)
+  jsonData.forEach(item => { arr.push(item) })
+  const worksheet = XLSX.utils.aoa_to_sheet(arr)
   console.log(fitToColumn(arr))
-  worksheet['!cols'] = fitToColumn(arr);
-  let workbook = XLSX.utils.book_new()
-  XLSX.utils.book_append_sheet(workbook,worksheet,workName || (new Date(Date.now()+8*3600*1000).toISOString().slice(0,10)))
-  XLSX.writeFile(workbook,`${workName}${new Date(Date.now()+8*3600*1000).toISOString().slice(0,10)}.xlsx`)
+  worksheet['!cols'] = fitToColumn(arr)
+  const workbook = XLSX.utils.book_new()
+  XLSX.utils.book_append_sheet(workbook, worksheet, workName || (new Date(Date.now() + 8 * 3600 * 1000).toISOString().slice(0, 10)))
+  XLSX.writeFile(workbook, `${workName}${new Date(Date.now() + 8 * 3600 * 1000).toISOString().slice(0, 10)}.xlsx`)
   function fitToColumn(arrayOfArray) {
-    return arrayOfArray[0].map((a, i) => ({ wch: Math.max(...arrayOfArray.map(a2 => a2[i] ? a2[i].toString().length : 10)) * 1.5 }));
+    return arrayOfArray[0].map((a, i) => ({ wch: Math.max(...arrayOfArray.map(a2 => a2[i] ? a2[i].toString().length : 10)) * 1.5 }))
   }
 }
 
 export async function waitStart(prepare, num = 500) {
-  let count = 0;
-  let number = num && parseInt(num) || 500;
+  let count = 0
+  const number = num && parseInt(num) || 500
   return new Promise((resolve, reject) => {
-    let ing = setInterval(() => {
-      ++count;
+    const ing = setInterval(() => {
+      ++count
       if (prepare() || count >= number) {
-        console.log('等待成功', prepare);
-        clearInterval(ing);
+        console.log('等待成功', prepare)
+        clearInterval(ing)
         resolve(prepare())
       }
-    }, 200);
+    }, 200)
   })
 }
 export async function selfAliYunTransImage(imgUrl, command, account, that) {
-  account.login_info = account.login_info || JSON.parse( account.loginInfo)
+  account.login_info = account.login_info || JSON.parse(account.loginInfo)
   const _csrf = account.login_info.find(item => {
     return item.Name == 'XSRF-TOKEN'
   })
@@ -499,15 +499,15 @@ export async function selfAliYunTransImage(imgUrl, command, account, that) {
       'imageUrls': [imgUrl]
     }]
   }, { headers: {
-      cookies: account.login_info
-    }})
+    cookies: account.login_info
+  }})
   console.log(data1)
   if (data1.status == 200 && data1.data.code == 200) {
     const url = `https://www.alifanyi.com/api/imagetranslate/composeDetail/${data1.data.data}/1?_csrf=${_csrf.Value}`
     const data2 = await that.$api.jdRequest.post(url, {
     }, { headers: {
-        cookies: account.login_info
-      }})
+      cookies: account.login_info
+    }})
     console.log(data2)
     let res = ''
     if (data2.data.data) {
@@ -526,7 +526,7 @@ export async function selfAliYunTransImage(imgUrl, command, account, that) {
   }
 }
 export function getArraySrcLengthSort(arr, type) {
-  let sort = []
+  const sort = []
   for (let i = 0; i < arr.length; i++) {
     let index = 0
     for (let j = 0; j < arr.length; j++) {
