@@ -30,8 +30,9 @@ export default class GoodsManagerAPI {
         ecode = des.code
       }
       const data = des.data
+      const message = des.message
       //   console.log('=============', 'mallid:' + params.mallId, ecode, des)
-      return { ecode, data }
+      return { ecode, data, message }
     } catch (error) {
       return { code: -2, data: `getSkuList-catch: ${error}` }
     }
@@ -314,7 +315,37 @@ export default class GoodsManagerAPI {
       }
       const res = await this._this.$shopeemanService.postChineseReferer(country, '/api/marketing/v4/graphql/query/?', params, {
         headers: {
-          'content-type': 'application/json',
+          'Content-Type': 'application/json',
+          referer: `/portal/category/${collection_ids}`
+        }
+      })
+      const des = JSON.parse(JSON.parse(res).data)
+      const ecode = des.data?.products ? 0 : -2
+      // if (des.errcode) {
+      //   ecode = des.errcode
+      // } else {
+      //   ecode = des.code
+      // }
+      const data = des.data
+      const message = des.message
+      return { ecode, data, message }
+    } catch (error) {
+      return { code: -2, data: `getGoodsDetail-catch: ${error}` }
+    }
+  }
+
+  // 删除-商品详情-商品
+  async getGoodsDetailListdel(goodsinfo) {
+    try {
+      const { country, mallId, product_id_list, collection_ids } = goodsinfo
+      const params = {
+        mallId: mallId,
+        collection_id: collection_ids,
+        product_id_list: product_id_list
+      }
+      const res = await this._this.$shopeemanService.postChineseReferer(country, '/api/shopcategory/v3/category/remove_collection_item/?', params, {
+        headers: {
+          'Content-Type': 'application/json',
           referer: `/portal/category/${collection_ids}`
         }
       })
@@ -327,6 +358,69 @@ export default class GoodsManagerAPI {
       }
       const data = des.data
       const message = des.message
+      return { ecode, data, message }
+    } catch (error) {
+      return { code: -2, data: `getGoodsDetail-catch: ${error}` }
+    }
+  }
+  // 修改名字
+  async getGoodsDetailListUpdateName(goodsinfo) {
+    try {
+      const { country, mallId, name, collection_ids } = goodsinfo
+      const params = {
+        mallId: mallId,
+        id: collection_ids,
+        name: name
+      }
+      const res = await this._this.$shopeemanService.postChineseReferer(country, '/api/shopcategory/v3/category/update_shop_collection/?', params, {
+        headers: {
+          'Content-Type': 'application/json',
+          referer: `/portal/category/${collection_ids}`
+        }
+      })
+      const des = JSON.parse(JSON.parse(res).data)
+      let ecode = des.code ? des.code : des.errcode
+      if (des.errcode) {
+        ecode = des.errcode
+      } else {
+        ecode = des.code
+      }
+      const data = des.data
+      const message = des.message
+      return { ecode, data, message }
+    } catch (error) {
+      return { code: -2, data: `getGoodsDetail-catch: ${error}` }
+    }
+  }
+  // 获取商品信息
+  async getGoodsDetailinfo(goodsinfo) {
+    try {
+      const { country, shopid, itemid } = goodsinfo
+      const params = {
+        shopid: shopid,
+        itemid: itemid.toString()
+      }
+      const query = {
+        platform_mall_id: shopid
+      }
+      const webUrl = await this._this.$shopeemanService.getWebUrl(country, query)
+      const url = `${webUrl}/api/v2/item/get?`
+      const res = await this._this.$shopeemanService.getChineseLaiZan(url, params, {
+        headers: {
+          Referer: `${webUrl}/product/${shopid}/${itemid}`,
+          'Accept': 'application/json, application/xml, text/json, text/x-json, text/javascript, text/xml'
+        }
+      })
+      const des = JSON.parse(JSON.parse(res).data)
+      let ecode = null
+      let message = null
+      if (des.item) {
+        ecode = 0
+      } else {
+        ecode = -2
+        message = '暂无数据'
+      }
+      const data = des.item
       return { ecode, data, message }
     } catch (error) {
       return { code: -2, data: `getGoodsDetail-catch: ${error}` }

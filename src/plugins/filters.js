@@ -177,4 +177,15 @@ var countryShopeebuyCom = function(val) {
   attribute = site_http_com[attribute] || attribute
   return site_http_com[attribute] || attribute
 }
-export { chineseSite, imageRender, siteCoin, sitePlatform, countryShopeebuyCom, countries_option, countries_site }
+
+var imageRenderhaventID = function(data) { // 第二个参数传任意传
+  const country = data[0]
+  // const shop_id = data[1]
+  const image_value = data[2]
+  const isArr = data[3] || ''
+  let attribute = country && (country + '').toLocaleUpperCase() || country
+  attribute = countries_id[attribute] || attribute
+  const url = countries_image[attribute] && (countries_image[attribute] + '/file/' + image_value) || ''
+  return isArr && [url] || url
+}
+export { chineseSite, imageRender, imageRenderhaventID, siteCoin, sitePlatform, countryShopeebuyCom, countries_option, countries_site }

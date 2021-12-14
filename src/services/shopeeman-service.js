@@ -147,7 +147,7 @@ export default class NetMessageBridgeService {
         referer: url + referer
       })
     }
-    console.log('-----', url, JSON.stringify(options))
+    // console.log('-----', url, JSON.stringify(options))
     return this.NetMessageBridgeService().get(url, JSON.stringify(options))
   }
 
@@ -213,8 +213,25 @@ export default class NetMessageBridgeService {
         referer: baseUrl + referer
       })
     }
-    console.log(url, JSON.stringify(options), JSON.stringify(data))
+    // console.log(url, JSON.stringify(options), JSON.stringify(data))
     return this.NetMessageBridgeService().post(url, JSON.stringify(options), JSON.stringify(data))
+  }
+  async getChineseReferer(country, api, data, options = {}) {
+    data = JSON.parse(JSON.stringify(data))
+    const url = await this.getUrlPrefix(country, data) + api
+    const baseUrl = await this.getUrlPrefix(country, data)
+    options['extrainfo'] = this.getExtraInfo(data)
+    delete data.mallId // body 里面不能带店铺id
+    options['params'] = data
+    const referer = options['headers'] && options['headers'].referer
+    if (referer) {
+      options['headers'] = Object.assign(options['headers'], {
+        origin: baseUrl,
+        referer: baseUrl + referer
+      })
+    }
+    console.log('-----get', url, JSON.stringify(options))
+    return this.NetMessageBridgeService().get(url, JSON.stringify(options))
   }
   async postChineseShop(country, api, data, params, options = {}, exportInfo) {
     data = JSON.parse(JSON.stringify(data))
