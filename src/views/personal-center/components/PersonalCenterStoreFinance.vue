@@ -317,19 +317,36 @@ export default {
           page: this.currentPage,
           trans_time: this.tradeTime.length ? this.tradeTime[0] + ' 00:00:00/' + this.tradeTime[1] + ' 23:59:59' : ''
         }
-        const resf = await this.$XzyNetMessageService.post('xzy.UserGetUserRecharge', params)
-        // console.log(res)
-        if (resf) {
-          const resObj = resf && JSON.parse(resf)
-          const info = resObj && resObj.data && JSON.parse(resObj.data)
-          let totalPage = (info.data && info.data.total_page) || 0
-          while (params.page <= totalPage) {
-            this.exportDataList = this.exportDataList.concat(info.data.data)
-            params.page++
-            const res = await this.$XzyNetMessageService.post('xzy.UserGetUserRecharge', params)
-            totalPage = (res && JSON.parse(res).data && JSON.parse(JSON.parse(res).data) && JSON.parse(JSON.parse(res).data).data && JSON.parse(JSON.parse(res).data).data.total_page) || 0
+        while (this.exportDataList.length < this.total) {
+          try {
+            const resf = await this.$XzyNetMessageService.post('xzy.UserGetUserRecharge', params)
+            const resObj = resf && JSON.parse(resf)
+            if (resObj.status === 200) {
+              const info = resObj && resObj.data && JSON.parse(resObj.data)
+              this.exportDataList = this.exportDataList.concat(info.data.data)
+              params.page++
+            } else {
+              this.$message.error('导出数据错误')
+              break
+            }
+          } catch (error) {
+            this.$message.error('导出数据异常')
+            break
           }
         }
+        // const resf = await this.$XzyNetMessageService.post('xzy.UserGetUserRecharge', params)
+        // // console.log(res)
+        // if (resf) {
+        //   const resObj = resf && JSON.parse(resf)
+        //   const info = resObj && resObj.data && JSON.parse(resObj.data)
+        //   let totalPage = (info.data && info.data.total_page) || 0
+        //   while (params.page <= totalPage) {
+        //     this.exportDataList = this.exportDataList.concat(info.data.data)
+        //     params.page++
+        //     const res = await this.$XzyNetMessageService.post('xzy.UserGetUserRecharge', params)
+        //     totalPage = (res && JSON.parse(res).data && JSON.parse(JSON.parse(res).data) && JSON.parse(JSON.parse(res).data).data && JSON.parse(JSON.parse(res).data).data.total_page) || 0
+        //   }
+        // }
         this.exportRecharge(this.exportDataList)
       } else if (this.activeName === 'accountRecord') {
         const params = {
@@ -340,18 +357,35 @@ export default {
           package_order_sn: this.orderNumber,
           trans_type: this.tradeType
         }
-        const resf = await this.$XzyNetMessageService.post('xzy.UserGetUserAccountAmount', params)
-        if (resf) {
-          const resObj = resf && JSON.parse(resf)
-          const info = resObj && resObj.data && JSON.parse(resObj.data)
-          let totalPage = (info && info.data && info.data.total_page) || 0
-          while (params.page <= totalPage) {
-            this.exportDataList = this.exportDataList.concat(info.data.data)
-            params.page++
-            const res = await this.$XzyNetMessageService.post('xzy.UserGetUserAccountAmount', params)
-            totalPage = (res && JSON.parse(res).data && JSON.parse(JSON.parse(res).data) && JSON.parse(JSON.parse(res).data).data && JSON.parse(JSON.parse(res).data).data.total_page) || 0
+        while (this.exportDataList.length < this.total) {
+          try {
+            const resf = await this.$XzyNetMessageService.post('xzy.UserGetUserAccountAmount', params)
+            const resObj = resf && JSON.parse(resf)
+            if (resObj.status === 200) {
+              const info = resObj && resObj.data && JSON.parse(resObj.data)
+              this.exportDataList = this.exportDataList.concat(info.data.data)
+              params.page++
+            } else {
+              this.$message.error('导出数据错误')
+              break
+            }
+          } catch (error) {
+            this.$message.error('导出数据异常')
+            break
           }
         }
+        // const resf = await this.$XzyNetMessageService.post('xzy.UserGetUserAccountAmount', params)
+        // if (resf) {
+        //   const resObj = resf && JSON.parse(resf)
+        //   const info = resObj && resObj.data && JSON.parse(resObj.data)
+        //   let totalPage = (info && info.data && info.data.total_page) || 0
+        //   while (params.page <= totalPage) {
+        //     this.exportDataList = this.exportDataList.concat(info.data.data)
+        //     params.page++
+        //     const res = await this.$XzyNetMessageService.post('xzy.UserGetUserAccountAmount', params)
+        //     totalPage = (res && JSON.parse(res).data && JSON.parse(JSON.parse(res).data) && JSON.parse(JSON.parse(res).data).data && JSON.parse(JSON.parse(res).data).data.total_page) || 0
+        //   }
+        // }
         this.exportAccount(this.exportDataList)
       }
       this.tableLoading = false

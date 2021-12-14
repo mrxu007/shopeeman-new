@@ -124,4 +124,8 @@ export default class BaseUtilService {
   async loginNeedPopUps(name,data) {
     return await this.nativeService.loginNeedPopUps(name,JSON.stringify(data))
   }
+
+  async loginNeedPopUps(name,data) {
+    return await this.nativeService.loginNeedPopUps(name,JSON.stringify(data))
+  }
 }
