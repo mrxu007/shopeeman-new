@@ -398,32 +398,190 @@ export default class GoodsManagerAPI {
       const { country, shopid, itemid } = goodsinfo
       const params = {
         shopid: shopid,
-        itemid: itemid.toString()
+        itemid: itemid.toString(),
+        platform_mall_id: shopid
+      }
+      const res = await this._this.$shopeemanService.getChinese(country, '/api/v4/item/get?', params, {
+        headers: {
+          isGBK: false,
+          referer: `/%E2%80%BC%EF%B8%8F%E0%B8%9E%E0%B8%A3%E0%B9%89%E0%B8%AD%E0%B8%A1%E0%B8%AA%E0%B9%88%E0%B8%87-%E0%B9%80%E0%B8%AA%E0%B8%B7%E0%B9%89%E0%B8%AD%E0%B9%84%E0%B8%AB%E0%B8%A1%E0%B8%9E%E0%B8%A3%E0%B8%A1%E0%B9%81%E0%B8%82%E0%B8%99%E0%B8%AA%E0%B8%B1%E0%B9%89%E0%B8%99-i.158200153.14917339828?sp_atk=9ce84e99-1174-45ee-a41e-490ed09b0f89`,
+          'Accept': '*/*',
+          'accept-encoding': 'gzip, deflate, br',
+          'accept-language': 'zh-CN,zh;q=0.9'
+        }
+      })
+
+      const aa = JSON.parse(res)
+      const bb = aa.data.replaceAll('?,', '?",')
+      const des = JSON.parse(bb)
+      let ecode = null
+      let message = null
+      let data = null
+      if (des.data) {
+        ecode = 0
+        data = des.data
+      } else {
+        ecode = -2
+        message = JSON.parse(res).error_msg
+      }
+      return { ecode, data, message }
+    } catch (error) {
+      return { code: -2, data: `getGoodsDetail-catch: ${error}` }
+    }
+  }
+  // 商品点赞
+  async GoodsbuyerLike(goodsinfo) {
+    try {
+      const { country, shopid, itemid } = goodsinfo
+      const params = {
+        mallId: shopid,
+        shop_item_ids: [{
+          shop_id: shopid.toString(),
+          item_id: itemid.toString()
+        }].toString()
+      }
+      debugger
+      const res = await this._this.$shopeemanService.postChineseReferer(country, '/api/v4/pages/like_items', params, {
+        headers: {
+          'Content-Type': 'application/json',
+          'accept': 'application/json',
+          'accept-encoding': 'gzip, deflate, br',
+          'accept-language': 'zh-CN,zh;q=0.9',
+          referer: `/ADIDOG-%E0%B9%84%E0%B8%8B%E0%B8%8B%E0%B9%8C%E0%B9%83%E0%B8%AB%E0%B8%8D%E0%B9%88%E0%B8%A1%E0%B8%B2%E0%B8%81%E0%B8%81%E0%B8%81%F0%9F%90%B6%E0%B9%80%E0%B8%AA%E0%B8%B7%E0%B9%89%E0%B8%AD%E0%B8%AE%E0%B8%B9%E0%B9%89%E0%B8%94-%E0%B9%80%E0%B8%AA%E0%B8%B7%E0%B9%89%E0%B8%AD%E0%B8%AA%E0%B8%B8%E0%B8%99%E0%B8%B1%E0%B8%82-%E0%B8%8A%E0%B8%B8%E0%B8%94%E0%B8%AA%E0%B8%B8%E0%B8%99%E0%B8%B1%E0%B8%82-%E0%B8%8A%E0%B8%B8%E0%B8%94%E0%B8%AB%E0%B8%A1%E0%B8%B2-%E0%B9%80%E0%B8%AA%E0%B8%B7%E0%B9%89%E0%B8%AD%E0%B8%AB%E0%B8%A1%E0%B8%B2-%E0%B9%80%E0%B8%AA%E0%B8%B7%E0%B9%89%E0%B8%AD%E0%B8%AA%E0%B8%B1%E0%B8%95%E0%B8%A7%E0%B9%8C%E0%B9%80%E0%B8%A5%E0%B8%B5%E0%B9%89%E0%B8%A2%E0%B8%87-i.161669595.9780892572?sp_atk=27921f6f-3ff1-40a3-a5ff-b5b7d469e59c`
+        }
+      })
+      debugger
+      let ecode = null
+      let message = null
+      if (res.error === 0) {
+        ecode = 0
+      } else {
+        ecode = -2
+        message = '数据请求失败'
+      }
+      const data = res.data
+      return { ecode, data, message }
+    } catch (error) {
+      return { code: -2, data: `GoodsbuyerLike-catch: ${error}` }
+    }
+  }
+  // 获取商品所有评论
+  async getRatings(goodsinfo) {
+    try {
+      const { country, shopid, itemid } = goodsinfo
+      const params = {
+        filter: 0,
+        flag: 1,
+        itemid: itemid,
+        limit: 51,
+        offset: 0,
+        shopid: shopid,
+        type: 0
       }
       const query = {
         platform_mall_id: shopid
       }
       const webUrl = await this._this.$shopeemanService.getWebUrl(country, query)
-      const url = `${webUrl}/api/v2/item/get?`
+      const url = `${webUrl}/api/v2/item/get_ratings`
       const res = await this._this.$shopeemanService.getChineseLaiZan(url, params, {
         headers: {
-          Referer: `${webUrl}/product/${shopid}/${itemid}`,
-          'Accept': 'application/json, application/xml, text/json, text/x-json, text/javascript, text/xml'
+          'Content-Type': 'application/json; charset=utf-8',
+          Referer: `${webUrl}/BODY-GLOVE-Unisex-Basic-T-Shirt-%E0%B9%80%E0%B8%AA%E0%B8%B7%E0%B9%89%E0%B8%AD%E0%B8%A2%E0%B8%B7%E0%B8%94-%E0%B8%A3%E0%B8%A7%E0%B8%A1%E0%B8%AA%E0%B8%B5-i.18663111.2953207966`,
+          'Accept': 'application/json'
         }
       })
-      const des = JSON.parse(JSON.parse(res).data)
+
       let ecode = null
       let message = null
-      if (des.item) {
+      if (res.error === 0) {
         ecode = 0
       } else {
         ecode = -2
-        message = '暂无数据'
+        message = res.error_msg
       }
-      const data = des.item
+      const data = res.data
       return { ecode, data, message }
     } catch (error) {
-      return { code: -2, data: `getGoodsDetail-catch: ${error}` }
+      return { code: -2, data: `GoodsbuyerLike-catch: ${error}` }
+    }
+  }
+  // 评价点赞
+  async LikeItemRating(goodsinfo) {
+    try {
+      const { country, shopid, itemid, cmtid, like } = goodsinfo
+      const params = {
+        cmtid: cmtid,
+        itemid: itemid,
+        like: like, // true false
+        shopid: shopid
+      }
+      const query = {
+        platform_mall_id: shopid
+      }
+      const webUrl = await this._this.$shopeemanService.getWebUrl(country, query)
+      const url = `${webUrl}/api/v4/pages/like_items`
+      const res = await this._this.$shopeemanService.postChineseLaiZan(url, params, {
+        headers: {
+          'Content-Type': 'application/json',
+          Referer: `${webUrl}/adidas-ORIGINALS-Collapsible-Nizza-Lo-Shoes-%E0%B8%9C%E0%B8%B9%E0%B9%89%E0%B8%8A%E0%B8%B2%E0%B8%A2-%E0%B8%AA%E0%B8%B5%E0%B8%82%E0%B8%B2%E0%B8%A7-Sneaker-H67375-i.217077552.6268815649?sp_atk=8852f8c3-a3cd-405b-bc78-f5eb1cf77e10`,
+          'Accept': 'application/json'
+        }
+      })
+
+      let ecode = null
+      let message = null
+      if (res.error === 0) {
+        ecode = 0
+      } else {
+        ecode = -2
+        message = res.error_msg
+      }
+      const data = res.data
+      return { ecode, data, message }
+    } catch (error) {
+      return { code: -2, data: `GoodsbuyerLike-catch: ${error}` }
+    }
+  }
+  // 加入购物车
+  async addToCart(goodsinfo) {
+    try {
+      const { country, shopid, itemid, modelid } = goodsinfo
+      const params = {
+        checkout: true,
+        client_source: 1,
+        donot_add_quantity: false,
+        itemid: itemid,
+        modelid: modelid,
+        quantity: 1,
+        shopid: shopid,
+        source: '{"refer_urls":[]}',
+        update_checkout_only: false
+      }
+      const query = {
+        platform_mall_id: shopid
+      }
+      const webUrl = await this._this.$shopeemanService.getWebUrl(country, query)
+      const url = `${webUrl}/api/v4/cart/add_to_cart`
+      const res = await this._this.$shopeemanService.postChineseLaiZan(url, params, {
+        headers: {
+          'Content-Type': 'application/json',
+          Referer: `${webUrl}/adidas-ORIGINALS-Collapsible-Nizza-Lo-Shoes-%E0%B8%9C%E0%B8%B9%E0%B9%89%E0%B8%8A%E0%B8%B2%E0%B8%A2-%E0%B8%AA%E0%B8%B5%E0%B8%82%E0%B8%B2%E0%B8%A7-Sneaker-H67375-i.217077552.6268815649?sp_atk=48bb9610-70f2-4ab9-b934-a04706af1df4`,
+          'Accept': 'application/json'
+        }
+      })
+
+      let ecode = null
+      let message = null
+      if (res.error === 0) {
+        ecode = 0
+      } else {
+        ecode = -2
+        message = res.error_msg
+      }
+      const data = res.data
+      return { ecode, data, message }
+    } catch (error) {
+      return { code: -2, data: `GoodsbuyerLike-catch: ${error}` }
     }
   }
 }
