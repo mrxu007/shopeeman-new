@@ -59,12 +59,16 @@ export default class MallListAPI {
         'platform_mall_id': platform_mall_id // 导入店铺初始没有mallId
       }
       let res = await this._this.$shopeemanService.getChinese(country, '/api/selleraccount/user_info/?', params)
+      console.log('getChinese',res)
       res = JSON.parse(JSON.parse(res).data)
       if (res.code === 0) {
         return { code: 200, data: '店铺已经登陆' }
       }
       return { code: res.errcode, data: `${res.errcode} ${res.message}` }
     } catch (error) {
+      if ((error+'').indexOf('Unexpected token < in JSON at')>=0 || (error+'').indexOf('of JSON input')>=0) {
+        return { code: 502, data: '请检测代理信息' }
+      }
       return { code: -2, data: `getUserInfo-catch: ${error}` }
     }
   }
@@ -157,17 +161,40 @@ export default class MallListAPI {
     }
   }
   // 发送短信
-  async sendMessage(mallInfo, messageHeader) {
+  async sendMessage(mallInfo, messageHeader, flat) {
     try {
-      const { country, platform_mall_id } = mallInfo
+      const { country, platform_mall_id, mall_account_info } = mallInfo
+      const accountName = mall_account_info.username
       const params = {
-        platform_mall_id: platform_mall_id
+        platform_mall_id: platform_mall_id || '1111'
       }
       const headers = {
         'cookies': []
       }
       messageHeader ? headers['cookies'].push({ 'name': 'RO_T', value: messageHeader }) : ''
-      let res = await this._this.$shopeemanService.getChinese(country, '/api/selleraccount/vcode/resend/?', params, messageHeader ? { headers } : null)
+      const acccount_info = {
+        username: '',
+        password: mall_account_info.password
+      }
+      const reg = new RegExp('[\\u4E00-\\u9FFFa-zA-Z]+', 'g')
+      if (accountName.indexOf('@') > -1) {
+        params['email'] = accountName
+        acccount_info['username'] = accountName
+      } else if (reg.test(accountName)) {
+        params['username'] = accountName
+        acccount_info['username'] = accountName
+      } else {
+        const phone = this.getTelephoneNumberIsTrue(country, accountName)
+        params['phone'] = phone
+        acccount_info['username'] = phone
+      }
+      let copy_mallInfo = null
+      if (flat === 2) { // 导入店铺必须参数   flat 1 一键登陆  2导入店铺
+        copy_mallInfo = JSON.parse(JSON.stringify(mallInfo))
+        copy_mallInfo['accountName'] = acccount_info.username
+        copy_mallInfo['mall_account_info'] = acccount_info
+      }
+      let res = await this._this.$shopeemanService.getChinese(country, '/api/selleraccount/vcode/resend/?', params, messageHeader ? { headers } : null, copy_mallInfo)
       res = JSON.parse(JSON.parse(res).data)
       if (res.code === 0) {
         return { code: 200, data: '短信验证发送成功' }
@@ -177,7 +204,29 @@ export default class MallListAPI {
       return { code: -2, data: `getMallGoodsAmount-catch: ${error}` }
     }
   }
-  // 获取店铺物流
+
+  // 手机号是否符合各个国家的手机号
+  getTelephoneNumberIsTrue(country, account) {
+    const reg = {
+      'MY': '60',
+      'TW': '886',
+      'VN': '84',
+      'ID': '62',
+      'PH': '63',
+      'TH': '66',
+      'SG': '65',
+      'BR': '55',
+      'CN': '86',
+      'MX': '52',
+      'CO': '57',
+      'CL': '56',
+      'PL': '48'
+    }
+    if (account.startsWith('0')) {
+      account = account.substring(1)
+    }
+    return country === 'SG' || country === 'ID' ? account : reg[country] + account
+  }
   // 获取店铺物流
   async getMallExpress(mallInfo) {
     try {
@@ -261,6 +310,7 @@ export default class MallListAPI {
       return { code: -2, data: `getMallExpress-catch: ${error}` }
     }
   }
+
   // 本地服务接口----------------------------------------------------
   // 获取店铺列表
   async getMallList(params) {
@@ -374,7 +424,7 @@ export default class MallListAPI {
     try {
       const res = await this._this.$api.saveMallAuthInfo(mallInfo) // 导入店铺信息（服务端）
       if (res.data.code === 200) {
-        return { code: 200, data: res.data } // count_for_limit
+        return { code: 200, data: res.data.data.id + '' } // count_for_limit
       }
       return { code: res.status, data: `${res.status} ${res.data.message}` }
     } catch (error) {
@@ -416,7 +466,7 @@ export default class MallListAPI {
     Cookie['SPC_SC_TK'] = data.token
     Cookie['ShopeeUid'] = mallUId // 虾皮平台用户Uid
     Cookie['shopid'] = mallId // 平台店铺ID
-
+    debugger
     const Cookie_new = { // 店铺cookie信息(导入店铺专用)(更新壳)
       'SPC_CDS_VER': '2',
       'SPC_EC': data.sso,
@@ -517,9 +567,9 @@ export default class MallListAPI {
   }
 
   // 绑定店铺主体
-  async bindMainName(main_main_id, mallIds) {
+  async bindMainName(main_main_id, sys_mall_id) {
     try {
-      let res = await this._this.$commodityService.newBangdingMall(this._this.$userInfo, main_main_id + '', mallIds + '')
+      let res = await this._this.$commodityService.newBangdingMall(this._this.$userInfo.muid + '', main_main_id + '', sys_mall_id)
       res = JSON.parse(res)
       if (res.code === 200) {
         return { code: 200, data: '绑定主体成功' }

@@ -64,7 +64,7 @@
           <ul>
             <li v-show="typeOpt">
               <p style="width: 72px">分组列表：</p>
-              <el-select v-model="groupId" placeholder="" size="mini" @change="switchSelectMallStatus">
+              <el-select v-model="groupId" placeholder="" size="mini" filterable @change="switchSelectMallStatus">
                 <el-option v-for="(item, index) in groupList" :key="index" :value="item.id" :label="item.group_name" />
               </el-select>
             </li>
@@ -88,7 +88,7 @@
             <li>
               <p>站点：</p>
               <el-select v-model="siteId" placeholder="" size="mini" @change="switchSelectMallStatus">
-                <el-option label="全部" :value="0" />
+                <el-option label="全部" :value="''" />
                 <el-option v-for="(item, index) in countries" :key="index" :label="item.label" :value="item.value" />
               </el-select>
               <el-button type="primary" size="mini" @click="switchSelectMallStatus">刷新店铺</el-button>
@@ -118,23 +118,23 @@
             >
               <!-- @table-body-scroll="tableScroll" -->
               <!-- <el-table-column align="center" type="selection" /> -->
-              <u-table-column align="center" type="index" label="序号">
+              <u-table-column align="center" type="index" label="序号" width="80">
                 <template v-slot="{ $index }">
                   {{ (currentPage - 1) * pageSize + $index + 1 }}
                 </template>
               </u-table-column>
-              <el-table-column align="center" prop="" label="站点">
+              <u-table-column align="center" prop="" label="站点" width="80">
                 <template v-slot="{ row }">
                   {{ row.country | chineseSite }}
                 </template>
-              </el-table-column>
-              <el-table-column align="center" prop="platform_mall_id" label="店铺ID" />
-              <el-table-column align="center" label="店铺名称" show-overflow-tooltip>
+              </u-table-column>
+              <u-table-column align="center" prop="platform_mall_id" label="店铺ID" />
+              <u-table-column align="center" prop="platform_mall_name" label="店铺名称">
                 <template v-slot="{ row }">
-                  {{ row.mall_alias_name ? row.mall_alias_name : row.platform_mall_name }}
+                  {{ row.mall_alias_name || row.platform_mall_name }}
                 </template>
-              </el-table-column>
-              <el-table-column align="center" prop="group_name" label="已绑定分组" />
+              </u-table-column>
+              <u-table-column align="center" prop="group_name" label="已绑定分组" />
               <u-table-column align="center" label="操作">
                 <template slot="header" slot-scope="scope">
                   <el-checkbox v-model="isSelectAll" label="全选" @change="selectAllEvent" />
@@ -145,7 +145,7 @@
                 </template>
               </u-table-column>
             </u-table>
-            <div class="pagination">
+            <!-- <div class="pagination">
               <el-pagination
                 background
                 layout="total, sizes, prev, pager, next"
@@ -156,7 +156,7 @@
                 @size-change="handleSizeChange"
                 @current-change="handleCurrentChange"
               />
-            </div>
+            </div> -->
           </div>
         </div>
       </el-row>
@@ -194,11 +194,14 @@
 </template>
 
 <script>
-import { exportExcelDataCommon } from '../../../util/util'
+import { exportExcelDataCommon, importOrder } from '../../../util/util'
 import xlsx from 'xlsx'
+import MallListAPI from '../../../module-api/mall-manager-api/mall-list-api'
+
 export default {
   data() {
     return {
+      mallListAPIInstance: new MallListAPI(this),
       groupName: '',
       groupList: [],
       groupListTemp: [],
@@ -219,7 +222,7 @@ export default {
       editGroupDialogVisible: false,
       ExcelDialogVisible: false,
       groupId: '',
-      siteId: 0,
+      siteId: '',
       systemId: '',
       addGroupName: '',
       mallList: [],
@@ -243,7 +246,7 @@ export default {
   },
   created() {
     this.getGroup()
-    this.getMallList()
+    //this.getMallList()
   },
   methods: {
     handleSizeChange(val) {
@@ -367,29 +370,39 @@ export default {
       this.writeLog(`导入结束`, true)
       this.importTemplateData = null
     },
-    downExcelGroupTemplate() {
-      let template = `<tr>
-      <td style="width: 200px; text-align:left;">店铺名称<span style="color:red">(必填)</span></td>
-      <td style="width: 200px; text-align:left;">店铺ID<span style="color:red">(必填)</span></td>
-      <td style="width: 200px; text-align:left;">分组名称<span style="color:red">(必填)</span></td>
-      </tr>`
-      this.mallListTemp.map(item => {
-        template += `
-          <tr>
-            <td style="width: 200px; text-align:left;">${item.platform_mall_name}</td>
-            <td style="width: 200px; text-align:left;">${item.platform_mall_id}</td>
-            <td style="width: 200px; text-align:left;">${item.group_name || ''}</td>
-          </tr>
-        `
+    async downExcelGroupTemplate() {
+      let titleData = ['店铺名称(必填)','店铺ID(必填)','分组名称(必填)']
+      let jsonData = []
+      this.mallListTemp.forEach(item=>{
+        let temp = [item.platform_mall_name,item.platform_mall_id,item.group_name || '']
+        jsonData.push(temp)
       })
-      exportExcelDataCommon('批量导入分组', template)
+      await importOrder(titleData,jsonData,'分组模板')
+      // let template = `<tr>
+      // <td style="width: 200px; text-align:left;">店铺名称<span style="color:red">(必填)</span></td>
+      // <td style="width: 200px; text-align:left;">店铺ID<span style="color:red">(必填)</span></td>
+      // <td style="width: 200px; text-align:left;">分组名称<span style="color:red">(必填)</span></td>
+      // </tr>`
+      // this.mallListTemp.map(item => {
+      //   template += `
+      //     <tr>
+      //       <td style="width: 200px; text-align:left;">${item.platform_mall_name}</td>
+      //       <td style="width: 200px; text-align:left;">${item.platform_mall_id}</td>
+      //       <td style="width: 200px; text-align:left;">${item.group_name || ''}</td>
+      //     </tr>
+      //   `
+      // })
+      // exportExcelDataCommon('批量导入分组', template)
     },
     async openExcelDialog() {
       this.ExcelDialogVisible = true
     },
-    openGroupDialog(row) {
+    async openGroupDialog(row) {
       this.typeOpt = row
       this.editGroupDialogVisible = true
+      this.siteId = ''
+      this.systemId = ''
+      await this.getMallList()
       this.reset()
       if (row) {
         this.groupId = row.id
@@ -453,11 +466,11 @@ export default {
       this.mallListTemp = this.mallList
       let siteNameFlat = false
       let systemIdFlat = false
-      if (this.siteId !== 0) { // 登陆账户名
+      if (this.siteId !== '') { // 站点
         siteNameFlat = true
         attrLen++
       }
-      if (this.systemId.trim()) { // 店铺名称
+      if (this.systemId.trim()) { // 店铺ID
         systemIdFlat = true
         attrLen++
       }
@@ -482,7 +495,7 @@ export default {
       if (this.isHide) { // 3、显示隐藏已绑定店铺
         this.mallListTemp = this.mallListTemp.filter(item => !item.group_name)
       }
-      //  this.$refs.plTable2?.reloadData(this.mallListTemp)
+      this.$refs.plTable2.reloadData(this.mallListTemp)
     },
     reset() {
       this.bindMallList = []
@@ -494,21 +507,24 @@ export default {
       this.reset()
       console.log('groupId', this.groupId)
       console.log('bindMallList', this.bindMallList)
+      // if (row === 'refresh') {
+      // await this.getGroup()
+      // await this.getMallList()
+      // }
       if (!this.typeOpt) { // 新增店铺
         this.mallList.map(item => { // 2、给原数组分组下对应店铺变更状态
           item.isSelected = false
         })
       } else {
         this.mallList.map(item => { // 2、给原数组分组下对应店铺变更状态
-          if (item.mall_group_id === this.groupId) {
+          if (item.group_id === this.groupId) {
             this.addbingingMall(item)
           } else {
             item.isSelected = false
           }
         })
       }
-      this.search() // 3、 对当前table里面的数据进行筛选
-
+      this.search()
       // 5、始终将当前分组的选项显示  注意去重
       const mallListTempObj = {}
       this.mallListTemp.map(item => {
@@ -593,9 +609,11 @@ export default {
       this.buttonStatus.addGroup = false
       this.editGroupDialogVisible = false
       this.addGroupName = ''
-      this.updateClientData()
-      this.getMallList()
-      this.getGroup()
+      this.$nextTick(() => {
+        this.updateClientData()
+        // this.getMallList()
+        this.getGroup()
+      })
     },
     async updateClientData() {
       console.log('this.bindMallListObj', this.bindMallListObj)
@@ -658,28 +676,44 @@ export default {
       if (this.buttonStatus.mallList) {
         return
       }
-      const params = {
-        'country': '',
-        page: this.currentPage,
-        pageSize: this.pageSize
+      // const params = {
+      //   'country': '',
+      //   page: this.currentPage,
+      //   pageSize: this.pageSize
+      // }
+      const param = {
+        country: ''
+        // mallGroupIds: this.groupId
       }
       this.buttonStatus.mallList = true
-      const res = await this.$api.getMallList(params)
-      if (res.data.code !== 200) {
-        this.$message.error('获取店铺列表失败')
+      // this.siteId ? (params['country'] = this.siteId) : ''
+      // this.systemId ? (params['mallId'] = this.systemId) : ''
+      // const res = await this.$api.getMallList(params)
+      const res = await this.mallListAPIInstance.ddMallGoodsGetMallList(param)
+      if (res.code !== 200) {
         this.buttonStatus.mallList = false
+        this.$message.error('获取店铺列表失败')
         return
       }
-      this.mallList = res.data.data.data.map(item => {
+      // if (res.data.code !== 200) {
+      //   this.$message.error('获取店铺列表失败')
+      //   this.buttonStatus.mallList = false
+      //   return
+      // }
+      // this.mallList = res.data.data.data.map(item => {
+      //   item.isSelected = false
+      //   return item
+      // })
+      this.mallList = res.data.map(item => {
         item.isSelected = false
         return item
       })
       this.mallListTemp = this.mallList
-      this.total = res.data.data.total
-      console.log('this.mallListTemp', this.mallListTemp)
+      // this.total = res.data.data.total
+      // console.log('this.mallListTemp', this.mallListTemp)
       this.buttonStatus.mallList = false
 
-      // this.$refs.plTable2?.reloadData(this.mallListTemp)
+      // this.$refs.plTable2.reloadData(this.mallListTemp)
     },
     writeLog(msg, success, setcolor) {
       if (!msg) return

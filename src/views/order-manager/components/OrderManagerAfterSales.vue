@@ -23,7 +23,7 @@
       <div class="row">
         <div class="row_item">
           <label>售后状态：</label>
-          <el-select v-model="query.shotOrderStatus" size="mini" style="width:100px">
+          <el-select v-model="query.shotOrderStatus" size="mini" style="width: 100px">
             <el-option label="全部" value="" />
             <el-option label="取消中" value="5" />
             <el-option label="已取消" value="6" />
@@ -35,7 +35,7 @@
 
         <div class="row_item">
           <label>采购状态：</label>
-          <el-select v-model="query.refundStatus" size="mini" style="width: 180px;">
+          <el-select v-model="query.refundStatus" size="mini" style="width: 180px">
             <el-option label="全部" value="" />
             <el-option label="待拍单" value="1" />
             <el-option label="拍单中" value="2" />
@@ -46,7 +46,7 @@
 
         <div class="row_item">
           <label>颜色标识：</label>
-          <el-select v-model="query.colorLabelId" size="mini" style="width: 180px;">
+          <el-select v-model="query.colorLabelId" size="mini" style="width: 180px">
             <el-option label="全部" value="" />
             <el-option v-for="item in colorLogoList" :key="item.id" :label="item.label" :value="item.id" :style="item.color" />
           </el-select>
@@ -69,21 +69,20 @@
       </div>
       <div class="row">
         <div class="row_item">
-          <el-select v-model="selType" size="mini" style="width:120px;margin-right:3px" @change="inputDes=''">
+          <el-select v-model="selType" size="mini" style="width: 120px; margin-right: 3px" @change="inputDes = ''">
             <el-option label="订单编号" value="1" />
             <el-option label="采购物流单号" value="2" />
             <el-option label="采购单号" value="3" />
           </el-select>
-          <el-input v-model="inputDes" size="mini" style="width:180px" clearable />
+          <el-input v-model="inputDes" size="mini" style="width: 180px" clearable />
         </div>
         <div class="row_item">
-          <el-button size="mini" type="primary" style="margin-right:10px" @click="search">搜索</el-button>
+          <el-button size="mini" type="primary" style="margin-right: 10px" @click="search">搜索</el-button>
           <!-- <el-checkbox v-model="shoeLog">隐藏日志</el-checkbox> -->
         </div>
       </div>
-      <div class="row" style="margin-top:10px">
+      <div class="row" style="margin-top: 10px">
         <div class="row_item">
-
           <el-button size="mini" type="primary" @click="setShotStatusFun">采购状态变更</el-button>
           <el-button size="mini" type="primary" @click="optionOrder('reject')">批量拒绝买家取消订单</el-button>
           <el-button size="mini" type="primary" @click="setColorLabelFun">批量标记颜色标识</el-button>
@@ -92,24 +91,19 @@
           <el-button size="mini" type="primary">售后同步</el-button>
           <el-checkbox v-model="mall_compare" class="row_item">全店同步</el-checkbox>
           <el-checkbox v-model="shoeLog">隐藏日志</el-checkbox>
-
         </div>
       </div>
     </div>
 
     <div class="table-form">
-      <el-table
-        ref="multipleTable"
-        width="100%"
-        height="calc(100vh - 213px)"
-        :data="tableList"
-        :header-cell-style="{ background: '#f7fafa' }"
-        @selection-change="handleSelectionChange"
-      >
+      <el-table ref="multipleTable" width="100%" height="calc(100vh - 213px)" :data="tableList" :header-cell-style="{ background: '#f7fafa' }" @selection-change="handleSelectionChange">
         <!-- :row-key="generateUUID" -->
         <el-table-column type="selection" width="55" fixed />
         <el-table-column label="站点" prop="country" min-width="100px" fixed align="center">
-          <template slot-scope="{row}"><span>{{ row.mall_info.country | chineseSite }}</span></template> </el-table-column>
+          <template slot-scope="{ row }"
+            ><span>{{ row.mall_info.country | chineseSite }}</span></template
+          >
+        </el-table-column>
         <el-table-column label="店铺名称" prop="mall_info.platform_mall_name" min-width="120px" fixed align="center" />
         <!-- <el-table-column label="店铺分组" prop="" min-width="120px" align="center" /> -->
         <!-- <el-table-column label="颜色标识" prop="color_id" min-width="100px" align="center" /> -->
@@ -118,31 +112,29 @@
         <el-table-column label="订单编号" prop="order_sn" min-width="180px" align="center">
           <template slot-scope="{ row }">
             <span>
-              <el-button type="text" @click.native="open('itemDetail', row.goods_info.goods_id, row.mall_info.platform_mall_id,'orderID')">
+              <el-button type="text" @click.native="open('itemDetail', row.goods_info.goods_id, row.mall_info.platform_mall_id, 'orderID')">
                 {{ row.order_sn }}
               </el-button>
-              <el-button type="text" class="copyIcon" @click="copy(row.order_sn)">
-                <i class="el-icon-document-copy" /></el-button></span>
+              <el-button type="text" class="copyIcon" @click="copy(row.order_sn)"> <i class="el-icon-document-copy" /></el-button
+            ></span>
           </template>
         </el-table-column>
         <el-table-column label="退款金额" prop="refund_amount" min-width="100px" align="center" />
         <el-table-column label="售后状态" prop="status" min-width="100px" align="center">
-          <template slot-scope="{row}"><div>{{ sta[row.status] }}</div></template></el-table-column>
+          <template slot-scope="{ row }"
+            ><div>{{ sta[row.status] }}</div></template
+          ></el-table-column
+        >
         <el-table-column label="申请时间" prop="update_time" min-width="180px" align="center" />
         <el-table-column label="采购状态" prop="shot_order_info.shot_status" min-width="90px" align="center">
-          <template slot-scope="{row}"><span>{{ shot_status[row.shot_order_info.shot_status] }}</span></template></el-table-column>
+          <template slot-scope="{ row }"
+            ><span>{{ shot_status[row.shot_order_info.shot_status] }}</span></template
+          ></el-table-column
+        >
         <el-table-column label="售后原因" prop="after_reason" min-width="100px" align="center" />
         <el-table-column label="本地备注" prop="remark" min-width="180px" align="center">
           <template v-slot="{ row }">
-            <el-input
-              v-if="row.isChecked"
-              v-model="row.remark"
-              v-fo
-              size="mini"
-              resize="none"
-              placeholder="本地备注"
-              @blur="changeRemark(row)"
-            />
+            <el-input v-if="row.isChecked" v-model="row.remark" v-fo size="mini" resize="none" placeholder="本地备注" @blur="changeRemark(row)" />
             <span v-else @click="row.isChecked = true">
               <el-input v-model="row.remark" :disabled="!row.isChecked" size="mini" />
             </span>
@@ -151,33 +143,34 @@
         <el-table-column label="商品ID" prop="goods_info.goods_id" min-width="150px" align="center">
           <template slot-scope="{ row }">
             <span>
-              <el-button type="text" @click.native="open(null, row.goods_info.goods_id, row.mall_info.platform_mall_id,'goodsID')">
+              <el-button type="text" @click.native="open(null, row.goods_info.goods_id, row.mall_info.platform_mall_id, 'goodsID')">
                 {{ row.goods_info.goods_id }}
               </el-button>
-              <el-button type="text" class="copyIcon" @click="copy(row.goods_info.goods_id)">
-                <i class="el-icon-document-copy" /></el-button></span>
+              <el-button type="text" class="copyIcon" @click="copy(row.goods_info.goods_id)"> <i class="el-icon-document-copy" /></el-button
+            ></span>
           </template>
         </el-table-column>
         <el-table-column label="商品数量" prop="goods_info.goods_count" min-width="150px" align="center" />
         <el-table-column label="商品图片" prop="goods_info.goods_img" min-width="100px" align="center">
-          <template slot-scope="{row}">
+          <template slot-scope="{ row }">
             <el-tooltip effect="light" placement="right-end" :visible-arrow="false" :enterable="false" style="width: 56px; height: 56px; display: inline-block">
               <div slot="content">
-                <el-image :src="[row.country , row.goods_info.ori_platform_mall_id , row.goods_info.goods_img ] | imageRender" style="width: 400px; height: 400px" />
+                <el-image :src="[row.country, row.goods_info.ori_platform_mall_id, row.goods_info.goods_img] | imageRender" style="width: 400px; height: 400px" />
               </div>
-              <el-image :src="[row.country , row.goods_info.ori_platform_mall_id , row.goods_info.goods_img ] | imageRender" style="width: 56px; height: 56px" />
+              <el-image :src="[row.country, row.goods_info.ori_platform_mall_id, row.goods_info.goods_img] | imageRender" style="width: 56px; height: 56px" />
             </el-tooltip>
-          </template> </el-table-column>
+          </template>
+        </el-table-column>
         <el-table-column label="商品类目" prop="goods_info.goods_category_id" min-width="100px" align="center" />
         <el-table-column label="商品规格" prop="goods_info.goods_spec" min-width="100px" align="center" />
         <el-table-column label="采购商品ID" prop="goods_info.ori_goods_id" min-width="180px" align="center">
           <template slot-scope="{ row }">
             <span v-if="row.goods_info.ori_goods_id">
-              <el-button type="text" @click.native="open(null, row.goods_info.goods_id, null,'orderGoodsID')">
+              <el-button type="text" @click.native="open(null, row.goods_info.goods_id, null, 'orderGoodsID')">
                 {{ row.goods_info.ori_goods_id }}
               </el-button>
-              <el-button type="text" class="copyIcon" @click="copy(row.goods_info.ori_goods_id)">
-                <i class="el-icon-document-copy" /></el-button></span>
+              <el-button type="text" class="copyIcon" @click="copy(row.goods_info.ori_goods_id)"> <i class="el-icon-document-copy" /></el-button
+            ></span>
           </template>
         </el-table-column>
         <el-table-column label="采购订单号" prop="shot_order_info.shot_order_sn" min-width="180px" align="center">
@@ -186,17 +179,18 @@
               <el-button type="text" @click.native="getorderDetail(row)">
                 {{ row.shot_order_info.shot_order_sn }}
               </el-button>
-              <el-button type="text" class="copyIcon" @click="copy(row.shot_order_info.shot_order_sn)">
-                <i class="el-icon-document-copy" /></el-button></span>
+              <el-button type="text" class="copyIcon" @click="copy(row.shot_order_info.shot_order_sn)"> <i class="el-icon-document-copy" /></el-button
+            ></span>
           </template>
         </el-table-column>
         <!-- <el-table-column label="采购价" prop="" min-width="100px" align="center" /> -->
         <el-table-column label="采购时间" prop="shot_order_info.shotted_at" min-width="180px" align="center" />
         <el-table-column label="采购物流单号" prop="shot_order_info.shot_tracking_number" min-width="180px" align="center">
           <template slot-scope="{ row }">
-            <span v-if="row.shot_order_info.shot_tracking_number">{{ row.shot_order_info.shot_tracking_number }}
-              <el-button type="text" class="copyIcon" @click="copy(row.shot_order_info.shot_tracking_number)">
-                <i class="el-icon-document-copy" /></el-button></span>
+            <span v-if="row.shot_order_info.shot_tracking_number"
+              >{{ row.shot_order_info.shot_tracking_number }}
+              <el-button type="text" class="copyIcon" @click="copy(row.shot_order_info.shot_tracking_number)"> <i class="el-icon-document-copy" /></el-button
+            ></span>
           </template>
         </el-table-column>
         <el-table-column label="采购账号" prop="shot_order_info.buy_account" min-width="180px" align="center" />
@@ -208,23 +202,20 @@
         <el-table-column label="退货邮寄地址" prop="return_pickup_address" min-width="200px" align="center" />
         <el-table-column label="操作状态" prop="" min-width="150px" fixed="right" align="center">
           <template v-slot="{ row }">
-            <el-dropdown style="width: 100px;margin-left: 10px;">
-              <el-button style="width: 100px;" size="mini" plain type="primary">
-                更多操作<i class="el-icon-arrow-down el-icon--right" />
-              </el-button>
+            <el-dropdown style="width: 100px; margin-left: 10px">
+              <el-button style="width: 100px" size="mini" plain type="primary"> 更多操作<i class="el-icon-arrow-down el-icon--right" /> </el-button>
               <el-dropdown-menu slot="dropdown">
-                <el-dropdown-item><div class="dropdownItem" @click="delGoods(row)"> 删除商品</div></el-dropdown-item>
-                <el-dropdown-item><div class="dropdownItem" @click="deList(row)"> 下架商品</div></el-dropdown-item>
-                <el-dropdown-item><div class="dropdownItem" @click="shotVisible = true,rowData=row"> 修改采购状态</div></el-dropdown-item>
-                <el-dropdown-item><div class="dropdownItem"> 同步此店铺售后订单</div></el-dropdown-item>
-                <el-dropdown-item><div class="dropdownItem" @click="colorVisible = true,rowData=row"> 订单颜色标识</div></el-dropdown-item>
-
+                <el-dropdown-item><div class="dropdownItem" @click="delGoods(row)">删除商品</div></el-dropdown-item>
+                <el-dropdown-item><div class="dropdownItem" @click="deList(row)">下架商品</div></el-dropdown-item>
+                <el-dropdown-item><div class="dropdownItem" @click=";(shotVisible = true), (rowData = row)">修改采购状态</div></el-dropdown-item>
+                <el-dropdown-item><div class="dropdownItem">同步此店铺售后订单</div></el-dropdown-item>
+                <el-dropdown-item><div class="dropdownItem" @click=";(colorVisible = true), (rowData = row)">订单颜色标识</div></el-dropdown-item>
               </el-dropdown-menu>
             </el-dropdown>
           </template>
         </el-table-column>
       </el-table>
-      <div class="pagination" style="display:flex;justify-content: flex-end;">
+      <div class="pagination" style="display: flex; justify-content: flex-end">
         <el-pagination
           background
           :current-page.sync="query.page"
@@ -262,9 +253,7 @@
         </div>
       </div>
     </el-dialog>
-
   </div>
-
 </template>
 <script>
 import orderApi from '../../../module-api/order-manager-api/order-data'
@@ -367,7 +356,6 @@ export default {
         id: row.order_id,
         remark: row.remark
       })
-      // debugger
       if (res.data.code !== 200) {
         this.$message.error(`修改失败:${res.data.message}`, false)
         return
@@ -527,7 +515,6 @@ export default {
       //     country: item.country,
       //     platform_mall_id: item.mall_info.platform_mall_id
       //   }
-      //   // debugger
       //   this.orderInstance.refuseCancerOrder(orderinfo).then(res => { list.push(res) })
       // })
     },
@@ -832,31 +819,30 @@ export default {
 }
 </script>
 <style lang="less">
+.detai {
+  min-width: 1280px;
+  padding: 10px;
+  .condition {
+    display: flex;
+    align-items: flex-start;
+    flex-flow: column;
 
-    .detai{
-        min-width: 1280px;
-        padding: 10px;
-        .condition{
-            display: flex;
-            align-items: flex-start;
-            flex-flow: column;
-
-            // .condition—item{
-            //     margin-right: 15px;
-            // }
-            .row{
-               display: flex;
-               margin-bottom: 5px;
-               .row_item{
-                 margin-left: 20px;
-                 margin-right: 10px;
-               }
-            }
-        }
-        .table-form{
-            border: 0.5px solid rgb(224, 224, 224);
-            margin-top: 10px;
-        }
+    // .condition—item{
+    //     margin-right: 15px;
+    // }
+    .row {
+      display: flex;
+      margin-bottom: 5px;
+      .row_item {
+        margin-left: 20px;
+        margin-right: 10px;
+      }
     }
+  }
+  .table-form {
+    border: 0.5px solid rgb(224, 224, 224);
+    margin-top: 10px;
+  }
+}
 </style>
 

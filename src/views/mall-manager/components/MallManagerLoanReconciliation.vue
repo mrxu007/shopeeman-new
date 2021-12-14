@@ -80,7 +80,7 @@
       <div class="data_table" style="height: 100%; background-color: white">
         <el-table
           v-loading="isLoading"
-          height="calc(100vh - 281px)"
+          height="calc(100vh - 266px)"
           :data="tableList"
           :row-style="{ height: '50px' }"
           :header-cell-style="{ background: '#f7fafa' }"
@@ -91,7 +91,11 @@
               {{ row.country | chineseSite }}
             </template>
           </el-table-column>
-          <el-table-column prop="platform_mall_name" min-width="120px" label="店铺名称" align="center" />
+          <el-table-column min-width="120px" label="店铺名称" align="center">
+            <template v-slot="{row}">
+              {{ row.mall_alias_name?row.mall_alias_name:row.platform_mall_name }}
+            </template>
+          </el-table-column>
           <el-table-column prop="order_sn" label="订单编号" min-width="120px" align="center" />
           <el-table-column prop="" min-width="80px" label="状态" align="center">
             <template slot-scope="{ row }">{{ Number(row.status) === 1 ? '已拨款 ' : '即将拨款' }}</template>
@@ -123,7 +127,7 @@
 </template>
 <script>
 import storeChoose from '../../../components/store-choose'
-import { exportExcelDataCommon } from '../../../util/util'
+import { delay, exportExcelDataCommon } from '../../../util/util'
 
 export default {
   components: { storeChoose },
@@ -169,15 +173,15 @@ export default {
       cancelActive: false
     }
   },
-  mounted() {
+  async mounted() {
     // 初始化时间
     this.cloumn_date = [
       new Date().getTime() - 3600 * 1000 * 24 * 10,
       new Date().getTime() + 3600 * 1000 * 24 * 20
     ]
     // this.cloumn_date = creatDate(31)
-    this.search() // 初始化table
-    this.exchangeRateList() // 获取汇率
+    await this.search() // 初始化table
+    await this.exchangeRateList() // 获取汇率
   },
   methods: {
     clearLog() {
@@ -256,7 +260,7 @@ export default {
                 bill_num: item.id + '',
                 amount: item.amount + '',
                 using_wallet: item.using_wallet ? '1' : '0',
-                release_time: this.$dayjs(item.release_time).format('YYYY-MM-DD HH:mm:ss')
+                release_time: this.$dayjs(item.release_time * 1000).format('YYYY-MM-DD HH:mm:ss')
               }
               const index = dataArr.filter((i) => i.bill_num === params.bill_num)[0] || ''
               index && count--
@@ -293,6 +297,7 @@ export default {
         mallId: mallID,
         bills: dataArr
       }
+      console.log(params, '------------')
       const res = await this.$api.uploadPaymentList(params)
       console.log(res)
     },
@@ -348,7 +353,7 @@ export default {
               <td>${item.bill_num ? item.bill_num : '-' + '\t'}</td>
               <td>${item.appropriate_amount ? item.appropriate_amount : '-' + '\t'}</td>
               <td>${item.appropriate_amount ? (item.appropriate_amount * this.site_query.rate_coin).toFixed(2) : '-' + '\t'}</td>
-              <td>${item.created_at ? item.created_at : '-' + '\t'}</td>
+              <td>${item.appropriate_time ? item.appropriate_time : '-' + '\t'}</td>
             </tr>`
           })
           exportExcelDataCommon('货款对账详情', str)
@@ -360,7 +365,7 @@ export default {
       }
     },
     // 搜索
-    search() {
+    async search() {
       this.isLoading = true
       const params = this.query
       let sysMallId = ''
@@ -376,7 +381,8 @@ export default {
       params.page = this.page
       params.pageSize = this.pageSize
       console.log(params, 'params')
-      this.getTableList(params)
+      await delay(300)
+      await this.getTableList(params)
     },
     // 初始化tableList
     async getTableList(params) {
