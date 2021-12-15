@@ -1003,9 +1003,21 @@
         let height = this.goodsDetails.height
         let long = this.goodsDetails.long
         let weight = this.goodsDetails.weight
-        let updateGoodsRes = await this.updateGoods({sysGoodsId,description,title,width,height,long,weight})
+        // let updateGoodsRes = await this.updateGoods({sysGoodsId,description,title,width,height,long,weight})
+        // console.log('updateGoodsRes',updateGoodsRes)
         this.$emit('goodsEditorCancel',{sysGoodsId,title,width,height,long,weight})
-        console.log('updateGoodsRes',updateGoodsRes)
+        let itemmodels = JSON.stringify(this.goodsDetails.itemmodels)
+        itemmodels = itemmodels.replaceAll(/"id":[0-9]*,/ig, '')
+        itemmodels = itemmodels.replaceAll(/"sku":"[^(",)]*",/ig, '')
+        itemmodels = itemmodels.replaceAll('"sku_spec1":', '"skuSpec1":')
+        itemmodels = itemmodels.replaceAll('"sku_spec2":', '"skuSpec2":')
+        itemmodels = itemmodels.replaceAll('"sku_image":', '"skuImage":')
+        itemmodels = itemmodels.replaceAll('"sku_sn":', '"skuSn":')
+        itemmodels = itemmodels.replaceAll('"sku_price":', '"skuPrice":')
+        itemmodels = itemmodels.replaceAll(/"sku_stock":([0-9]*),/ig, '"skuStock":"$1",')
+        console.log('itemmodels',itemmodels)
+        let andUpdateSku = await this.$commodityService.saveAndUpdateSkuDatas(sysGoodsId,itemmodels)
+        console.log(andUpdateSku)
       },
       handleClick(val) {
       },

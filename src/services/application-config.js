@@ -64,7 +64,7 @@ export default class applicationConfig {
    * @param {*} key 存取移除的key值
    * @param {*} info 存的值  取、移除传空字符串
    */
-  async temporaryCacheInfo(type, key, info) {
+  async temporaryCacheInfo(type, key, info='') {
     return await this.nativeService.temporaryCacheInfo(type, key, info)
   }
 }
