@@ -894,9 +894,9 @@ export default {
             this.$set(item, 'batchStatus', '获取商品详情成功')
             this.$set(item, 'color', 'green')
             // 处理数据
-            await this.getProductInfo(productInfo)
+            this.getProductInfo(productInfo)
             // 设置修改数据
-            await this.setProductInfo(item, productInfo)
+            this.setProductInfo(item, productInfo)
             if (item.edit === 'title' && this.minLength !== 0 && (productInfo.name.length > this.maxLength || productInfo.name.length < this.minLength)) {
               this.$set(item, 'batchStatus', '标题不符合,长度范围' + this.minLength + '-' + this.maxLength)
               this.$set(item, 'color', 'red')
@@ -909,6 +909,7 @@ export default {
                 this.$set(item, 'batchStatus', `正在更新${this.operationObj[item.edit]}...`)
                 this.$set(item, 'color', 'green')
                 const data = { mallId: item.platform_mall_id }
+                console.log('更新商品详情数据', productInfo)
                 const editProductRes = await this.$shopeemanService.handleProductEdit(item.country, data, [productInfo])
                 if (editProductRes.code === 200) {
                   this.successNum++
@@ -1099,7 +1100,6 @@ export default {
     // 商品信息处理
     getProductInfo(productInfo) {
       try {
-        // const newProductInfo = {}
         const isRefurbishProduct = false // 是否商品翻新（商品搬迁、翻新true 其它操作均为false）
         const isUseProductChannel = false // 当物流是否开放矛盾时（后台开启商品关闭），优先采用后台的物流（批量更新物流方式false 其它操作均为true）
         productInfo.id = Number(productInfo.id)
@@ -1136,12 +1136,12 @@ export default {
           }
           productInfo.attributes = attList
         }
-        const countryList = ['SG', 'GL', 'PH', 'VN', 'TW', 'MY', 'ID', 'TH', 'MX', 'CO', 'CL', 'PL', 'FR', 'ES']
-        if (confuseList.includes(this.country)) {
-          productInfo.ds_attr_rcmd_id = `${GUID.toString()}|a|EN`
-          productInfo.ds_cat_rcmd_id = `${GUID.toString()}|c|EN`
-        }
-        console.log(GUID)
+        // // const countryList = ['SG', 'GL', 'PH', 'VN', 'TW', 'MY', 'ID', 'TH', 'MX', 'CO', 'CL', 'PL', 'FR', 'ES']
+        // // if (confuseList.includes(this.country)) {
+        // //   productInfo.ds_attr_rcmd_id = `${GUID.toString()}|a|EN`
+        // //   productInfo.ds_cat_rcmd_id = `${GUID.toString()}|c|EN`
+        // // }
+        // // console.log(GUID)
         productInfo.stock = Number(productInfo.stock)
         productInfo.parent_sku = productInfo.parent_sku.toString()
         productInfo.price = productInfo.price.toString()
@@ -1158,39 +1158,38 @@ export default {
         productInfo.description = productInfo.description.toString().trim()
         productInfo.installment_tenures = JSON.parse(JSON.stringify(productInfo.installment_tenures))
         // 处理商品 sku list
-        const { modelList } = this.getModelList(productInfo.model_list, isRefurbishProduct)
-        productInfo.model_list = modelList
-      // return newProductInfo
+        this.getModelList(productInfo.model_list, isRefurbishProduct)
       } catch (error) {
         console.log('商品信息处理异常', error)
       }
     },
     // 处理商品 sku list
     getModelList(itemModelsJarray, isRefurbishProduct) {
-      const modelList = []
-      if (itemModelsJarray?.length > 0) {
-        for (let i = 0; i < itemModelsJarray.length; i++) {
-          const item = itemModelsJarray[i]
-          item.id = Number(item.id)
-          item.name = !item.name && item.sku ? item.sku : item.name.toString()
-          item.sku = item.sku.toString()
-          item.stock = Number(item.stock)
-          item.price = item.price.toString()
-          if (isRefurbishProduct && Number(item.price_before_discount) > 0) {
-            item.price = item.price_before_discount.toString()
+      try {
+        if (itemModelsJarray?.length > 0) {
+          for (let i = 0; i < itemModelsJarray.length; i++) {
+            const item = itemModelsJarray[i]
+            item.id = Number(item.id)
+            item.name = !item.name && item.sku ? item.sku : item.name.toString()
+            item.sku = item.sku.toString()
+            item.stock = Number(item.stock)
+            item.price = item.price.toString()
+            if (isRefurbishProduct && Number(item.price_before_discount) > 0) {
+              item.price = item.price_before_discount.toString()
+            }
+            item.tier_index = JSON.parse(JSON.stringify(item.tier_index))
+            item.input_normal_price = item.price_info.input_normal_price.toString()
+            item.input_promotion_price = item.price_info.input_promotion_price.toString()
+            try {
+              item.is_default = JSON.parse(item.is_default)
+            } catch (error) {
+              item.is_default = false
+            }
           }
-          item.tier_index = JSON.parse(JSON.stringify(item.tier_index))
-          item.input_normal_price = item.price_info.input_normal_price.toString()
-          item.input_promotion_price = item.price_info.input_promotion_price.toString()
-          try {
-            item.is_default = JSON.parse(item.is_default)
-          } catch (error) {
-            item.is_default = false
-          }
-          modelList.push(modelList)
         }
+      } catch (error) {
+        console.log('商品skulist处理异常', error)
       }
-      return modelList
     },
     // 批量上下架
     async batchUpDownProduct() {
