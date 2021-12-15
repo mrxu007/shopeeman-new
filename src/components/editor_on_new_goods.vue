@@ -5,7 +5,7 @@
         <div class="basisInstall-title">功能区</div>
         <div class="basisInstall-box">
           <div class="button_mini_box">
-            <el-button class="button_mini" size="mini" @click="batchDealWith(1)" type="primary">收藏数据</el-button>
+            <el-button class="button_mini" size="mini" @click="batchDealWith(1)" type="primary" disabled>收藏数据</el-button>
             <el-button class="button_mini" size="mini" @click="batchDealWith(2,1)" type="primary">翻译数据</el-button>
           </div>
           <el-button style="flex: 1;margin-left: 10px;" size="mini" @click="batchDealWith(3)" type="primary">批量编辑标题/描述
@@ -18,12 +18,12 @@
           <el-button style="flex: 1" size="mini" @click="batchDealWith(7)" type="primary">批量删除尺寸图</el-button>
         </div>
         <div class="basisInstall-box">
-          <el-button style="flex: 1" size="mini" @click="batchDealWith(8)" type="primary">收藏失败产品重试</el-button>
+          <el-button style="flex: 1" size="mini" @click="batchDealWith(8)" type="primary" disabled>收藏失败产品重试</el-button>
           <el-button style="flex: 1" size="mini" @click="batchDealWith(9)" type="primary">取消操作</el-button>
           <el-button style="flex: 1" size="mini" @click="batchDealWith(10)" type="primary">标记商品标签</el-button>
         </div>
         <div class="basisInstall-box">
-          <el-button style="flex: 1" size="mini" @click="batchDealWith(11)" type="primary">翻译失败产品重试</el-button>
+          <el-button style="flex: 1" size="mini" @click="batchDealWith(11)" type="primary" disabled>翻译失败产品重试</el-button>
           <el-button style="flex: 1" size="mini" @click="batchDealWith(12)" type="primary">标题首字母大写</el-button>
           <el-button style="flex: 1" size="mini" @click="batchDealWith(13)" type="primary">取消商品标签</el-button>
         </div>
@@ -102,7 +102,7 @@
             <el-button size="mini" type="text"><i class="el-icon-question" style="padding: 0 2px;"></i></el-button>
           </el-tooltip>
           <el-radio v-model="pictureConfig.typeRadio" :label="2">云图像翻译</el-radio>
-          <div v-if="!pictureConfig.typeRadio" style="display: flex;">
+          <div v-if="false && !pictureConfig.typeRadio" style="display: flex;">
             <div style="margin-left: 5px;">图片翻译检验：</div>
             <el-radio v-model="pictureConfig.checkedRadio" :label="1">检验</el-radio>
             <el-radio v-model="pictureConfig.checkedRadio" :label="0">不检验</el-radio>

@@ -275,7 +275,7 @@
       </el-tab-pane>
     </el-tabs>
     <div style="display: flex; align-items: center;margin-top: 10px;justify-content: center">
-      <el-button size="mini" type="primary">确定</el-button>
+      <el-button size="mini" type="primary" @click="goodsChange">确定</el-button>
       <el-button size="mini" @click="cancel">取消</el-button>
     </div>
     <div class="on_new_dialog upload_new">
@@ -992,6 +992,10 @@
         } else if (type === 5) {
           this.$set(this.skuDetail2Check, index, !this.skuDetail2Check[index])
         }
+      },
+      goodsChange(){
+        let goodsEditorJson = JSON.stringify(this.goodsEditor)
+
       },
       handleClick(val) {
       },
