@@ -81,7 +81,7 @@
           </div>
           <div class="basisInstall-box">
             <el-button size="mini" type="primary" @click="enterGoodsTag">标记商品标签</el-button>
-            <el-button size="mini" @click="enterCategory(1)">同步类目属性</el-button>
+            <el-button size="mini" @click="enterCategory({})">同步类目属性</el-button>
             <el-button size="mini" type="primary" @click="">保存配置</el-button>
           </div>
         </div>
@@ -640,7 +640,7 @@
         </div>
       </el-dialog>
       <el-dialog title="商品标签" width="300px" top="25vh" :close-on-click-modal="false" :visible.sync="goodsTagVisible">
-        <goodsLabel v-if="goodsTagVisible" />
+        <goodsLabel v-if="goodsTagVisible" :goods-table-select="goodsTableSelect" @goodsTagChange="goodsTagChange"/>
       </el-dialog>
       <el-dialog title="类目映射" width="700px" top="25vh" :close-on-click-modal="false" :visible.sync="categoryVisible">
         <categoryMapping v-if="categoryVisible" :country="country" :goods-current="goodsCurrent" :mall-list="mallList"
@@ -654,7 +654,6 @@
   import storeChoose from '../../../components/store-choose'
   import categoryMapping from '../../../components/category-mapping'
   import goodsLabel from '../../../components/goods-label'
-  import {batchOperation} from '../../../util/util'
 
   export default {
     data() {
@@ -672,13 +671,10 @@
         isNoFoldShow: true,
         //弹窗
         categoryVisible: false, //类目弹窗
-        categoryList: [],
-        categoryAction: [],
         attributesList: [],
         attributesCurrent: [],
 
         goodsTagVisible: false, //标签弹窗
-        goodsTagList: [],
         goodsTagAction: '',
         goodsTagCurrent: '',
 
@@ -955,54 +951,26 @@
         this.categoryVisible = true
         this.goodsCurrent = row
       },
-      async categoryChange(val) {
+      categoryChange(val) {
         console.log('categoryChange', val);
         if (val) {
 
         }
         this.categoryVisible = false
       },
-      async enterGoodsTag() {
+      enterGoodsTag() {
         if (this.goodsTableSelect.length < 1) {
           this.$message.error('请至少选择一个商品')
           return
         }
         this.goodsTagVisible = true
       },
-      async updateGoodsTag() {
-        if (this.goodsTagCurrent !== this.goodsTagAction) {
-          let addGoodsTagJson = await this.$commodityService.addGoodsTag(this.goodsTagCurrent)
-          let addGoodsTagRes = JSON.parse(addGoodsTagJson)
-          if (addGoodsTagRes.code === 200) {
-            let goodsTagListJson = await this.$commodityService.getGoodsTagList()
-            let goodsTagListRes = JSON.parse(goodsTagListJson)
-            this.goodsTagList = goodsTagListRes.data || []
-            this.goodsTagAction = this.goodsTagCurrent
-          } else {
-            this.$message.error('商品标签设置失败')
-            return
-          }
+      goodsTagChange(val){
+        console.log('goodsTagChange', val);
+        if (val) {
+
         }
-        let temp = this.goodsTagList.filter(i => i.label_name === this.goodsTagAction)[0]
-        let data = []
-        this.goodsTableSelect.forEach(item => {
-          data.push(Object.assign(JSON.parse(JSON.stringify(item)), {sysLabelId: temp.id}))
-        })
-        await batchOperation(data, this.setGoodsTag)
-        console.log(data)
         this.goodsTagVisible = false
-      },
-      async setGoodsTag(item, count = {count: 1}) {
-        try {
-          let addGoodsToTagJson = await this.$commodityService.addGoodsToTag(item.sysLabelId, [item.id])
-          console.log(addGoodsToTagJson)
-          let addGoodsToTagRes = JSON.parse(addGoodsToTagJson)
-        } catch (e) {
-          console.log(e)
-          this.$message.error('设置失败')
-        } finally {
-          count.count--
-        }
       },
       async updateSellActive(type) {
         if (type) {
