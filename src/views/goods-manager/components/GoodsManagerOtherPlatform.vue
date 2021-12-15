@@ -98,6 +98,7 @@ export default {
   },
   data() {
     return {
+      randomList: [], // 随机数下标
       GoodsManagerAPIInstance: new GoodsManagerAPI(this),
       tableList: [],
       selectMall: [], // 所选店铺
@@ -129,6 +130,15 @@ export default {
     }
   },
   methods: {
+    // 随机点赞
+    randomLikegoods() {
+      this.randomList = []
+      const ran = Number(this.RandomLikeMinDay)
+      for (let i = 0; i < ran.length; i++) {
+        const r = Math.floor(Math.random() * 500)
+        this.randomList.push(r)
+      }
+    },
     // 店铺选择
     changeMallList(val) {
       this.selectMall = val
@@ -138,6 +148,69 @@ export default {
       if (this.selectMall.length < 2) {
         this.$message.warning('统一站点下，请至少选择两个店铺')
         return
+      }
+      if (!this.isgoodslike && !this.iscommentlike && !this.isbuy) {
+        this.$message.warning('请选择要操作的选项')
+        return
+      }
+      // 点赞 加购 设置
+      if (this.isgoodslike || this.isbuy) {
+        if (!this.isunlikeCreateMinDay &&
+            !this.isunlikeSaleMin &&
+            !this.isunlikeViewMinDay &&
+            !this.isunlikeLikeMinDay &&
+           !this.isRandomLikeMinDay) {
+          this.$message.warning('请选择点赞设置')
+          return
+        }
+        // 不点赞（加购）创建天数小于
+        if (this.isunlikeCreateMinDay && !this.unlikeCreateMinDay ||
+          !this.isunlikeCreateMinDay && this.unlikeCreateMinDay) {
+          this.$message.warning('请确保勾选项及内容正确')
+          return
+        }
+        // 不点赞（加购）销量小于
+        if (this.unlikeSaleMin && !this.isunlikeSaleMin ||
+          !this.unlikeSaleMin && this.isunlikeSaleMin) {
+          this.$message.warning('请确保勾选项及内容正确')
+          return
+        }
+        // 不点赞（加购）浏览数小于
+        if (this.isunlikeViewMinDay && !this.unlikeViewMinDay ||
+        !this.isunlikeViewMinDay && this.unlikeViewMinDay) {
+          this.$message.warning('请确保勾选项及内容正确')
+          return
+        }
+        // 不点赞（加购）喜欢数小于
+        if (this.isunlikeLikeMinDay && !this.unlikeLikeMinDay ||
+        !this.isunlikeLikeMinDay && this.unlikeLikeMinDay) {
+          this.$message.warning('请确保勾选项及内容正确')
+          return
+        }
+        // 随机点赞 --500以内
+        if (this.isRandomLikeMinDay && this.RandomLikeMinDay) {
+          // this.randomLikegoods()
+        }
+      }
+      // 评价设置
+      if (this.iscommentlike) {
+        if (!this.isunlikestar5 &&
+           !this.isunlikestar4 &&
+           !this.isunlikestar3 &&
+           !this.isunlikestar2 &&
+           !this.isunlikestar1 &&
+           !this.isunlikehaventContent &&
+           !this.isunlikehaventPic &&
+           !this.isunlikeMonthAgoComment &&
+           !this.unlikeMonthAgoComment) {
+          this.$message.warning('请选择评价设置')
+          return
+        }
+        if (!this.isunlikeMonthAgoComment && this.unlikeMonthAgoComment ||
+        this.isunlikeMonthAgoComment && !this.unlikeMonthAgoComment) {
+          this.$message.warning('请确保勾选项及内容正确')
+          return
+        }
       }
       this.selectMall.forEach(el => {
         el.page = 1
@@ -171,11 +244,13 @@ export default {
             // 商品的详情信息
             console.log(item.mall_alias_name || item.platform_mall_name, item.goodslist)
             this.$refs.autoReplyLogs.writeLog(`【${item.mall_alias_name || item.platform_mall_name}】查找完毕`, true)
-            const res2 = await batchOperation(item.goodslist, this.getMallinfo)
+            this.$refs.autoReplyLogs.writeLog(`开始获取【${item.mall_alias_name || item.platform_mall_name}】商品信息`, true)
+            const res2 = await batchOperation(item.goodslist, this.getDetailGoods)
+            console.log(item.mall_alias_name || item.platform_mall_name, item.goodslist)
           }
         } else {
           console.log('goodsinfo-error', res.message)
-          this.$refs.autoReplyLogs.writeLog(`【${item.mall_alias_name || item.platform_mall_name}】第${item.page}}页数据获取失败,${res.message}`, false)
+          this.$refs.autoReplyLogs.writeLog(`【${item.mall_alias_name || item.platform_mall_name}】数据获取失败,${res.message}`, false)
         }
       } catch (error) {
         console.log(`${error}`)
@@ -187,30 +262,26 @@ export default {
     async  chekinfo() {
       const goodsinfo = {
         country: 'TH',
-        shopid: 158200153,
-        itemid: 14917339828
+        shopid: 267731383,
+        itemid: 4940386094
       }
       const res = await this.GoodsManagerAPIInstance.GoodsbuyerLike(goodsinfo)
-      debugger
-      if (res.ecode === 0) {
-        const data = res.data
-      } else {
-        console.log('---kkkkk', res.message)
-      }
     },
-    // 获取一个商品的所有信息
-    async  getMallinfo(item, count = { count: 1 }) {
+    // 商品的详情信息
+    async  getDetailGoods(item, count = { count: 1 }) {
       try {
-        // 详情点赞筛选
-        this.getgoodsdetail(item, count)
-        // 评价筛选
-        if (this.iscommentlike) {
-          if (this.isunlikeMonthAgoComment && !this.unlikeMonthAgoComment) {
-            this.$message.warning('请确保勾选项输入框输入有效值')
-            return
-          }
-          this.getRatings(item)
+        // 点赞筛选
+        if (this.isgoodslike) {
+          this.getgoodsdetail(item, count)
         }
+        // 评价筛选
+        // if (this.iscommentlike) {
+        //   if (this.isunlikeMonthAgoComment && !this.unlikeMonthAgoComment) {
+        //     this.$message.warning('请确保勾选项输入框输入有效值')
+        //     return
+        //   }
+        // this.getRatings(item)
+        // }
       } catch (error) {
         console.log('---getMallinfo-catch', `${error}`)
       } finally {
@@ -225,63 +296,46 @@ export default {
           shopid: item.shopid,
           itemid: item.id
         }
+        this.$refs.autoReplyLogs.writeLog(`正在获取商品点赞数据`, true)
         const res = await this.GoodsManagerAPIInstance.getGoodsDetailinfo(goodsinfo)
         if (res.ecode === 0) {
-        // 1.商品筛选 2.评价筛选 3.是否加入购物车
+          this.$refs.autoReplyLogs.writeLog(`商品【${item.id}】详情获取成功`, true)
+          debugger
+          // 1.商品筛选 2.评价筛选 3.是否加入购物车
           const goods = res.data
           // 商品点赞
           if (this.isgoodslike) {
           // 不点赞（加购）创建天数小于
             if (this.isunlikeCreateMinDay) {
-              if (!this.unlikeCreateMinDay) {
-                this.$message.warning('请确保勾选项输入框输入有效值')
-                return
-              }
+              debugger
               const curTime = Math.round(new Date().getTime() / 1000)
-              if ((curTime - goods.ctime) / 3600 / 24 <= this.unlikeCreateMinDay) {
+              this.$refs.autoReplyLogs.writeLog(`商品【${item.id}】${(curTime - Number(goods.ctime)) / 3600 / 24}`, true)
+              if ((curTime - Number(goods.ctime)) / 3600 / 24 <= Number(this.unlikeCreateMinDay)) {
                 return
               }
             }
             // 不点赞（加购）销量小于
-            if (this.unlikeSaleMin) {
-              if (!this.isunlikeSaleMin) {
-                this.$message.warning('请确保勾选项输入框输入有效值')
-                return
-              }
-              if (goods.historical_sold <= this.isunlikeSaleMin) {
+            if (this.isunlikeSaleMin) {
+              if (goods.historical_sold <= this.unlikeSaleMin) {
                 return
               }
             }
             // 不点赞（加购）浏览数小于
             if (this.isunlikeViewMinDay) {
-              if (!this.unlikeViewMinDay) {
-                this.$message.warning('请确保勾选项输入框输入有效值')
-                return
-              }
               if (goods.cmt_count <= this.unlikeViewMinDay) {
                 return
               }
             }
             // 不点赞（加购）喜欢数小于
             if (this.isunlikeLikeMinDay) {
-              if (!this.unlikeLikeMinDay) {
-                this.$message.warning('请确保勾选项输入框输入有效值')
-                return
-              }
               if (goods.cmt_count <= this.unlikeLikeMinDay) {
                 return
               }
             }
             // 随机点赞（加购）
-            // if (this.isRandomLikeMinDay) {
-            //   if (!this.RandomLikeMinDay) {
-            //     this.$message.warning('请确保勾选项输入框输入有效值')
-            //     return
-            //   }
-            //   if (item.cmt_count <= this.RandomLikeMinDay) {
-            //     this.GoodsbuyerLike
-            //   }
-            // }
+            if (this.isRandomLikeMinDay) {
+            }
+            debugger
             this.GoodsbuyerLike(goodsinfo)
           }
         } else {
@@ -360,17 +414,14 @@ export default {
     // 商品点赞
     async GoodsbuyerLike(goodsinfo) {
       try {
-        // const goodsinfo = {
-        //   country: item.country,
-        //   shopid: item.shopid,
-        //   itemid: item.id
-        // }
         const res = await this.GoodsManagerAPIInstance.GoodsbuyerLike(goodsinfo)
-        this.$refs.autoReplyLogs.writeLog(`【商品点赞${goodsinfo.id}】测试,${res}`, true)
+        const aa = JSON.stringify(res)
+        this.$refs.autoReplyLogs.writeLog(`【商品点赞${goodsinfo.itemid}】测试,${aa}`, true)
         debugger
         if (res.ecode === 0) {
-
+          this.$refs.autoReplyLogs.writeLog(`【商品点赞${goodsinfo.itemid}】成功`, true)
         } else {
+          this.$refs.autoReplyLogs.writeLog(`【商品点赞${goodsinfo.itemid}】失败`, false)
           console.log('---点赞', res.message)
         }
       } catch (error) {
