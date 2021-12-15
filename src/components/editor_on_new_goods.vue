@@ -979,6 +979,11 @@
         return type && sort || sort.reverse()
       },
       goodsEditorCancel(data){
+        if (data){
+          let index = this.mallTable.findIndex(i=> i.id = data.sysGoodsId)
+          console.log(index)
+          return false
+        }
         this.goodsEditorVisible = false
       }
     }

@@ -276,7 +276,7 @@
     </el-tabs>
     <div style="display: flex; align-items: center;margin-top: 10px;justify-content: center">
       <el-button size="mini" type="primary" @click="goodsChange">确定</el-button>
-      <el-button size="mini" @click="cancel">取消</el-button>
+      <el-button size="mini" @click="$emit('goodsEditorCancel','')">取消</el-button>
     </div>
     <div class="on_new_dialog upload_new">
       <el-dialog class="goods-edit-details" title="图片选择" width="830px" :close-on-click-modal="false"
@@ -993,15 +993,26 @@
           this.$set(this.skuDetail2Check, index, !this.skuDetail2Check[index])
         }
       },
-      goodsChange(){
-        let goodsEditorJson = JSON.stringify(this.goodsEditor)
-
+      async goodsChange(){
+        let goodsDetailsJson = JSON.stringify(this.goodsDetails)
+        console.log(goodsDetailsJson,this.goodsDetails);
+        let sysGoodsId = this.goodsDetails.id
+        let description = this.goodsDetails.description
+        let title = this.goodsDetails.title
+        let width = this.goodsDetails.width
+        let height = this.goodsDetails.height
+        let long = this.goodsDetails.long
+        let weight = this.goodsDetails.weight
+        let updateGoodsRes = await this.updateGoods({sysGoodsId,description,title,width,height,long,weight})
+        this.$emit('goodsEditorCancel',{sysGoodsId,title,width,height,long,weight})
+        console.log('updateGoodsRes',updateGoodsRes)
       },
       handleClick(val) {
       },
-      cancel(){
-        this.$emit('goodsEditorCancel','')
-      }
+      updateGoods(param){
+        console.log(param)
+        return this.$commodityService.updateGoods(param)
+      },
     }
   }
 </script>
