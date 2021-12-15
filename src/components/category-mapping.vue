@@ -28,8 +28,8 @@
           <div class="width_single_150">{{item.attribute_name}}({{item.attribute_cn_name}})</div>
           <div>
             <el-select v-model="item.options" size="mini" style="width: 180px;">
-              <el-option v-for="son in item.new_options_obj" :key="son.value_id" :label="son.value"
-                         :value="son.value_id">
+              <el-option v-for="son in item.new_options_obj" :key="son.value_id"
+                         :label="son.value" :value="son.value_id">
               </el-option>
             </el-select>
           </div>
@@ -38,7 +38,7 @@
     </div>
     <div class="on_new_dialog_box" style="margin-top: 25px;justify-content: space-evenly">
       <el-button type="primary" size="mini" @click="confirmCategory()">　确　定　</el-button>
-      <el-button size="mini" @click="">　取　消　</el-button>
+      <el-button size="mini" @click="$emit('categoryChange','')">　取　消　</el-button>
     </div>
   </div>
 </template>
@@ -58,7 +58,13 @@
         default() {
           return {}
         }
-      }
+      },
+      mallList: {
+        type: Array,
+        default() {
+          return []
+        }
+      },
     },
     data() {
       return {
@@ -84,7 +90,10 @@
             let temp = item.new_options_obj.find(i=>i.value_id === item.options)
             attributesList.push(temp)
           })
-          console.log('categoryList :',categoryList,'attributesList :',attributesList);
+          this.$emit('categoryChange', {
+            categoryList: categoryList,
+            attributesList: attributesList
+          })
         } else {
           let mall = this.mallList[index]
           let category_ids = this.categoryAction[this.categoryAction.length - 1]
@@ -152,6 +161,7 @@
                 }
               }
             }
+            this.$emit('categoryChange','')
           } else {
             this.confirmCategory(++index)
           }
