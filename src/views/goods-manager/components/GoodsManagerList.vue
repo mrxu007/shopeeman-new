@@ -239,7 +239,7 @@
                 >批量上架</el-button>
                 <el-button type="primary" size="mini" :disabled="operationBut" @click="operation('batchDescription')">批量编辑描述</el-button>
                 <el-button type="primary" size="mini" :disabled="operationBut">导出数据</el-button>
-                <el-button type="primary" size="mini" :disabled="operationBut">一键查询禁卖商品</el-button>
+                <el-button type="primary" size="mini" :disabled="operationBut" @click="queryBanned">一键查询禁卖商品</el-button>
               </ul>
               <ul>
                 <li class="operation-input">
@@ -343,7 +343,7 @@
                     <span class="red-span">（必须大于0kg）</span>
                   </ul>
                   <ul style="margin-bottom:3px">
-                    <el-button type="primary" size="mini">批量更新运费</el-button>
+                    <el-button type="primary" size="mini" @click="operation('batchFreight')">批量更新运费</el-button>
                     <span class="red-span">（只能更改当前商品已开启的物流）</span>
                   </ul>
                   <ul>
@@ -661,6 +661,8 @@
 import GoodsList from '../../../module-api/goods-manager-api/goods-list'
 import StoreChoose from '../../../components/store-choose'
 import { exportExcelDataCommon, batchOperation } from '../../../util/util'
+import { GUID } from '../../../util/guid'
+import { confuseList } from '@/util/MallManagerStoredata'
 export default {
   components: {
     StoreChoose
@@ -788,7 +790,8 @@ export default {
         'price': '价格',
         'day': '发货天数',
         'weight': '重量',
-        'size': '尺寸'
+        'size': '尺寸',
+        'freight': '运费'
       },
       searchTypeList: [
         { value: 'name', label: '商品名称' },
@@ -885,39 +888,47 @@ export default {
         this.$set(item, 'batchStatus', '正在获取商品详情...')
         const res = await this.$shopeemanService.searchProductDetail(item.country, params)
         if (res.code === 200 && res.data) {
-          this.$set(item, 'batchStatus', '获取商品详情成功')
-          this.$set(item, 'color', 'green')
           productInfo = res.data
           console.log('productInfo', productInfo)
-          // 设置修改数据
-          this.setProductInfo(item, productInfo)
-          if (item.edit === 'title' && this.minLength !== 0 && (productInfo.name.length > this.maxLength || productInfo.name.length < this.minLength)) {
-            this.$set(item, 'batchStatus', '标题不符合,长度范围' + this.minLength + '-' + this.maxLength)
-            this.$set(item, 'color', 'red')
-          } else if (item.edit === 'description' && this.minLength !== 0 && (productInfo.description.length > this.maxLength || productInfo.description.length < this.minLength)) {
-            this.$set(item, 'batchStatus', '描述不符合,长度范围' + this.minLength + '-' + this.maxLength)
-            this.$set(item, 'color', 'red')
-          } else {
-            try {
+          if (Number(productInfo.id) === Number(item.id)) {
+            this.$set(item, 'batchStatus', '获取商品详情成功')
+            this.$set(item, 'color', 'green')
+            // 处理数据
+            await this.getProductInfo(productInfo)
+            // 设置修改数据
+            await this.setProductInfo(item, productInfo)
+            if (item.edit === 'title' && this.minLength !== 0 && (productInfo.name.length > this.maxLength || productInfo.name.length < this.minLength)) {
+              this.$set(item, 'batchStatus', '标题不符合,长度范围' + this.minLength + '-' + this.maxLength)
+              this.$set(item, 'color', 'red')
+            } else if (item.edit === 'description' && this.minLength !== 0 && (productInfo.description.length > this.maxLength || productInfo.description.length < this.minLength)) {
+              this.$set(item, 'batchStatus', '描述不符合,长度范围' + this.minLength + '-' + this.maxLength)
+              this.$set(item, 'color', 'red')
+            } else {
+              try {
               // 更新商品
-              this.$set(item, 'batchStatus', `正在更新${this.operationObj[item.edit]}...`)
-              this.$set(item, 'color', 'green')
-              const data = { mallId: item.platform_mall_id }
-              const editProductRes = await this.$shopeemanService.handleProductEdit(item.country, data, [productInfo])
-              if (editProductRes.code === 200) {
-                this.successNum++
-                this.$set(item, 'batchStatus', `更新${this.operationObj[item.edit]}成功`)
+                this.$set(item, 'batchStatus', `正在更新${this.operationObj[item.edit]}...`)
                 this.$set(item, 'color', 'green')
-              } else {
+                const data = { mallId: item.platform_mall_id }
+                const editProductRes = await this.$shopeemanService.handleProductEdit(item.country, data, [productInfo])
+                if (editProductRes.code === 200) {
+                  this.successNum++
+                  this.$set(item, 'batchStatus', `更新${this.operationObj[item.edit]}成功`)
+                  this.$set(item, 'color', 'green')
+                } else {
+                  this.failNum++
+                  this.$set(item, 'batchStatus', `更新${this.operationObj[item.edit]}失败${editProductRes.data}`)
+                  this.$set(item, 'color', 'red')
+                }
+              } catch (error) {
                 this.failNum++
-                this.$set(item, 'batchStatus', `更新${this.operationObj[item.edit]}失败${editProductRes.data}`)
+                this.$set(item, '更新商品异常')
                 this.$set(item, 'color', 'red')
               }
-            } catch (error) {
-              this.failNum++
-              this.$set(item, '更新商品异常')
-              this.$set(item, 'color', 'red')
             }
+          } else {
+            this.failNum++
+            this.$set(item, 'batchStatus', '获取到的产品id不一致')
+            this.$set(item, 'color', 'red')
           }
         } else {
           this.failNum++
@@ -961,6 +972,7 @@ export default {
         this.operationBut = false
       })
     },
+    // 设置修改数据
     setProductInfo(item, productInfo) {
       switch (item.edit) {
         case 'title':
@@ -986,6 +998,20 @@ export default {
         case 'size':
           this.setSize(productInfo)
           break
+        case 'freight':
+          this.setFreight(productInfo)
+          break
+      }
+    },
+
+    // ？
+    setFreight(productInfo) {
+      for (let i = 0; i < productInfo.logistics_channels.length; i++) {
+        const item = productInfo.logistics_channels[i]
+        console.log(item)
+        if (item.enabled === true) {
+          item.cover_shipping_fee = this.freightRadio === 1
+        }
       }
     },
     setSize(productInfo) {
@@ -1070,6 +1096,102 @@ export default {
           break
       }
     },
+    // 商品信息处理
+    getProductInfo(productInfo) {
+      try {
+        // const newProductInfo = {}
+        const isRefurbishProduct = false // 是否商品翻新（商品搬迁、翻新true 其它操作均为false）
+        const isUseProductChannel = false // 当物流是否开放矛盾时（后台开启商品关闭），优先采用后台的物流（批量更新物流方式false 其它操作均为true）
+        productInfo.id = Number(productInfo.id)
+        productInfo.name = productInfo.name.toString().trim()
+        productInfo.brand_id = Number(productInfo.brand_id)
+        productInfo.size_chart = productInfo.size_chart.toString()
+        productInfo.category_path = JSON.parse(JSON.stringify(productInfo.category_path))
+        productInfo.add_on_deal = JSON.parse(JSON.stringify(productInfo.add_on_deal))
+        if (productInfo.attributes !== null) {
+          const attList = []
+          let attObj = {}
+          for (let i = 0; i < productInfo.attributes.length; i++) {
+            const att = productInfo.attributes[i]
+            const rawValue = att.custom_value.raw_value?.toString()
+            if (!rawValue && rawValue.attribute_value_id?.toString() === '0') {
+              continue
+            }
+            const attId = att.attribute_id.toString()
+            if (!attId || attId === '0' || rawValue) {
+              attObj = {
+                attribute_id: Number(attId),
+                custom_value: {
+                  raw_value: att.custom_value.raw_value.toString(),
+                  unit: att.custom_value.unit?.toString()
+                }
+              }
+            } else {
+              attObj = {
+                attribute_id: Number(attId),
+                attribute_value_id: Number(att.attribute_value_id)
+              }
+            }
+            attList.push(attObj)
+          }
+          productInfo.attributes = attList
+        }
+        const countryList = ['SG', 'GL', 'PH', 'VN', 'TW', 'MY', 'ID', 'TH', 'MX', 'CO', 'CL', 'PL', 'FR', 'ES']
+        if (confuseList.includes(this.country)) {
+          productInfo.ds_attr_rcmd_id = `${GUID.toString()}|a|EN`
+          productInfo.ds_cat_rcmd_id = `${GUID.toString()}|c|EN`
+        }
+        console.log(GUID)
+        productInfo.stock = Number(productInfo.stock)
+        productInfo.parent_sku = productInfo.parent_sku.toString()
+        productInfo.price = productInfo.price.toString()
+        if (isRefurbishProduct && Number(productInfo.price_before_discount) > 0) {
+          productInfo.price = productInfo.price_before_discount.toString()
+        }
+        productInfo.price_before_discount = productInfo.price_before_discount.toString()
+        productInfo.input_normal_price = productInfo.price_info ? productInfo.price_info.input_normal_price.toString() : '0'
+        productInfo.input_promotion_price = productInfo.price_info ? productInfo.price_info.input_promotion_price.toString() : '0'
+        productInfo.weight = productInfo.weight.toString()
+        productInfo.dimension = JSON.parse(JSON.stringify(productInfo.dimension))
+        productInfo.pre_order = JSON.parse(productInfo.pre_order)
+        productInfo.days_to_ship = Number(productInfo.days_to_ship)
+        productInfo.description = productInfo.description.toString().trim()
+        productInfo.installment_tenures = JSON.parse(JSON.stringify(productInfo.installment_tenures))
+        // 处理商品 sku list
+        const { modelList } = this.getModelList(productInfo.model_list, isRefurbishProduct)
+        productInfo.model_list = modelList
+      // return newProductInfo
+      } catch (error) {
+        console.log('商品信息处理异常', error)
+      }
+    },
+    // 处理商品 sku list
+    getModelList(itemModelsJarray, isRefurbishProduct) {
+      const modelList = []
+      if (itemModelsJarray?.length > 0) {
+        for (let i = 0; i < itemModelsJarray.length; i++) {
+          const item = itemModelsJarray[i]
+          item.id = Number(item.id)
+          item.name = !item.name && item.sku ? item.sku : item.name.toString()
+          item.sku = item.sku.toString()
+          item.stock = Number(item.stock)
+          item.price = item.price.toString()
+          if (isRefurbishProduct && Number(item.price_before_discount) > 0) {
+            item.price = item.price_before_discount.toString()
+          }
+          item.tier_index = JSON.parse(JSON.stringify(item.tier_index))
+          item.input_normal_price = item.price_info.input_normal_price.toString()
+          item.input_promotion_price = item.price_info.input_promotion_price.toString()
+          try {
+            item.is_default = JSON.parse(item.is_default)
+          } catch (error) {
+            item.is_default = false
+          }
+          modelList.push(modelList)
+        }
+      }
+      return modelList
+    },
     // 批量上下架
     async batchUpDownProduct() {
       this.operationBut = true
@@ -1146,6 +1268,10 @@ export default {
       } finally {
         --count.count
       }
+    },
+    // 批量更新运费
+    batchFreight() {
+      this.editProduct('freight')
     },
     // 批量修改尺寸
     batchSize() {
@@ -1362,6 +1488,7 @@ export default {
       let mallName = ''
       try {
         if (this.flag) {
+          count = 0
           this.operationBut = false
           this.$refs.Logs.writeLog(`停止操作`, true)
           return
@@ -1387,55 +1514,9 @@ export default {
         if (res.code === 200) {
           if (res.data.list?.length) {
             this.$refs.Logs.writeLog(`查询店铺【${mallName}】第【${mItem.pageNumber}】页数据：${res.data.list.length}`, true)
-            for (let i = 0; i < res.data.list.length; i++) {
-              const item = res.data.list[i]
-              let stock = 0
-              let sold = 0
-              const price = []
-              let categoryName = []
-              let status = ''
-              item.country = mItem.country
-              item.mallName = mallName
-              item.create_time = item.create_time * 1000
-              item.modify_time = item.modify_time * 1000
-              item.images = item.images[0]
-              item.platform_mall_id = mItem.platform_mall_id
-              item.model_list.forEach(modelItem => {
-                price.push(Number(modelItem.price_info.normal_price))
-                stock += Number(modelItem.stock_info.normal_stock)
-                sold += Number(modelItem.sold)
-              })
-              // 获取类目名
-              for (let j = 0; j < item.category_path.length; j++) {
-                const cItem = item.category_path[j]
-                const res = await this.GoodsList.getCategoryName(item.country, cItem, '0', '')
-                if (res.code === 200) {
-                  categoryName.push(res.data.categories ? `${res.data.categories[0].category_name}(${res.data.categories[0].category_cn_name})` : '')
-                } else {
-                  categoryName = ''
-                  this.$refs.Logs.writeLog(`${res.data}`, false)
-                }
-              }
-              item.stock = stock // 库存
-              item.sold = sold // 销售量
-              item.price = Math.min.apply(null, price) // 价格
-              item.categoryName = categoryName.join('->') // 类目
-              if (item.status === 2) { // 状态
-                status = 6
-              } else if (item.status === 1 && item.stock === 0) {
-                status = 11
-              } else if (item.status === 1 && this.goodsStatusVal === 100) {
-                status = 100
-              } else {
-                status = item.status
-              }
-              item.status = status
-              // 获取上家类型,链接,id
-              await this.getPlatformData(item.parent_sku)
-              item.platformTypeStr = this.platformData['platformTypeStr']
-              item.productId = this.platformData['productId']
-              item.url = this.platformData['url']
-            }
+            // 组装数据
+            await this.setTableData(res.data.list, mItem, mallName)
+            // 过滤数据
             const newData = this.filterData(res.data.list)
             if (!this.productNumChecked) {
               this.tableData = this.tableData.concat(newData)
@@ -1447,6 +1528,7 @@ export default {
           console.log('list', res.data.list)
         } else {
           this.$refs.Logs.writeLog(`店铺【${mallName}】${res.data}`, false)
+          --count.count
         }
       } catch (error) {
         this.$refs.Logs.writeLog(`店铺【${mallName}】获取数据异常`, false)
@@ -1455,7 +1537,7 @@ export default {
           mItem.pageNumber++
           await this.getTableData(mItem, count)
         } else {
-          // 单店查询商品数量
+        // 单店查询商品数量
           if (this.productNumChecked) {
             this.tableData = this.tableData.concat(mItem.mylist.slice(0, Number(this.productNum)))
           }
@@ -1464,6 +1546,131 @@ export default {
           this.percentage += temp
           --count.count
         }
+      }
+    },
+    // 一键查询禁卖
+    async queryBanned() {
+      this.percentage = 0
+      this.queryNum = 0
+      this.updateNum = 0
+      this.successNum = 0
+      this.failNum = 0
+      this.tableData = []
+      this.operationBut = true
+      this.showConsole = false
+      this.$refs.Logs.consoleMsg = ''
+      this.$refs.Logs.writeLog(`开始查询禁卖商品...`, true)
+      this.selectMallList.forEach(item => {
+        item.pageNumber = 1
+        item.mylist = []
+      })
+      await batchOperation(this.selectMallList, this.getBannedData)
+      this.operationBut = false
+      this.showConsole = true
+      this.$refs.Logs.writeLog(`禁卖商品查询结束`, true)
+    },
+    async getBannedData(mItem, count = { count: 2 }) {
+      let res = ''
+      let mallName = ''
+      try {
+        if (this.flag) {
+          count = 0
+          this.operationBut = false
+          this.$refs.Logs.writeLog(`停止操作`, true)
+          return
+        }
+        const params = {}
+        params['mItem'] = mItem
+        params['pageSize'] = this.pageSize
+        params['listType'] = 'banned'
+        params['listOrderType'] = 'list_time_asc'
+        mallName = mItem.mall_alias_name || mItem.platform_mall_name
+        res = await this.GoodsList.getMpskuList(params)
+        if (res.code === 200) {
+          if (res.data.list?.length) {
+            this.$refs.Logs.writeLog(`查询店铺【${mallName}】第【${mItem.pageNumber}】页数据：${res.data.list.length}`, true)
+            // 组装数据
+            await this.setTableData(res.data.list, mItem, mallName)
+            if (!this.productNumChecked) {
+              this.tableData = this.tableData.concat(res.data.list)
+              this.queryNum = this.tableData.length
+            } else {
+              mItem.mylist = mItem.mylist.concat(res.data.list)
+            }
+          }
+          console.log('list', res.data.list)
+        } else {
+          this.$refs.Logs.writeLog(`店铺【${mallName}】${res.data}`, false)
+          --count.count
+        }
+      } catch (error) {
+        this.$refs.Logs.writeLog(`店铺【${mallName}】获取数据异常`, false)
+      } finally {
+        if (res.data.list.length >= this.pageSize) {
+          mItem.pageNumber++
+          await this.getBannedData(mItem, count)
+        } else {
+        // 单店查询商品数量
+          if (this.productNumChecked) {
+            this.tableData = this.tableData.concat(mItem.mylist.slice(0, Number(this.productNum)))
+          }
+          this.queryNum = this.tableData.length
+          const temp = 100 / this.selectMallList.length
+          this.percentage += temp
+          --count.count
+        }
+      }
+    },
+    // 表格数据组装
+    async setTableData(data, mItem, mallName) {
+      for (let i = 0; i < data.length; i++) {
+        const item = data[i]
+        let stock = 0
+        let sold = 0
+        const price = []
+        let categoryName = []
+        let status = ''
+        item.country = mItem.country
+        item.mallName = mallName
+        item.create_time = item.create_time * 1000
+        item.modify_time = item.modify_time * 1000
+        item.images = item.images[0]
+        item.platform_mall_id = mItem.platform_mall_id
+        item.model_list.forEach(modelItem => {
+          price.push(Number(modelItem.price_info.normal_price))
+          stock += Number(modelItem.stock_info.normal_stock)
+          sold += Number(modelItem.sold)
+        })
+        // 获取类目名
+        for (let j = 0; j < item.category_path.length; j++) {
+          const cItem = item.category_path[j]
+          const res = await this.GoodsList.getCategoryName(item.country, cItem, '0', '')
+          if (res.code === 200) {
+            categoryName.push(res.data.categories ? `${res.data.categories[0].category_name}(${res.data.categories[0].category_cn_name})` : '')
+          } else {
+            categoryName = ''
+            this.$refs.Logs.writeLog(`${res.data}`, false)
+          }
+        }
+        item.stock = stock // 库存
+        item.sold = sold // 销售量
+        item.price = Math.min.apply(null, price) // 价格
+        item.categoryName = categoryName.join('->') // 类目
+        if (item.status === 2) { // 状态
+          status = 6
+        } else if (item.status === 1 && item.stock === 0) {
+          status = 11
+        } else if (item.status === 1 && this.goodsStatusVal === 100) {
+          status = 100
+        } else {
+          status = item.status
+        }
+        item.status = status
+        // 获取上家类型,链接,id
+        await this.getPlatformData(item.parent_sku)
+        item.platformTypeStr = this.platformData['platformTypeStr']
+        item.productId = this.platformData['productId']
+        item.url = this.platformData['url']
       }
     },
     // 本地过滤
