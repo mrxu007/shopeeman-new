@@ -436,12 +436,11 @@ export default class GoodsManagerAPI {
       const params = {
         mallId: shopid,
         shop_item_ids: [{
-          shop_id: shopid.toString(),
-          item_id: itemid.toString()
-        }].toString()
+          shop_id: Number(shopid),
+          item_id: Number(itemid)
+        }]
       }
-      debugger
-      const res = await this._this.$shopeemanService.postChineseReferer(country, '/api/v4/pages/like_items', params, {
+      const res = await this._this.$shopeemanService.postChineseBuyer(country, '/api/v4/pages/like_items', params, {
         headers: {
           'Content-Type': 'application/json',
           'accept': 'application/json',
@@ -450,17 +449,17 @@ export default class GoodsManagerAPI {
           referer: `/ADIDOG-%E0%B9%84%E0%B8%8B%E0%B8%8B%E0%B9%8C%E0%B9%83%E0%B8%AB%E0%B8%8D%E0%B9%88%E0%B8%A1%E0%B8%B2%E0%B8%81%E0%B8%81%E0%B8%81%F0%9F%90%B6%E0%B9%80%E0%B8%AA%E0%B8%B7%E0%B9%89%E0%B8%AD%E0%B8%AE%E0%B8%B9%E0%B9%89%E0%B8%94-%E0%B9%80%E0%B8%AA%E0%B8%B7%E0%B9%89%E0%B8%AD%E0%B8%AA%E0%B8%B8%E0%B8%99%E0%B8%B1%E0%B8%82-%E0%B8%8A%E0%B8%B8%E0%B8%94%E0%B8%AA%E0%B8%B8%E0%B8%99%E0%B8%B1%E0%B8%82-%E0%B8%8A%E0%B8%B8%E0%B8%94%E0%B8%AB%E0%B8%A1%E0%B8%B2-%E0%B9%80%E0%B8%AA%E0%B8%B7%E0%B9%89%E0%B8%AD%E0%B8%AB%E0%B8%A1%E0%B8%B2-%E0%B9%80%E0%B8%AA%E0%B8%B7%E0%B9%89%E0%B8%AD%E0%B8%AA%E0%B8%B1%E0%B8%95%E0%B8%A7%E0%B9%8C%E0%B9%80%E0%B8%A5%E0%B8%B5%E0%B9%89%E0%B8%A2%E0%B8%87-i.161669595.9780892572?sp_atk=27921f6f-3ff1-40a3-a5ff-b5b7d469e59c`
         }
       })
+      const des = JSON.parse(JSON.parse(res).data)
       debugger
       let ecode = null
       let message = null
-      if (res.error === 0) {
+      if (des.error === 0) {
         ecode = 0
       } else {
         ecode = -2
-        message = '数据请求失败'
+        message = '点赞失败'
       }
-      const data = res.data
-      return { ecode, data, message }
+      return { ecode, message }
     } catch (error) {
       return { code: -2, data: `GoodsbuyerLike-catch: ${error}` }
     }
