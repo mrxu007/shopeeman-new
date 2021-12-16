@@ -26,6 +26,21 @@
 
     <!--销售额结构 -->
     <main v-if="activeVal === '8'"><BusinessAnalysisSalesStructure /></main>
+
+    <!--行销活动 -->
+    <main v-if="activeVal === '9'"><BusinessAnalysisMarketingActivity /></main>
+
+    <!--行销套装优惠 -->
+    <main v-if="activeVal === '10'"><BusinessAnalysisPackageOffer /></main>
+
+    <!--行销关注礼 -->
+    <main v-if="activeVal === '11'"><BusinessAnalysisAttentionCeremony /></main>
+
+    <!--行销优惠卷 -->
+    <main v-if="activeVal === '12'"><BusinessAnalysisCoupon /></main>
+
+    <!--行销优惠卷 -->
+    <main v-if="activeVal === '13'"><BusinessAnalysisLimitedTimePurchase /></main>
   </div>
 </template>
 
@@ -39,7 +54,12 @@ import {
   BusinessAnalysisCommodityOverview,
   BusinessAnalysisCommodityPerformance,
   BusinessAnalysisSalesvolume,
-  BusinessAnalysisSalesStructure
+  BusinessAnalysisSalesStructure,
+  BusinessAnalysisMarketingActivity,
+  BusinessAnalysisPackageOffer,
+  BusinessAnalysisAttentionCeremony,
+  BusinessAnalysisCoupon,
+  BusinessAnalysisLimitedTimePurchase
 } from './index.js'
 export default {
   components: {
@@ -51,7 +71,12 @@ export default {
     BusinessAnalysisCommodityOverview,
     BusinessAnalysisCommodityPerformance,
     BusinessAnalysisSalesvolume,
-    BusinessAnalysisSalesStructure
+    BusinessAnalysisSalesStructure,
+    BusinessAnalysisMarketingActivity,
+    BusinessAnalysisPackageOffer,
+    BusinessAnalysisAttentionCeremony,
+    BusinessAnalysisCoupon,
+    BusinessAnalysisLimitedTimePurchase
   },
   data() {
     return {

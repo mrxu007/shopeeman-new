@@ -24,6 +24,21 @@ const BusinessAnalysisSalesvolume = () => import('./components/BusinessAnalysisS
 
 // 销售额结构
 const BusinessAnalysisSalesStructure = () => import('./components/BusinessAnalysisSalesStructure.vue')
+
+// 行销活动
+const BusinessAnalysisMarketingActivity = () => import('./components/BusinessAnalysisMarketingActivity.vue')
+
+// 套装优惠
+const BusinessAnalysisPackageOffer = () => import('./components/BusinessAnalysisPackageOffer.vue')
+
+// 关注礼
+const BusinessAnalysisAttentionCeremony = () => import('./components/BusinessAnalysisAttentionCeremony.vue')
+
+// 优惠卷
+const BusinessAnalysisCoupon = () => import('./components/BusinessAnalysisCoupon.vue')
+
+// 限时抢购
+const BusinessAnalysisLimitedTimePurchase = () => import('./components/BusinessAnalysisLimitedTimePurchase.vue')
 // 导出
 export {
   BusinessAnalysisDataScreening1,
@@ -34,5 +49,10 @@ export {
   BusinessAnalysisCommodityOverview,
   BusinessAnalysisCommodityPerformance,
   BusinessAnalysisSalesvolume,
-  BusinessAnalysisSalesStructure
+  BusinessAnalysisSalesStructure,
+  BusinessAnalysisMarketingActivity,
+  BusinessAnalysisPackageOffer,
+  BusinessAnalysisAttentionCeremony,
+  BusinessAnalysisCoupon,
+  BusinessAnalysisLimitedTimePurchase
 }

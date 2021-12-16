@@ -1480,4 +1480,60 @@ export default class NetMessageBridgeService {
   getsalasstructure1(country, data, option) {
     return this.getChinese(country, '/api/mydata/v2/sales/composition/category/', data, option)
   }
+
+  // 获取销售额结构数据2
+  getsalasstructure2(country, data, option) {
+    return this.getChinese(country, '/api/mydata/sales/composition/pricezone/', data, option)
+  }
+
+  // 获取销售额结构数据3
+  getsalasstructure3(country, data, option) {
+    return this.getChinese(country, '/api/mydata/sales/composition/buyers/', data, option)
+  }
+
+  // 获取行销活动数据
+  getactivity(country, data, option) {
+    return this.getChinese(country, '/api/mydata/marketing/discount/key-metrics/', data, option)
+  }
+
+  // 获取行销活动概览按钮数据
+  getactivitybt(country, data, option) {
+    return this.getChinese(country, '/api/mydata/marketing/discount/overview/', data, option)
+  }
+
+  // 获取优惠套装数据
+  getpackage(country, data, option) {
+    return this.getChinese(country, '/api/mydata/marketing/bundle/key-metrics/', data, option)
+  }
+
+  // 获取优惠套装按钮数据
+  getpackageview(country, data, option) {
+    return this.getChinese(country, '/api/mydata/marketing/bundle/overview/', data, option)
+  }
+
+  // 获取关注礼数据
+  getattention(country, data, option) {
+    return this.getChinese(country, '/api/mydata/marketing/follow-prize/key-metrics/', data, option)
+  }
+
+  // 获取关注礼概述数据
+  getattentionview(country, data, option) {
+    return this.getChinese(country, '/api/mydata/marketing/follow-prize/overview/', data, option)
+  }
+
+  // 获取优惠卷数据
+  getcoupon(country, data, option) {
+    return this.getChinese(country, '/api/mydata/marketing/voucher/key-metrics/', data, option)
+  }
+
+  // 获取优惠卷概述数据
+  getcouponview(country, data, option) {
+    return this.getChinese(country, '/api/mydata/marketing/voucher/performance/', data, option)
+  }
+
+  // 获取商品限时选购数据
+  getlimittime(country, data, option) {
+    return this.getChinese(country, '/api/mydata/marketing/flash-sale/key-metrics/', data, option)
+  }
 }
+

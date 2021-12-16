@@ -54,40 +54,16 @@
             backgroundColor: '#f5f7fa',
           }"
         >
-          <el-table-column align="center" label="序列号" width="100" prop="mallname" />
-          <el-table-column align="center" prop="buyers" label="店铺" width="130">
+          <el-table-column align="center" label="序列号" width="100" prop="index" />
+          <el-table-column align="center" prop="mallname" label="店铺" width="140" />
+          <el-table-column align="center" prop="l1_cat_name" label="分类" width="160" />
+          <el-table-column prop="sales" label="销售额" width="130" align="center" />
+          <el-table-column prop="sales_percentage" label="销售额%" width="100" align="center" />
+          <el-table-column prop="buyers" label="买家" width="120" align="center" />
+          <el-table-column prop="conversion_rate" label="转化率" width="100" align="center" />
+          <el-table-column label="查看明细" width="100" align="center">
             <template slot-scope="{ row }">
-              <div v-html="row.buyers" />
-            </template>
-          </el-table-column>
-          <el-table-column align="center" prop="new_buyers" label="分类" width="100">
-            <template slot-scope="{ row }">
-              <div v-html="row.new_buyers" />
-            </template>
-          </el-table-column>
-          <el-table-column prop="existing_buyers" label="销售额" width="130" align="center">
-            <template slot-scope="{ row }">
-              <div v-html="row.existing_buyers" />
-            </template>
-          </el-table-column>
-          <el-table-column prop="potential_buyers" label="销售额%" width="100" align="center">
-            <template slot-scope="{ row }">
-              <div v-html="row.potential_buyers" />
-            </template>
-          </el-table-column>
-          <el-table-column prop="repeat_purchase_rate" label="买家" width="130" align="center">
-            <template slot-scope="{ row }">
-              <div v-html="row.repeat_purchase_rate" />
-            </template>
-          </el-table-column>
-          <el-table-column prop="repeat_purchase_rate" label="转化率" width="130" align="center">
-            <template slot-scope="{ row }">
-              <div v-html="row.repeat_purchase_rate" />
-            </template>
-          </el-table-column>
-          <el-table-column prop="repeat_purchase_rate" label="查看明细" width="130" align="center">
-            <template slot-scope="{ row }">
-              <div v-html="row.repeat_purchase_rate" />
+              <el-button type="primary" size="mini" @click="view(row)">查看</el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -105,37 +81,13 @@
             backgroundColor: '#f5f7fa',
           }"
         >
-          <el-table-column align="center" label="序列号" width="60" prop="mallname" />
-          <el-table-column align="center" prop="buyers" label="店铺" width="130">
-            <template slot-scope="{ row }">
-              <div v-html="row.buyers" />
-            </template>
-          </el-table-column>
-          <el-table-column align="center" prop="new_buyers" label="价格范围" width="130">
-            <template slot-scope="{ row }">
-              <div v-html="row.new_buyers" />
-            </template>
-          </el-table-column>
-          <el-table-column prop="existing_buyers" label="买家" width="100" align="center">
-            <template slot-scope="{ row }">
-              <div v-html="row.existing_buyers" />
-            </template>
-          </el-table-column>
-          <el-table-column prop="potential_buyers" label="买家%" width="100" align="center">
-            <template slot-scope="{ row }">
-              <div v-html="row.potential_buyers" />
-            </template>
-          </el-table-column>
-          <el-table-column prop="repeat_purchase_rate" label="销售额" width="100" align="center">
-            <template slot-scope="{ row }">
-              <div v-html="row.repeat_purchase_rate" />
-            </template>
-          </el-table-column>
-          <el-table-column prop="repeat_purchase_rate" label="转化率" width="100" align="center">
-            <template slot-scope="{ row }">
-              <div v-html="row.repeat_purchase_rate" />
-            </template>
-          </el-table-column>
+          <el-table-column align="center" label="序列号" width="60" prop="index" />
+          <el-table-column align="center" prop="mallname" label="店铺" width="140" />
+          <el-table-column align="center" prop="price_zone" label="价格范围" width="120" />
+          <el-table-column prop="buyers" label="买家" width="100" align="center" />
+          <el-table-column prop="buyers_percentage" label="买家%" width="100" align="center" />
+          <el-table-column prop="sales" label="销售额" width="100" align="center" />
+          <el-table-column prop="conversion_rate" label="转化率" width="100" align="center" />
         </el-table>
       </div>
       <div style="border:1px solid black;width:100%;margin-top:385px">
@@ -145,50 +97,40 @@
           v-loading="Loading3"
           style="margin-top:10px"
           header-align="center"
-          height="calc(100vh - 540px)"
+          height="calc(100vh - 570px)"
           :data="tableData3"
           :header-cell-style="{
             backgroundColor: '#f5f7fa',
           }"
         >
-          <el-table-column align="center" label="序列号" width="100" prop="mallname" />
-          <el-table-column align="center" prop="buyers" label="店铺" width="230">
-            <template slot-scope="{ row }">
-              <div v-html="row.buyers" />
-            </template>
-          </el-table-column>
-          <el-table-column align="center" prop="new_buyers" label="买家类型" width="207">
-            <template slot-scope="{ row }">
-              <div v-html="row.new_buyers" />
-            </template>
-          </el-table-column>
-          <el-table-column prop="existing_buyers" label="买家" width="230" align="center">
-            <template slot-scope="{ row }">
-              <div v-html="row.existing_buyers" />
-            </template>
-          </el-table-column>
-          <el-table-column prop="potential_buyers" label="买家%" width="230" align="center">
-            <template slot-scope="{ row }">
-              <div v-html="row.potential_buyers" />
-            </template>
-          </el-table-column>
-          <el-table-column prop="repeat_purchase_rate" label="销售额" width="230" align="center">
-            <template slot-scope="{ row }">
-              <div v-html="row.repeat_purchase_rate" />
-            </template>
-          </el-table-column>
-          <el-table-column prop="repeat_purchase_rate" label="销售额%" width="230" align="center">
-            <template slot-scope="{ row }">
-              <div v-html="row.repeat_purchase_rate" />
-            </template>
-          </el-table-column>
-          <el-table-column prop="repeat_purchase_rate" label="转化率" width="230" align="center">
-            <template slot-scope="{ row }">
-              <div v-html="row.repeat_purchase_rate" />
-            </template>
-          </el-table-column>
+          <el-table-column align="center" label="序列号" width="100" prop="index" />
+          <el-table-column align="center" prop="mallname" label="店铺" width="230" />
+          <el-table-column align="center" prop="buyers_type" label="买家类型" width="207" />
+          <el-table-column prop="buyers" label="买家" width="230" align="center" />
+          <el-table-column prop="buyers_percentage" label="买家%" width="230" align="center" />
+          <el-table-column prop="sales" label="销售额" width="230" align="center" />
+          <el-table-column prop="sales_percentage" label="销售额%" width="230" align="center" />
+          <el-table-column prop="conversion_rate" label="转化率" width="230" align="center" />
         </el-table>
       </div>
+      <el-dialog title="查看子分类" :visible.sync="eidtVisible" width="40%">
+        <el-table
+          ref="plTable"
+          v-loading="Loading3"
+          style="margin-top:10px"
+          header-align="center"
+          :data="tableData"
+          :header-cell-style="{
+            backgroundColor: '#f5f7fa',
+          }"
+        >
+          <el-table-column align="center" label="子分类" width="160" prop="l2_cat_name" />
+          <el-table-column align="center" prop="sales" label="销售额" width="140" />
+          <el-table-column align="center" prop="sales_percentage" label="销售额%" width="120" />
+          <el-table-column prop="buyers" label="买家" width="130" align="center" />
+          <el-table-column prop="conversion_rate" label="转化率%" width="100" align="center" />
+        </el-table>
+      </el-dialog>
       <div class="logging">
         <Logs ref="Logs" v-model="showlog" clear />
       </div>
@@ -208,32 +150,32 @@ export default {
       serchload: false,
       selectall: true, // 分组全选和取消全选选项控制
       selectall1: true, // 店铺全选和取消全选选项控制
+      eidtVisible: false,
       allgroupid: [],
       allmallid: [],
+      tableData: [],
       tableData1: [],
       tableData2: [],
       tableData3: [],
       errmall: [],
       indexs: 1,
+      indexs1: 1,
+      indexs2: 1,
       currency: '฿',
       total: 0,
-      Statisticaltime: 'real_time',
+      Statisticaltime: 'yesterday',
       site: 'TH', // 站点
       siteList: this.$filters.countries_option, // 所有站点
       group: 0, // 分组
       gruopList: [],
       mall: [], // 店铺
       mallList: [],
-      start_time: Date.parse(this.$dayjs(new Date()).format('YYYY-MM-DD 01:00:00')) / 1000,
-      end_time: Math.round(new Date() / 1000),
+      start_time: Date.parse(this.$dayjs(new Date()).format('YYYY-MM-DD 01:00:00')) / 1000 - 3600 * 24,
+      end_time: Date.parse(this.$dayjs(new Date()).format('YYYY-MM-DD 01:00:00')) / 1000,
       returnStatisticaltime: [
-        { value: 'real_time', label: '实时' },
         { value: 'yesterday', label: '昨日' },
         { value: 'past7days', label: '过去7天' },
-        { value: 'past30days', label: '过去30天' },
-        { value: 'day', label: '按日' },
-        { value: 'week', label: '按周' },
-        { value: 'month', label: '按月' }
+        { value: 'past30days', label: '过去30天' }
       ]
     }
   },
@@ -271,83 +213,245 @@ export default {
       }
     },
     Statisticaltime(val, oldVal) {
-      if (val === 'real_time') {
-        this.start_time = Date.parse(this.$dayjs(new Date()).format('YYYY-MM-DD 01:00:00')) / 1000
-        this.end_time = Math.round(new Date() / 1000)
-        this.timecant = true
-      } else if (val === 'yesterday') {
-        this.start_time = Date.parse(this.$dayjs(new Date()).format('YYYY-MM-DD 01:00:00')) / 1000 - 3600 * 24
-        this.end_time = Date.parse(this.$dayjs(new Date()).format('YYYY-MM-DD 01:00:00')) / 1000
-        this.timecant = true
-      } else if (val === 'past7days') {
-        this.start_time = Date.parse(this.$dayjs(new Date()).format('YYYY-MM-DD 01:00:00')) / 1000 - 3600 * 24 * 7
-        this.end_time = Date.parse(this.$dayjs(new Date()).format('YYYY-MM-DD 01:00:00')) / 1000
-        this.timecant = true
-      } else if (val === 'past30days') {
-        this.start_time = Date.parse(this.$dayjs(new Date()).format('YYYY-MM-DD 01:00:00')) / 1000 - 3600 * 24 * 30
-        this.end_time = Date.parse(this.$dayjs(new Date()).format('YYYY-MM-DD 01:00:00')) / 1000
-        this.timecant = true
-      } else if (val === 'day') {
-        this.start_time = Date.parse(this.$dayjs(this.timechoose).format('YYYY-MM-DD 01:00:00')) / 1000 - 3600 * 24
-        this.end_time = Date.parse(this.$dayjs(this.timechoose).format('YYYY-MM-DD 01:00:00')) / 1000
-        this.timecant = false
-      } else if (val === 'week') {
-        this.start_time = Date.parse(this.$dayjs(this.timechoose).format('YYYY-MM-DD 01:00:00')) / 1000 - 3600 * 24 * 6
-        this.end_time = Date.parse(this.$dayjs(this.timechoose).format('YYYY-MM-DD 01:00:00')) / 1000
-        this.timecant = false
-      } else if (val === 'month') {
-        const timea = this.$dayjs(this.timechoose).format('YYYY-MM-01')
-        const month = timea.split('-')[1]
-        if (month === '12') {
-          this.start_time = Date.parse(this.$dayjs(this.timechoose).format('YYYY-MM-01 01:00:00')) / 1000
-          let timeq = this.$dayjs(this.timechoose).format('YYYY-MM-01 01:00:00').split('')
-          timeq[5] = '0'
-          timeq[6] = '1'
-          timeq = timeq.join('')
-          this.end_time = Date.parse(this.$dayjs(timeq).format('YYYY-MM-01 01:00:00')) / 1000
-          console.log(this.end_time)
+      if (this.site === 'TH' || this.site === 'ID' || this.site === 'VN') {
+        if (val === 'real_time') {
+          this.start_time = Date.parse(this.$dayjs(new Date()).format('YYYY-MM-DD 01:00:00')) / 1000
+          this.end_time = Math.round(new Date() / 1000)
+          this.timecant = true
+        } else if (val === 'yesterday') {
+          this.start_time = Date.parse(this.$dayjs(new Date()).format('YYYY-MM-DD 01:00:00')) / 1000 - 3600 * 24
+          this.end_time = Date.parse(this.$dayjs(new Date()).format('YYYY-MM-DD 01:00:00')) / 1000
+          this.timecant = true
+        } else if (val === 'past7days') {
+          this.start_time = Date.parse(this.$dayjs(new Date()).format('YYYY-MM-DD 01:00:00')) / 1000 - 3600 * 24 * 7
+          this.end_time = Date.parse(this.$dayjs(new Date()).format('YYYY-MM-DD 01:00:00')) / 1000
+          this.timecant = true
+        } else if (val === 'past30days') {
+          this.start_time = Date.parse(this.$dayjs(new Date()).format('YYYY-MM-DD 01:00:00')) / 1000 - 3600 * 24 * 30
+          this.end_time = Date.parse(this.$dayjs(new Date()).format('YYYY-MM-DD 01:00:00')) / 1000
+          this.timecant = true
+        } else if (val === 'day') {
+          this.start_time = Date.parse(this.$dayjs(this.timechoose).format('YYYY-MM-DD 01:00:00')) / 1000 - 3600 * 24
+          this.end_time = Date.parse(this.$dayjs(this.timechoose).format('YYYY-MM-DD 01:00:00')) / 1000
+          this.timecant = false
+        } else if (val === 'week') {
+          this.start_time = Date.parse(this.$dayjs(this.timechoose).format('YYYY-MM-DD 01:00:00')) / 1000 - 3600 * 24 * 6
+          this.end_time = Date.parse(this.$dayjs(this.timechoose).format('YYYY-MM-DD 01:00:00')) / 1000
+          this.timecant = false
+        } else if (val === 'month') {
+          const timea = this.$dayjs(this.timechoose).format('YYYY-MM-01')
+          const month = timea.split('-')[1]
+          if (month === '12') {
+            this.start_time = Date.parse(this.$dayjs(this.timechoose).format('YYYY-MM-01 01:00:00')) / 1000
+            let timeq = this.$dayjs(this.timechoose).format('YYYY-MM-01 01:00:00').split('')
+            timeq[5] = '0'
+            timeq[6] = '1'
+            timeq = timeq.join('')
+            this.end_time = Date.parse(this.$dayjs(timeq).format('YYYY-MM-01 01:00:00')) / 1000
+            console.log(this.end_time)
           // this.end_time = Date.parse(this.$dayjs(this.timechoose).format('YYYY-MM-01 01:00:00')[5]) / 1000
-        } else {
-          this.start_time = Date.parse(this.$dayjs(this.timechoose).format('YYYY-MM-01 01:00:00')) / 1000
-          let timeq = this.$dayjs(this.timechoose).format('YYYY-MM-01 01:00:00').split('')
-          const timew = month.split('')
-          timeq[5] = timew[0]
-          timeq[6] = Number(timew[1]) + 1
-          timeq = timeq.join('')
-          this.end_time = Date.parse(this.$dayjs(timeq).format('YYYY-MM-01 01:00:00')) / 1000
-          console.log(this.end_time)
+          } else {
+            this.start_time = Date.parse(this.$dayjs(this.timechoose).format('YYYY-MM-01 01:00:00')) / 1000
+            let timeq = this.$dayjs(this.timechoose).format('YYYY-MM-01 01:00:00').split('')
+            const timew = month.split('')
+            timeq[5] = timew[0]
+            timeq[6] = Number(timew[1]) + 1
+            timeq = timeq.join('')
+            this.end_time = Date.parse(this.$dayjs(timeq).format('YYYY-MM-01 01:00:00')) / 1000
+            console.log(this.end_time)
+          }
+          this.timecant = false
         }
-        this.timecant = false
+      } else if (this.site === 'BR') {
+        if (val === 'real_time') {
+          this.start_time = Date.parse(this.$dayjs(new Date()).format('YYYY-MM-DD 11:00:00')) / 1000
+          this.end_time = Math.round(new Date() / 1000)
+          this.timecant = true
+        } else if (val === 'yesterday') {
+          this.start_time = Date.parse(this.$dayjs(new Date()).format('YYYY-MM-DD 11:00:00')) / 1000 - 3600 * 24
+          this.end_time = Date.parse(this.$dayjs(new Date()).format('YYYY-MM-DD 11:00:00')) / 1000
+          this.timecant = true
+        } else if (val === 'past7days') {
+          this.start_time = Date.parse(this.$dayjs(new Date()).format('YYYY-MM-DD 11:00:00')) / 1000 - 3600 * 24 * 7
+          this.end_time = Date.parse(this.$dayjs(new Date()).format('YYYY-MM-DD 11:00:00')) / 1000
+          this.timecant = true
+        } else if (val === 'past30days') {
+          this.start_time = Date.parse(this.$dayjs(new Date()).format('YYYY-MM-DD 11:00:00')) / 1000 - 3600 * 24 * 30
+          this.end_time = Date.parse(this.$dayjs(new Date()).format('YYYY-MM-DD 11:00:00')) / 1000
+          this.timecant = true
+        } else if (val === 'day') {
+          this.start_time = Date.parse(this.$dayjs(this.timechoose).format('YYYY-MM-DD 11:00:00')) / 1000 - 3600 * 24
+          this.end_time = Date.parse(this.$dayjs(this.timechoose).format('YYYY-MM-DD 11:00:00')) / 1000
+          this.timecant = false
+        } else if (val === 'week') {
+          this.start_time = Date.parse(this.$dayjs(this.timechoose).format('YYYY-MM-DD 11:00:00')) / 1000 - 3600 * 24 * 6
+          this.end_time = Date.parse(this.$dayjs(this.timechoose).format('YYYY-MM-DD 11:00:00')) / 1000
+          this.timecant = false
+        } else if (val === 'month') {
+          const timea = this.$dayjs(this.timechoose).format('YYYY-MM-01')
+          const month = timea.split('-')[1]
+          if (month === '12') {
+            this.start_time = Date.parse(this.$dayjs(this.timechoose).format('YYYY-MM-01 11:00:00')) / 1000
+            let timeq = this.$dayjs(this.timechoose).format('YYYY-MM-01 11:00:00').split('')
+            timeq[5] = '0'
+            timeq[6] = '1'
+            timeq = timeq.join('')
+            this.end_time = Date.parse(this.$dayjs(timeq).format('YYYY-MM-01 11:00:00')) / 1000
+            console.log(this.end_time)
+          // this.end_time = Date.parse(this.$dayjs(this.timechoose).format('YYYY-MM-01 01:00:00')[5]) / 1000
+          } else {
+            this.start_time = Date.parse(this.$dayjs(this.timechoose).format('YYYY-MM-01 11:00:00')) / 1000
+            let timeq = this.$dayjs(this.timechoose).format('YYYY-MM-01 11:00:00').split('')
+            const timew = month.split('')
+            timeq[5] = timew[0]
+            timeq[6] = Number(timew[1]) + 1
+            timeq = timeq.join('')
+            this.end_time = Date.parse(this.$dayjs(timeq).format('YYYY-MM-01 11:00:00')) / 1000
+            console.log(this.end_time)
+          }
+          this.timecant = false
+        }
+      } else {
+        if (val === 'real_time') {
+          this.start_time = Date.parse(this.$dayjs(new Date()).format('YYYY-MM-DD 00:00:00')) / 1000
+          this.end_time = Math.round(new Date() / 1000)
+          this.timecant = true
+        } else if (val === 'yesterday') {
+          this.start_time = Date.parse(this.$dayjs(new Date()).format('YYYY-MM-DD 00:00:00')) / 1000 - 3600 * 24
+          this.end_time = Date.parse(this.$dayjs(new Date()).format('YYYY-MM-DD 00:00:00')) / 1000
+          this.timecant = true
+        } else if (val === 'past7days') {
+          this.start_time = Date.parse(this.$dayjs(new Date()).format('YYYY-MM-DD 00:00:00')) / 1000 - 3600 * 24 * 7
+          this.end_time = Date.parse(this.$dayjs(new Date()).format('YYYY-MM-DD 00:00:00')) / 1000
+          this.timecant = true
+        } else if (val === 'past30days') {
+          this.start_time = Date.parse(this.$dayjs(new Date()).format('YYYY-MM-DD 00:00:00')) / 1000 - 3600 * 24 * 30
+          this.end_time = Date.parse(this.$dayjs(new Date()).format('YYYY-MM-DD 00:00:00')) / 1000
+          this.timecant = true
+        } else if (val === 'day') {
+          this.start_time = Date.parse(this.$dayjs(this.timechoose).format('YYYY-MM-DD 00:00:00')) / 1000 - 3600 * 24
+          this.end_time = Date.parse(this.$dayjs(this.timechoose).format('YYYY-MM-DD 00:00:00')) / 1000
+          this.timecant = false
+        } else if (val === 'week') {
+          this.start_time = Date.parse(this.$dayjs(this.timechoose).format('YYYY-MM-DD 00:00:00')) / 1000 - 3600 * 24 * 6
+          this.end_time = Date.parse(this.$dayjs(this.timechoose).format('YYYY-MM-DD 00:00:00')) / 1000
+          this.timecant = false
+        } else if (val === 'month') {
+          const timea = this.$dayjs(this.timechoose).format('YYYY-MM-01')
+          const month = timea.split('-')[1]
+          if (month === '12') {
+            this.start_time = Date.parse(this.$dayjs(this.timechoose).format('YYYY-MM-01 00:00:00')) / 1000
+            let timeq = this.$dayjs(this.timechoose).format('YYYY-MM-01 00:00:00').split('')
+            timeq[5] = '0'
+            timeq[6] = '1'
+            timeq = timeq.join('')
+            this.end_time = Date.parse(this.$dayjs(timeq).format('YYYY-MM-01 00:00:00')) / 1000
+            console.log(this.end_time)
+          // this.end_time = Date.parse(this.$dayjs(this.timechoose).format('YYYY-MM-01 01:00:00')[5]) / 1000
+          } else {
+            this.start_time = Date.parse(this.$dayjs(this.timechoose).format('YYYY-MM-01 00:00:00')) / 1000
+            let timeq = this.$dayjs(this.timechoose).format('YYYY-MM-01 00:00:00').split('')
+            const timew = month.split('')
+            timeq[5] = timew[0]
+            timeq[6] = Number(timew[1]) + 1
+            timeq = timeq.join('')
+            this.end_time = Date.parse(this.$dayjs(timeq).format('YYYY-MM-01 00:00:00')) / 1000
+            console.log(this.end_time)
+          }
+          this.timecant = false
+        }
       }
     },
     timechoose(val, oldval) {
-      if (this.Statisticaltime === 'day') {
-        this.start_time = Date.parse(this.$dayjs(val).format('YYYY-MM-DD 01:00:00')) / 1000 - 3600 * 24
-        this.end_time = Date.parse(this.$dayjs(val).format('YYYY-MM-DD 01:00:00')) / 1000
-      } else if (this.Statisticaltime === 'week') {
-        this.start_time = Date.parse(this.$dayjs(val).format('YYYY-MM-DD 01:00:00')) / 1000 - 3600 * 24 * 7
-        this.end_time = Date.parse(this.$dayjs(val).format('YYYY-MM-DD 01:00:00')) / 1000
-      } else if (this.Statisticaltime === 'month') {
-        const timea = this.$dayjs(val).format('YYYY-MM-01')
-        const month = timea.split('-')[1]
-        if (month === '12') {
-          this.start_time = Date.parse(this.$dayjs(val).format('YYYY-MM-01 01:00:00')) / 1000
-          let timeq = this.$dayjs(val).format('YYYY-MM-01 01:00:00').split('')
-          timeq[5] = '0'
-          timeq[6] = '1'
-          timeq = timeq.join('')
-          this.end_time = Date.parse(this.$dayjs(timeq).format('YYYY-MM-01 01:00:00')) / 1000
-          console.log(this.end_time)
+      if (this.site === 'TH' || this.site === 'ID' || this.site === 'VN') {
+        if (this.Statisticaltime === 'day') {
+          this.start_time = Date.parse(this.$dayjs(val).format('YYYY-MM-DD 01:00:00')) / 1000 - 3600 * 24
+          this.end_time = Date.parse(this.$dayjs(val).format('YYYY-MM-DD 01:00:00')) / 1000
+        } else if (this.Statisticaltime === 'week') {
+          this.start_time = Date.parse(this.$dayjs(val).format('YYYY-MM-DD 01:00:00')) / 1000 - 3600 * 24 * 7
+          this.end_time = Date.parse(this.$dayjs(val).format('YYYY-MM-DD 01:00:00')) / 1000
+        } else if (this.Statisticaltime === 'month') {
+          const timea = this.$dayjs(val).format('YYYY-MM-01')
+          const month = timea.split('-')[1]
+          if (month === '12') {
+            this.start_time = Date.parse(this.$dayjs(val).format('YYYY-MM-01 01:00:00')) / 1000
+            let timeq = this.$dayjs(val).format('YYYY-MM-01 01:00:00').split('')
+            timeq[5] = '0'
+            timeq[6] = '1'
+            timeq = timeq.join('')
+            this.end_time = Date.parse(this.$dayjs(timeq).format('YYYY-MM-01 01:00:00')) / 1000
+            console.log(this.end_time)
           // this.end_time = Date.parse(this.$dayjs(this.timechoose).format('YYYY-MM-01 01:00:00')[5]) / 1000
-        } else {
-          this.start_time = Date.parse(this.$dayjs(val).format('YYYY-MM-01 01:00:00')) / 1000
-          let timeq = this.$dayjs(val).format('YYYY-MM-01 01:00:00').split('')
-          const timew = month.split('')
-          timeq[5] = timew[0]
-          timeq[6] = Number(timew[1]) + 1
-          timeq = timeq.join('')
-          this.end_time = Date.parse(this.$dayjs(timeq).format('YYYY-MM-01 01:00:00')) / 1000
-          console.log(this.end_time)
+          } else {
+            this.start_time = Date.parse(this.$dayjs(val).format('YYYY-MM-01 01:00:00')) / 1000
+            let timeq = this.$dayjs(val).format('YYYY-MM-01 01:00:00').split('')
+            const timew = month.split('')
+            timeq[5] = timew[0]
+            timeq[6] = Number(timew[1]) + 1
+            timeq = timeq.join('')
+            this.end_time = Date.parse(this.$dayjs(timeq).format('YYYY-MM-01 01:00:00')) / 1000
+            console.log(this.end_time)
+          }
+        }
+      } else if (this.site === 'BR') {
+        if (this.Statisticaltime === 'day') {
+          this.start_time = Date.parse(this.$dayjs(val).format('YYYY-MM-DD 11:00:00')) / 1000 - 3600 * 24
+          this.end_time = Date.parse(this.$dayjs(val).format('YYYY-MM-DD 11:00:00')) / 1000
+        } else if (this.Statisticaltime === 'week') {
+          this.start_time = Date.parse(this.$dayjs(val).format('YYYY-MM-DD 11:00:00')) / 1000 - 3600 * 24 * 7
+          this.end_time = Date.parse(this.$dayjs(val).format('YYYY-MM-DD 11:00:00')) / 1000
+        } else if (this.Statisticaltime === 'month') {
+          const timea = this.$dayjs(val).format('YYYY-MM-01')
+          const month = timea.split('-')[1]
+          if (month === '12') {
+            this.start_time = Date.parse(this.$dayjs(val).format('YYYY-MM-01 11:00:00')) / 1000
+            let timeq = this.$dayjs(val).format('YYYY-MM-01 11:00:00').split('')
+            timeq[5] = '0'
+            timeq[6] = '1'
+            timeq = timeq.join('')
+            this.end_time = Date.parse(this.$dayjs(timeq).format('YYYY-MM-01 11:00:00')) / 1000
+            console.log(this.end_time)
+          // this.end_time = Date.parse(this.$dayjs(this.timechoose).format('YYYY-MM-01 01:00:00')[5]) / 1000
+          } else {
+            this.start_time = Date.parse(this.$dayjs(val).format('YYYY-MM-01 11:00:00')) / 1000
+            let timeq = this.$dayjs(val).format('YYYY-MM-01 11:00:00').split('')
+            const timew = month.split('')
+            timeq[5] = timew[0]
+            timeq[6] = Number(timew[1]) + 1
+            timeq = timeq.join('')
+            this.end_time = Date.parse(this.$dayjs(timeq).format('YYYY-MM-01 11:00:00')) / 1000
+            console.log(this.end_time)
+          }
+        }
+      } else {
+        if (this.Statisticaltime === 'day') {
+          this.start_time = Date.parse(this.$dayjs(val).format('YYYY-MM-DD 00:00:00')) / 1000 - 3600 * 24
+          this.end_time = Date.parse(this.$dayjs(val).format('YYYY-MM-DD 00:00:00')) / 1000
+        } else if (this.Statisticaltime === 'week') {
+          this.start_time = Date.parse(this.$dayjs(val).format('YYYY-MM-DD 00:00:00')) / 1000 - 3600 * 24 * 7
+          this.end_time = Date.parse(this.$dayjs(val).format('YYYY-MM-DD 00:00:00')) / 1000
+        } else if (this.Statisticaltime === 'month') {
+          const timea = this.$dayjs(val).format('YYYY-MM-01')
+          const month = timea.split('-')[1]
+          if (month === '12') {
+            this.start_time = Date.parse(this.$dayjs(val).format('YYYY-MM-01 00:00:00')) / 1000
+            let timeq = this.$dayjs(val).format('YYYY-MM-01 00:00:00').split('')
+            timeq[5] = '0'
+            timeq[6] = '1'
+            timeq = timeq.join('')
+            this.end_time = Date.parse(this.$dayjs(timeq).format('YYYY-MM-01 00:00:00')) / 1000
+            console.log(this.end_time)
+          // this.end_time = Date.parse(this.$dayjs(this.timechoose).format('YYYY-MM-01 01:00:00')[5]) / 1000
+          } else {
+            this.start_time = Date.parse(this.$dayjs(val).format('YYYY-MM-01 00:00:00')) / 1000
+            let timeq = this.$dayjs(val).format('YYYY-MM-01 11:00:00').split('')
+            const timew = month.split('')
+            timeq[5] = timew[0]
+            timeq[6] = Number(timew[1]) + 1
+            timeq = timeq.join('')
+            this.end_time = Date.parse(this.$dayjs(timeq).format('YYYY-MM-01 00:00:00')) / 1000
+            console.log(this.end_time)
+          }
         }
       }
     },
@@ -451,9 +555,14 @@ export default {
       }
       if (this.mall.length > 0) {
         this.indexs = 1
+        this.indexs1 = 1
+        this.indexs2 = 1
         this.Loading1 = true
         this.Loading3 = true
         this.tableData = []
+        this.tableData1 = []
+        this.tableData2 = []
+        this.tableData3 = []
         this.errmall = []
         this.$refs.Logs.writeLog('开始查询')
         for (let i = 0; i < this.mall.length; i++) {
@@ -480,82 +589,96 @@ export default {
             mallId: this.mall[i]
           }
           console.log('this is my parmas', params)
-          const attributeTreeJson = await this.$shopeemanService.getsalasoverview(this.site, params, { headers: { 'Content-Type': 'application/json; charset=utf-8' }})
+
+          const attributeTreeJson1 = await this.$shopeemanService.getsalasstructure1(this.site, params, { headers: { 'Content-Type': 'application/json; charset=utf-8' }})
           let attributeTreeRes
-          if (attributeTreeJson) {
-            attributeTreeRes = JSON.parse(attributeTreeJson)
+          if (attributeTreeJson1) {
+            attributeTreeRes = JSON.parse(attributeTreeJson1)
           }
           attributeTreeRes.data = JSON.parse(attributeTreeRes.data)
-          console.log('this is data', attributeTreeRes)
+          // console.log('this is data', attributeTreeRes)
           if (attributeTreeRes.status === 200) {
-            const data = {}
-            let text = ''
-            data['mallname'] = mallname
-            data['index'] = this.indexs
-            this.indexs++
-            if (this.Statisticaltime === 'real_time') {
-              text = 'vs 00:00-17:00 昨天 '
-              for (const item in attributeTreeRes.data.result) {
-                let color = 'green'
-                if (attributeTreeRes.data.result[item].ratio < 0) {
-                  color = 'red'
+            if (attributeTreeRes.data.data) {
+              for (let j = 0; j < attributeTreeRes.data.data.length; j++) {
+                const data = {}
+                data['mallname'] = mallname
+                data['index'] = this.indexs
+                this.indexs++
+                data['l1_cat_name'] = attributeTreeRes.data.data[j].l1_cat_name
+                data['sales'] = `${this.currency}${attributeTreeRes.data.data[j].sales}`
+                data['sales_percentage'] = (attributeTreeRes.data.data[j].sales_percentage * 100).toFixed(2) + `%`
+                data['buyers'] = `-`
+                data['conversion_rate'] = `-%`
+                data['l2_cats'] = attributeTreeRes.data.data[j].l2_cats
+                for (let l = 0; l < data['l2_cats'].length; l++) {
+                  data['l2_cats'][l].sales = `${this.currency}${data['l2_cats'][l].sales}`
+                  data['l2_cats'][l].sales_percentage = (data['l2_cats'][l].sales_percentage * 100).toFixed(2) + `%`
+                  data['l2_cats'][l].conversion_rate = (data['l2_cats'][l].conversion_rate * 100).toFixed(2) + `%`
                 }
-                if (item === 'placed_sales' || item === 'paid_sales' || item === 'paid_sales_per_buyer') {
-                  data[`${item}`] = `<pre style='color:${color}'>${this.currency}${attributeTreeRes.data.result[item].value}</pre><pre style='color:${color}'>${text}${(Number(attributeTreeRes.data.result[item].ratio) * 100).toFixed(2)}%</pre>`
-                } else {
-                  data[`${item}`] = `<pre style='color:${color}'>${attributeTreeRes.data.result[item].value}</pre><pre style='color:${color}'>${text}${(Number(attributeTreeRes.data.result[item].ratio) * 100).toFixed(2)}%</pre>`
-                }
+                // console.log('datadatadata', data)
+                this.tableData1.push(data)
               }
-            }
-            if (this.Statisticaltime === 'yesterday' || this.Statisticaltime === 'day') {
-              text = 'vs 前一天 '
-              for (const item in attributeTreeRes.data.result) {
-                let color = 'green'
-                if (attributeTreeRes.data.result[item].ratio < 0) {
-                  color = 'red'
-                }
-                if (item === 'placed_sales' || item === 'paid_sales' || item === 'paid_sales_per_buyer') {
-                  data[`${item}`] = `<pre style='color:${color}'>${this.currency}${attributeTreeRes.data.result[item].value}</pre><pre style='color:${color}'>${text}${(Number(attributeTreeRes.data.result[item].ratio) * 100).toFixed(2)}%</pre>`
-                } else {
-                  data[`${item}`] = `<pre style='color:${color}'>${attributeTreeRes.data.result[item].value}</pre><pre style='color:${color}'>${text}${(Number(attributeTreeRes.data.result[item].ratio) * 100).toFixed(2)}%</pre>`
-                }
-              }
-            }
-            if (this.Statisticaltime === 'past7days' || this.Statisticaltime === 'week') {
-              text = 'vs 前7天 '
-              for (const item in attributeTreeRes.data.result) {
-                let color = 'green'
-                if (attributeTreeRes.data.result[item].ratio < 0) {
-                  color = 'red'
-                }
-                if (item === 'placed_sales' || item === 'paid_sales' || item === 'paid_sales_per_buyer') {
-                  data[`${item}`] = `<pre style='color:${color}'>${this.currency}${attributeTreeRes.data.result[item].value}</pre><pre style='color:${color}'>${text}${(Number(attributeTreeRes.data.result[item].ratio) * 100).toFixed(2)}%</pre>`
-                } else {
-                  data[`${item}`] = `<pre style='color:${color}'>${attributeTreeRes.data.result[item].value}</pre><pre style='color:${color}'>${text}${(Number(attributeTreeRes.data.result[item].ratio) * 100).toFixed(2)}%</pre>`
-                }
-              }
-            }
-            if (this.Statisticaltime === 'past30days' || this.Statisticaltime === 'month') {
-              text = 'vs 前30天 '
-              for (const item in attributeTreeRes.data.result) {
-                let color = 'green'
-                if (attributeTreeRes.data.result[item].ratio < 0) {
-                  color = 'red'
-                }
-                if (item === 'placed_sales' || item === 'paid_sales' || item === 'paid_sales_per_buyer') {
-                  data[`${item}`] = `<pre style='color:${color}'>${this.currency}${attributeTreeRes.data.result[item].value}</pre><pre style='color:${color}'>${text}${(Number(attributeTreeRes.data.result[item].ratio) * 100).toFixed(2)}%</pre>`
-                } else {
-                  data[`${item}`] = `<pre style='color:${color}'>${attributeTreeRes.data.result[item].value}</pre><pre style='color:${color}'>${text}${(Number(attributeTreeRes.data.result[item].ratio) * 100).toFixed(2)}%</pre>`
-                }
-              }
-            }
-            console.log('datadatadata', data)
-            if (Object.getOwnPropertyNames(data).length > 8) {
-              this.tableData.push(data)
             }
           } else if (attributeTreeRes.status === 403) {
             this.$refs.Logs.writeLog(`【${mallname}】 数据获取失败：店铺未登录`, false)
             this.errmall.push(mallname)
+          }
+
+          const attributeTreeJson2 = await this.$shopeemanService.getsalasstructure2(this.site, params, { headers: { 'Content-Type': 'application/json; charset=utf-8' }})
+          let res
+          if (attributeTreeJson2) {
+            res = JSON.parse(attributeTreeJson2)
+          }
+          if (res.status === 200) {
+            res.data = JSON.parse(res.data)
+            // console.log('wuhuwhuwhuwhuwhuwuwhuwhuwhuwuwhuwuh', res)
+            for (let h = 0; h < res.data.data.length; h++) {
+              const data = {}
+              data['index'] = this.indexs1
+              this.indexs1++
+              data['mallname'] = mallname
+              if (res.data.data[h].price_zone[1] === -1) {
+                data['price_zone'] = `${this.currency}${res.data.data[h].price_zone[0]} - ${this.currency} 无上限`
+              } else {
+                data['price_zone'] = `${this.currency}${res.data.data[h].price_zone[0]} - ${this.currency}${res.data.data[h].price_zone[1]}`
+              }
+              data['buyers'] = res.data.data[h].buyers
+              data['buyers_percentage'] = (res.data.data[h].buyers_percentage * 100).toFixed(2) + `%`
+              data['sales'] = `${this.currency}${res.data.data[h].sales}`
+              data['sales_percentage'] = (res.data.data[h].sales_percentage * 100).toFixed(2) + `%`
+              data['conversion_rate'] = (res.data.data[h].conversion_rate * 100).toFixed(2) + `%`
+              // console.log('zhelizhelizheli', data)
+              this.tableData2.push(data)
+            }
+          }
+
+          const attributeTreeJson3 = await this.$shopeemanService.getsalasstructure3(this.site, params, { headers: { 'Content-Type': 'application/json; charset=utf-8' }})
+          let res1
+          if (attributeTreeJson3) {
+            res1 = JSON.parse(attributeTreeJson3)
+          }
+          if (res1.status === 200) {
+            res1.data = JSON.parse(res1.data)
+            console.log('wuhuwhuwhuwhuwhuwuwhuwhuwhuwuwhuwuh', res1)
+            for (let h = 0; h < res1.data.data.length; h++) {
+              const data = {}
+              data['index'] = this.indexs2
+              this.indexs2++
+              data['mallname'] = mallname
+              data['buyers'] = res1.data.data[h].buyers
+              data['buyers_type'] = res1.data.data[h].buyers_type
+              if (data['buyers_type'] === 'new_buyers') {
+                data['buyers_type'] = `新买家`
+              } else if (data['buyers_type'] === 'existing_buyers') {
+                data['buyers_type'] = `现有买家`
+              }
+              data['buyers_percentage'] = (res1.data.data[h].buyers_percentage * 100).toFixed(2) + `%`
+              data['sales'] = `${this.currency}${res1.data.data[h].sales}`
+              data['sales_percentage'] = (res1.data.data[h].sales_percentage * 100).toFixed(2) + `%`
+              data['conversion_rate'] = (res1.data.data[h].conversion_rate * 100).toFixed(2) + `%`
+              console.log('zhelizhelizheli', data)
+              this.tableData3.push(data)
+            }
           }
         }
         if (this.errmall.length > 0) {
@@ -580,6 +703,12 @@ export default {
     // 取消功能
     cancel() {
       this.serchload = true
+    },
+    // 表格里查看功能
+    view(row) {
+      this.eidtVisible = true
+      this.tableData = row.l2_cats
+      console.log(row.l2_cats)
     }
   }
 }

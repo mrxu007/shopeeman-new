@@ -31,67 +31,80 @@
           </el-select>
         </li>
         <li>
-          <span>订单类型：</span>
-          <el-select v-model="Status" placeholder="" size="mini" filterable>
-            <el-option v-for="(item, index) in returnStatusList" :key="index" :label="item.label" :value="item.value" />
-          </el-select>
-        </li>
-        <li>
           <el-button type="primary" :disabled="Loading1" size="mini" @click="getallinfo">搜索</el-button>
+          <el-button type="primary" :disabled="Loading1" size="mini" @click="DerivedData">导出</el-button>
         </li>
-      </ul><br>
-      <div style="border:1px solid black;width:100%">
-        <span style="margin-left:20px">排行数据</span>
+      </ul>
+      <el-table
+        ref="plTable"
+        v-loading="Loading3"
+        style="margin-top:10px"
+        header-align="center"
+        height="calc(100vh - 140px)"
+        :data="tableData"
+        :header-cell-style="{
+          backgroundColor: '#f5f7fa',
+        }"
+      >
+        <el-table-column align="center" label="店铺名称" width="160" prop="mallname" />
+        <el-table-column align="center" prop="usage_rate" label="使用率" width="160">
+          <template slot-scope="{ row }">
+            <div v-html="row.usage_rate" />
+          </template>
+        </el-table-column>
+        <el-table-column prop="buyers" label="买家数" width="180" align="center">
+          <template slot-scope="{ row }">
+            <div v-html="row.buyers" />
+          </template>
+        </el-table-column>
+        <el-table-column prop="orders" label="订单量" width="180" align="center">
+          <template slot-scope="{ row }">
+            <div v-html="row.orders" />
+          </template>
+        </el-table-column>
+        <el-table-column prop="sales" label="销售额" width="180" align="center">
+          <template slot-scope="{ row }">
+            <div v-html="row.sales" />
+          </template>
+        </el-table-column>
+        <el-table-column prop="claims" label="领取数" width="180" align="center">
+          <template slot-scope="{ row }">
+            <div v-html="row.claims" />
+          </template>
+        </el-table-column>
+        <el-table-column prop="appexisting_visitors" label="操作" width="150" align="center">
+          <template slot-scope="{ row }">
+            <el-button type="primary" size="mini" @click="view(row)">优惠卷概览</el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+      <el-dialog title="优惠卷概览" :visible.sync="eidtVisible" width="66%">
         <el-table
           ref="plTable"
           v-loading="Loading3"
           style="margin-top:10px"
           header-align="center"
-          height="calc(100vh - 140px)"
-          :data="tableData3"
+          :data="tableData1"
           :header-cell-style="{
             backgroundColor: '#f5f7fa',
           }"
         >
-          <el-table-column align="center" label="店铺名称" width="140" prop="mallname" />
-          <el-table-column v-if="false" align="center" label="站点" width="140" prop="site" />
-          <el-table-column v-if="false" align="center" label="店铺id" width="140" prop="mallid" />
-          <el-table-column align="center" prop="ranktype" label="排行类型" width="355">
-            <template slot-scope="{ row }">
-              <div v-html="row.ranktype" />
-            </template>
-          </el-table-column>
-          <el-table-column align="center" prop="img" label="商品图片" width="355">
-            <template slot-scope="{ row }">
-              <el-tooltip
-                v-if="row.img"
-                effect="light"
-                placement="right-end"
-                :visible-arrow="false"
-                :enterable="false"
-                style="width: 40px; height: 40px"
-              >
-                <div slot="content">
-                  <img
-                    :src="[row.site ,row.mallid , row.img] | imageRender"
-                    width="300px"
-                    height="300px"
-                  >
-                </div>
-                <el-image
-                  style="width: 40px; height: 40px"
-                  :src="[row.site ,row.mallid , row.img] | imageRender"
-                />
-              </el-tooltip>
-            </template>
-          </el-table-column>
-          <el-table-column prop="goodsname" label="商品名称" width="830" align="center" />
+          <el-table-column align="center" label="套装优惠名称" width="160" prop="voucher_code" />
+          <el-table-column align="center" prop="start_time" label="开始时间" width="140" />
+          <el-table-column align="center" prop="end_time" label="结束时间" width="140" />
+          <el-table-column prop="sales" label="销售额" width="100" align="center" />
+          <el-table-column align="center" prop="orders" label="订单数" width="100" />
+          <el-table-column align="center" prop="units" label="订购的优惠套装数" width="130" />
+          <el-table-column align="center" prop="units" label="售出件数" width="100" />
+          <el-table-column prop="buyers" label="买家数" width="100" align="center" />
+          <el-table-column prop="sales_per_buyer" label="每位买家的销售额" width="130" align="center" />
         </el-table>
-      </div>
+      </el-dialog>
     </el-row>
   </el-row>
 </template>
 <script>
+import { exportExcelDataCommon } from '../../../util/util'
 export default {
   data() {
     return {
@@ -99,11 +112,14 @@ export default {
       Loading3: false,
       selectall: true, // 分组全选和取消全选选项控制
       selectall1: true, // 店铺全选和取消全选选项控制
+      eidtVisible: false,
+      exportdata: [], // 导出数据
       allgroupid: [],
-      errmall: [],
       allmallid: [],
-      tableData3: [],
-      Status: 'palced',
+      tableData: [],
+      tableData1: [],
+      errmall: [],
+      currency: '฿',
       total: 0,
       Statisticaltime: 'real_time',
       site: 'TH', // 站点
@@ -112,18 +128,13 @@ export default {
       gruopList: [],
       mall: [], // 店铺
       mallList: [],
-      start_time: Date.parse(this.$dayjs(new Date()).format('YYYY-MM-DD 01:00:00')) / 1000,
+      start_time: Date.parse(this.$dayjs(new Date()).format('YYYY-MM-DD 00:00:00')) / 1000,
       end_time: Math.round(new Date() / 1000),
       returnStatisticaltime: [
         { value: 'real_time', label: '实时' },
         { value: 'yesterday', label: '昨日' },
         { value: 'past7days', label: '近7天' },
         { value: 'past30days', label: '近30天' }
-      ],
-      returnStatusList: [
-        { value: 'palced', label: '下单' },
-        { value: 'confirmed', label: '确认订单' },
-        { value: 'paid', label: '付费订单' }
       ]
     }
   },
@@ -314,10 +325,52 @@ export default {
       this.mall = []
       this.group = []
       this.getInfo()
+      if (this.site === 'MY') {
+        this.currency = 'RM'
+      }
+      if (this.site === 'TW') {
+        this.currency = '$'
+      }
+      if (this.site === 'VN') {
+        this.currency = '₫'
+      }
+      if (this.site === 'ID') {
+        this.currency = 'Rp'
+      }
+      if (this.site === 'PH') {
+        this.currency = '₱'
+      }
+      if (this.site === 'TH') {
+        this.currency = '฿'
+      }
+      if (this.site === 'SG') {
+        this.currency = '$'
+      }
+      if (this.site === 'BR') {
+        this.currency = 'R$'
+      }
+      if (this.site === 'MX') {
+        this.currency = 'MX$'
+      }
+      if (this.site === 'CO') {
+        this.currency = '$'
+      }
+      if (this.site === 'CL') {
+        this.currency = '$'
+      }
+      if (this.site === 'PL') {
+        this.currency = 'zł'
+      }
     }
   },
   mounted() {
     this.getInfo()
+    // const timenow = new Date().getTime()
+    // const returnCreateStartTime = this.$dayjs(timenow).format('hh:00')
+    // const changea = returnCreateStartTime.split(':')
+    // changea[0] = Number(changea[0]) - 1
+    // const onehoureago = `${changea[0]}:${changea[1]}`
+    // console.log(onehoureago)
   },
   methods: {
     // 分组信息查找
@@ -356,124 +409,151 @@ export default {
       }
     },
     async getallinfo() {
-      this.Loading1 = true
-      this.Loading3 = true
-      this.tableData3 = []
-      this.errmall = []
       if (this.mall.length > 0) {
+        this.Loading1 = true
+        this.Loading3 = true
+        this.tableData = []
+        this.exportdata = []
+        this.errmall = []
         for (let i = 0; i < this.mall.length; i++) {
           const params = {
             start_time: this.start_time,
             end_time: this.end_time,
             period: this.Statisticaltime,
-            orderType: this.Status,
             // group: this.group,
             mallId: this.mall[i],
-            fetag: 'fetag',
-            limit: 5
+            status: 0
           }
+          console.log('this is my parmas', params)
+          const attributeTreeJson = await this.$shopeemanService.getcoupon(this.site, params, { headers: { 'Content-Type': 'application/json; charset=utf-8' }})
+          let attributeTreeRes
+          if (attributeTreeJson) {
+            attributeTreeRes = JSON.parse(attributeTreeJson)
+          }
+          attributeTreeRes.data = JSON.parse(attributeTreeRes.data)
+          // console.log('this is data', attributeTreeRes)
           let mallname
           for (let j = 0; j < this.mallList.length; j++) {
             if (this.mallList[j].value === this.mall[i]) {
               mallname = this.mallList[j].label
             }
           }
-          console.log('this is my parmas', params)
-          const ress = await this.$shopeemanService.getCateRank(this.site, params, { headers: { 'Content-Type': 'application/json; charset=utf-8' }})
-          const ress1 = await this.$shopeemanService.getRank(this.site, params, { headers: { 'Content-Type': 'application/json; charset=utf-8' }})
-          const dt = JSON.parse(ress)
-          const dt1 = JSON.parse(ress1)
-          dt.data = JSON.parse(dt.data)
-          dt1.data = JSON.parse(dt1.data)
-          console.log(dt.data)
-          console.log(dt1.data)
-          if (dt1.data.code === 0) {
-            for (const item in dt1.data.result) {
-              if (item === 'product_pv' && dt1.data.result[item]) {
-                for (let j = 0; j < dt1.data.result[item].length; j++) {
-                  const data = {}
-                  data.site = this.site
-                  data.mallid = this.mall[i]
-                  data.mallname = mallname
-                  data.ranktype = '<pre>按商品销量排行</pre>' + '<pre>销量 ' + dt1.data.result[item][j].value + '</pre>'
-                  data.img = dt1.data.result[item][j].image
-                  data.goodsname = dt1.data.result[item][j].item_name
-                  this.tableData3.push(data)
-                }
+          if (attributeTreeRes.status === 200) {
+            const exportdata = {}
+            exportdata['mallname'] = mallname
+            exportdata['sales'] = attributeTreeRes.data.result.sales.value
+            exportdata['claims'] = attributeTreeRes.data.result.claims.value
+            exportdata['orders'] = attributeTreeRes.data.result.orders.value
+            exportdata['buyers'] = attributeTreeRes.data.result.buyers.value
+            exportdata['usage_rate'] = attributeTreeRes.data.result.usage_rate.value
+            exportdata['cost'] = attributeTreeRes.data.result.cost.value
+            this.exportdata.push(exportdata)
+            const data = {}
+            data['mallname'] = mallname
+            for (const item in attributeTreeRes.data.result) {
+              let color = 'green'
+              if (attributeTreeRes.data.result[item].chain_ratio < 0) {
+                color = 'red'
               }
-              if (item === 'sales' && dt1.data.result[item]) {
-                for (let j = 0; j < dt1.data.result[item].length; j++) {
-                  const data = {}
-                  data.site = this.site
-                  data.mallid = this.mall[i]
-                  data.mallname = mallname
-                  data.ranktype = '<pre>按下单数排行</pre>' + '<pre>下单数 ' + dt1.data.result[item][j].value + '</pre>'
-                  data.img = dt1.data.result[item][j].image
-                  data.goodsname = dt1.data.result[item][j].item_name
-                  this.tableData3.push(data)
+              if (this.Statisticaltime === 'real_time') {
+                const timenow = new Date().getTime()
+                const returnCreateStartTime = this.$dayjs(timenow).format('hh:00')
+                const changea = returnCreateStartTime.split(':')
+                changea[0] = Number(changea[0]) - 1
+                const onehoureago = `${changea[0]}:${changea[1]}`
+                if (item === 'sales' || item === 'cost') {
+                  data[`${item}`] = `<pre style='color:${color}'>${this.currency}${(attributeTreeRes.data.result[item].value).toFixed(2)}</pre>` + `<pre style='color:${color}'>vs 00:00 - ${onehoureago}  ${(attributeTreeRes.data.result[item].chain_ratio * 100).toFixed(2)}%</pre>`
+                } else if (item === 'usage_rate') {
+                  data[`${item}`] = `<pre style='color:${color}'>${(attributeTreeRes.data.result[item].value * 100).toFixed(2)}%</pre>` + `<pre style='color:${color}'>vs 00:00 - ${onehoureago}  ${(attributeTreeRes.data.result[item].chain_ratio * 100).toFixed(2)}%</pre>`
+                } else {
+                  data[`${item}`] = `<pre style='color:${color}'>${attributeTreeRes.data.result[item].value}</pre>` + `<pre style='color:${color}'>vs 00:00 - ${onehoureago}  ${(attributeTreeRes.data.result[item].chain_ratio * 100).toFixed(2)}%</pre>`
                 }
-              }
-              if (item === 'orders' && dt1.data.result[item]) {
-                for (let j = 0; j < dt1.data.result[item].length; j++) {
-                  const data = {}
-                  data.site = this.site
-                  data.mallid = this.mall[i]
-                  data.mallname = mallname
-                  data.ranktype = '<pre>按页面访客量排行</pre>' + '<pre>访客量 ' + dt1.data.result[item][j].value + '</pre>'
-                  data.img = dt1.data.result[item][j].image
-                  data.goodsname = dt1.data.result[item][j].item_name
-                  this.tableData3.push(data)
-                }
-              }
-              if (item === 'uv_to_paid_buyers_rate' && dt1.data.result[item]) {
-                for (let j = 0; j < dt1.data.result[item].length; j++) {
-                  const data = {}
-                  data.site = this.site
-                  data.mallid = this.mall[i]
-                  data.mallname = mallname
-                  data.ranktype = '<pre>按转换率排行</pre>' + '<pre>转换率 ' + (dt1.data.result[item][j].value * 100).toFixed(2) + '%</pre>'
-                  data.img = dt1.data.result[item][j].image
-                  data.goodsname = dt1.data.result[item][j].item_name
-                  this.tableData3.push(data)
-                }
+              } else if (this.Statisticaltime === 'yesterday') {
+                if (item === 'sales' || item === 'cost') {
+                  data[`${item}`] = `<pre style='color:${color}'>${this.currency}${(attributeTreeRes.data.result[item].value).toFixed(2)}</pre>` + `<pre style='color:${color}'>vs 前一天  ${(attributeTreeRes.data.result[item].chain_ratio * 100).toFixed(2)}%</pre>`
+                } else if (item === 'usage_rate') {
+                  data[`${item}`] = `<pre style='color:${color}'>${(attributeTreeRes.data.result[item].value * 100).toFixed(2)}%</pre>` + `<pre style='color:${color}'>vs 前一天  ${(attributeTreeRes.data.result[item].chain_ratio * 100).toFixed(2)}%</pre>`
+                } else { data[`${item}`] = `<pre style='color:${color}'>${attributeTreeRes.data.result[item].value}</pre>` + `<pre style='color:${color}'>vs 前一天  ${(attributeTreeRes.data.result[item].chain_ratio * 100).toFixed(2)}%</pre>` }
+              } else if (this.Statisticaltime === 'past7days') {
+                if (item === 'sales' || item === 'cost') {
+                  data[`${item}`] = `<pre style='color:${color}'>${this.currency}${(attributeTreeRes.data.result[item].value).toFixed(2)}</pre>` + `<pre style='color:${color}'>vs 前7天  ${(attributeTreeRes.data.result[item].chain_ratio * 100).toFixed(2)}%</pre>`
+                } else if (item === 'usage_rate') {
+                  data[`${item}`] = `<pre style='color:${color}'>${(attributeTreeRes.data.result[item].value * 100).toFixed(2)}%</pre>` + `<pre style='color:${color}'>vs 前七天  ${(attributeTreeRes.data.result[item].chain_ratio * 100).toFixed(2)}%</pre>`
+                } else { data[`${item}`] = `<pre style='color:${color}'>${attributeTreeRes.data.result[item].value}</pre>` + `<pre style='color:${color}'>vs 前7天  ${(attributeTreeRes.data.result[item].chain_ratio * 100).toFixed(2)}%</pre>` }
+              } else if (this.Statisticaltime === 'past30days') {
+                if (item === 'sales' || item === 'cost') {
+                  data[`${item}`] = `<pre style='color:${color}'>${this.currency}${(attributeTreeRes.data.result[item].value).toFixed(2)}</pre>` + `<pre style='color:${color}'>vs 前30天  ${(attributeTreeRes.data.result[item].chain_ratio * 100).toFixed(2)}%</pre>`
+                } else if (item === 'usage_rate') {
+                  data[`${item}`] = `<pre style='color:${color}'>${(attributeTreeRes.data.result[item].value * 100).toFixed(2)}%</pre>` + `<pre style='color:${color}'>vs 前30天  ${(attributeTreeRes.data.result[item].chain_ratio * 100).toFixed(2)}%</pre>`
+                } else { data[`${item}`] = `<pre style='color:${color}'>${attributeTreeRes.data.result[item].value}</pre>` + `<pre style='color:${color}'>vs 前30天  ${(attributeTreeRes.data.result[item].chain_ratio * 100).toFixed(2)}%</pre>` }
               }
             }
-          } else if (dt1.data.errcode === 2) {
-            this.errmall.push(mallname)
-          }
-          if (dt.data.code === 0 && dt.data.result) {
-            for (let j = 0; j < dt.data.result.length; j++) {
-              const data = {}
-              data.site = this.site
-              data.mallid = this.mall[i]
-              data.mallname = mallname
-              data.ranktype = '<pre>按类目销量排行</pre>' + '<pre>销售量 ' + dt.data.result[j].value + '</pre>'
-              data.img = ''
-              data.goodsname = dt.data.result[j].l1_cat_name + '===>' + dt.data.result[j].l2_cat_name
-              this.tableData3.push(data)
+
+            let res = await this.$shopeemanService.getcouponview(this.site, params, { headers: { 'Content-Type': 'application/json; charset=utf-8' }})
+            if (res) {
+              res = JSON.parse(res)
+              res.data = JSON.parse(res.data)
             }
-          } else if (dt.data.errcode === 2) {
+            console.log('zhelizhelizheli', res)
+            data['view'] = res.data.data
+            if (data['view']) {
+              for (let k = 0; k < data['view'].length; k++) {
+                data['view'][k].sales = `${this.currency}${(data['view'][k].sales).toFixed(2)}`
+                data['view'][k].sales_per_buyer = `${this.currency}${(data['view'][k].sales_per_buyer).toFixed(2)}`
+                data['view'][k].start_time = this.$dayjs(data['view'][k].start_time * 1000).format('YYYY-MM-DD hh:mm:ss')
+                data['view'][k].end_time = this.$dayjs(data['view'][k].end_time * 1000).format('YYYY-MM-DD hh:mm:ss')
+              }
+            }
+            this.tableData.push(data)
+          } else if (attributeTreeRes.status === 403) {
             this.errmall.push(mallname)
           }
         }
+        if (this.errmall.length > 0) {
+          this.$message.error(`店铺【${this.errmall}】未登录`)
+        }
+        this.Loading1 = false
+        this.Loading3 = false
       } else {
-        this.$message({
-          message: '请先选择店铺',
-          type: 'warning'
+        this.$message.warning('请选择店铺！')
+      }
+    },
+    // 数据导出功能
+    async DerivedData() {
+      if (this.exportdata.length) {
+        let msg = `<tr>
+        <td style="width: 200px; text-align:left;">店铺名称</td>
+        <td style="width: 200px; text-align:left;">使用率</td>
+        <td style="width: 200px; text-align:left;">买家数</td>
+        <td style="width: 200px; text-align:left;">订单量</td>
+        <td style="width: 200px; text-align:left;">销售额</td>
+        <td style="width: 200px; text-align:left;">领取数</td>
+      </tr>`
+        this.exportdata.map((item) => {
+          msg += `
+        <tr>
+          <td style="text-align:left;">${item.mallname}</td>
+          <td style="text-align:left;">${item.usage_rate}</td>
+          <td style="text-align:left;">${item.buyers}</td>
+          <td style="text-align:left;">${item.orders}</td>
+          <td style="text-align:left;">${item.sales}</td>
+          <td style="text-align:left;">${item.claims}</td>
+        </tr>
+        `
+        })
+        exportExcelDataCommon('套装优惠信息', msg)
+      } else {
+        return this.$notify({
+          title: '套装优惠信息',
+          type: 'warning',
+          message: `没有可以导出的信息`
         })
       }
-      for (let i = 0; i < this.errmall.length - 1; i++) {
-        for (let j = i + 1; j < this.errmall.length; j++) {
-          if (this.errmall[i] === this.errmall[j]) {
-            this.errmall.splice(j, 1)
-          }
-        }
-      }
-      if (this.errmall.length > 0) {
-        this.$message.error(`店铺【${this.errmall}】未登录`)
-      }
-      this.Loading1 = false
-      this.Loading3 = false
+    },
+    // 优惠卷概览
+    async view(row) {
+      this.eidtVisible = true
+      this.tableData1 = row.view
     }
   }
 }
