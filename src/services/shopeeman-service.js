@@ -147,7 +147,7 @@ export default class NetMessageBridgeService {
         referer: url + referer
       })
     }
-    // console.log('-----', url, JSON.stringify(options))
+    console.log('-----', url, JSON.stringify(options))
     return this.NetMessageBridgeService().get(url, JSON.stringify(options))
   }
 
@@ -327,7 +327,7 @@ export default class NetMessageBridgeService {
   }
   // 回复商店评价
   replyShopRating(country, data) {
-    return this.postChinese(country, '/api/v3/settings/reply_shop_rating', data, { Headers: { 'Content-Type': ' application/json' } })
+    return this.postChinese(country, '/api/v3/settings/reply_shop_rating', data, { Headers: { 'Content-Type': ' application/json' }})
   }
   // 店铺提现记录
   getWithDrawalRecord(country, data) {
@@ -343,7 +343,7 @@ export default class NetMessageBridgeService {
   }
   // 店铺登录 post版本
   async login(mallInfo, flat, options = {}) {
-    console.log('mallInfo',mallInfo)
+    console.log('mallInfo', mallInfo)
     const { country, mall_account_info, platform_mall_id } = mallInfo
     const accountName = mall_account_info.username
     const encryptPwd = sha256(md5(mall_account_info.password))
@@ -362,12 +362,10 @@ export default class NetMessageBridgeService {
     if (accountName.indexOf('@') > -1) {
       params['email'] = accountName
       acccount_info['username'] = accountName
-    }
-    else if (reg.test(accountName)) {
+    } else if (reg.test(accountName)) {
       params['username'] = accountName
       acccount_info['username'] = accountName
-    }
-    else {
+    } else {
       const phone = this.getTelephoneNumberIsTrue(country, accountName)
       params['phone'] = phone
       acccount_info['username'] = phone
@@ -384,20 +382,20 @@ export default class NetMessageBridgeService {
       copy_mallInfo['mallAliasName'] = mallInfo.mall_alias_name
       copy_mallInfo['country'] = mallInfo.country
       copy_mallInfo['malltype'] = '1'
-      copy_mallInfo['SPC_EC'] =  mallInfo.SPC_EC
-      copy_mallInfo['SPC_SC_TK'] =  mallInfo.SPC_SC_TK
-      copy_mallInfo['SPC_F'] =  mallInfo.SPC_F
+      copy_mallInfo['SPC_EC'] = mallInfo.SPC_EC
+      copy_mallInfo['SPC_SC_TK'] = mallInfo.SPC_SC_TK
+      copy_mallInfo['SPC_F'] = mallInfo.SPC_F
     }
-    console.log('copy_mallInfo',copy_mallInfo)
+    console.log('copy_mallInfo', copy_mallInfo)
     try {
       let res = await this.postChinese(country, '/api/v2/login', params, { // option
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
-          'charset': 'UTF-8',
+          'charset': 'UTF-8'
         }
       }, copy_mallInfo)
       res = JSON.parse(res)
-      console.log('postChinese',res)
+      console.log('postChinese', res)
       let SetCookie = null
       SetCookie = res.headers.find(item => item.Name === 'Set-Cookie')
       if (SetCookie) {
@@ -544,7 +542,7 @@ export default class NetMessageBridgeService {
         code = 'has_shop_upgraded'
         message = '已升级为全球店铺，请更换店铺类型进行导入'
       }
-      return { code, 'data': { 'message': message, 'data': res.data, SetCookie } }
+      return { code, 'data': { 'message': message, 'data': res.data, SetCookie }}
     } catch (e) {
       console.log('e', e)
       return { code: -2, data: `login -catch: ${e} ` }
@@ -552,7 +550,7 @@ export default class NetMessageBridgeService {
   }
 
   // 店铺登录 get版本
-  async getLogin(mallInfo,SPC_F) {
+  async getLogin(mallInfo, SPC_F) {
     const { country, mall_account_info, platform_mall_id } = mallInfo
     const params = {
       mallId: platform_mall_id
@@ -566,7 +564,7 @@ export default class NetMessageBridgeService {
         }
       })
       res = JSON.parse(res)
-      console.log('getLogin',res)
+      console.log('getLogin', res)
       let SetCookie = null
       SetCookie = res.headers.find(item => item.Name === 'Set-Cookie')
       if (SetCookie) {
@@ -713,7 +711,7 @@ export default class NetMessageBridgeService {
         code = 'has_shop_upgraded'
         message = '已升级为全球店铺，请更换店铺类型进行导入'
       }
-      return { code, 'data': { 'message': message, 'data': res.data, SetCookie } }
+      return { code, 'data': { 'message': message, 'data': res.data, SetCookie }}
     } catch (e) {
       console.log('e', e)
       return { code: -2, data: `login -catch: ${e} ` }
@@ -1198,6 +1196,11 @@ export default class NetMessageBridgeService {
           code: 200,
           data: info.data || []
         }
+      } else if (info.code === 100010006) {
+        return {
+          code: 100010006,
+          data: info.data.result[0].message || '' // 物流判断
+        }
       } else {
         return {
           code: 50001,
@@ -1367,6 +1370,38 @@ export default class NetMessageBridgeService {
       return {
         code: resObj.status,
         data: `评论回复失败${resObj.statusText}`
+      }
+    }
+  }
+  // 获取物流
+  async getLogistics(country, params) {
+    params['version'] = '3.1.0'
+    const res = await this.getChinese(country, '/api/v3/logistics/get_product_channels/?', params)
+    const resObj = res && JSON.parse(res)
+    console.log(resObj)
+    if (resObj && resObj.status === 200) {
+      const info = JSON.parse(resObj.data)
+      if (info && info.code === 0) {
+        return {
+          code: 200,
+          data: info.data || []
+        }
+      } else {
+        return {
+          code: 50001,
+          data: info.message || resObj.statusText || ''
+        }
+      }
+    } else {
+      if (resObj.status === 403) {
+        return {
+          code: resObj.status,
+          data: `获取物流失败，店铺未登录！`
+        }
+      }
+      return {
+        code: resObj.status,
+        data: `获取物流失败${resObj.statusText}`
       }
     }
   }
