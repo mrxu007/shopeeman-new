@@ -225,100 +225,107 @@ export default {
       this.Loading3 = true
       this.tableData3 = []
       this.errmall = []
-      for (let i = 0; i < this.mall.length; i++) {
-        const params = {
-          start_time: this.start_time,
-          end_time: this.end_time,
-          period: this.Statisticaltime,
-          orderType: this.Status,
-          // group: this.group,
-          mallId: this.mall[i],
-          fetag: 'fetag',
-          limit: 5
-        }
-        let mallname
-        for (let j = 0; j < this.mallList.length; j++) {
-          if (this.mallList[j].value === this.mall[i]) {
-            mallname = this.mallList[j].label
+      if (this.mall.length > 0) {
+        for (let i = 0; i < this.mall.length; i++) {
+          const params = {
+            start_time: this.start_time,
+            end_time: this.end_time,
+            period: this.Statisticaltime,
+            orderType: this.Status,
+            // group: this.group,
+            mallId: this.mall[i],
+            fetag: 'fetag',
+            limit: 5
           }
-        }
-        console.log('this is my parmas', params)
-        const ress = await this.$shopeemanService.getCateRank(this.site, params, { headers: { 'Content-Type': 'application/json; charset=utf-8' }})
-        const ress1 = await this.$shopeemanService.getRank(this.site, params, { headers: { 'Content-Type': 'application/json; charset=utf-8' }})
-        const dt = JSON.parse(ress)
-        const dt1 = JSON.parse(ress1)
-        dt.data = JSON.parse(dt.data)
-        dt1.data = JSON.parse(dt1.data)
-        console.log(dt.data)
-        console.log(dt1.data)
-        if (dt1.data.code === 0) {
-          for (const item in dt1.data.result) {
-            if (item === 'product_pv' && dt1.data.result[item]) {
-              for (let j = 0; j < dt1.data.result[item].length; j++) {
-                const data = {}
-                data.site = this.site
-                data.mallid = this.mall[i]
-                data.mallname = mallname
-                data.ranktype = '<pre>按商品销量排行</pre>' + '<pre>销量 ' + dt1.data.result[item][j].value + '</pre>'
-                data.img = dt1.data.result[item][j].image
-                data.goodsname = dt1.data.result[item][j].item_name
-                this.tableData3.push(data)
-              }
-            }
-            if (item === 'sales' && dt1.data.result[item]) {
-              for (let j = 0; j < dt1.data.result[item].length; j++) {
-                const data = {}
-                data.site = this.site
-                data.mallid = this.mall[i]
-                data.mallname = mallname
-                data.ranktype = '<pre>按下单数排行</pre>' + '<pre>下单数 ' + dt1.data.result[item][j].value + '</pre>'
-                data.img = dt1.data.result[item][j].image
-                data.goodsname = dt1.data.result[item][j].item_name
-                this.tableData3.push(data)
-              }
-            }
-            if (item === 'orders' && dt1.data.result[item]) {
-              for (let j = 0; j < dt1.data.result[item].length; j++) {
-                const data = {}
-                data.site = this.site
-                data.mallid = this.mall[i]
-                data.mallname = mallname
-                data.ranktype = '<pre>按页面访客量排行</pre>' + '<pre>访客量 ' + dt1.data.result[item][j].value + '</pre>'
-                data.img = dt1.data.result[item][j].image
-                data.goodsname = dt1.data.result[item][j].item_name
-                this.tableData3.push(data)
-              }
-            }
-            if (item === 'uv_to_paid_buyers_rate' && dt1.data.result[item]) {
-              for (let j = 0; j < dt1.data.result[item].length; j++) {
-                const data = {}
-                data.site = this.site
-                data.mallid = this.mall[i]
-                data.mallname = mallname
-                data.ranktype = '<pre>按转换率排行</pre>' + '<pre>转换率 ' + (dt1.data.result[item][j].value * 100).toFixed(2) + '%</pre>'
-                data.img = dt1.data.result[item][j].image
-                data.goodsname = dt1.data.result[item][j].item_name
-                this.tableData3.push(data)
-              }
+          let mallname
+          for (let j = 0; j < this.mallList.length; j++) {
+            if (this.mallList[j].value === this.mall[i]) {
+              mallname = this.mallList[j].label
             }
           }
-        } else if (dt1.data.errcode === 2) {
-          this.errmall.push(mallname)
-        }
-        if (dt.data.code === 0 && dt.data.result) {
-          for (let j = 0; j < dt.data.result.length; j++) {
-            const data = {}
-            data.site = this.site
-            data.mallid = this.mall[i]
-            data.mallname = mallname
-            data.ranktype = '<pre>按类目销量排行</pre>' + '<pre>销售量 ' + dt.data.result[j].value + '</pre>'
-            data.img = ''
-            data.goodsname = dt.data.result[j].l1_cat_name + '===>' + dt.data.result[j].l2_cat_name
-            this.tableData3.push(data)
+          console.log('this is my parmas', params)
+          const ress = await this.$shopeemanService.getCateRank(this.site, params, { headers: { 'Content-Type': 'application/json; charset=utf-8' }})
+          const ress1 = await this.$shopeemanService.getRank(this.site, params, { headers: { 'Content-Type': 'application/json; charset=utf-8' }})
+          const dt = JSON.parse(ress)
+          const dt1 = JSON.parse(ress1)
+          dt.data = JSON.parse(dt.data)
+          dt1.data = JSON.parse(dt1.data)
+          console.log(dt.data)
+          console.log(dt1.data)
+          if (dt1.data.code === 0) {
+            for (const item in dt1.data.result) {
+              if (item === 'product_pv' && dt1.data.result[item]) {
+                for (let j = 0; j < dt1.data.result[item].length; j++) {
+                  const data = {}
+                  data.site = this.site
+                  data.mallid = this.mall[i]
+                  data.mallname = mallname
+                  data.ranktype = '<pre>按商品销量排行</pre>' + '<pre>销量 ' + dt1.data.result[item][j].value + '</pre>'
+                  data.img = dt1.data.result[item][j].image
+                  data.goodsname = dt1.data.result[item][j].item_name
+                  this.tableData3.push(data)
+                }
+              }
+              if (item === 'sales' && dt1.data.result[item]) {
+                for (let j = 0; j < dt1.data.result[item].length; j++) {
+                  const data = {}
+                  data.site = this.site
+                  data.mallid = this.mall[i]
+                  data.mallname = mallname
+                  data.ranktype = '<pre>按下单数排行</pre>' + '<pre>下单数 ' + dt1.data.result[item][j].value + '</pre>'
+                  data.img = dt1.data.result[item][j].image
+                  data.goodsname = dt1.data.result[item][j].item_name
+                  this.tableData3.push(data)
+                }
+              }
+              if (item === 'orders' && dt1.data.result[item]) {
+                for (let j = 0; j < dt1.data.result[item].length; j++) {
+                  const data = {}
+                  data.site = this.site
+                  data.mallid = this.mall[i]
+                  data.mallname = mallname
+                  data.ranktype = '<pre>按页面访客量排行</pre>' + '<pre>访客量 ' + dt1.data.result[item][j].value + '</pre>'
+                  data.img = dt1.data.result[item][j].image
+                  data.goodsname = dt1.data.result[item][j].item_name
+                  this.tableData3.push(data)
+                }
+              }
+              if (item === 'uv_to_paid_buyers_rate' && dt1.data.result[item]) {
+                for (let j = 0; j < dt1.data.result[item].length; j++) {
+                  const data = {}
+                  data.site = this.site
+                  data.mallid = this.mall[i]
+                  data.mallname = mallname
+                  data.ranktype = '<pre>按转换率排行</pre>' + '<pre>转换率 ' + (dt1.data.result[item][j].value * 100).toFixed(2) + '%</pre>'
+                  data.img = dt1.data.result[item][j].image
+                  data.goodsname = dt1.data.result[item][j].item_name
+                  this.tableData3.push(data)
+                }
+              }
+            }
+          } else if (dt1.data.errcode === 2) {
+            this.errmall.push(mallname)
           }
-        } else if (dt.data.errcode === 2) {
-          this.errmall.push(mallname)
+          if (dt.data.code === 0 && dt.data.result) {
+            for (let j = 0; j < dt.data.result.length; j++) {
+              const data = {}
+              data.site = this.site
+              data.mallid = this.mall[i]
+              data.mallname = mallname
+              data.ranktype = '<pre>按类目销量排行</pre>' + '<pre>销售量 ' + dt.data.result[j].value + '</pre>'
+              data.img = ''
+              data.goodsname = dt.data.result[j].l1_cat_name + '===>' + dt.data.result[j].l2_cat_name
+              this.tableData3.push(data)
+            }
+          } else if (dt.data.errcode === 2) {
+            this.errmall.push(mallname)
+          }
         }
+      } else {
+        this.$message({
+          message: '请先选择店铺',
+          type: 'warning'
+        })
       }
       for (let i = 0; i < this.errmall.length - 1; i++) {
         for (let j = i + 1; j < this.errmall.length; j++) {

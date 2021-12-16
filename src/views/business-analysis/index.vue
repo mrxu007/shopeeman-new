@@ -12,8 +12,20 @@
     <!--流量 -->
     <main v-if="activeVal === '3'"><BusinessAnalysisflow /></main>
 
-    <!--商品 -->
+    <!--商品诊断 -->
     <main v-if="activeVal === '4'"><BusinessAnalysisCommodityDiagnosis /></main>
+
+    <!--商品概述 -->
+    <main v-if="activeVal === '5'"><BusinessAnalysisCommodityOverview /></main>
+
+    <!--商品表现 -->
+    <main v-if="activeVal === '6'"><BusinessAnalysisCommodityPerformance /></main>
+
+    <!--销售额概述 -->
+    <main v-if="activeVal === '7'"><BusinessAnalysisSalesvolume /></main>
+
+    <!--销售额结构 -->
+    <main v-if="activeVal === '8'"><BusinessAnalysisSalesStructure /></main>
   </div>
 </template>
 
@@ -23,7 +35,11 @@ import {
   BusinessAnalysisDataScreening2,
   BusinessAnalysisDataScreening3,
   BusinessAnalysisflow,
-  BusinessAnalysisCommodityDiagnosis
+  BusinessAnalysisCommodityDiagnosis,
+  BusinessAnalysisCommodityOverview,
+  BusinessAnalysisCommodityPerformance,
+  BusinessAnalysisSalesvolume,
+  BusinessAnalysisSalesStructure
 } from './index.js'
 export default {
   components: {
@@ -31,7 +47,11 @@ export default {
     BusinessAnalysisDataScreening2,
     BusinessAnalysisDataScreening3,
     BusinessAnalysisflow,
-    BusinessAnalysisCommodityDiagnosis
+    BusinessAnalysisCommodityDiagnosis,
+    BusinessAnalysisCommodityOverview,
+    BusinessAnalysisCommodityPerformance,
+    BusinessAnalysisSalesvolume,
+    BusinessAnalysisSalesStructure
   },
   data() {
     return {

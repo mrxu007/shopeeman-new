@@ -223,105 +223,112 @@ export default {
       this.Loading3 = true
       this.tableData2 = []
       this.errmall = []
-      for (let i = 0; i < this.mall.length; i++) {
-        const params = {
-          start_time: this.start_time,
-          end_time: this.end_time,
-          period: this.Statisticaltime,
-          orderType: this.Status,
-          // group: this.group,
-          mallId: this.mall[i],
-          fetag: 'fetag',
-          limit: 5
-        }
-        console.log('this is my parmas', params)
-        const attributeTreeJson = await this.$shopeemanService.dashboard(this.site, params, { headers: { 'Content-Type': 'application/json; charset=utf-8' }})
-        let attributeTreeRes
-        if (attributeTreeJson) {
-          attributeTreeRes = JSON.parse(attributeTreeJson)
-        }
-        let mallname
-        for (let j = 0; j < this.mallList.length; j++) {
-          if (this.mallList[j].value === this.mall[i]) {
-            mallname = this.mallList[j].label
+      if (this.mall.length > 0) {
+        for (let i = 0; i < this.mall.length; i++) {
+          const params = {
+            start_time: this.start_time,
+            end_time: this.end_time,
+            period: this.Statisticaltime,
+            orderType: this.Status,
+            // group: this.group,
+            mallId: this.mall[i],
+            fetag: 'fetag',
+            limit: 5
           }
-        }
-        console.log('this is data', attributeTreeRes)
-        if (attributeTreeRes.status === 200) {
-          attributeTreeRes.data = JSON.parse(attributeTreeRes.data)
-          if (this.Statisticaltime === 'real_time') { // 转换格式
-            for (const item in attributeTreeRes.data.result) {
-              let arrow = ''
-              if (attributeTreeRes.data.result[item].chain_ratio > 0) {
-                arrow = '↑'
-              } else if (attributeTreeRes.data.result[item].chain_ratio < 0) {
-                arrow = '↓'
-              }
-              if (item === 'shop_uv_to_placed_buyers_rate') {
-                attributeTreeRes.data.result[item] = `<pre>${(attributeTreeRes.data.result[item].value * 100).toFixed(2)}%
+          console.log('this is my parmas', params)
+          const attributeTreeJson = await this.$shopeemanService.dashboard(this.site, params, { headers: { 'Content-Type': 'application/json; charset=utf-8' }})
+          let attributeTreeRes
+          if (attributeTreeJson) {
+            attributeTreeRes = JSON.parse(attributeTreeJson)
+          }
+          let mallname
+          for (let j = 0; j < this.mallList.length; j++) {
+            if (this.mallList[j].value === this.mall[i]) {
+              mallname = this.mallList[j].label
+            }
+          }
+          console.log('this is data', attributeTreeRes)
+          if (attributeTreeRes.status === 200) {
+            attributeTreeRes.data = JSON.parse(attributeTreeRes.data)
+            if (this.Statisticaltime === 'real_time') { // 转换格式
+              for (const item in attributeTreeRes.data.result) {
+                let arrow = ''
+                if (attributeTreeRes.data.result[item].chain_ratio > 0) {
+                  arrow = '↑'
+                } else if (attributeTreeRes.data.result[item].chain_ratio < 0) {
+                  arrow = '↓'
+                }
+                if (item === 'shop_uv_to_placed_buyers_rate') {
+                  attributeTreeRes.data.result[item] = `<pre>${(attributeTreeRes.data.result[item].value * 100).toFixed(2)}%
 vs 00:00 - 13:00  ${Math.abs(attributeTreeRes.data.result[item].chain_ratio * 100).toFixed(2)}%` + ` ${arrow}</pre>`
-              } else {
-                attributeTreeRes.data.result[item] = `<pre>${parseInt(attributeTreeRes.data.result[item].value)}
+                } else {
+                  attributeTreeRes.data.result[item] = `<pre>${parseInt(attributeTreeRes.data.result[item].value)}
 vs 00:00 - 13:00  ${Math.abs(attributeTreeRes.data.result[item].chain_ratio * 100).toFixed(2)}%` + ` ${arrow}</pre>`
+                }
               }
             }
-          }
-          if (this.Statisticaltime === 'yesterday') {
-            for (const item in attributeTreeRes.data.result) {
-              let arrow = ''
-              if (attributeTreeRes.data.result[item].chain_ratio > 0) {
-                arrow = '↑'
-              } else if (attributeTreeRes.data.result[item].chain_ratio < 0) {
-                arrow = '↓'
-              }
-              if (item === 'shop_uv_to_placed_buyers_rate') {
-                attributeTreeRes.data.result[item] = `<pre>${(attributeTreeRes.data.result[item].value * 100).toFixed(2)}%
+            if (this.Statisticaltime === 'yesterday') {
+              for (const item in attributeTreeRes.data.result) {
+                let arrow = ''
+                if (attributeTreeRes.data.result[item].chain_ratio > 0) {
+                  arrow = '↑'
+                } else if (attributeTreeRes.data.result[item].chain_ratio < 0) {
+                  arrow = '↓'
+                }
+                if (item === 'shop_uv_to_placed_buyers_rate') {
+                  attributeTreeRes.data.result[item] = `<pre>${(attributeTreeRes.data.result[item].value * 100).toFixed(2)}%
 vs 前一天  ${Math.abs(attributeTreeRes.data.result[item].chain_ratio * 100).toFixed(2)}%` + ` ${arrow}</pre>`
-              } else {
-                attributeTreeRes.data.result[item] = `<pre>${parseInt(attributeTreeRes.data.result[item].value)}
+                } else {
+                  attributeTreeRes.data.result[item] = `<pre>${parseInt(attributeTreeRes.data.result[item].value)}
 vs 前一天  ${Math.abs(attributeTreeRes.data.result[item].chain_ratio * 100).toFixed(2)}%` + ` ${arrow}</pre>`
+                }
               }
             }
-          }
-          if (this.Statisticaltime === 'past7days') {
-            for (const item in attributeTreeRes.data.result) {
-              let arrow = ''
-              if (attributeTreeRes.data.result[item].chain_ratio > 0) {
-                arrow = '↑'
-              } else if (attributeTreeRes.data.result[item].chain_ratio < 0) {
-                arrow = '↓'
-              }
-              if (item === 'shop_uv_to_placed_buyers_rate') {
-                attributeTreeRes.data.result[item] = `<pre>${(attributeTreeRes.data.result[item].value * 100).toFixed(2)}%
+            if (this.Statisticaltime === 'past7days') {
+              for (const item in attributeTreeRes.data.result) {
+                let arrow = ''
+                if (attributeTreeRes.data.result[item].chain_ratio > 0) {
+                  arrow = '↑'
+                } else if (attributeTreeRes.data.result[item].chain_ratio < 0) {
+                  arrow = '↓'
+                }
+                if (item === 'shop_uv_to_placed_buyers_rate') {
+                  attributeTreeRes.data.result[item] = `<pre>${(attributeTreeRes.data.result[item].value * 100).toFixed(2)}%
 vs 前7天  ${Math.abs(attributeTreeRes.data.result[item].chain_ratio * 100).toFixed(2)}%` + ` ${arrow}</pre>`
-              } else {
-                attributeTreeRes.data.result[item] = `<pre>${parseInt(attributeTreeRes.data.result[item].value)}
+                } else {
+                  attributeTreeRes.data.result[item] = `<pre>${parseInt(attributeTreeRes.data.result[item].value)}
 vs 前7天  ${Math.abs(attributeTreeRes.data.result[item].chain_ratio * 100).toFixed(2)}%` + ` ${arrow}</pre>`
+                }
               }
             }
-          }
-          if (this.Statisticaltime === 'past30days') {
-            for (const item in attributeTreeRes.data.result) {
-              let arrow = ''
-              if (attributeTreeRes.data.result[item].chain_ratio > 0) {
-                arrow = '↑'
-              } else if (attributeTreeRes.data.result[item].chain_ratio < 0) {
-                arrow = '↓'
-              }
-              if (item === 'shop_uv_to_placed_buyers_rate') {
-                attributeTreeRes.data.result[item] = `<pre>${(attributeTreeRes.data.result[item].value * 100).toFixed(2)}%
+            if (this.Statisticaltime === 'past30days') {
+              for (const item in attributeTreeRes.data.result) {
+                let arrow = ''
+                if (attributeTreeRes.data.result[item].chain_ratio > 0) {
+                  arrow = '↑'
+                } else if (attributeTreeRes.data.result[item].chain_ratio < 0) {
+                  arrow = '↓'
+                }
+                if (item === 'shop_uv_to_placed_buyers_rate') {
+                  attributeTreeRes.data.result[item] = `<pre>${(attributeTreeRes.data.result[item].value * 100).toFixed(2)}%
 vs 前30天  ${Math.abs(attributeTreeRes.data.result[item].chain_ratio * 100).toFixed(2)}%` + ` ${arrow}</pre>`
-              } else {
-                attributeTreeRes.data.result[item] = `<pre>${parseInt(attributeTreeRes.data.result[item].value)}
+                } else {
+                  attributeTreeRes.data.result[item] = `<pre>${parseInt(attributeTreeRes.data.result[item].value)}
 vs 前30天  ${Math.abs(attributeTreeRes.data.result[item].chain_ratio * 100).toFixed(2)}%` + ` ${arrow}</pre>`
+                }
               }
             }
+            attributeTreeRes.data.result['mallname'] = mallname
+            this.tableData2.push(attributeTreeRes.data.result)
+          } else if (attributeTreeRes.status === 403) {
+            this.errmall.push(mallname)
           }
-          attributeTreeRes.data.result['mallname'] = mallname
-          this.tableData2.push(attributeTreeRes.data.result)
-        } else if (attributeTreeRes.status === 403) {
-          this.errmall.push(mallname)
         }
+      } else {
+        this.$message({
+          message: '请先选择店铺',
+          type: 'warning'
+        })
       }
       if (this.errmall.length > 0) {
         this.$message.error(`店铺【${this.errmall}】未登录`)

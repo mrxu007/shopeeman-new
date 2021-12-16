@@ -1460,4 +1460,24 @@ export default class NetMessageBridgeService {
   getdiagnosis(country, data, option) {
     return this.getChinese(country, '/api/seller/mydata/prod_diagnosis/items/', data, option)
   }
+
+  // 获取商品概述数据
+  getoverview(country, data, option) {
+    return this.getChinese(country, '/api/mydata/v2/product/overview/', data, option)
+  }
+
+  // 获取商品表现数据
+  getperformance(country, data, option) {
+    return this.getChinese(country, '/api/mydata/v2/product/performance/', data, option)
+  }
+
+  // 获取销售额概述数据
+  getsalasoverview(country, data, option) {
+    return this.getChinese(country, '/api/mydata/v3/sales/overview/funnel/', data, option)
+  }
+
+  // 获取销售额结构数据1
+  getsalasstructure1(country, data, option) {
+    return this.getChinese(country, '/api/mydata/v2/sales/composition/category/', data, option)
+  }
 }
