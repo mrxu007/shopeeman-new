@@ -501,19 +501,34 @@
           this.$message.error('请选择一个商品信息')
           return false
         }
-        if (type === 1) {
-
-        } else if (type === 2) {
+        if (type === 1) {}
+        else if (type === 2) {
           this.translationPrepare(data)
-        } else if (type === 3) {
+        }
+        else if (type === 3) {
           this.titleDescribeVisible = true
-        } else if (type === 4) {
-        } else if (type === 15) {
+        }
+        else if (type === 4) {
+        }
+        else if (type === 7) {
+          this.mallTableSelect.forEach(i=>{
+            this.$commodityService.deleteGoodsImage('2',i.id,'0')
+          })
+        }
+        else if (type === 10) {
+
+        }
+        else if (type === 12) {
+          this.mallTableSelect.forEach(i=>{})
+        }
+        else if (type === 15) {
           this.isTranslationText = false
           let res = await batchOperation(this.mallTableSelect, this.translationDate,this.threadNumber)
           this.isTranslationText = true
-        } else if (type === 16) {
-        } else if (type === 17) {
+        }
+        else if (type === 16) {
+        }
+        else if (type === 17) {
           let length = this.mallTableSelect.length
           this.$confirm('共选中'+length+'个商品是否删除?', '提示', {
             confirmButtonText: '确定',
