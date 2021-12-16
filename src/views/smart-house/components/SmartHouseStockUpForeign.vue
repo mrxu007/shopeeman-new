@@ -1826,7 +1826,7 @@ export default {
     //   return { warehouseName, childName }
     // },
     // 自有商品导入
-    itselfGoodsImport() {
+    async itselfGoodsImport() {
       this.productFrom.CateId = 0
       this.productFrom.ProductName = ''
       this.productFrom.ProductId = ''
@@ -1846,8 +1846,11 @@ export default {
       this.productData = []
       this.goodsForeignData = []
       this.itselfGoodsVisible = true
-      this.$nextTick(() => {
+
+      this.$nextTick(async() => {
         this.$refs.isClean.cleanData()
+        // 获取产品中心数据
+        await this.getProductList()
       })
     },
     // 查看详情

@@ -12,8 +12,35 @@
     <!--流量 -->
     <main v-if="activeVal === '3'"><BusinessAnalysisflow /></main>
 
-    <!--商品 -->
+    <!--商品诊断 -->
     <main v-if="activeVal === '4'"><BusinessAnalysisCommodityDiagnosis /></main>
+
+    <!--商品概述 -->
+    <main v-if="activeVal === '5'"><BusinessAnalysisCommodityOverview /></main>
+
+    <!--商品表现 -->
+    <main v-if="activeVal === '6'"><BusinessAnalysisCommodityPerformance /></main>
+
+    <!--销售额概述 -->
+    <main v-if="activeVal === '7'"><BusinessAnalysisSalesvolume /></main>
+
+    <!--销售额结构 -->
+    <main v-if="activeVal === '8'"><BusinessAnalysisSalesStructure /></main>
+
+    <!--行销活动 -->
+    <main v-if="activeVal === '9'"><BusinessAnalysisMarketingActivity /></main>
+
+    <!--行销套装优惠 -->
+    <main v-if="activeVal === '10'"><BusinessAnalysisPackageOffer /></main>
+
+    <!--行销关注礼 -->
+    <main v-if="activeVal === '11'"><BusinessAnalysisAttentionCeremony /></main>
+
+    <!--行销优惠卷 -->
+    <main v-if="activeVal === '12'"><BusinessAnalysisCoupon /></main>
+
+    <!--行销优惠卷 -->
+    <main v-if="activeVal === '13'"><BusinessAnalysisLimitedTimePurchase /></main>
   </div>
 </template>
 
@@ -23,7 +50,16 @@ import {
   BusinessAnalysisDataScreening2,
   BusinessAnalysisDataScreening3,
   BusinessAnalysisflow,
-  BusinessAnalysisCommodityDiagnosis
+  BusinessAnalysisCommodityDiagnosis,
+  BusinessAnalysisCommodityOverview,
+  BusinessAnalysisCommodityPerformance,
+  BusinessAnalysisSalesvolume,
+  BusinessAnalysisSalesStructure,
+  BusinessAnalysisMarketingActivity,
+  BusinessAnalysisPackageOffer,
+  BusinessAnalysisAttentionCeremony,
+  BusinessAnalysisCoupon,
+  BusinessAnalysisLimitedTimePurchase
 } from './index.js'
 export default {
   components: {
@@ -31,7 +67,16 @@ export default {
     BusinessAnalysisDataScreening2,
     BusinessAnalysisDataScreening3,
     BusinessAnalysisflow,
-    BusinessAnalysisCommodityDiagnosis
+    BusinessAnalysisCommodityDiagnosis,
+    BusinessAnalysisCommodityOverview,
+    BusinessAnalysisCommodityPerformance,
+    BusinessAnalysisSalesvolume,
+    BusinessAnalysisSalesStructure,
+    BusinessAnalysisMarketingActivity,
+    BusinessAnalysisPackageOffer,
+    BusinessAnalysisAttentionCeremony,
+    BusinessAnalysisCoupon,
+    BusinessAnalysisLimitedTimePurchase
   },
   data() {
     return {

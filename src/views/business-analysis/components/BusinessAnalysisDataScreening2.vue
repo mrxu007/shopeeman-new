@@ -110,8 +110,8 @@ export default {
       gruopList: [],
       mall: [], // 店铺
       mallList: [],
-      start_time: 1634659200,
-      end_time: 1634695200,
+      start_time: Date.parse(this.$dayjs(new Date()).format('YYYY-MM-DD 00:00:00')) / 1000,
+      end_time: Math.round(new Date() / 1000),
       returnStatisticaltime: [
         { value: 'real_time', label: '实时' },
         { value: 'yesterday', label: '昨日' },
@@ -159,18 +159,153 @@ export default {
       }
     },
     Statisticaltime(val, oldVal) {
-      if (val === 'real_time') {
-        this.start_time = 1634659200
-        this.end_time = 1634695200
-      } else if (val === 'yesterday') {
-        this.start_time = 1634054400
-        this.end_time = 1634659200
-      } else if (val === 'past7days') {
-        this.start_time = 1634054400
-        this.end_time = 1634659200
-      } else if (val === 'past30days') {
-        this.start_time = 1632067200
-        this.end_time = 1634659200
+      if (this.site === 'TH' || this.site === 'ID' || this.site === 'VN') {
+        if (val === 'real_time') {
+          this.start_time = Date.parse(this.$dayjs(new Date()).format('YYYY-MM-DD 01:00:00')) / 1000
+          this.end_time = Math.round(new Date() / 1000)
+          this.timecant = true
+        } else if (val === 'yesterday') {
+          this.start_time = Date.parse(this.$dayjs(new Date()).format('YYYY-MM-DD 01:00:00')) / 1000 - 3600 * 24
+          this.end_time = Date.parse(this.$dayjs(new Date()).format('YYYY-MM-DD 01:00:00')) / 1000
+          this.timecant = true
+        } else if (val === 'past7days') {
+          this.start_time = Date.parse(this.$dayjs(new Date()).format('YYYY-MM-DD 01:00:00')) / 1000 - 3600 * 24 * 7
+          this.end_time = Date.parse(this.$dayjs(new Date()).format('YYYY-MM-DD 01:00:00')) / 1000
+          this.timecant = true
+        } else if (val === 'past30days') {
+          this.start_time = Date.parse(this.$dayjs(new Date()).format('YYYY-MM-DD 01:00:00')) / 1000 - 3600 * 24 * 30
+          this.end_time = Date.parse(this.$dayjs(new Date()).format('YYYY-MM-DD 01:00:00')) / 1000
+          this.timecant = true
+        } else if (val === 'day') {
+          this.start_time = Date.parse(this.$dayjs(this.timechoose).format('YYYY-MM-DD 01:00:00')) / 1000 - 3600 * 24
+          this.end_time = Date.parse(this.$dayjs(this.timechoose).format('YYYY-MM-DD 01:00:00')) / 1000
+          this.timecant = false
+        } else if (val === 'week') {
+          this.start_time = Date.parse(this.$dayjs(this.timechoose).format('YYYY-MM-DD 01:00:00')) / 1000 - 3600 * 24 * 6
+          this.end_time = Date.parse(this.$dayjs(this.timechoose).format('YYYY-MM-DD 01:00:00')) / 1000
+          this.timecant = false
+        } else if (val === 'month') {
+          const timea = this.$dayjs(this.timechoose).format('YYYY-MM-01')
+          const month = timea.split('-')[1]
+          if (month === '12') {
+            this.start_time = Date.parse(this.$dayjs(this.timechoose).format('YYYY-MM-01 01:00:00')) / 1000
+            let timeq = this.$dayjs(this.timechoose).format('YYYY-MM-01 01:00:00').split('')
+            timeq[5] = '0'
+            timeq[6] = '1'
+            timeq = timeq.join('')
+            this.end_time = Date.parse(this.$dayjs(timeq).format('YYYY-MM-01 01:00:00')) / 1000
+            console.log(this.end_time)
+          // this.end_time = Date.parse(this.$dayjs(this.timechoose).format('YYYY-MM-01 01:00:00')[5]) / 1000
+          } else {
+            this.start_time = Date.parse(this.$dayjs(this.timechoose).format('YYYY-MM-01 01:00:00')) / 1000
+            let timeq = this.$dayjs(this.timechoose).format('YYYY-MM-01 01:00:00').split('')
+            const timew = month.split('')
+            timeq[5] = timew[0]
+            timeq[6] = Number(timew[1]) + 1
+            timeq = timeq.join('')
+            this.end_time = Date.parse(this.$dayjs(timeq).format('YYYY-MM-01 01:00:00')) / 1000
+            console.log(this.end_time)
+          }
+          this.timecant = false
+        }
+      } else if (this.site === 'BR') {
+        if (val === 'real_time') {
+          this.start_time = Date.parse(this.$dayjs(new Date()).format('YYYY-MM-DD 11:00:00')) / 1000
+          this.end_time = Math.round(new Date() / 1000)
+          this.timecant = true
+        } else if (val === 'yesterday') {
+          this.start_time = Date.parse(this.$dayjs(new Date()).format('YYYY-MM-DD 11:00:00')) / 1000 - 3600 * 24
+          this.end_time = Date.parse(this.$dayjs(new Date()).format('YYYY-MM-DD 11:00:00')) / 1000
+          this.timecant = true
+        } else if (val === 'past7days') {
+          this.start_time = Date.parse(this.$dayjs(new Date()).format('YYYY-MM-DD 11:00:00')) / 1000 - 3600 * 24 * 7
+          this.end_time = Date.parse(this.$dayjs(new Date()).format('YYYY-MM-DD 11:00:00')) / 1000
+          this.timecant = true
+        } else if (val === 'past30days') {
+          this.start_time = Date.parse(this.$dayjs(new Date()).format('YYYY-MM-DD 11:00:00')) / 1000 - 3600 * 24 * 30
+          this.end_time = Date.parse(this.$dayjs(new Date()).format('YYYY-MM-DD 11:00:00')) / 1000
+          this.timecant = true
+        } else if (val === 'day') {
+          this.start_time = Date.parse(this.$dayjs(this.timechoose).format('YYYY-MM-DD 11:00:00')) / 1000 - 3600 * 24
+          this.end_time = Date.parse(this.$dayjs(this.timechoose).format('YYYY-MM-DD 11:00:00')) / 1000
+          this.timecant = false
+        } else if (val === 'week') {
+          this.start_time = Date.parse(this.$dayjs(this.timechoose).format('YYYY-MM-DD 11:00:00')) / 1000 - 3600 * 24 * 6
+          this.end_time = Date.parse(this.$dayjs(this.timechoose).format('YYYY-MM-DD 11:00:00')) / 1000
+          this.timecant = false
+        } else if (val === 'month') {
+          const timea = this.$dayjs(this.timechoose).format('YYYY-MM-01')
+          const month = timea.split('-')[1]
+          if (month === '12') {
+            this.start_time = Date.parse(this.$dayjs(this.timechoose).format('YYYY-MM-01 11:00:00')) / 1000
+            let timeq = this.$dayjs(this.timechoose).format('YYYY-MM-01 11:00:00').split('')
+            timeq[5] = '0'
+            timeq[6] = '1'
+            timeq = timeq.join('')
+            this.end_time = Date.parse(this.$dayjs(timeq).format('YYYY-MM-01 11:00:00')) / 1000
+            console.log(this.end_time)
+          // this.end_time = Date.parse(this.$dayjs(this.timechoose).format('YYYY-MM-01 01:00:00')[5]) / 1000
+          } else {
+            this.start_time = Date.parse(this.$dayjs(this.timechoose).format('YYYY-MM-01 11:00:00')) / 1000
+            let timeq = this.$dayjs(this.timechoose).format('YYYY-MM-01 11:00:00').split('')
+            const timew = month.split('')
+            timeq[5] = timew[0]
+            timeq[6] = Number(timew[1]) + 1
+            timeq = timeq.join('')
+            this.end_time = Date.parse(this.$dayjs(timeq).format('YYYY-MM-01 11:00:00')) / 1000
+            console.log(this.end_time)
+          }
+          this.timecant = false
+        }
+      } else {
+        if (val === 'real_time') {
+          this.start_time = Date.parse(this.$dayjs(new Date()).format('YYYY-MM-DD 00:00:00')) / 1000
+          this.end_time = Math.round(new Date() / 1000)
+          this.timecant = true
+        } else if (val === 'yesterday') {
+          this.start_time = Date.parse(this.$dayjs(new Date()).format('YYYY-MM-DD 00:00:00')) / 1000 - 3600 * 24
+          this.end_time = Date.parse(this.$dayjs(new Date()).format('YYYY-MM-DD 00:00:00')) / 1000
+          this.timecant = true
+        } else if (val === 'past7days') {
+          this.start_time = Date.parse(this.$dayjs(new Date()).format('YYYY-MM-DD 00:00:00')) / 1000 - 3600 * 24 * 7
+          this.end_time = Date.parse(this.$dayjs(new Date()).format('YYYY-MM-DD 00:00:00')) / 1000
+          this.timecant = true
+        } else if (val === 'past30days') {
+          this.start_time = Date.parse(this.$dayjs(new Date()).format('YYYY-MM-DD 00:00:00')) / 1000 - 3600 * 24 * 30
+          this.end_time = Date.parse(this.$dayjs(new Date()).format('YYYY-MM-DD 00:00:00')) / 1000
+          this.timecant = true
+        } else if (val === 'day') {
+          this.start_time = Date.parse(this.$dayjs(this.timechoose).format('YYYY-MM-DD 00:00:00')) / 1000 - 3600 * 24
+          this.end_time = Date.parse(this.$dayjs(this.timechoose).format('YYYY-MM-DD 00:00:00')) / 1000
+          this.timecant = false
+        } else if (val === 'week') {
+          this.start_time = Date.parse(this.$dayjs(this.timechoose).format('YYYY-MM-DD 00:00:00')) / 1000 - 3600 * 24 * 6
+          this.end_time = Date.parse(this.$dayjs(this.timechoose).format('YYYY-MM-DD 00:00:00')) / 1000
+          this.timecant = false
+        } else if (val === 'month') {
+          const timea = this.$dayjs(this.timechoose).format('YYYY-MM-01')
+          const month = timea.split('-')[1]
+          if (month === '12') {
+            this.start_time = Date.parse(this.$dayjs(this.timechoose).format('YYYY-MM-01 00:00:00')) / 1000
+            let timeq = this.$dayjs(this.timechoose).format('YYYY-MM-01 00:00:00').split('')
+            timeq[5] = '0'
+            timeq[6] = '1'
+            timeq = timeq.join('')
+            this.end_time = Date.parse(this.$dayjs(timeq).format('YYYY-MM-01 00:00:00')) / 1000
+            console.log(this.end_time)
+          // this.end_time = Date.parse(this.$dayjs(this.timechoose).format('YYYY-MM-01 01:00:00')[5]) / 1000
+          } else {
+            this.start_time = Date.parse(this.$dayjs(this.timechoose).format('YYYY-MM-01 00:00:00')) / 1000
+            let timeq = this.$dayjs(this.timechoose).format('YYYY-MM-01 00:00:00').split('')
+            const timew = month.split('')
+            timeq[5] = timew[0]
+            timeq[6] = Number(timew[1]) + 1
+            timeq = timeq.join('')
+            this.end_time = Date.parse(this.$dayjs(timeq).format('YYYY-MM-01 00:00:00')) / 1000
+            console.log(this.end_time)
+          }
+          this.timecant = false
+        }
       }
     },
     site(val, oldVal) {
@@ -223,105 +358,112 @@ export default {
       this.Loading3 = true
       this.tableData2 = []
       this.errmall = []
-      for (let i = 0; i < this.mall.length; i++) {
-        const params = {
-          start_time: this.start_time,
-          end_time: this.end_time,
-          period: this.Statisticaltime,
-          orderType: this.Status,
-          // group: this.group,
-          mallId: this.mall[i],
-          fetag: 'fetag',
-          limit: 5
-        }
-        console.log('this is my parmas', params)
-        const attributeTreeJson = await this.$shopeemanService.dashboard(this.site, params, { headers: { 'Content-Type': 'application/json; charset=utf-8' }})
-        let attributeTreeRes
-        if (attributeTreeJson) {
-          attributeTreeRes = JSON.parse(attributeTreeJson)
-        }
-        let mallname
-        for (let j = 0; j < this.mallList.length; j++) {
-          if (this.mallList[j].value === this.mall[i]) {
-            mallname = this.mallList[j].label
+      if (this.mall.length > 0) {
+        for (let i = 0; i < this.mall.length; i++) {
+          const params = {
+            start_time: this.start_time,
+            end_time: this.end_time,
+            period: this.Statisticaltime,
+            orderType: this.Status,
+            // group: this.group,
+            mallId: this.mall[i],
+            fetag: 'fetag',
+            limit: 5
           }
-        }
-        console.log('this is data', attributeTreeRes)
-        if (attributeTreeRes.status === 200) {
-          attributeTreeRes.data = JSON.parse(attributeTreeRes.data)
-          if (this.Statisticaltime === 'real_time') { // 转换格式
-            for (const item in attributeTreeRes.data.result) {
-              let arrow = ''
-              if (attributeTreeRes.data.result[item].chain_ratio > 0) {
-                arrow = '↑'
-              } else if (attributeTreeRes.data.result[item].chain_ratio < 0) {
-                arrow = '↓'
-              }
-              if (item === 'shop_uv_to_placed_buyers_rate') {
-                attributeTreeRes.data.result[item] = `<pre>${(attributeTreeRes.data.result[item].value * 100).toFixed(2)}%
+          console.log('this is my parmas', params)
+          const attributeTreeJson = await this.$shopeemanService.dashboard(this.site, params, { headers: { 'Content-Type': 'application/json; charset=utf-8' }})
+          let attributeTreeRes
+          if (attributeTreeJson) {
+            attributeTreeRes = JSON.parse(attributeTreeJson)
+          }
+          let mallname
+          for (let j = 0; j < this.mallList.length; j++) {
+            if (this.mallList[j].value === this.mall[i]) {
+              mallname = this.mallList[j].label
+            }
+          }
+          console.log('this is data', attributeTreeRes)
+          if (attributeTreeRes.status === 200) {
+            attributeTreeRes.data = JSON.parse(attributeTreeRes.data)
+            if (this.Statisticaltime === 'real_time') { // 转换格式
+              for (const item in attributeTreeRes.data.result) {
+                let arrow = ''
+                if (attributeTreeRes.data.result[item].chain_ratio > 0) {
+                  arrow = '↑'
+                } else if (attributeTreeRes.data.result[item].chain_ratio < 0) {
+                  arrow = '↓'
+                }
+                if (item === 'shop_uv_to_placed_buyers_rate') {
+                  attributeTreeRes.data.result[item] = `<pre>${(attributeTreeRes.data.result[item].value * 100).toFixed(2)}%
 vs 00:00 - 13:00  ${Math.abs(attributeTreeRes.data.result[item].chain_ratio * 100).toFixed(2)}%` + ` ${arrow}</pre>`
-              } else {
-                attributeTreeRes.data.result[item] = `<pre>${parseInt(attributeTreeRes.data.result[item].value)}
+                } else {
+                  attributeTreeRes.data.result[item] = `<pre>${parseInt(attributeTreeRes.data.result[item].value)}
 vs 00:00 - 13:00  ${Math.abs(attributeTreeRes.data.result[item].chain_ratio * 100).toFixed(2)}%` + ` ${arrow}</pre>`
+                }
               }
             }
-          }
-          if (this.Statisticaltime === 'yesterday') {
-            for (const item in attributeTreeRes.data.result) {
-              let arrow = ''
-              if (attributeTreeRes.data.result[item].chain_ratio > 0) {
-                arrow = '↑'
-              } else if (attributeTreeRes.data.result[item].chain_ratio < 0) {
-                arrow = '↓'
-              }
-              if (item === 'shop_uv_to_placed_buyers_rate') {
-                attributeTreeRes.data.result[item] = `<pre>${(attributeTreeRes.data.result[item].value * 100).toFixed(2)}%
+            if (this.Statisticaltime === 'yesterday') {
+              for (const item in attributeTreeRes.data.result) {
+                let arrow = ''
+                if (attributeTreeRes.data.result[item].chain_ratio > 0) {
+                  arrow = '↑'
+                } else if (attributeTreeRes.data.result[item].chain_ratio < 0) {
+                  arrow = '↓'
+                }
+                if (item === 'shop_uv_to_placed_buyers_rate') {
+                  attributeTreeRes.data.result[item] = `<pre>${(attributeTreeRes.data.result[item].value * 100).toFixed(2)}%
 vs 前一天  ${Math.abs(attributeTreeRes.data.result[item].chain_ratio * 100).toFixed(2)}%` + ` ${arrow}</pre>`
-              } else {
-                attributeTreeRes.data.result[item] = `<pre>${parseInt(attributeTreeRes.data.result[item].value)}
+                } else {
+                  attributeTreeRes.data.result[item] = `<pre>${parseInt(attributeTreeRes.data.result[item].value)}
 vs 前一天  ${Math.abs(attributeTreeRes.data.result[item].chain_ratio * 100).toFixed(2)}%` + ` ${arrow}</pre>`
+                }
               }
             }
-          }
-          if (this.Statisticaltime === 'past7days') {
-            for (const item in attributeTreeRes.data.result) {
-              let arrow = ''
-              if (attributeTreeRes.data.result[item].chain_ratio > 0) {
-                arrow = '↑'
-              } else if (attributeTreeRes.data.result[item].chain_ratio < 0) {
-                arrow = '↓'
-              }
-              if (item === 'shop_uv_to_placed_buyers_rate') {
-                attributeTreeRes.data.result[item] = `<pre>${(attributeTreeRes.data.result[item].value * 100).toFixed(2)}%
+            if (this.Statisticaltime === 'past7days') {
+              for (const item in attributeTreeRes.data.result) {
+                let arrow = ''
+                if (attributeTreeRes.data.result[item].chain_ratio > 0) {
+                  arrow = '↑'
+                } else if (attributeTreeRes.data.result[item].chain_ratio < 0) {
+                  arrow = '↓'
+                }
+                if (item === 'shop_uv_to_placed_buyers_rate') {
+                  attributeTreeRes.data.result[item] = `<pre>${(attributeTreeRes.data.result[item].value * 100).toFixed(2)}%
 vs 前7天  ${Math.abs(attributeTreeRes.data.result[item].chain_ratio * 100).toFixed(2)}%` + ` ${arrow}</pre>`
-              } else {
-                attributeTreeRes.data.result[item] = `<pre>${parseInt(attributeTreeRes.data.result[item].value)}
+                } else {
+                  attributeTreeRes.data.result[item] = `<pre>${parseInt(attributeTreeRes.data.result[item].value)}
 vs 前7天  ${Math.abs(attributeTreeRes.data.result[item].chain_ratio * 100).toFixed(2)}%` + ` ${arrow}</pre>`
+                }
               }
             }
-          }
-          if (this.Statisticaltime === 'past30days') {
-            for (const item in attributeTreeRes.data.result) {
-              let arrow = ''
-              if (attributeTreeRes.data.result[item].chain_ratio > 0) {
-                arrow = '↑'
-              } else if (attributeTreeRes.data.result[item].chain_ratio < 0) {
-                arrow = '↓'
-              }
-              if (item === 'shop_uv_to_placed_buyers_rate') {
-                attributeTreeRes.data.result[item] = `<pre>${(attributeTreeRes.data.result[item].value * 100).toFixed(2)}%
+            if (this.Statisticaltime === 'past30days') {
+              for (const item in attributeTreeRes.data.result) {
+                let arrow = ''
+                if (attributeTreeRes.data.result[item].chain_ratio > 0) {
+                  arrow = '↑'
+                } else if (attributeTreeRes.data.result[item].chain_ratio < 0) {
+                  arrow = '↓'
+                }
+                if (item === 'shop_uv_to_placed_buyers_rate') {
+                  attributeTreeRes.data.result[item] = `<pre>${(attributeTreeRes.data.result[item].value * 100).toFixed(2)}%
 vs 前30天  ${Math.abs(attributeTreeRes.data.result[item].chain_ratio * 100).toFixed(2)}%` + ` ${arrow}</pre>`
-              } else {
-                attributeTreeRes.data.result[item] = `<pre>${parseInt(attributeTreeRes.data.result[item].value)}
+                } else {
+                  attributeTreeRes.data.result[item] = `<pre>${parseInt(attributeTreeRes.data.result[item].value)}
 vs 前30天  ${Math.abs(attributeTreeRes.data.result[item].chain_ratio * 100).toFixed(2)}%` + ` ${arrow}</pre>`
+                }
               }
             }
+            attributeTreeRes.data.result['mallname'] = mallname
+            this.tableData2.push(attributeTreeRes.data.result)
+          } else if (attributeTreeRes.status === 403) {
+            this.errmall.push(mallname)
           }
-          attributeTreeRes.data.result['mallname'] = mallname
-          this.tableData2.push(attributeTreeRes.data.result)
-        } else if (attributeTreeRes.status === 403) {
-          this.errmall.push(mallname)
         }
+      } else {
+        this.$message({
+          message: '请先选择店铺',
+          type: 'warning'
+        })
       }
       if (this.errmall.length > 0) {
         this.$message.error(`店铺【${this.errmall}】未登录`)

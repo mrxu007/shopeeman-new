@@ -405,6 +405,8 @@ export default {
   },
   async mounted() {
     this.form.createdAt = [new Date().getTime() - 3600 * 1000 * 24 * 15, new Date()]
+    // 获取用户信息，用来判断中转仓的显示
+    await this.getUserInfo()
     // 获取仓库
     await this.getWarehouseList()
     // 获取数据

@@ -37,6 +37,7 @@
       </div>
     </div>
     <div class="on_new_dialog_box" style="margin-top: 25px;justify-content: space-evenly">
+      <el-button type="primary" size="mini" @click="confirmCategory(0)">　刷　新　</el-button>
       <el-button type="primary" size="mini" @click="confirmCategory()">　确　定　</el-button>
       <el-button size="mini" @click="$emit('categoryChange','')">　取　消　</el-button>
     </div>
@@ -78,8 +79,8 @@
       await this.enterCategory()
     },
     methods: {
-      async confirmCategory(index = 0) {
-        if (this.goodsCurrent) {
+      async confirmCategory(index = -1) {
+        if (this.goodsCurrent && index < 0) {
           let categoryList = []
           let attributesList = []
           this.categoryList.forEach((item,index)=>{
@@ -94,7 +95,8 @@
             categoryList: categoryList,
             attributesList: attributesList
           })
-        } else {
+        }
+        else {
           let mall = this.mallList[index]
           let category_ids = this.categoryAction[this.categoryAction.length - 1]
           let param = {
@@ -179,7 +181,7 @@
             let index = this.attributesCurrent.findIndex(i => i.attribute_id === item.attribute_id)
             let attributesCurrent = this.attributesCurrent[index] && this.attributesCurrent[index].value_id || 0
             item.new_options_obj = item.new_options && JSON.parse(item.new_options) || []
-            item.options = index > -1 && parseInt(attributesCurrent) || item.new_options_obj[0].value_id
+            item.options = index > -1 && parseInt(attributesCurrent) || item.new_options_obj[0] && item.new_options_obj[0].value_id
             this.attributesList.push(item)
           })
           this.attributesCurrent = []

@@ -39,15 +39,15 @@
         <div class="condition_item">
           <span class="w80">拨款时间：</span>
           <el-date-picker
-            v-model="cloumn_date"
-            size="mini"
-            style="width: 240px"
-            type="daterange"
-            unlink-panels
-            range-separator="-"
-            :picker-options="pickerOptions"
-            start-placeholder="开始日期"
-            end-placeholder="结束日期"
+              v-model="cloumn_date"
+              size="mini"
+              style="width: 240px"
+              type="daterange"
+              unlink-panels
+              range-separator="-"
+              :picker-options="pickerOptions"
+              start-placeholder="开始日期"
+              end-placeholder="结束日期"
           />
         </div>
         <div class="condition_item">
@@ -62,9 +62,9 @@
         <div class="condition_item">
           <el-button size="mini" type="primary" @click="search">搜索</el-button>
           <el-button
-            size="mini"
-            type="primary"
-            @click="
+              size="mini"
+              type="primary"
+              @click="
               cancelActive = false
               updataMall()
             "
@@ -79,11 +79,11 @@
     <div class="table_clo">
       <div class="data_table" style="height: 100%; background-color: white">
         <el-table
-          v-loading="isLoading"
-          height="calc(100vh - 266px)"
-          :data="tableList"
-          :row-style="{ height: '50px' }"
-          :header-cell-style="{ background: '#f7fafa' }"
+            v-loading="isLoading"
+            height="calc(100vh - 266px)"
+            :data="tableList"
+            :row-style="{ height: '50px' }"
+            :header-cell-style="{ background: '#f7fafa' }"
         >
           <el-table-column label="序号" width="60" type="index" align="center" />
           <el-table-column prop="country" width="120px" label="站点" align="center">
@@ -110,14 +110,14 @@
         </el-table>
         <div class="pagination" style="display: flex; justify-content: flex-end; margin: 4px 0px">
           <el-pagination
-            background
-            :current-page.sync="query.page"
-            :page-sizes="[20, 50, 100, 200]"
-            :page-size="query.pageSize"
-            layout="total, sizes, prev, pager, next, jumper"
-            :total="total"
-            @size-change="handleSizeChange"
-            @current-change="handleCurrentChange"
+              background
+              :current-page.sync="query.page"
+              :page-sizes="[20, 50, 100, 200]"
+              :page-size="query.pageSize"
+              layout="total, sizes, prev, pager, next, jumper"
+              :total="total"
+              @size-change="handleSizeChange"
+              @current-change="handleCurrentChange"
           />
         </div>
       </div>
@@ -126,132 +126,134 @@
   </div>
 </template>
 <script>
-import storeChoose from '../../../components/store-choose'
-import { delay, exportExcelDataCommon } from '../../../util/util'
+  import storeChoose from '../../../components/store-choose'
+  import { delay, exportExcelDataCommon, waitStart } from '../../../util/util'
 
-export default {
-  components: { storeChoose },
-  data() {
-    return {
-      isLoading: false,
-      orgin: '',
-      to_back_amount: '', // 即将拨款
-      haved_amount: '', // 已拨款
-      exportList: [], // 导出
-      tableList: [],
-      total: 0,
-      mallList_gruop: [],
-      mallList_mall: [],
-      site_query: {
-        // 站点参数
-        country: 'TH', // 站点
-        typeCoin: '฿', // 币种
-        rate_coin: '' // 汇率
-      },
-      plantform_mallID: '', // 平台店铺ID
-      mallGroupId: [], // 店铺分组
-      all_mallgruopID: [], // 店铺分组-全选
-      query: {
-        sysMallId: [],
-        orderSn: '',
-        status: '',
-        appropriateTime: ''
+  export default {
+    components: { storeChoose },
+    data() {
+      return {
+        isLoading: false,
+        orgin: '',
+        to_back_amount: '', // 即将拨款
+        haved_amount: '', // 已拨款
+        exportList: [], // 导出
+        tableList: [],
+        total: 0,
+        mallList_gruop: [],
+        mallList_mall: [],
+        site_query: {
+          // 站点参数
+          country: 'TH', // 站点
+          typeCoin: '฿', // 币种
+          rate_coin: '' // 汇率
+        },
+        plantform_mallID: '', // 平台店铺ID
+        mallGroupId: [], // 店铺分组
+        all_mallgruopID: [], // 店铺分组-全选
+        query: {
+          sysMallId: [],
+          orderSn: '',
+          status: '',
+          appropriateTime: ''
 
-      },
-      page: 1,
-      pageSize: 20,
-      cloumn_date: [],
-      pickerOptions: {
-        // disabledDate(time) {
-        //   return time.getTime() > Date.now()
-        // }
-      },
-      showRMB: false,
-      showConsole: true,
-      selectMallList: [],
-      mallPageSize: 50,
-      cancelActive: false
-    }
-  },
-  async mounted() {
-    // 初始化时间
-    this.cloumn_date = [
-      new Date().getTime() - 3600 * 1000 * 24 * 10,
-      new Date().getTime() + 3600 * 1000 * 24 * 20
-    ]
-    // this.cloumn_date = creatDate(31)
-    await this.search() // 初始化table
-    await this.exchangeRateList() // 获取汇率
-  },
-  methods: {
-    clearLog() {
-      this.$refs.Logs.consoleMsg = ''
-    },
-    changeMallList(val) {
-      console.log(val)
-      this.selectMallList = val
-      this.site_query['country'] = this.selectMallList['country']
-      this.exchangeRateList()
-      console.log('country', this.site_query['country'])
-      console.log('changeMallList', val)
-    },
-    // 同步信息
-    async updataMall() {
-      // this.uploadVisible = false
-      if (!this.selectMallList.length) {
-        this.$message.warning('请选择要同步的店铺！')
+        },
+        page: 1,
+        pageSize: 20,
+        cloumn_date: [],
+        pickerOptions: {
+          // disabledDate(time) {
+          //   return time.getTime() > Date.now()
+          // }
+        },
+        showRMB: false,
+        showConsole: true,
+        selectMallList: [],
+        mallPageSize: 50,
+        cancelActive: false
       }
-      this.showConsole = false
-      this.$refs.Logs.consoleMsg = ''
-      this.$refs.Logs.writeLog(`开始同步`, true)
-      try {
-        for (let i = 0; i < this.selectMallList.length; i++) {
-          if (this.cancelActive) {
-            this.$refs.Logs.writeLog(`操作已取消！`, true)
-            return
-          }
-          const mall = this.selectMallList[i]
-          const pageNumber = 1
-          this.$refs.Logs.writeLog(`开始同步店铺【${mall.platform_mall_name}】对账信息`, true)
-          if (this.query.status === '') {
-            await this.searchSingleMall(pageNumber, mall, 0)
-            await this.searchSingleMall(pageNumber, mall, 2)
-          } else if (this.query.status === '1') {
-            await this.searchSingleMall(pageNumber, mall, 0)
-          } else if (this.query.status === '2') {
-            await this.searchSingleMall(pageNumber, mall, 2)
-          }
+    },
+    async mounted() {
+      // 初始化时间
+      this.cloumn_date = [
+        new Date().getTime() - 3600 * 1000 * 24 * 10,
+        new Date().getTime() + 3600 * 1000 * 24 * 20
+      ]
+      // this.cloumn_date = creatDate(31)
+      await waitStart(() => {
+        return this.selectMallList && this.selectMallList[0]
+      }, 50)
+      await this.search() // 初始化table
+      await this.exchangeRateList() // 获取汇率
+    },
+    methods: {
+      clearLog() {
+        this.$refs.Logs.consoleMsg = ''
+      },
+      changeMallList(val) {
+        this.selectMallList = val
+        this.site_query['country'] = this.selectMallList['country']
+        this.exchangeRateList()
+        console.log('country', this.site_query['country'])
+        console.log('changeMallList', val)
+      },
+      // 同步信息
+      async updataMall() {
+        // this.uploadVisible = false
+        if (!this.selectMallList.length) {
+          this.$message.warning('请选择要同步的店铺！')
         }
-      } catch (error) {
-        console.log(error)
-      }
-      this.search()
-    },
-    async searchSingleMall(pageNumber, mall, type, dataArr = [], page = 0) {
-      if (this.cancelActive) {
-        this.$refs.Logs.writeLog(`操作已取消！`, true)
-        return
-      }
-      const params = {
-        tran_type: type, // 0,2  type:0-status:1 付款转账完成    type:2-status:0 等待订单完成
-        page_number: pageNumber,
-        page_size: this.mallPageSize,
-        shop_id: mall.platform_mall_id
-        // start_date: '',
-        // end_date: '',
-      }
-      if (type === 0) {
-        params['start_date'] = this.$dayjs(this.cloumn_date[0]).format('YYYY-MM-DD')
-        params['end_date'] = this.$dayjs(this.cloumn_date[1]).format('YYYY-MM-DD')
-      }
-      const res = await this.$shopeemanService.getIncomeTransaction(mall.country, params)
-      const resObj = res && JSON.parse(res)
-      if (resObj && resObj.status === 200) {
-        const data = JSON.parse(resObj.data)
-        console.log(data, 'searchSingleMall')
-        if (data.code === 0) {
-          let count = data.data.list.length
-          data.data.list &&
+        this.showConsole = false
+        this.$refs.Logs.consoleMsg = ''
+        this.$refs.Logs.writeLog(`开始同步`, true)
+        try {
+          for (let i = 0; i < this.selectMallList.length; i++) {
+            if (this.cancelActive) {
+              this.$refs.Logs.writeLog(`操作已取消！`, true)
+              return
+            }
+            const mall = this.selectMallList[i]
+            const pageNumber = 1
+            this.$refs.Logs.writeLog(`开始同步店铺【${mall.platform_mall_name}】对账信息`, true)
+            if (this.query.status === '') {
+              await this.searchSingleMall(pageNumber, mall, 0)
+              await this.searchSingleMall(pageNumber, mall, 2)
+            } else if (this.query.status === '1') {
+              await this.searchSingleMall(pageNumber, mall, 0)
+            } else if (this.query.status === '2') {
+              await this.searchSingleMall(pageNumber, mall, 2)
+            }
+          }
+        } catch (error) {
+          console.log(error)
+        }
+        this.search()
+      },
+      async searchSingleMall(pageNumber, mall, type, dataArr = [], page = 0) {
+        if (this.cancelActive) {
+          this.$refs.Logs.writeLog(`操作已取消！`, true)
+          return
+        }
+        const params = {
+          tran_type: type, // 0,2  type:0-status:1 付款转账完成    type:2-status:0 等待订单完成
+          page_number: pageNumber,
+          page_size: this.mallPageSize,
+          shop_id: mall.platform_mall_id
+          // start_date: '',
+          // end_date: '',
+        }
+        if (type === 0) {
+          params['start_date'] = this.$dayjs(this.cloumn_date[0]).format('YYYY-MM-DD')
+          params['end_date'] = this.$dayjs(this.cloumn_date[1]).format('YYYY-MM-DD')
+        }
+        const res = await this.$shopeemanService.getIncomeTransaction(mall.country, params)
+        const resObj = res && JSON.parse(res)
+        if (resObj && resObj.status === 200) {
+          const data = JSON.parse(resObj.data)
+          console.log(data, 'searchSingleMall')
+          if (data.code === 0) {
+            let count = data.data.list.length
+            data.data.list &&
             data.data.list.forEach((item) => {
               console.log(item)
               const params = {
@@ -267,72 +269,87 @@ export default {
               !index && dataArr.push(params)
               // !index && this.UploadRecordData(mall.platform_mall_id,item)
             })
-          count && this.$refs.Logs.writeLog(`同步店铺【${mall.platform_mall_name}】【${type === 0 ? '已拨款' : '即将拨款'}】第【${++page}】页货款对账数据【${count}】条`, true)
-          if (dataArr.length < data.data.page_info.total && data.data.list.length >= this.mallPageSize) {
-            pageNumber++
-            this.searchSingleMall(pageNumber, mall, type, dataArr, page)
-          } else {
-            if (this.query.status !== '' || type !== 2) {
-              this.$refs.Logs.writeLog(`同步店铺【${mall.platform_mall_name}】数据完成`, true)
-            }
-            console.log(dataArr, 'dataArr')
-            if (dataArr.length) {
-              this.UploadRecordData(mall.platform_mall_id, dataArr)
+            count && this.$refs.Logs.writeLog(`同步店铺【${mall.platform_mall_name}】【${type === 0 ? '已拨款' : '即将拨款'}】第【${++page}】页货款对账数据【${count}】条`, true)
+            if (dataArr.length < data.data.page_info.total && data.data.list.length >= this.mallPageSize) {
+              pageNumber++
+              this.searchSingleMall(pageNumber, mall, type, dataArr, page)
+            } else {
+              if (this.query.status !== '' || type !== 2) {
+                this.$refs.Logs.writeLog(`同步店铺【${mall.platform_mall_name}】数据完成`, true)
+              }
+              console.log(dataArr, 'dataArr')
+              if (dataArr.length) {
+                this.UploadRecordData(mall.platform_mall_id, dataArr)
+              }
             }
           }
+        } else if (resObj && resObj.status === 403) {
+          if (this.query.status !== '' || type !== 2) {
+            this.$refs.Logs.writeLog(`店铺【${mall.platform_mall_name}】请检查店铺是否登录！`, false)
+          }
+        } else {
+          if (this.query.status !== '' || type !== 2) {
+            this.$refs.Logs.writeLog(`店铺【${mall.platform_mall_name}】获取失败！`, false)
+          }
         }
-      } else if (resObj && resObj.status === 403) {
-        if (this.query.status !== '' || type !== 2) {
-          this.$refs.Logs.writeLog(`店铺【${mall.platform_mall_name}】请检查店铺是否登录！`, false)
+      },
+      // 上传服务端
+      async UploadRecordData(mallID, dataArr) {
+        const params = {
+          mallId: mallID,
+          bills: dataArr
         }
-      } else {
-        if (this.query.status !== '' || type !== 2) {
-          this.$refs.Logs.writeLog(`店铺【${mall.platform_mall_name}】获取失败！`, false)
+        console.log(params, '------------')
+        const res = await this.$api.uploadPaymentList(params)
+        console.log(res)
+      },
+      // 计算汇率
+      compete_Coin() {
+        if (this.showRMB === false) {
+          this.to_back_amount = (this.to_back_amount / this.site_query.rate_coin).toFixed(2)
+          this.haved_amount = (this.haved_amount / this.site_query.rate_coin).toFixed(2)
+          this.site_query.typeCoin = this.orgin
+        } else {
+          this.orgin = this.site_query.typeCoin
+          this.to_back_amount = (this.site_query.rate_coin * this.to_back_amount).toFixed(2)
+          this.haved_amount = (this.site_query.rate_coin * this.haved_amount).toFixed(2)
+          this.site_query.typeCoin = '￥'
         }
-      }
-    },
-    // 上传服务端
-    async UploadRecordData(mallID, dataArr) {
-      const params = {
-        mallId: mallID,
-        bills: dataArr
-      }
-      console.log(params, '------------')
-      const res = await this.$api.uploadPaymentList(params)
-      console.log(res)
-    },
-    // 计算汇率
-    compete_Coin() {
-      if (this.showRMB === false) {
-        this.to_back_amount = (this.to_back_amount / this.site_query.rate_coin).toFixed(2)
-        this.haved_amount = (this.haved_amount / this.site_query.rate_coin).toFixed(2)
-        this.site_query.typeCoin = this.orgin
-      } else {
-        this.orgin = this.site_query.typeCoin
-        this.to_back_amount = (this.site_query.rate_coin * this.to_back_amount).toFixed(2)
-        this.haved_amount = (this.site_query.rate_coin * this.haved_amount).toFixed(2)
-        this.site_query.typeCoin = '￥'
-      }
-    },
-    // 获取汇率
-    async exchangeRateList() {
-      const data = await this.$api.exchangeRateList()
-      console.log(data.data.data)
-      if (data.data.code === 200) {
-        this.site_query.rate_coin = data.data.data[this.site_query.country]
-      } else {
-        this.$message.warning('网络请求失败')
-      }
-    },
-    // 导出
-    export_table(page) {
-      const params = this.query
-      params.page = page
-      this.getTableList(params)
-      if (this.tableList.length > 0) {
-        this.exportList.push(...this.tableList)
-        if (this.exportList.length >= this.total) {
-          let str = `<tr>
+      },
+      // 获取汇率
+      async exchangeRateList() {
+        const data = await this.$api.exchangeRateList()
+        console.log(data.data.data)
+        if (data.data.code === 200) {
+          this.site_query.rate_coin = data.data.data[this.site_query.country]
+        } else {
+          this.$message.warning('网络请求失败')
+        }
+      },
+      // 导出
+      async export_table() {
+        if (this.total === 0) return this.$message('暂无导出数据')
+        let exportData = []
+        this.isLoading = true
+        const params = JSON.parse(JSON.stringify(this.query))
+        params.pageSize = 200
+        params.page = 1
+        while (exportData.length < this.total) {
+          try {
+            const data = await this.$api.getPaymentList(params)
+            if (data.data.code === 200) {
+              exportData = exportData.concat(data.data.data.data)
+              params.page++
+            } else {
+              this.$refs.Logs.writeLog('导出数据错误')
+              break
+            }
+          } catch (error) {
+            this.$refs.Logs.writeLog('导出数据异常')
+            break
+          }
+        }
+        let str = `<tr>
               <td>序号</td>
               <td>站点</td>
               <td>店铺名称</td>
@@ -343,8 +360,8 @@ export default {
               <td>拨款金额（RMB）</td>
               <td>拨款时间</td>
             </tr>`
-          this.exportList.forEach((item, index) => {
-            str += `<tr>
+        exportData.forEach((item, index) => {
+          str += `<tr>
               <td>${index + 1}</td>
               <td>${item.country ? this.$filters.chineseSite(item.country) : '-' + '\t'}</td>
               <td>${item.platform_mall_name ? item.platform_mall_name : '-' + '\t'}</td>
@@ -355,153 +372,144 @@ export default {
               <td>${item.appropriate_amount ? (item.appropriate_amount * this.site_query.rate_coin).toFixed(2) : '-' + '\t'}</td>
               <td>${item.appropriate_time ? item.appropriate_time : '-' + '\t'}</td>
             </tr>`
-          })
-          exportExcelDataCommon('货款对账详情', str)
-        } else {
-          this.export_table(page + 1)
-        }
-      } else {
-        this.$message.warning('暂无数据导出')
-      }
-    },
-    // 搜索
-    async search() {
-      this.isLoading = true
-      const params = this.query
-      let sysMallId = ''
-      this.selectMallList.forEach((item, index) => {
-        if (index === 0) {
-          sysMallId = item.id
-        } else {
-          sysMallId = sysMallId + ',' + item.id
-        }
-      })
-      params.sysMallId = sysMallId
-      params.appropriateTime = this.cloumn_date?.length >= 0 ? this.$dayjs(this.cloumn_date[0]).format('YYYY-MM-DD') + ' 00:00:00/' + this.$dayjs(this.cloumn_date[1]).format('YYYY-MM-DD') + ' 23:59:59' : ''
-      params.page = this.page
-      params.pageSize = this.pageSize
-      console.log(params, 'params')
-      await delay(300)
-      await this.getTableList(params)
-    },
-    // 初始化tableList
-    async getTableList(params) {
-      const data = await this.$api.getPaymentList(params)
-      if (data.data.code === 200) {
-        // this.tableList = data.data.data.data
-        this.tableList = data.data.data.data
-        // this.query.page = data.data.data.last_page
-        // this.query.pageSize = data.data.data.per_page
-        this.total = data.data.data.total
-        this.to_back_amount = data.data.data.to_back_amount
-        this.haved_amount = data.data.data.haved_amount
-        this.site_query.typeCoin = this.$shopeeManConfig.getSiteCoinSymbol(this.site_query.country)
+        })
+        exportExcelDataCommon('货款对账详情', str)
+        this.isLoading = false
+      },
+      // 搜索
+      async search() {
         if (this.selectMallList?.length === 0) {
-          this.tableList = []
+          return this.$message('请选择店铺')
         }
-      } else {
-        this.$message.warning('数据请求失败！')
+        this.isLoading = true
+        const params = this.query
+        let sysMallId = ''
+        this.selectMallList.forEach((item, index) => {
+          if (index === 0) {
+            sysMallId = item.id
+          } else {
+            sysMallId = sysMallId + ',' + item.id
+          }
+        })
+        params.sysMallId = sysMallId
+        params.appropriateTime = this.cloumn_date?.length >= 0 ? this.$dayjs(this.cloumn_date[0]).format('YYYY-MM-DD') + ' 00:00:00/' + this.$dayjs(this.cloumn_date[1]).format('YYYY-MM-DD') + ' 23:59:59' : ''
+        params.page = this.page
+        params.pageSize = this.pageSize
+        console.log(params, 'params')
+        await this.getTableList(params)
+      },
+      // 初始化tableList
+      async getTableList(params) {
+        const data = await this.$api.getPaymentList(params)
+        if (data.data.code === 200) {
+          this.tableList = data.data.data.data
+          this.total = data.data.data.total
+          this.to_back_amount = data.data.data.to_back_amount
+          this.haved_amount = data.data.data.haved_amount
+          this.site_query.typeCoin = this.$shopeeManConfig.getSiteCoinSymbol(this.site_query.country)
+        } else {
+          this.$message.warning('数据请求失败！')
+        }
+        console.log(data.data.data)
+        this.isLoading = false
+      },
+      handleSizeChange(val) {
+        this.pageSize = val
+        this.search()
+      },
+      handleCurrentChange(val) {
+        this.page = val
+        this.search()
       }
-      console.log(data.data.data)
-      this.isLoading = false
-    },
-    handleSizeChange(val) {
-      this.pageSize = val
-      this.search()
-    },
-    handleCurrentChange(val) {
-      this.page = val
-      this.search()
     }
   }
-}
 </script>
 <style lang="less">
-.content {
-  min-width: 1200px;
-  // padding: 5px;
-  // margin: 10px;
-  // margin-right:10px ;
-  .overdata_view,
-  .all_condition,
-  .table_clo {
-    .account-box {
-      border: 1px solid #dcdcdc;
-      border-radius: 4px;
-      padding: 16px;
-      position: relative;
+  .content {
+    min-width: 1200px;
+    // padding: 5px;
+    // margin: 10px;
+    // margin-right:10px ;
+    .overdata_view,
+    .all_condition,
+    .table_clo {
+      .account-box {
+        border: 1px solid #dcdcdc;
+        border-radius: 4px;
+        padding: 16px;
+        position: relative;
 
-      .account-title {
-        padding: 0 5px;
-        display: inline-block;
-        height: 20px;
-        line-height: 20px;
-        text-align: center;
-        background: #fff;
-        position: absolute;
-        left: 10px;
-        top: -10px;
-      }
-
-      .account-item {
-        display: flex;
-        align-items: center;
-
-        span {
-          margin-right: 20px;
+        .account-title {
+          padding: 0 5px;
           display: inline-block;
+          height: 20px;
+          line-height: 20px;
+          text-align: center;
+          background: #fff;
+          position: absolute;
+          left: 10px;
+          top: -10px;
         }
 
-        .acount-item-sub {
+        .account-item {
           display: flex;
           align-items: center;
-        }
 
-        .warning-style {
-          color: red;
-          font-size: 16px;
+          span {
+            margin-right: 20px;
+            display: inline-block;
+          }
+
+          .acount-item-sub {
+            display: flex;
+            align-items: center;
+          }
+
+          .warning-style {
+            color: red;
+            font-size: 16px;
+          }
         }
       }
+
+      background-color: white;
+      padding: 5px;
+      margin: 10px;
+      border-radius: 10px;
     }
 
-    background-color: white;
-    padding: 5px;
-    margin: 10px;
-    border-radius: 10px;
-  }
-
-  .overdata_view {
-    padding: 10px;
-    display: flex;
-    flex-direction: column;
-  }
-
-  .table_clo {
-    border-radius: 0px;
-    padding: 2px;
-  }
-
-  .all_condition {
-    .condition_box {
+    .overdata_view {
+      padding: 10px;
       display: flex;
-      align-items: center;
-      .condition_item {
-        width: auto;
-        display: inline-block !important;
-        margin-bottom: 8px;
-        margin-right: 10px;
+      flex-direction: column;
+    }
 
-        span {
-          margin-right: 5px;
+    .table_clo {
+      border-radius: 0px;
+      padding: 2px;
+    }
+
+    .all_condition {
+      .condition_box {
+        display: flex;
+        align-items: center;
+        .condition_item {
+          width: auto;
+          display: inline-block !important;
+          margin-bottom: 8px;
+          margin-right: 10px;
+
+          span {
+            margin-right: 5px;
+          }
         }
       }
     }
-  }
 
-  .w80 {
-    display: inline-block;
-    text-align: right;
-    width: 80px;
+    .w80 {
+      display: inline-block;
+      text-align: right;
+      width: 80px;
+    }
   }
-}
 </style>
