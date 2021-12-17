@@ -102,7 +102,6 @@ export default {
     return {
       btnloading: false,
       shopAccountList: [],
-      stopdot: false,
       GoodsManagerAPIInstance: new GoodsManagerAPI(this),
       tableList: [],
       selectMall: [], // 所选店铺
@@ -144,9 +143,9 @@ export default {
     },
     // 停止
     stopFun() {
-      this.terminateThread
-      this.stopdot = true
+      terminateThread()
       this.btnloading = false
+      this.$refs.autoReplyLogs.writeLog(`停止搜索`)
     },
     // 随机点赞
     randomLikegoods(val) {
@@ -238,10 +237,6 @@ export default {
     },
     // 获取一个店铺的所有商品
     async  getMallsku(item, count = { count: 1 }) {
-      if (this.stopdot) {
-        this.$refs.autoReplyLogs.writeLog(`停止操作`, true)
-        return
-      } // ///////// 停止搜索
       try {
         const goodsinfo = {
           country: item.country,
@@ -331,10 +326,6 @@ export default {
     },
     // 商品的详情信息
     async  getDetailGoods(item, count = { count: 1 }) {
-      if (this.stopdot) {
-        this.$refs.autoReplyLogs.writeLog(`停止操作`)
-        return
-      } // ///////// 停止搜索
       try {
         this.getgoodsdetail(item, count)
       } catch (error) {
@@ -369,10 +360,6 @@ export default {
     },
     // 获取商品详情信息 && 相关筛选操作
     async getgoodsdetail(item) {
-      if (this.stopdot) {
-        this.$refs.autoReplyLogs.writeLog(`停止操作`)
-        return
-      } // ///////// 停止搜索
       try {
         const goodsinfo = {
           country: item.country,
@@ -495,10 +482,7 @@ export default {
     // 获取商品所有评价 && 相关筛选操作
     async getRatings(item) {
       debugger
-      if (this.stopdot) {
-        this.$refs.autoReplyLogs.writeLog(`停止操作`)
-        return
-      } // ///////// 停止搜索
+
       try {
         const goodsinfo = {
           country: item.country,
@@ -581,10 +565,7 @@ export default {
     async GoodsbuyerLike(goodsinfo) {
       const aa = 111
       debugger
-      if (this.stopdot) {
-        this.$refs.autoReplyLogs.writeLog(`停止操作`)
-        return
-      } // ///////// 停止搜索
+
       try {
         const res = await this.GoodsManagerAPIInstance.GoodsbuyerLike(goodsinfo)
         debugger
