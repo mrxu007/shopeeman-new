@@ -459,7 +459,7 @@
             <template slot-scope="{ row }">
               <span>
                 <!-- {{ row.package && Number(row.package.status) === 1 ? '待处理' : '待处理' }} -->
-                {{ row.package && packageStatus[row.package.status] }}
+                {{ row.package && packageStatus[row.package.status] || '' }}
               </span>
             </template>
           </el-table-column>
@@ -831,9 +831,13 @@ export default {
       applyLoading: false,
 
       packageStatus: {
-        '-1': '未拒收',
-        '1': '已拒收',
-        '2': '已签收'
+        '1': '已签收',
+        '2': '已拒收',
+        '3': '匹配不到订单包裹',
+        '4': '包裹已销毁',
+        '5': '包裹丢件',
+        '6': '申请推件',
+        '7': '已退件'
       },
       applyTypeList: [
         { value: 1, label: '赔付运费' },
