@@ -125,6 +125,20 @@
           prop="sku_price"
         />
         <el-table-column
+          min-width="130"
+          align="center"
+          label="商品链接"
+        >
+          <template slot-scope="{row}">
+            <el-button
+              v-if="row.goods_url"
+              type="primary"
+              size="mini"
+              @click="openUrl(row.goods_url)"
+            >查看商品链接</el-button>
+          </template>
+        </el-table-column>
+        <el-table-column
           width="80"
           align="center"
           label="商品图片"
@@ -134,6 +148,7 @@
               style="width: 40px; height: 40px"
               :src="row.sku_image"
               :preview-src-list="[row.sku_image]"
+              effect="light"
             >
               <div slot="content">
                 <el-image
@@ -153,26 +168,21 @@
           </template>
         </el-table-column>
         <el-table-column
-          min-width="130"
-          align="center"
-          label="商品链接"
-        >
-          <template slot-scope="{row}">
-            <el-button
-              v-if="row.goods_url"
-              type="primary"
-              size="mini"
-              @click="openUrl(row.goods_url)"
-            >查看商品链接</el-button>
-          </template>
-        </el-table-column>
-        <el-table-column
           label="货架仓位"
           align="center"
-          min-width="100"
+          min-width="150"
           prop="position_code"
           show-overflow-tooltip
         />
+        <el-table-column
+          label="操作"
+          align="center"
+          min-width="100"
+        >
+          <template v-slot="{ row }">
+            <el-button type="primary" size="mini" @click="updateStockPriceDia(row)">改价</el-button>
+          </template>
+        </el-table-column>
       </el-table>
       <div class="pagination">
         <el-pagination
@@ -187,6 +197,46 @@
         />
       </div>
     </el-row>
+    <el-dialog
+      class="update-price-dialog"
+      :visible.sync="updatePriceVisible"
+      width="330px"
+      title="修改库存价格"
+      :close-on-click-modal="false"
+      :close-on-press-escape="false"
+    >
+      <el-form label-position="right" label-width="80px">
+        <el-form-item label="商品名称：">
+          {{ updatePriceData.goods_name }}
+          <!-- <el-input v-model="updatePriceData.goods_name" size="mini" /> -->
+        </el-form-item>
+        <el-form-item label="商品规格：">
+          {{ updatePriceData.sku_name }}
+          <!-- <el-input v-model="updatePriceData.sku_name" size="mini" /> -->
+        </el-form-item>
+        <el-form-item label="skuid：">
+          {{ updatePriceData.sku_id }}
+        </el-form-item>
+        <el-form-item label="原始价格：">
+          <span style="font-weight: 600;font-family: sans-serif; margin-right: 2px;">{{ updatePriceData.sku_price }}</span>
+          <span style="color:#969393;margin-left: 5px;">RMB</span>
+        </el-form-item>
+
+        <el-form-item label="新价格：" style="margin-bottom: 10px;">
+          <el-input v-model="updatePriceData.newPrice" size="mini" style="width:100px" onkeyup="value=value.replace(/[^\d]/g,0)" />
+          <span style="color:#969393;margin-left: 5px;">RMB</span>
+        </el-form-item>
+
+        <div
+          style="color: red;line-height: 18px;margin-left: 20px;
+           width: 235px;"
+        >温馨提示：价格修改后，会将以当前商品出货但未发货的订单的拍单金额同步成新价格</div>
+        <el-form-item style="margin-top: 10px;">
+          <el-button type="primary" size="mini" style="margin-left:10px;width:100px" @click="updateStockPrice">确 定</el-button>
+        </el-form-item>
+
+      </el-form>
+    </el-dialog>
   </el-row>
 </template>
 
@@ -196,6 +246,7 @@ import { exportExcelDataCommon } from '../../../util/util'
 export default {
   data() {
     return {
+      updatePriceVisible: false,
       isShowLoading: false,
       ChineseStock: new ChineseStock(this),
 
@@ -203,6 +254,9 @@ export default {
       pageSize: 30,
       page: 1,
 
+      updatePriceData: {
+        newPrice: ''
+      }, // 修改库存价格数据
       tableData: [], // 表格数据
       widList: [], // 仓库数据
       muid: 0,
@@ -214,12 +268,36 @@ export default {
     }
   },
   async mounted() {
+    // 获取用户信息，用来判断中转仓的显示
+    await this.getUserInfo()
     // 获取仓库
     await this.getWarehouseList()
     // 获取数据
     await this.getStock()
   },
   methods: {
+    // 改价
+    async  updateStockPrice() {
+      if (!this.updatePriceData.newPrice) return this.$message('请输入新价格')
+      console.log(this.updatePriceData)
+      const parmas = {}
+      parmas['wid'] = this.updatePriceData.wid
+      parmas['sku_id'] = this.updatePriceData.sku_id
+      parmas['sku_price'] = this.updatePriceData.newPrice
+      const res = await this.ChineseStock.updateStockPrice(parmas)
+      if (res.code === 200) {
+        this.$message.success('改价成功')
+        this.updatePriceVisible = false
+        this.getStock()
+      } else {
+        this.$message.error(res.data)
+      }
+    },
+    // 改价弹窗
+    updateStockPriceDia(row) {
+      this.updatePriceVisible = true
+      this.updatePriceData = row
+    },
     // 获取数据
     async getStock() {
       this.isShowLoading = true
@@ -275,6 +353,7 @@ export default {
       data.forEach(item => {
         // 判断user_ids是否有值 没有则判断状态 有则只显示与muid对应的
         if (item.user_ids) {
+          console.log(this.muid)
           const flag = item.user_ids.some(uItem => { return uItem === this.muid })
           if (flag) {
             this.widList.push(item)

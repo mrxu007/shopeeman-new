@@ -217,6 +217,26 @@ export default class NetMessageBridgeService {
     return this.NetMessageBridgeService().post(url, JSON.stringify(options), JSON.stringify(data))
   }
 
+  async postChineseBuyer(country, api, data, options = {}, exportInfo) {
+    data = JSON.parse(JSON.stringify(data))
+    const url = await this.getWebUrl(country, data) + api
+    options['extrainfo'] = this.getExtraInfo(data)
+    if (exportInfo) { // 适配店铺管理---导入店铺
+      options['extrainfo']['exportInfo'] = exportInfo
+      // Object.assign(options['extrainfo'],JSON.parse(JSON.stringify()))
+    }
+    delete data.mallId
+    const referer = options['headers'] && options['headers'].referer
+    if (referer) {
+      options['headers'] = Object.assign(options['headers'], {
+        origin: url,
+        referer: url + referer
+      })
+    }
+    console.log(url, JSON.stringify(options), JSON.stringify(data))
+    return this.NetMessageBridgeService().post(url, JSON.stringify(options), JSON.stringify(data))
+  }
+
   async postChinese(country, api, data, options = {}, exportInfo) {
     data = JSON.parse(JSON.stringify(data))
     const url = await this.getUrlPrefix(country, data) + api
@@ -253,7 +273,7 @@ export default class NetMessageBridgeService {
         referer: baseUrl + referer
       })
     }
-    // console.log(url, JSON.stringify(options), JSON.stringify(data))
+    console.log(url, JSON.stringify(options), JSON.stringify(data))
     return this.NetMessageBridgeService().post(url, JSON.stringify(options), JSON.stringify(data))
   }
   async getChineseReferer(country, api, data, options = {}) {
@@ -1480,4 +1500,80 @@ export default class NetMessageBridgeService {
   getdiagnosis(country, data, option) {
     return this.getChinese(country, '/api/seller/mydata/prod_diagnosis/items/', data, option)
   }
+
+  // 获取商品概述数据
+  getoverview(country, data, option) {
+    return this.getChinese(country, '/api/mydata/v2/product/overview/', data, option)
+  }
+
+  // 获取商品表现数据
+  getperformance(country, data, option) {
+    return this.getChinese(country, '/api/mydata/v2/product/performance/', data, option)
+  }
+
+  // 获取销售额概述数据
+  getsalasoverview(country, data, option) {
+    return this.getChinese(country, '/api/mydata/v3/sales/overview/funnel/', data, option)
+  }
+
+  // 获取销售额结构数据1
+  getsalasstructure1(country, data, option) {
+    return this.getChinese(country, '/api/mydata/v2/sales/composition/category/', data, option)
+  }
+
+  // 获取销售额结构数据2
+  getsalasstructure2(country, data, option) {
+    return this.getChinese(country, '/api/mydata/sales/composition/pricezone/', data, option)
+  }
+
+  // 获取销售额结构数据3
+  getsalasstructure3(country, data, option) {
+    return this.getChinese(country, '/api/mydata/sales/composition/buyers/', data, option)
+  }
+
+  // 获取行销活动数据
+  getactivity(country, data, option) {
+    return this.getChinese(country, '/api/mydata/marketing/discount/key-metrics/', data, option)
+  }
+
+  // 获取行销活动概览按钮数据
+  getactivitybt(country, data, option) {
+    return this.getChinese(country, '/api/mydata/marketing/discount/overview/', data, option)
+  }
+
+  // 获取优惠套装数据
+  getpackage(country, data, option) {
+    return this.getChinese(country, '/api/mydata/marketing/bundle/key-metrics/', data, option)
+  }
+
+  // 获取优惠套装按钮数据
+  getpackageview(country, data, option) {
+    return this.getChinese(country, '/api/mydata/marketing/bundle/overview/', data, option)
+  }
+
+  // 获取关注礼数据
+  getattention(country, data, option) {
+    return this.getChinese(country, '/api/mydata/marketing/follow-prize/key-metrics/', data, option)
+  }
+
+  // 获取关注礼概述数据
+  getattentionview(country, data, option) {
+    return this.getChinese(country, '/api/mydata/marketing/follow-prize/overview/', data, option)
+  }
+
+  // 获取优惠卷数据
+  getcoupon(country, data, option) {
+    return this.getChinese(country, '/api/mydata/marketing/voucher/key-metrics/', data, option)
+  }
+
+  // 获取优惠卷概述数据
+  getcouponview(country, data, option) {
+    return this.getChinese(country, '/api/mydata/marketing/voucher/performance/', data, option)
+  }
+
+  // 获取商品限时选购数据
+  getlimittime(country, data, option) {
+    return this.getChinese(country, '/api/mydata/marketing/flash-sale/key-metrics/', data, option)
+  }
 }
+

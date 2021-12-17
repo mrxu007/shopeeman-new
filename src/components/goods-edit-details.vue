@@ -275,8 +275,8 @@
       </el-tab-pane>
     </el-tabs>
     <div style="display: flex; align-items: center;margin-top: 10px;justify-content: center">
-      <el-button size="mini" type="primary">确定</el-button>
-      <el-button size="mini" @click="cancel">取消</el-button>
+      <el-button size="mini" type="primary" @click="goodsChange">确定</el-button>
+      <el-button size="mini" @click="$emit('goodsEditorCancel','')">取消</el-button>
     </div>
     <div class="on_new_dialog upload_new">
       <el-dialog class="goods-edit-details" title="图片选择" width="830px" :close-on-click-modal="false"
@@ -403,7 +403,8 @@
         skuDetail2AllCheck: false,
         presetInventory: '',
         presetPrice: '',
-        presetTypeRadio: 1
+        presetTypeRadio: 1,
+        lodSpecImage:[]
       }
     },
     props: {
@@ -606,6 +607,7 @@
       let neededTranslateInfoData = JSON.parse(neededTranslateInfoJson) && JSON.parse(neededTranslateInfoJson).data
       console.log('getSpuDetailByIdV2 - data', neededTranslateInfoData)
       this.goodsDetails = neededTranslateInfoData
+      this.lodSpecImage = this.goodsDetails.spec_image
     },
     methods: {
       async replaceImage(type, index) {
@@ -614,6 +616,13 @@
         //1 - 规格图 2 - 轮播图 3 - 详情图
         if (image) {
           if (type === 1) {
+            let itemmodels = JSON.stringify(this.goodsDetails.itemmodels)
+            let tier_variation = JSON.stringify(this.goodsDetails.tier_variation)
+            let oldImage= this.goodsDetails.spec_image[index]
+            itemmodels = itemmodels.replaceAll(oldImage,image)
+            tier_variation = tier_variation.replaceAll(oldImage,image)
+            this.goodsDetails.itemmodels = JSON.parse(itemmodels)
+            this.goodsDetails.tier_variation = JSON.parse(tier_variation)
             this.$set(this.goodsDetails.spec_image, index, image)
           } else if (type === 2) {
             this.goodsDetails.images[index] = image
@@ -631,11 +640,11 @@
         if (image) {
           if (type === 2) {
             this.goodsDetails.images.push(image)
-            this.goodsDetails.images1.push({ id: 0, img: image })
+            this.goodsDetails.images1.push({ id: '0', img: image })
           } else if (type === 3) {
-            this.goodsDetails.descImages.push({ id: 0, img: image })
+            this.goodsDetails.descImages.push({ id: '0', img: image })
           } else if (type === 4) {
-            this.goodsDetails.sizeImages.push({ id: 0, img: image })
+            this.goodsDetails.sizeImages = [{ id: '0', img: image }]
           }
         }
       },
@@ -993,11 +1002,50 @@
           this.$set(this.skuDetail2Check, index, !this.skuDetail2Check[index])
         }
       },
+      async goodsChange(){
+        let goodsDetailsJson = JSON.stringify(this.goodsDetails)
+        console.log(goodsDetailsJson,this.goodsDetails);
+        let sysGoodsId = this.goodsDetails.id
+        let description = this.goodsDetails.description
+        let title = this.goodsDetails.title
+        let width = this.goodsDetails.width
+        let height = this.goodsDetails.height
+        let long = this.goodsDetails.long
+        let weight = this.goodsDetails.weight
+        let updateGoodsRes = await this.updateGoods({sysGoodsId,description,title,width,height,long,weight})
+        console.log('updateGoodsRes',updateGoodsRes)
+        let itemmodels = JSON.stringify(this.goodsDetails.itemmodels)
+        itemmodels = itemmodels.replaceAll(/"id":[0-9]*,/ig, '')
+        itemmodels = itemmodels.replaceAll(/"sku":"[^(",)]*",/ig, '')
+        itemmodels = itemmodels.replaceAll('"sku_spec1":', '"skuSpec1":')
+        itemmodels = itemmodels.replaceAll('"sku_spec2":', '"skuSpec2":')
+        itemmodels = itemmodels.replaceAll('"sku_image":', '"skuImage":')
+        itemmodels = itemmodels.replaceAll('"sku_sn":', '"skuSn":')
+        itemmodels = itemmodels.replaceAll('"sku_price":', '"skuPrice":')
+        itemmodels = itemmodels.replaceAll(/"sku_stock":([0-9]*),/ig, '"skuStock":"$1",')
+        console.log('itemmodels',itemmodels)
+        let andUpdateSku = await this.$commodityService.saveAndUpdateSkuDatas(sysGoodsId,itemmodels)
+        console.log(andUpdateSku)
+        let descImages = [...this.goodsDetails.descImages.map(i=>{ return {id:i.id+'',imageUrl:i.img}})]
+        let images = [...this.goodsDetails.images1.map(i=>{ return {id:i.id+'',imageUrl:i.img}})]
+        let sizeImageUrl = this.goodsDetails.sizeImages[0] && this.goodsDetails.sizeImages[0].img || ''
+        let skuImages = []
+        let length = this.goodsDetails.spec_image.length >= this.lodSpecImage.length && this.goodsDetails.spec_image.length || this.lodSpecImage.length
+        for (let i=0;i<length;i++){
+          let oldImageUrl = this.lodSpecImage[i] || ''
+          let imageUrl = this.goodsDetails.spec_image[i] || ''
+          skuImages.push({oldImageUrl,imageUrl})
+        }
+        let updateGoodsAllImageRes = await this.$commodityService.updateGoodsAllImage({sysGoodsId,descImages,images,sizeImageUrl})
+        console.log('updateGoodsAllImageRes',updateGoodsAllImageRes)
+        this.$emit('goodsEditorCancel',{sysGoodsId,title,width,height,long,weight})
+      },
+      updateGoods(param){
+        console.log(param)
+        return this.$commodityService.updateGoods(param)
+      },
       handleClick(val) {
       },
-      cancel(){
-        this.$emit('goodsEditorCancel','')
-      }
     }
   }
 </script>

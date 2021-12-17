@@ -170,15 +170,8 @@ export default {
         this.$message.warning('请选择要操作的选项')
         return
       }
-      this.btnloading = true
       this.$refs.autoReplyLogs.consoleMsg = ''
       // 点赞 加购 设置
-      if (this.isgoodslike || this.isbuy) {
-        if (!this.isunlikeCreateMinDay &&
-            !this.isunlikeSaleMin &&
-            !this.isunlikeViewMinDay &&
-            !this.isunlikeLikeMinDay &&
-           !this.isRandomLikeMinDay) {
           this.$message.warning('请选择点赞设置')
           return
         }
@@ -378,6 +371,7 @@ export default {
           shopid: item.shopid,
           itemid: item.id
         }
+        this.$refs.autoReplyLogs.writeLog(`正在获取商品点赞数据`, true)
         const res = await this.GoodsManagerAPIInstance.getGoodsDetailinfo(goodsinfo)
         if (res.ecode === 0) {
           this.$refs.autoReplyLogs.writeLog(`商品【${item.id}】详情获取成功`, true)

@@ -1492,8 +1492,10 @@ export default {
       this.productData = []
       this.goodsForeignData = []
       this.itselfGoodsVisible = true
-      this.$nextTick(() => {
+      this.$nextTick(async() => {
         this.$refs.isClean.cleanData()
+        // 获取产品中心数据
+        await this.getProductList()
       })
     },
     // 查看详情

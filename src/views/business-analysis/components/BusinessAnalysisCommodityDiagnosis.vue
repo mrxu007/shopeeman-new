@@ -129,7 +129,7 @@ export default {
       showlog: false,
       exportdata: [], // 导出数据
       type: 10000,
-      index: 1,
+      indexs: 1,
       typelist: [
         { value: 10000, label: '销售额下降' },
         { value: 10002, label: '差评' },
@@ -258,7 +258,7 @@ export default {
         this.tableData = []
         this.errmall = []
         let currency = ''
-        this.index = 1
+        this.indexs = 1
         if (this.site === 'MY') {
           currency = 'RM'
         }
@@ -332,8 +332,8 @@ export default {
             if (this.type === 10000 && attributeTreeRes.data.data.list) { // 销售额
               for (let j = 0; j < attributeTreeRes.data.data.list.length; j++) {
                 const data = {}
-                data['index'] = this.index
-                this.index++
+                data['index'] = this.indexs
+                this.indexs++
                 data['mallname'] = mallname
                 data['mallid'] = this.mall[i]
                 data['type'] = type
@@ -347,8 +347,8 @@ export default {
             } else if (this.type === 10002 && attributeTreeRes.data.data.list) { // 差评
               for (let j = 0; j < attributeTreeRes.data.data.list.length; j++) {
                 const data = {}
-                data['index'] = this.index
-                this.index++
+                data['index'] = this.indexs
+                this.indexs++
                 data['mallname'] = mallname
                 data['mallid'] = this.mall[i]
                 data['type'] = type
@@ -362,8 +362,8 @@ export default {
             } else if (this.type === 10008 || this.type === 10006 && attributeTreeRes.data.data.list) { // 高卖家取消率和滴转化率
               for (let j = 0; j < attributeTreeRes.data.data.list.length; j++) {
                 const data = {}
-                data['index'] = this.index
-                this.index++
+                data['index'] = this.indexs
+                this.indexs++
                 data['mallname'] = mallname
                 data['mallid'] = this.mall[i]
                 data['type'] = type
@@ -377,8 +377,8 @@ export default {
             } else if ((this.type === 10007 && attributeTreeRes.data.data.list)) {
               for (let j = 0; j < attributeTreeRes.data.data.list.length; j++) {
                 const data = {}
-                data['index'] = this.index
-                this.index++
+                data['index'] = this.indexs
+                this.indexs++
                 data['mallname'] = mallname
                 data['mallid'] = this.mall[i]
                 data['type'] = type
@@ -393,8 +393,8 @@ export default {
               if (attributeTreeRes.data.data.list) {
                 for (let j = 0; j < attributeTreeRes.data.data.list.length; j++) {
                   const data = {}
-                  data['index'] = this.index
-                  this.index++
+                  data['index'] = this.indexs
+                  this.indexs++
                   data['mallname'] = mallname
                   data['mallid'] = this.mall[i]
                   data['type'] = type

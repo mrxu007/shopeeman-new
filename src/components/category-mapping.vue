@@ -28,8 +28,8 @@
           <div class="width_single_150">{{item.attribute_name}}({{item.attribute_cn_name}})</div>
           <div>
             <el-select v-model="item.options" size="mini" style="width: 180px;">
-              <el-option v-for="son in item.new_options_obj" :key="son.value_id" :label="son.value"
-                         :value="son.value_id">
+              <el-option v-for="son in item.new_options_obj" :key="son.value_id"
+                         :label="son.value" :value="son.value_id">
               </el-option>
             </el-select>
           </div>
@@ -37,8 +37,9 @@
       </div>
     </div>
     <div class="on_new_dialog_box" style="margin-top: 25px;justify-content: space-evenly">
+      <el-button type="primary" size="mini" @click="confirmCategory(0)">　刷　新　</el-button>
       <el-button type="primary" size="mini" @click="confirmCategory()">　确　定　</el-button>
-      <el-button size="mini" @click="">　取　消　</el-button>
+      <el-button size="mini" @click="$emit('categoryChange','')">　取　消　</el-button>
     </div>
   </div>
 </template>
@@ -58,7 +59,13 @@
         default() {
           return {}
         }
-      }
+      },
+      mallList: {
+        type: Array,
+        default() {
+          return []
+        }
+      },
     },
     data() {
       return {
@@ -72,8 +79,8 @@
       await this.enterCategory()
     },
     methods: {
-      async confirmCategory(index = 0) {
-        if (this.goodsCurrent) {
+      async confirmCategory(index = -1) {
+        if (this.goodsCurrent && index < 0) {
           let categoryList = []
           let attributesList = []
           this.categoryList.forEach((item,index)=>{
@@ -84,8 +91,12 @@
             let temp = item.new_options_obj.find(i=>i.value_id === item.options)
             attributesList.push(temp)
           })
-          console.log('categoryList :',categoryList,'attributesList :',attributesList);
-        } else {
+          this.$emit('categoryChange', {
+            categoryList: categoryList,
+            attributesList: attributesList
+          })
+        }
+        else {
           let mall = this.mallList[index]
           let category_ids = this.categoryAction[this.categoryAction.length - 1]
           let param = {
@@ -152,6 +163,7 @@
                 }
               }
             }
+            this.$emit('categoryChange','')
           } else {
             this.confirmCategory(++index)
           }
@@ -169,7 +181,7 @@
             let index = this.attributesCurrent.findIndex(i => i.attribute_id === item.attribute_id)
             let attributesCurrent = this.attributesCurrent[index] && this.attributesCurrent[index].value_id || 0
             item.new_options_obj = item.new_options && JSON.parse(item.new_options) || []
-            item.options = index > -1 && parseInt(attributesCurrent) || item.new_options_obj[0].value_id
+            item.options = index > -1 && parseInt(attributesCurrent) || item.new_options_obj[0] && item.new_options_obj[0].value_id
             this.attributesList.push(item)
           })
           this.attributesCurrent = []
