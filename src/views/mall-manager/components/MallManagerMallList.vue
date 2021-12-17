@@ -1715,7 +1715,7 @@
               if (this.flat === 1) {
                 item.LoginInfo = `<p style="color: red">登录失败：${res.data.message || errorStr}</p>`
               } else {
-                this.writeLog(`(${i + 1}/${len})账号【${platform_mall_name}】授权失败：${res.data.message}`, false)
+                this.writeLog(`(${i + 1}/${len})账号【${platform_mall_name}】授权失败：${res.data.message || '失败状态：1，请联系客服'}`, false)
               }
               console.log('handleResult - parm',res)
               const handleResult = await this.handleReturnLogin(item, res)
@@ -1727,7 +1727,7 @@
                 if (this.flat === 1) {
                   item.LoginInfo = `<p style="color: red">登录失败：${handleResult.data || errorStr}</p>`
                 } else {
-                  this.writeLog(`(${i + 1}/${len})账号【${platform_mall_name}】授权失败：${handleResult.data}`, false)
+                  this.writeLog(`(${i + 1}/${len})账号【${platform_mall_name}】授权失败：${handleResult.data || '失败状态：2，请联系客服'}`, false)
                 }
                 continue
               }
@@ -1820,11 +1820,11 @@
               const res5 = await this.mallListAPIInstance.saveMallAuthInfo(params2) // 导入店铺信息（服务端）
               console.log('saveMallAuthInfo',res5)
               if (res5.code !== 200) {
-                this.writeLog(`(${i + 1}/${len})账号【${platform_mall_name}】授权失败：${res5.data}`, false)
+                this.writeLog(`(${i + 1}/${len})账号【${platform_mall_name}】授权失败：${res5.data || '失败状态：3，请联系客服'}`, false)
                 continue
               }else{
                 if (res5.data.indexOf('当前账户绑定店铺数达到上限，请升级会员版本绑定') >= 0){
-                  this.writeLog(`(${i + 1}/${len})账号【${platform_mall_name}】授权失败：${res5.data}`, false)
+                  this.writeLog(`(${i + 1}/${len})账号【${platform_mall_name}】授权失败：${res5.data || '失败状态：4，请联系客服'}`, false)
                   continue
                 }
               }
@@ -1871,7 +1871,7 @@
           } catch (error) {
             console.log('error', error)
             this.flat === 1 ? (item.LoginInfo = `<p style="color: red">登录失败：${error}</p>`)
-              : this.writeLog(`(${i + 1}/${len})账号【${platform_mall_name}】授权失败：${error}`, false)
+              : this.writeLog(`(${i + 1}/${len})账号【${platform_mall_name}】授权失败：${error || '失败状态：5，请联系客服'}`, false)
             continue
           }
         }

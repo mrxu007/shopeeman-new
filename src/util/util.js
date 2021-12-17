@@ -423,20 +423,34 @@ export function batchOperation(array, method, count = 5) {
     let setIn = setInterval(() => {
       const num = countObj.count
       if (num === 0) {
+        let isTerminateThread = localStorage.getItem('isTerminateThread')
+        if (isTerminateThread){
+          localStorage.removeItem('isTerminateThread')
+        }
+        let success = isTerminateThread && '终止' || '完成'
         clearInterval(setIn)
         setIn = null
-        resolve('完成')
+        resolve(success)
       } else {
         manage(number - num)
       }
     }, 1000)
-    function manage(completeCount) {
+    async function manage(completeCount) {
       for (; (submitCount - completeCount) < count && submitCount < number; ++submitCount) {
         const item = array[submitCount]
-        method(item, countObj)
+        let isTerminateThread = localStorage.getItem('isTerminateThread')
+        if (isTerminateThread){
+          --countObj.count
+        } else{
+          method(item, countObj)
+        }
       }
     }
   })
+}
+
+export function terminateThread() {
+  localStorage.setItem('isTerminateThread',true)
 }
 
 // 时间转换
@@ -525,6 +539,7 @@ export async function selfAliYunTransImage(imgUrl, command, account, that) {
     that.$message.error('图片翻译', '阿里图片翻译失败,请确认阿里账号是否掉线', 'warning')
   }
 }
+
 export function getArraySrcLengthSort(arr, type) {
   const sort = []
   for (let i = 0; i < arr.length; i++) {
