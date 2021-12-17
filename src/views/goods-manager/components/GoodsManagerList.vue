@@ -175,9 +175,13 @@
                   type="primary"
                   size="mini"
                   style="margin-right:3px"
-                  @click="categoryVisible = true"
+                  @click="
+                    editCategory = false
+                    categoryVisible = true"
                 >选择类目</el-button>
                 <el-input
+                  v-model="categoryName"
+                  :disabled="true"
                   size="mini"
                   style="width:455px"
                   onkeyup="value=value.replace(/[^\d]/g,'')"
@@ -188,8 +192,16 @@
                   type="primary"
                   size="mini"
                   :disabled="operationBut"
+                  @click="queryType = 100
+                          queryData()"
                 >一键查询100小时以上无流量商品</el-button>
-                <el-button type="primary" size="mini" :disabled="operationBut">一键查询200小时以上无流量商品</el-button>
+                <el-button
+                  type="primary"
+                  size="mini"
+                  :disabled="operationBut"
+                  @click="queryType = 200
+                          queryData()"
+                >一键查询200小时以上无流量商品</el-button>
                 <el-button type="primary" size="mini" :disabled="operationBut">商品一键翻新1</el-button>
               </ul>
               <ul>
@@ -200,7 +212,8 @@
                   type="primary"
                   size="mini"
                   :disabled="operationBut"
-                  @click="queryData"
+                  @click="queryType = 1
+                          queryData()"
                 >查询数据</el-button>
                 <el-checkbox
                   v-model="showConsole"
@@ -226,10 +239,10 @@
                 >批量下架</el-button>
                 <el-button type="primary" size="mini" :disabled="operationBut" @click="operation('batchTitle')">批量编辑标题</el-button>
                 <el-button type="primary" size="mini" :disabled="!operationBut" @click="flag=true">取消操作</el-button>
-                <el-button type="primary" size="mini" :disabled="operationBut">批量修改类目属性</el-button>
+                <el-button type="primary" size="mini" :disabled="operationBut" @click="operation('batchCategory')">批量修改类目属性</el-button>
               </ul>
               <ul style="margin-bottom:3px">
-                <el-button type="primary" size="mini" :disabled="operationBut" @click="test">货源查找</el-button>
+                <el-button type="primary" size="mini" :disabled="operationBut" @click="sourceVisible = true">货源查找</el-button>
                 <el-button
                   type="primary"
                   size="mini"
@@ -238,7 +251,7 @@
                           upDown = false"
                 >批量上架</el-button>
                 <el-button type="primary" size="mini" :disabled="operationBut" @click="operation('batchDescription')">批量编辑描述</el-button>
-                <el-button type="primary" size="mini" :disabled="operationBut">导出数据</el-button>
+                <el-button type="primary" size="mini" :disabled="operationBut" @click="exportTableData">导出数据</el-button>
                 <el-button type="primary" size="mini" :disabled="operationBut" @click="queryBanned">一键查询禁卖商品</el-button>
               </ul>
               <ul>
@@ -513,7 +526,14 @@
       width="800px"
       :close-on-click-modal="false"
       :close-on-press-escape="false"
-    />
+    >
+      <categoryMapping
+        v-if="categoryVisible"
+        :country="country"
+        :mall-list="selectMallList"
+        @categoryChange="categoryChange"
+      />
+    </el-dialog>
     <!-- 批量编辑标题弹窗 -->
     <el-dialog
       class="title-dialog"
@@ -654,6 +674,32 @@
         </div>
       </div>
     </el-dialog>
+    <!-- 货源查找 -->
+    <el-dialog
+      class="source-dialog"
+      title="货源查找"
+      :visible.sync="sourceVisible"
+      width="550px"
+      top="20vh"
+      :close-on-click-modal="false"
+      :close-on-press-escape="false"
+    >
+      <el-form label-position="right" label-width="110px">
+        <el-form-item label="虾皮商品ID：">
+          <el-input v-model="sourceId" size="mini" style="width:120px;margin-right:10px" />
+          <el-button type="primary" size="mini" style="width:80px" @click="sourceQuery">查 询</el-button>
+        </el-form-item>
+        <el-form-item label="上家类型：">
+          {{ sourceType }}
+        </el-form-item>
+        <el-form-item label="采购产品链接：">
+          {{ sourceProductUrl }}
+        </el-form-item>
+        <el-form-item label="虾皮商品链接：">
+          {{ sourceGoodsUrl }}
+        </el-form-item>
+      </el-form>
+    </el-dialog>
   </el-row>
 </template>
 
@@ -661,11 +707,11 @@
 import GoodsList from '../../../module-api/goods-manager-api/goods-list'
 import StoreChoose from '../../../components/store-choose'
 import { exportExcelDataCommon, batchOperation } from '../../../util/util'
-import { List } from 'echarts/lib/export'
-import { contains } from 'cheerio/lib/static'
+import categoryMapping from '../../../components/category-mapping'
 export default {
   components: {
-    StoreChoose
+    StoreChoose,
+    categoryMapping
   },
   data() {
     return {
@@ -674,12 +720,16 @@ export default {
       showConsole: true,
       categoryVisible: false,
       titleVisible: false,
+      sourceVisible: true,
       getDescriptionVisible: false,
       operationBut: false,
       flag: false, // 判断是否停止
       upDown: true,
       GoodsList: new GoodsList(this),
 
+      editCategory: false, // 是否修改类目
+      categoryList: {}, // 类目数据
+      categoryName: '', // 类目名
       productNumChecked: false,
       productNum: 50, // 单店查询商品数据
 
@@ -701,6 +751,13 @@ export default {
       descriptionLabelList: [],
       descriptionVisible: false,
 
+      // 货源查找
+      sourceId: '', // 虾皮商品ID
+      sourceType: '', // 上家类型
+      sourceProductUrl: '', // 采购产品链接
+      sourceGoodsUrl: '', // 虾皮商品链接
+
+      queryType: '', // 查询类型
       percentage: 0, // 进度条数据
       selectMallList: '', // 选择的店铺分组数据
       country: '', // 站点
@@ -721,15 +778,15 @@ export default {
       createTime: [], // 创建时间
       modifyTime: [], // 更新时间
       goodsMin: 0, // 商品数量 走接口
-      goodsMax: 999999,
+      goodsMax: 99999999,
       soldMin: 0, // 销售量 走接口
-      soldMax: 999999,
+      soldMax: 99999999,
       priceMin: 0, // 价格
-      priceMax: 999999,
+      priceMax: 99999999,
       viewMin: 0, // 访客量
-      viewMax: 999999,
+      viewMax: 99999999,
       likeMin: 0, // 粉丝量
-      likeMax: 999999,
+      likeMax: 99999999,
       platformData: {}, // 上家平台数据
       logistics: 0, // 物流方式
       isCustomShipFee: false, // 物流价格显示
@@ -793,7 +850,8 @@ export default {
         'setWeight': '重量',
         'setSize': '尺寸',
         'setFreight': '运费',
-        'setLogistics': '物流方式'
+        'setLogistics': '物流方式',
+        'setCategory': '类目属性'
       },
       searchTypeList: [
         { value: 'name', label: '商品名称' },
@@ -837,11 +895,30 @@ export default {
     await this.selectAll('source', this.sourceList)
   },
   methods: {
-    async test() {
-      const a = { b: [] }
-      if (a?.b) {
-        debugger
+    async sourceQuery() {
+      if (!this.sourceId) return this.$message('请输入虾皮商品ID')
+    },
+    categoryChange(val) {
+      console.log('categoryChange', val)
+      if (val) {
+        if (this.editCategory) {
+          this.categoryList = val
+          this.editProduct('setCategory')
+        } else {
+          const name = []
+          this.categoryList = val
+          this.categoryList.categoryList.forEach(item => {
+            name.push(`${item.category_name}(${item.category_cn_name})`)
+          })
+          this.categoryName = name.join('->')
+        }
       }
+      this.categoryVisible = false
+    },
+    // 批量修改类目属性
+    async  batchCategory() {
+      this.categoryVisible = true
+      this.editCategory = true
     },
     // 批量更新物流方式
     batchLogistics() {
@@ -907,7 +984,7 @@ export default {
       }
       if (name === 'description') {
         if ((this.descriptionRadio === 1 || this.descriptionRadio === 2 || this.descriptionRadio === 3) && !this.descriptionVal) return this.$message('关键词不能为空')
-        if ((this.descriptionRadio === 4 || this.descriptionRadio === 5) && !this.descriptionConfig.text) return this.$message('请选择模板')
+        if ((this.descriptionRadio === 4 || this.descriptionRadio === 5) && !this.descriptionConfig.description) return this.$message('请选择模板')
       }
       this.$confirm(`确定更新商品吗`, '提示', {
         confirmButtonText: '确定',
@@ -990,6 +1067,17 @@ export default {
         this.$set(item, '更新商品异常')
         this.$set(item, 'color', 'red')
       }
+    },
+    async setCategory(productInfo, item) {
+      console.log('productInfo', productInfo)
+      console.log('categoryList', this.categoryList)
+      const categoryPath = []
+      this.categoryList.categoryList.forEach(item => {
+        categoryPath.push(item.category_id)
+      })
+      console.log('categoryPath', categoryPath)
+      productInfo['category_path'] = categoryPath
+      // await this.handleProductEdit(productInfo, item)
     },
     async setLogistics(productInfo, item) {
       const newSelectedDeliveryTypes = []
@@ -1084,7 +1172,7 @@ export default {
       }
       await this.handleProductEdit(productInfo, item)
     },
-    setDescription(productInfo, item) {
+    async  setDescription(productInfo, item) {
       let description = ''
       switch (this.descriptionRadio) {
         case 1:
@@ -1105,7 +1193,7 @@ export default {
           }
           break
         case 4:
-          productInfo['description'] = this.descriptionConfig.text
+          productInfo['description'] = this.descriptionConfig.description
           break
         case 5:
           for (let i = 0; i < productInfo.tier_variation.length; i++) {
@@ -1115,7 +1203,7 @@ export default {
               description += item2 + '\n'
             }
           }
-          productInfo['description'] = this.descriptionConfig.text + '\n' + description
+          productInfo['description'] = this.descriptionConfig.description + '\n' + description
           break
       }
       this.getDescriptionLength(item)
@@ -1124,7 +1212,7 @@ export default {
         this.$set(item, 'color', 'red')
       } else {
         productInfo.description.trim()
-        this.handleProductEdit(productInfo, item)
+        await this.handleProductEdit(productInfo, item)
       }
     },
     setTitle(productInfo, item) {
@@ -1391,6 +1479,93 @@ export default {
         console.log('商品skulist处理异常', error)
       }
     },
+    async getMallDiscountsIdByKeyword(item, actType, searchType, keyword) {
+      const parmas = {}
+      parmas['mallId'] = item.platform_mall_id
+      parmas['keyword'] = keyword
+      parmas['search_type'] = searchType
+      parmas['country'] = item.country
+      const res = await this.GoodsList.getMallDiscountsIdByKeyword(parmas)
+    },
+    // 删除有活动的商品
+    async deleteActicity(item) {
+      let actTypeStr = '折扣'
+      let promotionId = ''
+      let typeList = ['upcoming', 'ongoing']
+      for (let i = 0; i < item.campaignTypeList.length; i++) {
+        const campaignType = item.campaignTypeList[i]
+        // 将商品从活动中删除
+        switch (campaignType.Name) {
+          case '1':
+            if (campaignType?.CameraId) {
+              const params = {
+                product_id: item.id,
+                version: '3.2.0',
+                shop_id: item.platform_mall_id
+              }
+              const res = await this.$shopeemanService.searchProductDetail(item.country, params)
+              if (res.code === 200 && res.data) {
+                const itemDetails = res.data
+                if (itemDetails.id.toString() !== item.id.toString()) {
+                  continue
+                }
+                if (itemDetails?.model_list) {
+                  const arr = JSON.parse(JSON.stringify(itemDetails.model_list))
+                  if (arr?.length > 0) {
+                    // 若参加了折扣活动，model list信息中包含促销活动id
+                    if (arr[0]?.promotion_id) {
+                      promotionId = arr[0]['promotion_id'].toString()
+                      if (promotionId === '0') {
+                        campaignType.CameraId = promotionId
+                      }
+                    }
+                    // 若商品信息中未获取到促销活动id
+                    if (!promotionId || promotionId === '0') {
+                      for (let j = 0; j < typeList.length; j++) {
+                        const actType = typeList[j]
+                        // 根据商品主货号查询活动列表获取活动id
+                        await this.getMallDiscountsIdByKeyword(item, actType, 'item_sku', item.GoodsParentSKU)
+                      }
+                    }
+                  }
+                }
+              } else {
+                continue
+              }
+            } else {
+              promotionId = campaignType.CameraId
+            }
+            if (promotionId) {
+              // 将商品从折扣活动中删除
+            }
+            break
+          case '3':
+            actTypeStr = '套装'
+            // 3：ongoing  2:upcoming 套装活动
+            typeList = ['2', '3']
+            // 遍历活动列表获取活动id
+            if (!campaignType.CameraId) {
+              for (let j = 0; j < typeList.length; j++) {
+                const actType = typeList[j]
+                const status = Number(actType)
+                const limit = 10
+                const offset = 0
+                const allPage = 1
+                const currentPage = 1
+                // do {
+                //   try {
+                //     const actId = ''
+                //     // ？？？
+                //   } catch (error) {
+
+                //   }
+                // } while (condition)
+              }
+            }
+            break
+        }
+      }
+    },
     // 批量上下架
     async batchUpDownProduct() {
       this.operationBut = true
@@ -1446,81 +1621,7 @@ export default {
     async deleteProduct(item, count = { count: 1 }) {
       try {
         console.log(item)
-        let actTypeStr = '折扣'
-        let promotionId = ''
-        let typeList = ['upcoming', 'ongoing']
-        for (let i = 0; i < item.campaignTypeList.length; i++) {
-          const campaignType = item.campaignTypeList[i]
-          // 将商品从活动中删除
-          switch (campaignType.Name) {
-            case '1':
-              if (campaignType?.CameraId) {
-                const params = {
-                  product_id: item.id,
-                  version: '3.2.0',
-                  shop_id: item.platform_mall_id
-                }
-                const res = await this.$shopeemanService.searchProductDetail(item.country, params)
-                if (res.code === 200 && res.data) {
-                  const itemDetails = res.data
-                  if (itemDetails.id.toString() !== item.id.toString()) {
-                    continue
-                  }
-                  if (itemDetails?.model_list) {
-                    const arr = JSON.parse(JSON.stringify(itemDetails.model_list))
-                    if (arr?.length > 0) {
-                      // 若参加了折扣活动，model list信息中包含促销活动id
-                      if (arr[0]?.promotion_id) {
-                        promotionId = arr[0]['promotion_id'].toString()
-                        if (promotionId === '0') {
-                          campaignType.CameraId = promotionId
-                        }
-                      }
-                      // 若商品信息中未获取到促销活动id
-                      if (!promotionId || promotionId === '0') {
-                        for (let j = 0; j < typeList.length; j++) {
-                          const actType = typeList[j]
-                          // 根据商品主货号查询活动列表获取活动id
-                        }
-                      }
-                    }
-                  }
-                } else {
-                  continue
-                }
-              } else {
-                promotionId = campaignType.CameraId
-              }
-              if (promotionId) {
-                // 将商品从折扣活动中删除
-              }
-              break
-            case '3':
-              actTypeStr = '套装'
-              // 3：ongoing  2:upcoming 套装活动
-              typeList = ['2', '3']
-              // 遍历活动列表获取活动id
-              if (!campaignType.CameraId) {
-                for (let j = 0; j < typeList.length; j++) {
-                  const actType = typeList[j]
-                  const status = Number(actType)
-                  const limit = 10
-                  const offset = 0
-                  const allPage = 1
-                  const currentPage = 1
-                  // do {
-                  //   try {
-                  //     const actId = ''
-                  //     // ？？？
-                  //   } catch (error) {
-
-                  //   }
-                  // } while (condition)
-                }
-              }
-              break
-          }
-        }
+        await this.deleteActicity(item)
         // this.updateNum++
         // const params = {
         //   product_id_list: [Number(item.id)],
@@ -1550,23 +1651,25 @@ export default {
         const model = {}
         let upcomingJarray = null
         const list = []
+        // 即将开始状态
         if (item?.ongoing_upcoming_campaigns?.upcoming_campaigns) {
-          upcomingJarray = JSON.parse(JSON.stringify(item.ongoing_upcoming_campaigns.upcoming_campaigns))
+          upcomingJarray = item.ongoing_upcoming_campaigns.upcoming_campaigns
           if (upcomingJarray?.length > 0) {
             model.Name = upcomingJarray[0]['campaign_type'].toString()
-            list.push(model)
           }
         }
+        // 正在进行状态
         if (item?.ongoing_upcoming_campaigns?.ongoing_campaigns) {
-          upcomingJarray = JSON.parse(JSON.stringify(item.ongoing_upcoming_campaigns.ongoing_campaigns))
+          upcomingJarray = item.ongoing_upcoming_campaigns.ongoing_campaigns
           if (upcomingJarray?.length > 0) {
             model.Name = upcomingJarray[0]['campaign_type'].toString()
-            list.push(model)
           }
         }
         if (Object.values(model).length > 0) {
-          if (item?.model_list?.promotion_id) {
-            upcomingJarray = JSON.parse(JSON.stringify(item.model_list))
+          console.log('promotion_id', item)
+          if (item?.model_list[0]?.promotion_id) {
+            upcomingJarray = item.model_list
+            console.log('promotion_id', upcomingJarray[0]['promotion_id'])
             if (upcomingJarray?.length > 0) {
               if (upcomingJarray[0]['promotion_id'].toString() !== '0') {
                 model.CameraId = upcomingJarray[0]['promotion_id'].toString()
@@ -1574,8 +1677,9 @@ export default {
             }
           }
         }
-        if (item?.add_on_deal?.add_on_deal_id) {
-          upcomingJarray = JSON.parse(JSON.stringify(item.add_on_deal))
+        list.push(model)
+        if (item.add_on_deal) {
+          upcomingJarray = item.add_on_deal
           if (upcomingJarray?.length > 0) {
             model.Name = '10'
             model.CameraId = upcomingJarray[0]['add_on_deal_id'].toString()
@@ -1584,6 +1688,7 @@ export default {
             list.push(model)
           }
         }
+        console.log('mode', list)
         return list
       } catch (error) {
         console.log('获取活动类型异常', error)
@@ -1766,11 +1871,11 @@ export default {
       if (!this.selectMallList.length) return this.$message('请选择店铺')
       if (!this.goodsStatus?.length) return this.$message('请选择商品状态')
       if (!this.source?.length) return this.$message('请选择上家来源')
-      if (this.soldMin < 0 || this.soldMax > 999999) return this.$message('销售量请输入0-999999之间的数字')
-      if (this.viewMin < 0 || this.viewMax > 999999) return this.$message('访客量请输入0-999999之间的数字')
-      if (this.likeMin < 0 || this.likeMax > 999999) return this.$message('粉丝量请输入0-999999之间的数字')
-      if (this.priceMin < 0 || this.priceMax > 999999) return this.$message('价格请输入0-999999之间的数字')
-      if (this.goodsMin < 0 || this.goodsMax > 999999) return this.$message('商品数量请输入0-999999之间的数字')
+      if (this.soldMin < 0 || this.soldMax > 99999999) return this.$message('销售量请输入0-99999999之间的数字')
+      if (this.viewMin < 0 || this.viewMax > 99999999) return this.$message('访客量请输入0-99999999之间的数字')
+      if (this.likeMin < 0 || this.likeMax > 99999999) return this.$message('粉丝量请输入0-99999999之间的数字')
+      if (this.priceMin < 0 || this.priceMax > 99999999) return this.$message('价格请输入0-99999999之间的数字')
+      if (this.goodsMin < 0 || this.goodsMax > 99999999) return this.$message('商品数量请输入0-99999999之间的数字')
       this.percentage = 0
       this.queryNum = 0
       this.updateNum = 0
@@ -1781,7 +1886,14 @@ export default {
       this.operationBut = true
       this.showConsole = false
       this.flag = false
-      this.$refs.Logs.writeLog(`开始查询...`, true)
+      if (this.queryType === 1) {
+        this.$refs.Logs.writeLog(`开始查询...`, true)
+      } else if (this.queryType === 100) {
+        this.$refs.Logs.writeLog(`开始查询100小时内无流量商品`, true)
+      } else if (this.queryType === 200) {
+        this.$refs.Logs.writeLog(`开始查询200小时内无流量商品`, true)
+      }
+      this.$refs.Logs.writeLog(name, true)
       this.selectMallList.forEach(item => {
         item.pageNumber = 1
         item.mylist = []
@@ -1818,10 +1930,13 @@ export default {
         params['pageSize'] = this.pageSize
         params['listType'] = this.goodsStatusName ? this.goodsStatusName : 'all'
         mallName = mItem.mall_alias_name || mItem.platform_mall_name
-        if ((this.searchType !== 'originId' && this.keyword) || this.goodsMax < 999999 || this.goodsMin > 0 || this.soldMin > 0 || this.soldMax < 999999) { // ？类目未判断
+        if ((this.searchType !== 'originId' && this.keyword) || this.goodsMax < 99999999 || this.goodsMin > 0 || this.soldMin > 0 || this.soldMax < 99999999 || this.categoryName) {
           if (this.keyword) {
             params['searchType'] = this.searchType
             params['keyword'] = this.keyword
+          }
+          if (this.categoryName) {
+            params['categoryId'] = this.categoryList.categoryList[this.categoryList.categoryList.length - 1].category_id
           }
           params['goodsMin'] = this.goodsMin
           params['goodsMax'] = this.goodsMax
@@ -1834,6 +1949,7 @@ export default {
         if (res.code === 200) {
           if (res.data.list?.length) {
             this.$refs.Logs.writeLog(`查询店铺【${mallName}】第【${mItem.pageNumber}】页数据：${res.data.list.length}`, true)
+            console.log('原始数据', res.data.list)
             // 组装数据
             await this.setTableData(res.data.list, mItem, mallName)
             // 过滤数据
@@ -1844,8 +1960,8 @@ export default {
             } else {
               mItem.mylist = mItem.mylist.concat(newData)
             }
+            console.log('过滤数据', res.data.list)
           }
-          console.log('list', res.data.list)
         } else {
           this.$refs.Logs.writeLog(`店铺【${mallName}】${res.data}`, false)
           --count.count
@@ -2050,6 +2166,17 @@ export default {
         }
         if (!(Number(item.view_count) <= Number(this.viewMax))) {
           continue
+        }
+        // 过滤无流量商品？
+        if (this.queryType === 100) {
+          if ((Number(new Date().getTime()) - Number(item.create_time)) > 360000000) {
+            continue
+          }
+        }
+        if (this.queryType === 200) {
+          if ((Number(new Date().getTime()) - Number(item.create_time)) > 720000000) {
+            continue
+          }
         }
         fData.push(item)
       }
@@ -2297,9 +2424,6 @@ export default {
         this.$BaseUtilService.openUrl(row.url)
       }
     },
-    setCategory(val) {
-      console.log(val)
-    },
     changeMallList(val) {
       this.selectMallList = val
       this.country = val.country
@@ -2317,6 +2441,51 @@ export default {
           return v.toString(16)
         }
       )
+    },
+    // 导出数据
+    exportTableData() {
+      if (!this.tableData?.length) return this.$message('暂无数据导出')
+      let str = `<tr>
+          <td>站点</td>
+          <td>店铺名</td>
+          <td>主图</td>
+          <td>类目</td>
+          <td>上家类型</td>
+          <td>上家链接</td>
+          <td>itemID</td>
+          <td>itemID链接</td>
+          <td>价格</td>
+          <td>库存</td>
+          <td>标题</td>
+          <td>状态</td>
+          <td>创建时间</td>
+          <td>更新时间</td>
+          <td>销售量</td>
+          <td>访客量</td>
+          <td>粉丝量</td>
+        </td>`
+      this.tableData.forEach(item => {
+        str += `<tr>
+        <td>${item.country ? this.$filters.chineseSite(item.country) : '' + '\t'}</td>
+        <td>${item.mallName ? item.mallName : '' + '\t'}</td>
+        <td>${item.images ? this.$filters.imageRender([item.country, item.platform_mall_id, item.images]) : '' + '\t'}</td>
+        <td>${item.categoryName ? item.categoryName : '' + '\t'}</td>
+        <td>${item.platformTypeStr ? item.platformTypeStr : '' + '\t'}</td>
+        <td>${item.url ? item.url : '' + '\t'}</td>
+        <td>${item.id ? item.id : '' + '\t'}</td>
+        <td>${item.id ? `${this.$filters.countryShopeebuyCom(item.country)}/product/${item.platform_mall_id}/${item.id}` : '' + '\t'}</td>
+        <td>${item.price ? item.price : '' + '\t'}</td>
+        <td>${item.stock ? item.stock : '' + '\t'}</td>
+        <td>${item.name ? item.name : '' + '\t'}</td>
+        <td>${item.status ? this.statusObj[item.status] : '' + '\t'}</td>
+        <td>${item.create_time ? this.$dayjs(item.create_time).format('YYYY-MM-DD HH:mm:ss') : '' + '\t'}</td>
+        <td>${item.modify_time ? this.$dayjs(item.modify_time).format('YYYY-MM-DD HH:mm:ss') : '' + '\t'}</td>
+        <td>${item.sold ? item.sold : '' + '\t'}</td>
+        <td>${item.view_count ? item.view_count : '' + '\t'}</td>
+        <td>${item.like_count ? item.like_count : '' + '\t'}</td>
+        </tr>`
+      })
+      exportExcelDataCommon('商品列表数据', str)
     },
     // 点击复制
     copy(attr) {

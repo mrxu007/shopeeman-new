@@ -2,6 +2,24 @@ export default class GoodsList {
   constructor(that) {
     this._this = that
   }
+  // 获取折扣活动
+  async getMallDiscountsIdByKeyword(val) {
+    const parmas = {
+      mallId: val.mallId,
+      keyword: val.keyword,
+      search_type: val.search_type
+    }
+    try {
+      const res = await this._this.$shopeemanService.getChinese(val.country, '/api/marketing/v3/discount/standard_search/', parmas)
+      const jsonData = this.isJsonString(res)
+      // if (jsonData.code === 200) {
+      //   return { code: 200, data: jsonData.data }
+      // }
+      // return { code: 201, data: jsonData.msg }
+    } catch (error) {
+      return { code: -2, data: `折扣活动异常： ${error}` }
+    }
+  }
   // 通过id获取类目信息
   async getCategoryName(country, categoryId, isParent, tableType) {
     try {
@@ -17,7 +35,7 @@ export default class GoodsList {
   }
   // 输入条件时查询
   async searchProductList(val) {
-    const { mItem, pageSize, searchType, keyword, goodsMin, goodsMax, soldMin, soldMax, listType } = val
+    const { mItem, pageSize, searchType, keyword, goodsMin, goodsMax, soldMin, soldMax, listType, categoryId } = val
     try {
       const params = {
         page_number: mItem.pageNumber,
@@ -25,6 +43,7 @@ export default class GoodsList {
         mallId: mItem.platform_mall_id,
         search_type: searchType,
         keyword: keyword,
+        category_id: categoryId,
         stock_min: goodsMin,
         stock_max: goodsMax,
         sold_min: soldMin,
@@ -34,7 +53,6 @@ export default class GoodsList {
         source: 'seller_center',
         version: '4.0.0'
       }
-      console.log(params)
       const res = await this._this.$shopeemanService.getChinese(mItem.country, '/api/v3/product/search_product_list/?', params, { headers: { 'accept': 'application/json, text/plain, */*' }})
       const jsonData = this.isJsonString(res)
       if (jsonData.status === 200) {
