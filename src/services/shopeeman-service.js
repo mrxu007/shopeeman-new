@@ -173,13 +173,33 @@ export default class NetMessageBridgeService {
         referer: url + referer
       })
     }
-    console.log(url, JSON.stringify(options), JSON.stringify(data))
+    // console.log(url, JSON.stringify(options), JSON.stringify(data))
     return this.NetMessageBridgeService().post(url, JSON.stringify(options), JSON.stringify(data))
   }
-
+  async getChineseBuyer(country, api, data, options = {}, exportInfo) {
+    data = JSON.parse(JSON.stringify(data))
+    const url = await this.getWebUrl(country, data) + api
+    const baseurl = await this.getWebUrl(country, data)
+    options['extrainfo'] = this.getExtraInfo(data)
+    if (exportInfo) { // 适配店铺管理---导入店铺
+      options['extrainfo']['exportInfo'] = exportInfo
+    }
+    delete data.mallId // body 里面不能带店铺id
+    options['params'] = data
+    const referer = options['headers'] && options['headers'].referer
+    if (referer) {
+      options['headers'] = Object.assign(options['headers'], {
+        origin: baseurl,
+        referer: baseurl + referer
+      })
+    }
+    console.log('-----', url, JSON.stringify(options))
+    return this.NetMessageBridgeService().get(url, JSON.stringify(options))
+  }
   async postChineseBuyer(country, api, data, options = {}, exportInfo) {
     data = JSON.parse(JSON.stringify(data))
     const url = await this.getWebUrl(country, data) + api
+    const baseurl = await this.getWebUrl(country, data)
     options['extrainfo'] = this.getExtraInfo(data)
     if (exportInfo) { // 适配店铺管理---导入店铺
       options['extrainfo']['exportInfo'] = exportInfo
@@ -189,8 +209,8 @@ export default class NetMessageBridgeService {
     const referer = options['headers'] && options['headers'].referer
     if (referer) {
       options['headers'] = Object.assign(options['headers'], {
-        origin: url,
-        referer: url + referer
+        origin: baseurl,
+        referer: baseurl + referer
       })
     }
     console.log(url, JSON.stringify(options), JSON.stringify(data))
@@ -213,7 +233,7 @@ export default class NetMessageBridgeService {
         referer: url + referer
       })
     }
-    console.log(url, JSON.stringify(options), JSON.stringify(data))
+    // console.log(url, JSON.stringify(options), JSON.stringify(data))
     return this.NetMessageBridgeService().post(url, JSON.stringify(options), JSON.stringify(data))
   }
   // refer 与url 不一样
@@ -233,7 +253,7 @@ export default class NetMessageBridgeService {
         referer: baseUrl + referer
       })
     }
-    console.log(url, JSON.stringify(options), JSON.stringify(data))
+    // console.log(url, JSON.stringify(options), JSON.stringify(data))
     return this.NetMessageBridgeService().post(url, JSON.stringify(options), JSON.stringify(data))
   }
   async getChineseReferer(country, api, data, options = {}) {
@@ -250,7 +270,7 @@ export default class NetMessageBridgeService {
         referer: baseUrl + referer
       })
     }
-    console.log('-----get', url, JSON.stringify(options))
+    // console.log('-----get', url, JSON.stringify(options))
     return this.NetMessageBridgeService().get(url, JSON.stringify(options))
   }
   async postChineseShop(country, api, data, params, options = {}, exportInfo) {

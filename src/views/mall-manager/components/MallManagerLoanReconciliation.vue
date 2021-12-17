@@ -396,9 +396,9 @@ export default {
         this.to_back_amount = data.data.data.to_back_amount
         this.haved_amount = data.data.data.haved_amount
         this.site_query.typeCoin = this.$shopeeManConfig.getSiteCoinSymbol(this.site_query.country)
-        if (this.selectMallList?.length === 0) {
-          this.tableList = []
-        }
+        // if (this.selectMallList?.length === 0) {
+        //   this.tableList = []
+        // }
       } else {
         this.$message.warning('数据请求失败！')
       }
