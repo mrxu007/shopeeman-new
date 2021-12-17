@@ -389,7 +389,7 @@ export default class GoodsManagerAPI {
       const message = des.message
       return { ecode, data, message }
     } catch (error) {
-      return { code: -2, data: `getGoodsDetail-catch: ${error}` }
+      return { code: -2, data: `getGoodsDetailListUpdateName-catch: ${error}` }
     }
   }
   // 获取商品信息
@@ -401,19 +401,26 @@ export default class GoodsManagerAPI {
         itemid: itemid.toString(),
         platform_mall_id: shopid
       }
-      const res = await this._this.$shopeemanService.getChinese(country, '/api/v4/item/get?', params, {
+      // const res = await this._this.$shopeemanService.getChinese(country, '/api/v4/item/get?', params, {
+      //   headers: {
+      //     isGBK: false,
+      //     referer: `/%E2%80%BC%EF%B8%8F%E0%B8%9E%E0%B8%A3%E0%B9%89%E0%B8%AD%E0%B8%A1%E0%B8%AA%E0%B9%88%E0%B8%87-%E0%B9%80%E0%B8%AA%E0%B8%B7%E0%B9%89%E0%B8%AD%E0%B9%84%E0%B8%AB%E0%B8%A1%E0%B8%9E%E0%B8%A3%E0%B8%A1%E0%B9%81%E0%B8%82%E0%B8%99%E0%B8%AA%E0%B8%B1%E0%B9%89%E0%B8%99-i.158200153.14917339828?sp_atk=9ce84e99-1174-45ee-a41e-490ed09b0f89`,
+      //     'Accept': '*/*',
+      //     'accept-encoding': 'gzip, deflate, br',
+      //     'accept-language': 'zh-CN,zh;q=0.9'
+      //   }
+      // })
+      // const aa = JSON.parse(res)
+      // const bb = aa.data.replaceAll('?,', '?",')
+      // const des = JSON.parse(bb)
+      const res = await this._this.$shopeemanService.getChineseBuyer(country, '/api/v4/item/get?', params, {
         headers: {
           isGBK: false,
-          referer: `/%E2%80%BC%EF%B8%8F%E0%B8%9E%E0%B8%A3%E0%B9%89%E0%B8%AD%E0%B8%A1%E0%B8%AA%E0%B9%88%E0%B8%87-%E0%B9%80%E0%B8%AA%E0%B8%B7%E0%B9%89%E0%B8%AD%E0%B9%84%E0%B8%AB%E0%B8%A1%E0%B8%9E%E0%B8%A3%E0%B8%A1%E0%B9%81%E0%B8%82%E0%B8%99%E0%B8%AA%E0%B8%B1%E0%B9%89%E0%B8%99-i.158200153.14917339828?sp_atk=9ce84e99-1174-45ee-a41e-490ed09b0f89`,
-          'Accept': '*/*',
-          'accept-encoding': 'gzip, deflate, br',
-          'accept-language': 'zh-CN,zh;q=0.9'
+          'Accept': 'application/json, application/xml, text/json, text/x-json, text/javascript, text/xml',
+          referer: `/product/${shopid}/${itemid}`
         }
       })
-
-      const aa = JSON.parse(res)
-      const bb = aa.data.replaceAll('?,', '?",')
-      const des = JSON.parse(bb)
+      const des = JSON.parse((JSON.parse(res).data))
       let ecode = null
       let message = null
       let data = null
@@ -426,7 +433,7 @@ export default class GoodsManagerAPI {
       }
       return { ecode, data, message }
     } catch (error) {
-      return { code: -2, data: `getGoodsDetail-catch: ${error}` }
+      return { code: -2, data: `getGoodsDetailinfo-catch: ${error}` }
     }
   }
   // 商品点赞
@@ -440,17 +447,16 @@ export default class GoodsManagerAPI {
           item_id: Number(itemid)
         }]
       }
+      const strGuid = this.guid()
       const res = await this._this.$shopeemanService.postChineseBuyer(country, '/api/v4/pages/like_items', params, {
         headers: {
           'Content-Type': 'application/json',
-          'accept': 'application/json',
-          'accept-encoding': 'gzip, deflate, br',
-          'accept-language': 'zh-CN,zh;q=0.9',
-          referer: `/ADIDOG-%E0%B9%84%E0%B8%8B%E0%B8%8B%E0%B9%8C%E0%B9%83%E0%B8%AB%E0%B8%8D%E0%B9%88%E0%B8%A1%E0%B8%B2%E0%B8%81%E0%B8%81%E0%B8%81%F0%9F%90%B6%E0%B9%80%E0%B8%AA%E0%B8%B7%E0%B9%89%E0%B8%AD%E0%B8%AE%E0%B8%B9%E0%B9%89%E0%B8%94-%E0%B9%80%E0%B8%AA%E0%B8%B7%E0%B9%89%E0%B8%AD%E0%B8%AA%E0%B8%B8%E0%B8%99%E0%B8%B1%E0%B8%82-%E0%B8%8A%E0%B8%B8%E0%B8%94%E0%B8%AA%E0%B8%B8%E0%B8%99%E0%B8%B1%E0%B8%82-%E0%B8%8A%E0%B8%B8%E0%B8%94%E0%B8%AB%E0%B8%A1%E0%B8%B2-%E0%B9%80%E0%B8%AA%E0%B8%B7%E0%B9%89%E0%B8%AD%E0%B8%AB%E0%B8%A1%E0%B8%B2-%E0%B9%80%E0%B8%AA%E0%B8%B7%E0%B9%89%E0%B8%AD%E0%B8%AA%E0%B8%B1%E0%B8%95%E0%B8%A7%E0%B9%8C%E0%B9%80%E0%B8%A5%E0%B8%B5%E0%B9%89%E0%B8%A2%E0%B8%87-i.161669595.9780892572?sp_atk=27921f6f-3ff1-40a3-a5ff-b5b7d469e59c`
+          referer: `/product/${shopid}/${itemid}`,
+          'cookies': [{ Name: 'csrftoken', Value: strGuid }],
+          'X-CSRFToken': strGuid
         }
       })
       const des = JSON.parse(JSON.parse(res).data)
-      debugger
       let ecode = null
       let message = null
       if (des.error === 0) {
@@ -467,41 +473,38 @@ export default class GoodsManagerAPI {
   // 获取商品所有评论
   async getRatings(goodsinfo) {
     try {
-      const { country, shopid, itemid } = goodsinfo
+      const { country, shopid, itemid, offset } = goodsinfo
       const params = {
+        mallId: shopid,
         filter: 0,
         flag: 1,
         itemid: itemid,
         limit: 51,
-        offset: 0,
+        offset: offset,
         shopid: shopid,
         type: 0
       }
-      const query = {
-        platform_mall_id: shopid
-      }
-      const webUrl = await this._this.$shopeemanService.getWebUrl(country, query)
-      const url = `${webUrl}/api/v2/item/get_ratings`
-      const res = await this._this.$shopeemanService.getChineseLaiZan(url, params, {
+      const res = await this._this.$shopeemanService.getChineseBuyer(country, '/api/v2/item/get_ratings?', params, {
         headers: {
-          'Content-Type': 'application/json; charset=utf-8',
-          Referer: `${webUrl}/BODY-GLOVE-Unisex-Basic-T-Shirt-%E0%B9%80%E0%B8%AA%E0%B8%B7%E0%B9%89%E0%B8%AD%E0%B8%A2%E0%B8%B7%E0%B8%94-%E0%B8%A3%E0%B8%A7%E0%B8%A1%E0%B8%AA%E0%B8%B5-i.18663111.2953207966`,
-          'Accept': 'application/json'
+          isGBK: false,
+          'Content-Type': 'application/json',
+          referer: `/product/${shopid}/${itemid}`
         }
       })
-
+      const aa = JSON.parse(res)
+      const des = JSON.parse(JSON.parse(res).data)
       let ecode = null
       let message = null
-      if (res.error === 0) {
+      if (des.error === 0) {
         ecode = 0
       } else {
         ecode = -2
-        message = res.error_msg
+        message = des.error_msg
       }
-      const data = res.data
+      const data = des.data
       return { ecode, data, message }
     } catch (error) {
-      return { code: -2, data: `GoodsbuyerLike-catch: ${error}` }
+      return { code: -2, data: `getRatings-catch: ${error}` }
     }
   }
   // 评价点赞
@@ -509,78 +512,86 @@ export default class GoodsManagerAPI {
     try {
       const { country, shopid, itemid, cmtid, like } = goodsinfo
       const params = {
+        mallId: shopid,
         cmtid: cmtid,
         itemid: itemid,
         like: like, // true false
         shopid: shopid
       }
-      const query = {
-        platform_mall_id: shopid
-      }
-      const webUrl = await this._this.$shopeemanService.getWebUrl(country, query)
-      const url = `${webUrl}/api/v4/pages/like_items`
-      const res = await this._this.$shopeemanService.postChineseLaiZan(url, params, {
+      const strGuid = this.guid()
+      const res = await this._this.$shopeemanService.postChineseBuyer(country, '/api/v2/like_item_rating', params, {
         headers: {
           'Content-Type': 'application/json',
-          Referer: `${webUrl}/adidas-ORIGINALS-Collapsible-Nizza-Lo-Shoes-%E0%B8%9C%E0%B8%B9%E0%B9%89%E0%B8%8A%E0%B8%B2%E0%B8%A2-%E0%B8%AA%E0%B8%B5%E0%B8%82%E0%B8%B2%E0%B8%A7-Sneaker-H67375-i.217077552.6268815649?sp_atk=8852f8c3-a3cd-405b-bc78-f5eb1cf77e10`,
-          'Accept': 'application/json'
+          referer: `/product/${shopid}/${itemid}`,
+          'cookies': [{ Name: 'csrftoken', Value: strGuid }],
+          'X-CSRFToken': strGuid
         }
       })
-
+      const aa = JSON.parse(res)
+      const des = JSON.parse(JSON.parse(res).data)
       let ecode = null
       let message = null
-      if (res.error === 0) {
+      if (des.error === 0) {
         ecode = 0
       } else {
         ecode = -2
-        message = res.error_msg
+        message = des.error_msg
       }
-      const data = res.data
+      const data = des.data
       return { ecode, data, message }
     } catch (error) {
-      return { code: -2, data: `GoodsbuyerLike-catch: ${error}` }
+      return { code: -2, data: `LikeItemRating-catch: ${error}` }
     }
+  }
+  guid() {
+    return 'xxxxxxxxxxxx4xxxyxxxxxxxxxxxxxxx'.replace(
+      /[xy]/g,
+      function(c) {
+        var r = (Math.random() * 16) | 0
+        var v = c == 'x' ? r : (r & 0x3) | 0x8
+        return v.toString(16)
+      }
+    )
   }
   // 加入购物车
   async addToCart(goodsinfo) {
     try {
       const { country, shopid, itemid, modelid } = goodsinfo
       const params = {
+        mallId: Number(shopid),
         checkout: true,
         client_source: 1,
         donot_add_quantity: false,
-        itemid: itemid,
-        modelid: modelid,
+        itemid: Number(itemid),
+        modelid: Number(modelid),
         quantity: 1,
-        shopid: shopid,
+        shopid: Number(shopid),
         source: '{"refer_urls":[]}',
         update_checkout_only: false
       }
-      const query = {
-        platform_mall_id: shopid
-      }
-      const webUrl = await this._this.$shopeemanService.getWebUrl(country, query)
-      const url = `${webUrl}/api/v4/cart/add_to_cart`
-      const res = await this._this.$shopeemanService.postChineseLaiZan(url, params, {
+      const strGuid = this.guid()
+      const res = await this._this.$shopeemanService.postChineseBuyer(country, '/api/v4/cart/add_to_cart', params, {
         headers: {
           'Content-Type': 'application/json',
-          Referer: `${webUrl}/adidas-ORIGINALS-Collapsible-Nizza-Lo-Shoes-%E0%B8%9C%E0%B8%B9%E0%B9%89%E0%B8%8A%E0%B8%B2%E0%B8%A2-%E0%B8%AA%E0%B8%B5%E0%B8%82%E0%B8%B2%E0%B8%A7-Sneaker-H67375-i.217077552.6268815649?sp_atk=48bb9610-70f2-4ab9-b934-a04706af1df4`,
-          'Accept': 'application/json'
+          referer: `/%E0%B8%AB%E0%B8%A1%E0%B8%A7%E0%B8%81%E0%B9%81%E0%B8%81%E0%B9%87%E0%B8%9B-cap-%E0%B8%9E%E0%B8%B4%E0%B8%A1%E0%B8%9E%E0%B9%8C%E0%B8%A5%E0%B8%B2%E0%B8%A2%E0%B8%95%E0%B8%B1%E0%B8%A7%E0%B8%AD%E0%B8%B1%E0%B8%81%E0%B8%A9%E0%B8%A3%E0%B8%AA%E0%B8%B3%E0%B8%AB%E0%B8%A3%E0%B8%B1%E0%B8%9A%E0%B9%80%E0%B8%94%E0%B9%87%E0%B8%81-i.333281690.9327939178`,
+          'cookies': [{ Name: 'csrftoken', Value: strGuid }],
+          'X-CSRFToken': strGuid
         }
       })
-
+      debugger
       let ecode = null
       let message = null
-      if (res.error === 0) {
+      const des = JSON.parse(JSON.parse(res).data)
+      if (des.error === 0) {
         ecode = 0
       } else {
         ecode = -2
-        message = res.error_msg
+        message = des.error_msg
       }
-      const data = res.data
+      const data = des.data
       return { ecode, data, message }
     } catch (error) {
-      return { code: -2, data: `GoodsbuyerLike-catch: ${error}` }
+      return { code: -2, data: `addToCart-catch: ${error}` }
     }
   }
 }

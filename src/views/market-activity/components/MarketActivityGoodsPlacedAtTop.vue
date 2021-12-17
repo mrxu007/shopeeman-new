@@ -1,7 +1,7 @@
 <template>
   <div class="detail">
     <div class="row" style="display:flex;margin-top:25px;background-color: white;padding:15px 4px;overflow: auto;">
-      <div class="row2_left" style="border: 1px solid rgb(220, 228, 218);border-radius: 5px;">
+      <div class="row2_left" style="border: 1px solid rgb(220, 228, 218);border-radius: 5px;width:748px">
         <span
           style="
           margin-top: -7px;

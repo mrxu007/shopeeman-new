@@ -5,7 +5,7 @@ import XLSX from 'xlsx'
 
 const instance = new Vue()
 
-// 匹配对象数组值(店铺绑定)
+// 匹配对象数组值(店铺绑定--系统)
 export function MallgetValue(arr, label, id, relID) {
   let data = ''
   for (let i = 0; i < arr.length; i++) {
