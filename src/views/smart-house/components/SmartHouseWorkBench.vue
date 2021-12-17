@@ -810,7 +810,8 @@ export default {
       exportNum: 0,
       pickerOptions: {
         disabledDate: (time) => {
-          return time.getTime() > Date.now()
+          const pastDay = Date.now() - 93 * 3600 * 24 * 1000
+          return time.getTime() > Date.now() || time.getTime() < pastDay
         }
       },
       remarkVisible: false,
