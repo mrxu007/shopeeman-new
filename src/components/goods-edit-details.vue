@@ -1006,13 +1006,13 @@
         let goodsDetailsJson = JSON.stringify(this.goodsDetails)
         console.log(goodsDetailsJson,this.goodsDetails);
         let sysGoodsId = this.goodsDetails.id
-        let description = this.goodsDetails.description
-        let title = this.goodsDetails.title
-        let width = this.goodsDetails.width
-        let height = this.goodsDetails.height
-        let long = this.goodsDetails.long
-        let weight = this.goodsDetails.weight
-        let updateGoodsRes = await this.updateGoods({sysGoodsId,description,title,width,height,long,weight})
+        let description = this.goodsDetails.description || ''
+        let title = this.goodsDetails.title || ''
+        let width = this.goodsDetails.width || '0'
+        let height = this.goodsDetails.height || '0'
+        let long = this.goodsDetails.long || '0'
+        let weight = this.goodsDetails.weight || '0'
+        let updateGoodsRes = await this.$commodityService.updateGoods({sysGoodsId,description,title,width,height,long,weight})
         console.log('updateGoodsRes',updateGoodsRes)
         let itemmodels = JSON.stringify(this.goodsDetails.itemmodels)
         itemmodels = itemmodels.replaceAll(/"id":[0-9]*,/ig, '')
@@ -1037,12 +1037,7 @@
           skuImages.push({oldImageUrl,imageUrl})
         }
         let updateGoodsAllImageRes = await this.$commodityService.updateGoodsAllImage({sysGoodsId,descImages,images,sizeImageUrl})
-        console.log('updateGoodsAllImageRes',updateGoodsAllImageRes)
-        this.$emit('goodsEditorCancel',{sysGoodsId,title,width,height,long,weight})
-      },
-      updateGoods(param){
-        console.log(param)
-        return this.$commodityService.updateGoods(param)
+        this.$emit('goodsEditorCancel',{sysGoodsId,title,description,width,height,long,weight})
       },
       handleClick(val) {
       },

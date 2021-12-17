@@ -415,7 +415,6 @@ export default class CommodityService {
    * @param {number[]} sysGoodsIds
    */
   addGoodsToTag(sysLabelId, sysGoodsIds) {
-    console.log(sysLabelId, sysGoodsIds)
     return this.nativeService.callFunction('AddGoodsToTag', sysLabelId, JSON.stringify(sysGoodsIds))
   }
 

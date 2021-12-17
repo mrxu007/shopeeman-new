@@ -423,20 +423,34 @@ export function batchOperation(array, method, count = 5) {
     let setIn = setInterval(() => {
       const num = countObj.count
       if (num === 0) {
+        let isTerminateThread = localStorage.getItem('isTerminateThread')
+        if (isTerminateThread){
+          localStorage.removeItem('isTerminateThread')
+        }
+        let success = isTerminateThread && '终止' || '完成'
         clearInterval(setIn)
         setIn = null
-        resolve('完成')
+        resolve(success)
       } else {
         manage(number - num)
       }
     }, 1000)
-    function manage(completeCount) {
+    async function manage(completeCount) {
       for (; (submitCount - completeCount) < count && submitCount < number; ++submitCount) {
         const item = array[submitCount]
-        method(item, countObj)
+        let isTerminateThread = localStorage.getItem('isTerminateThread')
+        if (isTerminateThread){
+          --countObj.count
+        } else{
+          method(item, countObj)
+        }
       }
     }
   })
+}
+
+export function terminateThread() {
+  localStorage.setItem('isTerminateThread',true)
 }
 
 // 时间转换

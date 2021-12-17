@@ -200,7 +200,7 @@ export default {
         searchAll = mallList.length !== this.siteList.length && searchAll || ''
       }
       console.log('searchAll',searchAll)
-      if (this.source) {
+      if (this.source ) {
         this.$emit('changeMallList', {
           mallList: mallList,
           source: this.source,
