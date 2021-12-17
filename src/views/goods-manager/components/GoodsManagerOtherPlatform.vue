@@ -92,7 +92,7 @@
 </template>
 <script>
 import storeChoose from '../../../components/store-choose'
-import { batchOperation, getMalls, GoodsMallgetValue } from '../../../util/util'
+import { batchOperation, getMalls, GoodsMallgetValue, terminateThread } from '../../../util/util'
 import GoodsManagerAPI from '../../../module-api/goods-manager-api/goods-data'
 export default {
   components: {
@@ -144,6 +144,7 @@ export default {
     },
     // 停止
     stopFun() {
+      this.terminateThread
       this.stopdot = true
       this.btnloading = false
     },

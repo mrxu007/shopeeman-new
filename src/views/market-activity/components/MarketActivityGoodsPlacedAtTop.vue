@@ -13,7 +13,7 @@
         >基础数据配置</span>
         <ul>
           <li>
-            <storeChoose style="margin-left:-20px" :is-all="true" :show-mall-all="true" @changeMallList="changeMallList" />
+            <storeChoose style="margin-left:-20px;width: 730px;" :is-all="true" :show-mall-all="true" @changeMallList="changeMallList" />
           </li>
           <li style="margin-top:20px">
             <el-button size="mini" type="primary">搜索任务</el-button>
@@ -25,7 +25,7 @@
         </ul>
       </div>
 
-      <div class="row2_right" style="border: 1px solid rgb(220, 228, 218);border-radius: 5px;margin-left:20px;">
+      <div class="row2_right" style="border: 1px solid rgb(220, 228, 218);border-radius: 5px;margin-left:20px;width:507px">
         <span
           style="
           margin-top: -7px;
