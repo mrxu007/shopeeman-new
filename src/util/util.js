@@ -421,13 +421,15 @@ export function batchOperation(array, method, count = 5) {
     const countObj = { count: number }
     let submitCount = 0
     let setIn = setInterval(() => {
+      let isTerminateThread = localStorage.getItem('isTerminateThread')
       const num = countObj.count
-      if (num === 0) {
-        let isTerminateThread = localStorage.getItem('isTerminateThread')
+      console.log('线程剩余数：',num)
+      if (num === 0 || isTerminateThread) {
+        let success = '完成'
         if (isTerminateThread){
           localStorage.removeItem('isTerminateThread')
+          success = '终止'
         }
-        let success = isTerminateThread && '终止' || '完成'
         clearInterval(setIn)
         setIn = null
         resolve(success)
@@ -438,12 +440,7 @@ export function batchOperation(array, method, count = 5) {
     async function manage(completeCount) {
       for (; (submitCount - completeCount) < count && submitCount < number; ++submitCount) {
         const item = array[submitCount]
-        let isTerminateThread = localStorage.getItem('isTerminateThread')
-        if (isTerminateThread){
-          --countObj.count
-        } else{
-          method(item, countObj)
-        }
+        method(item, countObj)
       }
     }
   })
