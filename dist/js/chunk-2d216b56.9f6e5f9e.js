@@ -1,0 +1,1 @@
+(window["webpackJsonp"]=window["webpackJsonp"]||[]).push([["chunk-2d216b56"],{c42a:function(e,n,c){"use strict";c.r(n);var s=function(){var e=this,n=e.$createElement,c=e._self._c||n;return c("div")},a=[],t={name:"BusinessAnalyseGoodsPlacedAtTop"},o=t,u=c("2877"),l=Object(u["a"])(o,s,a,!1,null,"1cca849f",null);n["default"]=l.exports}}]);
