@@ -410,24 +410,30 @@ export function randomWord(randomFlag, min, max) {
 }
 
 /**
- *
+ * 线程批量
  * @param array // 数组（参数）
  * @param method // 请求函数
+ * @param count // 线程数
  * @returns {Promise<any>}
  */
 export function batchOperation(array, method, count = 5) {
+  let threadRunCountJson = localStorage.getItem('threadRunCount') || ''
+  let threadRunCountRes = threadRunCountJson && JSON.parse(threadRunCountJson) || {}
+  let methodName = method.name
+  threadRunCountRes[methodName] = true
+  localStorage.setItem('threadRunCount',JSON.stringify(threadRunCountRes))
   return new Promise(resolve => {
     const number = array.length
     const countObj = { count: number }
     let submitCount = 0
     let setIn = setInterval(() => {
-      let isTerminateThread = localStorage.getItem('isTerminateThread')
+      let threadRunCountJson = localStorage.getItem('threadRunCount') || ''
+      let threadRunCountRes = threadRunCountJson && JSON.parse(threadRunCountJson) || {}
       const num = countObj.count
       console.log('线程剩余数：',num)
-      if (num === 0 || isTerminateThread) {
+      if (num === 0 || !threadRunCountRes[methodName]) {
         let success = '完成'
-        if (isTerminateThread){
-          localStorage.removeItem('isTerminateThread')
+        if (!threadRunCountRes[methodName]){
           success = '终止'
         }
         clearInterval(setIn)
@@ -446,8 +452,20 @@ export function batchOperation(array, method, count = 5) {
   })
 }
 
-export function terminateThread() {
-  localStorage.setItem('isTerminateThread',true)
+/**
+ * 取消线程
+ * @param method 方法
+ */
+export function terminateThread(method) {
+  let threadRunCount = ''
+  if (method){
+    let threadRunCountJson = localStorage.getItem('threadRunCount') || ''
+    let threadRunCountRes = threadRunCountJson && JSON.parse(threadRunCountJson) || {}
+    let methodName = method.name
+    delete threadRunCountRes[methodName]
+    threadRunCount = JSON.stringify(threadRunCountRes)
+  }
+    localStorage.setItem('threadRunCount',threadRunCount)
 }
 
 // 时间转换
