@@ -147,7 +147,7 @@ export default class NetMessageBridgeService {
         referer: url + referer
       })
     }
-    // console.log('-----', url, JSON.stringify(options))
+    console.log('-----', url, JSON.stringify(options))
     return this.NetMessageBridgeService().get(url, JSON.stringify(options))
   }
 
@@ -1256,6 +1256,11 @@ export default class NetMessageBridgeService {
           code: 200,
           data: info.data || []
         }
+      } else if (info.code === 100010006) {
+        return {
+          code: 100010006,
+          data: info.data.result[0].message || '' // 物流判断
+        }
       } else {
         return {
           code: 50001,
@@ -1425,6 +1430,38 @@ export default class NetMessageBridgeService {
       return {
         code: resObj.status,
         data: `评论回复失败${resObj.statusText}`
+      }
+    }
+  }
+  // 获取物流
+  async getLogistics(country, params) {
+    params['version'] = '3.1.0'
+    const res = await this.getChinese(country, '/api/v3/logistics/get_product_channels/?', params)
+    const resObj = res && JSON.parse(res)
+    console.log(resObj)
+    if (resObj && resObj.status === 200) {
+      const info = JSON.parse(resObj.data)
+      if (info && info.code === 0) {
+        return {
+          code: 200,
+          data: info.data || []
+        }
+      } else {
+        return {
+          code: 50001,
+          data: info.message || resObj.statusText || ''
+        }
+      }
+    } else {
+      if (resObj.status === 403) {
+        return {
+          code: resObj.status,
+          data: `获取物流失败，店铺未登录！`
+        }
+      }
+      return {
+        code: resObj.status,
+        data: `获取物流失败${resObj.statusText}`
       }
     }
   }

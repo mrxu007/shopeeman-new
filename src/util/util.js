@@ -539,6 +539,7 @@ export async function selfAliYunTransImage(imgUrl, command, account, that) {
     that.$message.error('图片翻译', '阿里图片翻译失败,请确认阿里账号是否掉线', 'warning')
   }
 }
+
 export function getArraySrcLengthSort(arr, type) {
   const sort = []
   for (let i = 0; i < arr.length; i++) {

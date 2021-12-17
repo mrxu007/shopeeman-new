@@ -546,7 +546,6 @@ export default class CommodityService {
   async getCategoryTbInfo(country, categoryId = '0', isParent = '1', tableType) {
     return await this.nativeService.callCategoryFunction('GetCategoryInfo', country, categoryId, isParent, tableType)
   }
-
   /**
    * 获取类目属性
    * @param {array} data
@@ -838,6 +837,7 @@ export default class CommodityService {
   SaveProduct(data) {
     return this.nativeService.callProductCenter('SaveProduct', JSON.stringify(data))
   }
+
   /**
  * @name :
  * @param  {String} sysOrderIds 系统订单id，用逗号隔开
