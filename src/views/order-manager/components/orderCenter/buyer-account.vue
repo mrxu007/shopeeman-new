@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-11-09 10:14:02
- * @LastEditTime: 2021-12-14 16:21:01
+ * @LastEditTime: 2021-12-17 12:24:30
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shopeeman-new\src\components\buyer-account.vue
@@ -397,7 +397,7 @@ export default {
         this.$parent.$refs.Logs.writeLog('店铺数据为空，同步操作已取消!', false)
         return
       }
-      this.$parent.$refs.Logs.writeLog(`开始同步【近七天】订单，请耐心等待!`, true)
+      this.$parent.$refs.Logs.writeLog(`开始同步订单，请耐心等待!`, true)
       for (let mI = 0; mI < mallList.length; mI++) {
         let mall = mallList[mI]
         for (let i = 0; i < syncStatus.length; i++) {
@@ -681,8 +681,8 @@ export default {
     async lazadaLogin() {
       if (this.$buyerAccountService) {
         const account = await this.$buyerAccountService.lazadaLogin(this.siteCode)
-        console.log('lazadaLogin', account)
-        if (account) {
+        console.log('lazadaLogin', account,account.loginCookies.length)
+        if (account && account.loginCookies.length !== 0) {
           this.upBuyerAccountList(account)
         }
       }
@@ -700,7 +700,7 @@ export default {
       if (this.$buyerAccountService) {
         const account = await this.$buyerAccountService.shopeeLogin(this.siteCode)
         console.log('shopee', account)
-        if (account) {
+        if (account && account.loginCookies.length !== 0) {
           this.upBuyerAccountList(account)
         }
       }
@@ -723,11 +723,7 @@ export default {
         })
         return userInfo
       } else {
-        this.$notify({
-          title: '买手号个人中心',
-          type: 'error',
-          message: `请选择账户`,
-        })
+         return this.$message.error(`请选择账户`)
       }
     },
     //上传买手号
@@ -738,6 +734,7 @@ export default {
         account['login_info'] = JSON.stringify(account['login_info'])
         this.upBuyerAccountList(account)
       }
+      this.$message.success("上传买手号成功!")
     },
     // 更新买手号列表(自动上传)服务端
     async upBuyerAccountList(account) {
@@ -757,22 +754,24 @@ export default {
         const { data } = await this.$api.upLoadBuyAccount(params)
         console.log(account, data, '5656896898============')
         if (data.code === 200) {
-          this.buyerAccount()
+          this.updataBuyInfoWeb(params)
+          // this.buyerAccount()
           //  this.syncLogistics(account)
         } else {
-          this.$notify({
-            title: '买手号信息',
-            type: 'warning',
-            message: `账户上传失败,请联系客服人员!`,
-          })
+          this.$message.warning("账户上传失败,请联系客服人员!")
         }
       } catch (error) {
-        this.$notify({
-          title: '买手号信息',
-          type: 'warning',
-          message: `账户上传失败,请联系客服人员,${error}!`,
-        })
+        this.$message.warning("账户上传失败,请联系客服人员!")
         console.log(error)
+      }
+    },
+    // 更新买手号列表(前端本地)
+    updataBuyInfoWeb(params){
+      let index = this.buyerAccountList.findIndex(n=>n.type==params.type && n.name == params.name)
+      if(index>-1){
+        this.buyerAccountList[index].login_info = JSON.parse(params.loginInfo)
+      }else{
+        this.buyerAccount()
       }
     },
     // 更新买手号列表(获取买手号列表)
@@ -790,12 +789,7 @@ export default {
         this.$parent['buyerAccountList'] = sortData || data.data // await this.$buyerAccountService.getLocalAccounts()
         this.defaultSelect()
         if (i) {
-          // this.$message.success('账户信息已更新')
-          this.$notify({
-            title: '买手号信息',
-            type: 'success',
-            message: `账户信息已更新`,
-          })
+          this.$message.success('账户信息已更新')
         }
       }
       console.log(this.buyerAccountList)
@@ -856,11 +850,7 @@ export default {
       }
       const { data } = await this.$api.deleteBuyAccount(Account)
       if (data.code === 200) {
-        this.$notify({
-          title: '买手号管理',
-          type: 'success',
-          message: `买手号删除成功`,
-        })
+          this.$message.success('买手号删除成功')
         this.selectAccount.accountpdd = ''
         this.selectAccount.accountjx = ''
         this.selectAccount.account1688 = ''
@@ -883,11 +873,7 @@ export default {
         }
       })
       if (!pddAccountList.length) {
-        return this.$notify({
-          title: '拼多多优惠券',
-          type: 'warning',
-          message: `暂未查询到拼多多账号优惠价`,
-        })
+        return this.$message.warning('暂未查询到拼多多账号优惠价')
       }
       const account = await this.$buyerAccountService.pddCouponWindow(pddAccountList)
       console.log(account)

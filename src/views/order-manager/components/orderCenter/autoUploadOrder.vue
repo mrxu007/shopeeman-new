@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-11-12 10:09:55
- * @LastEditTime: 2021-12-03 19:55:24
+ * @LastEditTime: 2021-12-17 14:43:07
  * @LastEditors: Please set LastEditors
  * @Description: 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  * @FilePath: \shopeeman-new\src\views\order-manager\components\orderCenter\autoUploadOrder.vue
@@ -13,44 +13,45 @@
 </template>
 
 <script >
-import { syncStatusAll, statusListSecond, statusListThird } from './orderCenter'
+import { syncStatusAll, syncStatusFirst,statusListSecond, statusListThird } from './orderCenter'
 import orderSync from '../../../../services/timeOrder'
 export default {
   data() {
     return {
       showConsole: false,
       mallList: [],
-      statusListFirst: syncStatusAll,
+      statusListFirst: syncStatusFirst,
       statusListSecond: statusListSecond,
       statusListThird: statusListThird,
     }
   },
   mounted() {
     this.getAllMall()
+    this.$refs.Logs.writeLog(`定时任务分别在五分钟、八分钟之后开启`, true)
     //first task 每隔4小时同步一次
     setTimeout(() => {
-      this.syncOrders(this.statusListFirst, 'auto-first',30)
+      this.syncOrders(this.statusListFirst, 'auto-first',60)
       setInterval(() => {
-        this.syncOrders(this.statusListFirst, 'auto-first',30)
+        this.syncOrders(this.statusListFirst, 'auto-first',60)
       }, 4 * 60 * 60 * 1000)
     }, 5 * 60 * 1000)
     //second task 每隔30分钟同步一次
     setTimeout(() => {
-      this.syncOrders(this.statusListSecond, 'auto-second',15)
+      this.syncOrders(this.statusListSecond, 'auto-second',60)
       setInterval(() => {
-        this.syncOrders(this.statusListSecond, 'auto-second',15)
+        this.syncOrders(this.statusListSecond, 'auto-second',60)
       }, 30 * 60 * 1000)
     }, 8 * 60 * 1000)
     //third task 每隔60分钟同步一次
     setTimeout(() => {
-      this.syncOrders(this.statusListThird, 'auto-third',7)
+      this.syncOrders(this.statusListThird, 'auto-third',60)
       setInterval(() => {
-        this.syncOrders(this.statusListThird, 'auto-third',7)
+        this.syncOrders(this.statusListThird, 'auto-third',60)
       }, 60 * 60 * 1000)
     }, 8 * 60 * 1000)
   },
   methods: {
-    //a.第一个定时任务（同步 toship、shipping、completed、cancelled、refund）：5分钟后启动后每隔4小时同步一次
+    //a.第一个定时任务（同步 toship、shipping、completed、cancelled、refund）：5分钟后启动后每隔4小时同步一次 改all
     //b.第二个定时任务（同步 toship、cancelled、refund）：8分钟后启动后每隔30分钟同步一次
     //c.第三个定时任务（同步 shipping、completed）：8分钟后启动后每隔60分钟同步一次
     async syncOrders(statusList, type,timeRange) {

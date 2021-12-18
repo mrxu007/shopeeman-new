@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-11-16 17:41:21
- * @LastEditTime: 2021-12-13 11:15:23
+ * @LastEditTime: 2021-12-18 11:23:13
  * @LastEditors: Please set LastEditors
  * @Description: 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  * @FilePath: \shopeeman-new\src\views\order-manager\components\OrderManagerDeliveryManagement.vue
@@ -16,10 +16,10 @@
           <div class="base-item base-left">
             <el-row class="row-style">
               <el-button size="mini" type="primary" class="btnWidth" @click="syncSurface">批量同步面单信息</el-button>
-              <el-button size="mini" type="primary" class="btnWidth" @click="batchPrintOrderSurface">批量下载平台面单</el-button>
+              <el-button size="mini" type="primary" class="btnWidth" @click="batnchDownLoad('down')">批量下载平台面单</el-button>
             </el-row>
             <el-row class="row-style">
-              <el-button size="mini" type="primary" class="btnWidth" >批量预览打印平台面单</el-button>
+              <el-button size="mini" type="primary" class="btnWidth" @click="batnchDownLoad('view')">批量预览打印平台面单</el-button>
               <el-button size="mini" type="primary" class="btnWidth" @click="getExportData">导出数据</el-button>
             </el-row>
             <el-row class="row-style">
@@ -39,7 +39,7 @@
               <div class="tool-item">
                 <span>创建时间：</span>
                 <el-date-picker
-                @change="changeTime($event,'createTime')"
+                  @change="changeTime($event, 'createTime')"
                   v-model="createTime"
                   size="mini"
                   value-format="yyyy-MM-dd"
@@ -79,7 +79,7 @@
               <div class="tool-item mar-right">
                 <span>截止时间：</span>
                 <el-date-picker
-                  @change="changeTime($event,'createTime')"
+                  @change="changeTime($event, 'createTime')"
                   v-model="createTime"
                   size="mini"
                   value-format="yyyy-MM-dd"
@@ -139,7 +139,7 @@
           <template slot-scope="scope">{{ trackStatus[scope.row.is_apply_tracking_no] }}</template>
         </el-table-column>
         <el-table-column align="center" prop="ship_by_date" label="是否同步面单信息" min-width="140">
-          <template slot-scope="scope">{{ scope.row.hasLogistics }}</template>
+          <template slot-scope="scope">{{ scope.row.hasLogistics==0?'否':'是' }}</template>
         </el-table-column>
         <el-table-column align="center" prop="order_status" label="发货状态" min-width="100">
           <template slot-scope="scope">{{ changeOrderStatus(scope.row.order_status) }}</template>
@@ -274,31 +274,49 @@ export default {
     }, 2000)
   },
   methods: {
-    changeTime(val,key,subKey) {
-      let days = getDaysBetween(new Date(val[0]).getTime(),new Date(val[1]).getTime())
-      if(days>93){
-        if(subKey){
+    changeTime(val, key, subKey) {
+      let days = getDaysBetween(new Date(val[0]).getTime(), new Date(val[1]).getTime())
+      if (days > 93) {
+        if (subKey) {
           this[key][subKey] = creatDate(30)
-        }else{
-           this[key] = creatDate(30)
+        } else {
+          this[key] = creatDate(30)
         }
-         return this.$notify({
-          title: '时间选择',
-          type: 'warning',
-          message: `只支持查询或导出90天内的数据,请重新选择时间！`,
-        })
+        return this.$message.warning('只支持查询或导出93天内的数据,请重新选择时间！')
       }
-      console.log(days,val, 'time-time')
     },
     //打印面单信息
-    async batchPrintOrderSurface() {
+    batnchDownLoad(type) {
       if (!this.multipleSelection.length) {
-        return this.$notify({
-          title: '打印面单',
-          type: 'warning',
-          message: `请选择要操作的数据`,
-        })
+        return this.$message.warning('请选择要操作的数据！')
       }
+      if (type == 'down') {
+        this.$confirm('pdf文件后缀是否小写?', '提示', {
+          confirmButtonText: '是',
+          cancelButtonText: '否',
+          type: 'warning',
+        })
+          .then(() => {
+            this.batchPrintOrderSurface(true, true, false, false)
+          })
+          .catch(() => {
+            this.batchPrintOrderSurface(false, true, false, false)
+          })
+      } else if (type == 'view') {
+        this.$confirm('是否需要打印虚拟面单?', '提示', {
+          confirmButtonText: '是',
+          cancelButtonText: '否',
+          type: 'warning',
+        })
+          .then(() => {
+            this.batchPrintOrderSurface(false, false, true, true)
+          })
+          .catch(() => {
+            this.batchPrintOrderSurface(false, false, true, false)
+          })
+      }
+    },
+    async batchPrintOrderSurface(PdfLower, isDownload, isShowWindow, IsPrintVirtual) {
       let country = ''
       let countryId = {}
       let mainOrders = ''
@@ -312,121 +330,161 @@ export default {
         }
       })
       if (Object.keys(countryId).length > 1) {
-        return this.$notify({
-          title: '打印面单',
-          type: 'warning',
-          message: `由于每个站点面单不一致，请分站点批量预览和打印`,
-        })
+        return this.$message.warning('由于每个站点面单不一致，请分站点批量预览和打印！')
       }
       let params = {
         mainOrderSns: mainOrders,
       }
       let sheetInfo = []
-      let res = await this.$api.getLogisticsInformationBatch(params)
-      console.log(res, 'res')
-      if (res.data.code === 200) {
-        sheetInfo = res.data.data
-      } else {
-        return this.$notify({
-          title: '打印面单',
-          type: 'warning',
-          message: `面单获取失败`,
-        })
-      }
-     sheetInfo = [{
-      "id": 4,
-      "order_sn": "211210QPFBT883",
-      "status": 1,
-      "data": {
-        "name": "Sirirat chawalarat",
-        "phone": "66805869386",
-        "inCode": "",
-        "country": "TH",
-        "orderSn": "211210QPFBT883",
-        "lane_code": "L-TH22",
-        "productDes": "สีชมพูสเตอริโอแบบส * 1||สีชมพู5,1-อายุ5ปี * 1",
-        "tracking_no": "TH204258844180Y",
-        "full_address": "283/15 moobaan phakdee rama 3 bangkholeam เขตบางคอแหลม จังหวัดกรุงเทพมหานคร 10120",
-        "last_mile_name": "TH-JNT",
-        "first_mile_name": "",
-        "goods_to_declare": "P"
-      },
-      "xzy_status": 1,
-      "url": "http://pkg.ppxias.com/ppxiasProductImages/produce/2021/12/14799e9763db4d68.PDF",
-      "created_at": "2020-03-10 20:10:19",
-      "updated_at": "2020-03-10 20:27:59"
-    }]
-      if (!sheetInfo.length) {
-        return this.$notify({
-          title: '打印面单',
-          type: 'warning',
-          message: `暂无面单信息`,
-        })
-      }
-      let PdfInfoModel = []
-      let VirtualPdfPath  = null
-      let ConvertFaceInfoModel = []
-      for (let i = 0; i < sheetInfo.length; i++) {
-        let info = sheetInfo[i]
-        if (!info.data || !info.url) {
-          this.$refs.Logs.writeLog(`订单${info.order_sn}未获取到面单信息`, false)
-          continue
+      try {
+        let res = await this.$api.getLogisticsInformationBatch(params)
+        console.log(res, 'res')
+        if (res.data.code === 200) {
+          sheetInfo = res.data.data
+        } else {
+          return this.$message.warning('面单获取失败！')
         }
-        let orderInfo = this.multipleSelection.find((n) => {
-          return n.order_sn == info.order_sn
-        })
-        console.log(orderInfo,"orderInfo")
-        let params = {
-          PDFUrl: info.url,
-          OrderNo: info.order_sn,
-          MainOrderNo: info.order_sn,
-          PlatformLogisticsId: info.data.tracking_no,
-          PlatformLogisticsName: '',
-          CreateTime: info.created_at,
-          BuyerName: info.data.name,
-          BuyerPhone: info.data.phone,
-          BuyerAddress: info.data.full_address,
-          BuyerNote: '',
-          BarInfo: {
-            BarCode: info.order_sn,
-            BarCodeWidth: 200,
-            BarCodeHeight: 50,
+        sheetInfo = [
+          {
+            id: 4,
+            order_sn: '2112169WHRH236',
+            status: 1,
+            data: {
+              name: 'Sirirat chawalarat',
+              phone: '66805869386',
+              inCode: '',
+              country: 'TH',
+              orderSn: '2112169WHRH236',
+              lane_code: 'L-TH22',
+              productDes: 'สีชมพูสเตอริโอแบบส * 1||สีชมพู5,1-อายุ5ปี * 1',
+              tracking_no: 'TH204258844180Y',
+              full_address: '283/15 moobaan phakdee rama 3 bangkholeam เขตบางคอแหลม จังหวัดกรุงเทพมหานคร 10120',
+              last_mile_name: 'TH-JNT',
+              first_mile_name: '',
+              goods_to_declare: 'P',
+            },
+            xzy_status: 1,
+            url: 'http://pkg.ppxias.com/ppxiasProductImages/produce/2021/12/14799e9763db4d68.PDF',
+            created_at: '2020-03-10 20:10:19',
+            updated_at: '2020-03-10 20:27:59',
           },
-          SkuList: [orderInfo.goodsInfo[0].variation_sku.replace('=|=', ''), orderInfo.goodsInfo[0].goods_count],
-          IsNeedCut: orderInfo.logistics_id == 30008 || orderInfo.logistics_id == 30007 ? true : false,
-          IsUseA4Size: false,
-          PdfWidth: 320,
-          PdfHeight: 425,
-          LocationY: -420,
-          PrintStatus: '0',
-          MallId: orderInfo.mall_info.platform_mall_id,
-          MallName: orderInfo.mall_info.platform_mall_name,
+        ]
+        if (!sheetInfo.length) {
+          return this.$message.warning('暂无面单信息')
         }
-        PdfInfoModel.push(params)
-        // let conParams = {
-        //   HtmlFilePath: info.url.includes('.html')?info.url:'',
-        //   PDFFilePath : info.url.includes('.PDF') || info.url.includes('.pdf')?info.url:'',
-        //   LogisticsId : info.data.tracking_no,
-        //   OrderSn : info.order_sn,
-        //   MallId :orderInfo.mall_info.platform_mall_id,
-        //   VirtualFilePath : VirtualFilePath 
-        // }
-        // ConvertFaceInfoModel.push(conParams)
-      }
-      console.log(JSON.stringify(PdfInfoModel),PdfInfoModel,true)
-      VirtualPdfPath = await window['BaseUtilBridgeService'].getVirtualFace(PdfInfoModel,true)
-      let VirtualPdfPathObj = VirtualPdfPath && JSON.parse(VirtualPdfPath)
-      console.log(VirtualPdfPathObj,"VirtualPdfPath")
-      let pdfDownloadModel = {
-        IsDownload: false,
-        PdfExtendName: '.PDF',
-        PdfExtendNameIsLower: false,
-        IsPrintVirtualFaceSheet: false,
-        Site: country,
-        IsShowWindow: true,
-        PdfInfoList: PdfInfoModel,
-        VirtualPdfPath :VirtualPdfPath,
-        ConvertFaceInfoList :[]
+        let PdfInfoModel = []
+        for (let i = 0; i < sheetInfo.length; i++) {
+          let info = sheetInfo[i]
+          if (!info.data || !info.url) {
+            this.$refs.Logs.writeLog(`订单${info.order_sn}未获取到面单信息`, false)
+            continue
+          }
+          let orderInfo = this.multipleSelection.find((n) => {
+            return n.order_sn == info.order_sn
+          })
+          console.log(orderInfo, 'orderInfo')
+          let params = {
+            PDFUrl: info.url,
+            OrderNo: info.order_sn,
+            MainOrderNo: info.order_sn,
+            PlatformLogisticsId: info.data.tracking_no,
+            PlatformLogisticsName: '',
+            CreateTime: info.created_at,
+            BuyerName: info.data.name,
+            BuyerPhone: info.data.phone,
+            BuyerAddress: info.data.full_address,
+            BuyerNote: '',
+            BarInfo: {
+              BarCode: info.order_sn,
+              BarCodeWidth: 200,
+              BarCodeHeight: 50,
+            },
+            SkuList: [orderInfo.goodsInfo[0].variation_sku.replace('=|=', ''), orderInfo.goodsInfo[0].goods_count],
+            IsNeedCut: orderInfo.logistics_id == 30008 || orderInfo.logistics_id == 30007 ? true : false,
+            IsUseA4Size: false,
+            PdfWidth: 320,
+            PdfHeight: 425,
+            LocationY: -420,
+            PrintStatus: '0',
+            MallId: orderInfo.mall_info.platform_mall_id,
+            MallName: orderInfo.mall_info.platform_mall_name,
+          }
+          PdfInfoModel.push(params)
+        }
+
+        let pdfDownloadModel1 = {
+          IsDownload: isDownload,
+          PdfExtendName: PdfLower ? '.pdf' : '.PDF',
+          PdfExtendNameIsLower: PdfLower,
+          IsPrintVirtualFaceSheet: IsPrintVirtual,
+          Site: country,
+          IsShowWindow: isShowWindow,
+          VirtualPdfPath: {},
+          ConvertFaceInfoList: [],
+        }
+        console.log(JSON.stringify(pdfDownloadModel1), '333')
+        let pdfInfo = await window['BaseUtilBridgeService'].getOrderPdfInfo(pdfDownloadModel1)
+        console.log(pdfInfo, 'pdfInfo')
+
+        console.log(JSON.stringify(PdfInfoModel), '444', true)
+
+        let VirtualPdfPath = null
+        let VirtualPdfPathObj = {}
+        if (IsPrintVirtual) {
+          VirtualPdfPath = await window['BaseUtilBridgeService'].getVirtualFace(PdfInfoModel, true)
+          VirtualPdfPathObj = VirtualPdfPath && JSON.parse(VirtualPdfPath)
+          console.log(VirtualPdfPathObj, 'VirtualPdfPath')
+          if (!(VirtualPdfPathObj && VirtualPdfPathObj.code == '200')) {
+            return this.$message.warning('获取虚拟面单失败')
+          }
+        }
+        let ConvertFaceInfoModel = []
+        for (let i = 0; i < sheetInfo.length; i++) {
+          let info = sheetInfo[i]
+          console.log(i,info)
+          if (!info.data || !info.url) {
+            this.$refs.Logs.writeLog(`订单${info.order_sn}未获取到面单信息`, false)
+            continue
+          }
+          let orderInfo = this.multipleSelection.find((n) => {
+            return n.order_sn == info.order_sn
+          })
+          console.log(orderInfo, 'orderInfo',VirtualPdfPathObj,VirtualPdfPathObj.data,orderInfo.order_sn)
+          let conParams = {
+            HtmlFilePath: info.url.includes('.html') ? info.url : '',
+            PDFFilePath: info.url.includes('.PDF') || info.url.includes('.pdf') ? info.url : '',
+            LogisticsId: info.data.tracking_no,
+            OrderSn: orderInfo.order_sn,
+            MallId: orderInfo.mall_info.platform_mall_id,
+            VirtualFilePath: IsPrintVirtual?VirtualPdfPathObj.data[orderInfo.order_sn]:'',
+          }
+          ConvertFaceInfoModel.push(conParams)
+          console.log(ConvertFaceInfoModel,"-------")
+        }
+        console.log('555', JSON.stringify(ConvertFaceInfoModel))
+        let convertRes = await window['BaseUtilBridgeService'].htmlToPdf(ConvertFaceInfoModel, false)
+        let convertResObj = convertRes && JSON.parse(convertRes)
+        console.log(convertRes, 'convertFaceInfoModel')
+        if (!convertResObj || !convertResObj.code == 200) {
+          return this.$message.error('打印面单失败')
+        }
+        let pdfDownloadModel = {
+          IsDownload: isDownload,
+          PdfExtendName: PdfLower ? '.pdf' : '.PDF',
+          PdfExtendNameIsLower: PdfLower,
+          IsPrintVirtualFaceSheet: IsPrintVirtual,
+          Site: country,
+          IsShowWindow: isShowWindow,
+          PdfInfoList: PdfInfoModel,
+          VirtualPdfPath:IsPrintVirtual? VirtualPdfPathObj.data:{},
+          ConvertFaceInfoList: convertResObj.data,
+        }
+        console.log(JSON.stringify(pdfDownloadModel))
+        this.tableLoading = true
+        await window['BaseUtilBridgeService'].downloadPdf(pdfDownloadModel)
+        this.tableLoading = false
+      } catch (error) {
+        console.log(error)
       }
     },
     //同步面单信息
@@ -435,17 +493,17 @@ export default {
         return this.$message.warning('请先选择数据！')
       }
       this.showConsole = false
-      this.$refs.Logs.writeLog('同步面单信息开始，请耐心等待！',true)
+      this.$refs.Logs.writeLog('同步面单信息开始，请耐心等待！', true)
       const service = new surFaceService(this, this.$refs.Logs.writeLog)
       service.start(this.multipleSelection)
     },
     //下载拣货单
-    async downLoadPickList(){
-       if (!this.multipleSelection.length) {
+    async downLoadPickList() {
+      if (!this.multipleSelection.length) {
         return this.$message.warning('请先选择数据！')
       }
-       this.showConsole = false
-      this.$refs.Logs.writeLog('下载拣货单开始，请耐心等待！',true)
+      this.showConsole = false
+      this.$refs.Logs.writeLog('下载拣货单开始，请耐心等待！', true)
       const service = new surFaceService(this, this.$refs.Logs.writeLog)
       service.getPickListData(this.multipleSelection)
     },
@@ -469,6 +527,9 @@ export default {
       let exportData = []
       let dataFlag = (data && data.code === 200 && data.data.data && data.data.data) || []
       while (dataFlag && dataFlag.length) {
+        dataFlag.forEach(async item=>{
+          item.goodsLink = await this.joinLink(item,item.goodsInfo[0].goods_id)
+        })
         exportData = exportData.concat(dataFlag)
         params.page++
         let { data } = await this.$api.getDeliveryList(params)
@@ -520,14 +581,14 @@ export default {
                 <td style="mso-number-format:'\@';">${item.order_sn ? item.order_sn : '' + '\t'}</td>
                 <td>${item.goods_count ? item.goods_count : '' + '\t'}</td>
                 <td>${item.goodsInfo && item.goodsInfo.length ? item.goodsInfo[0].variation_name : '' + '\t'}</td>
-                <td>${item.goodsInfo && item.goodsInfo.length ? this.joinLink(item, item.goodsInfo[0].goods_id) : '' + '\t'}</td>
+                <td>${item.goodsLink ? item.goodsLink : '' + '\t'}</td>
                 <td>${
                   item.goodsInfo && item.goodsInfo.length ? this.$filters.imageRender([item.country, item.mall_info ? item.mall_info.platform_mall_id : '', item.goodsInfo[0].goods_img]) : '' + '\t'
                 }</td>
                 <td>${item.created_time ? item.created_time : '' + '\t'}</td>
                 <td>${item.ship_by_date ? item.ship_by_date : '' + '\t'}</td>
                 <td>${item.is_apply_tracking_no ? this.trackStatus[item.is_apply_tracking_no] : '' + '\t'}</td>
-                <td>${item.hasLogistics ? item.hasLogistics : '' + '\t'}</td>
+                <td>${item.hasLogistics==0 ? '否' : '是' + '\t'}</td>
                 <td>${item.order_status ? changeOrderStatus(item.order_status) : '' + '\t'}</td>
                 <td>${item.logistics_name ? item.logistics_name : '' + '\t'}</td>
                 <td>${item.tracking_no ? item.tracking_no : '' + '\t'}</td>
@@ -538,28 +599,15 @@ export default {
     },
     //修改单个备注
     async changeRemark(id, index) {
-      if (this.orderRemark) {
         const res = await this.$api.setLocalRemark({ id: id, remark: this.orderRemark })
         if (res.data.code == 200) {
-          this.$notify({
-            title: '备注管理',
-            type: 'success',
-            message: `设置备注成功`,
-          })
+          this.$message.success('设置备注成功')
           this.tableData[index].remark = this.orderRemark
           this.activeRemarkID = ''
           return
         }
-        // this.$message.error('设置备注失败')
-        this.$notify({
-          title: '备注管理',
-          type: 'error',
-          message: `设置备注失败`,
-        })
+        this.$message.error('设置备注失败')
         this.activeRemarkID = ''
-      } else {
-        this.$message.warning('备注不能为空')
-      }
     },
     editRemark(index, activeRemarkID) {
       this.activeRemarkID = activeRemarkID

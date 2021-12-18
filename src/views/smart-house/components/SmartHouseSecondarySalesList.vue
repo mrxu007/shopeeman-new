@@ -275,11 +275,7 @@ export default {
         this.Loading2 = false
       } else {
         this.Loading2 = false
-        return this.$notify({
-          title: '订单信息',
-          type: 'warning',
-          message: `没有可以导出的订单`
-        })
+        return this.$message.warning(`没有可以导出的订单`)
       }
     },
     handleSizeChange(val) {

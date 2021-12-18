@@ -144,7 +144,7 @@ export default class NetMessageBridgeService {
         referer: url + referer
       })
     }
-    console.log('-----', url, JSON.stringify(options))
+    // console.log('-----', url, JSON.stringify(options))
     return this.NetMessageBridgeService().get(url, JSON.stringify(options))
   }
 
@@ -782,7 +782,7 @@ export default class NetMessageBridgeService {
   async getOrderIdList(country, data) {
     const res = await this.getChinese(country, '/api/v3/order/get_order_id_list', data)
     const resObj = res && JSON.parse(res)
-    console.log(resObj)
+    // console.log(resObj)
     if (resObj && resObj.status === 200) {
       const info = JSON.parse(resObj.data)
       if (info && info.code === 0) {
@@ -811,7 +811,7 @@ export default class NetMessageBridgeService {
       }
     })
     const resObj = res && JSON.parse(res)
-    console.log(resObj)
+    // console.log(resObj)
     if (resObj && resObj.status === 200) {
       const info = JSON.parse(resObj.data)
       if (info && info.code === 0) {
@@ -840,7 +840,7 @@ export default class NetMessageBridgeService {
       }
     })
     const resObj = res && JSON.parse(res)
-    console.log(resObj)
+    // console.log(resObj)
     if (resObj && resObj.status === 200) {
       const info = JSON.parse(resObj.data)
       if (info && info.code === 0) {
@@ -865,7 +865,7 @@ export default class NetMessageBridgeService {
   async getDetailsSinger(country, data) {
     const res = await this.getChinese(country, '/api/v3/order/get_one_order', data)
     const resObj = res && JSON.parse(res)
-    console.log(resObj)
+    // console.log(resObj)
     if (resObj && resObj.status === 200) {
       const info = JSON.parse(resObj.data)
       if (info && info.code === 0) {
@@ -890,7 +890,7 @@ export default class NetMessageBridgeService {
   async getOrderHint(country, data) {
     const res = await this.getChinese(country, '/api/v3/order/get_order_hint', data)
     const resObj = res && JSON.parse(res)
-    console.log(resObj)
+    // console.log(resObj)
     if (resObj && resObj.status === 200) {
       const info = JSON.parse(resObj.data)
       if (info && info.code === 0) {
@@ -915,7 +915,7 @@ export default class NetMessageBridgeService {
   async getOrdeTrackingHistory(country, data) {
     const res = await this.getChinese(country, '/api/v3/order/get_order_tracking_history/', data)
     const resObj = res && JSON.parse(res)
-    console.log(resObj)
+    // console.log(resObj)
     if (resObj && resObj.status === 200) {
       const info = JSON.parse(resObj.data)
       if (info && info.code === 0) {
@@ -940,7 +940,7 @@ export default class NetMessageBridgeService {
   async getIncomeTransactionHistoryDetail(country, data) {
     const res = await this.getChinese(country, '/api/v3/finance/income_transaction_history_detail/', data)
     const resObj = res && JSON.parse(res)
-    console.log(resObj)
+    // console.log(resObj)
     if (resObj && resObj.status === 200) {
       const info = JSON.parse(resObj.data)
       if (info && info.code === 0) {
@@ -965,7 +965,7 @@ export default class NetMessageBridgeService {
   async getLogisticsTrackingHistory(country, data) {
     const res = await this.getChinese(country, '/api/v3/logistics/get_logistics_tracking_history', data)
     const resObj = res && JSON.parse(res)
-    console.log(resObj)
+    // console.log(resObj)
     if (resObj && resObj.status === 200) {
       const info = JSON.parse(resObj.data)
       if (info && info.code === 0) {
@@ -990,7 +990,7 @@ export default class NetMessageBridgeService {
   async getLogisticsTrackingHistoryRefund(country, data) {
     const res = await this.getChinese(country, '/api/v1/return/reverse_logistics_tracking_history/ ', data)
     const resObj = res && JSON.parse(res)
-    console.log(resObj)
+    // console.log(resObj)
     if (resObj && resObj.status === 200) {
       const info = JSON.parse(resObj.data)
       if (info && info.code === 0) {
@@ -1015,7 +1015,7 @@ export default class NetMessageBridgeService {
   async getToShipOrderIdList(country, data) {
     const res = await this.getChinese(country, '/api/v3/order/get_package_list', data)
     const resObj = res && JSON.parse(res)
-    console.log(resObj)
+    // console.log(resObj)
     if (resObj && resObj.status === 200) {
       const info = JSON.parse(resObj.data)
       if (info && info.code === 0) {
@@ -1040,7 +1040,7 @@ export default class NetMessageBridgeService {
   async getRefundOrderIdList(country, data) {
     const res = await this.getChinese(country, '/api/v1/return/list', data)
     const resObj = res && JSON.parse(res)
-    console.log(resObj)
+    // console.log(resObj)
     if (resObj && resObj.status === 200) {
       const info = JSON.parse(resObj.data)
       if (info && info.code === 0) {
@@ -1065,7 +1065,7 @@ export default class NetMessageBridgeService {
   async getRefundOrderDetail(country, data) {
     const res = await this.getChinese(country, '/api/v1/return/detail', data)
     const resObj = res && JSON.parse(res)
-    console.log(resObj)
+    // console.log(resObj)
     if (resObj) {
       const info = JSON.parse(resObj.data)
       if (info && info.code === 0) {
@@ -1090,7 +1090,7 @@ export default class NetMessageBridgeService {
   async getForderLogistics(country, data) {
     const res = await this.getChinese(country, '/api/v3/order/get_forder_logistics/', data)
     const resObj = res && JSON.parse(res)
-    console.log(resObj)
+    // console.log(resObj)
     if (resObj && resObj.status === 200) {
       const info = JSON.parse(resObj.data)
       if (info && info.code === 0) {
@@ -1173,7 +1173,7 @@ export default class NetMessageBridgeService {
       }
     })
     const resObj = res && JSON.parse(res)
-    console.log(resObj)
+    // console.log(resObj)
     if (resObj && resObj.status === 200) {
       const info = JSON.parse(resObj.data)
       if (info && info.code === 0) {
@@ -1212,7 +1212,7 @@ export default class NetMessageBridgeService {
       }
     })
     const resObj = res && JSON.parse(res)
-    console.log(resObj)
+    // console.log(resObj)
     if (resObj && resObj.status === 200) {
       const info = JSON.parse(resObj.data)
       if (info && info.code === 0) {
@@ -1250,7 +1250,7 @@ export default class NetMessageBridgeService {
       }
     })
     const resObj = res && JSON.parse(res)
-    console.log(resObj)
+    // console.log(resObj)
     if (resObj && resObj.status === 200) {
       const info = JSON.parse(resObj.data)
       if (info && info.code === 0) {
@@ -1288,7 +1288,7 @@ export default class NetMessageBridgeService {
       }
     })
     const resObj = res && JSON.parse(res)
-    console.log(resObj)
+    // console.log(resObj)
     if (resObj && resObj.status === 200) {
       const info = JSON.parse(resObj.data)
       if (info && info.code === 0) {
@@ -1326,7 +1326,7 @@ export default class NetMessageBridgeService {
       }
     })
     const resObj = res && JSON.parse(res)
-    console.log(resObj)
+    // console.log(resObj)
     if (resObj && resObj.status === 200) {
       const info = JSON.parse(resObj.data)
       if (info && info.code === 0) {
@@ -1361,7 +1361,7 @@ export default class NetMessageBridgeService {
       }
     })
     const resObj = res && JSON.parse(res)
-    console.log(resObj)
+    // console.log(resObj)
     if (resObj && resObj.status === 200) {
       const info = JSON.parse(resObj.data)
       if (info && info.code === 0) {
@@ -1591,6 +1591,36 @@ export default class NetMessageBridgeService {
       }
     }
   }
+    //拒绝取消订单-接受取消订单
+    async respondCancelRequest(country, data) {
+      const res = await this.postChinese(country, `/api/v3/order/respond_cancel_request/?`, data, {
+        Headers: {
+          'referer': `/portal/sale/${data.order_id}`,
+          'Content-Type': ' application/json'
+        }
+      })
+      const resObj = res && JSON.parse(res)
+      // console.log(res,resObj)
+      if (resObj && resObj.status === 200) {
+        const info = JSON.parse(resObj.data)
+        if (info && info.code === 0) {
+          return {
+            code: 200,
+            data: info.data || []
+          }
+        } else {
+          return {
+            code: 50001,
+            data: info.message || []
+          }
+        }
+      } else {
+        return {
+          code: resObj.status,
+          data: `操作失败${resObj.statusText}`
+        }
+      }
+    }
   //下载面单信息
   async downloadSdJob(country, data) {
     const res = await this.getChinese(country, '/api/v3/logistics/download_sd_job', data)

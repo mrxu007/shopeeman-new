@@ -784,6 +784,15 @@ export default class CommodityService {
     return this.nativeService.callProductCenter('GetProductSkuList', data.toString())
   }
   /**
+   * @name : 更新产品中心库存
+   * @param  {*}
+   * @param {*} skuId
+   * @param {*} stock
+   */  
+  updateSkuStock(skuId,stock) {
+    return this.nativeService.callProductCenter('UpdateSkuStock', skuId.toString(),stock.toString())
+  }
+  /**
    * 获取类目
    * @param {array} data
    * data[0]:country站点
@@ -828,7 +837,7 @@ export default class CommodityService {
    * @param  {String} sysOrderIds 系统订单id，用逗号隔开
    */
   async getSkuRelation(sysOrderIds) {
-    return await this.nativeService.callSkuRelationClient('GetBySysOrderIds', sysOrderIds)
+    return await this.nativeService.callSkuRelationClient('GetBySysOrderIds', sysOrderIds.toString())
   }
   /**
    * @name : 保存映射
@@ -867,7 +876,7 @@ export default class CommodityService {
    * @param {*} mallId
    * @param {*} orderData 
    */
-  async saveLogisticsInfo(sysMallId, mallId, orderData) {
+  async saveOrder(sysMallId, mallId, orderData) {
     return await this.nativeService.callOrderAndMallUpload('SaveOrder', sysMallId, mallId, JSON.stringify(orderData))
   }
   /**
@@ -877,7 +886,7 @@ export default class CommodityService {
    * @param {*} mallId
    * @param {*} afterOrderData 
    */
-  async saveLogisticsInfo(sysMallId, mallId, afterOrderData) {
-    return await this.nativeService.callOrderAndMallUpload('SaveOrder', sysMallId, mallId, JSON.stringify(afterOrderData))
+  async saveAfterOrder(sysMallId, mallId, afterOrderData) {
+    return await this.nativeService.callOrderAndMallUpload('SaveAfterOrder', sysMallId, mallId, JSON.stringify(afterOrderData))
   }
 }

@@ -1,7 +1,7 @@
 import orderService from './order-service'
 import jx from '../network/jx-request'
 import api from '../network/jx-request'
-// import applicationConfig from '../services/application-config'
+import commodityService from '../services/commodity-service'
 // import JSEncrypt from 'jsencrypt'
 import shopeemanService from '../services/shopeeman-service'
 import {
@@ -11,6 +11,7 @@ import {
 export default class {
   tbNetworkService = jx.tbRequest;
   $api = api;
+  $commodityService = new commodityService()
   $shopeemanService = new shopeemanService()
   jdNetworkService = jx.jdRequest;
   jszNetworkService = jx.jxRequest
@@ -24,17 +25,17 @@ export default class {
   mallNo = ''
   upLoadType = ''
   writeLog = undefined
-  timeRange = 7
+  timeRange = 60
   constructor(mall, syncStatus, that, writeLog) {
     this.mall = mall
     this._this = that
     this.syncStatus = syncStatus
     this.writeLog = writeLog
-    console.log("mall",this.mall)
+    console.log("mall", this.mall)
   }
   //单个订单同步
   async startSingel(order, writeLog) {
-    console.log(order,"startSingel")
+    console.log(order, "startSingel")
     this.writeLog = writeLog
     this.mall = order.mall_info
     if (order.order_status === 7) {
@@ -43,7 +44,7 @@ export default class {
         "shop_id": order.mall_info.platform_mall_id
       }
       let res = await this.$shopeemanService.getRefundOrderDetail(order.country, params)
-      console.log("startSingel-after",res)
+      console.log("startSingel-after", res)
       if (res.code === 200) {
         let orderDetail = [res.data]
         await this.getOrderOtherInfoRefund(orderDetail)
@@ -58,7 +59,7 @@ export default class {
         "shop_id": order.mall_info.platform_mall_id
       }
       let res = await this.$shopeemanService.getDetailsSinger(order.country, params)
-      console.log("startSingel",res)
+      console.log("startSingel", res)
       if (res.code === 200) {
         let orderDetail = [res.data]
         await this.getOrderOtherInfo(orderDetail)
@@ -70,7 +71,7 @@ export default class {
     }
   }
   //手动同步/自动同步
-  async start(mallNo, upLoadType,timeRange) {
+  async start(mallNo, upLoadType, timeRange) {
     this.timeRange = timeRange
     if (this.syncStatus.value === 'refund') {
       await this.refund(mallNo, upLoadType)
@@ -116,23 +117,23 @@ export default class {
               orderDetailListFa = orderDetailListFa.concat(resDetail.data.orders)
               if (orderDetailList && orderDetailList.length) {
                 //过滤不是今天的订单 new Date().getTime()-item.create_time*1000 < 1*24*60*60*1000
-                // let orderDetailListFilter = orderDetailList.filter(item => {
-                //   return new Date().getTime() - item.create_time * 1000 > 1 * 24 * 60 * 60 * 1000
-                // })
-                // orderDetailListCount += orderDetailListFilter.length
-                orderDetailListCount += orderDetailList.length
-                await this.getOrderOtherInfo(orderDetailList)
+                let orderDetailListFilter = orderDetailList.filter(item => {
+                  return new Date().getTime() - item.create_time * 1000 < this.timeRange * 24 * 60 * 60 * 1000
+                })
+                orderDetailListCount += orderDetailListFilter.length
+                // orderDetailListCount += orderDetailList.length
+                await this.getOrderOtherInfo(orderDetailListFilter)
                 //检测订单是否需要上报
                 let checkedList = []
-                checkedList = await this.checkOrderSnStatus(orderDetailList)
+                checkedList = await this.checkOrderSnStatus(orderDetailListFilter)
                 checkedList.length && await this.upLoadOrders(checkedList)
               }
             }
           }
           //自动翻页
           let lastTime = ''
-          lastTime = orderDetailListFa[orderDetailListFa.length-1].create_time
-          console.log(lastTime,"lastTime",(new Date().getTime() - lastTime * 1000 > this.timeRange * 24 * 60 * 60 * 1000))
+          lastTime = orderDetailListFa[orderDetailListFa.length - 1].create_time
+          console.log(lastTime, "lastTime", (new Date().getTime() - lastTime * 1000 > this.timeRange * 24 * 60 * 60 * 1000))
           if (package_list.length < 40 || (lastTime && (new Date().getTime() - lastTime * 1000 > this.timeRange * 24 * 60 * 60 * 1000))) {
             package_list = []
           } else {
@@ -174,11 +175,17 @@ export default class {
         } = res.data
         let orderDetailListCount = 0
         while (list.length) {
+          let paramsUploadList = []
           for (let a = 0; a < list.length; a++) {
             let order = list[a]
             let par = {
               return_sn: order.return_sn,
               shop_id: this.mall.platform_mall_id
+            }
+            //过滤60天内数据
+            if (new Date().getTime() - order.create_time * 1000 > this.timeRange * 24 * 60 * 60 * 1000) {
+              console.log("过滤after", new Date(order.create_time * 1000))
+              continue
             }
             let resDetail = await this.$shopeemanService.getRefundOrderDetail(this.mall.country, par)
             console.log("resDetail", resDetail)
@@ -187,16 +194,21 @@ export default class {
               await this.getOrderOtherInfoRefund(order)
               let checkFlag = await this.checkAfterOrderSnStatus(order)
               if (checkFlag) {
-                let afterRes = await this.afterUpLoadOrders(order)
-                // debugger
-                if (afterRes) {
-                  orderDetailListCount++
-                }
+                // orderDetailListCount++
+                paramsUploadList.push(order)
               }
             }
           }
+          //上报
+          let afterRes = await this.afterUpLoadOrders(paramsUploadList)
+          // debugger
+          if (afterRes) {
+            orderDetailListCount+=paramsUploadList.length
+          }
           //自动翻页
-          if (list.length < 40) {
+          let lastTime = ''
+          lastTime = list[list.length - 1].create_time
+          if (list.length < 40 || (lastTime && (new Date().getTime() - lastTime * 1000 > this.timeRange * 24 * 60 * 60 * 1000))) {
             list = []
           } else {
             params.page_number++
@@ -252,24 +264,25 @@ export default class {
               let orderDetailList = resDetail.data && resDetail.data.orders || []
               orderDetailListFa = orderDetailListFa.concat(resDetail.data.orders)
               if (orderDetailList && orderDetailList.length) {
-                //过滤不是今天的订单 new Date().getTime()-item.create_time*1000 < 1*24*60*60*1000
-                // let orderDetailListFilter = orderDetailList.filter(item => {
-                //   return new Date().getTime() - item.create_time * 1000 < 1 * 24 * 60 * 60 * 1000
-                // })
-                // orderDetailListCount += orderDetailListFilter.length
-                orderDetailListCount += orderDetailList.length
-                await this.getOrderOtherInfo(orderDetailList)
+                // 过滤不是60天的订单 new Date().getTime()-item.create_time*1000 < 1*24*60*60*1000
+                let orderDetailListFilter = orderDetailList.filter(item => {
+                  return new Date().getTime() - item.create_time * 1000 < this.timeRange * 24 * 60 * 60 * 1000
+                })
+                console.log(orderDetailListFilter, "过滤")
+                orderDetailListCount += orderDetailListFilter.length
+                // orderDetailListCount += orderDetailList.length
+                await this.getOrderOtherInfo(orderDetailListFilter)
                 //检测订单是否需要上报
                 let checkedList = []
-                checkedList = await this.checkOrderSnStatus(orderDetailList)
+                checkedList = await this.checkOrderSnStatus(orderDetailListFilter)
                 checkedList.length && await this.upLoadOrders(checkedList)
               }
             }
           }
           //自动翻页
           let lastTime = ''
-          lastTime = orderDetailListFa[orderDetailListFa.length-1].create_time
-          console.log(lastTime,"lastTime",(new Date().getTime() - lastTime * 1000 > this.timeRange * 24 * 60 * 60 * 1000))
+          lastTime = orderDetailListFa[orderDetailListFa.length - 1].create_time
+          console.log(lastTime, "lastTime", (new Date().getTime() - lastTime * 1000 > this.timeRange * 24 * 60 * 60 * 1000))
           if (orders.length < 40 || (lastTime && (new Date().getTime() - lastTime * 1000 > this.timeRange * 24 * 60 * 60 * 1000))) {
             orders = []
           } else {
@@ -327,13 +340,13 @@ export default class {
       }
       //5、获取物流轨迹的发货时间 
       let res5 = await this.$shopeemanService.getLogisticsTrackingHistory(this.mall.country, params)
-      console.log(res6,"res6")
+      console.log(res5, "res5")
       if (res5.code === 200) {
         order['logisticsTrackingHistory'] = res5.data
       }
       //6、申请运单号
       let res6 = await this.$shopeemanService.getForderLogistics(this.mall.country, params)
-      console.log(res6,"res6")
+      console.log(res6, "res6")
       if (res6.code === 200) {
         order['forderLogistics'] = res6.data
       }
@@ -373,12 +386,6 @@ export default class {
     }
     console.log(order, "orderAll")
   }
-
-  //上报shop平台物流信息
-  async uploadOrderLogisticsInfo(){
-
-  }
-
 
   //服务端检测订单 ---正常订单
   //orderKey组装： main_order_sn  + status  +   status_ext  + logistics_status + log_current_status  + actual_shipping_cost
@@ -423,7 +430,7 @@ export default class {
       let paramsArr = []
       for (let i = 0; i < checkedList.length; i++) {
         let order = checkedList[i]
-        console.log(order,"upLoadOrders")
+        console.log(order, "upLoadOrders")
         let params = {
           "order_id": order.order_id,
           "ordersn": order.order_sn,
@@ -483,71 +490,77 @@ export default class {
           "checkOrderSnKeyNew": this.getCheckKeyNew(order)
         }
         paramsArr.push(params)
-        console.log(paramsArr)
+        // console.log(paramsArr)
       }
       //线上接口
-      // let res = await this.$api.uploadOrderSave({
-      //   paramsArr
-      // })
+      // let resA = await this.$commodityService.saveOrder(this.mall.id.toString(),this.mall.platform_mall_id.toString(),paramsArr)
+      // console.log(resA,"saveOrder")
       //测试接口
-        let res = await this.$api.uploadOrderSaveTest({
-          "orderData": paramsArr,
-          "sysMallId": this.mall.id,
-          "mallId": this.mall.platform_mall_id
-        })
-        console.log(paramsArr, "上报", res)
+      let res = await this.$api.uploadOrderSaveTest({
+        "orderData": paramsArr,
+        "sysMallId": this.mall.id,
+        "mallId": this.mall.platform_mall_id
+      })
+      if(res.data.code === 200){
+        return true
+      }else{
+        return false
+      }
+      console.log(paramsArr, "上报", res)
     } catch (error) {
       console.log(error)
     }
 
   }
   //售后订单上报
-  async afterUpLoadOrders(order) {
+  async afterUpLoadOrders(orderList) {
     try {
       let paramsArr = []
-      let params = {
-        "return_detail_info": {
-          "buyer_images": order.refundDetail.buyer_images,
-          "return_pickup_address": order.refundDetail.return_pickup_address ? order.refundDetail.return_pickup_address : '',
-          "return_address": order.refundDetail.return_address.address.replace('\n', "") || '',
-          "requested_time": '',
-          "tracking_number": order.refundDetail.tracking_number || '',
-          "buyer": {
-            "portrait": order.buyer.portrait || '',
-            "shop_id": order.buyer.shop_id || '',
-            "followed": true,
-            "id": order.buyer.id || '',
-            "name": order.buyer.name || ''
+      for (let i = 0; i < orderList.length; i++) {
+        let order = orderList[i]
+        let params = {
+          "return_detail_info": {
+            "buyer_images": order.refundDetail.buyer_images,
+            "return_pickup_address": order.refundDetail.return_pickup_address ? order.refundDetail.return_pickup_address : '',
+            "return_address": order.refundDetail.return_address.address.replace('\n', "") || '',
+            "requested_time": '',
+            "tracking_number": order.refundDetail.tracking_number || '',
+            "buyer": {
+              "portrait": order.buyer.portrait || '',
+              "shop_id": order.buyer.shop_id || '',
+              "followed": true,
+              "id": order.buyer.id || '',
+              "name": order.buyer.name || ''
+            },
+            "return_delivery_time": ''
           },
-          "return_delivery_time": ''
-        },
-        "return_id": order.return_id,
-        "return_sn": order.return_sn,
-        "order_id": order.order_id,
-        "return_channel_id": order.return_channel_id ? order.return_channel_id : 0,
-        "text_reason": order.refundDetail.text_reason,
-        "reason_id": order.refundDetail.reason,
-        "ctime": this.dealWithCtime(order), //  order.return_header.attribute_list, //return_attributes
-        "mtime": 0, //
-        "refund_amount": order.refund_amount, //
-        "refund_total_price": order.amount_before_discount, //
-        "status": order.status, //
-        // "currency":"", //不传
-        // "judging_time":"", //不传
-        // "accepted_time":"", //不传
-        // "cancelled_time":"", //不传
-        "closed_time": order.refundDetail.closed_time, //售后关闭时间
-        // "refund_paid_time":"", //不传
-        // "requested_time":"", //不传
-        "return_item": this.dealWithReturnTime(order),
-        "ckeckAfterOrderSnKey": this.getCheckRefundKey(order)
+          "return_id": order.return_id,
+          "return_sn": order.return_sn,
+          "order_id": order.order_id,
+          "return_channel_id": order.return_channel_id ? order.return_channel_id : 0,
+          "text_reason": order.refundDetail.text_reason,
+          "reason_id": order.refundDetail.reason,
+          "ctime": this.dealWithCtime(order), //  order.return_header.attribute_list, //return_attributes
+          "mtime": 0, //
+          "refund_amount": order.refund_amount, //
+          "refund_total_price": order.amount_before_discount, //
+          "status": order.status, //
+          // "currency":"", //不传
+          // "judging_time":"", //不传
+          // "accepted_time":"", //不传
+          // "cancelled_time":"", //不传
+          "closed_time": order.refundDetail.closed_time, //售后关闭时间
+          // "refund_paid_time":"", //不传
+          // "requested_time":"", //不传
+          "return_item": this.dealWithReturnTime(order),
+          "ckeckAfterOrderSnKey": this.getCheckRefundKey(order)
+        }
+        paramsArr.push(params)
       }
-      paramsArr.push(params)
       console.log(paramsArr)
       //线上接口
-      // let res = await this.$api.uploadOrderSave({
-      //   paramsArr
-      // })
+      // let resA = await this.$commodityService.saveAfterOrder(this.mall.id.toString(),this.mall.platform_mall_id.toString(),paramsArr)
+      // console.log(resA,"saveAfterOrder")
       //测试接口
       let res = await this.$api.uploadOrderAfterSale({
         "afterOrderData": paramsArr,

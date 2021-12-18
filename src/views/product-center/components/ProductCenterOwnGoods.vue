@@ -1889,11 +1889,7 @@ export default {
         })
         exportExcelDataCommon('自有商品信息', msg)
       } else {
-        return this.$notify({
-          title: '商品信息',
-          type: 'warning',
-          message: `没有可以导出的商品`
-        })
+        return this.$message.warning('没有可以导出的商品')
       }
     },
     handleSizeChange(val) {

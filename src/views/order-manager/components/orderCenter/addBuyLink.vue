@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-11-20 21:08:11
- * @LastEditTime: 2021-12-02 18:02:56
+ * @LastEditTime: 2021-12-17 18:37:27
  * @LastEditors: Please set LastEditors
  * @Description: 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  * @FilePath: \shopeeman-new\src\views\order-manager\components\orderCenter\addBuyLink.vue
@@ -135,14 +135,9 @@ export default {
     },
     //保存添加采购链接
     async saveAddLink() {
-      if (this.rowBuyLinks.length == 0) {
-        this.$notify({
-          title: '采购地址管理',
-          type: 'error',
-          message: `采购地址不能设置为空`,
-        })
-        return
-      }
+      // if (this.rowBuyLinks.length == 0) {
+      //    return this.$message.error(`采购地址不能设置为空`)
+      // }
       this.rowBuyLinks.forEach((item, index) => {
         let execPlatform = /(yangkeduo.com)|(taobao.com)|(jingxi.com)|(jd.com)|(1688.com)|(tmall.com)|(pinduoduo.com)|(xiapi.xiapibuy.com)|(taobao.global)|(lazada.com)/g
         let execGoods = /goods_id=([0-9]*)/
@@ -154,11 +149,7 @@ export default {
         let shopeeIDs =  /[^\/]+(?!.*\/)/
         let platform = item.purchase_url.match(execPlatform)
         if (!item.purchase_url.length) {
-          return this.$notify({
-            title: '采购地址管理',
-            type: 'error',
-            message: `采购链接不能为空,请检查采购链接`,
-          })
+         return this.$message.error(`采购链接不能为空,请检查采购链接`)
         }
         console.log(item.purchase_url.match(pddGoods),"4646546554")
         if (item.purchase_url.match(execGoods)) {
@@ -177,11 +168,7 @@ export default {
           console.log(item.purchase_url.match(pddGoods),"kfjhgkfhkjghfkjh")
           item.purchase_goods_id = item.purchase_url.match(pddGoods)[1]
         } else {
-          return this.$notify({
-            title: '采购地址管理',
-            type: 'error',
-            message: `采购链接错误,请填写正确的采购链接或参考采购链接右边的提示信息`,
-          })
+         return this.$message.error(`采购链接错误,请填写正确的采购链接或参考采购链接右边的提示信息`)
         }
         switch (platform[0]) {
           case 'yangkeduo.com':

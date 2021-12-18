@@ -1,13 +1,13 @@
 <!--
  * @Author: your name
  * @Date: 2021-11-09 10:17:44
- * @LastEditTime: 2021-12-14 21:24:57
+ * @LastEditTime: 2021-12-18 11:26:03
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shopeeman-new\src\views\order-manager\components\OrderManagerOrderCenter.vue
 -->
 <template>
-  <div class="order-center" v-loading="indexLoading">
+  <div class="order-center" v-loading="tableLoading">
     <header>
       <!-- btn 区 -->
       <transition name="slide-fade">
@@ -180,7 +180,7 @@
                 <el-row class="row-style">
                   <el-button size="mini" class="btnMini" @click="applyAsyncExportOrder">导出数据</el-button>
                   <el-button size="mini" class="btnMedium" @click="orderReportVisible = true">导出数据报表</el-button>
-                  <el-button type="primary" size="mini" class="btnLong" @click="batchPrintOrderSurface" disabled>批量打印面单</el-button>
+                  <el-button type="primary" size="mini" class="btnLong" @click="batchPrintOrderSurface">批量打印面单</el-button>
                   <el-button type="primary" size="mini" class="btnLong" @click="purchaseGlobalOrder">批量天猫淘宝海外平台拍单</el-button>
                   <el-button type="primary" size="mini" class="btnLongMax" @click="getCrossBorderOrderInfo">批量获取天猫淘宝海外平台订单信息</el-button>
                   <el-button type="primary" size="mini" class="btnLong" @click="openPddDisount">拼多多月卡优惠券查询</el-button>
@@ -201,9 +201,15 @@
         订单收入-采购价；2、若登录了Lazada买手号但点击采购订单号依旧提示登录，请使用编辑采购信息编辑重新保存下拍单信息
       </p>
       <el-table v-loading="tableLoading" ref="multipleTable" :data="tableData" tooltip-effect="dark" height="isShow ? '420px' : '750px'" @selection-change="handleSelectionChange">
-        <el-table-column align="center" type="selection" width="50" />
-        <el-table-column align="center" type="index" label="序号" width="50">
+        <el-table-column align="center" type="selection" width="50" fixed="left" />
+        <el-table-column align="center" type="index" label="序号" width="50" fixed="left">
           <template slot-scope="scope">{{ (currentPage - 1) * pageSize + scope.$index + 1 }}</template>
+        </el-table-column>
+        <el-table-column prop="order_sn" label="订单编号" align="center" width="170px" v-if="showTableColumn('订单编号')" fixed="left">
+          <template slot-scope="scope">
+            <i class="el-icon-document-copy copyStyle" @click="copyItem(scope.row.order_sn)"></i>
+            <span class="tableActive" @click="viewDetails('orderDetail', scope.row.order_id, scope.row.mall_info.platform_mall_id)">{{ scope.row.order_sn }}</span>
+          </template>
         </el-table-column>
         <el-table-column width="80px" label="站点" prop="country" align="center" v-if="showTableColumn('站点')">
           <template slot-scope="scope" v-if="scope.row.mall_info">{{ scope.row.mall_info.country | chineseSite }}</template>
@@ -231,15 +237,11 @@
             <span>{{ changeColorLabel(scope.row.color_id, 'name') }}</span>
           </template>
         </el-table-column>
-        <el-table-column prop="order_sn" label="订单编号" align="center" width="170px" v-if="showTableColumn('订单编号')">
-          <template slot-scope="scope">
-            <span class="tableActive" @click="viewDetails('orderDetail', scope.row.order_id, scope.row.mall_info.platform_mall_id)">{{ scope.row.order_sn }}</span>
-            <i class="el-icon-document-copy copyStyle" @click="copyItem(scope.row.order_sn)"></i>
-          </template>
-        </el-table-column>
         <el-table-column align="center" prop="created_time" label="订单创建时间" width="140" v-if="showTableColumn('订单创建时间')" />
         <el-table-column align="center" prop="order_status" label="发货状态" width="100" v-if="showTableColumn('发货状态')">
-          <template slot-scope="scope">{{ changeTypeName(scope.row.order_status, orderStatusList) }}</template>
+          <template slot-scope="scope">
+            <p :style="{ color: changeOrderStatus(scope.row.order_status, 'color') }">{{ changeOrderStatus(scope.row.order_status) }}</p>
+          </template>
         </el-table-column>
         <el-table-column align="center" prop="shopee_delivery_time" label="发货时间" width="140" v-if="showTableColumn('发货时间')">
           <template slot-scope="scope">{{ scope.row.shopee_delivery_time }}</template>
@@ -332,7 +334,7 @@
           </template>
         </el-table-column>
         <el-table-column align="center" label="商品货号" width="120" v-if="showTableColumn('商品货号')">
-          <template slot-scope="scope">{{ scope.row.goods_info.variation_id }}</template>
+          <template slot-scope="scope">{{ scope.row.goods_info.variation_sku.replace('=|=', '') }}</template>
         </el-table-column>
         <el-table-column align="center" prop="total_amount" label="买家付款金额" width="120" v-if="showTableColumn('买家付款金额')">
           <template slot-scope="scope">{{ scope.row.total_amount }}{{ scope.row.country | siteCoin }}</template>
@@ -356,7 +358,7 @@
           <template slot-scope="scope">{{ scope.row.shot_order_info.shot_amount_rmb }}元</template>
         </el-table-column>
         <el-table-column align="center" prop="warehouse_ship_amount" label="仓库发货金额" width="120" v-if="showTableColumn('仓库发货金额')">
-          <template slot-scope="scope">{{ changeMoney(scope.row.warehouse_ship_amount, scope.row.country,"toA") }}{{ scope.row.country | siteCoin }}</template>
+          <template slot-scope="scope">{{ changeMoney(scope.row.warehouse_ship_amount, scope.row.country, 'toA') }}{{ scope.row.country | siteCoin }}</template>
         </el-table-column>
         <el-table-column align="center" prop="warehouse_ship_amount" label="仓库发货金额(RMB)" width="140" v-if="showTableColumn('仓库发货金额(RMB)')">
           <template slot-scope="scope">{{ scope.row.warehouse_ship_amount }}元</template>
@@ -373,7 +375,7 @@
         <el-table-column align="center" prop="real_gross_profit" label="最终毛利(RMB)" width="120" v-if="showTableColumn('最终毛利(RMB)')">
           <template slot-scope="scope">{{ changeMoney(scope.row.real_gross_profit, scope.row.country) }}元</template>
         </el-table-column>
-        <el-table-column align="center" prop="pay_account_info" label="付款账号" width="80" v-if="showTableColumn('付款账号')">
+        <el-table-column align="center" prop="pay_account_info" label="付款账号" width="120" v-if="showTableColumn('付款账号')">
           <template slot-scope="scope">{{ scope.row.shot_order_info.pay_account_info ? scope.row.shot_order_info.pay_account_info.name : '' }}</template>
         </el-table-column>
         <el-table-column align="center" prop="buy_account_info" label="采购账号" width="120" v-if="showTableColumn('采购账号')">
@@ -390,13 +392,18 @@
           </template>
         </el-table-column>
         <el-table-column align="center" label="采购状态" width="120" v-if="showTableColumn('采购状态')">
-          <template slot-scope="scope">{{ changeTypeName(scope.row.shot_order_info.shot_status, shotStatusList) }}</template>
+          <template slot-scope="scope">
+            <p :style="{ color: changeShotStatus(scope.row.shot_order_info.shot_status, 'color') }">{{ changeShotStatus(scope.row.shot_order_info.shot_status) }}</p>
+          </template>
         </el-table-column>
         <el-table-column align="center" label="采购时间" width="140" v-if="showTableColumn('采购时间')">
           <template slot-scope="scope">{{ scope.row.shot_order_info.shotted_at }}</template>
         </el-table-column>
         <el-table-column align="center" label="采购订单号" width="150" v-if="showTableColumn('采购订单号')">
-          <template slot-scope="scope">{{ scope.row.shot_order_info.shot_order_sn }}</template>
+          <template slot-scope="scope">
+             <i class="el-icon-document-copy copyStyle tableActive" @click="copyItem(scope.row.shot_order_info.shot_order_sn)"></i>
+             <span>{{ scope.row.shot_order_info.shot_order_sn }}</span>
+            </template>
         </el-table-column>
         <el-table-column align="center" label="采购付款方式" width="120" v-if="showTableColumn('采购付款方式')">
           <template slot-scope="scope">{{ buyPayMethod[scope.row.shot_order_info.shot_payment_method] }}</template>
@@ -405,19 +412,19 @@
           <template slot-scope="scope">{{ changePlatformPayMethod(scope.row.country, scope.row.payment_method) }}</template>
         </el-table-column>
         <el-table-column align="center" label="采购物流公司" width="120" v-if="showTableColumn('采购物流公司')">
-          <template slot-scope="scope">{{ scope.row.original_logistics_id == 0 ? '' : scope.row.original_logistics_id }}</template>
+          <template slot-scope="scope">{{ scope.row.shot_order_info.shot_logistics_company }}</template>
         </el-table-column>
         <el-table-column align="center" label="采购物流单号" width="120" v-if="showTableColumn('采购物流单号')">
-          <template slot-scope="scope">{{ scope.row.original_tracking_number }}</template>
+          <template slot-scope="scope">{{ scope.row.shot_order_info.shot_tracking_number }}</template>
         </el-table-column>
         <el-table-column align="center" label="采购发货时间" width="140" v-if="showTableColumn('采购发货时间')">
           <template slot-scope="scope">{{ scope.row.shot_order_info.shot_shipping_time }}</template>
         </el-table-column>
-        <el-table-column align="center" prop="123456" label="采购物流轨迹" width="130" v-if="showTableColumn('采购物流轨迹')">
+        <!-- <el-table-column align="center" prop="123456" label="采购物流轨迹" width="130" v-if="showTableColumn('采购物流轨迹')">
           <template slot-scope="scope">
             <el-button type="primary" size="mini" @click="trackPathVisible = true">采购物流轨迹</el-button>
           </template>
-        </el-table-column>
+        </el-table-column> -->
         <el-table-column align="center" prop="merchant_no" label="商户订单号" width="120" v-if="showTableColumn('商户订单号')">
           <template slot-scope="scope">{{ scope.row.shot_order_info.merchant_no }}</template>
         </el-table-column>
@@ -463,13 +470,12 @@
         </el-table-column>
         <el-table-column align="center" prop="note" label="shopee备注" width="150" show-overflow-tooltip v-if="showTableColumn('shopee备注')">
           <template slot-scope="scope">
-             <div v-show="!(scope.row.id === activeRemarkIDNode ? true : false)" @click="editRemarkNode(scope.$index, scope.row.id)" style="cursor: pointer">
+            <div v-show="!(scope.row.id === activeRemarkIDNode ? true : false)" @click="editRemarkNode(scope.$index, scope.row.id)" style="cursor: pointer">
               <el-input v-model="scope.row.note" disabled size="mini"></el-input>
             </div>
-            <el-input v-model="orderRemarkNode" v-if="scope.row.id === activeRemarkIDNode ? true : false" @blur="changeRemarkNode(scope.row.id, scope.$index)" size="mini"></el-input
-          >
+            <el-input v-model="orderRemarkNode" v-if="scope.row.id === activeRemarkIDNode ? true : false" @blur="changeRemarkNode(scope.row.id, scope.$index)" size="mini"></el-input>
             <!-- {{ scope.row.note }} -->
-            </template>
+          </template>
         </el-table-column>
         <el-table-column align="center" prop="note_update_time" label="shopee备注更新时间" width="140" v-if="showTableColumn('shopee备注更新时间')">
           <template slot-scope="scope">{{ scope.row.note_update_time }}</template>
@@ -611,15 +617,15 @@
     <el-dialog title="添加采购信息" :visible.sync="purchaseInfoVisible" width="500px" top="5vh" v-if="purchaseInfoVisible" :close-on-click-modal="false">
       <purchase-info :chooseData="multipleSelection" :buyerAccountList="buyerAccountList" @close="closeDialog" :dealType="dealType"></purchase-info>
     </el-dialog>
-    <el-dialog title="同步数据至仓库" :visible.sync="pushOrderToStoreVisible" width="1200px" :close-on-click-modal="false" v-if="pushOrderToStoreVisible" @close="closeDialog">
+    <el-dialog title="同步数据至仓库" :visible.sync="pushOrderToStoreVisible" width="1200px" :close-on-click-modal="false" v-if="pushOrderToStoreVisible" @close="closeDialog('noRefresh')">
       <push-order :chooseData="multipleSelection"></push-order>
     </el-dialog>
     <el-dialog title="批量添加采购物流单号" :visible.sync="shipInfoVisible" width="400px" :close-on-click-modal="false" v-if="shipInfoVisible" @close="closeDialog">
-      <div>
+      <div v-loading="shipLoading">
         <div class="item-box">
           <span>绑定仓库：</span>
           <el-select v-model="shipBindStore" size="mini" class="btnLongMax">
-            <el-option :label="item.warehouse_name" :value="item.warehouse_id" v-for="(item, index) in shipStoreList" :key="index"></el-option>
+            <el-option :label="item.warehouse_name" :value="item.id" v-for="(item, index) in shipStoreList" :key="index"></el-option>
           </el-select>
         </div>
         <div class="item-box">
@@ -642,7 +648,7 @@
     <!-- 四类商品出库 -->
     <el-dialog :visible.sync="goodsOutStoreVisible" width="1400px" top="5vh" v-if="goodsOutStoreVisible" :close-on-click-modal="false">
       <div slot="title">{{ outStoreTitle }}</div>
-      <goods-out-store :chooseData="multipleSelection" :outStoreType="outStoreType"></goods-out-store>
+      <goods-out-store :chooseData="multipleSelection" :outStoreType="outStoreType" @close="closeDialog"></goods-out-store>
     </el-dialog>
     <el-dialog title="添加采购链接" :visible.sync="addBuyLinkVisible" width="1200px" v-if="addBuyLinkVisible" append-to-body :close-on-click-modal="false" @close="closeDialog">
       <buy-link :linkRow="clickRow" @close="closeDialog"></buy-link>
@@ -785,6 +791,8 @@ import {
   buyPayMethod,
   changePlatformPayMethod,
   platformPayMethod,
+  changeOrderStatus,
+  changeShotStatus,
 } from '../components/orderCenter/orderCenter'
 import { setGoodsDelist, setGoodsDelete } from './orderCenter/handleGoods'
 import { creatDate, getDaysBetween } from '../../../util/util'
@@ -912,7 +920,6 @@ export default {
       columnVisible: false, //自定义配置列弹窗
       abroadVisible: false, //标记为海外商品
       isAbroadGood: 0, //标记为海外商品
-      indexLoading: false,
       localRamarkVisible: false, //本地备注
       localRamark: '', //本地备注
       colorVisible: false, //颜色标识
@@ -962,15 +969,14 @@ export default {
       localRamark: '', //本地备注
       activeRemarkID: '', //本地备注
       orderRemark: '', //本地备注
-      // orderRemarkCopy:'', //本地备注
       localRamarkNode: '', //shopee备注
       activeRemarkIDNode: '', //shopee备注
       orderRemarkNode: '', //shopee备注
-      // orderRemarkCopyNode:'', //shopee备注
+      shipLoading: false,
     }
   },
   mounted() {
-    this.indexLoading = true
+    this.tableLoading = true
     this.createTime = creatDate(30)
     this.getColorList()
     this.getColumnsConfig()
@@ -978,7 +984,6 @@ export default {
     this.getRate()
     setTimeout(() => {
       this.getOrderList(1)
-      this.indexLoading = false
     }, 2000)
     //保存sku映射
     this.$IpcMain.on('skuRelation', async (response) => {
@@ -989,17 +994,9 @@ export default {
       let resObj = res && JSON.parse(res)
       console.log('res', resObj)
       if (resObj && resObj.code === 200) {
-        return this.$notify({
-          title: 'sku收藏',
-          type: 'success',
-          message: `收藏成功`,
-        })
+        return this.$message.success('收藏成功')
       } else {
-        return this.$notify({
-          title: 'sku收藏',
-          type: 'error',
-          message: `收藏失败，${resObj.msg}`,
-        })
+        return this.$message.error(`收藏失败，${resObj.msg}`)
       }
     })
   },
@@ -1009,31 +1006,23 @@ export default {
       this.orderRemarkNode = this.tableData[index].note
       this.orderRemarkCopyNode = this.tableData[index].note
     },
-     //修改单个备注
+    //修改单个备注
     async changeRemarkNode(id, index) {
-        let params= {
-            "order_id":this.tableData[index].order_id,
-            "new_note":this.orderRemarkNode,
-            "shop_id":this.tableData[index].mall_info.platform_mall_id
-        }
-        const res = await this.$shopeemanService.updateNode(this.tableData[index].country,params)
-        console.log(res)
-        if (res.code == 200) {
-          this.$notify({
-            title: '备注管理',
-            type: 'success',
-            message: `设置备注成功`,
-          })
-          this.tableData[index].note = this.orderRemarkNode
-          this.activeRemarkIDNode = ''
-          return
-        }
-        this.$notify({
-          title: '备注管理',
-          type: 'error',
-          message: `设置备注失败`,
-        })
+      let params = {
+        order_id: this.tableData[index].order_id,
+        new_note: this.orderRemarkNode,
+        shop_id: this.tableData[index].mall_info.platform_mall_id,
+      }
+      const res = await this.$shopeemanService.updateNode(this.tableData[index].country, params)
+      console.log(res)
+      if (res.code == 200) {
+        this.$message.error(`设置备注成功`)
+        this.tableData[index].note = this.orderRemarkNode
         this.activeRemarkIDNode = ''
+        return
+      }
+      this.$message.error(`设置备注失败`)
+      this.activeRemarkIDNode = ''
     },
     editRemark(index, activeRemarkID) {
       this.activeRemarkID = activeRemarkID
@@ -1042,24 +1031,15 @@ export default {
     },
     //修改单个备注
     async changeRemark(id, index) {
-        const res = await this.$api.setLocalRemark({ id: id, remark: this.orderRemark })
-        if (res.data.code == 200) {
-          this.$notify({
-            title: '备注管理',
-            type: 'success',
-            message: `设置备注成功`,
-          })
-          this.tableData[index].remark = this.orderRemark
-          this.activeRemarkID = ''
-          return
-        }
-        this.$notify({
-          title: '备注管理',
-          type: 'error',
-          message: `设置备注失败`,
-        })
+      const res = await this.$api.setLocalRemark({ id: id, remark: this.orderRemark })
+      if (res.data.code == 200) {
+        this.$message.success(`设置备注成功`)
+        this.tableData[index].remark = this.orderRemark
         this.activeRemarkID = ''
-      
+        return
+      }
+      this.$message.error(`设置备注失败`)
+      this.activeRemarkID = ''
     },
     changeTime(val, key, subKey) {
       let days = getDaysBetween(new Date(val[0]).getTime(), new Date(val[1]).getTime())
@@ -1069,22 +1049,14 @@ export default {
         } else {
           this[key] = creatDate(30)
         }
-        return this.$notify({
-          title: '时间选择',
-          type: 'warning',
-          message: `只支持查询或导出90天内的数据,请重新选择时间！`,
-        })
+        return this.$message.warning(`只支持查询或导出93天内的数据,请重新选择时间！`)
       }
       console.log(days, val, 'time-time')
     },
     //打印面单信息
     async batchPrintOrderSurface() {
       if (!this.multipleSelection.length) {
-        return this.$notify({
-          title: '打印面单',
-          type: 'warning',
-          message: `请选择要操作的数据`,
-        })
+        return this.$message.warning('请选择要操作的数据！')
       }
       let country = ''
       let countryId = {}
@@ -1099,120 +1071,149 @@ export default {
         }
       })
       if (Object.keys(countryId).length > 1) {
-        return this.$notify({
-          title: '打印面单',
-          type: 'warning',
-          message: `由于每个站点面单不一致，请分站点批量预览和打印`,
-        })
+        return this.$message.warning('由于每个站点面单不一致，请分站点批量预览和打印！')
       }
       let params = {
         mainOrderSns: mainOrders,
       }
       let sheetInfo = []
-      let res = await this.$api.getLogisticsInformationBatch(params)
-      console.log(res, 'res')
-      if (res.data.code === 200) {
-        sheetInfo = res.data.data
-      } else {
-        return this.$notify({
-          title: '打印面单',
-          type: 'warning',
-          message: `面单获取失败`,
-        })
-      }
-      sheetInfo = [
-        {
-          id: 4,
-          order_sn: '211206DB298JPF',
-          status: 1,
-          data: {
-            name: 'Sirirat chawalarat',
-            phone: '66805869386',
-            inCode: '',
-            country: 'TH',
-            orderSn: '211206DB298JPF',
-            lane_code: 'L-TH22',
-            productDes: 'สีชมพูสเตอริโอแบบส * 1||สีชมพู5,1-อายุ5ปี * 1',
-            tracking_no: 'TH204258844180Y',
-            full_address: '283/15 moobaan phakdee rama 3 bangkholeam เขตบางคอแหลม จังหวัดกรุงเทพมหานคร 10120',
-            last_mile_name: 'TH-JNT',
-            first_mile_name: '',
-            goods_to_declare: 'P',
-          },
-          xzy_status: 1,
-          url: 'http://pkg.ppxias.com/ppxiasInteProductImages/produce/2020/03/8d27b1dab5743690.PDF',
-          created_at: '2020-03-10 20:10:19',
-          updated_at: '2020-03-10 20:27:59',
-        },
-      ]
-      if (!sheetInfo.length) {
-        return this.$notify({
-          title: '打印面单',
-          type: 'warning',
-          message: `暂无面单信息`,
-        })
-      }
-      let PdfInfoModel = []
-      let VirtualPdfPath = null
-      let ConvertFaceInfoModel = []
-      for (let i = 0; i < sheetInfo.length; i++) {
-        let info = sheetInfo[i]
-        if (!info.data || !info.url) {
-          this.$refs.Logs.writeLog(`订单${info.order_sn}未获取到面单信息`, false)
-          continue
+      try {
+        let res = await this.$api.getLogisticsInformationBatch(params)
+        console.log(res, 'res')
+        if (res.data.code === 200) {
+          sheetInfo = res.data.data
+        } else {
+          return this.$message.warning('面单获取失败！')
         }
-        let orderInfo = this.multipleSelection.find((n) => {
-          return n.order_sn == info.order_sn
-        })
-        let params = {
-          PDFUrl: info.url,
-          OrderNo: info.order_sn,
-          MainOrderNo: info.order_sn,
-          PlatformLogisticsId: info.data.tracking_no,
-          PlatformLogisticsName: '',
-          CreateTime: info.created_at,
-          BuyerName: info.data.name,
-          BuyerPhone: info.data.phone,
-          BuyerAddress: info.data.full_address,
-          BuyerNote: '',
-          BarInfo: {
-            barcode: info.order_sn,
-            BarCodeWidth: 200,
-            BarCodeHeight: 500,
-          },
-          SkuList: [orderInfo.goods_info.variation_sku.replace('=|=', ''), orderInfo.goods_info.goods_count],
-          IsNeedCut: orderInfo.logistics_id == 30008 || orderInfo.logistics_id == 30007 ? true : false,
-          IsUseA4Size: false,
-          PdfWidth: 320,
-          PdfHeight: 425,
-          LocationY: -420,
-          PrintStatus: '0',
-          MallId: orderInfo.mall_info.platform_mall_id,
-          MallName: orderInfo.mall_info.platform_mall_name,
+        // sheetInfo = [
+        //   {
+        //     id: 4,
+        //     order_sn: '2112169WHRH236',
+        //     status: 1,
+        //     data: {
+        //       name: 'Sirirat chawalarat',
+        //       phone: '66805869386',
+        //       inCode: '',
+        //       country: 'TH',
+        //       orderSn: '2112169WHRH236',
+        //       lane_code: 'L-TH22',
+        //       productDes: 'สีชมพูสเตอริโอแบบส * 1||สีชมพู5,1-อายุ5ปี * 1',
+        //       tracking_no: 'TH204258844180Y',
+        //       full_address: '283/15 moobaan phakdee rama 3 bangkholeam เขตบางคอแหลม จังหวัดกรุงเทพมหานคร 10120',
+        //       last_mile_name: 'TH-JNT',
+        //       first_mile_name: '',
+        //       goods_to_declare: 'P',
+        //     },
+        //     xzy_status: 1,
+        //     url: 'http://pkg.ppxias.com/ppxiasProductImages/produce/2021/12/14799e9763db4d68.PDF',
+        //     created_at: '2020-03-10 20:10:19',
+        //     updated_at: '2020-03-10 20:27:59',
+        //   },
+        // ]
+        if (!sheetInfo.length) {
+          return this.$message.warning('暂无面单信息')
         }
-        PdfInfoModel.push(params)
-        // let conParams = {
-        //   HtmlFilePath: info.url.includes('.html')?info.url:'',
-        //   PDFFilePath : info.url.includes('.PDF') || info.url.includes('.pdf')?info.url:'',
-        //   LogisticsId : info.data.tracking_no,
-        //   OrderSn : info.order_sn,
-        //   MallId :orderInfo.mall_info.platform_mall_id,
-        //   VirtualFilePath : VirtualFilePath
-        // }
-        // ConvertFaceInfoModel.push(conParams)
-      }
-      console.log(JSON.stringify(PdfInfoModel), PdfInfoModel, true)
-      VirtualPdfPath = await window['BaseUtilBridgeService'].getVirtualFace(PdfInfoModel, true)
-      let pdfDownloadModel = {
-        IsDownload: false,
-        PdfExtendName: '.PDF',
-        PdfExtendNameIsLower: false,
-        IsPrintVirtualFaceSheet: false,
-        Site: country,
-        IsShowWindow: true,
-        PdfInfoList: PdfInfoModel,
-        VirtualPdfPath: VirtualPdfPath,
-        ConvertFaceInfoList: [],
+        let PdfInfoModel = []
+        let ConvertFaceInfoModel = []
+        this.showConsole = false
+        for (let i = 0; i < sheetInfo.length; i++) {
+          let info = sheetInfo[i]
+          if (!info.url) {
+            this.$refs.Logs.writeLog(`订单${info.order_sn}获取面单信息为空`, false)
+            continue
+          }
+          let orderInfo = this.multipleSelection.find((n) => {
+            return n.order_sn == info.order_sn
+          })
+          console.log(orderInfo, 'orderInfo')
+          let params = {
+            PDFUrl: info.url,
+            OrderNo: orderInfo.order_sn,
+            MainOrderNo: orderInfo.order_sn,
+            PlatformLogisticsId: orderInfo.tracking_no,
+            PlatformLogisticsName: '',
+            CreateTime: info.created_at,
+            BuyerName: orderInfo.name,
+            BuyerPhone: orderInfo.phone,
+            BuyerAddress: orderInfo.receiver_info.address,
+            BuyerNote: '',
+            BarInfo: {
+              BarCode: orderInfo.order_sn,
+              BarCodeWidth: 200,
+              BarCodeHeight: 50,
+            },
+            SkuList: [orderInfo.goods_info.variation_sku.replace('=|=', ''), orderInfo.goods_info.goods_count],
+            IsNeedCut: orderInfo.logistics_id == 30008 || orderInfo.logistics_id == 30007 ? true : false,
+            IsUseA4Size: false,
+            PdfWidth: 320,
+            PdfHeight: 425,
+            LocationY: -420,
+            PrintStatus: '0',
+            MallId: orderInfo.mall_info.platform_mall_id,
+            MallName: orderInfo.mall_info.platform_mall_name,
+          }
+          PdfInfoModel.push(params)
+
+          let conParams = {
+            HtmlFilePath: info.url.includes('.html') ? info.url : '',
+            PDFFilePath: info.url.includes('.PDF') || info.url.includes('.pdf') ? info.url : '',
+            LogisticsId: orderInfo.tracking_no,
+            OrderSn: orderInfo.order_sn,
+            MallId: orderInfo.mall_info.platform_mall_id,
+            VirtualFilePath: '',
+          }
+          ConvertFaceInfoModel.push(conParams)
+        }
+        let pdfDownloadModel1 = {
+          IsDownload: false,
+          PdfExtendName: '.PDF',
+          PdfExtendNameIsLower: false,
+          IsPrintVirtualFaceSheet: false,
+          Site: country,
+          IsShowWindow: true,
+          PdfInfoList: PdfInfoModel,
+          VirtualPdfPath: {},
+          ConvertFaceInfoList: [],
+        }
+        let pdfInfo = await window['BaseUtilBridgeService'].getOrderPdfInfo(pdfDownloadModel1)
+        let pdfInfoObj = JSON.parse(pdfInfo)
+        console.log('pdfInfo', pdfInfoObj)
+        if (pdfInfoObj.data === 200) {
+        } else {
+          let message = ''
+          for (const key in pdfInfoObj.failList) {
+            message = message + ',' + pdfInfoObj.failList[key]
+            message = message.substring(1)
+          }
+          this.$refs.Logs.writeLog(`${message}`, false)
+        }
+        console.log(JSON.stringify(ConvertFaceInfoModel), 'ConvertFaceInfoModel')
+        let convertRes = await window['BaseUtilBridgeService'].htmlToPdf(ConvertFaceInfoModel, false)
+        let convertResObj = convertRes && JSON.parse(convertRes)
+        console.log(convertRes, convertResObj, 'convertFaceInfoModel')
+        if (!convertResObj || !convertResObj.code == 200) {
+          this.$refs.Logs.writeLog(`打印面单失败`, false)
+        }
+        let pdfDownloadModel = {
+          IsDownload: false,
+          PdfExtendName: '.PDF',
+          PdfExtendNameIsLower: false,
+          IsPrintVirtualFaceSheet: false,
+          Site: country,
+          IsShowWindow: true,
+          PdfInfoList: PdfInfoModel,
+          VirtualPdfPath: {},
+          ConvertFaceInfoList: convertResObj.data,
+        }
+        console.log(JSON.stringify(pdfDownloadModel))
+        this.tableLoading = true
+        let down = await window['BaseUtilBridgeService'].downloadPdf(pdfDownloadModel)
+        console.log('down', down)
+        this.tableLoading = false
+      } catch (error) {
+        console.log(error)
+        this.tableLoading = false
+        this.$refs.Logs.writeLog(`打印面单失败`, false)
       }
     },
     //推送订单至仓库
@@ -1222,20 +1223,17 @@ export default {
     },
     //获取汇率
     async getRate() {
-      const data = await this.$api.exchangeRateList()
-      if (data.data.code === 200) {
-        this.rateList = data.data.data
-      }
+      let info = await window['ConfigBridgeService'].getUserInfo()
+      this.rateList = info.ExchangeRates || {}
     },
-    changeMoney(data, country,type) {
+    changeMoney(data, country, type) {
       let amount = data
       if (this.rateList[country]) {
-        if(type){
-          amount = (Number(data) / Number(this.rateList[country])).toFixed(2)
-        }else{
-          amount = (Number(data) * Number(this.rateList[country])).toFixed(2)
+        if (type) {
+          amount = (Number(data) / Number(this.rateList[country] || 1)).toFixed(2)
+        } else {
+          amount = (Number(data) * Number(this.rateList[country] || 1)).toFixed(2)
         }
-        
       }
       return amount
     },
@@ -1247,11 +1245,7 @@ export default {
       }
       const pddAccount = this.getAccountById(this.accountpdd)
       if (!pddAccount) {
-        return this.$notify({
-          title: 'sku收藏',
-          type: 'warning',
-          message: `没有找到拼多多买手号`,
-        })
+        return this.$message.warning(`没有找到拼多多买手号`)
       }
       let buyer = this.changeAccountParams(pddAccount)
       let skuInfo = {
@@ -1275,11 +1269,7 @@ export default {
     //一键同步上家库存
     async syncOriginGoodsNum() {
       if (!this.multipleSelection.length) {
-        return this.$notify({
-          title: '同步上家库存',
-          type: 'warning',
-          message: `请选择要操作的数据`,
-        })
+        return this.$message.warning(`请选择要操作的数据`)
       }
       this.showConsole = false //打开日志
       this.$refs.Logs.consoleMsg = ''
@@ -1538,7 +1528,7 @@ export default {
       if (res.code === 200) {
         this.$message.success(`商品置顶成功！`)
       } else {
-        this.$message.error(`${res.data}`)
+        this.$message.error(`商品置顶失败`)
       }
     },
     //商品删除
@@ -1858,6 +1848,7 @@ export default {
       this.replayOrderBuyerVisible = false
       this.secondSaleVisible = false
       this.abroadVisible = false
+      this.goodsOutStoreVisible = false
 
       //批量添加采购物流单号
       this.shipNo = ''
@@ -1867,7 +1858,6 @@ export default {
       //
       this.trackingNumberList = []
 
-      this.clickRow = {}
       this.multipleSelection = []
 
       this.isAbroadGood = 0
@@ -1876,6 +1866,7 @@ export default {
       if (!refresh) {
         this.getOrderList()
       }
+      this.clickRow = {}
     },
     //保存多物流
     async saveAddMoreTra() {
@@ -1961,11 +1952,7 @@ export default {
         sourceId[Number(item.goods_info.ori_platform_id)] = item.goods_info.ori_platform_id
       })
       if (Object.keys(sourceId).length > 1) {
-        return this.$notify({
-          title: '采购信息',
-          type: 'warning',
-          message: `只能批量添加同一个采购平台的信息`,
-        })
+        return this.$message.warning(`只能批量添加同一个采购平台的信息`)
       }
       this.dealType = 'batch'
       this.purchaseInfoVisible = true
@@ -1983,6 +1970,7 @@ export default {
         return this.$message.error('物流单号不能为空！')
       }
       let message = ''
+      this.shipLoading = true
       for (let i = 0; i < this.multipleSelection.length; i++) {
         let item = this.multipleSelection[i]
         let params = {
@@ -1996,14 +1984,17 @@ export default {
           ],
           warehouseId: this.shipBindStore,
         }
+
         let res = await this.$api.updateOrderTrackingNumber(params)
         if (res.data.code === 200) {
-          message = message + `【${item.order_sn}】添加成功`
+          message = message + `<p>【${item.order_sn}】添加成功</p>\n`
         } else {
-          message = message + `【${item.order_sn}】添加失败${res.data.message}`
+          message = message + `<p>【${item.order_sn}】添加失败${res.data.message}\n</p>\n`
         }
       }
+      this.shipLoading = false
       this.$alert(message, '提示', {
+        dangerouslyUseHTMLString: true,
         confirmButtonText: '确定',
       })
     },
@@ -2020,18 +2011,14 @@ export default {
       if (Object.keys(sameId).length > 1) {
         return this.$message.warning('只能批量添加同一个采购平台的物流信息！')
       }
-      let filterOrder = this.multipleSelection.filter((n) => !n.original_tracking_number)
+      let filterOrder = this.multipleSelection.filter((n) => n.shot_order_info.shot_tracking_number)
       if (filterOrder.length) {
         let orders = ''
         filterOrder.forEach((item) => {
           orders = orders + ',' + item.order_sn
         })
-        orders = orders.substring(2)
-        return this.$notify({
-          title: '采购信息',
-          type: 'warning',
-          message: `【${orders}】已经存在采购物流单号，不能进行批量添加，请勿勾选这类订单！`,
-        })
+        orders = orders.substring(1)
+        return this.$message.warning(`【${orders}】已经存在采购物流单号，不能进行批量添加，请勿勾选这类订单`)
       }
       let storeInfo = null
       for (let i = 0; i < this.multipleSelection.length; i++) {
@@ -2043,7 +2030,8 @@ export default {
           orderType = 3
         }
         let res = await this.$appConfig.getWarehouseInfo(order.mall_info.platform_mall_id)
-        let warehouseList = (res && JSON.parse(res)) || []
+        // console.log(res, 'warehouseList')
+        let warehouseList = res == '{}' ? [] : JSON.parse(res)
         console.log(warehouseList, 'warehouseList', orderType)
         storeInfo = warehouseList.find((item) => {
           return item.type == orderType
@@ -2052,6 +2040,9 @@ export default {
         if (storeInfo) {
           break
         }
+      }
+      if (!storeInfo) {
+        return this.$message.error('未绑定仓库！')
       }
       this.shipStoreList = [storeInfo]
       this.shipInfoVisible = true
@@ -2064,28 +2055,16 @@ export default {
     //批量获取天猫淘宝海外平台拍单信息
     async getCrossBorderOrderInfo() {
       if (!this.multipleSelection.length) {
-        return this.$notify({
-          title: '拍单管理',
-          type: 'warning',
-          message: `请选择要操作的订单`,
-        })
+        return this.$message.warning(`请选择要操作的订单`)
       }
       let orderFilter = this.multipleSelection.filter((item) => {
         return item.goods_info.ori_platform_id == 13
       })
       if (!orderFilter.length) {
-        return this.$notify({
-          title: '拍单管理',
-          type: 'warning',
-          message: `请选择天猫淘宝海外平台订单！`,
-        })
+        return this.$message.warning(`请选择天猫淘宝海外平台订单！`)
       }
       if (!this.buyerAccountListGlobal.length) {
-        return this.$notify({
-          title: '拍单管理',
-          type: 'warning',
-          message: `请登录天猫海外平台买手号！`,
-        })
+        return this.$message.warning(`请登录天猫海外平台买手号！`)
       }
       this.showConsole = false
       this.$refs.Logs.writeLog(`获取天猫淘宝海外平台订单信息开始`, true)
@@ -2139,29 +2118,17 @@ export default {
     //批量天猫淘宝海外平台拍单
     async purchaseGlobalOrder() {
       if (!this.multipleSelection.length) {
-        return this.$notify({
-          title: '拍单管理',
-          type: 'warning',
-          message: `请选择要操作的订单`,
-        })
+        return this.$message.warning(`请选择要操作的订单`)
       }
       let orderFilter = this.multipleSelection.filter((item) => {
         return item.goods_info.ori_platform_id == 13
       })
       if (!orderFilter.length) {
-        return this.$notify({
-          title: '拍单管理',
-          type: 'warning',
-          message: `请选择天猫淘宝海外平台订单！`,
-        })
+        return this.$message.warning(`请选择天猫淘宝海外平台订单！`)
       }
       const crossBorderAccount = this.getAccountGlobalById(this.accountCrossBorder)
       if (!crossBorderAccount) {
-        return this.$notify({
-          title: '拍单管理',
-          type: 'error',
-          message: `请登录并选择${this.changeTypeName(13, this.goodsSourceList)}拍单账号`,
-        })
+        return this.$message.warning(`请登录并选择${this.changeTypeName(13, this.goodsSourceList)}拍单账号`)
       }
       let buyerAccount = [crossBorderAccount]
       this.showConsole = false
@@ -2173,11 +2140,7 @@ export default {
     //批量拍单
     async purchaseHandler() {
       if (!this.multipleSelection.length) {
-        return this.$notify({
-          title: '拍单管理',
-          type: 'warning',
-          message: `请选择要操作的订单`,
-        })
+        return this.$message.warning(`请选择要操作的订单`)
       }
       console.log('4544656')
       const waitOrders = JSON.parse(JSON.stringify(this.multipleSelection))
@@ -2194,46 +2157,30 @@ export default {
         } else if (item.goods_info.ori_platform_id && item.goods_info.ori_platform_id == 8) {
           purchasesIdTb['1688'] = '1688'
         } else if (item.goods_info.ori_platform_id && item.goods_info.ori_platform_id == 9) {
-          abroadLazadaCountry[item.goods_info.ori_country] = item.goods_info.ori_country
-          purchasesId[item.goods_info.ori_platform_id] = item.goods_info.ori_country
+          abroadLazadaCountry[item.country] = item.country
+          purchasesId[item.goods_info.ori_platform_id] = item.country
         } else if (item.goods_info.ori_platform_id && item.goods_info.ori_platform_id == 11) {
-          abroadShopeeCountry[item.goods_info.ori_country] = item.goods_info.ori_country
-          purchasesId[item.goods_info.ori_platform_id] = item.goods_info.ori_country
+          abroadShopeeCountry[item.country] = item.country
+          purchasesId[item.goods_info.ori_platform_id] = item.country
         }
       })
-      console.log()
+      console.log(abroadLazadaCountry, purchasesId)
       if (Object.keys(purchasesIdTb).length > 1) {
-        return this.$notify({
-          title: '拍单管理',
-          type: 'error',
-          message: '淘宝(天猫)与1688的订单请分开拍单！',
-        })
+        return this.$message.error(`淘宝(天猫)与1688的订单请分开拍单`)
       }
       //2.存在上家类型为速卖通提示 “请先将速卖通的采购链接更换成国内的采购链接再进行拍单！”
       let smtFilter = waitOrders.filter((item) => {
         return item.goods_info.ori_platform_id && item.goods_info.ori_platform_id == 12
       })
       if (smtFilter.length > 0) {
-        return this.$notify({
-          title: '拍单管理',
-          type: 'error',
-          message: '请先将速卖通的采购链接更换成国内的采购链接再进行拍单！',
-        })
+        return this.$message.error(`请先将速卖通的采购链接更换成国内的采购链接再进行拍单！`)
       }
       //3.若上家类型为11:shopee、9:lazada，并且同时存在不同的站点订单提示  “目前只支持单个站点的Shopee/lazada批量拍单,请区分站点”  goods_info.ori_country
       if (Object.keys(abroadLazadaCountry).length > 1) {
-        return this.$notify({
-          title: '拍单管理',
-          type: 'error',
-          message: '目前只支持单个站点的Shopee/lazada批量拍单,请区分站点！',
-        })
+        return this.$message.error(`目前只支持单个站点的Shopee/lazada批量拍单,请区分站点！`)
       }
       if (Object.keys(abroadShopeeCountry).length > 1) {
-        return this.$notify({
-          title: '拍单管理',
-          type: 'error',
-          message: '目前只支持单个站点的Shopee/lazada批量拍单,请区分站点！',
-        })
+        return this.$message.error(`目前只支持单个站点的Shopee/lazada批量拍单,请区分站点！`)
       }
       //4.若上家类型为shopee、lazada  判断选择的买手号是否与选择的订单的站点是否一致，若不一致则提示 “请登录并选择对应站点的Shopee/Lazada拍单账号”
       //5.都需要判断是否登录并选择拍单号，若有某个上家平台的订单但是，单业务未选择买手号则提示  “请登录并选择1688（相应平台（淘宝天猫、拼多多等））拍单账号”
@@ -2247,41 +2194,64 @@ export default {
       account[9] = this.accountlazada
       account[11] = this.accountshopee
       account[13] = this.accountCrossBorder
-      const pddAccount = this.getAccountById(this.accountpdd)
-      const taobaoAccount = this.getAccountById(this.accounttaobao)
-      const jdAccount = this.getAccountById(this.accountjd)
-      const jxAccount = this.getAccountById(this.accountjx)
-      const AlibabaAccount = this.getAccountById(this.account1688)
-      const lazadaAccount = this.getAccountById(this.accountlazada)
-      const shopeeAccount = this.getAccountById(this.accountshopee)
-      const crossBorderAccount = this.getAccountGlobalById(this.accountCrossBorder)
+      // const pddAccount = this.getAccountById(this.accountpdd)
+      // const taobaoAccount = this.getAccountById(this.accounttaobao)
+      // const jdAccount = this.getAccountById(this.accountjd)
+      // const jxAccount = this.getAccountById(this.accountjx)
+      // const AlibabaAccount = this.getAccountById(this.account1688)
+      // const lazadaAccount = this.getAccountById(this.accountlazada)
+      // const shopeeAccount = this.getAccountById(this.accountshopee)
+      // const crossBorderAccount = this.getAccountGlobalById(this.accountCrossBorder)
+      let pddAccount = null
+      let taobaoAccount = null
+      let jdAccount = null
+      let jxAccount = null
+      let AlibabaAccount = null
+      let lazadaAccount = null
+      let shopeeAccount = null
+      let crossBorderAccount = null
       console.log('accountCrossBorder', this.accountCrossBorder, this.buyerAccountListGlobal, this.buyerAccountList)
       console.log(purchasesId, 'purchasesId', this.accountpdd, this.accounttaobao, this.account1688, this.accountjx, this.accountlazada, this.accountshopee, pddAccount, crossBorderAccount)
       for (const key in purchasesId) {
         console.log(key)
         if (!account[key]) {
-          return this.$notify({
-            title: '拍单管理',
-            type: 'error',
-            message: `请登录并选择${this.changeTypeName(key, this.goodsSourceList)}拍单账号`,
-          })
+          return this.$message.error(`请登录并选择${this.changeTypeName(key, this.goodsSourceList)}拍单账号`)
         }
+        switch (key) {
+          case '1':
+            pddAccount = this.getAccountById(this.accountpdd)
+            break
+          case '2':
+          case '3':
+            taobaoAccount = this.getAccountById(this.accounttaobao)
+            break
+          case '10':
+            jxAccount = this.getAccountById(this.accountjx)
+            break
+          case '8':
+            AlibabaAccount = this.getAccountById(this.account1688)
+            break
+          case '9':
+            lazadaAccount = this.getAccountById(this.accountlazada)
+            break
+          case '11':
+            shopeeAccount = this.getAccountById(this.accountshopee)
+            break
+          case '13':
+            crossBorderAccount = this.getAccountGlobalById(this.accountCrossBorder)
+            break
+          default:
+            break
+        }
+        console.log(lazadaAccount, 'lazadaAccount', purchasesId[key])
         if (key == 9 && account[9] && lazadaAccount) {
           if (lazadaAccount.site != purchasesId[key]) {
-            return this.$notify({
-              title: '拍单管理',
-              type: 'error',
-              message: `请登录并选择对应站点的Shopee/Lazada拍单账号`,
-            })
+            return this.$message.error(`请登录并选择对应站点的Lazada拍单账号`)
           }
         }
         if (key == 11 && account[11] && shopeeAccount) {
           if (shopeeAccount.site != purchasesId[key]) {
-            return this.$notify({
-              title: '拍单管理',
-              type: 'error',
-              message: `请登录并选择对应站点的Shopee/Lazada拍单账号`,
-            })
+            return this.$message.error(`请登录并选择对应站点的Shopee拍单账号`)
           }
         }
       }
@@ -2291,6 +2261,7 @@ export default {
       })
       this.showConsole = false
       this.$refs.Logs.consoleMsg = ''
+      console.log(buyerAccount,"buyerAccount")
       const service = new ShotOrderService(waitOrders, buyerAccount, this)
       service.start(this.$refs.Logs.writeLog)
     },
@@ -2359,9 +2330,9 @@ export default {
       }
       let res = await this.$api.setColorLabel(params)
       if (res.data.code === 200) {
-        arrData.forEach(item=>{
-          let index = this.tableData.findIndex(n=>n.id==item.id)
-          if( index > -1){
+        arrData.forEach((item) => {
+          let index = this.tableData.findIndex((n) => n.id == item.id)
+          if (index > -1) {
             this.tableData[index].color_id = this.colorRow.id
           }
         })
@@ -2508,7 +2479,7 @@ export default {
           this.columnConfigList = resData
         }
       }
-      console.log(data, 'getColumnsConfig')
+      // console.log(data, 'getColumnsConfig')
     },
     //同步物流单号
     async syncLogistics() {
@@ -2548,18 +2519,17 @@ export default {
       let res = await this.$api.applyAsyncExportOrder(params)
       console.log(res, 'applyAsyncExportOrder')
       if (res.data.code === 200) {
-        return this.$notify({
-          title: '导出数据',
-          type: 'success',
-          message: `导出数据请求成功，可点击【导出数据报表】按钮查看导出状态`,
-        })
+        return this.$message.success(`导出数据请求成功，可点击【导出数据报表】按钮查看导出状态`)
       } else {
-        return this.$notify({
-          title: '导出数据',
-          type: 'error',
-          message: `请求失败，${res.data.message}`,
-        })
+        return this.$message.error(`请求失败，${res.data.message}`)
       }
+    },
+    //计算含邮毛利
+    calcGrossProfit(escrowAmount, shotAmount, grossProfit) {
+      let diff = (escrowAmount - shotAmount).toFixed(2)
+      if (diff !== Number(grossProfit)) {
+      }
+      return diff
     },
     //获取订单列表数据
     async getOrderList(page) {
@@ -2581,6 +2551,8 @@ export default {
       params['shotStatus'] = this.shotStatus.join(',')
       params['logisticsIds'] = this.logisticsIds.join(',')
       params['createTime'] = this.createTime.length ? this.createTime[0] + ' 00:00:00' + '/' + this.createTime[1] + ' 23:59:59' : ''
+      params['otherTime'] = params['otherTime'].length ? params['otherTime'][0] + ' 00:00:00' + '/' + params['otherTime'][1] + ' 23:59:59' : ''
+      params['shotTime'] = params['shotTime'].length ? params['shotTime'][0] + ' 00:00:00' + '/' + params['shotTime'][1] + ' 23:59:59' : ''
       this.tableLoading = true
       try {
         let res = await this.$api.getOrderList(params)
@@ -2588,7 +2560,29 @@ export default {
           this.tableData = res.data.data.data
           this.total = res.data.data.total
           let sysOrders = ''
+          let grossAmountRequest = []
           this.tableData.forEach((row, i) => {
+            //计算含邮毛利
+            if (row.shot_order_info.shot_order_sn) {
+              let diff = Number(row.escrow_amount - row.shot_order_info.shot_amount).toFixed(2)
+              if (diff !== Number(row.gross_profit).toFixed(2)) {
+                console.log(i, diff - Number(row.gross_profit).toFixed(2), diff, Number(row.gross_profit).toFixed(2), 'uploadGressProfit')
+                console.log(i, Number(row.gross_profit).toFixed(2))
+                row.gross_profit = diff
+                let obj = {
+                  sys_order_id: row.id,
+                  // shot_amount: row.shot_order_info.shot_amount, //采购价，当地币种的
+                }
+                grossAmountRequest.push(obj)
+              }
+            }
+            //计算最终毛利
+            if (Number(row.real_gross_profit) > 0 || [3, 4, 8].indexOf(Number(row.order_status)) > -1) {
+              // console.log("计算最终毛利",Number(row.real_gross_profit)>0,Number(row.real_gross_profit))
+              // 收入-采购价-仓库发货金额
+              let diff = (row.escrow_amount - row.shot_order_info.shot_amount - Number(row.warehouse_ship_amount) / Number(this.rateList[row.country])).toFixed(2)
+              row.real_gross_profit = diff
+            }
             if (i === 0) {
               sysOrders = row.id
             } else {
@@ -2598,6 +2592,10 @@ export default {
             // row.categoryName = this.getCategoryInfo(row.country, row.goods_info.goods_category_id)
             this.isSecondSale(row, i)
           })
+          if (grossAmountRequest.length > 0) {
+            let amountRes = await this.$api.uploadGressProfit({ lists: grossAmountRequest })
+            //  console.log(amountRes,"amountRes")
+          }
           let response = await this.$commodityService.getSkuRelation(sysOrders)
           let skuInfo = response && JSON.parse(response)
           if (skuInfo.code === 200) {
@@ -2615,11 +2613,7 @@ export default {
         }
       } catch (error) {
         console.log(error)
-        this.$notify({
-          title: '查询数据',
-          type: 'error',
-          message: `获取订单列表失败，${error}`,
-        })
+        this.$message.error(`获取订单列表失败`)
         this.tableLoading = false
       }
       this.tableLoading = false
@@ -2654,6 +2648,7 @@ export default {
     changeMallList(val) {
       this.selectMallList = val.mallList
       this.shipTypeList = siteShip(val.country) || [] //物流方式
+      this.logisticsIds = []
       this.payMethodList = platformPayMethod[val.country] || []
     },
     handleCurrentChange(val) {
@@ -2668,6 +2663,8 @@ export default {
     handleSelectionChange(val) {
       this.multipleSelection = val
     },
+    changeShotStatus, //采购状态
+    changeOrderStatus, //发货状态
     changePlatformPayMethod, //平台付款方式
     changePackageType, //货物类型
     changeDeliveryStatus, //仓库状态
@@ -2718,14 +2715,14 @@ export default {
     cursor: pointer;
   }
   .copyStyle {
-    margin-left: 8px;
+    margin-right: 8px;
     cursor: pointer;
   }
 }
 .content {
   p {
     color: red;
-    height: 26px;
+    // height: 26px;
     padding: 10px;
   }
   // margin: 20px 0;

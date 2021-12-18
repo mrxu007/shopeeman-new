@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-11-16 20:01:09
- * @LastEditTime: 2021-12-04 18:10:08
+ * @LastEditTime: 2021-12-16 21:28:52
  * @LastEditors: Please set LastEditors
  * @Description: 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  * @FilePath: \shopeeman-new\src\views\order-manager\components\orderCenter\SelfGoodsStore.vue
@@ -27,7 +27,7 @@
       </el-table-column>
       <el-table-column align="center" type="index" label="仓库名称" width="80">
         <template slot-scope="scope">
-          <span>{{scope.row.wid}}</span>
+          <span>{{changeName(scope.row.wid)}}</span>
         </template>
       </el-table-column>
       <el-table-column width="120px" label="系统商品ID" prop="id" align="center" />
@@ -43,9 +43,14 @@
           </div>
         </template>
       </el-table-column>
-      <el-table-column label="商品图片" width="80">
-        <template slot-scope="scope">
-          <el-image :src="scope.row.sku_image" style="width: 60px; height: 60px" />
+       <el-table-column label="商品图片" width="80">
+        <template slot-scope="scope" v-if="scope.row.sku_image">
+           <el-tooltip effect="light" placement="right-end" :visible-arrow="false" :enterable="false" style="width: 32px; height: 32px; display: inline-block">
+              <div slot="content">
+                <el-image :src="scope.row.sku_image" style="width: 400px; height: 400px" ></el-image>
+              </div>
+              <el-image :src="scope.row.sku_image" style="width: 32px; height: 32px" ></el-image>
+            </el-tooltip>
         </template>
       </el-table-column>
       <el-table-column label="操作" min-width="60px">
@@ -93,13 +98,17 @@ export default {
     await this.searchTableList()
   },
   methods: {
+    changeName(wid){
+      let res = this.widList.find(n=>n.wid== wid)
+      return res?res.warehouse_name:''
+    },
     async getWareHouseList() {
       let appinfo = await this.$appConfig.getUserInfo()
       let res = await this.$api.getWarehouseList()
       if(res.data.code === 200){
         let arr = res.data.data || []
         let arrFilter = arr.filter(item=>{
-          return item.status!==2 && item.user_ids && item.user_ids.indexOf(appinfo.muid)>-1
+          return item.status!=2 || (item.user_ids && item.user_ids.indexOf(appinfo.muid)>-1)
         })
         // if(!arrFilter)
         this.widList = arrFilter.length ? arrFilter : arr
@@ -123,11 +132,12 @@ export default {
       const res = await this.$XzyNetMessageService.post('xzy.shopifyV2.get_stock', params)
       let resObj = res && JSON.parse(res)
       let data = resObj && JSON.parse(resObj.data)
+      console.log(resObj,"resObj")
       if (data && data.code === 200) {
         this.total = data.data.total
         let arr = data.data.data
         arr.forEach(async (item) => {
-          item.stock_num = item.stock
+          item.stock_num = item.frozen_num
         })
         this.tableData = arr
       }
