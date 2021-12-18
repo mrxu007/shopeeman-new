@@ -13,7 +13,7 @@
         >基础数据配置</span>
         <ul>
           <li>
-            <storeChoose style="margin-left:-20px;width: 730px;" :is-all="true" :show-mall-all="true" @changeMallList="changeMallList" />
+            <storeChoose style="margin-left:-20px;width: 730px;" :show-mall-all="true" @changeMallList="changeMallList" />
           </li>
           <li style="margin-top:20px">
             <el-button size="mini" type="primary">搜索任务</el-button>
@@ -39,9 +39,9 @@
           <li>
             <div>
               置顶时间设置：
-              <el-radio-group v-model="radio">
-                <el-radio :label="3">当前时间</el-radio>
-                <el-radio :label="6" style="margin-left:11px">
+              <el-radio-group v-model="set_time">
+                <el-radio label="1">当前时间</el-radio>
+                <el-radio label="2" style="margin-left:11px">
                   <el-date-picker
                     v-model="cloumn_date"
                     size="mini"
@@ -57,9 +57,9 @@
           <li>
             <div>
               置顶维度设置：
-              <el-radio-group v-model="radio">
-                <el-radio :label="3">自定义商品</el-radio>
-                <el-radio :label="6">
+              <el-radio-group v-model="otherConditon">
+                <el-radio label="1">自定义商品</el-radio>
+                <el-radio label="2">
                   <el-select v-model="saleType" placeholder="请选择" size="mini" style="width:120px">
                     <el-option label="默认排序" value="1" />
                     <el-option label="销量从低往高" value="2" />
@@ -70,7 +70,7 @@
                 </el-radio>
               </el-radio-group>
               <!-- 选择自定商品时 -->
-              <el-button size="mini" type="primary">添加商品</el-button>
+              <el-button v-if="otherConditon==='1'" size="mini" type="primary">添加商品</el-button>
             </div>
           </li>
           <li style="align-items: baseline;">
@@ -120,7 +120,8 @@ export default {
         }
       },
       // cloumn_date: '',
-      radio: '',
+      set_time: '1', // 时间设置 1当前时间 2自定义时间
+      otherConditon: '2', // 1 自定义商品id 2.商品其他顺序
       saleType: '',
       unlikeCreateMinDay: '',
       tableList: []
