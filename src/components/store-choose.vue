@@ -17,9 +17,12 @@
       </li>
       <li :style="isReset && 'margin-bottom: 5px'">
         <span :style="{ width: spanWidth }">店铺名称：</span>
-        <el-select v-model="site" placeholder="" multiple collapse-tags size="mini" filterable class="selectBox">
+        <el-select v-model="site" placeholder="" multiple collapse-tags :filter-method="filterMall"
+                   size="mini" filterable class="selectBox"  v-loadmore="loadmoreMall">
           <el-option label="全部" :value="''" />
-          <el-option v-for="(item, index) in siteList" :key="index" :label="item.mall_alias_name || item.platform_mall_name" :value="item.platform_mall_id" />
+          <el-option v-for="(item, index) in siteShowList" :key="index"
+                     v-if=" mallShowIndex<= index && index <=mallShowIndex + showNumber"
+                     :label="item.mall_alias_name || item.platform_mall_name" :value="item.platform_mall_id" />
         </el-select>
       </li>
       <li v-if="isReset" style="margin-bottom: 5px;margin-left: 25px;">
@@ -31,7 +34,21 @@
 
 <script>
 import MallListAPI from '../module-api/mall-manager-api/mall-list-api'
-
+import Vue from 'vue';
+Vue.directive('loadmore', {
+  bind(el, binding) {
+    // 获取element-ui定义好的scroll盒子
+    const SELECTWRAP_DOM = el.querySelector('.el-select-dropdown .el-select-dropdown__wrap');
+    SELECTWRAP_DOM.addEventListener('scroll', function() {
+      // console.log(this.scrollHeight,this.scrollTop,this.clientHeight)
+      if (this.scrollHeight - this.scrollTop <= (this.clientHeight + 50)){
+        binding.value(true,this);
+      }else if (this.scrollTop < 30){
+        binding.value(false,this);
+      }
+    });
+  }
+})
 export default {
   name: 'StoreChoose',
   props: {
@@ -67,11 +84,18 @@ export default {
       groupIdList: [],
       site: [],
       siteList: [],
+      siteShowList: [],
       countries: this.$filters.countries_option,
-      mallListAPIInstance: new MallListAPI(this)
+      mallListAPIInstance: new MallListAPI(this),
+      showNumber : 100,
+      oldScrollTop : 0,
+      mallShowIndex: 0
     }
   },
   watch: {
+    siteList(val){
+      this.siteShowList = val
+    },
     countryVal: {
       handler(val, oldVal) {
         this.isAllowSet2 = false
@@ -180,7 +204,6 @@ export default {
     changeMallList() {
       const mallList = []
       let searchAll = ''
-      console.log(this.site,new Date().getTime())
       this.site.forEach((item) => {
         if (item) {
           const temp = this.siteList.find((i) => i.platform_mall_id === item)
@@ -191,7 +214,6 @@ export default {
       if (!this.countryVal && this.groupId.indexOf('')>-1 ){
         searchAll = mallList.length !== this.siteList.length && searchAll || ''
       }
-      console.log('searchAll',searchAll,new Date().getTime())
       if (this.source ) {
         this.$emit('changeMallList', {
           mallList: mallList,
@@ -203,6 +225,35 @@ export default {
         mallList['country'] = this.countryVal
         this.$emit('changeMallList', mallList)
       }
+    },
+    filterMall(val){
+      console.log('filterMall',val)
+      if (val){
+        let list = []
+        this.siteList.forEach(item=>{
+          if (item.mall_alias_name.includes(val)){
+            list.push(item)
+          }
+        })
+        this.siteShowList = list
+      }else{
+        this.siteShowList = this.siteList
+      }
+    },
+    loadmoreMall(val,that){
+      let newIndex = 0
+      if (val){
+        newIndex = this.mallShowIndex + 10
+        newIndex = newIndex <= this.siteShowList.length - this.showNumber
+            && newIndex  || this.siteShowList.length - this.showNumber
+      }else{
+        newIndex = this.mallShowIndex - 10
+        newIndex = newIndex >= 0 && newIndex || 0
+      }
+      if (newIndex !== this.mallShowIndex){
+        that.scrollTop = !val && 30 || (that.scrollTop - 100)
+      }
+      this.mallShowIndex = newIndex
     }
   }
 }
@@ -232,6 +283,11 @@ export default {
     }
     .selectBox {
       width: 180px;
+    }
+    .el-select__tags{
+      display: flex;
+      flex-wrap: nowrap;
+      overflow: hidden;
     }
   }
 }

@@ -131,8 +131,8 @@ export default {
   },
   methods: {
     changeMallList(val) {
-      console.log('changeMallList', val,new Date().getTime())
       this.selectMallList = val
+      console.log('changeMallList', val)
     },
     // 查询列表
     async searchRecord() {
