@@ -1749,9 +1749,7 @@
               cookieJson.spc_f = mallDataInfo.web_login_info && mallDataInfo.web_login_info['SPC_F'] || cookieJson.spc_f
               // 一键登录// 获取壳内店铺信息,组装getChinese
               mallDataInfo.web_login_info['SPC_EC'] = cookieJson.SPC_EC
-              mallDataInfo.web_login_info['sso'] = cookieJson.SPC_EC
               mallDataInfo.web_login_info['SPC_SC_TK'] = cookieJson.SPC_SC_TK
-              mallDataInfo.web_login_info['token'] = cookieJson.SPC_SC_TK
               mallDataInfo.web_login_info['ShopeeUid'] = cookieJson.ShopeeUid
               mallDataInfo.web_login_info['shopeeuid'] = cookieJson.ShopeeUid
               mallDataInfo.web_login_info['shopid'] = cookieJson.shopid
@@ -1906,10 +1904,8 @@
             'SPC_SC_SA_UD': '',
             'SPC_SC_SA_TK': '',
             'SPC_SC_UD': '',
-            'token': '',
             'cstoken': '',
             'satoken': '',
-            'sso': '',
             'shopeeuid': '',
             'shopid': '',
             'portrait': '',

@@ -191,11 +191,10 @@ export default {
       this.$refs.Logs.consoleMsg = ''
     },
     changeMallList(val) {
+      console.log('changeMallList', val,new Date().getTime())
       this.selectMallList = val
       this.site_query['country'] = this.selectMallList['country']
       this.exchangeRateList()
-      console.log('country', this.site_query['country'])
-      console.log('changeMallList', val)
     },
     // 同步信息
     async updataMall() {
