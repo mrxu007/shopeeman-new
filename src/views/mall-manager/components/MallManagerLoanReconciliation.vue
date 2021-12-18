@@ -71,7 +71,7 @@
           >同步数据</el-button>
           <el-button size="mini" type="primary" @click="cancelActive = true">取消同步</el-button>
           <el-button size="mini" type="primary" @click="clearLog">清空日志</el-button>
-          <el-button size="mini" type="primary" @click="export_table(1), (exportList = [])">导出 </el-button>
+          <el-button size="mini" type="primary" @click="export_table">导出 </el-button>
           <el-checkbox v-model="showConsole" style="margin-left: 10px"> 隐藏日志</el-checkbox>
         </div>
       </div>
@@ -191,11 +191,10 @@ export default {
       this.$refs.Logs.consoleMsg = ''
     },
     changeMallList(val) {
+      console.log('changeMallList', val,new Date().getTime())
       this.selectMallList = val
       this.site_query['country'] = this.selectMallList['country']
       this.exchangeRateList()
-      console.log('country', this.site_query['country'])
-      console.log('changeMallList', val)
     },
     // 同步信息
     async updataMall() {

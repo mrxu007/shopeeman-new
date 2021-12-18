@@ -89,10 +89,7 @@ export default {
           const isAll = val.indexOf('') > -1
           if (isOldAll !== isAll) {
             if (isAll) {
-              this.groupId = ['']
-              this.groupIdList.forEach((item) => {
-                this.groupId.push(item.id)
-              })
+              this.groupId = ['',...this.groupIdList.map(i=>i.id)]
             } else {
               this.groupId = []
             }
@@ -117,10 +114,7 @@ export default {
           const isAll = val.indexOf('') > -1
           if (isOldAll !== isAll) {
             if (isAll) {
-              this.site = ['']
-              this.siteList.forEach((item) => {
-                this.site.push(item.platform_mall_id)
-              })
+              this.site = ['',...this.siteList.map(i=>i.platform_mall_id)]
             } else {
               this.site = []
             }
@@ -132,7 +126,7 @@ export default {
           setTimeout(() => {
             this.changeMallList()
             this.isAllowSet1 = true
-          })
+          },10)
         }
       },
       deep: true
@@ -147,9 +141,6 @@ export default {
       this.groupId = []
       this.groupIdList = []
       this.ddMallGoodsGetMallList(1)
-    },
-    async changeSelect(val) {
-      console.log(val)
     },
     async ddMallGoodsGetMallList(val) {
       this.site = []
@@ -189,17 +180,18 @@ export default {
     changeMallList() {
       const mallList = []
       let searchAll = ''
+      console.log(this.site,new Date().getTime())
       this.site.forEach((item) => {
         if (item) {
-          const temp = this.siteList.filter((i) => i.platform_mall_id === item)
-          mallList.push(temp[0])
+          const temp = this.siteList.find((i) => i.platform_mall_id === item)
+          mallList.push(temp)
           searchAll += (item + ',')
         }
       })
       if (!this.countryVal && this.groupId.indexOf('')>-1 ){
         searchAll = mallList.length !== this.siteList.length && searchAll || ''
       }
-      console.log('searchAll',searchAll)
+      console.log('searchAll',searchAll,new Date().getTime())
       if (this.source ) {
         this.$emit('changeMallList', {
           mallList: mallList,

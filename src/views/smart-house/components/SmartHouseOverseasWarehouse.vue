@@ -63,10 +63,10 @@
         <el-table-column prop="sku_url" label="商品链接" min-width="150px" align="center">
           <template slot-scope="{row}"><el-button type="primary" size="mini" @click="open(row.sku_url)">查看商品链接</el-button> </template>
         </el-table-column>
-        <el-table-column prop="real_image_url" label="商品图片" min-width="100px" align="center">
+        <el-table-column label="商品图片" min-width="100px" align="center">
           <template slot-scope="{row}">
             <el-tooltip
-              v-if="row.real_image_url"
+              v-if="row.sku_image || row.real_image_url"
               effect="light"
               placement="right-end"
               :visible-arrow="false"
@@ -75,15 +75,15 @@
             >
               <div slot="content">
                 <el-image
-                  style="width: 250px; height: 250px"
-                  :src="row.real_image_url"
+                  style="width: 400px; height: 400px"
+                  :src="row.sku_image || row.real_image_url"
                 >
                   <div slot="error" class="image-slot" />
                 </el-image>
               </div>
               <el-image
                 style="width: 40px; height: 40px"
-                :src="row.real_image_url"
+                :src="row.sku_image || row.real_image_url"
               >
                 <div slot="error" class="image-slot" />
               </el-image>
@@ -453,6 +453,7 @@ export default {
             }
           }
           this.tableData = getdata
+          console.log('tableData', this.tableData)
         }
         // data.data = JSON.parse(data.data)
         // const data2 = []
@@ -528,8 +529,7 @@ export default {
       } else {
         this.Loading2 = false
         let msg = `<tr>
-        <td style="width: 200px; text-align:left;">序列号</td>
-        <td style="width: 200px; text-align:left;">仓库名称</td>
+        <td style="width: 200px; text-align:left;">所属仓库</td>
         <td style="width: 200px; text-align:left;">系统商品编号</td>
         <td style="width: 200px; text-align:left;">商品编号（SkuId）</td>
         <td style="width: 200px; text-align:left;">商品名称</td>
@@ -537,14 +537,14 @@ export default {
         <td style="width: 200px; text-align:left;">可用库存</td>
         <td style="width: 200px; text-align:left;">共享库存</td>
         <td style="width: 200px; text-align:left;">商品单价（RMB）</td>
-        <td style="width: 200px; text-align:left;">商品链接</td>
+        <td style="width: 800px; text-align:left;">商品链接</td>
+        <td style="width: 800px; text-align:left;">商品图片</td>
         <td style="width: 200px; text-align:left;">货架仓位</td>
         <td style="width: 200px; text-align:left;">库存更新时间</td>
       </tr>`
         this.exportData.forEach((item, index) => {
           msg += `
         <tr>
-          <td style="text-align:left;">${index + 1}</td>
           <td style="text-align:left;">${item.warehouse_name || ''}</td>
           <td style="text-align:left;">${item.sys_sku_id || ''}</td>
           <td style="text-align:left;">${item.sku_id || ''}</td>
@@ -554,6 +554,7 @@ export default {
           <td style="text-align:left;">${item.shared_num}</td>
           <td style="text-align:left;">${item.sku_price || ''}</td>
           <td style="text-align:left;">${item.sku_url || ''}</td>
+          <td style="text-align:left;">${item.sku_image || item.real_image_url || ''}</td>
           <td style="text-align:left;">${item.position || ''}</td>
           <td style="text-align:left;">${item.updated_at || ''}</td>
         </tr>

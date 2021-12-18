@@ -257,6 +257,26 @@ export default class NetMessageBridgeService {
     return this.NetMessageBridgeService().post(url, JSON.stringify(options), JSON.stringify(data))
   }
 
+  async postChineseBuyer(country, api, data, options = {}, exportInfo) {
+    data = JSON.parse(JSON.stringify(data))
+    const url = await this.getWebUrl(country, data) + api
+    options['extrainfo'] = this.getExtraInfo(data)
+    if (exportInfo) { // 适配店铺管理---导入店铺
+      options['extrainfo']['exportInfo'] = exportInfo
+      // Object.assign(options['extrainfo'],JSON.parse(JSON.stringify()))
+    }
+    delete data.mallId
+    const referer = options['headers'] && options['headers'].referer
+    if (referer) {
+      options['headers'] = Object.assign(options['headers'], {
+        origin: url,
+        referer: url + referer
+      })
+    }
+    console.log(url, JSON.stringify(options), JSON.stringify(data))
+    return this.NetMessageBridgeService().post(url, JSON.stringify(options), JSON.stringify(data))
+  }
+
   async postChinese(country, api, data, options = {}, exportInfo) {
     data = JSON.parse(JSON.stringify(data))
     const url = await this.getUrlPrefix(country, data) + api
@@ -525,10 +545,8 @@ export default class NetMessageBridgeService {
           'SPC_SC_SA_UD': '',
           'SPC_SC_SA_TK': '',
           'SPC_SC_UD': '',
-          'token': data.token,
           'cstoken': data.cs_token,
           'satoken': '',
-          'sso': data.sso,
           'shopeeuid': mallUId,
           'shopid': mallId,
           'portrait': data.portrait,
@@ -656,20 +674,6 @@ export default class NetMessageBridgeService {
       }
       if (res.status === 200) {
         const data = JSON.parse(res.data)
-        // const data = {
-        //   'username': 'hellohappy586',
-        //   'shopid': 213693788,
-        //   'phone': '*****86',
-        //   'sso': 'frcMkzWmlozOjCMsYjn4+SJdOFw3F1zwoGxKht+0PeJ5f+fqw1dWWBDl750dr1h9qlJKJpVABAYX/+tUA1Xduf2Ra/liYgYoSBYIwitiD7ph6mCmoCfuMudx0VLia/r7wIxmOX3KcCvE13zdf1PHSYIdPTk5vnmzyFX1kxSbp6Q=',
-        //   'cs_token': 'frcMkzWmlozOjCMsYjn4+SJdOFw3F1zwoGxKht+0PeJ5f+fqw1dWWBDl750dr1h9qlJKJpVABAYX/+tUA1Xduf2Ra/liYgYoSBYIwitiD7ph6mCmoCfuMudx0VLia/r7wIxmOX3KcCvE13zdf1PHSYIdPTk5vnmzyFX1kxSbp6Q=',
-        //   'portrait': 'ee7db10b758fe62fdca22df0407930ed',
-        //   'id': 213697505,
-        //   'language': 'en',
-        //   'errcode': 0,
-        //   'token': '19ec9cb05c71d9f99d3aa4465abbaf51',
-        //   'sub_account_token': null,
-        //   'email': ''
-        // }
         const mallId = `${data.shopid}` // 平台店铺ID
         const mallUId = `${data.id}` // 平台店铺ID
         const username = data.username
@@ -694,10 +698,8 @@ export default class NetMessageBridgeService {
           'SPC_SC_SA_UD': '',
           'SPC_SC_SA_TK': '',
           'SPC_SC_UD': '',
-          'token': data.token,
           'cstoken': data.cs_token,
           'satoken': '',
-          'sso': data.sso,
           'shopeeuid': mallUId,
           'shopid': mallId,
           'portrait': data.portrait,
