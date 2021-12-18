@@ -27,14 +27,14 @@ export default class {
   //手动同步/自动同步
   async start(orders) {
     this.orders = orders
-    orders.forEach(order=>{
+    orders.forEach(order => {
       this.mainFlow(order)
     })
     // for(let i=0;i<orders.length;i++){
     //   let order = orders[i]
     //   this.mainFlow(order)
     // }
-    
+
   }
   async mainFlow(order) {
     try {
@@ -90,7 +90,7 @@ export default class {
       }
     } catch (error) {
       console.log(error)
-    } 
+    }
   }
   //检查是否有物流信息
   checkTrackInfo(orderInfo) {
@@ -297,6 +297,9 @@ export default class {
       if (country === 'VN' && fileType === 'NORMAL') {
         schemaType = 2
       }
+      if(fileType === 'THERMAL'){
+        schemaType = 3
+      }
       //4、创建面单打印任务
       let packList = [{
         "order_id": Number(order.order_id),
@@ -492,7 +495,7 @@ export default class {
   }
   //检查面单信息
   async checkFaceInfo(bytes, orderSn, logisticsNumber, trackName, country, schemaType, sysMallId, shopId) {
-    console.log(bytes.length, orderSn, logisticsNumber)
+    // console.log(bytes, orderSn, logisticsNumber)
     if (bytes === null || bytes.length < 500 || !orderSn || !logisticsNumber) {
       return {
         code: 50001,
@@ -502,10 +505,23 @@ export default class {
       const blob = new Blob([bytes], {
         type: 'application/pdf'
       })
+      // var a = document.createElement('a');
+      // var url = window.URL.createObjectURL(blob);s
+      // console.log(url)
+      // a.href = url;
+      // a.download = `${new Date().getTime()}-picklist.pdf`;
+      // a.click();
       // console.log(blob)
       // let url = URL.createObjectURL(blob)
       // console.log(url)
+      
       this.blobToDataURL(blob, async (e) => {
+        console.log(e)
+        var a = document.createElement('a');
+        a.href = e;
+        a.download = `${new Date().getTime()}-picklist.pdf`;
+        a.click();
+        return
         let base64 = e.replace('data:application/pdf;base64,', '')
         console.log(base64)
         let cutRes = null
@@ -532,11 +548,11 @@ export default class {
           if (url) {
             //7、上报面单信息
             let params = {
-              sysMallId:sysMallId.toString(),
-              mallId:shopId,
-              logisticsInfos:{
-                url:url,
-                orderSn:orderSn.toString()
+              sysMallId: sysMallId.toString(),
+              mallId: shopId,
+              logisticsInfos: {
+                url: url,
+                orderSn: orderSn.toString()
               }
             }
             let res7 = await this.$api.uploadOrderFaceSheetInfo(params)
