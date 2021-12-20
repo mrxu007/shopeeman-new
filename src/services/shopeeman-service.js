@@ -1492,7 +1492,6 @@ export default class NetMessageBridgeService {
       }
     }
   }
-
   // 获取地址
   getNextLevelAddresses(country, data, option) {
     return this.getChinese(country, '/api/v3/general/get_next_level_addresses', data, option)
