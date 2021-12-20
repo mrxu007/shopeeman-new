@@ -233,6 +233,7 @@ export default {
       let list1 = this.siteList.filter(i => {
         let name = i.mall_alias_name || i.platform_mall_name
         return name.includes(val)
+        return name.includes(val)
       })
       this.showMallNumber = list1.length - 100
       let list2 = this.siteList.filter(i => {

@@ -286,7 +286,6 @@ export default class NetMessageBridgeService {
     options['extrainfo'] = this.getExtraInfo(data)
     if (exportInfo) { // 适配店铺管理---导入店铺
       options['extrainfo']['exportInfo'] = exportInfo
-      // Object.assign(options['extrainfo'],JSON.parse(JSON.stringify()))
     }
     delete data.mallId
     const referer = options['headers'] && options['headers'].referer
@@ -296,7 +295,7 @@ export default class NetMessageBridgeService {
         referer: url + referer
       })
     }
-    // console.log(url, JSON.stringify(options), JSON.stringify(data))
+    console.log('NetMessageBridgeService',url, JSON.stringify(options), JSON.stringify(data))
     return this.NetMessageBridgeService().post(url, JSON.stringify(options), JSON.stringify(data))
   }
   // refer 与url 不一样
@@ -463,7 +462,7 @@ export default class NetMessageBridgeService {
     }
     const reg = new RegExp('[\\u4E00-\\u9FFFa-zA-Z]+', 'g')
     if (accountName.indexOf('@') > -1) {
-      params['email'] = accountName
+      params['email'] = encodeURIComponent(accountName).split('%').length > 1 && encodeURIComponent(accountName) || accountName
       acccount_info['username'] = accountName
     } else if (reg.test(accountName)) {
       params['username'] = accountName
@@ -491,7 +490,7 @@ export default class NetMessageBridgeService {
     }
     console.log('copy_mallInfo', copy_mallInfo)
     try {
-      let res = await this.postChinese(country, '/api/v2/login', params, { // option
+      let res = await this.postChinese(country, '/api/v2/login/?', params, { // option
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
           'charset': 'UTF-8'
