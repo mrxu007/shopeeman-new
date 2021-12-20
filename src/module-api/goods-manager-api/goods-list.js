@@ -38,7 +38,7 @@ export default class GoodsList {
     const { mItem, pageSize, searchType, keyword, goodsMin, goodsMax, soldMin, soldMax, listType, categoryId } = val
     try {
       const params = {
-        page_number: mItem.pageNumber,
+        page_number: mItem.pageNumberA,
         page_size: pageSize,
         mallId: mItem.platform_mall_id,
         search_type: searchType,
