@@ -24,6 +24,7 @@ export default class NetMessageBridgeService {
     const mallId = data.mallId || data.platform_mall_id || data.shop_id
     let userSettings = await this.ConfigBridgeService().getUserConfig()
     userSettings = JSON.parse(userSettings)
+    console.log('userSettings',userSettings)
     const mallInfo = await this.ConfigBridgeService().getGlobalCacheInfo('mallInfo', mallId)
     const {
       mall_main_id,
@@ -33,9 +34,10 @@ export default class NetMessageBridgeService {
     // local 国内
     // Abroad 本土
     let url = this.site_domain_chinese_pre[country]
-    if (userSettings.domain_switch === '3' || userSettings.domain_switch ===`Abroad`) {
+    let domain_switch = userSettings.SwitchDominTypeSetting || userSettings.domain_switch
+    if (domain_switch === '3' || domain_switch ===`Abroad`) {
       url = this.site_domain_local_pre[country]
-    } else if ((userSettings.domain_switch === '1' || userSettings.domain_switch === 'Auto')
+    } else if ((domain_switch === '1' || domain_switch === 'Auto')
       && mall_main_id > 0 && (IPType.indexOf('大陆') === -1 || IPType === '1')) {
       url = this.site_domain_local_pre[country]
     }
@@ -55,8 +57,9 @@ export default class NetMessageBridgeService {
     // auto 1、auto  2、mallinfo.MallMainId  3、IPType  包含 大陆   或者  ‘1’
     // local 国内
     // Abroad 本土
+    let domain_switch = userSettings.SwitchDominTypeSetting || userSettings.domain_switch
     let url = this.site_domain_chinese_bk[country]
-    if (userSettings.domain_switch === '3' || userSettings.domain_switch ===`Abroad`) {
+    if (domain_switch === '3' || domain_switch ===`Abroad`) {
       url = this.site_domain_local_bk[country]
     } else if ((userSettings.domain_switch === '1' || userSettings.domain_switch === 'Auto')
       && mall_main_id > 0 && (IPType.indexOf('大陆') === -1 || IPType === '1')) {
