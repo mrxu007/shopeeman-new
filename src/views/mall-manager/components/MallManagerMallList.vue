@@ -1715,7 +1715,7 @@
               if (this.flat === 1) {
                 item.LoginInfo = `<p style="color: red">登录失败：${res.data.message || errorStr}</p>`
               } else {
-                this.writeLog(`(${i + 1}/${len})账号【${platform_mall_name}】授权失败：${res.data.message}`, false)
+                this.writeLog(`(${i + 1}/${len})账号【${platform_mall_name}】授权失败：${res.data.message || '失败状态：1，请联系客服'}`, false)
               }
               console.log('handleResult - parm',res)
               const handleResult = await this.handleReturnLogin(item, res)
@@ -1727,7 +1727,7 @@
                 if (this.flat === 1) {
                   item.LoginInfo = `<p style="color: red">登录失败：${handleResult.data || errorStr}</p>`
                 } else {
-                  this.writeLog(`(${i + 1}/${len})账号【${platform_mall_name}】授权失败：${handleResult.data}`, false)
+                  this.writeLog(`(${i + 1}/${len})账号【${platform_mall_name}】授权失败：${handleResult.data || '失败状态：2，请联系客服'}`, false)
                 }
                 continue
               }
@@ -1749,9 +1749,7 @@
               cookieJson.spc_f = mallDataInfo.web_login_info && mallDataInfo.web_login_info['SPC_F'] || cookieJson.spc_f
               // 一键登录// 获取壳内店铺信息,组装getChinese
               mallDataInfo.web_login_info['SPC_EC'] = cookieJson.SPC_EC
-              mallDataInfo.web_login_info['sso'] = cookieJson.SPC_EC
               mallDataInfo.web_login_info['SPC_SC_TK'] = cookieJson.SPC_SC_TK
-              mallDataInfo.web_login_info['token'] = cookieJson.SPC_SC_TK
               mallDataInfo.web_login_info['ShopeeUid'] = cookieJson.ShopeeUid
               mallDataInfo.web_login_info['shopeeuid'] = cookieJson.ShopeeUid
               mallDataInfo.web_login_info['shopid'] = cookieJson.shopid
@@ -1820,11 +1818,11 @@
               const res5 = await this.mallListAPIInstance.saveMallAuthInfo(params2) // 导入店铺信息（服务端）
               console.log('saveMallAuthInfo',res5)
               if (res5.code !== 200) {
-                this.writeLog(`(${i + 1}/${len})账号【${platform_mall_name}】授权失败：${res5.data}`, false)
+                this.writeLog(`(${i + 1}/${len})账号【${platform_mall_name}】授权失败：${res5.data || '失败状态：3，请联系客服'}`, false)
                 continue
               }else{
                 if (res5.data.indexOf('当前账户绑定店铺数达到上限，请升级会员版本绑定') >= 0){
-                  this.writeLog(`(${i + 1}/${len})账号【${platform_mall_name}】授权失败：${res5.data}`, false)
+                  this.writeLog(`(${i + 1}/${len})账号【${platform_mall_name}】授权失败：${res5.data || '失败状态：4，请联系客服'}`, false)
                   continue
                 }
               }
@@ -1871,7 +1869,7 @@
           } catch (error) {
             console.log('error', error)
             this.flat === 1 ? (item.LoginInfo = `<p style="color: red">登录失败：${error}</p>`)
-              : this.writeLog(`(${i + 1}/${len})账号【${platform_mall_name}】授权失败：${error}`, false)
+              : this.writeLog(`(${i + 1}/${len})账号【${platform_mall_name}】授权失败：${error || '失败状态：5，请联系客服'}`, false)
             continue
           }
         }
@@ -1906,10 +1904,8 @@
             'SPC_SC_SA_UD': '',
             'SPC_SC_SA_TK': '',
             'SPC_SC_UD': '',
-            'token': '',
             'cstoken': '',
             'satoken': '',
-            'sso': '',
             'shopeeuid': '',
             'shopid': '',
             'portrait': '',

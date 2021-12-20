@@ -46,6 +46,9 @@
         this.goodsTagCurrent = val
       },
     },
+    async mounted() {
+      await this.enterGoodsTag()
+    },
     methods: {
       async updateGoodsTag() {
         if (this.goodsTagCurrent !== this.goodsTagAction) {
@@ -84,6 +87,7 @@
       async enterGoodsTag() {
         let goodsTagListJson = await this.$commodityService.getGoodsTagList()
         let goodsTagListRes = JSON.parse(goodsTagListJson)
+        console.log('goodsTagListRes',goodsTagListRes)
         this.goodsTagList = goodsTagListRes.data || []
       },
     }

@@ -482,7 +482,7 @@ export default class MallListAPI {
       'token': data.token,
       'cstoken': data.cs_token,
       'satoken': '',
-      'sso': data.sso,
+      // 'sso': data.sso,
       'shopeeuid': mallUId,
       'shopid': mallId,
       'portrait': data.portrait,

@@ -100,7 +100,7 @@
         >
           <el-table-column type="selection" min-width="55px" align="center" />
           <el-table-column label="序号" type="index" align="center" :index="indexMethod" fixed />
-          <el-table-column prop="uid" label="主体ID" align="center" min-width="100px" fixed />
+          <el-table-column prop="id" label="主体ID" align="center" min-width="100px" fixed />
           <el-table-column prop="ip_alias" label="主体名称" align="center" min-width="200px" />
           <!-- 需要解析 -->
           <el-table-column prop="poxyIP" label="代理IP" align="center" min-width="150px" />

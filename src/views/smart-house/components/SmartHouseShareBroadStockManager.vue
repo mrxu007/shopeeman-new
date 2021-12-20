@@ -151,10 +151,10 @@
         >
           <template slot-scope="{row}">
             <el-button
-              v-if="row.stock.sku_url"
+              v-if="row.stock && row.stock.sku_url"
               type="primary"
               size="mini"
-              @click="openUrl(row.stock.sku_url)"
+              @click="openUrl(row.stock && row.stock.sku_url)"
             >查看商品链接</el-button>
           </template>
         </el-table-column>
@@ -164,7 +164,7 @@
           min-width="110"
         >
           <template slot-scope="{row}">
-            {{ row.stock &&row.stock.sku_price ?row.stock.sku_price/100:'' }}
+            {{ row.stock && row.stock &&row.stock.sku_price ?row.stock.sku_price/100:'' }}
           </template>
         </el-table-column>
         <el-table-column
@@ -174,7 +174,7 @@
         >
           <template slot-scope="{row}">
             <el-tooltip
-              v-if="row.stock.sku_image || row.stock.real_image_url"
+              v-if="row.stock && row.stock.sku_image ||row.stock && row.stock.real_image_url"
               effect="light"
               placement="right-end"
               :visible-arrow="false"
@@ -184,14 +184,14 @@
               <div slot="content">
                 <el-image
                   style="width: 400px; height: 400px"
-                  :src="row.stock.sku_image || row.stock.real_image_url"
+                  :src="row.stock && row.stock.sku_image ||row.stock && row.stock.real_image_url"
                 >
                   <div slot="error" class="image-slot" />
                 </el-image>
               </div>
               <el-image
                 style="width: 40px; height: 40px"
-                :src="row.stock.sku_image || row.stock.real_image_url"
+                :src="row.stock && row.stock.sku_image ||row.stock && row.stock.real_image_url"
               >
                 <div slot="error" class="image-slot" />
               </el-image>
@@ -703,7 +703,7 @@ export default {
         <td>${item.shared_num ? item.shared_num : '' + '\t'}</td>
         <td>${item.consume_num ? item.consume_num : '' + '\t'}</td>
         <td>${item.stock && item.stock.sku_price ? item.stock.sku_price / 100 : '' + '\t'}</td>
-        <td>${item.stock.sku_image || item.stock.real_image_url + '\t'}</td>
+        <td>${item.stock && (item.stock.sku_image || item.stock.real_image_url) + '\t'}</td>
          <td>${item.stock && item.stock.sku_url ? item.stock.sku_url : '' + '\t'}</td>
         </tr>`
       })

@@ -5,7 +5,7 @@ import XLSX from 'xlsx'
 
 const instance = new Vue()
 
-// 匹配对象数组值(店铺绑定)
+// 匹配对象数组值(店铺绑定--系统)
 export function MallgetValue(arr, label, id, relID) {
   let data = ''
   for (let i = 0; i < arr.length; i++) {
@@ -410,33 +410,62 @@ export function randomWord(randomFlag, min, max) {
 }
 
 /**
- *
+ * 线程批量
  * @param array // 数组（参数）
  * @param method // 请求函数
+ * @param count // 线程数
  * @returns {Promise<any>}
  */
 export function batchOperation(array, method, count = 5) {
+  let threadRunCountJson = localStorage.getItem('threadRunCount') || ''
+  let threadRunCountRes = threadRunCountJson && JSON.parse(threadRunCountJson) || {}
+  let methodName = method.name
+  threadRunCountRes[methodName] = true
+  localStorage.setItem('threadRunCount',JSON.stringify(threadRunCountRes))
   return new Promise(resolve => {
     const number = array.length
     const countObj = { count: number }
     let submitCount = 0
     let setIn = setInterval(() => {
+      let threadRunCountJson = localStorage.getItem('threadRunCount') || ''
+      let threadRunCountRes = threadRunCountJson && JSON.parse(threadRunCountJson) || {}
       const num = countObj.count
-      if (num === 0) {
+      console.log('线程剩余数：',num)
+      if (num === 0 || !threadRunCountRes[methodName]) {
+        let success = '完成'
+        if (!threadRunCountRes[methodName]){
+          success = '终止'
+        }
         clearInterval(setIn)
         setIn = null
-        resolve('完成')
+        resolve(success)
       } else {
         manage(number - num)
       }
     }, 1000)
-    function manage(completeCount) {
+    async function manage(completeCount) {
       for (; (submitCount - completeCount) < count && submitCount < number; ++submitCount) {
         const item = array[submitCount]
         method(item, countObj)
       }
     }
   })
+}
+
+/**
+ * 取消线程
+ * @param method 方法
+ */
+export function terminateThread(method) {
+  let threadRunCount = ''
+  if (method){
+    let threadRunCountJson = localStorage.getItem('threadRunCount') || ''
+    let threadRunCountRes = threadRunCountJson && JSON.parse(threadRunCountJson) || {}
+    let methodName = method.name
+    delete threadRunCountRes[methodName]
+    threadRunCount = JSON.stringify(threadRunCountRes)
+  }
+    localStorage.setItem('threadRunCount',threadRunCount)
 }
 
 // 时间转换
