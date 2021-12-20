@@ -95,20 +95,18 @@
         if (this.goodsCurrent && index < 0) {
           let categoryList = []
           let attributesList = []
+          console.log('categoryList',this.categoryList)
           this.categoryList.forEach((item,index)=>{
             let temp = item.find(i=>i.category_id === this.categoryAction[index])
             categoryList.push(temp)
           })
-          this.attributesList.forEach((item,index)=>{
-            let temp = item.new_options_obj.find(i=>i.value_id === item.options)
-            attributesList.push(temp)
-          })
           this.$emit('categoryChange', {
             categoryList: categoryList,
-            attributesList: attributesList
+            attributesList: this.attributesList
           })
         }
         else {
+          index =index < 0 ? 0 : index
           let mall = this.mallList[index]
           let category_ids = this.categoryAction[this.categoryAction.length - 1]
           let param = {

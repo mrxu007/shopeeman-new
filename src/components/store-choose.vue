@@ -89,7 +89,6 @@ export default {
       countries: this.$filters.countries_option,
       mallListAPIInstance: new MallListAPI(this),
       isShowName: '',
-      showNumber: 100,
       showMallNumber: 100,
       mallShowIndex: 0
     }
@@ -234,7 +233,7 @@ export default {
         let name = i.mall_alias_name || i.platform_mall_name
         return name.includes(val)
       })
-      this.showMallNumber = list1.length - 100
+      this.showMallNumber = list1.length - this.showMallNumber
       let list2 = this.siteList.filter(i => {
         let name = i.mall_alias_name || i.platform_mall_name
         return !name.includes(val)
@@ -243,8 +242,8 @@ export default {
     },
     showMall(item, index) {
       let name = item.mall_alias_name || item.platform_mall_name
-      let isSelect = this.site.length < 10 && this.site.includes(item.platform_mall_id)
-      return isSelect || this.mallShowIndex <= index && index <= this.mallShowIndex + this.showNumber && (!this.isShowName || name.includes(this.isShowName))
+      let isFirst = this.site[0] === item.platform_mall_id
+      return isFirst || this.mallShowIndex <= index && index <= this.mallShowIndex + this.showMallNumber && (!this.isShowName || name.includes(this.isShowName))
     },
     loadmoreMall(val, that) {
       let newIndex = 0
