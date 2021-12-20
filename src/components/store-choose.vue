@@ -4,25 +4,25 @@
       <li :style="isReset && 'margin-bottom: 5px'">
         <span :style="{ width: spanWidth }">所属站点：</span>
         <el-select v-model="countryVal" size="mini" filterable class="siteSelectBox">
-          <el-option v-if="isAll" label="全部" :value="''" />
-          <el-option v-for="(item, index) in countries" :key="index" :label="item.label" :value="item.value" />
+          <el-option v-if="isAll" label="全部" :value="''"/>
+          <el-option v-for="(item, index) in countries" :key="index" :label="item.label" :value="item.value"/>
         </el-select>
       </li>
       <li :style="isReset && 'margin-bottom: 5px'">
         <span :style="{ width: spanWidth }">店铺分组：</span>
         <el-select v-model="groupId" placeholder="" multiple collapse-tags size="mini" filterable class="selectBox">
-          <el-option label="全部" :value="''" />
-          <el-option v-for="(item, index) in groupIdList" :key="index" :label="item.group_name" :value="item.id" />
+          <el-option label="全部" :value="''"/>
+          <el-option v-for="(item, index) in groupIdList" :key="index" :label="item.group_name" :value="item.id"/>
         </el-select>
       </li>
       <li :style="isReset && 'margin-bottom: 5px'">
         <span :style="{ width: spanWidth }">店铺名称：</span>
         <el-select v-model="site" placeholder="" multiple collapse-tags :filter-method="filterMall"
-                   size="mini" filterable class="selectBox"  v-loadmore="loadmoreMall">
-          <el-option label="全部" :value="''" />
+                   size="mini" filterable class="selectBox" v-loadmore="loadmoreMall">
+          <el-option label="全部" :value="''" v-if="!isShowName"/>
           <el-option v-for="(item, index) in siteShowList" :key="index"
-                     v-if=" mallShowIndex<= index && index <=mallShowIndex + showNumber"
-                     :label="item.mall_alias_name || item.platform_mall_name" :value="item.platform_mall_id" />
+                     v-if="showMall(item,index)"
+                     :label="item.mall_alias_name || item.platform_mall_name" :value="item.platform_mall_id"/>
         </el-select>
       </li>
       <li v-if="isReset" style="margin-bottom: 5px;margin-left: 25px;">
@@ -34,19 +34,20 @@
 
 <script>
 import MallListAPI from '../module-api/mall-manager-api/mall-list-api'
-import Vue from 'vue';
+import Vue from 'vue'
+
 Vue.directive('loadmore', {
   bind(el, binding) {
     // 获取element-ui定义好的scroll盒子
-    const SELECTWRAP_DOM = el.querySelector('.el-select-dropdown .el-select-dropdown__wrap');
+    const SELECTWRAP_DOM = el.querySelector('.el-select-dropdown .el-select-dropdown__wrap')
     SELECTWRAP_DOM.addEventListener('scroll', function() {
       // console.log(this.scrollHeight,this.scrollTop,this.clientHeight)
-      if (this.scrollHeight - this.scrollTop <= (this.clientHeight + 50)){
-        binding.value(true,this);
-      }else if (this.scrollTop < 30){
-        binding.value(false,this);
+      if (this.scrollHeight - this.scrollTop <= (this.clientHeight + 50)) {
+        binding.value(true, this)
+      } else if (this.scrollTop < 30) {
+        binding.value(false, this)
       }
-    });
+    })
   }
 })
 export default {
@@ -87,13 +88,14 @@ export default {
       siteShowList: [],
       countries: this.$filters.countries_option,
       mallListAPIInstance: new MallListAPI(this),
-      showNumber : 100,
-      oldScrollTop : 0,
+      isShowName: '',
+      showNumber: 100,
+      showMallNumber: 100,
       mallShowIndex: 0
     }
   },
   watch: {
-    siteList(val){
+    siteList(val) {
       this.siteShowList = val
     },
     countryVal: {
@@ -113,7 +115,7 @@ export default {
           const isAll = val.indexOf('') > -1
           if (isOldAll !== isAll) {
             if (isAll) {
-              this.groupId = ['',...this.groupIdList.map(i=>i.id)]
+              this.groupId = ['', ...this.groupIdList.map(i => i.id)]
             } else {
               this.groupId = []
             }
@@ -138,7 +140,7 @@ export default {
           const isAll = val.indexOf('') > -1
           if (isOldAll !== isAll) {
             if (isAll) {
-              this.site = ['',...this.siteList.map(i=>i.platform_mall_id)]
+              this.site = ['', ...this.siteList.map(i => i.platform_mall_id)]
             } else {
               this.site = []
             }
@@ -150,7 +152,7 @@ export default {
           setTimeout(() => {
             this.changeMallList()
             this.isAllowSet1 = true
-          },10)
+          }, 10)
         }
       },
       deep: true
@@ -211,10 +213,10 @@ export default {
           searchAll += (item + ',')
         }
       })
-      if (!this.countryVal && this.groupId.indexOf('')>-1 ){
+      if (!this.countryVal && this.groupId.indexOf('') > -1) {
         searchAll = mallList.length !== this.siteList.length && searchAll || ''
       }
-      if (this.source ) {
+      if (this.source) {
         this.$emit('changeMallList', {
           mallList: mallList,
           source: this.source,
@@ -226,31 +228,35 @@ export default {
         this.$emit('changeMallList', mallList)
       }
     },
-    filterMall(val){
-      console.log('filterMall',val)
-      if (val){
-        let list = []
-        this.siteList.forEach(item=>{
-          if (item.mall_alias_name.includes(val)){
-            list.push(item)
-          }
-        })
-        this.siteShowList = list
-      }else{
-        this.siteShowList = this.siteList
-      }
+    filterMall(val) {
+      this.isShowName = val || ''
+      let list1 = this.siteList.filter(i => {
+        let name = i.mall_alias_name || i.platform_mall_name
+        return name.includes(val)
+      })
+      this.showMallNumber = list1.length - 100
+      let list2 = this.siteList.filter(i => {
+        let name = i.mall_alias_name || i.platform_mall_name
+        return !name.includes(val)
+      })
+      this.siteShowList = [...list1, ...list2]
     },
-    loadmoreMall(val,that){
+    showMall(item, index) {
+      let name = item.mall_alias_name || item.platform_mall_name
+      let isSelect = this.site.length < 10 && this.site.includes(item.platform_mall_id)
+      return isSelect || this.mallShowIndex <= index && index <= this.mallShowIndex + this.showNumber && (!this.isShowName || name.includes(this.isShowName))
+    },
+    loadmoreMall(val, that) {
       let newIndex = 0
-      if (val){
+      if (val) {
         newIndex = this.mallShowIndex + 10
-        newIndex = newIndex <= this.siteShowList.length - this.showNumber
-            && newIndex  || this.siteShowList.length - this.showNumber
-      }else{
+        newIndex = newIndex <= this.showMallNumber
+            && newIndex || this.showMallNumber
+      } else {
         newIndex = this.mallShowIndex - 10
         newIndex = newIndex >= 0 && newIndex || 0
       }
-      if (newIndex !== this.mallShowIndex){
+      if (newIndex !== this.mallShowIndex) {
         that.scrollTop = !val && 30 || (that.scrollTop - 100)
       }
       this.mallShowIndex = newIndex
@@ -264,27 +270,34 @@ export default {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
+
   li {
     display: flex;
     margin-right: 10px;
     align-items: center;
+
     span {
       display: inline-block;
       text-align: right;
     }
+
     .el-select {
       display: flex;
     }
+
     .el-tag--info.el-tag--mini {
       max-width: 80px;
     }
+
     .siteSelectBox {
       width: 100px;
     }
+
     .selectBox {
       width: 180px;
     }
-    .el-select__tags{
+
+    .el-select__tags {
       display: flex;
       flex-wrap: nowrap;
       overflow: hidden;
