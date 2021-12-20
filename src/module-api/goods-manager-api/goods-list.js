@@ -7,7 +7,6 @@ export default class GoodsList {
     try {
       const res = await this._this.$commodityService.deleteCollectGoodsInfo(id)
       const jsonData = this.isJsonString(res)
-      console.log(jsonData)
       if (jsonData.code === 200) {
         return { code: 200 }
       }
