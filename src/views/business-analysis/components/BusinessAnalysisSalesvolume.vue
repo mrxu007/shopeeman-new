@@ -1,7 +1,7 @@
 <template>
   <el-row class="contaniner">
     <el-row class="header">
-      <ul style="margin-bottom: 10px">
+      <ul style="margin-bottom: 10px;margin-left:24px">
         <li>
           <span>站点：</span>
           <el-select v-model="site" size="mini" filterable>
@@ -10,7 +10,7 @@
         </li>
         <li>
           <span>店铺分组：</span>
-          <el-select v-model="group" placeholder="请选择分组" multiple collapse-tags clearable size="mini" filterable>
+          <el-select v-model="group" class="mall" placeholder="请选择分组" multiple collapse-tags clearable size="mini" filterable>
             <el-option v-if="selectall" label="全部" :value="0" />
             <el-option v-if="!selectall" label="全部" :value="-2" />
             <el-option v-for="(item, index) in gruopList" :key="index" :label="item.label" :value="item.value" />
@@ -18,7 +18,7 @@
         </li>
         <li>
           <span>店铺：</span>
-          <el-select v-model="mall" placeholder="请选择店铺" multiple collapse-tags clearable size="mini" filterable>
+          <el-select v-model="mall" class="mall" placeholder="请选择店铺" multiple collapse-tags clearable size="mini" filterable>
             <el-option v-if="selectall1" label="全部" :value="0" />
             <el-option v-if="!selectall1" label="全部" :value="-2" />
             <el-option v-for="(item, index) in mallList" :key="index" :label="item.label" :value="item.value" />
@@ -63,33 +63,33 @@
         }"
       >
         <el-table-column align="center" label="序列号" width="80" prop="index" />
-        <el-table-column align="center" label="店铺" width="140" prop="mallname" />
-        <el-table-column align="center" prop="shop_uv" label="访客数【访问】" width="180">
+        <el-table-column align="center" label="店铺" width="240" prop="mallname" />
+        <el-table-column align="center" prop="shop_uv" label="访客数【访问】" width="220">
           <template slot-scope="{ row }">
             <div v-html="row.shop_uv" />
           </template>
         </el-table-column>
-        <el-table-column align="center" prop="placed_buyers" label="买家数【已下订单】" width="180">
+        <el-table-column align="center" prop="placed_buyers" label="买家数【已下订单】" width="230">
           <template slot-scope="{ row }">
             <div v-html="row.placed_buyers" />
           </template>
         </el-table-column>
-        <el-table-column prop="placed_sales" label="销售额【已下订单】" width="180" align="center">
+        <el-table-column prop="placed_sales" label="销售额【已下订单】" width="230" align="center">
           <template slot-scope="{ row }">
             <div v-html="row.placed_sales" />
           </template>
         </el-table-column>
-        <el-table-column prop="paid_buyers" label="买家数【已付款订单】" width="180" align="center">
+        <el-table-column prop="paid_buyers" label="买家数【已付款订单】" width="230" align="center">
           <template slot-scope="{ row }">
             <div v-html="row.paid_buyers" />
           </template>
         </el-table-column>
-        <el-table-column prop="paid_sales" label="销售额【已付款订单】" width="180" align="center">
+        <el-table-column prop="paid_sales" label="销售额【已付款订单】" width="230" align="center">
           <template slot-scope="{ row }">
             <div v-html="row.paid_sales" />
           </template>
         </el-table-column>
-        <el-table-column prop="paid_sales_per_buyer" label="每位买家的销售额【已付款订单】" width="210" align="center">
+        <el-table-column prop="paid_sales_per_buyer" label="每位买家的销售额【已付款订单】" width="230" align="center">
           <template slot-scope="{ row }">
             <div v-html="row.paid_sales_per_buyer" />
           </template>
@@ -102,7 +102,7 @@
   </el-row>
 </template>
 <script>
-import { exportExcelDataCommon, delay } from '../../../util/util'
+import { exportExcelDataCommon } from '../../../util/util'
 export default {
   data() {
     return {
@@ -199,8 +199,8 @@ export default {
           this.end_time = Date.parse(this.$dayjs(this.timechoose).format('YYYY-MM-DD 01:00:00')) / 1000
           this.timecant = false
         } else if (val === 'week') {
-          this.start_time = Date.parse(this.$dayjs(this.timechoose).format('YYYY-MM-DD 01:00:00')) / 1000 - 3600 * 24 * 6
-          this.end_time = Date.parse(this.$dayjs(this.timechoose).format('YYYY-MM-DD 01:00:00')) / 1000
+          this.start_time = Date.parse(this.$dayjs(this.getMonday(this.timechoose)).format('YYYY-MM-DD 01:00:00')) / 1000
+          this.end_time = Date.parse(this.$dayjs(this.getMonday(this.timechoose)).format('YYYY-MM-DD 01:00:00')) / 1000 + 3600 * 24 * 7
           this.timecant = false
         } else if (val === 'month') {
           const timea = this.$dayjs(this.timechoose).format('YYYY-MM-01')
@@ -248,8 +248,8 @@ export default {
           this.end_time = Date.parse(this.$dayjs(this.timechoose).format('YYYY-MM-DD 11:00:00')) / 1000
           this.timecant = false
         } else if (val === 'week') {
-          this.start_time = Date.parse(this.$dayjs(this.timechoose).format('YYYY-MM-DD 11:00:00')) / 1000 - 3600 * 24 * 6
-          this.end_time = Date.parse(this.$dayjs(this.timechoose).format('YYYY-MM-DD 11:00:00')) / 1000
+          this.start_time = Date.parse(this.$dayjs(this.getMonday(this.timechoose)).format('YYYY-MM-DD 11:00:00')) / 1000
+          this.end_time = Date.parse(this.$dayjs(this.getMonday(this.timechoose)).format('YYYY-MM-DD 11:00:00')) / 1000 + 3600 * 24 * 7
           this.timecant = false
         } else if (val === 'month') {
           const timea = this.$dayjs(this.timechoose).format('YYYY-MM-01')
@@ -297,8 +297,8 @@ export default {
           this.end_time = Date.parse(this.$dayjs(this.timechoose).format('YYYY-MM-DD 00:00:00')) / 1000
           this.timecant = false
         } else if (val === 'week') {
-          this.start_time = Date.parse(this.$dayjs(this.timechoose).format('YYYY-MM-DD 00:00:00')) / 1000 - 3600 * 24 * 6
-          this.end_time = Date.parse(this.$dayjs(this.timechoose).format('YYYY-MM-DD 00:00:00')) / 1000
+          this.start_time = Date.parse(this.$dayjs(this.getMonday(this.timechoose)).format('YYYY-MM-DD 00:00:00')) / 1000
+          this.end_time = Date.parse(this.$dayjs(this.getMonday(this.timechoose)).format('YYYY-MM-DD 00:00:00')) / 1000 + 3600 * 24 * 7
           this.timecant = false
         } else if (val === 'month') {
           const timea = this.$dayjs(this.timechoose).format('YYYY-MM-01')
@@ -332,8 +332,8 @@ export default {
           this.start_time = Date.parse(this.$dayjs(val).format('YYYY-MM-DD 01:00:00')) / 1000 - 3600 * 24
           this.end_time = Date.parse(this.$dayjs(val).format('YYYY-MM-DD 01:00:00')) / 1000
         } else if (this.Statisticaltime === 'week') {
-          this.start_time = Date.parse(this.$dayjs(val).format('YYYY-MM-DD 01:00:00')) / 1000 - 3600 * 24 * 7
-          this.end_time = Date.parse(this.$dayjs(val).format('YYYY-MM-DD 01:00:00')) / 1000
+          this.start_time = Date.parse(this.$dayjs(this.getMonday(val)).format('YYYY-MM-DD 01:00:00')) / 1000
+          this.end_time = Date.parse(this.$dayjs(this.getMonday(val)).format('YYYY-MM-DD 01:00:00')) / 1000 + 3600 * 24 * 7
         } else if (this.Statisticaltime === 'month') {
           const timea = this.$dayjs(val).format('YYYY-MM-01')
           const month = timea.split('-')[1]
@@ -362,8 +362,8 @@ export default {
           this.start_time = Date.parse(this.$dayjs(val).format('YYYY-MM-DD 11:00:00')) / 1000 - 3600 * 24
           this.end_time = Date.parse(this.$dayjs(val).format('YYYY-MM-DD 11:00:00')) / 1000
         } else if (this.Statisticaltime === 'week') {
-          this.start_time = Date.parse(this.$dayjs(val).format('YYYY-MM-DD 11:00:00')) / 1000 - 3600 * 24 * 7
-          this.end_time = Date.parse(this.$dayjs(val).format('YYYY-MM-DD 11:00:00')) / 1000
+          this.start_time = Date.parse(this.$dayjs(this.getMonday(val)).format('YYYY-MM-DD 11:00:00')) / 1000
+          this.end_time = Date.parse(this.$dayjs(this.getMonday(val)).format('YYYY-MM-DD 11:00:00')) / 1000 + 3600 * 24 * 7
         } else if (this.Statisticaltime === 'month') {
           const timea = this.$dayjs(val).format('YYYY-MM-01')
           const month = timea.split('-')[1]
@@ -392,8 +392,8 @@ export default {
           this.start_time = Date.parse(this.$dayjs(val).format('YYYY-MM-DD 00:00:00')) / 1000 - 3600 * 24
           this.end_time = Date.parse(this.$dayjs(val).format('YYYY-MM-DD 00:00:00')) / 1000
         } else if (this.Statisticaltime === 'week') {
-          this.start_time = Date.parse(this.$dayjs(val).format('YYYY-MM-DD 00:00:00')) / 1000 - 3600 * 24 * 7
-          this.end_time = Date.parse(this.$dayjs(val).format('YYYY-MM-DD 00:00:00')) / 1000
+          this.start_time = Date.parse(this.$dayjs(this.getMonday(val)).format('YYYY-MM-DD 00:00:00')) / 1000
+          this.end_time = Date.parse(this.$dayjs(this.getMonday(val)).format('YYYY-MM-DD 00:00:00')) / 1000 + 3600 * 24 * 7
         } else if (this.Statisticaltime === 'month') {
           const timea = this.$dayjs(val).format('YYYY-MM-01')
           const month = timea.split('-')[1]
@@ -693,6 +693,20 @@ export default {
     // 取消功能
     cancel() {
       this.serchload = true
+    },
+    getMonday(date) { // 返回本周的周一的0时0分0秒
+      const day = date.getDay()
+      let deltaDay
+      if (day === 0) {
+        deltaDay = 6
+      } else {
+        deltaDay = day - 1
+      }
+      const monday = new Date(date.getTime() - deltaDay * 24 * 60 * 60 * 1000)
+      monday.setHours(0)
+      monday.setMinutes(0)
+      monday.setSeconds(0)
+      return monday // 返回本周的周一的0时0分0秒
     }
   }
 }

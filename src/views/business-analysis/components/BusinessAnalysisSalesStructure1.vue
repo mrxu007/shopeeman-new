@@ -1,7 +1,7 @@
 <template>
   <el-row class="contaniner">
     <el-row class="header">
-      <ul style="margin-bottom: 10px">
+      <ul style="margin-bottom: 10px;margin-left:24px">
         <li>
           <span>站点：</span>
           <el-select v-model="site" size="mini" filterable>
@@ -24,65 +24,45 @@
             <el-option v-for="(item, index) in mallList" :key="index" :label="item.label" :value="item.value" />
           </el-select>
         </li>
+      </ul>
+      <ul>
         <li>
-          <span>统计时间：</span>
+          <span>资料期间：</span>
           <el-select v-model="Statisticaltime" placeholder="" size="mini" filterable>
             <el-option v-for="(item, index) in returnStatisticaltime" :key="index" :label="item.label" :value="item.value" />
           </el-select>
         </li>
         <li>
-          <span>订单类型：</span>
-          <el-select v-model="Status" placeholder="" size="mini" filterable>
-            <el-option v-for="(item, index) in returnStatusList" :key="index" :label="item.label" :value="item.value" />
-          </el-select>
-        </li>
-        <li>
           <el-button type="primary" :disabled="Loading1" size="mini" @click="getallinfo">搜索</el-button>
+          <el-button type="primary" :disabled="Loading2" size="mini" @click="cancel">取消</el-button>
+          <el-button type="primary" size="mini" @click="clearLog">清除日志</el-button>
         </li>
+        <li><el-checkbox
+          v-model="showlog"
+        >隐藏日志</el-checkbox></li>
       </ul><br>
       <el-table
         ref="plTable"
         v-loading="Loading3"
         style="margin-top:10px"
         header-align="center"
-        height="calc(100vh - 140px)"
+        height="calc(100vh - 120px)"
         :data="tableData2"
         :header-cell-style="{
           backgroundColor: '#f5f7fa',
         }"
       >
-        <el-table-column align="center" label="店铺名称" width="160" prop="mallname" sortable />
-        <el-table-column align="center" prop="place_gmv" label="销售量" width="260" sortable>
-          <template slot-scope="{ row }">
-            <div v-html="row.place_gmv" />
-          </template>
-        </el-table-column>
-        <el-table-column align="center" prop="place_orders" label="订单总数" width="260" sortable>
-          <template slot-scope="{ row }">
-            <div v-html="row.place_orders" />
-          </template>
-        </el-table-column>
-        <el-table-column prop="shop_uv_to_placed_buyers_rate" label="访客转换率" width="260" align="center" sortable>
-          <template slot-scope="{ row }">
-            <div v-html="row.shop_uv_to_placed_buyers_rate" />
-          </template>
-        </el-table-column>
-        <el-table-column prop="place_sales_per_order" label="各订单销售额" width="260" align="center" sortable>
-          <template slot-scope="{ row }">
-            <div v-html="row.place_sales_per_order" />
-          </template>
-        </el-table-column>
-        <el-table-column prop="shop_uv" label="访客" width="245" align="center" sortable>
-          <template slot-scope="{ row }">
-            <div v-html="row.shop_uv" />
-          </template>
-        </el-table-column>
-        <el-table-column prop="shop_pv" label="页面浏览量" width="245" align="center" sortable>
-          <template slot-scope="{ row }">
-            <div v-html="row.shop_uv" />
-          </template>
-        </el-table-column>
+        <el-table-column align="center" label="序列号" width="180" prop="index" />
+        <el-table-column align="center" prop="mallname" label="店铺" width="250" />
+        <el-table-column align="center" prop="price_zone" label="价格范围" width="250" />
+        <el-table-column prop="buyers" label="买家" width="250" align="center" />
+        <el-table-column prop="buyers_percentage" label="买家%" width="250" align="center" />
+        <el-table-column prop="sales" label="销售额" width="250" align="center" />
+        <el-table-column prop="conversion_rate" label="转化率" width="250" align="center" />
       </el-table>
+      <div class="logging">
+        <Logs ref="Logs" v-model="showlog" clear />
+      </div>
     </el-row>
   </el-row>
 </template>
@@ -91,34 +71,40 @@ export default {
   data() {
     return {
       Loading1: false,
+      showlog: true,
+      Loading2: true,
       Loading3: false,
+      timecant: true,
+      timechoose: new Date(),
+      serchload: false,
       selectall: true, // 分组全选和取消全选选项控制
       selectall1: true, // 店铺全选和取消全选选项控制
+      eidtVisible: false,
       allgroupid: [],
       allmallid: [],
+      tableData: [],
+      tableData1: [],
       tableData2: [],
+      tableData3: [],
       errmall: [],
-      Status: 'palced',
+      indexs: 1,
+      indexs1: 1,
+      indexs2: 1,
+      currency: '฿',
       total: 0,
-      Statisticaltime: 'real_time',
+      Statisticaltime: 'yesterday',
       site: 'TH', // 站点
       siteList: this.$filters.countries_option, // 所有站点
       group: 0, // 分组
       gruopList: [],
       mall: [], // 店铺
       mallList: [],
-      start_time: Date.parse(this.$dayjs(new Date()).format('YYYY-MM-DD 00:00:00')) / 1000,
-      end_time: Math.round(new Date() / 1000),
+      start_time: Date.parse(this.$dayjs(new Date()).format('YYYY-MM-DD 01:00:00')) / 1000 - 3600 * 24,
+      end_time: Date.parse(this.$dayjs(new Date()).format('YYYY-MM-DD 01:00:00')) / 1000,
       returnStatisticaltime: [
-        { value: 'real_time', label: '实时' },
         { value: 'yesterday', label: '昨日' },
-        { value: 'past7days', label: '近7天' },
-        { value: 'past30days', label: '近30天' }
-      ],
-      returnStatusList: [
-        { value: 'palced', label: '下单' },
-        { value: 'confirmed', label: '确认订单' },
-        { value: 'paid', label: '付费订单' }
+        { value: 'past7days', label: '过去7天' },
+        { value: 'past30days', label: '过去30天' }
       ]
     }
   },
@@ -305,14 +291,153 @@ export default {
         }
       }
     },
+    timechoose(val, oldval) {
+      if (this.site === 'TH' || this.site === 'ID' || this.site === 'VN') {
+        if (this.Statisticaltime === 'day') {
+          this.start_time = Date.parse(this.$dayjs(val).format('YYYY-MM-DD 01:00:00')) / 1000 - 3600 * 24
+          this.end_time = Date.parse(this.$dayjs(val).format('YYYY-MM-DD 01:00:00')) / 1000
+        } else if (this.Statisticaltime === 'week') {
+          this.start_time = Date.parse(this.$dayjs(val).format('YYYY-MM-DD 01:00:00')) / 1000 - 3600 * 24 * 7
+          this.end_time = Date.parse(this.$dayjs(val).format('YYYY-MM-DD 01:00:00')) / 1000
+        } else if (this.Statisticaltime === 'month') {
+          const timea = this.$dayjs(val).format('YYYY-MM-01')
+          const month = timea.split('-')[1]
+          if (month === '12') {
+            this.start_time = Date.parse(this.$dayjs(val).format('YYYY-MM-01 01:00:00')) / 1000
+            let timeq = this.$dayjs(val).format('YYYY-MM-01 01:00:00').split('')
+            timeq[5] = '0'
+            timeq[6] = '1'
+            timeq = timeq.join('')
+            this.end_time = Date.parse(this.$dayjs(timeq).format('YYYY-MM-01 01:00:00')) / 1000
+            console.log(this.end_time)
+          // this.end_time = Date.parse(this.$dayjs(this.timechoose).format('YYYY-MM-01 01:00:00')[5]) / 1000
+          } else {
+            this.start_time = Date.parse(this.$dayjs(val).format('YYYY-MM-01 01:00:00')) / 1000
+            let timeq = this.$dayjs(val).format('YYYY-MM-01 01:00:00').split('')
+            const timew = month.split('')
+            timeq[5] = timew[0]
+            timeq[6] = Number(timew[1]) + 1
+            timeq = timeq.join('')
+            this.end_time = Date.parse(this.$dayjs(timeq).format('YYYY-MM-01 01:00:00')) / 1000
+            console.log(this.end_time)
+          }
+        }
+      } else if (this.site === 'BR') {
+        if (this.Statisticaltime === 'day') {
+          this.start_time = Date.parse(this.$dayjs(val).format('YYYY-MM-DD 11:00:00')) / 1000 - 3600 * 24
+          this.end_time = Date.parse(this.$dayjs(val).format('YYYY-MM-DD 11:00:00')) / 1000
+        } else if (this.Statisticaltime === 'week') {
+          this.start_time = Date.parse(this.$dayjs(val).format('YYYY-MM-DD 11:00:00')) / 1000 - 3600 * 24 * 7
+          this.end_time = Date.parse(this.$dayjs(val).format('YYYY-MM-DD 11:00:00')) / 1000
+        } else if (this.Statisticaltime === 'month') {
+          const timea = this.$dayjs(val).format('YYYY-MM-01')
+          const month = timea.split('-')[1]
+          if (month === '12') {
+            this.start_time = Date.parse(this.$dayjs(val).format('YYYY-MM-01 11:00:00')) / 1000
+            let timeq = this.$dayjs(val).format('YYYY-MM-01 11:00:00').split('')
+            timeq[5] = '0'
+            timeq[6] = '1'
+            timeq = timeq.join('')
+            this.end_time = Date.parse(this.$dayjs(timeq).format('YYYY-MM-01 11:00:00')) / 1000
+            console.log(this.end_time)
+          // this.end_time = Date.parse(this.$dayjs(this.timechoose).format('YYYY-MM-01 01:00:00')[5]) / 1000
+          } else {
+            this.start_time = Date.parse(this.$dayjs(val).format('YYYY-MM-01 11:00:00')) / 1000
+            let timeq = this.$dayjs(val).format('YYYY-MM-01 11:00:00').split('')
+            const timew = month.split('')
+            timeq[5] = timew[0]
+            timeq[6] = Number(timew[1]) + 1
+            timeq = timeq.join('')
+            this.end_time = Date.parse(this.$dayjs(timeq).format('YYYY-MM-01 11:00:00')) / 1000
+            console.log(this.end_time)
+          }
+        }
+      } else {
+        if (this.Statisticaltime === 'day') {
+          this.start_time = Date.parse(this.$dayjs(val).format('YYYY-MM-DD 00:00:00')) / 1000 - 3600 * 24
+          this.end_time = Date.parse(this.$dayjs(val).format('YYYY-MM-DD 00:00:00')) / 1000
+        } else if (this.Statisticaltime === 'week') {
+          this.start_time = Date.parse(this.$dayjs(val).format('YYYY-MM-DD 00:00:00')) / 1000 - 3600 * 24 * 7
+          this.end_time = Date.parse(this.$dayjs(val).format('YYYY-MM-DD 00:00:00')) / 1000
+        } else if (this.Statisticaltime === 'month') {
+          const timea = this.$dayjs(val).format('YYYY-MM-01')
+          const month = timea.split('-')[1]
+          if (month === '12') {
+            this.start_time = Date.parse(this.$dayjs(val).format('YYYY-MM-01 00:00:00')) / 1000
+            let timeq = this.$dayjs(val).format('YYYY-MM-01 00:00:00').split('')
+            timeq[5] = '0'
+            timeq[6] = '1'
+            timeq = timeq.join('')
+            this.end_time = Date.parse(this.$dayjs(timeq).format('YYYY-MM-01 00:00:00')) / 1000
+            console.log(this.end_time)
+          // this.end_time = Date.parse(this.$dayjs(this.timechoose).format('YYYY-MM-01 01:00:00')[5]) / 1000
+          } else {
+            this.start_time = Date.parse(this.$dayjs(val).format('YYYY-MM-01 00:00:00')) / 1000
+            let timeq = this.$dayjs(val).format('YYYY-MM-01 11:00:00').split('')
+            const timew = month.split('')
+            timeq[5] = timew[0]
+            timeq[6] = Number(timew[1]) + 1
+            timeq = timeq.join('')
+            this.end_time = Date.parse(this.$dayjs(timeq).format('YYYY-MM-01 00:00:00')) / 1000
+            console.log(this.end_time)
+          }
+        }
+      }
+    },
     site(val, oldVal) {
       this.mall = []
       this.group = []
       this.getInfo()
+      if (this.site === 'MY') {
+        this.currency = 'RM'
+      }
+      if (this.site === 'TW') {
+        this.currency = '$'
+      }
+      if (this.site === 'VN') {
+        this.currency = '₫'
+      }
+      if (this.site === 'ID') {
+        this.currency = 'Rp'
+      }
+      if (this.site === 'PH') {
+        this.currency = '₱'
+      }
+      if (this.site === 'TH') {
+        this.currency = '฿'
+      }
+      if (this.site === 'SG') {
+        this.currency = '$'
+      }
+      if (this.site === 'BR') {
+        this.currency = 'R$'
+      }
+      if (this.site === 'MX') {
+        this.currency = 'MX$'
+      }
+      if (this.site === 'CO') {
+        this.currency = '$'
+      }
+      if (this.site === 'CL') {
+        this.currency = '$'
+      }
+      if (this.site === 'PL') {
+        this.currency = 'zł'
+      }
+    },
+    Loading3(val, oldval) {
+      if (this.Loading3 === true) {
+        this.Loading2 = false
+      } else {
+        this.Loading2 = true
+      }
     }
   },
   mounted() {
     this.getInfo()
+    // const timenow = new Date().getTime() - 3600 * 1000 * 24
+    // const returnCreateStartTime = this.$dayjs(timenow).format('YYYYMMDD')
+    // console.log(returnCreateStartTime)
   },
   methods: {
     // 分组信息查找
@@ -351,130 +476,102 @@ export default {
       }
     },
     async getallinfo() {
-      this.Loading1 = true
-      this.Loading3 = true
-      this.tableData2 = []
-      this.errmall = []
+      if (this.Statisticaltime === 'day' || this.Statisticaltime === 'week' || this.Statisticaltime === 'month') {
+        if (this.timechoose.length < 1) {
+          this.$message.error(`请选择您需要查看的日期`)
+          return
+        }
+      }
       if (this.mall.length > 0) {
+        this.indexs = 1
+        this.indexs1 = 1
+        this.indexs2 = 1
+        this.Loading1 = true
+        this.Loading3 = true
+        this.tableData = []
+        this.tableData1 = []
+        this.tableData2 = []
+        this.tableData3 = []
+        this.errmall = []
+        this.$refs.Logs.writeLog('开始查询')
         for (let i = 0; i < this.mall.length; i++) {
-          const params = {
-            start_time: this.start_time,
-            end_time: this.end_time,
-            period: this.Statisticaltime,
-            orderType: this.Status,
-            // group: this.group,
-            mallId: this.mall[i],
-            fetag: 'fetag',
-            limit: 5
+          if (this.serchload === true) {
+            this.Loading3 = false
+            setTimeout(() => {
+              this.Loading1 = false
+            }, 3000)
+            this.serchload = false
+            return
           }
-          console.log('this is my parmas', params)
-          const attributeTreeJson = await this.$shopeemanService.dashboard(this.site, params, { headers: { 'Content-Type': 'application/json; charset=utf-8' }})
-          let attributeTreeRes
-          if (attributeTreeJson) {
-            attributeTreeRes = JSON.parse(attributeTreeJson)
-          }
+          // await delay(2000)
           let mallname
           for (let j = 0; j < this.mallList.length; j++) {
             if (this.mallList[j].value === this.mall[i]) {
               mallname = this.mallList[j].label
             }
           }
-          console.log('this is data', attributeTreeRes)
-          if (attributeTreeRes.status === 200) {
-            attributeTreeRes.data = JSON.parse(attributeTreeRes.data)
-            if (this.Statisticaltime === 'real_time') { // 转换格式
-              for (const item in attributeTreeRes.data.result) {
-                let color = `green`
-                let arrow = ''
-                if (attributeTreeRes.data.result[item].chain_ratio > 0) {
-                  arrow = '↑'
-                } else if (attributeTreeRes.data.result[item].chain_ratio < 0) {
-                  color = `red`
-                  arrow = '↓'
-                }
-                if (item === 'shop_uv_to_placed_buyers_rate') {
-                  attributeTreeRes.data.result[item] = `<pre style="color:${color}">${(attributeTreeRes.data.result[item].value * 100).toFixed(2)}%
-vs 00:00 - 13:00  ${Math.abs(attributeTreeRes.data.result[item].chain_ratio * 100).toFixed(2)}%` + ` ${arrow}</pre>`
-                } else {
-                  attributeTreeRes.data.result[item] = `<pre style="color:${color}">${parseInt(attributeTreeRes.data.result[item].value)}
-vs 00:00 - 13:00  ${Math.abs(attributeTreeRes.data.result[item].chain_ratio * 100).toFixed(2)}%` + ` ${arrow}</pre>`
-                }
+          const params = {
+            start_time: this.start_time,
+            end_time: this.end_time,
+            period: this.Statisticaltime,
+            // group: this.group,
+            mallId: this.mall[i]
+          }
+          console.log('this is my parmas', params)
+
+          const attributeTreeJson2 = await this.$shopeemanService.getsalasstructure2(this.site, params, { headers: { 'Content-Type': 'application/json; charset=utf-8' }})
+          let res
+          if (attributeTreeJson2) {
+            res = JSON.parse(attributeTreeJson2)
+          }
+          if (res.status === 200) {
+            res.data = JSON.parse(res.data)
+            // console.log('wuhuwhuwhuwhuwhuwuwhuwhuwhuwuwhuwuh', res)
+            for (let h = 0; h < res.data.data.length; h++) {
+              const data = {}
+              data['index'] = this.indexs1
+              this.indexs1++
+              data['mallname'] = mallname
+              if (res.data.data[h].price_zone[1] === -1) {
+                data['price_zone'] = `${this.currency}${res.data.data[h].price_zone[0]} - ${this.currency} 无上限`
+              } else {
+                data['price_zone'] = `${this.currency}${res.data.data[h].price_zone[0]} - ${this.currency}${res.data.data[h].price_zone[1]}`
               }
+              data['buyers'] = res.data.data[h].buyers
+              data['buyers_percentage'] = (res.data.data[h].buyers_percentage * 100).toFixed(2) + `%`
+              data['sales'] = `${this.currency}${res.data.data[h].sales}`
+              data['sales_percentage'] = (res.data.data[h].sales_percentage * 100).toFixed(2) + `%`
+              data['conversion_rate'] = (res.data.data[h].conversion_rate * 100).toFixed(2) + `%`
+              // console.log('zhelizhelizheli', data)
+              this.tableData2.push(data)
             }
-            if (this.Statisticaltime === 'yesterday') {
-              for (const item in attributeTreeRes.data.result) {
-                let color = `green`
-                let arrow = ''
-                if (attributeTreeRes.data.result[item].chain_ratio > 0) {
-                  arrow = '↑'
-                } else if (attributeTreeRes.data.result[item].chain_ratio < 0) {
-                  arrow = '↓'
-                  color = `red`
-                }
-                if (item === 'shop_uv_to_placed_buyers_rate') {
-                  attributeTreeRes.data.result[item] = `<pre style="color:${color}">${(attributeTreeRes.data.result[item].value * 100).toFixed(2)}%
-vs 前一天  ${Math.abs(attributeTreeRes.data.result[item].chain_ratio * 100).toFixed(2)}%` + ` ${arrow}</pre>`
-                } else {
-                  attributeTreeRes.data.result[item] = `<pre style="color:${color}">${parseInt(attributeTreeRes.data.result[item].value)}
-vs 前一天  ${Math.abs(attributeTreeRes.data.result[item].chain_ratio * 100).toFixed(2)}%` + ` ${arrow}</pre>`
-                }
-              }
-            }
-            if (this.Statisticaltime === 'past7days') {
-              for (const item in attributeTreeRes.data.result) {
-                let color = `green`
-                let arrow = ''
-                if (attributeTreeRes.data.result[item].chain_ratio > 0) {
-                  arrow = '↑'
-                } else if (attributeTreeRes.data.result[item].chain_ratio < 0) {
-                  arrow = '↓'
-                  color = `red`
-                }
-                if (item === 'shop_uv_to_placed_buyers_rate') {
-                  attributeTreeRes.data.result[item] = `<pre style="color:${color}">${(attributeTreeRes.data.result[item].value * 100).toFixed(2)}%
-vs 前7天  ${Math.abs(attributeTreeRes.data.result[item].chain_ratio * 100).toFixed(2)}%` + ` ${arrow}</pre>`
-                } else {
-                  attributeTreeRes.data.result[item] = `<pre style="color:${color}">${parseInt(attributeTreeRes.data.result[item].value)}
-vs 前7天  ${Math.abs(attributeTreeRes.data.result[item].chain_ratio * 100).toFixed(2)}%` + ` ${arrow}</pre>`
-                }
-              }
-            }
-            if (this.Statisticaltime === 'past30days') {
-              for (const item in attributeTreeRes.data.result) {
-                let color = `green`
-                let arrow = ''
-                if (attributeTreeRes.data.result[item].chain_ratio > 0) {
-                  arrow = '↑'
-                } else if (attributeTreeRes.data.result[item].chain_ratio < 0) {
-                  arrow = '↓'
-                  color = `red`
-                }
-                if (item === 'shop_uv_to_placed_buyers_rate') {
-                  attributeTreeRes.data.result[item] = `<pre style="color:${color}">${(attributeTreeRes.data.result[item].value * 100).toFixed(2)}%
-vs 前30天  ${Math.abs(attributeTreeRes.data.result[item].chain_ratio * 100).toFixed(2)}%` + ` ${arrow}</pre>`
-                } else {
-                  attributeTreeRes.data.result[item] = `<pre style="color:${color}">${parseInt(attributeTreeRes.data.result[item].value)}
-vs 前30天  ${Math.abs(attributeTreeRes.data.result[item].chain_ratio * 100).toFixed(2)}%` + ` ${arrow}</pre>`
-                }
-              }
-            }
-            attributeTreeRes.data.result['mallname'] = mallname
-            this.tableData2.push(attributeTreeRes.data.result)
-          } else if (attributeTreeRes.status === 403) {
+          } else if (res.status === 403) {
+            this.$refs.Logs.writeLog(`【${mallname}】 数据获取失败：店铺未登录`, false)
             this.errmall.push(mallname)
           }
         }
+        if (this.errmall.length > 0) {
+          this.$message.error(`店铺【${this.errmall}】未登录`)
+        }
+        this.$refs.Logs.writeLog('查询结束')
+        this.Loading3 = false
+        setTimeout(() => {
+          this.Loading1 = false
+        }, 3000)
       } else {
         this.$message({
-          message: '请先选择店铺',
+          message: '请选择店铺',
           type: 'warning'
         })
       }
-      if (this.errmall.length > 0) {
-        this.$message.error(`店铺【${this.errmall}】未登录`)
-      }
-      this.Loading1 = false
-      this.Loading3 = false
+    },
+    // 清除日志
+    clearLog() {
+      this.$refs.Logs.consoleMsg = ''
+    },
+    // 取消功能
+    cancel() {
+      this.serchload = true
     }
   }
 }

@@ -10,7 +10,7 @@
         </li>
         <li>
           <span>店铺分组：</span>
-          <el-select v-model="group" placeholder="请选择分组" multiple collapse-tags clearable size="medium" filterable>
+          <el-select v-model="group" class="mall" placeholder="请选择分组" multiple collapse-tags clearable size="mini" filterable>
             <el-option v-if="selectall" label="全部" :value="0" />
             <el-option v-if="!selectall" label="全部" :value="-2" />
             <el-option v-for="(item, index) in gruopList" :key="index" :label="item.label" :value="item.value" />
@@ -18,7 +18,7 @@
         </li>
         <li>
           <span>店铺：</span>
-          <el-select v-model="mall" placeholder="请选择店铺" multiple collapse-tags clearable size="medium" filterable>
+          <el-select v-model="mall" class="mall" placeholder="请选择店铺" multiple collapse-tags clearable size="mini" filterable>
             <el-option v-if="selectall1" label="全部" :value="0" />
             <el-option v-if="!selectall1" label="全部" :value="-2" />
             <el-option v-for="(item, index) in mallList" :key="index" :label="item.label" :value="item.value" />
@@ -34,6 +34,7 @@
           <span>资料期间：</span>
           <el-date-picker
             v-model="time"
+            style="height:20px"
             type="date"
             placeholder="选择日期"
           /></li>
@@ -66,11 +67,11 @@
         }"
       >
         <el-table-column align="center" label="序列号" width="60" prop="index" />
-        <el-table-column align="center" label="店铺名称" width="140" prop="mallname" />
-        <el-table-column v-if="false" align="center" label="店铺id" width="140" prop="mallid" />
-        <el-table-column align="center" prop="type" label="类型" width="140" />
-        <el-table-column align="center" prop="productid" label="商品ID" width="140" />
-        <el-table-column prop="img" label="商品图片" width="120" align="center">
+        <el-table-column align="center" label="店铺名称" width="180" prop="mallname" />
+        <el-table-column v-if="false" align="center" label="店铺id" width="180" prop="mallid" />
+        <el-table-column align="center" prop="type" label="类型" width="180" />
+        <el-table-column align="center" prop="productid" label="商品ID" width="180" />
+        <el-table-column prop="img" label="商品图片" width="200" align="center">
           <template slot-scope="{row}">
             <el-tooltip
               v-if="row.img"
@@ -94,7 +95,7 @@
             </el-tooltip>
           </template>
         </el-table-column>
-        <el-table-column prop="title" label="商品标题" width="200" align="center" />
+        <el-table-column prop="title" label="商品标题" width="400" align="center" />
         <el-table-column v-if="type===10000" prop="d2" :label="`销售额(${time1}-${time2})`" width="180" align="center" /><!--  跟着类型走 -->
         <el-table-column v-if="type===10000" prop="d3" :label="`销售额(${time2}-${time3})`" width="180" align="center" /> <!-- 跟着类型走 -->
         <el-table-column v-if="type===10002" prop="d2" :label="`总评论(${time2}-${time3})`" width="180" align="center" /><!--  跟着类型走 -->

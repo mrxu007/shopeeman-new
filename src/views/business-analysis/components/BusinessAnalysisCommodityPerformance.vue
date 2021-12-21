@@ -1,7 +1,7 @@
 <template>
   <el-row class="contaniner">
     <el-row class="header">
-      <ul style="margin-bottom: 10px">
+      <ul style="margin-bottom: 10px;margin-left:24px">
         <li>
           <span>站点：</span>
           <el-select v-model="site" size="mini" filterable>
@@ -10,7 +10,7 @@
         </li>
         <li>
           <span>店铺分组：</span>
-          <el-select v-model="group" placeholder="请选择分组" multiple collapse-tags clearable size="mini" filterable>
+          <el-select v-model="group" class="mall" placeholder="请选择分组" multiple collapse-tags clearable size="mini" filterable>
             <el-option v-if="selectall" label="全部" :value="0" />
             <el-option v-if="!selectall" label="全部" :value="-2" />
             <el-option v-for="(item, index) in gruopList" :key="index" :label="item.label" :value="item.value" />
@@ -18,7 +18,7 @@
         </li>
         <li>
           <span>店铺：</span>
-          <el-select v-model="mall" placeholder="请选择店铺" multiple collapse-tags clearable size="mini" filterable>
+          <el-select v-model="mall" class="mall" placeholder="请选择店铺" multiple collapse-tags clearable size="mini" filterable>
             <el-option v-if="selectall1" label="全部" :value="0" />
             <el-option v-if="!selectall1" label="全部" :value="-2" />
             <el-option v-for="(item, index) in mallList" :key="index" :label="item.label" :value="item.value" />
@@ -47,11 +47,11 @@
           </el-select>
         </li>
         <li>
-          <el-button v-if="type===0" type="primary" :disabled="Loading1" size="mini" @click="categorychooce">shopee类目选择</el-button>
-          <el-select v-if="type===1" v-model="b" placeholder="" size="mini" filterable>
+          <el-button v-if="type==='shopee'" type="primary" :disabled="Loading1" size="mini" @click="categorychooce">shopee类目选择</el-button>
+          <el-select v-if="type==='shop'" v-model="b" placeholder="" size="mini" filterable>
             <el-option v-for="(item, index) in B" :key="index" :label="item.label" :value="item.value" />
           </el-select>
-          <el-input v-model="B" style="margin-left:10px" clearable size="mini" oninput="value=value.replace(/\s+/g,'')" placeholder="搜索商品" />
+          <el-input v-model="keyword" style="margin-left:10px" clearable size="mini" oninput="value=value.replace(/\s+/g,'')" placeholder="搜索商品" />
         </li>
         <li>
           <el-button type="primary" :disabled="Loading1" size="mini" @click="getallinfo">搜索</el-button>
@@ -159,7 +159,6 @@
         <categoryMapping
           v-if="categoryVisible"
           :country="site"
-          :goods-current="goodsCurrent"
           :mall-list="mallList"
           @categoryChange="categoryChange"
         />
@@ -168,7 +167,7 @@
   </el-row>
 </template>
 <script>
-import { exportExcelDataCommon, delay } from '../../../util/util'
+import { exportExcelDataCommon } from '../../../util/util'
 import categoryMapping from '../../../components/category-mapping'
 export default {
   components: { categoryMapping },
@@ -201,13 +200,14 @@ export default {
       btcontrol: true,
       textcontrol: false,
       categoryVisible: false,
-      type: 0,
+      keyword: '',
+      categoryid: -1,
+      type: `shopee`,
       exportdata: [], // 导出数据
       allgroupid: [],
       allmallid: [],
       tableData: [],
       errmall: [],
-      goodsCurrent: '',
       indexs: 1,
       currency: '฿',
       total: 0,
@@ -221,8 +221,8 @@ export default {
       start_time: Date.parse(this.$dayjs(new Date()).format('YYYY-MM-DD 01:00:00')) / 1000,
       end_time: Math.round(new Date() / 1000),
       typelist: [
-        { value: 0, label: '按shopee分类筛选' },
-        { value: 1, label: '按商店分类筛选' }
+        { value: `shopee`, label: '按shopee分类筛选' },
+        { value: `shop`, label: '按商店分类筛选' }
       ],
       returnStatisticaltime: [
         { value: 'real_time', label: '实时' },
@@ -255,6 +255,9 @@ export default {
           }
         }
       }
+    },
+    keyword(val, oldval) {
+      this.categoryid = -1
     },
     mall(val, oldVal) {
       for (let i = 0; i < val.length; i++) {
@@ -291,8 +294,8 @@ export default {
           this.end_time = Date.parse(this.$dayjs(this.timechoose).format('YYYY-MM-DD 01:00:00')) / 1000
           this.timecant = false
         } else if (val === 'week') {
-          this.start_time = Date.parse(this.$dayjs(this.timechoose).format('YYYY-MM-DD 01:00:00')) / 1000 - 3600 * 24 * 6
-          this.end_time = Date.parse(this.$dayjs(this.timechoose).format('YYYY-MM-DD 01:00:00')) / 1000
+          this.start_time = Date.parse(this.$dayjs(this.getMonday(this.timechoose)).format('YYYY-MM-DD 01:00:00')) / 1000
+          this.end_time = Date.parse(this.$dayjs(this.getMonday(this.timechoose)).format('YYYY-MM-DD 01:00:00')) / 1000 + 3600 * 24 * 7
           this.timecant = false
         } else if (val === 'month') {
           const timea = this.$dayjs(this.timechoose).format('YYYY-MM-01')
@@ -340,8 +343,8 @@ export default {
           this.end_time = Date.parse(this.$dayjs(this.timechoose).format('YYYY-MM-DD 11:00:00')) / 1000
           this.timecant = false
         } else if (val === 'week') {
-          this.start_time = Date.parse(this.$dayjs(this.timechoose).format('YYYY-MM-DD 11:00:00')) / 1000 - 3600 * 24 * 6
-          this.end_time = Date.parse(this.$dayjs(this.timechoose).format('YYYY-MM-DD 11:00:00')) / 1000
+          this.start_time = Date.parse(this.$dayjs(this.getMonday(this.timechoose)).format('YYYY-MM-DD 11:00:00')) / 1000
+          this.end_time = Date.parse(this.$dayjs(this.getMonday(this.timechoose)).format('YYYY-MM-DD 11:00:00')) / 1000 + 3600 * 24 * 7
           this.timecant = false
         } else if (val === 'month') {
           const timea = this.$dayjs(this.timechoose).format('YYYY-MM-01')
@@ -389,8 +392,8 @@ export default {
           this.end_time = Date.parse(this.$dayjs(this.timechoose).format('YYYY-MM-DD 00:00:00')) / 1000
           this.timecant = false
         } else if (val === 'week') {
-          this.start_time = Date.parse(this.$dayjs(this.timechoose).format('YYYY-MM-DD 00:00:00')) / 1000 - 3600 * 24 * 6
-          this.end_time = Date.parse(this.$dayjs(this.timechoose).format('YYYY-MM-DD 00:00:00')) / 1000
+          this.start_time = Date.parse(this.$dayjs(this.getMonday(this.timechoose)).format('YYYY-MM-DD 00:00:00')) / 1000
+          this.end_time = Date.parse(this.$dayjs(this.getMonday(this.timechoose)).format('YYYY-MM-DD 00:00:00')) / 1000 + 3600 * 24 * 7
           this.timecant = false
         } else if (val === 'month') {
           const timea = this.$dayjs(this.timechoose).format('YYYY-MM-01')
@@ -424,8 +427,8 @@ export default {
           this.start_time = Date.parse(this.$dayjs(val).format('YYYY-MM-DD 01:00:00')) / 1000 - 3600 * 24
           this.end_time = Date.parse(this.$dayjs(val).format('YYYY-MM-DD 01:00:00')) / 1000
         } else if (this.Statisticaltime === 'week') {
-          this.start_time = Date.parse(this.$dayjs(val).format('YYYY-MM-DD 01:00:00')) / 1000 - 3600 * 24 * 7
-          this.end_time = Date.parse(this.$dayjs(val).format('YYYY-MM-DD 01:00:00')) / 1000
+          this.start_time = Date.parse(this.$dayjs(this.getMonday(val)).format('YYYY-MM-DD 01:00:00')) / 1000
+          this.end_time = Date.parse(this.$dayjs(this.getMonday(val)).format('YYYY-MM-DD 01:00:00')) / 1000 + 3600 * 24 * 7
         } else if (this.Statisticaltime === 'month') {
           const timea = this.$dayjs(val).format('YYYY-MM-01')
           const month = timea.split('-')[1]
@@ -454,8 +457,8 @@ export default {
           this.start_time = Date.parse(this.$dayjs(val).format('YYYY-MM-DD 11:00:00')) / 1000 - 3600 * 24
           this.end_time = Date.parse(this.$dayjs(val).format('YYYY-MM-DD 11:00:00')) / 1000
         } else if (this.Statisticaltime === 'week') {
-          this.start_time = Date.parse(this.$dayjs(val).format('YYYY-MM-DD 11:00:00')) / 1000 - 3600 * 24 * 7
-          this.end_time = Date.parse(this.$dayjs(val).format('YYYY-MM-DD 11:00:00')) / 1000
+          this.start_time = Date.parse(this.$dayjs(this.getMonday(val)).format('YYYY-MM-DD 11:00:00')) / 1000
+          this.end_time = Date.parse(this.$dayjs(this.getMonday(val)).format('YYYY-MM-DD 11:00:00')) / 1000 + 3600 * 24 * 7
         } else if (this.Statisticaltime === 'month') {
           const timea = this.$dayjs(val).format('YYYY-MM-01')
           const month = timea.split('-')[1]
@@ -484,8 +487,8 @@ export default {
           this.start_time = Date.parse(this.$dayjs(val).format('YYYY-MM-DD 00:00:00')) / 1000 - 3600 * 24
           this.end_time = Date.parse(this.$dayjs(val).format('YYYY-MM-DD 00:00:00')) / 1000
         } else if (this.Statisticaltime === 'week') {
-          this.start_time = Date.parse(this.$dayjs(val).format('YYYY-MM-DD 00:00:00')) / 1000 - 3600 * 24 * 7
-          this.end_time = Date.parse(this.$dayjs(val).format('YYYY-MM-DD 00:00:00')) / 1000
+          this.start_time = Date.parse(this.$dayjs(this.getMonday(val)).format('YYYY-MM-DD 00:00:00')) / 1000
+          this.end_time = Date.parse(this.$dayjs(this.getMonday(val)).format('YYYY-MM-DD 00:00:00')) / 1000 + 3600 * 24 * 7
         } else if (this.Statisticaltime === 'month') {
           const timea = this.$dayjs(val).format('YYYY-MM-01')
           const month = timea.split('-')[1]
@@ -562,6 +565,8 @@ export default {
   },
   mounted() {
     this.getInfo()
+    // const monday = this.$dayjs(this.getMonday(new Date())).format('YYYYMMDD 00:00:00')
+    // console.log(monday)
     // const timenow = new Date().getTime() - 3600 * 1000 * 24
     // const returnCreateStartTime = this.$dayjs(timenow).format('YYYYMMDD')
     // console.log(returnCreateStartTime)
@@ -633,19 +638,38 @@ export default {
               mallname = this.mallList[j].label
             }
           }
-          const params = {
-            start_time: this.start_time,
-            end_time: this.end_time,
-            period: this.Statisticaltime,
-            // group: this.group,
-            mallId: this.mall[i],
-            sort_by:	'placed_units.desc',
-            metric_ids: 'all',
-            limit: 20,
-            offset: 0
+          let params
+          let attributeTreeJson
+          if (this.categoryid === -1 && this.keyword === '') {
+            params = {
+              start_time: this.start_time,
+              end_time: this.end_time,
+              period: this.Statisticaltime,
+              mallId: this.mall[i],
+              sort_by:	'placed_units.desc',
+              metric_ids: 'all',
+              limit: 20,
+              offset: 0
+            }
+            console.log('this is my parmas', params)
+            attributeTreeJson = await this.$shopeemanService.getperformance(this.site, params, { headers: { 'Content-Type': 'application/json; charset=utf-8' }})
+          } else {
+            params = {
+              start_time: this.start_time,
+              end_time: this.end_time,
+              period: this.Statisticaltime,
+              mallId: this.mall[i],
+              category_type: this.type,
+              keyword: this.keyword,
+              category:	this.categoryid,
+              sort_by:	'placed_units.desc',
+              metric_ids: 'all',
+              page_size: 20,
+              page_num:	1
+            }
+            console.log('this is my parmas', params)
+            attributeTreeJson = await this.$shopeemanService.getperformance1(this.site, params, { headers: { 'Content-Type': 'application/json; charset=utf-8' }})
           }
-          console.log('this is my parmas', params)
-          const attributeTreeJson = await this.$shopeemanService.getperformance(this.site, params, { headers: { 'Content-Type': 'application/json; charset=utf-8' }})
           let attributeTreeRes
           if (attributeTreeJson) {
             attributeTreeRes = JSON.parse(attributeTreeJson)
@@ -761,12 +785,28 @@ export default {
     categoryChange(val) {
       console.log('categoryChange', val)
       if (val) {
-
+        console.log('this is val', val.categoryList[1].category_id)
+        this.categoryid = val.categoryList[1].category_id
       }
       this.categoryVisible = false
     },
     categorychooce() {
       this.categoryVisible = true
+      this.categoryid = -1
+    },
+    getMonday(date) { // 返回本周的周一的0时0分0秒
+      const day = date.getDay()
+      let deltaDay
+      if (day === 0) {
+        deltaDay = 6
+      } else {
+        deltaDay = day - 1
+      }
+      const monday = new Date(date.getTime() - deltaDay * 24 * 60 * 60 * 1000)
+      monday.setHours(0)
+      monday.setMinutes(0)
+      monday.setSeconds(0)
+      return monday // 返回本周的周一的0时0分0秒
     }
   }
 }

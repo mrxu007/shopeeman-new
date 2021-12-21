@@ -32,7 +32,8 @@
         </li>
         <li>
           <el-button type="primary" :disabled="Loading1" size="mini" @click="getallinfo">搜索</el-button>
-          <el-button type="primary" :disabled="Loading1" size="mini" @click="DerivedData">导出</el-button>
+          <el-button type="primary" :disabled="Loading1" size="mini" @click="DerivedData1">导出加购折扣数据</el-button>
+          <el-button type="primary" :disabled="Loading1" size="mini" @click="DerivedData2">导出赠品满最低消费数据</el-button>
         </li>
       </ul>
       <el-table
@@ -40,63 +41,83 @@
         v-loading="Loading3"
         style="margin-top:10px"
         header-align="center"
-        height="calc(100vh - 140px)"
-        :data="tableData"
+        height="calc(100vh - 100px)"
+        :data="tableData1"
         :header-cell-style="{
           backgroundColor: '#f5f7fa',
         }"
       >
-        <el-table-column align="center" label="店铺名称" width="260" prop="mallname" />
-        <el-table-column align="center" prop="sales" label="销售量" width="260">
-          <template slot-scope="{ row }">
-            <div v-html="row.sales" />
-          </template>
+        <el-table-column align="center" label="店铺名称" width="160" prop="mallname" />
+        <el-table-column label="加购折扣" align="center">
+          <el-table-column prop="sales" label="销售（主要及加购商品）" width="180" align="center">
+            <template slot-scope="{row}">
+              <div v-html="row.sales" />
+            </template>
+          </el-table-column>
+          <el-table-column prop="add_on_item_sales" label="加购商品销售" width="180" align="center">
+            <template slot-scope="{row}">
+              <div v-html="row.add_on_item_sales" />
+            </template>
+          </el-table-column>
+          <el-table-column prop="main_item_units" label="已售出的商品总件数" width="180" align="center">
+            <template slot-scope="{row}">
+              <div v-html="row.main_item_units" />
+            </template>
+          </el-table-column>
+          <el-table-column prop="add_on_item_units" label="已售出的加购商品件数" width="180" align="center">
+            <template slot-scope="{row}">
+              <div v-html="row.add_on_item_units" />
+            </template>
+          </el-table-column>
+          <el-table-column prop="orders" label="订单量" width="180" align="center">
+            <template slot-scope="{row}">
+              <div v-html="row.orders" />
+            </template>
+          </el-table-column>
+          <el-table-column prop="buyers" label="买家数" width="180" align="center">
+            <template slot-scope="{row}">
+              <div v-html="row.buyers" />
+            </template>
+          </el-table-column>
+          <el-table-column prop="main_item_sales_per_buyer" label="每位买家的销售额" width="180" align="center">
+            <template slot-scope="{row}">
+              <div v-html="row.main_item_sales_per_buyer" />
+            </template>
+          </el-table-column>
+          <el-table-column prop="add_on_item_sales_per_buyer" label="每位买家的加购商品销售" width="180" align="center">
+            <template slot-scope="{row}">
+              <div v-html="row.add_on_item_sales_per_buyer" />
+            </template>
+          </el-table-column>
         </el-table-column>
-        <el-table-column prop="units" label="售出件数" width="250" align="center">
-          <template slot-scope="{ row }">
-            <div v-html="row.units" />
-          </template>
-        </el-table-column>
-        <el-table-column prop="orders" label="订单数" width="250" align="center">
-          <template slot-scope="{ row }">
-            <div v-html="row.orders" />
-          </template>
-        </el-table-column>
-        <el-table-column prop="buyers" label="买家数" width="250" align="center">
-          <template slot-scope="{ row }">
-            <div v-html="row.buyers" />
-          </template>
-        </el-table-column>
-        <el-table-column prop="sales_per_buyer" label="每位买家的销售额" width="250" align="center">
-          <template slot-scope="{ row }">
-            <div v-html="row.sales_per_buyer" />
-          </template>
-        </el-table-column>
-        <el-table-column prop="appexisting_visitors" label="操作" width="160" align="center">
-          <template slot-scope="{ row }">
-            <el-button type="primary" size="mini" @click="view(row)">折扣促销概览</el-button>
-          </template>
+        <el-table-column label="赠品满最低消费" align="center">
+          <el-table-column prop="main_item_sales1" label="主商品销售" width="180" align="center">
+            <template slot-scope="{row}">
+              <div v-html="row.main_item_sales1" />
+            </template>
+          </el-table-column>
+          <el-table-column prop="main_item_units1" label="已售主商品总件数" width="180" align="center">
+            <template slot-scope="{row}">
+              <div v-html="row.main_item_units1" />
+            </template>
+          </el-table-column>
+          <el-table-column prop="orders1" label="订单量" width="180" align="center">
+            <template slot-scope="{row}">
+              <div v-html="row.orders1" />
+            </template>
+          </el-table-column>
+          <el-table-column prop="buyers1" label="买家数" width="180" align="center">
+            <template slot-scope="{row}">
+              <div v-html="row.buyers1" />
+            </template>
+          </el-table-column>
+          <el-table-column prop="main_item_sales_per_buyer1" label="每位买家的主商品销售" width="180" align="center">
+            <template slot-scope="{row}">
+              <div v-html="row.main_item_sales_per_buyer1" />
+            </template>
+          </el-table-column>
         </el-table-column>
       </el-table>
-      <el-dialog title="折扣促销概览" :visible.sync="eidtVisible" width="43%">
-        <el-table
-          ref="plTable"
-          v-loading="Loading3"
-          style="margin-top:10px"
-          header-align="center"
-          :data="tableData1"
-          :header-cell-style="{
-            backgroundColor: '#f5f7fa',
-          }"
-        >
-          <el-table-column align="center" label="折扣名称" width="160" prop="discount_name" />
-          <el-table-column align="center" prop="units" label="售出件数" width="100" />
-          <el-table-column align="center" prop="orders" label="订单数" width="100" />
-          <el-table-column prop="buyers" label="买家数" width="100" align="center" />
-          <el-table-column prop="sales" label="销售额" width="100" align="center" />
-          <el-table-column prop="sales_per_buyer" label="每位买家的销售额" width="130" align="center" />
-        </el-table>
-      </el-dialog>
     </el-row>
   </el-row>
 </template>
@@ -110,11 +131,12 @@ export default {
       selectall: true, // 分组全选和取消全选选项控制
       selectall1: true, // 店铺全选和取消全选选项控制
       eidtVisible: false,
-      exportdata: [], // 导出数据
+      exportdata1: [], // 导出数据1
+      exportdata2: [], // 导出数据2
       allgroupid: [],
       allmallid: [],
-      tableData: [],
       tableData1: [],
+      tableData2: [],
       errmall: [],
       currency: '฿',
       total: 0,
@@ -409,26 +431,29 @@ export default {
       if (this.mall.length > 0) {
         this.Loading1 = true
         this.Loading3 = true
-        this.tableData = []
-        this.exportdata = []
+        this.tableData1 = []
+        this.tableData2 = []
+        this.exportdata1 = []
+        this.exportdata2 = []
         this.errmall = []
+        let data = {}
         for (let i = 0; i < this.mall.length; i++) {
+          data = {}
           const params = {
             start_time: this.start_time,
             end_time: this.end_time,
             period: this.Statisticaltime,
             // group: this.group,
-            mallId: this.mall[i],
-            status: 0
+            mallId: this.mall[i]
           }
           console.log('this is my parmas', params)
-          const attributeTreeJson = await this.$shopeemanService.getactivity(this.site, params, { headers: { 'Content-Type': 'application/json; charset=utf-8' }})
+          const attributeTreeJson = await this.$shopeemanService.getAdditionalpurchase1(this.site, params, { headers: { 'Content-Type': 'application/json; charset=utf-8' }})
           let attributeTreeRes
           if (attributeTreeJson) {
             attributeTreeRes = JSON.parse(attributeTreeJson)
           }
           attributeTreeRes.data = JSON.parse(attributeTreeRes.data)
-          console.log('this is data', attributeTreeRes)
+          // console.log('this is data', attributeTreeRes)
           let mallname
           for (let j = 0; j < this.mallList.length; j++) {
             if (this.mallList[j].value === this.mall[i]) {
@@ -438,17 +463,21 @@ export default {
           if (attributeTreeRes.status === 200) {
             const exportdata = {}
             exportdata['mallname'] = mallname
-            exportdata['sales'] = attributeTreeRes.data.result.sales.value
-            exportdata['units'] = attributeTreeRes.data.result.units.value
-            exportdata['orders'] = attributeTreeRes.data.result.orders.value
-            exportdata['buyers'] = attributeTreeRes.data.result.buyers.value
-            exportdata['sales_per_buyer'] = attributeTreeRes.data.result.sales_per_buyer.value
-            this.exportdata.push(exportdata)
-            const data = {}
+            exportdata['sales'] = attributeTreeRes.data.result.sales
+            exportdata['buyers'] = attributeTreeRes.data.result.buyers
+            exportdata['orders'] = attributeTreeRes.data.result.orders
+            exportdata['add_on_item_sales'] = attributeTreeRes.data.result.add_on_item_sales
+            exportdata['add_on_item_units'] = attributeTreeRes.data.result.add_on_item_units
+            exportdata['add_on_item_sales_per_buyer'] = attributeTreeRes.data.result.add_on_item_sales_per_buyer
+            exportdata['main_item_sales'] = attributeTreeRes.data.result.main_item_sales
+            exportdata['main_item_units'] = attributeTreeRes.data.result.main_item_units
+            exportdata['main_item_sales_per_buyer'] = attributeTreeRes.data.result.main_item_sales_per_buyer
+            this.exportdata1.push(exportdata)
             data['mallname'] = mallname
             for (const item in attributeTreeRes.data.result) {
+              const itemlv = `${item}_pct_diff`
               let color = 'green'
-              if (attributeTreeRes.data.result[item].chain_ratio < 0) {
+              if (attributeTreeRes.data.result[itemlv] < 0) {
                 color = 'red'
               }
               if (this.Statisticaltime === 'real_time') {
@@ -457,42 +486,75 @@ export default {
                 const changea = returnCreateStartTime.split(':')
                 changea[0] = Number(changea[0]) - 1
                 const onehoureago = `${changea[0]}:${changea[1]}`
-                if (item === 'sales_per_buyer') {
-                  data[`${item}`] = `<pre style='color:${color}'>${this.currency}${(attributeTreeRes.data.result[item].value).toFixed(2)}</pre>` + `<pre style='color:${color}'>vs 00:00 - ${onehoureago}  ${(attributeTreeRes.data.result[item].chain_ratio * 100).toFixed(2)}%</pre>`
+                if (item === 'sales' || item === 'add_on_item_sales' || item === 'main_item_sales_per_buyer' || item === 'add_on_item_sales_per_buyer') {
+                  data[`${item}`] = `<pre style='color:${color}'>${this.currency}${(attributeTreeRes.data.result[item]).toFixed(2)}</pre>` + `<pre style='color:${color}'>vs 00:00 - ${onehoureago}  ${(attributeTreeRes.data.result[itemlv] * 100).toFixed(2)}%</pre>`
                 } else {
-                  data[`${item}`] = `<pre style='color:${color}'>${attributeTreeRes.data.result[item].value}</pre>` + `<pre style='color:${color}'>vs 00:00 - ${onehoureago}  ${(attributeTreeRes.data.result[item].chain_ratio * 100).toFixed(2)}%</pre>`
+                  data[`${item}`] = `<pre style='color:${color}'>${attributeTreeRes.data.result[item]}</pre>` + `<pre style='color:${color}'>vs 00:00 - ${onehoureago}  ${(attributeTreeRes.data.result[itemlv] * 100).toFixed(2)}%</pre>`
                 }
               } else if (this.Statisticaltime === 'yesterday') {
-                if (item === 'sales_per_buyer') {
-                  data[`${item}`] = `<pre style='color:${color}'>${this.currency}${(attributeTreeRes.data.result[item].value).toFixed(2)}</pre>` + `<pre style='color:${color}'>vs 前一天  ${(attributeTreeRes.data.result[item].chain_ratio * 100).toFixed(2)}%</pre>`
-                } else { data[`${item}`] = `<pre style='color:${color}'>${attributeTreeRes.data.result[item].value}</pre>` + `<pre style='color:${color}'>vs 前一天  ${(attributeTreeRes.data.result[item].chain_ratio * 100).toFixed(2)}%</pre>` }
+                if (item === 'sales' || item === 'add_on_item_sales' || item === 'main_item_sales_per_buyer' || item === 'add_on_item_sales_per_buyer') {
+                  data[`${item}`] = `<pre style='color:${color}'>${this.currency}${(attributeTreeRes.data.result[item]).toFixed(2)}</pre>` + `<pre style='color:${color}'>vs 前一天  ${(attributeTreeRes.data.result[itemlv] * 100).toFixed(2)}%</pre>`
+                } else { data[`${item}`] = `<pre style='color:${color}'>${attributeTreeRes.data.result[item]}</pre>` + `<pre style='color:${color}'>vs 前一天  ${(attributeTreeRes.data.result[itemlv] * 100).toFixed(2)}%</pre>` }
               } else if (this.Statisticaltime === 'past7days') {
-                if (item === 'sales_per_buyer') {
-                  data[`${item}`] = `<pre style='color:${color}'>${this.currency}${(attributeTreeRes.data.result[item].value).toFixed(2)}</pre>` + `<pre style='color:${color}'>vs 前7天  ${(attributeTreeRes.data.result[item].chain_ratio * 100).toFixed(2)}%</pre>`
-                } else { data[`${item}`] = `<pre style='color:${color}'>${attributeTreeRes.data.result[item].value}</pre>` + `<pre style='color:${color}'>vs 前7天  ${(attributeTreeRes.data.result[item].chain_ratio * 100).toFixed(2)}%</pre>` }
+                if (item === 'sales' || item === 'add_on_item_sales' || item === 'main_item_sales_per_buyer' || item === 'add_on_item_sales_per_buyer') {
+                  data[`${item}`] = `<pre style='color:${color}'>${this.currency}${(attributeTreeRes.data.result[item]).toFixed(2)}</pre>` + `<pre style='color:${color}'>vs 前7天  ${(attributeTreeRes.data.result[itemlv] * 100).toFixed(2)}%</pre>`
+                } else { data[`${item}`] = `<pre style='color:${color}'>${attributeTreeRes.data.result[item]}</pre>` + `<pre style='color:${color}'>vs 前7天  ${(attributeTreeRes.data.result[itemlv] * 100).toFixed(2)}%</pre>` }
               } else if (this.Statisticaltime === 'past30days') {
-                if (item === 'sales_per_buyer') {
-                  data[`${item}`] = `<pre style='color:${color}'>${this.currency}${(attributeTreeRes.data.result[item].value).toFixed(2)}</pre>` + `<pre style='color:${color}'>vs 前30天  ${(attributeTreeRes.data.result[item].chain_ratio * 100).toFixed(2)}%</pre>`
-                } else { data[`${item}`] = `<pre style='color:${color}'>${attributeTreeRes.data.result[item].value}</pre>` + `<pre style='color:${color}'>vs 前30天  ${(attributeTreeRes.data.result[item].chain_ratio * 100).toFixed(2)}%</pre>` }
+                if (item === 'sales' || item === 'add_on_item_sales' || item === 'main_item_sales_per_buyer' || item === 'add_on_item_sales_per_buyer') {
+                  data[`${item}`] = `<pre style='color:${color}'>${this.currency}${(attributeTreeRes.data.result[item]).toFixed(2)}</pre>` + `<pre style='color:${color}'>vs 前30天  ${(attributeTreeRes.data.result[itemlv] * 100).toFixed(2)}%</pre>`
+                } else { data[`${item}`] = `<pre style='color:${color}'>${attributeTreeRes.data.result[item]}</pre>` + `<pre style='color:${color}'>vs 前30天  ${(attributeTreeRes.data.result[itemlv] * 100).toFixed(2)}%</pre>` }
               }
             }
-
-            let res = await this.$shopeemanService.getactivitybt(this.site, params, { headers: { 'Content-Type': 'application/json; charset=utf-8' }})
-            if (res) {
-              res = JSON.parse(res)
-              res.data = JSON.parse(res.data)
-            }
-            console.log('zhelizhelizheli', res)
-            data['view'] = res.data.data
-            if (data['view']) {
-              for (let k = 0; k < data['view'].length; k++) {
-                data['view'][k].sales = `${this.currency}${(data['view'][k].sales).toFixed(2)}`
-                data['view'][k].sales_per_buyer = `${this.currency}${(data['view'][k].sales_per_buyer).toFixed(2)}`
-              }
-            }
-            this.tableData.push(data)
           } else if (attributeTreeRes.status === 403) {
             this.errmall.push(mallname)
+          }
+          let res = await this.$shopeemanService.getAdditionalpurchase2(this.site, params, { headers: { 'Content-Type': 'application/json; charset=utf-8' }})
+          if (res) {
+            res = JSON.parse(res)
+          }
+          res.data = JSON.parse(res.data)
+          console.log('this is data', res)
+          if (res.status === 200) {
+            const exportdata = {}
+            exportdata['mallname'] = mallname
+            exportdata['main_item_sales'] = attributeTreeRes.data.result.main_item_sales
+            exportdata['main_item_units'] = attributeTreeRes.data.result.main_item_units
+            exportdata['orders'] = attributeTreeRes.data.result.orders
+            exportdata['buyers'] = attributeTreeRes.data.result.buyers
+            exportdata['main_item_sales_per_buyer'] = attributeTreeRes.data.result.main_item_sales_per_buyer
+            this.exportdata2.push(exportdata)
+            for (const item in attributeTreeRes.data.result) {
+              const itemlv = `${item}_pct_diff`
+              let color = 'green'
+              if (attributeTreeRes.data.result[itemlv] < 0) {
+                color = 'red'
+              }
+              if (this.Statisticaltime === 'real_time') {
+                const timenow = new Date().getTime()
+                const returnCreateStartTime = this.$dayjs(timenow).format('hh:00')
+                const changea = returnCreateStartTime.split(':')
+                changea[0] = Number(changea[0]) - 1
+                const onehoureago = `${changea[0]}:${changea[1]}`
+                if (item === 'main_item_sales' || item === 'main_item_sales_per_buyer') {
+                  data[`${item}1`] = `<pre style='color:${color}'>${this.currency}${(attributeTreeRes.data.result[item]).toFixed(2)}</pre>` + `<pre style='color:${color}'>vs 00:00 - ${onehoureago}  ${(attributeTreeRes.data.result[itemlv] * 100).toFixed(2)}%</pre>`
+                } else {
+                  data[`${item}1`] = `<pre style='color:${color}'>${attributeTreeRes.data.result[item]}</pre>` + `<pre style='color:${color}'>vs 00:00 - ${onehoureago}  ${(attributeTreeRes.data.result[itemlv] * 100).toFixed(2)}%</pre>`
+                }
+              } else if (this.Statisticaltime === 'yesterday') {
+                if (item === 'main_item_sales' || item === 'main_item_sales_per_buyer') {
+                  data[`${item}1`] = `<pre style='color:${color}'>${this.currency}${(attributeTreeRes.data.result[item]).toFixed(2)}</pre>` + `<pre style='color:${color}'>vs 前一天  ${(attributeTreeRes.data.result[itemlv] * 100).toFixed(2)}%</pre>`
+                } else { data[`${item}1`] = `<pre style='color:${color}'>${attributeTreeRes.data.result[item]}</pre>` + `<pre style='color:${color}'>vs 前一天  ${(attributeTreeRes.data.result[itemlv] * 100).toFixed(2)}%</pre>` }
+              } else if (this.Statisticaltime === 'past7days') {
+                if (item === 'main_item_sales' || item === 'main_item_sales_per_buyer') {
+                  data[`${item}1`] = `<pre style='color:${color}'>${this.currency}${(attributeTreeRes.data.result[item]).toFixed(2)}</pre>` + `<pre style='color:${color}'>vs 前7天  ${(attributeTreeRes.data.result[itemlv] * 100).toFixed(2)}%</pre>`
+                } else { data[`${item}1`] = `<pre style='color:${color}'>${attributeTreeRes.data.result[item]}</pre>` + `<pre style='color:${color}'>vs 前7天  ${(attributeTreeRes.data.result[itemlv] * 100).toFixed(2)}%</pre>` }
+              } else if (this.Statisticaltime === 'past30days') {
+                if (item === 'main_item_sales' || item === 'main_item_sales_per_buyer') {
+                  data[`${item}1`] = `<pre style='color:${color}'>${this.currency}${(attributeTreeRes.data.result[item]).toFixed(2)}</pre>` + `<pre style='color:${color}'>vs 前30天  ${(attributeTreeRes.data.result[itemlv] * 100).toFixed(2)}%</pre>`
+                } else { data[`${item}1`] = `<pre style='color:${color}'>${attributeTreeRes.data.result[item]}</pre>` + `<pre style='color:${color}'>vs 前30天  ${(attributeTreeRes.data.result[itemlv] * 100).toFixed(2)}%</pre>` }
+              }
+            }
+            this.tableData1.push(data)
           }
         }
         if (this.errmall.length > 0) {
@@ -504,42 +566,75 @@ export default {
         this.$message.warning('请选择店铺！')
       }
     },
-    // 数据导出功能
-    async DerivedData() {
-      if (this.exportdata.length) {
+    // 数据导出1功能
+    async DerivedData1() {
+      if (this.exportdata1.length) {
         let msg = `<tr>
         <td style="width: 200px; text-align:left;">店铺名称</td>
-        <td style="width: 200px; text-align:left;">销售量</td>
-        <td style="width: 200px; text-align:left;">售出件数</td>
-        <td style="width: 200px; text-align:left;">订单数</td>
+        <td style="width: 200px; text-align:left;">销售（主要及加购商品）</td>
+        <td style="width: 200px; text-align:left;">加购商品销售</td>
+        <td style="width: 200px; text-align:left;">已出售的商品总件数</td>
+        <td style="width: 200px; text-align:left;">已出售的加购商品总件数</td>
+        <td style="width: 200px; text-align:left;">订单量</td>
         <td style="width: 200px; text-align:left;">买家数</td>
         <td style="width: 200px; text-align:left;">每位买家的销售额</td>
+        <td style="width: 200px; text-align:left;">每位买家的加购商品销售</td>
       </tr>`
-        this.exportdata.map((item) => {
+        this.exportdata1.map((item) => {
           msg += `
         <tr>
           <td style="text-align:left;">${item.mallname}</td>
           <td style="text-align:left;">${item.sales}</td>
-          <td style="text-align:left;">${item.units}</td>
+          <td style="text-align:left;">${item.add_on_item_sales}</td>
+          <td style="text-align:left;">${item.main_item_units}</td>
+          <td style="text-align:left;">${item.add_on_item_units}</td>
           <td style="text-align:left;">${item.orders}</td>
           <td style="text-align:left;">${item.buyers}</td>
-          <td style="text-align:left;">${item.sales_per_buyer}</td>
+          <td style="text-align:left;">${item.main_item_sales_per_buyer}</td>
+          <td style="text-align:left;">${item.add_on_item_sales_per_buyer}</td>
         </tr>
         `
         })
-        exportExcelDataCommon('行销活动信息', msg)
+        exportExcelDataCommon('加购折扣信息', msg)
       } else {
         return this.$notify({
-          title: '行销活动信息',
+          title: '加购折扣信息',
           type: 'warning',
           message: `没有可以导出的信息`
         })
       }
     },
-    // 折扣促销概览
-    async view(row) {
-      this.eidtVisible = true
-      this.tableData1 = row.view
+    // 数据导出2功能
+    async DerivedData2() {
+      if (this.exportdata2.length) {
+        let msg = `<tr>
+        <td style="width: 200px; text-align:left;">店铺名称</td>
+        <td style="width: 200px; text-align:left;">主商品销售</td>
+        <td style="width: 200px; text-align:left;">已售主商品总件数</td>
+        <td style="width: 200px; text-align:left;">订单量</td>
+        <td style="width: 200px; text-align:left;">买家数</td>
+        <td style="width: 200px; text-align:left;">每位买家的主商品销售</td>
+      </tr>`
+        this.exportdata2.map((item) => {
+          msg += `
+        <tr>
+          <td style="text-align:left;">${item.mallname}</td>
+          <td style="text-align:left;">${item.main_item_sales}</td>
+          <td style="text-align:left;">${item.main_item_units}</td>
+          <td style="text-align:left;">${item.orders}</td>
+          <td style="text-align:left;">${item.buyers}</td>
+          <td style="text-align:left;">${item.main_item_sales_per_buyer}</td>
+        </tr>
+        `
+        })
+        exportExcelDataCommon('赠品满最低消费信息', msg)
+      } else {
+        return this.$notify({
+          title: '赠品满最低消费信息',
+          type: 'warning',
+          message: `没有可以导出的信息`
+        })
+      }
     }
   }
 }

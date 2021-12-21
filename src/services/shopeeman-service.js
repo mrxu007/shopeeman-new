@@ -1574,6 +1574,11 @@ export default class NetMessageBridgeService {
     return this.getChinese(country, '/api/mydata/v2/product/performance/', data, option)
   }
 
+  // 获取商品表现数据
+  getperformance1(country, data, option) {
+    return this.getChinese(country, '/api/mydata/v2/product/performance/batch/', data, option)
+  }
+
   // 获取销售额概述数据
   getsalasoverview(country, data, option) {
     return this.getChinese(country, '/api/mydata/v3/sales/overview/funnel/', data, option)
@@ -1637,6 +1642,46 @@ export default class NetMessageBridgeService {
   // 获取商品限时选购数据
   getlimittime(country, data, option) {
     return this.getChinese(country, '/api/mydata/marketing/flash-sale/key-metrics/', data, option)
+  }
+
+  // 获取加购优惠数据1
+  getAdditionalpurchase1(country, data, option) {
+    return this.getChinese(country, '/api/mydata/v2/marketing/add-on-deal/key-metrics/', data, option)
+  }
+
+  // 获取加购优惠数据2
+  getAdditionalpurchase2(country, data, option) {
+    return this.getChinese(country, '/api/mydata/marketing/add-on-deal/gift-with-purchase/key-metrics/', data, option)
+  }
+
+  // 获取实时聊天数据
+  getrealtime(country, data, option) {
+    return this.getChinese(country, '/api/mydata/v2/chat/dashboard/funnel/', data, option)
+  }
+
+  // 获取常见问题助手数据
+  getfaqassistant(country, data, option) {
+    return this.getChinese(country, '/api/mydata/chat/faq/overview/', data, option)
+  }
+
+  // 获取常见问题助手按钮数据
+  getfaqassistant1(country, data, option) {
+    return this.getChinese(country, '/api/mydata/chat/faq/list/', data, option)
+  }
+
+  // 获取销售辅助数据
+  getsalesassistance(country, data, option) {
+    return this.getChinese(country, '/api/mydata/v4/selling-coach/listing-optimiser/overview/', data, option)
+  }
+
+  // 获取行销活动套装优惠数据
+  getdiscount(country, data, option) {
+    return this.getChinese(country, '/api/marketing/v3/bundle_deal/list/', data, option)
+  }
+
+  // 创建套装促销活动
+  creatdiscount(country, data, option) {
+    return this.postChinese(country, '/api/marketing/v3/bundle_deal/', data, option)
   }
 }
 
