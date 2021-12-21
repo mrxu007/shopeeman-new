@@ -1,5 +1,8 @@
 .contaniner{
     margin:10px 10px 0 10px;
+    .red-span{
+      color: red;
+    }
     .header {
       background: white;
       overflow: auto;
@@ -7,7 +10,7 @@
       border-radius: 5px;
       ul{
         display: flex;
-        // width: 664px;
+        width: 1425px;
         li{
           line-height: 24px;
           display: flex;
@@ -31,11 +34,9 @@
             }
             .base-item{
                 margin-bottom: 5px;
-                .red-span{
-                    color: red;
-                }
                 .el-select{
                     width: 138px;
+                    margin-right: 10px;
                 }
                 .input{
                     width: 80px !important;
@@ -50,5 +51,26 @@
       overflow: hidden;
       background: white;
       padding: 0 10px 10px 10px;
+    }
+    /deep/.el-dialog{
+      /deep/.el-dialog__header{
+        padding: 12px 10px 5px !important;
+      }
+      /deep/.el-dialog__body{
+        padding: 0 20px 15px !important;
+      }
+    }
+    .details-dialog{
+      ul{
+        display: flex;
+        li{
+          display: flex;
+          margin-right: 50px;
+        }
+        span{
+          line-height: 24px;
+          text-align: right;
+        }
+      }
     }
   }
