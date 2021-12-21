@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-11-09 10:17:44
- * @LastEditTime: 2021-12-18 11:26:03
+ * @LastEditTime: 2021-12-21 11:17:30
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shopeeman-new\src\views\order-manager\components\OrderManagerOrderCenter.vue
@@ -122,7 +122,7 @@
                 </el-row>
                 <el-row class="row-style">
                   <div class="tool-item mar-right">
-                    <el-select v-model="inputType" placeholder="" size="mini" filterable style="width: 80px">
+                    <el-select v-model="inputType" placeholder="" size="mini" filterable style="width: 80px" @change="inputContent=''">
                       <el-option :label="item.label" :value="item.value" v-for="(item, index) in inputTypeList" :key="index" />
                     </el-select>
                     <el-input v-model="inputContent" size="mini" clearable style="width: 160px" />
@@ -195,17 +195,17 @@
         <p @click="isShow = true" v-else>展开<i class="el-icon-caret-bottom"></i></p>
       </div>
     </header>
-    <div class="content">
+    <div class="content" :style="{'height': isShow ? '520px' : '850px'}">
       <p>
         温馨提示：1、最终毛利 = 订单收入-采购金额-仓库发货金额（生成仓库发货金额才会去计算，会有汇率差）；含邮费毛利 =
         订单收入-采购价；2、若登录了Lazada买手号但点击采购订单号依旧提示登录，请使用编辑采购信息编辑重新保存下拍单信息
       </p>
-      <el-table v-loading="tableLoading" ref="multipleTable" :data="tableData" tooltip-effect="dark" height="isShow ? '420px' : '750px'" @selection-change="handleSelectionChange">
+      <el-table v-loading="tableLoading" ref="multipleTable" :data="tableData" tooltip-effect="dark" :height="isShow ? '420px' : '750px'" @selection-change="handleSelectionChange">
         <el-table-column align="center" type="selection" width="50" fixed="left" />
         <el-table-column align="center" type="index" label="序号" width="50" fixed="left">
           <template slot-scope="scope">{{ (currentPage - 1) * pageSize + scope.$index + 1 }}</template>
         </el-table-column>
-        <el-table-column prop="order_sn" label="订单编号" align="center" width="170px" v-if="showTableColumn('订单编号')" fixed="left">
+        <el-table-column prop="order_sn" label="订单编号"  width="170px" v-if="showTableColumn('订单编号')" fixed="left">
           <template slot-scope="scope">
             <i class="el-icon-document-copy copyStyle" @click="copyItem(scope.row.order_sn)"></i>
             <span class="tableActive" @click="viewDetails('orderDetail', scope.row.order_id, scope.row.mall_info.platform_mall_id)">{{ scope.row.order_sn }}</span>
@@ -288,7 +288,7 @@
           </template>
         </el-table-column>
         <el-table-column align="center" label="商品单价" width="80" v-if="showTableColumn('商品单价')">
-          <template slot-scope="scope">{{ scope.row.goods_info.original_price }}</template>
+          <template slot-scope="scope">{{ scope.row.goods_info.discounted_price }}{{ scope.row.country | siteCoin }}</template>
         </el-table-column>
         <el-table-column align="center" label="商品数量" width="120" v-if="showTableColumn('商品数量')">
           <template slot-scope="scope">{{ scope.row.goods_info.goods_count }}</template>
@@ -315,7 +315,7 @@
           </template>
         </el-table-column>
         <el-table-column align="center" label="商品类目" width="80" v-if="showTableColumn('商品类目')">
-          <template slot-scope="scope"></template>
+          <!-- <template slot-scope="scope"></template> -->
           <template slot-scope="scope">
             <span>{{ scope.row.categoryName }} </span>
           </template>
@@ -399,10 +399,10 @@
         <el-table-column align="center" label="采购时间" width="140" v-if="showTableColumn('采购时间')">
           <template slot-scope="scope">{{ scope.row.shot_order_info.shotted_at }}</template>
         </el-table-column>
-        <el-table-column align="center" label="采购订单号" width="150" v-if="showTableColumn('采购订单号')">
+        <el-table-column  label="采购订单号" width="150" v-if="showTableColumn('采购订单号')">
           <template slot-scope="scope">
-             <i class="el-icon-document-copy copyStyle tableActive" @click="copyItem(scope.row.shot_order_info.shot_order_sn)"></i>
-             <span>{{ scope.row.shot_order_info.shot_order_sn }}</span>
+             <i class="el-icon-document-copy copyStyle tableActive" v-if="scope.row.shot_order_info.shot_order_sn" @click="copyItem(scope.row.shot_order_info.shot_order_sn)"></i>
+             <span class="tableActive">{{ scope.row.shot_order_info.shot_order_sn }}</span>
             </template>
         </el-table-column>
         <el-table-column align="center" label="采购付款方式" width="120" v-if="showTableColumn('采购付款方式')">
@@ -998,6 +998,14 @@ export default {
       } else {
         return this.$message.error(`收藏失败，${resObj.msg}`)
       }
+    })
+    this.$IpcMain.on('FinishShotOrderMessage', async (response) => {
+      console.log('FinishShotOrderMessage', response)
+      this.getOrderList()
+    })
+    this.$IpcMain.on('updateShopeeCookie', async (response) => {
+      // let obj = response && JSON.parse(response) || ''
+      console.log('updateShopeeCookie', response)
     })
   },
   methods: {
@@ -2727,7 +2735,7 @@ export default {
   }
   // margin: 20px 0;
   background: #fff;
-  min-height: calc(100vh - 360px);
+  // min-height: calc(100vh - 360px);
   display: flex;
   flex-direction: column;
   justify-content: space-between;

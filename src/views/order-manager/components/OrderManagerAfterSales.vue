@@ -6,17 +6,17 @@
           <span class="base-title">基础操作</span>
           <div class="base-item">
             <div class="row">
-              <el-button size="mini" type="primary" @click="setShotStatusFun">采购状态变更</el-button>
-              <el-button size="mini" type="primary" @click="syncAfterOrder">售后同步</el-button>
-              <el-checkbox v-model="mall_compare" class="row_item">全店同步</el-checkbox>
-              <el-button size="mini" type="primary" @click="getExportData">导出数据</el-button>
+              <el-button size="mini" type="primary" @click="setShotStatusFun" class="btnWidth">采购状态变更</el-button>
+              <el-button size="mini" type="primary" @click="syncAfterOrder('')">售后同步</el-button>
+              <el-checkbox v-model="mall_compare" class="mar-left">全店同步</el-checkbox>
             </div>
             <div class="row">
-              <el-button size="mini" type="primary" @click="respondCancelRequest('reject', '拒绝')">批量拒绝买家取消订单</el-button>
-              <el-button size="mini" type="primary" @click="respondCancelRequest('accept', '接受')">批量接受买家取消订单</el-button>
+              <el-button size="mini" type="primary" @click="respondCancelRequest('reject', '拒绝')" class="btnWidth">批量拒绝买家取消订单</el-button>
+              <el-button size="mini" type="primary" @click="respondCancelRequest('accept', '接受')" class="btnWidth">批量接受买家取消订单</el-button>
             </div>
             <div class="row">
-              <el-button size="mini" type="primary" @click="colorVisible = true">批量标记颜色标识</el-button>
+              <el-button size="mini" type="primary" @click="colorVisible = true" class="btnWidth">批量标记颜色标识</el-button>
+              <el-button size="mini" type="primary" @click="getExportData" class="btnWidth">导出数据</el-button>
             </div>
           </div>
         </div>
@@ -47,7 +47,7 @@
             <div class="row">
               <div class="row_item">
                 <label>售后状态：</label>
-                <el-select v-model="query.shotOrderStatus" size="mini" style="width: 100px">
+                <el-select v-model="query.refundStatus" size="mini" style="width: 100px">
                   <el-option label="全部" value="" />
                   <el-option label="取消中" value="5" />
                   <el-option label="已取消" value="6" />
@@ -59,7 +59,7 @@
 
               <div class="row_item">
                 <label>采购状态：</label>
-                <el-select v-model="query.refundStatus" size="mini" style="width: 180px">
+                <el-select v-model="query.shotOrderStatus" size="mini" style="width: 180px">
                   <el-option label="全部" value="" />
                   <el-option label="待拍单" value="1" />
                   <el-option label="拍单中" value="2" />
@@ -104,7 +104,7 @@
                 <el-input v-model="inputDes" size="mini" style="width: 180px" clearable />
               </div>
               <div class="row_item">
-                <el-button size="mini" type="primary" style="margin-right: 10px" @click="search">搜索</el-button>
+                <el-button size="mini" type="primary" style="margin-right: 10px" @click="search(1)">搜索</el-button>
               </div>
             </div>
             <div class="row" style="margin-top: 10px">
@@ -127,12 +127,23 @@
         @selection-change="handleSelectionChange"
       >
         <el-table-column type="selection" width="55" fixed />
-        <el-table-column label="站点" prop="country" min-width="100px" fixed align="center">
+        <el-table-column align="center" type="index" label="序号" width="50" fixed="left">
+          <template slot-scope="scope">{{ (page - 1) * pageSize + scope.$index + 1 }}</template>
+        </el-table-column>
+        <el-table-column label="订单编号" prop="order_sn" min-width="180px"  fixed="left">
+          <template slot-scope="{ row }">
+            <span>
+              <i class="el-icon-document-copy copyStyle" @click="copy(row.order_sn)" />
+              <span class="tableActive" @click="viewDetails('orderDetail', row.order_id, row.mall_info.platform_mall_id)">{{ row.order_sn }}</span>
+            </span>
+          </template>
+        </el-table-column>
+        <el-table-column label="站点" prop="country" min-width="60px" align="center">
           <template slot-scope="{ row }"
             ><span>{{ row.mall_info.country | chineseSite }}</span></template
           >
         </el-table-column>
-        <el-table-column label="店铺名称" prop="mall_info.platform_mall_name" min-width="120px" fixed align="center" />
+        <el-table-column label="店铺名称" prop="mall_info.platform_mall_name" width="120px" align="center" show-overflow-tooltip />
         <el-table-column align="center" prop="color_id" label="颜色标识" min-width="70">
           <template slot-scope="scope">
             <p :style="{ background: changeColorLabel(scope.row.color_id), height: '26px' }"></p>
@@ -143,27 +154,19 @@
             <span>{{ changeColorLabel(scope.row.color_id, 'name') }}</span>
           </template>
         </el-table-column>
-        <el-table-column label="订单编号" prop="order_sn" min-width="180px" align="center">
-          <template slot-scope="{ row }">
-            <span>
-              <span class="tableActive" @click="viewDetails('orderDetail', row.order_id, row.mall_info.platform_mall_id)">{{ row.order_sn }}</span>
-              <el-button type="text" class="copyIcon" @click="copy(row.order_sn)"> <i class="el-icon-document-copy" /></el-button>
-            </span>
-          </template>
-        </el-table-column>
         <el-table-column label="退款金额" prop="refund_amount" min-width="100px" align="center" />
         <el-table-column label="售后状态" prop="status" min-width="100px" align="center">
           <template slot-scope="{ row }"
-            ><div>{{ orderStatus[row.status] }}</div></template
+            ><p :style="{ color: changeOrderStatus(row.status, 'color') }">{{ changeOrderStatus(row.status) }}</p></template
           ></el-table-column
         >
         <el-table-column label="申请时间" prop="update_time" min-width="180px" align="center" />
         <el-table-column label="采购状态" prop="shot_order_info.shot_status" min-width="90px" align="center">
           <template slot-scope="{ row }"
-            ><span>{{ shot_status[row.shot_order_info.shot_status] }}</span></template
+            ><span :style="{ color: changeShotStatus(row.shot_order_info.shot_status, 'color') }">{{ changeShotStatus(row.shot_order_info.shot_status) }}</span></template
           ></el-table-column
         >
-        <el-table-column label="售后原因" prop="after_reason" min-width="100px" align="center" />
+        <el-table-column label="售后原因" prop="after_reason" min-width="150px" align="center" show-overflow-tooltip />
         <el-table-column label="本地备注" prop="remark" min-width="180px" align="center">
           <template v-slot="{ row }">
             <el-input v-if="row.isChecked" v-model="row.remark" v-fo size="mini" resize="none" placeholder="本地备注" @blur="changeRemark(row)" />
@@ -172,12 +175,12 @@
             </span>
           </template>
         </el-table-column>
-        <el-table-column label="商品ID" prop="goods_info.goods_id" min-width="150px" align="center">
+        <el-table-column label="商品ID" prop="goods_info.goods_id" min-width="150px" >
           <template slot-scope="{ row }">
             <span>
+              <i class="el-icon-document-copy copyStyle" @click="copy(row.goods_info.goods_id)" />
               <span class="tableActive" @click="openUrl(row, 'product')">{{ row.goods_info.goods_id }}</span>
-              <el-button type="text" class="copyIcon" @click="copy(row.goods_info.goods_id)"> <i class="el-icon-document-copy" /></el-button
-            ></span>
+            </span>
           </template>
         </el-table-column>
         <el-table-column label="商品数量" prop="goods_info.goods_count" min-width="150px" align="center" />
@@ -191,39 +194,40 @@
             </el-tooltip>
           </template>
         </el-table-column>
-        <el-table-column label="商品类目" prop="goods_info.goods_category_id" min-width="100px" align="center" />
-        <el-table-column label="商品规格" prop="goods_info.goods_spec" min-width="100px" align="center" />
-        <el-table-column label="采购商品ID" prop="goods_info.ori_goods_id" min-width="180px" align="center">
+        <el-table-column align="center" label="商品类目" width="120">
+          <template slot-scope="scope">
+            <span>{{ scope.row.categoryName }} </span>
+          </template>
+        </el-table-column>
+        <!-- <el-table-column label="商品类目" prop="goods_info.goods_category_id" min-width="100px" align="center" /> -->
+        <el-table-column label="商品规格" prop="goods_info.variation_name" min-width="100px" align="center" />
+        <el-table-column label="采购商品ID" prop="goods_info.ori_goods_id" min-width="180px" >
           <template slot-scope="{ row }">
+            <i class="el-icon-document-copy copyStyle" v-if="row.goods_info.ori_goods_id" @click="copy(row.goods_info.ori_goods_id)" />
             <span v-if="row.goods_info.ori_goods_id">
               <el-button type="text" @click="openUrl(row.goods_info.ori_url)">
                 {{ row.goods_info.ori_goods_id }}
               </el-button>
-              <el-button type="text" class="copyIcon" @click="copy(row.goods_info.ori_goods_id)"> <i class="el-icon-document-copy" /></el-button
-            ></span>
+            </span>
           </template>
         </el-table-column>
-        <el-table-column label="采购订单号" prop="shot_order_info.shot_order_sn" min-width="180px" align="center">
-          <template slot-scope="{ row }">
-            <span v-if="row.shot_order_info.shot_order_sn">
-              <el-button type="text" @click.native="getorderDetail(row)">
-                {{ row.shot_order_info.shot_order_sn }}
-              </el-button>
-              <el-button type="text" class="copyIcon" @click="copy(row.shot_order_info.shot_order_sn)"> <i class="el-icon-document-copy" /></el-button
-            ></span>
+        <el-table-column  label="采购订单号" width="150">
+          <template slot-scope="scope">
+            <i class="el-icon-document-copy copyStyle" v-if="scope.row.shot_order_info.shot_order_sn" @click="copy(scope.row.shot_order_info.shot_order_sn)"></i>
+            <span class="tableActive">{{ scope.row.shot_order_info.shot_order_sn }}</span>
           </template>
         </el-table-column>
         <!-- <el-table-column label="采购价" prop="" min-width="100px" align="center" /> -->
         <el-table-column label="采购时间" prop="shot_order_info.shotted_at" min-width="180px" align="center" />
-        <el-table-column label="采购物流单号" prop="shot_order_info.shot_tracking_number" min-width="180px" align="center">
+        <el-table-column label="采购物流单号" prop="shot_order_info.shot_tracking_number" min-width="180px" >
           <template slot-scope="{ row }">
-            <span v-if="row.shot_order_info.shot_tracking_number"
-              >{{ row.shot_order_info.shot_tracking_number }}
-              <el-button type="text" class="copyIcon" @click="copy(row.shot_order_info.shot_tracking_number)"> <i class="el-icon-document-copy" /></el-button
-            ></span>
+            <i class="el-icon-document-copy copyStyle" v-if="row.shot_order_info.shot_tracking_number" @click="copy(row.shot_order_info.shot_tracking_number)" />
+            <span v-if="row.shot_order_info.shot_tracking_number" class="tableActive">{{ row.shot_order_info.shot_tracking_number }} </span>
           </template>
         </el-table-column>
-        <el-table-column label="采购账号" prop="shot_order_info.buy_account" min-width="180px" align="center" />
+        <el-table-column align="center" prop="buy_account_info" label="采购账号" width="120">
+          <template slot-scope="scope">{{ scope.row.shot_order_info.buy_account_info ? scope.row.shot_order_info.buy_account_info.name : '' }}</template>
+        </el-table-column>
         <el-table-column label="订单创建时间" prop="after_created_at" min-width="180px" align="center" />
         <el-table-column label="订单截止发货时间" prop="" min-width="180px" align="center" />
         <el-table-column label="退货物流号" prop="return_tracking_number" min-width="180px" align="center" />
@@ -240,6 +244,7 @@
                 <el-dropdown-item><div class="dropdownItem" @click=";(shotVisible = true), (multipleSelection = [row])">修改采购状态</div></el-dropdown-item>
                 <el-dropdown-item><div class="dropdownItem" @click="syncAfterOrder(row)">同步此店铺售后订单</div></el-dropdown-item>
                 <el-dropdown-item><div class="dropdownItem" @click="setColorSingle(row, $index)">订单颜色标识</div></el-dropdown-item>
+                <el-dropdown-item> <div class="dropdownItem" @click="SyncOrderSingle(row)">同步此订单</div></el-dropdown-item>
               </el-dropdown-menu>
             </el-dropdown>
           </template>
@@ -295,10 +300,9 @@
   </div>
 </template>
 <script>
-// import orderApi from '../../../module-api/order-manager-api/order-data'
+import { changeShotStatus, changeOrderStatus,statusAfterList } from './orderCenter/orderCenter'
 import storeChoose from '../../../components/store-choose.vue'
-import { exportExcelDataCommon, creatDate,getDaysBetween } from '../../../util/util'
-import { statusAfterList } from './orderCenter/orderCenter'
+import { exportExcelDataCommon, creatDate, getDaysBetween } from '../../../util/util'
 import orderSync from '../../../services/timeOrder'
 import { setGoodsDelist, setGoodsDelete } from './orderCenter/handleGoods'
 export default {
@@ -328,25 +332,6 @@ export default {
         { label: '退款成功', value: 9 },
         { label: '付款失败', value: 10 },
       ],
-      orderStatus: {
-        5: '取消中',
-        6: '已取消',
-        7: '退货退款中',
-        9: '退款成功',
-        10: '退款失败',
-      },
-      shot_status: {
-        1: '待拍单',
-        2: '拍单中',
-        3: '拍单完成，待上家发货',
-        4: '上家已发货',
-        5: '待支付',
-        6: '已完成',
-        7: '已取消',
-        8: '已申请退款',
-        9: '退款成功',
-        10: '付款失败',
-      },
       rowData: '', // 操作行数据
       multipleSelection: [],
       colorVisible: false,
@@ -358,13 +343,8 @@ export default {
       cloumn_date2: [],
       query: {
         sysMallIds: '', // 店铺ids
-        cerateTime: '', // 创建时间
-        saleStatus: '', // 售后状态
-        refundStatus: '', // 采购状态
+        refundStatus: '', // 售后状态
         color: '', // 颜色标识
-        // orderSn: '', // 订单编号
-        // trackingNumber: '', // 采购物流单号
-        // shotOrderSn: '', // 采购单号
         shotOrderStatus: '', // 拍单状态
         afterApplyTime: '', // 申请时间
         createdTime: '', // 创建时间
@@ -375,7 +355,6 @@ export default {
       total: 0,
       tableList: [],
       loading: false,
-      // orderInstance: new orderApi(this),
       buyerAccountList: [],
       searchMallList: [],
       statusAfterList: statusAfterList,
@@ -385,11 +364,11 @@ export default {
       colorVisible: false,
       colorRadio: '',
       selectColorList: [],
+      categoryInfo: {},
     }
   },
   mounted() {
     this.loading = true
-    // this.getInfo() // 初始化数据
     this.getBuyerList() // 获取买手号信息
     this.getColorList()
     this.cloumn_date1 = creatDate(30)
@@ -398,6 +377,14 @@ export default {
     }, 2000)
   },
   methods: {
+    //同步此订单
+    async SyncOrderSingle(row) {
+      this.showConsole = false //打开日志
+      this.$refs.Logs.consoleMsg = ''
+      this.$refs.Logs.writeLog(`【${row.order_id}】开始同步，请耐心等待!`, true)
+      const orderService = new orderSync()
+      await orderService.startSingel(row, this.$refs.Logs.writeLog)
+    },
     changeTime(val, key, subKey) {
       let days = getDaysBetween(new Date(val[0]).getTime(), new Date(val[1]).getTime())
       if (days > 93) {
@@ -464,7 +451,7 @@ export default {
     changeColorLabel(colorId, type) {
       let colorInfo = this.colorList.find((item) => item.id == colorId)
       if (type === 'name') {
-        return colorInfo ? colorInfo.name : ''
+        return colorInfo && colorInfo.id !== 0 ? colorInfo.name : ''
       }
       return colorInfo ? colorInfo.color : ''
     },
@@ -525,6 +512,7 @@ export default {
       let mallList = []
       this.showConsole = false //打开日志
       this.$refs.Logs.consoleMsg = ''
+      console.log(row)
       if (row) {
         mallList = [row.mall_info]
       } else {
@@ -537,7 +525,6 @@ export default {
               mallList.push(mallObject[key])
             }
           }
-          console.log(mallList, JSON.parse(res))
         } else {
           mallList = this.searchMallList
         }
@@ -546,14 +533,16 @@ export default {
         this.$refs.Logs.writeLog('店铺数据为空，同步操作已取消!', false)
         return
       }
+      console.log(mallList)
       this.$refs.Logs.writeLog(`开始同步售后订单，请耐心等待!`, true)
       for (let mI = 0; mI < mallList.length; mI++) {
         let mall = mallList[mI]
         for (let i = 0; i < statusAfterList.length; i++) {
           //同步状态
           let statusObj = statusAfterList[i]
+          console.log(mall,"mall")
           const orderService = new orderSync(mall, statusObj, this, this.$refs.Logs.writeLog)
-          await orderService.start(`${mI + 1}/${mallList.length}`, 'manual', 7)
+          await orderService.start(`${mI + 1}/${mallList.length}`, 'manual', 60)
         }
       }
       this.$refs.Logs.writeLog('售后订单同步已完成！！！', true)
@@ -576,33 +565,6 @@ export default {
       }
       this.$message.success(`修改成功`, true)
     },
-    // 下架商品
-    // deList(row) {
-    //   this.$confirm('是否下架该商品', '提示', {
-    //     confirmButtonText: '确定',
-    //     cancelButtonText: '取消',
-    //     type: 'warning',
-    //   }).then(() => {
-    //     this.deListFun(row)
-    //   })
-    // },
-    // async deListFun(val) {
-    //   const product_id_list = [{ id: Number(val.goods_info.goods_id), unlisted: true }] // unlisted:true 下架  false 发布
-    //   const orderinfo = {
-    //     country: val.country,
-    //     platform_mall_id: val.mall_info.platform_mall_id,
-    //     product_id_list,
-    //   }
-    //   this.loading = true
-    //   const res = await this.orderInstance.deListProduct(orderinfo)
-    //   this.loading = false
-    //   if (res.code === 200) {
-    //     this.$message.success('下架成功')
-    //   } else {
-    //     this.$message.error(res.data)
-    //   }
-    //   this.search()
-    // },
     // 打开订单页面
     viewDetails(type, id, shopId) {
       const reqStr = {
@@ -711,53 +673,6 @@ export default {
       }
       return params
     },
-    // 删除
-    // delGoods(row) {
-    //   this.$confirm('是否要删除该商品', '提示', {
-    //     confirmButtonText: '确定',
-    //     cancelButtonText: '取消',
-    //     type: 'warning',
-    //   }).then(() => {
-    //     this.delGoodsFun(row)
-    //   })
-    // },
-    // async delGoodsFun(row) {
-    //   const orderinfo = {
-    //     country: row.country,
-    //     platform_mall_id: row.mall_info.platform_mall_id,
-    //     product_id_list: [Number(row.goods_info.goods_id)],
-    //   }
-    //   this.loading = true
-    //   const res = await this.orderInstance.deleteProduct(orderinfo)
-    //   this.loading = false
-    //   console.log('del', res)
-    //   if (res.code === 200) {
-    //     this.$message.success('删除成功')
-    //   } else {
-    //     this.$message.error(res.data)
-    //   }
-    //   this.search()
-    // },
-    // 批量同意/拒绝买家取消订单
-    async optionOrder(type) {
-      // 暂时没有需要处理的数据
-      this.$message.warning('暂无需要处理的数据')
-      // if (!this.multipleSelection.length) {
-      //   this.$message.warning('请选择要处理的数据')
-      //   return
-      // }
-      // const list = []
-      // this.multipleSelection.forEach(item => {
-      //   const orderinfo = {
-      //     type: type,
-      //     order_id: item.order_id,
-      //     country: item.country,
-      //     platform_mall_id: item.mall_info.platform_mall_id
-      //   }
-      //   // debugger
-      //   this.orderInstance.refuseCancerOrder(orderinfo).then(res => { list.push(res) })
-      // })
-    },
     //获取导出数据
     async getExportData() {
       let sysMallId = ''
@@ -779,7 +694,6 @@ export default {
       const { data } = await this.$api.aftermarket(params)
       let exportData = []
       let dataFlag = (data && data.code === 200 && data.data.data && data.data.data) || []
-      console.log(data.data.total)
       while (dataFlag && dataFlag.length) {
         exportData = exportData.concat(dataFlag)
         params.page++
@@ -831,11 +745,11 @@ export default {
                 <td>${item.color_id ? this.changeColorLabel(item.color_id, 'name') : '-' + '\t'}</td>
                 <td style="mso-number-format:'\@';">${item.order_sn ? item.order_sn : '' + '\t'}</td>
                 <td>${item.refund_amount ? item.refund_amount : '' + '\t'}</td>
-                <td>${item.status ? this.sta[item.status] : '' + '\t'}</td>
+                <td>${item.status ? changeOrderStatus(item.status) : '' + '\t'}</td>
                 <td>${item.update_time ? item.update_time : '' + '\t'}</td>
                 <td>${item.after_reason ? item.after_reason : '' + '\t'}</td>
                 <td>${item.remark ? item.remark : '' + '\t'}</td>
-                <td>${item.shot_order_info && item.shot_order_info.shot_statu ? this.shot_status[item.shot_order_info.shot_status] : '' + '\t'}</td>
+                <td>${item.shot_order_info && item.shot_order_info.shot_statu ? changeShotStatus(item.shot_order_info.shot_status) : '' + '\t'}</td>
                 <td>${item.goods_info.goods_id ? item.goods_info.goods_id : '' + '\t'}</td>
                 <td>${item.goods_info.goods_count ? item.goods_info.goods_count : '' + '\t'}</td>
                 <td>${this.$filters.imageRender([item.platform, item.shopid, item.image]) + '\t'}</td>
@@ -935,44 +849,55 @@ export default {
     },
     changeMallList(val) {
       this.searchMallList = val
-      this.query.sysMallIds = []
-      val.forEach((item) => {
-        this.query.sysMallIds.push(item.id)
-      })
+    },
+    //获取类目
+    getCategoryInfo(country, cateId) {
+      if (this.categoryInfo[cateId]) {
+        return this.categoryInfo[cateId]
+      } else {
+        this.categoryInfo[cateId] = ''
+        this.$commodityService.getCategoryTbInfo(country, cateId.toString(), '0', '').then((res) => {
+          let resObj = res && JSON.parse(res)
+          // console.log(resObj, '类目')
+          if (resObj && resObj.code === 200) {
+            if (resObj.data.categories) {
+              this.categoryInfo[cateId] = ''
+              return this.categoryInfo[cateId]
+            } else {
+              return ''
+            }
+          }
+        })
+      }
     },
     // 搜索
-    search() {
-      let sysMallId = ''
-      this.searchMallList.forEach((item, index) => {
-        if (index === 0) {
-          sysMallId = item.id
-        } else {
-          sysMallId = sysMallId + ',' + item.id
-        }
+    async search(page) {
+      let params = {}
+      let sysMallIdList = []
+      this.page = page || this.page
+      this.searchMallList.forEach((item) => {
+        sysMallIdList.push(item.id)
       })
       this.query.createdTime = this.cloumn_date1 && this.cloumn_date1.length > 0 ? this.cloumn_date1.join('/').toString() : ''
       this.query.afterApplyTime = this.cloumn_date2 && this.cloumn_date2.length > 0 ? this.cloumn_date2.join('/').toString() : ''
-      let params = this.query
-      params.sysMallIds = sysMallId
+      console.log(this.query,"query")
+      params = JSON.parse(JSON.stringify(this.query))
+      params.sysMallIds = sysMallIdList.toString()
       params[this.selType] = this.inputDes
       params.page = this.page
       params.pageSize = this.pageSize
-      this.getTableList(params)
-    },
-    // 初始化数据
-    async getTableList(params) {
       this.loading = true
       this.tableList = []
       try {
         const res = await this.$api.aftermarket(params)
         if (res.status === 200) {
           const list = res.data.data.data || []
-          list.forEach((i) => {
-            i.isChecked = false
-            // i.goods_img= i.goods_info.goods_img
+          list.forEach((row, i) => {
+            row.isChecked = false
+            row.categoryName = ''
+            // row.categoryName = this.getCategoryInfo(row.country, row.goods_info.goods_category_id)
           })
           this.tableList = list
-          this.query.page = res.data.data.current_page
           this.total = res.data.data.total
         } else {
           this.$message.error('数据请求失败')
@@ -984,6 +909,8 @@ export default {
       }
       console.log(this.tableList)
     },
+    changeOrderStatus,
+    changeShotStatus,
     // 分页
     handleSizeChange(val) {
       this.pageSize = val
@@ -1027,13 +954,23 @@ export default {
     color: red;
     cursor: pointer;
   }
+  .copyStyle {
+    margin-right: 8px;
+    cursor: pointer;
+  }
+  .btnWidth {
+    width: 150px;
+  }
+  .mar-left {
+    margin-left: 10px;
+  }
   .condition {
     padding: 16px;
     display: flex;
     background: #fff;
     overflow: auto;
     .left-box {
-      width: 400px;
+      width: 350px;
     }
     .right-box {
       flex: 1;

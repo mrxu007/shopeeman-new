@@ -486,9 +486,12 @@ export default class {
     let detailAddress = warehouseInfo.detail_address.trim();
     //新加坡地址后缀的特殊性，不能携带订单Id
     if (warehouseInfo.type != 3 && warehouseInfo.country != "SG") {
-      if (configInfo.IsAutoAddBuyerAddr) {
+      if(configInfo.shot_order_address_label.includes('4')){
         detailAddress += "#" + itemOrder.id;
       }
+      // if (configInfo.IsAutoAddBuyerAddr) {
+      //   detailAddress += "#" + itemOrder.id;
+      // }
       //6:拍单时买家地址自动增加订单后6位
       if(configInfo.shot_order_address_label.includes('6')){
         detailAddress += "#" + itemOrder.order_sn.substring(itemOrder.order_sn.Length - 6);

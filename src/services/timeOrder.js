@@ -38,40 +38,31 @@ export default class {
     console.log(order, "startSingel")
     this.writeLog = writeLog
     this.mall = order.mall_info
-    if (order.order_status === 7) {
-      let params = {
-        "return_sn": order.order_sn,
-        "shop_id": order.mall_info.platform_mall_id
-      }
-      let res = await this.$shopeemanService.getRefundOrderDetail(order.country, params)
-      console.log("startSingel-after", res)
-      if (res.code === 200) {
-        let orderDetail = [res.data]
-        await this.getOrderOtherInfoRefund(orderDetail)
-        await this.afterUpLoadOrders(orderDetail)
-        this.writeLog(`【${order.order_id}】订单同步成功`, true)
+    let params = {
+      "order_id": order.order_id,
+      "shop_id": order.mall_info.platform_mall_id
+    }
+    let res = await this.$shopeemanService.getDetailsSinger(order.country, params)
+    console.log("res---", res)
+    console.log("startSingel", res)
+    if (res.code === 200) {
+      let orderDetail = [res.data]
+      await this.getOrderOtherInfo(orderDetail)
+      let isUpload = await this.upLoadOrders(orderDetail)
+      if (isUpload) {
+        this.writeLog(`【${order.order_id}】订单同步成功，上报成功`, true)
       } else {
-        this.writeLog(`【${order.order_id}】订单同步失败${res.data}`, false)
+        this.writeLog(`【${order.order_id}】订单同步失败，上报失败`, false)
       }
     } else {
-      let params = {
-        "order_id": order.order_id,
-        "shop_id": order.mall_info.platform_mall_id
-      }
-      let res = await this.$shopeemanService.getDetailsSinger(order.country, params)
-      console.log("startSingel", res)
-      if (res.code === 200) {
-        let orderDetail = [res.data]
-        await this.getOrderOtherInfo(orderDetail)
-        await this.upLoadOrders(orderDetail)
-        this.writeLog(`【${order.order_id}】订单同步成功`, true)
-      } else {
-        this.writeLog(`【${order.order_id}】订单同步失败${res.data}`, false)
-      }
+      this.writeLog(`【${order.order_id}】订单同步失败${res.data}`, false)
     }
+    // }
   }
   //手动同步/自动同步
   async start(mallNo, upLoadType, timeRange) {
+    // this.mall = mall
+    // this.syncStatus = syncStatus
     this.timeRange = timeRange
     if (this.syncStatus.value === 'refund') {
       await this.refund(mallNo, upLoadType)
@@ -104,6 +95,7 @@ export default class {
         let orderDetailListFa = []
         while (package_list.length) {
           //orderLen-a<5
+          let paramsList = []
           for (let a = 0; a < orders.length; a = a + 5) {
             let orderArr = orders.slice(a, a + 5)
             let resDetail = await this.$shopeemanService.getDetailsByOrderIds(this.mall.country, {
@@ -120,14 +112,22 @@ export default class {
                 let orderDetailListFilter = orderDetailList.filter(item => {
                   return new Date().getTime() - item.create_time * 1000 < this.timeRange * 24 * 60 * 60 * 1000
                 })
-                orderDetailListCount += orderDetailListFilter.length
+                // orderDetailListCount += orderDetailListFilter.length
                 // orderDetailListCount += orderDetailList.length
                 await this.getOrderOtherInfo(orderDetailListFilter)
                 //检测订单是否需要上报
                 let checkedList = []
                 checkedList = await this.checkOrderSnStatus(orderDetailListFilter)
-                checkedList.length && await this.upLoadOrders(checkedList)
+                paramsList = paramsList.concat(checkedList)
+                // checkedList.length && await this.upLoadOrders(checkedList)
               }
+            }
+          }
+          //上报订单
+          if (paramsList.length) {
+            let isUpload = await this.upLoadOrders(paramsList)
+            if (isUpload) {
+              orderDetailListCount += paramsList.length
             }
           }
           //自动翻页
@@ -203,7 +203,7 @@ export default class {
           let afterRes = await this.afterUpLoadOrders(paramsUploadList)
           // debugger
           if (afterRes) {
-            orderDetailListCount+=paramsUploadList.length
+            orderDetailListCount += paramsUploadList.length
           }
           //自动翻页
           let lastTime = ''
@@ -252,6 +252,7 @@ export default class {
         let orderDetailListFa = []
         while (orders.length) {
           //orderLen-a<5
+          let paramsList = []
           for (let a = 0; a < orders.length; a = a + 5) {
             let orderArr = orders.slice(a, a + 5)
             let resDetail = await this.$shopeemanService.getDetailsByOrderIds(this.mall.country, {
@@ -269,18 +270,27 @@ export default class {
                   return new Date().getTime() - item.create_time * 1000 < this.timeRange * 24 * 60 * 60 * 1000
                 })
                 console.log(orderDetailListFilter, "过滤")
-                orderDetailListCount += orderDetailListFilter.length
+                // orderDetailListCount += orderDetailListFilter.length
                 // orderDetailListCount += orderDetailList.length
                 await this.getOrderOtherInfo(orderDetailListFilter)
                 //检测订单是否需要上报
                 let checkedList = []
                 checkedList = await this.checkOrderSnStatus(orderDetailListFilter)
-                checkedList.length && await this.upLoadOrders(checkedList)
+                paramsList = paramsList.concat(checkedList)
+                // checkedList.length && await this.upLoadOrders(checkedList)
               }
+            }
+          }
+          //上报订单
+          if (paramsList.length) {
+            let isUpload = await this.upLoadOrders(paramsList)
+            if (isUpload) {
+              orderDetailListCount += paramsList.length
             }
           }
           //自动翻页
           let lastTime = ''
+          console.log("自动翻页", orderDetailListFa, orderDetailListFa[orderDetailListFa.length - 1])
           lastTime = orderDetailListFa[orderDetailListFa.length - 1].create_time
           console.log(lastTime, "lastTime", (new Date().getTime() - lastTime * 1000 > this.timeRange * 24 * 60 * 60 * 1000))
           if (orders.length < 40 || (lastTime && (new Date().getTime() - lastTime * 1000 > this.timeRange * 24 * 60 * 60 * 1000))) {
@@ -330,11 +340,14 @@ export default class {
       }
       //3、获取订单交易记录
       let res3 = await this.$shopeemanService.getIncomeTransactionHistoryDetail(this.mall.country, params)
+      console.log(res3, "res3")
       if (res3.code === 200) {
         order['transactionHistoryDetail'] = res3.data
       }
+
       //4、获取订单历史轨迹
       let res4 = await this.$shopeemanService.getOrdeTrackingHistory(this.mall.country, params)
+      console.log(res4, "res4")
       if (res4.code === 200) {
         order['ordeTrackingHistory'] = res4.data
       }
@@ -355,36 +368,46 @@ export default class {
   }
   //售后订单
   async getOrderOtherInfoRefund(order) {
+    console.log(order, "order-after")
     let params = {
       order_id: order.order_id,
       shop_id: this.mall.platform_mall_id
     }
-    //3、获取订单交易记录
+    //3、获取售后订单交易记录
     let res3 = await this.$shopeemanService.getIncomeTransactionHistoryDetail(this.mall.country, params)
+    console.log(res3, "res3-after")
     if (res3.code === 200) {
       order['transactionHistoryDetail'] = res3.data
     }
-    //4、获取订单历史轨迹
-    let res4 = await this.$shopeemanService.getOrdeTrackingHistory(this.mall.country, params)
+    //4、获取售后订单历史轨迹
+    let params4 = {
+      return_id: order.return_id,
+      shop_id: this.mall.platform_mall_id
+    }
+    let res4 = await this.$shopeemanService.getRefundOrdeTrackingHistory(this.mall.country, params4)
+    console.log(res4, "res4-after")
     if (res4.code === 200) {
       order['ordeTrackingHistory'] = res4.data
     }
-    //5、获取物流轨迹的发货时间 
+    //5、获取售后物流轨迹的发货时间 
     let params5 = {
       order_id: order.order_id,
       shop_id: this.mall.platform_mall_id,
       log_id: 1
     }
     let res5 = await this.$shopeemanService.getLogisticsTrackingHistoryRefund(this.mall.country, params5)
+    console.log(res5, "res5-after")
     if (res5.code === 200) {
       order['logisticsTrackingHistory'] = res5.data
     }
-    //6、申请运单号
+    //6、申请售后运单号
     let res6 = await this.$shopeemanService.getForderLogistics(this.mall.country, params)
+    console.log(res6, "res6-after")
     if (res6.code === 200) {
       order['forderLogistics'] = res6.data
     }
     console.log(order, "orderAll")
+    // debugger
   }
 
   //服务端检测订单 ---正常订单
@@ -428,6 +451,7 @@ export default class {
   async upLoadOrders(checkedList) {
     try {
       let paramsArr = []
+      let paramsRufundList = []
       for (let i = 0; i < checkedList.length; i++) {
         let order = checkedList[i]
         console.log(order, "upLoadOrders")
@@ -435,7 +459,7 @@ export default class {
           "order_id": order.order_id,
           "ordersn": order.order_sn,
           "currency": order.order_items[0].product.currency,
-          "shipping_carrier": order.actual_carrier,
+          "shipping_carrier": order.fulfillment_carrier_name,
           "days_to_ship": order.days_to_ship || 7,
           "auto_cancel_date": order.auto_cancel_3pl_ack_date,
           "note": order.note,
@@ -464,9 +488,9 @@ export default class {
           "status": order.status,
           "status_ext": order.status_ext,
           "return_id": order.return_id,
-          "order_status": "",
-          "sip_shop_id": "",
-          "country_ext": "",
+          // "order_status": "",
+          // "sip_shop_id": "",
+          // "country_ext": "",
           "income_detail": JSON.stringify(order.transactionHistoryDetail),
           "total_amount": this.getTotalAmount(order),
           "goods_price": Math.abs(order.transactionHistoryDetail.payment_info.merchant_subtotal.product_price),
@@ -486,10 +510,14 @@ export default class {
           "apply_time": this.getApplyTime(order),
           "log_current_status": order.ordeTrackingHistory.history[0].new_status,
           "order_logistics_info": "",
-          "ckeckOrderSnKey": this.getCheckKey(order),
-          "checkOrderSnKeyNew": this.getCheckKeyNew(order)
+          // "ckeckOrderSnKey": this.getCheckKey(order),
+          "checkOrderSnKeyNew": this.getCheckKeyNew(order),
+          "fulfillment_shipping_method": order.fulfillment_shipping_method
         }
         paramsArr.push(params)
+        if (params.return_id) {
+          paramsRufundList.push(params)
+        }
         // console.log(paramsArr)
       }
       //线上接口
@@ -501,19 +529,54 @@ export default class {
         "sysMallId": this.mall.id,
         "mallId": this.mall.platform_mall_id
       })
-      if(res.data.code === 200){
-        return true
-      }else{
-        return false
+      let isUpload = true
+      if (res.data.code === 200) {
+        isUpload = true
+      } else {
+        isUpload = false
       }
-      console.log(paramsArr, "上报", res)
+      if (paramsRufundList.length) {
+        this.syncRefundContinue(paramsRufundList, this.mall.platform_mall_id)
+      }
+      return isUpload
     } catch (error) {
       console.log(error)
     }
+  }
+  //正常订单同步流程里的售后订单同步
+  async syncRefundContinue(refundOrderList, mallId) {
+    console.log("正常订单同步流程里的售后订单同步")
+    console.log(refundOrderList)
+    let paramsAfterList = []
+    for (let i = 0; i < refundOrderList.length; i++) {
+      let order = refundOrderList[i]
+      console.log("refund more")
+      let paramsRefund = {
+        "return_id": order.return_id,
+        // "return_sn": order.ordersn,
+        "shop_id": mallId
+      }
+      console.log(paramsRefund, "paramsRefund")
+      let resRefund = await this.$shopeemanService.getRefundOrderDetail(this.mall.country, paramsRefund)
+      console.log("startSingel-after", resRefund)
+      if (resRefund.code === 200) {
+        order['refundDetail'] = resRefund.data
+        await this.getOrderOtherInfoRefund(order)
+        paramsAfterList.push(order)
 
+        // this.writeLog(`【${order.order_id}】订单同步成功`, true)
+      } else {
+        // this.writeLog(`【${order.order_id}】订单同步失败${res.data}`, false)
+      }
+    }
+    if (paramsAfterList.length > 0) {
+      let resA = await this.afterUpLoadOrders(paramsAfterList)
+      console.log(resA, "resA")
+    }
   }
   //售后订单上报
   async afterUpLoadOrders(orderList) {
+    console.log(orderList, "orderList")
     try {
       let paramsArr = []
       for (let i = 0; i < orderList.length; i++) {
@@ -525,36 +588,37 @@ export default class {
             "return_address": order.refundDetail.return_address.address.replace('\n', "") || '',
             "requested_time": '',
             "tracking_number": order.refundDetail.tracking_number || '',
-            "buyer": {
-              "portrait": order.buyer.portrait || '',
-              "shop_id": order.buyer.shop_id || '',
-              "followed": true,
-              "id": order.buyer.id || '',
-              "name": order.buyer.name || ''
-            },
-            "return_delivery_time": ''
+            // "buyer": {
+            //   "portrait": order.buyer.portrait || '',
+            //   "shop_id": order.buyer.shop_id || '',
+            //   "followed": true,
+            //   "id": order.buyer.id || '',
+            //   "name": order.buyer.name || ''
+            // },
+            "return_delivery_time": order.logisticsTrackingHistory && order.logisticsTrackingHistory.history && order.logisticsTrackingHistory.history.length && order.logisticsTrackingHistory.history[0].ctime || 0
           },
           "return_id": order.return_id,
-          "return_sn": order.return_sn,
+          "return_sn": order.return_sn || order.ordersn,
           "order_id": order.order_id,
           "return_channel_id": order.return_channel_id ? order.return_channel_id : 0,
           "text_reason": order.refundDetail.text_reason,
           "reason_id": order.refundDetail.reason,
-          "ctime": this.dealWithCtime(order), //  order.return_header.attribute_list, //return_attributes
-          "mtime": 0, //
-          "refund_amount": order.refund_amount, //
-          "refund_total_price": order.amount_before_discount, //
+          "ctime": order.ordeTrackingHistory && order.ordeTrackingHistory.history && order.ordeTrackingHistory.history.length && order.ordeTrackingHistory.history[0].ctime || 0, //this.dealWithCtime(order), //  order.return_header.attribute_list, //return_attributes
+          "mtime": order.ordeTrackingHistory && order.ordeTrackingHistory.history && order.ordeTrackingHistory.history.length && order.ordeTrackingHistory.history[order.ordeTrackingHistory.history.length - 1].ctime || 0, //取接口的api/v1/return/return_tracking_history的data.history[最后一个].ctime
+          "refund_amount": order.refund_amount || order.refundDetail.refund_amount, //
+          "refund_total_price": order.amount_before_discount || order.refundDetail.amount_before_discount, //
           "status": order.status, //
           // "currency":"", //不传
           // "judging_time":"", //不传
           // "accepted_time":"", //不传
           // "cancelled_time":"", //不传
-          "closed_time": order.refundDetail.closed_time, //售后关闭时间
+          // "closed_time": order.refundDetail.closed_time, //售后关闭时间
           // "refund_paid_time":"", //不传
           // "requested_time":"", //不传
           "return_item": this.dealWithReturnTime(order),
           "ckeckAfterOrderSnKey": this.getCheckRefundKey(order)
         }
+        console.log(params, "211111111111111111111")
         paramsArr.push(params)
       }
       console.log(paramsArr)
@@ -574,7 +638,7 @@ export default class {
         return false
       }
     } catch (error) {
-      console.log(error)
+      console.log(error, "56555555555555555555555")
     }
   }
   //chulictime
@@ -597,7 +661,8 @@ export default class {
   //处理return_item 取：order_product_list，若存在捆绑销售的活动，售后获取商品信息则取：bundle_deal_product_list
   dealWithReturnTime(order) {
     let list = []
-    order.order_product_list.forEach(item => {
+    let arr = order.order_product_list || order.refundDetail.order_product_list
+    arr.forEach(item => {
       let params = {
         "price": item.model.price,
         "modelid": item.model.id,
@@ -636,7 +701,7 @@ export default class {
   getTrackingNo(order) {
     let res = ''
     let data = order.forderLogistics && order.forderLogistics.list && order.forderLogistics.list[0] && order.forderLogistics.list[0].forders && order.forderLogistics.list[0].forders[0].third_party_tn || ''
-    res = data || order.forderLogistics.list[0].consignment_no
+    res = data || order.forderLogistics && order.forderLogistics.list && order.forderLogistics.list[0].consignment_no
     return res
   }
   //处理total_amount

@@ -144,7 +144,7 @@ export default class NetMessageBridgeService {
         referer: url + referer
       })
     }
-    // console.log('-----', url, JSON.stringify(options))
+    console.log('-----', url, JSON.stringify(options))
     return this.NetMessageBridgeService().get(url, JSON.stringify(options))
   }
 
@@ -936,6 +936,31 @@ export default class NetMessageBridgeService {
       }
     }
   }
+    // 获取售后订单历史轨迹
+    async getRefundOrdeTrackingHistory(country, data) {
+      const res = await this.getChinese(country, '/api/v1/return/return_tracking_history/', data)
+      const resObj = res && JSON.parse(res)
+      // console.log(resObj)
+      if (resObj && resObj.status === 200) {
+        const info = JSON.parse(resObj.data)
+        if (info && info.code === 0) {
+          return {
+            code: 200,
+            data: info.data || []
+          }
+        } else {
+          return {
+            code: 50001,
+            data: info.message || []
+          }
+        }
+      } else {
+        return {
+          code: resObj.status,
+          data: `订单历史轨迹${resObj.statusText}`
+        }
+      }
+    }
   // 获取订单交易记录
   async getIncomeTransactionHistoryDetail(country, data) {
     const res = await this.getChinese(country, '/api/v3/finance/income_transaction_history_detail/', data)
@@ -1065,7 +1090,7 @@ export default class NetMessageBridgeService {
   async getRefundOrderDetail(country, data) {
     const res = await this.getChinese(country, '/api/v1/return/detail', data)
     const resObj = res && JSON.parse(res)
-    // console.log(resObj)
+    console.log(resObj,"getRefundOrderDetail")
     if (resObj) {
       const info = JSON.parse(resObj.data)
       if (info && info.code === 0) {
@@ -1625,8 +1650,9 @@ export default class NetMessageBridgeService {
   async downloadSdJob(country, data) {
     const res = await this.getChinese(country, '/api/v3/logistics/download_sd_job', data)
     const resObj = res && JSON.parse(res)
+    console.log(resObj,"resObj")
     if (resObj && resObj.status === 200) {
-      return resObj.data
+      return resObj
     } else {
       return null
     }

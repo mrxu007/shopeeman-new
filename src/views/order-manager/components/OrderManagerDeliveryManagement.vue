@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-11-16 17:41:21
- * @LastEditTime: 2021-12-18 11:23:13
+ * @LastEditTime: 2021-12-21 20:55:16
  * @LastEditors: Please set LastEditors
  * @Description: 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  * @FilePath: \shopeeman-new\src\views\order-manager\components\OrderManagerDeliveryManagement.vue
@@ -23,7 +23,7 @@
               <el-button size="mini" type="primary" class="btnWidth" @click="getExportData">导出数据</el-button>
             </el-row>
             <el-row class="row-style">
-              <el-button size="mini" type="primary" class="btnWidth">批量打印台湾虚拟面单</el-button>
+              <el-button size="mini" type="primary" class="btnWidth" @click="downTWface">批量打印台湾虚拟面单</el-button>
               <el-button size="mini" type="primary" class="btnWidth" @click="downLoadPickList">批量下载拣货单</el-button>
             </el-row>
           </div>
@@ -79,8 +79,8 @@
               <div class="tool-item mar-right">
                 <span>截止时间：</span>
                 <el-date-picker
-                  @change="changeTime($event, 'createTime')"
-                  v-model="createTime"
+                  @change="changeTime($event, 'shipByDate')"
+                  v-model="shipByDate"
                   size="mini"
                   value-format="yyyy-MM-dd"
                   type="daterange"
@@ -88,7 +88,6 @@
                   range-separator="-"
                   start-placeholder="开始日期"
                   end-placeholder="结束日期"
-                  :picker-options="pickerOptions"
                 />
               </div>
             </el-row>
@@ -110,19 +109,20 @@
     <div class="content">
       <el-table v-loading="tableLoading" ref="multipleTable" :data="tableData" tooltip-effect="dark" @selection-change="handleSelectionChange" height="calc(100vh - 257px)">
         <el-table-column align="center" type="selection" width="50" />
-        <el-table-column align="center" type="index" label="序号" width="50">
+        <el-table-column align="center" type="index" label="序号" width="50" fixed="left">
           <template slot-scope="scope">{{ (currentPage - 1) * pageSize + scope.$index + 1 }}</template>
+        </el-table-column>
+         <el-table-column prop="order_sn" label="订单编号"  min-width="170px" fixed="left">
+          <template slot-scope="scope">
+            <i class="el-icon-document-copy copyStyle"  @click="copyItem(scope.row.order_sn)"></i>
+            <span class="tableActive" @click="viewDetails('orderDetail', scope.row.order_id, scope.row.mall_info.platform_mall_id)">{{ scope.row.order_sn }}</span>
+          </template>
         </el-table-column>
         <el-table-column min-width="80px" label="站点" prop="country" align="center">
           <template slot-scope="scope" v-if="scope.row.mall_info">{{ scope.row.mall_info.country | chineseSite }}</template>
         </el-table-column>
-        <el-table-column label="店铺名称" prop="mall_info.platform_mall_name" min-width="120px" align="center" />
-        <el-table-column prop="order_sn" label="订单编号" align="center" min-width="170px">
-          <template slot-scope="scope">
-            <span class="tableActive" @click="viewDetails('orderDetail', scope.row.order_id, scope.row.mall_info.platform_mall_id)">{{ scope.row.order_sn }}</span>
-            <i class="el-icon-document-copy" style="margin-left: 8px; cursor: pointer" @click="copyItem(scope.row.order_sn)"></i>
-          </template>
-        </el-table-column>
+        <el-table-column label="店铺名称" prop="mall_info.platform_mall_name" min-width="120px" align="center" show-overflow-tooltip />
+       
         <el-table-column align="center" label="商品数量" min-width="80">
           <template slot-scope="scope">{{ scope.row.goods_count }}</template>
         </el-table-column>
@@ -139,10 +139,12 @@
           <template slot-scope="scope">{{ trackStatus[scope.row.is_apply_tracking_no] }}</template>
         </el-table-column>
         <el-table-column align="center" prop="ship_by_date" label="是否同步面单信息" min-width="140">
-          <template slot-scope="scope">{{ scope.row.hasLogistics==0?'否':'是' }}</template>
+          <template slot-scope="scope">{{ scope.row.hasLogistics == 0 ? '否' : '是' }}</template>
         </el-table-column>
         <el-table-column align="center" prop="order_status" label="发货状态" min-width="100">
-          <template slot-scope="scope">{{ changeOrderStatus(scope.row.order_status) }}</template>
+          <template slot-scope="scope">
+            <p :style="{ color: changeOrderStatus(scope.row.order_status, 'color') }">{{ changeOrderStatus(scope.row.order_status) }}</p>
+          </template>
         </el-table-column>
         <el-table-column align="center" prop="logistics_name" label="虾皮物流" min-width="100">
           <template slot-scope="scope">{{ scope.row.logistics_name }}</template>
@@ -169,8 +171,17 @@
         <el-table-column align="center" prop="note" label="是否已下载面单" min-width="120">
           <template slot-scope="scope">{{ logisticsStatusList[scope.row.is_print] }}</template>
         </el-table-column>
-        <el-table-column label="操作" prop="" min-width="150px" align="center">
-          <template slot-scope="scope"> </template>
+       <el-table-column label="操作" prop="" min-width="150px" fixed="right" align="center">
+          <template slot-scope="scope">
+            <el-dropdown style="width: 100px; margin-left: 10px">
+              <el-button style="width: 100px" size="mini" plain type="primary"> 更多操作<i class="el-icon-arrow-down el-icon--right" /> </el-button>
+              <el-dropdown-menu slot="dropdown">
+                <el-dropdown-item><div class="dropdownItem" >同步面单信息</div></el-dropdown-item>
+                <el-dropdown-item><div class="dropdownItem" >面单预览</div></el-dropdown-item>
+                <el-dropdown-item><div class="dropdownItem" v-if="scope.row.hasLogistics!=0" >下载面单</div></el-dropdown-item>
+              </el-dropdown-menu>
+            </el-dropdown>
+          </template>
         </el-table-column>
       </el-table>
       <div class="pagination">
@@ -241,11 +252,12 @@ export default {
       },
       selectMallList: [], //店铺
       createTime: [], //创建时间
+      shipByDate:[],//截止时间
       selectForm: {
-        orderStatus: '', //订单状态
+        orderStatus: 2, //订单状态
         orderSn: '', //订单号
         isPrint: '', //是否下载面单
-        hasTrackingNo: '', //是否申请物流单号
+        hasTrackingNo: '2', //是否申请物流单号
       },
       orderStatusList: orderStatusList, //订单状态
       trackStatus: ['', '已申请', '未申请'],
@@ -283,6 +295,36 @@ export default {
           this[key] = creatDate(30)
         }
         return this.$message.warning('只支持查询或导出93天内的数据,请重新选择时间！')
+      }
+    },
+    //打印台湾虚拟面单
+    async downTWface() {
+      try {
+        let filterArr = this.multipleSelection.filter((n) => n.country == 'TW')
+        if (!filterArr.length) {
+          return this.$message.warning('请选择台湾站订单数据')
+        }
+        let ids = []
+        filterArr.forEach((item) => {
+          ids.push(item.main_order_sn)
+        })
+        let idStr = ids.toString()
+        console.log(idStr, 'idStr')
+        let params = {
+          mainOrderSns: idStr,
+        }
+        let res = await this.$api.getLogisticsInformationBatch(params)
+        console.log(res, 'res')
+        let sheetInfo = []
+        if (res.data.code === 200 && res.data.data.length) {
+          sheetInfo = res.data.data
+        } else {
+          sheetInfo = filterArr
+        }
+        this.downFace(sheetInfo, filterArr, 'TW', false, false, false, true)
+      } catch (error) {
+        this.tableLoading = false
+        console.log('downTWface', downTWface)
       }
     },
     //打印面单信息
@@ -347,14 +389,14 @@ export default {
         sheetInfo = [
           {
             id: 4,
-            order_sn: '2112169WHRH236',
+            order_sn: '211219J1W6X3QH',
             status: 1,
             data: {
               name: 'Sirirat chawalarat',
               phone: '66805869386',
               inCode: '',
               country: 'TH',
-              orderSn: '2112169WHRH236',
+              orderSn: '211219J1W6X3QH',
               lane_code: 'L-TH22',
               productDes: 'สีชมพูสเตอริโอแบบส * 1||สีชมพู5,1-อายุ5ปี * 1',
               tracking_no: 'TH204258844180Y',
@@ -372,27 +414,37 @@ export default {
         if (!sheetInfo.length) {
           return this.$message.warning('暂无面单信息')
         }
+        console.log(sheetInfo, country, PdfLower, isDownload, isShowWindow, IsPrintVirtual, '-------------')
+        this.downFace(sheetInfo, this.multipleSelection, country, PdfLower, isDownload, isShowWindow, IsPrintVirtual)
+      } catch (error) {
+        this.tableLoading = false
+        console.log(error)
+      }
+    },
+    //打印面单信息
+    async downFace(arrList, OrderList, country, PdfLower, isDownload, isShowWindow, IsPrintVirtual) {
+      try {
         let PdfInfoModel = []
-        for (let i = 0; i < sheetInfo.length; i++) {
-          let info = sheetInfo[i]
-          if (!info.data || !info.url) {
+        for (let i = 0; i < arrList.length; i++) {
+          let info = arrList[i]
+          if (!info.url && country !== 'TW') {
             this.$refs.Logs.writeLog(`订单${info.order_sn}未获取到面单信息`, false)
             continue
           }
-          let orderInfo = this.multipleSelection.find((n) => {
+          let orderInfo = OrderList.find((n) => {
             return n.order_sn == info.order_sn
           })
           console.log(orderInfo, 'orderInfo')
           let params = {
-            PDFUrl: info.url,
-            OrderNo: info.order_sn,
-            MainOrderNo: info.order_sn,
-            PlatformLogisticsId: info.data.tracking_no,
+            PDFUrl: info.url || '',
+            OrderNo: orderInfo.order_sn,
+            MainOrderNo: orderInfo.order_sn,
+            PlatformLogisticsId: orderInfo.tracking_no,
             PlatformLogisticsName: '',
-            CreateTime: info.created_at,
-            BuyerName: info.data.name,
-            BuyerPhone: info.data.phone,
-            BuyerAddress: info.data.full_address,
+            CreateTime: orderInfo.created_at,
+            BuyerName: orderInfo.name,
+            BuyerPhone: orderInfo.phone,
+            BuyerAddress: info.data && info.data.full_address ? info.data.full_address : orderInfo.address,
             BuyerNote: '',
             BarInfo: {
               BarCode: info.order_sn,
@@ -439,27 +491,27 @@ export default {
           }
         }
         let ConvertFaceInfoModel = []
-        for (let i = 0; i < sheetInfo.length; i++) {
-          let info = sheetInfo[i]
-          console.log(i,info)
-          if (!info.data || !info.url) {
+        for (let i = 0; i < arrList.length; i++) {
+          let info = arrList[i]
+          console.log(i, info)
+          if (!info.url && country !== 'TW') {
             this.$refs.Logs.writeLog(`订单${info.order_sn}未获取到面单信息`, false)
             continue
           }
-          let orderInfo = this.multipleSelection.find((n) => {
+          let orderInfo = OrderList.find((n) => {
             return n.order_sn == info.order_sn
           })
-          console.log(orderInfo, 'orderInfo',VirtualPdfPathObj,VirtualPdfPathObj.data,orderInfo.order_sn)
+          console.log(orderInfo, 'orderInfo', VirtualPdfPathObj, VirtualPdfPathObj.data, orderInfo.order_sn)
           let conParams = {
-            HtmlFilePath: info.url.includes('.html') ? info.url : '',
-            PDFFilePath: info.url.includes('.PDF') || info.url.includes('.pdf') ? info.url : '',
-            LogisticsId: info.data.tracking_no,
+            HtmlFilePath: info.url && info.url.includes('.html') ? info.url : '',
+            PDFFilePath: (info.url && info.url.includes('.PDF')) || (info.url && info.url.includes('.pdf')) ? info.url : '',
+            LogisticsId: orderInfo.tracking_no,
             OrderSn: orderInfo.order_sn,
             MallId: orderInfo.mall_info.platform_mall_id,
-            VirtualFilePath: IsPrintVirtual?VirtualPdfPathObj.data[orderInfo.order_sn]:'',
+            VirtualFilePath: IsPrintVirtual ? VirtualPdfPathObj.data[orderInfo.order_sn] : '',
           }
           ConvertFaceInfoModel.push(conParams)
-          console.log(ConvertFaceInfoModel,"-------")
+          console.log(ConvertFaceInfoModel, '-------')
         }
         console.log('555', JSON.stringify(ConvertFaceInfoModel))
         let convertRes = await window['BaseUtilBridgeService'].htmlToPdf(ConvertFaceInfoModel, false)
@@ -476,7 +528,7 @@ export default {
           Site: country,
           IsShowWindow: isShowWindow,
           PdfInfoList: PdfInfoModel,
-          VirtualPdfPath:IsPrintVirtual? VirtualPdfPathObj.data:{},
+          VirtualPdfPath: IsPrintVirtual ? VirtualPdfPathObj.data : {},
           ConvertFaceInfoList: convertResObj.data,
         }
         console.log(JSON.stringify(pdfDownloadModel))
@@ -484,18 +536,20 @@ export default {
         await window['BaseUtilBridgeService'].downloadPdf(pdfDownloadModel)
         this.tableLoading = false
       } catch (error) {
-        console.log(error)
+        this.tableLoading = false
+        console.log(error, '=================')
       }
     },
     //同步面单信息
     async syncSurface() {
-      if (!this.multipleSelection.length) {
-        return this.$message.warning('请先选择数据！')
-      }
-      this.showConsole = false
-      this.$refs.Logs.writeLog('同步面单信息开始，请耐心等待！', true)
-      const service = new surFaceService(this, this.$refs.Logs.writeLog)
-      service.start(this.multipleSelection)
+      // if (!this.multipleSelection.length) {
+      //   return this.$message.warning('请先选择数据！')
+      // }
+      // this.showConsole = false
+      // this.$refs.Logs.writeLog('同步面单信息开始，请耐心等待！', true)
+      // const service = new surFaceService(this, this.$refs.Logs.writeLog)
+      // service.handleStart(this.multipleSelection)
+      // service.startLogi(false)
     },
     //下载拣货单
     async downLoadPickList() {
@@ -527,8 +581,8 @@ export default {
       let exportData = []
       let dataFlag = (data && data.code === 200 && data.data.data && data.data.data) || []
       while (dataFlag && dataFlag.length) {
-        dataFlag.forEach(async item=>{
-          item.goodsLink = await this.joinLink(item,item.goodsInfo[0].goods_id)
+        dataFlag.forEach(async (item) => {
+          item.goodsLink = await this.joinLink(item, item.goodsInfo[0].goods_id)
         })
         exportData = exportData.concat(dataFlag)
         params.page++
@@ -588,7 +642,7 @@ export default {
                 <td>${item.created_time ? item.created_time : '' + '\t'}</td>
                 <td>${item.ship_by_date ? item.ship_by_date : '' + '\t'}</td>
                 <td>${item.is_apply_tracking_no ? this.trackStatus[item.is_apply_tracking_no] : '' + '\t'}</td>
-                <td>${item.hasLogistics==0 ? '否' : '是' + '\t'}</td>
+                <td>${item.hasLogistics == 0 ? '否' : '是' + '\t'}</td>
                 <td>${item.order_status ? changeOrderStatus(item.order_status) : '' + '\t'}</td>
                 <td>${item.logistics_name ? item.logistics_name : '' + '\t'}</td>
                 <td>${item.tracking_no ? item.tracking_no : '' + '\t'}</td>
@@ -599,15 +653,15 @@ export default {
     },
     //修改单个备注
     async changeRemark(id, index) {
-        const res = await this.$api.setLocalRemark({ id: id, remark: this.orderRemark })
-        if (res.data.code == 200) {
-          this.$message.success('设置备注成功')
-          this.tableData[index].remark = this.orderRemark
-          this.activeRemarkID = ''
-          return
-        }
-        this.$message.error('设置备注失败')
+      const res = await this.$api.setLocalRemark({ id: id, remark: this.orderRemark })
+      if (res.data.code == 200) {
+        this.$message.success('设置备注成功')
+        this.tableData[index].remark = this.orderRemark
         this.activeRemarkID = ''
+        return
+      }
+      this.$message.error('设置备注失败')
+      this.activeRemarkID = ''
     },
     editRemark(index, activeRemarkID) {
       this.activeRemarkID = activeRemarkID
@@ -683,8 +737,9 @@ export default {
       this.currentPage = page || this.currentPage
       params['page'] = this.currentPage
       params['pageSize'] = this.pageSize
-      params['sysMallId'] = sysMallId
-      params['createTime'] = this.createTime.length ? this.createTime[0] + ' 00:00:00' + '/' + this.createTime[1] + ' 23:59:59' : ''
+      params['sysMallIds'] = sysMallId
+      params['createTime'] = this.createTime.length ? this.createTime[0] + ' 00:00:00' + '/' + this.createTime[1] + ' 23:59:59' : '' 
+      params['shipByDate'] = this.shipByDate.length ? this.shipByDate[0] + ' 00:00:00' + '/' + this.shipByDate[1] + ' 23:59:59' : '' 
       if (goodsOrderSnStr) {
         let snArr = this.handleKey(goodsOrderSnStr)
         console.log('snArr', snArr)
@@ -793,6 +848,10 @@ export default {
 }
 .btnWidth {
   width: 160px;
+}
+.copyStyle {
+  margin-right: 8px;
+  cursor: pointer;
 }
 .selectBox {
   padding: 16px;

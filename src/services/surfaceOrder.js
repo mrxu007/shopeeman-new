@@ -1,6 +1,8 @@
 import api from '../network/jx-request'
 import shopeemanService from './shopeeman-service'
 import AppConfig from './application-config'
+import cheerio from 'cheerio'
+import html2canvas from "html2canvas"
 import {
   randomWord,
   batchOperation
@@ -19,24 +21,103 @@ export default class {
   orders = []
   schemaType = ''
   isApplyForceFaceInfo = false //是否强制申请面单
+  /// <param name="isApplyForceFaceInfo">是否强制申请面单 </param>
+  /// 增量同步运输中和已完成订单 同步面单时 false 启动后8分钟开始同步面单,4小时间隔
+  /// 全量同步订单 同步面单时 false 启动后5分钟开始同步面单,4小时间隔
+  /// 定时同步仓库没有面单的订单时 true          启动后3分钟开始同步面单，每隔1小时监测一次
+  /// 定时同步订单中没有面单的订单时 false    启动后2分钟开始同步面单，每隔2小时监测一次
+  /// 仓库工作台同步面单时 true
+  /// 发货管理-单个申请运输单号信息时 true
+  /// 发货管理-批量下载面单信息时 询问用户“是否同时批量同步台湾站点的面单（同步台湾站的面单将会缩短发货时效，请谨慎选择）” 如此文档第一张截图所示
+  /// 发货管理-单个同步面单信息时 true
+  /// 发货管理-批量下载拣货单时 false
+  /// 海外仓商品出库- 获取面单信息时 true
+  /// 即将过期订单- 申请虾皮物流单号时 true
+  /// 即将过期订单- 同步面单时 true
   constructor(that, writeLog) {
     this._this = that
     this.writeLog = writeLog
   }
 
-  //手动同步/自动同步
-  async start(orders) {
+  //自动同步物流
+  async startLogi(isApplyForceFaceInfo) {
+    this.isApplyForceFaceInfo = isApplyForceFaceInfo
+    let res = await this.$api.getEmptyTrackingNoOrder()
+    if (res.data.code === 200) {
+      let arrList = res.data.data || []
+      // arrList
+    } else {
+      this.writeLog('获取待同步物流订单数据失败', false)
+    }
+    console.log("res", res)
+  }
+
+  //自动同步流程（不能同步台湾面单）
+  async autoStart(order) {
+    this.autoMainFlow(order)
+  }
+  //自动同步流程（不能同步台湾面单）
+  async autoMainFlow(order) {
+    if (order.country === 'TW') {
+      return this.writeLog('自动流程不同步台湾站面单', false)
+    }
+    try {
+      //2、判断有无订单号
+      let orderInfo = null
+      if (order.order_id == 0 || !order.order_id) {
+        //2-1、无/api/v3/order/get_order_hint 订单搜索接口
+        let params = {
+          "keyword": order.order_sn,
+          "shop_id": order.mall_info.platform_mall_id
+        }
+        let res = await this.$shopeemanService.getOrderHint(order.country, params)
+        orderInfo = res.code === 200 && res.data && res.data.orders && res.data.orders.length && res.data.orders[0] || null
+      } else {
+        //2-2、有/api/v3/order/get_one_order 订单详情接口
+        let params = {
+          "order_id": order.order_id,
+          "shop_id": order.mall_info.platform_mall_id
+        }
+        let res = await this.$shopeemanService.getDetailsSinger(order.country, params)
+        orderInfo = res.code === 200 && res.data || null
+      }
+      console.log(orderInfo, "orderInfo", order)
+      if (!orderInfo) {
+        this.writeLog(`订单【${order.order_sn}】同步面单失败[506]`, false)
+        return
+      }
+      //检查是否有物流信息
+      let trackInfo = this.checkTrackInfo(orderInfo)
+      console.log(trackInfo, "trackInfo")
+      //3、判断有无物流单号
+      if (trackInfo.trackingNo) {
+        //3-1、有,下载面单
+        await this.getPrintInfoFlow(order.mall_info.id, orderInfo, order.country, trackInfo.trackingNo)
+      } else {
+        //3-2、无 申请运单号
+        let applyInfo = await this.applyOrderTrackingNo(orderInfo.order_id, orderInfo.shop_id, orderInfo.logistics_channel, order.country)
+        console.log("applyInfo", applyInfo)
+        if (applyInfo.code === 200) {
+          await this.getPrintInfoFlow(order.mall_info.id, orderInfo, order.country, applyInfo.data)
+        } else {
+          this.writeLog(`订单【${order.order_sn}】同步面单失败[507]-[${applyInfo.code}],${applyInfo.data}`, false)
+          return
+        }
+      }
+    } catch (error) {
+      console.log(error)
+    }
+  }
+  //手动同步
+  async handleStart(orders) {
     this.orders = orders
     orders.forEach(order => {
-      this.mainFlow(order)
+      console.log(order)
+      this.handleMainFlow(order)
     })
-    // for(let i=0;i<orders.length;i++){
-    //   let order = orders[i]
-    //   this.mainFlow(order)
-    // }
-
   }
-  async mainFlow(order) {
+  //手动同步
+  async handleMainFlow(order) {
     try {
       //2、判断有无订单号
       let orderInfo = null
@@ -69,19 +150,19 @@ export default class {
       if (trackInfo.trackingNo) {
         //3-1、有,下载面单
         if (order.country === 'TW') {
-          await this.getPrintTWinfoFlow(order.id, orderInfo, order.country, trackInfo.trackingNo)
+          await this.getPrintTWinfoFlow(order.mall_info.id, orderInfo, order.country, trackInfo.trackingNo)
         } else {
-          await this.getPrintInfoFlow(order.id, orderInfo, order.country, trackInfo.trackingNo)
+          await this.getPrintInfoFlow(order.mall_info.id, orderInfo, order.country, trackInfo.trackingNo)
         }
       } else {
         //3-2、无 申请运单号
-        let applyInfo = await this.applyOrderTrackingNo(orderInfo, order.country)
+        let applyInfo = await this.applyOrderTrackingNo(orderInfo.order_id, orderInfo.shop_id, orderInfo.logistics_channel, order.country)
         console.log("applyInfo", applyInfo)
         if (applyInfo.code === 200) {
           if (order.country === 'TW') {
-            await this.getPrintTWinfoFlow(order.id, orderInfo, order.country, applyInfo.data)
+            await this.getPrintTWinfoFlow(order.mall_info.id, orderInfo, order.country, applyInfo.data)
           } else {
-            await this.getPrintInfoFlow(order.id, orderInfo, order.country, applyInfo.data)
+            await this.getPrintInfoFlow(order.mall_info.id, orderInfo, order.country, applyInfo.data)
           }
         } else {
           this.writeLog(`订单【${order.order_sn}】同步面单失败[507]-[${applyInfo.code}],${applyInfo.data}`, false)
@@ -92,6 +173,8 @@ export default class {
       console.log(error)
     }
   }
+
+
   //检查是否有物流信息
   checkTrackInfo(orderInfo) {
     let trackInfo = {}
@@ -107,34 +190,34 @@ export default class {
     return trackInfo
   }
   //申请物流单号
-  async applyOrderTrackingNo(orderInfo, country) {
-    // if (country === 'TW' && !this.isApplyForceFaceInfo) {
-    //   return {
-    //     code: 50001,
-    //     data: ''
-    //   }
-    // }
+  async applyOrderTrackingNo(orderId, shopId, logisticsChannel, country) {
+    if (country === 'TW' && !this.isApplyForceFaceInfo) {
+      return {
+        code: 50001,
+        data: '台湾站不强制申请物流单号'
+      }
+    }
     let configInfo = await this.$appConfig.getUserConfig()
     let configInfoObj = configInfo && JSON.parse(configInfo)
     //设置信息中的是否自动申请Shopee物流单号选项
     if (country !== 'TW' && (!configInfoObj || !configInfoObj.is_apply_shopee_logistics)) {
       if (!this.isApplyForceFaceInfo) {
-        return this.getShopeeShipNumber(orderInfo.order_id, orderInfo.shop_id, country); //获取shopee运输单号
+        return this.getShopeeShipNumber(orderId, shopId, country); //获取shopee运输单号
       }
     }
     //判断所选择的运输方式能否申请物流单号  和店铺导入的那份物流信息比对，判断物流id的信息的default值是否为true orderInfo.logistics_channel
     let logisDefault = site_mall.find(n => {
-      return n.ShipId == orderInfo.logistics_channel
+      return n.ShipId == logisticsChannel
     })
     if (logisDefault && !logisDefault.IsDeafult) {
       //非默认物流 获取下运输单号
-      return this.getShopeeShipNumber(orderInfo.order_id, orderInfo.shop_id, country); //获取shopee运输单号
+      return this.getShopeeShipNumber(orderId, shopId, country); //获取shopee运输单号
     }
     try {
       if (country === 'TW') {
         //获取卖家真实姓名 api/v3/logistics/get_shop_seller_real_name
         let params = {
-          shop_id: orderInfo.shop_id
+          shop_id: shopId
         }
         let userName = await this.$shopeemanService.getShopSellerRealName(country, params)
         let sellerUserName = userName == '' || !userName ? null : userName
@@ -142,11 +225,11 @@ export default class {
           sellerUserName = 'nick'
         }
         //黑猫宅急便
-        if (orderInfo.logistics_channel == '30001') {
+        if (logisticsChannel == '30001') {
           //申请黑猫的物流单号
           //获取店铺信息/api/v3/general/get_shop/?
           let param = {
-            shop_id: orderInfo.shop_id
+            shop_id: shopId
           }
           let ShopInfoResult = await this.$shopeemanService.getShop(country, param)
           let pickupAddressId = ShopInfoResult.code === 200 && ShopInfoResult.data.pickup_address_id || null
@@ -158,10 +241,10 @@ export default class {
           }
           //获取申请时间/api/v3/shipment/get_pickup_time_slots/
           let para = {
-            order_id: orderInfo.order_id,
+            order_id: orderId,
             address_id: pickupAddressId,
-            channel_id: orderInfo.logistics_channel,
-            shop_id: orderInfo.shop_id
+            channel_id: logisticsChannel,
+            shop_id: shopId
           }
           let pickTimeResult = await this.$shopeemanService.getPickupTimeSlots(country, para)
           let pickupTime = pickTimeResult.code === 200 && pickTimeResult.data.time_slots && pickTimeResult.data.time_slots[0].value || null
@@ -175,24 +258,24 @@ export default class {
           }
           //进行物流单号的申请/api/v3/shipment/init_order/
           let pa = {
-            order_id: orderInfo.order_id,
-            channel_id: orderInfo.logistics_channel,
-            forder_id: orderInfo.order_id,
+            order_id: orderId,
+            channel_id: logisticsChannel,
+            forder_id: orderId,
             seller_real_name: sellerUserName,
             pickup_time: pickupTime,
             seller_address_id: pickupAddressId,
-            shop_id: orderInfo.shop_id
+            shop_id: shopId
           }
           //申请Shopee物流单号
           let applyResult = await this.$shopeemanService.handleOutOrder(country, pa)
           console.log("applyResult11", applyResult)
         } else {
           let params = {
-            order_id: orderInfo.order_id,
-            channel_id: orderInfo.logistics_channel,
-            forder_id: orderInfo.order_id,
+            order_id: orderId,
+            channel_id: logisticsChannel,
+            forder_id: orderId,
             seller_real_name: sellerUserName,
-            shop_id: orderInfo.shop_id
+            shop_id: shopId
           }
           //申请Shopee物流单号
           let applyResult = await this.$shopeemanService.handleOutOrder(country, params)
@@ -201,15 +284,15 @@ export default class {
       } else {
         //申请Shopee物流单号
         let params = {
-          order_id: orderInfo.order_id,
-          channel_id: orderInfo.logistics_channel,
-          forder_id: orderInfo.order_id,
-          shop_id: orderInfo.shop_id
+          order_id: orderId,
+          channel_id: logisticsChannel,
+          forder_id: orderIdd,
+          shop_id: shopId
         }
         let applyResult = await this.$shopeemanService.handleOutOrder(country, params)
         console.log("applyResult33", applyResult)
       }
-      return this.getShopeeShipNumber(orderInfo.order_id, orderInfo.shop_id, country); //获取shopee运输单号
+      return this.getShopeeShipNumber(orderId, shopId, country); //获取shopee运输单号
     } catch (error) {
       console.log(error)
       return {
@@ -297,7 +380,7 @@ export default class {
       if (country === 'VN' && fileType === 'NORMAL') {
         schemaType = 2
       }
-      if(fileType === 'THERMAL'){
+      if (fileType === 'THERMAL') {
         schemaType = 3
       }
       //4、创建面单打印任务
@@ -321,15 +404,15 @@ export default class {
         return
       }
       //6、checkInfo
-      let res6 = await this.checkFaceInfo(bytes, order.order_sn, trackingNo, order.actual_carrier, country, schemaType, sysMallId, order.shop_id)
-      // console.log(res6,"res6")
-      // if (res6.code !== 200) {
-      //   this.writeLog(`订单【${order.order_sn}】同步面单失败，${res6.data}[508]`, false)
-      //   return
-      // }
-      // //7、上报面单信息
-      // let res7 = await this.uploadFaceInfo(sysMallId.toString(), order.shop_id.toString(), order.order_sn.toString(), res6.data)
-      // console.log(res7,"res7")
+      let res6 = await this.checkFaceInfo(bytes, order.order_sn, trackingNo, order.actual_carrier, country, schemaType)
+      console.log(res6, "res6")
+      if (res6.code !== 200) {
+        this.writeLog(`订单【${order.order_sn}】同步面单失败，${res6.data}[508]`, false)
+        return
+      }
+      //7、上报面单信息
+      let res7 = await this.uploadFaceInfo(sysMallId.toString(), order.shop_id.toString(), order.order_sn.toString(), res6.data)
+      console.log(res7, "res7")
       // if (res7 && res7.code === 200) {
       //   this.writeLog(`订单【${order.order_sn}】同步面单成功`, true)
       // } else {
@@ -341,16 +424,44 @@ export default class {
     }
   }
   //上报面单信息
-  async uploadFaceInfo(sysMallId, mallId, orderSn, url) {
-    let res7 = await this._this.$commodityService.saveFaceSheetInfo(sysMallId.toString(), mallId.toString(), [{
-      url: url,
-      orderSn: orderSn.toString()
-    }])
-    let res7Obj = JSON.parse(res7)
-    return res7Obj
+  async uploadFaceInfo(sysMallId, mallId, orderSn, cutBase64) {
+    const name = randomWord(false, 32) + '_' + new Date().getTime() + '.PDF'
+    const url = await this._this.$ossService.uploadFile(cutBase64, name)
+    console.log("url", url)
+    if (url) {
+      //7、上报面单信息
+      let params = {
+        sysMallId: sysMallId.toString(),
+        mallId: mallId,
+        faceSheetInfos: [{
+          url: url,
+          orderSn: orderSn.toString()
+        }]
+      }
+      console.log(params)
+      let res7 = await this.$api.uploadOrderFaceSheetInfo(params)
+      console.log(res7, "res7")
+      if (res7 && res7.data.code === 200) {
+        return this.writeLog(`订单【${orderSn}】同步面单成功,上报成功`, true)
+      } else {
+        return this.writeLog(`订单【${orderSn}】同步面单失败，上报失败，${res7.data.message}`, false)
+      }
+
+      // 线上接口
+      // let res7 = await this.uploadFaceInfo(sysMallId.toString(), shopId, orderSn.toString(), url)
+      // console.log(res7, "res7")
+      // if (res7 && res7.code === 200) {
+      //   return this.writeLog(`订单【${orderSn}】同步面单成功`, true)
+      // } else {
+      //   return this.writeLog(`订单【${orderSn}】同步面单失败，上报失败，${res7.msg}`, false)
+      // }
+    } else {
+      return this.writeLog(`订单【${orderSn}】获取面单异常！`, false)
+    }
   }
   //获取台湾站点的面单信息
-  async getPrintTWinfoFlow(sysMallId, order, country, trackingNo) {
+  async getPrintTWinfoFlow(sysMallId, order, country='TW', trackingNo) {
+    try {
     //莱尔富经济包面单
     if (order.logistics_channel == "30010") {
 
@@ -396,16 +507,51 @@ export default class {
       return
     }
     let jobId = res4.data.list[0].job_id
+    let base64 = await this.downloadTwFace(order,jobId,country,trackingNo)
+    if(base64){
+      if(order.logistics_channel == "30005" || order.logistics_channel == "30006"){
+        //直接上报
+        await this.uploadFaceInfo(sysMallId.toString(), order.shop_id.toString(), order.order_sn.toString(), base64)
+      }else{
+
+      }
+      // const name = randomWord(false, 32) + '_' + new Date().getTime() + '.html'
+      // const url = await this._this.$ossService.uploadFile(base64, name)
+      // console.log(url,"twtwtwtwwtwt")
+    }else{
+      this.writeLog(`订单【${order.order_sn}】同步面单失败，下载面单失败[504]`, false)
+      return
+    }
+  } catch (error) {
+      console.log("error",error)
+  }  
+  }
+  //下载台湾站面单
+  async downloadTwFace(order,jobId,country,trackingNo){
+    console.log(order.logistics_channel,"order.logistics_channel")
     ////7-11的面单信息 -HTML
     if (order.logistics_channel == "30005") {
-      let faceData = await this.downloadSdJob(order.shop_id, jobId, country)
+      let faceData = await this.downloadSdJobTW(order.shop_id, jobId, country)
+      // console.log(faceData,"faceData")
+      if (!faceData) {
+        this.writeLog(`订单【${order.order_sn}】同步面单失败,下载失败[505]`, false)
+        return null
+      }
+       return this.get711FaceInfo(trackingNo, faceData)
+    }
+    //全家面单信息
+    if (order.logistics_channel == "30006") {
+      let faceData = await this.downloadSdJobTW(order.shop_id, jobId, country)
+      console.log(faceData,"faceData")
       if (!faceData) {
         this.writeLog(`订单【${order.order_sn}】同步面单失败,下载失败[505]`, false)
         return
       }
-      this.get711FaceInfo(trackingNo, faceData)
+      return this.getQuanJiaFaceInfo(trackingNo, faceData)
     }
-
+    let faceData = await this.downloadSdJob(order.shop_id, jobId, country)
+    console.log(faceData,"faceData")
+    return true
   }
   //莱尔富经济包的面单信息
   async getLaiErFuFace(orderId, shopId) {
@@ -413,8 +559,69 @@ export default class {
   }
   //711面单类型
   async get711FaceInfo(trackingNo, faceData) {
-
+    const $ = cheerio.load(faceData)
+    let tempvar = $('input[name="tempvar"]')[0].attribs.value || undefined
+    if(!tempvar){return null}
+    let params = {
+      'PinCodeNumber':trackingNo,
+      'tempvar':tempvar,
+      'NewWindow':'Y',
+      'BackTag':"https://seller.shopee.tw/portal/sale/"
+    }
+    let options = {
+      headers:{
+        "Referer": "https://epayment.7-11.com.tw/C2C/C2CWeb/C2C.aspx",
+        'User-Agent':'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36',
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'isGBK':false
+      }
+    }
+    options['params'] = params
+    let res= await window['NetMessageBridgeService'].post('https://epayment.7-11.com.tw/C2C/C2CWeb/PrintC2CPinCode.aspx',JSON.stringify(options),JSON.stringify(params))
+    let resObj = JSON.parse(res)
+    let finishFaceData = resObj.data
+    if(finishFaceData && finishFaceData.includes(trackingNo)){
+      finishFaceData = finishFaceData.replace("css/C2CPrint.css", "https://epayment.7-11.com.tw/C2C/C2CWeb/css/C2CPrint.css")
+      .replace("BarCode.ashx?CodeValue=", "https://epayment.7-11.com.tw/C2C/C2CWeb/BarCode.ashx?CodeValue=")
+      .replace("QRCode.ashx?CodeValue=", "https://epayment.7-11.com.tw/C2C/C2CWeb/QRCode.ashx?CodeValue=")
+      .replace("BarCode128.ashx?CodeValue=", "https://epayment.7-11.com.tw/C2C/C2CWeb/BarCode128.ashx?CodeValue=");
+      // console.log(finishFaceData,"res")
+      var encode = encodeURI(finishFaceData);
+      // 对编码的字符串转化base64
+      var base64 = btoa(encode);
+      // console.log(base64,"base64")
+      return base64
+    }else{
+      return null
+    }
   }
+  dataURLtoFile(base64File, filename){
+    var arr = base64File.split(","),
+      mime = arr[0].match(/:(.*?);/)[1],
+      bstr = atob(arr[1]),
+      n = bstr.length,
+      u8arr = new Uint8Array(n);
+    while (n--) {
+      u8arr[n] = bstr.charCodeAt(n);
+    }
+    return new File([u8arr], filename, { type: mime });
+}
+  //全家面单类型
+  async getQuanJiaFaceInfo(trackingNo, faceData) {
+    debugger
+    const $ = cheerio.load(faceData)
+    console.log($('input'),"11111111111111111111")
+    return true
+  }
+
+
+
+
+
+
+
+
+
   //获取面单类型
   async getPrintWaybillType(mallId, country) {
     let params = {
@@ -490,88 +697,74 @@ export default class {
       shop_id: shop_id
     }
     let res = await this.$shopeemanService.downloadSdJob(country, params)
-    // console.log(res, "下载面单信息")
-    return res
+    console.log(res, "下载面单信息")
+    return res.rawBytes || ''
   }
+    //下载台湾面单信息
+    async downloadSdJobTW(shop_id, job_id, country) {
+      let params = {
+        job_id: job_id,
+        shop_id: shop_id
+      }
+      let res = await this.$shopeemanService.downloadSdJob(country, params)
+      console.log(res, "下载面单信息")
+      return res.data || ''
+    }
   //检查面单信息
-  async checkFaceInfo(bytes, orderSn, logisticsNumber, trackName, country, schemaType, sysMallId, shopId) {
-    // console.log(bytes, orderSn, logisticsNumber)
-    if (bytes === null || bytes.length < 500 || !orderSn || !logisticsNumber) {
+  async checkFaceInfo(base64, orderSn, logisticsNumber, trackName, country, schemaType) {
+    console.log(base64.length, orderSn, logisticsNumber, schemaType)
+    if (base64 === null || base64.length < 500 || !orderSn || !logisticsNumber) {
       return {
         code: 50001,
         data: "面单大小或平台物流获取异常，请重新同步！"
       }
     } else {
-      const blob = new Blob([bytes], {
-        type: 'application/pdf'
-      })
-      // var a = document.createElement('a');
-      // var url = window.URL.createObjectURL(blob);s
-      // console.log(url)
-      // a.href = url;
-      // a.download = `${new Date().getTime()}-picklist.pdf`;
-      // a.click();
-      // console.log(blob)
-      // let url = URL.createObjectURL(blob)
-      // console.log(url)
-      
-      this.blobToDataURL(blob, async (e) => {
-        console.log(e)
-        var a = document.createElement('a');
-        a.href = e;
-        a.download = `${new Date().getTime()}-picklist.pdf`;
-        a.click();
-        return
-        let base64 = e.replace('data:application/pdf;base64,', '')
-        console.log(base64)
-        let cutRes = null
-        cutRes = await this.cutFaseSize(base64, orderSn, true, 300, 420, -420)
-        if (country == 'VN' && trackName == 'J&T Exoress' && schemaType == 2) {
-          cutRes = await this.cutFaseSize(base64, orderSn, true, 300, 420, -420)
-        } else if (country == 'VN' && trackName == 'VNPost Nhanh') {
-          cutRes = await this.cutFaseSize(base64, orderSn, true, 300, 425, -420)
-        } else if (country == 'ID') {
-          cutRes = await this.cutFaseSize(base64, orderSn, true, 425, 595, 0)
-        }
-        if (cutRes.code != 200) {
-          return this.writeLog(`订单【${orderSn}】获取面单异常, ${cutRes.msg}！`, false)
-        }
-        console.log(orderSn, logisticsNumber, "check-check")
-        //检测面单
-        let checkInfo = await window['BaseUtilBridgeService'].checkFaceInfo(base64, orderSn, logisticsNumber)
-        let checkInfoObj = JSON.parse(checkInfo)
-        console.log(checkInfoObj, "blobToDataURL")
-        if (checkInfoObj.code === 200) {
-          const name = randomWord(false, 32) + '_' + new Date().getTime() + '.PDF'
-          const url = await this._this.$ossService.uploadFile(base64, name)
-          console.log("url", url)
-          if (url) {
-            //7、上报面单信息
-            let params = {
-              sysMallId: sysMallId.toString(),
-              mallId: shopId,
-              logisticsInfos: {
-                url: url,
-                orderSn: orderSn.toString()
-              }
-            }
-            let res7 = await this.$api.uploadOrderFaceSheetInfo(params)
-            console.log(res7, "res7")
-            //线上接口
-            // let res7 = await this.uploadFaceInfo(sysMallId.toString(), shopId, orderSn.toString(), url)
-            // console.log(res7, "res7")
-            // if (res7 && res7.code === 200) {
-            //   return this.writeLog(`订单【${orderSn}】同步面单成功`, true)
-            // } else {
-            //   return this.writeLog(`订单【${orderSn}】同步面单失败，上报失败，${res7.msg}`, false)
-            // }
-          } else {
-            return this.writeLog(`订单【${orderSn}】获取面单异常！`, false)
+      let cutBase64 = base64
+      // cutRes = await this.cutFaseSize(base64, orderSn, true, 300, 420, -420)
+      if (country == 'VN' && trackName == 'J&T Exoress' && schemaType == 2) {
+        let cutRes = await this.cutFaseSize(base64, orderSn, true, 300, 420, -420)
+        if (!(cutRes.code == 200 && cutRes.data)) {
+          return {
+            code: 50001,
+            data: cutRes.msg
           }
-        } else {
-          return this.writeLog(`订单【${orderSn}】获取面单异常, 面单大小或平台物流获取异常，请重新同步！`, false)
         }
-      });
+        cutBase64 = cutRes.code == 200 && cutRes.data || base64
+      } else if (country == 'VN' && trackName == 'VNPost Nhanh') {
+        let cutRes = await this.cutFaseSize(base64, orderSn, true, 300, 425, -420)
+        if (!(cutRes.code == 200 && cutRes.data)) {
+          return {
+            code: 50001,
+            data: cutRes.msg
+          }
+        }
+        cutBase64 = cutRes.code == 200 && cutRes.data || base64
+      } else if (country == 'ID') {
+        let cutRes = await this.cutFaseSize(base64, orderSn, true, 425, 595, 0)
+        if (!(cutRes.code == 200 && cutRes.data)) {
+          return {
+            code: 50001,
+            data: cutRes.msg
+          }
+        }
+        cutBase64 = cutRes.code == 200 && cutRes.data || base64
+      }
+      // console.log(orderSn, logisticsNumber, "check-check")
+      //检测面单
+      let checkInfo = await window['BaseUtilBridgeService'].checkFaceInfo(cutBase64, orderSn, logisticsNumber)
+      let checkInfoObj = JSON.parse(checkInfo)
+      console.log(checkInfoObj, "blobToDataURL")
+      if (checkInfoObj.code === 200) {
+        return {
+          code: 200,
+          data: cutBase64
+        }
+      } else {
+        return {
+          code: 50001,
+          data: `订单【${orderSn}】获取面单异常, ${checkInfoObj.data}`
+        }
+      }
     }
   }
   async cutFaseSize(base64, orderSn, isA4, pdfWidth, pdfHeight, locationY) {
@@ -606,6 +799,7 @@ export default class {
       let orderList = orderGrop[key]
       let country = orderList[0].country
       let mallId = key
+      let mallName = orderGrop[key][0].mall_info.platform_mall_name
       console.log("orderList", orderList, country, mallId)
       for (let i = 0; i < orderList.length; i = i + 50) {
         let orderFifty = orderList.slice(i, i + 50)
@@ -624,7 +818,7 @@ export default class {
         let packInfo = await this.checkPackagePrintWaybillMultiShop(orderInfolist, mallId, country)
         if (packInfo.code === 200) {
           if (!packInfo.data.list.length) {
-            this.writeLog(`店铺【${mallId}】当前数据没有可下载的拣货单`, false)
+            this.writeLog(`店铺【${mallName}】当前数据没有可下载的拣货单`, false)
             continue
           } else {
             let packNums = packInfo.data.list
@@ -645,17 +839,14 @@ export default class {
               // this.writeLog(`订单【${order.order_sn}】同步面单失败，创建打印任务失败[504]`, false)
             } else {
               let jobId = creatInfo.data.list[0].job_id
-              let bytes = await this.downloadSdJob(mallId, jobId, country)
-              // console.log(bytes)
-              // const blob = new Blob([bytes], {
-              //   type: 'application/pdf;chartset=UTF-8'
-              // })
-              // var a = document.createElement('a');
-              // var url = window.URL.createObjectURL(blob);
-              // console.log(url)
-              // a.href = url;
-              // a.download = `mallId-${mallId}-${new Date(Date.now() + 8 * 3600 * 1000).toISOString().slice(0, 10)}-${new Date().getTime()}-picklist.pdf`;
-              // a.click();
+              let base64 = await this.downloadSdJob(mallId, jobId, country)
+              let res = await window['BaseUtilBridgeService'].downloadPickForm(base64, mallName)
+              let resObj = JSON.parse(res)
+              if (resObj.code === 200) {
+                this.writeLog(`店铺【${mallName}】下载拣货单成功`, true)
+              } else {
+                this.writeLog(`店铺【${mallName}】下载拣货单失败，${resObj.msg}`, false)
+              }
             }
           }
         }

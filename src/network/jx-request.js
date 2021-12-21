@@ -32,11 +32,11 @@ const ycjRequest = axios.create({ // 云采集请求
 })
 const otherRequest = axios.create({ // 第三方请求
   timeout: 5000,
-  headers: {
-    'User-Agent':
-      'Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/537.36',
-    'Accept': 'application/vnd.ppxias.v3+json'
-  },
+  // headers: {
+  //   'User-Agent':
+  //     'Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/537.36',
+  //   // 'Accept': 'application/vnd.ppxias.v3+json'
+  // },
   withCredentials: true,
   adapter: config => {
     return jxAdapter(config)
@@ -228,6 +228,7 @@ export default {
   productOutStock: (data) => AppRequest.post('/userStock/productOutStock', data), //产品中心仓库出库  
   uploadGressProfit: (data) => AppRequest.post('/order/uploadGressProfit', data), // 修正含邮毛利  
   uploadOrderFaceSheetInfo: (data) => AppRequest.post('/order/uploadOrderFaceSheetInfo', data), // 上报面单信息  
+  getEmptyTrackingNoOrder: (data) => AppRequest.get('/order/getEmptyTrackingNoOrder', { params: data }), // 获取需同步的平台物流订单
 
 
 

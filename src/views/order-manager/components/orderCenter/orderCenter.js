@@ -42,12 +42,12 @@ const orderStatusList = [{
   {
     value: 9,
     label: '退款成功',
-    color: '#000'
+    color: '#32CD32'
   },
   {
     value: 10,
     label: '退款失败',
-    color: '#000'
+    color: '#FF0000'
   },
   {
     value: 20,
@@ -836,18 +836,18 @@ const syncStatus = [
     label: '待发货',
     value: 'toship'
   },
-  // {
-  //   label: '运送中',
-  //   value: 'shipping'
-  // },
+  {
+    label: '运送中',
+    value: 'shipping'
+  },
   {
     label: '已完成',
     value: 'completed'
   },
-  // {
-  //   label: '取消中',
-  //   value: 'cancelled'
-  // }, 
+  {
+    label: '取消中',
+    value: 'cancelled'
+  }, 
   {
     label: '退款中',
     value: 'refund'
