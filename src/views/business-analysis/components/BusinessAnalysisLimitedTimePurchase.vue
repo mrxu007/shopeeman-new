@@ -10,7 +10,7 @@
         </li>
         <li>
           <span>店铺分组：</span>
-          <el-select v-model="group" placeholder="请选择分组" multiple collapse-tags clearable size="medium" filterable>
+          <el-select v-model="group" class="mall" placeholder="请选择分组" multiple collapse-tags clearable size="mini" filterable>
             <el-option v-if="selectall" label="全部" :value="0" />
             <el-option v-if="!selectall" label="全部" :value="-2" />
             <el-option v-for="(item, index) in gruopList" :key="index" :label="item.label" :value="item.value" />
@@ -18,7 +18,7 @@
         </li>
         <li>
           <span>店铺：</span>
-          <el-select v-model="mall" placeholder="请选择店铺" multiple collapse-tags clearable size="medium" filterable>
+          <el-select v-model="mall" class="mall" placeholder="请选择店铺" multiple collapse-tags clearable size="mini" filterable>
             <el-option v-if="selectall1" label="全部" :value="0" />
             <el-option v-if="!selectall1" label="全部" :value="-2" />
             <el-option v-for="(item, index) in mallList" :key="index" :label="item.label" :value="item.value" />
@@ -46,14 +46,14 @@
           backgroundColor: '#f5f7fa',
         }"
       >
-        <el-table-column align="center" label="店铺名称" width="160" prop="mallname" />
-        <el-table-column prop="reminder_clicks" label="商品显示次数" width="180" align="center" />
-        <el-table-column prop="product_clicks" label="商品点击次数" width="180" align="center" />
-        <el-table-column prop="conversion_rate" label="点击率" width="180" align="center" />
-        <el-table-column prop="sales" label="销售额" width="180" align="center" />
-        <el-table-column prop="orders" label="订单量" width="180" align="center" />
-        <el-table-column prop="buyers" label="买家数" width="180" align="center" />
-        <el-table-column prop="sales_per_buyer" label="每位买家的销售额" width="180" align="center" />
+        <el-table-column align="center" label="店铺名称" width="200" prop="mallname" />
+        <el-table-column prop="reminder_clicks" label="商品显示次数" width="210" align="center" />
+        <el-table-column prop="product_clicks" label="商品点击次数" width="210" align="center" />
+        <el-table-column prop="conversion_rate" label="点击率" width="210" align="center" />
+        <el-table-column prop="sales" label="销售额" width="210" align="center" />
+        <el-table-column prop="orders" label="订单量" width="210" align="center" />
+        <el-table-column prop="buyers" label="买家数" width="210" align="center" />
+        <el-table-column prop="sales_per_buyer" label="每位买家的销售额" width="210" align="center" />
       </el-table>
     </el-row>
   </el-row>

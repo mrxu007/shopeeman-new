@@ -10,7 +10,7 @@
         </li>
         <li>
           <span>店铺分组：</span>
-          <el-select v-model="group" placeholder="请选择分组" multiple collapse-tags clearable size="medium" filterable>
+          <el-select v-model="group" class="mall" placeholder="请选择分组" multiple collapse-tags clearable size="mini" filterable>
             <el-option v-if="selectall" label="全部" :value="0" />
             <el-option v-if="!selectall" label="全部" :value="-2" />
             <el-option v-for="(item, index) in gruopList" :key="index" :label="item.label" :value="item.value" />
@@ -18,7 +18,7 @@
         </li>
         <li>
           <span>店铺：</span>
-          <el-select v-model="mall" placeholder="请选择店铺" multiple collapse-tags clearable size="medium" filterable>
+          <el-select v-model="mall" class="mall" placeholder="请选择店铺" multiple collapse-tags clearable size="mini" filterable>
             <el-option v-if="selectall1" label="全部" :value="0" />
             <el-option v-if="!selectall1" label="全部" :value="-2" />
             <el-option v-for="(item, index) in mallList" :key="index" :label="item.label" :value="item.value" />
@@ -46,12 +46,12 @@
           backgroundColor: '#f5f7fa',
         }"
       >
-        <el-table-column align="center" label="店铺名称" width="160" prop="mallname" />
-        <el-table-column prop="new_followers" label="新粉丝" width="180" align="center" />
-        <el-table-column prop="viewers" label="观众" width="180" align="center" />
-        <el-table-column prop="buyers" label="买家" width="180" align="center" />
-        <el-table-column prop="sales" label="销售量" width="180" align="center" />
-        <el-table-column prop="cost" label="每位买家的销售额" width="180" align="center" />
+        <el-table-column align="center" label="店铺名称" width="260" prop="mallname" />
+        <el-table-column prop="new_followers" label="新粉丝" width="250" align="center" />
+        <el-table-column prop="viewers" label="观众" width="250" align="center" />
+        <el-table-column prop="buyers" label="买家" width="250" align="center" />
+        <el-table-column prop="sales" label="销售量" width="250" align="center" />
+        <el-table-column prop="cost" label="每位买家的销售额" width="250" align="center" />
         <el-table-column prop="appexisting_visitors" label="操作" width="150" align="center">
           <template slot-scope="{ row }">
             <el-button type="primary" size="mini" @click="view(row)">关注礼概览</el-button>

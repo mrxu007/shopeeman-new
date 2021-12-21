@@ -27,20 +27,38 @@
     <!--销售额结构 -->
     <main v-if="activeVal === '8'"><BusinessAnalysisSalesStructure /></main>
 
+    <!--销售额结构 -->
+    <main v-if="activeVal === '9'"><BusinessAnalysisSalesStructure1 /></main>
+
+    <!--销售额结构 -->
+    <main v-if="activeVal === '10'"><BusinessAnalysisSalesStructure2 /></main>
+
     <!--行销活动 -->
-    <main v-if="activeVal === '9'"><BusinessAnalysisMarketingActivity /></main>
+    <main v-if="activeVal === '11'"><BusinessAnalysisMarketingActivity /></main>
 
     <!--行销套装优惠 -->
-    <main v-if="activeVal === '10'"><BusinessAnalysisPackageOffer /></main>
+    <main v-if="activeVal === '12'"><BusinessAnalysisPackageOffer /></main>
 
     <!--行销关注礼 -->
-    <main v-if="activeVal === '11'"><BusinessAnalysisAttentionCeremony /></main>
+    <main v-if="activeVal === '13'"><BusinessAnalysisAttentionCeremony /></main>
 
     <!--行销优惠卷 -->
-    <main v-if="activeVal === '12'"><BusinessAnalysisCoupon /></main>
+    <main v-if="activeVal === '14'"><BusinessAnalysisCoupon /></main>
 
-    <!--行销优惠卷 -->
-    <main v-if="activeVal === '13'"><BusinessAnalysisLimitedTimePurchase /></main>
+    <!--限时选购 -->
+    <main v-if="activeVal === '15'"><BusinessAnalysisLimitedTimePurchase /></main>
+
+    <!--加购优惠 -->
+    <main v-if="activeVal === '16'"><BusinessAnalysisAdditionalPurchaseDiscount /></main>
+
+    <!--实时聊天 -->
+    <main v-if="activeVal === '17'"><BusinessAnalysisRealTimeChat /></main>
+
+    <!--常见问题助手 -->
+    <main v-if="activeVal === '18'"><BusinessAnalysisFAQAssistant /></main>
+
+    <!--常见问题助手 -->
+    <main v-if="activeVal === '19'"><BusinessAnalysisSalesAssistance /></main>
   </div>
 </template>
 
@@ -55,11 +73,17 @@ import {
   BusinessAnalysisCommodityPerformance,
   BusinessAnalysisSalesvolume,
   BusinessAnalysisSalesStructure,
+  BusinessAnalysisSalesStructure1,
+  BusinessAnalysisSalesStructure2,
   BusinessAnalysisMarketingActivity,
   BusinessAnalysisPackageOffer,
   BusinessAnalysisAttentionCeremony,
   BusinessAnalysisCoupon,
-  BusinessAnalysisLimitedTimePurchase
+  BusinessAnalysisLimitedTimePurchase,
+  BusinessAnalysisAdditionalPurchaseDiscount,
+  BusinessAnalysisRealTimeChat,
+  BusinessAnalysisFAQAssistant,
+  BusinessAnalysisSalesAssistance
 } from './index.js'
 export default {
   components: {
@@ -72,11 +96,17 @@ export default {
     BusinessAnalysisCommodityPerformance,
     BusinessAnalysisSalesvolume,
     BusinessAnalysisSalesStructure,
+    BusinessAnalysisSalesStructure1,
+    BusinessAnalysisSalesStructure2,
     BusinessAnalysisMarketingActivity,
     BusinessAnalysisPackageOffer,
     BusinessAnalysisAttentionCeremony,
     BusinessAnalysisCoupon,
-    BusinessAnalysisLimitedTimePurchase
+    BusinessAnalysisLimitedTimePurchase,
+    BusinessAnalysisAdditionalPurchaseDiscount,
+    BusinessAnalysisRealTimeChat,
+    BusinessAnalysisFAQAssistant,
+    BusinessAnalysisSalesAssistance
   },
   data() {
     return {

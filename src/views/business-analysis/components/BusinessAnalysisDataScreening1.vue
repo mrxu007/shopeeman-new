@@ -10,7 +10,7 @@
         </li>
         <li>
           <span>店铺分组：</span>
-          <el-select v-model="group" placeholder="请选择分组" multiple collapse-tags clearable size="medium" filterable>
+          <el-select v-model="group" class="mall" placeholder="请选择分组" multiple collapse-tags clearable size="mini" filterable>
             <el-option v-if="selectall" label="全部" :value="0" />
             <el-option v-if="!selectall" label="全部" :value="-2" />
             <el-option v-for="(item, index) in gruopList" :key="index" :label="item.label" :value="item.value" />
@@ -18,7 +18,7 @@
         </li>
         <li>
           <span>店铺：</span>
-          <el-select v-model="mall" placeholder="请选择店铺" multiple collapse-tags clearable size="medium" filterable>
+          <el-select v-model="mall" class="mall" placeholder="请选择店铺" multiple collapse-tags clearable size="mini" filterable>
             <el-option v-if="selectall1" label="全部" :value="0" />
             <el-option v-if="!selectall1" label="全部" :value="-2" />
             <el-option v-for="(item, index) in mallList" :key="index" :label="item.label" :value="item.value" />
@@ -40,47 +40,44 @@
           <el-button type="primary" :disabled="Loading1" size="mini" @click="getallinfo">搜索</el-button>
         </li>
       </ul><br>
-      <div style="border:1px solid black;width:100%">
-        <span style="margin-left:20px">客服数据</span>
-        <el-table
-          ref="plTable"
-          v-loading="Loading3"
-          style="margin-top:10px"
-          header-align="center"
-          height="calc(100vh - 140px)"
-          :data="tableData1"
-          :header-cell-style="{
-            backgroundColor: '#f5f7fa',
-          }"
-        >
-          <el-table-column align="center" label="店铺名称" width="280" prop="mallname" sortable />
-          <el-table-column align="center" prop="buyers" label="买家总数" width="280" sortable>
-            <template slot-scope="{ row }">
-              <div v-html="row.buyers" />
-            </template>
-          </el-table-column>
-          <el-table-column align="center" prop="new_buyers" label="新买家数量" width="280" sortable>
-            <template slot-scope="{ row }">
-              <div v-html="row.new_buyers" />
-            </template>
-          </el-table-column>
-          <el-table-column prop="existing_buyers" label="现有买家" width="280" align="center" sortable>
-            <template slot-scope="{ row }">
-              <div v-html="row.existing_buyers" />
-            </template>
-          </el-table-column>
-          <el-table-column prop="potential_buyers" label="潜在买家" width="280" align="center" sortable>
-            <template slot-scope="{ row }">
-              <div v-html="row.potential_buyers" />
-            </template>
-          </el-table-column>
-          <el-table-column prop="repeat_purchase_rate" label="重复购买率" width="280" align="center" sortable>
-            <template slot-scope="{ row }">
-              <div v-html="row.repeat_purchase_rate" />
-            </template>
-          </el-table-column>
-        </el-table>
-      </div>
+      <el-table
+        ref="plTable"
+        v-loading="Loading3"
+        style="margin-top:10px"
+        header-align="center"
+        height="calc(100vh - 140px)"
+        :data="tableData1"
+        :header-cell-style="{
+          backgroundColor: '#f5f7fa',
+        }"
+      >
+        <el-table-column align="center" label="店铺名称" width="280" prop="mallname" sortable />
+        <el-table-column align="center" prop="buyers" label="买家总数" width="280" sortable>
+          <template slot-scope="{ row }">
+            <div v-html="row.buyers" />
+          </template>
+        </el-table-column>
+        <el-table-column align="center" prop="new_buyers" label="新买家数量" width="280" sortable>
+          <template slot-scope="{ row }">
+            <div v-html="row.new_buyers" />
+          </template>
+        </el-table-column>
+        <el-table-column prop="existing_buyers" label="现有买家" width="280" align="center" sortable>
+          <template slot-scope="{ row }">
+            <div v-html="row.existing_buyers" />
+          </template>
+        </el-table-column>
+        <el-table-column prop="potential_buyers" label="潜在买家" width="280" align="center" sortable>
+          <template slot-scope="{ row }">
+            <div v-html="row.potential_buyers" />
+          </template>
+        </el-table-column>
+        <el-table-column prop="repeat_purchase_rate" label="重复购买率" width="280" align="center" sortable>
+          <template slot-scope="{ row }">
+            <div v-html="row.repeat_purchase_rate" />
+          </template>
+        </el-table-column>
+      </el-table>
     </el-row>
   </el-row>
 </template>
@@ -380,53 +377,63 @@ export default {
             if (this.Statisticaltime === 'real_time') {
               for (const item in res.data) {
                 if (item === 'buyers') {
+                  let color = 'green'
                   let arrow = ''
                   if (res.data['buyers_change'] > 0) {
                     arrow = '↑'
                   } else if (res.data['buyers_change'] < 0) {
+                    color = 'red'
                     arrow = '↓'
                   }
-                  res.data[item] = `<pre>${res.data[item]}
+                  res.data[item] = `<pre style="color:${color}">${res.data[item]}
 vs 00:00 - 13:00 ${Math.abs(res.data['buyers_change'] * 100).toFixed(2)}% ${arrow}</pre>`
                 }
                 if (item === 'new_buyers') {
+                  let color = 'green'
                   let arrow = ''
                   if (res.data['new_buyers_rate'] > 0) {
                     arrow = '↑'
                   } else if (res.data['new_buyers_rate'] < 0) {
                     arrow = '↓'
+                    color = 'red'
                   }
-                  res.data[item] = `<pre>${res.data[item]}
+                  res.data[item] = `<pre style="color:${color}">${res.data[item]}
 vs 00:00 - 13:00 ${Math.abs(res.data['new_buyers_rate'] * 100).toFixed(2)}% ${arrow}</pre>`
                 }
                 if (item === 'existing_buyers') {
+                  let color = 'green'
                   let arrow = ''
                   if (res.data['existing_buyers_rate'] > 0) {
                     arrow = '↑'
                   } else if (res.data['existing_buyers_rate'] < 0) {
                     arrow = '↓'
+                    color = 'red'
                   }
-                  res.data[item] = `<pre>${res.data[item]}
+                  res.data[item] = `<pre style="color:${color}">${res.data[item]}
 vs 00:00 - 13:00 ${Math.abs(res.data['existing_buyers_rate'] * 100).toFixed(2)}% ${arrow}</pre>`
                 }
                 if (item === 'potential_buyers') {
+                  let color = 'green'
                   let arrow = ''
                   if (res.data['potential_buyers_change'] > 0) {
                     arrow = '↑'
                   } else if (res.data['potential_buyers_change'] < 0) {
                     arrow = '↓'
+                    color = 'red'
                   }
-                  res.data[item] = `<pre>${res.data[item]}
+                  res.data[item] = `<pre style="color:${color}">${res.data[item]}
 vs 00:00 - 13:00 ${Math.abs(res.data['potential_buyers_change'] * 100).toFixed(2)}% ${arrow}</pre>`
                 }
                 if (item === 'repeat_purchase_rate') {
+                  let color = 'green'
                   let arrow = ''
                   if (res.data['repeat_purchase_rate_change'] > 0) {
                     arrow = '↑'
                   } else if (res.data['repeat_purchase_rate_change'] < 0) {
                     arrow = '↓'
+                    color = 'red'
                   }
-                  res.data[item] = `<pre>${(res.data[item] * 100).toFixed(2)}%
+                  res.data[item] = `<pre style="color:${color}">${(res.data[item] * 100).toFixed(2)}%
 vs 00:00 - 13:00 ${Math.abs(res.data['repeat_purchase_rate_change'] * 100).toFixed(2)}% ${arrow}</pre>`
                 }
               }
@@ -434,53 +441,63 @@ vs 00:00 - 13:00 ${Math.abs(res.data['repeat_purchase_rate_change'] * 100).toFix
             if (this.Statisticaltime === 'yesterday') {
               for (const item in res.data) {
                 if (item === 'buyers') {
+                  let color = 'green'
                   let arrow = ''
                   if (res.data['buyers_change'] > 0) {
                     arrow = '↑'
                   } else if (res.data['buyers_change'] < 0) {
                     arrow = '↓'
+                    color = 'red'
                   }
-                  res.data[item] = `<pre>${res.data[item]}
+                  res.data[item] = `<pre style="color:${color}">${res.data[item]}
 vs 前一天 ${Math.abs(res.data['buyers_change'] * 100).toFixed(2)}% ${arrow}</pre>`
                 }
                 if (item === 'new_buyers') {
+                  let color = 'green'
                   let arrow = ''
                   if (res.data['new_buyers_rate'] > 0) {
                     arrow = '↑'
                   } else if (res.data['new_buyers_rate'] < 0) {
                     arrow = '↓'
+                    color = 'red'
                   }
-                  res.data[item] = `<pre>${res.data[item]}
+                  res.data[item] = `<pre style="color:${color}">${res.data[item]}
 vs 前一天 ${Math.abs(res.data['new_buyers_rate'] * 100).toFixed(2)}% ${arrow}</pre>`
                 }
                 if (item === 'existing_buyers') {
+                  let color = 'green'
                   let arrow = ''
                   if (res.data['existing_buyers_rate'] > 0) {
                     arrow = '↑'
                   } else if (res.data['existing_buyers_rate'] < 0) {
                     arrow = '↓'
+                    color = 'red'
                   }
-                  res.data[item] = `<pre>${res.data[item]}
+                  res.data[item] = `<pre style="color:${color}">${res.data[item]}
 vs 前一天 ${Math.abs(res.data['existing_buyers_rate'] * 100).toFixed(2)}% ${arrow}</pre>`
                 }
                 if (item === 'potential_buyers') {
+                  let color = 'green'
                   let arrow = ''
                   if (res.data['potential_buyers_change'] > 0) {
                     arrow = '↑'
                   } else if (res.data['potential_buyers_change'] < 0) {
                     arrow = '↓'
+                    color = 'red'
                   }
-                  res.data[item] = `<pre>${res.data[item]}
+                  res.data[item] = `<pre style="color:${color}">${res.data[item]}
 vs 前一天 ${Math.abs(res.data['potential_buyers_change'] * 100).toFixed(2)}% ${arrow}</pre>`
                 }
                 if (item === 'repeat_purchase_rate') {
+                  let color = 'green'
                   let arrow = ''
                   if (res.data['repeat_purchase_rate_change'] > 0) {
                     arrow = '↑'
                   } else if (res.data['repeat_purchase_rate_change'] < 0) {
                     arrow = '↓'
+                    color = 'red'
                   }
-                  res.data[item] = `<pre>${(res.data[item] * 100).toFixed(2)}%
+                  res.data[item] = `<pre style="color:${color}">${(res.data[item] * 100).toFixed(2)}%
 vs 前一天 ${Math.abs(res.data['repeat_purchase_rate_change'] * 100).toFixed(2)}% ${arrow}</pre>`
                 }
               }
@@ -488,53 +505,63 @@ vs 前一天 ${Math.abs(res.data['repeat_purchase_rate_change'] * 100).toFixed(2
             if (this.Statisticaltime === 'past7days') {
               for (const item in res.data) {
                 if (item === 'buyers') {
+                  let color = 'green'
                   let arrow = ''
                   if (res.data['buyers_change'] > 0) {
                     arrow = '↑'
                   } else if (res.data['buyers_change'] < 0) {
                     arrow = '↓'
+                    color = 'red'
                   }
-                  res.data[item] = `<pre>${res.data[item]}
+                  res.data[item] = `<pre style="color:${color}">${res.data[item]}
 vs 前7天 ${Math.abs(res.data['buyers_change'] * 100).toFixed(2)}% ${arrow}</pre>`
                 }
                 if (item === 'new_buyers') {
+                  let color = 'green'
                   let arrow = ''
                   if (res.data['new_buyers_rate'] > 0) {
                     arrow = '↑'
                   } else if (res.data['new_buyers_rate'] < 0) {
                     arrow = '↓'
+                    color = 'red'
                   }
-                  res.data[item] = `<pre>${res.data[item]}
+                  res.data[item] = `<pre style="color:${color}">${res.data[item]}
 vs 前7天 ${Math.abs(res.data['new_buyers_rate'] * 100).toFixed(2)}% ${arrow}</pre>`
                 }
                 if (item === 'existing_buyers') {
                   let arrow = ''
+                  let color = 'green'
                   if (res.data['existing_buyers_rate'] > 0) {
                     arrow = '↑'
                   } else if (res.data['existing_buyers_rate'] < 0) {
                     arrow = '↓'
+                    color = 'red'
                   }
-                  res.data[item] = `<pre>${res.data[item]}
+                  res.data[item] = `<pre style="color:${color}">${res.data[item]}
 vs 前7天 ${Math.abs(res.data['existing_buyers_rate'] * 100).toFixed(2)}% ${arrow}</pre>`
                 }
                 if (item === 'potential_buyers') {
+                  let color = 'green'
                   let arrow = ''
                   if (res.data['potential_buyers_change'] > 0) {
                     arrow = '↑'
                   } else if (res.data['potential_buyers_change'] < 0) {
                     arrow = '↓'
+                    color = 'red'
                   }
-                  res.data[item] = `<pre>${res.data[item]}
+                  res.data[item] = `<pre style="color:${color}">${res.data[item]}
 vs 前7天 ${Math.abs(res.data['potential_buyers_change'] * 100).toFixed(2)}% ${arrow}</pre>`
                 }
                 if (item === 'repeat_purchase_rate') {
+                  let color = 'green'
                   let arrow = ''
                   if (res.data['repeat_purchase_rate_change'] > 0) {
                     arrow = '↑'
                   } else if (res.data['repeat_purchase_rate_change'] < 0) {
                     arrow = '↓'
+                    color = 'red'
                   }
-                  res.data[item] = `<pre>${(res.data[item] * 100).toFixed(2)}%
+                  res.data[item] = `<pre style="color:${color}">${(res.data[item] * 100).toFixed(2)}%
 vs 前7天 ${Math.abs(res.data['repeat_purchase_rate_change'] * 100).toFixed(2)}% ${arrow}</pre>`
                 }
               }
@@ -542,53 +569,63 @@ vs 前7天 ${Math.abs(res.data['repeat_purchase_rate_change'] * 100).toFixed(2)}
             if (this.Statisticaltime === 'past30days') {
               for (const item in res.data) {
                 if (item === 'buyers') {
+                  let color = 'green'
                   let arrow = ''
                   if (res.data['buyers_change'] > 0) {
                     arrow = '↑'
                   } else if (res.data['buyers_change'] < 0) {
+                    color = 'red'
                     arrow = '↓'
                   }
-                  res.data[item] = `<pre>${res.data[item]}
+                  res.data[item] = `<pre style="color:${color}">${res.data[item]}
 vs 前30天 ${Math.abs(res.data['buyers_change'] * 100).toFixed(2)}% ${arrow}</pre>`
                 }
                 if (item === 'new_buyers') {
+                  let color = 'green'
                   let arrow = ''
                   if (res.data['new_buyers_rate'] > 0) {
                     arrow = '↑'
                   } else if (res.data['new_buyers_rate'] < 0) {
                     arrow = '↓'
+                    color = 'red'
                   }
-                  res.data[item] = `<pre>${res.data[item]}
+                  res.data[item] = `<pre style="color:${color}">${res.data[item]}
 vs 前30天 ${Math.abs(res.data['new_buyers_rate'] * 100).toFixed(2)}% ${arrow}</pre>`
                 }
                 if (item === 'existing_buyers') {
+                  let color = 'green'
                   let arrow = ''
                   if (res.data['existing_buyers_rate'] > 0) {
                     arrow = '↑'
                   } else if (res.data['existing_buyers_rate'] < 0) {
                     arrow = '↓'
+                    color = 'red'
                   }
-                  res.data[item] = `<pre>${res.data[item]}
+                  res.data[item] = `<pre style="color:${color}">${res.data[item]}
 vs 前30天 ${Math.abs(res.data['existing_buyers_rate'] * 100).toFixed(2)}% ${arrow}<pre>`
                 }
                 if (item === 'potential_buyers') {
+                  let color = 'green'
                   let arrow = ''
                   if (res.data['potential_buyers_change'] > 0) {
                     arrow = '↑'
                   } else if (res.data['potential_buyers_change'] < 0) {
                     arrow = '↓'
+                    color = 'red'
                   }
-                  res.data[item] = `<pre>${res.data[item]}
+                  res.data[item] = `<pre style="color:${color}">${res.data[item]}
 vs 前30天 ${Math.abs(res.data['potential_buyers_change'] * 100).toFixed(2)}% ${arrow}</pre>`
                 }
                 if (item === 'repeat_purchase_rate') {
                   let arrow = ''
+                  let color = 'green'
                   if (res.data['repeat_purchase_rate_change'] > 0) {
                     arrow = '↑'
                   } else if (res.data['repeat_purchase_rate_change'] < 0) {
                     arrow = '↓'
+                    color = 'red'
                   }
-                  res.data[item] = `<pre>${(res.data[item] * 100).toFixed(2)}%
+                  res.data[item] = `<pre style="color:${color}">${(res.data[item] * 100).toFixed(2)}%
 vs 前30天 ${Math.abs(res.data['repeat_purchase_rate_change'] * 100).toFixed(2)}% ${arrow}</pre>`
                 }
               }

@@ -10,7 +10,7 @@
         </li>
         <li>
           <span>店铺分组：</span>
-          <el-select v-model="group" placeholder="请选择分组" multiple collapse-tags clearable size="medium" filterable>
+          <el-select v-model="group" class="mall" placeholder="请选择分组" multiple collapse-tags clearable size="mini" filterable>
             <el-option v-if="selectall" label="全部" :value="0" />
             <el-option v-if="!selectall" label="全部" :value="-2" />
             <el-option v-for="(item, index) in gruopList" :key="index" :label="item.label" :value="item.value" />
@@ -18,7 +18,7 @@
         </li>
         <li>
           <span>店铺：</span>
-          <el-select v-model="mall" placeholder="请选择店铺" multiple collapse-tags clearable size="medium" filterable>
+          <el-select v-model="mall" class="mall" placeholder="请选择店铺" multiple collapse-tags clearable size="mini" filterable>
             <el-option v-if="selectall1" label="全部" :value="0" />
             <el-option v-if="!selectall1" label="全部" :value="-2" />
             <el-option v-for="(item, index) in mallList" :key="index" :label="item.label" :value="item.value" />
@@ -40,54 +40,51 @@
           <el-button type="primary" :disabled="Loading1" size="mini" @click="getallinfo">搜索</el-button>
         </li>
       </ul><br>
-      <div style="border:1px solid black;width:100%">
-        <span style="margin-left:20px">排行数据</span>
-        <el-table
-          ref="plTable"
-          v-loading="Loading3"
-          style="margin-top:10px"
-          header-align="center"
-          height="calc(100vh - 140px)"
-          :data="tableData3"
-          :header-cell-style="{
-            backgroundColor: '#f5f7fa',
-          }"
-        >
-          <el-table-column align="center" label="店铺名称" width="140" prop="mallname" />
-          <el-table-column v-if="false" align="center" label="站点" width="140" prop="site" />
-          <el-table-column v-if="false" align="center" label="店铺id" width="140" prop="mallid" />
-          <el-table-column align="center" prop="ranktype" label="排行类型" width="355">
-            <template slot-scope="{ row }">
-              <div v-html="row.ranktype" />
-            </template>
-          </el-table-column>
-          <el-table-column align="center" prop="img" label="商品图片" width="355">
-            <template slot-scope="{ row }">
-              <el-tooltip
-                v-if="row.img"
-                effect="light"
-                placement="right-end"
-                :visible-arrow="false"
-                :enterable="false"
-                style="width: 40px; height: 40px"
-              >
-                <div slot="content">
-                  <img
-                    :src="[row.site ,row.mallid , row.img] | imageRender"
-                    width="300px"
-                    height="300px"
-                  >
-                </div>
-                <el-image
-                  style="width: 40px; height: 40px"
+      <el-table
+        ref="plTable"
+        v-loading="Loading3"
+        style="margin-top:10px"
+        header-align="center"
+        height="calc(100vh - 140px)"
+        :data="tableData3"
+        :header-cell-style="{
+          backgroundColor: '#f5f7fa',
+        }"
+      >
+        <el-table-column align="center" label="店铺名称" width="140" prop="mallname" />
+        <el-table-column v-if="false" align="center" label="站点" width="140" prop="site" />
+        <el-table-column v-if="false" align="center" label="店铺id" width="140" prop="mallid" />
+        <el-table-column align="center" prop="ranktype" label="排行类型" width="355">
+          <template slot-scope="{ row }">
+            <div v-html="row.ranktype" />
+          </template>
+        </el-table-column>
+        <el-table-column align="center" prop="img" label="商品图片" width="355">
+          <template slot-scope="{ row }">
+            <el-tooltip
+              v-if="row.img"
+              effect="light"
+              placement="right-end"
+              :visible-arrow="false"
+              :enterable="false"
+              style="width: 40px; height: 40px"
+            >
+              <div slot="content">
+                <img
                   :src="[row.site ,row.mallid , row.img] | imageRender"
-                />
-              </el-tooltip>
-            </template>
-          </el-table-column>
-          <el-table-column prop="goodsname" label="商品名称" width="830" align="center" />
-        </el-table>
-      </div>
+                  width="300px"
+                  height="300px"
+                >
+              </div>
+              <el-image
+                style="width: 40px; height: 40px"
+                :src="[row.site ,row.mallid , row.img] | imageRender"
+              />
+            </el-tooltip>
+          </template>
+        </el-table-column>
+        <el-table-column prop="goodsname" label="商品名称" width="830" align="center" />
+      </el-table>
     </el-row>
   </el-row>
 </template>
