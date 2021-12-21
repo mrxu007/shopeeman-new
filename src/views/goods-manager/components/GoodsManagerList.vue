@@ -756,7 +756,7 @@ export default {
       goodsStatusName: '', // 商品状态请求名
       goodsStatusVal: '', // 商品状态值
       searchType: 'id', // 商品类型搜索条件
-      keyword: '5119059597', // 商品类型搜索值
+      keyword: '', // 商品类型搜索值
       source: 0, // 上家来源
       queryNum: 0, // 查询数量
       updateNum: 0, // 更新数量
