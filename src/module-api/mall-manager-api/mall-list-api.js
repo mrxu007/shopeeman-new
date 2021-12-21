@@ -479,7 +479,6 @@ export default class MallListAPI {
       'SPC_SC_SA_UD': '',
       'SPC_SC_SA_TK': '',
       'SPC_SC_UD': '',
-      'token': data.token,
       'cstoken': data.cs_token,
       'satoken': '',
       // 'sso': data.sso,
