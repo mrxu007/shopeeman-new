@@ -115,17 +115,6 @@
               <span class="item-num">{{ orderListData.totalCompletedShotAmount }}</span>
             </div>
             <div class="item">
-              <img :src="noOrderPng">
-              <span class="item-name">匹配不到订单数（单）</span>
-              <el-tooltip effect="dark" content="今日匹配不到订单的包裹数量总和" placement="bottom-start">
-                <img :src="questionPng">
-              </el-tooltip>
-              :
-              <span class="item-num">{{ orderListData.noOrderNum }}</span>
-            </div>
-          </div>
-          <div class="item-box">
-            <div class="item">
               <img :src="cancelPng">
               <span class="item-name">订单即将取消（单）</span>
               <el-tooltip effect="dark" content="还有两天就即将取消的订单数量总和" placement="bottom-start">
@@ -134,6 +123,8 @@
               :
               <span class="item-num">{{ orderListData.shipDelayingNum }}</span>
             </div>
+          </div>
+          <div class="item-box">
             <div class="item">
               <img :src="warehouseDeliveryPng">
               <span class="item-name">仓库发货订单数（单）</span>
@@ -151,6 +142,15 @@
               </el-tooltip>
               :
               <span class="item-num">{{ orderListData.totalOutStockAmount }}</span>
+            </div>
+            <div class="item">
+              <img :src="noOrderPng">
+              <span class="item-name">匹配不到订单数（单）</span>
+              <el-tooltip effect="dark" content="今日匹配不到订单的包裹数量总和" placement="bottom-start">
+                <img :src="questionPng">
+              </el-tooltip>
+              :
+              <span class="item-num">{{ orderListData.noOrderNum }}</span>
             </div>
           </div>
           <!-- <div class="item-box">
