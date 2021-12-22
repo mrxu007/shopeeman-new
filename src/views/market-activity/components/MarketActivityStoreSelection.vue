@@ -31,8 +31,8 @@
           <div class="base-box" style="padding-left:20px">
             <span class="base-title">添加精选组参数数据</span>
             <div class="base-item" style="margin-top:5px">
-              <span>每个店铺添加 <el-input :disabled="isDisabled" size="mini" class="input" clearable /> 组精选商品<span class="red-span">（最大10组）</span></span>
-              <span>每组精选添加 <el-input :disabled="isDisabled" size="mini" class="input" clearable /> 个商品<span class="red-span">（最少4个，最多8个）</span></span>
+              <span>每个店铺添加 <el-input v-model="groupNum" :disabled="isDisabled" size="mini" class="input" clearable /> 组精选商品<span class="red-span">（最大10组）</span></span>
+              <span>每组精选添加 <el-input v-model="goodsNum" :disabled="isDisabled" size="mini" class="input" clearable /> 个商品<span class="red-span">（最少4个，最多8个）</span></span>
             </div>
             <div class="base-item">
               <span>精选商品排序 </span>
@@ -49,7 +49,7 @@
                   :label="item.label"
                 />
               </el-select>
-              <el-button :disabled="isDisabled" type="primary" size="mini">开始批量添加</el-button>
+              <el-button :disabled="isDisabled" type="primary" size="mini" @click="batchSaveSelectionGroup">开始批量添加</el-button>
               <el-button :disabled="isDisabled" type="primary" size="mini">停止添加</el-button>
             </div>
             <span class="red-span">批量添加：精选名称自动生成，默认开启第一组精选商品</span>
@@ -115,7 +115,14 @@
         </u-table-column>
         <u-table-column align="center" label="启用状态" min-width="100">
           <template v-slot="{row}">
-            <el-switch v-model="row.status" active-color="#13ce66" inactive-color="#ff4949" @change="queryIsOpen(row,1)" />
+            <el-switch
+              v-model="row.status"
+              active-color="#13ce66"
+              inactive-color="#ff4949"
+              @change="
+                flag = false
+                queryIsOpen(row,1)"
+            />
           </template>
         </u-table-column>
         <u-table-column align="center" label="操作" min-width="150">
@@ -138,6 +145,7 @@
       width="1000px"
       :close-on-click-modal="false"
       :close-on-press-escape="false"
+      @close="handleClose"
     >
       <ul style="margin-bottom:10px">
         <li><span>店铺名称：{{ detailsData.mallName }}</span></li>
@@ -230,13 +238,16 @@ export default {
   },
   data() {
     return {
+      flag: false,
       isStatus: false,
       isDisabled: false,
       detailsVisible: false,
       queryProductLoading: false,
       StoreSelection: new StoreSelection(this),
 
-      productId: '10053264472,14819733964,14019733891,15519732902', // 添加商品ID
+      groupNum: 1, // 添加组数
+      goodsNum: 8, // 添加商品数据
+      productId: '', // 搜索商品ID
       goodsSort: 0, // 排序
       showConsole: true, // 日志
       country: '', // 站点
@@ -257,6 +268,10 @@ export default {
     }
   },
   methods: {
+    // 批量添加精选组
+    batchSaveSelectionGroup() {
+
+    },
     // 批量/删除精选组
     async deleteSelection(val, type) {
       if (type === 1) {
@@ -287,9 +302,11 @@ export default {
     async queryIsOpen(val, type) {
       if (type === 1) {
         this.$refs.Logs.writeLog(`正在设置精选组状态...`, true)
+        // 查询同店铺下是否有开启精选组
         const newData = this.tableData.filter(item => {
           return item.status === true && item.platform_mall_id === val.platform_mall_id && val.id !== item.id
         })
+        // 有开启的先关闭
         if (newData?.length > 0) {
           newData[0].status = false
           await this.setSelectionGroup(...newData)
@@ -300,7 +317,6 @@ export default {
         const newData = this.multipleSelection.filter(item => {
           return item.status === true
         })
-        console.log('newData', newData)
         if (!this.newData?.length <= 0) return this.$message('没有可关闭的数据')
         this.$refs.Logs.writeLog(`正在设置精选组状态...`, true)
         for (let i = 0; i < newData.length; i++) {
@@ -311,7 +327,6 @@ export default {
       }
     },
     async setSelectionGroup(val) {
-      console.log('设置精选组', val)
       const params = {}
       params['name'] = val.name
       params['plan_id'] = val.id
@@ -323,13 +338,23 @@ export default {
       })
       const res = await this.StoreSelection.markeHotSalePlan(params, 'putChinese')
       if (res.code === 200) {
-        this.$refs.Logs.writeLog(`【${val.mallName}】下【${val.name}】${val.status ? '开启' : '关闭'}成功`, true)
-        this.$set(val, 'status', val.status)
+        if (this.flag) {
+          this.$refs.Logs.writeLog(`【${val.mallName}】下【${val.name}】修改成功`, true)
+        } else {
+          this.$refs.Logs.writeLog(`【${val.mallName}】下【${val.name}】${val.status ? '开启' : '关闭'}成功`, true)
+          this.$set(val, 'status', val.status)
+        }
       } else {
-        this.$refs.Logs.writeLog(`【${val.mallName}】下【${val.name}】${val.status ? '开启' : '关闭'}失败：${res.data}`, false)
-        this.$set(val, 'status', !val.status)
+        if (this.flag) {
+          this.$refs.Logs.writeLog(`【${val.mallName}】下【${val.name}】修改失败`, true)
+          this.showConsole = false
+        } else {
+          this.$refs.Logs.writeLog(`【${val.mallName}】下【${val.name}】${val.status ? '开启' : '关闭'}失败：${res.data}`, false)
+          this.$set(val, 'status', !val.status)
+        }
       }
     },
+
     // 保存精选组
     async saveSelectionGroup(type) {
       try {
@@ -342,18 +367,34 @@ export default {
         params['name'] = this.detailsData.name
         params['country'] = this.detailsData.country
         params['platform_mall_id'] = this.detailsData.platform_mall_id
-        const res = await this.StoreSelection.markeHotSalePlan(params, 'postChineseReferer')
-        if (res.code === 200) {
+        // flag为真，添加精选组 为假，修改精选组
+        if (this.flag) {
+          // type为真，保存并开启
+          if (type) {
+            params['status'] = true
+          } else {
+            params['status'] = this.detailsData.status
+          }
+          params['id'] = this.detailsData.id
+          params['mallName'] = this.detailsData.mallName
+          await this.queryIsOpen(params, 1)
           this.detailsVisible = false
           await this.queryData()
-          if (type) {
-            params['id'] = res.data.id
-            params['status'] = true
-            params['mallName'] = this.detailsData.mallName
-            await this.queryIsOpen(params, 1)
-          }
         } else {
-          this.$message.error(`保存精选组失败：${res.data}`)
+          const res = await this.StoreSelection.markeHotSalePlan(params, 'postChineseReferer')
+          if (res.code === 200) {
+            this.detailsVisible = false
+            await this.queryData()
+            // type为真，保存并开启
+            if (type) {
+              params['id'] = res.data.id
+              params['status'] = true
+              params['mallName'] = this.detailsData.mallName
+              await this.queryIsOpen(params, 1)
+            }
+          } else {
+            this.$message.error(`保存精选组失败：${res.data}`)
+          }
         }
       } catch (error) {
         this.$message.error(`保存精选组异常：${error}`)
@@ -363,6 +404,8 @@ export default {
     async productSelector() {
       try {
         if (!this.productId) return this.$message('商品ID不能为空')
+        console.log(this.detailsData.graphqlData)
+        if (this.detailsData.graphqlData?.length >= 8) return this.$message('最多8个商品')
         const myMap = new Map()
         const params = {}
         params['id'] = this.productId.toString()
@@ -398,12 +441,11 @@ export default {
     singleAdd() {
       if (this.selectMallList.length > 2 || !this.selectMallList.length) return this.$message('添加单个精选组，只能选择一个店铺')
       this.detailsVisible = true
-      this.detailsData.name = ''
-      this.detailsData.graphqlData = []
-      this.productId = []
       this.detailsData.mallName = this.selectMallList[0].mall_alias_name || this.selectMallList[0].platform_mall_name
       this.detailsData.platform_mall_id = this.selectMallList[0].platform_mall_id
       this.detailsData.country = this.selectMallList[0].country
+      this.flag = false
+      this.handleClose()
     },
     // 编辑弹窗
     editData(row) {
@@ -412,7 +454,8 @@ export default {
         item.country = row.country
         item.platform_mall_id = row.platform_mall_id
       })
-      this.detailsData = row
+      this.detailsData = JSON.parse(JSON.stringify(row))
+      this.flag = true
       console.log('detailsData', this.detailsData)
     },
     // 获取数据
@@ -480,6 +523,12 @@ export default {
         fData.push(item)
       }
       return fData
+    },
+    handleClose() {
+      this.detailsData.name = ''
+      this.detailsData.graphqlData = []
+      this.productId = ''
+      this.detailsData.status = false
     },
     handleSelectionChange(val) {
       this.multipleSelection = val
