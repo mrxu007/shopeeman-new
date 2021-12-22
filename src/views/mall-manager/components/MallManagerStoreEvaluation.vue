@@ -95,7 +95,6 @@
           <template slot-scope="scope">
             <el-tooltip effect="light" placement="right-end" :visible-arrow="false" :enterable="false" style="width: 56px; height: 56px; display: inline-block">
               <div slot="content">
-                {{ product_cover }}
                 <el-image :src="[scope.row.country, scope.row.platform_mall_id, scope.row.product_cover] | imageRender" style="width: 400px; height: 400px" />
               </div>
               <el-image :src="[scope.row.country, scope.row.platform_mall_id, scope.row.product_cover] | imageRender" style="width: 56px; height: 56px" />
@@ -481,7 +480,7 @@ export default {
     },
     async productUrl(row) {
       const params = {
-        platform_mall_id: row.mall_info.platform_mall_id
+        platform_mall_id: row.platform_mall_id
       }
       const webUrl = await this.$shopeemanService.getWebUrl(row.country, params)
       // const webUrl = await this.$shopeeManConfig.getSiteWebUrl(row.country)
@@ -491,7 +490,7 @@ export default {
     // 打开外部窗口
     async openUrl(row) {
       const params = {
-        platform_mall_id: row.mall_info.platform_mall_id
+        platform_mall_id: row.platform_mall_id
       }
       const webUrl = await this.$shopeemanService.getWebUrl(row.country, params)
       // const webUrl = await this.$shopeeManConfig.getSiteWebUrl(row.country)
