@@ -36,8 +36,8 @@
         <div class="basisInstall-box">
           <el-button style="flex: 1" size="mini" @click="batchDealWith(17)" type="primary">批量删除</el-button>
         </div>
-        <el-upload v-show="false" style="margin-right: 10px" action="#" :drag="true" :show-file-list="false"
-                   :limit="1" :auto-upload="false" :on-change="imageUpload">
+        <el-upload v-if="uploadImgAdd" v-show="false" style="margin-right: 10px" action="#" :drag="true"
+                   :show-file-list="false" :limit="1" :auto-upload="false" :on-change="imageUpload">
           <el-button size="mini" type="primary" ref="uploadImg">选择图片</el-button>
         </el-upload>
       </div>
@@ -156,42 +156,44 @@
         </div>
       </div>
     </div>
-    <u-table ref="mallTable" :data="mallTable" use-virtual :data-changes-scroll-top="false"
+    <u-table ref="mallTableRef" :data="mallTable" use-virtual :data-changes-scroll-top="false"
              :header-cell-style="{backgroundColor: '#f5f7fa',}" row-key="id" :border="false"
              :big-data-checkbox="true" @selection-change="handleSelectionChange" :height="isNoFoldShow && 400 || 680">
       <u-table-column align="center" type="selection" width="30"/>
       <u-table-column align="left" type="index" width="50" label="序号"/>
-      <u-table-column align="left" label="主图" width="60" prop="Sales">
+      <u-table-column align="left" label="主图" width="80" prop="Sales">
         <template v-slot="{ row }">
-          <div style="justify-content: center; display: flex">
+          <div style="justify-content: flex-start; display: flex">
             <img :src="row.image" style="width: 56px; height: 56px">
           </div>
         </template>
       </u-table-column>
-      <u-table-column align="left" :show-overflow-tooltip="true" width="80" label="标签">
+      <u-table-column align="left" :show-overflow-tooltip="true" width="90" label="标签">
         <template v-slot="{ row }">
           <p style="white-space: normal">{{ getLabelName(row.sys_label_id) }}</p>
         </template>
       </u-table-column>
-      <u-table-column align="left" label="商品编码" width="120">
+      <u-table-column align="left" label="商品编码" width="120" :show-overflow-tooltip="true" >
         <template v-slot="{ row }">
-          <p style="white-space: normal">{{ row.goods_id }}</p>
+          <p style="white-space: normal;cursor: pointer" @click.stop="goToGoods(row)">{{ row.goods_id }}</p>
         </template>
       </u-table-column>
       <u-table-column align="left" label="采购来源" width="80">
         <template v-slot="{ row }">
-          <p style="white-space: normal">{{ sourceObj[row.source + ''] }}</p>
+          <p style="white-space: normal;overflow: hidden">{{ sourceObj[row.source + ''] }}</p>
         </template>
       </u-table-column>
-      <u-table-column align="left" label="标题" width="150">
+      <u-table-column align="left" label="标题" width="140">
         <template v-slot="{ row }">
           <div class="goodsTableLine" style="height: 80px">
             {{row.title}}
           </div>
         </template>
       </u-table-column>
-      <u-table-column align="left" :show-overflow-tooltip="true" label="类目" width="80" prop="category_id"/>
-      <u-table-column align="left" label="价格" prop="price" width="80"/>
+      <u-table-column align="left" :show-overflow-tooltip="true" label="类目" min-width="80">
+        <template v-slot="{ row }">{{getCategoty(row)}}</template>
+      </u-table-column>
+      <u-table-column align="left" label="价格" prop="price" width="70"/>
       <u-table-column align="left" label="重量(kg)" width="80">
         <template v-slot="{ row }">
           <el-input v-model="row.weight" size="mini"/>
@@ -328,7 +330,7 @@
   import categoryMapping from './category-mapping'
   import goodsLabel from './goods-label'
   import goodsSize from './goods-size'
-  import { batchOperation, randomWord, selfAliYunTransImage ,terminateThread } from '../util/util'
+  import { batchOperation, getGoodsUrl, randomWord, selfAliYunTransImage, terminateThread } from '../util/util'
 
   export default {
     name: 'editor_on_new_goods',
@@ -336,6 +338,7 @@
       return {
         isNoFoldShow: true, //折叠
         mallTableSelect: [], //商品选择列表
+        categoryList:{},
         //描述
         describeVisible: false,
         describeConfig: {
@@ -464,7 +467,7 @@
         goodsEditorVisible: false,
         goodsEditor: null,
         isTranslationText: true,
-
+        uploadImgAdd:false,
         // 弹窗
         goodsTagVisible: false,
         categoryVisible: false,
@@ -490,6 +493,12 @@
         this.describeConfig.text = item && item.description || ''
         this.describeConfig.describe = item && item.description || ''
         this.describeConfig.lable = item && item.lable || ''
+      },
+      categoryList: {
+        handler(val) {
+          console.log(val)
+        },
+        deep: true
       }
     },
     components: { goodsEditDetails, categoryMapping, goodsLabel ,goodsSize},
@@ -503,6 +512,11 @@
           isTrue ? this.currentLabelName = labelName.label_name : ''
           return labelName?.label_name || ''
         }
+      },
+      getCategoty(){
+        return function(row){
+          return this.categoryList[row.category_id]
+        }
       }
     },
     created() {
@@ -515,13 +529,16 @@
       let userJson = await this.$appConfig.getUserConfig()
       let userInfo = await this.$appConfig.getUserInfo()
       this.userInfo = Object.assign(JSON.parse(userJson), userInfo)
+      console.log('this.userInfo',this.userInfo)
       this.statistics.count = this.mallTable.length
+      await this.showCategory()
       let buyerList = await this.$api.getBuyerList()
       buyerList.data.data.forEach(item => {
         if (item.type == 99 || item.type == -1) {
           this.aLiUsernameList.push(item)
         }
       })
+      this.$refs.mallTableRef.toggleAllSelection()
     },
     methods: {
       // 开启任务
@@ -539,19 +556,24 @@
           this.titleDescribeVisible = true
         }
         else if (type === 4) {
+          this.uploadImgAdd = true
           this.$refs['uploadImg'].$el.click()
         }
         else if (type === 7) {
-          this.mallTableSelect.forEach(async i => {
-            let deleteGoodsImageJson = await this.$commodityService.deleteGoodsImage('2', i.id, '0')
-            let deleteGoodsImage = JSON.parse(deleteGoodsImageJson)
-            let index = this.mallTable.findIndex(son => i.id === son.id)
-            if (deleteGoodsImage.code === 200) {
-              this.$set(this.mallTable[index], 'operation_type', '尺寸图删除成功')
-            } else {
-              this.$set(this.mallTable[index], 'operation_type', '尺寸图删除失败')
+          for (const i of this.mallTableSelect) {
+            if(i.img){
+              let deleteGoodsImageJson = await this.$commodityService.deleteGoodsImage(2, i.id, '0')
+              let deleteGoodsImage = JSON.parse(deleteGoodsImageJson)
+              let index = this.mallTable.findIndex(son => i.id === son.id)
+              if (deleteGoodsImage.code === 200) {
+                this.$set(this.mallTable[index], 'operation_type', '尺寸图删除成功')
+              } else {
+                this.$set(this.mallTable[index], 'operation_type', '尺寸图删除失败')
+              }
+            }else{
+              this.$set(this.mallTable[index], 'operation_type', '无尺寸图可删除')
             }
-          })
+          }
         }
         else if (type === 9){
           terminateThread()
@@ -560,7 +582,7 @@
           this.goodsTagVisible = true
         }
         else if (type === 12) {
-          this.mallTableSelect.forEach(async i => {
+          for (const i of this.mallTableSelect) {
             let titleList = [...i.title]
             titleList[0] = titleList[0] && titleList[0].toLocaleUpperCase() || ''
             let param = {
@@ -576,7 +598,7 @@
             } else {
               this.$set(this.mallTable[index], 'operation_type', '标题首字母大写修改失败')
             }
-          })
+          }
         }
         else if (type === 13) {
           let ids = [...this.mallTableSelect.map(i => i.id)]
@@ -761,12 +783,12 @@
           type: aLiUsername.type,
           name: aLiUsername.name,
           login_info: JSON.stringify(aLiUsername.login_info),
-          cache_path: aLiUsername.cache_path,
-          ua: aLiUsername.ua,
+          cache_path: aLiUsername.cache_path || '',
+          ua: aLiUsername.ua || '',
           loginCookies: aLiUsername.login_info
         }
         console.log(param)
-        let data = await this.$buyerAccountService.aliTranslateCenter(param)
+          let data = await this.$buyerAccountService.aliTranslateCenter(param)
         console.log(data)
       },
       async deleteAliTranslation(id) {
@@ -825,11 +847,12 @@
       },
       async translationPrepare(type) {
         if (type === 1) {
-          let res = await batchOperation(this.mallTableSelect, this.translationDate, this.threadNumber)
+          let res = await batchOperation(this.mallTableSelect, this.translationDate, parseInt(this.threadNumber) )
         }
       },
       async translationDate(item, count = { count: 1 }) {
         let index = this.mallTable.findIndex(i => i.id === item.id)
+        console.log(index,item,this.mallTable[index])
         this.$set(this.mallTable[index], 'operation_type', '正在翻译...')
         try {
           let success = true
@@ -846,7 +869,7 @@
             success = await this.translationPicture(item, index)
           }
           ++this.statistics.fySuccess
-          this.$set(this.mallTable[index], 'operation_type', success && '翻译完成' || '翻译失败')
+          this.$set(this.mallTable[index], 'operation_type', success && '翻译成功' || '翻译失败')
         } catch (e) {
           this.$set(this.mallTable[index], 'operation_type', '翻译失败')
           console.log(e)
@@ -866,7 +889,6 @@
             let description = this.translationConfig.describeChecked && neededTranslateInfoData.description || ''
             let spec1 = this.translationConfig.specChecked && neededTranslateInfoData.spec1 || ''
             let spec2 = this.translationConfig.specChecked && neededTranslateInfoData.spec2 || ''
-            let translationParam = [title, description]
             let fromLanguage = item.language
             let toLanguage = this.translationConfig.languages
             let param = {
@@ -878,12 +900,15 @@
               spec2: spec2
             }
             let itemmodelsJson = JSON.stringify(neededTranslateInfoData.itemmodels)
-            if (this.userInfo.translate_set == 1) {
-              let translationJson = await this.$translationBridgeService.getGoogleTransResult(translationParam, fromLanguage, toLanguage)
-              param.title = translationJson.Data[0] && translationJson.Data[0].DstText || neededTranslateInfoData.title
-              param.description = translationJson.Data[1] && translationJson.Data[1].DstText || neededTranslateInfoData.description
-              param.spec1 = translationJson.Data[2] && translationJson.Data[2].DstText || neededTranslateInfoData.spec1
-              param.spec2 = translationJson.Data[3] && translationJson.Data[3].DstText || neededTranslateInfoData.spec2
+            if (this.userInfo.translate_set == '2') {
+              let translationJson1 = title && await this.$translationBridgeService.getGoogleTransResult([title], fromLanguage, toLanguage)
+              console.log('translationJson1',translationJson1)
+              param.title = translationJson1 && translationJson1.Data[0] && translationJson1.Data[0].DstText || neededTranslateInfoData.title
+              let translationJson2 = description && await this.$translationBridgeService.getGoogleTransResult([description], fromLanguage, toLanguage)
+              console.log('translationJson2',translationJson2)
+              param.description = translationJson2 && translationJson2.Data[0] && translationJson2.Data[0].DstText || neededTranslateInfoData.description
+              param.spec1 = neededTranslateInfoData.spec1
+              param.spec2 = neededTranslateInfoData.spec2
               let tier_variation = neededTranslateInfoData.tier_variation
               console.log(neededTranslateInfoData, param)
               if (this.translationConfig.specChecked) {
@@ -921,13 +946,19 @@
             itemmodelsJson = itemmodelsJson.replaceAll(/"id":[0-9]*,/ig, '')
             itemmodelsJson = itemmodelsJson.replaceAll(/"selection_id":[0-9]*,/ig, '')
             itemmodelsJson = itemmodelsJson.replaceAll(/"skuId":([0-9]*),/ig, '"skuId":"$1",')
-            // itemmodelsJson = itemmodelsJson.replaceAll(/"sku":"[^(",)]*",/ig, '')
             param['skuSpecs'] = itemmodelsJson
-            console.log(itemmodelsJson)
-            this.$set(this.mallTable[index], 'operation_type', '翻译成功')
             param.language = toLanguage === 'zh' && 'zh-Hans' || toLanguage === 'zh-tw' && 'zh-Hant' || toLanguage
             console.log('saveTranslationData - param', param)
             let translationDataJson = await this.$commodityService.saveTranslationData(param)
+            let translationDataRes = JSON.parse(translationDataJson)
+            console.log('saveTranslationData - json',translationDataJson)
+            if (translationDataRes.code === 200){
+              let temp = Object.assign(this.mallTable[index],translationDataRes.data,{operation_type:'翻译成功'})
+              this.$set(this.mallTable, index,temp)
+            }else{
+              success = false
+              this.$set(this.mallTable[index], 'operation_type', '翻译失败')
+            }
           } catch (e) {
             success = false
             this.$set(this.mallTable[index], 'operation_type', '翻译失败')
@@ -1095,23 +1126,45 @@
         }
         this.goodsEditorVisible = false
       },
+      async showCategory(){
+        for (let i in this.mallTable){
+          let item = this.mallTable[i]
+          let category = this.categoryList[item.category_id] || ''
+          if(!category){
+            let categoty = JSON.parse(JSON.stringify(this.categoryList))
+            let site = item.extra_info && JSON.parse(item.extra_info).site || ''
+            let res = await this.$collectService.getGoodsCat(item.category_id,item.source,site)
+            category = res.split('|')[0] || ''
+            let name = res.split('|')[1] || ''
+            if(category && name){
+              categoty[name] = category || '未匹配到类目'
+              this.categoryList = categoty
+            }
+          }
+        }
+      },
+      goToGoods(item){
+        let extra_info = item.extra_info && JSON.parse(item.extra_info) || {}
+        let temp = Object.assign({productId:item.goods_id},extra_info)
+        let goods = getGoodsUrl(item.source,temp)
+        this.$BaseUtilService.openUrl(goods.url)
+      },
       imageUpload(file) {
-        console.log('selectImage', file)
         const localFile = file.raw
         const reader = new FileReader()
         reader.readAsDataURL(localFile)
+        this.uploadImgAdd = false
         reader.onload = async() => {
           let imgData = reader.result
           const name = randomWord(false, 32) + '_' + new Date().getTime()
           let temp = await this.$ossService.uploadFile(imgData, name + '.png')
-          this.mallTableSelect.forEach(async i => {
+          for (const i of this.mallTableSelect) {
             let index = this.mallTable.findIndex(son => i.id === son.id)
             let storeGoodsSizeImagesJson = await this.$commodityService.storeGoodsSizeImages(i.id + '', temp)
             let storeGoodsSizeImagesRes = JSON.parse(storeGoodsSizeImagesJson)
             let success= temp && storeGoodsSizeImagesRes.code === 200
             this.$set(this.mallTable[index], 'operation_type', '尺寸图添加' + (success && '成功' || '失败'))
-          })
-
+          }
         }
       },
       goodsSizeChange(val){
@@ -1140,7 +1193,12 @@
       goodsTagChange(val) {
         console.log('goodsTagChange', val)
         if (val) {
-
+          let mallList = [...this.mallTableSelect.map(i=>i.id)]
+          this.mallTable.forEach((item,index)=>{
+            if (mallList.includes(item.id)){
+              this.$set(this.mallTable[index],'sys_label_id',val.category && val.category.id)
+            }
+          })
         }
         this.goodsTagVisible = false
       },

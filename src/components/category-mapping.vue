@@ -102,7 +102,8 @@
           })
           this.$emit('categoryChange', {
             categoryList: categoryList,
-            attributesList: this.attributesList
+            attributesList: this.attributesList,
+            country:country || this.countryOption
           })
         }
         else {

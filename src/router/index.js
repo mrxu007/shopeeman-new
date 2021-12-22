@@ -78,12 +78,6 @@ const routes = [
       import('../views/business-analyse/index.vue')
   }, // 商业分析
   {
-    path: '/product-center', // 产品中心
-    name: 'product-center',
-    component: () =>
-      import('../views/product-center/index.vue')
-  },
-  {
     path: '/user-config',
     name: 'user-config',
     component: () =>
