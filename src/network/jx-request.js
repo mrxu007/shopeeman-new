@@ -235,5 +235,7 @@ export default {
   // 商品置顶
   topTaskadd: (data) => AppRequest.post('/topTask/add', data), // 创建任务
   topTask: (data) => AppRequest.get('/topTask/index', { params: data }), // 创建任务
-  topTaskdel: (data) => AppRequest.post('/topTask/delete', data) // 删除任务
+  topTaskdel: (data) => AppRequest.post('/topTask/delete', data), // 删除任务
+  uploadTopGood: (data) => AppRequest.post('/topTask/uploadTopGood', data), // 上报置顶商品
+  uploadTopHistory: (data) => AppRequest.post('/topTask/uploadTopHistory', data) // 上报置顶商品历史记录
 }
