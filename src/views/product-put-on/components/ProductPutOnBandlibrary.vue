@@ -1,326 +1,484 @@
-<!--
- * @Author: your name
- * @Date: 2021-10-21 09:38:11
- * @LastEditTime: 2021-11-03 16:55:16
- * @LastEditors: Please set LastEditors
- * @Description: In User Settings Edit
- * @FilePath: \shopeeman-new\src\views\product-put-on\components\ProductPutOnCategoryblack.vue
--->
 <template>
-  <div class="category-black">
-    <!-- btn区 -->
-    <div class="tool-bar">
-      <div class="tool-row">
-        <!-- <category-choose :is-all="true" :level="3" @setCategory="setCategory" /> -->
-        <category-choose :is-all="true" :level="2" @setCategory="setCategory" />
-        <div class="tool-item mar-right">
-          <span>类目来源：</span>
-          <el-select v-model="categorySource" placeholder="" size="mini" filterable>
-            <el-option v-for="(item, index) in categorySourceList" :key="index" :label="item.label" :value="item.value" />
-          </el-select>
-        </div>
-        <div class="tool-item mar-right" style="margin-left: 0px;">
-          <span style="white-space: nowrap">关键词：</span>
-          <el-input v-model="categoryKeyWord" placeholder="按关键词搜索查询" size="mini" clearable />
-        </div>
+  <div class="contaniner">
+    <div class="operation">
+      <div class="o-item">
+        <span style="white-space: nowrap">站点：</span>
+        <el-select v-model="form.site" class="unnormal" placeholder="" size="mini" filterable style="width:100px">
+          <el-option label="全部" :value="''" />
+          <el-option v-for="(item, index) in countries" :key="index" :label="item.label" :value="item.value" />
+        </el-select>
       </div>
-      <div class="tool-row">
-        <el-button type="primary" size="mini" class="tool-item " @click="searchTableList">查 询</el-button>
-        <el-button type="primary" size="mini" class="tool-item " @click="addBlackVisible = true,addkey++">添 加</el-button>
-        <el-button type="primary" size="mini" class="tool-item" @click="batchDelete">批量删除</el-button>
+      <div class="o-item">
+        <span style="min-width:84px">关键字类别：</span>
+        <el-select v-model="form.type" placeholder="" size="mini" filterable style="width:100px">
+          <el-option v-for="(item, index) in typeList" :key="index" :label="item.label" :value="item.value" />
+        </el-select>
       </div>
+      <div class="o-item">
+        <span style="min-width:57px">词来源：</span>
+        <el-select v-model="form.source" placeholder="" size="mini" filterable style="width:100px">
+          <el-option v-for="(item, index) in sourceList" :key="index" :label="item.label" :value="item.value" />
+        </el-select>
+      </div>
+      <div class="o-item">
+        <span style="min-width:57px">关键词：</span>
+        <el-input v-model="form.keyWord" size="mini" placeholder="请输入关键词" style="width:130px" clearable oninput="value=value.replace(/\s+/g,'')" />
+      </div>
+      <div class="o-item">
+        <el-button
+            type="primary"
+            size="mini"
+            @click="
+            page = 1
+            getBannedWordList()"
+        >查询</el-button>
+        <el-button type="primary" size="mini" @click="dialogVisible= true">添加</el-button>
+        <el-button type="primary" size="mini" @click="batchDelete()">批量删除</el-button>
+        <el-button type="primary" size="mini" @click="dialogBanWordVisible= true"> 批量导入 </el-button>
+        <el-button type="primary" size="mini" @click="exportSearch()">导出数据</el-button>
+        <el-checkbox v-model="showConsole" style="margin-left:10px">隐藏日志</el-checkbox>
+      </div>
+      <div class="o-item" />
     </div>
-    <!-- 表格区 -->
-    <div class="content">
-      <el-table ref="multipleTable" v-loading="tableLoading" :data="tableData" tooltip-effect="dark" max-height="680" @selection-change="selectionChange">
-        <el-table-column type="selection" width="55" align="center" />
-        <el-table-column align="center" type="index" label="序号" width="50">
-          <template slot-scope="scope">{{ (currentPage - 1) * pageSize + scope.$index + 1 }}</template>
-        </el-table-column>
-        <el-table-column width="80px" label="站点" prop="country" align="center">
-          <template slot-scope="scope">{{ scope.row.country | chineseSite }}</template>
-        </el-table-column>
-        <el-table-column min-width="60px" label="项目来源" align="center">
+    <div class="table-content">
+      <el-table
+          v-loading="isloading"
+          :data="tableData"
+          height="calc(100vh - 145px)"
+          :border="false"
+          :header-cell-style="{
+          textAlign: 'center',
+          backgroundColor: '#f5f7fa',
+        }"
+          @selection-change="handleSelectionChange"
+      >
+        <el-table-column type="selection" align="center" min-width="55" fixed />
+        <el-table-column type="index" align="center" label="序号" min-width="50" fixed>
           <template slot-scope="scope">
-            <p>{{ scope.row.uid === 0 ? '公有' : '私有' }}</p>
+            {{ (page - 1) * pageSize + scope.$index + 1 }}
           </template>
         </el-table-column>
-        <el-table-column min-width="120px" label="一级类目" prop="warehouse_name" align="center">
-          <template slot-scope="scope">
-            <p>{{ scope.row.parent_category_list && scope.row.parent_category_list.length ? (scope.row.parent_category_list[0] ? scope.row.parent_category_list[0].category_name+'('+scope.row.parent_category_list[0].category_cn_name+')' : '') : '' }}</p>
-          </template>
-        </el-table-column>
-        <el-table-column min-width="120px" label="二级类目" prop="warehouse_name" align="center">
-          <template slot-scope="scope">
-            <p>{{ scope.row.parent_category_list && scope.row.parent_category_list.length ? (scope.row.parent_category_list[1] ? scope.row.parent_category_list[1].category_name+'('+scope.row.parent_category_list[1].category_cn_name+')' : '') : '' }}</p>
-          </template>
-        </el-table-column>
-        <el-table-column min-width="120px" label="末级类目" prop="warehouse_name" align="center">
-          <template slot-scope="scope">
-            <p>{{ scope.row.parent_category_list && scope.row.parent_category_list.length ? (scope.row.parent_category_list[2] ? scope.row.parent_category_list[2].category_name+'('+scope.row.parent_category_list[2].category_cn_name+')' : '') : '' }}</p>
-          </template>
-        </el-table-column>
-        <el-table-column min-width="60px" label="创建时间" align="center">
-          <template slot-scope="scope">{{ $dayjs(scope.row.created_at).format('YYYY-MM-DD') }}</template>
-        </el-table-column>
-        <!-- <el-table-column min-width="60px" label="操作结果" prop="warehouse_name" align="center" /> -->
-        <el-table-column min-width="60px" label="操作" prop="warehouse_name" align="center">
-          <template slot-scope="{row}">
-            <div>
-              <el-button v-if="row.uid!==0" size="mini" type="primary" @click="delInfo(row.id)">删除</el-button>
-            </div>
-          </template>
-        </el-table-column>
+        <el-table-column prop="country" align="center" label="站点" min-width="80" />
+        <el-table-column prop="uid" align="center" label="词来源" min-width="80" />
+        <el-table-column prop="type" align="center" label="词类型" min-width="80" />
+        <el-table-column prop="word" align="center" show-overflow-tooltip label="关键词" min-width="180" />
+        <el-table-column prop="created_at" align="center" show-overflow-tooltip label="添加时间" min-width="100" fixed="right" />
+
       </el-table>
-      <div class="pagination">
-        <el-pagination
+    </div>
+    <div class="pagination">
+      <el-pagination
           background
-          :page-sizes="[10, 20, 50, 100]"
+          :current-page="page"
+          :page-sizes="[10, 30, 50]"
           :page-size="pageSize"
           layout="total, sizes, prev, pager, next, jumper"
           :total="total"
-          @current-change="handleCurrentChange"
           @size-change="handleSizeChange"
-        />
-      </div>
+          @current-change="handleCurrentChange"
+      />
     </div>
-    <el-dialog title="添加黑名单" :visible.sync="addBlackVisible" width="500px">
-      <div class="addBlack-dialog">
-        <!-- <category-choose :level="2" :is-category-all="false" :is-column="true" @setCategory="setAddCategory" /> -->
-        <category-choose :key="addkey" :level="3" :is-category-all="false" :is-column="true" @setCategory="setAddCategory" />
-        <div class="addBlack-item bottom-item">
-          <el-button type="primary" size="mini" @click="addCategoryBlack">确 定</el-button>
-          <el-button type="primary" size="mini" @click="addBlackVisible = false">取 消</el-button>
+    <div class="dialog-content">
+      <el-dialog
+          title="添加禁售词"
+          :visible.sync="dialogVisible"
+          :close-on-click-modal="false"
+          @close="dialogClose"
+      >
+        <span>
+          <el-form label-position="right" label-width="80px">
+            <el-form-item label="站点:">
+              <el-select v-model="dialogSite" class="unnormal" placeholder="" size="mini" filterable>
+                <el-option v-for="(item, index) in countries" :key="index" :label="item.label" :value="item.value" />
+              </el-select>
+            </el-form-item>
+            <el-form-item label="类别:">
+              <el-select v-model="dialogType" placeholder="" size="mini" filterable>
+                <el-option v-for="(item, index) in typeList.slice(1)" :key="index" :label="item.label" :value="item.value" />
+              </el-select>
+            </el-form-item>
+            <el-form-item label="关键词:">
+              <el-input v-model="dialogkeyWord" size="mini" placeholder="请输入关键词" clearable oninput="value=value.replace(/\s+/g,'')" />
+            </el-form-item>
+            <el-form-item>
+              <el-button style="margin-right:20px" size="mini" type="primary" @click="addBannedWord()">确 定</el-button>
+              <el-button type="primary" size="mini" @click="dialogVisible = false">取 消</el-button>
+            </el-form-item>
+          </el-form>
+        </span>
+      </el-dialog>
+    </div>
+    <div class="dialog-ban-content">
+      <el-dialog
+          title="批量导入禁售词"
+          :visible.sync="dialogBanWordVisible"
+          :close-on-click-modal="false"
+          @close="dialogClose"
+      >
+        <div style="display: flex;">
+          <el-upload ref="importRef" accept=".xls,.xlsx " action="https://jsonplaceholder.typicode.com/posts/" :on-change="importTemplateEvent" :show-file-list="false" :auto-upload="false">
+            <el-button :data="importTemplateData" size="mini" type="primary" style="margin-right: 10px"> 批量导入 </el-button>
+          </el-upload>
+          <el-button type="primary" size="mini" @click="downloadTemplate()">下载模板</el-button>
         </div>
-      </div>
-    </el-dialog>
+        <span>
+          <div class="text-log-content" v-html="batchConsoleMsg" />
+        </span>
+        <span style="display: flex;justify-content:center;">
+          <el-button type="primary" size="mini" @click="dialogBanWordVisible = false">关闭</el-button>
+        </span>
+      </el-dialog>
+    </div>
+    <div class="logging">
+      <Logs ref="Logs" v-model="showConsole" clear />
+    </div>
   </div>
 </template>
 
 <script>
-import CategoryChoose from '../../../components/category-choose.vue'
+import XLSX from 'xlsx'
+import { exportExcelDataCommon } from '../../../util/util'
 export default {
-  components: {
-    CategoryChoose
-  },
   data() {
     return {
-      addkey: '0',
-      countryVal: '',
-      countries: this.$filters.countries_option,
-      categorySource: '0',
-      categorySourceList: [
-        {
-          value: '0',
-          label: '全部'
-        },
-        {
-          value: '-1',
-          label: '公有'
-        },
-        {
-          value: '1',
-          label: '私有'
-        }
-      ],
-      categoryKeyWord: '',
+      showConsole: true,
+      consoleMsg: '', // 打印日志
+      batchConsoleMsg: '', // 批量导入信息
+      dialogBanWordVisible: false,
+      dialogVisible: false,
+      page: 1,
+      total: 0,
+      pageSize: 30,
+      isloading: false,
       multipleSelection: [],
-      pageSize: 20, // 页码
-      currentPage: 1, // 页码
-      total: 0, // 表格总数
-      addBlackVisible: false, // 添加弹窗
-      tableLoading: false,
-      selectCategory: {
-        country: '',
-        categoryFirst: '',
-        categorySecond: '',
-        categoryThird: '',
-        categoryList: []
+      importTemplateData: '', // 导入数据
+      dialogSite: 'MY', // 弹框站点
+      dialogType: '1', // 弹框关键词类别
+      dialogkeyWord: '', // 弹框关键词
+      countries: this.$filters.countries_option,
+      siteObj: this.$filters.countries_site,
+      form: {
+        site: '', // 站点
+        type: '0', // 关键词类别
+        source: '0', // 词来源
+        keyWord: '' // 关键词
+
       },
-      tableData: [],
-      tableLoading: false,
-      addSelectCategory: {
-        country: '',
-        categoryFirst: '',
-        categorySecond: '',
-        categoryThird: '',
-        categoryList: []
-      }
+      sourceList: [
+        { value: '0', label: '全部' },
+        { value: '-1', label: '系统' },
+        { value: '1', label: '用户' }
+      ],
+      typeList: [
+        { value: '0', label: '全部' },
+        { value: '1', label: '禁运词' },
+        { value: '2', label: '品牌词' },
+        { value: '3', label: '违规词' }
+      ],
+      typeObj: {
+        '禁运词': '1',
+        '品牌词': '2',
+        '违规词': '3'
+      },
+      tableData: [] // 表格数据
     }
   },
   mounted() {
-    this.searchTableList()
+    this.getBannedWordList()
   },
   methods: {
-    setAddCategory(val) {
-      this.addSelectCategory = val
-      console.log('setAddCategory', val)
-    },
-    async setCategory(val) {
-      this.selectCategory = val
-      console.log('setCategory', val)
-    },
-    // 查询
-    async searchTableList() {
-      const params = {
-        type: this.categorySource,
-        country: this.selectCategory.country,
-        page: this.currentPage,
-        perpage: this.pageSize,
-        parentCategoryTree: this.selectCategory.categoryList
+    // 导出excel
+    async exportSearch() {
+      this.isloading = true
+      const data = []
+      const len = this.total % 10 === 0 ? (this.total / 10) : (Math.floor(this.total / 10) + 1)
+      for (let index = 1; index <= len; index++) {
+        const parmas = {
+          page: index,
+          word: this.form.keyWord,
+          country: this.form.site,
+          source: Number(this.form.source),
+          type: Number(this.form.type)
+        }
+        try {
+          const res = await this.$commodityService.getBannedWordList(parmas)
+          const jsonData = JSON.parse(res).data.data
+          jsonData.forEach(item => {
+            data.push(item)
+          })
+        } catch (error) {
+          console.log(error)
+        }
       }
-      if (params.country === '') {
-        delete params.country
+      this.isloading = false
+      if (!data?.length) {
+        this.isloading = false
+        this.$message('暂无导出数据')
+        return
       }
-      this.tableLoading = true
-      const res = await this.$commodityService.getBlackCategory(params)
-      if (!res) {
-        return this.$message.warning('添加失败')
-      }
-      this.tableData = []
-      const resObj = JSON.parse(res)
-      if (resObj && resObj.code === 200) {
-        this.total = resObj.data.total
-        this.tableData = resObj.data.data
-      } else {
-        this.$message.warning(resObj.msg)
-      }
-      this.tableLoading = false
-    },
-    // 添加黑名单
-    async addCategoryBlack() {
-      const params = [this.addSelectCategory.categoryList[this.addSelectCategory.categoryList.length - 1], this.addSelectCategory.country, this.addSelectCategory.categoryList]
-      console.log(this.addSelectCategory, params)
-      const res = await this.$commodityService.addBlackCategory(params)
-      if (!res) {
-        return this.$message.warning('添加失败')
-      }
-      const resObj = JSON.parse(res)
-      if (resObj && resObj.code === 200) {
-        this.$message.success('添加成功')
-        this.addBlackVisible = false
-        await this.searchTableList()
-      } else {
-        this.$message.error(resObj.msg)
-      }
-      console.log(res, 'addBlackCategory')
-    },
-    // 删除
-    async delInfo(val) {
-      const id = val
-      const res = await this.$commodityService.deleteBlackCategory(id)
-      if (!res) {
-        return this.$message.warning('删除失败')
-      }
-      const resObj = JSON.parse(res)
-      if (resObj && resObj.code === 200) {
-        this.$message.success('删除成功')
-      } else {
-        this.$message.error(resObj.msg)
-      }
-      console.log(res, resObj)
-      this.searchTableList()
+      let str =
+          `<tr>
+          <td>站点</td>
+          <td>词来源</td>
+          <td>词类型</td>
+          <td>关键词</td>
+          <td>添加时间</td>
+      </tr>`
+      data.forEach((item) => {
+        item.created_at = item.created_at.replace('T', ' ').replace('Z', '')
+        item.country = this.$filters.chineseSite(item.country)
+        item.uid = item.uid === 0 ? '系统' : '用户'
+        if (item.type === 2) {
+          item.type = '品牌词'
+        } else if (item.type === 3) {
+          item.type = '违规词'
+        } else {
+          item.type = '禁运词'
+        }
+        str += `<tr>
+        <td>${item.country ? item.country : '' + '\t'}</td>
+        <td>${item.uid ? item.uid : '' + '\t'}</td>
+        <td>${item.type ? item.type : '' + '\t'}</td>
+        <td>${item.word ? item.word : '' + '\t'}</td>
+        <td>${item.created_at ? item.created_at : '' + '\t'}</td>
+        </tr>`
+      })
+      exportExcelDataCommon('品牌词库', str)
     },
     // 批量删除
     async batchDelete() {
-      if (!this.multipleSelection.length) {
-        return this.$message.warning('请勾选要删除的数据！')
-      }
-      for (let i = 0; i < this.multipleSelection.length; i++) {
-        const id = this.multipleSelection[i].id
-        const res = await this.$commodityService.deleteBlackCategory(id)
-        if (!res) {
-          return this.$message.warning('删除失败')
-        }
-        const resObj = JSON.parse(res)
-        if (resObj && resObj.code === 200) {
-          this.$message.success('删除成功')
+      if (this.multipleSelection.length <= 0) return this.$message('请选择要删除的数据')
+      for (let index = 0; index < this.multipleSelection.length; index++) {
+        const element = this.multipleSelection[index]
+        const res = await this.$commodityService.deleteDannedWord(element.id)
+        const jsonData = JSON.parse(res)
+        if (jsonData.code === 200) {
+          this.$refs.Logs.writeLog(`违规词【${element.word}】删除成功`, true)
         } else {
-          this.$message.error(resObj.msg)
+          this.$refs.Logs.writeLog(`违规词【${element.word}】删除失败 ${jsonData.msg}`, false)
         }
-        console.log(res, resObj)
       }
-      this.searchTableList()
+      this.showConsole = false
+      this.getBannedWordList()
     },
-    // 转换类型中文
-    changeTypeName(value, baseData) {
-      let str = ''
-      const data = baseData.find((item) => item.value == value)
-      str = data ? data.label : ''
-      return str
+    // 下载模板
+    downloadTemplate() {
+      const template = `
+      <tr>
+        <td style="width: 500px">站点(马来站,台湾站,新加坡站,菲律宾站,泰国站,越南站,印尼站,巴西站)<span style="color:red">（必填）</span></td>
+        <td>关键词类型(违规词,品牌词,禁运词)<span style="color:red">（必填）</span></td>
+        <td>关键词<span style="color:red">（必填）</span></td>
+      </tr>
+      <tr>
+        <td>台湾站</td>
+        <td>违规词</td>
+        <td>食品</td>
+      </tr>
+      `
+      exportExcelDataCommon('SHOPEE品牌词模板', template)
     },
-    //   表格选择
-    selectionChange(val) {
+    // 批量导入
+    async batchImport() {
+      const dataSum = this.importTemplateData.length
+      if (dataSum <= 0) {
+        this.batchWriteLog(`表格数据为空`, false)
+        return
+      }
+      let successNum = 0
+      let failNum = 0
+      this.batchWriteLog('开始导入禁售词')
+      for (let index = 0; index < dataSum; index++) {
+        const element = this.importTemplateData[index]
+        const countryVal = element['站点(马来站,台湾站,新加坡站,菲律宾站,泰国站,越南站,印尼站,巴西站)（必填）']
+        const typeVal = element['关键词类型(违规词,品牌词,禁运词)（必填）']
+        const wordVal = element['关键词（必填）']
+        if (!countryVal) {
+          failNum++
+          this.batchWriteLog(`【${index + 1}】未找到站点(马来站,台湾站,新加坡站,菲律宾站,泰国站,越南站,印尼站,巴西站)（必填）`, false)
+          continue
+        }
+        if (!typeVal) {
+          failNum++
+          this.batchWriteLog(`【${index + 1}】未找到关键词类型(违规词,品牌词,禁运词)（必填）`, false)
+          continue
+        }
+        if (!wordVal) {
+          failNum++
+          this.batchWriteLog(`【${index + 1}】未找到关键词（必填）`, false)
+          continue
+        }
+        if (!this.siteObj[countryVal]) {
+          failNum++
+          this.batchWriteLog(`【${index + 1}】站点参数错误`, false)
+          continue
+        }
+        if (!this.typeObj[typeVal]) {
+          failNum++
+          this.batchWriteLog(`【${index + 1}】关键词类型参数错误`, false)
+          continue
+        }
+        const parmas = {
+          word: wordVal.toString(),
+          country: this.siteObj[countryVal],
+          type: this.typeObj[typeVal]
+        }
+        console.log('execlVal', parmas)
+        try {
+          const res = await this.$commodityService.addBannedWord(parmas)
+          const jsonData = JSON.parse(res)
+          console.log('batchImport', jsonData)
+          if (jsonData.code === 200) {
+            if (jsonData.data === 1) {
+              this.batchWriteLog(`【${index + 1}】站点【${countryVal}】 禁售词【${wordVal}】 重复添加`, false)
+              failNum++
+              continue
+            }
+            successNum++
+            this.batchWriteLog(`【${index + 1}】站点【${countryVal}】 添加禁售词【${wordVal}】 成功`, true)
+          } else {
+            this.$refs.Logs.writeLog(`【${index + 1}】站点【${countryVal}】 禁售词【${wordVal}】添加失败 ${jsonData.msg}`, false)
+          }
+        } catch (error) {
+          this.batchWriteLog(`${error}`, false)
+        }
+      }
+      this.getBannedWordList()
+      this.batchWriteLog(`导入总数：${dataSum}，成功数：${successNum}，失败数：${failNum}`)
+    },
+    // 添加禁售词
+    async addBannedWord() {
+      if (!this.dialogkeyWord) return this.$message('请填写禁售词')
+      const parmas = {
+        word: this.dialogkeyWord,
+        country: this.dialogSite,
+        type: this.dialogType
+      }
+      try {
+        const res = await this.$commodityService.addBannedWord(parmas)
+        const jsonData = JSON.parse(res)
+        console.log(jsonData)
+        if (jsonData.code === 200) {
+          if (jsonData.data === 1) return this.$message.error('不可重复添加')
+          this.$message.success('添加成功')
+          this.getBannedWordList()
+        } else {
+          this.$message.success('添加失败' + jsonData.msg)
+        }
+      } catch (error) {
+        console.log(error)
+      }
+      this.dialogVisible = false
+    },
+    // 获取数据列表
+    async getBannedWordList() {
+      this.isloading = true
+      const parmas = {
+        page: this.page,
+        perpage: this.pageSize,
+        word: this.form.keyWord,
+        country: this.form.site,
+        source: Number(this.form.source),
+        type: Number(this.form.type)
+      }
+      try {
+        const res = await this.$commodityService.getBannedWordList(parmas)
+        const jsonData = JSON.parse(res)
+        console.log('tableData', jsonData)
+        if (jsonData.code === 200) {
+          this.tableData = jsonData.data.data
+          if (this.tableData) {
+            this.tableData.map(item => {
+              item.created_at = item.created_at.replace('T', ' ').replace('Z', '')
+              item.country = this.$filters.chineseSite(item.country)
+              item.uid = item.uid === 0 ? '系统' : '用户'
+              if (item.type === 2) {
+                item.type = '品牌词'
+              } else if (item.type === 3) {
+                item.type = '违规词'
+              } else {
+                item.type = '禁运词'
+              }
+            })
+          }
+          this.total = jsonData.data.total
+          this.isloading = false
+        } else {
+          this.$message.error(`获取数据失败:${jsonData.msg}`)
+          this.isloading = false
+        }
+      } catch (err) {
+        this.tableData = []
+        this.$message.error(`获取数据失败`)
+        console.log(err)
+        this.isloading = false
+      }
+    },
+    // 表格导入
+    importTemplateEvent(file) {
+      const files = { 0: file.raw }
+      if (!/\.(xls|xlsx)$/.test(files[0].name.toLowerCase())) {
+        this.$refs.Logs.writeLog('格式错误,请上传xls、xlsx格式的文件', false)
+        this.showConsole = false
+        return
+      }
+      if (files.length <= 0) {
+        this.$refs.Logs.writeLog('表格为空', false)
+        return
+      }
+      const fileReader = new FileReader()
+      fileReader.onload = ev => {
+        const data = ev.target.result
+        const workbook = XLSX.read(data, {
+          type: 'binary'
+        })
+        const wsname = workbook.SheetNames[0] // 取第一张表
+        let ws = XLSX.utils.sheet_to_json(workbook.Sheets[wsname]) // 生成Json表格
+        this.importTemplateData = ws
+        this.batchImport()
+        ws = null
+        this.$refs.importRef.value = ''
+      }
+      fileReader.readAsBinaryString(files[0])
+    },
+    batchWriteLog(msg, success = true) {
+      if (!msg) return
+      const color = success ? 'green' : 'red'
+      this.batchConsoleMsg = `<p style="color:${color}; margin-top: 8px;">${msg}</p>` + this.batchConsoleMsg
+    },
+    handleSelectionChange(val) {
       this.multipleSelection = val
     },
     handleCurrentChange(val) {
-      this.currentPage = val
-      this.searchTableList()
+      this.page = val
+      this.getBannedWordList()
     },
-    handleSizeChange(size) {
-      this.pageSize = size
-      this.searchTableList()
+    handleSizeChange(val) {
+      this.page = 1
+      this.pageSize = val
+      this.getBannedWordList()
+    },
+    dialogClose() {
+      this.batchConsoleMsg = ''
+      this.showConsole = true
+      this.dialogkeyWord = ''
+      this.dialogSite = 'MY'
+      this.dialogType = '1'
     }
   }
 }
 </script>
 
-<style lang="less" scoped>
-.category-black {
+<style lang="less">
+@import '../../../module-less/product-put-less/band-library.less';
+
+.contaniner{
   min-width: 1280px;
-  margin: 10px;
-}
-.mar-right {
-  margin-right: 10px;
-}
-.tool-bar {
-  height: 100px;
-  background: #fff;
-  .tool-row {
-    padding: 16px 16px 0 16px;
+  .operation{
     display: flex;
-    align-items: center;
-    flex-wrap: wrap;
-    .tool-item {
-      display: flex;
-      align-items: center;
-      span{
-        display: inline-block;
-        // width: 80px;
-      }
+    height: 40px;
+    .o-item{
+      //  display: flex;
     }
-  }
-}
-.content {
-  margin: 20px 0;
-  background: #fff;
-  height: calc(100vh - 150px);
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  .pagination {
-    display: flex;
-    justify-content: flex-end;
-    margin-top: 20px;
-    height: 35px;
-  }
-}
-.addBlack-dialog {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  .addBlack-item {
-    display: flex;
-    margin-bottom: 10px;
-    span {
-      display: inline-block;
-      width: 80px;
-    }
-  }
-  .bottom-item {
-    margin-top: 50px;
   }
 }
 </style>
-

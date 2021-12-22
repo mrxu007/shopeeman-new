@@ -74,13 +74,13 @@
       </el-table>
       <div class="pagination">
         <el-pagination
-          background
-          :page-sizes="[10, 20, 50, 100]"
-          :page-size="pageSize"
-          layout="total, sizes, prev, pager, next, jumper"
-          :total="total"
-          @current-change="handleCurrentChange"
-          @size-change="handleSizeChange"
+            background
+            :page-sizes="[10, 20, 50, 100]"
+            :page-size="pageSize"
+            layout="total, sizes, prev, pager, next, jumper"
+            :total="total"
+            @current-change="handleCurrentChange"
+            @size-change="handleSizeChange"
         />
       </div>
     </div>
@@ -125,7 +125,7 @@ export default {
       ],
       categoryKeyWord: '',
       multipleSelection: [],
-      pageSize: 100, // 页码
+      pageSize: 20, // 页码
       currentPage: 1, // 页码
       total: 0, // 表格总数
       addBlackVisible: false, // 添加弹窗
@@ -138,6 +138,7 @@ export default {
         categoryList: []
       },
       tableData: [],
+      tableLoading: false,
       addSelectCategory: {
         country: '',
         categoryFirst: '',
@@ -226,10 +227,6 @@ export default {
         return this.$message.warning('请勾选要删除的数据！')
       }
       for (let i = 0; i < this.multipleSelection.length; i++) {
-        if (this.multipleSelection[i].uid === 0) {
-          this.$message.warning('公有数据不可删除！')
-          continue
-        }
         const id = this.multipleSelection[i].id
         const res = await this.$commodityService.deleteBlackCategory(id)
         if (!res) {
