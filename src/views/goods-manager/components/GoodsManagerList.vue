@@ -1686,12 +1686,16 @@ export default {
             // 获取该商品参加的折扣活动ID
             const res = await this.GoodsList.getMallDiscountsIdByKeyword(item)
             activityid = res.data.hits[0].promotionid
-            await this.GoodsList.deleteDiscountCampainDetail(item, activityid)
+            // 删除
+            const delRes = await this.GoodsList.deleteDiscountCampainDetail(item, activityid)
+            if (delRes.code !== 200) return { batchStatus: `删除折扣活动失败：${delRes.data}`, color: false, code: delRes.code }
           } else if (campaignType === 3) {
           // 获取该商品参加的套装活动ID
             const res = await this.GoodsList.getBundleDeal(item, activityid)
             activityid = res.data.hits[0].bundle_deal_id
-            await this.GoodsList.deleteBundleGoods(item, activityid)
+            // 删除
+            const delRes = await this.GoodsList.deleteBundleGoods(item, activityid)
+            if (delRes.code !== 200) return { batchStatus: `删除套装活动失败：${delRes.data}`, color: false, code: delRes.code }
           } else if (campaignType === 4) {
             // 获取该商品参加的加购活动ID
             const res1 = await this.GoodsList.getAddOnDealStandardSearch(item)
@@ -1711,7 +1715,8 @@ export default {
                 status = 1
               }
               // 删除主商品加购活动商品
-              await this.GoodsList.deleteAddOnDealMainItemList(item, status, activityid)
+              const delRes1 = await this.GoodsList.deleteAddOnDealMainItemList(item, status, activityid)
+              if (delRes1.code !== 200) return { batchStatus: `删除主商品加购活动失败：${delRes1.data}`, color: false, code: delRes1.code }
             } else {
               // 获取子商品列表
               const res3 = await this.GoodsList.getAdd0nDealAggrSubItemList(item, activityid)
@@ -1727,7 +1732,8 @@ export default {
               if (subItemList?.length > 0) {
                 for (let j = 0; j < subItemList.length; j++) {
                 // 删除子商品加购活动商品
-                  await this.GoodsList.deleteAddOnDealSubItemList(item, activityid, subItemList)
+                  const delRes2 = await this.GoodsList.deleteAddOnDealSubItemList(item, activityid, subItemList)
+                  if (delRes2.code !== 200) return { batchStatus: `删除子商品加购活动失败：${delRes2.data}`, color: false, code: delRes2.code }
                 }
               }
             }
@@ -1735,10 +1741,10 @@ export default {
             continue
           }
         }
-        return { batchStatus: '删除活动成功', color: true }
+        return { batchStatus: '删除活动成功', color: true, code: 200 }
       } catch (error) {
         console.log('删除活动异常', error)
-        return { batchStatus: '删除活动异常', color: false }
+        return { batchStatus: '删除活动异常', color: false, code: -2 }
       }
     },
     // 批量上下架
@@ -1803,8 +1809,8 @@ export default {
         // 判断是否有活动
         if (item.campaignTypeList.Name?.length > 0) {
           // 删除有活动的商品
-          const { batchStatus, color } = await this.deleteActicity(item, item.campaignTypeList)
-          this.batchStatus(item, batchStatus, color)
+          const { batchStatus, color, code } = await this.deleteActicity(item, item.campaignTypeList)
+          if (code !== 200) return this.batchStatus(item, batchStatus, color)
         }
         const params = {
           product_id_list: [Number(item.id)],
