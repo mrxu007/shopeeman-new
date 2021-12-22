@@ -419,7 +419,6 @@
     <el-row id="article">
       <u-table
         ref="plTable"
-        v-loading="isShowLoading"
         :data="tableData"
         use-virtual
         :height="isFold?450:760"
@@ -709,7 +708,6 @@ export default {
   data() {
     return {
       isFold: true,
-      isShowLoading: false,
       showConsole: true,
       categoryVisible: false,
       titleVisible: false,
@@ -1067,32 +1065,40 @@ export default {
         const res = await this.getProductDetail(item)
         if (res.code === 200) {
           productInfo = res.data
-          // const categoryPath = []
-          // this.categoryList.categoryList.forEach(item => {
-          //   categoryPath.push(item.category_id)
-          // })
-          // productInfo['category_path'] = categoryPath
-          // for (let i = 0; i < this.categoryList.length; i++) {
-          //   const att = this.categoryList[i]
-          //   // 新类目和未更新站点的属性格式不一致，所以需判断处理
-          //   if (this.includes(item.country)) {
-          //     if (att.attribute_id < 1) {
-          //       productInfo['brand_id'] = att.value_id
-          //       continue
-          //     }
-          //     // const obj = {}
-          //     // obj['attribute_id'] = att.value_id
-          //     // obj['attribute_value_id'] =
-          //     // productInfo['attributes'] =
-          //   }
-          // }
-          console.log('productInfo', productInfo)
-          console.log('categoryList', this.categoryList)
+          const categoryPath = []
+          this.categoryList.categoryList.forEach(item => {
+            categoryPath.push(item.category_id)
+          })
+          const attributes = []
+          for (let i = 0; i < this.categoryList.attributesList.length; i++) {
+            const att = this.categoryList.attributesList[i]
+            // 新类目和未更新站点的属性格式不一致，所以需判断处理
+            if (this.countryArr.includes(item.country)) {
+              if (att.attribute_id < 1) {
+                productInfo['brand_id'] = att.options
+                continue
+              }
+              const obj = {}
+              obj['attribute_id'] = att.attribute_id
+              obj['attribute_value_id'] = att.options
+              attributes.push(obj)
+            } else {
+              const obj = {
+                custom_value: {}
+              }
+              obj['custom_value ']['raw_value '] = att.selected_attribute_value_name
+              attributes.push(obj)
+            }
+          }
+          productInfo['attributes'] = attributes
+          productInfo['category_path'] = categoryPath
+          await this.handleProductEdit(productInfo, item)
         } else {
           this.batchStatus(item, res.data, false)
           this.failNum++
         }
       } catch (error) {
+        console.log(error)
         this.batchStatus(item, `更新类目异常`, false)
         this.failNum++
       } finally {
@@ -1680,12 +1686,16 @@ export default {
             // 获取该商品参加的折扣活动ID
             const res = await this.GoodsList.getMallDiscountsIdByKeyword(item)
             activityid = res.data.hits[0].promotionid
-            await this.GoodsList.deleteDiscountCampainDetail(item, activityid)
+            // 删除
+            const delRes = await this.GoodsList.deleteDiscountCampainDetail(item, activityid)
+            if (delRes.code !== 200) return { batchStatus: `删除折扣活动失败：${delRes.data}`, color: false, code: delRes.code }
           } else if (campaignType === 3) {
           // 获取该商品参加的套装活动ID
             const res = await this.GoodsList.getBundleDeal(item, activityid)
             activityid = res.data.hits[0].bundle_deal_id
-            await this.GoodsList.deleteBundleGoods(item, activityid)
+            // 删除
+            const delRes = await this.GoodsList.deleteBundleGoods(item, activityid)
+            if (delRes.code !== 200) return { batchStatus: `删除套装活动失败：${delRes.data}`, color: false, code: delRes.code }
           } else if (campaignType === 4) {
             // 获取该商品参加的加购活动ID
             const res1 = await this.GoodsList.getAddOnDealStandardSearch(item)
@@ -1705,7 +1715,8 @@ export default {
                 status = 1
               }
               // 删除主商品加购活动商品
-              await this.GoodsList.deleteAddOnDealMainItemList(item, status, activityid)
+              const delRes1 = await this.GoodsList.deleteAddOnDealMainItemList(item, status, activityid)
+              if (delRes1.code !== 200) return { batchStatus: `删除主商品加购活动失败：${delRes1.data}`, color: false, code: delRes1.code }
             } else {
               // 获取子商品列表
               const res3 = await this.GoodsList.getAdd0nDealAggrSubItemList(item, activityid)
@@ -1721,7 +1732,8 @@ export default {
               if (subItemList?.length > 0) {
                 for (let j = 0; j < subItemList.length; j++) {
                 // 删除子商品加购活动商品
-                  await this.GoodsList.deleteAddOnDealSubItemList(item, activityid, subItemList)
+                  const delRes2 = await this.GoodsList.deleteAddOnDealSubItemList(item, activityid, subItemList)
+                  if (delRes2.code !== 200) return { batchStatus: `删除子商品加购活动失败：${delRes2.data}`, color: false, code: delRes2.code }
                 }
               }
             }
@@ -1729,10 +1741,10 @@ export default {
             continue
           }
         }
-        return { batchStatus: '删除活动成功', color: true }
+        return { batchStatus: '删除活动成功', color: true, code: 200 }
       } catch (error) {
         console.log('删除活动异常', error)
-        return { batchStatus: '删除活动异常', color: false }
+        return { batchStatus: '删除活动异常', color: false, code: -2 }
       }
     },
     // 批量上下架
@@ -1797,8 +1809,8 @@ export default {
         // 判断是否有活动
         if (item.campaignTypeList.Name?.length > 0) {
           // 删除有活动的商品
-          const { batchStatus, color } = await this.deleteActicity(item, item.campaignTypeList)
-          this.batchStatus(item, batchStatus, color)
+          const { batchStatus, color, code } = await this.deleteActicity(item, item.campaignTypeList)
+          if (code !== 200) return this.batchStatus(item, batchStatus, color)
         }
         const params = {
           product_id_list: [Number(item.id)],
@@ -2125,7 +2137,6 @@ export default {
         if (res.code === 200) {
           if (res.data.list?.length) {
             this.$refs.Logs.writeLog(`查询店铺【${mallName}】第【${mItem.pageNumber}】页数据：${res.data.list.length}`, true)
-            console.log('原始数据', res.data.list)
             // 组装数据
             await this.setTableData(res.data.list, mItem, mallName)
             // 过滤数据
@@ -2136,7 +2147,7 @@ export default {
             } else {
               mItem.mylist = mItem.mylist.concat(newData)
             }
-            console.log('过滤数据', res.data.list)
+            console.log('tableData', res.data.list)
           }
         } else {
           this.$refs.Logs.writeLog(`店铺【${mallName}】${res.data}`, false)

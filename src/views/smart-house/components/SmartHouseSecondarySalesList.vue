@@ -69,12 +69,13 @@
         @selection-change="handleSelectionChange"
       >
         <el-table-column align="center" type="selection" min-width="50px" />
+        <el-table-column align="center" label="序号" type="index" min-width="50px" fixed />
         <el-table-column align="center" label="站点" min-width="70px" prop="country" fixed>
           <template slot-scope="{row}"><span>{{ row.country | chineseSite }}</span></template>
         </el-table-column>
         <el-table-column align="center" prop="receive_warehouse_name" label="包裹所在仓库" min-width="150px" fixed />
-        <el-table-column align="center" prop="platform_tracking_number" label="平台物流单号" min-width="150px" />
-        <el-table-column prop="order_sn" label="订单编号" min-width="150px" align="center">
+        <el-table-column align="center" prop="platform_tracking_number" label="平台物流单号" min-width="150px" show-overflow-tooltip />
+        <el-table-column prop="order_sn" label="订单编号" min-width="180px" align="center">
           <template slot-scope="{ row }">
             <span>
               {{ row.order_sn }}
@@ -115,7 +116,7 @@
         <el-table-column prop="goods_price" label="商品价格" min-width="120px" align="center">
           <template slot-scope="{row}"><span>{{ row.goods_price }}{{ row.country | siteCoin }}</span></template>
         </el-table-column>
-        <el-table-column label="商品规格" min-width="180px" align="center">
+        <el-table-column label="商品规格" min-width="180px" align="center" show-overflow-tooltip>
           <template v-slot="{row}">
             {{ row.variation_sku?row.variation_sku:row.variation_name }}
           </template>
@@ -137,11 +138,11 @@
       <div class="pagination">
         <el-pagination
           background
-          :current-page.sync="currentPage"
+          :current-page="page"
           :page-size="pageSize"
           layout="total,sizes, prev, pager, next, jumper"
           :total="total"
-          :page-sizes="[100, 200]"
+          :page-sizes="[50,100, 200]"
           @size-change="handleSizeChange"
           @current-change="handleCurrentChange"
         />
@@ -157,10 +158,9 @@ export default {
       Loading1: false,
       Loading2: false,
       Loading3: false,
-      currentPage: 1,
       tableData: [],
       total: 0,
-      pageSize: 100,
+      pageSize: 50,
       page: 1,
       form: {
         returnStatus: -1, // 二次销售状态
@@ -200,32 +200,28 @@ export default {
     async getSencondSales() {
       this.Loading1 = true
       this.Loading3 = true
-      const returnCreateTime = this.form.returnCreateTime ? `${this.$dayjs(this.form.returnCreateTime[0]).format('YYYY-MM-DD HH:mm:ss')}/${this.$dayjs(this.form.returnCreateTime[1]).format('YYYY-MM-DD HH:mm:ss')}` : ''
+      const returnCreateTime = this.form.returnCreateTime ? `${this.$dayjs(this.form.returnCreateTime[0]).format('YYYY-MM-DD 00:00:00')}/${this.$dayjs(this.form.returnCreateTime[1]).format('YYYY-MM-DD 23:23:23')}` : ''
       const parmas = {
-        status: Number(this.form.returnStatus),
-        createTime: returnCreateTime,
-        type: Number(this.form.returnType),
-        goodsId: this.form.returnGoodsId,
-        variationId: this.form.returnSkuId,
         orderSn: this.form.returnMainOrderNum,
         platformTrackingNumber: this.form.returnLogisticsDocNum,
+        createTime: returnCreateTime,
+        goodsId: this.form.returnGoodsId,
+        variationId: this.form.returnSkuId,
+        type: this.form.returnType,
+        status: this.form.returnStatus,
         page: this.page,
         pageSize: this.pageSize
       }
       console.log('parmas', parmas)
       try {
-        const { data } = await this.$api.getsecondlist(parmas)
+        const { data } = await this.$api.getsecondStroelist(parmas)
         if (data.code === 200) {
           this.tableData = data.data.data
-          // console.log(this.tableData[0].ext)
-          // this.tableData[0].ext = JSON.parse(this.tableData[0].ext)
-          // console.log(this.tableData[0].ext.free_storage_days)
           for (let i = 0; i < this.tableData.length; i++) {
             if (this.tableData[i].ext && this.tableData[i].ext !== undefined) {
               this.tableData[i].ext = JSON.parse(this.tableData[i].ext)
             }
           }
-          console.log(this.tableData)
           this.total = data.data.total
         } else {
           this.$message.error('数据获取失败', data.message)
@@ -243,19 +239,19 @@ export default {
       let resData = []
       const returnCreateTime = this.form.returnCreateTime ? `${this.$dayjs(this.form.returnCreateTime[0]).format('YYYY-MM-DD HH:mm:ss')}/${this.$dayjs(this.form.returnCreateTime[1]).format('YYYY-MM-DD HH:mm:ss')}` : ''
       const parmas = {
-        status: Number(this.form.returnStatus),
+        orderSn: this.form.returnMainOrderNum,
+        platformTrackingNumber: this.form.returnLogisticsDocNum,
         createTime: returnCreateTime,
-        type: Number(this.form.returnType),
         goodsId: this.form.returnGoodsId,
         variationId: this.form.returnSkuId,
-        orderSn: this.form.returnMainOrderNum,
-        platformTrackingNumber: this.form.returnLogisticsDocNum
+        type: this.form.returnType,
+        status: this.form.returnStatus
       }
       parmas.pageSize = 200
       parmas.page = 1
       while (resData.length < this.total) {
         try {
-          const { data } = await this.$api.getsecondlist(parmas)
+          const { data } = await this.$api.getsecondStroelist(parmas)
           if (data.code === 200) {
             resData = resData.concat(data.data.data)
             parmas.page++
@@ -317,8 +313,8 @@ export default {
       this.Loading2 = false
     },
     handleSizeChange(val) {
-      this.page = 1
       this.pageSize = val
+      this.page = 1
       this.getSencondSales()
     },
     handleCurrentChange(val) {

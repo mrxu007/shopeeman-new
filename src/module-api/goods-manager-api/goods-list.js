@@ -7,7 +7,6 @@ export default class GoodsList {
     try {
       const res = await this._this.$commodityService.deleteCollectGoodsInfo(id)
       const jsonData = this.isJsonString(res)
-      console.log(jsonData)
       if (jsonData.code === 200) {
         return { code: 200 }
       }
@@ -44,12 +43,12 @@ export default class GoodsList {
       params['sub_item_list'] = subItemList
       params['mallId'] = val.platform_mall_id
       const res = await this._this.$shopeemanService.postChinese(val.country, '/api/marketing/v3/add_on_deal/sub_item_list/?', params)
-      const jsonData = this.isJsonString(res)
+      const jsonData = this.isJsonString(this.isJsonString(res).data)
       console.log('删除子加购商品', jsonData)
-      if (jsonData.status === 200) {
+      if (jsonData.message === 'success') {
         return { code: 200 }
       }
-      return { code: 201, data: jsonData.statusText }
+      return { code: 201, data: jsonData.message }
     } catch (error) {
       return { code: -2, data: `删除加购子商品异常： ${error}` }
     }
@@ -79,12 +78,12 @@ export default class GoodsList {
       params['main_item_list'] = [{ item_id: val.id, status: status }]
       params['mallId'] = val.platform_mall_id
       const res = await this._this.$shopeemanService.postChinese(val.country, '/api/marketing/v3/add_on_deal/main_item_list/?', params)
-      const jsonData = this.isJsonString(res)
+      const jsonData = this.isJsonString(this.isJsonString(res).data)
       console.log('删除主加购商品', jsonData)
-      if (jsonData.status === 200) {
+      if (jsonData.message === 'success') {
         return { code: 200 }
       }
-      return { code: 201, data: jsonData.statusText }
+      return { code: 201, data: jsonData.message }
     } catch (error) {
       return { code: -2, data: `删除加购主商品异常： ${error}` }
     }
@@ -131,15 +130,20 @@ export default class GoodsList {
       params['bundle_deal_id'] = activityid
       params['items'] = [{ item_id: val.id }]
       params['mallId'] = val.platform_mall_id
-      const res = await this._this.$shopeemanService.deleteChinese(val.country, '/api/marketing/v3/bundle_deal/item/?', params)
-      const jsonData = this.isJsonString(res)
+      const res = await this._this.$shopeemanService.deleteChinese(val.country, '/api/marketing/v3/bundle_deal/item/', params, {
+        headers: {
+          'Content-Type': 'application/json',
+          referer: `portal/marketing/bundle/${activityid}`
+        }
+      })
+      const jsonData = this.isJsonString(this.isJsonString(res).data)
       console.log('删除套装商品', jsonData)
-      if (jsonData.status === 200) {
+      if (jsonData.message === 'success') {
         return { code: 200 }
       }
-      return { code: 201, data: jsonData.statusText }
+      return { code: 201, data: jsonData.message }
     } catch (error) {
-      return { code: -2, data: `删除折扣商品异常： ${error}` }
+      return { code: -2, data: `删除套装商品异常： ${error}` }
     }
   }
   // 获取该商品参加的套装活动ID
@@ -168,12 +172,12 @@ export default class GoodsList {
       params['itemid_list'] = [val.id]
       params['mallId'] = val.platform_mall_id
       const res = await this._this.$shopeemanService.deleteChinese(val.country, '/api/marketing/v3/discount/nominate/abnormal/?', params)
-      const jsonData = this.isJsonString(res)
+      const jsonData = this.isJsonString(this.isJsonString(res).data)
       console.log('删除折扣商品', jsonData)
-      if (jsonData.status === 200) {
+      if (jsonData.message === 'success') {
         return { code: 200 }
       }
-      return { code: 201, data: jsonData.statusText }
+      return { code: 201, data: jsonData.message }
     } catch (error) {
       return { code: -2, data: `删除折扣商品异常： ${error}` }
     }
