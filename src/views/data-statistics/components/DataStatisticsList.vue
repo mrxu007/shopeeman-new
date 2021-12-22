@@ -87,7 +87,7 @@
             </div>
           </div>
           <div class="item-box">
-            <div class="item">
+            <!-- <div class="item">
               <img :src="cancelOrderPng">
               <span class="item-name">已取消订金额（元）</span>
               <el-tooltip effect="dark" content="已取消订单收入总和" placement="bottom-start">
@@ -95,7 +95,7 @@
               </el-tooltip>
               :
               <span class="item-num">{{ orderListData.totalCanceledEscrowAmount }}</span>
-            </div>
+            </div> -->
             <div class="item">
               <img :src="alreadyCancelPng">
               <span class="item-name">已取消订单数（单）</span>
@@ -113,6 +113,15 @@
               </el-tooltip>
               :
               <span class="item-num">{{ orderListData.totalCompletedShotAmount }}</span>
+            </div>
+            <div class="item">
+              <img :src="noOrderPng">
+              <span class="item-name">匹配不到订单数（单）</span>
+              <el-tooltip effect="dark" content="今日匹配不到订单的包裹数量总和" placement="bottom-start">
+                <img :src="questionPng">
+              </el-tooltip>
+              :
+              <span class="item-num">{{ orderListData.noOrderNum }}</span>
             </div>
           </div>
           <div class="item-box">
@@ -144,7 +153,7 @@
               <span class="item-num">{{ orderListData.totalOutStockAmount }}</span>
             </div>
           </div>
-          <div class="item-box">
+          <!-- <div class="item-box">
             <div class="item">
               <img :src="noOrderPng">
               <span class="item-name">匹配不到订单数（单）</span>
@@ -163,7 +172,7 @@
               :
               <span class="item-num">{{ orderListData.printOrderFailNum }}</span>
             </div>
-          </div>
+          </div> -->
         </el-card>
       </div>
     </div>
