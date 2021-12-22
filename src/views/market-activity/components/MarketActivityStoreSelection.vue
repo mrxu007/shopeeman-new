@@ -15,8 +15,13 @@
             <div style="margin-left:18px">
               <el-button :disabled="isDisabled" type="primary" size="mini" @click="queryData">查询精选组</el-button>
               <el-button :disabled="isDisabled" type="primary" size="mini" @click="singleAdd">添加单个精选组</el-button>
-              <el-button :disabled="isDisabled" type="primary" size="mini">批量删除精选组</el-button>
-              <el-button :disabled="isDisabled" type="primary" size="mini">批量关闭精选组</el-button>
+              <el-button :disabled="isDisabled" type="primary" size="mini" @click="deleteSelection(multipleSelection,2)">批量删除精选组</el-button>
+              <el-button
+                :disabled="isDisabled"
+                type="primary"
+                size="mini"
+                @click="queryIsOpen(multipleSelection,2)"
+              >批量关闭精选组</el-button>
               <el-checkbox v-model="showConsole" style="margin:0 10px">隐藏日志</el-checkbox>
               <el-button type="primary" size="mini" @click="$refs.Logs.consoleMsg = ''">清除日志</el-button>
             </div>
@@ -110,13 +115,13 @@
         </u-table-column>
         <u-table-column align="center" label="启用状态" min-width="100">
           <template v-slot="{row}">
-            <el-switch v-model="row.status" active-color="#13ce66" inactive-color="#ff4949" @change="setSelectionGroup(row)" />
+            <el-switch v-model="row.status" active-color="#13ce66" inactive-color="#ff4949" @change="queryIsOpen(row,1)" />
           </template>
         </u-table-column>
         <u-table-column align="center" label="操作" min-width="150">
           <template v-slot="{row}">
             <el-button type="primary" size="mini" @click="editData(row)">编辑</el-button>
-            <el-button type="primary" size="mini" :disabled="row.status" @click="deleteSelectionGroup(row)">删除</el-button>
+            <el-button type="primary" size="mini" :disabled="row.status" @click="deleteSelection(row,1)">删除</el-button>
           </template>
         </u-table-column>
       </u-table>
@@ -140,12 +145,17 @@
         <li><span>启用状态：{{ detailsData.status?'已启用':'未启用' }}</span></li>
         <li>
           <el-button type="primary" size="mini" :loading="queryProductLoading" @click="productSelector">添加商品</el-button>
-          <el-button type="primary" size="mini" @click="saveSelectionGroup(true)">保存并启用</el-button>
+          <el-button
+            type="primary"
+            size="mini"
+            :disabled="detailsData.status"
+            @click="saveSelectionGroup(true)"
+          >保存并启用</el-button>
           <el-button type="primary" size="mini" @click="saveSelectionGroup(false)">保存</el-button>
         </li>
       </ul>
       <ul style="margin-bottom:10px">
-        <el-input v-model="productId" size="mini" /><span class="red-span" style="width:270px">添加多个商品，请以英文逗号（,）隔开</span>
+        <el-input v-model="productId" size="mini" /><span class="red-span" style="width:270px" clearable>添加多个商品，请以英文逗号（,）隔开</span>
       </ul>
       <ul>
         <u-table
@@ -247,23 +257,61 @@ export default {
     }
   },
   methods: {
+    // 批量/删除精选组
+    async deleteSelection(val, type) {
+      if (type === 1) {
+        await this.deleteSelectionGroup(val)
+      } else {
+        if (!this.multipleSelection.length) return this.$message('请选择数据后操作')
+        for (let i = 0; i < this.multipleSelection.length; i++) {
+          const item = this.multipleSelection[i]
+          this.deleteSelectionGroup(item)
+        }
+      }
+    },
     // 删除精选组
     async deleteSelectionGroup(val) {
-      console.log(val)
       const params = {}
       params['plan_id'] = val.id
       params['platform_mall_id'] = val.platform_mall_id
       params['country'] = val.country
       const res = await this.StoreSelection.markeHotSalePlan(params, 'deleteChinese')
       if (res.code === 200) {
-        this.$message.success(`【${val.mallName}】下【${val.name}】删除成功`)
-        this.tableData.splice(this.tableData.findIndex(item => { item.id === val.id }, 1))
+        this.$refs.Logs.writeLog(`【${val.mallName}】下【${val.name}】删除成功`, true)
+        this.tableData.splice(this.tableData.findIndex(item => { return item.id === val.id }), 1)
       } else {
-        this.$message.error(`【${val.mallName}】下【${val.name}】删除失败：${res.data}`)
+        this.$refs.Logs.writeLog(`【${val.mallName}】下【${val.name}】删除失败：${res.data}`, false)
       }
     },
     // 设置精选组
+    async queryIsOpen(val, type) {
+      if (type === 1) {
+        this.$refs.Logs.writeLog(`正在设置精选组状态...`, true)
+        const newData = this.tableData.filter(item => {
+          return item.status === true && item.platform_mall_id === val.platform_mall_id && val.id !== item.id
+        })
+        if (newData?.length > 0) {
+          newData[0].status = false
+          await this.setSelectionGroup(...newData)
+        }
+        await this.setSelectionGroup(val)
+      } else {
+        if (!this.multipleSelection.length) return this.$message('请选择数据后操作')
+        const newData = this.multipleSelection.filter(item => {
+          return item.status === true
+        })
+        console.log('newData', newData)
+        if (!this.newData?.length <= 0) return this.$message('没有可关闭的数据')
+        this.$refs.Logs.writeLog(`正在设置精选组状态...`, true)
+        for (let i = 0; i < newData.length; i++) {
+          const item = newData[i]
+          item.status = false
+          await this.setSelectionGroup(item)
+        }
+      }
+    },
     async setSelectionGroup(val) {
+      console.log('设置精选组', val)
       const params = {}
       params['name'] = val.name
       params['plan_id'] = val.id
@@ -275,16 +323,18 @@ export default {
       })
       const res = await this.StoreSelection.markeHotSalePlan(params, 'putChinese')
       if (res.code === 200) {
-        this.$message.success(`【${val.mallName}】下【${val.name}】${val.status ? '开启' : '关闭'}成功`)
+        this.$refs.Logs.writeLog(`【${val.mallName}】下【${val.name}】${val.status ? '开启' : '关闭'}成功`, true)
+        this.$set(val, 'status', val.status)
       } else {
-        this.$message.error(`【${val.mallName}】下【${val.name}】${val.status ? '开启' : '关闭'}失败：${res.data}`)
+        this.$refs.Logs.writeLog(`【${val.mallName}】下【${val.name}】${val.status ? '开启' : '关闭'}失败：${res.data}`, false)
+        this.$set(val, 'status', !val.status)
       }
     },
     // 保存精选组
     async saveSelectionGroup(type) {
       try {
         if (!this.detailsData.name) return this.$message('精选组名不能为空')
-        if (this.detailsData.graphqlData.length > 4 || !this.detailsData.graphqlData.length) return this.$message('商品数量不能小于4')
+        if (this.detailsData.graphqlData.length < 4 || !this.detailsData.graphqlData.length || this.detailsData.graphqlData.length > 8) return this.$message('商品数量不能小于4')
         const params = {}
         const ids = []
         this.detailsData.graphqlData.forEach(item => { ids.push(item.itemid) })
@@ -295,10 +345,13 @@ export default {
         const res = await this.StoreSelection.markeHotSalePlan(params, 'postChineseReferer')
         if (res.code === 200) {
           this.detailsVisible = false
-          // params['plan_id'] = res.data.id
-          // params['status'] = true
-          // await this.setSelectionGroup(params)
-          this.queryData()
+          await this.queryData()
+          if (type) {
+            params['id'] = res.data.id
+            params['status'] = true
+            params['mallName'] = this.detailsData.mallName
+            await this.queryIsOpen(params, 1)
+          }
         } else {
           this.$message.error(`保存精选组失败：${res.data}`)
         }
@@ -318,7 +371,11 @@ export default {
         this.queryProductLoading = true
         const res = await this.StoreSelection.productSelector(params)
         if (res.code === 200) {
-          if (!res.data.length) return this.$message('商品查询数据为空')
+          if (!res.data.length) {
+            this.queryProductLoading = false
+            this.$message('商品查询数据为空')
+            return
+          }
           res.data.map(item => {
             item.images = item.images.split(',')
             item.country = this.detailsData.country
@@ -331,16 +388,19 @@ export default {
         } else {
           this.$message.error(`${res.data}`)
         }
-        this.queryProductLoading = false
         console.log('productSelector', res)
       } catch (error) {
         this.$message.error(`添加商品异常：${error}`)
       }
+      this.queryProductLoading = false
     },
     // 添加单个精选组
     singleAdd() {
       if (this.selectMallList.length > 2 || !this.selectMallList.length) return this.$message('添加单个精选组，只能选择一个店铺')
       this.detailsVisible = true
+      this.detailsData.name = ''
+      this.detailsData.graphqlData = []
+      this.productId = []
       this.detailsData.mallName = this.selectMallList[0].mall_alias_name || this.selectMallList[0].platform_mall_name
       this.detailsData.platform_mall_id = this.selectMallList[0].platform_mall_id
       this.detailsData.country = this.selectMallList[0].country
