@@ -33,10 +33,10 @@
     <!-- 表格区 -->
     <div class="content">
       <el-table ref="multipleTable" v-loading="tableLoading" :data="tableData" tooltip-effect="dark" max-height="680" @selection-change="selectionChange">
-        <el-table-column type="selection" width="55" />
-        <!-- <el-table-column align="center" type="index" label="序号" width="50">
+        <el-table-column type="selection" width="55" align="center" />
+        <el-table-column align="center" type="index" label="序号" width="50">
           <template slot-scope="scope">{{ (currentPage - 1) * pageSize + scope.$index + 1 }}</template>
-        </el-table-column> -->
+        </el-table-column>
         <el-table-column width="80px" label="站点" prop="country" align="center">
           <template slot-scope="scope">{{ scope.row.country | chineseSite }}</template>
         </el-table-column>
@@ -45,17 +45,17 @@
             <p>{{ scope.row.uid === 0 ? '公有' : '私有' }}</p>
           </template>
         </el-table-column>
-        <el-table-column min-width="120px" label="一级类目" show-overflow-tooltip prop="warehouse_name" align="center">
+        <el-table-column min-width="120px" label="一级类目" prop="warehouse_name" align="center">
           <template slot-scope="scope">
             <p>{{ scope.row.parent_category_list && scope.row.parent_category_list.length ? (scope.row.parent_category_list[0] ? scope.row.parent_category_list[0].category_name+'('+scope.row.parent_category_list[0].category_cn_name+')' : '') : '' }}</p>
           </template>
         </el-table-column>
-        <el-table-column min-width="120px" label="二级类目" show-overflow-tooltip prop="warehouse_name" align="center">
+        <el-table-column min-width="120px" label="二级类目" prop="warehouse_name" align="center">
           <template slot-scope="scope">
             <p>{{ scope.row.parent_category_list && scope.row.parent_category_list.length ? (scope.row.parent_category_list[1] ? scope.row.parent_category_list[1].category_name+'('+scope.row.parent_category_list[1].category_cn_name+')' : '') : '' }}</p>
           </template>
         </el-table-column>
-        <el-table-column min-width="120px" label="末级类目" show-overflow-tooltip prop="warehouse_name" align="center">
+        <el-table-column min-width="120px" label="末级类目" prop="warehouse_name" align="center">
           <template slot-scope="scope">
             <p>{{ scope.row.parent_category_list && scope.row.parent_category_list.length ? (scope.row.parent_category_list[2] ? scope.row.parent_category_list[2].category_name+'('+scope.row.parent_category_list[2].category_cn_name+')' : '') : '' }}</p>
           </template>
@@ -75,7 +75,7 @@
       <div class="pagination">
         <el-pagination
           background
-          :page-sizes="[100,200]"
+          :page-sizes="[10, 20, 50, 100]"
           :page-size="pageSize"
           layout="total, sizes, prev, pager, next, jumper"
           :total="total"
@@ -232,7 +232,6 @@ export default {
         }
         const id = this.multipleSelection[i].id
         const res = await this.$commodityService.deleteBlackCategory(id)
-        debugger
         if (!res) {
           return this.$message.warning('删除失败')
         }

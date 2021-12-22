@@ -165,8 +165,10 @@ export default {
             }
           })
         })
+        sum = sum + mall.upCount
         this.tableData.push(mall)
       }
+      this.$set(obj, 'upCount', sum)
       this.total = this.tableData.length
       this.dataCut()
       // console.log(res, this.mallData, this.tableData)
