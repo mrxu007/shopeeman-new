@@ -109,9 +109,10 @@ export default {
     const end = new Date().getTime()
     const start = end - 3 * 24 * 60 * 60 * 1000
     this.statisticsTime = [this.$dayjs(start).format('YYYY-MM-DD'), this.$dayjs(end).format('YYYY-MM-DD')]
-    setTimeout(() => {
+    waitStart(()=>{
+      return this.mallData[0]
+    },20)
       this.searchTableList()
-    }, 1000)
   },
   methods: {
     changeMallList(val) {
@@ -145,6 +146,7 @@ export default {
     // 查询
     async searchTableList() {
       console.log(this.statisticsTime)
+      this.tableData = []
       const params = [this.statisticsTime[0] + ' 00:00:00', this.statisticsTime[1] + ' 23:59:59']
       this.tableLoading = true
       const res = await this.$commodityService.getStatisticsNew(params)
@@ -161,7 +163,7 @@ export default {
         upCount: 0
       }
       let sum = 0
-      this.tableData.push(obj)
+      // this.tableData.push(obj)
       for (let i = 0; i < this.mallData.length; i++) {
         const mall = this.mallData[i]
         mall.upCount = 0
