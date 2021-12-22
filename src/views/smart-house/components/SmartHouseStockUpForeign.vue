@@ -254,7 +254,11 @@
           label="商品总价"
           align="center"
           width="100"
-        />
+        >
+          <template v-slot="{row}">
+            {{ row.goods_price_total ? parseFloat(row.goods_price_total).toFixed(2):'' }}
+          </template>
+        </el-table-column>
         <el-table-column
           label="商品详情"
           align="center"
@@ -548,7 +552,7 @@
                 size="mini"
                 @click="itselfGoodsImport"
               >自有商品导入</el-button>
-              <el-upload ref="importRef" :disabled="isforeignClose" style="margin:0 10px" accept=".xlsx,.xls" action="https://jsonplaceholder.typicode.com/posts/" :on-change="importTemplate" :show-file-list="false" :auto-upload="false">
+              <el-upload ref="importRef" :disabled="isforeignClose" style="margin:0 10px" accept=".xls,.xlsx" action="https://jsonplaceholder.typicode.com/posts/" :on-change="importTemplate" :show-file-list="false" :auto-upload="false">
                 <el-button
                   :disabled="isforeignClose"
                   :data="importTemplateData"
@@ -1518,7 +1522,7 @@ export default {
           let goods_price_total = 0
           item.sku_list.forEach(skuItem => {
             goods_total += skuItem.sku_num ? skuItem.sku_num : 0
-            goods_price_total += skuItem.sku_price ? parseFloat(skuItem.sku_price).toFixed(2) * skuItem.sku_num : 0
+            goods_price_total += skuItem.sku_price ? skuItem.sku_price * skuItem.sku_num : 0
           })
           item.goods_total = goods_total
           item.goods_price_total = goods_price_total
@@ -1914,15 +1918,15 @@ export default {
           this.$refs.Logs.writeLog(`【${index + 1}】商品规格为空`, false)
           continue
         }
-        if (!sku_long) {
+        if (sku_long === '') {
           this.$refs.Logs.writeLog(`【${index + 1}】长(cm)为空`, false)
           continue
         }
-        if (!sku_width) {
+        if (sku_width === '') {
           this.$refs.Logs.writeLog(`【${index + 1}】宽(cm)为空`, false)
           continue
         }
-        if (!sku_height) {
+        if (sku_height === '') {
           this.$refs.Logs.writeLog(`【${index + 1}】高(cm)为空`, false)
           continue
         }
@@ -2187,7 +2191,7 @@ export default {
         <td>${item.sys_sku_id ? item.sys_sku_id : '' + '\t'}</td>
         <td>${item.goods_name ? item.goods_name : '' + '\t'}</td>
         <td>${item.sku_num ? item.sku_num : '' + '\t'}</td>
-        <td>${item.sku_price ? item.sku_price : '' + '\t'}</td>
+        <td>${item.sku_price ? parseFloat(item.sku_price).toFixed(2) : '' + '\t'}</td>
         <td>${item.sku_name ? item.sku_name : '' + '\t'}</td>
         <td>${item.sku_image ? item.sku_image : '' + '\t'}</td>
         <td>${item.sku_url ? item.sku_url : '' + '\t'}</td>
