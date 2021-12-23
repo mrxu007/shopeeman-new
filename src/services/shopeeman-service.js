@@ -394,6 +394,7 @@ export default class NetMessageBridgeService {
         referer: url + referer
       })
     }
+    console.log(url, JSON.stringify(options), JSON.stringify(data))
     return this.NetMessageBridgeService().delete(url, JSON.stringify(options), JSON.stringify(data))
   }
 

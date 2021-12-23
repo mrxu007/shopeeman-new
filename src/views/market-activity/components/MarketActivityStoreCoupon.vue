@@ -6,34 +6,37 @@
         <div>
           <label>优惠劵类型：</label>
           <el-select v-model="saleType" placeholder="请选择" size="mini" style="width:120px">
-            <el-option label="全部" value="" />
-            <el-option label="已预订" value="2" />
-            <el-option label="进行中" value="3" />
-            <el-option label="已结束" value="4" />
+            <el-option label="全部" value="0" />
+            <el-option label="即将进行" value="1" />
+            <el-option label="进行中" value="2" />
+            <el-option label="已结束" value="3" />
           </el-select>
         </div>
       </div>
 
       <div class="row2" style="margin-top:8px">
         <el-button size="mini" type="primary" @click="getTableList">查询</el-button>
-        <el-button size="mini" type="primary">取消查询</el-button>
+        <el-button size="mini" type="primary" @click="stopSearch">取消查询</el-button>
         <el-button size="mini" type="primary" @click="mallCoupon">创建店铺优惠劵</el-button>
         <el-button size="mini" type="primary" @click="goodsCoupon">创建商品优惠劵</el-button>
-        <el-button size="mini" type="primary">停止创建活动</el-button>
-        <el-button size="mini" type="primary">批量终止活动</el-button>
-        <el-button size="mini" type="primary">批量删除活动</el-button>
-        <el-button size="mini" type="primary">清除日志</el-button>
+        <el-button size="mini">停止创建活动</el-button>
+        <el-button size="mini" type="primary" @click="MallvoucherStopMul">批量停止活动</el-button>
+        <el-button size="mini" type="primary" @click="MallvoucherDelMul">批量删除活动</el-button>
+        <el-button size="mini" type="primary" @click="clearLog">清除日志</el-button>
         <el-checkbox v-model="showlog" style="margin-left:8px">隐藏日志</el-checkbox>
       </div>
     </div>
     <Logs ref="Logs" v-model="showlog" clear />
     <div class="tableDetail" style="margin-top: 8px;">
       <u-table
+        ref="multipleTable"
+        v-loading="tableLoading"
         :data="tableList"
         height="600px"
         use-virtual
         :border="false"
         :header-cell-style="{ background: '#f7fafa' }"
+        @selection-change="handleSelectionChange"
       >
         <u-table-column type="selection" width="55" fixed />
         <u-table-column type="index" fixed label="序号" min-width="50px" />
@@ -46,10 +49,8 @@
         <u-table-column prop="voucher_type" label="优惠类型" align="center" min-width="100px">
           <!-- <template v-slot="{row}">{{ row.rule && row.rule.shopids.length===0 ? '店铺优惠卷' :'商品优惠卷' }}</template> -->
         </u-table-column>
-        <u-table-column prop="value" label="折扣金额" align="center" min-width="100px">
-          <template v-slot="{row}">{{ row.value }}{{ row.country | siteCoin }}</template>
-        </u-table-column>
-        <u-table-column prop="" label="最高上限数额" align="center" min-width="100px" />
+        <u-table-column prop="discountInfo" label="折扣金额" align="center" min-width="180px" />
+        <u-table-column prop="topNum" label="最高上限数额" align="center" min-width="100px" />
         <u-table-column prop="usage_limit" label="优惠劵可使用数量" align="center" min-width="150px" />
         <u-table-column prop="min_price" label="最低消费记录" align="center" min-width="100px" />
         <u-table-column prop="distributed_count" label="已领取" align="center" min-width="100px">
@@ -74,7 +75,8 @@
         </u-table-column>
         <u-table-column prop="" label="操作" align="center" min-width="100px" fixed="right">
           <template v-slot="{row}">
-            <span> <el-button v-if="row.voucher_status==='进行中' || row.voucher_status==='即将开始'" size="mini" type="primary">删除</el-button> </span>
+            <span> <el-button v-if="row.voucher_status==='即将开始'" size="mini" type="primary" @click="MallvoucherDel(row),singerStop=true">删除</el-button> </span>
+            <span> <el-button v-if="row.voucher_status==='进行中' " size="mini" type="primary" @click="MallvoucherStop(row),singerStop=true">停止</el-button> </span>
           </template>
         </u-table-column>
       </u-table>
@@ -96,8 +98,9 @@
           泰国
         </el-form-item>
 
-        <el-form-item label="币种">
-          {{ }}(优惠劵活动使用的是当地币种)
+        <el-form-item label="币种" style="color:red">
+          <!-- selectMallList[0].country | siteCoin -->
+          {{ selectMallList[0] && selectMallList[0].country | siteCoin }}(优惠劵活动使用的是当地币种)
           <!-- <el-input v-model="rowx.sku_name" size="mini" disabled/> -->
         </el-form-item>
 
@@ -132,8 +135,8 @@
 
         <el-form-item label="最高优惠金额">
           <el-radio-group v-model="limitPrice">
-            <el-radio :label="0">无限制</el-radio>
-            <el-radio :label="1">设置金额：<el-input v-model="maxPrice" size="mini" style="width:80px" onkeyup="value=value.replace(/[^\d]/g,0)" /></el-radio>
+            <el-radio label="0">无限制</el-radio>
+            <el-radio label="1">设置金额：<el-input v-model="maxPrice" size="mini" style="width:80px" onkeyup="value=value.replace(/[^\d]/g,0)" /></el-radio>
           </el-radio-group>
         </el-form-item>
 
@@ -146,8 +149,8 @@
             v-model="dateTime"
             style="width:260px;"
             size="mini"
-            value-format="yyyy-MM-dd"
-            type="daterange"
+            value-format="timestamp"
+            type="datetimerange"
             range-separator="-"
             start-placeholder="开始日期"
             end-placeholder="结束日期"
@@ -210,9 +213,11 @@ export default {
   },
   data() {
     return {
+      tableLoading: false,
+      singerStop: false, // 单个停止
       MarketManagerAPIInstance: new MarketManagerAPI(this),
       showlog: true,
-      saleType: '', // 优惠卷
+      saleType: '0', // 优惠卷
       tableList: [], // 主表数据
       CouponVisible: false, // 弹窗
       dialogtitle: '', // 弹窗标题
@@ -235,7 +240,8 @@ export default {
       couponhide: '0', // 优惠劵显示页面 0 在基本页面显示 1 不显示
       couponGoodslist: [], // 优惠卷指定商品
       selectMallList: [], // 选择的店铺
-      stoptoping: false
+      stoptoping: false,
+      mallTableSelect: []
     }
   },
   // computed:{
@@ -243,13 +249,96 @@ export default {
 
   //   }
   // },
-
+  created() {
+    console.log('------', this.$userInfo.Username)
+  },
   methods: {
+    // 清除日志
+    clearLog() {
+      this.$refs.Logs.consoleMsg = ''
+    },
+    // 多选
+    handleSelectionChange(val) {
+      this.mallTableSelect = val
+    },
+    // 批量停止
+    async  MallvoucherStopMul() {
+      if (!this.mallTableSelect.length) {
+        this.$message.warning('请选择要操作的数据')
+        return
+      }
+      for (let i = 0; i < this.mallTableSelect.length; i++) {
+        if (Number(this.mallTableSelect[i].promotion_type) === 2) {
+          await this.MallvoucherStop(this.mallTableSelect[i])
+        }
+      }
+      this.getTableList()
+    },
+    // 停止
+    async  MallvoucherStop(val) {
+      const params = {
+        country: val.country,
+        mallId: val.platform_mall_id,
+        voucher_id: val.voucher_id.toString()
+      }
+      try {
+        this.showlog = false
+        const res = await this.MarketManagerAPIInstance.MallvoucherStop(params)
+        if (res.ecode === 0) {
+          this.$refs.Logs.writeLog(`------已停止【${val.name}】优惠活动------`, true)
+        } else {
+          this.$refs.Logs.writeLog(`停止【${val.name}】优惠活动,${res.message}`, false)
+        }
+      } catch (error) {
+        this.$refs.Logs.writeLog(`停止【${val.name}】--catch,${error}`, false)
+      }
+      if (this.singerStop) {
+        this.getTableList()
+      }
+      this.singerStop = false
+    },
+    // 批量删除
+    async  MallvoucherDelMul() {
+      if (!this.mallTableSelect.length) {
+        this.$message.warning('请选择要操作的数据')
+        return
+      }
+      for (let i = 0; i < this.mallTableSelect.length; i++) {
+        if (Number(this.mallTableSelect[i].promotion_type) === 1) {
+          await this.MallvoucherDel(this.mallTableSelect[i])
+        }
+      }
+      this.getTableList()
+    },
+    // 删除
+    async  MallvoucherDel(val) {
+      const params = {
+        country: val.country,
+        mallId: val.platform_mall_id,
+        voucher_id: val.voucher_id.toString()
+      }
+      try {
+        this.showlog = false
+        const res = await this.MarketManagerAPIInstance.MallvoucherDel(params)
+        debugger
+        if (res.ecode === 0) {
+          this.$refs.Logs.writeLog(`------成功删除【${val.name}】优惠活动------`, true)
+        } else {
+          this.$refs.Logs.writeLog(`删除【${val.name}】优惠活动,${res.message}`, false)
+        }
+      } catch (error) {
+        this.$refs.Logs.writeLog(`删除【${val.name}】--catch,${error}`, false)
+      }
+      if (this.singerStop) {
+        this.getTableList()
+      }
+      this.singerStop = false
+    },
     // 取消查询
     stopSearch() {
       terminateThread()
       this.stoptoping = true
-      this.$refs.autoReplyLogs.writeLog(`正在停止查询`)
+      this.$refs.Logs.writeLog(`正在停止查询`)
     },
     // 时间格式转换
     add0(m) { return m < 10 ? '0' + m : m },
@@ -274,29 +363,52 @@ export default {
           country: item.country,
           mallId: item.platform_mall_id,
           offset: item.offset,
-          limit: 20
+          limit: 20,
+          promotion_type: this.saleType
         }
         const res = await this.MarketManagerAPIInstance.Mallvoucher(params)
         if (res.ecode === 0) {
           const list = res.data.data.voucher_list
           list.forEach(el => {
+            el.platform_mall_id = item.platform_mall_id
             el.country = item.country
             el.mallName = item.mall_alias_name || item.platform_mall_name
             el.voucher_type = el.rule.shopids?.length > 0 ? '店铺优惠卷' : '商品优惠卷'
             el.formStartime = this.formatTime(el.start_time * 1000)
             el.formEndtime = this.formatTime(el.end_time * 1000)
+            // 有效期
             const nowD = new Date().getTime()
             if (nowD < el.start_time * 1000) {
               el.voucher_status = '即将开始'
+              el.promotion_type = 1
             } else if (nowD > el.start_time * 1000 && nowD < el.end_time * 1000) {
               el.voucher_status = '进行中'
+              el.promotion_type = 2
             } else {
               el.voucher_status = '已过期'
+              el.promotion_type = 3
+            }
+            // 折扣类型
+            if (Number(el.rule.reward_type) === 0) {
+              if (Number(el.discount) > 0 && Number(el.max_value) > 0) {
+                el.discountInfo = `${(100 - Number(el.discount)) / 10}折`
+                el.topNum = el.max_value
+              } else if (Number(el.discount) > 0 && Number(el.max_value) === 0) {
+                el.discountInfo = `${(100 - Number(el.discount)) / 10}折`
+                el.topNum = '无限制'
+              } else {
+                el.discountInfo = el.value
+                el.topNum = ''
+              }
+            }
+            if (Number(el.rule.reward_type) === 1) {
+              el.discountInfo = `${el.rule.coin_cashback_voucher.coin_percentage_real}%折扣,(Shopee币回扣)`
+              el.topNum = Number(el.rule.coin_cashback_voucher.max_coin) === 0 ? '无限制' : el.rule.coin_cashback_voucher.max_coin
             }
           })
           this.$refs.Logs.writeLog(`【${item.mall_alias_name || item.platform_mall_name}】总数据：${res.data.data.total_count}条,正在请求第【${(params.offset / params.limit) + 1}】页`, true)
           this.getTable.push(...list)// 存储数据
-          if (res.data.list?.length >= params.limit) {
+          if (list?.length >= params.limit) {
             item.offset = item.offset + params.limit
             this.getInfo(item, { count: 1 })
           }
@@ -311,27 +423,138 @@ export default {
     },
     // 初始化
     async getTableList() {
+      this.$refs.multipleTable.clearSelection()// 清空多选
+      // this.clearLog()
       this.selectMallList.forEach(el => {
         el.offset = 0
       })
       this.getTable = []
       this.showlog = false
+      this.tableLoading = true
       this.$refs.Logs.writeLog(`开始请求数据`, true)
       const res1 = await batchOperation(this.selectMallList, this.getInfo)
       this.$refs.Logs.writeLog(`请求数据结束`)
+      this.tableLoading = false
       this.tableList = this.getTable
     },
+    // 店铺优惠券码使用。判断为字母或数字
+    IsNumOrAlp(str) {
+      if (str.Length > 6) { return false }
+
+      // var pattern1 = @"^[0-9]+$";
+      var pattern = '@"^[A-Za-z0-9]+$"' // @意思忽略转义，+匹配前面一次或多次，$匹配结尾
+      // 优惠券码名称不能全为数字
+      // var match1 = Regex.Match(str, pattern1);
+      // if (match1.Success) return false;
+      var match = Regex.Match(str, pattern)
+
+      return match.Success
+    },
+    // 生成券码
+    CreateCouponCode() {
+      // 获取用户真实名称
+      const mallName = this.$userInfo.Username.toString()
+      let baseStr = ''
+      // 店铺真实名称只获取四个长度
+      for (let i = 0; i < mallName.Length; i++) {
+        if (this.IsNumOrAlp(mallName[i].toString())) {
+          baseStr += mallName[i]
+        }
+        if (baseStr.length === 4) break
+      }
+
+      const chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+      // var randrom = Math.random(new Date().getTime())
+
+      let str = ''
+      // 数字和子母在随机五个长度
+      for (let i = 0; i < 5; i++) {
+        str += chars[Math.floor(Math.random() * chars.length)]
+      }
+      return (baseStr + str).toUpperCase()// 4个长度的用户名称拼接5个长度的随机字符即为优惠券券码
+    },
+
     // 创建店铺优惠卷
-    mallCoupon() {
+    async mallCoupon() {
       this.CouponVisible = true
       this.coupontype = '1'
       this.dialogtitle = '新建店铺优惠劵'
+      if (!this.selectMallList.length) {
+        this.$message.warning('请选择店铺')
+        return
+      }
+      // this.selectMallList.forEach(el => {
+      //   this.createCoupon(el)
+      // })
+      const res1 = await batchOperation(this.selectMallList, this.createCoupon)
     },
     // 创建商品优惠卷
     goodsCoupon() {
       this.CouponVisible = true
       this.coupontype = '2'
       this.dialogtitle = '新建商品优惠劵'
+      if (!this.selectMallList.length) {
+        this.$message.warning('请选择店铺')
+        return
+      }
+      if (this.selectMallList.length > 1) {
+        this.$message.warning('只能在一个店铺里创建商品优惠劵')
+        return
+      }
+    },
+
+    // 创建店铺优惠卷--接口
+    async createCoupon(val, count = { count: 1 }) {
+      try {
+        let discount = null // 折扣--折扣
+        let disValue = null // 折扣--折扣金额
+        let discountShop = null // 虾皮折扣
+
+        if (this.rewardType === '0') { // 普通折扣
+          if (this.discountType === '0') {
+            discount = this.discountNum
+          } else {
+            disValue = this.discountNum
+          }
+        } else { // 虾皮折扣
+          discountShop = this.discountNum
+        }
+
+        const params = {
+          country: val.country,
+          mallId: val.platform_mall_id,
+          min_price: this.minPrice,
+          name: this.couponName,
+          value: disValue,
+          end_time: this.dateTime[1],
+          start_time: this.dateTime[0],
+          max_value: this.limitPrice === '0' ? 0 : this.maxPrice,
+          discount: discount,
+          usage_quantity: this.useQuantity,
+          claim_quantity: '0',
+          rule: {
+            voucher_landing_page: '1',
+            reward_type: this.rewardType,
+            hide: this.couponhide,
+            backend_created: '0',
+            items: [], // items=[]格式 商品
+            coin_cashback_voucher: {
+              coin_percentage_real: discountShop,
+              max_coin: discountShop ? this.maxPrice : null
+            }
+          },
+          voucher_code: this.CreateCouponCode()
+        }
+
+        const res = await this.MarketManagerAPIInstance.MallvoucherCreate(params)
+        if (res.ecode !== 0) {
+          this.$refs.Logs.writeLog(`创建失败：${res.message}}`, false)
+        }
+      } catch (error) {
+        this.$refs.Logs.writeLog(`console.error();`, false)
+      } finally {
+        count.count--
+      }
     }
   }
 }
