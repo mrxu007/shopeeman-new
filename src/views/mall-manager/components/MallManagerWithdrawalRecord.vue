@@ -34,7 +34,7 @@
       </div>
     </div>
     <div class="content">
-      <el-table ref="multipleTable" v-loading="tableLoading" :data="tableDataCut" tooltip-effect="dark" height="calc(100vh - 215px)">
+      <el-table ref="multipleTable" v-loading="tableLoading" :data="tableDataCut" tooltip-effect="dark" height="calc(100vh - 205px)">
         <el-table-column align="center" type="index" label="序号" width="50">
           <template slot-scope="scope">{{ (currentPage - 1) * pageSize + scope.$index + 1 }}</template>
         </el-table-column>
@@ -65,6 +65,7 @@
       <div class="pagination">
         <el-pagination
           background
+          :current-page="currentPage"
           :page-sizes="[20, 50, 100]"
           :page-size="pageSize"
           layout="total, sizes, prev, pager, next, jumper"
@@ -156,7 +157,7 @@ export default {
         await this.getRecordList(pageNumber, mall)
       }
       console.log(this.tableData, 'searchRate')
-      this.dataCut()
+      // this.dataCut()
       this.tableLoading = false
     },
     async getRecordList(pageNumber, mall) {
@@ -201,6 +202,7 @@ export default {
                 this.totalAmount += (item.amount * -1)
                 this.tableData.push(item)
                 this.total = this.tableData.length
+                this.dataCut()
               })
             this.$refs.Logs.writeLog(`店铺【${mall.platform_mall_name}】获取到第【${pageNumber}】页提现记录数据【${data.data.list.length}】条`, true)
             if (data.data.list.length >= this.mallPageSize) {
@@ -265,6 +267,7 @@ export default {
       this.dataCut()
     },
     handleSizeChange(size) {
+      this.currentPage = 1
       this.pageSize = size
       this.dataCut()
     },
@@ -298,6 +301,7 @@ export default {
     margin:10px 10px 0 0;
     display: flex;
     align-items: center;
+    width: 730px;
     // flex-wrap: wrap;
     .tool-item {
       display: flex;
@@ -314,9 +318,9 @@ export default {
   }
 }
 .content {
-  margin: 20px 0;
+  margin: 10px 0;
   background: #fff;
-  height: calc(100vh - 160px);
+  height: calc(100vh - 130px);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
