@@ -246,19 +246,20 @@ export default {
       return isFirst || this.mallShowIndex <= index && index <= this.mallShowIndex + this.showMallNumber && (!this.isShowName || name.includes(this.isShowName))
     },
     loadmoreMall(val, that) {
-      let newIndex = 0
-      if (val) {
-        newIndex = this.mallShowIndex + 10
-        newIndex = newIndex <= this.showMallNumber
-            && newIndex || this.showMallNumber
-      } else {
-        newIndex = this.mallShowIndex - 10
-        newIndex = newIndex >= 0 && newIndex || 0
+      if (this.siteShowList.length > this.showMallNumber){
+        let newIndex = 0
+        if (val) {
+          newIndex = this.mallShowIndex + 10
+          newIndex = newIndex < this.siteShowList.length && newIndex || this.mallShowIndex
+        } else {
+          newIndex = this.mallShowIndex - 10
+          newIndex = newIndex > 0 && newIndex || 0
+        }
+        if (newIndex !== this.mallShowIndex ) {
+          that.scrollTop = !val && 30 || (that.scrollTop - 100)
+        }
+        this.mallShowIndex = newIndex
       }
-      if (newIndex !== this.mallShowIndex) {
-        that.scrollTop = !val && 30 || (that.scrollTop - 100)
-      }
-      this.mallShowIndex = newIndex
     }
   }
 }

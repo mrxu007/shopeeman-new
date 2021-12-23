@@ -3,11 +3,11 @@
     <div class="on_new_dialog_box">
       <div>商品标签：</div>
       <el-select v-model="goodsTagAction" size="mini" style="width: 200px;">
-        <el-option
-            v-for="item in goodsTagList"
-            :key="item.id"
-            :label="item.label_name"
-            :value="item.label_name">
+        <el-option v-for="(item,index) in goodsTagList" :key="item.id" :value="item.label_name">
+          <div style="display: flex;justify-content: space-between;align-items: center">
+            <div>{{item.label_name}}</div>
+            <i class="el-icon-circle-close close-right" @click.stop="deleteClick(item.id,index)"></i>
+          </div>
         </el-option>
       </el-select>
     </div>
@@ -90,6 +90,10 @@
         console.log('goodsTagListRes',goodsTagListRes)
         this.goodsTagList = goodsTagListRes.data || []
       },
+      async deleteClick(id,index){
+        this.goodsTagList.splice(index,1)
+        this.$commodityService.deleteGoodsTag([id])
+      }
     }
   }
 </script>

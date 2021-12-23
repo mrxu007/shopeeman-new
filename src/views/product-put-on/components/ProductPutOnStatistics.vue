@@ -29,15 +29,15 @@
             :default-time="['00:00:00', '23:59:59']"
           /> -->
           <el-date-picker
-            v-model="statisticsTime"
-            size="mini"
-            value-format="yyyy-MM-dd"
-            type="daterange"
-            style="width: 220px"
-            range-separator="-"
-            start-placeholder="开始日期"
-            end-placeholder="结束日期"
-            :picker-options="pickerOptions"
+              v-model="statisticsTime"
+              size="mini"
+              value-format="yyyy-MM-dd"
+              type="daterange"
+              style="width: 220px"
+              range-separator="-"
+              start-placeholder="开始日期"
+              end-placeholder="结束日期"
+              :picker-options="pickerOptions"
           />
         </div>
         <el-button type="primary" size="mini" class="mar-right" @click="searchTableList">查 询</el-button>
@@ -46,27 +46,34 @@
     </div>
     <!-- 表格区 -->
     <div class="content">
-        <el-table-column align="center" type="index" label="序号" width="50">
-          <template slot-scope="scope">{{ (currentPage - 1) * pageSize + scope.$index + 1 }}</template>
-        </el-table-column>
-        <el-table-column width="120px" label="站点" prop="country" align="center">
-          <template slot-scope="scope">{{ scope.row.country | chineseSite }}</template>
-        </el-table-column>
-        <el-table-column min-width="60px" label="店铺" prop="platform_mall_name" align="center">
-          <template v-slot="{row}"><span>{{ row.mall_alias_name || row.platform_mall_name }}</span></template>
-        </el-table-column>
-        <el-table-column min-width="60px" label="店铺分组" prop="group_name" align="center" />
-        <el-table-column min-width="60px" label="上架总量" prop="upCount" align="center" />
+      <el-table
+          ref="multipleTable"
+          v-loading="tableLoading"
+          :data="tableDataCut"
+          tooltip-effect="dark"
+          height="calc(100vh - 145px)"
+      >
+      <el-table-column align="center" type="index" label="序号" width="50">
+        <template slot-scope="scope">{{ (currentPage - 1) * pageSize + scope.$index + 1 }}</template>
+      </el-table-column>
+      <el-table-column width="120px" label="站点" prop="country" align="center">
+        <template slot-scope="scope">{{ scope.row.country | chineseSite }}</template>
+      </el-table-column>
+      <el-table-column min-width="60px" label="店铺" prop="platform_mall_name" align="center">
+        <template v-slot="{row}"><span>{{ row.mall_alias_name || row.platform_mall_name }}</span></template>
+      </el-table-column>
+      <el-table-column min-width="60px" label="店铺分组" prop="group_name" align="center" />
+      <el-table-column min-width="60px" label="上架总量" prop="upCount" align="center" />
       </el-table>
       <div class="pagination">
         <el-pagination
-          background
-          :page-sizes="[100,200]"
-          :page-size="pageSize"
-          layout="total, sizes, prev, pager, next, jumper"
-          :total="total"
-          @current-change="handleCurrentChange"
-          @size-change="handleSizeChange"
+            background
+            :page-sizes="[100,200]"
+            :page-size="pageSize"
+            layout="total, sizes, prev, pager, next, jumper"
+            :total="total"
+            @current-change="handleCurrentChange"
+            @size-change="handleSizeChange"
         />
       </div>
     </div>
@@ -102,9 +109,10 @@ export default {
     const end = new Date().getTime()
     const start = end - 3 * 24 * 60 * 60 * 1000
     this.statisticsTime = [this.$dayjs(start).format('YYYY-MM-DD'), this.$dayjs(end).format('YYYY-MM-DD')]
-    setTimeout(() => {
+    waitStart(()=>{
+      return this.mallData[0]
+    },20)
       this.searchTableList()
-    }, 1000)
   },
   methods: {
     changeMallList(val) {
@@ -138,6 +146,7 @@ export default {
     // 查询
     async searchTableList() {
       console.log(this.statisticsTime)
+      this.tableData = []
       const params = [this.statisticsTime[0] + ' 00:00:00', this.statisticsTime[1] + ' 23:59:59']
       this.tableLoading = true
       const res = await this.$commodityService.getStatisticsNew(params)
@@ -154,7 +163,7 @@ export default {
         upCount: 0
       }
       let sum = 0
-      this.tableData.push(obj)
+      // this.tableData.push(obj)
       for (let i = 0; i < this.mallData.length; i++) {
         const mall = this.mallData[i]
         mall.upCount = 0
@@ -165,8 +174,10 @@ export default {
             }
           })
         })
+        sum = sum + mall.upCount
         this.tableData.push(mall)
       }
+      this.$set(obj, 'upCount', sum)
       this.total = this.tableData.length
       this.dataCut()
       // console.log(res, this.mallData, this.tableData)
@@ -217,7 +228,7 @@ export default {
   }
 }
 .content {
-      margin-top: 20px;
+  margin-top: 20px;
   // margin: 20px 0;
   background: #fff;
   height: calc(100vh - 100px);

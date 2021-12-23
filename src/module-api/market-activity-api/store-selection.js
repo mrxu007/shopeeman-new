@@ -85,7 +85,6 @@ export default class StoreSelection {
         break
     }
     params['mallId'] = val.platform_mall_id
-    console.log('添加请求', params)
     try {
       const res = await this._this.$shopeemanService[method](val.country, '/api/marketing/v4/hot_sale/plan/', params, {
         headers: {

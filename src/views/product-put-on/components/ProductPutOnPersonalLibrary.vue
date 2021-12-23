@@ -215,7 +215,7 @@
             </el-button>
           </div>
         </template>
-        <editor-on-new-goods  ref="editor_on_new_goods" :mall-table="multipleSelection"></editor-on-new-goods>
+        <editor-on-new-goods v-if="isEditorVisible" ref="editor_on_new_goods" :mall-table="multipleSelection"></editor-on-new-goods>
       </el-dialog>
     </div>
   </div>

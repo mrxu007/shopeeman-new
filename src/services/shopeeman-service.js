@@ -452,8 +452,6 @@ export default class NetMessageBridgeService {
     const { country, mall_account_info, platform_mall_id } = mallInfo
     const accountName = mall_account_info.username
     const encryptPwd = sha256(md5(mall_account_info.password))
-    // const encryptPwd = sha256(md5('Th123654'))
-    // const accountName = 'hellohappy586'
     const params = {
       mallId: platform_mall_id || '8888888888', // 导入店铺初始没有mallId
       remember: false,
