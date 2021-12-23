@@ -53,17 +53,17 @@
           tooltip-effect="dark"
           height="calc(100vh - 145px)"
       >
-      <el-table-column align="center" type="index" label="序号" width="50">
-        <template slot-scope="scope">{{ (currentPage - 1) * pageSize + scope.$index + 1 }}</template>
-      </el-table-column>
-      <el-table-column width="120px" label="站点" prop="country" align="center">
-        <template slot-scope="scope">{{ scope.row.country | chineseSite }}</template>
-      </el-table-column>
-      <el-table-column min-width="60px" label="店铺" prop="platform_mall_name" align="center">
-        <template v-slot="{row}"><span>{{ row.mall_alias_name || row.platform_mall_name }}</span></template>
-      </el-table-column>
-      <el-table-column min-width="60px" label="店铺分组" prop="group_name" align="center" />
-      <el-table-column min-width="60px" label="上架总量" prop="upCount" align="center" />
+        <el-table-column align="center" type="index" label="序号" width="50">
+          <template slot-scope="scope">{{ (currentPage - 1) * pageSize + scope.$index + 1 }}</template>
+        </el-table-column>
+        <el-table-column width="120px" label="站点" prop="country" align="center">
+          <template slot-scope="scope">{{ scope.row.country | chineseSite }}</template>
+        </el-table-column>
+        <el-table-column min-width="60px" label="店铺" prop="platform_mall_name" align="center">
+          <template v-slot="{row}"><span>{{ row.mall_alias_name || row.platform_mall_name }}</span></template>
+        </el-table-column>
+        <el-table-column min-width="60px" label="店铺分组" prop="group_name" align="center" />
+        <el-table-column min-width="60px" label="上架总量" prop="upCount" align="center" />
       </el-table>
       <div class="pagination">
         <el-pagination
@@ -82,7 +82,7 @@
 
 <script>
 import storeChoose from '../../../components/store-choose'
-import { exportExcelDataCommon } from '../../../util/util'
+import { exportExcelDataCommon, waitStart } from '../../../util/util'
 export default {
   components: {
     storeChoose
@@ -109,10 +109,10 @@ export default {
     const end = new Date().getTime()
     const start = end - 3 * 24 * 60 * 60 * 1000
     this.statisticsTime = [this.$dayjs(start).format('YYYY-MM-DD'), this.$dayjs(end).format('YYYY-MM-DD')]
-    waitStart(()=>{
+    waitStart(() => {
       return this.mallData[0]
-    },20)
-      this.searchTableList()
+    }, 20)
+    this.searchTableList()
   },
   methods: {
     changeMallList(val) {
@@ -137,7 +137,7 @@ export default {
         str += `<tr><td>${num++}</td>
                         <td>${item.country ? this.$filters.chineseSite(item.country) : '' + '\t'}</td>
                         <td>${item.platform_mall_name ? item.platform_mall_name : '' + '\t'}</td>
-                        <td>${item.group_name ? item.group_name : '' + '\t'}</td> 
+                        <td>${item.group_name ? item.group_name : '' + '\t'}</td>
                         <td>${item.upCount ? item.upCount : 0 + '\t'}</td>
                     </tr>`
       }
@@ -163,13 +163,13 @@ export default {
         upCount: 0
       }
       let sum = 0
-      // this.tableData.push(obj)
+      this.tableData.push(obj)
       for (let i = 0; i < this.mallData.length; i++) {
         const mall = this.mallData[i]
         mall.upCount = 0
         statisticData.forEach((item) => {
           item.list.forEach((subItem) => {
-            if (subItem.mallId === mall.platform_mall_id) {
+            if (Number(subItem.mallId) === Number(mall.platform_mall_id)) {
               mall.upCount += subItem.cnt
             }
           })

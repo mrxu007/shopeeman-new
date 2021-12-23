@@ -126,16 +126,15 @@
         </div>
         <div class="goods-detail-block">
           <div class="keepRight keepTop">
-
             <el-tooltip class="item" effect="dark" content="详情图仅做展示，不做任何处理，如需上新展示，可添加至轮播图中" placement="top">
               <el-button size="mini" type="text"><i class="el-icon-question"></i></el-button>
             </el-tooltip>
             详情图：
             <el-checkbox class="keepRight-flex" v-model="descImageAllCheck">全选</el-checkbox>
-            <el-button style="margin-bottom: 5px;padding-left: 8px;padding-right: 8px;"
+            <el-button style="margin-bottom: 5px;padding-left: 8px;padding-right: 8px;display: block;"
                        type="primary" size="mini" @click="downloadImages(3)">下载详情图
             </el-button>
-            <el-button style="margin: 0;padding-left: 8px;padding-right: 8px;"
+            <el-button style="margin: 0;padding-left: 8px;padding-right: 8px;display: block;"
                        type="primary" size="mini" @click="deleteImages(3)">删除详情图
             </el-button>
           </div>
@@ -330,10 +329,10 @@
               </div>
             </div>
             <div style="margin-top: 5px;display: flex;justify-content: center;">
-              <el-button size="mini" @click="picturesChooseVisible = false;picturesChooseStart = true" type="primary">
+              <el-button size="mini" @click="picturesChooseSuccess = true;picturesChooseStart = true" type="primary">
                 确定
               </el-button>
-              <el-button size="mini" @click="picturesChooseVisible = false" style="margin-left: 25px">取消</el-button>
+              <el-button size="mini" @click="picturesChooseSuccess = true" style="margin-left: 25px">取消</el-button>
             </div>
           </div>
         </div>
@@ -385,6 +384,7 @@ export default {
       //图片选择
       picturesChooseStart: false,
       picturesChooseVisible: false,
+      picturesChooseSuccess:false,
       picturesChooseTypeRadio: 0,
       picturesChooseFile: '',
       picturesChooseFileUrl: '',
@@ -746,27 +746,23 @@ export default {
         return
       }
       let inventory = parseInt(this.presetInventory) || 0
-      let price = parseFloat(this.presetPrice).toFixed(2) || 0
+      let price = parseFloat(parseFloat(this.presetPrice).toFixed(2) || 0)
       this.goodsDetails.itemmodels.forEach(item => {
-        let sku_price = item.sku_price
-        let sku_inventory = item.sku_stock
+        let sku_price = parseFloat(parseFloat(item.sku_price).toFixed(2))
+        let sku_inventory =  parseInt(item.sku_stock)
         if (this.presetTypeRadio === 0) {
           sku_inventory += inventory
           sku_price += price
-          this.goodsDetails.stock += inventory * this.goodsDetails.itemmodels.length
-          this.goodsDetails.price += price
         } else if (this.presetTypeRadio === 1) {
           sku_inventory -= inventory
           sku_price -= price
           sku_inventory = sku_inventory > 0 && sku_inventory || 0
           sku_price = sku_price > 0 && sku_price || 0
-          this.goodsDetails.stock -= inventory * this.goodsDetails.itemmodels.length
-          this.goodsDetails.price -= price
         } else if (this.presetTypeRadio === 2) {
           sku_inventory = inventory
           sku_price = price
-          this.goodsDetails.stock = inventory * this.goodsDetails.itemmodels.length
-          this.goodsDetails.price = price
+          sku_inventory = sku_inventory > 0 && sku_inventory || 0
+          sku_price = sku_price > 0 && sku_price || 0
         }
         let temp = JSON.parse(JSON.stringify(item))
         if (inventory) {
@@ -774,11 +770,15 @@ export default {
           temp.stock = sku_inventory
         }
         if (price) {
-          temp.sku_price = parseFloat(sku_price).toFixed(2)
-          temp.price = parseFloat(sku_price).toFixed(2)
+          temp.sku_price = sku_price
+          temp.price = sku_price
         }
         itemmodels.push(temp)
       })
+      let stockList = [...itemmodels.map(i=>i.sku_stock)]
+      let priceList = [...itemmodels.map(i=>i.sku_price)]
+      this.goodsDetails.stock = eval(stockList.join("+"));
+      this.goodsDetails.price = eval(priceList.join("+"));
       this.goodsDetails.itemmodels = itemmodels
     },
     imageUpload(file) {
@@ -790,9 +790,10 @@ export default {
         this.picturesChooseRadio = ''
         this.picturesChooseTypeRadio = 0
         this.picturesChooseVisible = true
+        this.picturesChooseSuccess = false
         let isActive = setInterval(async() => {
-          if (!this.picturesChooseVisible) {
-            clearInterval(isActive)
+          let success = true
+          if (this.picturesChooseSuccess) {
             let temp = ''
             if (this.picturesChooseStart) {
               this.picturesChooseStart = false
@@ -802,6 +803,8 @@ export default {
                 if (!this.picturesChooseFile) {
                   this.$message.error('请选择本地图片')
                   temp = ''
+                  this.picturesChooseSuccess = false
+                  success = false
                 }
                 else if (this.picturesChooseFileUrl) {
                   temp = this.picturesChooseFileUrl
@@ -822,9 +825,11 @@ export default {
                 }
               }
             }
-            resolve(temp)
+            this.picturesChooseVisible = !success
+            success && clearInterval(isActive)
+            success && resolve(temp)
           }
-        }, 200)
+        }, 300)
       })
     },
     setMasterMap(item) {
