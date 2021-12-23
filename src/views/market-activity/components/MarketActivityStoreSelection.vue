@@ -31,8 +31,8 @@
           <div class="base-box" style="padding-left:20px">
             <span class="base-title">添加精选组参数数据</span>
             <div class="base-item" style="margin-top:5px">
-              <span>每个店铺添加 <el-input v-model="groupNum" :disabled="isDisabled" size="mini" class="input" clearable /> 组精选商品<span class="red-span">（最大10组）</span></span>
-              <span>每组精选添加 <el-input v-model="goodsNum" :disabled="isDisabled" size="mini" class="input" clearable /> 个商品<span class="red-span">（最少4个，最多8个）</span></span>
+              <span>每个店铺添加 <el-input v-model="groupNum" :disabled="isDisabled" onkeyup="value=value.replace(/[^\d]/g,'')" size="mini" class="input" clearable /> 组精选商品<span class="red-span">（最大10组）</span></span>
+              <span>每组精选添加 <el-input v-model="goodsNum" :disabled="isDisabled" onkeyup="value=value.replace(/[^\d]/g,'')" size="mini" class="input" clearable /> 个商品<span class="red-span">（最少4个，最多8个）</span></span>
             </div>
             <div class="base-item">
               <span>精选商品排序 </span>
@@ -49,8 +49,14 @@
                   :label="item.label"
                 />
               </el-select>
-              <el-button :disabled="isDisabled" type="primary" size="mini" @click="batchSaveSelectionGroup">开始批量添加</el-button>
-              <el-button :disabled="isDisabled" type="primary" size="mini">停止添加</el-button>
+              <el-button :disabled="isDisabled" type="primary" size="mini" @click="batchSelection">开始批量添加</el-button>
+              <el-button
+                type="primary"
+                size="mini"
+                @click="
+                  flag2 = true
+                  stop()"
+              >停止添加</el-button>
             </div>
             <span class="red-span">批量添加：精选名称自动生成，默认开启第一组精选商品</span>
           </div>
@@ -120,7 +126,7 @@
               active-color="#13ce66"
               inactive-color="#ff4949"
               @change="
-                flag = false
+                flag1 = false
                 queryIsOpen(row,1)"
             />
           </template>
@@ -229,7 +235,7 @@
 </template>
 
 <script>
-import { batchOperation } from '@/util/util'
+import { batchOperation, delay, terminateThread } from '@/util/util'
 import StoreChoose from '../../../components/store-choose'
 import StoreSelection from '../../../module-api/market-activity-api/store-selection'
 export default {
@@ -238,17 +244,19 @@ export default {
   },
   data() {
     return {
-      flag: false,
+      flag1: false, // 添加(true)/修改(false)精选组
+      flag2: false, // 停止添加
       isStatus: false,
       isDisabled: false,
       detailsVisible: false,
       queryProductLoading: false,
       StoreSelection: new StoreSelection(this),
 
+      planIds: [], // 批量添加之后得到的精选组ID
       groupNum: 1, // 添加组数
       goodsNum: 8, // 添加商品数据
       productId: '', // 搜索商品ID
-      goodsSort: 0, // 排序
+      goodsSort: '-sales', // 排序
       showConsole: true, // 日志
       country: '', // 站点
 
@@ -260,17 +268,89 @@ export default {
       }, // 详情数据
 
       goodsSortList: [
-        { value: 0, label: '最热销' },
-        { value: 1, label: '最近更新' },
-        { value: 2, label: '价格（从低至高）' },
-        { value: 3, label: '价格（从高至低）' }
+        { value: '-sales', label: '最热销' },
+        { value: 'price', label: '价格（从低至高）' },
+        { value: '-price', label: '价格（从高至低）' }
       ]
     }
   },
   methods: {
     // 批量添加精选组
-    batchSaveSelectionGroup() {
-
+    async batchSelection() {
+      if (!this.selectMallList.length) return this.$message('请选择店铺')
+      if (!this.groupNum || Number(this.groupNum) > 10 || Number(this.groupNum) <= 0) return this.$message('最多添加10组精选商品')
+      if (!this.goodsNum || Number(this.goodsNum) > 8 || Number(this.goodsNum) < 4) return this.$message('每组精选商品添加数量为 4 到 8 个')
+      this.$refs.Logs.writeLog(`开始批量添加精选组任务...`, true)
+      this.showConsole = false
+      this.flag1 = false
+      this.flag2 = false
+      this.isDisabled = true
+      this.planIds = []
+      await batchOperation(this.selectMallList, this.batchSelectionGroup, 1)
+      if (!this.flag2) {
+        await this.queryData()
+        await this.queryIsOpen('', 3)
+        this.$refs.Logs.writeLog(`添加精选组完成`, true)
+      }
+    },
+    async batchSelectionGroup(mItem, count = { count: 1 }) {
+      let mallName = ''
+      mallName = mItem.mall_alias_name || mItem.platform_mall_name
+      try {
+        // 查询商品数据
+        this.$refs.Logs.writeLog(`店铺【${mallName}】正在获取商品数据...`, true)
+        const params = {}
+        params['platform_mall_id'] = mItem.platform_mall_id
+        params['country'] = mItem.country
+        params['sort_by'] = this.goodsSort
+        const productRes = await this.StoreSelection.productSelector(params)
+        if (productRes.code !== 200) {
+          this.$refs.Logs.writeLog(`店铺【${mallName}】${productRes.data}`, false)
+          return
+        }
+        this.$refs.Logs.writeLog(`店铺【${mallName}】获取商品成功，共【${productRes.data?.length}】条`, true)
+        if (productRes.data?.length > 0) {
+          // 查询精选组数据
+          const groupRes = await this.StoreSelection.markeHotSalePlanList(mItem)
+          if (groupRes.code === 200 && groupRes.data?.length > 0) {
+            // 去除重复商品
+            groupRes.data.forEach(i1 => {
+              i1.item_id_list.forEach(i2 => {
+                productRes.data.splice(productRes.data.findIndex(i3 => { return i3.itemid === i2 }), 1)
+              })
+            })
+          }
+          for (let i = 0; i <= Number(this.groupNum) - 1; i++) {
+            if (this.flag2) {
+              this.stop()
+            }
+            const ids = []
+            const params = {}
+            const productData = productRes.data.splice(i * Number(this.goodsNum), Number(this.goodsNum))
+            for (let j = 0; j < productData.length; j++) {
+              const item = productData[j]
+              ids.push(item.itemid)
+            }
+            // 添加精选组
+            params['item_id_list'] = ids
+            params['name'] = Date.parse(new Date()).toString().substr(0, 10)
+            params['country'] = mItem.country
+            params['platform_mall_id'] = mItem.platform_mall_id
+            const res = await this.StoreSelection.markeHotSalePlan(params, 'postChineseReferer')
+            if (res.code !== 200) {
+              this.$refs.Logs.writeLog(`【${mallName}】添加第【${i + 1}】个精选组失败：${res.data}`, false)
+              continue
+            }
+            if (i === 0) this.planIds.push(res.data.id)
+            this.$refs.Logs.writeLog(`【${mallName}】添加第【${i + 1}】个精选组成功`, true)
+            await delay(2000)
+          }
+        }
+      } catch (error) {
+        this.$refs.Logs.writeLog(`店铺【${mallName}】添加精选组异常`, false)
+      } finally {
+        --count.count
+      }
     },
     // 批量/删除精选组
     async deleteSelection(val, type) {
@@ -300,7 +380,7 @@ export default {
     },
     // 设置精选组
     async queryIsOpen(val, type) {
-      if (type === 1) {
+      if (type === 1) { // 单个开启精选组
         this.$refs.Logs.writeLog(`正在设置精选组状态...`, true)
         // 查询同店铺下是否有开启精选组
         const newData = this.tableData.filter(item => {
@@ -312,7 +392,7 @@ export default {
           await this.setSelectionGroup(...newData)
         }
         await this.setSelectionGroup(val)
-      } else {
+      } else if (type === 2) { // 批量关闭精选组
         if (!this.multipleSelection.length) return this.$message('请选择数据后操作')
         const newData = this.multipleSelection.filter(item => {
           return item.status === true
@@ -323,6 +403,27 @@ export default {
           const item = newData[i]
           item.status = false
           await this.setSelectionGroup(item)
+        }
+      } else { // 批量开启精选组
+        this.$refs.Logs.writeLog(`正在设置精选组状态...`, true)
+        // 查询是否有开启的精选组关闭
+        for (let i = 0; i < this.tableData.length; i++) {
+          const item = this.tableData[i]
+          if (item.status === true) {
+            item.status = false
+            await this.setSelectionGroup(item)
+          }
+        }
+        // 批量添加默认开启第一组精选商品
+        for (let j = 0; j < this.planIds.length; j++) {
+          const i1 = this.planIds[j]
+          for (let k = 0; k < this.tableData.length; k++) {
+            const i2 = this.tableData[k]
+            if (i1 === i2.id) {
+              i2.status = true
+              await this.setSelectionGroup(i2)
+            }
+          }
         }
       }
     },
@@ -338,19 +439,21 @@ export default {
       })
       const res = await this.StoreSelection.markeHotSalePlan(params, 'putChinese')
       if (res.code === 200) {
-        if (this.flag) {
+        if (this.flag1) {
           this.$refs.Logs.writeLog(`【${val.mallName}】下【${val.name}】修改成功`, true)
         } else {
           this.$refs.Logs.writeLog(`【${val.mallName}】下【${val.name}】${val.status ? '开启' : '关闭'}成功`, true)
           this.$set(val, 'status', val.status)
         }
       } else {
-        if (this.flag) {
+        if (this.flag1) {
           this.$refs.Logs.writeLog(`【${val.mallName}】下【${val.name}】修改失败`, true)
           this.showConsole = false
+          return
         } else {
           this.$refs.Logs.writeLog(`【${val.mallName}】下【${val.name}】${val.status ? '开启' : '关闭'}失败：${res.data}`, false)
           this.$set(val, 'status', !val.status)
+          return
         }
       }
     },
@@ -367,8 +470,8 @@ export default {
         params['name'] = this.detailsData.name
         params['country'] = this.detailsData.country
         params['platform_mall_id'] = this.detailsData.platform_mall_id
-        // flag为真，添加精选组 为假，修改精选组
-        if (this.flag) {
+        // flag1为真，添加精选组 为假，修改精选组
+        if (this.flag1) {
           // type为真，保存并开启
           if (type) {
             params['status'] = true
@@ -444,7 +547,7 @@ export default {
       this.detailsData.mallName = this.selectMallList[0].mall_alias_name || this.selectMallList[0].platform_mall_name
       this.detailsData.platform_mall_id = this.selectMallList[0].platform_mall_id
       this.detailsData.country = this.selectMallList[0].country
-      this.flag = false
+      this.flag1 = false
       this.handleClose()
     },
     // 编辑弹窗
@@ -455,7 +558,7 @@ export default {
         item.platform_mall_id = row.platform_mall_id
       })
       this.detailsData = JSON.parse(JSON.stringify(row))
-      this.flag = true
+      this.flag1 = true
       console.log('detailsData', this.detailsData)
     },
     // 获取数据
@@ -537,6 +640,11 @@ export default {
       this.selectMallList = val
       this.country = val.country
       console.log('changeMallList', val)
+    },
+    stop() {
+      this.$refs.Logs.writeLog(`停止添加`, true)
+      terminateThread()
+      this.isDisabled = false
     }
   }
 }

@@ -9,9 +9,14 @@ export default class StoreSelection {
     params['limit'] = 100
     params['need_brand'] = 0
     params['need_item_model'] = 0
-    params['search_type'] = 1
     params['is_ads'] = 0
-    params['search_content'] = val.id
+    if (val.sort_by) {
+      params['sort_by'] = val.sort_by
+    }
+    if (val.id) {
+      params['search_content'] = val.id
+      params['search_type'] = 1
+    }
     params['mallId'] = val.platform_mall_id
     try {
       const res = await this._this.$shopeemanService.getChinese(val.country, '/api/marketing/v3/public/product_selector/?', params)
@@ -80,6 +85,7 @@ export default class StoreSelection {
         break
     }
     params['mallId'] = val.platform_mall_id
+    console.log('添加请求', params)
     try {
       const res = await this._this.$shopeemanService[method](val.country, '/api/marketing/v4/hot_sale/plan/', params, {
         headers: {
