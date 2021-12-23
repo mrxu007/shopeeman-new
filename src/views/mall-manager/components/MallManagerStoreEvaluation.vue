@@ -62,7 +62,8 @@
         v-loading="tableLoading"
         :data="tableDataCut"
         tooltip-effect="dark"
-        max-height="630px"
+        max-height="665px"
+        :row-height="80"
         use-virtual
         :big-data-checkbox="checked"
         :data-changes-scroll-top="false"
@@ -135,6 +136,7 @@
       <div class="pagination">
         <el-pagination
           background
+          :current-page="currentPage"
           :page-sizes="[1000, 2000, 5000, 10000]"
           :page-size="pageSize"
           layout="total, sizes, prev, pager, next, jumper"
@@ -551,6 +553,7 @@ export default {
     margin: 10px 10px 0 0;
     display: flex;
     align-items: center;
+    width: 1010px;
     // flex-wrap: wrap;
     .tool-item {
       display: flex;
@@ -567,9 +570,9 @@ export default {
   }
 }
 .content {
-  margin: 20px 0;
+  margin: 10px 0;
   background: #fff;
-  height: calc(100vh - 150px);
+  height: calc(100vh - 130px);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
