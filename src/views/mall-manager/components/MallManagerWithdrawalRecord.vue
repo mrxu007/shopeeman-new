@@ -27,7 +27,7 @@
             :picker-options="pickerOptions"
           />
         </div>
-        <el-button type="primary" size="mini" class="mar-right" @click="searchRecord">查询提现记录</el-button>
+        <el-button type="primary" size="mini" class="mar-right" :loading="tableLoading" @click="searchRecord">查询提现记录</el-button>
         <el-button type="primary" size="mini" class="mar-right" @click="exportData">导 出</el-button>
         <el-checkbox v-model="showConsole" class="mar-right">隐藏日志</el-checkbox>
         <div class="activeColor">当前提现金额合计：{{ parseFloat(totalAmount).toFixed(2) }}</div>
@@ -81,7 +81,7 @@
 
 <script>
 import storeChoose from '../../../components/store-choose'
-import { exportExcelDataCommon, creatDate } from '../../../util/util'
+import { exportExcelDataCommon, creatDate, delay } from '../../../util/util'
 export default {
   components: {
     storeChoose
@@ -158,6 +158,7 @@ export default {
       }
       console.log(this.tableData, 'searchRate')
       // this.dataCut()
+      await delay(1000)
       this.tableLoading = false
     },
     async getRecordList(pageNumber, mall) {
