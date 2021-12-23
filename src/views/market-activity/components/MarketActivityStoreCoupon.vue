@@ -2,7 +2,7 @@
   <div class="detail">
     <div class="condetion" style="background-color: white;padding:8px">
       <div class="row1">
-        <storeChoose style="margin-left:-20px" :is-all="true" :show-mall-all="true" @changeMallList="changeMallList" />
+        <storeChoose style="margin-left:-20px" :show-mall-all="true" @changeMallList="changeMallList" />
         <div>
           <label>优惠劵类型：</label>
           <el-select v-model="saleType" placeholder="请选择" size="mini" style="width:120px">
@@ -15,41 +15,69 @@
       </div>
 
       <div class="row2" style="margin-top:8px">
-        <el-button size="mini" type="primary">查询</el-button>
-        <el-button size="mini" type="primary">取消商品</el-button>
+        <el-button size="mini" type="primary" @click="getTableList">查询</el-button>
+        <el-button size="mini" type="primary">取消查询</el-button>
         <el-button size="mini" type="primary" @click="mallCoupon">创建店铺优惠劵</el-button>
         <el-button size="mini" type="primary" @click="goodsCoupon">创建商品优惠劵</el-button>
         <el-button size="mini" type="primary">停止创建活动</el-button>
         <el-button size="mini" type="primary">批量终止活动</el-button>
         <el-button size="mini" type="primary">批量删除活动</el-button>
         <el-button size="mini" type="primary">清除日志</el-button>
-        <el-checkbox v-model="showlog" style="margin-left:8px">商品点赞</el-checkbox>
+        <el-checkbox v-model="showlog" style="margin-left:8px">隐藏日志</el-checkbox>
       </div>
     </div>
+    <Logs ref="Logs" v-model="showlog" clear />
     <div class="tableDetail" style="margin-top: 8px;">
-      <el-table
+      <u-table
         :data="tableList"
-        height="calc(100vh - 100px)"
+        height="600px"
+        use-virtual
+        :border="false"
         :header-cell-style="{ background: '#f7fafa' }"
       >
-        <el-table-column type="selection" width="55" fixed />
-        <el-table-column type="index" fixed label="序号" min-width="50px" />
-        <el-table-column prop="" label="站点" align="center" min-width="50px" fixed />
-        <el-table-column prop="" label="店铺" align="center" min-width="150px" />
-        <el-table-column prop="" label="优惠劵" align="center" min-width="100px" />
-        <el-table-column prop="" label="优惠码" align="center" min-width="100px" />
-        <el-table-column prop="" label="优惠类型" align="center" min-width="100px" />
-        <el-table-column prop="" label="折扣金额" align="center" min-width="100px" />
-        <el-table-column prop="" label="最高上限数额" align="center" min-width="100px" />
-        <el-table-column prop="" label="优惠劵壳使用数量" align="center" min-width="150px" />
-        <el-table-column prop="" label="最低消费记录" align="center" min-width="100px" />
-        <el-table-column prop="" label="已领取" align="center" min-width="100px" />
-        <el-table-column prop="" label="已使用" align="center" min-width="100px" />
-        <el-table-column prop="" label="期间" align="center" min-width="100px" />
-        <el-table-column prop="" label="状态" align="center" min-width="100px" />
-        <el-table-column prop="" label="是否在基本页面显示" align="center" min-width="150px" />
-        <el-table-column prop="" label="操作" align="center" min-width="100px" fixed="right" />
-      </el-table>
+        <u-table-column type="selection" width="55" fixed />
+        <u-table-column type="index" fixed label="序号" min-width="50px" />
+        <u-table-column prop="" label="站点" align="center" min-width="50px" fixed>
+          <template v-slot="{row}">{{ row.country | chineseSite }}</template>
+        </u-table-column>
+        <u-table-column prop="mallName" label="店铺" align="center" min-width="150px" />
+        <u-table-column prop="name" label="优惠劵" align="center" min-width="150px" />
+        <u-table-column prop="voucher_code" label="优惠码" align="center" min-width="180px" />
+        <u-table-column prop="voucher_type" label="优惠类型" align="center" min-width="100px">
+          <!-- <template v-slot="{row}">{{ row.rule && row.rule.shopids.length===0 ? '店铺优惠卷' :'商品优惠卷' }}</template> -->
+        </u-table-column>
+        <u-table-column prop="value" label="折扣金额" align="center" min-width="100px">
+          <template v-slot="{row}">{{ row.value }}{{ row.country | siteCoin }}</template>
+        </u-table-column>
+        <u-table-column prop="" label="最高上限数额" align="center" min-width="100px" />
+        <u-table-column prop="usage_limit" label="优惠劵可使用数量" align="center" min-width="150px" />
+        <u-table-column prop="min_price" label="最低消费记录" align="center" min-width="100px" />
+        <u-table-column prop="distributed_count" label="已领取" align="center" min-width="100px">
+          <!-- <template v-slot="{row}">{{row.}}</template> -->
+        </u-table-column>
+        <u-table-column prop="current_usage" label="已使用" align="center" min-width="100px" />
+        <u-table-column prop="" label="期间" align="center" min-width="200px">
+          <template v-slot="{row}">
+            <div>{{ row.formStartime }}-</div>
+            <div>{{ row.formEndtime }}</div>
+          </template>
+        </u-table-column>
+        <u-table-column prop="voucher_status" label="状态" align="center" min-width="100px">
+          <template v-slot="{row}">
+            <span v-if="row.voucher_status==='进行中'" style="color:#0ad10a">{{ row.voucher_status }}</span>
+            <span v-if="row.voucher_status==='即将开始'" style="color:orange">{{ row.voucher_status }}</span>
+            <span v-if="row.voucher_status==='已过期'">{{ row.voucher_status }}</span>
+          </template>
+        </u-table-column>
+        <u-table-column prop="" label="是否在基本页面显示" align="center" min-width="150px">
+          <template v-slot="{row}">{{ row.rule && row.rule.hide ?'是':'否' }}</template>
+        </u-table-column>
+        <u-table-column prop="" label="操作" align="center" min-width="100px" fixed="right">
+          <template v-slot="{row}">
+            <span> <el-button v-if="row.voucher_status==='进行中' || row.voucher_status==='即将开始'" size="mini" type="primary">删除</el-button> </span>
+          </template>
+        </u-table-column>
+      </u-table>
     </div>
     <!-- 新建店铺优惠劵 -->
     <el-dialog
@@ -174,17 +202,19 @@
 
 <script>
 import storeChoose from '../../../components/store-choose'
-
+import MarketManagerAPI from '../../../module-api/market-manager-api/market-data'
+import { GoodsMallgetValue, getMalls, batchOperation, terminateThread } from '../../../util/util'
 export default {
   components: {
     storeChoose
   },
   data() {
     return {
-      showlog: false,
+      MarketManagerAPIInstance: new MarketManagerAPI(this),
+      showlog: true,
       saleType: '', // 优惠卷
       tableList: [], // 主表数据
-      CouponVisible: true, // 弹窗
+      CouponVisible: false, // 弹窗
       dialogtitle: '', // 弹窗标题
       coupontype: '2', // 创建优惠卷类型 1.店铺 2.商品
       // 创建优惠卷参数
@@ -203,7 +233,9 @@ export default {
       },
       useQuantity: '', // 优惠劵可使用数量
       couponhide: '0', // 优惠劵显示页面 0 在基本页面显示 1 不显示
-      couponGoodslist: [] // 优惠卷指定商品
+      couponGoodslist: [], // 优惠卷指定商品
+      selectMallList: [], // 选择的店铺
+      stoptoping: false
     }
   },
   // computed:{
@@ -213,8 +245,82 @@ export default {
   // },
 
   methods: {
-
-    changeMallList() {},
+    // 取消查询
+    stopSearch() {
+      terminateThread()
+      this.stoptoping = true
+      this.$refs.autoReplyLogs.writeLog(`正在停止查询`)
+    },
+    // 时间格式转换
+    add0(m) { return m < 10 ? '0' + m : m },
+    formatTime(val) {
+      var time = new Date(val)
+      var y = time.getFullYear()
+      var m = time.getMonth() + 1
+      var d = time.getDate()
+      var h = time.getHours()
+      var mm = time.getMinutes()
+      var s = time.getSeconds()
+      return y + '-' + this.add0(m) + '-' + this.add0(d) + ' ' + this.add0(h) + ':' + this.add0(mm) + ':' + this.add0(s)
+    },
+    // 店铺选择
+    changeMallList(val) {
+      this.selectMallList = val
+    },
+    // 获取店铺优惠卷信息
+    async  getInfo(item, count = { count: 1 }) {
+      try {
+        const params = {
+          country: item.country,
+          mallId: item.platform_mall_id,
+          offset: item.offset,
+          limit: 20
+        }
+        const res = await this.MarketManagerAPIInstance.Mallvoucher(params)
+        if (res.ecode === 0) {
+          const list = res.data.data.voucher_list
+          list.forEach(el => {
+            el.country = item.country
+            el.mallName = item.mall_alias_name || item.platform_mall_name
+            el.voucher_type = el.rule.shopids?.length > 0 ? '店铺优惠卷' : '商品优惠卷'
+            el.formStartime = this.formatTime(el.start_time * 1000)
+            el.formEndtime = this.formatTime(el.end_time * 1000)
+            const nowD = new Date().getTime()
+            if (nowD < el.start_time * 1000) {
+              el.voucher_status = '即将开始'
+            } else if (nowD > el.start_time * 1000 && nowD < el.end_time * 1000) {
+              el.voucher_status = '进行中'
+            } else {
+              el.voucher_status = '已过期'
+            }
+          })
+          this.$refs.Logs.writeLog(`【${item.mall_alias_name || item.platform_mall_name}】总数据：${res.data.data.total_count}条,正在请求第【${(params.offset / params.limit) + 1}】页`, true)
+          this.getTable.push(...list)// 存储数据
+          if (res.data.list?.length >= params.limit) {
+            item.offset = item.offset + params.limit
+            this.getInfo(item, { count: 1 })
+          }
+        } else {
+          this.$refs.Logs.writeLog(`【${item.mall_alias_name || item.platform_mall_name}】${res.message}`, false)
+        }
+      } catch (error) {
+        this.$refs.Logs.writeLog(`【${item.mall_alias_name || item.platform_mall_name}】--catch，${error}`, false)
+      } finally {
+        count.count--
+      }
+    },
+    // 初始化
+    async getTableList() {
+      this.selectMallList.forEach(el => {
+        el.offset = 0
+      })
+      this.getTable = []
+      this.showlog = false
+      this.$refs.Logs.writeLog(`开始请求数据`, true)
+      const res1 = await batchOperation(this.selectMallList, this.getInfo)
+      this.$refs.Logs.writeLog(`请求数据结束`)
+      this.tableList = this.getTable
+    },
     // 创建店铺优惠卷
     mallCoupon() {
       this.CouponVisible = true

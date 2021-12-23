@@ -33,4 +33,31 @@ export default class MarketManagerAPI {
       return { code: -2, data: `getSkuList-catch: ${error}` }
     }
   }
+  //店铺优惠卷
+  async Mallvoucher(goodsinfo) {
+    try {
+      const { country, mallId, offset,limit } = goodsinfo
+      const params = {
+        mallId: mallId,
+        offset: offset,
+        limit: limit, //pageSize:0-1000
+        promotion_type: 0
+      }
+      const res = await this._this.$shopeemanService.getChinese(country, '/api/marketing/v3/voucher/list/?', params, {
+        headers: {
+          'Content-Type': 'application/json; charset=utf-8',
+          'Accept': 'application/json, application/xml, text/json, text/x-json, text/javascript, text/xml',
+          'Accept-Encoding': 'gzip, deflate'
+        }
+      })
+      const des = JSON.parse(res)
+      const data = JSON.parse(des.data)
+      let ecode=data.code
+      const message = data.message
+      //   console.log('=============', 'mallid:' + params.mallId, ecode, des)
+      return { ecode, data, message }
+    } catch (error) {
+      return { code: -2, data: `getSkuList-catch: ${error}` }
+    }
+  }
 }
