@@ -10,7 +10,7 @@
             </div>
             <div class="base-item" style="margin-left:18px">
               <el-checkbox v-model="isStatus" :disabled="isDisabled">只查询已启用的精选组</el-checkbox>
-              <el-checkbox :disabled="isDisabled" style="margin-left: 17px;">每隔 <el-input :disabled="isDisabled" size="mini" class="input" clearable /> 小时循环启用精选组</el-checkbox>
+              <!-- <el-checkbox :disabled="isDisabled" style="margin-left: 17px;">每隔 <el-input :disabled="isDisabled" size="mini" class="input" clearable /> 小时循环启用精选组</el-checkbox> -->
             </div>
             <div style="margin-left:18px">
               <el-button :disabled="isDisabled" type="primary" size="mini" @click="queryData">查询精选组</el-button>
@@ -323,6 +323,11 @@ export default {
           for (let i = 0; i <= Number(this.groupNum) - 1; i++) {
             if (this.flag2) {
               this.stop()
+              break
+            }
+            if ((groupRes.data.length + (i + 1)) > 10) {
+              this.$refs.Logs.writeLog(`店铺【${mallName}】下的精选组已达上线`, false)
+              break
             }
             const ids = []
             const params = {}
@@ -330,6 +335,10 @@ export default {
             for (let j = 0; j < productData.length; j++) {
               const item = productData[j]
               ids.push(item.itemid)
+            }
+            if (ids.length <= 0) {
+              this.$refs.Logs.writeLog(`店铺【${mallName}】下的商品数量不足`, false)
+              break
             }
             // 添加精选组
             params['item_id_list'] = ids
@@ -407,11 +416,13 @@ export default {
       } else { // 批量开启精选组
         this.$refs.Logs.writeLog(`正在设置精选组状态...`, true)
         // 查询是否有开启的精选组关闭
-        for (let i = 0; i < this.tableData.length; i++) {
-          const item = this.tableData[i]
-          if (item.status === true) {
-            item.status = false
-            await this.setSelectionGroup(item)
+        if (this.planIds.length > 0) {
+          for (let i = 0; i < this.tableData.length; i++) {
+            const item = this.tableData[i]
+            if (item.status === true) {
+              item.status = false
+              await this.setSelectionGroup(item)
+            }
           }
         }
         // 批量添加默认开启第一组精选商品
