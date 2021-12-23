@@ -171,7 +171,12 @@ export default class GoodsList {
       params['discount_id'] = activityid
       params['itemid_list'] = [val.id]
       params['mallId'] = val.platform_mall_id
-      const res = await this._this.$shopeemanService.deleteChinese(val.country, '/api/marketing/v3/discount/nominate/abnormal/?', params)
+      const res = await this._this.$shopeemanService.deleteChinese(val.country, '/api/marketing/v3/discount/nominate/abnormal/', params, {
+        headers: {
+          'Content-Type': 'application/json',
+          referer: `portal/marketing/discount/${activityid}`
+        }
+      })
       const jsonData = this.isJsonString(this.isJsonString(res).data)
       console.log('删除折扣商品', jsonData)
       if (jsonData.message === 'success') {
