@@ -2,9 +2,6 @@
     margin:10px 10px 0 10px;
     background-color: white;
     padding: 10px;
-    .red-span{
-      color: red;
-    }
     .header {
       background: white;
       overflow: auto;
@@ -16,7 +13,22 @@
         li{
           line-height: 24px;
           display: flex;
-          margin-right: 20px;
+          margin-right: 28px;
+        }
+      }
+    }
+    .edit{
+      .el-input{
+        width: 100px
+      }
+      /deep/.el-range-editor--mini{
+        width: 228px;
+        /deep/.el-range-input{
+          width: 67px !important;
+        }
+      /deep/.el-range-separator{
+          width: 42px!important;
+          text-align: center;
         }
       }
     }
@@ -32,6 +44,28 @@
       }
       /deep/.el-dialog__body{
         padding: 0 20px 15px !important;
+      }
+    }
+    .time-dialog{
+      .content{
+        margin-bottom: 50px;
+        text-align: center;
+        /deep/.el-range-editor--mini{
+          width: 305px;
+          /deep/.el-range-input{
+            width: 128px !important;
+          }
+        /deep/.el-range-separator{
+            width: 38px!important;
+            text-align: center;
+          }
+        }
+      }
+      .footer{
+        text-align: center;
+        .el-button{
+          width: 80px;
+        }
       }
     }
   }

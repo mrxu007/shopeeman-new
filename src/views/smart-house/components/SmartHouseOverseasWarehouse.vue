@@ -94,7 +94,7 @@
         <el-table-column prop="updated_at" label="库存更新时间" min-width="150" align="center" />
         <el-table-column label="操作" min-width="200" align="center" fixed="right">
           <template slot-scope="{ row }">
-            <el-button type="primary" size="mini" @click="change(row)">改价</el-button>
+            <el-button type="primary" size="mini" @click="change(row)">商品编辑</el-button>
             <el-button type="primary" size="mini" @click="share(row)">共享库存</el-button>
           </template>
         </el-table-column>
@@ -288,7 +288,7 @@ export default {
       }
       window.BaseUtilBridgeService.openUrl(val)
     },
-    // 改价点击确定
+    // 商品编辑点击确定
     async changePrice() {
       if (!this.rowx.sku_price) return this.$message('价格不能为空')
       // if (!this.rowx.sku_name) return this.$message('商品规格不能为空')
@@ -305,11 +305,11 @@ export default {
         const res = await this.$XzyNetMessageService.post('xzy.overseaUpdateStock', parmas)
         const data = JSON.parse(JSON.parse(res).data)
         if (data.code === 200) {
-          this.$message.success(`改价成功`)
+          this.$message.success(`商品编辑成功`)
           this.changes = false
           this.getoverseaswarehouse()
         } else {
-          this.$message.error(`改价失败${data.message}`)
+          this.$message.error(`商品编辑失败${data.message}`)
         }
       } catch (error) {
         console.log(error)
@@ -349,7 +349,7 @@ export default {
       this.getoverseaswarehouse()
       this.changes1 = false
     },
-    // 改价功能
+    // 商品编辑功能
     async change(val) {
       console.log(val)
       this.newprice = 0
