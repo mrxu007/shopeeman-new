@@ -180,7 +180,7 @@
           min-width="100"
         >
           <template v-slot="{ row }">
-            <el-button type="primary" size="mini" @click="updateStockPriceDia(row)">改价</el-button>
+            <el-button type="primary" size="mini" @click="updateStockPriceDia(row)">商品编辑</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -272,7 +272,7 @@ export default {
     await this.getStock()
   },
   methods: {
-    // 改价
+    // 商品编辑
     async  updateStockPrice() {
       if (!this.updatePriceData.sku_price) return this.$message('价格不能为空')
       // if (!this.updatePriceData.sku_name) return this.$message('商品规格不能为空')
@@ -287,14 +287,14 @@ export default {
       parmas['sku_price'] = parseFloat(this.updatePriceData.sku_price).toFixed(2)
       const res = await this.ChineseStock.updateStockPrice(parmas)
       if (res.code === 200) {
-        this.$message.success('改价成功')
+        this.$message.success('商品编辑成功')
         this.updatePriceVisible = false
         this.getStock()
       } else {
         this.$message.error(res.data)
       }
     },
-    // 改价弹窗
+    // 商品编辑弹窗
     updateStockPriceDia(row) {
       console.log(row)
       this.updatePriceVisible = true
