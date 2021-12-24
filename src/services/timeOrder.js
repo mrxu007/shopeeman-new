@@ -4,6 +4,7 @@ import api from '../network/jx-request'
 import commodityService from '../services/commodity-service'
 // import JSEncrypt from 'jsencrypt'
 import shopeemanService from '../services/shopeeman-service'
+import surFaceService from './surfaceOrder'
 import {
   site_mall
 } from '../views/order-manager/components/orderCenter/orderCenter'
@@ -66,7 +67,7 @@ export default class {
     this.timeRange = timeRange
     if (this.syncStatus.value === 'refund') {
       await this.refund(mallNo, upLoadType)
-    } else if (this.syncStatus.value === 'toShip') {
+    } else if (this.syncStatus.value === 'toship') {
       await this.toShip(mallNo, upLoadType)
     } else {
       await this.otherStatus(mallNo, upLoadType)
@@ -96,8 +97,8 @@ export default class {
         while (package_list.length) {
           //orderLen-a<5
           let paramsList = []
-          for (let a = 0; a < orders.length; a = a + 5) {
-            let orderArr = orders.slice(a, a + 5)
+          for (let a = 0; a < package_list.length; a = a + 5) {
+            let orderArr = package_list.slice(a, a + 5)
             let resDetail = await this.$shopeemanService.getDetailsByOrderIds(this.mall.country, {
               from_seller_data: false,
               orders: this.changeParams(orderArr),
@@ -137,6 +138,7 @@ export default class {
           if (package_list.length < 40 || (lastTime && (new Date().getTime() - lastTime * 1000 > this.timeRange * 24 * 60 * 60 * 1000))) {
             package_list = []
           } else {
+            console.log("toShip翻页--------------------")
             params.page_number++
             params.total = total
             let pageUp = await this.$shopeemanService.getToShipOrderIdList(this.mall.country, params)
@@ -211,6 +213,7 @@ export default class {
           if (list.length < 40 || (lastTime && (new Date().getTime() - lastTime * 1000 > this.timeRange * 24 * 60 * 60 * 1000))) {
             list = []
           } else {
+            console.log("refundp翻页--------------------")
             params.page_number++
             let pageUp = await this.$shopeemanService.getRefundOrderIdList(this.mall.country, params)
             list = pageUp && pageUp.data && pageUp.data.list || []
@@ -296,6 +299,7 @@ export default class {
           if (orders.length < 40 || (lastTime && (new Date().getTime() - lastTime * 1000 > this.timeRange * 24 * 60 * 60 * 1000))) {
             orders = []
           } else {
+            console.log("other翻页--------------------")
             params.page_number++
             params.total = page_info.total
             let pageUp = await this.$shopeemanService.getOrderIdList(this.mall.country, params)
@@ -454,7 +458,7 @@ export default class {
       let paramsRufundList = []
       for (let i = 0; i < checkedList.length; i++) {
         let order = checkedList[i]
-        console.log(order, "upLoadOrders")
+        console.log(order, "upLoadOrders--------------")
         let params = {
           "order_id": order.order_id,
           "ordersn": order.order_sn,
@@ -607,7 +611,7 @@ export default class {
           "mtime": order.ordeTrackingHistory && order.ordeTrackingHistory.history && order.ordeTrackingHistory.history.length && order.ordeTrackingHistory.history[order.ordeTrackingHistory.history.length - 1].ctime || 0, //取接口的api/v1/return/return_tracking_history的data.history[最后一个].ctime
           "refund_amount": order.refund_amount || order.refundDetail.refund_amount, //
           "refund_total_price": order.amount_before_discount || order.refundDetail.amount_before_discount, //
-          "status": order.status, //
+          "status": order.refundDetail.status, //
           // "currency":"", //不传
           // "judging_time":"", //不传
           // "accepted_time":"", //不传
@@ -641,6 +645,9 @@ export default class {
       console.log(error, "56555555555555555555555")
     }
   }
+
+
+
   //chulictime
   dealWithCtime(order) {
     let ctime = 0

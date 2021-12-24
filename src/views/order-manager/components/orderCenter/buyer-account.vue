@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-11-09 10:14:02
- * @LastEditTime: 2021-12-17 12:24:30
+ * @LastEditTime: 2021-12-22 15:37:05
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shopeeman-new\src\components\buyer-account.vue
@@ -404,7 +404,7 @@ export default {
           //同步状态
           let statusObj = syncStatus[i]
           const orderService = new orderSync(mall, statusObj, this, this.$parent.$refs.Logs.writeLog)
-          await orderService.start(`${mI + 1}/${mallList.length}`, 'manual', 7)
+          await orderService.start(`${mI + 1}/${mallList.length}`, 'manual', 60)
         }
       }
       this.$parent.$refs.Logs.writeLog('订单同步已完成！！！', true)

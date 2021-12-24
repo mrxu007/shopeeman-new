@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-10-22 11:28:33
- * @LastEditTime: 2021-11-06 11:07:57
+ * @LastEditTime: 2021-12-21 21:07:54
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shopeeman-new\src\plugins\filters.js
@@ -66,6 +66,15 @@ const countries_option = [
   { label: '哥伦比亚站', value: 'CO' },
   { label: '智利站', value: 'CL' },
   { label: '波兰站', value: 'PL' }
+]
+const countries_option_sub = [
+  { label: '泰国站', value: 'TH' },
+  { label: '马来站', value: 'MY' },
+  { label: '台湾站', value: 'TW' },
+  { label: '新加坡站', value: 'SG' },
+  { label: '菲律宾站', value: 'PH' },
+  { label: '越南站', value: 'VN' },
+  { label: '印尼站', value: 'ID' }
 ]
 const countries_site = {
   '马来站': 'MY',
@@ -177,4 +186,4 @@ var countryShopeebuyCom = function(val) {
   attribute = site_http_com[attribute] || attribute
   return site_http_com[attribute] || attribute
 }
-export { chineseSite, imageRender, siteCoin, sitePlatform, countryShopeebuyCom, countries_option, countries_site }
+export { chineseSite, imageRender, siteCoin, sitePlatform, countryShopeebuyCom, countries_option, countries_option_sub,countries_site }

@@ -833,25 +833,29 @@ const syncStatus = [
   //   value: 'unpaid'
   // // },
   {
+    label: '全部',
+    value: 'all'
+  },
+  {
     label: '待发货',
     value: 'toship'
   },
-  {
-    label: '运送中',
-    value: 'shipping'
-  },
-  {
-    label: '已完成',
-    value: 'completed'
-  },
-  {
-    label: '取消中',
-    value: 'cancelled'
-  }, 
-  {
-    label: '退款中',
-    value: 'refund'
-  },
+  // {
+  //   label: '运送中',
+  //   value: 'shipping'
+  // },
+  // {
+  //   label: '已完成',
+  //   value: 'completed'
+  // },
+  // {
+  //   label: '取消中',
+  //   value: 'cancelled'
+  // }, 
+  // {
+  //   label: '退款中',
+  //   value: 'refund'
+  // },
 ]
 //货物类型
 const packageType = [{

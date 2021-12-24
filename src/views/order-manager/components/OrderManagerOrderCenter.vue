@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-11-09 10:17:44
- * @LastEditTime: 2021-12-21 11:17:30
+ * @LastEditTime: 2021-12-23 11:49:12
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shopeeman-new\src\views\order-manager\components\OrderManagerOrderCenter.vue
@@ -1093,36 +1093,10 @@ export default {
         } else {
           return this.$message.warning('面单获取失败！')
         }
-        // sheetInfo = [
-        //   {
-        //     id: 4,
-        //     order_sn: '2112169WHRH236',
-        //     status: 1,
-        //     data: {
-        //       name: 'Sirirat chawalarat',
-        //       phone: '66805869386',
-        //       inCode: '',
-        //       country: 'TH',
-        //       orderSn: '2112169WHRH236',
-        //       lane_code: 'L-TH22',
-        //       productDes: 'สีชมพูสเตอริโอแบบส * 1||สีชมพู5,1-อายุ5ปี * 1',
-        //       tracking_no: 'TH204258844180Y',
-        //       full_address: '283/15 moobaan phakdee rama 3 bangkholeam เขตบางคอแหลม จังหวัดกรุงเทพมหานคร 10120',
-        //       last_mile_name: 'TH-JNT',
-        //       first_mile_name: '',
-        //       goods_to_declare: 'P',
-        //     },
-        //     xzy_status: 1,
-        //     url: 'http://pkg.ppxias.com/ppxiasProductImages/produce/2021/12/14799e9763db4d68.PDF',
-        //     created_at: '2020-03-10 20:10:19',
-        //     updated_at: '2020-03-10 20:27:59',
-        //   },
-        // ]
         if (!sheetInfo.length) {
           return this.$message.warning('暂无面单信息')
         }
         let PdfInfoModel = []
-        let ConvertFaceInfoModel = []
         this.showConsole = false
         for (let i = 0; i < sheetInfo.length; i++) {
           let info = sheetInfo[i]
@@ -1131,13 +1105,13 @@ export default {
             continue
           }
           let orderInfo = this.multipleSelection.find((n) => {
-            return n.order_sn == info.order_sn
+            return n.main_order_sn == info.order_sn
           })
           console.log(orderInfo, 'orderInfo')
           let params = {
             PDFUrl: info.url,
-            OrderNo: orderInfo.order_sn,
-            MainOrderNo: orderInfo.order_sn,
+            OrderNo: orderInfo.main_order_sn,
+            MainOrderNo: orderInfo.main_order_sn,
             PlatformLogisticsId: orderInfo.tracking_no,
             PlatformLogisticsName: '',
             CreateTime: info.created_at,
@@ -1146,7 +1120,7 @@ export default {
             BuyerAddress: orderInfo.receiver_info.address,
             BuyerNote: '',
             BarInfo: {
-              BarCode: orderInfo.order_sn,
+              BarCode: orderInfo.main_order_sn,
               BarCodeWidth: 200,
               BarCodeHeight: 50,
             },
@@ -1162,15 +1136,15 @@ export default {
           }
           PdfInfoModel.push(params)
 
-          let conParams = {
-            HtmlFilePath: info.url.includes('.html') ? info.url : '',
-            PDFFilePath: info.url.includes('.PDF') || info.url.includes('.pdf') ? info.url : '',
-            LogisticsId: orderInfo.tracking_no,
-            OrderSn: orderInfo.order_sn,
-            MallId: orderInfo.mall_info.platform_mall_id,
-            VirtualFilePath: '',
-          }
-          ConvertFaceInfoModel.push(conParams)
+          // let conParams = {
+          //   HtmlFilePath: info.url.includes('.html') ? info.url : '',
+          //   PDFFilePath: info.url.includes('.PDF') || info.url.includes('.pdf') ? info.url : '',
+          //   LogisticsId: orderInfo.logistics_id,
+          //   OrderSn: orderInfo.order_sn,
+          //   MallId: orderInfo.mall_info.platform_mall_id,
+          //   VirtualFilePath: '',
+          // }
+          // ConvertFaceInfoModel.push(conParams)
         }
         let pdfDownloadModel1 = {
           IsDownload: false,
@@ -1183,25 +1157,67 @@ export default {
           VirtualPdfPath: {},
           ConvertFaceInfoList: [],
         }
+         console.log(JSON.stringify(pdfDownloadModel1), '111')
         let pdfInfo = await window['BaseUtilBridgeService'].getOrderPdfInfo(pdfDownloadModel1)
         let pdfInfoObj = JSON.parse(pdfInfo)
-        console.log('pdfInfo', pdfInfoObj)
-        if (pdfInfoObj.data === 200) {
+        console.log('pdfInfoObj', pdfInfoObj)
+        if (pdfInfoObj.code == 200) {
         } else {
           let message = ''
           for (const key in pdfInfoObj.failList) {
             message = message + ',' + pdfInfoObj.failList[key]
             message = message.substring(1)
           }
-          this.$refs.Logs.writeLog(`${message}`, false)
+          return this.$refs.Logs.writeLog(`${message}`, false)
         }
+        let ConvertFaceInfoModel = []
+        for (let i = 0; i < sheetInfo.length; i++) {
+          let info = sheetInfo[i]
+          console.log(i, info)
+          if (!info.url && country !== 'TW') {
+            this.$refs.Logs.writeLog(`订单${info.order_sn}未获取到面单信息`, false)
+            continue
+          }
+          let orderInfo = this.multipleSelection.find((n) => {
+            return n.main_order_sn == info.order_sn
+          })
+          console.log(orderInfo, 'orderInfo', )
+          let htmlUrl = null
+          if( info.url && info.url.includes('.html')){
+            htmlUrl =  pdfInfoObj.data && pdfInfoObj.data.find((n) => n && n.OrderSn == orderInfo.main_order_sn) || null
+          }
+          console.log(htmlUrl, 'htmlUrl')
+          let conParams = {
+            HtmlFilePath: htmlUrl ? htmlUrl.PDFFilePath : info.url && info.url.includes('.html') ? info.url : '',
+            PDFFilePath: (info.url && info.url.includes('.PDF')) || (info.url && info.url.includes('.pdf')) ? info.url : '',
+            LogisticsId: orderInfo.logistics_id.toString(),
+            OrderSn: orderInfo.main_order_sn,
+            MallId: Number(orderInfo.mall_info.platform_mall_id),
+            VirtualFilePath: '',
+          }
+          ConvertFaceInfoModel.push(conParams)
+          console.log(ConvertFaceInfoModel, '-------')
+        }
+
         console.log(JSON.stringify(ConvertFaceInfoModel), 'ConvertFaceInfoModel')
         let convertRes = await window['BaseUtilBridgeService'].htmlToPdf(ConvertFaceInfoModel, false)
         let convertResObj = convertRes && JSON.parse(convertRes)
         console.log(convertRes, convertResObj, 'convertFaceInfoModel')
-        if (!convertResObj || !convertResObj.code == 200) {
-          this.$refs.Logs.writeLog(`打印面单失败`, false)
+        if (!convertResObj && !convertResObj.code == 200) {
+          let message = ''
+          for (const key in convertResObj.failList) {
+            message = message + ',' + convertResObj.failList[key]
+            message = message.substring(1)
+          }
+          return this.$refs.Logs.writeLog(`打印面单失败,${message}`, false)
         }
+         let PdfInfoList = JSON.parse(JSON.stringify(PdfInfoModel))
+        PdfInfoList.forEach((item) => {
+          let htmlUrl = pdfInfoObj.data.find((n) =>n && n.OrderSn == item.OrderNo)
+          if (htmlUrl) {
+            item.PDFUrl = htmlUrl.PDFFilePath
+          }
+        })
         let pdfDownloadModel = {
           IsDownload: false,
           PdfExtendName: '.PDF',
@@ -1209,7 +1225,7 @@ export default {
           IsPrintVirtualFaceSheet: false,
           Site: country,
           IsShowWindow: true,
-          PdfInfoList: PdfInfoModel,
+          PdfInfoList: PdfInfoList,
           VirtualPdfPath: {},
           ConvertFaceInfoList: convertResObj.data,
         }
@@ -1219,7 +1235,7 @@ export default {
         console.log('down', down)
         this.tableLoading = false
       } catch (error) {
-        console.log(error)
+        console.log(error,"123456")
         this.tableLoading = false
         this.$refs.Logs.writeLog(`打印面单失败`, false)
       }
@@ -2550,6 +2566,7 @@ export default {
         }
       })
       let params = JSON.parse(JSON.stringify(this.selectForm))
+      console.log(params,"params")
       this.currentPage = page || this.currentPage
       params['page'] = this.currentPage
       params['pageSize'] = this.pageSize
@@ -2558,9 +2575,9 @@ export default {
       params['orderStatus'] = this.orderStatus.join(',')
       params['shotStatus'] = this.shotStatus.join(',')
       params['logisticsIds'] = this.logisticsIds.join(',')
-      params['createTime'] = this.createTime.length ? this.createTime[0] + ' 00:00:00' + '/' + this.createTime[1] + ' 23:59:59' : ''
-      params['otherTime'] = params['otherTime'].length ? params['otherTime'][0] + ' 00:00:00' + '/' + params['otherTime'][1] + ' 23:59:59' : ''
-      params['shotTime'] = params['shotTime'].length ? params['shotTime'][0] + ' 00:00:00' + '/' + params['shotTime'][1] + ' 23:59:59' : ''
+      params['createTime'] = this.createTime &&  this.createTime.length ? this.createTime[0] + ' 00:00:00' + '/' + this.createTime[1] + ' 23:59:59' : ''
+      params['otherTime'] = params['otherTime'] && params['otherTime'].length ? params['otherTime'][0] + ' 00:00:00' + '/' + params['otherTime'][1] + ' 23:59:59' : ''
+      params['shotTime'] = params['shotTime'] && params['shotTime'].length ? params['shotTime'][0] + ' 00:00:00' + '/' + params['shotTime'][1] + ' 23:59:59' : ''
       this.tableLoading = true
       try {
         let res = await this.$api.getOrderList(params)
