@@ -14,8 +14,8 @@
           <el-button style="flex: 1" size="mini" @click="batchDealWith(4)" type="primary">批量添加尺寸图</el-button>
         </div>
         <div class="basisInstall-box">
-          <el-button disabled style="flex: 1" size="mini" @click="batchDealWith(5)" type="primary">一件组装数据到上新</el-button>
-          <el-button disabled style="flex: 1" size="mini" @click="batchDealWith(6)" type="primary">产品到上新</el-button>
+          <el-button style="flex: 1" size="mini" @click="batchDealWith(5)" type="primary">一件组装数据到上新</el-button>
+          <el-button style="flex: 1" size="mini" @click="batchDealWith(6)" type="primary">产品到上新</el-button>
           <el-button style="flex: 1" size="mini" @click="batchDealWith(7)" type="primary">批量删除尺寸图</el-button>
         </div>
         <div class="basisInstall-box">
@@ -168,7 +168,7 @@
           </div>
         </template>
       </u-table-column>
-      <u-table-column align="left" :show-overflow-tooltip="true" width="90" label="标签">
+      <u-table-column align="left" show-overflow-tooltip width="90" label="标签">
         <template v-slot="{ row }">
           <p style="white-space: normal">{{ getLabelName(row.sys_label_id) }}</p>
         </template>
@@ -369,7 +369,7 @@
         //翻译
         translationConfig: {
           titleChecked: true,
-          describeChecked: false,
+          describeChecked: true,
           specChecked: true,
           languages: 'th', // 翻译语种
           failureType: 1,  // 失败类型
@@ -546,7 +546,7 @@
     methods: {
       // 开启任务
       async batchDealWith(type, data) {
-        console.log('type:', type)
+        console.log('type ===', type)
         if (this.mallTableSelect.length < 1) {
           this.$message.error('请选择一个商品信息')
           return false
@@ -560,12 +560,29 @@
         }
         else if (type === 4) {
           this.uploadImgAdd = true
-          this.$refs['uploadImg'].$el.click()
+          setTimeout(()=>{
+            this.$refs['uploadImg'].$el.click()
+          },100)
+        }
+        else if (type === 5){
+
+        }
+        else if (type === 6){
+          let ids = [...this.mallTableSelect.map(i=>{
+            if (this.filterSimplifiedChecked){
+              if (i.language !== 'zh-Hans'){
+                return i.id
+              }
+            }else {
+              return i.id
+            }
+          })]
+          this.$BaseUtilService.gotoUploadTab('gotoUpload',ids)
         }
         else if (type === 7) {
           for (const i of this.mallTableSelect) {
             let index = this.mallTable.findIndex(son => i.id === son.id)
-            if(i.img){
+            if(i.size_image_id){
               let deleteGoodsImageJson = await this.$commodityService.deleteGoodsImage(2, i.id, '0')
               let deleteGoodsImage = JSON.parse(deleteGoodsImageJson)
               if (deleteGoodsImage.code === 200) {
@@ -577,6 +594,9 @@
               this.$set(this.mallTable[index], 'operation_type', '无尺寸图可删除')
             }
           }
+        }
+        else if (type === 8){
+
         }
         else if (type === 9){
           terminateThread()
@@ -851,11 +871,11 @@
       async translationPrepare(type) {
         if (type === 1) {
           let res = await batchOperation(this.mallTableSelect, this.translationDate, parseInt(this.threadNumber) )
+
         }
       },
       async translationDate(item, count = { count: 1 }) {
         let index = this.mallTable.findIndex(i => i.id === item.id)
-        console.log(index,item,this.mallTable[index])
         this.$set(this.mallTable[index], 'operation_type', '正在翻译...')
         try {
           let success = true
@@ -903,6 +923,7 @@
               spec2: spec2
             }
             let itemmodelsJson = JSON.stringify(neededTranslateInfoData.itemmodels)
+            console.log(this.userInfo.translate_set)
             if (this.userInfo.translate_set == '2') {
               let translationJson1 = title && await this.$translationBridgeService.getGoogleTransResult([title], fromLanguage, toLanguage)
               console.log('translationJson1',translationJson1)
