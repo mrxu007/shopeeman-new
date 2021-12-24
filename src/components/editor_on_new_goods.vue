@@ -191,7 +191,7 @@
         </template>
       </u-table-column>
       <u-table-column align="left" :show-overflow-tooltip="true" label="类目" min-width="80">
-        <template v-slot="{ row }">{{getCategoty(row)}}</template>
+        <template v-slot="{ row }">{{getCategoty(row)  || '未匹配到类目'}}</template>
       </u-table-column>
       <u-table-column align="left" label="价格" prop="price" width="70"/>
       <u-table-column align="left" label="重量(kg)" width="80">
@@ -499,6 +499,9 @@
           console.log(val)
         },
         deep: true
+      },
+      goodsDescribeRadio(val){
+        this.translationConfig.describeChecked = val > 0 && val < 4
       }
     },
     components: { goodsEditDetails, categoryMapping, goodsLabel ,goodsSize},
@@ -561,10 +564,10 @@
         }
         else if (type === 7) {
           for (const i of this.mallTableSelect) {
+            let index = this.mallTable.findIndex(son => i.id === son.id)
             if(i.img){
               let deleteGoodsImageJson = await this.$commodityService.deleteGoodsImage(2, i.id, '0')
               let deleteGoodsImage = JSON.parse(deleteGoodsImageJson)
-              let index = this.mallTable.findIndex(son => i.id === son.id)
               if (deleteGoodsImage.code === 200) {
                 this.$set(this.mallTable[index], 'operation_type', '尺寸图删除成功')
               } else {
@@ -1080,7 +1083,7 @@
         const goodsLabelList = localStorage.getItem('goodsLabelList')
         if (goodsLabelList && type !== 'refresh') {
           const data = JSON.parse(goodsLabelList)
-          this.labelList = data
+          this.labelList = data || []
           return
         }
         const res = await this.personalLibraryAPInstance.getLabelList()
@@ -1089,7 +1092,7 @@
         }
         localStorage.setItem('goodsLabelList', JSON.stringify(res.data))
         this.$message.success('获取标签列表成功')
-        this.labelList = res.data
+        this.labelList = res.data || []
         console.log('labelList', this.labelList)
       },
       getValueFormat() {
@@ -1205,7 +1208,27 @@
       categoryChange(val) {
         console.log('categoryChange', val)
         if (val) {
-
+          let attributesList = []
+          val.attributesList.forEach(son=>{
+            let option = son.new_options_obj.find(i=>i.value_id === son.options)
+            attributesList.push({
+              attributeId:son.attribute_id,
+              attributeName:son.attribute_name,
+              valueId:option.value_id,
+              value:option.value,
+            })
+          })
+          this.mallTableSelect.forEach(async item=>{
+            let param = {
+              relationCategoryId:item.category_id,
+              country:val.country,
+              platformId:item.source,
+              platformCategoryId:val.categoryList[val.categoryList.length-1].category_id,
+              categoryAttributes:attributesList
+            }
+            let save = await this.$commodityService.saveCategoryRelation(param)
+            console.log('saveCategoryRelation',save)
+          })
         }
         this.categoryVisible = false
       }
