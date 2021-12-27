@@ -62,7 +62,8 @@
         v-loading="tableLoading"
         :data="tableDataCut"
         tooltip-effect="dark"
-        max-height="630px"
+        max-height="665px"
+        :row-height="80"
         use-virtual
         :big-data-checkbox="checked"
         :data-changes-scroll-top="false"
@@ -95,7 +96,6 @@
           <template slot-scope="scope">
             <el-tooltip effect="light" placement="right-end" :visible-arrow="false" :enterable="false" style="width: 56px; height: 56px; display: inline-block">
               <div slot="content">
-                {{ product_cover }}
                 <el-image :src="[scope.row.country, scope.row.platform_mall_id, scope.row.product_cover] | imageRender" style="width: 400px; height: 400px" />
               </div>
               <el-image :src="[scope.row.country, scope.row.platform_mall_id, scope.row.product_cover] | imageRender" style="width: 56px; height: 56px" />
@@ -136,6 +136,7 @@
       <div class="pagination">
         <el-pagination
           background
+          :current-page="currentPage"
           :page-sizes="[1000, 2000, 5000, 10000]"
           :page-size="pageSize"
           layout="total, sizes, prev, pager, next, jumper"
@@ -481,7 +482,7 @@ export default {
     },
     async productUrl(row) {
       const params = {
-        platform_mall_id: row.mall_info.platform_mall_id
+        platform_mall_id: row.platform_mall_id
       }
       const webUrl = await this.$shopeemanService.getWebUrl(row.country, params)
       // const webUrl = await this.$shopeeManConfig.getSiteWebUrl(row.country)
@@ -491,7 +492,7 @@ export default {
     // 打开外部窗口
     async openUrl(row) {
       const params = {
-        platform_mall_id: row.mall_info.platform_mall_id
+        platform_mall_id: row.platform_mall_id
       }
       const webUrl = await this.$shopeemanService.getWebUrl(row.country, params)
       // const webUrl = await this.$shopeeManConfig.getSiteWebUrl(row.country)
@@ -552,6 +553,7 @@ export default {
     margin: 10px 10px 0 0;
     display: flex;
     align-items: center;
+    width: 1010px;
     // flex-wrap: wrap;
     .tool-item {
       display: flex;
@@ -568,9 +570,9 @@ export default {
   }
 }
 .content {
-  margin: 20px 0;
+  margin: 10px 0;
   background: #fff;
-  height: calc(100vh - 150px);
+  height: calc(100vh - 130px);
   display: flex;
   flex-direction: column;
   justify-content: space-between;

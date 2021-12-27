@@ -6,15 +6,15 @@
         <div style="margin-left: 20px">
           <span>过期时间：</span>
           <el-date-picker
-            v-model="cloumn_date"
-            size="mini"
-            style="width: 324px"
-            type="datetimerange"
-            value-format="yyyy-MM-dd HH:mm:ss"
-            range-separator="-"
-            :picker-options="pickerOptions"
-            start-placeholder="开始日期"
-            end-placeholder="结束日期"
+              v-model="cloumn_date"
+              size="mini"
+              style="width: 324px"
+              type="datetimerange"
+              value-format="yyyy-MM-dd HH:mm:ss"
+              range-separator="-"
+              :picker-options="pickerOptions"
+              start-placeholder="开始日期"
+              end-placeholder="结束日期"
           />
         </div>
       </div>
@@ -84,19 +84,19 @@
         温馨提示：1.因为IP为实时购买，所以购买后不会立即生成IP信息。IP信息会在三分钟内生成 2.一个主体IP最多绑定10个店铺 3.若状态为【已绑定，已分配店铺】，但绑定店铺为空，则表示 店铺不存在此账号
       </div>
       <div style="font-size: smaller; color: red; margin-left: 60px; margin-top: 5px">
-        3.对于系统的香港IP（非香港名称），IP过期后，将无法进行续费，请在IP有效期内续费。 4、系统的香港IP（非香港名称）过期后，会被自动回收，回收后将不在显示代理IP信息
+        3.所有的IP的过期后，将无法进行续费，请在IP有效期内续费。 4、系统的香港IP（非香港名称）过期后，会被自动回收，回收后将不在显示代理IP信息
       </div>
     </div>
     <div class="table_clo">
       <div class="data_table" style="height: 100%; background-color: white">
         <el-table
-          ref="multipleTable"
-          height="calc(100vh - 233px)"
-          :data="tableListEnd"
-          :row-style="{ height: '50px' }"
-          style="width: 100%; height: calc(100vh - 233px)"
-          :header-cell-style="{ background: '#f7fafa' }"
-          @selection-change="handleSelectionChange"
+            ref="multipleTable"
+            height="calc(100vh - 233px)"
+            :data="tableListEnd"
+            :row-style="{ height: '50px' }"
+            style="width: 100%; height: calc(100vh - 233px)"
+            :header-cell-style="{ background: '#f7fafa' }"
+            @selection-change="handleSelectionChange"
         >
           <el-table-column type="selection" min-width="55px" align="center" />
           <el-table-column label="序号" type="index" align="center" :index="indexMethod" fixed />
@@ -136,14 +136,14 @@
         </el-table>
         <div class="pagination">
           <el-pagination
-            background
-            :current-page.sync="page"
-            :page-sizes="[20, 50, 100, 200]"
-            :page-size="pageSize"
-            layout="total, sizes, prev, pager, next, jumper"
-            :total="total"
-            @size-change="handleSizeChange"
-            @current-change="handleCurrentChange"
+              background
+              :current-page.sync="page"
+              :page-sizes="[20, 50, 100, 200]"
+              :page-size="pageSize"
+              layout="total, sizes, prev, pager, next, jumper"
+              :total="total"
+              @size-change="handleSizeChange"
+              @current-change="handleCurrentChange"
           />
         </div>
       </div>
@@ -151,16 +151,16 @@
     <!-- dialog 新增公司主体-->
     <div class="dialog_addip">
       <el-dialog
-        v-loading="loading"
-        :title="dialog_title"
-        :visible.sync="dialogvisible"
-        width="1000px"
-        height="600px"
-        top="2vh"
-        :class="{ changeVisible: Typeis === '' }"
-        :close-on-click-modal="false"
-        :close-on-press-escape="false"
-        @closed="closeDialog1"
+          v-loading="loading"
+          :title="dialog_title"
+          :visible.sync="dialogvisible"
+          width="1000px"
+          height="600px"
+          top="2vh"
+          :class="{ changeVisible: Typeis === '' }"
+          :close-on-click-modal="false"
+          :close-on-press-escape="false"
+          @closed="closeDialog1"
       >
         <div class="left">
           <!--新增公司主体  -->
@@ -869,10 +869,10 @@ export default {
         if (this.query_person.ip_alias === '' ||
             this.query_person.ip_address === '' ||
             this.query_person.ip_port === '' ||
-           this.query_person.password === '' ||
-           this.query_person.encryption === '' ||
-           this.query_person.protocol === '' ||
-           this.query_person.confuse === ''
+            this.query_person.password === '' ||
+            this.query_person.encryption === '' ||
+            this.query_person.protocol === '' ||
+            this.query_person.confuse === ''
         ) {
           this.$message.warning('必填信息不能为空')
           return
@@ -884,7 +884,7 @@ export default {
         if (this.query_person.ip_alias === '' ||
             this.query_person.ip_address === '' ||
             this.query_person.ip_port === '' ||
-           this.query_person.password === ''
+            this.query_person.password === ''
         ) {
           this.$message.warning('必填信息不能为空')
           return
@@ -1146,7 +1146,7 @@ export default {
       // if (!valid) return
       // 验证
       if (this.query_person.region_name === '' ||
-            this.query_person.ip_alias === ''
+          this.query_person.ip_alias === ''
       ) {
         this.$message.warning('必填信息不能为空')
         return
@@ -1154,12 +1154,12 @@ export default {
       // IP类型 分类验证
       if (this.query_person.ip_agency === 'ssr') {
         if (
-          this.query_person.ip_address === '' ||
-          this.query_person.ip_port === '' ||
-          this.query_person.password === '' ||
-           this.query_person.encryption === '' ||
-           this.query_person.protocol === '' ||
-           this.query_person.confuse === ''
+            this.query_person.ip_address === '' ||
+            this.query_person.ip_port === '' ||
+            this.query_person.password === '' ||
+            this.query_person.encryption === '' ||
+            this.query_person.protocol === '' ||
+            this.query_person.confuse === ''
         ) {
           this.$message.warning('必填信息不能为空')
           return
@@ -1167,9 +1167,9 @@ export default {
       }
       if (this.query_person.ip_agency === 'ss') {
         if (this.query_person.ip_port === '' ||
-           this.query_person.ip_address === '' ||
-          this.query_person.password === '' ||
-           this.query_person.encryption === ''
+            this.query_person.ip_address === '' ||
+            this.query_person.password === '' ||
+            this.query_person.encryption === ''
         ) {
           this.$message.warning('必填信息不能为空')
           return
@@ -1179,8 +1179,8 @@ export default {
       // this.query_person.password === ''
       if (this.query_person.ip_agency === 'http') {
         if (
-          this.query_person.ip_address === '' ||
-           this.query_person.ip_port === ''
+            this.query_person.ip_address === '' ||
+            this.query_person.ip_port === ''
         ) {
           this.$message.warning('必填信息不能为空')
           return
@@ -1377,12 +1377,12 @@ export default {
         d += performance.now() // use high-precision timer if available
       }
       var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(
-        /[xy]/g,
-        function(c) {
-          var r = (d + Math.random() * 16) % 16 | 0
-          d = Math.floor(d / 16)
-          return (c === 'x' ? r : (r & 0x3) | 0x8).toString(16)
-        }
+          /[xy]/g,
+          function(c) {
+            var r = (d + Math.random() * 16) % 16 | 0
+            d = Math.floor(d / 16)
+            return (c === 'x' ? r : (r & 0x3) | 0x8).toString(16)
+          }
       )
       return uuid
     },
@@ -1534,14 +1534,14 @@ export default {
     initDate() {
       const d = new Date()
       const d1 =
-        d.getFullYear() +
-        '-' +
-        (d.getMonth() + 1) +
-        '-' +
-        d.getDate() +
-        ' 23:59:59'
+          d.getFullYear() +
+          '-' +
+          (d.getMonth() + 1) +
+          '-' +
+          d.getDate() +
+          ' 23:59:59'
       const d2 =
-        d.getFullYear() + '-' + d.getMonth() + '-' + d.getDate() + ' 23:59:59'
+          d.getFullYear() + '-' + d.getMonth() + '-' + d.getDate() + ' 23:59:59'
       this.cloumn_date = [d2, d1]
       this.cloumn_date && this.cloumn_date.length > 0 ? this.cloumn_date.join('/').toString() : ''
     },

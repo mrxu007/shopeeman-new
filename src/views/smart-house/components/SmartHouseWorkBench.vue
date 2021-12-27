@@ -423,7 +423,7 @@
             <template slot-scope="scope">
               <div v-if="scope.row.goods" class="goods-detail">
                 <!-- {{ scope.row.goods.goods_id }} -->
-                <el-button type="text" @click.native="open(scope.row.ori_goods_id)">
+                <el-button type="text" @click.native="open(scope.row)">
                   {{ scope.row.goods.goods_id }}
                 </el-button>
               </div>
@@ -863,8 +863,8 @@ export default {
     // this.userInfo()
   },
   methods: {
-    open(val) {
-      window.BaseUtilBridgeService.openUrl(`https://item.taobao.com/item.htm?id=${val}`)
+    async open(val) {
+      window.BaseUtilBridgeService.openUrl(val.goods.goods_url)
     },
     // 申请赔付
     async applyCompensation() {

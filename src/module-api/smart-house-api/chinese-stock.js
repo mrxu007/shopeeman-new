@@ -8,7 +8,7 @@ export default class ChineseStock {
   // 改价
   async updateStockPrice(val) {
     try {
-      const res = await this._this.$XzyNetMessageService.post('xzy.updateStockPrice', val)
+      const res = await this._this.$XzyNetMessageService.post('xzy.updateStockDetail', val)
       const jsonData = JSON.parse(JSON.parse(res).data)
       if (Number(jsonData.code) === 200) {
         return { code: 200 }

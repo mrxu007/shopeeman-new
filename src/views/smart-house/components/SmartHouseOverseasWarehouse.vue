@@ -94,7 +94,7 @@
         <el-table-column prop="updated_at" label="库存更新时间" min-width="150" align="center" />
         <el-table-column label="操作" min-width="200" align="center" fixed="right">
           <template slot-scope="{ row }">
-            <el-button type="primary" size="mini" @click="change(row)">改价</el-button>
+            <el-button type="primary" size="mini" @click="change(row)">商品编辑</el-button>
             <el-button type="primary" size="mini" @click="share(row)">共享库存</el-button>
           </template>
         </el-table-column>
@@ -108,37 +108,29 @@
         :close-on-press-escape="false"
       >
         <el-form label-position="right" label-width="80px">
-
           <el-form-item label="商品名称：">
-            {{ rowx.goods_name }}
-            <!-- <el-input v-model="rowx.goods_name" size="mini" disabled/> -->
+            <el-input v-model="rowx.goods_name" size="mini" disabled />
           </el-form-item>
-
+          <el-form-item label="skuId：">
+            <el-input v-model="rowx.sku_id" size="mini" disabled />
+          </el-form-item>
           <el-form-item label="商品规格：">
-            {{ rowx.sku_name }}
-            <!-- <el-input v-model="rowx.sku_name" size="mini" disabled/> -->
+            <el-input v-model="rowx.sku_name" size="mini" />
           </el-form-item>
-
-          <el-form-item label="skuid：">
-            {{ rowx.sku_id }}
-            <!-- <el-input v-model="rowx.sku_id" size="mini" disabled/> -->
+          <el-form-item label="商品链接：">
+            <el-input v-model="rowx.sku_url" size="mini" />
           </el-form-item>
-
-          <el-form-item label="原始价格：">
-            <!-- <el-input v-model="rowx.sku_price" size="mini" style="width:100px"  disabled/> -->
-            <span style="font-weight: 600;font-family: sans-serif; margin-right: 2px;">{{ rowx.sku_price }}</span>
+          <el-form-item label="图片链接：">
+            <el-input v-model="rowx.sku_image" size="mini" />
+          </el-form-item>
+          <el-form-item label="商品价格：">
+            <el-input v-model="rowx.sku_price" size="mini" style="width:100px" />
             <span style="color:#969393;">RMB</span>
           </el-form-item>
-
-          <el-form-item label="新价格：" style="margin-bottom: 10px;">
-            <el-input v-model="rowx.newprice" size="mini" style="width:100px" onkeyup="value=value.replace(/[^\d]/g,0)" />
+          <!-- <el-form-item label="新价格：" style="margin-bottom: 10px;">
+            <el-input v-model="newprice" size="mini" style="width:100px" />
             <span style="color:#969393;">RMB</span>
-          </el-form-item>
-
-          <div
-            style="color: red;line-height: 18px;margin-left: 20px;
-           width: 235px;"
-          >温馨提示：价格修改后，会将以当前商品出货但未发货的订单的拍单金额同步成新价格</div>
+          </el-form-item> -->
           <el-form-item style="margin-top: 10px;">
             <el-button type="primary" size="mini" style="margin-left:10px;width:100px" @click="changePrice">确 定</el-button>
           </el-form-item>
@@ -224,13 +216,15 @@ export default {
       changes1: false,
       primarynum: 0,
       sharedtype: '',
-      rowx: {
-        goods_name: '',
-        sku_name: '',
-        sku_id: '',
-        sku_price: 1,
-        newprice: 0
-      },
+      // rowx: {
+      //   goods_name: '',
+      //   sku_name: '',
+      //   sku_id: '',
+      //   sku_price: 1,
+      //   newprice: 0
+      // },
+      newprice: 0,
+      rowx: {},
       rowy: {
         goods_name: '',
         sku_name: '',
@@ -244,17 +238,9 @@ export default {
         app_uid: '',
         skuid: '',
         returnWheareHouseName: '0', // 仓库名称
-        // returnWheareHouseName: 17, // 仓库名称
         systemskuid: '', // 系统商品编号
         sku_name: ''
       },
-      // returnWheareHouseNameList: [
-      //   { value: 17, label: '泰国存储仓' },
-      //   { value: 27, label: '星卓越菲律宾存储仓' },
-      //   { value: 28, label: '星卓越马来存储仓' },
-      //   { value: 75, label: '超世代（越南仓海外仓）' },
-      //   { value: 110, label: '锦汐越南海外仓' }
-      // ]
       wherehouseNameList: []
     }
   },
@@ -302,51 +288,33 @@ export default {
       }
       window.BaseUtilBridgeService.openUrl(val)
     },
-    // 改价点击确定
+    // 商品编辑点击确定
     async changePrice() {
-      this.changes = false
+      if (!this.rowx.sku_price) return this.$message('价格不能为空')
+      // if (!this.rowx.sku_name) return this.$message('商品规格不能为空')
+      // if (!this.rowx.sku_url) return this.$message('商品链接不能为空')
+      // if (!this.rowx.sku_image) return this.$message('图片链接不能为空')
       const parmas = {
-        sku_id: this.rowx.sku_id,
-        app_uid: '',
-        price: Number(this.rowx.newprice)
-
+        sys_sku_id: this.rowx.sys_sku_id,
+        sku_name: this.rowx.sku_name,
+        sku_url: this.rowx.sku_url,
+        sku_image: this.rowx.sku_image,
+        sku_price: parseFloat(this.rowx.sku_price * 100).toFixed(2)
       }
-      console.log(parmas)
       try {
-        let data = await this.$XzyNetMessageService.post('xzy.stock.editPrice', parmas)
-        data = JSON.parse(data)
-        data.data = JSON.parse(data.data)
-        if (data.status === 200) {
-          this.$message.success(`改价成功`)
+        const res = await this.$XzyNetMessageService.post('xzy.overseaUpdateStock', parmas)
+        const data = JSON.parse(JSON.parse(res).data)
+        if (data.code === 200) {
+          this.$message.success(`商品编辑成功`)
+          this.changes = false
+          this.getoverseaswarehouse()
         } else {
-          this.$message.error(`改价失败${data.data.message}`)
+          this.$message.error(`商品编辑失败${data.message}`)
         }
       } catch (error) {
         console.log(error)
       }
-      this.getoverseaswarehouse()
     },
-    // 测试
-    // async test() {
-    //   const parmas = {
-    //     app_uid: '',
-    //     wid: this.form.returnWheareHouseName,
-    //     uid: ''
-    //   }
-    //   try {
-    //     let data = await this.$XzyNetMessageService.post('xzy.getSharedIndex', parmas)
-    //     data = JSON.parse(data)
-    //     data.data = JSON.parse(data.data)
-    //     console.log(data)
-    //     if (data.data.code === 200) {
-    //       this.$message.success(`测试数据查询成功`)
-    //     } else {
-    //       this.$message.error(`测试数据查询失败${data.data.message}`)
-    //     }
-    //   } catch (error) {
-    //     console.log(error)
-    //   }
-    // },
     // 共享库存点击确定
     async shareStock() {
       if (Number(this.primarynum) > Number(this.rowy.stock_num) || Number(this.primarynum) < 0) {
@@ -381,13 +349,16 @@ export default {
       this.getoverseaswarehouse()
       this.changes1 = false
     },
-    // 改价功能
+    // 商品编辑功能
     async change(val) {
+      console.log(val)
+      this.newprice = 0
       this.changes = true
-      this.rowx.goods_name = val.goods_name
-      this.rowx.sku_name = val.sku_name
-      this.rowx.sku_id = val.sku_id
-      this.rowx.sku_price = val.sku_price
+      this.rowx = JSON.parse(JSON.stringify(val))
+      // this.rowx.goods_name = val.goods_name
+      // this.rowx.sku_name = val.sku_name
+      // this.rowx.sku_id = val.sku_id
+      // this.rowx.sku_price = val.sku_price
     },
     // 共享功能
     async share(val) {

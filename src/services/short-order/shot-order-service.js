@@ -684,7 +684,7 @@ export default class {
       LoginedCookies: account.login_info,
       UserName: account.name,
       Cookiestr: JSON.stringify(account.login_info),
-      Cookiestr: '',
+      // Cookiestr: '',
       AccountType: account.type,
       Ua: account.ua,
       Country: account.site || '',

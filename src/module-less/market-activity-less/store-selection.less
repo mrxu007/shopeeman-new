@@ -1,0 +1,77 @@
+.contaniner{
+    margin:10px 10px 0 10px;
+    .red-span{
+      color: red;
+    }
+    .header {
+      background: white;
+      overflow: auto;
+      padding: 10px;
+      border-radius: 5px;
+      ul{
+        display: flex;
+        width: 1425px;
+        li{
+          line-height: 24px;
+          display: flex;
+          margin-right: 20px;
+          .base-box {
+            border: 1px solid #dcdcdc;
+            border-radius: 4px;
+            padding:10px 10px 5px 0px;
+            position: relative;
+            height: 100%;
+            .base-title {
+              padding: 0 5px;
+              display: inline-block;
+              height: 20px;
+              line-height: 20px;
+              text-align: center;
+              background: #fff;
+              position: absolute;
+              left: 10px;
+              top: -10px;
+            }
+            .base-item{
+                margin-bottom: 5px;
+                .el-select{
+                    width: 138px;
+                    margin-right: 10px;
+                }
+                .input{
+                    width: 80px !important;
+                }
+            }
+          }
+        }
+      }
+    }
+    #article {
+      border-radius: 5px;
+      overflow: hidden;
+      background: white;
+      padding: 0 10px 10px 10px;
+    }
+    /deep/.el-dialog{
+      /deep/.el-dialog__header{
+        padding: 12px 10px 5px !important;
+      }
+      /deep/.el-dialog__body{
+        padding: 0 20px 15px !important;
+      }
+    }
+    .details-dialog{
+      ul{
+        display: flex;
+        width: 962px;
+        li{
+          display: flex;
+          margin-right: 40px;
+        }
+        span{
+          line-height: 24px;
+          text-align: right;
+        }
+      }
+    }
+  }

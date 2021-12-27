@@ -24,6 +24,7 @@ export default class NetMessageBridgeService {
     const mallId = data.mallId || data.platform_mall_id || data.shop_id
     let userSettings = await this.ConfigBridgeService().getUserConfig()
     userSettings = JSON.parse(userSettings)
+    console.log('userSettings', userSettings)
     const mallInfo = await this.ConfigBridgeService().getGlobalCacheInfo('mallInfo', mallId)
     const {
       mall_main_id,
@@ -33,9 +34,11 @@ export default class NetMessageBridgeService {
     // local 国内
     // Abroad 本土
     let url = this.site_domain_chinese_pre[country]
-    if (userSettings.domain_switch === 'Abroad') {
+    const domain_switch = userSettings && (userSettings.SwitchDominTypeSetting || userSettings.domain_switch) || '1'
+    if (domain_switch === '3' || domain_switch === `Abroad`) {
       url = this.site_domain_local_pre[country]
-    } else if (userSettings.domain_switch === 'Auto' && mall_main_id > 0 && (IPType.indexOf('大陆') === -1 || IPType === '1')) {
+    } else if ((domain_switch === '1' || domain_switch === 'Auto') &&
+      mall_main_id > 0 && (IPType.indexOf('大陆') === -1 || IPType === '1')) {
       url = this.site_domain_local_pre[country]
     }
     return url
@@ -45,18 +48,18 @@ export default class NetMessageBridgeService {
     const mallId = data.mallId || data.platform_mall_id || data.shop_id
     let userSettings = await this.ConfigBridgeService().getUserConfig()
     userSettings = JSON.parse(userSettings)
+    console.log('userSettings', userSettings)
     const mallInfo = await this.ConfigBridgeService().getGlobalCacheInfo('mallInfo', mallId)
     const {
       mall_main_id,
       IPType
     } = JSON.parse(mallInfo)
-    // auto 1、auto  2、mallinfo.MallMainId  3、IPType  包含 大陆   或者  ‘1’
-    // local 国内
-    // Abroad 本土
+    const domain_switch = userSettings && (userSettings.SwitchDominTypeSetting || userSettings.domain_switch) || '1'
     let url = this.site_domain_chinese_bk[country]
-    if (userSettings.domain_switch === 'Abroad') {
+    if (domain_switch === '3' || domain_switch === `Abroad`) {
       url = this.site_domain_local_bk[country]
-    } else if (userSettings.domain_switch === 'Auto' && mall_main_id > 0 && (IPType.indexOf('大陆') === -1 || IPType === '1')) {
+    } else if ((domain_switch === '1' || domain_switch === 'Auto') &&
+      mall_main_id > 0 && (IPType.indexOf('大陆') === -1 || IPType === '1')) {
       url = this.site_domain_local_bk[country]
     }
     return url
@@ -283,7 +286,6 @@ export default class NetMessageBridgeService {
     options['extrainfo'] = this.getExtraInfo(data)
     if (exportInfo) { // 适配店铺管理---导入店铺
       options['extrainfo']['exportInfo'] = exportInfo
-      // Object.assign(options['extrainfo'],JSON.parse(JSON.stringify()))
     }
     delete data.mallId
     const referer = options['headers'] && options['headers'].referer
@@ -293,7 +295,7 @@ export default class NetMessageBridgeService {
         referer: url + referer
       })
     }
-    console.log(url, JSON.stringify(options), JSON.stringify(data))
+    console.log('NetMessageBridgeService', url, JSON.stringify(options), JSON.stringify(data))
     return this.NetMessageBridgeService().post(url, JSON.stringify(options), JSON.stringify(data))
   }
   // refer 与url 不一样
@@ -448,8 +450,6 @@ export default class NetMessageBridgeService {
     const { country, mall_account_info, platform_mall_id } = mallInfo
     const accountName = mall_account_info.username
     const encryptPwd = sha256(md5(mall_account_info.password))
-    // const encryptPwd = sha256(md5('Th123654'))
-    // const accountName = 'hellohappy586'
     const params = {
       mallId: platform_mall_id || '8888888888', // 导入店铺初始没有mallId
       remember: false,
@@ -461,7 +461,7 @@ export default class NetMessageBridgeService {
     }
     const reg = new RegExp('[\\u4E00-\\u9FFFa-zA-Z]+', 'g')
     if (accountName.indexOf('@') > -1) {
-      params['email'] = accountName
+      params['email'] = encodeURIComponent(accountName).split('%').length > 1 && encodeURIComponent(accountName) || accountName
       acccount_info['username'] = accountName
     } else if (reg.test(accountName)) {
       params['username'] = accountName
@@ -489,7 +489,7 @@ export default class NetMessageBridgeService {
     }
     console.log('copy_mallInfo', copy_mallInfo)
     try {
-      let res = await this.postChinese(country, '/api/v2/login', params, { // option
+      let res = await this.postChinese(country, '/api/v2/login/?', params, { // option
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
           'charset': 'UTF-8'
@@ -1488,7 +1488,6 @@ export default class NetMessageBridgeService {
       }
     }
   }
-
   // 获取地址
   getNextLevelAddresses(country, data, option) {
     return this.getChinese(country, '/api/v3/general/get_next_level_addresses', data, option)
@@ -1571,6 +1570,11 @@ export default class NetMessageBridgeService {
     return this.getChinese(country, '/api/mydata/v2/product/performance/', data, option)
   }
 
+  // 获取商品表现数据
+  getperformance1(country, data, option) {
+    return this.getChinese(country, '/api/mydata/v2/product/performance/batch/', data, option)
+  }
+
   // 获取销售额概述数据
   getsalasoverview(country, data, option) {
     return this.getChinese(country, '/api/mydata/v3/sales/overview/funnel/', data, option)
@@ -1634,6 +1638,46 @@ export default class NetMessageBridgeService {
   // 获取商品限时选购数据
   getlimittime(country, data, option) {
     return this.getChinese(country, '/api/mydata/marketing/flash-sale/key-metrics/', data, option)
+  }
+
+  // 获取加购优惠数据1
+  getAdditionalpurchase1(country, data, option) {
+    return this.getChinese(country, '/api/mydata/v2/marketing/add-on-deal/key-metrics/', data, option)
+  }
+
+  // 获取加购优惠数据2
+  getAdditionalpurchase2(country, data, option) {
+    return this.getChinese(country, '/api/mydata/marketing/add-on-deal/gift-with-purchase/key-metrics/', data, option)
+  }
+
+  // 获取实时聊天数据
+  getrealtime(country, data, option) {
+    return this.getChinese(country, '/api/mydata/v2/chat/dashboard/funnel/', data, option)
+  }
+
+  // 获取常见问题助手数据
+  getfaqassistant(country, data, option) {
+    return this.getChinese(country, '/api/mydata/chat/faq/overview/', data, option)
+  }
+
+  // 获取常见问题助手按钮数据
+  getfaqassistant1(country, data, option) {
+    return this.getChinese(country, '/api/mydata/chat/faq/list/', data, option)
+  }
+
+  // 获取销售辅助数据
+  getsalesassistance(country, data, option) {
+    return this.getChinese(country, '/api/mydata/v4/selling-coach/listing-optimiser/overview/', data, option)
+  }
+
+  // 获取行销活动套装优惠数据
+  getdiscount(country, data, option) {
+    return this.getChinese(country, '/api/marketing/v3/bundle_deal/list/', data, option)
+  }
+
+  // 创建套装促销活动
+  creatdiscount(country, data, option) {
+    return this.postChinese(country, '/api/marketing/v3/bundle_deal/', data, option)
   }
 }
 

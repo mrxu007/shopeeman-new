@@ -180,7 +180,7 @@
           min-width="100"
         >
           <template v-slot="{ row }">
-            <el-button type="primary" size="mini" @click="updateStockPriceDia(row)">改价</el-button>
+            <el-button type="primary" size="mini" @click="updateStockPriceDia(row)">商品编辑</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -207,30 +207,28 @@
     >
       <el-form label-position="right" label-width="80px">
         <el-form-item label="商品名称：">
-          {{ updatePriceData.goods_name }}
-          <!-- <el-input v-model="updatePriceData.goods_name" size="mini" /> -->
+          <el-input v-model="updatePriceData.goods_name" size="mini" disabled />
+        </el-form-item>
+        <el-form-item label="skuId：">
+          <el-input v-model="updatePriceData.sku_id" size="mini" disabled />
         </el-form-item>
         <el-form-item label="商品规格：">
-          {{ updatePriceData.sku_name }}
-          <!-- <el-input v-model="updatePriceData.sku_name" size="mini" /> -->
+          <el-input v-model="updatePriceData.sku_name" size="mini" />
         </el-form-item>
-        <el-form-item label="skuid：">
-          {{ updatePriceData.sku_id }}
+        <el-form-item label="商品链接：">
+          <el-input v-model="updatePriceData.goods_url" size="mini" />
         </el-form-item>
-        <el-form-item label="原始价格：">
-          <span style="font-weight: 600;font-family: sans-serif; margin-right: 2px;">{{ updatePriceData.sku_price }}</span>
+        <el-form-item label="图片链接：">
+          <el-input v-model="updatePriceData.sku_image" size="mini" />
+        </el-form-item>
+        <el-form-item label="商品价格：">
+          <el-input v-model="updatePriceData.sku_price" size="mini" style="width:100px" />
           <span style="color:#969393;margin-left: 5px;">RMB</span>
         </el-form-item>
-
-        <el-form-item label="新价格：" style="margin-bottom: 10px;">
+        <!-- <el-form-item label="新价格：" style="margin-bottom: 10px;">
           <el-input v-model="updatePriceData.newPrice" size="mini" style="width:100px" onkeyup="value=value.replace(/[^\d]/g,0)" />
           <span style="color:#969393;margin-left: 5px;">RMB</span>
-        </el-form-item>
-
-        <div
-          style="color: red;line-height: 18px;margin-left: 20px;
-           width: 235px;"
-        >温馨提示：价格修改后，会将以当前商品出货但未发货的订单的拍单金额同步成新价格</div>
+        </el-form-item> -->
         <el-form-item style="margin-top: 10px;">
           <el-button type="primary" size="mini" style="margin-left:10px;width:100px" @click="updateStockPrice">确 定</el-button>
         </el-form-item>
@@ -254,9 +252,7 @@ export default {
       pageSize: 30,
       page: 1,
 
-      updatePriceData: {
-        newPrice: ''
-      }, // 修改库存价格数据
+      updatePriceData: {}, // 修改库存价格数据
       tableData: [], // 表格数据
       widList: [], // 仓库数据
       muid: 0,
@@ -276,27 +272,33 @@ export default {
     await this.getStock()
   },
   methods: {
-    // 改价
+    // 商品编辑
     async  updateStockPrice() {
-      if (!this.updatePriceData.newPrice) return this.$message('请输入新价格')
-      console.log(this.updatePriceData)
+      if (!this.updatePriceData.sku_price) return this.$message('价格不能为空')
+      // if (!this.updatePriceData.sku_name) return this.$message('商品规格不能为空')
+      // if (!this.updatePriceData.goods_url) return this.$message('商品链接不能为空')
+      // if (!this.updatePriceData.sku_image) return this.$message('图片链接不能为空')
       const parmas = {}
       parmas['wid'] = this.updatePriceData.wid
       parmas['sku_id'] = this.updatePriceData.sku_id
-      parmas['sku_price'] = this.updatePriceData.newPrice
+      parmas['sku_name'] = this.updatePriceData.sku_name
+      parmas['goods_url'] = this.updatePriceData.goods_url
+      parmas['sku_image'] = this.updatePriceData.sku_image
+      parmas['sku_price'] = parseFloat(this.updatePriceData.sku_price).toFixed(2)
       const res = await this.ChineseStock.updateStockPrice(parmas)
       if (res.code === 200) {
-        this.$message.success('改价成功')
+        this.$message.success('商品编辑成功')
         this.updatePriceVisible = false
         this.getStock()
       } else {
         this.$message.error(res.data)
       }
     },
-    // 改价弹窗
+    // 商品编辑弹窗
     updateStockPriceDia(row) {
+      console.log(row)
       this.updatePriceVisible = true
-      this.updatePriceData = row
+      this.updatePriceData = JSON.parse(JSON.stringify(row))
     },
     // 获取数据
     async getStock() {

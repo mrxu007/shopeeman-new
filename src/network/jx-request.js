@@ -1,7 +1,7 @@
-
 import axios from 'axios'
 import jxAdapter from './jx-apdater'
 import tbAdaptert from './gateway/gateway-adapter'
+
 const baseURL = window.appInfo.route
 const AppRequest = axios.create({ // 壳内转发请求
   baseURL,
@@ -203,7 +203,6 @@ export default {
   stockingHomeUpload: (data) => AppRequest.post('/homeStockingForecast/upload', data), // 国内中转备货预报单: 上报
   deleteHomeForecast: (data) => AppRequest.post('/homeStockingForecast/delete', data), // 国内中转备货预报单: 删除
   getOutOfStockList: (data) => AppRequest.get('/warehouse/outOfStockList', { params: data }), // 海外仓出库订单：列表
-  // getsecondlist: (data) => AppRequest.post('/overseasTansferPackage/index', data) // 获取二次销售列表
   addReissueStore: (data) => AppRequest.post('/addReissueStore', JSON.stringify(data)), // 海外仓补件：新增补件
   cancelOverseaOrder: (data) => AppRequest.post('/warehouse/cancelOverseaOrder', data), // 海外仓出库订单：批量取消订单
   deleteBuyAccount: (data) => AppRequest.post('/buyerAccount/destroy', data), // 删除买手号
@@ -222,7 +221,7 @@ export default {
   saveUserConfig: (data) => AppRequest.post('/user/saveUserConfig', data), // 保存回复评论设置
   cancelSecondSale: (data) => AppRequest.post('/overseasTansferPackage/cancelSecondSale', data), // 取消二次销售数据
   uploadSecondSale: (data) => AppRequest.post('/overseasTansferPackage/uploadSecondSale', data), // 二次销售出库上报
-  // getsecondlist: (data) => AppRequest.post('/overseasTansferPackage/index', data), // 获取二次销售列表
+  getsecondStroelist: (data) => AppRequest.post('/overseasTansferPackage/index', data), // 获取智能仓库二次销售列表
   getlupplementlist: (data) => AppRequest.get('/getReissueStoreList', { params: data }), // 获取海外仓补件列表
   cancelsupplement: (data) => AppRequest.post('/cancelReissueOrder', data), // 取消补件
   // 产品中心------------------------------------------------------------------------
@@ -237,5 +236,10 @@ export default {
   topTask: (data) => AppRequest.get('/topTask/index', { params: data }), // 创建任务
   topTaskdel: (data) => AppRequest.post('/topTask/delete', data), // 删除任务
   uploadTopGood: (data) => AppRequest.post('/topTask/uploadTopGood', data), // 上报置顶商品
-  uploadTopHistory: (data) => AppRequest.post('/topTask/uploadTopHistory', data) // 上报置顶商品历史记录
+  uploadTopHistory: (data) => AppRequest.post('/topTask/uploadTopHistory', data), // 上报置顶商品历史记录
+
+  // 标签列表---------------------------------------------------------------------------
+  getLabels: (data) => AppRequest.get('/publishGoodsWindowConfig/getLabels', data), // 编辑上新弹窗配置: 获取标签列表
+  getLabel: (data) => AppRequest.get('publishGoodsWindowConfig/get', data), // 编辑上新弹窗配置: 获取单个(根据标签)
+  saveLabel: (data) => AppRequest.post('publishGoodsWindowConfig/save', data) // 编辑上新弹窗配置: 保存配置
 }

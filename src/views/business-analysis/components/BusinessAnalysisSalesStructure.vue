@@ -1,7 +1,7 @@
 <template>
   <el-row class="contaniner">
     <el-row class="header">
-      <ul style="margin-bottom: 10px">
+      <ul style="margin-bottom: 10px;margin-left:24px">
         <li>
           <span>站点：</span>
           <el-select v-model="site" size="mini" filterable>
@@ -10,7 +10,7 @@
         </li>
         <li>
           <span>店铺分组：</span>
-          <el-select v-model="group" placeholder="请选择分组" multiple collapse-tags clearable size="mini" filterable>
+          <el-select v-model="group" class="mall" placeholder="请选择分组" multiple collapse-tags clearable size="mini" filterable>
             <el-option v-if="selectall" label="全部" :value="0" />
             <el-option v-if="!selectall" label="全部" :value="-2" />
             <el-option v-for="(item, index) in gruopList" :key="index" :label="item.label" :value="item.value" />
@@ -18,7 +18,7 @@
         </li>
         <li>
           <span>店铺：</span>
-          <el-select v-model="mall" placeholder="请选择店铺" multiple collapse-tags clearable size="mini" filterable>
+          <el-select v-model="mall" class="mall" placeholder="请选择店铺" multiple collapse-tags clearable size="mini" filterable>
             <el-option v-if="selectall1" label="全部" :value="0" />
             <el-option v-if="!selectall1" label="全部" :value="-2" />
             <el-option v-for="(item, index) in mallList" :key="index" :label="item.label" :value="item.value" />
@@ -41,78 +41,30 @@
           v-model="showlog"
         >隐藏日志</el-checkbox></li>
       </ul><br>
-      <div style="border:1px solid black;width:56.5%;float: left;">
-        <span style="margin-left:20px">分类结构</span>
-        <el-table
-          ref="plTable"
-          v-loading="Loading3"
-          style="margin-top:10px"
-          header-align="center"
-          height="calc(100vh - 540px)"
-          :data="tableData1"
-          :header-cell-style="{
-            backgroundColor: '#f5f7fa',
-          }"
-        >
-          <el-table-column align="center" label="序列号" width="100" prop="index" />
-          <el-table-column align="center" prop="mallname" label="店铺" width="140" />
-          <el-table-column align="center" prop="l1_cat_name" label="分类" width="160" />
-          <el-table-column prop="sales" label="销售额" width="130" align="center" />
-          <el-table-column prop="sales_percentage" label="销售额%" width="100" align="center" />
-          <el-table-column prop="buyers" label="买家" width="120" align="center" />
-          <el-table-column prop="conversion_rate" label="转化率" width="100" align="center" />
-          <el-table-column label="查看明细" width="100" align="center">
-            <template slot-scope="{ row }">
-              <el-button type="primary" size="mini" @click="view(row)">查看</el-button>
-            </template>
-          </el-table-column>
-        </el-table>
-      </div>
-      <div style="border:1px solid black;width:43%;float: right;">
-        <span style="margin-left:20px">订单价格结构</span>
-        <el-table
-          ref="plTable"
-          v-loading="Loading3"
-          style="margin-top:10px"
-          header-align="center"
-          height="calc(100vh - 540px)"
-          :data="tableData2"
-          :header-cell-style="{
-            backgroundColor: '#f5f7fa',
-          }"
-        >
-          <el-table-column align="center" label="序列号" width="60" prop="index" />
-          <el-table-column align="center" prop="mallname" label="店铺" width="140" />
-          <el-table-column align="center" prop="price_zone" label="价格范围" width="120" />
-          <el-table-column prop="buyers" label="买家" width="100" align="center" />
-          <el-table-column prop="buyers_percentage" label="买家%" width="100" align="center" />
-          <el-table-column prop="sales" label="销售额" width="100" align="center" />
-          <el-table-column prop="conversion_rate" label="转化率" width="100" align="center" />
-        </el-table>
-      </div>
-      <div style="border:1px solid black;width:100%;margin-top:385px">
-        <span style="margin-left:20px">买家结构</span>
-        <el-table
-          ref="plTable"
-          v-loading="Loading3"
-          style="margin-top:10px"
-          header-align="center"
-          height="calc(100vh - 570px)"
-          :data="tableData3"
-          :header-cell-style="{
-            backgroundColor: '#f5f7fa',
-          }"
-        >
-          <el-table-column align="center" label="序列号" width="100" prop="index" />
-          <el-table-column align="center" prop="mallname" label="店铺" width="230" />
-          <el-table-column align="center" prop="buyers_type" label="买家类型" width="207" />
-          <el-table-column prop="buyers" label="买家" width="230" align="center" />
-          <el-table-column prop="buyers_percentage" label="买家%" width="230" align="center" />
-          <el-table-column prop="sales" label="销售额" width="230" align="center" />
-          <el-table-column prop="sales_percentage" label="销售额%" width="230" align="center" />
-          <el-table-column prop="conversion_rate" label="转化率" width="230" align="center" />
-        </el-table>
-      </div>
+      <el-table
+        ref="plTable"
+        v-loading="Loading3"
+        style="margin-top:10px"
+        header-align="center"
+        height="calc(100vh - 120px)"
+        :data="tableData1"
+        :header-cell-style="{
+          backgroundColor: '#f5f7fa',
+        }"
+      >
+        <el-table-column align="center" label="序列号" width="100" prop="index" />
+        <el-table-column align="center" prop="mallname" label="店铺" width="250" />
+        <el-table-column align="center" prop="l1_cat_name" label="分类" width="270" />
+        <el-table-column prop="sales" label="销售额" width="270" align="center" />
+        <el-table-column prop="sales_percentage" label="销售额%" width="210" align="center" />
+        <el-table-column prop="buyers" label="买家" width="270" align="center" />
+        <el-table-column prop="conversion_rate" label="转化率" width="210" align="center" />
+        <el-table-column label="查看明细" width="100" align="center">
+          <template slot-scope="{ row }">
+            <el-button type="primary" size="mini" @click="view(row)">查看</el-button>
+          </template>
+        </el-table-column>
+      </el-table>
       <el-dialog title="查看子分类" :visible.sync="eidtVisible" width="40%">
         <el-table
           ref="plTable"
@@ -622,63 +574,6 @@ export default {
           } else if (attributeTreeRes.status === 403) {
             this.$refs.Logs.writeLog(`【${mallname}】 数据获取失败：店铺未登录`, false)
             this.errmall.push(mallname)
-          }
-
-          const attributeTreeJson2 = await this.$shopeemanService.getsalasstructure2(this.site, params, { headers: { 'Content-Type': 'application/json; charset=utf-8' }})
-          let res
-          if (attributeTreeJson2) {
-            res = JSON.parse(attributeTreeJson2)
-          }
-          if (res.status === 200) {
-            res.data = JSON.parse(res.data)
-            // console.log('wuhuwhuwhuwhuwhuwuwhuwhuwhuwuwhuwuh', res)
-            for (let h = 0; h < res.data.data.length; h++) {
-              const data = {}
-              data['index'] = this.indexs1
-              this.indexs1++
-              data['mallname'] = mallname
-              if (res.data.data[h].price_zone[1] === -1) {
-                data['price_zone'] = `${this.currency}${res.data.data[h].price_zone[0]} - ${this.currency} 无上限`
-              } else {
-                data['price_zone'] = `${this.currency}${res.data.data[h].price_zone[0]} - ${this.currency}${res.data.data[h].price_zone[1]}`
-              }
-              data['buyers'] = res.data.data[h].buyers
-              data['buyers_percentage'] = (res.data.data[h].buyers_percentage * 100).toFixed(2) + `%`
-              data['sales'] = `${this.currency}${res.data.data[h].sales}`
-              data['sales_percentage'] = (res.data.data[h].sales_percentage * 100).toFixed(2) + `%`
-              data['conversion_rate'] = (res.data.data[h].conversion_rate * 100).toFixed(2) + `%`
-              // console.log('zhelizhelizheli', data)
-              this.tableData2.push(data)
-            }
-          }
-
-          const attributeTreeJson3 = await this.$shopeemanService.getsalasstructure3(this.site, params, { headers: { 'Content-Type': 'application/json; charset=utf-8' }})
-          let res1
-          if (attributeTreeJson3) {
-            res1 = JSON.parse(attributeTreeJson3)
-          }
-          if (res1.status === 200) {
-            res1.data = JSON.parse(res1.data)
-            console.log('wuhuwhuwhuwhuwhuwuwhuwhuwhuwuwhuwuh', res1)
-            for (let h = 0; h < res1.data.data.length; h++) {
-              const data = {}
-              data['index'] = this.indexs2
-              this.indexs2++
-              data['mallname'] = mallname
-              data['buyers'] = res1.data.data[h].buyers
-              data['buyers_type'] = res1.data.data[h].buyers_type
-              if (data['buyers_type'] === 'new_buyers') {
-                data['buyers_type'] = `新买家`
-              } else if (data['buyers_type'] === 'existing_buyers') {
-                data['buyers_type'] = `现有买家`
-              }
-              data['buyers_percentage'] = (res1.data.data[h].buyers_percentage * 100).toFixed(2) + `%`
-              data['sales'] = `${this.currency}${res1.data.data[h].sales}`
-              data['sales_percentage'] = (res1.data.data[h].sales_percentage * 100).toFixed(2) + `%`
-              data['conversion_rate'] = (res1.data.data[h].conversion_rate * 100).toFixed(2) + `%`
-              console.log('zhelizhelizheli', data)
-              this.tableData3.push(data)
-            }
           }
         }
         if (this.errmall.length > 0) {

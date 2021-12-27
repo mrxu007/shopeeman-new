@@ -12,7 +12,7 @@
         </div>
         <div class="on_new_dialog_box" v-for="(item,index) in categoryList" :key="index">
           <div class="keepRight">{{index+1}}级类目：</div>
-          <el-select v-model="categoryAction[index]" @change="setCategory(categoryAction[index],index)" size="mini"
+          <el-select v-model="categoryAction[index]" @change="setCategory(categoryAction[index],index)" size="mini" filterable
                      style="width: 200px;">
             <el-option
                 v-for="son in item"
@@ -31,7 +31,7 @@
         <div class="on_new_dialog_box line_height_28" v-for="(item,index) in attributesList" :key="index">
           <div class="width_single_150">{{item.attribute_name}}({{item.attribute_cn_name}})</div>
           <div>
-            <el-select v-model="item.options" size="mini" style="width: 180px;">
+            <el-select v-model="item.options" size="mini" filterable style="width: 180px;">
               <el-option v-for="son in item.new_options_obj" :key="son.value_id"
                          :label="son.value" :value="son.value_id">
               </el-option>
@@ -95,20 +95,19 @@
         if (this.goodsCurrent && index < 0) {
           let categoryList = []
           let attributesList = []
+          console.log('categoryList',this.categoryList)
           this.categoryList.forEach((item,index)=>{
             let temp = item.find(i=>i.category_id === this.categoryAction[index])
             categoryList.push(temp)
           })
-          this.attributesList.forEach((item,index)=>{
-            let temp = item.new_options_obj.find(i=>i.value_id === item.options)
-            attributesList.push(temp)
-          })
           this.$emit('categoryChange', {
             categoryList: categoryList,
-            attributesList: attributesList
+            attributesList: this.attributesList,
+            country:country || this.countryOption
           })
         }
         else {
+          index =index < 0 ? 0 : index
           let mall = this.mallList[index]
           let category_ids = this.categoryAction[this.categoryAction.length - 1]
           let param = {
