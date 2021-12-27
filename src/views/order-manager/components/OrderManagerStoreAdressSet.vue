@@ -181,7 +181,7 @@
       <div class="dialog-left">
         <!--?-->
         <div v-if="!flag4 && flag1" class="header">
-          <el-button type="primary" size="mini">下载海外仓地址设置指南</el-button>
+          <el-button type="primary" size="mini"><a :href="downloadExcelUrl"  style="color:#fff;" download="海外仓地址设置指南.xlsx">下载海外仓地址设置指南</a></el-button>
           <p>使用海外仓服务前，请先下载使用指南查看</p>
         </div>
         <el-form label-position="right" label-width="80px">
@@ -290,6 +290,7 @@ export default {
   },
   data() {
     return {
+      downloadExcelUrl: 'https://shopeeman.oss-cn-shenzhen.aliyuncs.com/files/shopeemanFiles/appFiles/20211224/2021122418063161c59ba7e66a0.xlsx',
       isShowLoading: false,
       butLoading: false,
       itselfAddressVisible: false,
