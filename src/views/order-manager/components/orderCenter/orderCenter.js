@@ -1,91 +1,116 @@
 //订单状态  1:待支付 2:待发货 3:已发货 4:已完成  5:取消中 6:已取消 7:退款/退货 8:确认签收 9:退款成功 10:退款失败  20:无售后订单
 const orderStatusList = [{
     value: 1,
-    label: '待支付'
+    label: '待支付',
+    color: '#000'
   },
   {
     value: 2,
-    label: '待发货'
+    label: '待发货',
+    color: '#FF0000'
   },
   {
     value: 3,
-    label: '已发货'
+    label: '已发货',
+    color: '#32CD32'
   },
   {
     value: 4,
-    label: '已完成'
+    label: '已完成',
+    color: '#32CD32'
   },
   {
     value: 5,
-    label: '取消中'
+    label: '取消中',
+    color: '#000'
   },
   {
     value: 6,
-    label: '已取消'
+    label: '已取消',
+    color: '#000'
   },
   {
     value: 7,
-    label: '退款/退货'
+    label: '退款/退货',
+    color: '#FF0000'
   },
   {
     value: 8,
-    label: '确认签收'
+    label: '确认签收',
+    color: '#000'
   },
   {
     value: 9,
-    label: '退款成功'
+    label: '退款成功',
+    color: '#32CD32'
   },
   {
     value: 10,
-    label: '退款失败'
+    label: '退款失败',
+    color: '#FF0000'
   },
   {
     value: 20,
-    label: '无售后订单'
+    label: '无售后订单',
+    color: '#000'
   }
 ]
 
-function changeOrderStatus(val) {
+function changeOrderStatus(val,type) {
   let obj = orderStatusList.find(item => item.value == val)
+  if(type == 'color'){
+    return obj && obj.color || '#000'
+  }
   return obj && obj.label || ''
 }
-//采购状态  1:待采购  3:采购成功  4:采购上家已发货 5:待支付 6:已完成  7:已取消 8:已申请退款 9:退款成功
+//采购状态  1:待采购  3:采购成功  4:上家已发货 5:待支付 6:已完成  7:已取消 8:已申请退款 9:退款成功
 const shotStatusList = [{
     value: 1,
-    label: '待采购'
+    label: '待采购',
+    color: '#FF0000'
   },
   {
     value: 3,
-    label: '采购成功'
+    label: '采购成功',
+    color: '#32CD32'
   },
   {
     value: 4,
-    label: '采购上家已发货'
+    label: '上家已发货',
+    color: '#000'
   },
   {
     value: 5,
-    label: '待支付'
+    label: '待支付',
+    color: '#000'
   },
   {
     value: 6,
-    label: '已完成'
+    label: '已完成',
+    color: '#32CD32'
   },
   {
     value: 7,
-    label: '已取消'
+    label: '已取消',
+    color: '#000'
   },
   {
     value: 8,
-    label: '已申请退款'
+    label: '已申请退款',
+    color: '#FF0000'
   },
   {
     value: 9,
-    label: '退款成功'
+    label: '退款成功',
+    color: '#000'
   }
 ]
 
-function changeShotStatus(val) {
+function changeShotStatus(val,type) {
   let obj = shotStatusList.find(item => item.value == val)
+  if(type == 'color'){
+    return obj && obj.color || '#000'
+  }
   return obj && obj.label || ''
 }
 const shotStatuForEdit = [{
@@ -98,7 +123,7 @@ const shotStatuForEdit = [{
   },
   {
     value: 4,
-    label: '采购上家已发货'
+    label: '上家已发货'
   },
   {
     value: 6,
@@ -236,6 +261,35 @@ const goodsSourceListLink = [{
     value: "13",
     label: '天猫淘宝海外平台'
   },
+]
+const goodsSourceListPurchase = [{
+  value: "1",
+  label: '拼多多'
+},
+{
+  value: "2",
+  label: '淘宝'
+},
+{
+  value: "8",
+  label: '1688'
+},
+{
+  value: "9",
+  label: 'Lazada'
+},
+{
+  value: "10",
+  label: '京喜'
+},
+{
+  value: "11",
+  label: 'shopee'
+},
+{
+  value: "13",
+  label: '天猫淘宝海外平台'
+},
 ]
 //各站点物流
 const site_mall = [{
@@ -767,23 +821,33 @@ const syncStatusAll = [
     value: 'refund'
   },
 ]
+const syncStatusFirst = [
+  {
+    label: '全部',
+    value: 'all'
+  },
+]
 const syncStatus = [
   // {
   //   label: '未支付',
   //   value: 'unpaid'
   // // },
-  // {
-  //   label: '待发货',
-  //   value: 'toship'
-  // },
+  {
+    label: '全部',
+    value: 'all'
+  },
+  {
+    label: '待发货',
+    value: 'toship'
+  },
   // {
   //   label: '运送中',
   //   value: 'shipping'
   // },
-  {
-    label: '已完成',
-    value: 'completed'
-  },
+  // {
+  //   label: '已完成',
+  //   value: 'completed'
+  // },
   // {
   //   label: '取消中',
   //   value: 'cancelled'
@@ -881,6 +945,15 @@ const statusListThird = [{
     value: 'completed'
   }
 ]
+const statusAfterList = [{
+    label: '取消中',
+    value: 'cancelled'
+  },
+  {
+    label: '退款中',
+    value: 'refund'
+  }
+]
 //物流方式
 function siteShip(country) {
   let arr = site_mall.filter(item => {
@@ -921,6 +994,213 @@ const upLoadType = [{
     value: 'single'
   }
 ]
+const buyPayMethod = {
+  0: '',
+  1: '货到付款',
+  2: '信用卡/借记卡',
+  3: 'lazada钱包',
+  4: 'Credit',
+  5: 'Gcash e-Wallet',
+  6: 'ShopeePay',
+  20: '未知，请联系客服'
+}
+
+const platformPayMethod = {
+  "ID": [{
+      label: '全部',
+      value: ''
+    },
+    {
+      label: 'Credit/Debit Card',
+      value: '1'
+    }, {
+      label: 'Indomaret',
+      value: '13'
+    }, {
+      label: 'Bank Transfer',
+      value: '2'
+    }, {
+      label: 'SPayLater',
+      value: '24'
+    },
+    {
+      label: 'ShopeePay',
+      value: '27'
+    },
+    {
+      label: 'Online Payment',
+      value: '41'
+    }, {
+      label: 'COD',
+      value: '6'
+    },
+  ],
+  "MY": [{
+    label: '全部',
+    value: ''
+  }, {
+    label: '信用卡',
+    value: '1'
+  }, {
+    label: '银行转账',
+    value: '2'
+  }, {
+    label: '卖家余额',
+    value: '20'
+  }, {
+    label: 'ShopeePay',
+    value: '27'
+  }, {
+    label: '在7-11的现金支付',
+    value: '34'
+  }, {
+    label: 'ibanking',
+    value: '37'
+  }, {
+    label: 'VISA金融卡',
+    value: '4'
+  }],
+  "PH": [{
+      label: '全部',
+      value: ''
+    },
+    {
+      label: 'Credit',
+      value: '1'
+    },
+    {
+      label: 'Bank Transfer',
+      value: '2'
+    }, {
+      label: 'ShopeePay',
+      value: '27'
+    }, {
+      label: 'Debit Card',
+      value: '4'
+    }, {
+      label: 'COD',
+      value: '6'
+    }
+  ],
+  "SG": [{
+      label: '全部',
+      value: ''
+    },
+    {
+      label: 'Credit/Debit Card',
+      value: '1'
+    },
+    {
+      label: 'Bank Transfer',
+      value: '2'
+    }, {
+      label: 'ShopeePay',
+      value: '27'
+    }, {
+      label: 'Online Payment',
+      value: '49'
+    }
+  ],
+  "TH": [{
+      label: '全部',
+      value: ''
+    }, {
+      label: 'Credit',
+      value: '18'
+    }, {
+      label: 'Bank Transfe',
+      value: '2'
+    }, {
+      label: 'SPayLater',
+      value: '24'
+    }, {
+      label: 'AirPay',
+      value: '28'
+    }, {
+      label: 'airpay_giro',
+      value: '30'
+    }, {
+      label: 'Debit Card',
+      value: '4'
+    }, {
+      label: 'free with promotion',
+      value: '5'
+    },
+    {
+      label: 'Online Payment',
+      value: '50'
+    },
+    {
+      label: 'COD',
+      value: '6'
+    }
+  ],
+  "TW": [{
+      label: '全部',
+      value: ''
+    }, {
+      label: '信用卡',
+      value: '1'
+    }, {
+      label: '银行转账',
+      value: '2'
+    }, {
+      label: '虾皮钱包',
+      value: '20'
+    }, {
+      label: '信用卡分期付款',
+      value: '23'
+    }, {
+      label: 'SPayLater',
+      value: '24'
+    }, {
+      label: '接口支付Local',
+      value: '33'
+    }, {
+      label: '接口支付Cross',
+      value: '36'
+    },
+    {
+      label: '撤销的款项',
+      value: '5'
+    },
+    {
+      label: '货到付款',
+      value: '6'
+    }
+  ],
+  "VN": [{
+      label: '全部',
+      value: ''
+    },
+    {
+      label: 'Credit/Debit Card',
+      value: '1'
+    },
+    {
+      label: 'Seller Balance',
+      value: '20'
+    }, {
+      label: 'AirPay',
+      value: '28'
+    }, {
+      label: 'airpay_giro',
+      value: '30'
+    }, {
+      label: 'COD',
+      value: '6'
+    }
+  ]
+}
+function changePlatformPayMethod(country,key){
+  let str = ''
+  let arr = platformPayMethod[country] || []
+  if(arr.length){
+    let res = arr.find(item => item.value == key)
+    str = res?res.label:''
+  }
+  return str
+}
 //配置列表
 const columnData = [{
     column_header: '站点',
@@ -1538,6 +1818,7 @@ export {
   timeTypeList,
   inputTypeList,
   goodsSourceList,
+  syncStatusFirst,
   syncStatusAll,
   syncStatus,
   statusListSecond,
@@ -1553,6 +1834,11 @@ export {
   packageType,
   lazadaUrlList,
   colorList,
+  statusAfterList,
+  buyPayMethod,
+  platformPayMethod,
+  goodsSourceListPurchase,
+  changePlatformPayMethod,
   changeShotStatus,
   changeBuyerType,
   changeOrderStatus,
