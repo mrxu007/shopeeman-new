@@ -401,6 +401,8 @@ export default class NetMessageBridgeService {
 
   // 手机号是否符合各个国家的手机号
   getTelephoneNumberIsTrue(country, account) {
+    let phoneList = account.match(/[0-9]*/g)
+    account = phoneList.join('')
     const reg = {
       'MY': '60',
       'TW': '886',
