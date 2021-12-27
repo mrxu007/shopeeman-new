@@ -1,7 +1,7 @@
-
 import axios from 'axios'
 import jxAdapter from './jx-apdater'
 import tbAdaptert from './gateway/gateway-adapter'
+
 const baseURL = window.appInfo.route
 const AppRequest = axios.create({ // 壳内转发请求
   baseURL,
@@ -230,6 +230,10 @@ export default {
   saveproduct: (data) => AppRequest.post('/product/save', data), // 保存产品
   getpddBuyerAccount: (data) => AppRequest.get('/pddBuyerAccount/index', { params: data }), // 拼多多买手号-列表
   uplaodLazadaPaymentMethod: (data) => AppRequest.post('/order/uplaodShotOrderPaymentMethod', data), // 上报lazada付款方式
-  uploadOrderLogisticsInfo: (data) => AppRequest.post('/order/uploadOrderLogisticsInfo', data) // 上报shop平台的物流
+  uploadOrderLogisticsInfo: (data) => AppRequest.post('/order/uploadOrderLogisticsInfo', data), // 上报shop平台的物流
 
+  // 标签列表---------------------------------------------------------------------------
+  getLabels: (data) => AppRequest.get('/publishGoodsWindowConfig/getLabels', data), //编辑上新弹窗配置: 获取标签列表
+  getLabel: (data) => AppRequest.get('publishGoodsWindowConfig/get', data), //编辑上新弹窗配置: 获取单个(根据标签)
+  saveLabel: (data) => AppRequest.post('publishGoodsWindowConfig/save', data) //编辑上新弹窗配置: 保存配置
 }

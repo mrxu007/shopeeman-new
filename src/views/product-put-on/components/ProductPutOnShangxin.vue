@@ -526,8 +526,7 @@
                 <img :src="watermarkConfig.goodsImageUrl || ''" alt="">
               </div>
               <div class="watermark_image"
-                   :class="watermarkConfig.type < 3 && locateClass || 'watermark_image_background'"
-                   :style="">
+                   :class="watermarkConfig.type < 3 && locateClass || 'watermark_image_background'">
                 <span v-show="watermarkConfig.type === 1"
                       :style="'font-size:'+watermarkConfig.textSize+'px!important;color:'+watermarkConfig.textColor">
                   {{watermarkConfig.text}}
@@ -876,60 +875,10 @@
         deep: true
       }
     },
-    mounted() {
-      this.goodsTable = [{
-        '_IsSelected': true,
-        'IsExportData': false,
-        'language': 'en',
-        'sortNumber': 1,
-        'index': 0,
-        'id': 159177439,
-        'GrowthId': 159177439,
-        'goodsId': '658284650116',
-        'goodName': null,
-        'MallType': '1',
-        'mallId': null,
-        'mallName': null,
-        'url': 'https://item.taobao.com/item.htm?id=658284650116',
-        'origin': '淘宝',
-        'deliverPlace': null,
-        'sales': '10',
-        'price': 190.4,
-        'CalAfterPrice': 0.0,
-        'CalAfterPriceRMB': 0.0,
-        'IsSelected': true,
-        'title': 'Keyboard mechanical gaming secondary silent high-value yuan steampunk dedicated wireless designer typing feels good',
-        'cnTitle': null,
-        'image': 'http://img.alicdn.com/imgextra/i1/2212687440175/O1CN01IFVLWC1DAC1XfJOCD_!!2212687440175.jpg',
-        'platform': 2,
-        'originCategoryName': '键盘',
-        'status': 2,
-        'statusName': '',
-        'categoryId': 0,
-        'color': null,
-        'categoryName': '请选择类目',
-        'originCategoryId': '110210',
-        'shopeeItemId': '',
-        'shopeeItemUrl': '',
-        'GoodsTagName': null,
-        'isUpload': 0,
-        'country': '',
-        'mallIds': '',
-        'mallNames': '',
-        'taskName': '',
-        'uploadMallName': '',
-        'uid': null,
-        'site': '',
-        'priceStr': null,
-        'extraInfo': null,
-        'VideoUrl': null,
-        'VideoVid': null,
-        'IsCancel': false,
-        'Weight': null,
-        'Dimensions': null,
-        'platShopName': '',
-        'isPreferredGoods': null
-      }]
+    async mounted() {
+      let ids = await this.$BaseUtilService.getUploadGoodsId()
+      // this.$BaseUtilService.gotoUploadTab('updateId','')
+      console.log('getUploadGoodsId',ids)
     },
     methods: {
       handleSelectionChange(val) {

@@ -7,7 +7,7 @@
  * @FilePath: \shopeeman-new\src\services\application-config.js
  */
 export default class applicationConfig {
-  nativeService = window['ConfigBridgeService'];
+    nativeService = window['ConfigBridgeService'];
   /**
    * 获取当前登录的用户信息
    */

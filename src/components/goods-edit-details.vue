@@ -96,6 +96,7 @@
             <el-button style="margin-bottom: 5px;padding-left: 8px;padding-right: 8px;"
                        type="primary" size="mini" @click="downloadImages(2)">下载轮播图
             </el-button>
+            <br/>
             <el-button style="margin: 0;padding-left: 8px;padding-right: 8px;"
                        type="primary" size="mini" @click="deleteImages(2)">删除轮播图
             </el-button>
@@ -131,10 +132,11 @@
             </el-tooltip>
             详情图：
             <el-checkbox class="keepRight-flex" v-model="descImageAllCheck">全选</el-checkbox>
-            <el-button style="margin-bottom: 5px;padding-left: 8px;padding-right: 8px;display: block;"
+            <el-button style="margin-bottom: 5px;padding-left: 8px;padding-right: 8px;"
                        type="primary" size="mini" @click="downloadImages(3)">下载详情图
             </el-button>
-            <el-button style="margin: 0;padding-left: 8px;padding-right: 8px;display: block;"
+            <br/>
+            <el-button style="margin: 0;padding-left: 8px;padding-right: 8px;"
                        type="primary" size="mini" @click="deleteImages(3)">删除详情图
             </el-button>
           </div>
@@ -200,7 +202,7 @@
               <el-input type="textarea" :rows="4" resize="none" :placeholder="item" @change="updateSpec(item,1,index)"
                         size="mini" style="margin:0 5px;width: 103px;" @click.native.stop=""
                         v-model="goodsDetails.tier_variation[goodsDetails.tier_variation.spec1][index]"/>
-              <el-checkbox class="sku_describe_check" style="pointer-events: none" v-model="skuDetail1Check[index]" />
+              <el-checkbox class="sku_describe_check" style="pointer-events: none" v-model="skuDetail1Check[index]"/>
               <el-button class="sku_bottom_but" style="bottom: 25px" size="mini"
                          @click.native.stop="replaceImage(1,index)">替换
               </el-button>
@@ -225,7 +227,7 @@
               <el-input type="textarea" :rows="4" resize="none" :placeholder="item" @change="updateSpec(item,2,index)"
                         size="mini" style="margin:0 5px;width: 103px;" @click.native.stop=""
                         v-model="goodsDetails.tier_variation[goodsDetails.tier_variation.spec2][index]"/>
-              <el-checkbox class="sku_describe_check" v-model="skuDetail2Check[index]" style="pointer-events: none" />
+              <el-checkbox class="sku_describe_check" v-model="skuDetail2Check[index]" style="pointer-events: none"/>
               <el-button class="sku_bottom_but" size="mini" @click.native.stop="deleteImages(5,index)">删除</el-button>
             </div>
           </div>
@@ -298,31 +300,11 @@
               <el-radio size="mini" v-model="picturesChooseTypeRadio" :label="1">使用商品图片</el-radio>
             </div>
             <div style="display: flex;flex-wrap: wrap;overflow: auto;height: 67vh;">
-              <div class="goods-image-detail" v-if="goodsDetails.spec_image.length > 0"
-                   v-for="(item,index) in goodsDetails.spec_image" :key="index">
+              <div class="goods-image-detail" v-if="imageList.length > 0"
+                   v-for="(item,index) in imageList" :key="index">
                 <el-image style="width: 150px; height: 150px" :src="item" @click.native="picturesChooseRadio = item"/>
                 <div class="goods-image-top-right">
                   <el-radio v-model="picturesChooseRadio" :label="item">
-                    <span style="display: none;">1</span>
-                  </el-radio>
-                </div>
-              </div>
-              <div class="goods-image-detail" v-if="goodsDetails.images1.length > 0"
-                   v-for="(item,index) in goodsDetails.images1" :key="item.id">
-                <el-image style="width: 150px; height: 150px" :src="item.img"
-                          @click.native="picturesChooseRadio = item.img"/>
-                <div class="goods-image-top-right">
-                  <el-radio v-model="picturesChooseRadio" :label="item.img">
-                    <span style="display: none;">1</span>
-                  </el-radio>
-                </div>
-              </div>
-              <div class="goods-image-detail" v-if="goodsDetails.descImages.length > 0"
-                   v-for="(item,index) in goodsDetails.descImages" :key="item.id">
-                <el-image style="width: 150px; height: 150px" :src="item.img"
-                          @click.native="picturesChooseRadio = item.img"/>
-                <div class="goods-image-top-right">
-                  <el-radio v-model="picturesChooseRadio" :label="item.img">
                     <span style="display: none;">1</span>
                   </el-radio>
                 </div>
@@ -381,10 +363,11 @@ export default {
     return {
       goodsDetails: null,
       activeName: 'information',
+      imageList: [],
       //图片选择
       picturesChooseStart: false,
       picturesChooseVisible: false,
-      picturesChooseSuccess:false,
+      picturesChooseSuccess: false,
       picturesChooseTypeRadio: 0,
       picturesChooseFile: '',
       picturesChooseFileUrl: '',
@@ -413,7 +396,7 @@ export default {
       presetPrice: '',
       presetTypeRadio: 1,
       lodSpecImage: [],
-      tier_variation:[]
+      tier_variation: []
     }
   },
   props: {
@@ -487,7 +470,7 @@ export default {
       if (this.goodsDetails.tier_variation && this.goodsDetails.tier_variation.spec1) {
         let length = this.goodsDetails.tier_variation[this.goodsDetails.tier_variation.spec1].length
         let valList = val.toString().split(true)
-        this.skuDetail1AllCheck = length < valList.length
+        this.skuDetail1AllCheck = length < valList.length && val.length
       }
     },
     skuDetail1AllCheck(val) {
@@ -511,7 +494,7 @@ export default {
       if (this.goodsDetails.tier_variation && this.goodsDetails.tier_variation.spec2) {
         let length = this.goodsDetails.tier_variation[this.goodsDetails.tier_variation.spec2].length
         let valList = val.toString().split(true)
-        this.skuDetail2AllCheck = length < valList.length
+        this.skuDetail2AllCheck = length < valList.length && val.length
       }
     },
     skuDetail2AllCheck(val) {
@@ -579,6 +562,7 @@ export default {
             let spec = skuBeforeList[item]
             keyList.forEach(son => {
               let tempList = son.split(';')
+              tempList = tempList.length > 1 && tempList || son.split('；')
               let tempBefore = tempList[0] || ''
               let tempAfter = tempList[1] || ''
               spec = spec.replaceAll(tempBefore, tempAfter)
@@ -609,6 +593,12 @@ export default {
         this.goodsDetails.tier_variation[spec2Name] = JSON.parse(spec2Json)
         console.log(this.goodsDetails)
       }
+    },
+    picturesChooseVisible(val){
+      if(val){
+        let image = [...this.goodsDetails.spec_image, ...this.goodsDetails.images, ...this.goodsDetails.descImages.map(i => i.img)]
+        this.imageList = [...new Set(image)]
+      }
     }
   },
   async mounted() {
@@ -629,8 +619,8 @@ export default {
           let itemmodels = JSON.stringify(this.goodsDetails.itemmodels)
           let oldImage = this.goodsDetails.spec_image[index]
           let spec1 = this.goodsDetails.tier_variation[this.goodsDetails.tier_variation.spec1][index]
-          let oldReg = new RegExp('"sku_image":"'+oldImage+'",(((?!sku_image).)*)"sku_spec1":"'+spec1+'","','gi');
-          let newReg = '"sku_image":"'+image+'",$1"sku_spec1":"'+spec1+'","';
+          let oldReg = new RegExp('"sku_image":"' + oldImage + '",(((?!sku_image).)*)"sku_spec1":"' + spec1 + '","', 'gi')
+          let newReg = '"sku_image":"' + image + '",$1"sku_spec1":"' + spec1 + '","'
           let itemmodels1 = itemmodels.replaceAll(oldReg, newReg)
           this.goodsDetails.itemmodels = JSON.parse(itemmodels1)
           this.$set(this.goodsDetails.tier_variation.images, index, image)
@@ -674,22 +664,31 @@ export default {
           this.goodsDetails.tier_variation['images'].push(image)
           this.goodsDetails.spec_image.push(image)
           let specList = this.goodsDetails.tier_variation[spec2Name]
-          if (JSON.stringify(this.goodsDetails.itemmodels).includes('"sku_spec1":""')){
-            this.goodsDetails.itemmodels = []
+          if (!JSON.stringify(this.goodsDetails.itemmodels).includes('"sku_spec1":""')) {
+            specList.forEach((item, index) => {
+              let temp = {
+                sku: this.spec_name1 + '=|=' + item,
+                sku_image: image,
+                sku_spec1: this.spec_name1,
+                sku_spec2: item,
+                sku_stock: item.sku_stock || 1000,
+                stock: item.stock || 1000,
+                sku_price: price,
+                price: price
+              }
+              this.goodsDetails.itemmodels.push(temp)
+            })
+          } else {
+            let list = []
+            this.goodsDetails.itemmodels.forEach(item => {
+              list.push(Object.assign(item, {
+                sku: this.sku_spec1 + '=|=' + item.spec_name2,
+                sku_spec1: this.spec_name1
+              }))
+            })
+            console.log(list)
+            this.goodsDetails.itemmodels = list
           }
-          specList.forEach((item, index) => {
-            let temp = {
-              sku: this.spec_name1 + '=|=' + item,
-              sku_image: image,
-              sku_spec1: this.spec_name1,
-              sku_spec2: item,
-              sku_stock: 1000,
-              stock: 1000,
-              sku_price: price,
-              price: price
-            }
-            this.goodsDetails.itemmodels.push(temp)
-          })
         } else {
           this.$message.error('请选择规格图')
           return false
@@ -702,40 +701,49 @@ export default {
         this.goodsDetails.tier_variation[spec2Name].push(this.spec_name2)
         let images = this.goodsDetails.tier_variation['images']
         let specList = this.goodsDetails.tier_variation[spec1Name]
-        if (JSON.stringify(this.goodsDetails.itemmodels).includes('"sku_spec2":""')){
-          this.goodsDetails.itemmodels = []
+        if (!JSON.stringify(this.goodsDetails.itemmodels).includes('"sku_spec2":""')) {
+          specList.forEach((item, index) => {
+            let temp = {
+              sku: item + '=|=' + this.spec_name2,
+              sku_image: images[index],
+              sku_spec1: item,
+              sku_spec2: this.spec_name2,
+              sku_stock: item.sku_stock || 1000,
+              stock: item.stock || 1000,
+              sku_price: price,
+              price: price
+            }
+            this.goodsDetails.itemmodels.push(temp)
+          })
+        } else {
+          let list = []
+          this.goodsDetails.itemmodels.forEach(item => {
+            list.push(Object.assign(item, {
+              sku: item.sku_spec1 + '=|=' + this.spec_name2,
+              sku_spec2: this.spec_name2
+            }))
+          })
+          console.log(list)
+          this.goodsDetails.itemmodels = list
         }
-        specList.forEach((item, index) => {
-          let temp = {
-            sku: item + '=|=' + this.spec_name2,
-            sku_image: images[index],
-            sku_spec1: item,
-            sku_spec2: this.spec_name2,
-            sku_stock: 1000,
-            stock: 1000,
-            sku_price: price,
-            price: price
-          }
-          this.goodsDetails.itemmodels.push(temp)
-        })
       }
     },
-    updateSpec(item,type,index){
+    updateSpec(item, type, index) {
       let itemmodelsJson = JSON.stringify(this.goodsDetails.itemmodels)
-      let specName = this.tier_variation['spec'+type]
+      let specName = this.tier_variation['spec' + type]
       let specList = this.tier_variation[specName]
       let oldSpec = specList[index]
-      let oldStr = '"sku_spec'+type+'":"'+oldSpec+'"'
-      let newStr = '"sku_spec'+type+'":"'+item+'"'
-      itemmodelsJson = itemmodelsJson.replaceAll(oldStr,newStr)
-      if (type === 1){
-        oldStr = '"sku":"'+oldSpec+'=|='
-        newStr = '"sku":"'+item+'=|='
-      }else{
-        oldStr = '=|='+oldSpec+'",'
-        newStr = '=|='+item+'",'
+      let oldStr = '"sku_spec' + type + '":"' + oldSpec + '"'
+      let newStr = '"sku_spec' + type + '":"' + item + '"'
+      itemmodelsJson = itemmodelsJson.replaceAll(oldStr, newStr)
+      if (type === 1) {
+        oldStr = '"sku":"' + oldSpec + '=|='
+        newStr = '"sku":"' + item + '=|='
+      } else {
+        oldStr = '=|=' + oldSpec + '",'
+        newStr = '=|=' + item + '",'
       }
-      itemmodelsJson = itemmodelsJson.replaceAll(oldStr,newStr)
+      itemmodelsJson = itemmodelsJson.replaceAll(oldStr, newStr)
       this.goodsDetails.itemmodels = JSON.parse(itemmodelsJson)
       this.tier_variation[specName][index] = item
     },
@@ -749,7 +757,7 @@ export default {
       let price = parseFloat(parseFloat(this.presetPrice).toFixed(2) || 0)
       this.goodsDetails.itemmodels.forEach(item => {
         let sku_price = parseFloat(parseFloat(item.sku_price).toFixed(2))
-        let sku_inventory =  parseInt(item.sku_stock)
+        let sku_inventory = parseInt(item.sku_stock)
         if (this.presetTypeRadio === 0) {
           sku_inventory += inventory
           sku_price += price
@@ -775,10 +783,9 @@ export default {
         }
         itemmodels.push(temp)
       })
-      let stockList = [...itemmodels.map(i=>i.sku_stock)]
-      let priceList = [...itemmodels.map(i=>i.sku_price)]
-      this.goodsDetails.stock = eval(stockList.join("+"));
-      this.goodsDetails.price = eval(priceList.join("+"));
+      let stockList = [...itemmodels.map(i => i.sku_stock)]
+      this.goodsDetails.stock = eval(stockList.join('+'))
+      this.goodsDetails.price = price
       this.goodsDetails.itemmodels = itemmodels
     },
     imageUpload(file) {
@@ -805,11 +812,9 @@ export default {
                   temp = ''
                   this.picturesChooseSuccess = false
                   success = false
-                }
-                else if (this.picturesChooseFileUrl) {
+                } else if (this.picturesChooseFileUrl) {
                   temp = this.picturesChooseFileUrl
-                }
-                else {
+                } else {
                   const localFile = this.picturesChooseFile.raw
                   const reader = new FileReader()
                   reader.readAsDataURL(localFile)
@@ -881,14 +886,14 @@ export default {
           })
           this.skuDetail1Check = []
         }
-        if(itemModelsList.length === 0){
+        if (itemModelsList.length === 0) {
           let spec2Name = this.goodsDetails.tier_variation['spec2']
           let specList = this.goodsDetails.tier_variation[spec2Name]
           specList.forEach((item, index) => {
             let temp = {
               sku: item,
-              sku_image: "",
-              sku_spec1: "",
+              sku_image: '',
+              sku_spec1: '',
               sku_spec2: item,
               sku_stock: 1000,
               stock: 1000,
@@ -899,6 +904,7 @@ export default {
           })
         }
         this.goodsDetails.itemmodels = itemModelsList
+        this.skuDetail1AllCheck = false
       } else if (type === 2) {
         if (index > -1) {
           this.carouselImageCheck.splice(index, 1)
@@ -927,8 +933,7 @@ export default {
         }
       } else if (type === 4) {
         this.$set(this.goodsDetails.sizeImages, 0, { id: 0, img: '' })
-      }
-      else if (type === 5) {
+      } else if (type === 5) {
         if (index > -1) {
           let spec2Name = this.goodsDetails.tier_variation['spec2']
           let spec = this.goodsDetails.tier_variation[spec2Name][index]
@@ -954,7 +959,7 @@ export default {
           })
           this.skuDetail2Check = []
         }
-        if(itemModelsList.length === 0){
+        if (itemModelsList.length === 0) {
           let spec1Name = this.goodsDetails.tier_variation['spec1']
           let specList = this.goodsDetails.tier_variation[spec1Name]
           specList.forEach((item, index) => {
@@ -962,7 +967,7 @@ export default {
               sku: item,
               sku_image: this.goodsDetails.tier_variation.images[index],
               sku_spec1: item,
-              sku_spec2: "",
+              sku_spec2: '',
               sku_stock: 1000,
               stock: 1000,
               sku_price: price,
@@ -1103,9 +1108,17 @@ export default {
       itemmodels = itemmodels.replaceAll('"sku_price":', '"skuPrice":')
       itemmodels = itemmodels.replaceAll(/"sku_stock":([0-9]*),/ig, '"skuStock":"$1",')
       itemmodels = itemmodels.replaceAll('"sku_stock":', '"skuStock":')
-      let updateGoodsRes = await this.$commodityService.updateGoods({ sysGoodsId, description, title, width, height, long, weight })
+      let updateGoodsRes = await this.$commodityService.updateGoods({
+        sysGoodsId,
+        description,
+        title,
+        width,
+        height,
+        long,
+        weight
+      })
       console.log('updateGoodsRes', updateGoodsRes)
-      console.log('itemmodels', itemmodels,JSON.parse(itemmodels))
+      console.log('itemmodels', itemmodels, JSON.parse(itemmodels))
       let andUpdateSku = await this.$commodityService.saveAndUpdateSkuDatas(sysGoodsId, itemmodels)
       console.log(andUpdateSku)
       let descImages = [...this.goodsDetails.descImages.map(i => {
@@ -1122,7 +1135,12 @@ export default {
         let imageUrl = this.goodsDetails.spec_image[i] || ''
         skuImages.push({ oldImageUrl, imageUrl })
       }
-      let updateGoodsAllImageRes = await this.$commodityService.updateGoodsAllImage({ sysGoodsId, descImages, images, sizeImageUrl })
+      let updateGoodsAllImageRes = await this.$commodityService.updateGoodsAllImage({
+        sysGoodsId,
+        descImages,
+        images,
+        sizeImageUrl
+      })
       this.$emit('goodsEditorCancel', { sysGoodsId, title, description, width, height, long, weight })
     },
     handleClick(val) {
@@ -1297,6 +1315,7 @@ export default {
     .el-textarea {
       .el-textarea__inner {
         line-height: 1.4 !important;
+        padding: 5px;
       }
     }
   }

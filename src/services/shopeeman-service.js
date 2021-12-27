@@ -34,7 +34,7 @@ export default class NetMessageBridgeService {
     // local 国内
     // Abroad 本土
     let url = this.site_domain_chinese_pre[country]
-    let domain_switch = userSettings.SwitchDominTypeSetting || userSettings.domain_switch
+    let domain_switch = userSettings && (userSettings.SwitchDominTypeSetting || userSettings.domain_switch) || '1'
     if (domain_switch === '3' || domain_switch ===`Abroad`) {
       url = this.site_domain_local_pre[country]
     } else if ((domain_switch === '1' || domain_switch === 'Auto')
@@ -54,14 +54,11 @@ export default class NetMessageBridgeService {
       mall_main_id,
       IPType
     } = JSON.parse(mallInfo)
-    // auto 1、auto  2、mallinfo.MallMainId  3、IPType  包含 大陆   或者  ‘1’
-    // local 国内
-    // Abroad 本土
-    let domain_switch = userSettings.SwitchDominTypeSetting || userSettings.domain_switch
+    let domain_switch = userSettings && (userSettings.SwitchDominTypeSetting || userSettings.domain_switch) || '1'
     let url = this.site_domain_chinese_bk[country]
     if (domain_switch === '3' || domain_switch ===`Abroad`) {
       url = this.site_domain_local_bk[country]
-    } else if ((userSettings.domain_switch === '1' || userSettings.domain_switch === 'Auto')
+    } else if ((domain_switch === '1' || domain_switch === 'Auto')
       && mall_main_id > 0 && (IPType.indexOf('大陆') === -1 || IPType === '1')) {
       url = this.site_domain_local_bk[country]
     }
