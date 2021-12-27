@@ -197,23 +197,101 @@ export default {
         this.page = res.data.data.current_page
         this.total = res.data.data.total
         const list = res.data.data.data
-        const arr = []
-        // list.forEach(el => {
-        //   el.mallName = GoodsMallgetValue(this.shopAccountList, 'label', 'value', el.sys_mall_id)
-        //   // arr.push(el)
-        //   if (!el.mallName) {
-        //     this.$refs.Logs.writeLog(`【${el.sys_mall_id}】店铺不存在`)
-        //   }
-        // })
-        for (let i = 0; i < list.length; i++) {
-          list[i].mallName = GoodsMallgetValue(this.shopAccountList, 'label', 'value', list[i].sys_mall_id)
-          if (!list[i].mallName) {
-            this.$refs.Logs.writeLog(`【${list[i].sys_mall_id}】店铺不存在`)
-            continue
-          }
-        }
+        // 校验店铺
+        const res1 = await batchOperation(list, this.checkMall)
       } else {
         this.$message.error(`任务获取失败--${res.message}`, false)
+      }
+    },
+    // 校验店铺
+    async checkMall(item, count = { count: 1 }) {
+      try {
+        const mallName = GoodsMallgetValue(this.shopAccountList, 'label', 'value', item.sys_mall_id)
+        // 店铺校验
+        if (!mallName) {
+          this.$refs.Logs.writeLog(`【${item.sys_mall_id}】店铺不存在`, false)
+          return
+        }
+        const nextTopTime = new Date(item.next_top_time).getTime()
+        const currentTime = new Date().getTime()
+        // 时间校验
+        if (nextTopTime > currentTime) {
+          this.$refs.Logs.writeLog(`【${mallName}】店铺,未到置顶时间`)
+          return
+        }
+        // 商品校验
+        if (Number(item.top_total_count) >= Number(item.toped_count)) {
+          this.$refs.Logs.writeLog(`【${mallName}】店铺,已置顶完所有商品`)
+          return
+        }
+        // 通过其他维度获取商品-置顶
+        if (Number(item.top_type) !== 1) {
+          item.page = 1
+          item.mallName = mallName
+          const res1 = await batchOperation(item, this.getMallTopGoods)
+        }
+        // 通过商品ID置顶
+      } catch (error) {
+        this.$refs.Logs.writeLog(`catch--【${item.sys_mall_id}】,${error}`, false)
+      } finally {
+        count.count--
+      }
+    },
+    // 获取置顶商品
+    async getMallTopGoods(val, count = { count: 1 }) {
+      try {
+        const mItem = {
+          country: val.country,
+          pageNumber: val.page,
+          platform_mall_id: val.sys_mall_id
+        }
+        const params = {
+          mItem: mItem,
+          pageSize: 48,
+          listType: 'all'
+        // listOrderType: ''
+        }
+        // if (val.top_type === '2') {
+        //   params.listOrderType = ''
+        // }
+        if (val.top_type === '3') {
+          params.listOrderType = 'sales_asc'
+        }
+        if (val.top_type === '4') {
+          params.listOrderType = 'sales_dsc'
+        }
+        if (val.top_type === '5') {
+          params.listOrderType = 'price_asc'
+        }
+        if (val.top_type === '6') {
+          params.listOrderType = 'price_dsc'
+        }
+        const res = await this.GoodsList.getMpskuList(params)
+        if (res.code === 200) {
+          if (res.data.list?.length) {
+            // return res.data.list
+            // 一次置顶5个
+            // for (let i = 0; i < 5; i++) {
+            //   const params = {
+            //     country: val.country,
+            //     mallId: val.sysMallId,
+            //     goodsID: res.data.list[i].id
+            //   }
+            //   const res1 = await this.MarketManagerAPIInstance.topGoods(params)// 置顶商品
+            // }
+
+            // while (condition) {
+
+            // }
+          }
+        } else {
+          this.$refs.Logs.writeLog(`店铺【${val.mallname}】商品获取失败${res.data}`, false)
+          return null
+        }
+      } catch (error) {
+        this.$refs.Logs.writeLog(`店铺【${val.mallname}】商品获取失败${error}`, false)
+      } finally {
+        count.count--
       }
     },
     // 停止
@@ -372,42 +450,42 @@ export default {
       }
     },
     // 获取商品信息
-    async getMallList(val) {
-      const mItem = {
-        country: val.country,
-        pageNumber: val.page,
-        platform_mall_id: val.sysMallId
-      }
-      const params = {
-        mItem: mItem,
-        pageSize: 48,
-        listType: 'all'
-        // listOrderType: ''
-      }
-      if (this.saleType === '3') {
-        params.listOrderType = 'sales_asc'
-      }
-      if (this.saleType === '4') {
-        params.listOrderType = 'sales_dsc'
-      }
-      if (this.saleType === '5') {
-        params.listOrderType = 'price_asc'
-      }
-      if (this.saleType === '6') {
-        params.listOrderType = 'price_dsc'
-      }
-      const res = await this.GoodsList.getMpskuList(params)
-      if (res.code === 200) {
-        if (res.data.list?.length) {
-          return res.data.list
-        }
-      } else {
-        this.showlog = false
-        const mallname = GoodsMallgetValue(this.shopAccountList, 'label', 'value', val.sysMallId)
-        this.$refs.Logs.writeLog(`店铺【${mallname}】商品获取失败${res.data}`, false)
-        return null
-      }
-    },
+    // async getMallList(val) {
+    //   const mItem = {
+    //     country: val.country,
+    //     pageNumber: val.page,
+    //     platform_mall_id: val.sysMallId
+    //   }
+    //   const params = {
+    //     mItem: mItem,
+    //     pageSize: 48,
+    //     listType: 'all'
+    //     // listOrderType: ''
+    //   }
+    //   if (this.saleType === '3') {
+    //     params.listOrderType = 'sales_asc'
+    //   }
+    //   if (this.saleType === '4') {
+    //     params.listOrderType = 'sales_dsc'
+    //   }
+    //   if (this.saleType === '5') {
+    //     params.listOrderType = 'price_asc'
+    //   }
+    //   if (this.saleType === '6') {
+    //     params.listOrderType = 'price_dsc'
+    //   }
+    //   const res = await this.GoodsList.getMpskuList(params)
+    //   if (res.code === 200) {
+    //     if (res.data.list?.length) {
+    //       return res.data.list
+    //     }
+    //   } else {
+    //     this.showlog = false
+    //     const mallname = GoodsMallgetValue(this.shopAccountList, 'label', 'value', val.sysMallId)
+    //     this.$refs.Logs.writeLog(`店铺【${mallname}】商品获取失败${res.data}`, false)
+    //     return null
+    //   }
+    // },
     // 时间格式转换
     add0(m) { return m < 10 ? '0' + m : m },
     formatTime(val) {
