@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-11-30 10:53:52
- * @LastEditTime: 2021-11-30 18:03:01
+ * @LastEditTime: 2021-12-15 12:04:58
  * @LastEditors: Please set LastEditors
  * @Description: 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  * @FilePath: \shopeeman-new\src\views\order-manager\components\orderCenter\secondSale.vue
@@ -176,11 +176,7 @@ export default {
     //二次销售出库
     async matchAndOut(row) {
         if(row.country !== this.chooseData.country){
-            return  this.$notify({
-            title: '二次销售出库',
-            type: 'warning',
-            message: `必须为相同站点才能进行商品二次销售`,
-          })
+        return this.$message.warning('必须为相同站点才能进行商品二次销售')
         }
         let params = {
             id:row.id,

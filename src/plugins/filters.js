@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-10-22 11:28:33
- * @LastEditTime: 2021-11-06 11:07:57
+ * @LastEditTime: 2021-12-27 11:03:05
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shopeeman-new\src\plugins\filters.js
@@ -66,6 +66,15 @@ const countries_option = [
   { label: '哥伦比亚站', value: 'CO' },
   { label: '智利站', value: 'CL' },
   { label: '波兰站', value: 'PL' }
+]
+const countries_option_sub = [
+  { label: '泰国站', value: 'TH' },
+  { label: '马来站', value: 'MY' },
+  { label: '台湾站', value: 'TW' },
+  { label: '新加坡站', value: 'SG' },
+  { label: '菲律宾站', value: 'PH' },
+  { label: '越南站', value: 'VN' },
+  { label: '印尼站', value: 'ID' }
 ]
 const countries_site = {
   '马来站': 'MY',
@@ -205,4 +214,4 @@ var imageRenderhaventID = function(data) { // 第二个参数传任意传
   return isArr && [url] || url
 }
 
-export { chineseSite, imageRender, imageRenderhaventID, siteCoin, sitePlatform, countryShopeebuyCom, lazadaGoodsUrl, countries_option, countries_site }
+export { chineseSite, imageRender, imageRenderhaventID, siteCoin, sitePlatform, countryShopeebuyCom, lazadaGoodsUrl, countries_option, countries_site,countries_option_sub }

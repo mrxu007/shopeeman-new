@@ -316,6 +316,7 @@ export function exportExcelDataCommon(fileName, str) {
   const a = document.createElement('a')
   document.body.appendChild(a)
   // a.href = uri + this.base64(template)
+  console.log(URL.createObjectURL(blob))
   a.href = URL.createObjectURL(blob)
   a.download = `${fileName}${new Date(Date.now() + 8 * 3600 * 1000).toISOString().slice(0, 10)}.xls`
   a.click()
@@ -570,6 +571,10 @@ export function getArraySrcLengthSort(arr, type) {
     sort[index] = i
   }
   return type && sort || sort.reverse()
+}
+export function getDaysBetween(startDate,endDate){
+  var days=(endDate - startDate)/(1*24*60*60*1000);
+  return  days;
 }
 
 // 拼接链接

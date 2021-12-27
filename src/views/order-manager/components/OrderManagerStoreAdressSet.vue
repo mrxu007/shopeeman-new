@@ -169,8 +169,8 @@
       <div class="footer">
         <span> 温馨提示：若新增的自有仓库和系统仓库地址相同, 请绑定对应的归属仓库,若未绑定归属仓库,仓库无 法精准匹配,会有无法出库的风险 </span>
         <span v-if="!flag4">
-          1：收件人尽量不要有特殊字符,如#,+,_,@等<br>
-          2：海外菲律宾仓的买家姓名至少包含2个英文单词, 如：(China Boy)<br>
+          1：收件人尽量不要有特殊字符,如#,+,_,@等<br />
+          2：海外菲律宾仓的买家姓名至少包含2个英文单词, 如：(China Boy)<br />
           3：海外新加坡仓地址必须带楼层单元号并以#隔开且 置于最后,如(1 SoonLeeStreet,Industrial Cres,#01-02)
         </span>
         <el-button type="primary" size="mini" @click="itselfUpdate(flag3 ? 1 : 2)">确 定</el-button>
@@ -181,7 +181,7 @@
       <div class="dialog-left">
         <!--?-->
         <div v-if="!flag4 && flag1" class="header">
-          <el-button type="primary" size="mini">下载海外仓地址设置指南</el-button>
+          <el-button type="primary" size="mini"><a :href="downloadExcelUrl"  style="color:#fff;" download="海外仓地址设置指南.xlsx">下载海外仓地址设置指南</a></el-button>
           <p>使用海外仓服务前，请先下载使用指南查看</p>
         </div>
         <el-form label-position="right" label-width="80px">
@@ -272,9 +272,10 @@
           </el-form-item>
         </el-form>
         <div class="footer">
-          <el-button type="primary" size="mini" @click="test">确 定</el-button>
+          <el-button type="primary" size="mini" @click="addAbroadAddress">确 定</el-button>
         </div>
-      </el-form></el-dialog>
+      </el-form></el-dialog
+    >
   </div>
 </template>
 
@@ -285,10 +286,11 @@ import StoreChooseMall from '../../../components/store-choose-mall.vue'
 export default {
   components: {
     AddressModel,
-    StoreChooseMall
+    StoreChooseMall,
   },
   data() {
     return {
+      downloadExcelUrl: 'https://shopeeman.oss-cn-shenzhen.aliyuncs.com/files/shopeemanFiles/appFiles/20211224/2021122418063161c59ba7e66a0.xlsx',
       isShowLoading: false,
       butLoading: false,
       itselfAddressVisible: false,
@@ -301,7 +303,7 @@ export default {
       flag3: true, // 自有仓库地址 新增/修改
       flag4: true, // 国内/海外
       flag5: false, // 是否change
-      countries: this.$filters.countries_option,
+      countries: this.$filters.countries_option_sub,
       AddressSet: new AddressSet(this),
       activeName: 'landStore',
       changeIndex: 0,
@@ -352,14 +354,16 @@ export default {
       sPDistinct: '',
       sProvinceList: [],
       sCityList: [],
-      sDistinctList: []
+      sDistinctList: [],
 
+      abroadAddressParams: {},
+      flagAbroad: false,
     }
   },
   mounted() {
     this.getUserWarehouse()
     // 获取系统仓库，用来判断是否显示申请系统仓库地址
-    this.xzyIndex()
+    this.xzyIndex([0, 3])
     // 获取所属仓库
     this.xzyAllIndex()
   },
@@ -376,7 +380,7 @@ export default {
       this.itselfReceivingName = row.receiving_name
       this.itselfReceivingTel = row.receiving_tel
       this.itselfCountry = row.country
-      row.mallInfo.forEach(item => {
+      row.mallInfo.forEach((item) => {
         this.mallId.push(item.id)
       })
       // 1、国内修改自有仓库 2、海外修改自有仓库
@@ -428,8 +432,8 @@ export default {
       this.wareHouseTel = row.receiving_tel
       await this.getBindMall()
       this.$nextTick(() => {
-        this.bindMallData.forEach(item1 => {
-          row.mallInfo.forEach(item2 => {
+        this.bindMallData.forEach((item1) => {
+          row.mallInfo.forEach((item2) => {
             if (item2.id === item1.sysMallId) {
               this.$refs.bindMallDataRef.toggleRowSelection(item1)
             }
@@ -443,13 +447,13 @@ export default {
       if (!this.receivingName) return this.$message('收件人不能为空')
       if (!this.wareHouseTel) return this.$message('电话号码不能为空')
       if (this.flag2) {
-        if (!this.multipleSelection.every(item => item.country === this.itemData.country)) {
+        if (!this.multipleSelection.every((item) => item.country === this.itemData.country)) {
           return this.$message(`当前仓库只能绑定${this.$filters.chineseSite(this.itemData.country)}的店铺，请重新选择`)
         }
       }
       const params = {
         mallId: [],
-        address: {}
+        address: {},
       }
       params['id'] = this.itemData.id
       params['warehouseName'] = this.warehouseName
@@ -463,7 +467,7 @@ export default {
       params['address']['province_text'] = this.itemData.province_text
       params['address']['receiving_name'] = this.receivingName
       params['address']['receiving_tel'] = this.wareHouseTel
-      this.multipleSelection.forEach(item => {
+      this.multipleSelection.forEach((item) => {
         params['mallId'].push(item.sysMallId)
       })
       this.butLoading = true
@@ -476,6 +480,7 @@ export default {
       const res = await this.AddressSet.updateData(params)
       if (res.code === 200) {
         this.$message.success('修改成功')
+        this.flagAbroad = false
         if (this.itselfAddressVisible) {
           this.getUserWarehouse()
         }
@@ -488,17 +493,19 @@ export default {
       let sysNewData = []
       const sysMallId = []
       if (!this.receivingName) return this.$message('收件人不能为空')
-      sysNewData = this.warehouseData.filter(item => { return item.id === this.sysWarehouseId })
-      if (!this.multipleSelection.every(item => item.country === sysNewData[0].country)) {
+      sysNewData = this.warehouseData.filter((item) => {
+        return item.id === this.sysWarehouseId
+      })
+      if (!this.multipleSelection.every((item) => item.country === sysNewData[0].country)) {
         return this.$message(`当前仓库只能绑定${this.$filters.chineseSite(sysNewData[0].country)}的店铺，请重新选择`)
       }
-      this.multipleSelection.forEach(item => {
+      this.multipleSelection.forEach((item) => {
         sysMallId.push(item.sysMallId)
       })
       const params = {
         id: this.sysWarehouseId,
         receivingName: this.receivingName,
-        mallId: sysMallId.toString()
+        mallId: sysMallId.toString(),
       }
       this.butLoading = true
       const res = await this.AddressSet.addXzyStore(params)
@@ -513,7 +520,7 @@ export default {
     // 仓库名称Change
     sysWarehouseChange() {
       let arr = {}
-      this.warehouseData.forEach(item => {
+      this.warehouseData.forEach((item) => {
         if (item.id === this.sysWarehouseId) arr = item
       })
       this.warehouseAddress = arr.full_address
@@ -529,13 +536,13 @@ export default {
     async getBindMall() {
       this.warehouseLoading = true
       const groupIds = []
-      this.mallList.forEach(item => {
+      this.mallList.forEach((item) => {
         groupIds.push(item.group_id)
       })
       const params = {
         id: this.sysWarehouseId,
         country: this.mallList.country,
-        groupIds: groupIds.toString()
+        groupIds: groupIds.toString(),
       }
       console.log(params, '-----------')
       const res = await this.AddressSet.getBindMall(params)
@@ -553,7 +560,7 @@ export default {
     // 删除自有仓库
     async deleteOwnStore(row) {
       const params = {
-        id: row.id
+        id: row.id,
       }
       const res = await this.AddressSet.deleteOwnStore(params)
       if (res.code === 200) {
@@ -569,7 +576,7 @@ export default {
       const params = {
         id: row.id,
         isUseOwnPhone: row.is_use_own_phone ? 1 : 0,
-        ownPhone: row.own_phone
+        ownPhone: row.own_phone,
       }
       const res = await this.AddressSet.updateOwnPhone(params)
       if (res.code === 200) {
@@ -591,17 +598,19 @@ export default {
       this.$confirm('请确认当前仓库是否和系统仓库地址相同，若相同，请务必绑定对应的归属仓库，避免因未能准确匹配仓库造成的无法出库的风险?', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
-        type: 'warning'
-      }).then(async() => {
+        type: 'warning',
+      }).then(async () => {
         if (this.itselfWarehouseId !== 0) {
-          this.warehouseList.forEach(item => {
+          this.warehouseList.forEach((item) => {
             if (this.itselfWarehouseId === item.id) arr = item
           })
           if (!this.isSG) {
-            if (this.itselfProvinceText !== arr.province_text ||
+            if (
+              this.itselfProvinceText !== arr.province_text ||
               this.itselfCityText !== arr.city_text ||
               this.itselfDistinctText !== arr.distinct_text ||
-              this.itselfDetailAddress.indexOf(arr.detail_address) === -1) {
+              this.itselfDetailAddress.indexOf(arr.detail_address) === -1
+            ) {
               this.$message('自有出库地址与归属出库地址省份信息不匹配')
               return
             }
@@ -620,15 +629,11 @@ export default {
           }
         }
         const params = {
-          address: {}
+          address: {},
         }
         // flag4 = true：国内 false：海外
         if (this.flag4) {
-          this.itselfFullAddress =
-          this.itselfProvinceText + ' ' +
-          this.itselfCityText + ' ' +
-          this.itselfDistinctText + ' ' +
-          this.itselfDetailAddress
+          this.itselfFullAddress = this.itselfProvinceText + ' ' + this.itselfCityText + ' ' + this.itselfDistinctText + ' ' + this.itselfDetailAddress
         } else {
           if (this.isSG) {
             this.itselfProvinceId = '1'
@@ -636,30 +641,28 @@ export default {
             this.itselfDistrictId = '1'
             this.itselfFullAddress = this.itselfDetailAddress
           } else {
-            this.provinceList.forEach(item => {
+            this.provinceList.forEach((item) => {
               if (item.ProvinceId === this.itselfProvinceId) {
                 this.addressData['province_text'] = item.Province
               }
             })
-            this.cityList.forEach(item => {
+            this.cityList.forEach((item) => {
               if (item.CityId === this.itselfCityId) {
                 this.addressData['city_text'] = item.City
               }
             })
-            this.distinctList.forEach(item => {
+            this.distinctList.forEach((item) => {
               if (item.DistrictId === this.itselfDistrictId) {
                 this.addressData['distinct_text'] = item.District
                 // 海外获取邮编
                 this.addressData['post_code'] = item.DistrictId
               }
             })
-            this.itselfFullAddress =
-            this.itselfDetailAddress + ' ' +
-            this.addressData['province_text'] + ' ' +
-            this.addressData['city_text'] + ' ' +
-            this.addressData['distinct_text']
+            this.itselfFullAddress = this.itselfDetailAddress + ' ' + this.addressData['province_text'] + ' ' + this.addressData['city_text'] + ' ' + this.addressData['distinct_text']
             // 获取虾皮地址
-            this.shopeeAddressVisible = true
+            if (!this.flagAbroad) {
+              this.shopeeAddressVisible = true
+            }
             try {
               await this.getShopeeAddress('0', 'sProvinceList', 'sProvince')
               await this.handlerChange4()
@@ -680,13 +683,31 @@ export default {
         params['address']['receiving_name'] = this.itselfReceivingName
         params['address']['receiving_tel'] = this.itselfReceivingTel
         params['address']['type'] = this.flag4 ? 0 : 3 // 国内/海外
-        switch (type) {
-          case 1:
-            this.adduserStore(params)
-            break
-          case 2:
-            this.updateItselfData(params)
-            break
+        if (this.flagAbroad) {
+          switch (type) {
+            case 1:
+              this.adduserStore(this.abroadAddressParams)
+              break
+            case 2:
+              this.updateItselfData(this.abroadAddressParams)
+              break
+          }
+          return
+        }
+        if (!this.flag4 && !this.flagAbroad) {
+          this.abroadAddressParams = params
+          console.log(this.abroadAddressParams, '5445465465')
+          return
+        }
+        if (this.flag4) {
+          switch (type) {
+            case 1:
+              this.adduserStore(params)
+              break
+            case 2:
+              this.updateItselfData(params)
+              break
+          }
         }
       })
     },
@@ -706,6 +727,7 @@ export default {
         this.$message.success('添加自有仓库成功')
         this.getUserWarehouse()
         this.itselfAddressVisible = false
+        this.flagAbroad = false
       } else {
         this.$message.error(res.data)
       }
@@ -732,6 +754,7 @@ export default {
     // 获取海外地址信息
     async getLazadaDetailAddress(id, list, val) {
       const res = await this.$BaseUtilService.getLazadaDetailAddress(id, this.itselfCountry)
+      console.log(' this.itselfCountry', this.itselfCountry)
       this[list] = res
       this['itself' + val] = this.flag5 ? this['itself' + val] : this[list][0][val]
       console.log(list, this[list])
@@ -749,7 +772,7 @@ export default {
     // 绑定的店铺
     bindMallName(list) {
       const arr = []
-      list.forEach(item => {
+      list.forEach((item) => {
         const name = item.mall_alias_name ? item.mall_alias_name : item.platform_mall_name
         arr.push(name)
       })
@@ -759,16 +782,20 @@ export default {
     handleClick() {
       if (this.activeName === 'landStore') {
         this.flag4 = true
-        this.tableData = this.tableDataAll.filter(item => { return item.type === 0 })
+        this.tableData = this.tableDataAll.filter((item) => {
+          return item.type === 0
+        })
       } else {
         this.flag4 = false
-        this.tableData = this.tableDataAll.filter(item => { return item.type === 2 || item.type === 3 })
+        this.tableData = this.tableDataAll.filter((item) => {
+          return item.type === 2 || item.type === 3
+        })
       }
     },
     // 获取系统仓库，用来判断是否显示申请系统仓库地址
-    async xzyIndex() {
+    async xzyIndex(typeLists) {
       let resData = []
-      const typeList = [0, 3]
+      const typeList = typeLists || [0, 3]
       for (let index = 0; index < typeList.length; index++) {
         const type = typeList[index]
         const res = await this.AddressSet.xzyIndex(type)
@@ -789,7 +816,7 @@ export default {
         } else {
           this.isHomeApplyAddress = false
         }
-        if (resData[1].data?.length > 0) {
+        if (resData[1] && resData[1].data?.length > 0) {
           this.isOverseasApplyAddress = true
           this.warehouseData = resData[1].data
           this.sysWarehouseId = resData[1].data[0].id
@@ -806,7 +833,7 @@ export default {
       const res = await this.AddressSet.getUserWarehouse()
       if (res.code === 200) {
         this.tableDataAll = res.data
-        this.tableDataAll.map(item => {
+        this.tableDataAll.map((item) => {
           item.is_use_own_phone = item.is_use_own_phone === '1'
         })
         this.handleClick()
@@ -816,14 +843,21 @@ export default {
       console.log('tableDataAll', res)
       this.isShowLoading = false
     },
-    test() {
-      this.getShopeeAddress('0', 'sProvinceList', 'sProvince')
+    addAbroadAddress() {
+      console.log(this.sPDistinct, this.abroadAddressParams, 'sPDistinct')
+      if (!this.sPDistinct) {
+        return this.$message.warning('请先进行shopee地址设置')
+      }
+      this.abroadAddressParams['address']['shopee_map_id'] = this.sPDistinct
+      this.flagAbroad = true
+      this.shopeeAddressVisible = false
     },
     // 获取虾皮地址
     async getShopeeAddress(id, list, val) {
       const platform = this.$filters.sitePlatform(this.itselfCountry)
       console.log(platform, '1', id.toString())
       const res = await this.$commodityService.getShopeeAddress(platform, '1', id)
+      console.log(res, 'getShopeeAddress')
       const jsonData = this.isJsonString(res)
       this[list] = jsonData
       this[val] = this[list][0].id
@@ -872,7 +906,8 @@ export default {
       this.itselfPostCode = ''
     },
     handleClose2() {
-      this.xzyIndex()
+      let type = this.flag4 ? [0] : [3]
+      this.xzyIndex(type)
       this.getUserWarehouse()
       this.receivingName = ''
       this.$refs.bindMallDataRef.clearSelection()
@@ -894,6 +929,12 @@ export default {
           this.isSG = false
         }
         try {
+          // if (this.itselfCountry === 'TW') {
+          //   console.log('545454654654654654654')
+          //   await this.getShopeeAddress('0', 'provinceList', 'ProvinceId')
+          // } else {
+          //   await this.getLazadaDetailAddress('', 'provinceList', 'ProvinceId')
+          // }
           await this.getLazadaDetailAddress('', 'provinceList', 'ProvinceId')
           await this.handlerChange1()
         } catch (error) {
@@ -920,8 +961,8 @@ export default {
     // 记住所选项
     getRowKey(row) {
       return row.sysMallId
-    }
-  }
+    },
+  },
 }
 </script>
 

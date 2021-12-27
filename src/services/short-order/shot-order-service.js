@@ -34,6 +34,7 @@ export default class {
   async start(writeLog) {
     let configInfo = await this.$configService.getUserConfig()
     configInfo = configInfo && JSON.parse(configInfo)
+    console.log(configInfo, "configInfo")
     let nickInfo = await this.$configService.getUserInfo()
     this.writeLog = writeLog
     const buyerMap = new Map()
@@ -45,6 +46,7 @@ export default class {
       buyerMap.set(Number(buyerItem.shotOrderPlatform), buyerItem)
       this.shopBuyerAccount.push(buyerItem)
     })
+    console.log(buyerMap, "buyerMap")
     //淘宝天猫海外平台cook
     this.crossBorderAccessToken = buyerMap.get(Number(shotOrderPlatform.CrossBorder)) ? buyerMap.get(Number(shotOrderPlatform.CrossBorder)).Cookiestr : ''
     //支付信息
@@ -67,12 +69,12 @@ export default class {
     }
     const shortGlobalInfo = {
       GatewayEndPoint: '129.204.71.240', //网关ip
-      AutoSelectSku: true, //网关ip  非固定传参的字段(暂时默认)
-      AutoPay: true, //网关ip  非固定传参的字段(暂时默认)
-      AutoNextOrder: true, //网关ip  非固定传参的字段(暂时默认)
+      AutoSelectSku: configInfo.auto_sku == 1 ? false : configInfo.auto_sku == 2 ? true : true, //网关ip  非固定传参的字段(暂时默认)
+      AutoPay: configInfo.auto_pay == 1 ? false : configInfo.auto_pay == 2 ? true : true, //网关ip  非固定传参的字段(暂时默认)
+      AutoNextOrder: configInfo.auto_next_order == 1 ? false : configInfo.auto_next_order == 2 ? true : true, //网关ip  非固定传参的字段(暂时默认)
       ShowSignOrderBtn: false, //基础信息设置
       ShowAutoOrderBtn: false,
-      ShowSearchByPddImg: false,
+      ShowSearchByPddImg: true,
       LianZhongAccount: '',
       LianZhongPassword: '',
       ChaojiyingAccount: '',
@@ -87,10 +89,10 @@ export default class {
       PlatFormType: '',
       StpBackGround: '#1f74fa',
       BtnGround: '#f4a000',
-      H5x5sec: '', //非固定传参的字段(暂时默认)
+      H5x5sec: configInfo.h5_xsec || '', //非固定传参的字段(暂时默认)
       TaobaoCookieForImg: buyerMap.get(Number(shotOrderPlatform.TaoBao)) && buyerMap.get(Number(shotOrderPlatform.TaoBao)).Cookiestr || [],
       TaobaoRemark: configInfo.taobao_leave_content, //'请不要放价格单,不要放好评卡', //非固定传参的字段(暂时默认)
-      AlibabaRemark: '请不要放价格单', //非固定传参的字段(暂时默认)
+      AlibabaRemark: configInfo.ali_leave_content, //非固定传参的字段(暂时默认)
       ZhiFuBaoAwid: '',
       ProfitRate: 100,
       SkipPreSale: false,
@@ -153,14 +155,19 @@ export default class {
         return this.writeLog(`暂无买手号信息`)
       }
     }
-    /**
-     * @name : 
-     * @param  {*}shortConfigInfoJson : shortGlobalInfo
-     * @param  {*}cefLanguage：选择的网页翻译的语种
-     * @param  {*}crossBorderAccessToken：天猫淘宝海外cookie
-     */    
-    console.log(JSON.stringify(shortGlobalInfo),configInfo.language_set,this.crossBorderAccessToken)
-    this.nativeService.start(JSON.stringify(shortGlobalInfo), configInfo.language_set, this.crossBorderAccessToken)
+    try {
+      /**
+       * @name : 
+       * @param  {*}shortConfigInfoJson : shortGlobalInfo
+       * @param  {*}cefLanguage：选择的网页翻译的语种
+       * @param  {*}crossBorderAccessToken：天猫淘宝海外cookie
+       */
+      console.log(JSON.stringify(shortGlobalInfo), configInfo.language_set, this.crossBorderAccessToken)
+      this.nativeService.start(JSON.stringify(shortGlobalInfo), configInfo.language_set, this.crossBorderAccessToken)
+    } catch (error) {
+      return this.writeLog(`拍单失败`)
+    }
+
   }
   // 单个拍单设置相应的缓存 多个拍单保留全部
   setCache(selectShotOrderPlatform, shortGlobalInfo, buyerMap) {
@@ -180,22 +187,25 @@ export default class {
     return shortGlobalInfo
   }
   getCache(buyerMap, key) {
+    console.log("-------------", buyerMap, key)
     if (buyerMap.has(key)) {
       return buyerMap.get(key).UserNameCache
     }
     return null
   }
   async getShortOrders(buyerMap, payAccount, configInfo, nickInfo) {
-    const data = await this.$api.exchangeRateList()
-    if (data.data.code === 200) {
-      this.rateList = data.data.data
-    }
+    let info = await window['ConfigBridgeService'].getUserInfo()
+    this.rateList = info.ExchangeRates || {}
+    // const data = await this.$api.exchangeRateList()
+    // if (data.data.code === 200) {
+    //   this.rateList = data.data.data
+    // }
     const shorOrders = []
     for (let index = 0; index < this.orders.length; index++) {
       const itemOrder = this.orders[index]
       let res = await this.$configService.getWarehouseInfo(itemOrder.mall_info.platform_mall_id)
       let warehouseList = res && JSON.parse(res) || []
-      console.log(warehouseList,"warehouseList",res)
+      // console.log(warehouseList,"warehouseList-================",res,itemOrder.mall_info.platform_mall_id)
       //1.判断店铺是否有绑定仓库（未绑定提示：$"店铺【{mallname}】未匹配到收货地址，请前往【仓库收货地址设置】进行设置"  并返回不在继续拍单）
       if (!warehouseList.length) {
         return {
@@ -311,10 +321,10 @@ export default class {
         GoodsMainImage: this._that.$filters.imageRender([itemOrder.mall_info.country, itemOrder.mall_info.platform_mall_id, itemOrder.goods_info.goods_img]), //[scope.row.country, scope.row.platform_mall_id, scope.row.product_cover] | imageRender
         SkuId: itemOrder.goods_info.variation_id,
         OriSkuId: itemOrder.goods_info.ori_sku_id,
-        SkuName: itemOrder.goods_info.variation_sku !== '' ? itemOrder.goods_info.variation_sku : itemOrder.goods_info.variation_name,
+        SkuName: itemOrder.goods_info.variation_sku !== '' ? itemOrder.goods_info.variation_sku.replace("=|=", ",") : itemOrder.goods_info.variation_name.replace("=|=", ","),
         OriBuyNum: itemOrder.goods_info.goods_count, //后面需要根据是否聚合拍单再做调整
         ShotNumber: itemOrder.goods_info.goods_count,
-        Price: Math.round(Number(itemOrder.escrow_amount) * Number(this.rateList[itemOrder.country.toUpperCase()])), //订单收入转换为人民币  
+        Price: (Number(itemOrder.escrow_amount) * Number(this.rateList[itemOrder.country.toUpperCase()])).toFixed(2), //订单收入转换为人民币  
         ExchangePrice: itemOrder.escrow_amount, //汇率订单收入     
         RedirectUrl: this.GetRedirectUrl(itemOrder, nickInfo), //获取优惠调转链接
         PddReamrk: itemOrder.note, //平台备注
@@ -332,7 +342,7 @@ export default class {
       //处理shotOrderInfo
       let shotOrderInfo = {
         OrderNumber: itemOrder.order_sn, //shopee订单编号
-        OrderPriceCnt: Math.round(Number(itemOrder.escrow_amount) * Number(this.rateList[itemOrder.country.toUpperCase()])) || 0,
+        OrderPriceCnt: (Number(itemOrder.escrow_amount) * Number(this.rateList[itemOrder.country.toUpperCase()])).toFixed(2) || 0,
         OrdeExchangerPriceCnt: itemOrder.escrow_amount + this._that.$filters.siteCoin(itemOrder.country), //汇率价格
         Tag: {
           SysOrderId: itemOrder.id,
@@ -439,8 +449,85 @@ export default class {
     }
     return redirectUrl;
   }
+  //
+  dealWithBuyName(warehouseInfo, itemOrder, configInfo, nickInfo) {
+    let addressUserInfo = {}
+    let buyerName = nickInfo.Nickname + "#" + warehouseInfo.receiving_name;
+    if (warehouseInfo.isUser === 1) {
+      // 1:拍单时买家姓名自动增加软件用户名称标识（拼多多平台将放在详细地址末尾）
+      buyerName = configInfo.shot_order_address_label.includes('1') ? buyerName : warehouseInfo.receiving_name;
+    }
+    //2:拍单时买家姓名自动增加拍单日期标识（拼多多平台将放在详细地址末尾）
+    if (configInfo.shot_order_address_label.includes('2')) {
+      buyerName += '-' + dateFormat(new Date().getTime(), 'Md')
+    }
+    //3:拍单时买家姓名自动增加SPM字样标识（拼多多平台将放在详细地址末尾）
+    if (configInfo.shot_order_address_label.includes('3')) {
+      buyerName += '-SPM'
+    }
+    // buyerName = configInfo.IsAutoAddBuyerDate ? buyerName + "-" + dateFormat(new Date().getTime(), 'Md') : buyerName;
+    // buyerName = configInfo.IsAutoAddBuyerSPM ? buyerName + "-SPM" : buyerName;
+    if (warehouseInfo.isUser == 0 && warehouseInfo.warehouse_id == "23") {
+      buyerName = "SM-" + warehouseInfo.receiving_name;
+    }
+    if (warehouseInfo.isUser == 0 && warehouseInfo.warehouse_id == "8") {
+      buyerName = "SPM-" + warehouseInfo.receiving_name;
+    }
+    //5:拍单时买家姓名自动增加订单后6位
+    if (configInfo.shot_order_address_label.includes('5')) {
+      buyerName += "-" + itemOrder.order_sn.substring(itemOrder.order_sn.Length - 6);
+    }
+    // if (configInfo.IsAutoAddOrderSnToBuyer) {
+    //   buyerName += "-" + itemOrder.order_sn.substring(itemOrder.order_sn.Length - 6);
+    // }
+    addressUserInfo['buyerName'] = itemOrder.goods_info.ori_platform_id == 1 ? warehouseInfo.receiving_name : buyerName;
+    //手机号处理
+    addressUserInfo["buyerPhone"] = warehouseInfo.is_use_own_phone == 1 ? warehouseInfo.own_phone : warehouseInfo.receiving_tel;
+    //地址处理：加上订单Id
+    let detailAddress = warehouseInfo.detail_address.trim();
+    //新加坡地址后缀的特殊性，不能携带订单Id
+    if (warehouseInfo.type != 3 && warehouseInfo.country != "SG") {
+      if (configInfo.shot_order_address_label.includes('4')) {
+        detailAddress += "#" + itemOrder.id;
+      }
+      // if (configInfo.IsAutoAddBuyerAddr) {
+      //   detailAddress += "#" + itemOrder.id;
+      // }
+      //6:拍单时买家地址自动增加订单后6位
+      if (configInfo.shot_order_address_label.includes('6')) {
+        detailAddress += "#" + itemOrder.order_sn.substring(itemOrder.order_sn.Length - 6);
+      }
+      // if (configInfo.IsAutoAddOrderSnToAddress) {
+      //   detailAddress += "#" + itemOrder.order_sn.substring(itemOrder.order_sn.Length - 6);
+      // }
+    }
+    if (itemOrder.goods_info.ori_platform_id == 1) {
+      if (warehouseInfo.isUser != 1) {
+        detailAddress += "#" + nickInfo.Nickname + "#" + warehouseInfo.receiving_name;
+      }
+      // 1:拍单时买家姓名自动增加软件用户名称标识（拼多多平台将放在详细地址末尾）
+      // if(configInfo.shot_order_address_label.includes('1')){
+      //   detailAddress += '-' + nickInfo.Username
+      // }
+      //拍单时买家姓名自动增加拍单日期标识（拼多多平台将放在详细地址末尾）
+      if (configInfo.shot_order_address_label.includes('2')) {
+        detailAddress += '-' + dateFormat(new Date().getTime(), 'Md')
+      }
+      //3:拍单时买家姓名自动增加SPM字样标识（拼多多平台将放在详细地址末尾）
+      if (configInfo.shot_order_address_label.includes('3')) {
+        detailAddress += '-SPM'
+      }
+      //configInfo.shot_order_address_label
+      // detailAddress
+      // detailAddress = configInfo.IsAutoAddBuyerDate ? detailAddress + "-" + dateFormat(new Date().getTime(), 'Md') : detailAddress;
+      // detailAddress = configInfo.IsAutoAddBuyerSPM ? detailAddress + "-SPM" : detailAddress;
+    }
+    addressUserInfo["buyerAddress"] = detailAddress;
+    return addressUserInfo
+  }
   //处理拍单姓名、地址、手机号
   async dealWithBuyerBaseInfo(warehouseInfo, itemOrder, configInfo, nickInfo) {
+    console.log("configInfo", configInfo, nickInfo, warehouseInfo)
     let addressUserInfo = {}
     addressUserInfo["provId"] = warehouseInfo.province_id
     addressUserInfo["cityId"] = warehouseInfo.city_id
@@ -452,43 +539,12 @@ export default class {
     addressUserInfo["streetText"] = ''
     addressUserInfo["postCode"] = warehouseInfo.post_code
 
-    let buyerName = nickInfo.Nickname + "#" + warehouseInfo.receiving_name;
-    if (warehouseInfo.isUser === 1) {
-      buyerName = configInfo.IsAutoAddBuyerName ? buyerName : warehouseInfo.receiving_name;
-    }
-    buyerName = configInfo.IsAutoAddBuyerDate ? buyerName + "-" + dateFormat(new Date().getTime(), 'Md') : buyerName;
-    buyerName = configInfo.IsAutoAddBuyerSPM ? buyerName + "-SPM" : buyerName;
-    if (warehouseInfo.isUser == 0 && warehouseInfo.warehouse_id == "23") {
-      buyerName = "SM-" + warehouseInfo.receiving_name;
-    }
-    if (warehouseInfo.isUser == 0 && warehouseInfo.warehouse_id == "8") {
-      buyerName = "SPM-" + warehouseInfo.receiving_name;
-    }
-    if (configInfo.IsAutoAddOrderSnToBuyer) {
-      buyerName += "-" + itemOrder.order_sn.Substring(itemOrder.order_sn.Length - 6);
-    }
-    addressUserInfo['buyerName'] = itemOrder.goods_info.ori_platform_id == 1 ? warehouseInfo.receiving_name : buyerName;
-    //手机号处理
-    addressUserInfo["buyerPhone"] = warehouseInfo.is_use_own_phone == 1 ? warehouseInfo.own_phone : warehouseInfo.receiving_tel;
-    //地址处理：加上订单Id
-    let detailAddress = warehouseInfo.detail_address.trim();
-    //新加坡地址后缀的特殊性，不能携带订单Id
-    if (warehouseInfo.type != 3 && warehouseInfo.country != "SG") {
-      if (configInfo.IsAutoAddBuyerAddr) {
-        detailAddress += "#" + itemOrder.id;
-      }
-      if (configInfo.IsAutoAddOrderSnToAddress) {
-        detailAddress += "#" + itemOrder.order_sn.Substring(itemOrder.order_sn.Length - 6);
-      }
-    }
-    if (itemOrder.goods_info.ori_platform_id == 1) {
-      if (warehouseInfo.isUser != 1) {
-        detailAddress += "#" + nickInfo.Nickname + "#" + warehouseInfo.receiving_name;
-      }
-      detailAddress = configInfo.IsAutoAddBuyerDate ? detailAddress + "-" + dateFormat(new Date().getTime(), 'Md') : detailAddress;
-      detailAddress = configInfo.IsAutoAddBuyerSPM ? detailAddress + "-SPM" : detailAddress;
-    }
-    addressUserInfo["buyerAddress"] = detailAddress;
+    ////处理拍单姓名、地址、手机号
+    let namePhoneAddress = this.dealWithBuyName(warehouseInfo, itemOrder, configInfo, nickInfo)
+    console.log(namePhoneAddress, "namePhoneAddress")
+    addressUserInfo['buyerName'] = namePhoneAddress['buyerName']
+    addressUserInfo['buyerPhone'] = namePhoneAddress['buyerPhone']
+    addressUserInfo['buyerAddress'] = namePhoneAddress['buyerAddress']
 
     //处理 provId/cityId/distId
     if (itemOrder.goods_info.ori_platform_id == 2 || itemOrder.goods_info.ori_platform_id == 3 || itemOrder.goods_info.ori_platform_id == 8) {
@@ -546,32 +602,32 @@ export default class {
           }
         }
         let resInfo = await window['BaseUtilBridgeService'].getLazadaAddress(warehouseInfo.distinct_id)
-        console.log("处理shopee地址",resInfo)
+        console.log("处理shopee地址", resInfo)
         let allShopAdress = await this.getAllShopeeAddress(itemOrder.goods_info.ori_platform_id, warehouseInfo.country, warehouseInfo.shopee_map_id, 0)
-        if(!allShopAdress){
+        if (!allShopAdress) {
           return {
             code: 50001,
             data: '该仓库未映射shopee地址，请重新映射'
           }
         }
         console.log(allShopAdress, "处理shopee地址----allShopAdress")
-        if(allShopAdress.provinceInfo){
-          addressUserInfo["provId"] = allShopAdress.provinceInfo[Object.keys(allShopAdress.provinceInfo)[0]]
-          addressUserInfo["provinceText"] = Object.keys(allShopAdress.provinceInfo)[0]
+        if (allShopAdress.provinceInfo) {
+          addressUserInfo["provId"] = Object.keys(allShopAdress.provinceInfo)[0]
+          addressUserInfo["provinceText"] = allShopAdress.provinceInfo[Object.keys(allShopAdress.provinceInfo)[0]]
         }
-        if(allShopAdress.cityInfo){
-          addressUserInfo["cityId"] = allShopAdress.cityInfo[Object.keys(allShopAdress.cityInfo)[0]]
-          addressUserInfo["cityText"] = Object.keys(allShopAdress.cityInfo)[0]
+        if (allShopAdress.cityInfo) {
+          addressUserInfo["cityId"] = Object.keys(allShopAdress.cityInfo)[0]
+          addressUserInfo["cityText"] = allShopAdress.cityInfo[Object.keys(allShopAdress.cityInfo)[0]]
         }
-        if(allShopAdress.distinceInfo){
-          addressUserInfo["distId"] = allShopAdress.distinceInfo[Object.keys(allShopAdress.distinceInfo)[0]]
-          addressUserInfo["distinctText"] = Object.keys(allShopAdress.distinceInfo)[0]
+        if (allShopAdress.distinceInfo) {
+          addressUserInfo["distId"] = Object.keys(allShopAdress.distinceInfo)[0]
+          addressUserInfo["distinctText"] = allShopAdress.distinceInfo[Object.keys(allShopAdress.distinceInfo)[0]]
         }
-        if(allShopAdress.streetInfo){
-          addressUserInfo["streetId"] = allShopAdress.streetInfo[Object.keys(allShopAdress.streetInfo)[0]]
-          addressUserInfo["streetText"] = Object.keys(allShopAdress.streetInfo)[0]
+        if (allShopAdress.streetInfo) {
+          addressUserInfo["streetId"] = Object.keys(allShopAdress.streetInfo)[0]
+          addressUserInfo["streetText"] = allShopAdress.streetInfo[Object.keys(allShopAdress.streetInfo)[0]]
         }
-        if(addressUserInfo["provinceText"].includes('~')){
+        if (addressUserInfo["provinceText"].includes('~')) {
           addressUserInfo["provinceText"] = addressUserInfo["provinceText"].split('~')[0];
         }
         let postCode = resInfo.Post
@@ -587,26 +643,30 @@ export default class {
   }
   async getAllShopeeAddress(platform, country, shopeeMapId, typeMark) {
     let address = {}
-    let shopeeAddrMappingTree = await this.searchShopeeAddrMappingTree(platform, country, shopeeMapId, typeMark)
-    if (!shopeeAddrMappingTree || !shopeeAddrMappingTree.length) {
-      return null
-    }
-    let addressLevel = shopeeAddrMappingTree[0].level
-    let detailInfo = {}
-    detailInfo[shopeeAddrMappingTree[0].id] = shopeeAddrMappingTree[0].division_name
-    switch (addressLevel) {
-      case 1:
-        address["provinceInfo"] = detailInfo;
-        break;
-      case 2:
-        address["cityInfo"] = detailInfo;
-        break;
-      case 3:
-        address["distinceInfo"] = detailInfo;
-        break;
-      case 4:
-        address["streetInfo"] = detailInfo;
-        break;
+    while (true) {
+      let shopeeAddrMappingTree = await this.searchShopeeAddrMappingTree(platform, country, shopeeMapId, typeMark)
+      if (!shopeeAddrMappingTree || !shopeeAddrMappingTree.length) {
+        break
+        // return null
+      }
+      let addressLevel = shopeeAddrMappingTree[0].level
+      let detailInfo = {}
+      detailInfo[shopeeAddrMappingTree[0].id] = shopeeAddrMappingTree[0].division_name
+      switch (addressLevel) {
+        case 1:
+          address["provinceInfo"] = detailInfo;
+          break;
+        case 2:
+          address["cityInfo"] = detailInfo;
+          break;
+        case 3:
+          address["distinceInfo"] = detailInfo;
+          break;
+        case 4:
+          address["streetInfo"] = detailInfo;
+          break;
+      }
+      shopeeMapId = shopeeAddrMappingTree[0].parant + ''
     }
     return address
   }
@@ -677,8 +737,7 @@ export default class {
       return params
     }
     let params = {
-      // UserNameCache: account.cache_path,
-      UserNameCache: '',
+      UserNameCache: account.cache_path,
       Password: '',
       shotOrderPlatform: this.getShortOrderBuyerAccountPlatform(account.type),
       LoginedCookies: account.login_info,
