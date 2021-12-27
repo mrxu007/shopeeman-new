@@ -418,23 +418,23 @@ export function randomWord(randomFlag, min, max) {
  * @returns {Promise<any>}
  */
 export function batchOperation(array, method, count = 5) {
-  let threadRunCountJson = localStorage.getItem('threadRunCount') || ''
-  let threadRunCountRes = threadRunCountJson && JSON.parse(threadRunCountJson) || {}
-  let methodName = method.name
+  const threadRunCountJson = localStorage.getItem('threadRunCount') || ''
+  const threadRunCountRes = threadRunCountJson && JSON.parse(threadRunCountJson) || {}
+  const methodName = method.name
   threadRunCountRes[methodName] = true
-  localStorage.setItem('threadRunCount',JSON.stringify(threadRunCountRes))
+  localStorage.setItem('threadRunCount', JSON.stringify(threadRunCountRes))
   return new Promise(resolve => {
     const number = array.length
     const countObj = { count: number }
     let submitCount = 0
     let setIn = setInterval(() => {
-      let threadRunCountJson = localStorage.getItem('threadRunCount') || ''
-      let threadRunCountRes = threadRunCountJson && JSON.parse(threadRunCountJson) || {}
+      const threadRunCountJson = localStorage.getItem('threadRunCount') || ''
+      const threadRunCountRes = threadRunCountJson && JSON.parse(threadRunCountJson) || {}
       const num = countObj.count
-      console.log('线程剩余数：',num)
+      console.log('线程剩余数：', num)
       if (num === 0 || !threadRunCountRes[methodName]) {
         let success = '完成'
-        if (!threadRunCountRes[methodName]){
+        if (!threadRunCountRes[methodName]) {
           success = '终止'
         }
         clearInterval(setIn)
@@ -459,14 +459,14 @@ export function batchOperation(array, method, count = 5) {
  */
 export function terminateThread(method) {
   let threadRunCount = ''
-  if (method){
-    let threadRunCountJson = localStorage.getItem('threadRunCount') || ''
-    let threadRunCountRes = threadRunCountJson && JSON.parse(threadRunCountJson) || {}
-    let methodName = method.name
+  if (method) {
+    const threadRunCountJson = localStorage.getItem('threadRunCount') || ''
+    const threadRunCountRes = threadRunCountJson && JSON.parse(threadRunCountJson) || {}
+    const methodName = method.name
     delete threadRunCountRes[methodName]
     threadRunCount = JSON.stringify(threadRunCountRes)
   }
-    localStorage.setItem('threadRunCount',threadRunCount)
+  localStorage.setItem('threadRunCount', threadRunCount)
 }
 
 // 时间转换
@@ -572,15 +572,15 @@ export function getArraySrcLengthSort(arr, type) {
   }
   return type && sort || sort.reverse()
 }
-export function getDaysBetween(startDate,endDate){
-  var days=(endDate - startDate)/(1*24*60*60*1000);
-  return  days;
+export function getDaysBetween(startDate, endDate) {
+  var days = (endDate - startDate) / (1 * 24 * 60 * 60 * 1000)
+  return days
 }
 
 // 拼接链接
-export function getGoodsUrl(platform,data) {
+export function getGoodsUrl(platform, data) {
   try {
-    let platformData = {}
+    const platformData = {}
     switch (platform) {
       case 1:
         platformData['url'] = `http://mobile.yangkeduo.com/goods.html?goods_id=${data['productId']}`
@@ -636,5 +636,159 @@ export function getGoodsUrl(platform,data) {
     return platformData
   } catch (error) {
     console.log('拼接链接异常', error)
+  }
+}
+
+/**
+ * @name :
+ * @param  {*}
+ * @param {*} oriGoodsId 上家商品ID
+ * @param {*} oriPlatformId 上家平台ID
+ * @param {*} shopMallId shopee店铺ID
+ * @param {*} shopGoodsId shopee商品ID
+ * @param {*} country 站点
+ * @param {*} orderSn 订单号传null
+ * @param {*} writeLog 日志函数
+ */
+export async function dealwithOriginGoodsNum(oriGoodsId, oriPlatformId, shopMallId, shopGoodsId, country, orderSn, writeLog) {
+  let msg = ''
+  let flag = false
+  try {
+    // 1、同步shopee库存
+    const params = {
+      product_id: shopGoodsId,
+      version: '3.2.0',
+      shop_id: shopMallId
+    }
+    let shopeeSkuList = []
+    let shopeeGoodsInfo = null
+
+    // 获取shopee平台商品详情
+    const shopeeGoods = await instance.$shopeemanService.searchProductDetail(country, params)
+    if (shopeeGoods.code === 200 && shopeeGoods.data) {
+      shopeeGoodsInfo = shopeeGoods.data
+      shopeeSkuList = shopeeGoods.data.model_list || [] // shopee规格list
+      const params = {
+        GoodsId: oriGoodsId,
+        shop_id: shopMallId
+      }
+      if (oriPlatformId == 9) {
+        params['Site'] = country
+      } else if (oriPlatformId == 11) {
+        params['ShopId'] = shopMallId
+        params['Site'] = country
+      } else if (oriPlatformId == 13) {
+        params['ShopId'] = shopMallId
+        params['AccessToken'] = ''
+      }
+
+      console.log(Number(oriPlatformId), params, false)
+      // 获取上家平台商品详情
+      const res = await instance.$collectService.queryDetailById(Number(oriPlatformId), params, false)
+      console.log(res, '----------')
+      msg = res
+      console.log(Number(oriPlatformId), params, '4654689')
+      const resObj = res && JSON.parse(res)
+      console.log(resObj, '----------')
+      if (resObj && resObj.Code === 200) {
+        const { CollectGoodsSkus } = resObj
+        for (const key in CollectGoodsSkus) {
+          const skuInfo = CollectGoodsSkus[key]
+          // console.log(skuInfo, 'skuInfo')
+          let skuName = ''
+          // ---------------------处理skuName--------------------------------//
+          if ((skuInfo.PddProps && !skuInfo.originProps) || (skuInfo.PddProps && skuInfo.originProps && skuInfo.PddProps.length >= skuInfo.originProps.length)) {
+            if (skuInfo.PddProps.length === 1) {
+              skuName = skuInfo.PddProps[0].spec_name
+            } else if (skuInfo.PddProps.length >= 2) {
+              skuName = skuInfo.PddProps[0].spec_name + ',' + skuInfo.PddProps[1].spec_name
+            } else {
+              skuName = ''
+            }
+          } else if ((!skuInfo.PddProps && skuInfo.originProps) || (skuInfo.PddProps && skuInfo.originProps && skuInfo.PddProps.length <= skuInfo.originProps.length)) {
+            if (skuInfo.originProps.length === 1) {
+              skuName = skuInfo.originProps[0].name
+            } else if (skuInfo.originProps.length >= 2) {
+              skuName = skuInfo.originProps[0].name + ',' + skuInfo.originProps[1].name
+            } else {
+              skuName = ''
+            }
+          } else {
+            skuName = ''
+          }
+          // ----------------------------------------------------------------//
+          const spIndex = shopeeSkuList.findIndex((n) => n.name == skuName)
+          if (spIndex > -1) {
+            flag = true
+            shopeeSkuList[spIndex].stock = Number(skuInfo.quantity)
+          }
+        }
+        // -----------判断是否更新并组装数据--------------//
+        if (!flag) {
+          return writeLog(`${orderSn ? `订单【${orderSn}】` : `商品【${shopGoodsId}】`}同步库存失败，未匹配到相同的规格信息！`, false)
+        }
+        let totalStock = 0
+        const dealWithSkuList = []
+        shopeeSkuList.forEach((item) => {
+          totalStock += item.stock
+          const subItem = {
+            id: item.id,
+            sku: item.sku,
+            tier_index: item.tier_index,
+            is_default: item.is_default,
+            name: item.name,
+            item_price: '',
+            stock: item.stock
+          }
+          dealWithSkuList.push(subItem)
+        })
+        // 组装数据
+        const editParams = {
+          id: shopeeGoodsInfo.id,
+          name: shopeeGoodsInfo.name,
+          brand_id: shopeeGoodsInfo.brand_id,
+          images: shopeeGoodsInfo.images,
+          description: shopeeGoodsInfo.description,
+          model_list: dealWithSkuList, // sku
+          category_path: shopeeGoodsInfo.category_path,
+          attributes: shopeeGoodsInfo.attributes,
+          parent_sku: shopeeGoodsInfo.parent_sku,
+          wholesale_list: shopeeGoodsInfo.wholesale_list,
+          installment_tenures: shopeeGoodsInfo.installment_tenures,
+          weight: shopeeGoodsInfo.weight,
+          dimension: shopeeGoodsInfo.dimension,
+          pre_order: shopeeGoodsInfo.pre_order,
+          days_to_ship: shopeeGoodsInfo.days_to_ship,
+          condition: shopeeGoodsInfo.condition,
+          size_chart: shopeeGoodsInfo.size_chart,
+          video_list: shopeeGoodsInfo.video_list,
+          tier_variation: shopeeGoodsInfo.tier_variation,
+          add_on_deal: shopeeGoodsInfo.add_on_deal,
+          dangerous_goods: shopeeGoodsInfo.dangerous_goods,
+          enable_model_level_dts: shopeeGoodsInfo.enable_model_level_dts,
+          price: shopeeGoodsInfo.price,
+          stock: totalStock, // 总库存
+          logistics_channels: shopeeGoodsInfo.logistics_channels || [],
+          ds_cat_rcmd_id: '',
+          category_recommend: shopeeGoodsInfo.category_recommend,
+          ds_attr_rcmd_id: shopeeGoodsInfo.ds_attr_rcmd_id || '',
+          unlisted: shopeeGoodsInfo.unlisted || false
+        }
+        const editRes = await this.$shopeemanService.handleProductEdit(order.country, editParams)
+        if (editRes.code === 200) {
+          return writeLog(`同步库存失败，${orderSn ? `订单【${orderSn}】` : `商品【${shopGoodsId}】`}同步库存成功！`, true)
+        } else {
+          return writeLog(`同步库存失败，${orderSn ? `订单【${orderSn}】` : `商品【${shopGoodsId}】`}同步库存失败，${editRes.data}！`, false)
+        }
+      }
+    } else {
+      if (shopeeGoods.code === 403) {
+        return writeLog(`同步库存失败，店铺【${shopMallId}】未登录！`, false)
+      }
+      return writeLog(`同步库存失败，${orderSn ? `订单【${orderSn}】` : `商品【${shopGoodsId}】`}未获取到shopee商品信息！`, false)
+    }
+  } catch (error) {
+    console.log('catch', error)
+    return writeLog(`${orderSn ? `订单【${orderSn}】` : `商品【${shopGoodsId}】`}同步上家库存失败，${msg}！`, false)
   }
 }
