@@ -205,7 +205,7 @@
                 <el-button type="primary" size="mini" :disabled="operationBut">商品一键翻新</el-button>
               </ul>
               <ul>
-                <el-button type="primary" size="mini">同步上家库存</el-button>
+                <el-button type="primary" size="mini" :disabled="operationBut" @click="operation('syncOriginGoodsNum')">同步上家库存</el-button>
                 <el-button type="primary" size="mini">商品搬迁</el-button>
                 <el-button
                   type="primary"
@@ -779,7 +779,7 @@
 <script>
 import GoodsList from '../../../module-api/goods-manager-api/goods-list'
 import StoreChoose from '../../../components/store-choose'
-import { exportExcelDataCommon, batchOperation, terminateThread } from '../../../util/util'
+import { exportExcelDataCommon, batchOperation, terminateThread, dealwithOriginGoodsNum } from '../../../util/util'
 import categoryMapping from '../../../components/category-mapping'
 export default {
   components: {
@@ -875,6 +875,7 @@ export default {
       preOrderDeliveryDays: 2, // 不备货默认天数
       minLength: 0, // 标题/描述最小长度
       maxLength: 0, // 标题/描述最大长度
+      isSync: false,
 
       // 上家产品修改
       parentType: 1, // 上家类型
@@ -980,6 +981,24 @@ export default {
     await this.selectAll('source', this.sourceList)
   },
   methods: {
+    // 同步上家库存
+    async syncOriginGoodsNum() {
+      this.flag = false
+      this.showConsole = false
+      this.$refs.Logs.consoleMsg = ''
+      this.$refs.Logs.writeLog(`开始同步上家库存，请耐心等待！`, true)
+      this.operationBut = true
+      this.isSync = true
+      for (let i = 0; i < this.multipleSelection.length; i++) {
+        if (this.flag) {
+          break
+        }
+        const item = this.multipleSelection[i]
+        await dealwithOriginGoodsNum(item.productId, item.platform, item.platform_mall_id, item.id, item.country, '', this.$refs.Logs.writeLog)
+      }
+      this.operationBut = false
+      this.$refs.Logs.writeLog(`同步完成！`, true)
+    },
     // 修改上家sku值
     async editpParentSku(type) {
       // 获取商品编码加密值
@@ -1091,11 +1110,11 @@ export default {
     // 批量确认
     async batchConfirm() {
       this.initData()
+      this.updateNum = this.multipleSelection.length
       await batchOperation(this.multipleSelection, this.confirmProduct)
       this.operationBut = false
     },
     async confirmProduct(item, count = { count: 1 }) {
-      this.updateNum++
       try {
         if (item.status !== 4) {
           this.failNum++
@@ -1196,6 +1215,7 @@ export default {
         this.titleVisible = false
         this.getDescriptionVisible = false
         this.multipleSelection.forEach(item => { item.edit = name })
+        this.updateNum = this.multipleSelection.length
         await batchOperation(this.multipleSelection, this[name])
         this.operationBut = false
       })
@@ -1238,7 +1258,6 @@ export default {
     },
     async setCategory(item, count = { count: 1 }) {
       try {
-        this.updateNum++
         let productInfo = {}
         this.batchStatus(item, `正在获取商品详情...`, true)
         const res = await this.getProductDetail(item)
@@ -1287,7 +1306,6 @@ export default {
       }
     },
     async setLogistics(item, count = { count: 1 }) {
-      this.updateNum++
       let productInfo = {}
       try {
         this.batchStatus(item, `正在获取商品详情...`, true)
@@ -1351,7 +1369,6 @@ export default {
       }
     },
     async setFreight(item, count = { count: 1 }) {
-      this.updateNum++
       let productInfo = {}
       try {
         this.batchStatus(item, `正在获取商品详情...`, true)
@@ -1379,7 +1396,6 @@ export default {
       }
     },
     async setSize(item, count = { count: 1 }) {
-      this.updateNum++
       let productInfo = {}
       try {
         this.batchStatus(item, `正在获取商品详情...`, true)
@@ -1404,7 +1420,6 @@ export default {
       }
     },
     async setWeight(item, count = { count: 1 }) {
-      this.updateNum++
       let productInfo = {}
       try {
         this.batchStatus(item, `正在获取商品详情...`, true)
@@ -1427,7 +1442,6 @@ export default {
       }
     },
     async setDay(item, count = { count: 1 }) {
-      this.updateNum++
       let productInfo = {}
       try {
         this.batchStatus(item, `正在获取商品详情...`, true)
@@ -1455,7 +1469,6 @@ export default {
       }
     },
     async setPrice(item, count = { count: 1 }) {
-      this.updateNum++
       let productInfo = {}
       try {
         this.batchStatus(item, `正在获取商品详情...`, true)
@@ -1485,7 +1498,6 @@ export default {
       }
     },
     async setStock(item, count = { count: 1 }) {
-      this.updateNum++
       let productInfo = {}
       try {
         this.batchStatus(item, `正在获取商品详情...`, true)
@@ -1512,7 +1524,6 @@ export default {
     },
     async setDescription(item, count = { count: 1 }) {
       let description = ''
-      this.updateNum++
       let productInfo = {}
       try {
         this.batchStatus(item, `正在获取商品详情...`, true)
@@ -1573,7 +1584,6 @@ export default {
     },
     async setTitle(item, count = { count: 1 }) {
       try {
-        this.updateNum++
         let productInfo = {}
         this.batchStatus(item, `正在获取商品详情...`, true)
         const res = await this.getProductDetail(item)
@@ -1929,12 +1939,12 @@ export default {
     // 批量上下架
     async batchUpDownProduct() {
       this.initData()
+      this.updateNum = this.multipleSelection.length
       await batchOperation(this.multipleSelection, this.upDownProduct)
       this.operationBut = false
     },
     async upDownProduct(item, count = { count: 1 }) {
       try {
-        this.updateNum++
         // 下架判断是否有活动
         if (this.upDown) {
           if (item.campaignTypeList.Name?.length > 0) {
@@ -1976,6 +1986,7 @@ export default {
         type: 'warning'
       }).then(async() => {
         this.initData()
+        this.updateNum = this.deleteData.length
         await batchOperation(this.deleteData, this.deleteProduct)
         await this.deleteCollectGoodsInfo()
         this.operationBut = false
@@ -1984,7 +1995,6 @@ export default {
     async deleteProduct(item, count = { count: 1 }) {
       try {
         this.batchStatus(item, `正在删除商品...`, true)
-        this.updateNum++
         // 判断是否有活动
         if (item.campaignTypeList.Name?.length > 0) {
           // 删除有活动的商品
@@ -2470,6 +2480,7 @@ export default {
         item.platformTypeStr = this.platformData['platformTypeStr']
         item.productId = this.platformData['productId']
         item.url = this.platformData['url']
+        item.platform = this.platformData['platform']
         item.campaignTypeList = this.getGoodsActInfo(item)// 设置活动类型
       }
     },
@@ -2814,10 +2825,13 @@ export default {
       this.$set(item, 'color', status ? 'green' : 'red')
     },
     stop() {
-      this.$refs.Logs.writeLog(`停止操作`, true)
-      terminateThread()
+      if (!this.isSync) {
+        this.$refs.Logs.writeLog(`停止操作`, true)
+        terminateThread()
+      }
     },
     initData() {
+      this.isSync = false
       this.operationBut = true
       this.percentage = 0
       this.updateNum = 0
