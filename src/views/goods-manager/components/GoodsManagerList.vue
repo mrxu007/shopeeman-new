@@ -529,6 +529,17 @@
             <span :style="row.color && 'color:' + row.color">{{ row.batchStatus }}</span>
           </template>
         </u-table-column>
+        <u-table-column align="center" min-width="120" label="更多操作" show-overflow-tooltip fixed="right">
+          <template v-slot="{ row }">
+            <el-dropdown style="width: 80px; margin-left: 10px" trigger="click" size="mini">
+              <el-button style="width: 80px" size="mini" plain type="primary"> 操作<i class="el-icon-arrow-down el-icon--right" /> </el-button>
+              <el-dropdown-menu slot="dropdown">
+                <el-dropdown-item> <div class="dropdownItem" @click="topExtension(row)">置顶推广</div></el-dropdown-item>
+                <el-dropdown-item> <div class="dropdownItem" @click="editParent(row)">修改上家</div></el-dropdown-item>
+              </el-dropdown-menu>
+            </el-dropdown>
+          </template>
+        </u-table-column>
       </u-table>
     </el-row>
     <div class="logging">
@@ -692,6 +703,76 @@
         </div>
       </div>
     </el-dialog>
+    <!-- 上家产品修改 -->
+    <el-dialog
+      class="parent-dialog"
+      title="上家产品修改"
+      :visible.sync="parentVisible"
+      width="550px"
+      top="20vh"
+      :close-on-click-modal="false"
+      :close-on-press-escape="false"
+    >
+      <div>
+        <div class="base-box">
+          <span class="base-title">上家产品ID设置</span>
+          <div class="base-item">
+            <div>
+              <span>上家类型：</span>
+              <el-select
+                v-model="parentType"
+                size="mini"
+                filterable
+              >
+                <el-option
+                  v-for="(item,index) in parentTypeList"
+                  :key="index"
+                  :value="item.value"
+                  :label="item.label"
+                />
+              </el-select>
+            </div>
+            <div>
+              <span>&nbsp;&nbsp;&nbsp;产品ID：</span>
+              <el-input
+                v-model="parentId"
+                size="mini"
+                style="width:105px"
+              />
+              <el-button
+                type="primary"
+                size="mini"
+                :loading="parentLoad1"
+                @click="editpParentSku(1)"
+              >修 改</el-button>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="base-box">
+            <span class="base-title">上家产品链接设置</span>
+            <div class="base-item">
+              <div style="margin-bottom:20px">
+                1688链接模板：https://detail.1688.com/offer/604199841804.html
+              </div>
+              <div>
+                <span>产品链接：</span>
+                <el-input
+                  v-model="parentUrl"
+                  size="mini"
+                  style="width:105px"
+                />
+                <el-button
+                  type="primary"
+                  size="mini"
+                  :loading="parentLoad2"
+                  @click="editpParentSku(2)"
+                >修 改</el-button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div></el-dialog>
   </el-row>
 </template>
 
@@ -707,6 +788,7 @@ export default {
   },
   data() {
     return {
+      parentVisible: false,
       isFold: true,
       showConsole: true,
       categoryVisible: false,
@@ -794,6 +876,14 @@ export default {
       minLength: 0, // 标题/描述最小长度
       maxLength: 0, // 标题/描述最大长度
 
+      // 上家产品修改
+      parentType: 1, // 上家类型
+      parentId: '', // 产品ID
+      parentUrl: '', // 产品链接
+      goodsValue: '', // 商品值
+      parentLoad1: false,
+      parentLoad2: false,
+
       sellStatusList: [
         { value: 1, label: '售空' },
         { value: 2, label: '非售空' }
@@ -863,7 +953,13 @@ export default {
         { value: '天猫淘宝海外平台', label: '天猫淘宝海外平台' }
         // { value: 15, label: '货老板海外' }
       ],
-      countryArr: ['SG', 'GL', 'PH', 'VN', 'TW', 'MY', 'ID', 'TH', 'MX', 'CO', 'CL', 'PL', 'FR', 'ES']// 更新了数据的站点
+      countryArr: ['SG', 'GL', 'PH', 'VN', 'TW', 'MY', 'ID', 'TH', 'MX', 'CO', 'CL', 'PL', 'FR', 'ES'], // 更新了数据的站点
+      parentTypeList: [
+        { value: 1, label: '拼多多' },
+        { value: 2, label: '淘宝天猫' },
+        { value: 8, label: '1688' },
+        { value: 9, label: 'lazada' }
+      ]
     }
   },
   watch: {
@@ -884,6 +980,89 @@ export default {
     await this.selectAll('source', this.sourceList)
   },
   methods: {
+    // 修改上家sku值
+    async editpParentSku(type) {
+      // 获取商品编码加密值
+      let parentId = ''
+      let parentType = ''
+      if (type === 1) {
+        if (!this.parentId.trim()) return this.$message('产品ID不能为空')
+        parentId = this.parentId
+        parentType = this.parentType
+        this.parentLoad1 = true
+      } else {
+        if (!this.parentUrl.trim()) return this.$message('产品链接不能为空')
+        const execPlatform = /(yangkeduo.com)|(item.taobao.com)|(detail.1688.com)|(www.lazada)/g
+        const platform = this.parentUrl.match(execPlatform)
+        if (!platform) return this.$message(`链接:${this.parentUrl} 识别支持平台失败`, false)
+        switch (platform[0]) {
+          case 'yangkeduo.com':
+            parentId = this.parentUrl.match(/goods_id=(\d+)/)[1]
+            parentType = 1
+            break
+          case 'item.taobao.com':
+            parentId = this.parentUrl.match(/id=(\d+)/)[1]
+            parentType = 2
+            break
+          case 'detail.1688.com':
+            parentId = this.parentUrl.match(/(\d+)\.html/)[1]
+            parentType = 8
+            break
+          case 'www.lazada':
+            parentId = this.parentUrl.match(/(\d+)\.html/)[1]
+            parentType = 9
+            break
+        }
+        this.parentLoad2 = true
+      }
+      const tmallCrossBorderUserId = this.goodsValue.platformTypeStr === '天猫淘宝海外平台' ? this.goodsValue.id : ''
+      try {
+        const parent_sku = await this.$BaseUtilService.buildGoodCode(parentType, parentId, this.goodsValue.country, this.goodsValue.platform_mall_id, tmallCrossBorderUserId)
+        console.log('parent_sku', parent_sku)
+        let productInfo = {}
+        const res = await this.getProductDetail(this.goodsValue)
+        if (res.code === 200) {
+          productInfo = res.data
+          productInfo['parent_sku'] = parent_sku
+          const data = { mallId: this.goodsValue.platform_mall_id }
+          const editProductRes = await this.$shopeemanService.handleProductEdit(this.goodsValue.country, data, [productInfo])
+          if (editProductRes.code === 200) {
+            this.$message.success(`【${this.goodsValue.id}】修改成功`)
+            this.parentVisible = false
+            this.queryData()
+          } else {
+            this.$message.error(`【${this.goodsValue.id}】修改失败：${editProductRes.data}`)
+          }
+        } else {
+          this.$message.error(`${res.data}`)
+        }
+      } catch (error) {
+        this.$message.error(`修改上家异常：${error}`)
+      }
+      this.parentLoad1 = false
+      this.parentLoad2 = false
+    },
+    // 修改上家
+    editParent(row) {
+      this.parentVisible = true
+      this.goodsValue = row
+      this.parentType = 1
+      this.parentId = ''
+      this.parentUrl = ''
+    },
+    // 置顶推广
+    async topExtension(row) {
+      const params = {
+        id: Number(row.id),
+        shop_id: row.platform_mall_id
+      }
+      const res = await this.$shopeemanService.handleGoodsTop(row.country, params)
+      if (res.code === 200) {
+        this.$message.success(`商品置顶成功！`)
+      } else {
+        this.$message.error(`${res.data}`)
+      }
+    },
     // 类目选择数据
     categoryChange(val) {
       console.log('categoryChange', val)
@@ -2542,7 +2721,7 @@ export default {
             this.platformData['platformTypeStr'] = '速卖通'
             break
           case 9:
-            this.platformData['url'] = `${this.$filters.lazadaGoodsUrl(this.platformData['site'])}${this.platformData['productId']}.html`
+            this.platformData['url'] = `${this.$filters.lazadaGoodsUrl(this.platformData['site'])}/${this.platformData['productId']}.html`
             this.platformData['platformTypeStr'] = 'Lazada'
             break
           case 10:
