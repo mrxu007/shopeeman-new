@@ -48,7 +48,7 @@ export default class CommodityService {
 
   /**
    * 获取商品详情
-   * @param {number} sysId 商品id
+   * @param {number} sysId 商品ida
    */
 
   async getUserInfo() {
@@ -290,8 +290,9 @@ export default class CommodityService {
    * @param {string} imageUrl 图片Url
    * @param {number} toImageId 旧主图id，当type为1时，toImageId默认为0
    */
-  updateGoodsImage(type, sysGoodsId, imageId, imageUrl, toImageId) {
-    return this.nativeService.callFunction('UpdateGoodsImage', type.toString(), sysGoodsId.toString(), imageId.toString(), imageUrl, toImageId.toString())
+  updateGoodsImage(type, sysGoodsId, imageId, imageUrl, toImageId = '0') {
+    console.log(type, sysGoodsId, imageId, imageUrl, toImageId)
+    return this.nativeService.callFunction('UpdateGoodsImage', type, sysGoodsId.toString(), imageId.toString(), imageUrl, toImageId)
   }
 
   /**
@@ -301,7 +302,7 @@ export default class CommodityService {
    * @param {string} imageUrl 原图片地址
    */
   updateGoodsSkuImage(sysGoodsId, newImageUrl, imageUrl) {
-    return this.nativeService.callFunction('UpdateGoodsSkuImage', sysGoodsId.toString(), newImageUrl, imageUrl)
+    return this.nativeService.callFunction('UpdateGoodsSkuImage', sysGoodsId, newImageUrl, imageUrl)
   }
 
   /**
@@ -310,7 +311,7 @@ export default class CommodityService {
    * @param {string} imageUrl 图片地址
    */
   addGoodsMainImage(sysGoodsId, imageUrl) {
-    return this.nativeService.callFunction('AddGoodsMainImage', sysGoodsId.toString(), imageUrl)
+    return this.nativeService.callFunction('AddGoodsMainImage', sysGoodsId, imageUrl)
   }
 
   /**
@@ -319,7 +320,7 @@ export default class CommodityService {
    * @param {{skuId:string,skuSpec1:string,skuSpec2:string,skuImage:string,skuPrice:number,skuStock:string}[]} skuList sku数据集合
    */
   saveAndUpdateSkuDatas(sysGoodsId, skuList) {
-    return this.nativeService.callFunction('SaveAndUpdateSkuDatas', sysGoodsId.toString(), JSON.stringify(skuList))
+    return this.nativeService.callFunction('SaveAndUpdateSkuDatas', sysGoodsId.toString(), skuList)
   }
 
   /**
@@ -414,7 +415,6 @@ export default class CommodityService {
    * @param {number[]} sysGoodsIds
    */
   addGoodsToTag(sysLabelId, sysGoodsIds) {
-    console.log(sysLabelId, sysGoodsIds)
     return this.nativeService.callFunction('AddGoodsToTag', sysLabelId, JSON.stringify(sysGoodsIds))
   }
 
@@ -439,7 +439,6 @@ export default class CommodityService {
    * @param dataReq 保存
    */
   saveTranslationData(dataReq) {
-    console.log(JSON.stringify(dataReq))
     return this.nativeService.callFunction('SaveTranslationData', JSON.stringify(dataReq))
   }
 
@@ -547,7 +546,6 @@ export default class CommodityService {
   async getCategoryTbInfo(country, categoryId = '0', isParent, tableType) {
     return await this.nativeService.callCategoryFunction('GetCategoryInfo', country, categoryId, isParent, tableType)
   }
-
   /**
    * 获取类目属性
    * @param {array} data
@@ -788,21 +786,26 @@ export default class CommodityService {
    * @param  {*}
    * @param {*} skuId
    * @param {*} stock
-   */  
-  updateSkuStock(skuId,stock) {
-    return this.nativeService.callProductCenter('UpdateSkuStock', skuId.toString(),stock.toString())
-  }
-  /**
-   * 获取类目
-   * @param {array} data
-   * data[0]:country站点
-   * data[1]:categoryId类目id
-   * data[2]:isParent 类目的父级标识：1传入的类目作为父级查询；0当前类目查询
-   * data[3]: 'tbCategory'
    */
-  getCategory(data) {
-    // console.log(JSON.stringify(data))
-    return this.nativeService.callCategoryFunction('GetCategoryInfo', data[0] + '', data[1] + '', data[2] + '', data[3])
+  updateSkuStock(skuId, stock) {
+    return this.nativeService.callProductCenter('UpdateSkuStock', skuId.toString(), stock.toString())
+  }
+  delgoods(data) {
+    return this.nativeService.callProductCenter('DeleteProduct', data.productId, data.productUid)
+  }
+
+  /**
+   * 获取sku选项默认配置
+   */
+  getskucode() {
+    return this.nativeService.callProductCenter('GetStaticSkuCode')
+  }
+
+  /**
+   * 获取产品详情
+   */
+  getdetails(data) {
+    return this.nativeService.callProductCenter('GetProductDetail', data.priductid, data.language)
   }
 
   /**
@@ -888,5 +891,12 @@ export default class CommodityService {
    */
   async saveAfterOrder(sysMallId, mallId, afterOrderData) {
     return await this.nativeService.callOrderAndMallUpload('SaveAfterOrder', sysMallId, mallId, JSON.stringify(afterOrderData))
+  }
+
+  /* @name :
+   * @param  {String} sysOrderIds 系统订单id，用逗号隔开
+   */
+  async getSkuRelation(sysOrderIds) {
+    return await this.nativeService.callSkuRelationClient('GetBySysOrderIds', sysOrderIds)
   }
 }

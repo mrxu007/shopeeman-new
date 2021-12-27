@@ -7,7 +7,7 @@
 
 <script>
 import {
-  ProductCenterOwnGoods } from './index'
+  ProductCenterOwnGoods } from './index.js'
 export default {
   components: {
     ProductCenterOwnGoods

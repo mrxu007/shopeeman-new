@@ -10,7 +10,7 @@
   <div class="drawal-record">
     <div class="tool-bar">
       <div class="tool-row">
-        <storeChoose :is-all="true" @changeMallList="changeMallList" />
+        <storeChoose @changeMallList="changeMallList" />
       </div>
       <div class="tool-row">
         <div class="tool-item mar-right">
@@ -27,14 +27,14 @@
             :picker-options="pickerOptions"
           />
         </div>
-        <el-button type="primary" size="mini" class="mar-right" @click="searchRecord">查询提现记录</el-button>
+        <el-button type="primary" size="mini" class="mar-right" :loading="tableLoading" @click="searchRecord">查询提现记录</el-button>
         <el-button type="primary" size="mini" class="mar-right" @click="exportData">导 出</el-button>
         <el-checkbox v-model="showConsole" class="mar-right">隐藏日志</el-checkbox>
         <div class="activeColor">当前提现金额合计：{{ parseFloat(totalAmount).toFixed(2) }}</div>
       </div>
     </div>
     <div class="content">
-      <el-table ref="multipleTable" v-loading="tableLoading" :data="tableData" tooltip-effect="dark" height="calc(100vh - 215px)">
+      <el-table ref="multipleTable" v-loading="tableLoading" :data="tableDataCut" tooltip-effect="dark" height="calc(100vh - 205px)">
         <el-table-column align="center" type="index" label="序号" width="50">
           <template slot-scope="scope">{{ (currentPage - 1) * pageSize + scope.$index + 1 }}</template>
         </el-table-column>
@@ -50,13 +50,13 @@
         <el-table-column prop="bank_account_number" label="银行卡号" align="center" min-width="120px" />
         <el-table-column align="center" prop="ic_number" label="IcNumber" min-width="100" />
         <el-table-column align="center" prop="amount" label="提现金额" min-width="70">
-          <template slot-scope="scope">{{ scope.row.amount }} {{ scope.row.country | siteCoin }}</template>
+          <template slot-scope="scope">{{ scope.row.amount*-1 }} {{ scope.row.country | siteCoin }}</template>
         </el-table-column>
         <el-table-column align="center" prop="ctime" label="提现时间" min-width="120">
           <template slot-scope="scope">{{ $dayjs(scope.row.ctime * 1000).format('YYYY-MM-DD HH:mm:ss') }}</template>
         </el-table-column>
         <el-table-column align="center" prop="complete_time" label="完成时间" min-width="120">
-          <template slot-scope="scope">{{ $dayjs(scope.row.complete_time * 1000).format('YYYY-MM-DD HH:mm:ss') }}</template>
+          <template slot-scope="scope">{{ scope.row.complete_time===0?'':$dayjs(scope.row.complete_time * 1000).format('YYYY-MM-DD HH:mm:ss') }}</template>
         </el-table-column>
         <el-table-column align="center" prop="status" label="提现状态" min-width="80">
           <template slot-scope="scope">{{ changeTypeName(scope.row.status, statusList) }}</template>
@@ -65,6 +65,7 @@
       <div class="pagination">
         <el-pagination
           background
+          :current-page="currentPage"
           :page-sizes="[20, 50, 100]"
           :page-size="pageSize"
           layout="total, sizes, prev, pager, next, jumper"
@@ -80,7 +81,7 @@
 
 <script>
 import storeChoose from '../../../components/store-choose'
-import { exportExcelDataCommon, creatDate } from '../../../util/util'
+import { exportExcelDataCommon, creatDate, delay } from '../../../util/util'
 export default {
   components: {
     storeChoose
@@ -139,6 +140,7 @@ export default {
       if (!this.selectMallList.length) {
         return this.$message.warning('请选择店铺')
       }
+      this.totalAmount = 0
       this.showConsole = false
       this.$refs.Logs.consoleMsg = ''
       this.tableData = []
@@ -155,7 +157,8 @@ export default {
         await this.getRecordList(pageNumber, mall)
       }
       console.log(this.tableData, 'searchRate')
-      this.dataCut()
+      // this.dataCut()
+      await delay(1000)
       this.tableLoading = false
     },
     async getRecordList(pageNumber, mall) {
@@ -196,9 +199,11 @@ export default {
                 } else {
                   this.$refs.Logs.writeLog(`店铺【${mall.platform_mall_name}】获取失败！`, false)
                 }
-                this.totalAmount += (item.amount * -1) / 100
+                // this.totalAmount += (item.amount * -1) / 100
+                this.totalAmount += (item.amount * -1)
                 this.tableData.push(item)
                 this.total = this.tableData.length
+                this.dataCut()
               })
             this.$refs.Logs.writeLog(`店铺【${mall.platform_mall_name}】获取到第【${pageNumber}】页提现记录数据【${data.data.list.length}】条`, true)
             if (data.data.list.length >= this.mallPageSize) {
@@ -238,13 +243,13 @@ export default {
             </tr>`
       for (let i = 0; i < this.tableData.length; i++) {
         const item = this.tableData[i]
-        str += `<tr><td>${num++}</td> 
+        str += `<tr><td>${num++}</td>
                     <td>${item.country ? this.$filters.chineseSite(item.country) : '' + '\t'}</td>
                     <td>${item.platform_mall_name ? item.platform_mall_name : '' + '\t'}</td>
                     <td style="mso-number-format:'\@';">${item.transaction_id && item.transaction_id + '\t'}</td>
                     <td>${item.bank_name ? item.bank_name : '' + '\t'}</td>
                     <td>${item.bank_account_name ? item.bank_account_name : '' + '\t'}</td>
-                    <td>${item.bank_account_number ? item.bank_account_number : '' + '\t'}</td> 
+                    <td>${item.bank_account_number ? item.bank_account_number : '' + '\t'}</td>
                     <td style="mso-number-format:'\@';">${item.ic_number ? item.ic_number : '' + '\t'}</td>
                     <td>${item.amount ? item.amount * -1 : '' + '\t'}</td>
                     <td>${item.ctime ? this.$dayjs(item.ctime * 1000).format('YYYY-MM-DD HH:mm:ss') : '' + '\t'}</td>
@@ -263,6 +268,7 @@ export default {
       this.dataCut()
     },
     handleSizeChange(size) {
+      this.currentPage = 1
       this.pageSize = size
       this.dataCut()
     },
@@ -296,10 +302,14 @@ export default {
     margin:10px 10px 0 0;
     display: flex;
     align-items: center;
+    width: 730px;
     // flex-wrap: wrap;
     .tool-item {
       display: flex;
       align-items: center;
+      /deep/.el-range-input{
+        width: 68px !important;
+      }
       span{
         display: inline-block;
         width:80px;
@@ -309,9 +319,9 @@ export default {
   }
 }
 .content {
-  margin: 20px 0;
+  margin: 10px 0;
   background: #fff;
-  height: calc(100vh - 160px);
+  height: calc(100vh - 130px);
   display: flex;
   flex-direction: column;
   justify-content: space-between;

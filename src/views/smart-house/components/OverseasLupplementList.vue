@@ -40,7 +40,7 @@
         ref="plTable"
         v-loading="Loading3"
         header-align="center"
-        height="calc(100vh - 205px)"
+        height="calc(100vh - 200px)"
         :data="tableData"
         :header-cell-style="{
           backgroundColor: '#f5f7fa',

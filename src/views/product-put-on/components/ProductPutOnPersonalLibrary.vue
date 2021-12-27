@@ -215,7 +215,7 @@
             </el-button>
           </div>
         </template>
-        <editor-on-new-goods  ref="editor_on_new_goods" :mall-table="multipleSelection"></editor-on-new-goods>
+        <editor-on-new-goods v-if="isEditorVisible" ref="editor_on_new_goods" :mall-table="multipleSelection"></editor-on-new-goods>
       </el-dialog>
     </div>
   </div>
@@ -349,7 +349,7 @@ export default {
       const goodsLabelList = localStorage.getItem('goodsLabelList')
       if (goodsLabelList && type !== 'refresh') {
         const data = JSON.parse(goodsLabelList)
-        this.labelList = data
+        this.labelList = data || []
         return
       }
       const res = await this.personalLibraryAPInstance.getLabelList()
@@ -358,7 +358,7 @@ export default {
       }
       localStorage.setItem('goodsLabelList', JSON.stringify(res.data))
       this.$message.success('获取标签列表成功')
-      this.labelList = res.data
+      this.labelList = res.data || []
       console.log('labelList', this.labelList)
     },
     async getGoodsList() {

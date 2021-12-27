@@ -63,7 +63,7 @@
       <el-table
         ref="plTable"
         v-loading="isShowLoading"
-        height="calc(100vh - 165px)"
+        height="calc(100vh - 160px)"
         :data="tableData"
         :header-cell-style="{
           backgroundColor: '#f5f7fa',
@@ -151,10 +151,10 @@
         >
           <template slot-scope="{row}">
             <el-button
-              v-if="row.stock.sku_url"
+              v-if="row.stock && row.stock.sku_url"
               type="primary"
               size="mini"
-              @click="openUrl(row.stock.sku_url)"
+              @click="openUrl(row.stock && row.stock.sku_url)"
             >查看商品链接</el-button>
           </template>
         </el-table-column>
@@ -164,7 +164,7 @@
           min-width="110"
         >
           <template slot-scope="{row}">
-            {{ row.stock &&row.stock.sku_price ?row.stock.sku_price/100:'' }}
+            {{ row.stock && row.stock &&row.stock.sku_price ?row.stock.sku_price/100:'' }}
           </template>
         </el-table-column>
         <el-table-column
@@ -174,7 +174,7 @@
         >
           <template slot-scope="{row}">
             <el-tooltip
-              v-if="row.stock.sku_image || row.stock.real_image_url"
+              v-if="row.stock && row.stock.sku_image ||row.stock && row.stock.real_image_url"
               effect="light"
               placement="right-end"
               :visible-arrow="false"
@@ -184,14 +184,14 @@
               <div slot="content">
                 <el-image
                   style="width: 400px; height: 400px"
-                  :src="row.stock.sku_image || row.stock.real_image_url"
+                  :src="row.stock && row.stock.sku_image ||row.stock && row.stock.real_image_url"
                 >
                   <div slot="error" class="image-slot" />
                 </el-image>
               </div>
               <el-image
                 style="width: 40px; height: 40px"
-                :src="row.stock.sku_image || row.stock.real_image_url"
+                :src="row.stock && row.stock.sku_image ||row.stock && row.stock.real_image_url"
               >
                 <div slot="error" class="image-slot" />
               </el-image>
@@ -426,6 +426,7 @@ export default {
       sharedUserData: [], // 共享库存绑定用户数据
       shareTockData: {}, // 修改共享库存数据
       sharedNum: '', // 共享库存数
+      sharedId: '',
 
       form: { // 条件搜索
         wid: '0', // 仓库ID
@@ -550,11 +551,12 @@ export default {
         platform_id: platform_id,
         username: username
       }
+      this.delBindUserFrom['shared_id'] = this.sharedId
       this.delBindUserFrom['app_uid_list'].push(obj)
       const res = await this.ShareBroadStock.delbindUser(this.delBindUserFrom)
       if (res.code === 200) {
         this.$message.success('删除成功')
-        this.getSharedUserList(this.delBindUserFrom.shared_id)
+        this.getSharedUserList(this.sharedId)
       } else {
         this.$message.error(res.data)
       }
@@ -598,7 +600,7 @@ export default {
     async getSharedUserList(id) {
       this.sharedUserVisible = true
       this.sharedUserLoading = true
-      this.delBindUserFrom['shared_id'] = id
+      this.sharedId = id
       const obj = {
         shared_id: id
       }
@@ -655,7 +657,7 @@ export default {
       this.isShowLoading = true
       const exportData = []
       const params = this.form
-      params.pageSize = this.pageSize
+      params.page_num = 200
       params.page = 1
       while (exportData.length < this.total) {
         const res = await this.ShareBroadStock.stockSharedList(params)
@@ -701,7 +703,7 @@ export default {
         <td>${item.shared_num ? item.shared_num : '' + '\t'}</td>
         <td>${item.consume_num ? item.consume_num : '' + '\t'}</td>
         <td>${item.stock && item.stock.sku_price ? item.stock.sku_price / 100 : '' + '\t'}</td>
-        <td>${item.stock.sku_image || item.stock.real_image_url + '\t'}</td>
+        <td>${item.stock && (item.stock.sku_image || item.stock.real_image_url) + '\t'}</td>
          <td>${item.stock && item.stock.sku_url ? item.stock.sku_url : '' + '\t'}</td>
         </tr>`
       })

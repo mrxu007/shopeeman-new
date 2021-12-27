@@ -1,11 +1,4 @@
-<!--
- * @Author: your name
- * @Date: 2021-11-09 10:17:44
- * @LastEditTime: 2021-12-23 11:49:12
- * @LastEditors: Please set LastEditors
- * @Description: In User Settings Edit
- * @FilePath: \shopeeman-new\src\views\order-manager\components\OrderManagerOrderCenter.vue
--->
+
 <template>
   <div class="order-center" v-loading="tableLoading">
     <header>
@@ -17,7 +10,7 @@
             <div class="base-box">
               <span class="base-title">基础操作</span>
               <div class="base-item">
-                <buyer-account :operation="operation" :buyerAccountList="buyerAccountList"></buyer-account>
+                <buyer-account :operation="operation" :buyer-account-list="buyerAccountList" />
               </div>
             </div>
           </div>
@@ -27,10 +20,10 @@
               <span class="base-title">列表筛选操作</span>
               <div class="base-item">
                 <el-row class="row-style">
-                  <storeChoose :is-all="true" @changeMallList="changeMallList" :spanWidth="'80px'" :selectWidth="'180px'" :source="'orderCenter'"></storeChoose>
+                  <storeChoose :is-all="true" :span-width="'80px'" :select-width="'180px'" :source="'orderCenter'" @changeMallList="changeMallList" />
                   <div class="tool-item">
                     <el-select v-model="selectForm.timeType" placeholder="" size="mini" filterable style="width: 140px">
-                      <el-option :label="item.label" :value="item.value" v-for="(item, index) in timeTypeList" :key="index" />
+                      <el-option v-for="(item, index) in timeTypeList" :key="index" :label="item.label" :value="item.value" />
                     </el-select>
                     <el-date-picker
                       @change="changeTime($event, 'selectForm', 'otherTime')"
@@ -51,21 +44,21 @@
                     <span>发货状态：</span>
                     <el-select v-model="orderStatus" placeholder="" size="mini" multiple collapse-tags filterable　class="inputBox">
                       <el-option label="全部" :value="''" @click.native="selectAll('orderStatus', orderStatusList)" />
-                      <el-option :label="item.label" :value="item.value" v-for="(item, index) in orderStatusList" :key="index" />
+                      <el-option v-for="(item, index) in orderStatusList" :key="index" :label="item.label" :value="item.value" />
                     </el-select>
                   </div>
                   <div class="tool-item mar-right">
                     <span>采购状态：</span>
                     <el-select v-model="shotStatus" placeholder="" size="mini" multiple collapse-tags filterable　class="inputBox">
                       <el-option label="全部" :value="''" @click.native="selectAll('shotStatus', shotStatusList)" />
-                      <el-option :label="item.label" :value="item.value" v-for="(item, index) in shotStatusList" :key="index" />
+                      <el-option v-for="(item, index) in shotStatusList" :key="index" :label="item.label" :value="item.value" />
                     </el-select>
                   </div>
                   <div class="tool-item mar-right">
                     <span>商品来源：</span>
                     <el-select v-model="selectForm.isOwnOrder" placeholder="" size="mini" filterable　class="inputBox">
                       <el-option label="全部" :value="''" />
-                      <el-option :label="item.label" :value="item.value" v-for="(item, index) in goodsSourceList" :key="index" />
+                      <el-option v-for="(item, index) in goodsSourceList" :key="index" :label="item.label" :value="item.value" />
                     </el-select>
                   </div>
                   <div class="tool-item mar-right">
@@ -128,20 +121,20 @@
                     <el-input v-model="inputContent" size="mini" clearable style="width: 160px" />
                     <el-tooltip effect="dark" placement="bottom-start">
                       <div slot="content">
-                        查询选项为订单编号时：<br />
-                        1、需进行批量查询时，可用英文逗号隔开各个订单编号<br />
-                        查询选项为备注或商品货号时：<br />
-                        1、查询全部数据传空<br />
-                        2、查未备注或无商品货号数据时，传‘无’<br />
+                        查询选项为订单编号时：<br>
+                        1、需进行批量查询时，可用英文逗号隔开各个订单编号<br>
+                        查询选项为备注或商品货号时：<br>
+                        1、查询全部数据传空<br>
+                        2、查未备注或无商品货号数据时，传‘无’<br>
                       </div>
-                      <i class="el-icon-question"></i>
+                      <i class="el-icon-question" />
                     </el-tooltip>
                   </div>
                   <div class="tool-item mar-right">
                     <span>物流方式：</span>
                     <el-select v-model="logisticsIds" placeholder="" size="mini" multiple collapse-tags filterable　class="inputBox">
                       <el-option label="全部物流" :value="''" @click.native="selectAll('logisticsIds', shipTypeList)" />
-                      <el-option :label="item.ShipName" :value="item.ShipId" v-for="(item, index) in shipTypeList" :key="index" />
+                      <el-option v-for="(item, index) in shipTypeList" :key="index" :label="item.ShipName" :value="item.ShipId" />
                     </el-select>
                   </div>
                   <div class="tool-item mar-right">
@@ -191,8 +184,8 @@
         </div>
       </transition>
       <div class="showBtn">
-        <p v-if="isShow" @click="isShow = false">收起<i class="el-icon-caret-top"></i></p>
-        <p @click="isShow = true" v-else>展开<i class="el-icon-caret-bottom"></i></p>
+        <p v-if="isShow" @click="isShow = false">收起<i class="el-icon-caret-top" /></p>
+        <p v-else @click="isShow = true">展开<i class="el-icon-caret-bottom" /></p>
       </div>
     </header>
     <div class="content" :style="{'height': isShow ? '520px' : '850px'}">
@@ -229,7 +222,7 @@
         </el-table-column>
         <el-table-column align="center" prop="color_id" label="颜色标识" width="70" v-if="showTableColumn('颜色标识')">
           <template slot-scope="scope">
-            <p :style="{ background: changeColorLabel(scope.row.color_id), height: '26px' }"></p>
+            <p :style="{ background: changeColorLabel(scope.row.color_id), height: '26px' }" />
           </template>
         </el-table-column>
         <el-table-column align="center" prop="color_id" label="标识名称" width="70" v-if="showTableColumn('标识名称')">
@@ -256,9 +249,12 @@
         </el-table-column>
         <el-table-column align="center" label="是否可二次销售" width="140" v-if="showTableColumn('是否可二次销售')">
           <template slot-scope="scope">
-            <el-button v-if="scope.row.shot_order_info.buy_account_info && scope.row.shot_order_info.buy_account_info.second_sale_num" size="mini" type="primary" @click="cancelSecondSale(scope.row)"
-              >取消二次销售</el-button
-            >
+            <el-button
+              v-if="scope.row.shot_order_info.buy_account_info && scope.row.shot_order_info.buy_account_info.second_sale_num"
+              size="mini"
+              type="primary"
+              @click="cancelSecondSale(scope.row)"
+            >取消二次销售</el-button>
             <el-button v-if="scope.row.isSecond" size="mini" type="primary" @click="chooseSecondSale(scope.row)">{{ scope.row.secondSaleTitle }}</el-button>
           </template>
         </el-table-column>
@@ -276,9 +272,9 @@
             <el-tooltip effect="light" placement="right-end" :visible-arrow="false" :enterable="false" style="width: 32px; height: 32px; display: inline-block">
               <div slot="content">
                 <el-image
-                  v-bind:src="[scope.row.country, scope.row.mall_info ? scope.row.mall_info.platform_mall_id : '', scope.row.goods_info.goods_img] | imageRender"
+                  :src="[scope.row.country, scope.row.mall_info ? scope.row.mall_info.platform_mall_id : '', scope.row.goods_info.goods_img] | imageRender"
                   style="width: 400px; height: 400px"
-                ></el-image>
+                />
               </div>
               <el-image
                 v-bind:src="[scope.row.country, scope.row.mall_info ? scope.row.mall_info.platform_mall_id : '', scope.row.goods_info.goods_img] | imageRender"
@@ -529,8 +525,7 @@
                     "
                   >
                     账单明细
-                  </div></el-dropdown-item
-                >
+                  </div></el-dropdown-item>
                 <el-dropdown-item> <div class="dropdownItem" @click="SyncOrder(scope.row)">同步此店铺订单</div></el-dropdown-item>
                 <el-dropdown-item> <div class="dropdownItem" @click="SyncOrderSingle(scope.row)">同步此订单</div></el-dropdown-item>
                 <el-dropdown-item> <div class="dropdownItem" @click="syncLogisticsSingle(scope.row)">同步此订单物流</div></el-dropdown-item>
@@ -565,9 +560,9 @@
     <Logs ref="Logs" clear v-model="showConsole" />
     <el-dialog title="配置订单列表显示列" :visible.sync="columnVisible" width="800px" top="5vh" :close-on-click-modal="false" v-if="columnVisible" @close="closeDialog">
       <div class="column-style">
-        <div class="column-item" v-for="(item, index) in columnConfigList" :key="index">
+        <div v-for="(item, index) in columnConfigList" :key="index" class="column-item">
           <span>{{ item.column_header }}</span>
-          <el-switch style="display: block" v-model="item.is_show" active-color="#13ce66" inactive-color="#a9a9a9" :active-value="1" :inactive-value="-1"> </el-switch>
+          <el-switch v-model="item.is_show" style="display: block" active-color="#13ce66" inactive-color="#a9a9a9" :active-value="1" :inactive-value="-1" />
         </div>
       </div>
       <span slot="footer">
@@ -585,29 +580,29 @@
         <el-button type="primary" size="mini" @click="setAbroadGood(multipleSelection)">确 定</el-button>
       </span>
     </el-dialog>
-    <el-dialog title="批量添加本地备注" :visible.sync="localRamarkVisible" width="400px" @open="openBefore" :close-on-click-modal="false">
+    <el-dialog title="批量添加本地备注" :visible.sync="localRamarkVisible" width="400px" :close-on-click-modal="false" @open="openBefore">
       <div class="remark-style">
         <span>本地备注</span>
-        <el-input type="textarea" :rows="4" placeholder="请输入内容" v-model="localRamark"> </el-input>
+        <el-input v-model="localRamark" type="textarea" :rows="4" placeholder="请输入内容" />
       </div>
       <span slot="footer">
         <el-button type="primary" size="mini" @click="batchSetRemark">批量添加</el-button>
       </span>
     </el-dialog>
-    <el-dialog title="选择颜色标识" :visible.sync="colorVisible" width="600px" :close-on-click-modal="false" v-if="colorVisible">
+    <el-dialog v-if="colorVisible" title="选择颜色标识" :visible.sync="colorVisible" width="600px" :close-on-click-modal="false">
       <div class="color-style">
         <el-table ref="colorTable" :data="colorList" tooltip-effect="dark" style="width: 100%" height="500">
           <el-table-column label="标识选择" width="100">
             <template slot-scope="scope">
-              <el-radio :label="scope.$index" v-model="colorRadio" @change.native="getCurrentRow(scope.row)"></el-radio>
+              <el-radio v-model="colorRadio" :label="scope.$index" @change.native="getCurrentRow(scope.row)" />
             </template>
           </el-table-column>
           <el-table-column prop="name" label="颜色">
             <template slot-scope="scope">
-              <div class="colorBox" :style="{ background: scope.row.color }"></div>
+              <div class="colorBox" :style="{ background: scope.row.color }" />
             </template>
           </el-table-column>
-          <el-table-column prop="name" label="标识名称"></el-table-column>
+          <el-table-column prop="name" label="标识名称" />
         </el-table>
       </div>
       <span slot="footer">
@@ -642,16 +637,16 @@
         <el-button type="primary" size="mini" @click="batchSaveShipInfo">确 定</el-button>
       </span>
     </el-dialog>
-    <el-dialog title="上报仓库发货金额" :visible.sync="uploadStoreShipAmountVisible" width="1200px" v-if="uploadStoreShipAmountVisible" :close-on-click-modal="false">
-      <upload-store-ship-amount @close="closeDialog"></upload-store-ship-amount>
+    <el-dialog v-if="uploadStoreShipAmountVisible" title="上报仓库发货金额" :visible.sync="uploadStoreShipAmountVisible" width="1200px" :close-on-click-modal="false">
+      <upload-store-ship-amount @close="closeDialog" />
     </el-dialog>
     <!-- 四类商品出库 -->
-    <el-dialog :visible.sync="goodsOutStoreVisible" width="1400px" top="5vh" v-if="goodsOutStoreVisible" :close-on-click-modal="false">
+    <el-dialog v-if="goodsOutStoreVisible" :visible.sync="goodsOutStoreVisible" width="1400px" top="5vh" :close-on-click-modal="false">
       <div slot="title">{{ outStoreTitle }}</div>
       <goods-out-store :chooseData="multipleSelection" :outStoreType="outStoreType" @close="closeDialog"></goods-out-store>
     </el-dialog>
-    <el-dialog title="添加采购链接" :visible.sync="addBuyLinkVisible" width="1200px" v-if="addBuyLinkVisible" append-to-body :close-on-click-modal="false" @close="closeDialog">
-      <buy-link :linkRow="clickRow" @close="closeDialog"></buy-link>
+    <el-dialog v-if="addBuyLinkVisible" title="添加采购链接" :visible.sync="addBuyLinkVisible" width="1200px" append-to-body :close-on-click-modal="false" @close="closeDialog">
+      <buy-link :link-row="clickRow" @close="closeDialog" />
     </el-dialog>
     <el-dialog title="查看禁运品" :visible.sync="lookForbidVisible" width="1200px" :close-on-click-modal="false">
       <div class="forbid">
@@ -667,7 +662,7 @@
         </div>
       </div>
     </el-dialog>
-    <el-dialog title="添加多物流单号" :visible.sync="addMoreTraNumberVisible" width="700px" :close-on-click-modal="false" v-if="addMoreTraNumberVisible" @close="closeDialog">
+    <el-dialog v-if="addMoreTraNumberVisible" title="添加多物流单号" :visible.sync="addMoreTraNumberVisible" width="700px" :close-on-click-modal="false" @close="closeDialog">
       <div class="tra-style">
         <div class="item-box">
           <span style="width: 60px">绑定仓库</span>
@@ -678,14 +673,14 @@
         <div v-for="(item, index) in trackingNumberList" :key="index" class="tra-content">
           <div class="item-box">
             <span style="width: 80px">物流单号{{ index + 1 }}</span>
-            <el-input v-model="item.original_tracking_number" size="mini" class="inputWidth"></el-input>
+            <el-input v-model="item.original_tracking_number" size="mini" class="inputWidth" />
           </div>
           <div class="item-box">
             <span style="width: 80px">物流公司{{ index + 1 }}</span>
-            <el-input v-model="item.original_logistics_company" size="mini" class="inputWidth mar-right"></el-input>
+            <el-input v-model="item.original_logistics_company" size="mini" class="inputWidth mar-right" />
           </div>
-          <el-button type="primary" size="mini" @click="deleteTraNumber(index)" class="item-box mar-right">删除</el-button>
-          <el-button type="primary" size="mini" v-if="index === trackingNumberList.length - 1" @click="addTraNumber" class="item-box">添加</el-button>
+          <el-button type="primary" size="mini" class="item-box mar-right" @click="deleteTraNumber(index)">删除</el-button>
+          <el-button v-if="index === trackingNumberList.length - 1" type="primary" size="mini" class="item-box" @click="addTraNumber">添加</el-button>
         </div>
         <p>关于绑定仓库选项:</p>
         <p>1、仅显示当前订单店铺绑定的仓库</p>
@@ -695,15 +690,15 @@
         <el-button type="primary" size="mini" @click="saveAddMoreTra">保 存</el-button>
       </span>
     </el-dialog>
-    <el-dialog title="账单明细" :visible.sync="billsDetailVisible" top="5vh" width="1200px" :close-on-click-modal="false" v-if="billsDetailVisible" @close="closeDialog('noRefresh')">
-      <bill-detail :chooseData="clickRow"></bill-detail>
+    <el-dialog v-if="billsDetailVisible" title="账单明细" :visible.sync="billsDetailVisible" top="5vh" width="1200px" :close-on-click-modal="false" @close="closeDialog('noRefresh')">
+      <bill-detail :choose-data="clickRow" />
     </el-dialog>
-    <el-dialog title="物流轨迹" :visible.sync="trackPathVisible" width="400px" :close-on-click-modal="false" v-if="trackPathVisible" @close="closeDialog('noRefresh')">
+    <el-dialog v-if="trackPathVisible" title="物流轨迹" :visible.sync="trackPathVisible" width="400px" :close-on-click-modal="false" @close="closeDialog('noRefresh')">
       <el-steps direction="vertical" :active="1">
-        <el-step title="暂无物流信息" :description="$dayjs(new Date()).format('YYYY-MM-DD HH:mm')"></el-step>
+        <el-step title="暂无物流信息" :description="$dayjs(new Date()).format('YYYY-MM-DD HH:mm')" />
       </el-steps>
     </el-dialog>
-    <el-dialog title="虾皮物流轨迹" :visible.sync="spTrackPathVisible" width="500px" :close-on-click-modal="false" v-if="spTrackPathVisible" @close="closeDialog('noRefresh')">
+    <el-dialog v-if="spTrackPathVisible" title="虾皮物流轨迹" :visible.sync="spTrackPathVisible" width="500px" :close-on-click-modal="false" @close="closeDialog('noRefresh')">
       <div class="track-step">
         <div class="step-header">
           <div class="step-item">
@@ -715,29 +710,29 @@
             <p>{{ clickRow.tracking_no }}</p>
           </div>
         </div>
-        <div class="step-content" v-loading="shipInfoLoading">
+        <div v-loading="shipInfoLoading" class="step-content">
           <el-steps direction="vertical" :active="1" space="80px">
-            <el-step icon="el-icon-s-help" :title="item.description" :description="$dayjs(item.ctime * 1000).format('YYYY-MM-DD HH:mm')" v-for="(item, index) in spTrackPath" :key="index"></el-step>
+            <el-step v-for="(item, index) in spTrackPath" :key="index" icon="el-icon-s-help" :title="item.description" :description="$dayjs(item.ctime * 1000).format('YYYY-MM-DD HH:mm')" />
           </el-steps>
         </div>
       </div>
     </el-dialog>
-    <el-dialog title="订单轨迹" :visible.sync="orderPathVisible" width="500px" :close-on-click-modal="false" v-if="orderPathVisible" @close="closeDialog('noRefresh')">
+    <el-dialog v-if="orderPathVisible" title="订单轨迹" :visible.sync="orderPathVisible" width="500px" :close-on-click-modal="false" @close="closeDialog('noRefresh')">
       <div class="track-step">
-        <div class="step-content" v-loading="orderPathInfoLoading">
+        <div v-loading="orderPathInfoLoading" class="step-content">
           <el-steps direction="vertical" :active="1" space="80px">
-            <el-step icon="el-icon-s-help" :title="item[0]" :description="item[1]" v-for="(item, index) in orderTrackPath" :key="index"></el-step>
+            <el-step v-for="(item, index) in orderTrackPath" :key="index" icon="el-icon-s-help" :title="item[0]" :description="item[1]" />
           </el-steps>
         </div>
       </div>
     </el-dialog>
-    <el-dialog title="订单报表" :visible.sync="orderReportVisible" top="5vh" width="800px" :close-on-click-modal="false" v-if="orderReportVisible" @close="closeDialog('noRefresh')">
-      <export-report></export-report>
+    <el-dialog v-if="orderReportVisible" title="订单报表" :visible.sync="orderReportVisible" top="5vh" width="800px" :close-on-click-modal="false" @close="closeDialog('noRefresh')">
+      <export-report />
     </el-dialog>
     <el-dialog title="回复订单买家" :visible.sync="replayOrderBuyerVisible" top="5vh" width="600px" :close-on-click-modal="false" v-if="replayOrderBuyerVisible" @close="closeDialog('noRefresh')">
       <reply-buyer :chooseData="replyBuyerData" @close="closeDialog('noRefresh')"></reply-buyer>
     </el-dialog>
-    <el-dialog title="填写发货单号" :visible.sync="handOutOrderVisible" top="5vh" width="500px" :close-on-click-modal="false" v-if="handOutOrderVisible" @close="closeDialog">
+    <el-dialog v-if="handOutOrderVisible" title="填写发货单号" :visible.sync="handOutOrderVisible" top="5vh" width="500px" :close-on-click-modal="false" @close="closeDialog">
       <div class="handle-out">
         <div class="item">
           <span>当前订单状态：</span>
@@ -753,22 +748,22 @@
         </div>
         <div class="item">
           <span>发货物流名称：</span>
-          <el-input size="mini" v-model="shippingProof" class="inputWidth"></el-input>
+          <el-input v-model="shippingProof" size="mini" class="inputWidth" />
         </div>
         <div class="item">
           <span>发货物流单号：</span>
-          <el-input size="mini" v-model="shippingTraceNo" class="inputWidth"></el-input>
+          <el-input v-model="shippingTraceNo" size="mini" class="inputWidth" />
         </div>
       </div>
       <span slot="footer">
         <el-button type="primary" size="mini" @click="saveHandleOut">保 存</el-button>
       </span>
     </el-dialog>
-    <el-dialog title="二次销售" :visible.sync="secondSaleVisible" top="5vh" width="1500px" :close-on-click-modal="false" v-if="secondSaleVisible" @close="closeDialog">
-      <second-sale :chooseData="clickRow" :secondOrderData="secondOrderList" @close="closeDialog"></second-sale>
+    <el-dialog v-if="secondSaleVisible" title="二次销售" :visible.sync="secondSaleVisible" top="5vh" width="1500px" :close-on-click-modal="false" @close="closeDialog">
+      <second-sale :choose-data="clickRow" :second-order-data="secondOrderList" @close="closeDialog" />
     </el-dialog>
-    <el-dialog title="图搜同款" :visible.sync="collectionVisible" top="5vh" width="1500px" :close-on-click-modal="false" v-if="collectionVisible" @close="closeDialog">
-      <image-collection :chooseData="clickRow" :collectType="collectType" @close="closeDialog"></image-collection>
+    <el-dialog v-if="collectionVisible" title="图搜同款" :visible.sync="collectionVisible" top="5vh" width="1500px" :close-on-click-modal="false" @close="closeDialog">
+      <image-collection :choose-data="clickRow" :collect-type="collectType" @close="closeDialog" />
     </el-dialog>
   </div>
 </template>
@@ -825,14 +820,14 @@ export default {
     ExportReport,
     ReplyBuyer,
     SecondSale,
-    ImageCollection,
+    ImageCollection
   },
   data() {
     return {
       pickerOptions: {
         disabledDate(time) {
           return time.getTime() > Date.now()
-        },
+        }
       },
       selectForm: {
         timeType: 'payTime', //其它时间类型
@@ -872,13 +867,13 @@ export default {
       payMethodList: [{ label: '全部', value: '' }], //平台付款方式
       shipTypeList: [], //物流方式
       tableLoading: false,
-      tableData: [], //分页
-      pageSize: 20, //分页
-      currentPage: 1, //分页
-      total: 0, //分页
-      showConsole: true, //日志
-      isShow: true, //btn收缩
-      //买手号配置
+      tableData: [], // 分页
+      pageSize: 20, // 分页
+      currentPage: 1, // 分页
+      total: 0, // 分页
+      showConsole: true, // 日志
+      isShow: true, // btn收缩
+      // 买手号配置
       operation: {
         upData: 'buyerAccountList',
         left: [
@@ -888,7 +883,7 @@ export default {
           { title: '批量拍单', type: 'primary', key: 4, click: 'purchaseHandler' },
           { title: '配置自定义列', type: 'primary', key: 5 },
           { title: '上传账号信息', type: 'primary', key: 6 },
-          { title: '下载账号信息', type: 'primary', key: 7 },
+          { title: '下载账号信息', type: 'primary', key: 7 }
         ],
         center: [
           { title: '拼多多账号', platform: 1, centerTitle: '拼多多个人中心' },
@@ -896,7 +891,7 @@ export default {
           { title: '1688账号', platform: 8, centerTitle: '1688个人中心' },
           { title: '京喜账号', platform: 10, centerTitle: '京喜个人中心' },
           { title: 'lazada账号', platform: 9, centerTitle: 'lazada个人中心' },
-          { title: 'shopee账号', platform: 11, centerTitle: 'shopee个人中心' },
+          { title: 'shopee账号', platform: 11, centerTitle: 'shopee个人中心' }
           // { title: '天猫淘宝海外账号', platform: 888, centerTitle: '刷新天猫淘宝海外平台账号' },
         ],
         right: [
@@ -906,7 +901,7 @@ export default {
           { title: '批量添加采购信息', key: 11, type: 'primary', click: 'batchAddBuyInfo' },
         ],
       },
-      selectMallList: [], //店铺选择
+      selectMallList: [], // 店铺选择
       multipleSelection: [],
       buyerAccountList: [], //买手号
       buyerAccountListGlobal: [], //买手号天猫淘宝海外
@@ -985,13 +980,13 @@ export default {
     setTimeout(() => {
       this.getOrderList(1)
     }, 2000)
-    //保存sku映射
-    this.$IpcMain.on('skuRelation', async (response) => {
+    // 保存sku映射
+    this.$IpcMain.on('skuRelation', async(response) => {
       console.log('skuRelation', response)
       response['OriGoodsPlatform '] = 1
       console.log(JSON.stringify(response), 'response')
-      let res = await this.$commodityService.saveSkuRelation(JSON.stringify(response))
-      let resObj = res && JSON.parse(res)
+      const res = await this.$commodityService.saveSkuRelation(JSON.stringify(response))
+      const resObj = res && JSON.parse(res)
       console.log('res', resObj)
       if (resObj && resObj.code === 200) {
         return this.$message.success('收藏成功')
@@ -1261,7 +1256,7 @@ export default {
       }
       return amount
     },
-    //sku映射
+    // sku映射
     async setSKURelation(row) {
       if (!this.accountpdd) {
         this.$message.error('请先选择拼多多买手号')
@@ -1271,8 +1266,8 @@ export default {
       if (!pddAccount) {
         return this.$message.warning(`没有找到拼多多买手号`)
       }
-      let buyer = this.changeAccountParams(pddAccount)
-      let skuInfo = {
+      const buyer = this.changeAccountParams(pddAccount)
+      const skuInfo = {
         OrderSn: row.order_sn,
         SysOrderId: row.id,
         OriGoodsUrl: row.goods_info.ori_url,
@@ -1286,16 +1281,16 @@ export default {
         OriGoodsSku: '',
         OriGoodsSkuId: row.ori_sku_id || '',
         OriGoodsNum: '',
-        OriGoodsId: row.ori_goods_id || '',
+        OriGoodsId: row.ori_goods_id || ''
       }
       this.$buyerAccountService.getSkuRelation(skuInfo, buyer)
     },
-    //一键同步上家库存
+    // 一键同步上家库存
     async syncOriginGoodsNum() {
       if (!this.multipleSelection.length) {
         return this.$message.warning(`请选择要操作的数据`)
       }
-      this.showConsole = false //打开日志
+      this.showConsole = false // 打开日志
       this.$refs.Logs.consoleMsg = ''
       this.$refs.Logs.writeLog(`开始同步上家库存，请耐心等待！`, true)
       for (let i = 0; i < this.multipleSelection.length; i++) {
@@ -1321,27 +1316,27 @@ export default {
           console.log(res, '----------')
           msg = res
           console.log(Number(platformId), params, '4654689')
-          let resObj = res && JSON.parse(res)
+          const resObj = res && JSON.parse(res)
           if (resObj && resObj.Code === 200) {
-            let { CollectGoodsSkus } = resObj
-            let params = {
+            const { CollectGoodsSkus } = resObj
+            const params = {
               product_id: order.goods_info.goods_id,
               version: '3.2.0',
-              shop_id: order.mall_info.platform_mall_id,
+              shop_id: order.mall_info.platform_mall_id
             }
             let shopeeSkuList = []
             let shopeeGoodsInfo = null
-            let shopeeGoods = await this.$shopeemanService.searchProductDetail(order.country, params)
+            const shopeeGoods = await this.$shopeemanService.searchProductDetail(order.country, params)
             let flag = false
             // console.log(shopeeGoods, 'shopeeGoods')
             if (shopeeGoods.code === 200 && shopeeGoods.data) {
               shopeeGoodsInfo = shopeeGoods.data
-              shopeeSkuList = shopeeGoods.data.model_list || [] //shopee规格list
+              shopeeSkuList = shopeeGoods.data.model_list || [] // shopee规格list
               for (const key in CollectGoodsSkus) {
-                let skuInfo = CollectGoodsSkus[key]
+                const skuInfo = CollectGoodsSkus[key]
                 // console.log(skuInfo, 'skuInfo')
                 let skuName = ''
-                //---------------------处理skuName--------------------------------//
+                // ---------------------处理skuName--------------------------------//
                 if ((skuInfo.PddProps && !skuInfo.originProps) || (skuInfo.PddProps && skuInfo.originProps && skuInfo.PddProps.length >= skuInfo.originProps.length)) {
                   if (skuInfo.PddProps.length === 1) {
                     skuName = skuInfo.PddProps[0].spec_name
@@ -1361,41 +1356,41 @@ export default {
                 } else {
                   skuName = ''
                 }
-                //----------------------------------------------------------------//
-                let spIndex = shopeeSkuList.findIndex((n) => n.name == skuName)
+                // ----------------------------------------------------------------//
+                const spIndex = shopeeSkuList.findIndex((n) => n.name == skuName)
                 if (spIndex > -1) {
                   flag = true
                   shopeeSkuList[spIndex].stock = Number(skuInfo.quantity)
                 }
               }
-              //-----------判断是否更新并组装数据--------------//
+              // -----------判断是否更新并组装数据--------------//
               if (!flag) {
                 this.$refs.Logs.writeLog(`订单【${order.order_sn}】同步库存失败，未匹配到相同的规格信息！`, false)
                 continue
               }
               let totalStock = 0
-              let dealWithSkuList = []
+              const dealWithSkuList = []
               shopeeSkuList.forEach((item) => {
                 totalStock += item.stock
-                let subItem = {
+                const subItem = {
                   id: item.id,
                   sku: item.sku,
                   tier_index: item.tier_index,
                   is_default: item.is_default,
                   name: item.name,
                   item_price: '',
-                  stock: item.stock,
+                  stock: item.stock
                 }
                 dealWithSkuList.push(subItem)
               })
-              //组装数据
-              let editParams = {
+              // 组装数据
+              const editParams = {
                 id: shopeeGoodsInfo.id,
                 name: shopeeGoodsInfo.name,
                 brand_id: shopeeGoodsInfo.brand_id,
                 images: shopeeGoodsInfo.images,
                 description: shopeeGoodsInfo.description,
-                model_list: dealWithSkuList, //sku
+                model_list: dealWithSkuList, // sku
                 category_path: shopeeGoodsInfo.category_path,
                 attributes: shopeeGoodsInfo.attributes,
                 parent_sku: shopeeGoodsInfo.parent_sku,
@@ -1413,20 +1408,20 @@ export default {
                 dangerous_goods: shopeeGoodsInfo.dangerous_goods,
                 enable_model_level_dts: shopeeGoodsInfo.enable_model_level_dts,
                 price: shopeeGoodsInfo.price,
-                stock: totalStock, //总库存
+                stock: totalStock, // 总库存
                 logistics_channels: shopeeGoodsInfo.logistics_channels || [],
                 ds_cat_rcmd_id: '',
                 category_recommend: shopeeGoodsInfo.category_recommend,
                 ds_attr_rcmd_id: shopeeGoodsInfo.ds_attr_rcmd_id || '',
-                unlisted: shopeeGoodsInfo.unlisted || false,
+                unlisted: shopeeGoodsInfo.unlisted || false
               }
-              let editRes = await this.$shopeemanService.handleProductEdit(order.country, editParams)
+              const editRes = await this.$shopeemanService.handleProductEdit(order.country, editParams)
               if (editRes.code === 200) {
                 this.$refs.Logs.writeLog(`同步库存失败，订单【${order.order_sn}】同步库存成功！`, true)
               } else {
                 this.$refs.Logs.writeLog(`同步库存失败，订单【${order.order_sn}】同步库存失败，${editRes.data}！`, false)
               }
-              //--------------------------------------------//
+              // --------------------------------------------//
             } else {
               if (shopeeGoods.code === 403) {
                 this.$refs.Logs.writeLog(`同步库存失败，店铺【${order.mall_info.platform_mall_name}】未登录！`, false)
@@ -1445,26 +1440,26 @@ export default {
         }
       }
     },
-    //转换颜色标识名
+    // 转换颜色标识名
     changeColorLabel(colorId, type) {
-      let colorInfo = this.colorList.find((item) => item.id == colorId)
+      const colorInfo = this.colorList.find((item) => item.id == colorId)
       if (type === 'name') {
         return colorInfo && colorInfo.id !== 0 ? colorInfo.name : ''
       }
       return colorInfo ? colorInfo.color : ''
     },
-    //图搜同款
+    // 图搜同款
     async soSameItem(val, row) {
       this.clickRow = row
       this.collectType = val
       this.collectionVisible = true
     },
-    //取消二次销售
+    // 取消二次销售
     async cancelSecondSale(row) {
-      let params = {
-        sysOrderId: row.id,
+      const params = {
+        sysOrderId: row.id
       }
-      let res = await this.$api.cancelSecondSale(params)
+      const res = await this.$api.cancelSecondSale(params)
       if (res.data.code === 200) {
         this.$message.success('取消成功！')
         this.getOrderList()
@@ -1472,19 +1467,19 @@ export default {
         this.$message.error(`取消失败，${res.data.message}`)
       }
     },
-    //二次销售列表
+    // 二次销售列表
     async getSecondSaleList() {
-      let params = {
+      const params = {
         goodsId: this.goodsId,
         variationId: this.skuId,
-        goodsSpec: this.goodsNum,
+        goodsSpec: this.goodsNum
       }
-      let res = await this.$api.getsecondlist(params)
+      const res = await this.$api.getsecondlist(params)
       if (res.data.code === 200) {
         this.secondOrderList = res.data.data
       }
     },
-    //判断二次销售
+    // 判断二次销售
     async isSecondSale(row, index) {
       let flag = true
       let secondSaleTitle = '自选出库'
@@ -1492,24 +1487,24 @@ export default {
       if (row.order_sn != row.main_order_sn) {
         flag = false
       }
-      //1、如果为取消二次销售，显示出取消按钮
+      // 1、如果为取消二次销售，显示出取消按钮
       else if (row.shot_order_info.buy_account_info && row.shot_order_info.buy_account_info.second_sale_num) {
         flag = false
       }
-      //2、如果二次销售数据为空，则不显示按钮
+      // 2、如果二次销售数据为空，则不显示按钮
       else if (!this.secondOrderList.length) {
         flag = false
       }
-      //3、如果平台订单的发货状态为售后，不显示二次销售按钮
+      // 3、如果平台订单的发货状态为售后，不显示二次销售按钮
       else if (Number(row.order_status >= 6)) {
         flag = false
       }
-      //4、如果订单的采购状态为上家已发货，不显示二次销售按钮
+      // 4、如果订单的采购状态为上家已发货，不显示二次销售按钮
       else if (Number(row.shot_order_info.shot_status) >= 4) {
         flag = false
       } else {
         for (let i = 0; i < this.secondOrderList.length; i++) {
-          let item = this.secondOrderList[i]
+          const item = this.secondOrderList[i]
           if (row.goods_info.variation_id == item.variation_id && row.country == item.country && item.goods_count > 0) {
             console.log('规格编号匹配出库')
             secondSaleTitle = '规格编号匹配出库'
@@ -1537,30 +1532,30 @@ export default {
       this.$set(this.tableData[index], 'isSecond', flag)
       this.$set(this.tableData[index], 'secondType', secondType)
     },
-    //二次销售自选出库
+    // 二次销售自选出库
     async chooseSecondSale(row) {
       this.clickRow = row
       this.secondSaleVisible = true
     },
-    //商品置顶
+    // 商品置顶
     async goodsTop(row) {
-      let params = {
+      const params = {
         id: Number(row.goods_info.goods_id),
-        shop_id: row.mall_info.platform_mall_id,
+        shop_id: row.mall_info.platform_mall_id
       }
-      let res = await this.$shopeemanService.handleGoodsTop(row.country, params)
+      const res = await this.$shopeemanService.handleGoodsTop(row.country, params)
       if (res.code === 200) {
         this.$message.success(`商品置顶成功！`)
       } else {
         this.$message.error(`商品置顶失败`)
       }
     },
-    //商品删除
+    // 商品删除
     async goodsDelete(row) {
       this.$confirm('是否删除该商品?', '商品删除', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
-        type: 'warning',
+        type: 'warning'
       })
         .then(() => {
           setGoodsDelete(this, row)
@@ -1586,7 +1581,7 @@ export default {
       this.$confirm('是否下架该商品?', '商品下架', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
-        type: 'warning',
+        type: 'warning'
       })
         .then(() => {
           setGoodsDelist(this, row)
@@ -1615,15 +1610,15 @@ export default {
     // },
     //订单出库
     async saveHandleOut() {
-      let params = {
+      const params = {
         order_id: this.clickRow.order_id,
         shipping_proof: this.shippingProof,
         shipping_trace_no: this.shippingTraceNo,
         channel_id: 79900,
         integrated: '',
-        shop_id: this.clickRow.mall_info.platform_mall_id,
+        shop_id: this.clickRow.mall_info.platform_mall_id
       }
-      let res = await this.$shopeemanService.handleOutOrder(this.clickRow.country, params)
+      const res = await this.$shopeemanService.handleOutOrder(this.clickRow.country, params)
       if (res.data === 200) {
         this.$message.success('发货成功！')
         this.closeDialog()
@@ -1637,21 +1632,21 @@ export default {
       this.shippingProof = row.logistics_name
       this.shippingTraceNo = row.tracking_no
     },
-    //拼多多月卡优惠券查询
+    // 拼多多月卡优惠券查询
     async openPddDisount() {
-      let pddBuys = []
-      let buyFilter = this.buyerAccountList.filter((item) => item.type === 1)
+      const pddBuys = []
+      const buyFilter = this.buyerAccountList.filter((item) => item.type === 1)
       if (buyFilter.length) {
         buyFilter.forEach((item) => {
-          let buy = this.changeAccountParams(item)
+          const buy = this.changeAccountParams(item)
           pddBuys.push(buy)
         })
       }
       await this.$buyerAccountService.pddCouponWindow(pddBuys)
     },
-    //转换参数为壳需要
+    // 转换参数为壳需要
     changeAccountParams(account) {
-      let params = {
+      const params = {
         UserNameCache: account.cache_path,
         Password: '',
         shotOrderPlatform: changeBuyerType(account.type),
@@ -1660,11 +1655,11 @@ export default {
         Cookiestr: JSON.stringify(account.login_info),
         AccountType: account.type,
         Ua: account.ua,
-        Country: account.site || '',
+        Country: account.site || ''
       }
       return params
     },
-    //获取类目
+    // 获取类目
     getCategoryInfo(country, cateId) {
       if (this.categoryInfo[cateId]) {
         return this.categoryInfo[cateId]
@@ -1689,11 +1684,11 @@ export default {
       const reqStr = {
         type: type,
         shopId: shopId,
-        id: id,
+        id: id
       }
       this.$BaseUtilService.getOrderDetailInfo(shopId, JSON.stringify(reqStr))
     },
-    //批量回复订单买家
+    // 批量回复订单买家
     async batchReplyOrderBuyer(arr) {
       if (!arr.length) {
         return this.$message.warning('请选择数据！')
@@ -1701,48 +1696,48 @@ export default {
       this.replyBuyerData = arr
       this.replayOrderBuyerVisible = true
     },
-    //批量获取lazada付款方式
+    // 批量获取lazada付款方式
     async getLazadaPayType() {
-      let arr = this.multipleSelection.filter((item) => item.goods_info.ori_platform_id == 9)
+      const arr = this.multipleSelection.filter((item) => item.goods_info.ori_platform_id == 9)
       if (!arr.length) {
         return this.$message.warning('请选择采购类型为lazada的数据')
       }
-      let buyersFilter = this.buyerAccountList.filter((item) => item.type === 9)
+      const buyersFilter = this.buyerAccountList.filter((item) => item.type === 9)
       this.showConsole = false
       if (!buyersFilter.length) {
         this.$refs.Logs.writeLog(`请登录lazada买手号`, false)
         return this.$message.warning('请登录lazada买手号')
       }
       console.log(buyersFilter)
-      this.$refs.Logs.writeLog(`开始获取lazada付款方式`, true) //country,cookieStr,orderId
+      this.$refs.Logs.writeLog(`开始获取lazada付款方式`, true) // country,cookieStr,orderId
       for (let i = 0; i < arr.length; i++) {
-        let order = arr[i]
+        const order = arr[i]
         if (!order.shot_order_info.buy_account_info) {
           this.$refs.Logs.writeLog(`【${order.order_sn}】，当前没有拍单信息，无法获取！`, false)
           continue
         }
-        let buyer_name = order.shot_order_info.buy_account_info.name
+        const buyer_name = order.shot_order_info.buy_account_info.name
         // let buy = buyersFilter.find((item) => item.name === 'maishou8526')
-        let buy = buyersFilter.find((item) => item.name === buyer_name)
+        const buy = buyersFilter.find((item) => item.name === buyer_name)
         if (!buy) {
           this.$refs.Logs.writeLog(`【${order.order_sn}】，对应的买手号【${buyer_name}】没有找到，请登录对应买手号！`, false)
           continue
         }
         let msg = ''
         try {
-          let res = await this.$commodityService.getLazadaOrderDetail(order.country, JSON.stringify(buy.login_info), order.shot_order_info.shot_order_sn)
+          const res = await this.$commodityService.getLazadaOrderDetail(order.country, JSON.stringify(buy.login_info), order.shot_order_info.shot_order_sn)
           // let res = await this.$commodityService.getLazadaOrderDetail(order.country, JSON.stringify(buy.login_info), '272554505256501')
           msg = res
-          let resObj = JSON.parse(res)
+          const resObj = JSON.parse(res)
           if (resObj && resObj.data) {
             // let payRes = await this.$commodityService.getLazadaPayMethod(order.country, JSON.stringify(buy.login_info), res, '272554505256501')
-            let payRes = await this.$commodityService.getLazadaPayMethod(order.country, JSON.stringify(buy.login_info), res, order.shot_order_info.shot_order_sn)
-            let params = {
+            const payRes = await this.$commodityService.getLazadaPayMethod(order.country, JSON.stringify(buy.login_info), res, order.shot_order_info.shot_order_sn)
+            const params = {
               sysOrderId: order.id,
               shotOrderSn: order.shot_order_info.shot_order_sn,
-              paymentMethod: payRes,
+              paymentMethod: payRes
             }
-            let uploadRes = await this.$api.uplaodLazadaPaymentMethod(params)
+            const uploadRes = await this.$api.uplaodLazadaPaymentMethod(params)
             if (uploadRes.data.code === 200) {
               this.$refs.Logs.writeLog(`【${order.order_sn}】获取付款方式成功，上报成功`, true)
             } else {
@@ -1760,56 +1755,56 @@ export default {
       this.orderTrackPath = []
       this.clickRow = row
       this.orderPathVisible = true
-      let params = {
-        package_order_sn: row.order_sn,
+      const params = {
+        package_order_sn: row.order_sn
         // package_order_sn: '210516S654NNU9',
       }
       this.orderPathInfoLoading = true
-      let res = await this.$XzyNetMessageService.post('xzy.orderTrajectoryV2', params)
-      let resObj = (res && JSON.parse(res) && JSON.parse(res).data && JSON.parse(JSON.parse(res).data)) || undefined
+      const res = await this.$XzyNetMessageService.post('xzy.orderTrajectoryV2', params)
+      const resObj = (res && JSON.parse(res) && JSON.parse(res).data && JSON.parse(JSON.parse(res).data)) || undefined
       if (resObj && resObj.code === 200) {
         this.orderTrackPath = resObj.data.reverse()
       }
       if (!this.orderTrackPath.length) {
-        let params = ['暂无订单信息', this.$dayjs(new Date()).format('YYYY-MM-DD HH:ss')]
+        const params = ['暂无订单信息', this.$dayjs(new Date()).format('YYYY-MM-DD HH:ss')]
         this.orderTrackPath.push(params)
       }
       this.orderPathInfoLoading = false
       console.log(resObj, 'getorderPath')
     },
-    //获取虾皮物流轨迹
+    // 获取虾皮物流轨迹
     async getSHtrackPath(row) {
       console.log(row)
       this.spTrackPathVisible = true
       this.clickRow = row
-      let params = {
+      const params = {
         order_id: row.order_id,
-        shop_id: row.mall_info.platform_mall_id,
+        shop_id: row.mall_info.platform_mall_id
       }
       this.shipInfoLoading = true
       if (row.order_status == 7) {
-        let res = await this.$shopeemanService.getLogisticsTrackingHistoryRefund(row.mall_info.country, params)
+        const res = await this.$shopeemanService.getLogisticsTrackingHistoryRefund(row.mall_info.country, params)
         if (res.code === 200) {
           this.spTrackPath = res.data.history
         }
       } else {
-        let res = await this.$shopeemanService.getLogisticsTrackingHistory(row.mall_info.country, params)
+        const res = await this.$shopeemanService.getLogisticsTrackingHistory(row.mall_info.country, params)
         if (res.code === 200) {
           this.spTrackPath = (res.data.list && res.data.list.length && res.data.list[0].tracking_info) || []
         }
       }
       if (!this.spTrackPath.length) {
-        let params = {
+        const params = {
           ctime: Math.round(new Date().getTime() / 1000),
-          description: '暂无物流信息',
+          description: '暂无物流信息'
         }
         this.spTrackPath.push(params)
       }
       this.shipInfoLoading = false
     },
-    //同步此订单物流
+    // 同步此订单物流
     async syncLogisticsSingle(row) {
-      this.showConsole = false //打开日志
+      this.showConsole = false // 打开日志
       this.$refs.Logs.consoleMsg = ''
       const service = new LogisticeSyncService(this.$refs.Logs.writeLog)
       if (!this.buyerAccountList.length) {
@@ -1818,19 +1813,19 @@ export default {
       this.$refs.Logs.writeLog(`【${row.order_id}】获取采购物流轨迹开始`, true)
       service.start(this, this.buyerAccountList, [row])
     },
-    //同步此订单
+    // 同步此订单
     async SyncOrderSingle(row) {
-      this.showConsole = false //打开日志
+      this.showConsole = false // 打开日志
       this.$refs.Logs.consoleMsg = ''
       this.$refs.Logs.writeLog(`【${row.order_id}】开始同步，请耐心等待!`, true)
       const orderService = new orderSync()
       await orderService.startSingel(row, this.$refs.Logs.writeLog)
     },
-    //同步此店铺订单
+    // 同步此店铺订单
     async SyncOrder(row) {
       console.log(row, this.selectMallList)
-      let mallList = [row.mall_info]
-      this.showConsole = false //打开日志
+      const mallList = [row.mall_info]
+      this.showConsole = false // 打开日志
       this.$refs.Logs.consoleMsg = ''
       if (mallList.length == 0) {
         this.$refs.Logs.writeLog('没有获取到店铺数据，同步操作已取消!', false)
@@ -1838,10 +1833,10 @@ export default {
       }
       this.$refs.Logs.writeLog('开始同步，请耐心等待!', true)
       for (let mI = 0; mI < mallList.length; mI++) {
-        let mall = mallList[mI]
+        const mall = mallList[mI]
         for (let i = 0; i < syncStatus.length; i++) {
-          //同步状态
-          let statusObj = syncStatus[i]
+          // 同步状态
+          const statusObj = syncStatus[i]
           const orderService = new orderSync(mall, statusObj, this, this.$refs.Logs.writeLog)
           await orderService.start(`${mI + 1}/${mallList.length}`, 'manual')
         }
@@ -1852,8 +1847,8 @@ export default {
     async openUrl(data, type) {
       let url = data
       if (type === 'product') {
-        let params = {
-          platform_mall_id: data.mall_info.platform_mall_id,
+        const params = {
+          platform_mall_id: data.mall_info.platform_mall_id
         }
         const webUrl = await this.$shopeemanService.getWebUrl(data.country, params)
         console.log(webUrl, 'webUrl', data.country)
@@ -1861,7 +1856,7 @@ export default {
       }
       this.$BaseUtilService.openUrl(url)
     },
-    //关弹窗
+    // 关弹窗
     closeDialog(refresh) {
       this.colorVisible = false
       this.uploadStoreShipAmountVisible = false
@@ -1892,23 +1887,23 @@ export default {
       }
       this.clickRow = {}
     },
-    //保存多物流
+    // 保存多物流
     async saveAddMoreTra() {
-      let list = []
+      const list = []
       this.trackingNumberList.forEach((item) => {
-        let obj = {
+        const obj = {
           id: item.id,
           trackingNumber: item.original_tracking_number,
-          trackingNumberCompany: item.original_logistics_company,
+          trackingNumberCompany: item.original_logistics_company
         }
         list.push(obj)
       })
-      let params = {
+      const params = {
         sysOrderId: this.clickRow.id,
         lists: list,
-        warehouseId: this.bindStore,
+        warehouseId: this.bindStore
       }
-      let res = await this.$api.updateOrderTrackingNumber(params)
+      const res = await this.$api.updateOrderTrackingNumber(params)
       if (res.data.code === 200) {
         this.$message.success('添加成功!')
         this.addMoreTraNumberVisible = false
@@ -1917,13 +1912,13 @@ export default {
       }
       console.log(res, 'res')
     },
-    //添加多物流单号
+    // 添加多物流单号
     async addMoreTrackingNumber(row, index) {
       this.clickRow = row
       this.addMoreTraNumberVisible = true
-      let res = await this.$appConfig.getWarehouseInfo(row.mall_info.platform_mall_id)
-      let resObj = (res && JSON.parse(res)) || {}
-      let warehouseList = []
+      const res = await this.$appConfig.getWarehouseInfo(row.mall_info.platform_mall_id)
+      const resObj = (res && JSON.parse(res)) || {}
+      const warehouseList = []
       for (const key in resObj) {
         warehouseList.push(resObj[key])
       }
@@ -1937,10 +1932,10 @@ export default {
         })
       }
       console.log(this.warehouseData, 'this.warehouseData')
-      let params = {
-        sysOrderId: row.id,
+      const params = {
+        sysOrderId: row.id
       }
-      let resF = await this.$api.getOrderTrackingNumber(params)
+      const resF = await this.$api.getOrderTrackingNumber(params)
       console.log('resF', resF)
       if (resF.data.code === 200 && resF.data.data.length) {
         this.trackingNumberList = resF.data.data
@@ -1948,21 +1943,21 @@ export default {
         this.addTraNumber()
       }
     },
-    //删除多物流
+    // 删除多物流
     deleteTraNumber(index) {
       this.trackingNumberList.splice(index, 1)
     },
-    //添加多物流
+    // 添加多物流
     addTraNumber() {
-      let par = {
+      const par = {
         id: '0',
         original_tracking_number: '',
         original_logistics_company: '',
-        warehouse_user_id: '',
+        warehouse_user_id: ''
       }
       this.trackingNumberList.push(par)
     },
-    //添加采购链接
+    // 添加采购链接
     async addPurchaseLink(row, index) {
       this.clickRow = row
       this.addBuyLinkVisible = true
@@ -1988,7 +1983,7 @@ export default {
       this.multipleSelection.push(row)
       this.purchaseInfoVisible = true
     },
-    //保存-批量添加采购物流单号
+    // 保存-批量添加采购物流单号
     async batchSaveShipInfo() {
       if (!this.shipNo) {
         return this.$message.error('物流单号不能为空！')
@@ -1996,17 +1991,17 @@ export default {
       let message = ''
       this.shipLoading = true
       for (let i = 0; i < this.multipleSelection.length; i++) {
-        let item = this.multipleSelection[i]
-        let params = {
+        const item = this.multipleSelection[i]
+        const params = {
           sysOrderId: item.id,
           lists: [
             {
               id: '0',
               trackingNumber: this.shipNo,
-              trackingNumberCompany: this.shipCompany,
-            },
+              trackingNumberCompany: this.shipCompany
+            }
           ],
-          warehouseId: this.shipBindStore,
+          warehouseId: this.shipBindStore
         }
 
         let res = await this.$api.updateOrderTrackingNumber(params)
@@ -2022,9 +2017,9 @@ export default {
         confirmButtonText: '确定',
       })
     },
-    //批量添加采购物流单号
+    // 批量添加采购物流单号
     async batchShipInfo() {
-      let sameId = {}
+      const sameId = {}
       if (!this.multipleSelection.length) {
         return this.$message.warning('请选择订单数据！')
       }
@@ -2046,7 +2041,7 @@ export default {
       }
       let storeInfo = null
       for (let i = 0; i < this.multipleSelection.length; i++) {
-        let order = this.multipleSelection[i]
+        const order = this.multipleSelection[i]
         let orderType = 0
         if ([1, 2, 3, 5, 8, 10].indexOf(Number(order.goods_info.ori_platform_id)) > -1) {
           orderType = 0
@@ -2076,12 +2071,12 @@ export default {
       this.multipleSelection.push(row)
       this.purchaseHandler()
     },
-    //批量获取天猫淘宝海外平台拍单信息
+    // 批量获取天猫淘宝海外平台拍单信息
     async getCrossBorderOrderInfo() {
       if (!this.multipleSelection.length) {
         return this.$message.warning(`请选择要操作的订单`)
       }
-      let orderFilter = this.multipleSelection.filter((item) => {
+      const orderFilter = this.multipleSelection.filter((item) => {
         return item.goods_info.ori_platform_id == 13
       })
       if (!orderFilter.length) {
@@ -2093,7 +2088,7 @@ export default {
       this.showConsole = false
       this.$refs.Logs.writeLog(`获取天猫淘宝海外平台订单信息开始`, true)
       for (let i = 0; i < orderFilter.length; i++) {
-        let order = orderFilter[i]
+        const order = orderFilter[i]
         if (!order.shot_order_info.buy_account_info) {
           this.$refs.Logs.writeLog(`订单编号【${order.order_sn}】没有拍单信息`, false)
           continue
@@ -2106,22 +2101,22 @@ export default {
           this.$refs.Logs.writeLog(`订单编号【${order.order_sn}】没有登录相应的买手号【${buyName}】`, false)
           continue
         }
-        let res = await window['BaseUtilBridgeService'].getCrossBorderOrderInfo(buy.access_token, order.shot_order_info.shot_order_sn)
-        let resObj = res && JSON.parse(res)
+        const res = await window['BaseUtilBridgeService'].getCrossBorderOrderInfo(buy.access_token, order.shot_order_info.shot_order_sn)
+        const resObj = res && JSON.parse(res)
         if (resObj.success) {
-          let dataArr = (resObj.data && resObj.data.purchase_orders) || []
-          let resOrder = dataArr.find((item) => {
+          const dataArr = (resObj.data && resObj.data.purchase_orders) || []
+          const resOrder = dataArr.find((item) => {
             return item.outer_purchase_id == order.shot_order_info.shot_order_sn
           })
           if (resOrder && resOrder.sub_purchase_orders) {
-            let params = {
+            const params = {
               sysOrderId: order.id,
               trackingNumber: resOrder.sub_purchase_orders[0].logistic_number || '',
               // shippingId:,
               deliveryTime: resOrder.sub_purchase_orders[0].rts_time || '',
-              trackingNumberCompany: resOrder.sub_purchase_orders[0].logistic_company_name || '',
+              trackingNumberCompany: resOrder.sub_purchase_orders[0].logistic_company_name || ''
             }
-            let trackRes = await this.$api.uploadTrackingNumber(params)
+            const trackRes = await this.$api.uploadTrackingNumber(params)
             console.log(trackRes, 'trackRes')
             if (trackRes.data.code === 200) {
               this.$refs.Logs.writeLog(`订单编号【${order.order_sn}】获取成功`, true)
@@ -2139,12 +2134,12 @@ export default {
       this.$refs.Logs.writeLog(`获取天猫淘宝海外平台订单信息结束`, true)
       console.log(this.buyerAccountListGlobal, 'this.buyerAccountListGlobal', orderFilter)
     },
-    //批量天猫淘宝海外平台拍单
+    // 批量天猫淘宝海外平台拍单
     async purchaseGlobalOrder() {
       if (!this.multipleSelection.length) {
         return this.$message.warning(`请选择要操作的订单`)
       }
-      let orderFilter = this.multipleSelection.filter((item) => {
+      const orderFilter = this.multipleSelection.filter((item) => {
         return item.goods_info.ori_platform_id == 13
       })
       if (!orderFilter.length) {
@@ -2154,25 +2149,25 @@ export default {
       if (!crossBorderAccount) {
         return this.$message.warning(`请登录并选择${this.changeTypeName(13, this.goodsSourceList)}拍单账号`)
       }
-      let buyerAccount = [crossBorderAccount]
+      const buyerAccount = [crossBorderAccount]
       this.showConsole = false
       this.$refs.Logs.consoleMsg = ''
       const service = new ShotOrderService(orderFilter, buyerAccount, this)
       service.start(this.$refs.Logs.writeLog)
       console.log('crossBorderAccount', crossBorderAccount)
     },
-    //批量拍单
+    // 批量拍单
     async purchaseHandler() {
       if (!this.multipleSelection.length) {
         return this.$message.warning(`请选择要操作的订单`)
       }
       console.log('4544656')
       const waitOrders = JSON.parse(JSON.stringify(this.multipleSelection))
-      let purchasesIdTb = {}
-      let abroadShopeeCountry = {}
-      let abroadLazadaCountry = {}
-      let purchasesId = {}
-      //若存在以下几种情况，提示后不在继续拍单
+      const purchasesIdTb = {}
+      const abroadShopeeCountry = {}
+      const abroadLazadaCountry = {}
+      const purchasesId = {}
+      // 若存在以下几种情况，提示后不在继续拍单
       // 1.若同时存在阿里巴巴和淘宝天猫的订单则提示 “淘宝(天猫)与1688的订单请分开拍单”
       waitOrders.forEach((item) => {
         purchasesId[item.goods_info.ori_platform_id] = item.goods_info.ori_platform_id
@@ -2192,23 +2187,23 @@ export default {
       if (Object.keys(purchasesIdTb).length > 1) {
         return this.$message.error(`淘宝(天猫)与1688的订单请分开拍单`)
       }
-      //2.存在上家类型为速卖通提示 “请先将速卖通的采购链接更换成国内的采购链接再进行拍单！”
-      let smtFilter = waitOrders.filter((item) => {
+      // 2.存在上家类型为速卖通提示 “请先将速卖通的采购链接更换成国内的采购链接再进行拍单！”
+      const smtFilter = waitOrders.filter((item) => {
         return item.goods_info.ori_platform_id && item.goods_info.ori_platform_id == 12
       })
       if (smtFilter.length > 0) {
         return this.$message.error(`请先将速卖通的采购链接更换成国内的采购链接再进行拍单！`)
       }
-      //3.若上家类型为11:shopee、9:lazada，并且同时存在不同的站点订单提示  “目前只支持单个站点的Shopee/lazada批量拍单,请区分站点”  goods_info.ori_country
+      // 3.若上家类型为11:shopee、9:lazada，并且同时存在不同的站点订单提示  “目前只支持单个站点的Shopee/lazada批量拍单,请区分站点”  goods_info.ori_country
       if (Object.keys(abroadLazadaCountry).length > 1) {
         return this.$message.error(`目前只支持单个站点的Shopee/lazada批量拍单,请区分站点！`)
       }
       if (Object.keys(abroadShopeeCountry).length > 1) {
         return this.$message.error(`目前只支持单个站点的Shopee/lazada批量拍单,请区分站点！`)
       }
-      //4.若上家类型为shopee、lazada  判断选择的买手号是否与选择的订单的站点是否一致，若不一致则提示 “请登录并选择对应站点的Shopee/Lazada拍单账号”
-      //5.都需要判断是否登录并选择拍单号，若有某个上家平台的订单但是，单业务未选择买手号则提示  “请登录并选择1688（相应平台（淘宝天猫、拼多多等））拍单账号”
-      let account = []
+      // 4.若上家类型为shopee、lazada  判断选择的买手号是否与选择的订单的站点是否一致，若不一致则提示 “请登录并选择对应站点的Shopee/Lazada拍单账号”
+      // 5.都需要判断是否登录并选择拍单号，若有某个上家平台的订单但是，单业务未选择买手号则提示  “请登录并选择1688（相应平台（淘宝天猫、拼多多等））拍单账号”
+      const account = []
       account[1] = this.accountpdd
       account[2] = this.accounttaobao
       account[3] = this.accounttaobao
@@ -2311,16 +2306,16 @@ export default {
       }
       return userInfo
     },
-    //打开商品出库弹窗
+    // 打开商品出库弹窗
     outStoreBefore(title, type) {
       if (!this.multipleSelection.length) {
         return this.$message.warning('请选择数据')
       }
-      let arrFilter = this.multipleSelection.filter((item) => item.order_status === 2)
+      const arrFilter = this.multipleSelection.filter((item) => item.order_status === 2)
       if (!arrFilter.length) {
         return this.$message.warning('只有待发货的订单，才能进行出货！')
       }
-      let single = {}
+      const single = {}
       this.multipleSelection.forEach((item) => {
         single[item.order_status] = item.order_status
       })
@@ -2338,7 +2333,7 @@ export default {
       this.colorVisible = true
       await this.getColorList()
     },
-    //设置颜色
+    // 设置颜色
     async setColor(arrData) {
       let ids = ''
       arrData.forEach((item, index) => {
@@ -2348,11 +2343,11 @@ export default {
           ids = ids + ',' + item.id
         }
       })
-      let params = {
+      const params = {
         sysOrderIds: ids,
-        id: this.colorRow.id,
+        id: this.colorRow.id
       }
-      let res = await this.$api.setColorLabel(params)
+      const res = await this.$api.setColorLabel(params)
       if (res.data.code === 200) {
         arrData.forEach((item) => {
           let index = this.tableData.findIndex((n) => n.id == item.id)
@@ -2368,7 +2363,7 @@ export default {
         this.$message.error(`设置失败-${res.data.message}`)
       }
     },
-    //获取标识选择
+    // 获取标识选择
     async getColorList() {
       this.colorList = []
       let res = await this.$api.colorLabelList()
@@ -2383,7 +2378,7 @@ export default {
         this.colorList.unshift(obj)
       }
     },
-    //颜色标识
+    // 颜色标识
     getCurrentRow(row) {
       this.colorRow = row
     },
@@ -2393,19 +2388,19 @@ export default {
       }
       this.localRamarkVisible = true
     },
-    //批量添加本地备注
+    // 批量添加本地备注
     async batchSetRemark() {
       if (!this.multipleSelection.length) {
         return this.$message.warning('请先选择需要标记的商品！')
       }
       this.showConsole = false
       // this.$refs.Logs.consoleMsg = ''
-      this.multipleSelection.forEach(async (item) => {
-        let params = {
+      this.multipleSelection.forEach(async(item) => {
+        const params = {
           id: item.id,
-          remark: this.localRamark,
+          remark: this.localRamark
         }
-        let res = await this.$api.setLocalRemark(params)
+        const res = await this.$api.setLocalRemark(params)
         if (res.data.code === 200) {
           this.$refs.multipleTable.toggleRowSelection(item, false)
           this.$refs.Logs.writeLog(`订单编号【${item.order_sn}】备注成功`, true)
@@ -2435,7 +2430,7 @@ export default {
       array.forEach(async (item) => {
         let params = {
           sysOrderId: item.id,
-          status: this.isAbroadGood,
+          status: this.isAbroadGood
         }
         try {
           let res = await this.$api.markGoodsIsOverseas(params)
@@ -2455,24 +2450,24 @@ export default {
       this.isAbroadGood = 0
       this.abroadVisible = false
     },
-    //表头显示处理
+    // 表头显示处理
     showTableColumn(name) {
-      let hasName = this.columnConfigList.find((item) => item.column_header == name)
+      const hasName = this.columnConfigList.find((item) => item.column_header == name)
       if (hasName.is_show === 1) {
         return true
       } else {
         return false
       }
     },
-    //显示、隐藏所有列
+    // 显示、隐藏所有列
     checkAllColumn(val) {
       this.columnConfigList.forEach((item) => {
         item.is_show = val
       })
     },
-    //上传配置列
+    // 上传配置列
     async uploadColumn() {
-      let arr = []
+      const arr = []
       this.columnConfigList.forEach((item) => {
         let par = {
           columnHeader: item.column_header,
@@ -2485,18 +2480,18 @@ export default {
         // columnId: 1, //  1 => '订单列表',         2 => '售后列表',
         lists: arr,
       }
-      let res = await this.$api.uploadColumnsConfig(params)
+      const res = await this.$api.uploadColumnsConfig(params)
       if (res.data.code === 200) {
         this.$message.success('配置成功！')
         this.columnVisible = false
         this.getColumnsConfig()
       }
     },
-    //获取自定义配置列
+    // 获取自定义配置列
     async getColumnsConfig() {
-      let { data } = await this.$api.getColumnsConfig()
+      const { data } = await this.$api.getColumnsConfig()
       if (data.code === 200) {
-        let resData = data.data
+        const resData = data.data
         if (!resData) {
           return
         } else {
@@ -2505,9 +2500,9 @@ export default {
       }
       // console.log(data, 'getColumnsConfig')
     },
-    //同步物流单号
+    // 同步物流单号
     async syncLogistics() {
-      this.showConsole = false //打开日志
+      this.showConsole = false // 打开日志
       this.$refs.Logs.consoleMsg = ''
       this.$refs.Logs.writeLog(`获取采购物流轨迹开始`, true)
       const service = new LogisticeSyncService(this.$refs.Logs.writeLog)
@@ -2521,7 +2516,7 @@ export default {
         service.start(this, this.buyerAccountList)
       }
     },
-    //导出数据
+    // 导出数据
     async applyAsyncExportOrder() {
       let sysMallId = ''
       this.selectMallList.forEach((item, index) => {
@@ -2531,7 +2526,7 @@ export default {
           sysMallId = sysMallId + ',' + item.id
         }
       })
-      let params = JSON.parse(JSON.stringify(this.selectForm))
+      const params = JSON.parse(JSON.stringify(this.selectForm))
       params['page'] = this.currentPage
       params['pageSize'] = this.pageSize
       params['sysMallId'] = sysMallId
@@ -2540,7 +2535,7 @@ export default {
       params['shotStatus'] = this.shotStatus.join(',')
       params['logisticsIds'] = this.logisticsIds.join(',')
       params['createTime'] = this.createTime.length ? this.createTime[0] + ' 00:00:00' + '/' + this.createTime[1] + ' 23:59:59' : ''
-      let res = await this.$api.applyAsyncExportOrder(params)
+      const res = await this.$api.applyAsyncExportOrder(params)
       console.log(res, 'applyAsyncExportOrder')
       if (res.data.code === 200) {
         return this.$message.success(`导出数据请求成功，可点击【导出数据报表】按钮查看导出状态`)
@@ -2624,9 +2619,9 @@ export default {
           let response = await this.$commodityService.getSkuRelation(sysOrders)
           let skuInfo = response && JSON.parse(response)
           if (skuInfo.code === 200) {
-            let list = skuInfo.data.data || []
+            const list = skuInfo.data.data || []
             for (let index = 0; index < list.length; index++) {
-              let item = list[index]
+              const item = list[index]
               const tbIndex = this.tableData.findIndex((ele) => {
                 return ele.id === item.sysOrderId
               })
@@ -2644,7 +2639,7 @@ export default {
       this.tableLoading = false
       console.log(this.tableData)
     },
-    //获取买手号（服务端）
+    // 获取买手号（服务端）
     // async getBuyerList() {
     //   let res = await this.$api.getBuyerList()
     //   if (res.data.code === 200) {
@@ -2652,14 +2647,14 @@ export default {
     //   }
     //   console.log('getBuyerList', this.buyerAccountList)
     // },
-    //商品来源中文信息
+    // 商品来源中文信息
     changeTypeName(code, arr) {
-      let res = arr.find((item) => {
+      const res = arr.find((item) => {
         return item.value == code
       })
       return (res && res.label) || ''
     },
-    //全选
+    // 全选
     selectAll(key, baseData) {
       if (this[key].length < baseData.length) {
         this[key] = []
@@ -2695,13 +2690,13 @@ export default {
     changeDeliveryStatus, //仓库状态
     //点击复制
     copyItem(attr) {
-      let target = document.createElement('div')
+      const target = document.createElement('div')
       target.id = 'tempTarget'
       target.style.opacity = '0'
       target.innerText = attr
       document.body.appendChild(target)
       try {
-        let range = document.createRange()
+        const range = document.createRange()
         range.selectNode(target)
         window.getSelection().removeAllRanges()
         window.getSelection().addRange(range)
@@ -2709,11 +2704,11 @@ export default {
         window.getSelection().removeAllRanges()
         this.$message.success('复制成功')
       } catch (e) {
-        //console.log('复制失败')
+        // console.log('复制失败')
       }
       target.parentElement.removeChild(target)
-    },
-  },
+    }
+  }
 }
 </script>
 

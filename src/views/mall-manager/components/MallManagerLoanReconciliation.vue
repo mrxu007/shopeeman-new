@@ -71,7 +71,7 @@
           >同步数据</el-button>
           <el-button size="mini" type="primary" @click="cancelActive = true">取消同步</el-button>
           <el-button size="mini" type="primary" @click="clearLog">清空日志</el-button>
-          <el-button size="mini" type="primary" @click="export_table(1), (exportList = [])">导出 </el-button>
+          <el-button size="mini" type="primary" @click="export_table">导出 </el-button>
           <el-checkbox v-model="showConsole" style="margin-left: 10px"> 隐藏日志</el-checkbox>
         </div>
       </div>
@@ -80,7 +80,7 @@
       <div class="data_table" style="height: 100%; background-color: white">
         <el-table
           v-loading="isLoading"
-          height="calc(100vh - 281px)"
+          height="calc(100vh - 266px)"
           :data="tableList"
           :row-style="{ height: '50px' }"
           :header-cell-style="{ background: '#f7fafa' }"
@@ -91,7 +91,11 @@
               {{ row.country | chineseSite }}
             </template>
           </el-table-column>
-          <el-table-column prop="platform_mall_name" min-width="120px" label="店铺名称" align="center" />
+          <el-table-column min-width="120px" label="店铺名称" align="center">
+            <template v-slot="{row}">
+              {{ row.mall_alias_name?row.mall_alias_name:row.platform_mall_name }}
+            </template>
+          </el-table-column>
           <el-table-column prop="order_sn" label="订单编号" min-width="120px" align="center" />
           <el-table-column prop="" min-width="80px" label="状态" align="center">
             <template slot-scope="{ row }">{{ Number(row.status) === 1 ? '已拨款 ' : '即将拨款' }}</template>
@@ -123,7 +127,7 @@
 </template>
 <script>
 import storeChoose from '../../../components/store-choose'
-import { exportExcelDataCommon } from '../../../util/util'
+import { delay, exportExcelDataCommon, waitStart } from '../../../util/util'
 
 export default {
   components: { storeChoose },
@@ -169,27 +173,28 @@ export default {
       cancelActive: false
     }
   },
-  mounted() {
+  async mounted() {
     // 初始化时间
     this.cloumn_date = [
       new Date().getTime() - 3600 * 1000 * 24 * 10,
       new Date().getTime() + 3600 * 1000 * 24 * 20
     ]
     // this.cloumn_date = creatDate(31)
-    this.search() // 初始化table
-    this.exchangeRateList() // 获取汇率
+    await waitStart(() => {
+      return this.selectMallList && this.selectMallList[0]
+    }, 50)
+    await this.search() // 初始化table
+    await this.exchangeRateList() // 获取汇率
   },
   methods: {
     clearLog() {
       this.$refs.Logs.consoleMsg = ''
     },
     changeMallList(val) {
-      console.log(val)
+      console.log('changeMallList', val,new Date().getTime())
       this.selectMallList = val
       this.site_query['country'] = this.selectMallList['country']
       this.exchangeRateList()
-      console.log('country', this.site_query['country'])
-      console.log('changeMallList', val)
     },
     // 同步信息
     async updataMall() {
@@ -256,7 +261,7 @@ export default {
                 bill_num: item.id + '',
                 amount: item.amount + '',
                 using_wallet: item.using_wallet ? '1' : '0',
-                release_time: this.$dayjs(item.release_time).format('YYYY-MM-DD HH:mm:ss')
+                release_time: this.$dayjs(item.release_time * 1000).format('YYYY-MM-DD HH:mm:ss')
               }
               const index = dataArr.filter((i) => i.bill_num === params.bill_num)[0] || ''
               index && count--
@@ -293,6 +298,7 @@ export default {
         mallId: mallID,
         bills: dataArr
       }
+      console.log(params, '------------')
       const res = await this.$api.uploadPaymentList(params)
       console.log(res)
     },
@@ -320,14 +326,29 @@ export default {
       }
     },
     // 导出
-    export_table(page) {
-      const params = this.query
-      params.page = page
-      this.getTableList(params)
-      if (this.tableList.length > 0) {
-        this.exportList.push(...this.tableList)
-        if (this.exportList.length >= this.total) {
-          let str = `<tr>
+    async export_table() {
+      if (this.total === 0) return this.$message('暂无导出数据')
+      let exportData = []
+      this.isLoading = true
+      const params = JSON.parse(JSON.stringify(this.query))
+      params.pageSize = 200
+      params.page = 1
+      while (exportData.length < this.total) {
+        try {
+          const data = await this.$api.getPaymentList(params)
+          if (data.data.code === 200) {
+            exportData = exportData.concat(data.data.data.data)
+            params.page++
+          } else {
+            this.$refs.Logs.writeLog('导出数据错误')
+            break
+          }
+        } catch (error) {
+          this.$refs.Logs.writeLog('导出数据异常')
+          break
+        }
+      }
+      let str = `<tr>
               <td>序号</td>
               <td>站点</td>
               <td>店铺名称</td>
@@ -338,8 +359,8 @@ export default {
               <td>拨款金额（RMB）</td>
               <td>拨款时间</td>
             </tr>`
-          this.exportList.forEach((item, index) => {
-            str += `<tr>
+      exportData.forEach((item, index) => {
+        str += `<tr>
               <td>${index + 1}</td>
               <td>${item.country ? this.$filters.chineseSite(item.country) : '-' + '\t'}</td>
               <td>${item.platform_mall_name ? item.platform_mall_name : '-' + '\t'}</td>
@@ -348,19 +369,17 @@ export default {
               <td>${item.bill_num ? item.bill_num : '-' + '\t'}</td>
               <td>${item.appropriate_amount ? item.appropriate_amount : '-' + '\t'}</td>
               <td>${item.appropriate_amount ? (item.appropriate_amount * this.site_query.rate_coin).toFixed(2) : '-' + '\t'}</td>
-              <td>${item.created_at ? item.created_at : '-' + '\t'}</td>
+              <td>${item.appropriate_time ? item.appropriate_time : '-' + '\t'}</td>
             </tr>`
-          })
-          exportExcelDataCommon('货款对账详情', str)
-        } else {
-          this.export_table(page + 1)
-        }
-      } else {
-        this.$message.warning('暂无数据导出')
-      }
+      })
+      exportExcelDataCommon('货款对账详情', str)
+      this.isLoading = false
     },
     // 搜索
-    search() {
+    async search() {
+      if (this.selectMallList?.length === 0) {
+        return this.$message('请选择店铺')
+      }
       this.isLoading = true
       const params = this.query
       let sysMallId = ''
@@ -376,23 +395,17 @@ export default {
       params.page = this.page
       params.pageSize = this.pageSize
       console.log(params, 'params')
-      this.getTableList(params)
+      await this.getTableList(params)
     },
     // 初始化tableList
     async getTableList(params) {
       const data = await this.$api.getPaymentList(params)
       if (data.data.code === 200) {
-        // this.tableList = data.data.data.data
         this.tableList = data.data.data.data
-        // this.query.page = data.data.data.last_page
-        // this.query.pageSize = data.data.data.per_page
         this.total = data.data.data.total
         this.to_back_amount = data.data.data.to_back_amount
         this.haved_amount = data.data.data.haved_amount
         this.site_query.typeCoin = this.$shopeeManConfig.getSiteCoinSymbol(this.site_query.country)
-        if (this.selectMallList?.length === 0) {
-          this.tableList = []
-        }
       } else {
         this.$message.warning('数据请求失败！')
       }
@@ -411,91 +424,91 @@ export default {
 }
 </script>
 <style lang="less">
-.content {
-  min-width: 1200px;
-  // padding: 5px;
-  // margin: 10px;
-  // margin-right:10px ;
-  .overdata_view,
-  .all_condition,
-  .table_clo {
-    .account-box {
-      border: 1px solid #dcdcdc;
-      border-radius: 4px;
-      padding: 16px;
-      position: relative;
+  .content {
+    min-width: 1200px;
+    // padding: 5px;
+    // margin: 10px;
+    // margin-right:10px ;
+    .overdata_view,
+    .all_condition,
+    .table_clo {
+      .account-box {
+        border: 1px solid #dcdcdc;
+        border-radius: 4px;
+        padding: 16px;
+        position: relative;
 
-      .account-title {
-        padding: 0 5px;
-        display: inline-block;
-        height: 20px;
-        line-height: 20px;
-        text-align: center;
-        background: #fff;
-        position: absolute;
-        left: 10px;
-        top: -10px;
-      }
-
-      .account-item {
-        display: flex;
-        align-items: center;
-
-        span {
-          margin-right: 20px;
+        .account-title {
+          padding: 0 5px;
           display: inline-block;
+          height: 20px;
+          line-height: 20px;
+          text-align: center;
+          background: #fff;
+          position: absolute;
+          left: 10px;
+          top: -10px;
         }
 
-        .acount-item-sub {
+        .account-item {
           display: flex;
           align-items: center;
-        }
 
-        .warning-style {
-          color: red;
-          font-size: 16px;
+          span {
+            margin-right: 20px;
+            display: inline-block;
+          }
+
+          .acount-item-sub {
+            display: flex;
+            align-items: center;
+          }
+
+          .warning-style {
+            color: red;
+            font-size: 16px;
+          }
         }
       }
+
+      background-color: white;
+      padding: 5px;
+      margin: 10px;
+      border-radius: 10px;
     }
 
-    background-color: white;
-    padding: 5px;
-    margin: 10px;
-    border-radius: 10px;
-  }
-
-  .overdata_view {
-    padding: 10px;
-    display: flex;
-    flex-direction: column;
-  }
-
-  .table_clo {
-    border-radius: 0px;
-    padding: 2px;
-  }
-
-  .all_condition {
-    .condition_box {
+    .overdata_view {
+      padding: 10px;
       display: flex;
-      align-items: center;
-      .condition_item {
-        width: auto;
-        display: inline-block !important;
-        margin-bottom: 8px;
-        margin-right: 10px;
+      flex-direction: column;
+    }
 
-        span {
-          margin-right: 5px;
+    .table_clo {
+      border-radius: 0px;
+      padding: 2px;
+    }
+
+    .all_condition {
+      .condition_box {
+        display: flex;
+        align-items: center;
+        .condition_item {
+          width: auto;
+          display: inline-block !important;
+          margin-bottom: 8px;
+          margin-right: 10px;
+
+          span {
+            margin-right: 5px;
+          }
         }
       }
     }
-  }
 
-  .w80 {
-    display: inline-block;
-    text-align: right;
-    width: 80px;
+    .w80 {
+      display: inline-block;
+      text-align: right;
+      width: 80px;
+    }
   }
-}
 </style>

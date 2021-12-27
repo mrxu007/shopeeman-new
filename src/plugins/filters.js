@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-10-22 11:28:33
- * @LastEditTime: 2021-12-21 21:07:54
+ * @LastEditTime: 2021-12-27 11:03:05
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shopeeman-new\src\plugins\filters.js
@@ -147,6 +147,16 @@ const site_http_com = {
   'ES': 'https://es.xiapibuy.com' // 暂时无效
 }
 
+// lazada各站点链接
+const lazada_goods_url = {
+  'TH': 'https://www.lazada.co.th/products/i',
+  'MY': 'https://www.lazada.com.my/products/i', // 马来西亚
+  'VN': 'https://www.lazada.vn/products/i', // 越南
+  'ID': 'https://www.lazada.co.id/products/i', // 印度尼西亚
+  'PH': 'https://www.lazada.com.ph/products/i', // 菲律宾
+  'SG': 'https://www.lazada.sg/products/i'
+}
+
 const special_characters = [
   '♞', '♘', '♙', '♟', '♕', '♛', '☬', '♝', '☫', '♚', '☃', '☸', '♗', '☊', '☋', '❡', '๑', '♨', '❖', '☇', '☈', '۞', '۩', '♤',
   '♠', '♧', '♣', '◇', '◆', '▧', '◘', '▩', '▣', '◙', '▨', '▤', '▥', '▦', '✠', '☜', '☞', '☎', '☏', '♂', '♀', '☼', '♈',
@@ -186,4 +196,22 @@ var countryShopeebuyCom = function(val) {
   attribute = site_http_com[attribute] || attribute
   return site_http_com[attribute] || attribute
 }
-export { chineseSite, imageRender, siteCoin, sitePlatform, countryShopeebuyCom, countries_option, countries_option_sub,countries_site }
+
+var lazadaGoodsUrl = function(val) {
+  let attribute = val && (val + '').toLocaleUpperCase() || val
+  attribute = lazada_goods_url[attribute] || attribute
+  return lazada_goods_url[attribute] || attribute
+}
+
+var imageRenderhaventID = function(data) { // 第二个参数传任意传
+  const country = data[0]
+  // const shop_id = data[1]
+  const image_value = data[2]
+  const isArr = data[3] || ''
+  let attribute = country && (country + '').toLocaleUpperCase() || country
+  attribute = countries_id[attribute] || attribute
+  const url = countries_image[attribute] && (countries_image[attribute] + '/file/' + image_value) || ''
+  return isArr && [url] || url
+}
+
+export { chineseSite, imageRender, imageRenderhaventID, siteCoin, sitePlatform, countryShopeebuyCom, lazadaGoodsUrl, countries_option, countries_site,countries_option_sub }

@@ -93,7 +93,7 @@
       <el-table
         ref="plTable"
         v-loading="isShowLoading"
-        height="calc(100vh - 210px)"
+        height="calc(100vh - 200px)"
         :data="tableData"
         :header-cell-style="{
           backgroundColor: '#f5f7fa',
@@ -405,6 +405,8 @@ export default {
   },
   async mounted() {
     this.form.createdAt = [new Date().getTime() - 3600 * 1000 * 24 * 15, new Date()]
+    // 获取用户信息，用来判断中转仓的显示
+    await this.getUserInfo()
     // 获取仓库
     await this.getWarehouseList()
     // 获取数据
@@ -444,9 +446,13 @@ export default {
       this.reissueVisible = true
       this.getStock()
     },
-    // 打开商品链接
-    openUrl(row) {
-      window.open(row)
+    // 打开外部链接
+    async openUrl(url) {
+      try {
+        await this.$BaseUtilService.openUrl(url)
+      } catch (error) {
+        this.$message.error(`打开链接【${url}】失败`)
+      }
     },
     // 获取用户muid
     async getUserInfo() {
@@ -483,7 +489,6 @@ export default {
             this.widList.push(item)
           }
         } else {
-          // 弹窗仓库列表不需要判断
           if (item.status !== 2) {
             this.widList.push(item)
           }
@@ -538,7 +543,7 @@ export default {
       const data = []
       const exportData = []
       const params = this.form
-      params.pageSize = this.pageSize
+      params.pageSize = 200
       params.page = 1
       while (exportData.length < this.total) {
         const res = await this.ChineseDeliveryOrder.getHomeOutStockOrder(params)

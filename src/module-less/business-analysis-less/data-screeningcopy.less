@@ -1,0 +1,64 @@
+.contaniner{
+  margin: 10px;
+  .header {
+    background: white;
+    padding: 16px;
+    min-width: 1280px;
+    overflow: auto;
+    ul{
+      display: flex;
+        li{
+          line-height: 24px;
+          display: flex;
+            margin-right: 20px;
+            /deep/.el-range-editor--mini{
+              width: 238px;
+              /deep/.el-range-input{
+                width: 72px;
+            }
+            /deep/.el-range-separator{
+                width: 42px;
+                text-align: center;
+            }
+          }
+          /deep/.el-input{
+            width: 150px;
+          }
+        }
+    }
+  }
+  #article {
+    background: white;
+    margin-top: 10px;
+    padding: 16px;
+    min-width: 1280px;
+    .pagination{
+      float: right;
+      margin-top: 10px;
+    }
+  }
+  .water-dialog {
+    .header-opt {
+      display: flex;
+    }
+    .text-label {
+      margin-top: 10px;
+    }
+    .text-log {
+      margin-top: 10px;
+      width: 570px;
+      height: 270px;
+      border: 1px solid #ccc;
+      overflow-y: auto;
+      .text-log-content {
+        padding: 16px;
+      }
+    }
+  }
+  .copyIcon {
+    // color: var(--themeColor);
+    margin-left: 1px;
+    font-size: 16px;
+    cursor: pointer;
+  }
+}

@@ -100,7 +100,7 @@
       <el-table
         ref="plTable"
         v-loading="isShowLoading"
-        height="calc(100vh - 250px)"
+        height="calc(100vh - 240px)"
         :data="tableData"
         :header-cell-style="{
           backgroundColor: '#f5f7fa',
@@ -377,7 +377,7 @@
                 :disabled="isforeignClose"
                 @click="itselfGoodsImport"
               >自有商品导入</el-button>
-              <el-upload ref="importRef" :disabled="isforeignClose" style="margin:0 10px" accept=".xlsx,.xls," action="https://jsonplaceholder.typicode.com/posts/" :on-change="importTemplate" :show-file-list="false" :auto-upload="false">
+              <el-upload ref="importRef" :disabled="isforeignClose" style="margin:0 10px" accept=".xls,.xlsx" action="https://jsonplaceholder.typicode.com/posts/" :on-change="importTemplate" :show-file-list="false" :auto-upload="false">
                 <el-button :disabled="isforeignClose" :data="importTemplateData" size="mini" type="primary"> 批量Excel导入 </el-button>
               </el-upload>
               <el-button
@@ -1248,10 +1248,9 @@ export default {
             this.foreignWidList.push(item)
           }
         } else {
-          // 弹窗仓库列表不需要判断
-          this.foreignWidList.push(item)
           if (item.status !== 2) {
             this.widList.push(item)
+            this.foreignWidList.push(item)
           }
         }
       })
@@ -1429,6 +1428,10 @@ export default {
         params['BarCodeList'] = []
         for (let j = 0; j < item1.home_stocking_forecast_sub.length; j++) {
           const item2 = item1.home_stocking_forecast_sub[j]
+          if (!item2.sys_sku_id) {
+            this.$refs.Logs.writeLog(`【${item1.package_code}】的商品SkuId【${item2.sku_id}】对应的系统商品ID为空`, false)
+            continue
+          }
           const obj = {
             BarCodeContent: [
               `物流单号:${item1.package_code}`,
@@ -1489,8 +1492,10 @@ export default {
       this.productData = []
       this.goodsForeignData = []
       this.itselfGoodsVisible = true
-      this.$nextTick(() => {
+      this.$nextTick(async() => {
         this.$refs.isClean.cleanData()
+        // 获取产品中心数据
+        await this.getProductList()
       })
     },
     // 查看详情
@@ -1562,19 +1567,19 @@ export default {
           this.$refs.Logs.writeLog(`【${index + 1}】商品规格为空`, false)
           continue
         }
-        if (!long) {
+        if (long === '') {
           this.$refs.Logs.writeLog(`【${index + 1}】长(cm)为空`, false)
           continue
         }
-        if (!width) {
+        if (width === '') {
           this.$refs.Logs.writeLog(`【${index + 1}】宽(cm)为空`, false)
           continue
         }
-        if (!height) {
+        if (height === '') {
           this.$refs.Logs.writeLog(`【${index + 1}】高(cm)为空`, false)
           continue
         }
-        if (!weight) {
+        if (weight === '') {
           this.$refs.Logs.writeLog(`【${index + 1}】重量(g)为空`, false)
           continue
         }
@@ -1725,7 +1730,7 @@ export default {
       const exportData = []
       let resData = []
       const params = this.form
-      params.pageSize = this.pageSize
+      params.pageSize = 200
       params.page = 1
       while (resData.length < this.total) {
         const res = await this.StrockUpHome.getHomeWarehouse(params)

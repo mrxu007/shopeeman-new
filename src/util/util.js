@@ -1,10 +1,11 @@
 import { setTimeout } from 'core-js'
 import md5 from 'js-md5'
 import Vue from 'vue'
+import XLSX from 'xlsx'
 
 const instance = new Vue()
 
-// 匹配对象数组值(店铺绑定)
+// 匹配对象数组值(店铺绑定--系统)
 export function MallgetValue(arr, label, id, relID) {
   let data = ''
   for (let i = 0; i < arr.length; i++) {
@@ -300,7 +301,7 @@ export function exportExcelDataCommon(fileName, str) {
                 <x:Name>${worksheet}</x:Name>
                 <x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet>
                 </x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]-->
-                <meta charset="utf-8">
+                <meta charset="gbk2312">
                 </head><body><table>${str}</table></body></html>`
   // 下载模板
   // let template = templates.replace(/<td/g,`<td style="mso-number-format:'\@';"`)
@@ -309,7 +310,7 @@ export function exportExcelDataCommon(fileName, str) {
   //   name: worksheet
   // })
   const blob = new Blob([template], {
-    type: 'html',
+    type: 'application/vnd.ms-excel;charset=gbk2312',
     name: worksheet
   })
   const a = document.createElement('a')
@@ -317,7 +318,7 @@ export function exportExcelDataCommon(fileName, str) {
   // a.href = uri + this.base64(template)
   console.log(URL.createObjectURL(blob))
   a.href = URL.createObjectURL(blob)
-  a.download = `${fileName}${new Date(Date.now() + 8 * 3600 * 1000).toISOString().slice(0, 10)}.xlsx`
+  a.download = `${fileName}${new Date(Date.now() + 8 * 3600 * 1000).toISOString().slice(0, 10)}.xls`
   a.click()
   document.body.removeChild(a)
 }
@@ -410,33 +411,62 @@ export function randomWord(randomFlag, min, max) {
 }
 
 /**
- *
+ * 线程批量
  * @param array // 数组（参数）
  * @param method // 请求函数
+ * @param count // 线程数
  * @returns {Promise<any>}
  */
 export function batchOperation(array, method, count = 5) {
+  let threadRunCountJson = localStorage.getItem('threadRunCount') || ''
+  let threadRunCountRes = threadRunCountJson && JSON.parse(threadRunCountJson) || {}
+  let methodName = method.name
+  threadRunCountRes[methodName] = true
+  localStorage.setItem('threadRunCount',JSON.stringify(threadRunCountRes))
   return new Promise(resolve => {
     const number = array.length
     const countObj = { count: number }
     let submitCount = 0
     let setIn = setInterval(() => {
+      let threadRunCountJson = localStorage.getItem('threadRunCount') || ''
+      let threadRunCountRes = threadRunCountJson && JSON.parse(threadRunCountJson) || {}
       const num = countObj.count
-      if (num === 0) {
+      console.log('线程剩余数：',num)
+      if (num === 0 || !threadRunCountRes[methodName]) {
+        let success = '完成'
+        if (!threadRunCountRes[methodName]){
+          success = '终止'
+        }
         clearInterval(setIn)
         setIn = null
-        resolve('完成')
+        resolve(success)
       } else {
         manage(number - num)
       }
     }, 1000)
-    function manage(completeCount) {
+    async function manage(completeCount) {
       for (; (submitCount - completeCount) < count && submitCount < number; ++submitCount) {
         const item = array[submitCount]
         method(item, countObj)
       }
     }
   })
+}
+
+/**
+ * 取消线程
+ * @param method 方法
+ */
+export function terminateThread(method) {
+  let threadRunCount = ''
+  if (method){
+    let threadRunCountJson = localStorage.getItem('threadRunCount') || ''
+    let threadRunCountRes = threadRunCountJson && JSON.parse(threadRunCountJson) || {}
+    let methodName = method.name
+    delete threadRunCountRes[methodName]
+    threadRunCount = JSON.stringify(threadRunCountRes)
+  }
+    localStorage.setItem('threadRunCount',threadRunCount)
 }
 
 // 时间转换
@@ -447,10 +477,164 @@ export function formatDuring(mss) {
   return hours + ':' + minutes + ':' + seconds.toFixed(0)
 }
 
-export function exportPdfData() {
+/**
+ *
+ * @param tableData Array ['商品','订单号']
+ * @param jsonData Array[Array] [['goods1','id']]
+ * @param workName String 'name'默认时间戳
+ * @returns {Promise<void>}
+ */
 
+export async function importOrder(tableData, jsonData, workName = '') {
+  const arr = []
+  arr.push(tableData)
+  jsonData.forEach(item => { arr.push(item) })
+  const worksheet = XLSX.utils.aoa_to_sheet(arr)
+  console.log(fitToColumn(arr))
+  worksheet['!cols'] = fitToColumn(arr)
+  const workbook = XLSX.utils.book_new()
+  XLSX.utils.book_append_sheet(workbook, worksheet, workName || (new Date(Date.now() + 8 * 3600 * 1000).toISOString().slice(0, 10)))
+  XLSX.writeFile(workbook, `${workName}${new Date(Date.now() + 8 * 3600 * 1000).toISOString().slice(0, 10)}.xlsx`)
+  function fitToColumn(arrayOfArray) {
+    return arrayOfArray[0].map((a, i) => ({ wch: Math.max(...arrayOfArray.map(a2 => a2[i] ? a2[i].toString().length : 10)) * 1.5 }))
+  }
+}
+
+export async function waitStart(prepare, num = 500) {
+  let count = 0
+  const number = num && parseInt(num) || 500
+  return new Promise((resolve, reject) => {
+    const ing = setInterval(() => {
+      ++count
+      if (prepare() || count >= number) {
+        console.log('等待成功', prepare)
+        clearInterval(ing)
+        resolve(prepare())
+      }
+    }, 200)
+  })
+}
+export async function selfAliYunTransImage(imgUrl, command, account, that) {
+  account.login_info = account.login_info || JSON.parse(account.loginInfo)
+  const _csrf = account.login_info.find(item => {
+    return item.Name == 'XSRF-TOKEN'
+  })
+  const url = `https://www.alifanyi.com/api/imagetranslate/submitOfflineImageTask?_csrf=${_csrf.Value}`
+  const data1 = await that.$api.jdRequest.post(url, {
+    'platform': 'ae',
+    'sourceLanguage': command.fromLanguage,
+    'targetLanguage': command.toLanguage,
+    'offlineImageBOList': [{
+      'groupName': '全部图片',
+      'imageUrls': [imgUrl]
+    }]
+  }, { headers: {
+    cookies: account.login_info
+  }})
+  console.log(data1)
+  if (data1.status == 200 && data1.data.code == 200) {
+    const url = `https://www.alifanyi.com/api/imagetranslate/composeDetail/${data1.data.data}/1?_csrf=${_csrf.Value}`
+    const data2 = await that.$api.jdRequest.post(url, {
+    }, { headers: {
+      cookies: account.login_info
+    }})
+    console.log(data2)
+    let res = ''
+    if (data2.data.data) {
+      res = data2.data
+    } else {
+      res = JSON.parse(data2.data.replace(/\\/g, '').replace(/"\{/g, '{').replace(/\}"/g, '}'))
+    }
+
+    if (res.code == 200 && res.data.finalImageUrl) {
+      return res.data.finalImageUrl
+    } else {
+      that.$message.error('图片翻译', '阿里图片翻译失败,请确认翻译图片数量是否到达上限', 'warning')
+    }
+  } else {
+    that.$message.error('图片翻译', '阿里图片翻译失败,请确认阿里账号是否掉线', 'warning')
+  }
+}
+
+export function getArraySrcLengthSort(arr, type) {
+  const sort = []
+  for (let i = 0; i < arr.length; i++) {
+    let index = 0
+    for (let j = 0; j < arr.length; j++) {
+      if (arr[i].length > arr[j].length) {
+        ++index
+      }
+    }
+    while (sort[index] || sort[index] === 0) {
+      ++index
+    }
+    sort[index] = i
+  }
+  return type && sort || sort.reverse()
 }
 export function getDaysBetween(startDate,endDate){
   var days=(endDate - startDate)/(1*24*60*60*1000);
   return  days;
+}
+
+// 拼接链接
+export function getGoodsUrl(platform,data) {
+  try {
+    let platformData = {}
+    switch (platform) {
+      case 1:
+        platformData['url'] = `http://mobile.yangkeduo.com/goods.html?goods_id=${data['productId']}`
+        platformData['platformTypeStr'] = '拼多多'
+        break
+      case 2:
+        platformData['url'] = `https://item.taobao.com/item.htm?id=${data['productId']}`
+        platformData['platformTypeStr'] = '淘宝'
+        break
+      case 3:
+        platformData['url'] = `https://detail.tmall.com/item.htm?id=${data['productId']}`
+        platformData['platformTypeStr'] = '天猫'
+        break
+      case 5:
+        platformData['url'] = ''
+        platformData['platformTypeStr'] = '自有产品'
+        break
+      case 6:
+        platformData['url'] = `http://gh.ppxias.com/goods/${data['productId']}.html`
+        platformData['platformTypeStr'] = '皮皮虾供货平台'
+        break
+      case 15:
+      case 7:
+        platformData['url'] = `http://www.17hyj.com/detail?goodsid=${data['productId']}`
+        platformData['platformTypeStr'] = '货老板'
+        break
+      case 8:
+        platformData['url'] = `https://detail.1688.com/offer/${data['productId']}.html`
+        platformData['platformTypeStr'] = '1688'
+        break
+      case 11:
+        platformData['url'] = `${instance.$filters.countryShopeebuyCom(data['site'])}/product/${data['shopId']}/${data['productId']}`
+        platformData['platformTypeStr'] = 'Shopee'
+        break
+      case 12:
+        platformData['url'] = `https://www.aliexpress.com/item/${data['productId']}.html`
+        platformData['platformTypeStr'] = '速卖通'
+        break
+      case 9:
+        platformData['url'] = `${instance.$filters.lazadaGoodsUrl(data['site'])}${data['productId']}.html`
+        platformData['platformTypeStr'] = 'Lazada'
+        break
+      case 10:
+        platformData['url'] = `https://item.m.jd.com/product/${data['productId']}.html`
+        platformData['platformTypeStr'] = '京喜'
+        break
+      case 13:
+        platformData['url'] = `https://distributor.taobao.global/apps/product/detail?mpId=${data['productId']}`
+        platformData['platformTypeStr'] = '天猫淘宝海外平台'
+        break
+    }
+    console.log(instance.$filters)
+    return platformData
+  } catch (error) {
+    console.log('拼接链接异常', error)
+  }
 }

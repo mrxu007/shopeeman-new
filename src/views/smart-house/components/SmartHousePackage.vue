@@ -94,7 +94,8 @@
       <el-table
         ref="plTable"
         v-loading="isShowLoading"
-        height="calc(100vh - 210px)"
+        :row-style="{ height: '68px' }"
+        height="calc(100vh - 200px)"
         :data="tableData"
         :header-cell-style="{
           backgroundColor: '#f5f7fa',
@@ -107,12 +108,12 @@
           min-width="50px"
           fixed
         />
-        <!-- <el-table-column
+        <el-table-column
           align="center"
           type="index"
           label="序号"
           fixed
-        /> -->
+        />
         <el-table-column
           align="center"
           prop="package_code"

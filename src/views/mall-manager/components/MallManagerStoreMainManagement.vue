@@ -2,19 +2,19 @@
   <div v-loading="loading" class="content">
     <div class="all_condition">
       <div class="des_conditon">
-        <storeChoose :is-all="true" :show-mall-all="true" @changeMallList="changeMallList" />
+        <storeChoose :is-all="true" :show-mall-all="true" :source="'true'" @changeMallList="changeMallList" />
         <div style="margin-left: 20px">
           <span>过期时间：</span>
           <el-date-picker
-            v-model="cloumn_date"
-            size="mini"
-            style="width: 324px"
-            type="datetimerange"
-            value-format="yyyy-MM-dd HH:mm:ss"
-            range-separator="-"
-            :picker-options="pickerOptions"
-            start-placeholder="开始日期"
-            end-placeholder="结束日期"
+              v-model="cloumn_date"
+              size="mini"
+              style="width: 324px"
+              type="datetimerange"
+              value-format="yyyy-MM-dd HH:mm:ss"
+              range-separator="-"
+              :picker-options="pickerOptions"
+              start-placeholder="开始日期"
+              end-placeholder="结束日期"
           />
         </div>
       </div>
@@ -84,29 +84,30 @@
         温馨提示：1.因为IP为实时购买，所以购买后不会立即生成IP信息。IP信息会在三分钟内生成 2.一个主体IP最多绑定10个店铺 3.若状态为【已绑定，已分配店铺】，但绑定店铺为空，则表示 店铺不存在此账号
       </div>
       <div style="font-size: smaller; color: red; margin-left: 60px; margin-top: 5px">
-        3.对于系统的香港IP（非香港名称），IP过期后，将无法进行续费，请在IP有效期内续费。 4、系统的香港IP（非香港名称）过期后，会被自动回收，回收后将不在显示代理IP信息
+        3.所有的IP的过期后，将无法进行续费，请在IP有效期内续费。 4、系统的香港IP（非香港名称）过期后，会被自动回收，回收后将不在显示代理IP信息
       </div>
     </div>
     <div class="table_clo">
       <div class="data_table" style="height: 100%; background-color: white">
         <el-table
-          ref="multipleTable"
-          height="calc(100vh - 233px)"
-          :data="tableListEnd"
-          :row-style="{ height: '50px' }"
-          style="width: 100%; height: calc(100vh - 233px)"
-          :header-cell-style="{ background: '#f7fafa' }"
-          @selection-change="handleSelectionChange"
+            ref="multipleTable"
+            height="calc(100vh - 233px)"
+            :data="tableListEnd"
+            :row-style="{ height: '50px' }"
+            style="width: 100%; height: calc(100vh - 233px)"
+            :header-cell-style="{ background: '#f7fafa' }"
+            @selection-change="handleSelectionChange"
         >
           <el-table-column type="selection" min-width="55px" align="center" />
           <el-table-column label="序号" type="index" align="center" :index="indexMethod" fixed />
-          <el-table-column prop="uid" label="主体ID" align="center" min-width="100px" fixed />
+          <el-table-column prop="id" label="主体ID" align="center" min-width="100px" fixed />
           <el-table-column prop="ip_alias" label="主体名称" align="center" min-width="200px" />
           <!-- 需要解析 -->
           <el-table-column prop="poxyIP" label="代理IP" align="center" min-width="150px" />
           <el-table-column prop="" label="IP渠道" align="center">
             <template slot-scope="{ row }">
-              <span>{{ row.data_ipinfor && row.data_ipinfor.channel_name ? row.data_ipinfor.area_name:row.data_ipinfor.channel_name }}</span>
+              <!-- <span>{{ row.data_ipinfor && row.data_ipinfor.region_name }}</span> -->
+              <span v-if="row.data_ipinfor">{{ row.data_ipinfor.area_name || row.data_ipinfor.channel_name }}</span>
             </template>
           </el-table-column>
           <el-table-column prop="source" label="IP来源" align="center" min-width="80px" />
@@ -126,7 +127,7 @@
             <template slot-scope="{ row }">
               <div>
                 <el-button size="mini" type="primary" @click="openSoft(row.poxyIP, row.id)">打开代理浏览器</el-button>
-                <el-button size="mini" type="primary" @click="showupdateVisible(row.id, row)">修改绑定店铺</el-button>
+                <el-button size="mini" type="primary" @click="showupdateVisible(row)">修改绑定店铺</el-button>
                 <el-button size="mini" type="primary" @click="delInforFun(row.id)">删除</el-button>
                 <!-- <el-button size="mini" type="primary" @click="del(row.uid)">删除</el-button> -->
               </div>
@@ -135,21 +136,32 @@
         </el-table>
         <div class="pagination">
           <el-pagination
-            background
-            :current-page.sync="page"
-            :page-sizes="[20, 50, 100, 200]"
-            :page-size="pageSize"
-            layout="total, sizes, prev, pager, next, jumper"
-            :total="total"
-            @size-change="handleSizeChange"
-            @current-change="handleCurrentChange"
+              background
+              :current-page.sync="page"
+              :page-sizes="[20, 50, 100, 200]"
+              :page-size="pageSize"
+              layout="total, sizes, prev, pager, next, jumper"
+              :total="total"
+              @size-change="handleSizeChange"
+              @current-change="handleCurrentChange"
           />
         </div>
       </div>
     </div>
     <!-- dialog 新增公司主体-->
     <div class="dialog_addip">
-      <el-dialog v-loading="loading" :title="dialog_title" :visible.sync="dialogvisible" width="1000px" height="600px" top="2vh" :class="{ changeVisible: Typeis === '' }" @closed="closeDialog1">
+      <el-dialog
+          v-loading="loading"
+          :title="dialog_title"
+          :visible.sync="dialogvisible"
+          width="1000px"
+          height="600px"
+          top="2vh"
+          :class="{ changeVisible: Typeis === '' }"
+          :close-on-click-modal="false"
+          :close-on-press-escape="false"
+          @closed="closeDialog1"
+      >
         <div class="left">
           <!--新增公司主体  -->
           <div v-if="Typeis === 'ipMaster'">
@@ -235,19 +247,19 @@
                 <el-input v-model="query_person.ip_port" placeholder="请输入端口" size="mini" style="width: 150px" clearable />
               </el-form-item>
               <el-form-item v-show="query_person.ip_agency !== '链接'" key="password" prop="password">
-                <span v-show="query_person.ip_agency !== 'HTTP'" slot="label" style="color: red; margin-right: 3px">*</span>
+                <span v-show="query_person.ip_agency !== 'http'" slot="label" style="color: red; margin-right: 3px">*</span>
                 <span slot="label">密码：</span>
                 <el-input v-model="query_person.password" placeholder="请输入密码" size="mini" style="width: 150px" clearable />
               </el-form-item>
 
-              <el-form-item v-show="query_person.ip_agency === 'SSR' || query_person.ip_agency === 'SS'" key="encryption" prop="encryption">
+              <el-form-item v-show="query_person.ip_agency === 'ssr' || query_person.ip_agency === 'ss'" key="encryption" prop="encryption">
                 <span slot="label" style="color: red; margin-right: 3px">*</span>
                 <span slot="label">加密方式：</span>
                 <el-select v-model="query_person.encryption" placeholder="请选择" style="width: 150px" size="mini">
                   <el-option v-for="item in encryptionList" :key="item.value" :label="item.label" :value="item.value" />
                 </el-select>
               </el-form-item>
-              <div v-show="query_person.ip_agency === 'SSR'">
+              <div v-show="query_person.ip_agency === 'ssr'">
                 <el-form-item key="protocol" prop="protocol">
                   <span slot="label" style="color: red; margin-right: 3px">*</span>
                   <span slot="label">协议：</span>
@@ -271,7 +283,7 @@
                   <el-input v-model="query_person.argument" placeholder="请输入协议参数" size="mini" style="width: 150px" clearable />
                 </el-form-item>
               </div>
-              <el-form-item v-show="query_person.ip_agency === 'HTTP'" prop="username">
+              <el-form-item v-show="query_person.ip_agency === 'http'" prop="username">
                 <!-- <span slot="label" style="color: red; margin-right: 3px" >*</span> -->
                 <span slot="label">用户名：</span>
                 <el-input v-model="query_person.username" placeholder="请输入用户名" size="mini" style="width: 150px" clearable />
@@ -312,27 +324,30 @@
                 <el-input v-model="query_person.ip_alias" placeholder="主体名称" size="mini" style="width: 150px" clearable />
               </el-form-item>
 
-              <el-form-item v-if="query_person.ip_agency !== '链接'" key="ip_address" prop="ip_address">
+              <!-- <el-form-item v-if="query_person.ip_agency !== '链接'" key="ip_address" prop="ip_address"> -->
+              <el-form-item key="ip_address" prop="ip_address">
                 <span slot="label" style="color: red; margin-right: 3px">*</span>
 
                 <span slot="label">服务器IP：</span>
                 <el-input v-model="query_person.ip_address" placeholder="请输入IP" size="mini" style="width: 150px" :disabled="source1" clearable />
               </el-form-item>
-              <el-form-item v-if="query_person.ip_agency !== '链接'" key="ip_port" prop="ip_port">
+              <!-- <el-form-item v-if="query_person.ip_agency !== '链接'" key="ip_port" prop="ip_port"> -->
+              <el-form-item key="ip_port" prop="ip_port">
                 <span slot="label" style="color: red; margin-right: 3px">*</span>
 
                 <span slot="label">服务器端口：</span>
                 <el-input v-model="query_person.ip_port" :disabled="source1" placeholder="请输入端口" size="mini" style="width: 150px" clearable />
               </el-form-item>
-              <div v-if="query_person.ip_agency === 'SS' || query_person.ip_agency === 'SSR' || query_person.ip_agency === 'HTTP'">
-                <el-form-item key="password" prop="password">
-                  <span slot="label" style="color: red; margin-right: 3px">*</span>
-                  <span slot="label">密码：</span>
-                  <el-input v-model="query_person.password" placeholder="请输入密码" size="mini" style="width: 150px" clearable />
-                </el-form-item>
-              </div>
-              <div v-if="query_person.ip_agency === 'SS' || query_person.ip_agency === 'SSR'">
-
+              <el-form-item v-show="!query_person.linkType" key="password" prop="password">
+                <!-- <span v-show="query_person.ip_agency !== 'http'" slot="label" style="color: red; margin-right: 3p">*</span> -->
+                <span v-show="query_person.ip_agency !== 'http'" slot="label" style="color: red; margin-right: 3px">*</span>
+                <span slot="label">密码：</span>
+                <el-input v-model="query_person.password" show-password placeholder="请输入密码" size="mini" style="width: 150px" clearable />
+              </el-form-item>
+              <!-- <div v-if="query_person.ip_agency === 'SS' || query_person.ip_agency === 'SSR' || query_person.ip_agency === 'HTTP'">
+              </div> -->
+              <div v-if="query_person.ip_agency === 'ssr'">
+                <!-- <div v-if="query_person.ip_agency === 'SS' || query_person.ip_agency === 'SSR'"> -->
                 <el-form-item key="encryption" prop="encryption">
                   <span slot="label" style="color: red; margin-right: 3px">*</span>
 
@@ -367,9 +382,9 @@
                 </el-form-item>
               </div>
 
-              <el-form-item v-if="query_person.ip_agency === 'HTTP' || query_person.ip_agency === '链接'" prop="username">
-                <span slot="label" style="color: red; margin-right: 3px">*</span>
-
+              <!-- <el-form-item v-if="query_person.ip_agency === 'HTTP' || query_person.ip_agency === '链接'" prop="username"> -->
+              <el-form-item v-if="query_person.ip_agency === 'http' || query_person.ip_agency === 'HTTP'" prop="username">
+                <!-- <span v-show="query_person.ip_agency !== 'http'" slot="label" style="color: red; margin-right: 3px">*</span> -->
                 <span slot="label">用户名：</span>
                 <el-input v-model="query_person.username" placeholder="请输入用户名" size="mini" style="width: 150px" clearable />
               </el-form-item>
@@ -435,25 +450,26 @@ export default {
     storeChoose },
 
   data() {
-    var validPort = (rule, value, callback) => {
-      if (!value) {
-        callback(new Error('请输入端口号'))
-      } else if (value > 0 && value < 65535) {
-        callback()
-      } else {
-        callback(new Error('端口号格式不正确'))
-      }
-    }
-    var validZipCode = (rule, value, callback) => {
-      if (!value) {
-        callback(new Error('请输入IP'))
-      } else if (!/^(25[0-5]|2[0-4]\d|1\d{2}|[1-9]\d?)\.((25[0-5]|2[0-4]\d|1\d{2}|[1-9]\d?|0)\.){2}(25[0-5]|2[0-4]\d|1\d{2}|[1-9]\d?)$/.test(value)) {
-        callback(new Error('请输入正确的IP'))
-      } else {
-        callback()
-      }
-    }
+    // var validPort = (rule, value, callback) => {
+    //   if (!value) {
+    //     callback(new Error('请输入端口号'))
+    //   } else if (value > 0 && value < 65535) {
+    //     callback()
+    //   } else {
+    //     callback(new Error('端口号格式不正确'))
+    //   }
+    // }
+    // var validZipCode = (rule, value, callback) => {
+    //   if (!value) {
+    //     callback(new Error('请输入IP'))
+    //   } else if (!/^(25[0-5]|2[0-4]\d|1\d{2}|[1-9]\d?)\.((25[0-5]|2[0-4]\d|1\d{2}|[1-9]\d?|0)\.){2}(25[0-5]|2[0-4]\d|1\d{2}|[1-9]\d?)$/.test(value)) {
+    //     callback(new Error('请输入正确的IP'))
+    //   } else {
+    //     callback()
+    //   }
+    // }
     return {
+      bindMalltable: [], // 过滤绑定店铺的主体
       changeIndex: 0, // dialog店铺分组 组件
       dialogMallquery: {
         country: '',
@@ -469,7 +485,6 @@ export default {
       targetId: '', // 修改店铺绑定仓库id
       dialog_selectMallList: [], // dialog表格多选
       // isBingedList: [],
-      dialog_mallList2: [],
       ipMaster_params: {
         lineId: '', // 线路ID
         uid: '', // 主账号ID
@@ -512,7 +527,7 @@ export default {
         ip_address: '', // IP地址
         ip_port: '', //	端口号
         ip_alias: '', // IP别名（主体名称）
-        ip_agency: 'SSR', // 代理方式
+        ip_agency: 'ssr', // 代理方式
         encryption: '', // 加密方式
         protocol: '', // 协议类型
         confuse: '', // 混淆方式
@@ -530,6 +545,7 @@ export default {
         dataTime: '' // 有效日期
       },
       dialog_mallList: [],
+      dialog_mallList_all: [],
       showUserIP: false,
       ipName: '', // 主体名称
       // time_ipList: [
@@ -589,14 +605,15 @@ export default {
       this.dialog_title = '新增公司主体'
       // 列表重新刷新
       this.changeIndex++
-      this.loading = true
-      const res = await this.$api.ddMallGoodsGetMallList()
-      this.loading = false
-      if (res.data.code === 200) {
-        this.dialog_mallList = res.data.data
-      } else {
-        this.$message.warning('网络异常！')
-      }
+      this.getMallList()
+      // this.loading = true
+      // const res = await this.$api.ddMallGoodsGetMallList()
+      // this.loading = false
+      // if (res.data.code === 200) {
+      //   this.dialog_mallList = res.data.data
+      // } else {
+      //   this.$message.warning('网络异常！')
+      // }
     },
     // 新增自有IP公司主体
     async addSelfFun() {
@@ -606,14 +623,15 @@ export default {
       this.dialog_title = '新增自有IP公司主体'
       // 列表重新刷新
       this.changeIndex++
-      this.loading = true
-      const res = await this.$api.ddMallGoodsGetMallList()
-      this.loading = false
-      if (res.data.code === 200) {
-        this.dialog_mallList = res.data.data
-      } else {
-        this.$message.warning('网络异常！')
-      }
+      this.getMallList()
+      // this.loading = true
+      // const res = await this.$api.ddMallGoodsGetMallList()
+      // this.loading = false
+      // if (res.data.code === 200) {
+      //   this.dialog_mallList = res.data.data
+      // } else {
+      //   this.$message.warning('网络异常！')
+      // }
     },
     // IP解绑
     lostIP() {
@@ -675,7 +693,7 @@ export default {
         ip_address: '', // IP地址
         ip_port: '', //	端口号
         ip_alias: '', // IP别名（主体名称）
-        ip_agency: 'SSR', // 代理方式
+        ip_agency: 'ssr', // 代理方式
         encryption: '', // 加密方式
         protocol: '', // 协议类型
         confuse: '', // 混淆方式
@@ -744,7 +762,7 @@ export default {
     async getInfo() {
       getMalls().then(res => {
         this.shopAccountList = res
-        this.query.mall_ids = [] // 初始化店铺数据
+        this.query.mall_ids = '' // 初始化店铺数据
         this.dialogMallquery.mallGroupIds = [] // 初始化绑定店铺分组
         this.shopAccountList.forEach(item => {
           // this.query.mall_ids.push(item.id)
@@ -753,12 +771,13 @@ export default {
         // this.initDate()
         this.getTableList()
         // console.log('6565656', this.dialogMallquery.mallGroupIds)
-        this.getMallList()
+        // this.getMallList()
       })
     },
     // 勾选渲染
     selectFun() {
       const d = this.rowData
+      this.dialog_mallList = this.dialog_mallList_all // 获取全部
       this.$nextTick(() => {
         if (this.$refs.multipleTable_dialog) {
           this.$refs.multipleTable_dialog.clearSelection()
@@ -770,10 +789,10 @@ export default {
             return Number(mall.id) === Number(item.mall_id)
           })
           if (index > -1) {
-            this.bindMalList.push(this.dialog_mallList[index]) // 存储绑定的店铺 关联bindedMall() 切换
-            this.bindindex.push(index) // 存储绑定店铺的下标 -- 关联bindedMall() 切换
+            // this.bindMalList.push(this.dialog_mallList[index]) // 存储绑定的店铺 关联bindedMall() 切换
+            // this.bindindex.push(index) // 存储绑定店铺的下标 -- 关联bindedMall() 切换
             this.$nextTick(() => {
-              this.dialog_mallList[index].main_name = d.ip_alias
+              // this.dialog_mallList[index].main_name = d.ip_alias
               // console.log(d, this.dialog_mallList[index])
               this.$refs.multipleTable_dialog.toggleRowSelection(this.dialog_mallList[index], true) // 渲染
             })
@@ -782,18 +801,19 @@ export default {
       }
     },
     // 展示修改绑定店铺信息
-    showupdateVisible(val, d) {
+    showupdateVisible(d) {
+      this.dialogvisible = true
       this.changeIndex++ // 组件刷新
       this.showButton = true
-      this.dialogvisible = true
       this.dialog_title = '修改绑定店铺'
       this.Typeis = 'updataMall'
-      this.targetId = val
+      this.targetId = d.id
       this.bindindex = [] // 清空绑定数据
       this.bindMalList = [] // 清空绑定数据
       this.dialogMallquery.country = ''
       // 列表渲染
       this.rowData = d
+      // debugger
       this.getMallList() // 列表刷新
       // this.selectFun()
       // this.$nextTick(() => {
@@ -832,7 +852,8 @@ export default {
         parameter: row.data_ipinfor.parameter,
         confuse: row.data_ipinfor.confuse, // 1
         argument: row.data_ipinfor.argument, //
-        dataTime: '2030-01-01 00:00:00'
+        dataTime: '2030-01-01 00:00:00',
+        linkType: row.data_ipinfor.is_link || ''
       }
 
       if (Number(this.query_person.source) === 1) { // 系统自定 设置某些选择不可更改
@@ -842,44 +863,53 @@ export default {
     },
     // 修改绑定店铺数据
     async updataDesc() {
-      // const params = this.query_person
+      const params = this.query_person
       // 验证  source=2
-      if (this.query_person.ip_agency === 'SSR') {
+      if (this.query_person.ip_agency === 'ssr') {
         if (this.query_person.ip_alias === '' ||
             this.query_person.ip_address === '' ||
             this.query_person.ip_port === '' ||
-           this.query_person.password === '' ||
-           this.query_person.encryption === '' ||
-           this.query_person.protocol === '' ||
-           this.query_person.confuse === ''
+            this.query_person.password === '' ||
+            this.query_person.encryption === '' ||
+            this.query_person.protocol === '' ||
+            this.query_person.confuse === ''
         ) {
           this.$message.warning('必填信息不能为空')
           return
         }
       }
 
-      if (this.query_person.ip_agency === 'SS') {
+      // this.query_person.encryption === ''
+      if (this.query_person.ip_agency === 'ss') {
         if (this.query_person.ip_alias === '' ||
             this.query_person.ip_address === '' ||
             this.query_person.ip_port === '' ||
-           this.query_person.password === '' ||
-           this.query_person.encryption === ''
+            this.query_person.password === ''
         ) {
           this.$message.warning('必填信息不能为空')
           return
         }
       }
 
-      if (this.query_person.ip_agency === 'HTTP' || this.query_person.ip_agency === '链接') {
+      if (this.query_person.ip_agency === 'http' || this.query_person.linkType) {
         if (this.query_person.ip_alias === '' ||
             this.query_person.ip_address === '' ||
-            this.query_person.ip_port === '' ||
-           this.query_person.username === ''
+            this.query_person.ip_port === ''
         ) {
           this.$message.warning('必填信息不能为空')
           return
         }
       }
+      // this.query_person.username === ''
+      // if (this.query_person.linkType) {
+      //   if (this.query_person.ip_alias === '' ||
+      //       this.query_person.ip_address === '' ||
+      //       this.query_person.ip_port === ''
+      //   ) {
+      //     this.$message.warning('必填信息不能为空')
+      //     return
+      //   }
+      // }
       // 验证 source=1
       if (Number(this.query_person.source) === 1 && this.query_person.ip_alias === '') {
         this.$message.warning('主体名称不能为空')
@@ -947,11 +977,34 @@ export default {
         mallGroupIds: this.dialogMallquery.mallGroupIds.toString()
       }
       this.loading = true
-      // const res = await this.$api.ddMallGoodsGetMallList({ params })
+      console.log('1111111')
+      let allMalldata = []
+      // this.dialog_mallList = []
       const res = await this.$api.ddMallGoodsGetMallList(params)
       this.loading = false
       if (res.data.code === 200) {
-        this.dialog_mallList = res.data.data
+        // this.dialog_mallList = res.data.data
+        allMalldata = res.data.data // 所有的店铺列表
+        for (let i = 0; i < allMalldata.length; i++) {
+          for (let j = 0; j < this.bindMalltable.length; j++) {
+            const index = this.bindMalltable[j].bindmall.findIndex(al => { return Number(allMalldata[i].id) === Number(al.mall_id) })
+            if (index >= 0) {
+              allMalldata[i].main_name = this.bindMalltable[j].main_name
+            }
+          }
+        }
+        this.dialog_mallList_all = allMalldata
+        console.log('dialog_mallList', this.dialog_mallList)
+        console.log('allMalldata', allMalldata)
+        // allMalldata.forEach(el => {
+        //   this.bindMalltable.forEach(ol => {
+        //     const index = ol.bindmall.findIndex(al => { return Number(el.id) === Number(al.mall_id) })
+        //     if (index >= 0) {
+        //       el.main_name = ol.main_name
+        //     }
+        //   })
+        //   this.dialog_mallList.push(el)
+        // })
       } else {
         this.$message.warning('店铺列表获取失败！')
       }
@@ -959,7 +1012,7 @@ export default {
     },
     // 绑定用户信息
     async  updataMallList() {
-      // if (this.rowData.source === '用户' && this.dialog_selectMallList.length > 10) {
+      // if (this.dialog_selectMallList.length > 10) {
       //   this.$message.warning('一个主体最多绑定10个店铺')
       //   return
       // }
@@ -1014,18 +1067,26 @@ export default {
         //     this.$refs.multipleTable_dialog.toggleRowSelection(this.dialog_mallList[item], true) // 渲染
         //   })
         // })
-        const list = [] // 清空店铺主体名称
-        this.dialog_mallList.forEach(item => {
-          item.main_name = ''
-          list.push(item)
-        })
-        this.dialog_mallList = list
-        if (this.dialogvisible) {
-          this.$nextTick(() => {
-            this.$refs.multipleTable_dialog.clearSelection()
-          })
-        }
+        // const list = [] // 清空店铺主体名称
+        // this.dialog_mallList.forEach(item => {
+        //   item.main_name = ''
+        //   list.push(item)
+        // })
+        // this.dialog_mallList = list
+        // if (this.dialogvisible) {
+        //   this.$nextTick(() => {
+        //     this.$refs.multipleTable_dialog.clearSelection()
+        //   })
+        // }
         //  bindMalList
+        const arr = [] // 筛选部分
+        this.dialog_mallList_all.forEach(el => {
+          if (!el.main_name) {
+            arr.push(el)
+          }
+        })
+        this.dialog_mallList = arr
+        // console.log('null-dialog_mallList', this.dialog_mallList)
       }
     },
     // dialog多选
@@ -1085,30 +1146,30 @@ export default {
       // if (!valid) return
       // 验证
       if (this.query_person.region_name === '' ||
-            this.query_person.ip_alias === ''
+          this.query_person.ip_alias === ''
       ) {
         this.$message.warning('必填信息不能为空')
         return
       }
       // IP类型 分类验证
-      if (this.query_person.ip_agency === 'SSR') {
+      if (this.query_person.ip_agency === 'ssr') {
         if (
-          this.query_person.ip_address === '' ||
-          this.query_person.ip_port === '' ||
-          this.query_person.password === '' ||
-           this.query_person.encryption === '' ||
-           this.query_person.protocol === '' ||
-           this.query_person.confuse === ''
+            this.query_person.ip_address === '' ||
+            this.query_person.ip_port === '' ||
+            this.query_person.password === '' ||
+            this.query_person.encryption === '' ||
+            this.query_person.protocol === '' ||
+            this.query_person.confuse === ''
         ) {
           this.$message.warning('必填信息不能为空')
           return
         }
       }
-      if (this.query_person.ip_agency === 'SS') {
+      if (this.query_person.ip_agency === 'ss') {
         if (this.query_person.ip_port === '' ||
-           this.query_person.ip_address === '' ||
-          this.query_person.password === '' ||
-           this.query_person.encryption === ''
+            this.query_person.ip_address === '' ||
+            this.query_person.password === '' ||
+            this.query_person.encryption === ''
         ) {
           this.$message.warning('必填信息不能为空')
           return
@@ -1116,10 +1177,10 @@ export default {
       }
       // this.query_person.username === ''
       // this.query_person.password === ''
-      if (this.query_person.ip_agency === 'HTTP') {
+      if (this.query_person.ip_agency === 'http') {
         if (
-          this.query_person.ip_address === '' ||
-           this.query_person.ip_port === ''
+            this.query_person.ip_address === '' ||
+            this.query_person.ip_port === ''
         ) {
           this.$message.warning('必填信息不能为空')
           return
@@ -1316,12 +1377,12 @@ export default {
         d += performance.now() // use high-precision timer if available
       }
       var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(
-        /[xy]/g,
-        function(c) {
-          var r = (d + Math.random() * 16) % 16 | 0
-          d = Math.floor(d / 16)
-          return (c === 'x' ? r : (r & 0x3) | 0x8).toString(16)
-        }
+          /[xy]/g,
+          function(c) {
+            var r = (d + Math.random() * 16) % 16 | 0
+            d = Math.floor(d / 16)
+            return (c === 'x' ? r : (r & 0x3) | 0x8).toString(16)
+          }
       )
       return uuid
     },
@@ -1386,18 +1447,9 @@ export default {
     },
     // 获取店铺信息
     changeMallList(val) {
-      this.query.mall_ids = []
-      // this.site = Object.assign(val)
-      // this.site.forEach(e => {
-      //   this.query.mall_ids.push(e.id)
-      // })
-      if (val.country === '' && val.length === 0 || val.length === this.shopAccountList.length) { // 点击站点  三个全选
-        this.query.mall_ids = []
-      } else {
-        val.forEach(item => {
-          this.query.mall_ids.push(item.id)
-        })
-      }
+      this.query.mall_ids = ''
+      console.log(val)
+      this.query.mall_ids = val.searchAll
     },
     // ip- tableList
     async getTableList() {
@@ -1415,7 +1467,7 @@ export default {
       params.supplier_info = this.query.supplier_info
       params.expiration_datesg = this.cloumn_date && this.cloumn_date.length > 0 ? this.cloumn_date.join('/').toString() : ''
       // params.expiration_datesg = '2021-10-06 23:59:59/2021-11-06 23:59:59'
-      params.mall_ids = this.query.mall_ids.toString() || ''
+      params.mall_ids = this.query.mall_ids || ''
       // console.log(params, 'getTableList')
       try {
         const res = await this.$YipService.GetIpList(JSON.stringify(params))
@@ -1450,7 +1502,7 @@ export default {
               })
               this.tableList.push(item)
             })
-            console.log('+++++++++++++++', this.bindMalltable)
+            // console.log('+++++++++++++++', this.bindMalltable)
           } else {
             this.tableList = []
           }
@@ -1471,6 +1523,7 @@ export default {
       this.total = this.tableList.length
       this.page = 1
       this.tableListEnd = this.tableList.slice((this.page - 1) * this.pageSize, this.page * this.pageSize)
+      console.log(this.tableListEnd)
     },
     // 分页递增
     indexMethod(index) {
@@ -1481,14 +1534,14 @@ export default {
     initDate() {
       const d = new Date()
       const d1 =
-        d.getFullYear() +
-        '-' +
-        (d.getMonth() + 1) +
-        '-' +
-        d.getDate() +
-        ' 23:59:59'
+          d.getFullYear() +
+          '-' +
+          (d.getMonth() + 1) +
+          '-' +
+          d.getDate() +
+          ' 23:59:59'
       const d2 =
-        d.getFullYear() + '-' + d.getMonth() + '-' + d.getDate() + ' 23:59:59'
+          d.getFullYear() + '-' + d.getMonth() + '-' + d.getDate() + ' 23:59:59'
       this.cloumn_date = [d2, d1]
       this.cloumn_date && this.cloumn_date.length > 0 ? this.cloumn_date.join('/').toString() : ''
     },
@@ -1512,6 +1565,7 @@ export default {
           this.tableListEnd.push(list[from])
         }
       }
+      console.log(this.tableListEnd)
     }
   }
 }

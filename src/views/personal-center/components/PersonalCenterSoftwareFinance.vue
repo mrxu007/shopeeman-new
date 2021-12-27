@@ -109,12 +109,12 @@
     <!-- 表格区 -->
     <div class="content">
       <el-table
-        ref="multipleTable"
-        v-loading="tableLoading"
-        :data="allbillingData"
-        tooltip-effect="dark"
-        height="calc(100vh - 256px)"
-        :header-cell-style="{
+          ref="multipleTable"
+          v-loading="tableLoading"
+          :data="allbillingData"
+          tooltip-effect="dark"
+          height="calc(100vh - 256px)"
+          :header-cell-style="{
           textAlign: 'center',
           backgroundColor: '#f5f7fa',
         }"
@@ -139,28 +139,28 @@
           </template>
         </el-table-column>
         <el-table-column
-          align="center"
-          prop="type"
-          label="资金流向"
-          min-width="80px"
+            align="center"
+            prop="type"
+            label="资金流向"
+            min-width="80px"
         ><template slot-scope="scope">
           <p v-if="scope.row.type > 0">{{ scope.row.type === 1 ? '收入' : '支出' }}</p>
         </template>
         </el-table-column>
         <el-table-column
-          align="center"
-          prop="trans_type"
-          label="交易类型"
-          min-width="100px"
+            align="center"
+            prop="trans_type"
+            label="交易类型"
+            min-width="100px"
         ><template slot-scope="scope">
           <p v-if="scope.row.trans_type > 0">{{ changeTypeName(scope.row.trans_type, transactionType) }}</p>
         </template>
         </el-table-column>
         <el-table-column
-          align="center"
-          prop="trans_type"
-          label="交易状态"
-          min-width="70px"
+            align="center"
+            prop="trans_type"
+            label="交易状态"
+            min-width="70px"
         ><template slot-scope="scope">
           <p v-if="scope.row.trans_type > 0">{{ changeTypeName(scope.row.trans_status, tranStatus) }}</p>
         </template>
@@ -176,9 +176,9 @@
         <el-table-column align="center" prop="package_sn" label="大包号" min-width="80px" />
         <el-table-column align="center" prop="sys_sku_id" label="商品skuID" min-width="80px" />
         <el-table-column
-          align="center"
-          label="费用明细"
-          min-width="90px"
+            align="center"
+            label="费用明细"
+            min-width="90px"
         ><template slot-scope="scope">
           <el-button v-if="scope.row.trans_type === 2" type="primary" size="mini" @click="getTransDetail(scope.row)">翻译明细</el-button>
         </template>
@@ -187,13 +187,13 @@
       </el-table>
       <div class="pagination">
         <el-pagination
-          background
-          :page-sizes="[20, 30, 50, 100]"
-          :page-size="pageSize"
-          layout="total, sizes, prev, pager, next, jumper"
-          :total="total"
-          @current-change="handleCurrentChange"
-          @size-change="handleSizeChange"
+            background
+            :page-sizes="[20, 30, 50, 100]"
+            :page-size="pageSize"
+            layout="total, sizes, prev, pager, next, jumper"
+            :total="total"
+            @current-change="handleCurrentChange"
+            @size-change="handleSizeChange"
         />
         <!-- </div> -->
       </div>
@@ -233,14 +233,14 @@
           <div class="select-item">
             <p>翻译时间:</p>
             <el-date-picker
-              v-model="chooseDate"
-              :disabled="true"
-              type="daterange"
-              size="mini"
-              format="yyyy-MM-dd HH:mm:ss"
-              start-placeholder="开始日期"
-              end-placeholder="结束日期"
-              :default-time="['00:00:00', '23:59:59']"
+                v-model="chooseDate"
+                :disabled="true"
+                type="daterange"
+                size="mini"
+                format="yyyy-MM-dd HH:mm:ss"
+                start-placeholder="开始日期"
+                end-placeholder="结束日期"
+                :default-time="['00:00:00', '23:59:59']"
             />
           </div>
           <!-- <el-button type="primary" size="mini" @click="getTransDetail">查询</el-button> -->
@@ -255,10 +255,10 @@
               </template>
             </el-table-column>
             <el-table-column
-              align="center"
-              label="翻译字符串"
-              min-width="70"
-              show-overflow-tooltip
+                align="center"
+                label="翻译字符串"
+                min-width="70"
+                show-overflow-tooltip
             ><template slot-scope="scope">
               <p>{{ scope.row.text }}</p>
             </template>
@@ -408,7 +408,7 @@ export default {
         str += `<tr><td>${num++}</td>
                     <td>${item.type ? (item.type === 1 ? '文字' : '图片') : '' + '\t'}</td>
                     <td>${item.text ? item.text : '' + '\t'}</td>
-                    <td>${item.amount ? item.amount : '' + '\t'}</td> 
+                    <td>${item.amount ? item.amount : '' + '\t'}</td>
                     <td>${item.created_at ? item.created_at : '' + '\t'}</td>
                 </tr>`
       }
@@ -443,7 +443,7 @@ export default {
                     <td>${item.type && item.type === 1 ? '收入' : '支出' || '' + '\t'}</td>
                     <td>${item.trans_type ? this.changeTypeName(item.trans_type, this.transactionType) : '' + '\t'}</td>
                     <td>${item.trans_status ? this.changeTypeName(item.trans_status, this.tranStatus) : '' + '\t'}</td>
-                    <td>${item.trans_time ? item.trans_time : '' + '\t'}</td> 
+                    <td>${item.trans_time ? item.trans_time : '' + '\t'}</td>
                     <td>${item.created_at ? item.created_at : '' + '\t'}</td>
                     <td>${item.amount ? item.amount : '' + '\t'}</td>
                     <td>${item.current_amount ? item.current_amount : '' + '\t'}</td>
@@ -708,7 +708,7 @@ export default {
     .transactionType {
 
       display: flex;
-    align-items: baseline;
+      align-items: baseline;
       // margin: 0 10px;
       /deep/.el-checkbox {
         margin-right: 16px;

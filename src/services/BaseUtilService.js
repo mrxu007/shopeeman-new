@@ -120,4 +120,17 @@ export default class BaseUtilService {
   downloadBarCode(data) {
     return this.nativeService.downloadBarCode([data])
   }
+  // 解密sku
+  decGoodCode(itemSku) {
+    return this.nativeService.decGoodCode(itemSku)
+  }
+  async loginNeedPopUps(name, data) {
+    return await this.nativeService.loginNeedPopUps(name, JSON.stringify(data))
+  }
+  async gotoUploadTab( type,  ids){
+    return this.nativeService.gotoUploadTab(type.toString(),  ids.toString())
+  }
+  async getUploadGoodsId(){
+    return this.nativeService.getUploadGoodsId()
+  }
 }

@@ -2,7 +2,8 @@
   <div v-loading="isLoading" class="workbench">
     <div class="top-box">
       <div class="operate">
-        <div class="title">基础操作</div>
+        <!-- <div class="title">基础操作</div> -->
+        <div>基础操作</div>
         <div class="line" />
         <div class="btn-items">
           <el-button type="primary" size="mini" @click="markOrderNeedDeal">标记需仓库紧急处理</el-button>
@@ -30,7 +31,8 @@
         </div>
       </div>
       <div class="search-list">
-        <div class="title">列表筛选操作</div>
+        <!-- <div class="title">列表筛选操作</div> -->
+        <div>列表筛选操作</div>
         <div class="line" />
         <div class="form-items">
           <div class="select-item">
@@ -198,7 +200,7 @@
         <el-table-column label="数量" min-width="100px" prop="goodsCount" />
         <el-table-column label="商品详情" min-width="110px">
           <template slot-scope="scope">
-            <p><el-button type="primary" size="mini" @click="getGoodsInfo(scope.row.package_order_sn),currenWarehouse=scope.row.warehouse_name">查看签收详情</el-button></p>
+            <p><el-button type="primary" size="mini" @click="getGoodsInfo(scope.row.package_order_sn,scope.row.delivery_status),currenWarehouse=scope.row.warehouse_name">查看签收详情</el-button></p>
           </template>
         </el-table-column>
         <el-table-column label="包裹重量" min-width="100px">
@@ -269,6 +271,7 @@
                 style="width: 120px"
                 placeholder="请输入备注内容"
                 size="mini"
+                clearable
                 @blur="changeRemark(scope.row.package_order_sn, scope.$index)"
               />
               <i style="cursor: pointer" class="el-icon-edit-outline" @click="editRemark(scope.$index, scope.row.id)" />
@@ -341,6 +344,7 @@
         <div class="form-item" style="margin-left:28px">
           <span class="search-title">颜色标识：</span>
           <el-select v-model="colorLabelId1" size="mini" style="width: 150px" clearable>
+            <el-option label="取消标识" value="0" />
             <el-option v-for="item in colorLogoList" :key="item.id" :label="item.name" :value="item.id" :style="item.color" />
           </el-select>
           <el-button type="primary" size="mini" @click="setColorLabel">保存</el-button>
@@ -419,7 +423,7 @@
             <template slot-scope="scope">
               <div v-if="scope.row.goods" class="goods-detail">
                 <!-- {{ scope.row.goods.goods_id }} -->
-                <el-button type="text" @click.native="open(scope.row.ori_goods_id)">
+                <el-button type="text" @click.native="open(scope.row)">
                   {{ scope.row.goods.goods_id }}
                 </el-button>
               </div>
@@ -455,7 +459,7 @@
             <template slot-scope="{ row }">
               <span>
                 <!-- {{ row.package && Number(row.package.status) === 1 ? '待处理' : '待处理' }} -->
-                {{ row.package && packageStatus[row.package.status] }}
+                {{ row.package && packageStatus[row.package.status] || '' }}
               </span>
             </template>
           </el-table-column>
@@ -466,7 +470,7 @@
           </el-table-column>
           <el-table-column label="包裹签收图片" min-width="100px">
             <template slot-scope="scope">
-              <el-tooltip v-if="scope.row.package" effect="light" placement="right-end" :visible-arrow="false" :enterable="false" style="width: 56px; height: 56px">
+              <el-tooltip v-if="scope.row.package && scope.row.package.package_image" effect="light" placement="right-end" :visible-arrow="false" :enterable="false" style="width: 56px; height: 56px">
                 <div slot="content">
                   <img :src="scope.row.package.package_image" width="400px" height="400px">
                 </div>
@@ -480,8 +484,9 @@
             fixed="right"
           >
             <template slot-scope="scope">
+              <!-- v-if="scope.row.isAbnormslPayment !==1 || scope.row.package || peifu" -->
               <el-button
-                v-if="scope.row.isAbnormslPayment !==1"
+                v-if="peifu"
                 type="primary"
                 size="mini"
                 @click="applyDialog(scope.row)"
@@ -690,6 +695,7 @@ export default {
   },
   data() {
     return {
+      peifu: false,
       currenWarehouse: '',
       exportLoading: false,
       detailLoading: false, // 查看订单包裹详情加载
@@ -783,7 +789,7 @@ export default {
       storageTime: [], // 包裹入库时间
       packageOrderSn: '', // 订单编号
       colorLabelId: '0', // 颜色标识
-      colorLabelId1: '', // 标记弹窗选择颜色标识
+      colorLabelId1: '0', // 标记弹窗选择颜色标识
       colorLogoList: [],
       outboundTime: [], // 包裹出库时间
       colorVisible: false, // 显示标记颜色弹窗
@@ -804,7 +810,8 @@ export default {
       exportNum: 0,
       pickerOptions: {
         disabledDate: (time) => {
-          return time.getTime() > Date.now()
+          const pastDay = Date.now() - 93 * 3600 * 24 * 1000
+          return time.getTime() > Date.now() || time.getTime() < pastDay
         }
       },
       remarkVisible: false,
@@ -825,9 +832,13 @@ export default {
       applyLoading: false,
 
       packageStatus: {
-        '-1': '未拒收',
-        '1': '已拒收',
-        '2': '已签收'
+        '1': '已签收',
+        '2': '已拒收',
+        '3': '匹配不到订单包裹',
+        '4': '包裹已销毁',
+        '5': '包裹丢件',
+        '6': '申请退件',
+        '7': '已退件'
       },
       applyTypeList: [
         { value: 1, label: '赔付运费' },
@@ -852,8 +863,8 @@ export default {
     // this.userInfo()
   },
   methods: {
-    open(val) {
-      window.BaseUtilBridgeService.openUrl(`https://item.taobao.com/item.htm?id=${val}`)
+    async open(val) {
+      window.BaseUtilBridgeService.openUrl(val.goods.goods_url)
     },
     // 申请赔付
     async applyCompensation() {
@@ -1203,7 +1214,8 @@ export default {
     },
     // 关闭标记颜色弹窗
     closeDialog() {
-      this.colorLabelId1 = this.colorLogoList[0].id || ''
+      // this.colorLabelId1 = this.colorLogoList[0].id || ''
+      this.colorLabelId1 = '0'
       // this.setSelect()
       this.colorVisible = false
     },
@@ -1220,7 +1232,7 @@ export default {
       colorLabelList().then((res) => {
         // console.log('color', res)
         this.colorLogoList = res
-        this.colorLabelId1 = res[0].id
+        // this.colorLabelId1 = res[0].id
       })
       // getSites().then(res => {
       //   this.siteList = this.siteList.concat(res)
@@ -1696,7 +1708,13 @@ export default {
       return data
     },
     // 查看包裹信息弹窗
-    async getGoodsInfo(packageOrderSn) {
+    async getGoodsInfo(packageOrderSn, delivery_status) {
+      // 待入库 已出库
+      if (Number(delivery_status) === 1 || Number(delivery_status) === 5) {
+        this.peifu = true
+      } else {
+        this.peifu = false
+      }
       this.dialogVisible2 = true
       const params = { packageOrderSn }
       try {

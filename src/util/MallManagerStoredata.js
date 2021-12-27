@@ -1,9 +1,9 @@
 // 加密方式
 const encryptionList = [
-  {
-    label: 'rc4-md5',
-    value: 'rc4-md5'
-  },
+  // {
+  //   label: '',
+  //   value: ''
+  // },
   {
     label: 'aes-128-ctr',
     value: 'aes-128-ctr'
@@ -29,29 +29,94 @@ const encryptionList = [
     value: 'aes-256-cfb'
   },
   {
+    label: 'rc4',
+    value: 'rc4'
+  },
+  {
+    label: 'rc4-md5',
+    value: 'rc4-md5'
+  },
+  {
+    label: 'rc4-md5-6',
+    value: 'rc4-md5-6'
+  },
+  {
+    label: 'salsa20',
+    value: 'salsa20'
+  },
+  {
     label: 'chacha20',
     value: 'chacha20'
   },
   {
-    label: 'rc4',
-    value: 'rc4'
+    label: 'xsalsa20',
+    value: 'xsalsa20'
+  },
+  {
+    label: 'xchacha20',
+    value: 'xchacha20'
+  },
+  {
+    label: 'chacha20-ietf',
+    value: 'chacha20-ietf'
+  },
+  {
+    label: 'chacha20-ietf-poly1305',
+    value: 'chacha20-ietf-poly1305'
   }
+
+  // {
+  //   label: 'rc4-md5',
+  //   value: 'rc4-md5'
+  // },
+  // {
+  //   label: 'aes-128-ctr',
+  //   value: 'aes-128-ctr'
+  // },
+  // {
+  //   label: 'aes-192-ctr',
+  //   value: 'aes-192-ctr'
+  // },
+  // {
+  //   label: 'aes-256-ctr',
+  //   value: 'aes-256-ctr'
+  // },
+  // {
+  //   label: 'aes-128-cfb',
+  //   value: 'aes-128-cfb'
+  // },
+  // {
+  //   label: 'aes-192-cfb',
+  //   value: 'aes-192-cfb'
+  // },
+  // {
+  //   label: 'aes-256-cfb',
+  //   value: 'aes-256-cfb'
+  // },
+  // {
+  //   label: 'chacha20',
+  //   value: 'chacha20'
+  // },
+  // {
+  //   label: 'rc4',
+  //   value: 'rc4'
+  // }
 ]
 
 // 代理方式
 const ipTypeList = [
 
   {
-    value: 'SSR',
-    label: 'SSR'
+    value: 'ssr',
+    label: 'ssr'
   },
   {
-    value: 'SS',
-    label: 'SS'
+    value: 'ss',
+    label: 'ss'
   },
   {
-    value: 'HTTP',
-    label: 'HTTP'
+    value: 'http',
+    label: 'http'
   },
   {
     value: '链接',
@@ -61,6 +126,14 @@ const ipTypeList = [
 
 // 协议
 const protocolList = [
+  {
+    label: 'origin',
+    value: 'origin'
+  },
+  {
+    label: 'verify_deflate',
+    value: 'verify_deflate'
+  },
   {
     label: 'auth_sha1_v4',
     value: 'auth_sha1_v4'
@@ -88,10 +161,22 @@ const protocolList = [
   {
     label: 'auth_chain_d',
     value: 'auth_chain_d'
+  },
+  {
+    label: 'auth_chain_e',
+    value: 'auth_chain_e'
+  },
+  {
+    label: 'auth_chain_f',
+    value: 'auth_chain_f'
   }
 ]
 // 混淆
 const confuseList = [
+  {
+    label: 'plain',
+    value: 'plain'
+  },
   {
     label: 'http_simple',
     value: 'http_simple'

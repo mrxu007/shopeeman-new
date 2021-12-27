@@ -81,7 +81,7 @@
           </div>
           <div class="basisInstall-box">
             <el-button size="mini" type="primary" @click="enterGoodsTag">标记商品标签</el-button>
-            <el-button size="mini" @click="enterCategory()">同步类目属性</el-button>
+            <el-button size="mini" @click="enterCategory({})">同步类目属性</el-button>
             <el-button size="mini" type="primary" @click="">保存配置</el-button>
           </div>
         </div>
@@ -338,7 +338,7 @@
         <el-button size="mini">取消发布</el-button>
         <el-button size="mini" type="primary">清理全部</el-button>
         <el-button size="mini" type="primary">设置定时任务</el-button>
-        <el-button size="mini" type="primary" @click="enterCategory(categoryId = '0', index = 0 , 1) ">批量映射虾皮类目
+        <el-button size="mini" type="primary" @click="enterCategory(2,1)">批量映射虾皮类目
         </el-button>
         <el-button size="mini" :type="isNoFoldShow && 'primary'" @click="isNoFoldShow = !isNoFoldShow">
           {{isNoFoldShow && '折叠' || '展开'}}
@@ -409,7 +409,7 @@
       <el-table-column align="left" :show-overflow-tooltip="true" label="源商品类目" prop="originCategoryName" width="120"/>
       <el-table-column align="left" :show-overflow-tooltip="true" label="shopee类目" prop="categoryName" width="120">
         <template slot-scope="scope">
-          <el-button type="text" @click="enterCategory('0',0,scope.row)">
+          <el-button type="text" @click="enterCategory(0,scope.row)">
             {{scope.row.categoryName}}
           </el-button>
         </template>
@@ -526,8 +526,7 @@
                 <img :src="watermarkConfig.goodsImageUrl || ''" alt="">
               </div>
               <div class="watermark_image"
-                   :class="watermarkConfig.type < 3 && locateClass || 'watermark_image_background'"
-                   :style="">
+                   :class="watermarkConfig.type < 3 && locateClass || 'watermark_image_background'">
                 <span v-show="watermarkConfig.type === 1"
                       :style="'font-size:'+watermarkConfig.textSize+'px!important;color:'+watermarkConfig.textColor">
                   {{watermarkConfig.text}}
@@ -640,69 +639,11 @@
         </div>
       </el-dialog>
       <el-dialog title="商品标签" width="300px" top="25vh" :close-on-click-modal="false" :visible.sync="goodsTagVisible">
-        <div class="goods_tag_dialog">
-          <div class="on_new_dialog_box">
-            <div>商品标签：</div>
-            <el-select v-model="goodsTagAction" size="mini" style="width: 200px;">
-              <el-option
-                  v-for="item in goodsTagList"
-                  :key="item.id"
-                  :label="item.label_name"
-                  :value="item.label_name">
-              </el-option>
-            </el-select>
-          </div>
-          <div class="on_new_dialog_box" style="margin-top: 10px;">
-            <div>当前标签：</div>
-            <el-input size="mini" style="width: 200px;" v-model="goodsTagCurrent"></el-input>
-          </div>
-          <div class="on_new_dialog_box" style="justify-content: space-evenly;margin-top: 10px;">
-            <el-button type="primary" size="mini" @click="updateGoodsTag">　确　定　</el-button>
-            <el-button size="mini" @click="goodsTagVisible = false">　取　消　</el-button>
-          </div>
-        </div>
+        <goodsLabel v-if="goodsTagVisible" :goods-table-select="goodsTableSelect" @goodsTagChange="goodsTagChange"/>
       </el-dialog>
       <el-dialog title="类目映射" width="700px" top="25vh" :close-on-click-modal="false" :visible.sync="categoryVisible">
-        <div class="category_dialog">
-          <div class="category_box">
-            <div class="on_new_dialog_box" style="margin-bottom: 10px;">
-              <div class="keepRight">店铺站点：</div>
-              {{ country | chineseSite }}
-            </div>
-            <div class="on_new_dialog_box" v-for="(item,index) in categoryList" :key="index">
-              <div class="keepRight">{{index+1}}级类目：</div>
-              <el-select v-model="categoryAction[index]" @change="setCategory(categoryAction[index],index)" size="mini"
-                         style="width: 200px;">
-                <el-option
-                    v-for="son in item"
-                    :key="son.id"
-                    :label="son.category_name+'('+son.category_cn_name+')'"
-                    :value="son.category_id">
-                </el-option>
-              </el-select>
-            </div>
-          </div>
-          <div class="category_box" style="margin-left: 20px;">
-            <div class="on_new_dialog_box" style="margin-bottom: 10px;">
-              <div class="width_single_150">属性名称：</div>
-              <div>属性值<span style="color:red">(必填)</span></div>
-            </div>
-            <div class="on_new_dialog_box line_height_28" v-for="(item,index) in attributesList" :key="index">
-              <div class="width_single_150">{{item.attribute_name}}({{item.attribute_cn_name}})</div>
-              <div>
-                <el-select v-model="item.options" size="mini" style="width: 180px;">
-                  <el-option v-for="son in item.new_options_obj" :key="son.value_id" :label="son.value"
-                             :value="son.value_id">
-                  </el-option>
-                </el-select>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="on_new_dialog_box" style="margin-top: 25px;justify-content: space-evenly">
-          <el-button type="primary" size="mini" @click="confirmCategory()">　确　定　</el-button>
-          <el-button size="mini" @click="categoryVisible = false">　取　消　</el-button>
-        </div>
+        <categoryMapping v-if="categoryVisible" :country="country" :goods-current="goodsCurrent" :mall-list="mallList"
+                         @categoryChange="categoryChange"/>
       </el-dialog>
     </div>
   </el-row>
@@ -710,7 +651,8 @@
 
 <script>
   import storeChoose from '../../../components/store-choose'
-  import { batchOperation } from '../../../util/util'
+  import categoryMapping from '../../../components/category-mapping'
+  import goodsLabel from '../../../components/goods-label'
 
   export default {
     data() {
@@ -728,13 +670,10 @@
         isNoFoldShow: true,
         //弹窗
         categoryVisible: false, //类目弹窗
-        categoryList: [],
-        categoryAction: [],
         attributesList: [],
         attributesCurrent: [],
 
         goodsTagVisible: false, //标签弹窗
-        goodsTagList: [],
         goodsTagAction: '',
         goodsTagCurrent: '',
 
@@ -890,7 +829,7 @@
         }
       }
     },
-    components: { storeChoose },
+    components: {storeChoose, categoryMapping, goodsLabel},
     watch: {
       country(value) {
         this.associatedConfig.onNewInterval = value !== 'ID' && '40' || '50'
@@ -936,60 +875,10 @@
         deep: true
       }
     },
-    mounted() {
-      this.goodsTable = [{
-        '_IsSelected': true,
-        'IsExportData': false,
-        'language': 'en',
-        'sortNumber': 1,
-        'index': 0,
-        'id': 159177439,
-        'GrowthId': 159177439,
-        'goodsId': '658284650116',
-        'goodName': null,
-        'MallType': '1',
-        'mallId': null,
-        'mallName': null,
-        'url': 'https://item.taobao.com/item.htm?id=658284650116',
-        'origin': '淘宝',
-        'deliverPlace': null,
-        'sales': '10',
-        'price': 190.4,
-        'CalAfterPrice': 0.0,
-        'CalAfterPriceRMB': 0.0,
-        'IsSelected': true,
-        'title': 'Keyboard mechanical gaming secondary silent high-value yuan steampunk dedicated wireless designer typing feels good',
-        'cnTitle': null,
-        'image': 'http://img.alicdn.com/imgextra/i1/2212687440175/O1CN01IFVLWC1DAC1XfJOCD_!!2212687440175.jpg',
-        'platform': 2,
-        'originCategoryName': '键盘',
-        'status': 2,
-        'statusName': '',
-        'categoryId': 0,
-        'color': null,
-        'categoryName': '请选择类目',
-        'originCategoryId': '110210',
-        'shopeeItemId': '',
-        'shopeeItemUrl': '',
-        'GoodsTagName': null,
-        'isUpload': 0,
-        'country': '',
-        'mallIds': '',
-        'mallNames': '',
-        'taskName': '',
-        'uploadMallName': '',
-        'uid': null,
-        'site': '',
-        'priceStr': null,
-        'extraInfo': null,
-        'VideoUrl': null,
-        'VideoVid': null,
-        'IsCancel': false,
-        'Weight': null,
-        'Dimensions': null,
-        'platShopName': '',
-        'isPreferredGoods': null
-      }]
+    async mounted() {
+      let ids = await this.$BaseUtilService.getUploadGoodsId()
+      // this.$BaseUtilService.gotoUploadTab('updateId','')
+      console.log('getUploadGoodsId',ids)
     },
     methods: {
       handleSelectionChange(val) {
@@ -998,231 +887,39 @@
       async synchronousCategory() {
 
       },
-      async getAttribute() {
-        let categoryId = this.categoryAction[this.categoryAction.length - 1] + ''
-        let attributeJson = await this.$commodityService.getAttributeInfo(this.country, categoryId)
-        let attributeRes = JSON.parse(attributeJson)
-        this.attributesList = []
-        if (attributeRes.code === 200) {
-          let attributeList = attributeRes.data && attributeRes.data.attributes
-          attributeList.forEach(item => {
-            let index = this.attributesCurrent.findIndex(i => i.attribute_id === item.attribute_id)
-            let attributesCurrent = this.attributesCurrent[index] && this.attributesCurrent[index].value_id || 0
-            item.new_options_obj = JSON.parse(item.new_options)
-            item.options = index > -1 && parseInt(attributesCurrent) || item.new_options_obj[0].value_id
-            this.attributesList.push(item)
-          })
-          this.attributesCurrent = []
-        }
-      },
-      async confirmCategory(index = 0) {
-        this.categoryVisible = false
-        if (this.goodsCurrent) {
-          if (this.goodsCurrent.goodsId) {
-            let index = this.goodsTable.findIndex(i => i.goodsId === this.goodsCurrent.goodsId)
-            let categoryId = this.categoryAction[this.categoryAction.length - 1]
-            let category = this.categoryList[this.categoryList.length - 1].filter(i => i.category_id === categoryId)[0]
-            let temp = Object.assign(JSON.parse(JSON.stringify(this.goodsTable[index])), {
-              categoryIdList: this.categoryAction,
-              categoryId: categoryId,
-              categoryName: category.category_name + '(' + category.category_cn_name + ')'
-            })
-            this.goodsTable[index] = temp
-            // this.goodsTable.splice(index,1,temp)
-            let categoryAttributes = []
-            this.attributesList.forEach(item => {
-              let son = item.new_options_obj.filter(i => i.value_id === item.options)[0]
-              categoryAttributes.push({
-                attributeId: item.attribute_id,
-                attributeName: item.attribute_name,
-                valueId: son.value_id,
-                value: son.value
-              })
-            })
-            let param = {
-              relationCategoryId: this.goodsCurrent.originCategoryId,
-              country: this.country,
-              platformId: this.goodsCurrent.platform,
-              platformCategoryId: categoryId,
-              categoryAttributes: categoryAttributes
-            }
-            console.log('saveCategoryRelation - param', param)
-            this.$commodityService.saveCategoryRelation(param).then(res => {
-              console.log('categoryRelationRes', res)
-            })
-          } else {
-            this.goodsTableSelect.forEach(item => {
-              let index = this.goodsTable.findIndex(i => i.goodsId === item.goodsId)
-              let categoryId = this.categoryAction[this.categoryAction.length - 1]
-              let category = this.categoryList[this.categoryList.length - 1].filter(i => i.category_id === categoryId)[0]
-              let temp = Object.assign(JSON.parse(JSON.stringify(this.goodsTable[index])), {
-                categoryIdList: this.categoryAction,
-                categoryId: categoryId,
-                categoryName: category.category_name + '(' + category.category_cn_name + ')'
-              })
-              item = temp
-              this.goodsTable[index] = temp
-              // this.goodsTable.splice(index,1,temp)
-            })
-            console.log(this.goodsTableSelect)
-          }
-        } else {
-          let mall = this.mallList[index]
-          let category_ids = this.categoryAction[this.categoryAction.length - 1]
-          let param = {
-            mallId: mall.platform_mall_id,
-            category_ids: category_ids,
-            brand_status: 1,
-            cursor: 0,
-            limit: 100
-          }
-          let brandListJson = await this.$shopeemanService.getBrandList(this.country, param, { headers: { 'Content-Type': 'text/plain; charset=UTF-8' } })
-          let brandListRes = JSON.parse(brandListJson)
-          if (brandListRes.status >= 200 && brandListRes.status <= 300) {
-            let brandListData = JSON.parse(brandListRes.data)
-            if (brandListData.code === 0) {
-              let brand_list = brandListData.data && brandListData.data.list[0] && brandListData.data.list[0].brand_list
-              let brand_option = []
-              brand_list.forEach(item => {
-                brand_option.push({ value: item.name, value_id: item.brand_id })
-              })
-              let uploadCateGoryAttrReq = [{
-                'category_id': category_ids,
-                'attribute_id': 0,
-                'is_mandatory': 1,
-                'attribute_name': 'Brand',
-                'attribute_cn_name': '品牌',
-                'attribute_type': 'STRING_TYPE',
-                'country': this.country,
-                'options': JSON.stringify(brand_option),
-                'attribute_label': '',
-                'is_key_attribute': 1
-              }]
-              try {
-                let attributeTreeJson = await this.$shopeemanService.getAttributeTree(this.country, param, { headers: { 'Content-Type': 'text/plain; charset=UTF-8' } })
-                let attributeTreeRes = JSON.parse(attributeTreeJson)
-                let attributeTreeData = JSON.parse(attributeTreeRes.data)
-                let attribute_tree = attributeTreeData && attributeTreeData.data && attributeTreeData.data.list[0] && attributeTreeData.data.list[0].attribute_tree || []
-                attribute_tree.forEach(item => {
-                  let option = []
-                  item.children.forEach(son => {
-                    option.push({ value: son.display_name || son.name, value_id: son.value_id })
-                  })
-                  uploadCateGoryAttrReq.push({
-                    'category_id': category_ids,
-                    'attribute_id': item.attribute_id,
-                    'is_mandatory': item.mandatory && 1 || 0,
-                    'attribute_name': item.display_name || item.name,
-                    'attribute_cn_name': '',
-                    'attribute_type': 'STRING_TYPE',
-                    'country': this.country,
-                    'options': JSON.stringify(option),
-                    'attribute_label': '',
-                    'is_key_attribute': 0
-                  })
-                })
-              } catch (e) {
-                console.log(e)
-              } finally {
-                let uploadCateGoryAttrJson = await this.$commodityService.uploadCateGoryAttr(uploadCateGoryAttrReq)
-                let uploadCateGoryAttrRes = JSON.parse(uploadCateGoryAttrJson)
-                if (uploadCateGoryAttrRes.code === 200) {
-                  this.$message.success('同步成功')
-                } else {
-                  this.$message.error('同步失败')
-                }
-              }
-            }
-          } else {
-            this.confirmCategory(++index)
-          }
-        }
-      },
-      setCategory(val, index) {
-        this.categoryList.splice(index + 1, this.categoryList.length - index)
-        this.categoryAction.splice(index + 1, this.categoryAction.length - index)
-        this.enterCategory(val + '', ++index)
-      },
-      async enterCategory(categoryId = '0', index = 0, row = null) {
-        if (index === 0) {
-          this.categoryAction = row && row.categoryIdList || []
-          if (row && row.goodsId || this.goodsTableSelect.length > 0) {
-            this.goodsCurrent = row
-            if (row && row.goodsId) {
-              let categoryRelationJson = await this.$commodityService.getCategoryRelation(row.originCategoryId, this.country, row.platform + '')
-              let categoryRelationRes = JSON.parse(categoryRelationJson)
-              this.attributesCurrent = categoryRelationRes.data && categoryRelationRes.data.attributes
-            }
-          } else if (row) {
-            this.$message.error('请选择一个商品信息')
-            return false
-          }
-        }
-        if (this.mallList.length || row) {
-          let categoryList = JSON.parse(JSON.stringify(this.categoryList)) || []
-          let categoryTbInfoJson = await this.$commodityService.getCategoryTbInfo(this.country, categoryId)
-          let categoryTbInfoRes = JSON.parse(categoryTbInfoJson)
-          if (categoryTbInfoRes.code === 200) {
-            let categoryTbInfoData = categoryTbInfoRes.data
-            if (categoryTbInfoData && categoryTbInfoData.categories) {
-              categoryList[index] = categoryTbInfoData.categories
-              this.categoryList = categoryList
-              this.categoryAction[index] = this.categoryAction[index] || categoryList[index][0].category_id
-              this.enterCategory(this.categoryAction[index] + '', ++index)
-            } else {
-              this.getAttribute()
-            }
-          }
-          this.categoryVisible = true
-        } else {
+      enterCategory(type = 0, row = null) {
+        console.log(this.mallList);
+        if (type === 1 && this.mallList.length < 1) {
           this.$message.error('请选择一个店铺')
           return false
         }
+        if (type === 2 && this.goodsTableSelect.length < 1) {
+          this.$message.error('请选择一个商品信息')
+          return false
+        }
+        this.categoryVisible = true
+        this.goodsCurrent = row
       },
-      async enterGoodsTag() {
+      categoryChange(val) {
+        console.log('categoryChange', val);
+        if (val) {
+
+        }
+        this.categoryVisible = false
+      },
+      enterGoodsTag() {
         if (this.goodsTableSelect.length < 1) {
           this.$message.error('请至少选择一个商品')
           return
         }
-        let goodsTagListJson = await this.$commodityService.getGoodsTagList()
-        let goodsTagListRes = JSON.parse(goodsTagListJson)
-        this.goodsTagList = goodsTagListRes.data || []
         this.goodsTagVisible = true
       },
-      async updateGoodsTag() {
-        if (this.goodsTagCurrent !== this.goodsTagAction) {
-          let addGoodsTagJson = await this.$commodityService.addGoodsTag(this.goodsTagCurrent)
-          let addGoodsTagRes = JSON.parse(addGoodsTagJson)
-          if (addGoodsTagRes.code === 200) {
-            let goodsTagListJson = await this.$commodityService.getGoodsTagList()
-            let goodsTagListRes = JSON.parse(goodsTagListJson)
-            this.goodsTagList = goodsTagListRes.data || []
-            this.goodsTagAction = this.goodsTagCurrent
-          } else {
-            this.$message.error('商品标签设置失败')
-            return
-          }
+      goodsTagChange(val){
+        console.log('goodsTagChange', val);
+        if (val) {
+
         }
-        let temp = this.goodsTagList.filter(i => i.label_name === this.goodsTagAction)[0]
-        let data = []
-        this.goodsTableSelect.forEach(item => {
-          data.push(Object.assign(JSON.parse(JSON.stringify(item)), { sysLabelId: temp.id }))
-        })
-        await batchOperation(data, this.setGoodsTag)
-        console.log(data)
         this.goodsTagVisible = false
-      },
-      async setGoodsTag(item, count = { count: 1 }) {
-        try {
-          let addGoodsToTagJson = await this.$commodityService.addGoodsToTag(item.sysLabelId, [item.id])
-          console.log(addGoodsToTagJson)
-          let addGoodsToTagRes = JSON.parse(addGoodsToTagJson)
-        } catch (e) {
-          console.log(e)
-          this.$message.error('设置失败')
-        } finally {
-          count.count--
-        }
       },
       async updateSellActive(type) {
         if (type) {
@@ -1270,7 +967,7 @@
               status: 1
             }
             let option = {
-              headers: { 'Content-Type': 'application/json;charset=UTF-8' }
+              headers: {'Content-Type': 'application/json;charset=UTF-8'}
             }
             let discountJson = await this.$shopeemanService.discount(this.country, param, option)
             let discountRes = JSON.parse(discountJson)
@@ -1352,10 +1049,8 @@
         })
       },
       changeMallList(data) {  //店铺列表
-        if (data.mallList && data.mallList.length > 0) {
-          this.mallList = data.mallList
-          this.country = data.country
-        }
+        this.mallList = data.mallList
+        this.country = data.country
       }
     }
   }
