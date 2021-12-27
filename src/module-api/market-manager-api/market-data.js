@@ -92,7 +92,6 @@ export default class MarketManagerAPI {
         mallId: mallId,
         voucher_id:voucher_id
       }
-      debugger
       const res = await this._this.$shopeemanService.deleteChinese(country, '/api/marketing/v3/voucher/?', params, {
         headers: {
           'Content-Type': 'application/json',
@@ -100,7 +99,6 @@ export default class MarketManagerAPI {
           referer: `/portal/marketing/vouchers/${voucher_id}`
         }
       })
-      debugger
       const des = JSON.parse(res)
       const data = JSON.parse(des.data)
       let ecode=data.code
@@ -116,8 +114,7 @@ export default class MarketManagerAPI {
     try {
       const { country, mallId, min_price,name,value,
         end_time,start_time,max_value,discount,usage_quantity,claim_quantity,
-        voucher_landing_page,reward_type,hide,backend_created,
-        items,coin_percentage_real,max_coin,voucher_code} = goodsinfo
+        rule, voucher_code} = goodsinfo
       const params = {
         mallId: mallId,
         min_price:min_price,
@@ -130,36 +127,59 @@ export default class MarketManagerAPI {
         usage_quantity:usage_quantity,
         claim_quantity:claim_quantity,
         rule:{
-            voucher_landing_page:voucher_landing_page,
-            reward_type:reward_type,
-            hide:hide,
-            backend_created:backend_created,
-            items:items,//items=[]格式
+            voucher_landing_page:rule.voucher_landing_page,
+            reward_type:rule.reward_type,
+            hide:rule.hide,
+            backend_created:rule.backend_created,
+            items:rule.items,//items=[]格式
             coin_cashback_voucher:{
-                coin_percentage_real:coin_percentage_real,
-                max_coin:max_coin
+                coin_percentage_real:rule.coin_cashback_voucher.coin_percentage_real,
+                max_coin:rule.coin_cashback_voucher.max_coin
             }
         },
         voucher_code:voucher_code
     
       }
-      debugger
-      const res = await this._this.$shopeemanService.postChinese(country, '/api/marketing/v3/voucher/?', params, {
+      const res = await this._this.$shopeemanService.postChineseReferer(country, '/api/marketing/v3/voucher/?', params, {
         headers: {
           'Content-Type': 'application/json',
-          'Accept-Encoding': 'gzip, deflate',
+          'Accept': 'application/json, application/xml, text/json, text/x-json, text/javascript, text/xml',
           referer: `/portal/marketing/vouchers/new?edit=shop`
         }
       })
-      debugger
       const des = JSON.parse(res)
       const data = JSON.parse(des.data)
-      let ecode=data.code
+      let ecode=data.errcode || data.code
       const message = data.message
       //   console.log('=============', 'mallid:' + params.mallId, ecode, des)
       return { ecode, data, message }
     } catch (error) {
-      return { code: -2, data: `getSkuList-catch: ${error}` }
+      return { code: -2, data: `MallvoucherCreate-catch: ${error}` }
+    }
+  }
+
+   // 官网获取userName
+   async getShoppUserName(goodsinfo) {
+    try {
+      const { country, platform_mall_id} = goodsinfo
+      const params = {
+        mallId: platform_mall_id
+      }
+      const res = await this._this.$shopeemanService.getChineseReferer(country, '/api/selleraccount/user_info/?', params, {
+        headers: {
+          'Content-Type': 'application/json; charset=utf-8',
+          'Accept': 'application/json, text/plain, */*',
+          referer: `/portal/settings/shop/profile`
+        }
+      })
+      const des = JSON.parse(res)
+      const data = JSON.parse(des.data).data
+      // let ecode=data.errcode
+      // const message = data.message
+      //   console.log('=============', 'mallid:' + params.mallId, ecode, des)
+      return { data }
+    } catch (error) {
+      return { code: -2, data: `getShoppUserName-catch: ${error}` }
     }
   }
 }

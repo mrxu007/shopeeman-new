@@ -188,6 +188,34 @@ export default {
     this.getInfo()
   },
   methods: {
+    // 获取置顶任务
+    async getTopTest() {
+      this.showlog = false
+      this.$refs.Logs.writeLog(`正在获取置顶任务`)
+      const res = await this.$api.topTask()
+      if (res.data.code === 200) {
+        this.page = res.data.data.current_page
+        this.total = res.data.data.total
+        const list = res.data.data.data
+        const arr = []
+        // list.forEach(el => {
+        //   el.mallName = GoodsMallgetValue(this.shopAccountList, 'label', 'value', el.sys_mall_id)
+        //   // arr.push(el)
+        //   if (!el.mallName) {
+        //     this.$refs.Logs.writeLog(`【${el.sys_mall_id}】店铺不存在`)
+        //   }
+        // })
+        for (let i = 0; i < list.length; i++) {
+          list[i].mallName = GoodsMallgetValue(this.shopAccountList, 'label', 'value', list[i].sys_mall_id)
+          if (!list[i].mallName) {
+            this.$refs.Logs.writeLog(`【${list[i].sys_mall_id}】店铺不存在`)
+            continue
+          }
+        }
+      } else {
+        this.$message.error(`任务获取失败--${res.message}`, false)
+      }
+    },
     // 停止
     stopdTesk() {
       terminateThread()

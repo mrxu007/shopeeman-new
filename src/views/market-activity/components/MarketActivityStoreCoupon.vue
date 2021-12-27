@@ -19,7 +19,7 @@
         <el-button size="mini" type="primary" @click="stopSearch">取消查询</el-button>
         <el-button size="mini" type="primary" @click="mallCoupon">创建店铺优惠劵</el-button>
         <el-button size="mini" type="primary" @click="goodsCoupon">创建商品优惠劵</el-button>
-        <el-button size="mini">停止创建活动</el-button>
+        <el-button size="mini" @click="stopCreate">停止创建活动</el-button>
         <el-button size="mini" type="primary" @click="MallvoucherStopMul">批量停止活动</el-button>
         <el-button size="mini" type="primary" @click="MallvoucherDelMul">批量删除活动</el-button>
         <el-button size="mini" type="primary" @click="clearLog">清除日志</el-button>
@@ -50,7 +50,7 @@
           <!-- <template v-slot="{row}">{{ row.rule && row.rule.shopids.length===0 ? '店铺优惠卷' :'商品优惠卷' }}</template> -->
         </u-table-column>
         <u-table-column prop="discountInfo" label="折扣金额" align="center" min-width="180px" />
-        <u-table-column prop="topNum" label="最高上限数额" align="center" min-width="100px" />
+        <u-table-column prop="topNum" label="最高上限数额" align="center" min-width="150px" />
         <u-table-column prop="usage_limit" label="优惠劵可使用数量" align="center" min-width="150px" />
         <u-table-column prop="min_price" label="最低消费记录" align="center" min-width="100px" />
         <u-table-column prop="distributed_count" label="已领取" align="center" min-width="100px">
@@ -71,11 +71,11 @@
           </template>
         </u-table-column>
         <u-table-column prop="" label="是否在基本页面显示" align="center" min-width="150px">
-          <template v-slot="{row}">{{ row.rule && row.rule.hide ?'是':'否' }}</template>
+          <template v-slot="{row}">{{ row.rule && row.rule.hide ?'否':'是' }}</template>
         </u-table-column>
         <u-table-column prop="" label="操作" align="center" min-width="100px" fixed="right">
           <template v-slot="{row}">
-            <span> <el-button v-if="row.voucher_status==='即将开始'" size="mini" type="primary" @click="MallvoucherDel(row),singerStop=true">删除</el-button> </span>
+            <span> <el-button v-if="row.voucher_status==='即将开始'" size="mini" type="primary" @click="MallvoucherDelFun(row),singerStop=true">删除</el-button> </span>
             <span> <el-button v-if="row.voucher_status==='进行中' " size="mini" type="primary" @click="MallvoucherStop(row),singerStop=true">停止</el-button> </span>
           </template>
         </u-table-column>
@@ -147,7 +147,7 @@
         <el-form-item label="优惠时限">
           <el-date-picker
             v-model="dateTime"
-            style="width:260px;"
+            style="width:330px;"
             size="mini"
             value-format="timestamp"
             type="datetimerange"
@@ -194,7 +194,7 @@
         </el-form-item>
 
         <el-form-item>
-          <el-button v-if="coupontype==='1'" size="mini" type="primary">创建店铺优惠劵</el-button>
+          <el-button v-if="coupontype==='1'" size="mini" type="primary" @click="mallCouponFun">创建店铺优惠劵</el-button>
           <el-button v-if="coupontype==='2'" size="mini" type="primary">创建商品优惠劵</el-button>
           <el-button size="mini" type="primary">取消</el-button>
         </el-form-item>
@@ -250,7 +250,7 @@ export default {
   //   }
   // },
   created() {
-    console.log('------', this.$userInfo.Username)
+
   },
   methods: {
     // 清除日志
@@ -298,11 +298,22 @@ export default {
       this.singerStop = false
     },
     // 批量删除
-    async  MallvoucherDelMul() {
+    MallvoucherDelMul() {
       if (!this.mallTableSelect.length) {
         this.$message.warning('请选择要操作的数据')
         return
       }
+
+      this.$confirm('确定要删除这些优惠卷吗？, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        this.MallvoucherDelMulFun()
+      }).catch(() => {
+      })
+    },
+    async  MallvoucherDelMulFun() {
       for (let i = 0; i < this.mallTableSelect.length; i++) {
         if (Number(this.mallTableSelect[i].promotion_type) === 1) {
           await this.MallvoucherDel(this.mallTableSelect[i])
@@ -311,6 +322,16 @@ export default {
       this.getTableList()
     },
     // 删除
+    MallvoucherDelFun(val) {
+      this.$confirm('确定该优惠卷吗？, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        this.MallvoucherDel(val)
+      }).catch(() => {
+      })
+    },
     async  MallvoucherDel(val) {
       const params = {
         country: val.country,
@@ -320,7 +341,6 @@ export default {
       try {
         this.showlog = false
         const res = await this.MarketManagerAPIInstance.MallvoucherDel(params)
-        debugger
         if (res.ecode === 0) {
           this.$refs.Logs.writeLog(`------成功删除【${val.name}】优惠活动------`, true)
         } else {
@@ -339,6 +359,11 @@ export default {
       terminateThread()
       this.stoptoping = true
       this.$refs.Logs.writeLog(`正在停止查询`)
+    },
+    // 停止创建活动
+    stopCreate() {
+      terminateThread()
+      this.$refs.Logs.writeLog(`已停止创建`)
     },
     // 时间格式转换
     add0(m) { return m < 10 ? '0' + m : m },
@@ -403,7 +428,7 @@ export default {
             }
             if (Number(el.rule.reward_type) === 1) {
               el.discountInfo = `${el.rule.coin_cashback_voucher.coin_percentage_real}%折扣,(Shopee币回扣)`
-              el.topNum = Number(el.rule.coin_cashback_voucher.max_coin) === 0 ? '无限制' : el.rule.coin_cashback_voucher.max_coin
+              el.topNum = Number(el.rule.coin_cashback_voucher.max_coin) === 0 ? '无限制' : el.rule.coin_cashback_voucher.max_coin + '(Shopee币)'
             }
           })
           this.$refs.Logs.writeLog(`【${item.mall_alias_name || item.platform_mall_name}】总数据：${res.data.data.total_count}条,正在请求第【${(params.offset / params.limit) + 1}】页`, true)
@@ -437,26 +462,74 @@ export default {
       this.tableLoading = false
       this.tableList = this.getTable
     },
+    // 创建店铺优惠卷
+    mallCoupon() {
+      this.showlog = true
+      this.CouponVisible = true
+      this.coupontype = '1'
+      this.dialogtitle = '新建店铺优惠劵'
+      if (!this.selectMallList.length) {
+        this.$message.warning('请选择店铺')
+        return
+      }
+    },
+    async mallCouponFun() {
+      // this.selectMallList.forEach(el => {
+      //   this.createCoupon(el)
+      // })
+      this.CouponVisible = false
+      this.showlog = false
+      this.$refs.Logs.writeLog(`正在创建任务`)
+      const res1 = await batchOperation(this.selectMallList, this.createCoupon)
+      this.$refs.Logs.writeLog(`创建任务结束`)
+      this.getTableList()
+    },
+    // 创建商品优惠卷
+    goodsCoupon() {
+      this.CouponVisible = true
+      this.coupontype = '2'
+      this.dialogtitle = '新建商品优惠劵'
+      if (!this.selectMallList.length) {
+        this.$message.warning('请选择店铺')
+        return
+      }
+      if (this.selectMallList.length > 1) {
+        this.$message.warning('只能在一个店铺里创建商品优惠劵')
+        return
+      }
+    },
     // 店铺优惠券码使用。判断为字母或数字
     IsNumOrAlp(str) {
-      if (str.Length > 6) { return false }
-
+      if (str.length > 6) { return false }
       // var pattern1 = @"^[0-9]+$";
-      var pattern = '@"^[A-Za-z0-9]+$"' // @意思忽略转义，+匹配前面一次或多次，$匹配结尾
+      const pattern = /[A-Za-z0-9]/g // @意思忽略转义，+匹配前面一次或多次，$匹配结尾
       // 优惠券码名称不能全为数字
       // var match1 = Regex.Match(str, pattern1);
       // if (match1.Success) return false;
-      var match = Regex.Match(str, pattern)
-
-      return match.Success
+      // var match = match(str, pattern)
+      const matchD = str.match(pattern)
+      return matchD
+    },
+    async GetUserName(val, type) {
+      let userName = ''
+      const mallinfo = await this.$appConfig.getGlobalCacheInfo('mallInfo', val.platform_mall_id)
+      if (type === 0) { userName = JSON.parse(mallinfo).mall_account_info.username } else { userName = JSON.parse(mallinfo).mall_account_info.userRealName }
+      if (!userName) {
+        // 若username为空则走shopee接口获取用户真实名称 general/get_user
+        const res = await this.MarketManagerAPIInstance.getShoppUserName(val)
+        userName = res.data.user_name
+      }
+      if (!userName) {
+        this.$refs.Logs.writeLog(`创建优惠券失败，请先同步店铺信息`, false)
+        userName = ''
+      }
+      return userName
     },
     // 生成券码
-    CreateCouponCode() {
-      // 获取用户真实名称
-      const mallName = this.$userInfo.Username.toString()
+    async CreateCouponCode(mallName) {
       let baseStr = ''
       // 店铺真实名称只获取四个长度
-      for (let i = 0; i < mallName.Length; i++) {
+      for (let i = 0; i < mallName.length; i++) {
         if (this.IsNumOrAlp(mallName[i].toString())) {
           baseStr += mallName[i]
         }
@@ -473,38 +546,12 @@ export default {
       }
       return (baseStr + str).toUpperCase()// 4个长度的用户名称拼接5个长度的随机字符即为优惠券券码
     },
-
-    // 创建店铺优惠卷
-    async mallCoupon() {
-      this.CouponVisible = true
-      this.coupontype = '1'
-      this.dialogtitle = '新建店铺优惠劵'
-      if (!this.selectMallList.length) {
-        this.$message.warning('请选择店铺')
-        return
-      }
-      // this.selectMallList.forEach(el => {
-      //   this.createCoupon(el)
-      // })
-      const res1 = await batchOperation(this.selectMallList, this.createCoupon)
-    },
-    // 创建商品优惠卷
-    goodsCoupon() {
-      this.CouponVisible = true
-      this.coupontype = '2'
-      this.dialogtitle = '新建商品优惠劵'
-      if (!this.selectMallList.length) {
-        this.$message.warning('请选择店铺')
-        return
-      }
-      if (this.selectMallList.length > 1) {
-        this.$message.warning('只能在一个店铺里创建商品优惠劵')
-        return
-      }
-    },
-
     // 创建店铺优惠卷--接口
     async createCoupon(val, count = { count: 1 }) {
+      if (this.dateTime[0] < new Date().getTime()) {
+        this.$message.warning('开启时间不能小于当前时间')
+        return
+      }
       try {
         let discount = null // 折扣--折扣
         let disValue = null // 折扣--折扣金额
@@ -526,9 +573,9 @@ export default {
           min_price: this.minPrice,
           name: this.couponName,
           value: disValue,
-          end_time: this.dateTime[1],
-          start_time: this.dateTime[0],
-          max_value: this.limitPrice === '0' ? 0 : this.maxPrice,
+          end_time: Math.floor(this.dateTime[1] / 1000),
+          start_time: Math.floor(this.dateTime[0] / 1000),
+          max_value: this.limitPrice === '0' ? null : this.maxPrice,
           discount: discount,
           usage_quantity: this.useQuantity,
           claim_quantity: '0',
@@ -543,15 +590,34 @@ export default {
               max_coin: discountShop ? this.maxPrice : null
             }
           },
-          voucher_code: this.CreateCouponCode()
+          // const wareinfo = await this.$appConfig.getGlobalCacheInfo('mallInfo', sysmallID)
+          voucher_code: null
         }
-
-        const res = await this.MarketManagerAPIInstance.MallvoucherCreate(params)
-        if (res.ecode !== 0) {
-          this.$refs.Logs.writeLog(`创建失败：${res.message}}`, false)
+        let userName = await this.GetUserName(val, 0)
+        if (!userName) { return }// 若用户名称获取为空，则开始下一条数据
+        params.voucher_code = await this.CreateCouponCode(userName)// 生成券码
+        var result = await this.MarketManagerAPIInstance.MallvoucherCreate(params)// 调用优惠接口
+        if (result.message === 'wrong voucher prefix') { // 若创建失败
+          userName = await this.GetUserName(val, 1)// 再次获取用户真实名称
+          if (!userName) { return }
+          params['voucher_code'] = await this.CreateCouponCode(userName)// 重新生成券码
+          result = await this.MarketManagerAPIInstance.MallvoucherCreate(params)// 创建优惠券
+          if (result.ecode !== 0) {
+            this.$refs.Logs.writeLog(`【${val.mall_alias_name || val.platform_mall_name}】创建失败：${result.message}`, false)
+          } else {
+            this.$refs.Logs.writeLog(`【${val.mall_alias_name || val.platform_mall_name}】创建成功`, true)
+          }
+        } else {
+          if (result.ecode === 0) {
+            // const voucher_id=result.data.data.voucher_id
+            this.$refs.Logs.writeLog(`【${val.mall_alias_name || val.platform_mall_name}】创建成功`, true)
+          } else {
+            this.$refs.Logs.writeLog(`【${val.mall_alias_name || val.platform_mall_name}】创建失败：${result.message}`, false)
+          }
+          // this.$refs.Logs.writeLog(`${}`)
         }
       } catch (error) {
-        this.$refs.Logs.writeLog(`console.error();`, false)
+        this.$refs.Logs.writeLog(`【${val.mall_alias_name || val.platform_mall_name}】创建失败：${error}};`, false)
       } finally {
         count.count--
       }
