@@ -115,17 +115,17 @@
                 </el-row>
                 <el-row class="row-style">
                   <div class="tool-item mar-right">
-                    <el-select v-model="inputType" placeholder="" size="mini" filterable style="width: 80px" @change="inputContent=''">
+                    <el-select v-model="inputType" placeholder="" size="mini" filterable style="width: 80px" @change="inputContent = ''">
                       <el-option :label="item.label" :value="item.value" v-for="(item, index) in inputTypeList" :key="index" />
                     </el-select>
                     <el-input v-model="inputContent" size="mini" clearable style="width: 160px" />
                     <el-tooltip effect="dark" placement="bottom-start">
                       <div slot="content">
-                        查询选项为订单编号时：<br>
-                        1、需进行批量查询时，可用英文逗号隔开各个订单编号<br>
-                        查询选项为备注或商品货号时：<br>
-                        1、查询全部数据传空<br>
-                        2、查未备注或无商品货号数据时，传‘无’<br>
+                        查询选项为订单编号时：<br />
+                        1、需进行批量查询时，可用英文逗号隔开各个订单编号<br />
+                        查询选项为备注或商品货号时：<br />
+                        1、查询全部数据传空<br />
+                        2、查未备注或无商品货号数据时，传‘无’<br />
                       </div>
                       <i class="el-icon-question" />
                     </el-tooltip>
@@ -188,7 +188,7 @@
         <p v-else @click="isShow = true">展开<i class="el-icon-caret-bottom" /></p>
       </div>
     </header>
-    <div class="content" :style="{'height': isShow ? '520px' : '850px'}">
+    <div class="content" :style="{ height: isShow ? '520px' : '850px' }">
       <p>
         温馨提示：1、最终毛利 = 订单收入-采购金额-仓库发货金额（生成仓库发货金额才会去计算，会有汇率差）；含邮费毛利 =
         订单收入-采购价；2、若登录了Lazada买手号但点击采购订单号依旧提示登录，请使用编辑采购信息编辑重新保存下拍单信息
@@ -198,7 +198,7 @@
         <el-table-column align="center" type="index" label="序号" width="50" fixed="left">
           <template slot-scope="scope">{{ (currentPage - 1) * pageSize + scope.$index + 1 }}</template>
         </el-table-column>
-        <el-table-column prop="order_sn" label="订单编号"  width="170px" v-if="showTableColumn('订单编号')" fixed="left">
+        <el-table-column prop="order_sn" label="订单编号" width="170px" v-if="showTableColumn('订单编号')" fixed="left">
           <template slot-scope="scope">
             <i class="el-icon-document-copy copyStyle" @click="copyItem(scope.row.order_sn)"></i>
             <span class="tableActive" @click="viewDetails('orderDetail', scope.row.order_id, scope.row.mall_info.platform_mall_id)">{{ scope.row.order_sn }}</span>
@@ -249,12 +249,9 @@
         </el-table-column>
         <el-table-column align="center" label="是否可二次销售" width="140" v-if="showTableColumn('是否可二次销售')">
           <template slot-scope="scope">
-            <el-button
-              v-if="scope.row.shot_order_info.buy_account_info && scope.row.shot_order_info.buy_account_info.second_sale_num"
-              size="mini"
-              type="primary"
-              @click="cancelSecondSale(scope.row)"
-            >取消二次销售</el-button>
+            <el-button v-if="scope.row.shot_order_info.buy_account_info && scope.row.shot_order_info.buy_account_info.second_sale_num" size="mini" type="primary" @click="cancelSecondSale(scope.row)"
+              >取消二次销售</el-button
+            >
             <el-button v-if="scope.row.isSecond" size="mini" type="primary" @click="chooseSecondSale(scope.row)">{{ scope.row.secondSaleTitle }}</el-button>
           </template>
         </el-table-column>
@@ -395,11 +392,11 @@
         <el-table-column align="center" label="采购时间" width="140" v-if="showTableColumn('采购时间')">
           <template slot-scope="scope">{{ scope.row.shot_order_info.shotted_at }}</template>
         </el-table-column>
-        <el-table-column  label="采购订单号" width="150" v-if="showTableColumn('采购订单号')">
+        <el-table-column label="采购订单号" width="150" v-if="showTableColumn('采购订单号')">
           <template slot-scope="scope">
-             <i class="el-icon-document-copy copyStyle tableActive" v-if="scope.row.shot_order_info.shot_order_sn" @click="copyItem(scope.row.shot_order_info.shot_order_sn)"></i>
-             <span class="tableActive">{{ scope.row.shot_order_info.shot_order_sn }}</span>
-            </template>
+            <i class="el-icon-document-copy copyStyle tableActive" v-if="scope.row.shot_order_info.shot_order_sn" @click="copyItem(scope.row.shot_order_info.shot_order_sn)"></i>
+            <span class="tableActive">{{ scope.row.shot_order_info.shot_order_sn }}</span>
+          </template>
         </el-table-column>
         <el-table-column align="center" label="采购付款方式" width="120" v-if="showTableColumn('采购付款方式')">
           <template slot-scope="scope">{{ buyPayMethod[scope.row.shot_order_info.shot_payment_method] }}</template>
@@ -525,7 +522,8 @@
                     "
                   >
                     账单明细
-                  </div></el-dropdown-item>
+                  </div></el-dropdown-item
+                >
                 <el-dropdown-item> <div class="dropdownItem" @click="SyncOrder(scope.row)">同步此店铺订单</div></el-dropdown-item>
                 <el-dropdown-item> <div class="dropdownItem" @click="SyncOrderSingle(scope.row)">同步此订单</div></el-dropdown-item>
                 <el-dropdown-item> <div class="dropdownItem" @click="syncLogisticsSingle(scope.row)">同步此订单物流</div></el-dropdown-item>
@@ -790,7 +788,7 @@ import {
   changeShotStatus,
 } from '../components/orderCenter/orderCenter'
 import { setGoodsDelist, setGoodsDelete } from './orderCenter/handleGoods'
-import { creatDate, getDaysBetween } from '../../../util/util'
+import { creatDate, getDaysBetween,dealwithOriginGoodsNum } from '../../../util/util'
 import storeChoose from '../../../components/store-choose'
 import BuyerAccount from './orderCenter/buyer-account.vue'
 import LogisticeSyncService from '../../../services/logistics-sync-service/logistics-sync-service-new-copy'
@@ -820,14 +818,14 @@ export default {
     ExportReport,
     ReplyBuyer,
     SecondSale,
-    ImageCollection
+    ImageCollection,
   },
   data() {
     return {
       pickerOptions: {
         disabledDate(time) {
           return time.getTime() > Date.now()
-        }
+        },
       },
       selectForm: {
         timeType: 'payTime', //其它时间类型
@@ -883,7 +881,7 @@ export default {
           { title: '批量拍单', type: 'primary', key: 4, click: 'purchaseHandler' },
           { title: '配置自定义列', type: 'primary', key: 5 },
           { title: '上传账号信息', type: 'primary', key: 6 },
-          { title: '下载账号信息', type: 'primary', key: 7 }
+          { title: '下载账号信息', type: 'primary', key: 7 },
         ],
         center: [
           { title: '拼多多账号', platform: 1, centerTitle: '拼多多个人中心' },
@@ -891,7 +889,7 @@ export default {
           { title: '1688账号', platform: 8, centerTitle: '1688个人中心' },
           { title: '京喜账号', platform: 10, centerTitle: '京喜个人中心' },
           { title: 'lazada账号', platform: 9, centerTitle: 'lazada个人中心' },
-          { title: 'shopee账号', platform: 11, centerTitle: 'shopee个人中心' }
+          { title: 'shopee账号', platform: 11, centerTitle: 'shopee个人中心' },
           // { title: '天猫淘宝海外账号', platform: 888, centerTitle: '刷新天猫淘宝海外平台账号' },
         ],
         right: [
@@ -981,7 +979,7 @@ export default {
       this.getOrderList(1)
     }, 2000)
     // 保存sku映射
-    this.$IpcMain.on('skuRelation', async(response) => {
+    this.$IpcMain.on('skuRelation', async (response) => {
       console.log('skuRelation', response)
       response['OriGoodsPlatform '] = 1
       console.log(JSON.stringify(response), 'response')
@@ -1152,7 +1150,7 @@ export default {
           VirtualPdfPath: {},
           ConvertFaceInfoList: [],
         }
-         console.log(JSON.stringify(pdfDownloadModel1), '111')
+        console.log(JSON.stringify(pdfDownloadModel1), '111')
         let pdfInfo = await window['BaseUtilBridgeService'].getOrderPdfInfo(pdfDownloadModel1)
         let pdfInfoObj = JSON.parse(pdfInfo)
         console.log('pdfInfoObj', pdfInfoObj)
@@ -1176,10 +1174,10 @@ export default {
           let orderInfo = this.multipleSelection.find((n) => {
             return n.main_order_sn == info.order_sn
           })
-          console.log(orderInfo, 'orderInfo', )
+          console.log(orderInfo, 'orderInfo')
           let htmlUrl = null
-          if( info.url && info.url.includes('.html')){
-            htmlUrl =  pdfInfoObj.data && pdfInfoObj.data.find((n) => n && n.OrderSn == orderInfo.main_order_sn) || null
+          if (info.url && info.url.includes('.html')) {
+            htmlUrl = (pdfInfoObj.data && pdfInfoObj.data.find((n) => n && n.OrderSn == orderInfo.main_order_sn)) || null
           }
           console.log(htmlUrl, 'htmlUrl')
           let conParams = {
@@ -1206,9 +1204,9 @@ export default {
           }
           return this.$refs.Logs.writeLog(`打印面单失败,${message}`, false)
         }
-         let PdfInfoList = JSON.parse(JSON.stringify(PdfInfoModel))
+        let PdfInfoList = JSON.parse(JSON.stringify(PdfInfoModel))
         PdfInfoList.forEach((item) => {
-          let htmlUrl = pdfInfoObj.data.find((n) =>n && n.OrderSn == item.OrderNo)
+          let htmlUrl = pdfInfoObj.data.find((n) => n && n.OrderSn == item.OrderNo)
           if (htmlUrl) {
             item.PDFUrl = htmlUrl.PDFFilePath
           }
@@ -1230,7 +1228,7 @@ export default {
         console.log('down', down)
         this.tableLoading = false
       } catch (error) {
-        console.log(error,"123456")
+        console.log(error, '123456')
         this.tableLoading = false
         this.$refs.Logs.writeLog(`打印面单失败`, false)
       }
@@ -1281,10 +1279,12 @@ export default {
         OriGoodsSku: '',
         OriGoodsSkuId: row.ori_sku_id || '',
         OriGoodsNum: '',
-        OriGoodsId: row.ori_goods_id || ''
+        OriGoodsId: row.ori_goods_id || '',
       }
       this.$buyerAccountService.getSkuRelation(skuInfo, buyer)
     },
+
+
     // 一键同步上家库存
     async syncOriginGoodsNum() {
       if (!this.multipleSelection.length) {
@@ -1295,149 +1295,152 @@ export default {
       this.$refs.Logs.writeLog(`开始同步上家库存，请耐心等待！`, true)
       for (let i = 0; i < this.multipleSelection.length; i++) {
         let order = this.multipleSelection[i]
-        let params = {
-          GoodsId: order.goods_info.ori_goods_id,
-          shop_id: order.mall_info.platform_mall_id,
-        }
-        const platformId = order.goods_info.ori_platform_id
-        if (platformId == 9) {
-          params['Site'] = order.country
-        } else if (platformId == 11) {
-          params['ShopId'] = order.mall_info.platform_mall_id
-          params['Site'] = order.country
-        } else if (platformId == 13) {
-          params['ShopId'] = order.mall_info.platform_mall_id
-          params['AccessToken'] = ''
-        }
-        let msg = ''
-        try {
-          console.log(Number(platformId), params, false)
-          let res = await this.$collectService.queryDetailById(Number(platformId), params, false)
-          console.log(res, '----------')
-          msg = res
-          console.log(Number(platformId), params, '4654689')
-          const resObj = res && JSON.parse(res)
-          if (resObj && resObj.Code === 200) {
-            const { CollectGoodsSkus } = resObj
-            const params = {
-              product_id: order.goods_info.goods_id,
-              version: '3.2.0',
-              shop_id: order.mall_info.platform_mall_id
-            }
-            let shopeeSkuList = []
-            let shopeeGoodsInfo = null
-            const shopeeGoods = await this.$shopeemanService.searchProductDetail(order.country, params)
-            let flag = false
-            // console.log(shopeeGoods, 'shopeeGoods')
-            if (shopeeGoods.code === 200 && shopeeGoods.data) {
-              shopeeGoodsInfo = shopeeGoods.data
-              shopeeSkuList = shopeeGoods.data.model_list || [] // shopee规格list
-              for (const key in CollectGoodsSkus) {
-                const skuInfo = CollectGoodsSkus[key]
-                // console.log(skuInfo, 'skuInfo')
-                let skuName = ''
-                // ---------------------处理skuName--------------------------------//
-                if ((skuInfo.PddProps && !skuInfo.originProps) || (skuInfo.PddProps && skuInfo.originProps && skuInfo.PddProps.length >= skuInfo.originProps.length)) {
-                  if (skuInfo.PddProps.length === 1) {
-                    skuName = skuInfo.PddProps[0].spec_name
-                  } else if (skuInfo.PddProps.length >= 2) {
-                    skuName = skuInfo.PddProps[0].spec_name + ',' + skuInfo.PddProps[1].spec_name
-                  } else {
-                    skuName = ''
-                  }
-                } else if ((!skuInfo.PddProps && skuInfo.originProps) || (skuInfo.PddProps && skuInfo.originProps && skuInfo.PddProps.length <= skuInfo.originProps.length)) {
-                  if (skuInfo.originProps.length === 1) {
-                    skuName = skuInfo.originProps[0].name
-                  } else if (skuInfo.originProps.length >= 2) {
-                    skuName = skuInfo.originProps[0].name + ',' + skuInfo.originProps[1].name
-                  } else {
-                    skuName = ''
-                  }
-                } else {
-                  skuName = ''
-                }
-                // ----------------------------------------------------------------//
-                const spIndex = shopeeSkuList.findIndex((n) => n.name == skuName)
-                if (spIndex > -1) {
-                  flag = true
-                  shopeeSkuList[spIndex].stock = Number(skuInfo.quantity)
-                }
-              }
-              // -----------判断是否更新并组装数据--------------//
-              if (!flag) {
-                this.$refs.Logs.writeLog(`订单【${order.order_sn}】同步库存失败，未匹配到相同的规格信息！`, false)
-                continue
-              }
-              let totalStock = 0
-              const dealWithSkuList = []
-              shopeeSkuList.forEach((item) => {
-                totalStock += item.stock
-                const subItem = {
-                  id: item.id,
-                  sku: item.sku,
-                  tier_index: item.tier_index,
-                  is_default: item.is_default,
-                  name: item.name,
-                  item_price: '',
-                  stock: item.stock
-                }
-                dealWithSkuList.push(subItem)
-              })
-              // 组装数据
-              const editParams = {
-                id: shopeeGoodsInfo.id,
-                name: shopeeGoodsInfo.name,
-                brand_id: shopeeGoodsInfo.brand_id,
-                images: shopeeGoodsInfo.images,
-                description: shopeeGoodsInfo.description,
-                model_list: dealWithSkuList, // sku
-                category_path: shopeeGoodsInfo.category_path,
-                attributes: shopeeGoodsInfo.attributes,
-                parent_sku: shopeeGoodsInfo.parent_sku,
-                wholesale_list: shopeeGoodsInfo.wholesale_list,
-                installment_tenures: shopeeGoodsInfo.installment_tenures,
-                weight: shopeeGoodsInfo.weight,
-                dimension: shopeeGoodsInfo.dimension,
-                pre_order: shopeeGoodsInfo.pre_order,
-                days_to_ship: shopeeGoodsInfo.days_to_ship,
-                condition: shopeeGoodsInfo.condition,
-                size_chart: shopeeGoodsInfo.size_chart,
-                video_list: shopeeGoodsInfo.video_list,
-                tier_variation: shopeeGoodsInfo.tier_variation,
-                add_on_deal: shopeeGoodsInfo.add_on_deal,
-                dangerous_goods: shopeeGoodsInfo.dangerous_goods,
-                enable_model_level_dts: shopeeGoodsInfo.enable_model_level_dts,
-                price: shopeeGoodsInfo.price,
-                stock: totalStock, // 总库存
-                logistics_channels: shopeeGoodsInfo.logistics_channels || [],
-                ds_cat_rcmd_id: '',
-                category_recommend: shopeeGoodsInfo.category_recommend,
-                ds_attr_rcmd_id: shopeeGoodsInfo.ds_attr_rcmd_id || '',
-                unlisted: shopeeGoodsInfo.unlisted || false
-              }
-              const editRes = await this.$shopeemanService.handleProductEdit(order.country, editParams)
-              if (editRes.code === 200) {
-                this.$refs.Logs.writeLog(`同步库存失败，订单【${order.order_sn}】同步库存成功！`, true)
-              } else {
-                this.$refs.Logs.writeLog(`同步库存失败，订单【${order.order_sn}】同步库存失败，${editRes.data}！`, false)
-              }
-              // --------------------------------------------//
-            } else {
-              if (shopeeGoods.code === 403) {
-                this.$refs.Logs.writeLog(`同步库存失败，店铺【${order.mall_info.platform_mall_name}】未登录！`, false)
-                continue
-              }
-              this.$refs.Logs.writeLog(`同步库存失败，订单【${order.order_sn}】未获取到shopee商品信息！`, false)
-              continue
-            }
-          } else {
-            msg = res
-          }
-        } catch (error) {
-          console.log('catch', error)
-          this.$refs.Logs.writeLog(`订单【${order.order_sn}】同步上家库存失败，${msg}！`, false)
-          continue
-        }
+        await dealwithOriginGoodsNum(order.goods_info.ori_goods_id, order.goods_info.ori_platform_id, order.mall_info.platform_mall_id, order.goods_info.goods_id, order.country, order.order_sn,this.$refs.Logs.writeLog)
+        // let params = {
+        //   GoodsId: order.goods_info.ori_goods_id,
+        //   shop_id: order.mall_info.platform_mall_id,
+        // }
+        // const platformId = order.goods_info.ori_platform_id
+        // if (platformId == 9) {
+        //   params['Site'] = order.country
+        // } else if (platformId == 11) {
+        //   params['ShopId'] = order.mall_info.platform_mall_id
+        //   params['Site'] = order.country
+        // } else if (platformId == 13) {
+        //   params['ShopId'] = order.mall_info.platform_mall_id
+        //   params['AccessToken'] = ''
+        // }
+        // let msg = ''
+        // try {
+        //   console.log(Number(platformId), params, false)
+        //   //获取上家平台商品详情
+        //   let res = await this.$collectService.queryDetailById(Number(platformId), params, false)
+        //   console.log(res, '----------')
+        //   msg = res
+        //   console.log(Number(platformId), params, '4654689')
+        //   const resObj = res && JSON.parse(res)
+        //   if (resObj && resObj.Code === 200) {
+        //     const { CollectGoodsSkus } = resObj
+        //     const params = {
+        //       product_id: order.goods_info.goods_id,
+        //       version: '3.2.0',
+        //       shop_id: order.mall_info.platform_mall_id,
+        //     }
+        //     let shopeeSkuList = []
+        //     let shopeeGoodsInfo = null
+        //     //获取shopee平台商品详情
+        //     const shopeeGoods = await this.$shopeemanService.searchProductDetail(order.country, params)
+        //     let flag = false
+        //     // console.log(shopeeGoods, 'shopeeGoods')
+        //     if (shopeeGoods.code === 200 && shopeeGoods.data) {
+        //       shopeeGoodsInfo = shopeeGoods.data
+        //       shopeeSkuList = shopeeGoods.data.model_list || [] // shopee规格list
+        //       for (const key in CollectGoodsSkus) {
+        //         const skuInfo = CollectGoodsSkus[key]
+        //         // console.log(skuInfo, 'skuInfo')
+        //         let skuName = ''
+        //         // ---------------------处理skuName--------------------------------//
+        //         if ((skuInfo.PddProps && !skuInfo.originProps) || (skuInfo.PddProps && skuInfo.originProps && skuInfo.PddProps.length >= skuInfo.originProps.length)) {
+        //           if (skuInfo.PddProps.length === 1) {
+        //             skuName = skuInfo.PddProps[0].spec_name
+        //           } else if (skuInfo.PddProps.length >= 2) {
+        //             skuName = skuInfo.PddProps[0].spec_name + ',' + skuInfo.PddProps[1].spec_name
+        //           } else {
+        //             skuName = ''
+        //           }
+        //         } else if ((!skuInfo.PddProps && skuInfo.originProps) || (skuInfo.PddProps && skuInfo.originProps && skuInfo.PddProps.length <= skuInfo.originProps.length)) {
+        //           if (skuInfo.originProps.length === 1) {
+        //             skuName = skuInfo.originProps[0].name
+        //           } else if (skuInfo.originProps.length >= 2) {
+        //             skuName = skuInfo.originProps[0].name + ',' + skuInfo.originProps[1].name
+        //           } else {
+        //             skuName = ''
+        //           }
+        //         } else {
+        //           skuName = ''
+        //         }
+        //         // ----------------------------------------------------------------//
+        //         const spIndex = shopeeSkuList.findIndex((n) => n.name == skuName)
+        //         if (spIndex > -1) {
+        //           flag = true
+        //           shopeeSkuList[spIndex].stock = Number(skuInfo.quantity)
+        //         }
+        //       }
+        //       // -----------判断是否更新并组装数据--------------//
+        //       if (!flag) {
+        //         this.$refs.Logs.writeLog(`订单【${order.order_sn}】同步库存失败，未匹配到相同的规格信息！`, false)
+        //         continue
+        //       }
+        //       let totalStock = 0
+        //       const dealWithSkuList = []
+        //       shopeeSkuList.forEach((item) => {
+        //         totalStock += item.stock
+        //         const subItem = {
+        //           id: item.id,
+        //           sku: item.sku,
+        //           tier_index: item.tier_index,
+        //           is_default: item.is_default,
+        //           name: item.name,
+        //           item_price: '',
+        //           stock: item.stock,
+        //         }
+        //         dealWithSkuList.push(subItem)
+        //       })
+        //       // 组装数据
+        //       const editParams = {
+        //         id: shopeeGoodsInfo.id,
+        //         name: shopeeGoodsInfo.name,
+        //         brand_id: shopeeGoodsInfo.brand_id,
+        //         images: shopeeGoodsInfo.images,
+        //         description: shopeeGoodsInfo.description,
+        //         model_list: dealWithSkuList, // sku
+        //         category_path: shopeeGoodsInfo.category_path,
+        //         attributes: shopeeGoodsInfo.attributes,
+        //         parent_sku: shopeeGoodsInfo.parent_sku,
+        //         wholesale_list: shopeeGoodsInfo.wholesale_list,
+        //         installment_tenures: shopeeGoodsInfo.installment_tenures,
+        //         weight: shopeeGoodsInfo.weight,
+        //         dimension: shopeeGoodsInfo.dimension,
+        //         pre_order: shopeeGoodsInfo.pre_order,
+        //         days_to_ship: shopeeGoodsInfo.days_to_ship,
+        //         condition: shopeeGoodsInfo.condition,
+        //         size_chart: shopeeGoodsInfo.size_chart,
+        //         video_list: shopeeGoodsInfo.video_list,
+        //         tier_variation: shopeeGoodsInfo.tier_variation,
+        //         add_on_deal: shopeeGoodsInfo.add_on_deal,
+        //         dangerous_goods: shopeeGoodsInfo.dangerous_goods,
+        //         enable_model_level_dts: shopeeGoodsInfo.enable_model_level_dts,
+        //         price: shopeeGoodsInfo.price,
+        //         stock: totalStock, // 总库存
+        //         logistics_channels: shopeeGoodsInfo.logistics_channels || [],
+        //         ds_cat_rcmd_id: '',
+        //         category_recommend: shopeeGoodsInfo.category_recommend,
+        //         ds_attr_rcmd_id: shopeeGoodsInfo.ds_attr_rcmd_id || '',
+        //         unlisted: shopeeGoodsInfo.unlisted || false,
+        //       }
+        //       const editRes = await this.$shopeemanService.handleProductEdit(order.country, editParams)
+        //       if (editRes.code === 200) {
+        //         this.$refs.Logs.writeLog(`同步库存失败，订单【${order.order_sn}】同步库存成功！`, true)
+        //       } else {
+        //         this.$refs.Logs.writeLog(`同步库存失败，订单【${order.order_sn}】同步库存失败，${editRes.data}！`, false)
+        //       }
+        //       // --------------------------------------------//
+        //     } else {
+        //       if (shopeeGoods.code === 403) {
+        //         this.$refs.Logs.writeLog(`同步库存失败，店铺【${order.mall_info.platform_mall_name}】未登录！`, false)
+        //         continue
+        //       }
+        //       this.$refs.Logs.writeLog(`同步库存失败，订单【${order.order_sn}】未获取到shopee商品信息！`, false)
+        //       continue
+        //     }
+        //   } else {
+        //     msg = res
+        //   }
+        // } catch (error) {
+        //   console.log('catch', error)
+        //   this.$refs.Logs.writeLog(`订单【${order.order_sn}】同步上家库存失败，${msg}！`, false)
+        //   continue
+        // }
       }
     },
     // 转换颜色标识名
@@ -1457,7 +1460,7 @@ export default {
     // 取消二次销售
     async cancelSecondSale(row) {
       const params = {
-        sysOrderId: row.id
+        sysOrderId: row.id,
       }
       const res = await this.$api.cancelSecondSale(params)
       if (res.data.code === 200) {
@@ -1472,7 +1475,7 @@ export default {
       const params = {
         goodsId: this.goodsId,
         variationId: this.skuId,
-        goodsSpec: this.goodsNum
+        goodsSpec: this.goodsNum,
       }
       const res = await this.$api.getsecondlist(params)
       if (res.data.code === 200) {
@@ -1541,7 +1544,7 @@ export default {
     async goodsTop(row) {
       const params = {
         id: Number(row.goods_info.goods_id),
-        shop_id: row.mall_info.platform_mall_id
+        shop_id: row.mall_info.platform_mall_id,
       }
       const res = await this.$shopeemanService.handleGoodsTop(row.country, params)
       if (res.code === 200) {
@@ -1555,7 +1558,7 @@ export default {
       this.$confirm('是否删除该商品?', '商品删除', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
-        type: 'warning'
+        type: 'warning',
       })
         .then(() => {
           setGoodsDelete(this, row)
@@ -1581,7 +1584,7 @@ export default {
       this.$confirm('是否下架该商品?', '商品下架', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
-        type: 'warning'
+        type: 'warning',
       })
         .then(() => {
           setGoodsDelist(this, row)
@@ -1616,7 +1619,7 @@ export default {
         shipping_trace_no: this.shippingTraceNo,
         channel_id: 79900,
         integrated: '',
-        shop_id: this.clickRow.mall_info.platform_mall_id
+        shop_id: this.clickRow.mall_info.platform_mall_id,
       }
       const res = await this.$shopeemanService.handleOutOrder(this.clickRow.country, params)
       if (res.data === 200) {
@@ -1655,7 +1658,7 @@ export default {
         Cookiestr: JSON.stringify(account.login_info),
         AccountType: account.type,
         Ua: account.ua,
-        Country: account.site || ''
+        Country: account.site || '',
       }
       return params
     },
@@ -1684,7 +1687,7 @@ export default {
       const reqStr = {
         type: type,
         shopId: shopId,
-        id: id
+        id: id,
       }
       this.$BaseUtilService.getOrderDetailInfo(shopId, JSON.stringify(reqStr))
     },
@@ -1735,7 +1738,7 @@ export default {
             const params = {
               sysOrderId: order.id,
               shotOrderSn: order.shot_order_info.shot_order_sn,
-              paymentMethod: payRes
+              paymentMethod: payRes,
             }
             const uploadRes = await this.$api.uplaodLazadaPaymentMethod(params)
             if (uploadRes.data.code === 200) {
@@ -1756,7 +1759,7 @@ export default {
       this.clickRow = row
       this.orderPathVisible = true
       const params = {
-        package_order_sn: row.order_sn
+        package_order_sn: row.order_sn,
         // package_order_sn: '210516S654NNU9',
       }
       this.orderPathInfoLoading = true
@@ -1779,7 +1782,7 @@ export default {
       this.clickRow = row
       const params = {
         order_id: row.order_id,
-        shop_id: row.mall_info.platform_mall_id
+        shop_id: row.mall_info.platform_mall_id,
       }
       this.shipInfoLoading = true
       if (row.order_status == 7) {
@@ -1796,7 +1799,7 @@ export default {
       if (!this.spTrackPath.length) {
         const params = {
           ctime: Math.round(new Date().getTime() / 1000),
-          description: '暂无物流信息'
+          description: '暂无物流信息',
         }
         this.spTrackPath.push(params)
       }
@@ -1848,7 +1851,7 @@ export default {
       let url = data
       if (type === 'product') {
         const params = {
-          platform_mall_id: data.mall_info.platform_mall_id
+          platform_mall_id: data.mall_info.platform_mall_id,
         }
         const webUrl = await this.$shopeemanService.getWebUrl(data.country, params)
         console.log(webUrl, 'webUrl', data.country)
@@ -1894,14 +1897,14 @@ export default {
         const obj = {
           id: item.id,
           trackingNumber: item.original_tracking_number,
-          trackingNumberCompany: item.original_logistics_company
+          trackingNumberCompany: item.original_logistics_company,
         }
         list.push(obj)
       })
       const params = {
         sysOrderId: this.clickRow.id,
         lists: list,
-        warehouseId: this.bindStore
+        warehouseId: this.bindStore,
       }
       const res = await this.$api.updateOrderTrackingNumber(params)
       if (res.data.code === 200) {
@@ -1933,7 +1936,7 @@ export default {
       }
       console.log(this.warehouseData, 'this.warehouseData')
       const params = {
-        sysOrderId: row.id
+        sysOrderId: row.id,
       }
       const resF = await this.$api.getOrderTrackingNumber(params)
       console.log('resF', resF)
@@ -1953,7 +1956,7 @@ export default {
         id: '0',
         original_tracking_number: '',
         original_logistics_company: '',
-        warehouse_user_id: ''
+        warehouse_user_id: '',
       }
       this.trackingNumberList.push(par)
     },
@@ -1998,10 +2001,10 @@ export default {
             {
               id: '0',
               trackingNumber: this.shipNo,
-              trackingNumberCompany: this.shipCompany
-            }
+              trackingNumberCompany: this.shipCompany,
+            },
           ],
-          warehouseId: this.shipBindStore
+          warehouseId: this.shipBindStore,
         }
 
         let res = await this.$api.updateOrderTrackingNumber(params)
@@ -2114,7 +2117,7 @@ export default {
               trackingNumber: resOrder.sub_purchase_orders[0].logistic_number || '',
               // shippingId:,
               deliveryTime: resOrder.sub_purchase_orders[0].rts_time || '',
-              trackingNumberCompany: resOrder.sub_purchase_orders[0].logistic_company_name || ''
+              trackingNumberCompany: resOrder.sub_purchase_orders[0].logistic_company_name || '',
             }
             const trackRes = await this.$api.uploadTrackingNumber(params)
             console.log(trackRes, 'trackRes')
@@ -2280,7 +2283,7 @@ export default {
       })
       this.showConsole = false
       this.$refs.Logs.consoleMsg = ''
-      console.log(buyerAccount,"buyerAccount")
+      console.log(buyerAccount, 'buyerAccount')
       const service = new ShotOrderService(waitOrders, buyerAccount, this)
       service.start(this.$refs.Logs.writeLog)
     },
@@ -2345,7 +2348,7 @@ export default {
       })
       const params = {
         sysOrderIds: ids,
-        id: this.colorRow.id
+        id: this.colorRow.id,
       }
       const res = await this.$api.setColorLabel(params)
       if (res.data.code === 200) {
@@ -2395,10 +2398,10 @@ export default {
       }
       this.showConsole = false
       // this.$refs.Logs.consoleMsg = ''
-      this.multipleSelection.forEach(async(item) => {
+      this.multipleSelection.forEach(async (item) => {
         const params = {
           id: item.id,
-          remark: this.localRamark
+          remark: this.localRamark,
         }
         const res = await this.$api.setLocalRemark(params)
         if (res.data.code === 200) {
@@ -2430,7 +2433,7 @@ export default {
       array.forEach(async (item) => {
         let params = {
           sysOrderId: item.id,
-          status: this.isAbroadGood
+          status: this.isAbroadGood,
         }
         try {
           let res = await this.$api.markGoodsIsOverseas(params)
@@ -2561,7 +2564,7 @@ export default {
         }
       })
       let params = JSON.parse(JSON.stringify(this.selectForm))
-      console.log(params,"params")
+      console.log(params, 'params')
       this.currentPage = page || this.currentPage
       params['page'] = this.currentPage
       params['pageSize'] = this.pageSize
@@ -2570,7 +2573,7 @@ export default {
       params['orderStatus'] = this.orderStatus.join(',')
       params['shotStatus'] = this.shotStatus.join(',')
       params['logisticsIds'] = this.logisticsIds.join(',')
-      params['createTime'] = this.createTime &&  this.createTime.length ? this.createTime[0] + ' 00:00:00' + '/' + this.createTime[1] + ' 23:59:59' : ''
+      params['createTime'] = this.createTime && this.createTime.length ? this.createTime[0] + ' 00:00:00' + '/' + this.createTime[1] + ' 23:59:59' : ''
       params['otherTime'] = params['otherTime'] && params['otherTime'].length ? params['otherTime'][0] + ' 00:00:00' + '/' + params['otherTime'][1] + ' 23:59:59' : ''
       params['shotTime'] = params['shotTime'] && params['shotTime'].length ? params['shotTime'][0] + ' 00:00:00' + '/' + params['shotTime'][1] + ' 23:59:59' : ''
       this.tableLoading = true
@@ -2707,8 +2710,8 @@ export default {
         // console.log('复制失败')
       }
       target.parentElement.removeChild(target)
-    }
-  }
+    },
+  },
 }
 </script>
 
