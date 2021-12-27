@@ -266,27 +266,30 @@ export default {
         if (val.top_type === '6') {
           params.listOrderType = 'price_dsc'
         }
-        const res = await this.GoodsList.getMpskuList(params)
-        if (res.code === 200) {
-          if (res.data.list?.length) {
-            // return res.data.list
-            // 一次置顶5个
-            // for (let i = 0; i < 5; i++) {
-            //   const params = {
-            //     country: val.country,
-            //     mallId: val.sysMallId,
-            //     goodsID: res.data.list[i].id
-            //   }
-            //   const res1 = await this.MarketManagerAPIInstance.topGoods(params)// 置顶商品
-            // }
 
-            // while (condition) {
+        const topIndex = 0
+        while (topIndex < 5) {
+          const res = await this.GoodsList.getMpskuList(params)
+          if (res.code === 200) {
+            if (res.data.list?.length) {
+              // return res.data.list
+              // 一次置顶5个
+              for (let i = 0; i < res.data.list.length; i++) {
+                const params = {
+                  country: val.country,
+                  mallId: val.sysMallId,
+                  goodsID: res.data.list[i].id
+                }
+                const res1 = await this.MarketManagerAPIInstance.topGoods(params)// 置顶商品
+                if (res1.ecode === 0) {
 
-            // }
+                }
+              }
+            }
+          } else {
+            this.$refs.Logs.writeLog(`店铺【${val.mallname}】商品获取失败${res.data}`, false)
+            break
           }
-        } else {
-          this.$refs.Logs.writeLog(`店铺【${val.mallname}】商品获取失败${res.data}`, false)
-          return null
         }
       } catch (error) {
         this.$refs.Logs.writeLog(`店铺【${val.mallname}】商品获取失败${error}`, false)
