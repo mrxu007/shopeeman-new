@@ -1592,13 +1592,19 @@ export default class NetMessageBridgeService {
       } else {
         return {
           code: 50001,
-          data: info.message || []
+          data: info.message || resObj.statusText || ''
         }
       }
     } else {
+      if (resObj.status === 403) {
+        return {
+          code: resObj.status,
+          data: `获取物流失败，店铺未登录！`
+        }
+      }
       return {
         code: resObj.status,
-        data: `获取失败${resObj.statusText}`
+        data: `获取物流失败${resObj.statusText}`
       }
     }
   }
