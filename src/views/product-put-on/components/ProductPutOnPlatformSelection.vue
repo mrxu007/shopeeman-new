@@ -1,7 +1,7 @@
 <template>
   <div class="contaniner">
     <header>
-      <el-tabs v-model="activeName" type="card" @tab-click="handleClick">
+      <el-tabs v-model="activeName" @tab-click="handleClick">
         <el-tab-pane label="关键词采集" name="keyPage">
           <div class="keyword-container">
             <div class="keyword-banner-bar">
@@ -19,8 +19,13 @@
                   <el-input v-model="commonAttr.StartPage" size="mini" />
                   <p>总页码：</p>
                   <el-input v-model="commonAttr.EndPage" size="mini" />
-                  <span v-show="isShowPageSize20" class="tip">20条/页</span>
-                  <span v-show="isShowPageSize50" class="tip">50条/页,最多50页</span>
+                  <el-tooltip v-show="isShowPageSize20 || isShowPageSize50" placement="top">
+                    <div v-show="isShowPageSize20" slot="content" class="tip">20条/页</div>
+                    <div v-show="isShowPageSize50" slot="content" class="tip">50条/页,最多50页</div>
+                    <div class="size-icon">
+                      <i class="el-icon-question" style="" />
+                    </div>
+                  </el-tooltip>
                 </li>
                 <li v-show="isShowTaobao">
                   <p>排序方式：</p>
@@ -104,7 +109,12 @@
                 </li>
               </ul>
               <div class="item con-sub-3">
-                <p class="text">关键词(一行一个)<span v-show="isShowKeyTip" style="color: red">（采集请使用对应的站点语言搜索）</span></p>
+                <div class="size-icon" :style="isShowKeyTip?'margin-top: 3px;':'margin-top: 5px;'">关键词(一行一个)
+                  <el-tooltip v-show="isShowKeyTip" placement="top">
+                    <div slot="content" class="tip">采集请使用对应的站点语言搜索</div>
+                    <i class="el-icon-question" style="" />
+                  </el-tooltip>
+                </div>
                 <el-input v-model="key" size="mini" type="textarea" :rows="8" resize="none" />
               </div>
               <div class="item con-sub-3">
@@ -115,7 +125,7 @@
               <ul class="item con-sub-2">
                 <li>
                   <el-button type="primary" size="mini" :disabled="buttonStatus.start" @click="StartCollection">开始采集</el-button>
-                  <el-button type="primary" size="mini">取消采集</el-button>
+                  <el-button type="primary" size="mini" @click="flag = true">取消采集</el-button>
                 </li>
                 <li class="li-item-2">
                   <p>起：</p>
@@ -154,7 +164,7 @@
             <ul class="item linkcon-sub-2">
               <li>
                 <el-button type="primary" size="mini" :disabled="buttonStatus.start" @click="StartCollection">开始采集</el-button>
-                <el-button type="primary" size="mini">取消采集</el-button>
+                <el-button type="primary" size="mini" @click="flag = true">取消采集</el-button>
               </li>
               <li class="li-item-2">
                 <p>起：</p>
@@ -215,7 +225,7 @@
             <ul class="item con-sub-2">
               <li>
                 <el-button type="primary" size="mini" :disabled="buttonStatus.start" @click="StartCollection">开始采集</el-button>
-                <el-button type="primary" size="mini">取消采集</el-button>
+                <el-button type="primary" size="mini" @click="flag = true">取消采集</el-button>
               </li>
               <li class="li-item-2">
                 <p>起：</p>
@@ -270,7 +280,7 @@
             <ul class="item con-sub-2">
               <li>
                 <el-button type="primary" size="mini" :disabled="buttonStatus.start" @click="StartCollection">开始采集</el-button>
-                <el-button type="primary" size="mini">取消采集</el-button>
+                <el-button type="primary" size="mini" @click="flag = true">取消采集</el-button>
               </li>
               <li class="li-item-2">
                 <p>起：</p>
@@ -328,7 +338,7 @@
             <ul class="item con-sub-2">
               <li>
                 <el-button type="primary" size="mini" :disabled="buttonStatus.start" @click="StartCollection">开始采集</el-button>
-                <el-button type="primary" size="mini">取消采集</el-button>
+                <el-button type="primary" size="mini" @click="flag = true">取消采集</el-button>
               </li>
               <li class="li-item-2">
                 <p>起：</p>
@@ -442,13 +452,50 @@
         <u-table-column align="center" type="selection" />
         <u-table-column align="center" type="index" label="序号" />
         <u-table-column align="center" label="主图">
-          <template v-slot="{ row }">
-            <div style="justify-content: center; display: flex">
-              <img :src="row.Image" style="width: 56px; height: 56px">
-            </div>
+          <template v-slot="{row}">
+            <el-tooltip
+              v-if="row.Image"
+              effect="light"
+              placement="right-end"
+              :visible-arrow="false"
+              :enterable="false"
+              style="width: 50px; height: 50px"
+            >
+              <div slot="content">
+                <el-image
+                  :src="row.Image"
+                  style="width: 400px; height: 400px"
+                >
+                  <div slot="error" class="image-slot" />
+                  <div slot="placeholder" class="image-slot">
+                    加载中<span class="dot">...</span>
+                  </div>
+                </el-image>
+              </div>
+              <el-image
+                style="width: 40px; height: 40px"
+                :src="row.Image"
+              >
+                <div slot="error" class="image-slot" />
+                <div slot="placeholder" class="image-slot">
+                  加载中<span class="dot">...</span>
+                </div>
+              </el-image>
+            </el-tooltip>
           </template>
         </u-table-column>
-        <u-table-column align="center" label="上家ID" prop="GoodsId" />
+        <u-table-column align="center" min-width="100" label="上家ID" prop="GoodsId">
+          <template v-slot="{row}">
+            <span
+              v-if="row.GoodsId"
+              class="copyIcon"
+              @click="copy(row.GoodsId)"
+            ><i class="el-icon-document-copy" /></span>
+            <span style="color:red">
+              {{ row.GoodsId }}
+            </span>
+          </template>
+        </u-table-column>
         <u-table-column align="center" label="标题" prop="Title" width="500px" fit>
           <template v-slot="{ row }">
             <p style="white-space: normal">{{ row.Title }}</p>
@@ -459,8 +506,8 @@
             <p style="white-space: normal">{{ row.CategoryName }}</p>
           </template>
         </u-table-column>
-        <u-table-column align="center" label="价格" prop="Price" />
-        <u-table-column align="center" label="销量" prop="Sales" />
+        <u-table-column align="center" label="价格" prop="Price" sortable />
+        <u-table-column align="center" label="销量" prop="Sales" sortable />
         <u-table-column align="center" label="发货地" />
         <u-table-column align="center" label="来源" prop="Origin" />
         <u-table-column align="center" label="操作" />
@@ -541,7 +588,7 @@ export default {
         shopeePlaceVal: [],
         // Lazada
         lazadaSite: [],
-        lazadaSiteCode: 'ID',
+        lazadaSiteCode: 'MY',
         lazadaPlaceOrigin: {},
         lazadaPlaceVal0: [],
         lazadaPlaceVal1: [],
@@ -585,6 +632,7 @@ export default {
         pictureSearchPlatformId: '2'
       },
       // 基础参数
+      flag: false,
       start: 1,
       end: 5000,
       key: '',
@@ -684,6 +732,7 @@ export default {
     const data = this.goodsList.slice(0, 500)
     // data是数据，state是选中还是取消选中
     this.$refs.plTable.partRowSelections(data, true)
+    document.querySelectorAll('.barChilren')[4].style.width = '102px'
   },
   methods: {
     selectShopeePlaceValEvent() { // 出货地点全选事件
@@ -760,6 +809,7 @@ export default {
     },
     // 开始采集
     StartCollection() {
+      this.flag = false
       switch (this.activeName) {
         case 'keyPage': // 关键字采集
           this['keywordSearch']()
@@ -770,7 +820,7 @@ export default {
         case 'entriresShopPage': // 整店采集
           this['entriresShopSearch']()
           break
-        case 'picToPicPage': // 整店采集
+        case 'picToPicPage': // 图搜同款
           this['picToPicSearch']()
           break
         case 'taobaoAbroadPage': // 淘宝天猫海外采集
@@ -798,6 +848,11 @@ export default {
       this.writeLog(`开始采集${platformObj[platForm]}商品.......`, true)
 
       for (let i = 0; i < keyLen; i++) {
+        if (this.flag) {
+          this.buttonStatus.start = false
+          this.writeLog(`取消${platformObj[platForm]}商品采集`, true)
+          break
+        }
         const item = key[i]
         // this.writeLog(`采集关键字：${item}`, true)
         const res2 = await this.CollectKeyWordApInstance.keywordSearch(item)
@@ -808,6 +863,11 @@ export default {
       }
       if (platForm === 1) { // 如果当前平台为拼多多需额外调用 拼多多补充接口  1.1-------------------------
         for (let i = 0; i < keyLen; i++) {
+          if (this.flag) {
+            this.buttonStatus.start = false
+            this.writeLog(`取消${platformObj[platForm]}商品采集`, true)
+            break
+          }
           const item = key[i]
           // this.writeLog(`采集关键字：${item}`, true)
           const res2 = await this.CollectKeyWordApInstance.keywordSearchTwo(item)
@@ -817,7 +877,9 @@ export default {
           this.goodsList.push(...res2.data)
         }
       }
-      this.writeLog(`${platformObj[platForm]}：共采集：${this.goodsList.length}条`, true)
+      const newData = this.filterData(this.goodsList)
+      this.$refs.plTable.reloadData(newData)
+      this.writeLog(`${platformObj[platForm]}：共采集：${this.goodsList.length}条，过滤商品：${this.goodsList.length - newData.length}条`, true)
       this.writeLog(`${platformObj[platForm]}商品采集完毕........`, true)
       key = null
       this.buttonStatus.start = false
@@ -835,6 +897,10 @@ export default {
       const len = data.length
       this.writeLog('开始商品链接采集搜索........', true)
       for (let i = 0; i < len; i++) {
+        if (this.flag) {
+          this.writeLog('取消链接采集', true)
+          break
+        }
         const item = data[i]
         const res2 = await this.collectLinkApInstance.getGoodsDeail(item)
         if (res2.code !== 200) {
@@ -862,6 +928,10 @@ export default {
       const data = res.data
       const len = data.length
       for (let i = 0; i < len; i++) {
+        if (this.flag) {
+          this.writeLog('取消整店采集', true)
+          break
+        }
         const item = data[i]
         const res2 = await this.collectEntireApInstance.mallSearch(item)
         if (res2.code !== 200) {
@@ -920,6 +990,10 @@ export default {
       this.$refs.plTable.reloadData(this.goodsList)
       this.writeLog(`开始 淘宝天猫海外 采集搜索........`, true)
       for (let i = 0; i < this.TaobaoAbroadAccountId.length; i++) {
+        if (this.flag) {
+          this.writeLog('取消淘宝天猫海外采集', true)
+          break
+        }
         const accountID = this.TaobaoAbroadAccountId[i]
         const account = this.TaobaoAbroadAccount.find(item => item.id === accountID)
         const res = await this.collectOtherApInstance.queryTmCrossBorder(account, this.taobaoTimeAt)
@@ -952,7 +1026,8 @@ export default {
         const item = this.multipleSelection[i]
         const res2 = await this.collectLinkApInstance.getGoodsDeail(item)
         if (res2.code !== 200) {
-          this.writeLog(`商品ID: ${item} 收藏失败: ${res2.data}`, false)
+          console.log(item)
+          this.writeLog(`商品ID: ${item.GoodsId} 收藏失败: ${res2.data}`, false)
           fail++
           continue
         } else {
@@ -983,6 +1058,95 @@ export default {
       reader.onload = () => {
         that.base64Str = reader.result
       }
+    },
+    // 过滤数据
+    filterData(data) {
+      console.log('data', data)
+      let fData = []
+      for (let i = 0; i < data.length; i++) {
+        const item = data[i]
+        item.Sales = Number(item.Sales)
+        item.Price = Number(item.Price)
+        // 过滤销量
+        if (this.isShowSales && item.Sales < Number(this.commonAttr.StartSales)) {
+          continue
+        }
+        if (this.isShowSales && item.Sales > Number(this.commonAttr.EndSales)) {
+          continue
+        }
+        // 过滤价格
+        if (this.isShowPrice && item.Price < Number(this.commonAttr.StartPrice)) {
+          continue
+        }
+        if (this.isShowPrice && item.Price > Number(this.commonAttr.EndPrice)) {
+          continue
+        }
+        fData.push(item)
+      }
+      // 单词最大
+      if (this.isShowTaobao) {
+        if (this.commonAttr.wordLimit) {
+          fData = fData.splice(0, this.commonAttr.wordLimit)
+        }
+      }
+      // 淘宝 虾皮 排序方式
+      if (this.isShowTaobao || this.isShowShopeeSite) {
+        switch (this.commonAttr.shopeeSortTypeVal) {
+          case 'price,asc':
+            fData.sort((a, b) => { return a.Price - b.Price })
+            break
+          case 'price,desc':
+            fData.sort((a, b) => { return b.Price - a.Price })
+            break
+          case 'sales,asc':
+            fData.sort((a, b) => { return a.Sales - b.Sales })
+            break
+          case 'sales,desc':
+            fData.sort((a, b) => { return b.Sales - a.Sales })
+            break
+        }
+      }
+      // 1688 排序方式
+      if (this.isShowSort) {
+        switch (this.commonAttr.alibabaSortTypeVal) {
+          case 'pop':
+            break
+          case 'price_fale':
+            fData.sort((a, b) => { return a.Price - b.Price })
+            break
+          case 'price_true':
+            fData.sort((a, b) => { return b.Price - a.Price })
+            break
+          case 'booked_false':
+            fData.sort((a, b) => { return a.Sales - b.Sales })
+            break
+          case 'booked_true':
+            fData.sort((a, b) => { return b.Sales - a.Sales })
+            break
+        }
+      }
+      console.log('fData', fData)
+      return fData
+    },
+    // 点击复制
+    copy(attr) {
+      const target = document.createElement('div')
+      target.id = 'tempTarget'
+      target.style.opacity = '0'
+      target.innerText = attr
+      document.body.appendChild(target)
+      try {
+        const range = document.createRange()
+        range.selectNode(target)
+        window.getSelection().removeAllRanges()
+        window.getSelection().addRange(range)
+        document.execCommand('copy')
+        window.getSelection().removeAllRanges()
+        this.$message.success('复制成功')
+      } catch (e) {
+        // console.log('复制失败')
+      }
+      target.parentElement.removeChild(target)
     }
   }
 }
