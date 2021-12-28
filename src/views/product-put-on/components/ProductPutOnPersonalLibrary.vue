@@ -206,7 +206,7 @@
       </span>
     </el-dialog>
     <div class="on_new_dialog">
-      <el-dialog width="1313px" :close-on-click-modal="false" top="6vh" :visible.sync="isEditorVisible">
+      <el-dialog width="1313px" :close-on-click-modal="false" top="6vh" :visible.sync="isEditorVisible" :modal="false">
         <template slot="title">
           <div style="display: flex;align-items: center">
             <div style="margin-right: 25px;">上新编辑</div>

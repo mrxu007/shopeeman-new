@@ -7,6 +7,11 @@ export default class CommodityService {
   user = ''
   nativeService = window['CommodityBridgeService']
 
+  /** 更新ip */
+  RefreshLinkIp(targetId) {
+    return this.nativeService.callCloudIpFunction('RefreshLinkIp', targetId)
+  }
+
   //* *删除服务端商品 */
   delCloudItems(itemList) {
     return this.nativeService.callFunction('DeleteCloudItems', itemList)
