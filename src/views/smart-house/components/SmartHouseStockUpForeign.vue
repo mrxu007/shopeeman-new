@@ -1954,7 +1954,7 @@ export default {
           this.$refs.Logs.writeLog(`【${index + 1}】运输方式未找到引用值`, false)
           continue
         }
-        var Regx = /^[A-Za-z0-9]*$/
+        const Regx = /^[\w ]+$/
         if (!Regx.test(sku_id)) {
           this.$refs.Logs.writeLog(`【${index + 1}】商品编号(sku)只能填字母或数字`, false)
           continue

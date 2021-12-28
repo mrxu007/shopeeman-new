@@ -459,7 +459,7 @@ export default {
       this.Loading2 = true
       if (this.exportData.length < this.total) {
         const parmas = {
-          page_num: this.pageSize,
+          page_num: 200,
           page: page,
           wid: this.form.returnWheareHouseName,
           sys_sku_id: this.form.systemskuid,
@@ -532,6 +532,7 @@ export default {
         `
         })
         exportExcelDataCommon('海外仓库存信息', msg)
+        this.exportData = []
       }
     },
 

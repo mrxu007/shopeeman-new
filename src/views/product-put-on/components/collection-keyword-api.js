@@ -30,8 +30,8 @@ class CollectKeyWordApI {
     const shopeeSortTypeVal = this.commonAttr.shopeeSortTypeVal
     const By = shopeeSortTypeVal.split(',')[0]
     const Order = shopeeSortTypeVal.split(',')[1]
-    const siteCode = this.commonAttr.siteCode
-    const Location = this.commonAttr.placeVal
+    const shopeeSiteCode = this.commonAttr.shopeeSiteCode
+    const Location = this.commonAttr.shopeePlaceVal
 
     // Lazada
     const lazadaSiteCode = this.commonAttr.lazadaSiteCode
@@ -42,6 +42,9 @@ class CollectKeyWordApI {
     const params = {}
     params['Key'] = key
     while (StartPage) {
+      if (this._this.flag) { // 取消采集
+        break
+      }
       switch (this.platformId) {
         case 1: // 拼多多  1 拼多多接口、  1.1 拼多多补充接口、  1.2 拼多多优惠采集
         case 1.2:
@@ -63,7 +66,6 @@ class CollectKeyWordApI {
           params['StartPrice'] = StartPrice // 价格范围
           params['EndPrice'] = EndPrice
           params['Location'] = lazadaLocation.join(',') // 发货位置
-
           break
         case 10: // '京喜/京东'
           params['Page'] = StartPage // 页码
@@ -76,7 +78,7 @@ class CollectKeyWordApI {
           params['Order'] = Order // 排序方式
           params['StartPrice'] = StartPrice // 价格范围
           params['EndPrice'] = EndPrice
-          params['Site'] = siteCode.toLowerCase() // 站点
+          params['Site'] = shopeeSiteCode.toLowerCase() // 站点
           params['Location'] = Location.join(',') // 发货位置
           break
         case 12: // '速卖通'
@@ -114,6 +116,7 @@ class CollectKeyWordApI {
       item.information = ''
       return item
     })
+    console.log('原始数据', this.GoodsData)
     return { code: 200, data: this.GoodsData }
   }
   async keywordSearchTwo(key) { // 如果当前平台为拼多多需额外调用 拼多多补充接口  1.1-------------------------
@@ -124,6 +127,9 @@ class CollectKeyWordApI {
     const params = {}
     params['key'] = key
     while (StartPage) {
+      if (this._this.flag) { // 取消采集
+        break
+      }
       params['page'] = StartPage // 页码
       // 关键词请求
       let res = null

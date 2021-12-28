@@ -61,6 +61,9 @@ class CollectOtherApI {
       'Status': 'NORMAL'
     }
     while (StartPage) {
+      if (this._this.flag) { // 取消采集
+        break
+      }
       params['Page'] = StartPage
       let res = null
       try {

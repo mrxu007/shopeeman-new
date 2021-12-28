@@ -83,7 +83,7 @@ export default class CollectService {
     return this.nativeService.queryTmCrossBorder(token, JSON.stringify(params))
   }
 
-  //获取类目名
+  // 获取类目名
   getGoodsCat(category_id, source, site) {
     return this.nativeService.getGoodsCat(category_id, source, site)
   }

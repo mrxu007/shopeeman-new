@@ -191,7 +191,7 @@ export default {
                   if (bankData.code === 0) {
                     item.bank_name = bankData.data.bank_name
                     item.bank_account_number = bankData.data.account_number
-                    item.bank_account_name = bankData.data.full_name
+                    item.bank_account_name = bankData.data.account_name
                     item.ic_number = bankData.data.ic_number
                   }
                 } else if (resObjBank.status === 403) {

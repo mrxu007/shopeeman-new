@@ -34,8 +34,14 @@ export default class BaseUtilService {
   getMallIp(sysMallId) { // 获取店铺下绑定的ip
     return this.nativeService.getMallIp(sysMallId.toString())
   }
-  buildGoodCode(platformId, oriGoodsId) { // 商品编码加密
-    return this.nativeService.buildGoodCode(platformId, oriGoodsId, '')
+  // </summary>
+  // int platform 上家平台
+  // string goodsId 上家商品id
+  // string site 站点
+  // string shopId 店铺id
+  // string tmallCrossBorderUserId 天猫淘宝海外用户id
+  buildGoodCode(platform, goodsId, site, shopId, tmallCrossBorderUserId) { // 商品编码加密
+    return this.nativeService.buildGoodCode(platform, goodsId, site, shopId, tmallCrossBorderUserId)
   }
   getLogisticByOrderIdAsync(shotOrderAccount, orderSn) { // 淘宝物流获取
     return this.nativeService.getLogisticByOrderIdAsync(shotOrderAccount, orderSn)
@@ -127,10 +133,10 @@ export default class BaseUtilService {
   async loginNeedPopUps(name, data) {
     return await this.nativeService.loginNeedPopUps(name, JSON.stringify(data))
   }
-  async gotoUploadTab( type,  ids){
-    return this.nativeService.gotoUploadTab(type.toString(),  ids.toString())
+  async gotoUploadTab(type, ids) {
+    return this.nativeService.gotoUploadTab(type.toString(), ids.toString())
   }
-  async getUploadGoodsId(){
+  async getUploadGoodsId() {
     return this.nativeService.getUploadGoodsId()
   }
 }
