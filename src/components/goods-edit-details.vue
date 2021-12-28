@@ -51,14 +51,13 @@
           <div class="keepRight keepTop">活动主图：</div>
           <div class="goods-detail-box">
             <div class="goods-image-detail">
-              <el-image v-if="goodsDetails.images1.length > 0"
-                        style="width: 150px; height: 150px" :src="goodsDetails.images1[0].img"/>
+              <el-image v-if="goodsDetails.images1.length > 0" :src="goodsDetails.images1[0].img"/>
               <div class="goods-image-footer">
-                <!--                <el-button class="footer-but" type="" size="mini">编辑</el-button>-->
+                <el-button class="footer-but" type="" size="mini" @click="updateImage(2,0)">编辑</el-button>
                 <el-button class="footer-but" type="" size="mini" @click="replaceImage(2,0)">
                   替换
                 </el-button>
-                <el-button class="footer-but" type="" size="mini">去背景</el-button>
+                <el-button class="footer-but" @click.stop="cancelBackground" type="" size="mini">去背景</el-button>
               </div>
             </div>
           </div>
@@ -74,7 +73,7 @@
           <div class="goods-detail-box">
             <div class="goods-image-detail" v-if="goodsDetails.spec_image.length > 0"
                  v-for="(item,index) in goodsDetails.spec_image" :key="index">
-              <el-image style="width: 150px; height: 150px" :src="item" @click.native="multipleCheckClick(index,1)"/>
+              <el-image :src="item" @click.native="multipleCheckClick(index,1)"/>
               <div class="goods-image-top-right">
                 <el-checkbox v-model="specImageCheck[index]"></el-checkbox>
               </div>
@@ -82,7 +81,7 @@
                 <el-button class="footer-but" type="primary" size="mini" @click="setMasterMap(item)">设为主图</el-button>
               </div>
               <div class="goods-image-footer">
-                <!--                <el-button class="footer-but" type="" size="mini">编辑</el-button>-->
+                <el-button class="footer-but" type="" size="mini" @click="updateImage(1,index)">编辑</el-button>
                 <el-button class="footer-but" type="" size="mini" @click="replaceImage(1,index)">替换</el-button>
                 <el-button class="footer-but" type="" size="mini">以图搜图</el-button>
               </div>
@@ -104,8 +103,7 @@
           <div class="goods-detail-box">
             <div class="goods-image-detail" v-if="goodsDetails.images1.length > 0"
                  v-for="(item,index) in goodsDetails.images1" :key="item.id">
-              <el-image style="width: 150px; height: 150px" :src="item.img"
-                        @click.native="multipleCheckClick(index,2)"/>
+              <el-image  :src="item.img" @click.native="multipleCheckClick(index,2)"/>
               <div class="goods-image-top-right">
                 <el-checkbox v-model="carouselImageCheck[index]" size="small"></el-checkbox>
               </div>
@@ -113,7 +111,7 @@
                 <el-button class="footer-but" type="primary" size="mini" @click="setMasterMap(item)">设为主图</el-button>
               </div>
               <div class="goods-image-footer">
-                <!--                <el-button class="footer-but" type="" size="mini">编辑</el-button>-->
+                <el-button class="footer-but" type="" size="mini" @click="updateImage(2,index)">编辑</el-button>
                 <el-button class="footer-but" type="" size="mini" @click="replaceImage(2,index)">替换</el-button>
                 <el-button class="footer-but" type="" size="mini" @click="deleteImages(2,index)">删除</el-button>
                 <el-button class="footer-but" type="" size="mini">以图搜图</el-button>
@@ -143,8 +141,7 @@
           <div class="goods-detail-box">
             <div class="goods-image-detail" v-if="goodsDetails.descImages.length > 0"
                  v-for="(item,index) in goodsDetails.descImages" :key="item.id">
-              <el-image style="width: 150px; height: 150px" :src="item.img"
-                        @click.native="multipleCheckClick(index,3)"/>
+              <el-image :src="item.img" @click.native="multipleCheckClick(index,3)"/>
               <div class="goods-image-top-right">
                 <el-checkbox v-model="descImageCheck[index]" size="small"></el-checkbox>
               </div>
@@ -152,7 +149,7 @@
                 <el-button class="footer-but" type="primary" size="mini" @click="setMasterMap(item)">设为主图</el-button>
               </div>
               <div class="goods-image-footer">
-                <!--                <el-button class="footer-but" type="" size="mini">编辑</el-button>-->
+                <el-button class="footer-but" type="" size="mini" @click="updateImage(3,index)">编辑</el-button>
                 <el-button class="footer-but" type="" size="mini" @click="replaceImage(3,index)">替换</el-button>
                 <el-button class="footer-but" type="" size="mini" @click="deleteImages(3,index)">删除</el-button>
                 <el-button class="footer-but" type="" size="mini">以图搜图</el-button>
@@ -168,7 +165,7 @@
           <div class="keepRight keepTop">尺寸图：</div>
           <div class="goods-detail-box">
             <div v-if="goodsDetails.sizeImages[0] && goodsDetails.sizeImages[0].img" class="goods-image-detail">
-              <el-image style="width: 150px; height: 150px" :src="goodsDetails.sizeImages[0].img"/>
+              <el-image :src="goodsDetails.sizeImages[0].img"/>
               <div class="goods-image-footer">
                 <el-button class="footer-but" type="" size="mini" @click="replaceImage(4,0)">替换</el-button>
                 <el-button class="footer-but" type="" size="mini" @click="deleteImages(4)">删除</el-button>
@@ -302,7 +299,7 @@
             <div style="display: flex;flex-wrap: wrap;overflow: auto;height: 67vh;">
               <div class="goods-image-detail" v-if="imageList.length > 0"
                    v-for="(item,index) in imageList" :key="index">
-                <el-image style="width: 150px; height: 150px" :src="item" @click.native="picturesChooseRadio = item"/>
+                <el-image :src="item" @click.native="picturesChooseRadio = item"/>
                 <div class="goods-image-top-right">
                   <el-radio v-model="picturesChooseRadio" :label="item">
                     <span style="display: none;">1</span>
@@ -349,12 +346,18 @@
         </div>
       </el-dialog>
     </div>
+    <div v-show="GdEditorSdkVisible" class="updateImgBox">
+      <div id="editorApp" class="updateImg"></div>
+      <div class="updateImgBut">
+        <el-button type="" size="mini" @click="closeEditor">取消</el-button>
+      </div>
+    </div>
   </el-row>
 </template>
-
 <script>
 import JSZip from 'jszip'
 import FileSaver from 'file-saver'
+import { createImageEditor } from '@gaoding/editor-sdk';
 import { randomWord, waitStart, getArraySrcLengthSort } from '../util/util'
 
 export default {
@@ -364,6 +367,9 @@ export default {
       goodsDetails: null,
       activeName: 'information',
       imageList: [],
+      editor:null, //编辑
+      GdEditorSdkVisible:false,
+      editorImg: '',
       //图片选择
       picturesChooseStart: false,
       picturesChooseVisible: false,
@@ -608,6 +614,10 @@ export default {
     this.goodsDetails = neededTranslateInfoData
     this.tier_variation = JSON.parse(JSON.stringify(neededTranslateInfoData.tier_variation))
     this.lodSpecImage = this.goodsDetails.spec_image
+    this.editor = createImageEditor({
+      appId: 'YMEQYU442168',
+      container:'#editorApp'
+    });
   },
   methods: {
     async replaceImage(type, index) {
@@ -621,8 +631,8 @@ export default {
           let spec1 = this.goodsDetails.tier_variation[this.goodsDetails.tier_variation.spec1][index]
           let oldReg = new RegExp('"sku_image":"' + oldImage + '",(((?!sku_image).)*)"sku_spec1":"' + spec1 + '","', 'gi')
           let newReg = '"sku_image":"' + image + '",$1"sku_spec1":"' + spec1 + '","'
-          let itemmodels1 = itemmodels.replaceAll(oldReg, newReg)
-          this.goodsDetails.itemmodels = JSON.parse(itemmodels1)
+          itemmodels = itemmodels.replaceAll(oldReg, newReg)
+          this.goodsDetails.itemmodels = JSON.parse(itemmodels)
           this.$set(this.goodsDetails.tier_variation.images, index, image)
           this.$set(this.goodsDetails.spec_image, index, image)
         } else if (type === 2) {
@@ -727,6 +737,89 @@ export default {
           this.goodsDetails.itemmodels = list
         }
       }
+    },
+    async cancelBackground(){
+      let image = this.goodsDetails.images1[0] && this.goodsDetails.images1[0].img
+      let byUrlRes = await this.$MattingService.getDrawbotMattingByUrl(image,new Date().getTime()+'.png')
+      if (byUrlRes.Code === 200){
+        let byUrlData = byUrlRes.Data
+        let ImageURL = byUrlData.Data && byUrlData.Data.ImageURL
+        this.$set(this.goodsDetails.images1,0,{id:'0',img:ImageURL})
+        this.$set(this.goodsDetails.images,0,ImageURL)
+      }else{
+        this.$message.error('去背景失败，请稍后重试！')
+      }
+    },
+    async updateImage(type,index){
+      let oldImage = ''
+      this.GdEditorSdkVisible =true
+      if(type === 1){
+        oldImage = this.goodsDetails.spec_image[index]
+      }else if(type === 2){
+        oldImage = this.goodsDetails.images1[index].img
+      }else if(type === 3){
+        oldImage = this.goodsDetails.descImages[index].img
+      }
+      this.editor.importImage([oldImage]);
+      let newImg = await this.getEditorImage()
+      console.log('newImg',newImg)
+      if (newImg){
+        if(type === 1){
+          let itemmodels = JSON.stringify(this.goodsDetails.itemmodels)
+          let spec1 = this.goodsDetails.tier_variation[this.goodsDetails.tier_variation.spec1][index]
+          let oldReg = new RegExp('"sku_image":"' + oldImage + '",(((?!sku_image).)*)"sku_spec1":"' + spec1 + '","', 'gi')
+          let newReg = '"sku_image":"' + newImg + '",$1"sku_spec1":"' + spec1 + '","'
+          itemmodels = itemmodels.replaceAll(oldReg, newReg)
+          this.goodsDetails.itemmodels = JSON.parse(itemmodels)
+          this.$set(this.goodsDetails.tier_variation.images, index, newImg)
+          this.$set(this.goodsDetails.spec_image, index, newImg)
+        }else if(type === 2){
+          this.goodsDetails.images[index] = newImg
+          this.$set(this.goodsDetails.images1[index], 'img', newImg)
+        }else if(type === 3){
+          this.$set(this.goodsDetails.descImages[index], 'img', newImg)
+        }
+      }
+    },
+    getEditorImage(){
+      this.saveEditor()
+      return new Promise(resolve=>{
+        let setIn = setInterval(()=>{
+          if (!this.GdEditorSdkVisible){
+            clearInterval(setIn)
+            resolve(this.editorImg)
+          }
+        },300)
+      })
+    },
+    saveEditor(){
+      this.editor.onSave(({ files, workId, type, title }) => {
+        const file = files[0];
+        const url = URL.createObjectURL(file);
+        let image = new Image()
+        image.src = url
+        image.onload = async() => {
+          let canvas = document.createElement('canvas')
+          let cxt = canvas.getContext('2d')
+          canvas.width = image.width;
+          canvas.height = image.height;
+          cxt.drawImage(image,0,0,image.width,image.height)
+          let dataURL = canvas.toDataURL('image/png')
+          console.log('dataURL',image)
+          const name = randomWord(false, 32) + '_' + new Date().getTime()
+          this.editorImg = await this.$ossService.uploadFile(dataURL, name + '.png')
+          this.GdEditorSdkVisible = false
+          this.editor.close();
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `${title}.${type}`
+          a.click();
+        }
+      })
+    },
+    closeEditor(){
+      this.GdEditorSdkVisible = false
+      this.editor.close();
     },
     updateSpec(item, type, index) {
       let itemmodelsJson = JSON.stringify(this.goodsDetails.itemmodels)
@@ -845,9 +938,11 @@ export default {
       if (index > -1) {
         temp = this.goodsDetails.images1[index]
         this.goodsDetails.images1.splice(index, 1)
+        this.goodsDetails.images.splice(index, 1)
         this.carouselImageCheck.splice(index, 1)
       }
       this.goodsDetails.images1.unshift(temp)
+      this.goodsDetails.images.unshift(temp)
       this.carouselImageCheck.unshift(false)
       this.carouselImageAllCheck = false
     },
@@ -909,6 +1004,7 @@ export default {
         if (index > -1) {
           this.carouselImageCheck.splice(index, 1)
           this.goodsDetails.images1.splice(index, 1)
+          this.goodsDetails.images.splice(index, 1)
         } else {
           this.goodsDetails.images1.forEach((item, i) => {
             if (!this.carouselImageCheck[i]) {
@@ -917,6 +1013,7 @@ export default {
           })
           this.carouselImageCheck = []
           this.goodsDetails.images1 = imageUrls
+          this.goodsDetails.images = [...imageUrls.map(i=>i.img)]
         }
       } else if (type === 3) {
         if (index > -1) {
@@ -1150,6 +1247,32 @@ export default {
 </script>
 
 <style scoped lang="less">
+.updateImgBox{
+  position: fixed;
+  z-index: 99999999;
+  display: flex;
+  flex-flow: column;
+  top: 2vh;
+  left: 5vw;
+  background: #FFF;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow:  0 0 15px #666;
+  min-height: 648px;
+  height: 96vh;
+  width: 90vw;
+  .updateImg{
+    flex: 1;
+    width: 100%;
+  }
+  .updateImgBut{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 50px;
+
+  }
+}
 .goods-edit-details {
   padding: 0;
   margin: 0;
@@ -1193,8 +1316,9 @@ export default {
 
     .goods-image-detail {
       cursor: pointer;
-      width: 152px;
-      height: 152px;
+      width: 162px;
+      height: 162px;
+      background: #FFF;
       position: relative;
       display: flex;
       border: 1px solid #F2F5FB;
