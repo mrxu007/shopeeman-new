@@ -752,6 +752,7 @@ export default {
     },
     async updateImage(type,index){
       let oldImage = ''
+      this.editorImg = ''
       this.GdEditorSdkVisible =true
       if(type === 1){
         oldImage = this.goodsDetails.spec_image[index]
@@ -810,10 +811,10 @@ export default {
           this.editorImg = await this.$ossService.uploadFile(dataURL, name + '.png')
           this.GdEditorSdkVisible = false
           this.editor.close();
-          const a = document.createElement('a');
-          a.href = url;
-          a.download = `${title}.${type}`
-          a.click();
+          // const a = document.createElement('a');
+          // a.href = url;
+          // a.download = `${title}.${type}`
+          // a.click();
         }
       })
     },
