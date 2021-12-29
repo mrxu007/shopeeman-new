@@ -231,6 +231,12 @@ export default {
   getpddBuyerAccount: (data) => AppRequest.get('/pddBuyerAccount/index', { params: data }), // 拼多多买手号-列表 
   uplaodLazadaPaymentMethod: (data) => AppRequest.post('/order/uplaodShotOrderPaymentMethod',  data ),//上报lazada付款方式 
   uploadOrderLogisticsInfo: (data) => AppRequest.post('/order/uploadOrderLogisticsInfo',  data ),//上报shop平台的物流
+  // 商品置顶
+  topTaskadd: (data) => AppRequest.post('/topTask/add', data), // 创建任务
+  topTask: (data) => AppRequest.get('/topTask/index', { params: data }), // 创建任务
+  topTaskdel: (data) => AppRequest.post('/topTask/delete', data), // 删除任务
+  uploadTopGood: (data) => AppRequest.post('/topTask/uploadTopGood', data), // 上报置顶商品
+  uploadTopHistory: (data) => AppRequest.post('/topTask/uploadTopHistory', data), // 上报置顶商品历史记录
   getDeliveryList: (data) => AppRequest.post('/order/deliveryIndex',  data ),//发货管理列表
   updateShotOrder: (data) => AppRequest.post('/order/uploadShotOrderInfo', data), // 上传拍单信息 
   selfOutStock: (data) => AppRequest.post('/userStock/outStock', data), // 自有仓库出库  
