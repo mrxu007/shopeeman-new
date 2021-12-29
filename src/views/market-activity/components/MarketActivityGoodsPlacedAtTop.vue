@@ -313,6 +313,7 @@ export default {
                 this.topHistoryMsg.push({ topHistoryMsg: `上报置顶商品失败${res2.data.data.errors}` })
               }
               this.topHistoryMsg.push({ topHistoryMsg: '上报置顶商品成功' })
+              this.$refs.Logs.writeLog(`【商品${res.data.list[i].id}上报置顶商品成功`, true)
             }
           } else {
             this.$refs.Logs.writeLog(`店铺【${val.mallName}】暂无商品信息`)
@@ -327,7 +328,7 @@ export default {
           list: [{
             topTaskId: val.id.toString(),
             // topHistory: this.topHistoryMsg
-            topHistory: { topHistoryMsg: ['任务创建成功', '上报成功'] }
+            topHistory: this.topHistoryMsg
           }]
         }
         const res3 = await this.$api.uploadTopHistory(params3)
@@ -335,6 +336,7 @@ export default {
         if (res3.data.code !== 200) {
           this.$refs.Logs.writeLog(`【商品${val.sys_mall_id}上报置顶商品历史记录失败，${res3.data.message}`, false)
         }
+        this.$refs.Logs.writeLog(`【商品${val.sys_mall_id}上报置顶商品历史记录成功`, true)
       } catch (error) {
         this.$refs.Logs.writeLog(`店铺【${val.mallname}】商品获取失败${error}`, false)
       }
