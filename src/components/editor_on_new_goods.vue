@@ -64,11 +64,11 @@
         </div>
         <div class="basisInstall-box">
           <div>商品描述：</div>
-          <el-radio v-model="goodsDescribeRadio" :label="0">自定义+SKU描述</el-radio>
-          <el-radio v-model="goodsDescribeRadio" :label="1">原描述</el-radio>
-          <el-radio v-model="goodsDescribeRadio" :label="2">原描述+自定义</el-radio>
-          <el-radio v-model="goodsDescribeRadio" :label="3">原描述+SKU描述</el-radio>
-          <el-radio v-model="goodsDescribeRadio" :label="4">自定义</el-radio>
+          <el-radio v-model="goodsDescribeRadio" label="0">自定义+SKU描述</el-radio>
+          <el-radio v-model="goodsDescribeRadio" label="1">原描述</el-radio>
+          <el-radio v-model="goodsDescribeRadio" label="2">原描述+自定义</el-radio>
+          <el-radio v-model="goodsDescribeRadio" label="3">原描述+SKU描述</el-radio>
+          <el-radio v-model="goodsDescribeRadio" label="4">自定义</el-radio>
         </div>
         <div class="basisInstall-box">
           <div>翻译配置：</div>
@@ -92,8 +92,8 @@
           <div style="margin-left: 10px;">失败类型：</div>
           <el-select v-model="translationConfig.failureType" size="mini" style="width: 110px;" value="">
             <el-option :label="'全部'" :value="0"></el-option>
-            <el-option :label="'文字翻译失败'" :value="1"></el-option>
-            <el-option :label="'图片翻译失败'" :value="2"></el-option>
+            <el-option :label="'文字翻译失败'" :value="'3'"></el-option>
+            <el-option :label="'图片翻译失败'" :value="'5'"></el-option>
           </el-select>
           <div style="margin-left: 10px;">线程数量：</div>
           <el-input size="mini" v-model="threadNumber" style="width: 40px;margin-right: 10px;"></el-input>
@@ -105,12 +105,12 @@
           <el-checkbox v-model="pictureConfig.shuffleChecked" size="mini">翻译轮播图</el-checkbox>
           <div>删除条件：</div>
           <el-checkbox v-model="pictureConfig.deleteGoodsChecked" size="mini">删除库存低于设定值的商品</el-checkbox>
-          <el-input size="mini" v-model="pictureConfig.inventoryNumber" style="width: 80px;"></el-input>
+          <el-input size="mini" v-model="pictureConfig.inventoryNumber" style="width: 80px;" />
         </div>
         <div class="basisInstall-box">
           <div>图片翻译：</div>
-          <el-radio v-model="pictureConfig.typeRadio" :label="0">阿里免费翻译</el-radio>
-          <el-radio style="margin-right: 0;" v-model="pictureConfig.typeRadio" :label="1">阿里付费翻译</el-radio>
+          <el-radio v-model="pictureConfig.typeRadio" :label="0" >阿里免费翻译</el-radio>
+          <el-radio style="margin-right: 0;" v-model="pictureConfig.typeRadio" :label="1" >阿里付费翻译</el-radio>
           <el-tooltip style="margin-right: 10px;" class="item" effect="dark" content="0.06元一张图片" placement="top">
             <el-button size="mini" type="text"><i class="el-icon-question" style="padding: 0 2px;"></i></el-button>
           </el-tooltip>
@@ -125,7 +125,7 @@
           <div style="display: flex;align-items: center">
             <div>图片翻译：</div>
             <el-select v-model="translationConfig.before" size="mini" style="width: 80px;" value="">
-              <el-option label="不翻译" :value="0"></el-option>
+              <el-option label="不翻译" :value="'no'"></el-option>
               <el-option label="中文" :value="1"></el-option>
               <el-option label="英文" :value="2"></el-option>
             </el-select>
@@ -380,8 +380,8 @@ export default {
         describeChecked: true,
         specChecked: true,
         languages: 'th', // 翻译语种
-        failureType: 1,  // 失败类型
-        before: 0,  // 翻译前
+        failureType: '3',  // 失败类型
+        before: 'no',  // 翻译前
         after: ''  // 翻译后
       },  // 文字
       pictureConfig: {
@@ -547,6 +547,7 @@ export default {
     if (getLabelsData.code === 200) {
       this.configLabelList = getLabelsData.data
     }
+    this.$refs.mallTableRef.toggleAllSelection()
     let userJson = await this.$appConfig.getUserConfig()
     let userInfo = await this.$appConfig.getUserInfo()
     this.userInfo = Object.assign(JSON.parse(userJson), userInfo)
@@ -559,7 +560,6 @@ export default {
         this.aLiUsernameList.push(item)
       }
     })
-    this.$refs.mallTableRef.toggleAllSelection()
   },
   methods: {
     // 开启任务
@@ -1116,22 +1116,6 @@ export default {
     handleSelectionChange(val) {
       this.mallTableSelect = val
     },
-    async getLabelList(type) {
-      const goodsLabelList = localStorage.getItem('goodsLabelList')
-      if (goodsLabelList && type !== 'refresh') {
-        const data = JSON.parse(goodsLabelList)
-        this.labelList = data || []
-        return
-      }
-      const res = await this.personalLibraryAPInstance.getLabelList()
-      if (res.code !== 200) {
-        return this.$message.error(`获取标签列表失败:${res.code}:${res.data}`)
-      }
-      localStorage.setItem('goodsLabelList', JSON.stringify(res.data))
-      this.$message.success('获取标签列表成功')
-      this.labelList = res.data || []
-      console.log('labelList', this.labelList)
-    },
     getValueFormat() {
       let nowDay = new Date()
       let oldDay = nowDay - 3600 * 1000 * 24 * 2 // 前2天
@@ -1269,7 +1253,22 @@ export default {
       }
       this.categoryVisible = false
     },
-    deleteConfigClick(item, index) {
+    async getLabelList(type) {
+      const goodsLabelList = localStorage.getItem('goodsLabelList')
+      if (goodsLabelList && type !== 'refresh') {
+        const data = JSON.parse(goodsLabelList)
+        this.labelList = data || []
+        return
+      }
+      const res = await this.personalLibraryAPInstance.getLabelList()
+      if (res.code !== 200) {
+        return this.$message.error(`获取标签列表失败:${res.code}:${res.data}`)
+      }
+      localStorage.setItem('goodsLabelList', JSON.stringify(res.data))
+      this.$message.success('获取标签列表成功')
+      this.labelList = res.data || []
+    },
+    async deleteConfigClick(item, index) {
 
     },
     async setConfigData(data) {
@@ -1277,13 +1276,53 @@ export default {
       let getLabelData = getLabelRes.data
       if (getLabelData.code === 200) {
         if (getLabelData.data) {
-
+          let config = getLabelData.data && getLabelData.data.config
+          this.pictureConfig.typeRadio = parseInt(config.AliImgTranslateType || this.pictureConfig.typeRadio)  // 阿里图片翻译类型
+          this.goodsDescribeRadio = config.GoodDescribe || this.goodsDescribeRadio // 商品描述
+          this.translationConfig.titleChecked = config.IsTranslateTitle || this.translationConfig.titleChecked// 是否翻译标题
+          this.translationConfig.specChecked = config.IsTranslateSpecification || this.translationConfig.specChecked // 是否翻译规格信息
+          this.translationConfig.describeChecked = config.IsTranslateDescribe || this.translationConfig.describeChecked // 是否翻译描述
+          this.translationConfig.languages = config.TranslateLanguage || this.translationConfig.languages // 翻译语种
+          this.threadNumber = config.ThreadNumStr || this.threadNumber// 线程数
+          this.filterSimplifiedChecked = config.IsFilterSimpleData || this.filterSimplifiedChecked  // 上新是否过滤简体数据
+          this.pictureConfig.specChecked = config.TranslateSkuPic || this.pictureConfig.specChecked // 翻译sku图
+          this.pictureConfig.shuffleChecked = config.TranslateLunBoPic || this.pictureConfig.shuffleChecked // 翻译轮播图
+          this.pictureConfig.deleteGoodsChecked = config.IsDeleteStocokLess || this.pictureConfig.deleteGoodsChecked // 是否 删除库存低于设定值的商品
+          this.pictureConfig.inventoryNumber = config.Stock || this.pictureConfig.inventoryNumber  // 库存值
+          this.translationConfig.before = config.SourceLanguage || this.translationConfig.before // 图片翻译源语言
+          this.translationConfig.after = config.TargetLanguage || this.translationConfig.after // 图片翻译目的语言
+          this.translationConfig.failureType = config.SelectedFailType || this.translationConfig.failureType // 失败类型
         }
       }
     },
-    saveConfigLabel() {
+    async saveConfigLabel() {
       let label = this.configLabel
-
+      let config = {}
+      config.AliImgTranslateType = this.pictureConfig.typeRadio  // 阿里图片翻译类型
+      config.GoodDescribe = this.goodsDescribeRadio // 商品描述
+      config.IsTranslateTitle = this.translationConfig.titleChecked// 是否翻译标题
+      config.IsTranslateSpecification = this.translationConfig.specChecked // 是否翻译规格信息
+      config.IsTranslateDescribe = this.translationConfig.describeChecked // 是否翻译描述
+      config.TranslateLanguage = this.translationConfig.languages // 翻译语种
+      config.ThreadNumStr = this.threadNumber// 线程数
+      config.IsFilterSimpleData = this.filterSimplifiedChecked  // 上新是否过滤简体数据
+      config.TranslateSkuPic = this.pictureConfig.specChecked // 翻译sku图
+      config.TranslateLunBoPic = this.pictureConfig.shuffleChecked // 翻译轮播图
+      config.IsDeleteStocokLess = this.pictureConfig.deleteGoodsChecked // 是否 删除库存低于设定值的商品
+      config.Stock = this.pictureConfig.inventoryNumber  // 库存值
+      config.SourceLanguage = this.translationConfig.before // 图片翻译源语言
+      config.TargetLanguage = this.translationConfig.after // 图片翻译目的语言
+      config.SelectedFailType = this.translationConfig.failureType // 失败类型
+      let param = {
+        label,
+        config
+      }
+      let saveLabelRes = await this.$api.saveLabel(param)
+      if(saveLabelRes.data && saveLabelRes.data.code === 200){
+        if (!this.labelList.includes(label)){
+          this.labelList.push(label)
+        }
+      }
     }
 
   }

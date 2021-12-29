@@ -29,15 +29,15 @@
             :default-time="['00:00:00', '23:59:59']"
           /> -->
           <el-date-picker
-              v-model="statisticsTime"
-              size="mini"
-              value-format="yyyy-MM-dd"
-              type="daterange"
-              style="width: 220px"
-              range-separator="-"
-              start-placeholder="开始日期"
-              end-placeholder="结束日期"
-              :picker-options="pickerOptions"
+            v-model="statisticsTime"
+            size="mini"
+            value-format="yyyy-MM-dd"
+            type="daterange"
+            style="width: 220px"
+            range-separator="-"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
+            :picker-options="pickerOptions"
           />
         </div>
         <el-button type="primary" size="mini" class="mar-right" @click="searchTableList">查 询</el-button>
@@ -47,11 +47,11 @@
     <!-- 表格区 -->
     <div class="content">
       <el-table
-          ref="multipleTable"
-          v-loading="tableLoading"
-          :data="tableDataCut"
-          tooltip-effect="dark"
-          height="calc(100vh - 145px)"
+        ref="multipleTable"
+        v-loading="tableLoading"
+        :data="tableDataCut"
+        tooltip-effect="dark"
+        height="calc(100vh - 145px)"
       >
         <el-table-column align="center" type="index" label="序号" width="50">
           <template slot-scope="scope">{{ (currentPage - 1) * pageSize + scope.$index + 1 }}</template>
@@ -63,17 +63,17 @@
           <template v-slot="{row}"><span>{{ row.mall_alias_name || row.platform_mall_name }}</span></template>
         </el-table-column>
         <el-table-column min-width="60px" label="店铺分组" prop="group_name" align="center" />
-        <el-table-column min-width="60px" label="上架总量" prop="upCount" align="center" />
+        <el-table-column min-width="60px" label="上架总量" prop="upCount" align="center" sortable />
       </el-table>
       <div class="pagination">
         <el-pagination
-            background
-            :page-sizes="[100,200]"
-            :page-size="pageSize"
-            layout="total, sizes, prev, pager, next, jumper"
-            :total="total"
-            @current-change="handleCurrentChange"
-            @size-change="handleSizeChange"
+          background
+          :page-sizes="[100,200]"
+          :page-size="pageSize"
+          layout="total, sizes, prev, pager, next, jumper"
+          :total="total"
+          @current-change="handleCurrentChange"
+          @size-change="handleSizeChange"
         />
       </div>
     </div>
