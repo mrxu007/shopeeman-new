@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-11-16 20:01:09
- * @LastEditTime: 2021-11-24 22:27:47
+ * @LastEditTime: 2021-12-16 21:17:01
  * @LastEditors: Please set LastEditors
  * @Description: 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  * @FilePath: \shopeeman-new\src\views\order-manager\components\orderCenter\SelfGoodsStore.vue
@@ -17,7 +17,7 @@
     <div class="btn-header">
       <div class="item-box mar-right">
         <span>仓库名称：</span>
-        <el-select v-model="wid" size="mini" filterable>
+        <el-select v-model="wid" size="mini" filterable @change="searchTableList">
           <el-option label="全部" value="0" />
           <el-option v-for="(item, index) in widList" :key="index" :label="item.warehouse_name" :value="item.id" />
         </el-select>
@@ -27,26 +27,29 @@
         <el-input v-model="sys_sku_id" clearable size="mini" oninput="value=value.replace(/\s+/g,'')" class="inputWidth" />
       </div>
       <div class="item-box" v-if="activeName==='myStore'">
-        <span style="width: 80px">商品编号:</span>
+        <span style="width: 60px">商品编号:</span>
         <el-input v-model="sku_id" clearable size="mini" oninput="value=value.replace(/\s+/g,'')" class="inputWidth" />
       </div>
       <div class="item-box" v-if="activeName==='myStore'">
-        <span style="width: 80px">商品规格:</span>
+        <span style="width: 60px">商品规格:</span>
         <el-input v-model="sku_name" clearable size="mini" oninput="value=value.replace(/\s+/g,'')" class="inputWidth" />
+      </div>
+       <div class="item-box" v-if="activeName==='myStore'">
+       <el-checkbox v-model="isFilter">过滤0库存</el-checkbox>
       </div>
       <el-button type="primary" size="mini" style="margin-left: 10px" @click="searchTableList">搜 索</el-button>
     </div>
-    <el-table ref="multipleTable" :data="tableData" tooltip-effect="dark" max-height="500">
+    <el-table ref="multipleTable" :data="tableData" tooltip-effect="dark" height="500" v-loading="tableLoading">
       <el-table-column align="center" type="index" label="序号" width="50">
         <template slot-scope="scope">{{ (currentPage - 1) * pageSize + scope.$index + 1 }}</template>
       </el-table-column>
       <el-table-column align="center" type="index" label="仓库名称" width="80">
         <template slot-scope="scope">
-          <span>国内仓库</span>
+          <span>{{changeName(scope.row.wid)}}</span>
         </template>
       </el-table-column>
-      <el-table-column width="120px" label="系统商品ID" prop="sys_sku_id" align="center" />
-      <el-table-column width="130px" label="商品ID" prop="sku_id" align="center" />
+      <el-table-column width="120px" label="系统商品编号" prop="sys_sku_id" align="center" />
+      <el-table-column width="130px" label="SKUID" prop="sku_id" align="center" />
       <el-table-column width="80px" label="商品名称" prop="goods_name" align="center" show-overflow-tooltip />
       <el-table-column width="80px" label="商品规格" prop="sku_name" align="center" />
       <el-table-column width="80px" label="库存数量" prop="stock_num" align="center" />
@@ -58,9 +61,14 @@
           </div>
         </template>
       </el-table-column>
-      <el-table-column label="商品图片" width="80">
-        <template slot-scope="scope">
-          <el-image :src="scope.row.sku_image" style="width: 60px; height: 60px" />
+       <el-table-column label="商品图片" width="80">
+        <template slot-scope="scope" v-if="scope.row.sku_image">
+           <el-tooltip effect="light" placement="right-end" :visible-arrow="false" :enterable="false" style="width: 32px; height: 32px; display: inline-block">
+              <div slot="content">
+                <el-image :src="scope.row.sku_image" style="width: 400px; height: 400px" ></el-image>
+              </div>
+              <el-image :src="scope.row.sku_image" style="width: 32px; height: 32px" ></el-image>
+            </el-tooltip>
         </template>
       </el-table-column>
       <el-table-column label="操作" min-width="60px">
@@ -103,6 +111,8 @@ export default {
       sys_sku_id: '',
       sku_name: '',
       activeName: 'myStore',
+      tableLoading: false,
+      isFilter:true
     }
   },
   props:{
@@ -117,6 +127,10 @@ export default {
     await this.searchTableList()
   },
   methods: {
+    changeName(wid){
+      let res = this.widList.find(n=>n.id == wid)
+      return res?res.warehouse_name:''
+    },
     //切换tab
     handleClick() {
       this.currentPage = 1
@@ -131,7 +145,6 @@ export default {
     async getWareHouseList() {
       let myMap = new Map()
       let res = await this.$api.getOverseasWarehouse()
-      console.log(res, '123')
       if (res.data.code === 200) {
         let arr = res.data.data || []
         arr.forEach((item) => {
@@ -156,6 +169,7 @@ export default {
       }
       params['page'] = this.currentPage
       params['page_num'] = this.pageSize
+      this.tableLoading = true
       let res = await this.$XzyNetMessageService.post('xzy.getSharedIndex', params) //item.shared_id = item.id
       let resObj = res && JSON.parse(res)
       let data = resObj && JSON.parse(resObj.data)
@@ -170,7 +184,7 @@ export default {
            this.tableData.push(item)
         })  
       }
-      console.log(this.tableData, '4')
+      this.tableLoading = false
     },
     //获取海外仓
     async getAbroadList() {
@@ -182,7 +196,11 @@ export default {
       }
       params['page'] = this.currentPage
       params['page_num'] = this.pageSize
+      if(this.wid == '0'){
+        params['type'] = 'query'
+      }
       console.log(params)
+      this.tableLoading = true
       let res = await this.$XzyNetMessageService.post('xzy.stock.index', params)
       let resObj = res && JSON.parse(res)
       let data = resObj && JSON.parse(resObj.data)
@@ -193,8 +211,11 @@ export default {
           item.stock_num = item.stock_num
         })
         this.tableData = arr
+        if(this.isFilter){
+          this.tableData = arr.filter(n=>n.stock_num>0)
+        }
       }
-      console.log(data, '4454')
+      this.tableLoading = false
     },
     // 列表
     async searchTableList() {
@@ -243,7 +264,7 @@ export default {
     span {
       width: 80px;
       display: inline-block;
-      text-align: right;
+      text-align: left;
     }
   }
   .inputWidth {

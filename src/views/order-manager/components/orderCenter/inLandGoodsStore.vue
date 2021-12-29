@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-11-16 20:01:09
- * @LastEditTime: 2021-11-26 10:04:33
+ * @LastEditTime: 2021-12-16 21:28:52
  * @LastEditors: Please set LastEditors
  * @Description: 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  * @FilePath: \shopeeman-new\src\views\order-manager\components\orderCenter\SelfGoodsStore.vue
@@ -11,7 +11,7 @@
     <div class="btn-header">
       <div class="item-box mar-right">
         <span>仓库名称：</span>
-        <el-select v-model="wid" size="mini" filterable>
+        <el-select v-model="wid" size="mini" filterable @change="searchTableList">
           <el-option v-for="(item, index) in widList" :key="index" :label="item.warehouse_name" :value="item.wid" />
         </el-select>
       </div>
@@ -21,13 +21,13 @@
       </div>
       <el-button type="primary" size="mini" style="margin-left: 10px" @click="searchTableList">搜 索</el-button>
     </div>
-    <el-table ref="multipleTable" :data="tableData" tooltip-effect="dark" max-height="500">
+    <el-table ref="multipleTable" :data="tableData" tooltip-effect="dark" height="500" v-loading="tableLoading">
       <el-table-column align="center" type="index" label="序号" width="50">
         <template slot-scope="scope">{{ (currentPage - 1) * pageSize + scope.$index + 1 }}</template>
       </el-table-column>
       <el-table-column align="center" type="index" label="仓库名称" width="80">
         <template slot-scope="scope">
-          <span>{{scope.row.wid}}</span>
+          <span>{{changeName(scope.row.wid)}}</span>
         </template>
       </el-table-column>
       <el-table-column width="120px" label="系统商品ID" prop="id" align="center" />
@@ -43,9 +43,14 @@
           </div>
         </template>
       </el-table-column>
-      <el-table-column label="商品图片" width="80">
-        <template slot-scope="scope">
-          <el-image :src="scope.row.sku_image" style="width: 60px; height: 60px" />
+       <el-table-column label="商品图片" width="80">
+        <template slot-scope="scope" v-if="scope.row.sku_image">
+           <el-tooltip effect="light" placement="right-end" :visible-arrow="false" :enterable="false" style="width: 32px; height: 32px; display: inline-block">
+              <div slot="content">
+                <el-image :src="scope.row.sku_image" style="width: 400px; height: 400px" ></el-image>
+              </div>
+              <el-image :src="scope.row.sku_image" style="width: 32px; height: 32px" ></el-image>
+            </el-tooltip>
         </template>
       </el-table-column>
       <el-table-column label="操作" min-width="60px">
@@ -85,6 +90,7 @@ export default {
       wid: '', //仓库名
       widList: [],
       sku_id: '',
+      tableLoading: false,
     }
   },
   async mounted() {
@@ -92,13 +98,17 @@ export default {
     await this.searchTableList()
   },
   methods: {
+    changeName(wid){
+      let res = this.widList.find(n=>n.wid== wid)
+      return res?res.warehouse_name:''
+    },
     async getWareHouseList() {
       let appinfo = await this.$appConfig.getUserInfo()
       let res = await this.$api.getWarehouseList()
       if(res.data.code === 200){
         let arr = res.data.data || []
         let arrFilter = arr.filter(item=>{
-          return item.status!==2 && item.user_ids && item.user_ids.indexOf(appinfo.muid)>-1
+          return item.status!=2 || (item.user_ids && item.user_ids.indexOf(appinfo.muid)>-1)
         })
         // if(!arrFilter)
         this.widList = arrFilter.length ? arrFilter : arr
@@ -118,18 +128,20 @@ export default {
       }
       params['page'] = this.currentPage
       params['page_size'] = this.pageSize
-      console.log("params",params)
+      this.tableLoading = true
       const res = await this.$XzyNetMessageService.post('xzy.shopifyV2.get_stock', params)
       let resObj = res && JSON.parse(res)
       let data = resObj && JSON.parse(resObj.data)
+      console.log(resObj,"resObj")
       if (data && data.code === 200) {
         this.total = data.data.total
         let arr = data.data.data
         arr.forEach(async (item) => {
-          item.stock_num = item.stock
+          item.stock_num = item.frozen_num
         })
         this.tableData = arr
       }
+      this.tableLoading = false
     },
     // 计算总库存
     totalStock(data) {

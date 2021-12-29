@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-10-08 14:16:18
- * @LastEditTime: 2021-11-02 16:45:59
+ * @LastEditTime: 2021-12-21 15:40:55
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shopeeman-new\src\main.js
@@ -44,7 +44,6 @@ import SonAccountService from './services/son-acccount-service'
 import shopeemanService from './services/shopeeman-service'
 import translationBridgeService from './services/translation-bridge-service'
 import { Logs } from 'cyt-pl-plug'
-
 import * as echarts from 'echarts'
 import * as filters from './plugins/filters'
 
@@ -70,6 +69,7 @@ Vue.use(UTableColumn)
 
 Vue.use(Logs)
 Vue.use(VueDND)
+
 
 Vue.prototype.$YipService = new YipService()
 Vue.prototype.$XzyNetMessageService = new XzyNetMessageService()

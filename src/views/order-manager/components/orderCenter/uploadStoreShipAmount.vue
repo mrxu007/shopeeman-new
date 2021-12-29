@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-11-19 14:24:22
- * @LastEditTime: 2021-12-03 11:31:57
+ * @LastEditTime: 2021-12-15 12:05:13
  * @LastEditors: Please set LastEditors
  * @Description: 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  * @FilePath: \shopeeman-new\src\views\order-manager\components\orderCenter\uploadStoreShipAmount.vue
@@ -11,7 +11,7 @@
     <div class="content">
       <div class="content-left">
         <div class="left-header-btn">
-          <el-upload style="margin-left: 20px" class="upload-demo" ref="upload" accept=".xls,.xlsx" :on-change="uploadShip" action="" :show-file-list="false" :auto-upload="false">
+          <el-upload style="margin-left: 20px" class="upload-demo" ref="upload" accept=".xlsx,.xls" :on-change="uploadShip" action="" :show-file-list="false" :auto-upload="false">
             <el-button type="primary" size="mini" class="mar-right">批量导入</el-button>
           </el-upload>
           <el-button type="primary" size="mini" @click="downTemplate" class="mar-right">下载批量模板</el-button>
@@ -155,11 +155,7 @@ export default {
       } catch (error) {
         console.log(error)
         this.clickLoading = false
-        return this.$notify({
-          title: '提示',
-          type: 'warning',
-          message: `操作失败，请重试`,
-        })
+        return this.$message.warning('操作失败，请重试')
       }
     },
     closeWindow(){

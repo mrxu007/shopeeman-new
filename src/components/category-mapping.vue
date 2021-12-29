@@ -1,5 +1,5 @@
 <template>
-  <div class="category-mapp">
+  <div class="category-mapp contaniner">
     <div class="category_dialog">
       <div class="category_box">
         <div class="on_new_dialog_box" style="margin-bottom: 10px;">
@@ -181,7 +181,8 @@
         }
       },
       async getAttribute() {
-        let categoryId = this.categoryAction[this.categoryAction.length - 1] + ''
+        let categoryId = this.categoryAction[this.categoryAction.length - 1] || '0'
+        console.log(categoryId)
         let country = this.country || this.countryOption
         let attributeJson = await this.$commodityService.getAttributeInfo(country, categoryId)
         let attributeRes = JSON.parse(attributeJson)

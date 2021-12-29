@@ -188,3 +188,11 @@ const resetMessage = (options) => {
 })
 Vue.prototype.$message = resetMessage
 
+let notificationInstance = null 
+let resetNotification  = (options) => {
+  if (notificationInstance) {
+    notificationInstance.close()
+  }
+  notificationInstance = Notification(options)
+}
+Vue.prototype.$notify = resetNotification

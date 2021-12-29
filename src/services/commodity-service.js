@@ -7,6 +7,11 @@ export default class CommodityService {
   user = ''
   nativeService = window['CommodityBridgeService']
 
+  /** 更新ip */
+  RefreshLinkIp(targetId) {
+    return this.nativeService.callCloudIpFunction('RefreshLinkIp', targetId)
+  }
+
   //* *删除服务端商品 */
   delCloudItems(itemList) {
     return this.nativeService.callFunction('DeleteCloudItems', itemList)
@@ -325,7 +330,7 @@ export default class CommodityService {
 
   /**
    * 更新商品
-   * @param {{sysGoodsId:number,title:string,description:string,weight:string,long:string,width:string,height:string}} req
+   * @param {*&{sysGoodsId, description, title}} req
    */
   updateGoods(req) {
     return this.nativeService.callFunction('UpdateGoods', JSON.stringify(req))
@@ -543,16 +548,16 @@ export default class CommodityService {
    * @param isParent :isParent 类目的父级标识：1传入的类目作为父级查询；0当前类目查询
    * @param tableType : string
    */
-  async getCategoryTbInfo(country, categoryId = '0', isParent = '1', tableType) {
+  async getCategoryTbInfo(country, categoryId = '0', isParent='1', tableType='') {
     return await this.nativeService.callCategoryFunction('GetCategoryInfo', country, categoryId, isParent, tableType)
   }
   /**
    * 获取类目属性
-   * @param {array} data
+   *
    */
-  getAttributeInfo(country, categoryId = '0', isNewOpen = '0', tableType, isMandatoryAttr = '1') {
-    // console.log(JSON.stringify(data))
-    return this.nativeService.callCategoryFunction('GetAttributeInfo', country, categoryId, isNewOpen, tableType, isMandatoryAttr)
+  getAttributeInfo(country, categoryId = '0', isNewOpen = '0', tableType='', isMandatoryAttr = '1') {
+    console.log(country, categoryId, isNewOpen, tableType , isMandatoryAttr )
+    return this.nativeService.callCategoryFunction('GetAttributeInfo', country, categoryId.toString(), isNewOpen, tableType, isMandatoryAttr)
   }
 
   /**
@@ -762,14 +767,12 @@ export default class CommodityService {
     // console.log(JSON.stringify(data))
     return this.nativeService.callCategoryFunction('GetCategoryInfo', data[0] + '', data[1] + '', data[2] + '', data[3])
   }
-
   /**
    * 获取产品中心类目
    */
   getCategoryInfo(data) {
     return this.nativeService.callProductCenter('GetCategoryInfo', data.toString())
   }
-
   /**
    * 获取产品中心列表数据
    */
@@ -784,8 +787,14 @@ export default class CommodityService {
     return this.nativeService.callProductCenter('GetProductSkuList', data.toString())
   }
   /**
-   * 删除商品
+   * @name : 更新产品中心库存
+   * @param  {*}
+   * @param {*} skuId
+   * @param {*} stock
    */
+  updateSkuStock(skuId, stock) {
+    return this.nativeService.callProductCenter('UpdateSkuStock', skuId.toString(), stock.toString())
+  }
   delgoods(data) {
     return this.nativeService.callProductCenter('DeleteProduct', data.productId, data.productUid)
   }
@@ -823,25 +832,75 @@ export default class CommodityService {
   }
   /**
    * @name : 获取订单支付方式
-   * @param  country 站点
-   * @param  cookieStr 登录信息
-   * @param  orderDetial 获取Lazada的订单详情接口返回值
-   * @param  shotOrderSn 拍单订单号
+   * @param  {country} 站点
+   * @param  {cookieStr} 登录信息
+   * @param  {orderDetial} 获取Lazada的订单详情接口返回值
+   * @param  {shotOrderSn} 拍单订单号
    */
   async getLazadaPayMethod(country, cookieStr, orderDetial, shotOrderSn) {
     return await this.nativeService.callLazadaService('GetPayMethod', country, cookieStr, orderDetial, shotOrderSn)
   }
   /**
-   * 保存商品
+   * @name : 
+   * @param  {String} sysOrderIds 系统订单id，用逗号隔开
    */
-  SaveProduct(data) {
-    return this.nativeService.callProductCenter('SaveProduct', JSON.stringify(data))
+  async getSkuRelation(sysOrderIds) {
+    return await this.nativeService.callSkuRelationClient('GetBySysOrderIds', sysOrderIds.toString())
+  }
+  /**
+   * @name : 保存映射
+   * @param  {*}
+   * @param {*} SkuRelation
+   */
+  async saveSkuRelation(SkuRelation) {
+    return await this.nativeService.callSkuRelationClient('SaveGoodsSkuRelation', SkuRelation)
+  }
+
+  /**上报面单信息
+   * @name : 
+   * @param  {*}
+   * @param {*} sysMallId
+   * @param {*} mallId
+   * @param {*} urlObj [{"url":"https://www.baidu.com","orderSn":"200310ERCFQE5NUT"}]
+   */
+  async saveFaceSheetInfo(sysMallId, mallId, urlObj) {
+    return await this.nativeService.callOrderAndMallUpload('SaveFaceSheetInfo', sysMallId, mallId, JSON.stringify(urlObj))
   }
 
   /**
- * @name :
- * @param  {String} sysOrderIds 系统订单id，用逗号隔开
- */
+   * @name : 上报平台物流单号
+   * @param  {*}
+   * @param {*} sysMallId
+   * @param {*} mallId
+   * @param {*} trackObj [{"orderId":"","orderSn":"200310ERCFQE5NUT","channel_id":"","trackingNo":"9999595959595"}]
+   */
+  async saveLogisticsInfo(sysMallId, mallId, trackObj) {
+    return await this.nativeService.callOrderAndMallUpload('SaveLogisticsInfo', sysMallId, mallId, JSON.stringify(trackObj))
+  }
+  /**
+   * @name : 上报平台订单信息
+   * @param  {*}
+   * @param {*} sysMallId
+   * @param {*} mallId
+   * @param {*} orderData 
+   */
+  async saveOrder(sysMallId, mallId, orderData) {
+    return await this.nativeService.callOrderAndMallUpload('SaveOrder', sysMallId, mallId, JSON.stringify(orderData))
+  }
+  /**
+   * @name : 上报售后订单信息
+   * @param  {*}
+   * @param {*} sysMallId
+   * @param {*} mallId
+   * @param {*} afterOrderData 
+   */
+  async saveAfterOrder(sysMallId, mallId, afterOrderData) {
+    return await this.nativeService.callOrderAndMallUpload('SaveAfterOrder', sysMallId, mallId, JSON.stringify(afterOrderData))
+  }
+
+  /* @name :
+   * @param  {String} sysOrderIds 系统订单id，用逗号隔开
+   */
   async getSkuRelation(sysOrderIds) {
     return await this.nativeService.callSkuRelationClient('GetBySysOrderIds', sysOrderIds)
   }
