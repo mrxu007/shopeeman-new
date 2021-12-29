@@ -84,7 +84,7 @@
         温馨提示：1.因为IP为实时购买，所以购买后不会立即生成IP信息。IP信息会在三分钟内生成 2.一个主体IP最多绑定10个店铺 3.若状态为【已绑定，已分配店铺】，但绑定店铺为空，则表示 店铺不存在此账号
       </div>
       <div style="font-size: smaller; color: red; margin-left: 60px; margin-top: 5px">
-        3.对于系统的香港IP（非香港名称），IP过期后，将无法进行续费，请在IP有效期内续费。 4、系统的香港IP（非香港名称）过期后，会被自动回收，回收后将不在显示代理IP信息
+        3.所有的IP的过期后，将无法进行续费，请在IP有效期内续费。 4、系统的香港IP（非香港名称）过期后，会被自动回收，回收后将不在显示代理IP信息
       </div>
     </div>
     <div class="table_clo">
@@ -100,7 +100,7 @@
         >
           <el-table-column type="selection" min-width="55px" align="center" />
           <el-table-column label="序号" type="index" align="center" :index="indexMethod" fixed />
-          <el-table-column prop="uid" label="主体ID" align="center" min-width="100px" fixed />
+          <el-table-column prop="id" label="主体ID" align="center" min-width="100px" fixed />
           <el-table-column prop="ip_alias" label="主体名称" align="center" min-width="200px" />
           <!-- 需要解析 -->
           <el-table-column prop="poxyIP" label="代理IP" align="center" min-width="150px" />
@@ -123,13 +123,14 @@
               </el-tooltip>
             </template>
           </el-table-column>
-          <el-table-column prop="" label="操作" align="center" min-width="330px" fixed="right">
-            <template slot-scope="{ row }">
-              <div>
+          <el-table-column prop="" label="操作" align="center" min-width="450px" fixed="right">
+            <template v-slot="{ row }">
+              <div style="display: flex;">
                 <el-button size="mini" type="primary" @click="openSoft(row.poxyIP, row.id)">打开代理浏览器</el-button>
                 <el-button size="mini" type="primary" @click="showupdateVisible(row)">修改绑定店铺</el-button>
                 <el-button size="mini" type="primary" @click="delInforFun(row.id)">删除</el-button>
                 <!-- <el-button size="mini" type="primary" @click="del(row.uid)">删除</el-button> -->
+                <el-button v-if="row.isMiddleIP" size="mini" type="primary" @click="MiddleIP(row.id)">刷新IP信息</el-button>
               </div>
             </template>
           </el-table-column>
@@ -597,6 +598,26 @@ export default {
     // this.getMallList()// 初始化店铺列表
   },
   methods: {
+    // 创建中继IP
+    async MiddleIP(val) {
+      debugger
+      // const targetId = val.toString()
+      const params = {
+        targetId: val.toString()
+      }
+      try {
+        const res = await this.$commodityService.RefreshLinkIp(params.targetId)
+        debugger
+        const data = JSON.parse(res)
+        if (data.code === 200) {
+          this.$message.success('IP更新成功')
+        } else {
+          this.$message.warning('IP更新失败' + data.message)
+        }
+      } catch (error) {
+        this.$message.warning('IP更新失败' + `${error}`)
+      }
+    },
     // 新增公司主体
     async addFun() {
       this.Typeis = 'ipMaster'
@@ -869,10 +890,10 @@ export default {
         if (this.query_person.ip_alias === '' ||
             this.query_person.ip_address === '' ||
             this.query_person.ip_port === '' ||
-           this.query_person.password === '' ||
-           this.query_person.encryption === '' ||
-           this.query_person.protocol === '' ||
-           this.query_person.confuse === ''
+            this.query_person.password === '' ||
+            this.query_person.encryption === '' ||
+            this.query_person.protocol === '' ||
+            this.query_person.confuse === ''
         ) {
           this.$message.warning('必填信息不能为空')
           return
@@ -884,7 +905,7 @@ export default {
         if (this.query_person.ip_alias === '' ||
             this.query_person.ip_address === '' ||
             this.query_person.ip_port === '' ||
-           this.query_person.password === ''
+            this.query_person.password === ''
         ) {
           this.$message.warning('必填信息不能为空')
           return
@@ -1146,7 +1167,7 @@ export default {
       // if (!valid) return
       // 验证
       if (this.query_person.region_name === '' ||
-            this.query_person.ip_alias === ''
+          this.query_person.ip_alias === ''
       ) {
         this.$message.warning('必填信息不能为空')
         return
@@ -1155,11 +1176,11 @@ export default {
       if (this.query_person.ip_agency === 'ssr') {
         if (
           this.query_person.ip_address === '' ||
-          this.query_person.ip_port === '' ||
-          this.query_person.password === '' ||
-           this.query_person.encryption === '' ||
-           this.query_person.protocol === '' ||
-           this.query_person.confuse === ''
+            this.query_person.ip_port === '' ||
+            this.query_person.password === '' ||
+            this.query_person.encryption === '' ||
+            this.query_person.protocol === '' ||
+            this.query_person.confuse === ''
         ) {
           this.$message.warning('必填信息不能为空')
           return
@@ -1167,9 +1188,9 @@ export default {
       }
       if (this.query_person.ip_agency === 'ss') {
         if (this.query_person.ip_port === '' ||
-           this.query_person.ip_address === '' ||
-          this.query_person.password === '' ||
-           this.query_person.encryption === ''
+            this.query_person.ip_address === '' ||
+            this.query_person.password === '' ||
+            this.query_person.encryption === ''
         ) {
           this.$message.warning('必填信息不能为空')
           return
@@ -1180,7 +1201,7 @@ export default {
       if (this.query_person.ip_agency === 'http') {
         if (
           this.query_person.ip_address === '' ||
-           this.query_person.ip_port === ''
+            this.query_person.ip_port === ''
         ) {
           this.$message.warning('必填信息不能为空')
           return
@@ -1449,7 +1470,12 @@ export default {
     changeMallList(val) {
       this.query.mall_ids = ''
       console.log(val)
-      this.query.mall_ids = val.searchAll
+      // this.query.mall_ids = val.searchAll
+      if (val.searchAll) {
+        this.query.mall_ids = [...val.mallList.map(i => i.id)].toString()
+      } else {
+        this.query.mall_ids = ''
+      }
     },
     // ip- tableList
     async getTableList() {
@@ -1476,11 +1502,13 @@ export default {
         this.bindMalltable = []// 有绑定店铺的IP主体 { main_name  bindmall}
         const data = JSON.parse(res)
         // console.log('----------', data)
-        if (data.code === 200 && this.shopAccountList.length > 0) {
+        if (data.code === 200) {
           if (data.data && data.data.length > 0) {
-            data.data.forEach((item, index) => {
+            for (let i = 0; i < data.data.length; i++) {
+              const item = data.data[i]
               // 获取店铺名称
-              if (item.target_mall_info && item.target_mall_info.length > 0) {
+              item.mall_alias_name = ''
+              if (this.shopAccountList.length > 0 && item.target_mall_info && item.target_mall_info.length > 0) {
                 const mall = []
                 this.bindMalltable.push({ main_name: item.ip_alias, bindmall: item.target_mall_info })
                 item.target_mall_info.forEach(i => {
@@ -1493,15 +1521,54 @@ export default {
               // 解析ip
               item.poxyIP = ''
               item.poxyID = ''
-              this.$YipService.GetIPinfor(item.ip_info).then(res => {
-                const data_ipinfor = JSON.parse(res)
-                item.poxyID = data_ipinfor.id
-                item.poxyIP = data_ipinfor.map_ip_address
-                item.data_ipinfor = data_ipinfor // 修改获取数据
-                // console.log('item', item)
-              })
+              const res = await this.$YipService.GetIPinfor(item.ip_info)
+              const data_ipinfor = JSON.parse(res)
+              item.poxyID = data_ipinfor.id
+              item.poxyIP = data_ipinfor.map_ip_address
+              item.data_ipinfor = data_ipinfor // 修改获取数据
+              // 是否显示中继IP
+              item.isMiddleIP = false
+              const experaTime = new Date(item.expiration_time).getTime()
+              if (experaTime > new Date().getTime()) {
+                if ((item.source === '系统' && Number(item.data_ipinfor.is_old) === 0) || (item.source === '用户' && Number(item.data_ipinfor.is_link) === 1)) {
+                  item.isMiddleIP = true
+                }
+              }
               this.tableList.push(item)
-            })
+            }
+            // data.data.forEach((item, index) => {
+            //   // 获取店铺名称
+            //   item.mall_alias_name = ''
+            //   item.isMiddleIP = false
+            //   if (this.shopAccountList.length > 0 && item.target_mall_info && item.target_mall_info.length > 0) {
+            //     const mall = []
+            //     this.bindMalltable.push({ main_name: item.ip_alias, bindmall: item.target_mall_info })
+            //     item.target_mall_info.forEach(i => {
+            //       const dd = MallgetValue(this.shopAccountList, 'label', 'id', i.mall_id)
+            //       if (dd) mall.push(dd)
+            //       // mall.push(MallgetValue(this.shopAccountList, 'label', 'id', i.mall_id))
+            //     })
+            //     item.mall_alias_name = mall.toString()
+            //   }
+            //   // 解析ip
+            //   item.poxyIP = ''
+            //   item.poxyID = ''
+            //   this.$YipService.GetIPinfor(item.ip_info).then(res => {
+            //     const data_ipinfor = JSON.parse(res)
+            //     item.poxyID = data_ipinfor.id
+            //     item.poxyIP = data_ipinfor.map_ip_address
+            //     item.data_ipinfor = data_ipinfor // 修改获取数据
+            //     // console.log('item', item)
+            //   })
+            //   // 是否显示中继IP
+            //   const experaTime = new Date(item.expiration_time).getTime()
+            //   if (experaTime > new Date().getTime) {
+            //     if ((item.source === '系统' && Number(item.data_ipinfor.is_old) === 0) || (item.source === '用户' && Number(item.data_ipinfor.is_link) === 1)) {
+            //       item.isMiddleIP = true
+            //     }
+            //   }
+            //   this.tableList.push(item)
+            // })
             // console.log('+++++++++++++++', this.bindMalltable)
           } else {
             this.tableList = []
@@ -1534,14 +1601,14 @@ export default {
     initDate() {
       const d = new Date()
       const d1 =
-        d.getFullYear() +
-        '-' +
-        (d.getMonth() + 1) +
-        '-' +
-        d.getDate() +
-        ' 23:59:59'
+          d.getFullYear() +
+          '-' +
+          (d.getMonth() + 1) +
+          '-' +
+          d.getDate() +
+          ' 23:59:59'
       const d2 =
-        d.getFullYear() + '-' + d.getMonth() + '-' + d.getDate() + ' 23:59:59'
+          d.getFullYear() + '-' + d.getMonth() + '-' + d.getDate() + ' 23:59:59'
       this.cloumn_date = [d2, d1]
       this.cloumn_date && this.cloumn_date.length > 0 ? this.cloumn_date.join('/').toString() : ''
     },

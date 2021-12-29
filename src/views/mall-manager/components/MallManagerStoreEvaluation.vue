@@ -62,7 +62,8 @@
         v-loading="tableLoading"
         :data="tableDataCut"
         tooltip-effect="dark"
-        max-height="630px"
+        max-height="665px"
+        :row-height="80"
         use-virtual
         :big-data-checkbox="checked"
         :data-changes-scroll-top="false"
@@ -95,7 +96,6 @@
           <template slot-scope="scope">
             <el-tooltip effect="light" placement="right-end" :visible-arrow="false" :enterable="false" style="width: 56px; height: 56px; display: inline-block">
               <div slot="content">
-                {{ product_cover }}
                 <el-image :src="[scope.row.country, scope.row.platform_mall_id, scope.row.product_cover] | imageRender" style="width: 400px; height: 400px" />
               </div>
               <el-image :src="[scope.row.country, scope.row.platform_mall_id, scope.row.product_cover] | imageRender" style="width: 56px; height: 56px" />
@@ -136,6 +136,7 @@
       <div class="pagination">
         <el-pagination
           background
+          :current-page="currentPage"
           :page-sizes="[1000, 2000, 5000, 10000]"
           :page-size="pageSize"
           layout="total, sizes, prev, pager, next, jumper"
@@ -160,7 +161,7 @@ import { exportExcelDataCommon } from '../../../util/util'
 import storeChoose from '../../../components/store-choose'
 export default {
   components: {
-    storeChoose,
+    storeChoose
   },
   data() {
     return {
@@ -168,7 +169,7 @@ export default {
       pickerOptions: {
         disabledDate(time) {
           return time.getTime() > Date.now()
-        },
+        }
       },
       countryVal: '',
       groupId: '',
@@ -182,59 +183,59 @@ export default {
       replayTypeList: [
         {
           value: '',
-          label: '全部',
+          label: '全部'
         },
         {
           value: '1',
-          label: '待回复',
+          label: '待回复'
         },
         {
           value: '2',
-          label: '已回复',
-        },
+          label: '已回复'
+        }
       ],
       startNum: '',
       startNumList: [
         {
           value: '',
-          label: '全部',
+          label: '全部'
         },
         {
           value: '5',
-          label: '五颗星',
+          label: '五颗星'
         },
         {
           value: '4',
-          label: '四颗星',
+          label: '四颗星'
         },
         {
           value: '3',
-          label: '三颗星',
+          label: '三颗星'
         },
         {
           value: '2',
-          label: '两颗星',
+          label: '两颗星'
         },
         {
           value: '1',
-          label: '一颗星',
-        },
+          label: '一颗星'
+        }
       ],
       userName: '',
       userTypeSelect: '1',
       userType: [
         {
           value: '1',
-          label: '用户名称',
+          label: '用户名称'
         },
         {
           value: '2',
-          label: '商品名称',
+          label: '商品名称'
         },
         {
           value: '3',
-          label: '规格名称',
-        },
+          label: '规格名称'
+        }
       ],
       showConsole: true, // 日志
       pageSize: 1000, // 页码
@@ -248,7 +249,7 @@ export default {
       cancelAction: false,
       rowInfo: {},
       mallPageSize: 50,
-      rowIndex: null,
+      rowIndex: null
     }
   },
   mounted() {},
@@ -258,7 +259,7 @@ export default {
       const reqStr = {
         type: type,
         shopId: shopId,
-        id: id,
+        id: id
       }
       this.$BaseUtilService.getOrderDetailInfo(shopId, JSON.stringify(reqStr))
     },
@@ -298,7 +299,7 @@ export default {
         page_number: pageNumber,
         page_size: this.mallPageSize,
         cursor: 0,
-        shop_id: mall.platform_mall_id,
+        shop_id: mall.platform_mall_id
       }
       if (this.assessTime.length) {
         params.ctime_start = Math.round(new Date(this.assessTime[0]).getTime() / 1000)
@@ -330,7 +331,7 @@ export default {
           if (data.code === 0) {
             const count = data.data.list.length
             data.data.list &&
-              data.data.list.forEach(async (item) => {
+              data.data.list.forEach(async(item) => {
                 item.country = mall.country
                 item.platform_mall_name = mall.platform_mall_name
                 item.mall_alias_name = mall.mall_alias_name
@@ -426,7 +427,7 @@ export default {
         order_id: row.order_id,
         comment_id: row.comment_id,
         comment: this.replayText,
-        shop_id: row.platform_mall_id,
+        shop_id: row.platform_mall_id
       }
       console.log(params)
       const index = this.tableData.findIndex((n) => {
@@ -480,8 +481,8 @@ export default {
       this.isBatchReplay = false
     },
     async productUrl(row) {
-      let params = {
-        platform_mall_id: row.mall_info.platform_mall_id,
+      const params = {
+        platform_mall_id: row.platform_mall_id
       }
       const webUrl = await this.$shopeemanService.getWebUrl(row.country, params)
       // const webUrl = await this.$shopeeManConfig.getSiteWebUrl(row.country)
@@ -490,8 +491,8 @@ export default {
     },
     // 打开外部窗口
     async openUrl(row) {
-       let params = {
-        platform_mall_id: row.mall_info.platform_mall_id,
+      const params = {
+        platform_mall_id: row.platform_mall_id
       }
       const webUrl = await this.$shopeemanService.getWebUrl(row.country, params)
       // const webUrl = await this.$shopeeManConfig.getSiteWebUrl(row.country)
@@ -522,8 +523,8 @@ export default {
     // 清除日志
     clearLog() {
       this.$refs.Logs.consoleMsg = ''
-    },
-  },
+    }
+  }
 }
 </script>
 
@@ -552,6 +553,7 @@ export default {
     margin: 10px 10px 0 0;
     display: flex;
     align-items: center;
+    width: 1010px;
     // flex-wrap: wrap;
     .tool-item {
       display: flex;
@@ -568,9 +570,9 @@ export default {
   }
 }
 .content {
-  margin: 20px 0;
+  margin: 10px 0;
   background: #fff;
-  height: calc(100vh - 150px);
+  height: calc(100vh - 130px);
   display: flex;
   flex-direction: column;
   justify-content: space-between;

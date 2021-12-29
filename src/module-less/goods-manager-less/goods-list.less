@@ -1,0 +1,192 @@
+.contaniner{
+    margin:10px 10px 0 10px;
+    .red-span{
+      color: red;
+    }
+    .header {
+      background: white;
+      overflow: auto;
+      border-radius: 5px;
+      ul{
+        display: flex;
+        // width: 664px;
+        li{
+          line-height: 24px;
+          display: flex;
+          margin-right: 20px;
+        }
+        .data{
+          .base-box{
+            width: 575px;
+          }
+          ul{
+            display: flex;
+            width: 557px;
+            .data-input{
+              /deep/.el-input{
+                width: 80px !important;
+              }
+            }
+            .data-goods{
+              /deep/.el-input-group__prepend{
+                width: 111px !important;
+              }
+            }
+          }
+        }
+        .operation{
+          .base-box{
+            width: 570px;
+          }
+          .operation-input{
+            /deep/.el-input{
+              width: 130px;
+            }
+            .mini-input{
+              width: 49px;
+              /deep/.el-input__inner{
+                padding:0 1px !important;
+              }
+            }
+            .item{
+              width: 37px;
+            }
+            /deep/.el-select__tags {
+              flex-wrap: nowrap !important;
+              overflow: hidden !important;
+            }
+          }
+          .operation-but{
+            display: block;
+            ul{
+              width: 344px !important;
+              .el-button{
+                width: 128px;
+              }
+            }
+          }
+        }
+        .progress{
+          .base-box{
+            width: 300px;
+            padding:20px;
+          }
+        }
+      }
+    }
+    .base-box {
+      border: 1px solid #dcdcdc;
+      border-radius: 4px;
+      padding:10px 10px 5px 10px;
+      position: relative;
+      height: 100%;
+      .base-title {
+        padding: 0 5px;
+        display: inline-block;
+        height: 20px;
+        line-height: 20px;
+        text-align: center;
+        background: #fff;
+        position: absolute;
+        left: 10px;
+        top: -10px;
+      }
+      .base-item{
+        /deep/.el-form-item {
+          margin-bottom: 0px !important;
+          /deep/.el-form-item__label{
+            padding: 0 0 0 0 !important;
+            line-height: 31px !important;
+          }
+          /deep/.el-form-item__content{
+            line-height: 31px !important;
+            /deep/.el-range-editor--mini{
+                width: 228px;
+                /deep/.el-range-input{
+                  width: 67px !important;
+              }
+              /deep/.el-range-separator{
+                  width: 42px!important;
+                  text-align: center;
+              }
+            }
+          }
+        }
+      }
+    }
+    #article {
+      border-radius: 5px;
+      overflow: hidden;
+      background: white;
+      padding: 0 10px 10px 10px;
+      .green-span{
+        color: green;
+        cursor: pointer;
+      }
+      /deep/.el-icon-question{
+        cursor: pointer !important;
+        margin-left: 2px;
+      }
+    }
+    /deep/.el-dialog{
+      /deep/.el-dialog__header{
+        padding: 12px 10px 5px !important;
+      }
+      /deep/.el-dialog__body{
+        padding: 0 20px 15px !important;
+        /deep/.el-form{
+          /deep/.el-form-item{
+            margin-bottom: 0px !important;
+            .el-radio{
+              margin-right: 13px;
+            }
+          }
+        }
+        .footer{
+          margin-top: 10px;
+          text-align: center;
+          .el-button{
+            margin: 0 15px;
+          }
+        }
+      }
+    }
+    .description-dialog{
+      ul{
+        display: flex;
+        li{
+          display: flex;
+          margin-right: 10px;
+          span{
+            width: 60px;
+            text-align: right;
+            line-height: 24px;
+          }
+          .el-select{
+            width: 120px;
+          }
+        }
+      }
+    }
+    .parent-dialog{
+      div{
+        margin-bottom: 10px;
+      }
+      .base-box{
+        padding: 20px 10px 5px 10px;
+        .el-input{
+          width: 178px !important;
+          margin-right: 10px;
+        }
+        .el-button{
+          width: 100px;
+        }
+      }
+    }
+    .copyIcon {
+      color: var(--themeColor);
+      margin-left: 1px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+  }

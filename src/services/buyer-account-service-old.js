@@ -108,6 +108,6 @@ export default class buyerAccountService {
    * @returns
    */
   getBySysOrderIds(sysOrderIds) {
-    return this.shortOrderService.getBySysOrderIds(sysOrderIds)
+    return this.shortOrderService.getBySysOrderIds(sysOrderIds.toString())
   }
 }

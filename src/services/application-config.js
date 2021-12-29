@@ -7,7 +7,7 @@
  * @FilePath: \shopeeman-new\src\services\application-config.js
  */
 export default class applicationConfig {
-  nativeService = window['ConfigBridgeService'];
+    nativeService = window['ConfigBridgeService'];
   /**
    * 获取当前登录的用户信息
    */
@@ -64,7 +64,7 @@ export default class applicationConfig {
    * @param {*} key 存取移除的key值
    * @param {*} info 存的值  取、移除传空字符串
    */
-  async temporaryCacheInfo(type, key, info) {
+  async temporaryCacheInfo(type, key, info='') {
     return await this.nativeService.temporaryCacheInfo(type, key, info)
   }
 }

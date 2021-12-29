@@ -35,6 +35,20 @@ button {
 .el-table .cell {
   line-height: 20px !important;
 }
+.el-table{
+  .el-table__body-wrapper{
+    tr{
+      td{
+        color: #000000;
+      }
+    }
+  }
+}
+
+i.close-right{
+  position: absolute;
+  right: 5px;
+}
 </style>
 <script>
 import './assets/css/reset.css'

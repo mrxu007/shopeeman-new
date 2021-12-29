@@ -81,7 +81,7 @@
           </div>
           <div class="basisInstall-box">
             <el-button size="mini" type="primary" @click="enterGoodsTag">标记商品标签</el-button>
-            <el-button size="mini" @click="enterCategory(1)">同步类目属性</el-button>
+            <el-button size="mini" @click="enterCategory({})">同步类目属性</el-button>
             <el-button size="mini" type="primary" @click="">保存配置</el-button>
           </div>
         </div>
@@ -526,8 +526,7 @@
                 <img :src="watermarkConfig.goodsImageUrl || ''" alt="">
               </div>
               <div class="watermark_image"
-                   :class="watermarkConfig.type < 3 && locateClass || 'watermark_image_background'"
-                   :style="">
+                   :class="watermarkConfig.type < 3 && locateClass || 'watermark_image_background'">
                 <span v-show="watermarkConfig.type === 1"
                       :style="'font-size:'+watermarkConfig.textSize+'px!important;color:'+watermarkConfig.textColor">
                   {{watermarkConfig.text}}
@@ -640,30 +639,11 @@
         </div>
       </el-dialog>
       <el-dialog title="商品标签" width="300px" top="25vh" :close-on-click-modal="false" :visible.sync="goodsTagVisible">
-        <div class="goods_tag_dialog">
-          <div class="on_new_dialog_box">
-            <div>商品标签：</div>
-            <el-select v-model="goodsTagAction" size="mini" style="width: 200px;">
-              <el-option
-                  v-for="item in goodsTagList"
-                  :key="item.id"
-                  :label="item.label_name"
-                  :value="item.label_name">
-              </el-option>
-            </el-select>
-          </div>
-          <div class="on_new_dialog_box" style="margin-top: 10px;">
-            <div>当前标签：</div>
-            <el-input size="mini" style="width: 200px;" v-model="goodsTagCurrent"></el-input>
-          </div>
-          <div class="on_new_dialog_box" style="justify-content: space-evenly;margin-top: 10px;">
-            <el-button type="primary" size="mini" @click="updateGoodsTag">　确　定　</el-button>
-            <el-button size="mini" @click="goodsTagVisible = false">　取　消　</el-button>
-          </div>
-        </div>
+        <goodsLabel v-if="goodsTagVisible" :goods-table-select="goodsTableSelect" @goodsTagChange="goodsTagChange"/>
       </el-dialog>
       <el-dialog title="类目映射" width="700px" top="25vh" :close-on-click-modal="false" :visible.sync="categoryVisible">
-        <categoryMapping :country="country" :goodsCurrent="goodsCurrent"/>
+        <categoryMapping v-if="categoryVisible" :country="country" :goods-current="goodsCurrent" :mall-list="mallList"
+                         @categoryChange="categoryChange"/>
       </el-dialog>
     </div>
   </el-row>
@@ -672,7 +652,7 @@
 <script>
   import storeChoose from '../../../components/store-choose'
   import categoryMapping from '../../../components/category-mapping'
-  import { batchOperation } from '../../../util/util'
+  import goodsLabel from '../../../components/goods-label'
 
   export default {
     data() {
@@ -690,13 +670,10 @@
         isNoFoldShow: true,
         //弹窗
         categoryVisible: false, //类目弹窗
-        categoryList: [],
-        categoryAction: [],
         attributesList: [],
         attributesCurrent: [],
 
         goodsTagVisible: false, //标签弹窗
-        goodsTagList: [],
         goodsTagAction: '',
         goodsTagCurrent: '',
 
@@ -852,7 +829,7 @@
         }
       }
     },
-    components: { storeChoose, categoryMapping },
+    components: {storeChoose, categoryMapping, goodsLabel},
     watch: {
       country(value) {
         this.associatedConfig.onNewInterval = value !== 'ID' && '40' || '50'
@@ -898,60 +875,10 @@
         deep: true
       }
     },
-    mounted() {
-      this.goodsTable = [{
-        '_IsSelected': true,
-        'IsExportData': false,
-        'language': 'en',
-        'sortNumber': 1,
-        'index': 0,
-        'id': 159177439,
-        'GrowthId': 159177439,
-        'goodsId': '658284650116',
-        'goodName': null,
-        'MallType': '1',
-        'mallId': null,
-        'mallName': null,
-        'url': 'https://item.taobao.com/item.htm?id=658284650116',
-        'origin': '淘宝',
-        'deliverPlace': null,
-        'sales': '10',
-        'price': 190.4,
-        'CalAfterPrice': 0.0,
-        'CalAfterPriceRMB': 0.0,
-        'IsSelected': true,
-        'title': 'Keyboard mechanical gaming secondary silent high-value yuan steampunk dedicated wireless designer typing feels good',
-        'cnTitle': null,
-        'image': 'http://img.alicdn.com/imgextra/i1/2212687440175/O1CN01IFVLWC1DAC1XfJOCD_!!2212687440175.jpg',
-        'platform': 2,
-        'originCategoryName': '键盘',
-        'status': 2,
-        'statusName': '',
-        'categoryId': 0,
-        'color': null,
-        'categoryName': '请选择类目',
-        'originCategoryId': '110210',
-        'shopeeItemId': '',
-        'shopeeItemUrl': '',
-        'GoodsTagName': null,
-        'isUpload': 0,
-        'country': '',
-        'mallIds': '',
-        'mallNames': '',
-        'taskName': '',
-        'uploadMallName': '',
-        'uid': null,
-        'site': '',
-        'priceStr': null,
-        'extraInfo': null,
-        'VideoUrl': null,
-        'VideoVid': null,
-        'IsCancel': false,
-        'Weight': null,
-        'Dimensions': null,
-        'platShopName': '',
-        'isPreferredGoods': null
-      }]
+    async mounted() {
+      let ids = await this.$BaseUtilService.getUploadGoodsId()
+      // this.$BaseUtilService.gotoUploadTab('updateId','')
+      console.log('getUploadGoodsId',ids)
     },
     methods: {
       handleSelectionChange(val) {
@@ -960,62 +887,39 @@
       async synchronousCategory() {
 
       },
-      enterCategory(type = 0,row = null) {
-          this.goodsCurrent = row
-        if (type === 1 && this.mallList.length < 1){
+      enterCategory(type = 0, row = null) {
+        console.log(this.mallList);
+        if (type === 1 && this.mallList.length < 1) {
           this.$message.error('请选择一个店铺')
           return false
         }
-        if (type === 2 && this.goodsTableSelect.length < 1){
+        if (type === 2 && this.goodsTableSelect.length < 1) {
           this.$message.error('请选择一个商品信息')
           return false
         }
         this.categoryVisible = true
+        this.goodsCurrent = row
       },
-      async enterGoodsTag() {
+      categoryChange(val) {
+        console.log('categoryChange', val);
+        if (val) {
+
+        }
+        this.categoryVisible = false
+      },
+      enterGoodsTag() {
         if (this.goodsTableSelect.length < 1) {
           this.$message.error('请至少选择一个商品')
           return
         }
-        let goodsTagListJson = await this.$commodityService.getGoodsTagList()
-        let goodsTagListRes = JSON.parse(goodsTagListJson)
-        this.goodsTagList = goodsTagListRes.data || []
         this.goodsTagVisible = true
       },
-      async updateGoodsTag() {
-        if (this.goodsTagCurrent !== this.goodsTagAction) {
-          let addGoodsTagJson = await this.$commodityService.addGoodsTag(this.goodsTagCurrent)
-          let addGoodsTagRes = JSON.parse(addGoodsTagJson)
-          if (addGoodsTagRes.code === 200) {
-            let goodsTagListJson = await this.$commodityService.getGoodsTagList()
-            let goodsTagListRes = JSON.parse(goodsTagListJson)
-            this.goodsTagList = goodsTagListRes.data || []
-            this.goodsTagAction = this.goodsTagCurrent
-          } else {
-            this.$message.error('商品标签设置失败')
-            return
-          }
+      goodsTagChange(val){
+        console.log('goodsTagChange', val);
+        if (val) {
+
         }
-        let temp = this.goodsTagList.filter(i => i.label_name === this.goodsTagAction)[0]
-        let data = []
-        this.goodsTableSelect.forEach(item => {
-          data.push(Object.assign(JSON.parse(JSON.stringify(item)), { sysLabelId: temp.id }))
-        })
-        await batchOperation(data, this.setGoodsTag)
-        console.log(data)
         this.goodsTagVisible = false
-      },
-      async setGoodsTag(item, count = { count: 1 }) {
-        try {
-          let addGoodsToTagJson = await this.$commodityService.addGoodsToTag(item.sysLabelId, [item.id])
-          console.log(addGoodsToTagJson)
-          let addGoodsToTagRes = JSON.parse(addGoodsToTagJson)
-        } catch (e) {
-          console.log(e)
-          this.$message.error('设置失败')
-        } finally {
-          count.count--
-        }
       },
       async updateSellActive(type) {
         if (type) {
@@ -1063,7 +967,7 @@
               status: 1
             }
             let option = {
-              headers: { 'Content-Type': 'application/json;charset=UTF-8' }
+              headers: {'Content-Type': 'application/json;charset=UTF-8'}
             }
             let discountJson = await this.$shopeemanService.discount(this.country, param, option)
             let discountRes = JSON.parse(discountJson)
@@ -1145,10 +1049,8 @@
         })
       },
       changeMallList(data) {  //店铺列表
-        if (data.mallList && data.mallList.length > 0) {
-          this.mallList = data.mallList
-          this.country = data.country
-        }
+        this.mallList = data.mallList
+        this.country = data.country
       }
     }
   }

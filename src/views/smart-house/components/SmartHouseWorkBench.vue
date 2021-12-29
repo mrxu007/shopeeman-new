@@ -423,7 +423,7 @@
             <template slot-scope="scope">
               <div v-if="scope.row.goods" class="goods-detail">
                 <!-- {{ scope.row.goods.goods_id }} -->
-                <el-button type="text" @click.native="open(scope.row.ori_goods_id)">
+                <el-button type="text" @click.native="open(scope.row)">
                   {{ scope.row.goods.goods_id }}
                 </el-button>
               </div>
@@ -459,7 +459,7 @@
             <template slot-scope="{ row }">
               <span>
                 <!-- {{ row.package && Number(row.package.status) === 1 ? '待处理' : '待处理' }} -->
-                {{ row.package && packageStatus[row.package.status] }}
+                {{ row.package && packageStatus[row.package.status] || '' }}
               </span>
             </template>
           </el-table-column>
@@ -810,7 +810,8 @@ export default {
       exportNum: 0,
       pickerOptions: {
         disabledDate: (time) => {
-          return time.getTime() > Date.now()
+          const pastDay = Date.now() - 93 * 3600 * 24 * 1000
+          return time.getTime() > Date.now() || time.getTime() < pastDay
         }
       },
       remarkVisible: false,
@@ -831,9 +832,13 @@ export default {
       applyLoading: false,
 
       packageStatus: {
-        '-1': '未拒收',
-        '1': '已拒收',
-        '2': '已签收'
+        '1': '已签收',
+        '2': '已拒收',
+        '3': '匹配不到订单包裹',
+        '4': '包裹已销毁',
+        '5': '包裹丢件',
+        '6': '申请退件',
+        '7': '已退件'
       },
       applyTypeList: [
         { value: 1, label: '赔付运费' },
@@ -858,8 +863,8 @@ export default {
     // this.userInfo()
   },
   methods: {
-    open(val) {
-      window.BaseUtilBridgeService.openUrl(`https://item.taobao.com/item.htm?id=${val}`)
+    async open(val) {
+      window.BaseUtilBridgeService.openUrl(val.goods.goods_url)
     },
     // 申请赔付
     async applyCompensation() {

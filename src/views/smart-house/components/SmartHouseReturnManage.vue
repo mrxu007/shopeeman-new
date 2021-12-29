@@ -29,6 +29,7 @@
             unlink-panels
             size="mini"
             type="daterange"
+            :picker-options="pickerOptions"
             range-separator="-"
             start-placeholder="开始日期"
             end-placeholder="结束日期"
@@ -307,6 +308,12 @@
 export default {
   data() {
     return {
+      pickerOptions: {
+        disabledDate: (time) => {
+          const pastDay = Date.now() - 93 * 3600 * 24 * 1000
+          return time.getTime() > Date.now() || time.getTime() < pastDay
+        }
+      },
       cancelLoading: false,
       showConsole: true,
       form: {

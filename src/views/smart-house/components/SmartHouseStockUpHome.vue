@@ -377,7 +377,7 @@
                 :disabled="isforeignClose"
                 @click="itselfGoodsImport"
               >自有商品导入</el-button>
-              <el-upload ref="importRef" :disabled="isforeignClose" style="margin:0 10px" accept=".xlsx,.xls," action="https://jsonplaceholder.typicode.com/posts/" :on-change="importTemplate" :show-file-list="false" :auto-upload="false">
+              <el-upload ref="importRef" :disabled="isforeignClose" style="margin:0 10px" accept=".xls,.xlsx" action="https://jsonplaceholder.typicode.com/posts/" :on-change="importTemplate" :show-file-list="false" :auto-upload="false">
                 <el-button :disabled="isforeignClose" :data="importTemplateData" size="mini" type="primary"> 批量Excel导入 </el-button>
               </el-upload>
               <el-button
@@ -1492,8 +1492,10 @@ export default {
       this.productData = []
       this.goodsForeignData = []
       this.itselfGoodsVisible = true
-      this.$nextTick(() => {
+      this.$nextTick(async() => {
         this.$refs.isClean.cleanData()
+        // 获取产品中心数据
+        await this.getProductList()
       })
     },
     // 查看详情
@@ -1565,23 +1567,23 @@ export default {
           this.$refs.Logs.writeLog(`【${index + 1}】商品规格为空`, false)
           continue
         }
-        if (!long) {
+        if (long === '') {
           this.$refs.Logs.writeLog(`【${index + 1}】长(cm)为空`, false)
           continue
         }
-        if (!width) {
+        if (width === '') {
           this.$refs.Logs.writeLog(`【${index + 1}】宽(cm)为空`, false)
           continue
         }
-        if (!height) {
+        if (height === '') {
           this.$refs.Logs.writeLog(`【${index + 1}】高(cm)为空`, false)
           continue
         }
-        if (!weight) {
+        if (weight === '') {
           this.$refs.Logs.writeLog(`【${index + 1}】重量(g)为空`, false)
           continue
         }
-        var Regx = /^[A-Za-z0-9]*$/
+        const Regx = /^[\w ]+$/
         if (!Regx.test(sku_id)) {
           this.$refs.Logs.writeLog(`【${index + 1}】商品编号(sku)只能填字母或数字`, false)
           continue

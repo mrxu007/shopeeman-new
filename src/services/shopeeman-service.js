@@ -24,6 +24,7 @@ export default class NetMessageBridgeService {
     const mallId = data.mallId || data.platform_mall_id || data.shop_id
     let userSettings = await this.ConfigBridgeService().getUserConfig()
     userSettings = JSON.parse(userSettings)
+    console.log('userSettings',userSettings)
     const mallInfo = await this.ConfigBridgeService().getGlobalCacheInfo('mallInfo', mallId)
     const {
       mall_main_id,
@@ -33,9 +34,11 @@ export default class NetMessageBridgeService {
     // local 国内
     // Abroad 本土
     let url = this.site_domain_chinese_pre[country]
-    if (userSettings.domain_switch === 'Abroad') {
+    let domain_switch = userSettings && (userSettings.SwitchDominTypeSetting || userSettings.domain_switch) || '1'
+    if (domain_switch === '3' || domain_switch ===`Abroad`) {
       url = this.site_domain_local_pre[country]
-    } else if (userSettings.domain_switch === 'Auto' && mall_main_id > 0 && (IPType.indexOf('大陆') === -1 || IPType === '1')) {
+    } else if ((domain_switch === '1' || domain_switch === 'Auto')
+      && mall_main_id > 0 && (IPType.indexOf('大陆') === -1 || IPType === '1')) {
       url = this.site_domain_local_pre[country]
     }
     return url
@@ -45,18 +48,18 @@ export default class NetMessageBridgeService {
     const mallId = data.mallId || data.platform_mall_id || data.shop_id
     let userSettings = await this.ConfigBridgeService().getUserConfig()
     userSettings = JSON.parse(userSettings)
+    console.log('userSettings',userSettings)
     const mallInfo = await this.ConfigBridgeService().getGlobalCacheInfo('mallInfo', mallId)
     const {
       mall_main_id,
       IPType
     } = JSON.parse(mallInfo)
-    // auto 1、auto  2、mallinfo.MallMainId  3、IPType  包含 大陆   或者  ‘1’
-    // local 国内
-    // Abroad 本土
+    let domain_switch = userSettings && (userSettings.SwitchDominTypeSetting || userSettings.domain_switch) || '1'
     let url = this.site_domain_chinese_bk[country]
-    if (userSettings.domain_switch === 'Abroad') {
+    if (domain_switch === '3' || domain_switch ===`Abroad`) {
       url = this.site_domain_local_bk[country]
-    } else if (userSettings.domain_switch === 'Auto' && mall_main_id > 0 && (IPType.indexOf('大陆') === -1 || IPType === '1')) {
+    } else if ((domain_switch === '1' || domain_switch === 'Auto')
+      && mall_main_id > 0 && (IPType.indexOf('大陆') === -1 || IPType === '1')) {
       url = this.site_domain_local_bk[country]
     }
     return url
@@ -147,7 +150,7 @@ export default class NetMessageBridgeService {
         referer: url + referer
       })
     }
-    // console.log('-----', url, JSON.stringify(options))
+    console.log('-----', url, JSON.stringify(options))
     return this.NetMessageBridgeService().get(url, JSON.stringify(options))
   }
 
@@ -173,13 +176,53 @@ export default class NetMessageBridgeService {
         referer: url + referer
       })
     }
+    // console.log(url, JSON.stringify(options), JSON.stringify(data))
+    return this.NetMessageBridgeService().post(url, JSON.stringify(options), JSON.stringify(data))
+  }
+  async getChineseBuyer(country, api, data, options = {}, exportInfo) {
+    data = JSON.parse(JSON.stringify(data))
+    const url = await this.getWebUrl(country, data) + api
+    const baseurl = await this.getWebUrl(country, data)
+    options['extrainfo'] = this.getExtraInfo(data)
+    if (exportInfo) { // 适配店铺管理---导入店铺
+      options['extrainfo']['exportInfo'] = exportInfo
+    }
+    delete data.mallId // body 里面不能带店铺id
+    options['params'] = data
+    const referer = options['headers'] && options['headers'].referer
+    if (referer) {
+      options['headers'] = Object.assign(options['headers'], {
+        origin: baseurl,
+        referer: baseurl + referer
+      })
+    }
+    console.log('-----', url, JSON.stringify(options))
+    return this.NetMessageBridgeService().get(url, JSON.stringify(options))
+  }
+  async postChineseBuyer(country, api, data, options = {}, exportInfo) {
+    data = JSON.parse(JSON.stringify(data))
+    const url = await this.getWebUrl(country, data) + api
+    const baseurl = await this.getWebUrl(country, data)
+    options['extrainfo'] = this.getExtraInfo(data)
+    if (exportInfo) { // 适配店铺管理---导入店铺
+      options['extrainfo']['exportInfo'] = exportInfo
+      // Object.assign(options['extrainfo'],JSON.parse(JSON.stringify()))
+    }
+    delete data.mallId
+    const referer = options['headers'] && options['headers'].referer
+    if (referer) {
+      options['headers'] = Object.assign(options['headers'], {
+        origin: baseurl,
+        referer: baseurl + referer
+      })
+    }
     console.log(url, JSON.stringify(options), JSON.stringify(data))
     return this.NetMessageBridgeService().post(url, JSON.stringify(options), JSON.stringify(data))
   }
 
-  async postChinese(country, api, data, options = {}, exportInfo) {
+  async postChineseBuyer(country, api, data, options = {}, exportInfo) {
     data = JSON.parse(JSON.stringify(data))
-    const url = await this.getUrlPrefix(country, data) + api
+    const url = await this.getWebUrl(country, data) + api
     options['extrainfo'] = this.getExtraInfo(data)
     if (exportInfo) { // 适配店铺管理---导入店铺
       options['extrainfo']['exportInfo'] = exportInfo
@@ -194,6 +237,65 @@ export default class NetMessageBridgeService {
       })
     }
     console.log(url, JSON.stringify(options), JSON.stringify(data))
+    return this.NetMessageBridgeService().post(url, JSON.stringify(options), JSON.stringify(data))
+  }
+
+  async postChineseBuyer(country, api, data, options = {}, exportInfo) {
+    data = JSON.parse(JSON.stringify(data))
+    const url = await this.getWebUrl(country, data) + api
+    options['extrainfo'] = this.getExtraInfo(data)
+    if (exportInfo) { // 适配店铺管理---导入店铺
+      options['extrainfo']['exportInfo'] = exportInfo
+      // Object.assign(options['extrainfo'],JSON.parse(JSON.stringify()))
+    }
+    delete data.mallId
+    const referer = options['headers'] && options['headers'].referer
+    if (referer) {
+      options['headers'] = Object.assign(options['headers'], {
+        origin: url,
+        referer: url + referer
+      })
+    }
+    console.log(url, JSON.stringify(options), JSON.stringify(data))
+    return this.NetMessageBridgeService().post(url, JSON.stringify(options), JSON.stringify(data))
+  }
+
+  async postChineseBuyer(country, api, data, options = {}, exportInfo) {
+    data = JSON.parse(JSON.stringify(data))
+    const url = await this.getWebUrl(country, data) + api
+    options['extrainfo'] = this.getExtraInfo(data)
+    if (exportInfo) { // 适配店铺管理---导入店铺
+      options['extrainfo']['exportInfo'] = exportInfo
+      // Object.assign(options['extrainfo'],JSON.parse(JSON.stringify()))
+    }
+    delete data.mallId
+    const referer = options['headers'] && options['headers'].referer
+    if (referer) {
+      options['headers'] = Object.assign(options['headers'], {
+        origin: url,
+        referer: url + referer
+      })
+    }
+    console.log(url, JSON.stringify(options), JSON.stringify(data))
+    return this.NetMessageBridgeService().post(url, JSON.stringify(options), JSON.stringify(data))
+  }
+
+  async postChinese(country, api, data, options = {}, exportInfo) {
+    data = JSON.parse(JSON.stringify(data))
+    const url = await this.getUrlPrefix(country, data) + api
+    options['extrainfo'] = this.getExtraInfo(data)
+    if (exportInfo) { // 适配店铺管理---导入店铺
+      options['extrainfo']['exportInfo'] = exportInfo
+    }
+    delete data.mallId
+    const referer = options['headers'] && options['headers'].referer
+    if (referer) {
+      options['headers'] = Object.assign(options['headers'], {
+        origin: url,
+        referer: url + referer
+      })
+    }
+    console.log('NetMessageBridgeService',url, JSON.stringify(options), JSON.stringify(data))
     return this.NetMessageBridgeService().post(url, JSON.stringify(options), JSON.stringify(data))
   }
   // refer 与url 不一样
@@ -213,7 +315,7 @@ export default class NetMessageBridgeService {
         referer: baseUrl + referer
       })
     }
-    // console.log(url, JSON.stringify(options), JSON.stringify(data))
+    console.log(url, JSON.stringify(options), JSON.stringify(data))
     return this.NetMessageBridgeService().post(url, JSON.stringify(options), JSON.stringify(data))
   }
   async getChineseReferer(country, api, data, options = {}) {
@@ -230,7 +332,7 @@ export default class NetMessageBridgeService {
         referer: baseUrl + referer
       })
     }
-    console.log('-----get', url, JSON.stringify(options))
+    // console.log('-----get', url, JSON.stringify(options))
     return this.NetMessageBridgeService().get(url, JSON.stringify(options))
   }
   async postChineseShop(country, api, data, params, options = {}, exportInfo) {
@@ -299,6 +401,8 @@ export default class NetMessageBridgeService {
 
   // 手机号是否符合各个国家的手机号
   getTelephoneNumberIsTrue(country, account) {
+    let phoneList = account.match(/[0-9]*/g)
+    account = phoneList.join('')
     const reg = {
       'MY': '60',
       'TW': '886',
@@ -327,7 +431,7 @@ export default class NetMessageBridgeService {
   }
   // 回复商店评价
   replyShopRating(country, data) {
-    return this.postChinese(country, '/api/v3/settings/reply_shop_rating', data, { Headers: { 'Content-Type': ' application/json' } })
+    return this.postChinese(country, '/api/v3/settings/reply_shop_rating', data, { Headers: { 'Content-Type': ' application/json' }})
   }
   // 店铺提现记录
   getWithDrawalRecord(country, data) {
@@ -343,12 +447,10 @@ export default class NetMessageBridgeService {
   }
   // 店铺登录 post版本
   async login(mallInfo, flat, options = {}) {
-    console.log('mallInfo',mallInfo)
+    console.log('mallInfo', mallInfo)
     const { country, mall_account_info, platform_mall_id } = mallInfo
     const accountName = mall_account_info.username
     const encryptPwd = sha256(md5(mall_account_info.password))
-    // const encryptPwd = sha256(md5('Th123654'))
-    // const accountName = 'hellohappy586'
     const params = {
       mallId: platform_mall_id || '8888888888', // 导入店铺初始没有mallId
       remember: false,
@@ -360,14 +462,12 @@ export default class NetMessageBridgeService {
     }
     const reg = new RegExp('[\\u4E00-\\u9FFFa-zA-Z]+', 'g')
     if (accountName.indexOf('@') > -1) {
-      params['email'] = accountName
+      params['email'] = encodeURIComponent(accountName).split('%').length > 1 && encodeURIComponent(accountName) || accountName
       acccount_info['username'] = accountName
-    }
-    else if (reg.test(accountName)) {
+    } else if (reg.test(accountName)) {
       params['username'] = accountName
       acccount_info['username'] = accountName
-    }
-    else {
+    } else {
       const phone = this.getTelephoneNumberIsTrue(country, accountName)
       params['phone'] = phone
       acccount_info['username'] = phone
@@ -384,20 +484,20 @@ export default class NetMessageBridgeService {
       copy_mallInfo['mallAliasName'] = mallInfo.mall_alias_name
       copy_mallInfo['country'] = mallInfo.country
       copy_mallInfo['malltype'] = '1'
-      copy_mallInfo['SPC_EC'] =  mallInfo.SPC_EC
-      copy_mallInfo['SPC_SC_TK'] =  mallInfo.SPC_SC_TK
-      copy_mallInfo['SPC_F'] =  mallInfo.SPC_F
+      copy_mallInfo['SPC_EC'] = mallInfo.SPC_EC
+      copy_mallInfo['SPC_SC_TK'] = mallInfo.SPC_SC_TK
+      copy_mallInfo['SPC_F'] = mallInfo.SPC_F
     }
-    console.log('copy_mallInfo',copy_mallInfo)
+    console.log('copy_mallInfo', copy_mallInfo)
     try {
-      let res = await this.postChinese(country, '/api/v2/login', params, { // option
+      let res = await this.postChinese(country, '/api/v2/login/?', params, { // option
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
-          'charset': 'UTF-8',
+          'charset': 'UTF-8'
         }
       }, copy_mallInfo)
       res = JSON.parse(res)
-      console.log('postChinese',res)
+      console.log('postChinese', res)
       let SetCookie = null
       SetCookie = res.headers.find(item => item.Name === 'Set-Cookie')
       if (SetCookie) {
@@ -447,10 +547,8 @@ export default class NetMessageBridgeService {
           'SPC_SC_SA_UD': '',
           'SPC_SC_SA_TK': '',
           'SPC_SC_UD': '',
-          'token': data.token,
           'cstoken': data.cs_token,
           'satoken': '',
-          'sso': data.sso,
           'shopeeuid': mallUId,
           'shopid': mallId,
           'portrait': data.portrait,
@@ -497,7 +595,10 @@ export default class NetMessageBridgeService {
           Cookie,
           mallInfo_new
         }
-        return { code: 200, data: obj }
+        return {
+          code: 200,
+          data: obj
+        }
       }
       let message = res.data
       let code = res.status
@@ -544,15 +645,18 @@ export default class NetMessageBridgeService {
         code = 'has_shop_upgraded'
         message = '已升级为全球店铺，请更换店铺类型进行导入'
       }
-      return { code, 'data': { 'message': message, 'data': res.data, SetCookie } }
+      return { code, 'data': { 'message': message, 'data': res.data, SetCookie }}
     } catch (e) {
       console.log('e', e)
-      return { code: -2, data: `login -catch: ${e} ` }
+      return {
+        code: -2,
+        data: `login -catch: ${e} `
+      }
     }
   }
 
   // 店铺登录 get版本
-  async getLogin(mallInfo,SPC_F) {
+  async getLogin(mallInfo, SPC_F) {
     const { country, mall_account_info, platform_mall_id } = mallInfo
     const params = {
       mallId: platform_mall_id
@@ -566,7 +670,7 @@ export default class NetMessageBridgeService {
         }
       })
       res = JSON.parse(res)
-      console.log('getLogin',res)
+      console.log('getLogin', res)
       let SetCookie = null
       SetCookie = res.headers.find(item => item.Name === 'Set-Cookie')
       if (SetCookie) {
@@ -578,20 +682,6 @@ export default class NetMessageBridgeService {
       }
       if (res.status === 200) {
         const data = JSON.parse(res.data)
-        // const data = {
-        //   'username': 'hellohappy586',
-        //   'shopid': 213693788,
-        //   'phone': '*****86',
-        //   'sso': 'frcMkzWmlozOjCMsYjn4+SJdOFw3F1zwoGxKht+0PeJ5f+fqw1dWWBDl750dr1h9qlJKJpVABAYX/+tUA1Xduf2Ra/liYgYoSBYIwitiD7ph6mCmoCfuMudx0VLia/r7wIxmOX3KcCvE13zdf1PHSYIdPTk5vnmzyFX1kxSbp6Q=',
-        //   'cs_token': 'frcMkzWmlozOjCMsYjn4+SJdOFw3F1zwoGxKht+0PeJ5f+fqw1dWWBDl750dr1h9qlJKJpVABAYX/+tUA1Xduf2Ra/liYgYoSBYIwitiD7ph6mCmoCfuMudx0VLia/r7wIxmOX3KcCvE13zdf1PHSYIdPTk5vnmzyFX1kxSbp6Q=',
-        //   'portrait': 'ee7db10b758fe62fdca22df0407930ed',
-        //   'id': 213697505,
-        //   'language': 'en',
-        //   'errcode': 0,
-        //   'token': '19ec9cb05c71d9f99d3aa4465abbaf51',
-        //   'sub_account_token': null,
-        //   'email': ''
-        // }
         const mallId = `${data.shopid}` // 平台店铺ID
         const mallUId = `${data.id}` // 平台店铺ID
         const username = data.username
@@ -616,10 +706,8 @@ export default class NetMessageBridgeService {
           'SPC_SC_SA_UD': '',
           'SPC_SC_SA_TK': '',
           'SPC_SC_UD': '',
-          'token': data.token,
           'cstoken': data.cs_token,
           'satoken': '',
-          'sso': data.sso,
           'shopeeuid': mallUId,
           'shopid': mallId,
           'portrait': data.portrait,
@@ -666,7 +754,10 @@ export default class NetMessageBridgeService {
           Cookie,
           mallInfo_new
         }
-        return { code: 200, data: obj }
+        return {
+          code: 200,
+          data: obj
+        }
       }
       let message = res.data
       let code = res.status
@@ -713,10 +804,13 @@ export default class NetMessageBridgeService {
         code = 'has_shop_upgraded'
         message = '已升级为全球店铺，请更换店铺类型进行导入'
       }
-      return { code, 'data': { 'message': message, 'data': res.data, SetCookie } }
+      return { code, 'data': { 'message': message, 'data': res.data, SetCookie }}
     } catch (e) {
       console.log('e', e)
-      return { code: -2, data: `login -catch: ${e} ` }
+      return {
+        code: -2,
+        data: `login -catch: ${e} `
+      }
     }
   }
 
@@ -824,7 +918,7 @@ export default class NetMessageBridgeService {
   async getOrderIdList(country, data) {
     const res = await this.getChinese(country, '/api/v3/order/get_order_id_list', data)
     const resObj = res && JSON.parse(res)
-    console.log(resObj)
+    // console.log(resObj)
     if (resObj && resObj.status === 200) {
       const info = JSON.parse(resObj.data)
       if (info && info.code === 0) {
@@ -853,7 +947,7 @@ export default class NetMessageBridgeService {
       }
     })
     const resObj = res && JSON.parse(res)
-    console.log(resObj)
+    // console.log(resObj)
     if (resObj && resObj.status === 200) {
       const info = JSON.parse(resObj.data)
       if (info && info.code === 0) {
@@ -882,7 +976,7 @@ export default class NetMessageBridgeService {
       }
     })
     const resObj = res && JSON.parse(res)
-    console.log(resObj)
+    // console.log(resObj)
     if (resObj && resObj.status === 200) {
       const info = JSON.parse(resObj.data)
       if (info && info.code === 0) {
@@ -907,7 +1001,32 @@ export default class NetMessageBridgeService {
   async getDetailsSinger(country, data) {
     const res = await this.getChinese(country, '/api/v3/order/get_one_order', data)
     const resObj = res && JSON.parse(res)
-    console.log(resObj)
+    // console.log(resObj)
+    if (resObj && resObj.status === 200) {
+      const info = JSON.parse(resObj.data)
+      if (info && info.code === 0) {
+        return {
+          code: 200,
+          data: info.data || []
+        }
+      } else {
+        return {
+          code: 50001,
+          data: info.message || []
+        }
+      }
+    } else {
+      return {
+        code: resObj.status,
+        data: `获取详情失败${resObj.statusText}`
+      }
+    }
+  }
+  //查询订单 /api/v3/order/get_order_hint
+  async getOrderHint(country, data) {
+    const res = await this.getChinese(country, '/api/v3/order/get_order_hint', data)
+    const resObj = res && JSON.parse(res)
+    // console.log(resObj)
     if (resObj && resObj.status === 200) {
       const info = JSON.parse(resObj.data)
       if (info && info.code === 0) {
@@ -932,7 +1051,32 @@ export default class NetMessageBridgeService {
   async getOrdeTrackingHistory(country, data) {
     const res = await this.getChinese(country, '/api/v3/order/get_order_tracking_history/', data)
     const resObj = res && JSON.parse(res)
-    console.log(resObj)
+    // console.log(resObj)
+    if (resObj && resObj.status === 200) {
+      const info = JSON.parse(resObj.data)
+      if (info && info.code === 0) {
+        return {
+          code: 200,
+          data: info.data || []
+        }
+      } else {
+        return {
+          code: 50001,
+          data: info.message || []
+        }
+      }
+    } else {
+      return {
+        code: resObj.status,
+        data: `订单历史轨迹${resObj.statusText}`
+      }
+    }
+  }
+  // 获取售后订单历史轨迹
+  async getRefundOrdeTrackingHistory(country, data) {
+    const res = await this.getChinese(country, '/api/v1/return/return_tracking_history/', data)
+    const resObj = res && JSON.parse(res)
+    // console.log(resObj)
     if (resObj && resObj.status === 200) {
       const info = JSON.parse(resObj.data)
       if (info && info.code === 0) {
@@ -957,7 +1101,7 @@ export default class NetMessageBridgeService {
   async getIncomeTransactionHistoryDetail(country, data) {
     const res = await this.getChinese(country, '/api/v3/finance/income_transaction_history_detail/', data)
     const resObj = res && JSON.parse(res)
-    console.log(resObj)
+    // console.log(resObj)
     if (resObj && resObj.status === 200) {
       const info = JSON.parse(resObj.data)
       if (info && info.code === 0) {
@@ -982,7 +1126,7 @@ export default class NetMessageBridgeService {
   async getLogisticsTrackingHistory(country, data) {
     const res = await this.getChinese(country, '/api/v3/logistics/get_logistics_tracking_history', data)
     const resObj = res && JSON.parse(res)
-    console.log(resObj)
+    // console.log(resObj)
     if (resObj && resObj.status === 200) {
       const info = JSON.parse(resObj.data)
       if (info && info.code === 0) {
@@ -1007,7 +1151,7 @@ export default class NetMessageBridgeService {
   async getLogisticsTrackingHistoryRefund(country, data) {
     const res = await this.getChinese(country, '/api/v1/return/reverse_logistics_tracking_history/ ', data)
     const resObj = res && JSON.parse(res)
-    console.log(resObj)
+    // console.log(resObj)
     if (resObj && resObj.status === 200) {
       const info = JSON.parse(resObj.data)
       if (info && info.code === 0) {
@@ -1032,7 +1176,7 @@ export default class NetMessageBridgeService {
   async getToShipOrderIdList(country, data) {
     const res = await this.getChinese(country, '/api/v3/order/get_package_list', data)
     const resObj = res && JSON.parse(res)
-    console.log(resObj)
+    // console.log(resObj)
     if (resObj && resObj.status === 200) {
       const info = JSON.parse(resObj.data)
       if (info && info.code === 0) {
@@ -1057,7 +1201,7 @@ export default class NetMessageBridgeService {
   async getRefundOrderIdList(country, data) {
     const res = await this.getChinese(country, '/api/v1/return/list', data)
     const resObj = res && JSON.parse(res)
-    console.log(resObj)
+    // console.log(resObj)
     if (resObj && resObj.status === 200) {
       const info = JSON.parse(resObj.data)
       if (info && info.code === 0) {
@@ -1082,7 +1226,7 @@ export default class NetMessageBridgeService {
   async getRefundOrderDetail(country, data) {
     const res = await this.getChinese(country, '/api/v1/return/detail', data)
     const resObj = res && JSON.parse(res)
-    console.log(resObj)
+    console.log(resObj, "getRefundOrderDetail")
     if (resObj) {
       const info = JSON.parse(resObj.data)
       if (info && info.code === 0) {
@@ -1107,7 +1251,7 @@ export default class NetMessageBridgeService {
   async getForderLogistics(country, data) {
     const res = await this.getChinese(country, '/api/v3/order/get_forder_logistics/', data)
     const resObj = res && JSON.parse(res)
-    console.log(resObj)
+    // console.log(resObj)
     if (resObj && resObj.status === 200) {
       const info = JSON.parse(resObj.data)
       if (info && info.code === 0) {
@@ -1190,13 +1334,18 @@ export default class NetMessageBridgeService {
       }
     })
     const resObj = res && JSON.parse(res)
-    console.log(resObj)
+    // console.log(resObj)
     if (resObj && resObj.status === 200) {
       const info = JSON.parse(resObj.data)
       if (info && info.code === 0) {
         return {
           code: 200,
           data: info.data || []
+        }
+      } else if (info.code === 100010006) {
+        return {
+          code: 100010006,
+          data: info.data.result[0].message || '' // 物流判断
         }
       } else {
         return {
@@ -1229,7 +1378,7 @@ export default class NetMessageBridgeService {
       }
     })
     const resObj = res && JSON.parse(res)
-    console.log(resObj)
+    // console.log(resObj)
     if (resObj && resObj.status === 200) {
       const info = JSON.parse(resObj.data)
       if (info && info.code === 0) {
@@ -1267,7 +1416,7 @@ export default class NetMessageBridgeService {
       }
     })
     const resObj = res && JSON.parse(res)
-    console.log(resObj)
+    // console.log(resObj)
     if (resObj && resObj.status === 200) {
       const info = JSON.parse(resObj.data)
       if (info && info.code === 0) {
@@ -1305,7 +1454,7 @@ export default class NetMessageBridgeService {
       }
     })
     const resObj = res && JSON.parse(res)
-    console.log(resObj)
+    // console.log(resObj)
     if (resObj && resObj.status === 200) {
       const info = JSON.parse(resObj.data)
       if (info && info.code === 0) {
@@ -1343,7 +1492,7 @@ export default class NetMessageBridgeService {
       }
     })
     const resObj = res && JSON.parse(res)
-    console.log(resObj)
+    // console.log(resObj)
     if (resObj && resObj.status === 200) {
       const info = JSON.parse(resObj.data)
       if (info && info.code === 0) {
@@ -1370,7 +1519,379 @@ export default class NetMessageBridgeService {
       }
     }
   }
+  // 更新买家留言
+  async updateNode(country, data) {
+    const res = await this.postChinese(country, '/api/v3/order/update_note/', data, {
+      Headers: {
+        'Content-Type': ' application/json'
+      }
+    })
+    const resObj = res && JSON.parse(res)
+    // console.log(resObj)
+    if (resObj && resObj.status === 200) {
+      const info = JSON.parse(resObj.data)
+      if (info && info.code === 0) {
+        return {
+          code: 200,
+          data: info.data || []
+        }
+      } else {
+        return {
+          code: 50001,
+          data: info.message || resObj.statusText || ''
+        }
+      }
+    } else {
+      if (resObj.status === 403) {
+        return {
+          code: resObj.status,
+          data: `评论回复失败，店铺未登录！`
+        }
+      }
+      return {
+        code: resObj.status,
+        data: `评论回复失败${resObj.statusText}`
+      }
+    }
+  }
+  // 获取面单类型 
+  async getPrintWaybillType(country, data) {
+    const res = await this.getChinese(country, '/api/v3/logistics/get_print_waybill_type', data)
+    const resObj = res && JSON.parse(res)
+    if (resObj && resObj.status === 200) {
+      const info = JSON.parse(resObj.data)
+      if (info && info.code === 0) {
+        return {
+          code: 200,
+          data: info.data || []
+        }
+      } else {
+        return {
+          code: 50001,
+          data: info.message || []
+        }
+      }
+    } else {
+      return {
+        code: resObj.status,
+        data: `获取失败${resObj.statusText}`
+      }
+    }
+  }
+  // 获取物流
+  async getLogistics(country, params) {
+    params['version'] = '3.1.0'
+    const res = await this.getChinese(country, '/api/v3/logistics/get_product_channels/?', params)
+    const resObj = res && JSON.parse(res)
+    console.log(resObj)
+    if (resObj && resObj.status === 200) {
+      const info = JSON.parse(resObj.data)
+      if (info && info.code === 0) {
+        return {
+          code: 200,
+          data: info.data || []
+        }
+      } else {
+        return {
+          code: 50001,
+          data: info.message || resObj.statusText || ''
+        }
+      }
+    } else {
+      if (resObj.status === 403) {
+        return {
+          code: resObj.status,
+          data: `获取物流失败，店铺未登录！`
+        }
+      }
+      return {
+        code: resObj.status,
+        data: `获取物流失败${resObj.statusText}`
+      }
+    }
+  }
+  // 取卖家真实姓名  
+  async getShopSellerRealName(country, data) {
+    const res = await this.getChinese(country, '/api/v3/logistics/get_shop_seller_real_name', data)
+    const resObj = res && JSON.parse(res)
+    // console.log(res,resObj)
+    if (resObj && resObj.status === 200) {
+      const info = JSON.parse(resObj.data)
+      if (info && info.code === 0) {
+        return info.data.seller_real_name || null
 
+      } else {
+        return null
+      }
+    } else {
+      return null
+    }
+  }
+  //获取店铺信息 
+  async getShop(country, data) {
+    const res = await this.getChinese(country, '/api/v3/general/get_shop/', data)
+    const resObj = res && JSON.parse(res)
+    // console.log(res,resObj)
+    if (resObj && resObj.status === 200) {
+      const info = JSON.parse(resObj.data)
+      if (info && info.code === 0) {
+        return {
+          code: 200,
+          data: info.data || []
+        }
+      } else {
+        return {
+          code: 50001,
+          data: info.message || []
+        }
+      }
+    } else {
+      return {
+        code: resObj.status,
+        data: `获取失败${resObj.statusText}`
+      }
+    }
+  }
+  //获取申请时间 /api/v3/shipment/get_drop_off
+  async getPickupTimeSlots(country, data) {
+    const res = await this.getChinese(country, '/api/v3/shipment/get_pickup_time_slots/', data)
+    const resObj = res && JSON.parse(res)
+    // console.log(res,resObj)
+    if (resObj && resObj.status === 200) {
+      const info = JSON.parse(resObj.data)
+      if (info && info.code === 0) {
+        return {
+          code: 200,
+          data: info.data || []
+        }
+      } else {
+        return {
+          code: 50001,
+          data: info.message || []
+        }
+      }
+    } else {
+      return {
+        code: resObj.status,
+        data: `获取失败${resObj.statusText}`
+      }
+    }
+  }
+  //获取虾皮物流单号
+  async getDropOff(country, data) {
+    const res = await this.getChinese(country, '/api/v3/shipment/get_drop_off', data)
+    const resObj = res && JSON.parse(res)
+    // console.log(res,resObj)
+    if (resObj && resObj.status === 200) {
+      const info = JSON.parse(resObj.data)
+      if (info && info.code === 0) {
+        return {
+          code: 200,
+          data: info.data || []
+        }
+      } else {
+        return {
+          code: 50001,
+          data: info.message || []
+        }
+      }
+    } else {
+      return {
+        code: resObj.status,
+        data: `获取失败${resObj.statusText}`
+      }
+    }
+  }
+  //  获取包裹号
+  async checkPackagePrintWaybillMultiShop(country, data) {
+    const res = await this.postChinese(country, '/api/v3/logistics/check_package_print_waybill_multi_shop', data, {
+      Headers: {
+        'Content-Type': ' application/json'
+      }
+    })
+    const resObj = res && JSON.parse(res)
+    // console.log(res,resObj)
+    if (resObj && resObj.status === 200) {
+      const info = JSON.parse(resObj.data)
+      if (info && info.code === 0) {
+        return {
+          code: 200,
+          data: info.data || []
+        }
+      } else {
+        return {
+          code: 50001,
+          data: info.message || []
+        }
+      }
+    } else {
+      return {
+        code: resObj.status,
+        data: `获取失败${resObj.statusText}`
+      }
+    }
+  }
+  //  获取面单打印配置 schemaType
+  async getSdConfig(country, data) {
+    const res = await this.getChinese(country, '/api/v3/logistics/get_sd_config', data)
+    const resObj = res && JSON.parse(res)
+    // console.log(res,resObj)
+    if (resObj && resObj.status === 200) {
+      const info = JSON.parse(resObj.data)
+      if (info && info.code === 0) {
+        return {
+          code: 200,
+          data: info.data || []
+        }
+      } else {
+        return {
+          code: 50001,
+          data: info.message || []
+        }
+      }
+    } else {
+      return {
+        code: resObj.status,
+        data: `获取失败${resObj.statusText}`
+      }
+    }
+  }
+  //创建面单打印任务
+  async createSdJobsMultiShop(country, data) {
+    const res = await this.postChinese(country, '/api/v3/logistics/create_sd_jobs_multi_shop', data, {
+      Headers: {
+        'Content-Type': ' application/json'
+      },
+      params: {
+        async_sd_version: '0.2'
+      }
+    })
+    const resObj = res && JSON.parse(res)
+    // console.log(res,resObj)
+    if (resObj && resObj.status === 200) {
+      const info = JSON.parse(resObj.data)
+      if (info && info.code === 0) {
+        return {
+          code: 200,
+          data: info.data || []
+        }
+      } else {
+        return {
+          code: 50001,
+          data: info.message || []
+        }
+      }
+    } else {
+      return {
+        code: resObj.status,
+        data: `获取失败${resObj.statusText}`
+      }
+    }
+  }
+    //处理越南首公里面单
+    async getForderId(country, data) {
+      const res = await this.postChinese(country, '/api/v3/shipment/can_order_arrange_shipment_multi_shop/?', data, {
+        Headers: {
+          'Content-Type': ' application/json'
+        },
+        params: {
+          async_sd_version: '0.2'
+        }
+      })
+      const resObj = res && JSON.parse(res)
+      // console.log(res,resObj)
+      if (resObj && resObj.status === 200) {
+        const info = JSON.parse(resObj.data)
+        if (info && info.code === 0) {
+          return {
+            code: 200,
+            data: info.data || []
+          }
+        } else {
+          return {
+            code: 50001,
+            data: info.message || []
+          }
+        }
+      } else {
+        return {
+          code: resObj.status,
+          data: `获取失败${resObj.statusText}`
+        }
+      }
+    }
+    //  莱尔富经济包的面单信息
+    async getLaiErFuFace(country, data) {
+      const res = await this.postChinese(country, '/api/v3/logistics/get_waybill_list', data, {
+        Headers: {
+          'Content-Type': ' application/json'
+        }
+      })
+      const resObj = res && JSON.parse(res)
+      // console.log(res,resObj)
+      if (resObj && resObj.status === 200) {
+        const info = JSON.parse(resObj.data)
+        if (info && info.code === 0) {
+          return {
+            code: 200,
+            data: info.data || []
+          }
+        } else {
+          return {
+            code: 50001,
+            data: info.message || []
+          }
+        }
+      } else {
+        return {
+          code: resObj.status,
+          data: `获取失败${resObj.statusText}`
+        }
+      }
+    }
+  //拒绝取消订单-接受取消订单
+  async respondCancelRequest(country, data) {
+    const res = await this.postChinese(country, `/api/v3/order/respond_cancel_request/?`, data, {
+      Headers: {
+        'referer': `/portal/sale/${data.order_id}`,
+        'Content-Type': ' application/json'
+      }
+    })
+    const resObj = res && JSON.parse(res)
+    // console.log(res,resObj)
+    if (resObj && resObj.status === 200) {
+      const info = JSON.parse(resObj.data)
+      if (info && info.code === 0) {
+        return {
+          code: 200,
+          data: info.data || []
+        }
+      } else {
+        return {
+          code: 50001,
+          data: info.message || []
+        }
+      }
+    } else {
+      return {
+        code: resObj.status,
+        data: `操作失败${resObj.statusText}`
+      }
+    }
+  }
+  //下载面单信息
+  async downloadSdJob(country, data) {
+    const res = await this.getChinese(country, '/api/v3/logistics/download_sd_job', data)
+    const resObj = res && JSON.parse(res)
+    // console.log(resObj, "resObj")
+    if (resObj && resObj.status === 200) {
+      return resObj
+    } else {
+      return null
+    }
+  }
+
+      
   // 获取地址
   getNextLevelAddresses(country, data, option) {
     return this.getChinese(country, '/api/v3/general/get_next_level_addresses', data, option)
@@ -1442,4 +1963,125 @@ export default class NetMessageBridgeService {
   getdiagnosis(country, data, option) {
     return this.getChinese(country, '/api/seller/mydata/prod_diagnosis/items/', data, option)
   }
-}
+
+  // 获取商品概述数据
+  getoverview(country, data, option) {
+    return this.getChinese(country, '/api/mydata/v2/product/overview/', data, option)
+  }
+
+  // 获取商品表现数据
+  getperformance(country, data, option) {
+    return this.getChinese(country, '/api/mydata/v2/product/performance/', data, option)
+  }
+
+  // 获取商品表现数据
+  getperformance1(country, data, option) {
+    return this.getChinese(country, '/api/mydata/v2/product/performance/batch/', data, option)
+  }
+
+  // 获取销售额概述数据
+  getsalasoverview(country, data, option) {
+    return this.getChinese(country, '/api/mydata/v3/sales/overview/funnel/', data, option)
+  }
+
+  // 获取销售额结构数据1
+  getsalasstructure1(country, data, option) {
+    return this.getChinese(country, '/api/mydata/v2/sales/composition/category/', data, option)
+  }
+
+  // 获取销售额结构数据2
+  getsalasstructure2(country, data, option) {
+    return this.getChinese(country, '/api/mydata/sales/composition/pricezone/', data, option)
+  }
+
+  // 获取销售额结构数据3
+  getsalasstructure3(country, data, option) {
+    return this.getChinese(country, '/api/mydata/sales/composition/buyers/', data, option)
+  }
+
+  // 获取行销活动数据
+  getactivity(country, data, option) {
+    return this.getChinese(country, '/api/mydata/marketing/discount/key-metrics/', data, option)
+  }
+
+  // 获取行销活动概览按钮数据
+  getactivitybt(country, data, option) {
+    return this.getChinese(country, '/api/mydata/marketing/discount/overview/', data, option)
+  }
+
+  // 获取优惠套装数据
+  getpackage(country, data, option) {
+    return this.getChinese(country, '/api/mydata/marketing/bundle/key-metrics/', data, option)
+  }
+
+  // 获取优惠套装按钮数据
+  getpackageview(country, data, option) {
+    return this.getChinese(country, '/api/mydata/marketing/bundle/overview/', data, option)
+  }
+
+  // 获取关注礼数据
+  getattention(country, data, option) {
+    return this.getChinese(country, '/api/mydata/marketing/follow-prize/key-metrics/', data, option)
+  }
+
+  // 获取关注礼概述数据
+  getattentionview(country, data, option) {
+    return this.getChinese(country, '/api/mydata/marketing/follow-prize/overview/', data, option)
+  }
+
+  // 获取优惠卷数据
+  getcoupon(country, data, option) {
+    return this.getChinese(country, '/api/mydata/marketing/voucher/key-metrics/', data, option)
+  }
+
+  // 获取优惠卷概述数据
+  getcouponview(country, data, option) {
+    return this.getChinese(country, '/api/mydata/marketing/voucher/performance/', data, option)
+  }
+
+  // 获取商品限时选购数据
+  getlimittime(country, data, option) {
+    return this.getChinese(country, '/api/mydata/marketing/flash-sale/key-metrics/', data, option)
+  }
+
+  // 获取加购优惠数据1
+  getAdditionalpurchase1(country, data, option) {
+    return this.getChinese(country, '/api/mydata/v2/marketing/add-on-deal/key-metrics/', data, option)
+  }
+
+  // 获取加购优惠数据2
+  getAdditionalpurchase2(country, data, option) {
+    return this.getChinese(country, '/api/mydata/marketing/add-on-deal/gift-with-purchase/key-metrics/', data, option)
+  }
+
+  // 获取实时聊天数据
+  getrealtime(country, data, option) {
+    return this.getChinese(country, '/api/mydata/v2/chat/dashboard/funnel/', data, option)
+  }
+
+  // 获取常见问题助手数据
+  getfaqassistant(country, data, option) {
+    return this.getChinese(country, '/api/mydata/chat/faq/overview/', data, option)
+  }
+
+  // 获取常见问题助手按钮数据
+  getfaqassistant1(country, data, option) {
+    return this.getChinese(country, '/api/mydata/chat/faq/list/', data, option)
+  }
+
+  // 获取销售辅助数据
+  getsalesassistance(country, data, option) {
+    return this.getChinese(country, '/api/mydata/v4/selling-coach/listing-optimiser/overview/', data, option)
+  }
+
+  // 获取行销活动套装优惠数据
+  getdiscount(country, data, option) {
+    return this.getChinese(country, '/api/marketing/v3/bundle_deal/list/', data, option)
+  }
+
+  // 创建套装促销活动
+  creatdiscount(country, data, option) {
+    return this.postChinese(country, '/api/marketing/v3/bundle_deal/', data, option)
+  }
+  }
+

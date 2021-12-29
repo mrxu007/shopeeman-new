@@ -10,9 +10,10 @@ class CollectLinkApI {
     // 请注意   (商品列表  订单列表)  不需要使用缓存,其他模块调用需要使用缓存,
     try {
       this.goods = goods
-      const { platformId, GoodsId } = this.goods
+      const { platformId, GoodsId, ShopId, Site } = this.goods
       const params = {}
       params['GoodsId'] = GoodsId
+      params['shop_id'] = ShopId
       switch (platformId) {
         case 1: // 拼多多  1 拼多多接口、  1.1 拼多多补充接口、  1.2 拼多多优惠采集
         case 1.2:
@@ -23,23 +24,24 @@ class CollectLinkApI {
         case 8: // '1688'
           break
         case 9: // 'Lazada'
-          params['Site'] = ''
+          params['Site'] = Site
           break
         case 10: // '京喜/京东'
           break
         case 11: // 'shopee'
-          params['ShopId'] = ''
-          params['Site'] = ''
+          params['ShopId'] = ShopId
+          params['Site'] = Site
           break
         case 12: // '速卖通'
           break
         case 13: // '天猫淘宝海外平台'
-          params['ShopId'] = ''
+          params['ShopId'] = ShopId
           params['AccessToken'] = ''
           break
       }
-      const res = await this._this.$collectService.queryDetailById(platformId, params, isUseCache)
+      const res = await this._this.$collectService.queryDetailById(Number(platformId), params, isUseCache)
       const isJSONData = this.isJsonString(res)
+      debugger
       if (isJSONData?.Code === 200) {
         isJSONData.Image = isJSONData.ListItem[0].Image
         isJSONData.GoodsId = isJSONData.CollectGoodsData.GoodsId
@@ -51,10 +53,8 @@ class CollectLinkApI {
         isJSONData.isDetail = true
         return { code: 200, data: isJSONData }
       }
-      debugger
       return { code: -2, data: res }
     } catch (error) {
-      debugger
       return { code: -2, data: `getGoodsDeail-catch: ${error}` }
     }
   }

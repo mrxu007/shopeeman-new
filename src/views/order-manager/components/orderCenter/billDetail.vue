@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-11-23 11:11:14
- * @LastEditTime: 2021-11-25 16:49:13
+ * @LastEditTime: 2021-12-16 10:12:30
  * @LastEditors: Please set LastEditors
  * @Description: 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  * @FilePath: \shopeeman-new\src\views\order-manager\components\orderCenter\billDetail.vue
@@ -28,7 +28,7 @@
     <div class="bill-content">
       <div class="content-left">
         <div class="item" v-for="(item, key, index) in amountLeft" :key="index">
-          <p>{{ item.label }}</p>
+          <p :style="{'font-weight':item.fontWeight}">{{ item.label }}</p>
           <p> 
             {{ changeMoney(item.value) }} 
             <span v-if="billType">{{ chooseData.country | siteCoin }}</span>
@@ -38,25 +38,25 @@
       </div>
       <div class="content-right">
         <div class="item" v-for="(item, key, index) in amountRight" :key="index">
-          <p>{{ item.label }}</p>
+          <p :style="{'font-weight':item.fontWeight}">{{ item.label }}</p>
           <p>
             {{ changeMoney(item.value) }}
             <span v-if="billType">{{ chooseData.country | siteCoin }}</span>
             <span v-else>元</span>
           </p>
         </div>
-        <div class="item activeColor">
-          <p>当前金额单位</p>
-          <p v-if="billType">{{ chooseData.country | siteCoin }}</p>
-          <p v-else>人民币</p>
+        <div class="item ">
+          <p class="activeColor">当前金额单位</p>
+          <p v-if="billType" class="activeColor">{{ chooseData.country | siteCoin }}</p>
+          <p v-else class="activeColor">人民币</p>
         </div>
-        <div class="item activeColor">
-          <p>当前站点</p>
-          <p>{{ chooseData.country | chineseSite }}</p>
+        <div class="item ">
+          <p class="activeColor">当前站点</p>
+          <p class="activeColor">{{ chooseData.country | chineseSite }}</p>
         </div>
-        <div class="item activeColor">
-          <p>当前汇率</p>
-          <p>{{ rateList[chooseData.country] }}</p>
+        <div class="item ">
+          <p class="activeColor">当前汇率</p>
+          <p class="activeColor">{{ rateList[chooseData.country] }}</p>
         </div>
         <div class="item">
           <el-button type="primary" size="mini" @click="changeSite">{{ billType ? '显示人民币' : '显示当地币种' }}</el-button>
@@ -81,34 +81,42 @@ export default {
         goodsAmount: {
           label: '商品金额',
           value: 0,
+          fontWeight:900
         }, //商品金额
         goodsPrice: {
           label: '商品价格',
           value: 0,
+          fontWeight:0
         }, //商品价格
         shipAmount: {
           label: '运费总额',
           value: 0,
+          fontWeight:900
         }, //运费总额
         buyPayShipAmount: {
           label: '买家支付的运费',
           value: 0,
+          fontWeight:0
         }, //买家支付的运费
         thirdShip: {
           label: '第三方运费',
           value: 0,
+          fontWeight:0
         }, //第三方运费
         actualShipAmount: {
           label: '实际运费（shopee代付）',
           value: 0,
+          fontWeight:0
         }, //实际运费（shopee代付）
         costAndPay: {
           label: '费用与收费',
           value: 0,
+          fontWeight:900
         }, //费用与收费
         commission: {
           label: '佣金',
           value: 0,
+          fontWeight:0
         }, //佣金
         fees: {
           label: '交易手续费',
@@ -117,88 +125,109 @@ export default {
         payService: {
           label: '服务费',
           value: 0,
+          fontWeight:0
         }, //服务费
         creditFees: {
           label: '信用卡交易费用',
           value: 0,
+          fontWeight:0
         }, //信用卡交易费用
         customs: {
           label: '关税',
           value: 0,
+          fontWeight:0
         }, //关税
         discountAmount: {
           label: '优惠券与回扣',
           value: 0,
+          fontWeight:900
         }, //优惠券与回扣
         saleDiscount: {
           label: '卖家提供促销代码优惠',
           value: 0,
+          fontWeight:0
         }, //卖家提供促销代码优惠
         shopeeBack: {
           label: 'shopee回扣金额',
           value: 0,
+          fontWeight:0
         }, //shopee回扣金额
         shopeeCoinBack: {
           label: '卖家shopee币现金返现',
           value: 0,
+          fontWeight:0
         }, //卖家shopee币现金返现
         shopShipBack: {
           label: 'shopee运费回扣',
           value: 0,
+          fontWeight:0
         }, //shopee运费回扣
       },
       amountRight: {
         orderIncoming: {
           label: '订单收入',
           value: 0,
+          fontWeight:900
         }, //订单收入
         actualPay: {
           label: '买家实付金额',
           value: 0,
+          fontWeight:900
         }, //买家实付金额
         goodsPrice: {
           label: '商品金额',
           value: 0,
+          fontWeight:0
         }, //商品金额
         shipAmount: {
           label: '运费',
           value: 0,
+          fontWeight:0
         }, //运费
         importTax: {
           label: '进口税',
           value: 0,
+          fontWeight:0
         }, //进口税
         discountAmount: {
           label: '卖家优惠金额',
           value: 0,
+          fontWeight:0
         }, //卖家优惠金额
         shopeeCoin: {
           label: 'shopee币折抵',
           value: 0,
+          fontWeight:0
         }, //shopee币折抵
         platformDiscount: {
           label: '平台优惠金额',
           value: 0,
+          fontWeight:0
         }, //平台优惠金额
         creditFees: {
           label: '信用卡交易费',
           value: 0,
+          fontWeight:0
         }, //信用卡交易费
         shotAmount: {
           label: '采购金额',
           value: 0,
+          fontWeight:900
         }, //采购金额
         refundAmount: {
           label: '退款金额',
           value: 0,
+          fontWeight:900
         }, //退款金额
         grossProfitShip: {
           label: '毛利（含邮费）',
           value: 0,
+          fontWeight:900
         }, //毛利（含邮费）
         grossProfit: {
           label: '毛利',
           value: 0,
+          fontWeight:900
         }, //毛利
       },
       tableLoading: false,
@@ -274,9 +303,9 @@ export default {
         this.amountRight.shotAmount.value = this.shotAmount || 0 //采购金额
         this.amountRight.refundAmount.value = amountDetail.payment_info.merchant_subtotal.refund_amount || 0 //退款金额
         //毛利含邮 = 订单收入 - 采购金额
-        this.amountRight.grossProfitShip.value = this.amountRight.orderIncoming.value - this.shotAmount //毛利含邮
+        this.amountRight.grossProfitShip.value = (this.amountRight.orderIncoming.value - this.shotAmount).toFixed(2) //毛利含邮
         //最终毛利 = 订单收入 - 采购金额 - 仓库发货金额
-        this.amountRight.grossProfit.value =  this.amountRight.orderIncoming.value - this.shotAmount - this.warehouseShipAmount//毛利
+        this.amountRight.grossProfit.value =  (this.amountRight.orderIncoming.value - this.shotAmount - this.warehouseShipAmount).toFixed(2)//毛利
         this.amountRight.orderIncoming.value = amountDetail.amount || 0 //买家实付金额
       } else {
         console.log(res3.data)
@@ -285,11 +314,13 @@ export default {
       this.tableLoading = false
     },
     async getRate() {
-      const data = await this.$api.exchangeRateList()
-      if (data.data.code === 200) {
-        this.rateList = data.data.data
-      }
-      console.log(this.rateList)
+      let info = await window['ConfigBridgeService'].getUserInfo()
+      this.rateList = info.ExchangeRates || {}
+      // const data = await this.$api.exchangeRateList()
+      // if (data.data.code === 200) {
+      //   this.rateList = data.data.data
+      // }
+      // console.log(this.rateList)
     },
     async getAmountDetail() {
       let params = {
@@ -326,15 +357,18 @@ export default {
     margin-top: 10px;
     .content-left,
     .content-right {
+      
       .item {
         p {
           width: 50%;
+          font-size:14px !important;
+          color:#000;
         }
         display: flex;
         justify-content: space-between;
       }
       .activeColor {
-        color: red;
+        color: red !important;
       }
       p {
         height: 28px;

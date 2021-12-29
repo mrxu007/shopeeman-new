@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-11-16 20:01:09
- * @LastEditTime: 2021-11-24 15:47:33
+ * @LastEditTime: 2021-12-16 14:26:01
  * @LastEditors: Please set LastEditors
  * @Description: 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  * @FilePath: \shopeeman-new\src\views\order-manager\components\orderCenter\SelfGoodsStore.vue
@@ -16,7 +16,7 @@
           size="mini"
           value-format="yyyy-MM-dd"
           type="daterange"
-          style="width: 200px"
+          style="width: 230px"
           range-separator="-"
           start-placeholder="开始日期"
           end-placeholder="结束日期"
@@ -24,30 +24,30 @@
         />
       </div>
       <div class="item-box">
-        <span style="width: 80px">商品名称:</span>
+        <span >商品名称:</span>
         <el-input v-model="goodsName" size="mini" clearable class="inputBox" />
       </div>
        <div class="item-box">
-        <span style="width: 80px">商品编码:</span>
+        <span >商品ID:</span>
         <el-input v-model="goodsCode" size="mini" clearable class="inputBox" />
       </div>
        <div class="item-box">
-        <span style="width: 80px">SKU编码:</span>
+        <span >SKUID:</span>
         <el-input v-model="skuCode" size="mini" clearable class="inputBox" />
       </div>
       <el-button type="primary" size="mini" style="margin-left:10px;" @click="searchTableList">搜 索</el-button>
     </div>
-    <el-table ref="multipleTable" :data="tableData" tooltip-effect="dark" max-height="500">
+    <el-table ref="multipleTable" :data="tableData" tooltip-effect="dark" height="500" v-loading="tableLoading">
       <el-table-column align="center" type="index" label="序号" width="50">
         <template slot-scope="scope">{{ (currentPage - 1) * pageSize + scope.$index + 1 }}</template>
       </el-table-column>
-      <el-table-column align="center" type="index" label="仓库名称" width="80">
+       <el-table-column align="center" type="index" label="站点" width="80">
         <template slot-scope="scope">
           <span>产品中心</span>
         </template>
       </el-table-column>
-      <el-table-column width="120px" label="系统商品ID" prop="id" align="center" />
-      <el-table-column width="130px" label="商品ID" prop="sku_id" align="center" />
+      <el-table-column width="120px" label="商品ID" prop="product_id" align="center" />
+      <el-table-column width="130px" label="SKUID" prop="sku_id" align="center" />
       <el-table-column width="80px" label="商品名称" prop="goods_name" align="center" show-overflow-tooltip />
       <el-table-column width="80px" label="商品规格" prop="sku_name" align="center" />
       <el-table-column width="80px" label="库存数量" prop="stock_num" align="center" />
@@ -60,8 +60,13 @@
         </template>
       </el-table-column>
       <el-table-column label="商品图片" width="80">
-        <template slot-scope="scope">
-          <el-image :src="scope.row.sku_image" style="width: 60px; height: 60px" />
+        <template slot-scope="scope" v-if="scope.row.sku_image">
+           <el-tooltip effect="light" placement="right-end" :visible-arrow="false" :enterable="false" style="width: 32px; height: 32px; display: inline-block">
+              <div slot="content">
+                <el-image :src="scope.row.sku_image" style="width: 400px; height: 400px" ></el-image>
+              </div>
+              <el-image :src="scope.row.sku_image" style="width: 32px; height: 32px" ></el-image>
+            </el-tooltip>
         </template>
       </el-table-column>
       <el-table-column label="操作" min-width="60px">
@@ -102,7 +107,8 @@ export default {
       searchTime:[],
       goodsName:'',//商品名称
       goodsCode:'',
-      skuCode:''
+      skuCode:'',
+      tableLoading:false,
     }
   },
   mounted() {
@@ -116,6 +122,7 @@ export default {
     },
     // 列表
     async searchTableList() {
+      this.tableData = []
       // 获取产品中心列表数据
       let params = {
         ProductName : this.goodsName,
@@ -126,6 +133,7 @@ export default {
       }
       params['page'] = this.currentPage
       params['pageSize'] = this.pageSize
+      this.tableLoading = true
       const res = await this.$commodityService.getProductList(params)
       let resObj = res&&JSON.parse(res)
       console.log(resObj,"4")
@@ -136,6 +144,7 @@ export default {
          await this.getProductSkuList(item)
        })
      }
+     this.tableLoading = false
       console.log(this.tableData)
     },
     // SKU详情
@@ -184,6 +193,9 @@ export default {
 }
 .mar-right {
   margin-right: 10px;
+}
+.inputBox{
+  width:150px;
 }
 .btn-header {
   display: flex;

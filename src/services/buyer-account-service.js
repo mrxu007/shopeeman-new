@@ -83,7 +83,7 @@ export default class buyerAccountService {
    */
   taobaoLogin() {
     console.log(2)
-    return this.nativeService.buyerLogin(this.ShotOrderPlatform.TaoBao, 'https://login.taobao.com/member/login.jhtml?from=taobaoindex&f=top&style=&sub=true&redirect_url=https%3A%2F%2Fmember1.taobao.com%2Fmember%2Ffresh%2Fdeliver_address.html', null)
+    return this.nativeService.buyerLogin(this.ShotOrderPlatform.TaoBao, 'https://login.taobao.com/member/login.jhtml?from=taobaoindex&f=top&style=&sub=true&redirect_url=https://member1.taobao.com/member/fresh/deliver_address.htm', null)
   }
   /**
    * pdd登陆

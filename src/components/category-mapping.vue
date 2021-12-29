@@ -4,11 +4,15 @@
       <div class="category_box">
         <div class="on_new_dialog_box" style="margin-bottom: 10px;">
           <div class="keepRight">店铺站点：</div>
-          {{ country | chineseSite }}
+          <div v-if="country">{{ country | chineseSite }}</div>
+          <div v-else>
+            <el-select v-model="countryOption" size="mini" filterable>
+              <el-option v-for="(item, index) in countriesOption" :key="index" :label="item.label" :value="item.value" />
+            </el-select></div>
         </div>
         <div class="on_new_dialog_box" v-for="(item,index) in categoryList" :key="index">
           <div class="keepRight">{{index+1}}级类目：</div>
-          <el-select v-model="categoryAction[index]" @change="setCategory(categoryAction[index],index)" size="mini"
+          <el-select v-model="categoryAction[index]" @change="setCategory(categoryAction[index],index)" size="mini" filterable
                      style="width: 200px;">
             <el-option
                 v-for="son in item"
@@ -27,9 +31,9 @@
         <div class="on_new_dialog_box line_height_28" v-for="(item,index) in attributesList" :key="index">
           <div class="width_single_150">{{item.attribute_name}}({{item.attribute_cn_name}})</div>
           <div>
-            <el-select v-model="item.options" size="mini" style="width: 180px;">
-              <el-option v-for="son in item.new_options_obj" :key="son.value_id" :label="son.value"
-                         :value="son.value_id">
+            <el-select v-model="item.options" size="mini" filterable style="width: 180px;">
+              <el-option v-for="son in item.new_options_obj" :key="son.value_id"
+                         :label="son.value" :value="son.value_id">
               </el-option>
             </el-select>
           </div>
@@ -37,8 +41,9 @@
       </div>
     </div>
     <div class="on_new_dialog_box" style="margin-top: 25px;justify-content: space-evenly">
+      <el-button v-if="mallList[0]" type="primary" size="mini" @click="confirmCategory(0)">　刷　新　</el-button>
       <el-button type="primary" size="mini" @click="confirmCategory()">　确　定　</el-button>
-      <el-button size="mini" @click="">　取　消　</el-button>
+      <el-button size="mini" @click="$emit('categoryChange','')">　取　消　</el-button>
     </div>
   </div>
 </template>
@@ -58,34 +63,51 @@
         default() {
           return {}
         }
-      }
+      },
+      mallList: {
+        type: Array,
+        default() {
+          return []
+        }
+      },
     },
     data() {
       return {
+        countriesOption: this.$filters.countries_option,
+        countryOption: 'TH',
         categoryAction: [],
         attributesCurrent: [],
         categoryList: [],
         attributesList: []
       }
     },
+    watch:{
+      countryOption(val){
+        this.enterCategory()
+      }
+    },
     async mounted() {
       await this.enterCategory()
     },
     methods: {
-      async confirmCategory(index = 0) {
-        if (this.goodsCurrent) {
+      async confirmCategory(index = -1) {
+        let country = this.country || this.countryOption
+        if (this.goodsCurrent && index < 0) {
           let categoryList = []
           let attributesList = []
+          console.log('categoryList',this.categoryList)
           this.categoryList.forEach((item,index)=>{
             let temp = item.find(i=>i.category_id === this.categoryAction[index])
             categoryList.push(temp)
           })
-          this.attributesList.forEach((item,index)=>{
-            let temp = item.new_options_obj.find(i=>i.value_id === item.options)
-            attributesList.push(temp)
+          this.$emit('categoryChange', {
+            categoryList: categoryList,
+            attributesList: this.attributesList,
+            country:country || this.countryOption
           })
-          console.log('categoryList :',categoryList,'attributesList :',attributesList);
-        } else {
+        }
+        else {
+          index =index < 0 ? 0 : index
           let mall = this.mallList[index]
           let category_ids = this.categoryAction[this.categoryAction.length - 1]
           let param = {
@@ -95,7 +117,7 @@
             cursor: 0,
             limit: 100
           }
-          let brandListJson = await this.$shopeemanService.getBrandList(this.country, param, {headers: {'Content-Type': 'text/plain; charset=UTF-8'}})
+          let brandListJson = await this.$shopeemanService.getBrandList(country, param, {headers: {'Content-Type': 'text/plain; charset=UTF-8'}})
           let brandListRes = JSON.parse(brandListJson)
           if (brandListRes.status >= 200 && brandListRes.status <= 300) {
             let brandListData = JSON.parse(brandListRes.data)
@@ -112,13 +134,13 @@
                 'attribute_name': 'Brand',
                 'attribute_cn_name': '品牌',
                 'attribute_type': 'STRING_TYPE',
-                'country': this.country,
+                'country': country,
                 'options': JSON.stringify(brand_option),
                 'attribute_label': '',
                 'is_key_attribute': 1
               }]
               try {
-                let attributeTreeJson = await this.$shopeemanService.getAttributeTree(this.country, param, {headers: {'Content-Type': 'text/plain; charset=UTF-8'}})
+                let attributeTreeJson = await this.$shopeemanService.getAttributeTree(country, param, {headers: {'Content-Type': 'text/plain; charset=UTF-8'}})
                 let attributeTreeRes = JSON.parse(attributeTreeJson)
                 let attributeTreeData = JSON.parse(attributeTreeRes.data)
                 let attribute_tree = attributeTreeData && attributeTreeData.data && attributeTreeData.data.list[0] && attributeTreeData.data.list[0].attribute_tree || []
@@ -134,7 +156,7 @@
                     'attribute_name': item.display_name || item.name,
                     'attribute_cn_name': '',
                     'attribute_type': 'STRING_TYPE',
-                    'country': this.country,
+                    'country': country,
                     'options': JSON.stringify(option),
                     'attribute_label': '',
                     'is_key_attribute': 0
@@ -152,14 +174,17 @@
                 }
               }
             }
+            this.$emit('categoryChange','')
           } else {
             this.confirmCategory(++index)
           }
         }
       },
       async getAttribute() {
-        let categoryId = this.categoryAction[this.categoryAction.length - 1] + ''
-        let attributeJson = await this.$commodityService.getAttributeInfo(this.country, categoryId)
+        let categoryId = this.categoryAction[this.categoryAction.length - 1] || '0'
+        console.log(categoryId)
+        let country = this.country || this.countryOption
+        let attributeJson = await this.$commodityService.getAttributeInfo(country, categoryId)
         let attributeRes = JSON.parse(attributeJson)
         this.attributesList = []
         if (attributeRes.code === 200) {
@@ -169,7 +194,7 @@
             let index = this.attributesCurrent.findIndex(i => i.attribute_id === item.attribute_id)
             let attributesCurrent = this.attributesCurrent[index] && this.attributesCurrent[index].value_id || 0
             item.new_options_obj = item.new_options && JSON.parse(item.new_options) || []
-            item.options = index > -1 && parseInt(attributesCurrent) || item.new_options_obj[0].value_id
+            item.options = index > -1 && parseInt(attributesCurrent) || item.new_options_obj[0] && item.new_options_obj[0].value_id
             this.attributesList.push(item)
           })
           this.attributesCurrent = []
@@ -182,18 +207,19 @@
         this.enterCategory(val + '', ++index)
       },
       async enterCategory(categoryId = '0', index = 0, row = null) {
+        let country = this.country || this.countryOption
         if (index === 0) {
           this.categoryAction = row && row.categoryIdList || []
           if (this.goodsCurrent && this.goodsCurrent.goodsId) {
             let categoryRelationJson = await this.$commodityService.getCategoryRelation(
-              this.goodsCurrent.originCategoryId, this.country, this.goodsCurrent.platform + '')
+              this.goodsCurrent.originCategoryId, country, this.goodsCurrent.platform + '')
             let categoryRelationRes = JSON.parse(categoryRelationJson)
             console.log('categoryRelationRes', categoryRelationRes);
             this.attributesCurrent = categoryRelationRes.data && categoryRelationRes.data.attributes || []
           }
         }
         let categoryList = JSON.parse(JSON.stringify(this.categoryList)) || []
-        let categoryTbInfoJson = await this.$commodityService.getCategoryTbInfo(this.country, categoryId)
+        let categoryTbInfoJson = await this.$commodityService.getCategoryTbInfo(country, categoryId)
         let categoryTbInfoRes = JSON.parse(categoryTbInfoJson)
         if (categoryTbInfoRes.code === 200) {
           let categoryTbInfoData = categoryTbInfoRes.data

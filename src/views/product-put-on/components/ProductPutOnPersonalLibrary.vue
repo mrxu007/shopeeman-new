@@ -3,10 +3,10 @@
     <header>
       <div class="header-left">
         <p class="text">基础操作</p>
-        <el-button type="primary" size="mini" disabled>批量添加尺寸图</el-button>
-        <el-button type="primary" size="mini" disabled>批量删除尺寸图</el-button>
+        <el-button type="primary" size="mini" @click="batchProcessing(4)">批量添加尺寸图</el-button>
+        <el-button type="primary" size="mini" @click="batchProcessing(7)">批量删除尺寸图</el-button>
         <el-button type="primary" size="mini" @click="isEditorVisible = true">一键上新</el-button>
-        <el-button type="primary" size="mini" disabled>批量映射虾皮类目</el-button>
+        <el-button type="primary" size="mini" @click="batchProcessing(14)">批量映射虾皮类目</el-button>
         <el-button type="primary" size="mini" @click="markPreferredGoods('1')">标记优选商品</el-button>
         <el-button type="primary" size="mini" @click="markPreferredGoods('-1')">取消标记优选商品</el-button>
         <el-button type="primary" size="mini" @click="openLabelVisabel('1')">标记商品标签</el-button>
@@ -14,6 +14,10 @@
         <el-button type="primary" size="mini" disabled>翻译后的数据导出</el-button>
         <el-button type="primary" size="mini" disabled>批量设置重量/体积</el-button>
         <el-button type="primary" size="mini" @click="deleteGoods">取消收藏</el-button>
+        <el-upload v-if="uploadImgAdd" v-show="false" style="margin-right: 10px" action="#" :drag="true"
+                   :show-file-list="false" :limit="1" :auto-upload="false" :on-change="imageUpload">
+          <el-button size="mini" type="primary" ref="uploadImg">选择图片</el-button>
+        </el-upload>
       </div>
       <div class="header-right">
         <p class="text">列表筛选</p>
@@ -21,53 +25,54 @@
           <li>
             <p>采购来源：</p>
             <el-select v-model="sourceVal" placeholder="" size="mini">
-              <el-option label="全部" :value="''" />
-              <el-option v-for="(item, index) in source" :key="index" :label="item.label" :value="item.value" />
+              <el-option label="全部" :value="''"/>
+              <el-option v-for="(item, index) in source" :key="index" :label="item.label" :value="item.value"/>
             </el-select>
           </li>
           <li>
             <p>筛选时间：</p>
             <el-select v-model="timeType" placeholder="" size="mini">
-              <el-option v-for="(item, index) in timeAt" :key="index" :label="item.label" :value="item.value" />
+              <el-option v-for="(item, index) in timeAt" :key="index" :label="item.label" :value="item.value"/>
             </el-select>
-            <el-date-picker v-model="value2" size="mini" value-format="yyyy-MM-dd" type="daterange" range-separator="-" start-placeholder="开始日期" end-placeholder="结束日期" />
+            <el-date-picker v-model="value2" size="mini" value-format="yyyy-MM-dd" type="daterange" range-separator="-"
+                            start-placeholder="开始日期" end-placeholder="结束日期"/>
           </li>
           <li>
             <p>优选商品：</p>
             <el-select v-model="isFeatured" placeholder="" size="mini">
-              <el-option label="全部" value="0" />
-              <el-option v-for="(item, index) in isFeaturedArr" :key="index" :label="item.label" :value="item.value" />
+              <el-option label="全部" value="0"/>
+              <el-option v-for="(item, index) in isFeaturedArr" :key="index" :label="item.label" :value="item.value"/>
             </el-select>
           </li>
           <li>
             <p>编辑状态：</p>
             <el-select v-model="isEditValue" placeholder="" size="mini">
-              <el-option label="全部" :value="''" />
-              <el-option v-for="(item, index) in editArr" :key="index" :label="item.label" :value="item.value" />
+              <el-option label="全部" :value="''"/>
+              <el-option v-for="(item, index) in editArr" :key="index" :label="item.label" :value="item.value"/>
             </el-select>
           </li>
           <li>
             <p>语种：</p>
             <el-select v-model="language" placeholder="" size="mini">
-              <el-option label="全部" :value="''" />
-              <el-option v-for="(item, index) in languageArr" :key="index" :label="item.label" :value="item.value" />
+              <el-option label="全部" :value="''"/>
+              <el-option v-for="(item, index) in languageArr" :key="index" :label="item.label" :value="item.value"/>
             </el-select>
           </li>
           <li>
             <p>价格区间：</p>
-            <el-input v-model="minPrice" size="mini" placeholder="" />
+            <el-input v-model="minPrice" size="mini" placeholder=""/>
             <span class="slot">-</span>
-            <el-input v-model="maxPrice" size="mini" placeholder="" />
+            <el-input v-model="maxPrice" size="mini" placeholder=""/>
           </li>
           <li>
             <p>商品ID：</p>
-            <el-input v-model="goodsId" size="mini" placeholder="" />
+            <el-input v-model="goodsId" size="mini" placeholder=""/>
           </li>
           <li>
             <p>商品标签：</p>
             <el-select v-model="labelId" placeholder="" size="mini">
-              <el-option label="全部" value="0" />
-              <el-option v-for="(item, index) in labelList" :key="index" :label="item.label_name" :value="item.id" />
+              <el-option label="全部" value="0"/>
+              <el-option v-for="(item, index) in labelList" :key="index" :label="item.label_name" :value="item.id"/>
             </el-select>
           </li>
           <li>
@@ -80,21 +85,21 @@
     <article>
       <p class="tip">尊敬的用户：您好，为提高私有选品库模块的性能，系统只能保存近30天的非精选商品数据，为保证部分精选商品不被清理，请将需要保留的商品标记为精选商品</p>
       <u-table
-        ref="plTable"
-        v-loading="buttonStatus.getList"
-        :height="Height"
-        use-virtual
-        :data-changes-scroll-top="false"
-        :header-cell-style="{
+          ref="plTable"
+          v-loading="buttonStatus.getList"
+          :height="Height"
+          use-virtual
+          :data-changes-scroll-top="false"
+          :header-cell-style="{
           backgroundColor: '#f5f7fa',
         }"
-        row-key="id"
-        :big-data-checkbox="true"
-        :border="false"
-        @selection-change="handleSelectionChange"
+          row-key="id"
+          :big-data-checkbox="true"
+          :border="false"
+          @selection-change="handleSelectionChange"
       >
-        <u-table-column align="center" type="selection" />
-        <u-table-column align="center" type="index" label="序号" />
+        <u-table-column align="center" type="selection"/>
+        <u-table-column align="center" type="index" label="序号"/>
         <u-table-column align="center" label="标签">
           <template v-slot="{ row }">
             <p style="white-space: normal">{{ getLabelName(row.sys_label_id) }}</p>
@@ -129,12 +134,12 @@
             </div>
           </template>
         </u-table-column>
-        <u-table-column align="center" label="价格" prop="price" />
-        <u-table-column align="center" label="库存" prop="stock" />
-        <u-table-column align="center" label="销量" prop="sales" />
+        <u-table-column align="center" label="价格" prop="price"/>
+        <u-table-column align="center" label="库存" prop="stock"/>
+        <u-table-column align="center" label="销量" prop="sales"/>
         <u-table-column align="center" label="重量(kg)">
           <template v-slot="{ row }">
-            <el-input v-model="row.weight" size="mini" />
+            <el-input v-model="row.weight" size="mini"/>
           </template>
         </u-table-column>
         <u-table-column align="center" label="体积" width="130">
@@ -142,15 +147,15 @@
             <ul>
               <li style="display: flex">
                 <p>长（cm）</p>
-                <el-input v-model="row.long" size="mini" />
+                <el-input v-model="row.long" size="mini"/>
               </li>
               <li style="display: flex">
                 <p>宽（cm）</p>
-                <el-input v-model="row.width" size="mini" />
+                <el-input v-model="row.width" size="mini"/>
               </li>
               <li style="display: flex">
                 <p>高（cm）</p>
-                <el-input v-model="row.height" size="mini" />
+                <el-input v-model="row.height" size="mini"/>
               </li>
             </ul>
           </template>
@@ -160,45 +165,45 @@
             <p style="white-space: normal">{{ languageArrObj[row.language] || row.language }}</p>
           </template>
         </u-table-column>
-        <u-table-column align="center" label="源平台类目名称" prop="category_id" />
-        <u-table-column align="center" label="更新时间" prop="updated_at" />
-        <u-table-column align="center" label="收藏时间" prop="created_at" />
-        <u-table-column align="center" label="操作结果" />
+        <u-table-column align="center" label="源平台类目名称" prop="category_id"/>
+        <u-table-column align="center" label="更新时间" prop="updated_at"/>
+        <u-table-column align="center" label="收藏时间" prop="created_at"/>
+        <u-table-column align="center" label="操作结果"/>
       </u-table>
       <div class="pagination">
         <el-pagination
-          background
-          layout="total, sizes, prev, pager, next"
-          :total="total"
-          :current-page="currentPage"
-          :page-sizes="[30, 100, 200]"
-          :page-size="pageSize"
-          @size-change="handleSizeChange"
-          @current-change="handleCurrentChange"
+            background
+            layout="total, sizes, prev, pager, next"
+            :total="total"
+            :current-page="currentPage"
+            :page-sizes="[30, 100, 200]"
+            :page-size="pageSize"
+            @size-change="handleSizeChange"
+            @current-change="handleCurrentChange"
         />
       </div>
     </article>
     <!-- 商品标签配置 -->
     <el-dialog
-      class="lable-settings"
-      center
-      title="商品标签配置"
-      :visible.sync="goodsLabelVisiable"
-      width="300px"
-      :before-close="handleClose1"
-      :close-on-click-modal="false"
-      :close-on-press-escape="false"
+        class="lable-settings"
+        center
+        title="商品标签配置"
+        :visible.sync="goodsLabelVisiable"
+        width="300px"
+        :before-close="handleClose1"
+        :close-on-click-modal="false"
+        :close-on-press-escape="false"
     >
       <ul>
         <li>
           <p>商品标签：</p>
           <el-select v-model="labelId2" placeholder="" size="mini" @change="getLabelName(labelId2, true)">
-            <el-option v-for="(item, index) in labelList" :key="index" :label="item.label_name" :value="item.id" />
+            <el-option v-for="(item, index) in labelList" :key="index" :label="item.label_name" :value="item.id"/>
           </el-select>
         </li>
         <li>
           <p>当前标签：</p>
-          <el-input v-model="currentLabelName" size="mini" placeholder="" />
+          <el-input v-model="currentLabelName" size="mini" placeholder=""/>
         </li>
       </ul>
       <span slot="footer" class="dialog-footer">
@@ -206,30 +211,36 @@
       </span>
     </el-dialog>
     <div class="on_new_dialog">
-      <el-dialog width="1313px" :close-on-click-modal="false" top="6vh" :visible.sync="isEditorVisible">
+      <el-dialog width="1313px" :close-on-click-modal="false" top="6vh" :visible.sync="isEditorVisible" :modal="false">
         <template slot="title">
           <div style="display: flex;align-items: center">
             <div style="margin-right: 25px;">上新编辑</div>
             <el-button size="mini" :type="isNoFoldShow && 'primary' || ''" @click.native.stop="setIsNoFoldShow">
-              {{isNoFoldShow && '折叠' || '展开'}}
+              {{ isNoFoldShow && '折叠' || '展开' }}
             </el-button>
           </div>
         </template>
-        <editor-on-new-goods  ref="editor_on_new_goods" :mall-table="multipleSelection"></editor-on-new-goods>
+        <editor-on-new-goods v-if="isEditorVisible" ref="editor_on_new_goods"
+                             :mall-table="multipleSelection"></editor-on-new-goods>
+      </el-dialog>
+      <el-dialog title="类目映射" width="700px" top="25vh" :close-on-click-modal="false" :modal="false" :visible.sync="categoryVisible">
+        <categoryMapping v-if="categoryVisible" :goods-current="{}" :mall-list="[]" @categoryChange="categoryChange"/>
       </el-dialog>
     </div>
   </div>
 </template>
 
 <script>
-import { delay } from '../../../util/util'
+import { delay, randomWord } from '../../../util/util'
 import PersonalLibraryAPI from '../../../module-api/product-put-on-api/personal-library-api'
 import { source, sourceObj } from './collection-platformId'
 import editorOnNewGoods from '../../../components/editor_on_new_goods'
+import categoryMapping from '../../../components/category-mapping'
+
 export default {
   data() {
     return {
-      isNoFoldShow:true,
+      isNoFoldShow: true,
       isEditorVisible: false,
       Height: 500,
       personalLibraryAPInstance: new PersonalLibraryAPI(this),
@@ -288,11 +299,14 @@ export default {
       buttonStatus: {
         getList: false
       },
-
       // 分页
       total: 0,
       currentPage: 1,
-      pageSize: 30
+      pageSize: 30,
+      //新调整 - 尺寸图
+      uploadImgAdd: false,
+      //映射
+      categoryVisible:false,
     }
   },
   computed: {
@@ -308,7 +322,7 @@ export default {
     }
 
   },
-  components: { editorOnNewGoods },
+  components: { editorOnNewGoods ,categoryMapping },
   created() {
     this.sourceObj = sourceObj // 采购映射
     this.source = source // 采购来源
@@ -319,8 +333,90 @@ export default {
     this.getGoodsList()
   },
   methods: {
-    setIsNoFoldShow(){
-      this.isNoFoldShow = !this.isNoFoldShow;
+    async batchProcessing(type) {
+      console.log('type ===', type)
+      if (this.multipleSelection.length < 1) {
+        this.$message.error('请选择一个商品信息')
+        return false
+      }
+      let success = false
+      let messStr = ''
+      if (type === 4) {
+        this.uploadImgAdd = true
+        setTimeout(() => {
+          this.$refs['uploadImg'].$el.click()
+        }, 100)
+      }
+      else if (type === 7) {
+        for (const i of this.multipleSelection) {
+          if (i.size_image_id) {
+            let deleteGoodsImageJson = await this.$commodityService.deleteGoodsImage(2, i.id, '0')
+            let deleteGoodsImage = JSON.parse(deleteGoodsImageJson)
+            success = deleteGoodsImage.code === 200
+            messStr = success && '尺寸图删除成功' || '尺寸图删除失败'
+          } else {
+            this.$set(this.mallTable[index], 'operation_type', '无尺寸图可删除')
+          }
+
+        }
+      }
+      else if (type === 14) {
+        this.categoryVisible = true
+      }
+      messStr && success && this.$message.success(messStr)
+      messStr && !success && this.$message.error(messStr)
+    },
+    imageUpload(file) {
+      const localFile = file.raw
+      const reader = new FileReader()
+      reader.readAsDataURL(localFile)
+      this.uploadImgAdd = false
+      reader.onload = async() => {
+        let imgData = reader.result
+        const name = randomWord(false, 32) + '_' + new Date().getTime()
+        let temp = await this.$ossService.uploadFile(imgData, name + '.png')
+        let success = false
+        for (const i of this.multipleSelection) {
+          let storeGoodsSizeImagesJson = await this.$commodityService.storeGoodsSizeImages(i.id + '', temp)
+          let storeGoodsSizeImagesRes = JSON.parse(storeGoodsSizeImagesJson)
+          success = temp && storeGoodsSizeImagesRes.code === 200
+        }
+        if (success) {
+          this.$message.success('尺寸图添加成功')
+        } else {
+          this.$message.success('尺寸图添加失败')
+        }
+      }
+    },
+    categoryChange(val) {
+      console.log('categoryChange', val)
+      if (val) {
+        let attributesList = []
+        val.attributesList.forEach(son => {
+          let option = son.new_options_obj.find(i => i.value_id === son.options)
+          attributesList.push({
+            attributeId: son.attribute_id,
+            attributeName: son.attribute_name,
+            valueId: option.value_id,
+            value: option.value
+          })
+        })
+        this.multipleSelection.forEach(async item => {
+          let param = {
+            relationCategoryId: item.category_id,
+            country: val.country,
+            platformId: item.source,
+            platformCategoryId: val.categoryList[val.categoryList.length - 1].category_id,
+            categoryAttributes: attributesList
+          }
+          let save = await this.$commodityService.saveCategoryRelation(param)
+          console.log('saveCategoryRelation', save)
+        })
+      }
+      this.categoryVisible = false
+    },
+    setIsNoFoldShow() {
+      this.isNoFoldShow = !this.isNoFoldShow
       this.$refs.editor_on_new_goods.setIsNoFoldShow()
     },
     handleClose1(done) {
@@ -349,7 +445,7 @@ export default {
       const goodsLabelList = localStorage.getItem('goodsLabelList')
       if (goodsLabelList && type !== 'refresh') {
         const data = JSON.parse(goodsLabelList)
-        this.labelList = data
+        this.labelList = data || []
         return
       }
       const res = await this.personalLibraryAPInstance.getLabelList()
@@ -358,7 +454,7 @@ export default {
       }
       localStorage.setItem('goodsLabelList', JSON.stringify(res.data))
       this.$message.success('获取标签列表成功')
-      this.labelList = res.data
+      this.labelList = res.data || []
       console.log('labelList', this.labelList)
     },
     async getGoodsList() {
@@ -508,56 +604,58 @@ export default {
 @import '../../../module-less/product-put-less/personal-library.less';
 </style>
 <style lang="less">
-  .basisInstall {
-    .el-checkbox-group {
-      display: flex;
-      flex-flow: wrap;
-      align-items: center;
+.basisInstall {
+  .el-checkbox-group {
+    display: flex;
+    flex-flow: wrap;
+    align-items: center;
+  }
+}
+
+.on_new_dialog {
+  .el-dialog {
+    margin-bottom: 0;
+  }
+
+  .el-dialog__header {
+    padding: 10px;
+
+    .el-dialog__headerbtn {
+      top: 10px;
+    }
+
+    .el-dialog__title {
+      font-weight: 700;
+      font-size: 14px;
     }
   }
-  .on_new_dialog {
-    .el-dialog{
-      margin-bottom: 0;
-    }
-    .el-dialog__header {
-      padding: 10px;
 
-      .el-dialog__headerbtn {
-        top: 10px;
+  .el-dialog__body {
+    padding: 5px 16px 10px;
+
+    .el-upload {
+      width: 60px;
+      height: 60px;
+
+      .el-upload-dragger {
+        width: 100%;
+        height: 100%;
       }
 
-      .el-dialog__title {
-        font-weight: 700;
-        font-size: 14px;
-      }
-    }
-
-    .el-dialog__body {
-      padding: 5px 16px 10px;
-
-      .el-upload {
+      .avatar-uploader-icon {
+        font-size: 20px;
+        color: #8c939d;
         width: 60px;
         height: 60px;
+        line-height: 60px;
+        text-align: center;
+      }
 
-        .el-upload-dragger {
-          width: 100%;
-          height: 100%;
-        }
-
-        .avatar-uploader-icon {
-          font-size: 20px;
-          color: #8c939d;
-          width: 60px;
-          height: 60px;
-          line-height: 60px;
-          text-align: center;
-        }
-
-        img {
-          width: 100%;
-          height: 100%;
-        }
+      img {
+        width: 100%;
+        height: 100%;
       }
     }
   }
+}
 </style>

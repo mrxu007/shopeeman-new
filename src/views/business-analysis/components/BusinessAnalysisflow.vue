@@ -10,7 +10,7 @@
         </li>
         <li>
           <span>店铺分组：</span>
-          <el-select v-model="group" placeholder="请选择分组" multiple collapse-tags clearable size="medium" filterable>
+          <el-select v-model="group" class="mall" placeholder="请选择分组" multiple collapse-tags clearable size="mini" filterable>
             <el-option v-if="selectall" label="全部" :value="0" />
             <el-option v-if="!selectall" label="全部" :value="-2" />
             <el-option v-for="(item, index) in gruopList" :key="index" :label="item.label" :value="item.value" />
@@ -18,7 +18,7 @@
         </li>
         <li>
           <span>店铺：</span>
-          <el-select v-model="mall" placeholder="请选择店铺" multiple collapse-tags clearable size="medium" filterable>
+          <el-select v-model="mall" class="mall" placeholder="请选择店铺" multiple collapse-tags clearable size="mini" filterable>
             <el-option v-if="selectall1" label="全部" :value="0" />
             <el-option v-if="!selectall1" label="全部" :value="-2" />
             <el-option v-for="(item, index) in mallList" :key="index" :label="item.label" :value="item.value" />
@@ -35,102 +35,99 @@
           <el-button type="primary" :disabled="Loading1" size="mini" @click="DerivedData">导出</el-button>
         </li>
       </ul><br>
-      <div style="border:1px solid black;width:100%;height:100%">
-        <span style="margin-left:20px">浏览量统计</span>
-        <el-table
-          ref="plTable"
-          v-loading="Loading3"
-          style="margin-top:10px"
-          header-align="center"
-          height="calc(100vh - 140px)"
-          :data="tableData"
-          :header-cell-style="{
-            backgroundColor: '#f5f7fa',
-          }"
-        >
-          <el-table-column align="center" label="店铺名称" width="160" prop="mallname" sortable />
-          <el-table-column align="center" prop="apppage_views" label="App端浏览量" width="120" sortable>
-            <template slot-scope="{ row }">
-              <div v-html="row.apppage_views" />
-            </template>
-          </el-table-column>
-          <el-table-column align="center" prop="appavg_page_views" label="App端平均浏览量" width="160" sortable>
-            <template slot-scope="{ row }">
-              <div v-html="row.appavg_page_views" />
-            </template>
-          </el-table-column>
-          <el-table-column prop="appavg_stay_time" label="App端平均浏览时间" width="160" align="center" sortable>
-            <template slot-scope="{ row }">
-              <div v-html="row.appavg_stay_time" />
-            </template>
-          </el-table-column>
-          <el-table-column prop="appbounce_rate" label="App端网页跳出率" width="160" align="center" sortable>
-            <template slot-scope="{ row }">
-              <div v-html="row.appbounce_rate" />
-            </template>
-          </el-table-column>
-          <el-table-column prop="appvisitors" label="App端访客量" width="150" align="center" sortable>
-            <template slot-scope="{ row }">
-              <div v-html="row.appvisitors" />
-            </template>
-          </el-table-column>
-          <el-table-column prop="appnew_visitors" label="App端新访客量" width="150" align="center" sortable>
-            <template slot-scope="{ row }">
-              <div v-html="row.appnew_visitors" />
-            </template>
-          </el-table-column>
-          <el-table-column prop="appexisting_visitors" label="App端现有访客量" width="150" align="center" sortable>
-            <template slot-scope="{ row }">
-              <div v-html="row.appexisting_visitors" />
-            </template>
-          </el-table-column>
-          <el-table-column prop="appnew_followers" label="App新粉丝量" width="150" align="center" sortable>
-            <template slot-scope="{ row }">
-              <div v-html="row.appnew_followers" />
-            </template>
-          </el-table-column>
-          <el-table-column prop="pcpage_views" label="Pc端浏览量" width="130" align="center" sortable>
-            <template slot-scope="{ row }">
-              <div v-html="row.pcpage_views" />
-            </template>
-          </el-table-column>
-          <el-table-column prop="pcavg_page_views" label="Pc端平均浏览量" width="150" align="center" sortable>
-            <template slot-scope="{ row }">
-              <div v-html="row.pcavg_page_views" />
-            </template>
-          </el-table-column>
-          <el-table-column prop="pcavg_stay_time" label="Pc端平均浏览时间" width="150" align="center" sortable>
-            <template slot-scope="{ row }">
-              <div v-html="row.pcavg_stay_time" />
-            </template>
-          </el-table-column>
-          <el-table-column prop="pcbounce_rate" label="Pc端网页跳出率" width="150" align="center" sortable>
-            <template slot-scope="{ row }">
-              <div v-html="row.pcbounce_rate" />
-            </template>
-          </el-table-column>
-          <el-table-column prop="pcvisitors" label="Pc端访客量" width="130" align="center" sortable>
-            <template slot-scope="{ row }">
-              <div v-html="row.pcvisitors" />
-            </template>
-          </el-table-column>
-          <el-table-column prop="pcnew_visitors" label="Pc端新访客量" width="130" align="center" sortable>
-            <template slot-scope="{ row }">
-              <div v-html="row.pcnew_visitors" />
-            </template>
-          </el-table-column>
-          <el-table-column prop="pcexisting_visitors" label="Pc端现有访客量" width="150" align="center" sortable>
-            <template slot-scope="{ row }">
-              <div v-html="row.pcexisting_visitors" />
-            </template>
-          </el-table-column>
-          <el-table-column prop="pcnew_followers" label="Pc新浏粉丝量" width="130" align="center" sortable>
-            <template slot-scope="{ row }">
-              <div v-html="row.pcnew_followers" />
-            </template>
-          </el-table-column>
-        </el-table>
-      </div>
+      <el-table
+        ref="plTable"
+        v-loading="Loading3"
+        style="margin-top:10px"
+        header-align="center"
+        height="calc(100vh - 140px)"
+        :data="tableData"
+        :header-cell-style="{
+          backgroundColor: '#f5f7fa',
+        }"
+      >
+        <el-table-column align="center" label="店铺名称" width="160" prop="mallname" sortable />
+        <el-table-column align="center" prop="apppage_views" label="App端浏览量" width="120" sortable>
+          <template slot-scope="{ row }">
+            <div v-html="row.apppage_views" />
+          </template>
+        </el-table-column>
+        <el-table-column align="center" prop="appavg_page_views" label="App端平均浏览量" width="160" sortable>
+          <template slot-scope="{ row }">
+            <div v-html="row.appavg_page_views" />
+          </template>
+        </el-table-column>
+        <el-table-column prop="appavg_stay_time" label="App端平均浏览时间" width="160" align="center" sortable>
+          <template slot-scope="{ row }">
+            <div v-html="row.appavg_stay_time" />
+          </template>
+        </el-table-column>
+        <el-table-column prop="appbounce_rate" label="App端网页跳出率" width="160" align="center" sortable>
+          <template slot-scope="{ row }">
+            <div v-html="row.appbounce_rate" />
+          </template>
+        </el-table-column>
+        <el-table-column prop="appvisitors" label="App端访客量" width="150" align="center" sortable>
+          <template slot-scope="{ row }">
+            <div v-html="row.appvisitors" />
+          </template>
+        </el-table-column>
+        <el-table-column prop="appnew_visitors" label="App端新访客量" width="150" align="center" sortable>
+          <template slot-scope="{ row }">
+            <div v-html="row.appnew_visitors" />
+          </template>
+        </el-table-column>
+        <el-table-column prop="appexisting_visitors" label="App端现有访客量" width="150" align="center" sortable>
+          <template slot-scope="{ row }">
+            <div v-html="row.appexisting_visitors" />
+          </template>
+        </el-table-column>
+        <el-table-column prop="appnew_followers" label="App新粉丝量" width="150" align="center" sortable>
+          <template slot-scope="{ row }">
+            <div v-html="row.appnew_followers" />
+          </template>
+        </el-table-column>
+        <el-table-column prop="pcpage_views" label="Pc端浏览量" width="130" align="center" sortable>
+          <template slot-scope="{ row }">
+            <div v-html="row.pcpage_views" />
+          </template>
+        </el-table-column>
+        <el-table-column prop="pcavg_page_views" label="Pc端平均浏览量" width="150" align="center" sortable>
+          <template slot-scope="{ row }">
+            <div v-html="row.pcavg_page_views" />
+          </template>
+        </el-table-column>
+        <el-table-column prop="pcavg_stay_time" label="Pc端平均浏览时间" width="150" align="center" sortable>
+          <template slot-scope="{ row }">
+            <div v-html="row.pcavg_stay_time" />
+          </template>
+        </el-table-column>
+        <el-table-column prop="pcbounce_rate" label="Pc端网页跳出率" width="150" align="center" sortable>
+          <template slot-scope="{ row }">
+            <div v-html="row.pcbounce_rate" />
+          </template>
+        </el-table-column>
+        <el-table-column prop="pcvisitors" label="Pc端访客量" width="130" align="center" sortable>
+          <template slot-scope="{ row }">
+            <div v-html="row.pcvisitors" />
+          </template>
+        </el-table-column>
+        <el-table-column prop="pcnew_visitors" label="Pc端新访客量" width="130" align="center" sortable>
+          <template slot-scope="{ row }">
+            <div v-html="row.pcnew_visitors" />
+          </template>
+        </el-table-column>
+        <el-table-column prop="pcexisting_visitors" label="Pc端现有访客量" width="150" align="center" sortable>
+          <template slot-scope="{ row }">
+            <div v-html="row.pcexisting_visitors" />
+          </template>
+        </el-table-column>
+        <el-table-column prop="pcnew_followers" label="Pc新浏粉丝量" width="130" align="center" sortable>
+          <template slot-scope="{ row }">
+            <div v-html="row.pcnew_followers" />
+          </template>
+        </el-table-column>
+      </el-table>
     </el-row>
   </el-row>
 </template>
@@ -156,8 +153,8 @@ export default {
       gruopList: [],
       mall: [], // 店铺
       mallList: [],
-      start_time: 1634659200,
-      end_time: 1634695200,
+      start_time: Date.parse(this.$dayjs(new Date()).format('YYYY-MM-DD 01:00:00')) / 1000 - 3600 * 24,
+      end_time: Date.parse(this.$dayjs(new Date()).format('YYYY-MM-DD 01:00:00')) / 1000,
       returnStatisticaltime: [
         { value: 'yesterday', label: '昨日' },
         { value: 'past7days', label: '近7天' },
@@ -199,18 +196,153 @@ export default {
       }
     },
     Statisticaltime(val, oldVal) {
-      if (val === 'real_time') {
-        this.start_time = 1634659200
-        this.end_time = 1634695200
-      } else if (val === 'yesterday') {
-        this.start_time = 1634054400
-        this.end_time = 1634659200
-      } else if (val === 'past7days') {
-        this.start_time = 1634054400
-        this.end_time = 1634659200
-      } else if (val === 'past30days') {
-        this.start_time = 1632067200
-        this.end_time = 1634659200
+      if (this.site === 'TH' || this.site === 'ID' || this.site === 'VN') {
+        if (val === 'real_time') {
+          this.start_time = Date.parse(this.$dayjs(new Date()).format('YYYY-MM-DD 01:00:00')) / 1000
+          this.end_time = Math.round(new Date() / 1000)
+          this.timecant = true
+        } else if (val === 'yesterday') {
+          this.start_time = Date.parse(this.$dayjs(new Date()).format('YYYY-MM-DD 01:00:00')) / 1000 - 3600 * 24
+          this.end_time = Date.parse(this.$dayjs(new Date()).format('YYYY-MM-DD 01:00:00')) / 1000
+          this.timecant = true
+        } else if (val === 'past7days') {
+          this.start_time = Date.parse(this.$dayjs(new Date()).format('YYYY-MM-DD 01:00:00')) / 1000 - 3600 * 24 * 7
+          this.end_time = Date.parse(this.$dayjs(new Date()).format('YYYY-MM-DD 01:00:00')) / 1000
+          this.timecant = true
+        } else if (val === 'past30days') {
+          this.start_time = Date.parse(this.$dayjs(new Date()).format('YYYY-MM-DD 01:00:00')) / 1000 - 3600 * 24 * 30
+          this.end_time = Date.parse(this.$dayjs(new Date()).format('YYYY-MM-DD 01:00:00')) / 1000
+          this.timecant = true
+        } else if (val === 'day') {
+          this.start_time = Date.parse(this.$dayjs(this.timechoose).format('YYYY-MM-DD 01:00:00')) / 1000 - 3600 * 24
+          this.end_time = Date.parse(this.$dayjs(this.timechoose).format('YYYY-MM-DD 01:00:00')) / 1000
+          this.timecant = false
+        } else if (val === 'week') {
+          this.start_time = Date.parse(this.$dayjs(this.timechoose).format('YYYY-MM-DD 01:00:00')) / 1000 - 3600 * 24 * 6
+          this.end_time = Date.parse(this.$dayjs(this.timechoose).format('YYYY-MM-DD 01:00:00')) / 1000
+          this.timecant = false
+        } else if (val === 'month') {
+          const timea = this.$dayjs(this.timechoose).format('YYYY-MM-01')
+          const month = timea.split('-')[1]
+          if (month === '12') {
+            this.start_time = Date.parse(this.$dayjs(this.timechoose).format('YYYY-MM-01 01:00:00')) / 1000
+            let timeq = this.$dayjs(this.timechoose).format('YYYY-MM-01 01:00:00').split('')
+            timeq[5] = '0'
+            timeq[6] = '1'
+            timeq = timeq.join('')
+            this.end_time = Date.parse(this.$dayjs(timeq).format('YYYY-MM-01 01:00:00')) / 1000
+            console.log(this.end_time)
+          // this.end_time = Date.parse(this.$dayjs(this.timechoose).format('YYYY-MM-01 01:00:00')[5]) / 1000
+          } else {
+            this.start_time = Date.parse(this.$dayjs(this.timechoose).format('YYYY-MM-01 01:00:00')) / 1000
+            let timeq = this.$dayjs(this.timechoose).format('YYYY-MM-01 01:00:00').split('')
+            const timew = month.split('')
+            timeq[5] = timew[0]
+            timeq[6] = Number(timew[1]) + 1
+            timeq = timeq.join('')
+            this.end_time = Date.parse(this.$dayjs(timeq).format('YYYY-MM-01 01:00:00')) / 1000
+            console.log(this.end_time)
+          }
+          this.timecant = false
+        }
+      } else if (this.site === 'BR') {
+        if (val === 'real_time') {
+          this.start_time = Date.parse(this.$dayjs(new Date()).format('YYYY-MM-DD 11:00:00')) / 1000
+          this.end_time = Math.round(new Date() / 1000)
+          this.timecant = true
+        } else if (val === 'yesterday') {
+          this.start_time = Date.parse(this.$dayjs(new Date()).format('YYYY-MM-DD 11:00:00')) / 1000 - 3600 * 24
+          this.end_time = Date.parse(this.$dayjs(new Date()).format('YYYY-MM-DD 11:00:00')) / 1000
+          this.timecant = true
+        } else if (val === 'past7days') {
+          this.start_time = Date.parse(this.$dayjs(new Date()).format('YYYY-MM-DD 11:00:00')) / 1000 - 3600 * 24 * 7
+          this.end_time = Date.parse(this.$dayjs(new Date()).format('YYYY-MM-DD 11:00:00')) / 1000
+          this.timecant = true
+        } else if (val === 'past30days') {
+          this.start_time = Date.parse(this.$dayjs(new Date()).format('YYYY-MM-DD 11:00:00')) / 1000 - 3600 * 24 * 30
+          this.end_time = Date.parse(this.$dayjs(new Date()).format('YYYY-MM-DD 11:00:00')) / 1000
+          this.timecant = true
+        } else if (val === 'day') {
+          this.start_time = Date.parse(this.$dayjs(this.timechoose).format('YYYY-MM-DD 11:00:00')) / 1000 - 3600 * 24
+          this.end_time = Date.parse(this.$dayjs(this.timechoose).format('YYYY-MM-DD 11:00:00')) / 1000
+          this.timecant = false
+        } else if (val === 'week') {
+          this.start_time = Date.parse(this.$dayjs(this.timechoose).format('YYYY-MM-DD 11:00:00')) / 1000 - 3600 * 24 * 6
+          this.end_time = Date.parse(this.$dayjs(this.timechoose).format('YYYY-MM-DD 11:00:00')) / 1000
+          this.timecant = false
+        } else if (val === 'month') {
+          const timea = this.$dayjs(this.timechoose).format('YYYY-MM-01')
+          const month = timea.split('-')[1]
+          if (month === '12') {
+            this.start_time = Date.parse(this.$dayjs(this.timechoose).format('YYYY-MM-01 11:00:00')) / 1000
+            let timeq = this.$dayjs(this.timechoose).format('YYYY-MM-01 11:00:00').split('')
+            timeq[5] = '0'
+            timeq[6] = '1'
+            timeq = timeq.join('')
+            this.end_time = Date.parse(this.$dayjs(timeq).format('YYYY-MM-01 11:00:00')) / 1000
+            console.log(this.end_time)
+          // this.end_time = Date.parse(this.$dayjs(this.timechoose).format('YYYY-MM-01 01:00:00')[5]) / 1000
+          } else {
+            this.start_time = Date.parse(this.$dayjs(this.timechoose).format('YYYY-MM-01 11:00:00')) / 1000
+            let timeq = this.$dayjs(this.timechoose).format('YYYY-MM-01 11:00:00').split('')
+            const timew = month.split('')
+            timeq[5] = timew[0]
+            timeq[6] = Number(timew[1]) + 1
+            timeq = timeq.join('')
+            this.end_time = Date.parse(this.$dayjs(timeq).format('YYYY-MM-01 11:00:00')) / 1000
+            console.log(this.end_time)
+          }
+          this.timecant = false
+        }
+      } else {
+        if (val === 'real_time') {
+          this.start_time = Date.parse(this.$dayjs(new Date()).format('YYYY-MM-DD 00:00:00')) / 1000
+          this.end_time = Math.round(new Date() / 1000)
+          this.timecant = true
+        } else if (val === 'yesterday') {
+          this.start_time = Date.parse(this.$dayjs(new Date()).format('YYYY-MM-DD 00:00:00')) / 1000 - 3600 * 24
+          this.end_time = Date.parse(this.$dayjs(new Date()).format('YYYY-MM-DD 00:00:00')) / 1000
+          this.timecant = true
+        } else if (val === 'past7days') {
+          this.start_time = Date.parse(this.$dayjs(new Date()).format('YYYY-MM-DD 00:00:00')) / 1000 - 3600 * 24 * 7
+          this.end_time = Date.parse(this.$dayjs(new Date()).format('YYYY-MM-DD 00:00:00')) / 1000
+          this.timecant = true
+        } else if (val === 'past30days') {
+          this.start_time = Date.parse(this.$dayjs(new Date()).format('YYYY-MM-DD 00:00:00')) / 1000 - 3600 * 24 * 30
+          this.end_time = Date.parse(this.$dayjs(new Date()).format('YYYY-MM-DD 00:00:00')) / 1000
+          this.timecant = true
+        } else if (val === 'day') {
+          this.start_time = Date.parse(this.$dayjs(this.timechoose).format('YYYY-MM-DD 00:00:00')) / 1000 - 3600 * 24
+          this.end_time = Date.parse(this.$dayjs(this.timechoose).format('YYYY-MM-DD 00:00:00')) / 1000
+          this.timecant = false
+        } else if (val === 'week') {
+          this.start_time = Date.parse(this.$dayjs(this.timechoose).format('YYYY-MM-DD 00:00:00')) / 1000 - 3600 * 24 * 6
+          this.end_time = Date.parse(this.$dayjs(this.timechoose).format('YYYY-MM-DD 00:00:00')) / 1000
+          this.timecant = false
+        } else if (val === 'month') {
+          const timea = this.$dayjs(this.timechoose).format('YYYY-MM-01')
+          const month = timea.split('-')[1]
+          if (month === '12') {
+            this.start_time = Date.parse(this.$dayjs(this.timechoose).format('YYYY-MM-01 00:00:00')) / 1000
+            let timeq = this.$dayjs(this.timechoose).format('YYYY-MM-01 00:00:00').split('')
+            timeq[5] = '0'
+            timeq[6] = '1'
+            timeq = timeq.join('')
+            this.end_time = Date.parse(this.$dayjs(timeq).format('YYYY-MM-01 00:00:00')) / 1000
+            console.log(this.end_time)
+          // this.end_time = Date.parse(this.$dayjs(this.timechoose).format('YYYY-MM-01 01:00:00')[5]) / 1000
+          } else {
+            this.start_time = Date.parse(this.$dayjs(this.timechoose).format('YYYY-MM-01 00:00:00')) / 1000
+            let timeq = this.$dayjs(this.timechoose).format('YYYY-MM-01 00:00:00').split('')
+            const timew = month.split('')
+            timeq[5] = timew[0]
+            timeq[6] = Number(timew[1]) + 1
+            timeq = timeq.join('')
+            this.end_time = Date.parse(this.$dayjs(timeq).format('YYYY-MM-01 00:00:00')) / 1000
+            console.log(this.end_time)
+          }
+          this.timecant = false
+        }
       }
     },
     site(val, oldVal) {
@@ -267,6 +399,7 @@ export default {
         this.Loading3 = true
         this.tableData = []
         this.exportdata = []
+        this.errmall = []
         const timenow = new Date().getTime() - 3600 * 1000 * 24
         const yesterdaytime = this.$dayjs(timenow).format('YYYYMMDD')
         for (let i = 0; i < this.mall.length; i++) {
@@ -320,133 +453,165 @@ export default {
             console.log('pcppcpccpcpcpcpcpcpc', pc)
             console.log('appappappappappappapp', app)
             data['mallname'] = mallname
+            let color = `green`
             let arrow1 = ''
             if (app.page_views_pct_diff >= 0) {
               arrow1 = '↑'
             } else {
               arrow1 = '↓'
+              color = `red`
             }
-            data['apppage_views'] = `<pre>${app.page_views}
+            data['apppage_views'] = `<pre style="color:${color}">${app.page_views}
 提升率 ${Math.abs(app.page_views_pct_diff * 100).toFixed(2)}% ${arrow1}</pre>`
             let arrow2 = ''
             if (app.avg_page_views_pct_diff >= 0) {
+              color = `green`
               arrow2 = '↑'
             } else {
               arrow2 = '↓'
+              color = `red`
             }
-            data['appavg_page_views'] = `<pre>${app.avg_page_views.toFixed(2)}
+            data['appavg_page_views'] = `<pre style="color:${color}">${app.avg_page_views.toFixed(2)}
 提升率 ${Math.abs(app.avg_page_views_pct_diff * 100).toFixed(2)}% ${arrow2}</pre>`
             let arrow3 = ''
             if (app.avg_stay_time_pct_diff >= 0) {
+              color = `green`
               arrow3 = '↑'
             } else {
               arrow3 = '↓'
+              color = `red`
             }
-            data['appavg_stay_time'] = `<pre>${app.avg_stay_time}
+            data['appavg_stay_time'] = `<pre style="color:${color}">${app.avg_stay_time}
 提升率 ${Math.abs(app.avg_stay_time_pct_diff * 100).toFixed(2)}% ${arrow3}</pre>`
             let arrow4 = ''
             if (app.bounce_rate_pct_diff >= 0) {
+              color = `green`
               arrow4 = '↑'
             } else {
               arrow4 = '↓'
+              color = `red`
             }
-            data['appbounce_rate'] = `<pre>${(app.bounce_rate * 100).toFixed(2)}%
+            data['appbounce_rate'] = `<pre style="color:${color}">${(app.bounce_rate * 100).toFixed(2)}%
 提升率 ${Math.abs(app.bounce_rate_pct_diff * 100).toFixed(2)}% ${arrow4}</pre>`
             let arrow5 = ''
             if (app.visitors_pct_diff >= 0) {
+              color = `green`
               arrow5 = '↑'
             } else {
               arrow5 = '↓'
+              color = `red`
             }
-            data['appvisitors'] = `<pre>${app.visitors}
+            data['appvisitors'] = `<pre style="color:${color}">${app.visitors}
 提升率 ${Math.abs(app.visitors_pct_diff * 100).toFixed(2)}% ${arrow5}</pre>`
             let arrow6 = ''
             if (app.new_visitors_pct_diff >= 0) {
+              color = `green`
               arrow6 = '↑'
             } else {
               arrow6 = '↓'
+              color = `red`
             }
-            data['appnew_visitors'] = `<pre>${app.new_visitors}
+            data['appnew_visitors'] = `<pre style="color:${color}">${app.new_visitors}
 提升率 ${Math.abs(app.new_visitors_pct_diff * 100).toFixed(2)}% ${arrow6}</pre>`
             let arrow7 = ''
             if (app.existing_visitors_pct_diff >= 0) {
+              color = `green`
               arrow7 = '↑'
             } else {
               arrow7 = '↓'
+              color = `red`
             }
-            data['appexisting_visitors'] = `<pre>${app.existing_visitors}
+            data['appexisting_visitors'] = `<pre style="color:${color}">${app.existing_visitors}
 提升率 ${Math.abs(app.existing_visitors_pct_diff * 100).toFixed(2)}% ${arrow7}</pre>`
             let arrow8 = ''
             if (app.new_followers_pct_diff >= 0) {
+              color = `green`
               arrow8 = '↑'
             } else {
               arrow8 = '↓'
+              color = `red`
             }
-            data['appnew_followers'] = `<pre>${app.new_followers}
+            data['appnew_followers'] = `<pre style="color:${color}">${app.new_followers}
 提升率 ${Math.abs(app.new_followers_pct_diff * 100).toFixed(2)}% ${arrow8}</pre>`
             let arrow9 = ''
             if (pc.page_views_pct_diff >= 0) {
+              color = `green`
               arrow9 = '↑'
             } else {
               arrow9 = '↓'
+              color = `red`
             }
-            data['pcpage_views'] = `<pre>${pc.page_views}
+            data['pcpage_views'] = `<pre style="color:${color}">${pc.page_views}
 提升率 ${Math.abs(pc.page_views_pct_diff * 100).toFixed(2)}% ${arrow9}</pre>`
             let arrow10 = ''
             if (pc.avg_page_views_pct_diff >= 0) {
+              color = `green`
               arrow10 = '↑'
             } else {
               arrow10 = '↓'
+              color = `red`
             }
-            data['pcavg_page_views'] = `<pre>${pc.avg_page_views.toFixed(2)}
+            data['pcavg_page_views'] = `<pre style="color:${color}">${pc.avg_page_views.toFixed(2)}
 提升率 ${Math.abs(pc.avg_page_views_pct_diff * 100).toFixed(2)}% ${arrow10}</pre>`
             let arrow11 = ''
             if (pc.avg_stay_time_pct_diff >= 0) {
+              color = `green`
               arrow11 = '↑'
             } else {
               arrow11 = '↓'
+              color = `red`
             }
-            data['pcavg_stay_time'] = `<pre>${pc.avg_stay_time}
+            data['pcavg_stay_time'] = `<pre style="color:${color}">${pc.avg_stay_time}
 提升率 ${Math.abs(pc.avg_stay_time_pct_diff * 100).toFixed(2)}% ${arrow11}</pre>`
             let arrow12 = ''
             if (pc.bounce_rate_pct_diff >= 0) {
+              color = `green`
               arrow12 = '↑'
             } else {
               arrow12 = '↓'
+              color = `red`
             }
-            data['pcbounce_rate'] = `<pre>${(pc.bounce_rate * 100).toFixed(2)}%
+            data['pcbounce_rate'] = `<pre style="color:${color}">${(pc.bounce_rate * 100).toFixed(2)}%
 提升率 ${Math.abs(pc.bounce_rate_pct_diff * 100).toFixed(2)}% ${arrow12}</pre>`
             let arrow13 = ''
             if (pc.visitors_pct_diff >= 0) {
+              color = `green`
               arrow13 = '↑'
             } else {
               arrow13 = '↓'
+              color = `red`
             }
-            data['pcvisitors'] = `<pre>${pc.visitors}
+            data['pcvisitors'] = `<pre style="color:${color}">${pc.visitors}
 提升率 ${Math.abs(pc.visitors_pct_diff * 100).toFixed(2)}% ${arrow13}</pre>`
             let arrow14 = ''
             if (pc.new_visitors_pct_diff >= 0) {
+              color = `green`
               arrow14 = '↑'
             } else {
               arrow14 = '↓'
+              color = `red`
             }
-            data['pcnew_visitors'] = `<pre>${pc.new_visitors}
+            data['pcnew_visitors'] = `<pre style="color:${color}">${pc.new_visitors}
 提升率 ${Math.abs(pc.new_visitors_pct_diff * 100).toFixed(2)}% ${arrow14}</pre>`
             let arrow15 = ''
             if (pc.existing_visitors_pct_diff >= 0) {
+              color = `green`
               arrow15 = '↑'
             } else {
               arrow15 = '↓'
+              color = `red`
             }
-            data['pcexisting_visitors'] = `<pre>${pc.existing_visitors}
+            data['pcexisting_visitors'] = `<pre style="color:${color}">${pc.existing_visitors}
 提升率 ${Math.abs(pc.existing_visitors_pct_diff * 100).toFixed(2)}% ${arrow15}</pre>`
             let arrow16 = ''
             if (pc.new_followers_pct_diff >= 0) {
+              color = `green`
               arrow16 = '↑'
             } else {
               arrow16 = '↓'
+              color = `red`
             }
-            data['pcnew_followers'] = `<pre>${pc.new_followers}
+            data['pcnew_followers'] = `<pre style="color:${color}">${pc.new_followers}
 提升率 ${Math.abs(pc.new_followers_pct_diff * 100).toFixed(2)}% ${arrow16}</pre>`
             this.tableData.push(data)
           } else if (attributeTreeRes.status === 403) {
