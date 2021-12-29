@@ -1,5 +1,5 @@
 <template>
-  <div class="category-mapp">
+  <div class="category-mapp contaniner">
     <div class="category_dialog">
       <div class="category_box">
         <div class="on_new_dialog_box" style="margin-bottom: 10px;">

@@ -1,5 +1,5 @@
 <template>
-  <div class="personal-container">
+  <div class="personal-container ">
     <header>
       <div class="header-left">
         <p class="text">基础操作</p>
