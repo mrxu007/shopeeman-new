@@ -95,7 +95,7 @@
 
         <el-form-item label="当前站点">
           <!-- {{ rowx.goods_name }} -->
-          泰国
+          {{ selectMallList[0] && selectMallList[0].country | chineseSite }}
         </el-form-item>
 
         <el-form-item label="币种" style="color:red">
