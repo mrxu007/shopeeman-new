@@ -24,7 +24,7 @@ export default class NetMessageBridgeService {
     const mallId = data.mallId || data.platform_mall_id || data.shop_id
     let userSettings = await this.ConfigBridgeService().getUserConfig()
     userSettings = JSON.parse(userSettings)
-    console.log('userSettings',userSettings)
+    console.log('userSettings', userSettings)
     const mallInfo = await this.ConfigBridgeService().getGlobalCacheInfo('mallInfo', mallId)
     const {
       mall_main_id,
@@ -34,11 +34,11 @@ export default class NetMessageBridgeService {
     // local 国内
     // Abroad 本土
     let url = this.site_domain_chinese_pre[country]
-    let domain_switch = userSettings && (userSettings.SwitchDominTypeSetting || userSettings.domain_switch) || '1'
-    if (domain_switch === '3' || domain_switch ===`Abroad`) {
+    const domain_switch = userSettings && (userSettings.SwitchDominTypeSetting || userSettings.domain_switch) || '1'
+    if (domain_switch === '3' || domain_switch === `Abroad`) {
       url = this.site_domain_local_pre[country]
-    } else if ((domain_switch === '1' || domain_switch === 'Auto')
-      && mall_main_id > 0 && (IPType.indexOf('大陆') === -1 || IPType === '1')) {
+    } else if ((domain_switch === '1' || domain_switch === 'Auto') &&
+      mall_main_id > 0 && (IPType.indexOf('大陆') === -1 || IPType === '1')) {
       url = this.site_domain_local_pre[country]
     }
     return url
@@ -48,18 +48,18 @@ export default class NetMessageBridgeService {
     const mallId = data.mallId || data.platform_mall_id || data.shop_id
     let userSettings = await this.ConfigBridgeService().getUserConfig()
     userSettings = JSON.parse(userSettings)
-    console.log('userSettings',userSettings)
+    console.log('userSettings', userSettings)
     const mallInfo = await this.ConfigBridgeService().getGlobalCacheInfo('mallInfo', mallId)
     const {
       mall_main_id,
       IPType
     } = JSON.parse(mallInfo)
-    let domain_switch = userSettings && (userSettings.SwitchDominTypeSetting || userSettings.domain_switch) || '1'
+    const domain_switch = userSettings && (userSettings.SwitchDominTypeSetting || userSettings.domain_switch) || '1'
     let url = this.site_domain_chinese_bk[country]
-    if (domain_switch === '3' || domain_switch ===`Abroad`) {
+    if (domain_switch === '3' || domain_switch === `Abroad`) {
       url = this.site_domain_local_bk[country]
-    } else if ((domain_switch === '1' || domain_switch === 'Auto')
-      && mall_main_id > 0 && (IPType.indexOf('大陆') === -1 || IPType === '1')) {
+    } else if ((domain_switch === '1' || domain_switch === 'Auto') &&
+      mall_main_id > 0 && (IPType.indexOf('大陆') === -1 || IPType === '1')) {
       url = this.site_domain_local_bk[country]
     }
     return url
@@ -202,67 +202,6 @@ export default class NetMessageBridgeService {
   async postChineseBuyer(country, api, data, options = {}, exportInfo) {
     data = JSON.parse(JSON.stringify(data))
     const url = await this.getWebUrl(country, data) + api
-    const baseurl = await this.getWebUrl(country, data)
-    options['extrainfo'] = this.getExtraInfo(data)
-    if (exportInfo) { // 适配店铺管理---导入店铺
-      options['extrainfo']['exportInfo'] = exportInfo
-      // Object.assign(options['extrainfo'],JSON.parse(JSON.stringify()))
-    }
-    delete data.mallId
-    const referer = options['headers'] && options['headers'].referer
-    if (referer) {
-      options['headers'] = Object.assign(options['headers'], {
-        origin: baseurl,
-        referer: baseurl + referer
-      })
-    }
-    console.log(url, JSON.stringify(options), JSON.stringify(data))
-    return this.NetMessageBridgeService().post(url, JSON.stringify(options), JSON.stringify(data))
-  }
-
-  async postChineseBuyer(country, api, data, options = {}, exportInfo) {
-    data = JSON.parse(JSON.stringify(data))
-    const url = await this.getWebUrl(country, data) + api
-    options['extrainfo'] = this.getExtraInfo(data)
-    if (exportInfo) { // 适配店铺管理---导入店铺
-      options['extrainfo']['exportInfo'] = exportInfo
-      // Object.assign(options['extrainfo'],JSON.parse(JSON.stringify()))
-    }
-    delete data.mallId
-    const referer = options['headers'] && options['headers'].referer
-    if (referer) {
-      options['headers'] = Object.assign(options['headers'], {
-        origin: url,
-        referer: url + referer
-      })
-    }
-    console.log(url, JSON.stringify(options), JSON.stringify(data))
-    return this.NetMessageBridgeService().post(url, JSON.stringify(options), JSON.stringify(data))
-  }
-
-  async postChineseBuyer(country, api, data, options = {}, exportInfo) {
-    data = JSON.parse(JSON.stringify(data))
-    const url = await this.getWebUrl(country, data) + api
-    options['extrainfo'] = this.getExtraInfo(data)
-    if (exportInfo) { // 适配店铺管理---导入店铺
-      options['extrainfo']['exportInfo'] = exportInfo
-      // Object.assign(options['extrainfo'],JSON.parse(JSON.stringify()))
-    }
-    delete data.mallId
-    const referer = options['headers'] && options['headers'].referer
-    if (referer) {
-      options['headers'] = Object.assign(options['headers'], {
-        origin: url,
-        referer: url + referer
-      })
-    }
-    console.log(url, JSON.stringify(options), JSON.stringify(data))
-    return this.NetMessageBridgeService().post(url, JSON.stringify(options), JSON.stringify(data))
-  }
-
-  async postChineseBuyer(country, api, data, options = {}, exportInfo) {
-    data = JSON.parse(JSON.stringify(data))
-    const url = await this.getWebUrl(country, data) + api
     options['extrainfo'] = this.getExtraInfo(data)
     if (exportInfo) { // 适配店铺管理---导入店铺
       options['extrainfo']['exportInfo'] = exportInfo
@@ -295,7 +234,8 @@ export default class NetMessageBridgeService {
         referer: url + referer
       })
     }
-    console.log('NetMessageBridgeService',url, JSON.stringify(options), JSON.stringify(data))
+    debugger
+    console.log('NetMessageBridgeService', url, JSON.stringify(options), JSON.stringify(data))
     return this.NetMessageBridgeService().post(url, JSON.stringify(options), JSON.stringify(data))
   }
   // refer 与url 不一样
@@ -396,6 +336,7 @@ export default class NetMessageBridgeService {
         referer: url + referer
       })
     }
+    console.log(url, JSON.stringify(options), JSON.stringify(data))
     return this.NetMessageBridgeService().delete(url, JSON.stringify(options), JSON.stringify(data))
   }
 
