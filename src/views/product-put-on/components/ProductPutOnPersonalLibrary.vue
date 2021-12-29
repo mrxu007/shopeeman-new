@@ -5,13 +5,13 @@
         <p class="text">基础操作</p>
         <el-button type="primary" size="mini" @click="batchProcessing(4)">批量添加尺寸图</el-button>
         <el-button type="primary" size="mini" @click="batchProcessing(7)">批量删除尺寸图</el-button>
-        <el-button type="primary" size="mini" @click="isEditorVisible = true">一键上新</el-button>
+        <el-button type="primary" size="mini" @click="batchProcessing(8)">一键上新</el-button>
         <el-button type="primary" size="mini" @click="batchProcessing(14)">批量映射虾皮类目</el-button>
         <el-button type="primary" size="mini" @click="markPreferredGoods('1')">标记优选商品</el-button>
         <el-button type="primary" size="mini" @click="markPreferredGoods('-1')">取消标记优选商品</el-button>
         <el-button type="primary" size="mini" @click="openLabelVisabel('1')">标记商品标签</el-button>
         <el-button type="primary" size="mini" @click="openLabelVisabel('-1')">取消商品标签</el-button>
-        <el-button type="primary" size="mini" disabled>翻译后的数据导出</el-button>
+        <el-button type="primary" size="mini" @click="batchProcessing(20)">翻译后的数据导出</el-button>
         <el-button type="primary" size="mini" @click="batchProcessing(16)">批量设置重量/体积</el-button>
         <el-button type="primary" size="mini" @click="deleteGoods">取消收藏</el-button>
         <el-upload v-if="uploadImgAdd" v-show="false" style="margin-right: 10px" action="#" :drag="true"
@@ -233,7 +233,7 @@
 </template>
 
 <script>
-import { delay, getGoodsUrl, randomWord } from '../../../util/util'
+import { delay, getGoodsUrl, importOrder, randomWord } from '../../../util/util'
 import PersonalLibraryAPI from '../../../module-api/product-put-on-api/personal-library-api'
 import { source, sourceObj } from './collection-platformId'
 import editorOnNewGoods from '../../../components/editor_on_new_goods'
@@ -318,7 +318,7 @@ export default {
   computed: {
     // 获取标签名
     getLabelName() {
-      return function(id, isTrue) {
+      return function(id,isTrue) {
         const labelName = this.labelList.find(item => {
           return item.id === id + ''
         })
@@ -361,7 +361,6 @@ export default {
       }
       let success = false
       let messStr = ''
-
       if (type === 4) {
         this.uploadImgAdd = true
         setTimeout(() => {
@@ -381,11 +380,44 @@ export default {
 
         }
       }
+      else if (type === 8) {
+        this.isEditorVisible = true
+      }
       else if (type === 14) {
         this.categoryVisible = true
       }
       else if (type === 16) {
         this.goodsSizeVisible = true
+      }
+      else if (type === 20){
+        const titleData = ['标签', '采购来源', '优选商品', '商品ID', '商品标题', '商品主图', '价格', '库存',
+          '销量', '重量(kg)', '长(cm)', '宽(cm)', '高(cm)', '翻译语种', '源平台类目', '更新时间','收藏时间']
+        const jsonData = []
+        this.goodsList.forEach(row => {
+          const temp = []
+          if (row.language !== "zh-Hans"){
+            temp[0] = this.getLabelName(row.sys_label_id) ||''
+            temp[1] = this.sourceObj[row.source + ''] || ''
+            temp[2] = row.is_featured === '1' ? '是' : '否'
+            temp[3] = row.goods_id || ''
+            temp[4] = row.title || ''
+            temp[5] = row.image || ''
+            temp[6] = row.price || ''
+            temp[7] = row.stock || ''
+            temp[8] = row.sales || ''
+            temp[9] = row.weight || '0'
+            temp[10] = row.long || '0'
+            temp[11] = row.width || '0'
+            temp[12] = row.height || '0'
+            temp[13] = this.languageArrObj[row.language] || row.language
+            temp[14] = this.getCategoty(row) || '未匹配到类目'
+            temp[15] = row.updated_at
+            temp[16] = row.created_at
+            jsonData.push(temp)
+          }
+        })
+        await importOrder(titleData, jsonData, '商品数据')
+
       }
       messStr && success && this.$message.success(messStr)
       messStr && !success && this.$message.error(messStr)
