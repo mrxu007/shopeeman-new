@@ -798,6 +798,7 @@ export default {
   },
   data() {
     return {
+      index: 1,
       parentVisible: false,
       isFold: true,
       showConsole: true,
@@ -2316,8 +2317,9 @@ export default {
         item.pageNumber = 1
         item.mylist = []
       })
+      this.index = 1
       for (let i = 0; i < this.goodsStatus.length; i++) {
-        this.percentage = 0
+        // this.percentage = 0
         if (this.flag) {
           break
         }
@@ -2412,8 +2414,9 @@ export default {
             }
           }
           this.queryNum = this.tableData.length
-          const temp = 100 / this.selectMallList.length
-          this.percentage += temp
+          // const temp = 100 / this.selectMallList.length
+          const len = this.goodsStatus.length === 8 ? 1 : this.goodsStatus.length
+          this.percentage = (this.index++ / (this.selectMallList.length * len)) * 100
           --count.count
         }
       }
