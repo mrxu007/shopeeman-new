@@ -12,7 +12,7 @@
         <el-button type="primary" size="mini" @click="openLabelVisabel('1')">标记商品标签</el-button>
         <el-button type="primary" size="mini" @click="openLabelVisabel('-1')">取消商品标签</el-button>
         <el-button type="primary" size="mini" disabled>翻译后的数据导出</el-button>
-        <el-button type="primary" size="mini" disabled>批量设置重量/体积</el-button>
+        <el-button type="primary" size="mini" @click="batchProcessing(16)">批量设置重量/体积</el-button>
         <el-button type="primary" size="mini" @click="deleteGoods">取消收藏</el-button>
         <el-upload v-if="uploadImgAdd" v-show="false" style="margin-right: 10px" action="#" :drag="true"
                    :show-file-list="false" :limit="1" :auto-upload="false" :on-change="imageUpload">
@@ -84,15 +84,12 @@
     </header>
     <article>
       <p class="tip">尊敬的用户：您好，为提高私有选品库模块的性能，系统只能保存近30天的非精选商品数据，为保证部分精选商品不被清理，请将需要保留的商品标记为精选商品</p>
-      <u-table
-          ref="plTable"
+      <u-table ref="plTable"
           v-loading="buttonStatus.getList"
           :height="Height"
           use-virtual
           :data-changes-scroll-top="false"
-          :header-cell-style="{
-          backgroundColor: '#f5f7fa',
-        }"
+          :header-cell-style="{backgroundColor: '#f5f7fa',}"
           row-key="id"
           :big-data-checkbox="true"
           :border="false"
@@ -105,69 +102,71 @@
             <p style="white-space: normal">{{ getLabelName(row.sys_label_id) }}</p>
           </template>
         </u-table-column>
-
-        <u-table-column align="center" label="采购来源">
+        <u-table-column align="center" label="采购来源" width="80">
           <template v-slot="{ row }">
             <p style="white-space: normal">{{ sourceObj[row.source + ''] }}</p>
           </template>
         </u-table-column>
-        <u-table-column align="center" label="优选商品">
+        <u-table-column align="center" label="优选商品" width="80">
           <template v-slot="{ row }">
             {{ row.is_featured === '1' ? '是' : '否' }}
           </template>
         </u-table-column>
-        <u-table-column align="center" label="商品Id">
+        <u-table-column align="center" label="商品Id" width="110">
           <template v-slot="{ row }">
-            <p style="white-space: normal">{{ row.goods_id }}</p>
+            <p class="goToGoods" @click.stop="goToGoods(row)">{{ row.goods_id }}</p>
           </template>
         </u-table-column>
-        <u-table-column align="center" label="标题" prop="Price" width="300px" fit>
+        <u-table-column align="center" label="标题" prop="Price" width="150px" fit>
           <template v-slot="{ row }">
-            <p style="white-space: normal">{{ row.title }}</p>
+            <div class="goodsTableLine" style="height: 80px;text-align: left">
+              {{ row.title }}
+            </div>
           </template>
         </u-table-column>
-
-        <u-table-column align="center" label="主图" prop="Sales">
+        <u-table-column align="center" label="主图" width="80" prop="Sales">
           <template v-slot="{ row }">
             <div style="justify-content: center; display: flex">
               <img :src="row.image" style="width: 56px; height: 56px">
             </div>
           </template>
         </u-table-column>
-        <u-table-column align="center" label="价格" prop="price"/>
-        <u-table-column align="center" label="库存" prop="stock"/>
-        <u-table-column align="center" label="销量" prop="sales"/>
-        <u-table-column align="center" label="重量(kg)">
+        <u-table-column align="center" label="价格" width="70" prop="price" show-overflow-tooltip/>
+        <u-table-column align="center" label="库存" width="80" prop="stock" show-overflow-tooltip/>
+        <u-table-column align="center" label="销量" width="80" prop="sales" show-overflow-tooltip/>
+        <u-table-column align="center" label="重量(kg)" width="80">
           <template v-slot="{ row }">
             <el-input v-model="row.weight" size="mini"/>
           </template>
         </u-table-column>
-        <u-table-column align="center" label="体积" width="130">
+        <u-table-column align="center" label="体积" width="110">
           <template v-slot="{ row }">
             <ul>
               <li style="display: flex">
-                <p>长（cm）</p>
-                <el-input v-model="row.long" size="mini"/>
+                <p style="margin-right: 5px;">长(cm)</p>
+                <el-input style="flex:1" v-model="row.long" size="mini"/>
               </li>
               <li style="display: flex">
-                <p>宽（cm）</p>
-                <el-input v-model="row.width" size="mini"/>
+                <p style="margin-right: 5px;">宽(cm)</p>
+                <el-input style="flex:1" v-model="row.width" size="mini"/>
               </li>
               <li style="display: flex">
-                <p>高（cm）</p>
-                <el-input v-model="row.height" size="mini"/>
+                <p style="margin-right: 5px;">高(cm)</p>
+                <el-input style="flex:1" v-model="row.height" size="mini"/>
               </li>
             </ul>
           </template>
         </u-table-column>
-        <u-table-column align="center" label="翻译语种" prop="language">
+        <u-table-column align="center" label="翻译语种" width="80" prop="language">
           <template v-slot="{ row }">
             <p style="white-space: normal">{{ languageArrObj[row.language] || row.language }}</p>
           </template>
         </u-table-column>
-        <u-table-column align="center" label="源平台类目名称" prop="category_id"/>
-        <u-table-column align="center" label="更新时间" prop="updated_at"/>
-        <u-table-column align="center" label="收藏时间" prop="created_at"/>
+        <u-table-column align="center" label="源平台类目" show-overflow-tooltip>
+          <template v-slot="{ row }">{{ getCategoty(row) || '未匹配到类目' }}</template>
+        </u-table-column>
+        <u-table-column align="center" label="更新时间" width="140px" prop="updated_at"/>
+        <u-table-column align="center" label="收藏时间" width="140px" prop="created_at"/>
         <u-table-column align="center" label="操作结果"/>
       </u-table>
       <div class="pagination">
@@ -220,29 +219,33 @@
             </el-button>
           </div>
         </template>
-        <editor-on-new-goods v-if="isEditorVisible" ref="editor_on_new_goods"
-                             :mall-table="multipleSelection"></editor-on-new-goods>
+        <editor-on-new-goods v-if="isEditorVisible" ref="editor_on_new_goods" :mall-table="multipleSelection"></editor-on-new-goods>
       </el-dialog>
       <el-dialog title="类目映射" width="700px" top="25vh" :close-on-click-modal="false" :modal="false" :visible.sync="categoryVisible">
         <categoryMapping v-if="categoryVisible" :goods-current="{}" :mall-list="[]" @categoryChange="categoryChange"/>
+      </el-dialog>
+      <el-dialog title="设置商品重量和体积" width="300px" top="25vh" :close-on-click-modal="false" :modal="false"
+                 :visible.sync="goodsSizeVisible">
+        <goods-size v-if="goodsSizeVisible" @goodsSizeChange="goodsSizeChange"/>
       </el-dialog>
     </div>
   </div>
 </template>
 
 <script>
-import { delay, randomWord } from '../../../util/util'
+import { delay, getGoodsUrl, randomWord } from '../../../util/util'
 import PersonalLibraryAPI from '../../../module-api/product-put-on-api/personal-library-api'
 import { source, sourceObj } from './collection-platformId'
 import editorOnNewGoods from '../../../components/editor_on_new_goods'
 import categoryMapping from '../../../components/category-mapping'
+import goodsSize from '../../../components/goods-size'
 
 export default {
   data() {
     return {
       isNoFoldShow: true,
       isEditorVisible: false,
-      Height: 500,
+      Height: '520',
       personalLibraryAPInstance: new PersonalLibraryAPI(this),
       // el-dialog
       goodsLabelVisiable: false,
@@ -307,6 +310,9 @@ export default {
       uploadImgAdd: false,
       //映射
       categoryVisible:false,
+      // 设置大小
+      goodsSizeVisible:false,
+      categoryList: {},
     }
   },
   computed: {
@@ -319,18 +325,32 @@ export default {
         isTrue ? this.currentLabelName = labelName.label_name : ''
         return labelName?.label_name || ''
       }
+    },
+    getCategoty() {
+      return function(row) {
+        return this.categoryList[row.category_id]
+      }
     }
 
   },
-  components: { editorOnNewGoods ,categoryMapping },
+  components: { editorOnNewGoods ,categoryMapping,goodsSize },
   created() {
     this.sourceObj = sourceObj // 采购映射
     this.source = source // 采购来源
     this.getLabelList()
     this.getValueFormat()
   },
-  mounted() {
-    this.getGoodsList()
+  async mounted() {
+    await this.getGoodsList()
+    await this.showCategory()
+  },
+  watch:{
+    categoryList: {
+      handler(val) {
+        console.log(val)
+      },
+      deep: true
+    },
   },
   methods: {
     async batchProcessing(type) {
@@ -341,6 +361,7 @@ export default {
       }
       let success = false
       let messStr = ''
+
       if (type === 4) {
         this.uploadImgAdd = true
         setTimeout(() => {
@@ -362,6 +383,9 @@ export default {
       }
       else if (type === 14) {
         this.categoryVisible = true
+      }
+      else if (type === 16) {
+        this.goodsSizeVisible = true
       }
       messStr && success && this.$message.success(messStr)
       messStr && !success && this.$message.error(messStr)
@@ -389,7 +413,6 @@ export default {
       }
     },
     categoryChange(val) {
-      console.log('categoryChange', val)
       if (val) {
         let attributesList = []
         val.attributesList.forEach(son => {
@@ -415,9 +438,49 @@ export default {
       }
       this.categoryVisible = false
     },
+    goodsSizeChange(val) {
+      if (val) {
+        let success = false
+        this.multipleSelection.forEach(async i => {
+          let index = this.goodsList.findIndex(item=>item.id === i.id)
+          let sysGoodsId = i.id
+          let description = i.description
+          let title = i.title
+          let updateGoodsJson = await this.$commodityService.updateGoods({ sysGoodsId, description, title, ...val })
+          let temp = Object.assign(this.goodsList[index],val)
+          this.$set(this.goodsList,index,temp)
+          let updateGoodsRes = JSON.parse(updateGoodsJson)
+          success = updateGoodsRes.code === 200
+        })
+      }
+      this.goodsSizeVisible = false
+    },
     setIsNoFoldShow() {
       this.isNoFoldShow = !this.isNoFoldShow
       this.$refs.editor_on_new_goods.setIsNoFoldShow()
+    },
+    async showCategory() {
+      for (let i in this.goodsList) {
+        let item = this.goodsList[i]
+        let category = this.categoryList[item.category_id] || ''
+        if (!category) {
+          let categoty = JSON.parse(JSON.stringify(this.categoryList))
+          let site = item.extra_info && JSON.parse(item.extra_info).site || ''
+          let res = await this.$collectService.getGoodsCat(item.category_id, item.source, site)
+          category = res.split('|')[0] || ''
+          let name = res.split('|')[1] || ''
+          if (category && name) {
+            categoty[name] = category || '未匹配到类目'
+            this.categoryList = categoty
+          }
+        }
+      }
+    },
+    goToGoods(item) {
+      let extra_info = item.extra_info && JSON.parse(item.extra_info) || {}
+      let temp = Object.assign({ productId: item.goods_id }, extra_info)
+      let goods = getGoodsUrl(item.source, temp)
+      this.$BaseUtilService.openUrl(goods.url)
     },
     handleClose1(done) {
       done()
@@ -609,6 +672,24 @@ export default {
     display: flex;
     flex-flow: wrap;
     align-items: center;
+  }
+}
+
+.goodsTableLine {
+  white-space: normal;
+  height: 56px;
+  width: 100%;
+  border: 1px #999999 solid;
+  border-radius: 3px;
+  padding: 0 5px 5px;
+  line-height: 1.5;
+  overflow: auto;
+}
+.goToGoods{
+  white-space: normal;
+  cursor: pointer;
+  &:hover{
+    color: #ff0000;
   }
 }
 

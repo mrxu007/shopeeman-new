@@ -330,7 +330,7 @@ export default class CommodityService {
 
   /**
    * 更新商品
-   * @param {{sysGoodsId:number,title:string,description:string,weight:string,long:string,width:string,height:string}} req
+   * @param {*&{sysGoodsId, description, title}} req
    */
   updateGoods(req) {
     return this.nativeService.callFunction('UpdateGoods', JSON.stringify(req))

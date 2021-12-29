@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="contaniner category-mapp">
     <div class="on_new_dialog_box">
       <div class="keepRight" style="margin-right: 5px;">商品重量(kg)：</div>
       <el-input size="mini" v-model="goodsSize.weight"></el-input>
