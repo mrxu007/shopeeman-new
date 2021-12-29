@@ -181,7 +181,8 @@
         }
       },
       async getAttribute() {
-        let categoryId = this.categoryAction[this.categoryAction.length - 1] + ''
+        let categoryId = this.categoryAction[this.categoryAction.length - 1] || '0'
+        console.log(categoryId)
         let country = this.country || this.countryOption
         let attributeJson = await this.$commodityService.getAttributeInfo(country, categoryId)
         let attributeRes = JSON.parse(attributeJson)

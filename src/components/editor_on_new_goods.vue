@@ -701,7 +701,7 @@ export default {
     async translationPrepare(type) {
       let goodsList = []
       this.mallTableSelect.forEach(item => {
-        if (type === 3 && item.operation_type.includes('翻译失败')) {
+        if (type === 3 && item.operation_type && item.operation_type.includes('翻译失败')) {
           goodsList.push(item)
         } else if (item.language.toLocaleUpperCase() !== this.translationConfig.languages.toLocaleUpperCase()) {
           if (item.language !== 'zh-Hans' && this.translationConfig.languages !== 'zh') {
@@ -712,8 +712,10 @@ export default {
       if (type === 2) {
         this.isTranslationText = false
       }
-      let res = await batchOperation(goodsList, this.translationDate, parseInt(this.threadNumber))
-      this.isTranslationText = true
+      if (goodsList.length >0){
+        let res = await batchOperation(goodsList, this.translationDate, parseInt(this.threadNumber))
+        this.isTranslationText = true
+      }
       return
     },
     async titleDescribeSet() {
