@@ -614,10 +614,6 @@ export default {
     this.goodsDetails = neededTranslateInfoData
     this.tier_variation = JSON.parse(JSON.stringify(neededTranslateInfoData.tier_variation))
     this.lodSpecImage = this.goodsDetails.spec_image
-    this.editor = createImageEditor({
-      appId: 'YMEQYU442168',
-      container:'#editorApp'
-    });
   },
   methods: {
     async replaceImage(type, index) {
@@ -751,9 +747,9 @@ export default {
       }
     },
     async updateImage(type,index){
+      this.GdEditorSdkVisible =true
       let oldImage = ''
       this.editorImg = ''
-      this.GdEditorSdkVisible =true
       if(type === 1){
         oldImage = this.goodsDetails.spec_image[index]
       }else if(type === 2){
@@ -761,9 +757,12 @@ export default {
       }else if(type === 3){
         oldImage = this.goodsDetails.descImages[index].img
       }
+      this.editor = createImageEditor({
+        appId: 'YMEQYU442168',
+        container:'#editorApp'
+      });
       this.editor.importImage([oldImage]);
       let newImg = await this.getEditorImage()
-      console.log('newImg',newImg)
       if (newImg){
         if(type === 1){
           let itemmodels = JSON.stringify(this.goodsDetails.itemmodels)

@@ -64,11 +64,11 @@
         </div>
         <div class="basisInstall-box">
           <div>商品描述：</div>
-          <el-radio v-model="goodsDescribeRadio" label="0">自定义+SKU描述</el-radio>
-          <el-radio v-model="goodsDescribeRadio" label="1">原描述</el-radio>
-          <el-radio v-model="goodsDescribeRadio" label="2">原描述+自定义</el-radio>
-          <el-radio v-model="goodsDescribeRadio" label="3">原描述+SKU描述</el-radio>
-          <el-radio v-model="goodsDescribeRadio" label="4">自定义</el-radio>
+          <el-radio v-model="goodsDescribeRadio" :label="0">自定义+SKU描述</el-radio>
+          <el-radio v-model="goodsDescribeRadio" :label="1">原描述</el-radio>
+          <el-radio v-model="goodsDescribeRadio" :label="2">原描述+自定义</el-radio>
+          <el-radio v-model="goodsDescribeRadio" :label="3">原描述+SKU描述</el-radio>
+          <el-radio v-model="goodsDescribeRadio" :label="4">自定义</el-radio>
         </div>
         <div class="basisInstall-box">
           <div>翻译配置：</div>
@@ -226,7 +226,7 @@
         </template>
       </u-table-column>
       <u-table-column align="left" label="库存" width="80" prop="stock"/>
-      <u-table-column align="left" label="操作" width="140">
+      <u-table-column align="left" label="操作" width="130">
         <template v-slot="scope">
           <div style="display: flex;align-items: center;">
             <el-button size="mini" @click="updateGoodsEdit(scope.row)">删除</el-button>
@@ -701,7 +701,7 @@ export default {
     async translationPrepare(type) {
       let goodsList = []
       this.mallTableSelect.forEach(item => {
-        if (type === 3 && item.operation_type.includes('翻译失败')) {
+        if (type === 3 && item.operation_type && item.operation_type.includes('翻译失败')) {
           goodsList.push(item)
         } else if (item.language.toLocaleUpperCase() !== this.translationConfig.languages.toLocaleUpperCase()) {
           if (item.language !== 'zh-Hans' && this.translationConfig.languages !== 'zh') {
@@ -712,8 +712,10 @@ export default {
       if (type === 2) {
         this.isTranslationText = false
       }
-      let res = await batchOperation(goodsList, this.translationDate, parseInt(this.threadNumber))
-      this.isTranslationText = true
+      if (goodsList.length >0){
+        let res = await batchOperation(goodsList, this.translationDate, parseInt(this.threadNumber))
+        this.isTranslationText = true
+      }
       return
     },
     async titleDescribeSet() {
@@ -1278,7 +1280,7 @@ export default {
         if (getLabelData.data) {
           let config = getLabelData.data && getLabelData.data.config
           this.pictureConfig.typeRadio = parseInt(config.AliImgTranslateType || this.pictureConfig.typeRadio)  // 阿里图片翻译类型
-          this.goodsDescribeRadio = config.GoodDescribe || this.goodsDescribeRadio // 商品描述
+          this.goodsDescribeRadio = parseInt( config.GoodDescribe || this.goodsDescribeRadio )// 商品描述
           this.translationConfig.titleChecked = config.IsTranslateTitle || this.translationConfig.titleChecked// 是否翻译标题
           this.translationConfig.specChecked = config.IsTranslateSpecification || this.translationConfig.specChecked // 是否翻译规格信息
           this.translationConfig.describeChecked = config.IsTranslateDescribe || this.translationConfig.describeChecked // 是否翻译描述
