@@ -553,7 +553,7 @@ export default {
     },
     // 添加单个精选组
     singleAdd() {
-      if (this.selectMallList.length > 2 || !this.selectMallList.length) return this.$message('添加单个精选组，只能选择一个店铺')
+      if (this.selectMallList.length >= 2 || !this.selectMallList.length) return this.$message('添加单个精选组，只能选择一个店铺')
       this.detailsVisible = true
       this.detailsData.mallName = this.selectMallList[0].mall_alias_name || this.selectMallList[0].platform_mall_name
       this.detailsData.platform_mall_id = this.selectMallList[0].platform_mall_id

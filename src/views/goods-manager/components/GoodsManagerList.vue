@@ -18,24 +18,24 @@
                 <li class="data-input">
                   <el-form label-position="right" label-width="60px">
                     <el-form-item label="销售量：">
-                      <el-input v-model="soldMin" size="mini" onkeyup="value=value.replace(/[^\d]/g,'')" />-
-                      <el-input v-model="soldMax" size="mini" onkeyup="value=value.replace(/[^\d]/g,'')" />
+                      <el-input v-model="soldMin" :disabled="operationBut" size="mini" onkeyup="value=value.replace(/[^\d]/g,'')" />-
+                      <el-input v-model="soldMax" :disabled="operationBut" size="mini" onkeyup="value=value.replace(/[^\d]/g,'')" />
                     </el-form-item>
                     <el-form-item label="访客量：">
-                      <el-input v-model="viewMin" size="mini" onkeyup="value=value.replace(/[^\d]/g,'')" />-
-                      <el-input v-model="viewMax" size="mini" onkeyup="value=value.replace(/[^\d]/g,'')" />
+                      <el-input v-model="viewMin" :disabled="operationBut" size="mini" onkeyup="value=value.replace(/[^\d]/g,'')" />-
+                      <el-input v-model="viewMax" :disabled="operationBut" size="mini" onkeyup="value=value.replace(/[^\d]/g,'')" />
                     </el-form-item>
                     <el-form-item label="粉丝量：">
-                      <el-input v-model="likeMin" size="mini" onkeyup="value=value.replace(/[^\d]/g,'')" />-
-                      <el-input v-model="likeMax" size="mini" onkeyup="value=value.replace(/[^\d]/g,'')" />
+                      <el-input v-model="likeMin" :disabled="operationBut" size="mini" onkeyup="value=value.replace(/[^\d]/g,'')" />-
+                      <el-input v-model="likeMax" :disabled="operationBut" size="mini" onkeyup="value=value.replace(/[^\d]/g,'')" />
                     </el-form-item>
                     <el-form-item label="价格：">
-                      <el-input v-model="priceMin" size="mini" onkeyup="value=value.replace(/[^\d]/g,'')" />-
-                      <el-input v-model="priceMax" size="mini" onkeyup="value=value.replace(/[^\d]/g,'')" />
+                      <el-input v-model="priceMin" :disabled="operationBut" size="mini" onkeyup="value=value.replace(/[^\d]/g,'')" />-
+                      <el-input v-model="priceMax" :disabled="operationBut" size="mini" onkeyup="value=value.replace(/[^\d]/g,'')" />
                     </el-form-item>
                     <el-form-item label="商品数量：">
-                      <el-input v-model="goodsMin" size="mini" onkeyup="value=value.replace(/[^\d]/g,'')" />-
-                      <el-input v-model="goodsMax" size="mini" onkeyup="value=value.replace(/[^\d]/g,'')" />
+                      <el-input v-model="goodsMin" :disabled="operationBut" size="mini" onkeyup="value=value.replace(/[^\d]/g,'')" />-
+                      <el-input v-model="goodsMax" :disabled="operationBut" size="mini" onkeyup="value=value.replace(/[^\d]/g,'')" />
                     </el-form-item>
                     <!-- <el-form-item label="评星数：">
                       <el-input size="mini" onkeyup="value=value.replace(/[^\d]/g,'')" />-
@@ -139,10 +139,12 @@
                 <li>
                   <el-checkbox
                     v-model="productNumChecked"
+                    :disabled="operationBut"
                     style="margin-right:3px"
                   >单店查询商品数量</el-checkbox>
                   <el-input
                     v-model="productNum"
+                    :disabled="operationBut"
                     size="mini"
                     style="width:105px"
                     onkeyup="value=value.replace(/[^\d]/g,'')"
@@ -151,14 +153,15 @@
                 <li class="data-goods">
                   <el-input
                     v-model="keyword"
+                    :disabled="operationBut"
                     size="mini"
                     class="input-with-select"
-                    oninput="value=value.replace(/\s+/g,'')"
                     clearable
                   >
                     <el-select
                       slot="prepend"
                       v-model="searchType"
+                      :disabled="operationBut"
                     >
                       <el-option
                         v-for="(item, index) in searchTypeList"
@@ -172,6 +175,7 @@
               </ul>
               <ul style="margin-bottom:3px">
                 <el-button
+                  :disabled="operationBut"
                   type="primary"
                   size="mini"
                   style="margin-right:3px"
@@ -188,6 +192,19 @@
                 />
               </ul>
               <ul style="margin-bottom:3px">
+                <el-button type="primary" size="mini" :disabled="operationBut" @click="operation('syncOriginGoodsNum')">同步上家库存</el-button>
+                <el-button style="width: 95px;" type="primary" size="mini" :disabled="true">商品搬迁</el-button>
+                <el-button
+                  type="primary"
+                  size="mini"
+                  style="width: 95px;"
+                  :disabled="operationBut"
+                  @click="
+                    operation('batchConfirm')"
+                >批量确认</el-button>
+                <el-button type="primary" size="mini" :disabled="true">商品一键翻新</el-button>
+              </ul>
+              <ul>
                 <el-button
                   type="primary"
                   size="mini"
@@ -202,33 +219,9 @@
                   @click="queryType = 200
                           queryData()"
                 >一键查询200小时以上无流量商品</el-button>
-                <el-button type="primary" size="mini" :disabled="operationBut">商品一键翻新</el-button>
-              </ul>
-              <ul>
-                <el-button type="primary" size="mini" :disabled="operationBut" @click="operation('syncOriginGoodsNum')">同步上家库存</el-button>
-                <el-button type="primary" size="mini">商品搬迁</el-button>
-                <el-button
-                  type="primary"
-                  size="mini"
-                  :disabled="operationBut"
-                  @click="
-                    operation('batchConfirm')"
-                >批量确认</el-button>
-                <el-button
-                  type="primary"
-                  size="mini"
-                  :disabled="operationBut"
-                  @click="queryType = 1
-                          queryData()"
-                >查询数据</el-button>
-                <el-checkbox
-                  v-model="showConsole"
-                  style="margin-left:10px"
-                >隐藏日志</el-checkbox>
               </ul>
             </div>
           </div>
-
         </li>
         <li class="operation">
           <div class="base-box">
@@ -239,29 +232,10 @@
                   type="primary"
                   size="mini"
                   :disabled="operationBut"
-                  @click="
-                    queryType = 1
-                    operation('batchDelete')"
-                >批量删除</el-button>
-                <el-button
-                  type="primary"
-                  size="mini"
-                  :disabled="operationBut"
-                  @click="operation('batchUpDownProduct')
-                          upDown = true"
-                >批量下架</el-button>
+                  @click="queryType = 1
+                          queryData()"
+                >查询数据</el-button>
                 <el-button type="primary" size="mini" :disabled="operationBut" @click="operation('batchTitle')">批量编辑标题</el-button>
-                <el-button
-                  type="primary"
-                  size="mini"
-                  :disabled="!operationBut"
-                  @click="stop()
-                          flag = true"
-                >取消操作</el-button>
-                <el-button type="primary" size="mini" :disabled="operationBut" @click="operation('batchCategory')">批量修改类目属性</el-button>
-              </ul>
-              <ul style="margin-bottom:3px">
-                <el-button type="primary" size="mini" :disabled="operationBut" @click="exportTableData">导出数据</el-button>
                 <el-button
                   type="primary"
                   size="mini"
@@ -269,27 +243,61 @@
                   @click="operation('batchUpDownProduct')
                           upDown = false"
                 >批量上架</el-button>
+
+                <el-button
+                  type="primary"
+                  size="mini"
+                  :disabled="operationBut"
+                  @click="
+                    queryType = 1
+                    operation('batchDelete')"
+                >批量删除</el-button>
+                <el-button type="primary" size="mini" :disabled="operationBut" @click="operation('batchCategory')">批量修改类目属性</el-button>
+              </ul>
+              <ul style="margin-bottom:3px">
+                <el-button type="primary" size="mini" :disabled="operationBut" @click="exportTableData">导出数据</el-button>
+
                 <el-button type="primary" size="mini" :disabled="operationBut" @click="operation('batchDescription')">批量编辑描述</el-button>
+                <el-button
+                  type="primary"
+                  size="mini"
+                  :disabled="operationBut"
+                  @click="operation('batchUpDownProduct')
+                          upDown = true"
+                >批量下架</el-button>
+                <el-button
+                  type="primary"
+                  size="mini"
+                  :disabled="!operationBut"
+                  @click="stop()
+                          flag = true"
+                >取消操作</el-button>
                 <el-button type="primary" size="mini" :disabled="operationBut" @click="queryBanned">一键查询禁卖商品</el-button>
+                <el-checkbox
+                  v-model="showConsole"
+                  style="margin-left:10px"
+                >隐藏日志</el-checkbox>
               </ul>
               <ul>
                 <li class="operation-input">
                   <el-form label-position="right" label-width="60px">
                     <el-form-item label="商品库存：">
-                      <el-input v-model="productStock" size="mini" onkeyup="value=value.replace(/[^\d]/g,'')" />
+                      <el-input v-model="productStock" :disabled="operationBut" size="mini" onkeyup="value=value.replace(/[^\d]/g,'')" />
                     </el-form-item>
                     <el-form-item label="商品价格：">
                       <el-input
                         v-model="productPrice1"
+                        :disabled="operationBut"
                         class="mini-input"
                         size="mini"
                         onkeyup="value=value.replace(/[^\d]/g,'')"
                       /> % +
-                      <el-input v-model="productPrice2" class="mini-input" size="mini" onkeyup="value=value.replace(/[^\d]/g,'')" />
+                      <el-input v-model="productPrice2" :disabled="operationBut" class="mini-input" size="mini" onkeyup="value=value.replace(/[^\d]/g,'')" />
                     </el-form-item>
                     <el-form-item label="发货天数：">
                       <el-input
                         v-model="productDay"
+                        :disabled="operationBut"
                         size="mini"
                         onkeyup="value=value.replace(/[^\d]/g,'')"
                       />
@@ -297,6 +305,7 @@
                     <el-form-item label="物流方式：">
                       <el-select
                         v-model="logistics"
+                        :disabled="operationBut"
                         size="mini"
                         filterable
                         multiple
@@ -317,17 +326,17 @@
                       </el-select>
                     </el-form-item>
                     <el-form-item label="商品重量：">
-                      <el-input v-model="productWeight" style="width:102px" size="mini" onkeyup="value=value.replace(/[^\d]/g,'')" />
+                      <el-input v-model="productWeight" :disabled="operationBut" style="width:102px" size="mini" onkeyup="value=value.replace(/[^\d]/g,'')" />
                       <span class="red-span" style="margin-left:3px">kg</span>
                     </el-form-item>
                     <div style="line-height: 31px;">
-                      <el-radio v-model="freightRadio" :label="1">免运</el-radio>
-                      <el-radio v-model="freightRadio" :label="2">运费由买家承担</el-radio>
+                      <el-radio v-model="freightRadio" :disabled="operationBut" :label="1">免运</el-radio>
+                      <el-radio v-model="freightRadio" :disabled="operationBut" :label="2">运费由买家承担</el-radio>
                     </div>
                     <el-form-item label="商品尺寸：">
-                      <el-input v-model="productLength" class="mini-input item" size="mini" placeholder="长" onkeyup="value=value.replace(/[^\d]/g,'')" />*
-                      <el-input v-model="productWidth" class="mini-input item" size="mini" placeholder="宽" onkeyup="value=value.replace(/[^\d]/g,'')" />*
-                      <el-input v-model="productHeight" class="mini-input item" size="mini" placeholder="高" onkeyup="value=value.replace(/[^\d]/g,'')" />
+                      <el-input v-model="productLength" :disabled="operationBut" class="mini-input item" size="mini" placeholder="长" onkeyup="value=value.replace(/[^\d]/g,'')" />*
+                      <el-input v-model="productWidth" :disabled="operationBut" class="mini-input item" size="mini" placeholder="宽" onkeyup="value=value.replace(/[^\d]/g,'')" />*
+                      <el-input v-model="productHeight" :disabled="operationBut" class="mini-input item" size="mini" placeholder="高" onkeyup="value=value.replace(/[^\d]/g,'')" />
                     </el-form-item>
                   </el-form>
                 </li>
@@ -781,6 +790,7 @@ import GoodsList from '../../../module-api/goods-manager-api/goods-list'
 import StoreChoose from '../../../components/store-choose'
 import { exportExcelDataCommon, batchOperation, terminateThread, dealwithOriginGoodsNum } from '../../../util/util'
 import categoryMapping from '../../../components/category-mapping'
+import { packageType } from '@/views/order-manager/components/orderCenter/orderCenter'
 export default {
   components: {
     StoreChoose,
@@ -932,6 +942,12 @@ export default {
         'setLogistics': '物流方式',
         'setCategory': '类目属性'
       },
+      parentTypeObj: {
+        1: '拼多多',
+        2: '淘宝',
+        8: '1688',
+        9: 'lazada'
+      },
       searchTypeList: [
         { value: 'name', label: '商品名称' },
         { value: 'sku', label: '主商品货号' },
@@ -961,6 +977,7 @@ export default {
         { value: 8, label: '1688' },
         { value: 9, label: 'lazada' }
       ]
+
     }
   },
   watch: {
@@ -1004,40 +1021,39 @@ export default {
       // 获取商品编码加密值
       let parentId = ''
       let parentType = ''
-      if (type === 1) {
-        if (!this.parentId.trim()) return this.$message('产品ID不能为空')
-        parentId = this.parentId
-        parentType = this.parentType
-        this.parentLoad1 = true
-      } else {
-        if (!this.parentUrl.trim()) return this.$message('产品链接不能为空')
-        const execPlatform = /(yangkeduo.com)|(item.taobao.com)|(detail.1688.com)|(www.lazada)/g
-        const platform = this.parentUrl.match(execPlatform)
-        if (!platform) return this.$message(`链接:${this.parentUrl} 识别支持平台失败`, false)
-        switch (platform[0]) {
-          case 'yangkeduo.com':
-            parentId = this.parentUrl.match(/goods_id=(\d+)/)[1]
-            parentType = 1
-            break
-          case 'item.taobao.com':
-            parentId = this.parentUrl.match(/id=(\d+)/)[1]
-            parentType = 2
-            break
-          case 'detail.1688.com':
-            parentId = this.parentUrl.match(/(\d+)\.html/)[1]
-            parentType = 8
-            break
-          case 'www.lazada':
-            parentId = this.parentUrl.match(/(\d+)\.html/)[1]
-            parentType = 9
-            break
-        }
-        this.parentLoad2 = true
-      }
-      const tmallCrossBorderUserId = this.goodsValue.platformTypeStr === '天猫淘宝海外平台' ? this.goodsValue.id : ''
       try {
+        if (type === 1) {
+          if (!this.parentId.trim()) return this.$message('产品ID不能为空')
+          parentId = this.parentId
+          parentType = this.parentType
+          this.parentLoad1 = true
+        } else {
+          if (!this.parentUrl.trim()) return this.$message('产品链接不能为空')
+          const execPlatform = /(yangkeduo.com)|(item.taobao.com)|(detail.1688.com)|(www.lazada)/g
+          const platform = this.parentUrl.match(execPlatform)
+          if (!platform) return this.$message(`链接:${this.parentUrl} 识别支持平台失败`, false)
+          switch (platform[0]) {
+            case 'yangkeduo.com':
+              parentId = this.parentUrl.match(/goods_id=(\d+)/)[1]
+              parentType = 1
+              break
+            case 'item.taobao.com':
+              parentId = this.parentUrl.match(/id=(\d+)/)[1]
+              parentType = 2
+              break
+            case 'detail.1688.com':
+              parentId = this.parentUrl.match(/(\d+)\.html/)[1]
+              parentType = 8
+              break
+            case 'www.lazada':
+              parentId = this.parentUrl.match(/(\d+)\.html/)[1]
+              parentType = 9
+              break
+          }
+          this.parentLoad2 = true
+        }
+        const tmallCrossBorderUserId = this.goodsValue.platformTypeStr === '天猫淘宝海外平台' ? this.goodsValue.id : ''
         const parent_sku = await this.$BaseUtilService.buildGoodCode(parentType, parentId, this.goodsValue.country, this.goodsValue.platform_mall_id, tmallCrossBorderUserId)
-        console.log('parent_sku', parent_sku)
         let productInfo = {}
         const res = await this.getProductDetail(this.goodsValue)
         if (res.code === 200) {
@@ -1046,18 +1062,34 @@ export default {
           const data = { mallId: this.goodsValue.platform_mall_id }
           const editProductRes = await this.$shopeemanService.handleProductEdit(this.goodsValue.country, data, [productInfo])
           if (editProductRes.code === 200) {
-            this.$message.success(`【${this.goodsValue.id}】修改成功`)
-            this.parentVisible = false
-            this.queryData()
+            this.batchStatus(this.goodsValue, `修改成功`, true)
+            this.goodsValue.platformTypeStr = this.parentTypeObj[parentType]
+            this.goodsValue.productId = parentId
+            switch (parentType) {
+              case 1:
+                this.goodsValue.url = `http://mobile.yangkeduo.com/goods.html?goods_id=${parentId}`
+                break
+              case 2:
+                this.goodsValue.url = `https://item.taobao.com/item.htm?id=${parentId}`
+                break
+              case 8:
+                this.goodsValue.url = `https://detail.1688.com/offer/${parentId}.html`
+                break
+              case 9:
+                this.goodsValue.url = `${this.$filters.lazadaGoodsUrl(this.goodsValue.country)}/${parentId}.html`
+                break
+            }
           } else {
-            this.$message.error(`【${this.goodsValue.id}】修改失败：${editProductRes.data}`)
+            this.batchStatus(this.goodsValue, `修改失败：${editProductRes.data}`, false)
           }
         } else {
           this.$message.error(`${res.data}`)
         }
       } catch (error) {
-        this.$message.error(`修改上家异常：${error}`)
+        this.batchStatus(this.goodsValue, `修改上家异常：${error}`, false)
+        this.parentVisible = false
       }
+      this.parentVisible = false
       this.parentLoad1 = false
       this.parentLoad2 = false
     },
@@ -1077,9 +1109,9 @@ export default {
       }
       const res = await this.$shopeemanService.handleGoodsTop(row.country, params)
       if (res.code === 200) {
-        this.$message.success(`商品置顶成功！`)
+        this.batchStatus(row, `商品置顶成功！`, true)
       } else {
-        this.$message.error(`${res.data}`)
+        this.batchStatus(row, `${res.data}`, false)
       }
     },
     // 类目选择数据
@@ -1250,6 +1282,21 @@ export default {
       const editProductRes = await this.$shopeemanService.handleProductEdit(item.country, data, [productInfo])
       if (editProductRes.code === 200) {
         this.successNum++
+        if (item.edit === 'setStock') {
+          let stock = 0
+          item.model_list.forEach(modelItem => { stock += Number(this.productStock) })
+          item.stock = stock
+        }
+        if (item.edit === 'setPrice') {
+          const price = []
+          item.model_list.forEach(modelItem => {
+            price.push(Math.ceil(Number(modelItem.price_info.normal_price) + (Number(modelItem.price_info.normal_price) * (Number(this.productPrice1) / 100)) + Number(this.productPrice2)))
+          })
+          item.price = Math.min.apply(null, price)
+        }
+        if (item.edit === 'setTitle') {
+          item.name = productInfo.name
+        }
         this.batchStatus(item, `更新${this.operationObj[item.edit]}成功`, true)
       } else {
         this.failNum++
@@ -1563,9 +1610,10 @@ export default {
               break
           }
           this.getDescriptionLength(item)
-          if (item.edit === 'description' && this.minLength !== 0 && (productInfo.description.length > this.maxLength || productInfo.description.length < this.minLength)) {
-            this.batchStatus(item, '描述不符合,长度范围' + this.minLength + '-' + this.maxLength, false)
+          if (item.edit === 'description' && this.minLength !== 0 && productInfo.description.length < this.minLength) {
+            this.batchStatus(item, '描述长度过短：最小长度' + this.minLength, false)
           } else {
+            productInfo['description'] = productInfo['description'].slice(0, this.maxLength)
             productInfo.description.trim()
             await this.handleProductEdit(productInfo, item)
           }
@@ -1613,11 +1661,12 @@ export default {
           }
           // 设置标题长度
           this.getTitleLength(item)
-          if (this.minLength !== 0 && (productInfo.name.length > this.maxLength || productInfo.name.length < this.minLength)) {
-            this.batchStatus(item, '标题不符合,长度范围' + this.minLength + '-' + this.maxLength, false)
+          if (this.minLength !== 0 && productInfo.name.length < this.minLength) {
+            this.batchStatus(item, '标题长度过短：最小长度' + this.minLength, false)
             this.failNum++
           } else {
-            productInfo.description.trim()
+            productInfo['name'] = productInfo['name'].slice(0, this.maxLength)
+            productInfo['name'].trim()
             await this.handleProductEdit(productInfo, item)
           }
         } else {
@@ -2280,6 +2329,10 @@ export default {
           break
         } else {
           this.goodsStatusName = this.statusFilter[item]
+          this.selectMallList.forEach(item => {
+            item.pageNumber = 1
+            item.mylist = []
+          })
           await batchOperation(this.selectMallList, this.getTableData)
         }
       }
@@ -2308,7 +2361,7 @@ export default {
         if ((this.searchType !== 'originId' && this.keyword) || this.goodsMax < 99999999 || this.goodsMin > 0 || this.soldMin > 0 || this.soldMax < 99999999 || this.categoryName) {
           if (this.keyword && !(this.queryType === 100 || this.queryType === 200)) {
             params['searchType'] = this.searchType
-            params['keyword'] = this.keyword
+            params['keyword'] = this.keyword.trim()
           }
           if (this.categoryName && !(this.queryType === 100 || this.queryType === 200)) {
             params['categoryId'] = this.categoryList.categoryList[this.categoryList.categoryList.length - 1].category_id
@@ -2353,7 +2406,10 @@ export default {
         } else {
         // 单店查询商品数量
           if (this.productNumChecked) {
-            this.tableData = this.tableData.concat(mItem.mylist.slice(0, Number(this.productNum)))
+            const data = this.tableData.filter(item => { return item.mallName === mallName })
+            if (data.length < Number(this.productNum)) {
+              this.tableData = this.tableData.concat(mItem.mylist.slice(0, Number(this.productNum)))
+            }
           }
           this.queryNum = this.tableData.length
           const temp = 100 / this.selectMallList.length
@@ -2515,6 +2571,10 @@ export default {
         if (this.goodsStatusVal === 6 && item.status !== 6) {
           continue
         }
+        // 过滤商品状态  6：审核中
+        if (this.goodsStatusVal !== 6 && item.status === 6) {
+          continue
+        }
         // 过滤是否售空
         if (!(this.queryType === 100 || this.queryType === 200) && Number(this.sellStatus) === 1 && Number(item.stock) > 0) {
           continue
@@ -2529,21 +2589,28 @@ export default {
         if (!(Number(item.price) <= Number(this.priceMax))) {
           continue
         }
-        // 过滤粉丝量
+        // 过滤访客量
         if (!(Number(item.view_count) >= Number(this.viewMin))) {
           continue
         }
         if (!(Number(item.view_count) <= Number(this.viewMax))) {
           continue
         }
+        // 过滤粉丝量
+        if (!(Number(item.like_count) >= Number(this.likeMin))) {
+          continue
+        }
+        if (!(Number(item.like_count) <= Number(this.likeMax))) {
+          continue
+        }
         // 过滤无流量商品
         if (this.queryType === 100) {
-          if ((Number(new Date().getTime()) - Number(item.create_time)) < 360000000) {
+          if (((Number(new Date().getTime()) - Number(item.create_time)) < 360000000) || Number(item.view_count) !== 0 || Number(item.like_count) !== 0) {
             continue
           }
         }
         if (this.queryType === 200) {
-          if ((Number(new Date().getTime()) - Number(item.create_time)) < 720000000) {
+          if (((Number(new Date().getTime()) - Number(item.create_time)) < 720000000) || Number(item.view_count) !== 0 || Number(item.like_count) !== 0) {
             continue
           }
         }
