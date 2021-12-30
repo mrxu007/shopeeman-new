@@ -44,6 +44,7 @@
           </template>
         </el-table-column>
         <el-table-column min-width="80px" label="店铺名称" prop="platform_mall_name" align="center" />
+        <el-table-column min-width="80px" label="店铺别名" prop="mall_alias_name" align="center" />
         <el-table-column align="center" prop="transaction_id" label="交易流水号" min-width="120" />
         <el-table-column align="center" prop="bank_name" label="银行" min-width="70" />
         <el-table-column align="center" prop="bank_account_name" label="持卡人" min-width="70" />
@@ -262,6 +263,7 @@ export default {
     // 分页设置
     dataCut() {
       this.tableDataCut = this.tableData.slice((this.currentPage - 1) * this.pageSize, this.currentPage * this.pageSize)
+      console.log('tableDataCut', this.tableDataCut)
     },
     handleCurrentChange(val) {
       this.currentPage = val
