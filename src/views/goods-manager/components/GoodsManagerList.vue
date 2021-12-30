@@ -804,6 +804,7 @@ import GoodsList from '../../../module-api/goods-manager-api/goods-list'
 import StoreChoose from '../../../components/store-choose'
 import { exportExcelDataCommon, batchOperation, terminateThread, dealwithOriginGoodsNum } from '../../../util/util'
 import categoryMapping from '../../../components/category-mapping'
+import { packageType } from '@/views/order-manager/components/orderCenter/orderCenter'
 export default {
   components: {
     StoreChoose,
