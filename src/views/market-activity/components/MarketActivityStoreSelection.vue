@@ -264,7 +264,10 @@ export default {
       tableData: [], // 表格数据
       multipleSelection: [], // 选择数据
       detailsData: {
-        graphqlData: []
+        graphqlData: [],
+        name: '',
+        status: null,
+        productId: ''
       }, // 详情数据
 
       goodsSortList: [
