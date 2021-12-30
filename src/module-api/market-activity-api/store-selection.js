@@ -21,8 +21,12 @@ export default class StoreSelection {
     try {
       const res = await this._this.$shopeemanService.getChinese(val.country, '/api/marketing/v3/public/product_selector/?', params)
       const jsonData = this.isJsonString(this.isJsonString(res).data)
+      console.log(jsonData)
       if (jsonData.message === 'success') {
         return { code: 200, data: jsonData.data.item_list }
+      }
+      if (!jsonData) {
+        return { code: -1, data: `店铺登录失败，请检查代理` }
       }
       return { code: 201, data: `${jsonData.errcode} ${jsonData.message.indexOf('token not found') > -1 ? '未登录，请登录后再查询' : jsonData.message}` }
     } catch (error) {
@@ -58,6 +62,9 @@ export default class StoreSelection {
       if (data.length > 0) {
         return { code: 200, data: data }
       }
+      if (!jsonData) {
+        return { code: -1, data: `店铺登录失败，请检查代理` }
+      }
       return { code: 201, data: `${jsonData.errcode} ${jsonData.message.indexOf('token not found') > -1 ? '未登录，请登录后再查询' : jsonData.message}` }
     } catch (error) {
       return { code: -2, data: `getGraphql-error ${error}` }
@@ -92,11 +99,13 @@ export default class StoreSelection {
           referer
         }
       })
-      console.log('res', this.isJsonString(res))
       const jsonData = this.isJsonString(this.isJsonString(res).data)
       console.log('jsonData', jsonData)
       if (jsonData.message === 'success') {
         return { code: 200, data: jsonData.data }
+      }
+      if (!jsonData) {
+        return { code: -1, data: `店铺登录失败，请检查代理` }
       }
       return { code: 201, data: `${jsonData.errcode || jsonData.code} ${jsonData.message && jsonData.message.indexOf('token not found') > -1 ? '未登录，请登录后再查询' : jsonData.message}` }
     } catch (error) {
@@ -116,6 +125,9 @@ export default class StoreSelection {
       const jsonData = this.isJsonString(this.isJsonString(res).data)
       if (jsonData.message === 'success') {
         return { code: 200, data: jsonData.data }
+      }
+      if (!jsonData) {
+        return { code: -1, data: `店铺登录失败，请检查代理` }
       }
       return { code: 201, data: `${jsonData.errcode} ${jsonData.message && jsonData.message.indexOf('token not found') > -1 ? '未登录，请登录后再查询' : jsonData.message}` }
     } catch (error) {

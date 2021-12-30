@@ -326,7 +326,7 @@
                       </el-select>
                     </el-form-item>
                     <el-form-item label="商品重量：">
-                      <el-input v-model="productWeight" :disabled="operationBut" style="width:102px" size="mini" onkeyup="value=value.replace(/[^\d]/g,'')" />
+                      <el-input v-model="productWeight" :disabled="operationBut" style="width:102px" size="mini" onkeyup="value=value.replace(/[^\d.]/g,'')" />
                       <span class="red-span" style="margin-left:3px">kg</span>
                     </el-form-item>
                     <div style="line-height: 31px;">
@@ -593,8 +593,22 @@
               </div>
               <el-radio v-model="titleRadio" :label="1">新标题</el-radio>
             </el-tooltip>
-            <el-radio v-model="titleRadio" :label="2">新增关键词/标题前</el-radio>
-            <el-radio v-model="titleRadio" :label="3">新增关键词/标题后</el-radio>
+            <el-tooltip
+              placement="top"
+            >
+              <div slot="content">
+                <span>需要新增多个热搜词/关键词，请以英文';'间隔!</span>
+              </div>
+              <el-radio v-model="titleRadio" :label="2">新增关键词/标题前</el-radio>
+            </el-tooltip>
+            <el-tooltip
+              placement="top"
+            >
+              <div slot="content">
+                <span>需要新增多个热搜词/关键词，请以英文';'间隔!</span>
+              </div>
+              <el-radio v-model="titleRadio" :label="3">新增关键词/标题后</el-radio>
+            </el-tooltip>
             <el-tooltip
               placement="top"
             >
@@ -1638,6 +1652,7 @@ export default {
         const res = await this.getProductDetail(item)
         if (res.code === 200) {
           productInfo = res.data
+          this.titleVal = this.titleVal.replaceAll('；', ';') // 兼容中文分号
           switch (this.titleRadio) {
             case 1:
               productInfo['name'] = this.titleVal
@@ -1666,8 +1681,7 @@ export default {
             this.batchStatus(item, '标题长度过短：最小长度' + this.minLength, false)
             this.failNum++
           } else {
-            productInfo['name'] = productInfo['name'].slice(0, this.maxLength)
-            productInfo['name'].trim()
+            productInfo['name'] = productInfo['name'].trim().replaceAll(';', ' ').slice(0, this.maxLength)
             await this.handleProductEdit(productInfo, item)
           }
         } else {
@@ -1868,7 +1882,7 @@ export default {
         let isAddToNewArray = false
         for (let j = 0; j < logisticsJarray.length; j++) {
           const logistics = logisticsJarray[j]
-          if (logistics.channel_id.toString === channelId) {
+          if (logistics.channel_id.toString() === channelId) {
             if (!isUseProductChannel) {
               logistics.enabled = channels.enabled.toString()
             }
@@ -2408,13 +2422,12 @@ export default {
         } else {
         // 单店查询商品数量
           if (this.productNumChecked) {
-            const data = this.tableData.filter(item => { return item.mallName === mallName })
-            if (data.length < Number(this.productNum)) {
+            const filterData = this.tableData.filter(item => { return item.mallName === mallName })
+            if (filterData.length < Number(this.productNum)) {
               this.tableData = this.tableData.concat(mItem.mylist.slice(0, Number(this.productNum)))
             }
           }
           this.queryNum = this.tableData.length
-          // const temp = 100 / this.selectMallList.length
           const len = this.goodsStatus.length === 8 ? 1 : this.goodsStatus.length
           this.percentage = (this.index++ / (this.selectMallList.length * len)) * 100
           --count.count
