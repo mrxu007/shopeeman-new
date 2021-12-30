@@ -214,4 +214,38 @@ var imageRenderhaventID = function(data) { // 第二个参数传任意传
   return isArr && [url] || url
 }
 
-export { chineseSite, imageRender, imageRenderhaventID, siteCoin, sitePlatform, countryShopeebuyCom, lazadaGoodsUrl, countries_option, countries_site,countries_option_sub }
+const currencyShow = function(data){
+  let temp = ''
+  switch (data){
+    case 'MY':
+      temp ='RM';
+      break
+    case 'PH':
+      temp ='₱';
+      break
+    case 'ID':
+      temp ='Rp';
+      break
+    case 'VN':
+      temp ='₫';
+      break
+    case 'TH':
+      temp ='฿';
+      break
+    case 'BR':
+      temp ='R$';
+      break
+    case 'MX':
+      temp ='MX$';
+      break
+    case 'PL':
+      temp ='zł';
+      break
+    default :
+      temp = '$'
+  }
+  return temp
+}
+
+export { chineseSite, imageRender, imageRenderhaventID, siteCoin, sitePlatform, countryShopeebuyCom,
+  lazadaGoodsUrl, countries_option, countries_site,countries_option_sub ,currencyShow}

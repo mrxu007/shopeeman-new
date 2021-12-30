@@ -2,28 +2,7 @@
   <el-row class="contaniner">
     <el-row class="header">
       <ul style="margin-bottom: 10px">
-        <li>
-          <span>站点：</span>
-          <el-select v-model="site" size="mini" filterable>
-            <el-option v-for="(item,index) in siteList" :key="index" :value="item.value" :label="item.label" />
-          </el-select>
-        </li>
-        <li>
-          <span>店铺分组：</span>
-          <el-select v-model="group" class="mall" placeholder="请选择分组" multiple collapse-tags clearable size="mini" filterable>
-            <el-option v-if="selectall" label="全部" :value="0" />
-            <el-option v-if="!selectall" label="全部" :value="-2" />
-            <el-option v-for="(item, index) in gruopList" :key="index" :label="item.label" :value="item.value" />
-          </el-select>
-        </li>
-        <li>
-          <span>店铺：</span>
-          <el-select v-model="mall" class="mall" placeholder="请选择店铺" multiple collapse-tags clearable size="mini" filterable>
-            <el-option v-if="selectall1" label="全部" :value="0" />
-            <el-option v-if="!selectall1" label="全部" :value="-2" />
-            <el-option v-for="(item, index) in mallList" :key="index" :label="item.label" :value="item.value" />
-          </el-select>
-        </li>
+        <storeChoose :span-width="'80px'" :source="'true'" @changeMallList="changeMallList"/>
         <li>
           <span>类型：</span>
           <el-select v-model="type" placeholder="" size="mini" filterable>
@@ -120,6 +99,9 @@
   </el-row>
 </template>
 <script>
+import storeChoose from '@/components/store-choose'
+import { batchOperation } from '@/util/util'
+
 export default {
   data() {
     return {
@@ -127,7 +109,7 @@ export default {
       Loading3: false,
       selectall: true, // 分组全选和取消全选选项控制
       selectall1: true, // 店铺全选和取消全选选项控制
-      showlog: false,
+      showlog: true,
       exportdata: [], // 导出数据
       type: 10000,
       indexs: 1,
@@ -165,50 +147,16 @@ export default {
       ]
     }
   },
+  components: {
+    storeChoose
+  },
   watch: {
-    group(val, oldVal) {
-      this.mall = []
-      for (let i = 0; i < val.length; i++) {
-        if (val[i] === 0) {
-          this.group = this.allgroupid
-          this.mall = [].concat(this.allmallid)
-          this.selectall = false
-        } else if (val[i] === -2) {
-          this.group = []
-          this.mall = []
-          this.selectall = true
-        } else {
-          for (let j = 0; j < this.mallList.length; j++) {
-            if (val[i] === this.mallList[j].group_id) {
-              this.mall.push(this.mallList[j].value)
-            }
-          }
-        }
-      }
-    },
-    mall(val, oldVal) {
-      for (let i = 0; i < val.length; i++) {
-        if (val[i] === 0) {
-          this.mall = this.allmallid
-          this.selectall1 = false
-        }
-        if (val[i] === -2) {
-          this.mall = []
-          this.selectall1 = true
-        }
-      }
-    },
-    site(val, oldVal) {
-      this.mall = []
-      this.group = []
-      this.getInfo()
-    },
     type(val, oldVal) {
       this.getallinfo()
     }
   },
   mounted() {
-    this.getInfo()
+    // this.getInfo()
     this.time1 = this.$dayjs(this.time1).format('MM/DD')
     this.time2 = this.$dayjs(this.time2).format('MM/DD')
     this.time3 = this.$dayjs(this.time3).format('MM/DD')
@@ -217,39 +165,127 @@ export default {
     // console.log(returnCreateStartTime)
   },
   methods: {
-    // 分组信息查找
-    async getInfo() {
-      const params = {
-        country: this.site,
-        mallGroupIds: this.group
-      }
-      const res = await this.$api.ddMallGoodsGetMallList(params)
-      this.mallList = []; this.gruopList = []; this.allgroupid = []; this.allmallid = []
-      // console.log('1111111111111111111111', res.data)
-      if (res.data.code === 200) {
-        res.data.data.forEach(el => {
-          if (el.group_id) {
-            this.gruopList.push({ label: el.group_name, value: el.group_id })
+    // 获取店铺信息
+    changeMallList(val) {
+      this.site = val.country
+      this.mall = val.mallList
+    },
+    async getTableData(item, count = { count: 1 }) {
+      try {
+        const timenow = this.$dayjs(this.time).format('YYYY-MM-DD')
+        let mallname = item.mall_alias_name || item.platform_mall_name
+        const params = {
+          metric_id: this.type,
+          // group: this.group,
+          mallId: item.platform_mall_id,
+          dt: timenow,
+          country: this.site,
+          shopid: item.platform_mall_id,
+          page_num: 1,
+          page_size: 20
+        }
+        let type
+        for (let k = 0; k < this.typelist.length; k++) {
+          if (this.typelist[k].value === this.type) {
+            type = this.typelist[k].label
           }
-          if (el.id) {
-            this.mallList.push({ label: el.mall_alias_name ? el.mall_alias_name : el.platform_mall_name, value: el.platform_mall_id, group_id: el.group_id })
-          }
-        })
-        for (let i = 0; i < this.gruopList.length - 1; i++) {
-          for (let j = i + 1; j < this.gruopList.length; j++) {
-            if (this.gruopList[i].value === this.gruopList[j].value) {
-              this.gruopList.splice(j, 1)
+        }
+        console.log('this is my parmas', params)
+        const attributeTreeJson = await this.$shopeemanService.getdiagnosis(this.site, params, { headers: { 'Content-Type': 'application/json; charset=utf-8' }})
+        let attributeTreeRes
+        if (attributeTreeJson) {
+          attributeTreeRes = JSON.parse(attributeTreeJson)
+        }
+        if (attributeTreeRes.status === 200) {
+          this.$refs.Logs.writeLog(`【${mallname}】 查询 【${type}】 数据 成功`, true)
+          attributeTreeRes.data = JSON.parse(attributeTreeRes.data)
+          console.log('ces', attributeTreeRes.data.data.list)
+          if (this.type === 10000 && attributeTreeRes.data.data.list) { // 销售额
+            for (let j = 0; j < attributeTreeRes.data.data.list.length; j++) {
+              const data = {}
+              data['index'] = this.indexs
+              this.indexs++
+              data['mallname'] = mallname
+              data['mallid'] = item.platform_mall_name
+              data['type'] = type
+              data['productid'] = attributeTreeRes.data.data.list[j].itemid
+              data['img'] = attributeTreeRes.data.data.list[j].image
+              data['title'] = attributeTreeRes.data.data.list[j].title
+              data['d2'] = `${this.$filters.currencyShow(this.site)}${attributeTreeRes.data.data.list[j].d1}`
+              data['d3'] = `${this.$filters.currencyShow(this.site)}${attributeTreeRes.data.data.list[j].d2} ${attributeTreeRes.data.data.list[j].d3}%`
+              this.tableData.push(data)
+            }
+          } else if (this.type === 10002 && attributeTreeRes.data.data.list) { // 差评
+            for (let j = 0; j < attributeTreeRes.data.data.list.length; j++) {
+              const data = {}
+              data['index'] = this.indexs
+              this.indexs++
+              data['mallname'] = mallname
+              data['mallid'] = item.platform_mall_name
+              data['type'] = type
+              data['productid'] = attributeTreeRes.data.data.list[j].itemid
+              data['img'] = attributeTreeRes.data.data.list[j].image
+              data['title'] = attributeTreeRes.data.data.list[j].title
+              data['d2'] = attributeTreeRes.data.data.list[j].d1
+              data['d3'] = attributeTreeRes.data.data.list[j].d2
+              this.tableData.push(data)
+            }
+          } else if (this.type === 10008 || this.type === 10006 && attributeTreeRes.data.data.list) { // 高卖家取消率和滴转化率
+            for (let j = 0; j < attributeTreeRes.data.data.list.length; j++) {
+              const data = {}
+              data['index'] = this.indexs
+              this.indexs++
+              data['mallname'] = mallname
+              data['mallid'] = item.platform_mall_name
+              data['type'] = type
+              data['productid'] = attributeTreeRes.data.data.list[j].itemid
+              data['img'] = attributeTreeRes.data.data.list[j].image
+              data['title'] = attributeTreeRes.data.data.list[j].title
+              data['d2'] = attributeTreeRes.data.data.list[j].d1
+              data['d3'] = attributeTreeRes.data.data.list[j].d3 + '%'
+              this.tableData.push(data)
+            }
+          } else if ((this.type === 10007 && attributeTreeRes.data.data.list)) {
+            for (let j = 0; j < attributeTreeRes.data.data.list.length; j++) {
+              const data = {}
+              data['index'] = this.indexs
+              this.indexs++
+              data['mallname'] = mallname
+              data['mallid'] = item.platform_mall_name
+              data['type'] = type
+              data['productid'] = attributeTreeRes.data.data.list[j].itemid
+              data['img'] = attributeTreeRes.data.data.list[j].image
+              data['title'] = attributeTreeRes.data.data.list[j].title
+              data['d2'] = `${attributeTreeRes.data.data.list[j].d1}`
+              data['d3'] = `${attributeTreeRes.data.data.list[j].d2} ${attributeTreeRes.data.data.list[j].d3}%`
+              this.tableData.push(data)
+            }
+          } else {
+            if (attributeTreeRes.data.data.list) {
+              for (let j = 0; j < attributeTreeRes.data.data.list.length; j++) {
+                const data = {}
+                data['index'] = this.indexs
+                this.indexs++
+                data['mallname'] = mallname
+                data['mallid'] = item.platform_mall_name
+                data['type'] = type
+                data['productid'] = attributeTreeRes.data.data.list[j].itemid
+                data['img'] = attributeTreeRes.data.data.list[j].image
+                data['title'] = attributeTreeRes.data.data.list[j].title
+                data['d2'] = attributeTreeRes.data.data.list[j].d2
+                data['d3'] = attributeTreeRes.data.data.list[j].d3 + '%'
+                this.tableData.push(data)
+              }
             }
           }
+        } else {
+          this.$refs.Logs.writeLog(`【${mallname}】 查询 【${type}】 数据 异常：店铺未登录`, false)
+          this.errmall.push(mallname)
         }
-        for (let i = 0; i < this.gruopList.length; i++) {
-          this.allgroupid.push(this.gruopList[i].value)
-        }
-        for (let i = 0; i < this.mallList.length; i++) {
-          this.allmallid.push(this.mallList[i].value)
-        }
-      } else {
-        this.$message.warning('店铺列表获取失败！')
+      } catch (e) {
+        console.log(e)
+      } finally {
+        --count.count
       }
     },
     async getallinfo() {
@@ -258,161 +294,8 @@ export default {
         this.Loading3 = true
         this.tableData = []
         this.errmall = []
-        let currency = ''
         this.indexs = 1
-        if (this.site === 'MY') {
-          currency = 'RM'
-        }
-        if (this.site === 'TW') {
-          currency = '$'
-        }
-        if (this.site === 'VN') {
-          currency = '₫'
-        }
-        if (this.site === 'ID') {
-          currency = 'Rp'
-        }
-        if (this.site === 'PH') {
-          currency = '₱'
-        }
-        if (this.site === 'TH') {
-          currency = '฿'
-        }
-        if (this.site === 'SG') {
-          currency = '$'
-        }
-        if (this.site === 'BR') {
-          currency = 'R$'
-        }
-        if (this.site === 'MX') {
-          currency = 'MX$'
-        }
-        if (this.site === 'CO') {
-          currency = '$'
-        }
-        if (this.site === 'CL') {
-          currency = '$'
-        }
-        if (this.site === 'PL') {
-          currency = 'zł'
-        }
-        const timenow = this.$dayjs(this.time).format('YYYYMMDD')
-        for (let i = 0; i < this.mall.length; i++) {
-          const params = {
-            metric_id: this.type,
-            // group: this.group,
-            mallId: this.mall[i],
-            dt: timenow,
-            country: this.site,
-            shopid: this.mall[i],
-            page_num: 1,
-            page_size: 20
-          }
-          let mallname
-          for (let j = 0; j < this.mallList.length; j++) {
-            if (this.mallList[j].value === this.mall[i]) {
-              mallname = this.mallList[j].label
-            }
-          }
-          let type
-          for (let k = 0; k < this.typelist.length; k++) {
-            if (this.typelist[k].value === this.type) {
-              type = this.typelist[k].label
-            }
-          }
-          console.log('this is my parmas', params)
-          const attributeTreeJson = await this.$shopeemanService.getdiagnosis(this.site, params, { headers: { 'Content-Type': 'application/json; charset=utf-8' }})
-          let attributeTreeRes
-          if (attributeTreeJson) {
-            attributeTreeRes = JSON.parse(attributeTreeJson)
-          }
-          if (attributeTreeRes.status === 200) {
-            this.$refs.Logs.writeLog(`【${mallname}】 查询 【${type}】 数据 成功`, true)
-            attributeTreeRes.data = JSON.parse(attributeTreeRes.data)
-            console.log('ces', attributeTreeRes.data.data.list)
-            if (this.type === 10000 && attributeTreeRes.data.data.list) { // 销售额
-              for (let j = 0; j < attributeTreeRes.data.data.list.length; j++) {
-                const data = {}
-                data['index'] = this.indexs
-                this.indexs++
-                data['mallname'] = mallname
-                data['mallid'] = this.mall[i]
-                data['type'] = type
-                data['productid'] = attributeTreeRes.data.data.list[j].itemid
-                data['img'] = attributeTreeRes.data.data.list[j].image
-                data['title'] = attributeTreeRes.data.data.list[j].title
-                data['d2'] = `${currency}${attributeTreeRes.data.data.list[j].d1}`
-                data['d3'] = `${currency}${attributeTreeRes.data.data.list[j].d2} ${attributeTreeRes.data.data.list[j].d3}%`
-                this.tableData.push(data)
-              }
-            } else if (this.type === 10002 && attributeTreeRes.data.data.list) { // 差评
-              for (let j = 0; j < attributeTreeRes.data.data.list.length; j++) {
-                const data = {}
-                data['index'] = this.indexs
-                this.indexs++
-                data['mallname'] = mallname
-                data['mallid'] = this.mall[i]
-                data['type'] = type
-                data['productid'] = attributeTreeRes.data.data.list[j].itemid
-                data['img'] = attributeTreeRes.data.data.list[j].image
-                data['title'] = attributeTreeRes.data.data.list[j].title
-                data['d2'] = attributeTreeRes.data.data.list[j].d1
-                data['d3'] = attributeTreeRes.data.data.list[j].d2
-                this.tableData.push(data)
-              }
-            } else if (this.type === 10008 || this.type === 10006 && attributeTreeRes.data.data.list) { // 高卖家取消率和滴转化率
-              for (let j = 0; j < attributeTreeRes.data.data.list.length; j++) {
-                const data = {}
-                data['index'] = this.indexs
-                this.indexs++
-                data['mallname'] = mallname
-                data['mallid'] = this.mall[i]
-                data['type'] = type
-                data['productid'] = attributeTreeRes.data.data.list[j].itemid
-                data['img'] = attributeTreeRes.data.data.list[j].image
-                data['title'] = attributeTreeRes.data.data.list[j].title
-                data['d2'] = attributeTreeRes.data.data.list[j].d1
-                data['d3'] = attributeTreeRes.data.data.list[j].d3 + '%'
-                this.tableData.push(data)
-              }
-            } else if ((this.type === 10007 && attributeTreeRes.data.data.list)) {
-              for (let j = 0; j < attributeTreeRes.data.data.list.length; j++) {
-                const data = {}
-                data['index'] = this.indexs
-                this.indexs++
-                data['mallname'] = mallname
-                data['mallid'] = this.mall[i]
-                data['type'] = type
-                data['productid'] = attributeTreeRes.data.data.list[j].itemid
-                data['img'] = attributeTreeRes.data.data.list[j].image
-                data['title'] = attributeTreeRes.data.data.list[j].title
-                data['d2'] = `${attributeTreeRes.data.data.list[j].d1}`
-                data['d3'] = `${attributeTreeRes.data.data.list[j].d2} ${attributeTreeRes.data.data.list[j].d3}%`
-                this.tableData.push(data)
-              }
-            } else {
-              if (attributeTreeRes.data.data.list) {
-                for (let j = 0; j < attributeTreeRes.data.data.list.length; j++) {
-                  const data = {}
-                  data['index'] = this.indexs
-                  this.indexs++
-                  data['mallname'] = mallname
-                  data['mallid'] = this.mall[i]
-                  data['type'] = type
-                  data['productid'] = attributeTreeRes.data.data.list[j].itemid
-                  data['img'] = attributeTreeRes.data.data.list[j].image
-                  data['title'] = attributeTreeRes.data.data.list[j].title
-                  data['d2'] = attributeTreeRes.data.data.list[j].d2
-                  data['d3'] = attributeTreeRes.data.data.list[j].d3 + '%'
-                  this.tableData.push(data)
-                }
-              }
-            }
-          } else {
-            this.$refs.Logs.writeLog(`【${mallname}】 查询 【${type}】 数据 异常：店铺未登录`, false)
-            this.errmall.push(mallname)
-          }
-        }
+        await batchOperation(this.mall, this.getTableData)
         if (this.errmall.length > 0) {
           this.$message.error(`店铺【${this.errmall}】未登录`)
         }
