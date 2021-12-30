@@ -1175,14 +1175,11 @@ export default {
             return n.main_order_sn == info.order_sn
           })
           console.log(orderInfo, 'orderInfo')
-          let htmlUrl = null
-          if (info.url && info.url.includes('.html')) {
-            htmlUrl = (pdfInfoObj.data && pdfInfoObj.data.find((n) => n && n.OrderSn == orderInfo.main_order_sn)) || null
-          }
+          let  htmlUrl = (pdfInfoObj.data && pdfInfoObj.data.find((n) => n && n.OrderSn == orderInfo.main_order_sn)) || null
           console.log(htmlUrl, 'htmlUrl')
           let conParams = {
             HtmlFilePath: htmlUrl ? htmlUrl.PDFFilePath : info.url && info.url.includes('.html') ? info.url : '',
-            PDFFilePath: (info.url && info.url.includes('.PDF')) || (info.url && info.url.includes('.pdf')) ? info.url : '',
+            PDFFilePath: htmlUrl ? htmlUrl.PDFFilePath : (info.url && info.url.includes('.PDF')) || (info.url && info.url.includes('.pdf')) ? info.url : '',
             LogisticsId: orderInfo.logistics_id.toString(),
             OrderSn: orderInfo.main_order_sn,
             MallId: Number(orderInfo.mall_info.platform_mall_id),
@@ -2607,7 +2604,7 @@ export default {
               row.real_gross_profit = diff
             }
             if (i === 0) {
-              sysOrders = row.id
+              sysOrders = row.id.toString()
             } else {
               sysOrders = sysOrders + ',' + row.id
             }

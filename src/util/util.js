@@ -717,7 +717,7 @@ export async function dealwithOriginGoodsNum(oriGoodsId, oriPlatformId, shopMall
             skuName = ''
           }
           // ----------------------------------------------------------------//
-          const spIndex = shopeeSkuList.findIndex((n) => n.name == skuName)
+          const spIndex = shopeeSkuList.findIndex((n) => n.sku.replace('=|=',',') == skuName)
           if (spIndex > -1) {
             flag = true
             shopeeSkuList[spIndex].stock = Number(skuInfo.quantity)
@@ -742,6 +742,14 @@ export async function dealwithOriginGoodsNum(oriGoodsId, oriPlatformId, shopMall
           }
           dealWithSkuList.push(subItem)
         })
+        let attributes = []
+        shopeeGoodsInfo.attributes.forEach(item=>{
+          let obj = {
+            attribute_id:item.attribute_id,
+            attribute_value_id:item.attribute_value_id
+          }
+          attributes.push(obj)
+        })
         // 组装数据
         const editParams = {
           id: shopeeGoodsInfo.id,
@@ -751,7 +759,7 @@ export async function dealwithOriginGoodsNum(oriGoodsId, oriPlatformId, shopMall
           description: shopeeGoodsInfo.description,
           model_list: dealWithSkuList, // sku
           category_path: shopeeGoodsInfo.category_path,
-          attributes: shopeeGoodsInfo.attributes,
+          attributes: attributes,
           parent_sku: shopeeGoodsInfo.parent_sku,
           wholesale_list: shopeeGoodsInfo.wholesale_list,
           installment_tenures: shopeeGoodsInfo.installment_tenures,
@@ -772,9 +780,10 @@ export async function dealwithOriginGoodsNum(oriGoodsId, oriPlatformId, shopMall
           ds_cat_rcmd_id: '',
           category_recommend: shopeeGoodsInfo.category_recommend,
           ds_attr_rcmd_id: shopeeGoodsInfo.ds_attr_rcmd_id || '',
-          unlisted: shopeeGoodsInfo.unlisted || false,
+          unlisted: shopeeGoodsInfo.unlisted || false
         }
-        const editRes = await this.$shopeemanService.handleProductEdit(order.country, editParams)
+        const data = {mallId: shopMallId}
+        const editRes = await instance.$shopeemanService.handleProductEdit(country,data,editParams)
         if (editRes.code === 200) {
           return writeLog(`同步库存失败，${orderSn?`订单【${orderSn}】`:`商品【${shopGoodsId}】`}同步库存成功！`, true)
         } else {

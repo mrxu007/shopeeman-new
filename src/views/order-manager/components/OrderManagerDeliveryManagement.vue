@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-11-16 17:41:21
- * @LastEditTime: 2021-12-30 15:48:40
+ * @LastEditTime: 2021-12-30 16:03:47
  * @LastEditors: Please set LastEditors
  * @Description: 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  * @FilePath: \shopeeman-new\src\views\order-manager\components\OrderManagerDeliveryManagement.vue
@@ -492,14 +492,11 @@ export default {
           let orderInfo = OrderList.find((n) => {
             return n.order_sn == info.order_sn
           })
-          let htmlUrl = null
-          if (info.url && info.url.includes('.html')) {
-            htmlUrl = (pdfInfoObj.data && pdfInfoObj.data.find((n) => n && n.OrderSn == orderInfo.order_sn)) || null
-          }
+          let  htmlUrl = (pdfInfoObj.data && pdfInfoObj.data.find((n) => n && n.OrderSn == orderInfo.order_sn)) || null
           console.log(htmlUrl, 'htmlUrl')
           let conParams = {
             HtmlFilePath: htmlUrl ? htmlUrl.PDFFilePath : info.url && info.url.includes('.html') ? info.url : '',
-            PDFFilePath: (info.url && info.url.includes('.PDF')) || (info.url && info.url.includes('.pdf')) ? info.url : '',
+            PDFFilePath: htmlUrl ? htmlUrl.PDFFilePath : (info.url && info.url.includes('.PDF')) || (info.url && info.url.includes('.pdf')) ? info.url : '',
             LogisticsId: orderInfo.logistics_id.toString(),
             OrderSn: orderInfo.order_sn,
             MallId: Number(orderInfo.mall_info.platform_mall_id),
@@ -568,7 +565,7 @@ export default {
       if (!arrFilterFrist.length) {
         return this.$message.warning('当前没有需要同步面单的订单！')
       }
-      console.log(arrFilterFrist,"arrFilterFrist")
+      console.log(arrFilterFrist, 'arrFilterFrist')
       let arrFilter = arrFilterFrist.filter((n) => {
         return n.country == 'TW'
       })
