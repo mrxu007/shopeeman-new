@@ -21,26 +21,29 @@ export default class NetMessageBridgeService {
   }
 
   async getWebUrl(country, data) {
-    const mallId = data.mallId || data.platform_mall_id || data.shop_id
-    let userSettings = await this.ConfigBridgeService().getUserConfig()
-    userSettings = JSON.parse(userSettings)
-    console.log('userSettings',userSettings)
-    const mallInfo = await this.ConfigBridgeService().getGlobalCacheInfo('mallInfo', mallId)
-    const {
-      mall_main_id,
-      IPType
-    } = JSON.parse(mallInfo)
+    // const mallId = data.mallId || data.platform_mall_id || data.shop_id
+    // let userSettings = await this.ConfigBridgeService().getUserConfig()
+    // userSettings = JSON.parse(userSettings)
+    // // console.log('userSettings',userSettings)
+    // const mallInfo = await this.ConfigBridgeService().getGlobalCacheInfo('mallInfo', mallId)
+    // const {
+    //   mall_main_id,
+    //   IPType
+    // } = JSON.parse(mallInfo)
     // auto 1、auto  2、mallinfo.MallMainId  3、IPType  包含 大陆   或者  ‘1’
     // local 国内
     // Abroad 本土
+    
     let url = this.site_domain_chinese_pre[country]
-    let domain_switch = userSettings && (userSettings.SwitchDominTypeSetting || userSettings.domain_switch) || '1'
-    if (domain_switch === '3' || domain_switch ===`Abroad`) {
-      url = this.site_domain_local_pre[country]
-    } else if ((domain_switch === '1' || domain_switch === 'Auto')
-      && mall_main_id > 0 && (IPType.indexOf('大陆') === -1 || IPType === '1')) {
-      url = this.site_domain_local_pre[country]
-    }
+    // let domain_switch = userSettings && (userSettings.SwitchDominTypeSetting || userSettings.domain_switch) || '1'
+    // console.log(userSettings,domain_switch,IPType,mall_main_id)
+    // if (domain_switch === '3' || domain_switch ===`Abroad`) {
+    //   url = this.site_domain_local_pre[country]
+    // } else if ((domain_switch === '1' || domain_switch === 'Auto')
+    //   && mall_main_id > 0 && (IPType.indexOf('大陆') === -1 || IPType === '1')) {
+    //     debugger
+    //   url = this.site_domain_local_pre[country]
+    // }
     return url
   }
 
@@ -48,7 +51,7 @@ export default class NetMessageBridgeService {
     const mallId = data.mallId || data.platform_mall_id || data.shop_id
     let userSettings = await this.ConfigBridgeService().getUserConfig()
     userSettings = JSON.parse(userSettings)
-    console.log('userSettings',userSettings)
+    // console.log('userSettings',userSettings)
     const mallInfo = await this.ConfigBridgeService().getGlobalCacheInfo('mallInfo', mallId)
     const {
       mall_main_id,
@@ -282,6 +285,7 @@ export default class NetMessageBridgeService {
 
   async postChinese(country, api, data, options = {}, exportInfo) {
     data = JSON.parse(JSON.stringify(data))
+    const aurl = await this.getUrlPrefix(country, data)
     const url = await this.getUrlPrefix(country, data) + api
     options['extrainfo'] = this.getExtraInfo(data)
     if (exportInfo) { // 适配店铺管理---导入店铺
@@ -291,11 +295,12 @@ export default class NetMessageBridgeService {
     const referer = options['headers'] && options['headers'].referer
     if (referer) {
       options['headers'] = Object.assign(options['headers'], {
-        origin: url,
-        referer: url + referer
+        origin: aurl,
+        referer: aurl + referer,
+        'Host': aurl.replace('https://', '')
       })
     }
-    console.log('NetMessageBridgeService',url, JSON.stringify(options), JSON.stringify(data))
+    // console.log('NetMessageBridgeService',url, JSON.stringify(options), JSON.stringify(data))
     return this.NetMessageBridgeService().post(url, JSON.stringify(options), JSON.stringify(data))
   }
   // refer 与url 不一样
@@ -999,7 +1004,7 @@ export default class NetMessageBridgeService {
   async getDetailsSinger(country, data) {
     const res = await this.getChinese(country, '/api/v3/order/get_one_order', data)
     const resObj = res && JSON.parse(res)
-    // console.log(resObj)
+    console.log(resObj)
     if (resObj && resObj.status === 200) {
       const info = JSON.parse(resObj.data)
       if (info && info.code === 0) {
@@ -1888,8 +1893,75 @@ export default class NetMessageBridgeService {
       return null
     }
   }
-
-      
+    //发送聊天信息
+    async sendMessage(country, data,params) {
+      const res = await this.postChinese(country, '/webchat/api/v1.2/messages', data, params)
+      const resObj = res && JSON.parse(res)
+      // console.log(res,resObj)
+      const info = JSON.parse(resObj.data)
+      if (resObj && resObj.status === 200) { 
+        return {
+          code: 200,
+          data: info
+        }
+      } else {
+        return {
+          code: resObj.status,
+          data: info
+        }
+      }
+    }
+    //登录聊天客服
+    async loginMessage(country, data,params) {
+      const res = await this.postChinese(country, '/webchat/api/v1.2/login', data, params)
+      const resObj = res && JSON.parse(res)
+      console.log(res,resObj)
+      if (resObj && resObj.status === 200) {
+        const info = JSON.parse(resObj.data)
+        if (info && info.token) {
+          return {
+            code: 200,
+            data: info
+          }
+        } else {
+          return {
+            code: 50001,
+            data: '登录失败'
+          }
+        }
+      } else {
+        return {
+          code: resObj.status,
+          data: `登录失败${resObj.statusText}`
+        }
+      }
+    }
+    //  获取优惠券
+  async getVouchers(country, data) {
+    const res = await this.getChinese(country, '/api/marketing/v3/voucher/list/', data)
+    const resObj = res && JSON.parse(res)
+    // console.log(res,resObj)
+    if (resObj && resObj.status === 200) {
+      const info = JSON.parse(resObj.data)
+      if (info && info.code === 0) {
+        return {
+          code: 200,
+          data: info.data || []
+        }
+      } else {
+        return {
+          code: 50001,
+          data: info.message || []
+        }
+      }
+    } else {
+      return {
+        code: resObj.status,
+        data: `获取失败${resObj.statusText}`
+      }
+    }
+  }
+    
   // 获取地址
   getNextLevelAddresses(country, data, option) {
     return this.getChinese(country, '/api/v3/general/get_next_level_addresses', data, option)

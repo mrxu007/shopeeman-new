@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-11-16 17:41:21
- * @LastEditTime: 2021-12-24 11:05:32
+ * @LastEditTime: 2021-12-30 15:48:40
  * @LastEditors: Please set LastEditors
  * @Description: 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  * @FilePath: \shopeeman-new\src\views\order-manager\components\OrderManagerDeliveryManagement.vue
@@ -137,12 +137,12 @@
         </el-table-column>
         <el-table-column align="center" prop="ship_by_date" label="是否已申请物流单号" min-width="140">
           <template slot-scope="scope">
-            <p :style="{ color: scope.row.tracking_no == '' ? 'red' : 'green' }">{{ scope.row.tracking_no == '' ? '未申请' : '已申请' }}</p>
+            <p :style="{ color: scope.row.tracking_no == '' ? 'red' : '#32CD32' }">{{ scope.row.tracking_no == '' ? '未申请' : '已申请' }}</p>
           </template>
         </el-table-column>
         <el-table-column align="center" prop="ship_by_date" label="是否同步面单信息" min-width="140">
           <template slot-scope="scope">
-            <p :style="{ color: scope.row.hasLogistics == 0 ? 'red' : 'green' }">{{ scope.row.hasLogistics == 0 ? '否' : '是' }}</p>
+            <p :style="{ color: scope.row.hasLogistics == 0 ? 'red' : '#32CD32' }">{{ scope.row.hasLogistics == 0 ? '否' : '是' }}</p>
           </template>
         </el-table-column>
         <el-table-column align="center" prop="order_status" label="发货状态" min-width="100">
@@ -212,7 +212,7 @@
         </el-table-column>
         <el-table-column align="center" prop="goods_id" label="商品ID" min-width="100">
           <template slot-scope="scope">
-            <el-button size="mini" type="primary" @click="openUrl(clickRow, scope.row.goods_id, 'product')">查看商品详情</el-button>
+            <el-button size="mini" type="primary" @click="openUrl(clickRow, scope.row.goods_id, 'product')">{{ scope.row.goods_id }}</el-button>
           </template>
         </el-table-column>
         <el-table-column align="center" prop="goods_count" label="商品数量" min-width="120" />
@@ -402,6 +402,8 @@ export default {
     },
     //打印面单信息
     async downFace(arrList, OrderList, country, PdfLower, isDownload, isShowWindow, IsPrintVirtual) {
+      this.showConsole = false
+      this.$refs.Logs.consoleMsg = ''
       try {
         let PdfInfoModel = []
         for (let i = 0; i < arrList.length; i++) {
@@ -460,7 +462,12 @@ export default {
         let pdfInfoObj = JSON.parse(pdfInfo)
         console.log(pdfInfoObj, 'pdfInfo')
         if (pdfInfoObj.code != 200) {
-          return this.$refs.Logs.writeLog(`预览失败`, false)
+          let message = ''
+          for (const key in pdfInfoObj.failList) {
+            message = message + ',' + key + ',' + pdfInfoObj.failList[key]
+            message = message.substring(1)
+          }
+          return this.$refs.Logs.writeLog(`预览失败,${message}`, false)
         }
         //2、---------------getVirtualFace 虚拟面单
         console.log(JSON.stringify(PdfInfoModel), '222')
@@ -485,10 +492,9 @@ export default {
           let orderInfo = OrderList.find((n) => {
             return n.order_sn == info.order_sn
           })
-          console.log(orderInfo, 'orderInfo', VirtualPdfPathObj, VirtualPdfPathObj.data, orderInfo.order_sn)
           let htmlUrl = null
-          if( info.url && info.url.includes('.html')){
-            htmlUrl =  pdfInfoObj.data && pdfInfoObj.data.find((n) => n && n.OrderSn == orderInfo.order_sn) || null
+          if (info.url && info.url.includes('.html')) {
+            htmlUrl = (pdfInfoObj.data && pdfInfoObj.data.find((n) => n && n.OrderSn == orderInfo.order_sn)) || null
           }
           console.log(htmlUrl, 'htmlUrl')
           let conParams = {
@@ -510,14 +516,14 @@ export default {
         if (convertResObj.code != 200) {
           let message = ''
           for (const key in convertResObj.failList) {
-            message = message + ',' + key + ','+convertResObj.failList[key]
+            message = message + ',' + key + ',' + convertResObj.failList[key]
             message = message.substring(1)
           }
           return this.$refs.Logs.writeLog(`打印面单失败,${message}`, false)
         }
         let PdfInfoList = JSON.parse(JSON.stringify(PdfInfoModel))
         PdfInfoList.forEach((item) => {
-          let htmlUrl = pdfInfoObj.data.find((n) =>n && n.OrderSn == item.OrderNo)
+          let htmlUrl = pdfInfoObj.data.find((n) => n && n.OrderSn == item.OrderNo)
           if (htmlUrl) {
             item.PDFUrl = htmlUrl.PDFFilePath
           }
@@ -538,10 +544,11 @@ export default {
         this.tableLoading = true
         await window['BaseUtilBridgeService'].downloadPdf(pdfDownloadModel)
         this.tableLoading = false
-        isDownload && this.$refs.Logs.writeLog(`面单下载完成`,true)
+        isDownload && this.$refs.Logs.writeLog(`面单下载完成,请前往桌面查看`, true)
+        IsPrintVirtual && this.$refs.Logs.writeLog(`虚拟面单下载完成,请前往软件所在文件夹查看`, true)
       } catch (error) {
         this.tableLoading = false
-        this.$refs.Logs.writeLog(`打印面单失败，${error}`,false)
+        this.$refs.Logs.writeLog(`打印面单失败，${error}`, false)
         console.log(error, 'downFace')
       }
     },
@@ -555,7 +562,14 @@ export default {
       if (!this.multipleSelection.length) {
         return this.$message.warning('请先选择数据！')
       }
-      let arrFilter = this.multipleSelection.filter((n) => {
+      let arrFilterFrist = this.multipleSelection.filter((n) => {
+        return n.hasLogistics !== '1' && n.tracking_no == ''
+      })
+      if (!arrFilterFrist.length) {
+        return this.$message.warning('当前没有需要同步面单的订单！')
+      }
+      console.log(arrFilterFrist,"arrFilterFrist")
+      let arrFilter = arrFilterFrist.filter((n) => {
         return n.country == 'TW'
       })
       console.log(arrFilter, 'arrFilter')
@@ -567,17 +581,17 @@ export default {
         })
           .then(() => {
             //同步台湾，强制开启申请面单
-            this.syncSurface(this.multipleSelection, true)
+            this.syncSurface(arrFilterFrist, true)
           })
           .catch(() => {
             //不同步台湾，强制关闭申请面单
-            let arrFilter = this.multipleSelection.filter((n) => {
+            let arrFilterTW = arrFilterFrist.filter((n) => {
               return n.country !== 'TW'
             })
-            this.syncSurface(arrFilter, false)
+            this.syncSurface(arrFilterTW, false)
           })
       } else {
-        this.syncSurface(this.multipleSelection, false)
+        this.syncSurface(arrFilterFrist, false)
       }
     },
     //同步面单信息
@@ -676,8 +690,8 @@ export default {
             str += `<tr><td>${num++}</td>
                 <td>${item.mall_info && item.mall_info.country ? this.$filters.chineseSite(item.mall_info.country) : '' + '\t'}</td>
                 <td>${item.mall_info && item.mall_info.platform_mall_name ? item.mall_info.platform_mall_name : '' + '\t'}</td>
-                <td style="mso-number-format:'\@';">${item.order_sn ? item.order_sn : '' + '\t'}</td>
-                <td>${item.goods_count ? item.goods_count : '' + '\t'}</td>
+                <td style="mso-number-format:'\@';">${goodsInfo.order_sn ? goodsInfo.order_sn : '' + '\t'}</td>
+                <td>${goodsInfo.goods_count ? goodsInfo.goods_count : '' + '\t'}</td>
                 <td>${goodsInfo ? goodsInfo.variation_name : '' + '\t'}</td>
                 <td>${item.goodsLink ? item.goodsLink : '' + '\t'}</td>
                 <td>${goodsInfo ? this.$filters.imageRender([item.country, item.mall_info ? item.mall_info.platform_mall_id : '', goodsInfo.goods_img]) : '' + '\t'}</td>

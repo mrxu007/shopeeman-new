@@ -38,7 +38,11 @@
         >
           <el-table-column type="index" label="序号" min-width="50px" align="center" fixed />
           <el-table-column min-width="140px" label="仓库" fixed prop="warehouse_name" />
-          <el-table-column min-width="300px" label="地址" prop="full_address" show-overflow-tooltip />
+          <el-table-column min-width="300px" label="地址" prop="full_address" show-overflow-tooltip>
+            <template slot-scope="{ row }">
+              <div>{{ row.full_address }}</div>
+            </template>
+          </el-table-column>
           <el-table-column min-width="120px" label="收件人" prop="receiving_name" />
           <el-table-column prop="type" label="仓库类型" min-width="100px">
             <template slot-scope="scope"> {{ typeObj[scope.row.type] }} </template>
@@ -95,16 +99,21 @@
         <el-form-item label="仓库类型：">
           <span>{{ flag4 ? '国内中转仓' : '海外中转仓' }}</span>
         </el-form-item>
-        <el-form-item label="仓库站点：">
+        <el-form-item label="仓库站点：" v-if="flag4">
           <el-select v-model="itselfCountry" :disabled="!flag3" placeholder="" size="mini" filterable @change="handlerChange3">
             <el-option v-for="(item, index) in countries" :key="index" :label="item.label" :value="item.value" />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="仓库站点：" v-else>
+          <el-select v-model="itselfCountry" :disabled="!flag3" placeholder="" size="mini" filterable @change="handlerChange3">
+            <el-option v-for="(item, index) in countriesAbroad" :key="index" :label="item.label" :value="item.value" />
           </el-select>
         </el-form-item>
         <el-form-item label="仓库名称：">
           <el-input v-model="itselfWarehouseName" clearable size="mini" oninput="value=value.replace(/\s+/g,'')" />
         </el-form-item>
         <div v-if="flag4">
-          <address-model ref="addressModel" @sendData="sendData" />
+          <address-model ref="addressModel" @sendData="sendData" :country="itselfCountry" />
         </div>
         <div v-else>
           <div v-if="!isSG">
@@ -181,7 +190,7 @@
       <div class="dialog-left">
         <!--?-->
         <div v-if="!flag4 && flag1" class="header">
-          <el-button type="primary" size="mini"><a :href="downloadExcelUrl"  style="color:#fff;" download="海外仓地址设置指南.xlsx">下载海外仓地址设置指南</a></el-button>
+          <el-button type="primary" size="mini"><a :href="downloadExcelUrl" style="color: #fff" download="海外仓地址设置指南">下载海外仓地址设置指南</a></el-button>
           <p>使用海外仓服务前，请先下载使用指南查看</p>
         </div>
         <el-form label-position="right" label-width="80px">
@@ -257,17 +266,35 @@
         <el-form label-position="right" label-width="80px">
           <el-form-item label="收货省：">
             <el-select v-model="sProvince" filterable placeholder="请选择" size="mini" @change="handlerChange4()">
-              <el-option v-for="(item, index) in sProvinceList" :key="index" :value="item.id" :label="item.division_name" />
+              <el-option
+                v-for="(item, index) in sProvinceList"
+                :key="index"
+                :value="item.id"
+                :label="item.translated_name == item.division_name ? item.division_name : item.division_name + '/' + item.translated_name"
+              />
             </el-select>
           </el-form-item>
           <el-form-item label="收货市：">
             <el-select v-model="sCity" :disabled="sProvince ? false : true" placeholder="请选择" size="mini" @change="handlerChange5()">
-              <el-option v-for="(item, index) in sCityList" :key="index" :value="item.id" :label="item.division_name" />
+              <el-option
+                v-for="(item, index) in sCityList"
+                :key="index"
+                :value="item.id"
+                :label="item.translated_name == item.division_name ? item.division_name : item.division_name + '/' + item.translated_name"
+              />
             </el-select>
           </el-form-item>
-          <el-form-item label="收货区：">
-            <el-select v-model="sPDistinct" :disabled="sCity ? false : true" placeholder="请选择" size="mini">
-              <el-option v-for="(item, index) in sDistinctList" :key="index" :value="item.id" :label="item.division_name" />
+           <el-form-item label="邮编：" v-if="itselfCountry==='MY'">
+            <el-input size="mini" v-model="sPDistinctInput"></el-input>
+          </el-form-item>
+          <el-form-item label="收货区：" v-else>
+            <el-select v-model="sPDistinct" :disabled="sCity ? false : true" placeholder="请选择" size="mini" @change="handlerChange6()">
+              <el-option v-for="(item, index) in sDistinctList" :key="index" :value="item.id" :label="item.translated_name == item.division_name ? item.division_name : item.division_name + '/' + item.translated_name" />
+            </el-select>
+          </el-form-item>
+           <el-form-item label="收货街道：" v-if="itselfCountry==='PH'">
+            <el-select v-model="sStreet" :disabled="sCity ? false : true" placeholder="请选择" size="mini">
+              <el-option v-for="(item, index) in sStreetList" :key="index" :value="item.id" :label="item.division_name" />
             </el-select>
           </el-form-item>
         </el-form>
@@ -304,6 +331,7 @@ export default {
       flag4: true, // 国内/海外
       flag5: false, // 是否change
       countries: this.$filters.countries_option_sub,
+      countriesAbroad: this.$filters.countries_option_sub_abroad,
       AddressSet: new AddressSet(this),
       activeName: 'landStore',
       changeIndex: 0,
@@ -352,12 +380,15 @@ export default {
       sProvince: '',
       sCity: '',
       sPDistinct: '',
+      sPDistinctInput:'',
       sProvinceList: [],
       sCityList: [],
       sDistinctList: [],
+      sStreet:'',
+      sStreetList:'',
 
       abroadAddressParams: {},
-      flagAbroad: false,
+      itselfUpdateType: '',
     }
   },
   mounted() {
@@ -368,6 +399,10 @@ export default {
     this.xzyAllIndex()
   },
   methods: {
+    address(str) {
+      let aa = str.split(' ')
+      console.log(aa, str)
+    },
     // 修改自有仓库弹窗
     async updateItself(row, type) {
       this.itselfWarehouseId = 0
@@ -480,7 +515,7 @@ export default {
       const res = await this.AddressSet.updateData(params)
       if (res.code === 200) {
         this.$message.success('修改成功')
-        this.flagAbroad = false
+        this.itselfUpdateType = ''
         if (this.itselfAddressVisible) {
           this.getUserWarehouse()
         }
@@ -586,6 +621,7 @@ export default {
       }
     },
     itselfUpdate(type) {
+      this.itselfUpdateType = type
       let arr = {}
       if (!this.itselfWarehouseName) return this.$message('仓库名称不能为空')
       if (!this.itselfDetailAddress) return this.$message('详细地址不能为空')
@@ -658,11 +694,16 @@ export default {
                 this.addressData['post_code'] = item.DistrictId
               }
             })
-            this.itselfFullAddress = this.itselfDetailAddress + ' ' + this.addressData['province_text'] + ' ' + this.addressData['city_text'] + ' ' + this.addressData['distinct_text']
+            this.itselfFullAddress =
+              this.itselfDetailAddress + ' ' + (this.addressData.province_text.split('/')[1]
+                ? this.addressData.province_text.split('/')[1].trim()
+                : this.addressData.province_text) + ' ' +( this.addressData.city_text.split('/')[1]
+                ? this.addressData.city_text.split('/')[1].trim()
+                : this.addressData.city_text )+ ' ' + (this.addressData.distinct_text.split('/')[1]
+                ? this.addressData.distinct_text.split('/')[1].trim()
+                : this.addressData.distinct_text)
             // 获取虾皮地址
-            if (!this.flagAbroad) {
-              this.shopeeAddressVisible = true
-            }
+            this.shopeeAddressVisible = true
             try {
               await this.getShopeeAddress('0', 'sProvinceList', 'sProvince')
               await this.handlerChange4()
@@ -671,30 +712,20 @@ export default {
             }
           }
         }
+        console.log(this.itselfProvinceId,"444444444444444444444444444444")
         params['warehouseName'] = this.itselfWarehouseName
-        params['address']['province_id'] = this.itselfProvinceId.replace('R', '')
+        params['address']['province_id'] = this.itselfCountry == 'TW'?1:this.itselfProvinceId.replace('R', '')
         params['address']['province_text'] = this.itselfProvinceText || this.addressData.province_text
-        params['address']['city_id'] = this.itselfCityId.replace('R', '')
+        params['address']['city_id'] = this.itselfCountry == 'TW'?1:this.itselfCityId.replace('R', '')
         params['address']['city_text'] = this.itselfCityText || this.addressData.city_text
-        params['address']['distinct_id'] = this.itselfDistrictId.replace('R', '')
+        params['address']['distinct_id'] = this.itselfCountry == 'TW'?1:this.itselfDistrictId.replace('R', '')
         params['address']['distinct_text'] = this.itselfDistinctText || this.addressData.distinct_text
         params['address']['detail_address'] = this.itselfDetailAddress
         params['address']['full_address'] = this.itselfFullAddress
         params['address']['receiving_name'] = this.itselfReceivingName
         params['address']['receiving_tel'] = this.itselfReceivingTel
         params['address']['type'] = this.flag4 ? 0 : 3 // 国内/海外
-        if (this.flagAbroad) {
-          switch (type) {
-            case 1:
-              this.adduserStore(this.abroadAddressParams)
-              break
-            case 2:
-              this.updateItselfData(this.abroadAddressParams)
-              break
-          }
-          return
-        }
-        if (!this.flag4 && !this.flagAbroad) {
+        if (!this.flag4) {
           this.abroadAddressParams = params
           console.log(this.abroadAddressParams, '5445465465')
           return
@@ -716,18 +747,24 @@ export default {
       params['id'] = 0
       params['address']['country'] = this.itselfCountry
       params['address']['warehouseId'] = this.itselfWarehouseId
-      params['address']['shopee_map_id'] = this.itselfShopeeMapId
+      // params['address']['shopee_map_id'] = this.itselfShopeeMapId
       if (this.isSG) {
         params['address']['post_code'] = this.itselfPostCode
-      } else {
+      } else if(this.itselfCountry == 'MY'){
+        params['address']['post_code'] = this.sPDistinctInput
+      }
+      else {
         params['address']['post_code'] = this.flag4 ? 0 : this.addressData['post_code']
+      }
+      if(this.itselfCountry == 'TW'){
+        params['address']['shopee_map_id'] = this.itselfCityId
       }
       const res = await this.AddressSet.adduserStore(params)
       if (res.code === 200) {
         this.$message.success('添加自有仓库成功')
         this.getUserWarehouse()
         this.itselfAddressVisible = false
-        this.flagAbroad = false
+        this.itselfUpdateType = ''
       } else {
         this.$message.error(res.data)
       }
@@ -791,6 +828,7 @@ export default {
           return item.type === 2 || item.type === 3
         })
       }
+      console.log(this.tableData, 'this.tableData')
     },
     // 获取系统仓库，用来判断是否显示申请系统仓库地址
     async xzyIndex(typeLists) {
@@ -844,13 +882,21 @@ export default {
       this.isShowLoading = false
     },
     addAbroadAddress() {
-      console.log(this.sPDistinct, this.abroadAddressParams, 'sPDistinct')
-      if (!this.sPDistinct) {
+      console.log(this.sCity, this.sPDistinct,this.sStreet,'sPDistinct')
+      if (!this.sPDistinct && (!this.sCity) && !this.sStreet) {
         return this.$message.warning('请先进行shopee地址设置')
       }
-      this.abroadAddressParams['address']['shopee_map_id'] = this.sPDistinct
-      this.flagAbroad = true
+      let shopee_map_id = this.itselfCountry === 'MY'?this.sCity:(this.itselfCountry === 'PH'?this.sStreet:this.sPDistinct )
+      this.abroadAddressParams['address']['shopee_map_id'] = shopee_map_id
       this.shopeeAddressVisible = false
+      switch (this.itselfUpdateType) {
+        case 1:
+          this.adduserStore(this.abroadAddressParams)
+          break
+        case 2:
+          this.updateItselfData(this.abroadAddressParams)
+          break
+      }
     },
     // 获取虾皮地址
     async getShopeeAddress(id, list, val) {
@@ -859,8 +905,9 @@ export default {
       const res = await this.$commodityService.getShopeeAddress(platform, '1', id)
       console.log(res, 'getShopeeAddress')
       const jsonData = this.isJsonString(res)
+      // console.log(jsonData)
       this[list] = jsonData
-      this[val] = this[list][0].id
+      this[val] = this[list][0]?this[list][0].id :''
     },
     async handlerChange4() {
       await this.getShopeeAddress(this.sProvince, 'sCityList', 'sCity')
@@ -868,6 +915,12 @@ export default {
     },
     async handlerChange5() {
       await this.getShopeeAddress(this.sCity, 'sDistinctList', 'sPDistinct')
+      await this.handlerChange6()
+    },
+    async handlerChange6(){
+      if(this.itselfCountry === 'PH'){
+        await this.getShopeeAddress(this.sPDistinct, 'sStreetList', 'sStreet')
+      }
     },
     // 判断能否转JSON
     isJsonString(str) {
@@ -929,12 +982,6 @@ export default {
           this.isSG = false
         }
         try {
-          // if (this.itselfCountry === 'TW') {
-          //   console.log('545454654654654654654')
-          //   await this.getShopeeAddress('0', 'provinceList', 'ProvinceId')
-          // } else {
-          //   await this.getLazadaDetailAddress('', 'provinceList', 'ProvinceId')
-          // }
           await this.getLazadaDetailAddress('', 'provinceList', 'ProvinceId')
           await this.handlerChange1()
         } catch (error) {
@@ -950,10 +997,10 @@ export default {
       console.log('addressData', val)
       this.itselfProvinceId = val.province_id
       this.itselfProvinceText = val.province_text
-      this.itselfCityId = val.city_id
+      this.itselfCityId = val.city_id 
       this.itselfCityText = val.city_text
-      this.itselfDistrictId = val.distinct_id
-      this.itselfDistinctText = val.distinct_text
+      this.itselfDistrictId = this.itselfCountry === 'TW'?1:val.distinct_id
+      this.itselfDistinctText = this.itselfCountry === 'TW'?'':val.distinct_text
     },
     handleSelectionChange(val) {
       this.multipleSelection = val
