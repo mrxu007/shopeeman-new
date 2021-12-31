@@ -200,7 +200,7 @@
         <el-table-column label="数量" min-width="100px" prop="goodsCount" />
         <el-table-column label="商品详情" min-width="110px">
           <template slot-scope="scope">
-            <p><el-button type="primary" size="mini" @click="getGoodsInfo(scope.row.package_order_sn,scope.row.delivery_status),currenWarehouse=scope.row.warehouse_name">查看签收详情</el-button></p>
+            <p><el-button type="primary" size="mini" @click="getGoodsInfo(scope.row.package_order_sn,scope.row.delivery_status,scope.row),currenWarehouse=scope.row.warehouse_name">查看签收详情</el-button></p>
           </template>
         </el-table-column>
         <el-table-column label="包裹重量" min-width="100px">
@@ -1708,13 +1708,7 @@ export default {
       return data
     },
     // 查看包裹信息弹窗
-    async getGoodsInfo(packageOrderSn, delivery_status) {
-      // 待入库 已出库
-      if (Number(delivery_status) === 1 || Number(delivery_status) === 5) {
-        this.peifu = true
-      } else {
-        this.peifu = false
-      }
+    async getGoodsInfo(packageOrderSn, delivery_status, row) {
       this.dialogVisible2 = true
       const params = { packageOrderSn }
       try {
@@ -1722,6 +1716,21 @@ export default {
         const { data } = await this.$api.getGoodsInfo({ params })
         if (data.code === 200) {
           this.goodsList = data.data
+          // 已签收/有签收时间
+          // const aa = this.goodsList.package.package_time
+          // debugger
+          // if (this.goodsList.isAbnormslPayment === 1 || this.goodsList.package.package_time) {
+          //   this.peifu = true
+          // } else {
+          //   this.peifu = false
+          // }
+          this.goodsList.forEach(el => {
+            if (el.isAbnormslPayment === 1 || el.package?.package_time) {
+              this.peifu = true
+            } else {
+              this.peifu = false
+            }
+          })
           console.log('this.goodsList', this.goodsList)
         } else {
           // this.$message.error(data.message)

@@ -227,8 +227,8 @@ export default {
     // 重新获取置顶信息
     refreshTopGoods() {
       // huoqu
-      if (this.selectTable) {
-
+      if (!this.selectTable.length) {
+        this.$message.warning('请选择需要操作的数据')
       }
     },
     // 查看置顶记录
@@ -299,7 +299,7 @@ export default {
         const currentTime = new Date().getTime()
         // 时间校验
         if (nextTopTime > currentTime) {
-          this.$refs.Logs.writeLog(`【${mallName}】店铺,未到置顶时间`)
+          this.$refs.Logs.writeLog(`【${mallName}】店铺,未到置顶时间`, true)
           this.topHistoryMsg.push({ topHistoryMsg: '未到置顶时间，下次置顶时间为' + item.next_top_time })
           return
         }
@@ -313,7 +313,7 @@ export default {
         if (Number(item.top_type) !== 1) {
           item.page = 1
           item.mallName = mallName
-          this.getMallTopGoods(item)
+          await this.getMallTopGoods(item)
           // const res1 = await batchOperation(item, this.getMallTopGoods)
         }
         // 通过商品ID置顶
@@ -324,51 +324,20 @@ export default {
       }
     },
     // 获取置顶商品
-    async getMallTopGoods(val) {
-      const mItem = {
-        country: val.country,
-        pageNumber: val.page,
-        platform_mall_id: val.sys_mall_id
-      }
-      const params = {
-        mItem: mItem,
-        pageSize: 48,
-        listType: 'all'
-      }
-      if (val.top_type === '3') {
-        params.listOrderType = 'sales_asc'
-      }
-      if (val.top_type === '4') {
-        params.listOrderType = 'sales_dsc'
-      }
-      if (val.top_type === '5') {
-        params.listOrderType = 'price_asc'
-      }
-      if (val.top_type === '6') {
-        params.listOrderType = 'price_dsc'
-      }
-      // this.topHistoryMsg.push({ topHistoryMsg: '正在获取商品数据' })
-      this.$refs.Logs.writeLog(`获取店铺【${val.mallName}】商品数据`, true)
-      const loop = Number(val.top_total_count) <= 48 ? 1 : Math.floor(Number(val.top_total_count) / 48) + 1
-      const resultList = []
-      for (let i = 0; i < loop; i++) {
-        params.mItem.pageNumber = i + 1
-        try {
-          this.$refs.Logs.writeLog(`获取店铺【${val.mallName}】商品数量为${(i + 1) * 48},正在获取第${i + 1}页数据`, true)
-          const res = await this.GoodsList.getMpskuList(params)
-          if (res.code === 200) {
-            if (!res.data.list?.length) {
-              this.$refs.Logs.writeLog(`店铺【${val.mallName}】暂无商品数据`)
-              return
-            }
-            resultList.push(...res.data.list)
-          } else {
-            this.$refs.Logs.writeLog(`获取店铺【${val.mallName}】商品数量为${(i + 1) * 48},第${i + 1}页数据获取失败,${res.data}`, false)
-            return
-          }
-        } catch (error) {
-          this.$refs.Logs.writeLog(`获取店铺【${val.mallName}】商品数量为${(i + 1) * 48},第${i + 1}页数据获取失败,catch---${error}`, false)
-          return
+    getMallTopGoods(val) {
+      return new Promise(async rej => {
+        const mItem = {
+          country: val.country,
+          pageNumber: val.page,
+          platform_mall_id: val.sys_mall_id
+        }
+        const params = {
+          mItem: mItem,
+          pageSize: 48,
+          listType: 'all'
+        }
+        if (val.top_type === '3') {
+          params.listOrderType = 'sales_asc'
         }
       }
       this.$refs.Logs.writeLog(`店铺【${val.mallName}】商品数据获取结束`, true)
@@ -389,6 +358,69 @@ export default {
       })
       this.topedLength = loopGoodsNum.length
       const res1 = await batchOperation(loopGoodsNum, this.topAction)
+    },
+    // 置顶步骤
+    async topAction(item, count = { count: 1 }) {
+      try {
+        // 置顶商品
+        const query = {
+          country: item.country,
+          mallId: item.sys_mall_id,
+          goodsID: item.id
+        }
+        const topServiceQuery = {
+          list: [{
+            topTaskId: item.topTaskId.toString(),
+            topGoods: [{
+              goodsId: item.id.toString(),
+              isTop: 1
+            }]
+          }]
+        }
+        // this.topHistoryMsg.push({ topHistoryMsg: '正在获取商品数据' })
+        this.$refs.Logs.writeLog(`获取店铺【${val.mallName}】商品数据`, true)
+        const loop = Number(val.top_total_count) <= 48 ? 1 : Math.floor(Number(val.top_total_count) / 48) + 1
+        const resultList = []
+        for (let i = 0; i < loop; i++) {
+          params.mItem.pageNumber = i + 1
+          try {
+            this.$refs.Logs.writeLog(`获取店铺【${val.mallName}】商品数量为${(i + 1) * 48},正在获取第${i + 1}页数据`, true)
+            const res = await this.GoodsList.getMpskuList(params)
+            if (res.code === 200) {
+              if (!res.data.list?.length) {
+                this.$refs.Logs.writeLog(`店铺【${val.mallName}】暂无商品数据`)
+                rej()
+              }
+              resultList.push(...res.data.list)
+            } else {
+              this.$refs.Logs.writeLog(`获取店铺【${val.mallName}】商品数量为${(i + 1) * 48},第${i + 1}页数据获取失败,${res.data}`, false)
+              rej()
+            }
+          } catch (error) {
+            this.$refs.Logs.writeLog(`获取店铺【${val.mallName}】商品数量为${(i + 1) * 48},第${i + 1}页数据获取失败,catch---${error}`, false)
+            rej()
+          }
+        }
+        this.$refs.Logs.writeLog(`店铺【${val.mallName}】商品数据获取结束`, true)
+        const loopGoodsNum = [] // 置顶的商品数
+        const topedNum = val.top_good_ids.split(',')
+        resultList.forEach(el => {
+          el.country = val.country
+          el.sys_mall_id = val.sys_mall_id
+          el.topTaskId = val.id
+          el.mallName = val.mallName
+          el.top_total_count = val.top_total_count
+          el.toped_count = val.toped_count
+          const num = topedNum.findIndex(ol => { return Number(ol) === el.id })
+          const aa = (val.top_total_count - val.toped_count) > 5 ? 5 : (val.top_total_count - val.toped_count)
+          if (loopGoodsNum.length < aa && num < 0) {
+            loopGoodsNum.push(el)
+          }
+        })
+        this.topedLength = loopGoodsNum.length
+        const res1 = await batchOperation(loopGoodsNum, this.topAction)
+        rej()
+      })
     },
     // 置顶步骤
     async topAction(item, count = { count: 1 }) {
@@ -491,9 +523,10 @@ export default {
       try {
         const res = await this.$api.topTaskdel(param)
         if (res.data.code === 200) {
-          if (!this.createDel) { // 创建删除为假
-            this.$message.success('删除成功')
-          }
+          // if (!this.createDel) { // 创建删除为假
+          //   this.$message.success('删除成功')
+          // }
+          this.$message.success('删除成功')
         } else {
           const list = res.data.data
           list.forEach(el => {
