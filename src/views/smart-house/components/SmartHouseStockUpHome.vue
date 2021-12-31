@@ -1583,11 +1583,11 @@ export default {
           this.$refs.Logs.writeLog(`【${index + 1}】重量(g)为空`, false)
           continue
         }
-        const Regx = /^[\w ]+$/
-        if (!Regx.test(sku_id)) {
-          this.$refs.Logs.writeLog(`【${index + 1}】商品编号(sku)只能填字母或数字`, false)
-          continue
-        }
+        // const Regx = /^[\w ]+$/
+        // if (!Regx.test(sku_id)) {
+        //   this.$refs.Logs.writeLog(`【${index + 1}】商品编号(sku)只能填字母或数字`, false)
+        //   continue
+        // }
         const obj = {
           wid: this.foreignWid,
           purchaseOrderSn: purchaseOrderSn,
@@ -1622,6 +1622,8 @@ export default {
         cache.push(t)
         this.foreignData.push(t)
       }
+      this.showConsole = false
+      this.$refs.Logs.writeLog(`读取完毕`, true)
       this.stockingHomeUpload(this.excelForeignData)
     },
     // 表格导入
