@@ -553,7 +553,6 @@ export default class CommodityService {
   }
   /**
    * 获取类目属性
-   *
    */
   getAttributeInfo(country, categoryId = '0', isNewOpen = '0', tableType='', isMandatoryAttr = '1') {
     console.log(country, categoryId, isNewOpen, tableType , isMandatoryAttr )

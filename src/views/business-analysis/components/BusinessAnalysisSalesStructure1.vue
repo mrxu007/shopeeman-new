@@ -2,28 +2,7 @@
   <el-row class="contaniner">
     <el-row class="header">
       <ul style="margin-bottom: 10px;margin-left:24px">
-        <li>
-          <span>站点：</span>
-          <el-select v-model="site" size="mini" filterable>
-            <el-option v-for="(item,index) in siteList" :key="index" :value="item.value" :label="item.label" />
-          </el-select>
-        </li>
-        <li>
-          <span>店铺分组：</span>
-          <el-select v-model="group" class="mall" placeholder="请选择分组" multiple collapse-tags clearable size="mini" filterable>
-            <el-option v-if="selectall" label="全部" :value="0" />
-            <el-option v-if="!selectall" label="全部" :value="-2" />
-            <el-option v-for="(item, index) in gruopList" :key="index" :label="item.label" :value="item.value" />
-          </el-select>
-        </li>
-        <li>
-          <span>店铺：</span>
-          <el-select v-model="mall" class="mall" placeholder="请选择店铺" multiple collapse-tags clearable size="mini" filterable>
-            <el-option v-if="selectall1" label="全部" :value="0" />
-            <el-option v-if="!selectall1" label="全部" :value="-2" />
-            <el-option v-for="(item, index) in mallList" :key="index" :label="item.label" :value="item.value" />
-          </el-select>
-        </li>
+        <storeChoose :span-width="'80px'" :source="'true'" @changeMallList="changeMallList"/>
       </ul>
       <ul>
         <li>
@@ -67,6 +46,9 @@
   </el-row>
 </template>
 <script>
+import storeChoose from '@/components/store-choose'
+import { batchOperation } from '@/util/util'
+
 export default {
   data() {
     return {
@@ -108,39 +90,10 @@ export default {
       ]
     }
   },
+  components: {
+    storeChoose
+  },
   watch: {
-    group(val, oldVal) {
-      this.mall = []
-      for (let i = 0; i < val.length; i++) {
-        if (val[i] === 0) {
-          this.group = this.allgroupid
-          this.mall = [].concat(this.allmallid)
-          this.selectall = false
-        } else if (val[i] === -2) {
-          this.group = []
-          this.mall = []
-          this.selectall = true
-        } else {
-          for (let j = 0; j < this.mallList.length; j++) {
-            if (val[i] === this.mallList[j].group_id) {
-              this.mall.push(this.mallList[j].value)
-            }
-          }
-        }
-      }
-    },
-    mall(val, oldVal) {
-      for (let i = 0; i < val.length; i++) {
-        if (val[i] === 0) {
-          this.mall = this.allmallid
-          this.selectall1 = false
-        }
-        if (val[i] === -2) {
-          this.mall = []
-          this.selectall1 = true
-        }
-      }
-    },
     Statisticaltime(val, oldVal) {
       if (this.site === 'TH' || this.site === 'ID' || this.site === 'VN') {
         if (val === 'real_time') {
@@ -384,47 +337,6 @@ export default {
         }
       }
     },
-    site(val, oldVal) {
-      this.mall = []
-      this.group = []
-      this.getInfo()
-      if (this.site === 'MY') {
-        this.currency = 'RM'
-      }
-      if (this.site === 'TW') {
-        this.currency = '$'
-      }
-      if (this.site === 'VN') {
-        this.currency = '₫'
-      }
-      if (this.site === 'ID') {
-        this.currency = 'Rp'
-      }
-      if (this.site === 'PH') {
-        this.currency = '₱'
-      }
-      if (this.site === 'TH') {
-        this.currency = '฿'
-      }
-      if (this.site === 'SG') {
-        this.currency = '$'
-      }
-      if (this.site === 'BR') {
-        this.currency = 'R$'
-      }
-      if (this.site === 'MX') {
-        this.currency = 'MX$'
-      }
-      if (this.site === 'CO') {
-        this.currency = '$'
-      }
-      if (this.site === 'CL') {
-        this.currency = '$'
-      }
-      if (this.site === 'PL') {
-        this.currency = 'zł'
-      }
-    },
     Loading3(val, oldval) {
       if (this.Loading3 === true) {
         this.Loading2 = false
@@ -434,45 +346,67 @@ export default {
     }
   },
   mounted() {
-    this.getInfo()
     // const timenow = new Date().getTime() - 3600 * 1000 * 24
     // const returnCreateStartTime = this.$dayjs(timenow).format('YYYYMMDD')
     // console.log(returnCreateStartTime)
   },
   methods: {
-    // 分组信息查找
-    async getInfo() {
-      const params = {
-        country: this.site,
-        mallGroupIds: this.group
-      }
-      const res = await this.$api.ddMallGoodsGetMallList(params)
-      this.mallList = []; this.gruopList = []; this.allgroupid = []; this.allmallid = []
-      // console.log('1111111111111111111111', res.data)
-      if (res.data.code === 200) {
-        res.data.data.forEach(el => {
-          if (el.group_id) {
-            this.gruopList.push({ label: el.group_name, value: el.group_id })
-          }
-          if (el.id) {
-            this.mallList.push({ label: el.mall_alias_name ? el.mall_alias_name : el.platform_mall_name, value: el.platform_mall_id, group_id: el.group_id })
-          }
-        })
-        for (let i = 0; i < this.gruopList.length - 1; i++) {
-          for (let j = i + 1; j < this.gruopList.length; j++) {
-            if (this.gruopList[i].value === this.gruopList[j].value) {
-              this.gruopList.splice(j, 1)
+    // 获取店铺信息
+    changeMallList(val) {
+      this.site = val.country
+      this.mall = val.mallList
+    },
+    async getTableData(item, count = { count: 1 }) {
+      try {
+        let mallname = item.mall_alias_name || item.platform_mall_name
+        if (this.serchload === true) {
+          this.Loading3 = false
+          setTimeout(() => {
+            this.Loading1 = false
+          }, 3000)
+          this.serchload = false
+          return
+        }
+        const params = {
+          start_time: this.start_time,
+          end_time: this.end_time,
+          period: this.Statisticaltime,
+          mallId: item.platform_mall_id
+        }
+        console.log('this is my parmas', params)
+        const attributeTreeJson2 = await this.$shopeemanService.getsalasstructure2(this.site, params, { headers: { 'Content-Type': 'application/json; charset=utf-8' }})
+        let res
+        if (attributeTreeJson2) {
+          res = JSON.parse(attributeTreeJson2)
+        }
+        if (res.status === 200) {
+          res.data = JSON.parse(res.data)
+          for (let h = 0; h < res.data.data.length; h++) {
+            const data = {}
+            data['index'] = this.indexs1
+            this.indexs1++
+            data['mallname'] = mallname
+            if (res.data.data[h].price_zone[1] === -1) {
+              data['price_zone'] = `${this.currency}${res.data.data[h].price_zone[0]} - ${this.currency} 无上限`
+            } else {
+              data['price_zone'] = `${this.currency}${res.data.data[h].price_zone[0]} - ${this.currency}${res.data.data[h].price_zone[1]}`
             }
+            data['buyers'] = res.data.data[h].buyers
+            data['buyers_percentage'] = (res.data.data[h].buyers_percentage * 100).toFixed(2) + `%`
+            data['sales'] = `${this.currency}${res.data.data[h].sales}`
+            data['sales_percentage'] = (res.data.data[h].sales_percentage * 100).toFixed(2) + `%`
+            data['conversion_rate'] = (res.data.data[h].conversion_rate * 100).toFixed(2) + `%`
+            // console.log('zhelizhelizheli', data)
+            this.tableData2.push(data)
           }
+        } else if (res.status === 403) {
+          this.$refs.Logs.writeLog(`【${mallname}】 数据获取失败：店铺未登录`, false)
+          this.errmall.push(mallname)
         }
-        for (let i = 0; i < this.gruopList.length; i++) {
-          this.allgroupid.push(this.gruopList[i].value)
-        }
-        for (let i = 0; i < this.mallList.length; i++) {
-          this.allmallid.push(this.mallList[i].value)
-        }
-      } else {
-        this.$message.warning('店铺列表获取失败！')
+      } catch (e) {
+        console.log(e)
+      } finally {
+        --count.count
       }
     },
     async getallinfo() {
@@ -494,65 +428,7 @@ export default {
         this.tableData3 = []
         this.errmall = []
         this.$refs.Logs.writeLog('开始查询')
-        for (let i = 0; i < this.mall.length; i++) {
-          if (this.serchload === true) {
-            this.Loading3 = false
-            setTimeout(() => {
-              this.Loading1 = false
-            }, 3000)
-            this.serchload = false
-            return
-          }
-          // await delay(2000)
-          let mallname
-          for (let j = 0; j < this.mallList.length; j++) {
-            if (this.mallList[j].value === this.mall[i]) {
-              mallname = this.mallList[j].label
-            }
-          }
-          const params = {
-            start_time: this.start_time,
-            end_time: this.end_time,
-            period: this.Statisticaltime,
-            // group: this.group,
-            mallId: this.mall[i]
-          }
-          console.log('this is my parmas', params)
-
-          const attributeTreeJson2 = await this.$shopeemanService.getsalasstructure2(this.site, params, { headers: { 'Content-Type': 'application/json; charset=utf-8' }})
-          let res
-          if (attributeTreeJson2) {
-            res = JSON.parse(attributeTreeJson2)
-          }
-          if (res.status === 200) {
-            res.data = JSON.parse(res.data)
-            // console.log('wuhuwhuwhuwhuwhuwuwhuwhuwhuwuwhuwuh', res)
-            for (let h = 0; h < res.data.data.length; h++) {
-              const data = {}
-              data['index'] = this.indexs1
-              this.indexs1++
-              data['mallname'] = mallname
-              if (res.data.data[h].price_zone[1] === -1) {
-                data['price_zone'] = `${this.currency}${res.data.data[h].price_zone[0]} - ${this.currency} 无上限`
-              } else {
-                data['price_zone'] = `${this.currency}${res.data.data[h].price_zone[0]} - ${this.currency}${res.data.data[h].price_zone[1]}`
-              }
-              data['buyers'] = res.data.data[h].buyers
-              data['buyers_percentage'] = (res.data.data[h].buyers_percentage * 100).toFixed(2) + `%`
-              data['sales'] = `${this.currency}${res.data.data[h].sales}`
-              data['sales_percentage'] = (res.data.data[h].sales_percentage * 100).toFixed(2) + `%`
-              data['conversion_rate'] = (res.data.data[h].conversion_rate * 100).toFixed(2) + `%`
-              // console.log('zhelizhelizheli', data)
-              this.tableData2.push(data)
-            }
-          } else if (res.status === 403) {
-            this.$refs.Logs.writeLog(`【${mallname}】 数据获取失败：店铺未登录`, false)
-            this.errmall.push(mallname)
-          }
-        }
-        if (this.errmall.length > 0) {
-          this.$message.error(`店铺【${this.errmall}】未登录`)
-        }
+        await batchOperation(this.mall, this.getTableData)
         this.$refs.Logs.writeLog('查询结束')
         this.Loading3 = false
         setTimeout(() => {

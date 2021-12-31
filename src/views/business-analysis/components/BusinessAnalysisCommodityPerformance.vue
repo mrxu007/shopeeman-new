@@ -2,28 +2,7 @@
   <el-row class="contaniner">
     <el-row class="header">
       <ul style="margin-bottom: 10px;margin-left:24px">
-        <li>
-          <span>站点：</span>
-          <el-select v-model="site" size="mini" filterable>
-            <el-option v-for="(item,index) in siteList" :key="index" :value="item.value" :label="item.label" />
-          </el-select>
-        </li>
-        <li>
-          <span>店铺分组：</span>
-          <el-select v-model="group" class="mall" placeholder="请选择分组" multiple collapse-tags clearable size="mini" filterable>
-            <el-option v-if="selectall" label="全部" :value="0" />
-            <el-option v-if="!selectall" label="全部" :value="-2" />
-            <el-option v-for="(item, index) in gruopList" :key="index" :label="item.label" :value="item.value" />
-          </el-select>
-        </li>
-        <li>
-          <span>店铺：</span>
-          <el-select v-model="mall" class="mall" placeholder="请选择店铺" multiple collapse-tags clearable size="mini" filterable>
-            <el-option v-if="selectall1" label="全部" :value="0" />
-            <el-option v-if="!selectall1" label="全部" :value="-2" />
-            <el-option v-for="(item, index) in mallList" :key="index" :label="item.label" :value="item.value" />
-          </el-select>
-        </li>
+        <storeChoose :span-width="'80px'" :source="'true'" @changeMallList="changeMallList"/>
       </ul>
       <ul>
         <li>
@@ -167,10 +146,11 @@
   </el-row>
 </template>
 <script>
-import { exportExcelDataCommon } from '../../../util/util'
+import { exportExcelDataCommon ,batchOperation } from '../../../util/util'
 import categoryMapping from '../../../components/category-mapping'
+import storeChoose from '../../../components/store-choose'
 export default {
-  components: { categoryMapping },
+  components: { categoryMapping,storeChoose },
   data() {
     return {
       Loading1: false,
@@ -189,7 +169,7 @@ export default {
       column13: false,
       column14: true,
       column15: true,
-      showlog: false,
+      showlog: true,
       Loading2: true,
       Loading3: false,
       timecant: true,
@@ -236,40 +216,8 @@ export default {
     }
   },
   watch: {
-    group(val, oldVal) {
-      this.mall = []
-      for (let i = 0; i < val.length; i++) {
-        if (val[i] === 0) {
-          this.group = this.allgroupid
-          this.mall = [].concat(this.allmallid)
-          this.selectall = false
-        } else if (val[i] === -2) {
-          this.group = []
-          this.mall = []
-          this.selectall = true
-        } else {
-          for (let j = 0; j < this.mallList.length; j++) {
-            if (val[i] === this.mallList[j].group_id) {
-              this.mall.push(this.mallList[j].value)
-            }
-          }
-        }
-      }
-    },
     keyword(val, oldval) {
       this.categoryid = -1
-    },
-    mall(val, oldVal) {
-      for (let i = 0; i < val.length; i++) {
-        if (val[i] === 0) {
-          this.mall = this.allmallid
-          this.selectall1 = false
-        }
-        if (val[i] === -2) {
-          this.mall = []
-          this.selectall1 = true
-        }
-      }
     },
     Statisticaltime(val, oldVal) {
       if (this.site === 'TH' || this.site === 'ID' || this.site === 'VN') {
@@ -514,47 +462,6 @@ export default {
         }
       }
     },
-    site(val, oldVal) {
-      this.mall = []
-      this.group = []
-      this.getInfo()
-      if (this.site === 'MY') {
-        this.currency = 'RM'
-      }
-      if (this.site === 'TW') {
-        this.currency = '$'
-      }
-      if (this.site === 'VN') {
-        this.currency = '₫'
-      }
-      if (this.site === 'ID') {
-        this.currency = 'Rp'
-      }
-      if (this.site === 'PH') {
-        this.currency = '₱'
-      }
-      if (this.site === 'TH') {
-        this.currency = '฿'
-      }
-      if (this.site === 'SG') {
-        this.currency = '$'
-      }
-      if (this.site === 'BR') {
-        this.currency = 'R$'
-      }
-      if (this.site === 'MX') {
-        this.currency = 'MX$'
-      }
-      if (this.site === 'CO') {
-        this.currency = '$'
-      }
-      if (this.site === 'CL') {
-        this.currency = '$'
-      }
-      if (this.site === 'PL') {
-        this.currency = 'zł'
-      }
-    },
     Loading3(val, oldval) {
       if (this.Loading3 === true) {
         this.Loading2 = false
@@ -564,7 +471,7 @@ export default {
     }
   },
   mounted() {
-    this.getInfo()
+    // this.getInfo()
     // const monday = this.$dayjs(this.getMonday(new Date())).format('YYYYMMDD 00:00:00')
     // console.log(monday)
     // const timenow = new Date().getTime() - 3600 * 1000 * 24
@@ -572,57 +479,14 @@ export default {
     // console.log(returnCreateStartTime)
   },
   methods: {
-    // 分组信息查找
-    async getInfo() {
-      const params = {
-        country: this.site,
-        mallGroupIds: this.group
-      }
-      const res = await this.$api.ddMallGoodsGetMallList(params)
-      this.mallList = []; this.gruopList = []; this.allgroupid = []; this.allmallid = []
-      // console.log('1111111111111111111111', res.data)
-      if (res.data.code === 200) {
-        res.data.data.forEach(el => {
-          if (el.group_id) {
-            this.gruopList.push({ label: el.group_name, value: el.group_id })
-          }
-          if (el.id) {
-            this.mallList.push({ label: el.mall_alias_name ? el.mall_alias_name : el.platform_mall_name, value: el.platform_mall_id, group_id: el.group_id })
-          }
-        })
-        for (let i = 0; i < this.gruopList.length - 1; i++) {
-          for (let j = i + 1; j < this.gruopList.length; j++) {
-            if (this.gruopList[i].value === this.gruopList[j].value) {
-              this.gruopList.splice(j, 1)
-            }
-          }
-        }
-        for (let i = 0; i < this.gruopList.length; i++) {
-          this.allgroupid.push(this.gruopList[i].value)
-        }
-        for (let i = 0; i < this.mallList.length; i++) {
-          this.allmallid.push(this.mallList[i].value)
-        }
-      } else {
-        this.$message.warning('店铺列表获取失败！')
-      }
+    // 获取店铺信息
+    changeMallList(val) {
+      this.site = val.country
+      this.mall = val.mallList
     },
-    async getallinfo() {
-      if (this.Statisticaltime === 'day' || this.Statisticaltime === 'week' || this.Statisticaltime === 'month') {
-        if (this.timechoose.length < 1) {
-          this.$message.error(`请选择您需要查看的日期`)
-          return
-        }
-      }
-      if (this.mall.length > 0) {
-        this.indexs = 1
-        this.Loading1 = true
-        this.Loading3 = true
-        this.tableData = []
-        this.exportdata = []
-        this.errmall = []
-        this.$refs.Logs.writeLog('开始查询')
-        for (let i = 0; i < this.mall.length; i++) {
+    async getTableData(item, count = { count: 1 }) {
+      try {
+        let mallname = item.mall_alias_name || item.platform_mall_name
           if (this.serchload === true) {
             this.Loading3 = false
             setTimeout(() => {
@@ -631,13 +495,6 @@ export default {
             this.serchload = false
             return
           }
-          // await delay(2000)
-          let mallname
-          for (let j = 0; j < this.mallList.length; j++) {
-            if (this.mallList[j].value === this.mall[i]) {
-              mallname = this.mallList[j].label
-            }
-          }
           let params
           let attributeTreeJson
           if (this.categoryid === -1 && this.keyword === '') {
@@ -645,7 +502,7 @@ export default {
               start_time: this.start_time,
               end_time: this.end_time,
               period: this.Statisticaltime,
-              mallId: this.mall[i],
+              mallId: item.platform_mall_id,
               sort_by:	'placed_units.desc',
               metric_ids: 'all',
               limit: 20,
@@ -658,7 +515,7 @@ export default {
               start_time: this.start_time,
               end_time: this.end_time,
               period: this.Statisticaltime,
-              mallId: this.mall[i],
+              mallId: item.platform_mall_id,
               category_type: this.type,
               keyword: this.keyword,
               category:	this.categoryid,
@@ -696,10 +553,28 @@ export default {
             this.$refs.Logs.writeLog(`【${mallname}】 数据获取失败：店铺未登录`, false)
             this.errmall.push(mallname)
           }
+      } catch (e) {
+        console.log(e)
+      } finally {
+        --count.count
+      }
+    },
+    async getallinfo() {
+      if (this.Statisticaltime === 'day' || this.Statisticaltime === 'week' || this.Statisticaltime === 'month') {
+        if (this.timechoose.length < 1) {
+          this.$message.error(`请选择您需要查看的日期`)
+          return
         }
-        if (this.errmall.length > 0) {
-          this.$message.error(`店铺【${this.errmall}】未登录`)
-        }
+      }
+      if (this.mall.length > 0) {
+        this.indexs = 1
+        this.Loading1 = true
+        this.Loading3 = true
+        this.tableData = []
+        this.exportdata = []
+        this.errmall = []
+        this.$refs.Logs.writeLog('开始查询')
+        await batchOperation(this.mall, this.getTableData)
         this.$refs.Logs.writeLog('查询结束')
         this.Loading3 = false
         setTimeout(() => {

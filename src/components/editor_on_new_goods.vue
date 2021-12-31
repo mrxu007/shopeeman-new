@@ -105,12 +105,12 @@
           <el-checkbox v-model="pictureConfig.shuffleChecked" size="mini">翻译轮播图</el-checkbox>
           <div>删除条件：</div>
           <el-checkbox v-model="pictureConfig.deleteGoodsChecked" size="mini">删除库存低于设定值的商品</el-checkbox>
-          <el-input size="mini" v-model="pictureConfig.inventoryNumber" style="width: 80px;" />
+          <el-input size="mini" v-model="pictureConfig.inventoryNumber" style="width: 80px;"/>
         </div>
         <div class="basisInstall-box">
           <div>图片翻译：</div>
-          <el-radio v-model="pictureConfig.typeRadio" :label="0" >阿里免费翻译</el-radio>
-          <el-radio style="margin-right: 0;" v-model="pictureConfig.typeRadio" :label="1" >阿里付费翻译</el-radio>
+          <el-radio v-model="pictureConfig.typeRadio" :label="0">阿里免费翻译</el-radio>
+          <el-radio style="margin-right: 0;" v-model="pictureConfig.typeRadio" :label="1">阿里付费翻译</el-radio>
           <el-tooltip style="margin-right: 10px;" class="item" effect="dark" content="0.06元一张图片" placement="top">
             <el-button size="mini" type="text"><i class="el-icon-question" style="padding: 0 2px;"></i></el-button>
           </el-tooltip>
@@ -712,7 +712,7 @@ export default {
       if (type === 2) {
         this.isTranslationText = false
       }
-      if (goodsList.length >0){
+      if (goodsList.length > 0) {
         let res = await batchOperation(goodsList, this.translationDate, parseInt(this.threadNumber))
         this.isTranslationText = true
       }
@@ -1271,7 +1271,9 @@ export default {
       this.labelList = res.data || []
     },
     async deleteConfigClick(item, index) {
-
+      let deleteLabelJson = await this.$api.deleteLabel({ label: item })
+      console.log('deleteLabelJson', deleteLabelJson)
+      this.configLabelList.splice(index, 1)
     },
     async setConfigData(data) {
       let getLabelRes = await this.$api.getLabel({ label: data })
@@ -1280,7 +1282,7 @@ export default {
         if (getLabelData.data) {
           let config = getLabelData.data && getLabelData.data.config
           this.pictureConfig.typeRadio = parseInt(config.AliImgTranslateType || this.pictureConfig.typeRadio)  // 阿里图片翻译类型
-          this.goodsDescribeRadio = parseInt( config.GoodDescribe || this.goodsDescribeRadio )// 商品描述
+          this.goodsDescribeRadio = parseInt(config.GoodDescribe || this.goodsDescribeRadio)// 商品描述
           this.translationConfig.titleChecked = config.IsTranslateTitle || this.translationConfig.titleChecked// 是否翻译标题
           this.translationConfig.specChecked = config.IsTranslateSpecification || this.translationConfig.specChecked // 是否翻译规格信息
           this.translationConfig.describeChecked = config.IsTranslateDescribe || this.translationConfig.describeChecked // 是否翻译描述
@@ -1320,10 +1322,13 @@ export default {
         config
       }
       let saveLabelRes = await this.$api.saveLabel(param)
-      if(saveLabelRes.data && saveLabelRes.data.code === 200){
-        if (!this.labelList.includes(label)){
-          this.labelList.push(label)
+      if (saveLabelRes.data && saveLabelRes.data.code === 200) {
+        if (!this.configLabelList.includes(label)) {
+          this.configLabelList.push(label)
         }
+        this.$message.success('配置标签保存成功')
+      } else {
+        this.$message.error('配置标签保存失败')
       }
     }
 
