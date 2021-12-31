@@ -1514,8 +1514,8 @@ export default {
           if (Number(this.productDay) > Number(this.maxDays) || Number(this.productDay) < Number(this.minDays)) {
             this.batchStatus(item, '出货天数需设置在 ' + this.minDays + ' 到 ' + this.maxDays + ' 天', false)
           } else {
-            productInfo['pre_order'] = Number(this.productDay) > Number(this.preOrderDeliveryDays)
-            productInfo['days_to_ship'] = productInfo.pre_order ? Number(this.productDay) : Number(this.preOrderDeliveryDays)
+            productInfo['pre_order'] = true
+            productInfo['days_to_ship'] = Number(this.productDay)
             await this.handleProductEdit(productInfo, item)
           }
         } else {
