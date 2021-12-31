@@ -311,7 +311,7 @@ export default {
     async getTableData(item, count = { count: 1 }) {
       try {
         const timenow = new Date().getTime() - 3600 * 1000 * 24
-        const yesterdaytime = this.$dayjs(timenow).format('YYYY-MM-DD')
+        const yesterdaytime = this.$dayjs(timenow).format('YYYYMMDD')
         let mallname = item.mall_alias_name || item.platform_mall_name
         const params = {
           start_time: this.start_time,
@@ -353,8 +353,6 @@ export default {
           exportdata['pcnew_followers'] = pc.new_followers
           this.exportdata.push(exportdata)
           const data = {}
-          console.log('pcppcpccpcpcpcpcpcpc', pc)
-          console.log('appappappappappappapp', app)
           data['mallname'] = mallname
           let color = `green`
           let arrow1 = ''
@@ -529,7 +527,7 @@ export default {
     async getallinfo() {
       if (this.mall.length > 0) {
         this.Loading1 = true
-        this.Loading3 = true
+        // this.Loading3 = true
         this.tableData = []
         this.exportdata = []
         this.errmall = []

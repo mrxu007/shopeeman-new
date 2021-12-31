@@ -11,18 +11,12 @@
         </li>
         <li>
           <span>资料期间：</span>
-          <el-date-picker
-            v-model="time"
-            style="height:20px"
-            type="date"
-            placeholder="选择日期"
-          /></li>
+          <el-date-picker size="mini" v-model="time" type="date" placeholder="选择日期"/></li>
         <li>
           <el-button type="primary" :disabled="Loading1" size="mini" @click="getallinfo">搜索</el-button>
         </li>
-        <li><el-checkbox
-          v-model="showlog"
-        >隐藏日志</el-checkbox></li>
+        <li>
+          <el-checkbox v-model="showlog">隐藏日志</el-checkbox></li>
       </ul><br>
       <div class="logging">
         <Logs ref="Logs" v-model="showlog" clear />
@@ -172,7 +166,7 @@ export default {
     },
     async getTableData(item, count = { count: 1 }) {
       try {
-        const timenow = this.$dayjs(this.time).format('YYYY-MM-DD')
+        const timenow = this.$dayjs(this.time).format('YYYYMMDD')
         let mallname = item.mall_alias_name || item.platform_mall_name
         const params = {
           metric_id: this.type,

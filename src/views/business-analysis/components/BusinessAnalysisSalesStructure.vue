@@ -395,7 +395,7 @@ export default {
           end_time: this.end_time,
           period: this.Statisticaltime,
           // group: this.group,
-          mallId: this.mall[i]
+          mallId: item.platform_mall_id
         }
         console.log('this is my parmas', params)
 
