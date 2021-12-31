@@ -418,20 +418,22 @@ export function randomWord(randomFlag, min, max) {
  * @returns {Promise<any>}
  */
 export function batchOperation(array, method, count = 5) {
+  const number = array.length
   const threadRunCountJson = localStorage.getItem('threadRunCount') || ''
   const threadRunCountRes = threadRunCountJson && JSON.parse(threadRunCountJson) || {}
   const methodName = method.name
   threadRunCountRes[methodName] = true
+  console.log('线程开始', methodName, array)
   localStorage.setItem('threadRunCount', JSON.stringify(threadRunCountRes))
   return new Promise(resolve => {
-    const number = array.length
     const countObj = { count: number }
     let submitCount = 0
     let setIn = setInterval(() => {
       const threadRunCountJson = localStorage.getItem('threadRunCount') || ''
       const threadRunCountRes = threadRunCountJson && JSON.parse(threadRunCountJson) || {}
+      console.log('threadRunCountRes', threadRunCountRes)
       const num = countObj.count
-      console.log('线程剩余数：', num)
+      console.log('线程剩余数：', methodName, num)
       if (num === 0 || !threadRunCountRes[methodName]) {
         let success = '完成'
         if (!threadRunCountRes[methodName]) {
@@ -439,6 +441,7 @@ export function batchOperation(array, method, count = 5) {
         }
         clearInterval(setIn)
         setIn = null
+        console.log('线程停止：', methodName)
         resolve(success)
       } else {
         manage(number - num)
