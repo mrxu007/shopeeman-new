@@ -226,9 +226,17 @@ export default {
   methods: {
     // 重新获取置顶信息
     refreshTopGoods() {
-      // huoqu
       if (!this.selectTable.length) {
-        this.$message.warning('请选择需要操作的数据')
+        this.$message.warning('请选择需要操作的数据!')
+      }
+      // 选择商品
+      if (this.otherConditon === '1') {
+        // goodsID=NULL
+        this.$message.warning('商品ID不能为空！')
+      }
+      // 其他维度
+      if (this.otherConditon === '0') {
+        //
       }
     },
     // 查看置顶记录
@@ -339,43 +347,14 @@ export default {
         if (val.top_type === '3') {
           params.listOrderType = 'sales_asc'
         }
-      }
-      this.$refs.Logs.writeLog(`店铺【${val.mallName}】商品数据获取结束`, true)
-      const loopGoodsNum = [] // 置顶的商品数
-      const topedNum = val.top_good_ids.split(',')
-      resultList.forEach(el => {
-        el.country = val.country
-        el.sys_mall_id = val.sys_mall_id
-        el.topTaskId = val.id
-        el.mallName = val.mallName
-        el.top_total_count = val.top_total_count
-        el.toped_count = val.toped_count
-        const num = topedNum.findIndex(ol => { return Number(ol) === el.id })
-        const aa = (val.top_total_count - val.toped_count) > 5 ? 5 : (val.top_total_count - val.toped_count)
-        if (loopGoodsNum.length < aa && num < 0) {
-          loopGoodsNum.push(el)
+        if (val.top_type === '4') {
+          params.listOrderType = 'sales_dsc'
         }
-      })
-      this.topedLength = loopGoodsNum.length
-      const res1 = await batchOperation(loopGoodsNum, this.topAction)
-    },
-    // 置顶步骤
-    async topAction(item, count = { count: 1 }) {
-      try {
-        // 置顶商品
-        const query = {
-          country: item.country,
-          mallId: item.sys_mall_id,
-          goodsID: item.id
+        if (val.top_type === '5') {
+          params.listOrderType = 'price_asc'
         }
-        const topServiceQuery = {
-          list: [{
-            topTaskId: item.topTaskId.toString(),
-            topGoods: [{
-              goodsId: item.id.toString(),
-              isTop: 1
-            }]
-          }]
+        if (val.top_type === '6') {
+          params.listOrderType = 'price_dsc'
         }
         // this.topHistoryMsg.push({ topHistoryMsg: '正在获取商品数据' })
         this.$refs.Logs.writeLog(`获取店铺【${val.mallName}】商品数据`, true)
