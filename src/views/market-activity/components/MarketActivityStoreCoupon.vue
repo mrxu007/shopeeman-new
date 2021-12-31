@@ -32,7 +32,7 @@
         ref="multipleTable"
         v-loading="tableLoading"
         :data="tableList"
-        height="600px"
+        height="800px"
         use-virtual
         :border="false"
         :header-cell-style="{ background: '#f7fafa' }"
@@ -323,7 +323,7 @@ export default {
     },
     // 删除
     MallvoucherDelFun(val) {
-      this.$confirm('确定该优惠卷吗？, 是否继续?', '提示', {
+      this.$confirm('确定要删除该优惠卷吗？, 是否继续?', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
@@ -438,7 +438,11 @@ export default {
             this.getInfo(item, { count: 1 })
           }
         } else {
-          this.$refs.Logs.writeLog(`【${item.mall_alias_name || item.platform_mall_name}】${res.message}`, false)
+          if (res.message === 'token not found') {
+            this.$refs.Logs.writeLog(`【${item.mall_alias_name || item.platform_mall_name}】${res.message}:店铺未登录`, false)
+          } else {
+            this.$refs.Logs.writeLog(`【${item.mall_alias_name || item.platform_mall_name}】${res.message}`, false)
+          }
         }
       } catch (error) {
         this.$refs.Logs.writeLog(`【${item.mall_alias_name || item.platform_mall_name}】--catch，${error}`, false)

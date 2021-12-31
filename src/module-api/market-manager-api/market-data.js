@@ -11,7 +11,6 @@ export default class MarketManagerAPI {
         mallId: mallId,
         id: goodsID
       }
-      debugger
       const res = await this._this.$shopeemanService.postChinese(country, '/api/v3/product/boost_product/?', params, {
         headers: {
           'Content-Type': 'application/json',
@@ -19,7 +18,6 @@ export default class MarketManagerAPI {
           'Accept-Encoding': 'gzip, deflate'
         }
       })
-      debugger
       const des = JSON.parse(JSON.parse(res).data)
       // let ecode = des.code || des.errcode
       // if (des.errcode) {

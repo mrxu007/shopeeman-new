@@ -248,5 +248,9 @@ export default {
   productOutStock: (data) => AppRequest.post('/userStock/productOutStock', data), // 产品中心仓库出库
   uploadGressProfit: (data) => AppRequest.post('/order/uploadGressProfit', data), // 修正含邮毛利
   uploadOrderFaceSheetInfo: (data) => AppRequest.post('/order/uploadOrderFaceSheetInfo', data), // 上报面单信息
-  getEmptyTrackingNoOrder: (data) => AppRequest.get('/order/getEmptyTrackingNoOrder', { params: data }) // 获取需同步的平台物流订单
+  getEmptyTrackingNoOrder: (data) => AppRequest.get('/order/getEmptyTrackingNoOrder', { params: data }), // 获取需同步的平台物流订单
+
+  // 商品置顶
+  getTopHistory: (data) => AppRequest.get('/topTask/getTopHistory', { params: data }), // 查看历史记录
+  topTaskUpdate: (data) => AppRequest.post('/topTask/update', data) // 定时任务列表: 更新
 }
