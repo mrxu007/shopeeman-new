@@ -632,7 +632,7 @@ export function getGoodsUrl(platform, data) {
         platformData['platformTypeStr'] = '天猫淘宝海外平台'
         break
     }
-    console.log(instance.$filters)
+    // console.log(instance.$filters)
     return platformData
   } catch (error) {
     console.log('拼接链接异常', error)
