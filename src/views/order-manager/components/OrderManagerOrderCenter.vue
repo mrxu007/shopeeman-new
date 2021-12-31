@@ -1281,7 +1281,6 @@ export default {
       this.$buyerAccountService.getSkuRelation(skuInfo, buyer)
     },
 
-
     // 一键同步上家库存
     async syncOriginGoodsNum() {
       if (!this.multipleSelection.length) {

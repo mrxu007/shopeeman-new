@@ -703,7 +703,9 @@ export default {
                 ? this.addressData.distinct_text.split('/')[1].trim()
                 : this.addressData.distinct_text)
             // 获取虾皮地址
-            this.shopeeAddressVisible = true
+            if (!this.flagAbroad) {
+              this.shopeeAddressVisible = true
+            }
             try {
               await this.getShopeeAddress('0', 'sProvinceList', 'sProvince')
               await this.handlerChange4()
@@ -982,6 +984,12 @@ export default {
           this.isSG = false
         }
         try {
+          // if (this.itselfCountry === 'TW') {
+          //   console.log('545454654654654654654')
+          //   await this.getShopeeAddress('0', 'provinceList', 'ProvinceId')
+          // } else {
+          //   await this.getLazadaDetailAddress('', 'provinceList', 'ProvinceId')
+          // }
           await this.getLazadaDetailAddress('', 'provinceList', 'ProvinceId')
           await this.handlerChange1()
         } catch (error) {

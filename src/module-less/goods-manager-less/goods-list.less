@@ -36,7 +36,7 @@
         }
         .operation{
           .base-box{
-            width: 570px;
+            width: 616px;
           }
           .operation-input{
             /deep/.el-input{
@@ -73,41 +73,41 @@
           }
         }
       }
-      .base-box {
-        border: 1px solid #dcdcdc;
-        border-radius: 4px;
-        padding:10px 10px 5px 10px;
-        position: relative;
-        height: 100%;
-        .base-title {
-          padding: 0 5px;
-          display: inline-block;
-          height: 20px;
-          line-height: 20px;
-          text-align: center;
-          background: #fff;
-          position: absolute;
-          left: 10px;
-          top: -10px;
-        }
-        .base-item{
-          /deep/.el-form-item {
-            margin-bottom: 0px !important;
-            /deep/.el-form-item__label{
-              padding: 0 0 0 0 !important;
-              line-height: 31px !important;
-            }
-            /deep/.el-form-item__content{
-              line-height: 31px !important;
-              /deep/.el-range-editor--mini{
-                  width: 228px;
-                  /deep/.el-range-input{
-                    width: 67px !important;
-                }
-                /deep/.el-range-separator{
-                    width: 42px!important;
-                    text-align: center;
-                }
+    }
+    .base-box {
+      border: 1px solid #dcdcdc;
+      border-radius: 4px;
+      padding:10px 10px 5px 10px;
+      position: relative;
+      height: 100%;
+      .base-title {
+        padding: 0 5px;
+        display: inline-block;
+        height: 20px;
+        line-height: 20px;
+        text-align: center;
+        background: #fff;
+        position: absolute;
+        left: 10px;
+        top: -10px;
+      }
+      .base-item{
+        /deep/.el-form-item {
+          margin-bottom: 0px !important;
+          /deep/.el-form-item__label{
+            padding: 0 0 0 0 !important;
+            line-height: 31px !important;
+          }
+          /deep/.el-form-item__content{
+            line-height: 31px !important;
+            /deep/.el-range-editor--mini{
+                width: 228px;
+                /deep/.el-range-input{
+                  width: 67px !important;
+              }
+              /deep/.el-range-separator{
+                  width: 42px!important;
+                  text-align: center;
               }
             }
           }
@@ -165,6 +165,21 @@
           .el-select{
             width: 120px;
           }
+        }
+      }
+    }
+    .parent-dialog{
+      div{
+        margin-bottom: 10px;
+      }
+      .base-box{
+        padding: 20px 10px 5px 10px;
+        .el-input{
+          width: 178px !important;
+          margin-right: 10px;
+        }
+        .el-button{
+          width: 100px;
         }
       }
     }

@@ -11,9 +11,10 @@
           margin: 5px 10px 5px  0;
           white-space: nowrap;
           padding: 8px;
-          width: 102px;
+          width: 66px;
           text-align: center;
           border-radius: 5px;
+          cursor: pointer;
         }
       }
       .keyword-banner-content {
@@ -90,6 +91,25 @@
         .con-sub-3 {
           min-width: 200px;
           margin: 0 10px;
+          .size-icon{
+            margin: 2px 0 10px 0;
+            display: flex;
+            align-items: center;
+            i {
+              padding-left: 8px;
+              width: 20px;
+              font-size: 16px !important;
+              cursor: pointer;
+            }
+          }
+        }
+        .size-icon{
+          i {
+            padding-left: 8px;
+            width: 20px;
+            font-size: 16px !important;
+            cursor: pointer;
+          }
         }
       }
     }
@@ -428,5 +448,11 @@
   .active{
     border: 1px solid rgb(253, 61, 55);
     background: rgb(254, 229, 212);
+  }
+  .copyIcon {
+    color: var(--themeColor);
+    margin-left: 1px;
+    font-size: 16px;
+    cursor: pointer;
   }
 }

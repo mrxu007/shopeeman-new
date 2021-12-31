@@ -7,6 +7,11 @@ export default class CommodityService {
   user = ''
   nativeService = window['CommodityBridgeService']
 
+  /** 更新ip */
+  RefreshLinkIp(targetId) {
+    return this.nativeService.callCloudIpFunction('RefreshLinkIp', targetId)
+  }
+
   //* *删除服务端商品 */
   delCloudItems(itemList) {
     return this.nativeService.callFunction('DeleteCloudItems', itemList)
@@ -325,7 +330,7 @@ export default class CommodityService {
 
   /**
    * 更新商品
-   * @param {{sysGoodsId:number,title:string,description:string,weight:string,long:string,width:string,height:string}} req
+   * @param {*&{sysGoodsId, description, title}} req
    */
   updateGoods(req) {
     return this.nativeService.callFunction('UpdateGoods', JSON.stringify(req))
@@ -548,11 +553,11 @@ export default class CommodityService {
   }
   /**
    * 获取类目属性
-   * @param {array} data
+   *
    */
-  getAttributeInfo(country, categoryId = '0', isNewOpen = '0', tableType, isMandatoryAttr = '1') {
-    // console.log(JSON.stringify(data))
-    return this.nativeService.callCategoryFunction('GetAttributeInfo', country, categoryId, isNewOpen, tableType, isMandatoryAttr)
+  getAttributeInfo(country, categoryId = '0', isNewOpen = '0', tableType='', isMandatoryAttr = '1') {
+    console.log(country, categoryId, isNewOpen, tableType , isMandatoryAttr )
+    return this.nativeService.callCategoryFunction('GetAttributeInfo', country, categoryId.toString(), isNewOpen, tableType, isMandatoryAttr)
   }
 
   /**
