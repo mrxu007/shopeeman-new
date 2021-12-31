@@ -452,12 +452,13 @@ export default {
         return Number(item)
       })
       const res = await this.StoreSelection.markeHotSalePlan(params, 'putChinese')
+      const newVal = this.tableData.filter(item => { return item.id === val.id })
       if (res.code === 200) {
         if (this.flag1) {
           this.$refs.Logs.writeLog(`【${val.mallName}】下【${val.name}】修改成功`, true)
         } else {
           this.$refs.Logs.writeLog(`【${val.mallName}】下【${val.name}】${val.status ? '开启' : '关闭'}成功`, true)
-          this.$set(val, 'status', val.status)
+          this.$set(...newVal, 'status', val.status)
         }
       } else {
         if (this.flag1) {
@@ -466,7 +467,7 @@ export default {
           return
         } else {
           this.$refs.Logs.writeLog(`【${val.mallName}】下【${val.name}】${val.status ? '开启' : '关闭'}失败：${res.data}`, false)
-          this.$set(val, 'status', !val.status)
+          this.$set(...newVal, 'status', !val.status)
           return
         }
       }
