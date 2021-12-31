@@ -264,7 +264,10 @@ export default {
       tableData: [], // 表格数据
       multipleSelection: [], // 选择数据
       detailsData: {
-        graphqlData: []
+        graphqlData: [],
+        name: '',
+        status: null,
+        productId: ''
       }, // 详情数据
 
       goodsSortList: [
@@ -449,12 +452,13 @@ export default {
         return Number(item)
       })
       const res = await this.StoreSelection.markeHotSalePlan(params, 'putChinese')
+      const newVal = this.tableData.filter(item => { return item.id === val.id })
       if (res.code === 200) {
         if (this.flag1) {
           this.$refs.Logs.writeLog(`【${val.mallName}】下【${val.name}】修改成功`, true)
         } else {
           this.$refs.Logs.writeLog(`【${val.mallName}】下【${val.name}】${val.status ? '开启' : '关闭'}成功`, true)
-          this.$set(val, 'status', val.status)
+          this.$set(...newVal, 'status', val.status)
         }
       } else {
         if (this.flag1) {
@@ -463,7 +467,7 @@ export default {
           return
         } else {
           this.$refs.Logs.writeLog(`【${val.mallName}】下【${val.name}】${val.status ? '开启' : '关闭'}失败：${res.data}`, false)
-          this.$set(val, 'status', !val.status)
+          this.$set(...newVal, 'status', !val.status)
           return
         }
       }
@@ -553,7 +557,7 @@ export default {
     },
     // 添加单个精选组
     singleAdd() {
-      if (this.selectMallList.length > 2 || !this.selectMallList.length) return this.$message('添加单个精选组，只能选择一个店铺')
+      if (this.selectMallList.length >= 2 || !this.selectMallList.length) return this.$message('添加单个精选组，只能选择一个店铺')
       this.detailsVisible = true
       this.detailsData.mallName = this.selectMallList[0].mall_alias_name || this.selectMallList[0].platform_mall_name
       this.detailsData.platform_mall_id = this.selectMallList[0].platform_mall_id

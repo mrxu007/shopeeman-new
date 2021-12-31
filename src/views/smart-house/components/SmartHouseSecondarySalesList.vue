@@ -78,12 +78,13 @@
         <el-table-column prop="order_sn" label="订单编号" min-width="180px" align="center">
           <template slot-scope="{ row }">
             <span>
-              {{ row.order_sn }}
               <span
                 v-if="row.order_sn"
                 class="copyIcon"
                 @click="copy(row.order_sn)"
-              ><i class="el-icon-document-copy" /></span>
+              ><i class="el-icon-document-copy" />
+                {{ row.order_sn }}
+              </span>
             </span>
           </template>
         </el-table-column>
@@ -96,6 +97,11 @@
         <el-table-column prop="goods_id" label="商品ID" min-width="120px" align="center">
           <template slot-scope="{ row }">
             <span>
+              <span
+                v-if="row.goods_id"
+                class="copyIcon"
+                @click="copy(row.productId)"
+              ><i class="el-icon-document-copy" /></span>
               <el-button type="text" @click.native="open(row)">
                 {{ row.goods_id }}
               </el-button>
