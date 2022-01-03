@@ -19,6 +19,7 @@
             <el-button size="mini" type="primary" @click="getTopTest">搜索任务</el-button>
             <el-button size="mini" type="primary" @click="delTeskFun">批量删除任务</el-button>
             <el-button size="mini" type="primary" @click="stopdTesk">停止创建任务</el-button>
+            <el-button size="mini" type="primary" @click="clearLog">清除日志</el-button>
             <el-checkbox
               v-model="showlog"
               style="margin-left:10px"
@@ -210,20 +211,18 @@ export default {
       selectTable: [], // 表格多选
       topHistoryMsg: [], // 历史记录
       recordList: [],
-      currentDate: '' // 当前行
+      currentDate: '', // 当前行
+      createTag: false
     }
   },
-  computed: {
-    // cloumn_date() {
-    //   const d = new Date()
-    //   return `${d.getFullYear()}-${(d.getMonth() + 1)}- ${d.getDate()} ${d.getHours()}:${d.getMinutes()}:${d.getSeconds()}`
-    // }
-  },
   async mounted() {
-    // this.cloumn_date = new Date().getTime()
     await this.getInfo()
   },
   methods: {
+    // 清除日志
+    clearLog() {
+      this.$refs.Logs.consoleMsg = ''
+    },
     // 重新获取置顶信息
     refreshTopGoods() {
       if (!this.selectTable.length) {
@@ -306,9 +305,9 @@ export default {
         const nextTopTime = new Date(item.next_top_time).getTime()
         const currentTime = new Date().getTime()
         // 时间校验
-        if (nextTopTime > currentTime) {
+        if (nextTopTime > currentTime && !this.createTag) {
           this.$refs.Logs.writeLog(`【${mallName}】店铺,未到置顶时间`, true)
-          this.topHistoryMsg.push({ topHistoryMsg: '未到置顶时间，下次置顶时间为' + item.next_top_time })
+          // this.topHistoryMsg.push({ topHistoryMsg: '未到置顶时间，下次置顶时间为' + item.next_top_time })
           return
         }
         // 商品校验
@@ -397,6 +396,7 @@ export default {
           }
         })
         this.topedLength = loopGoodsNum.length
+        debugger
         const res1 = await batchOperation(loopGoodsNum, this.topAction)
         rej()
       })
@@ -415,15 +415,16 @@ export default {
             topTaskId: item.topTaskId.toString(),
             topGoods: [{
               goodsId: item.id.toString(),
-              isTop: 1
+              isTop: 0
             }]
           }]
         }
         const res1 = await this.MarketManagerAPIInstance.topGoods(query)
+        debugger
         if (res1.ecode === 0) {
-          topServiceQuery.list[0].topGoods.isTop = 1
-          this.$refs.Logs.writeLog(`店铺【${item.mallName}】商品【${item.sys_mall_id}】置顶成功`, true)
-          this.topHistoryMsg.push({ topHistoryMsg: `商品【${item.sys_mall_id}】置顶成功` })
+          topServiceQuery.list[0].topGoods[0].isTop = 1
+          this.$refs.Logs.writeLog(`店铺【${item.mallName}】商品【${item.id}】置顶成功`, true)
+          this.topHistoryMsg.push({ topHistoryMsg: `商品【${item.id}】置顶成功` })
           // 更新置顶信息
           const params4 = [{
             id: item.topTaskId.toString(),
@@ -434,16 +435,17 @@ export default {
           const res4 = await this.$api.topTaskUpdate(params4)
           if (res4.code === 200) {
             const taskTop = res4.data.success
-            this.$refs.Logs.writeLog(`店铺【${item.mallName}】商品【${item.sys_mall_id}】更新成功`, true)
+            this.$refs.Logs.writeLog(`店铺【${item.mallName}】商品【${item.id}】更新成功`, true)
           } else {
-            this.$refs.Logs.writeLog(`店铺【${item.mallName}】商品【${item.sys_mall_id}】更新失败${res4.message}`, false)
+            this.$refs.Logs.writeLog(`店铺【${item.mallName}】商品【${item.id}】更新失败${res4.message}`, false)
           }
         } else {
-          this.$refs.Logs.writeLog(`店铺【${item.mallName}】商品【${item.sys_mall_id}】置顶失败${res1.message}`, false)
-          this.topHistoryMsg.push({ topHistoryMsg: `商品【${item.sys_mall_id}】】置顶失败${res1.message}` })
+          this.$refs.Logs.writeLog(`店铺【${item.mallName}】商品【${item.id}】置顶失败${res1.message}`, false)
+          this.topHistoryMsg.push({ topHistoryMsg: `商品【${item.id}】】置顶失败${res1.message}` })
         }
 
         // 上报置顶商品
+        debugger
         const res2 = await this.$api.uploadTopGood(topServiceQuery)
         if (res2.data.code !== 200) {
           this.$refs.Logs.writeLog(`【商品${item.id}】上报置顶商品失败，${res2.data.data.errors}`, false)
@@ -485,7 +487,13 @@ export default {
         this.$message.warning('请选择要操作的数据！')
         return
       }
-      this.delTesk()
+      this.$confirm(`确定删除这些任务吗`, '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(async() => {
+        this.delTesk()
+      })
     },
     async  delTesk(val) {
       const list = []
@@ -669,6 +677,7 @@ export default {
         }
       }
       // 创建新任务
+      this.createTag = true
       const arr = []
       this.selectMalllist.forEach(el => {
         const item = {
@@ -696,14 +705,14 @@ export default {
               this.$refs.Logs.writeLog(`${el}`, true)
             })
           }
-          this.getTopTest()
+          await this.getTopTest()
+          this.createDel = false
         } else {
           this.$refs.Logs.writeLog(`任务创建--请求失败:${res.data.message}`, false)
         }
       } catch (error) {
         this.$refs.Logs.writeLog(`任务创建--请求失败--catch${error}`, false)
       }
-      this.createDel = false
     }
   }
 }
