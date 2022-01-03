@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-11-16 17:41:21
- * @LastEditTime: 2021-12-30 17:19:04
+ * @LastEditTime: 2021-12-31 16:24:44
  * @LastEditors: Please set LastEditors
  * @Description: 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  * @FilePath: \shopeeman-new\src\views\order-manager\components\OrderManagerDeliveryManagement.vue
@@ -469,12 +469,19 @@ export default {
           }
           return this.$refs.Logs.writeLog(`预览失败,${message}`, false)
         }
+        let PdfInfoList = JSON.parse(JSON.stringify(PdfInfoModel))
+         PdfInfoList.forEach((item) => {
+          let htmlUrl = pdfInfoObj.data.find((n) => n && n.OrderSn == item.OrderNo)
+          if (htmlUrl) {
+            item.PDFUrl = htmlUrl.PDFFilePath
+          }
+        })
         //2、---------------getVirtualFace 虚拟面单
-        console.log(JSON.stringify(PdfInfoModel), '222')
+        console.log(JSON.stringify(PdfInfoList), '222')
         let VirtualPdfPath = null
         let VirtualPdfPathObj = {}
         if (IsPrintVirtual) {
-          VirtualPdfPath = await window['BaseUtilBridgeService'].getVirtualFace(PdfInfoModel, true)
+          VirtualPdfPath = await window['BaseUtilBridgeService'].getVirtualFace(PdfInfoList, true)
           VirtualPdfPathObj = VirtualPdfPath && JSON.parse(VirtualPdfPath)
           console.log(VirtualPdfPathObj, 'VirtualPdfPath')
           if (!(VirtualPdfPathObj && VirtualPdfPathObj.code == '200')) {
@@ -518,13 +525,8 @@ export default {
           }
           return this.$refs.Logs.writeLog(`打印面单失败,${message}`, false)
         }
-        let PdfInfoList = JSON.parse(JSON.stringify(PdfInfoModel))
-        PdfInfoList.forEach((item) => {
-          let htmlUrl = pdfInfoObj.data.find((n) => n && n.OrderSn == item.OrderNo)
-          if (htmlUrl) {
-            item.PDFUrl = htmlUrl.PDFFilePath
-          }
-        })
+        
+       
         let pdfDownloadModel = {
           IsDownload: isDownload,
           PdfExtendName: PdfLower ? '.pdf' : '.PDF',
@@ -544,8 +546,14 @@ export default {
         isDownload && this.$refs.Logs.writeLog(`面单下载完成,请前往桌面查看`, true)
         IsPrintVirtual && this.$refs.Logs.writeLog(`虚拟面单下载完成,请前往软件所在文件夹查看`, true)
       } catch (error) {
+        console.log("error",error)
         this.tableLoading = false
-        this.$refs.Logs.writeLog(`打印面单失败，${error}`, false)
+        if(error.includes('进程')){
+          this.$refs.Logs.writeLog(`打印面单失败，文件被占用请重启软件`, false)
+        }else{
+          this.$refs.Logs.writeLog(`打印面单失败，${error}`, false)
+        }
+        
         console.log(error, 'downFace')
       }
     },

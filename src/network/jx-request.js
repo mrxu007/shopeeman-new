@@ -14,14 +14,6 @@ const AppRequest = axios.create({ // 壳内转发请求
     return jxAdapter(config)
   }
 })
-const AppRequest2 = axios.create({ // 壳内转发请求
-  baseURL: 'http://local.spm.com',
-  timeout: 5000,
-  withCredentials: true,
-  adapter: config => {
-    return jxAdapter(config)
-  }
-})
 const ycjRequest = axios.create({ // 云采集请求
   baseURL: 'http://129.204.71.240',
   timeout: 5000,

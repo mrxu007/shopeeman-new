@@ -863,7 +863,7 @@ export default class NetMessageBridgeService {
   async getOrderIdList(country, data) {
     const res = await this.getChinese(country, '/api/v3/order/get_order_id_list', data)
     const resObj = res && JSON.parse(res)
-    // console.log(resObj)
+    console.log(resObj)
     if (resObj && resObj.status === 200) {
       const info = JSON.parse(resObj.data)
       if (info && info.code === 0) {

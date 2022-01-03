@@ -659,93 +659,6 @@ export function getGoodsUrl(platform, data) {
   }
 }
 
-async function dealwithLogisi(productID, mallID, country) {
-  // 获取物流
-  const parmas = {}
-  parmas['product_id'] = productID
-  parmas['mallId'] = mallID
-  const res = await instance.$shopeemanService.getLogistics(country, parmas)
-  console.log(res,"dealwithLogisi")
-  // 处理物流方式
-  let logModelList = []
-  let logisticsJarray = res.data.list || []
-  if (res.code === 200) {
-    logModelList = await getLogisticsInfo(logisticsJarray, true, mallID, country)
-  }
-  return logModelList
-}
-async function getLogisticsInfo(logisticsJarray, isUseProductChannel, mallID, country) {
-  const logModelList = []
-  let idDatas = []
-  if (logisticsJarray.length > 0) {
-    const params = {
-      platform_mall_id: mallID
-    }
-    // 获取商家后台的物流方式
-    let res = await instance.$shopeemanService.getChinese(country, '/api/v3/logistics/get_channel_list/?', params)
-    res = JSON.parse(JSON.parse(res).data)
-    if (res ?.data ?.list) {
-      idDatas = res.data.list
-    }
-    console.log(idDatas,"idDatas")
-    // 过滤无效物流
-    logisticsJarray = filterLogistics(logisticsJarray, idDatas, isUseProductChannel)
-    console.log(logisticsJarray,"logisticsJarray222")
-  }
-  for (let i = 0; i < logisticsJarray.length; i++) {
-    const logistics = logisticsJarray[i]
-    const obj = {}
-    obj.channelid = Number(logistics.channel_id)
-    obj.price = logistics.price ? logistics.price.toString() : '0.00'
-    obj.enabled = JSON.parse(logistics.enabled)
-    obj.cover_shipping_fee = JSON.parse(logistics.cover_shipping_fee)
-    obj.sizeid = Number(logistics.size_id)
-    obj.size = Number(logistics.size)
-    obj.parent_channel_id = Number(logistics.parent_channel_id)
-    logModelList.push(obj)
-  }
-  console.log(logModelList,"logModelList")
-  return logModelList
-}
-// 过滤无效物流
-async function filterLogistics(logisticsJarray, idDatas, isUseProductChannel) {
-  console.log(logisticsJarray, idDatas,"33333")
-    const newLogisticsJarray = []
-    for (let i = 0; i < idDatas.length; i++) {
-      const channels = idDatas[i]
-      const channelId = channels.channel_id.toString()
-      const parentChannelId = 'parent_channel_id' in channels ? channels.parent_channel_id.toString() : '0'
-      if (parentChannelId !== '0') {
-        continue
-      }
-      if (!JSON.parse(channels.is_mask_channel) && !JSON.parse(channels.enabled)) {
-        continue
-      }
-      let isAddToNewArray = false
-      for (let j = 0; j < logisticsJarray.length; j++) {
-        const logistics = logisticsJarray[j]
-        if (logistics.channel_id.toString === channelId) {
-          if (!isUseProductChannel) {
-            logistics.enabled = channels.enabled.toString()
-          }
-          if (!logistics ?.default_price) {
-            logistics.default_price = '0.00'
-          }
-          newLogisticsJarray.push(logistics)
-          isAddToNewArray = true
-          break
-        }
-      }
-      if (!isAddToNewArray) {
-        channels.price = channels.price ? channels.price.toString : '0.00'
-        channels.cover_shipping_fee = !((channels.cover_shipping_fee.toString() === '0' || channels.cover_shipping_fee.toString() === 'false'))
-        channels.size_id = 0
-        channels.size = 0
-        newLogisticsJarray.push(channels)
-      }
-    }
-    return newLogisticsJarray
-  }
   /**
    * @name : 
    * @param  {*}
@@ -916,4 +829,93 @@ async function filterLogistics(logisticsJarray, idDatas, isUseProductChannel) {
       console.log('catch', error)
       return writeLog(`${orderSn?`订单【${orderSn}】`:`商品【${shopGoodsId}】`}同步上家库存失败，${msg}！`, false)
     }
+  }
+
+  
+async function dealwithLogisi(productID, mallID, country) {
+  // 获取物流
+  const parmas = {}
+  parmas['product_id'] = productID
+  parmas['mallId'] = mallID
+  const res = await instance.$shopeemanService.getLogistics(country, parmas)
+  console.log(res,"dealwithLogisi")
+  // 处理物流方式
+  let logModelList = []
+  let logisticsJarray = res.data.list || []
+  if (res.code === 200) {
+    logModelList = await getLogisticsInfo(logisticsJarray, true, mallID, country)
+  }
+  return logModelList
+}
+async function getLogisticsInfo(logisticsJarray, isUseProductChannel, mallID, country) {
+  const logModelList = []
+  let idDatas = []
+  if (logisticsJarray.length > 0) {
+    const params = {
+      platform_mall_id: mallID
+    }
+    // 获取商家后台的物流方式
+    let res = await instance.$shopeemanService.getChinese(country, '/api/v3/logistics/get_channel_list/?', params)
+    res = JSON.parse(JSON.parse(res).data)
+    if (res ?.data ?.list) {
+      idDatas = res.data.list
+    }
+    console.log(idDatas,"idDatas")
+    // 过滤无效物流
+    logisticsJarray = filterLogistics(logisticsJarray, idDatas, isUseProductChannel)
+    console.log(logisticsJarray,"logisticsJarray222")
+  }
+  for (let i = 0; i < logisticsJarray.length; i++) {
+    const logistics = logisticsJarray[i]
+    const obj = {}
+    obj.channelid = Number(logistics.channel_id)
+    obj.price = logistics.price ? logistics.price.toString() : '0.00'
+    obj.enabled = JSON.parse(logistics.enabled)
+    obj.cover_shipping_fee = JSON.parse(logistics.cover_shipping_fee)
+    obj.sizeid = Number(logistics.size_id)
+    obj.size = Number(logistics.size)
+    obj.parent_channel_id = Number(logistics.parent_channel_id)
+    logModelList.push(obj)
+  }
+  console.log(logModelList,"logModelList")
+  return logModelList
+}
+// 过滤无效物流
+async function filterLogistics(logisticsJarray, idDatas, isUseProductChannel) {
+  console.log(logisticsJarray, idDatas,"33333")
+    const newLogisticsJarray = []
+    for (let i = 0; i < idDatas.length; i++) {
+      const channels = idDatas[i]
+      const channelId = channels.channel_id.toString()
+      const parentChannelId = 'parent_channel_id' in channels ? channels.parent_channel_id.toString() : '0'
+      if (parentChannelId !== '0') {
+        continue
+      }
+      if (!JSON.parse(channels.is_mask_channel) && !JSON.parse(channels.enabled)) {
+        continue
+      }
+      let isAddToNewArray = false
+      for (let j = 0; j < logisticsJarray.length; j++) {
+        const logistics = logisticsJarray[j]
+        if (logistics.channel_id.toString === channelId) {
+          if (!isUseProductChannel) {
+            logistics.enabled = channels.enabled.toString()
+          }
+          if (!logistics ?.default_price) {
+            logistics.default_price = '0.00'
+          }
+          newLogisticsJarray.push(logistics)
+          isAddToNewArray = true
+          break
+        }
+      }
+      if (!isAddToNewArray) {
+        channels.price = channels.price ? channels.price.toString : '0.00'
+        channels.cover_shipping_fee = !((channels.cover_shipping_fee.toString() === '0' || channels.cover_shipping_fee.toString() === 'false'))
+        channels.size_id = 0
+        channels.size = 0
+        newLogisticsJarray.push(channels)
+      }
+    }
+    return newLogisticsJarray
   }
