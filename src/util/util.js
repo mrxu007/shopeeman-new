@@ -572,6 +572,7 @@ export function getArraySrcLengthSort(arr, type) {
   }
   return type && sort || sort.reverse()
 }
+
 export function getDaysBetween(startDate, endDate) {
   var days = (endDate - startDate) / (1 * 24 * 60 * 60 * 1000)
   return days

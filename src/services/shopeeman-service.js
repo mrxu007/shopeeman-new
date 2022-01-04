@@ -26,10 +26,7 @@ export default class NetMessageBridgeService {
     userSettings = JSON.parse(userSettings)
     console.log('userSettings', userSettings)
     const mallInfo = await this.ConfigBridgeService().getGlobalCacheInfo('mallInfo', mallId)
-    const {
-      mall_main_id,
-      IPType
-    } = JSON.parse(mallInfo)
+    const { mall_main_id, IPType ,IpExpirationTime} = JSON.parse(mallInfo)
     // auto 1、auto  2、mallinfo.MallMainId  3、IPType  包含 大陆   或者  ‘1’
     // local 国内
     // Abroad 本土
@@ -37,9 +34,11 @@ export default class NetMessageBridgeService {
     const domain_switch = userSettings && (userSettings.SwitchDominTypeSetting || userSettings.domain_switch) || '1'
     if (domain_switch === '3' || domain_switch === `Abroad`) {
       url = this.site_domain_local_pre[country]
-    } else if ((domain_switch === '1' || domain_switch === 'Auto') &&
-      mall_main_id > 0 && (IPType.indexOf('大陆') === -1 || IPType === '1')) {
-      url = this.site_domain_local_pre[country]
+    } else if ((domain_switch === '1' || domain_switch === 'Auto') && mall_main_id > 0) {
+      let isNoExpiration = IpExpirationTime && new Date(IpExpirationTime).getTime() > new Date().getTime()
+      if(isNoExpiration){
+        url = this.site_domain_local_pre[country]
+      }
     }
     return url
   }
@@ -52,15 +51,18 @@ export default class NetMessageBridgeService {
     const mallInfo = await this.ConfigBridgeService().getGlobalCacheInfo('mallInfo', mallId)
     const {
       mall_main_id,
-      IPType
+      IPType,
+      IpExpirationTime
     } = JSON.parse(mallInfo)
     const domain_switch = userSettings && (userSettings.SwitchDominTypeSetting || userSettings.domain_switch) || '1'
     let url = this.site_domain_chinese_bk[country]
     if (domain_switch === '3' || domain_switch === `Abroad`) {
       url = this.site_domain_local_bk[country]
-    } else if ((domain_switch === '1' || domain_switch === 'Auto') &&
-      mall_main_id > 0 && (IPType.indexOf('大陆') === -1 || IPType === '1')) {
-      url = this.site_domain_local_bk[country]
+    } else if ((domain_switch === '1' || domain_switch === 'Auto') && mall_main_id > 0) {
+      let isNoExpiration = IpExpirationTime && new Date(IpExpirationTime).getTime() > new Date().getTime()
+      if(isNoExpiration){
+        url = this.site_domain_local_pre[country]
+      }
     }
     return url
     // const dominType = data.SwitchDominTypeSetting === 'Local'
@@ -241,7 +243,6 @@ export default class NetMessageBridgeService {
   // refer 与url 不一样
   async postChineseReferer(country, api, data, options = {}, exportInfo) {
     data = JSON.parse(JSON.stringify(data))
-    const url = await this.getUrlPrefix(country, data) + api
     const baseUrl = await this.getUrlPrefix(country, data)
     options['extrainfo'] = this.getExtraInfo(data)
     if (exportInfo) { // 适配店铺管理---导入店铺
@@ -255,12 +256,11 @@ export default class NetMessageBridgeService {
         referer: baseUrl + referer
       })
     }
-    console.log(url, JSON.stringify(options), JSON.stringify(data))
-    return this.NetMessageBridgeService().post(url, JSON.stringify(options), JSON.stringify(data))
+    console.log(baseUrl + api, JSON.stringify(options), JSON.stringify(data))
+    return this.NetMessageBridgeService().post(baseUrl + api, JSON.stringify(options), JSON.stringify(data))
   }
   async getChineseReferer(country, api, data, options = {}) {
     data = JSON.parse(JSON.stringify(data))
-    const url = await this.getUrlPrefix(country, data) + api
     const baseUrl = await this.getUrlPrefix(country, data)
     options['extrainfo'] = this.getExtraInfo(data)
     delete data.mallId // body 里面不能带店铺id
@@ -272,8 +272,7 @@ export default class NetMessageBridgeService {
         referer: baseUrl + referer
       })
     }
-    // console.log('-----get', url, JSON.stringify(options))
-    return this.NetMessageBridgeService().get(url, JSON.stringify(options))
+    return this.NetMessageBridgeService().get(baseUrl + api, JSON.stringify(options))
   }
   async postChineseShop(country, api, data, params, options = {}, exportInfo) {
     data = JSON.parse(JSON.stringify(data))
@@ -2023,6 +2022,11 @@ export default class NetMessageBridgeService {
   // 创建套装促销活动
   creatdiscount(country, data, option) {
     return this.postChinese(country, '/api/marketing/v3/bundle_deal/', data, option)
+  }
+
+  //商品查询
+  productSelector(country ,data ,option){
+    return this.getChinese(country,'/api/marketing/v3/public/product_selector/',data,option)
   }
   }
 
