@@ -123,14 +123,13 @@
               </el-tooltip>
             </template>
           </el-table-column>
-          <el-table-column prop="" label="操作" align="center" min-width="450px" fixed="right">
-            <template v-slot="{ row }">
-              <div style="display: flex;">
+          <el-table-column prop="" label="操作" align="center" min-width="330px" fixed="right">
+            <template slot-scope="{ row }">
+              <div>
                 <el-button size="mini" type="primary" @click="openSoft(row.poxyIP, row.id)">打开代理浏览器</el-button>
                 <el-button size="mini" type="primary" @click="showupdateVisible(row)">修改绑定店铺</el-button>
                 <el-button size="mini" type="primary" @click="delInforFun(row.id)">删除</el-button>
                 <!-- <el-button size="mini" type="primary" @click="del(row.uid)">删除</el-button> -->
-                <el-button v-if="row.isMiddleIP" size="mini" type="primary" @click="MiddleIP(row.id)">刷新IP信息</el-button>
               </div>
             </template>
           </el-table-column>
@@ -598,26 +597,6 @@ export default {
     // this.getMallList()// 初始化店铺列表
   },
   methods: {
-    // 创建中继IP
-    async MiddleIP(val) {
-      debugger
-      // const targetId = val.toString()
-      const params = {
-        targetId: val.toString()
-      }
-      try {
-        const res = await this.$commodityService.RefreshLinkIp(params.targetId)
-        debugger
-        const data = JSON.parse(res)
-        if (data.code === 200) {
-          this.$message.success('IP更新成功')
-        } else {
-          this.$message.warning('IP更新失败' + data.message)
-        }
-      } catch (error) {
-        this.$message.warning('IP更新失败' + `${error}`)
-      }
-    },
     // 新增公司主体
     async addFun() {
       this.Typeis = 'ipMaster'
@@ -698,8 +677,8 @@ export default {
         }
         // 清空数据 刷新
         this.$refs.multipleTable.clearSelection()
+        const updata = await this.$BaseUtilService.UpdateProxy()// 壳更新
         this.getTableList()
-        this.get
       } catch (error) {
         this.loading = false
         console.log(error)
@@ -778,6 +757,7 @@ export default {
         // })
         this.$message.success('删除成功')
       }
+      const updataRes = await this.$BaseUtilService.UpdateProxy()// 壳更新
       this.getTableList()
     },
     async getInfo() {
@@ -1245,6 +1225,7 @@ export default {
           this.updataMallList()
         }
         //
+        const data = await this.$BaseUtilService.UpdateProxy()// 壳更新
         this.getTableList()
         this.dialogvisible = false
       }
@@ -1291,6 +1272,7 @@ export default {
         }
         // 清空多选
         this.$refs.multipleTable.clearSelection()
+        const updata = await this.$BaseUtilService.UpdateProxy()// 壳更新
       }
     },
     // 获取ip价格
@@ -1382,6 +1364,7 @@ export default {
         // if (this.dialog_selectMallList.length > 0) {
         //   this.updataMallList()
         // }
+        const UPdata = await this.$BaseUtilService.UpdateProxy()// 壳更新
         this.getTableList()
         this.dialogvisible = false
         this.closeDialog1()
@@ -1470,12 +1453,7 @@ export default {
     changeMallList(val) {
       this.query.mall_ids = ''
       console.log(val)
-      // this.query.mall_ids = val.searchAll
-      if (val.searchAll) {
-        this.query.mall_ids = [...val.mallList.map(i => i.id)].toString()
-      } else {
-        this.query.mall_ids = ''
-      }
+      this.query.mall_ids = val.searchAll
     },
     // ip- tableList
     async getTableList() {
@@ -1502,13 +1480,11 @@ export default {
         this.bindMalltable = []// 有绑定店铺的IP主体 { main_name  bindmall}
         const data = JSON.parse(res)
         // console.log('----------', data)
-        if (data.code === 200) {
+        if (data.code === 200 && this.shopAccountList.length > 0) {
           if (data.data && data.data.length > 0) {
-            for (let i = 0; i < data.data.length; i++) {
-              const item = data.data[i]
+            data.data.forEach((item, index) => {
               // 获取店铺名称
-              item.mall_alias_name = ''
-              if (this.shopAccountList.length > 0 && item.target_mall_info && item.target_mall_info.length > 0) {
+              if (item.target_mall_info && item.target_mall_info.length > 0) {
                 const mall = []
                 this.bindMalltable.push({ main_name: item.ip_alias, bindmall: item.target_mall_info })
                 item.target_mall_info.forEach(i => {
@@ -1521,54 +1497,15 @@ export default {
               // 解析ip
               item.poxyIP = ''
               item.poxyID = ''
-              const res = await this.$YipService.GetIPinfor(item.ip_info)
-              const data_ipinfor = JSON.parse(res)
-              item.poxyID = data_ipinfor.id
-              item.poxyIP = data_ipinfor.map_ip_address
-              item.data_ipinfor = data_ipinfor // 修改获取数据
-              // 是否显示中继IP
-              item.isMiddleIP = false
-              const experaTime = new Date(item.expiration_time).getTime()
-              if (experaTime > new Date().getTime()) {
-                if ((item.source === '系统' && Number(item.data_ipinfor.is_old) === 0) || (item.source === '用户' && Number(item.data_ipinfor.is_link) === 1)) {
-                  item.isMiddleIP = true
-                }
-              }
+              this.$YipService.GetIPinfor(item.ip_info).then(res => {
+                const data_ipinfor = JSON.parse(res)
+                item.poxyID = data_ipinfor.id
+                item.poxyIP = data_ipinfor.map_ip_address
+                item.data_ipinfor = data_ipinfor // 修改获取数据
+                // console.log('item', item)
+              })
               this.tableList.push(item)
-            }
-            // data.data.forEach((item, index) => {
-            //   // 获取店铺名称
-            //   item.mall_alias_name = ''
-            //   item.isMiddleIP = false
-            //   if (this.shopAccountList.length > 0 && item.target_mall_info && item.target_mall_info.length > 0) {
-            //     const mall = []
-            //     this.bindMalltable.push({ main_name: item.ip_alias, bindmall: item.target_mall_info })
-            //     item.target_mall_info.forEach(i => {
-            //       const dd = MallgetValue(this.shopAccountList, 'label', 'id', i.mall_id)
-            //       if (dd) mall.push(dd)
-            //       // mall.push(MallgetValue(this.shopAccountList, 'label', 'id', i.mall_id))
-            //     })
-            //     item.mall_alias_name = mall.toString()
-            //   }
-            //   // 解析ip
-            //   item.poxyIP = ''
-            //   item.poxyID = ''
-            //   this.$YipService.GetIPinfor(item.ip_info).then(res => {
-            //     const data_ipinfor = JSON.parse(res)
-            //     item.poxyID = data_ipinfor.id
-            //     item.poxyIP = data_ipinfor.map_ip_address
-            //     item.data_ipinfor = data_ipinfor // 修改获取数据
-            //     // console.log('item', item)
-            //   })
-            //   // 是否显示中继IP
-            //   const experaTime = new Date(item.expiration_time).getTime()
-            //   if (experaTime > new Date().getTime) {
-            //     if ((item.source === '系统' && Number(item.data_ipinfor.is_old) === 0) || (item.source === '用户' && Number(item.data_ipinfor.is_link) === 1)) {
-            //       item.isMiddleIP = true
-            //     }
-            //   }
-            //   this.tableList.push(item)
-            // })
+            })
             // console.log('+++++++++++++++', this.bindMalltable)
           } else {
             this.tableList = []

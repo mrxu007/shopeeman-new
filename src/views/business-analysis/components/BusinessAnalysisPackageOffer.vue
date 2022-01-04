@@ -2,7 +2,7 @@
   <el-row class="contaniner">
     <el-row class="header">
       <ul style="margin-bottom: 10px">
-        <storeChoose :span-width="'80px'" :source="'true'" @changeMallList="changeMallList"/>
+        <storeChoose :span-width="'80px'" :source="'true'" @changeMallList="changeMallList" />
         <li>
           <span>统计时间：</span>
           <el-select v-model="Statisticaltime" placeholder="" size="mini" filterable>
@@ -10,8 +10,10 @@
           </el-select>
         </li>
         <li>
-          <el-button type="primary" :disabled="Loading1" size="mini" @click="getallinfo">搜索</el-button>
-          <el-button type="primary" :disabled="Loading1" size="mini" @click="DerivedData">导出</el-button>
+          <!-- <el-button type="primary" :disabled="Loading1" size="mini" @click="getallinfo">搜索</el-button>
+          <el-button type="primary" :disabled="Loading1" size="mini" @click="DerivedData">导出</el-button> -->
+          <el-button type="primary" size="mini" @click="getallinfo">搜索</el-button>
+          <el-button type="primary" size="mini" @click="DerivedData">导出</el-button>
         </li>
       </ul>
       <el-table
@@ -19,44 +21,45 @@
         v-loading="Loading3"
         style="margin-top:10px"
         header-align="center"
-        height="calc(100vh - 140px)"
+        height="calc(100vh - 85px)"
         :data="tableData"
         :header-cell-style="{
           backgroundColor: '#f5f7fa',
         }"
       >
-        <el-table-column align="center" label="店铺名称" width="160" prop="mallname" />
-        <el-table-column align="center" prop="sales" label="销售量" width="230">
+        <el-table-column label="序号" min-width="60px" type="index" align="center" fixed />
+        <el-table-column align="center" label="店铺名称" min-width="160px" prop="mallname" />
+        <el-table-column align="center" prop="sales" label="销售量" min-width="230px">
           <template slot-scope="{ row }">
             <div v-html="row.sales" />
           </template>
         </el-table-column>
-        <el-table-column prop="orders" label="订单数" width="230" align="center">
+        <el-table-column prop="orders" label="订单数" min-width="230px" align="center">
           <template slot-scope="{ row }">
             <div v-html="row.orders" />
           </template>
         </el-table-column>
-        <el-table-column prop="bundle_deals_ordered" label="订购的套装优惠数" width="230" align="center">
+        <el-table-column prop="bundle_deals_ordered" label="订购的套装优惠数" min-width="230px" align="center">
           <template slot-scope="{ row }">
             <div v-html="row.bundle_deals_ordered" />
           </template>
         </el-table-column>
-        <el-table-column prop="units" label="售出件数" width="230" align="center">
+        <el-table-column prop="units" label="售出件数" min-width="230px" align="center">
           <template slot-scope="{ row }">
             <div v-html="row.units" />
           </template>
         </el-table-column>
-        <el-table-column prop="buyers" label="买家数" width="230" align="center">
+        <el-table-column prop="buyers" label="买家数" min-width="230px" align="center">
           <template slot-scope="{ row }">
             <div v-html="row.buyers" />
           </template>
         </el-table-column>
-        <el-table-column prop="sales_per_buyer" label="每位买家的销售额" width="230" align="center">
+        <el-table-column prop="sales_per_buyer" label="每位买家的销售额" min-width="230px" align="center">
           <template slot-scope="{ row }">
             <div v-html="row.sales_per_buyer" />
           </template>
         </el-table-column>
-        <el-table-column prop="appexisting_visitors" label="操作" width="150" align="center">
+        <el-table-column prop="appexisting_visitors" label="操作" min-width="150px" align="center" fixed="right">
           <template slot-scope="{ row }">
             <el-button type="primary" size="mini" @click="view(row)">套装优惠概览</el-button>
           </template>
@@ -91,6 +94,9 @@
 import { batchOperation, exportExcelDataCommon } from '../../../util/util'
 import storeChoose from '@/components/store-choose'
 export default {
+  components: {
+    storeChoose
+  },
   data() {
     return {
       Loading1: false,
@@ -272,7 +278,7 @@ export default {
           this.timecant = false
         }
       }
-    },
+    }
   },
   mounted() {
     // const timenow = new Date().getTime()
@@ -282,9 +288,6 @@ export default {
     // const onehoureago = `${changea[0]}:${changea[1]}`
     // console.log(onehoureago)
   },
-  components: {
-    storeChoose
-  },
   methods: {
     // 获取店铺信息
     changeMallList(val) {
@@ -293,7 +296,7 @@ export default {
     },
     async getTableData(item, count = { count: 1 }) {
       try {
-        let mallname = item.mall_alias_name || item.platform_mall_name
+        const mallname = item.mall_alias_name || item.platform_mall_name
         const params = {
           start_time: this.start_time,
           end_time: this.end_time,
