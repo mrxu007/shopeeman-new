@@ -14,14 +14,6 @@ const AppRequest = axios.create({ // 壳内转发请求
     return jxAdapter(config)
   }
 })
-const AppRequest2 = axios.create({ // 壳内转发请求
-  baseURL: 'http://local.spm.com',
-  timeout: 5000,
-  withCredentials: true,
-  adapter: config => {
-    return jxAdapter(config)
-  }
-})
 const ycjRequest = axios.create({ // 云采集请求
   baseURL: 'http://129.204.71.240',
   timeout: 5000,
@@ -241,6 +233,7 @@ export default {
   // 标签列表---------------------------------------------------------------------------
   getLabels: (data) => AppRequest.get('/publishGoodsWindowConfig/getLabels', data), // 编辑上新弹窗配置: 获取标签列表
   getLabel: (data) => AppRequest.get('publishGoodsWindowConfig/get', data), // 编辑上新弹窗配置: 获取单个(根据标签)
+
   saveLabel: (data) => AppRequest.post('publishGoodsWindowConfig/save', data), // 编辑上新弹窗配置: 保存配置
   getDeliveryList: (data) => AppRequest.post('/order/deliveryIndex', data), // 发货管理列表
   updateShotOrder: (data) => AppRequest.post('/order/uploadShotOrderInfo', data), // 上传拍单信息

@@ -461,7 +461,7 @@
             >
               <div slot="content">
                 <el-image
-                  :src="[row.country ,row.platform_mall_id , row.images] | imageRender"
+                  :src="[ row.images] | imageRender"
                   style="width: 400px; height: 400px"
                 >
                   <div slot="error" class="image-slot" />
@@ -472,7 +472,7 @@
               </div>
               <el-image
                 style="width: 40px; height: 40px"
-                :src="[row.country ,row.platform_mall_id , row.images] | imageRender"
+                :src="[row.images,true] | imageRender"
               >
                 <div slot="error" class="image-slot" />
                 <div slot="placeholder" class="image-slot">
@@ -2914,7 +2914,7 @@ export default {
         str += `<tr>
         <td>${item.country ? this.$filters.chineseSite(item.country) : '' + '\t'}</td>
         <td>${item.mallName ? item.mallName : '' + '\t'}</td>
-        <td>${item.images ? this.$filters.imageRender([item.country, item.platform_mall_id, item.images]) : '' + '\t'}</td>
+        <td>${item.images ? this.$filters.imageRender([item.images]) : '' + '\t'}</td>
         <td>${item.categoryName ? item.categoryName : '' + '\t'}</td>
         <td>${item.platformTypeStr ? item.platformTypeStr : '' + '\t'}</td>
         <td>${item.url ? item.url : '' + '\t'}</td>

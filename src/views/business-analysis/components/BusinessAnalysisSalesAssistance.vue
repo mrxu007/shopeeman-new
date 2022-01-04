@@ -2,9 +2,9 @@
   <el-row class="contaniner">
     <el-row class="header">
       <ul style="margin-bottom: 10px">
-        <storeChoose :span-width="'80px'" :source="'true'" @changeMallList="changeMallList"/>
+        <storeChoose :span-width="'80px'" :source="'true'" @changeMallList="changeMallList" />
         <li>
-          <el-button type="primary" :disabled="Loading1" size="mini" @click="getallinfo">搜索</el-button>
+          <el-button type="primary" :loading="Loading1" size="mini" @click="getallinfo">搜索</el-button>
         </li>
       </ul>
       <el-table
@@ -12,21 +12,22 @@
         v-loading="Loading3"
         style="margin-top:10px"
         header-align="center"
-        height="calc(100vh - 140px)"
+        height="calc(100vh - 85px)"
         :data="tableData"
         :header-cell-style="{
           backgroundColor: '#f5f7fa',
         }"
       >
-        <el-table-column align="center" label="店铺名称" width="160" prop="mallname" />
-        <el-table-column prop="total_item" label="商品总数" width="180" align="center" />
-        <el-table-column prop="abnormal_item" label="待改善商品数" width="180" align="center" />
-        <el-table-column prop="normal_item" label="优质商品数" width="180" align="center" />
-        <el-table-column prop="titlecount" label="偏短的商品名称数" width="180" align="center" />
-        <el-table-column prop="categorycount" label="错误分类数" width="200" align="center" />
-        <el-table-column prop="descriptioncount" label="偏短的描述商品数" width="200" align="center" />
-        <el-table-column prop="imagecount" label="图片太少商品数" width="200" align="center" />
-        <el-table-column prop="shippingcount" label="缺失包裹详情商品数" width="200" align="center" />
+        <el-table-column label="序号" min-width="60px" type="index" align="center" fixed />
+        <el-table-column align="center" label="店铺名称" min-width="160px" prop="mallname" />
+        <el-table-column prop="total_item" label="商品总数" min-width="180px" align="center" />
+        <el-table-column prop="abnormal_item" label="待改善商品数" min-width="180px" align="center" />
+        <el-table-column prop="normal_item" label="优质商品数" min-width="180px" align="center" />
+        <el-table-column prop="titlecount" label="偏短的商品名称数" min-width="180px" align="center" />
+        <el-table-column prop="categorycount" label="错误分类数" min-width="200px" align="center" />
+        <el-table-column prop="descriptioncount" label="偏短的描述商品数" min-width="200px" align="center" />
+        <el-table-column prop="imagecount" label="图片太少商品数" min-width="200px" align="center" />
+        <el-table-column prop="shippingcount" label="缺失包裹详情商品数" min-width="200px" align="center" fixed="right" />
       </el-table>
     </el-row>
   </el-row>
@@ -36,6 +37,9 @@ import storeChoose from '@/components/store-choose'
 import { batchOperation } from '@/util/util'
 
 export default {
+  components: {
+    storeChoose
+  },
   data() {
     return {
       Loading1: false,
@@ -60,9 +64,6 @@ export default {
       end_time: Math.round(new Date() / 1000)
     }
   },
-  components: {
-    storeChoose
-  },
   mounted() {
     // const timenow = new Date().getTime()
     // const returnCreateStartTime = this.$dayjs(timenow).format('hh:00')
@@ -79,7 +80,7 @@ export default {
     },
     async getTableData(item, count = { count: 1 }) {
       try {
-        let mallname = item.mall_alias_name || item.platform_mall_name
+        const mallname = item.mall_alias_name || item.platform_mall_name
         const params = {
           mallId: item.platform_mall_id
         }

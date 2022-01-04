@@ -1,11 +1,4 @@
-/*
- * @Author: your name
- * @Date: 2021-10-22 11:28:33
- * @LastEditTime: 2021-12-27 11:03:05
- * @LastEditors: Please set LastEditors
- * @Description: In User Settings Edit
- * @FilePath: \shopeeman-new\src\plugins\filters.js
- */
+
 /**
  * 站点转换位中文
  * @param val {String} 国家code
@@ -71,6 +64,14 @@ const countries_option_sub = [
   { label: '泰国站', value: 'TH' },
   { label: '马来站', value: 'MY' },
   { label: '台湾站', value: 'TW' },
+  { label: '新加坡站', value: 'SG' },
+  { label: '菲律宾站', value: 'PH' },
+  { label: '越南站', value: 'VN' },
+  { label: '印尼站', value: 'ID' }
+]
+const countries_option_sub_abroad = [
+  { label: '泰国站', value: 'TH' },
+  { label: '马来站', value: 'MY' },
   { label: '新加坡站', value: 'SG' },
   { label: '菲律宾站', value: 'PH' },
   { label: '越南站', value: 'VN' },
@@ -172,13 +173,10 @@ var chineseSite = function(val) {
   return countries[attribute] || attribute
 }
 var imageRender = function(data) {
-  const country = data[0]
-  const shop_id = data[1]
-  const image_value = data[2]
-  const isArr = data[3] || ''
-  let attribute = country && (country + '').toLocaleUpperCase() || country
-  attribute = countries_id[attribute] || attribute
-  const url = countries_image[attribute] && (countries_image[attribute] + '/file/' + shop_id + '/' + image_value) || ''
+  const image_value = data[0]
+  const mini = data[1] && '_tn' || ''
+  const isArr = data[2] || ''
+  const url = 'https://s-cf-tw.shopeesz.com/file/' + image_value + mini
   return isArr && [url] || url
 }
 var siteCoin = function(val) {
@@ -201,17 +199,6 @@ var lazadaGoodsUrl = function(val) {
   let attribute = val && (val + '').toLocaleUpperCase() || val
   attribute = lazada_goods_url[attribute] || attribute
   return lazada_goods_url[attribute] || attribute
-}
-
-var imageRenderhaventID = function(data) { // 第二个参数传任意传
-  const country = data[0]
-  // const shop_id = data[1]
-  const image_value = data[2]
-  const isArr = data[3] || ''
-  let attribute = country && (country + '').toLocaleUpperCase() || country
-  attribute = countries_id[attribute] || attribute
-  const url = countries_image[attribute] && (countries_image[attribute] + '/file/' + image_value) || ''
-  return isArr && [url] || url
 }
 
 const currencyShow = function(data){
@@ -247,5 +234,5 @@ const currencyShow = function(data){
   return temp
 }
 
-export { chineseSite, imageRender, imageRenderhaventID, siteCoin, sitePlatform, countryShopeebuyCom,
-  lazadaGoodsUrl, countries_option, countries_site,countries_option_sub ,currencyShow}
+export { chineseSite, imageRender, siteCoin, sitePlatform, countryShopeebuyCom,
+  lazadaGoodsUrl, countries_option, countries_site,countries_option_sub ,currencyShow ,countries_option_sub_abroad}

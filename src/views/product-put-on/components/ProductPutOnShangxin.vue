@@ -876,9 +876,14 @@
       }
     },
     async mounted() {
-      let ids = await this.$BaseUtilService.getUploadGoodsId()
-      // this.$BaseUtilService.gotoUploadTab('updateId','')
-      console.log('getUploadGoodsId',ids)
+      try {
+        this.$IpcMain.on('gotoUpload', async e => { // 点听
+          let ids = await this.$BaseUtilService.getUploadGoodsId()
+          console.log('gotoUpload - event', ids)
+        })
+      } catch (error) {
+        console.log('监听', error)
+      }
     },
     methods: {
       handleSelectionChange(val) {

@@ -96,7 +96,7 @@
                 >
                   <div slot="content">
                     <el-image
-                      :src="[row.country ,row.platform_mall_id , item] | imageRender"
+                      :src="[ item] | imageRender"
                       style="width: 400px; height: 400px"
                     >
                       <div slot="error" class="image-slot" />
@@ -107,7 +107,7 @@
                   </div>
                   <el-image
                     style="width: 40px; height: 40px"
-                    :src="[row.country ,row.platform_mall_id , item] | imageRender"
+                    :src="[item,true] | imageRender"
                   >
                     <div slot="error" class="image-slot" />
                     <div slot="placeholder" class="image-slot">
@@ -199,7 +199,7 @@
               >
                 <div slot="content">
                   <el-image
-                    :src="[row.country ,row.platform_mall_id , row.images[0]] | imageRender"
+                    :src="[row.images[0]] | imageRender"
                     style="width: 400px; height: 400px"
                   >
                     <div slot="error" class="image-slot" />
@@ -210,7 +210,7 @@
                 </div>
                 <el-image
                   style="width: 40px; height: 40px"
-                  :src="[row.country ,row.platform_mall_id , row.images[0]] | imageRender"
+                  :src="[ row.images[0],true] | imageRender"
                 >
                   <div slot="error" class="image-slot" />
                   <div slot="placeholder" class="image-slot">

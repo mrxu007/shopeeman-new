@@ -583,15 +583,16 @@ export default {
         await this.translationPrepare(1)
         await this.batchDealWith(6)
       } else if (type === 6) {
-        let ids = [...this.mallTableSelect.map(i => {
+        let ids = []
+        this.mallTableSelect.forEach(i => {
           if (this.filterSimplifiedChecked) {
             if (i.language !== 'zh-Hans') {
-              return i.id
+              ids.push(i.id)
             }
           } else {
-            return i.id
+            ids.push(i.id)
           }
-        })]
+        })
         this.$BaseUtilService.gotoUploadTab('gotoUpload', ids)
       } else if (type === 7) {
         for (const i of this.mallTableSelect) {
@@ -704,7 +705,7 @@ export default {
         if (type === 3 && item.operation_type && item.operation_type.includes('翻译失败')) {
           goodsList.push(item)
         } else if (item.language.toLocaleUpperCase() !== this.translationConfig.languages.toLocaleUpperCase()) {
-          if (item.language !== 'zh-Hans' && this.translationConfig.languages !== 'zh') {
+          if (item.language !== 'zh-Hans' || this.translationConfig.languages !== 'zh') {
             goodsList.push(item)
           }
         }
@@ -900,7 +901,7 @@ export default {
         if (this.isTranslationText && item.language.toLocaleUpperCase() !== this.translationConfig.languages) {
           success = await this.translationText(item, index)
         }
-        if (this.translationConfig.before && (this.pictureConfig.shuffleChecked || this.pictureConfig.specChecked)) {
+        if (this.translationConfig.before !== 'no' && (this.pictureConfig.shuffleChecked || this.pictureConfig.specChecked)) {
           let aLiUsernameIndex = this.aLiUsernameList.findIndex(i => i.name === this.aLiUsername)
           let aliAccount = this.aLiUsernameList[aLiUsernameIndex]
           if (!aliAccount && this.pictureConfig.typeRadio === 0) {
@@ -909,7 +910,7 @@ export default {
           }
           success = await this.translationPicture(item, index)
         }
-        ++this.statistics.fySuccess
+        success && ++this.statistics.fySuccess
         this.$set(this.mallTable[index], 'operation_type', success && '翻译成功' || '翻译失败')
       } catch (e) {
         this.$set(this.mallTable[index], 'operation_type', '翻译失败')
@@ -958,21 +959,24 @@ export default {
               let spec2List = tier_variation[tier_variation.spec2].join('<><>')
               let spec1ListJson = await this.$translationBridgeService.getGoogleTransResult([spec1List], fromLanguage, toLanguage)
               let spec2ListJson = await this.$translationBridgeService.getGoogleTransResult([spec2List], fromLanguage, toLanguage)
-              // console.log(spec1ListJson, spec2ListJson)
               if (spec1ListJson.Code === 0 && spec2ListJson.Code === 0) {
-                let spec1ListDst = spec1ListJson.Data && spec1ListJson.Data[0] && spec1ListJson.Data[0].DstText.split('<><>')
+                let spec1ListDstStr = spec1ListJson.Data && spec1ListJson.Data[0] && spec1ListJson.Data[0].DstText
+                let spec1ListDst = spec1ListDstStr.includes('<><>') && spec1ListDstStr.split('<><>') || spec1ListDstStr.split('<> <>')
                 let spec1ListSrc = spec1ListJson.Data && spec1ListJson.Data[0] && spec1ListJson.Data[0].SrcText.split('<><>')
                 let spec1List = this.getArraySrcLengthSort(spec1ListSrc)
-                console.log('spec1List', spec1ListDst, spec1List)
+                console.log('itemmodelsJson1',spec1ListDst, spec1ListSrc,JSON.parse(itemmodelsJson))
                 spec1List.forEach(item => {
-                  itemmodelsJson = itemmodelsJson.replaceAll(spec1ListSrc[item], spec1ListDst[item])
+                  itemmodelsJson = itemmodelsJson.replaceAll('"sku_spec1":"'+spec1ListSrc[item],'"sku_spec1":"'+ spec1ListDst[item])
+                  itemmodelsJson = itemmodelsJson.replaceAll('"sku":"'+spec1ListSrc[item],'"sku":"'+ spec1ListDst[item])
                 })
-                let spec2ListDst = spec2ListJson.Data && spec2ListJson.Data[0] && spec2ListJson.Data[0].DstText.split('<><>')
+                let spec2ListDstStr = spec2ListJson.Data && spec2ListJson.Data[0] && spec2ListJson.Data[0].DstText
+                let spec2ListDst = spec2ListDstStr.includes('<><>') && spec2ListDstStr.split('<><>') || spec2ListDstStr.split('<> <>')
                 let spec2ListSrc = spec2ListJson.Data && spec2ListJson.Data[0] && spec2ListJson.Data[0].SrcText.split('<><>')
                 let spec2List = this.getArraySrcLengthSort(spec2ListSrc)
-                console.log('spec2List', spec2ListDst, spec2List)
+                console.log('itemmodelsJson2',spec2ListDst,spec2ListSrc,JSON.parse(itemmodelsJson))
                 spec2List.forEach(item => {
-                  itemmodelsJson = itemmodelsJson.replaceAll(spec2ListSrc[item], spec2ListDst[item])
+                  itemmodelsJson = itemmodelsJson.replaceAll('"sku_spec2":"'+spec2ListSrc[item], '"sku_spec2":"'+spec2ListDst[item])
+                  itemmodelsJson = itemmodelsJson.replaceAll('=|='+spec2ListSrc[item]+'"', '=|='+spec2ListDst[item]+'"')
                 })
               } else {
                 //谷歌翻译失败
@@ -990,7 +994,7 @@ export default {
           itemmodelsJson = itemmodelsJson.replaceAll(/"skuId":([0-9]*),/ig, '"skuId":"$1",')
           param['skuSpecs'] = itemmodelsJson
           param.language = toLanguage === 'zh' && 'zh-Hans' || toLanguage === 'zh-tw' && 'zh-Hant' || toLanguage
-          console.log('saveTranslationData - param', param)
+          console.log('saveTranslationData - param', param,JSON.parse(itemmodelsJson))
           let translationDataJson = await this.$commodityService.saveTranslationData(param)
           let translationDataRes = JSON.parse(translationDataJson)
           console.log('saveTranslationData - json', translationDataJson)

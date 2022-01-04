@@ -863,7 +863,7 @@ export default class CommodityService {
    * @param {*} urlObj [{"url":"https://www.baidu.com","orderSn":"200310ERCFQE5NUT"}]
    */
   async saveFaceSheetInfo(sysMallId, mallId, urlObj) {
-    return await this.nativeService.callOrderAndMallUpload('SaveFaceSheetInfo', sysMallId, mallId, JSON.stringify(urlObj))
+    return await this.nativeService.callOrderAndMallUpload('SaveFaceSheetInfo', sysMallId.toString(), mallId.toString(), JSON.stringify(urlObj))
   }
 
   /**

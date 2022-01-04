@@ -1,5 +1,6 @@
 import api from '../network/jx-request'
 import shopeemanService from './shopeeman-service'
+import commodityService from './commodity-service'
 import AppConfig from './application-config'
 import cheerio from 'cheerio'
 import {
@@ -12,6 +13,7 @@ import {
 export default class {
   $api = api;
   $shopeemanService = new shopeemanService()
+  $commodityService = new commodityService()
   $appConfig = new AppConfig()
   isStop = false;
   _this = null;
@@ -99,7 +101,7 @@ export default class {
       }
       console.log(orderInfo, "orderInfo", order)
       if (!orderInfo) {
-        this.writeLog(`订单【${orderSn}】同步面单失败,获取订单详情失败！`, false)
+        this.writeLog(`订单【${orderSn}】同步面单失败,获取订单详情失败,请检查店铺登录状态！`, false)
         return
       }
       //检查是否有物流信息
@@ -165,7 +167,7 @@ export default class {
       }
       console.log(orderInfo, "orderInfo", order)
       if (!orderInfo) {
-        this.writeLog(`订单【${orderSn}】同步面单失败,获取订单详情失败！`, false)
+        this.writeLog(`订单【${orderSn}】同步面单失败,获取订单详情失败,请检查店铺登录状态！`, false)
         return
       }
       //检查是否有物流信息
@@ -326,18 +328,21 @@ export default class {
     }
   }
   async uploadTrackingNo(sysMallId, mallId, orderSn, trackNo, logisticsId) {
+    let logisticsInfos = [{
+      orderSn: orderSn,
+      trackingNo: trackNo,
+      logisticsId: logisticsId
+    }]
     let params = {
       sysMallId: sysMallId,
       mallId: mallId,
-      logisticsInfos: [{
-        orderSn: orderSn,
-        trackingNo: trackNo,
-        logisticsId: logisticsId
-      }]
+      logisticsInfos: logisticsInfos
     }
     // uploadParamsList.push(params)
-    let uploadInfo = await this.$api.uploadOrderLogisticsInfo(params)
-    if (uploadInfo.data.code === 200) {
+    let res = await this.$commodityService.saveLogisticsInfo(sysMallId,mallId,logisticsInfos)
+    let uploadInfo = JSON.parse(res)
+    // let uploadInfo = await this.$api.uploadOrderLogisticsInfo(params)
+    if (uploadInfo.code === 200) {
       this.writeLog(`订单【${orderSn}】同步物流成功，上报成功`, true)
     } else {
       this.writeLog(`订单【${orderSn}】同步物流失败，上报失败`, false)
@@ -456,8 +461,7 @@ export default class {
         return
       }
       //7、上报面单信息
-      let res7 = await this.uploadFaceInfo(sysMallId.toString(), order.shop_id.toString(), order.order_sn.toString(), res6.data, '.PDF')
-      console.log(res7, "res7")
+      await this.uploadFaceInfo(sysMallId.toString(), order.shop_id.toString(), order.order_sn.toString(), res6.data, '.PDF')
     } catch (error) {
       this.writeLog(`订单【${order.order_sn}】同步面单失败，获取面单打印配置失败[000]`, false)
       console.log(error)
@@ -470,18 +474,21 @@ export default class {
     console.log("url", url)
     if (url) {
       //7、上报面单信息
+      let faceSheetInfos = [{
+        url: url,
+        orderSn: orderSn.toString()
+      }]
       let params = {
         sysMallId: sysMallId.toString(),
         mallId: mallId,
-        faceSheetInfos: [{
-          url: url,
-          orderSn: orderSn.toString()
-        }]
+        faceSheetInfos: faceSheetInfos
       }
       console.log(params)
-      let res7 = await this.$api.uploadOrderFaceSheetInfo(params)
+      let res = await this.$commodityService.saveFaceSheetInfo(sysMallId,mallId,faceSheetInfos)
+      let res7 = JSON.parse(res)
+      // let res7 = await this.$api.uploadOrderFaceSheetInfo(params)
       console.log(res7, "res7")
-      if (res7 && res7.data.code === 200) {
+      if (res7 && res7.code === 200) {
         return this.writeLog(`订单【${orderSn}】同步面单成功,上报成功`, true)
       } else {
         return this.writeLog(`订单【${orderSn}】同步面单失败，上报失败，${res7.data.message}`, false)
@@ -545,7 +552,7 @@ export default class {
         "shop_id": Number(order.shop_id)
       }]
       let res4 = await this.createSdJobsMultiShop(packList, order.shop_id, country, fileType, "寄件单" + order.actual_carrier, schemaType)
-      console.log("res4",res4)
+      console.log("res4", res4)
       if (!(res4.code === 200 && res4.data.list && res4.data.list.length && res4.data.list[0].job_id)) {
         this.writeLog(`订单【${order.order_sn}】同步面单失败，创建打印任务失败`, false)
         return
@@ -916,68 +923,83 @@ export default class {
   //-------------------------------------------------------下载拣货单--------------------------------//
 
   async getPickListData(orderArr) {
-    let orderGrop = this.dealWithMallOrderGroup(orderArr)
-    // console.log("orderGrop", orderGrop)
-    let wayBillType = "NORMAL"
-    for (const key in orderGrop) {
-      let orderList = orderGrop[key]
-      let country = orderList[0].country
-      let mallId = key
-      let mallName = orderGrop[key][0].mall_info.platform_mall_name
-      // console.log("orderList", orderList, country, mallId)
-      for (let i = 0; i < orderList.length; i = i + 50) {
-        let orderFifty = orderList.slice(i, i + 50)
-        let orderInfolist = []
-        orderFifty.forEach(item => {
-          if (item.order_id != 0) {
-            let obj = {
-              "order_id": Number(item.order_id),
-              "shop_id": Number(mallId),
-              "region_id": country
-            }
-            orderInfolist.push(obj)
-          }
-        })
-        console.log(orderInfolist, "orderInfolist")
-        let packInfo = await this.checkPackagePrintWaybillMultiShop(orderInfolist, mallId, country)
-        if (packInfo.code === 200) {
-          if (!packInfo.data.list.length) {
-            this.writeLog(`店铺【${mallName}】当前数据没有可下载的拣货单`, false)
-            continue
-          } else {
-            let packNums = packInfo.data.list
-            let packList = []
-            packNums.forEach(item => {
-              let par = {
+    try {
+
+
+      let orderGrop = this.dealWithMallOrderGroup(orderArr)
+      // console.log("orderGrop", orderGrop)
+      let wayBillType = "NORMAL"
+      for (const key in orderGrop) {
+        let orderList = orderGrop[key]
+        let country = orderList[0].country
+        let mallId = key
+        let mallName = orderGrop[key][0].mall_info.platform_mall_name
+        // console.log("orderList", orderList, country, mallId)
+        for (let i = 0; i < orderList.length; i = i + 50) {
+          let orderFifty = orderList.slice(i, i + 50)
+          let orderInfolist = []
+          orderFifty.forEach(item => {
+            if (item.order_id != 0) {
+              let obj = {
                 "order_id": Number(item.order_id),
-                "package_number": item.package_number,
-                "region_id": country,
-                "shop_id": Number(mallId)
+                "shop_id": Number(mallId),
+                "region_id": country
               }
-              packList.push(par)
-            })
-            let creatInfo = await this.createSdJobsMultiShop(packList, mallId, country, wayBillType + '_PDF', "PickList", 0)
-            // console.log(creatInfo)
-            if (!(creatInfo.code === 200 && creatInfo.data.list && creatInfo.data.list.length && creatInfo.data.list[0].job_id)) {
-              this.writeLog(`创建拣货单失败，${creatInfo.data}`, false)
-              // this.writeLog(`订单【${order.order_sn}】同步面单失败，创建打印任务失败[504]`, false)
+              orderInfolist.push(obj)
+            }
+          })
+          console.log(orderInfolist, "orderInfolist")
+          let packInfo = await this.checkPackagePrintWaybillMultiShop(orderInfolist, mallId, country)
+          console.log(packInfo, "packInfo")
+          if (packInfo.code === 200) {
+            if (!packInfo.data.list.length) {
+              this.writeLog(`店铺【${mallName}】当前数据没有可下载的拣货单`, false)
+              continue
             } else {
-              let jobId = creatInfo.data.list[0].job_id
-              let base64 = await this.downloadSdJob(mallId, jobId, country)
-              let res = await window['BaseUtilBridgeService'].downloadPickForm(base64, mallName)
-              let resObj = JSON.parse(res)
-              if (resObj.code === 200) {
-                this.writeLog(`店铺【${mallName}】下载拣货单成功`, true)
+              let packNums = packInfo.data.list
+              let packList = []
+              packNums.forEach(item => {
+                let par = {
+                  "order_id": Number(item.order_id),
+                  "package_number": item.package_number,
+                  "region_id": country,
+                  "shop_id": Number(mallId)
+                }
+                packList.push(par)
+              })
+              let creatInfo = await this.createSdJobsMultiShop(packList, mallId, country, wayBillType + '_PDF', "PickList", 0)
+              // console.log(creatInfo)
+              if (!(creatInfo.code === 200 && creatInfo.data.list && creatInfo.data.list.length && creatInfo.data.list[0].job_id)) {
+                this.writeLog(`创建拣货单失败，${creatInfo.data}`, false)
               } else {
-                this.writeLog(`店铺【${mallName}】下载拣货单失败，${resObj.msg}`, false)
+                let jobId = creatInfo.data.list[0].job_id
+                let base64 = await this.downloadSdJob(mallId, jobId, country)
+                console.log(base64.length, "base64")
+                if(!base64 || base64.length<500){
+                  this.writeLog(`店铺【${mallName}】下载拣货单失败，稍后请重试`, false)
+                  continue
+                }
+                let res = await window['BaseUtilBridgeService'].downloadPickForm(base64, mallName)
+                let resObj = JSON.parse(res)
+                if (resObj.code === 200) {
+                  this.writeLog(`店铺【${mallName}】下载拣货单成功`, true)
+                } else {
+                  this.writeLog(`店铺【${mallName}】下载拣货单失败，${resObj.msg}`, false)
+                }
               }
             }
+          } else if (packInfo.code === 403) {
+             this.writeLog(`店铺【${mallName}】下载拣货单失败,店铺未登录`,false)
+          }else{
+             this.writeLog(`店铺【${mallName}】下载拣货单失败`,false)
           }
+          // console.log("packInfo", packInfo)
         }
-        // console.log("packInfo", packInfo)
       }
+    } catch (error) {
+      console.log(error, "error")
     }
-    this.writeLog(`下载拣货单完成`, true)
+    this.writeLog(`下载拣货单完成，请前往桌面【平台拣货单】文件夹查看`, true)
   }
 
   dealWithMallOrderGroup(orderList) {
