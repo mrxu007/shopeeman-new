@@ -616,11 +616,7 @@ export default {
       }
       return fData
     },
-    handleClick(tab, event) {
-      // if(this.activeName === 'list'){
-      //   this.activeRow = {}
-      // }
-    },
+    handleClick(tab, event) {},
     handleSelectionChange1(val) {
       this.multipleSelection = val
     },
