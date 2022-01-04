@@ -7,8 +7,8 @@
  * @FilePath: \shopeeman-new\src\services\XzyNetMessageService.js
  */
 export default class XzyNetMessageService {
-  baseUrl = 'http://api.xzy.com/api/route' // 线下
-  // baseUrl = 'http://api.xzygyl.com/api/route' // 线上
+  // baseUrl = 'http://api.xzy.com/api/route' // 线下
+  baseUrl = 'http://api.xzygyl.com/api/route' // 线上
   baseUrlA = 'http://user.xzygyl.com'
   constructor() {
     this.nativeService = window['XzyNetMessageBridgeService']
