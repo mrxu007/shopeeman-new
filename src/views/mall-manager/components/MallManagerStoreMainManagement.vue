@@ -6,15 +6,15 @@
         <div style="margin-left: 20px">
           <span>过期时间：</span>
           <el-date-picker
-            v-model="cloumn_date"
-            size="mini"
-            style="width: 324px"
-            type="datetimerange"
-            value-format="yyyy-MM-dd HH:mm:ss"
-            range-separator="-"
-            :picker-options="pickerOptions"
-            start-placeholder="开始日期"
-            end-placeholder="结束日期"
+              v-model="cloumn_date"
+              size="mini"
+              style="width: 324px"
+              type="datetimerange"
+              value-format="yyyy-MM-dd HH:mm:ss"
+              range-separator="-"
+              :picker-options="pickerOptions"
+              start-placeholder="开始日期"
+              end-placeholder="结束日期"
           />
         </div>
       </div>
@@ -90,13 +90,13 @@
     <div class="table_clo">
       <div class="data_table" style="height: 100%; background-color: white">
         <el-table
-          ref="multipleTable"
-          height="calc(100vh - 233px)"
-          :data="tableListEnd"
-          :row-style="{ height: '50px' }"
-          style="width: 100%; height: calc(100vh - 233px)"
-          :header-cell-style="{ background: '#f7fafa' }"
-          @selection-change="handleSelectionChange"
+            ref="multipleTable"
+            height="calc(100vh - 233px)"
+            :data="tableListEnd"
+            :row-style="{ height: '50px' }"
+            style="width: 100%; height: calc(100vh - 233px)"
+            :header-cell-style="{ background: '#f7fafa' }"
+            @selection-change="handleSelectionChange"
         >
           <el-table-column type="selection" min-width="55px" align="center" />
           <el-table-column label="序号" type="index" align="center" :index="indexMethod" fixed />
@@ -123,27 +123,28 @@
               </el-tooltip>
             </template>
           </el-table-column>
-          <el-table-column prop="" label="操作" align="center" min-width="330px" fixed="right">
-            <template slot-scope="{ row }">
-              <div>
+          <el-table-column prop="" label="操作" align="center" min-width="450px" fixed="right">
+            <template v-slot="{ row }">
+              <div style="display: flex;">
                 <el-button size="mini" type="primary" @click="openSoft(row.poxyIP, row.id)">打开代理浏览器</el-button>
                 <el-button size="mini" type="primary" @click="showupdateVisible(row)">修改绑定店铺</el-button>
                 <el-button size="mini" type="primary" @click="delInforFun(row.id)">删除</el-button>
                 <!-- <el-button size="mini" type="primary" @click="del(row.uid)">删除</el-button> -->
+                <el-button v-if="row.isMiddleIP" size="mini" type="primary" @click="MiddleIP(row.id)">刷新IP信息</el-button>
               </div>
             </template>
           </el-table-column>
         </el-table>
         <div class="pagination">
           <el-pagination
-            background
-            :current-page.sync="page"
-            :page-sizes="[20, 50, 100, 200]"
-            :page-size="pageSize"
-            layout="total, sizes, prev, pager, next, jumper"
-            :total="total"
-            @size-change="handleSizeChange"
-            @current-change="handleCurrentChange"
+              background
+              :current-page.sync="page"
+              :page-sizes="[20, 50, 100, 200]"
+              :page-size="pageSize"
+              layout="total, sizes, prev, pager, next, jumper"
+              :total="total"
+              @size-change="handleSizeChange"
+              @current-change="handleCurrentChange"
           />
         </div>
       </div>
@@ -151,16 +152,16 @@
     <!-- dialog 新增公司主体-->
     <div class="dialog_addip">
       <el-dialog
-        v-loading="loading"
-        :title="dialog_title"
-        :visible.sync="dialogvisible"
-        width="1000px"
-        height="600px"
-        top="2vh"
-        :class="{ changeVisible: Typeis === '' }"
-        :close-on-click-modal="false"
-        :close-on-press-escape="false"
-        @closed="closeDialog1"
+          v-loading="loading"
+          :title="dialog_title"
+          :visible.sync="dialogvisible"
+          width="1000px"
+          height="600px"
+          top="2vh"
+          :class="{ changeVisible: Typeis === '' }"
+          :close-on-click-modal="false"
+          :close-on-press-escape="false"
+          @closed="closeDialog1"
       >
         <div class="left">
           <!--新增公司主体  -->
@@ -597,6 +598,26 @@ export default {
     // this.getMallList()// 初始化店铺列表
   },
   methods: {
+    // 创建中继IP
+    async MiddleIP(val) {
+      debugger
+      // const targetId = val.toString()
+      const params = {
+        targetId: val.toString()
+      }
+      try {
+        const res = await this.$commodityService.RefreshLinkIp(params.targetId)
+        debugger
+        const data = JSON.parse(res)
+        if (data.code === 200) {
+          this.$message.success('IP更新成功')
+        } else {
+          this.$message.warning('IP更新失败' + data.message)
+        }
+      } catch (error) {
+        this.$message.warning('IP更新失败' + `${error}`)
+      }
+    },
     // 新增公司主体
     async addFun() {
       this.Typeis = 'ipMaster'
@@ -1155,7 +1176,7 @@ export default {
       // IP类型 分类验证
       if (this.query_person.ip_agency === 'ssr') {
         if (
-          this.query_person.ip_address === '' ||
+            this.query_person.ip_address === '' ||
             this.query_person.ip_port === '' ||
             this.query_person.password === '' ||
             this.query_person.encryption === '' ||
@@ -1180,7 +1201,7 @@ export default {
       // this.query_person.password === ''
       if (this.query_person.ip_agency === 'http') {
         if (
-          this.query_person.ip_address === '' ||
+            this.query_person.ip_address === '' ||
             this.query_person.ip_port === ''
         ) {
           this.$message.warning('必填信息不能为空')
@@ -1381,12 +1402,12 @@ export default {
         d += performance.now() // use high-precision timer if available
       }
       var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(
-        /[xy]/g,
-        function(c) {
-          var r = (d + Math.random() * 16) % 16 | 0
-          d = Math.floor(d / 16)
-          return (c === 'x' ? r : (r & 0x3) | 0x8).toString(16)
-        }
+          /[xy]/g,
+          function(c) {
+            var r = (d + Math.random() * 16) % 16 | 0
+            d = Math.floor(d / 16)
+            return (c === 'x' ? r : (r & 0x3) | 0x8).toString(16)
+          }
       )
       return uuid
     },
@@ -1453,7 +1474,11 @@ export default {
     changeMallList(val) {
       this.query.mall_ids = ''
       console.log(val)
-      this.query.mall_ids = val.searchAll
+      if (val.searchAll) {
+        this.query.mall_ids = [...val.mallList.map(i => i.id)].toString()
+      } else {
+        this.query.mall_ids = ''
+      }
     },
     // ip- tableList
     async getTableList() {
@@ -1480,11 +1505,13 @@ export default {
         this.bindMalltable = []// 有绑定店铺的IP主体 { main_name  bindmall}
         const data = JSON.parse(res)
         // console.log('----------', data)
-        if (data.code === 200 && this.shopAccountList.length > 0) {
+        if (data.code === 200) {
           if (data.data && data.data.length > 0) {
-            data.data.forEach((item, index) => {
+            for (let i = 0; i < data.data.length; i++) {
+              const item = data.data[i]
               // 获取店铺名称
-              if (item.target_mall_info && item.target_mall_info.length > 0) {
+              item.mall_alias_name = ''
+              if (this.shopAccountList.length > 0 && item.target_mall_info && item.target_mall_info.length > 0) {
                 const mall = []
                 this.bindMalltable.push({ main_name: item.ip_alias, bindmall: item.target_mall_info })
                 item.target_mall_info.forEach(i => {
@@ -1497,16 +1524,21 @@ export default {
               // 解析ip
               item.poxyIP = ''
               item.poxyID = ''
-              this.$YipService.GetIPinfor(item.ip_info).then(res => {
-                const data_ipinfor = JSON.parse(res)
-                item.poxyID = data_ipinfor.id
-                item.poxyIP = data_ipinfor.map_ip_address
-                item.data_ipinfor = data_ipinfor // 修改获取数据
-                // console.log('item', item)
-              })
+              const res = await this.$YipService.GetIPinfor(item.ip_info)
+              const data_ipinfor = JSON.parse(res)
+              item.poxyID = data_ipinfor.id
+              item.poxyIP = data_ipinfor.map_ip_address
+              item.data_ipinfor = data_ipinfor // 修改获取数据
+              // 是否显示中继IP
+              item.isMiddleIP = false
+              const experaTime = new Date(item.expiration_time).getTime()
+              if (experaTime > new Date().getTime()) {
+                if ((item.source === '系统' && Number(item.data_ipinfor.is_old) === 0) || (item.source === '用户' && Number(item.data_ipinfor.is_link) === 1)) {
+                  item.isMiddleIP = true
+                }
+              }
               this.tableList.push(item)
-            })
-            // console.log('+++++++++++++++', this.bindMalltable)
+            }
           } else {
             this.tableList = []
           }
