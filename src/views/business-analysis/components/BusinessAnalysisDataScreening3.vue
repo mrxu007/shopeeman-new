@@ -50,13 +50,13 @@
                 :enterable="false"
                 style="width: 40px; height: 40px">
               <div slot="content">
-                <img :src="[row.site ,row.mallid , row.img] | imageRender"
+                <img :src="[row.img] | imageRender"
                     width="300px"
                     height="300px">
               </div>
               <el-image
                   style="width: 40px; height: 40px"
-                  :src="[row.site ,row.mallid , row.img] | imageRender"
+                  :src="[row.img,true] | imageRender"
               />
             </el-tooltip>
           </template>

@@ -188,9 +188,9 @@
           <template slot-scope="{ row }">
             <el-tooltip effect="light" placement="right-end" :visible-arrow="false" :enterable="false" style="width: 56px; height: 56px; display: inline-block">
               <div slot="content">
-                <el-image :src="[row.country, row.goods_info.ori_platform_mall_id, row.goods_info.goods_img] | imageRender" style="width: 400px; height: 400px" />
+                <el-image :src="[ row.goods_info.goods_img] | imageRender" style="width: 400px; height: 400px" />
               </div>
-              <el-image :src="[row.country, row.goods_info.ori_platform_mall_id, row.goods_info.goods_img] | imageRender" style="width: 56px; height: 56px" />
+              <el-image :src="[row.goods_info.goods_img,true] | imageRender" style="width: 56px; height: 56px" />
             </el-tooltip>
           </template>
         </el-table-column>
@@ -751,7 +751,7 @@ export default {
                 <td>${item.shot_order_info && item.shot_order_info.shot_statu ? changeShotStatus(item.shot_order_info.shot_status) : '' + '\t'}</td>
                 <td>${item.goods_info.goods_id ? item.goods_info.goods_id : '' + '\t'}</td>
                 <td>${item.goods_info.goods_count ? item.goods_info.goods_count : '' + '\t'}</td>
-                <td>${this.$filters.imageRender([item.platform, item.shopid, item.image]) + '\t'}</td>
+                <td>${this.$filters.imageRender([item.image]) + '\t'}</td>
                 <td>${item.goods_info.goods_category_id ? item.goods_info.goods_category_id : '' + '\t'}</td>
                 <td>${item.goods_info.goods_spec ? item.goods_info.goods_spec : '' + '\t'}</td>
                 <td>${item.shot_order_info.shot_order_sn ? item.shot_order_info.shot_order_sn : '' + '\t'}</td>

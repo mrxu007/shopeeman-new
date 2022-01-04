@@ -108,9 +108,9 @@
           <template slot-scope="scope">
             <el-tooltip effect="light" placement="right-end" :visible-arrow="false" :enterable="false" style="width: 56px; height: 56px; display: inline-block">
               <div slot="content">
-                <el-image :src="[scope.row.country, scope.row.platform_mall_id, scope.row.goods_img] | imageRender" style="width: 400px; height: 400px" />
+                <el-image :src="[scope.row.goods_img] | imageRender" style="width: 400px; height: 400px" />
               </div>
-              <el-image :src="[scope.row.country, scope.row.platform_mall_id, scope.row.goods_img] | imageRender" style="width: 56px; height: 56px" />
+              <el-image :src="[scope.row.goods_img,true] | imageRender" style="width: 56px; height: 56px" />
             </el-tooltip>
           </template>
         </el-table-column>

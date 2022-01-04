@@ -318,7 +318,7 @@ export default class {
         UrlAddress: itemOrder.goods_info.ori_url,
         GoodsTitle: itemOrder.goods_info.goods_name,
         OriGoodsId: itemOrder.goods_info.ori_goods_id,
-        GoodsMainImage: this._that.$filters.imageRender([itemOrder.mall_info.country, itemOrder.mall_info.platform_mall_id, itemOrder.goods_info.goods_img]), //[scope.row.country, scope.row.platform_mall_id, scope.row.product_cover] | imageRender
+        GoodsMainImage: this._that.$filters.imageRender([itemOrder.goods_info.goods_img]), //[scope.row.country, scope.row.platform_mall_id, scope.row.product_cover] | imageRender
         SkuId: itemOrder.goods_info.variation_id,
         OriSkuId: itemOrder.goods_info.ori_sku_id,
         SkuName: itemOrder.goods_info.variation_sku !== '' ? itemOrder.goods_info.variation_sku.replace("=|=", ",") : itemOrder.goods_info.variation_name.replace("=|=", ","),

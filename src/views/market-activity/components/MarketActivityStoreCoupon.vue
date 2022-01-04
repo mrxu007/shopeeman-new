@@ -212,7 +212,7 @@
     <div class="on_new_dialog">
       <el-dialog :visible.sync="goodsItemSelectorVisible" top="7vh" title="商品选择" :close-on-click-modal="false"
                  :close-on-press-escape="false" width="1280px">
-        <goodsItemSelector :mall="selectMallList" @changeGoodsItem="changeGoodsItem"/>
+        <goodsItemSelector v-if="goodsItemSelectorVisible" :mall="selectMallList" @changeGoodsItem="changeGoodsItem"/>
       </el-dialog>
     </div>
   </div>

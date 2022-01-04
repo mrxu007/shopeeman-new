@@ -207,7 +207,12 @@
         <el-table-column align="center" prop="order_sn" label="订单编号" min-width="120" />
         <el-table-column align="center" label="商品图片" min-width="80">
           <template slot-scope="scope">
-            <el-image v-bind:src="[clickRow.country, clickRow.mall_info ? clickRow.mall_info.platform_mall_id : '', scope.row.goods_img] | imageRender" style="width: 56px; height: 56px"></el-image>
+            <el-tooltip effect="light" placement="right-end" :visible-arrow="false" :enterable="false" style="width: 56px; height: 56px; display: inline-block">
+              <div slot="content">
+                <el-image :src="[ scope.row.goods_img] | imageRender" style="width: 400px; height: 400px" />
+              </div>
+              <el-image v-bind:src="[scope.row.goods_img,true] | imageRender" style="width: 56px; height: 56px" />
+            </el-tooltip>
           </template>
         </el-table-column>
         <el-table-column align="center" prop="goods_id" label="商品ID" min-width="100">
@@ -691,7 +696,7 @@ export default {
                 <td>${goodsInfo.goods_count ? goodsInfo.goods_count : '' + '\t'}</td>
                 <td>${goodsInfo ? goodsInfo.variation_name : '' + '\t'}</td>
                 <td>${item.goodsLink ? item.goodsLink : '' + '\t'}</td>
-                <td>${goodsInfo ? this.$filters.imageRender([item.country, item.mall_info ? item.mall_info.platform_mall_id : '', goodsInfo.goods_img]) : '' + '\t'}</td>
+                <td>${goodsInfo ? this.$filters.imageRender([goodsInfo.goods_img]) : '' + '\t'}</td>
                 <td>${item.created_time ? item.created_time : '' + '\t'}</td>
                 <td>${item.ship_by_date ? item.ship_by_date : '' + '\t'}</td>
                 <td>${item.is_apply_tracking_no ? this.trackStatus[item.is_apply_tracking_no] : '' + '\t'}</td>

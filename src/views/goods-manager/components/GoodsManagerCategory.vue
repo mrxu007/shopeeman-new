@@ -93,9 +93,9 @@
             <template slot-scope="scope">
               <el-tooltip effect="light" placement="right-end" :visible-arrow="false" :enterable="false" style="width: 56px; height: 56px; display: inline-block">
                 <div slot="content">
-                  <el-image :src="[mallinfo.country,null, scope.row.images[0]] | imageRenderhaventID" style="width: 400px; height: 400px" />
+                  <el-image :src="[ scope.row.images[0]] | imageRender" style="width: 400px; height: 400px" />
                 </div>
-                <el-image :src="[mallinfo.country, null,scope.row.images[0]] | imageRenderhaventID" style="width: 56px; height: 56px" />
+                <el-image :src="[scope.row.images[0],true] | imageRender" style="width: 56px; height: 56px" />
               </el-tooltip>
             </template>
           </el-table-column>
@@ -216,9 +216,9 @@
             <template slot-scope="scope">
               <el-tooltip effect="light" placement="right-end" :visible-arrow="false" :enterable="false" style="width: 56px; height: 56px; display: inline-block">
                 <div slot="content">
-                  <el-image :src="[mallinfo.country, scope.row.id, scope.row.images[0]] | imageRender" style="width: 200px; height: 200px" />
+                  <el-image :src="[ scope.row.images[0]] | imageRender" style="width: 200px; height: 200px" />
                 </div>
-                <el-image :src="[mallinfo.country, scope.row.id, scope.row.images[0]] | imageRender" style="width: 56px; height: 56px" />
+                <el-image :src="[ scope.row.images[0],true] | imageRender" style="width: 56px; height: 56px" />
               </el-tooltip>
             </template>
           </el-table-column>

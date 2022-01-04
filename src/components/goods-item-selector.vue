@@ -25,9 +25,9 @@
           <div class="heng"/>
           <el-input style="width: 120px;" size="mini" v-model="searchParams.maxPrice"></el-input>
         </div>
-        <el-button type="primary" size="mini">选择类目</el-button>
+        <el-button type="primary" size="mini" @click="categoryVisible = true">选择类目</el-button>
         <el-button type="primary" size="mini" @click="queryGoods">查询商品</el-button>
-        <el-button type="" size="mini">取消查询</el-button>
+        <el-button type="" size="mini" @click="cancelGoods">取消查询</el-button>
       </div>
       <div class="header-list">
         <div class="header-item">
@@ -47,9 +47,12 @@
           <div class="heng"/>
           <el-input size="mini" style="width: 120px;" v-model="searchParams.maxSales"></el-input>
         </div>
-        <el-button type="primary" size="mini">添加已选商品</el-button>
+        <el-button type="primary" size="mini" @click="changeGoodsItem">添加已选商品</el-button>
+        <el-checkbox style="margin-left: 10px;" size="mini" v-model="isApplyCheck">仅显示适用商品</el-checkbox>
+        <el-checkbox style="margin-left: 10px;" size="mini" v-model="showlog">隐藏日志</el-checkbox>
       </div>
     </div>
+    <Logs ref="goods_item_Logs" v-model="showlog" clear/>
     <div class="goods-item-table">
       <u-table ref="goodsTable"
                height="620px"
@@ -60,11 +63,9 @@
                :border="false"
                @selection-change="handleSelectionChange">
         <u-table-column align="center" type="selection"/>
-        <u-table-column align="center" type="index" label="序号"/>
-        <u-table-column align="center" label="店铺名称" width="">
-          <template v-slot="{ row }">
-            {{ row.mall_alias_name || row.platform_mall_name }}
-          </template>
+        <u-table-column align="center" type="index" width="80" label="序号"/>
+        <u-table-column align="center" label="店铺名称" width="150" show-overflow-tooltip>
+          <template v-slot="{ row }">{{ row.mall_alias_name || row.platform_mall_name }}</template>
         </u-table-column>
         <u-table-column align="center" label="类目" width="">
           <template v-slot="{ row }">
@@ -73,31 +74,41 @@
         </u-table-column>
         <u-table-column align="center" label="主图" width="80" prop="Sales">
           <template v-slot="{ row }">
-            <div style="justify-content: center; display: flex">
-              <img :src="row.image" style="width: 56px; height: 56px">
+            <div style="justify-content: center; display: flex"><el-tooltip effect="light" placement="right-end" :visible-arrow="false" :enterable="false" style="width: 56px; height: 56px; display: inline-block">
+              <div slot="content">
+                <el-image :src="[ row.imageList[0]] | imageRender" style="width: 400px; height: 400px" />
+              </div>
+              <el-image :src="[row.imageList[0],true] | imageRender" style="width: 56px; height: 56px" />
+            </el-tooltip>
             </div>
           </template>
         </u-table-column>
-        <u-table-column align="center" label="商品Id" width="">
+        <u-table-column align="center" label="itemId" width="120">
           <template v-slot="{ row }">{{ row.itemid }}</template>
         </u-table-column>
-        <u-table-column align="center" label="商品标题" width="150" prop="Price" fit>
+        <u-table-column align="center" label="商品标题" min-width="150" prop="Price" fit>
           <template v-slot="{ row }">
-            <div class="goodsTableLine" style="height: 80px;text-align: left">
+            <div class="goodsTableLine" style="height: 60px;text-align: left">
               {{ row.name }}
             </div>
           </template>
         </u-table-column>
-        <u-table-column align="center" label="库存" width="90" prop="stock" show-overflow-tooltip/>
-        <u-table-column align="center" label="销量" width="90" prop="sold" show-overflow-tooltip/>
-        <u-table-column align="center" label="价格" width="90" prop="price" show-overflow-tooltip/>
+        <u-table-column align="center" sortable label="库存" width="100" prop="stock" show-overflow-tooltip/>
+        <u-table-column align="center" sortable label="销量" width="100" prop="sold" show-overflow-tooltip/>
+        <u-table-column align="center" sortable label="价格" width="100" prop="price" show-overflow-tooltip/>
       </u-table>
+    </div>
+    <div class="on_new_dialog">
+      <el-dialog title="类目映射" width="700px" top="25vh" :close-on-click-modal="false" :visible.sync="categoryVisible" :modal="false">
+        <categoryMapping v-if="categoryVisible" :goods-current="{}" :mall-list="mall" @categoryChange="categoryChange"/>
+      </el-dialog>
     </div>
   </div>
 </template>
 
 <script>
-import { batchOperation, getGoodsUrl, sleep } from '../util/util'
+import { batchOperation, sleep, terminateThread } from '../util/util'
+import categoryMapping from '@/components/category-mapping'
 
 export default {
   name: 'goods-item-selector',
@@ -108,6 +119,9 @@ export default {
         return []
       }
     }
+  },
+  components: {
+    categoryMapping
   },
   data() {
     return {
@@ -124,22 +138,53 @@ export default {
       },
       goodsSelect: [],
       goodsTable: [],
+      country:'',
       category: '',
-      isRunning: true
+      isRunning: true,
+      isApplyCheck: true,
+      categoryVisible:false,
+      showlog:true,
     }
   },
   mounted() {
     console.log('mallList', this.mall)
-
+    this.country = this.mall.country
   },
   methods: {
     async queryGoods() {
+      this.showlog = false
+      this.$refs.goods_item_Logs.writeLog(`------开始获取商品列表------`, true)
+      this.isRunning = true
       this.goodsTable = []
       await batchOperation(this.mall, this.queryGoodsList)
+      !this.isRunning && this.$refs.goods_item_Logs.writeLog(`------列表获取停止成功------`, false)
+      this.$refs.goods_item_Logs.writeLog(`------商品列表获取结束------`, true)
+    },
+    cancelGoods(){
+      this.showlog = false
+      this.isRunning = false
+      this.$refs.goods_item_Logs.writeLog(`------开始停止列表获取------`, false)
+      terminateThread(this.queryGoodsList)
+    },
+    categoryChange(val){
+      console.log('categoryChange',val)
+      if (val){
+        let categoryList = val.categoryList
+        let category = categoryList[categoryList.length-1] || ''
+        this.category = category && category.category_id || ''
+      }
+      this.categoryVisible= false
     },
     async queryGoodsList(item, count = { count: 1 }) {
       try {
+        let mallName = item.mall_alias_name || item.platform_mall_name
         let offset = item.offset || 0
+        let index = 0
+        if (offset === 0){
+          index = 1
+        }else{
+          index = (offset / 100) + 1
+        }
         let parma = {
           mallId: item.platform_mall_id,
           offset: offset,
@@ -156,30 +201,42 @@ export default {
           parma['category_type'] = 'shopee'
           parma['category'] = this.category
         }
+        this.$refs.goods_item_Logs.writeLog(`店铺【${mallName}】开始获取第${index}页商品列表`, true)
+        await sleep(1000)
         let productSelectorJson = await this.$shopeemanService.productSelector(item.country, parma)
         let productSelectorRes = JSON.parse(productSelectorJson)
         let productSelectorData = JSON.parse(productSelectorRes.data)
         console.log('productSelectorJson', productSelectorData)
         let tempList = productSelectorData.data && productSelectorData.data.item_list || []
+        this.$refs.goods_item_Logs.writeLog(`店铺【${mallName}】获取第${index}页商品列表成功，共商品${tempList.length}个`, true)
         tempList.forEach(son => {
+          if (this.isApplyCheck){
+            let filterNoStr = this.searchParams.filterNo || ''
+            filterNoStr = filterNoStr.replaceAll('，',',')
+            let filterNoList = filterNoStr && filterNoStr.split(',')
+            if (son.price < this.searchParams.minPrice || son.price > this.searchParams.maxPrice || filterNoList.includes(son.itemid)
+                || son.sold < this.searchParams.minSales || son.sold > this.searchParams.maxSales){
+              return
+            }
+          }
           let temp = Object.assign(son, {
-            platform_mall_id: item.platform_mall_id,
-            platform_mall_name: item.platform_mall_name,
-            mall_alias_name: item.mall_alias_name,
-            country: item.country,
-            style_id: item.id
-          })
-          this.goodsTable.push(temp)
+              platform_mall_id: item.platform_mall_id,
+              platform_mall_name: item.platform_mall_name,
+              mall_alias_name: item.mall_alias_name,
+              country: item.country,
+              style_id: item.id,
+              imageList :son.images && son.images.split(',')
+            })
+          temp && this.goodsTable.push(temp)
         })
         let goodsCount = this.searchParams.goodsCount
         offset += 100
         if (this.isRunning && tempList.length === 100 && offset < goodsCount) {
           let number = (goodsCount - offset) < 100 && (goodsCount - offset) || 100
-          let time = 3000 + Math.floor(Math.random() * 3000)
-          await sleep(time)
           await batchOperation([Object.assign(item, { offset: offset, limit: number })], this.queryGoodsList)
           console.log(this.goodsTable)
         } else {
+          this.$refs.goods_item_Logs.writeLog(`店铺【${mallName}】获取商品列表结束`, true)
           item.offset = 0
           item.limit = 100
         }
@@ -191,6 +248,9 @@ export default {
     },
     handleSelectionChange(val) {
       this.goodsSelect = val
+    },
+    changeGoodsItem(){
+      this.$emit('changeGoodsItem',{goodsList:this.goodsSelect})
     }
   }
 }
@@ -201,6 +261,7 @@ export default {
   .header-list {
     display: flex;
     margin-bottom: 10px;
+    align-items: center;
 
     .header-item {
       display: flex;

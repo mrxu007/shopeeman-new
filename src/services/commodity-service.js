@@ -548,7 +548,7 @@ export default class CommodityService {
    * @param isParent :isParent 类目的父级标识：1传入的类目作为父级查询；0当前类目查询
    * @param tableType : string
    */
-  async getCategoryTbInfo(country, categoryId = '0', isParent, tableType) {
+  async getCategoryTbInfo(country, categoryId = '0', isParent='1', tableType='') {
     return await this.nativeService.callCategoryFunction('GetCategoryInfo', country, categoryId, isParent, tableType)
   }
   /**
