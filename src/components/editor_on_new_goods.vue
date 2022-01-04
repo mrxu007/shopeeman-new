@@ -105,12 +105,12 @@
           <el-checkbox v-model="pictureConfig.shuffleChecked" size="mini">翻译轮播图</el-checkbox>
           <div>删除条件：</div>
           <el-checkbox v-model="pictureConfig.deleteGoodsChecked" size="mini">删除库存低于设定值的商品</el-checkbox>
-          <el-input size="mini" v-model="pictureConfig.inventoryNumber" style="width: 80px;" />
+          <el-input size="mini" v-model="pictureConfig.inventoryNumber" style="width: 80px;"/>
         </div>
         <div class="basisInstall-box">
           <div>图片翻译：</div>
-          <el-radio v-model="pictureConfig.typeRadio" :label="0" >阿里免费翻译</el-radio>
-          <el-radio style="margin-right: 0;" v-model="pictureConfig.typeRadio" :label="1" >阿里付费翻译</el-radio>
+          <el-radio v-model="pictureConfig.typeRadio" :label="0">阿里免费翻译</el-radio>
+          <el-radio style="margin-right: 0;" v-model="pictureConfig.typeRadio" :label="1">阿里付费翻译</el-radio>
           <el-tooltip style="margin-right: 10px;" class="item" effect="dark" content="0.06元一张图片" placement="top">
             <el-button size="mini" type="text"><i class="el-icon-question" style="padding: 0 2px;"></i></el-button>
           </el-tooltip>
@@ -583,15 +583,16 @@ export default {
         await this.translationPrepare(1)
         await this.batchDealWith(6)
       } else if (type === 6) {
-        let ids = [...this.mallTableSelect.map(i => {
+        let ids = []
+        this.mallTableSelect.forEach(i => {
           if (this.filterSimplifiedChecked) {
             if (i.language !== 'zh-Hans') {
-              return i.id
+              ids.push(i.id)
             }
           } else {
-            return i.id
+            ids.push(i.id)
           }
-        })]
+        })
         this.$BaseUtilService.gotoUploadTab('gotoUpload', ids)
       } else if (type === 7) {
         for (const i of this.mallTableSelect) {
@@ -704,7 +705,7 @@ export default {
         if (type === 3 && item.operation_type && item.operation_type.includes('翻译失败')) {
           goodsList.push(item)
         } else if (item.language.toLocaleUpperCase() !== this.translationConfig.languages.toLocaleUpperCase()) {
-          if (item.language !== 'zh-Hans' && this.translationConfig.languages !== 'zh') {
+          if (item.language !== 'zh-Hans' || this.translationConfig.languages !== 'zh') {
             goodsList.push(item)
           }
         }
@@ -712,7 +713,7 @@ export default {
       if (type === 2) {
         this.isTranslationText = false
       }
-      if (goodsList.length >0){
+      if (goodsList.length > 0) {
         let res = await batchOperation(goodsList, this.translationDate, parseInt(this.threadNumber))
         this.isTranslationText = true
       }
@@ -900,7 +901,7 @@ export default {
         if (this.isTranslationText && item.language.toLocaleUpperCase() !== this.translationConfig.languages) {
           success = await this.translationText(item, index)
         }
-        if (this.translationConfig.before && (this.pictureConfig.shuffleChecked || this.pictureConfig.specChecked)) {
+        if (this.translationConfig.before !== 'no' && (this.pictureConfig.shuffleChecked || this.pictureConfig.specChecked)) {
           let aLiUsernameIndex = this.aLiUsernameList.findIndex(i => i.name === this.aLiUsername)
           let aliAccount = this.aLiUsernameList[aLiUsernameIndex]
           if (!aliAccount && this.pictureConfig.typeRadio === 0) {
@@ -909,7 +910,7 @@ export default {
           }
           success = await this.translationPicture(item, index)
         }
-        ++this.statistics.fySuccess
+        success && ++this.statistics.fySuccess
         this.$set(this.mallTable[index], 'operation_type', success && '翻译成功' || '翻译失败')
       } catch (e) {
         this.$set(this.mallTable[index], 'operation_type', '翻译失败')
@@ -958,21 +959,24 @@ export default {
               let spec2List = tier_variation[tier_variation.spec2].join('<><>')
               let spec1ListJson = await this.$translationBridgeService.getGoogleTransResult([spec1List], fromLanguage, toLanguage)
               let spec2ListJson = await this.$translationBridgeService.getGoogleTransResult([spec2List], fromLanguage, toLanguage)
-              // console.log(spec1ListJson, spec2ListJson)
               if (spec1ListJson.Code === 0 && spec2ListJson.Code === 0) {
-                let spec1ListDst = spec1ListJson.Data && spec1ListJson.Data[0] && spec1ListJson.Data[0].DstText.split('<><>')
+                let spec1ListDstStr = spec1ListJson.Data && spec1ListJson.Data[0] && spec1ListJson.Data[0].DstText
+                let spec1ListDst = spec1ListDstStr.includes('<><>') && spec1ListDstStr.split('<><>') || spec1ListDstStr.split('<> <>')
                 let spec1ListSrc = spec1ListJson.Data && spec1ListJson.Data[0] && spec1ListJson.Data[0].SrcText.split('<><>')
                 let spec1List = this.getArraySrcLengthSort(spec1ListSrc)
-                console.log('spec1List', spec1ListDst, spec1List)
+                console.log('itemmodelsJson1',spec1ListDst, spec1ListSrc,JSON.parse(itemmodelsJson))
                 spec1List.forEach(item => {
-                  itemmodelsJson = itemmodelsJson.replaceAll(spec1ListSrc[item], spec1ListDst[item])
+                  itemmodelsJson = itemmodelsJson.replaceAll('"sku_spec1":"'+spec1ListSrc[item],'"sku_spec1":"'+ spec1ListDst[item])
+                  itemmodelsJson = itemmodelsJson.replaceAll('"sku":"'+spec1ListSrc[item],'"sku":"'+ spec1ListDst[item])
                 })
-                let spec2ListDst = spec2ListJson.Data && spec2ListJson.Data[0] && spec2ListJson.Data[0].DstText.split('<><>')
+                let spec2ListDstStr = spec2ListJson.Data && spec2ListJson.Data[0] && spec2ListJson.Data[0].DstText
+                let spec2ListDst = spec2ListDstStr.includes('<><>') && spec2ListDstStr.split('<><>') || spec2ListDstStr.split('<> <>')
                 let spec2ListSrc = spec2ListJson.Data && spec2ListJson.Data[0] && spec2ListJson.Data[0].SrcText.split('<><>')
                 let spec2List = this.getArraySrcLengthSort(spec2ListSrc)
-                console.log('spec2List', spec2ListDst, spec2List)
+                console.log('itemmodelsJson2',spec2ListDst,spec2ListSrc,JSON.parse(itemmodelsJson))
                 spec2List.forEach(item => {
-                  itemmodelsJson = itemmodelsJson.replaceAll(spec2ListSrc[item], spec2ListDst[item])
+                  itemmodelsJson = itemmodelsJson.replaceAll('"sku_spec2":"'+spec2ListSrc[item], '"sku_spec2":"'+spec2ListDst[item])
+                  itemmodelsJson = itemmodelsJson.replaceAll('=|='+spec2ListSrc[item]+'"', '=|='+spec2ListDst[item]+'"')
                 })
               } else {
                 //谷歌翻译失败
@@ -990,7 +994,7 @@ export default {
           itemmodelsJson = itemmodelsJson.replaceAll(/"skuId":([0-9]*),/ig, '"skuId":"$1",')
           param['skuSpecs'] = itemmodelsJson
           param.language = toLanguage === 'zh' && 'zh-Hans' || toLanguage === 'zh-tw' && 'zh-Hant' || toLanguage
-          console.log('saveTranslationData - param', param)
+          console.log('saveTranslationData - param', param,JSON.parse(itemmodelsJson))
           let translationDataJson = await this.$commodityService.saveTranslationData(param)
           let translationDataRes = JSON.parse(translationDataJson)
           console.log('saveTranslationData - json', translationDataJson)
@@ -1271,7 +1275,9 @@ export default {
       this.labelList = res.data || []
     },
     async deleteConfigClick(item, index) {
-
+      let deleteLabelJson = await this.$api.deleteLabel({ label: item })
+      console.log('deleteLabelJson', deleteLabelJson)
+      this.configLabelList.splice(index, 1)
     },
     async setConfigData(data) {
       let getLabelRes = await this.$api.getLabel({ label: data })
@@ -1280,7 +1286,7 @@ export default {
         if (getLabelData.data) {
           let config = getLabelData.data && getLabelData.data.config
           this.pictureConfig.typeRadio = parseInt(config.AliImgTranslateType || this.pictureConfig.typeRadio)  // 阿里图片翻译类型
-          this.goodsDescribeRadio = parseInt( config.GoodDescribe || this.goodsDescribeRadio )// 商品描述
+          this.goodsDescribeRadio = parseInt(config.GoodDescribe || this.goodsDescribeRadio)// 商品描述
           this.translationConfig.titleChecked = config.IsTranslateTitle || this.translationConfig.titleChecked// 是否翻译标题
           this.translationConfig.specChecked = config.IsTranslateSpecification || this.translationConfig.specChecked // 是否翻译规格信息
           this.translationConfig.describeChecked = config.IsTranslateDescribe || this.translationConfig.describeChecked // 是否翻译描述
@@ -1320,10 +1326,13 @@ export default {
         config
       }
       let saveLabelRes = await this.$api.saveLabel(param)
-      if(saveLabelRes.data && saveLabelRes.data.code === 200){
-        if (!this.labelList.includes(label)){
-          this.labelList.push(label)
+      if (saveLabelRes.data && saveLabelRes.data.code === 200) {
+        if (!this.configLabelList.includes(label)) {
+          this.configLabelList.push(label)
         }
+        this.$message.success('配置标签保存成功')
+      } else {
+        this.$message.error('配置标签保存失败')
       }
     }
 

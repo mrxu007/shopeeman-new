@@ -326,7 +326,7 @@
                       </el-select>
                     </el-form-item>
                     <el-form-item label="商品重量：">
-                      <el-input v-model="productWeight" :disabled="operationBut" style="width:102px" size="mini" onkeyup="value=value.replace(/[^\d]/g,'')" />
+                      <el-input v-model="productWeight" :disabled="operationBut" style="width:102px" size="mini" onkeyup="value=value.replace(/[^\d.]/g,'')" />
                       <span class="red-span" style="margin-left:3px">kg</span>
                     </el-form-item>
                     <div style="line-height: 31px;">
@@ -461,7 +461,7 @@
             >
               <div slot="content">
                 <el-image
-                  :src="[row.country ,row.platform_mall_id , row.images] | imageRender"
+                  :src="[ row.images] | imageRender"
                   style="width: 400px; height: 400px"
                 >
                   <div slot="error" class="image-slot" />
@@ -472,7 +472,7 @@
               </div>
               <el-image
                 style="width: 40px; height: 40px"
-                :src="[row.country ,row.platform_mall_id , row.images] | imageRender"
+                :src="[row.images,true] | imageRender"
               >
                 <div slot="error" class="image-slot" />
                 <div slot="placeholder" class="image-slot">
@@ -593,8 +593,22 @@
               </div>
               <el-radio v-model="titleRadio" :label="1">新标题</el-radio>
             </el-tooltip>
-            <el-radio v-model="titleRadio" :label="2">新增关键词/标题前</el-radio>
-            <el-radio v-model="titleRadio" :label="3">新增关键词/标题后</el-radio>
+            <el-tooltip
+              placement="top"
+            >
+              <div slot="content">
+                <span>需要新增多个热搜词/关键词，请以英文';'间隔!</span>
+              </div>
+              <el-radio v-model="titleRadio" :label="2">新增关键词/标题前</el-radio>
+            </el-tooltip>
+            <el-tooltip
+              placement="top"
+            >
+              <div slot="content">
+                <span>需要新增多个热搜词/关键词，请以英文';'间隔!</span>
+              </div>
+              <el-radio v-model="titleRadio" :label="3">新增关键词/标题后</el-radio>
+            </el-tooltip>
             <el-tooltip
               placement="top"
             >
@@ -788,9 +802,8 @@
 <script>
 import GoodsList from '../../../module-api/goods-manager-api/goods-list'
 import StoreChoose from '../../../components/store-choose'
-import { exportExcelDataCommon, batchOperation, terminateThread, dealwithOriginGoodsNum } from '../../../util/util'
+import { exportExcelDataCommon, batchOperation, terminateThread, dealwithOriginGoodsNum, getGoodsUrl } from '../../../util/util'
 import categoryMapping from '../../../components/category-mapping'
-import { packageType } from '@/views/order-manager/components/orderCenter/orderCenter'
 export default {
   components: {
     StoreChoose,
@@ -808,6 +821,7 @@ export default {
       getDescriptionVisible: false,
       operationBut: false,
       flag: false, // 判断是否停止
+      flag2: true,
       upDown: true,
       GoodsList: new GoodsList(this),
 
@@ -1500,7 +1514,8 @@ export default {
           if (Number(this.productDay) > Number(this.maxDays) || Number(this.productDay) < Number(this.minDays)) {
             this.batchStatus(item, '出货天数需设置在 ' + this.minDays + ' 到 ' + this.maxDays + ' 天', false)
           } else {
-            productInfo['days_to_ship'] = productInfo.pre_order ? Number(this.productDay) : Number(this.preOrderDeliveryDays)
+            productInfo['pre_order'] = true
+            productInfo['days_to_ship'] = Number(this.productDay)
             await this.handleProductEdit(productInfo, item)
           }
         } else {
@@ -1578,6 +1593,7 @@ export default {
         const res = await this.getProductDetail(item)
         if (res.code === 200) {
           productInfo = res.data
+          this.descriptionVal = this.descriptionVal.replaceAll('；', ';') // 兼容中文分号
           switch (this.descriptionRadio) {
             case 1:
               productInfo['description'] = this.descriptionVal + productInfo.description
@@ -1614,8 +1630,7 @@ export default {
           if (item.edit === 'description' && this.minLength !== 0 && productInfo.description.length < this.minLength) {
             this.batchStatus(item, '描述长度过短：最小长度' + this.minLength, false)
           } else {
-            productInfo['description'] = productInfo['description'].slice(0, this.maxLength)
-            productInfo.description.trim()
+            productInfo['description'] = productInfo['description'].trim().replaceAll(';', ' ').slice(0, this.maxLength)
             await this.handleProductEdit(productInfo, item)
           }
         } else {
@@ -1638,6 +1653,7 @@ export default {
         const res = await this.getProductDetail(item)
         if (res.code === 200) {
           productInfo = res.data
+          this.titleVal = this.titleVal.replaceAll('；', ';') // 兼容中文分号
           switch (this.titleRadio) {
             case 1:
               productInfo['name'] = this.titleVal
@@ -1666,8 +1682,7 @@ export default {
             this.batchStatus(item, '标题长度过短：最小长度' + this.minLength, false)
             this.failNum++
           } else {
-            productInfo['name'] = productInfo['name'].slice(0, this.maxLength)
-            productInfo['name'].trim()
+            productInfo['name'] = productInfo['name'].trim().replaceAll(';', ' ').slice(0, this.maxLength)
             await this.handleProductEdit(productInfo, item)
           }
         } else {
@@ -1868,7 +1883,7 @@ export default {
         let isAddToNewArray = false
         for (let j = 0; j < logisticsJarray.length; j++) {
           const logistics = logisticsJarray[j]
-          if (logistics.channel_id.toString === channelId) {
+          if (logistics.channel_id.toString() === channelId) {
             if (!isUseProductChannel) {
               logistics.enabled = channels.enabled.toString()
             }
@@ -2301,6 +2316,7 @@ export default {
       if (this.goodsMin < 0 || this.goodsMax > 99999999) return this.$message('商品数量请输入0-99999999之间的数字')
       this.initData()
       this.flag = false
+      this.flag2 = true
       this.queryNum = 0
       this.tableData = []
       this.$refs.Logs.consoleMsg = ''
@@ -2312,14 +2328,12 @@ export default {
       } else if (this.queryType === 200) {
         this.$refs.Logs.writeLog(`开始查询200小时内无流量商品`, true)
       }
-      this.$refs.Logs.writeLog(name, true)
       this.selectMallList.forEach(item => {
         item.pageNumber = 1
         item.mylist = []
       })
       this.index = 1
       for (let i = 0; i < this.goodsStatus.length; i++) {
-        // this.percentage = 0
         if (this.flag) {
           break
         }
@@ -2389,7 +2403,7 @@ export default {
               this.tableData = this.tableData.concat(newData)
               this.queryNum = this.tableData.length
             } else {
-              mItem.mylist = mItem.mylist.concat(newData)
+              mItem.mylist = newData
             }
             console.log('tableData', res.data.list)
           }
@@ -2400,21 +2414,29 @@ export default {
         console.log(error)
         this.$refs.Logs.writeLog(`店铺【${mallName}】获取数据异常`, false)
       } finally {
-        if (res?.data?.list?.length >= this.pageSize) {
+        const nameData1 = this.tableData.filter(item => { return item.mallName === mallName })
+        // 单店查询商品数量
+        if (this.productNumChecked) {
+          // 如果当前店铺长度小于设置的单店值
+          if (nameData1.length < Number(this.productNum)) {
+            // 切割长度
+            const num = Number(this.productNum) - nameData1.length
+            this.tableData = this.tableData.concat(mItem.mylist.slice(0, num))
+            // 加入数据后查询当前店铺的长度
+            const nameData2 = this.tableData.filter(item => { return item.mallName === mallName })
+            // 当前店铺长度 大于或等于设置的单店值 设置flag2 值，不执行下一次查询
+            if (nameData2.length >= Number(this.productNum)) {
+              this.flag2 = false
+            }
+          }
+        }
+        if (res?.data?.list?.length >= this.pageSize && this.flag2) {
           mItem.pageNumber++
           if (!this.flag) {
             await this.getTableData(mItem, count)
           }
         } else {
-        // 单店查询商品数量
-          if (this.productNumChecked) {
-            const data = this.tableData.filter(item => { return item.mallName === mallName })
-            if (data.length < Number(this.productNum)) {
-              this.tableData = this.tableData.concat(mItem.mylist.slice(0, Number(this.productNum)))
-            }
-          }
           this.queryNum = this.tableData.length
-          // const temp = 100 / this.selectMallList.length
           const len = this.goodsStatus.length === 8 ? 1 : this.goodsStatus.length
           this.percentage = (this.index++ / (this.selectMallList.length * len)) * 100
           --count.count
@@ -2429,6 +2451,7 @@ export default {
       this.showConsole = false
       this.$refs.Logs.consoleMsg = ''
       this.flag = false
+      this.flag2 = true
       this.$refs.Logs.writeLog(`开始查询禁卖商品...`, true)
       this.selectMallList.forEach(item => {
         item.pageNumber = 1
@@ -2462,7 +2485,7 @@ export default {
               this.tableData = this.tableData.concat(res.data.list)
               this.queryNum = this.tableData.length
             } else {
-              mItem.mylist = mItem.mylist.concat(res.data.list)
+              mItem.mylist = res.data.list
             }
           }
           console.log('list', res.data.list)
@@ -2472,16 +2495,28 @@ export default {
       } catch (error) {
         this.$refs.Logs.writeLog(`店铺【${mallName}】获取数据异常`, false)
       } finally {
-        if (res?.data?.list?.length >= this.pageSize) {
+        const nameData1 = this.tableData.filter(item => { return item.mallName === mallName })
+        // 单店查询商品数量
+        if (this.productNumChecked) {
+          // 如果当前店铺长度小于设置的单店值
+          if (nameData1.length < Number(this.productNum)) {
+            // 切割长度
+            const num = Number(this.productNum) - nameData1.length
+            this.tableData = this.tableData.concat(mItem.mylist.slice(0, num))
+            // 加入数据后查询当前店铺的长度
+            const nameData2 = this.tableData.filter(item => { return item.mallName === mallName })
+            // 当前店铺长度 大于或等于设置的单店值 设置flag2 值，不执行下一次查询
+            if (nameData2.length >= Number(this.productNum)) {
+              this.flag2 = false
+            }
+          }
+        }
+        if (res?.data?.list?.length >= this.pageSize && this.flag2) {
           mItem.pageNumber++
           if (!this.flag) {
             await this.getBannedData(mItem, count)
           }
         } else {
-        // 单店查询商品数量
-          if (this.productNumChecked) {
-            this.tableData = this.tableData.concat(mItem.mylist.slice(0, Number(this.productNum)))
-          }
           this.queryNum = this.tableData.length
           const temp = 100 / this.selectMallList.length
           this.percentage += temp
@@ -2632,7 +2667,10 @@ export default {
           platform = this.platformData['platform']
         }
       }
-      this.getGoodsUrl(platform)
+      // 链接拼接
+      const { url, platformTypeStr } = getGoodsUrl(platform, this.platformData)
+      this.platformData['url'] = url
+      this.platformData['platformTypeStr'] = platformTypeStr
     },
     // 解密ParentSKU
     async decryptShopeeItemSku(itemSku) {
@@ -2760,64 +2798,6 @@ export default {
         this.platformData['productId'] = id
       }
     },
-    // 拼接链接
-    getGoodsUrl(platform) {
-      try {
-        switch (platform) {
-          case 1:
-            this.platformData['url'] = `http://mobile.yangkeduo.com/goods.html?goods_id=${this.platformData['productId']}`
-            this.platformData['platformTypeStr'] = '拼多多'
-            break
-          case 2:
-            this.platformData['url'] = `https://item.taobao.com/item.htm?id=${this.platformData['productId']}`
-            this.platformData['platformTypeStr'] = '淘宝'
-            break
-          case 3:
-            this.platformData['url'] = `https://detail.tmall.com/item.htm?id=${this.platformData['productId']}`
-            this.platformData['platformTypeStr'] = '天猫'
-            break
-          case 5:
-            this.platformData['url'] = ''
-            this.platformData['platformTypeStr'] = '自有产品'
-            break
-          case 6:
-            this.platformData['url'] = `http://gh.ppxias.com/goods/${this.platformData['productId']}.html`
-            this.platformData['platformTypeStr'] = '皮皮虾供货平台'
-            break
-          case 15:
-          case 7:
-            this.platformData['url'] = `http://www.17hyj.com/detail?goodsid=${this.platformData['productId']}`
-            this.platformData['platformTypeStr'] = '货老板'
-            break
-          case 8:
-            this.platformData['url'] = `https://detail.1688.com/offer/${this.platformData['productId']}.html`
-            this.platformData['platformTypeStr'] = '1688'
-            break
-          case 11:
-            this.platformData['url'] = `${this.$filters.countryShopeebuyCom(this.platformData['site'])}/product/${this.platformData['shopId']}/${this.platformData['productId']}`
-            this.platformData['platformTypeStr'] = 'Shopee'
-            break
-          case 12:
-            this.platformData['url'] = `https://www.aliexpress.com/item/${this.platformData['productId']}.html`
-            this.platformData['platformTypeStr'] = '速卖通'
-            break
-          case 9:
-            this.platformData['url'] = `${this.$filters.lazadaGoodsUrl(this.platformData['site'])}/${this.platformData['productId']}.html`
-            this.platformData['platformTypeStr'] = 'Lazada'
-            break
-          case 10:
-            this.platformData['url'] = `https://item.m.jd.com/product/${this.platformData['productId']}.html`
-            this.platformData['platformTypeStr'] = '京喜'
-            break
-          case 13:
-            this.platformData['url'] = `https://distributor.taobao.global/apps/product/detail?mpId=${this.platformData['productId']}`
-            this.platformData['platformTypeStr'] = '天猫淘宝海外平台'
-            break
-        }
-      } catch (error) {
-        console.log('拼接链接异常', error)
-      }
-    },
     // 全选
     selectAll(key, baseData) {
       if (this[key].length < baseData.length) {
@@ -2934,7 +2914,7 @@ export default {
         str += `<tr>
         <td>${item.country ? this.$filters.chineseSite(item.country) : '' + '\t'}</td>
         <td>${item.mallName ? item.mallName : '' + '\t'}</td>
-        <td>${item.images ? this.$filters.imageRender([item.country, item.platform_mall_id, item.images]) : '' + '\t'}</td>
+        <td>${item.images ? this.$filters.imageRender([item.images]) : '' + '\t'}</td>
         <td>${item.categoryName ? item.categoryName : '' + '\t'}</td>
         <td>${item.platformTypeStr ? item.platformTypeStr : '' + '\t'}</td>
         <td>${item.url ? item.url : '' + '\t'}</td>

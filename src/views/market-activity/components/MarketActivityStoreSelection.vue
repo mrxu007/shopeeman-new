@@ -96,7 +96,7 @@
                 >
                   <div slot="content">
                     <el-image
-                      :src="[row.country ,row.platform_mall_id , item] | imageRender"
+                      :src="[ item] | imageRender"
                       style="width: 400px; height: 400px"
                     >
                       <div slot="error" class="image-slot" />
@@ -107,7 +107,7 @@
                   </div>
                   <el-image
                     style="width: 40px; height: 40px"
-                    :src="[row.country ,row.platform_mall_id , item] | imageRender"
+                    :src="[item,true] | imageRender"
                   >
                     <div slot="error" class="image-slot" />
                     <div slot="placeholder" class="image-slot">
@@ -199,7 +199,7 @@
               >
                 <div slot="content">
                   <el-image
-                    :src="[row.country ,row.platform_mall_id , row.images[0]] | imageRender"
+                    :src="[row.images[0]] | imageRender"
                     style="width: 400px; height: 400px"
                   >
                     <div slot="error" class="image-slot" />
@@ -210,7 +210,7 @@
                 </div>
                 <el-image
                   style="width: 40px; height: 40px"
-                  :src="[row.country ,row.platform_mall_id , row.images[0]] | imageRender"
+                  :src="[ row.images[0],true] | imageRender"
                 >
                   <div slot="error" class="image-slot" />
                   <div slot="placeholder" class="image-slot">
@@ -264,7 +264,10 @@ export default {
       tableData: [], // 表格数据
       multipleSelection: [], // 选择数据
       detailsData: {
-        graphqlData: []
+        graphqlData: [],
+        name: '',
+        status: null,
+        productId: ''
       }, // 详情数据
 
       goodsSortList: [
@@ -449,12 +452,13 @@ export default {
         return Number(item)
       })
       const res = await this.StoreSelection.markeHotSalePlan(params, 'putChinese')
+      const newVal = this.tableData.filter(item => { return item.id === val.id })
       if (res.code === 200) {
         if (this.flag1) {
           this.$refs.Logs.writeLog(`【${val.mallName}】下【${val.name}】修改成功`, true)
         } else {
           this.$refs.Logs.writeLog(`【${val.mallName}】下【${val.name}】${val.status ? '开启' : '关闭'}成功`, true)
-          this.$set(val, 'status', val.status)
+          this.$set(...newVal, 'status', val.status)
         }
       } else {
         if (this.flag1) {
@@ -463,7 +467,7 @@ export default {
           return
         } else {
           this.$refs.Logs.writeLog(`【${val.mallName}】下【${val.name}】${val.status ? '开启' : '关闭'}失败：${res.data}`, false)
-          this.$set(val, 'status', !val.status)
+          this.$set(...newVal, 'status', !val.status)
           return
         }
       }

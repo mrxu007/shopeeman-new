@@ -173,13 +173,10 @@ var chineseSite = function(val) {
   return countries[attribute] || attribute
 }
 var imageRender = function(data) {
-  const country = data[0]
-  const shop_id = data[1]
-  const image_value = data[2]
-  const isArr = data[3] || ''
-  let attribute = country && (country + '').toLocaleUpperCase() || country
-  attribute = countries_id[attribute] || attribute
-  const url = countries_image[attribute] && (countries_image[attribute] + '/file/' + shop_id + '/' + image_value) || ''
+  const image_value = data[0]
+  const mini = data[1] && '_tn' || ''
+  const isArr = data[2] || ''
+  const url = 'https://s-cf-tw.shopeesz.com/file/' + image_value + mini
   return isArr && [url] || url
 }
 var siteCoin = function(val) {
@@ -204,15 +201,38 @@ var lazadaGoodsUrl = function(val) {
   return lazada_goods_url[attribute] || attribute
 }
 
-var imageRenderhaventID = function(data) { // 第二个参数传任意传
-  const country = data[0]
-  // const shop_id = data[1]
-  const image_value = data[2]
-  const isArr = data[3] || ''
-  let attribute = country && (country + '').toLocaleUpperCase() || country
-  attribute = countries_id[attribute] || attribute
-  const url = countries_image[attribute] && (countries_image[attribute] + '/file/' + image_value) || ''
-  return isArr && [url] || url
+const currencyShow = function(data){
+  let temp = ''
+  switch (data){
+    case 'MY':
+      temp ='RM';
+      break
+    case 'PH':
+      temp ='₱';
+      break
+    case 'ID':
+      temp ='Rp';
+      break
+    case 'VN':
+      temp ='₫';
+      break
+    case 'TH':
+      temp ='฿';
+      break
+    case 'BR':
+      temp ='R$';
+      break
+    case 'MX':
+      temp ='MX$';
+      break
+    case 'PL':
+      temp ='zł';
+      break
+    default :
+      temp = '$'
+  }
+  return temp
 }
 
-export { chineseSite, imageRender, imageRenderhaventID, siteCoin, sitePlatform, countryShopeebuyCom, lazadaGoodsUrl, countries_option, countries_site,countries_option_sub,countries_option_sub_abroad }
+export { chineseSite, imageRender, siteCoin, sitePlatform, countryShopeebuyCom,
+  lazadaGoodsUrl, countries_option, countries_site,countries_option_sub ,currencyShow ,countries_option_sub_abroad}

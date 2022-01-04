@@ -18,7 +18,7 @@
                   <p>开始页码：</p>
                   <el-input v-model="commonAttr.StartPage" size="mini" />
                   <p>总页码：</p>
-                  <el-input v-model="commonAttr.EndPage" size="mini" />
+                  <el-input v-model="commonAttr.EndPage" size="mini" style="width:85px" />
                   <el-tooltip v-show="isShowPageSize20 || isShowPageSize50" placement="top">
                     <div v-show="isShowPageSize20" slot="content" class="tip">20条/页</div>
                     <div v-show="isShowPageSize50" slot="content" class="tip">50条/页,最多50页</div>
@@ -372,25 +372,25 @@
             <ul class="item left">
               <li class="text">采集设置</li>
               <li>
-                <el-checkbox label="启动买手号采集" />
+                <el-checkbox disabled label="启动买手号采集" />
                 <p class="tip">（开启买手号，可提高收藏收藏率）</p>
               </li>
               <li>
-                <el-checkbox label="过滤多余的SKU" />
+                <el-checkbox v-model="IsDefaultFilterSkuCount" label="过滤多余的SKU" />
                 <p class="tip">（勾选多余的SKU，删除所有sku图）</p>
               </li>
               <li>
                 <el-checkbox label="规格图重复时，删除所有sku图" />
               </li>
               <li>
-                <el-checkbox label="启动lazada发货天数过滤商品" />
+                <el-checkbox v-model="IsFilterLazadaDeliveryDay" label="启动lazada发货天数过滤商品" />
                 <p class="tip2">lazada发货天数：</p>
                 <el-input placeholder="" size="mini" />
                 <span>--</span>
                 <el-input placeholder="" size="mini" />
               </li>
               <li>
-                <el-checkbox label="启动虾皮发货天数过滤商品" />
+                <el-checkbox v-model="IsFilterShopeeDeliveryDay" label="启动虾皮发货天数过滤商品" />
                 <p class="tip2">虾皮发货天数：</p>
                 <el-input placeholder="" size="mini" />
                 <span>--</span>
@@ -400,13 +400,13 @@
                 <p class="tip">收藏时过滤掉不在此发货天数区间的商品</p>
               </li>
               <li>
-                <el-checkbox label="采集描述为空的数据" />
+                <el-checkbox v-model="IsCollectDescriptionIsNull " label="采集描述为空的数据" />
               </li>
               <li>
                 <p>收藏时过滤商品发货地址（仅Shopee可用）：</p>
-                <!-- <el-select placeholder="" size="mini">
-                  <el-option />
-                </el-select> -->
+                <el-select v-model="GoodsDeliveryAddress" placeholder="" size="mini">
+                  <el-option v-for="(item,index) in GoodsDeliveryAddressList" :key="index" :value="item.value" :label="item.label" />
+                </el-select>
               </li>
             </ul>
             <ul class="item right">
@@ -491,7 +491,7 @@
               class="copyIcon"
               @click="copy(row.GoodsId)"
             ><i class="el-icon-document-copy" /></span>
-            <span style="color:red">
+            <span>
               {{ row.GoodsId }}
             </span>
           </template>
@@ -511,7 +511,11 @@
         <u-table-column align="center" label="发货地" />
         <u-table-column align="center" label="来源" prop="Origin" />
         <u-table-column align="center" label="操作" />
-        <u-table-column align="center" label="操作结果" />
+        <u-table-column align="center" label="操作结果" prop="StatusName" show-overflow-tooltip>
+          <template v-slot="{ row }">
+            <span :style="row.color && 'color:' + row.color">{{ row.StatusName }}</span>
+          </template>
+        </u-table-column>
       </u-table>
     </article>
   </div>
@@ -522,7 +526,7 @@ import CollectKeyWordApI from './collection-keyword-api'
 import CollectLinkApI from './collection-link-api'
 import CollectEntireApI from './collection-entire-api'
 import CollectOtherApI from './collection-other-api'
-import { dateFormat, delay } from '../../../util/util'
+import { batchOperation, dateFormat, delay } from '../../../util/util'
 // getSiteRelation
 import { shopeeSite, lazadaSite, pictureSearchOrigin, getPlatform, platformObj, getShopeeSitePlace, getLazadaSitePlace } from './collection-platformId'
 import testData from './testData'
@@ -651,8 +655,33 @@ export default {
       TaobaoAbroadAccount: [],
       TaobaoAbroadAccountId: [],
       taobaoTimeAt: [],
-      isSelectAllTaobaoAccount: false
+      isSelectAllTaobaoAccount: false,
 
+      shopeeGoodsDeliveryAddressDic: { // 收藏商品时使用
+        'MY': 'Mainland China',
+        'TW': '中國大陸',
+        'VN': 'Nước ngoài',
+        'ID': 'Luar Negeri',
+        'PH': 'Mainland China',
+        'TH': 'ต่างประเทศ',
+        'SG': 'Mainland China',
+        'BR': 'China Continental'
+      },
+
+      successNum: 0,
+      failNum: 0,
+
+      // 采集设置
+      GoodsDeliveryAddress: 0, // 收藏时过滤商品发货地址（仅Shopee可用）
+      GoodsDeliveryAddressList: [
+        { value: 0, label: '不过滤' },
+        { value: 1, label: '本土' },
+        { value: 2, label: '跨境' }
+      ],
+      IsCollectDescriptionIsNull: false, // 采集描述为空的数据
+      IsDefaultFilterSkuCount: true, // 过滤多余的SKU
+      IsFilterLazadaDeliveryDay: false, // 启动Lazada发货天数过滤商品
+      IsFilterShopeeDeliveryDay: false// 启动虾皮发货天数过滤商品
     }
   },
   computed: {
@@ -1018,26 +1047,245 @@ export default {
       }
       this.buttonStatus.start = true
       this.consoleMsg = ''
-      const len = this.multipleSelection.length
-      let success = 0
-      let fail = 0
+      this.successNum = 0
+      this.failNum = 0
       this.writeLog('开始收藏商品........', true)
-      for (let i = 0; i < len; i++) {
-        const item = this.multipleSelection[i]
-        const res2 = await this.collectLinkApInstance.getGoodsDeail(item)
-        if (res2.code !== 200) {
-          console.log(item)
-          this.writeLog(`商品ID: ${item.GoodsId} 收藏失败: ${res2.data}`, false)
-          fail++
-          continue
-        } else {
-          this.writeLog(`(${i + 1}/${len})商品ID: ${item}收藏成功`)
-          success++
-        }
-      }
-      this.writeLog(`共收藏成功：${success}个商品, 收藏失败：${fail}个商品`, true)
+      await batchOperation(this.multipleSelection, this.saveGoods)
+      this.writeLog(`共收藏成功：${this.successNum}个商品, 收藏失败：${this.failNum}个商品`, true)
       this.writeLog(`收藏商品完毕........`, true)
       this.buttonStatus.start = false
+    },
+    async  saveGoods(item, count = { count: 1 }) {
+      try {
+        this.StatusName(item, `正在获取商品详情`, true)
+        const res2 = await this.collectLinkApInstance.getGoodsDeail(item)
+        if (res2.code !== 200) {
+          this.StatusName(item, `获取商品详情失败：${res2.data}`, false)
+          this.failNum++
+          return
+        } else {
+          // 组装数据
+          console.log(res2.data)
+          this.setGoodsData(item, res2.data)
+          // uploadCollectGoods 收藏
+          this.successNum++
+          this.StatusName(item, `测试`, true)
+        }
+      } catch (error) {
+        this.StatusName(item, `${error}`, false)
+        console.log(error)
+      } finally {
+        --count.count
+      }
+    },
+    // 收藏组装数据
+    setGoodsData(item, goodsData) {
+      console.log(item)
+      console.log(goodsData)
+      // 1：描述组装处理 PddPlatform
+      let goodsProperty = ''
+      if (item.Platform === 1 && goodsData.CollectGoodsData?.GoodsProperty && Object.keys(goodsData.CollectGoodsData.GoodsProperty).length > 0) {
+        const keys = Object.keys(goodsData.CollectGoodsData.GoodsProperty)
+        for (const key of keys) {
+          goodsProperty += `${key}：${goodsData.CollectGoodsData.GoodsProperty[key].join('\r\n')}\r\n`
+        }
+      }
+      // 2：出货地点 ShopeePlatform
+      if (item.Platform === 11 && this.GoodsDeliveryAddress !== 0) {
+        const location = this.shopeeGoodsDeliveryAddressDic[item.Site.toUpperCase()] ? this.shopeeGoodsDeliveryAddressDic[item.Site.toUpperCase()] : ''
+        if ((this.GoodsDeliveryAddress === 2 && goodsData.CollectGoodsData.Location === location) || (this.GoodsDeliveryAddress === 1 && goodsData.CollectGoodsData.Location !== location)) {
+          this.StatusName(item, `商品发货地不符合条件`, false)
+          this.failNum++
+          return
+        }
+      }
+      item.Description = goodsData.CollectGoodsData.GoodsDesc + goodsProperty// 商品描述
+      goodsData.CollectGoodsData.GoodsDesc = item.Description
+      item.OriginCategoryId = Number(goodsData.CollectGoodsData.CategoryId) // 源商品的类目ID
+      if (!this.IsCollectDescriptionIsNull && !item.Description) {
+        this.StatusName(item, `商品描述不能为空`, false)
+        this.failNum++
+        return
+      }
+      this.StatusName(item, `组装产品信息`, true)
+      try {
+        // 3：库存数量
+        const totalStock = goodsData.CollectGoodsData.TotalQuantity // 总库存数量
+        if (Object.keys(goodsData.CollectGoodsSkus).length > 0) {
+          // 此处获取每一个Sku的库存数量
+          const stockList = []
+          const keys = Object.keys(goodsData.CollectGoodsSkus)
+          for (const key of keys) {
+            stockList.push(goodsData.CollectGoodsSkus[key].quantity)
+          }
+          if (stockList.length <= 0) {
+            this.StatusName(item, `收藏失败：此商品库存为0`, false)
+            this.failNum++
+            return
+          }
+        } else {
+          if (totalStock) {
+            this.StatusName(item, `收藏失败：此商品库存为0`, false)
+            this.failNum++
+            return
+          }
+        }
+        // 4：SKU数量-----是否舍弃超出shopee支持的sku个数，IsDefaultFilterSkuCount此配置在平台选品库----采集设置中，默认为true
+        if (this.IsDefaultFilterSkuCount) {
+          this.DealGoodsSkuCount(item, goodsData) // ？
+        }
+        // Lazada平台需要设置额外信息：站点
+        if (item.Platform === 9) {
+          // goodsData.CollectGoodsData.GoodsExtraInfo ？
+        }
+        // 天猫淘宝跨境平台：需要设置额外信息：店铺ID
+        if (item.Platform === 2) {
+          // goodsData.CollectGoodsData.GoodsExtraInfo  ？
+        }
+        // 5：过滤特殊字符：标题、短标题、描述、过滤Emoji字符串
+        // FilterSpecialSymbol(goodsData,item) ？
+        // 6：对类目进行处理
+        if (item.CategoryName === '未匹配到类目' && item.OriginCategoryId !== 0) { // ？
+          //  string cat = CollectUtil.GetGoodsCat((int)goods.OriginCategoryId, goods.Platform, goods.Site).Result;
+          // if (cat) {
+          // item.CategoryName = cat.Split('|')[0]
+          // }
+        }
+        // 7:组装上报的SKU数据
+        // this.BuildGoodsData(goodsData,GoodsBulkInfo)//？
+      } catch (error) {
+
+      }
+    },
+    BuildGoodsData(goodsData, goodsBulkInfo) {
+      const goods = goodsData.CollectGoodsData
+      const sku = goodsData.CollectGoodsSkus
+      // 如果为Lazada平台，需要过滤发货天数，IsFilterLazadaDeliveryDay 此值为平台选品库-->采集设置中的配置项
+      if (goods.Platform === 9 && this.IsFilterLazadaDeliveryDay) {
+        if (Object.keys(sku).length > 0) {
+          for (const key in sku) { // ？
+
+          }
+        }
+      }
+      // 如果为Shopee平台，需要过滤发货天数，IsFilterShopeeDeliveryDay 此值为平台选品库-->采集设置中的配置项
+      if (goods.Platform === 11 && this.IsFilterShopeeDeliveryDay) { // ？
+
+      }
+    },
+    DealGoodsSkuCount(item, goodsData) {
+      console.log('IsDefaultFilterSkuCount', goodsData)
+      const list = []
+      while (true) {
+        if (goodsData.CollectGoodsData.GoodsType === 1) {
+        // 直接获取SKU数量。如果大于50个，随机移除超过规格，只留下50个
+          const keys = Object.keys(goodsData.CollectGoodsSkus)
+          const ranKeys = this.getRandomArrayElements(keys, 50)
+          const newSku = {}
+          for (const key of ranKeys) {
+            newSku[key] = goodsData.CollectGoodsSkus[key]
+          }
+          goodsData.CollectGoodsSkus = newSku
+        }
+        if (goodsData.CollectGoodsData.GoodsType === 2) {
+        // 通过sku.OriginProps 组装Sku数量（即通过两个规格组合，获取到所有的Sku数量）
+          const newSkuDic = {}
+          const skuList = this.GetVaAndSizeList(item, goodsData, goodsData.CollectGoodsData.GoodsType)// 根据规格数量组装SKU
+          let vaList = skuList[0]
+          let sizeList = skuList[1]
+          const allSkuCount = Object.keys(goodsData.CollectGoodsSkus).length// 采集返回的所有的SKU列表
+          const realSkuCount = vaList.length * sizeList.length// 组装出来的SKU列表
+          if (realSkuCount > 50 || vaList.length > 50 || sizeList.length > 50 || realSkuCount !== allSkuCount) {
+            // 需要判断单个规格的数量和组装后的SKU的数量，都不能超过50个，如果超过50个，需要随机去除，只保留到50个的SKU数量
+            let maxCount = 50
+            if (vaList.length > 50) {
+              vaList = this.getRandomArrayElements(vaList, 50)
+            }
+            if (sizeList.length > 50) {
+              sizeList = this.getRandomArrayElements(sizeList, 50)
+            }
+            if (Object.keys(goodsData.CollectGoodsSkus).length > 50) {
+              maxCount = 50 / sizeList.length
+            }
+            if (maxCount > 50) {
+              maxCount = 50
+            }
+            if (vaList.length > maxCount) {
+              vaList = this.getRandomArrayElements(vaList, parseInt(maxCount))
+            }
+            for (const i in goodsData.CollectGoodsSkus) {
+              const item = goodsData.CollectGoodsSkus[i]
+              const name1 = item.originProps[0] && item.originProps[0].name || ''
+              const name2 = item.originProps[1] && item.originProps[1].name || ''
+              if (vaList.includes(name1) && sizeList.includes(name2)) {
+                newSkuDic[i] = item
+              } else {
+                const sku = this.GetVaRelativeSku(goodsData.CollectGoodsSkus, name1, name2, Object.keys(newSkuDic).length)
+                newSkuDic[Object.keys(sku)] = sku[Object.keys(sku)]
+              }
+            }
+            goodsData.CollectGoodsSkus = newSkuDic
+          }
+        }
+        if (goodsData.CollectGoodsData.GoodsType > 2) {
+
+        }
+        if (Object.keys(goodsData.CollectGoodsSkus).length <= 50) {
+          break
+        }
+      }
+      console.log('aaaaaaa', goodsData)
+    },
+    GetVaRelativeSku(allSkus, va, size, count) {
+      const sku = {}
+      for (const key of Object.keys(allSkus)) {
+        const item = allSkus[key]
+        const name1 = item.originProps[0] && item.originProps[0].name || ''
+        if (name1 === va && Object.keys(sku).length < 1) {
+          sku[key] = allSkus[key]
+        }
+      }
+      const pddGoodsSku = {}
+      pddGoodsSku['parent_id'] = 0
+      pddGoodsSku['vid'] = ''
+      pddGoodsSku['name'] = size
+      const key = Object.keys(sku)
+      sku[key].originProps[1] = pddGoodsSku
+      const oriList = []
+      const oriOne = sku[key].originProps[0]
+      const oriTwo = {}
+      oriTwo['parent_id'] = 0
+      oriTwo['vid'] = ''
+      oriTwo['name'] = size
+      oriList[0] = oriOne
+      oriList[1] = oriTwo
+      sku[key].originProps = oriList
+      sku[key].sku = key + count
+      sku[key].quantity = 0
+      return sku
+    },
+    GetVaAndSizeList(item, goodsData, goodsType) {
+      const allList = {}
+      for (let i = 0; i < goodsType; i++) {
+        allList[i] = []
+      }
+      for (const i in goodsData.CollectGoodsSkus) {
+        const sku = goodsData.CollectGoodsSkus[i]
+        for (let j = 0; j < sku.originProps.length; j++) {
+          const name = sku.originProps[j].name
+          if (j >= allList.length) {
+            if (sku.platform === 9 && j > 1) {
+              continue
+            } else {
+              console.log('数据处理异常，请联系客服')
+            }
+          }
+          if (name && !allList[j].includes(name)) {
+            allList[j].push(name)
+          }
+        }
+      }
+      return allList
     },
     // 辅助-----------------------------
     writeLog(msg, success = true) {
@@ -1058,6 +1306,24 @@ export default {
       reader.onload = () => {
         that.base64Str = reader.result
       }
+    },
+    // 随机取值
+    getRandomArrayElements(arr, count) {
+      const shuffled = arr.slice(0)
+      let i = arr.length
+      const min = i - count
+      let temp; let index
+      while (i-- > min) {
+        index = Math.floor((i + 1) * Math.random())
+        temp = shuffled[index]
+        shuffled[index] = shuffled[i]
+        shuffled[i] = temp
+      }
+      return shuffled.slice(min)
+    },
+    StatusName(item, msg, status) {
+      this.$set(item, 'StatusName', msg)
+      this.$set(item, 'color', status ? 'green' : 'red')
     },
     // 过滤数据
     filterData(data) {

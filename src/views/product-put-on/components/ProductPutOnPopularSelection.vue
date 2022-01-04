@@ -88,14 +88,12 @@
         </el-table-column>
         <el-table-column width="100px" label="商品图片" prop="country" align="center">
           <template slot-scope="scope">
-            <el-image
-              :src="[scope.row.platform , scope.row.shopid , scope.row.image ]| imageRender"
-              :preview-src-list="[scope.row.platform , scope.row.shopid , scope.row.image ,1]| imageRender"
-            >
-              <div slot="placeholder" class="image-slot">
-                加载中<span class="dot">...</span>
+            <el-tooltip effect="light" placement="right-end" :visible-arrow="false" :enterable="false" style="width: 56px; height: 56px; display: inline-block">
+              <div slot="content">
+                <el-image :src="[ scope.row.image] | imageRender" style="width: 400px; height: 400px" />
               </div>
-            </el-image>
+              <el-image :src="[scope.row.image,true] | imageRender" style="width: 56px; height: 56px" />
+            </el-tooltip>
           </template>
         </el-table-column>
         <el-table-column min-width="60px" label="商品名称" prop="country" align="center">
@@ -317,7 +315,7 @@ export default {
         str += `<tr><td>${num++}</td>
                     <td>${this.$filters.chineseSite(item.platform) + '\t'}</td>
                     <td>${(item.itemid || '') + '\t'}</td>
-                    <td>${this.$filters.imageRender([item.platform, item.shopid, item.image]) + '\t'}</td>
+                    <td>${this.$filters.imageRender([item.image]) + '\t'}</td>
                     <td>${(item.name) + '\t'}</td>
                     <td>${(item.is_official_shop && '是' || '否') + '\t'}</td>
                     <td>${categoryFirst + '\t'}</td>

@@ -12,7 +12,7 @@
       <div v-if="!chooseData.goods_info || !chooseData.goods_info.goods_img" class="img">暂无图片</div>
       <img
         v-if="chooseData.goods_info && chooseData.goods_info.goods_img"
-        :src="[chooseData.country, chooseData.mall_info ? chooseData.mall_info.platform_mall_id : '', chooseData.goods_info.goods_img] | imageRender"
+        :src="[chooseData.goods_info.goods_img] | imageRender"
         style="object-fit: contain; width: 56px; height: 56px"
       />
       <div class="desc">
@@ -160,7 +160,7 @@ export default {
   methods: {
     async searchFromImg() {
       this.tableLoading = true
-      let imgUrl = this.$filters.imageRender([this.chooseData.country, this.chooseData.mall_info ? this.chooseData.mall_info.platform_mall_id : '', this.chooseData.goods_info.goods_img])
+      let imgUrl = this.$filters.imageRender([this.chooseData.goods_info.goods_img])
       console.log(imgUrl,"imgUrl")
       this.getBase64(imgUrl, (base64) => {
         let params = { file: encodeURIComponent(base64.replace('data:image/jpeg;base64,', '')), page: 1 }

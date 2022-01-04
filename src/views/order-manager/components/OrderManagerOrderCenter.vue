@@ -797,7 +797,7 @@ import {
   changeShotStatus,
 } from '../components/orderCenter/orderCenter'
 import { setGoodsDelist, setGoodsDelete } from './orderCenter/handleGoods'
-import { creatDate, getDaysBetween, dealwithOriginGoodsNum } from '../../../util/util'
+import { creatDate, getDaysBetween,dealwithOriginGoodsNum } from '../../../util/util'
 import storeChoose from '../../../components/store-choose'
 import BuyerAccount from './orderCenter/buyer-account.vue'
 import LogisticeSyncService from '../../../services/logistics-sync-service/logistics-sync-service-new-copy'
@@ -2620,7 +2620,7 @@ export default {
               row.real_gross_profit = diff
             }
             if (i === 0) {
-              sysOrders = row.id
+              sysOrders = row.id.toString()
             } else {
               sysOrders = sysOrders + ',' + row.id
             }

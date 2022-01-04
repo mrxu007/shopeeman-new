@@ -10,11 +10,12 @@ class CollectLinkApI {
     // 请注意   (商品列表  订单列表)  不需要使用缓存,其他模块调用需要使用缓存,
     try {
       this.goods = goods
-      const { platformId, GoodsId, ShopId, Site } = this.goods
+      console.log('goodsData', this.goods)
+      const { platformId, GoodsId, ShopId, Site, Platform } = this.goods
       const params = {}
       params['GoodsId'] = GoodsId
-      params['shop_id'] = ShopId
-      switch (platformId) {
+      params['ShopId'] = ShopId
+      switch (platformId || Platform) {
         case 1: // 拼多多  1 拼多多接口、  1.1 拼多多补充接口、  1.2 拼多多优惠采集
         case 1.2:
           break
@@ -39,9 +40,8 @@ class CollectLinkApI {
           params['AccessToken'] = ''
           break
       }
-      const res = await this._this.$collectService.queryDetailById(Number(platformId), params, isUseCache)
+      const res = await this._this.$collectService.queryDetailById(Number(platformId || Platform), params, isUseCache)
       const isJSONData = this.isJsonString(res)
-      debugger
       if (isJSONData?.Code === 200) {
         isJSONData.Image = isJSONData.ListItem[0].Image
         isJSONData.GoodsId = isJSONData.CollectGoodsData.GoodsId

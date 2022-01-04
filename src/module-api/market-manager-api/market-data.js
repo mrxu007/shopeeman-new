@@ -11,7 +11,6 @@ export default class MarketManagerAPI {
         mallId: mallId,
         id: goodsID
       }
-      debugger
       const res = await this._this.$shopeemanService.postChinese(country, '/api/v3/product/boost_product/?', params, {
         headers: {
           'Content-Type': 'application/json',
@@ -19,7 +18,6 @@ export default class MarketManagerAPI {
           'Accept-Encoding': 'gzip, deflate'
         }
       })
-      debugger
       const des = JSON.parse(JSON.parse(res).data)
       // let ecode = des.code || des.errcode
       // if (des.errcode) {
@@ -188,18 +186,18 @@ export default class MarketManagerAPI {
   // 关注礼-列表
   async FollowPrize(goodsinfo) {
     try {
-      const { country, mallId, offset, limit, promotion_type } = goodsinfo
+      const { country, mallId, offset, limit } = goodsinfo
       const params = {
         mallId: mallId,
         offset: offset,
-        limit: limit, // pageSize:0-1000
-        promotion_type: promotion_type
+        limit: limit // pageSize:0-1000
       }
-      const res = await this._this.$shopeemanService.getChinese(country, 'api/marketing/v4/follow_prize/list/?', params, {
+      const res = await this._this.$shopeemanService.getChineseReferer(country, '/api/marketing/v4/follow_prize/list/?', params, {
         headers: {
           'Content-Type': 'application/json; charset=utf-8',
-          'Accept': 'application/json, application/xml, text/json, text/x-json, text/javascript, text/xml',
-          'Accept-Encoding': 'gzip, deflate'
+          'accept': 'application/json, text/plain, */*',
+          'accept-encoding': 'gzip, deflate, br',
+          'referer': '/portal/marketing/follow-prize/list'
         }
       })
       const des = JSON.parse(res)
@@ -209,7 +207,101 @@ export default class MarketManagerAPI {
       //   console.log('=============', 'mallid:' + params.mallId, ecode, des)
       return { ecode, data, message }
     } catch (error) {
-      return { code: -2, data: `getSkuList-catch: ${error}` }
+      return { code: -2, data: `FollowPrize-catch: ${error}` }
+    }
+  }
+
+  // 关注礼-列表详情
+  async FollowPrizeDetail(goodsinfo) {
+    try {
+      const { country, mallId, campaign_id } = goodsinfo
+      const params = {
+        mallId: mallId,
+        campaign_id: campaign_id
+      }
+      const res = await this._this.$shopeemanService.getChineseReferer(country, '/api/marketing/v4/follow_prize/?', params, {
+        headers: {
+          'accept': 'application/json, application/xml, text/json, text/x-json, text/javascript, text/xml',
+          'Accept-Encoding': 'gzip, deflate'
+
+        }
+      })
+      const des = JSON.parse(res)
+      const data = JSON.parse(des.data)
+      const ecode = data.code
+      const message = data.message
+      //   console.log('=============', 'mallid:' + params.mallId, ecode, des)
+      return { ecode, data, message }
+    } catch (error) {
+      return { code: -2, data: `FollowPrize-catch: ${error}` }
+    }
+  }
+
+  // 关注礼-创建
+  async followPrizeCreate(goodsinfo) {
+    try {
+      const { country, mallId, discount, end_time, follow_prize_name,
+        min_spend, quota, reward_type, start_time, coin_cash_back } = goodsinfo
+      const params = {
+        mallId: mallId,
+        shopid: Number(mallId), // 店铺id
+        follow_prize_name: follow_prize_name, // name
+        start_time: Number(start_time), // 开始时间
+        end_time: Number(end_time), // 结束时间
+        quota: Number(quota), // 可使用数量
+        min_spend: Number(min_spend), // 最低消费金额
+        reward_type: Number(reward_type), // 类型
+        discount: discount, // 折扣
+        coin_cash_back: coin_cash_back // shoppB折扣
+        // coin_cash_back:{
+        //   cap:'',
+        //   percentage:''
+        // }
+      }
+
+      const res = await this._this.$shopeemanService.postChineseReferer(country, '/api/marketing/v4/follow_prize/?', params, {
+        headers: {
+          'Content-Type': 'application/json',
+          'accept': 'application/json, application/xml, text/json, text/x-json, text/javascript, text/xml',
+          referer: `/portal/marketing/follow-prize/create`
+        }
+      })
+
+      const des = JSON.parse(res)
+      const data = JSON.parse(des.data)
+      const ecode = data.errcode || data.code
+      const message = data.message
+      //   console.log('=============', 'mallid:' + params.mallId, ecode, des)
+      return { ecode, data, message }
+    } catch (error) {
+      return { code: -2, data: `followPrizeCreate-catch: ${error}` }
+    }
+  }
+
+  // 关注礼-删除/停止
+  async MallPrizeDel(goodsinfo) {
+    try {
+      const { country, mallId, campaign_id, action } = goodsinfo
+      const params = {
+        mallId: mallId,
+        campaign_id: campaign_id,
+        action: action
+      }
+      const res = await this._this.$shopeemanService.postChineseReferer(country, '/api/marketing/v4/follow_prize/operation/?', params, {
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json, application/xml, text/json, text/x-json, text/javascript, text/xml',
+          referer: `/portal/marketing/follow-prize?tab=list`
+        }
+      })
+      const des = JSON.parse(res)
+      const data = JSON.parse(des.data)
+      const ecode = data.code
+      const message = data.message
+      //   console.log('=============', 'mallid:' + params.mallId, ecode, des)
+      return { ecode, data, message }
+    } catch (error) {
+      return { code: -2, data: `MallPrizeDel-catch: ${error}` }
     }
   }
 }

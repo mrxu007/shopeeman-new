@@ -14,6 +14,7 @@
           <div class="keepRight">{{index+1}}级类目：</div>
           <el-select v-model="categoryAction[index]" @change="setCategory(categoryAction[index],index)" size="mini" filterable
                      style="width: 200px;">
+            <el-option :value="''" label="全部"></el-option>
             <el-option
                 v-for="son in item"
                 :key="son.id"
@@ -94,11 +95,9 @@
         let country = this.country || this.countryOption
         if (this.goodsCurrent && index < 0) {
           let categoryList = []
-          let attributesList = []
-          console.log('categoryList',this.categoryList)
           this.categoryList.forEach((item,index)=>{
             let temp = item.find(i=>i.category_id === this.categoryAction[index])
-            categoryList.push(temp)
+            temp && categoryList.push(temp)
           })
           this.$emit('categoryChange', {
             categoryList: categoryList,
@@ -181,16 +180,14 @@
         }
       },
       async getAttribute() {
-        let categoryId = this.categoryAction[this.categoryAction.length - 1] || '0'
-        console.log(categoryId)
+        let categoryId = this.categoryAction[this.categoryAction.length - 1] || this.categoryAction[this.categoryAction.length - 2] || '0'
         let country = this.country || this.countryOption
         let attributeJson = await this.$commodityService.getAttributeInfo(country, categoryId)
         let attributeRes = JSON.parse(attributeJson)
         this.attributesList = []
         if (attributeRes.code === 200) {
-          let attributeList = attributeRes.data && attributeRes.data.attributes
+          let attributeList = attributeRes.data && attributeRes.data.attributes || []
           attributeList.forEach(item => {
-            console.log('attributeList', item);
             let index = this.attributesCurrent.findIndex(i => i.attribute_id === item.attribute_id)
             let attributesCurrent = this.attributesCurrent[index] && this.attributesCurrent[index].value_id || 0
             item.new_options_obj = item.new_options && JSON.parse(item.new_options) || []
@@ -201,7 +198,6 @@
         }
       },
       setCategory(val, index) {
-        console.log('setCategory', val, index);
         this.categoryList.splice(index + 1, this.categoryList.length - index)
         this.categoryAction.splice(index + 1, this.categoryAction.length - index)
         this.enterCategory(val + '', ++index)
@@ -214,23 +210,26 @@
             let categoryRelationJson = await this.$commodityService.getCategoryRelation(
               this.goodsCurrent.originCategoryId, country, this.goodsCurrent.platform + '')
             let categoryRelationRes = JSON.parse(categoryRelationJson)
-            console.log('categoryRelationRes', categoryRelationRes);
             this.attributesCurrent = categoryRelationRes.data && categoryRelationRes.data.attributes || []
           }
         }
-        let categoryList = JSON.parse(JSON.stringify(this.categoryList)) || []
-        let categoryTbInfoJson = await this.$commodityService.getCategoryTbInfo(country, categoryId)
-        let categoryTbInfoRes = JSON.parse(categoryTbInfoJson)
-        if (categoryTbInfoRes.code === 200) {
-          let categoryTbInfoData = categoryTbInfoRes.data
-          if (categoryTbInfoData && categoryTbInfoData.categories) {
-            categoryList[index] = categoryTbInfoData.categories
-            this.categoryList = categoryList
-            this.categoryAction[index] = this.categoryAction[index] || categoryList[index][0].category_id
-            this.enterCategory(this.categoryAction[index] + '', ++index)
-          } else {
-            this.getAttribute()
+        if (categoryId){
+          let categoryList = JSON.parse(JSON.stringify(this.categoryList)) || []
+          let categoryTbInfoJson = await this.$commodityService.getCategoryTbInfo(country, categoryId)
+          let categoryTbInfoRes = JSON.parse(categoryTbInfoJson)
+          if (categoryTbInfoRes.code === 200) {
+            let categoryTbInfoData = categoryTbInfoRes.data
+            if (categoryTbInfoData && categoryTbInfoData.categories) {
+              categoryList[index] = categoryTbInfoData.categories
+              this.categoryList = categoryList
+              this.categoryAction[index] = this.categoryAction[index] || categoryList[index][0].category_id
+              this.enterCategory(this.categoryAction[index] + '', ++index)
+            } else {
+              this.getAttribute()
+            }
           }
+        }else{
+          this.getAttribute(true)
         }
       },
     }

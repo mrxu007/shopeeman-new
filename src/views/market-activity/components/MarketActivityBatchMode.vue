@@ -1,11 +1,4 @@
-<!--
- * @Author: your name
- * @Date: 2021-12-27 10:59:26
- * @LastEditTime: 2022-01-04 11:43:44
- * @LastEditors: Please set LastEditors
- * @Description: 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
- * @FilePath: \shopeeman-new\src\views\market-activity\components\MarketActivityBatchMode.vue
--->
+
 <template>
   <div class="batch-chat">
     <div class="select-box">
@@ -463,7 +456,6 @@ export default {
               this.tableData.push(params)
             }
             let randomIndex = Math.floor(Math.random() * this.messageList.length)
-            console.log("随机数",randomIndex)
             let msg = this.messageList[randomIndex]
             let timestamp = new Date().getTime()
             let msgRes = await this.sendMessage('text', msg, {}, userId, Number(mall.platform_mall_id), token, mall.country, timestamp, ShopeeUid)

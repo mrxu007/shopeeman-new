@@ -342,7 +342,7 @@ export default {
   },
   async mounted() {
     await this.getGoodsList()
-    await this.showCategory()
+    // await this.showCategory()
   },
   watch:{
     categoryList: {
@@ -351,6 +351,12 @@ export default {
       },
       deep: true
     },
+    goodsList:{
+      handler(val) {
+        this.showCategory()
+      },
+      deep: true
+    }
   },
   methods: {
     async batchProcessing(type) {
@@ -445,6 +451,7 @@ export default {
       }
     },
     categoryChange(val) {
+      console.log('categoryChange', val)
       if (val) {
         let attributesList = []
         val.attributesList.forEach(son => {
@@ -465,7 +472,6 @@ export default {
             categoryAttributes: attributesList
           }
           let save = await this.$commodityService.saveCategoryRelation(param)
-          console.log('saveCategoryRelation', save)
         })
       }
       this.categoryVisible = false
@@ -720,6 +726,7 @@ export default {
 .goToGoods{
   white-space: normal;
   cursor: pointer;
+  line-height: 40px;
   &:hover{
     color: #ff0000;
   }
