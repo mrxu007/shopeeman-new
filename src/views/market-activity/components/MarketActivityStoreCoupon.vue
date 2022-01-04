@@ -272,7 +272,11 @@ export default {
   },
   methods: {
     changeGoodsItem(val) {
+      console.log('changeGoodsItem',val)
+      if(val){
 
+      }
+      this.goodsItemSelectorVisible = fasle
     },
     // 清除日志
     clearLog() {
