@@ -1,4 +1,6 @@
-import { setTimeout } from 'core-js'
+import {
+  setTimeout
+} from 'core-js'
 import md5 from 'js-md5'
 import Vue from 'vue'
 import XLSX from 'xlsx'
@@ -34,7 +36,9 @@ export async function getMalls() {
   // await instance.$api.logFun()
   const shopList = []
   try {
-    const { data } = await instance.$api.ddMallGoodsGetMallList()
+    const {
+      data
+    } = await instance.$api.ddMallGoodsGetMallList()
     // if (data.data.length) {
     //   localStorage.setItem('mallList', JSON.stringify(data.data))
     // }
@@ -65,7 +69,10 @@ export async function MallList() {
     const arr = res.data.data
     const blist = []
     arr.forEach(e => {
-      blist.push({ 'label': e.platform_mall_name, 'id': e.id })
+      blist.push({
+        'label': e.platform_mall_name,
+        'id': e.id
+    })
     })
     return blist
   } else {
@@ -209,9 +216,9 @@ export function dateFormat(Time, fmt) {
     if (new RegExp('(' + k + ')').test(fmt)) {
       fmt = fmt.replace(
         RegExp.$1,
-        RegExp.$1.length == 1
-          ? o[k]
-          : ('00' + o[k]).substr(('' + o[k]).length)
+        RegExp.$1.length == 1 ?
+        o[k] :
+        ('00' + o[k]).substr(('' + o[k]).length)
       )
     }
   }
@@ -360,7 +367,9 @@ export function exportCsvDataCommon(fileName, str) {
    // data.join('\n')
    exportCsvDataCommon('dsf',data)
    */
-  const blob = new Blob(['\ufeff' + str.join('\n')], { type: 'text/csv,charset=UTF-8' })
+  const blob = new Blob(['\ufeff' + str.join('\n')], {
+    type: 'text/csv,charset=UTF-8'
+  })
   const a = document.createElement('a')
   document.body.appendChild(a)
   // a.href = uri + this.base64(template)
@@ -418,20 +427,24 @@ export function randomWord(randomFlag, min, max) {
  * @returns {Promise<any>}
  */
 export function batchOperation(array, method, count = 5) {
+  const number = array.length
   const threadRunCountJson = localStorage.getItem('threadRunCount') || ''
   const threadRunCountRes = threadRunCountJson && JSON.parse(threadRunCountJson) || {}
   const methodName = method.name
   threadRunCountRes[methodName] = true
+  console.log('线程开始', methodName, array)
   localStorage.setItem('threadRunCount', JSON.stringify(threadRunCountRes))
   return new Promise(resolve => {
-    const number = array.length
-    const countObj = { count: number }
+    const countObj = {
+      count: number
+    }
     let submitCount = 0
     let setIn = setInterval(() => {
       const threadRunCountJson = localStorage.getItem('threadRunCount') || ''
       const threadRunCountRes = threadRunCountJson && JSON.parse(threadRunCountJson) || {}
+      console.log('threadRunCountRes', threadRunCountRes)
       const num = countObj.count
-      console.log('线程剩余数：', num)
+      console.log('线程剩余数：', methodName, num)
       if (num === 0 || !threadRunCountRes[methodName]) {
         let success = '完成'
         if (!threadRunCountRes[methodName]) {
@@ -439,13 +452,15 @@ export function batchOperation(array, method, count = 5) {
         }
         clearInterval(setIn)
         setIn = null
+        console.log('线程停止：', methodName)
         resolve(success)
       } else {
         manage(number - num)
       }
     }, 1000)
     async function manage(completeCount) {
-      for (; (submitCount - completeCount) < count && submitCount < number; ++submitCount) {
+      for (;
+        (submitCount - completeCount) < count && submitCount < number; ++submitCount) {
         const item = array[submitCount]
         method(item, countObj)
       }
@@ -488,15 +503,20 @@ export function formatDuring(mss) {
 export async function importOrder(tableData, jsonData, workName = '') {
   const arr = []
   arr.push(tableData)
-  jsonData.forEach(item => { arr.push(item) })
+  jsonData.forEach(item => {
+    arr.push(item)
+  })
   const worksheet = XLSX.utils.aoa_to_sheet(arr)
   console.log(fitToColumn(arr))
   worksheet['!cols'] = fitToColumn(arr)
   const workbook = XLSX.utils.book_new()
   XLSX.utils.book_append_sheet(workbook, worksheet, workName || (new Date(Date.now() + 8 * 3600 * 1000).toISOString().slice(0, 10)))
   XLSX.writeFile(workbook, `${workName}${new Date(Date.now() + 8 * 3600 * 1000).toISOString().slice(0, 10)}.xlsx`)
+
   function fitToColumn(arrayOfArray) {
-    return arrayOfArray[0].map((a, i) => ({ wch: Math.max(...arrayOfArray.map(a2 => a2[i] ? a2[i].toString().length : 10)) * 1.5 }))
+    return arrayOfArray[0].map((a, i) => ({
+      wch: Math.max(...arrayOfArray.map(a2 => a2[i] ? a2[i].toString().length : 10)) * 1.5
+    }))
   }
 }
 
@@ -528,16 +548,19 @@ export async function selfAliYunTransImage(imgUrl, command, account, that) {
       'groupName': '全部图片',
       'imageUrls': [imgUrl]
     }]
-  }, { headers: {
+  }, {
+    headers: {
     cookies: account.login_info
-  }})
+    }
+  })
   console.log(data1)
   if (data1.status == 200 && data1.data.code == 200) {
     const url = `https://www.alifanyi.com/api/imagetranslate/composeDetail/${data1.data.data}/1?_csrf=${_csrf.Value}`
-    const data2 = await that.$api.jdRequest.post(url, {
-    }, { headers: {
+    const data2 = await that.$api.jdRequest.post(url, {}, {
+      headers: {
       cookies: account.login_info
-    }})
+      }
+    })
     console.log(data2)
     let res = ''
     if (data2.data.data) {
@@ -574,8 +597,8 @@ export function getArraySrcLengthSort(arr, type) {
 }
 
 export function getDaysBetween(startDate, endDate) {
-  var days = (endDate - startDate) / (1 * 24 * 60 * 60 * 1000)
-  return days
+  var days = (endDate - startDate) / (1 * 24 * 60 * 60 * 1000);
+  return days;
 }
 
 // 拼接链接
@@ -633,13 +656,100 @@ export function getGoodsUrl(platform, data) {
         platformData['platformTypeStr'] = '天猫淘宝海外平台'
         break
     }
-    console.log(instance.$filters)
+    // console.log(instance.$filters)
     return platformData
   } catch (error) {
     console.log('拼接链接异常', error)
   }
 }
 
+async function dealwithLogisi(productID, mallID, country) {
+  // 获取物流
+  const parmas = {}
+  parmas['product_id'] = productID
+  parmas['mallId'] = mallID
+  const res = await instance.$shopeemanService.getLogistics(country, parmas)
+  console.log(res,"dealwithLogisi")
+  // 处理物流方式
+  let logModelList = []
+  let logisticsJarray = res.data.list || []
+  if (res.code === 200) {
+    logModelList = await getLogisticsInfo(logisticsJarray, true, mallID, country)
+  }
+  return logModelList
+}
+async function getLogisticsInfo(logisticsJarray, isUseProductChannel, mallID, country) {
+  const logModelList = []
+  let idDatas = []
+  if (logisticsJarray.length > 0) {
+    const params = {
+      platform_mall_id: mallID
+    }
+    // 获取商家后台的物流方式
+    let res = await instance.$shopeemanService.getChinese(country, '/api/v3/logistics/get_channel_list/?', params)
+    res = JSON.parse(JSON.parse(res).data)
+    if (res ?.data ?.list) {
+      idDatas = res.data.list
+    }
+    console.log(idDatas,"idDatas")
+    // 过滤无效物流
+    logisticsJarray = filterLogistics(logisticsJarray, idDatas, isUseProductChannel)
+    console.log(logisticsJarray,"logisticsJarray222")
+  }
+  for (let i = 0; i < logisticsJarray.length; i++) {
+    const logistics = logisticsJarray[i]
+    const obj = {}
+    obj.channelid = Number(logistics.channel_id)
+    obj.price = logistics.price ? logistics.price.toString() : '0.00'
+    obj.enabled = JSON.parse(logistics.enabled)
+    obj.cover_shipping_fee = JSON.parse(logistics.cover_shipping_fee)
+    obj.sizeid = Number(logistics.size_id)
+    obj.size = Number(logistics.size)
+    obj.parent_channel_id = Number(logistics.parent_channel_id)
+    logModelList.push(obj)
+  }
+  console.log(logModelList,"logModelList")
+  return logModelList
+}
+// 过滤无效物流
+async function filterLogistics(logisticsJarray, idDatas, isUseProductChannel) {
+  console.log(logisticsJarray, idDatas,"33333")
+    const newLogisticsJarray = []
+    for (let i = 0; i < idDatas.length; i++) {
+      const channels = idDatas[i]
+      const channelId = channels.channel_id.toString()
+      const parentChannelId = 'parent_channel_id' in channels ? channels.parent_channel_id.toString() : '0'
+      if (parentChannelId !== '0') {
+        continue
+      }
+      if (!JSON.parse(channels.is_mask_channel) && !JSON.parse(channels.enabled)) {
+        continue
+      }
+      let isAddToNewArray = false
+      for (let j = 0; j < logisticsJarray.length; j++) {
+        const logistics = logisticsJarray[j]
+        if (logistics.channel_id.toString === channelId) {
+          if (!isUseProductChannel) {
+            logistics.enabled = channels.enabled.toString()
+          }
+          if (!logistics ?.default_price) {
+            logistics.default_price = '0.00'
+          }
+          newLogisticsJarray.push(logistics)
+          isAddToNewArray = true
+          break
+        }
+      }
+      if (!isAddToNewArray) {
+        channels.price = channels.price ? channels.price.toString : '0.00'
+        channels.cover_shipping_fee = !((channels.cover_shipping_fee.toString() === '0' || channels.cover_shipping_fee.toString() === 'false'))
+        channels.size_id = 0
+        channels.size = 0
+        newLogisticsJarray.push(channels)
+      }
+    }
+    return newLogisticsJarray
+  }
 /**
  * @name :
  * @param  {*}
@@ -659,7 +769,7 @@ export async function dealwithOriginGoodsNum(oriGoodsId, oriPlatformId, shopMall
     const params = {
       product_id: shopGoodsId,
       version: '3.2.0',
-      shop_id: shopMallId
+        shop_id: shopMallId,
     }
     let shopeeSkuList = []
     let shopeeGoodsInfo = null
@@ -667,11 +777,15 @@ export async function dealwithOriginGoodsNum(oriGoodsId, oriPlatformId, shopMall
     // 获取shopee平台商品详情
     const shopeeGoods = await instance.$shopeemanService.searchProductDetail(country, params)
     if (shopeeGoods.code === 200 && shopeeGoods.data) {
+        let logistics_channels = dealwithLogisi(shopGoodsId, shopMallId, country)
+        if (!logistics_channels.length) {
+          return writeLog(`${orderSn?`订单【${orderSn}】`:`商品【${shopGoodsId}】`}同步上家失败，未获取到物流信息！`, false)
+        }
       shopeeGoodsInfo = shopeeGoods.data
       shopeeSkuList = shopeeGoods.data.model_list || [] // shopee规格list
-      const params = {
+        let params = {
         GoodsId: oriGoodsId,
-        shop_id: shopMallId
+          shop_id: shopMallId,
       }
       if (oriPlatformId == 9) {
         params['Site'] = country
@@ -685,14 +799,16 @@ export async function dealwithOriginGoodsNum(oriGoodsId, oriPlatformId, shopMall
 
       console.log(Number(oriPlatformId), params, false)
       // 获取上家平台商品详情
-      const res = await instance.$collectService.queryDetailById(Number(oriPlatformId), params, false)
+        let res = await instance.$collectService.queryDetailById(Number(oriPlatformId), params, false)
       console.log(res, '----------')
       msg = res
       console.log(Number(oriPlatformId), params, '4654689')
       const resObj = res && JSON.parse(res)
       console.log(resObj, '----------')
       if (resObj && resObj.Code === 200) {
-        const { CollectGoodsSkus } = resObj
+          const {
+            CollectGoodsSkus
+          } = resObj
         for (const key in CollectGoodsSkus) {
           const skuInfo = CollectGoodsSkus[key]
           // console.log(skuInfo, 'skuInfo')
@@ -718,7 +834,7 @@ export async function dealwithOriginGoodsNum(oriGoodsId, oriPlatformId, shopMall
             skuName = ''
           }
           // ----------------------------------------------------------------//
-          const spIndex = shopeeSkuList.findIndex((n) => n.name == skuName)
+            const spIndex = shopeeSkuList.findIndex((n) => n.sku.replace('=|=', ',') == skuName)
           if (spIndex > -1) {
             flag = true
             shopeeSkuList[spIndex].stock = Number(skuInfo.quantity)
@@ -739,10 +855,19 @@ export async function dealwithOriginGoodsNum(oriGoodsId, oriPlatformId, shopMall
             is_default: item.is_default,
             name: item.name,
             item_price: '',
-            stock: item.stock
+              stock: item.stock,
           }
           dealWithSkuList.push(subItem)
         })
+          let attributes = []
+          shopeeGoodsInfo.attributes.forEach(item => {
+            let obj = {
+              attribute_id: item.attribute_id,
+              attribute_value_id: item.attribute_value_id
+            }
+            attributes.push(obj)
+          })
+          console.log(attributes, "attributes")
         // 组装数据
         const editParams = {
           id: shopeeGoodsInfo.id,
@@ -765,7 +890,7 @@ export async function dealwithOriginGoodsNum(oriGoodsId, oriPlatformId, shopMall
           video_list: shopeeGoodsInfo.video_list,
           tier_variation: shopeeGoodsInfo.tier_variation,
           add_on_deal: shopeeGoodsInfo.add_on_deal,
-          dangerous_goods: shopeeGoodsInfo.dangerous_goods,
+            // dangerous_goods: shopeeGoodsInfo.dangerous_goods,
           enable_model_level_dts: shopeeGoodsInfo.enable_model_level_dts,
           price: shopeeGoodsInfo.price,
           stock: totalStock, // 总库存
@@ -775,7 +900,10 @@ export async function dealwithOriginGoodsNum(oriGoodsId, oriPlatformId, shopMall
           ds_attr_rcmd_id: shopeeGoodsInfo.ds_attr_rcmd_id || '',
           unlisted: shopeeGoodsInfo.unlisted || false
         }
-        const editRes = await this.$shopeemanService.handleProductEdit(order.country, editParams)
+          const data = {
+            mallId: shopMallId
+          }
+          const editRes = await instance.$shopeemanService.handleProductEdit(country, data, [editParams])
         if (editRes.code === 200) {
           return writeLog(`同步库存失败，${orderSn ? `订单【${orderSn}】` : `商品【${shopGoodsId}】`}同步库存成功！`, true)
         } else {
@@ -792,4 +920,4 @@ export async function dealwithOriginGoodsNum(oriGoodsId, oriPlatformId, shopMall
     console.log('catch', error)
     return writeLog(`${orderSn ? `订单【${orderSn}】` : `商品【${shopGoodsId}】`}同步上家库存失败，${msg}！`, false)
   }
-}
+  }

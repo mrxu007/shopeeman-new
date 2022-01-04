@@ -987,6 +987,31 @@ export default class NetMessageBridgeService {
       }
     }
   }
+  //查询订单 /api/v3/order/get_order_hint
+  async getOrderHint(country, data) {
+    const res = await this.getChinese(country, '/api/v3/order/get_order_hint', data)
+    const resObj = res && JSON.parse(res)
+    // console.log(resObj)
+    if (resObj && resObj.status === 200) {
+      const info = JSON.parse(resObj.data)
+      if (info && info.code === 0) {
+        return {
+          code: 200,
+          data: info.data || []
+        }
+      } else {
+        return {
+          code: 50001,
+          data: info.message || []
+        }
+      }
+    } else {
+      return {
+        code: resObj.status,
+        data: `获取详情失败${resObj.statusText}`
+      }
+    }
+  }
   // 获取订单历史轨迹
   async getOrdeTrackingHistory(country, data) {
     const res = await this.getChinese(country, '/api/v3/order/get_order_tracking_history/', data)
@@ -1830,7 +1855,75 @@ export default class NetMessageBridgeService {
       return null
     }
   }
-
+    //发送聊天信息
+    async sendMessage(country, data,params) {
+      const res = await this.postChinese(country, '/webchat/api/v1.2/messages', data, params)
+      const resObj = res && JSON.parse(res)
+      // console.log(res,resObj)
+      const info = JSON.parse(resObj.data)
+      if (resObj && resObj.status === 200) { 
+        return {
+          code: 200,
+          data: info
+        }
+      } else {
+        return {
+          code: resObj.status,
+          data: info
+        }
+      }
+    }
+    //登录聊天客服
+    async loginMessage(country, data,params) {
+      const res = await this.postChinese(country, '/webchat/api/v1.2/login', data, params)
+      const resObj = res && JSON.parse(res)
+      console.log(res,resObj)
+      if (resObj && resObj.status === 200) {
+        const info = JSON.parse(resObj.data)
+        if (info && info.token) {
+          return {
+            code: 200,
+            data: info
+          }
+        } else {
+          return {
+            code: 50001,
+            data: '登录失败'
+          }
+        }
+      } else {
+        return {
+          code: resObj.status,
+          data: `登录失败${resObj.statusText}`
+        }
+      }
+    }
+    //  获取优惠券
+  async getVouchers(country, data) {
+    const res = await this.getChinese(country, '/api/marketing/v3/voucher/list/', data)
+    const resObj = res && JSON.parse(res)
+    // console.log(res,resObj)
+    if (resObj && resObj.status === 200) {
+      const info = JSON.parse(resObj.data)
+      if (info && info.code === 0) {
+        return {
+          code: 200,
+          data: info.data || []
+        }
+      } else {
+        return {
+          code: 50001,
+          data: info.message || []
+        }
+      }
+    } else {
+      return {
+        code: resObj.status,
+        data: `获取失败${resObj.statusText}`
+      }
+    }
+  }
+    
       
   // 获取地址
   getNextLevelAddresses(country, data, option) {
