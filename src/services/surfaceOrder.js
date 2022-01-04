@@ -1,5 +1,6 @@
 import api from '../network/jx-request'
 import shopeemanService from './shopeeman-service'
+import commodityService from './commodity-service'
 import AppConfig from './application-config'
 import cheerio from 'cheerio'
 import {
@@ -12,6 +13,7 @@ import {
 export default class {
   $api = api;
   $shopeemanService = new shopeemanService()
+  $commodityService = new commodityService()
   $appConfig = new AppConfig()
   isStop = false;
   _this = null;
@@ -326,18 +328,21 @@ export default class {
     }
   }
   async uploadTrackingNo(sysMallId, mallId, orderSn, trackNo, logisticsId) {
+    let logisticsInfos = [{
+      orderSn: orderSn,
+      trackingNo: trackNo,
+      logisticsId: logisticsId
+    }]
     let params = {
       sysMallId: sysMallId,
       mallId: mallId,
-      logisticsInfos: [{
-        orderSn: orderSn,
-        trackingNo: trackNo,
-        logisticsId: logisticsId
-      }]
+      logisticsInfos: logisticsInfos
     }
     // uploadParamsList.push(params)
-    let uploadInfo = await this.$api.uploadOrderLogisticsInfo(params)
-    if (uploadInfo.data.code === 200) {
+    let res = await this.$commodityService.saveLogisticsInfo(sysMallId,mallId,logisticsInfos)
+    let uploadInfo = JSON.parse(res)
+    // let uploadInfo = await this.$api.uploadOrderLogisticsInfo(params)
+    if (uploadInfo.code === 200) {
       this.writeLog(`订单【${orderSn}】同步物流成功，上报成功`, true)
     } else {
       this.writeLog(`订单【${orderSn}】同步物流失败，上报失败`, false)
@@ -456,8 +461,7 @@ export default class {
         return
       }
       //7、上报面单信息
-      let res7 = await this.uploadFaceInfo(sysMallId.toString(), order.shop_id.toString(), order.order_sn.toString(), res6.data, '.PDF')
-      console.log(res7, "res7")
+      await this.uploadFaceInfo(sysMallId.toString(), order.shop_id.toString(), order.order_sn.toString(), res6.data, '.PDF')
     } catch (error) {
       this.writeLog(`订单【${order.order_sn}】同步面单失败，获取面单打印配置失败[000]`, false)
       console.log(error)
@@ -470,18 +474,21 @@ export default class {
     console.log("url", url)
     if (url) {
       //7、上报面单信息
+      let faceSheetInfos = [{
+        url: url,
+        orderSn: orderSn.toString()
+      }]
       let params = {
         sysMallId: sysMallId.toString(),
         mallId: mallId,
-        faceSheetInfos: [{
-          url: url,
-          orderSn: orderSn.toString()
-        }]
+        faceSheetInfos: faceSheetInfos
       }
       console.log(params)
-      let res7 = await this.$api.uploadOrderFaceSheetInfo(params)
+      let res = await this.$commodityService.saveFaceSheetInfo(sysMallId,mallId,faceSheetInfos)
+      let res7 = JSON.parse(res)
+      // let res7 = await this.$api.uploadOrderFaceSheetInfo(params)
       console.log(res7, "res7")
-      if (res7 && res7.data.code === 200) {
+      if (res7 && res7.code === 200) {
         return this.writeLog(`订单【${orderSn}】同步面单成功,上报成功`, true)
       } else {
         return this.writeLog(`订单【${orderSn}】同步面单失败，上报失败，${res7.data.message}`, false)
@@ -967,7 +974,11 @@ export default class {
               } else {
                 let jobId = creatInfo.data.list[0].job_id
                 let base64 = await this.downloadSdJob(mallId, jobId, country)
-                console.log(base64, "base64")
+                console.log(base64.length, "base64")
+                if(!base64 || base64.length<500){
+                  this.writeLog(`店铺【${mallName}】下载拣货单失败，稍后请重试`, false)
+                  continue
+                }
                 let res = await window['BaseUtilBridgeService'].downloadPickForm(base64, mallName)
                 let resObj = JSON.parse(res)
                 if (resObj.code === 200) {

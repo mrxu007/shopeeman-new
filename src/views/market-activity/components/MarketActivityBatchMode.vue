@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-12-27 10:59:26
- * @LastEditTime: 2021-12-30 17:27:32
+ * @LastEditTime: 2022-01-03 10:33:07
  * @LastEditors: Please set LastEditors
  * @Description: 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  * @FilePath: \shopeeman-new\src\views\market-activity\components\MarketActivityBatchMode.vue
@@ -98,7 +98,7 @@
           <div class="base-box mar-top">
             <span class="base-title">发送设置</span>
             <div class="base-item">
-              发送私聊数量<el-input v-model="sendNum" size="mini" style="width: 50px"></el-input>（0标识无限制）发送间隔 <el-input v-model="sendTime" size="mini" style="width: 50px"></el-input>秒
+              发送私聊数量<el-input v-model="sendNum" size="mini" style="width: 50px"></el-input>（0标表示无限制）发送间隔 <el-input v-model="sendTime" size="mini" style="width: 50px"></el-input>秒
             </div>
           </div>
         </div>
