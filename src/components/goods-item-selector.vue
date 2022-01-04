@@ -176,8 +176,8 @@ export default {
       this.categoryVisible= false
     },
     async queryGoodsList(item, count = { count: 1 }) {
+      let mallName = item.mall_alias_name || item.platform_mall_name
       try {
-        let mallName = item.mall_alias_name || item.platform_mall_name
         let offset = item.offset || 0
         let index = 0
         if (offset === 0){
@@ -241,6 +241,7 @@ export default {
           item.limit = 100
         }
       } catch (e) {
+        this.$refs.goods_item_Logs.writeLog(`店铺【${mallName}】获取商品列表失败`, false)
         console.log(e)
       } finally {
         --count.count
