@@ -1,19 +1,22 @@
 <template>
   <el-row class="contaniner">
     <el-row class="header">
-      <ul style="margin-bottom: 10px">
-        <storeChoose :span-width="'80px'" :source="'true'" @changeMallList="changeMallList"/>
-        <li>
+      <storeChoose :span-width="'80px'" :source="'true'" @changeMallList="changeMallList" />
+      <ul style="margin-top:10px">
+        <li style="margin-left:42px">
           <span>类型：</span>
-          <el-select v-model="type" placeholder="" size="mini" filterable>
+          <el-select v-model="type" class="seltype" placeholder="" size="mini" filterable>
             <el-option v-for="(item, index) in typelist" :key="index" :label="item.label" :value="item.value" />
           </el-select>
         </li>
         <li>
           <span>资料期间：</span>
-          <el-date-picker size="mini" v-model="time" type="date" placeholder="选择日期"/></li>
-        <li>
-          <el-button type="primary" :disabled="Loading1" size="mini" @click="getallinfo">搜索</el-button>
+          <el-date-picker v-model="time" style="width:150px" size="mini" type="date" placeholder="选择日期" /></li>
+        <li style="margin-left:50px">
+          <el-button type="primary" :loading="Loading1" size="mini" @click="getallinfo">搜索</el-button>
+        </li>
+        <li style="margin-left:10px">
+          <el-button type="primary" size="mini" @click="clearLog">清除日志</el-button>
         </li>
         <li>
           <el-checkbox v-model="showlog">隐藏日志</el-checkbox></li>
@@ -21,13 +24,17 @@
       <div class="logging">
         <Logs ref="Logs" v-model="showlog" clear />
       </div>
-      <span v-if="type===10000" style="color:red">类型定义：与之前7天相比，这些产品的销售额在过去7天内下降了30%或更多的产品</span>
-      <span v-if="type===10002" style="color:red">类型定义:在过去7天内收到过两星及以下评价的产品</span>
-      <span v-if="type===10003" style="color:red">类型定义:在过去45天内有2单及以上的订单申请退货或者退货率在10%及以上的产品</span>
-      <span v-if="type===10004" style="color:red">类型定义:在过去15天内有10单及以上的订单逾期发货或者逾期发货率在5%及以上的产品</span>
-      <span v-if="type===10006" style="color:red">类型定义:在过去7天中，商品转化率(浏览-确定)低于相同二级分类商品中位数。商品转化率(浏览-确定)=已确定订单的买家数除以访客总数</span>
-      <span v-if="type===10007" style="color:red">类型定义:和上一个7天相比，商品浏览量在过去7天中下降了50%以上</span>
-      <span v-if="type===10008" style="color:red">类型定义:由于卖家取消或是商品未成功出货，在过去7天内造成订单取消数量高于2或订单取消率高于5%</span>
+      <div style="margin-left:15px;margin-bottom: 10px;">
+        <span v-if="type===10000" style="color:red">类型定义：与之前7天相比，这些产品的销售额在过去7天内下降了30%或更多的产品</span>
+        <span v-if="type===10002" style="color:red">类型定义:在过去7天内收到过两星及以下评价的产品</span>
+        <span v-if="type===10003" style="color:red">类型定义:在过去45天内有2单及以上的订单申请退货或者退货率在10%及以上的产品</span>
+        <span v-if="type===10004" style="color:red">类型定义:在过去15天内有10单及以上的订单逾期发货或者逾期发货率在5%及以上的产品</span>
+        <span v-if="type===10006" style="color:red">类型定义:在过去7天中，商品转化率(浏览-确定)低于相同二级分类商品中位数。商品转化率(浏览-确定)=已确定订单的买家数除以访客总数</span>
+        <span v-if="type===10007" style="color:red">类型定义:和上一个7天相比，商品浏览量在过去7天中下降了50%以上</span>
+        <span v-if="type===10008" style="color:red">类型定义:由于卖家取消或是商品未成功出货，在过去7天内造成订单取消数量高于2或订单取消率高于5%</span>
+      </div>
+    </el-row>
+    <el-row>
       <el-table
         ref="plTable"
         v-loading="Loading3"
@@ -39,11 +46,18 @@
           backgroundColor: '#f5f7fa',
         }"
       >
-        <el-table-column align="center" label="序列号" width="60" prop="index" />
+        <el-table-column align="center" label="序列号" width="80" type="index" />
         <el-table-column align="center" label="店铺名称" width="180" prop="mallname" />
         <el-table-column v-if="false" align="center" label="店铺id" width="180" prop="mallid" />
         <el-table-column align="center" prop="type" label="类型" width="180" />
-        <el-table-column align="center" prop="productid" label="商品ID" width="180" />
+        <el-table-column align="center" prop="productid" label="商品ID" width="180">
+          <template v-slot="{row}">
+            <span>
+              <i class="el-icon-document-copy copyStyle" @click="copy(row.productid)" />
+              <span class="tableActive" @click="open(row)">{{ row.productid }}</span>
+            </span>
+          </template>
+        </el-table-column>
         <el-table-column prop="img" label="商品图片" width="200" align="center">
           <template slot-scope="{row}">
             <el-tooltip
@@ -97,6 +111,9 @@ import storeChoose from '@/components/store-choose'
 import { batchOperation } from '@/util/util'
 
 export default {
+  components: {
+    storeChoose
+  },
   data() {
     return {
       Loading1: false,
@@ -141,9 +158,6 @@ export default {
       ]
     }
   },
-  components: {
-    storeChoose
-  },
   watch: {
     type(val, oldVal) {
       this.getallinfo()
@@ -159,6 +173,34 @@ export default {
     // console.log(returnCreateStartTime)
   },
   methods: {
+    // 打开链接
+    open(val) {
+      const aa = val
+      debugger
+    },
+    // 复制
+    copy(attr) {
+      const target = document.createElement('div')
+      target.id = 'tempTarget'
+      target.style.opacity = '0'
+      target.innerText = attr
+      document.body.appendChild(target)
+      try {
+        const range = document.createRange()
+        range.selectNode(target)
+        window.getSelection().removeAllRanges()
+        window.getSelection().addRange(range)
+        document.execCommand('copy')
+        window.getSelection().removeAllRanges()
+        this.$message.success('复制成功')
+      } catch (e) {
+        // console.log('复制失败')
+      }
+      target.parentElement.removeChild(target)
+    },
+    clearLog() {
+      this.$refs.Logs.consoleMsg = ''
+    },
     // 获取店铺信息
     changeMallList(val) {
       this.site = val.country
@@ -167,7 +209,7 @@ export default {
     async getTableData(item, count = { count: 1 }) {
       try {
         const timenow = this.$dayjs(this.time).format('YYYYMMDD')
-        let mallname = item.mall_alias_name || item.platform_mall_name
+        const mallname = item.mall_alias_name || item.platform_mall_name
         const params = {
           metric_id: this.type,
           // group: this.group,
@@ -194,13 +236,14 @@ export default {
           this.$refs.Logs.writeLog(`【${mallname}】 查询 【${type}】 数据 成功`, true)
           attributeTreeRes.data = JSON.parse(attributeTreeRes.data)
           console.log('ces', attributeTreeRes.data.data.list)
+          this.$refs.Logs.writeLog(`【${mallname}】店铺数据【${attributeTreeRes.data.data.list.length}】条`, true)
           if (this.type === 10000 && attributeTreeRes.data.data.list) { // 销售额
             for (let j = 0; j < attributeTreeRes.data.data.list.length; j++) {
               const data = {}
               data['index'] = this.indexs
               this.indexs++
               data['mallname'] = mallname
-              data['mallid'] = item.platform_mall_name
+              data['mallid'] = item.platform_mall_id
               data['type'] = type
               data['productid'] = attributeTreeRes.data.data.list[j].itemid
               data['img'] = attributeTreeRes.data.data.list[j].image
@@ -283,18 +326,21 @@ export default {
       }
     },
     async getallinfo() {
+      this.showlog = false
+      this.$refs.Logs.writeLog(`正在查询,请耐心等待`, true)
       if (this.mall.length > 0) {
         this.Loading1 = true
         this.Loading3 = true
         this.tableData = []
-        this.errmall = []
+        // this.errmall = []
         this.indexs = 1
         await batchOperation(this.mall, this.getTableData)
-        if (this.errmall.length > 0) {
-          this.$message.error(`店铺【${this.errmall}】未登录`)
-        }
+        // if (this.errmall.length > 0) {
+        //   this.$message.error(`店铺【${this.errmall}】未登录`)
+        // }
         this.Loading1 = false
         this.Loading3 = false
+        this.$refs.Logs.writeLog(`查询完毕`, true)
       } else {
         this.$message({
           message: '请先选择店铺',
@@ -317,4 +363,17 @@ export default {
 <!-- 引入less -->
 <style lang="less" scoped>
 @import '../../../module-less/business-analysis-less/data-screening.less';
+.seltype{
+  /deep/ .el-input{
+    width: 120px !important
+  }
+}
+.copyStyle {
+    margin-right: 8px;
+    cursor: pointer;
+  }
+   .tableActive {
+    color: red;
+    cursor: pointer;
+  }
 </style>

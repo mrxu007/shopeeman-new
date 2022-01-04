@@ -1,17 +1,22 @@
 <template>
   <el-row class="contaniner">
     <el-row class="header">
-      <ul style="margin-bottom: 10px">
-        <storeChoose :span-width="'80px'" :source="'true'" @changeMallList="changeMallList"/>
+      <ul>
+        <storeChoose :span-width="'80px'" :source="'true'" @changeMallList="changeMallList" />
         <li>
           <span>统计时间：</span>
-          <el-select v-model="Statisticaltime" placeholder="" size="mini" filterable>
+          <el-select
+            v-model="Statisticaltime"
+            placeholder=""
+            size="mini"
+            filterable
+          >
             <el-option v-for="(item, index) in returnStatisticaltime" :key="index" :label="item.label" :value="item.value" />
           </el-select>
         </li>
         <li>
-          <el-button type="primary" :disabled="Loading1" size="mini" @click="getallinfo">搜索</el-button>
-          <el-button type="primary" :disabled="Loading1" size="mini" @click="DerivedData">导出</el-button>
+          <el-button type="primary" :loading="Loading1" size="mini" @click="getallinfo">搜索</el-button>
+          <el-button type="primary" size="mini" @click="DerivedData">导出</el-button>
         </li>
       </ul><br>
       <el-table
@@ -19,89 +24,89 @@
         v-loading="Loading3"
         style="margin-top:10px"
         header-align="center"
-        height="calc(100vh - 140px)"
+        height="calc(100vh - 85px)"
         :data="tableData"
         :header-cell-style="{
           backgroundColor: '#f5f7fa',
         }"
       >
-        <el-table-column align="center" label="店铺名称" width="160" prop="mallname" sortable />
-        <el-table-column align="center" prop="apppage_views" label="App端浏览量" width="120" sortable>
+        <el-table-column align="center" label="店铺名称" min-width="160px" prop="mallname" fixed />
+        <el-table-column align="center" prop="apppage_views" label="App端浏览量" min-width="120px">
           <template slot-scope="{ row }">
             <div v-html="row.apppage_views" />
           </template>
         </el-table-column>
-        <el-table-column align="center" prop="appavg_page_views" label="App端平均浏览量" width="160" sortable>
+        <el-table-column align="center" prop="appavg_page_views" label="App端平均浏览量" min-width="160px" sortable>
           <template slot-scope="{ row }">
             <div v-html="row.appavg_page_views" />
           </template>
         </el-table-column>
-        <el-table-column prop="appavg_stay_time" label="App端平均浏览时间" width="160" align="center" sortable>
+        <el-table-column prop="appavg_stay_time" label="App端平均浏览时间" min-width="160px" align="center" sortable>
           <template slot-scope="{ row }">
             <div v-html="row.appavg_stay_time" />
           </template>
         </el-table-column>
-        <el-table-column prop="appbounce_rate" label="App端网页跳出率" width="160" align="center" sortable>
+        <el-table-column prop="appbounce_rate" label="App端网页跳出率" min-width="160px" align="center" sortable>
           <template slot-scope="{ row }">
             <div v-html="row.appbounce_rate" />
           </template>
         </el-table-column>
-        <el-table-column prop="appvisitors" label="App端访客量" width="150" align="center" sortable>
+        <el-table-column prop="appvisitors" label="App端访客量" min-width="150px" align="center" sortable>
           <template slot-scope="{ row }">
             <div v-html="row.appvisitors" />
           </template>
         </el-table-column>
-        <el-table-column prop="appnew_visitors" label="App端新访客量" width="150" align="center" sortable>
+        <el-table-column prop="appnew_visitors" label="App端新访客量" min-width="150px" align="center" sortable>
           <template slot-scope="{ row }">
             <div v-html="row.appnew_visitors" />
           </template>
         </el-table-column>
-        <el-table-column prop="appexisting_visitors" label="App端现有访客量" width="150" align="center" sortable>
+        <el-table-column prop="appexisting_visitors" label="App端现有访客量" min-width="150px" align="center" sortable>
           <template slot-scope="{ row }">
             <div v-html="row.appexisting_visitors" />
           </template>
         </el-table-column>
-        <el-table-column prop="appnew_followers" label="App新粉丝量" width="150" align="center" sortable>
+        <el-table-column prop="appnew_followers" label="App新粉丝量" min-width="150px" align="center" sortable>
           <template slot-scope="{ row }">
             <div v-html="row.appnew_followers" />
           </template>
         </el-table-column>
-        <el-table-column prop="pcpage_views" label="Pc端浏览量" width="130" align="center" sortable>
+        <el-table-column prop="pcpage_views" label="Pc端浏览量" min-width="130px" align="center" sortable>
           <template slot-scope="{ row }">
             <div v-html="row.pcpage_views" />
           </template>
         </el-table-column>
-        <el-table-column prop="pcavg_page_views" label="Pc端平均浏览量" width="150" align="center" sortable>
+        <el-table-column prop="pcavg_page_views" label="Pc端平均浏览量" min-width="150px" align="center" sortable>
           <template slot-scope="{ row }">
             <div v-html="row.pcavg_page_views" />
           </template>
         </el-table-column>
-        <el-table-column prop="pcavg_stay_time" label="Pc端平均浏览时间" width="150" align="center" sortable>
+        <el-table-column prop="pcavg_stay_time" label="Pc端平均浏览时间" min-width="150px" align="center" sortable>
           <template slot-scope="{ row }">
             <div v-html="row.pcavg_stay_time" />
           </template>
         </el-table-column>
-        <el-table-column prop="pcbounce_rate" label="Pc端网页跳出率" width="150" align="center" sortable>
+        <el-table-column prop="pcbounce_rate" label="Pc端网页跳出率" min-width="150px" align="center" sortable>
           <template slot-scope="{ row }">
             <div v-html="row.pcbounce_rate" />
           </template>
         </el-table-column>
-        <el-table-column prop="pcvisitors" label="Pc端访客量" width="130" align="center" sortable>
+        <el-table-column prop="pcvisitors" label="Pc端访客量" min-width="130px" align="center" sortable>
           <template slot-scope="{ row }">
             <div v-html="row.pcvisitors" />
           </template>
         </el-table-column>
-        <el-table-column prop="pcnew_visitors" label="Pc端新访客量" width="130" align="center" sortable>
+        <el-table-column prop="pcnew_visitors" label="Pc端新访客量" min-width="130px" align="center" sortable>
           <template slot-scope="{ row }">
             <div v-html="row.pcnew_visitors" />
           </template>
         </el-table-column>
-        <el-table-column prop="pcexisting_visitors" label="Pc端现有访客量" width="150" align="center" sortable>
+        <el-table-column prop="pcexisting_visitors" label="Pc端现有访客量" min-width="150px" align="center" sortable>
           <template slot-scope="{ row }">
             <div v-html="row.pcexisting_visitors" />
           </template>
         </el-table-column>
-        <el-table-column prop="pcnew_followers" label="Pc新浏粉丝量" width="130" align="center" sortable>
+        <el-table-column prop="pcnew_followers" label="Pc新浏粉丝量" min-width="130px" align="center" fixed="right">
           <template slot-scope="{ row }">
             <div v-html="row.pcnew_followers" />
           </template>
@@ -114,6 +119,9 @@
 import { batchOperation, exportExcelDataCommon } from '../../../util/util'
 import storeChoose from '@/components/store-choose'
 export default {
+  components: {
+    storeChoose
+  },
   data() {
     return {
       Loading1: false,
@@ -141,9 +149,6 @@ export default {
         { value: 'past30days', label: '近30天' }
       ]
     }
-  },
-  components: {
-    storeChoose
   },
   watch: {
     Statisticaltime(val, oldVal) {
@@ -312,7 +317,7 @@ export default {
       try {
         const timenow = new Date().getTime() - 3600 * 1000 * 24
         const yesterdaytime = this.$dayjs(timenow).format('YYYYMMDD')
-        let mallname = item.mall_alias_name || item.platform_mall_name
+        const mallname = item.mall_alias_name || item.platform_mall_name
         const params = {
           start_time: this.start_time,
           end_time: this.end_time,

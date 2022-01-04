@@ -1,8 +1,8 @@
 <template>
   <el-row class="contaniner">
     <el-row class="header">
-      <ul style="margin-bottom: 10px">
-        <storeChoose :span-width="'80px'" :source="'true'" @changeMallList="changeMallList"/>
+      <storeChoose :span-width="'80px'" :source="'true'" @changeMallList="changeMallList" />
+      <ul style="margin-top: 10px">
         <li>
           <span>统计时间：</span>
           <el-select v-model="Statisticaltime" placeholder="" size="mini" filterable>
@@ -20,77 +20,78 @@
         v-loading="Loading3"
         style="margin-top:10px"
         header-align="center"
-        height="calc(100vh - 100px)"
+        height="calc(100vh - 115px)"
         :data="tableData1"
         :header-cell-style="{
           backgroundColor: '#f5f7fa',
         }"
       >
-        <el-table-column align="center" label="店铺名称" width="160" prop="mallname" />
+        <el-table-column label="序号" min-width="60px" type="index" align="center" fixed />
+        <el-table-column align="center" label="店铺名称" min-width="160px" prop="mallname" fixed />
         <el-table-column label="加购折扣" align="center">
-          <el-table-column prop="sales" label="销售（主要及加购商品）" width="180" align="center">
+          <el-table-column prop="sales" label="销售（主要及加购商品）" min-width="180px" align="center">
             <template slot-scope="{row}">
               <div v-html="row.sales" />
             </template>
           </el-table-column>
-          <el-table-column prop="add_on_item_sales" label="加购商品销售" width="180" align="center">
+          <el-table-column prop="add_on_item_sales" label="加购商品销售" min-width="180px" align="center">
             <template slot-scope="{row}">
               <div v-html="row.add_on_item_sales" />
             </template>
           </el-table-column>
-          <el-table-column prop="main_item_units" label="已售出的商品总件数" width="180" align="center">
+          <el-table-column prop="main_item_units" label="已售出的商品总件数" min-width="180px" align="center">
             <template slot-scope="{row}">
               <div v-html="row.main_item_units" />
             </template>
           </el-table-column>
-          <el-table-column prop="add_on_item_units" label="已售出的加购商品件数" width="180" align="center">
+          <el-table-column prop="add_on_item_units" label="已售出的加购商品件数" min-width="180px" align="center">
             <template slot-scope="{row}">
               <div v-html="row.add_on_item_units" />
             </template>
           </el-table-column>
-          <el-table-column prop="orders" label="订单量" width="180" align="center">
+          <el-table-column prop="orders" label="订单量" min-width="180px" align="center">
             <template slot-scope="{row}">
               <div v-html="row.orders" />
             </template>
           </el-table-column>
-          <el-table-column prop="buyers" label="买家数" width="180" align="center">
+          <el-table-column prop="buyers" label="买家数" min-width="180px" align="center">
             <template slot-scope="{row}">
               <div v-html="row.buyers" />
             </template>
           </el-table-column>
-          <el-table-column prop="main_item_sales_per_buyer" label="每位买家的销售额" width="180" align="center">
+          <el-table-column prop="main_item_sales_per_buyer" label="每位买家的销售额" min-width="180px" align="center">
             <template slot-scope="{row}">
               <div v-html="row.main_item_sales_per_buyer" />
             </template>
           </el-table-column>
-          <el-table-column prop="add_on_item_sales_per_buyer" label="每位买家的加购商品销售" width="180" align="center">
+          <el-table-column prop="add_on_item_sales_per_buyer" label="每位买家的加购商品销售" min-width="180px" align="center">
             <template slot-scope="{row}">
               <div v-html="row.add_on_item_sales_per_buyer" />
             </template>
           </el-table-column>
         </el-table-column>
         <el-table-column label="赠品满最低消费" align="center">
-          <el-table-column prop="main_item_sales1" label="主商品销售" width="180" align="center">
+          <el-table-column prop="main_item_sales1" label="主商品销售" min-width="180px" align="center">
             <template slot-scope="{row}">
               <div v-html="row.main_item_sales1" />
             </template>
           </el-table-column>
-          <el-table-column prop="main_item_units1" label="已售主商品总件数" width="180" align="center">
+          <el-table-column prop="main_item_units1" label="已售主商品总件数" min-width="180px" align="center">
             <template slot-scope="{row}">
               <div v-html="row.main_item_units1" />
             </template>
           </el-table-column>
-          <el-table-column prop="orders1" label="订单量" width="180" align="center">
+          <el-table-column prop="orders1" label="订单量" min-width="180px" align="center">
             <template slot-scope="{row}">
               <div v-html="row.orders1" />
             </template>
           </el-table-column>
-          <el-table-column prop="buyers1" label="买家数" width="180" align="center">
+          <el-table-column prop="buyers1" label="买家数" min-width="180px" align="center">
             <template slot-scope="{row}">
               <div v-html="row.buyers1" />
             </template>
           </el-table-column>
-          <el-table-column prop="main_item_sales_per_buyer1" label="每位买家的主商品销售" width="180" align="center">
+          <el-table-column prop="main_item_sales_per_buyer1" label="每位买家的主商品销售" min-width="180px" align="center">
             <template slot-scope="{row}">
               <div v-html="row.main_item_sales_per_buyer1" />
             </template>
@@ -104,6 +105,9 @@
 import { batchOperation, exportExcelDataCommon } from '../../../util/util'
 import storeChoose from '@/components/store-choose'
 export default {
+  components: {
+    storeChoose
+  },
   data() {
     return {
       Loading1: false,
@@ -135,9 +139,6 @@ export default {
         { value: 'past30days', label: '近30天' }
       ]
     }
-  },
-  components: {
-    storeChoose
   },
   watch: {
     Statisticaltime(val, oldVal) {
@@ -289,7 +290,7 @@ export default {
           this.timecant = false
         }
       }
-    },
+    }
   },
   mounted() {
     // this.getInfo()
@@ -308,8 +309,8 @@ export default {
     },
     async getTableData(item, count = { count: 1 }) {
       try {
-        let mallname = item.mall_alias_name || item.platform_mall_name
-        let data = {}
+        const mallname = item.mall_alias_name || item.platform_mall_name
+        const data = {}
         const params = {
           start_time: this.start_time,
           end_time: this.end_time,

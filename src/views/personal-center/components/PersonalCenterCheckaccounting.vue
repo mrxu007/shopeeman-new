@@ -308,9 +308,11 @@ export default {
   methods: {
     // 获取统计数据
     async getOrderStatisticsList() {
+      const transTime = JSON.parse(JSON.stringify(this.statisticsTime))
       const params = {
-        transTime: this.statisticsTime.length ? this.setDateFmt(this.statisticsTime).join('/') : '/'
+        transTime: transTime.length ? this.setDateFmt(transTime).join('/') : '/'
       }
+      console.log(params)
       const res = await this.$api.getOrderStatisticsList(params)
       console.log(res, 'getOrderStatisticsList')
       if (res.data.code === 200 && res.data.data) {

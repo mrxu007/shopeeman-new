@@ -2,27 +2,29 @@
   <el-row class="contaniner">
     <el-row class="header">
       <ul style="margin-bottom: 10px;margin-left:24px">
-        <storeChoose :span-width="'80px'" :source="'true'" @changeMallList="changeMallList"/>
+        <storeChoose :span-width="'80px'" :source="'true'" @changeMallList="changeMallList" />
       </ul>
       <ul>
-        <li>
+        <li style="margin-left:42px">
           <span>资料期间：</span>
           <el-select v-model="Statisticaltime" placeholder="" size="mini" filterable>
             <el-option v-for="(item, index) in returnStatisticaltime" :key="index" :label="item.label" :value="item.value" />
           </el-select>
         </li>
-        <li>
+        <li style="margin-left:32px">
           <span>资料期间：</span>
           <el-date-picker
             v-model="timechoose"
             :disabled="timecant"
             size="mini"
+            style="width:130px"
             type="date"
             placeholder="选择日期"
           /></li>
-        <li>
-          <el-button type="primary" :disabled="Loading1" size="mini" @click="getallinfo">搜索</el-button>
-          <el-button type="primary" :disabled="Loading2" size="mini" @click="cancel">取消</el-button>
+        <li style="margin-left:80px">
+          <el-button type="primary" :loading="Loading1" size="mini" @click="getallinfo">搜索</el-button>
+          <!-- <el-button type="primary" :loading="Loading2" size="mini" @click="cancel">取消</el-button> -->
+          <el-button type="primary" size="mini" @click="cancel">取消</el-button>
           <el-button type="primary" size="mini" @click="DerivedData">数据导出</el-button>
           <el-button type="primary" size="mini" @click="clearLog">清除日志</el-button>
         </li>
@@ -41,8 +43,8 @@
           backgroundColor: '#f5f7fa',
         }"
       >
-        <el-table-column align="center" label="序列号" width="80" prop="index" />
-        <el-table-column align="center" label="店铺" width="140" prop="mallname" />
+        <el-table-column align="center" label="序列号" width="80" type="index" fixed />
+        <el-table-column align="center" label="店铺" width="140" prop="mallname" fixed />
         <el-table-column align="center" prop="uv" label="商品访客数【访问】" width="180">
           <template slot-scope="{ row }">
             <div v-html="row.uv" />
@@ -93,7 +95,7 @@
             <div v-html="row.paid_items" />
           </template>
         </el-table-column>
-        <el-table-column prop="uv_to_confirmed_buyers_rate" label="转化率（访问至确定)【已付款订单】" width="240" align="center">
+        <el-table-column prop="uv_to_confirmed_buyers_rate" label="转化率（访问至确定)【已付款订单】" width="240" align="center" fixed="right">
           <template slot-scope="{ row }">
             <div v-html="row.uv_to_confirmed_buyers_rate" />
           </template>
@@ -107,13 +109,16 @@
 </template>
 <script>
 import storeChoose from '../../../components/store-choose'
-import { exportExcelDataCommon ,batchOperation } from '../../../util/util'
+import { exportExcelDataCommon, batchOperation, terminateThread } from '../../../util/util'
 export default {
+  components: {
+    storeChoose
+  },
   data() {
     return {
       Loading1: false,
       showlog: true,
-      Loading2: true,
+      Loading2: false,
       Loading3: false,
       timecant: true,
       timechoose: new Date(),
@@ -147,9 +152,6 @@ export default {
         { value: 'month', label: '按月' }
       ]
     }
-  },
-  components: {
-    storeChoose
   },
   watch: {
     Statisticaltime(val, oldVal) {
@@ -416,15 +418,15 @@ export default {
     },
     async getTableData(item, count = { count: 1 }) {
       try {
-        if (this.serchload === true) {
-          this.Loading3 = false
-          setTimeout(() => {
-            this.Loading1 = false
-          }, 3000)
-          this.serchload = false
-          return
-        }
-        let mallname = item.mall_alias_name || item.platform_mall_name
+        // if (this.serchload === true) {
+        //   this.Loading3 = false
+        //   setTimeout(() => {
+        //     this.Loading1 = false
+        //   }, 3000)
+        //   this.serchload = false
+        //   return
+        // }
+        const mallname = item.mall_alias_name || item.platform_mall_name
         const params = {
           start_time: this.start_time,
           end_time: this.end_time,
@@ -434,6 +436,9 @@ export default {
         }
         console.log('this is my parmas', params)
         const attributeTreeJson = await this.$shopeemanService.getoverview(this.site, params, { headers: { 'Content-Type': 'application/json; charset=utf-8' }})
+        if (this.serchload) {
+          return // 跳出循环
+        }
         let attributeTreeRes
         if (attributeTreeJson) {
           attributeTreeRes = JSON.parse(attributeTreeJson)
@@ -441,6 +446,10 @@ export default {
         attributeTreeRes.data = JSON.parse(attributeTreeRes.data)
         console.log('this is data', attributeTreeRes)
         if (attributeTreeRes.status === 200) {
+          if (this.serchload) {
+            return // 跳出循环
+          }
+          this.$refs.Logs.writeLog(`店铺【${mallname}】数据获取成功`, true)
           const exportdata = {}
           for (const item in attributeTreeRes.data) {
             exportdata['mallname'] = mallname
@@ -535,6 +544,7 @@ export default {
       }
     },
     async getallinfo() {
+      this.showlog = false
       if (this.Statisticaltime === 'day' || this.Statisticaltime === 'week' || this.Statisticaltime === 'month') {
         if (this.timechoose.length < 1) {
           this.$message.error(`请选择您需要查看的日期`)
@@ -552,9 +562,10 @@ export default {
         await batchOperation(this.mall, this.getTableData)
         this.$refs.Logs.writeLog('查询结束')
         this.Loading3 = false
-        setTimeout(() => {
-          this.Loading1 = false
-        }, 3000)
+        this.Loading2 = false
+        this.Loading1 = false
+        // setTimeout(() => {
+        // }, 3000)
       } else {
         this.$message({
           message: '请选择店铺',
@@ -613,6 +624,8 @@ export default {
     // 取消功能
     cancel() {
       this.serchload = true
+      terminateThread()
+      this.$refs.Logs.writeLog('正在取消查询')
     },
     getMonday(date) { // 返回本周的周一的0时0分0秒
       const day = date.getDay()

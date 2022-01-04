@@ -241,6 +241,7 @@ export default {
   // 标签列表---------------------------------------------------------------------------
   getLabels: (data) => AppRequest.get('/publishGoodsWindowConfig/getLabels', data), // 编辑上新弹窗配置: 获取标签列表
   getLabel: (data) => AppRequest.get('publishGoodsWindowConfig/get', data), // 编辑上新弹窗配置: 获取单个(根据标签)
+
   saveLabel: (data) => AppRequest.post('publishGoodsWindowConfig/save', data), // 编辑上新弹窗配置: 保存配置
   getDeliveryList: (data) => AppRequest.post('/order/deliveryIndex', data), // 发货管理列表
   updateShotOrder: (data) => AppRequest.post('/order/uploadShotOrderInfo', data), // 上传拍单信息

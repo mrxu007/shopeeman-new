@@ -2,7 +2,7 @@
   <el-row class="contaniner">
     <el-row class="header">
       <ul style="margin-bottom: 10px">
-        <storeChoose :span-width="'80px'" :source="'true'" @changeMallList="changeMallList"/>
+        <storeChoose :span-width="'80px'" :source="'true'" @changeMallList="changeMallList" />
         <li>
           <span>统计时间：</span>
           <el-select v-model="Statisticaltime" placeholder="" size="mini" filterable>
@@ -10,8 +10,8 @@
           </el-select>
         </li>
         <li>
-          <el-button type="primary" :disabled="Loading1" size="mini" @click="getallinfo">搜索</el-button>
-          <el-button type="primary" :disabled="Loading1" size="mini" @click="DerivedData">导出</el-button>
+          <el-button type="primary" :loading="Loading1" size="mini" @click="getallinfo">搜索</el-button>
+          <el-button type="primary" size="mini" @click="DerivedData">导出</el-button>
         </li>
       </ul>
       <el-table
@@ -19,44 +19,45 @@
         v-loading="Loading3"
         style="margin-top:10px"
         header-align="center"
-        height="calc(100vh - 140px)"
+        height="calc(100vh - 85px)"
         :data="tableData"
         :header-cell-style="{
           backgroundColor: '#f5f7fa',
         }"
       >
-        <el-table-column align="center" label="店铺名称" width="220" prop="mallname" />
-        <el-table-column align="center" prop="triggered_faq_cnt" label="被触发的FAQ数" width="220">
+        <el-table-column label="序号" min-width="60px" type="index" align="center" fixed />
+        <el-table-column align="center" label="店铺名称" min-width="220px" prop="mallname" />
+        <el-table-column align="center" prop="triggered_faq_cnt" label="被触发的FAQ数" min-width="220px">
           <template slot-scope="{ row }">
             <div v-html="row.triggered_faq_cnt" />
           </template>
         </el-table-column>
-        <el-table-column prop="question_clicks" label="被点击的FAQ数" width="220" align="center">
+        <el-table-column prop="question_clicks" label="被点击的FAQ数" min-width="220px" align="center">
           <template slot-scope="{ row }">
             <div v-html="row.question_clicks" />
           </template>
         </el-table-column>
-        <el-table-column prop="resolved_question_cnt" label="问题解决次数" width="220" align="center">
+        <el-table-column prop="resolved_question_cnt" label="问题解决次数" min-width="220px" align="center">
           <template slot-scope="{ row }">
             <div v-html="row.resolved_question_cnt" />
           </template>
         </el-table-column>
-        <el-table-column prop="transferred_live_agent_cnt" label="转实时专员次数" width="220" align="center">
+        <el-table-column prop="transferred_live_agent_cnt" label="转实时专员次数" min-width="220px" align="center">
           <template slot-scope="{ row }">
             <div v-html="row.transferred_live_agent_cnt" />
           </template>
         </el-table-column>
-        <el-table-column prop="helpful_clicks" label="有帮助点击数" width="220" align="center">
+        <el-table-column prop="helpful_clicks" label="有帮助点击数" min-width="220px" align="center">
           <template slot-scope="{ row }">
             <div v-html="row.helpful_clicks" />
           </template>
         </el-table-column>
-        <el-table-column prop="unhelpful_clicks" label="没有帮助点击数" width="220" align="center">
+        <el-table-column prop="unhelpful_clicks" label="没有帮助点击数" min-width="220px" align="center">
           <template slot-scope="{ row }">
             <div v-html="row.unhelpful_clicks" />
           </template>
         </el-table-column>
-        <el-table-column prop="appexisting_visitors" label="操作" width="150" align="center">
+        <el-table-column prop="appexisting_visitors" label="操作" min-width="150px" align="center" fixed="right">
           <template slot-scope="{ row }">
             <el-button type="primary" size="mini" @click="view(row)">FAQ问题列表</el-button>
           </template>
@@ -90,9 +91,12 @@
   </el-row>
 </template>
 <script>
-import { exportExcelDataCommon ,batchOperation} from '../../../util/util'
+import { exportExcelDataCommon, batchOperation } from '../../../util/util'
 import storeChoose from '@/components/store-choose'
 export default {
+  components: {
+    storeChoose
+  },
   data() {
     return {
       Loading1: false,
@@ -274,10 +278,7 @@ export default {
           this.timecant = false
         }
       }
-    },
-  },
-  components: {
-    storeChoose
+    }
   },
   mounted() {
     // const timenow = new Date().getTime()
@@ -294,7 +295,7 @@ export default {
     },
     async getTableData(item, count = { count: 1 }) {
       try {
-        let mallname = item.mall_alias_name || item.platform_mall_name
+        const mallname = item.mall_alias_name || item.platform_mall_name
         const params = {
           start_time: this.start_time,
           end_time: this.end_time,
