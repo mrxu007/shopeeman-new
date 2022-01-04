@@ -23,8 +23,8 @@
             </li>
             <li>
               <el-button type="primary" size="mini" :disabled="isDisabled" @click="queryData">搜 索</el-button>
-              <el-button type="primary" size="mini" :disabled="isDisabled" @click="activeName = 'edit'">创建新的活动</el-button>
-              <el-button type="primary" size="mini" :disabled="isDisabled">批量结束活动</el-button>
+              <el-button type="primary" size="mini" :disabled="isDisabled" @click="createNewActive">创建新的活动</el-button>
+              <el-button type="primary" size="mini" :disabled="isDisabled" @click="batchStopActive">批量结束活动</el-button>
               <el-button type="primary" size="mini" :disabled="isDisabled" @click="restartActivityDia">重新启动已过期的活动</el-button>
               <el-button type="primary" size="mini" :disabled="isDisabled" @click="exportData">数据导出</el-button>
               <el-button type="primary" size="mini" @click="clearLog">清除日志</el-button>
@@ -67,10 +67,11 @@
               </template>
             </u-table-column>
             <u-table-column align="center" label="操作" min-width="240">
-              <template v-slot="{ row }">
-                <el-button type="primary" size="mini">查看详情</el-button>
+              <template v-slot="{ row, index }">
+                <el-button type="primary" size="mini" @click="searchDiscountDetail(row)">查看详情</el-button>
                 <el-button type="primary" size="mini">复制</el-button>
-                <el-button type="primary" size="mini">结束</el-button>
+                <el-button type="primary" size="mini" v-if="row.statusName === '进行中'" @click="stopActiveSingle(row, index, 'sop')">结束</el-button>
+                <el-button type="primary" size="mini" v-if="row.statusName !== '进行中'" @click="stopActiveSingle(row, index, 'delete')">删除</el-button>
               </template>
             </u-table-column>
           </u-table>
@@ -89,38 +90,43 @@
       </el-tab-pane>
       <el-tab-pane label="活动编辑" name="edit">
         <el-row class="header edit">
-          <ul style="margin-bottom: 10px">
+          <ul style="margin-bottom: 10px" v-if="!activeRow.discount_id">
             <storeChoose @changeMallList="changeMallList" />
           </ul>
           <ul style="margin: 0 0 10px 20px">
             <li>
               <span>活动名称：</span>
-              <el-input size="mini" oninput="value=value.replace(/\s+/g,'')" clearable />
+              <el-input size="mini" oninput="value=value.replace(/\s+/g,'')" v-model="activeDicountName" clearable />
+            </li>
+
+            <li>
+              <span>活动时间：</span>
+
+              <el-date-picker v-model="activeDate" size="mini" type="datetimerange" range-separator="-" start-placeholder="开始日期" end-placeholder="结束日期" />
             </li>
             <li>
               <span>商品编号：</span>
-              <el-input style="width: 180px" size="mini" oninput="value=value.replace(/\s+/g,'')" clearable />
-            </li>
-            <li>
-              <span>活动时间：</span>
-              <el-date-picker unlink-panels size="mini" type="daterange" range-separator="-" start-placeholder="开始日期" end-placeholder="结束日期" />
-              <el-button style="margin-left: 21px" type="primary" size="mini">搜 索</el-button>
+              <el-input style="width: 180px" size="mini" oninput="value=value.replace(/\s+/g,'')" v-model="activeProductId" clearable />
+              <el-button style="margin-left: 21px" type="primary" size="mini" @click="searchDetail">搜 索</el-button>
             </li>
           </ul>
           <ul style="margin: 0 0 10px 20px">
             <li style="margin-right: 19px">
               <span>活动折扣：</span>
-              <el-input size="mini" oninput="value=value.replace(/\s+/g,'')" clearable />%
+              <el-input size="mini" oninput="value=value.replace(/\s+/g,'')" v-model="activeDiscount" clearable />%
             </li>
             <li>
               <span>限购数量：</span>
-              <el-input style="width: 180px" size="mini" oninput="value=value.replace(/\s+/g,'')" clearable />
+              <el-input style="width: 180px" size="mini" oninput="value=value.replace(/\s+/g,'')" v-model="limitNum" clearable />
             </li>
             <li>
-              <el-button type="primary" size="mini">搜 索</el-button>
-              <el-button type="primary" size="mini">批量修改折扣和限购</el-button>
+              <!-- <el-button type="primary" size="mini">搜 索</el-button> -->
+              <el-button type="primary" size="mini" @click="batchUpdateDiscount">批量修改折扣和限购</el-button>
+              <el-button type="primary" size="mini" v-if="activeRow.discount_id" @click="changeDiscountInfo">修改活动信息</el-button>
               <el-button type="primary" size="mini">添加商品</el-button>
-              <el-button type="primary" size="mini">创建活动</el-button>
+              <el-button type="primary" size="mini" v-if="activeRow.discount_id">添加商品到已有活动</el-button>
+              <el-button type="primary" size="mini" v-if="activeRow.discount_id" @click="searchDiscountDetail(activeRow)">获取活动已有物品</el-button>
+              <el-button type="primary" size="mini" v-if="!activeRow.discount_id">创建活动</el-button>
               <el-checkbox v-model="showConsole" style="margin-left: 10px">隐藏日志</el-checkbox>
             </li>
           </ul>
@@ -130,10 +136,11 @@
         </el-row>
         <el-row id="article">
           <u-table
+            v-loading="loading"
             ref="editPlTable"
             :data="editTableData"
             use-virtual
-            :height="620"
+            :height="660"
             :row-height="68"
             :data-changes-scroll-top="false"
             :border="false"
@@ -145,15 +152,24 @@
           >
             <u-table-column align="center" type="selection" width="50" />
             <u-table-column align="center" type="index" label="序号" width="50" />
-            <u-table-column align="center" label="店铺名称" min-width="150" />
-            <u-table-column align="center" label="主图" min-width="150" />
-            <u-table-column align="center" label="商品名称" min-width="150" />
-            <u-table-column align="center" label="商品编号" min-width="150" />
-            <u-table-column align="center" label="商品规格" min-width="150" />
-            <u-table-column align="center" label="原价" min-width="150" />
-            <u-table-column align="center" label="售价" min-width="150" />
-            <u-table-column align="center" label="折扣" min-width="150" />
-            <u-table-column align="center" label="购买限制" min-width="150" />
+            <u-table-column align="center" label="店铺名称" min-width="150" prop="mallName" />
+            <u-table-column align="center" label="主图" min-width="150">
+              <template slot-scope="scope">
+                <el-tooltip effect="light" placement="right-end" :visible-arrow="false" :enterable="false" style="width: 32px; height: 32px; display: inline-block">
+                  <div slot="content">
+                    <el-image :src="[scope.row.country, scope.row.platform_mall_id, scope.row.image] | imageRender" style="width: 400px; height: 400px" />
+                  </div>
+                  <el-image v-bind:src="[scope.row.country, scope.row.platform_mall_id, scope.row.image] | imageRender" style="width: 32px; height: 32px"></el-image>
+                </el-tooltip>
+              </template>
+            </u-table-column>
+            <u-table-column align="center" label="商品名称" min-width="150" prop="name" show-overflow-tooltip />
+            <u-table-column align="center" label="商品编号" min-width="150" prop="itemid" />
+            <u-table-column align="center" label="商品规格" min-width="150" prop="skuName" show-overflow-tooltip />
+            <u-table-column align="center" label="原价" min-width="150" prop="price" />
+            <u-table-column align="center" label="售价" min-width="150" prop="promotion_price_after_tax" />
+            <u-table-column align="center" label="折扣" min-width="150" prop="discount" />
+            <u-table-column align="center" label="购买限制" min-width="150" prop="user_item_limit" />
             <u-table-column align="center" label="操作" min-width="150" />
             <u-table-column align="center" label="操作状态" min-width="150" />
           </u-table>
@@ -167,7 +183,7 @@
 </template>
 
 <script>
-import { batchOperation, delay, terminateThread,exportExcelDataCommon } from '@/util/util'
+import { batchOperation, delay, terminateThread, exportExcelDataCommon } from '@/util/util'
 import StoreChoose from '../../../components/store-choose'
 import GoodsDiscount from '../../../module-api/market-activity-api/goods-discount'
 export default {
@@ -210,10 +226,222 @@ export default {
       },
       // edit
       editTableData: [], // 表格数据
+      editTableDataCopy: [],
       editMultipleSelection: [], // 选择数据
+      activeDicountName: '',
+      activeProductId: '',
+      activeDate: '',
+      activeRow: {},
+      loading: false,
+      activeDiscount: '',
+      limitNum: '',
     }
   },
   methods: {
+    //批量修改折扣和限购
+    async batchUpdateDiscount() {
+      if (!this.activeDiscount || !this.limitNum) {
+        return this.$message.warning('请先填写活动折扣和限购数量！')
+      }
+      if (this.activeDiscount < 0 || this.activeDiscount > 100 || this.limitNum < 0 || this.activeDiscount % 1 !== 0) {
+        return this.$message.warning('折扣信息或限购数量有误！')
+      }
+      if (!this.editMultipleSelection.length) {
+        return this.$message.warning('请先勾选数据！')
+      }
+      let objArr = []
+      this.editMultipleSelection.forEach((item) => {
+        let obj = {
+          itemid: item.itemid,
+          modelid: item.modelid,
+          promotion_price: Number(((this.activeDiscount / 100) * item.price).toFixed(1)),
+          user_item_limit: Number(this.limitNum),
+          status: item.status,
+        }
+        objArr.push(obj)
+      })
+      let params = {
+        discount_id: this.activeRow.discount_id,
+        discount_model_list: objArr,
+        mallId: this.activeRow.platform_mall_id,
+      }
+      let res = await this.GoodsDiscount.putModelActive(this.activeRow.country, params)
+      if (res.code === 200) {
+        this.editMultipleSelection.forEach((item) => {
+          let index = this.editTableData.findIndex((n) => n.modelid == item.modelid)
+          let indexC = this.editTableDataCopy.findIndex((n) => n.modelid == item.modelid)
+          if (index > -1) {
+            this.$set(this.editTableData[index], 'discount', this.activeDiscount / 100)
+            this.$set(this.editTableData[index], 'promotion_price_after_tax', Number(((this.activeDiscount / 100) * item.price).toFixed(1)))
+            this.$set(this.editTableData[index], 'user_item_limit', this.limitNum)
+          }
+          if (indexC > -1) {
+            this.editTableDataCopy[indexC].discount = this.activeDiscount / 100
+            this.editTableDataCopy[indexC].promotion_price_after_tax = Number(((this.activeDiscount / 100) * item.price).toFixed(1))
+            this.editTableDataCopy[indexC].user_item_limit = this.limitNum
+          }
+        })
+        console.log('this.tableData', this.tableData)
+        this.$refs.Logs.writeLog(`修改折扣信息成功`, true)
+      } else {
+        this.$refs.Logs.writeLog(`修改折扣信息失败：${res.data}`, false)
+      }
+    },
+    //修改活动信息 只修改名称和日期
+    async changeDiscountInfo() {
+      console.log(this.activeDate)
+      let start = new Date(this.activeDate[0]).getTime()
+      let end = new Date(this.activeDate[1]).getTime()
+      if (start < this.activeRow.start_time || start > this.activeRow.end_time) {
+        this.$alert(`开始时间要晚于${this.$dayjs(this.activeRow.start_time).format('YYYY-MM-DD HH:mm:ss')}，早于${this.$dayjs(this.activeRow.end_time).format('YYYY-MM-DD HH:mm:ss')}`, '提示', {
+          confirmButtonText: '确定',
+        })
+      }
+      if (end < this.activeRow.start_time || end > this.activeRow.end_time) {
+        this.$alert(`结束时间要早于${this.$dayjs(this.activeRow.start_time).format('YYYY-MM-DD HH:mm:ss')}`, '提示', {
+          confirmButtonText: '确定',
+        })
+      }
+      if ((end - start) / 1000 / 60 / 60 < 1) {
+        this.$alert(`活动时间不得小于1小时`, '提示', {
+          confirmButtonText: '确定',
+        })
+      }
+      let params = {
+        status: this.activeRow.status,
+        title: this.activeDicountName,
+        start_time: Math.round(start / 1000),
+        discount_id: this.activeRow.discount_id,
+        source: this.activeRow.source,
+        end_time: Math.round(end / 1000),
+        mallId: this.activeRow.platform_mall_id,
+      }
+      let res = await this.GoodsDiscount.putActive(this.activeRow.country, params)
+      if (res.code === 200) {
+        this.$refs.Logs.writeLog(`修改活动信息成功`, true)
+      } else {
+        this.$refs.Logs.writeLog(`修改活动信息失败：${res.data}`, false)
+      }
+      console.log(res, 'res')
+    },
+    createNewActive() {
+      this.activeName = 'edit'
+      this.activeRow = {}
+      this.editTableData = []
+      this.editTableDataCopy = []
+      this.activeDicountName = ''
+    },
+    //根据商品编号搜索
+    searchDetail() {
+      if (this.activeProductId) {
+        console.log(this.editTableDataCopy, this.editTableData, ';;;;')
+        this.editTableData = this.editTableDataCopy.filter((n) => {
+          return n.itemid == this.activeProductId
+        })
+      } else {
+        this.editTableData = this.editTableDataCopy
+      }
+    },
+    //查看活动详情
+    async searchDiscountDetail(row) {
+      this.activeName = 'edit'
+      this.activeRow = row
+      this.activeDicountName = row.title
+      this.activeDate = [this.$dayjs(row.start_time).format('YYYY-MM-DD HH:mm:ss'), this.$dayjs(row.end_time).format('YYYY-MM-DD HH:mm:ss')]
+      this.activeDiscount = ''
+      this.limitNum = ''
+      this.editTableData = []
+      this.getDiscountDetail(row)
+    },
+    //查询折扣详情
+    async getDiscountDetail(val) {
+      this.loading = true
+      try {
+        let limit = 100
+        let params = {
+          limit: limit,
+          offset: 0,
+          discount_id: val.discount_id,
+          platform_mall_id: val.platform_mall_id,
+          country: val.country,
+        }
+        let res = await this.GoodsDiscount.getDiscountNominate({ item: params })
+        let array = (res.code === 200 && res.data.item_info) || []
+        console.log('array', array)
+        while (array.length) {
+          array.forEach((item) => {
+            if (res.data.model_info[item.itemid] && res.data.model_info[item.itemid].length) {
+              res.data.model_info[item.itemid].forEach((subItem) => {
+                let obj = res.data.discount_item_list.find((n) => n.modelid === subItem.modelid)
+                let obj2 = Object.assign(subItem, item, obj)
+                obj2.price = subItem.price
+                obj2.skuName = subItem.name
+                obj2.image = item.images.split(',')[0]
+                obj2.mallName = val.mallName
+                obj2.country = val.country
+                obj2.platform_mall_id = val.platform_mall_id
+                obj2.discount = (obj2.promotion_price_after_tax / obj2.price).toFixed(2)
+                // console.log(obj2, 'obj2')
+                this.editTableData.push(obj2)
+              })
+            } else {
+              let obj = res.data.discount_item_list.find((n) => n.itemid === item.itemid)
+              let obj2 = Object.assign(item, obj, val)
+              // console.log(item,item.image,"222")
+              obj2.image = item.images.length ? item.images[0] : item.images.split(',')[0]
+              obj2.mallName = val.mallName
+              obj2.country = val.country
+              obj2.platform_mall_id = val.platform_mall_id
+              obj2.discount = (obj2.promotion_price_after_tax / obj2.price).toFixed(2)
+              this.editTableData.push(obj2)
+            }
+          })
+          if (array.length < 100) {
+            array = []
+          } else {
+            params.offset += limit
+            let res = await this.GoodsDiscount.getDiscountNominate({ item: params })
+            array = (res.code === 200 && res.data.item_info) || []
+          }
+        }
+        this.editTableDataCopy = JSON.parse(JSON.stringify(this.editTableData))
+        console.log('editTableData', this.editTableData, this.editTableDataCopy)
+        this.$refs.Logs.writeLog('获取详情结束', true)
+        this.loading = false
+      } catch (error) {
+        console.log(error)
+        this.loading = false
+      }
+    },
+    //批量停止活动
+    async batchStopActive() {
+      if (!this.multipleSelection.length) {
+        return this.$message.warning('请先选择数据！')
+      }
+      this.$refs.Logs.consoleMsg = ''
+      this.$refs.Logs.writeLog(`请在执行操作，请稍等`, true)
+      this.multipleSelection.forEach(async (item) => {
+        let res = await this.GoodsDiscount.stopActive(item, 'stop')
+        if (res.code === 200) {
+          this.$refs.Logs.writeLog(`活动【${item.title}-${item.discount_id}】结束活动成功`, true)
+        } else {
+          this.$refs.Logs.writeLog(`活动【${item.title}-${item.discount_id}】结束活动失败：${res.data}`, false)
+        }
+      })
+    },
+    async stopActiveSingle(row, index, actionType) {
+      this.$refs.Logs.writeLog(`请在执行操作，请稍等`, true)
+      let res = await this.GoodsDiscount.stopActive(row, actionType)
+      if (res.code === 200) {
+        if (actionType === 'delete') {
+          this.tableData.splice(index, 1)
+        }
+        this.$refs.Logs.writeLog(`活动【${row.title}-${row.discount_id}】结束活动成功`, true)
+      } else {
+        this.$refs.Logs.writeLog(`活动【${row.title}-${row.discount_id}】结束活动失败：${res.data}`, false)
+      }
+    },
+    //导出数据
     exportData() {
       if (!this.multipleSelection.length) {
         return this.$message.warning('请选择要导出的数据！')
@@ -228,18 +456,18 @@ export default {
             <td>商品数量</td>
             <td>活动时间</td>
             </tr>`
-      this.multipleSelection.forEach(item=>{
+      this.multipleSelection.forEach((item) => {
         str += `<tr><td>${num++}</td>
-        <td>${item.mallName  ? `${item.country}-${item.mallName}` : '' + '\t'}</td>
-        <td>${item.discount_id  ? item.discount_id : '' + '\t'}</td>
-        <td>${item.title  ? item.title : '' + '\t'}</td>
-        <td>${item.statusName  ? item.statusName : '' + '\t'}</td>
-        <td>${item.total_product  ? item.total_product : '' + '\t'}</td>
-        <td>${item.start_time && item.end_time  ? `${this.$dayjs(item.start_time).format('MM/DD/YYYY HH:mm:ss')} - ${this.$dayjs(item.end_time).format('MM/DD/YYYY HH:mm:ss')}` : '' + '\t'}</td>
+        <td>${item.mallName ? `${item.country}-${item.mallName}` : '' + '\t'}</td>
+        <td>${item.discount_id ? item.discount_id : '' + '\t'}</td>
+        <td>${item.title ? item.title : '' + '\t'}</td>
+        <td>${item.statusName ? item.statusName : '' + '\t'}</td>
+        <td>${item.total_product ? item.total_product : '' + '\t'}</td>
+        <td>${item.start_time && item.end_time ? `${this.$dayjs(item.start_time).format('MM/DD/YYYY HH:mm:ss')} - ${this.$dayjs(item.end_time).format('MM/DD/YYYY HH:mm:ss')}` : '' + '\t'}</td>
         </tr>
         `
       })
-        exportExcelDataCommon('商品折扣活动数据', str)
+      exportExcelDataCommon('商品折扣活动数据', str)
     },
     //清空日志
     clearLog() {
@@ -280,7 +508,7 @@ export default {
         // 1、查询折扣活动详情
         params['item'] = item
         const nominateRes = await this.GoodsDiscount.getDiscountNominate(params)
-        console.log('nominateRes', nominateRes)
+        console.log('nominateRe---------------', nominateRes)
         if (nominateRes.code !== 200) {
           return this.$refs.Logs.writeLog(`获取【${item.title}】【${item.discount_id}】错误：${nominateRes.data}`, false)
         }
@@ -361,14 +589,15 @@ export default {
               }
             }
             mItem.mList = mItem.mList.concat(res.data.discount_list)
-            const newData = this.filterData(res.data.discount_list)
+            // const newData = this.filterData(res.data.discount_list)
+            const newData = res.data.discount_list.filter((n) => n.statusName !=='已过期')
             this.tableData = this.tableData.concat(newData)
           } else {
             this.$refs.Logs.writeLog(`店铺【${mallName}】：${res.data}`, false)
           }
           mItem.offset += this.limit
         } while (mItem.mList.length < total_count && total_count !== 0)
-        this.$refs.Logs.writeLog(`查询店铺【${mallName}】共${mItem.mList.length}条数据`, true)
+        this.$refs.Logs.writeLog(`查询店铺【${mallName}】活动数据结束`, true)
         console.log('tableData', this.tableData)
       } catch (error) {
         this.$refs.Logs.writeLog(`店铺【${mallName}】异常：${error}`, false)

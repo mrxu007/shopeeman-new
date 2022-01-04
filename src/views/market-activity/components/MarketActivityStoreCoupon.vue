@@ -276,7 +276,7 @@ export default {
       if(val){
 
       }
-      this.goodsItemSelectorVisible = fasle
+      this.goodsItemSelectorVisible = false
     },
     // 清除日志
     clearLog() {

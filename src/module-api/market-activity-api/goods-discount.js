@@ -54,11 +54,10 @@ export default class GoodsDiscount {
       params['mallId'] = mItem.platform_mall_id
       const res = await this._this.$shopeemanService.getChinese(mItem.country, '/api/marketing/v3/discount/standard_search/?', params)
       const jsonData = this.isJsonString(this.isJsonString(res).data)
-      console.log('aaaaa', jsonData)
       if (jsonData.message === 'success') {
         return { code: 200, data: jsonData.data }
       }
-      return { code: 201, data: `${jsonData.code || jsonData.errcode}， ${jsonData.message.indexOf('token not found') > -1 ? '未登录，请登录后再查询' : jsonData.message}` }
+      return { code: 201, data: `${jsonData.code || jsonData.errcode}， ${jsonData.message && jsonData.message.indexOf('token not found') > -1 ? '未登录，请登录后再查询' : jsonData.message}` }
     } catch (error) {
       return { code: -2, data: `获取promotionid数据异常： ${error}` }
     }
@@ -74,6 +73,7 @@ export default class GoodsDiscount {
       params['mallId'] = mItem.platform_mall_id
       const res = await this._this.$shopeemanService.getChinese(mItem.country, '/api/marketing/v3/discount/list/?', params)
       const jsonData = this.isJsonString(this.isJsonString(res).data)
+      console.log("111",jsonData)
       if (jsonData.message === 'success') {
         return { code: 200, data: jsonData.data }
       }
@@ -93,6 +93,166 @@ export default class GoodsDiscount {
       }
     } else {
       return str
+    }
+  }
+  async stopActive(val,actionType){
+    try {
+      let params = {}
+      params['discount_id'] = val.discount_id.toString()
+      params['action'] = actionType
+      params['mallId'] = val.platform_mall_id
+      const res = await this._this.$shopeemanService.mixChinese(val.country, '/api/marketing/v3/discount/?', params,{
+        Headers: {
+          'Content-Type': ' application/json'
+        }},'delete')
+        const resObj = res && JSON.parse(res)
+        console.log(resObj)
+        if (resObj && resObj.status === 200) {
+          const info = JSON.parse(resObj.data)
+          if (info && info.code === 0) {
+            return {
+              code: 200,
+              data: info.data || []
+            }
+          } else {
+            return {
+              code: 50001,
+              data: info.message || resObj.statusText || ''
+            }
+          }
+        } else {
+          if (resObj.status === 403) {
+            return {
+              code: resObj.status,
+              data: `操作失败，店铺未登录！`
+            }
+          }
+          return {
+            code: resObj.status,
+            data: `操作失败${resObj.statusText}`
+          }
+        }
+    } catch (error) {
+      return { code: -2, data: `操作异常： ${error}` }
+    }
+  }
+  // {
+  //   "fe_status": "upcoming",
+  //   "highlight": "",
+  //   "title": "56折+115%",
+  //   "start_time": 1641381154,
+  //   "end_time": 1641471154,
+  //   "status": 1
+  // }
+  async createAcitive(params){
+    try {
+      const res = await this._this.$shopeemanService.postChinese(val.country, '/api/marketing/v3/discount/?', params,{
+        Headers: {
+          'Content-Type': ' application/json'
+        }})
+        const resObj = res && JSON.parse(res)
+        console.log(resObj)
+        if (resObj && resObj.status === 200) {
+          const info = JSON.parse(resObj.data)
+          if (info && info.code === 0) {
+            return {
+              code: 200,
+              data: info.data || []
+            }
+          } else {
+            return {
+              code: 50001,
+              data: info.message || resObj.statusText || ''
+            }
+          }
+        } else {
+          if (resObj.status === 403) {
+            return {
+              code: resObj.status,
+              data: `操作失败，店铺未登录！`
+            }
+          }
+          return {
+            code: resObj.status,
+            data: `操作失败${resObj.statusText}`
+          }
+        }
+    } catch (error) {
+      return { code: -2, data: `操作异常： ${error}` }
+    }
+  }
+  async putActive(country,params){
+    try {
+      const res = await this._this.$shopeemanService.mixChinese(country, '/api/marketing/v3/discount/?', params,{
+        Headers: {
+          'Content-Type': ' application/json'
+        }},'put')
+        const resObj = res && JSON.parse(res)
+        console.log(resObj)
+        if (resObj && resObj.status === 200) {
+          const info = JSON.parse(resObj.data)
+          if (info && info.code === 0) {
+            return {
+              code: 200,
+              data: info.data || []
+            }
+          } else {
+            return {
+              code: 50001,
+              data: info.message || resObj.statusText || ''
+            }
+          }
+        } else {
+          if (resObj.status === 403) {
+            return {
+              code: resObj.status,
+              data: `操作失败，店铺未登录！`
+            }
+          }
+          return {
+            code: resObj.status,
+            data: `操作失败${resObj.statusText}`
+          }
+        }
+    } catch (error) {
+      return { code: -2, data: `操作异常： ${error}` }
+    }
+  }
+  async putModelActive(country,params){
+    try {
+      const res = await this._this.$shopeemanService.mixChinese(country, '/api/marketing/v3/discount/nominate/', params,{
+        Headers: {
+          'Content-Type': ' application/json'
+        }},'put')
+        const resObj = res && JSON.parse(res)
+        console.log(resObj)
+        if (resObj && resObj.status === 200) {
+          const info = JSON.parse(resObj.data)
+          if (info && info.code === 0) {
+            return {
+              code: 200,
+              data: info.data || []
+            }
+          } else {
+            return {
+              code: 50001,
+              data: info.message || resObj.statusText || ''
+            }
+          }
+        } else {
+          if (resObj.status === 403) {
+            return {
+              code: resObj.status,
+              data: `操作失败，店铺未登录！`
+            }
+          }
+          return {
+            code: resObj.status,
+            data: `操作失败${resObj.statusText}`
+          }
+        }
+    } catch (error) {
+      return { code: -2, data: `操作异常： ${error}` }
     }
   }
 }
