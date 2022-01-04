@@ -242,6 +242,26 @@ export default class NetMessageBridgeService {
     // console.log('NetMessageBridgeService',url, JSON.stringify(options), JSON.stringify(data))
     return this.NetMessageBridgeService().post(url, JSON.stringify(options), JSON.stringify(data))
   }
+  async deleteChinese(country, api, data, options = {}, exportInfo) {
+    data = JSON.parse(JSON.stringify(data))
+    const aurl = await this.getUrlPrefix(country, data)
+    const url = await this.getUrlPrefix(country, data) + api
+    options['extrainfo'] = this.getExtraInfo(data)
+    if (exportInfo) { // 适配店铺管理---导入店铺
+      options['extrainfo']['exportInfo'] = exportInfo
+    }
+    delete data.mallId
+    const referer = options['headers'] && options['headers'].referer
+    if (referer) {
+      options['headers'] = Object.assign(options['headers'], {
+        origin: aurl,
+        referer: aurl + referer,
+        'Host': aurl.replace('https://', '')
+      })
+    }
+    // console.log('NetMessageBridgeService',url, JSON.stringify(options), JSON.stringify(data))
+    return this.NetMessageBridgeService().delete(url, JSON.stringify(options), JSON.stringify(data))
+  }
   // refer 与url 不一样
   async postChineseReferer(country, api, data, options = {}, exportInfo) {
     data = JSON.parse(JSON.stringify(data))
@@ -328,7 +348,7 @@ export default class NetMessageBridgeService {
     }
     return this.NetMessageBridgeService().put(url, JSON.stringify(options), JSON.stringify(data))
   }
-  async deleteChinese(country, api, data, options = {}) {
+  async mixChinese(country, api, data, options = {},type) {
     data = JSON.parse(JSON.stringify(data))
     const url = await this.getUrlPrefix(country, data) + api
     options['extrainfo'] = this.getExtraInfo(data)
@@ -341,7 +361,7 @@ export default class NetMessageBridgeService {
       })
     }
     console.log(url, JSON.stringify(options), JSON.stringify(data))
-    return this.NetMessageBridgeService().delete(url, JSON.stringify(options), JSON.stringify(data))
+    return this.NetMessageBridgeService()[type](url, JSON.stringify(options), JSON.stringify(data))
   }
 
   // 手机号是否符合各个国家的手机号
