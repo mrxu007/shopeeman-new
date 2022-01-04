@@ -97,11 +97,7 @@
         <el-table-column prop="goods_id" label="商品ID" min-width="120px" align="center">
           <template slot-scope="{ row }">
             <span>
-              <span
-                v-if="row.goods_id"
-                class="copyIcon"
-                @click="copy(row.productId)"
-              ><i class="el-icon-document-copy" /></span>
+              <span v-if="row.goods_id" class="copyIcon" @click="copy(row.goods_id)"><i class="el-icon-document-copy" /></span>
               <el-button type="text" @click.native="open(row)">
                 {{ row.goods_id }}
               </el-button>
@@ -332,6 +328,7 @@ export default {
     },
     // 点击复制
     copy(attr) {
+      console.log(attr)
       const target = document.createElement('div')
       target.id = 'tempTarget'
       target.style.opacity = '0'
