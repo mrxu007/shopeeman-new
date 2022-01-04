@@ -68,10 +68,12 @@
             </el-table-column>
             <el-table-column align="center" label="商品图片" min-width="80">
               <template slot-scope="scope">
-                <el-image
-                  v-bind:src="[scope.row.country, scope.row.mall_info ? scope.row.mall_info.platform_mall_id : '', scope.row.goods_info.goods_img] | imageRender"
-                  style="width: 56px; height: 56px"
-                ></el-image>
+                <el-tooltip effect="light" placement="right-end" :visible-arrow="false" :enterable="false" style="width: 56px; height: 56px; display: inline-block">
+                  <div slot="content">
+                    <el-image :src="[ scope.row.goods_img] | imageRender" style="width: 400px; height: 400px" />
+                  </div>
+                  <el-image :src="[scope.goods_img,true] | imageRender" style="width: 56px; height: 56px" />
+                </el-tooltip>
               </template>
             </el-table-column>
             <el-table-column align="center" prop="escrow_amount" label="订单收入" min-width="80">

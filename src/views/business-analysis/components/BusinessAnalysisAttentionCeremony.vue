@@ -2,7 +2,7 @@
   <el-row class="contaniner">
     <el-row class="header">
       <ul style="margin-bottom: 10px">
-        <storeChoose :span-width="'80px'" :source="'true'" @changeMallList="changeMallList"/>
+        <storeChoose :span-width="'80px'" :source="'true'" @changeMallList="changeMallList" />
         <li>
           <span>统计时间：</span>
           <el-select v-model="Statisticaltime" placeholder="" size="mini" filterable>
@@ -10,8 +10,10 @@
           </el-select>
         </li>
         <li>
-          <el-button type="primary" :disabled="Loading1" size="mini" @click="getallinfo">搜索</el-button>
-          <el-button type="primary" :disabled="Loading1" size="mini" @click="DerivedData">导出</el-button>
+          <el-button type="primary" :loading="Loading1" size="mini" @click="getallinfo">搜索</el-button>
+          <el-button type="primary" size="mini" @click="DerivedData">导出</el-button>
+          <!-- <el-button type="primary" size="mini" @click="getallinfo">搜索</el-button>
+          <el-button type="primary" size="mini" @click="DerivedData">导出</el-button> -->
         </li>
       </ul>
       <el-table
@@ -19,19 +21,20 @@
         v-loading="Loading3"
         style="margin-top:10px"
         header-align="center"
-        height="calc(100vh - 140px)"
+        height="calc(100vh - 85px)"
         :data="tableData"
         :header-cell-style="{
           backgroundColor: '#f5f7fa',
         }"
       >
-        <el-table-column align="center" label="店铺名称" width="260" prop="mallname" />
-        <el-table-column prop="new_followers" label="新粉丝" width="250" align="center" />
-        <el-table-column prop="viewers" label="观众" width="250" align="center" />
-        <el-table-column prop="buyers" label="买家" width="250" align="center" />
-        <el-table-column prop="sales" label="销售量" width="250" align="center" />
-        <el-table-column prop="cost" label="每位买家的销售额" width="250" align="center" />
-        <el-table-column prop="appexisting_visitors" label="操作" width="150" align="center">
+        <el-table-column label="序号" min-width="60px" type="index" align="center" fixed />
+        <el-table-column align="center" label="店铺名称" min-width="260px" prop="mallname" />
+        <el-table-column prop="new_followers" label="新粉丝" min-width="250px" align="center" />
+        <el-table-column prop="viewers" label="观众" min-width="250px" align="center" />
+        <el-table-column prop="buyers" label="买家" min-width="250px" align="center" />
+        <el-table-column prop="sales" label="销售量" min-width="250px" align="center" />
+        <el-table-column prop="cost" label="每位买家的销售额" min-width="250px" align="center" />
+        <el-table-column prop="appexisting_visitors" label="操作" min-width="150px" align="center" fixed="right">
           <template slot-scope="{ row }">
             <el-button type="primary" size="mini" @click="view(row)">关注礼概览</el-button>
           </template>
@@ -55,7 +58,7 @@
           <el-table-column align="center" prop="viewers" label="观众" width="100" />
           <el-table-column align="center" prop="buyers" label="买家数" width="130" />
           <el-table-column align="center" prop="sales" label="销售量" width="100" />
-          <el-table-column prop="sales_per_buyer" label="每位买家的销售额" width="130" align="center" />
+          <el-table-column prop="salePer" label="每位买家的销售额" width="130" align="center" />
         </el-table>
       </el-dialog>
     </el-row>
@@ -65,6 +68,9 @@
 import { batchOperation, exportExcelDataCommon } from '../../../util/util'
 import storeChoose from '@/components/store-choose'
 export default {
+  components: {
+    storeChoose
+  },
   data() {
     return {
       Loading1: false,
@@ -95,9 +101,6 @@ export default {
         { value: 'past30days', label: '近30天' }
       ]
     }
-  },
-  components: {
-    storeChoose
   },
   watch: {
     Statisticaltime(val, oldVal) {
@@ -249,7 +252,7 @@ export default {
           this.timecant = false
         }
       }
-    },
+    }
   },
   mounted() {
     // this.getInfo()
@@ -268,7 +271,7 @@ export default {
     },
     async getTableData(item, count = { count: 1 }) {
       try {
-        let mallname = item.mall_alias_name || item.platform_mall_name
+        const mallname = item.mall_alias_name || item.platform_mall_name
         const params = {
           start_time: this.start_time,
           end_time: this.end_time,
@@ -381,6 +384,12 @@ export default {
     // 关注礼概览
     async view(row) {
       this.eidtVisible = true
+      // 每位买家的销售额格式转换
+      row.view.forEach(el => {
+        const coin = el.sales_per_buyer.substr(0, 1)
+        const num = Number(el.sales_per_buyer.split(coin)[1]).toFixed(2)
+        el.salePer = coin + num
+      })
       this.tableData1 = row.view
     }
   }

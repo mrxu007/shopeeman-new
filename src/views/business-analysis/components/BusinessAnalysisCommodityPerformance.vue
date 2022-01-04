@@ -1,9 +1,8 @@
 <template>
   <el-row class="contaniner">
     <el-row class="header">
-      <ul style="margin-bottom: 10px;margin-left:24px">
-        <storeChoose :span-width="'80px'" :source="'true'" @changeMallList="changeMallList"/>
-      </ul>
+      <storeChoose :span-width="'80px'" :source="'true'" @changeMallList="changeMallList" />
+      <ul style="margin-bottom: 10px;margin-left:24px" />
       <ul>
         <li>
           <span>资料期间：</span>
@@ -146,11 +145,11 @@
   </el-row>
 </template>
 <script>
-import { exportExcelDataCommon ,batchOperation } from '../../../util/util'
+import { exportExcelDataCommon, batchOperation } from '../../../util/util'
 import categoryMapping from '../../../components/category-mapping'
 import storeChoose from '../../../components/store-choose'
 export default {
-  components: { categoryMapping,storeChoose },
+  components: { categoryMapping, storeChoose },
   data() {
     return {
       Loading1: false,
@@ -486,73 +485,73 @@ export default {
     },
     async getTableData(item, count = { count: 1 }) {
       try {
-        let mallname = item.mall_alias_name || item.platform_mall_name
-          if (this.serchload === true) {
-            this.Loading3 = false
-            setTimeout(() => {
-              this.Loading1 = false
-            }, 3000)
-            this.serchload = false
-            return
+        const mallname = item.mall_alias_name || item.platform_mall_name
+        if (this.serchload === true) {
+          this.Loading3 = false
+          setTimeout(() => {
+            this.Loading1 = false
+          }, 3000)
+          this.serchload = false
+          return
+        }
+        let params
+        let attributeTreeJson
+        if (this.categoryid === -1 && this.keyword === '') {
+          params = {
+            start_time: this.start_time,
+            end_time: this.end_time,
+            period: this.Statisticaltime,
+            mallId: item.platform_mall_id,
+            sort_by:	'placed_units.desc',
+            metric_ids: 'all',
+            limit: 20,
+            offset: 0
           }
-          let params
-          let attributeTreeJson
-          if (this.categoryid === -1 && this.keyword === '') {
-            params = {
-              start_time: this.start_time,
-              end_time: this.end_time,
-              period: this.Statisticaltime,
-              mallId: item.platform_mall_id,
-              sort_by:	'placed_units.desc',
-              metric_ids: 'all',
-              limit: 20,
-              offset: 0
+          console.log('this is my parmas', params)
+          attributeTreeJson = await this.$shopeemanService.getperformance(this.site, params, { headers: { 'Content-Type': 'application/json; charset=utf-8' }})
+        } else {
+          params = {
+            start_time: this.start_time,
+            end_time: this.end_time,
+            period: this.Statisticaltime,
+            mallId: item.platform_mall_id,
+            category_type: this.type,
+            keyword: this.keyword,
+            category:	this.categoryid,
+            sort_by:	'placed_units.desc',
+            metric_ids: 'all',
+            page_size: 20,
+            page_num:	1
+          }
+          console.log('this is my parmas', params)
+          attributeTreeJson = await this.$shopeemanService.getperformance1(this.site, params, { headers: { 'Content-Type': 'application/json; charset=utf-8' }})
+        }
+        let attributeTreeRes
+        if (attributeTreeJson) {
+          attributeTreeRes = JSON.parse(attributeTreeJson)
+        }
+        attributeTreeRes.data = JSON.parse(attributeTreeRes.data)
+        console.log('this is data', attributeTreeRes)
+        if (attributeTreeRes.status === 200) {
+          for (let i = 0; i < attributeTreeRes.data.result.items.length; i++) {
+            if (attributeTreeRes.data.result.items.length > 1) {
+              attributeTreeRes.data.result.items[i]['mallname'] = mallname
+              attributeTreeRes.data.result.items[i]['index'] = this.indexs
+              this.indexs++
+              attributeTreeRes.data.result.items[i]['bounce_rate'] = (attributeTreeRes.data.result.items[i]['bounce_rate'] * 100).toFixed(2) + `%`
+              attributeTreeRes.data.result.items[i]['uv_to_add_to_cart_rate'] = (attributeTreeRes.data.result.items[i]['uv_to_add_to_cart_rate'] * 100).toFixed(2) + `%`
+              attributeTreeRes.data.result.items[i]['uv_to_placed_buyers_rate'] = (attributeTreeRes.data.result.items[i]['uv_to_placed_buyers_rate'] * 100).toFixed(2) + `%`
+              attributeTreeRes.data.result.items[i]['uv_to_paid_buyers_rate'] = (attributeTreeRes.data.result.items[i]['uv_to_paid_buyers_rate'] * 100).toFixed(2) + `%`
+              attributeTreeRes.data.result.items[i]['placed_sales'] = `${this.currency}${attributeTreeRes.data.result.items[i]['placed_sales']}`
+              attributeTreeRes.data.result.items[i]['paid_sales'] = `${this.currency}${attributeTreeRes.data.result.items[i]['paid_sales']}`
+              this.exportdata.push(attributeTreeRes.data.result.items[i])
+              this.tableData.push(attributeTreeRes.data.result.items[i])
             }
-            console.log('this is my parmas', params)
-            attributeTreeJson = await this.$shopeemanService.getperformance(this.site, params, { headers: { 'Content-Type': 'application/json; charset=utf-8' }})
-          } else {
-            params = {
-              start_time: this.start_time,
-              end_time: this.end_time,
-              period: this.Statisticaltime,
-              mallId: item.platform_mall_id,
-              category_type: this.type,
-              keyword: this.keyword,
-              category:	this.categoryid,
-              sort_by:	'placed_units.desc',
-              metric_ids: 'all',
-              page_size: 20,
-              page_num:	1
-            }
-            console.log('this is my parmas', params)
-            attributeTreeJson = await this.$shopeemanService.getperformance1(this.site, params, { headers: { 'Content-Type': 'application/json; charset=utf-8' }})
           }
-          let attributeTreeRes
-          if (attributeTreeJson) {
-            attributeTreeRes = JSON.parse(attributeTreeJson)
-          }
-          attributeTreeRes.data = JSON.parse(attributeTreeRes.data)
-          console.log('this is data', attributeTreeRes)
-          if (attributeTreeRes.status === 200) {
-            for (let i = 0; i < attributeTreeRes.data.result.items.length; i++) {
-              if (attributeTreeRes.data.result.items.length > 1) {
-                attributeTreeRes.data.result.items[i]['mallname'] = mallname
-                attributeTreeRes.data.result.items[i]['index'] = this.indexs
-                this.indexs++
-                attributeTreeRes.data.result.items[i]['bounce_rate'] = (attributeTreeRes.data.result.items[i]['bounce_rate'] * 100).toFixed(2) + `%`
-                attributeTreeRes.data.result.items[i]['uv_to_add_to_cart_rate'] = (attributeTreeRes.data.result.items[i]['uv_to_add_to_cart_rate'] * 100).toFixed(2) + `%`
-                attributeTreeRes.data.result.items[i]['uv_to_placed_buyers_rate'] = (attributeTreeRes.data.result.items[i]['uv_to_placed_buyers_rate'] * 100).toFixed(2) + `%`
-                attributeTreeRes.data.result.items[i]['uv_to_paid_buyers_rate'] = (attributeTreeRes.data.result.items[i]['uv_to_paid_buyers_rate'] * 100).toFixed(2) + `%`
-                attributeTreeRes.data.result.items[i]['placed_sales'] = `${this.currency}${attributeTreeRes.data.result.items[i]['placed_sales']}`
-                attributeTreeRes.data.result.items[i]['paid_sales'] = `${this.currency}${attributeTreeRes.data.result.items[i]['paid_sales']}`
-                this.exportdata.push(attributeTreeRes.data.result.items[i])
-                this.tableData.push(attributeTreeRes.data.result.items[i])
-              }
-            }
-          } else if (attributeTreeRes.status === 403) {
-            this.$refs.Logs.writeLog(`【${mallname}】 数据获取失败：店铺未登录`, false)
-            this.errmall.push(mallname)
-          }
+        } else if (attributeTreeRes.status === 403) {
+          this.$refs.Logs.writeLog(`【${mallname}】 数据获取失败：店铺未登录`, false)
+          this.errmall.push(mallname)
+        }
       } catch (e) {
         console.log(e)
       } finally {

@@ -188,12 +188,21 @@
         <p v-else @click="isShow = true">展开<i class="el-icon-caret-bottom" /></p>
       </div>
     </header>
-    <div class="content" :style="{ height: isShow ? '520px' : '850px' }">
+    <div class="content" :style="{ height: isShow ? '490px' : '800px' }">
       <p>
         温馨提示：1、最终毛利 = 订单收入-采购金额-仓库发货金额（生成仓库发货金额才会去计算，会有汇率差）；含邮费毛利 =
         订单收入-采购价；2、若登录了Lazada买手号但点击采购订单号依旧提示登录，请使用编辑采购信息编辑重新保存下拍单信息
       </p>
-      <el-table v-loading="tableLoading" ref="multipleTable" :data="tableData" tooltip-effect="dark" :height="isShow ? '420px' : '750px'" @selection-change="handleSelectionChange">
+      <el-table
+        v-loading="tableLoading"
+        ref="multipleTable"
+        :data="tableData"
+        tooltip-effect="dark"
+        :height="isShow ? '420px' : '750px'"
+        @selection-change="handleSelectionChange"
+        :row-style="{ height: '60px !important' }"
+        :cell-style="{ padding: '0px' }"
+      >
         <el-table-column align="center" type="selection" width="50" fixed="left" />
         <el-table-column align="center" type="index" label="序号" width="50" fixed="left">
           <template slot-scope="scope">{{ (currentPage - 1) * pageSize + scope.$index + 1 }}</template>
@@ -225,7 +234,7 @@
             <p :style="{ background: changeColorLabel(scope.row.color_id), height: '26px' }" />
           </template>
         </el-table-column>
-        <el-table-column align="center" prop="color_id" label="标识名称" width="70" v-if="showTableColumn('标识名称')">
+        <el-table-column align="center" prop="color_id" label="标识名称" width="120" v-if="showTableColumn('标识名称')">
           <template slot-scope="scope">
             <span>{{ changeColorLabel(scope.row.color_id, 'name') }}</span>
           </template>
@@ -307,7 +316,7 @@
             </el-dropdown>
           </template>
         </el-table-column>
-        <el-table-column align="center" label="商品类目" width="80" v-if="showTableColumn('商品类目')">
+        <el-table-column align="center" label="商品类目" width="120" v-if="showTableColumn('商品类目')">
           <!-- <template slot-scope="scope"></template> -->
           <template slot-scope="scope">
             <span>{{ scope.row.categoryName }} </span>
@@ -316,7 +325,7 @@
         <el-table-column align="center" label="规格编号" width="120" v-if="showTableColumn('规格编号')">
           <template slot-scope="scope">{{ scope.row.goods_info.variation_id }}</template>
         </el-table-column>
-        <el-table-column align="center" label="商品规格" width="120" v-if="showTableColumn('商品规格')">
+        <el-table-column align="center" label="商品规格" width="120" v-if="showTableColumn('商品规格')" show-overflow-tooltip>
           <template slot-scope="scope">
             <div style="display: flex; flex-direction: column">
               <span>{{ scope.row.goods_info.variation_name }}</span>
@@ -326,13 +335,13 @@
             </div>
           </template>
         </el-table-column>
-        <el-table-column align="center" label="商品货号" width="120" v-if="showTableColumn('商品货号')">
+        <el-table-column align="center" label="商品货号" width="120" v-if="showTableColumn('商品货号')" show-overflow-tooltip>
           <template slot-scope="scope">{{ scope.row.goods_info.variation_sku.replace('=|=', '') }}</template>
         </el-table-column>
         <el-table-column align="center" prop="total_amount" label="买家付款金额" width="120" v-if="showTableColumn('买家付款金额')">
           <template slot-scope="scope">{{ scope.row.total_amount }}{{ scope.row.country | siteCoin }}</template>
         </el-table-column>
-        <el-table-column align="center" prop="escrow_amount" label="订单收入" width="80" v-if="showTableColumn('订单收入')">
+        <el-table-column align="center" prop="escrow_amount" label="订单收入" width="120" v-if="showTableColumn('订单收入')">
           <template slot-scope="scope">{{ scope.row.escrow_amount }}{{ scope.row.country | siteCoin }}</template>
         </el-table-column>
         <el-table-column align="center" prop="escrow_amount" label="订单收入(RMB)" width="120" v-if="showTableColumn('订单收入(RMB)')">
@@ -344,7 +353,7 @@
         <el-table-column align="center" prop="sell_shipping_cost" label="卖家补贴邮费" width="120" v-if="showTableColumn('卖家补贴邮费')">
           <template slot-scope="scope">{{ scope.row.sell_shipping_cost }}{{ scope.row.country | siteCoin }}</template>
         </el-table-column>
-        <el-table-column align="center" prop="shot_amount" label="采购价" width="80" v-if="showTableColumn('采购价')">
+        <el-table-column align="center" prop="shot_amount" label="采购价" width="120" v-if="showTableColumn('采购价')">
           <template slot-scope="scope">{{ scope.row.shot_order_info.shot_amount }}{{ scope.row.country | siteCoin }}</template>
         </el-table-column>
         <el-table-column align="center" prop="shot_amount_rmb" label="采购价(RMB)" width="100" v-if="showTableColumn('采购价(RMB)')">
@@ -356,7 +365,7 @@
         <el-table-column align="center" prop="warehouse_ship_amount" label="仓库发货金额(RMB)" width="140" v-if="showTableColumn('仓库发货金额(RMB)')">
           <template slot-scope="scope">{{ scope.row.warehouse_ship_amount }}元</template>
         </el-table-column>
-        <el-table-column align="center" prop="gross_profit" label="含邮费毛利" width="80" v-if="showTableColumn('含邮费毛利')">
+        <el-table-column align="center" prop="gross_profit" label="含邮费毛利" width="120" v-if="showTableColumn('含邮费毛利')">
           <template slot-scope="scope">{{ scope.row.gross_profit }}{{ scope.row.country | siteCoin }}</template>
         </el-table-column>
         <el-table-column align="center" prop="gross_profit" label="含邮费毛利(RMB)" width="120" v-if="showTableColumn('含邮费毛利(RMB)')">
@@ -418,7 +427,7 @@
             <el-button type="primary" size="mini" @click="trackPathVisible = true">采购物流轨迹</el-button>
           </template>
         </el-table-column> -->
-        <el-table-column align="center" prop="merchant_no" label="商户订单号" width="120" v-if="showTableColumn('商户订单号')">
+        <el-table-column align="center" prop="merchant_no" label="商户订单号" width="140" v-if="showTableColumn('商户订单号')" show-overflow-tooltip>
           <template slot-scope="scope">{{ scope.row.shot_order_info.merchant_no }}</template>
         </el-table-column>
         <el-table-column align="center" prop="transport_type" label="运输方式" width="80" v-if="showTableColumn('运输方式')">
@@ -590,7 +599,7 @@
     <el-dialog v-if="colorVisible" title="选择颜色标识" :visible.sync="colorVisible" width="600px" :close-on-click-modal="false">
       <div class="color-style">
         <el-table ref="colorTable" :data="colorList" tooltip-effect="dark" style="width: 100%" height="500">
-          <el-table-column label="标识选择" width="100">
+          <el-table-column label="标识选择" width="120">
             <template slot-scope="scope">
               <el-radio v-model="colorRadio" :label="scope.$index" @change.native="getCurrentRow(scope.row)" />
             </template>
@@ -610,7 +619,7 @@
     <el-dialog title="添加采购信息" :visible.sync="purchaseInfoVisible" width="500px" top="5vh" v-if="purchaseInfoVisible" :close-on-click-modal="false">
       <purchase-info :chooseData="multipleSelection" :buyerAccountList="buyerAccountList" @close="closeDialog" :dealType="dealType"></purchase-info>
     </el-dialog>
-    <el-dialog title="同步数据至仓库" :visible.sync="pushOrderToStoreVisible" width="1200px" :close-on-click-modal="false" v-if="pushOrderToStoreVisible" @close="closeDialog('noRefresh')">
+    <el-dialog title="同步数据至仓库" :visible.sync="pushOrderToStoreVisible" width="1200px" top="5vh" :close-on-click-modal="false" v-if="pushOrderToStoreVisible" @close="closeDialog('noRefresh')">
       <push-order :chooseData="multipleSelection"></push-order>
     </el-dialog>
     <el-dialog title="批量添加采购物流单号" :visible.sync="shipInfoVisible" width="400px" :close-on-click-modal="false" v-if="shipInfoVisible" @close="closeDialog">
@@ -788,7 +797,7 @@ import {
   changeShotStatus,
 } from '../components/orderCenter/orderCenter'
 import { setGoodsDelist, setGoodsDelete } from './orderCenter/handleGoods'
-import { creatDate, getDaysBetween,dealwithOriginGoodsNum } from '../../../util/util'
+import { creatDate, getDaysBetween, dealwithOriginGoodsNum } from '../../../util/util'
 import storeChoose from '../../../components/store-choose'
 import BuyerAccount from './orderCenter/buyer-account.vue'
 import LogisticeSyncService from '../../../services/logistics-sync-service/logistics-sync-service-new-copy'
@@ -1175,7 +1184,7 @@ export default {
             return n.main_order_sn == info.order_sn
           })
           console.log(orderInfo, 'orderInfo')
-          let  htmlUrl = (pdfInfoObj.data && pdfInfoObj.data.find((n) => n && n.OrderSn == orderInfo.main_order_sn)) || null
+          let htmlUrl = (pdfInfoObj.data && pdfInfoObj.data.find((n) => n && n.OrderSn == orderInfo.main_order_sn)) || null
           console.log(htmlUrl, 'htmlUrl')
           let conParams = {
             HtmlFilePath: htmlUrl ? htmlUrl.PDFFilePath : info.url && info.url.includes('.html') ? info.url : '',
@@ -1291,7 +1300,15 @@ export default {
       this.$refs.Logs.writeLog(`开始同步上家库存，请耐心等待！`, true)
       for (let i = 0; i < this.multipleSelection.length; i++) {
         let order = this.multipleSelection[i]
-        await dealwithOriginGoodsNum(order.goods_info.ori_goods_id, order.goods_info.ori_platform_id, order.mall_info.platform_mall_id, order.goods_info.goods_id, order.country, order.order_sn,this.$refs.Logs.writeLog)
+        await dealwithOriginGoodsNum(
+          order.goods_info.ori_goods_id,
+          order.goods_info.ori_platform_id,
+          order.mall_info.platform_mall_id,
+          order.goods_info.goods_id,
+          order.country,
+          order.order_sn,
+          this.$refs.Logs.writeLog
+        )
         // let params = {
         //   GoodsId: order.goods_info.ori_goods_id,
         //   shop_id: order.mall_info.platform_mall_id,
@@ -1659,23 +1676,22 @@ export default {
       return params
     },
     // 获取类目
-    getCategoryInfo(country, cateId) {
+    async getCategoryInfo(country, cateId) {
       if (this.categoryInfo[cateId]) {
         return this.categoryInfo[cateId]
       } else {
         this.categoryInfo[cateId] = ''
-        this.$commodityService.getCategoryTbInfo(country, cateId.toString(), '0', '').then((res) => {
-          let resObj = res && JSON.parse(res)
-          // console.log(resObj, '类目')
-          if (resObj && resObj.code === 200) {
-            if (resObj.data.categories) {
-              this.categoryInfo[cateId] = ''
-              return this.categoryInfo[cateId]
-            } else {
-              return ''
-            }
-          }
-        })
+        let res = await this.$commodityService.getCategoryTbInfo(country, cateId.toString(), '0', '')
+        let resObj = res && JSON.parse(res)
+        // console.log(resObj, '类目')
+        if (resObj && resObj.code === 200 && resObj.data.categories && resObj.data.categories.length) {
+          let categoryName = resObj.data.categories[0].category_cn_name
+          this.categoryInfo[cateId] = categoryName
+          // console.log(this.categoryInfo[cateId], categoryName)
+          return categoryName
+        } else {
+          return ''
+        }
       }
     },
     // 打开订单页面
@@ -2410,7 +2426,7 @@ export default {
       })
       this.localRamark = ''
       this.localRamarkVisible = false
-      this.closeDialog()
+      this.closeDialog(('noRefresh'))
     },
     setAbroadSingle(row, index) {
       this.multipleSelection = [row]
@@ -2490,14 +2506,15 @@ export default {
     async getColumnsConfig() {
       const { data } = await this.$api.getColumnsConfig()
       if (data.code === 200) {
-        const resData = data.data
-        if (!resData) {
-          return
+        const resData = data.data || []
+        if (!resData.length) {
+          this.columnConfigList = columnData
+          // return
         } else {
           this.columnConfigList = resData
         }
       }
-      // console.log(data, 'getColumnsConfig')
+      console.log(data, 'getColumnsConfig')
     },
     // 同步物流单号
     async syncLogistics() {
@@ -2580,7 +2597,7 @@ export default {
           this.total = res.data.data.total
           let sysOrders = ''
           let grossAmountRequest = []
-          this.tableData.forEach((row, i) => {
+          this.tableData.forEach(async (row, i) => {
             //计算含邮毛利
             if (row.shot_order_info.shot_order_sn) {
               let diff = Number(row.escrow_amount - row.shot_order_info.shot_amount).toFixed(2)
@@ -2603,19 +2620,20 @@ export default {
               row.real_gross_profit = diff
             }
             if (i === 0) {
-              sysOrders = row.id.toString()
+              sysOrders = row.id
             } else {
               sysOrders = sysOrders + ',' + row.id
             }
-            row.categoryName = ''
-            // row.categoryName = this.getCategoryInfo(row.country, row.goods_info.goods_category_id)
+            let categoryName = await this.getCategoryInfo(row.country, row.goods_info.goods_category_id)
+            this.$set(row, 'categoryName', categoryName)
             this.isSecondSale(row, i)
           })
           if (grossAmountRequest.length > 0) {
             let amountRes = await this.$api.uploadGressProfit({ lists: grossAmountRequest })
             //  console.log(amountRes,"amountRes")
           }
-          let response = await this.$commodityService.getSkuRelation(sysOrders)
+          let response = await this.$commodityService.getSkuRelation(sysOrders.toString())
+          console.log()
           let skuInfo = response && JSON.parse(response)
           if (skuInfo.code === 200) {
             const list = skuInfo.data.data || []

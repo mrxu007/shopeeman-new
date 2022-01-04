@@ -725,6 +725,7 @@
           name: '',
           phone: '',
           city: '',
+          cityName: '',
           address: '',
           zip_code: '',
           default: false,
@@ -778,19 +779,26 @@
       },
       addressLevel(data) {
         const val = this.isChineseShow && data.chineseName || data.name
+        const valName = data.name
         const id = data.id
         if (this.addressQuery.mask == '0') {
           this.addressQuery.city = val + '/'
+          this.addressQuery.cityName = valName + '/'
         } else {
           const cityList = this.addressQuery.city.split('/')
+          const cityNameList = this.addressQuery.cityName.split('/')
           if (this.addressQuery.mask == cityList.length - 1) {
             this.addressQuery.city += (val + '/')
+            this.addressQuery.cityName += (valName + '/')
           } else {
             let city = ''
+            let cityName = ''
             for (let i = 0; i < this.addressQuery.mask; i++) {
               city += cityList[i] + '/'
+              cityName += cityNameList[i] + '/'
             }
             this.addressQuery.city = city + val + '/'
+            this.addressQuery.cityName = cityName + valName + '/'
           }
         }
         this.addressQuery.mask = (++this.addressQuery.mask) + ''
@@ -1039,7 +1047,7 @@
       },
       confirmAddresses() {
         this.hideConsole = false
-        const names = this.addressQuery.city
+        const names = this.addressQuery.cityName
         const phone = this.$shopeemanService.getTelephoneNumberIsTrue(this.countryVal, this.addressQuery.phone)
         const nameList = names.split('/')
         const param = {

@@ -35,7 +35,12 @@
               <el-table-column align="center" prop="goods_count" label="商品数量" width="80" />
               <el-table-column align="center" prop="ori_platform_id" label="商品图片" width="80">
                 <template slot-scope="scope">
-                  <el-image v-bind:src="[scope.row.country, scope.row.platform_mall_id, scope.row.goods_img] | imageRender" style="width: 56px; height: 56px"></el-image>
+                  <el-tooltip effect="light" placement="right-end" :visible-arrow="false" :enterable="false" style="width: 56px; height: 56px; display: inline-block">
+                    <div slot="content">
+                      <el-image :src="[ scope.row.goods_img] | imageRender" style="width: 400px; height: 400px" />
+                    </div>
+                    <el-image v-bind:src="[scope.row.goods_img,true] | imageRender" style="width: 56px; height: 56px" />
+                  </el-tooltip>
                 </template>
               </el-table-column>
               <el-table-column align="center" prop="escrow_amount" label="订单收入" width="100">

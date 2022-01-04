@@ -97,11 +97,7 @@
         <el-table-column prop="goods_id" label="商品ID" min-width="120px" align="center">
           <template slot-scope="{ row }">
             <span>
-              <span
-                v-if="row.goods_id"
-                class="copyIcon"
-                @click="copy(row.productId)"
-              ><i class="el-icon-document-copy" /></span>
+              <span v-if="row.goods_id" class="copyIcon" @click="copy(row.goods_id)"><i class="el-icon-document-copy" /></span>
               <el-button type="text" @click.native="open(row)">
                 {{ row.goods_id }}
               </el-button>
@@ -112,9 +108,9 @@
           <template slot-scope="scope">
             <el-tooltip effect="light" placement="right-end" :visible-arrow="false" :enterable="false" style="width: 56px; height: 56px; display: inline-block">
               <div slot="content">
-                <el-image :src="[scope.row.country, scope.row.platform_mall_id, scope.row.goods_img] | imageRender" style="width: 400px; height: 400px" />
+                <el-image :src="[scope.row.goods_img] | imageRender" style="width: 400px; height: 400px" />
               </div>
-              <el-image :src="[scope.row.country, scope.row.platform_mall_id, scope.row.goods_img] | imageRender" style="width: 56px; height: 56px" />
+              <el-image :src="[scope.row.goods_img,true] | imageRender" style="width: 56px; height: 56px" />
             </el-tooltip>
           </template>
         </el-table-column>
@@ -332,6 +328,7 @@ export default {
     },
     // 点击复制
     copy(attr) {
+      console.log(attr)
       const target = document.createElement('div')
       target.id = 'tempTarget'
       target.style.opacity = '0'

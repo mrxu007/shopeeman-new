@@ -2,57 +2,62 @@
   <el-row class="contaniner">
     <el-row class="header">
       <ul style="margin-bottom: 10px">
-        <storeChoose :span-width="'80px'" :source="'true'" @changeMallList="changeMallList"/>
+        <storeChoose :span-width="'80px'" :source="'true'" @changeMallList="changeMallList" />
         <li>
           <span>统计时间：</span>
           <el-select v-model="Statisticaltime" placeholder="" size="mini" filterable>
-            <el-option v-for="(item, index) in returnStatisticaltime" :key="index" :label="item.label"
-                       :value="item.value"/>
+            <el-option
+              v-for="(item, index) in returnStatisticaltime"
+              :key="index"
+              :label="item.label"
+              :value="item.value"
+            />
           </el-select>
         </li>
         <li>
-          <el-button type="primary" :disabled="Loading1" size="mini" @click="getallinfo">搜索</el-button>
-          <el-button type="primary" :disabled="Loading1" size="mini" @click="DerivedData">导出</el-button>
+          <el-button type="primary" :loading="Loading1" size="mini" @click="getallinfo">搜索</el-button>
+          <el-button type="primary" size="mini" @click="DerivedData">导出</el-button>
         </li>
       </ul>
+      <!-- v-loading="Loading3" -->
       <el-table
-          ref="plTable"
-          v-loading="Loading3"
-          style="margin-top:10px"
-          header-align="center"
-          height="calc(100vh - 140px)"
-          :data="tableData"
-          :header-cell-style="{
+        ref="plTable"
+        style="margin-top:10px"
+        header-align="center"
+        height="calc(100vh - 85px)"
+        :data="tableData"
+        :header-cell-style="{
           backgroundColor: '#f5f7fa',
         }"
       >
-        <el-table-column align="center" label="店铺名称" width="250" prop="mallname"/>
-        <el-table-column align="center" prop="usage_rate" label="使用率" width="250">
+        <el-table-column label="序号" min-width="60px" type="index" align="center" fixed />
+        <el-table-column align="center" label="店铺名称" min-width="250px" prop="mallname" />
+        <el-table-column align="center" prop="usage_rate" label="使用率" min-width="250px">
           <template slot-scope="{ row }">
-            <div v-html="row.usage_rate"/>
+            <div v-html="row.usage_rate" />
           </template>
         </el-table-column>
-        <el-table-column prop="buyers" label="买家数" width="250" align="center">
+        <el-table-column prop="buyers" label="买家数" min-width="250px" align="center">
           <template slot-scope="{ row }">
-            <div v-html="row.buyers"/>
+            <div v-html="row.buyers" />
           </template>
         </el-table-column>
-        <el-table-column prop="orders" label="订单量" width="250" align="center">
+        <el-table-column prop="orders" label="订单量" min-width="250px" align="center">
           <template slot-scope="{ row }">
-            <div v-html="row.orders"/>
+            <div v-html="row.orders" />
           </template>
         </el-table-column>
-        <el-table-column prop="sales" label="销售额" width="250" align="center">
+        <el-table-column prop="sales" label="销售额" min-width="250px" align="center">
           <template slot-scope="{ row }">
-            <div v-html="row.sales"/>
+            <div v-html="row.sales" />
           </template>
         </el-table-column>
-        <el-table-column prop="claims" label="领取数" width="250" align="center">
+        <el-table-column prop="claims" label="领取数" min-width="250px" align="center">
           <template slot-scope="{ row }">
-            <div v-html="row.claims"/>
+            <div v-html="row.claims" />
           </template>
         </el-table-column>
-        <el-table-column prop="appexisting_visitors" label="操作" width="150" align="center">
+        <el-table-column prop="appexisting_visitors" label="操作" min-width="150px" align="center" fixed="right">
           <template slot-scope="{ row }">
             <el-button type="primary" size="mini" @click="view(row)">优惠卷概览</el-button>
           </template>
@@ -60,24 +65,24 @@
       </el-table>
       <el-dialog title="优惠卷概览" :visible.sync="eidtVisible" width="66%">
         <el-table
-            ref="plTable"
-            v-loading="Loading3"
-            style="margin-top:10px"
-            header-align="center"
-            :data="tableData1"
-            :header-cell-style="{
+          ref="plTable"
+          v-loading="Loading3"
+          style="margin-top:10px"
+          header-align="center"
+          :data="tableData1"
+          :header-cell-style="{
             backgroundColor: '#f5f7fa',
           }"
         >
-          <el-table-column align="center" label="套装优惠名称" width="160" prop="voucher_code"/>
-          <el-table-column align="center" prop="start_time" label="开始时间" width="140"/>
-          <el-table-column align="center" prop="end_time" label="结束时间" width="140"/>
-          <el-table-column prop="sales" label="销售额" width="100" align="center"/>
-          <el-table-column align="center" prop="orders" label="订单数" width="100"/>
-          <el-table-column align="center" prop="units" label="订购的优惠套装数" width="130"/>
-          <el-table-column align="center" prop="units" label="售出件数" width="100"/>
-          <el-table-column prop="buyers" label="买家数" width="100" align="center"/>
-          <el-table-column prop="sales_per_buyer" label="每位买家的销售额" width="130" align="center"/>
+          <el-table-column align="center" label="套装优惠名称" width="160" prop="voucher_code" />
+          <el-table-column align="center" prop="start_time" label="开始时间" width="140" />
+          <el-table-column align="center" prop="end_time" label="结束时间" width="140" />
+          <el-table-column prop="sales" label="销售额" width="100" align="center" />
+          <el-table-column align="center" prop="orders" label="订单数" width="100" />
+          <el-table-column align="center" prop="units" label="订购的优惠套装数" width="130" />
+          <el-table-column align="center" prop="units" label="售出件数" width="100" />
+          <el-table-column prop="buyers" label="买家数" width="100" align="center" />
+          <el-table-column prop="sales_per_buyer" label="每位买家的销售额" width="130" align="center" />
         </el-table>
       </el-dialog>
     </el-row>
@@ -88,6 +93,9 @@ import storeChoose from '../../../components/store-choose'
 import { exportExcelDataCommon, batchOperation } from '../../../util/util'
 
 export default {
+  components: {
+    storeChoose
+  },
   data() {
     return {
       Loading1: false,
@@ -272,9 +280,6 @@ export default {
       }
     }
   },
-  components: {
-    storeChoose
-  },
   mounted() {
     // const timenow = new Date().getTime()
     // const returnCreateStartTime = this.$dayjs(timenow).format('hh:00')
@@ -291,7 +296,7 @@ export default {
     },
     async getTableData(item, count = { count: 1 }) {
       try {
-        let mallname = item.mall_alias_name || item.platform_mall_name
+        const mallname = item.mall_alias_name || item.platform_mall_name
         const params = {
           start_time: this.start_time,
           end_time: this.end_time,
@@ -301,7 +306,7 @@ export default {
           status: 0
         }
         console.log('this is my parmas', params)
-        const attributeTreeJson = await this.$shopeemanService.getcoupon(this.site, params, { headers: { 'Content-Type': 'application/json; charset=utf-8' } })
+        const attributeTreeJson = await this.$shopeemanService.getcoupon(this.site, params, { headers: { 'Content-Type': 'application/json; charset=utf-8' }})
         let attributeTreeRes = ''
         if (attributeTreeJson) {
           attributeTreeRes = JSON.parse(attributeTreeJson)
@@ -364,7 +369,7 @@ export default {
             }
           }
 
-          let res = await this.$shopeemanService.getcouponview(this.site, params, { headers: { 'Content-Type': 'application/json; charset=utf-8' } })
+          let res = await this.$shopeemanService.getcouponview(this.site, params, { headers: { 'Content-Type': 'application/json; charset=utf-8' }})
           if (res) {
             res = JSON.parse(res)
             res.data = JSON.parse(res.data)

@@ -1,8 +1,8 @@
 <template>
   <el-row class="contaniner">
     <el-row class="header">
-      <ul style="margin-bottom: 10px">
-        <storeChoose :span-width="'80px'" :source="'true'" @changeMallList="changeMallList"/>
+      <ul>
+        <storeChoose :span-width="'80px'" :source="'true'" @changeMallList="changeMallList" />
         <li>
           <span>统计时间：</span>
           <el-select v-model="Statisticaltime" placeholder="" size="mini" filterable>
@@ -16,47 +16,49 @@
           </el-select>
         </li>
         <li>
-          <el-button type="primary" :disabled="Loading1" size="mini" @click="getallinfo">搜索</el-button>
+          <el-button :loading="Loading1" type="primary" size="mini" @click="getallinfo">搜索</el-button>
         </li>
       </ul><br>
+    </el-row>
+    <!-- style="margin-top:10px" -->
+    <!-- header-align="center" -->
+    <el-row>
       <el-table
         ref="plTable"
         v-loading="Loading3"
-        style="margin-top:10px"
-        header-align="center"
-        height="calc(100vh - 140px)"
+        height="calc(100vh - 85px)"
         :data="tableData2"
         :header-cell-style="{
           backgroundColor: '#f5f7fa',
         }"
       >
-        <el-table-column align="center" label="店铺名称" width="160" prop="mallname" sortable />
-        <el-table-column align="center" prop="place_gmv" label="销售量" width="260" sortable>
+        <el-table-column align="center" label="店铺名称" min-width="160px" prop="mallname" fixed />
+        <el-table-column align="center" prop="place_gmv" label="销售量" min-width="260px">
           <template slot-scope="{ row }">
             <div v-html="row.place_gmv" />
           </template>
         </el-table-column>
-        <el-table-column align="center" prop="place_orders" label="订单总数" width="260" sortable>
+        <el-table-column align="center" prop="place_orders" label="订单总数" min-width="260px">
           <template slot-scope="{ row }">
             <div v-html="row.place_orders" />
           </template>
         </el-table-column>
-        <el-table-column prop="shop_uv_to_placed_buyers_rate" label="访客转换率" width="260" align="center" sortable>
+        <el-table-column prop="shop_uv_to_placed_buyers_rate" label="访客转换率" min-width="260px" align="center">
           <template slot-scope="{ row }">
             <div v-html="row.shop_uv_to_placed_buyers_rate" />
           </template>
         </el-table-column>
-        <el-table-column prop="place_sales_per_order" label="各订单销售额" width="260" align="center" sortable>
+        <el-table-column prop="place_sales_per_order" label="各订单销售额" min-width="260px" align="center">
           <template slot-scope="{ row }">
             <div v-html="row.place_sales_per_order" />
           </template>
         </el-table-column>
-        <el-table-column prop="shop_uv" label="访客" width="245" align="center" sortable>
+        <el-table-column prop="shop_uv" label="访客" min-width="245px" align="center">
           <template slot-scope="{ row }">
             <div v-html="row.shop_uv" />
           </template>
         </el-table-column>
-        <el-table-column prop="shop_pv" label="页面浏览量" width="245" align="center" sortable>
+        <el-table-column prop="shop_pv" label="页面浏览量" min-width="245px" align="center" fixed="right">
           <template slot-scope="{ row }">
             <div v-html="row.shop_uv" />
           </template>
@@ -69,6 +71,9 @@
 import storeChoose from '../../../components/store-choose'
 import { batchOperation } from '@/util/util'
 export default {
+  components: {
+    storeChoose
+  },
   data() {
     return {
       Loading1: false,
@@ -253,10 +258,7 @@ export default {
           this.timecant = false
         }
       }
-    },
-  },
-  components: {
-    storeChoose
+    }
   },
   methods: {
     // 获取店铺信息
@@ -266,113 +268,113 @@ export default {
     },
     async getTableData(item, count = { count: 1 }) {
       try {
-        let mallname = item.mall_alias_name || item.platform_mall_name
-          const params = {
-            start_time: this.start_time,
-            end_time: this.end_time,
-            period: this.Statisticaltime,
-            orderType: this.Status,
-            mallId: item.platform_mall_id,
-            fetag: 'fetag',
-            limit: 5
-          }
-          const attributeTreeJson = await this.$shopeemanService.dashboard(this.site, params, { headers: { 'Content-Type': 'application/json; charset=utf-8' }})
-          let attributeTreeRes = ''
-          if (attributeTreeJson) {
-            attributeTreeRes = JSON.parse(attributeTreeJson)
-          }
-          console.log('this is data', attributeTreeRes)
-          if (attributeTreeRes.status === 200) {
-            attributeTreeRes.data = JSON.parse(attributeTreeRes.data)
-            if (this.Statisticaltime === 'real_time') { // 转换格式
-              for (const item in attributeTreeRes.data.result) {
-                let color = `green`
-                let arrow = ''
-                if (attributeTreeRes.data.result[item].chain_ratio > 0) {
-                  arrow = '↑'
-                } else if (attributeTreeRes.data.result[item].chain_ratio < 0) {
-                  color = `red`
-                  arrow = '↓'
-                }
-                if (item === 'shop_uv_to_placed_buyers_rate') {
-                  attributeTreeRes.data.result[item] = `<pre style="color:${color}">${(attributeTreeRes.data.result[item].value * 100).toFixed(2)}%
+        const mallname = item.mall_alias_name || item.platform_mall_name
+        const params = {
+          start_time: this.start_time,
+          end_time: this.end_time,
+          period: this.Statisticaltime,
+          orderType: this.Status,
+          mallId: item.platform_mall_id,
+          fetag: 'fetag',
+          limit: 5
+        }
+        const attributeTreeJson = await this.$shopeemanService.dashboard(this.site, params, { headers: { 'Content-Type': 'application/json; charset=utf-8' }})
+        let attributeTreeRes = ''
+        if (attributeTreeJson) {
+          attributeTreeRes = JSON.parse(attributeTreeJson)
+        }
+        console.log('this is data', attributeTreeRes)
+        if (attributeTreeRes.status === 200) {
+          attributeTreeRes.data = JSON.parse(attributeTreeRes.data)
+          if (this.Statisticaltime === 'real_time') { // 转换格式
+            for (const item in attributeTreeRes.data.result) {
+              let color = `green`
+              let arrow = ''
+              if (attributeTreeRes.data.result[item].chain_ratio > 0) {
+                arrow = '↑'
+              } else if (attributeTreeRes.data.result[item].chain_ratio < 0) {
+                color = `red`
+                arrow = '↓'
+              }
+              if (item === 'shop_uv_to_placed_buyers_rate') {
+                attributeTreeRes.data.result[item] = `<pre style="color:${color}">${(attributeTreeRes.data.result[item].value * 100).toFixed(2)}%
 vs 00:00 - 13:00  ${Math.abs(attributeTreeRes.data.result[item].chain_ratio * 100).toFixed(2)}%` + ` ${arrow}</pre>`
-                } else {
-                  attributeTreeRes.data.result[item] = `<pre style="color:${color}">${parseInt(attributeTreeRes.data.result[item].value)}
+              } else {
+                attributeTreeRes.data.result[item] = `<pre style="color:${color}">${parseInt(attributeTreeRes.data.result[item].value)}
 vs 00:00 - 13:00  ${Math.abs(attributeTreeRes.data.result[item].chain_ratio * 100).toFixed(2)}%` + ` ${arrow}</pre>`
-                }
               }
             }
-            if (this.Statisticaltime === 'yesterday') {
-              for (const item in attributeTreeRes.data.result) {
-                let color = `green`
-                let arrow = ''
-                if (attributeTreeRes.data.result[item].chain_ratio > 0) {
-                  arrow = '↑'
-                } else if (attributeTreeRes.data.result[item].chain_ratio < 0) {
-                  arrow = '↓'
-                  color = `red`
-                }
-                if (item === 'shop_uv_to_placed_buyers_rate') {
-                  attributeTreeRes.data.result[item] = `<pre style="color:${color}">${(attributeTreeRes.data.result[item].value * 100).toFixed(2)}%
-vs 前一天  ${Math.abs(attributeTreeRes.data.result[item].chain_ratio * 100).toFixed(2)}%` + ` ${arrow}</pre>`
-                } else {
-                  attributeTreeRes.data.result[item] = `<pre style="color:${color}">${parseInt(attributeTreeRes.data.result[item].value)}
-vs 前一天  ${Math.abs(attributeTreeRes.data.result[item].chain_ratio * 100).toFixed(2)}%` + ` ${arrow}</pre>`
-                }
-              }
-            }
-            if (this.Statisticaltime === 'past7days') {
-              for (const item in attributeTreeRes.data.result) {
-                let color = `green`
-                let arrow = ''
-                if (attributeTreeRes.data.result[item].chain_ratio > 0) {
-                  arrow = '↑'
-                } else if (attributeTreeRes.data.result[item].chain_ratio < 0) {
-                  arrow = '↓'
-                  color = `red`
-                }
-                if (item === 'shop_uv_to_placed_buyers_rate') {
-                  attributeTreeRes.data.result[item] = `<pre style="color:${color}">${(attributeTreeRes.data.result[item].value * 100).toFixed(2)}%
-vs 前7天  ${Math.abs(attributeTreeRes.data.result[item].chain_ratio * 100).toFixed(2)}%` + ` ${arrow}</pre>`
-                } else {
-                  attributeTreeRes.data.result[item] = `<pre style="color:${color}">${parseInt(attributeTreeRes.data.result[item].value)}
-vs 前7天  ${Math.abs(attributeTreeRes.data.result[item].chain_ratio * 100).toFixed(2)}%` + ` ${arrow}</pre>`
-                }
-              }
-            }
-            if (this.Statisticaltime === 'past30days') {
-              for (const item in attributeTreeRes.data.result) {
-                let color = `green`
-                let arrow = ''
-                if (attributeTreeRes.data.result[item].chain_ratio > 0) {
-                  arrow = '↑'
-                } else if (attributeTreeRes.data.result[item].chain_ratio < 0) {
-                  arrow = '↓'
-                  color = `red`
-                }
-                if (item === 'shop_uv_to_placed_buyers_rate') {
-                  attributeTreeRes.data.result[item] = `<pre style="color:${color}">${(attributeTreeRes.data.result[item].value * 100).toFixed(2)}%
-vs 前30天  ${Math.abs(attributeTreeRes.data.result[item].chain_ratio * 100).toFixed(2)}%` + ` ${arrow}</pre>`
-                } else {
-                  attributeTreeRes.data.result[item] = `<pre style="color:${color}">${parseInt(attributeTreeRes.data.result[item].value)}
-vs 前30天  ${Math.abs(attributeTreeRes.data.result[item].chain_ratio * 100).toFixed(2)}%` + ` ${arrow}</pre>`
-                }
-              }
-            }
-            attributeTreeRes.data.result['mallname'] = mallname
-            this.tableData2.push(attributeTreeRes.data.result)
           }
-
-      }catch (e) {
+          if (this.Statisticaltime === 'yesterday') {
+            for (const item in attributeTreeRes.data.result) {
+              let color = `green`
+              let arrow = ''
+              if (attributeTreeRes.data.result[item].chain_ratio > 0) {
+                arrow = '↑'
+              } else if (attributeTreeRes.data.result[item].chain_ratio < 0) {
+                arrow = '↓'
+                color = `red`
+              }
+              if (item === 'shop_uv_to_placed_buyers_rate') {
+                attributeTreeRes.data.result[item] = `<pre style="color:${color}">${(attributeTreeRes.data.result[item].value * 100).toFixed(2)}%
+vs 前一天  ${Math.abs(attributeTreeRes.data.result[item].chain_ratio * 100).toFixed(2)}%` + ` ${arrow}</pre>`
+              } else {
+                attributeTreeRes.data.result[item] = `<pre style="color:${color}">${parseInt(attributeTreeRes.data.result[item].value)}
+vs 前一天  ${Math.abs(attributeTreeRes.data.result[item].chain_ratio * 100).toFixed(2)}%` + ` ${arrow}</pre>`
+              }
+            }
+          }
+          if (this.Statisticaltime === 'past7days') {
+            for (const item in attributeTreeRes.data.result) {
+              let color = `green`
+              let arrow = ''
+              if (attributeTreeRes.data.result[item].chain_ratio > 0) {
+                arrow = '↑'
+              } else if (attributeTreeRes.data.result[item].chain_ratio < 0) {
+                arrow = '↓'
+                color = `red`
+              }
+              if (item === 'shop_uv_to_placed_buyers_rate') {
+                attributeTreeRes.data.result[item] = `<pre style="color:${color}">${(attributeTreeRes.data.result[item].value * 100).toFixed(2)}%
+vs 前7天  ${Math.abs(attributeTreeRes.data.result[item].chain_ratio * 100).toFixed(2)}%` + ` ${arrow}</pre>`
+              } else {
+                attributeTreeRes.data.result[item] = `<pre style="color:${color}">${parseInt(attributeTreeRes.data.result[item].value)}
+vs 前7天  ${Math.abs(attributeTreeRes.data.result[item].chain_ratio * 100).toFixed(2)}%` + ` ${arrow}</pre>`
+              }
+            }
+          }
+          if (this.Statisticaltime === 'past30days') {
+            for (const item in attributeTreeRes.data.result) {
+              let color = `green`
+              let arrow = ''
+              if (attributeTreeRes.data.result[item].chain_ratio > 0) {
+                arrow = '↑'
+              } else if (attributeTreeRes.data.result[item].chain_ratio < 0) {
+                arrow = '↓'
+                color = `red`
+              }
+              if (item === 'shop_uv_to_placed_buyers_rate') {
+                attributeTreeRes.data.result[item] = `<pre style="color:${color}">${(attributeTreeRes.data.result[item].value * 100).toFixed(2)}%
+vs 前30天  ${Math.abs(attributeTreeRes.data.result[item].chain_ratio * 100).toFixed(2)}%` + ` ${arrow}</pre>`
+              } else {
+                attributeTreeRes.data.result[item] = `<pre style="color:${color}">${parseInt(attributeTreeRes.data.result[item].value)}
+vs 前30天  ${Math.abs(attributeTreeRes.data.result[item].chain_ratio * 100).toFixed(2)}%` + ` ${arrow}</pre>`
+              }
+            }
+          }
+          attributeTreeRes.data.result['mallname'] = mallname
+          this.tableData2.push(attributeTreeRes.data.result)
+        }
+      } catch (e) {
         console.log(e)
-      }finally {
+      } finally {
         --count.count
       }
     },
     async getallinfo() {
       this.Loading1 = true
-      this.tableData1 = []
+      // this.tableData1 = []
+      this.tableData2 = []
       if (this.mall.length > 0) {
         await batchOperation(this.mall, this.getTableData)
         this.$message.success('查询完成')

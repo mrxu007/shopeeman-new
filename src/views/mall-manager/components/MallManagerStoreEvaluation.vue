@@ -96,9 +96,9 @@
           <template slot-scope="scope">
             <el-tooltip effect="light" placement="right-end" :visible-arrow="false" :enterable="false" style="width: 56px; height: 56px; display: inline-block">
               <div slot="content">
-                <el-image :src="[scope.row.country, scope.row.platform_mall_id, scope.row.product_cover] | imageRender" style="width: 400px; height: 400px" />
+                <el-image :src="[scope.row.product_cover] | imageRender" style="width: 400px; height: 400px" />
               </div>
-              <el-image :src="[scope.row.country, scope.row.platform_mall_id, scope.row.product_cover] | imageRender" style="width: 56px; height: 56px" />
+              <el-image :src="[scope.row.product_cover,true] | imageRender" style="width: 56px; height: 56px" />
             </el-tooltip>
           </template>
         </u-table-column>
@@ -396,7 +396,7 @@ export default {
                     <td>${item.platform_mall_name ? item.platform_mall_name : '' + '\t'}</td>
                     <td style="mso-number-format:'\@';">${item.order_sn && item.order_sn + '\t'}</td>
                     <td>${item.productUrl ? item.productUrl : '' + '\t'}</td>
-                    <td>${item.product_cover ? this.$filters.imageRender([item.country, item.platform_mall_id, item.product_cover]) : '' + '\t'}</td>
+                    <td>${item.product_cover ? this.$filters.imageRender([ item.product_cover]) : '' + '\t'}</td>
                     <td>${(item.product_name || '111') + '\t'}</td>
                     <td>${item.user_name ? item.user_name : '' + '\t'}</td>
                     <td>${item.rating_star ? item.rating_star : '' + '\t'}</td>

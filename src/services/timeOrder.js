@@ -2,6 +2,7 @@ import orderService from './order-service'
 import jx from '../network/jx-request'
 import api from '../network/jx-request'
 import commodityService from '../services/commodity-service'
+import applicationConfig from './application-config'
 // import JSEncrypt from 'jsencrypt'
 import shopeemanService from '../services/shopeeman-service'
 import surFaceService from './surfaceOrder'
@@ -14,6 +15,7 @@ export default class {
   $api = api;
   $commodityService = new commodityService()
   $shopeemanService = new shopeemanService()
+  $configService = new applicationConfig()
   jdNetworkService = jx.jdRequest;
   jszNetworkService = jx.jxRequest
   isStop = false;
@@ -27,12 +29,17 @@ export default class {
   upLoadType = ''
   writeLog = undefined
   timeRange = 60
-  constructor(mall, syncStatus, that, writeLog) {
+  muid = 0
+constructor(mall, syncStatus, that, writeLog) {
     this.mall = mall
     this._this = that
     this.syncStatus = syncStatus
     this.writeLog = writeLog
     console.log("mall", this.mall)
+    this.$configService.getUserInfo().then(res=>{
+      this.muid = res.muid
+      console.log("nickInfo",res)
+    })
   }
   //单个订单同步
   async startSingel(order, writeLog) {
@@ -426,7 +433,9 @@ export default class {
       let actual_shipping_cost = order && order.transactionHistoryDetail && order.transactionHistoryDetail.payment_info && order.transactionHistoryDetail.payment_info.shipping_subtotal && order.transactionHistoryDetail.payment_info.shipping_subtotal.shipping_fee_paid_by_shopee_on_your_behalf || 0
       let key = order.order_sn + '_' + order.status + '_' + order.status_ext + '_' + order.logistics_status + '_' + log_current_status + '_' + actual_shipping_cost
       let res = await this.$api.checkOrderSnStatus({
-        orderKey: key
+        orderSn:order.order_sn,
+        orderKey: key,
+        muid: this.muid
       })
       if (!res.data.orderKey) {
         checkList.push(order)
@@ -443,7 +452,9 @@ export default class {
     let flag = false
     let key = `${order.return_id}_${order.status}_${order.mtime?order.mtime:0}`
     let res = await this.$api.checkOrderSnStatus({
-      orderKey: key
+      orderSn:order.order_sn,
+      orderKey: key,
+      muid: this.muid
     })
     console.log(res, "checkAfterOrderSnStatus")
     if (!res.data.orderKey) {
@@ -525,16 +536,17 @@ export default class {
         // console.log(paramsArr)
       }
       //线上接口
-      // let resA = await this.$commodityService.saveOrder(this.mall.id.toString(),this.mall.platform_mall_id.toString(),paramsArr)
-      // console.log(resA,"saveOrder")
+      let resA = await this.$commodityService.saveOrder(this.mall.id.toString(),this.mall.platform_mall_id.toString(),paramsArr)
+      let res = JSON.parse(resA)
+      console.log(res,"saveOrder")
       //测试接口
-      let res = await this.$api.uploadOrderSaveTest({
-        "orderData": paramsArr,
-        "sysMallId": this.mall.id,
-        "mallId": this.mall.platform_mall_id
-      })
+      // let res = await this.$api.uploadOrderSaveTest({
+      //   "orderData": paramsArr,
+      //   "sysMallId": this.mall.id,
+      //   "mallId": this.mall.platform_mall_id
+      // })
       let isUpload = true
-      if (res.data.code === 200) {
+      if (res.code === 200) {
         isUpload = true
       } else {
         isUpload = false
@@ -627,16 +639,17 @@ export default class {
       }
       console.log(paramsArr)
       //线上接口
-      // let resA = await this.$commodityService.saveAfterOrder(this.mall.id.toString(),this.mall.platform_mall_id.toString(),paramsArr)
-      // console.log(resA,"saveAfterOrder")
+      let resA = await this.$commodityService.saveAfterOrder(this.mall.id.toString(),this.mall.platform_mall_id.toString(),paramsArr)
+      let res = JSON.parse(resA)
+      console.log(res,"saveAfterOrder")
       //测试接口
-      let res = await this.$api.uploadOrderAfterSale({
-        "afterOrderData": paramsArr,
-        "sysMallId": this.mall.id,
-        "mallId": this.mall.platform_mall_id
-      })
+      // let res = await this.$api.uploadOrderAfterSale({
+      //   "afterOrderData": paramsArr,
+      //   "sysMallId": this.mall.id,
+      //   "mallId": this.mall.platform_mall_id
+      // })
       console.log(this.mall, "上报after", res)
-      if (res.data.code === 200) {
+      if (res.code === 200) {
         return true
       } else {
         return false
