@@ -144,9 +144,9 @@ export default class GoodsDiscount {
   //   "end_time": 1641471154,
   //   "status": 1
   // }
-  async createAcitive(params){
+  async createActive(country,params){
     try {
-      const res = await this._this.$shopeemanService.postChinese(val.country, '/api/marketing/v3/discount/?', params,{
+      const res = await this._this.$shopeemanService.postChinese(country,'/api/marketing/v3/discount/?', params,{
         Headers: {
           'Content-Type': ' application/json'
         }})
