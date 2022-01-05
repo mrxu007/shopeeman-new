@@ -150,8 +150,8 @@ export default class CommodityService {
    * }} data
    */
   async uploadCollectGoods(data) {
-    await this.getUserInfo()
-    data.uuid = this.user.child_id
+    // await this.getUserInfo()
+    // data.uuid = this.user.child_id
     console.log(data, '=====>')
     return this.nativeService.callFunction('UploadCollectGoods', JSON.stringify(data))
   }
@@ -548,14 +548,14 @@ export default class CommodityService {
    * @param isParent :isParent 类目的父级标识：1传入的类目作为父级查询；0当前类目查询
    * @param tableType : string
    */
-  async getCategoryTbInfo(country, categoryId = '0', isParent='1', tableType='') {
+  async getCategoryTbInfo(country, categoryId = '0', isParent = '1', tableType = '') {
     return await this.nativeService.callCategoryFunction('GetCategoryInfo', country, categoryId, isParent, tableType)
   }
   /**
    * 获取类目属性
    */
-  getAttributeInfo(country, categoryId = '0', isNewOpen = '0', tableType='', isMandatoryAttr = '1') {
-    console.log(country, categoryId, isNewOpen, tableType , isMandatoryAttr )
+  getAttributeInfo(country, categoryId = '0', isNewOpen = '0', tableType = '', isMandatoryAttr = '1') {
+    console.log(country, categoryId, isNewOpen, tableType, isMandatoryAttr)
     return this.nativeService.callCategoryFunction('GetAttributeInfo', country, categoryId.toString(), isNewOpen, tableType, isMandatoryAttr)
   }
 
@@ -840,7 +840,7 @@ export default class CommodityService {
     return await this.nativeService.callLazadaService('GetPayMethod', country, cookieStr, orderDetial, shotOrderSn)
   }
   /**
-   * @name : 
+   * @name :
    * @param  {String} sysOrderIds 系统订单id，用逗号隔开
    */
   async getSkuRelation(sysOrderIds) {
@@ -855,8 +855,8 @@ export default class CommodityService {
     return await this.nativeService.callSkuRelationClient('SaveGoodsSkuRelation', SkuRelation)
   }
 
-  /**上报面单信息
-   * @name : 
+  /** 上报面单信息
+   * @name :
    * @param  {*}
    * @param {*} sysMallId
    * @param {*} mallId
@@ -881,7 +881,7 @@ export default class CommodityService {
    * @param  {*}
    * @param {*} sysMallId
    * @param {*} mallId
-   * @param {*} orderData 
+   * @param {*} orderData
    */
   async saveOrder(sysMallId, mallId, orderData) {
     return await this.nativeService.callOrderAndMallUpload('SaveOrder', sysMallId, mallId, JSON.stringify(orderData))
@@ -891,7 +891,7 @@ export default class CommodityService {
    * @param  {*}
    * @param {*} sysMallId
    * @param {*} mallId
-   * @param {*} afterOrderData 
+   * @param {*} afterOrderData
    */
   async saveAfterOrder(sysMallId, mallId, afterOrderData) {
     return await this.nativeService.callOrderAndMallUpload('SaveAfterOrder', sysMallId, mallId, JSON.stringify(afterOrderData))
