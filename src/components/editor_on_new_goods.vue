@@ -58,9 +58,9 @@
               </div>
             </el-option>
           </el-select>
-          <el-button size="mini" @click="saveConfigLabel" type="primary">保存配置信息</el-button>
-          <el-button size="mini" @click="selectDescribe(0)" type="primary">选择模板</el-button>
-          <el-button size="mini" @click="loginAliTranslation" type="primary">登录阿里翻译</el-button>
+          <el-button size="mini" @click.native="saveConfigLabel" type="primary">保存配置信息</el-button>
+          <el-button size="mini" @click.native="selectDescribe(0)" type="primary">选择模板</el-button>
+          <el-button size="mini" @click.native="loginAliTranslation" type="primary">登录阿里翻译</el-button>
         </div>
         <div class="basisInstall-box">
           <div>商品描述：</div>
@@ -545,7 +545,10 @@ export default {
     let getLabelsRes = await this.$api.getLabels()
     let getLabelsData = getLabelsRes.data
     if (getLabelsData.code === 200) {
-      this.configLabelList = getLabelsData.data
+      this.configLabelList = getLabelsData.data || []
+      if (this.configLabelList.length >0){
+        this.configLabel = this.configLabelList[this.configLabelList.length - 1]
+      }
     }
     this.$refs.mallTableRef.toggleAllSelection()
     let userJson = await this.$appConfig.getUserConfig()
@@ -720,13 +723,8 @@ export default {
       return
     },
     async titleDescribeSet() {
-      let params = []
-      this.mallTableSelect.forEach(item => {
-        if (item.language.toLocaleUpperCase() !== this.translationConfig.languages.toLocaleUpperCase()) {
-          params.push(item)
-        }
-      })
-      let res = await batchOperation(params, this.titleDescribeUpdate, this.threadNumber)
+      let res = await batchOperation(this.mallTableSelect, this.titleDescribeUpdate, this.threadNumber)
+      this.titleDescribeVisible = false
     },
     async titleDescribeUpdate(item, count = { count: 1 }) {
       let index = this.mallTable.findIndex(i => i.id === item.id)
@@ -1286,16 +1284,16 @@ export default {
         if (getLabelData.data) {
           let config = getLabelData.data && getLabelData.data.config
           this.pictureConfig.typeRadio = parseInt(config.AliImgTranslateType || this.pictureConfig.typeRadio)  // 阿里图片翻译类型
-          this.goodsDescribeRadio = parseInt(config.GoodDescribe || this.goodsDescribeRadio)// 商品描述
-          this.translationConfig.titleChecked = config.IsTranslateTitle || this.translationConfig.titleChecked// 是否翻译标题
-          this.translationConfig.specChecked = config.IsTranslateSpecification || this.translationConfig.specChecked // 是否翻译规格信息
-          this.translationConfig.describeChecked = config.IsTranslateDescribe || this.translationConfig.describeChecked // 是否翻译描述
+          this.goodsDescribeRadio = parseInt(config.GoodDescribe || this.goodsDescribeRadio) // 商品描述
+          this.translationConfig.titleChecked = config.IsTranslateTitle // 是否翻译标题
+          this.translationConfig.specChecked = config.IsTranslateSpecification // 是否翻译规格信息
+          this.translationConfig.describeChecked = config.IsTranslateDescribe // 是否翻译描述
           this.translationConfig.languages = config.TranslateLanguage || this.translationConfig.languages // 翻译语种
-          this.threadNumber = config.ThreadNumStr || this.threadNumber// 线程数
-          this.filterSimplifiedChecked = config.IsFilterSimpleData || this.filterSimplifiedChecked  // 上新是否过滤简体数据
-          this.pictureConfig.specChecked = config.TranslateSkuPic || this.pictureConfig.specChecked // 翻译sku图
-          this.pictureConfig.shuffleChecked = config.TranslateLunBoPic || this.pictureConfig.shuffleChecked // 翻译轮播图
-          this.pictureConfig.deleteGoodsChecked = config.IsDeleteStocokLess || this.pictureConfig.deleteGoodsChecked // 是否 删除库存低于设定值的商品
+          this.threadNumber = config.ThreadNumStr || this.threadNumber // 线程数
+          this.filterSimplifiedChecked = config.IsFilterSimpleData // 上新是否过滤简体数据
+          this.pictureConfig.specChecked = config.TranslateSkuPic // 翻译sku图
+          this.pictureConfig.shuffleChecked = config.TranslateLunBoPic // 翻译轮播图
+          this.pictureConfig.deleteGoodsChecked = config.IsDeleteStocokLess // 是否 删除库存低于设定值的商品
           this.pictureConfig.inventoryNumber = config.Stock || this.pictureConfig.inventoryNumber  // 库存值
           this.translationConfig.before = config.SourceLanguage || this.translationConfig.before // 图片翻译源语言
           this.translationConfig.after = config.TargetLanguage || this.translationConfig.after // 图片翻译目的语言
@@ -1305,6 +1303,9 @@ export default {
     },
     async saveConfigLabel() {
       let label = this.configLabel
+      if (!label){
+        this.$message.error('请先选择或创建标签名')
+      }
       let config = {}
       config.AliImgTranslateType = this.pictureConfig.typeRadio  // 阿里图片翻译类型
       config.GoodDescribe = this.goodsDescribeRadio // 商品描述
@@ -1325,13 +1326,18 @@ export default {
         label,
         config
       }
-      let saveLabelRes = await this.$api.saveLabel(param)
-      if (saveLabelRes.data && saveLabelRes.data.code === 200) {
-        if (!this.configLabelList.includes(label)) {
-          this.configLabelList.push(label)
+      console.log(param)
+      try {
+        let saveLabelRes = await this.$api.saveLabel(param)
+        if (saveLabelRes.data && saveLabelRes.data.code === 200) {
+          if (!this.configLabelList.includes(label)) {
+            this.configLabelList.push(label)
+          }
+          this.$message.success('配置标签保存成功')
+        } else {
+          this.$message.error('配置标签保存失败')
         }
-        this.$message.success('配置标签保存成功')
-      } else {
+      }catch (e) {
         this.$message.error('配置标签保存失败')
       }
     }
