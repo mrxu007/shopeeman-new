@@ -278,12 +278,12 @@
             <el-tooltip effect="light" placement="right-end" :visible-arrow="false" :enterable="false" style="width: 32px; height: 32px; display: inline-block">
               <div slot="content">
                 <el-image
-                  :src="[scope.row.country, scope.row.mall_info ? scope.row.mall_info.platform_mall_id : '', scope.row.goods_info.goods_img] | imageRender"
+                  :src="[scope.row.goods_info.goods_img] | imageRender"
                   style="width: 400px; height: 400px"
                 />
               </div>
               <el-image
-                v-bind:src="[scope.row.country, scope.row.mall_info ? scope.row.mall_info.platform_mall_id : '', scope.row.goods_info.goods_img] | imageRender"
+                v-bind:src="[scope.row.goods_info.goods_img,true] | imageRender"
                 style="width: 32px; height: 32px"
               ></el-image>
             </el-tooltip>

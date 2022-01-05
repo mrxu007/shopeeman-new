@@ -69,7 +69,7 @@
             <u-table-column align="center" label="操作" min-width="240">
               <template v-slot="{ row, index }">
                 <el-button type="primary" size="mini" @click="searchDiscountDetail(row)">查看详情</el-button>
-                <el-button type="primary" size="mini" @click="copyAndOpen(row.platform_mall_id,row.discount_id)">复制</el-button>
+                <el-button type="primary" size="mini" @click="copyAndOpen(row.platform_mall_id, row.discount_id)">复制</el-button>
                 <el-button type="primary" size="mini" v-if="row.statusName === '进行中'" @click="stopActiveSingle(row, index, 'stop')">结束</el-button>
                 <el-button type="primary" size="mini" v-if="row.statusName !== '进行中'" @click="stopActiveSingle(row, index, 'delete')">删除</el-button>
               </template>
@@ -169,7 +169,11 @@
             <u-table-column align="center" label="售价" width="120" prop="promotion_price_after_tax" />
             <u-table-column align="center" label="折扣" width="120" prop="discount" />
             <u-table-column align="center" label="购买限制" min-width="150" prop="user_item_limit" />
-            <u-table-column align="center" label="操作" min-width="150" />
+            <u-table-column align="center" label="操作" min-width="150">
+              <template slot-scope="scope" v-if="scope.row.editStatus === 1">
+                <el-button type="primary" size="mini" @click="deleteEditGoods(scope.row, scope.$index)" v-if="scope.row.editStatus === 1">删 除</el-button>
+              </template>
+            </u-table-column>
             <!-- <u-table-column align="center" label="操作状态" min-width="150" /> -->
           </u-table>
         </el-row>
@@ -242,12 +246,38 @@ export default {
       limitNum: '', //限购数量
       goodsItemSelectorVisible: false,
       selectGoods: [], //选择的商品
-      selectGoodsType:''
+      // selectGoodsType:''
     }
   },
   methods: {
+    async deleteEditGoods(row, index) {
+      this.editTableData.splice(index, 1)
+      let indexC = this.editTableDataCopy.findIndex((n) => n.itemid === row.itemid)
+      this.editTableDataCopy.splice(indexC, 1)
+    },
+    async addActiveTo() {
+      let arrFilter = this.editTableData.filter((n) => n.editStatus === 1)
+      if (!arrFilter.length) {
+        return this.$message.warning(`没有可添加的商品！`)
+      }
+      this.showConsole = false
+      let discount_id = this.activeRow.discount_id
+      arrFilter.forEach(async (good) => {
+        let skuList = await this.searchProductDetail(good.itemid, good.platform_mall_id, good.country)
+        if (skuList.length) {
+          let result = await this.setModelActive(skuList, good.platform_mall_id, good.country, good.itemid, discount_id, good.platform_mall_name)
+          if (result) {
+            let index = this.editTableData.findIndex((n) => n.itemid == good.itemid)
+            let indexC = this.editTableDataCopy.findIndex((n) => n.itemid == good.itemid)
+            this.$set(this.editTableData[index], 'editStatus', 2)
+            this.$set(this.editTableDataCopy[indexC], 'editStatus', 2)
+            console.log(this.editTableData[index],this.editTableDataCopy[indexC])
+          }
+        }
+      })
+    },
     //复制
-    async copyAndOpen(shopId,discountId) {
+    async copyAndOpen(shopId, discountId) {
       const reqStr = {
         type: 'route',
         shopId: shopId,
@@ -279,6 +309,7 @@ export default {
       if (!this.activeDate.length) {
         return this.$message.warning('请先选择活动时间！')
       }
+      this.showConsole = false
       let start = Math.round(new Date(this.activeDate[0]).getTime() / 1000)
       let end = Math.round(new Date(this.activeDate[1]).getTime() / 1000)
       this.selectMallListEdit.forEach(async (mall) => {
@@ -294,13 +325,19 @@ export default {
         let res = await this.GoodsDiscount.createActive(mall.country, params)
         console.log('res', res)
         if (res.code === 200) {
-          this.$refs.Logs.writeLog(`店铺【${mall.platform_mall_name}】,创建活动【${this.activeName}】成功`, true)
+          this.$refs.Logs.writeLog(`店铺【${mall.platform_mall_name}】,创建活动【${this.activeDicountName}】成功`, true)
           let discount_id = res.data.discount_id
           let filterArr = this.selectGoods.filter((n) => n.platform_mall_id == mall.platform_mall_id)
           filterArr.forEach(async (good) => {
             let skuList = await this.searchProductDetail(good.itemid, good.platform_mall_id, good.country)
             if (skuList.length) {
-              this.setModelActive(skuList, mall.platform_mall_id, mall.country, good.itemid, discount_id, mall.platform_mall_name)
+              let result = this.setModelActive(skuList, mall.platform_mall_id, mall.country, good.itemid, discount_id, mall.platform_mall_name)
+              if(result){
+                let index = this.editTableData.findIndex(n=>n.itemid == good.itemid)
+                let indexC = this.editTableDataCopy.findIndex(n=>n.itemid == good.itemid)
+                this.$set(this.editTableData[index],'editStatus',2)
+                this.$set(this.editTableDataCopy[indexC],'editStatus',2)
+              }
             }
           })
         } else {
@@ -335,8 +372,10 @@ export default {
       let creatRes = await this.GoodsDiscount.putModelActive(country, creatParams)
       if (creatRes.code === 200) {
         this.$refs.Logs.writeLog(`店铺【${mallName}】,商品【${goodsId}】创建活动成功`, true)
+        return true
       } else {
         this.$refs.Logs.writeLog(`店铺【${mallName}】,商品【${goodsId}】创建活动失败`, false)
+        return false
       }
     },
     //查询商品详情
@@ -360,12 +399,10 @@ export default {
         item.promotion_price_after_tax = (item.price * (this.activeDiscount / 100)).toFixed(2)
         item.discount = this.activeDiscount / 100
         item.image = item.images.split(',')[0]
+        item.editStatus = 1
       })
-      if(this.selectGoodsType == 'add'){
-        this.editTableData = this.editTableData.concat(val.goodsList) 
-      }else{
-        this.editTableData = val.goodsList
-      }
+      this.editTableData = val.goodsList.concat(this.editTableData)
+      this.editTableDataCopy = JSON.parse(JSON.stringify(this.editTableData))
       console.log('changeGoodsItem', val)
       this.goodsItemSelectorVisible = false
     },
@@ -470,7 +507,6 @@ export default {
     //根据商品编号搜索
     searchDetail() {
       if (this.activeProductId) {
-        console.log(this.editTableDataCopy, this.editTableData, ';;;;')
         this.editTableData = this.editTableDataCopy.filter((n) => {
           return n.itemid == this.activeProductId
         })
