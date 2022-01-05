@@ -2,14 +2,14 @@
   <div class="detail">
     <div class="condetion" style="background-color: white;padding:8px">
       <div class="row1">
-        <storeChoose style="margin-left:-20px" :show-mall-all="true" @changeMallList="changeMallList"/>
+        <storeChoose style="margin-left:-20px" :show-mall-all="true" @changeMallList="changeMallList" />
         <div>
           <label>优惠劵类型：</label>
           <el-select v-model="saleType" placeholder="请选择" size="mini" style="width:120px">
-            <el-option label="全部" value="0"/>
-            <el-option label="即将进行" value="1"/>
-            <el-option label="进行中" value="2"/>
-            <el-option label="已结束" value="3"/>
+            <el-option label="全部" value="0" />
+            <el-option label="即将进行" value="1" />
+            <el-option label="进行中" value="2" />
+            <el-option label="已结束" value="3" />
           </el-select>
         </div>
       </div>
@@ -26,37 +26,37 @@
         <el-checkbox v-model="showlog" style="margin-left:8px">隐藏日志</el-checkbox>
       </div>
     </div>
-    <Logs ref="Logs" v-model="showlog" clear/>
+    <Logs ref="Logs" v-model="showlog" clear />
     <div class="tableDetail" style="margin-top: 8px;">
       <u-table
-          ref="multipleTable"
-          v-loading="tableLoading"
-          :data="tableList"
+        ref="multipleTable"
+        v-loading="tableLoading"
+        :data="tableList"
         height="800px"
-          use-virtual
-          :border="false"
-          :header-cell-style="{ background: '#f7fafa' }"
-          @selection-change="handleSelectionChange"
+        use-virtual
+        :border="false"
+        :header-cell-style="{ background: '#f7fafa' }"
+        @selection-change="handleSelectionChange"
       >
-        <u-table-column type="selection" width="55" fixed/>
-        <u-table-column type="index" fixed label="序号" min-width="50px"/>
+        <u-table-column type="selection" width="55" fixed />
+        <u-table-column type="index" fixed label="序号" min-width="50px" />
         <u-table-column prop="" label="站点" align="center" min-width="50px" fixed>
           <template v-slot="{row}">{{ row.country | chineseSite }}</template>
         </u-table-column>
-        <u-table-column prop="mallName" label="店铺" align="center" min-width="150px"/>
-        <u-table-column prop="name" label="优惠劵" align="center" min-width="150px"/>
-        <u-table-column prop="voucher_code" label="优惠码" align="center" min-width="180px"/>
+        <u-table-column prop="mallName" label="店铺" align="center" min-width="150px" />
+        <u-table-column prop="name" label="优惠劵" align="center" min-width="150px" />
+        <u-table-column prop="voucher_code" label="优惠码" align="center" min-width="180px" />
         <u-table-column prop="voucher_type" label="优惠类型" align="center" min-width="100px">
           <!-- <template v-slot="{row}">{{ row.rule && row.rule.shopids.length===0 ? '店铺优惠卷' :'商品优惠卷' }}</template> -->
         </u-table-column>
-        <u-table-column prop="discountInfo" label="折扣金额" align="center" min-width="180px"/>
-        <u-table-column prop="topNum" label="最高上限数额" align="center" min-width="150px"/>
-        <u-table-column prop="usage_limit" label="优惠劵可使用数量" align="center" min-width="150px"/>
-        <u-table-column prop="min_price" label="最低消费记录" align="center" min-width="100px"/>
+        <u-table-column prop="discountInfo" label="折扣金额" align="center" min-width="180px" />
+        <u-table-column prop="topNum" label="最高上限数额" align="center" min-width="150px" />
+        <u-table-column prop="usage_limit" label="优惠劵可使用数量" align="center" min-width="150px" />
+        <u-table-column prop="min_price" label="最低消费记录" align="center" min-width="100px" />
         <u-table-column prop="distributed_count" label="已领取" align="center" min-width="100px">
           <!-- <template v-slot="{row}">{{row.}}</template> -->
         </u-table-column>
-        <u-table-column prop="current_usage" label="已使用" align="center" min-width="100px"/>
+        <u-table-column prop="current_usage" label="已使用" align="center" min-width="100px" />
         <u-table-column prop="" label="期间" align="center" min-width="200px">
           <template v-slot="{row}">
             <div>{{ row.formStartime }}-</div>
@@ -75,23 +75,31 @@
         </u-table-column>
         <u-table-column prop="" label="操作" align="center" min-width="100px" fixed="right">
           <template v-slot="{row}">
-            <span> <el-button v-if="row.voucher_status==='即将开始'" size="mini" type="primary"
-                              @click="MallvoucherDelFun(row),singerStop=true">删除</el-button> </span>
-            <span> <el-button v-if="row.voucher_status==='进行中' " size="mini" type="primary"
-                              @click="MallvoucherStop(row),singerStop=true">停止</el-button> </span>
+            <span> <el-button
+              v-if="row.voucher_status==='即将开始'"
+              size="mini"
+              type="primary"
+              @click="MallvoucherDelFun(row),singerStop=true"
+            >删除</el-button> </span>
+            <span> <el-button
+              v-if="row.voucher_status==='进行中' "
+              size="mini"
+              type="primary"
+              @click="MallvoucherStop(row),singerStop=true"
+            >停止</el-button> </span>
           </template>
         </u-table-column>
       </u-table>
     </div>
     <!-- 新建店铺优惠劵 -->
     <el-dialog
-        class="edit-group-dialog"
-        :visible.sync="CouponVisible"
-        width="620px"
-        top="5vh"
-        :title="dialogtitle"
-        :close-on-click-modal="false"
-        :close-on-press-escape="false"
+      class="edit-group-dialog"
+      :visible.sync="CouponVisible"
+      width="620px"
+      top="5vh"
+      :title="dialogtitle"
+      :close-on-click-modal="false"
+      :close-on-press-escape="false"
     >
       <el-form label-position="right" label-width="160px">
 
@@ -107,7 +115,7 @@
         </el-form-item>
 
         <el-form-item label="优惠劵名称">
-          <el-input v-model="couponName" size="mini" style="width:260px"/>
+          <el-input v-model="couponName" size="mini" style="width:260px" />
         </el-form-item>
 
         <el-form-item label="奖励类型">
@@ -116,22 +124,26 @@
             <el-radio label="0">折扣</el-radio>
             <!-- shoppe币折扣 -->
             <el-radio label="1">Shoppe币折扣
-              <el-tooltip class="item" effect="dark" content="买家使用Shoppee币回扣优惠劵并获得Shoppee币作为回报。Shoppee币成本将由您吸收"
-                          placement="right-start">
-                <i class="el-icon-question"/>
+              <el-tooltip
+                class="item"
+                effect="dark"
+                content="买家使用Shoppee币回扣优惠劵并获得Shoppee币作为回报。Shoppee币成本将由您吸收"
+                placement="right-start"
+              >
+                <i class="el-icon-question" />
               </el-tooltip>
             </el-radio>
           </el-radio-group>
         </el-form-item>
         <el-form-item label="折扣类型 | 优惠限额" class="discountitem">
           <el-select v-if="rewardType==='0'" v-model="discountType" placeholder="请选择" size="mini" style="width:100px">
-            <el-option label="折扣" value="0"/>
-            <el-option label="折扣金额" value="1"/>
+            <el-option label="折扣" value="0" />
+            <el-option label="折扣金额" value="1" />
           </el-select>
           <!-- 选择折扣 -->
           <span v-if="rewardType==='1'">折扣 ：</span>
           <div>
-            <el-input v-model="discountNum" size="mini" style="width:100px" onkeyup="value=value.replace(/[^\d]/g,0)"/>
+            <el-input v-model="discountNum" size="mini" style="width:100px" onkeyup="value=value.replace(/[^\d]/g,0)" />
             <span v-if="discountType==='0' || rewardType==='1'" style="color:red">%折扣,付款金额中的-%将退还给买家</span>
           </div>
           <!-- <div v-if="discountType==='0'" class="color:red"></div> -->
@@ -141,30 +153,30 @@
           <el-radio-group v-model="limitPrice">
             <el-radio label="0">无限制</el-radio>
             <el-radio label="1">设置金额：
-              <el-input v-model="maxPrice" size="mini" style="width:80px" onkeyup="value=value.replace(/[^\d]/g,0)"/>
+              <el-input v-model="maxPrice" size="mini" style="width:80px" onkeyup="value=value.replace(/[^\d]/g,0)" />
             </el-radio>
           </el-radio-group>
         </el-form-item>
 
         <el-form-item label="最低消费金额">
-          <el-input v-model="minPrice" size="mini" style="width:100px" onkeyup="value=value.replace(/[^\d]/g,0)"/>
+          <el-input v-model="minPrice" size="mini" style="width:100px" onkeyup="value=value.replace(/[^\d]/g,0)" />
         </el-form-item>
 
         <el-form-item label="优惠时限">
           <el-date-picker
-              v-model="dateTime"
-              style="width:330px;"
-              size="mini"
-              value-format="timestamp"
-              type="datetimerange"
-              range-separator="-"
-              start-placeholder="开始日期"
-              end-placeholder="结束日期"
-              :picker-options="pickerOptions"
+            v-model="dateTime"
+            style="width:330px;"
+            size="mini"
+            value-format="timestamp"
+            type="datetimerange"
+            range-separator="-"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
+            :picker-options="pickerOptions"
           />
         </el-form-item>
         <el-form-item label="优惠劵可使用数量(必填)">
-          <el-input v-model="useQuantity" size="mini" style="width:100px" onkeyup="value=value.replace(/[^\d]/g,0)"/>
+          <el-input v-model="useQuantity" size="mini" style="width:100px" onkeyup="value=value.replace(/[^\d]/g,0)" />
         </el-form-item>
 
         <el-form-item label="优惠劵显示页面">
@@ -189,12 +201,12 @@
             <el-button size="mini" type="primary" @click="goodsItemSelectorVisible = true">添加商品</el-button>
             <!--商品优惠卷 表格 -->
             <el-table
-                class="goodstable"
-                :data="couponGoodslist"
-                :header-cell-style="{ background: '#f7fafa' }"
-                height="120px"
+              class="goodstable"
+              :data="couponGoodslist"
+              :header-cell-style="{ background: '#f7fafa' }"
+              height="120px"
             >
-              <el-table-column prop="id" label="商品ID" align="center" min-width="100px"/>
+              <el-table-column prop="id" label="商品ID" align="center" min-width="100px" />
               <el-table-column label="操作" align="center" min-width="100px">
                 <template><span><el-button size="mini" type="primary">删除</el-button></span></template>
               </el-table-column>
@@ -210,9 +222,15 @@
       </el-form>
     </el-dialog>
     <div class="on_new_dialog">
-      <el-dialog :visible.sync="goodsItemSelectorVisible" top="7vh" title="商品选择" :close-on-click-modal="false"
-                 :close-on-press-escape="false" width="1280px">
-        <goodsItemSelector v-if="goodsItemSelectorVisible" :mall="selectMallList" @changeGoodsItem="changeGoodsItem"/>
+      <el-dialog
+        :visible.sync="goodsItemSelectorVisible"
+        top="7vh"
+        title="商品选择"
+        :close-on-click-modal="false"
+        :close-on-press-escape="false"
+        width="1280px"
+      >
+        <goodsItemSelector v-if="goodsItemSelectorVisible" :mall="selectMallList" @changeGoodsItem="changeGoodsItem" />
       </el-dialog>
     </div>
   </div>
@@ -272,8 +290,8 @@ export default {
   },
   methods: {
     changeGoodsItem(val) {
-      console.log('changeGoodsItem',val)
-      if(val){
+      console.log('changeGoodsItem', val)
+      if (val) {
 
       }
       this.goodsItemSelectorVisible = false
@@ -468,8 +486,8 @@ export default {
           if (res.message === 'token not found') {
             this.$refs.Logs.writeLog(`【${item.mall_alias_name || item.platform_mall_name}】${res.message}:店铺未登录`, false)
           } else {
-          this.$refs.Logs.writeLog(`【${item.mall_alias_name || item.platform_mall_name}】${res.message}`, false)
-        }
+            this.$refs.Logs.writeLog(`【${item.mall_alias_name || item.platform_mall_name}】${res.message}`, false)
+          }
         }
       } catch (error) {
         this.$refs.Logs.writeLog(`【${item.mall_alias_name || item.platform_mall_name}】--catch，${error}`, false)

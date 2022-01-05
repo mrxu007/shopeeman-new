@@ -1,15 +1,3 @@
-<<<<<<< HEAD
-
-=======
-<!--
- * @Author: your name
- * @Date: 2021-12-27 10:59:26
- * @LastEditTime: 2022-01-03 10:33:07
- * @LastEditors: Please set LastEditors
- * @Description: 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
- * @FilePath: \shopeeman-new\src\views\market-activity\components\MarketActivityBatchMode.vue
--->
->>>>>>> 1aa4b578b417b3b3e38aa48e2d48d51e87fcfa62
 <template>
   <div class="batch-chat">
     <div class="select-box">
@@ -436,6 +424,7 @@ export default {
         }
         let loginRes = await this.$shopeemanService.loginMessage(mall.country, data, params)
         let token = loginRes.data.token
+        let oldMsg = ''
         for (let i = 0; i < mallOrderList.length; i++) {
           if (this.isStop) {
             this.btnLoading = false
@@ -466,12 +455,19 @@ export default {
               }
               this.tableData.push(params)
             }
-            let randomIndex = Math.floor(Math.random() * this.messageList.length)
-            let msg = this.messageList[randomIndex]
+            let msg = ''
+            if(this.messageList.length == 1){
+              msg = this.messageList[0]
+            }else{
+              let filterArr = this.messageList.filter(n=> n!== oldMsg)
+              let randomIndex = Math.floor(Math.random() * filterArr.length)
+              msg = filterArr[randomIndex]
+            }
             let timestamp = new Date().getTime()
             let msgRes = await this.sendMessage('text', msg, {}, userId, Number(mall.platform_mall_id), token, mall.country, timestamp, ShopeeUid)
             let indexA = this.tableData.findIndex((n) => n.userName == userName)
             if (msgRes.code === 200) {
+              oldMsg = msg
               this.$set(this.tableData[indexA], 'remark', `${this.tableData[indexA].remark}【消息发送成功】`)
               this.$set(this.tableData[indexA], 'chatMessage', msg)
             } else {
@@ -853,6 +849,9 @@ export default {
     addMessage() {
       if (this.sendText == '') {
         return
+      }
+      if(this.messageList.indexOf(this.sendText.trim())>-1){
+        return this.$message.warning('请不要添加重复信息!')
       }
       this.messageList.push(this.sendText)
     },

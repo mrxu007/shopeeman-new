@@ -2,7 +2,7 @@
   <el-row class="contaniner">
     <el-row class="header">
       <ul style="margin-bottom: 10px">
-        <storeChoose :span-width="'80px'" :source="'true'" @changeMallList="changeMallList"/>
+        <storeChoose :span-width="'80px'" :source="'true'" @changeMallList="changeMallList" />
         <li>
           <span>统计时间：</span>
           <el-select v-model="Statisticaltime" placeholder="" size="mini" filterable>
@@ -10,8 +10,8 @@
           </el-select>
         </li>
         <li>
-          <el-button type="primary" :disabled="Loading1" size="mini" @click="getallinfo">搜索</el-button>
-          <el-button type="primary" :disabled="Loading1" size="mini" @click="DerivedData">导出</el-button>
+          <el-button type="primary" :loading="Loading1" size="mini" @click="getallinfo">搜索</el-button>
+          <el-button type="primary" size="mini" @click="DerivedData">导出</el-button>
         </li>
       </ul>
       <el-table
@@ -19,20 +19,21 @@
         v-loading="Loading3"
         style="margin-top:10px"
         header-align="center"
-        height="calc(100vh - 140px)"
+        height="calc(100vh - 85px)"
         :data="tableData"
         :header-cell-style="{
           backgroundColor: '#f5f7fa',
         }"
       >
-        <el-table-column align="center" label="店铺名称" width="200" prop="mallname" />
-        <el-table-column prop="reminder_clicks" label="商品显示次数" width="210" align="center" />
-        <el-table-column prop="product_clicks" label="商品点击次数" width="210" align="center" />
-        <el-table-column prop="conversion_rate" label="点击率" width="210" align="center" />
-        <el-table-column prop="sales" label="销售额" width="210" align="center" />
-        <el-table-column prop="orders" label="订单量" width="210" align="center" />
-        <el-table-column prop="buyers" label="买家数" width="210" align="center" />
-        <el-table-column prop="sales_per_buyer" label="每位买家的销售额" width="210" align="center" />
+        <el-table-column align="center" label="序号" min-width="80px" type="index" fixed />
+        <el-table-column align="center" label="店铺名称" min-width="200px" prop="mallname" />
+        <el-table-column prop="reminder_clicks" label="商品显示次数" min-width="210px" align="center" />
+        <el-table-column prop="product_clicks" label="商品点击次数" min-width="210px" align="center" />
+        <el-table-column prop="conversion_rate" label="点击率" min-width="210px" align="center" />
+        <el-table-column prop="sales" label="销售额" min-width="210px" align="center" />
+        <el-table-column prop="orders" label="订单量" min-width="210px" align="center" />
+        <el-table-column prop="buyers" label="买家数" min-width="210px" align="center" />
+        <el-table-column prop="sales_per_buyer" label="每位买家的销售额" min-width="210px" align="center" fixed="right" />
       </el-table>
     </el-row>
   </el-row>
@@ -41,6 +42,9 @@
 import { batchOperation, exportExcelDataCommon } from '../../../util/util'
 import storeChoose from '@/components/store-choose'
 export default {
+  components: {
+    storeChoose
+  },
   data() {
     return {
       Loading1: false,
@@ -71,9 +75,6 @@ export default {
         { value: 'past30days', label: '近30天' }
       ]
     }
-  },
-  components: {
-    storeChoose
   },
   watch: {
     Statisticaltime(val, oldVal) {
@@ -225,7 +226,7 @@ export default {
           this.timecant = false
         }
       }
-    },
+    }
   },
   mounted() {
     // const timenow = new Date().getTime()
@@ -243,7 +244,7 @@ export default {
     },
     async getTableData(item, count = { count: 1 }) {
       try {
-        let mallname = item.mall_alias_name || item.platform_mall_name
+        const mallname = item.mall_alias_name || item.platform_mall_name
         const params = {
           start_time: this.start_time,
           end_time: this.end_time,

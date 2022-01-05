@@ -2,9 +2,9 @@
   <el-row class="contaniner">
     <el-row class="header">
       <ul style="margin-bottom: 10px;margin-left:24px">
-        <storeChoose :span-width="'80px'" :source="'true'" @changeMallList="changeMallList"/>
+        <storeChoose :span-width="'80px'" :source="'true'" @changeMallList="changeMallList" />
       </ul>
-      <ul>
+      <ul style="margin-left:25px">
         <li>
           <span>资料期间：</span>
           <el-select v-model="Statisticaltime" placeholder="" size="mini" filterable>
@@ -12,11 +12,12 @@
           </el-select>
         </li>
         <li>
-          <span>资料期间：</span>
+          <!-- <span>资料期间：</span> -->
           <el-date-picker
             v-model="timechoose"
             :disabled="timecant"
             size="mini"
+            class="seltime"
             type="date"
             placeholder="选择日期"
           /></li>
@@ -81,9 +82,12 @@
   </el-row>
 </template>
 <script>
-import { exportExcelDataCommon ,batchOperation } from '../../../util/util'
+import { exportExcelDataCommon, batchOperation } from '../../../util/util'
 import storeChoose from '@/components/store-choose'
 export default {
+  components: {
+    storeChoose
+  },
   data() {
     return {
       Loading1: false,
@@ -121,9 +125,6 @@ export default {
         { value: 'month', label: '按月' }
       ]
     }
-  },
-  components: {
-    storeChoose
   },
   watch: {
     Statisticaltime(val, oldVal) {
@@ -390,7 +391,7 @@ export default {
     },
     async getTableData(item, count = { count: 1 }) {
       try {
-        let mallname = item.mall_alias_name || item.platform_mall_name
+        const mallname = item.mall_alias_name || item.platform_mall_name
         if (this.serchload === true) {
           this.Loading3 = false
           setTimeout(() => {
@@ -415,6 +416,7 @@ export default {
         attributeTreeRes.data = JSON.parse(attributeTreeRes.data)
         console.log('this is data', attributeTreeRes)
         if (attributeTreeRes.status === 200) {
+          this.$refs.Logs.writeLog(`店铺【${mallname}】数据获取成功`, true)
           const exportdata = {}
           for (const item in attributeTreeRes.data.result) {
             exportdata['mallname'] = mallname
@@ -501,6 +503,7 @@ export default {
       }
     },
     async getallinfo() {
+      this.showlog = false
       if (this.Statisticaltime === 'day' || this.Statisticaltime === 'week' || this.Statisticaltime === 'month') {
         if (this.timechoose.length < 1) {
           this.$message.error(`请选择您需要查看的日期`)
@@ -590,4 +593,7 @@ export default {
 <!-- 引入less -->
 <style lang="less" scoped>
 @import '../../../module-less/business-analysis-less/data-screening.less';
+.seltime{
+  width: 150px !important;
+}
 </style>

@@ -442,9 +442,7 @@ export function batchOperation(array, method, count = 5) {
     let setIn = setInterval(() => {
       const threadRunCountJson = localStorage.getItem('threadRunCount') || ''
       const threadRunCountRes = threadRunCountJson && JSON.parse(threadRunCountJson) || {}
-      console.log('threadRunCountRes', threadRunCountRes)
       const num = countObj.count
-      console.log('线程剩余数：', methodName, num)
       if (num === 0 || !threadRunCountRes[methodName]) {
         let success = '完成'
         if (!threadRunCountRes[methodName]) {
@@ -452,7 +450,7 @@ export function batchOperation(array, method, count = 5) {
         }
         clearInterval(setIn)
         setIn = null
-        console.log('线程停止：', methodName)
+        console.log('线程停止：', methodName ,'线程剩余数：',num)
         resolve(success)
       } else {
         manage(number - num)

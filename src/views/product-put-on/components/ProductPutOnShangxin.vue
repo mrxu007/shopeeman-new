@@ -340,7 +340,7 @@
         <el-button size="mini" type="primary">设置定时任务</el-button>
         <el-button size="mini" type="primary" @click="enterCategory(2,1)">批量映射虾皮类目
         </el-button>
-        <el-button size="mini" :type="isNoFoldShow && 'primary'" @click="isNoFoldShow = !isNoFoldShow">
+        <el-button size="mini" :type="isNoFoldShow && 'primary' || ''" @click="isNoFoldShow = !isNoFoldShow">
           {{isNoFoldShow && '折叠' || '展开'}}
         </el-button>
         <el-button size="mini" type="primary">清理类目缓存</el-button>
@@ -369,58 +369,63 @@
         </div>
       </div>
     </el-row>
-    <el-table :data="goodsTable" @selection-change="handleSelectionChange" tooltip-effect="dark">
-      <el-table-column align="left" type="selection" width="50"/>
-      <el-table-column align="left" type="index" label="序列号" width="60">
+    <u-table :data="goodsTable"
+             @selection-change="handleSelectionChange"
+             use-virtual :data-changes-scroll-top="false"
+             :header-cell-style="{backgroundColor: '#f5f7fa',}"
+             row-key="id" :border="false" :big-data-checkbox="true"
+             :height="isNoFoldShow && 320 || 729">
+      <u-table-column align="left" type="selection" width="50"/>
+      <u-table-column align="left" type="index" label="序列号" width="60">
         <template slot-scope="scope">
           {{ scope.$index + 1 }}
         </template>
-      </el-table-column>
-      <el-table-column align="center" label="商品主图" width="80">
+      </u-table-column>
+      <u-table-column align="center" label="商品主图" width="80">
         <template slot-scope="{ row }">
           <div style="justify-content: center; display: flex">
             <img :src="row.image" style="width: 56px; height: 56px"/>
           </div>
         </template>
-      </el-table-column>
-      <el-table-column align="left" label="上家商品Id" prop="goodsId" width="120"/>
-      <el-table-column align="left" label="shopee-Id" width="120">
+      </u-table-column>
+      <u-table-column align="left" label="上家商品Id" prop="goodsId" width="120"/>
+      <u-table-column align="left" label="shopee-Id" width="120">
         <template slot-scope="{ row }">
         </template>
-      </el-table-column>
-      <el-table-column align="left" label="标题" min-width="120">
+      </u-table-column>
+      <u-table-column align="left" label="标题" min-width="120">
         <template slot-scope="{ row }">
           <div class="goodsTableLine">
             {{row.title}}
           </div>
         </template>
-      </el-table-column>
-      <el-table-column align="left" label="店铺" width="120">
+      </u-table-column>
+      <u-table-column align="left" label="店铺" width="120">
         <template slot-scope="{ row }">
         </template>
-      </el-table-column>
-      <el-table-column align="left" label="状态" min-width="80">
+      </u-table-column>
+      <u-table-column align="left" label="状态" min-width="80">
         <template slot-scope="{ row }">
           <div class="goodsTableLine">
             {{row.statusName}}
           </div>
         </template>
-      </el-table-column>
-      <el-table-column align="left" :show-overflow-tooltip="true" label="源商品类目" prop="originCategoryName" width="120"/>
-      <el-table-column align="left" :show-overflow-tooltip="true" label="shopee类目" prop="categoryName" width="120">
+      </u-table-column>
+      <u-table-column align="left" :show-overflow-tooltip="true" label="源商品类目" prop="originCategoryName" width="120"/>
+      <u-table-column align="left" :show-overflow-tooltip="true" label="shopee类目" prop="categoryName" width="120">
         <template slot-scope="scope">
           <el-button type="text" @click="enterCategory(0,scope.row)">
             {{scope.row.categoryName}}
           </el-button>
         </template>
-      </el-table-column>
-      <el-table-column align="left" label="价格" prop="price" width="80"/>
-      <el-table-column align="left" label="上新价格(RMB)" prop="CalAfterPriceRMB" width="120"/>
-      <el-table-column align="left" label="上新价格" prop="CalAfterPrice" width="80"/>
-      <el-table-column align="left" label="销量" prop="sales" width="80"/>
-      <el-table-column align="left" label="标签" prop="GoodsTagName" width="80"/>
-      <el-table-column align="left" label="来源" prop="origin" width="80"/>
-    </el-table>
+      </u-table-column>
+      <u-table-column align="left" label="价格" prop="price" width="80"/>
+      <u-table-column align="left" label="上新价格(RMB)" prop="CalAfterPriceRMB" width="120"/>
+      <u-table-column align="left" label="上新价格" prop="CalAfterPrice" width="80"/>
+      <u-table-column align="left" label="销量" prop="sales" width="80"/>
+      <u-table-column align="left" label="标签" prop="GoodsTagName" width="80"/>
+      <u-table-column align="left" label="来源" prop="origin" width="80"/>
+    </u-table>
 
     <div class="on_new_dialog">
       <el-dialog title="水印配置" width="500px" :close-on-click-modal="false"
@@ -554,13 +559,13 @@
             <el-button size="mini" @click="">导入模板</el-button>
           </div>
           <div class="on_new_dialog_box">
-            <el-table :data="sellActiveTable" tooltip-effect="dark" height="450">
-              <el-table-column label="店铺名称" align="left" :show-overflow-tooltip="true" min-width="120px">
+            <u-table :data="sellActiveTable" tooltip-effect="dark" height="450">
+              <u-table-column label="店铺名称" align="left" :show-overflow-tooltip="true" min-width="120px">
                 <template slot-scope="{row}">
                   {{ row.mall_alias_name || row.platform_mall_name }}
                 </template>
-              </el-table-column>
-              <el-table-column label="活动折扣配置" align="left" width="350px">
+              </u-table-column>
+              <u-table-column label="活动折扣配置" align="left" width="350px">
                 <template slot-scope="scope">
                   <div style="display: flex;align-items: center">
                     <el-checkbox v-model="scope.row.isExisting" size="mini">使用已有活动ID</el-checkbox>
@@ -570,8 +575,8 @@
                     </el-button>
                   </div>
                 </template>
-              </el-table-column>
-              <el-table-column align="left" width="130px">
+              </u-table-column>
+              <u-table-column align="left" width="130px">
                 <template slot="header" slot-scope="scope">
                   商品分类ID
                   <el-tooltip class="item" effect="dark" content="分类ID请至【商品管理】 - 【商店分类】中查看" placement="top-end">
@@ -582,8 +587,8 @@
                 <template slot-scope="scope">
                   <el-input size="mini" v-model="scope.row.goodsId" style="width: 120px;"></el-input>
                 </template>
-              </el-table-column>
-            </el-table>
+              </u-table-column>
+            </u-table>
           </div>
           <div class="on_new_dialog_box" style="justify-content: space-evenly">
             <el-button size="mini" type="primary" @click="updateSellActive(1)">确定</el-button>
@@ -653,6 +658,7 @@
   import storeChoose from '../../../components/store-choose'
   import categoryMapping from '../../../components/category-mapping'
   import goodsLabel from '../../../components/goods-label'
+  import { source, sourceObj } from './collection-platformId'
 
   export default {
     data() {
@@ -879,15 +885,30 @@
       try {
         this.$IpcMain.on('gotoUpload', async e => { // 点听
           let ids = await this.$BaseUtilService.getUploadGoodsId()
-          console.log('gotoUpload - event', ids)
+          ids &&　await this.getGoodsList(ids)
         })
-      } catch (error) {
-        console.log('监听', error)
-      }
+      } catch (error) {}
     },
     methods: {
-      handleSelectionChange(val) {
-        this.goodsTableSelect = val || []
+      async getGoodsList(ids){
+        // this.goodsTable = []
+        console.log('getGoodsList',ids)
+        try {
+        let idList = ids.split(',')
+        for (let item of idList){
+          let goodsJson =  await this.$commodityService.getSpuDetailByIdV2(item)
+          let goodsRes = JSON.parse(goodsJson)
+          if (goodsRes.code === 200){
+            let goodsData = goodsRes.data
+            let index = this.goodsTable.findIndex(i=>i.id === goodsData.id)
+            index >=0 && this.$set(this.goodsTable,index,goodsData) || this.goodsTable.push(goodsData)
+          }
+        }
+        console.log('goodsTable',this.goodsTable)
+        }catch (e) {
+          this.$message.error('上新商品获取失败')
+          console.log(e)
+        }
       },
       async synchronousCategory() {
 
@@ -1056,7 +1077,10 @@
       changeMallList(data) {  //店铺列表
         this.mallList = data.mallList
         this.country = data.country
-      }
+      },
+      handleSelectionChange(val) {
+        this.goodsTableSelect = val || []
+      },
     }
   }
 </script>
