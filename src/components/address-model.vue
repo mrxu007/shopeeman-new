@@ -19,7 +19,7 @@
           <el-option v-for="(item, index) in cityList" :key="index" :label="item.RegionName || item.division_name" :value="item.RegionId || item.id" />
         </el-select>
       </el-form-item>
-      <el-form-item label="收货区：" v-if="country!=='TW'">
+      <el-form-item v-if="country!=='TW'" label="收货区：">
         <el-select v-model="distinct" :disabled="city ? false : true" placeholder="请选择" size="mini" @change="flag = false">
           <el-option v-for="(item, index) in distinctList" :key="index" :label="item.RegionName || item.division_name" :value="item.RegionId || item.id" />
         </el-select>
@@ -34,8 +34,12 @@ export default {
   props: {
     isInit: {
       type: Boolean,
-      default: false,
+      default: false
     },
+    country: {
+      type: String,
+      default: ''
+    }
   },
   data() {
     return {
@@ -52,7 +56,7 @@ export default {
 
       addressData: {},
 
-      flag: false,
+      flag: false
     }
   },
   watch: {
@@ -61,12 +65,12 @@ export default {
         console.log('props', n, o)
         this.getPddAddressModel('0', 'provinceList', 'province')
         // this.sendData()
-      },
+      }
     },
     province: {
       handler(n, o) {
         this.getPddAddressModel(this.province, 'cityList', 'city')
-        console.log(this.provinceList ,"province")
+        console.log(this.provinceList, 'province')
         this.provinceList.forEach((item) => {
           if (item.RegionId === this.province || item.id === this.province) {
             this.addressData['province_id'] = item.RegionId || item.id.toString()
@@ -75,7 +79,7 @@ export default {
         })
         this.sendData()
       },
-      deep: true,
+      deep: true
     },
     city: {
       handler(n, o) {
@@ -88,28 +92,22 @@ export default {
         })
         this.sendData()
       },
-      deep: true,
+      deep: true
     },
     distinct: {
       handler(n, o) {
-        console.log(this.distinctList,"44444444444")
+        console.log(this.distinctList, '44444444444')
         this.distinctList.forEach((item) => {
           if (item.RegionId === this.distinct || item.id === this.distinct) {
-            this.addressData['distinct_id'] = this.country==='TW'?'': item.RegionId 
-            this.addressData['distinct_text'] = this.country==='TW'?'':item.RegionName 
+            this.addressData['distinct_id'] = this.country === 'TW' ? '' : item.RegionId
+            this.addressData['distinct_text'] = this.country === 'TW' ? '' : item.RegionName
           }
         })
-        console.log(this.addressData,"this.addressData88888888888888")
+        console.log(this.addressData, 'this.addressData88888888888888')
         this.sendData()
       },
-      deep: true,
-    },
-  },
-  props: {
-    country: {
-      type: String,
-      default: '',
-    },
+      deep: true
+    }
   },
   mounted() {
     if (this.isInit) {
@@ -140,10 +138,10 @@ export default {
       if (this.country === 'TW') {
         const platform = this.$filters.sitePlatform('TW')
         const res = await this.$commodityService.getShopeeAddress(platform, '1', id)
-        let resObj = JSON.parse(res)
+        const resObj = JSON.parse(res)
         console.log('res-tw', resObj)
         this[list] = resObj
-        this[val] = this.flag ? this[val] : this[list][0]?this[list][0].id:''
+        this[val] = this.flag ? this[val] : this[list][0] ? this[list][0].id : ''
       } else {
         const res = await this.$BaseUtilService.getPddAddressModel(id)
         this[list] = res
@@ -152,8 +150,8 @@ export default {
     },
     sendData() {
       this.$emit('sendData', this.addressData)
-    },
-  },
+    }
+  }
 }
 </script>
 
