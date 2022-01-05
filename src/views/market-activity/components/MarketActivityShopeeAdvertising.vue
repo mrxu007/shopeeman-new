@@ -1,11 +1,4 @@
-<!--
- * @Author: your name
- * @Date: 2021-12-27 10:59:26
- * @LastEditTime: 2022-01-05 11:48:33
- * @LastEditors: Please set LastEditors
- * @Description: 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
- * @FilePath: \shopeeman-new\src\views\market-activity\components\MarketActivityShopeeAdvertising.vue
--->
+
 <template>
   <div class="advertisement">
     <div class="header-btn">
@@ -27,7 +20,7 @@
               end-placeholder="结束日期"
               :picker-options="pickerOptions"
             />
-            <el-button type="primary" size="mini" >搜 索</el-button>
+            <el-button type="primary" size="mini" class="mar-left">搜 索</el-button>
             <el-button type="primary" size="mini" >查看详情</el-button>
             <el-button type="primary" size="mini" >停止搜索</el-button>
             <el-checkbox v-model="showConsole" class="mar-left">隐藏日志</el-checkbox>

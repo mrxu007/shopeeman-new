@@ -2,7 +2,7 @@
   <div class="batch-chat">
     <div class="select-box">
       <div class="select-mall">
-        <storeChoose :is-all="true" :span-width="'80px'" :select-width="'180px'" :source="'orderCenter'" @changeMallList="changeMallList" />
+        <storeChoose :is-all="false" :span-width="'80px'" :select-width="'180px'" :source="'orderCenter'" @changeMallList="changeMallList" />
         <el-button type="primary" size="mini" @click="chatStart" class="mar-left" v-if="!btnLoading">开 始</el-button>
         <el-button type="primary" size="mini" @click="isStop = true" class="mar-left" v-else>停 止</el-button>
         <el-button size="mini" type="primary" @click="clearLog" class="mar-left">清空日志</el-button>
@@ -471,7 +471,7 @@ export default {
               this.$set(this.tableData[indexA], 'remark', `${this.tableData[indexA].remark}【消息发送成功】`)
               this.$set(this.tableData[indexA], 'chatMessage', msg)
             } else {
-              this.$set(this.tableData[indexA], 'remark', `${this.tableData[indexA].remark}【消息发送失败，${msgRes.data.message}】`)
+              this.$set(this.tableData[indexA], 'remark', `${this.tableData[indexA].remark}【消息发送失败，${msgRes.data.message.includes('user_is_forbiddenUser is forbidden for this action')?'该用户禁止发送消息':msgRes.data.message}】`)
             }
             console.log(msgRes, 'msgRes')
           }
