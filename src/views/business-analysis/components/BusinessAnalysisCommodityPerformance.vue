@@ -4,7 +4,7 @@
       <storeChoose :span-width="'80px'" :source="'true'" @changeMallList="changeMallList" />
       <ul style="margin-bottom: 10px" />
       <div style="overflow: auto;">
-        <ul style="width: 1500px;margin-bottom: 5px;">
+        <ul style="width: 1550px;margin-bottom: 5px;">
           <li>
             <span>资料期间：</span>
             <el-select v-model="Statisticaltime" placeholder="" size="mini" filterable>
@@ -14,25 +14,14 @@
           <li style="margin-left:30px">
             <el-date-picker
               v-model="timechoose"
-              unlink-panels
+              :disabled="timecant"
               size="mini"
-              style="width:240px"
-              type="daterange"
-              value-format="timestamp"
-              range-separator="-"
-              start-placeholder="开始日期"
-              end-placeholder="结束日期"
+              style="width:130px"
+              type="date"
+              placeholder="选择日期"
             />
-          <!-- <el-date-picker
-            v-model="timechoose"
-            :disabled="timecant"
-            style="width:180px"
-            size="mini"
-            type="date"
-            placeholder="选择日期"
-          /> -->
           </li>
-          <li style="margin-left:30px">
+          <li style="margin-left:40px">
             <el-select v-model="type" placeholder="" size="mini" filterable class="selType" @change="changeType">
               <el-option v-for="(item, index) in typelist" :key="index" :label="item.label" :value="item.value" />
             </el-select>
@@ -185,6 +174,13 @@ export default {
   components: { categoryMapping, storeChoose },
   data() {
     return {
+      pickerOptions: {
+        disabledDate(time) {
+          return time.getTime() > Date.now() - 3600 * 24 * 1000
+        }
+      },
+      timeType: 'datetimerange',
+      othertchoose: '', // 其他时间格式选择
       Loading1: false,
       column1: true,
       column2: false,
@@ -205,7 +201,7 @@ export default {
       Loading2: true,
       Loading3: false,
       timecant: true,
-      timechoose: new Date(),
+      timechoose: '',
       serchload: false,
       selectall: true, // 分组全选和取消全选选项控制
       selectall1: true, // 店铺全选和取消全选选项控制
@@ -519,9 +515,7 @@ export default {
     },
     // 打开链接
     open(val) {
-      const aa = val
-      debugger
-      window.BaseUtilBridgeService.openUrl('https://xiapi.xiapibuy.com/product/' + val.mallid + '/' + val.productid)
+      window.BaseUtilBridgeService.openUrl('https://xiapi.xiapibuy.com/product/' + val.mallid + '/' + val.id)
     },
     // 复制
     copy(attr) {
@@ -550,6 +544,7 @@ export default {
     },
     async getTableData(item, count = { count: 1 }) {
       try {
+        const mallid = item.platform_mall_id
         const mallname = item.mall_alias_name || item.platform_mall_name
         if (this.serchload === true) {
           this.Loading3 = false
@@ -598,8 +593,10 @@ export default {
         attributeTreeRes.data = JSON.parse(attributeTreeRes.data)
         console.log('this is data', attributeTreeRes)
         if (attributeTreeRes.status === 200) {
+          this.$refs.Logs.writeLog(`获取店铺【${mallname}】商品信息【${attributeTreeRes.data.result.items.length}】条 `, true)
           for (let i = 0; i < attributeTreeRes.data.result.items.length; i++) {
             if (attributeTreeRes.data.result.items.length > 1) {
+              attributeTreeRes.data.result.items[i]['mallid'] = mallid
               attributeTreeRes.data.result.items[i]['mallname'] = mallname
               attributeTreeRes.data.result.items[i]['index'] = this.indexs
               this.indexs++
@@ -624,6 +621,7 @@ export default {
       }
     },
     async getallinfo() {
+      this.showlog = false
       if (this.Statisticaltime === 'day' || this.Statisticaltime === 'week' || this.Statisticaltime === 'month') {
         if (this.timechoose.length < 1) {
           this.$message.error(`请选择您需要查看的日期`)
