@@ -529,7 +529,7 @@ export default class CommodityService {
    */
   getCategoryRelation(relationCategoryId, country, platformId, isUseCommon = '0') {
     // console.log(relationCategoryId, country, platformId, isUseCommon)
-    return this.nativeService.callCategoryFunction('GetCategoryRelation', relationCategoryId, country, platformId, isUseCommon)
+    return this.nativeService.callCategoryFunction('GetCategoryRelation', relationCategoryId.toString(), country, platformId.toString(), isUseCommon)
   }
 
   /**
@@ -549,13 +549,13 @@ export default class CommodityService {
    * @param tableType : string
    */
   async getCategoryTbInfo(country, categoryId = '0', isParent='1', tableType='') {
-    return await this.nativeService.callCategoryFunction('GetCategoryInfo', country, categoryId, isParent, tableType)
+    return await this.nativeService.callCategoryFunction('GetCategoryInfo', country, categoryId.toString(), isParent.toString(), tableType)
   }
   /**
    * 获取类目属性
    */
   getAttributeInfo(country, categoryId = '0', isNewOpen = '0', tableType='', isMandatoryAttr = '1') {
-    console.log(country, categoryId, isNewOpen, tableType , isMandatoryAttr )
+    // console.log(country, categoryId, isNewOpen, tableType , isMandatoryAttr )
     return this.nativeService.callCategoryFunction('GetAttributeInfo', country, categoryId.toString(), isNewOpen, tableType, isMandatoryAttr)
   }
 

@@ -20,7 +20,7 @@
                   </el-tooltip>
                 </p>
                 <div v-for="item in customLogistics" :key="item.ShipId" style="margin-bottom: 5px">
-                  <span>{{item.ShipName}}</span>
+                  <span>{{ item.ShipName }}</span>
                   <el-input size="mini" v-model="item.price" style="width: 100px; margin-left: 5px;"></el-input>
                 </div>
               </div>
@@ -312,23 +312,23 @@
           <div class="basisInstall-title">数据统计</div>
           <div class="basisInstall-box loose">
             <div>商品总数：</div>
-            <span style="margin-left: 5px">{{statistics.count}}</span>
+            <span style="margin-left: 5px">{{ statistics.count }}</span>
           </div>
           <div class="basisInstall-box loose">
             <div>成功总数：</div>
-            <span style="margin-left: 5px">{{statistics.success}}</span>
+            <span style="margin-left: 5px">{{ statistics.success }}</span>
           </div>
           <div class="basisInstall-box loose">
             <div>失败总数：</div>
-            <span style="margin-left: 5px">{{statistics.failure}}</span>
+            <span style="margin-left: 5px">{{ statistics.failure }}</span>
           </div>
           <div class="basisInstall-box loose">
             <div>重复总数：</div>
-            <span style="margin-left: 5px">{{statistics.repeat}}</span>
+            <span style="margin-left: 5px">{{ statistics.repeat }}</span>
           </div>
           <div class="basisInstall-box loose">
             <div>过滤总数：</div>
-            <span style="margin-left: 5px">{{statistics.filter}}</span>
+            <span style="margin-left: 5px">{{ statistics.filter }}</span>
           </div>
         </div>
       </div>
@@ -341,7 +341,7 @@
         <el-button size="mini" type="primary" @click="enterCategory(2,1)">批量映射虾皮类目
         </el-button>
         <el-button size="mini" :type="isNoFoldShow && 'primary' || ''" @click="isNoFoldShow = !isNoFoldShow">
-          {{isNoFoldShow && '折叠' || '展开'}}
+          {{ isNoFoldShow && '折叠' || '展开' }}
         </el-button>
         <el-button size="mini" type="primary">清理类目缓存</el-button>
         <div style="margin-left: 10px;">源商品类目：
@@ -383,12 +383,19 @@
       </u-table-column>
       <u-table-column align="center" label="商品主图" width="80">
         <template slot-scope="{ row }">
-          <div style="justify-content: center; display: flex">
-            <img :src="row.image" style="width: 56px; height: 56px"/>
-          </div>
+          <el-tooltip effect="light" placement="right-end" :visible-arrow="false" :enterable="false" style="width: 56px; height: 56px; display: inline-block">
+            <div slot="content">
+              <el-image :src=" row.image " style="width: 400px; height: 400px" />
+            </div>
+            <el-image :src="{url:row.image,source:row.source} | changeImgSizeFilter" style="width: 56px; height: 56px" />
+          </el-tooltip>
         </template>
       </u-table-column>
-      <u-table-column align="left" label="上家商品Id" prop="goodsId" width="120"/>
+      <u-table-column align="center" label="上家商品Id" width="110">
+        <template v-slot="{ row }">
+          <p class="goToGoods" @click.stop="goToGoods(row)">{{ row.goods_id }}</p>
+        </template>
+      </u-table-column>
       <u-table-column align="left" label="shopee-Id" width="120">
         <template slot-scope="{ row }">
         </template>
@@ -396,7 +403,7 @@
       <u-table-column align="left" label="标题" min-width="120">
         <template slot-scope="{ row }">
           <div class="goodsTableLine">
-            {{row.title}}
+            {{ row.title }}
           </div>
         </template>
       </u-table-column>
@@ -407,15 +414,15 @@
       <u-table-column align="left" label="状态" min-width="80">
         <template slot-scope="{ row }">
           <div class="goodsTableLine">
-            {{row.statusName}}
+            {{ row.statusName }}
           </div>
         </template>
       </u-table-column>
-      <u-table-column align="left" :show-overflow-tooltip="true" label="源商品类目" prop="originCategoryName" width="120"/>
+      <u-table-column align="center" label="源平台类目" prop="category_name" show-overflow-tooltip />
       <u-table-column align="left" :show-overflow-tooltip="true" label="shopee类目" prop="categoryName" width="120">
         <template slot-scope="scope">
           <el-button type="text" @click="enterCategory(0,scope.row)">
-            {{scope.row.categoryName}}
+            {{ scope.row.categoryName || '请选择类目'}}
           </el-button>
         </template>
       </u-table-column>
@@ -423,8 +430,8 @@
       <u-table-column align="left" label="上新价格(RMB)" prop="CalAfterPriceRMB" width="120"/>
       <u-table-column align="left" label="上新价格" prop="CalAfterPrice" width="80"/>
       <u-table-column align="left" label="销量" prop="sales" width="80"/>
-      <u-table-column align="left" label="标签" prop="GoodsTagName" width="80"/>
-      <u-table-column align="left" label="来源" prop="origin" width="80"/>
+      <u-table-column align="left" label="标签" prop="sys_label_name" width="80" show-overflow-tooltip />
+      <u-table-column align="left" label="来源" prop="sourceName" width="80" />
     </u-table>
 
     <div class="on_new_dialog">
@@ -534,7 +541,7 @@
                    :class="watermarkConfig.type < 3 && locateClass || 'watermark_image_background'">
                 <span v-show="watermarkConfig.type === 1"
                       :style="'font-size:'+watermarkConfig.textSize+'px!important;color:'+watermarkConfig.textColor">
-                  {{watermarkConfig.text}}
+                  {{ watermarkConfig.text }}
                 </span>
                 <img :style="watermarkConfig.type === 2 && ('opacity: '+watermarkConfig.clarity) || ''"
                      v-show="watermarkConfig.type !== 1" :src="watermarkConfig.watermarkImageUrl||''" alt="">
@@ -570,8 +577,10 @@
                   <div style="display: flex;align-items: center">
                     <el-checkbox v-model="scope.row.isExisting" size="mini">使用已有活动ID</el-checkbox>
                     <el-input size="mini" v-model="scope.row.discountId" style="width: 120px;margin: 0 5px"></el-input>
-                    <el-button size="mini" type="primary" @click="setSellActive(scope.row)">{{ scope.row.isExisting &&
-                      '配置折扣' || '创建活动' }}
+                    <el-button size="mini" type="primary" @click="setSellActive(scope.row)">{{
+                        scope.row.isExisting &&
+                        '配置折扣' || '创建活动'
+                      }}
                     </el-button>
                   </div>
                 </template>
@@ -655,489 +664,505 @@
 </template>
 
 <script>
-  import storeChoose from '../../../components/store-choose'
-  import categoryMapping from '../../../components/category-mapping'
-  import goodsLabel from '../../../components/goods-label'
-  import { source, sourceObj } from './collection-platformId'
+import storeChoose from '../../../components/store-choose'
+import categoryMapping from '../../../components/category-mapping'
+import goodsLabel from '../../../components/goods-label'
+import { source, sourceObj } from './collection-platformId'
+import { getGoodsUrl } from '@/util/util'
 
-  export default {
-    data() {
-      return {
-        goodsTable: [], // 商品列表
-        goodsTableSelect: [], // 商品列表所选
-        goodsCurrent: '',
-        mallList: [], // 店铺列表
-        country: '',  // 店铺站点
-        sourceCategoryList: [], //源商品类目
-        sourceCategory: [],
-        resultsFilterList: [], //结果过滤
-        resultsFilter: '',
-        mewOnProgress: 0,
-        isNoFoldShow: true,
-        //弹窗
-        categoryVisible: false, //类目弹窗
-        attributesList: [],
-        attributesCurrent: [],
+export default {
+  data() {
+    return {
+      goodsTable: [], // 商品列表
+      goodsTableSelect: [], // 商品列表所选
+      goodsCurrent: '',
+      mallList: [], // 店铺列表
+      country: '',  // 店铺站点
+      sourceCategoryList: [], //源商品类目
+      sourceCategory: [],
+      resultsFilterList: [], //结果过滤
+      resultsFilter: '',
+      mewOnProgress: 0,
+      isNoFoldShow: true,
+      //弹窗
+      categoryVisible: false, //类目弹窗
+      attributesList: [],
+      attributesCurrent: [],
 
-        goodsTagVisible: false, //标签弹窗
-        goodsTagAction: '',
-        goodsTagCurrent: '',
+      goodsTagVisible: false, //标签弹窗
+      goodsTagAction: '',
+      goodsTagCurrent: '',
 
-        sellActiveVisible: false, //活动弹窗
-        setSellActiveVisible: false,
-        sellActiveTable: [],
-        sellActiveSetting: [],
-        sellActiveCurrent: {},
+      sellActiveVisible: false, //活动弹窗
+      setSellActiveVisible: false,
+      sellActiveTable: [],
+      sellActiveSetting: [],
+      sellActiveCurrent: {},
 
-        watermarkVisible: false,//水印弹窗
-        watermarkConfig: {
-          type: 1, //水印类型 1/2/3
-          addType: 1,  // 添加类型 0
-          textType: 1, // 文字类型 1
-          textSize: '30',  //文字大小 1
-          textColor: '#D5D4DA',// 文字颜色 1
-          locate: 1, //添加位置 1， 2
-          clarity: 0.3,  // 透明度 2
-          imgSize: 1,  // 缩放方式 2
-          goodsImg: '', // 商品图 2 3
-          goodsImageUrl: '', // 商品图 2 3
-          watermarkImg: '',  //水印图 2 3
-          watermarkImageUrl: '',  //水印图 2 3
-          text: '水印'
-        },
-        watermarkSetting: {},
-        locateList: [
-          {
-            label: '左上角',
-            value: 1
-          }, {
-            label: '左下角',
-            value: 2
-          }, {
-            label: '右上角',
-            value: 3
-          }, {
-            label: '右下角',
-            value: 4
-          }, {
-            label: '中间',
-            value: 5
-          }],
-        imgSizeList: [
-          {
-            label: '按比例缩放',
-            value: 1
-          },
-          {
-            label: '与商品图宽一致',
-            value: 2
-          },
-          {
-            label: '与商品图高一致',
-            value: 3
-          }],
-        locateClass: 'watermark_image_left watermark_image_top',
-        logistics: [],  //所选物流
-        logisticsList: [], // 物流列表
-        customLogistics: [], //自定义物流列表
-        //店铺设置
-        storeConfig: {
-          watermarkChecked: false, // 水印配置
-          priceRadio: 1, // sku价格单选
-          activityChecked: false, // 商品设置
-          chineseChecked: [], //中文配置
-          pictureThread: '3', //线程数量
-          dangerousRadio: 0, //危险物品
-          wordsHeavy: false //单词去重
-        },
-        //基础配置
-        basicConfig: {
-          valuationRadio: 1, //计价方式
-          formula: {
-            percentage: '50',
-            basis: '5',
-            hidden: '5'
-          }, //加价方式 1
-          discount: '100', //折扣 1
-          valuationMethodsRadio: 0, //算价方式 1 ，2
-          fixedPrice: '150',  //商品价格 3
-          headlineRadio: 0, //热搜词标题位置
-          hotSearch: '1', //热搜词数
-          hotList: '', //热搜词列表
-          embargoChecked1: true, //启动禁运类目拦截
-          embargoChecked2: true, //启动禁运词拦截
-          minHeavy: '0.1', //最小重量
-          maxHeavy: '1', //最大重量
-          categoryMapping: 1, //类目映射
-          sourceCategoryChecked: false, //源类目映射
-          stockUpChecked: true, //备货配置
-          stockUpNumber: '15', //备货数量
-          onNewThread: '5', //线程数量
-          numberCeilingChecked: false, //上货上限配置
-          numberCeiling: '1000', //上货上限
-          usedChecked: false, //二手商品
-          deleteCollectChecked: false, //删除收藏
-          autoCompleteChecked: false //自动补齐轮播主图
-        },
-        valuationConfig: {},  //计价配置 2
-        categoryMappingList: [
-          {
-            label: '个人类目映射',
-            value: 1
-          }, {
-            label: '共有类目映射',
-            value: 2
-          }], //类目映射列表
-        //防关联设置
-        associatedConfig: {
-          specialCharChecked: true, //特殊字符
-          realNameChecked: false, //真实店铺名
-          onNewInterval: '40', //上新时间间隔
-          dimensionRadio: 0,//上新唯独
-          pictureSetting: {
-            firstChecked: true,
-            cutChecked: true,
-            randomChecked: true,
-            whiteChecked: false,
-            index: '',
-            compressionChecked: true
-          }, //图片设置
-          missingUploadChecked: false, //图片缺失上传
-          keyFilter: 0, //关键词过滤 0全部 1标题 2描述 3SKU
-          keyList: ''
-        },
-        keyFilterList: [
-          {
-            label: '全部',
-            value: 0
-          },
-          {
-            label: '标题',
-            value: 1
-          },
-          {
-            label: '描述',
-            value: 2
-          },
-          {
-            label: 'SKU',
-            value: 3
-          }
-        ], //图片缺失上传
-
-        //数据统计
-        statistics: {
-          count: 0,
-          success: 0,
-          failure: 0,
-          repeat: 0,
-          filter: 0
-        }
-      }
-    },
-    components: {storeChoose, categoryMapping, goodsLabel},
-    watch: {
-      country(value) {
-        this.associatedConfig.onNewInterval = value !== 'ID' && '40' || '50'
-        this.sellActiveSetting = []
-        this.changeLogistics()
-      },
+      watermarkVisible: false,//水印弹窗
       watermarkConfig: {
-        handler(val) {
-          if (val.type < 3) {
-            let locateClass = val.locate % 2 && 'watermark_image_top ' || 'watermark_image_bottom '
-            locateClass += val.locate > 2 && 'watermark_image_right ' || 'watermark_image_left '
-            locateClass = val.locate < 5 && locateClass || 'watermark_image_center '
-            if (val.type === 2) {
-              locateClass += val.imgSize === 1 && 'watermark_image_reduce ' || 'watermark_image_fixed '
-              if (val.imgSize === 2) {
+        type: 1, //水印类型 1/2/3
+        addType: 1,  // 添加类型 0
+        textType: 1, // 文字类型 1
+        textSize: '30',  //文字大小 1
+        textColor: '#D5D4DA',// 文字颜色 1
+        locate: 1, //添加位置 1， 2
+        clarity: 0.3,  // 透明度 2
+        imgSize: 1,  // 缩放方式 2
+        goodsImg: '', // 商品图 2 3
+        goodsImageUrl: '', // 商品图 2 3
+        watermarkImg: '',  //水印图 2 3
+        watermarkImageUrl: '',  //水印图 2 3
+        text: '水印'
+      },
+      watermarkSetting: {},
+      locateList: [
+        {
+          label: '左上角',
+          value: 1
+        }, {
+          label: '左下角',
+          value: 2
+        }, {
+          label: '右上角',
+          value: 3
+        }, {
+          label: '右下角',
+          value: 4
+        }, {
+          label: '中间',
+          value: 5
+        }],
+      imgSizeList: [
+        {
+          label: '按比例缩放',
+          value: 1
+        },
+        {
+          label: '与商品图宽一致',
+          value: 2
+        },
+        {
+          label: '与商品图高一致',
+          value: 3
+        }],
+      locateClass: 'watermark_image_left watermark_image_top',
+      logistics: [],  //所选物流
+      logisticsList: [], // 物流列表
+      customLogistics: [], //自定义物流列表
+      //店铺设置
+      storeConfig: {
+        watermarkChecked: false, // 水印配置
+        priceRadio: 1, // sku价格单选
+        activityChecked: false, // 商品设置
+        chineseChecked: [], //中文配置
+        pictureThread: '3', //线程数量
+        dangerousRadio: 0, //危险物品
+        wordsHeavy: false //单词去重
+      },
+      //基础配置
+      basicConfig: {
+        valuationRadio: 1, //计价方式
+        formula: {
+          percentage: '50',
+          basis: '5',
+          hidden: '5'
+        }, //加价方式 1
+        discount: '100', //折扣 1
+        valuationMethodsRadio: 0, //算价方式 1 ，2
+        fixedPrice: '150',  //商品价格 3
+        headlineRadio: 0, //热搜词标题位置
+        hotSearch: '1', //热搜词数
+        hotList: '', //热搜词列表
+        embargoChecked1: true, //启动禁运类目拦截
+        embargoChecked2: true, //启动禁运词拦截
+        minHeavy: '0.1', //最小重量
+        maxHeavy: '1', //最大重量
+        categoryMapping: 1, //类目映射
+        sourceCategoryChecked: false, //源类目映射
+        stockUpChecked: true, //备货配置
+        stockUpNumber: '15', //备货数量
+        onNewThread: '5', //线程数量
+        numberCeilingChecked: false, //上货上限配置
+        numberCeiling: '1000', //上货上限
+        usedChecked: false, //二手商品
+        deleteCollectChecked: false, //删除收藏
+        autoCompleteChecked: false //自动补齐轮播主图
+      },
+      valuationConfig: {},  //计价配置 2
+      categoryMappingList: [
+        {
+          label: '个人类目映射',
+          value: 1
+        }, {
+          label: '共有类目映射',
+          value: 2
+        }], //类目映射列表
+      //防关联设置
+      associatedConfig: {
+        specialCharChecked: true, //特殊字符
+        realNameChecked: false, //真实店铺名
+        onNewInterval: '40', //上新时间间隔
+        dimensionRadio: 0,//上新唯独
+        pictureSetting: {
+          firstChecked: true,
+          cutChecked: true,
+          randomChecked: true,
+          whiteChecked: false,
+          index: '',
+          compressionChecked: true
+        }, //图片设置
+        missingUploadChecked: false, //图片缺失上传
+        keyFilter: 0, //关键词过滤 0全部 1标题 2描述 3SKU
+        keyList: ''
+      },
+      keyFilterList: [
+        {
+          label: '全部',
+          value: 0
+        },
+        {
+          label: '标题',
+          value: 1
+        },
+        {
+          label: '描述',
+          value: 2
+        },
+        {
+          label: 'SKU',
+          value: 3
+        }
+      ], //图片缺失上传
 
-              } else if (val.imgSize === 3) {
+      //数据统计
+      statistics: {
+        count: 0,
+        success: 0,
+        failure: 0,
+        repeat: 0,
+        filter: 0
+      },
+      sourceObj: null,
+      source: null,
 
-              }
-              locateClass += val.imgSize === 1 && 'watermark_image_reduce ' || val.imgSize === 2 && 'watermark_image_width ' || 'watermark_image_height '
+      //额外
+      labelList: [],
+    }
+  },
+  computed: {
+  },
+  components: { storeChoose, categoryMapping, goodsLabel },
+  watch: {
+    country(value) {
+      this.associatedConfig.onNewInterval = value !== 'ID' && '40' || '50'
+      this.sellActiveSetting = []
+      this.changeLogistics()
+    },
+    watermarkConfig: {
+      handler(val) {
+        if (val.type < 3) {
+          let locateClass = val.locate % 2 && 'watermark_image_top ' || 'watermark_image_bottom '
+          locateClass += val.locate > 2 && 'watermark_image_right ' || 'watermark_image_left '
+          locateClass = val.locate < 5 && locateClass || 'watermark_image_center '
+          if (val.type === 2) {
+            locateClass += val.imgSize === 1 && 'watermark_image_reduce ' || 'watermark_image_fixed '
+            if (val.imgSize === 2) {
+
+            } else if (val.imgSize === 3) {
+
             }
-            this.locateClass = locateClass
+            locateClass += val.imgSize === 1 && 'watermark_image_reduce ' || val.imgSize === 2 && 'watermark_image_width ' || 'watermark_image_height '
           }
+          this.locateClass = locateClass
+        }
 
-        },
-        deep: true
       },
-      logistics(val) {
-        this.customLogistics = []
-        val.forEach(item => {
-          let temp = this.logisticsList.filter(i => i.ShipName === item)[0]
-          if (temp && temp.IsCustomShipFee) {
-            this.customLogistics.push(temp)
-          }
-        })
+      deep: true
+    },
+    logistics(val) {
+      this.customLogistics = []
+      val.forEach(item => {
+        let temp = this.logisticsList.filter(i => i.ShipName === item)[0]
+        if (temp && temp.IsCustomShipFee) {
+          this.customLogistics.push(temp)
+        }
+      })
+    },
+    goodsTagAction(val) {
+      this.goodsTagCurrent = val
+    },
+    goodsTable: {
+      handler(val) {
       },
-      goodsTagAction(val) {
-        this.goodsTagCurrent = val
-      },
-      goodsTable: {
-        handler(val) {
-        },
-        deep: true
+      deep: true
+    }
+  },
+  async mounted() {
+    try {
+      this.$IpcMain.on('gotoUpload', async e => { // 点听
+        let goodsListJSON = await this.$BaseUtilService.getUploadGoodsId()
+        console.log('goodsListJSON', goodsListJSON)
+        let goodsList = JSON.parse(goodsListJSON)
+        for (let item of goodsList) {
+          let index = this.goodsTable.findIndex(i => i.id === item.id)
+          index >= 0 && this.$set(this.goodsTable, index, item) || this.goodsTable.push(item)
+        }
+        console.log(this.goodsTable)
+        await this.$BaseUtilService.gotoUploadTab('updateId', '')
+      })
+    } catch (error) {
+    }
+  },
+  methods: {
+    async synchronousCategory() {
+
+    },
+    goToGoods(item) {
+      let extra_info = item.extra_info && JSON.parse(item.extra_info) || {}
+      let temp = Object.assign({ productId: item.goods_id }, extra_info)
+      let goods = getGoodsUrl(item.source, temp)
+      this.$BaseUtilService.openUrl(goods.url)
+    },
+    async enterCategory(type = 0, row = null) {
+      console.log(this.mallList)
+      // if (type === 0 && row) {
+      //   let categoryRelationJSON = await this.$commodityService.getCategoryRelation(row.category_id,this.country,row.source)
+      //   console.log('categoryRelationJSON',categoryRelationJSON)
+      // }
+      if (type === 1 && this.mallList.length < 1) {
+        this.$message.error('请选择一个店铺')
+        return false
       }
+      if (type === 2 && this.goodsTableSelect.length < 1) {
+        this.$message.error('请选择一个商品信息')
+        return false
+      }
+      this.goodsCurrent = row
+      this.categoryVisible = true
     },
-    async mounted() {
-      try {
-        this.$IpcMain.on('gotoUpload', async e => { // 点听
-          let ids = await this.$BaseUtilService.getUploadGoodsId()
-          ids &&　await this.getGoodsList(ids)
-        })
-      } catch (error) {}
+    categoryChange(val) {
+      console.log('categoryChange', val)
+      if (val) {
+
+      }
+      this.categoryVisible = false
     },
-    methods: {
-      async getGoodsList(ids){
-        // this.goodsTable = []
-        console.log('getGoodsList',ids)
-        try {
-        let idList = ids.split(',')
-        for (let item of idList){
-          let goodsJson =  await this.$commodityService.getSpuDetailByIdV2(item)
-          let goodsRes = JSON.parse(goodsJson)
-          if (goodsRes.code === 200){
-            let goodsData = goodsRes.data
-            let index = this.goodsTable.findIndex(i=>i.id === goodsData.id)
-            index >=0 && this.$set(this.goodsTable,index,goodsData) || this.goodsTable.push(goodsData)
+    enterGoodsTag() {
+      if (this.goodsTableSelect.length < 1) {
+        this.$message.error('请至少选择一个商品')
+        return
+      }
+      this.goodsTagVisible = true
+    },
+    goodsTagChange(val) {
+      console.log('goodsTagChange', val)
+      if (val) {
+
+      }
+      this.goodsTagVisible = false
+    },
+    async updateSellActive(type) {
+      if (type) {
+        this.sellActiveTable.forEach(item => {
+          let index = this.sellActiveSetting.findIndex(i => i.platform_mall_id === item.platform_mall_id)
+          if (item.discount && item.number || item.goodsId) {
+            if (index > -1) {
+              this.sellActiveSetting[index] = item
+            } else {
+              this.sellActiveSetting.push(item)
+            }
+          } else {
+            if (index > -1) {
+              this.sellActiveSetting.splice(index, 1)
+            }
           }
-        }
-        console.log('goodsTable',this.goodsTable)
-        }catch (e) {
-          this.$message.error('上新商品获取失败')
-          console.log(e)
-        }
-      },
-      async synchronousCategory() {
-
-      },
-      enterCategory(type = 0, row = null) {
-        console.log(this.mallList);
-        if (type === 1 && this.mallList.length < 1) {
-          this.$message.error('请选择一个店铺')
-          return false
-        }
-        if (type === 2 && this.goodsTableSelect.length < 1) {
-          this.$message.error('请选择一个商品信息')
-          return false
-        }
-        this.categoryVisible = true
-        this.goodsCurrent = row
-      },
-      categoryChange(val) {
-        console.log('categoryChange', val);
-        if (val) {
-
-        }
-        this.categoryVisible = false
-      },
-      enterGoodsTag() {
-        if (this.goodsTableSelect.length < 1) {
-          this.$message.error('请至少选择一个商品')
+        })
+        this.sellActiveVisible = false
+      } else {
+        let discount = parseInt(this.sellActiveCurrent.discount)
+        let number = parseInt(this.sellActiveCurrent.number)
+        if (discount < 0 || discount > 100 || number < 1) {
+          this.$message.error('折扣比例或限购数量输入数值有误')
           return
         }
-        this.goodsTagVisible = true
-      },
-      goodsTagChange(val){
-        console.log('goodsTagChange', val);
-        if (val) {
-
-        }
-        this.goodsTagVisible = false
-      },
-      async updateSellActive(type) {
-        if (type) {
-          this.sellActiveTable.forEach(item => {
-            let index = this.sellActiveSetting.findIndex(i => i.platform_mall_id === item.platform_mall_id)
-            if (item.discount && item.number || item.goodsId) {
-              if (index > -1) {
-                this.sellActiveSetting[index] = item
-              } else {
-                this.sellActiveSetting.push(item)
-              }
-            } else {
-              if (index > -1) {
-                this.sellActiveSetting.splice(index, 1)
-              }
-            }
-          })
-          this.sellActiveVisible = false
+        let index = this.sellActiveTable.findIndex(i => i.platform_mall_id === this.sellActiveCurrent.platform_mall_id)
+        if (this.sellActiveCurrent.isExisting) {
+          this.sellActiveTable[index].discount = discount
+          this.sellActiveTable[index].number = number
         } else {
-          let discount = parseInt(this.sellActiveCurrent.discount)
-          let number = parseInt(this.sellActiveCurrent.number)
-          if (discount < 0 || discount > 100 || number < 1) {
-            this.$message.error('折扣比例或限购数量输入数值有误')
+          // 创建活动
+          let start_time = Math.floor(new Date(this.sellActiveCurrent.startTime).getTime() / 1000)
+          let end_time = Math.floor(new Date(this.sellActiveCurrent.endTime).getTime() / 1000)
+          if (end_time - start_time < 3600) {
+            this.$message.error('活动时间不能小于1小时')
             return
           }
-          let index = this.sellActiveTable.findIndex(i => i.platform_mall_id === this.sellActiveCurrent.platform_mall_id)
-          if (this.sellActiveCurrent.isExisting) {
-            this.sellActiveTable[index].discount = discount
-            this.sellActiveTable[index].number = number
+          let param = {
+            mallId: this.sellActiveCurrent.platform_mall_id,
+            fe_status: 'upcoming',
+            highlight: '',
+            title: this.sellActiveCurrent.name,
+            start_time: start_time,
+            end_time: end_time,
+            status: 1
+          }
+          let option = {
+            headers: { 'Content-Type': 'application/json;charset=UTF-8' }
+          }
+          let discountJson = await this.$shopeemanService.discount(this.country, param, option)
+          let discountRes = JSON.parse(discountJson)
+          if (discountRes.status >= 200 && discountRes.status < 300) {
+            const discountData = JSON.parse(discountRes.data)
+            if (discountData.code === 0) {
+              this.sellActiveTable[index].discountId = discountData.data.discount_id
+              this.sellActiveTable[index].discount = discount
+              this.sellActiveTable[index].number = number
+            }
+          } else if (discountRes.status === 403) {
+            this.$message.error(`店铺【${this.sellActiveCurrent.mall_alias_name || this.sellActiveCurrent.platform_mall_name}】的未登录`)
           } else {
-            // 创建活动
-            let start_time = Math.floor(new Date(this.sellActiveCurrent.startTime).getTime() / 1000)
-            let end_time = Math.floor(new Date(this.sellActiveCurrent.endTime).getTime() / 1000)
-            if (end_time - start_time < 3600) {
-              this.$message.error('活动时间不能小于1小时')
-              return
-            }
-            let param = {
-              mallId: this.sellActiveCurrent.platform_mall_id,
-              fe_status: 'upcoming',
-              highlight: '',
-              title: this.sellActiveCurrent.name,
-              start_time: start_time,
-              end_time: end_time,
-              status: 1
-            }
-            let option = {
-              headers: {'Content-Type': 'application/json;charset=UTF-8'}
-            }
-            let discountJson = await this.$shopeemanService.discount(this.country, param, option)
-            let discountRes = JSON.parse(discountJson)
-            if (discountRes.status >= 200 && discountRes.status < 300) {
-              const discountData = JSON.parse(discountRes.data)
-              if (discountData.code === 0) {
-                this.sellActiveTable[index].discountId = discountData.data.discount_id
-                this.sellActiveTable[index].discount = discount
-                this.sellActiveTable[index].number = number
-              }
-            } else if (discountRes.status === 403) {
-              this.$message.error(`店铺【${this.sellActiveCurrent.mall_alias_name || this.sellActiveCurrent.platform_mall_name}】的未登录`)
-            } else {
-              this.$message.error(`店铺【${this.sellActiveCurrent.mall_alias_name || this.sellActiveCurrent.platform_mall_name}】的添加活动折扣失败`)
-            }
+            this.$message.error(`店铺【${this.sellActiveCurrent.mall_alias_name || this.sellActiveCurrent.platform_mall_name}】的添加活动折扣失败`)
           }
-          this.setSellActiveVisible = false
         }
-      },
-      setSellActive(data) {
-        if (data) {
-          this.sellActiveCurrent = Object.assign(JSON.parse(JSON.stringify(data)), {
-            name: '',
-            startTime: '',
-            endTime: ''
-          })
-          this.setSellActiveVisible = true
-        } else {
-          this.sellActiveTable = []
-          this.mallList.forEach(item => {
-            let temp = this.sellActiveSetting.filter(i => i.platform_mall_id === item.platform_mall_id)[0]
-            temp = temp || Object.assign(JSON.parse(JSON.stringify(item)), {
-              isExisting: true,
-              discountId: '',
-              goodsId: '',
-              discount: '',
-              number: ''
-            })
-            this.sellActiveTable.push(temp)
-          })
-          this.sellActiveVisible = true
-        }
-      },
-      setWatermark(type) {
-        if (type) {
-          this.watermarkConfig = Object.assign(this.watermarkConfig, JSON.parse(JSON.stringify(this.watermarkSetting)))
-          this.watermarkVisible = true
-        } else {
-          this.watermarkSetting = JSON.parse(JSON.stringify(this.watermarkConfig))
-          this.watermarkVisible = false
-        }
-      },
-      watermarkPreview1(file) {
-        this.watermarkPreview(file, 1)
-      },
-      watermarkPreview2(file) {
-        this.watermarkPreview(file, 2)
-      },
-      watermarkPreview(file, type) {
-        if (type === 1) {
-          this.watermarkConfig.goodsImg = file
-          this.watermarkConfig.goodsImageUrl = file.url
-        } else {
-          this.watermarkConfig.watermarkImg = file
-          this.watermarkConfig.watermarkImageUrl = file.url
-        }
-        console.log(file)
-      },
-      changeLogistics() {
-        let logisticsList = this.$shopeeManConfig.getLogisticsList()
-        logisticsList = logisticsList[this.country]
-        this.logisticsList = []
-        this.logistics = []
-        logisticsList.forEach(item => {
-          this.logisticsList.push(item)
-          if (item.IsSelected) {
-            this.logistics.push(item.ShipName)
-          }
+        this.setSellActiveVisible = false
+      }
+    },
+    setSellActive(data) {
+      if (data) {
+        this.sellActiveCurrent = Object.assign(JSON.parse(JSON.stringify(data)), {
+          name: '',
+          startTime: '',
+          endTime: ''
         })
-      },
-      changeMallList(data) {  //店铺列表
-        this.mallList = data.mallList
-        this.country = data.country
-      },
-      handleSelectionChange(val) {
-        this.goodsTableSelect = val || []
-      },
+        this.setSellActiveVisible = true
+      } else {
+        this.sellActiveTable = []
+        this.mallList.forEach(item => {
+          let temp = this.sellActiveSetting.filter(i => i.platform_mall_id === item.platform_mall_id)[0]
+          temp = temp || Object.assign(JSON.parse(JSON.stringify(item)), {
+            isExisting: true,
+            discountId: '',
+            goodsId: '',
+            discount: '',
+            number: ''
+          })
+          this.sellActiveTable.push(temp)
+        })
+        this.sellActiveVisible = true
+      }
+    },
+    setWatermark(type) {
+      if (type) {
+        this.watermarkConfig = Object.assign(this.watermarkConfig, JSON.parse(JSON.stringify(this.watermarkSetting)))
+        this.watermarkVisible = true
+      } else {
+        this.watermarkSetting = JSON.parse(JSON.stringify(this.watermarkConfig))
+        this.watermarkVisible = false
+      }
+    },
+    watermarkPreview1(file) {
+      this.watermarkPreview(file, 1)
+    },
+    watermarkPreview2(file) {
+      this.watermarkPreview(file, 2)
+    },
+    watermarkPreview(file, type) {
+      if (type === 1) {
+        this.watermarkConfig.goodsImg = file
+        this.watermarkConfig.goodsImageUrl = file.url
+      } else {
+        this.watermarkConfig.watermarkImg = file
+        this.watermarkConfig.watermarkImageUrl = file.url
+      }
+      console.log(file)
+    },
+    changeLogistics() {
+      let logisticsList = this.$shopeeManConfig.getLogisticsList()
+      logisticsList = logisticsList[this.country]
+      this.logisticsList = []
+      this.logistics = []
+      logisticsList.forEach(item => {
+        this.logisticsList.push(item)
+        if (item.IsSelected) {
+          this.logistics.push(item.ShipName)
+        }
+      })
+    },
+    changeMallList(data) {  //店铺列表
+      this.mallList = data.mallList
+      this.country = data.country
+    },
+    handleSelectionChange(val) {
+      this.goodsTableSelect = val || []
     }
   }
+}
 </script>
 
 <style lang="less" scoped>
-  @import '../../../module-less/product-put-less/shangxin.less';
+@import '../../../module-less/product-put-less/shangxin.less';
 </style>
 
 <style lang="less">
-  .basisInstall {
-    .el-checkbox-group {
-      display: flex;
-      flex-flow: wrap;
-      align-items: center;
+.basisInstall {
+  .el-checkbox-group {
+    display: flex;
+    flex-flow: wrap;
+    align-items: center;
+  }
+}
+
+.on_new_dialog {
+  .el-dialog__header {
+    padding: 10px;
+
+    .el-dialog__headerbtn {
+      top: 10px;
+    }
+
+    .el-dialog__title {
+      font-weight: 700;
+      font-size: 14px;
     }
   }
 
-  .on_new_dialog {
-    .el-dialog__header {
-      padding: 10px;
+  .el-dialog__body {
+    padding: 5px 16px 10px;
 
-      .el-dialog__headerbtn {
-        top: 10px;
+    .el-upload {
+      width: 60px;
+      height: 60px;
+
+      .el-upload-dragger {
+        width: 100%;
+        height: 100%;
       }
 
-      .el-dialog__title {
-        font-weight: 700;
-        font-size: 14px;
-      }
-    }
-
-    .el-dialog__body {
-      padding: 5px 16px 10px;
-
-      .el-upload {
+      .avatar-uploader-icon {
+        font-size: 20px;
+        color: #8c939d;
         width: 60px;
         height: 60px;
+        line-height: 60px;
+        text-align: center;
+      }
 
-        .el-upload-dragger {
-          width: 100%;
-          height: 100%;
-        }
-
-        .avatar-uploader-icon {
-          font-size: 20px;
-          color: #8c939d;
-          width: 60px;
-          height: 60px;
-          line-height: 60px;
-          text-align: center;
-        }
-
-        img {
-          width: 100%;
-          height: 100%;
-        }
+      img {
+        width: 100%;
+        height: 100%;
       }
     }
   }
+}
+
+.goToGoods {
+  white-space: normal;
+  cursor: pointer;
+  line-height: 40px;
+
+  &:hover {
+    color: #ff0000;
+  }
+}
 </style>

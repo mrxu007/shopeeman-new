@@ -126,9 +126,12 @@
         </u-table-column>
         <u-table-column align="center" label="主图" width="80" prop="Sales">
           <template v-slot="{ row }">
-            <div style="justify-content: center; display: flex">
-              <img :src="row.image" style="width: 56px; height: 56px">
-            </div>
+            <el-tooltip effect="light" placement="right-end" :visible-arrow="false" :enterable="false" style="width: 56px; height: 56px; display: inline-block">
+              <div slot="content">
+                <el-image :src=" row.image " style="width: 400px; height: 400px" />
+              </div>
+              <el-image :src="{url:row.image,source:row.source} | changeImgSizeFilter" style="width: 56px; height: 56px" />
+            </el-tooltip>
           </template>
         </u-table-column>
         <u-table-column align="center" label="价格" width="70" prop="price" show-overflow-tooltip/>
