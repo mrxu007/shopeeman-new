@@ -12,14 +12,14 @@
             <el-option label="已结束" value="3" />
           </el-select>
         </div>
+        <el-button style="margin-left:8px" size="mini" type="primary" @click="getTableList">查询</el-button>
+        <el-button size="mini" type="primary" @click="stopSearch">取消查询</el-button>
       </div>
 
       <div class="row2" style="margin-top:8px">
-        <el-button size="mini" type="primary" @click="getTableList">查询</el-button>
-        <el-button size="mini" type="primary" @click="stopSearch">取消查询</el-button>
         <el-button size="mini" type="primary" @click="mallCoupon">创建店铺优惠劵</el-button>
         <el-button size="mini" type="primary" @click="goodsCoupon">创建商品优惠劵</el-button>
-        <el-button size="mini" @click="stopCreate">停止创建活动</el-button>
+        <el-button size="mini" type="primary" @click="stopCreate">停止创建活动</el-button>
         <el-button size="mini" type="primary" @click="MallvoucherStopMul">批量停止活动</el-button>
         <el-button size="mini" type="primary" @click="MallvoucherDelMul">批量删除活动</el-button>
         <el-button size="mini" type="primary" @click="clearLog">清除日志</el-button>
