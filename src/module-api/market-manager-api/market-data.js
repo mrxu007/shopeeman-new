@@ -194,7 +194,6 @@ export default class MarketManagerAPI {
       }
       const res = await this._this.$shopeemanService.getChineseReferer(country, '/api/marketing/v4/follow_prize/list/?', params, {
         headers: {
-          'Content-Type': 'application/json; charset=utf-8',
           'accept': 'application/json, text/plain, */*',
           'accept-encoding': 'gzip, deflate, br',
           'referer': '/portal/marketing/follow-prize/list'

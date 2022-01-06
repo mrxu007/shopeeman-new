@@ -303,7 +303,7 @@ export default {
   methods: {
     // 创建商品优惠卷
     async goodsCouponFun() {
-      if (this.discountNum > 0) {
+      if (this.discountNum > 100) {
         this.$message.warning('请输入有效折扣')
         return
       }
@@ -563,7 +563,7 @@ export default {
       // this.selectMallList.forEach(el => {
       //   this.createCoupon(el)
       // })
-      if (this.discountNum > 0) {
+      if (this.discountNum > 100) {
         this.$message.warning('请输入有效折扣')
         return
       }

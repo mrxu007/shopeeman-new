@@ -438,7 +438,7 @@ export default {
             this.$refs.Logs.writeLog(`店铺【${item.mall_alias_name || item.platform_mall_name}】查找完毕`, true)
           }
         } else {
-          this.$refs.Logs.writeLog(`【${item.mall_alias_name || item.platform_mall_name}】${res.data.message}`, false)
+          this.$refs.Logs.writeLog(`【${item.mall_alias_name || item.platform_mall_name}】${res.data.message || '店铺异常'}`, false)
         }
       } catch (error) {
         this.$refs.Logs.writeLog(`【${item.mall_alias_name || item.platform_mall_name}】--catch，${error}`, false)
@@ -517,7 +517,7 @@ export default {
       // this.selectMallList.forEach(el => {
       //   this.createCoupon(el)
       // })
-      if (this.discountNum > 0) {
+      if (this.discountNum > 100) {
         this.$message.warning('请输入有效折扣')
         return
       }
