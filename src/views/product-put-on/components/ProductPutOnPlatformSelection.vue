@@ -542,31 +542,31 @@
       :close-on-click-modal="false"
       :close-on-press-escape="false"
     >
-      <p>1：请先下载插件程序安装至浏览器，方可使用此功能<el-button type="primary" size="mini">下载教程</el-button></p>
-      <p>2：由于推送地址端口号随时生成，重启软件后，请务必重新复制推送地址 <el-button type="primary" size="mini">下载插件</el-button></p>
+      <p>1：请先下载插件程序安装至浏览器，方可使用此功能<el-button type="primary" size="mini" @click="$BaseUtilService.openUrl(`https://shopeeman.oss-cn-shenzhen.aliyuncs.com/files/shopeemanFiles/appFiles/20220106/2022010616473761d6aca9e310d.docx`)">下载教程</el-button></p>
+      <p>2：由于推送地址端口号随时生成，重启软件后，请务必重新复制推送地址 <el-button type="primary" size="mini" @click="$BaseUtilService.openUrl(`https://shopeeppxia.oss-cn-shenzhen.aliyuncs.com/desktop/plugin/CollectPligin.zip`)">下载插件</el-button></p>
       <el-form label-position="right" label-width="190px">
         <el-form-item label="拼多多关键词采集推送地址：">
           <div class="item">
-            <span>http://localhost:12307/api/pddGoodsKeyword</span>
-            <el-button size="mini" @click="copy()">复 制</el-button>
+            <span>{{ port }}/api/pddGoodsKeyword</span>
+            <el-button size="mini" @click="copy(`${port}/api/pddGoodsKeyword`)">复 制</el-button>
           </div>
         </el-form-item>
         <el-form-item label="拼多多详情采集推送地址：">
           <div class="item">
-            <span>http://localhost:12307/api/pddGoodsDetail</span>
-            <el-button size="mini" @click="copy()">复 制</el-button>
+            <span>{{ port }}/api/pddGoodsDetail</span>
+            <el-button size="mini" @click="copy(`${port}/api/pddGoodsDetail`)">复 制</el-button>
           </div>
         </el-form-item>
         <el-form-item label="淘宝/天猫关键词采集推送地址：">
           <div class="item">
-            <span>http://localhost:12307/api/tbGoodsKeyword</span>
-            <el-button size="mini" @click="copy()">复 制</el-button>
+            <span>{{ port }}/api/tbGoodsKeyword</span>
+            <el-button size="mini" @click="copy(`${port}/api/tbGoodsKeyword`)">复 制</el-button>
           </div>
         </el-form-item>
         <el-form-item label="淘宝详情采集推送地址：">
           <div class="item">
-            <span>http://localhost:12307/api/tbGoodsDetail</span>
-            <el-button size="mini" @click="copy()">复 制</el-button>
+            <span>{{ port }}/api/tbGoodsDetail</span>
+            <el-button size="mini" @click="copy(`${port}/api/tbGoodsDetail`)">复 制</el-button>
           </div>
         </el-form-item>
       </el-form>
@@ -744,7 +744,8 @@ export default {
       IsDeleteRepeatSkuImg: false, // 规格图重复时，删除所有sku图
 
       // 插件采集
-      plugVisible: false
+      plugVisible: false,
+      port: ''
     }
   },
   computed: {
@@ -818,13 +819,15 @@ export default {
     this.getLazadaGoodsPlace()
     this.getTaobaoAbroadAccount()
   },
-  mounted() {
+  async mounted() {
     this.goodsList = testData.data
     this.$refs.plTable.reloadData(this.goodsList)
     const data = this.goodsList.slice(0, 500)
     // data是数据，state是选中还是取消选中
     this.$refs.plTable.partRowSelections(data, true)
     document.querySelectorAll('.barChilren')[4].style.width = '102px'
+    // 获取插件port
+    this.port = await this.$BaseUtilService.getPluginPorts()
   },
   methods: {
     selectShopeePlaceValEvent() { // 出货地点全选事件
