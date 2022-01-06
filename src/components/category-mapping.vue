@@ -93,12 +93,34 @@
     methods: {
       async confirmCategory(index = -1) {
         let country = this.country || this.countryOption
-        if (this.goodsCurrent && index < 0) {
-          let categoryList = []
-          this.categoryList.forEach((item,index)=>{
-            let temp = item.find(i=>i.category_id === this.categoryAction[index])
-            temp && categoryList.push(temp)
-          })
+        let categoryList = []
+        this.categoryList.forEach((item,index)=>{
+          let temp = item.find(i=>i.category_id === this.categoryAction[index])
+          temp && categoryList.push(temp)
+        })
+        let originCategoryId = this.goodsCurrent.originCategoryId || this.goodsCurrent.category_id
+        let platformId = this.goodsCurrent.platform || this.goodsCurrent.source
+        if (originCategoryId && platformId){
+          if (this.goodsCurrent && index < 0) {
+            let attributesList = []
+            this.attributesList.forEach(son => {
+              let option = son.new_options_obj.find(i => i.value_id === son.options)
+              attributesList.push({
+                attributeId: son.attribute_id,
+                attributeName: son.attribute_name,
+                valueId: option.value_id,
+                value: option.value
+              })
+            })
+            let param = {
+              relationCategoryId: originCategoryId,
+              country: this.country,
+              platformId: platformId,
+              platformCategoryId: categoryList[categoryList.length - 1].category_id,
+              categoryAttributes: attributesList
+            }
+            let save = await this.$commodityService.saveCategoryRelation(param)
+        }
           this.$emit('categoryChange', {
             categoryList: categoryList,
             attributesList: this.attributesList,
@@ -175,7 +197,7 @@
             }
             this.$emit('categoryChange','')
           } else {
-            this.confirmCategory(++index)
+            await this.confirmCategory(++index)
           }
         }
       },
@@ -202,34 +224,48 @@
         this.categoryAction.splice(index + 1, this.categoryAction.length - index)
         this.enterCategory(val + '', ++index)
       },
-      async enterCategory(categoryId = '0', index = 0, row = null) {
+      async enterCategory(categoryId = '0', index = 0, row = null,isParent = '1') {
         let country = this.country || this.countryOption
-        if (index === 0) {
+        if (index === 0 && this.attributesCurrent.length === 0) {
           this.categoryAction = row && row.categoryIdList || []
-          if (this.goodsCurrent && this.goodsCurrent.goodsId) {
-            let categoryRelationJson = await this.$commodityService.getCategoryRelation(
-              this.goodsCurrent.originCategoryId, country, this.goodsCurrent.platform + '')
+          if (this.goodsCurrent && (this.goodsCurrent.goodsId || this.goodsCurrent.goods_id)) {
+            this.categoryAction = []
+            let originCategoryId = this.goodsCurrent.originCategoryId || this.goodsCurrent.category_id
+            let platformId = this.goodsCurrent.platform || this.goodsCurrent.source
+            let categoryRelationJson = await this.$commodityService.getCategoryRelation(originCategoryId, country, platformId)
             let categoryRelationRes = JSON.parse(categoryRelationJson)
+            console.log(categoryRelationRes)
             this.attributesCurrent = categoryRelationRes.data && categoryRelationRes.data.attributes || []
+            categoryId = categoryRelationRes?.data?.category?.platform_category_id || categoryId
+            isParent = 0
+            this.categoryAction.unshift(categoryId)
           }
         }
         if (categoryId){
           let categoryList = JSON.parse(JSON.stringify(this.categoryList)) || []
-          let categoryTbInfoJson = await this.$commodityService.getCategoryTbInfo(country, categoryId)
+          let categoryTbInfoJson = await this.$commodityService.getCategoryTbInfo(country, categoryId, isParent)
           let categoryTbInfoRes = JSON.parse(categoryTbInfoJson)
           if (categoryTbInfoRes.code === 200) {
             let categoryTbInfoData = categoryTbInfoRes.data
-            if (categoryTbInfoData && categoryTbInfoData.categories) {
-              categoryList[index] = categoryTbInfoData.categories
-              this.categoryList = categoryList
-              this.categoryAction[index] = this.categoryAction[index] || categoryList[index][0].category_id
-              this.enterCategory(this.categoryAction[index] + '', ++index)
-            } else {
-              this.getAttribute()
+            console.log('categoryTbInfoData',categoryTbInfoData,this.categoryAction)
+            if (isParent === 0){
+              let parent_id = categoryTbInfoData?.categories[0].parent_id || 0
+              parent_id && this.categoryAction.unshift(parent_id)
+              isParent = parent_id === 0 && 1 || 0
+              await this.enterCategory(parent_id+'', 0,null,isParent)
+            }else{
+              if (categoryTbInfoData && categoryTbInfoData.categories) {
+                categoryList[index] = categoryTbInfoData.categories
+                this.categoryList = categoryList
+                this.categoryAction[index] = this.categoryAction[index] || categoryList[index][0].category_id
+                await this.enterCategory(this.categoryAction[index] , ++index)
+              } else {
+                await this.getAttribute()
+              }
             }
           }
         }else{
-          this.getAttribute(true)
+          await this.getAttribute(true)
         }
       },
     }
