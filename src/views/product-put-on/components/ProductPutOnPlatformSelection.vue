@@ -103,7 +103,6 @@
                     start-placeholder="开始日期"
                     end-placeholder="结束日期"
                     :picker-options="commonAttr.pickerOptions"
-                    value-format="yyyy-MM-dd"
                     size="mini"
                   />
                 </li>
@@ -138,7 +137,7 @@
                   <el-button type="primary" size="mini">编辑上新</el-button>
                 </li>
                 <li>
-                  <el-button type="primary" size="mini">插件采集</el-button>
+                  <el-button type="primary" size="mini" @click="plugVisible = true">插件采集</el-button>
                   <el-button type="primary" size="mini">清理全部</el-button>
                 </li>
                 <li>
@@ -214,7 +213,12 @@
               </li>
             </ul>
             <div class="item con-sub-3">
-              <p class="text">店铺链接：一行一个<span v-show="isShowKeyTip" style="color: red">（采集请使用对应的站点语言搜索）</span></p>
+              <div class="size-icon" style="margin-top: 3px;">店铺链接(一行一个)
+                <el-tooltip placement="top">
+                  <div slot="content">目前仅支持淘宝/Shopee/Lazada/1688/拼多多整店采集<br><br>1688店铺链接：进入1688店铺->点击首页->复制链接<br><br>店铺链接：进入shopee店铺->点击所有商品(AllProduct)</div>
+                  <i class="el-icon-question" style="" />
+                </el-tooltip>
+              </div>
               <el-input v-model="mallLinkKey" size="mini" type="textarea" :rows="8" resize="none" />
             </div>
             <div class="item con-sub-3">
@@ -269,7 +273,7 @@
                   <el-option v-for="(item, index) in pictureSearchOrigin" :key="index" :label="item.label" :value="item.value" />
                 </el-select>
                 <el-upload class="avatar-uploader" action="#" :show-file-list="false" :on-error="imgSaveToUrl">
-                  <el-button type="primary" size="mini">选择图片</el-button>
+                  <el-button style="margin-left:25px" type="primary" size="mini">选择图片</el-button>
                 </el-upload>
               </li>
             </ul>
@@ -512,7 +516,11 @@
         <u-table-column align="center" label="来源" prop="Origin" />
         <u-table-column align="center" label="操作">
           <template slot-scope="scope">
-            <el-button size="mini" type="primary" @click="goodsList.splice(scope.$index, 1)">
+            <el-button
+              size="mini"
+              type="primary"
+              @click="tableDelete(scope.$index)"
+            >
               删除
             </el-button>
           </template>
@@ -524,6 +532,45 @@
         </u-table-column>
       </u-table>
     </article>
+    <!-- 插件采集弹窗 -->
+    <el-dialog
+      v-if="plugVisible"
+      class="plug-dialog"
+      title="插件采集"
+      :visible.sync="plugVisible"
+      width="600px"
+      :close-on-click-modal="false"
+      :close-on-press-escape="false"
+    >
+      <p>1：请先下载插件程序安装至浏览器，方可使用此功能<el-button type="primary" size="mini">下载教程</el-button></p>
+      <p>2：由于推送地址端口号随时生成，重启软件后，请务必重新复制推送地址 <el-button type="primary" size="mini">下载插件</el-button></p>
+      <el-form label-position="right" label-width="190px">
+        <el-form-item label="拼多多关键词采集推送地址：">
+          <div class="item">
+            <span>http://localhost:12307/api/pddGoodsKeyword</span>
+            <el-button size="mini" @click="copy()">复 制</el-button>
+          </div>
+        </el-form-item>
+        <el-form-item label="拼多多详情采集推送地址：">
+          <div class="item">
+            <span>http://localhost:12307/api/pddGoodsDetail</span>
+            <el-button size="mini" @click="copy()">复 制</el-button>
+          </div>
+        </el-form-item>
+        <el-form-item label="淘宝/天猫关键词采集推送地址：">
+          <div class="item">
+            <span>http://localhost:12307/api/tbGoodsKeyword</span>
+            <el-button size="mini" @click="copy()">复 制</el-button>
+          </div>
+        </el-form-item>
+        <el-form-item label="淘宝详情采集推送地址：">
+          <div class="item">
+            <span>http://localhost:12307/api/tbGoodsDetail</span>
+            <el-button size="mini" @click="copy()">复 制</el-button>
+          </div>
+        </el-form-item>
+      </el-form>
+    </el-dialog>
   </div>
 </template>
 
@@ -605,27 +652,29 @@ export default {
         lazadaPlaceVal1: [],
         pickerOptions: {
           shortcuts: [{
-            text: '最近一周',
+            text: '今天',
             onClick(picker) {
               const end = new Date()
               const start = new Date()
+              // start.setTime(start.getTime() - 3600 * 1000 * 24 * 7)
+              picker.$emit('pick', [start, end])
+            }
+          }, {
+            text: '昨天',
+            onClick(picker) {
+              const end = new Date()
+              const start = new Date()
+              end.setTime(end.getTime() - 3600 * 1000 * 24 * 1)
+              start.setTime(start.getTime() - 3600 * 1000 * 24 * 1)
+              picker.$emit('pick', [start, end])
+            }
+          }, {
+            text: '一周前',
+            onClick(picker) {
+              const end = new Date()
+              const start = new Date()
+              end.setTime(end.getTime() - 3600 * 1000 * 24 * 7)
               start.setTime(start.getTime() - 3600 * 1000 * 24 * 7)
-              picker.$emit('pick', [start, end])
-            }
-          }, {
-            text: '最近一个月',
-            onClick(picker) {
-              const end = new Date()
-              const start = new Date()
-              start.setTime(start.getTime() - 3600 * 1000 * 24 * 30)
-              picker.$emit('pick', [start, end])
-            }
-          }, {
-            text: '最近三个月',
-            onClick(picker) {
-              const end = new Date()
-              const start = new Date()
-              start.setTime(start.getTime() - 3600 * 1000 * 24 * 90)
               picker.$emit('pick', [start, end])
             }
           }]
@@ -692,7 +741,10 @@ export default {
       IsFilterShopeeDeliveryDay: false, // 启动虾皮发货天数过滤商品
       MinShoppeDeliveryDay: 0,
       MaxShoppeDeliveryDay: 20,
-      IsDeleteRepeatSkuImg: false// 规格图重复时，删除所有sku图
+      IsDeleteRepeatSkuImg: false, // 规格图重复时，删除所有sku图
+
+      // 插件采集
+      plugVisible: false
     }
   },
   computed: {
@@ -846,6 +898,7 @@ export default {
     },
     switchPlatform(row) { // 关键词选择平台
       this.currentKeywordPlatform = row.value
+      console.log(row.value)
     },
     // 开始采集
     StartCollection() {
@@ -917,7 +970,7 @@ export default {
           this.goodsList.push(...res2.data)
         }
       }
-      this.goodsList = this.filterData(this.goodsList)
+      // this.goodsList = this.filterData(this.goodsList)
       this.$refs.plTable.reloadData(this.goodsList)
       this.writeLog(`${platformObj[platForm]}：共采集：${this.goodsList.length}条`, true)
       this.writeLog(`${platformObj[platForm]}商品采集完毕........`, true)
@@ -1139,9 +1192,25 @@ export default {
         }
         // 过滤标题
         if (this.commonAttr.keyFilter) {
-          const keyFilterArr = this.CollectKeyWordApInstance.handleKey(this.commonAttr.keyFilter)
-          const fileWord = this.CollectKeyWordApInstance.filterLinkKeyWord(item.Title, keyFilterArr)
-          console.log('fileWord', fileWord)
+          const keyFilterArr = this.CollectPublicApInstance.handleKey(this.commonAttr.keyFilter)
+          const fileWord = this.CollectPublicApInstance.filterLinkKeyWord(item.Title, keyFilterArr)
+          item.keyWord = fileWord
+          if (item.keyWord !== '') {
+            continue
+          }
+        }
+        // 过滤创建时间
+        if (this.isShowCreateAt && this.commonAttr.value2?.length > 0) {
+          const start = this.commonAttr.value2[0].getTime()
+          const end = this.commonAttr.value2[1].getTime()
+          const create = item.CreateTime * 1000
+          if (create < start || create > end) {
+            continue
+          }
+        }
+        // 过滤虾皮官方店铺
+        if (this.isShowShopeeSite && item.IsOfficialShop === true) {
+          continue
         }
         fData.push(item)
       }
@@ -1210,10 +1279,14 @@ export default {
       }
       target.parentElement.removeChild(target)
     },
+    tableDelete(index) {
+      this.goodsList.splice(index, 1)
+      this.$refs.plTable.clearSelection()
+    },
     // 批量删除表格数据
     batchTableDelete(tableData, selectData) {
       if (!selectData.length) {
-        return this.notify('批量删除', '请选择要删除的选项', 'warning')
+        return this.$message.error('请选择要删除的选项')
       }
       selectData
         .map(n => n.__ob__.dep.id)
@@ -1224,6 +1297,7 @@ export default {
             1
           )
         })
+      this.$refs.plTable.clearSelection()
     },
     // 导出数据
     exportTableData() {

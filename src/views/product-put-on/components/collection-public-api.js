@@ -845,4 +845,48 @@ export default class CollectionPublicApi {
         return str
       }
     }
+    // 处理文本域输入框
+    handleKey(key) {
+      return key
+        .split('\n')
+        .map(item => {
+          return item.replace(/(^\s*)|(\s*$)/g, '')
+        })
+        .filter(item => {
+          return item !== ''
+        })
+    }
+    // 处理标题过滤字段
+    filterLinkKeyWord(tData, fKeyArr) {
+      const title = tData
+      let result = false
+      const keyword = []
+      for (let index = 0; index < fKeyArr.length; index++) {
+        const element = fKeyArr[index]
+        var reg = RegExp(element.replace(/^[^\w^\s^\u4e00-\u9fa5]/i, '')) // 先替换开头的特殊字符
+        result = reg.test(title)
+        if (result) {
+          keyword.push(element)
+          break
+        }
+      }
+      return keyword.join(',')
+    }
+    // 处理标题过滤限制方法
+    handleKeyFilter(arr) {
+      console.log(arr, '处理数据')
+      if (Array.isArray(arr)) {
+        if (arr.length > 1000) {
+          arr = arr.slice(0, 1000)
+          this.notify('标题过滤设置', '请输入小于1000组以内的关键词', 'warning')
+        }
+      } else {
+        arr = arr.split('\n')
+        if (arr.length > 1000) {
+          arr = arr.slice(0, 1000)
+          this.notify('标题过滤设置', '请输入小于1000组以内的关键词', 'warning')
+        }
+      }
+      return arr
+    }
 }

@@ -229,6 +229,17 @@
       .con-sub-3 {
         min-width: 200px;
         margin: 0 10px;
+        .size-icon{
+          margin: 2px 0 10px 0;
+          display: flex;
+          align-items: center;
+          i {
+            padding-left: 8px;
+            width: 20px;
+            font-size: 16px !important;
+            cursor: pointer;
+          }
+        }
       }
     }
     .picture-container {
@@ -459,10 +470,32 @@
     width: 228px;
     /deep/.el-range-input{
       width: 67px !important;
-  }
+    }
   /deep/.el-range-separator{
       width: 42px!important;
       text-align: center;
+    }
   }
-}
+  .plug-dialog{
+    /deep/.el-dialog__body {
+      padding: 0 20px 10px 20px !important;
+      .el-form-item {
+        margin-bottom: 0px;
+        .item{
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          .el-button{
+            width: 80px;
+          }
+        }
+      }
+      p{
+        padding: 5px 0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+    }
+  }
 }
