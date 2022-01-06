@@ -4,7 +4,7 @@
       <div class="row1">
         <storeChoose style="margin-left:-20px" :show-mall-all="true" @changeMallList="changeMallList" />
         <div>
-          <label>优惠劵类型：</label>
+          <label>关注礼类型：</label>
           <el-select v-model="saleType" placeholder="请选择" size="mini" style="width:120px">
             <el-option label="全部" value="0" />
             <el-option label="即将进行" value="1" />
@@ -31,7 +31,7 @@
         ref="multipleTable"
         v-loading="tableLoading"
         :data="tableList"
-        height="600px"
+        height="800px"
         use-virtual
         :border="false"
         :header-cell-style="{ background: '#f7fafa' }"
@@ -125,14 +125,24 @@
           </el-select>
           <!-- 选择折扣 -->
           <span v-if="rewardType==='1'">折扣 ：</span>
-          <div>
+          <div
+            style="display: flex;
+            flex-flow: column;"
+          >
             <el-input v-model="discountNum" size="mini" style="width:100px" onkeyup="value=value.replace(/[^\d]/g,0)" />
-            <span v-if="discountType==='0' || rewardType==='1'" style="color:red">%折扣,付款金额中的-%将退还给买家</span>
+            <span v-if="rewardType==='0'" style="margin-left:-100px">
+              {{ discountNum }}%折扣,付款金额中的{{ discountNum }}%将退还给买家
+              <span v-if="discountNum>100" style="color:red;">*请输入正确的折扣信息</span>
+            </span>
+            <span v-if="rewardType==='1'" style="margin-left:-40px">
+              {{ discountNum }}%折扣,付款金额中的{{ discountNum }}%将退还给买家
+              <span v-if="discountNum>100" style="color:red;">*请输入正确的折扣信息</span>
+            </span>
           </div>
           <!-- <div v-if="discountType==='0'" class="color:red"></div> -->
         </el-form-item>
 
-        <el-form-item label="最高折扣金额">
+        <el-form-item v-if="rewardType==='0'&& discountType==='0'" label="最高折扣金额">
           <el-radio-group v-model="limitPrice">
             <el-radio label="0">无限制</el-radio>
             <el-radio label="1">设置金额：<el-input v-model="maxPrice" size="mini" style="width:80px" onkeyup="value=value.replace(/[^\d]/g,0)" /></el-radio>
@@ -507,6 +517,10 @@ export default {
       // this.selectMallList.forEach(el => {
       //   this.createCoupon(el)
       // })
+      if (this.discountNum > 0) {
+        this.$message.warning('请输入有效折扣')
+        return
+      }
       if ((this.dateTime[1] - this.dateTime[0]) <= 3600 * 24 * 1000) {
         this.$message.warning('活动期间不能少于一天')
         return

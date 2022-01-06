@@ -16,7 +16,7 @@
             <storeChoose style="margin-left:-20px;width: 730px;" :show-mall-all="true" @changeMallList="changeMallList" />
           </li>
           <li style="margin-top:20px;align-items: center;">
-            <el-button size="mini" type="primary" @click="getTopTest">搜索任务</el-button>
+            <el-button size="mini" type="primary" @click="getTopTestTable">搜索任务</el-button>
             <el-button size="mini" type="primary" @click="delTeskFun">批量删除任务</el-button>
             <el-button size="mini" type="primary" @click="stopdTesk">停止创建任务</el-button>
             <el-button size="mini" type="primary" @click="clearLog">清除日志</el-button>
@@ -112,7 +112,14 @@
         <el-table-column prop="toped_count" label="已置顶商品数" align="center" min-width="100px" />
         <el-table-column prop="created_at" label="任务创建时间" align="center" min-width="150px" />
         <el-table-column prop="next_top_time" label="下次置顶时间" align="center" min-width="150px" />
-        <el-table-column prop="top_good_ids" label="置顶商品" align="center" min-width="100px" show-overflow-tooltip="" />
+        <el-table-column prop="all_good_ids" label="置顶商品" align="center" min-width="100px">
+          <template slot-scope="{ row }">
+            <el-tooltip v-if="row.all_good_ids" effect="dark" placement="top-start">
+              <div slot="content" style="max-width: 200px; height: auto">{{ row.all_good_ids }}</div>
+              <span type="text" class="bindmallclass">{{ row.all_good_ids }}</span>
+            </el-tooltip>
+          </template>
+        </el-table-column>
         <el-table-column prop="result" label="操作结果" align="center" min-width="100px" />
         <el-table-column prop="" label="历史记录" align="center" min-width="150px">
           <template v-slot="{row}"><el-button size="mini" type="primary" @click="checkRecord(row.id)">查看置顶记录</el-button></template></el-table-column>
@@ -284,7 +291,7 @@ export default {
     // 初始化任务列表
     async getTopTestTable() {
       this.showlog = false
-      this.$refs.Logs.writeLog(`正在获取列表信息......`)
+      this.$refs.Logs.writeLog(`正在获取列表信息......`, true)
       const params = {
         country: this.selectMalllist[0]?.country || 'TH',
         pageSize: this.pageSize,
@@ -299,7 +306,7 @@ export default {
           el.mallName = GoodsMallgetValue(this.shopAccountList, 'label', 'value', el.sys_mall_id)
         })
         this.tableList = list
-        this.$refs.Logs.writeLog(`获取列表信息完毕`)
+        this.$refs.Logs.writeLog(`获取列表信息完毕`, true)
       } else {
         this.$message.error(`列表获取失败--${res.message}`, false)
       }
@@ -314,7 +321,7 @@ export default {
         this.page = res.data.data.current_page
         this.total = res.data.data.total
         const list = res.data.data.data
-        await batchOperation(list, this.checkMall)// 检测任务店铺
+        await batchOperation(list, this.checkMall)// 检测店铺--执行置顶
         await this.getTopTestTable()
       } else {
         this.$message.error(`任务获取失败--${res.message}`, false)
@@ -325,7 +332,6 @@ export default {
       try {
         const mallName = GoodsMallgetValue(this.shopAccountList, 'label', 'value', item.sys_mall_id)
         // 店铺校验
-        debugger
         if (!mallName) {
           this.$refs.Logs.writeLog(`【${item.sys_mall_id}】店铺不存在`, false)
           this.topHistoryMsg.push({ topHistoryMsg: '店铺不存在' })
@@ -353,6 +359,7 @@ export default {
         }
         // 通过商品ID置顶
         if (Number(item.top_type) === 1) {
+
         }
       } catch (error) {
         this.$refs.Logs.writeLog(`catch--【${item.sys_mall_id}】,${error}`, false)
@@ -484,7 +491,7 @@ export default {
           this.topHistoryMsg.push({ topHistoryMsg: `商品【${item.id}】置顶成功` })
         } else {
           this.$refs.Logs.writeLog(`店铺【${item.mallName}】商品【${item.id}】置顶失败${res1.message}`, false)
-          this.topHistoryMsg.push({ topHistoryMsg: `商品【${item.id}】】置顶失败${res1.message}` })
+          this.topHistoryMsg.push({ topHistoryMsg: `商品【${item.id}】置顶失败${res1.message}` })
         }
 
         // 上报置顶商品

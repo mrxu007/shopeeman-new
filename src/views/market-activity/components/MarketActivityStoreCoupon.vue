@@ -43,21 +43,21 @@
         <u-table-column prop="" label="站点" align="center" min-width="50px" fixed>
           <template v-slot="{row}">{{ row.country | chineseSite }}</template>
         </u-table-column>
-        <u-table-column prop="mallName" label="店铺" align="center" min-width="150px" />
-        <u-table-column prop="name" label="优惠劵" align="center" min-width="150px" />
+        <u-table-column prop="mallName" label="店铺" align="center" min-width="150px" fixed />
+        <u-table-column prop="name" label="优惠劵" align="center" min-width="100px" />
         <u-table-column prop="voucher_code" label="优惠码" align="center" min-width="180px" />
         <u-table-column prop="voucher_type" label="优惠类型" align="center" min-width="100px">
           <!-- <template v-slot="{row}">{{ row.rule && row.rule.shopids.length===0 ? '店铺优惠卷' :'商品优惠卷' }}</template> -->
         </u-table-column>
         <u-table-column prop="discountInfo" label="折扣金额" align="center" min-width="180px" />
-        <u-table-column prop="topNum" label="最高上限数额" align="center" min-width="150px" />
-        <u-table-column prop="usage_limit" label="优惠劵可使用数量" align="center" min-width="150px" />
+        <u-table-column prop="topNum" label="最高上限数额" align="center" min-width="120px" />
+        <u-table-column prop="usage_limit" label="优惠劵可使用数量" align="center" min-width="120px" />
         <u-table-column prop="min_price" label="最低消费记录" align="center" min-width="100px" />
         <u-table-column prop="distributed_count" label="已领取" align="center" min-width="100px">
           <!-- <template v-slot="{row}">{{row.}}</template> -->
         </u-table-column>
         <u-table-column prop="current_usage" label="已使用" align="center" min-width="100px" />
-        <u-table-column prop="" label="期间" align="center" min-width="200px">
+        <u-table-column prop="" label="期间" align="center" min-width="150px">
           <template v-slot="{row}">
             <div>{{ row.formStartime }}-</div>
             <div>{{ row.formEndtime }}</div>
@@ -142,14 +142,24 @@
           </el-select>
           <!-- 选择折扣 -->
           <span v-if="rewardType==='1'">折扣 ：</span>
-          <div>
+          <div
+            style="display: flex;
+            flex-flow: column;"
+          >
             <el-input v-model="discountNum" size="mini" style="width:100px" onkeyup="value=value.replace(/[^\d]/g,0)" />
-            <span v-if="discountType==='0' || rewardType==='1'" style="color:red">%折扣,付款金额中的-%将退还给买家</span>
+            <span v-if="rewardType==='0'" style="margin-left:-100px">
+              {{ discountNum }}%折扣,付款金额中的{{ discountNum }}%将退还给买家
+              <span v-if="discountNum>100" style="color:red;">*请输入正确的折扣信息</span>
+            </span>
+            <span v-if="rewardType==='1'" style="margin-left:-40px">
+              {{ discountNum }}%折扣,付款金额中的{{ discountNum }}%将退还给买家
+              <span v-if="discountNum>100" style="color:red;">*请输入正确的折扣信息</span>
+            </span>
           </div>
           <!-- <div v-if="discountType==='0'" class="color:red"></div> -->
         </el-form-item>
 
-        <el-form-item label="最高优惠金额">
+        <el-form-item v-if="rewardType==='0'&& discountType==='0'" label="最高优惠金额">
           <el-radio-group v-model="limitPrice">
             <el-radio label="0">无限制</el-radio>
             <el-radio label="1">设置金额：
@@ -293,6 +303,10 @@ export default {
   methods: {
     // 创建商品优惠卷
     async goodsCouponFun() {
+      if (this.discountNum > 0) {
+        this.$message.warning('请输入有效折扣')
+        return
+      }
       if (!this.couponGoodslist.length) {
         this.$message.warning('请选择商品')
         return
@@ -549,6 +563,10 @@ export default {
       // this.selectMallList.forEach(el => {
       //   this.createCoupon(el)
       // })
+      if (this.discountNum > 0) {
+        this.$message.warning('请输入有效折扣')
+        return
+      }
       this.CouponVisible = false
       this.showlog = false
       this.$refs.Logs.writeLog(`正在创建任务`)
