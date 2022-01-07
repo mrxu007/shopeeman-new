@@ -1,143 +1,165 @@
 <template>
   <el-row class="contaniner">
-    <el-row class="header">
+    <el-row class="header" style="padding-top: 0px;">
       <storeChoose :span-width="'80px'" :source="'true'" @changeMallList="changeMallList" />
-      <ul style="margin-bottom: 10px;margin-left:24px" />
-      <ul>
-        <li>
-          <span>资料期间：</span>
-          <el-select v-model="Statisticaltime" placeholder="" size="mini" filterable>
-            <el-option v-for="(item, index) in returnStatisticaltime" :key="index" :label="item.label" :value="item.value" />
-          </el-select>
-        </li>
-        <li>
-          <span>资料期间：</span>
-          <el-date-picker
-            v-model="timechoose"
-            :disabled="timecant"
-            size="mini"
-            type="date"
-            placeholder="选择日期"
-          /></li>
-        <li>
-          <el-select v-model="type" placeholder="" size="mini" filterable>
-            <el-option v-for="(item, index) in typelist" :key="index" :label="item.label" :value="item.value" />
-          </el-select>
-        </li>
-        <li>
-          <el-button v-if="type==='shopee'" type="primary" :disabled="Loading1" size="mini" @click="categorychooce">shopee类目选择</el-button>
-          <el-select v-if="type==='shop'" v-model="b" placeholder="" size="mini" filterable>
-            <el-option v-for="(item, index) in B" :key="index" :label="item.label" :value="item.value" />
-          </el-select>
-          <el-input v-model="keyword" style="margin-left:10px" clearable size="mini" oninput="value=value.replace(/\s+/g,'')" placeholder="搜索商品" />
-        </li>
-        <li>
-          <el-button type="primary" :disabled="Loading1" size="mini" @click="getallinfo">搜索</el-button>
-          <el-button v-if="btcontrol" type="primary" size="mini" @click="a1">▲选择条件</el-button>
-          <el-button v-if="!btcontrol" type="primary" size="mini" @click="a2">▼选择条件</el-button>
-          <el-button type="primary" :disabled="Loading2" size="mini" @click="cancel">取消</el-button>
-          <el-button type="primary" size="mini" @click="DerivedData">数据导出</el-button>
-          <el-button type="primary" size="mini" @click="clearLog">清除日志</el-button>
-        </li>
-        <li><el-checkbox
-          v-model="showlog"
-        >隐藏日志</el-checkbox></li>
-      </ul><br>
-      <ul v-if="textcontrol">
-        <li style="margin-left:36px">访问：</li>
-        <li><el-checkbox
-          v-model="column1"
-        >商品访客数</el-checkbox></li>
-        <li><el-checkbox
-          v-model="column2"
-        >商品页面访问量</el-checkbox></li>
-        <li><el-checkbox
-          v-model="column3"
-        >商品跳出率</el-checkbox></li>
-        <li><el-checkbox
-          v-model="column4"
-        >赞</el-checkbox></li>
-      </ul>
-      <ul v-if="textcontrol">
-        <li>加入购物车：</li>
-        <li><el-checkbox
-          v-model="column5"
-        >商品访客数</el-checkbox></li>
-        <li><el-checkbox
-          v-model="column6"
-        >件数</el-checkbox></li>
-        <li><el-checkbox
-          v-model="column7"
-        >转化率（加入购物车）</el-checkbox></li>
-      </ul>
-      <ul v-if="textcontrol">
-        <li style="margin-left:12px">已下订单：</li>
-        <li><el-checkbox
-          v-model="column8"
-        >买家</el-checkbox></li>
-        <li><el-checkbox
-          v-model="column9"
-        >件数</el-checkbox></li>
-        <li><el-checkbox
-          v-model="column10"
-        >销售额</el-checkbox></li>
-        <li><el-checkbox
-          v-model="column11"
-        >转化率（访问至下单）</el-checkbox></li>
-      </ul>
-      <ul v-if="textcontrol">
-        <li style="margin-left:12px">已下订单：</li>
-        <li><el-checkbox
-          v-model="column12"
-        >买家</el-checkbox></li>
-        <li><el-checkbox
-          v-model="column13"
-        >件数</el-checkbox></li>
-        <li><el-checkbox
-          v-model="column14"
-        >销售额</el-checkbox></li>
-        <li><el-checkbox
-          v-model="column15"
-        >转化率（访问至付款）</el-checkbox></li>
-      </ul>
+      <ul style="margin-bottom: 10px" />
+      <div style="overflow: auto;">
+        <ul style="width: 1550px;margin-bottom: 5px;">
+          <li>
+            <span>资料期间：</span>
+            <el-select v-model="Statisticaltime" placeholder="" size="mini" filterable>
+              <el-option v-for="(item, index) in returnStatisticaltime" :key="index" :label="item.label" :value="item.value" />
+            </el-select>
+          </li>
+          <li style="margin-left:30px">
+            <el-date-picker
+              v-model="timechoose"
+              :disabled="timecant"
+              size="mini"
+              style="width:130px"
+              type="date"
+              placeholder="选择日期"
+            />
+          </li>
+          <li style="margin-left:40px">
+            <el-select v-model="type" placeholder="" size="mini" filterable class="selType" @change="changeType">
+              <el-option v-for="(item, index) in typelist" :key="index" :label="item.label" :value="item.value" />
+            </el-select>
+          </li>
+          <li>
+            <el-button v-if="type==='shopee'" type="primary" :disabled="Loading1" size="mini" @click="categorychooce">shopee类目选择</el-button>
+            <el-select v-if="type==='shop'" v-model="b" placeholder="" size="mini" filterable class="selType2">
+              <el-option v-for="(item, index) in B" :key="index" :label="item.label" :value="item.value" />
+            </el-select>
+            <el-input v-model="keyword" style="margin-left:10px;" class="keywordInput" clearable size="mini" oninput="value=value.replace(/\s+/g,'')" placeholder="搜索商品" />
+          </li>
+          <li>
+            <el-button type="primary" :disabled="Loading1" size="mini" @click="getallinfo">搜索</el-button>
+            <el-button v-if="btcontrol" type="primary" size="mini" @click="a1">▲选择条件</el-button>
+            <el-button v-if="!btcontrol" type="primary" size="mini" @click="a2">▼选择条件</el-button>
+            <el-button type="primary" :disabled="Loading2" size="mini" @click="cancel">取消</el-button>
+            <el-button type="primary" size="mini" @click="DerivedData">数据导出</el-button>
+            <el-button type="primary" size="mini" @click="clearLog">清除日志</el-button>
+          </li>
+          <li><el-checkbox
+            v-model="showlog"
+          >隐藏日志</el-checkbox></li>
+        </ul>
+        <br>
+        <ul v-if="textcontrol">
+          <li style="margin-left:36px">访问：</li>
+          <li><el-checkbox
+            v-model="column1"
+          >商品访客数</el-checkbox></li>
+          <li><el-checkbox
+            v-model="column2"
+          >商品页面访问量</el-checkbox></li>
+          <li><el-checkbox
+            v-model="column3"
+          >商品跳出率</el-checkbox></li>
+          <li><el-checkbox
+            v-model="column4"
+          >赞</el-checkbox></li>
+        </ul>
+        <ul v-if="textcontrol" style="margin-left:-20px">
+          <li>加入购物车：</li>
+          <li><el-checkbox
+            v-model="column5"
+          >商品访客数</el-checkbox></li>
+          <li><el-checkbox
+            v-model="column6"
+          >件数</el-checkbox></li>
+          <li><el-checkbox
+            v-model="column7"
+          >转化率（加入购物车）</el-checkbox></li>
+        </ul>
+        <ul v-if="textcontrol">
+          <li style="margin-left:12px">已下订单：</li>
+          <li><el-checkbox
+            v-model="column8"
+          >买家</el-checkbox></li>
+          <li><el-checkbox
+            v-model="column9"
+          >件数</el-checkbox></li>
+          <li><el-checkbox
+            v-model="column10"
+          >销售额</el-checkbox></li>
+          <li><el-checkbox
+            v-model="column11"
+          >转化率（访问至下单）</el-checkbox></li>
+        </ul>
+        <ul v-if="textcontrol">
+          <li style="margin-left:12px">已下订单：</li>
+          <li><el-checkbox
+            v-model="column12"
+          >买家</el-checkbox></li>
+          <li><el-checkbox
+            v-model="column13"
+          >件数</el-checkbox></li>
+          <li><el-checkbox
+            v-model="column14"
+          >销售额</el-checkbox></li>
+          <li><el-checkbox
+            v-model="column15"
+          >转化率（访问至付款）</el-checkbox></li>
+        </ul>
+      </div>
+    </el-row>
+    <el-row>
       <el-table
         ref="plTable"
         v-loading="Loading3"
         style="margin-top:10px"
         header-align="center"
-        height="calc(100vh - 140px)"
+        height="calc(100vh - 185px)"
         :data="tableData"
         :header-cell-style="{
           backgroundColor: '#f5f7fa',
         }"
       >
-        <el-table-column align="center" label="序列号" width="80" prop="index" />
-        <el-table-column align="center" label="店铺" width="140" prop="mallname" />
-        <el-table-column align="center" label="商品ID" width="140" prop="id" />
-        <el-table-column v-if="column1" align="center" prop="uv" label="商品访客数【访问】" width="140" />
-        <el-table-column v-if="column2" align="center" prop="pv" label="商品页面访问量【访问】" width="170" />
-        <el-table-column v-if="column3" prop="bounce_rate" label="商品跳出率【访问】" width="180" align="center" />
-        <el-table-column v-if="column4" prop="likes" label="赞【访问】" width="180" align="center" />
-        <el-table-column v-if="column5" prop="add_to_cart_buyers" label="商品访客数【加入购物车】" width="170" align="center" />
-        <el-table-column v-if="column6" prop="add_to_cart_units" label="件数【加入购物车】" width="180" align="center" />
-        <el-table-column v-if="column7" prop="uv_to_add_to_cart_rate" label="转换率【加入购物车】" width="170" align="center" />
-        <el-table-column v-if="column8" prop="placed_buyers" label="买家【已下订单】" width="150" align="center" />
-        <el-table-column v-if="column9" prop="placed_units" label="件数【已下订单】" width="180" align="center" />
-        <el-table-column v-if="column10" prop="placed_sales" label="销售额【已下订单】" width="180" align="center" />
-        <el-table-column v-if="column11" prop="uv_to_placed_buyers_rate" label="转化率（访问至下单)【已下订单】" width="220" align="center" />
-        <el-table-column v-if="column12" prop="paid_buyers" label="买家【已付款订单】" width="150" align="center" />
-        <el-table-column v-if="column13" prop="paid_units" label="件数【已付款订单】" width="180" align="center" />
-        <el-table-column v-if="column14" prop="paid_sales" label="销售额【已付款订单】" width="150" align="center" />
-        <el-table-column v-if="column15" prop="uv_to_paid_buyers_rate" label="转化率（访问至付款)【已付款订单】" width="240" align="center" />
+        <el-table-column align="center" label="序列号" min-width="80px" prop="index" fixed />
+        <el-table-column align="center" label="店铺" min-width="140px" prop="mallname" fixed />
+        <el-table-column align="center" label="商品ID" min-width="140px" prop="id">
+          <template v-slot="{row}">
+            <span>
+              <i class="el-icon-document-copy copyStyle" @click="copy(row.id)" />
+              <span class="tableActive" @click="open(row)">{{ row.id }}</span>
+            </span>
+          </template>
+        </el-table-column>
+        <el-table-column v-if="column1" align="center" prop="uv" label="商品访客数【访问】" min-width="140px" />
+        <el-table-column v-if="column2" align="center" prop="pv" label="商品页面访问量【访问】" min-width="170px" />
+        <el-table-column v-if="column3" prop="bounce_rate" label="商品跳出率【访问】" min-width="180px" align="center" />
+        <el-table-column v-if="column4" prop="likes" label="赞【访问】" min-width="180px" align="center" />
+        <el-table-column v-if="column5" prop="add_to_cart_buyers" label="商品访客数【加入购物车】" min-width="170px" align="center" />
+        <el-table-column v-if="column6" prop="add_to_cart_units" label="件数【加入购物车】" min-width="180px" align="center" />
+        <el-table-column v-if="column7" prop="uv_to_add_to_cart_rate" label="转换率【加入购物车】" min-width="170px" align="center" />
+        <el-table-column v-if="column8" prop="placed_buyers" label="买家【已下订单】" min-width="150px" align="center" />
+        <el-table-column v-if="column9" prop="placed_units" label="件数【已下订单】" min-width="180px" align="center" />
+        <el-table-column v-if="column10" prop="placed_sales" label="销售额【已下订单】" min-width="180px" align="center" />
+        <el-table-column v-if="column11" prop="uv_to_placed_buyers_rate" label="转化率（访问至下单)【已下订单】" min-width="220px" align="center" />
+        <el-table-column v-if="column12" prop="paid_buyers" label="买家【已付款订单】" min-width="150px" align="center" />
+        <el-table-column v-if="column13" prop="paid_units" label="件数【已付款订单】" min-width="180px" align="center" />
+        <el-table-column v-if="column14" prop="paid_sales" label="销售额【已付款订单】" min-width="150px" align="center" />
+        <el-table-column v-if="column15" prop="uv_to_paid_buyers_rate" label="转化率（访问至付款)【已付款订单】" min-width="240px" align="center" fixed="right" />
       </el-table>
       <div class="logging">
         <Logs ref="Logs" v-model="showlog" clear />
       </div>
-      <el-dialog title="类目映射" width="700px" top="25vh" :close-on-click-modal="false" :visible.sync="categoryVisible">
+      <el-dialog
+        title="类目映射"
+        width="700px"
+        top="25vh"
+        :close-on-click-modal="false"
+        :close-on-press-escape="false"
+        :visible.sync="categoryVisible"
+      >
         <categoryMapping
           v-if="categoryVisible"
+          class="cataDialog"
           :country="site"
           :mall-list="mallList"
+          :goods-current="{}"
           @categoryChange="categoryChange"
         />
       </el-dialog>
@@ -152,6 +174,13 @@ export default {
   components: { categoryMapping, storeChoose },
   data() {
     return {
+      pickerOptions: {
+        disabledDate(time) {
+          return time.getTime() > Date.now() - 3600 * 24 * 1000
+        }
+      },
+      timeType: 'datetimerange',
+      othertchoose: '', // 其他时间格式选择
       Loading1: false,
       column1: true,
       column2: false,
@@ -172,7 +201,7 @@ export default {
       Loading2: true,
       Loading3: false,
       timecant: true,
-      timechoose: new Date(),
+      timechoose: '',
       serchload: false,
       selectall: true, // 分组全选和取消全选选项控制
       selectall1: true, // 店铺全选和取消全选选项控制
@@ -478,6 +507,36 @@ export default {
     // console.log(returnCreateStartTime)
   },
   methods: {
+    changeType() {
+      if (this.type === 'shop' && this.mall.length > 1) {
+        this.$message.warning('按商店分类筛选只能选择单个店铺，请重新勾选店铺！')
+        this.type = 'shopee'
+      }
+    },
+    // 打开链接
+    open(val) {
+      window.BaseUtilBridgeService.openUrl('https://xiapi.xiapibuy.com/product/' + val.mallid + '/' + val.id)
+    },
+    // 复制
+    copy(attr) {
+      const target = document.createElement('div')
+      target.id = 'tempTarget'
+      target.style.opacity = '0'
+      target.innerText = attr
+      document.body.appendChild(target)
+      try {
+        const range = document.createRange()
+        range.selectNode(target)
+        window.getSelection().removeAllRanges()
+        window.getSelection().addRange(range)
+        document.execCommand('copy')
+        window.getSelection().removeAllRanges()
+        this.$message.success('复制成功')
+      } catch (e) {
+        // console.log('复制失败')
+      }
+      target.parentElement.removeChild(target)
+    },
     // 获取店铺信息
     changeMallList(val) {
       this.site = val.country
@@ -485,6 +544,7 @@ export default {
     },
     async getTableData(item, count = { count: 1 }) {
       try {
+        const mallid = item.platform_mall_id
         const mallname = item.mall_alias_name || item.platform_mall_name
         if (this.serchload === true) {
           this.Loading3 = false
@@ -533,8 +593,10 @@ export default {
         attributeTreeRes.data = JSON.parse(attributeTreeRes.data)
         console.log('this is data', attributeTreeRes)
         if (attributeTreeRes.status === 200) {
+          this.$refs.Logs.writeLog(`获取店铺【${mallname}】商品信息【${attributeTreeRes.data.result.items.length}】条 `, true)
           for (let i = 0; i < attributeTreeRes.data.result.items.length; i++) {
             if (attributeTreeRes.data.result.items.length > 1) {
+              attributeTreeRes.data.result.items[i]['mallid'] = mallid
               attributeTreeRes.data.result.items[i]['mallname'] = mallname
               attributeTreeRes.data.result.items[i]['index'] = this.indexs
               this.indexs++
@@ -559,6 +621,7 @@ export default {
       }
     },
     async getallinfo() {
+      this.showlog = false
       if (this.Statisticaltime === 'day' || this.Statisticaltime === 'week' || this.Statisticaltime === 'month') {
         if (this.timechoose.length < 1) {
           this.$message.error(`请选择您需要查看的日期`)
@@ -691,5 +754,30 @@ export default {
 </style>
 
 <style lang="less">
-
+.keywordInput{
+  width: 120px !important;
+}
+.cataDialog{
+  margin: 0px !important;
+  min-width: auto !important;
+}
+.selType{
+  /deep/ .el-input{
+    width: 150px !important
+  }
+}
+.selType2{
+  /deep/ .el-input{
+    width: 122px !important
+  }
+}
+.copyStyle {
+  color: orange;
+    margin-right: 8px;
+    cursor: pointer;
+  }
+   .tableActive {
+    color: red;
+    cursor: pointer;
+  }
 </style>

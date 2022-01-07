@@ -61,6 +61,7 @@
                :header-cell-style="{backgroundColor: '#f5f7fa',}"
                :big-data-checkbox="true"
                :border="false"
+               use-virtual
                @selection-change="handleSelectionChange">
         <u-table-column align="center" type="selection"/>
         <u-table-column align="center" type="index" width="80" label="序号"/>
@@ -69,17 +70,19 @@
         </u-table-column>
         <u-table-column align="center" label="类目" width="">
           <template v-slot="{ row }">
-            <!--            <p style="white-space: normal">{{ sourceObj[row.source + ''] }}</p>-->
+            <p style="white-space: normal">{{ getCategoryName(row.categoryId) }}</p>
           </template>
         </u-table-column>
         <u-table-column align="center" label="主图" width="80" prop="Sales">
           <template v-slot="{ row }">
-            <div style="justify-content: center; display: flex"><el-tooltip effect="light" placement="right-end" :visible-arrow="false" :enterable="false" style="width: 56px; height: 56px; display: inline-block">
-              <div slot="content">
-                <el-image :src="[ row.imageList[0]] | imageRender" style="width: 400px; height: 400px" />
-              </div>
-              <el-image :src="[row.imageList[0],true] | imageRender" style="width: 56px; height: 56px" />
-            </el-tooltip>
+            <div style="justify-content: center; display: flex">
+              <el-tooltip effect="light" placement="right-end" :visible-arrow="false" :enterable="false"
+                          style="width: 56px; height: 56px; display: inline-block">
+                <div slot="content">
+                  <el-image v-bind:src="[ row.imageList[0]] | imageRender" style="width: 400px; height: 400px"/>
+                </div>
+                <el-image v-bind:src="[row.imageList[0],true] | imageRender" style="width: 56px; height: 56px"/>
+              </el-tooltip>
             </div>
           </template>
         </u-table-column>
@@ -99,7 +102,8 @@
       </u-table>
     </div>
     <div class="on_new_dialog">
-      <el-dialog title="类目映射" width="700px" top="25vh" :close-on-click-modal="false" :visible.sync="categoryVisible" :modal="false">
+      <el-dialog title="类目映射" width="700px" top="25vh" :close-on-click-modal="false" :visible.sync="categoryVisible"
+                 :modal="false">
         <categoryMapping v-if="categoryVisible" :goods-current="{}" :mall-list="mall" @categoryChange="categoryChange"/>
       </el-dialog>
     </div>
@@ -138,14 +142,25 @@ export default {
       },
       goodsSelect: [],
       goodsTable: [],
-      country:'',
+      country: '',
       category: '',
+      categoryList: {},
       isRunning: true,
       isApplyCheck: true,
-      categoryVisible:false,
-      showlog:true,
+      categoryVisible: false,
+      showlog: true
     }
   },
+  computed: {
+    // 获取标签名
+    getCategoryName() {
+      return function(id) {
+        const labelName = this.categoryList[id]
+        return labelName
+      }
+    }
+  },
+  watch: {},
   mounted() {
     console.log('mallList', this.mall)
     this.country = this.mall.country
@@ -160,29 +175,42 @@ export default {
       !this.isRunning && this.$refs.goods_item_Logs.writeLog(`------列表获取停止成功------`, false)
       this.$refs.goods_item_Logs.writeLog(`------商品列表获取结束------`, true)
     },
-    cancelGoods(){
+    cancelGoods() {
       this.showlog = false
       this.isRunning = false
       this.$refs.goods_item_Logs.writeLog(`------开始停止列表获取------`, false)
       terminateThread(this.queryGoodsList)
     },
-    categoryChange(val){
-      console.log('categoryChange',val)
-      if (val){
+    categoryChange(val) {
+      console.log('categoryChange', val)
+      if (val) {
         let categoryList = val.categoryList
-        let category = categoryList[categoryList.length-1] || ''
+        let category = categoryList[categoryList.length - 1] || ''
         this.category = category && category.category_id || ''
       }
-      this.categoryVisible= false
+      this.categoryVisible = false
+    },
+    async getCategoryTbInfo(item) {
+      let categoryName = ''
+      let catiDList = item?.global_cat?.catid || []
+      let categoryId = catiDList[catiDList.length - 1] + ''
+      categoryName = this.categoryList[categoryId]
+      if (!categoryName) {
+        let categoryTbInfoRes = await this.$commodityService.getCategoryTbInfo(this.country, categoryId, '0', '')
+        let categoryTbInfoJson = JSON.parse(categoryTbInfoRes)
+        let categoryTbInfoData = categoryTbInfoJson.data
+        let categories = categoryTbInfoData.categories && categoryTbInfoData.categories[0]
+        this.categoryList[categoryId] = categories.category_cn_name
+      }
     },
     async queryGoodsList(item, count = { count: 1 }) {
+      let mallName = item.mall_alias_name || item.platform_mall_name
       try {
-        let mallName = item.mall_alias_name || item.platform_mall_name
         let offset = item.offset || 0
         let index = 0
-        if (offset === 0){
+        if (offset === 0) {
           index = 1
-        }else{
+        } else {
           index = (offset / 100) + 1
         }
         let parma = {
@@ -210,23 +238,26 @@ export default {
         let tempList = productSelectorData.data && productSelectorData.data.item_list || []
         this.$refs.goods_item_Logs.writeLog(`店铺【${mallName}】获取第${index}页商品列表成功，共商品${tempList.length}个`, true)
         tempList.forEach(son => {
-          if (this.isApplyCheck){
+          if (this.isApplyCheck) {
             let filterNoStr = this.searchParams.filterNo || ''
-            filterNoStr = filterNoStr.replaceAll('，',',')
+            filterNoStr = filterNoStr.replaceAll('，', ',')
             let filterNoList = filterNoStr && filterNoStr.split(',')
             if (son.price < this.searchParams.minPrice || son.price > this.searchParams.maxPrice || filterNoList.includes(son.itemid)
-                || son.sold < this.searchParams.minSales || son.sold > this.searchParams.maxSales){
+                || son.sold < this.searchParams.minSales || son.sold > this.searchParams.maxSales) {
               return
             }
           }
+          this.getCategoryTbInfo(son)
+          let catIdList = son?.global_cat?.catid || []
           let temp = Object.assign(son, {
-              platform_mall_id: item.platform_mall_id,
-              platform_mall_name: item.platform_mall_name,
-              mall_alias_name: item.mall_alias_name,
-              country: item.country,
-              style_id: item.id,
-              imageList :son.images && son.images.split(',')
-            })
+            platform_mall_id: item.platform_mall_id,
+            platform_mall_name: item.platform_mall_name,
+            mall_alias_name: item.mall_alias_name,
+            categoryId: catIdList[catIdList.length - 1] || '',
+            country: item.country,
+            style_id: item.id,
+            imageList: son.images && son.images.split(',')
+          })
           temp && this.goodsTable.push(temp)
         })
         let goodsCount = this.searchParams.goodsCount
@@ -241,6 +272,7 @@ export default {
           item.limit = 100
         }
       } catch (e) {
+        this.$refs.goods_item_Logs.writeLog(`店铺【${mallName}】获取商品列表失败`, false)
         console.log(e)
       } finally {
         --count.count
@@ -249,8 +281,8 @@ export default {
     handleSelectionChange(val) {
       this.goodsSelect = val
     },
-    changeGoodsItem(){
-      this.$emit('changeGoodsItem',{goodsList:this.goodsSelect})
+    changeGoodsItem() {
+      this.$emit('changeGoodsItem', { goodsList: this.goodsSelect })
     }
   }
 }

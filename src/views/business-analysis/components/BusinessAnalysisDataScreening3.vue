@@ -2,66 +2,73 @@
   <el-row class="contaniner">
     <el-row class="header">
       <ul style="margin-bottom: 10px">
-        <storeChoose :span-width="'80px'" :source="'true'" @changeMallList="changeMallList"/>
+        <storeChoose :span-width="'80px'" :source="'true'" @changeMallList="changeMallList" />
         <li>
           <span>统计时间：</span>
           <el-select v-model="Statisticaltime" placeholder="" size="mini" filterable>
-            <el-option v-for="(item, index) in returnStatisticaltime" :key="index" :label="item.label"
-                       :value="item.value"/>
+            <el-option
+              v-for="(item, index) in returnStatisticaltime"
+              :key="index"
+              :label="item.label"
+              :value="item.value"
+            />
           </el-select>
         </li>
         <li>
           <span>订单类型：</span>
           <el-select v-model="Status" placeholder="" size="mini" filterable>
-            <el-option v-for="(item, index) in returnStatusList" :key="index" :label="item.label" :value="item.value"/>
+            <el-option v-for="(item, index) in returnStatusList" :key="index" :label="item.label" :value="item.value" />
           </el-select>
         </li>
         <li>
-          <el-button type="primary" :disabled="Loading1" size="mini" @click="getallinfo">搜索</el-button>
+          <el-button type="primary" :loading="Loading1" size="mini" @click="getallinfo">搜索</el-button>
         </li>
       </ul>
       <br>
       <el-table
-          ref="plTable"
-          v-loading="Loading3"
-          style="margin-top:10px"
-          header-align="center"
-          height="calc(100vh - 140px)"
-          :data="tableData3"
-          :header-cell-style="{
+        ref="plTable"
+        v-loading="Loading3"
+        style="margin-top:10px"
+        header-align="center"
+        height="calc(100vh - 140px)"
+        :data="tableData3"
+        :header-cell-style="{
           backgroundColor: '#f5f7fa',
         }"
       >
-        <el-table-column align="center" label="店铺名称" width="140" prop="mallname"/>
-        <el-table-column v-if="false" align="center" label="站点" width="140" prop="site"/>
-        <el-table-column v-if="false" align="center" label="店铺id" width="140" prop="mallid"/>
+        <el-table-column align="center" label="店铺名称" width="140" prop="mallname" />
+        <el-table-column v-if="false" align="center" label="站点" width="140" prop="site" />
+        <el-table-column v-if="false" align="center" label="店铺id" width="140" prop="mallid" />
         <el-table-column align="center" prop="ranktype" label="排行类型" width="355">
           <template slot-scope="{ row }">
-            <div v-html="row.ranktype"/>
+            <div v-html="row.ranktype" />
           </template>
         </el-table-column>
         <el-table-column align="center" prop="img" label="商品图片" width="355">
           <template slot-scope="{ row }">
             <el-tooltip
-                v-if="row.img"
-                effect="light"
-                placement="right-end"
-                :visible-arrow="false"
-                :enterable="false"
-                style="width: 40px; height: 40px">
+              v-if="row.img"
+              effect="light"
+              placement="right-end"
+              :visible-arrow="false"
+              :enterable="false"
+              style="width: 40px; height: 40px"
+            >
               <div slot="content">
-                <img :src="[row.img] | imageRender"
-                    width="300px"
-                    height="300px">
+                <img
+                  :src="[row.img] | imageRender"
+                  width="300px"
+                  height="300px"
+                >
               </div>
               <el-image
-                  style="width: 40px; height: 40px"
-                  :src="[row.img,true] | imageRender"
+                style="width: 40px; height: 40px"
+                :src="[row.img,true] | imageRender"
               />
             </el-tooltip>
           </template>
         </el-table-column>
-        <el-table-column prop="goodsname" label="商品名称" width="830" align="center"/>
+        <el-table-column prop="goodsname" label="商品名称" width="830" align="center" />
       </el-table>
     </el-row>
   </el-row>
@@ -71,6 +78,9 @@ import storeChoose from '../../../components/store-choose'
 import { batchOperation } from '@/util/util'
 
 export default {
+  components: {
+    storeChoose
+  },
   data() {
     return {
       Loading1: false,
@@ -104,9 +114,6 @@ export default {
         { value: 'paid', label: '付费订单' }
       ]
     }
-  },
-  components: {
-    storeChoose
   },
   watch: {
     Statisticaltime(val, oldVal) {
@@ -270,7 +277,7 @@ export default {
     },
     async getTableData(item, count = { count: 1 }) {
       try {
-        let mallname = item.mall_alias_name || item.platform_mall_name
+        const mallname = item.mall_alias_name || item.platform_mall_name
         const params = {
           start_time: this.start_time,
           end_time: this.end_time,
@@ -282,8 +289,8 @@ export default {
           limit: 5
         }
         console.log('this is my parmas', params)
-        const ress = await this.$shopeemanService.getCateRank(this.site, params, { headers: { 'Content-Type': 'application/json; charset=utf-8' } })
-        const ress1 = await this.$shopeemanService.getRank(this.site, params, { headers: { 'Content-Type': 'application/json; charset=utf-8' } })
+        const ress = await this.$shopeemanService.getCateRank(this.site, params, { headers: { 'Content-Type': 'application/json; charset=utf-8' }})
+        const ress1 = await this.$shopeemanService.getRank(this.site, params, { headers: { 'Content-Type': 'application/json; charset=utf-8' }})
         const dt = JSON.parse(ress)
         const dt1 = JSON.parse(ress1)
         dt.data = JSON.parse(dt.data)
@@ -363,6 +370,7 @@ export default {
     async getallinfo() {
       this.Loading1 = true
       this.tableData1 = []
+      this.tableData3 = []
       if (this.mall.length > 0) {
         await batchOperation(this.mall, this.getTableData)
         this.$message.success('查询完成')

@@ -13,10 +13,17 @@ export default class GoodsDiscount {
       params['discount_id'] = item.discount_id
       const res = await this._this.$shopeemanService.getChinese(item.country, '/api/marketing/v3/discount/nominate/?', params)
       const jsonData = this.isJsonString(this.isJsonString(res).data)
-      if (jsonData.message === 'success') {
+      if(jsonData && jsonData.code === 0){
         return { code: 200, data: jsonData.data }
+      }else if(jsonData.code === 2 || jsonData.errcode === 2){
+        return { code:201,data:`店铺未登录`}
+      }else{
+        return { code: -2, data: `查询折扣活动详情失败` }
       }
-      return { code: 201, data: `${jsonData.code || jsonData.errcode}， ${jsonData.message.indexOf('token not found') > -1 ? '未登录，请登录后再查询' : jsonData.message}` }
+      // if (jsonData.message === 'success') {
+      //   return { code: 200, data: jsonData.data }
+      // }
+      // return { code: 201, data: `${jsonData.code || jsonData.errcode}， ${jsonData.message.indexOf('token not found') > -1 ? '未登录，请登录后再查询' : jsonData.message}` }
     } catch (error) {
       return { code: -2, data: `查询折扣活动详情异常： ${error}` }
     }
@@ -33,10 +40,17 @@ export default class GoodsDiscount {
       params['mallId'] = mItem.platform_mall_id
       const res = await this._this.$shopeemanService.getChinese(mItem.country, '/api/marketing/v3/discount/get_by_discountids/?', params)
       const jsonData = this.isJsonString(this.isJsonString(res).data)
-      if (jsonData.message === 'success') {
+      if(jsonData && jsonData.code === 0){
         return { code: 200, data: jsonData.data }
+      }else if(jsonData.code === 2 || jsonData.errcode === 2){
+        return { code:201,data:`店铺未登录`}
+      }else{
+        return { code: -2, data: `获取列表数据失败` }
       }
-      return { code: 201, data: `${jsonData.code || jsonData.errcode}， ${jsonData.message.indexOf('token not found') > -1 ? '未登录，请登录后再查询' : jsonData.message}` }
+      // if (jsonData.message === 'success') {
+      //   return { code: 200, data: jsonData.data }
+      // }
+      // return { code: 201, data: `${jsonData.code || jsonData.errcode}， ${jsonData.message.indexOf('token not found') > -1 ? '未登录，请登录后再查询' : jsonData.message}` }
     } catch (error) {
       return { code: -2, data: `获取列表数据异常： ${error}` }
     }
@@ -54,10 +68,17 @@ export default class GoodsDiscount {
       params['mallId'] = mItem.platform_mall_id
       const res = await this._this.$shopeemanService.getChinese(mItem.country, '/api/marketing/v3/discount/standard_search/?', params)
       const jsonData = this.isJsonString(this.isJsonString(res).data)
-      if (jsonData.message === 'success') {
+      if(jsonData && jsonData.code === 0){
         return { code: 200, data: jsonData.data }
+      }else if(jsonData.code === 2 || jsonData.errcode === 2){
+        return { code:201,data:`店铺未登录`}
+      }else{
+        return { code: -2, data: `获取失败` }
       }
-      return { code: 201, data: `${jsonData.code || jsonData.errcode}， ${jsonData.message && jsonData.message.indexOf('token not found') > -1 ? '未登录，请登录后再查询' : jsonData.message}` }
+      // if (jsonData.message === 'success') {
+      //   return { code: 200, data: jsonData.data }
+      // }
+      // return { code: 201, data: `${jsonData.code || jsonData.errcode}， ${jsonData.message && jsonData.message.indexOf('token not found') > -1 ? '未登录，请登录后再查询' : jsonData.message}` }
     } catch (error) {
       return { code: -2, data: `获取promotionid数据异常： ${error}` }
     }
@@ -74,10 +95,17 @@ export default class GoodsDiscount {
       const res = await this._this.$shopeemanService.getChinese(mItem.country, '/api/marketing/v3/discount/list/?', params)
       const jsonData = this.isJsonString(this.isJsonString(res).data)
       console.log("111",jsonData)
-      if (jsonData.message === 'success') {
+      if(jsonData && jsonData.code === 0){
         return { code: 200, data: jsonData.data }
+      }else if(jsonData.code === 2 || jsonData.errcode === 2){
+        return { code:201,data:`店铺未登录`}
+      }else{
+        return { code: -2, data: `获取失败` }
       }
-      return { code: 201, data: `${jsonData.code || jsonData.errcode}， ${jsonData.message.indexOf('token not found') > -1 ? '未登录，请登录后再查询' : jsonData.message}` }
+      // if (jsonData.message === 'success') {
+      //   return { code: 200, data: jsonData.data }
+      // }
+      // return { code: 201, data: `${jsonData.code || jsonData.errcode}， ${jsonData.message.indexOf('token not found') > -1 ? '未登录，请登录后再查询' : jsonData.message}` }
     } catch (error) {
       return { code: -2, data: `获取折扣列表数据异常： ${error}` }
     }
