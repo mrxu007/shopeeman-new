@@ -298,7 +298,7 @@ export default {
     async userRecharge() {
       if (Number(this.rechargeMoney) < 35) return this.$message.warning('最低不能小于35元')
       try {
-        await this.$BaseUtilService.openUrl(`http://user.xzy.17hyj.com/externalPay?amount=${this.rechargeMoney}&app_uid=${this.mappingUid}&remark=${this.rechargeRemark}`)
+        await this.$BaseUtilService.openUrl(`http://user.xzy.17hyj.com/externalPay?amount=${this.rechargeMoney}&app_uid=${this.mappingUid}&remark=${this.rechargeRemark}&appKey=VcLFERYDXw2U`)
       } catch (error) {
         this.$message.error(`充值打开失败`)
       }
