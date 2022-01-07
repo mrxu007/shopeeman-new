@@ -12,7 +12,8 @@ class CollectOtherApI {
       let res = await this._this.$collectService.imgSearch(platform, params)
       res = this.isJsonString(res)
       if (typeof res === 'object' && res.Code === 0) {
-        return { code: 200, data: res.ListItem }
+        const newData = this._this.filterData(res.ListItem)
+        return { code: 200, data: newData }
       }
       return { code: -2, data: typeof res === 'string' ? res : res.Msg }
     } catch (error) {
@@ -68,6 +69,7 @@ class CollectOtherApI {
       let res = null
       try {
         res = await this._this.$collectService.queryTmCrossBorder(account.access_token, params)
+        console.log(res)
       } catch (error) {
         this.errorCatchText = error
         res = this.handleError()
@@ -91,6 +93,7 @@ class CollectOtherApI {
           item.Price = item.price
           item.Sales = 0
           item.Origin = '天猫淘宝海外平台'
+          item.Url = `https://distributor.taobao.global/apps/product/detail?mpId=600067654483575809${item.item_id}`
           return item
         })
         this.GoodsData.push(...data)

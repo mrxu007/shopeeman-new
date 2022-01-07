@@ -66,11 +66,13 @@ export default class CollectionPublicApi {
           item.CategoryName = cat.split('|')[0] || ''
         }
         // 7:组装上报的SKU数据
-        const goodsBulkInfo = {}
-        goodsBulkInfo['Weight'] = goodsData.CollectGoodsData.Weight
-        goodsBulkInfo['Length'] = goodsData.CollectGoodsData.Length
-        goodsBulkInfo['Width'] = goodsData.CollectGoodsData.Width
-        goodsBulkInfo['Height'] = goodsData.CollectGoodsData.Height
+        const goodsBulkInfo = {} // 商品链接采集-链接导入设置数据
+        if (item?.isLink) {
+          goodsBulkInfo['Weight'] = item.Weight
+          goodsBulkInfo['Length'] = item.Length
+          goodsBulkInfo['Width'] = item.Width
+          goodsBulkInfo['Height'] = item.Height
+        }
         const buildgoodsRes = this.BuildGoodsData(goodsData, goodsBulkInfo, item)
         if (buildgoodsRes.code !== 200) {
           return { code: buildgoodsRes.code, data: buildgoodsRes.data }
@@ -95,6 +97,7 @@ export default class CollectionPublicApi {
           return { code: -2, data: `收藏失败` }
         }
       } catch (error) {
+        console.log(error)
         return { code: -2, data: `收藏异常${error}` }
       }
     }
@@ -161,20 +164,27 @@ export default class CollectionPublicApi {
         buildGoods['source'] = goods.Platform// 源平台
         buildGoods['goods_id'] = goods.GoodsId// 商品ID
         buildGoods['category_id'] = goods.CategoryId// 商品类目
-        buildGoods['category_name'] = goodsData.CategoryName// 类目名称
+        buildGoods['category_name'] = goodsData.ListItem[0].CategoryName// 类目名称
         buildGoods['language'] = (goods.Platform === 9 || goods.Platform === 11 || goods.Platform === 2) ? 'en' : 'zh-Hans' // 语种
         buildGoods['title'] = goods.Platform === 12 ? this.GetAliExpressTitle(goods.Title) : goods.Title// 标题
         buildGoods['short_title'] = goods.ShortTitle// 短标题
         buildGoods['description'] = goods.GoodsDesc// 描述
-        const key = goods.GoodsId + '+' + goods.Platform
-        // 组装商品的重量、体积信息
+        // const key = goods.GoodsId + '+' + goods.Platform
+        // // 组装商品的重量、体积信息
+        // const infoKeys = Object.keys(goodsBulkInfo)
+        // if (infoKeys.includes(key)) {
+        //   const dic = goodsBulkInfo[key]
+        //   goods.Weight = Number(dic['Weight'])
+        //   goods.Length = Number(dic['Length'])
+        //   goods.Width = Number(dic['Width'])
+        //   goods.Height = Number(dic['Height'])
+        // }
         const infoKeys = Object.keys(goodsBulkInfo)
-        if (infoKeys.includes(key)) {
-          const dic = goodsBulkInfo[key]
-          goods.Weight = Number(dic['weight'])
-          goods.Length = Number(dic['length'])
-          goods.Width = Number(dic['width'])
-          goods.Height = Number(dic['height'])
+        if (infoKeys.length > 0) {
+          goods.Weight = Number(goodsBulkInfo['Weight'])
+          goods.Length = Number(goodsBulkInfo['Length'])
+          goods.Width = Number(goodsBulkInfo['Width'])
+          goods.Height = Number(goodsBulkInfo['Height'])
         }
         buildGoods['weight'] = goods.Weight// 重量
         buildGoods['long'] = goods.Length// 长度
@@ -226,6 +236,7 @@ export default class CollectionPublicApi {
         buildGoods['goodsExtraInfo'] = goods.GoodsExtraInfo
         return { code: 200, data: buildGoods }
       } catch (error) {
+        console.log(error)
         return { code: -2, data: `BuildGoodsData-error${error}` }
       }
     }

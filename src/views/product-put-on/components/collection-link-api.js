@@ -43,29 +43,12 @@ class CollectLinkApI {
       const res = await this._this.$collectService.queryDetailById(Number(platformId || Platform), params, isUseCache)
       const isJSONData = this.isJsonString(res)
       if (isJSONData?.Code === 200) {
-        isJSONData.Image = isJSONData.ListItem[0].Image
-        isJSONData.GoodsId = isJSONData.CollectGoodsData.GoodsId
-        isJSONData.Title = isJSONData.CollectGoodsData.Title
-        isJSONData.CategoryName = isJSONData.ListItem[0].CategoryName
-        isJSONData.Price = isJSONData.CollectGoodsData.Price
-        isJSONData.Sales = isJSONData.CollectGoodsData.Sales
-        isJSONData.Origin = isJSONData.ListItem[0].Origin
-        isJSONData.isDetail = true
         return { code: 200, data: isJSONData }
       }
       return { code: -2, data: res }
     } catch (error) {
       return { code: -2, data: `getGoodsDeail-catch: ${error}` }
     }
-  }
-  async saveGoodsDeail() { // 收藏商品到选品库
-
-  }
-
-  // 收藏采集
-  async goodsFactory() { // 组装数据结构
-  }
-  async saveGoods() { // 收藏商品到选品库
   }
   // 辅助--------------------------------------------
   handleError() {
@@ -78,142 +61,177 @@ class CollectLinkApI {
     this.errorCatchText = null
     return JSON.stringify({ Code: -2, Msg: `捕获错误${errorText}` })
   }
-  handleLinkKeyFactory(linkKey) {
+  handleLinkKeyFactory(linkKey, type) {
     try {
       const goodsArrInfo = []
-      // if (Array.isArray(linkKey)) { // 处理选择的商品
-      //   linkKey.map(item => {
-      //     goodsArrInfo.push({
-      //       'platformId': item.Platform,
-      //       'GoodsId': item.GoodsId
-      //     })
-      //   })
-      // } else { // 处理链接采集
-      let linkArr = linkKey.trim()
-      if (!linkArr) {
-        return { code: -3, data: '关键词不能为空' }
+      let linkArr = []
+      if (type === 1) {
+        const link = linkKey.trim()
+        if (!link) {
+          return { code: -3, data: '关键词不能为空' }
+        }
+        const linkObj = link.trim().replace(/\s/g, ';').split(';')
+        linkObj.map((item, index) => {
+          linkArr[index] = {}
+          linkArr[index]['Url'] = item
+        })
+      } else {
+        linkArr = linkKey
       }
-      linkArr = linkArr.trim().replace(/\s/g, ';').split(';')
       const execPlatform = /(yangkeduo.com)|(taobao.com)|(jd.com)|(1688.com)|(detail.tmall.com)|(pinduoduo.com)/g
-      // const goodsId = item.match(/\d+/g)
       linkArr.map(item => {
-        const platform = item.match(execPlatform)
+        const platform = item.Url.match(execPlatform)
         if (!platform) {
-          this.writeLog(`链接:${item} 识别支持平台失败`, false)
+          this.writeLog(`链接:${item.Url} 识别支持平台失败`, false)
         } else {
           let GoodsId = null
           switch (platform[0]) {
             case 'yangkeduo.com':
               try {
-                GoodsId = item.match(/goods_id=(\d+)/)[1]
+                GoodsId = item.Url.match(/goods_id=(\d+)/)[1]
                 if (GoodsId) {
                   goodsArrInfo.push({
                     'platformId': 1,
-                    GoodsId
+                    GoodsId,
+                    Url: item.Url,
+                    Weight: item.Weight,
+                    Length: item.Length,
+                    Width: item.Width,
+                    Height: item.Height
                   })
                 } else {
-                  this.writeLog(`链接:${item} 识别商品ID失败`, false)
+                  this.writeLog(`链接:${item.Url} 识别商品ID失败`, false)
                 }
               } catch (error) {
-                this.writeLog(`链接:${item} 识别商品ID失败`, false)
+                this.writeLog(`链接:${item.Url} 识别商品ID失败`, false)
               }
               break
             case 'pinduoduo.com':
               try {
-                GoodsId = item.match(/goods_id=(\d+)/)[1]
+                GoodsId = item.Url.match(/goods_id=(\d+)/)[1]
                 if (GoodsId) {
                   goodsArrInfo.push({
                     'platformId': 1,
-                    GoodsId
+                    GoodsId,
+                    Url: item.Url,
+                    Weight: item.Weight,
+                    Length: item.Length,
+                    Width: item.Width,
+                    Height: item.Height
                   })
                 } else {
-                  this.writeLog(`链接:${item} 识别商品ID失败`, false)
+                  this.writeLog(`链接:${item.Url} 识别商品ID失败`, false)
                 }
               } catch (error) {
-                this.writeLog(`链接:${item} 识别商品ID失败`, false)
+                this.writeLog(`链接:${item.Url} 识别商品ID失败`, false)
               }
               break
             case 'taobao.com':
               try {
-                GoodsId = item.match(/id=(\d+)/)[1]
+                GoodsId = item.Url.match(/id=(\d+)/)[1]
                 if (GoodsId) {
                   goodsArrInfo.push({
                     'platformId': 2,
-                    GoodsId
+                    GoodsId,
+                    Url: item.Url,
+                    Weight: item.Weight,
+                    Length: item.Length,
+                    Width: item.Width,
+                    Height: item.Height
                   })
                 } else {
-                  this.writeLog(`链接:${item} 识别商品ID失败`, false)
+                  this.writeLog(`链接:${item.Url} 识别商品ID失败`, false)
                 }
               } catch (error) {
-                this.writeLog(`链接:${item} 识别商品ID失败`, false)
+                this.writeLog(`链接:${item.Url} 识别商品ID失败`, false)
               }
               break
             case 'detail.tmall.com':
               try {
-                GoodsId = item.match(/id=(\d+)/)[1]
+                GoodsId = item.Url.match(/id=(\d+)/)[1]
                 if (GoodsId) {
                   goodsArrInfo.push({
                     'platformId': 3,
-                    GoodsId
+                    GoodsId,
+                    Url: item.Url,
+                    Weight: item.Weight,
+                    Length: item.Length,
+                    Width: item.Width,
+                    Height: item.Height
                   })
                 } else {
-                  this.writeLog(`链接:${item} 识别商品ID失败`, false)
+                  this.writeLog(`链接:${item.Url} 识别商品ID失败`, false)
                 }
               } catch (error) {
-                this.writeLog(`链接:${item} 识别商品ID失败`, false)
+                this.writeLog(`链接:${item.Url} 识别商品ID失败`, false)
               }
               break
             case 'jd.com':
               try {
-                GoodsId = item.match(/(\d+)\.html/)[1]
+                GoodsId = item.Url.match(/(\d+)\.html/)[1]
                 if (GoodsId) {
                   goodsArrInfo.push({
                     'platformId': 10,
-                    GoodsId
+                    GoodsId,
+                    Url: item.Url,
+                    Weight: item.Weight,
+                    Length: item.Length,
+                    Width: item.Width,
+                    Height: item.Height
                   })
                 } else {
-                  this.writeLog(`链接:${item} 识别商品ID失败`, false)
+                  this.writeLog(`链接:${item.Url} 识别商品ID失败`, false)
                 }
               } catch (error) {
-                this.writeLog(`链接:${item} 识别商品ID失败`, false)
+                this.writeLog(`链接:${item.Url} 识别商品ID失败`, false)
               }
               break
             case '1688.com':
               try {
-                GoodsId = item.match(/(\d+)\.html/)[1]
+                GoodsId = item.Url.match(/(\d+)\.html/)[1]
                 if (GoodsId) {
                   goodsArrInfo.push({
                     'platformId': 8,
-                    GoodsId
+                    GoodsId,
+                    Url: item.Url,
+                    Weight: item.Weight,
+                    Length: item.Length,
+                    Width: item.Width,
+                    Height: item.Height
                   })
                 } else {
-                  this.writeLog(`链接:${item} 识别商品ID失败`, false)
+                  this.writeLog(`链接:${item.Url} 识别商品ID失败`, false)
                 }
               } catch (error) {
-                this.writeLog(`链接:${item} 识别商品ID失败`, false)
+                this.writeLog(`链接:${item.Url} 识别商品ID失败`, false)
               }
               break
             case 'jinritemai.com':
               try {
-                GoodsId = item.match(/id=(\d+)/)[1]
+                GoodsId = item.Url.match(/id=(\d+)/)[1]
                 if (GoodsId) {
                   goodsArrInfo.push({
                     'platformId': 14,
-                    GoodsId
+                    GoodsId,
+                    Url: item.Url,
+                    Weight: item.Weight,
+                    Length: item.Length,
+                    Width: item.Width,
+                    Height: item.Height
                   })
                 } else {
-                  this.writeLog(`链接:${item} 识别商品ID失败`, false)
+                  this.writeLog(`链接:${item.Url} 识别商品ID失败`, false)
                 }
               } catch (error) {
-                this.writeLog(`链接:${item} 识别商品ID失败`, false)
+                this.writeLog(`链接:${item.Url} 识别商品ID失败`, false)
               }
               break
           }
         }
       })
-      // }
       return { code: 200, data: goodsArrInfo }
     } catch (error) {
+      console.log(error)
       return { code: -2, data: `关键词格式不规范：${error}` }
     }
   }
