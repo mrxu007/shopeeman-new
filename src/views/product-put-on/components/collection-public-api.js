@@ -87,12 +87,14 @@ export default class CollectionPublicApi {
         } else {
           item.Price = Number(buildgoods['price'])
         }
+        buildgoods['image'] = item.Image
+        buildgoods['id'] = 168597265 // ？
         this._this.StatusName(item, `开始收藏`, true)
         console.log('组装收藏数据', buildgoods)
         const res = await this._this.$commodityService.uploadCollectGoods(buildgoods)
         const jsonData = this.isJsonString(res)
         if (jsonData.code === 200) {
-          return { code: 200 }
+          return { code: 200, data: buildgoods }
         } else {
           return { code: -2, data: `收藏失败` }
         }

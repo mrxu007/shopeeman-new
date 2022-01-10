@@ -96,7 +96,6 @@ class CollectKeyWordApI {
         res = this.handleError()
       }
       res = JSON.parse(res)
-      console.log('关键词采集原始数据', res)
       if (res.Code !== 200) {
         this.writeLog(`采集${key}关键词第${StartPage}页第一部分失败：${res.Code} ${res.Msg}`, false)
       } else {

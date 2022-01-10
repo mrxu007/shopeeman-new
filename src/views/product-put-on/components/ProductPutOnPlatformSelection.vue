@@ -135,7 +135,7 @@
                 </li>
                 <li>
                   <el-button type="primary" size="mini" :disabled="buttonStatus.start" @click="saveGoodsInfo">收藏商品</el-button>
-                  <el-button type="primary" size="mini" :disabled="buttonStatus.start">编辑上新</el-button>
+                  <el-button type="primary" size="mini" :disabled="buttonStatus.start" @click="editorUp">编辑上新</el-button>
                 </li>
                 <li>
                   <el-button type="primary" size="mini" @click="plugVisible = true">插件采集</el-button>
@@ -174,7 +174,7 @@
               </li>
               <li>
                 <el-button type="primary" size="mini" :disabled="buttonStatus.start" @click="saveGoodsInfo">收藏商品</el-button>
-                <el-button :disabled="buttonStatus.start" type="primary" size="mini">编辑上新</el-button>
+                <el-button :disabled="buttonStatus.start" type="primary" size="mini" @click="editorUp">编辑上新</el-button>
               </li>
               <li>
                 <el-button type="primary" size="mini" @click="plugVisible = true">插件采集</el-button>
@@ -242,7 +242,7 @@
               </li>
               <li>
                 <el-button type="primary" size="mini" :disabled="buttonStatus.start" @click="saveGoodsInfo">收藏商品</el-button>
-                <el-button type="primary" size="mini" :disabled="buttonStatus.start">编辑上新</el-button>
+                <el-button type="primary" size="mini" :disabled="buttonStatus.start" @click="editorUp">编辑上新</el-button>
               </li>
               <li>
                 <el-button type="primary" size="mini" @click="plugVisible = true">插件采集</el-button>
@@ -297,7 +297,7 @@
               </li>
               <li>
                 <el-button type="primary" size="mini" :disabled="buttonStatus.start" @click="saveGoodsInfo">收藏商品</el-button>
-                <el-button type="primary" size="mini" :disabled="buttonStatus.start">编辑上新</el-button>
+                <el-button type="primary" size="mini" :disabled="buttonStatus.start" @click="editorUp">编辑上新</el-button>
               </li>
               <li>
                 <el-button type="primary" size="mini" @click="plugVisible = true">插件采集</el-button>
@@ -356,7 +356,7 @@
               </li>
               <li>
                 <el-button type="primary" size="mini" :disabled="buttonStatus.start" @click="saveGoodsInfo">收藏商品</el-button>
-                <el-button type="primary" :disabled="buttonStatus.start" size="mini">编辑上新</el-button>
+                <el-button type="primary" :disabled="buttonStatus.start" size="mini" @click="editorUp">编辑上新</el-button>
               </li>
               <li>
                 <el-button type="primary" size="mini" @click="plugVisible = true">插件采集</el-button>
@@ -444,6 +444,7 @@
       </el-tabs>
     </header>
     <article v-show="activeName !== 'sixth'">
+      <div style="color:red;padding-bottom: 10px;">温馨提示：拼多多产品加载不出来，收藏或者组装数据慢，请切换本地IP</div>
       <u-table
         ref="plTable"
         :height="Height"
@@ -523,7 +524,7 @@
             <el-button
               size="mini"
               type="primary"
-              @click="tableDelete(scope.$index)"
+              @click="tableDelete(scope.row,scope.$index)"
             >
               删除
             </el-button>
@@ -575,6 +576,17 @@
         </el-form-item>
       </el-form>
     </el-dialog>
+    <el-dialog width="1313px" :close-on-click-modal="false" top="0.5vh" :visible.sync="isEditorVisible" :modal="false">
+      <template slot="title">
+        <div style="display: flex;align-items: center">
+          <div style="margin-right: 25px;">上新编辑</div>
+          <el-button size="mini" :type="isNoFoldShow && 'primary' || ''" @click.native.stop="setIsNoFoldShow">
+            {{ isNoFoldShow && '折叠' || '展开' }}
+          </el-button>
+        </div>
+      </template>
+      <editor-on-new-goods v-if="isEditorVisible" ref="editor_on_new_goods" :mall-table="editorSelection" />
+    </el-dialog>
   </div>
 </template>
 
@@ -586,10 +598,14 @@ import CollectOtherApI from './collection-other-api'
 import CollectPublicApI from './collection-public-api'
 import { batchOperation, dateFormat, exportExcelDataCommon, terminateThread } from '../../../util/util'
 // getSiteRelation
+import editorOnNewGoods from '../../../components/editor_on_new_goods'
 import { shopeeSite, lazadaSite, pictureSearchOrigin, getPlatform, platformObj, getShopeeSitePlace, getLazadaSitePlace } from './collection-platformId'
 import testData from './testData'
 import XLSX from 'xlsx'
 export default {
+  components: {
+    editorOnNewGoods
+  },
   props: {
     baseConfig: {
       type: Object,
@@ -753,7 +769,12 @@ export default {
 
       // 插件采集
       plugVisible: false,
-      port: ''
+      port: '',
+
+      // 编辑上新
+      isEditorVisible: false,
+      isNoFoldShow: true,
+      editorSelection: []
     }
   },
   computed: {
@@ -838,6 +859,18 @@ export default {
     this.port = await this.$BaseUtilService.getPluginPorts()
   },
   methods: {
+    // 编辑上新
+    async editorUp() {
+      if (!this.multipleSelection.length) return this.$message.error('请选择需要编辑的数据')
+      this.editorSelection = []
+      this.isEditorVisible = true
+      this.saveGoodsInfo()
+      console.log('editorSelection', this.editorSelection)
+    },
+    setIsNoFoldShow() {
+      this.isNoFoldShow = !this.isNoFoldShow
+      this.$refs.editor_on_new_goods.setIsNoFoldShow()
+    },
     selectShopeePlaceValEvent() { // 出货地点全选事件
       if (this.commonAttr.shopeePlaceOrigin.length === this.commonAttr.shopeePlaceVal.length) {
         this.isSelectAll = true
@@ -909,7 +942,6 @@ export default {
     },
     switchPlatform(row) { // 关键词选择平台
       this.currentKeywordPlatform = row.value
-      console.log(row.value)
     },
     // 开始采集
     StartCollection() {
@@ -980,6 +1012,7 @@ export default {
           this.goodsList.push(...res2.data)
         }
       }
+      this.goodsList.forEach(row => { this.$refs.plTable.toggleRowSelection([{ row }]) })
       this.writeLog(`${platformObj[platForm]}：共采集：${this.goodsList.length}条`, true)
       this.writeLog(`${platformObj[platForm]}商品采集完毕........`, true)
       key = null
@@ -1006,6 +1039,7 @@ export default {
       data.forEach(item => { item.type = type })
       await batchOperation(data, this.linkCollect)
       if (this.flag) this.writeLog('取消链接采集', true)
+      this.goodsList.forEach(row => { this.$refs.plTable.toggleRowSelection([{ row }]) })
       this.writeLog(`商品链接：共采集：${this.goodsList.length}条`, true)
       this.writeLog(`商品链接采集完毕........`, true)
       this.buttonStatus.start = false
@@ -1063,6 +1097,7 @@ export default {
       const data = res.data
       await batchOperation(data, this.entriresCollection)
       if (this.flag) this.writeLog('取消整店采集', true)
+      this.goodsList.forEach(row => { this.$refs.plTable.toggleRowSelection([{ row }]) })
       this.writeLog(`整店链接：共采集：${this.goodsList.length}条`, true)
       this.writeLog(`整店链接采集完毕........`, true)
       this.buttonStatus.start = false
@@ -1109,6 +1144,7 @@ export default {
         this.writeLog('图搜采集: 采集成功', true)
         this.goodsList.push(...res.data)
       }
+      this.goodsList.forEach(row => { this.$refs.plTable.toggleRowSelection([{ row }]) })
       this.writeLog(`图搜：共采集：${this.goodsList.length}条`, true)
       this.writeLog(`${Name} 图搜采集完毕........`, true)
       this.buttonStatus.start = false
@@ -1147,6 +1183,7 @@ export default {
         }
       }
       console.log('taobaoData', this.goodsList)
+      this.goodsList.forEach(row => { this.$refs.plTable.toggleRowSelection([{ row }]) })
       this.writeLog(`淘宝天猫海外：共采集：${this.goodsList.length}条`, true)
       this.writeLog('淘宝天猫海外采集完毕........', true)
       this.buttonStatus.start = false
@@ -1162,6 +1199,8 @@ export default {
       this.successNum = 0
       this.failNum = 0
       this.writeLog('开始收藏商品........', true)
+      // 编辑上新时根据用户选择的起止数据切割
+      this.multipleSelection = this.isEditorVisible ? this.multipleSelection.splice(Number(this.start) - 1, Number(this.end) - Number(this.start) + 1) : this.multipleSelection
       await batchOperation(this.multipleSelection, this.saveGoods)
       this.writeLog(`共收藏成功：${this.successNum}个商品, 收藏失败：${this.failNum}个商品`, true)
       this.writeLog(`收藏商品完毕........`, true)
@@ -1181,6 +1220,18 @@ export default {
           if (res.code === 200) {
             this.StatusName(item, `收藏成功`, true)
             this.successNum++
+            this.$nextTick(() => {
+              this.$refs.plTable.toggleRowSelection([
+                {
+                  row: item,
+                  selected: false
+                }
+              ])
+            })
+            // 编辑上新数据
+            if (this.isEditorVisible) {
+              this.editorSelection.push(res.data)
+            }
           } else {
             this.StatusName(item, `${res.data}`, false)
             this.failNum++
@@ -1330,9 +1381,11 @@ export default {
       }
       target.parentElement.removeChild(target)
     },
-    tableDelete(index) {
+    tableDelete(row, index) {
+      this.$refs.plTable.toggleRowSelection([
+        { row, selected: false }
+      ])
       this.goodsList.splice(index, 1)
-      this.$refs.plTable.clearSelection()
     },
     // 批量删除表格数据
     batchTableDelete(tableData, selectData) {
@@ -1342,13 +1395,16 @@ export default {
       selectData
         .map(n => n.__ob__.dep.id)
         .forEach(n => {
-          console.log(n)
           tableData.splice(
             tableData.findIndex(j => j.__ob__.dep.id === n),
             1
           )
         })
-      this.$refs.plTable.clearSelection()
+      selectData.forEach(row => {
+        this.$refs.plTable.toggleRowSelection([
+          { row, selected: false }
+        ])
+      })
     },
     deleteAll() {
       this.$confirm('确定清理全部吗?', '提示', {

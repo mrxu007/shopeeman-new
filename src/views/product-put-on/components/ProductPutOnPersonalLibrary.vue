@@ -14,9 +14,18 @@
         <el-button type="primary" size="mini" @click="batchProcessing(20)">翻译后的数据导出</el-button>
         <el-button type="primary" size="mini" @click="batchProcessing(16)">批量设置重量/体积</el-button>
         <el-button type="primary" size="mini" @click="deleteGoods">取消收藏</el-button>
-        <el-upload v-if="uploadImgAdd" v-show="false" style="margin-right: 10px" action="#" :drag="true"
-                   :show-file-list="false" :limit="1" :auto-upload="false" :on-change="imageUpload">
-          <el-button size="mini" type="primary" ref="uploadImg">选择图片</el-button>
+        <el-upload
+          v-if="uploadImgAdd"
+          v-show="false"
+          style="margin-right: 10px"
+          action="#"
+          :drag="true"
+          :show-file-list="false"
+          :limit="1"
+          :auto-upload="false"
+          :on-change="imageUpload"
+        >
+          <el-button ref="uploadImg" size="mini" type="primary">选择图片</el-button>
         </el-upload>
       </div>
       <div class="header-right">
@@ -25,54 +34,61 @@
           <li>
             <p>采购来源：</p>
             <el-select v-model="sourceVal" placeholder="" size="mini">
-              <el-option label="全部" :value="''"/>
-              <el-option v-for="(item, index) in source" :key="index" :label="item.label" :value="item.value"/>
+              <el-option label="全部" :value="''" />
+              <el-option v-for="(item, index) in source" :key="index" :label="item.label" :value="item.value" />
             </el-select>
           </li>
           <li>
             <p>筛选时间：</p>
             <el-select v-model="timeType" placeholder="" size="mini">
-              <el-option v-for="(item, index) in timeAt" :key="index" :label="item.label" :value="item.value"/>
+              <el-option v-for="(item, index) in timeAt" :key="index" :label="item.label" :value="item.value" />
             </el-select>
-            <el-date-picker v-model="value2" size="mini" value-format="yyyy-MM-dd" type="daterange" range-separator="-"
-                            start-placeholder="开始日期" end-placeholder="结束日期"/>
+            <el-date-picker
+              v-model="value2"
+              size="mini"
+              value-format="yyyy-MM-dd"
+              type="daterange"
+              range-separator="-"
+              start-placeholder="开始日期"
+              end-placeholder="结束日期"
+            />
           </li>
           <li>
             <p>优选商品：</p>
             <el-select v-model="isFeatured" placeholder="" size="mini">
-              <el-option label="全部" value="0"/>
-              <el-option v-for="(item, index) in isFeaturedArr" :key="index" :label="item.label" :value="item.value"/>
+              <el-option label="全部" value="0" />
+              <el-option v-for="(item, index) in isFeaturedArr" :key="index" :label="item.label" :value="item.value" />
             </el-select>
           </li>
           <li>
             <p>编辑状态：</p>
             <el-select v-model="isEditValue" placeholder="" size="mini">
-              <el-option label="全部" :value="''"/>
-              <el-option v-for="(item, index) in editArr" :key="index" :label="item.label" :value="item.value"/>
+              <el-option label="全部" :value="''" />
+              <el-option v-for="(item, index) in editArr" :key="index" :label="item.label" :value="item.value" />
             </el-select>
           </li>
           <li>
             <p>语种：</p>
             <el-select v-model="language" placeholder="" size="mini">
-              <el-option label="全部" :value="''"/>
-              <el-option v-for="(item, index) in languageArr" :key="index" :label="item.label" :value="item.value"/>
+              <el-option label="全部" :value="''" />
+              <el-option v-for="(item, index) in languageArr" :key="index" :label="item.label" :value="item.value" />
             </el-select>
           </li>
           <li>
             <p>价格区间：</p>
-            <el-input v-model="minPrice" size="mini" placeholder=""/>
+            <el-input v-model="minPrice" size="mini" placeholder="" />
             <span class="slot">-</span>
-            <el-input v-model="maxPrice" size="mini" placeholder=""/>
+            <el-input v-model="maxPrice" size="mini" placeholder="" />
           </li>
           <li>
             <p>商品ID：</p>
-            <el-input v-model="goodsId" size="mini" placeholder=""/>
+            <el-input v-model="goodsId" size="mini" placeholder="" />
           </li>
           <li>
             <p>商品标签：</p>
             <el-select v-model="labelId" placeholder="" size="mini">
-              <el-option label="全部" value="0"/>
-              <el-option v-for="(item, index) in labelList" :key="index" :label="item.label_name" :value="item.id"/>
+              <el-option label="全部" value="0" />
+              <el-option v-for="(item, index) in labelList" :key="index" :label="item.label_name" :value="item.id" />
             </el-select>
           </li>
           <li>
@@ -84,19 +100,20 @@
     </header>
     <article>
       <p class="tip">尊敬的用户：您好，为提高私有选品库模块的性能，系统只能保存近30天的非精选商品数据，为保证部分精选商品不被清理，请将需要保留的商品标记为精选商品</p>
-      <u-table ref="plTable"
-          v-loading="buttonStatus.getList"
-          :height="Height"
-          use-virtual
-          :data-changes-scroll-top="false"
-          :header-cell-style="{backgroundColor: '#f5f7fa',}"
-          row-key="id"
-          :big-data-checkbox="true"
-          :border="false"
-          @selection-change="handleSelectionChange"
+      <u-table
+        ref="plTable"
+        v-loading="buttonStatus.getList"
+        :height="Height"
+        use-virtual
+        :data-changes-scroll-top="false"
+        :header-cell-style="{backgroundColor: '#f5f7fa',}"
+        row-key="id"
+        :big-data-checkbox="true"
+        :border="false"
+        @selection-change="handleSelectionChange"
       >
-        <u-table-column align="center" type="selection"/>
-        <u-table-column align="center" type="index" label="序号"/>
+        <u-table-column align="center" type="selection" />
+        <u-table-column align="center" type="index" label="序号" />
         <u-table-column align="center" label="标签">
           <template v-slot="{ row }">
             <p style="white-space: normal">{{ getLabelName(row.sys_label_id) }}</p>
@@ -134,12 +151,12 @@
             </el-tooltip>
           </template>
         </u-table-column>
-        <u-table-column align="center" label="价格" width="70" prop="price" show-overflow-tooltip/>
-        <u-table-column align="center" label="库存" width="80" prop="stock" show-overflow-tooltip/>
-        <u-table-column align="center" label="销量" width="80" prop="sales" show-overflow-tooltip/>
+        <u-table-column align="center" label="价格" width="70" prop="price" show-overflow-tooltip />
+        <u-table-column align="center" label="库存" width="80" prop="stock" show-overflow-tooltip />
+        <u-table-column align="center" label="销量" width="80" prop="sales" show-overflow-tooltip />
         <u-table-column align="center" label="重量(kg)" width="80">
           <template v-slot="{ row }">
-            <el-input v-model="row.weight" size="mini"/>
+            <el-input v-model="row.weight" size="mini" />
           </template>
         </u-table-column>
         <u-table-column align="center" label="体积" width="110">
@@ -147,15 +164,15 @@
             <ul>
               <li style="display: flex">
                 <p style="margin-right: 5px;">长(cm)</p>
-                <el-input style="flex:1" v-model="row.long" size="mini"/>
+                <el-input v-model="row.long" style="flex:1" size="mini" />
               </li>
               <li style="display: flex">
                 <p style="margin-right: 5px;">宽(cm)</p>
-                <el-input style="flex:1" v-model="row.width" size="mini"/>
+                <el-input v-model="row.width" style="flex:1" size="mini" />
               </li>
               <li style="display: flex">
                 <p style="margin-right: 5px;">高(cm)</p>
-                <el-input style="flex:1" v-model="row.height" size="mini"/>
+                <el-input v-model="row.height" style="flex:1" size="mini" />
               </li>
             </ul>
           </template>
@@ -168,44 +185,44 @@
         <u-table-column align="center" label="源平台类目" show-overflow-tooltip>
           <template v-slot="{ row }">{{ getCategoty(row) || '未匹配到类目' }}</template>
         </u-table-column>
-        <u-table-column align="center" label="更新时间" width="140px" prop="updated_at"/>
-        <u-table-column align="center" label="收藏时间" width="140px" prop="created_at"/>
-        <u-table-column align="center" label="操作结果"/>
+        <u-table-column align="center" label="更新时间" width="140px" prop="updated_at" />
+        <u-table-column align="center" label="收藏时间" width="140px" prop="created_at" />
+        <u-table-column align="center" label="操作结果" />
       </u-table>
       <div class="pagination">
         <el-pagination
-            background
-            layout="total, sizes, prev, pager, next"
-            :total="total"
-            :current-page="currentPage"
-            :page-sizes="[30, 100, 200]"
-            :page-size="pageSize"
-            @size-change="handleSizeChange"
-            @current-change="handleCurrentChange"
+          background
+          layout="total, sizes, prev, pager, next"
+          :total="total"
+          :current-page="currentPage"
+          :page-sizes="[30, 100, 200]"
+          :page-size="pageSize"
+          @size-change="handleSizeChange"
+          @current-change="handleCurrentChange"
         />
       </div>
     </article>
     <!-- 商品标签配置 -->
     <el-dialog
-        class="lable-settings"
-        center
-        title="商品标签配置"
-        :visible.sync="goodsLabelVisiable"
-        width="300px"
-        :before-close="handleClose1"
-        :close-on-click-modal="false"
-        :close-on-press-escape="false"
+      class="lable-settings"
+      center
+      title="商品标签配置"
+      :visible.sync="goodsLabelVisiable"
+      width="300px"
+      :before-close="handleClose1"
+      :close-on-click-modal="false"
+      :close-on-press-escape="false"
     >
       <ul>
         <li>
           <p>商品标签：</p>
           <el-select v-model="labelId2" placeholder="" size="mini" @change="getLabelName(labelId2, true)">
-            <el-option v-for="(item, index) in labelList" :key="index" :label="item.label_name" :value="item.id"/>
+            <el-option v-for="(item, index) in labelList" :key="index" :label="item.label_name" :value="item.id" />
           </el-select>
         </li>
         <li>
           <p>当前标签：</p>
-          <el-input v-model="currentLabelName" size="mini" placeholder=""/>
+          <el-input v-model="currentLabelName" size="mini" placeholder="" />
         </li>
       </ul>
       <span slot="footer" class="dialog-footer">
@@ -222,14 +239,20 @@
             </el-button>
           </div>
         </template>
-        <editor-on-new-goods v-if="isEditorVisible" ref="editor_on_new_goods" :mall-table="multipleSelection"></editor-on-new-goods>
+        <editor-on-new-goods v-if="isEditorVisible" ref="editor_on_new_goods" :mall-table="multipleSelection" />
       </el-dialog>
       <el-dialog title="类目映射" width="700px" top="25vh" :close-on-click-modal="false" :modal="false" :visible.sync="categoryVisible">
-        <categoryMapping v-if="categoryVisible" :goods-current="{}" :mall-list="[]" @categoryChange="categoryChange"/>
+        <categoryMapping v-if="categoryVisible" :goods-current="{}" :mall-list="[]" @categoryChange="categoryChange" />
       </el-dialog>
-      <el-dialog title="设置商品重量和体积" width="300px" top="25vh" :close-on-click-modal="false" :modal="false"
-                 :visible.sync="goodsSizeVisible">
-        <goods-size v-if="goodsSizeVisible" @goodsSizeChange="goodsSizeChange"/>
+      <el-dialog
+        title="设置商品重量和体积"
+        width="300px"
+        top="25vh"
+        :close-on-click-modal="false"
+        :modal="false"
+        :visible.sync="goodsSizeVisible"
+      >
+        <goods-size v-if="goodsSizeVisible" @goodsSizeChange="goodsSizeChange" />
       </el-dialog>
     </div>
   </div>
@@ -244,6 +267,7 @@ import categoryMapping from '../../../components/category-mapping'
 import goodsSize from '../../../components/goods-size'
 
 export default {
+  components: { editorOnNewGoods, categoryMapping, goodsSize },
   data() {
     return {
       isNoFoldShow: true,
@@ -309,19 +333,19 @@ export default {
       total: 0,
       currentPage: 1,
       pageSize: 30,
-      //新调整 - 尺寸图
+      // 新调整 - 尺寸图
       uploadImgAdd: false,
-      //映射
-      categoryVisible:false,
+      // 映射
+      categoryVisible: false,
       // 设置大小
-      goodsSizeVisible:false,
-      categoryList: {},
+      goodsSizeVisible: false,
+      categoryList: {}
     }
   },
   computed: {
     // 获取标签名
     getLabelName() {
-      return function(id,isTrue) {
+      return function(id, isTrue) {
         const labelName = this.labelList.find(item => {
           return item.id === id + ''
         })
@@ -336,7 +360,20 @@ export default {
     }
 
   },
-  components: { editorOnNewGoods ,categoryMapping,goodsSize },
+  watch: {
+    categoryList: {
+      handler(val) {
+        console.log(val)
+      },
+      deep: true
+    },
+    goodsList: {
+      handler(val) {
+        this.showCategory()
+      },
+      deep: true
+    }
+  },
   created() {
     this.sourceObj = sourceObj // 采购映射
     this.source = source // 采购来源
@@ -346,20 +383,6 @@ export default {
   async mounted() {
     await this.getGoodsList()
     // await this.showCategory()
-  },
-  watch:{
-    categoryList: {
-      handler(val) {
-        console.log(val)
-      },
-      deep: true
-    },
-    goodsList:{
-      handler(val) {
-        this.showCategory()
-      },
-      deep: true
-    }
   },
   methods: {
     async batchProcessing(type) {
@@ -375,37 +398,31 @@ export default {
         setTimeout(() => {
           this.$refs['uploadImg'].$el.click()
         }, 100)
-      }
-      else if (type === 7) {
+      } else if (type === 7) {
         for (const i of this.multipleSelection) {
           if (i.size_image_id) {
-            let deleteGoodsImageJson = await this.$commodityService.deleteGoodsImage(2, i.id, '0')
-            let deleteGoodsImage = JSON.parse(deleteGoodsImageJson)
+            const deleteGoodsImageJson = await this.$commodityService.deleteGoodsImage(2, i.id, '0')
+            const deleteGoodsImage = JSON.parse(deleteGoodsImageJson)
             success = deleteGoodsImage.code === 200
             messStr = success && '尺寸图删除成功' || '尺寸图删除失败'
           } else {
             this.$set(this.mallTable[index], 'operation_type', '无尺寸图可删除')
           }
-
         }
-      }
-      else if (type === 8) {
+      } else if (type === 8) {
         this.isEditorVisible = true
-      }
-      else if (type === 14) {
+      } else if (type === 14) {
         this.categoryVisible = true
-      }
-      else if (type === 16) {
+      } else if (type === 16) {
         this.goodsSizeVisible = true
-      }
-      else if (type === 20){
+      } else if (type === 20) {
         const titleData = ['标签', '采购来源', '优选商品', '商品ID', '商品标题', '商品主图', '价格', '库存',
-          '销量', '重量(kg)', '长(cm)', '宽(cm)', '高(cm)', '翻译语种', '源平台类目', '更新时间','收藏时间']
+          '销量', '重量(kg)', '长(cm)', '宽(cm)', '高(cm)', '翻译语种', '源平台类目', '更新时间', '收藏时间']
         const jsonData = []
         this.goodsList.forEach(row => {
           const temp = []
-          if (row.language !== "zh-Hans"){
-            temp[0] = this.getLabelName(row.sys_label_id) ||''
+          if (row.language !== 'zh-Hans') {
+            temp[0] = this.getLabelName(row.sys_label_id) || ''
             temp[1] = this.sourceObj[row.source + ''] || ''
             temp[2] = row.is_featured === '1' ? '是' : '否'
             temp[3] = row.goods_id || ''
@@ -426,7 +443,6 @@ export default {
           }
         })
         await importOrder(titleData, jsonData, '商品数据')
-
       }
       messStr && success && this.$message.success(messStr)
       messStr && !success && this.$message.error(messStr)
@@ -437,13 +453,13 @@ export default {
       reader.readAsDataURL(localFile)
       this.uploadImgAdd = false
       reader.onload = async() => {
-        let imgData = reader.result
+        const imgData = reader.result
         const name = randomWord(false, 32) + '_' + new Date().getTime()
-        let temp = await this.$ossService.uploadFile(imgData, name + '.png')
+        const temp = await this.$ossService.uploadFile(imgData, name + '.png')
         let success = false
         for (const i of this.multipleSelection) {
-          let storeGoodsSizeImagesJson = await this.$commodityService.storeGoodsSizeImages(i.id + '', temp)
-          let storeGoodsSizeImagesRes = JSON.parse(storeGoodsSizeImagesJson)
+          const storeGoodsSizeImagesJson = await this.$commodityService.storeGoodsSizeImages(i.id + '', temp)
+          const storeGoodsSizeImagesRes = JSON.parse(storeGoodsSizeImagesJson)
           success = temp && storeGoodsSizeImagesRes.code === 200
         }
         if (success) {
@@ -456,9 +472,9 @@ export default {
     categoryChange(val) {
       console.log('categoryChange', val)
       if (val) {
-        let attributesList = []
+        const attributesList = []
         val.attributesList.forEach(son => {
-          let option = son.new_options_obj.find(i => i.value_id === son.options)
+          const option = son.new_options_obj.find(i => i.value_id === son.options)
           attributesList.push({
             attributeId: son.attribute_id,
             attributeName: son.attribute_name,
@@ -467,14 +483,14 @@ export default {
           })
         })
         this.multipleSelection.forEach(async item => {
-          let param = {
+          const param = {
             relationCategoryId: item.category_id,
             country: val.country,
             platformId: item.source,
             platformCategoryId: val.categoryList[val.categoryList.length - 1].category_id,
             categoryAttributes: attributesList
           }
-          let save = await this.$commodityService.saveCategoryRelation(param)
+          const save = await this.$commodityService.saveCategoryRelation(param)
         })
       }
       this.categoryVisible = false
@@ -483,14 +499,14 @@ export default {
       if (val) {
         let success = false
         this.multipleSelection.forEach(async i => {
-          let index = this.goodsList.findIndex(item=>item.id === i.id)
-          let sysGoodsId = i.id
-          let description = i.description
-          let title = i.title
-          let updateGoodsJson = await this.$commodityService.updateGoods({ sysGoodsId, description, title, ...val })
-          let temp = Object.assign(this.goodsList[index],val)
-          this.$set(this.goodsList,index,temp)
-          let updateGoodsRes = JSON.parse(updateGoodsJson)
+          const index = this.goodsList.findIndex(item => item.id === i.id)
+          const sysGoodsId = i.id
+          const description = i.description
+          const title = i.title
+          const updateGoodsJson = await this.$commodityService.updateGoods({ sysGoodsId, description, title, ...val })
+          const temp = Object.assign(this.goodsList[index], val)
+          this.$set(this.goodsList, index, temp)
+          const updateGoodsRes = JSON.parse(updateGoodsJson)
           success = updateGoodsRes.code === 200
         })
       }
@@ -501,15 +517,15 @@ export default {
       this.$refs.editor_on_new_goods.setIsNoFoldShow()
     },
     async showCategory() {
-      for (let i in this.goodsList) {
-        let item = this.goodsList[i]
+      for (const i in this.goodsList) {
+        const item = this.goodsList[i]
         let category = this.categoryList[item.category_id] || ''
         if (!category) {
-          let categoty = JSON.parse(JSON.stringify(this.categoryList))
-          let site = item.extra_info && JSON.parse(item.extra_info).site || ''
-          let res = await this.$collectService.getGoodsCat(item.category_id, item.source, site)
+          const categoty = JSON.parse(JSON.stringify(this.categoryList))
+          const site = item.extra_info && JSON.parse(item.extra_info).site || ''
+          const res = await this.$collectService.getGoodsCat(item.category_id, item.source, site)
           category = res.split('|')[0] || ''
-          let name = res.split('|')[1] || ''
+          const name = res.split('|')[1] || ''
           if (category && name) {
             categoty[name] = category || '未匹配到类目'
             this.categoryList = categoty
@@ -518,9 +534,9 @@ export default {
       }
     },
     goToGoods(item) {
-      let extra_info = item.extra_info && JSON.parse(item.extra_info) || {}
-      let temp = Object.assign({ productId: item.goods_id }, extra_info)
-      let goods = getGoodsUrl(item.source, temp)
+      const extra_info = item.extra_info && JSON.parse(item.extra_info) || {}
+      const temp = Object.assign({ productId: item.goods_id }, extra_info)
+      const goods = getGoodsUrl(item.source, temp)
       this.$BaseUtilService.openUrl(goods.url)
     },
     handleClose1(done) {
