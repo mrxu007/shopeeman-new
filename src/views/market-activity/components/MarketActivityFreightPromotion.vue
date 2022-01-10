@@ -5,7 +5,7 @@
         <storeChoose style="margin-left:-20px" :show-mall-all="true" @changeMallList="changeMallList" />
         <div style="margin-left:20px">
           <label>活动：</label>
-          <el-select v-model="saleType" placeholder="请选择" size="mini" style="width:120px">
+          <el-select v-model="activeType" placeholder="请选择" size="mini" style="width:120px">
             <el-option label="全部" value="0" />
             <el-option label="进行中" value="1" />
             <el-option label="接下来有活动" value="2" />
@@ -56,8 +56,8 @@
     <!-- 运费促销 -->
     <el-dialog
       class="edit-group-dialog"
-      :visible.sync="CouponVisible"
-      width="800px"
+      :visible.sync="proVisible"
+      width="860px"
       top="5vh"
       title="运费促销"
       :close-on-click-modal="false"
@@ -97,26 +97,22 @@
           </el-checkbox-group>
         </el-form-item>
 
-        <el-form-item label="运费">
+        <el-form-item label="运费" align="center">
           <!-- 表格 -->
-          <el-table :data="freightlist">
+          <el-table :data="freightlist" :header-cell-style="{ background: '#f7fafa' }" :row-height="68">
             <el-table-column type="index" label="阶层" max-width="60px" />
             <el-table-column prop="minCost" label="最低消费金额" width="190px">
               <template v-slot="{row}">
-                <div style="display:flex;flex-flow: column;">
-                  <div>
-                    <!-- {{ selectMallList[0] && selectMallList[0].country | siteCoin }} -->
-                    ￥|
-                    <el-input v-model="row.minCost" size="mini" style="width:120px" onkeyup="value=value.replace(/[^\d]/g,0)" />
-                  </div>
-                  <span v-if="!row.minCost ||row.minCost>30000" style="color:red">
-                    {{ `最低消费金额范围${selectMallList[0] && selectMallList[0].country | siteCoin}0-${selectMallList[0] && selectMallList[0].country}30000` }}</span>
-                </div>
+                <!-- {{ selectMallList[0] && selectMallList[0].country | siteCoin }} -->
+                ￥|
+                <el-input v-model="row.minCost" size="mini" style="width:120px;margin-top: 4px;" onkeyup="value=value.replace(/[^\d]/g,0)" /><br>
+                <span v-if="!row.minCost ||row.minCost>30000" style="color:red;display: block;margin-top: -4px;">
+                  {{ `最低消费金额范围$0 -$30000` }}</span>
               </template>
             </el-table-column>
-            <el-table-column prop="freight" label="运费" width="500px">
+            <el-table-column prop="freight" label="运费" width="340px">
               <template v-slot="{row}">
-                <el-radio-group v-model="row.freightType">
+                <el-radio-group v-model="row.freightType" class="freightType">
                   <el-radio label="1">免运费</el-radio>
                   <el-radio label="0">
                     <!-- <div style="display:flex;flex-flow: column;"> -->
@@ -132,14 +128,14 @@
                 </el-radio-group>
               </template>
             </el-table-column>
-            <el-table-column prop="" label="操作" max-width="80px">
+            <el-table-column prop="" label="操作" width="80px" align="center">
               <template v-slot="{row}">
                 <el-button v-if="freightlist.length>1" size="mini" type="primary" @click="delrule(row)">删除</el-button>
               </template>
             </el-table-column>
           </el-table>
           <!-- 按钮 -->
-          <el-button size="mini" type="primary" :disabled="freightlist.length>3" @click="addRule">新增促销规则</el-button>
+          <el-button style="margin-left:-555px" size="mini" type="primary" :disabled="freightlist.length>=3" @click="addRule">新增促销规则</el-button>
         </el-form-item>
         <el-form-item>
           <el-button size="mini" type="primary" @click="save">保存</el-button>
@@ -163,7 +159,7 @@ export default {
       freightobj: {
         minCost: null,
         freightType: 0,
-        freight: null
+        freight: 1
       },
       freightlist: [], // 运费列表
       deliverWay: [], // 运输渠道
@@ -175,9 +171,9 @@ export default {
       singerStop: false, // 单个停止
       MarketManagerAPIInstance: new MarketManagerAPI(this),
       showlog: true,
-      saleType: '0', // 优惠卷
+      activeType: '0', // 活动
       tableList: [], // 主表数据
-      CouponVisible: true, // 弹窗
+      proVisible: true, // 弹窗
       dialogtitle: '', // 弹窗标题
       coupontype: '2', // 创建优惠卷类型 1.店铺 2.商品
       // 创建优惠卷参数
@@ -208,7 +204,7 @@ export default {
   //   }
   // },
   created() {
-
+    this.freightlist.push(this.freightobj)
   },
   methods: {
     // 删除规则
@@ -494,7 +490,7 @@ export default {
         this.$message.warning('请选择店铺')
         return
       }
-      this.CouponVisible = true
+      this.proVisible = true
     },
     async mallCouponFun() {
       // this.selectMallList.forEach(el => {
@@ -512,7 +508,7 @@ export default {
         this.$message.warning('关注礼名称不能超过20个字符')
         return
       }
-      this.CouponVisible = false
+      this.proVisible = false
       this.showlog = false
       this.$refs.Logs.writeLog(`正在创建任务......`)
       const res1 = await batchOperation(this.selectMallList, this.createCoupon)
@@ -607,6 +603,10 @@ export default {
     }
   }
 
+ }
+ .freightType{
+       display: flex;
+    align-items: baseline;
  }
 </style>
 
