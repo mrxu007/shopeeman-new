@@ -3,6 +3,7 @@ import jxAdapter from './jx-apdater'
 import tbAdaptert from './gateway/gateway-adapter'
 
 const baseURL = window.appInfo.route
+// const baseURL = 'http://local.spm.com/api'
 const AppRequest = axios.create({ // 壳内转发请求
   baseURL,
   timeout: 5000,

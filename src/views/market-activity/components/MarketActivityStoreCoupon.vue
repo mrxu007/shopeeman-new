@@ -12,14 +12,14 @@
             <el-option label="已结束" value="3" />
           </el-select>
         </div>
+        <el-button style="margin-left:8px" size="mini" type="primary" @click="getTableList">查询</el-button>
+        <el-button size="mini" type="primary" @click="stopSearch">取消查询</el-button>
       </div>
 
       <div class="row2" style="margin-top:8px">
-        <el-button size="mini" type="primary" @click="getTableList">查询</el-button>
-        <el-button size="mini" type="primary" @click="stopSearch">取消查询</el-button>
         <el-button size="mini" type="primary" @click="mallCoupon">创建店铺优惠劵</el-button>
         <el-button size="mini" type="primary" @click="goodsCoupon">创建商品优惠劵</el-button>
-        <el-button size="mini" @click="stopCreate">停止创建活动</el-button>
+        <el-button size="mini" type="primary" @click="stopCreate">停止创建活动</el-button>
         <el-button size="mini" type="primary" @click="MallvoucherStopMul">批量停止活动</el-button>
         <el-button size="mini" type="primary" @click="MallvoucherDelMul">批量删除活动</el-button>
         <el-button size="mini" type="primary" @click="clearLog">清除日志</el-button>
@@ -43,21 +43,21 @@
         <u-table-column prop="" label="站点" align="center" min-width="50px" fixed>
           <template v-slot="{row}">{{ row.country | chineseSite }}</template>
         </u-table-column>
-        <u-table-column prop="mallName" label="店铺" align="center" min-width="150px" />
-        <u-table-column prop="name" label="优惠劵" align="center" min-width="150px" />
+        <u-table-column prop="mallName" label="店铺" align="center" min-width="150px" fixed />
+        <u-table-column prop="name" label="优惠劵" align="center" min-width="100px" />
         <u-table-column prop="voucher_code" label="优惠码" align="center" min-width="180px" />
         <u-table-column prop="voucher_type" label="优惠类型" align="center" min-width="100px">
           <!-- <template v-slot="{row}">{{ row.rule && row.rule.shopids.length===0 ? '店铺优惠卷' :'商品优惠卷' }}</template> -->
         </u-table-column>
         <u-table-column prop="discountInfo" label="折扣金额" align="center" min-width="180px" />
-        <u-table-column prop="topNum" label="最高上限数额" align="center" min-width="150px" />
-        <u-table-column prop="usage_limit" label="优惠劵可使用数量" align="center" min-width="150px" />
+        <u-table-column prop="topNum" label="最高上限数额" align="center" min-width="120px" />
+        <u-table-column prop="usage_limit" label="优惠劵可使用数量" align="center" min-width="120px" />
         <u-table-column prop="min_price" label="最低消费记录" align="center" min-width="100px" />
         <u-table-column prop="distributed_count" label="已领取" align="center" min-width="100px">
           <!-- <template v-slot="{row}">{{row.}}</template> -->
         </u-table-column>
         <u-table-column prop="current_usage" label="已使用" align="center" min-width="100px" />
-        <u-table-column prop="" label="期间" align="center" min-width="200px">
+        <u-table-column prop="" label="期间" align="center" min-width="150px">
           <template v-slot="{row}">
             <div>{{ row.formStartime }}-</div>
             <div>{{ row.formEndtime }}</div>
@@ -82,7 +82,7 @@
               @click="MallvoucherDelFun(row),singerStop=true"
             >删除</el-button> </span>
             <span> <el-button
-              v-if="row.voucher_status==='进行中' "
+              v-if="row.voucher_status==='进行中' && row.voucher_type==='商品优惠卷'"
               size="mini"
               type="primary"
               @click="MallvoucherStop(row),singerStop=true"
@@ -142,14 +142,24 @@
           </el-select>
           <!-- 选择折扣 -->
           <span v-if="rewardType==='1'">折扣 ：</span>
-          <div>
+          <div
+            style="display: flex;
+            flex-flow: column;"
+          >
             <el-input v-model="discountNum" size="mini" style="width:100px" onkeyup="value=value.replace(/[^\d]/g,0)" />
-            <span v-if="discountType==='0' || rewardType==='1'" style="color:red">%折扣,付款金额中的-%将退还给买家</span>
+            <span v-if="rewardType==='0'" style="margin-left:-100px">
+              {{ discountNum }}%折扣,付款金额中的{{ discountNum }}%将退还给买家
+              <span v-if="discountNum>100" style="color:red;">*请输入正确的折扣信息</span>
+            </span>
+            <span v-if="rewardType==='1'" style="margin-left:-40px">
+              {{ discountNum }}%折扣,付款金额中的{{ discountNum }}%将退还给买家
+              <span v-if="discountNum>100" style="color:red;">*请输入正确的折扣信息</span>
+            </span>
           </div>
           <!-- <div v-if="discountType==='0'" class="color:red"></div> -->
         </el-form-item>
 
-        <el-form-item label="最高优惠金额">
+        <el-form-item v-if="rewardType==='0'&& discountType==='0'" label="最高优惠金额">
           <el-radio-group v-model="limitPrice">
             <el-radio label="0">无限制</el-radio>
             <el-radio label="1">设置金额：
@@ -206,9 +216,10 @@
               :header-cell-style="{ background: '#f7fafa' }"
               height="120px"
             >
-              <el-table-column prop="id" label="商品ID" align="center" min-width="100px" />
+              <el-table-column type="index" label="序号" align="center" min-width="60px" />
+              <el-table-column prop="itemid" label="商品ID" align="center" min-width="100px" />
               <el-table-column label="操作" align="center" min-width="100px">
-                <template><span><el-button size="mini" type="primary">删除</el-button></span></template>
+                <template v-slot="{row}"><span><el-button size="mini" type="primary" @click="delCouponGoods(row)">删除</el-button></span></template>
               </el-table-column>
             </el-table>
           </div>
@@ -216,7 +227,7 @@
 
         <el-form-item>
           <el-button v-if="coupontype==='1'" size="mini" type="primary" @click="mallCouponFun">创建店铺优惠劵</el-button>
-          <el-button v-if="coupontype==='2'" size="mini" type="primary">创建商品优惠劵</el-button>
+          <el-button v-if="coupontype==='2'" size="mini" type="primary" @click="goodsCouponFun">创建商品优惠劵</el-button>
           <el-button size="mini" type="primary">取消</el-button>
         </el-form-item>
       </el-form>
@@ -277,7 +288,8 @@ export default {
       couponGoodslist: [], // 优惠卷指定商品
       selectMallList: [], // 选择的店铺
       stoptoping: false,
-      mallTableSelect: []
+      mallTableSelect: [],
+      goodsItems: []// 选择商品的ID
     }
   },
   // computed:{
@@ -289,10 +301,34 @@ export default {
 
   },
   methods: {
+    // 创建商品优惠卷
+    async goodsCouponFun() {
+      if (this.discountNum > 100) {
+        this.$message.warning('请输入有效折扣')
+        return
+      }
+      if (!this.couponGoodslist.length) {
+        this.$message.warning('请选择商品')
+        return
+      }
+      this.CouponVisible = false
+      this.showlog = false
+      this.$refs.Logs.writeLog(`正在创建任务`)
+      const res1 = await batchOperation(this.selectMallList, this.createCoupon)
+      this.$refs.Logs.writeLog(`创建任务结束`)
+      this.couponGoodslist = []
+      this.getTableList()
+    },
+    // 删除选择的商品
+    delCouponGoods(val) {
+      const index = this.couponGoodslist.findIndex(el => { return el === val })
+      this.couponGoodslist.splice(index, 1)
+    },
+    // 获取选择的商品
     changeGoodsItem(val) {
       console.log('changeGoodsItem', val)
       if (val) {
-
+        this.couponGoodslist = val.goodsList
       }
       this.goodsItemSelectorVisible = false
     },
@@ -328,6 +364,7 @@ export default {
         this.showlog = false
         const res = await this.MarketManagerAPIInstance.MallvoucherStop(params)
         if (res.ecode === 0) {
+          this.$set(val, 'voucher_status', '已过期')
           this.$refs.Logs.writeLog(`------已停止【${val.name}】优惠活动------`, true)
         } else {
           this.$refs.Logs.writeLog(`停止【${val.name}】优惠活动,${res.message}`, false)
@@ -335,9 +372,9 @@ export default {
       } catch (error) {
         this.$refs.Logs.writeLog(`停止【${val.name}】--catch,${error}`, false)
       }
-      if (this.singerStop) {
-        this.getTableList()
-      }
+      // if (this.singerStop) {
+      //   this.getTableList()
+      // }
       this.singerStop = false
     },
     // 批量删除
@@ -513,19 +550,23 @@ export default {
     },
     // 创建店铺优惠卷
     mallCoupon() {
-      this.showlog = true
-      this.CouponVisible = true
-      this.coupontype = '1'
-      this.dialogtitle = '新建店铺优惠劵'
       if (!this.selectMallList.length) {
         this.$message.warning('请选择店铺')
         return
       }
+      this.showlog = true
+      this.CouponVisible = true
+      this.coupontype = '1'
+      this.dialogtitle = '新建店铺优惠劵'
     },
     async mallCouponFun() {
       // this.selectMallList.forEach(el => {
       //   this.createCoupon(el)
       // })
+      if (this.discountNum > 100) {
+        this.$message.warning('请输入有效折扣')
+        return
+      }
       this.CouponVisible = false
       this.showlog = false
       this.$refs.Logs.writeLog(`正在创建任务`)
@@ -535,9 +576,6 @@ export default {
     },
     // 创建商品优惠卷
     goodsCoupon() {
-      this.CouponVisible = true
-      this.coupontype = '2'
-      this.dialogtitle = '新建商品优惠劵'
       if (!this.selectMallList.length) {
         this.$message.warning('请选择店铺')
         return
@@ -546,6 +584,10 @@ export default {
         this.$message.warning('只能在一个店铺里创建商品优惠劵')
         return
       }
+      this.CouponVisible = true
+      this.coupontype = '2'
+      this.dialogtitle = '新建商品优惠劵'
+      this.showlog = true
     },
     // 店铺优惠券码使用。判断为字母或数字
     IsNumOrAlp(str) {
@@ -621,7 +663,12 @@ export default {
         } else { // 虾皮折扣
           discountShop = this.discountNum
         }
-
+        this.goodsItems = []
+        if (this.couponGoodslist.length) { // 商品优惠券
+          this.couponGoodslist.forEach(el => {
+            this.goodsItems.push({ itemid: Number(el.itemid) })
+          })
+        }
         const params = {
           country: val.country,
           mallId: val.platform_mall_id,
@@ -639,7 +686,7 @@ export default {
             reward_type: this.rewardType,
             hide: this.couponhide,
             backend_created: '0',
-            items: [], // items=[]格式 商品
+            items: this.goodsItems || [], // items=[]格式 商品
             coin_cashback_voucher: {
               coin_percentage_real: discountShop,
               max_coin: discountShop ? this.maxPrice : null
