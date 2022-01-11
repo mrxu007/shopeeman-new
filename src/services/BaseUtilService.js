@@ -139,4 +139,8 @@ export default class BaseUtilService {
   async getUploadGoodsId() {
     return this.nativeService.getUploadGoodsId()
   }
+  // 获取插件port
+  async getPluginPorts() {
+    return this.nativeService.getPluginPorts()
+  }
 }

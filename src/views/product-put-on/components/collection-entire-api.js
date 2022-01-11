@@ -59,7 +59,8 @@ class CollectEntireApI {
         break
     }
     if (res2.code === 200) {
-      return { code: 200, data: this.GoodsData }
+      const newData = this._this.filterData(this.GoodsData)
+      return { code: 200, data: newData }
     }
     return { code: -2, data: res2.data }
   }

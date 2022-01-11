@@ -548,13 +548,13 @@ export default class CommodityService {
    * @param isParent :isParent 类目的父级标识：1传入的类目作为父级查询；0当前类目查询
    * @param tableType : string
    */
-  async getCategoryTbInfo(country, categoryId = '0', isParent='1', tableType='') {
+  async getCategoryTbInfo(country, categoryId = '0', isParent = '1', tableType = '') {
     return await this.nativeService.callCategoryFunction('GetCategoryInfo', country, categoryId.toString(), isParent.toString(), tableType)
   }
   /**
    * 获取类目属性
    */
-  getAttributeInfo(country, categoryId = '0', isNewOpen = '0', tableType='', isMandatoryAttr = '1') {
+  getAttributeInfo(country, categoryId = '0', isNewOpen = '0', tableType = '', isMandatoryAttr = '1') {
     // console.log(country, categoryId, isNewOpen, tableType , isMandatoryAttr )
     return this.nativeService.callCategoryFunction('GetAttributeInfo', country, categoryId.toString(), isNewOpen, tableType, isMandatoryAttr)
   }

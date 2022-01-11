@@ -77,18 +77,18 @@ export default class StoreSelection {
       case 'postChineseReferer': // 添加
         params['item_id_list'] = val.item_id_list
         params['name'] = val.name
-        referer = 'portal/marketing/hotsale/new'
+        referer = '/portal/marketing/hotsale/new'
         break
       case 'deleteChinese': // 删除
         params['plan_id'] = val.plan_id
-        referer = 'portal/marketing/hotsale'
+        referer = '/portal/marketing/hotsale'
         break
       case 'putChinese': // 修改
         params['plan_id'] = val.plan_id
         params['name'] = val.name
         params['status'] = val.status
         params['item_id_list'] = val.item_id_list
-        referer = 'portal/marketing/hotsale'
+        referer = '/portal/marketing/hotsale'
         break
     }
     params['mallId'] = val.platform_mall_id

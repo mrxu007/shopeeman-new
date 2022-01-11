@@ -119,8 +119,8 @@ class CollectKeyWordApI {
       }
       return item
     })
-    console.log('原始数据', this.GoodsData)
-    return { code: 200, data: this.GoodsData }
+    const newData = this._this.filterData(this.GoodsData)
+    return { code: 200, data: newData }
   }
   async keywordSearchTwo(key) { // 如果当前平台为拼多多需额外调用 拼多多补充接口  1.1-------------------------
     this.GoodsData = null
@@ -163,7 +163,8 @@ class CollectKeyWordApI {
       item.information = ''
       return item
     })
-    return { code: 200, data: this.GoodsData }
+    const newData = this._this.filterData(this.GoodsData)
+    return { code: 200, data: newData }
   }
   // 辅助--------------------------------------------
   handleError() {
