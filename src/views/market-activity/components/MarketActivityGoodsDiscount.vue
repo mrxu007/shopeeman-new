@@ -67,11 +67,11 @@
               </template>
             </u-table-column>
             <u-table-column align="center" label="操作" min-width="240">
-              <template v-slot="{ row, index }">
+              <template v-slot="{ row, $index }">
                 <el-button type="primary" size="mini" @click="searchDiscountDetail(row)">查看详情</el-button>
                 <el-button type="primary" size="mini" @click="copyAndOpen(row.platform_mall_id, row.discount_id)">复制</el-button>
-                <el-button type="primary" size="mini" v-if="row.statusName === '进行中'" @click="stopActiveSingle(row, index, 'stop')">结束</el-button>
-                <el-button type="primary" size="mini" v-if="row.statusName !== '进行中'" @click="stopActiveSingle(row, index, 'delete')">删除</el-button>
+                <el-button type="primary" size="mini" v-if="row.statusName === '进行中'" @click="stopActiveSingle(row, $index, 'stop')">结束</el-button>
+                <el-button type="primary" size="mini" v-if="row.statusName === '即将开始'" @click="stopActiveSingle(row, $index, 'delete')">删除</el-button>
               </template>
             </u-table-column>
           </u-table>
@@ -101,7 +101,7 @@
 
             <li>
               <span>活动时间：</span>
-              <el-date-picker v-model="activeDate" size="mini" type="datetimerange" range-separator="-" start-placeholder="开始日期" end-placeholder="结束日期" />
+              <el-date-picker v-model="activeDate" format="yyyy-MM-dd HH:mm:ss" size="mini" type="datetimerange" range-separator="-" start-placeholder="开始日期" end-placeholder="结束日期" />
             </li>
             <li>
               <span>商品编号：</span>
@@ -151,7 +151,11 @@
           >
             <u-table-column align="center" type="selection" width="50" />
             <u-table-column align="center" type="index" label="序号" width="50" />
-            <u-table-column align="center" label="店铺名称" min-width="150" prop="platform_mall_name" />
+            <u-table-column align="center" label="店铺名称" min-width="150" prop="platform_mall_name">
+              <template slot-scope="scope">
+                {{ scope.row.mall_alias_name || scope.row.platform_mall_name }}
+              </template>
+            </u-table-column>
             <u-table-column align="center" label="主图" min-width="150">
               <template slot-scope="scope">
                 <el-tooltip effect="light" placement="right-end" :visible-arrow="false" :enterable="false" style="width: 32px; height: 32px; display: inline-block">
@@ -246,6 +250,7 @@ export default {
       limitNum: '', //限购数量
       goodsItemSelectorVisible: false,
       selectGoods: [], //选择的商品
+      btnLoading: false,
       // selectGoodsType:''
     }
   },
@@ -272,6 +277,14 @@ export default {
             this.$set(this.editTableData[index], 'editStatus', 2)
             this.$set(this.editTableDataCopy[indexC], 'editStatus', 2)
             console.log(this.editTableData[index], this.editTableDataCopy[indexC])
+            this.$nextTick(() => {
+              this.$refs.editPlTable.toggleRowSelection([
+                {
+                  row: this.editTableData[index],
+                  selected: false,
+                },
+              ])
+            })
           }
         }
       })
@@ -312,48 +325,58 @@ export default {
       }
       this.showConsole = false
       this.btnLoading = true
-      await batchOperation(this.selectMallListEdit,this.createActiveFun)
-      this.btnLoading = false
-    },
-    async createActiveFun(mall,count = { count: 1 }){
-      let start = Math.round(new Date(this.activeDate[0]).getTime() / 1000)
-      let end = Math.round(new Date(this.activeDate[1]).getTime() / 1000)
-      try{
-        let params = {
-          fe_status: 'upcoming',
-          highlight: '',
-          title: this.activeDicountName,
-          start_time: start,
-          end_time: end,
-          status: 1,
-          mallId: mall.platform_mall_id,
-        }
-        let res = await this.GoodsDiscount.createActive(mall.country, params)
-        console.log('res', res)
-        if (res.code === 200) {
-          this.$refs.Logs.writeLog(`店铺【${mall.platform_mall_name}】,创建活动【${this.activeDicountName}】成功`, true)
-          let discount_id = res.data.discount_id
-          let filterArr = this.selectGoods.filter((n) => n.platform_mall_id == mall.platform_mall_id)
-          filterArr.forEach(async (good) => {
-            let skuList = await this.searchProductDetail(good.itemid, good.platform_mall_id, good.country)
-            if (skuList.length) {
-              let result = this.setModelActive(skuList, mall.platform_mall_id, mall.country, good.itemid, discount_id, mall.platform_mall_name)
-              if (result) {
-                let index = this.editTableData.findIndex((n) => n.itemid == good.itemid)
-                let indexC = this.editTableDataCopy.findIndex((n) => n.itemid == good.itemid)
-                this.$set(this.editTableData[index], 'editStatus', 2)
-                this.$set(this.editTableDataCopy[indexC], 'editStatus', 2)
+      this.$refs.Logs.writeLog('开始创建活动', true)
+      this.selectMallListEdit.forEach(async (mall, index) => {
+        let start = Math.round(new Date(this.activeDate[0]).getTime() / 1000)
+        let end = Math.round(new Date(this.activeDate[1]).getTime() / 1000)
+        try {
+          let params = {
+            fe_status: 'upcoming',
+            highlight: '',
+            title: this.activeDicountName,
+            start_time: start,
+            end_time: end,
+            status: 1,
+            mallId: mall.platform_mall_id,
+          }
+          let res = await this.GoodsDiscount.createActive(mall.country, params)
+          console.log('res', res)
+          if (res.code === 200) {
+            this.$refs.Logs.writeLog(`店铺【${mall.platform_mall_name}】,创建活动【${this.activeDicountName}】成功`, true)
+            let discount_id = res.data.discount_id
+            let filterArr = this.selectGoods.filter((n) => n.platform_mall_id == mall.platform_mall_id)
+            filterArr.forEach(async (good) => {
+              let skuList = await this.searchProductDetail(good.itemid, good.platform_mall_id, good.country)
+              if (skuList.length) {
+                let result = this.setModelActive(skuList, mall.platform_mall_id, mall.country, good.itemid, discount_id, mall.platform_mall_name)
+                if (result) {
+                  let index = this.editTableData.findIndex((n) => n.itemid == good.itemid)
+                  let indexC = this.editTableDataCopy.findIndex((n) => n.itemid == good.itemid)
+                  this.$set(this.editTableData[index], 'editStatus', 2)
+                  this.$set(this.editTableDataCopy[indexC], 'editStatus', 2)
+                  this.$nextTick(() => {
+                    this.$refs.editPlTable.toggleRowSelection([
+                      {
+                        row: this.editTableData[index],
+                        selected: false,
+                      },
+                    ])
+                  })
+                }
               }
-            }
-          })
-        } else {
-          this.$refs.Logs.writeLog(`店铺【${mall.platform_mall_name}】创建活动失败`)
+            })
+          } else {
+            this.$refs.Logs.writeLog(`店铺【${mall.platform_mall_name}】创建活动失败`, false)
+          }
+        } catch (error) {
+          this.btnLoading = false
+          console.log(error, 'joiuoi')
         }
-      }catch(error){
-
-      }finally{
-        --count.count
-      }
+        if (index === this.selectMallListEdit.length - 1) {
+          this.btnLoading = false
+        }
+      })
+      // this.btnLoading = false
     },
     async setModelActive(skuList, mallId, country, goodsId, discount_id, mallName) {
       let paramsList = []
@@ -432,7 +455,7 @@ export default {
       console.log(this.editMultipleSelection, '3333333333')
       this.editMultipleSelection = val.goodsList
       this.editTableDataCopy = JSON.parse(JSON.stringify(this.editTableData))
-      console.log('changeGoodsItem', val)
+      console.log('changeGoodsItem', this.editTableData, val)
       this.goodsItemSelectorVisible = false
     },
     //批量修改折扣和限购
@@ -446,6 +469,25 @@ export default {
       if (!this.editMultipleSelection.length) {
         return this.$message.warning('请先勾选数据！')
       }
+      this.editMultipleSelection.forEach((item) => {
+        this.$set(item, 'discount', this.activeDiscount / 100)
+        this.$set(item, 'promotion_price_after_tax', Number(((this.activeDiscount / 100) * item.price).toFixed(1)))
+        this.$set(item, 'user_item_limit', this.limitNum)
+        let index = this.editTableData.findIndex((n) => n.modelid == item.modelid)
+        let indexC = this.editTableDataCopy.findIndex((n) => n.modelid == item.modelid)
+        if (index > -1) {
+          this.$set(this.editTableData[index], 'discount', this.activeDiscount / 100)
+          this.$set(this.editTableData[index], 'promotion_price_after_tax', Number(((this.activeDiscount / 100) * item.price).toFixed(1)))
+          this.$set(this.editTableData[index], 'user_item_limit', this.limitNum)
+        }
+        if (indexC > -1) {
+          this.editTableDataCopy[indexC].discount = this.activeDiscount / 100
+          this.editTableDataCopy[indexC].promotion_price_after_tax = Number(((this.activeDiscount / 100) * item.price).toFixed(1))
+          this.editTableDataCopy[indexC].user_item_limit = this.limitNum
+        }
+      })
+    },
+    async updateDiscount() {
       let objArr = []
       this.editMultipleSelection.forEach((item) => {
         let obj = {
@@ -465,28 +507,13 @@ export default {
       this.showConsole = false
       let res = await this.GoodsDiscount.putModelActive(this.activeRow.country, params)
       if (res.code === 200) {
-        this.editMultipleSelection.forEach((item) => {
-          let index = this.editTableData.findIndex((n) => n.modelid == item.modelid)
-          let indexC = this.editTableDataCopy.findIndex((n) => n.modelid == item.modelid)
-          if (index > -1) {
-            this.$set(this.editTableData[index], 'discount', this.activeDiscount / 100)
-            this.$set(this.editTableData[index], 'promotion_price_after_tax', Number(((this.activeDiscount / 100) * item.price).toFixed(1)))
-            this.$set(this.editTableData[index], 'user_item_limit', this.limitNum)
-          }
-          if (indexC > -1) {
-            this.editTableDataCopy[indexC].discount = this.activeDiscount / 100
-            this.editTableDataCopy[indexC].promotion_price_after_tax = Number(((this.activeDiscount / 100) * item.price).toFixed(1))
-            this.editTableDataCopy[indexC].user_item_limit = this.limitNum
-          }
-        })
-        console.log('this.tableData', this.tableData)
         this.$refs.Logs.writeLog(`修改折扣信息成功`, true)
         this.$refs.editPlTable.clearSelection()
       } else {
         this.$refs.Logs.writeLog(`修改折扣信息失败：${res.data}`, false)
       }
     },
-    //修改活动信息 只修改名称和日期
+    //修改活动信息 只修改名称和日期和折扣
     async changeDiscountInfo() {
       console.log(this.activeDate)
       let start = new Date(this.activeDate[0]).getTime()
@@ -521,10 +548,10 @@ export default {
       } else {
         this.$refs.Logs.writeLog(`修改活动信息失败：${res.data}`, false)
       }
-      console.log(res, 'res')
+      this.updateDiscount()
     },
     createNewActive() {
-      let startTime = new Date().getTime()
+      let startTime = new Date().getTime() + 1000 * 60 * 10
       let endTime = startTime + 2 * 60 * 60 * 1000
       this.activeName = 'edit'
       this.activeRow = {}
@@ -640,8 +667,8 @@ export default {
       this.multipleSelection.forEach(async (item) => {
         let res = await this.GoodsDiscount.stopActive(item, 'stop')
         if (res.code === 200) {
-          let index = this.tableData.findIndex(n=>n.discount_id == item.discount_id)
-          this.$set(this.tableData[index],'statusName','已过期')
+          let index = this.tableData.findIndex((n) => n.discount_id == item.discount_id)
+          this.$set(this.tableData[index], 'statusName', '已过期')
           this.$refs.Logs.writeLog(`活动【${item.title}-${item.discount_id}】结束活动成功`, true)
         } else {
           this.$refs.Logs.writeLog(`活动【${item.title}-${item.discount_id}】结束活动失败：${res.data}`, false)
@@ -649,11 +676,17 @@ export default {
       })
     },
     async stopActiveSingle(row, index, actionType) {
+      if (new Date().getTime() - row.start_time < 1000 * 60 * 60 * 1) {
+        return this.$message.warning(`折扣活动开始一小时后才能结束！`)
+      }
+      console.log(row, 'row')
       this.$refs.Logs.writeLog(`请在执行操作，请稍等`, true)
       let res = await this.GoodsDiscount.stopActive(row, actionType)
       if (res.code === 200) {
         if (actionType === 'delete') {
           this.tableData.splice(index, 1)
+        }else{
+          this.$set(this.tableData[index], 'statusName', '已过期')
         }
         this.$refs.Logs.writeLog(`活动【${row.title}-${row.discount_id}】结束活动成功`, true)
       } else {
@@ -840,7 +873,13 @@ export default {
       }
       return fData
     },
-    handleClick(tab, event) {},
+    handleClick(tab, event) {
+      if (this.activeName === 'edit') {
+        let startTime = new Date().getTime() + 1000 * 60 * 10
+        let endTime = startTime + 2 * 60 * 60 * 1000
+        this.activeDate = [this.$dayjs(startTime).format('YYYY-MM-DD HH:mm:ss'), this.$dayjs(endTime).format('YYYY-MM-DD HH:mm:ss')]
+      }
+    },
     handleSelectionChange1(val) {
       this.multipleSelection = val
     },

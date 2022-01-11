@@ -483,7 +483,7 @@ export default {
               this.$set(
                 this.tableData[indexA],
                 'remark',
-                `${this.tableData[indexA].remark}【消息发送失败，${msgRes.data.message.includes('user_is_forbiddenUser is forbidden for this action') ? '该用户禁止发送消息' : msgRes.data.message}】`
+                `${this.tableData[indexA].remark}【消息发送失败  ${msgRes.data.message.includes('user_is_forbiddenUser is forbidden for this action') ? '该用户禁止发送消息' : ''}】`
               )
             }
             console.log(msgRes, 'msgRes')
@@ -531,7 +531,7 @@ export default {
                 this.$set(this.tableData[indexA], 'remark', `${this.tableData[indexA].remark}【优惠券发送成功】`)
                 this.$set(this.tableData[indexA], 'chatDiscount', `${voucherInfo.name}`)
               } else {
-                this.$set(this.tableData[indexA], 'remark', `${this.tableData[indexA].remark}【优惠券发送失败，${voucherRes.data.message}】`)
+                this.$set(this.tableData[indexA], 'remark', `${this.tableData[indexA].remark}【消息发送失败  ${voucherRes.data.message.includes('user_is_forbiddenUser is forbidden for this action') ? '该用户禁止发送消息' : ''}】`)
               }
             }
             console.log(vouchers, 'vouchers')
@@ -588,7 +588,7 @@ export default {
                 this.$set(this.tableData[indexA], 'remark', `${this.tableData[indexA].remark}【商品发送成功】`)
                 this.$set(this.tableData[indexA], 'chatGoods', `${goodsInfo.itemid}`)
               } else {
-                this.$set(this.tableData[indexA], 'remark', `${this.tableData[indexA].remark}【商品发送失败，${voucherRes.data.message}】`)
+                this.$set(this.tableData[indexA], 'remark', `${this.tableData[indexA].remark}【消息发送失败  ${voucherRes.data.message.includes('user_is_forbiddenUser is forbidden for this action') ? '该用户禁止发送消息' : ''}】`)
               }
             }
           }

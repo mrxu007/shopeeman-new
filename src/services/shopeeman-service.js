@@ -2047,6 +2047,164 @@ export default class NetMessageBridgeService {
       }
     }
   }
+  //获取套装优惠列表
+  async getSuitList(country, data) {
+    const res = await this.getChinese(country, '/api/marketing/v3/bundle_deal/list/', data)
+    const resObj = res && JSON.parse(res)
+    // console.log(res,resObj)
+    if (resObj && resObj.status === 200) {
+      const info = JSON.parse(resObj.data)
+      if (info && info.code === 0) {
+        return {
+          code: 200,
+          data: info.data || []
+        }
+      } else {
+        return {
+          code: 50001,
+          data: info.message || []
+        }
+      }
+    } else {
+      return {
+        code: resObj.status,
+        data: `获取失败${resObj.statusText}`
+      }
+    }
+  }
+  //创建套装优惠
+  async createSuit(country, data) {
+    const res = await this.postChinese(country, `/api/marketing/v3/bundle_deal/`, data, {
+      Headers: {
+        'Content-Type': ' application/json'
+      }
+    })
+    const resObj = res && JSON.parse(res)
+    // console.log(res,resObj)
+    if (resObj && resObj.status === 200) {
+      const info = JSON.parse(resObj.data)
+      if (info && info.code === 0) {
+        return {
+          code: 200,
+          data: info.data || []
+        }
+      } else {
+        return {
+          code: 50001,
+          data: info.message || []
+        }
+      }
+    } else {
+      return {
+        code: resObj.status,
+        data: `操作失败${resObj.statusText}`
+      }
+    }
+  }
+  //停止或删除套装优惠
+  async stopSuit(country, data) {
+    const res = await this.postChinese(country, `/api/marketing/v3/bundle_deal/operation/`, data, {
+      Headers: {
+        'Content-Type': ' application/json'
+      }
+    })
+    const resObj = res && JSON.parse(res)
+    // console.log(res,resObj)
+    if (resObj && resObj.status === 200) {
+      const info = JSON.parse(resObj.data)
+      if (info && info.code === 0) {
+        return {
+          code: 200,
+          data: info.data || []
+        }
+      } else {
+        return {
+          code: 50001,
+          data: info.message || []
+        }
+      }
+    } else {
+      return {
+        code: resObj.status,
+        data: `操作失败${resObj.statusText}`
+      }
+    }
+  }
+  //获取套装商品
+  async getSuitGoods(country, data) {
+    const res = await this.postChinese(country, `/api/n/marketing/graphql/`, data, {
+      Headers: {
+        'Content-Type': ' application/json'
+      }
+    })
+    const resObj = res && JSON.parse(res)
+    const dataInfo = resObj.data && JSON.parse(resObj.data)
+    if (resObj.status === 200) {
+      let arr = dataInfo && dataInfo.data && dataInfo.data.products && dataInfo.data.products.items || []
+      return {
+        code: 200,
+        data: arr
+      }
+    } else {
+      return {
+        code: 50001,
+        data: '获取失败'
+      }
+    }
+  }
+  //获取套装优惠运送渠道
+  async getSuitShipType(country, data) {
+    const res = await this.getChinese(country, '/api/marketing/v3/bundle_deal/item/', data)
+    const resObj = res && JSON.parse(res)
+    // console.log(res,resObj)
+    if (resObj && resObj.status === 200) {
+      const info = JSON.parse(resObj.data)
+      if (info && info.code === 0) {
+        return {
+          code: 200,
+          data: info.data || []
+        }
+      } else {
+        return {
+          code: 50001,
+          data: info.message || []
+        }
+      }
+    } else {
+      return {
+        code: resObj.status,
+        data: `获取失败${resObj.statusText}`
+      }
+    }
+  }
+  //获取套装优惠运送渠道
+  async mixSuitShipType(country, data,type) {
+    const res = await this.mixChinese(country, '/api/marketing/v3/bundle_deal/item/', data,{
+      Headers: {
+        'Content-Type': ' application/json'
+      }},type)
+    const resObj = res && JSON.parse(res)
+    // console.log(res,resObj)
+    if (resObj && resObj.status === 200) {
+      const info = JSON.parse(resObj.data)
+      if (info && info.code === 0) {
+        return {
+          code: 200,
+          data: info.data || []
+        }
+      } else {
+        return {
+          code: 50001,
+          data: info.message || []
+        }
+      }
+    } else {
+      return {
+        code: resObj.status,
+        data: `获取失败${resObj.statusText}`
+      }
+    }
+  }
   // 获取地址
   getNextLevelAddresses(country, data, option) {
     return this.getChinese(country, '/api/v3/general/get_next_level_addresses', data, option)

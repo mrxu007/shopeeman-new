@@ -87,8 +87,8 @@
               <el-checkbox v-model="showConsole" class="mar-left">隐藏日志</el-checkbox>
             </div>
             <div class="select-row">
-              <el-button type="primary" size="mini" @click="1">创建单个商品关键字广告</el-button>
-              <el-button type="primary" size="mini">创建批量商品关键字广告</el-button>
+              <el-button type="primary" size="mini" @click="createType = 'single';createAdventVisible = true">创建单个商品关键字广告</el-button>
+              <el-button type="primary" size="mini" @click="createType = 'batch';createAdventVisible = true">创建批量商品关键字广告</el-button>
               <el-button type="primary" size="mini">创建关联广告</el-button>
               <el-button type="primary" size="mini">停止创建广告</el-button>
               <el-button type="primary" size="mini" plain>暂停广告活动</el-button>
@@ -130,11 +130,11 @@
         </u-table-column>
         <u-table-column align="center" label="商品ID" min-width="150" prop="product.itemid" />
         <u-table-column align="center" label="商品名称" min-width="150" prop="product.name" show-overflow-tooltip />
-        <u-table-column align="center" label="活动类型" min-width="150" prop="campaign.state" show-overflow-tooltip >
-           <template v-slot="{ row }">
+        <u-table-column align="center" label="活动类型" min-width="150" prop="campaign.state" show-overflow-tooltip>
+          <template v-slot="{ row }">
             {{ activeState[row.campaign.state] }}
           </template>
-          </u-table-column>
+        </u-table-column>
         <u-table-column align="center" label="活动日期" width="260" prop="price" show-overflow-tooltip>
           <template v-slot="{ row }">
             {{ `${$dayjs(row.campaign.start_time * 1000).format('YYYY/MM/DD HH:mm:ss')} - ${row.campaign.end_time == 0 ? '' : $dayjs(row.campaign.end_time * 1000).format('YYYY/MM/DD HH:mm:ss')}` }}
@@ -189,39 +189,89 @@
         <el-table-column label="花费" prop="cost"> </el-table-column>
         <el-table-column type="expand" label="查看明细" width="80">
           <template slot-scope="scope">
-            <div v-for="(item,index) in  analysisData[scope.row.mallId]" :key="index" class="expand-style" style="display:flex;">
+            <div v-for="(item, index) in analysisData[scope.row.mallId]" :key="index" class="expand-style" style="display: flex">
               <div>
-                <span>{{$dayjs(item.timestamp*1000).format('YYYY/MM/DD HH:mm:ss')}}</span>
-                <span class="mar-left">{{item.impression}}</span>
+                <span>{{ $dayjs(item.timestamp * 1000).format('YYYY/MM/DD HH:mm:ss') }}</span>
+                <span class="mar-left">{{ item.impression }}</span>
               </div>
               <div>
-                <span>{{$dayjs(item.timestamp*1000).format('YYYY/MM/DD HH:mm:ss')}}</span>
-                <span class="mar-left">{{item.click}}</span>
+                <span>{{ $dayjs(item.timestamp * 1000).format('YYYY/MM/DD HH:mm:ss') }}</span>
+                <span class="mar-left">{{ item.click }}</span>
               </div>
-               <div>
-                <span>{{$dayjs(item.timestamp*1000).format('YYYY/MM/DD HH:mm:ss')}}</span>
-                <span class="mar-left">{{item.impression==0?0:(item.click/item.impression*100).toFixed(2)}}</span>
+              <div>
+                <span>{{ $dayjs(item.timestamp * 1000).format('YYYY/MM/DD HH:mm:ss') }}</span>
+                <span class="mar-left">{{ item.impression == 0 ? 0 : ((item.click / item.impression) * 100).toFixed(2) }}</span>
               </div>
-               <div>
-                <span>{{$dayjs(item.timestamp*1000).format('YYYY/MM/DD HH:mm:ss')}}</span>
-                <span class="mar-left">{{item.order_amount}}</span>
+              <div>
+                <span>{{ $dayjs(item.timestamp * 1000).format('YYYY/MM/DD HH:mm:ss') }}</span>
+                <span class="mar-left">{{ item.order_amount }}</span>
               </div>
-               <div>
-                <span>{{$dayjs(item.timestamp*1000).format('YYYY/MM/DD HH:mm:ss')}}</span>
-                <span class="mar-left">{{item.order_amount}}</span>
+              <div>
+                <span>{{ $dayjs(item.timestamp * 1000).format('YYYY/MM/DD HH:mm:ss') }}</span>
+                <span class="mar-left">{{ item.order_amount }}</span>
               </div>
-               <div>
-                <span>{{$dayjs(item.timestamp*1000).format('YYYY/MM/DD HH:mm:ss')}}</span>
-                <span class="mar-left">{{item.order_gmv}}</span>
+              <div>
+                <span>{{ $dayjs(item.timestamp * 1000).format('YYYY/MM/DD HH:mm:ss') }}</span>
+                <span class="mar-left">{{ item.order_gmv }}</span>
               </div>
-               <div>
-                <span>{{$dayjs(item.timestamp*1000).format('YYYY/MM/DD HH:mm:ss')}}</span>
-                <span class="mar-left">{{item.cost}}</span>
+              <div>
+                <span>{{ $dayjs(item.timestamp * 1000).format('YYYY/MM/DD HH:mm:ss') }}</span>
+                <span class="mar-left">{{ item.cost }}</span>
               </div>
             </div>
-            </template>
+          </template>
         </el-table-column>
       </el-table>
+    </el-dialog>
+    <el-dialog :visible.sync="createAdventVisible" v-if="createAdventVisible" top="7vh" title="创建广告关键字" :close-on-click-modal="false" :close-on-press-escape="false" width="1000px">
+      <div class="create-style">
+        <div class="warning-top">
+          <p v-if="createType === 'single'">选择单个商品时，可选择是否开启自动选择关键字或手动选择关键字</p>
+          <p v-else>
+            选择两个及以上商品，shopee将自动管理广告关键字。相同的预算和时长设置将应用于每个广告。<br />
+            最多20个商品，超过将自动选取前20个商品
+          </p>
+        </div>
+        <el-button size="mini" type="primary">添加商品</el-button>
+        <el-table :data="createChooseGoods" style="width: 100%; margin: 10px 0" border height="200px" v-if="createChooseGoods.length">
+          <el-table-column align="center" type="index" label="" width="20" />
+          <el-table-column label="店铺名称" prop="id" width="120">
+            <template slot-scope="{ row }"> {{ row.country }}-{{ row.mall_alias_name || row.platform_mall_name }} </template>
+          </el-table-column>
+          <el-table-column label="商品id" prop="balance"> </el-table-column>
+          <el-table-column label="商品图片" prop="impression" width="80"> </el-table-column>
+          <el-table-column label="价格" prop="impression"> </el-table-column>
+          <el-table-column label="已选商品数量" prop="impression"> </el-table-column>
+          <el-table-column label="操作" prop="impression"> </el-table-column>
+        </el-table>
+        <div class="base-box mar-top">
+          <span class="base-title">每个广告的预算</span>
+          <div class="base-item">
+            <el-radio v-model="budgetSingle" label="1">无限制</el-radio><br />
+            <p v-if="budgetSingle == '1'" style="margin: 5px 0">根据您目前的广告预算余额，您的广告最多可获得0个点击数。</p>
+            <el-radio v-model="budgetSingle" label="2">设定预算</el-radio>
+          </div>
+        </div>
+        <div class="base-box mar-top">
+          <span class="base-title">每个广告的时长</span>
+          <div class="base-item">
+            <el-radio v-model="timeSingle" label="1">不限时</el-radio><br />
+            <el-radio v-model="timeSingle" label="2">设定开始日期/结束日期</el-radio>
+          </div>
+        </div>
+        <!-- v-if="createType === 'single' && createChooseGoods.length == 1" -->
+        <div class="base-box mar-top" >
+          <span class="base-title">关键字</span>
+          <div class="base-item">
+            <el-checkbox v-model="autoKeyword" >自动选择</el-checkbox><br />
+            <el-checkbox v-model="handleKeyword" >手动选择</el-checkbox>
+          </div>
+        </div>
+        <div class="footer-btn">
+          <el-button size="mini" type="primary">确认发布</el-button>
+          <el-button size="mini" type="primary">取消发布</el-button>
+        </div>
+      </div>
     </el-dialog>
   </div>
 </template>
@@ -289,13 +339,20 @@ export default {
         orderGmv: 0, //销售金额
         cost: 0, //花费
       },
-      activeState:{
-        ended:'已结束',
-        closed:'已结束',
-        ongoing:'进行中',
-        scheduled:'已预设',
-        paused:'暂停中',
-      }
+      activeState: {
+        ended: '已结束',
+        closed: '已结束',
+        ongoing: '进行中',
+        scheduled: '已预设',
+        paused: '暂停中',
+      },
+      createAdventVisible: true, //广告弹窗
+      createType: 'single',
+      createChooseGoods: [], //创建弹窗选择的商品
+      budgetSingle: '1', //每个广告的预算
+      timeSingle: '1', //每个广告的时长
+      autoKeyword: false,
+      handleKeyword: false,
     }
   },
   mounted() {
@@ -303,8 +360,8 @@ export default {
   },
   methods: {
     //导出数据
-    async exportData(){
-      if(!this.tableData.length){
+    async exportData() {
+      if (!this.tableData.length) {
         return this.$message.warning('没有可导出的数据！')
       }
       let num = 1
@@ -334,11 +391,15 @@ export default {
         <td>${item.product ? item.product.itemid : '' + '\t'}</td>
         <td>${item.product ? item.product.name : '' + '\t'}</td>
         <td>${item.campaign ? this.activeState[item.campaign.state] : '' + '\t'}</td>
-        <td>${item.campaign.start_time ? `${$dayjs(item.campaign.start_time * 1000).format('YYYY/MM/DD HH:mm:ss')} - ${item.campaign.end_time == 0 ? '' : $dayjs(item.campaign.end_time * 1000).format('YYYY/MM/DD HH:mm:ss')}` : '' + '\t'}</td>
+        <td>${
+          item.campaign.start_time
+            ? `${$dayjs(item.campaign.start_time * 1000).format('YYYY/MM/DD HH:mm:ss')} - ${item.campaign.end_time == 0 ? '' : $dayjs(item.campaign.end_time * 1000).format('YYYY/MM/DD HH:mm:ss')}`
+            : '' + '\t'
+        }</td>
         <td>${this.dealWithQuota(item) + '\t'}</td>
         <td>${item.report ? item.report.impression.value : '' + '\t'}</td>
         <td>${item.report ? item.report.click.value : '' + '\t'}</td>
-        <td>${ Number(item.report.impression.value) == 0 ? 0 : Math.round((Number(item.report.click.value) / Number(item.report.impression.value)) * 100).toFixed(2) + '\t'}</td>
+        <td>${Number(item.report.impression.value) == 0 ? 0 : Math.round((Number(item.report.click.value) / Number(item.report.impression.value)) * 100).toFixed(2) + '\t'}</td>
         <td>${item.report ? item.report.order_amount.value : '' + '\t'}</td>
         <td>${item.report ? item.report.order_amount.value : '' + '\t'}</td>
         <td>${item.report ? item.report.order_gmv.value : '' + '\t'}</td>
@@ -357,7 +418,7 @@ export default {
         mallId: mall.platform_mall_id,
       }
       let res = await this.$shopeemanService.getMallBalance(mall.country, params)
-      console.log(res,"res")
+      console.log(res, 'res')
       if (res.code === 200) {
         this.$refs.Logs.writeLog(`店铺【${mall.mall_alias_name || mall.platform_mall_name}】获取余额成功，余额【${res.data.balance}】`, true)
         return res.data.balance
@@ -370,7 +431,7 @@ export default {
       }
     },
     //图表数据
-    async getAdventAnalysis(mall,balance) {
+    async getAdventAnalysis(mall, balance) {
       let startTime = Math.round(new Date(this.statisticalTime[0]).getTime() / 1000)
       let endTime = Math.round(new Date(this.statisticalTime[1]).getTime() / 1000)
       let params = {
@@ -387,7 +448,7 @@ export default {
             mallId: mall.platform_mall_id,
             mallName: mall.mall_alias_name || mall.platform_mall_name,
             country: mall.country,
-            balance:balance,//余额
+            balance: balance, //余额
             impression: 0, //浏览量
             click: 0, //点击次数
             order: 0, //订单数(商品已出售)
@@ -461,7 +522,7 @@ export default {
       let limit = 40
       let mallCount = 0
       let balance = await this.getMallBalance(mall)
-      this.getAdventAnalysis(mall,balance)
+      this.getAdventAnalysis(mall, balance)
       try {
         let params = {
           start_time: startTime,
@@ -525,6 +586,9 @@ export default {
 .mar-left {
   margin-left: 10px;
 }
+.mar-top {
+  margin-top: 10px;
+}
 .header-btn {
   margin: 10px 0;
 }
@@ -536,23 +600,22 @@ export default {
 }
 .content {
   margin-top: 20px;
-  
 }
-.expand-style{
-    display:flex;
-    margin:0 5px 5px 0;
-    justify-content: flex-end;
-    div{
-      margin-left:10px;
-    }
+.expand-style {
+  display: flex;
+  margin: 0 5px 5px 0;
+  justify-content: flex-end;
+  div {
+    margin-left: 10px;
   }
+}
 .base-box {
   border: 1px solid #dcdcdc;
   border-radius: 4px;
   padding: 10px;
   position: relative;
   // min-width: 702px;
-  height: 100%;
+  // height: 100%;
   .base-title {
     padding: 0 5px;
     display: inline-block;
@@ -589,6 +652,17 @@ export default {
         text-align: right;
       }
     }
+  }
+}
+.create-style {
+  max-height: 600px;
+  overflow-y: auto;
+  .warning-top {
+    margin-bottom: 10px;
+    color: #a9a9a9;
+  }
+  .footer-btn {
+    margin-top: 10px;
   }
 }
 </style>
