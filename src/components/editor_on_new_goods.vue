@@ -1104,7 +1104,7 @@ export default {
               console.log(res)
             }
             itemmodels = itemmodels.replaceAll(/"id":[0-9]*,/ig, '')
-            itemmodels = itemmodels.replaceAll(/"sku":"[^(",)]*",/ig, '')
+            itemmodels = itemmodels.replaceAll(/"sku":"(((?!",).)*)",/ig, '')
             itemmodels = itemmodels.replaceAll('"sku_spec1":', '"skuSpec1":')
             itemmodels = itemmodels.replaceAll('"sku_spec2":', '"skuSpec2":')
             itemmodels = itemmodels.replaceAll('"sku_image":', '"skuImage":')

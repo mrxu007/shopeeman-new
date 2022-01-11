@@ -41,7 +41,7 @@ export default class BaseUtilService {
   // string shopId 店铺id
   // string tmallCrossBorderUserId 天猫淘宝海外用户id
   buildGoodCode(platform, goodsId, site, shopId, tmallCrossBorderUserId) { // 商品编码加密
-    return this.nativeService.buildGoodCode(platform, goodsId, site, shopId, tmallCrossBorderUserId)
+    return this.nativeService.buildGoodCode(platform, goodsId.toString(), site, shopId.toString(), tmallCrossBorderUserId.toString())
   }
   getLogisticByOrderIdAsync(shotOrderAccount, orderSn) { // 淘宝物流获取
     return this.nativeService.getLogisticByOrderIdAsync(shotOrderAccount, orderSn)

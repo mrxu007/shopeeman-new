@@ -279,5 +279,5 @@ const changeImgSizeFilter = (value) => {
   return resUrl || url
 }
 
-export { chineseSite, imageRender, siteCoin, sitePlatform, countryShopeebuyCom, changeImgSizeFilter,
+export { chineseSite, imageRender, siteCoin, sitePlatform, countryShopeebuyCom, changeImgSizeFilter, special_characters,
   lazadaGoodsUrl, countries_option, countries_site,countries_option_sub ,currencyShow ,countries_option_sub_abroad}
