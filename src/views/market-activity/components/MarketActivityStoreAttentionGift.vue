@@ -12,11 +12,11 @@
             <el-option label="已结束" value="3" />
           </el-select>
         </div>
+        <el-button size="mini" type="primary" style="margin-left:8px" @click="getTableList">查询</el-button>
+        <el-button size="mini" type="primary" @click="stopSearch">取消查询</el-button>
       </div>
 
       <div class="row2" style="margin-top:8px">
-        <el-button size="mini" type="primary" @click="getTableList">查询</el-button>
-        <el-button size="mini" type="primary" @click="stopSearch">取消查询</el-button>
         <el-button size="mini" type="primary" @click="mallCoupon">创建关注礼</el-button>
         <el-button size="mini" @click="stopCreate">停止创建关注礼活动</el-button>
         <el-button size="mini" type="primary" @click="MallvoucherStopMul">批量停止关注礼活动</el-button>
@@ -108,7 +108,7 @@
         </el-form-item>
 
         <el-form-item label="奖励类型">
-          <el-radio-group v-model="rewardType">
+          <el-radio-group v-model="rewardType" @change="discountNum=''">
             <!-- 折扣 -->
             <el-radio label="0">折扣</el-radio>
             <!-- shoppe币折扣 -->
@@ -119,7 +119,7 @@
           </el-radio-group>
         </el-form-item>
         <el-form-item label="折扣类型/金额" class="discountitem">
-          <el-select v-if="rewardType==='0'" v-model="discountType" placeholder="请选择" size="mini" style="width:100px">
+          <el-select v-if="rewardType==='0'" v-model="discountType" placeholder="请选择" size="mini" style="width:100px" @change="discountNum=''">
             <el-option label="折扣" value="0" />
             <el-option label="折扣金额" value="1" />
           </el-select>
@@ -129,20 +129,47 @@
             style="display: flex;
             flex-flow: column;"
           >
-            <el-input v-model="discountNum" size="mini" style="width:100px" onkeyup="value=value.replace(/[^\d]/g,0)" />
-            <span v-if="rewardType==='0'" style="margin-left:-100px">
-              {{ discountNum }}%折扣,付款金额中的{{ discountNum }}%将退还给买家
-              <span v-if="discountNum>100" style="color:red;">*请输入正确的折扣信息</span>
+            <div>
+              <!-- 折扣 && shopeeB 折扣 -->
+              <el-input
+                v-if="(rewardType==='0' && discountType==='0') || rewardType==='1'"
+                v-model="discountNum"
+                size="mini"
+                style="width:100px"
+                maxlength="2"
+                onkeyup="value=value.replace(/[^\d]/g,0)"
+              />
+              <!-- 其他输入框 -->
+              <el-input
+                v-if="rewardType==='0' && discountType==='1'"
+                v-model="discountNum"
+                size="mini"
+                style="width:100px"
+                onkeyup="value=value.replace(/[^\d]/g,0)"
+              />
+              <span v-if="rewardType==='0' && discountType==='0'">%折扣</span>
+              <span v-if="rewardType==='1'">%Shopee币折扣</span>
+            </div>
+            <span v-if="rewardType==='0' && discountType==='0'" style="margin-left:-100px;color:red;line-height: 10px;margin-bottom: 10px;">
+              付款金额中的{{ discountNum }}%将退还给买家。
             </span>
-            <span v-if="rewardType==='1'" style="margin-left:-40px">
-              {{ discountNum }}%折扣,付款金额中的{{ discountNum }}%将退还给买家
-              <span v-if="discountNum>100" style="color:red;">*请输入正确的折扣信息</span>
+
+            <span v-if="rewardType==='1'" style="margin-left:-40px;color:red;line-height: 10px;margin-bottom: 10px;">
+              付款金额中的{{ discountNum }}%将以Shopee币退还给买家。
+              <el-tooltip
+                class="item"
+                effect="dark"
+                :content="contentDes"
+                placement="right-start"
+              >
+                <i class="el-icon-question" />
+              </el-tooltip>
             </span>
           </div>
           <!-- <div v-if="discountType==='0'" class="color:red"></div> -->
         </el-form-item>
 
-        <el-form-item v-if="rewardType==='0'&& discountType==='0'" label="最高折扣金额">
+        <el-form-item v-if="(rewardType==='0'&& discountType==='0') || rewardType==='1'" label="最高折扣金额">
           <el-radio-group v-model="limitPrice">
             <el-radio label="0">无限制</el-radio>
             <el-radio label="1">设置金额：<el-input v-model="maxPrice" size="mini" style="width:80px" onkeyup="value=value.replace(/[^\d]/g,0)" /></el-radio>
@@ -165,7 +192,8 @@
             end-placeholder="结束日期"
             :picker-options="pickerOptions"
           />
-          <div style="color:red">结束时间必须大于开始时间，且活动时间必须大于一天！</div>
+          <div style="color:red;line-height: 20px">* 结束时间必须大于开始时间，且活动时间必须大于一天！</div>
+          <div style="color:red;line-height: 20px">* 所选时间段内不可存在其他后续奖券</div>
         </el-form-item>
         <el-form-item label="折扣劵可使用数量(必填)">
           <el-input v-model="useQuantity" size="mini" style="width:100px" onkeyup="value=value.replace(/[^\d]/g,0)" />
@@ -230,11 +258,12 @@ export default {
       getTable: []
     }
   },
-  // computed:{
-  //   discountType(){
-
-  //   }
-  // },
+  computed: {
+    contentDes() {
+      const coinType = this.$filters.siteCoin(this.selectMallList[0].country)
+      return `Shopee币交换规则，${coinType}100=100 Shopee币`
+    }
+  },
   created() {
 
   },
@@ -332,7 +361,11 @@ export default {
         if (res.ecode === 0) {
           this.$refs.Logs.writeLog(`------成功删除【${val.follow_prize_name}】优惠活动------`, true)
         } else {
-          this.$refs.Logs.writeLog(`删除【${val.follow_prize_name}】优惠活动,${res.message}`, false)
+          let message = ''
+          if (res.message === 'no edit permission for the voucher') {
+            message = '您没有编辑权限'
+          }
+          this.$refs.Logs.writeLog(`删除【${val.follow_prize_name}】优惠活动,${res.message}:${message}`, false)
         }
       } catch (error) {
         this.$refs.Logs.writeLog(`删除【${val.follow_prize_name}】--catch,${error}`, false)
@@ -438,7 +471,11 @@ export default {
             this.$refs.Logs.writeLog(`店铺【${item.mall_alias_name || item.platform_mall_name}】查找完毕`, true)
           }
         } else {
-          this.$refs.Logs.writeLog(`【${item.mall_alias_name || item.platform_mall_name}】${res.data.message || '店铺异常'}`, false)
+          if (res.message === 'token not found') {
+            this.$refs.Logs.writeLog(`【${item.mall_alias_name || item.platform_mall_name}】${res.data.message}:【店铺未登录】`, false)
+          } else {
+            this.$refs.Logs.writeLog(`【${item.mall_alias_name || item.platform_mall_name}】${res.data.message || '店铺异常'}`, false)
+          }
         }
       } catch (error) {
         this.$refs.Logs.writeLog(`【${item.mall_alias_name || item.platform_mall_name}】--catch，${error}`, false)
@@ -517,8 +554,8 @@ export default {
       // this.selectMallList.forEach(el => {
       //   this.createCoupon(el)
       // })
-      if (this.discountNum > 100) {
-        this.$message.warning('请输入有效折扣')
+      if (this.rewardType === '0' && this.discountType === '1' && this.discountNum > this.minPrice) {
+        this.$message.warning('折扣金额不能大于最低消费金额')
         return
       }
       if ((this.dateTime[1] - this.dateTime[0]) <= 3600 * 24 * 1000) {
@@ -576,7 +613,17 @@ export default {
         }
         const result = await this.MarketManagerAPIInstance.followPrizeCreate(params)// 创建优惠券
         if (result.ecode !== 0) {
-          this.$refs.Logs.writeLog(`【${val.mall_alias_name || val.platform_mall_name}】创建失败：${result.message}`, false)
+          let message = ''
+          if (result.message === 'param err') {
+            message = '输入参数有误'
+          }
+          if (result.message === 'quota error:') {
+            message = '所选时间有误'
+          }
+          if (result.message === 'campaign overlap') {
+            message = '活动重叠;此时间段内已存在其他后续奖券，请选择其他时间段。'
+          }
+          this.$refs.Logs.writeLog(`【${val.mall_alias_name || val.platform_mall_name}】创建失败：${result.message}:【${message}】`, false)
         } else {
           this.$refs.Logs.writeLog(`【${val.mall_alias_name || val.platform_mall_name}】创建成功`, true)
         }

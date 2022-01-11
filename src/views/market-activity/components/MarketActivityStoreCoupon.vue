@@ -82,7 +82,7 @@
               @click="MallvoucherDelFun(row),singerStop=true"
             >删除</el-button> </span>
             <span> <el-button
-              v-if="row.voucher_status==='进行中' && row.voucher_type==='商品优惠卷'"
+              v-if="row.voucher_status==='进行中'"
               size="mini"
               type="primary"
               @click="MallvoucherStop(row),singerStop=true"
@@ -119,7 +119,7 @@
         </el-form-item>
 
         <el-form-item label="奖励类型">
-          <el-radio-group v-model="rewardType">
+          <el-radio-group v-model="rewardType" @change="discountNum=''">
             <!-- 折扣 -->
             <el-radio label="0">折扣</el-radio>
             <!-- shoppe币折扣 -->
@@ -136,7 +136,7 @@
           </el-radio-group>
         </el-form-item>
         <el-form-item label="折扣类型 | 优惠限额" class="discountitem">
-          <el-select v-if="rewardType==='0'" v-model="discountType" placeholder="请选择" size="mini" style="width:100px">
+          <el-select v-if="rewardType==='0'" v-model="discountType" placeholder="请选择" size="mini" style="width:100px" @change="discountNum=''">
             <el-option label="折扣" value="0" />
             <el-option label="折扣金额" value="1" />
           </el-select>
@@ -146,20 +146,47 @@
             style="display: flex;
             flex-flow: column;"
           >
-            <el-input v-model="discountNum" size="mini" style="width:100px" onkeyup="value=value.replace(/[^\d]/g,0)" />
-            <span v-if="rewardType==='0'" style="margin-left:-100px">
-              {{ discountNum }}%折扣,付款金额中的{{ discountNum }}%将退还给买家
-              <span v-if="discountNum>100" style="color:red;">*请输入正确的折扣信息</span>
+            <div>
+              <!-- 折扣 && shopeeB 折扣 -->
+              <el-input
+                v-if="(rewardType==='0' && discountType==='0') || rewardType==='1'"
+                v-model="discountNum"
+                size="mini"
+                style="width:100px"
+                maxlength="2"
+                onkeyup="value=value.replace(/[^\d]/g,0)"
+              />
+              <!-- 其他输入框 -->
+              <el-input
+                v-if="rewardType==='0' && discountType==='1'"
+                v-model="discountNum"
+                size="mini"
+                style="width:100px"
+                onkeyup="value=value.replace(/[^\d]/g,0)"
+              />
+              <span v-if="rewardType==='0' && discountType==='0'">%折扣</span>
+              <span v-if="rewardType==='1'">%Shopee币折扣</span>
+            </div>
+            <span v-if="rewardType==='0' && discountType==='0'" style="margin-left:-100px;color:red;line-height: 10px;margin-bottom: 10px;">
+              付款金额中的{{ discountNum }}%将退还给买家。
             </span>
-            <span v-if="rewardType==='1'" style="margin-left:-40px">
-              {{ discountNum }}%折扣,付款金额中的{{ discountNum }}%将退还给买家
-              <span v-if="discountNum>100" style="color:red;">*请输入正确的折扣信息</span>
+
+            <span v-if="rewardType==='1'" style="margin-left:-40px;color:red;line-height: 10px;margin-bottom: 10px;">
+              付款金额中的{{ discountNum }}%将以Shopee币退还给买家。
+              <el-tooltip
+                class="item"
+                effect="dark"
+                :content="contentDes"
+                placement="right-start"
+              >
+                <i class="el-icon-question" />
+              </el-tooltip>
             </span>
           </div>
           <!-- <div v-if="discountType==='0'" class="color:red"></div> -->
         </el-form-item>
 
-        <el-form-item v-if="rewardType==='0'&& discountType==='0'" label="最高优惠金额">
+        <el-form-item v-if="(rewardType==='0'&& discountType==='0') || rewardType==='1'" label="最高优惠金额">
           <el-radio-group v-model="limitPrice">
             <el-radio label="0">无限制</el-radio>
             <el-radio label="1">设置金额：
@@ -289,18 +316,20 @@ export default {
       selectMallList: [], // 选择的店铺
       stoptoping: false,
       mallTableSelect: [],
-      goodsItems: []// 选择商品的ID
+      goodsItems: [] // 选择商品的ID
     }
   },
-  // computed:{
-  //   discountType(){
-
-  //   }
-  // },
+  computed: {
+    contentDes() {
+      const coinType = this.$filters.siteCoin(this.selectMallList[0].country)
+      return `Shopee币交换规则，${coinType}100=100 Shopee币`
+    }
+  },
   created() {
 
   },
   methods: {
+
     // 创建商品优惠卷
     async goodsCouponFun() {
       if (this.discountNum > 100) {
@@ -424,7 +453,11 @@ export default {
         if (res.ecode === 0) {
           this.$refs.Logs.writeLog(`------成功删除【${val.name}】优惠活动------`, true)
         } else {
-          this.$refs.Logs.writeLog(`删除【${val.name}】优惠活动,${res.message}`, false)
+          let message = ''
+          if (res.message === 'no edit permission for the voucher') {
+            message = '您没有编辑权限'
+          }
+          this.$refs.Logs.writeLog(`删除【${val.name}】优惠活动,${res.message}:${message}`, false)
         }
       } catch (error) {
         this.$refs.Logs.writeLog(`删除【${val.name}】--catch,${error}`, false)
