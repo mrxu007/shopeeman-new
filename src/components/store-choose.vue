@@ -1,9 +1,10 @@
 <template>
   <div>
     <ul class="storeChooseUL">
-      <li :style="isReset && 'margin-bottom: 5px'">
+      <li v-if="isMall">{{ countryVal | chineseSite }}</li>
+      <li v-else :style="isReset && 'margin-bottom: 5px'">
         <span :style="{ width: spanWidth }">所属站点：</span>
-        <el-select v-model="countryVal" :disabled="isMall" size="mini" filterable class="siteSelectBox">
+        <el-select v-model="countryVal" size="mini" filterable class="siteSelectBox">
           <el-option v-if="isAll" label="全部" :value="''" />
           <el-option v-for="(item, index) in countries" :key="index" :label="item.label" :value="item.value" />
         </el-select>
