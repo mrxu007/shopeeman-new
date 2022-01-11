@@ -14,7 +14,7 @@
         <el-input v-model="shopeeLink" size="mini" class="inputWidth"></el-input>
       </el-form-item>
       <p style="color: red; margin-bottom: 10px">注:shopee订单详情链接,请在个人中心订单详情页,右键复制当前链接植入</p>
-      <el-form-item prop="shotAmountRmb" v-if="dealType === 'single'" >
+      <el-form-item prop="shotAmountRmb" v-if="dealType === 'single'">
         <div slot="label">
           <el-select v-model="amountType" size="mini" style="width: 150px" @change="changeAmount">
             <el-option label="采购价RMB->采购价" :value="1"></el-option>
@@ -40,7 +40,7 @@
         </el-select>
       </el-form-item>
       <el-form-item label="绑定仓库:" prop="warehouseName" v-if="dealType === 'single'">
-        <p>{{ warehouse.warehouse_name }}</p>
+        <p>{{ warehouse ? warehouse.warehouse_name : '' }}</p>
         <!-- <el-input v-model="warehouse.warehouse_name" size="mini" class="inputWidth" disabled></el-input> -->
       </el-form-item>
       <el-form-item label="提示1:" v-if="dealType !== 'single'">
@@ -86,23 +86,21 @@
 import { shotStatuForEdit, goodsSourceList } from './orderCenter'
 export default {
   name: 'PurchaseInfo',
-  
+
   data() {
     var amountCheck = (rule, value, callback) => {
-       
-          if (value == 0) {
-            callback(new Error('采购金额不能为零'));
-          }
-          callback();
-        
-      };
+      if (value == 0) {
+        callback(new Error('采购金额不能为零'))
+      }
+      callback()
+    }
     return {
       form: {
         shotOrderSn: '', //拍单订单号
         shotStatus: '', //采购状态
         transportType: '1', //运输方式
         packageType: '1', //货物类型
-        platformId: '', //拍单平台
+        platformId: 0, //拍单平台
         shotAmountRmb: 0, //拍单金额(rmb)
         shotAmount: 0, //拍单金额(rmb)
         buyAccountInfo: '', //买家账号信息 传json格式
@@ -120,7 +118,6 @@ export default {
         shotStatus: [{ required: true, message: '请选择状态', trigger: 'change' }],
         // shotAmountRmb: [{ required: true, message: '请输入拍单金额', trigger: 'change' }],
         platformId: [{ required: true, message: '请选择平台类型', trigger: 'change' }],
-        platformId: [{ required: true, message: '请选择平台类型', trigger: 'change' }],
         buyAccountInfo: [{ required: true, message: '买手号不能为空', trigger: 'change' }],
         // shotAmount: [{ required: true, message: '采购金额不能为空', trigger: 'change' },{ validator: amountCheck, trigger: 'blur' }],
       },
@@ -130,9 +127,9 @@ export default {
       shotAmountRmb: '',
       rateList: [],
       country: '',
-      warehouse:{},
-      warehouseList:[],
-      loading:false
+      warehouse: {},
+      warehouseList: [],
+      loading: false,
     }
   },
   props: {
@@ -149,7 +146,7 @@ export default {
       default: 'batch',
     },
   },
-   mounted() {
+  mounted() {
     this.getRate()
     let data = this.chooseData[0]
     this.form.platformId = Number(data.goods_info.ori_platform_id)
@@ -162,29 +159,31 @@ export default {
       this.country = data.country
       this.shotAmount = data.shot_order_info.shot_amount_rmb
       this.shotAmountRmb = data.shot_order_info.shot_amount
-      console.log(this.shotAmount,this.shotAmountRmb)
+      console.log(this.shotAmount, this.shotAmountRmb)
       console.log('single', data, this.chooseData)
-      this.getWareHouse(data.mall_info.platform_mall_id,data.goods_info.ori_platform_id)
-    } 
+      this.getWareHouse(data.mall_info.platform_mall_id, data.goods_info.ori_platform_id)
+    }
   },
   methods: {
-    async getWareHouse(mallId,platformId){
-      console.log(mallId,"mallId")
+    async getWareHouse(mallId, platformId) {
+      console.log(mallId, 'mallId')
       let res = await this.$appConfig.getWarehouseInfo(mallId)
-      console.log(JSON.parse(res),"0---")
-      this.warehouseList = res && JSON.parse(res) || []
-      console.log(this.warehouseList,"warehouseList")
-      if([1, 2, 3, 5, 8, 10].indexOf(Number(platformId)) > -1){
-        this.warehouse = this.warehouseList.find(n=>n.type == 0)
+      console.log(JSON.parse(res), '0---')
+      this.warehouseList = (res && JSON.parse(res)) || []
+      console.log(this.warehouseList, 'warehouseList')
+      if ([1, 2, 3, 5, 8, 10].indexOf(Number(platformId)) > -1) {
+        this.warehouse = this.warehouseList.find((n) => n.type == 0)
+      } else if ([9, 11, 12, 15, 13].indexOf(Number(platformId)) > -1) {
+        this.warehouse = this.warehouseList.find((n) => n.type == 3)
       }
-      if([9, 11, 12, 15, 13].indexOf(Number(platformId)) > -1){
-        this.warehouse = this.warehouseList.find(n=>n.type == 3)
+      if (!this.warehouse && this.warehouseList.length) {
+        this.warehouse = this.warehouseList[0]
       }
     },
     async getRate() {
       let info = await window['ConfigBridgeService'].getUserInfo()
       this.rateList = info.ExchangeRates || {}
-      console.log("rateList",this.rateList)
+      console.log('rateList', this.rateList)
       // console.log("aa",aa)
       // const data = await this.$api.exchangeRateList()
       // if (data.data.code === 200) {
@@ -202,7 +201,7 @@ export default {
         this.form.shotAmountRmb = (Number(this.shotAmount) / Number(this.rateList[this.country.toUpperCase()])).toFixed(2)
         this.shotAmountRmb = (Number(this.shotAmount) / Number(this.rateList[this.country.toUpperCase()])).toFixed(2)
       }
-      console.log(this.form,"ooo")
+      console.log(this.form, 'ooo')
     },
     changePlatform(val) {
       this.form.buyAccountInfo = ''
@@ -217,8 +216,8 @@ export default {
         if (!valid) {
           return false
         }
-        if(this.shotAmount == 0){
-          return this.$message.error("采购价不能为零")
+        if (this.shotAmount == 0) {
+          return this.$message.error('采购价不能为零')
         }
         let obj = {}
         if (this.form.buyAccountInfo) {
@@ -229,40 +228,49 @@ export default {
             type: buy.type,
           }
         }
-        this.loading = true
-        for (let i = 0; i < this.chooseData.length; i++) {
-          let order = this.chooseData[i]
-          this.form.shotAmount = (Number(this.form.shotAmountRmb) / Number(this.rateList[order.country.toUpperCase()])).toFixed(2)
-          let params = this.form
-          params.sysOrderId = order.id
-          params.platformId = params.platformId.toString()
-          params.shotStatus = params.shotStatus.toString()
-          params.buyAccountInfo = JSON.stringify(obj)
-          if(this.dealType === 'batch'){
-            params.shotAmountRmb = this.shotAmount
-          }
-          if (this.shopeeLink) {
-            let shopid = this.shopeeLink.match(/shopid=(\d+)/)
-            params.shopid = shopid ? shopid[1] : ''
-            let orderId = this.shopeeLink.match(/orderId=(\d+)/)
-            orderId = orderId ? orderId[1] : ''
-          }
-          params.markStatus = '0'
-          if(this.dealType === 'single'){
-            params.warehouseUserId = this.warehouse.id || ''
-          }  
-          let res = await this.$api.updateShotOrder(params)
-          console.log(res, 'saveBatchSetting')
-          if (res.data.code === 200 ) {
-            if(i === this.chooseData.length-1){
-              this.$message.success('设置成功!')
-              this.$emit('close', false)
+        try {
+          for (let i = 0; i < this.chooseData.length; i++) {
+            let order = this.chooseData[i]
+            this.form.shotAmount = (Number(this.form.shotAmountRmb) / Number(this.rateList[order.country.toUpperCase()])).toFixed(2)
+            let params = this.form
+            params.sysOrderId = order.id
+            params.platformId = params.platformId.toString()
+            params.shotStatus = params.shotStatus.toString()
+            params.buyAccountInfo = JSON.stringify(obj)
+            if (this.dealType === 'batch') {
+              params.shotAmountRmb = this.shotAmount
             }
-          } else {
-            this.loading = false
-            this.$message.error(`设置失败-${res.data.message}`)
+            if (this.shopeeLink) {
+              let shopid = this.shopeeLink.match(/shopid=(\d+)/)
+              params.shopid = shopid ? shopid[1] : ''
+              let orderId = this.shopeeLink.match(/orderId=(\d+)/)
+              orderId = orderId ? orderId[1] : ''
+            }
+            params.markStatus = '0'
+            if (this.dealType === 'single') {
+              if (!this.warehouse) {
+                return this.$message.warning('没有绑定正确的仓库')
+              }
+              params.warehouseUserId = this.warehouse.id || ''
+            }
+            this.loading = true
+            let res = await this.$api.updateShotOrder(params)
+            console.log(res, 'saveBatchSetting')
+            if (res.data.code === 200) {
+              console.log(i, this.chooseData.length, i === this.chooseData.length - 1)
+              if (i === this.chooseData.length - 1) {
+                this.$message.success('设置成功!')
+                this.$emit('close')
+              }
+            } else {
+              this.loading = false
+              this.$message.error(`设置失败-${res.data.message}`)
+            }
+            console.log(this.form, params, res)
           }
-          console.log(this.form, params, res)
+        } catch (error) {
+          this.loading = false
+          return this.$message.error(`发生错误，请重试,${error}`)
         }
       })
     },
