@@ -1087,8 +1087,6 @@ export default {
           return
         }
         let neededTranslateInfoJson = await this.$commodityService.getSpuDetailByIdV2(item.id)
-        let neededTranslateInfoData = JSON.parse(neededTranslateInfoJson) && JSON.parse(neededTranslateInfoJson).data
-        // console.log('getSpuDetailByIdV2 - data', neededTranslateInfoData,JSON.stringify(neededTranslateInfoData))
         let mallList = []
         if (this.associatedConfig.dimensionRadio < 2) {
           let mallCount = this.mallList.length
@@ -1099,6 +1097,8 @@ export default {
           mallList = this.mallList
         }
         for (let mall of mallList) {
+          let neededTranslateInfoData = JSON.parse(neededTranslateInfoJson) && JSON.parse(neededTranslateInfoJson).data
+          // console.log('getSpuDetailByIdV2 - data', neededTranslateInfoData,JSON.stringify(neededTranslateInfoData))
           let goodsParam = JSON.parse(JSON.stringify(goodsInitParam))
           let mallName = mall.mall_alias_name || mall.platform_mall_name
           this.updateAttributeName(item, mallName,'mallName')
