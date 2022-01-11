@@ -15,7 +15,7 @@
     <!-- <main v-if="activeVal === '1'"><ProductPutOnSettings /></main> -->
 
     <!--爆款选品 -->
-    <!-- <main v-if="activeVal === '1'"><ProductPutOnPopularSelection /></main> -->
+    <main v-if="activeVal === '1'"><ProductPutOnPopularSelection /></main>
 
     <!-- 私有选品库 -->
     <main v-if="activeVal === '2'"><ProductPutOnPersonalLibrary /></main>

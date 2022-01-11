@@ -16,9 +16,10 @@
             <storeChoose style="margin-left:-20px;width: 730px;" :show-mall-all="true" @changeMallList="changeMallList" />
           </li>
           <li style="margin-top:20px;align-items: center;">
-            <el-button size="mini" type="primary" @click="getTopTest">搜索任务</el-button>
+            <el-button size="mini" type="primary" @click="getTopTestTable">搜索任务</el-button>
             <el-button size="mini" type="primary" @click="delTeskFun">批量删除任务</el-button>
             <el-button size="mini" type="primary" @click="stopdTesk">停止创建任务</el-button>
+            <el-button size="mini" type="primary" @click="clearLog">清除日志</el-button>
             <el-checkbox
               v-model="showlog"
               style="margin-left:10px"
@@ -77,7 +78,7 @@
                 </el-radio>
               </el-radio-group>
               <!-- 选择自定商品时 -->
-              <el-button v-if="otherConditon==='1'" size="mini" type="primary">添加商品</el-button>
+              <el-button v-if="otherConditon==='1'" size="mini" type="primary" @click="addGoods">添加商品</el-button>
             </div>
           </li>
           <li style="align-items: baseline;">
@@ -111,7 +112,14 @@
         <el-table-column prop="toped_count" label="已置顶商品数" align="center" min-width="100px" />
         <el-table-column prop="created_at" label="任务创建时间" align="center" min-width="150px" />
         <el-table-column prop="next_top_time" label="下次置顶时间" align="center" min-width="150px" />
-        <el-table-column prop="top_good_ids" label="置顶商品" align="center" min-width="100px" show-overflow-tooltip="" />
+        <el-table-column prop="all_good_ids" label="置顶商品" align="center" min-width="100px">
+          <template slot-scope="{ row }">
+            <el-tooltip v-if="row.all_good_ids" effect="dark" placement="top-start">
+              <div slot="content" style="max-width: 200px; height: auto">{{ row.all_good_ids }}</div>
+              <span type="text" class="bindmallclass">{{ row.all_good_ids }}</span>
+            </el-tooltip>
+          </template>
+        </el-table-column>
         <el-table-column prop="result" label="操作结果" align="center" min-width="100px" />
         <el-table-column prop="" label="历史记录" align="center" min-width="150px">
           <template v-slot="{row}"><el-button size="mini" type="primary" @click="checkRecord(row.id)">查看置顶记录</el-button></template></el-table-column>
@@ -160,20 +168,34 @@
       </span>
     </el-dialog>
     <Logs ref="Logs" v-model="showlog" clear />
+    <div class="on_new_dialog">
+      <el-dialog
+        :visible.sync="goodsItemSelectorVisible"
+        top="7vh"
+        title="商品选择"
+        :close-on-click-modal="false"
+        :close-on-press-escape="false"
+        width="1280px"
+      >
+        <goodsItemSelector v-if="goodsItemSelectorVisible" :mall="selectMallList" @changeGoodsItem="changeGoodsItem" />
+      </el-dialog>
+    </div>
   </div>
 </template>
 <script>
 import GoodsList from '../../../module-api/goods-manager-api/goods-list'
 import storeChoose from '../../../components/store-choose'
+import goodsItemSelector from '../../../components/goods-item-selector'
 import { GoodsMallgetValue, getMalls, waitStart, batchOperation, terminateThread } from '../../../util/util'
 import MarketManagerAPI from '../../../module-api/market-manager-api/market-data'
 import { forEach } from 'jszip'
 export default {
   components: {
-    storeChoose
+    storeChoose, goodsItemSelector
   },
   data() {
     return {
+      goodsItemSelectorVisible: false,
       dialogRecord: false,
       stoptoping: false,
       createDel: false,
@@ -210,20 +232,35 @@ export default {
       selectTable: [], // 表格多选
       topHistoryMsg: [], // 历史记录
       recordList: [],
-      currentDate: '' // 当前行
+      currentDate: '', // 当前行
+      createTag: false,
+      couponGoodslist: [], // 选择的商品
+      topok: 0 // 置顶成功数
     }
   },
-  computed: {
-    // cloumn_date() {
-    //   const d = new Date()
-    //   return `${d.getFullYear()}-${(d.getMonth() + 1)}- ${d.getDate()} ${d.getHours()}:${d.getMinutes()}:${d.getSeconds()}`
-    // }
-  },
   async mounted() {
-    // this.cloumn_date = new Date().getTime()
     await this.getInfo()
   },
   methods: {
+    // 添加商品
+    addGoods() {
+      if (this.selectMalllist.length > 1) {
+        this.$message.warning('选择自定义商品时,只能选择一个店铺')
+        return
+      }
+      this.goodsItemSelectorVisible = true
+    },
+    // 获取选择的商品
+    changeGoodsItem(val) {
+      if (val) {
+        this.couponGoodslist = val.goodsList
+      }
+      this.goodsItemSelectorVisible = false
+    },
+    // 清除日志
+    clearLog() {
+      this.$refs.Logs.consoleMsg = ''
+    },
     // 重新获取置顶信息
     refreshTopGoods() {
       if (!this.selectTable.length) {
@@ -236,7 +273,6 @@ export default {
       }
       // 其他维度
       if (this.otherConditon === '0') {
-        //
       }
     },
     // 查看置顶记录
@@ -255,7 +291,7 @@ export default {
     // 初始化任务列表
     async getTopTestTable() {
       this.showlog = false
-      this.$refs.Logs.writeLog(`正在获取列表信息......`)
+      this.$refs.Logs.writeLog(`正在获取列表信息......`, true)
       const params = {
         country: this.selectMalllist[0]?.country || 'TH',
         pageSize: this.pageSize,
@@ -270,7 +306,7 @@ export default {
           el.mallName = GoodsMallgetValue(this.shopAccountList, 'label', 'value', el.sys_mall_id)
         })
         this.tableList = list
-        this.$refs.Logs.writeLog(`获取列表信息完毕`)
+        this.$refs.Logs.writeLog(`获取列表信息完毕`, true)
       } else {
         this.$message.error(`列表获取失败--${res.message}`, false)
       }
@@ -281,13 +317,11 @@ export default {
       this.$refs.Logs.writeLog(`正在获取置顶任务......`)
       const res = await this.$api.topTask()
       if (res.data.code === 200) {
+        this.$refs.Logs.writeLog(`获取置顶任务成功`, true)
         this.page = res.data.data.current_page
         this.total = res.data.data.total
         const list = res.data.data.data
-        // this.tableList = list
-        // 校验店铺
-        // this.topHistoryMsg.push({ topHistoryMsg: '置顶任务创建成功' })
-        await batchOperation(list, this.checkMall)
+        await batchOperation(list, this.checkMall)// 检测店铺--执行置顶
         await this.getTopTestTable()
       } else {
         this.$message.error(`任务获取失败--${res.message}`, false)
@@ -306,9 +340,9 @@ export default {
         const nextTopTime = new Date(item.next_top_time).getTime()
         const currentTime = new Date().getTime()
         // 时间校验
-        if (nextTopTime > currentTime) {
+        if (nextTopTime > currentTime && !this.createTag) {
           this.$refs.Logs.writeLog(`【${mallName}】店铺,未到置顶时间`, true)
-          this.topHistoryMsg.push({ topHistoryMsg: '未到置顶时间，下次置顶时间为' + item.next_top_time })
+          // this.topHistoryMsg.push({ topHistoryMsg: '未到置顶时间，下次置顶时间为' + item.next_top_time })
           return
         }
         // 商品校验
@@ -321,10 +355,12 @@ export default {
         if (Number(item.top_type) !== 1) {
           item.page = 1
           item.mallName = mallName
-          await this.getMallTopGoods(item)
-          // const res1 = await batchOperation(item, this.getMallTopGoods)
+          await this.getMallTopGoods(item)// 获取置顶商品
         }
         // 通过商品ID置顶
+        if (Number(item.top_type) === 1) {
+
+        }
       } catch (error) {
         this.$refs.Logs.writeLog(`catch--【${item.sys_mall_id}】,${error}`, false)
       } finally {
@@ -356,33 +392,30 @@ export default {
         if (val.top_type === '6') {
           params.listOrderType = 'price_dsc'
         }
-        // this.topHistoryMsg.push({ topHistoryMsg: '正在获取商品数据' })
-        this.$refs.Logs.writeLog(`获取店铺【${val.mallName}】商品数据`, true)
+        // 获取商品数据
+        this.$refs.Logs.writeLog(`【${val.mallName}】获取商品数据`, true)
         const loop = Number(val.top_total_count) <= 48 ? 1 : Math.floor(Number(val.top_total_count) / 48) + 1
         const resultList = []
         for (let i = 0; i < loop; i++) {
           params.mItem.pageNumber = i + 1
           try {
-            this.$refs.Logs.writeLog(`获取店铺【${val.mallName}】商品数量为${(i + 1) * 48},正在获取第${i + 1}页数据`, true)
             const res = await this.GoodsList.getMpskuList(params)
             if (res.code === 200) {
               if (!res.data.list?.length) {
-                this.$refs.Logs.writeLog(`店铺【${val.mallName}】暂无商品数据`)
+                this.$refs.Logs.writeLog(`【${val.mallName}】暂无商品数据`)
                 rej()
               }
               resultList.push(...res.data.list)
             } else {
-              this.$refs.Logs.writeLog(`获取店铺【${val.mallName}】商品数量为${(i + 1) * 48},第${i + 1}页数据获取失败,${res.data}`, false)
+              this.$refs.Logs.writeLog(`获取店铺【${val.mallName}】商品数据获取失败,${res.data}`, false)
               rej()
             }
           } catch (error) {
-            this.$refs.Logs.writeLog(`获取店铺【${val.mallName}】商品数量为${(i + 1) * 48},第${i + 1}页数据获取失败,catch---${error}`, false)
+            this.$refs.Logs.writeLog(`获取店铺【${val.mallName}】商品数据获取失败,catch---${error}`, false)
             rej()
           }
         }
-        this.$refs.Logs.writeLog(`店铺【${val.mallName}】商品数据获取结束`, true)
-        const loopGoodsNum = [] // 置顶的商品数
-        const topedNum = val.top_good_ids.split(',')
+        let loopGoodsNum = [] // 置顶的商品数
         resultList.forEach(el => {
           el.country = val.country
           el.sys_mall_id = val.sys_mall_id
@@ -390,19 +423,50 @@ export default {
           el.mallName = val.mallName
           el.top_total_count = val.top_total_count
           el.toped_count = val.toped_count
-          const num = topedNum.findIndex(ol => { return Number(ol) === el.id })
-          const aa = (val.top_total_count - val.toped_count) > 5 ? 5 : (val.top_total_count - val.toped_count)
-          if (loopGoodsNum.length < aa && num < 0) {
-            loopGoodsNum.push(el)
-          }
         })
-        this.topedLength = loopGoodsNum.length
-        const res1 = await batchOperation(loopGoodsNum, this.topAction)
+        // 上报所有置顶商品
+        const topGoods = []
+        loopGoodsNum = resultList.splice(0, val.top_total_count)// 截取需要上报的商品
+        loopGoodsNum.forEach(al => {
+          topGoods.push({ goodsId: al.id.toString(), isTop: 0 })
+        })
+        this.$refs.Logs.writeLog(`【${val.mallName}】获取置顶商品【${loopGoodsNum.length}】条`, true)
+        const topServiceQuery = {
+          list: [{
+            topTaskId: val.id.toString(),
+            topGoods: topGoods
+          }]
+        }
+        const res2 = await this.$api.uploadTopGood(topServiceQuery)
+        if (res2.data.code !== 200) {
+          this.$refs.Logs.writeLog(`【${val.mallName}】商品上报失败，${res2.data.data.errors}`, false)
+        }
+        this.$refs.Logs.writeLog(`【${val.mallName}】商品上报成功`, true)
+        // 执行首次五个置顶
+        for (let i = 0; i < 5; i++) {
+          if (loopGoodsNum[i]) {
+            await this.topAction(loopGoodsNum[i])
+          }
+        }
+        // 更新置顶信息
+        const params4 = [{
+          id: val.id.toString(),
+          topTotalCount: val.top_total_count,
+          topedCount: val.toped_count + this.topok
+        }]
+        debugger
+        const res4 = await this.$api.topTaskUpdate(params4)
+        if (res4.code === 200) {
+          this.$refs.Logs.writeLog(`店铺【${val.mallName}】商品置顶更新成功`, true)
+        } else {
+          this.$refs.Logs.writeLog(`店铺【${val.mallName}】商品置顶更新失败${res4.message}`, false)
+        }
+        this.topok = 0
         rej()
       })
     },
     // 置顶步骤
-    async topAction(item, count = { count: 1 }) {
+    async topAction(item) {
       try {
         // 置顶商品
         const query = {
@@ -410,46 +474,32 @@ export default {
           mallId: item.sys_mall_id,
           goodsID: item.id
         }
+        const res1 = await this.MarketManagerAPIInstance.topGoods(query)
         const topServiceQuery = {
           list: [{
             topTaskId: item.topTaskId.toString(),
             topGoods: [{
               goodsId: item.id.toString(),
-              isTop: 1
+              isTop: 0
             }]
           }]
         }
-        const res1 = await this.MarketManagerAPIInstance.topGoods(query)
         if (res1.ecode === 0) {
-          topServiceQuery.list[0].topGoods.isTop = 1
-          this.$refs.Logs.writeLog(`店铺【${item.mallName}】商品【${item.sys_mall_id}】置顶成功`, true)
-          this.topHistoryMsg.push({ topHistoryMsg: `商品【${item.sys_mall_id}】置顶成功` })
-          // 更新置顶信息
-          const params4 = [{
-            id: item.topTaskId.toString(),
-            topTotalCount: item.top_total_count,
-            topedCount: item.toped_count + this.topedLength
-          }]
-          debugger
-          const res4 = await this.$api.topTaskUpdate(params4)
-          if (res4.code === 200) {
-            const taskTop = res4.data.success
-            this.$refs.Logs.writeLog(`店铺【${item.mallName}】商品【${item.sys_mall_id}】更新成功`, true)
-          } else {
-            this.$refs.Logs.writeLog(`店铺【${item.mallName}】商品【${item.sys_mall_id}】更新失败${res4.message}`, false)
-          }
+          topServiceQuery.list[0].topGoods[0].isTop = 1
+          this.topok++
+          this.$refs.Logs.writeLog(`店铺【${item.mallName}】商品【${item.id}】置顶成功`, true)
+          this.topHistoryMsg.push({ topHistoryMsg: `商品【${item.id}】置顶成功` })
         } else {
-          this.$refs.Logs.writeLog(`店铺【${item.mallName}】商品【${item.sys_mall_id}】置顶失败${res1.message}`, false)
-          this.topHistoryMsg.push({ topHistoryMsg: `商品【${item.sys_mall_id}】】置顶失败${res1.message}` })
+          this.$refs.Logs.writeLog(`店铺【${item.mallName}】商品【${item.id}】置顶失败${res1.message}`, false)
+          this.topHistoryMsg.push({ topHistoryMsg: `商品【${item.id}】置顶失败${res1.message}` })
         }
 
         // 上报置顶商品
         const res2 = await this.$api.uploadTopGood(topServiceQuery)
         if (res2.data.code !== 200) {
-          this.$refs.Logs.writeLog(`【商品${item.id}】上报置顶商品失败，${res2.data.data.errors}`, false)
+          this.$refs.Logs.writeLog(`【商品${item.id}】上报失败，${res2.data.data.errors}`, false)
         }
-        this.$refs.Logs.writeLog(`【商品${item.id}】上报置顶商品成功`, true)
-        // if (item.toped_count >= item.top_total_count) { this.topHistoryMsg.push({ topHistoryMsg: '已置顶完所有商品' }) }
+        this.$refs.Logs.writeLog(`【商品${item.id}】上报成功`, true)
         // 上报置顶商品历史记录
         const params3 = {
           list: [{
@@ -459,14 +509,12 @@ export default {
         }
         const res3 = await this.$api.uploadTopHistory(params3)
         if (res3.data.code !== 200) {
-          this.$refs.Logs.writeLog(`【商品${item.id}】上报置顶商品历史记录失败，${res3.data.message}`, false)
+          this.$refs.Logs.writeLog(`【商品${item.id}】历史记录上传失败，${res3.data.message}`, false)
         } else {
-          this.$refs.Logs.writeLog(`【商品${item.id}】上报置顶商品历史记录成功`, true)
+          this.$refs.Logs.writeLog(`【商品${item.id}】历史记录上传成功`, true)
         }
       } catch (error) {
-        this.$refs.Logs.writeLog(`【商品${item.id}】置顶失败----catch${error}`, false)
-      } finally {
-        count.count--
+        this.$refs.Logs.writeLog(`【商品${item.id}】操作失败----catch${error}`, false)
       }
     },
     // 停止
@@ -485,7 +533,13 @@ export default {
         this.$message.warning('请选择要操作的数据！')
         return
       }
-      this.delTesk()
+      this.$confirm(`确定删除这些任务吗`, '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(async() => {
+        this.delTesk()
+      })
     },
     async  delTesk(val) {
       const list = []
@@ -522,12 +576,8 @@ export default {
       getMalls().then(res => {
         this.shopAccountList = res // 所有店铺
         // this.getTeskInfo()// 获取上报任务
-        this.getTopTest()
+        // this.getTopTest()
       })
-      // this.loading = true
-      // await waitStart(() => {
-      //   return this.selectMallList && this.selectMallList[0] // 当前选择的店铺
-      // }, 50)
     },
     // 分页
     handleSizeChange(val) { this.pageSize = val; this.getTopTestTable() },
@@ -552,80 +602,18 @@ export default {
         this.$message.warning('请设置任务执行时间')
         return
       }
-      // 暂时没做
-      // if (this.otherConditon==='1' && !this.goodsid.length) {
-      //   this.$message.warning('请选择自定义商品信息')
-      // }
-      if (!this.loopGoodsNum) {
+      // 自定义商品
+      if (this.otherConditon === '1' && !this.couponGoodslist.length) {
+        this.$message.warning('请选择自定义商品')
+        return
+      }
+
+      if (this.otherConditon === '2' && !this.loopGoodsNum) {
         this.$message.warning('请设置任务执行的商品个数')
         return
       }
-      this.createTesk()
+      this.createTesk()// 创建任务
     },
-    // 获取任务--初始化
-    // async getTeskInfo() {
-    //   if (!this.createDel) {
-    //     this.$refs.Logs.consoleMsg = ''// 清空日志
-    //   }
-    //   try {
-    //     const params = {
-    //       country: this.selectMalllist[0]?.country || 'TH',
-    //       pageSize: this.pageSize,
-    //       page: this.page
-    //     }
-    //     this.tableList = []
-    //     this.loading = true
-    //     const res = await this.$api.topTask(params)
-    //     if (res.data.code === 200) {
-    //       this.page = res.data.data.current_page
-    //       this.total = res.data.data.total
-    //       const list = res.data.data.data
-    //       // const res1 = await batchOperation(list, this.toppingFun)
-
-    //       const arr = []
-    //       list.forEach(el => {
-    //         el.mallName = GoodsMallgetValue(this.shopAccountList, 'label', 'value', el.sys_mall_id)
-    //         arr.push(el)
-    //       })
-    //       this.$nextTick(() => {
-    //         this.tableList = arr
-    //       })
-    //       // for (let i = 0; i < list?.length; i++) {
-    //       //   // 获取店铺名称
-    //       //   list[i].mallName = GoodsMallgetValue(this.shopAccountList, 'label', 'value', list[i].sys_mall_id)
-    //       //   debugger
-    //       //   // 置顶所需商品ID
-    //       //   if (list[i].top_total_count) {
-    //       //     const pageSize = Math.floor(list[i].top_total_count / 48) + 1
-    //       //     const totalmall = []
-    //       //     for (let j = 0; j < pageSize; j++) {
-    //       //       const obj = {
-    //       //         country: params.country,
-    //       //         page: j + 1,
-    //       //         sys_mall_id: list[i].sys_mall_id }
-    //       //       const goodsList = await this.getMallList(obj)
-    //       //       if (!goodsList) { break }
-    //       //       totalmall.push(goodsList)
-    //       //     }
-    //       //     list[i].toppingGoodsID = []
-    //       //     const toppingGoodsList = totalmall.splice(list[i].toped_count, 5)
-    //       //     // debugger
-    //       //     toppingGoodsList.forEach(ol => {
-    //       //       list[i].toppingGoodsID.push(ol.id)
-    //       //     })
-    //       //   }
-    //       // this.tableList.push(list[i])
-    //       // arr.push(list[i])
-    //       // }
-    //       // this.tableList = arr
-    //       this.loading = false
-    //     } else {
-    //       this.$message.error(`列表数据请求失败${res.message}`)
-    //     }
-    //   } catch (error) {
-    //     this.$message.error(`列表数据请求失败-catch:${error}`)
-    //   }
-    // },
 
     // 时间格式转换
     add0(m) { return m < 10 ? '0' + m : m },
@@ -669,6 +657,7 @@ export default {
         }
       }
       // 创建新任务
+      this.createTag = true
       const arr = []
       this.selectMalllist.forEach(el => {
         const item = {
@@ -688,6 +677,7 @@ export default {
         this.$refs.Logs.writeLog(`正在创建任务......,请耐心等待几秒`, true)
         const res = await this.$api.topTaskadd(params)
         if (res.data.code === 200) {
+          this.$refs.Logs.writeLog(`任务创建成功`, true)
           const top_tasks = res.data.data.top_tasks || ''
           const success = res.data.data.success || ''
           const errorlist = res.data.data.error || ''
@@ -696,14 +686,14 @@ export default {
               this.$refs.Logs.writeLog(`${el}`, true)
             })
           }
-          this.getTopTest()
+          await this.getTopTest()// 获取置顶任务
+          this.createDel = false
         } else {
           this.$refs.Logs.writeLog(`任务创建--请求失败:${res.data.message}`, false)
         }
       } catch (error) {
         this.$refs.Logs.writeLog(`任务创建--请求失败--catch${error}`, false)
       }
-      this.createDel = false
     }
   }
 }

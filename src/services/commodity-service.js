@@ -13,8 +13,8 @@ export default class CommodityService {
   }
 
   //* *删除服务端商品 */
-  delCloudItems(itemList) {
-    return this.nativeService.callFunction('DeleteCloudItems', itemList)
+  delCloudItems(idsList) {
+    return this.nativeService.callFunction('DeleteCloudItems', idsList)
   }
   /** 获取服务端商品上新记录 */
   getMallAllRecordList(sysMallId) {
@@ -88,7 +88,7 @@ export default class CommodityService {
 
   /**
    *
-   * @param {{uuid:number,//子账号id
+   * @param {uuid:number,//子账号id
    * page:number, //当前页
    * perpage:number,//页码大小
    * goodsId:string,//商品id
@@ -106,7 +106,7 @@ export default class CommodityService {
    * isFeatured:string,//0全部；1优选；-1非优选
    * mainShowData:string,//为1时显示子账号收藏的数据
    * sysLabelId:string//商品标签id
-   * }} req
+   * } req
    */
   async getCollectGoodsV2(req) {
     const res = await new applicationConfig().getUserInfo()
@@ -529,7 +529,6 @@ export default class CommodityService {
    */
   getCategoryRelation(relationCategoryId, country, platformId, isUseCommon = '0') {
     // console.log(relationCategoryId, country, platformId, isUseCommon)
-    return this.nativeService.callCategoryFunction('GetCategoryRelation', relationCategoryId, country, platformId, isUseCommon)
     return this.nativeService.callCategoryFunction('GetCategoryRelation', relationCategoryId.toString(), country, platformId.toString(), isUseCommon)
   }
 

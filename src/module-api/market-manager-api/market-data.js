@@ -194,16 +194,15 @@ export default class MarketManagerAPI {
       }
       const res = await this._this.$shopeemanService.getChineseReferer(country, '/api/marketing/v4/follow_prize/list/?', params, {
         headers: {
-          'Content-Type': 'application/json; charset=utf-8',
           'accept': 'application/json, text/plain, */*',
           'accept-encoding': 'gzip, deflate, br',
           'referer': '/portal/marketing/follow-prize/list'
         }
       })
       const des = JSON.parse(res)
-      const data = JSON.parse(des.data)
+      const data = JSON.parse(des.data) || des.data
       const ecode = data.code
-      const message = data.message
+      const message = data.message || des.status
       //   console.log('=============', 'mallid:' + params.mallId, ecode, des)
       return { ecode, data, message }
     } catch (error) {

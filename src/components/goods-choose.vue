@@ -34,7 +34,8 @@ export default {
       group: '', // 分组
       gruopList: [],
       mall: '', // 店铺
-      mallList: []
+      mallList: [],
+      selectMall: []
     }
   },
   watch: {
@@ -64,6 +65,11 @@ export default {
         mallID: this.mall,
         country: this.site
       })
+      // 商品分类组件需要的参数
+      const index = this.selectMall.findIndex(el => { return Number(el.platform_mall_id) === Number(this.mall) })
+      const changeMall = [this.selectMall[index]]
+      changeMall['country'] = this.site
+      this.$emit('changeMall', changeMall)
     },
     // 分组信息查找
     async getInfo() {
@@ -72,7 +78,7 @@ export default {
         mallGroupIds: this.group
       }
       const res = await this.$api.ddMallGoodsGetMallList(params)
-      this.mallList = []; this.gruopList = []
+      this.mallList = []; this.gruopList = []; this.selectMall = []
       if (res.data.code === 200) {
         res.data.data.forEach(el => {
           if (el.group_id) {
@@ -80,6 +86,7 @@ export default {
           }
           if (el.id) {
             this.mallList.push({ label: el.mall_alias_name ? el.mall_alias_name : el.platform_mall_name, value: el.platform_mall_id })
+            this.selectMall.push(el)
           }
         })
         this.mall = this.mallList[0]?.value || ''

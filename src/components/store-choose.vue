@@ -203,7 +203,7 @@ export default {
       // console.log('ddMallGoodsGetMallList - res', res)
       if (res.code === 200) {
         console.log(res.data)
-        this.siteList = res.data
+        this.siteList = res.data || []
         if (this.groupIdList.length === 0) {
           this.groupId = ['']
           this.siteList.forEach((item) => {
