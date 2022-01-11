@@ -63,7 +63,8 @@
     <el-dialog
       class="edit-group-dialog"
       :visible.sync="proVisible"
-      width="1000px"
+      width="1100px"
+      height="600px"
       top="5vh"
       title="加购优惠"
       :close-on-click-modal="false"
@@ -72,15 +73,15 @@
       <ul>
         <!-- 基本资料 -->
         <li>
-          <span>基本资料</span>
-          <ul>
+          <ul style="border: 1px solid #d4d1d1;padding: 10px;border-radius: 8px;">
+            <div>基本资料</div>
             <!-- row1 -->
-            <li>
+            <li style="display: flex;">
               <div>
                 <label>操作店铺</label>
                 <el-select v-model="optionMall" placeholder="请选择" size="mini" style="width:120px">
                   <el-option label="全部" value="" />
-                  <el-option :v-for="mall in shopAccountMallList" :label="mall.label" :value="mall.id" />
+                  <el-option v-for="mall in shopAccountMallList" :key="mall.id" :label="mall.label" :value="mall.id" />
                 </el-select>
               </div>
 
@@ -100,9 +101,9 @@
               </div>
             </li>
             <!-- row2 -->
-            <li>
+            <li style="display: flex;">
               <div>
-                促销名称 <el-input v-model="addLimit" size="mini" style="width:120px" maxlength="24" />
+                促销名称 <el-input v-model="proName" size="mini" style="width:120px" maxlength="24" />
               </div>
               <div>
                 活动时间
@@ -167,7 +168,23 @@
                 <el-button size="mini" type="primary">删除</el-button>
                 <el-button size="mini" type="primary">添加加购商品</el-button>
               </li>
-              <li />
+              <li>
+                <el-table
+                  :data="addGoodsList"
+                  :header-cell-style="{ background: '#f7fafa' }"
+                >
+                  <el-table-column align="center" type="selection" width="50" />
+                  <el-table-column type="index" label="店铺" align="center" min-width="60px" />
+                  <el-table-column prop="itemid" label="商品" align="center" min-width="100px" />
+                  <el-table-column prop="itemid" label="原价" align="center" min-width="100px" />
+                  <el-table-column prop="itemid" label="折扣" align="center" min-width="100px" />
+                  <el-table-column prop="itemid" label="加购价格" align="center" min-width="100px" />
+                  <el-table-column prop="itemid" label="状态" align="center" min-width="100px" />
+                  <el-table-column label="操作" align="center" min-width="100px">
+                    <template v-slot="{row}"><span><el-button size="mini" type="primary" @click="delCouponGoods(row)">删除</el-button></span></template>
+                  </el-table-column>
+                </el-table>
+              </li>
             </ul>
           </div>
         </li>
@@ -187,6 +204,7 @@ export default {
   data() {
     return {
       // 弹窗
+      addGoodsDiscount: '', // 添加折扣
       addGoodsList: [], // 加购商品
       masterGoodslist: [], // 主要商品
       sendNum: 0, // 获得赠品
@@ -212,13 +230,13 @@ export default {
       showlog: true,
       activeType: '0', // 活动
       tableList: [], // 主表数据
-      proVisible: false, // 弹窗
+      proVisible: true, // 弹窗
       dialogtitle: '', // 弹窗标题
       coupontype: '2', // 创建优惠卷类型 1.店铺 2.商品
       // 创建优惠卷参数
       couponName: '', // 优惠劵名称
       rewardType: '0', // 奖励类型 0 折扣 1 Shoppe币折扣
-      discountType: '1', // 0 折扣优惠 1 赠品满最低消费
+      discountType: '0', // 0 折扣优惠 1 赠品满最低消费
       discountNum: '', // 折扣数额
       limitPrice: '0', // 最高优惠金额限制类型 0 无限制 1设置金额
       maxPrice: '', // 最高优惠金额
