@@ -5,6 +5,10 @@ const encryptionList = [
   //   value: ''
   // },
   {
+    label: 'none',
+    value: 'none'
+  },
+  {
     label: 'aes-128-ctr',
     value: 'aes-128-ctr'
   },

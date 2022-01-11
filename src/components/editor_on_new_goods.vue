@@ -171,9 +171,12 @@
       <u-table-column align="left" type="index" width="50" label="序号"/>
       <u-table-column align="left" label="主图" width="80" prop="Sales">
         <template v-slot="{ row }">
-          <div style="justify-content: flex-start; display: flex">
-            <img :src="row.image" style="width: 56px; height: 56px">
-          </div>
+          <el-tooltip effect="light" placement="right-end" :visible-arrow="false" :enterable="false" style="width: 56px; height: 56px; display: inline-block">
+            <div slot="content">
+              <el-image :src=" row.image " style="width: 400px; height: 400px" />
+            </div>
+            <el-image :src="{url:row.image,source:row.source} | changeImgSizeFilter" style="width: 56px; height: 56px" />
+          </el-tooltip>
         </template>
       </u-table-column>
       <u-table-column align="left" show-overflow-tooltip width="90" label="标签">
@@ -586,17 +589,21 @@ export default {
         await this.translationPrepare(1)
         await this.batchDealWith(6)
       } else if (type === 6) {
-        let ids = []
+        let goodsList = []
         this.mallTableSelect.forEach(i => {
+          let temp = Object.assign(i,{
+            category_name:this.getCategoty(i) || '未匹配到类目',
+            sys_label_name: this.getLabelName(i.sys_label_id),
+            sourceName: this.sourceObj[i.source + '']
+          })
           if (this.filterSimplifiedChecked) {
-            if (i.language !== 'zh-Hans') {
-              ids.push(i.id)
+            if (temp.language === 'zh-Hans') {
+              return
             }
-          } else {
-            ids.push(i.id)
           }
+          goodsList.push(temp)
         })
-        this.$BaseUtilService.gotoUploadTab('gotoUpload', ids)
+        this.$BaseUtilService.gotoUploadTab('gotoUpload', JSON.stringify(goodsList))
       } else if (type === 7) {
         for (const i of this.mallTableSelect) {
           let index = this.mallTable.findIndex(son => i.id === son.id)
@@ -1097,7 +1104,7 @@ export default {
               console.log(res)
             }
             itemmodels = itemmodels.replaceAll(/"id":[0-9]*,/ig, '')
-            itemmodels = itemmodels.replaceAll(/"sku":"[^(",)]*",/ig, '')
+            itemmodels = itemmodels.replaceAll(/"sku":"(((?!",).)*)",/ig, '')
             itemmodels = itemmodels.replaceAll('"sku_spec1":', '"skuSpec1":')
             itemmodels = itemmodels.replaceAll('"sku_spec2":', '"skuSpec2":')
             itemmodels = itemmodels.replaceAll('"sku_image":', '"skuImage":')

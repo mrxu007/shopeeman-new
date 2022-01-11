@@ -114,10 +114,13 @@ class CollectKeyWordApI {
     this.GoodsData = this.GoodsData.map((item, index) => {
       item.id = index + 1
       item.information = ''
+      if (this.platformId === 9) {
+        item.Site = params.Site
+      }
       return item
     })
-    console.log('原始数据', this.GoodsData)
-    return { code: 200, data: this.GoodsData }
+    const newData = this._this.filterData(this.GoodsData)
+    return { code: 200, data: newData }
   }
   async keywordSearchTwo(key) { // 如果当前平台为拼多多需额外调用 拼多多补充接口  1.1-------------------------
     this.GoodsData = null
@@ -160,7 +163,8 @@ class CollectKeyWordApI {
       item.information = ''
       return item
     })
-    return { code: 200, data: this.GoodsData }
+    const newData = this._this.filterData(this.GoodsData)
+    return { code: 200, data: newData }
   }
   // 辅助--------------------------------------------
   handleError() {
@@ -194,6 +198,46 @@ class CollectKeyWordApI {
     } catch (error) {
       return { code: -2, data: `关键词格式不规范：${error}` }
     }
+  }
+  // 处理标题过滤字段
+  filterLinkKeyWord(tData, fKeyArr) {
+    const title = tData
+    console.log(title)
+    let result = false
+    const keyword = []
+    // fKeyArr.forEach(item => {
+    //   var reg = RegExp(item)
+    //   console.log(reg.test(title)) // true
+    // })
+    for (let index = 0; index < fKeyArr.length; index++) {
+      const element = fKeyArr[index]
+      console.log(element)
+      var reg = RegExp(element.replace(/^[^\w^\s^\u4e00-\u9fa5]/i, '')) // 先替换开头的特殊字符
+      result = reg.test(title)
+      if (result) {
+        keyword.push(element)
+        break
+      }
+    }
+    console.log('keyword', keyword)
+    return keyword.join(',')
+  }
+  // 处理标题过滤限制方法
+  handleKeyFilter(arr) {
+    console.log(arr, '处理数据')
+    if (Array.isArray(arr)) {
+      if (arr.length > 1000) {
+        arr = arr.slice(0, 1000)
+        this.notify('标题过滤设置', '请输入小于1000组以内的关键词', 'warning')
+      }
+    } else {
+      arr = arr.split('\n')
+      if (arr.length > 1000) {
+        arr = arr.slice(0, 1000)
+        this.notify('标题过滤设置', '请输入小于1000组以内的关键词', 'warning')
+      }
+    }
+    return arr
   }
   writeLog(msg, success = true) {
     if (this._this.consoleMsg === undefined) {

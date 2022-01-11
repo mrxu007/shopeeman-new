@@ -16,9 +16,9 @@
                 </li>
                 <li v-show="isShowPage">
                   <p>开始页码：</p>
-                  <el-input v-model="commonAttr.StartPage" size="mini" />
+                  <el-input v-model="commonAttr.StartPage" :disabled="buttonStatus.start" size="mini" />
                   <p>总页码：</p>
-                  <el-input v-model="commonAttr.EndPage" size="mini" style="width:85px" />
+                  <el-input v-model="commonAttr.EndPage" :disabled="buttonStatus.start" size="mini" style="width:85px" />
                   <el-tooltip v-show="isShowPageSize20 || isShowPageSize50" placement="top">
                     <div v-show="isShowPageSize20" slot="content" class="tip">20条/页</div>
                     <div v-show="isShowPageSize50" slot="content" class="tip">50条/页,最多50页</div>
@@ -29,58 +29,58 @@
                 </li>
                 <li v-show="isShowTaobao">
                   <p>排序方式：</p>
-                  <el-select v-model="commonAttr.shopeeSortTypeVal" placeholder="" size="mini">
+                  <el-select v-model="commonAttr.shopeeSortTypeVal" :disabled="buttonStatus.start" placeholder="" size="mini">
                     <el-option v-for="(item, index) in commonAttr.shopeeSortType" :key="index" :label="item.label" :value="item.value" />
                   </el-select>
                 </li>
                 <li v-show="isShowTaobao">
                   <p>单词最大：</p>
-                  <el-input v-model="commonAttr.wordLimit" placeholder="" size="mini" />
+                  <el-input v-model="commonAttr.wordLimit" :disabled="buttonStatus.start" placeholder="" size="mini" />
                 </li>
 
                 <li v-show="isShowSales">
                   <p>销量区间：</p>
-                  <el-input v-model="commonAttr.StartSales" size="mini" />
+                  <el-input v-model="commonAttr.StartSales" :disabled="buttonStatus.start" size="mini" />
                   <span class="slot">-</span>
-                  <el-input v-model="commonAttr.EndSales" size="mini" />
+                  <el-input v-model="commonAttr.EndSales" :disabled="buttonStatus.start" size="mini" />
                 </li>
                 <li v-show="isShowPrice">
                   <p>价格区间：</p>
-                  <el-input v-model="commonAttr.StartPrice" size="mini" />
+                  <el-input v-model="commonAttr.StartPrice" :disabled="buttonStatus.start" size="mini" />
                   <span class="slot">-</span>
-                  <el-input v-model="commonAttr.EndPrice" size="mini" />
+                  <el-input v-model="commonAttr.EndPrice" :disabled="buttonStatus.start" size="mini" />
                 </li>
 
                 <!-- 虾皮 -->
                 <li v-show="isShowShopeeSite" class="li-shopee">
                   <p>站点：</p>
-                  <el-select v-model="commonAttr.shopeeSiteCode" placeholder="" size="mini" @change="getShopeeGoodsPlace">
+                  <el-select v-model="commonAttr.shopeeSiteCode" :disabled="buttonStatus.start" placeholder="" size="mini" @change="getShopeeGoodsPlace">
                     <el-option v-for="(item, index) in commonAttr.shopeeSite" :key="index" :label="item.label" :value="item.value" />
                   </el-select>
                   <p class="li-shopee-spec">排序方式：</p>
-                  <el-select v-model="commonAttr.shopeeSortTypeVal" placeholder="" size="mini">
+                  <el-select v-model="commonAttr.shopeeSortTypeVal" :disabled="buttonStatus.start" placeholder="" size="mini">
                     <el-option v-for="(item, index) in commonAttr.shopeeSortType" :key="index" :label="item.label" :value="item.value" />
                   </el-select>
                 </li>
                 <li v-show="isShowShopeeSite" class="li-shopee">
                   <p>出货地点：</p>
-                  <el-select v-model="commonAttr.shopeePlaceVal" placeholder="" size="mini" multiple collapse-tags @change="selectShopeePlaceValEvent">
+                  <el-select v-model="commonAttr.shopeePlaceVal" :disabled="buttonStatus.start" placeholder="" size="mini" multiple collapse-tags @change="selectShopeePlaceValEvent">
                     <el-checkbox v-model="isSelectAll" label="全部" @change="selectShopeeAllEvent" />
                     <el-option v-for="(item, index) in commonAttr.shopeePlaceOrigin" :key="index" :label="item.label" :value="item.value" />
                   </el-select>
-                  <el-checkbox v-model="commonAttr.isShopeeOffice" class="li-shopee-spec" label="全部">过滤虾皮官方店铺商品</el-checkbox>
+                  <el-checkbox v-model="commonAttr.isShopeeOffice" :disabled="buttonStatus.start" class="li-shopee-spec" label="全部">过滤虾皮官方店铺商品</el-checkbox>
                 </li>
                 <!-- lazada -->
                 <li v-show="isShowLazadaSite">
                   <p>站点：</p>
-                  <el-select v-model="commonAttr.lazadaSiteCode" placeholder="" size="mini" @change="getLazadaGoodsPlace">
+                  <el-select v-model="commonAttr.lazadaSiteCode" :disabled="buttonStatus.start" placeholder="" size="mini" @change="getLazadaGoodsPlace">
                     <el-option v-for="(item, index) in commonAttr.lazadaSite" :key="index" :label="item.label" :value="item.value" />
                   </el-select>
                 </li>
                 <li v-show="isShowLazadaSite">
                   <div v-for="(item, itemKey, index) in commonAttr.lazadaPlaceOrigin" :key="index">
                     <p style="min-width: 128px">{{ itemKey }}</p>
-                    <el-select v-model="commonAttr[`lazadaPlaceVal${index}`]" placeholder="" size="mini" multiple collapse-tags @change="selectLazadaPlaceValEvent(itemKey, index)">
+                    <el-select v-model="commonAttr[`lazadaPlaceVal${index}`]" :disabled="buttonStatus.start" placeholder="" size="mini" multiple collapse-tags @change="selectLazadaPlaceValEvent(itemKey, index)">
                       <el-checkbox v-model="isSelectAll2[index]" label="全部" @change="selectLazadaAllEvent(itemKey, index)" />
                       <el-option v-for="(subItem, subIndex) in item" :key="subIndex" :label="subItem.label" :value="subItem.value" />
                     </el-select>
@@ -88,7 +88,7 @@
                 </li>
                 <li v-show="isShowSort">
                   <p>排序方式：</p>
-                  <el-select v-model="commonAttr.alibabaSortTypeVal" placeholder="" size="mini">
+                  <el-select v-model="commonAttr.alibabaSortTypeVal" :disabled="buttonStatus.start" placeholder="" size="mini">
                     <el-option v-for="(item, index) in commonAttr.alibabaSortType" :key="index" :label="item.label" :value="item.value" />
                   </el-select>
                 </li>
@@ -96,6 +96,7 @@
                   <p>创建时间：</p>
                   <el-date-picker
                     v-model="commonAttr.value2"
+                    :disabled="buttonStatus.start"
                     type="daterange"
                     align="right"
                     unlink-panels
@@ -103,7 +104,6 @@
                     start-placeholder="开始日期"
                     end-placeholder="结束日期"
                     :picker-options="commonAttr.pickerOptions"
-                    value-format="yyyy-MM-dd"
                     size="mini"
                   />
                 </li>
@@ -134,16 +134,16 @@
                   <el-input v-model="end" size="mini" placeholder="" />
                 </li>
                 <li>
-                  <el-button type="primary" size="mini" @click="saveGoodsInfo">收藏商品</el-button>
-                  <el-button type="primary" size="mini">编辑上新</el-button>
+                  <el-button type="primary" size="mini" :disabled="buttonStatus.start" @click="saveGoodsInfo">收藏商品</el-button>
+                  <el-button type="primary" size="mini" :disabled="buttonStatus.start" @click="editorUp">编辑上新</el-button>
                 </li>
                 <li>
-                  <el-button type="primary" size="mini">插件采集</el-button>
-                  <el-button type="primary" size="mini">清理全部</el-button>
+                  <el-button type="primary" size="mini" @click="plugVisible = true">插件采集</el-button>
+                  <el-button type="primary" size="mini" :disabled="buttonStatus.start" @click="deleteAll">清理全部</el-button>
                 </li>
                 <li>
-                  <el-button type="primary" size="mini">导出数据</el-button>
-                  <el-button type="primary" size="mini">批量删除</el-button>
+                  <el-button type="primary" size="mini" :disabled="buttonStatus.start" @click="exportTableData">导出数据</el-button>
+                  <el-button type="primary" size="mini" :disabled="buttonStatus.start" @click="batchTableDelete(goodsList,multipleSelection)">批量删除</el-button>
                 </li>
               </ul>
               <div class="item">
@@ -173,20 +173,22 @@
                 <el-input v-model="end" size="mini" placeholder="" />
               </li>
               <li>
-                <el-button type="primary" size="mini">收藏商品</el-button>
-                <el-button type="primary" size="mini">编辑上新</el-button>
+                <el-button type="primary" size="mini" :disabled="buttonStatus.start" @click="saveGoodsInfo">收藏商品</el-button>
+                <el-button :disabled="buttonStatus.start" type="primary" size="mini" @click="editorUp">编辑上新</el-button>
               </li>
               <li>
-                <el-button type="primary" size="mini">插件采集</el-button>
-                <el-button type="primary" size="mini">清理全部</el-button>
+                <el-button type="primary" size="mini" @click="plugVisible = true">插件采集</el-button>
+                <el-button type="primary" :disabled="buttonStatus.start" size="mini" @click="deleteAll">清理全部</el-button>
               </li>
               <li>
-                <el-button type="primary" size="mini">下载模板</el-button>
-                <el-button type="primary" size="mini">链接导入</el-button>
+                <el-button type="primary" size="mini" @click="downloadTemplate"> 下载模板 </el-button>
+                <el-upload ref="importRef" :disabled="buttonStatus.start" style="margin-left:10px;" accept=".xls,.xlsx" action="https://jsonplaceholder.typicode.com/posts/" :on-change="importTemplate" :show-file-list="false" :auto-upload="false">
+                  <el-button :disabled="buttonStatus.start" style="width:96px" size="mini" type="primary">链接导入</el-button>
+                </el-upload>
               </li>
               <li>
-                <el-button type="primary" size="mini">导出数据</el-button>
-                <el-button type="primary" size="mini">批量删除</el-button>
+                <el-button type="primary" size="mini" :disabled="buttonStatus.start" @click="exportTableData">导出数据</el-button>
+                <el-button type="primary" size="mini" :disabled="buttonStatus.start" @click="batchTableDelete(goodsList,multipleSelection)">批量删除</el-button>
               </li>
             </ul>
             <div class="item">
@@ -202,19 +204,24 @@
             <ul class="item con-sub-1">
               <li v-show="isShowSales">
                 <p>销量区间：</p>
-                <el-input v-model="commonAttr.StartSales" size="mini" />
+                <el-input v-model="commonAttr.StartSales" :disabled="buttonStatus.start" size="mini" />
                 <span class="slot">-</span>
-                <el-input v-model="commonAttr.EndSales" size="mini" />
+                <el-input v-model="commonAttr.EndSales" :disabled="buttonStatus.start" size="mini" />
               </li>
               <li v-show="isShowPrice">
                 <p>价格区间：</p>
-                <el-input v-model="commonAttr.StartPrice" size="mini" />
+                <el-input v-model="commonAttr.StartPrice" :disabled="buttonStatus.start" size="mini" />
                 <span class="slot">-</span>
-                <el-input v-model="commonAttr.EndPrice" size="mini" />
+                <el-input v-model="commonAttr.EndPrice" :disabled="buttonStatus.start" size="mini" />
               </li>
             </ul>
             <div class="item con-sub-3">
-              <p class="text">店铺链接：一行一个<span v-show="isShowKeyTip" style="color: red">（采集请使用对应的站点语言搜索）</span></p>
+              <div class="size-icon" style="margin-top: 3px;">店铺链接(一行一个)
+                <el-tooltip placement="top">
+                  <div slot="content">目前仅支持淘宝/Shopee/Lazada/1688/拼多多整店采集<br><br>1688店铺链接：进入1688店铺->点击首页->复制链接<br><br>店铺链接：进入shopee店铺->点击所有商品(AllProduct)</div>
+                  <i class="el-icon-question" style="" />
+                </el-tooltip>
+              </div>
               <el-input v-model="mallLinkKey" size="mini" type="textarea" :rows="8" resize="none" />
             </div>
             <div class="item con-sub-3">
@@ -234,16 +241,16 @@
                 <el-input v-model="end" size="mini" placeholder="" />
               </li>
               <li>
-                <el-button type="primary" size="mini">收藏商品</el-button>
-                <el-button type="primary" size="mini">编辑上新</el-button>
+                <el-button type="primary" size="mini" :disabled="buttonStatus.start" @click="saveGoodsInfo">收藏商品</el-button>
+                <el-button type="primary" size="mini" :disabled="buttonStatus.start" @click="editorUp">编辑上新</el-button>
               </li>
               <li>
-                <el-button type="primary" size="mini">插件采集</el-button>
-                <el-button type="primary" size="mini">清理全部</el-button>
+                <el-button type="primary" size="mini" @click="plugVisible = true">插件采集</el-button>
+                <el-button type="primary" size="mini" :disabled="buttonStatus.start" @click="deleteAll">清理全部</el-button>
               </li>
               <li>
-                <el-button type="primary" size="mini">导出数据</el-button>
-                <el-button type="primary" size="mini">批量删除</el-button>
+                <el-button type="primary" size="mini" :disabled="buttonStatus.start" @click="exportTableData">导出数据</el-button>
+                <el-button type="primary" size="mini" :disabled="buttonStatus.start" @click="batchTableDelete(goodsList,multipleSelection)">批量删除</el-button>
               </li>
             </ul>
             <div class="item">
@@ -259,17 +266,17 @@
             <ul class="item con-sub-1">
               <li>
                 <p>价格：</p>
-                <el-input v-model="commonAttr.StartPrice" size="mini" />
+                <el-input v-model="commonAttr.StartPrice" :disabled="buttonStatus.start" size="mini" />
                 <span class="slot">-</span>
-                <el-input v-model="commonAttr.EndPrice" size="mini" />
+                <el-input v-model="commonAttr.EndPrice" :disabled="buttonStatus.start" size="mini" />
               </li>
               <li>
                 <p>平台：</p>
-                <el-select v-model="commonAttr.pictureSearchPlatformId" placeholder="" size="mini">
+                <el-select v-model="commonAttr.pictureSearchPlatformId" :disabled="buttonStatus.start" placeholder="" size="mini">
                   <el-option v-for="(item, index) in pictureSearchOrigin" :key="index" :label="item.label" :value="item.value" />
                 </el-select>
-                <el-upload class="avatar-uploader" action="#" :show-file-list="false" :on-error="imgSaveToUrl">
-                  <el-button type="primary" size="mini">选择图片</el-button>
+                <el-upload :disabled="buttonStatus.start" class="avatar-uploader" action="#" :show-file-list="false" :on-error="imgSaveToUrl">
+                  <el-button :disabled="buttonStatus.start" style="margin-left:25px" type="primary" size="mini">选择图片</el-button>
                 </el-upload>
               </li>
             </ul>
@@ -289,16 +296,16 @@
                 <el-input v-model="end" size="mini" placeholder="" />
               </li>
               <li>
-                <el-button type="primary" size="mini">收藏商品</el-button>
-                <el-button type="primary" size="mini">编辑上新</el-button>
+                <el-button type="primary" size="mini" :disabled="buttonStatus.start" @click="saveGoodsInfo">收藏商品</el-button>
+                <el-button type="primary" size="mini" :disabled="buttonStatus.start" @click="editorUp">编辑上新</el-button>
               </li>
               <li>
-                <el-button type="primary" size="mini">插件采集</el-button>
-                <el-button type="primary" size="mini">清理全部</el-button>
+                <el-button type="primary" size="mini" @click="plugVisible = true">插件采集</el-button>
+                <el-button type="primary" size="mini" :disabled="buttonStatus.start" @click="deleteAll">清理全部</el-button>
               </li>
               <li>
-                <el-button type="primary" size="mini">导出数据</el-button>
-                <el-button type="primary" size="mini">批量删除</el-button>
+                <el-button type="primary" size="mini" :disabled="buttonStatus.start" @click="exportTableData">导出数据</el-button>
+                <el-button type="primary" size="mini" :disabled="buttonStatus.start" @click="batchTableDelete(goodsList,multipleSelection)">批量删除</el-button>
               </li>
             </ul>
             <div class="item">
@@ -314,7 +321,7 @@
             <ul class="item con-sub-1">
               <li>
                 <p>选择账号：</p>
-                <el-select v-model="TaobaoAbroadAccountId" placeholder="" size="mini" multiple collapse-tags @change="selectTaobaoAccountEventEvent">
+                <el-select v-model="TaobaoAbroadAccountId" :disabled="buttonStatus.start" placeholder="" size="mini" multiple collapse-tags @change="selectTaobaoAccountEventEvent">
                   <el-checkbox v-model="isSelectAllTaobaoAccount" label="全部" @change="selectTaobaoAccountEventAllEvent" />
                   <el-option v-for="(item, index) in TaobaoAbroadAccount" :key="index" :label="item.account_alias_name" :value="item.id" />
                 </el-select>
@@ -323,6 +330,7 @@
                 <p>起始时间：</p>
                 <el-date-picker
                   v-model="taobaoTimeAt"
+                  :disabled="buttonStatus.start"
                   type="daterange"
                   align="right"
                   unlink-panels
@@ -347,16 +355,16 @@
                 <el-input v-model="end" size="mini" placeholder="" />
               </li>
               <li>
-                <el-button type="primary" size="mini">收藏商品</el-button>
-                <el-button type="primary" size="mini">编辑上新</el-button>
+                <el-button type="primary" size="mini" :disabled="buttonStatus.start" @click="saveGoodsInfo">收藏商品</el-button>
+                <el-button type="primary" :disabled="buttonStatus.start" size="mini" @click="editorUp">编辑上新</el-button>
               </li>
               <li>
-                <el-button type="primary" size="mini">插件采集</el-button>
-                <el-button type="primary" size="mini">清理全部</el-button>
+                <el-button type="primary" size="mini" @click="plugVisible = true">插件采集</el-button>
+                <el-button type="primary" :disabled="buttonStatus.start" size="mini" @click="deleteAll">清理全部</el-button>
               </li>
               <li>
-                <el-button type="primary" size="mini">导出数据</el-button>
-                <el-button type="primary" size="mini">批量删除</el-button>
+                <el-button type="primary" size="mini" :disabled="buttonStatus.start" @click="exportTableData">导出数据</el-button>
+                <el-button type="primary" size="mini" :disabled="buttonStatus.start" @click="batchTableDelete(goodsList,multipleSelection)">批量删除</el-button>
               </li>
             </ul>
             <div class="item">
@@ -380,21 +388,21 @@
                 <p class="tip">（勾选多余的SKU，删除所有sku图）</p>
               </li>
               <li>
-                <el-checkbox label="规格图重复时，删除所有sku图" />
+                <el-checkbox v-model="IsDeleteRepeatSkuImg" label="规格图重复时，删除所有sku图" />
               </li>
               <li>
                 <el-checkbox v-model="IsFilterLazadaDeliveryDay" label="启动lazada发货天数过滤商品" />
                 <p class="tip2">lazada发货天数：</p>
-                <el-input placeholder="" size="mini" />
+                <el-input v-model="MinLazadaDeliveryDay" placeholder="" size="mini" />
                 <span>--</span>
-                <el-input placeholder="" size="mini" />
+                <el-input v-model="MaxLazadaDeliveryDay" placeholder="" size="mini" />
               </li>
               <li>
                 <el-checkbox v-model="IsFilterShopeeDeliveryDay" label="启动虾皮发货天数过滤商品" />
                 <p class="tip2">虾皮发货天数：</p>
-                <el-input placeholder="" size="mini" />
+                <el-input v-model="MinShoppeDeliveryDay" placeholder="" size="mini" />
                 <span>--</span>
-                <el-input placeholder="" size="mini" />
+                <el-input v-model="MaxShoppeDeliveryDay" placeholder="" size="mini" />
               </li>
               <li>
                 <p class="tip">收藏时过滤掉不在此发货天数区间的商品</p>
@@ -436,6 +444,7 @@
       </el-tabs>
     </header>
     <article v-show="activeName !== 'sixth'">
+      <div style="color:red;padding-bottom: 10px;">温馨提示：拼多多产品加载不出来，收藏或者组装数据慢，请切换本地IP</div>
       <u-table
         ref="plTable"
         :height="Height"
@@ -508,9 +517,19 @@
         </u-table-column>
         <u-table-column align="center" label="价格" prop="Price" sortable />
         <u-table-column align="center" label="销量" prop="Sales" sortable />
-        <u-table-column align="center" label="发货地" />
+        <u-table-column align="center" label="发货地" prop="Location" />
         <u-table-column align="center" label="来源" prop="Origin" />
-        <u-table-column align="center" label="操作" />
+        <u-table-column align="center" label="操作">
+          <template slot-scope="scope">
+            <el-button
+              size="mini"
+              type="primary"
+              @click="tableDelete(scope.row,scope.$index)"
+            >
+              删除
+            </el-button>
+          </template>
+        </u-table-column>
         <u-table-column align="center" label="操作结果" prop="StatusName" show-overflow-tooltip>
           <template v-slot="{ row }">
             <span :style="row.color && 'color:' + row.color">{{ row.StatusName }}</span>
@@ -518,6 +537,56 @@
         </u-table-column>
       </u-table>
     </article>
+    <!-- 插件采集弹窗 -->
+    <el-dialog
+      v-if="plugVisible"
+      class="plug-dialog"
+      title="插件采集"
+      :visible.sync="plugVisible"
+      width="600px"
+      :close-on-click-modal="false"
+      :close-on-press-escape="false"
+    >
+      <p>1：请先下载插件程序安装至浏览器，方可使用此功能<el-button type="primary" size="mini" @click="$BaseUtilService.openUrl(`https://shopeeman.oss-cn-shenzhen.aliyuncs.com/files/shopeemanFiles/appFiles/20220106/2022010616473761d6aca9e310d.docx`)">下载教程</el-button></p>
+      <p>2：由于推送地址端口号随时生成，重启软件后，请务必重新复制推送地址 <el-button type="primary" size="mini" @click="$BaseUtilService.openUrl(`https://shopeeppxia.oss-cn-shenzhen.aliyuncs.com/desktop/plugin/CollectPligin.zip`)">下载插件</el-button></p>
+      <el-form label-position="right" label-width="190px">
+        <el-form-item label="拼多多关键词采集推送地址：">
+          <div class="item">
+            <span>{{ port }}/api/pddGoodsKeyword</span>
+            <el-button size="mini" @click="copy(`${port}/api/pddGoodsKeyword`)">复 制</el-button>
+          </div>
+        </el-form-item>
+        <el-form-item label="拼多多详情采集推送地址：">
+          <div class="item">
+            <span>{{ port }}/api/pddGoodsDetail</span>
+            <el-button size="mini" @click="copy(`${port}/api/pddGoodsDetail`)">复 制</el-button>
+          </div>
+        </el-form-item>
+        <el-form-item label="淘宝/天猫关键词采集推送地址：">
+          <div class="item">
+            <span>{{ port }}/api/tbGoodsKeyword</span>
+            <el-button size="mini" @click="copy(`${port}/api/tbGoodsKeyword`)">复 制</el-button>
+          </div>
+        </el-form-item>
+        <el-form-item label="淘宝详情采集推送地址：">
+          <div class="item">
+            <span>{{ port }}/api/tbGoodsDetail</span>
+            <el-button size="mini" @click="copy(`${port}/api/tbGoodsDetail`)">复 制</el-button>
+          </div>
+        </el-form-item>
+      </el-form>
+    </el-dialog>
+    <el-dialog width="1313px" :close-on-click-modal="false" top="0.5vh" :visible.sync="isEditorVisible" :modal="false">
+      <template slot="title">
+        <div style="display: flex;align-items: center">
+          <div style="margin-right: 25px;">上新编辑</div>
+          <el-button size="mini" :type="isNoFoldShow && 'primary' || ''" @click.native.stop="setIsNoFoldShow">
+            {{ isNoFoldShow && '折叠' || '展开' }}
+          </el-button>
+        </div>
+      </template>
+      <editor-on-new-goods v-if="isEditorVisible" ref="editor_on_new_goods" :mall-table="editorSelection" />
+    </el-dialog>
   </div>
 </template>
 
@@ -526,11 +595,17 @@ import CollectKeyWordApI from './collection-keyword-api'
 import CollectLinkApI from './collection-link-api'
 import CollectEntireApI from './collection-entire-api'
 import CollectOtherApI from './collection-other-api'
-import { batchOperation, dateFormat, delay } from '../../../util/util'
+import CollectPublicApI from './collection-public-api'
+import { batchOperation, dateFormat, exportExcelDataCommon, terminateThread } from '../../../util/util'
 // getSiteRelation
+import editorOnNewGoods from '../../../components/editor_on_new_goods'
 import { shopeeSite, lazadaSite, pictureSearchOrigin, getPlatform, platformObj, getShopeeSitePlace, getLazadaSitePlace } from './collection-platformId'
 import testData from './testData'
+import XLSX from 'xlsx'
 export default {
+  components: {
+    editorOnNewGoods
+  },
   props: {
     baseConfig: {
       type: Object,
@@ -550,6 +625,8 @@ export default {
     return {
       Height: 650,
       activeName: 'keyPage',
+      collectName: '',
+      CollectPublicApInstance: new CollectPublicApI(this),
       CollectKeyWordApInstance: new CollectKeyWordApI(this), // 关键词采集
       collectLinkApInstance: new CollectLinkApI(this), // 链接采集
       collectEntireApInstance: new CollectEntireApI(this), // 整店采集
@@ -558,7 +635,6 @@ export default {
       // table attr
       multipleSelection: [],
       goodsList: [],
-
       // button
       buttonStatus: {
         start: false
@@ -574,7 +650,7 @@ export default {
         EndSales: 999999999,
         StartPrice: 0,
         EndPrice: 999999999,
-
+        keyFilter: '',
         // 淘宝参数
         wordLimit: 10,
         // shopee参数
@@ -598,27 +674,29 @@ export default {
         lazadaPlaceVal1: [],
         pickerOptions: {
           shortcuts: [{
-            text: '最近一周',
+            text: '今天',
             onClick(picker) {
               const end = new Date()
               const start = new Date()
+              // start.setTime(start.getTime() - 3600 * 1000 * 24 * 7)
+              picker.$emit('pick', [start, end])
+            }
+          }, {
+            text: '昨天',
+            onClick(picker) {
+              const end = new Date()
+              const start = new Date()
+              end.setTime(end.getTime() - 3600 * 1000 * 24 * 1)
+              start.setTime(start.getTime() - 3600 * 1000 * 24 * 1)
+              picker.$emit('pick', [start, end])
+            }
+          }, {
+            text: '一周前',
+            onClick(picker) {
+              const end = new Date()
+              const start = new Date()
+              end.setTime(end.getTime() - 3600 * 1000 * 24 * 7)
               start.setTime(start.getTime() - 3600 * 1000 * 24 * 7)
-              picker.$emit('pick', [start, end])
-            }
-          }, {
-            text: '最近一个月',
-            onClick(picker) {
-              const end = new Date()
-              const start = new Date()
-              start.setTime(start.getTime() - 3600 * 1000 * 24 * 30)
-              picker.$emit('pick', [start, end])
-            }
-          }, {
-            text: '最近三个月',
-            onClick(picker) {
-              const end = new Date()
-              const start = new Date()
-              start.setTime(start.getTime() - 3600 * 1000 * 24 * 90)
               picker.$emit('pick', [start, end])
             }
           }]
@@ -641,8 +719,9 @@ export default {
       end: 5000,
       key: '',
       linkKey: '',
+      linkKeyArr: '',
+      importLinkData: '',
       mallLinkKey: '',
-      keyFilter: '',
       isSelectAll: false,
       isSelectAll2: [
         false, false
@@ -681,7 +760,21 @@ export default {
       IsCollectDescriptionIsNull: false, // 采集描述为空的数据
       IsDefaultFilterSkuCount: true, // 过滤多余的SKU
       IsFilterLazadaDeliveryDay: false, // 启动Lazada发货天数过滤商品
-      IsFilterShopeeDeliveryDay: false// 启动虾皮发货天数过滤商品
+      MinLazadaDeliveryDay: 0,
+      MaxLazadaDeliveryDay: 20,
+      IsFilterShopeeDeliveryDay: false, // 启动虾皮发货天数过滤商品
+      MinShoppeDeliveryDay: 0,
+      MaxShoppeDeliveryDay: 20,
+      IsDeleteRepeatSkuImg: false, // 规格图重复时，删除所有sku图
+
+      // 插件采集
+      plugVisible: false,
+      port: '',
+
+      // 编辑上新
+      isEditorVisible: false,
+      isNoFoldShow: true,
+      editorSelection: []
     }
   },
   computed: {
@@ -755,15 +848,29 @@ export default {
     this.getLazadaGoodsPlace()
     this.getTaobaoAbroadAccount()
   },
-  mounted() {
+  async mounted() {
     this.goodsList = testData.data
     this.$refs.plTable.reloadData(this.goodsList)
     const data = this.goodsList.slice(0, 500)
     // data是数据，state是选中还是取消选中
     this.$refs.plTable.partRowSelections(data, true)
     document.querySelectorAll('.barChilren')[4].style.width = '102px'
+    // 获取插件port
+    this.port = await this.$BaseUtilService.getPluginPorts()
   },
   methods: {
+    // 编辑上新
+    async editorUp() {
+      if (!this.multipleSelection.length) return this.$message.error('请选择需要编辑的数据')
+      this.editorSelection = []
+      this.isEditorVisible = true
+      this.saveGoodsInfo()
+      console.log('editorSelection', this.editorSelection)
+    },
+    setIsNoFoldShow() {
+      this.isNoFoldShow = !this.isNoFoldShow
+      this.$refs.editor_on_new_goods.setIsNoFoldShow()
+    },
     selectShopeePlaceValEvent() { // 出货地点全选事件
       if (this.commonAttr.shopeePlaceOrigin.length === this.commonAttr.shopeePlaceVal.length) {
         this.isSelectAll = true
@@ -844,7 +951,7 @@ export default {
           this['keywordSearch']()
           break
         case 'linkPage': // 链接采集
-          this['linksSearch']()
+          this['linksSearch'](1)
           break
         case 'entriresShopPage': // 整店采集
           this['entriresShopSearch']()
@@ -860,6 +967,7 @@ export default {
           break
       }
     },
+    // 开始关键词采集
     async keywordSearch() {
       const res = this.CollectKeyWordApInstance.handleKeyFactory(this.key) // 处理关键词
       if (res.code !== 200) {
@@ -875,7 +983,7 @@ export default {
       this.CollectKeyWordApInstance._initKeyWord(platForm, this.commonAttr)
       this.writeLog('开始采集搜索........', true)
       this.writeLog(`开始采集${platformObj[platForm]}商品.......`, true)
-
+      this.collectName = `${platformObj[platForm]}关键词采集数据`
       for (let i = 0; i < keyLen; i++) {
         if (this.flag) {
           this.buttonStatus.start = false
@@ -883,7 +991,6 @@ export default {
           break
         }
         const item = key[i]
-        // this.writeLog(`采集关键字：${item}`, true)
         const res2 = await this.CollectKeyWordApInstance.keywordSearch(item)
         if (res2.code !== 200) {
           continue
@@ -898,7 +1005,6 @@ export default {
             break
           }
           const item = key[i]
-          // this.writeLog(`采集关键字：${item}`, true)
           const res2 = await this.CollectKeyWordApInstance.keywordSearchTwo(item)
           if (res2.code !== 200) {
             continue
@@ -906,44 +1012,77 @@ export default {
           this.goodsList.push(...res2.data)
         }
       }
-      const newData = this.filterData(this.goodsList)
-      this.$refs.plTable.reloadData(newData)
-      this.writeLog(`${platformObj[platForm]}：共采集：${this.goodsList.length}条，过滤商品：${this.goodsList.length - newData.length}条`, true)
+      this.goodsList.forEach(row => { this.$refs.plTable.toggleRowSelection([{ row }]) })
+      this.writeLog(`${platformObj[platForm]}：共采集：${this.goodsList.length}条`, true)
       this.writeLog(`${platformObj[platForm]}商品采集完毕........`, true)
       key = null
       this.buttonStatus.start = false
     },
-    async linksSearch() {
-      const res = this.collectLinkApInstance.handleLinkKeyFactory(this.linkKey) // 处理数据
+    // 开始链接采集
+    async linksSearch(type) {
+      let res = ''
+      this.consoleMsg = ''
+      if (type === 1) {
+        res = this.collectLinkApInstance.handleLinkKeyFactory(this.linkKey, type) // 处理数据
+      } else {
+        res = this.collectLinkApInstance.handleLinkKeyFactory(this.linkKeyArr, type) // 处理数据
+      }
       if (res.code !== 200) {
         return this.$message.error(res.data)
       }
       this.buttonStatus.start = true
-      this.consoleMsg = ''
       this.goodsList = []
       this.$refs.plTable.reloadData(this.goodsList)
       const data = res.data
-      const len = data.length
       this.writeLog('开始商品链接采集搜索........', true)
-      for (let i = 0; i < len; i++) {
-        if (this.flag) {
-          this.writeLog('取消链接采集', true)
-          break
-        }
-        const item = data[i]
-        const res2 = await this.collectLinkApInstance.getGoodsDeail(item)
-        if (res2.code !== 200) {
-          this.writeLog(`商品ID: ${item.GoodsId} 采集失败: ${res2.data}`, false)
-          continue
-        } else {
-          this.writeLog(`(${i + 1}/${len})商品ID: ${item.GoodsId}采集成功`)
-          this.goodsList.push(res2.data)
-        }
-      }
+      this.collectName = `商品链接采集数据`
+      data.forEach(item => { item.type = type })
+      await batchOperation(data, this.linkCollect)
+      if (this.flag) this.writeLog('取消链接采集', true)
+      this.goodsList.forEach(row => { this.$refs.plTable.toggleRowSelection([{ row }]) })
       this.writeLog(`商品链接：共采集：${this.goodsList.length}条`, true)
       this.writeLog(`商品链接采集完毕........`, true)
       this.buttonStatus.start = false
     },
+    async linkCollect(item, count = { count: 1 }) {
+      try {
+        if (this.flag) {
+          terminateThread()
+          return
+        }
+        const res2 = await this.collectLinkApInstance.getGoodsDeail(item)
+        if (res2.code !== 200) {
+          this.writeLog(`商品ID: ${item.GoodsId} 采集失败: ${res2.data}`, false)
+        } else {
+          const data = []
+          data.Image = res2.data.ListItem[0].Image
+          data.GoodsId = res2.data.CollectGoodsData.GoodsId
+          data.Title = res2.data.CollectGoodsData.Title
+          data.CategoryName = res2.data.ListItem[0].CategoryName
+          data.Price = res2.data.CollectGoodsData.Price
+          data.Sales = res2.data.CollectGoodsData.Sales
+          data.Origin = res2.data.ListItem[0].Origin
+          data.isDetail = true
+          data.Platform = item.platformId
+          data.Url = item.Url
+          if (item.type === 2) {
+            data.isLink = true
+            data.Weight = item.Weight || 0
+            data.Length = item.Length || 0
+            data.Width = item.Width || 0
+            data.Height = item.Height || 0
+          }
+          this.writeLog(`商品ID: ${item.GoodsId}采集成功`)
+          this.goodsList.push(data)
+          console.log('linkData', this.goodsList)
+        }
+      } catch (error) {
+        this.writeLog(`商品ID: ${item.GoodsId} 异常`, false)
+      } finally {
+        --count.count
+      }
+    },
+    // 开始整店采集
     async entriresShopSearch() {
       const res = this.collectEntireApInstance.handleEntireKeyFactory(this.mallLinkKey) // 处理关键词
       if (res.code !== 200) {
@@ -954,28 +1093,35 @@ export default {
       this.goodsList = []
       this.$refs.plTable.reloadData(this.goodsList)
       this.writeLog('开始整店链接采集搜索........', true)
+      this.collectName = `整店采集数据`
       const data = res.data
-      const len = data.length
-      for (let i = 0; i < len; i++) {
-        if (this.flag) {
-          this.writeLog('取消整店采集', true)
-          break
-        }
-        const item = data[i]
-        const res2 = await this.collectEntireApInstance.mallSearch(item)
-        if (res2.code !== 200) {
-          this.writeLog(`店铺链接: ${item} 采集失败: ${res2.data}`, false)
-          continue
-        } else {
-          this.writeLog(`(${i + 1}/${len})店铺链接: ${item} 采集成功`)
-          this.goodsList.push(...res2.data)
-        }
-      }
-      console.log('this.goodsList', this.goodsList)
+      await batchOperation(data, this.entriresCollection)
+      if (this.flag) this.writeLog('取消整店采集', true)
+      this.goodsList.forEach(row => { this.$refs.plTable.toggleRowSelection([{ row }]) })
       this.writeLog(`整店链接：共采集：${this.goodsList.length}条`, true)
       this.writeLog(`整店链接采集完毕........`, true)
       this.buttonStatus.start = false
     },
+    async entriresCollection(item, count = { count: 1 }) {
+      try {
+        if (this.flag) {
+          terminateThread()
+          return
+        }
+        const res2 = await this.collectEntireApInstance.mallSearch(item)
+        if (res2.code !== 200) {
+          this.writeLog(`店铺链接: ${item} 采集失败: ${res2.data}`, false)
+        } else {
+          this.writeLog(`店铺链接: ${item} 采集成功`)
+          this.goodsList.push(...res2.data)
+        }
+      } catch (error) {
+        this.writeLog(`店铺链接: ${item} 采集异常`)
+      } finally {
+        --count.count
+      }
+    },
+    // 开始图搜同款采集
     async picToPicSearch() {
       if (!this.base64Str) {
         return this.$message.error('请上传图片')
@@ -986,6 +1132,7 @@ export default {
       this.$refs.plTable.reloadData(this.goodsList)
       const Name = this.commonAttr.pictureSearchPlatformId === '8' ? '1688' : '淘宝'
       this.writeLog(`开始 ${Name} 图搜采集搜索........`, true)
+      this.collectName = `图搜采集数据`
       const params = {
         ImageBase64: this.base64Str
       }
@@ -997,7 +1144,7 @@ export default {
         this.writeLog('图搜采集: 采集成功', true)
         this.goodsList.push(...res.data)
       }
-      console.log('this.goodsList', this.goodsList)
+      this.goodsList.forEach(row => { this.$refs.plTable.toggleRowSelection([{ row }]) })
       this.writeLog(`图搜：共采集：${this.goodsList.length}条`, true)
       this.writeLog(`${Name} 图搜采集完毕........`, true)
       this.buttonStatus.start = false
@@ -1009,6 +1156,7 @@ export default {
       }
       this.TaobaoAbroadAccount = res.data
     },
+    // 开始天猫淘宝海外平台采集
     async taobaoAbroadSearch() {
       if (this.TaobaoAbroadAccountId.length === 0) {
         return this.$message.error('请选择账号')
@@ -1018,6 +1166,7 @@ export default {
       this.goodsList = []
       this.$refs.plTable.reloadData(this.goodsList)
       this.writeLog(`开始 淘宝天猫海外 采集搜索........`, true)
+      this.collectName = '淘宝天猫海外采集数据'
       for (let i = 0; i < this.TaobaoAbroadAccountId.length; i++) {
         if (this.flag) {
           this.writeLog('取消淘宝天猫海外采集', true)
@@ -1033,8 +1182,8 @@ export default {
           this.goodsList.push(...res.data)
         }
       }
-
-      console.log('this.goodsList', this.goodsList)
+      console.log('taobaoData', this.goodsList)
+      this.goodsList.forEach(row => { this.$refs.plTable.toggleRowSelection([{ row }]) })
       this.writeLog(`淘宝天猫海外：共采集：${this.goodsList.length}条`, true)
       this.writeLog('淘宝天猫海外采集完毕........', true)
       this.buttonStatus.start = false
@@ -1050,12 +1199,14 @@ export default {
       this.successNum = 0
       this.failNum = 0
       this.writeLog('开始收藏商品........', true)
+      // 编辑上新时根据用户选择的起止数据切割
+      this.multipleSelection = this.isEditorVisible ? this.multipleSelection.splice(Number(this.start) - 1, Number(this.end) - Number(this.start) + 1) : this.multipleSelection
       await batchOperation(this.multipleSelection, this.saveGoods)
       this.writeLog(`共收藏成功：${this.successNum}个商品, 收藏失败：${this.failNum}个商品`, true)
       this.writeLog(`收藏商品完毕........`, true)
       this.buttonStatus.start = false
     },
-    async  saveGoods(item, count = { count: 1 }) {
+    async saveGoods(item, count = { count: 1 }) {
       try {
         this.StatusName(item, `正在获取商品详情`, true)
         const res2 = await this.collectLinkApInstance.getGoodsDeail(item)
@@ -1064,228 +1215,35 @@ export default {
           this.failNum++
           return
         } else {
-          // 组装数据
-          console.log(res2.data)
-          this.setGoodsData(item, res2.data)
-          // uploadCollectGoods 收藏
-          this.successNum++
-          this.StatusName(item, `测试`, true)
+          console.log('详情数据', res2.data)
+          const res = await this.CollectPublicApInstance.setGoodsData(item, res2.data)
+          if (res.code === 200) {
+            this.StatusName(item, `收藏成功`, true)
+            this.successNum++
+            this.$nextTick(() => {
+              this.$refs.plTable.toggleRowSelection([
+                {
+                  row: item,
+                  selected: false
+                }
+              ])
+            })
+            // 编辑上新数据
+            if (this.isEditorVisible) {
+              this.editorSelection.push(res.data)
+            }
+          } else {
+            this.StatusName(item, `${res.data}`, false)
+            this.failNum++
+          }
         }
       } catch (error) {
         this.StatusName(item, `${error}`, false)
+        this.failNum++
         console.log(error)
       } finally {
         --count.count
       }
-    },
-    // 收藏组装数据
-    setGoodsData(item, goodsData) {
-      console.log(item)
-      console.log(goodsData)
-      // 1：描述组装处理 PddPlatform
-      let goodsProperty = ''
-      if (item.Platform === 1 && goodsData.CollectGoodsData?.GoodsProperty && Object.keys(goodsData.CollectGoodsData.GoodsProperty).length > 0) {
-        const keys = Object.keys(goodsData.CollectGoodsData.GoodsProperty)
-        for (const key of keys) {
-          goodsProperty += `${key}：${goodsData.CollectGoodsData.GoodsProperty[key].join('\r\n')}\r\n`
-        }
-      }
-      // 2：出货地点 ShopeePlatform
-      if (item.Platform === 11 && this.GoodsDeliveryAddress !== 0) {
-        const location = this.shopeeGoodsDeliveryAddressDic[item.Site.toUpperCase()] ? this.shopeeGoodsDeliveryAddressDic[item.Site.toUpperCase()] : ''
-        if ((this.GoodsDeliveryAddress === 2 && goodsData.CollectGoodsData.Location === location) || (this.GoodsDeliveryAddress === 1 && goodsData.CollectGoodsData.Location !== location)) {
-          this.StatusName(item, `商品发货地不符合条件`, false)
-          this.failNum++
-          return
-        }
-      }
-      item.Description = goodsData.CollectGoodsData.GoodsDesc + goodsProperty// 商品描述
-      goodsData.CollectGoodsData.GoodsDesc = item.Description
-      item.OriginCategoryId = Number(goodsData.CollectGoodsData.CategoryId) // 源商品的类目ID
-      if (!this.IsCollectDescriptionIsNull && !item.Description) {
-        this.StatusName(item, `商品描述不能为空`, false)
-        this.failNum++
-        return
-      }
-      this.StatusName(item, `组装产品信息`, true)
-      try {
-        // 3：库存数量
-        const totalStock = goodsData.CollectGoodsData.TotalQuantity // 总库存数量
-        if (Object.keys(goodsData.CollectGoodsSkus).length > 0) {
-          // 此处获取每一个Sku的库存数量
-          const stockList = []
-          const keys = Object.keys(goodsData.CollectGoodsSkus)
-          for (const key of keys) {
-            stockList.push(goodsData.CollectGoodsSkus[key].quantity)
-          }
-          if (stockList.length <= 0) {
-            this.StatusName(item, `收藏失败：此商品库存为0`, false)
-            this.failNum++
-            return
-          }
-        } else {
-          if (totalStock) {
-            this.StatusName(item, `收藏失败：此商品库存为0`, false)
-            this.failNum++
-            return
-          }
-        }
-        // 4：SKU数量-----是否舍弃超出shopee支持的sku个数，IsDefaultFilterSkuCount此配置在平台选品库----采集设置中，默认为true
-        if (this.IsDefaultFilterSkuCount) {
-          this.DealGoodsSkuCount(item, goodsData) // ？
-        }
-        // Lazada平台需要设置额外信息：站点
-        if (item.Platform === 9) {
-          // goodsData.CollectGoodsData.GoodsExtraInfo ？
-        }
-        // 天猫淘宝跨境平台：需要设置额外信息：店铺ID
-        if (item.Platform === 2) {
-          // goodsData.CollectGoodsData.GoodsExtraInfo  ？
-        }
-        // 5：过滤特殊字符：标题、短标题、描述、过滤Emoji字符串
-        // FilterSpecialSymbol(goodsData,item) ？
-        // 6：对类目进行处理
-        if (item.CategoryName === '未匹配到类目' && item.OriginCategoryId !== 0) { // ？
-          //  string cat = CollectUtil.GetGoodsCat((int)goods.OriginCategoryId, goods.Platform, goods.Site).Result;
-          // if (cat) {
-          // item.CategoryName = cat.Split('|')[0]
-          // }
-        }
-        // 7:组装上报的SKU数据
-        // this.BuildGoodsData(goodsData,GoodsBulkInfo)//？
-      } catch (error) {
-
-      }
-    },
-    BuildGoodsData(goodsData, goodsBulkInfo) {
-      const goods = goodsData.CollectGoodsData
-      const sku = goodsData.CollectGoodsSkus
-      // 如果为Lazada平台，需要过滤发货天数，IsFilterLazadaDeliveryDay 此值为平台选品库-->采集设置中的配置项
-      if (goods.Platform === 9 && this.IsFilterLazadaDeliveryDay) {
-        if (Object.keys(sku).length > 0) {
-          for (const key in sku) { // ？
-
-          }
-        }
-      }
-      // 如果为Shopee平台，需要过滤发货天数，IsFilterShopeeDeliveryDay 此值为平台选品库-->采集设置中的配置项
-      if (goods.Platform === 11 && this.IsFilterShopeeDeliveryDay) { // ？
-
-      }
-    },
-    DealGoodsSkuCount(item, goodsData) {
-      console.log('IsDefaultFilterSkuCount', goodsData)
-      const list = []
-      while (true) {
-        if (goodsData.CollectGoodsData.GoodsType === 1) {
-        // 直接获取SKU数量。如果大于50个，随机移除超过规格，只留下50个
-          const keys = Object.keys(goodsData.CollectGoodsSkus)
-          const ranKeys = this.getRandomArrayElements(keys, 50)
-          const newSku = {}
-          for (const key of ranKeys) {
-            newSku[key] = goodsData.CollectGoodsSkus[key]
-          }
-          goodsData.CollectGoodsSkus = newSku
-        }
-        if (goodsData.CollectGoodsData.GoodsType === 2) {
-        // 通过sku.OriginProps 组装Sku数量（即通过两个规格组合，获取到所有的Sku数量）
-          const newSkuDic = {}
-          const skuList = this.GetVaAndSizeList(item, goodsData, goodsData.CollectGoodsData.GoodsType)// 根据规格数量组装SKU
-          let vaList = skuList[0]
-          let sizeList = skuList[1]
-          const allSkuCount = Object.keys(goodsData.CollectGoodsSkus).length// 采集返回的所有的SKU列表
-          const realSkuCount = vaList.length * sizeList.length// 组装出来的SKU列表
-          if (realSkuCount > 50 || vaList.length > 50 || sizeList.length > 50 || realSkuCount !== allSkuCount) {
-            // 需要判断单个规格的数量和组装后的SKU的数量，都不能超过50个，如果超过50个，需要随机去除，只保留到50个的SKU数量
-            let maxCount = 50
-            if (vaList.length > 50) {
-              vaList = this.getRandomArrayElements(vaList, 50)
-            }
-            if (sizeList.length > 50) {
-              sizeList = this.getRandomArrayElements(sizeList, 50)
-            }
-            if (Object.keys(goodsData.CollectGoodsSkus).length > 50) {
-              maxCount = 50 / sizeList.length
-            }
-            if (maxCount > 50) {
-              maxCount = 50
-            }
-            if (vaList.length > maxCount) {
-              vaList = this.getRandomArrayElements(vaList, parseInt(maxCount))
-            }
-            for (const i in goodsData.CollectGoodsSkus) {
-              const item = goodsData.CollectGoodsSkus[i]
-              const name1 = item.originProps[0] && item.originProps[0].name || ''
-              const name2 = item.originProps[1] && item.originProps[1].name || ''
-              if (vaList.includes(name1) && sizeList.includes(name2)) {
-                newSkuDic[i] = item
-              } else {
-                const sku = this.GetVaRelativeSku(goodsData.CollectGoodsSkus, name1, name2, Object.keys(newSkuDic).length)
-                newSkuDic[Object.keys(sku)] = sku[Object.keys(sku)]
-              }
-            }
-            goodsData.CollectGoodsSkus = newSkuDic
-          }
-        }
-        if (goodsData.CollectGoodsData.GoodsType > 2) {
-
-        }
-        if (Object.keys(goodsData.CollectGoodsSkus).length <= 50) {
-          break
-        }
-      }
-      console.log('aaaaaaa', goodsData)
-    },
-    GetVaRelativeSku(allSkus, va, size, count) {
-      const sku = {}
-      for (const key of Object.keys(allSkus)) {
-        const item = allSkus[key]
-        const name1 = item.originProps[0] && item.originProps[0].name || ''
-        if (name1 === va && Object.keys(sku).length < 1) {
-          sku[key] = allSkus[key]
-        }
-      }
-      const pddGoodsSku = {}
-      pddGoodsSku['parent_id'] = 0
-      pddGoodsSku['vid'] = ''
-      pddGoodsSku['name'] = size
-      const key = Object.keys(sku)
-      sku[key].originProps[1] = pddGoodsSku
-      const oriList = []
-      const oriOne = sku[key].originProps[0]
-      const oriTwo = {}
-      oriTwo['parent_id'] = 0
-      oriTwo['vid'] = ''
-      oriTwo['name'] = size
-      oriList[0] = oriOne
-      oriList[1] = oriTwo
-      sku[key].originProps = oriList
-      sku[key].sku = key + count
-      sku[key].quantity = 0
-      return sku
-    },
-    GetVaAndSizeList(item, goodsData, goodsType) {
-      const allList = {}
-      for (let i = 0; i < goodsType; i++) {
-        allList[i] = []
-      }
-      for (const i in goodsData.CollectGoodsSkus) {
-        const sku = goodsData.CollectGoodsSkus[i]
-        for (let j = 0; j < sku.originProps.length; j++) {
-          const name = sku.originProps[j].name
-          if (j >= allList.length) {
-            if (sku.platform === 9 && j > 1) {
-              continue
-            } else {
-              console.log('数据处理异常，请联系客服')
-            }
-          }
-          if (name && !allList[j].includes(name)) {
-            allList[j].push(name)
-          }
-        }
-      }
-      return allList
     },
     // 辅助-----------------------------
     writeLog(msg, success = true) {
@@ -1307,20 +1265,7 @@ export default {
         that.base64Str = reader.result
       }
     },
-    // 随机取值
-    getRandomArrayElements(arr, count) {
-      const shuffled = arr.slice(0)
-      let i = arr.length
-      const min = i - count
-      let temp; let index
-      while (i-- > min) {
-        index = Math.floor((i + 1) * Math.random())
-        temp = shuffled[index]
-        shuffled[index] = shuffled[i]
-        shuffled[i] = temp
-      }
-      return shuffled.slice(min)
-    },
+    // 操作结果字段
     StatusName(item, msg, status) {
       this.$set(item, 'StatusName', msg)
       this.$set(item, 'color', status ? 'green' : 'red')
@@ -1345,6 +1290,28 @@ export default {
           continue
         }
         if (this.isShowPrice && item.Price > Number(this.commonAttr.EndPrice)) {
+          continue
+        }
+        // 过滤标题
+        if (this.commonAttr.keyFilter) {
+          const keyFilterArr = this.CollectPublicApInstance.handleKey(this.commonAttr.keyFilter)
+          const fileWord = this.CollectPublicApInstance.filterLinkKeyWord(item.Title, keyFilterArr)
+          item.keyWord = fileWord
+          if (item.keyWord !== '') {
+            continue
+          }
+        }
+        // 过滤创建时间
+        if (this.isShowCreateAt && this.commonAttr.value2?.length > 0) {
+          const start = this.commonAttr.value2[0].getTime()
+          const end = this.commonAttr.value2[1].getTime()
+          const create = item.CreateTime * 1000
+          if (create < start || create > end) {
+            continue
+          }
+        }
+        // 过滤虾皮官方店铺
+        if (this.isShowShopeeSite && item.IsOfficialShop === true) {
           continue
         }
         fData.push(item)
@@ -1413,6 +1380,127 @@ export default {
         // console.log('复制失败')
       }
       target.parentElement.removeChild(target)
+    },
+    tableDelete(row, index) {
+      this.$refs.plTable.toggleRowSelection([
+        { row, selected: false }
+      ])
+      this.goodsList.splice(index, 1)
+    },
+    // 批量删除表格数据
+    batchTableDelete(tableData, selectData) {
+      if (!selectData.length) {
+        return this.$message.error('请选择要删除的选项')
+      }
+      selectData
+        .map(n => n.__ob__.dep.id)
+        .forEach(n => {
+          tableData.splice(
+            tableData.findIndex(j => j.__ob__.dep.id === n),
+            1
+          )
+        })
+      selectData.forEach(row => {
+        this.$refs.plTable.toggleRowSelection([
+          { row, selected: false }
+        ])
+      })
+    },
+    deleteAll() {
+      this.$confirm('确定清理全部吗?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        this.goodsList = []
+        this.$refs.plTable.reloadData(this.goodsList)
+      })
+    },
+    // 导出数据
+    exportTableData() {
+      if (!this.goodsList?.length) return this.$message('暂无数据导出')
+      let str = `<tr>
+          <td>商品ID</td>
+          <td>商品来源</td>
+          <td>商品链接</td>
+          <td>商品标题</td>
+          <td>图片链接</td>
+          <td>类目</td>
+          <td>价格</td>
+          <td>销量</td>
+          <td>发货地</td>
+        </td>`
+      this.goodsList.forEach(item => {
+        str += `<tr>
+        <td style="mso-number-format:'\@';">${item.GoodsId ? item.GoodsId : '' + '\t'}</td>
+        <td>${item.Origin ? item.Origin : '' + '\t'}</td>
+        <td>${item.Url ? item.Url : '' + '\t'}</td>
+        <td>${item.Title ? item.Title : '' + '\t'}</td>
+        <td>${item.Image ? item.Image : '' + '\t'}</td>
+        <td>${item.CategoryName ? item.CategoryName : '' + '\t'}</td>
+        <td>${item.Price ? item.Price : '' + '\t'}</td>
+        <td>${item.Sales ? item.Sales : '' + '\t'}</td>
+        <td>${item.Location ? item.Location : '' + '\t'}</td>
+        </tr>`
+      })
+      exportExcelDataCommon(this.collectName, str)
+    },
+    // 链接导入
+    linkImport() {
+      const dataSum = this.importLinkData.length
+      this.linkKeyArr = []
+      if (dataSum <= 0) {
+        this.writeLog('表格数据为空', false)
+        return
+      }
+      this.writeLog('开始读取表格...', true)
+      for (let i = 0; i < dataSum; i++) {
+        const item = this.importLinkData[i]
+        const arr = {}
+        arr['Url'] = item['商品链接']
+        arr['Weight'] = item['重量(kg)']
+        arr['Length'] = item['长(cm)']
+        arr['Width'] = item['宽(cm)']
+        arr['Height'] = item['高(cm)']
+        if (!arr['Url']) {
+          continue
+        }
+        this.linkKeyArr.push(arr)
+      }
+      this.linksSearch(2)
+    },
+    // 链接采集-下载模板
+    downloadTemplate() {
+      const template = `<tr>
+      <td style="width: 600px">商品链接</td>
+      <td style="width: 100px">重量(kg)</td>
+      <td style="width: 100px">长(cm)</td>
+      <td style="width: 100px">宽(cm)</td>
+      <td style="width: 100px">高(cm)</td>
+      </tr>`
+      exportExcelDataCommon('商品链接采集模板', template)
+    },
+    // 表格导入
+    importTemplate(file) {
+      const files = { 0: file.raw }
+      if (!/\.(xls|xlsx)$/.test(files[0].name.toLowerCase())) {
+        this.writeLog('格式错误,请上传xls、xlsx格式的文件', false)
+        return
+      }
+      const fileReader = new FileReader()
+      fileReader.onload = ev => {
+        const data = ev.target.result
+        const workbook = XLSX.read(data, {
+          type: 'binary'
+        })
+        const wsname = workbook.SheetNames[0] // 取第一张表
+        let ws = XLSX.utils.sheet_to_json(workbook.Sheets[wsname]) // 生成Json表格
+        this.importLinkData = ws
+        this.linkImport()
+        ws = null
+        this.$refs.importRef.value = ''
+      }
+      fileReader.readAsBinaryString(files[0])
     }
   }
 }

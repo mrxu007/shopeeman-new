@@ -80,6 +80,7 @@ export default class MallListAPI {
         platform_mall_id: platform_mall_id
       }
       let res = await this._this.$shopeemanService.getChinese(country, '/api/forward/accountservice/v2/shop/', params)
+      console.log('res',res)
       res = JSON.parse(JSON.parse(res).data)
       if (res?.username) {
         return { code: 200, data: res }
