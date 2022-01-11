@@ -3,26 +3,39 @@
     <ul class="storeChooseUL">
       <li :style="isReset && 'margin-bottom: 5px'">
         <span :style="{ width: spanWidth }">所属站点：</span>
-        <el-select v-model="countryVal" size="mini" filterable class="siteSelectBox">
-          <el-option v-if="isAll" label="全部" :value="''"/>
-          <el-option v-for="(item, index) in countries" :key="index" :label="item.label" :value="item.value"/>
+        <el-select v-model="countryVal" :disabled="isMall" size="mini" filterable class="siteSelectBox">
+          <el-option v-if="isAll" label="全部" :value="''" />
+          <el-option v-for="(item, index) in countries" :key="index" :label="item.label" :value="item.value" />
         </el-select>
       </li>
       <li :style="isReset && 'margin-bottom: 5px'">
         <span :style="{ width: spanWidth }">店铺分组：</span>
         <el-select v-model="groupId" placeholder="" multiple collapse-tags size="mini" filterable class="selectBox">
-          <el-option label="全部" :value="''"/>
-          <el-option v-for="(item, index) in groupIdList" :key="index" :label="item.group_name" :value="item.id"/>
+          <el-option label="全部" :value="''" />
+          <el-option v-for="(item, index) in groupIdList" :key="index" :label="item.group_name" :value="item.id" />
         </el-select>
       </li>
       <li :style="isReset && 'margin-bottom: 5px'">
         <span :style="{ width: spanWidth }">店铺名称：</span>
-        <el-select v-model="site" placeholder="" multiple collapse-tags :filter-method="filterMall"
-                   size="mini" filterable class="selectBox" v-loadmore="loadmoreMall">
-          <el-option label="全部" :value="''" v-if="!isShowName"/>
-          <el-option v-for="(item, index) in siteShowList" :key="index"
-                     v-if="showMall(item,index)"
-                     :label="item.mall_alias_name || item.platform_mall_name" :value="item.platform_mall_id"/>
+        <el-select
+          v-model="site"
+          v-loadmore="loadmoreMall"
+          placeholder=""
+          multiple
+          collapse-tags
+          :filter-method="filterMall"
+          size="mini"
+          filterable
+          class="selectBox"
+        >
+          <el-option v-if="!isShowName" label="全部" :value="''" />
+          <el-option
+            v-for="(item, index) in siteShowList"
+            v-if="showMall(item,index)"
+            :key="index"
+            :label="item.mall_alias_name || item.platform_mall_name"
+            :value="item.platform_mall_id"
+          />
         </el-select>
       </li>
       <li v-if="isReset" style="margin-bottom: 5px;margin-left: 25px;">
@@ -56,6 +69,16 @@ export default {
     spanWidth: {
       type: String,
       default: '80px'
+    },
+    parentCountry: {
+      type: String,
+      default: 'TH'
+    },
+    isMall: {
+      type: Boolean,
+      default() {
+        return false
+      }
     },
     isAll: {
       type: Boolean,
@@ -158,7 +181,7 @@ export default {
     }
   },
   mounted() {
-    this.countryVal = (!this.isAll && 'TH') || ''
+    this.countryVal = this.isMall ? this.parentCountry : (!this.isAll && 'TH') || ''
   },
   methods: {
     reset() {
@@ -229,24 +252,24 @@ export default {
     },
     filterMall(val) {
       this.isShowName = val || ''
-      let list1 = this.siteList.filter(i => {
-        let name = i.mall_alias_name || i.platform_mall_name
+      const list1 = this.siteList.filter(i => {
+        const name = i.mall_alias_name || i.platform_mall_name
         return name.includes(val)
       })
       this.showMallNumber = list1.length - this.showMallNumber
-      let list2 = this.siteList.filter(i => {
-        let name = i.mall_alias_name || i.platform_mall_name
+      const list2 = this.siteList.filter(i => {
+        const name = i.mall_alias_name || i.platform_mall_name
         return !name.includes(val)
       })
       this.siteShowList = [...list1, ...list2]
     },
     showMall(item, index) {
-      let name = item.mall_alias_name || item.platform_mall_name
-      let isFirst = this.site[0] === item.platform_mall_id
+      const name = item.mall_alias_name || item.platform_mall_name
+      const isFirst = this.site[0] === item.platform_mall_id
       return isFirst || this.mallShowIndex <= index && index <= this.mallShowIndex + this.showMallNumber && (!this.isShowName || name.includes(this.isShowName))
     },
     loadmoreMall(val, that) {
-      if (this.siteShowList.length > this.showMallNumber){
+      if (this.siteShowList.length > this.showMallNumber) {
         let newIndex = 0
         if (val) {
           newIndex = this.mallShowIndex + 10
@@ -255,7 +278,7 @@ export default {
           newIndex = this.mallShowIndex - 10
           newIndex = newIndex > 0 && newIndex || 0
         }
-        if (newIndex !== this.mallShowIndex ) {
+        if (newIndex !== this.mallShowIndex) {
           that.scrollTop = !val && 30 || (that.scrollTop - 100)
         }
         this.mallShowIndex = newIndex
