@@ -219,6 +219,7 @@ export default {
         const link = `https://xiapi.xiapibuy.com/product/${e.shopid}/${e.itemid}`
         linkList.push(link)
       })
+      localStorage.setItem('linkKey', linkList)
       this.$message.success('链接添加成功，请手动点击采集！')
       // 平台采集模块，商品添加链接部分还没做
       // this.$router.push({

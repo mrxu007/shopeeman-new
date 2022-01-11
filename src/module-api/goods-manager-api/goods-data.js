@@ -66,7 +66,31 @@ export default class GoodsManagerAPI {
       return { code: -2, data: `getcollectionlist-catch: ${error}` }
     }
   }
-
+  // 添加商品信息
+  async addCollectionGoods(goodsinfo) {
+    try {
+      const { country, mallId, collection_id, product_id_list } = goodsinfo
+      const params = {
+        mallId: mallId,
+        collection_id: collection_id,
+        product_id_list: product_id_list
+      }
+      const res = await this._this.$shopeemanService.postChineseReferer(country, '/api/shopcategory/v3/category/add_collection_item/?', params, {
+        headers: {
+          'Accept': 'application/json, application/xml, text/json, text/x-json, text/javascript, text/xml',
+          'Content-Type': 'application/json'
+        }
+      })
+      const des = JSON.parse(JSON.parse(res).data)
+      const ecode = des.code
+      const message = des.message
+      const data = des.data
+      //   console.log('=============', 'mallid:' + params.mallId, ecode, des)
+      return { ecode, data, message }
+    } catch (error) {
+      return { code: -2, data: `addCollectionGoods-catch: ${error}` }
+    }
+  }
   // 创建分组
   async createShopCollection(goodsinfo) {
     try {
@@ -578,7 +602,6 @@ export default class GoodsManagerAPI {
           'X-CSRFToken': strGuid
         }
       })
-      debugger
       let ecode = null
       let message = null
       const des = JSON.parse(JSON.parse(res).data)
