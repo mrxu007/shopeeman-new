@@ -239,7 +239,7 @@ export default class NetMessageBridgeService {
         'Host': aurl.replace('https://', '')
       })
     }
-    // console.log('NetMessageBridgeService',url, JSON.stringify(options), JSON.stringify(data))
+    // console.log('NetMessageBridgeService', url, JSON.stringify(options), JSON.stringify(data))
     return this.NetMessageBridgeService().post(url, JSON.stringify(options), JSON.stringify(data))
   }
   async deleteChinese(country, api, data, options = {}, exportInfo) {
@@ -989,31 +989,6 @@ export default class NetMessageBridgeService {
   // 同步单个订单详情
   async getDetailsSinger(country, data) {
     const res = await this.getChinese(country, '/api/v3/order/get_one_order', data)
-    const resObj = res && JSON.parse(res)
-    // console.log(resObj)
-    if (resObj && resObj.status === 200) {
-      const info = JSON.parse(resObj.data)
-      if (info && info.code === 0) {
-        return {
-          code: 200,
-          data: info.data || []
-        }
-      } else {
-        return {
-          code: 50001,
-          data: info.message || []
-        }
-      }
-    } else {
-      return {
-        code: resObj.status,
-        data: `获取详情失败${resObj.statusText}`
-      }
-    }
-  }
-  // 查询订单 /api/v3/order/get_order_hint
-  async getOrderHint(country, data) {
-    const res = await this.getChinese(country, '/api/v3/order/get_order_hint', data)
     const resObj = res && JSON.parse(res)
     // console.log(resObj)
     if (resObj && resObj.status === 200) {
@@ -2071,15 +2046,18 @@ export default class NetMessageBridgeService {
       }
     }
   }
-  // 创建套装优惠
-  async createSuit(country, data) {
-    const res = await this.postChinese(country, `/api/marketing/v3/bundle_deal/`, data, {
+  // 商品一键翻新
+  async createProduct(country, data, params) {
+    const res = await this.postChineseShop(country, '/api/v3/product/create_product/', data, params, {
       Headers: {
         'Content-Type': ' application/json'
+      },
+      params: {
+        version: '3.1.0',
+        source: 'seller_center'
       }
     })
     const resObj = res && JSON.parse(res)
-    // console.log(res,resObj)
     if (resObj && resObj.status === 200) {
       const info = JSON.parse(resObj.data)
       if (info && info.code === 0) {
@@ -2088,8 +2066,39 @@ export default class NetMessageBridgeService {
           data: info.data || []
         }
       } else {
+        return { code: info.code,
+          data: info.message || resObj.statusText || ''
+        }
+      }
+    } else {
+      if (resObj.status === 403) {
         return {
-          code: 50001,
+          code: resObj.status,
+          data: `商品编辑翻新，店铺未登录！`
+        }
+      }
+      return {
+        code: resObj.status,
+        data: `商品翻新失败${resObj.statusText}` }
+    }
+  }
+  // 创建套装优惠
+  async createSuit(country, data) {
+    const res = await this.postChinese(country, `/api/marketing/v3/bundle_deal/`, data, {
+      Headers: {
+        'Content-Type': ' application/json'
+      }
+    })
+    const resObj = res && JSON.parse(res)
+    if (resObj && resObj.status === 200) {
+      const info = JSON.parse(resObj.data)
+      if (info && info.code === 0) {
+        return {
+          code: 200,
+          data: info.data || []
+        }
+      } else {
+        return { code: 50001,
           data: info.message || []
         }
       }
@@ -2100,6 +2109,7 @@ export default class NetMessageBridgeService {
       }
     }
   }
+
   // 停止或删除套装优惠
   async stopSuit(country, data) {
     const res = await this.postChinese(country, `/api/marketing/v3/bundle_deal/operation/`, data, {
