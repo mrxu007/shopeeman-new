@@ -372,7 +372,7 @@ export default {
         if (!this.multipleSelection.length) return this.$message('请选择数据后操作')
         for (let i = 0; i < this.multipleSelection.length; i++) {
           const item = this.multipleSelection[i]
-          this.deleteSelectionGroup(item)
+          await this.deleteSelectionGroup(item)
         }
       }
     },

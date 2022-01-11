@@ -1,22 +1,10 @@
-<<<<<<< HEAD
-
-=======
-<!--
- * @Author: your name
- * @Date: 2021-12-27 10:59:26
- * @LastEditTime: 2022-01-03 10:33:07
- * @LastEditors: Please set LastEditors
- * @Description: 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
- * @FilePath: \shopeeman-new\src\views\market-activity\components\MarketActivityBatchMode.vue
--->
->>>>>>> 1aa4b578b417b3b3e38aa48e2d48d51e87fcfa62
 <template>
   <div class="batch-chat">
     <div class="select-box">
       <div class="select-mall">
         <storeChoose :is-all="true" :span-width="'80px'" :select-width="'180px'" :source="'orderCenter'" @changeMallList="changeMallList" />
         <el-button type="primary" size="mini" @click="chatStart" class="mar-left" v-if="!btnLoading">开 始</el-button>
-        <el-button type="primary" size="mini" @click="isStop = true" class="mar-left" v-else>停 止</el-button>
+        <el-button type="primary" size="mini" @click="cancel" class="mar-left" v-else>停 止</el-button>
         <el-button size="mini" type="primary" @click="clearLog" class="mar-left">清空日志</el-button>
         <el-checkbox v-model="showConsole" class="mar-left">隐藏日志</el-checkbox>
       </div>
@@ -65,7 +53,7 @@
             <div class="row-style">
               <div class="chat-content-list">
                 <div v-for="(text, index) in messageList" :key="index" class="chat-content-item">
-                  <el-button type="primary" size="mini" @click="deleteMessage" :disabled="btnLoading">删除</el-button>
+                  <el-button type="primary" size="mini" @click="deleteMessage(index)" :disabled="btnLoading">删除</el-button>
                   <span class="mar-left">{{ text }}</span>
                 </div>
               </div>
@@ -109,7 +97,7 @@
       </div>
     </div>
     <div class="content">
-      <u-table ref="multipleTable" :data="tableData" :header-cell-style="{ background: '#f7fafa' }" height="550px">
+      <u-table ref="multipleTable" :data="tableData" :header-cell-style="{ background: '#f7fafa' }" height="580px">
         <u-table-column align="center" type="index" label="序号" width="50">
           <template slot-scope="scope">{{ scope.$index + 1 }}</template>
         </u-table-column>
@@ -118,7 +106,11 @@
             {{ row.country | chineseSite }}
           </template>
         </u-table-column>
-        <u-table-column width="120px" label="店铺名称" prop="mallInfo.platform_mall_name" align="center" show-overflow-tooltip />
+        <u-table-column width="120px" label="店铺名称"  align="center" show-overflow-tooltip>
+          <template slot-scope="{ row }">
+            {{ row.mallInfo.mall_alias_name || row.mallInfo.platform_mall_name }}
+          </template>
+        </u-table-column>
         <u-table-column align="center" prop="userName" label="私聊用户" width="120" show-overflow-tooltip />
         <u-table-column align="center" prop="userType" label="用户类型" width="120">
           <template slot-scope="{ row }">
@@ -141,7 +133,7 @@
 import { sha256 } from 'js-sha256'
 import storeChoose from '../../../components/store-choose'
 import StoreSelection from '../../../module-api/market-activity-api/store-selection'
-import { sleep } from '../../../util/util'
+import { sleep, batchOperation, delay, terminateThread, exportExcelDataCommon } from '../../../util/util'
 export default {
   name: 'BusinessAnalyseStoreSelection',
   components: {
@@ -205,6 +197,15 @@ export default {
   },
   mounted() {},
   methods: {
+    cancel(){
+      this.isStop = true
+      this.btnLoading = false
+      terminateThread()
+      this.$refs.Logs.writeLog(`停止操作,可能需要一些时间！`,false)
+      this.$alert('正在停止操作，可能需要一些时间！', '提示', {
+            confirmButtonText: '确定'
+          })
+    },
     changeUserType() {
       if (this.radio === 'fans') {
         this.$confirm(
@@ -222,6 +223,71 @@ export default {
           .catch(() => {
             this.radio = 'order'
           })
+      }
+    },
+    async orderBatchMessage(mall, count = { count: 5 }) {
+      try {
+        if (this.isStop) {
+          this.btnLoading = false
+          return 
+        }
+        let mallOrderList = []
+        let status = ''
+        for (let i = 0; i < this.orderType.length; i++) {
+          //同步状态
+          status = this.orderType[i]
+          mallOrderList = (await this.getOrderUser(mall, status)) || []
+        }
+
+        if (mallOrderList.length) {
+          // let fi = mallOrderList.slice(0, 1)
+          let filterList = mallOrderList
+          if (this.sendNum > 0) {
+            if (this.sendNum >= mallOrderList.length) {
+              filterList = mallOrderList
+            } else {
+              filterList = await this.getRandomArrayElements(mallOrderList, this.sendNum)
+            }
+          }
+          this.$refs.Logs.writeLog(`店铺【${mall.mall_alias_name || mall.platform_mall_name}】获取到订单用户${filterList.length}条`, true)
+          await this.batchSendMessage(filterList, mall, status)
+          await delay(this.sendTime*1000)
+        } else {
+          this.$refs.Logs.writeLog(`店铺【${mall.mall_alias_name || mall.platform_mall_name}】未获取到订单用户，聊天结束`, true)
+        }
+      } catch (error) {
+      } finally {
+        --count.count
+      }
+    },
+    async fansBatchMessage(mall, count = { count: 5 }) {
+      try {
+        if (this.isStop) {
+          this.btnLoading = false
+          return 
+        }
+        let status = 'fans'
+        let fansList = await this.getFansAll(mall)
+        console.log(fansList, 'fansList')
+        if (fansList.length) {
+          // let fi = fansList.slice(0, 2)
+          let filterList = fansList
+          if (this.sendNum > 0) {
+            if (this.sendNum >= fansList.length) {
+              filterList = fansList
+            } else {
+              filterList = await this.getRandomArrayElements(fansList, this.sendNum)
+            }
+          }
+          this.$refs.Logs.writeLog(`店铺【${mall.mall_alias_name || mall.platform_mall_name}】获取到粉丝用户${filterList.length}条`, true)
+          await this.batchSendMessage(filterList, mall, status)
+          await delay(this.sendTime*1000)
+        } else {
+          this.$refs.Logs.writeLog(`店铺【${mall.mall_alias_name || mall.platform_mall_name}】未获取到粉丝用户，聊天结束`, true)
+        }
+      } catch (error) {
+      } finally {
+        --count.count
       }
     },
     async chatStart() {
@@ -247,74 +313,12 @@ export default {
         this.showConsole = false
         if (this.isStop) {
           this.btnLoading = false
-          return this.$alert('已停止执行', '提示', {
-            confirmButtonText: '确定',
-            callback: (action) => {},
-          })
+          return 
         }
         if (this.radio == 'order') {
-          for (let mI = 0; mI < this.selectMallList.length; mI++) {
-            if (this.isStop) {
-              this.btnLoading = false
-              return this.$alert('已停止执行', '提示', {
-                confirmButtonText: '确定',
-                callback: (action) => {},
-              })
-            }
-            let mall = this.selectMallList[mI]
-            let mallOrderList = []
-            let status = ''
-            for (let i = 0; i < this.orderType.length; i++) {
-              //同步状态
-              status = this.orderType[i]
-              mallOrderList = (await this.getOrderUser(mall, status)) || []
-              console.log(mallOrderList, 'mallOrderList')
-            }
-            if (mallOrderList.length) {
-              // let fi = mallOrderList.slice(0, 1)
-              let filterList = mallOrderList
-              if (this.sendNum > 0) {
-                if (this.sendNum >= mallOrderList.length) {
-                  filterList = mallOrderList
-                } else {
-                  filterList = await this.getRandomArrayElements(mallOrderList,this.sendNum)
-                }
-              }
-              this.$refs.Logs.writeLog(`店铺【${mall.platform_mall_name}】获取到订单用户${filterList.length}条`, true)
-              await this.batchSendMessage(filterList, mall, status)
-            } else {
-              this.$refs.Logs.writeLog(`店铺【${mall.platform_mall_name}】未获取到订单用户，聊天结束`, true)
-            }
-          }
+          await batchOperation(this.selectMallList, this.orderBatchMessage)
         } else {
-          for (let mI = 0; mI < this.selectMallList.length; mI++) {
-            if (this.isStop) {
-              this.btnLoading = false
-              return this.$alert('已停止执行', '提示', {
-                confirmButtonText: '确定',
-                callback: (action) => {},
-              })
-            }
-            let mall = this.selectMallList[mI]
-            let status = 'fans'
-            let fansList = await this.getFansAll(mall)
-            console.log(fansList, 'fansList')
-            if (fansList.length) {
-              // let fi = fansList.slice(0, 2)
-              let filterList = fansList
-              if (this.sendNum > 0) {
-                if (this.sendNum >= fansList.length) {
-                  filterList = mallOrderList
-                } else {
-                  filterList = await this.getRandomArrayElements(fansList,this.sendNum)
-                }
-              }
-              this.$refs.Logs.writeLog(`店铺【${mall.platform_mall_name}】获取到粉丝用户${filterList.length}条`, true)
-              await this.batchSendMessage(filterList, mall, status)
-            } else {
-              this.$refs.Logs.writeLog(`店铺【${mall.platform_mall_name}】未获取到粉丝用户，聊天结束`, true)
-            }
-          }
+          await batchOperation(this.selectMallList, this.fansBatchMessage)
         }
         this.btnLoading = false
       } catch (error) {
@@ -348,7 +352,6 @@ export default {
       let array = await this.getFans(mall, page, limit)
       while (array.length) {
         if (this.isStop) {
-          this.$refs.Logs.writeLog('已停止执行！', false)
           break
         }
         fansList = fansList.concat(array)
@@ -366,10 +369,7 @@ export default {
     async getFans(mall, page, limit) {
       if (this.isStop) {
         this.btnLoading = false
-        return this.$alert('已停止执行', '提示', {
-          confirmButtonText: '确定',
-          callback: (action) => {},
-        })
+        return
       }
       let arrList = []
       let url = await this.$shopeemanService.getWebUrl(mall.country)
@@ -399,13 +399,15 @@ export default {
         shoparr.forEach((item) => {
           let shopId = item.match(/data-follower-shop-id=.(\d+)/)[1]
           let username = item.match(/username='(\w+)'/) ? item.match(/username='(\w+)'/)[1] : ''
-          let userid = item.match(/userid='(\d+)'/)[1]
-          let obj = {
-            shopId: shopId,
-            username: username,
-            user_id: userid,
+          if (username !== '') {
+            let userid = item.match(/userid='(\d+)'/)[1]
+            let obj = {
+              shopId: shopId,
+              username: username,
+              user_id: userid,
+            }
+            arrList.push(obj)
           }
-          arrList.push(obj)
         })
       }
       return arrList
@@ -413,10 +415,7 @@ export default {
     async batchSendMessage(mallOrderList, mall, status) {
       if (this.isStop) {
         this.btnLoading = false
-        return this.$alert('已停止执行', '提示', {
-          confirmButtonText: '确定',
-          callback: (action) => {},
-        })
+        return
       }
       try {
         let mallInfo = await window['ConfigBridgeService'].getGlobalCacheInfo('mallInfo', mall.platform_mall_id)
@@ -436,13 +435,11 @@ export default {
         }
         let loginRes = await this.$shopeemanService.loginMessage(mall.country, data, params)
         let token = loginRes.data.token
+        let oldMsg = ''
         for (let i = 0; i < mallOrderList.length; i++) {
           if (this.isStop) {
             this.btnLoading = false
-            return this.$alert('已停止执行', '提示', {
-              confirmButtonText: '确定',
-              callback: (action) => {},
-            })
+            return
           }
           let order = mallOrderList[i]
           let userName = order.buyer_user ? order.buyer_user.user_name.trim() : order.username.trim()
@@ -465,17 +462,29 @@ export default {
                 remark: '',
               }
               this.tableData.push(params)
+
             }
-            let randomIndex = Math.floor(Math.random() * this.messageList.length)
-            let msg = this.messageList[randomIndex]
+            let msg = ''
+            if (this.messageList.length == 1) {
+              msg = this.messageList[0]
+            } else {
+              let filterArr = this.messageList.filter((n) => n !== oldMsg)
+              let randomIndex = Math.floor(Math.random() * filterArr.length)
+              msg = filterArr[randomIndex]
+            }
             let timestamp = new Date().getTime()
             let msgRes = await this.sendMessage('text', msg, {}, userId, Number(mall.platform_mall_id), token, mall.country, timestamp, ShopeeUid)
             let indexA = this.tableData.findIndex((n) => n.userName == userName)
             if (msgRes.code === 200) {
+              oldMsg = msg
               this.$set(this.tableData[indexA], 'remark', `${this.tableData[indexA].remark}【消息发送成功】`)
               this.$set(this.tableData[indexA], 'chatMessage', msg)
             } else {
-              this.$set(this.tableData[indexA], 'remark', `${this.tableData[indexA].remark}【消息发送失败，${msgRes.data.message}】`)
+              this.$set(
+                this.tableData[indexA],
+                'remark',
+                `${this.tableData[indexA].remark}【消息发送失败  ${msgRes.data.message.includes('user_is_forbiddenUser is forbidden for this action') ? '该用户禁止发送消息' : ''}】`
+              )
             }
             console.log(msgRes, 'msgRes')
           }
@@ -522,7 +531,7 @@ export default {
                 this.$set(this.tableData[indexA], 'remark', `${this.tableData[indexA].remark}【优惠券发送成功】`)
                 this.$set(this.tableData[indexA], 'chatDiscount', `${voucherInfo.name}`)
               } else {
-                this.$set(this.tableData[indexA], 'remark', `${this.tableData[indexA].remark}【优惠券发送失败，${voucherRes.data.message}】`)
+                this.$set(this.tableData[indexA], 'remark', `${this.tableData[indexA].remark}【消息发送失败  ${voucherRes.data.message.includes('user_is_forbiddenUser is forbidden for this action') ? '该用户禁止发送消息' : ''}】`)
               }
             }
             console.log(vouchers, 'vouchers')
@@ -579,13 +588,14 @@ export default {
                 this.$set(this.tableData[indexA], 'remark', `${this.tableData[indexA].remark}【商品发送成功】`)
                 this.$set(this.tableData[indexA], 'chatGoods', `${goodsInfo.itemid}`)
               } else {
-                this.$set(this.tableData[indexA], 'remark', `${this.tableData[indexA].remark}【商品发送失败，${voucherRes.data.message}】`)
+                this.$set(this.tableData[indexA], 'remark', `${this.tableData[indexA].remark}【消息发送失败  ${voucherRes.data.message.includes('user_is_forbiddenUser is forbidden for this action') ? '该用户禁止发送消息' : ''}】`)
               }
             }
           }
           let indexE = this.tableData.findIndex((n) => n.userName == userName)
           this.$set(this.tableData[indexE], 'remark', `${this.tableData[indexE].remark}【操作结束】`)
-          sleep(this.sendTime)
+          await delay(this.sendTime*1000)
+          // sleep(this.sendTime)
         }
       } catch (error) {
         console.log(error)
@@ -604,7 +614,6 @@ export default {
       while (voucher_list.length) {
         if (this.isStop) {
           this.btnLoading = false
-          this.$refs.Logs.writeLog('已停止执行！', false)
           break
         }
         vouchersList = vouchersList.concat(voucher_list)
@@ -715,7 +724,6 @@ export default {
           while (package_list.length) {
             if (this.isStop) {
               this.btnLoading = false
-              this.$refs.Logs.writeLog('已停止执行！', false)
               break
             }
             //orderLen-a<5
@@ -782,7 +790,6 @@ export default {
           while (orders.length) {
             if (this.isStop) {
               this.btnLoading = false
-              this.$refs.Logs.writeLog('已停止执行！', false)
               break
             }
             //orderLen-a<5
@@ -854,9 +861,13 @@ export default {
       if (this.sendText == '') {
         return
       }
+      if (this.messageList.indexOf(this.sendText.trim()) > -1) {
+        return this.$message.warning('请不要添加重复信息!')
+      }
       this.messageList.push(this.sendText)
     },
     deleteMessage(index) {
+      console.log(index, 'deleteMessage')
       this.messageList.splice(index, 1)
     },
     clearLog() {
@@ -981,7 +992,8 @@ export default {
   }
 }
 .content {
-  padding: 16px;
-  margin-top: 20px;
+  margin: 10px;
+  // padding: 16px;
+  // margin-top: 20px;
 }
 </style>

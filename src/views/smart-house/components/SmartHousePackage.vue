@@ -286,6 +286,7 @@
       </div>
     </el-row>
     <el-dialog
+      v-if="returnMsgDialog"
       class="dialog"
       title="填写退件信息"
       :close-on-click-modal="false"

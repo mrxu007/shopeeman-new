@@ -27,7 +27,7 @@
         <el-table-column prop="categorycount" label="错误分类数" min-width="200px" align="center" />
         <el-table-column prop="descriptioncount" label="偏短的描述商品数" min-width="200px" align="center" />
         <el-table-column prop="imagecount" label="图片太少商品数" min-width="200px" align="center" />
-        <el-table-column prop="shippingcount" label="缺失包裹详情商品数" min-width="200px" align="center" fixed="right" />
+        <el-table-column prop="shippingcount" label="缺失包裹详情商品数" min-width="200px" align="center" />
       </el-table>
     </el-row>
   </el-row>

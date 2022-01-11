@@ -278,12 +278,12 @@
             <el-tooltip effect="light" placement="right-end" :visible-arrow="false" :enterable="false" style="width: 32px; height: 32px; display: inline-block">
               <div slot="content">
                 <el-image
-                  :src="[scope.row.country, scope.row.mall_info ? scope.row.mall_info.platform_mall_id : '', scope.row.goods_info.goods_img] | imageRender"
+                  :src="[scope.row.goods_info.goods_img] | imageRender"
                   style="width: 400px; height: 400px"
                 />
               </div>
               <el-image
-                v-bind:src="[scope.row.country, scope.row.mall_info ? scope.row.mall_info.platform_mall_id : '', scope.row.goods_info.goods_img] | imageRender"
+                v-bind:src="[scope.row.goods_info.goods_img,true] | imageRender"
                 style="width: 32px; height: 32px"
               ></el-image>
             </el-tooltip>
@@ -769,7 +769,7 @@
     <el-dialog v-if="secondSaleVisible" title="二次销售" :visible.sync="secondSaleVisible" top="5vh" width="1500px" :close-on-click-modal="false" @close="closeDialog">
       <second-sale :choose-data="clickRow" :second-order-data="secondOrderList" @close="closeDialog" />
     </el-dialog>
-    <el-dialog v-if="collectionVisible" title="图搜同款" :visible.sync="collectionVisible" top="5vh" width="1500px" :close-on-click-modal="false" @close="closeDialog">
+    <el-dialog v-if="collectionVisible" title="图搜同款" :visible.sync="collectionVisible" top="5vh" width="1200px" :close-on-click-modal="false" @close="closeDialog">
       <image-collection :choose-data="clickRow" :collect-type="collectType" @close="closeDialog" />
     </el-dialog>
   </div>
@@ -1921,6 +1921,7 @@ export default {
       const res = await this.$api.updateOrderTrackingNumber(params)
       if (res.data.code === 200) {
         this.$message.success('添加成功!')
+        this.closeDialog()
         this.addMoreTraNumberVisible = false
       } else {
         this.$message.error(`添加失败,${res.data.message}`)
@@ -2417,14 +2418,17 @@ export default {
         }
         const res = await this.$api.setLocalRemark(params)
         if (res.data.code === 200) {
-          this.$refs.multipleTable.toggleRowSelection(item, false)
+          let index = this.tableData.findIndex(n=>n.id===item.id)
+          console.log(index,"index")
+          this.$set(this.tableData[index],'remark',this.localRamark)
+          // this.$refs.multipleTable.toggleRowSelection(item, false)
           this.$refs.Logs.writeLog(`订单编号【${item.order_sn}】备注成功`, true)
         } else {
           this.$refs.Logs.writeLog(`订单编号【${item.order_sn}】备注失败-${res.data.message}`, false)
         }
         console.log(res)
       })
-      this.localRamark = ''
+      // this.localRamark = ''
       this.localRamarkVisible = false
       this.closeDialog(('noRefresh'))
     },

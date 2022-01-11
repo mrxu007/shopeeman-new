@@ -175,8 +175,7 @@ export default {
   methods: {
     // 打开链接
     open(val) {
-      const aa = val
-      debugger
+      window.BaseUtilBridgeService.openUrl('https://xiapi.xiapibuy.com/product/' + val.mallid + '/' + val.productid)
     },
     // 复制
     copy(attr) {
@@ -369,6 +368,7 @@ export default {
   }
 }
 .copyStyle {
+  color: orange;
     margin-right: 8px;
     cursor: pointer;
   }

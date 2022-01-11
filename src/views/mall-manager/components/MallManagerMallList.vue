@@ -1595,6 +1595,7 @@
           const res1 = this.mallListAPIInstance.getMallInfo(item)
           const res2 = this.mallListAPIInstance.getMallGoodsAmount(item)
           const res3 = await Promise.all([res1, res2])
+          console.log('1',res3)
           if (res3[0].code !== 200) {
             this.$refs.Logs.writeLog(`同步店铺【${platform_mall_name}】信息失败：${res3[0].data}`, false)
             return
@@ -1611,6 +1612,7 @@
           }
           res3[1].code === 200 ? params['itemLimit'] = res3[1].data.count_for_limit : ''
           const res = await this.mallListAPIInstance.updateMallInfo(params)
+          console.log('2',res)
           if (res.code !== 200) {
             this.$refs.Logs.writeLog(`同步店铺【${platform_mall_name}】信息失败：${res.data}`, false)
             return

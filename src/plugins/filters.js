@@ -167,35 +167,35 @@ const special_characters = [
   '❇', '┋', '┇', '┅', '﹉', '﹊', '﹍', '﹍', '∈', '∋', '∏', '▬', '☍', '△', '▽', '▲', '▼', '►', '◄', '卍', '卐', '☌', '❣',
   '✆', '✇', '✑', '✒', '✓', '✕', '✖', '✢', '✣', '✤', '✥', '✟', '✧', '❍', '❏', '❐', '❒', '✗', '✘', '✚', '✜', '✝']
 
-var chineseSite = function(val) {
+const chineseSite = function(val) {
   let attribute = val && (val + '').toLocaleUpperCase() || val
   attribute = countries_id[attribute] || attribute
   return countries[attribute] || attribute
 }
-var imageRender = function(data) {
+const imageRender = function(data) {
   const image_value = data[0]
   const mini = data[1] && '_tn' || ''
   const isArr = data[2] || ''
   const url = 'https://s-cf-tw.shopeesz.com/file/' + image_value + mini
   return isArr && [url] || url
 }
-var siteCoin = function(val) {
+const siteCoin = function(val) {
   let attribute = val && (val + '').toLocaleUpperCase() || val
   attribute = countries_id[attribute] || attribute
   return site_coin_symbol[attribute] || attribute
 }
-var sitePlatform = function(val) {
+const sitePlatform = function(val) {
   let attribute = val && (val + '').toLocaleUpperCase() || val
   attribute = site_platform[attribute] || attribute
   return site_platform[attribute] || attribute
 }
-var countryShopeebuyCom = function(val) {
+const countryShopeebuyCom = function(val) {
   let attribute = val && (val + '').toLocaleUpperCase() || val
   attribute = site_http_com[attribute] || attribute
   return site_http_com[attribute] || attribute
 }
 
-var lazadaGoodsUrl = function(val) {
+const lazadaGoodsUrl = function(val) {
   let attribute = val && (val + '').toLocaleUpperCase() || val
   attribute = lazada_goods_url[attribute] || attribute
   return lazada_goods_url[attribute] || attribute
@@ -234,5 +234,50 @@ const currencyShow = function(data){
   return temp
 }
 
-export { chineseSite, imageRender, siteCoin, sitePlatform, countryShopeebuyCom,
+const changeImgSizeFilter = (value) => {
+  const source = Number(value.source)
+  const url = value.url
+  const width = value.width || 60
+  if (!url) {
+    return '#'
+  }
+  if (/pinxiaoe.oss-cn-shenzhen.aliyuncs.com/g.test(url)) {
+    return url
+  }
+  let resUrl = ''
+  switch (source) {
+    case 1: // 拼多多
+    case 7:
+      resUrl = url + '?imageView2/2/w/' + width + '/q/80/format/webp'
+      break
+    case 2: // 淘宝
+    case 3:
+      resUrl = url + '_' + width + 'x' + width + '.jpg'
+      break
+    case 5:
+    case 8: // 1688
+      if (url.indexOf('.search.jpg') > -1) {
+        resUrl = url.replace('.search.jpg', '.' + width + 'x' + width + '.jpg')
+      } else if ((/[0-9]*x[0-9]*/).test(url)) { // 存在缩略图的情况判断
+        resUrl = url.replace(/\.[0-9]*x[0-9]*/, '.' + width + 'x' + width)
+      } else {
+        const mm = url.split('.jpg')
+        resUrl = mm && mm[0] ? mm[0] + '.' + width + 'x' + width + '.jpg' : url
+      }
+      break
+    case 4: // 京东
+    case 10: // 京喜
+      if (/\/s\d{1,}x\d{1,}_jfs\//g.test(url)) {
+        resUrl = url.replace(/\/s\d{1,}x\d{1,}_jfs\//g, '/s' + width + 'x' + width + '_jfs/')
+      } else {
+        resUrl = url.replace('popWaterMark', 'n5')
+      }
+      break
+    default:
+      break
+  }
+  return resUrl || url
+}
+
+export { chineseSite, imageRender, siteCoin, sitePlatform, countryShopeebuyCom, changeImgSizeFilter, special_characters,
   lazadaGoodsUrl, countries_option, countries_site,countries_option_sub ,currencyShow ,countries_option_sub_abroad}

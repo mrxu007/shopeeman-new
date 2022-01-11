@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-11-30 10:53:52
- * @LastEditTime: 2021-12-15 12:04:58
+ * @LastEditTime: 2022-01-06 11:05:56
  * @LastEditors: Please set LastEditors
  * @Description: 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  * @FilePath: \shopeeman-new\src\views\order-manager\components\orderCenter\secondSale.vue
@@ -70,9 +70,9 @@
               <template slot-scope="scope">
                 <el-tooltip effect="light" placement="right-end" :visible-arrow="false" :enterable="false" style="width: 56px; height: 56px; display: inline-block">
                   <div slot="content">
-                    <el-image :src="[ scope.row.goods_img] | imageRender" style="width: 400px; height: 400px" />
+                    <el-image :src="[scope.row.goods_info.goods_img] | imageRender" style="width: 400px; height: 400px" />
                   </div>
-                  <el-image :src="[scope.goods_img,true] | imageRender" style="width: 56px; height: 56px" />
+                  <el-image :src="[scope.row.goods_info.goods_img,true] | imageRender" style="width: 56px; height: 56px" />
                 </el-tooltip>
               </template>
             </el-table-column>
@@ -120,7 +120,7 @@
             <el-table-column align="center" label="商品数量" min-width="80" prop="goods_count" />
             <el-table-column align="center" label="商品图片" min-width="80">
               <template slot-scope="scope">
-                <el-image v-bind:src="[scope.row.country, scope.row.platform_mall_id, scope.row.goods_img] | imageRender" style="width: 56px; height: 56px"></el-image>
+                <el-image v-bind:src="[scope.row.goods_img] | imageRender" style="width: 56px; height: 56px"></el-image>
               </template>
             </el-table-column>
             <el-table-column align="center" prop="goods_price" label="商品价格" min-width="80" />

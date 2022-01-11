@@ -232,10 +232,6 @@ export default {
   uploadTopHistory: (data) => AppRequest.post('/topTask/uploadTopHistory', data), // 上报置顶商品历史记录
 
   // 标签列表---------------------------------------------------------------------------
-  getLabels: (data) => AppRequest.get('/publishGoodsWindowConfig/getLabels', data), // 编辑上新弹窗配置: 获取标签列表
-  getLabel: (data) => AppRequest.get('publishGoodsWindowConfig/get', data), // 编辑上新弹窗配置: 获取单个(根据标签)
-
-  saveLabel: (data) => AppRequest.post('publishGoodsWindowConfig/save', data), // 编辑上新弹窗配置: 保存配置
   getDeliveryList: (data) => AppRequest.post('/order/deliveryIndex', data), // 发货管理列表
   updateShotOrder: (data) => AppRequest.post('/order/uploadShotOrderInfo', data), // 上传拍单信息
   selfOutStock: (data) => AppRequest.post('/userStock/outStock', data), // 自有仓库出库
@@ -247,8 +243,8 @@ export default {
   // 商品置顶
   getTopHistory: (data) => AppRequest.get('/topTask/getTopHistory', { params: data }), // 查看历史记录
   topTaskUpdate: (data) => AppRequest.post('/topTask/update', data), // 定时任务列表: 更新
-  // getLabels: (data) => AppRequest.get('/publishGoodsWindowConfig/getLabels', { params: data }), // 编辑上新弹窗配置: 获取标签列表
-  // getLabel: (data) => AppRequest.get('/publishGoodsWindowConfig/get', { params: data }), // 编辑上新弹窗配置: 获取单个(根据标签)
-  // saveLabel: (data) => AppRequest.post('/publishGoodsWindowConfig/save', data), // 编辑上新弹窗配置: 保存配置
+  getLabels: (data) => AppRequest.get('/publishGoodsWindowConfig/getLabels', { params: data }), // 编辑上新弹窗配置: 获取标签列表
+  getLabel: (data) => AppRequest.get('/publishGoodsWindowConfig/get', { params: data }), // 编辑上新弹窗配置: 获取单个(根据标签)
+  saveLabel: (data) => AppRequest.post('/publishGoodsWindowConfig/save', data), // 编辑上新弹窗配置: 保存配置
   deleteLabel: (data) => AppRequest.post('/publishGoodsWindowConfig/deleteLabel', data) // 编辑上新弹窗配置: 删除
 }
