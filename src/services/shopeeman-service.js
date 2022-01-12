@@ -54,7 +54,7 @@ export default class NetMessageBridgeService {
     // console.log('userSettings',userSettings)
     const mallInfo = await this.ConfigBridgeService().getGlobalCacheInfo('mallInfo', mallId)
     const { mall_main_id, IpExpirationTime ,IPType="" ,IPIsExpired} = JSON.parse(mallInfo)
-    console.log('mallInfo',mallInfo)
+    // console.log('mallInfo',mallInfo)
     const domain_switch = userSettings && (userSettings.SwitchDominTypeSetting || userSettings.domain_switch) || '1'
     let url = this.site_domain_chinese_bk[country]
     if(!IPType.includes('大陆')){
@@ -2192,6 +2192,9 @@ export default class NetMessageBridgeService {
           data: info.data || []
         }
       } else {
+        if(info.code === 1400101530){
+          return { code: 50003,data: info.data}
+        }
         return {
           code: 50001,
           data: info.message || []

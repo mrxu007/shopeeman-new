@@ -15,7 +15,7 @@
           />
         </li>
         <li>
-          <span>商品类目：</span>
+          <!-- <span>商品类目：</span> -->
           <product-choose ref="isClean" @CateId="CateId" />
         </li>
         <li style="margin-left:19px">
@@ -1922,6 +1922,7 @@ export default {
       parmas.SkuId = this.form.returnSkuId
       parmas.Status = this.form.returnStatus
       const res = await this.StrockUpForegin.getProductList(parmas)
+      console.log("res",res)
       if (res.code !== 200) {
         this.$message.error(res.data)
       }
@@ -1976,6 +1977,7 @@ export default {
       done()
     },
     CateId(val) {
+      console.log(val,"val")
       this.form.returnCategory = val
     },
     CreatCateId(val) {
