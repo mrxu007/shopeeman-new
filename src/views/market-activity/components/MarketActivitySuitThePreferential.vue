@@ -35,19 +35,19 @@
         <el-table-column align="center" type="selection" width="50" />
         <el-table-column align="center" label="序号" width="60" type="index" />
         <el-table-column align="center" label="店铺" width="180" prop="mallName" />
-        <el-table-column prop="name" label="套装促销名称" width="140" align="center" />
+        <el-table-column prop="name" label="套装促销名称" width="160" align="center" />
         <el-table-column prop="usage_limit" label="限购次数" width="80" align="center" />
-        <el-table-column prop="time_status" label="活动规则" width="200" align="center">
+        <el-table-column prop="time_status" label="活动规则" width="280" align="center" show-overflow-tooltip>
           <template v-slot="{ row }">
             <span>{{ changeRule(row) }}</span>
           </template>
         </el-table-column>
-        <el-table-column prop="time_status" label="活动状态" width="200" align="center">
+        <el-table-column prop="time_status" label="活动状态" width="120" align="center">
           <template v-slot="{ row }">
             <span :style="{ color: row.time_status == 2 ? 'orange' : row.time_status == 3 ? '#0ad10a' : '#000' }"> {{ changeType(row.time_status) }}</span>
           </template>
         </el-table-column>
-        <el-table-column prop="extinfo_images.item_total_count" label="商品数量" width="200" align="center" />
+        <el-table-column prop="extinfo_images.item_total_count" label="商品数量" width="100" align="center" />
         <el-table-column prop="time" label="促销期间" width="280" align="center">
           <template v-slot="{ row }">
             {{ `${$dayjs(row.start_time * 1000).format('YYYY/MM/DD HH:mm:ss')} - ${$dayjs(row.end_time * 1000).format('YYYY/MM/DD HH:mm:ss')}` }}

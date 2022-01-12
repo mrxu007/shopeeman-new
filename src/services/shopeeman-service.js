@@ -23,29 +23,7 @@ export default class NetMessageBridgeService {
   }
 
   async getWebUrl(country, data) {
-    // const mallId = data.mallId || data.platform_mall_id || data.shop_id
-    // let userSettings = await this.ConfigBridgeService().getUserConfig()
-    // userSettings = JSON.parse(userSettings)
-    // // console.log('userSettings',userSettings)
-    // const mallInfo = await this.ConfigBridgeService().getGlobalCacheInfo('mallInfo', mallId)
-    // const {
-    //   mall_main_id,
-    //   IPType
-    // } = JSON.parse(mallInfo)
-    // auto 1、auto  2、mallinfo.MallMainId  3、IPType  包含 大陆   或者  ‘1’
-    // local 国内
-    // Abroad 本土
-
     const url = this.site_domain_chinese_pre[country]
-    // let domain_switch = userSettings && (userSettings.SwitchDominTypeSetting || userSettings.domain_switch) || '1'
-    // console.log(userSettings,domain_switch,IPType,mall_main_id)
-    // if (domain_switch === '3' || domain_switch ===`Abroad`) {
-    //   url = this.site_domain_local_pre[country]
-    // } else if ((domain_switch === '1' || domain_switch === 'Auto')
-    //   && mall_main_id > 0 && (IPType.indexOf('大陆') === -1 || IPType === '1')) {
-    //     debugger
-    //   url = this.site_domain_local_pre[country]
-    // }
     return url
   }
 
@@ -54,8 +32,7 @@ export default class NetMessageBridgeService {
     let userSettings = await this.ConfigBridgeService().getUserConfig()
     userSettings = JSON.parse(userSettings)
     const mallInfo = await this.ConfigBridgeService().getGlobalCacheInfo('mallInfo', mallId)
-    const { mall_main_id, IpExpirationTime, IPType = '', IPIsExpired } = JSON.parse(mallInfo)
-    console.log('mallInfo', JSON.parse(mallInfo), userSettings)
+    const { mall_main_id, IpExpirationTime ,IPType="" ,IPIsExpired} = JSON.parse(mallInfo)
     const domain_switch = userSettings && (userSettings.SwitchDominTypeSetting || userSettings.domain_switch) || '1'
     let url = this.site_domain_chinese_bk[country]
     if (!IPType.includes('大陆')) {
@@ -355,7 +332,6 @@ export default class NetMessageBridgeService {
     }
     return this.NetMessageBridgeService().put(url, JSON.stringify(options), JSON.stringify(data))
   }
-
   async mixChinese(country, api, data, options = {}, type) {
     data = JSON.parse(JSON.stringify(data))
     const url = await this.getUrlPrefix(country, data) + api
@@ -1804,7 +1780,6 @@ export default class NetMessageBridgeService {
       }
     }
   }
-
   // 处理越南首公里面单
   async getForderId(country, data) {
     const res = await this.postChinese(country, '/api/v3/shipment/can_order_arrange_shipment_multi_shop/?', data, {
@@ -1837,7 +1812,6 @@ export default class NetMessageBridgeService {
       }
     }
   }
-
   //  莱尔富经济包的面单信息
   async getLaiErFuFace(country, data) {
     const res = await this.postChinese(country, '/api/v3/logistics/get_waybill_list', data, {
@@ -1910,7 +1884,6 @@ export default class NetMessageBridgeService {
       return null
     }
   }
-
   // 发送聊天信息
   async sendMessage(country, data, params) {
     const res = await this.postChinese(country, '/webchat/api/v1.2/messages', data, params)
@@ -1955,7 +1928,6 @@ export default class NetMessageBridgeService {
       }
     }
   }
-
   //  获取优惠券
   async getVouchers(country, data) {
     const res = await this.getChinese(country, '/api/marketing/v3/voucher/list/', data)
@@ -1981,7 +1953,6 @@ export default class NetMessageBridgeService {
       }
     }
   }
-
   //  获取广告列表
   async getAdventList(country, data) {
     const res = await this.getChinese(country, '/api/marketing/v3/pas/campaign_statistics/', data)
