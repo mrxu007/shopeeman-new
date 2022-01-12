@@ -250,14 +250,18 @@ export default class MarketManagerAPI {
         quota: Number(quota), // 可使用数量
         min_spend: Number(min_spend), // 最低消费金额
         reward_type: Number(reward_type), // 类型
-        discount: discount, // 折扣
-        coin_cash_back: coin_cash_back // shoppB折扣
+        discount: discount // 折扣
+        // coin_cash_back: coin_cash_back // shoppB折扣
         // coin_cash_back:{
         //   cap:'',
         //   percentage:''
         // }
       }
-
+      if (coin_cash_back) {
+        params.coin_cash_back = coin_cash_back
+        delete params.discount
+      }
+      debugger
       const res = await this._this.$shopeemanService.postChineseReferer(country, '/api/marketing/v4/follow_prize/?', params, {
         headers: {
           'Content-Type': 'application/json',
