@@ -3,7 +3,6 @@ export default class CollectionPublicApi {
     constructor(that) {
       this._this = that
     }
-    // 收藏组装数据
     async setGoodsData(item, data) {
       let goodsData = JSON.parse(JSON.stringify(data))
       // 1：描述组装处理 PddPlatform
@@ -88,12 +87,12 @@ export default class CollectionPublicApi {
           item.Price = Number(buildgoods['price'])
         }
         buildgoods['image'] = item.Image
-        buildgoods['id'] = 168597265 // ？
         this._this.StatusName(item, `开始收藏`, true)
         console.log('组装收藏数据', buildgoods)
         const res = await this._this.$commodityService.uploadCollectGoods(buildgoods)
         const jsonData = this.isJsonString(res)
         if (jsonData.code === 200) {
+          buildgoods['id'] = jsonData.data.id
           return { code: 200, data: buildgoods }
         } else {
           return { code: -2, data: `收藏失败` }
@@ -105,16 +104,27 @@ export default class CollectionPublicApi {
     }
     async FilterSpecialSymbol(goodsData, item) {
       if (item.Platform === 9 || item.Platform === 11 || item.Platform === 12) {
-        // 过滤Emoji字符串
-        const reg = /[\uD83C[\uDF00-\uDFFF]|\uD83D[\uDC00-\uDE4F]/g
-        goodsData.CollectGoodsData.Title = goodsData.CollectGoodsData.Title.replace(reg, '')
-        goodsData.CollectGoodsData.ShortTitle = goodsData.CollectGoodsData.ShortTitle.replace(reg, '')
-        goodsData.CollectGoodsData.GoodsDesc = goodsData.CollectGoodsData.GoodsDesc.replace(reg, '')
+        goodsData.CollectGoodsData.Title = this.FilterEmojoStr(goodsData.CollectGoodsData.Title)
+        goodsData.CollectGoodsData.ShortTitle = this.FilterEmojoStr(goodsData.CollectGoodsData.ShortTitle)
+        goodsData.CollectGoodsData.GoodsDesc = this.FilterEmojoStr(goodsData.CollectGoodsData.GoodsDesc)
       }
       if (item.CategoryName === '未匹配到类目' && item.OriginCategoryId !== 0) {
         const cat = await this._this.$collectService.getGoodsCat(item.OriginCategoryId, item.Platform, item.Site)
         item.CategoryName = cat.split('|')[0] || ''
       }
+    }
+    // 过滤Emoji字符
+    FilterEmojoStr(str) {
+      const reg = /[\uD83C[\uDF00-\uDFFF]|\uD83D[\uDC00-\uDE4F]/g
+      let a = ''
+      for (let i = 0; i < str.length; i++) {
+        const item = str.charAt(i)
+        if (!this._this.$filters.special_characters.includes(item)) {
+          a += item
+        }
+      }
+      a = a.replaceAll(reg, '')
+      return a
     }
     // 组装上报的SKU数据
     BuildGoodsData(goodsData, goodsBulkInfo, item) {

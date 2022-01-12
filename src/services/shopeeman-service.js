@@ -1041,7 +1041,6 @@ export default class NetMessageBridgeService {
       }
     }
   }
-
   // 获取订单历史轨迹
   async getOrdeTrackingHistory(country, data) {
     const res = await this.getChinese(country, '/api/v3/order/get_order_tracking_history/', data)
@@ -2088,7 +2087,6 @@ export default class NetMessageBridgeService {
       }
     }
   }
-
   // 商品一键翻新
   async createProduct(country, data, params) {
     const res = await this.postChineseShop(country, '/api/v3/product/create_product/', data, params, {
@@ -2109,8 +2107,7 @@ export default class NetMessageBridgeService {
           data: info.data || []
         }
       } else {
-        return {
-          code: info.code,
+        return { code: info.code,
           data: info.message || resObj.statusText || ''
         }
       }
@@ -2123,11 +2120,9 @@ export default class NetMessageBridgeService {
       }
       return {
         code: resObj.status,
-        data: `商品翻新失败${resObj.statusText}`
-      }
+        data: `商品翻新失败${resObj.statusText}` }
     }
   }
-
   // 创建套装优惠
   async createSuit(country, data) {
     const res = await this.postChinese(country, `/api/marketing/v3/bundle_deal/`, data, {
@@ -2144,8 +2139,7 @@ export default class NetMessageBridgeService {
           data: info.data || []
         }
       } else {
-        return {
-          code: 50001,
+        return { code: 50001,
           data: info.message || []
         }
       }
