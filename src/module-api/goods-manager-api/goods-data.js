@@ -357,7 +357,37 @@ export default class GoodsManagerAPI {
       return { code: -2, data: `getGoodsDetail-catch: ${error}` }
     }
   }
-
+  // 获取shopee商品id
+  async getshopGoodsid(goodsinfo) {
+    try {
+      const { country, mallId, collection_ids, page_size, page_number } = goodsinfo
+      const params = {
+        collection_id: collection_ids,
+        page_size: page_size,
+        page_number: page_number,
+        mallId: mallId
+      }
+      debugger
+      const res = await this._this.$shopeemanService.getChinese(country, 'api/shopcategory/v3/category/get_collection_item/?', params, {
+        headers: {
+          'Accept': 'application/json, application/xml, text/json, text/x-json, text/javascript, text/xml'
+        }
+      })
+      debugger
+      const des = JSON.parse(JSON.parse(res).data)
+      let ecode = des.code ? des.code : des.errcode
+      if (des.errcode) {
+        ecode = des.errcode
+      } else {
+        ecode = des.code
+      }
+      const data = des.data
+      const message = des.message
+      return { ecode, data, message }
+    } catch (error) {
+      return { code: -2, data: `getGoodsDetail-catch: ${error}` }
+    }
+  }
   // 删除-商品详情-商品
   async getGoodsDetailListdel(goodsinfo) {
     try {

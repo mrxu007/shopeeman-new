@@ -75,7 +75,7 @@
         <!-- 选中行 isshow=true -->
         <!-- <span style="margin: 4px;">次分类目前已在shoppe页面展示</span> -->
         <!-- 选中行 isshow=false -->
-        <span style="margin: 4px;">点选显示，让买家看到此分类</span>
+        <span style="margin: 4px;">此分类目前已在Shopee页面中显示</span>
         <el-switch v-model="detailGoodsShow" active-color="#13ce66" @change="detailchangeShow" />
       </div>
       <div class="detail_table">
@@ -139,121 +139,6 @@
         <goodsItemSelector v-if="goodsItemSelectorVisible" :mall="selectMalllist" @changeGoodsItem="changeGoodsItem" />
       </el-dialog>
     </div>
-    <!-- 添加商品 -->
-    <!-- <el-dialog
-      title="添加商品"
-      :visible.sync="dialogVisible_addGoods"
-      width="1100px"
-      top="5vh"
-      class="dialogVisible_add"
-      @closed="clearDialog"
-    >
-      <div class="detail_conditon" style="display:flex;flex-wrap: wrap;"> -->
-    <!-- row1 -->
-    <!-- <div class="row">
-          <category-choose ref="goodsCategory" :level="3" :is-select="true" @setCategory="setCategory" />
-        </div> -->
-    <!-- row2 -->
-    <!-- <div class="row">
-          <div>
-            <el-select v-model="add_query.searchType" style="width:100px" size="mini">
-              <el-option label="关键字" value="1" />
-              <el-option label="商品编号" value="2" />
-            </el-select>
-            <el-input v-model="add_query.searchContent" size="mini" style="width:115px" clearable />
-          </div> -->
-
-    <!-- <div style="margin-left: 33px">
-            <label>排序：</label>
-            <el-select v-model="orderType" style="width:180px;" size="mini">
-              <el-option label="默认排序" value="1" />
-              <el-option label="销量从低往高" value="2" />
-              <el-option label="销量从高往低" value="3" />
-              <el-option label="价格从低往高" value="4" />
-              <el-option label="价格从高往低" value="5" />
-            </el-select>
-          </div> -->
-
-    <!-- <div style="margin-left: 8px;">
-            <label>价格区间：</label>
-            <el-input v-model="add_query.price_min" onkeyup="value=value.replace(/[^\d]/g,0)" size="mini" style="width:84px" clearable />
-            -
-            <el-input v-model="add_query.price_max" onkeyup="value=value.replace(/[^\d]/g,0)" size="mini" style="width:84px" clearable />
-          </div>
-
-          <el-checkbox v-model="showfit" style="margin-left: 8px;">仅显示适用商品</el-checkbox>
-          <el-checkbox v-model="showlog" style="margin-left:-18px;">隐藏日志</el-checkbox>
-        </div> -->
-    <!-- row3 -->
-    <!-- <div class="row" style="align-items: center;">
-          <div>
-            <label>商品库存：</label>
-            <el-input v-model="add_query.stock_min" onkeyup="value=value.replace(/[^\d]/g,0)" size="mini" style="width:84px" clearable />
-            -
-            <el-input v-model="add_query.stock_max" onkeyup="value=value.replace(/[^\d]/g,0)" size="mini" style="width:84px" clearable />
-          </div>
-
-          <div style="margin-left: 8px;">
-            <label>过滤商品编号：</label>
-            <el-input v-model="mall_goodsID" onkeyup="value=value.replace(/[^\d]/g,0)" size="mini" style="width:180px" clearable />
-          </div>
-
-          <div style="margin-left: 8px;">
-            <label>销量区间：</label>
-            <el-input v-model="add_query.sale_min" onkeyup="value=value.replace(/[^\d]/g,0)" size="mini" style="width:84px" clearable />
-            -
-            <el-input v-model="add_query.sale_max" onkeyup="value=value.replace(/[^\d]/g,0)" size="mini" style="width:84px" clearable />
-          </div>
-
-          <el-button size="mini" type="primary" style="margin-left: 8px;" @click="search_addGoods">查询商品</el-button>
-          <el-button size="mini" type="primary">取消操作</el-button>
-          <el-button size="mini" type="primary">添加已选商品</el-button> -->
-
-    <!-- </div>
-
-      </div>
-      <div class="detail_table">
-        <el-table
-          v-loading="loading_table"
-          :data="tableList_add"
-          height="calc(100vh - 353px)"
-          :header-cell-style="{ background: '#f7fafa' }"
-          @selection-change="handleSelectionChange"
-        >
-          <el-table-column type="selection" width="55" fixed />
-          <el-table-column prop="mallinfo.mallName" label="店铺名称" align="center" min-width="100px" fixed>
-            <template><span>{{ mallinfo.mallName }}</span></template></el-table-column>
-          <el-table-column prop="categoryName" label="类目" align="center" min-width="100px" />
-          <el-table-column prop="" label="主图" align="center" min-width="100px">
-            <template slot-scope="scope">
-              <el-tooltip effect="light" placement="right-end" :visible-arrow="false" :enterable="false" style="width: 56px; height: 56px; display: inline-block">
-                <div slot="content">
-                  <el-image :src="[ scope.row.images[0]] | imageRender" style="width: 200px; height: 200px" />
-                </div>
-                <el-image :src="[ scope.row.images[0],true] | imageRender" style="width: 56px; height: 56px" />
-              </el-tooltip>
-            </template>
-          </el-table-column>
-          <el-table-column prop="id" label="商品ID" align="center" min-width="100px" />
-          <el-table-column prop="name" label="商品标题" align="center" min-width="100px" />
-          <el-table-column prop="totalStock" label="库存" sortable align="center" min-width="100px" />
-          <el-table-column prop="totSale" label="销量" sortable align="center" min-width="100px" />
-          <el-table-column prop="minprice" label="价格" sortable align="center" min-width="100px" />
-        </el-table>
-        <div class="pagination" style="margin-left: 476px; margin-top: 10px;">
-          <el-pagination
-            :current-page.sync="add_query.page"
-            :page-sizes="[20, 50, 100, 200]"
-            :page-size="add_query.pageSize"
-            :pager-count="5"
-            layout="total, sizes, prev, pager, next, jumper"
-            :total="total"
-            @size-change="handleSizeChange"
-            @current-change="handleCurrentChange"
-          />
-        </div> -->
-    <!-- </div>
-    </el-dialog> -->
   </div>
 </template>
 <script>
@@ -411,7 +296,11 @@ export default {
       this.collection_ids = row.id
       this.currentIndex = row
       this.detailGoodsShow = row.isShow
-      this.getDetailGoodsList()
+      if (row.type === 'customized') { // 自定义
+        this.getDetailGoodsList()
+      } else {
+        this.getShoppeGoodsIDList()
+      }
       // 1 商品列表获取
       // 3 添加商品 弹窗显示 添加后的商品与 商品列表同步更新【在1的基础上叠加】
       // 2 分类名称获取and 重新命名
@@ -420,7 +309,19 @@ export default {
       // 6.删除商品 批量删除商品
       // 7. 更新master商品列表 gettablelist
     },
-    // 获取商品详情列表 1.获取id 2.获取详细信息
+    // 获取商品详情列表 1.获取id 2.获取详细信息[shoppe官方]
+    async getShoppeGoodsIDList() {
+      const params = {
+        country: this.mallinfo.country,
+        mallId: this.mallinfo.mallID,
+        collection_ids: this.collection_ids,
+        page_size: this.pageSize,
+        page_number: this.currentPage }
+      debugger
+      const res = await this.GoodsManagerAPIInstance.getshopGoodsid(params)
+      debugger
+    },
+    // 获取商品详情列表 1.获取id 2.获取详细信息[自有商品]
     async getDetailGoodsList() {
       const params = {
         collection_ids: this.collection_ids,

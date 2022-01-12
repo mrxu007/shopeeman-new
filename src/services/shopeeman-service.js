@@ -153,7 +153,7 @@ export default class NetMessageBridgeService {
         referer: url + referer
       })
     }
-    // console.log('-----', url, JSON.stringify(options))
+    console.log('-----', url + api, JSON.stringify(options))
     return this.NetMessageBridgeService().get(url + api, JSON.stringify(options))
   }
 
