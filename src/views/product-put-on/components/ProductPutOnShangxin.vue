@@ -105,7 +105,7 @@
               <el-input size="mini" style="width: 60px;margin-right: 5px"
                         v-model="basicConfig.formula.basis"></el-input>
               　+　藏价
-              <el-input size="mini" style="width: 60px;" v-model="basicConfig.formula.basis"></el-input>
+              <el-input size="mini" style="width: 60px;" v-model="basicConfig.formula.hidden"></el-input>
               <el-tooltip class="item" effect="dark" content="加价方式：原价+原价*百分百+基础价+藏价" placement="top">
                 <el-button size="mini" type="text"><i class="el-icon-question" style="padding: 0 2px;"></i></el-button>
               </el-tooltip>
@@ -717,6 +717,7 @@ import categoryMapping from '../../../components/category-mapping'
 import goodsLabel from '../../../components/goods-label'
 import { getGoodsUrl, batchOperation, terminateThread } from '@/util/util'
 import  GUID  from '@/util/guid'
+import { imageRender } from '@/plugins/filters'
 
 export default {
   data() {
@@ -1029,7 +1030,7 @@ export default {
       terminateThread()
     },
     async prepareWork(item, count = { count: 1 }) {
-      // price logistics_channels
+      // logistics_channels
       try {
         this.updateAttributeName(item, '正在准备发布')
         let goodsInitParam = {
@@ -1098,7 +1099,7 @@ export default {
         }
         for (let mall of mallList) {
           let neededTranslateInfoData = JSON.parse(neededTranslateInfoJson) && JSON.parse(neededTranslateInfoJson).data
-          // console.log('getSpuDetailByIdV2 - data', neededTranslateInfoData,JSON.stringify(neededTranslateInfoData))
+          console.log('getSpuDetailByIdV2 - data', neededTranslateInfoData)
           let goodsParam = JSON.parse(JSON.stringify(goodsInitParam))
           let mallName = mall.mall_alias_name || mall.platform_mall_name
           this.updateAttributeName(item, mallName,'mallName')
@@ -1139,15 +1140,16 @@ export default {
           goodsParam['name'] = name
           // images size_chart
           let imagesList = neededTranslateInfoData.images
+          console.log(imagesList)
           if (this.associatedConfig.pictureSetting.firstChecked) {
-            imagesList = imagesList.splice(0, 1)
+            imagesList.splice(0, 1)
           }
           if (this.associatedConfig.pictureSetting.cutChecked) {
             let maxCount = Math.floor(imagesList.length / 3)
             let count = Math.ceil(Math.random() * maxCount) || 0
             while (count--) {
               let index = Math.floor(Math.random() * imagesList.length)
-              imagesList = imagesList.splice(index, 1)
+              imagesList.splice(index, 1)
             }
           }
           if (this.associatedConfig.dimensionRadio === 2) {
@@ -1164,7 +1166,7 @@ export default {
           if (neededTranslateInfoData.sizeImages && neededTranslateInfoData.sizeImages[0]){
             goodsParam['size_chart'] = neededTranslateInfoData.sizeImages[0].img || ""
           }
-          // tier_variation model_list
+          // tier_variation model_list price
           let tier_variation = neededTranslateInfoData.tier_variation
           if(tier_variation[tier_variation.spec1].length>0){
             goodsParam['tier_variation'].push({
@@ -1187,12 +1189,17 @@ export default {
           itemmodelsJson = itemmodelsJson.replaceAll(/"sku_image":"(((?!",).)*)",/g,'"item_price":"",')
           itemmodelsJson = itemmodelsJson.replaceAll(/"sku_sn":"(((?!",).)*)",/g,'"input_normal_price":null,')
           itemmodelsJson = itemmodelsJson.replaceAll(/"sku_spec1":"(((?!",).)*)",/g,'"input_promotion_price":null,')
+          itemmodelsJson = itemmodelsJson.replaceAll(/"price":([0-9.]*),/g,'')
           itemmodelsJson = itemmodelsJson.replaceAll(/"sku_spec2":"(((?!",).)*)",/g,'')
           itemmodelsJson = itemmodelsJson.replaceAll(/"sku_price":[0-9.]*,/g,'')
           itemmodelsJson = itemmodelsJson.replaceAll(/"sku_stock":[0-9.]*,/g,'')
           console.log(itemmodelsJson)
           goodsParam['model_list'] = JSON.parse(itemmodelsJson)
+          goodsParam['price'] = this.getValuationPrice(neededTranslateInfoData.price)
           console.log('goodsParam',goodsParam)
+          let imageMapp = await this.imageCompressionUpload(mall,[goodsParam['images'][0]])
+          // let spec_imageMapp = await this.imageCompressionUpload(mall,neededTranslateInfoData.spec_image)
+          console.log('imageMapp',imageMapp,spec_imageMapp)
           this.updateAttributeName(item, '发布完成')
         }
       } catch (e) {
@@ -1200,6 +1207,100 @@ export default {
         this.updateAttributeName(item, '发布失败，数据或请求异常')
       } finally {
         --count.count
+      }
+    },
+    //图片上传
+    imageCompressionUpload(mall,imageList){
+      let that = this
+      let newImage = {}
+      return new Promise(async (resolve)=>{
+        let params = []
+        imageList.forEach(item=>{
+          params.push(Object.assign({url:item},mall))
+        })
+        await batchOperation(params,imageUpload,3)
+        console.log('结束')
+        resolve(newImage)
+      })
+      async function imageUpload(item,count={count:1}){
+        try {
+          let imageUrl = item.url || ''
+          if (imageUrl && !imageUrl.includes('http://') &&!imageUrl.includes('https://')){
+            imageUrl = this.$filters.imageRender(imageUrl)
+          }
+          let base64File = await getBase64file(imageUrl)
+          // let ImageFileJSON = await that.$shopeemanService.upload_image(that.country, {mallId:item.platform_mall_id},
+          //     { headers: {
+          //     'Content-Type': 'application/x-gzip',
+          //     'upImgType': 'file'
+          //   } }, base64File)
+          let ImageFileJSON = await that.$shopeemanService.upload_image(that.country, {mallId:item.platform_mall_id}, '', base64File)
+          console.log(ImageFileJSON)
+          newImage[item.url] = ImageFileJSON
+        }catch (e) {
+          console.log(e)
+        }finally {
+          --count.count
+        }
+      }
+      function getBase64file(url,width,height){
+        return new Promise(async (resolve)=>{
+          const image = new Image()
+          image.setAttribute('crossOrigin', 'anonymous')
+          image.src = url
+          image.onload =async function() {
+            image.width = width || image.width
+            image.height = height || image.height
+            const canvas = document.createElement('canvas')
+            canvas.width = image.width
+            canvas.height = image.height
+            const context = canvas.getContext('2d')
+            context.drawImage(image, 0, 0, image.width, image.height)
+            let base64 = canvas.toDataURL('image/png')
+            let base64Size = showSize(base64)
+            if(base64Size > 1024){
+              let width = Math.floor(image.width/3*2)
+              let height = Math.floor(image.height/3*2)
+              base64 = await getBase64file(base64,width,height)
+            }
+            resolve(base64)
+          }
+        })
+      }
+      function showSize(base64url) {
+        //把头部去掉
+        let str = base64url.replace('data:image/png;base64,', '');
+        // 找到等号，把等号也去掉
+        let equalIndex = str.indexOf('=');
+        if(str.indexOf('=')>0) {
+          str=str.substring(0, equalIndex);
+        }
+        // 原来的字符流大小，单位为字节
+        let strLength=str.length;
+        // 计算后得到的文件流大小，单位为字节
+        let fileLength=parseInt(strLength-(strLength/8)*2);
+        // 由字节转换为kb
+        let size = "";
+        size = (fileLength / 1024).toFixed(2);
+        let sizeStr = size + ""; //转成字符串
+        let index = sizeStr.indexOf("."); //获取小数点处的索引
+        let dou = sizeStr.substr(index + 1, 2) //获取小数点后两位的值
+        if (dou == "00") { //判断后两位是否为00，如果是则删除00
+          return sizeStr.substring(0, index) + sizeStr.substr(index + 3, 2)
+        }
+        return size;
+      }
+    },
+    getValuationPrice(price){
+      if (this.basicConfig.valuationRadio === 1){
+        let addPrice = (price * this.basicConfig.formula.percentage / 100).toFixed(2)
+        let newPrice = addPrice * 1 + this.basicConfig.formula.hidden * 1 + this.basicConfig.formula.basis * 1
+        newPrice = (1 * price + newPrice * this.basicConfig.discount / 100).toFixed(2)
+        return newPrice
+      }else if (this.basicConfig.valuationRadio === 2){
+
+      }else if (this.basicConfig.valuationRadio === 3){
+        return this.basicConfig.fixedPrice
       }
     },
     updateAttributeName(item, value,attributeName = 'statusName') {

@@ -13,8 +13,8 @@ export default class CommodityService {
   }
 
   //* *删除服务端商品 */
-  delCloudItems(itemList) {
-    return this.nativeService.callFunction('DeleteCloudItems', itemList)
+  delCloudItems(idsList) {
+    return this.nativeService.callFunction('DeleteCloudItems', idsList)
   }
   /** 获取服务端商品上新记录 */
   getMallAllRecordList(sysMallId) {

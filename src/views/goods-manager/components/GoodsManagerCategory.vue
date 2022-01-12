@@ -1,11 +1,11 @@
 <template>
   <div v-loading="loading" class="detail">
-    <div class="conditon" style="background-color: white;">
+    <div class="conditon" style="background-color: white; padding:8px 4px">
       <!-- row1 -->
       <div class="row">
-        <GoodsChoose @getmall="getmall" />
+        <GoodsChoose @getmall="getmall" @changeMall="changeMall" />
         <el-button style="margin-left:8px" size="mini" type="primary" :loading="searchLoading" @click="search">搜 索</el-button>
-        <el-button size="mini" type="primary">刷新</el-button>
+        <el-button size="mini" type="primary" @click="search">刷新</el-button>
       </div>
       <!-- row2 -->
       <div class="row">
@@ -38,15 +38,15 @@
         <el-table-column prop="product_count" label="商品数量" align="center" min-width="100px" />
         <el-table-column prop="status" label="知名度" align="center" min-width="100px">
           <!-- 根据商品数量进行操作，数量为0不能开启 -->
-          <template slot-scope="scope"><div><el-switch v-model="scope.row.isShow" :disabled="scope.row.product_count===0" @change="changeShow(scope.row,scope.$index)" /></div></template>
+          <template slot-scope="scope"><div><el-switch v-model="scope.row.isShow" active-color="#13ce66" :disabled="scope.row.product_count===0" @change="changeShow(scope.row,scope.$index)" /></div></template>
         </el-table-column>
         <el-table-column prop="" label="操作" align="center" min-width="100px">
           <template slot-scope="scope">
             <div style="display: flex;">
               <!-- 商品数量>0时 -->
-              <el-button v-if=" scope.row.product_count>0" size="mini" type="primary" @click="checkDetail(scope.row,scope.$index)">查看详情</el-button>
+              <el-button v-if=" scope.row.product_count>0" size="mini" type="primary" @click="checkDetail(scope.row,scope.$index),selDate=scope.row">查看详情</el-button>
               <!-- 商品数量=0时 -->
-              <el-button v-if=" scope.row.product_count===0" size="mini" type="primary" @click="addGoods">添加商品</el-button>
+              <el-button v-if=" scope.row.product_count===0" size="mini" type="primary" @click="goodsItemSelectorVisible = true,selDate=scope.row">添加商品</el-button>
               <!-- 属性为自定义时 -->
               <el-button v-if="scope.row.type=='customized'" size="mini" type="primary" @click.native="delCategory('1',scope.row)">删除</el-button>
             </div>
@@ -70,13 +70,13 @@
           <label style="width: 80px;">分类名称：</label> <el-input v-model="uptypeName" size="mini" />
         </div>
         <el-button size="mini" type="primary" @click="updataNameDetailGoods">重新命名</el-button>
-        <el-button size="mini" type="primary" @click="dialogVisible_addGoods=true">添加商品</el-button>
+        <el-button size="mini" type="primary" @click="goodsItemSelectorVisible = true">添加商品</el-button>
         <el-button size="mini" type="primary" @click="delDetailGoodsFun('2',null)">批量删除</el-button>
         <!-- 选中行 isshow=true -->
         <!-- <span style="margin: 4px;">次分类目前已在shoppe页面展示</span> -->
         <!-- 选中行 isshow=false -->
         <span style="margin: 4px;">点选显示，让买家看到此分类</span>
-        <el-switch v-model="detailGoodsShow" @change="detailchangeShow" />
+        <el-switch v-model="detailGoodsShow" active-color="#13ce66" @change="detailchangeShow" />
       </div>
       <div class="detail_table">
         <el-table
@@ -126,9 +126,21 @@
         </div>
       </div>
     </el-dialog>
-
     <!-- 添加商品 -->
-    <el-dialog
+    <div class="on_new_dialog">
+      <el-dialog
+        :visible.sync="goodsItemSelectorVisible"
+        top="7vh"
+        title="商品选择"
+        :close-on-click-modal="false"
+        :close-on-press-escape="false"
+        width="1280px"
+      >
+        <goodsItemSelector v-if="goodsItemSelectorVisible" :mall="selectMalllist" @changeGoodsItem="changeGoodsItem" />
+      </el-dialog>
+    </div>
+    <!-- 添加商品 -->
+    <!-- <el-dialog
       title="添加商品"
       :visible.sync="dialogVisible_addGoods"
       width="1100px"
@@ -136,22 +148,22 @@
       class="dialogVisible_add"
       @closed="clearDialog"
     >
-      <div class="detail_conditon" style="display:flex;flex-wrap: wrap;">
-        <!-- row1 -->
-        <div class="row">
+      <div class="detail_conditon" style="display:flex;flex-wrap: wrap;"> -->
+    <!-- row1 -->
+    <!-- <div class="row">
           <category-choose ref="goodsCategory" :level="3" :is-select="true" @setCategory="setCategory" />
-        </div>
-        <!-- row2 -->
-        <div class="row">
+        </div> -->
+    <!-- row2 -->
+    <!-- <div class="row">
           <div>
             <el-select v-model="add_query.searchType" style="width:100px" size="mini">
               <el-option label="关键字" value="1" />
               <el-option label="商品编号" value="2" />
             </el-select>
             <el-input v-model="add_query.searchContent" size="mini" style="width:115px" clearable />
-          </div>
+          </div> -->
 
-          <!-- <div style="margin-left: 33px">
+    <!-- <div style="margin-left: 33px">
             <label>排序：</label>
             <el-select v-model="orderType" style="width:180px;" size="mini">
               <el-option label="默认排序" value="1" />
@@ -162,7 +174,7 @@
             </el-select>
           </div> -->
 
-          <div style="margin-left: 8px;">
+    <!-- <div style="margin-left: 8px;">
             <label>价格区间：</label>
             <el-input v-model="add_query.price_min" onkeyup="value=value.replace(/[^\d]/g,0)" size="mini" style="width:84px" clearable />
             -
@@ -171,9 +183,9 @@
 
           <el-checkbox v-model="showfit" style="margin-left: 8px;">仅显示适用商品</el-checkbox>
           <el-checkbox v-model="showlog" style="margin-left:-18px;">隐藏日志</el-checkbox>
-        </div>
-        <!-- row3 -->
-        <div class="row" style="align-items: center;">
+        </div> -->
+    <!-- row3 -->
+    <!-- <div class="row" style="align-items: center;">
           <div>
             <label>商品库存：</label>
             <el-input v-model="add_query.stock_min" onkeyup="value=value.replace(/[^\d]/g,0)" size="mini" style="width:84px" clearable />
@@ -195,9 +207,9 @@
 
           <el-button size="mini" type="primary" style="margin-left: 8px;" @click="search_addGoods">查询商品</el-button>
           <el-button size="mini" type="primary">取消操作</el-button>
-          <el-button size="mini" type="primary">添加已选商品</el-button>
+          <el-button size="mini" type="primary">添加已选商品</el-button> -->
 
-        </div>
+    <!-- </div>
 
       </div>
       <div class="detail_table">
@@ -239,23 +251,26 @@
             @size-change="handleSizeChange"
             @current-change="handleCurrentChange"
           />
-        </div>
-      </div>
-    </el-dialog>
+        </div> -->
+    <!-- </div>
+    </el-dialog> -->
   </div>
 </template>
 <script>
 import GoodsChoose from '../../../components/goods-choose.vue'
-import categoryChoose from '../../../components/category-choose.vue'
 import GoodsManagerAPI from '../../../module-api/goods-manager-api/goods-data'
+import goodsItemSelector from '../../../components/goods-item-selector'
 import { GoodsMallgetValue, getMalls } from '../../../util/util'
 export default {
   components: {
     GoodsChoose,
-    categoryChoose
+    goodsItemSelector
   },
   data() {
     return {
+      selectMalllist: [],
+      selDate: '',
+      goodsItemSelectorVisible: false,
       detailGoodsShow: false, // 弹窗知名度
       currentIndex: '', // 当前下标
       detailLoading: false,
@@ -302,6 +317,38 @@ export default {
   created() {
   },
   methods: {
+    changeMall(val) {
+      this.selectMalllist = val
+    },
+    // 获取选择的商品
+    async changeGoodsItem(val) {
+      if (val.goodsList.length) {
+        const itemidList = []
+        val.goodsList.forEach(el => {
+          itemidList.push(Number(el.itemid))
+        })
+        const params = {
+          country: this.mallinfo.country,
+          mallId: this.mallinfo.mallID,
+          collection_id: Number(this.selDate.id),
+          product_id_list: itemidList
+        }
+        const res = await this.GoodsManagerAPIInstance.addCollectionGoods(params)
+        if (res.ecode === 0) {
+          this.$set(this.selDate, 'product_count', Number(this.selDate.product_count) + itemidList.length)
+          this.$message.success('添加成功')
+        } else {
+          this.$message.warning(`添加失败${res.message}`)
+        }
+      } else {
+        this.$message.warning('请选择要添加的商品')
+        return
+      }
+      this.goodsItemSelectorVisible = false
+      if (this.dialogVisible_detail) { // 重新详情加载列表
+        this.getDetailGoodsList()
+      }
+    },
     // 清空日志
     closelogData() {
       this.$refs.autoReplyLogs.consoleMsg = ''
@@ -510,18 +557,18 @@ export default {
     },
     // 添加商品
     addGoods() {
-      this.dialogVisible_addGoods = true
-      this.$nextTick(() => {
-        this.$refs.goodsCategory.chageSite(this.mallinfo.country) // 联动dialogVisible_addGoods 品类选择组件
-      })
-      // 0、 获取列表
-      this.search_addGoods()
-      // 1、 添加商品列表展示
-      // 2、检索类目获取，与master站点联动
-      // 3、 查询商品：检索条件 关键字 排序 价格区间 每个店铺商品数量 过滤商品编号 销量区间 ，取消操作
-      // 4、 添加已选商品 最后要刷新列表
-      // 5、 隐藏日志显示
-      // 6、仅显示适用商品 true-- list_type:all false--list_type:live
+      // this.dialogVisible_addGoods = true
+      // this.$nextTick(() => {
+      //   this.$refs.goodsCategory.chageSite(this.mallinfo.country) // 联动dialogVisible_addGoods 品类选择组件
+      // })
+      // // 0、 获取列表
+      // this.search_addGoods()
+      // // 1、 添加商品列表展示
+      // // 2、检索类目获取，与master站点联动
+      // // 3、 查询商品：检索条件 关键字 排序 价格区间 每个店铺商品数量 过滤商品编号 销量区间 ，取消操作
+      // // 4、 添加已选商品 最后要刷新列表
+      // // 5、 隐藏日志显示
+      // // 6、仅显示适用商品 true-- list_type:all false--list_type:live
     },
     // 查询商品
     async search_addGoods() {
@@ -776,7 +823,9 @@ export default {
       this.add_query.selcategory_id = val.categoryList.length && val.categoryList[val.categoryList.length - 1].toString() || ''
     },
     // 店铺选择
-    getmall(val) { this.mallinfo = val },
+    getmall(val) {
+      this.mallinfo = val
+    },
     // 关闭弹窗
     clearDialog() {},
     // 初始化数据

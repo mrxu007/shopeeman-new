@@ -600,7 +600,6 @@ import { batchOperation, dateFormat, exportExcelDataCommon, terminateThread } fr
 // getSiteRelation
 import editorOnNewGoods from '../../../components/editor_on_new_goods'
 import { shopeeSite, lazadaSite, pictureSearchOrigin, getPlatform, platformObj, getShopeeSitePlace, getLazadaSitePlace } from './collection-platformId'
-import testData from './testData'
 import XLSX from 'xlsx'
 export default {
   components: {
@@ -849,11 +848,6 @@ export default {
     this.getTaobaoAbroadAccount()
   },
   async mounted() {
-    this.goodsList = testData.data
-    this.$refs.plTable.reloadData(this.goodsList)
-    const data = this.goodsList.slice(0, 500)
-    // data是数据，state是选中还是取消选中
-    this.$refs.plTable.partRowSelections(data, true)
     document.querySelectorAll('.barChilren')[4].style.width = '102px'
     // 获取插件port
     this.port = await this.$BaseUtilService.getPluginPorts()

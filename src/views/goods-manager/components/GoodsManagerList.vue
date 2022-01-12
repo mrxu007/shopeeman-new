@@ -193,7 +193,7 @@
               </ul>
               <ul style="margin-bottom:3px">
                 <el-button type="primary" size="mini" :disabled="operationBut" @click="operation('syncOriginGoodsNum')">同步上家库存</el-button>
-                <el-button style="width: 95px;" type="primary" size="mini" :disabled="true">商品搬迁</el-button>
+                <el-button style="width: 95px;" type="primary" size="mini" @click="operation('goodsMove')">商品搬迁</el-button>
                 <el-button
                   type="primary"
                   size="mini"
@@ -202,7 +202,7 @@
                   @click="
                     operation('batchConfirm')"
                 >批量确认</el-button>
-                <el-button type="primary" size="mini" :disabled="true">商品一键翻新</el-button>
+                <el-button type="primary" :disabled="operationBut" size="mini" @click="operation('refurbishment')">商品一键翻新</el-button>
               </ul>
               <ul>
                 <el-button
@@ -795,7 +795,65 @@
             </div>
           </div>
         </div>
-      </div></el-dialog>
+      </div>
+    </el-dialog>
+    <!--活动信息弹窗-->
+    <el-dialog
+      :modal="false"
+      class="activity-dialog"
+      title="活动信息"
+      :visible.sync="activityVisible"
+      width="505px"
+      top="30vh"
+      :close-on-click-modal="false"
+      :close-on-press-escape="false"
+    >
+      <div class="wrap">
+        <span>活动折扣：</span>
+        <el-input v-model="discountVal" size="mini" onkeyup="value=value.replace(/[^\d]/g,'')" />%
+      </div>
+      <div class="wrap tip"><span>商品折扣 = 商品原价*折扣%。如原价100元的商品，输入80，最后的折扣价格为80元</span></div>
+      <div class="wrap">
+        <span>限购数量：</span>
+        <el-input v-model="quotaVal" size="mini" onkeyup="value=value.replace(/[^\d]/g,'')" />
+      </div>
+      <div class="wrap but">
+        <el-button size="mini" type="primary" @click="saveActivityMsg">保 存</el-button>
+      </div>
+    </el-dialog>
+    <!--商品搬迁设置弹窗-->
+    <el-dialog
+      v-if="moveSetVisible"
+      :modal="false"
+      class="moveSet-dialog"
+      title="商品搬迁设置"
+      :visible.sync="moveSetVisible"
+      width="710px"
+      top="30vh"
+      :close-on-click-modal="false"
+      :close-on-press-escape="false"
+    >
+      <div class="wrap">
+        <span>店铺商品设有店铺文字水印的谨慎操作</span>
+      </div>
+      <div class="wrap">
+        <span>搬迁类型：</span>
+        <el-radio v-model="moveType" label="1">同站点搬迁</el-radio>
+        <el-radio v-model="moveType" label="2">跨站点搬迁</el-radio>
+      </div>
+      <div class="wrap">
+        <span>搬迁模式：</span>
+        <el-radio v-model="movePattern" label="1">同站点搬迁</el-radio>
+        <el-radio v-model="movePattern" label="2">跨站点搬迁</el-radio>
+      </div>
+      <div class="wrap">
+        <storeChoose :span-width="'60px'" :parent-country="country" is-mall @changeMallList="changeMallList" />
+      </div>
+      <div class="wrap">
+        <el-button size="mini">取 消</el-button>
+        <el-button type="primary" size="mini">确 定</el-button>
+      </div>
+    </el-dialog>
   </el-row>
 </template>
 
@@ -812,9 +870,11 @@ export default {
   data() {
     return {
       index: 1,
-      parentVisible: false,
       isFold: true,
       showConsole: true,
+      parentVisible: false,
+      moveSetVisible: true,
+      activityVisible: false,
       categoryVisible: false,
       titleVisible: false,
       sourceVisible: false,
@@ -909,6 +969,16 @@ export default {
       goodsValue: '', // 商品值
       parentLoad1: false,
       parentLoad2: false,
+
+      // 活动信息
+      discountVal: null, // 活动折扣
+      quotaVal: null, // 限购数量
+
+      isRefurbishProduct: false, // 是否商品翻新（商品搬迁、翻新true 其它操作均为false）
+
+      // 商品搬迁
+      moveType: '1', // 搬迁类型
+      movePattern: '1', // 搬迁模式
 
       sellStatusList: [
         { value: 1, label: '售空' },
@@ -1013,6 +1083,71 @@ export default {
     await this.selectAll('source', this.sourceList)
   },
   methods: {
+    // 商品搬迁
+    goodsMove() {
+      this.moveSetVisible = true
+    },
+    // 保存翻新活动信息
+    async saveActivityMsg() {
+      if (!this.discountVal) return this.$message('请输入活动折扣')
+      if (!this.quotaVal) return this.$message('请输入限购数量')
+      this.initData()
+      this.activityVisible = false
+      this.isRefurbishProduct = true
+      this.updateNum = this.multipleSelection.length
+      await batchOperation(this.multipleSelection, this.startRefurbishment)
+      await this.deleteCollectGoodsInfo()
+      this.operationBut = false
+    },
+    // 开始翻新
+    async startRefurbishment(item, count = { count: 1 }) {
+      try {
+        let productInfo = {}
+        this.batchStatus(item, `正在获取商品详情...`, true)
+        const res = await this.getProductDetail(item)
+        if (res.code === 200) {
+          productInfo = res.data
+          // 删除商品
+          const { batchStatus, code } = await this.deleteProduct(item)
+          if (code === -2) {
+            this.failNum++
+            return this.batchStatus(item, `${batchStatus}`, false)
+          }
+          this.batchStatus(item, `${batchStatus}`, true)
+          // 翻新商品
+          const data = { mallId: item.platform_mall_id }
+          const createRes = await this.$shopeemanService.createProduct(item.country, data, [productInfo])
+          if (createRes.code === 200) {
+            this.batchStatus(item, `上新成功`, true)
+            this.successNum++
+          } else {
+            this.batchStatus(item, `上新失败:${createRes.data}`, false)
+            this.failNum++
+          }
+        } else {
+          this.batchStatus(item, res.data, false)
+          this.failNum++
+        }
+      } catch (error) {
+        this.failNum++
+        this.batchStatus(item, `翻新异常`, false)
+        console.log(error)
+      } finally {
+        --count.count
+        const temp = 100 / this.multipleSelection.length
+        this.percentage += temp
+      }
+    },
+    // 商品一键翻新
+    refurbishment() {
+      this.$confirm(`商品一键翻新操作有风险，请谨慎使用！（如商品删除成功，上新失败，商品将不会复原）`, '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(async() => {
+        this.activityVisible = true
+      })
+    },
     // 同步上家库存
     async syncOriginGoodsNum() {
       this.flag = false
@@ -1277,7 +1412,8 @@ export default {
       const res = await this.$shopeemanService.searchProductDetail(item.country, params)
       if (res.code === 200 && res.data) {
         if (Number(res.data.id) === Number(item.id)) {
-          productInfo = res.data
+          console.log('原始商品详情数据', res.data)
+          productInfo = JSON.parse(JSON.stringify(res.data))
           // 处理数据
           await this.getProductInfo(productInfo, item)
           return { code: 200, data: productInfo }
@@ -1701,9 +1837,8 @@ export default {
     // 商品信息处理
     async getProductInfo(productInfo, item) {
       try {
-        const isRefurbishProduct = false // 是否商品翻新（商品搬迁、翻新true 其它操作均为false）
         const isUseProductChannel = false // 当物流是否开放矛盾时（后台开启商品关闭），优先采用后台的物流（批量更新物流方式false 其它操作均为true）
-        productInfo.id = Number(productInfo.id)
+        productInfo.id = this.isRefurbishProduct ? 0 : Number(productInfo.id)
         productInfo.name = productInfo.name.toString().trim()
         productInfo.brand_id = Number(productInfo.brand_id)
         productInfo.size_chart = productInfo.size_chart.toString()
@@ -1745,7 +1880,7 @@ export default {
         productInfo.stock = Number(productInfo.stock)
         productInfo.parent_sku = productInfo.parent_sku.toString()
         productInfo.price = productInfo.price.toString()
-        if (isRefurbishProduct && Number(productInfo.price_before_discount) > 0) {
+        if (this.isRefurbishProduct && Number(productInfo.price_before_discount) > 0) {
           productInfo.price = productInfo.price_before_discount.toString()
         }
         productInfo.price_before_discount = productInfo.price_before_discount.toString()
@@ -1758,7 +1893,7 @@ export default {
         productInfo.description = productInfo.description.toString().trim()
         productInfo.installment_tenures = JSON.parse(JSON.stringify(productInfo.installment_tenures))
         // 处理商品 sku list
-        this.getModelList(productInfo.model_list, isRefurbishProduct)
+        this.getModelList(productInfo.model_list, this.isRefurbishProduct)
         try {
           // 获取物流
           const parmas = {}
@@ -1911,7 +2046,7 @@ export default {
         if (itemModelsJarray?.length > 0) {
           for (let i = 0; i < itemModelsJarray.length; i++) {
             const item = itemModelsJarray[i]
-            item.id = Number(item.id)
+            item.id = this.isRefurbishProduct ? 0 : Number(item.id)
             item.name = !item.name && item.sku ? item.sku : item.name.toString()
             item.sku = item.sku.toString()
             item.stock = Number(item.stock)
@@ -2064,7 +2199,12 @@ export default {
         if (item.campaignTypeList.Name?.length > 0) {
           // 删除有活动的商品
           const { batchStatus, color, code } = await this.deleteActicity(item, item.campaignTypeList)
-          if (code !== 200) return this.batchStatus(item, batchStatus, color)
+          if (code !== 200) {
+            if (this.isRefurbishProduct) {
+              return { batchStatus: batchStatus, code: -2 }
+            }
+            return this.batchStatus(item, batchStatus, color)
+          }
         }
         const params = {
           product_id_list: [Number(item.id)],
@@ -2072,20 +2212,31 @@ export default {
         }
         const res = await this.$shopeemanService.handleGoodsDelete(item.country, params)
         if (res.code === 200) {
+          if (this.isRefurbishProduct) {
+            return { batchStatus: '删除成功-开始上新', code: 200 }
+          }
           this.successNum++
           this.batchStatus(item, `删除成功`, true)
           this.deleteId.push(item.id)
         } else {
+          if (this.isRefurbishProduct) {
+            return { batchStatus: '删除失败', code: -2 }
+          }
           this.failNum++
           this.batchStatus(item, `删除失败`, false)
         }
       } catch (error) {
+        if (this.isRefurbishProduct) {
+          return { batchStatus: '删除异常', code: -2 }
+        }
         this.failNum++
         this.batchStatus(item, `删除异常`, false)
         console.log('删除异常', error)
       } finally {
-        const temp = 100 / this.deleteData.length
-        this.percentage += temp
+        if (!this.isRefurbishProduct) {
+          const temp = 100 / this.deleteData.length
+          this.percentage += temp
+        }
         --count.count
       }
     },
@@ -2237,7 +2388,7 @@ export default {
     },
     // 批量操作
     operation(operationName) {
-      if (!this.multipleSelection?.length) return this.$message('没有可操作的商品，请选择')
+      // if (!this.multipleSelection?.length) return this.$message('没有可操作的商品，请选择')
       this[operationName]()
     },
     // 选择模板
@@ -2883,6 +3034,7 @@ export default {
     initData() {
       this.isSync = false
       this.operationBut = true
+      this.isRefurbishProduct = false
       this.percentage = 0
       this.updateNum = 0
       this.successNum = 0
