@@ -577,6 +577,7 @@ export default class GoodsManagerAPI {
         headers: {
           'Content-Type': 'application/json',
           referer: `/product/${shopid}/${itemid}`,
+          'Accept': 'application/json',
           'cookies': [{ Name: 'csrftoken', Value: strGuid }],
           'X-CSRFToken': strGuid
         }
@@ -590,6 +591,7 @@ export default class GoodsManagerAPI {
         ecode = -2
         message = '点赞失败'
       }
+      debugger
       return { ecode, message }
     } catch (error) {
       return { code: -2, data: `GoodsbuyerLike-catch: ${error}` }
@@ -652,7 +654,6 @@ export default class GoodsManagerAPI {
           'X-CSRFToken': strGuid
         }
       })
-      const aa = JSON.parse(res)
       const des = JSON.parse(JSON.parse(res).data)
       let ecode = null
       let message = null

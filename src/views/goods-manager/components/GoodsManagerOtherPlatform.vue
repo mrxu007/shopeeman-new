@@ -182,14 +182,14 @@ export default {
       this.$refs.autoReplyLogs.consoleMsg = ''
       // 点赞 加购 设置
       if (this.isgoodslike || this.isbuy) {
-        if (!this.isunlikeCreateMinDay &&
-            !this.isunlikeSaleMin &&
-            !this.isunlikeViewMinDay &&
-            !this.isunlikeLikeMinDay &&
-           !this.isRandomLikeMinDay) {
-          this.$message.warning('请选择点赞设置')
-          return
-        }
+        // if (!this.isunlikeCreateMinDay &&
+        //     !this.isunlikeSaleMin &&
+        //     !this.isunlikeViewMinDay &&
+        //     !this.isunlikeLikeMinDay &&
+        //    !this.isRandomLikeMinDay) {
+        //   this.$message.warning('请选择点赞设置')
+        //   return
+        // }
         // 不点赞（加购）创建天数小于
         if (this.isunlikeCreateMinDay && !this.unlikeCreateMinDay ||
           !this.isunlikeCreateMinDay && this.unlikeCreateMinDay) {
@@ -243,6 +243,7 @@ export default {
       this.tableList = []
       this.btnloading = true
       const res1 = await batchOperation(this.selectMall, this.getMallsku)
+      this.$refs.autoReplyLogs.writeLog(`信息获取结束`)
     },
     // 获取一个店铺的所有商品
     async  getMallsku(item, count = { count: 1 }) {
@@ -256,6 +257,7 @@ export default {
         this.showlog = false
         const res = await this.GoodsManagerAPIInstance.getSkuList(goodsinfo)
         if (res.ecode === 0) {
+          if (!this.btnloading) { return }
           this.$refs.autoReplyLogs.writeLog(`【${item.mall_alias_name || item.platform_mall_name}】店铺有${res.data.page_info.total}条数据，开始查找第【${item.page}】页数据,一页48条`, true)
           // 随机点赞 --获取商品总数内xx条随机下标
           let goodsRandomIndex = []
@@ -292,6 +294,7 @@ export default {
               this.getMallsku(item, { count: 1 })
             }
           } else {
+            if (!this.btnloading) { return }
             this.$refs.autoReplyLogs.writeLog(`【${item.mall_alias_name || item.platform_mall_name}】查找完毕`, true)
             this.$refs.autoReplyLogs.writeLog(`开始获取【${item.mall_alias_name || item.platform_mall_name}】商品信息`, true)
             if (this.btnloading) {
@@ -409,6 +412,7 @@ export default {
             const sult1 = await this.getRatings(item)
             // const sult1 = await this.getRatings(item) ? '评论点赞成功' : '评论点赞失败'
             this.$set(goods, 'option_result', sult1 ? '评论点赞成功' : '评论点赞失败')
+            debugger
           }
           // 点赞 加购
           if (this.isgoodslike || this.isbuy) {
@@ -450,7 +454,6 @@ export default {
                 return
               }
               const sult2 = await this.GoodsbuyerLike(goodsinfo)
-              const aa = 222
               this.$set(goods, 'option_result', sult2 ? '商品点赞成功' : '商品点赞失败')
             }
             // 加购
@@ -461,6 +464,7 @@ export default {
                     const params = goodsinfo
                     params.modelid = goods.models[j].modelid
                     const sult3 = await this.addToCart(params)
+                    debugger
                     this.$set(goods, 'option_result', sult3 ? '商品加购成功' : '商品加购失败')
                     return
                   }
@@ -492,6 +496,7 @@ export default {
           like: true
         }
         const res = await this.GoodsManagerAPIInstance.LikeItemRating(goodsinfo)
+        debugger
         this.$refs.autoReplyLogs.writeLog(`【商品评论点赞${item.itemid}】测试,${JSON.stringify(res)}`, true)
         if (res.ecode === 0) {
           this.$refs.autoReplyLogs.writeLog(`【商品评论点赞${item.itemid}】成功`, true)
@@ -573,7 +578,9 @@ export default {
           }
           if (res.data.ratings.length >= 51) { // limit=51
             item.cm_offset = item.cm_offset + 51
-            this.getRatings(item)
+            if (this.btnloading) {
+              this.getRatings(item)
+            }
           } else {
             return
           }
@@ -586,11 +593,10 @@ export default {
     },
     // 商品点赞
     async GoodsbuyerLike(goodsinfo) {
-      const aa = 111
       try {
         const res = await this.GoodsManagerAPIInstance.GoodsbuyerLike(goodsinfo)
         const aa = JSON.stringify(res)
-        this.$refs.autoReplyLogs.writeLog(`【商品点赞${goodsinfo.itemid}】测试,${aa}`, true)
+        this.$refs.autoReplyLogs.writeLog(`【商品点赞${goodsinfo.itemid}】测试`, true)
         if (res.ecode === 0) {
           this.$refs.autoReplyLogs.writeLog(`【商品点赞${goodsinfo.itemid}】成功`, true)
           return true

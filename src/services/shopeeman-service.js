@@ -22,6 +22,19 @@ export default class NetMessageBridgeService {
     }
   }
 
+  getExtraInfoBuyer(data) {
+    return {
+      mallId: data.mallId || data.platform_mall_id || data.shop_id,
+      isEmoticons: false,
+      isFrontShopeeApi: true
+    }
+  }
+  // 各站点本土前台网址
+  async getWebUrlLocal(country, data) {
+    const url = this.site_domain_local_pre[country]
+    return url
+  }
+
   async getWebUrl(country, data) {
     // const mallId = data.mallId || data.platform_mall_id || data.shop_id
     // let userSettings = await this.ConfigBridgeService().getUserConfig()
@@ -188,9 +201,9 @@ export default class NetMessageBridgeService {
 
   async getChineseBuyer(country, api, data, options = {}, exportInfo) {
     data = JSON.parse(JSON.stringify(data))
-    const url = await this.getWebUrl(country, data) + api
-    const baseurl = await this.getWebUrl(country, data)
-    options['extrainfo'] = this.getExtraInfo(data)
+    const url = await this.getWebUrlLocal(country, data) + api
+    const baseurl = await this.getWebUrlLocal(country, data)
+    options['extrainfo'] = this.getExtraInfoBuyer(data)
     if (exportInfo) { // 适配店铺管理---导入店铺
       options['extrainfo']['exportInfo'] = exportInfo
     }
@@ -209,8 +222,9 @@ export default class NetMessageBridgeService {
 
   async postChineseBuyer(country, api, data, options = {}, exportInfo) {
     data = JSON.parse(JSON.stringify(data))
-    const url = await this.getWebUrl(country, data) + api
-    options['extrainfo'] = this.getExtraInfo(data)
+    const url = await this.getWebUrlLocal(country, data) + api
+    const baseurl = await this.getWebUrlLocal(country, data)
+    options['extrainfo'] = this.getExtraInfoBuyer(data)
     if (exportInfo) { // 适配店铺管理---导入店铺
       options['extrainfo']['exportInfo'] = exportInfo
       // Object.assign(options['extrainfo'],JSON.parse(JSON.stringify()))
@@ -219,11 +233,11 @@ export default class NetMessageBridgeService {
     const referer = options['headers'] && options['headers'].referer
     if (referer) {
       options['headers'] = Object.assign(options['headers'], {
-        origin: url,
-        referer: url + referer
+        origin: baseurl,
+        referer: baseurl + referer
       })
     }
-    // console.log(url, JSON.stringify(options), JSON.stringify(data))
+    console.log(url, JSON.stringify(options), JSON.stringify(data))
     return this.NetMessageBridgeService().post(url, JSON.stringify(options), JSON.stringify(data))
   }
 
