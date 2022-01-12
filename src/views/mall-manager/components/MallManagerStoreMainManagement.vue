@@ -1559,7 +1559,7 @@ export default {
       this.total = this.tableList.length
       this.page = 1
       this.tableListEnd = this.tableList.slice((this.page - 1) * this.pageSize, this.page * this.pageSize)
-      console.log(this.tableListEnd)
+      console.log(this.tableListEnd,JSON.stringify(this.tableListEnd))
     },
     // 分页递增
     indexMethod(index) {

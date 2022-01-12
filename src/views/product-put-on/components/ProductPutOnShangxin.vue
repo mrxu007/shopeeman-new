@@ -717,6 +717,7 @@ import categoryMapping from '../../../components/category-mapping'
 import goodsLabel from '../../../components/goods-label'
 import { getGoodsUrl, batchOperation, terminateThread } from '@/util/util'
 import  GUID  from '@/util/guid'
+import { imageRender } from '@/plugins/filters'
 
 export default {
   data() {
@@ -1196,6 +1197,9 @@ export default {
           goodsParam['model_list'] = JSON.parse(itemmodelsJson)
           goodsParam['price'] = this.getValuationPrice(neededTranslateInfoData.price)
           console.log('goodsParam',goodsParam)
+          let imageMapp = await this.imageCompressionUpload(mall,[goodsParam['images'][0]])
+          // let spec_imageMapp = await this.imageCompressionUpload(mall,neededTranslateInfoData.spec_image)
+          console.log('imageMapp',imageMapp,spec_imageMapp)
           this.updateAttributeName(item, '发布完成')
         }
       } catch (e) {
@@ -1203,6 +1207,88 @@ export default {
         this.updateAttributeName(item, '发布失败，数据或请求异常')
       } finally {
         --count.count
+      }
+    },
+    //图片上传
+    imageCompressionUpload(mall,imageList){
+      let that = this
+      let newImage = {}
+      return new Promise(async (resolve)=>{
+        let params = []
+        imageList.forEach(item=>{
+          params.push(Object.assign({url:item},mall))
+        })
+        await batchOperation(params,imageUpload,3)
+        console.log('结束')
+        resolve(newImage)
+      })
+      async function imageUpload(item,count={count:1}){
+        try {
+          let imageUrl = item.url || ''
+          if (imageUrl && !imageUrl.includes('http://') &&!imageUrl.includes('https://')){
+            imageUrl = this.$filters.imageRender(imageUrl)
+          }
+          let base64File = await getBase64file(imageUrl)
+          // let ImageFileJSON = await that.$shopeemanService.upload_image(that.country, {mallId:item.platform_mall_id},
+          //     { headers: {
+          //     'Content-Type': 'application/x-gzip',
+          //     'upImgType': 'file'
+          //   } }, base64File)
+          let ImageFileJSON = await that.$shopeemanService.upload_image(that.country, {mallId:item.platform_mall_id}, '', base64File)
+          console.log(ImageFileJSON)
+          newImage[item.url] = ImageFileJSON
+        }catch (e) {
+          console.log(e)
+        }finally {
+          --count.count
+        }
+      }
+      function getBase64file(url,width,height){
+        return new Promise(async (resolve)=>{
+          const image = new Image()
+          image.setAttribute('crossOrigin', 'anonymous')
+          image.src = url
+          image.onload =async function() {
+            image.width = width || image.width
+            image.height = height || image.height
+            const canvas = document.createElement('canvas')
+            canvas.width = image.width
+            canvas.height = image.height
+            const context = canvas.getContext('2d')
+            context.drawImage(image, 0, 0, image.width, image.height)
+            let base64 = canvas.toDataURL('image/png')
+            let base64Size = showSize(base64)
+            if(base64Size > 1024){
+              let width = Math.floor(image.width/3*2)
+              let height = Math.floor(image.height/3*2)
+              base64 = await getBase64file(base64,width,height)
+            }
+            resolve(base64)
+          }
+        })
+      }
+      function showSize(base64url) {
+        //把头部去掉
+        let str = base64url.replace('data:image/png;base64,', '');
+        // 找到等号，把等号也去掉
+        let equalIndex = str.indexOf('=');
+        if(str.indexOf('=')>0) {
+          str=str.substring(0, equalIndex);
+        }
+        // 原来的字符流大小，单位为字节
+        let strLength=str.length;
+        // 计算后得到的文件流大小，单位为字节
+        let fileLength=parseInt(strLength-(strLength/8)*2);
+        // 由字节转换为kb
+        let size = "";
+        size = (fileLength / 1024).toFixed(2);
+        let sizeStr = size + ""; //转成字符串
+        let index = sizeStr.indexOf("."); //获取小数点处的索引
+        let dou = sizeStr.substr(index + 1, 2) //获取小数点后两位的值
+        if (dou == "00") { //判断后两位是否为00，如果是则删除00
+          return sizeStr.substring(0, index) + sizeStr.substr(index + 3, 2)
+        }
+        return size;
       }
     },
     getValuationPrice(price){
