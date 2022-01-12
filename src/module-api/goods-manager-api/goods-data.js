@@ -367,13 +367,11 @@ export default class GoodsManagerAPI {
         page_number: page_number,
         mallId: mallId
       }
-      debugger
-      const res = await this._this.$shopeemanService.getChinese(country, 'api/shopcategory/v3/category/get_collection_item/?', params, {
+      const res = await this._this.$shopeemanService.getChinese(country, '/api/shopcategory/v3/category/get_collection_item/?', params, {
         headers: {
           'Accept': 'application/json, application/xml, text/json, text/x-json, text/javascript, text/xml'
         }
       })
-      debugger
       const des = JSON.parse(JSON.parse(res).data)
       let ecode = des.code ? des.code : des.errcode
       if (des.errcode) {
@@ -383,6 +381,79 @@ export default class GoodsManagerAPI {
       }
       const data = des.data
       const message = des.message
+      return { ecode, data, message }
+    } catch (error) {
+      return { code: -2, data: `getGoodsDetail-catch: ${error}` }
+    }
+  }
+  // 获取shopee商品详情
+  async getshopGoodsDetail(goodsinfo) {
+    try {
+      const { country, mallId, productIds } = goodsinfo
+      const params = {
+        mallId: mallId,
+        query: `query Products($productIds: [String], $statusType: Int) {
+          products(productIds: $productIds, statusType: $statusType)
+          {
+          items {
+            itemid,
+            sold,
+            price,
+            promotions {
+              itemid,
+              promotionId,
+              startTime,
+              price,
+              endTime,
+               promotionType
+              },
+              logisticsChannels {
+                name,
+                enabled
+              },
+              name,
+              inputOriginPrice,
+              originPrice,
+              normalStock,
+              status,
+              stock,
+              pffTag,
+              normalSellerStock,
+              normalWmsStock,
+              images,
+              hasWholesale,
+              minPurchaseLimit,
+              modelList {
+                itemid,
+                modelid,
+                name,
+                inputOriginPrice,
+                originPrice,
+                normalStock,
+                stock,
+                pffTag,
+                normalSellerStock,
+                normalWmsStock,
+                isDefault
+              }
+            }
+          }
+         }`,
+        variables: {
+          productIds: productIds,
+          statusType: 0
+        }
+      }
+      const res = await this._this.$shopeemanService.postChinese(country, '/api/n/marketing/graphql/?', params, {
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json, application/xml, text/json, text/x-json, text/javascript, text/xml'
+        }
+      })
+      const des = JSON.parse(JSON.parse(res).data)
+      const ecode = des.data.products ? 0 : -1
+      const data = des.data
+      const message = ecode === 0 ? 'success' : 'warnning'
       return { ecode, data, message }
     } catch (error) {
       return { code: -2, data: `getGoodsDetail-catch: ${error}` }

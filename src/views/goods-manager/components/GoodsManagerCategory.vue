@@ -5,7 +5,7 @@
       <div class="row">
         <GoodsChoose @getmall="getmall" @changeMall="changeMall" />
         <el-button style="margin-left:8px" size="mini" type="primary" :loading="searchLoading" @click="search">搜 索</el-button>
-        <el-button size="mini" type="primary" @click="search">刷新</el-button>
+        <!-- <el-button size="mini" type="primary" @click="search">刷新</el-button> -->
       </div>
       <!-- row2 -->
       <div class="row">
@@ -70,8 +70,8 @@
           <label style="width: 80px;">分类名称：</label> <el-input v-model="uptypeName" size="mini" />
         </div>
         <el-button size="mini" type="primary" @click="updataNameDetailGoods">重新命名</el-button>
-        <el-button size="mini" type="primary" @click="goodsItemSelectorVisible = true">添加商品</el-button>
-        <el-button size="mini" type="primary" @click="delDetailGoodsFun('2',null)">批量删除</el-button>
+        <el-button v-if="selDate.type==='customized'" size="mini" type="primary" @click="goodsItemSelectorVisible = true">添加商品</el-button>
+        <el-button v-if="selDate.type==='customized'" size="mini" type="primary" @click="delDetailGoodsFun('2',null)">批量删除</el-button>
         <!-- 选中行 isshow=true -->
         <!-- <span style="margin: 4px;">次分类目前已在shoppe页面展示</span> -->
         <!-- 选中行 isshow=false -->
@@ -88,6 +88,7 @@
           @selection-change="DetailSelectionChange"
         >
           <el-table-column type="selection" width="55" fixed />
+          <el-table-column type="index" width="55" label="序号" fixed />
           <el-table-column prop="itemid" label="商品ID" align="center" min-width="100px" fixed />
           <el-table-column prop="images" label="商品图片" align="center" min-width="100px">
             <template slot-scope="scope">
@@ -107,7 +108,7 @@
           <el-table-column prop="" label="操作" align="center" min-width="100px">
             <template v-slot="{row}">
               <div>
-                <el-button size="mini" type="primary" @click="delDetailGoodsFun('1',row.itemid)">删除</el-button>
+                <el-button v-if="selDate.type==='customized'" size="mini" type="primary" @click="delDetailGoodsFun('1',row.itemid)">删除</el-button>
               </div>
             </template>
           </el-table-column>
@@ -218,12 +219,16 @@ export default {
           collection_id: Number(this.selDate.id),
           product_id_list: itemidList
         }
-        const res = await this.GoodsManagerAPIInstance.addCollectionGoods(params)
-        if (res.ecode === 0) {
-          this.$set(this.selDate, 'product_count', Number(this.selDate.product_count) + itemidList.length)
-          this.$message.success('添加成功')
-        } else {
-          this.$message.warning(`添加失败${res.message}`)
+        try {
+          const res = await this.GoodsManagerAPIInstance.addCollectionGoods(params)
+          if (res.ecode === 0) {
+            this.$set(this.selDate, 'product_count', Number(this.selDate.product_count) + itemidList.length)
+            this.$message.success('添加成功')
+          } else {
+            this.$message.warning(`添加失败${res.message}`)
+          }
+        } catch (error) {
+          this.$message.warning(`商品添加--catch${error}`)
         }
       } else {
         this.$message.warning('请选择要添加的商品')
@@ -232,6 +237,7 @@ export default {
       this.goodsItemSelectorVisible = false
       if (this.dialogVisible_detail) { // 重新详情加载列表
         this.getDetailGoodsList()
+        this.showlog = false
       }
     },
     // 清空日志
@@ -241,39 +247,19 @@ export default {
     // 分页
     handleSizeChange(val) {
       this.pageSize = val
-      this.dataCut()
-      // this.add_query.pageSize = val
-      // 1 如果条件为空，则走 getaddGoodsList()
-      // 2 不为空，则走 search_addGoods()
-      // if (this.add_query.mall_goodsNum === '' &&
-      //    this.add_query.searchContent === '' &&
-      //    this.add_query.sale_min === '' &&
-      //    this.add_query.sale_max === '' &&
-      //    this.add_query.price_min === '' &&
-      //    this.add_query.price_max === '') {
-      //   this.getaddGoodsList()
-      // } else {
-      //   this.search_addGoods()
-      // }
-      // this.search_addGoods()
+      if (this.selDate.type === 'customized') { // 自定义
+        this.dataCut()
+      } else { // shopp官方
+        this.getShoppeGoodsIDList()
+      }
     },
     handleCurrentChange(val) {
       this.currentPage = val
-      this.dataCut()
-      // this.add_query.page = val
-      // 1 如果条件为空，则走 getaddGoodsList()
-      // 2 不为空，则走 search_addGoods()
-      // if (this.add_query.mall_goodsNum === '' &&
-      //    this.add_query.searchContent === '' &&
-      //    this.add_query.sale_min === '' &&
-      //    this.add_query.sale_max === '' &&
-      //    this.add_query.price_min === '' &&
-      //    this.add_query.price_max === '') {
-      //   this.getaddGoodsList()
-      // } else {
-      //   this.search_addGoods()
-      // }
-      // this.search_addGoods()
+      if (this.selDate.type === 'customized') { // 自定义
+        this.dataCut()
+      } else { // shopp官方
+        this.getShoppeGoodsIDList()
+      }
     },
     // 获取店铺名称
     async getinfo() {
@@ -317,9 +303,44 @@ export default {
         collection_ids: this.collection_ids,
         page_size: this.pageSize,
         page_number: this.currentPage }
-      debugger
       const res = await this.GoodsManagerAPIInstance.getshopGoodsid(params)
-      debugger
+      if (res.ecode === 0) {
+        this.total = res.data.page_info.total
+        const productIds = []
+        res.data.list.forEach(el => {
+          productIds.push(el.toString())
+        })
+        if (productIds) {
+          await this.getShoppeGoodsListDetail(productIds)
+          this.detailLoading = false
+        }
+      } else {
+        this.$message.warning(`${res.message}`)
+      }
+    },
+    async getShoppeGoodsListDetail(productIds) {
+      const params = {
+        country: this.mallinfo.country,
+        mallId: this.mallinfo.mallID,
+        productIds: productIds }
+      const res = await this.GoodsManagerAPIInstance.getshopGoodsDetail(params)
+      if (res.ecode === 0) {
+        this.tableDataCut = []
+        const arr = res.data.products.items
+        // 获取最小价格
+        let minprice = null
+        for (let i = 0; i < arr.length; i++) {
+          for (let j = 0; j < arr[i].modelList.length; j++) {
+            minprice = arr[i].modelList[0].inputOriginPrice || arr[i].modelList[0].originPrice
+            const olprice = arr[i].modelList[j].inputOriginPrice || arr[i].modelList[j].originPrice
+            if (minprice > olprice) {
+              minprice = olprice
+            }
+          }
+          arr[i].minPrice = minprice
+        }
+        this.tableDataCut = arr
+      }
     },
     // 获取商品详情列表 1.获取id 2.获取详细信息[自有商品]
     async getDetailGoodsList() {

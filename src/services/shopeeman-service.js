@@ -156,7 +156,7 @@ export default class NetMessageBridgeService {
         referer: url + referer
       })
     }
-    console.log('-----', url + api, JSON.stringify(options))
+    // console.log('-----', url + api, JSON.stringify(options))
     return this.NetMessageBridgeService().get(url + api, JSON.stringify(options))
   }
 
@@ -2245,8 +2245,8 @@ export default class NetMessageBridgeService {
           data: info.data || []
         }
       } else {
-        if(info.code === 1400101530){
-          return { code: 50003,data: info.data}
+        if (info.code === 1400101530) {
+          return { code: 50003, data: info.data }
         }
         return {
           code: 50001,
@@ -2457,12 +2457,12 @@ export default class NetMessageBridgeService {
   productSelector(country, data, option) {
     return this.getChinese(country, '/api/marketing/v3/public/product_selector/', data, option)
   }
-  async upload_image(country,data,options,base64){
-    let api = '/api/v3/general/upload_image/'
+  async upload_image(country, data, options, base64) {
+    const api = '/api/v3/general/upload_image/'
     const url = await this.getUrlPrefix(country, data) + api
-    if(options){
+    if (options) {
       options['extrainfo'] = this.getExtraInfo(data)
-    }else{
+    } else {
       options = {
         'extrainfo': this.getExtraInfo(data)
       }
@@ -2475,7 +2475,7 @@ export default class NetMessageBridgeService {
         referer: url + referer
       })
     }
-    let filename = new Date().getTime() +''+Math.floor(Math.random() * 100)  +'.png'
+    const filename = new Date().getTime() + '' + Math.floor(Math.random() * 100) + '.png'
     console.log(url, JSON.stringify(options), null, base64, filename, 'application/x-gzip')
     return this.NetMessageBridgeService().uploadFile(url, JSON.stringify(options), {}, base64, filename)
   }
