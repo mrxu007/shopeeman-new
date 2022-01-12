@@ -188,7 +188,7 @@
         <p v-else @click="isShow = true">展开<i class="el-icon-caret-bottom" /></p>
       </div>
     </header>
-    <div class="content" :style="{ height: isShow ? '490px' : '800px' }">
+    <div class="content" :style="{ height: isShow ? '470px' : '800px' }">
       <p>
         温馨提示：1、最终毛利 = 订单收入-采购金额-仓库发货金额（生成仓库发货金额才会去计算，会有汇率差）；含邮费毛利 =
         订单收入-采购价；2、若登录了Lazada买手号但点击采购订单号依旧提示登录，请使用编辑采购信息编辑重新保存下拍单信息
@@ -198,7 +198,7 @@
         ref="multipleTable"
         :data="tableData"
         tooltip-effect="dark"
-        :height="isShow ? '420px' : '750px'"
+        :height="isShow ? '410px' : '750px'"
         @selection-change="handleSelectionChange"
         :row-style="{ height: '60px !important' }"
         :cell-style="{ padding: '0px' }"
@@ -2601,6 +2601,7 @@ export default {
           this.total = res.data.data.total
           let sysOrders = ''
           let grossAmountRequest = []
+          this.tableLoading = false
           this.tableData.forEach(async (row, i) => {
             //计算含邮毛利
             if (row.shot_order_info.shot_order_sn) {
@@ -2657,7 +2658,7 @@ export default {
         this.$message.error(`获取订单列表失败`)
         this.tableLoading = false
       }
-      this.tableLoading = false
+      
       console.log(this.tableData)
     },
     // 获取买手号（服务端）

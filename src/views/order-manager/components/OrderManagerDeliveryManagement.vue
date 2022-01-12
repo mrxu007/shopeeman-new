@@ -283,6 +283,26 @@ export default {
     }, 2000)
   },
   methods: {
+    //标记面单已下载
+    async updateOrderPrintStatus(array){
+      let mainOrderSns = []
+      array.forEach(item=>{
+        mainOrderSns.push(item.MainOrderNo)
+      })
+      let params = {
+        mainOrderSns: mainOrderSns.join(','),
+        isPrint: '1'
+      }
+      let res = await this.$api.updateOrderPrintStatus(params)
+      if(res.data.code === 200){ 
+        mainOrderSns.forEach(item=>{
+          let index = this.tableData.findIndex(n=>{ return n.main_order_sn === item})
+          if(index>-1){
+            this.$set(this.tableData[index],'is_print','1')
+          }
+        })
+      }
+    },
     changeTime(val, key, subKey) {
       let days = getDaysBetween(new Date(val[0]).getTime(), new Date(val[1]).getTime())
       if (days > 93) {
@@ -412,7 +432,7 @@ export default {
           let params = {
             PDFUrl: info.url || '',
             OrderNo: orderInfo.order_sn,
-            MainOrderNo: orderInfo.order_sn,
+            MainOrderNo: orderInfo.main_order_sn,
             PlatformLogisticsId: orderInfo.tracking_no,
             PlatformLogisticsName: '',
             CreateTime: orderInfo.created_at,
@@ -463,7 +483,7 @@ export default {
           return this.$refs.Logs.writeLog(`预览失败,${message}`, false)
         }
         let PdfInfoList = JSON.parse(JSON.stringify(PdfInfoModel))
-         PdfInfoList.forEach((item) => {
+        PdfInfoList.forEach((item) => {
           let htmlUrl = pdfInfoObj.data.find((n) => n && n.OrderSn == item.OrderNo)
           if (htmlUrl) {
             item.PDFUrl = htmlUrl.PDFFilePath
@@ -492,7 +512,7 @@ export default {
           let orderInfo = OrderList.find((n) => {
             return n.order_sn == info.order_sn
           })
-          let  htmlUrl = (pdfInfoObj.data && pdfInfoObj.data.find((n) => n && n.OrderSn == orderInfo.order_sn)) || null
+          let htmlUrl = (pdfInfoObj.data && pdfInfoObj.data.find((n) => n && n.OrderSn == orderInfo.order_sn)) || null
           console.log(htmlUrl, 'htmlUrl')
           let conParams = {
             HtmlFilePath: htmlUrl ? htmlUrl.PDFFilePath : info.url && info.url.includes('.html') ? info.url : '',
@@ -518,8 +538,7 @@ export default {
           }
           return this.$refs.Logs.writeLog(`打印面单失败,${message}`, false)
         }
-        
-       
+
         let pdfDownloadModel = {
           IsDownload: isDownload,
           PdfExtendName: PdfLower ? '.pdf' : '.PDF',
@@ -537,16 +556,17 @@ export default {
         await window['BaseUtilBridgeService'].downloadPdf(pdfDownloadModel)
         this.tableLoading = false
         isDownload && this.$refs.Logs.writeLog(`面单下载完成,请前往桌面查看`, true)
+        await this.updateOrderPrintStatus(PdfInfoModel)
         IsPrintVirtual && this.$refs.Logs.writeLog(`虚拟面单下载完成,请前往软件所在文件夹查看`, true)
       } catch (error) {
-        console.log("error",error)
+        console.log('error', error)
         this.tableLoading = false
-        if(error.includes('进程')){
+        if (error.includes('进程')) {
           this.$refs.Logs.writeLog(`打印面单失败，文件被占用请重启软件`, false)
-        }else{
+        } else {
           this.$refs.Logs.writeLog(`打印面单失败，${error}`, false)
         }
-        
+
         console.log(error, 'downFace')
       }
     },
@@ -615,48 +635,52 @@ export default {
     },
     //获取导出数据
     async getExportData() {
-      let sysMallId = ''
-      this.selectMallList.forEach((item, index) => {
-        if (index === 0) {
-          sysMallId = item.id
-        } else {
-          sysMallId = sysMallId + ',' + item.id
-        }
-      })
-      let params = JSON.parse(JSON.stringify(this.selectForm))
-      params['page'] = 1
-      params['pageSize'] = 200
-      params['sysMallId'] = sysMallId
-      params['createTime'] = this.createTime.length ? this.createTime[0] + ' 00:00:00' + '/' + this.createTime[1] + ' 23:59:59' : ''
-      this.tableLoading = true
-      const { data } = await this.$api.getDeliveryList(params)
-      let exportData = []
-      let dataFlag = (data && data.code === 200 && data.data.data && data.data.data) || []
-      while (dataFlag && dataFlag.length) {
-        dataFlag.forEach(async (item) => {
-          item.goodsLink = await this.joinLink(item, item.goodsInfo[0].goods_id)
-        })
-        exportData = exportData.concat(dataFlag)
-        params.page++
-        let { data } = await this.$api.getDeliveryList(params)
-        dataFlag = (data && data.code === 200 && data.data.data && data.data.data) || []
-      }
-      this.tableLoading = false
-      if (!exportData.length) {
-        return this.$message.warning('没有可导出的数据！')
-      }
-      let subExportData = []
-      let dataCopy = JSON.parse(JSON.stringify(exportData))
-      if (dataCopy.length > 7000) {
-        let i = 0
-        while (dataCopy.length) {
-          subExportData[i] = dataCopy.splice(0, 7000)
-          i++
-        }
+      if (this.multipleSelection.length) {
+        this.tableToExcel([this.multipleSelection])
       } else {
-        subExportData[0] = dataCopy
+        let sysMallId = ''
+        this.selectMallList.forEach((item, index) => {
+          if (index === 0) {
+            sysMallId = item.id
+          } else {
+            sysMallId = sysMallId + ',' + item.id
+          }
+        })
+        let params = JSON.parse(JSON.stringify(this.selectForm))
+        params['page'] = 1
+        params['pageSize'] = 200
+        params['sysMallId'] = sysMallId
+        params['createTime'] = this.createTime.length ? this.createTime[0] + ' 00:00:00' + '/' + this.createTime[1] + ' 23:59:59' : ''
+        this.tableLoading = true
+        const { data } = await this.$api.getDeliveryList(params)
+        let exportData = []
+        let dataFlag = (data && data.code === 200 && data.data.data && data.data.data) || []
+        while (dataFlag && dataFlag.length) {
+          dataFlag.forEach(async (item) => {
+            item.goodsLink = await this.joinLink(item, item.goodsInfo[0].goods_id)
+          })
+          exportData = exportData.concat(dataFlag)
+          params.page++
+          let { data } = await this.$api.getDeliveryList(params)
+          dataFlag = (data && data.code === 200 && data.data.data && data.data.data) || []
+        }
+        this.tableLoading = false
+        if (!exportData.length) {
+          return this.$message.warning('没有可导出的数据！')
+        }
+        let subExportData = []
+        let dataCopy = JSON.parse(JSON.stringify(exportData))
+        if (dataCopy.length > 7000) {
+          let i = 0
+          while (dataCopy.length) {
+            subExportData[i] = dataCopy.splice(0, 7000)
+            i++
+          }
+        } else {
+          subExportData[0] = dataCopy
+        }
+        this.tableToExcel(subExportData)
       }
-      this.tableToExcel(subExportData)
     },
     // 导出
     tableToExcel(exportData) {

@@ -323,8 +323,7 @@ export default class NetMessageBridgeService {
     // console.log(url, JSON.stringify(options), JSON.stringify(params))
     return this.NetMessageBridgeService().post(url, JSON.stringify(options), JSON.stringify(params))
   }
-
-  async postChineseImageFile(country, api, data, options = {}, base64File,contentType = 'multipart/form-data') {
+  async postChineseImageFile(country, api, data, options = {}, base64File) {
     data = JSON.parse(JSON.stringify(data))
     // options {extrainfo // 第三方接口, params, header}
     const url = await this.getUrlPrefix(country, data) + api
@@ -340,9 +339,8 @@ export default class NetMessageBridgeService {
     const base64 = base64File.dataURL
     const ext = base64File.ext
     const filename = `${getImgMd5(base64)}.${ext}`
-    return this.NetMessageBridgeService().uploadFile(url, JSON.stringify(options), null, base64, filename,contentType)
+    return this.NetMessageBridgeService().uploadFile(url, JSON.stringify(options), null, base64, filename, 'multipart/form-data')
   }
-
   async putChinese(country, api, data, options = {}) {
     data = JSON.parse(JSON.stringify(data))
     const url = await this.getUrlPrefix(country, data) + api
@@ -2247,6 +2245,9 @@ export default class NetMessageBridgeService {
           data: info.data || []
         }
       } else {
+        if(info.code === 1400101530){
+          return { code: 50003,data: info.data}
+        }
         return {
           code: 50001,
           data: info.message || []

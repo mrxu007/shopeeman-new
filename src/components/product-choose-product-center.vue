@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-10-21 15:41:32
- * @LastEditTime: 2021-11-04 14:35:58
+ * @LastEditTime: 2022-01-11 16:52:14
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shopeeman-new\src\components\category-choose.vue
@@ -150,4 +150,7 @@ export default {
 
 <style lang="less" scoped>
 @import '../module-less/product-center-less/own-goods.less';
+.wrap{
+  display: flex;
+}
 </style>

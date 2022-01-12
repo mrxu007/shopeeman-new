@@ -342,7 +342,7 @@ export default {
           let res = await this.GoodsDiscount.createActive(mall.country, params)
           console.log('res', res)
           if (res.code === 200) {
-            this.$refs.Logs.writeLog(`店铺【${mall.platform_mall_name}】,创建活动【${this.activeDicountName}】成功`, true)
+            this.$refs.Logs.writeLog(`店铺【${ mall.mall_alias_name || mall.platform_mall_name}】,创建活动【${this.activeDicountName}】成功`, true)
             let discount_id = res.data.discount_id
             let filterArr = this.selectGoods.filter((n) => n.platform_mall_id == mall.platform_mall_id)
             filterArr.forEach(async (good) => {
@@ -366,7 +366,7 @@ export default {
               }
             })
           } else {
-            this.$refs.Logs.writeLog(`店铺【${mall.platform_mall_name}】创建活动失败`, false)
+            this.$refs.Logs.writeLog(`店铺【${mall.mall_alias_name || mall.platform_mall_name}】创建活动失败`, false)
           }
         } catch (error) {
           this.btnLoading = false
