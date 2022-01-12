@@ -195,7 +195,9 @@ export default class MallListAPI {
         copy_mallInfo['accountName'] = acccount_info.username
         copy_mallInfo['mall_account_info'] = acccount_info
       }
+      console.log(country, '/api/selleraccount/vcode/resend/?', params, messageHeader ? { headers } : null, copy_mallInfo)
       let res = await this._this.$shopeemanService.getChinese(country, '/api/selleraccount/vcode/resend/?', params, messageHeader ? { headers } : null, copy_mallInfo)
+      console.log(res)
       res = JSON.parse(JSON.parse(res).data)
       if (res.code === 0) {
         return { code: 200, data: '短信验证发送成功' }

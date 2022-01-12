@@ -1755,8 +1755,8 @@
               const res1_flat1 = await this.$appConfig.getGlobalCacheInfo('mallInfo', mallId)
               mallDataInfo = JSON.parse(res1_flat1)
               mallDataInfo = mallDataInfo.web_login_info && mallDataInfo
-              cookieJson.SPC_F = mallDataInfo.web_login_info && mallDataInfo.web_login_info['SPC_F'] || cookieJson.SPC_F
-              cookieJson.spc_f = mallDataInfo.web_login_info && mallDataInfo.web_login_info['SPC_F'] || cookieJson.spc_f
+              cookieJson.SPC_F = cookieJson.SPC_F || mallDataInfo.web_login_info && mallDataInfo.web_login_info['SPC_F']
+              cookieJson.spc_f = cookieJson.spc_f || mallDataInfo.web_login_info && mallDataInfo.web_login_info['SPC_F']
               // 一键登录// 获取壳内店铺信息,组装getChinese
               mallDataInfo.web_login_info['SPC_EC'] = cookieJson.SPC_EC
               mallDataInfo.web_login_info['SPC_SC_TK'] = cookieJson.SPC_SC_TK
@@ -1767,7 +1767,9 @@
               mallDataInfo.web_login_info['spc_f'] = cookieJson.spc_f
               // 4、更新壳信息
               console.log(mallId, JSON.stringify(mallDataInfo))
-              await this.$appConfig.updateInfoMall(mallId, JSON.stringify(mallDataInfo)) // 更新里面店铺的cookie （壳）
+              let mallDataInfoJSON = JSON.stringify(mallDataInfo)
+              mallDataInfoJSON = mallDataInfoJSON.replaceAll('\n','')
+              await this.$appConfig.updateInfoMall(mallId, mallDataInfoJSON) // 更新里面店铺的cookie （壳）
             }
             else {
               // 导入店铺 - 导入的店铺信息
@@ -1841,7 +1843,7 @@
             // 5、上报cookie信息
             const params = {
               mallId: mallId,
-              webLoginInfo: JSON.stringify(cookieJson)
+              webLoginInfo: JSON.stringify(cookieJson).replaceAll(/\n/g,'')
             }
             console.log('uploadMallCookie', params)
             const res6 = await this.mallListAPIInstance.uploadMallCookie(params) // 上报店铺信息cookie (服务端)

@@ -246,5 +246,7 @@ export default {
   getLabels: (data) => AppRequest.get('/publishGoodsWindowConfig/getLabels', { params: data }), // 编辑上新弹窗配置: 获取标签列表
   getLabel: (data) => AppRequest.get('/publishGoodsWindowConfig/get', { params: data }), // 编辑上新弹窗配置: 获取单个(根据标签)
   saveLabel: (data) => AppRequest.post('/publishGoodsWindowConfig/save', data), // 编辑上新弹窗配置: 保存配置
-  deleteLabel: (data) => AppRequest.post('/publishGoodsWindowConfig/deleteLabel', data) // 编辑上新弹窗配置: 删除
+  deleteLabel: (data) => AppRequest.post('/publishGoodsWindowConfig/deleteLabel', data), // 编辑上新弹窗配置: 删除
+
+  updateOrderPrintStatus:(data) => AppRequest.post('/order/updateOrderPrintStatus', data) ,// 标记面单已打印或已下载
 }
