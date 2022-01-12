@@ -10,6 +10,13 @@
         <div class="item-box">
           <product-choose ref="isClean" @CateId="CateId" class="mar-left" />
         </div>
+        <div class="item-box mar-left">
+          <span>商品状态：</span>
+          <el-select v-model="form.returnStatus" placeholder="" size="mini" filterable>
+            <el-option label="全部" :value="-1" />
+            <el-option v-for="(item, index) in returnStatusList" :key="index" :label="item.label" :value="item.value" />
+          </el-select>
+        </div>
       </div>
       <div class="select-row">
         <div class="item-box">
@@ -60,12 +67,12 @@
       >
         <el-table-column align="center" type="selection" width="50" />
         <el-table-column align="center" label="商品ID" width="100" prop="product_id" fixed />
-        <el-table-column align="center" prop="product_name" label="商品名称" width="100" />
+        <el-table-column align="center" prop="product_name" label="商品名称" width="120" show-overflow-tooltip />
         <el-table-column v-if="false" align="center" prop="weight" label="商品重量" width="100" />
         <el-table-column v-if="false" align="center" prop="volume" label="体积" width="100" />
         <el-table-column v-if="false" align="center" prop="uid" label="uid" width="100" />
         <el-table-column v-if="false" align="center" prop="cate_id" label="商品类目id" width="150" />
-        <el-table-column align="center" prop="cate_name" label="商品类目" width="150" />
+        <el-table-column align="center" prop="cate_name" label="商品类目" width="200" />
         <el-table-column width="90" align="center" label="商品主图">
           <template slot-scope="{ row }">
             <el-tooltip v-if="row.image_url" effect="light" placement="right-end" :visible-arrow="false" :enterable="false" style="width: 90px; height: 50px">
@@ -76,12 +83,16 @@
             </el-tooltip>
           </template>
         </el-table-column>
-        <el-table-column prop="status" label="商品状态" width="160" align="center" />
+        <el-table-column prop="status" label="商品状态" width="160" align="center" >
+          <template slot-scope="{ row }">
+           <span>{{ row.status ===0 ?'在售':'已下架'}}</span>
+          </template>
+        </el-table-column>
         <el-table-column prop="price" label="价格" width="120" align="center" />
         <el-table-column prop="stock" label="库存" width="140" align="center" />
         <el-table-column prop="remark" label="备注" width="140" align="center" />
-        <el-table-column prop="created_at" label="创建时间" width="90" align="center" />
-        <el-table-column prop="updated_at" label="更新时间" width="90" align="center" />
+        <el-table-column prop="created_at" label="创建时间" width="140" align="center" />
+        <el-table-column prop="updated_at" label="更新时间" width="140" align="center" />
         <el-table-column label="操作"  align="center">
           <template slot-scope="{ row }">
             <el-button type="primary" size="mini" @click="Eidtgoods(row)">编辑</el-button>
@@ -130,6 +141,10 @@ export default {
       pageSize: 20, // 分页
       currentPage: 1, // 分页
       total: 0, // 分页
+      returnStatusList: [
+        { value: 0, label: '在售' },
+        { value: 1, label: '已下架' }
+      ],
     }
   },
   methods: {
@@ -139,7 +154,7 @@ export default {
       const returnCreateEndTime = this.form.returnCreateTime ? `${this.$dayjs(this.form.returnCreateTime[1]).format('YYYY-MM-DD HH:mm:ss')}` : ''
       const returnUpdateStartTime = this.form.returnUpdateTime ? `${this.$dayjs(this.form.returnUpdateTime[0]).format('YYYY-MM-DD HH:mm:ss')}` : ''
       const returnUpdateEndTime = this.form.returnUpdateTime ? `${this.$dayjs(this.form.returnUpdateTime[1]).format('YYYY-MM-DD HH:mm:ss')}` : ''
-      const parmas = { // 产品中心条件搜索
+      let params = { // 产品中心条件搜索
         CateId: Number(this.form.returnCategory), // 类目ID
         ProductName: this.form.returnGoodsName, // 商品名称
         ProductId: this.form.returnGoodsId, // 商品编码
@@ -150,21 +165,20 @@ export default {
         UpdateStartTime: returnUpdateStartTime, // 商品更新开始时间
         UpdateEndTime: returnUpdateEndTime // 商品更新结束时间
       }
-      parmas['page'] = this.currentPage
+      params['page'] = this.currentPage
       params['page_size'] = this.pageSize
-      // parmas.CateId = Number(this.form.returnCategory)
-      // parmas.ProductName = this.form.returnGoodsName
-      // parmas.ProductId = this.form.returnGoodsId
-      // parmas.SkuId = this.form.returnSkuId
-      // parmas.Status = this.form.returnStatus
-      const res = await this.StrockUpForegin.getProductList(parmas)
-      console.log("res",res)
-      if (res.code !== 200) {
-        this.$message.error(res.data)
+      this.tableLoading = true
+      const res = await this.$commodityService.getProductList(params)
+      let resObj = res && JSON.parse(res)
+      if(resObj && resObj.status_code === 200){
+        this.total = resObj.data.total
+        this.tableData = resObj.data.data
+      }else{
+        this.tableLoading = false
+        return this.$message.warning(`查询失败，${resObj.message}`)
       }
-      this.total = res.data.total
-      this.tableData = res.data.data
-      console.log('tableData', this.tableData)
+      this.tableLoading = false
+      console.log(resObj,"resObj")
     },
     CateId(val) {
       console.log(val, 'val')
