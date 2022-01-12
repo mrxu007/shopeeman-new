@@ -861,7 +861,7 @@
           <span>跨站点搬迁将商品原链接跳转至采集页面，无上家类型的跳转shopee商品链接</span>
         </div>
         <div class="wrap but">
-          <el-button type="primary" size="mini">跳转至采集</el-button>
+          <el-button type="primary" size="mini" @click="setLink">跳转至采集</el-button>
         </div>
       </div>
     </el-dialog>
@@ -1311,6 +1311,16 @@ export default {
     this.tableData = testData.data
   },
   methods: {
+    // 跳转至采集页面
+    setLink() {
+      const linkKey = []
+      this.multipleSelection.forEach(item => {
+        linkKey.push(item.url)
+      })
+      localStorage.setItem('linkKey', linkKey)
+      this.moveSetVisible = false
+      this.$message.success('链接保存成功，请前往商品链接采集页面')
+    },
     // 查看商品搬迁状态详情
     getMoveDetails(row) {
       this.detailsVisible = true

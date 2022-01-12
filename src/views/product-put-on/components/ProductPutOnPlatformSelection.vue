@@ -835,7 +835,6 @@ export default {
     //   const supportPlarm = [1, 11, 8, 1.2, 10, 12, 9]
     //   return supportPlarm.includes(this.currentKeywordPlatform)
     // }
-
   },
   created() {
     this.commonAttr.shopeeSite = shopeeSite
@@ -851,6 +850,10 @@ export default {
     document.querySelectorAll('.barChilren')[4].style.width = '102px'
     // 获取插件port
     this.port = await this.$BaseUtilService.getPluginPorts()
+    this.linkKey = localStorage.getItem('linkKey') ? localStorage.getItem('linkKey').replaceAll(',', '\n') : ''
+    window.addEventListener('storage', event => {
+      this.linkKey = localStorage.getItem('linkKey') ? localStorage.getItem('linkKey').replaceAll(',', '\n') : ''
+    })
   },
   methods: {
     // 编辑上新
