@@ -130,9 +130,9 @@ export default {
       isRandomLikeMinDay: false,
       RandomLikeMinDay: '', // 随机点赞/加购设置
       // 评价点赞设置
-      isunlikestar1: false, // 不点赞一星
-      isunlikestar2: false, // 不点赞二星
-      isunlikestar3: false, // 不点赞三星
+      isunlikestar1: true, // 不点赞一星
+      isunlikestar2: true, // 不点赞二星
+      isunlikestar3: true, // 不点赞三星
       isunlikestar4: false, // 不点赞四星
       isunlikestar5: false, // 不点赞五星
       isunlikehaventContent: false, // 不点赞无内容
@@ -451,7 +451,6 @@ export default {
               }
               const sult2 = await this.GoodsbuyerLike(goodsinfo)
               const aa = 222
-              debugger
               this.$set(goods, 'option_result', sult2 ? '商品点赞成功' : '商品点赞失败')
             }
             // 加购
@@ -498,7 +497,6 @@ export default {
           this.$refs.autoReplyLogs.writeLog(`【商品评论点赞${item.itemid}】成功`, true)
           return true
         } else {
-          debugger
           this.$refs.autoReplyLogs.writeLog(`【商品评论点赞${item.itemid}】失败，${JSON.stringify(res.message)}`, false)
           return false
         }
@@ -518,7 +516,6 @@ export default {
         }
         // 获取所有的评论
         const res = await this.GoodsManagerAPIInstance.getRatings(goodsinfo)
-        debugger
         if (res.ecode === 0) {
           if (res.data.ratings.length === 0) {
             this.$refs.autoReplyLogs.writeLog(`【${goodsinfo.itemid}】暂无任何评论`, true)
@@ -590,11 +587,8 @@ export default {
     // 商品点赞
     async GoodsbuyerLike(goodsinfo) {
       const aa = 111
-      debugger
-
       try {
         const res = await this.GoodsManagerAPIInstance.GoodsbuyerLike(goodsinfo)
-        debugger
         const aa = JSON.stringify(res)
         this.$refs.autoReplyLogs.writeLog(`【商品点赞${goodsinfo.itemid}】测试,${aa}`, true)
         if (res.ecode === 0) {

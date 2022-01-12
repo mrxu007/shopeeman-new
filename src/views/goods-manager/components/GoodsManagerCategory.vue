@@ -38,7 +38,7 @@
         <el-table-column prop="product_count" label="商品数量" align="center" min-width="100px" />
         <el-table-column prop="status" label="知名度" align="center" min-width="100px">
           <!-- 根据商品数量进行操作，数量为0不能开启 -->
-          <template slot-scope="scope"><div><el-switch v-model="scope.row.isShow" :disabled="scope.row.product_count===0" @change="changeShow(scope.row,scope.$index)" /></div></template>
+          <template slot-scope="scope"><div><el-switch v-model="scope.row.isShow" active-color="#13ce66" :disabled="scope.row.product_count===0" @change="changeShow(scope.row,scope.$index)" /></div></template>
         </el-table-column>
         <el-table-column prop="" label="操作" align="center" min-width="100px">
           <template slot-scope="scope">
@@ -76,7 +76,7 @@
         <!-- <span style="margin: 4px;">次分类目前已在shoppe页面展示</span> -->
         <!-- 选中行 isshow=false -->
         <span style="margin: 4px;">点选显示，让买家看到此分类</span>
-        <el-switch v-model="detailGoodsShow" @change="detailchangeShow" />
+        <el-switch v-model="detailGoodsShow" active-color="#13ce66" @change="detailchangeShow" />
       </div>
       <div class="detail_table">
         <el-table

@@ -25,8 +25,8 @@
           <div class="heng"/>
           <el-input style="width: 120px;" size="mini" v-model="searchParams.maxPrice"></el-input>
         </div>
-        <el-button type="primary" size="mini" @click="categoryVisible = true">选择类目</el-button>
-        <el-button type="primary" size="mini" @click="queryGoods">查询商品</el-button>
+        <el-button type="primary" size="mini" @click="categoryVisible = true" :disabled="isRunning">选择类目</el-button>
+        <el-button type="primary" size="mini" @click="queryGoods" :disabled="isRunning">查询商品</el-button>
         <el-button type="" size="mini" @click="cancelGoods">取消查询</el-button>
       </div>
       <div class="header-list">
@@ -47,8 +47,8 @@
           <div class="heng"/>
           <el-input size="mini" style="width: 120px;" v-model="searchParams.maxSales"></el-input>
         </div>
-        <el-button type="primary" size="mini" @click="changeGoodsItem">添加已选商品</el-button>
-        <el-checkbox style="margin-left: 10px;" size="mini" v-model="isApplyCheck">仅显示适用商品</el-checkbox>
+        <el-button type="primary" size="mini" @click="changeGoodsItem" :disabled="isRunning">添加已选商品</el-button>
+        <el-checkbox :disabled="isRunning" style="margin-left: 10px;" size="mini" v-model="isApplyCheck">仅显示适用商品</el-checkbox>
         <el-checkbox style="margin-left: 10px;" size="mini" v-model="showlog">隐藏日志</el-checkbox>
       </div>
     </div>
@@ -174,6 +174,7 @@ export default {
       await batchOperation(this.mall, this.queryGoodsList)
       !this.isRunning && this.$refs.goods_item_Logs.writeLog(`------列表获取停止成功------`, false)
       this.$refs.goods_item_Logs.writeLog(`------商品列表获取结束------`, true)
+      this.isRunning = false
     },
     cancelGoods() {
       this.showlog = false

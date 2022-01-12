@@ -2798,7 +2798,7 @@ export default {
     },
     // 批量操作
     operation(operationName) {
-      if (!this.multipleSelection?.length) return this.$message('没有可操作的商品，请选择')
+      // if (!this.multipleSelection?.length) return this.$message('没有可操作的商品，请选择')
       this[operationName]()
     },
     // 选择模板

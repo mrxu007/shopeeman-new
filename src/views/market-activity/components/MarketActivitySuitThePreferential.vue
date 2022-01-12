@@ -11,7 +11,7 @@
           </el-select>
         </div>
         <el-button type="primary" :disabled="loading" size="mini" @click="batchGetSuitData" style="margin-left: 27px">搜索</el-button>
-        <el-button type="primary" :disabled="loading" size="mini" @click="creatactivity = true">创建套装促销活动</el-button>
+        <el-button type="primary" :disabled="loading" size="mini" @click="openCreateActive">创建套装促销活动</el-button>
         <el-button type="primary" size="mini" @click="stopCreate">停止活动创建</el-button>
         <el-button type="primary" :disabled="loading" size="mini" @click="batchStopSuit(multipleSelection)">批量删除/结束勾选活动</el-button>
         <el-button type="primary" :disabled="loading" size="mini" @click="clearLog">清除日志</el-button>
@@ -35,23 +35,29 @@
         <el-table-column align="center" type="selection" width="50" />
         <el-table-column align="center" label="序号" width="60" type="index" />
         <el-table-column align="center" label="店铺" width="180" prop="mallName" />
-        <el-table-column prop="name" label="套装促销名称" width="200" align="center" />
-        <el-table-column prop="time_status" label="活动状态" width="200" align="center">
+        <el-table-column prop="name" label="套装促销名称" width="160" align="center" />
+        <el-table-column prop="usage_limit" label="限购次数" width="80" align="center" />
+        <el-table-column prop="time_status" label="活动规则" width="280" align="center" show-overflow-tooltip>
           <template v-slot="{ row }">
-            {{ changeType(row.time_status) }}
+            <span>{{ changeRule(row) }}</span>
           </template>
         </el-table-column>
-        <el-table-column prop="extinfo_images.item_total_count" label="商品数量" width="200" align="center" />
+        <el-table-column prop="time_status" label="活动状态" width="120" align="center">
+          <template v-slot="{ row }">
+            <span :style="{ color: row.time_status == 2 ? 'orange' : row.time_status == 3 ? '#0ad10a' : '#000' }"> {{ changeType(row.time_status) }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column prop="extinfo_images.item_total_count" label="商品数量" width="100" align="center" />
         <el-table-column prop="time" label="促销期间" width="280" align="center">
           <template v-slot="{ row }">
             {{ `${$dayjs(row.start_time * 1000).format('YYYY/MM/DD HH:mm:ss')} - ${$dayjs(row.end_time * 1000).format('YYYY/MM/DD HH:mm:ss')}` }}
           </template>
         </el-table-column>
-        <el-table-column prop="shippingcount" label="操作" align="center">
+        <el-table-column prop="shippingcount" label="操作" align="center" width="370">
           <template slot-scope="{ row }">
             <el-button type="primary" size="mini" @click="updateSuit(row)">编辑商品</el-button>
-            <el-button type="primary" size="mini" @click="1">复制活动</el-button>
-            <el-button v-if="row.sign === 2" type="primary" size="mini" @click="1">分享链接</el-button>
+            <el-button type="primary" size="mini" @click="copyActive(row)">复制活动</el-button>
+            <el-button type="primary" size="mini" @click="shareLink(row)">分享链接</el-button>
             <el-button v-if="row.time_status === 3" type="primary" size="mini" @click="batchStopSuit([row])">结束</el-button>
             <el-button v-if="row.time_status === 2" type="primary" size="mini" @click="batchStopSuit([row])">删除</el-button>
           </template>
@@ -59,7 +65,7 @@
       </el-table>
     </div>
     <Logs ref="Logs" v-model="showlog" clear />
-    <el-dialog title="创建套装促销活动" :close-on-click-modal="false" :close-on-press-escape="false" :visible.sync="creatactivity" v-if="creatactivity" width="450px">
+    <el-dialog title="创建套装促销活动" :close-on-click-modal="false" :close-on-press-escape="false" :visible.sync="creatactivity" v-if="creatactivity" width="450px" @close="closeDialog">
       <div class="create-style">
         <div class="item-box">
           <span>套装名称：</span>
@@ -141,7 +147,7 @@
         </div>
       </div>
     </el-dialog>
-    <el-dialog title="编辑活动" :close-on-click-modal="false" :close-on-press-escape="false" :visible.sync="updateSuitVisible" v-if="updateSuitVisible" width="1200px">
+    <el-dialog title="编辑活动" :close-on-click-modal="false" :close-on-press-escape="false" :visible.sync="updateSuitVisible" v-if="updateSuitVisible" width="1200px" @close="closeDialog">
       <div class="create-style">
         <div class="header-btn">
           <p class="activeColor">开启商品后，请勿更换物流商，否则买家无法购买套装优惠。</p>
@@ -185,14 +191,15 @@
           <el-table-column prop="name" label="标题" width="140" align="center" show-overflow-tooltip />
           <el-table-column prop="price" label="价格" width="80" align="center" />
           <el-table-column prop="stock" label="库存" width="80" align="center" />
-          <el-table-column label="运送渠道" width="160" align="center">
+          <el-table-column label="运送渠道" width="260" align="center">
             <template slot-scope="{ row }">
-              {{ shipType }}
+              <p v-html="shipType"></p>
             </template>
           </el-table-column>
+
           <el-table-column label="开关" width="80" align="center">
             <template slot-scope="{ row }">
-              <el-switch v-model="row.status" active-color="#13ce66" inactive-color="#ff4949" :active-value="1" :inactive-value="0" @change="batchCloseSuitGoods([row], row.status)"> </el-switch>
+              <el-switch v-model="row.status" active-color="#13ce66" inactive-color="#ff4949" :active-value="1" @change="batchCloseSuitGoods([row], row.status)"> </el-switch>
             </template>
           </el-table-column>
           <el-table-column prop="shippingcount" label="操作" align="center">
@@ -235,8 +242,8 @@ export default {
       creattime: [],
       statuslist: [
         { label: '进行中', value: 3 },
-        { label: '即将到来', value: 2 },
-        { label: '已到期', value: 4 },
+        { label: '即将开始', value: 2 },
+        { label: '已过期', value: 4 },
       ],
       activeState: 1,
       selectMallList: [],
@@ -251,60 +258,138 @@ export default {
       activeRow: {},
       selectMallListEdit: [],
       goodsItemSelectorVisible: false,
+      createType: '',
+      editGoodsListCopy: [],
     }
   },
-
-  mounted() {
-    let startTime = new Date().getTime() + 1000 * 60 * 10
-    let endTime = startTime + 1 * 60 * 60 * 1000
-    this.creattime = [this.$dayjs(startTime).format('YYYY-MM-DD HH:mm:ss'), this.$dayjs(endTime).format('YYYY-MM-DD HH:mm:ss')]
-  },
+  mounted() {},
   methods: {
-    async searchSuitGoods() {
+    closeDialog() {
+      this.radio = 2
+      this.creatnum = 2
+      this.creatdiscount = 1
+      this.creatcount = 1
+      this.creatname = ''
+      this.createType = ''
       this.editGoodsList = []
-      let shipParams = {
-        bundle_deal_id: this.activeRow.bundle_deal_id,
-        need_all: 0,
-        country: this.activeRow.country,
-        mallId: this.activeRow.mallId,
+      this.activeRow = {}
+    },
+    openCreateActive() {
+      this.creatactivity = true
+      let startTime = new Date().getTime() + 1000 * 60 * 30
+      let endTime = startTime + 1 * 60 * 60 * 1000
+      this.creattime = [this.$dayjs(startTime).format('YYYY-MM-DD HH:mm:ss'), this.$dayjs(endTime).format('YYYY-MM-DD HH:mm:ss')]
+    },
+    copyActive(row) {
+      console.log(row)
+      this.activeRow = row
+      this.creatactivity = true
+      let startTime = new Date().getTime() + 1000 * 60 * 30
+      let endTime = startTime + 1 * 60 * 60 * 1000
+      this.creattime = [this.$dayjs(startTime).format('YYYY-MM-DD HH:mm:ss'), this.$dayjs(endTime).format('YYYY-MM-DD HH:mm:ss')]
+      this.createType = 'single'
+      this.radio = row.bundle_deal_rule.rule_type
+      this.creatnum = row.bundle_deal_rule.min_amount
+      this.creatcount = row.usage_limit
+      if (row.bundle_deal_rule.rule_type === 1) {
+        this.creatdiscount = Number(row.bundle_deal_rule.fix_price)
+      } else if (row.bundle_deal_rule.rule_type === 2) {
+        this.creatdiscount = Number(row.bundle_deal_rule.discount_percentage)
+      } else {
+        this.creatdiscount = Number(row.bundle_deal_rule.discount_value)
       }
-      let resShip = await this.$shopeemanService.getSuitShipType(this.activeRow.country, shipParams)
-      if (resShip.code === 200) {
-        if (resShip.data.shop_logistics_info.disabled) {
-          resShip.data.shop_logistics_info.disabled.forEach((item) => {
-            this.shipType = this.shipType + `\n${item.display_name}\n`
-          })
+    },
+    changeRule(row) {
+      let str = ''
+      if (row.bundle_deal_rule.rule_type === 1) {
+        str = `购买【${row.bundle_deal_rule.min_amount}】个商品【${row.bundle_deal_rule.fix_price}${this.$filters.siteCoin(row.country)}】`
+      } else if (row.bundle_deal_rule.rule_type === 2) {
+        str = `购买【${row.bundle_deal_rule.min_amount}】个商品优惠【${row.bundle_deal_rule.discount_percentage}%】`
+      } else {
+        str = `购买【${row.bundle_deal_rule.min_amount}】个商品优惠【${row.bundle_deal_rule.discount_value}${this.$filters.siteCoin(row.country)}】`
+      }
+      return str
+    },
+    //分享链接
+    async shareLink(row) {
+      let url = await this.$shopeemanService.getWebUrl(row.country)
+      let link = url + '/bundle-deal/' + row.bundle_deal_id
+      this.copyItem(link)
+    },
+    //点击复制
+    copyItem(attr) {
+      const target = document.createElement('div')
+      target.id = 'tempTarget'
+      target.style.opacity = '0'
+      target.innerText = attr
+      document.body.appendChild(target)
+      try {
+        const range = document.createRange()
+        range.selectNode(target)
+        window.getSelection().removeAllRanges()
+        window.getSelection().addRange(range)
+        document.execCommand('copy')
+        window.getSelection().removeAllRanges()
+        this.$message.success('复制成功')
+      } catch (e) {
+        // console.log('复制失败')
+      }
+      target.parentElement.removeChild(target)
+    },
+    async searchSuitGoods() {
+      if (this.goodsID) {
+        let resData = this.editGoodsListCopy.find((n) => n.itemid == this.goodsID)
+        if (resData) {
+          this.editGoodsList = [resData]
         }
-        if (resShip.data.shop_logistics_info.enabled) {
-          resShip.data.shop_logistics_info.enabled.forEach((item) => {
-            this.shipType = this.shipType + `\n${item.display_name}\n`
-          })
-        }
-        let obj = (resShip.data && resShip.data.items) || []
-        let arrStr = []
-        obj.forEach((item) => {
-          arrStr.push(item.itemid.toString())
-        })
-        let params = {
-          query:
-            'query Products($productIds: [String], $statusType: Int) {\n      products(productIds: $productIds, statusType: $statusType) \n    {\n      items {\n        itemid,\n    sold,\n    price,\n    promotions {\n      itemid,\n      promotionId,\n      startTime,\n      price,\n      endTime,\n      promotionType\n    },\n    logisticsChannels {\n      name,\n      enabled\n    },\n        name,\n        inputOriginPrice,\n        originPrice,\n        normalStock,\n        status,\n        stock,\n        pffTag,\n        normalSellerStock,\n        normalWmsStock,\n        images,\n        hasWholesale,\n        minPurchaseLimit,\n        modelList {\n          itemid,\n          modelid,\n          name,\n          inputOriginPrice,\n          originPrice,\n          normalStock,\n          stock,\n          pffTag,\n          normalSellerStock,\n          normalWmsStock,\n          isDefault\n        }\n      }\n    }\n  \n    }',
-          variables: {
-            productIds: arrStr,
-            statusType: 0,
-          },
+      } else {
+        this.shipType = ''
+        this.editGoodsList = []
+        let shipParams = {
+          bundle_deal_id: this.activeRow.bundle_deal_id,
+          need_all: 0,
+          country: this.activeRow.country,
           mallId: this.activeRow.mallId,
         }
-        this.editLoading = true
-        let res = await this.$shopeemanService.getSuitGoods(this.activeRow.country, params)
-        if (res.code === 200) {
-          this.editGoodsList = res.data
-          console.log('editGoodsList', this.editGoodsList)
-        } else {
-          this.$message.error(`获取商品详情失败`)
+        let resShip = await this.$shopeemanService.getSuitShipType(this.activeRow.country, shipParams)
+        if (resShip.code === 200) {
+          if (resShip.data.shop_logistics_info.disabled) {
+            resShip.data.shop_logistics_info.disabled.forEach((item) => {
+              this.shipType = this.shipType + `<p>${item.display_name}</p>`
+            })
+          }
+          if (resShip.data.shop_logistics_info.enabled) {
+            resShip.data.shop_logistics_info.enabled.forEach((item) => {
+              this.shipType = this.shipType + `<p>${item.display_name}</p>`
+            })
+          }
+          let obj = (resShip.data && resShip.data.items) || []
+          let arrStr = []
+          obj.forEach((item) => {
+            arrStr.push(item.itemid.toString())
+          })
+          let params = {
+            query:
+              'query Products($productIds: [String], $statusType: Int) {\n      products(productIds: $productIds, statusType: $statusType) \n    {\n      items {\n        itemid,\n    sold,\n    price,\n    promotions {\n      itemid,\n      promotionId,\n      startTime,\n      price,\n      endTime,\n      promotionType\n    },\n    logisticsChannels {\n      name,\n      enabled\n    },\n        name,\n        inputOriginPrice,\n        originPrice,\n        normalStock,\n        status,\n        stock,\n        pffTag,\n        normalSellerStock,\n        normalWmsStock,\n        images,\n        hasWholesale,\n        minPurchaseLimit,\n        modelList {\n          itemid,\n          modelid,\n          name,\n          inputOriginPrice,\n          originPrice,\n          normalStock,\n          stock,\n          pffTag,\n          normalSellerStock,\n          normalWmsStock,\n          isDefault\n        }\n      }\n    }\n  \n    }',
+            variables: {
+              productIds: arrStr,
+              statusType: 0,
+            },
+            mallId: this.activeRow.mallId,
+          }
+          this.editLoading = true
+          let res = await this.$shopeemanService.getSuitGoods(this.activeRow.country, params)
+          if (res.code === 200) {
+            this.editGoodsList = res.data
+            this.editGoodsListCopy = JSON.parse(JSON.stringify(res.data))
+            console.log('editGoodsList', this.editGoodsList)
+          } else {
+            this.$message.error(`获取商品详情失败`)
+          }
         }
+        this.editLoading = false
+        console.log(resShip, 'resShip')
       }
-      this.editLoading = false
-      console.log(resShip, 'resShip')
     },
     //选择商品
     async changeGoodsItem(val) {
@@ -316,13 +401,14 @@ export default {
         item.images = item.images.split(',')
         let obj = {
           item_id: item.itemid,
-          status: 0,
+          status: 1,
         }
         arr.push(obj)
       })
       this.editGoodsList = val.goodsList
       await this.addGoods(arr)
     },
+    //添加商品
     async addGoods(arr) {
       let params = {
         bundle_deal_id: this.activeRow.bundle_deal_id,
@@ -330,18 +416,32 @@ export default {
         mallId: this.activeRow.mallId,
       }
       this.editLoading = true
-      let res = await this.$shopeemanService.mixSuitShipType(this.activeRow.country, params, 'post')
+      let res = await this.$shopeemanService.mixSuitShipType(this.activeRow.country, params, 'put')
       console.log('addGoods', res)
       this.editLoading = false
       if (res.code === 200) {
         this.$alert(`添加商品成功`, '提示', {
           confirmButtonText: '确定',
+          callback: (action) => {
+            this.searchSuitGoods()
+          },
         })
-        // array.forEach((item) => {
-        //   let index = this.editGoodsList.findIndex((n) => n.itemid == item.itemid)
-        //   this.$set(this.editGoodsList[index], 'status', 1)
-        // })
       } else {
+        if (res.code === 50003) {
+          let arr = res.data.failed_items || []
+          let message = ``
+          arr.forEach((item) => {
+            for (const key in item) {
+              if (item[key].err_code == 1400101524) {
+                message = message + `<p>商品【${key}】重复参加活动</p>\n`
+              }
+            }
+          })
+          return this.$alert(message, '提示', {
+            dangerouslyUseHTMLString: true,
+            confirmButtonText: '确定',
+          })
+        }
         return this.$alert(`添加商品失败，${res.data}`, '提示', {
           confirmButtonText: '确定',
         })
@@ -387,10 +487,10 @@ export default {
           let index = this.editGoodsList.findIndex((n) => n.itemid == item.itemid)
           this.$set(this.editGoodsList[index], 'status', type)
         })
+        return this.$message.success(`${type == 0 ? '关闭' : '开启'}成功`)
       } else {
         return this.$message.error(`${type == 0 ? '关闭' : '开启'}失败，${res.data}`)
       }
-      console.log(res, 'res')
     },
     //批量删除商品
     async batchDeleteSuitGoods(array) {
@@ -443,6 +543,7 @@ export default {
         let res = await this.$shopeemanService.getSuitGoods(row.country, params)
         if (res.code === 200) {
           this.editGoodsList = res.data
+          this.editGoodsListCopy = JSON.parse(JSON.stringify(res.data))
           console.log('editGoodsList', this.editGoodsList)
         } else {
           this.$message.error(`获取商品详情失败`)
@@ -457,17 +558,19 @@ export default {
         if (resShip.code === 200) {
           if (resShip.data.shop_logistics_info.disabled) {
             resShip.data.shop_logistics_info.disabled.forEach((item) => {
-              this.shipType = this.shipType + `\n${item.display_name}\n`
+              this.shipType = this.shipType + `<p>${item.display_name}</p>`
             })
           }
           if (resShip.data.shop_logistics_info.enabled) {
             resShip.data.shop_logistics_info.enabled.forEach((item) => {
-              this.shipType = this.shipType + `\n${item.display_name}\n`
+              this.shipType = this.shipType + `<p>${item.display_name}</p>`
             })
           }
         }
         this.editLoading = false
         console.log(resShip, 'resShip')
+      } else {
+        await this.searchSuitGoods()
       }
     },
 
@@ -540,7 +643,7 @@ export default {
     async getSuitData(mall, count = { count: 5 }) {
       let mallName = mall.mall_alias_name || mall.platform_mall_name
       let mallId = mall.platform_mall_id
-      let limit = 100
+      let limit = 40
       try {
         let params = {
           status: this.activeState,
@@ -574,9 +677,9 @@ export default {
           }
           this.$refs.Logs.writeLog(`获取店铺【${mallName}】套装优惠数据完成`, true)
         } else if (res.code === 403) {
-          this.$refs.Logs.writeLog(`店铺【${mall.mall_alias_name || mall.platform_mall_name}】获取广告失败，店铺未登录`, false)
+          this.$refs.Logs.writeLog(`店铺【${mall.mall_alias_name || mall.platform_mall_name}】获取套装优惠失败，店铺未登录`, false)
         } else {
-          this.$refs.Logs.writeLog(`店铺【${mall.mall_alias_name || mall.platform_mall_name}】获取广告失败，${res.data}`, false)
+          this.$refs.Logs.writeLog(`店铺【${mall.mall_alias_name || mall.platform_mall_name}】获取套装优惠失败，${res.data}`, false)
         }
         console.log(res, 'res')
       } catch (error) {
@@ -599,13 +702,22 @@ export default {
       if (!this.creatname || !this.creatnum || !this.creatdiscount) {
         return this.$message.warning('请完整填写的活动信息！')
       }
+      if (this.creatname.length < 3) {
+        return this.$message.warning('活动名称必须三个字以上！')
+      }
       if (!this.selectMallList.length) {
         return this.$message.warning('请选择店铺！')
       }
       this.loading = true
       this.creatactivity = false
-      await batchOperation(this.selectMallList, this.savecreat)
+      if (this.createType === 'single') {
+        await this.savecreat(this.activeRow.mallInfo)
+      } else {
+        await batchOperation(this.selectMallList, this.savecreat)
+      }
+
       this.loading = false
+      this.closeDialog()
       await this.batchGetSuitData()
     },
     // 保存创建活动
@@ -661,9 +773,11 @@ export default {
 }
 .header-btn {
   margin: 10px 0;
+  min-width: 800px;
+  overflow: auto;
   .header-row {
     display: flex;
-    margin-top: 10px;
+    margin: 5px;
   }
 }
 .mar-left {
