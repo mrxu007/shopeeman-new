@@ -836,7 +836,7 @@ export default {
     //   return supportPlarm.includes(this.currentKeywordPlatform)
     // }
   },
-  created() {
+  async mounted() {
     this.commonAttr.shopeeSite = shopeeSite
     this.commonAttr.lazadaSite = lazadaSite
     this.pictureSearchOrigin = pictureSearchOrigin
@@ -844,9 +844,7 @@ export default {
     this.taobaoTimeAt = [dataTime - 3600 * 1000 * 24 * 5, dataTime]
     this.getShopeeGoodsPlace()
     this.getLazadaGoodsPlace()
-    this.getTaobaoAbroadAccount()
-  },
-  async mounted() {
+    await this.getTaobaoAbroadAccount()
     document.querySelectorAll('.barChilren')[4].style.width = '102px'
     // 获取插件port
     this.port = await this.$BaseUtilService.getPluginPorts()

@@ -577,6 +577,7 @@
     <el-dialog
       class="title-dialog"
       title="批量编辑标题"
+      :modal="false"
       :visible.sync="titleVisible"
       width="600px"
       top="20vh"
@@ -641,6 +642,7 @@
     <el-dialog
       class="get-description-dialog"
       title="获取描述模板"
+      :modal="false"
       :visible.sync="getDescriptionVisible"
       width="550px"
       top="20vh"
@@ -679,13 +681,14 @@
       </el-form>
       <div class="footer">
         <el-button type="primary" size="mini" @click="editProduct('setDescription')">确 认</el-button>
-        <el-button type="primary" size="mini" @click="descriptionVisible = false">取 消</el-button>
+        <el-button type="primary" size="mini" @click="getDescriptionVisible = false">取 消</el-button>
       </div>
     </el-dialog>
     <!-- 描述模板 -->
     <el-dialog
       class="description-dialog"
       title="描述模板"
+      :modal="false"
       :visible.sync="descriptionVisible"
       width="550px"
       top="20vh"
@@ -731,6 +734,7 @@
     <el-dialog
       class="parent-dialog"
       title="上家产品修改"
+      :modal="false"
       :visible.sync="parentVisible"
       width="550px"
       top="20vh"
@@ -886,7 +890,13 @@
         <li>
           <el-button type="primary" :disabled="goodsMoveBut" size="mini" @click="batchSetSize">批量调整重量/体积</el-button>
           <el-button type="primary" size="mini" :disabled="goodsMoveBut" @click="startGoodsMove">开 始</el-button>
-          <el-button size="mini">取 消</el-button>
+          <el-button
+            size="mini"
+            :disabled="!goodsMoveBut"
+            :loading="cancelMoveLoad"
+            @click="cancelMove = true
+                    cancelMoveLoad = true"
+          >取 消</el-button>
         </li>
         <li><span>商品总数：<span style="color:#0000ff">{{ moveTotal }}</span></span></li>
         <li><span>成功总数：<span style="color:green">{{ moveSuccess }}</span></span></li>
@@ -1057,7 +1067,7 @@
         </el-table-column>
         <el-table-column align="center" label="上新后价格" min-width="100" prop="price">
           <template v-slot="{row}">
-            {{ parseInt(row.price).toFixed(2) }}
+            {{ row.price?parseInt(row.price).toFixed(2):'' }}
           </template>
         </el-table-column>
         <el-table-column align="center" label="来源" min-width="100" prop="source" />
@@ -1068,7 +1078,7 @@
 <script>
 import GoodsList from '../../../module-api/goods-manager-api/goods-list'
 import StoreChoose from '../../../components/store-choose'
-import { exportExcelDataCommon, batchOperation, terminateThread, dealwithOriginGoodsNum, getGoodsUrl } from '../../../util/util'
+import { exportExcelDataCommon, batchOperation, terminateThread, dealwithOriginGoodsNum, getGoodsUrl, delay } from '../../../util/util'
 import categoryMapping from '../../../components/category-mapping'
 import goodsSize from '../../../components/goods-size.vue'
 import testData from './testData'
@@ -1183,7 +1193,7 @@ export default {
       // 活动信息
       discountVal: null, // 活动折扣
       quotaVal: null, // 限购数量
-      discountId: '',
+      discountId: '', // 折扣活动id
 
       isRefurbishProduct: false, // 是否商品翻新（商品搬迁、翻新true 其它操作均为false）
 
@@ -1203,9 +1213,11 @@ export default {
       goodsSizeVisible: false,
       goodsSize: '', // 批量设置体积数据
       goodsMoveBut: false,
-      moveDetails: {},
+      moveDetails: [],
       moveDetailsData: [], // 搬迁详情表格数据
       detailsVisible: false,
+      cancelMove: false, // 取消搬迁
+      cancelMoveLoad: false, // 取消搬迁loading
 
       sellStatusList: [
         { value: 1, label: '售空' },
@@ -1334,14 +1346,20 @@ export default {
     async startGoodsMove() {
       this.goodsMoveBut = true
       this.isRefurbishProduct = true
+      this.cancelMove = false
       this.moveDetails = []
-      await batchOperation(this.goodsMoveData, this.goodsMoveOperation)
+      await batchOperation(this.goodsMoveData, this.goodsMoveOperation, 2)
       this.goodsMoveBut = false
+      this.isRefurbishProduct = false
+      this.cancelMoveLoad = false
     },
     async goodsMoveOperation(item, count = { count: 1 }) {
+      if (this.cancelMove) {
+        terminateThread()
+      }
       try {
         let productInfo = {}
-        this.moveStatus(item, `正在获取商品详情...`, true)
+        this.moveStatus(item, `${this.cancelMove ? '取消搬迁' : '正在获取商品详情...'}`, true)
         const res = await this.getProductDetail(item)
         if (res.code === 200) {
           productInfo = res.data
@@ -1350,14 +1368,35 @@ export default {
             productInfo['weight'] = this.goodsSize['weight']
             productInfo['dimension']['width'] = Number(this.goodsSize['width'])
             productInfo['dimension']['height'] = Number(this.goodsSize['height'])
-            productInfo['dimension']['length'] = Number(this.goodsSize['length'])
+            productInfo['dimension']['length'] = Number(this.goodsSize['long'])
           }
           // 修改类目
           if (item?.isCategoryName) {
-            productInfo['category_path'] = []
+            const categoryPath = []
             this.categoryList.categoryList.forEach(cItem => {
-              productInfo['category_path'].push(cItem.category_id)
+              categoryPath.push(cItem.category_id)
             })
+            const attributes = []
+            for (let i = 0; i < this.categoryList.attributesList.length; i++) {
+              const att = this.categoryList.attributesList[i]
+              // 新类目和未更新站点的属性格式不一致，所以需判断处理
+              if (this.countryArr.includes(item.country)) {
+                if (att.attribute_id < 1) {
+                  productInfo['brand_id'] = att.options
+                  continue
+                }
+                const obj = {}
+                obj['attribute_id'] = att.attribute_id
+                obj['attribute_value_id'] = att.options
+                attributes.push(obj)
+              } else {
+                const obj = { custom_value: {}}
+                obj['custom_value ']['raw_value '] = att.selected_attribute_value_name
+                attributes.push(obj)
+              }
+            }
+            productInfo['attributes'] = attributes
+            productInfo['category_path'] = categoryPath
           }
           let mallList = []
           if (this.movePattern === '2') {
@@ -1369,6 +1408,9 @@ export default {
             mallList = this.selectMoveMallList
           }
           for (let index = 0; index < mallList.length; index++) {
+            if (this.cancelMove) {
+              break
+            }
             const mall = mallList[index]
             const obj = {}
             const mallName = mall.mall_alias_name || mall.platform_mall_name
@@ -1378,6 +1420,20 @@ export default {
               mall['status'] = `同店铺商品无需再次上新`
               mall['color'] = `red`
             } else {
+              try {
+              // 获取物流
+                const parmas = {}
+                parmas['product_id'] = productInfo.id
+                parmas['mallId'] = mall.platform_mall_id
+                const logisticsRes = await this.$shopeemanService.getLogistics(mall.country, parmas)
+                // 处理物流方式
+                if (logisticsRes.code === 200) {
+                  productInfo['logistics_channels'] = await this.getLogisticsInfo(logisticsRes.data.list, false, mall)
+                }
+              } catch (error) {
+                this.moveStatus(item, `商品信息物流异常${error}`, false)
+                console.log(error)
+              }
               // 获取上家parent_sku
               const tmallCrossBorderUserId = item.platformTypeStr === '天猫淘宝海外平台' ? item.id : ''
               productInfo['parent_sku'] = await this.$BaseUtilService.buildGoodCode(item.platform, item.id, item.country, mall.platform_mall_id, tmallCrossBorderUserId)
@@ -1385,7 +1441,6 @@ export default {
               const specialCharList = this.$filters.special_characters
               const specialChar = specialCharList[Math.floor(Math.random() * specialCharList.length)]
               productInfo['name'] = specialChar + ' ' + productInfo.name
-              obj['name'] = productInfo.name
               // 上新发布
               const data = { mallId: mall.platform_mall_id }
               console.log('上新数据', productInfo)
@@ -1395,6 +1450,15 @@ export default {
                 mall['status'] = `发布成功`
                 mall['color'] = `green`
                 this.moveSuccess++
+                // 获取发布之后的详情
+                const params = {}
+                params['product_id'] = createRes.data.product_id
+                params['shop_id'] = mall.platform_mall_id
+                params['version'] = '3.2.0'
+                const detailRes = await this.$shopeemanService.searchProductDetail(mall.country, params)
+                obj['name'] = detailRes.data.name
+                obj['shopeeId'] = createRes.data.product_id
+                obj['price'] = detailRes.data.price
               } else {
                 this.moveStatus(item, `店铺【${mallName}】发布失败:${createRes.data}`, false)
                 mall['status'] = `发布失败:${createRes.data}`
@@ -1404,19 +1468,13 @@ export default {
             }
             // 添加详情数据
             obj['productId'] = item.productId
-            obj['shopeeId'] = ''
             obj['mallName'] = mallName
-            obj['price'] = item.price
             obj['status'] = mall.status
             obj['color'] = mall.color
             obj['source'] = item.platformTypeStr
             obj['url'] = item.url
             this.moveDetails.push(obj)
           }
-          console.log('mallList', mallList)
-          console.log('goodsSize', this.goodsSize)
-          console.log('详情数据', productInfo)
-          console.log('item', item)
         } else {
           this.movefail++
           this.moveStatus(item, `${res.data}`, false)
@@ -1424,6 +1482,7 @@ export default {
       } catch (error) {
         this.movefail++
         this.moveStatus(item, `商品搬迁异常${error}`, false)
+        console.log(error)
       } finally {
         --count.count
       }
@@ -1433,7 +1492,7 @@ export default {
       if (!this.selectMoveMallList.length) return this.$message('至少选择一个店铺')
       this.moveVisible = true
       this.goodsMoveData = JSON.parse(JSON.stringify(this.multipleSelection))
-      this.moveTotal = this.goodsMoveData.length * this.selectMoveMallList.length
+      this.moveTotal = this.movePattern === '2' ? this.goodsMoveData.length : this.goodsMoveData.length * this.selectMoveMallList.length
       this.$nextTick(() => {
         this.goodsMoveData.forEach(row => { this.$refs.moveTable.toggleRowSelection(row) })
       })
@@ -1457,7 +1516,7 @@ export default {
     },
     // 保存翻新活动信息
     async saveActivityMsg() {
-      if (!this.discountVal) return this.$message('请输入活动折扣')
+      if (!this.discountVal || Number(this.discountVal) > 100) return this.$message('请输 0 - 100 之间的值')
       if (!this.quotaVal) return this.$message('请输入限购数量')
       this.initData()
       this.activityVisible = false
@@ -1466,6 +1525,7 @@ export default {
       await batchOperation(this.multipleSelection, this.startRefurbishment)
       await this.deleteCollectGoodsInfo()
       this.operationBut = false
+      this.isRefurbishProduct = false
     },
     // 开始翻新
     async startRefurbishment(item, count = { count: 1 }) {
@@ -2311,18 +2371,20 @@ export default {
         productInfo.installment_tenures = JSON.parse(JSON.stringify(productInfo.installment_tenures))
         // 处理商品 sku list
         this.getModelList(productInfo.model_list, this.isRefurbishProduct)
-        try {
+        if (!this.isRefurbishProduct) {
+          try {
           // 获取物流
-          const parmas = {}
-          parmas['product_id'] = productInfo.id
-          parmas['mallId'] = item.platform_mall_id
-          const res = await this.$shopeemanService.getLogistics(item.country, parmas)
-          // 处理物流方式
-          if (res.code === 200) {
-            productInfo.logistics_channels = await this.getLogisticsInfo(res.data.list, isUseProductChannel, item)
+            const parmas = {}
+            parmas['product_id'] = productInfo.id
+            parmas['mallId'] = item.platform_mall_id
+            const res = await this.$shopeemanService.getLogistics(item.country, parmas)
+            // 处理物流方式
+            if (res.code === 200) {
+              productInfo.logistics_channels = await this.getLogisticsInfo(res.data.list, isUseProductChannel, item)
+            }
+          } catch (error) {
+            console.log('商品信息物流异常', error)
           }
-        } catch (error) {
-          console.log('商品信息物流异常', error)
         }
         productInfo.images = JSON.parse(JSON.stringify(productInfo.images))
         if (productInfo.tier_variation?.length > 0) {
@@ -2464,7 +2526,7 @@ export default {
           for (let i = 0; i < itemModelsJarray.length; i++) {
             const item = itemModelsJarray[i]
             item.id = isRefurbishProduct ? 0 : Number(item.id)
-            item.name = !item.name && item.sku ? item.sku : item.name.toString()
+            item.name = isRefurbishProduct ? '' : (!item.name && item.sku ? item.sku : item.name.toString())
             item.sku = item.sku.toString()
             item.stock = Number(item.stock)
             item.price = item.price.toString()
