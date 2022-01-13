@@ -216,9 +216,9 @@ export function dateFormat(Time, fmt) {
     if (new RegExp('(' + k + ')').test(fmt)) {
       fmt = fmt.replace(
         RegExp.$1,
-        RegExp.$1.length == 1 ?
-        o[k] :
-        ('00' + o[k]).substr(('' + o[k]).length)
+        RegExp.$1.length == 1
+          ? o[k]
+          : ('00' + o[k]).substr(('' + o[k]).length)
       )
     }
   }
@@ -382,7 +382,7 @@ export function exportCsvDataCommon(fileName, str) {
 export function debounce(fun, wait, immediate) {
   let timeout = null
   let result = null
-  return function () {
+  return function() {
     const context = this
     const args = arguments
     if (timeout) {
@@ -450,7 +450,7 @@ export function batchOperation(array, method, count = 5) {
         }
         clearInterval(setIn)
         setIn = null
-        console.log('线程停止：', methodName ,'线程剩余数：',num)
+        console.log('线程停止：', methodName, '线程剩余数：', num)
         resolve(success)
       } else {
         manage(number - num)
@@ -595,8 +595,8 @@ export function getArraySrcLengthSort(arr, type) {
 }
 
 export function getDaysBetween(startDate, endDate) {
-  var days = (endDate - startDate) / (1 * 24 * 60 * 60 * 1000);
-  return days;
+  var days = (endDate - startDate) / (1 * 24 * 60 * 60 * 1000)
+  return days
 }
 
 // 拼接链接
@@ -661,7 +661,7 @@ export function getGoodsUrl(platform, data) {
   }
 }
 
-  /**
+/**
    * @name :
    * @param {*} oriGoodsId 上家商品ID
    * @param {*} oriPlatformId 上家平台ID
@@ -671,178 +671,177 @@ export function getGoodsUrl(platform, data) {
    * @param {*} orderSn 订单号传null
    * @param {*} writeLog 日志函数
    */
-  export async function dealwithOriginGoodsNum(oriGoodsId, oriPlatformId, shopMallId, shopGoodsId, country, orderSn, writeLog) {
-    let msg = ''
-    let flag = false
-    try {
-      //1、同步shopee库存
-      const params = {
-        product_id: shopGoodsId,
-        version: '3.2.0',
-        shop_id: shopMallId,
+export async function dealwithOriginGoodsNum(oriGoodsId, oriPlatformId, shopMallId, shopGoodsId, country, orderSn, writeLog) {
+  let msg = ''
+  let flag = false
+  try {
+    // 1、同步shopee库存
+    const params = {
+      product_id: shopGoodsId,
+      version: '3.2.0',
+      shop_id: shopMallId
+    }
+    let shopeeSkuList = []
+    let shopeeGoodsInfo = null
+
+    // 获取shopee平台商品详情
+    const shopeeGoods = await instance.$shopeemanService.searchProductDetail(country, params)
+    if (shopeeGoods.code === 200 && shopeeGoods.data) {
+      const logistics_channels = dealwithLogisi(shopGoodsId, shopMallId, country)
+      if (!logistics_channels.length) {
+        return writeLog(`${orderSn ? `订单【${orderSn}】` : `商品【${shopGoodsId}】`}同步上家失败，未获取到物流信息！`, false)
       }
-      let shopeeSkuList = []
-      let shopeeGoodsInfo = null
+      shopeeGoodsInfo = shopeeGoods.data
+      shopeeSkuList = shopeeGoods.data.model_list || [] // shopee规格list
+      const params = {
+        GoodsId: oriGoodsId,
+        shop_id: shopMallId
+      }
+      if (oriPlatformId == 9) {
+        params['Site'] = country
+      } else if (oriPlatformId == 11) {
+        params['ShopId'] = shopMallId
+        params['Site'] = country
+      } else if (oriPlatformId == 13) {
+        params['ShopId'] = shopMallId
+        params['AccessToken'] = ''
+      }
 
-      //获取shopee平台商品详情
-      const shopeeGoods = await instance.$shopeemanService.searchProductDetail(country, params)
-      if (shopeeGoods.code === 200 && shopeeGoods.data) {
-        let logistics_channels = dealwithLogisi(shopGoodsId, shopMallId, country)
-        if (!logistics_channels.length) {
-          return writeLog(`${orderSn?`订单【${orderSn}】`:`商品【${shopGoodsId}】`}同步上家失败，未获取到物流信息！`, false)
-        }
-        shopeeGoodsInfo = shopeeGoods.data
-        shopeeSkuList = shopeeGoods.data.model_list || [] // shopee规格list
-        let params = {
-          GoodsId: oriGoodsId,
-          shop_id: shopMallId,
-        }
-        if (oriPlatformId == 9) {
-          params['Site'] = country
-        } else if (oriPlatformId == 11) {
-          params['ShopId'] = shopMallId
-          params['Site'] = country
-        } else if (oriPlatformId == 13) {
-          params['ShopId'] = shopMallId
-          params['AccessToken'] = ''
-        }
-
-        console.log(Number(oriPlatformId), params, false)
-        //获取上家平台商品详情
-        let res = await instance.$collectService.queryDetailById(Number(oriPlatformId), params, false)
-        console.log(res, '----------')
-        msg = res
-        console.log(Number(oriPlatformId), params, '4654689')
-        const resObj = res && JSON.parse(res)
-        console.log(resObj, '----------')
-        if (resObj && resObj.Code === 200) {
-          const {
-            CollectGoodsSkus
-          } = resObj
-          for (const key in CollectGoodsSkus) {
-            const skuInfo = CollectGoodsSkus[key]
-            // console.log(skuInfo, 'skuInfo')
-            let skuName = ''
-            // ---------------------处理skuName--------------------------------//
-            if ((skuInfo.PddProps && !skuInfo.originProps) || (skuInfo.PddProps && skuInfo.originProps && skuInfo.PddProps.length >= skuInfo.originProps.length)) {
-              if (skuInfo.PddProps.length === 1) {
-                skuName = skuInfo.PddProps[0].spec_name
-              } else if (skuInfo.PddProps.length >= 2) {
-                skuName = skuInfo.PddProps[0].spec_name + ',' + skuInfo.PddProps[1].spec_name
-              } else {
-                skuName = ''
-              }
-            } else if ((!skuInfo.PddProps && skuInfo.originProps) || (skuInfo.PddProps && skuInfo.originProps && skuInfo.PddProps.length <= skuInfo.originProps.length)) {
-              if (skuInfo.originProps.length === 1) {
-                skuName = skuInfo.originProps[0].name
-              } else if (skuInfo.originProps.length >= 2) {
-                skuName = skuInfo.originProps[0].name + ',' + skuInfo.originProps[1].name
-              } else {
-                skuName = ''
-              }
+      console.log(Number(oriPlatformId), params, false)
+      // 获取上家平台商品详情
+      const res = await instance.$collectService.queryDetailById(Number(oriPlatformId), params, false)
+      console.log(res, '----------')
+      msg = res
+      console.log(Number(oriPlatformId), params, '4654689')
+      const resObj = res && JSON.parse(res)
+      console.log(resObj, '----------')
+      if (resObj && resObj.Code === 200) {
+        const {
+          CollectGoodsSkus
+        } = resObj
+        for (const key in CollectGoodsSkus) {
+          const skuInfo = CollectGoodsSkus[key]
+          // console.log(skuInfo, 'skuInfo')
+          let skuName = ''
+          // ---------------------处理skuName--------------------------------//
+          if ((skuInfo.PddProps && !skuInfo.originProps) || (skuInfo.PddProps && skuInfo.originProps && skuInfo.PddProps.length >= skuInfo.originProps.length)) {
+            if (skuInfo.PddProps.length === 1) {
+              skuName = skuInfo.PddProps[0].spec_name
+            } else if (skuInfo.PddProps.length >= 2) {
+              skuName = skuInfo.PddProps[0].spec_name + ',' + skuInfo.PddProps[1].spec_name
             } else {
               skuName = ''
             }
-            // ----------------------------------------------------------------//
-            const spIndex = shopeeSkuList.findIndex((n) => n.sku.replace('=|=', ',') == skuName)
-            if (spIndex > -1) {
-              flag = true
-              shopeeSkuList[spIndex].stock = Number(skuInfo.quantity)
+          } else if ((!skuInfo.PddProps && skuInfo.originProps) || (skuInfo.PddProps && skuInfo.originProps && skuInfo.PddProps.length <= skuInfo.originProps.length)) {
+            if (skuInfo.originProps.length === 1) {
+              skuName = skuInfo.originProps[0].name
+            } else if (skuInfo.originProps.length >= 2) {
+              skuName = skuInfo.originProps[0].name + ',' + skuInfo.originProps[1].name
+            } else {
+              skuName = ''
             }
-          }
-          // -----------判断是否更新并组装数据--------------//
-          if (!flag) {
-            return writeLog(`${orderSn?`订单【${orderSn}】`:`商品【${shopGoodsId}】`}同步库存失败，未匹配到相同的规格信息！`, false)
-          }
-          let totalStock = 0
-          const dealWithSkuList = []
-          shopeeSkuList.forEach((item) => {
-            totalStock += item.stock
-            const subItem = {
-              id: item.id,
-              sku: item.sku,
-              tier_index: item.tier_index,
-              is_default: item.is_default,
-              name: item.name,
-              item_price: '',
-              stock: item.stock,
-            }
-            dealWithSkuList.push(subItem)
-          })
-          let attributes = []
-          shopeeGoodsInfo.attributes.forEach(item => {
-            let obj = {
-              attribute_id: item.attribute_id,
-              attribute_value_id: item.attribute_value_id
-            }
-            attributes.push(obj)
-          })
-          console.log(attributes, "attributes")
-          // 组装数据
-          const editParams = {
-            id: shopeeGoodsInfo.id,
-            name: shopeeGoodsInfo.name,
-            brand_id: shopeeGoodsInfo.brand_id,
-            images: shopeeGoodsInfo.images,
-            description: shopeeGoodsInfo.description,
-            model_list: dealWithSkuList, // sku
-            category_path: shopeeGoodsInfo.category_path,
-            attributes: shopeeGoodsInfo.attributes,
-            parent_sku: shopeeGoodsInfo.parent_sku,
-            wholesale_list: shopeeGoodsInfo.wholesale_list,
-            installment_tenures: shopeeGoodsInfo.installment_tenures,
-            weight: shopeeGoodsInfo.weight,
-            dimension: shopeeGoodsInfo.dimension,
-            pre_order: shopeeGoodsInfo.pre_order,
-            days_to_ship: shopeeGoodsInfo.days_to_ship,
-            condition: shopeeGoodsInfo.condition,
-            size_chart: shopeeGoodsInfo.size_chart,
-            video_list: shopeeGoodsInfo.video_list,
-            tier_variation: shopeeGoodsInfo.tier_variation,
-            add_on_deal: shopeeGoodsInfo.add_on_deal,
-            // dangerous_goods: shopeeGoodsInfo.dangerous_goods,
-            enable_model_level_dts: shopeeGoodsInfo.enable_model_level_dts,
-            price: shopeeGoodsInfo.price,
-            stock: totalStock, // 总库存
-            logistics_channels: shopeeGoodsInfo.logistics_channels || [],
-            ds_cat_rcmd_id: '',
-            category_recommend: shopeeGoodsInfo.category_recommend,
-            ds_attr_rcmd_id: shopeeGoodsInfo.ds_attr_rcmd_id || '',
-            unlisted: shopeeGoodsInfo.unlisted || false
-          }
-          const data = {
-            mallId: shopMallId
-          }
-          const editRes = await instance.$shopeemanService.handleProductEdit(country, data, [editParams])
-          if (editRes.code === 200) {
-            return writeLog(`同步库存失败，${orderSn?`订单【${orderSn}】`:`商品【${shopGoodsId}】`}同步库存成功！`, true)
           } else {
-            return writeLog(`同步库存失败，${orderSn?`订单【${orderSn}】`:`商品【${shopGoodsId}】`}同步库存失败，${editRes.data}！`, false)
+            skuName = ''
+          }
+          // ----------------------------------------------------------------//
+          const spIndex = shopeeSkuList.findIndex((n) => n.sku.replace('=|=', ',') == skuName)
+          if (spIndex > -1) {
+            flag = true
+            shopeeSkuList[spIndex].stock = Number(skuInfo.quantity)
           }
         }
-      } else {
-        if (shopeeGoods.code === 403) {
-          return writeLog(`同步库存失败，店铺【${shopMallId}】未登录！`, false)
+        // -----------判断是否更新并组装数据--------------//
+        if (!flag) {
+          return writeLog(`${orderSn ? `订单【${orderSn}】` : `商品【${shopGoodsId}】`}同步库存失败，未匹配到相同的规格信息！`, false)
         }
-        return writeLog(`同步库存失败，${orderSn?`订单【${orderSn}】`:`商品【${shopGoodsId}】`}未获取到shopee商品信息！`, false)
+        let totalStock = 0
+        const dealWithSkuList = []
+        shopeeSkuList.forEach((item) => {
+          totalStock += item.stock
+          const subItem = {
+            id: item.id,
+            sku: item.sku,
+            tier_index: item.tier_index,
+            is_default: item.is_default,
+            name: item.name,
+            item_price: '',
+            stock: item.stock
+          }
+          dealWithSkuList.push(subItem)
+        })
+        const attributes = []
+        shopeeGoodsInfo.attributes.forEach(item => {
+          const obj = {
+            attribute_id: item.attribute_id,
+            attribute_value_id: item.attribute_value_id
+          }
+          attributes.push(obj)
+        })
+        console.log(attributes, 'attributes')
+        // 组装数据
+        const editParams = {
+          id: shopeeGoodsInfo.id,
+          name: shopeeGoodsInfo.name,
+          brand_id: shopeeGoodsInfo.brand_id,
+          images: shopeeGoodsInfo.images,
+          description: shopeeGoodsInfo.description,
+          model_list: dealWithSkuList, // sku
+          category_path: shopeeGoodsInfo.category_path,
+          attributes: shopeeGoodsInfo.attributes,
+          parent_sku: shopeeGoodsInfo.parent_sku,
+          wholesale_list: shopeeGoodsInfo.wholesale_list,
+          installment_tenures: shopeeGoodsInfo.installment_tenures,
+          weight: shopeeGoodsInfo.weight,
+          dimension: shopeeGoodsInfo.dimension,
+          pre_order: shopeeGoodsInfo.pre_order,
+          days_to_ship: shopeeGoodsInfo.days_to_ship,
+          condition: shopeeGoodsInfo.condition,
+          size_chart: shopeeGoodsInfo.size_chart,
+          video_list: shopeeGoodsInfo.video_list,
+          tier_variation: shopeeGoodsInfo.tier_variation,
+          add_on_deal: shopeeGoodsInfo.add_on_deal,
+          // dangerous_goods: shopeeGoodsInfo.dangerous_goods,
+          enable_model_level_dts: shopeeGoodsInfo.enable_model_level_dts,
+          price: shopeeGoodsInfo.price,
+          stock: totalStock, // 总库存
+          logistics_channels: shopeeGoodsInfo.logistics_channels || [],
+          ds_cat_rcmd_id: '',
+          category_recommend: shopeeGoodsInfo.category_recommend,
+          ds_attr_rcmd_id: shopeeGoodsInfo.ds_attr_rcmd_id || '',
+          unlisted: shopeeGoodsInfo.unlisted || false
+        }
+        const data = {
+          mallId: shopMallId
+        }
+        const editRes = await instance.$shopeemanService.handleProductEdit(country, data, [editParams])
+        if (editRes.code === 200) {
+          return writeLog(`同步库存失败，${orderSn ? `订单【${orderSn}】` : `商品【${shopGoodsId}】`}同步库存成功！`, true)
+        } else {
+          return writeLog(`同步库存失败，${orderSn ? `订单【${orderSn}】` : `商品【${shopGoodsId}】`}同步库存失败，${editRes.data}！`, false)
+        }
       }
-    } catch (error) {
-      console.log('catch', error)
-      return writeLog(`${orderSn?`订单【${orderSn}】`:`商品【${shopGoodsId}】`}同步上家库存失败，${msg}！`, false)
+    } else {
+      if (shopeeGoods.code === 403) {
+        return writeLog(`同步库存失败，店铺【${shopMallId}】未登录！`, false)
+      }
+      return writeLog(`同步库存失败，${orderSn ? `订单【${orderSn}】` : `商品【${shopGoodsId}】`}未获取到shopee商品信息！`, false)
     }
+  } catch (error) {
+    console.log('catch', error)
+    return writeLog(`${orderSn ? `订单【${orderSn}】` : `商品【${shopGoodsId}】`}同步上家库存失败，${msg}！`, false)
   }
+}
 
-  
 async function dealwithLogisi(productID, mallID, country) {
   // 获取物流
   const parmas = {}
   parmas['product_id'] = productID
   parmas['mallId'] = mallID
   const res = await instance.$shopeemanService.getLogistics(country, parmas)
-  console.log(res,"dealwithLogisi")
+  console.log(res, 'dealwithLogisi')
   // 处理物流方式
   let logModelList = []
-  let logisticsJarray = res.data.list || []
+  const logisticsJarray = res.data.list || []
   if (res.code === 200) {
     logModelList = await getLogisticsInfo(logisticsJarray, true, mallID, country)
   }
@@ -858,13 +857,13 @@ async function getLogisticsInfo(logisticsJarray, isUseProductChannel, mallID, co
     // 获取商家后台的物流方式
     let res = await instance.$shopeemanService.getChinese(country, '/api/v3/logistics/get_channel_list/?', params)
     res = JSON.parse(JSON.parse(res).data)
-    if (res ?.data ?.list) {
+    if (res.data.list) {
       idDatas = res.data.list
     }
-    console.log(idDatas,"idDatas")
+    console.log(idDatas, 'idDatas')
     // 过滤无效物流
     logisticsJarray = filterLogistics(logisticsJarray, idDatas, isUseProductChannel)
-    console.log(logisticsJarray,"logisticsJarray222")
+    console.log(logisticsJarray, 'logisticsJarray222')
   }
   for (let i = 0; i < logisticsJarray.length; i++) {
     const logistics = logisticsJarray[i]
@@ -878,64 +877,64 @@ async function getLogisticsInfo(logisticsJarray, isUseProductChannel, mallID, co
     obj.parent_channel_id = Number(logistics.parent_channel_id)
     logModelList.push(obj)
   }
-  console.log(logModelList,"logModelList")
+  console.log(logModelList, 'logModelList')
   return logModelList
 }
 // 过滤无效物流
 async function filterLogistics(logisticsJarray, idDatas, isUseProductChannel) {
-  console.log(logisticsJarray, idDatas,"33333")
-    const newLogisticsJarray = []
-    for (let i = 0; i < idDatas.length; i++) {
-      const channels = idDatas[i]
-      const channelId = channels.channel_id.toString()
-      const parentChannelId = 'parent_channel_id' in channels ? channels.parent_channel_id.toString() : '0'
-      if (parentChannelId !== '0') {
-        continue
-      }
-      if (!JSON.parse(channels.is_mask_channel) && !JSON.parse(channels.enabled)) {
-        continue
-      }
-      let isAddToNewArray = false
-      for (let j = 0; j < logisticsJarray.length; j++) {
-        const logistics = logisticsJarray[j]
-        if (logistics.channel_id.toString === channelId) {
-          if (!isUseProductChannel) {
-            logistics.enabled = channels.enabled.toString()
-          }
-          if (!logistics ?.default_price) {
-            logistics.default_price = '0.00'
-          }
-          newLogisticsJarray.push(logistics)
-          isAddToNewArray = true
-          break
+  console.log(logisticsJarray, idDatas, '33333')
+  const newLogisticsJarray = []
+  for (let i = 0; i < idDatas.length; i++) {
+    const channels = idDatas[i]
+    const channelId = channels.channel_id.toString()
+    const parentChannelId = 'parent_channel_id' in channels ? channels.parent_channel_id.toString() : '0'
+    if (parentChannelId !== '0') {
+      continue
+    }
+    if (!JSON.parse(channels.is_mask_channel) && !JSON.parse(channels.enabled)) {
+      continue
+    }
+    let isAddToNewArray = false
+    for (let j = 0; j < logisticsJarray.length; j++) {
+      const logistics = logisticsJarray[j]
+      if (logistics.channel_id.toString === channelId) {
+        if (!isUseProductChannel) {
+          logistics.enabled = channels.enabled.toString()
         }
-      }
-      if (!isAddToNewArray) {
-        channels.price = channels.price ? channels.price.toString : '0.00'
-        channels.cover_shipping_fee = !((channels.cover_shipping_fee.toString() === '0' || channels.cover_shipping_fee.toString() === 'false'))
-        channels.size_id = 0
-        channels.size = 0
-        newLogisticsJarray.push(channels)
+        if (!logistics.default_price) {
+          logistics.default_price = '0.00'
+        }
+        newLogisticsJarray.push(logistics)
+        isAddToNewArray = true
+        break
       }
     }
-    return newLogisticsJarray
+    if (!isAddToNewArray) {
+      channels.price = channels.price ? channels.price.toString : '0.00'
+      channels.cover_shipping_fee = !((channels.cover_shipping_fee.toString() === '0' || channels.cover_shipping_fee.toString() === 'false'))
+      channels.size_id = 0
+      channels.size = 0
+      newLogisticsJarray.push(channels)
+    }
   }
+  return newLogisticsJarray
+}
 
-  /**
+/**
    * @name :区间随机值
    * @param {*} minVal 最小
    * @param {*} maxVal 最大
    * @param {*} fixed 小数位
    * */
-  async function getSectionRandom(minVal,maxVal,fixed = 0){
-    minVal = (minVal < maxVal && minVal || maxVal) * 1
-    maxVal = (minVal < maxVal && maxVal || minVal) * 1
-    let gap = maxVal - minVal
-    let random =1 * (Math.random() * gap).toFixed(fixed)
-    return minVal + random
-  }
+async function getSectionRandom(minVal, maxVal, fixed = 0) {
+  minVal = (minVal < maxVal && minVal || maxVal) * 1
+  maxVal = (minVal < maxVal && maxVal || minVal) * 1
+  const gap = maxVal - minVal
+  const random = 1 * (Math.random() * gap).toFixed(fixed)
+  return minVal + random
+}
 
-/***
+/** *
  * @name :图片上传
  * @param {*} mall 店铺
  * @param {*} imageList 图片列表
@@ -943,41 +942,40 @@ async function filterLogistics(logisticsJarray, idDatas, isUseProductChannel) {
  * @param {*} thread 线程数
  */
 
-async function imageCompressionUpload(mall,imageList,that,thread = 3){
-  let newImage = {}
-  return new Promise(async (resolve)=>{
-    let params = []
-    imageList.forEach(item=>{
-      params.push(Object.assign({url:item},mall))
+export function imageCompressionUpload(mall, imageList, that, thread = 3) {
+  const newImage = {}
+  return new Promise(async(resolve) => {
+    const params = []
+    imageList.forEach(item => {
+      params.push(Object.assign({ url: item }, mall))
     })
-    await batchOperation(params,imageUpload,thread)
+    await batchOperation(params, imageUpload, thread)
     resolve(newImage)
   })
-  async function imageUpload(item,count={count:1}){
+  async function imageUpload(item, count = { count: 1 }) {
     try {
       let imageUrl = item.url || ''
-      if (imageUrl && !imageUrl.includes('http://') &&!imageUrl.includes('https://')){
-        imageUrl = this.$filters.imageRender(imageUrl)
+      if (imageUrl && !imageUrl.includes('http://') && !imageUrl.includes('https://')) {
+        imageUrl = that.$filters.imageRender([imageUrl])
       }
-      let base64File = await getBase64file(imageUrl)
-      let country = that.country || mall.country
-      const imageFileJSON = await that.$shopeemanService.upload_image(country, {mallId:item.platform_mall_id}, '', base64File)
-      console.log(imageFileJSON)
+      const base64File = await getBase64file(imageUrl)
+      const country = that.country || mall.country
+      const imageFileJSON = await that.$shopeemanService.upload_image(country, { mallId: item.platform_mall_id }, '', base64File)
       const imageFileRes = JSON.parse(imageFileJSON)
       const imageFileData = JSON.parse(imageFileRes.data)
       newImage[item.url] = imageFileData?.data?.resource_id
-    }catch (e) {
+    } catch (e) {
       console.log(e)
-    }finally {
+    } finally {
       --count.count
     }
   }
-  function getBase64file(url,width,height){
-    return new Promise(async (resolve)=>{
+  function getBase64file(url, width, height) {
+    return new Promise(async(resolve) => {
       const image = new Image()
       image.setAttribute('crossOrigin', 'anonymous')
       image.src = url
-      image.onload =async function() {
+      image.onload = async function() {
         image.width = width || image.width
         image.height = height || image.height
         const canvas = document.createElement('canvas')
@@ -986,37 +984,37 @@ async function imageCompressionUpload(mall,imageList,that,thread = 3){
         const context = canvas.getContext('2d')
         context.drawImage(image, 0, 0, image.width, image.height)
         let base64 = canvas.toDataURL('image/png')
-        let base64Size = showSize(base64)
-        if(base64Size > 1024){
-          let width = Math.floor(image.width/3*2)
-          let height = Math.floor(image.height/3*2)
-          base64 = await getBase64file(base64,width,height)
+        const base64Size = showSize(base64)
+        if (base64Size > 1024) {
+          const width = Math.floor(image.width / 3 * 2)
+          const height = Math.floor(image.height / 3 * 2)
+          base64 = await getBase64file(base64, width, height)
         }
         resolve(base64)
       }
     })
   }
   function showSize(base64url) {
-    //把头部去掉
-    let str = base64url.replace('data:image/png;base64,', '');
+    // 把头部去掉
+    let str = base64url.replace('data:image/png;base64,', '')
     // 找到等号，把等号也去掉
-    let equalIndex = str.indexOf('=');
-    if(str.indexOf('=')>0) {
-      str=str.substring(0, equalIndex);
+    const equalIndex = str.indexOf('=')
+    if (str.indexOf('=') > 0) {
+      str = str.substring(0, equalIndex)
     }
     // 原来的字符流大小，单位为字节
-    let strLength=str.length;
+    const strLength = str.length
     // 计算后得到的文件流大小，单位为字节
-    let fileLength=parseInt(strLength-(strLength/8)*2);
+    const fileLength = parseInt(strLength - (strLength / 8) * 2)
     // 由字节转换为kb
-    let size = "";
-    size = (fileLength / 1024).toFixed(2);
-    let sizeStr = size + ""; //转成字符串
-    let index = sizeStr.indexOf("."); //获取小数点处的索引
-    let dou = sizeStr.substr(index + 1, 2) //获取小数点后两位的值
-    if (dou == "00") { //判断后两位是否为00，如果是则删除00
+    let size = ''
+    size = (fileLength / 1024).toFixed(2)
+    const sizeStr = size + '' // 转成字符串
+    const index = sizeStr.indexOf('.') // 获取小数点处的索引
+    const dou = sizeStr.substr(index + 1, 2) // 获取小数点后两位的值
+    if (dou == '00') { // 判断后两位是否为00，如果是则删除00
       return sizeStr.substring(0, index) + sizeStr.substr(index + 3, 2)
     }
-    return size;
+    return size
   }
 }

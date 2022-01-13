@@ -143,4 +143,21 @@ export default class BaseUtilService {
   async getPluginPorts() {
     return this.nativeService.getPluginPorts()
   }
+  // 清理缓存
+  async clealAllCache() {
+    return this.nativeService.clealAllCache()
+  }
+  /**
+   * 清理翻译缓存
+   * @param {*} start "2022-01-01 00:00:00"
+   * @param {*} end "2022-01-13 00:00:00"
+   * @returns
+   */
+  async clearGoodsTranslateInfo(start, end) {
+    return this.nativeService.clearGoodsTranslateInfo(start, end)
+  }
+  // 验证是否清空翻译缓存
+  async getGoodsTranslateInfo(fromLanguage, toLanguage, text) {
+    return this.nativeService.getGoodsTranslateInfo(fromLanguage, toLanguage, text)
+  }
 }
