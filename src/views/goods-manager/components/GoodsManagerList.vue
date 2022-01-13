@@ -3064,7 +3064,7 @@ export default {
         console.log(error)
         this.$refs.Logs.writeLog(`店铺【${mallName}】获取数据异常`, false)
       } finally {
-        const nameData1 = this.tableData.filter(item => { return item.mallName === mallName })
+        const nameData1 = this.tableData.filter(item => { return item.platform_mall_id === mItem.platform_mall_id })
         // 单店查询商品数量
         if (this.productNumChecked) {
           // 如果当前店铺长度小于设置的单店值
@@ -3073,7 +3073,7 @@ export default {
             const num = Number(this.productNum) - nameData1.length
             this.tableData = this.tableData.concat(mItem.mylist.slice(0, num))
             // 加入数据后查询当前店铺的长度
-            const nameData2 = this.tableData.filter(item => { return item.mallName === mallName })
+            const nameData2 = this.tableData.filter(item => { return item.platform_mall_id === mItem.platform_mall_id })
             // 当前店铺长度 大于或等于设置的单店值 设置flag2 值，不执行下一次查询
             if (nameData2.length >= Number(this.productNum)) {
               this.flag2 = false
@@ -3145,7 +3145,7 @@ export default {
       } catch (error) {
         this.$refs.Logs.writeLog(`店铺【${mallName}】获取数据异常`, false)
       } finally {
-        const nameData1 = this.tableData.filter(item => { return item.mallName === mallName })
+        const nameData1 = this.tableData.filter(item => { return item.platform_mall_id === mItem.platform_mall_id })
         // 单店查询商品数量
         if (this.productNumChecked) {
           // 如果当前店铺长度小于设置的单店值
@@ -3154,7 +3154,7 @@ export default {
             const num = Number(this.productNum) - nameData1.length
             this.tableData = this.tableData.concat(mItem.mylist.slice(0, num))
             // 加入数据后查询当前店铺的长度
-            const nameData2 = this.tableData.filter(item => { return item.mallName === mallName })
+            const nameData2 = this.tableData.filter(item => { return item.platform_mall_id === mItem.platform_mall_id })
             // 当前店铺长度 大于或等于设置的单店值 设置flag2 值，不执行下一次查询
             if (nameData2.length >= Number(this.productNum)) {
               this.flag2 = false
