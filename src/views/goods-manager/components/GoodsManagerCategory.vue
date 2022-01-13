@@ -30,6 +30,7 @@
         @selection-change="handleSelectionChange"
       >
         <el-table-column type="selection" width="55" fixed />
+        <el-table-column type="index" label="序号" width="55" fixed />
         <el-table-column prop="name" label="分类名称" align="center" min-width="100px" fixed />
         <el-table-column prop="id" label="分类名称ID" align="center" min-width="100px" />
         <el-table-column prop="type" label="属性" align="center" min-width="100px">

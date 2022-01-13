@@ -97,7 +97,8 @@ export default class GoodsManagerAPI {
       const { country, mallId, name } = goodsinfo
       const params = {
         mallId: mallId,
-        name: name
+        name: name,
+        collection_type: 'customized'
       }
       const res = await this._this.$shopeemanService.postChinese(country, '/api/shopcategory/v3/category/create_shop_collection/?', params, {
         headers: {
@@ -591,7 +592,6 @@ export default class GoodsManagerAPI {
         ecode = -2
         message = '点赞失败'
       }
-      debugger
       return { ecode, message }
     } catch (error) {
       return { code: -2, data: `GoodsbuyerLike-catch: ${error}` }
