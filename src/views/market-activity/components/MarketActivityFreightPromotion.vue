@@ -357,7 +357,7 @@ export default {
           offset: item.offset,
           limit: 20
         }
-        const res = await this.MarketManagerAPIInstance.FollowPrize(params)
+        const res = await this.MarketManagerAPIInstance.logisticsPromotion(params)
         if (res.data.code === 0) {
           const list = res.data.data.follow_prize_list
           list.forEach(el => {

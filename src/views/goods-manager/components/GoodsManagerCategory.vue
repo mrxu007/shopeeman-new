@@ -5,7 +5,7 @@
       <div class="row">
         <GoodsChoose @getmall="getmall" @changeMall="changeMall" />
         <el-button style="margin-left:8px" size="mini" type="primary" :loading="searchLoading" @click="search">搜 索</el-button>
-        <el-button size="mini" type="primary" @click="search">刷新</el-button>
+        <!-- <el-button size="mini" type="primary" @click="search">刷新</el-button> -->
       </div>
       <!-- row2 -->
       <div class="row">
@@ -30,6 +30,7 @@
         @selection-change="handleSelectionChange"
       >
         <el-table-column type="selection" width="55" fixed />
+        <el-table-column type="index" label="序号" width="55" fixed />
         <el-table-column prop="name" label="分类名称" align="center" min-width="100px" fixed />
         <el-table-column prop="id" label="分类名称ID" align="center" min-width="100px" />
         <el-table-column prop="type" label="属性" align="center" min-width="100px">
@@ -70,12 +71,12 @@
           <label style="width: 80px;">分类名称：</label> <el-input v-model="uptypeName" size="mini" />
         </div>
         <el-button size="mini" type="primary" @click="updataNameDetailGoods">重新命名</el-button>
-        <el-button size="mini" type="primary" @click="goodsItemSelectorVisible = true">添加商品</el-button>
-        <el-button size="mini" type="primary" @click="delDetailGoodsFun('2',null)">批量删除</el-button>
+        <el-button v-if="selDate.type==='customized'" size="mini" type="primary" @click="goodsItemSelectorVisible = true">添加商品</el-button>
+        <el-button v-if="selDate.type==='customized'" size="mini" type="primary" @click="delDetailGoodsFun('2',null)">批量删除</el-button>
         <!-- 选中行 isshow=true -->
         <!-- <span style="margin: 4px;">次分类目前已在shoppe页面展示</span> -->
         <!-- 选中行 isshow=false -->
-        <span style="margin: 4px;">点选显示，让买家看到此分类</span>
+        <span style="margin: 4px;">此分类目前已在Shopee页面中显示</span>
         <el-switch v-model="detailGoodsShow" active-color="#13ce66" @change="detailchangeShow" />
       </div>
       <div class="detail_table">
@@ -88,6 +89,7 @@
           @selection-change="DetailSelectionChange"
         >
           <el-table-column type="selection" width="55" fixed />
+          <el-table-column type="index" width="55" label="序号" fixed />
           <el-table-column prop="itemid" label="商品ID" align="center" min-width="100px" fixed />
           <el-table-column prop="images" label="商品图片" align="center" min-width="100px">
             <template slot-scope="scope">
@@ -107,7 +109,7 @@
           <el-table-column prop="" label="操作" align="center" min-width="100px">
             <template v-slot="{row}">
               <div>
-                <el-button size="mini" type="primary" @click="delDetailGoodsFun('1',row.itemid)">删除</el-button>
+                <el-button v-if="selDate.type==='customized'" size="mini" type="primary" @click="delDetailGoodsFun('1',row.itemid)">删除</el-button>
               </div>
             </template>
           </el-table-column>
@@ -139,121 +141,6 @@
         <goodsItemSelector v-if="goodsItemSelectorVisible" :mall="selectMalllist" @changeGoodsItem="changeGoodsItem" />
       </el-dialog>
     </div>
-    <!-- 添加商品 -->
-    <!-- <el-dialog
-      title="添加商品"
-      :visible.sync="dialogVisible_addGoods"
-      width="1100px"
-      top="5vh"
-      class="dialogVisible_add"
-      @closed="clearDialog"
-    >
-      <div class="detail_conditon" style="display:flex;flex-wrap: wrap;"> -->
-    <!-- row1 -->
-    <!-- <div class="row">
-          <category-choose ref="goodsCategory" :level="3" :is-select="true" @setCategory="setCategory" />
-        </div> -->
-    <!-- row2 -->
-    <!-- <div class="row">
-          <div>
-            <el-select v-model="add_query.searchType" style="width:100px" size="mini">
-              <el-option label="关键字" value="1" />
-              <el-option label="商品编号" value="2" />
-            </el-select>
-            <el-input v-model="add_query.searchContent" size="mini" style="width:115px" clearable />
-          </div> -->
-
-    <!-- <div style="margin-left: 33px">
-            <label>排序：</label>
-            <el-select v-model="orderType" style="width:180px;" size="mini">
-              <el-option label="默认排序" value="1" />
-              <el-option label="销量从低往高" value="2" />
-              <el-option label="销量从高往低" value="3" />
-              <el-option label="价格从低往高" value="4" />
-              <el-option label="价格从高往低" value="5" />
-            </el-select>
-          </div> -->
-
-    <!-- <div style="margin-left: 8px;">
-            <label>价格区间：</label>
-            <el-input v-model="add_query.price_min" onkeyup="value=value.replace(/[^\d]/g,0)" size="mini" style="width:84px" clearable />
-            -
-            <el-input v-model="add_query.price_max" onkeyup="value=value.replace(/[^\d]/g,0)" size="mini" style="width:84px" clearable />
-          </div>
-
-          <el-checkbox v-model="showfit" style="margin-left: 8px;">仅显示适用商品</el-checkbox>
-          <el-checkbox v-model="showlog" style="margin-left:-18px;">隐藏日志</el-checkbox>
-        </div> -->
-    <!-- row3 -->
-    <!-- <div class="row" style="align-items: center;">
-          <div>
-            <label>商品库存：</label>
-            <el-input v-model="add_query.stock_min" onkeyup="value=value.replace(/[^\d]/g,0)" size="mini" style="width:84px" clearable />
-            -
-            <el-input v-model="add_query.stock_max" onkeyup="value=value.replace(/[^\d]/g,0)" size="mini" style="width:84px" clearable />
-          </div>
-
-          <div style="margin-left: 8px;">
-            <label>过滤商品编号：</label>
-            <el-input v-model="mall_goodsID" onkeyup="value=value.replace(/[^\d]/g,0)" size="mini" style="width:180px" clearable />
-          </div>
-
-          <div style="margin-left: 8px;">
-            <label>销量区间：</label>
-            <el-input v-model="add_query.sale_min" onkeyup="value=value.replace(/[^\d]/g,0)" size="mini" style="width:84px" clearable />
-            -
-            <el-input v-model="add_query.sale_max" onkeyup="value=value.replace(/[^\d]/g,0)" size="mini" style="width:84px" clearable />
-          </div>
-
-          <el-button size="mini" type="primary" style="margin-left: 8px;" @click="search_addGoods">查询商品</el-button>
-          <el-button size="mini" type="primary">取消操作</el-button>
-          <el-button size="mini" type="primary">添加已选商品</el-button> -->
-
-    <!-- </div>
-
-      </div>
-      <div class="detail_table">
-        <el-table
-          v-loading="loading_table"
-          :data="tableList_add"
-          height="calc(100vh - 353px)"
-          :header-cell-style="{ background: '#f7fafa' }"
-          @selection-change="handleSelectionChange"
-        >
-          <el-table-column type="selection" width="55" fixed />
-          <el-table-column prop="mallinfo.mallName" label="店铺名称" align="center" min-width="100px" fixed>
-            <template><span>{{ mallinfo.mallName }}</span></template></el-table-column>
-          <el-table-column prop="categoryName" label="类目" align="center" min-width="100px" />
-          <el-table-column prop="" label="主图" align="center" min-width="100px">
-            <template slot-scope="scope">
-              <el-tooltip effect="light" placement="right-end" :visible-arrow="false" :enterable="false" style="width: 56px; height: 56px; display: inline-block">
-                <div slot="content">
-                  <el-image :src="[ scope.row.images[0]] | imageRender" style="width: 200px; height: 200px" />
-                </div>
-                <el-image :src="[ scope.row.images[0],true] | imageRender" style="width: 56px; height: 56px" />
-              </el-tooltip>
-            </template>
-          </el-table-column>
-          <el-table-column prop="id" label="商品ID" align="center" min-width="100px" />
-          <el-table-column prop="name" label="商品标题" align="center" min-width="100px" />
-          <el-table-column prop="totalStock" label="库存" sortable align="center" min-width="100px" />
-          <el-table-column prop="totSale" label="销量" sortable align="center" min-width="100px" />
-          <el-table-column prop="minprice" label="价格" sortable align="center" min-width="100px" />
-        </el-table>
-        <div class="pagination" style="margin-left: 476px; margin-top: 10px;">
-          <el-pagination
-            :current-page.sync="add_query.page"
-            :page-sizes="[20, 50, 100, 200]"
-            :page-size="add_query.pageSize"
-            :pager-count="5"
-            layout="total, sizes, prev, pager, next, jumper"
-            :total="total"
-            @size-change="handleSizeChange"
-            @current-change="handleCurrentChange"
-          />
-        </div> -->
-    <!-- </div>
-    </el-dialog> -->
   </div>
 </template>
 <script>
@@ -333,12 +220,16 @@ export default {
           collection_id: Number(this.selDate.id),
           product_id_list: itemidList
         }
-        const res = await this.GoodsManagerAPIInstance.addCollectionGoods(params)
-        if (res.ecode === 0) {
-          this.$set(this.selDate, 'product_count', Number(this.selDate.product_count) + itemidList.length)
-          this.$message.success('添加成功')
-        } else {
-          this.$message.warning(`添加失败${res.message}`)
+        try {
+          const res = await this.GoodsManagerAPIInstance.addCollectionGoods(params)
+          if (res.ecode === 0) {
+            this.$set(this.selDate, 'product_count', Number(this.selDate.product_count) + itemidList.length)
+            this.$message.success('添加成功')
+          } else {
+            this.$message.warning(`添加失败${res.message}`)
+          }
+        } catch (error) {
+          this.$message.warning(`商品添加--catch${error}`)
         }
       } else {
         this.$message.warning('请选择要添加的商品')
@@ -347,6 +238,7 @@ export default {
       this.goodsItemSelectorVisible = false
       if (this.dialogVisible_detail) { // 重新详情加载列表
         this.getDetailGoodsList()
+        this.showlog = false
       }
     },
     // 清空日志
@@ -356,39 +248,19 @@ export default {
     // 分页
     handleSizeChange(val) {
       this.pageSize = val
-      this.dataCut()
-      // this.add_query.pageSize = val
-      // 1 如果条件为空，则走 getaddGoodsList()
-      // 2 不为空，则走 search_addGoods()
-      // if (this.add_query.mall_goodsNum === '' &&
-      //    this.add_query.searchContent === '' &&
-      //    this.add_query.sale_min === '' &&
-      //    this.add_query.sale_max === '' &&
-      //    this.add_query.price_min === '' &&
-      //    this.add_query.price_max === '') {
-      //   this.getaddGoodsList()
-      // } else {
-      //   this.search_addGoods()
-      // }
-      // this.search_addGoods()
+      if (this.selDate.type === 'customized') { // 自定义
+        this.dataCut()
+      } else { // shopp官方
+        this.getShoppeGoodsIDList()
+      }
     },
     handleCurrentChange(val) {
       this.currentPage = val
-      this.dataCut()
-      // this.add_query.page = val
-      // 1 如果条件为空，则走 getaddGoodsList()
-      // 2 不为空，则走 search_addGoods()
-      // if (this.add_query.mall_goodsNum === '' &&
-      //    this.add_query.searchContent === '' &&
-      //    this.add_query.sale_min === '' &&
-      //    this.add_query.sale_max === '' &&
-      //    this.add_query.price_min === '' &&
-      //    this.add_query.price_max === '') {
-      //   this.getaddGoodsList()
-      // } else {
-      //   this.search_addGoods()
-      // }
-      // this.search_addGoods()
+      if (this.selDate.type === 'customized') { // 自定义
+        this.dataCut()
+      } else { // shopp官方
+        this.getShoppeGoodsIDList()
+      }
     },
     // 获取店铺名称
     async getinfo() {
@@ -411,7 +283,11 @@ export default {
       this.collection_ids = row.id
       this.currentIndex = row
       this.detailGoodsShow = row.isShow
-      this.getDetailGoodsList()
+      if (row.type === 'customized') { // 自定义
+        this.getDetailGoodsList()
+      } else {
+        this.getShoppeGoodsIDList()
+      }
       // 1 商品列表获取
       // 3 添加商品 弹窗显示 添加后的商品与 商品列表同步更新【在1的基础上叠加】
       // 2 分类名称获取and 重新命名
@@ -420,7 +296,54 @@ export default {
       // 6.删除商品 批量删除商品
       // 7. 更新master商品列表 gettablelist
     },
-    // 获取商品详情列表 1.获取id 2.获取详细信息
+    // 获取商品详情列表 1.获取id 2.获取详细信息[shoppe官方]
+    async getShoppeGoodsIDList() {
+      const params = {
+        country: this.mallinfo.country,
+        mallId: this.mallinfo.mallID,
+        collection_ids: this.collection_ids,
+        page_size: this.pageSize,
+        page_number: this.currentPage }
+      const res = await this.GoodsManagerAPIInstance.getshopGoodsid(params)
+      if (res.ecode === 0) {
+        this.total = res.data.page_info.total
+        const productIds = []
+        res.data.list.forEach(el => {
+          productIds.push(el.toString())
+        })
+        if (productIds) {
+          await this.getShoppeGoodsListDetail(productIds)
+          this.detailLoading = false
+        }
+      } else {
+        this.$message.warning(`${res.message}`)
+      }
+    },
+    async getShoppeGoodsListDetail(productIds) {
+      const params = {
+        country: this.mallinfo.country,
+        mallId: this.mallinfo.mallID,
+        productIds: productIds }
+      const res = await this.GoodsManagerAPIInstance.getshopGoodsDetail(params)
+      if (res.ecode === 0) {
+        this.tableDataCut = []
+        const arr = res.data.products.items
+        // 获取最小价格
+        let minprice = null
+        for (let i = 0; i < arr.length; i++) {
+          for (let j = 0; j < arr[i].modelList.length; j++) {
+            minprice = arr[i].modelList[0].inputOriginPrice || arr[i].modelList[0].originPrice
+            const olprice = arr[i].modelList[j].inputOriginPrice || arr[i].modelList[j].originPrice
+            if (minprice > olprice) {
+              minprice = olprice
+            }
+          }
+          arr[i].minPrice = minprice
+        }
+        this.tableDataCut = arr
+      }
+    },
+    // 获取商品详情列表 1.获取id 2.获取详细信息[自有商品]
     async getDetailGoodsList() {
       const params = {
         collection_ids: this.collection_ids,

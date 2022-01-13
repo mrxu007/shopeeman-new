@@ -13,11 +13,11 @@ export default class GoodsDiscount {
       params['discount_id'] = item.discount_id
       const res = await this._this.$shopeemanService.getChinese(item.country, '/api/marketing/v3/discount/nominate/?', params)
       const jsonData = this.isJsonString(this.isJsonString(res).data)
-      if(jsonData && jsonData.code === 0){
+      if (jsonData && jsonData.code === 0) {
         return { code: 200, data: jsonData.data }
-      }else if(jsonData.code === 2 || jsonData.errcode === 2){
-        return { code:201,data:`店铺未登录`}
-      }else{
+      } else if (jsonData.code === 2 || jsonData.errcode === 2) {
+        return { code: 201, data: `店铺未登录` }
+      } else {
         return { code: -2, data: `查询折扣活动详情失败` }
       }
       // if (jsonData.message === 'success') {
@@ -40,11 +40,11 @@ export default class GoodsDiscount {
       params['mallId'] = mItem.platform_mall_id
       const res = await this._this.$shopeemanService.getChinese(mItem.country, '/api/marketing/v3/discount/get_by_discountids/?', params)
       const jsonData = this.isJsonString(this.isJsonString(res).data)
-      if(jsonData && jsonData.code === 0){
+      if (jsonData && jsonData.code === 0) {
         return { code: 200, data: jsonData.data }
-      }else if(jsonData.code === 2 || jsonData.errcode === 2){
-        return { code:201,data:`店铺未登录`}
-      }else{
+      } else if (jsonData.code === 2 || jsonData.errcode === 2) {
+        return { code: 201, data: `店铺未登录` }
+      } else {
         return { code: -2, data: `获取列表数据失败` }
       }
       // if (jsonData.message === 'success') {
@@ -68,11 +68,11 @@ export default class GoodsDiscount {
       params['mallId'] = mItem.platform_mall_id
       const res = await this._this.$shopeemanService.getChinese(mItem.country, '/api/marketing/v3/discount/standard_search/?', params)
       const jsonData = this.isJsonString(this.isJsonString(res).data)
-      if(jsonData && jsonData.code === 0){
+      if (jsonData && jsonData.code === 0) {
         return { code: 200, data: jsonData.data }
-      }else if(jsonData.code === 2 || jsonData.errcode === 2){
-        return { code:201,data:`店铺未登录`}
-      }else{
+      } else if (jsonData.code === 2 || jsonData.errcode === 2) {
+        return { code: 201, data: `店铺未登录` }
+      } else {
         return { code: -2, data: `获取失败` }
       }
       // if (jsonData.message === 'success') {
@@ -94,12 +94,12 @@ export default class GoodsDiscount {
       params['mallId'] = mItem.platform_mall_id
       const res = await this._this.$shopeemanService.getChinese(mItem.country, '/api/marketing/v3/discount/list/?', params)
       const jsonData = this.isJsonString(this.isJsonString(res).data)
-      console.log("111",jsonData)
-      if(jsonData && jsonData.code === 0){
+      console.log('111', jsonData)
+      if (jsonData && jsonData.code === 0) {
         return { code: 200, data: jsonData.data }
-      }else if(jsonData.code === 2 || jsonData.errcode === 2){
-        return { code:201,data:`店铺未登录`}
-      }else{
+      } else if (jsonData.code === 2 || jsonData.errcode === 2) {
+        return { code: 201, data: `店铺未登录` }
+      } else {
         return { code: -2, data: `获取失败` }
       }
       // if (jsonData.message === 'success') {
@@ -123,43 +123,43 @@ export default class GoodsDiscount {
       return str
     }
   }
-  async stopActive(val,actionType){
+  async stopActive(val, actionType) {
     try {
-      let params = {}
+      const params = {}
       params['discount_id'] = val.discount_id.toString()
       params['action'] = actionType
       params['mallId'] = val.platform_mall_id
-      const res = await this._this.$shopeemanService.mixChinese(val.country, '/api/marketing/v3/discount/?', params,{
+      const res = await this._this.$shopeemanService.mixChinese(val.country, '/api/marketing/v3/discount/?', params, {
         Headers: {
           'Content-Type': ' application/json'
-        }},'delete')
-        const resObj = res && JSON.parse(res)
-        console.log(resObj)
-        if (resObj && resObj.status === 200) {
-          const info = JSON.parse(resObj.data)
-          if (info && info.code === 0) {
-            return {
-              code: 200,
-              data: info.data || []
-            }
-          } else {
-            return {
-              code: 50001,
-              data: info.message || resObj.statusText || ''
-            }
+        }}, 'delete')
+      const resObj = res && JSON.parse(res)
+      console.log(resObj)
+      if (resObj && resObj.status === 200) {
+        const info = JSON.parse(resObj.data)
+        if (info && info.code === 0) {
+          return {
+            code: 200,
+            data: info.data || []
           }
         } else {
-          if (resObj.status === 403) {
-            return {
-              code: resObj.status,
-              data: `操作失败，店铺未登录！`
-            }
-          }
           return {
-            code: resObj.status,
-            data: `操作失败${resObj.statusText}`
+            code: 50001,
+            data: info.message || resObj.statusText || ''
           }
         }
+      } else {
+        if (resObj.status === 403) {
+          return {
+            code: resObj.status,
+            data: `操作失败，店铺未登录！`
+          }
+        }
+        return {
+          code: resObj.status,
+          data: `操作失败${resObj.statusText}`
+        }
+      }
     } catch (error) {
       return { code: -2, data: `操作异常： ${error}` }
     }
@@ -172,113 +172,113 @@ export default class GoodsDiscount {
   //   "end_time": 1641471154,
   //   "status": 1
   // }
-  async createActive(country,params){
+  async createActive(country, params) {
     try {
-      const res = await this._this.$shopeemanService.postChinese(country,'/api/marketing/v3/discount/?', params,{
+      const res = await this._this.$shopeemanService.postChinese(country, '/api/marketing/v3/discount/?', params, {
         Headers: {
           'Content-Type': ' application/json'
         }})
-        const resObj = res && JSON.parse(res)
-        console.log(resObj)
-        if (resObj && resObj.status === 200) {
-          const info = JSON.parse(resObj.data)
-          if (info && info.code === 0) {
-            return {
-              code: 200,
-              data: info.data || []
-            }
-          } else {
-            return {
-              code: 50001,
-              data: info.message || resObj.statusText || ''
-            }
+      const resObj = res && JSON.parse(res)
+      console.log(resObj)
+      if (resObj && resObj.status === 200) {
+        const info = JSON.parse(resObj.data)
+        if (info && info.code === 0) {
+          return {
+            code: 200,
+            data: info.data || []
           }
         } else {
-          if (resObj.status === 403) {
-            return {
-              code: resObj.status,
-              data: `操作失败，店铺未登录！`
-            }
-          }
           return {
-            code: resObj.status,
-            data: `操作失败${resObj.statusText}`
+            code: 50001,
+            data: info.message || resObj.statusText || ''
           }
         }
+      } else {
+        if (resObj.status === 403) {
+          return {
+            code: resObj.status,
+            data: `操作失败，店铺未登录！`
+          }
+        }
+        return {
+          code: resObj.status,
+          data: `操作失败${resObj.statusText}`
+        }
+      }
     } catch (error) {
       return { code: -2, data: `操作异常： ${error}` }
     }
   }
-  async putActive(country,params){
+  async putActive(country, params) {
     try {
-      const res = await this._this.$shopeemanService.mixChinese(country, '/api/marketing/v3/discount/?', params,{
+      const res = await this._this.$shopeemanService.mixChinese(country, '/api/marketing/v3/discount/?', params, {
         Headers: {
           'Content-Type': ' application/json'
-        }},'put')
-        const resObj = res && JSON.parse(res)
-        console.log(resObj)
-        if (resObj && resObj.status === 200) {
-          const info = JSON.parse(resObj.data)
-          if (info && info.code === 0) {
-            return {
-              code: 200,
-              data: info.data || []
-            }
-          } else {
-            return {
-              code: 50001,
-              data: info.message || resObj.statusText || ''
-            }
+        }}, 'put')
+      const resObj = res && JSON.parse(res)
+      console.log(resObj)
+      if (resObj && resObj.status === 200) {
+        const info = JSON.parse(resObj.data)
+        if (info && info.code === 0) {
+          return {
+            code: 200,
+            data: info.data || []
           }
         } else {
-          if (resObj.status === 403) {
-            return {
-              code: resObj.status,
-              data: `操作失败，店铺未登录！`
-            }
-          }
           return {
-            code: resObj.status,
-            data: `操作失败${resObj.statusText}`
+            code: 50001,
+            data: info.message || resObj.statusText || ''
           }
         }
+      } else {
+        if (resObj.status === 403) {
+          return {
+            code: resObj.status,
+            data: `操作失败，店铺未登录！`
+          }
+        }
+        return {
+          code: resObj.status,
+          data: `操作失败${resObj.statusText}`
+        }
+      }
     } catch (error) {
       return { code: -2, data: `操作异常： ${error}` }
     }
   }
-  async putModelActive(country,params){
+  async putModelActive(country, params) {
     try {
-      const res = await this._this.$shopeemanService.mixChinese(country, '/api/marketing/v3/discount/nominate/', params,{
+      const res = await this._this.$shopeemanService.mixChinese(country, '/api/marketing/v3/discount/nominate/', params, {
         Headers: {
           'Content-Type': ' application/json'
-        }},'put')
-        const resObj = res && JSON.parse(res)
-        console.log(resObj)
-        if (resObj && resObj.status === 200) {
-          const info = JSON.parse(resObj.data)
-          if (info && info.code === 0) {
-            return {
-              code: 200,
-              data: info.data || []
-            }
-          } else {
-            return {
-              code: 50001,
-              data: info.message || resObj.statusText || ''
-            }
+        }}, 'put')
+      const resObj = res && JSON.parse(res)
+      console.log(resObj)
+      if (resObj && resObj.status === 200) {
+        const info = JSON.parse(resObj.data)
+        if (info && info.code === 0) {
+          return {
+            code: 200,
+            data: info.data || []
           }
         } else {
-          if (resObj.status === 403) {
-            return {
-              code: resObj.status,
-              data: `操作失败，店铺未登录！`
-            }
-          }
           return {
-            code: resObj.status,
-            data: `操作失败${resObj.statusText}`
+            code: 50001,
+            data: info.message || resObj.statusText || ''
           }
         }
+      } else {
+        if (resObj.status === 403) {
+          return {
+            code: resObj.status,
+            data: `操作失败，店铺未登录！`
+          }
+        }
+        return {
+          code: resObj.status,
+          data: `操作失败${resObj.statusText}`
+        }
+      }
     } catch (error) {
       return { code: -2, data: `操作异常： ${error}` }
     }

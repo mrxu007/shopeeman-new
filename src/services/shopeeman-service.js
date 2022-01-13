@@ -22,6 +22,40 @@ export default class NetMessageBridgeService {
     }
   }
 
+  getExtraInfoBuyer(data) {
+    return {
+      mallId: data.mallId || data.platform_mall_id || data.shop_id,
+      isEmoticons: false,
+      isFrontShopeeApi: true
+    }
+  }
+  // 各站点本土前台网址
+  async getWebUrlLocal(country, data) {
+    const mallId = data.mallId || data.platform_mall_id || data.shop_id
+    let userSettings = await this.ConfigBridgeService().getUserConfig()
+    userSettings = JSON.parse(userSettings)
+    // console.log('userSettings',userSettings)
+    const mallInfo = await this.ConfigBridgeService().getGlobalCacheInfo('mallInfo', mallId)
+    const {
+      mall_main_id,
+      IPType
+    } = JSON.parse(mallInfo)
+    // auto 1、auto  2、mallinfo.MallMainId  3、IPType  包含 大陆   或者  ‘1’
+    // local 国内
+    // Abroad 本土
+
+    let url = this.site_domain_chinese_pre[country]
+    const domain_switch = userSettings && (userSettings.SwitchDominTypeSetting || userSettings.domain_switch) || '1'
+    console.log(userSettings, domain_switch, IPType, mall_main_id)
+    if (domain_switch === '3' || domain_switch === `Abroad`) {
+      url = this.site_domain_local_pre[country]
+    } else if ((domain_switch === '1' || domain_switch === 'Auto') &&
+      mall_main_id > 0 && (IPType.indexOf('大陆') === -1 || IPType === '1')) {
+      url = this.site_domain_local_pre[country]
+    }
+    return url
+  }
+
   async getWebUrl(country, data) {
     const url = this.site_domain_chinese_pre[country]
     return url
@@ -133,7 +167,7 @@ export default class NetMessageBridgeService {
         referer: url + referer
       })
     }
-    // console.log('-----', url, JSON.stringify(options))
+    // console.log('-----', url + api, JSON.stringify(options))
     return this.NetMessageBridgeService().get(url + api, JSON.stringify(options))
   }
 
@@ -165,9 +199,9 @@ export default class NetMessageBridgeService {
 
   async getChineseBuyer(country, api, data, options = {}, exportInfo) {
     data = JSON.parse(JSON.stringify(data))
-    const url = await this.getWebUrl(country, data) + api
-    const baseurl = await this.getWebUrl(country, data)
-    options['extrainfo'] = this.getExtraInfo(data)
+    const url = await this.getWebUrlLocal(country, data) + api
+    const baseurl = await this.getWebUrlLocal(country, data)
+    options['extrainfo'] = this.getExtraInfoBuyer(data)
     if (exportInfo) { // 适配店铺管理---导入店铺
       options['extrainfo']['exportInfo'] = exportInfo
     }
@@ -186,8 +220,9 @@ export default class NetMessageBridgeService {
 
   async postChineseBuyer(country, api, data, options = {}, exportInfo) {
     data = JSON.parse(JSON.stringify(data))
-    const url = await this.getWebUrl(country, data) + api
-    options['extrainfo'] = this.getExtraInfo(data)
+    const url = await this.getWebUrlLocal(country, data) + api
+    const baseurl = await this.getWebUrlLocal(country, data)
+    options['extrainfo'] = this.getExtraInfoBuyer(data)
     if (exportInfo) { // 适配店铺管理---导入店铺
       options['extrainfo']['exportInfo'] = exportInfo
       // Object.assign(options['extrainfo'],JSON.parse(JSON.stringify()))
@@ -196,11 +231,11 @@ export default class NetMessageBridgeService {
     const referer = options['headers'] && options['headers'].referer
     if (referer) {
       options['headers'] = Object.assign(options['headers'], {
-        origin: url,
-        referer: url + referer
+        origin: baseurl,
+        referer: baseurl + referer
       })
     }
-    // console.log(url, JSON.stringify(options), JSON.stringify(data))
+    console.log(url, JSON.stringify(options), JSON.stringify(data))
     return this.NetMessageBridgeService().post(url, JSON.stringify(options), JSON.stringify(data))
   }
 
