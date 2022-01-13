@@ -242,7 +242,7 @@ export default class NetMessageBridgeService {
         'Host': aurl.replace('https://', '')
       })
     }
-    // console.log('NetMessageBridgeService',url, JSON.stringify(options), JSON.stringify(data))
+    // console.log('NetMessageBridgeService', url, JSON.stringify(options), JSON.stringify(data))
     return this.NetMessageBridgeService().delete(url, JSON.stringify(options), JSON.stringify(data))
   }
 
@@ -2084,7 +2084,7 @@ export default class NetMessageBridgeService {
       if (resObj.status === 403) {
         return {
           code: resObj.status,
-          data: `商品编辑翻新，店铺未登录！`
+          data: `店铺未登录！`
         }
       }
       return {
