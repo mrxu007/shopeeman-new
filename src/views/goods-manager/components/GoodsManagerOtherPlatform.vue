@@ -101,12 +101,12 @@
             </div>
             <!-- 商品点赞 -->
             <div>
-              <span v-if="row.option_result.iscommentLike==='商品点赞成功'" style="color:green">{{ row.option_result.isgoodsLike }}</span>
+              <span v-if="row.option_result.isgoodsLike==='商品点赞成功'" style="color:green">{{ row.option_result.isgoodsLike }}</span>
               <span v-else style="color:red">{{ row.option_result.isgoodsLike }}</span>
             </div>
             <!-- 加购 -->
             <div>
-              <span v-if="row.option_result.iscommentLike==='商品加购成功'" style="color:green">{{ row.option_result.isbuy }}</span>
+              <span v-if="row.option_result.isbuy==='商品加购成功'" style="color:green">{{ row.option_result.isbuy }}</span>
               <span v-else style="color:red">{{ row.option_result.isbuy }}</span>
             </div>
           </template>
@@ -400,7 +400,6 @@ export default {
           this.$refs.autoReplyLogs.writeLog(`【商品加购${goodsinfo.itemid}】成功`, true)
           return true
         } else {
-          debugger
           if (!this.btnloading) { return }
           let message = ''
           if (res.message === 'This product has been suspended/deleted. You can buy other products.') {
@@ -444,7 +443,8 @@ export default {
             this.$refs.autoReplyLogs.writeLog(`正在获取获取评论信息`)
             const sult1 = await this.getRatings(item)
             // const sult1 = await this.getRatings(item) ? '评论点赞成功' : '评论点赞失败'
-            this.$set(goods, 'option_result.iscommentLike', sult1 ? '评价点赞成功' : '评价点赞失败')
+            goods.option_result.iscommentLike = sult1 ? '评价点赞成功' : '评价点赞失败'
+            this.$set(goods, 'option_result', goods.option_result)
             if (sult1) {
               this.$set(goods, 'liked_count', (goods.liked_count) + 1)
             }
@@ -486,16 +486,17 @@ export default {
             // 不能重复点赞
             if (goods.liked) {
               this.$refs.autoReplyLogs.writeLog(`【商品${goods.itemid}】不能重复点赞`, false)
-              this.$set(goods, 'option_result.iscommentLike', '商品不能重复点赞')
+              goods.option_result.iscommentLike = '商品不能重复点赞'
+              this.$set(goods, 'option_result', goods.option_result)
               return
             }
             const sult2 = await this.GoodsbuyerLike(goodsinfo)
-            this.$set(goods, 'option_result.isgoodsLike', sult2 ? '商品点赞成功' : '商品点赞失败')
+            goods.option_result.isgoodsLike = sult2 ? '商品点赞成功' : '商品点赞失败'
+            this.$set(goods, 'option_result', goods.option_result)
           }
 
           // 加购
           if (this.isbuy) {
-            debugger
             if (!this.btnloading) { return }
             // 不（加购）创建天数小于
             if (this.isunlikeCreateMinDay) {
@@ -534,7 +535,9 @@ export default {
                   const params = goodsinfo
                   params.modelid = goods.models[j].modelid
                   const sult3 = await this.addToCart(params)
-                  this.$set(goods, 'option_result.isbuy', sult3 ? '商品加购成功' : '商品加购失败')
+                  goods.option_result.isbuy = sult3 ? '商品加购成功' : '商品加购失败'
+                  this.$set(goods, 'option_result', goods.option_result)
+                  // this.$set(goods, 'option_result.isbuy', sult3 ? '商品加购成功' : '商品加购失败')
                   return
                 }
               }
