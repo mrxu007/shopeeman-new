@@ -201,6 +201,20 @@
           align="center"
         />
         <el-table-column
+          width="150"
+          align="center"
+          show-overflow-tooltip
+          label="填报人"
+          prop="forecaster"
+        >
+          <template v-slot="{row}">
+            <el-input v-if="row.isForecaster" v-model="row.forecaster" v-fo size="mini" @blur="updateForecaster(row)" />
+            <span v-else @click="isShowForecaster(row)">
+              <el-input v-model="row.forecaster" :disabled="!row.isForecaster" size="mini" />
+            </span>
+          </template>
+        </el-table-column>
+        <el-table-column
           prop="warehouse_name"
           label="中转仓"
           align="center"
@@ -260,34 +274,6 @@
           </template>
         </el-table-column>
         <el-table-column
-          label="商品详情"
-          align="center"
-          width="130"
-        >
-          <template slot-scope="{row}">
-            <el-button
-              size="mini"
-              type="primary"
-              @click="
-                detailsVisible = true
-                getDetails(row)"
-            >查看商品详情</el-button>
-          </template>
-        </el-table-column>
-        <el-table-column
-          label="操作"
-          align="center"
-          width="95"
-        >
-          <template slot-scope="{row}">
-            <el-button
-              size="mini"
-              type="primary"
-              @click="deleteForecast(row,1)"
-            >删 除</el-button>
-          </template>
-        </el-table-column>
-        <el-table-column
           label="运输方式"
           align="center"
           width="90"
@@ -336,6 +322,36 @@
           width="140"
           show-overflow-tooltip
         />
+        <el-table-column
+          label="商品详情"
+          align="center"
+          width="130"
+          fixed="right"
+        >
+          <template slot-scope="{row}">
+            <el-button
+              size="mini"
+              type="primary"
+              @click="
+                detailsVisible = true
+                getDetails(row)"
+            >查看商品详情</el-button>
+          </template>
+        </el-table-column>
+        <el-table-column
+          label="操作"
+          align="center"
+          width="95"
+          fixed="right"
+        >
+          <template slot-scope="{row}">
+            <el-button
+              size="mini"
+              type="primary"
+              @click="deleteForecast(row,1)"
+            >删 除</el-button>
+          </template>
+        </el-table-column>
       </el-table>
       <div class="pagination">
         <el-pagination
@@ -641,6 +657,13 @@
             {{ row.sku_list[0].sku_id }}
           </template>
         </el-table-column>
+        <el-table-column
+          width="100"
+          align="center"
+          show-overflow-tooltip
+          label="填报人"
+          prop="forecaster"
+        />
         <el-table-column
           width="150"
           align="center"
@@ -1500,6 +1523,26 @@ export default {
     await this.getStockingForecastLists()
   },
   methods: {
+    // 修改填报人
+    async updateForecaster(row) {
+      this.$set(row, 'isForecaster', false)
+      const forecaster = JSON.parse(JSON.stringify(row.forecaster))
+      const params = {
+        id: row.id,
+        forecaster
+      }
+      const res = await this.StrockUpForegin.updateForecaster(params)
+      if (res.code === 200) {
+        this.$message.success('修改填报人成功')
+        row.forecaster = forecaster
+      } else {
+        row.forecaster = row.forecaster
+        this.$message.error(`${res.data}`)
+      }
+    },
+    isShowForecaster(row) {
+      this.$set(row, 'isForecaster', true)
+    },
     // 打开外部链接
     async openUrl(url) {
       try {
@@ -1813,22 +1856,6 @@ export default {
       this.productSkuLoading = false
       console.log('skuDetailsData', this.skuDetailsData)
     },
-    // 仓库选择提示
-    // warehouseTips() {
-    //   let warehouseName = ''
-    //   let childName = ''
-    //   this.widList.map(item => {
-    //     if (item.id === this.foreignWid) {
-    //       warehouseName = item.warehouse_name
-    //     }
-    //   })
-    //   this.foreignOverseaWidList.map(item => {
-    //     if (item.id === this.foreignOverseaWid) {
-    //       childName = item.warehouse_name
-    //     }
-    //   })
-    //   return { warehouseName, childName }
-    // },
     // 自有商品导入
     async itselfGoodsImport() {
       this.productFrom.CateId = 0
@@ -1881,6 +1908,7 @@ export default {
         const element = this.importTemplateData[index]
         const package_code = element['物流单号(必填：多个SKU可对应同一物流单号)']
         const sku_id = element['商品编号(sku)(必填：只能填字母或数字)']
+        const forecaster = element['填报人(必填)']
         const goods_name = element['商品名称(必填：中文)']
         const sku_num = element['商品数量(必填)']
         const sku_price = element['商品单价(RMB)(必填)']
@@ -1900,6 +1928,10 @@ export default {
         }
         if (!sku_id) {
           this.$refs.Logs.writeLog(`【${index + 1}】商品编号(sku)为空`, false)
+          continue
+        }
+        if (!forecaster) {
+          this.$refs.Logs.writeLog(`【${index + 1}】填报人为空`, false)
           continue
         }
         if (!goods_name) {
@@ -1954,6 +1986,10 @@ export default {
           this.$refs.Logs.writeLog(`【${index + 1}】运输方式未找到引用值`, false)
           continue
         }
+        if (sku_url && sku_url.length > 255) {
+          this.$refs.Logs.writeLog(`【${index + 1}】商品链接过长`, false)
+          continue
+        }
         // const Regx = /^[\w ]+$/
         // if (!Regx.test(sku_id)) {
         //   this.$refs.Logs.writeLog(`【${index + 1}】商品编号(sku)只能填字母或数字`, false)
@@ -1967,6 +2003,7 @@ export default {
           is_checked: is_checked,
           ship_type: ship_type,
           remark: remark,
+          forecaster: forecaster,
           sku_list: [
             {
               sku_id: sku_id,
@@ -1994,6 +2031,7 @@ export default {
         cache.push(t)
         this.foreignData.push(t)
       }
+      console.log(this.foreignData)
       this.showConsole = false
       this.$refs.Logs.writeLog(`读取完毕`, true)
       this.stockingForecastUpload()
@@ -2030,7 +2068,8 @@ export default {
     downloadTemplate() {
       const template = `<tr>
       <td style="width: 300px">物流单号<span style="color:red">(必填：多个SKU可对应同一物流单号)</span></td>
-      <td style="width: 300px">商品编号(sku)<span style="color:red">(必填：只能填字母或数字)</span></td>
+      <td style="width: 280px">商品编号(sku)<span style="color:red">(必填：只能填字母或数字)</span></td>
+      <td style="width: 100px">填报人<span style="color:red">(必填)</span></td>
       <td style="width: 180px">商品名称<span style="color:red">(必填：中文)</span></td>
       <td style="width: 100px">商品数量<span style="color:red">(必填)</span></td>
       <td style="width: 150px">商品单价(RMB)<span style="color:red">(必填)</span></td>
@@ -2048,6 +2087,7 @@ export default {
       <tr>
         <td>ZT0001</td>
         <td>TH135648</td>
+        <td>张三</td>
         <td>波司登极寒系列羽绒服</td>
         <td>1</td>
         <td>20</td>
