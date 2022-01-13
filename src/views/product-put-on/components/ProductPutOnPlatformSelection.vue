@@ -1,5 +1,5 @@
 <template>
-  <div class="contaniner">
+  <div class="container-row">
     <header>
       <el-tabs v-model="activeName" @tab-click="handleClick">
         <el-tab-pane label="关键词采集" name="keyPage">
