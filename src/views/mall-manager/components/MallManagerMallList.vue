@@ -1747,6 +1747,7 @@
             mallUId = res.data && res.data.mallUId || null // 平台卖家ID
             let mallDataInfo = {}
             cookieJson = res.data.Cookie
+            let mallMainList = []
             if (this.flat === 1) {
               if(mallId != item.platform_mall_id){
                 item.LoginInfo = `<p style="color: red">登录失败：（登录异常，店铺ID已被shopee官方更换，最新店铺ID为【${mallId}】，请联系客服更换后重试），然后重试店铺登录</p>`
@@ -1786,12 +1787,15 @@
                   this.writeLog(`(${i + 1}/${len})账号【${platform_mall_name}】 店铺主体名称 【${item.MallMainName}】 不存在`, false)
                   continue
                 }
+                console.log('mallMainInfo',mallMainInfo)
                 this.writeLog(`(${i + 1}/${len})账号【${platform_mall_name}】该店铺主体【${item.MallMainName}】信息有效`, true)
                 mallDataInfo['mall_main_id'] = mallMainInfo.data.id // 更新店铺主体ID
                 if (!mallMainInfo.data.target_mall_info || mallMainInfo.data.target_mall_info.length === 0) { // 代表是一个新店铺没有绑定过IP，需要刷新壳缓存
                   this.writeLog(`(${i + 1}/${len})账号【${platform_mall_name}】正在刷新店铺主体信息缓存`, true)
                   await this.$BaseUtilService.UpdateProxy()
                   this.writeLog(`(${i + 1}/${len})账号【${platform_mall_name}】主体刷新成功`, true)
+                }else{
+                  mallMainList = [...mallMainInfo.data.target_mall_info.map(son=>son.mall_id)]
                 }
                 item.mall_main_id = mallMainInfo.data.id
                 hasMallMainInfo = true
@@ -1866,7 +1870,9 @@
               ])
             })
             if (hasMallMainInfo) { // 是否走过导入程序.并导入成功
-              const bindInfo = await this.mallListAPIInstance.bindMainName(item.mall_main_id, item.sys_mall_id)
+              mallMainList.push(item.sys_mall_id)
+              mallMainList = [...new Set(mallMainList)]
+              const bindInfo = await this.mallListAPIInstance.bindMainName(item.mall_main_id,mallMainList.toString())
               if (bindInfo.code !== 200) {
                 this.writeLog(`(${i + 1}/${len})账号【${platform_mall_name}】绑定店铺主体名称 ${item.MallMainName} 失败`, false)
               } else {

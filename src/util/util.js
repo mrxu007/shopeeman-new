@@ -662,8 +662,7 @@ export function getGoodsUrl(platform, data) {
 }
 
   /**
-   * @name : 
-   * @param  {*}
+   * @name :
    * @param {*} oriGoodsId 上家商品ID
    * @param {*} oriPlatformId 上家平台ID
    * @param {*} shopMallId shopee店铺ID
@@ -923,7 +922,10 @@ async function filterLogistics(logisticsJarray, idDatas, isUseProductChannel) {
   }
 
   /**
-   * 两个值之前随机值
+   * @name :区间随机值
+   * @param {*} minVal 最小
+   * @param {*} maxVal 最大
+   * @param {*} fixed 小数位
    * */
   async function getSectionRandom(minVal,maxVal,fixed = 0){
     minVal = (minVal < maxVal && minVal || maxVal) * 1
@@ -932,3 +934,89 @@ async function filterLogistics(logisticsJarray, idDatas, isUseProductChannel) {
     let random =1 * (Math.random() * gap).toFixed(fixed)
     return minVal + random
   }
+
+/***
+ * @name :图片上传
+ * @param {*} mall 店铺
+ * @param {*} imageList 图片列表
+ * @param {*} that this
+ * @param {*} thread 线程数
+ */
+
+async function imageCompressionUpload(mall,imageList,that,thread = 3){
+  let newImage = {}
+  return new Promise(async (resolve)=>{
+    let params = []
+    imageList.forEach(item=>{
+      params.push(Object.assign({url:item},mall))
+    })
+    await batchOperation(params,imageUpload,thread)
+    resolve(newImage)
+  })
+  async function imageUpload(item,count={count:1}){
+    try {
+      let imageUrl = item.url || ''
+      if (imageUrl && !imageUrl.includes('http://') &&!imageUrl.includes('https://')){
+        imageUrl = this.$filters.imageRender(imageUrl)
+      }
+      let base64File = await getBase64file(imageUrl)
+      let country = that.country || mall.country
+      const imageFileJSON = await that.$shopeemanService.upload_image(country, {mallId:item.platform_mall_id}, '', base64File)
+      console.log(imageFileJSON)
+      const imageFileRes = JSON.parse(imageFileJSON)
+      const imageFileData = JSON.parse(imageFileRes.data)
+      newImage[item.url] = imageFileData?.data?.resource_id
+    }catch (e) {
+      console.log(e)
+    }finally {
+      --count.count
+    }
+  }
+  function getBase64file(url,width,height){
+    return new Promise(async (resolve)=>{
+      const image = new Image()
+      image.setAttribute('crossOrigin', 'anonymous')
+      image.src = url
+      image.onload =async function() {
+        image.width = width || image.width
+        image.height = height || image.height
+        const canvas = document.createElement('canvas')
+        canvas.width = image.width
+        canvas.height = image.height
+        const context = canvas.getContext('2d')
+        context.drawImage(image, 0, 0, image.width, image.height)
+        let base64 = canvas.toDataURL('image/png')
+        let base64Size = showSize(base64)
+        if(base64Size > 1024){
+          let width = Math.floor(image.width/3*2)
+          let height = Math.floor(image.height/3*2)
+          base64 = await getBase64file(base64,width,height)
+        }
+        resolve(base64)
+      }
+    })
+  }
+  function showSize(base64url) {
+    //把头部去掉
+    let str = base64url.replace('data:image/png;base64,', '');
+    // 找到等号，把等号也去掉
+    let equalIndex = str.indexOf('=');
+    if(str.indexOf('=')>0) {
+      str=str.substring(0, equalIndex);
+    }
+    // 原来的字符流大小，单位为字节
+    let strLength=str.length;
+    // 计算后得到的文件流大小，单位为字节
+    let fileLength=parseInt(strLength-(strLength/8)*2);
+    // 由字节转换为kb
+    let size = "";
+    size = (fileLength / 1024).toFixed(2);
+    let sizeStr = size + ""; //转成字符串
+    let index = sizeStr.indexOf("."); //获取小数点处的索引
+    let dou = sizeStr.substr(index + 1, 2) //获取小数点后两位的值
+    if (dou == "00") { //判断后两位是否为00，如果是则删除00
+      return sizeStr.substring(0, index) + sizeStr.substr(index + 3, 2)
+    }
+    return size;
+  }
+}
