@@ -1033,7 +1033,6 @@ export default {
       terminateThread()
     },
     async prepareWork(item, count = { count: 1 }) {
-      // logistics_channels
       try {
         this.updateAttributeName(item, '正在准备发布')
         let goodsInitParam = {
@@ -1213,6 +1212,7 @@ export default {
           if( goodsParam['size_chart']){
             this.updateAttributeName(item, '正在上传尺寸图')
             let size_chartMapping = await imageCompressionUpload(mall,[goodsParam['size_chart']],this,this.storeConfig.pictureThread)
+            goodsParam['size_chart'] = size_chartMapping[goodsParam['size_chart']]
           }
 
           console.log('imageMapping',imageMapping,spec_imageMapping)
