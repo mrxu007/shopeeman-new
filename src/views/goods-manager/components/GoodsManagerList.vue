@@ -1,5 +1,5 @@
 <template>
-  <el-row class="contaniner">
+  <el-row class="container-row">
     <el-row class="header">
       <ul style="margin-bottom:10px">
         <storeChoose @changeMallList="changeMallList" />
@@ -1078,10 +1078,9 @@
 <script>
 import GoodsList from '../../../module-api/goods-manager-api/goods-list'
 import StoreChoose from '../../../components/store-choose'
-import { exportExcelDataCommon, batchOperation, terminateThread, dealwithOriginGoodsNum, getGoodsUrl, delay } from '../../../util/util'
+import { exportExcelDataCommon, batchOperation, terminateThread, dealwithOriginGoodsNum, getGoodsUrl, delay, sleep, waitStart, imageCompressionUpload } from '../../../util/util'
 import categoryMapping from '../../../components/category-mapping'
 import goodsSize from '../../../components/goods-size.vue'
-import testData from './testData'
 export default {
   components: {
     StoreChoose,
@@ -1320,7 +1319,6 @@ export default {
     this.createTime = [new Date().getTime() - 3600 * 1000 * 24 * 150, new Date()]
     await this.selectAll('goodsStatus', this.goodsStatusList)
     await this.selectAll('source', this.sourceList)
-    this.tableData = testData.data
   },
   methods: {
     // 跳转至采集页面
@@ -1348,7 +1346,13 @@ export default {
       this.isRefurbishProduct = true
       this.cancelMove = false
       this.moveDetails = []
-      await batchOperation(this.goodsMoveData, this.goodsMoveOperation, 2)
+      this.selectMoveMallList.forEach(i => {
+        i['isCreateNum'] = 0
+        i['createNum'] = 0
+      })
+      this.moveSuccess = 0
+      this.movefail = 0
+      await batchOperation(this.goodsMoveData, this.goodsMoveOperation, 5)
       this.goodsMoveBut = false
       this.isRefurbishProduct = false
       this.cancelMoveLoad = false
@@ -1363,6 +1367,7 @@ export default {
         const res = await this.getProductDetail(item)
         if (res.code === 200) {
           productInfo = res.data
+          console.log(productInfo)
           // 修改尺寸
           if (this.goodsSize) {
             productInfo['weight'] = this.goodsSize['weight']
@@ -1408,10 +1413,10 @@ export default {
             mallList = this.selectMoveMallList
           }
           for (let index = 0; index < mallList.length; index++) {
+            const mall = mallList[index]
             if (this.cancelMove) {
               break
             }
-            const mall = mallList[index]
             const obj = {}
             const mallName = mall.mall_alias_name || mall.platform_mall_name
             this.moveStatus(item, `开始上新到${mallName}`, true)
@@ -1421,7 +1426,7 @@ export default {
               mall['color'] = `red`
             } else {
               try {
-              // 获取物流
+                // 获取物流
                 const parmas = {}
                 parmas['product_id'] = productInfo.id
                 parmas['mallId'] = mall.platform_mall_id
@@ -1441,11 +1446,21 @@ export default {
               const specialCharList = this.$filters.special_characters
               const specialChar = specialCharList[Math.floor(Math.random() * specialCharList.length)]
               productInfo['name'] = specialChar + ' ' + productInfo.name
+              // 获取图片
+              const imageRes = await imageCompressionUpload(mall, productInfo.images, this)
+              productInfo['images'] = productInfo.images.map(item => {
+                item = imageRes[item]
+                return item
+              })
               // 上新发布
               const data = { mallId: mall.platform_mall_id }
-              console.log('上新数据', productInfo)
+              const createIndex = mall['createNum']++
+              await waitStart(() => {
+                return createIndex === mall['isCreateNum']
+              }, 60 * 60 * 1000)
               const createRes = await this.$shopeemanService.createProduct(mall.country, data, [productInfo])
               if (createRes.code === 200) {
+                setTimeout(() => { ++mall['isCreateNum'] }, Number(this.moveTime) * 1000)
                 this.moveStatus(item, `店铺【${mallName}】发布成功`, true)
                 mall['status'] = `发布成功`
                 mall['color'] = `green`
@@ -1460,6 +1475,7 @@ export default {
                 obj['shopeeId'] = createRes.data.product_id
                 obj['price'] = detailRes.data.price
               } else {
+                ++mall['isCreateNum']
                 this.moveStatus(item, `店铺【${mallName}】发布失败:${createRes.data}`, false)
                 mall['status'] = `发布失败:${createRes.data}`
                 mall['color'] = `red`
@@ -1477,6 +1493,7 @@ export default {
           }
         } else {
           this.movefail++
+          ++mall['isCreateNum']
           this.moveStatus(item, `${res.data}`, false)
         }
       } catch (error) {
