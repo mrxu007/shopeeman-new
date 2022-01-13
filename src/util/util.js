@@ -921,3 +921,14 @@ async function filterLogistics(logisticsJarray, idDatas, isUseProductChannel) {
     }
     return newLogisticsJarray
   }
+
+  /**
+   * 两个值之前随机值
+   * */
+  async function getSectionRandom(minVal,maxVal,fixed = 0){
+    minVal = (minVal < maxVal && minVal || maxVal) * 1
+    maxVal = (minVal < maxVal && maxVal || minVal) * 1
+    let gap = maxVal - minVal
+    let random =1 * (Math.random() * gap).toFixed(fixed)
+    return minVal + random
+  }

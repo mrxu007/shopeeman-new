@@ -69,7 +69,7 @@
           </div>
           <div class="basisInstall-box">
             <div>图片上传线程数量：
-              <el-input size="mini" v-model="storeConfig.pictureThread" style="width: 60px;"></el-input>
+              <el-input size="mini" v-model="storeConfig.pictureThread" style="width: 60px;"  @change="changeStockUpNumber(storeConfig.pictureThread,4)"></el-input>
               <el-tooltip class="item" effect="dark" content="0<线程数量<6，建议数量为3" placement="top">
                 <el-button size="mini" type="text"><i class="el-icon-question" style="padding: 0 2px;"></i></el-button>
               </el-tooltip>
@@ -715,9 +715,8 @@
 import storeChoose from '../../../components/store-choose'
 import categoryMapping from '../../../components/category-mapping'
 import goodsLabel from '../../../components/goods-label'
-import { getGoodsUrl, batchOperation, terminateThread } from '@/util/util'
+import { getGoodsUrl, batchOperation, terminateThread ,getSectionRandom} from '@/util/util'
 import  GUID  from '@/util/guid'
-import { imageRender } from '@/plugins/filters'
 
 export default {
   data() {
@@ -1138,6 +1137,12 @@ export default {
             name = mall.platform_mall_name + ' ' + name
           }
           goodsParam['name'] = name
+          if(this.storeConfig.wordsHeavy){
+            let nameList = goodsParam['name'].split(' ')
+            let setName = new Set()
+            nameList.forEach(i=>{setName.add(i)})
+            goodsParam['name'] = [...setName].join('')
+          }
           // images size_chart
           let imagesList = neededTranslateInfoData.images
           console.log(imagesList)
@@ -1197,9 +1202,15 @@ export default {
           goodsParam['model_list'] = JSON.parse(itemmodelsJson)
           goodsParam['price'] = this.getValuationPrice(neededTranslateInfoData.price)
           console.log('goodsParam',goodsParam)
-          let imageMapp = await this.imageCompressionUpload(mall,[goodsParam['images'][0]])
-          // let spec_imageMapp = await this.imageCompressionUpload(mall,neededTranslateInfoData.spec_image)
-          console.log('imageMapp',imageMapp,spec_imageMapp)
+          this.updateAttributeName(item, '正在上传轮播图')
+          let imageMapping = await this.imageCompressionUpload(mall,goodsParam['images'],this)
+          this.updateAttributeName(item, '正在上传规格图')
+          let spec_imageMapping = await this.imageCompressionUpload(mall,neededTranslateInfoData.spec_image,this)
+          console.log('imageMapping',imageMapping,spec_imageMapping)
+          if (goodsParam['weight'] === '0'){
+            goodsParam['weight'] = getSectionRandom(this.basicConfig.minHeavy,this.basicConfig.maxHeavy,2) + ''
+          }
+
           this.updateAttributeName(item, '发布完成')
         }
       } catch (e) {
@@ -1209,17 +1220,26 @@ export default {
         --count.count
       }
     },
+    //附加水印图
+    additionalWatermarking(url,mall){
+      let setting = this.watermarkSetting
+      if(setting.type === 1){
+
+      }else if (setting.type === 2){
+
+      }else if (setting.type === 3){
+
+      }
+    },
     //图片上传
-    imageCompressionUpload(mall,imageList){
-      let that = this
+    imageCompressionUpload(mall,imageList,that){
       let newImage = {}
       return new Promise(async (resolve)=>{
         let params = []
         imageList.forEach(item=>{
           params.push(Object.assign({url:item},mall))
         })
-        await batchOperation(params,imageUpload,3)
-        console.log('结束')
+        await batchOperation(params,imageUpload,this.storeConfig.pictureThread)
         resolve(newImage)
       })
       async function imageUpload(item,count={count:1}){
@@ -1229,14 +1249,11 @@ export default {
             imageUrl = this.$filters.imageRender(imageUrl)
           }
           let base64File = await getBase64file(imageUrl)
-          // let ImageFileJSON = await that.$shopeemanService.upload_image(that.country, {mallId:item.platform_mall_id},
-          //     { headers: {
-          //     'Content-Type': 'application/x-gzip',
-          //     'upImgType': 'file'
-          //   } }, base64File)
-          let ImageFileJSON = await that.$shopeemanService.upload_image(that.country, {mallId:item.platform_mall_id}, '', base64File)
-          console.log(ImageFileJSON)
-          newImage[item.url] = ImageFileJSON
+          const imageFileJSON = await that.$shopeemanService.upload_image(that.country, {mallId:item.platform_mall_id}, '', base64File)
+          console.log(imageFileJSON)
+          const imageFileRes = JSON.parse(imageFileJSON)
+          const imageFileData = JSON.parse(imageFileRes.data)
+          newImage[item.url] = imageFileData?.data?.resource_id
         }catch (e) {
           console.log(e)
         }finally {
@@ -1296,6 +1313,9 @@ export default {
         let addPrice = (price * this.basicConfig.formula.percentage / 100).toFixed(2)
         let newPrice = addPrice * 1 + this.basicConfig.formula.hidden * 1 + this.basicConfig.formula.basis * 1
         newPrice = (1 * price + newPrice * this.basicConfig.discount / 100).toFixed(2)
+        if (this.basicConfig.valuationMethodsRadio){
+          newPrice = Math.floor(newPrice)
+        }
         return newPrice
       }else if (this.basicConfig.valuationRadio === 2){
 
@@ -1334,6 +1354,10 @@ export default {
         data = data < 0 && 0 || data
         data = data > 10 && 10 || data
         this.associatedConfig.priceRange = data
+      } else if(type === 4){
+        data = data < 1 && 1 || data
+        data = data > 5 && 5 || data
+        this.storeConfig.pictureThread = data
       }
     },
     async synchronousCategory() {

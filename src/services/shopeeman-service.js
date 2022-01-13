@@ -2430,7 +2430,7 @@ export default class NetMessageBridgeService {
   }
   async upload_image(country,data,options,base64){
     let api = '/api/v3/general/upload_image/'
-    const url = await this.getUrlPrefix(country, data) + api
+    const url = await this.getUrlPrefix(country, data)
     if(options){
       options['extrainfo'] = this.getExtraInfo(data)
     }else{
@@ -2439,15 +2439,11 @@ export default class NetMessageBridgeService {
       }
     }
     delete data.mallId
-    const referer = options['headers'] && options['headers'].referer
-    if (referer) {
-      options['headers'] = Object.assign(options['headers'], {
-        origin: url,
-        referer: url + referer
-      })
+    options['headers'] = {
+      origin: url,
+      referer: url +'/portal/settings/shop/profile'
     }
-    let filename = new Date().getTime() +''+Math.floor(Math.random() * 100)  +'.png'
-    console.log(url, JSON.stringify(options), null, base64, filename, 'application/x-gzip')
-    return this.NetMessageBridgeService().uploadFile(url, JSON.stringify(options), {}, base64, filename)
+    let filename = 'new' + new Date().getTime() +''+Math.floor(Math.random() * 100)  +'.png'
+    return this.NetMessageBridgeService().uploadFile(url + api, JSON.stringify(options), null, base64, filename)
   }
 }
