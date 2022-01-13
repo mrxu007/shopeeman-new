@@ -857,19 +857,30 @@ export default {
   methods: {
     // 清理翻译缓存
     async clearTranslate() {
-      if (this.cacheTime?.length > 0) { return this.$message.error('请选择时间') }
-      const start = this.$dayjs(this.commonAttr.cacheTime[0]).format('YYYY-MM-DD 00:00:00')
-      const end = this.$dayjs(this.commonAttr.cacheTime[1]).format('YYYY-MM-DD 00:00:00')
-      await this.$BaseUtilService.clearGoodsTranslateInfo(start, end)
-      this.$message.success('清理翻译数据成功')
+      try {
+        if (this.cacheTime?.length > 0) { return this.$message.error('请选择时间') }
+        const start = this.$dayjs(this.commonAttr.cacheTime[0]).format('YYYY-MM-DD 00:00:00')
+        const end = this.$dayjs(this.commonAttr.cacheTime[1]).format('YYYY-MM-DD 00:00:00')
+        const res = await this.$BaseUtilService.clearGoodsTranslateInfo(start, end)
+        if (Object.keys(JSON.parse(res)).length !== 0) {
+          return this.$message.success('清理翻译数据失败')
+        }
+        this.$message.success('清理翻译数据成功')
+      } catch (error) {
+        this.$message.success('清理翻译数据失败')
+      }
     },
     // 清理缓存数据
     async clearCache() {
-      const res = await this.$BaseUtilService.clealAllCache()
-      if (!res) {
-        return this.$message.error('清理缓存数据失败')
+      try {
+        const res = await this.$BaseUtilService.clealAllCache()
+        if (!res) {
+          return this.$message.error('清理缓存数据失败')
+        }
+        this.$message.success('清理缓存数据成功')
+      } catch (error) {
+        this.$message.error('清理缓存数据失败')
       }
-      this.$message.success('清理缓存数据成功')
     },
     // 编辑上新
     async editorUp() {
