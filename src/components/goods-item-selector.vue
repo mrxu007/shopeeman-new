@@ -79,9 +79,10 @@
               <el-tooltip effect="light" placement="right-end" :visible-arrow="false" :enterable="false"
                           style="width: 56px; height: 56px; display: inline-block">
                 <div slot="content">
-                  <el-image v-bind:src="[ row.imageList[0]] | imageRender" style="width: 400px; height: 400px"/>
+                  <el-image v-if="row['isImgShow']" v-bind:src="[row.imageList[0]] | imageRender" style="width: 400px; height: 400px"/>
+                  <el-image v-else v-bind:src="[ row.imageList[0],true] | imageRender" style="width: 400px; height: 400px"/>
                 </div>
-                <el-image v-bind:src="[row.imageList[0],true] | imageRender" style="width: 56px; height: 56px"/>
+                <el-image v-bind:src="[row.imageList[0],true] | imageRender" @mouseenter="row['isImgShow'] = true" style="width: 56px; height: 56px"/>
               </el-tooltip>
             </div>
           </template>
@@ -145,7 +146,7 @@ export default {
       country: '',
       category: '',
       categoryList: {},
-      isRunning: true,
+      isRunning: false,
       isApplyCheck: true,
       categoryVisible: false,
       showlog: true
@@ -171,7 +172,11 @@ export default {
       this.$refs.goods_item_Logs.writeLog(`------开始获取商品列表------`, true)
       this.isRunning = true
       this.goodsTable = []
-      await batchOperation(this.mall, this.queryGoodsList)
+      let tempList = [...this.mall.map(i=>{
+        i['offset'] = 0
+        return i
+      })]
+      await batchOperation(tempList, this.queryGoodsList)
       !this.isRunning && this.$refs.goods_item_Logs.writeLog(`------列表获取停止成功------`, false)
       this.$refs.goods_item_Logs.writeLog(`------商品列表获取结束------`, true)
       this.isRunning = false
@@ -205,6 +210,7 @@ export default {
       }
     },
     async queryGoodsList(item, count = { count: 1 }) {
+      console.log(item)
       let mallName = item.mall_alias_name || item.platform_mall_name
       try {
         let offset = item.offset || 0
@@ -212,7 +218,7 @@ export default {
         if (offset === 0) {
           index = 1
         } else {
-          index = (offset / 100) + 1
+          index = Math.floor((offset / 100) + 1)
         }
         let parma = {
           mallId: item.platform_mall_id,

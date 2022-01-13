@@ -569,9 +569,9 @@ export default class MallListAPI {
   }
 
   // 绑定店铺主体
-  async bindMainName(main_main_id, sys_mall_id) {
+  async bindMainName(main_main_id, sys_mall_ids) {
     try {
-      let res = await this._this.$commodityService.newBangdingMall(this._this.$userInfo.muid + '', main_main_id + '', sys_mall_id)
+      let res = await this._this.$commodityService.newBangdingMall(this._this.$userInfo.muid + '', main_main_id + '', sys_mall_ids)
       res = JSON.parse(res)
       if (res.code === 200) {
         return { code: 200, data: '绑定主体成功' }

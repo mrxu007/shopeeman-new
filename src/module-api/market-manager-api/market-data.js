@@ -307,4 +307,31 @@ export default class MarketManagerAPI {
       return { code: -2, data: `MallPrizeDel-catch: ${error}` }
     }
   }
+  // 运费折扣
+  async logisticsPromotion(goodsinfo) {
+    try {
+      const { country, mallId, status, offset, limit } = goodsinfo
+      const params = {
+        mallId: mallId,
+        status: status,
+        offset: offset,
+        limit: limit
+      }
+      const res = await this._this.$shopeemanService.postChineseReferer(country, '/api/marketing/v3/logistics_promotion/list/?', params, {
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json, text/plain, */*',
+          referer: `/portal/marketing/shipping?status=ongoing`
+        }
+      })
+      const des = JSON.parse(res)
+      const data = JSON.parse(des.data)
+      const ecode = data.code
+      const message = data.message
+      //   console.log('=============', 'mallid:' + params.mallId, ecode, des)
+      return { ecode, data, message }
+    } catch (error) {
+      return { code: -2, data: `MallPrizeDel-catch: ${error}` }
+    }
+  }
 }
