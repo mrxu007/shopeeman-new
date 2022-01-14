@@ -832,7 +832,7 @@ export async function dealwithOriginGoodsNum(oriGoodsId, oriPlatformId, shopMall
   }
 }
 
-async function dealwithLogisi(productID, mallID, country) {
+export async function dealwithLogisi(productID, mallID, country) {
   // 获取物流
   const parmas = {}
   parmas['product_id'] = productID
@@ -847,7 +847,7 @@ async function dealwithLogisi(productID, mallID, country) {
   }
   return logModelList
 }
-async function getLogisticsInfo(logisticsJarray, isUseProductChannel, mallID, country) {
+export async function getLogisticsInfo(logisticsJarray, isUseProductChannel, mallID, country) {
   const logModelList = []
   let idDatas = []
   if (logisticsJarray.length > 0) {
@@ -881,7 +881,7 @@ async function getLogisticsInfo(logisticsJarray, isUseProductChannel, mallID, co
   return logModelList
 }
 // 过滤无效物流
-async function filterLogistics(logisticsJarray, idDatas, isUseProductChannel) {
+export async function filterLogistics(logisticsJarray, idDatas, isUseProductChannel) {
   console.log(logisticsJarray, idDatas, '33333')
   const newLogisticsJarray = []
   for (let i = 0; i < idDatas.length; i++) {
@@ -926,7 +926,7 @@ async function filterLogistics(logisticsJarray, idDatas, isUseProductChannel) {
    * @param {*} maxVal 最大
    * @param {*} fixed 小数位
    * */
-async function getSectionRandom(minVal, maxVal, fixed = 0) {
+export async function getSectionRandom(minVal, maxVal, fixed = 0) {
   minVal = (minVal < maxVal && minVal || maxVal) * 1
   maxVal = (minVal < maxVal && maxVal || minVal) * 1
   const gap = maxVal - minVal

@@ -234,9 +234,9 @@ export default {
         const categoryTbInfoJson = JSON.parse(categoryTbInfoRes)
         const categoryTbInfoData = categoryTbInfoJson.data
         const categories = categoryTbInfoData.categories && categoryTbInfoData.categories[0]
-        this.categoryList[categoryId] = categories.category_cn_name
+        this.categoryList[categoryId] = categories && categories.category_cn_name || ''
         this.$appConfig.temporaryCacheInfo('save', `category_${categoryId}`, categories.category_cn_name)
-        this.$set(item, 'categoryName', categories.category_cn_name)
+        this.$set(item, 'categoryName', categories && categories.category_cn_name || '')
       } else {
         this.$set(item, 'categoryName', categoryName)
       }
