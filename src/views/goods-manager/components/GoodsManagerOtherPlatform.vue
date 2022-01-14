@@ -80,7 +80,11 @@
         <u-table-column type="index" width="55" label="序号" />
         <u-table-column prop="mallName" label="店铺名称" align="center" min-width="150px" />
         <u-table-column prop="name" label="商品名称" align="center" min-width="150px" show-overflow-tooltip />
-        <u-table-column prop="itemid" label="商品编号" align="center" min-width="100px" />
+        <u-table-column prop="itemid" label="商品编号" align="center" min-width="100px">
+          <template v-slot="{row}">
+            <el-button type="text" @click="open(row)">{{ row.itemid }}</el-button>
+          </template>
+        </u-table-column>
         <u-table-column prop="currenTime" label="创建时间" align="center" min-width="100px" />
         <u-table-column prop="historical_sold" label="历史销量" align="center" min-width="80px" />
         <u-table-column prop="cmt_count" label="浏览数" align="center" min-width="80px" />
@@ -162,6 +166,15 @@ export default {
     this.getInfo()
   },
   methods: {
+    // 跳转链接
+    async open(val) {
+      const country = this.selectMall.country
+      const data = {
+        mallId: val.shopid.toString()
+      }
+      const url = await this.$shopeemanService.getWebUrlLocal(country, data)
+      this.$BaseUtilService.openUrl(`${url}/product/${val.shopid}/${val.itemid}`)
+    },
     async getInfo() {
       getMalls().then(res => {
         this.shopAccountList = res
