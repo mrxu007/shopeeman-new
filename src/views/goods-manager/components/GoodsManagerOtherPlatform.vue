@@ -73,7 +73,7 @@
       <u-table
         :row-style="{ height: '50px' }"
         :data="tableList"
-        height="500px"
+        height="800px"
         width="600px"
         :header-cell-style="{ background: '#f7fafa' }"
       >
@@ -177,7 +177,7 @@ export default {
     randomLikegoods(val) {
       const randomList = []
       for (let i = 0; i < Number(val).length; i++) {
-        const r = Math.floor(Math.random() * 500)
+        const r = Math.floor(Math.random() * 48)
         randomList.push(r)
       }
       return randomList
@@ -259,7 +259,8 @@ export default {
       this.$refs.autoReplyLogs.writeLog(`开始获取店铺信息`, true)
       this.tableList = []
       this.btnloading = true
-      const res1 = await batchOperation(this.selectMall, this.getMallsku)
+      await batchOperation(this.selectMall, this.getMallsku)
+      this.btnloading = false
       // for (let i = 0; i < this.selectMall.length; i++) {
       //   await this.getMallsku(this.selectMall[i])
       // }
@@ -276,49 +277,33 @@ export default {
         }
         this.showlog = false
         const res = await this.GoodsManagerAPIInstance.getSkuList(goodsinfo)
-        if (res.ecode === 0) {
-          if (!this.btnloading) { return }
-          this.$refs.autoReplyLogs.writeLog(`【${item.mall_alias_name || item.platform_mall_name}】店铺有${res.data.page_info.total}条数据，开始查找第【${item.page}】页数据,一页48条`)
-          // 随机点赞 --获取商品总数内xx条随机下标
-          let goodsRandomIndex = []
-          if (this.isRandomLikeMinDay && this.RandomLikeMinDay) {
-            goodsRandomIndex = await this.randomLikegoods(res.data.page_info.total)
-          }
-          // 获取item.goodslist[]
-          res.data.list.forEach((el, index) => {
+        let array = res.ecode === 0 ? res.data.list : []
+        const markeLike = []// 随机点赞，标记
+        while (array.length) {
+          console.log('markeLike', markeLike.length)
+          array.forEach((el, index) => {
             el.shopid = item.platform_mall_id
             el.country = item.country
-            const i = goodsRandomIndex.findIndex(ol => { return ol === index })
-            el.randowLike = i >= 0 // 随机点赞
             el.cm_offset = 0// 评论初始页码
+
+            // 随机点赞【顺序点赞】
+            //
+            if (this.isRandomLikeMinDay && this.RandomLikeMinDay) {
+              el.randowLike = markeLike.length < Number(this.RandomLikeMinDay)
+              markeLike.length < Number(this.RandomLikeMinDay) ? markeLike.push(el) : null
+            }
           })
-          item.goodslist.push(...res.data.list)// 该店铺下所有的商品数
-          if (res.data.list?.length >= 48) {
-            item.page++
-            if (this.btnloading) {
-              this.getMallsku(item, { count: 1 })
-            }
+          await this.getgoodsdetail(array)
+          if (array.length < 48) {
+            array = []
           } else {
-            if (!this.btnloading) { return }
-            this.$refs.autoReplyLogs.writeLog(`【${item.mall_alias_name || item.platform_mall_name}】查找完毕`)
-            this.$refs.autoReplyLogs.writeLog(`开始获取【${item.mall_alias_name || item.platform_mall_name}】商品信息`)
-            if (this.btnloading) {
-              // const res2 = await batchOperation(item.goodslist, this.getDetailGoods)
-              for (let i = 0; i < item.goodslist.length; i++) {
-                if (!this.btnloading) { return }
-                await this.getgoodsdetail(item.goodslist[i])
-              }
-            }
-            this.$refs.autoReplyLogs.writeLog(`------【${item.mall_alias_name || item.platform_mall_name}】获取结束-----`, true)
-            this.btnloading = false
+            goodsinfo.page_number++
+            const res = await this.GoodsManagerAPIInstance.getSkuList(goodsinfo)
+            array = res.ecode === 0 ? res.data.list : []
           }
-        } else {
-          if (!this.btnloading) { return }
-          console.log('goodsinfo-error', res.message)
-          this.$refs.autoReplyLogs.writeLog(`【${item.mall_alias_name || item.platform_mall_name}】数据获取失败,${res.message}`, false)
         }
+        this.$refs.autoReplyLogs.writeLog(`------【${item.mall_alias_name || item.platform_mall_name}】获取结束-----`, true)
       } catch (error) {
-        console.log(`${error}`)
         this.$refs.autoReplyLogs.writeLog(`catch---【${item.mall_alias_name || item.platform_mall_name}】第${item.page}}页数据获取失败,${error}`, false)
       } finally {
         count.count--
@@ -363,7 +348,6 @@ export default {
         this.$refs.autoReplyLogs.writeLog(`总评论数【${res.data.item_rating_summary.rating_total}】获取第【${(item.cm_offset / 6) + 1}】页评论,一页51条`)
       }
       // const res = await this.GoodsManagerAPIInstance.GoodsbuyerLikePre(goodsinfo)
-      console.log(res)
     },
     // 加购
     async addGoodsFun(goodsinfo, item, goods) {
@@ -462,7 +446,7 @@ export default {
           }
         }
         // 随机点赞
-        if (this.isRandomLikeMinDay && item.randowLike) {
+        if (this.isRandomLikeMinDay && !item.randowLike) {
           return
         }
         // 点赞
@@ -527,42 +511,47 @@ export default {
       }
     },
     // 获取商品详情信息 && 相关筛选操作
-    async getgoodsdetail(item) {
-      const goodsinfo = {
-        country: item.country,
-        shopid: item.shopid,
-        itemid: item.id
-      }
-      if (!this.btnloading) { return }
-      this.$refs.autoReplyLogs.writeLog(`正在获取商品详情`)
-      try {
-        const res = await this.GoodsManagerAPIInstance.getGoodsDetailinfo(goodsinfo)
-        if (res.ecode === 0) {
-          if (!this.btnloading) { return }
-          this.$refs.autoReplyLogs.writeLog(`商品【${item.id}】详情获取成功`)
-          const goods = res.data
-          goods.currenTime = await this.trantime(goods.ctime)
-          goods.mallName = GoodsMallgetValue(this.shopAccountList, 'label', 'value', goods.shopid)
-          goods.option_result = {
-            iscommentLike: '',
-            isgoodsLike: '',
-            isbuy: ''
-          }
-          this.tableList.push(goods)
-          // 加购
-          this.addGoodsFun(goodsinfo, item, goods)
-          // 评价筛选
-          this.commentFun(item, goods)
-          // 点赞
-          this.goodsLikeFun(goodsinfo, item, goods)
-        } else {
-          if (!this.btnloading) { return null }
-          this.$refs.autoReplyLogs.writeLog(`商品【${item.id}】详情获取失败,${JSON.stringify(res.message)}`, false)
+    async getgoodsdetail(list) {
+      // console.log(list)
+      for (let i = 0; i < list.length; i++) {
+        const item = list[i]
+        const goodsinfo = {
+          country: item.country,
+          shopid: item.shopid,
+          itemid: item.id
         }
-      } catch (error) {
-        console.log(error)
-        this.$refs.autoReplyLogs.writeLog(`catch--商品【${item.id}】详情获取失败,${error}`, false)
+        if (!this.btnloading) { return }
+        this.$refs.autoReplyLogs.writeLog(`正在获取商品详情`)
+        try {
+          const res = await this.GoodsManagerAPIInstance.getGoodsDetailinfo(goodsinfo)
+          if (res.ecode === 0) {
+            if (!this.btnloading) { return }
+            this.$refs.autoReplyLogs.writeLog(`商品【${item.id}】详情获取成功`)
+            const goods = res.data
+            goods.currenTime = await this.trantime(goods.ctime)
+            goods.mallName = GoodsMallgetValue(this.shopAccountList, 'label', 'value', goods.shopid)
+            goods.option_result = {
+              iscommentLike: '',
+              isgoodsLike: '',
+              isbuy: ''
+            }
+            this.tableList.push(goods)
+            // 加购
+            this.addGoodsFun(goodsinfo, item, goods)
+            // 评价筛选
+            this.commentFun(item, goods)
+            // 点赞
+            this.goodsLikeFun(goodsinfo, item, goods)
+          } else {
+            if (!this.btnloading) { return null }
+            this.$refs.autoReplyLogs.writeLog(`商品【${item.id}】详情获取失败,${JSON.stringify(res.message)}`, false)
+          }
+        } catch (error) {
+          console.log(error)
+          this.$refs.autoReplyLogs.writeLog(`catch--商品【${item.id}】详情获取失败,${error}`, false)
+        }
       }
+      console.log('----', this.tableList)
     },
     // aa() {
     //   console.log('aaaaaa')

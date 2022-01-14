@@ -46,7 +46,7 @@ export default class NetMessageBridgeService {
 
     let url = this.site_domain_chinese_pre[country]
     const domain_switch = userSettings && (userSettings.SwitchDominTypeSetting || userSettings.domain_switch) || '1'
-    console.log(userSettings, domain_switch, IPType, mall_main_id)
+    // console.log(userSettings, domain_switch, IPType, mall_main_id)
     if (domain_switch === '3' || domain_switch === `Abroad`) {
       url = this.site_domain_local_pre[country]
     } else if ((domain_switch === '1' || domain_switch === 'Auto') &&
@@ -66,7 +66,7 @@ export default class NetMessageBridgeService {
     let userSettings = await this.ConfigBridgeService().getUserConfig()
     userSettings = JSON.parse(userSettings)
     const mallInfo = await this.ConfigBridgeService().getGlobalCacheInfo('mallInfo', mallId)
-    const { mall_main_id, IpExpirationTime ,IPType="" ,IPIsExpired} = JSON.parse(mallInfo)
+    const { mall_main_id, IpExpirationTime, IPType = '', IPIsExpired } = JSON.parse(mallInfo)
     const domain_switch = userSettings && (userSettings.SwitchDominTypeSetting || userSettings.domain_switch) || '1'
     let url = this.site_domain_chinese_bk[country]
     if (!IPType.includes('大陆')) {
@@ -79,7 +79,7 @@ export default class NetMessageBridgeService {
         }
       }
     }
-    console.log('后台url', url)
+    // console.log('后台url', url)
     return url
   }
 
@@ -2251,8 +2251,8 @@ export default class NetMessageBridgeService {
           data: info.data || []
         }
       } else {
-        if(info.code === 1400101530){
-          return { code: 50003,data: info.data}
+        if (info.code === 1400101530) {
+          return { code: 50003, data: info.data }
         }
         return {
           code: 50001,
@@ -2463,12 +2463,12 @@ export default class NetMessageBridgeService {
   productSelector(country, data, option) {
     return this.getChinese(country, '/api/marketing/v3/public/product_selector/', data, option)
   }
-  async upload_image(country,data,options,base64){
-    let api = '/api/v3/general/upload_image/'
+  async upload_image(country, data, options, base64) {
+    const api = '/api/v3/general/upload_image/'
     const url = await this.getUrlPrefix(country, data)
-    if(options){
+    if (options) {
       options['extrainfo'] = this.getExtraInfo(data)
-    }else{
+    } else {
       options = {
         'extrainfo': this.getExtraInfo(data)
       }
@@ -2476,9 +2476,9 @@ export default class NetMessageBridgeService {
     delete data.mallId
     options['headers'] = {
       origin: url,
-      referer: url +'/portal/settings/shop/profile'
+      referer: url + '/portal/settings/shop/profile'
     }
-    let filename = 'new' + new Date().getTime() +''+Math.floor(Math.random() * 100)  +'.png'
+    const filename = 'new' + new Date().getTime() + '' + Math.floor(Math.random() * 100) + '.png'
     return this.NetMessageBridgeService().uploadFile(url + api, JSON.stringify(options), null, base64, filename)
   }
 }
