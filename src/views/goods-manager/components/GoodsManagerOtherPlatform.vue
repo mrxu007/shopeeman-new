@@ -534,6 +534,9 @@ export default {
             message = '加购数量已达上限'
             this.addMax = '加购数量已达上限'
           }
+          if (res.message === 'Sản phẩm này đã bị khóa/xóa. Vui lòng mua sản phẩm khác.') {
+            message = '此产品已锁定并被删除'
+          }
           this.$refs.autoReplyLogs.writeLog(`【商品加购${goodsinfo.itemid}】失败，${message || res.message}`, false)
           return false
         }
