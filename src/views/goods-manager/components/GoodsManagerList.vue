@@ -1346,10 +1346,7 @@ export default {
       this.isRefurbishProduct = true
       this.cancelMove = false
       this.moveDetails = []
-      this.selectMoveMallList.forEach(i => {
-        i['isCreateNum'] = 0
-        i['createNum'] = 0
-      })
+      this.selectMoveMallList.forEach(i => { i['isCreate'] = false })
       this.moveSuccess = 0
       this.movefail = 0
       await batchOperation(this.goodsMoveData, this.goodsMoveOperation, 5)
@@ -1454,13 +1451,10 @@ export default {
               })
               // 上新发布
               const data = { mallId: mall.platform_mall_id }
-              const createIndex = mall['createNum']++
-              await waitStart(() => {
-                return createIndex === mall['isCreateNum']
-              }, 60 * 60 * 1000)
+              if (mall.isCreate) { await sleep(Number(this.moveTime) * 1000) }
               const createRes = await this.$shopeemanService.createProduct(mall.country, data, [productInfo])
               if (createRes.code === 200) {
-                setTimeout(() => { ++mall['isCreateNum'] }, Number(this.moveTime) * 1000)
+                mall.isCreate = true
                 this.moveStatus(item, `店铺【${mallName}】发布成功`, true)
                 mall['status'] = `发布成功`
                 mall['color'] = `green`
@@ -1475,7 +1469,7 @@ export default {
                 obj['shopeeId'] = createRes.data.product_id
                 obj['price'] = detailRes.data.price
               } else {
-                ++mall['isCreateNum']
+                mall.isCreate = false
                 this.moveStatus(item, `店铺【${mallName}】发布失败:${createRes.data}`, false)
                 mall['status'] = `发布失败:${createRes.data}`
                 mall['color'] = `red`
@@ -1493,7 +1487,6 @@ export default {
           }
         } else {
           this.movefail++
-          ++mall['isCreateNum']
           this.moveStatus(item, `${res.data}`, false)
         }
       } catch (error) {

@@ -70,12 +70,11 @@
         <u-table-column align="center" label="店铺名称" width="150" show-overflow-tooltip>
           <template v-slot="{ row }">{{ row.mall_alias_name || row.platform_mall_name }}</template>
         </u-table-column>
-        <!-- <u-table-column align="center" label="类目" width="">
+        <u-table-column align="center" label="类目" width="">
           <template v-slot="{ row }">
             <p style="white-space: normal">{{ getCategoryName(row.categoryId) }}</p>
           </template>
-        </u-table-column> -->
-        <u-table-column align="center" label="类目" width="" prop="categoryName" />
+        </u-table-column>
         <u-table-column align="center" label="主图" width="80" prop="Sales">
           <template v-slot="{ row }">
             <div style="justify-content: center; display: flex">
@@ -170,7 +169,7 @@ export default {
     // 获取标签名
     getCategoryName() {
       return function(id) {
-        const labelName = this.categoryList[id]
+        const labelName = this.categoryList[`category_${id}`]
         return labelName
       }
     }
@@ -227,20 +226,22 @@ export default {
       // }
       const catiDList = item?.global_cat?.catid || []
       const categoryId = catiDList[catiDList.length - 1] + ''
-      const categoryRes = await this.$appConfig.temporaryCacheInfo('get', `category_${categoryId}`, '')
-      const categoryName = JSON.parse(categoryRes)
-      if (Object.keys(categoryName).length === 0) {
-        const categoryTbInfoRes = await this.$commodityService.getCategoryTbInfo(this.country, categoryId, '0', '')
-        const categoryTbInfoJson = JSON.parse(categoryTbInfoRes)
-        const categoryTbInfoData = categoryTbInfoJson.data
-        const categories = categoryTbInfoData.categories && categoryTbInfoData.categories[0]
-        this.categoryList[categoryId] = categories.category_cn_name
-        this.$appConfig.temporaryCacheInfo('save', `category_${categoryId}`, categories.category_cn_name)
-        this.$set(item, 'categoryName', categories.category_cn_name)
-      } else {
-        this.$set(item, 'categoryName', categoryName)
+      const categoryName = this.categoryList[`category_${categoryId}`]
+      if (!categoryName || categoryName === undefined) {
+        const categoryRes = await this.$appConfig.temporaryCacheInfo('get', `category_${categoryId}`, '')
+        const categoryName = JSON.parse(categoryRes)
+        if (Object.keys(categoryName).length === 0) {
+          const categoryTbInfoRes = await this.$commodityService.getCategoryTbInfo(this.country, categoryId, '0', '')
+          const categoryTbInfoJson = JSON.parse(categoryTbInfoRes)
+          const categoryTbInfoData = categoryTbInfoJson.data
+          const categories = categoryTbInfoData.categories && categoryTbInfoData.categories[0]
+          this.categoryList[categoryId] = categories.category_cn_name
+          this.categoryList[`category_${categoryId}`] = categories.category_cn_name
+          this.$appConfig.temporaryCacheInfo('save', `category_${categoryId}`, categories.category_cn_name)
+        } else {
+          this.categoryList[`category_${categoryId}`] = categoryName
+        }
       }
-      console.log(item)
     },
     async queryGoodsList(item, count = { count: 1 }) {
       console.log(item)

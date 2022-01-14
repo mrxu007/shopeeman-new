@@ -1,4 +1,4 @@
-import { dateFormat, delay } from '../../../util/util'
+import { dateFormat, waitStart } from '../../../util/util'
 class CollectOtherApI {
   _this = null // vue 实例
   constructor(that) {
@@ -25,6 +25,9 @@ class CollectOtherApI {
   async getTaobaoAbroadAccount() {
     try {
       const { muid } = this._this.$userInfo // 变量已注入全局
+      waitStart(() => {
+        return muid
+      }, 5000)
       const params = {
         uid: muid,
         uuid: '0',
