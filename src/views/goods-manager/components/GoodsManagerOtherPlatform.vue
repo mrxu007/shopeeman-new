@@ -393,8 +393,13 @@ export default {
               if (this.addMax) {
                 goods.option_result.isbuy = this.addMax
               }
-              // this.$set(goods, 'option_result', goods.option_result)
-              this.tableList.push(goods)
+              // 查重
+              const des = this.tableList.findIndex(el => { return el === goods })
+              if (des >= 0) {
+                this.$set(goods, 'option_result', goods.option_result)
+              } else {
+                this.tableList.push(goods)
+              }
               // this.$set(goods, 'option_result.isbuy', sult3 ? '商品加购成功' : '商品加购失败')
               return
             }
@@ -415,7 +420,14 @@ export default {
         }
         goods.option_result.iscommentLike = sult1 ? '评论点赞成功' : '评论点赞失败'
         // this.$set(goods, 'option_result', goods.option_result)
-        this.tableList.push(goods)
+        // this.tableList.push(goods)
+        // 查重
+        const des = this.tableList.findIndex(el => { return el === goods })
+        if (des >= 0) {
+          this.$set(goods, 'option_result', goods.option_result)
+        } else {
+          this.tableList.push(goods)
+        }
       }
     },
     // 商品点赞
@@ -457,8 +469,13 @@ export default {
         if (goods.liked) {
           this.$refs.autoReplyLogs.writeLog(`【商品${goods.itemid}】不能重复点赞`, false)
           goods.option_result.isgoodsLike = '商品不能重复点赞'
-          // this.$set(goods, 'option_result', goods.option_result)
-          this.tableList.push(goods)
+          // 查重
+          const des = this.tableList.findIndex(el => { return el === goods })
+          if (des >= 0) {
+            this.$set(goods, 'option_result', goods.option_result)
+          } else {
+            this.tableList.push(goods)
+          }
           return
         }
         const sult2 = await this.GoodsbuyerLike(goodsinfo)
