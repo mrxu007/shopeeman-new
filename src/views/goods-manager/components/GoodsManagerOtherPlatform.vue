@@ -379,7 +379,7 @@ export default {
           }
         }
         // 随机（加购）
-        if (this.isRandomLikeMinDay && item.randowLike) {
+        if (this.isRandomLikeMinDay && !item.randowLike) {
           return
         }
         if (goods.models.length > 0) {
@@ -393,7 +393,8 @@ export default {
               if (this.addMax) {
                 goods.option_result.isbuy = this.addMax
               }
-              this.$set(goods, 'option_result', goods.option_result)
+              // this.$set(goods, 'option_result', goods.option_result)
+              this.tableList.push(goods)
               // this.$set(goods, 'option_result.isbuy', sult3 ? '商品加购成功' : '商品加购失败')
               return
             }
@@ -413,7 +414,8 @@ export default {
           this.$set(goods, 'liked_count', (goods.liked_count) + 1)
         }
         goods.option_result.iscommentLike = sult1 ? '评论点赞成功' : '评论点赞失败'
-        this.$set(goods, 'option_result', goods.option_result)
+        // this.$set(goods, 'option_result', goods.option_result)
+        this.tableList.push(goods)
       }
     },
     // 商品点赞
@@ -455,7 +457,8 @@ export default {
         if (goods.liked) {
           this.$refs.autoReplyLogs.writeLog(`【商品${goods.itemid}】不能重复点赞`, false)
           goods.option_result.isgoodsLike = '商品不能重复点赞'
-          this.$set(goods, 'option_result', goods.option_result)
+          // this.$set(goods, 'option_result', goods.option_result)
+          this.tableList.push(goods)
           return
         }
         const sult2 = await this.GoodsbuyerLike(goodsinfo)
@@ -535,7 +538,7 @@ export default {
               isgoodsLike: '',
               isbuy: ''
             }
-            this.tableList.push(goods)
+            // this.tableList.push(goods)
             // 加购
             this.addGoodsFun(goodsinfo, item, goods)
             // 评价筛选
