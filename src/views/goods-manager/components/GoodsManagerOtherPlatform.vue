@@ -188,10 +188,10 @@ export default {
     },
     // 获取所有商品信息
     async  start() {
-      // if (this.selectMall.length < 2) {
-      //   this.$message.warning('统一站点下，请至少选择两个店铺')
-      //   return
-      // }
+      if (this.selectMall.length < 2) {
+        this.$message.warning('统一站点下，请至少选择两个店铺')
+        return
+      }
       if (!this.isgoodslike && !this.iscommentlike && !this.isbuy) {
         this.$message.warning('请选择要操作的选项')
         return false
