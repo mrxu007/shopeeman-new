@@ -2976,7 +2976,7 @@ export default {
     // 获取物流
     getLogistics() {
       let logisticsList = this.$shopeeManConfig.getLogisticsList()
-      logisticsList = logisticsList[this.country]
+      logisticsList = logisticsList[this.country] || []
       this.logisticsList = []
       this.logistics = []
       logisticsList.forEach(item => {
@@ -3294,7 +3294,7 @@ export default {
           continue
         }
         // 过滤商品状态  6：审核中
-        if (this.goodsStatusVal !== 6 && item.status === 6) {
+        if (this.goodsStatusVal && this.goodsStatusVal !== 6 && item.status === 6) {
           continue
         }
         // 过滤是否售空
