@@ -310,14 +310,14 @@ export default class MarketManagerAPI {
   // 运费折扣
   async logisticsPromotion(goodsinfo) {
     try {
-      const { country, mallId, status, offset, limit } = goodsinfo
+      const { country, mallId, offset, limit } = goodsinfo
       const params = {
         mallId: mallId,
-        status: status,
+        status: 0,
         offset: offset,
         limit: limit
       }
-      const res = await this._this.$shopeemanService.postChineseReferer(country, '/api/marketing/v3/logistics_promotion/list/?', params, {
+      const res = await this._this.$shopeemanService.getChineseReferer(country, '/api/marketing/v3/logistics_promotion/list/?', params, {
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json, text/plain, */*',
@@ -326,12 +326,168 @@ export default class MarketManagerAPI {
       })
       const des = JSON.parse(res)
       const data = JSON.parse(des.data)
-      const ecode = data.code
+      const ecode = data?.data ? data.code : data.errcode
       const message = data.message
       //   console.log('=============', 'mallid:' + params.mallId, ecode, des)
       return { ecode, data, message }
     } catch (error) {
       return { code: -2, data: `MallPrizeDel-catch: ${error}` }
+    }
+  }
+  // 运费折扣--停止活动
+  async stopPromotion(goodsinfo) {
+    try {
+      const { country, mallId, datainfo } = goodsinfo
+      const params = {
+        mallId: mallId,
+        status: datainfo.status,
+        tiers: [datainfo.tiers[0]],
+        channel_ids: datainfo.channel_ids,
+        start_time: datainfo.start_time,
+        end_time: datainfo.end_time,
+        group_id: datainfo.group_id,
+        promotion_name: datainfo.promotion_name,
+        all_channels: {
+          channels: [datainfo.channalData],
+          mask_channels_ids: [],
+          is_all_mask: false
+        },
+        expire_now: true
+      }
+      const res = await this._this.$shopeemanService.putChinese(country, '/api/marketing/v3/logistics_promotion/?', params, {
+        headers: {
+          'Content-Type': 'application/json; charset=utf-8',
+          'Accept': 'application/json, text/plain, */*',
+          referer: `/portal/marketing/shipping?status=ongoing`
+        }
+      })
+      const des = JSON.parse(res)
+      const data = JSON.parse(des.data)
+      const ecode = data?.data ? data.code : data.errcode
+      const message = data.message
+      //   console.log('=============', 'mallid:' + params.mallId, ecode, des)
+      return { ecode, data, message }
+    } catch (error) {
+      return { code: -2, data: `stopPromotion-catch: ${error}` }
+    }
+  }
+  // 运费折扣--删除活动
+  async delPromotion(goodsinfo) {
+    try {
+      const { country, mallId, datainfo } = goodsinfo
+      const params = {
+        mallId: mallId,
+        status: datainfo.status,
+        tiers: [datainfo.tiers[0]],
+        channel_ids: datainfo.channel_ids,
+        start_time: datainfo.start_time,
+        end_time: datainfo.end_time,
+        group_id: datainfo.group_id,
+        promotion_name: datainfo.promotion_name,
+        all_channels: {
+          channels: [datainfo.channalData],
+          mask_channels_ids: [],
+          is_all_mask: false
+        },
+        expire_now: true
+      }
+      const res = await this._this.$shopeemanService.putChinese(country, '/api/marketing/v3/logistics_promotion/?', params, {
+        headers: {
+          'Content-Type': 'application/json; charset=utf-8',
+          'Accept': 'application/json, text/plain, */*',
+          referer: `/portal/marketing/shipping?status=all`
+        }
+      })
+      const des = JSON.parse(res)
+      const data = JSON.parse(des.data)
+      const ecode = data?.data ? data.code : data.errcode
+      const message = data.message
+      //   console.log('=============', 'mallid:' + params.mallId, ecode, des)
+      return { ecode, data, message }
+    } catch (error) {
+      return { code: -2, data: `delPromotion-catch: ${error}` }
+    }
+  }
+  // 运费折扣--获取物流
+  async ProDelivery(goodsinfo) {
+    try {
+      const { country, mallId } = goodsinfo
+      const params = {
+        mallId: mallId
+      }
+      const res = await this._this.$shopeemanService.getChineseReferer(country, '/api/marketing/v3/shop/logistics_info/?', params, {
+        headers: {
+          'Content-Type': 'application/json; charset=utf-8',
+          'Accept': 'application/json, text/plain, */*',
+          referer: `/portal/marketing/shipping/new`
+        }
+      })
+      const des = JSON.parse(res)
+      const data = JSON.parse(des.data)
+      const ecode = data?.data ? data.code : data.errcode
+      const message = data.message
+      //   console.log('=============', 'mallid:' + params.mallId, ecode, des)
+      return { ecode, data, message }
+    } catch (error) {
+      return { code: -2, data: `delPromotion-catch: ${error}` }
+    }
+  }
+  // 运费折扣--查重冲突时间
+  async checkDeliveryTime(goodsinfo) {
+    try {
+      const { country, mallId, start_time, end_time, channel_ids } = goodsinfo
+      const params = {
+        mallId: mallId,
+        start_time: start_time,
+        end_time: end_time,
+        channel_ids: channel_ids
+      }
+      const res = await this._this.$shopeemanService.getChineseReferer(country, '/api/marketing/v3/logistics_promotion/check_channel/?', params, {
+        headers: {
+          'Content-Type': 'application/json; charset=utf-8',
+          'Accept': 'application/json, text/plain, */*',
+          referer: `/portal/marketing/shipping/new`
+        }
+      })
+      const des = JSON.parse(res)
+      const data = JSON.parse(des.data)
+      const ecode = data?.data ? data.code : data.errcode
+      const message = data.message
+      //   console.log('=============', 'mallid:' + params.mallId, ecode, des)
+      return { ecode, data, message }
+    } catch (error) {
+      return { code: -2, data: `delPromotion-catch: ${error}` }
+    }
+  }
+  // 运费折扣--创建运费
+  async checkPromotionTest(goodsinfo) {
+    try {
+      const { country, mallId, start_time, end_time, tiers, channel_ids, promotion_name } = goodsinfo
+      const params = {
+        mallId: mallId,
+        start_time: start_time,
+        end_time: end_time,
+        tiers: tiers,
+        channel_ids: channel_ids,
+        promotion_name: promotion_name
+      }
+      debugger
+      const res = await this._this.$shopeemanService.postChineseReferer(country, '/api/marketing/v3/logistics_promotion/?', params, {
+        headers: {
+          'Content-Type': 'application/json; charset=utf-8',
+          'Accept': 'application/json, text/plain, */*',
+          referer: `/portal/marketing/shipping/new`
+        }
+      })
+      debugger
+      const des = JSON.parse(res)
+      const data = JSON.parse(des.data)
+      const ecode = data?.data ? data.code : data.errcode
+      const message = data.message
+      //   console.log('=============', 'mallid:' + params.mallId, ecode, des)
+      return { ecode, data, message }
+    } catch (error) {
+      return { code: -2, data: `delPromotion-catch: ${error}` }
     }
   }
 }
