@@ -1223,7 +1223,7 @@ export default class NetMessageBridgeService {
     }
   }
 
-  // 申请运单号
+  // 获取物流单号
   async getForderLogistics(country, data) {
     const res = await this.getChinese(country, '/api/v3/order/get_forder_logistics/', data)
     const resObj = res && JSON.parse(res)

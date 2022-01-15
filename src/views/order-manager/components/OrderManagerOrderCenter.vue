@@ -855,7 +855,7 @@ export default {
       createTime: [], //创建时间 --搜索
       logisticsIds: [''], //物流方式--搜索
       orderStatus: [20], ///发货状态--搜索
-      shotStatus: [], //采购状态--搜索
+      shotStatus: [''], //采购状态--搜索
       inputType: 'orderSn', //--搜索
       inputContent: '', //--搜索
       orderStatusList: orderStatusList, //订单状态
@@ -2597,6 +2597,7 @@ export default {
       params['shotStatus'] = this.shotStatus.join(',')
       params['logisticsIds'] = this.logisticsIds.join(',')
       params['createTime'] = this.createTime.length ? this.createTime[0] + ' 00:00:00' + '/' + this.createTime[1] + ' 23:59:59' : ''
+      console.log(params,"params")
       const res = await this.$api.applyAsyncExportOrder(params)
       console.log(res, 'applyAsyncExportOrder')
       if (res.data.code === 200) {

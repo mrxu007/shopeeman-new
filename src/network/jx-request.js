@@ -210,7 +210,7 @@ export default {
   outOfStockAbroad: (data) => AppRequest.post('/warehouse/outOfStock', data), // 海外仓出库
   getLogisticsInformationBatch: (data) => AppRequest.post('/getLogisticsInformationBatch', data), // 获取面单信息
   getAsyncExportOrder: (data) => AppRequest.get('/getAsyncExportOrder', { params: data }), // 获取导出报表信息
-  applyAsyncExportOrder: (data) => AppRequest.post('/applyAsyncExportOrder', { params: data }), // 点击导出报表信息
+  applyAsyncExportOrder: (data) => AppRequest.post('/applyAsyncExportOrder', data), // 点击导出报表信息
   saveUserConfig: (data) => AppRequest.post('/user/saveUserConfig', data), // 保存回复评论设置
   cancelSecondSale: (data) => AppRequest.post('/overseasTansferPackage/cancelSecondSale', data), // 取消二次销售数据
   uploadSecondSale: (data) => AppRequest.post('/overseasTansferPackage/uploadSecondSale', data), // 二次销售出库上报

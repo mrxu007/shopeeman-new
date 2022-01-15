@@ -52,11 +52,16 @@ export default class logisticeSyncService {
       const item = orders[i]
       console.log(item,"item")
       const buyer_name =  item.shot_order_info.buy_account_info ? item.shot_order_info.buy_account_info.name : '' 
+      const type = item.shot_order_info.buy_account_info ? item.shot_order_info.buy_account_info.type : ''
       const shot_order_sn = item.shot_order_sn || item.order_sn
       // const buyer_name = "tt939242551"
       // console.log(buyer_name,"buyer_name")
       if(!buyer_name){
         this.writeLog(`【${i+1}/${orders.length}】订单【${shot_order_sn}】对应的买手号为空，请检查！`, false)
+        continue
+      }
+      if(type == 10001 || type == 10000){
+        this.writeLog(`【${i+1}/${orders.length}】订单【${shot_order_sn}】对应的买手号【${buyer_name}】无需同步采购物流！`, true)
         continue
       }
       const account = buyerAccounts.find(buyer => buyer.name === buyer_name)

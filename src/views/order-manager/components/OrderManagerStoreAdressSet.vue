@@ -601,6 +601,7 @@ export default {
       }
       const res = await this.AddressSet.deleteOwnStore(params)
       if (res.code === 200) {
+        await this.$appConfig.updateWarehouseInfo()
         this.$message.success('删除成功')
         this.getUserWarehouse()
       } else {

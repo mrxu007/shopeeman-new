@@ -852,10 +852,10 @@ const syncStatus = [
   //   label: '取消中',
   //   value: 'cancelled'
   // }, 
-  {
-    label: '退款中',
-    value: 'refund'
-  },
+  // {
+  //   label: '退款中',
+  //   value: 'refund'
+  // },
 ]
 //货物类型
 const packageType = [{

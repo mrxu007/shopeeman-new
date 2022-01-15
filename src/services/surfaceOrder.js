@@ -21,6 +21,7 @@ export default class {
   writeLog = undefined
   orders = []
   schemaType = ''
+  activeType = 'handle'
   isApplyForceFaceInfo = false //是否强制申请面单
   /// <param name="isApplyForceFaceInfo">是否强制申请面单 </param>
   /// 增量同步运输中和已完成订单 同步面单时 false 启动后8分钟开始同步面单,4小时间隔            auto-third
@@ -42,6 +43,7 @@ export default class {
 
   //自动同步流程（不能同步台湾面单）
   async autoStart() {
+    this.activeType = 'auto'
     try {
       this.isApplyForceFaceInfo = false
       let res = await this.$api.getEmptyTrackingNoOrder()
@@ -109,7 +111,9 @@ export default class {
       console.log(trackInfo, "trackInfo")
       //3、判断有无物流单号
       if (trackInfo.trackingNo) {
-        //3-1、有,下载面单
+        //3-1、有,下载面单 并上报物流
+        await this.uploadTrackingNo(sysMallId, mallId, orderSn, trackInfo.trackingNo, trackInfo.logistics_channel)
+        //渲染表格
         await this.getPrintInfoFlow(sysMallId, orderInfo, country, trackInfo.trackingNo)
       } else {
         //3-2、无 申请运单号
@@ -128,6 +132,7 @@ export default class {
   }
   //手动同步
   async handleStart(orders, isApplyForceFaceInfo) {
+    this.activeType = 'handle'
     this.isApplyForceFaceInfo = isApplyForceFaceInfo || false
     this.orders = orders
     for (let i = 0; i < orders.length; i++) {
@@ -175,7 +180,15 @@ export default class {
       console.log(trackInfo, "trackInfo")
       //3、判断有无物流单号
       if (trackInfo.trackingNo) {
-        //3-1、有,下载面单
+        //3-1、有,下载面单,并上报物流
+        await this.uploadTrackingNo(sysMallId, mallId, orderSn, trackInfo.trackingNo, trackInfo.logistics_channel)
+        //渲染表格
+        let index = this._this.tableData.findIndex(m => {
+          return m.order_sn === order.order_sn
+        })
+        if (index > -1) {
+          this._this.$set(this._this.tableData[index], 'tracking_no', trackInfo.trackingNo)
+        }
         if (order.country === 'TW') {
           await this.getPrintTWinfoFlow(sysMallId, orderInfo, country, trackInfo.trackingNo)
         } else {
@@ -186,6 +199,13 @@ export default class {
         let applyInfo = await this.applyOrderTrackingNo(orderId, mallId, orderInfo.logistics_channel, country, sysMallId, orderSn)
         console.log("applyInfo", applyInfo)
         if (applyInfo.code === 200) {
+          //并上报物流
+          let index = this._this.tableData.findIndex(m => {
+            return m.order_sn === order.order_sn
+          })
+          if (index > -1) {
+            this._this.$set(this._this.tableData[index], 'tracking_no', applyInfo.data)
+          }
           if (order.country === 'TW') {
             await this.getPrintTWinfoFlow(sysMallId, orderInfo, country, applyInfo.data)
           } else {
@@ -339,7 +359,7 @@ export default class {
       logisticsInfos: logisticsInfos
     }
     // uploadParamsList.push(params)
-    let res = await this.$commodityService.saveLogisticsInfo(sysMallId,mallId,logisticsInfos)
+    let res = await this.$commodityService.saveLogisticsInfo(sysMallId, mallId, logisticsInfos)
     let uploadInfo = JSON.parse(res)
     // let uploadInfo = await this.$api.uploadOrderLogisticsInfo(params)
     if (uploadInfo.code === 200) {
@@ -406,6 +426,7 @@ export default class {
         this.writeLog(`订单【${order.order_sn}】同步面单失败[501]`, false)
         return
       }
+      this.writeLog(`订单【${order.order_sn}】获取面单类型成功`, true)
       let fileType = res1.data.waybill_type
       console.log(fileType, res1, "fileType")
       //2、获取包裹号
@@ -419,6 +440,7 @@ export default class {
         this.writeLog(`订单【${order.order_sn}】同步面单失败，未获取到包裹号[502]`, false)
         return
       }
+      this.writeLog(`订单【${order.order_sn}】获取包裹号成功`, true)
       let packageNumber = res2.data.list[0].package_number
       //3、获取面单打印配置
       let schemaType = await this.getSdConfig(order.shop_id, country)
@@ -427,6 +449,7 @@ export default class {
         this.writeLog(`订单【${order.order_sn}】同步面单失败，获取面单打印配置失败[503]`, false)
         return
       }
+      this.writeLog(`订单【${order.order_sn}】获取面单打印配置成功`, true)
       if (country === 'VN' && fileType === 'NORMAL') {
         schemaType = 2
       }
@@ -446,6 +469,7 @@ export default class {
         this.writeLog(`订单【${order.order_sn}】同步面单失败，创建打印任务失败[504]`, false)
         return
       }
+      this.writeLog(`订单【${order.order_sn}】创建打印任务成功`, true)
       let jobId = res4.data.list[0].job_id
       //5、下载面单信息
       let bytes = await this.downloadSdJob(order.shop_id, jobId, country)
@@ -484,12 +508,22 @@ export default class {
         faceSheetInfos: faceSheetInfos
       }
       console.log(params)
-      let res = await this.$commodityService.saveFaceSheetInfo(sysMallId,mallId,faceSheetInfos)
+      let res = await this.$commodityService.saveFaceSheetInfo(sysMallId, mallId, faceSheetInfos)
       let res7 = JSON.parse(res)
       // let res7 = await this.$api.uploadOrderFaceSheetInfo(params)
       console.log(res7, "res7")
       if (res7 && res7.code === 200) {
+        //更新表格
+        if (this.activeType === 'handle') {
+          let index = this._this.tableData.findIndex(m => {
+            return m.order_sn === orderSn
+          })
+          if (index > -1) {
+            this._this.$set(this._this.tableData[index], 'hasLogistics', '1')
+          }
+        }
         return this.writeLog(`订单【${orderSn}】同步面单成功,上报成功`, true)
+
       } else {
         return this.writeLog(`订单【${orderSn}】同步面单失败，上报失败，${res7.data.message}`, false)
       }
@@ -975,7 +1009,7 @@ export default class {
                 let jobId = creatInfo.data.list[0].job_id
                 let base64 = await this.downloadSdJob(mallId, jobId, country)
                 console.log(base64.length, "base64")
-                if(!base64 || base64.length<500){
+                if (!base64 || base64.length < 500) {
                   this.writeLog(`店铺【${mallName}】下载拣货单失败，稍后请重试`, false)
                   continue
                 }
@@ -989,9 +1023,9 @@ export default class {
               }
             }
           } else if (packInfo.code === 403) {
-             this.writeLog(`店铺【${mallName}】下载拣货单失败,店铺未登录`,false)
-          }else{
-             this.writeLog(`店铺【${mallName}】下载拣货单失败`,false)
+            this.writeLog(`店铺【${mallName}】下载拣货单失败,店铺未登录`, false)
+          } else {
+            this.writeLog(`店铺【${mallName}】下载拣货单失败`, false)
           }
           // console.log("packInfo", packInfo)
         }

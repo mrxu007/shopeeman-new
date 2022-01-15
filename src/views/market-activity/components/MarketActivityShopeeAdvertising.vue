@@ -322,9 +322,9 @@
           <div class="base-item">
             <el-checkbox v-model="autoKeyword">自动选择</el-checkbox><br />
             <el-checkbox v-model="handleKeyword" @change="handleChangeKeyType">手动选择</el-checkbox>
-            <div v-if="handleKeyword" class=" mar-top">
+            <div v-if="handleKeyword" class="mar-top">
               <div class="item-box">
-                <el-button size="mini" type="primary">批量修改出价</el-button>
+                <el-button size="mini" type="primary" @click="batchChangeKeyPrice">批量修改出价</el-button>
                 <el-button size="mini" type="primary">批量编辑匹配类型</el-button>
                 <el-button size="mini" type="primary">批量删除</el-button>
               </div>
@@ -342,19 +342,19 @@
                     </el-select>
                   </template>
                 </el-table-column>
-                <el-table-column label="推荐出价" prop="recommend_price" width="80"> 
+                <el-table-column label="推荐出价" prop="recommend_price" width="80">
                   <template slot-scope="scope">
-                    <span style="color:green;">{{scope.row.recommend_price}}</span>
+                    <span style="color: green">{{ country | siteCoin }}{{ scope.row.recommend_price }}</span>
                   </template>
                 </el-table-column>
                 <el-table-column label="点击出价" width="160">
                   <template slot-scope="scope">
-                    <el-input v-model="scope.row.recommend_price" placeholder="请输入内容" size="mini" class="mar-left" style="width: 140px">
+                    <el-input v-model="scope.row.selfPrice" placeholder="请输入内容" size="mini" class="mar-left" style="width: 140px">
                       <template slot="prepend">{{ country | siteCoin }}</template>
                     </el-input>
                   </template>
                 </el-table-column>
-                <el-table-column label="操作" >
+                <el-table-column label="操作">
                   <template slot-scope="scope">
                     <el-button size="mini" type="primary">删 除</el-button>
                   </template>
@@ -371,6 +371,45 @@
     </el-dialog>
     <el-dialog :visible.sync="goodsItemSelectorVisible" top="7vh" title="商品选择" :close-on-click-modal="false" :close-on-press-escape="false" width="1280px">
       <goodsItemSelector v-if="goodsItemSelectorVisible" :mall="selectMallList" @changeGoodsItem="changeGoodsItem" />
+    </el-dialog>
+    <el-dialog :visible.sync="keyPriceVisible" title="批量修改出价" :close-on-click-modal="false" :close-on-press-escape="false" width="300px">
+      <div class="keyPrice-style">
+        <div class="item">
+          <el-radio v-model="keyPriceRadio" label="1">按金额增加/减少出价</el-radio>
+          <div>
+            <el-select v-model="calcType" style="width: 100px" size="mini">
+              <el-option label="增加" value="add"> </el-option>
+              <el-option label="减少" value="sub"> </el-option>
+            </el-select>
+            <el-input v-model="keyPrice"  size="mini" class="mar-left" style="width: 140px">
+              <template slot="prepend">{{ country | siteCoin }}</template>
+            </el-input>
+          </div>
+        </div>
+        <div class="item">
+          <el-radio v-model="keyPriceRadio" label="2">按百分比增加/减少出价</el-radio>
+          <div>
+            <el-select v-model="calcType" style="width: 100px" size="mini">
+              <el-option label="增加" value="add"> </el-option>
+              <el-option label="减少" value="sub"> </el-option>
+            </el-select>
+            <el-input v-model="keyPrice"  size="mini" class="mar-left" style="width: 140px">
+              <template slot="prepend">{{ country | siteCoin }}</template>
+            </el-input>
+          </div>
+        </div>
+        <div class="item">
+          <el-radio v-model="keyPriceRadio" label="3">设定出价为</el-radio>
+          <div>
+            <el-input v-model="keyPrice"  size="mini" class="mar-left" style="width: 140px">
+              <template slot="prepend">{{ country | siteCoin }}</template>
+            </el-input>
+          </div>
+        </div>
+         <div class="item">
+          <el-radio v-model="keyPriceRadio" label="3">设定出价为推荐价格</el-radio>
+        </div>
+      </div>
     </el-dialog>
   </div>
 </template>
@@ -461,6 +500,10 @@ export default {
       timeRange: [], //广告时间
       keyWordList: [],
       multipleSelectionKey: [],
+      keyPriceRadio: '1', //关键字出价
+      calcType:'add',
+      keyPrice:'',
+      keyPriceVisible:false,
     }
   },
   mounted() {
@@ -471,27 +514,37 @@ export default {
     console.log(this.timeRange, 'this.timeRange')
   },
   methods: {
-    handleChangeKeyType(){
-      console.log("handleKeyword",this.handleKeyword)
-      if(this.handleKeyword){
+    //批量修改出价
+    batchChangeKeyPrice() {
+      if (!this.multipleSelectionKey.length) {
+        return this.$message.warning('请先勾选数据!')
+      }
+      this.keyPriceVisible = true
+    },
+    handleChangeKeyType() {
+      console.log('handleKeyword', this.handleKeyword)
+      if (this.handleKeyword && this.keyWordList.length == 0) {
         this.getKeyWordList()
       }
     },
-    async getKeyWordList(){
+    async getKeyWordList() {
       let params = {
         itemid: this.createChooseGoods[0].itemid,
-        keyword:'',
-        count:30,
-        placement:0,
-        mallId: this.selectGoods[0].platform_mall_id
+        keyword: '',
+        count: 30,
+        placement: 0,
+        mallId: this.selectGoods[0].platform_mall_id,
       }
-      let res = await this.$shopeemanService.getAdventKeyWordList(this.country,params)
-      console.log(res,"1111")
-      if(res.code === 200){
+      let res = await this.$shopeemanService.getAdventKeyWordList(this.country, params)
+      console.log(res, '1111')
+      if (res.code === 200) {
+        res.data.forEach(item=>{
+          item['selfPrice'] = item.recommend_price
+        })
         this.keyWordList = res.data
-      }else if(res.code === 403){
+      } else if (res.code === 403) {
         return this.$message.error('获取广告关键字失败，店铺未登录')
-      }else{
+      } else {
         return this.$message.error('获取广告关键字失败!')
       }
     },
@@ -505,6 +558,8 @@ export default {
         this.createChooseGoods.forEach((item) => {
           item.image = item.images.split(',')[0]
         })
+        //获取广告关键字
+        // this.getKeyWordList()
         console.log(this.createChooseGoods, 'this.createChooseGoods')
       }
     },
@@ -831,6 +886,14 @@ export default {
   }
   .footer-btn {
     margin-top: 10px;
+  }
+}
+.keyPrice-style {
+  .item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 5px 0;
   }
 }
 </style>
