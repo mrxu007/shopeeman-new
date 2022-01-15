@@ -187,4 +187,44 @@ export default class buyerAccountService {
   getSkuRelation(skuInfo,buyerAccount){
     return this.nativeService.getSkuRelation(skuInfo,buyerAccount)
   }
+    /**
+   * pdd个人中心
+   */
+     pddOrderCenter(account,orderNo) {
+      return this.nativeService.userCenter(this.ShotOrderPlatform.PinDuoduo, ` http://mobile.yangkeduo.com/order.html?order_sn=${orderNo}`, account)
+    }
+    /**
+     * taobao个人中心
+     */
+    taobaoOrderCenter(account,orderNo) {
+      return this.nativeService.userCenter(this.ShotOrderPlatform.TaoBao, `https://trade.taobao.com/trade/detail/trade_order_detail.htm?biz_order_id=${orderNo}`, account)
+    }
+    /**
+     * jingxi个人中心
+     */
+    jingxiOrderCenter(account,orderNo) {
+      return this.nativeService.userCenter(this.ShotOrderPlatform.JingXi, `https://wqs.jd.com/order/n_detail_v2.shtml?deal_id=${orderNo}&isoldpin=0&sceneval=2`, account)
+    }
+    /**
+     * 1688个人中心
+     */
+    AlibabaOrderCenter(account,orderNo) {
+      return this.nativeService.userCenter(this.ShotOrderPlatform.Alibaba, `https://trade.1688.com/order/new_step_order_detail.htm?orderId=${orderNo}`, account)
+    }
+    /**
+     * lazada个人中心
+     */
+    lazadaOrderCenter(country, account,orderNo) {
+      const url = this.lazada[country] + `/customer/order/view/?tradeOrderId=${orderNo}`
+      console.log(7, url, country)
+      return this.nativeService.userCenter(this.ShotOrderPlatform.Lazada, url, account)
+    }
+    /**
+     * shopee个人中心
+     */
+    shopeeOrderCenter(country, account,URL) {
+      const url = this.shopee[country] + URL
+      console.log(8, url, country)
+      return this.nativeService.userCenter(this.ShotOrderPlatform.Shopee, url, account)
+    }
 }

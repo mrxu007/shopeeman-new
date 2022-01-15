@@ -903,4 +903,10 @@ export default class CommodityService {
   async getSkuRelation(sysOrderIds) {
     return await this.nativeService.callSkuRelationClient('GetBySysOrderIds', sysOrderIds)
   }
+  /**
+   * 保存产品中心列表数据
+   */
+  saveProduct(data) {
+    return this.nativeService.callProductCenter('SaveProduct', JSON.stringify(data))
+  }
 }
