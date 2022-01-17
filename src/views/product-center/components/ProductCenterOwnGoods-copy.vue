@@ -152,9 +152,12 @@
                         <el-image :src="item.sku_image" style="width: 42px; height: 42x; margin: 1px" @click="item.sku_image = ''" />
                       </div>
                       <div v-else>
-                        <el-upload class="sku-image-uploader" action="#" :auto-upload="false" :show-file-list="false" list-type="picture-card" :on-change="handleChange">
-                          <i class="el-icon-plus" @click="setImgFlag('sku', i)" />
+                        <el-upload class="sku-image-uploader" action="#" :show-file-list="false" :on-progress="successFile">
+                          <i class="el-icon-plus avatar-uploader-icon" @click="setImgFlag('sku', i)"></i>
                         </el-upload>
+                        <!-- <el-upload class="sku-image-uploader" action="#" :auto-upload="false" :show-file-list="false" list-type="picture-card" :on-progress="successFile">
+                          <i class="el-icon-plus" @click="setImgFlag('sku', i)" />
+                        </el-upload> -->
                       </div>
                       <el-button type="primary" size="mini" @click="deleteSpec1(i)">删除</el-button>
                     </div>
@@ -1356,23 +1359,23 @@ export default {
       this.imgFlage = type
       this.skuImgIndex = index
     },
-    async handleChange(file) {
-      const that = this
-      const localFile = file.raw
-      if (!/\.(jpg|jpeg|png|webp)$/.test(localFile.name.toLowerCase())) {
-        this.$message('上传格式不对,请上传jpg、jpeg、png、webp格式的图片')
-        return
-      }
-      const reader = new FileReader()
-      reader.readAsDataURL(localFile)
-      reader.onload = async () => {
-        that.imgData = reader.result
-        const name = randomWord(false, 32) + '_' + new Date().getTime()
-        const res = await this.$ossService.uploadFile(that.imgData, name)
-        this.skuSpec1[this.skuImgIndex].sku_image = res
-        this.createSkuList()
-      }
-    },
+    // async handleChange(file) {
+    //   const that = this
+    //   const localFile = file.raw
+    //   if (!/\.(jpg|jpeg|png|webp)$/.test(localFile.name.toLowerCase())) {
+    //     this.$message('上传格式不对,请上传jpg、jpeg、png、webp格式的图片')
+    //     return
+    //   }
+    //   const reader = new FileReader()
+    //   reader.readAsDataURL(localFile)
+    //   reader.onload = async () => {
+    //     that.imgData = reader.result
+    //     const name = randomWord(false, 32) + '_' + new Date().getTime()
+    //     const res = await this.$ossService.uploadFile(that.imgData, name)
+    //     this.skuSpec1[this.skuImgIndex].sku_image = res
+    //     this.createSkuList()
+    //   }
+    // },
     // 上传图片
     async successFile(res, file) {
       console.log(res, 'file111', file)
@@ -1396,6 +1399,7 @@ export default {
           this.sizeImageList.push(res)
         } else if (this.imgFlage === 'sku') {
           this.skuSpec1[this.skuImgIndex].sku_image = res
+          this.createSkuList()
           console.log(this.skuSpec1, 'this.skuSpec1')
         }
       }
@@ -1555,7 +1559,9 @@ export default {
         margin: 10px;
         justify-content: space-between;
         .sku-image-uploader {
+          border: 1px dashed #d9d9d9;
           /deep/.el-upload--picture-card {
+            
             width: 42px !important;
             height: 42px !important;
             margin: 1px !important;

@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-10-21 15:41:32
- * @LastEditTime: 2022-01-13 11:04:50
+ * @LastEditTime: 2022-01-17 16:41:53
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shopeeman-new\src\components\category-choose.vue
@@ -135,7 +135,7 @@ export default {
       this.categroyList2 = this.categroyData
       if (this.isAll) {
         let cate = this.categroyList1.find((n) => n.id == this.categroyVal1)
-        this.categroyVal1Name = cate.cat_name
+        this.categroyVal1Name = cate?cate.cat_name:''
         this.$emit('CateId', { id: this.categroyVal1, name: [this.categroyVal1Name] })
       } else {
         this.$emit('CateId', this.categroyVal1)
