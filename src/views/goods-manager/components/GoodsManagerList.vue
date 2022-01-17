@@ -1877,7 +1877,7 @@ export default {
     // 批量更新预售天数
     batchDay() {
       if (!this.productDay) return this.$message('请填写预售天数')
-      if (Number(this.productDay)) return this.$message('最长不超过30天')
+      if (Number(this.productDay) > 30) return this.$message('最长不超过30天')
       this.editProduct('setDay')
     },
     // 批量更新价格
