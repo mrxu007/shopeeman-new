@@ -833,7 +833,7 @@
       class="moveSet-dialog"
       title="商品搬迁设置"
       :visible.sync="moveSetVisible"
-      width="574px"
+      width="590px"
       top="20vh"
       :close-on-click-modal="false"
       :close-on-press-escape="false"
