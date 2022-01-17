@@ -2325,10 +2325,16 @@ export default class NetMessageBridgeService {
     const resObj = res && JSON.parse(res)
     const dataInfo = resObj.data && JSON.parse(resObj.data)
     if (resObj.status === 200) {
-      const arr = dataInfo && dataInfo.data && dataInfo.data.products && dataInfo.data.products.items || []
-      return {
-        code: 200,
-        data: arr
+      if(dataInfo && dataInfo.code === 0){
+        return {
+          code: 200,
+          data: dataInfo.data
+        }
+      }else{
+        return {
+          code: 50001,
+          data: dataInfo.message
+        }
       }
     } else {
       return {

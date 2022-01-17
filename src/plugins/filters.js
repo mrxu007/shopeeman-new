@@ -180,7 +180,7 @@ const imageRender = function(data) {
   return isArr && [url] || url
 }
 const siteCoin = function(val) {
-  console.log(val)
+  // console.log(val)
   let attribute = val && (val + '').toLocaleUpperCase() || val
   attribute = countries_id[attribute] || attribute
   return site_coin_symbol[attribute] || attribute
