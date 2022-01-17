@@ -326,6 +326,7 @@ export default {
         for (let i = 0; i < this.mallTableSelect.length; i++) {
           await this.MallstopTestFun(this.mallTableSelect[i])
         }
+        this.getTableList()
       }).catch(() => {
       })
     },
@@ -349,7 +350,6 @@ export default {
       try {
         this.showlog = false
         const res = await this.MarketManagerAPIInstance.stopPromotion(params)
-        debugger
         if (res.ecode === 0) {
           this.$refs.Logs.writeLog(`------已停止【${val.promotion_name}】优惠活动------`, true)
           this.$set(val, 'voucher_status', '已过期')
@@ -458,16 +458,12 @@ export default {
             const nowD = new Date().getTime()
             if (nowD < el.start_time * 1000) {
               el.voucher_status = '即将开始'
-              // el.promotion_type = 1
               this.willList.push(el)
             } else if (nowD > el.start_time * 1000 && nowD < el.end_time * 1000) {
               el.voucher_status = '进行中'
-              // this.isNolimit = el.end_time === 3220050630 ? -1 : 1
-              // el.promotion_type = 2
               this.doingList.push(el)
             } else {
               el.voucher_status = '已过期'
-              // el.promotion_type = 3
               this.pastList.push(el)
             }
             // 运输渠道
@@ -486,11 +482,23 @@ export default {
             channels_info = res.data.code === 0 ? res.data.data.channels_info : []
           }
         }
-        if (this.activeType === '1') { this.getTable = this.willList }
-        if (this.activeType === '2') { this.getTable = this.doingList }
-        if (this.activeType === '3') { this.getTable = this.pastList }
-        if (this.activeType === '0') { this.getTable = this.arrList }
-        if (this.isShowPast) { this.getTable = this.willList.concat(this.doingList) }
+        // 条件筛选
+        if (this.isShowPast) {
+          if (this.activeType === '0') {
+            this.getTable = this.willList.concat(this.doingList)
+          } else if (this.activeType === '1') {
+            this.getTable = this.doingList
+          } else if (this.activeType === '2') {
+            this.getTable = this.willList
+          } else {
+            this.getTable = []
+          }
+        } else {
+          if (this.activeType === '1') { this.getTable = this.doingList }
+          if (this.activeType === '2') { this.getTable = this.willList }
+          if (this.activeType === '3') { this.getTable = this.pastList }
+          if (this.activeType === '0') { this.getTable = this.arrList }
+        }
       } catch (error) {
         this.$refs.Logs.writeLog(`【${item.mall_alias_name || item.platform_mall_name}】--catch，${error}`, false)
       } finally {
@@ -552,10 +560,6 @@ export default {
         this.$message.warning('促销名称不能为空，且不能大于20个字符')
         return
       }
-      if (!this.deliverWay.length) {
-        this.$message.warning('物流方式不能为空')
-        return
-      }
       if (this.proTime.length) { // 自动勾选该选项
         this.proTimeType === '1'
       }
@@ -572,6 +576,36 @@ export default {
         if (Number(this.proTime[1] - Number(this.proTime[0]) < 3600 * 1000)) {
           this.$message.warning('结束时间至少比开始时间晚一个小时')
           return
+        }
+      }
+      if (!this.deliverWay.length) {
+        this.$message.warning('运输渠道不能为空')
+        return
+      }
+      for (let j = 0; j < this.freightlist.length; j++) {
+        const el = this.freightlist[j]
+        if (!el.minCost || (el.freightType === '0' && !el.freight)) {
+          this.$message.warning('请设置运费规则')
+          return
+        }
+      }
+
+      if (this.freightlist.length) {
+        for (let i = 0; i < this.freightlist.length; i++) {
+          if (i >= 1) {
+            if (this.freightlist[i].minCost >= this.freightlist[i - 1].minCost) {
+              this.$message.warning('多层最低消费金额应小于上一层最低消费金额')
+              return
+            }
+            if (this.freightlist[0].freightType !== '1' && this.freightlist[i].freightType === '1') {
+              this.$message.warning('免运费应在最高层使用')
+              return
+            }
+            if (this.freightlist[0].freightType !== '0' && this.freightlist[i].freight >= this.freightlist[i - 1].freight) {
+              this.$message.warning('多层运费金额应小于上一层运费金额')
+              return
+            }
+          }
         }
       }
       this.proVisible = false
@@ -615,11 +649,16 @@ export default {
           channel_ids: [Number(this.deliverWay)],
           promotion_name: this.proName
         }
-        debugger
         const result = await this.MarketManagerAPIInstance.checkPromotionTest(params)// 创建优惠券
-        debugger
         if (result.ecode !== 0) {
-          this.$refs.Logs.writeLog(`【${val.mall_alias_name || val.platform_mall_name}】创建失败：${result.message}`, false)
+          let mes = ''
+          if (result.data.code === 1400109500) {
+            mes = '所选期间与该店铺的其他活动期间重叠'
+          }
+          if (result.data.code === 1400101105) {
+            mes = '运输渠道未知'
+          }
+          this.$refs.Logs.writeLog(`【${val.mall_alias_name || val.platform_mall_name}】创建失败：${mes || result.message}`, false)
         } else {
           this.$refs.Logs.writeLog(`【${val.mall_alias_name || val.platform_mall_name}】创建成功`, true)
         }

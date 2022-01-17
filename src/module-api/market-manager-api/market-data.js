@@ -471,7 +471,6 @@ export default class MarketManagerAPI {
         channel_ids: channel_ids,
         promotion_name: promotion_name
       }
-      debugger
       const res = await this._this.$shopeemanService.postChineseReferer(country, '/api/marketing/v3/logistics_promotion/?', params, {
         headers: {
           'Content-Type': 'application/json; charset=utf-8',
@@ -479,7 +478,6 @@ export default class MarketManagerAPI {
           referer: `/portal/marketing/shipping/new`
         }
       })
-      debugger
       const des = JSON.parse(res)
       const data = JSON.parse(des.data)
       const ecode = data?.data ? data.code : data.errcode
