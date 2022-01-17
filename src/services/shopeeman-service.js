@@ -46,7 +46,7 @@ export default class NetMessageBridgeService {
 
     let url = this.site_domain_chinese_pre[country]
     const domain_switch = userSettings && (userSettings.SwitchDominTypeSetting || userSettings.domain_switch) || '1'
-    console.log(userSettings, domain_switch, IPType, mall_main_id)
+    // console.log(userSettings, domain_switch, IPType, mall_main_id)
     if (domain_switch === '3' || domain_switch === `Abroad`) {
       url = this.site_domain_local_pre[country]
     } else if ((domain_switch === '1' || domain_switch === 'Auto') &&
@@ -79,7 +79,7 @@ export default class NetMessageBridgeService {
         }
       }
     }
-    console.log('后台url', url)
+    // console.log('后台url', url)
     return url
   }
 
@@ -297,7 +297,7 @@ export default class NetMessageBridgeService {
         referer: baseUrl + referer
       })
     }
-    // console.log(baseUrl + api, JSON.stringify(options), JSON.stringify(data))
+    console.log(baseUrl + api, JSON.stringify(options), JSON.stringify(data))
     return this.NetMessageBridgeService().post(baseUrl + api, JSON.stringify(options), JSON.stringify(data))
   }
 
@@ -2287,6 +2287,53 @@ export default class NetMessageBridgeService {
       return {
         code: resObj.status,
         data: `获取失败${resObj.statusText}`
+      }
+    }
+  }
+  // 获取广告关键字
+  async getAdventKeyWordList(country, data) {
+    const res = await this.getChinese(country, '/api/marketing/v3/pas/suggest/keyword/', data)
+    const resObj = res && JSON.parse(res)
+    // console.log(res,resObj)
+    if (resObj && resObj.status === 200) {
+      const info = JSON.parse(resObj.data)
+      if (info && info.code === 0) {
+        return {
+          code: 200,
+          data: info.data || []
+        }
+      } else {
+        return {
+          code: 50001,
+          data: info.message || []
+        }
+      }
+    } else {
+      return {
+        code: resObj.status,
+        data: `获取失败${resObj.statusText}`
+      }
+    }
+  }
+  // 重启折扣活动
+  async overlapDiscount(country, data) {
+    const res = await this.postChinese(country, `/api/marketing/v3/discount/item/overlap/`, data, {
+      Headers: {
+        'Content-Type': ' application/json'
+      }
+    })
+    const resObj = res && JSON.parse(res)
+    const dataInfo = resObj.data && JSON.parse(resObj.data)
+    if (resObj.status === 200) {
+      const arr = dataInfo && dataInfo.data && dataInfo.data.products && dataInfo.data.products.items || []
+      return {
+        code: 200,
+        data: arr
+      }
+    } else {
+      return {
+        code: 50001,
+        data: '操作失败'
       }
     }
   }

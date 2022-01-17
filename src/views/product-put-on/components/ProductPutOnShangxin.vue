@@ -481,7 +481,11 @@
           {{ getValuationPrice(row.price, row) }}
         </template>
       </u-table-column>
-      <u-table-column align="left" label="上新价格" prop="CalAfterPrice" width="80"/>
+      <u-table-column align="left" :label="`上新价格(${$filters.siteCoin(country)})`" prop="CalAfterPrice" width="100">
+        <template slot-scope="{ row }">
+          {{Math.ceil(getValuationPrice(row.price, row) / rateList[country])}}
+        </template>
+      </u-table-column>
       <u-table-column align="left" label="销量" prop="sales" width="80"/>
       <u-table-column align="left" label="标签" prop="sys_label_name" width="80" show-overflow-tooltip/>
       <u-table-column align="left" label="来源" prop="sourceName" width="80"/>
@@ -848,7 +852,7 @@
         </div>
         <div style="display: flex;justify-content: center;">
           <el-button size="mini" type="primary" style="margin: 0 25px;" @click="saveCalculate">确认</el-button>
-          <el-button size="mini" type="primary" style="margin: 0 25px;">保存标签</el-button>
+          <el-button size="mini" type="primary" style="margin: 0 25px;" @click="saveCalculateLabel">保存标签</el-button>
           <el-button size="mini" type="primary" style="margin: 0 25px;" @click="referenceCalculate">计算价格</el-button>
         </div>
         <div class="basisInstall" style="width: 100%">
@@ -1239,9 +1243,9 @@ export default {
         let width = data.width || 0
         let height = data.height || 0
         let bubbleHeavy = data.bubbleHeavyNum || 0
-        let bulkWeightFormula = 0
-        if(bubbleHeavy){
-          bulkWeightFormula = ((long * width * height) / bubbleHeavy * 1000).toFixed(2) * 1
+        let bulkWeightFormula = (long * width * height)
+        if(bubbleHeavy && bulkWeightFormula){
+          bulkWeightFormula = (bulkWeightFormula / bubbleHeavy * 1000).toFixed(2) * 1
         }
         this.calculateReference.bubbleHeavy = bulkWeightFormula
       },
@@ -1552,7 +1556,6 @@ export default {
       } else if (this.basicConfig.valuationRadio === 2) {
         setting = setting || this.valuationSetting
         if (setting && setting.bubbleHeavy >= 0) {
-          console.log('getValuationPrice',data)
           let long = data.long
           let width = data.width
           let height = data.height
@@ -1562,7 +1565,6 @@ export default {
           let singleShipFee = this.freightList[setting.shippingMethod + '-' + setting.goodsType] * 1
           let packagingFee = setting.warehouseServiceCharge * 1
           let shopFeeOrClearanceFee = setting.customsClearanceFee * 1
-          console.log('itemWeight', itemWeight)
           let logisticsCosts = (itemWeight * singleShipFee + packagingFee + shopFeeOrClearanceFee).toFixed(2) * 1
           let otherFee = setting.other && setting.other * 1 || 0
           let transactionCommission = setting.transactionCommission || 0
@@ -1595,15 +1597,36 @@ export default {
       }
     },
     saveCalculate(){
-      let stting = this.valuationConfig
+      let setting = this.valuationConfig
       let messages = ''
-      if (!stting.discount){
+      if (!setting.discount){
         messages = '折扣率不能为空'
-      }else if (!stting.bubbleHeavy){
+      }else if (!setting.bubbleHeavy){
         messages = '泡重计算比不能为空'
       }
-      messages && this.$message.error(messages)
-      this.valuationSetting =!messages && JSON.parse(JSON.stringify(stting)) || ''
+      if(messages){
+        this.$message.error(messages)
+      }else{
+        this.valuationSetting =JSON.parse(JSON.stringify(setting)) || ''
+        this.valuationVisible = false
+      }
+    },
+    saveCalculateLabel(){
+      this.$prompt('请输入标签名称', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+      }).then(({ value }) => {
+
+        this.$message({
+          type: 'success',
+          message: '你的标签是: ' + value
+        });
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: '取消保存标签'
+        });
+      });
     },
     updateAttributeName(item, value, attributeName = 'statusName') {
       let index = this.goodsTable.findIndex(i => i.id === item.id)
@@ -1667,9 +1690,9 @@ export default {
       let setting = this.valuationConfig
       let calculate = this.calculateReference
       let messages = ''
-      if (!stting.discount){
+      if (!setting.discount){
         messages = '折扣率不能为空'
-      }else if (!stting.bubbleHeavy){
+      }else if (!setting.bubbleHeavy){
         messages = '泡重计算比不能为空'
       }
       if (messages){
