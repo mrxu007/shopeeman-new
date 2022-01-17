@@ -421,7 +421,7 @@ export default {
           for (const item in attributeTreeRes.data.result) {
             exportdata['mallname'] = mallname
             if (item === 'placed_sales' || item === 'paid_sales' || item === 'paid_sales_per_buyer') {
-              exportdata[`${item}`] = `${this.$filters.currencyShow(this.site)}${attributeTreeRes.data.result[item].value}`
+              exportdata[`${item}`] = `${this.$filters.siteCoin(this.site)}${attributeTreeRes.data.result[item].value}`
             } else {
               exportdata[`${item}`] = attributeTreeRes.data.result[item].value
             }
@@ -440,7 +440,7 @@ export default {
                 color = 'red'
               }
               if (item === 'placed_sales' || item === 'paid_sales' || item === 'paid_sales_per_buyer') {
-                data[`${item}`] = `<pre style='color:${color}'>${this.$filters.currencyShow(this.site)}${attributeTreeRes.data.result[item].value}</pre><pre style='color:${color}'>${text}${(Number(attributeTreeRes.data.result[item].ratio) * 100).toFixed(2)}%</pre>`
+                data[`${item}`] = `<pre style='color:${color}'>${this.$filters.siteCoin(this.site)}${attributeTreeRes.data.result[item].value}</pre><pre style='color:${color}'>${text}${(Number(attributeTreeRes.data.result[item].ratio) * 100).toFixed(2)}%</pre>`
               } else {
                 data[`${item}`] = `<pre style='color:${color}'>${attributeTreeRes.data.result[item].value}</pre><pre style='color:${color}'>${text}${(Number(attributeTreeRes.data.result[item].ratio) * 100).toFixed(2)}%</pre>`
               }
@@ -454,7 +454,7 @@ export default {
                 color = 'red'
               }
               if (item === 'placed_sales' || item === 'paid_sales' || item === 'paid_sales_per_buyer') {
-                data[`${item}`] = `<pre style='color:${color}'>${this.$filters.currencyShow(this.site)}${attributeTreeRes.data.result[item].value}</pre><pre style='color:${color}'>${text}${(Number(attributeTreeRes.data.result[item].ratio) * 100).toFixed(2)}%</pre>`
+                data[`${item}`] = `<pre style='color:${color}'>${this.$filters.siteCoin(this.site)}${attributeTreeRes.data.result[item].value}</pre><pre style='color:${color}'>${text}${(Number(attributeTreeRes.data.result[item].ratio) * 100).toFixed(2)}%</pre>`
               } else {
                 data[`${item}`] = `<pre style='color:${color}'>${attributeTreeRes.data.result[item].value}</pre><pre style='color:${color}'>${text}${(Number(attributeTreeRes.data.result[item].ratio) * 100).toFixed(2)}%</pre>`
               }
@@ -468,7 +468,7 @@ export default {
                 color = 'red'
               }
               if (item === 'placed_sales' || item === 'paid_sales' || item === 'paid_sales_per_buyer') {
-                data[`${item}`] = `<pre style='color:${color}'>${this.$filters.currencyShow(this.site)}${attributeTreeRes.data.result[item].value}</pre><pre style='color:${color}'>${text}${(Number(attributeTreeRes.data.result[item].ratio) * 100).toFixed(2)}%</pre>`
+                data[`${item}`] = `<pre style='color:${color}'>${this.$filters.siteCoin(this.site)}${attributeTreeRes.data.result[item].value}</pre><pre style='color:${color}'>${text}${(Number(attributeTreeRes.data.result[item].ratio) * 100).toFixed(2)}%</pre>`
               } else {
                 data[`${item}`] = `<pre style='color:${color}'>${attributeTreeRes.data.result[item].value}</pre><pre style='color:${color}'>${text}${(Number(attributeTreeRes.data.result[item].ratio) * 100).toFixed(2)}%</pre>`
               }
@@ -482,7 +482,7 @@ export default {
                 color = 'red'
               }
               if (item === 'placed_sales' || item === 'paid_sales' || item === 'paid_sales_per_buyer') {
-                data[`${item}`] = `<pre style='color:${color}'>${this.$filters.currencyShow(this.site)}${attributeTreeRes.data.result[item].value}</pre><pre style='color:${color}'>${text}${(Number(attributeTreeRes.data.result[item].ratio) * 100).toFixed(2)}%</pre>`
+                data[`${item}`] = `<pre style='color:${color}'>${this.$filters.siteCoin(this.site)}${attributeTreeRes.data.result[item].value}</pre><pre style='color:${color}'>${text}${(Number(attributeTreeRes.data.result[item].ratio) * 100).toFixed(2)}%</pre>`
               } else {
                 data[`${item}`] = `<pre style='color:${color}'>${attributeTreeRes.data.result[item].value}</pre><pre style='color:${color}'>${text}${(Number(attributeTreeRes.data.result[item].ratio) * 100).toFixed(2)}%</pre>`
               }

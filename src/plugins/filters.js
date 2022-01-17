@@ -119,6 +119,9 @@ const site_coin_symbol = {
   'PL': 'zł'
 }
 
+/***
+ * 虾皮各站点
+ */
 // 各站点平台
 const site_platform = {
   'MY': '0',
@@ -180,7 +183,7 @@ const imageRender = function(data) {
   return isArr && [url] || url
 }
 const siteCoin = function(val) {
-  console.log(val)
+  // console.log(val)
   let attribute = val && (val + '').toLocaleUpperCase() || val
   attribute = countries_id[attribute] || attribute
   return site_coin_symbol[attribute] || attribute
@@ -200,39 +203,6 @@ const lazadaGoodsUrl = function(val) {
   let attribute = val && (val + '').toLocaleUpperCase() || val
   attribute = lazada_goods_url[attribute] || attribute
   return lazada_goods_url[attribute] || attribute
-}
-
-const currencyShow = function(data) {
-  let temp = ''
-  switch (data) {
-    case 'MY':
-      temp = 'RM'
-      break
-    case 'PH':
-      temp = '₱'
-      break
-    case 'ID':
-      temp = 'Rp'
-      break
-    case 'VN':
-      temp = '₫'
-      break
-    case 'TH':
-      temp = '฿'
-      break
-    case 'BR':
-      temp = 'R$'
-      break
-    case 'MX':
-      temp = 'MX$'
-      break
-    case 'PL':
-      temp = 'zł'
-      break
-    default :
-      temp = '$'
-  }
-  return temp
 }
 
 const changeImgSizeFilter = (value) => {
@@ -319,4 +289,4 @@ const errorMsg = function(userMessage) {
   return msg
 }
 export { chineseSite, imageRender, siteCoin, sitePlatform, countryShopeebuyCom, changeImgSizeFilter, special_characters,
-  lazadaGoodsUrl, countries_option, countries_site, countries_option_sub, currencyShow, countries_option_sub_abroad, errorMsg }
+  lazadaGoodsUrl, countries_option, countries_site, countries_option_sub, countries_option_sub_abroad, errorMsg }

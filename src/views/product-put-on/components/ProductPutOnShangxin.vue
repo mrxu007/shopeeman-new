@@ -481,7 +481,11 @@
           {{ getValuationPrice(row.price, row) }}
         </template>
       </u-table-column>
-      <u-table-column align="left" label="上新价格" prop="CalAfterPrice" width="80"/>
+      <u-table-column align="left" :label="`上新价格(${$filters.siteCoin(country)})`" prop="CalAfterPrice" width="100">
+        <template slot-scope="{ row }">
+          {{Math.ceil(getValuationPrice(row.price, row) / rateList[country])}}
+        </template>
+      </u-table-column>
       <u-table-column align="left" label="销量" prop="sales" width="80"/>
       <u-table-column align="left" label="标签" prop="sys_label_name" width="80" show-overflow-tooltip/>
       <u-table-column align="left" label="来源" prop="sourceName" width="80"/>
@@ -848,7 +852,7 @@
         </div>
         <div style="display: flex;justify-content: center;">
           <el-button size="mini" type="primary" style="margin: 0 25px;" @click="saveCalculate">确认</el-button>
-          <el-button size="mini" type="primary" style="margin: 0 25px;">保存标签</el-button>
+          <el-button size="mini" type="primary" style="margin: 0 25px;" @click="saveCalculateLabel">保存标签</el-button>
           <el-button size="mini" type="primary" style="margin: 0 25px;" @click="referenceCalculate">计算价格</el-button>
         </div>
         <div class="basisInstall" style="width: 100%">
@@ -1239,9 +1243,9 @@ export default {
         let width = data.width || 0
         let height = data.height || 0
         let bubbleHeavy = data.bubbleHeavyNum || 0
-        let bulkWeightFormula = 0
-        if(bubbleHeavy){
-          bulkWeightFormula = ((long * width * height) / bubbleHeavy * 1000).toFixed(2) * 1
+        let bulkWeightFormula = (long * width * height)
+        if(bubbleHeavy && bulkWeightFormula){
+          bulkWeightFormula = (bulkWeightFormula / bubbleHeavy * 1000).toFixed(2) * 1
         }
         this.calculateReference.bubbleHeavy = bulkWeightFormula
       },
@@ -1323,80 +1327,85 @@ export default {
         return
       }
       this.isBanPerform = true
-      await batchOperation(this.goodsTableSelect, this.prepareWork, this.basicConfig.onNewThread)
+      await batchOperation(this.mallList, this.prepareWork, this.basicConfig.onNewThread)
       this.isBanPerform = false
     },
     async cancelRelease() {
       terminateThread()
     },
-    async prepareWork(item, count = { count: 1 }) {
+    async prepareWork(mall, count = { count: 1 }) {
       try {
-        this.updateAttributeName(item, '正在准备发布')
-        let goodsInitParam = {
-          attributes: [],
-          stock: item.stock,
-          model_list: [],
-          weight: item.weight + '',
-          dimension: {
-            width: item.width,
-            height: item.height,
-            long: item.long
-          },
-          condition: 1,
-          dangerous_goods: 0, //待修改
-          min_purchase_limit: 1,
-          input_normal_price: null,
-          input_promotion_price: null,
-          id: 0,
-          images: [],
-          tier_variation: [],
-          category_recommend: [],
-          price_before_discount: '',
-          wholesale_list: [],
-          installment_tenures: [],
-          pre_order: this.basicConfig.stockUpChecked,
-          days_to_ship: Math.floor(this.basicConfig.stockUpNumber) || 15,
-          unlisted: this.basicConfig.usedChecked,
-          add_on_deal: []
-        }
-        let originCategoryId = item.originCategoryId || item.category_id
-        let platformId = item.platform || item.source
-        // attributes brand_id category_path
-        let categoryRelationJson = await this.$commodityService.getCategoryRelation(originCategoryId, this.country, platformId)
-        let categoryRelationRes = JSON.parse(categoryRelationJson)
-        let categoryId = categoryRelationRes?.data?.category?.platform_category_id || ''
-        if (categoryId) {
-          goodsInitParam['category_path'] = await this.getCategoryPath(categoryId) || []
-          let attributesCurrent = categoryRelationRes.data && categoryRelationRes.data.attributes || []
-          let category = categoryRelationRes.data.category
-          let categoryName = `${category.platform_category_name}(${category.platform_category_cn_name})`
-          let index = this.goodsTable.findIndex(son => son.id === item.id)
-          this.$set(this.goodsTable[index], 'categoryName', categoryName)
-          attributesCurrent.forEach(son => {
-            if (son.attribute_id) {
-              goodsInitParam['attributes'].push({
-                attribute_id: son.attribute_id,
-                attribute_value_id: Math.floor(son.value_id)
-              })
-            } else {
-              goodsInitParam['brand_id'] = Math.floor(son.value_id) || 0
-            }
-          })
-        } else {
-          this.updateAttributeName(item, '无类目映射，请选择类目')
-          return
-        }
-        let neededTranslateInfoJson = await this.$commodityService.getSpuDetailByIdV2(item.id)
-        let mallList = []
+        let goodsList = []
         if (this.associatedConfig.dimensionRadio < 2) {
           let mallCount = this.mallList.length
-          let index = this.goodsTable.findIndex(son => son.id === item.id)
-          let mallIndex = index % mallCount
-          mallList = [this.mallList[mallIndex]]
+          let mallIndex = this.mallList.findIndex(son=> son.id === mall.id)
+          let goodsList = this.goodsTable.length
+          for (let i=0;mallIndex<goodsList;i++){
+            mallIndex = mallIndex + mallCount * i
+            if(mallIndex > goodsList){
+              goodsList = [...goodsList,mallIndex]
+            }
+          }
         } else {
-          mallList = this.mallList
+          goodsList = this.goodsTableSelect
         }
-        for (let mall of mallList) {
+        for (let item of goodsList) {
+          this.updateAttributeName(item, '正在准备发布')
+          let goodsInitParam = {
+            attributes: [],
+            stock: item.stock,
+            model_list: [],
+            weight: item.weight + '',
+            dimension: {
+              width: item.width,
+              height: item.height,
+              long: item.long
+            },
+            condition: 1,
+            dangerous_goods: 0, //待修改
+            min_purchase_limit: 1,
+            input_normal_price: null,
+            input_promotion_price: null,
+            id: 0,
+            images: [],
+            tier_variation: [],
+            category_recommend: [],
+            price_before_discount: '',
+            wholesale_list: [],
+            installment_tenures: [],
+            pre_order: this.basicConfig.stockUpChecked,
+            days_to_ship: Math.floor(this.basicConfig.stockUpNumber) || 15,
+            unlisted: this.basicConfig.usedChecked,
+            add_on_deal: []
+          }
+          let originCategoryId = item.originCategoryId || item.category_id
+          let platformId = item.platform || item.source
+          // attributes brand_id category_path
+          let categoryRelationJson = await this.$commodityService.getCategoryRelation(originCategoryId, this.country, platformId)
+          let categoryRelationRes = JSON.parse(categoryRelationJson)
+          let categoryId = categoryRelationRes?.data?.category?.platform_category_id || ''
+          if (categoryId) {
+            goodsInitParam['category_path'] = await this.getCategoryPath(categoryId) || []
+            let attributesCurrent = categoryRelationRes.data && categoryRelationRes.data.attributes || []
+            let category = categoryRelationRes.data.category
+            let categoryName = `${category.platform_category_name}(${category.platform_category_cn_name})`
+            let index = this.goodsTable.findIndex(son => son.id === item.id)
+            this.$set(this.goodsTable[index], 'categoryName', categoryName)
+            attributesCurrent.forEach(son => {
+              if (son.attribute_id) {
+                goodsInitParam['attributes'].push({
+                  attribute_id: son.attribute_id,
+                  attribute_value_id: Math.floor(son.value_id)
+                })
+              } else {
+                goodsInitParam['brand_id'] = Math.floor(son.value_id) || 0
+              }
+            })
+          } else {
+            this.updateAttributeName(item, '无类目映射，请选择类目')
+            return
+          }
+          let neededTranslateInfoJson = await this.$commodityService.getSpuDetailByIdV2(item.id)
           let neededTranslateInfoData = JSON.parse(neededTranslateInfoJson) && JSON.parse(neededTranslateInfoJson).data
           console.log('getSpuDetailByIdV2 - data', neededTranslateInfoData)
           let goodsParam = JSON.parse(JSON.stringify(goodsInitParam))
@@ -1552,7 +1561,6 @@ export default {
       } else if (this.basicConfig.valuationRadio === 2) {
         setting = setting || this.valuationSetting
         if (setting && setting.bubbleHeavy >= 0) {
-          console.log('getValuationPrice',data)
           let long = data.long
           let width = data.width
           let height = data.height
@@ -1562,7 +1570,6 @@ export default {
           let singleShipFee = this.freightList[setting.shippingMethod + '-' + setting.goodsType] * 1
           let packagingFee = setting.warehouseServiceCharge * 1
           let shopFeeOrClearanceFee = setting.customsClearanceFee * 1
-          console.log('itemWeight', itemWeight)
           let logisticsCosts = (itemWeight * singleShipFee + packagingFee + shopFeeOrClearanceFee).toFixed(2) * 1
           let otherFee = setting.other && setting.other * 1 || 0
           let transactionCommission = setting.transactionCommission || 0
@@ -1602,8 +1609,29 @@ export default {
       }else if (!setting.bubbleHeavy){
         messages = '泡重计算比不能为空'
       }
-      messages && this.$message.error(messages)
-      this.valuationSetting =!messages && JSON.parse(JSON.stringify(setting)) || ''
+      if(messages){
+        this.$message.error(messages)
+      }else{
+        this.valuationSetting =JSON.parse(JSON.stringify(setting)) || ''
+        this.valuationVisible = false
+      }
+    },
+    saveCalculateLabel(){
+      this.$prompt('请输入标签名称', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+      }).then(({ value }) => {
+
+        this.$message({
+          type: 'success',
+          message: '你的标签是: ' + value
+        });
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: '取消保存标签'
+        });
+      });
     },
     updateAttributeName(item, value, attributeName = 'statusName') {
       let index = this.goodsTable.findIndex(i => i.id === item.id)

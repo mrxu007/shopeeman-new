@@ -279,8 +279,8 @@ export default {
           data['conversion_rate'] = `${(attributeTreeRes.data.result.conversion_rate.value * 100).toFixed(2)}%`
           data['orders'] = attributeTreeRes.data.result.orders.value
           data['buyers'] = attributeTreeRes.data.result.buyers.value
-          data['sales'] = `${this.$filters.currencyShow(this.site)}${attributeTreeRes.data.result.sales.value}`
-          data['sales_per_buyer'] = `${this.$filters.currencyShow(this.site)}${attributeTreeRes.data.result.sales_per_buyer.value}`
+          data['sales'] = `${this.$filters.siteCoin(this.site)}${attributeTreeRes.data.result.sales.value}`
+          data['sales_per_buyer'] = `${this.$filters.siteCoin(this.site)}${attributeTreeRes.data.result.sales_per_buyer.value}`
           this.tableData.push(data)
         } else if (attributeTreeRes.status === 403) {
           this.errmall.push(mallname)

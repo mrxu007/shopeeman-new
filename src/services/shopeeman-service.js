@@ -2325,16 +2325,47 @@ export default class NetMessageBridgeService {
     const resObj = res && JSON.parse(res)
     const dataInfo = resObj.data && JSON.parse(resObj.data)
     if (resObj.status === 200) {
-      const arr = dataInfo && dataInfo.data && dataInfo.data.products && dataInfo.data.products.items || []
-      return {
-        code: 200,
-        data: arr
+      if(dataInfo && dataInfo.code === 0){
+        return {
+          code: 200,
+          data: dataInfo.data
+        }
+      }else{
+        return {
+          code: 50001,
+          data: dataInfo.message
+        }
       }
     } else {
       return {
         code: 50001,
         data: '操作失败'
       }
+    }
+  }
+
+  // 用来检测 店铺是否已经登陆
+  async getUserInfo(mallInfo) {
+    try {
+      const { country, platform_mall_id } = mallInfo
+      const params = {
+        'platform_mall_id': platform_mall_id // 导入店铺初始没有mallId
+      }
+      let res = await this.getChinese(country, '/api/selleraccount/user_info/?', params)
+      res = JSON.parse(JSON.parse(res).data)
+      console.log(res)
+      if (res.code === 0) {
+        return { code: 200, data: res.data }
+      }
+      if (res.errcode === 2) {
+        return { code: 2, data: `店铺未登录` }
+      }
+      return { code: res.errcode, data: `${res.errcode} ${res.message}` }
+    } catch (error) {
+      if ((error + '').indexOf('Unexpected token < in JSON at') >= 0 || (error + '').indexOf('of JSON input') >= 0) {
+        return { code: 502, data: '请检测代理信息' }
+      }
+      return { code: -2, data: `getUserInfo-catch: ${error}` }
     }
   }
 

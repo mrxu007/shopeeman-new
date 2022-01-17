@@ -337,21 +337,21 @@ export default {
               changea[0] = Number(changea[0]) - 1
               const onehoureago = `${changea[0]}:${changea[1]}`
               if (item === 'sales_per_buyer') {
-                data[`${item}`] = `<pre style='color:${color}'>${this.$filters.currencyShow(this.site)}${(attributeTreeRes.data.result[item].value).toFixed(2)}</pre>` + `<pre style='color:${color}'>vs 00:00 - ${onehoureago}  ${(attributeTreeRes.data.result[item].chain_ratio * 100).toFixed(2)}%</pre>`
+                data[`${item}`] = `<pre style='color:${color}'>${this.$filters.siteCoin(this.site)}${(attributeTreeRes.data.result[item].value).toFixed(2)}</pre>` + `<pre style='color:${color}'>vs 00:00 - ${onehoureago}  ${(attributeTreeRes.data.result[item].chain_ratio * 100).toFixed(2)}%</pre>`
               } else {
                 data[`${item}`] = `<pre style='color:${color}'>${attributeTreeRes.data.result[item].value}</pre>` + `<pre style='color:${color}'>vs 00:00 - ${onehoureago}  ${(attributeTreeRes.data.result[item].chain_ratio * 100).toFixed(2)}%</pre>`
               }
             } else if (this.Statisticaltime === 'yesterday') {
               if (item === 'sales_per_buyer') {
-                data[`${item}`] = `<pre style='color:${color}'>${this.$filters.currencyShow(this.site)}${(attributeTreeRes.data.result[item].value).toFixed(2)}</pre>` + `<pre style='color:${color}'>vs 前一天  ${(attributeTreeRes.data.result[item].chain_ratio * 100).toFixed(2)}%</pre>`
+                data[`${item}`] = `<pre style='color:${color}'>${this.$filters.siteCoin(this.site)}${(attributeTreeRes.data.result[item].value).toFixed(2)}</pre>` + `<pre style='color:${color}'>vs 前一天  ${(attributeTreeRes.data.result[item].chain_ratio * 100).toFixed(2)}%</pre>`
               } else { data[`${item}`] = `<pre style='color:${color}'>${attributeTreeRes.data.result[item].value}</pre>` + `<pre style='color:${color}'>vs 前一天  ${(attributeTreeRes.data.result[item].chain_ratio * 100).toFixed(2)}%</pre>` }
             } else if (this.Statisticaltime === 'past7days') {
               if (item === 'sales_per_buyer') {
-                data[`${item}`] = `<pre style='color:${color}'>${this.$filters.currencyShow(this.site)}${(attributeTreeRes.data.result[item].value).toFixed(2)}</pre>` + `<pre style='color:${color}'>vs 前7天  ${(attributeTreeRes.data.result[item].chain_ratio * 100).toFixed(2)}%</pre>`
+                data[`${item}`] = `<pre style='color:${color}'>${this.$filters.siteCoin(this.site)}${(attributeTreeRes.data.result[item].value).toFixed(2)}</pre>` + `<pre style='color:${color}'>vs 前7天  ${(attributeTreeRes.data.result[item].chain_ratio * 100).toFixed(2)}%</pre>`
               } else { data[`${item}`] = `<pre style='color:${color}'>${attributeTreeRes.data.result[item].value}</pre>` + `<pre style='color:${color}'>vs 前7天  ${(attributeTreeRes.data.result[item].chain_ratio * 100).toFixed(2)}%</pre>` }
             } else if (this.Statisticaltime === 'past30days') {
               if (item === 'sales_per_buyer') {
-                data[`${item}`] = `<pre style='color:${color}'>${this.$filters.currencyShow(this.site)}${(attributeTreeRes.data.result[item].value).toFixed(2)}</pre>` + `<pre style='color:${color}'>vs 前30天  ${(attributeTreeRes.data.result[item].chain_ratio * 100).toFixed(2)}%</pre>`
+                data[`${item}`] = `<pre style='color:${color}'>${this.$filters.siteCoin(this.site)}${(attributeTreeRes.data.result[item].value).toFixed(2)}</pre>` + `<pre style='color:${color}'>vs 前30天  ${(attributeTreeRes.data.result[item].chain_ratio * 100).toFixed(2)}%</pre>`
               } else { data[`${item}`] = `<pre style='color:${color}'>${attributeTreeRes.data.result[item].value}</pre>` + `<pre style='color:${color}'>vs 前30天  ${(attributeTreeRes.data.result[item].chain_ratio * 100).toFixed(2)}%</pre>` }
             }
           }
@@ -364,8 +364,8 @@ export default {
           data['view'] = res.data.data
           if (data['view']) {
             for (let k = 0; k < data['view'].length; k++) {
-              data['view'][k].sales = `${this.$filters.currencyShow(this.site)}${(data['view'][k].sales).toFixed(2)}`
-              data['view'][k].sales_per_buyer = `${this.$filters.currencyShow(this.site)}${(data['view'][k].sales_per_buyer).toFixed(2)}`
+              data['view'][k].sales = `${this.$filters.siteCoin(this.site)}${(data['view'][k].sales).toFixed(2)}`
+              data['view'][k].sales_per_buyer = `${this.$filters.siteCoin(this.site)}${(data['view'][k].sales_per_buyer).toFixed(2)}`
               data['view'][k].start_time = this.$dayjs(data['view'][k].start_time * 1000).format('YYYY-MM-DD hh:mm:ss')
               data['view'][k].end_time = this.$dayjs(data['view'][k].end_time * 1000).format('YYYY-MM-DD hh:mm:ss')
             }
