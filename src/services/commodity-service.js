@@ -874,7 +874,7 @@ export default class CommodityService {
    * @param {*} trackObj [{"orderId":"","orderSn":"200310ERCFQE5NUT","channel_id":"","trackingNo":"9999595959595"}]
    */
   async saveLogisticsInfo(sysMallId, mallId, trackObj) {
-    return await this.nativeService.callOrderAndMallUpload('SaveLogisticsInfo', sysMallId, mallId, JSON.stringify(trackObj))
+    return await this.nativeService.callOrderAndMallUpload('SaveLogisticsInfo', sysMallId.toString(), mallId.toString(), JSON.stringify(trackObj))
   }
   /**
    * @name : 上报平台订单信息
@@ -902,5 +902,11 @@ export default class CommodityService {
    */
   async getSkuRelation(sysOrderIds) {
     return await this.nativeService.callSkuRelationClient('GetBySysOrderIds', sysOrderIds)
+  }
+  /**
+   * 保存产品中心列表数据
+   */
+  saveProduct(data) {
+    return this.nativeService.callProductCenter('SaveProduct', JSON.stringify(data))
   }
 }

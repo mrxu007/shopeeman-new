@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-11-09 10:14:02
- * @LastEditTime: 2021-12-31 17:15:55
+ * @LastEditTime: 2022-01-15 10:41:50
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shopeeman-new\src\components\buyer-account.vue
@@ -353,7 +353,7 @@ export default {
       }
     },
     //同步物流单号
-    async syncLogistics() {
+    async syncLogistics(isLog) {
       const service = new LogisticeSyncService(this.$parent.$refs.Logs.writeLog)
       if (!this.buyerAccountList.length) {
         this.$refs.Logs.writeLog(`没有买手号，请登录买手号`, false)
@@ -363,12 +363,12 @@ export default {
         if (!this.$parent.multipleSelection.length) {
           return this.$message.warning('请先选择订单数据！')
         }
-        this.$parent.showConsole = false //打开日志
+        this.$parent.showConsole = isLog ?isLog: false //打开日志
         this.$parent.$refs.Logs.consoleMsg = ''
         this.$parent.$refs.Logs.writeLog(`获取采购物流轨迹开始`, true)
         service.start(this, this.buyerAccountList, this.$parent.multipleSelection)
       } else {
-        this.$parent.showConsole = false //打开日志
+        this.$parent.showConsole = isLog ?isLog: false //打开日志
         this.$parent.$refs.Logs.consoleMsg = ''
         this.$parent.$refs.Logs.writeLog(`获取采购物流轨迹开始`, true)
         service.start(this, this.buyerAccountList)
@@ -756,7 +756,7 @@ export default {
         if (data.code === 200) {
           this.updataBuyInfoWeb(params)
           // this.buyerAccount()
-          //  this.syncLogistics(account)
+          this.syncLogistics(true)
         } else {
           this.$message.warning("账户上传失败,请联系客服人员!")
         }
@@ -768,11 +768,14 @@ export default {
     // 更新买手号列表(前端本地)
     updataBuyInfoWeb(params){
       let index = this.buyerAccountList.findIndex(n=>n.type==params.type && n.name == params.name)
+      console.log(params,index)
       if(index>-1){
         this.buyerAccountList[index].login_info = JSON.parse(params.loginInfo)
+        this.buyerAccountList[index].cache_path = params.cachePath
       }else{
         this.buyerAccount()
       }
+      console.log(this.buyerAccountList[index])
     },
     // 更新买手号列表(获取买手号列表)
     async buyerAccount(i) {
@@ -792,6 +795,7 @@ export default {
           this.$message.success('账户信息已更新')
         }
       }
+      this.syncLogistics(true)
       console.log(this.buyerAccountList)
     },
     // 默认选中第一个账户信息

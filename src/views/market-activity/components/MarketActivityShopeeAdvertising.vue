@@ -87,8 +87,16 @@
               <el-checkbox v-model="showConsole" class="mar-left">隐藏日志</el-checkbox>
             </div>
             <div class="select-row">
-              <el-button type="primary" size="mini" @click="createType = 'single';createAdventVisible = true">创建单个商品关键字广告</el-button>
-              <el-button type="primary" size="mini" @click="createType = 'batch';createAdventVisible = true">创建批量商品关键字广告</el-button>
+              <el-button type="primary" size="mini" @click="createSingleKeyword">创建单个商品关键字广告</el-button>
+              <el-button
+                type="primary"
+                size="mini"
+                @click="
+                  createType = 'batch'
+                  createAdventVisible = true
+                "
+                >创建批量商品关键字广告</el-button
+              >
               <el-button type="primary" size="mini">创建关联广告</el-button>
               <el-button type="primary" size="mini">停止创建广告</el-button>
               <el-button type="primary" size="mini" plain>暂停广告活动</el-button>
@@ -233,15 +241,36 @@
           </p>
         </div>
         <el-button size="mini" type="primary">添加商品</el-button>
-        <el-table :data="createChooseGoods" style="width: 100%; margin: 10px 0" border height="200px" v-if="createChooseGoods.length">
+        <el-table
+          :data="createChooseGoods"
+          style="width: 100%; margin: 10px 0"
+          max-height="200px"
+          v-if="createChooseGoods.length"
+          :row-style="{
+            background: '#a9a9a9',
+          }"
+        >
           <el-table-column align="center" type="index" label="" width="20" />
-          <el-table-column label="店铺名称" prop="id" width="120">
+          <el-table-column label="店铺名称" prop="id" width="180">
             <template slot-scope="{ row }"> {{ row.country }}-{{ row.mall_alias_name || row.platform_mall_name }} </template>
           </el-table-column>
-          <el-table-column label="商品id" prop="balance"> </el-table-column>
-          <el-table-column label="商品图片" prop="impression" width="80"> </el-table-column>
-          <el-table-column label="价格" prop="impression"> </el-table-column>
-          <el-table-column label="已选商品数量" prop="impression"> </el-table-column>
+          <el-table-column label="商品id" prop="itemid"> </el-table-column>
+          <el-table-column label="商品图片" prop="impression" width="80">
+            <template slot-scope="scope">
+              <el-tooltip effect="light" placement="right-end" :visible-arrow="false" :enterable="false" style="width: 32px; height: 32px; display: inline-block">
+                <div slot="content">
+                  <el-image :src="[scope.row.image] | imageRender" style="width: 400px; height: 400px" />
+                </div>
+                <el-image v-bind:src="[scope.row.image, true] | imageRender" style="width: 32px; height: 32px"></el-image>
+              </el-tooltip>
+            </template>
+          </el-table-column>
+          <el-table-column label="价格" prop="price"> </el-table-column>
+          <el-table-column label="已选商品数量">
+            <template slot-scope="scope">
+              <span>{{ createChooseGoods.length }}</span>
+            </template>
+          </el-table-column>
           <el-table-column label="操作" prop="impression"> </el-table-column>
         </el-table>
         <div class="base-box mar-top">
@@ -250,6 +279,21 @@
             <el-radio v-model="budgetSingle" label="1">无限制</el-radio><br />
             <p v-if="budgetSingle == '1'" style="margin: 5px 0">根据您目前的广告预算余额，您的广告最多可获得0个点击数。</p>
             <el-radio v-model="budgetSingle" label="2">设定预算</el-radio>
+            <div v-if="budgetSingle == '2'" class="item-box mar-top">
+              <el-select v-model="budgetType" placeholder="请选择" style="width: 120px" size="mini">
+                <el-option label="每日预算" value="day"> </el-option>
+                <el-option label="总预算" value="total"> </el-option>
+              </el-select>
+              <el-input v-model="budget" size="mini" class="mar-left" style="width: 160px"
+                ><template slot="prepend">{{ country | siteCoin }}</template></el-input
+              >
+            </div>
+            <p v-if="budgetSingle === '2' && budgetType === 'day' && (!budget || budget < 20)" class="activeColor mar-top">预算必须大于20</p>
+            <p v-if="budgetType === 'total' && (!budget || budget < 100)" class="activeColor mar-top">预算必须大于100</p>
+            <p v-if="budget" class="mar-top">
+              根据您目前的广告预算余额，您的广告最多壳获得<span class="activeColor">{{ budget }}</span
+              >个点击数
+            </p>
           </div>
         </div>
         <div class="base-box mar-top">
@@ -257,31 +301,143 @@
           <div class="base-item">
             <el-radio v-model="timeSingle" label="1">不限时</el-radio><br />
             <el-radio v-model="timeSingle" label="2">设定开始日期/结束日期</el-radio>
+            <div v-if="timeSingle == '2'" class="item-box mar-top">
+              <el-date-picker
+                v-model="timeRange"
+                size="mini"
+                value-format="yyyy-MM-dd"
+                type="daterange"
+                style="width: 300px"
+                range-separator="-"
+                start-placeholder="开始日期"
+                end-placeholder="结束日期"
+                :picker-options="pickerOptions"
+              />
+            </div>
           </div>
         </div>
-        <!-- v-if="createType === 'single' && createChooseGoods.length == 1" -->
-        <div class="base-box mar-top" >
+        <!-- v-if="createType === 'single'-->
+        <div class="base-box mar-top" v-if="createType === 'single'">
           <span class="base-title">关键字</span>
           <div class="base-item">
-            <el-checkbox v-model="autoKeyword" >自动选择</el-checkbox><br />
-            <el-checkbox v-model="handleKeyword" >手动选择</el-checkbox>
+            <el-checkbox v-model="autoKeyword">自动选择</el-checkbox><br />
+            <el-checkbox v-model="handleKeyword" @change="handleChangeKeyType">手动选择</el-checkbox>
+            <div v-if="handleKeyword" class="mar-top">
+              <div class="item-box">
+                <el-button size="mini" type="primary" @click="batchChangeKeyPrice">批量修改出价</el-button>
+                <el-button size="mini" type="primary">批量编辑匹配类型</el-button>
+                <el-button size="mini" type="primary">批量删除</el-button>
+              </div>
+              <el-table :data="keyWordList" style="width: 100%; margin: 10px 0" max-height="360px" @selection-change="handleSelectionChangeKey" v-loading="keyListLoading">
+                <el-table-column align="center" type="index" label="序号" width="40" />
+                <el-table-column align="center" type="selection" width="50" fixed="left" />
+                <el-table-column label="关键字" prop="keyword" width="120" show-overflow-tooltip />
+                <el-table-column label="品质分数" prop="relevance"> </el-table-column>
+                <el-table-column label="搜索量" prop="search_volume"> </el-table-column>
+                <el-table-column label="匹配类型" prop="impression" width="140">
+                  <template slot-scope="scope">
+                    <el-select v-model="scope.row.algorithm" style="width: 120px" size="mini">
+                      <el-option label="广泛匹配" value="kwrcmdv2"> </el-option>
+                      <el-option label="精准匹配" value="kwrcmdv1"> </el-option>
+                    </el-select>
+                  </template>
+                </el-table-column>
+                <el-table-column label="推荐出价" prop="recommend_price" width="80">
+                  <template slot-scope="scope">
+                    <span style="color: green">{{ country | siteCoin }}{{ Number(scope.row.recommend_price).toFixed(2) }}</span>
+                  </template>
+                </el-table-column>
+                <el-table-column label="点击出价" width="160">
+                  <template slot-scope="scope">
+                    <el-input v-model="scope.row.selfPrice" placeholder="请输入内容" size="mini" class="mar-left" style="width: 140px">
+                      <template slot="prepend">{{ country | siteCoin }}</template>
+                    </el-input>
+                  </template>
+                </el-table-column>
+                <el-table-column label="操作">
+                  <template slot-scope="scope">
+                    <el-button size="mini" type="primary">删 除</el-button>
+                  </template>
+                </el-table-column>
+              </el-table>
+            </div>
           </div>
         </div>
         <div class="footer-btn">
           <el-button size="mini" type="primary">确认发布</el-button>
-          <el-button size="mini" type="primary">取消发布</el-button>
+          <el-button size="mini" type="primary" @click="createAdventVisible = false">取消发布</el-button>
         </div>
       </div>
+    </el-dialog>
+    <el-dialog :visible.sync="goodsItemSelectorVisible" top="7vh" title="商品选择" :close-on-click-modal="false" :close-on-press-escape="false" width="1280px">
+      <goodsItemSelector v-if="goodsItemSelectorVisible" :mall="selectMallList" @changeGoodsItem="changeGoodsItem" />
+    </el-dialog>
+    <el-dialog :visible.sync="keyPriceVisible" title="批量修改出价" :close-on-click-modal="false" :close-on-press-escape="false" width="500px" @close="closeKeyPrice">
+      <div class="keyPrice-style">
+        <div class="item">
+          <el-radio v-model="keyPriceRadio" label="1">按金额增加/减少出价</el-radio>
+          <div class="item-item">
+            <el-select v-model="calcType" style="width: 100px" size="mini">
+              <el-option label="增加" value="add"> </el-option>
+              <el-option label="减少" value="sub"> </el-option>
+            </el-select>
+            <el-input v-model="keyPrice1" size="mini" class="mar-left" style="width: 140px">
+              <template slot="prepend">{{ country | siteCoin }}</template>
+            </el-input>
+          </div>
+        </div>
+        <div class="item">
+          <el-radio v-model="keyPriceRadio" label="2">按百分比增加/减少出价</el-radio>
+          <div>
+            <el-select v-model="calcType" style="width: 100px" size="mini">
+              <el-option label="增加" value="add"> </el-option>
+              <el-option label="减少" value="sub"> </el-option>
+            </el-select>
+            <el-input v-model="keyPrice2" size="mini" class="mar-left" style="width: 140px">
+              <template slot="prepend">%</template>
+            </el-input>
+          </div>
+        </div>
+        <div class="item">
+          <el-radio v-model="keyPriceRadio" label="3">设定出价为</el-radio>
+          <div>
+            <el-input v-model="keyPrice3" size="mini" class="mar-left" style="width: 140px">
+              <template slot="prepend">{{ country | siteCoin }}</template>
+            </el-input>
+          </div>
+        </div>
+        <div class="item">
+          <el-radio v-model="keyPriceRadio" label="4">设定出价为推荐价格</el-radio>
+        </div>
+      </div>
+      <span slot="footer" class="dialog-footer">
+        <el-button size="mini" @click="keyPriceVisible = false">取 消</el-button>
+        <el-button size="mini" type="primary" @click="setKeyPrice">确 定</el-button>
+      </span>
+    </el-dialog>
+    <el-dialog :visible.sync="keyTypeVisible" title="批量修改出价" :close-on-click-modal="false" :close-on-press-escape="false" width="500px" @close="closeKeyPrice">
+      <div class="keyPrice-style">
+        <el-radio v-model="keyType" label="kwrcmdv2">广泛匹配</el-radio><br />
+        <p style="color: #a9a9a9">只要搜寻包含此关键字，或与之有关的内容，您投放的广告就有机会出现</p>
+        <el-radio v-model="keyType" label="kwrcmdv1">精准匹配</el-radio>
+        <p style="color: #a9a9a9">只有搜寻此关键字时，您投放的广告才会出现</p>
+      </div>
+      <span slot="footer" class="dialog-footer">
+        <el-button size="mini" @click="keyTypeVisible = false">取 消</el-button>
+        <el-button size="mini" type="primary" @click="setKeyType">确 定</el-button>
+      </span>
     </el-dialog>
   </div>
 </template>
 
 <script>
 import storeChoose from '../../../components/store-choose'
+import goodsItemSelector from '../../../components/goods-item-selector'
 import { batchOperation, delay, terminateThread, exportExcelDataCommon, creatDate } from '@/util/util'
 export default {
   components: {
     storeChoose,
+    goodsItemSelector,
   },
   data() {
     return {
@@ -353,12 +509,132 @@ export default {
       timeSingle: '1', //每个广告的时长
       autoKeyword: false,
       handleKeyword: false,
+      selectGoods: [],
+      goodsItemSelectorVisible: false,
+      budgetType: 'day', //预算类型
+      budget: '', //预算
+      timeRange: [], //广告时间
+      keyWordList: [],
+      multipleSelectionKey: [],
+      keyPriceRadio: '1', //关键字出价
+      calcType: 'add',
+      keyPrice1: '',
+      keyPrice2: '',
+      keyPrice3: '',
+      keyPriceVisible: false,
+      keyListLoading: false,
+      keyTypeVisible: false,
+      keyType:''
     }
   },
   mounted() {
     this.statisticalTime = creatDate(1)
+    let startTime = this.$dayjs(new Date().getTime()).format('YYYY-MM-DD')
+    let endTime = this.$dayjs(new Date().getTime() + 16 * 24 * 60 * 60 * 1000).format('YYYY-MM-DD')
+    this.timeRange = [startTime, endTime]
+    console.log(this.timeRange, 'this.timeRange')
   },
   methods: {
+    closeKeyPrice() {
+      this.keyPriceRadio = '1' //关键字出价
+      this.calcType = 'add'
+      this.keyPrice1 = ''
+      this.keyPrice2 = ''
+      this.keyPrice3 = ''
+    },
+    //批量修改出价
+    batchChangeKeyPrice() {
+      if (!this.multipleSelectionKey.length) {
+        return this.$message.warning('请先勾选数据!')
+      }
+      this.keyPriceVisible = true
+    },
+    //保存修改出价
+    setKeyPrice() {
+      this.multipleSelectionKey.forEach((item) => {
+        let selfPrice = 0
+        if (this.keyPriceRadio === '1') {
+          selfPrice = this.calcType === 'add' ? item.recommend_price + this.keyPrice1 : item.recommend_price - this.keyPrice1
+        } else if (this.keyPriceRadio === '2') {
+          selfPrice = this.calcType === 'add' ? item.recommend_price + (this.keyPrice2 / 100) * item.recommend_price : item.recommend_price - (this.keyPrice2 / 100) * item.recommend_price
+        } else if (this.keyPriceRadio === '3') {
+          selfPrice = this.keyPrice3
+        } else if (this.keyPriceRadio === '4') {
+          selfPrice = item.recommend_price
+        }
+        let index = this.keyWordList.findIndex((m) => m.keyword === item.keyword)
+        if (index > -1) {
+          this.$set(this.keyWordList[index], 'selfPrice', Number(selfPrice).toFixed(2))
+        }
+      })
+      this.keyPriceVisible = false
+    },
+    //保存匹配类型
+    setKeyType(){
+      this.multipleSelectionKey.forEach(item=>{
+        let index = this.keyWordList.findIndex((m) => m.keyword === item.keyword)
+        if (index > -1) {
+          this.$set(this.keyWordList[index], 'algorithm', this.keyType)
+        }
+      })
+      this.keyTypeVisible = false
+    },
+    handleChangeKeyType() {
+      console.log('handleKeyword', this.handleKeyword)
+      if (this.handleKeyword) {
+        this.getKeyWordList()
+      }
+    },
+    async getKeyWordList() {
+      let params = {
+        itemid: this.createChooseGoods[0].itemid,
+        keyword: '',
+        count: 30,
+        placement: 0,
+        mallId: this.selectGoods[0].platform_mall_id,
+      }
+      this.keyListLoading = true
+      let res = await this.$shopeemanService.getAdventKeyWordList(this.country, params)
+      this.keyListLoading = false
+      if (res.code === 200) {
+        res.data.forEach((item) => {
+          item['selfPrice'] = Number(item.recommend_price).toFixed(2)
+        })
+        this.keyWordList = res.data
+      } else if (res.code === 403) {
+        return this.$message.error('获取广告关键字失败，店铺未登录')
+      } else {
+        return this.$message.error('获取广告关键字失败!')
+      }
+    },
+    //选择商品
+    changeGoodsItem(val) {
+      this.selectGoods = val.goodsList
+      this.goodsItemSelectorVisible = false
+      if (this.createType == 'single') {
+        this.createAdventVisible = true
+        this.createChooseGoods = val.goodsList.length ? [val.goodsList[0]] : []
+        this.createChooseGoods.forEach((item) => {
+          item.image = item.images.split(',')[0]
+        })
+        //获取广告关键字
+        // this.getKeyWordList()
+        console.log(this.createChooseGoods, 'this.createChooseGoods')
+      }
+    },
+    //创建单个商品关键字广告
+    async createSingleKeyword() {
+      if (!this.selectMallList.length) {
+        return this.$message.warning('请选择店铺！')
+      }
+      if (this.selectMallList.length !== 1) {
+        return this.$alert('创建单个商品广告活动只支持单个店铺创建，请重新选择！', '提示', {
+          confirmButtonText: '确定',
+        })
+      }
+      this.createType = 'single'
+      this.goodsItemSelectorVisible = true
+    },
     //导出数据
     async exportData() {
       if (!this.tableData.length) {
@@ -566,6 +842,9 @@ export default {
     handleSelectionChange(val) {
       this.multipleSelection = val
     },
+    handleSelectionChangeKey(val) {
+      this.multipleSelectionKey = val
+    },
     changeMallList(val) {
       this.selectMallList = val
       this.country = val.country
@@ -652,6 +931,9 @@ export default {
         text-align: right;
       }
     }
+    .activeColor {
+      color: red;
+    }
   }
 }
 .create-style {
@@ -663,6 +945,18 @@ export default {
   }
   .footer-btn {
     margin-top: 10px;
+  }
+}
+.keyPrice-style {
+  .item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 5px 0;
+    .item-item {
+      display: flex;
+      align-items: center;
+    }
   }
 }
 </style>
