@@ -687,7 +687,7 @@ export async function dealwithOriginGoodsNum(oriGoodsId, oriPlatformId, shopMall
     // 获取shopee平台商品详情
     const shopeeGoods = await instance.$shopeemanService.searchProductDetail(country, params)
     if (shopeeGoods.code === 200 && shopeeGoods.data) {
-      const logistics_channels = dealwithLogisi(shopGoodsId, shopMallId, country)
+      const logistics_channels = await dealwithLogisi(shopGoodsId, shopMallId, country)
       if (!logistics_channels.length) {
         return writeLog(`${orderSn ? `订单【${orderSn}】` : `商品【${shopGoodsId}】`}同步上家失败，未获取到物流信息！`, false)
       }
@@ -804,7 +804,7 @@ export async function dealwithOriginGoodsNum(oriGoodsId, oriPlatformId, shopMall
           enable_model_level_dts: shopeeGoodsInfo.enable_model_level_dts,
           price: shopeeGoodsInfo.price,
           stock: totalStock, // 总库存
-          logistics_channels: shopeeGoodsInfo.logistics_channels || [],
+          logistics_channels: logistics_channels || [],
           ds_cat_rcmd_id: '',
           category_recommend: shopeeGoodsInfo.category_recommend,
           ds_attr_rcmd_id: shopeeGoodsInfo.ds_attr_rcmd_id || '',
@@ -815,9 +815,9 @@ export async function dealwithOriginGoodsNum(oriGoodsId, oriPlatformId, shopMall
         }
         const editRes = await instance.$shopeemanService.handleProductEdit(country, data, [editParams])
         if (editRes.code === 200) {
-          return writeLog(`同步库存失败，${orderSn ? `订单【${orderSn}】` : `商品【${shopGoodsId}】`}同步库存成功！`, true)
+          return writeLog(`同步库存成功，${orderSn ? `订单【${orderSn}】` : `商品【${shopGoodsId}】`}同步库存成功！`, true)
         } else {
-          return writeLog(`同步库存失败，${orderSn ? `订单【${orderSn}】` : `商品【${shopGoodsId}】`}同步库存失败，${editRes.data}！`, false)
+          return writeLog(`同步库存失败，${orderSn ? `订单【${orderSn}】` : `商品【${shopGoodsId}】`}同步库存失败，${instance.$filters.errorMsg(editRes.data)}！`, false)
         }
       }
     } else {
@@ -862,7 +862,7 @@ export async function getLogisticsInfo(logisticsJarray, isUseProductChannel, mal
     }
     console.log(idDatas, 'idDatas')
     // 过滤无效物流
-    logisticsJarray = filterLogistics(logisticsJarray, idDatas, isUseProductChannel)
+    logisticsJarray = await filterLogistics(logisticsJarray, idDatas, isUseProductChannel)
     console.log(logisticsJarray, 'logisticsJarray222')
   }
   for (let i = 0; i < logisticsJarray.length; i++) {
