@@ -151,6 +151,7 @@ export default {
   deleteUserSku: (data) => AppRequest.post('/userStock/deleteSkus', data), // 删除sku
   getMoney: (data) => AppRequest.get('/warehouseAbnormalPayment/getMoney', { params: data }), // 仓库工作台：获取赔付金额
   applyCompensation: (data) => AppRequest.post('/warehouseAbnormalPayment/apply', data), // 仓库工作台：申请赔付
+  updateForecaster: (data) => AppRequest.post('/warehouse/stockingForecast/editForecaster', data), // 海外仓商品备货: 修改预报人
 
   // 订单管理
   shotAmountRecord: (data) => AppRequest.get('/shotAmountRecord/index', data), // 采购价变更记录
@@ -210,7 +211,7 @@ export default {
   outOfStockAbroad: (data) => AppRequest.post('/warehouse/outOfStock', data), // 海外仓出库
   getLogisticsInformationBatch: (data) => AppRequest.post('/getLogisticsInformationBatch', data), // 获取面单信息
   getAsyncExportOrder: (data) => AppRequest.get('/getAsyncExportOrder', { params: data }), // 获取导出报表信息
-  applyAsyncExportOrder: (data) => AppRequest.post('/applyAsyncExportOrder', { params: data }), // 点击导出报表信息
+  applyAsyncExportOrder: (data) => AppRequest.post('/applyAsyncExportOrder', data), // 点击导出报表信息
   saveUserConfig: (data) => AppRequest.post('/user/saveUserConfig', data), // 保存回复评论设置
   cancelSecondSale: (data) => AppRequest.post('/overseasTansferPackage/cancelSecondSale', data), // 取消二次销售数据
   uploadSecondSale: (data) => AppRequest.post('/overseasTansferPackage/uploadSecondSale', data), // 二次销售出库上报

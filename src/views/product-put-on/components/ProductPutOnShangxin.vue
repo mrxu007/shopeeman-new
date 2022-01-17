@@ -69,7 +69,8 @@
           </div>
           <div class="basisInstall-box">
             <div>图片上传线程数量：
-              <el-input size="mini" v-model="storeConfig.pictureThread" style="width: 60px;"  @change="changeStockUpNumber(storeConfig.pictureThread,4)"></el-input>
+              <el-input size="mini" v-model="storeConfig.pictureThread" style="width: 60px;"
+                        @change="changeStockUpNumber(storeConfig.pictureThread,4)"></el-input>
               <el-tooltip class="item" effect="dark" content="0<线程数量<6，建议数量为3" placement="top">
                 <el-button size="mini" type="text"><i class="el-icon-question" style="padding: 0 2px;"></i></el-button>
               </el-tooltip>
@@ -136,7 +137,7 @@
               </el-radio>
               <el-radio :disabled="isBanPerform" v-model="basicConfig.valuationMethodsRadio" :label="1">以零售价为准
               </el-radio>
-              <el-button :disabled="isBanPerform" size="mini" type="primary" @click="">计价配置</el-button>
+              <el-button :disabled="isBanPerform" size="mini" type="primary" @click="valuationInit">计价配置</el-button>
             </div>
           </div>
           <div v-if="basicConfig.valuationRadio === 3">
@@ -382,7 +383,7 @@
       <div class="nowrapBox">
         <el-button size="mini" type="primary" @click="startRelease" :disabled="isBanPerform">开始发布</el-button>
         <el-button size="mini" type="primary" :disabled="isBanPerform">导入数据</el-button>
-        <el-button size="mini">取消发布</el-button>
+        <el-button size="mini" @click="cancelRelease">取消发布</el-button>
         <el-button size="mini" type="primary" :disabled="isBanPerform">清理全部</el-button>
         <el-button size="mini" type="primary" :disabled="isBanPerform">设置定时任务</el-button>
         <el-button size="mini" type="primary" @click="enterCategory(2,1)" :disabled="isBanPerform">批量映射虾皮类目
@@ -456,7 +457,7 @@
         </template>
       </u-table-column>
       <u-table-column align="left" label="店铺" width="120">
-        <template slot-scope="{ row }">{{row.mallName || '' }}
+        <template slot-scope="{ row }">{{ row.mallName || '' }}
         </template>
       </u-table-column>
       <u-table-column align="left" label="状态" min-width="80">
@@ -477,7 +478,7 @@
       <u-table-column align="left" label="价格" prop="price" width="80"/>
       <u-table-column align="left" label="上新价格(RMB)" prop="CalAfterPriceRMB" width="110">
         <template slot-scope="{ row }">
-            {{ getValuationPrice(row.price) }}
+          {{ getValuationPrice(row.price, row) }}
         </template>
       </u-table-column>
       <u-table-column align="left" label="上新价格" prop="CalAfterPrice" width="80"/>
@@ -711,6 +712,232 @@
         <categoryMapping v-if="categoryVisible" :country="country" :goods-current="goodsCurrent" :mall-list="mallList"
                          @categoryChange="categoryChange"/>
       </el-dialog>
+      <el-dialog title="计价助手" width="900px" top="15vh" :close-on-click-modal="false" :visible.sync="valuationVisible">
+        <div class="basisInstall" style="width: 100%">
+          <div class="basisInstall-title">配置区<span style="color: red">(必填)</span></div>
+          <div class="basisInstall-box" style="flex-wrap: nowrap;">
+            <div>标签：</div>
+            <el-select value="" size="mini" v-model="valuationLabel">
+              <el-option value="" v-for="(item,index) in valuationLabelList" :key="index">item</el-option>
+            </el-select>
+            <el-tooltip class="item" effect="dark" content="可设置常用的标签，保存区域运费比例数据" placement="top">
+              <el-button size="mini" type="text"><i class="el-icon-question" style="padding: 0 2px;"></i></el-button>
+            </el-tooltip>
+          </div>
+          <div class="basisInstall-box" style="flex-wrap: nowrap">
+            <div class="basisInstall-box-item">
+              <div class="item-name">运送方式：</div>
+              <el-select value="" size="mini" v-model="valuationConfig.shippingMethod">
+                <el-option v-for="(item,index) in shippingMethodList" :key="index" :label="item.label"
+                           :value="item.value"/>
+              </el-select>
+              <el-tooltip class="item" effect="dark" content="小件计重商品一般选择空运方式；大件商品视您实际情况选择陆运或海运方式" placement="top">
+                <el-button size="mini" type="text"><i class="el-icon-question" style="padding: 0 2px;"></i></el-button>
+              </el-tooltip>
+            </div>
+            <div class="basisInstall-box-item">
+              <div class="item-name">货物类型：</div>
+              <el-select value="" size="mini" v-model="valuationConfig.goodsType">
+                <el-option value="" v-for="(item,index) in goodsTypeList" :key="index" :label="item.label"
+                           :value="item.value"/>
+              </el-select>
+            </div>
+            <div class="basisInstall-box-item">
+              <div class="item-name">交易手续费(%)：</div>
+              <el-input size="mini" v-model="valuationConfig.transactionCommission"></el-input>
+            </div>
+            <div class="basisInstall-box-item">
+              <div class="item-name">仓库服务费(%)：</div>
+              <el-input size="mini" v-model="valuationConfig.warehouseServiceCharge"></el-input>
+            </div>
+          </div>
+          <div class="basisInstall-box" style="flex-wrap: nowrap;margin: 10px 0">
+            <div class="basisInstall-box-item">
+              <div class="item-name">折扣率(%)：</div>
+              <el-input size="mini" v-model="valuationConfig.discount"></el-input>
+              <el-tooltip class="item" effect="dark" content="折扣率：折扣需在行销活动中自行设置商品折扣" placement="top">
+                <el-button size="mini" type="text"><i class="el-icon-question" style="padding: 0 2px;"></i></el-button>
+              </el-tooltip>
+            </div>
+            <div class="basisInstall-box-item">
+              <div class="item-name">毛利率(%)：</div>
+              <el-input size="mini" v-model="valuationConfig.grossProfitMargin"></el-input>
+            </div>
+            <div class="basisInstall-box-item">
+              <div class="item-name">提现手续费(%)：</div>
+              <el-input size="mini" v-model="valuationConfig.withdrawalCharge"></el-input>
+            </div>
+            <div class="basisInstall-box-item">
+              <div class="item-name">清关费：</div>
+              <el-input size="mini" v-model="valuationConfig.customsClearanceFee"></el-input>
+            </div>
+          </div>
+          <div class="basisInstall-box" style="flex-wrap: nowrap">
+            <div class="basisInstall-box-item" style="padding-right: 18px">
+              <div class="item-name">其他杂费：</div>
+              <el-input size="mini" v-model="valuationConfig.other"></el-input>
+            </div>
+            <div class="basisInstall-box-item">
+              <div class="item-name">泡重计算比：</div>
+              <el-input @input="$set(calculateReference,'bubbleHeavyNum', valuationConfig.bubbleHeavy)"
+                        size="mini" v-model="valuationConfig.bubbleHeavy"></el-input>
+              <el-tooltip class="item" effect="dark" content="泡重计算比：泡重计算公式为：长*宽*高/泡重计算比，请填写相应货代的计算比" placement="top">
+                <el-button size="mini" type="text"><i class="el-icon-question" style="padding: 0 2px;"></i></el-button>
+              </el-tooltip>
+            </div>
+            <div class="basisInstall-box-item">
+              <el-button size="mini" @click="freightVisible =true" type="primary" plain>运费设置</el-button>
+            </div>
+            <div class="basisInstall-box-item">
+              <span style="display: inline-block;width: 100px;"></span>
+            </div>
+          </div>
+        </div>
+        <div class="basisInstall" style="width: 100%">
+          <div class="basisInstall-title">计算参考</div>
+          <div class="basisInstall-box" style="flex-wrap: nowrap;margin-bottom: 10px">
+            <div class="basisInstall-box-item">
+              <div class="item-name">长(CM)：</div>
+              <el-input size="mini" v-model="calculateReference.long"></el-input>
+              <el-tooltip class="item" effect="dark" content="填写此项仅为计算价格时使用，以选品时设置的体积为准" placement="top">
+                <el-button size="mini" type="text"><i class="el-icon-question" style="padding: 0 2px;"></i></el-button>
+              </el-tooltip>
+            </div>
+            <div class="basisInstall-box-item">
+              <div class="item-name">宽(CM)：</div>
+              <el-input size="mini" v-model="calculateReference.width"></el-input>
+              <el-tooltip class="item" effect="dark" content="填写此项仅为计算价格时使用，以选品时设置的体积为准" placement="top">
+                <el-button size="mini" type="text"><i class="el-icon-question" style="padding: 0 2px;"></i></el-button>
+              </el-tooltip>
+            </div>
+            <div class="basisInstall-box-item">
+              <div class="item-name">高(CM)：</div>
+              <el-input size="mini" v-model="calculateReference.height"></el-input>
+              <el-tooltip class="item" effect="dark" content="填写此项仅为计算价格时使用，以选品时设置的体积为准" placement="top">
+                <el-button size="mini" type="text"><i class="el-icon-question" style="padding: 0 2px;"></i></el-button>
+              </el-tooltip>
+            </div>
+            <div class="basisInstall-box-item">
+            </div>
+          </div>
+          <div class="basisInstall-box" style="flex-wrap: nowrap;">
+            <div class="basisInstall-box-item">
+              <div class="item-name">成本(RMB)：</div>
+              <el-input size="mini" v-model="calculateReference.costing"></el-input>
+              <el-tooltip class="item" effect="dark" content="填写此项仅为计算价格时使用，以选品时设置的体积为准" placement="top">
+                <el-button size="mini" type="text"><i class="el-icon-question" style="padding: 0 2px;"></i></el-button>
+              </el-tooltip>
+            </div>
+            <div class="basisInstall-box-item">
+              <div class="item-name">重量(g)：</div>
+              <el-input size="mini" v-model="calculateReference.weight"></el-input>
+              <el-tooltip class="item" effect="dark" content="填写此项仅为计算价格时使用，以选品时设置的体积为准" placement="top">
+                <el-button size="mini" type="text"><i class="el-icon-question" style="padding: 0 2px;"></i></el-button>
+              </el-tooltip>
+            </div>
+            <div class="basisInstall-box-item">
+              <div class="item-name">泡重(g)：</div>
+              <el-input style="pointer-events: none" size="mini" v-model="calculateReference.bubbleHeavy"></el-input>
+              <el-tooltip class="item" effect="dark" content="填写此项仅为计算价格时使用，以选品时设置的体积为准" placement="top">
+                <el-button size="mini" type="text"><i class="el-icon-question" style="padding: 0 2px;"></i></el-button>
+              </el-tooltip>
+            </div>
+            <div class="basisInstall-box-item">
+            </div>
+          </div>
+        </div>
+        <div style="display: flex;justify-content: center;">
+          <el-button size="mini" type="primary" style="margin: 0 25px;" @click="saveCalculate">确认</el-button>
+          <el-button size="mini" type="primary" style="margin: 0 25px;">保存标签</el-button>
+          <el-button size="mini" type="primary" style="margin: 0 25px;" @click="referenceCalculate">计算价格</el-button>
+        </div>
+        <div class="basisInstall" style="width: 100%">
+          <div class="basisInstall-title">计算参考</div>
+          <div class="basisInstall-box" style="flex-wrap: nowrap;">
+            <div class="basisInstall-box-item">
+              <div class="item-name">上新价({{RMBShow && 'RMB' || $filters.siteCoin(country)}})：</div>
+              <div class="item-input">{{RMBShow && calculateResults.results || Math.ceil(calculateResults.results / rateList[this.country])}}</div>
+              <el-tooltip class="item" effect="dark" content="标价=折后价/折扣率" placement="top">
+                <el-button size="mini" type="text"><i class="el-icon-question" style="padding: 0 2px;"></i></el-button>
+              </el-tooltip>
+            </div>
+            <div class="basisInstall-box-item">
+              <div class="item-name">折后价({{RMBShow && 'RMB' || $filters.siteCoin(country)}})：</div>
+              <div class="item-input">{{RMBShow && calculateResults.discount || Math.ceil(calculateResults.discount / rateList[this.country])}}</div>
+              <el-tooltip class="item" effect="dark" content="折后价=成本+运费+手续费+佣金+仓库服务费+利润+交店费/清关费+其它杂费" placement="top">
+                <el-button size="mini" type="text"><i class="el-icon-question" style="padding: 0 2px;"></i></el-button>
+              </el-tooltip>
+            </div>
+            <div class="basisInstall-box-item">
+            </div>
+            <div class="basisInstall-box-item">
+            </div>
+          </div>
+          <div class="basisInstall-box" style="flex-wrap: nowrap;margin: 10px 0;">
+            <div class="basisInstall-box-item">
+              <div class="item-name">运费({{RMBShow && 'RMB' || $filters.siteCoin(country)}})：</div>
+              <div class="item-input">{{RMBShow && calculateResults.freight || Math.ceil(calculateResults.freight / rateList[this.country])}}</div>
+              <el-tooltip class="item" effect="dark" content="运费=计费重*计费单价+仓库服务费+交店费/清关费" placement="top">
+                <el-button size="mini" type="text"><i class="el-icon-question" style="padding: 0 2px;"></i></el-button>
+              </el-tooltip>
+            </div>
+            <div class="basisInstall-box-item">
+              <div class="item-name">利润({{RMBShow && 'RMB' || $filters.siteCoin(country)}})：</div>
+              <div class="item-input">{{RMBShow && calculateResults.profits || Math.ceil(calculateResults.profits / rateList[this.country])}}</div>
+              <el-tooltip class="item" effect="dark" content="利润=折后价*毛利率" placement="top">
+                <el-button size="mini" type="text"><i class="el-icon-question" style="padding: 0 2px;"></i></el-button>
+              </el-tooltip>
+            </div>
+            <div class="basisInstall-box-item">
+            </div>
+            <div class="basisInstall-box-item">
+            </div>
+          </div>
+          <div class="basisInstall-box" style="flex-wrap: nowrap;">
+            <div class="basisInstall-box-item">
+              <div class="item-name">当前汇率：</div>
+              <el-input disabled style="pointer-events: none" size="mini" v-model="rateList[this.country]"></el-input>
+            </div>
+            <div class="basisInstall-box-item">
+              <el-button type="primary" size="mini" @click="RMBShow = !RMBShow">币种转换</el-button>
+            </div>
+            <div class="basisInstall-box-item">
+            </div>
+            <div class="basisInstall-box-item">
+            </div>
+          </div>
+        </div>
+      </el-dialog>
+      <el-dialog title="运费详情" width="540px" top="14vh" :close-on-click-modal="false" :visible.sync="freightVisible">
+        <div class="basisInstall" style="width: 100%">
+          <div class="basisInstall-box" style="flex-wrap: nowrap;padding:0 10px;">
+            <div class="basisInstall-box-item">
+              运输方式
+            </div>
+            <div class="basisInstall-box-item">
+              重量(g)
+            </div>
+            <div class="basisInstall-box-item">
+              价格(RMB)
+            </div>
+          </div>
+          <div v-for="(sItem,index) in shippingMethodList" :key="index">
+            <div class="basisInstall-box" v-for="(gItem,index) in goodsTypeList" :key="index"
+                 style="padding: 10px;margin: 0; color: #000"
+                 :style="'background:'+(index == 1 && '#F6ECCB' || index == 2 && '#FE4148')">
+              <div class="basisInstall-box-item">
+                {{ sItem.label + '-' + gItem.label }}
+              </div>
+              <div class="basisInstall-box-item">
+                每100g
+              </div>
+              <div class="basisInstall-box-item">
+                <el-input size="mini" v-model="freightList[sItem.value + '-' +gItem.value]"></el-input>
+              </div>
+            </div>
+          </div>
+        </div>
+      </el-dialog>
     </div>
   </el-row>
 </template>
@@ -719,8 +946,8 @@
 import storeChoose from '../../../components/store-choose'
 import categoryMapping from '../../../components/category-mapping'
 import goodsLabel from '../../../components/goods-label'
-import { getGoodsUrl, batchOperation, terminateThread ,getSectionRandom ,imageCompressionUpload} from '@/util/util'
-import  GUID  from '@/util/guid'
+import { getGoodsUrl, batchOperation, terminateThread, getSectionRandom, imageCompressionUpload } from '@/util/util'
+import GUID from '@/util/guid'
 
 export default {
   data() {
@@ -841,7 +1068,58 @@ export default {
         deleteCollectChecked: false, //删除收藏
         autoCompleteChecked: false //自动补齐轮播主图
       },
-      valuationConfig: {},  //计价配置 2
+      valuationVisible: false,
+      valuationLabel: '',
+      valuationConfig: {
+        shippingMethod: 'sea',
+        goodsType: 'general',
+        transactionCommission: '2',
+        warehouseServiceCharge: '3',
+        discount: '',
+        grossProfitMargin: '20',
+        withdrawalCharge: '3',
+        customsClearanceFee: '4.5',
+        other: '',
+        bubbleHeavy: ''
+      },  //计价配置 2
+      valuationSetting: {},
+      valuationLabelList: [],
+      shippingMethodList: [{ label: '海运', value: 'sea' }, { label: '陆运', value: 'land' }, {
+        label: '空运',
+        value: 'air'
+      }],
+      goodsTypeList: [{ label: '普货', value: 'general' }, { label: '敏感货', value: 'sensitive' }, {
+        label: '特货',
+        value: 'special'
+      }],
+      calculateReference: {
+        long: '',
+        width: '',
+        height: '',
+        weight: '10',
+        costing: '',
+        bubbleHeavy: '',
+        bubbleHeavyNum: ''
+      },
+      calculateResults: {
+        results: '',
+        discount: '',
+        freight: '',
+        profits: ''
+      },
+      freightVisible: false,
+      freightList: {
+        'sea-general': '1.8',
+        'sea-sensitive': '1.8',
+        'sea-special': '1.8',
+        'land-general': '1.8',
+        'land-sensitive': '1.8',
+        'land-special': '1.8',
+        'air-general': '1.8',
+        'air-sensitive': '1.8',
+        'air-special': '1.8'
+      },
+      exchangeRate: '',
       categoryMappingList: [
         {
           label: '个人类目映射',
@@ -902,8 +1180,11 @@ export default {
 
       //额外
       labelList: [],
-      isBanPerform: false //禁止按钮
+      isBanPerform: false, //禁止按钮
 
+      //rateList
+      RMBShow:true,
+      rateList:{},
     }
   },
   computed: {},
@@ -951,6 +1232,20 @@ export default {
       handler(val) {
       },
       deep: true
+    },
+    calculateReference:{
+      handler(data) {
+        let long = data.long || 0
+        let width = data.width || 0
+        let height = data.height || 0
+        let bubbleHeavy = data.bubbleHeavyNum || 0
+        let bulkWeightFormula = 0
+        if(bubbleHeavy){
+          bulkWeightFormula = ((long * width * height) / bubbleHeavy * 1000).toFixed(2) * 1
+        }
+        this.calculateReference.bubbleHeavy = bulkWeightFormula
+      },
+      deep: true
     }
   },
   async mounted() {
@@ -966,6 +1261,8 @@ export default {
       //   console.log(this.goodsTable)
       //   await this.$BaseUtilService.gotoUploadTab('updateId', '')
       // })
+      let info = await this.$appConfig.getUserInfo()
+      this.rateList = info.ExchangeRates || {}
       let goodsList = [{
         'category_id': 8483,
         'category_name': '牛仔裤',
@@ -1033,7 +1330,6 @@ export default {
       terminateThread()
     },
     async prepareWork(item, count = { count: 1 }) {
-      // logistics_channels
       try {
         this.updateAttributeName(item, '正在准备发布')
         let goodsInitParam = {
@@ -1053,7 +1349,7 @@ export default {
           input_promotion_price: null,
           id: 0,
           images: [],
-          tier_variation:[],
+          tier_variation: [],
           category_recommend: [],
           price_before_discount: '',
           wholesale_list: [],
@@ -1105,8 +1401,13 @@ export default {
           console.log('getSpuDetailByIdV2 - data', neededTranslateInfoData)
           let goodsParam = JSON.parse(JSON.stringify(goodsInitParam))
           let mallName = mall.mall_alias_name || mall.platform_mall_name
-          this.updateAttributeName(item, mallName,'mallName')
-          //parent_sku ds_cat_rcmd_id ds_attr_rcmd_id
+          this.updateAttributeName(item, mallName, 'mallName')
+          // weight
+          if (goodsParam['weight'] === '0') {
+            goodsParam['weight'] = getSectionRandom(this.basicConfig.minHeavy, this.basicConfig.maxHeavy, 2) + ''
+            neededTranslateInfoData['weight'] = goodsParam['weight']
+          }
+          // parent_sku ds_cat_rcmd_id ds_attr_rcmd_id
           let extrainfo = item.extra_info && JSON.parse(item.extra_info)
           let tmall_cross_border_user_id = extrainfo && extrainfo.tmall_cross_border_user_id || ''
           goodsParam['parent_sku'] = await this.$BaseUtilService.buildGoodCode(platformId, item.goods_id, this.country, mall.platform_mall_id, tmall_cross_border_user_id)
@@ -1141,10 +1442,12 @@ export default {
             name = mall.platform_mall_name + ' ' + name
           }
           goodsParam['name'] = name
-          if(this.storeConfig.wordsHeavy){
+          if (this.storeConfig.wordsHeavy) {
             let nameList = goodsParam['name'].split(' ')
             let setName = new Set()
-            nameList.forEach(i=>{setName.add(i)})
+            nameList.forEach(i => {
+              setName.add(i)
+            })
             goodsParam['name'] = [...setName].join('')
           }
           // images size_chart
@@ -1172,53 +1475,50 @@ export default {
             imagesList = [...newMain, ...imagesList]
           }
           goodsParam['images'] = imagesList
-          if (neededTranslateInfoData.sizeImages && neededTranslateInfoData.sizeImages[0]){
-            goodsParam['size_chart'] = neededTranslateInfoData.sizeImages[0].img || ""
+          if (neededTranslateInfoData.sizeImages && neededTranslateInfoData.sizeImages[0]) {
+            goodsParam['size_chart'] = neededTranslateInfoData.sizeImages[0].img || ''
           }
           // tier_variation model_list price
           let tier_variation = neededTranslateInfoData.tier_variation
-          if(tier_variation[tier_variation.spec1].length>0){
+          if (tier_variation[tier_variation.spec1].length > 0) {
             goodsParam['tier_variation'].push({
-              name:tier_variation.spec1,
-              options:tier_variation[tier_variation.spec1],
-              images:tier_variation.images,
+              name: tier_variation.spec1,
+              options: tier_variation[tier_variation.spec1],
+              images: tier_variation.images
             })
           }
-          if(tier_variation[tier_variation.spec2].length>0){
+          if (tier_variation[tier_variation.spec2].length > 0) {
             goodsParam['tier_variation'].push({
-              name:tier_variation.spec2,
-              options:tier_variation[tier_variation.spec2],
-              images:[],
+              name: tier_variation.spec2,
+              options: tier_variation[tier_variation.spec2],
+              images: []
             })
           }
           let itemmodelsJson = JSON.stringify(neededTranslateInfoData.itemmodels)
-          itemmodelsJson = itemmodelsJson.replaceAll(/"id":[0-9]*,/g,'"id":0,')
-          itemmodelsJson = itemmodelsJson.replaceAll(/"selection_id":[0-9]*,/g,'"name":"",')
-          itemmodelsJson = itemmodelsJson.replaceAll(/"skuId":"(((?!",).)*)",/g,'"is_default":false,')
-          itemmodelsJson = itemmodelsJson.replaceAll(/"sku_image":"(((?!",).)*)",/g,'"item_price":"",')
-          itemmodelsJson = itemmodelsJson.replaceAll(/"sku_sn":"(((?!",).)*)",/g,'"input_normal_price":null,')
-          itemmodelsJson = itemmodelsJson.replaceAll(/"sku_spec1":"(((?!",).)*)",/g,'"input_promotion_price":null,')
-          itemmodelsJson = itemmodelsJson.replaceAll(/"price":([0-9.]*),/g,'')
-          itemmodelsJson = itemmodelsJson.replaceAll(/"sku_spec2":"(((?!",).)*)",/g,'')
-          itemmodelsJson = itemmodelsJson.replaceAll(/"sku_price":[0-9.]*,/g,'')
-          itemmodelsJson = itemmodelsJson.replaceAll(/"sku_stock":[0-9.]*,/g,'')
+          itemmodelsJson = itemmodelsJson.replaceAll(/"id":[0-9]*,/g, '"id":0,')
+          itemmodelsJson = itemmodelsJson.replaceAll(/"selection_id":[0-9]*,/g, '"name":"",')
+          itemmodelsJson = itemmodelsJson.replaceAll(/"skuId":"(((?!",).)*)",/g, '"is_default":false,')
+          itemmodelsJson = itemmodelsJson.replaceAll(/"sku_image":"(((?!",).)*)",/g, '"item_price":"",')
+          itemmodelsJson = itemmodelsJson.replaceAll(/"sku_sn":"(((?!",).)*)",/g, '"input_normal_price":null,')
+          itemmodelsJson = itemmodelsJson.replaceAll(/"sku_spec1":"(((?!",).)*)",/g, '"input_promotion_price":null,')
+          itemmodelsJson = itemmodelsJson.replaceAll(/"sku_spec2":"(((?!",).)*)",/g, '')
+          itemmodelsJson = itemmodelsJson.replaceAll(/"sku_price":[0-9.]*,/g, '')
+          itemmodelsJson = itemmodelsJson.replaceAll(/"sku_stock":[0-9.]*,/g, '')
           console.log(itemmodelsJson)
           goodsParam['model_list'] = JSON.parse(itemmodelsJson)
-          goodsParam['price'] = this.getValuationPrice(neededTranslateInfoData.price)
-          console.log('goodsParam',goodsParam)
+          goodsParam['price'] = this.getValuationPrice(neededTranslateInfoData.price, neededTranslateInfoData)
+          console.log('goodsParam', goodsParam)
           this.updateAttributeName(item, '正在上传轮播图')
-          let imageMapping = await imageCompressionUpload(mall,goodsParam['images'],this,this.storeConfig.pictureThread)
+          let imageMapping = await imageCompressionUpload(mall, goodsParam['images'], this, this.storeConfig.pictureThread)
           this.updateAttributeName(item, '正在上传规格图')
-          let spec_imageMapping = await imageCompressionUpload(mall,neededTranslateInfoData.spec_image,this,this.storeConfig.pictureThread)
-          if( goodsParam['size_chart']){
+          let spec_imageMapping = await imageCompressionUpload(mall, neededTranslateInfoData.spec_image, this, this.storeConfig.pictureThread)
+          if (goodsParam['size_chart']) {
             this.updateAttributeName(item, '正在上传尺寸图')
-            let size_chartMapping = await imageCompressionUpload(mall,[goodsParam['size_chart']],this,this.storeConfig.pictureThread)
+            let size_chartMapping = await imageCompressionUpload(mall, [goodsParam['size_chart']], this, this.storeConfig.pictureThread)
+            goodsParam['size_chart'] = size_chartMapping[goodsParam['size_chart']]
           }
 
-          console.log('imageMapping',imageMapping,spec_imageMapping)
-          if (goodsParam['weight'] === '0'){
-            goodsParam['weight'] = getSectionRandom(this.basicConfig.minHeavy,this.basicConfig.maxHeavy,2) + ''
-          }
+          console.log('imageMapping', imageMapping, spec_imageMapping)
           this.updateAttributeName(item, '发布完成')
         }
       } catch (e) {
@@ -1229,32 +1529,83 @@ export default {
       }
     },
     //附加水印图
-    additionalWatermarking(url,mall){
+    additionalWatermarking(url, mall) {
       let setting = this.watermarkSetting
-      if(setting.type === 1){
+      if (setting.type === 1) {
 
-      }else if (setting.type === 2){
+      } else if (setting.type === 2) {
 
-      }else if (setting.type === 3){
+      } else if (setting.type === 3) {
 
       }
     },
-    getValuationPrice(price){
-      if (this.basicConfig.valuationRadio === 1){
+    getValuationPrice(price, data,setting = null) {
+      price = price * 1
+      if (this.basicConfig.valuationRadio === 1) {
         let addPrice = (price * this.basicConfig.formula.percentage / 100).toFixed(2)
         let newPrice = addPrice * 1 + this.basicConfig.formula.hidden * 1 + this.basicConfig.formula.basis * 1
-        newPrice = (1 * price + newPrice * this.basicConfig.discount / 100).toFixed(2)
-        if (this.basicConfig.valuationMethodsRadio){
-          newPrice = Math.floor(newPrice)
+        newPrice = (price + newPrice * this.basicConfig.discount / 100).toFixed(2)
+        if (this.basicConfig.valuationMethodsRadio) {
+          newPrice = Math.ceil(newPrice)
         }
         return newPrice
-      }else if (this.basicConfig.valuationRadio === 2){
+      } else if (this.basicConfig.valuationRadio === 2) {
+        setting = setting || this.valuationSetting
+        if (setting && setting.bubbleHeavy >= 0) {
+          console.log('getValuationPrice',data)
+          let long = data.long
+          let width = data.width
+          let height = data.height
+          let bulkWeightFormula = ((long * width * height) / setting.bubbleHeavy * 1000).toFixed(2) * 1
+          let itemWeight = data.weight > bulkWeightFormula && data.weight || bulkWeightFormula
+          itemWeight = Math.ceil(itemWeight / 100)
+          let singleShipFee = this.freightList[setting.shippingMethod + '-' + setting.goodsType] * 1
+          let packagingFee = setting.warehouseServiceCharge * 1
+          let shopFeeOrClearanceFee = setting.customsClearanceFee * 1
+          console.log('itemWeight', itemWeight)
+          let logisticsCosts = (itemWeight * singleShipFee + packagingFee + shopFeeOrClearanceFee).toFixed(2) * 1
+          let otherFee = setting.other && setting.other * 1 || 0
+          let transactionCommission = setting.transactionCommission || 0
+          let withdrawalCharge = setting.withdrawalCharge || 0
+          let grossProfitMargin = setting.grossProfitMargin || 0
+          let commissionMargin = (100 - transactionCommission * 1) / 100 .toFixed(2)
+          let withdrawalFee = (100 + withdrawalCharge * 1) / 100 .toFixed(2)
+          let profitMargin = (100 - grossProfitMargin * 1) / 100 .toFixed(2)
+          let priceCount = (price + logisticsCosts + otherFee)
+          let priceFormula = (priceCount/commissionMargin/profitMargin)*withdrawalFee.toFixed(2) * 1
+          let profits =  (priceFormula * (1 - profitMargin)).toFixed(2) * 1
+          if (this.valuationVisible){
+            this.calculateResults.profits =this.country.includes('MY') && profits || Math.ceil(profits)
+            this.calculateResults.discount = this.country.includes('MY') && priceFormula || Math.ceil(priceFormula)
+            this.calculateResults.freight = this.country.includes('MY') && logisticsCosts || Math.ceil(logisticsCosts)
+          }
+          let discount = (setting.discount / 100).toFixed(2)
+          let results = (priceFormula / discount).toFixed(2) * 1
+          results = this.country.includes('MY') && results || Math.ceil(results)
+          if (this.basicConfig.valuationMethodsRadio) {
+            results = Math.ceil(results)
+          }
+          return results
+        } else {
+          return 0
+        }
 
-      }else if (this.basicConfig.valuationRadio === 3){
+      } else if (this.basicConfig.valuationRadio === 3) {
         return this.basicConfig.fixedPrice
       }
     },
-    updateAttributeName(item, value,attributeName = 'statusName') {
+    saveCalculate(){
+      let setting = this.valuationConfig
+      let messages = ''
+      if (!setting.discount){
+        messages = '折扣率不能为空'
+      }else if (!setting.bubbleHeavy){
+        messages = '泡重计算比不能为空'
+      }
+      messages && this.$message.error(messages)
+      this.valuationSetting =!messages && JSON.parse(JSON.stringify(setting)) || ''
+    },
+    updateAttributeName(item, value, attributeName = 'statusName') {
       let index = this.goodsTable.findIndex(i => i.id === item.id)
       if (index >= 0) {
         this.$set(this.goodsTable[index], attributeName, value)
@@ -1285,7 +1636,7 @@ export default {
         data = data < 0 && 0 || data
         data = data > 10 && 10 || data
         this.associatedConfig.priceRange = data
-      } else if(type === 4){
+      } else if (type === 4) {
         data = data < 1 && 1 || data
         data = data > 5 && 5 || data
         this.storeConfig.pictureThread = data
@@ -1293,6 +1644,39 @@ export default {
     },
     async synchronousCategory() {
 
+    },
+    valuationInit() {
+      this.valuationConfig = Object.assign(this.valuationConfig, this.valuationSetting)
+      this.calculateReference = {
+        long: '',
+        width: '',
+        height: '',
+        weight: '10',
+        costing: '',
+        bubbleHeavy: ''
+      }
+      this.calculateResults = {
+        results: '',
+        discount: '',
+        freight: '',
+        profits: ''
+      }
+      this.valuationVisible = true
+    },
+    referenceCalculate(){
+      let setting = this.valuationConfig
+      let calculate = this.calculateReference
+      let messages = ''
+      if (!setting.discount){
+        messages = '折扣率不能为空'
+      }else if (!setting.bubbleHeavy){
+        messages = '泡重计算比不能为空'
+      }
+      if (messages){
+        this.$message.error(messages)
+        return
+      }
+      this.calculateResults.results = this.getValuationPrice(calculate.costing,calculate,setting)
     },
     goToGoods(item) {
       let extra_info = item.extra_info && JSON.parse(item.extra_info) || {}
@@ -1525,6 +1909,10 @@ export default {
 
     .el-dialog__headerbtn {
       top: 10px;
+
+      .el-icon-close {
+        font-size: 16px !important;
+      }
     }
 
     .el-dialog__title {

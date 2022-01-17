@@ -180,6 +180,7 @@ const imageRender = function(data) {
   return isArr && [url] || url
 }
 const siteCoin = function(val) {
+  console.log(val)
   let attribute = val && (val + '').toLocaleUpperCase() || val
   attribute = countries_id[attribute] || attribute
   return site_coin_symbol[attribute] || attribute
@@ -201,32 +202,32 @@ const lazadaGoodsUrl = function(val) {
   return lazada_goods_url[attribute] || attribute
 }
 
-const currencyShow = function(data){
+const currencyShow = function(data) {
   let temp = ''
-  switch (data){
+  switch (data) {
     case 'MY':
-      temp ='RM';
+      temp = 'RM'
       break
     case 'PH':
-      temp ='₱';
+      temp = '₱'
       break
     case 'ID':
-      temp ='Rp';
+      temp = 'Rp'
       break
     case 'VN':
-      temp ='₫';
+      temp = '₫'
       break
     case 'TH':
-      temp ='฿';
+      temp = '฿'
       break
     case 'BR':
-      temp ='R$';
+      temp = 'R$'
       break
     case 'MX':
-      temp ='MX$';
+      temp = 'MX$'
       break
     case 'PL':
-      temp ='zł';
+      temp = 'zł'
       break
     default :
       temp = '$'
@@ -278,6 +279,44 @@ const changeImgSizeFilter = (value) => {
   }
   return resUrl || url
 }
-
+const errorMsg = function(userMessage) {
+  let msg = ''
+  try {
+    if (userMessage.indexOf('reached the product upload limit') > -1) {
+      msg = '店铺产品已上满，请选择其他店铺上新'
+    } else if (userMessage.indexOf('product count has reached upper limit') > -1) {
+      msg = '店铺产品已上满，请选择其他店铺上新'
+    } else if (userMessage.indexOf('You have reached the product upload limit') > -1) {
+      msg = '店铺产品已上满，请选择其他店铺上新'
+    } else if (userMessage.indexOf('The product is duplicated with another') > -1) {
+      msg = '此商品已重复上新'
+    } else if (userMessage.indexOf('options count does not match with models count') > -1) {
+      msg = '数据格式异常，请联系客服'
+    } else if (userMessage.indexOf('at least one channel') > -1) {
+      msg = '请至商家后台【商店设定】中开启物流方式'
+    } else if (userMessage.indexOf('param is invalid') > -1) {
+      msg = '上新数据无效，请联系客服'
+    } else if (userMessage.indexOf('create product failed') > -1) {
+      msg = 'shopee官网波动，暂时无法上新，请等待5分钟左右后重试'
+    } else if (userMessage.indexOf('product is duplicated') > -1) {
+      msg = '此产品已重复上新'
+    } else if (userMessage.indexOf('Failed to create product with invalid param') > -1) {
+      msg = '请检查商品的属性是否正确'
+    } else if (userMessage.indexOf("The product's category is invalid") > -1) {
+      msg = '类目无效，请重新选择类目'
+    } else if (userMessage.indexOf('Create product too fast') > -1) {
+      msg = '上新频率太快，请调整上新时间间隔'
+    } else if (userMessage.indexOf('product has invalid logistics config') > -1) {
+      msg = '请检查物流配置是否开启'
+    } else if (userMessage.indexOf('not enough logistics channel') > -1) {
+      msg = '未设置物流，请商家后台至少开启一种物流方式'
+    } else {
+      msg = userMessage
+    }
+  } catch (error) {
+    msg = userMessage
+  }
+  return msg
+}
 export { chineseSite, imageRender, siteCoin, sitePlatform, countryShopeebuyCom, changeImgSizeFilter, special_characters,
-  lazadaGoodsUrl, countries_option, countries_site,countries_option_sub ,currencyShow ,countries_option_sub_abroad}
+  lazadaGoodsUrl, countries_option, countries_site, countries_option_sub, currencyShow, countries_option_sub_abroad, errorMsg }

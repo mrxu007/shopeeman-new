@@ -368,8 +368,8 @@ constructor(mall, syncStatus, that, writeLog) {
       if (res5.code === 200) {
         order['logisticsTrackingHistory'] = res5.data
       }
-      //6、申请运单号
-      let res6 = await this.$shopeemanService.getForderLogistics(this.mall.country, params)
+      //6、获取运单号
+      let res6 = await this.$shopeemanService.getDropOff(this.mall.country, params)
       console.log(res6, "res6")
       if (res6.code === 200) {
         order['forderLogistics'] = res6.data
@@ -411,12 +411,12 @@ constructor(mall, syncStatus, that, writeLog) {
     if (res5.code === 200) {
       order['logisticsTrackingHistory'] = res5.data
     }
-    //6、申请售后运单号
-    let res6 = await this.$shopeemanService.getForderLogistics(this.mall.country, params)
-    console.log(res6, "res6-after")
-    if (res6.code === 200) {
-      order['forderLogistics'] = res6.data
-    }
+    //6、获取售后运单号
+    // let res6 = await this.$shopeemanService.getForderLogistics(this.mall.country, params)
+    // console.log(res6, "res6-after")
+    // if (res6.code === 200) {
+    //   order['forderLogistics'] = res6.data
+    // }
     console.log(order, "orderAll")
     // debugger
   }
@@ -634,7 +634,6 @@ constructor(mall, syncStatus, that, writeLog) {
           "return_item": this.dealWithReturnTime(order),
           "ckeckAfterOrderSnKey": this.getCheckRefundKey(order)
         }
-        console.log(params, "211111111111111111111")
         paramsArr.push(params)
       }
       console.log(paramsArr)
@@ -721,7 +720,7 @@ constructor(mall, syncStatus, that, writeLog) {
   getTrackingNo(order) {
     let res = ''
     let data = order.forderLogistics && order.forderLogistics.list && order.forderLogistics.list[0] && order.forderLogistics.list[0].forders && order.forderLogistics.list[0].forders[0].third_party_tn || ''
-    res = data || order.forderLogistics && order.forderLogistics.list && order.forderLogistics.list[0].consignment_no
+    res = data || order.forderLogistics && order.forderLogistics.consignment_no
     return res
   }
   //处理total_amount

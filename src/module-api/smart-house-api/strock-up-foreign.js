@@ -5,6 +5,19 @@ export default class StrockUpForegin {
   constructor(that) {
     this._this = that
   }
+  // 修改填报人
+  async updateForecaster(params) {
+    try {
+      const res = await this._this.$api.updateForecaster(params)
+      console.log(res)
+      if (res.data.code === 200) {
+        return { code: 200 }
+      }
+      return { code: res.data.code, data: `${res.data.message}` }
+    } catch (error) {
+      return { code: -2, data: `修改填报人异常： ${error}` }
+    }
+  }
   // 下载条形码
   async downloadBarCode(params) {
     try {

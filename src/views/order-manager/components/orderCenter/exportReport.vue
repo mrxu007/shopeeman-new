@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-11-25 17:17:34
- * @LastEditTime: 2021-12-14 21:40:34
+ * @LastEditTime: 2022-01-14 20:57:12
  * @LastEditors: Please set LastEditors
  * @Description: 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  * @FilePath: \shopeeman-new\src\views\order-manager\components\orderCenter\exportReport.vue
@@ -20,10 +20,10 @@
         </div>
         <div class="content">
           <div class="item">
-            <span>成团时间：</span>
-            <p class="mar-right">{{ item.created_at }}</p>
+            <span>创建时间：</span>
+            <p class="mar-right" >{{ item.export_params.createTime[0] || '' }}</p>
             -
-            <p class="mar-left">{{ item.updated_at }}</p>
+            <p class="mar-left">{{ item.export_params.createTime[1] || '' }}</p>
           </div>
           <div class="item">
             <span>店铺信息：</span>
@@ -116,6 +116,7 @@ export default {
       if (res.data.code === 200) {
         this.total = res.data.data.total
         this.tableData = res.data.data.data
+        console.log( this.tableData," this.tableData")
       } else {
         this.$message.error(res.data.message)
       }

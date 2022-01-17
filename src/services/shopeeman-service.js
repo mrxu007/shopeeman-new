@@ -1024,7 +1024,6 @@ export default class NetMessageBridgeService {
       }
     }
   }
-
   // 查询订单 /api/v3/order/get_order_hint
   async getOrderHint(country, data) {
     const res = await this.getChinese(country, '/api/v3/order/get_order_hint', data)
@@ -1258,7 +1257,7 @@ export default class NetMessageBridgeService {
     }
   }
 
-  // 申请运单号
+  // 获取物流单号
   async getForderLogistics(country, data) {
     const res = await this.getChinese(country, '/api/v3/order/get_forder_logistics/', data)
     const resObj = res && JSON.parse(res)
@@ -2263,6 +2262,78 @@ export default class NetMessageBridgeService {
       return {
         code: resObj.status,
         data: `获取失败${resObj.statusText}`
+      }
+    }
+  }
+  // 获取广告关键字
+  async getAdventKeyWordList(country, data) {
+    const res = await this.getChinese(country, '/api/marketing/v3/pas/suggest/keyword/', data)
+    const resObj = res && JSON.parse(res)
+    // console.log(res,resObj)
+    if (resObj && resObj.status === 200) {
+      const info = JSON.parse(resObj.data)
+      if (info && info.code === 0) {
+        return {
+          code: 200,
+          data: info.data || []
+        }
+      } else {
+        return {
+          code: 50001,
+          data: info.message || []
+        }
+      }
+    } else {
+      return {
+        code: resObj.status,
+        data: `获取失败${resObj.statusText}`
+      }
+    }
+  }
+  // 获取广告关键字
+  async getAdventKeyWordList(country, data) {
+    const res = await this.getChinese(country, '/api/marketing/v3/pas/suggest/keyword/', data)
+    const resObj = res && JSON.parse(res)
+    // console.log(res,resObj)
+    if (resObj && resObj.status === 200) {
+      const info = JSON.parse(resObj.data)
+      if (info && info.code === 0) {
+        return {
+          code: 200,
+          data: info.data || []
+        }
+      } else {
+        return {
+          code: 50001,
+          data: info.message || []
+        }
+      }
+    } else {
+      return {
+        code: resObj.status,
+        data: `获取失败${resObj.statusText}`
+      }
+    }
+  }
+  // 重启折扣活动
+  async overlapDiscount(country, data) {
+    const res = await this.postChinese(country, `/api/marketing/v3/discount/item/overlap/`, data, {
+      Headers: {
+        'Content-Type': ' application/json'
+      }
+    })
+    const resObj = res && JSON.parse(res)
+    const dataInfo = resObj.data && JSON.parse(resObj.data)
+    if (resObj.status === 200) {
+      const arr = dataInfo && dataInfo.data && dataInfo.data.products && dataInfo.data.products.items || []
+      return {
+        code: 200,
+        data: arr
+      }
+    } else {
+      return {
+        code: 50001,
+        data: '操作失败'
       }
     }
   }

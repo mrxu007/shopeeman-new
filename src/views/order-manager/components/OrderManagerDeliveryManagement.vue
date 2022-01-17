@@ -143,7 +143,7 @@
             <p :style="{ color: changeOrderStatus(scope.row.order_status, 'color') }">{{ changeOrderStatus(scope.row.order_status) }}</p>
           </template>
         </el-table-column>
-        <el-table-column align="center" prop="logistics_name" label="虾皮物流" min-width="100">
+        <el-table-column align="center" prop="logistics_name" label="虾皮物流" min-width="120" show-overflow-tooltip>
           <template slot-scope="scope">{{ scope.row.logistics_name }}</template>
         </el-table-column>
         <el-table-column align="center" prop="tracking_no" label="虾皮物流单号" min-width="150">
@@ -573,6 +573,9 @@ export default {
     //同步单个面单信息
     async syncFaceDataSingle(row) {
       //同步单个，强制开启申请面单
+      if(row.hasLogistics == '1' && row.tracking_no != ''){
+        return this.$message.warning('订单面单已存在，无需再同步！')
+      }
       this.syncSurface([row], true)
     },
     //同步面单信息
@@ -581,7 +584,7 @@ export default {
         return this.$message.warning('请先选择数据！')
       }
       let arrFilterFrist = this.multipleSelection.filter((n) => {
-        return n.hasLogistics !== '1' && n.tracking_no == ''
+        return n.hasLogistics !== '1' || n.tracking_no == ''
       })
       if (!arrFilterFrist.length) {
         return this.$message.warning('当前没有需要同步面单的订单！')

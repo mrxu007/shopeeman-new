@@ -1583,6 +1583,10 @@ export default {
           this.$refs.Logs.writeLog(`【${index + 1}】重量(g)为空`, false)
           continue
         }
+        if (goods_url && goods_url.length > 255) {
+          this.$refs.Logs.writeLog(`【${index + 1}】商品链接过长`, false)
+          continue
+        }
         // const Regx = /^[\w ]+$/
         // if (!Regx.test(sku_id)) {
         //   this.$refs.Logs.writeLog(`【${index + 1}】商品编号(sku)只能填字母或数字`, false)

@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-10-13 11:44:45
- * @LastEditTime: 2021-11-11 22:02:54
+ * @LastEditTime: 2022-01-14 14:51:27
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shopeeman-new\src\services\application-config.js
@@ -66,5 +66,9 @@ export default class applicationConfig {
    */
   async temporaryCacheInfo(type, key, info='') {
     return await this.nativeService.temporaryCacheInfo(type, key, info)
+  }
+  //更新壳内绑定的仓库信息
+  async updateWarehouseInfo() {
+    return await this.nativeService.updateWarehouseInfo()
   }
 }

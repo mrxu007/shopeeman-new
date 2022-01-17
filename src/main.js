@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-10-08 14:16:18
- * @LastEditTime: 2021-12-21 15:40:55
+ * @LastEditTime: 2022-01-14 10:18:24
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shopeeman-new\src\main.js
@@ -100,6 +100,7 @@ Vue.prototype.$SonAccountService = new SonAccountService()
 Vue.prototype.$shopeemanService = new shopeemanService()
 Vue.prototype.$dayjs = dayjs
 Vue.prototype.$filters = filters
+
 
 // 所有的input框自动获取焦点
 Vue.directive('fo', {
