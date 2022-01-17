@@ -976,7 +976,7 @@ export default {
   },
   mounted() {
     this.tableLoading = true
-    this.createTime = creatDate(30)
+    this.createTime = creatDate(15)
     this.getColorList()
     this.getColumnsConfig()
     this.getSecondSaleList()

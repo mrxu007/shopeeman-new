@@ -145,7 +145,7 @@
                   <span>选项</span>
                   <div class="sku-item-box">
                     <div v-for="(item, i) in skuSpec1" :key="i + 'spec1'" class="sku-Spec">
-                      <el-select v-model="item.sku_name" placeholder="" size="mini" filterable @change="sepcInput($event, i)">
+                      <el-select v-model="item.sku_name" placeholder="" size="mini" filterable :allow-create="true"  @change="sepcInput($event, i)">
                         <el-option v-for="(item, index) in skucode" :key="index" :label="item.zh_name" :value="item.zh_name" />
                       </el-select>
                       <div v-if="item.sku_image">
@@ -184,7 +184,7 @@
                   <span>选项</span>
                   <div class="sku-item-box">
                     <div v-for="(item, i) in skuSpec2" :key="i + 'spec2'" class="sku-Spec">
-                      <el-select v-model="item.sku_name" placeholder="" size="mini" filterable @change="sepcInput($event, i)">
+                      <el-select v-model="item.sku_name" placeholder="" size="mini" filterable :allow-create="true" @change="sepcInput($event, i)">
                         <el-option v-for="(item, index) in skucode" :key="index" :label="item.zh_name" :value="item.zh_name" />
                       </el-select>
                       <!-- <el-input v-model="item.sku_name" placeholder="" size="mini" clearable class="mar-right" :disabled="!skuSecondCheck || item.sku_disabled" @input="sepcInput($event, i)" /> -->
@@ -521,6 +521,10 @@ export default {
     this.getskucode()
   },
   methods: {
+    filterSelect(val,index,key){
+      this[key][index].sku_name = val
+      console.log("filterSelect",val)
+    },
     //导出数据
     async exportData() {
       let exportData = []

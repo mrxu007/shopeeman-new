@@ -54,7 +54,7 @@
               </div>
               <div class="item">
                 <span>花费</span>
-                <span class="mar-left">{{ totalAnalysisData.cost }}</span>
+                <span class="mar-left">{{ Number(totalAnalysisData.cost).toFixed(2) }}</span>
               </div>
             </div>
           </div>
@@ -179,8 +179,8 @@
     </div>
     <Logs ref="Logs" clear v-model="showConsole" />
     <el-dialog v-if="viewDetailVisible" title="店铺综合统计详情概览" :visible.sync="viewDetailVisible" top="5vh" width="1200px" :close-on-click-modal="false">
-      <el-table :data="totalData" style="width: 100%" border height="300px">
-        <el-table-column label="店铺名称" prop="id">
+      <el-table :data="totalData" style="width: 100%" height="300px">
+        <el-table-column label="店铺名称" prop="id" width="160px" show-overflow-tooltip>
           <template slot-scope="{ row }"> {{ row.country }}-{{ row.mallName }} </template>
         </el-table-column>
         <el-table-column label="余额" prop="balance"> </el-table-column>
@@ -194,7 +194,11 @@
         <el-table-column label="订单数" prop="order"> </el-table-column>
         <el-table-column label="商品已出售" prop="order"> </el-table-column>
         <el-table-column label="销售金额" prop="orderGmv"> </el-table-column>
-        <el-table-column label="花费" prop="cost"> </el-table-column>
+        <el-table-column label="花费" prop="cost">
+          <template slot-scope="scope">
+            <span>{{ Number(scope.row.cost).toFixed(2) }}</span>
+          </template>
+        </el-table-column>
         <el-table-column type="expand" label="查看明细" width="80">
           <template slot-scope="scope">
             <div v-for="(item, index) in analysisData[scope.row.mallId]" :key="index" class="expand-style" style="display: flex">
@@ -231,7 +235,16 @@
         </el-table-column>
       </el-table>
     </el-dialog>
-    <el-dialog :visible.sync="createAdventVisible" v-if="createAdventVisible" top="7vh" title="创建广告关键字" :close-on-click-modal="false" :close-on-press-escape="false" width="1000px">
+    <el-dialog
+      :visible.sync="createAdventVisible"
+      v-if="createAdventVisible"
+      top="7vh"
+      title="创建广告关键字"
+      :close-on-click-modal="false"
+      :close-on-press-escape="false"
+      width="1000px"
+      @close="closeDialog"
+    >
       <div class="create-style">
         <div class="warning-top">
           <p v-if="createType === 'single'">选择单个商品时，可选择是否开启自动选择关键字或手动选择关键字</p>
@@ -324,9 +337,9 @@
             <el-checkbox v-model="handleKeyword" @change="handleChangeKeyType">手动选择</el-checkbox>
             <div v-if="handleKeyword" class="mar-top">
               <div class="item-box">
-                <el-button size="mini" type="primary" @click="batchChangeKeyPrice">批量修改出价</el-button>
-                <el-button size="mini" type="primary">批量编辑匹配类型</el-button>
-                <el-button size="mini" type="primary">批量删除</el-button>
+                <el-button size="mini" type="primary" @click="batchChangeKey('keyPriceVisible')">批量修改出价</el-button>
+                <el-button size="mini" type="primary" @click="batchChangeKey('keyTypeVisible')">批量编辑匹配类型</el-button>
+                <el-button size="mini" type="primary" @click="batchChangeKey('delete')">批量删除</el-button>
               </div>
               <el-table :data="keyWordList" style="width: 100%; margin: 10px 0" max-height="360px" @selection-change="handleSelectionChangeKey" v-loading="keyListLoading">
                 <el-table-column align="center" type="index" label="序号" width="40" />
@@ -347,7 +360,7 @@
                     <span style="color: green">{{ country | siteCoin }}{{ Number(scope.row.recommend_price).toFixed(2) }}</span>
                   </template>
                 </el-table-column>
-                <el-table-column label="点击出价" width="160">
+                <el-table-column label="点击出价" width="160" align="center">
                   <template slot-scope="scope">
                     <el-input v-model="scope.row.selfPrice" placeholder="请输入内容" size="mini" class="mar-left" style="width: 140px">
                       <template slot="prepend">{{ country | siteCoin }}</template>
@@ -356,7 +369,7 @@
                 </el-table-column>
                 <el-table-column label="操作">
                   <template slot-scope="scope">
-                    <el-button size="mini" type="primary">删 除</el-button>
+                    <el-button size="mini" type="primary" @click="setKeyDeleteSingle(scope.$index)">删 除</el-button>
                   </template>
                 </el-table-column>
               </el-table>
@@ -418,9 +431,9 @@
     <el-dialog :visible.sync="keyTypeVisible" title="批量修改出价" :close-on-click-modal="false" :close-on-press-escape="false" width="500px" @close="closeKeyPrice">
       <div class="keyPrice-style">
         <el-radio v-model="keyType" label="kwrcmdv2">广泛匹配</el-radio><br />
-        <p style="color: #a9a9a9">只要搜寻包含此关键字，或与之有关的内容，您投放的广告就有机会出现</p>
-        <el-radio v-model="keyType" label="kwrcmdv1">精准匹配</el-radio>
-        <p style="color: #a9a9a9">只有搜寻此关键字时，您投放的广告才会出现</p>
+        <p style="color: #a9a9a9" class="mar-top">只要搜寻包含此关键字，或与之有关的内容，您投放的广告就有机会出现</p>
+        <el-radio v-model="keyType" label="kwrcmdv1" class="mar-top">精准匹配</el-radio>
+        <p style="color: #a9a9a9" class="mar-top">只有搜寻此关键字时，您投放的广告才会出现</p>
       </div>
       <span slot="footer" class="dialog-footer">
         <el-button size="mini" @click="keyTypeVisible = false">取 消</el-button>
@@ -502,7 +515,7 @@ export default {
         scheduled: '已预设',
         paused: '暂停中',
       },
-      createAdventVisible: true, //广告弹窗
+      createAdventVisible: false, //广告弹窗
       createType: 'single',
       createChooseGoods: [], //创建弹窗选择的商品
       budgetSingle: '1', //每个广告的预算
@@ -524,7 +537,7 @@ export default {
       keyPriceVisible: false,
       keyListLoading: false,
       keyTypeVisible: false,
-      keyType:''
+      keyType: '',
     }
   },
   mounted() {
@@ -535,6 +548,15 @@ export default {
     console.log(this.timeRange, 'this.timeRange')
   },
   methods: {
+    closeDialog() {
+      this.handleKeyword = false
+      this.createChooseGoods = [] //创建弹窗选择的商品
+      this.budgetSingle = '1' //每个广告的预算
+      this.timeSingle = '1'
+      this.budgetType = 'day' //预算类型
+      this.budget = '' //预算
+      this.keyType = ''
+    },
     closeKeyPrice() {
       this.keyPriceRadio = '1' //关键字出价
       this.calcType = 'add'
@@ -543,20 +565,49 @@ export default {
       this.keyPrice3 = ''
     },
     //批量修改出价
-    batchChangeKeyPrice() {
+    batchChangeKey(key) {
+      console.log(key)
       if (!this.multipleSelectionKey.length) {
         return this.$message.warning('请先勾选数据!')
       }
-      this.keyPriceVisible = true
+      if (key === 'delete') {
+        this.setKeyDelete()
+      } else {
+        this[key] = true
+      }
+    },
+    setKeyDeleteSingle(index){
+      this.keyWordList.splice(index, 1)
+    },
+    //批量删除关键字
+    setKeyDelete() {
+      this.multipleSelectionKey.forEach((item) => {
+        let index = this.keyWordList.findIndex((m) => m.keyword === item.keyword)
+        if (index > -1) {
+          this.keyWordList.splice(index, 1)
+        }
+      })
+    },
+    //保存修改类型
+    setKeyType() {
+      this.multipleSelectionKey.forEach((item) => {
+        let index = this.keyWordList.findIndex((m) => m.keyword === item.keyword)
+        if (index > -1) {
+          this.$set(this.keyWordList[index], 'algorithm', this.keyType)
+        }
+      })
     },
     //保存修改出价
     setKeyPrice() {
       this.multipleSelectionKey.forEach((item) => {
         let selfPrice = 0
         if (this.keyPriceRadio === '1') {
-          selfPrice = this.calcType === 'add' ? item.recommend_price + this.keyPrice1 : item.recommend_price - this.keyPrice1
+          selfPrice = this.calcType === 'add' ? Number(item.recommend_price) + Number(this.keyPrice1) : Number(item.recommend_price) - Number(this.keyPrice1)
         } else if (this.keyPriceRadio === '2') {
-          selfPrice = this.calcType === 'add' ? item.recommend_price + (this.keyPrice2 / 100) * item.recommend_price : item.recommend_price - (this.keyPrice2 / 100) * item.recommend_price
+          selfPrice =
+            this.calcType === 'add'
+              ? Number(item.recommend_price) + (this.keyPrice2 / 100) * Number(item.recommend_price)
+              : Number(item.recommend_price) - (this.keyPrice2 / 100) * Number(item.recommend_price)
         } else if (this.keyPriceRadio === '3') {
           selfPrice = this.keyPrice3
         } else if (this.keyPriceRadio === '4') {
@@ -566,12 +617,13 @@ export default {
         if (index > -1) {
           this.$set(this.keyWordList[index], 'selfPrice', Number(selfPrice).toFixed(2))
         }
+        console.log(this.keyWordList)
       })
       this.keyPriceVisible = false
     },
     //保存匹配类型
-    setKeyType(){
-      this.multipleSelectionKey.forEach(item=>{
+    setKeyType() {
+      this.multipleSelectionKey.forEach((item) => {
         let index = this.keyWordList.findIndex((m) => m.keyword === item.keyword)
         if (index > -1) {
           this.$set(this.keyWordList[index], 'algorithm', this.keyType)
