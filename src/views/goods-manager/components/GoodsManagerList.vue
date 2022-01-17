@@ -193,7 +193,7 @@
               </ul>
               <ul style="margin-bottom:3px">
                 <el-button type="primary" size="mini" :disabled="operationBut" @click="operation('syncOriginGoodsNum')">同步上家库存</el-button>
-                <el-button style="width: 95px;" type="primary" size="mini" @click="operation('goodsMove')">商品搬迁</el-button>
+                <el-button style="width: 95px;" type="primary" size="mini" :disabled="operationBut" @click="operation('goodsMove')">商品搬迁</el-button>
                 <el-button
                   type="primary"
                   size="mini"
@@ -290,7 +290,7 @@
                         :disabled="operationBut"
                         class="mini-input"
                         size="mini"
-                        onkeyup="value=value.replace(/[^\d]/g,'')"
+                        onkeyup="value=value.replace(/[^\d]-/g,'')"
                       /> % +
                       <el-input v-model="productPrice2" :disabled="operationBut" class="mini-input" size="mini" onkeyup="value=value.replace(/[^\d]/g,'')" />
                     </el-form-item>
@@ -485,26 +485,26 @@
         <u-table-column align="center" min-width="100" label="上家类型" prop="platformTypeStr" />
         <u-table-column align="center" min-width="150" label="上家链接">
           <template v-slot="{row}">
-            <span class="green-span" @click="openUrl(row,2)">
-              {{ row.productId }}
-            </span>
             <span
               v-if="row.productId"
               class="copyIcon"
               @click="copy(row.productId)"
             ><i class="el-icon-document-copy" /></span>
+            <span class="green-span" @click="openUrl(row,2)">
+              {{ row.productId }}
+            </span>
           </template>
         </u-table-column>
         <u-table-column align="center" min-width="120" label="itemID">
           <template v-slot="{row}">
-            <span class="green-span" @click="openUrl(row,1)">
-              {{ row.id }}
-            </span>
             <span
               v-if="row.id"
               class="copyIcon"
               @click="copy(row.id)"
             ><i class="el-icon-document-copy" /></span>
+            <span class="green-span" @click="openUrl(row,1)">
+              {{ row.id }}
+            </span>
           </template>
         </u-table-column>
         <u-table-column align="center" min-width="80" label="价格" prop="price" sortable />
@@ -535,7 +535,7 @@
         <u-table-column align="center" min-width="100" label="粉丝量" prop="like_count" sortable />
         <u-table-column align="center" min-width="120" label="操作状态" show-overflow-tooltip fixed="right">
           <template v-slot="{ row }">
-            <span :style="row.color && 'color:' + row.color">{{ row.batchStatus }}</span>
+            <span :style="row.color && 'color:' + row.color">{{ row.batchStatus | errorMsg }}</span>
           </template>
         </u-table-column>
         <u-table-column align="center" min-width="120" label="更多操作" show-overflow-tooltip fixed="right">
@@ -968,26 +968,26 @@
         <el-table-column align="center" min-width="100" label="上家类型" prop="platformTypeStr" />
         <el-table-column align="center" min-width="150" label="上家链接">
           <template v-slot="{row}">
-            <span class="green-span" @click="openUrl(row,2)">
-              {{ row.productId }}
-            </span>
             <span
               v-if="row.productId"
               class="copyIcon"
               @click="copy(row.productId)"
             ><i class="el-icon-document-copy" /></span>
+            <span class="green-span" @click="openUrl(row,2)">
+              {{ row.productId }}
+            </span>
           </template>
         </el-table-column>
         <el-table-column align="center" min-width="120" label="itemID">
           <template v-slot="{row}">
-            <span class="green-span" @click="openUrl(row,1)">
-              {{ row.id }}
-            </span>
             <span
               v-if="row.id"
               class="copyIcon"
               @click="copy(row.id)"
             ><i class="el-icon-document-copy" /></span>
+            <span class="green-span" @click="openUrl(row,1)">
+              {{ row.id }}
+            </span>
           </template>
         </el-table-column>
         <el-table-column align="center" min-width="80" label="价格" prop="price" sortable />
@@ -1006,7 +1006,7 @@
         </el-table-column>
         <el-table-column align="center" min-width="150" label="操作状态" show-overflow-tooltip fixed="right">
           <template v-slot="{ row }">
-            <span :style="row.color && 'color:' + row.color">{{ row.moveStatus }}</span>
+            <span :style="row.color && 'color:' + row.color">{{ row.moveStatus | errorMsg }}</span>
           </template>
         </el-table-column>
       </el-table>
@@ -1062,7 +1062,7 @@
         </el-table-column>
         <el-table-column align="center" label="上新状态" min-width="150" prop="status" show-overflow-tooltip>
           <template v-slot="{ row }">
-            <span :style="row.color && 'color:' + row.color">{{ row.status }}</span>
+            <span :style="row.color && 'color:' + row.color">{{ row.status | errorMsg }}</span>
           </template>
         </el-table-column>
         <el-table-column align="center" label="上新后价格" min-width="100" prop="price">
@@ -1195,7 +1195,7 @@ export default {
       discountId: '', // 折扣活动id
 
       isRefurbishProduct: false, // 是否商品翻新（商品搬迁、翻新true 其它操作均为false）
-
+      isUseProductChannel: true, // 当物流是否开放矛盾时（后台开启商品关闭），优先采用后台的物流（批量更新物流方式false 其它操作均为true）
       // 商品搬迁
       moveVisible: false,
       moveSetVisible: false,
@@ -1217,6 +1217,7 @@ export default {
       detailsVisible: false,
       cancelMove: false, // 取消搬迁
       cancelMoveLoad: false, // 取消搬迁loading
+      isMove: false,
 
       sellStatusList: [
         { value: 1, label: '售空' },
@@ -1342,10 +1343,13 @@ export default {
     },
     // 开始商品搬迁
     async startGoodsMove() {
+      if (Number(this.moveTime) < 40) return this.$message('上新间隔时间不得小于40秒')
       this.goodsMoveBut = true
       this.isRefurbishProduct = true
+      this.isMove = true
       this.cancelMove = false
       this.moveDetails = []
+      // this.selectMoveMallList.forEach(i => { i['isCreate'] = false })
       this.selectMoveMallList.forEach(i => {
         i['isCreateNum'] = 0
         i['createNum'] = 0
@@ -1356,6 +1360,7 @@ export default {
       this.goodsMoveBut = false
       this.isRefurbishProduct = false
       this.cancelMoveLoad = false
+      this.isMove = false
     },
     async goodsMoveOperation(item, count = { count: 1 }) {
       if (this.cancelMove) {
@@ -1367,7 +1372,6 @@ export default {
         const res = await this.getProductDetail(item)
         if (res.code === 200) {
           productInfo = res.data
-          console.log(productInfo)
           // 修改尺寸
           if (this.goodsSize) {
             productInfo['weight'] = this.goodsSize['weight']
@@ -1414,86 +1418,107 @@ export default {
           }
           for (let index = 0; index < mallList.length; index++) {
             const mall = mallList[index]
-            if (this.cancelMove) {
-              break
-            }
-            const obj = {}
-            const mallName = mall.mall_alias_name || mall.platform_mall_name
-            this.moveStatus(item, `开始上新到${mallName}`, true)
-            if (mall.platform_mall_id === item.platform_mall_id) {
-              this.moveStatus(item, `同店铺商品无需再次上新`, false)
-              mall['status'] = `同店铺商品无需再次上新`
-              mall['color'] = `red`
-            } else {
-              try {
-                // 获取物流
-                const parmas = {}
-                parmas['product_id'] = productInfo.id
-                parmas['mallId'] = mall.platform_mall_id
-                const logisticsRes = await this.$shopeemanService.getLogistics(mall.country, parmas)
-                // 处理物流方式
-                if (logisticsRes.code === 200) {
-                  productInfo['logistics_channels'] = await this.getLogisticsInfo(logisticsRes.data.list, false, mall)
-                }
-              } catch (error) {
-                this.moveStatus(item, `商品信息物流异常${error}`, false)
-                console.log(error)
+            console.log('mall', mall)
+            try {
+              if (this.cancelMove) {
+                break
               }
-              // 获取上家parent_sku
-              const tmallCrossBorderUserId = item.platformTypeStr === '天猫淘宝海外平台' ? item.id : ''
-              productInfo['parent_sku'] = await this.$BaseUtilService.buildGoodCode(item.platform, item.id, item.country, mall.platform_mall_id, tmallCrossBorderUserId)
-              // 随机符号
-              const specialCharList = this.$filters.special_characters
-              const specialChar = specialCharList[Math.floor(Math.random() * specialCharList.length)]
-              productInfo['name'] = specialChar + ' ' + productInfo.name
-              // 获取图片
-              const imageRes = await imageCompressionUpload(mall, productInfo.images, this)
-              productInfo['images'] = productInfo.images.map(item => {
-                item = imageRes[item]
-                return item
-              })
-              // 上新发布
-              const data = { mallId: mall.platform_mall_id }
-              const createIndex = mall['createNum']++
-              await waitStart(() => {
-                return createIndex === mall['isCreateNum']
-              }, 60 * 60 * 1000)
-              const createRes = await this.$shopeemanService.createProduct(mall.country, data, [productInfo])
-              if (createRes.code === 200) {
-                setTimeout(() => { ++mall['isCreateNum'] }, Number(this.moveTime) * 1000)
-                this.moveStatus(item, `店铺【${mallName}】发布成功`, true)
-                mall['status'] = `发布成功`
-                mall['color'] = `green`
-                this.moveSuccess++
-                // 获取发布之后的详情
-                const params = {}
-                params['product_id'] = createRes.data.product_id
-                params['shop_id'] = mall.platform_mall_id
-                params['version'] = '3.2.0'
-                const detailRes = await this.$shopeemanService.searchProductDetail(mall.country, params)
-                obj['name'] = detailRes.data.name
-                obj['shopeeId'] = createRes.data.product_id
-                obj['price'] = detailRes.data.price
-              } else {
-                ++mall['isCreateNum']
-                this.moveStatus(item, `店铺【${mallName}】发布失败:${createRes.data}`, false)
-                mall['status'] = `发布失败:${createRes.data}`
+              const obj = {}
+              const mallName = mall.mall_alias_name || mall.platform_mall_name
+              this.moveStatus(item, `开始上新到${mallName}`, true)
+              if (mall.platform_mall_id === item.platform_mall_id) {
+                this.moveStatus(item, `同店铺商品无需再次上新`, false)
+                mall['status'] = `同店铺商品无需再次上新`
                 mall['color'] = `red`
                 this.movefail++
+                ++mall['isCreateNum']
+                // mall.isCreate = false
+              } else {
+                try {
+                // 获取物流
+                  const parmas = {}
+                  parmas['product_id'] = productInfo.id
+                  parmas['mallId'] = mall.platform_mall_id
+                  const logisticsRes = await this.$shopeemanService.getLogistics(mall.country, parmas)
+                  // 处理物流方式
+                  if (logisticsRes.code === 200) {
+                    productInfo['logistics_channels'] = await this.getLogisticsInfo(logisticsRes.data.list, false, mall)
+                  }
+                } catch (error) {
+                  // mall.isCreate = false
+                  ++mall['isCreateNum']
+                  this.moveStatus(item, `商品信息物流异常${error}`, false)
+                  console.log(error)
+                }
+                // 获取上家parent_sku
+                const tmallCrossBorderUserId = item.platformTypeStr === '天猫淘宝海外平台' ? item.id : ''
+                productInfo['parent_sku'] = await this.$BaseUtilService.buildGoodCode(item.platform, item.id, item.country, mall.platform_mall_id, tmallCrossBorderUserId)
+                // 随机符号
+                const specialCharList = this.$filters.special_characters
+                const specialChar = specialCharList[Math.floor(Math.random() * specialCharList.length)]
+                productInfo['name'] = specialChar + ' ' + productInfo.name
+                // 检测标题长度
+                this.getTitleLength(item)
+                productInfo['name'] = productInfo.name.trim().slice(0, this.maxLength)
+                // 获取图片
+                const imageRes = await imageCompressionUpload(mall, productInfo.images, this)
+                productInfo['images'] = productInfo.images.map(item => {
+                  item = imageRes[item]
+                  return item
+                })
+                // 上新发布
+                const data = { mallId: mall.platform_mall_id }
+                console.log(`${item.id}-${mallName}`, mall.isCreate)
+                if (mall.isCreate) {
+                  console.log(`${item.id}-${mallName}睡眠`)
+                  await sleep(Number(this.moveTime) * 1000)
+                }
+                const createIndex = mall['createNum']++
+                await waitStart(() => {
+                  return createIndex === mall['isCreateNum']
+                }, 60 * 60 * 1000)
+                const createRes = await this.$shopeemanService.createProduct(mall.country, data, [productInfo])
+                if (createRes.code === 200) {
+                  // mall.isCreate = true
+                  setTimeout(() => { ++mall['isCreateNum'] }, Number(this.moveTime) * 1000)
+                  this.moveStatus(item, `店铺【${mallName}】发布成功`, true)
+                  mall['status'] = `发布成功`
+                  mall['color'] = `green`
+                  this.moveSuccess++
+                  // 获取发布之后的详情
+                  const params = {}
+                  params['product_id'] = createRes.data.product_id
+                  params['shop_id'] = mall.platform_mall_id
+                  params['version'] = '3.2.0'
+                  const detailRes = await this.$shopeemanService.searchProductDetail(mall.country, params)
+                  obj['name'] = detailRes.data.name
+                  obj['shopeeId'] = createRes.data.product_id
+                  obj['price'] = detailRes.data.price
+                } else {
+                  ++mall['isCreateNum']
+                  // mall.isCreate = false
+                  this.moveStatus(item, `店铺【${mallName}】${createRes.data}`, false)
+                  mall['status'] = `${createRes.data}`
+                  mall['color'] = `red`
+                  this.movefail++
+                }
               }
+              // 添加详情数据
+              obj['productId'] = item.productId
+              obj['mallName'] = mallName
+              obj['status'] = mall.status
+              obj['color'] = mall.color
+              obj['source'] = item.platformTypeStr
+              obj['url'] = item.url
+              this.moveDetails.push(obj)
+            } catch (error) {
+              console.log(error)
+              // mall.isCreate = false
+              ++mall['isCreateNum']
             }
-            // 添加详情数据
-            obj['productId'] = item.productId
-            obj['mallName'] = mallName
-            obj['status'] = mall.status
-            obj['color'] = mall.color
-            obj['source'] = item.platformTypeStr
-            obj['url'] = item.url
-            this.moveDetails.push(obj)
           }
         } else {
           this.movefail++
-          ++mall['isCreateNum']
           this.moveStatus(item, `${res.data}`, false)
         }
       } catch (error) {
@@ -1538,6 +1563,7 @@ export default {
       this.initData()
       this.activityVisible = false
       this.isRefurbishProduct = true
+      this.isMove = false
       this.updateNum = this.multipleSelection.length
       await batchOperation(this.multipleSelection, this.startRefurbishment)
       await this.deleteCollectGoodsInfo()
@@ -1561,6 +1587,9 @@ export default {
           this.batchStatus(item, `${batchStatus}`, true)
           // 翻新商品
           const data = { mallId: item.platform_mall_id }
+          // 检测标题长度
+          this.getTitleLength(item)
+          productInfo['name'] = productInfo.name.trim().slice(0, this.maxLength)
           const createRes = await this.$shopeemanService.createProduct(item.country, data, [productInfo])
           if (createRes.code === 200) {
             this.batchStatus(item, `发布成功`, true)
@@ -1817,7 +1846,7 @@ export default {
       }
     },
     // 批量更新物流方式
-    batchLogistics() {
+    async batchLogistics() {
       if (!this.logistics?.length) return this.$message('至少选择一种物流方式')
       let flag = false
       if (this.isCustomShipFee) {
@@ -1847,12 +1876,13 @@ export default {
     // 批量更新预售天数
     batchDay() {
       if (!this.productDay) return this.$message('请填写预售天数')
+      if (Number(this.productDay)) return this.$message('最长不超过30天')
       this.editProduct('setDay')
     },
     // 批量更新价格
     batchPrice() {
       if (!this.productPrice1) return this.$message('价格百分比不能为空')
-      if (!this.productPrice2) return this.$message('数值不能为空')
+      if (!this.productPrice2 && Number(this.productPrice2) !== 0) return this.$message('数值不能为空')
       this.editProduct('setPrice')
     },
     // 批量更新库存
@@ -1881,6 +1911,11 @@ export default {
       if (name === 'setDescription') {
         if ((this.descriptionRadio === 1 || this.descriptionRadio === 2 || this.descriptionRadio === 3) && !this.descriptionVal) return this.$message('关键词不能为空')
         if ((this.descriptionRadio === 4 || this.descriptionRadio === 5) && !this.descriptionConfig.description) return this.$message('请选择模板')
+      }
+      if (name === 'setLogistics') {
+        this.isUseProductChannel = false
+      } else {
+        this.isUseProductChannel = true
       }
       this.$confirm(`确定更新商品吗`, '提示', {
         confirmButtonText: '确定',
@@ -2331,7 +2366,6 @@ export default {
     // 商品信息处理
     async getProductInfo(productInfo, item) {
       try {
-        const isUseProductChannel = false // 当物流是否开放矛盾时（后台开启商品关闭），优先采用后台的物流（批量更新物流方式false 其它操作均为true）
         productInfo.id = this.isRefurbishProduct ? 0 : Number(productInfo.id)
         productInfo.name = productInfo.name.toString().trim()
         productInfo.brand_id = Number(productInfo.brand_id)
@@ -2388,7 +2422,7 @@ export default {
         productInfo.installment_tenures = JSON.parse(JSON.stringify(productInfo.installment_tenures))
         // 处理商品 sku list
         this.getModelList(productInfo.model_list, this.isRefurbishProduct)
-        if (!this.isRefurbishProduct) {
+        if (!this.isMove) {
           try {
           // 获取物流
             const parmas = {}
@@ -2397,7 +2431,7 @@ export default {
             const res = await this.$shopeemanService.getLogistics(item.country, parmas)
             // 处理物流方式
             if (res.code === 200) {
-              productInfo.logistics_channels = await this.getLogisticsInfo(res.data.list, isUseProductChannel, item)
+              productInfo.logistics_channels = await this.getLogisticsInfo(res.data.list, this.isUseProductChannel, item)
             }
           } catch (error) {
             console.log('商品信息物流异常', error)
@@ -2570,13 +2604,13 @@ export default {
             let activityid = ''
             // 获取该商品参加的折扣活动ID
             const res = await this.GoodsList.getMallDiscountsIdByKeyword(item)
-            activityid = res.data.hits[0].promotionid
-            this.discountId = activityid // 商品一键翻新时，该商品有折扣活动，储存折扣活动id
-            // 删除
-            console.log('aaaaaaa', res.data)
-            console.log('activityid', activityid)
-            const delRes = await this.GoodsList.deleteDiscountCampainDetail(item, activityid)
-            if (delRes.code !== 200) return { batchStatus: `删除折扣活动失败：${delRes.data}`, color: false, code: delRes.code }
+            activityid = res.data?.hits[0]?.promotionid
+            if (activityid) {
+              this.discountId = activityid // 商品一键翻新时，该商品有折扣活动，储存折扣活动id
+              // 删除
+              const delRes = await this.GoodsList.deleteDiscountCampainDetail(item, activityid)
+              if (delRes.code !== 200) return { batchStatus: `删除折扣活动失败：${delRes.data}`, color: false, code: delRes.code }
+            }
           } else if (campaignType === 3) {
           // 获取该商品参加的套装活动ID
             const res = await this.GoodsList.getBundleDeal(item, activityid)
@@ -2942,7 +2976,7 @@ export default {
     // 获取物流
     getLogistics() {
       let logisticsList = this.$shopeeManConfig.getLogisticsList()
-      logisticsList = logisticsList[this.country]
+      logisticsList = logisticsList[this.country] || []
       this.logisticsList = []
       this.logistics = []
       logisticsList.forEach(item => {
@@ -3064,7 +3098,7 @@ export default {
         console.log(error)
         this.$refs.Logs.writeLog(`店铺【${mallName}】获取数据异常`, false)
       } finally {
-        const nameData1 = this.tableData.filter(item => { return item.mallName === mallName })
+        const nameData1 = this.tableData.filter(item => { return item.platform_mall_id === mItem.platform_mall_id })
         // 单店查询商品数量
         if (this.productNumChecked) {
           // 如果当前店铺长度小于设置的单店值
@@ -3073,7 +3107,7 @@ export default {
             const num = Number(this.productNum) - nameData1.length
             this.tableData = this.tableData.concat(mItem.mylist.slice(0, num))
             // 加入数据后查询当前店铺的长度
-            const nameData2 = this.tableData.filter(item => { return item.mallName === mallName })
+            const nameData2 = this.tableData.filter(item => { return item.platform_mall_id === mItem.platform_mall_id })
             // 当前店铺长度 大于或等于设置的单店值 设置flag2 值，不执行下一次查询
             if (nameData2.length >= Number(this.productNum)) {
               this.flag2 = false
@@ -3145,7 +3179,7 @@ export default {
       } catch (error) {
         this.$refs.Logs.writeLog(`店铺【${mallName}】获取数据异常`, false)
       } finally {
-        const nameData1 = this.tableData.filter(item => { return item.mallName === mallName })
+        const nameData1 = this.tableData.filter(item => { return item.platform_mall_id === mItem.platform_mall_id })
         // 单店查询商品数量
         if (this.productNumChecked) {
           // 如果当前店铺长度小于设置的单店值
@@ -3154,7 +3188,7 @@ export default {
             const num = Number(this.productNum) - nameData1.length
             this.tableData = this.tableData.concat(mItem.mylist.slice(0, num))
             // 加入数据后查询当前店铺的长度
-            const nameData2 = this.tableData.filter(item => { return item.mallName === mallName })
+            const nameData2 = this.tableData.filter(item => { return item.platform_mall_id === mItem.platform_mall_id })
             // 当前店铺长度 大于或等于设置的单店值 设置flag2 值，不执行下一次查询
             if (nameData2.length >= Number(this.productNum)) {
               this.flag2 = false
@@ -3260,7 +3294,7 @@ export default {
           continue
         }
         // 过滤商品状态  6：审核中
-        if (this.goodsStatusVal !== 6 && item.status === 6) {
+        if (this.goodsStatusVal && this.goodsStatusVal !== 6 && item.status === 6) {
           continue
         }
         // 过滤是否售空
@@ -3547,6 +3581,7 @@ export default {
     initData() {
       this.isSync = false
       this.operationBut = true
+      this.isMove = false
       this.isRefurbishProduct = false
       this.percentage = 0
       this.updateNum = 0

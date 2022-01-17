@@ -1173,7 +1173,6 @@ export default {
     },
     async getTaobaoAbroadAccount() {
       const res = await this.collectOtherApInstance.getTaobaoAbroadAccount()
-      console.log('getTaobaoAbroadAccount', res)
       if (res.code !== 200) {
         return this.$message.error(`获取淘宝天猫海外账号失败：${res.code} ${res.data}`)
       }
