@@ -568,7 +568,9 @@ export default {
           this.getTable.push(...list)// 存储数据
           if (list?.length >= params.limit) {
             item.offset = item.offset + params.limit
-            this.getInfo(item, { count: 1 })
+            await this.getInfo(item, { count: 1 })
+          }else{
+            this.$refs.Logs.writeLog(`【${item.mall_alias_name || item.platform_mall_name}】请求数据结束`)
           }
         } else {
           if (res.message === 'token not found') {

@@ -22,6 +22,40 @@ export default class NetMessageBridgeService {
     }
   }
 
+  getExtraInfoBuyer(data) {
+    return {
+      mallId: data.mallId || data.platform_mall_id || data.shop_id,
+      isEmoticons: false,
+      isFrontShopeeApi: true
+    }
+  }
+  // 各站点本土前台网址
+  async getWebUrlLocal(country, data) {
+    const mallId = data.mallId || data.platform_mall_id || data.shop_id
+    let userSettings = await this.ConfigBridgeService().getUserConfig()
+    userSettings = JSON.parse(userSettings)
+    // console.log('userSettings',userSettings)
+    const mallInfo = await this.ConfigBridgeService().getGlobalCacheInfo('mallInfo', mallId)
+    const {
+      mall_main_id,
+      IPType
+    } = JSON.parse(mallInfo)
+    // auto 1、auto  2、mallinfo.MallMainId  3、IPType  包含 大陆   或者  ‘1’
+    // local 国内
+    // Abroad 本土
+
+    let url = this.site_domain_chinese_pre[country]
+    const domain_switch = userSettings && (userSettings.SwitchDominTypeSetting || userSettings.domain_switch) || '1'
+    console.log(userSettings, domain_switch, IPType, mall_main_id)
+    if (domain_switch === '3' || domain_switch === `Abroad`) {
+      url = this.site_domain_local_pre[country]
+    } else if ((domain_switch === '1' || domain_switch === 'Auto') &&
+      mall_main_id > 0 && (IPType.indexOf('大陆') === -1 || IPType === '1')) {
+      url = this.site_domain_local_pre[country]
+    }
+    return url
+  }
+
   async getWebUrl(country, data) {
     const url = this.site_domain_chinese_pre[country]
     return url
@@ -32,7 +66,7 @@ export default class NetMessageBridgeService {
     let userSettings = await this.ConfigBridgeService().getUserConfig()
     userSettings = JSON.parse(userSettings)
     const mallInfo = await this.ConfigBridgeService().getGlobalCacheInfo('mallInfo', mallId)
-    const { mall_main_id, IpExpirationTime ,IPType="" ,IPIsExpired} = JSON.parse(mallInfo)
+    const { mall_main_id, IpExpirationTime, IPType = '', IPIsExpired } = JSON.parse(mallInfo)
     const domain_switch = userSettings && (userSettings.SwitchDominTypeSetting || userSettings.domain_switch) || '1'
     let url = this.site_domain_chinese_bk[country]
     if (!IPType.includes('大陆')) {
@@ -133,7 +167,7 @@ export default class NetMessageBridgeService {
         referer: url + referer
       })
     }
-    // console.log('-----', url, JSON.stringify(options))
+    // console.log('-----', url + api, JSON.stringify(options))
     return this.NetMessageBridgeService().get(url + api, JSON.stringify(options))
   }
 
@@ -165,9 +199,9 @@ export default class NetMessageBridgeService {
 
   async getChineseBuyer(country, api, data, options = {}, exportInfo) {
     data = JSON.parse(JSON.stringify(data))
-    const url = await this.getWebUrl(country, data) + api
-    const baseurl = await this.getWebUrl(country, data)
-    options['extrainfo'] = this.getExtraInfo(data)
+    const url = await this.getWebUrlLocal(country, data) + api
+    const baseurl = await this.getWebUrlLocal(country, data)
+    options['extrainfo'] = this.getExtraInfoBuyer(data)
     if (exportInfo) { // 适配店铺管理---导入店铺
       options['extrainfo']['exportInfo'] = exportInfo
     }
@@ -186,8 +220,9 @@ export default class NetMessageBridgeService {
 
   async postChineseBuyer(country, api, data, options = {}, exportInfo) {
     data = JSON.parse(JSON.stringify(data))
-    const url = await this.getWebUrl(country, data) + api
-    options['extrainfo'] = this.getExtraInfo(data)
+    const url = await this.getWebUrlLocal(country, data) + api
+    const baseurl = await this.getWebUrlLocal(country, data)
+    options['extrainfo'] = this.getExtraInfoBuyer(data)
     if (exportInfo) { // 适配店铺管理---导入店铺
       options['extrainfo']['exportInfo'] = exportInfo
       // Object.assign(options['extrainfo'],JSON.parse(JSON.stringify()))
@@ -196,11 +231,11 @@ export default class NetMessageBridgeService {
     const referer = options['headers'] && options['headers'].referer
     if (referer) {
       options['headers'] = Object.assign(options['headers'], {
-        origin: url,
-        referer: url + referer
+        origin: baseurl,
+        referer: baseurl + referer
       })
     }
-    // console.log(url, JSON.stringify(options), JSON.stringify(data))
+    console.log(url, JSON.stringify(options), JSON.stringify(data))
     return this.NetMessageBridgeService().post(url, JSON.stringify(options), JSON.stringify(data))
   }
 
@@ -242,7 +277,7 @@ export default class NetMessageBridgeService {
         'Host': aurl.replace('https://', '')
       })
     }
-    // console.log('NetMessageBridgeService',url, JSON.stringify(options), JSON.stringify(data))
+    // console.log('NetMessageBridgeService', url, JSON.stringify(options), JSON.stringify(data))
     return this.NetMessageBridgeService().delete(url, JSON.stringify(options), JSON.stringify(data))
   }
 
@@ -989,7 +1024,6 @@ export default class NetMessageBridgeService {
       }
     }
   }
-
   // 查询订单 /api/v3/order/get_order_hint
   async getOrderHint(country, data) {
     const res = await this.getChinese(country, '/api/v3/order/get_order_hint', data)
@@ -2084,7 +2118,7 @@ export default class NetMessageBridgeService {
       if (resObj.status === 403) {
         return {
           code: resObj.status,
-          data: `商品编辑翻新，店铺未登录！`
+          data: `店铺未登录！`
         }
       }
       return {
@@ -2216,9 +2250,34 @@ export default class NetMessageBridgeService {
           data: info.data || []
         }
       } else {
-        if(info.code === 1400101530){
-          return { code: 50003,data: info.data}
+        if (info.code === 1400101530) {
+          return { code: 50003, data: info.data }
         }
+        return {
+          code: 50001,
+          data: info.message || []
+        }
+      }
+    } else {
+      return {
+        code: resObj.status,
+        data: `获取失败${resObj.statusText}`
+      }
+    }
+  }
+  // 获取广告关键字
+  async getAdventKeyWordList(country, data) {
+    const res = await this.getChinese(country, '/api/marketing/v3/pas/suggest/keyword/', data)
+    const resObj = res && JSON.parse(res)
+    // console.log(res,resObj)
+    if (resObj && resObj.status === 200) {
+      const info = JSON.parse(resObj.data)
+      if (info && info.code === 0) {
+        return {
+          code: 200,
+          data: info.data || []
+        }
+      } else {
         return {
           code: 50001,
           data: info.message || []
@@ -2475,26 +2534,22 @@ export default class NetMessageBridgeService {
   productSelector(country, data, option) {
     return this.getChinese(country, '/api/marketing/v3/public/product_selector/', data, option)
   }
-  async upload_image(country,data,options,base64){
-    let api = '/api/v3/general/upload_image/'
-    const url = await this.getUrlPrefix(country, data) + api
-    if(options){
+  async upload_image(country, data, options, base64) {
+    const api = '/api/v3/general/upload_image/'
+    const url = await this.getUrlPrefix(country, data)
+    if (options) {
       options['extrainfo'] = this.getExtraInfo(data)
-    }else{
+    } else {
       options = {
         'extrainfo': this.getExtraInfo(data)
       }
     }
     delete data.mallId
-    const referer = options['headers'] && options['headers'].referer
-    if (referer) {
-      options['headers'] = Object.assign(options['headers'], {
-        origin: url,
-        referer: url + referer
-      })
+    options['headers'] = {
+      origin: url,
+      referer: url + '/portal/settings/shop/profile'
     }
-    let filename = new Date().getTime() +''+Math.floor(Math.random() * 100)  +'.png'
-    console.log(url, JSON.stringify(options), null, base64, filename, 'application/x-gzip')
-    return this.NetMessageBridgeService().uploadFile(url, JSON.stringify(options), {}, base64, filename)
+    const filename = 'new' + new Date().getTime() + '' + Math.floor(Math.random() * 100) + '.png'
+    return this.NetMessageBridgeService().uploadFile(url + api, JSON.stringify(options), null, base64, filename)
   }
 }

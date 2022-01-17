@@ -203,7 +203,7 @@
       </div>
     </article>
     <!-- 商品标签配置 -->
-    <el-dialog
+    <!-- <el-dialog
       class="lable-settings"
       center
       title="商品标签配置"
@@ -228,6 +228,21 @@
       <span slot="footer" class="dialog-footer">
         <el-button type="primary" size="mini" @click="markGoodsLabel">添加商品到当前标签</el-button>
       </span>
+    </el-dialog> -->
+    <el-dialog
+      title="商品标签"
+      width="300px"
+      top="15vh"
+      class="label-dialog"
+      :close-on-click-modal="false"
+      :modal="false"
+      :visible.sync="goodsLabelVisiable"
+    >
+      <goodsLabel
+        v-if="goodsLabelVisiable"
+        :goods-table-select="multipleSelection"
+        @goodsTagChange="goodsTagChange"
+      />
     </el-dialog>
     <div class="on_new_dialog">
       <el-dialog width="1313px" :close-on-click-modal="false" top="6vh" :visible.sync="isEditorVisible" :modal="false">
@@ -239,7 +254,7 @@
             </el-button>
           </div>
         </template>
-        <editor-on-new-goods v-if="isEditorVisible" ref="editor_on_new_goods" :mall-table="multipleSelection" />
+        <editor-on-new-goods v-if="isEditorVisible" ref="editor_on_new_goods" :mall-table="multipleSelection" @goodsTagChange="goodsTagChange" />
       </el-dialog>
       <el-dialog title="类目映射" width="700px" top="25vh" :close-on-click-modal="false" :modal="false" :visible.sync="categoryVisible">
         <categoryMapping v-if="categoryVisible" :goods-current="{}" :mall-list="[]" @categoryChange="categoryChange" />
@@ -265,9 +280,10 @@ import { source, sourceObj } from './collection-platformId'
 import editorOnNewGoods from '../../../components/editor_on_new_goods'
 import categoryMapping from '../../../components/category-mapping'
 import goodsSize from '../../../components/goods-size'
+import goodsLabel from '../../../components/goods-label'
 
 export default {
-  components: { editorOnNewGoods, categoryMapping, goodsSize },
+  components: { editorOnNewGoods, categoryMapping, goodsSize, goodsLabel },
   data() {
     return {
       isNoFoldShow: true,
@@ -560,22 +576,33 @@ export default {
       this.multipleSelection = val
       console.log('this.multipleSelection', this.multipleSelection)
     },
-    // 获取标签列表
     async getLabelList(type) {
-      const goodsLabelList = localStorage.getItem('goodsLabelList')
-      if (goodsLabelList && type !== 'refresh') {
-        const data = JSON.parse(goodsLabelList)
-        this.labelList = data || []
+      const goodsLabelList = await this.$appConfig.temporaryCacheInfo('get', 'goodsLabelList', '')
+      const jsonData = JSON.parse(goodsLabelList)
+      console.log('goodsLabelList', jsonData)
+      if (Object.keys(jsonData).length > 0 && type !== 'refresh') {
+        this.labelList = jsonData || []
         return
       }
       const res = await this.personalLibraryAPInstance.getLabelList()
       if (res.code !== 200) {
         return this.$message.error(`获取标签列表失败:${res.code}:${res.data}`)
       }
-      localStorage.setItem('goodsLabelList', JSON.stringify(res.data))
+      this.$appConfig.temporaryCacheInfo('save', 'goodsLabelList', res.data)
       this.$message.success('获取标签列表成功')
       this.labelList = res.data || []
-      console.log('labelList', this.labelList)
+    },
+    async goodsTagChange(val) {
+      if (val) {
+        const mallList = [...this.multipleSelection.map(i => i.id)]
+        this.goodsList.forEach((item, index) => {
+          if (mallList.includes(item.id)) {
+            this.$set(this.goodsList[index], 'sys_label_id', val.category && val.category.id)
+          }
+        })
+        this.labelList = val.goodsTagList || []
+      }
+      this.goodsLabelVisiable = false
     },
     async getGoodsList() {
       const params = {
@@ -608,6 +635,7 @@ export default {
         this.total = res.data.total
         this.goodsList.push(...res.data.data)
         console.log('this.goodsList', this.goodsList)
+        console.log('this.labelList', this.labelList)
       }
       this.buttonStatus.getList = false
     },
@@ -654,43 +682,56 @@ export default {
       }
       this.labelType = type
       if (type === '1') { // 标记商品标签
+        // this.goodsLabelVisiable = true
         this.goodsLabelVisiable = true
-        this.labelId2 = this.labelList[0].id
-        this.currentLabelName = this.labelList[0].label_name
+        // this.labelId2 = this.labelList[0].id
+        // this.currentLabelName = this.labelList[0].label_name
       } else { // 取消
         this.markGoodsLabel()
       }
     },
     async markGoodsLabel() {
+      // let selectElement = this.multipleSelection
+      // console.log(this.labelList, this.currentLabelName)
+      // let labelInfo = this.labelList.find(item => item.label_name === this.currentLabelName)
+      // if (!labelInfo) { // 如果未查询到标签信息,要自动为用户创建
+      //   const res = await this.personalLibraryAPInstance.createLabel(this.currentLabelName)
+      //   if (res.code !== 200) {
+      //     return this.$message.error(`新标签创建失败${res.code}-${res.data}`)
+      //   }
+      //   await this.getLabelList('refresh')
+      //   // 二次检测
+      //   labelInfo = this.labelList.find(item => item.label_name === this.currentLabelName)
+      // }
+      // const sysGoodsId = selectElement.map(item => item.id)
+      // // 标记/取消
+      // const res2 = await this.personalLibraryAPInstance.addGoodsToTag(this.labelType === '1' ? labelInfo.id : '0', sysGoodsId)
+      // if (res2.code !== 200) {
+      //   return this.$message.error(`${this.labelType === '1' ? '标记' : '取消'}商品标签失败:${res2.code}-${res2.data}`)
+      // }
+      // this.$message.success(`${this.labelType === '1' ? '标记' : '取消'}商品标签成功`)
+      // // 本地改变状态 ,不重新加载列表
+      // selectElement.forEach(item => {
+      //   if (this.labelType === '1') {
+      //     item.sys_label_id = labelInfo.id
+      //   } else {
+      //     item.sys_label_id = ''
+      //   }
+      // })
+      // // 为商品添加标签
+      // selectElement = null
+      // this.goodsLabelVisiable = false
       let selectElement = this.multipleSelection
-      let labelInfo = this.labelList.find(item => item.label_name === this.currentLabelName)
-      if (!labelInfo) { // 如果未查询到标签信息,要自动为用户创建
-        const res = await this.personalLibraryAPInstance.createLabel(this.currentLabelName)
-        if (res.code !== 200) {
-          return this.$message.error(`新标签创建失败${res.code}-${res.data}`)
-        }
-        await this.getLabelList('refresh')
-        // 二次检测
-        labelInfo = this.labelList.find(item => item.label_name === this.currentLabelName)
-      }
       const sysGoodsId = selectElement.map(item => item.id)
-      // 标记/取消
-      const res2 = await this.personalLibraryAPInstance.addGoodsToTag(this.labelType === '1' ? labelInfo.id : '0', sysGoodsId)
-      if (res2.code !== 200) {
-        return this.$message.error(`${this.labelType === '1' ? '标记' : '取消'}商品标签失败:${res2.code}-${res2.data}`)
+      const res = await this.personalLibraryAPInstance.addGoodsToTag('0', sysGoodsId)
+      if (res.code !== 200) {
+        return this.$message.error(`取消商品标签失败:${res.code}-${res.data}`)
       }
-      this.$message.success(`${this.labelType === '1' ? '标记' : '取消'}商品标签成功`)
-      // 本地改变状态 ,不重新加载列表
+      this.$message.success(`取消商品标签成功`)
       selectElement.forEach(item => {
-        if (this.labelType === '1') {
-          item.sys_label_id = labelInfo.id
-        } else {
-          item.sys_label_id = ''
-        }
+        item.sys_label_id = ''
       })
-      // 为商品添加标签
       selectElement = null
-      this.goodsLabelVisiable = false
     },
     // 取消商品
     async deleteGoods() {

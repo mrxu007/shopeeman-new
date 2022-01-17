@@ -1,5 +1,5 @@
 <template>
-  <div class="contaniner">
+  <div class="container-row">
     <header>
       <el-tabs v-model="activeName" @tab-click="handleClick">
         <el-tab-pane label="关键词采集" name="keyPage">
@@ -422,21 +422,20 @@
               <li>
                 <p>翻译缓存时间：</p>
                 <el-date-picker
-                  v-model="commonAttr.value2"
+                  v-model="commonAttr.cacheTime"
                   type="daterange"
                   align="right"
                   unlink-panels
                   range-separator="-"
                   start-placeholder="开始日期"
                   end-placeholder="结束日期"
-                  :picker-options="commonAttr.pickerOptions"
-                  value-format="yyyy-MM-dd"
                   size="mini"
+                  style="margin-right:10px"
                 />
-                <el-button type="primary" size="mini">清理</el-button>
+                <el-button type="primary" size="mini" @click="clearTranslate">清 理</el-button>
               </li>
               <li>
-                <el-button type="primary" size="mini">清理缓存数据</el-button>
+                <el-button type="primary" size="mini" @click="clearCache">清理缓存数据</el-button>
               </li>
             </ul>
           </div>
@@ -701,6 +700,7 @@ export default {
           }]
         },
         value2: '',
+        cacheTime: [], // 翻译缓存时间
         // 1688 参数
         alibabaSortType: [
           { label: '综合排序', value: 'pop' },
@@ -835,31 +835,59 @@ export default {
     //   const supportPlarm = [1, 11, 8, 1.2, 10, 12, 9]
     //   return supportPlarm.includes(this.currentKeywordPlatform)
     // }
-
   },
-  created() {
+  async mounted() {
     this.commonAttr.shopeeSite = shopeeSite
     this.commonAttr.lazadaSite = lazadaSite
     this.pictureSearchOrigin = pictureSearchOrigin
     const dataTime = new Date() - 0
     this.taobaoTimeAt = [dataTime - 3600 * 1000 * 24 * 5, dataTime]
+    this.commonAttr.cacheTime = [dataTime - 3600 * 1000 * 24 * 1, dataTime + 3600 * 1000 * 24 * 1]
     this.getShopeeGoodsPlace()
     this.getLazadaGoodsPlace()
-    this.getTaobaoAbroadAccount()
-  },
-  async mounted() {
+    await this.getTaobaoAbroadAccount()
     document.querySelectorAll('.barChilren')[4].style.width = '102px'
     // 获取插件port
     this.port = await this.$BaseUtilService.getPluginPorts()
+    this.linkKey = localStorage.getItem('linkKey') ? localStorage.getItem('linkKey').replaceAll(',', '\n') : ''
+    window.addEventListener('storage', event => {
+      this.linkKey = localStorage.getItem('linkKey') ? localStorage.getItem('linkKey').replaceAll(',', '\n') : ''
+    })
   },
   methods: {
+    // 清理翻译缓存
+    async clearTranslate() {
+      try {
+        if (this.cacheTime?.length > 0) { return this.$message.error('请选择时间') }
+        const start = this.$dayjs(this.commonAttr.cacheTime[0]).format('YYYY-MM-DD 00:00:00')
+        const end = this.$dayjs(this.commonAttr.cacheTime[1]).format('YYYY-MM-DD 00:00:00')
+        const res = await this.$BaseUtilService.clearGoodsTranslateInfo(start, end)
+        if (Object.keys(JSON.parse(res)).length !== 0) {
+          return this.$message.success('清理翻译数据失败')
+        }
+        this.$message.success('清理翻译数据成功')
+      } catch (error) {
+        this.$message.success('清理翻译数据失败')
+      }
+    },
+    // 清理缓存数据
+    async clearCache() {
+      try {
+        const res = await this.$BaseUtilService.clealAllCache()
+        if (!res) {
+          return this.$message.error('清理缓存数据失败')
+        }
+        this.$message.success('清理缓存数据成功')
+      } catch (error) {
+        this.$message.error('清理缓存数据失败')
+      }
+    },
     // 编辑上新
     async editorUp() {
       if (!this.multipleSelection.length) return this.$message.error('请选择需要编辑的数据')
       this.editorSelection = []
       this.isEditorVisible = true
       this.saveGoodsInfo()
-      console.log('editorSelection', this.editorSelection)
     },
     setIsNoFoldShow() {
       this.isNoFoldShow = !this.isNoFoldShow

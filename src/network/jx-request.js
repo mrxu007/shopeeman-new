@@ -151,6 +151,7 @@ export default {
   deleteUserSku: (data) => AppRequest.post('/userStock/deleteSkus', data), // 删除sku
   getMoney: (data) => AppRequest.get('/warehouseAbnormalPayment/getMoney', { params: data }), // 仓库工作台：获取赔付金额
   applyCompensation: (data) => AppRequest.post('/warehouseAbnormalPayment/apply', data), // 仓库工作台：申请赔付
+  updateForecaster: (data) => AppRequest.post('/warehouse/stockingForecast/editForecaster', data), // 海外仓商品备货: 修改预报人
 
   // 订单管理
   shotAmountRecord: (data) => AppRequest.get('/shotAmountRecord/index', data), // 采购价变更记录

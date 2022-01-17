@@ -2,6 +2,43 @@ export default class GoodsList {
   constructor(that) {
     this._this = that
   }
+  async putModelActive(country, params) {
+    try {
+      const res = await this._this.$shopeemanService.mixChinese(country, '/api/marketing/v3/discount/nominate/', params, {
+        Headers: {
+          'Content-Type': ' application/json'
+        }}, 'put')
+      const resObj = res && JSON.parse(res)
+      console.log(resObj)
+      if (resObj && resObj.status === 200) {
+        const info = JSON.parse(resObj.data)
+        if (info && info.code === 0) {
+          return {
+            code: 200,
+            data: info.data || []
+          }
+        } else {
+          return {
+            code: 50001,
+            data: info.message || resObj.statusText || ''
+          }
+        }
+      } else {
+        if (resObj.status === 403) {
+          return {
+            code: resObj.status,
+            data: `操作失败，店铺未登录！`
+          }
+        }
+        return {
+          code: resObj.status,
+          data: `操作失败${resObj.statusText}`
+        }
+      }
+    } catch (error) {
+      return { code: -2, data: `操作异常： ${error}` }
+    }
+  }
   // 删除云商品库数据
   async deleteCollectGoodsInfo(id) {
     try {
@@ -174,7 +211,7 @@ export default class GoodsList {
       const res = await this._this.$shopeemanService.deleteChinese(val.country, '/api/marketing/v3/discount/nominate/abnormal/', params, {
         headers: {
           'Content-Type': 'application/json',
-          referer: `portal/marketing/discount/${activityid}`
+          referer: `/portal/marketing/discount/${activityid}/`
         }
       })
       const jsonData = this.isJsonString(this.isJsonString(res).data)
@@ -193,6 +230,7 @@ export default class GoodsList {
     params['search_type'] = 'item_id'
     params['keyword'] = val.id
     params['mallId'] = val.platform_mall_id
+    params['promotion_status'] = 'ongoing'
     try {
       const res = await this._this.$shopeemanService.getChinese(val.country, '/api/marketing/v3/discount/standard_search/?', params)
       const jsonData = this.isJsonString(res)

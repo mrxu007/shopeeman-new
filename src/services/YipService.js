@@ -86,7 +86,7 @@ export default class YipService {
        * @param  {int} targetId IP绑定ID
        * @param  {string} mallIds 店铺ID
        */
-  async NewBindingMallBySysMallId(targetId, mallIds) {
+  async NewBindingMallBySysMallId(uid,targetId, mallIds) {
     return await this.nativeService().callCloudIpFunction('NewBindingMallBySysMallId', uid, targetId, mallIds)
   }
   /**
