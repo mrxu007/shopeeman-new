@@ -304,7 +304,7 @@ export default {
           data['mallname'] = mallname
           for (const item in attributeTreeRes.data.result) {
             if (item === 'sales' || item === 'cost') {
-              data[`${item}`] = `${this.$filters.currencyShow(this.site)}${attributeTreeRes.data.result[item].value}`
+              data[`${item}`] = `${this.$filters.siteCoin(this.site)}${attributeTreeRes.data.result[item].value}`
             } else {
               data[`${item}`] = attributeTreeRes.data.result[item].value
             }
@@ -321,8 +321,8 @@ export default {
             for (let k = 0; k < data['view'].length; k++) {
               data['view'][k].start_day = this.$dayjs(data['view'][k].start_day * 1000).format('YYYY-MM-DD hh:mm:ss')
               data['view'][k].end_day = this.$dayjs(data['view'][k].end_day * 1000).format('YYYY-MM-DD hh:mm:ss')
-              data['view'][k].sales = `${this.$filters.currencyShow(this.site)}${data['view'][k].sales}`
-              data['view'][k].sales_per_buyer = `${this.$filters.currencyShow(this.site)}${data['view'][k].sales_per_buyer}`
+              data['view'][k].sales = `${this.$filters.siteCoin(this.site)}${data['view'][k].sales}`
+              data['view'][k].sales_per_buyer = `${this.$filters.siteCoin(this.site)}${data['view'][k].sales_per_buyer}`
             }
           }
           this.tableData.push(data)
