@@ -514,6 +514,7 @@ export default {
     async updateData(params) {
       const res = await this.AddressSet.updateData(params)
       if (res.code === 200) {
+        await this.$appConfig.updateWarehouseInfo()
         this.$message.success('修改成功')
         this.itselfUpdateType = ''
         if (this.itselfAddressVisible) {
@@ -545,6 +546,7 @@ export default {
       this.butLoading = true
       const res = await this.AddressSet.addXzyStore(params)
       if (res.code === 200) {
+        await this.$appConfig.updateWarehouseInfo()
         this.$message.success('新增系统仓库成功')
         this.getBindMall()
       } else {
@@ -599,6 +601,7 @@ export default {
       }
       const res = await this.AddressSet.deleteOwnStore(params)
       if (res.code === 200) {
+        await this.$appConfig.updateWarehouseInfo()
         this.$message.success('删除成功')
         this.getUserWarehouse()
       } else {

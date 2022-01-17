@@ -42,7 +42,7 @@
           <span class="base-title">私聊内容</span>
           <div class="base-item">
             <div class="row-style">
-              <el-input type="textarea" :rows="3" v-model="sendText" clearable size="mini" style="height: 60px"> </el-input>
+              <el-input type="textarea" resize="none" :rows="3" v-model="sendText" clearable size="mini" style="height: 60px"> </el-input>
               <div class="chat-content-btn">
                 <el-button type="primary" size="mini" @click="addMessage" :disabled="btnLoading">添加消息</el-button>
                 <el-tooltip class="item" effect="dark" content="若添加多条内容则会随机选择一条发送，建议添加多条不通的内容降低被平台屏蔽风险" placement="right-end">
@@ -97,7 +97,7 @@
       </div>
     </div>
     <div class="content">
-      <u-table ref="multipleTable" :data="tableData" :header-cell-style="{ background: '#f7fafa' }" height="580px">
+      <u-table ref="multipleTable" :data="tableData" :header-cell-style="{ background: '#f7fafa' }" height="520px">
         <u-table-column align="center" type="index" label="序号" width="50">
           <template slot-scope="scope">{{ scope.$index + 1 }}</template>
         </u-table-column>
