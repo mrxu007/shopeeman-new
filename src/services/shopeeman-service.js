@@ -2256,6 +2256,28 @@ export default class NetMessageBridgeService {
       }
     }
   }
+  // 重启折扣活动
+  async overlapDiscount(country, data) {
+    const res = await this.postChinese(country, `/api/marketing/v3/discount/item/overlap/`, data, {
+      Headers: {
+        'Content-Type': ' application/json'
+      }
+    })
+    const resObj = res && JSON.parse(res)
+    const dataInfo = resObj.data && JSON.parse(resObj.data)
+    if (resObj.status === 200) {
+      const arr = dataInfo && dataInfo.data && dataInfo.data.products && dataInfo.data.products.items || []
+      return {
+        code: 200,
+        data: arr
+      }
+    } else {
+      return {
+        code: 50001,
+        data: '操作失败'
+      }
+    }
+  }
 
   // 获取地址
   getNextLevelAddresses(country, data, option) {

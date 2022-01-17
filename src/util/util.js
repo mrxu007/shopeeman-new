@@ -688,7 +688,7 @@ export function getGoodsUrl(platform, data) {
       //获取shopee平台商品详情
       const shopeeGoods = await instance.$shopeemanService.searchProductDetail(country, params)
       if (shopeeGoods.code === 200 && shopeeGoods.data) {
-        let logistics_channels = dealwithLogisi(shopGoodsId, shopMallId, country)
+        let logistics_channels = await dealwithLogisi(shopGoodsId, shopMallId, country)
         if (!logistics_channels.length) {
           return writeLog(`${orderSn?`订单【${orderSn}】`:`商品【${shopGoodsId}】`}同步上家失败，未获取到物流信息！`, false)
         }
@@ -864,7 +864,7 @@ async function getLogisticsInfo(logisticsJarray, isUseProductChannel, mallID, co
     }
     console.log(idDatas,"idDatas")
     // 过滤无效物流
-    logisticsJarray = filterLogistics(logisticsJarray, idDatas, isUseProductChannel)
+    logisticsJarray = await filterLogistics(logisticsJarray, idDatas, isUseProductChannel)
     console.log(logisticsJarray,"logisticsJarray222")
   }
   for (let i = 0; i < logisticsJarray.length; i++) {
