@@ -1595,15 +1595,15 @@ export default {
       }
     },
     saveCalculate(){
-      let stting = this.valuationConfig
+      let setting = this.valuationConfig
       let messages = ''
-      if (!stting.discount){
+      if (!setting.discount){
         messages = '折扣率不能为空'
-      }else if (!stting.bubbleHeavy){
+      }else if (!setting.bubbleHeavy){
         messages = '泡重计算比不能为空'
       }
       messages && this.$message.error(messages)
-      this.valuationSetting =!messages && JSON.parse(JSON.stringify(stting)) || ''
+      this.valuationSetting =!messages && JSON.parse(JSON.stringify(setting)) || ''
     },
     updateAttributeName(item, value, attributeName = 'statusName') {
       let index = this.goodsTable.findIndex(i => i.id === item.id)
@@ -1667,9 +1667,9 @@ export default {
       let setting = this.valuationConfig
       let calculate = this.calculateReference
       let messages = ''
-      if (!stting.discount){
+      if (!setting.discount){
         messages = '折扣率不能为空'
-      }else if (!stting.bubbleHeavy){
+      }else if (!setting.bubbleHeavy){
         messages = '泡重计算比不能为空'
       }
       if (messages){
