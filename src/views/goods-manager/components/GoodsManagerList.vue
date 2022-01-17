@@ -292,7 +292,7 @@
                         size="mini"
                         onkeyup="value=value.replace(/[^\d]-/g,'')"
                       /> % +
-                      <el-input v-model="productPrice2" :disabled="operationBut" class="mini-input" size="mini" onkeyup="value=value.replace(/[^\d]/g,'')" />
+                      <el-input v-model="productPrice2" :disabled="operationBut" class="mini-input" size="mini" onkeyup="value=value.replace(/[^\d]-/g,'')" />
                     </el-form-item>
                     <el-form-item label="发货天数：">
                       <el-input
@@ -1565,6 +1565,7 @@ export default {
       this.isRefurbishProduct = true
       this.isMove = false
       this.updateNum = this.multipleSelection.length
+      this.deleteId = []
       await batchOperation(this.multipleSelection, this.startRefurbishment)
       await this.deleteCollectGoodsInfo()
       this.operationBut = false
@@ -2314,6 +2315,9 @@ export default {
     async setTitle(item, count = { count: 1 }) {
       try {
         let productInfo = {}
+        // if (item.holiday_mode_on) {
+        //   return this.batchStatus(item, `店铺正处于休假模式`, false)
+        // }
         this.batchStatus(item, `正在获取商品详情...`, true)
         const res = await this.getProductDetail(item)
         if (res.code === 200) {
@@ -2719,6 +2723,7 @@ export default {
         type: 'warning'
       }).then(async() => {
         this.initData()
+        this.deleteId = []
         this.updateNum = this.deleteData.length
         await batchOperation(this.deleteData, this.deleteProduct)
         await this.deleteCollectGoodsInfo()
@@ -2775,12 +2780,15 @@ export default {
     },
     // 删除云商品记录,防止上新拦截
     async deleteCollectGoodsInfo() {
-      this.$refs.Logs.writeLog(`正在删除云商品库数据...`, true)
-      const res = await this.GoodsList.deleteCollectGoodsInfo(this.deleteId)
-      if (res.code === 200) {
-        this.$refs.Logs.writeLog(`删除云商品库数据成功`, true)
-      } else {
-        this.$refs.Logs.writeLog(`删除云商品库数据失败：${res.data}`, false)
+      console.log('deleteId', this.deleteId)
+      if (this.deleteId.length > 0) {
+        this.$refs.Logs.writeLog(`正在删除云商品库数据...`, true)
+        const res = await this.GoodsList.deleteCollectGoodsInfo(this.deleteId)
+        if (res.code === 200) {
+          this.$refs.Logs.writeLog(`删除云商品库数据成功`, true)
+        } else {
+          this.$refs.Logs.writeLog(`删除云商品库数据失败：${res.data}`, false)
+        }
       }
     },
     // 获取活动类型
@@ -3052,12 +3060,15 @@ export default {
       }
       let res = ''
       let mallName = ''
+      // let mallRes = ''
       try {
+        // mallRes = await this.$shopeemanService.getUserInfo(mItem)
+        mallName = mItem.mall_alias_name || mItem.platform_mall_name
+        // if (mallRes.code === 200) {
         const params = {}
         params['mItem'] = mItem
         params['pageSize'] = this.pageSize
         params['listType'] = this.goodsStatusName ? this.goodsStatusName : 'all'
-        mallName = mItem.mall_alias_name || mItem.platform_mall_name
         if ((this.searchType !== 'originId' && this.keyword) || this.goodsMax < 99999999 || this.goodsMin > 0 || this.soldMin > 0 || this.soldMax < 99999999 || this.categoryName) {
           if (this.keyword && !(this.queryType === 100 || this.queryType === 200)) {
             params['searchType'] = this.searchType
@@ -3081,6 +3092,7 @@ export default {
             this.$refs.Logs.writeLog(`查询店铺【${mallName}】第【${mItem.pageNumber}】页数据：${res.data.list.length}`, true)
             // 组装数据
             await this.setTableData(res.data.list, mItem, mallName)
+            // await this.setTableData(res.data.list, mItem, mallName, mallRes.data)
             // 过滤数据
             const newData = this.filterData(res.data.list)
             if (!this.productNumChecked) {
@@ -3094,6 +3106,9 @@ export default {
         } else {
           this.$refs.Logs.writeLog(`店铺【${mallName}】${res.data}`, false)
         }
+        // } else {
+        //   this.$refs.Logs.writeLog(`店铺【${mallName}】${mallRes.data}`, false)
+        // }
       } catch (error) {
         console.log(error)
         this.$refs.Logs.writeLog(`店铺【${mallName}】获取数据异常`, false)
@@ -3152,19 +3167,23 @@ export default {
       }
       let res = ''
       let mallName = ''
+      // let mallRes = ''
       try {
+        // mallRes = await this.$shopeemanService.getUserInfo(mItem)
+        mallName = mItem.mall_alias_name || mItem.platform_mall_name
+        // if (mallRes.code === 200) {
         const params = {}
         params['mItem'] = mItem
         params['pageSize'] = this.pageSize
         params['listType'] = 'banned'
         params['listOrderType'] = 'list_time_asc'
-        mallName = mItem.mall_alias_name || mItem.platform_mall_name
         res = await this.GoodsList.getMpskuList(params)
         if (res.code === 200) {
           if (res.data.list?.length) {
             this.$refs.Logs.writeLog(`查询店铺【${mallName}】第【${mItem.pageNumber}】页数据：${res.data.list.length}`, true)
             // 组装数据
             await this.setTableData(res.data.list, mItem, mallName)
+            // await this.setTableData(res.data.list, mItem, mallName, mallRes.data)
             if (!this.productNumChecked) {
               this.tableData = this.tableData.concat(res.data.list)
               this.queryNum = this.tableData.length
@@ -3176,6 +3195,9 @@ export default {
         } else {
           this.$refs.Logs.writeLog(`店铺【${mallName}】${res.data}`, false)
         }
+        // } else {
+        //   this.$refs.Logs.writeLog(`店铺【${mallName}】${mallRes.data}`, false)
+        // }
       } catch (error) {
         this.$refs.Logs.writeLog(`店铺【${mallName}】获取数据异常`, false)
       } finally {
@@ -3209,7 +3231,7 @@ export default {
       }
     },
     // 表格数据组装
-    async setTableData(data, mItem, mallName) {
+    async setTableData(data, mItem, mallName, mallRes) {
       for (let i = 0; i < data.length; i++) {
         const item = data[i]
         let stock = 0
@@ -3223,6 +3245,7 @@ export default {
         item.modify_time = item.modify_time * 1000
         item.images = item.images[0]
         item.platform_mall_id = mItem.platform_mall_id
+        // item.holiday_mode_on = mallRes.holiday_mode_on// 店铺是否开启休假true:开启休假模式
         item.model_list.forEach(modelItem => {
           price.push(Number(modelItem.price_info.normal_price))
           stock += Number(modelItem.stock_info.normal_stock)
