@@ -6,15 +6,15 @@
         <div style="margin-left: 20px">
           <span>过期时间：</span>
           <el-date-picker
-              v-model="cloumn_date"
-              size="mini"
-              style="width: 324px"
-              type="datetimerange"
-              value-format="yyyy-MM-dd HH:mm:ss"
-              range-separator="-"
-              :picker-options="pickerOptions"
-              start-placeholder="开始日期"
-              end-placeholder="结束日期"
+            v-model="cloumn_date"
+            size="mini"
+            style="width: 324px"
+            type="datetimerange"
+            value-format="yyyy-MM-dd HH:mm:ss"
+            range-separator="-"
+            :picker-options="pickerOptions"
+            start-placeholder="开始日期"
+            end-placeholder="结束日期"
           />
         </div>
       </div>
@@ -90,13 +90,13 @@
     <div class="table_clo">
       <div class="data_table" style="height: 100%; background-color: white">
         <el-table
-            ref="multipleTable"
-            height="calc(100vh - 233px)"
-            :data="tableListEnd"
-            :row-style="{ height: '50px' }"
-            style="width: 100%; height: calc(100vh - 233px)"
-            :header-cell-style="{ background: '#f7fafa' }"
-            @selection-change="handleSelectionChange"
+          ref="multipleTable"
+          height="calc(100vh - 233px)"
+          :data="tableListEnd"
+          :row-style="{ height: '50px' }"
+          style="width: 100%; height: calc(100vh - 233px)"
+          :header-cell-style="{ background: '#f7fafa' }"
+          @selection-change="handleSelectionChange"
         >
           <el-table-column type="selection" min-width="55px" align="center" />
           <el-table-column label="序号" type="index" align="center" :index="indexMethod" fixed />
@@ -137,14 +137,14 @@
         </el-table>
         <div class="pagination">
           <el-pagination
-              background
-              :current-page.sync="page"
-              :page-sizes="[20, 50, 100, 200]"
-              :page-size="pageSize"
-              layout="total, sizes, prev, pager, next, jumper"
-              :total="total"
-              @size-change="handleSizeChange"
-              @current-change="handleCurrentChange"
+            background
+            :current-page.sync="page"
+            :page-sizes="[20, 50, 100, 200]"
+            :page-size="pageSize"
+            layout="total, sizes, prev, pager, next, jumper"
+            :total="total"
+            @size-change="handleSizeChange"
+            @current-change="handleCurrentChange"
           />
         </div>
       </div>
@@ -152,16 +152,16 @@
     <!-- dialog 新增公司主体-->
     <div class="dialog_addip">
       <el-dialog
-          v-loading="loading"
-          :title="dialog_title"
-          :visible.sync="dialogvisible"
-          width="1000px"
-          height="600px"
-          top="2vh"
-          :class="{ changeVisible: Typeis === '' }"
-          :close-on-click-modal="false"
-          :close-on-press-escape="false"
-          @closed="closeDialog1"
+        v-loading="loading"
+        :title="dialog_title"
+        :visible.sync="dialogvisible"
+        width="1000px"
+        height="600px"
+        top="2vh"
+        :class="{ changeVisible: Typeis === '' }"
+        :close-on-click-modal="false"
+        :close-on-press-escape="false"
+        @closed="closeDialog1"
       >
         <div class="left">
           <!--新增公司主体  -->
@@ -583,7 +583,7 @@ export default {
       cloumn_date: [],
       pickerOptions: {
         disabledDate(time) {
-          return time.getTime() > Date.now()
+          // return time.getTime() > Date.now()
         }
       },
       showRMB: true,
@@ -1176,7 +1176,7 @@ export default {
       // IP类型 分类验证
       if (this.query_person.ip_agency === 'ssr') {
         if (
-            this.query_person.ip_address === '' ||
+          this.query_person.ip_address === '' ||
             this.query_person.ip_port === '' ||
             this.query_person.password === '' ||
             this.query_person.encryption === '' ||
@@ -1201,7 +1201,7 @@ export default {
       // this.query_person.password === ''
       if (this.query_person.ip_agency === 'http') {
         if (
-            this.query_person.ip_address === '' ||
+          this.query_person.ip_address === '' ||
             this.query_person.ip_port === ''
         ) {
           this.$message.warning('必填信息不能为空')
@@ -1402,12 +1402,12 @@ export default {
         d += performance.now() // use high-precision timer if available
       }
       var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(
-          /[xy]/g,
-          function(c) {
-            var r = (d + Math.random() * 16) % 16 | 0
-            d = Math.floor(d / 16)
-            return (c === 'x' ? r : (r & 0x3) | 0x8).toString(16)
-          }
+        /[xy]/g,
+        function(c) {
+          var r = (d + Math.random() * 16) % 16 | 0
+          d = Math.floor(d / 16)
+          return (c === 'x' ? r : (r & 0x3) | 0x8).toString(16)
+        }
       )
       return uuid
     },
@@ -1559,7 +1559,7 @@ export default {
       this.total = this.tableList.length
       this.page = 1
       this.tableListEnd = this.tableList.slice((this.page - 1) * this.pageSize, this.page * this.pageSize)
-      console.log(this.tableListEnd,JSON.stringify(this.tableListEnd))
+      console.log(this.tableListEnd, JSON.stringify(this.tableListEnd))
     },
     // 分页递增
     indexMethod(index) {
