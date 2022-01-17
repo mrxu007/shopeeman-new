@@ -795,8 +795,6 @@ export default {
     async determineRestart() {
       if (!this.promotionTime?.length) return this.$message.warning('请选择折扣促销时间')
       this.timeVisible = false
-      const start_time = this.promotionTime[0].getTime().toString().substr(0, 10)
-      const end_time = this.promotionTime[1].toString().substr(0, 10)
       this.isDisabled = true
       this.$refs.Logs.writeLog(`开始重启已过期的活动`, true)
       this.endedActivityData.forEach((item) => {
@@ -808,7 +806,6 @@ export default {
     },
     // 重新启动已过期的活动
     async restartActivity(item, count = { count: 1 }) {
-      const params = {}
       try {
         // 1、查询折扣活动详情
         params['item'] = item
@@ -818,6 +815,21 @@ export default {
           return this.$refs.Logs.writeLog(`获取【${item.title}】【${item.discount_id}】错误：${nominateRes.data}`, false)
         }
         this.$refs.Logs.writeLog(`获取【${item.title}】【${item.discount_id}】详情结束，共${nominateRes.data.item_info.length}件商品`, true)
+        let itemFilter = nominateRes.data.item_info.filter(n=>n.status===1)
+        let itemIds = []
+        itemFilter.forEach(item=>{
+          itemIds.push(item.itemid)
+        })
+        const start_time = this.promotionTime[0].getTime().toString().substr(0, 10)
+        const end_time = this.promotionTime[1].toString().substr(0, 10)
+        let params = {
+          end_time: end_time,
+          item_id_list: itemIds,
+          start_time: start_time
+        }
+        let res = await this.$shopeemanService.overlapDiscount(item.country,params)
+        console.log(res,"res--overlap")
+         
       } catch (error) {
       } finally {
         --count.count
