@@ -3,9 +3,6 @@ export default class CollectionPublicApi {
     constructor(that) {
       this._this = that
     }
-    initData(activeName) {
-      this.activeName = activeName
-    }
     async setGoodsData(item, data) {
       let goodsData = JSON.parse(JSON.stringify(data))
       // 1：描述组装处理 PddPlatform
@@ -57,7 +54,7 @@ export default class CollectionPublicApi {
           goodsData.CollectGoodsData.GoodsExtraInfo['site'] = item.Site.toUpperCase()
         }
         // 天猫淘宝跨境平台：需要设置额外信息：店铺ID
-        if (this.activeName === 'taobaoAbroadPage') {
+        if (item.platformId === 13) {
           goodsData.CollectGoodsData.GoodsExtraInfo['UserId'] = item.ShopId.toString()
         }
         // 5：过滤特殊字符：标题、短标题、描述、过滤Emoji字符串

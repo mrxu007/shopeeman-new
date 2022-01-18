@@ -11,7 +11,7 @@ class CollectLinkApI {
     try {
       this.goods = goods
       console.log('goodsData', this.goods)
-      const { platformId, GoodsId, ShopId, Site, Platform } = this.goods
+      const { platformId, GoodsId, ShopId, Site, Platform, AccessToken } = this.goods
       const params = {}
       params['GoodsId'] = GoodsId
       switch (platformId || Platform) {
@@ -35,8 +35,8 @@ class CollectLinkApI {
         case 12: // '速卖通'
           break
         case 13: // '天猫淘宝海外平台'
-          params['ShopId'] = ShopId
-          params['AccessToken'] = ''
+          // params['ShopId'] = ShopId
+          params['AccessToken'] = AccessToken
           break
       }
       console.log(params)
@@ -78,7 +78,7 @@ class CollectLinkApI {
       } else {
         linkArr = linkKey
       }
-      const execPlatform = /(yangkeduo.com)|(taobao.com)|(aliexpress.com)|(jd.com)|(1688.com)|(detail.tmall.com)|(pinduoduo.com)|(lazada)|(xiapibuy)|(shopee.com)/g
+      const execPlatform = /(yangkeduo.com)|(taobao.com)|(aliexpress.com)|(jd.com)|(1688.com)|(detail.tmall.com)|(pinduoduo.com)|(lazada)|(xiapibuy)|(shopee.com)|(distributor.taobao.global)/g
       let GoodsId = null
       let platformId = null
       let Site = null
@@ -138,6 +138,9 @@ class CollectLinkApI {
               Site = item.Url.match(/shopee.com\.(\w+)/)[1]
               ShopId = item.Url.match(/product\/(\d+)/)[1]
               GoodsId = item.Url.match(/product\/(\d+)\/(\d+)/)[2]
+              break
+            case 'distributor.taobao.global':
+              GoodsId = item.Url.match(/mpId=(\d+)/)[1]
               break
           }
           try {
