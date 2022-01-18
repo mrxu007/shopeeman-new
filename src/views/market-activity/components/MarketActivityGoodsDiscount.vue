@@ -722,6 +722,7 @@ export default {
       if (!this.multipleSelection.length) {
         return this.$message.warning('请先选择数据！')
       }
+      this.showConsole = false
       this.$refs.Logs.consoleMsg = ''
       this.$refs.Logs.writeLog(`请在执行操作，请稍等`, true)
       this.multipleSelection.forEach(async (item) => {
@@ -746,6 +747,7 @@ export default {
         }
       }
       console.log(row, 'row')
+      this.showConsole = false
       this.$refs.Logs.writeLog(`请在执行操作，请稍等`, true)
       let res = await this.GoodsDiscount.stopActive(row, actionType)
       if (res.code === 200) {

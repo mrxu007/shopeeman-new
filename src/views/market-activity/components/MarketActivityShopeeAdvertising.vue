@@ -87,7 +87,7 @@
               <el-checkbox v-model="showConsole" class="mar-left">隐藏日志</el-checkbox>
             </div>
             <div class="select-row">
-              <el-button type="primary" size="mini" @click="createSingleKeyword">创建单个商品关键字广告</el-button>
+              <el-button type="primary" size="mini" :disabled="loading" @click="createSingleKeyword">创建单个商品关键字广告</el-button>
               <el-button
                 type="primary"
                 size="mini"
@@ -97,10 +97,10 @@
                 "
                 >创建批量商品关键字广告</el-button
               >
-              <el-button type="primary" size="mini">创建关联广告</el-button>
-              <el-button type="primary" size="mini">停止创建广告</el-button>
-              <el-button type="primary" size="mini" plain>暂停广告活动</el-button>
-              <el-button type="primary" size="mini" plain>继续广告活动</el-button>
+              <el-button type="primary" size="mini" :disabled="loading" >创建关联广告</el-button>
+              <el-button type="primary" size="mini"  >停止创建广告</el-button>
+              <el-button type="primary" size="mini" plain :disabled="loading" >暂停广告活动</el-button>
+              <el-button type="primary" size="mini" plain :disabled="loading" >继续广告活动</el-button>
             </div>
           </div>
         </div>
@@ -339,9 +339,9 @@
             <el-checkbox v-model="handleKeyword" @change="handleChangeKeyType">手动选择</el-checkbox>
             <div v-if="handleKeyword" class="mar-top">
               <div class="item-box">
-                <el-button size="mini" type="primary" @click="batchChangeKey('keyPriceVisible')">批量修改出价</el-button>
-                <el-button size="mini" type="primary" @click="batchChangeKey('keyTypeVisible')">批量编辑匹配类型</el-button>
-                <el-button size="mini" type="primary" @click="batchChangeKey('delete')">批量删除</el-button>
+                <el-button size="mini" type="primary" :disabled="loading" @click="batchChangeKey('keyPriceVisible')">批量修改出价</el-button>
+                <el-button size="mini" type="primary" :disabled="loading" @click="batchChangeKey('keyTypeVisible')">批量编辑匹配类型</el-button>
+                <el-button size="mini" type="primary" :disabled="loading" @click="batchChangeKey('delete')">批量删除</el-button>
               </div>
               <el-table :data="keyWordList" style="width: 100%; margin: 10px 0" max-height="360px" @selection-change="handleSelectionChangeKey" v-loading="keyListLoading">
                 <el-table-column align="center" type="index" label="序号" width="40" />
@@ -379,7 +379,7 @@
           </div>
         </div>
         <div class="footer-btn">
-          <el-button size="mini" type="primary" @click="publishAdvent">确认发布</el-button>
+          <el-button size="mini" type="primary" :disabled="loading" @click="publishAdvent">确认发布</el-button>
           <el-button size="mini" type="primary" @click="createAdventVisible = false">取消发布</el-button>
         </div>
       </div>
@@ -522,7 +522,7 @@ export default {
       createChooseGoods: [], //创建弹窗选择的商品
       budgetSingle: '1', //每个广告的预算
       timeSingle: '1', //每个广告的时长
-      autoKeyword: false,
+      autoKeyword: true,
       handleKeyword: false,
       selectGoods: [],
       goodsItemSelectorVisible: false,
@@ -557,55 +557,79 @@ export default {
   methods: {
     //确定发布单个商品关键字广告
     async publishAdvent() {
-      let campaign_ads_list = []
-      let campaign = {
-        start_time: this.timeRange.length ? Math.round(new Date(this.timeRange[0]).getTime / 1000) : 0,
-        end_time: this.timeRange.length ? Math.round(new Date(this.timeRange[1]).getTime / 1000) : 0,
-        daily_quota: this.budgetType === 'day' ? this.budget : 0,
-        total_quota: this.budgetType === 'total' ? this.budget : 0,
-        status: 1,
+      if (!this.autoKeyword && !this.handleKeyword && !this.multipleSelectionKey.length) {
+        return this.$message.warning('请切换自动选择或至少选择一个关键字')
       }
-      this.createChooseGoods.forEach((goods) => {
-        let obj1 = {
-          itemid: goods.itemid,
+      this.loading = true
+      console.log(this.timeRange)
+      try {
+        let campaign_ads_list = []
+        let campaign = {
+          start_time: this.timeRange.length ? Math.round(new Date(this.timeRange[0]).getTime() / 1000) : 0,
+          end_time: this.timeRange.length ? Math.round(new Date(this.timeRange[1]).getTime() / 1000) : 0,
+          daily_quota: this.budgetType === 'day' ? this.budget : 0,
+          total_quota: this.budgetType === 'total' ? this.budget : 0,
           status: 1,
-          placement: 4,
-          extinfo: {
-            target_roi: 0,
-          },
         }
-        let keyList = []
-        this.multipleSelectionKey.forEach((keyWords) => {
-          let keyObj = {
-            match_type: 0,
-            keyword: keyWords.keyword ,
-            price: Number(keyWords.selfPrice),
+        this.createChooseGoods.forEach((goods) => {
+          let advertisements = []
+          let obj1 = {
+            itemid: goods.itemid,
             status: 1,
-            algorithm: keyWords.algorithm,
+            placement: 4,
+            extinfo: {
+              target_roi: 0,
+            },
           }
-          keyList.push(keyObj)
+          advertisements.push(obj1)
+          if (this.handleKeyword) {
+            let keyList = []
+            this.multipleSelectionKey.forEach((keyWords) => {
+              let keyObj = {
+                match_type: 0,
+                keyword: keyWords.keyword,
+                price: Number(keyWords.selfPrice),
+                status: 1,
+                algorithm: keyWords.algorithm,
+              }
+              keyList.push(keyObj)
+            })
+            let obj2 = {
+              itemid: goods.itemid,
+              status: 1,
+              placement: 0,
+              extinfo: {
+                keywords: keyList,
+              }
+            }
+            advertisements.push(obj2)
+          }
+          let adsParams = {
+            campaign: campaign,
+            advertisements: advertisements,
+          }
+          campaign_ads_list.push(adsParams)
         })
-        let obj2 = {
-          itemid: goods.itemid,
-          status: 1,
-          placement: 0,
-          extinfo: {
-            keywords: keyList,
-          },
+        let params = {
+          campaign_ads_list: campaign_ads_list,
+          ads_audit_event: 4,
+          mallId: this.selectMallList[0].platform_mall_id,
         }
-        let adsParams = {
-          campaign:campaign,
-          advertisements:[obj1,obj2]
+        let res = await this.$shopeemanService.createKeyAdvent(this.country, params)
+        if (res.code === 200) {
+          this.$refs.Logs.writeLog(`创建广告成功`, true)
+          this.batchGetAdventList()
+        } else if (res.code === 403) {
+          this.$refs.Logs.writeLog(`创建广告失败，店铺未登录`, false)
+        } else {
+          this.$refs.Logs.writeLog(`创建广告失败，${res.data}`, false)
         }
-        campaign_ads_list.push(adsParams)
-      })
-
-      let params = {
-        campaign_ads_list: campaign_ads_list,
-        ads_audit_event: 4,
+        this.loading = false
+        console.log(res, 'res===')
+      } catch (error) {
+        this.loading = false
+        console.log(error, 'error')
       }
-      let res = await this.$shopeemanService.createKeyAdvent(this.country, params)
-      console.log(res, 'res===')
     },
     //批量修改出价
     batchChangeKey(key) {
