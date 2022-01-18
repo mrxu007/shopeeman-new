@@ -72,17 +72,17 @@ class CollectOtherApI {
       let res = null
       try {
         res = await this._this.$collectService.queryTmCrossBorder(account.access_token, params)
-        console.log(res)
+        res = JSON.parse(res)
       } catch (error) {
         this.errorCatchText = error
         res = this.handleError()
       }
-      res = JSON.parse(res)
-      if (res.data.item_id !== 0) {
-        this.writeLog(`采集第${StartPage}页失败：${JSON.stringify(res.data)}`, false)
+      if (res.data?.item_id !== 0) {
+        this.writeLog(`采集第${StartPage}页失败，数据为空`, false)
         break
       } else {
         let data = res.data.product_list
+        console.log('天猫淘宝海外平台', data)
         if (data.length === 0) { // 如果商品长度为0 跳出
           break
         }
@@ -96,7 +96,9 @@ class CollectOtherApI {
           item.Price = item.price
           item.Sales = 0
           item.Origin = '天猫淘宝海外平台'
-          item.Url = `https://distributor.taobao.global/apps/product/detail?mpId=600067654483575809${item.item_id}`
+          item.Url = `https://distributor.taobao.global/apps/product/detail?mpId=${item.item_id}`
+          item.platformId = 13
+          item.AccessToken = account.access_token
           return item
         })
         this.GoodsData.push(...data)

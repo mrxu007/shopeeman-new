@@ -671,7 +671,7 @@ export function getGoodsUrl(platform, data) {
    * @param {*} orderSn 订单号传null
    * @param {*} writeLog 日志函数
    */
-export async function dealwithOriginGoodsNum(oriGoodsId, oriPlatformId, shopMallId, shopGoodsId, country, orderSn, writeLog, oriShopMallId, oriSite, that) {
+export async function dealwithOriginGoodsNum(oriGoodsId, oriPlatformId, shopMallId, shopGoodsId, country, orderSn, writeLog, oriShopMallId, oriSite, that, shopeeItem) {
   let msg = ''
   let flag = false
   const _that = that
@@ -690,8 +690,12 @@ export async function dealwithOriginGoodsNum(oriGoodsId, oriPlatformId, shopMall
     if (shopeeGoods.code === 200 && shopeeGoods.data) {
       const logistics_channels = await dealwithLogisi(shopGoodsId, shopMallId, country)
       if (!logistics_channels.length) {
-        _that && _that.failNum++
-        return writeLog(`${orderSn ? `订单【${orderSn}】` : `商品【${shopGoodsId}】`}同步上家失败，未获取到物流信息！`, false)
+        if (orderSn) {
+          return writeLog(`订单【${orderSn}】同步上家失败，未获取到物流信息！`, false)
+        } else {
+          _that.failNum++
+          return _that.batchStatus(shopeeItem, `同步上家失败，未获取到物流信息`, false)
+        }
       }
       shopeeGoodsInfo = shopeeGoods.data
       shopeeSkuList = shopeeGoods.data.model_list || [] // shopee规格list
@@ -728,8 +732,12 @@ export async function dealwithOriginGoodsNum(oriGoodsId, oriPlatformId, shopMall
           if (shopeeSkuList.length === 0) {
             totalStock = CollectGoodsData.TotalQuantity
           } else {
-            _that && _that.failNum++
-            return writeLog(`${orderSn ? `订单【${orderSn}】` : `商品【${shopGoodsId}】`}同步库存失败，获取到上家规格为空，未匹配到相同的规格信息！`, false)
+            if (orderSn) {
+              return writeLog(`订单【${orderSn}】同步库存失败，获取到上家规格为空，未匹配到相同的规格信息！`, false)
+            } else {
+              _that.failNum++
+              return _that.batchStatus(shopeeItem, `获取到上家规格为空，未匹配到相同的规格信息`, false)
+            }
           }
         } else {
           for (const key in CollectGoodsSkus) {
@@ -765,8 +773,12 @@ export async function dealwithOriginGoodsNum(oriGoodsId, oriPlatformId, shopMall
           }
           // -----------判断是否更新并组装数据--------------//
           if (!flag) {
-            _that && _that.failNum++
-            return writeLog(`${orderSn ? `订单【${orderSn}】` : `商品【${shopGoodsId}】`}同步库存失败，未匹配到相同的规格信息！`, false)
+            if (orderSn) {
+              return writeLog(`订单【${orderSn}】同步库存失败，未匹配到相同的规格信息！`, false)
+            } else {
+              _that.failNum++
+              return _that.batchStatus(shopeeItem, `未匹配到相同的规格信息`, false)
+            }
           }
         }
         shopeeSkuList.forEach((item) => {
@@ -828,28 +840,52 @@ export async function dealwithOriginGoodsNum(oriGoodsId, oriPlatformId, shopMall
         }
         const editRes = await instance.$shopeemanService.handleProductEdit(country, data, [editParams])
         if (editRes.code === 200) {
-          _that && _that.successNum++
-          return writeLog(`同步库存成功，${orderSn ? `订单【${orderSn}】` : `商品【${shopGoodsId}】`}同步库存成功！`, true)
+          if (orderSn) {
+            return writeLog(`同步库存成功，订单【${orderSn}】同步库存成功！`, true)
+          } else {
+            _that && _that.successNum++
+            return _that.batchStatus(shopeeItem, `同步库存成功！`, true)
+          }
         } else {
-          _that && _that.failNum++
-          return writeLog(`同步库存失败，${orderSn ? `订单【${orderSn}】` : `商品【${shopGoodsId}】`}同步库存失败，${instance.$filters.errorMsg(editRes.data)}！`, false)
+          if (orderSn) {
+            return writeLog(`订单【${orderSn}】同步库存失败，${instance.$filters.errorMsg(editRes.data)}！`, false)
+          } else {
+            _that.failNum++
+            return _that.batchStatus(shopeeItem, `${instance.$filters.errorMsg(editRes.data)}`, false)
+          }
         }
       } else {
-        _that && _that.failNum++
-        return writeLog(`${orderSn ? `订单【${orderSn}】` : `商品【${shopGoodsId}】上家平台`}${resObj}！`, false)
+        if (orderSn) {
+          return writeLog(`订单【${orderSn}】上家平台${resObj}！`, false)
+        } else {
+          _that.failNum++
+          return _that.batchStatus(shopeeItem, `上家平台${resObj}`, false)
+        }
       }
     } else {
       if (shopeeGoods.code === 403) {
-        _that && _that.failNum++
-        return writeLog(`同步库存失败，店铺【${shopMallId}】未登录！`, false)
+        if (orderSn) {
+          return writeLog(`同步库存失败，店铺【${shopMallId}】未登录！`, false)
+        } else {
+          _that.failNum++
+          return _that.batchStatus(shopeeItem, `店铺未登录`, false)
+        }
       }
-      _that && _that.failNum++
-      return writeLog(`同步库存失败，${orderSn ? `订单【${orderSn}】` : `商品【${shopGoodsId}】`}未获取到shopee商品信息！`, false)
+      if (orderSn) {
+        return writeLog(`同步库存失败，订单【${orderSn}】未获取到shopee商品信息！`, false)
+      } else {
+        _that.failNum++
+        return _that.batchStatus(shopeeItem, `未获取到shopee商品信息`, false)
+      }
     }
   } catch (error) {
     console.log('catch', error)
-    _that && _that.failNum++
-    return writeLog(`${orderSn ? `订单【${orderSn}】` : `商品【${shopGoodsId}】`}同步上家库存失败，${msg}！`, false)
+    if (orderSn) {
+      return writeLog(`订单【${orderSn}】同步上家库存失败，${msg}！`, false)
+    } else {
+      _that.failNum++
+      return _that.batchStatus(shopeeItem, `${msg}`, false)
+    }
   }
 }
 

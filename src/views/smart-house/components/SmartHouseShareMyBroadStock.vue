@@ -24,7 +24,6 @@
             v-model="form.sys_sku_id"
             clearable
             size="mini"
-            oninput="value=value.replace(/\s+/g,'')"
           />
         </li>
         <li>
@@ -239,6 +238,7 @@ export default {
       this.isShowLoading = true
       this.form.page = this.page
       this.form.page_num = this.pageSize
+      this.form.sys_sku_id.trim()
       const res = await this.ShareMyBroadStock.getSharedIndex(this.form)
       if (res.code === 200) {
         this.tableData = res.data.data
@@ -285,6 +285,7 @@ export default {
       if (this.total === 0) return this.$message('暂无导出数据')
       this.isShowLoading = true
       const exportData = []
+      this.form.sys_sku_id.trim()
       const params = this.form
       params.page_num = 200
       params.page = 1
