@@ -2343,6 +2343,33 @@ export default class NetMessageBridgeService {
       }
     }
   }
+  // 创建关键字广告
+  async createKeyAdvent(country, data) {
+    const res = await this.postChinese(country, `/api/marketing/v3/pas/campaign/`, data, {
+      Headers: {
+        'Content-Type': ' application/json'
+      }
+    })
+    const resObj = res && JSON.parse(res)
+    if (resObj && resObj.status === 200) {
+      const info = JSON.parse(resObj.data)
+      if (info && info.code === 0) {
+        return {
+          code: 200,
+          data: info.data || []
+        }
+      } else {
+        return { code: 50001,
+          data: info.message || []
+        }
+      }
+    } else {
+      return {
+        code: resObj.status,
+        data: `操作失败${resObj.statusText}`
+      }
+    }
+  }
 
   // 获取地址
   getNextLevelAddresses(country, data, option) {

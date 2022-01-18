@@ -148,8 +148,8 @@
                       <el-select v-model="item.sku_name" placeholder="" size="mini" filterable :allow-create="true"  @change="sepcInput($event, i)">
                         <el-option v-for="(item, index) in skucode" :key="index" :label="item.zh_name" :value="item.zh_name" />
                       </el-select>
-                      <div v-if="item.sku_image">
-                        <el-image :src="item.sku_image" style="width: 42px; height: 42x; margin: 1px" @click="item.sku_image = ''" />
+                      <div v-if="item.sku_image" style="width: 42px; height: 42px;">
+                        <el-image :src="item.sku_image" style="width: 100%; height: 100%;" @click="item.sku_image = ''" />
                       </div>
                       <div v-else>
                         <el-upload class="sku-image-uploader" action="#" :show-file-list="false" :on-progress="successFile">

@@ -695,7 +695,7 @@ export async function dealwithOriginGoodsNum(oriGoodsId, oriPlatformId, shopMall
       shopeeSkuList = shopeeGoods.data.model_list || [] // shopee规格list
       const params = {
         GoodsId: oriGoodsId,
-        shop_id: shopMallId
+        ShopId: shopMallId
       }
       if (oriPlatformId == 9) {
         params['Site'] = country

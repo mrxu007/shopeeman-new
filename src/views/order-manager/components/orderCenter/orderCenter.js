@@ -1223,11 +1223,13 @@ const columnData = [{
     column_header: '颜色标识',
     is_show: 1,
     first_column_is_checkbox: -1
-  }, {
-    column_header: '标识名称',
-    is_show: 1,
-    first_column_is_checkbox: -1
-  }, {
+  }, 
+  // {
+  //   column_header: '标识名称',
+  //   is_show: 1,
+  //   first_column_is_checkbox: -1
+  // }, 
+  {
     column_header: '订单编号',
     is_show: 1,
     first_column_is_checkbox: -1

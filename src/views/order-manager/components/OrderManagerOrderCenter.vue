@@ -231,17 +231,18 @@
         <u-table-column align="center" label="采购绑定仓库" width="120" v-if="showTableColumn('采购绑定仓库')">
           <template slot-scope="scope">{{ scope.row.shot_order_info.warehouse_name }}</template>
         </u-table-column>
-        <u-table-column align="center" prop="color_id" label="颜色标识" width="70" v-if="showTableColumn('颜色标识')">
+        <u-table-column align="center" prop="color_id" label="颜色标识" width="100" v-if="showTableColumn('颜色标识')">
           <template slot-scope="scope">
-            <p :style="{ background: changeColorLabel(scope.row.color_id), height: '26px' }" />
+            <p :style="{ background: changeColorLabel(scope.row.color_id), height: '20px' }" />
+            <span >{{ changeColorLabel(scope.row.color_id, 'name') }}</span>
           </template>
         </u-table-column>
-        <u-table-column align="center" prop="color_id" label="标识名称" width="120" v-if="showTableColumn('标识名称')">
+        <!-- <u-table-column align="center" prop="color_id" label="标识名称" width="120" v-if="showTableColumn('标识名称')">
           <template slot-scope="scope">
             <span>{{ changeColorLabel(scope.row.color_id, 'name') }}</span>
           </template>
-        </u-table-column>
-        <u-table-column align="center" prop="created_time" label="订单创建时间" width="140" v-if="showTableColumn('订单创建时间')" />
+        </u-table-column> -->
+        <u-table-column sortable align="center" prop="created_time" label="订单创建时间" width="140" v-if="showTableColumn('订单创建时间')" />
         <u-table-column align="center" prop="order_status" label="发货状态" width="100" v-if="showTableColumn('发货状态')">
           <template slot-scope="scope">
             <p :style="{ color: changeOrderStatus(scope.row.order_status, 'color') }">{{ changeOrderStatus(scope.row.order_status) }}</p>
@@ -272,7 +273,7 @@
             <i class="el-icon-document-copy" style="margin-left: 8px; cursor: pointer" @click="copyItem(scope.row.goods_info.goods_id)"></i>
           </template>
         </u-table-column>
-        <u-table-column align="center" label="商品创建时间" width="140" v-if="showTableColumn('商品创建时间')">
+        <u-table-column  sortable align="center" label="商品创建时间" width="140" v-if="showTableColumn('商品创建时间')">
           <template slot-scope="scope">{{ scope.row.goods_info.created_at }}</template>
         </u-table-column>
         <u-table-column align="center" label="商品图片" width="80" v-if="showTableColumn('商品图片')">
@@ -394,7 +395,7 @@
             <p :style="{ color: changeShotStatus(scope.row.shot_order_info.shot_status, 'color') }">{{ changeShotStatus(scope.row.shot_order_info.shot_status) }}</p>
           </template>
         </u-table-column>
-        <u-table-column align="center" label="采购时间" width="140" v-if="showTableColumn('采购时间')">
+        <u-table-column sortable align="center" label="采购时间" width="140" v-if="showTableColumn('采购时间')">
           <template slot-scope="scope">{{ scope.row.shot_order_info.shotted_at }}</template>
         </u-table-column>
         <u-table-column label="采购订单号" width="150" v-if="showTableColumn('采购订单号')">
@@ -446,16 +447,16 @@
             <el-button type="primary" size="mini" @click="getSHtrackPath(scope.row)">虾皮物流轨迹</el-button>
           </template>
         </u-table-column>
-        <u-table-column align="center" prop="ship_by_date" label="截止发货时间" width="140" v-if="showTableColumn('截止发货时间')">
+        <u-table-column sortable align="center" prop="ship_by_date" label="截止发货时间" width="140" v-if="showTableColumn('截止发货时间')">
           <template slot-scope="scope">{{ scope.row.ship_by_date }}</template>
         </u-table-column>
         <u-table-column align="center" prop="delivery_status" label="仓库发货状态" width="100" v-if="showTableColumn('仓库发货状态')">
           <template slot-scope="scope">{{ changeDeliveryStatus(scope.row.delivery_status) }}</template>
         </u-table-column>
-        <u-table-column align="center" prop="arrival_time" label="入库时间" width="140" v-if="showTableColumn('入库时间')">
+        <u-table-column sortable align="center" prop="arrival_time" label="入库时间" width="140" v-if="showTableColumn('入库时间')">
           <template slot-scope="scope">{{ scope.row.arrival_time }}</template>
         </u-table-column>
-        <u-table-column align="center" prop="delivery_time" label="出库时间" width="140" v-if="showTableColumn('出库时间')">
+        <u-table-column sortable align="center" prop="delivery_time" label="出库时间" width="140" v-if="showTableColumn('出库时间')">
           <template slot-scope="scope">{{ scope.row.delivery_time }}</template>
         </u-table-column>
         <u-table-column align="center" prop="remark" label="本地备注" width="150" show-overflow-tooltip v-if="showTableColumn('本地备注')">
@@ -493,7 +494,7 @@
             <span class="copyStyle" @dblclick="copyItem(scope.row.phone)"> {{ scope.row.phone }}</span>
           </template>
         </u-table-column>
-        <u-table-column align="center" prop="pay_time " label="订单支付时间" width="140" v-if="showTableColumn('订单支付时间')">
+        <u-table-column sortable align="center" prop="pay_time " label="订单支付时间" width="140" v-if="showTableColumn('订单支付时间')">
           <template slot-scope="scope">{{ scope.row.pay_time }}</template>
         </u-table-column>
         <!-- <u-table-column align="center" prop="123456" label="订单轨迹" width="80" v-if="showTableColumn('订单轨迹')">
@@ -501,7 +502,7 @@
             <el-button type="primary" size="mini">订单轨迹</el-button>
           </template>
         </u-table-column> -->
-        <u-table-column align="center" prop="update_time" label="订单更新时间" width="140" v-if="showTableColumn('订单更新时间')">
+        <u-table-column sortable align="center" prop="update_time" label="订单更新时间" width="140" v-if="showTableColumn('订单更新时间')">
           <template slot-scope="scope">{{ scope.row.update_time }}</template>
         </u-table-column>
         <u-table-column align="center" label="是否为海外仓商品" width="120" v-if="showTableColumn('是否为海外仓商品')">
@@ -550,7 +551,7 @@
       <div class="pagination">
         <el-pagination
           background
-          :page-sizes="[20, 50, 100]"
+          :page-sizes="[20, 50, 100,200]"
           :page-size="pageSize"
           :current-page.sync="currentPage"
           layout="total, sizes, prev, pager, next, jumper"
@@ -594,7 +595,7 @@
     </el-dialog>
     <el-dialog v-if="colorVisible" title="选择颜色标识" :visible.sync="colorVisible" width="600px" :close-on-click-modal="false">
       <div class="color-style">
-        <el-table ref="colorTable" :data="colorList" tooltip-effect="dark" style="width: 100%" height="500">
+        <el-table ref="colorTable" :data="colorList" tooltip-effect="dark" style="width: 100%" height="500" :loading="colorLoading">
           <el-table-column label="标识选择" width="120">
             <template slot-scope="scope">
               <el-radio v-model="colorRadio" :label="scope.$index" @change.native="getCurrentRow(scope.row)" />
@@ -871,7 +872,7 @@ export default {
       shipTypeList: [], //物流方式
       tableLoading: false,
       tableData: [], // 分页
-      pageSize: 20, // 分页
+      pageSize: 200, // 分页
       currentPage: 1, // 分页
       total: 0, // 分页
       showConsole: true, // 日志
@@ -971,7 +972,7 @@ export default {
       activeRemarkIDNode: '', //shopee备注
       orderRemarkNode: '', //shopee备注
       shipLoading: false,
-      worker: null, //子线程
+      colorLoading:false,
     }
   },
   mounted() {
@@ -2424,7 +2425,9 @@ export default {
     // 获取标识选择
     async getColorList() {
       this.colorList = []
+      this.colorLoading = true
       let res = await this.$api.colorLabelList()
+      this.colorLoading = false
       if (res.data.code === 200) {
         this.selectColorList = JSON.parse(JSON.stringify(res.data.data))
         this.colorList = res.data.data
