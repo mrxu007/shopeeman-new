@@ -441,10 +441,6 @@ export default {
           this.$refs.Logs.writeLog(`【${item.mall_alias_name || item.platform_mall_name}】暂无数据`)
           return
         }
-        // const arrList = []
-        // const willList = []
-        // const doingList = []
-        // const pastList = []
         while (promotionsList.length) {
           // 列表数据处理
           for (let i = 0; i < promotionsList.length; i++) {

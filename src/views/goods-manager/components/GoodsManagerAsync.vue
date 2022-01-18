@@ -23,14 +23,19 @@
         <el-table-column prop="" label="店铺名称" align="center" min-width="100px">
           <template slot-scope="{row}">{{ row.mall_alias_name ? row.mall_alias_name : row.platform_mall_name }}</template>
         </el-table-column>
-        <el-table-column prop="totalGoods" label="虾皮商品总数" align="center" min-width="100px" />
-        <el-table-column prop="getGoods" label="已获取虾皮商品数量" align="center" min-width="100px" fixed="right" />
+        <el-table-column prop="totalGoods" label="虾皮商品总数" align="center" min-width="100px">
+          <template v-slot="{row}">{{ row.totalGoods? row.totalGoods:'--' }}</template>
+        </el-table-column>
+        <el-table-column prop="getGoods" label="已获取虾皮商品数量" align="center" min-width="100px" fixed="right">
+          <template v-slot="{row}">{{ row.getGoods? row.getGoods:'--' }}</template>
+        </el-table-column>
       </el-table>
       <Logs ref="autoReplyLogs" v-model="showlog" clear />
     </div>
   </div>
 </template>
 <script>
+import { forEach } from 'jszip'
 import Storechoosemall from '../../../components/store-choose-mall'
 import GoodsManagerAPI from '../../../module-api/goods-manager-api/goods-data'
 import { batchOperation, terminateThread } from '../../../util/util'
@@ -38,11 +43,11 @@ export default {
   components: { Storechoosemall },
   data() {
     return {
+      platformData: {}, // 上家平台数据
       nextTime: null,
       firstTime: null,
       isStart: false,
       dataRuning: false,
-      loading: false,
       showlog: true,
       tableList: [],
       query: {
@@ -57,18 +62,142 @@ export default {
   },
   created() {
     // this.getinfo() // 获取店铺信息
+    // 定时任务存储
   },
   methods: {
+    // 解密ParentSKU
+    async decryptShopeeItemSku(itemSku) {
+      try {
+        const regexp = /^[+-]?\d*[.]?\d*$/
+        if (itemSku.length < 30) {
+          const res = await this.$userInfo.user_create_time
+          if (res) {
+            const userTime = new Date(res).getTime()
+            const encryptionTime = new Date('2018-12-20 00:00:00').getTime()
+            if (userTime > encryptionTime) {
+              this.platformData['platform'] = 5
+              this.platformData['productId'] = itemSku
+            }
+          }
+          if (itemSku.indexOf('_') > -1) {
+            const arr = itemSku.split('_')
+            if (regexp.test(arr[0]) && regexp.test(arr[1])) {
+              const intPlatform = Number(arr[1])
+              if (intPlatform === 1 || intPlatform === 2 || intPlatform === 3 || intPlatform === 5 || intPlatform === 6 || intPlatform === 7 || intPlatform === 8) {
+                this.platformData['platform'] = intPlatform
+                this.platformData['productId'] = arr[0]
+              } else {
+                this.platformData['platform'] = 5
+                this.platformData['productId'] = itemSku
+              }
+            } else {
+              this.platformData['platform'] = 5
+              this.platformData['productId'] = itemSku
+            }
+          } else {
+            if (regexp.test(itemSku)) {
+              this.platformData['platform'] = 1
+              this.platformData['productId'] = itemSku
+            } else {
+              this.platformData['platform'] = 5
+              this.platformData['productId'] = itemSku
+            }
+          }
+        } else {
+          const res = await this.$BaseUtilService.decGoodCode(itemSku)
+          if (res.indexOf('-') > -1) {
+            const arr = res.split('-')
+            this.getPlatformSimpleStr(arr[0], arr)
+          } else {
+            this.platformData['platform'] = 5
+            this.platformData['productId'] = itemSku
+          }
+        }
+      } catch (error) {
+        console.log('解密异常', error)
+      }
+    },
+    // 匹配上家平台
+    getPlatformSimpleStr(name, arr) {
+      try {
+        const id = arr[1]
+        if (name.toLocaleLowerCase() === 'pdd') {
+          this.platformData['platform'] = 1
+          this.platformData['productId'] = id
+        } else if (name.toLocaleLowerCase() === 'tb') {
+          this.platformData['platform'] = 2
+          this.platformData['productId'] = id
+        } else if (name.toLocaleLowerCase() === 'tm') {
+          this.platformData['platform'] = 2
+          this.platformData['productId'] = id
+        } else if (name.toLocaleLowerCase() === 'tb') {
+          this.platformData['platform'] = 3
+          this.platformData['productId'] = id
+        } else if (name.toLocaleLowerCase() === 'own') {
+          this.platformData['platform'] = 5
+          this.platformData['productId'] = id
+        } else if (name.toLocaleLowerCase() === 'ghpt') {
+          this.platformData['platform'] = 6
+          this.platformData['productId'] = id
+        } else if (name.toLocaleLowerCase() === 'alibaba') {
+          this.platformData['platform'] = 8
+          this.platformData['productId'] = id
+        } else if (name.toLocaleLowerCase() === 'hyj' || name.toLocaleLowerCase() === 'hlb') {
+          this.platformData['platform'] = 7
+          this.platformData['productId'] = id
+          this.platformData['site'] = arr[2]
+          this.platformData['shopId'] = arr[3]
+        } else if (name.toLocaleLowerCase() === 'shopee') {
+          this.platformData['platform'] = 11
+          this.platformData['productId'] = id
+          this.platformData['site'] = arr[2]
+          this.platformData['shopId'] = arr[3]
+        } else if (name.toLocaleLowerCase() === 'aliexpress') {
+          this.platformData['platform'] = 12
+          this.platformData['productId'] = id
+        } else if (name.toLocaleLowerCase() === 'lazada') {
+          this.platformData['platform'] = 9
+          this.platformData['productId'] = id
+          this.platformData['site'] = arr[2]
+        } else if (name.toLocaleLowerCase() === 'hyjhw') {
+          this.platformData['platform'] = 15
+          this.platformData['productId'] = id
+          this.platformData['site'] = arr[2]
+        } else if (name.toLocaleLowerCase() === 'jx') {
+          this.platformData['platform'] = 10
+          this.platformData['productId'] = id
+          this.platformData['site'] = arr[2]
+        } else if (name.toLocaleLowerCase() === 'crossbroder') {
+          this.platformData['platform'] = 13
+          this.platformData['productId'] = id
+          this.platformData['userId'] = arr.Length > 2 ? arr[2] : ''
+        }
+      } catch (error) {
+        console.log('匹配上家异常', error)
+      }
+    },
     // 清空日志
     closelogData() {
       this.$refs.autoReplyLogs.consoleMsg = ''
+    },
+    // 时间格式转换
+    add0(m) { return m < 10 ? '0' + m : m },
+    formatTime(val) {
+      var time = new Date(val)
+      var y = time.getFullYear()
+      var m = time.getMonth() + 1
+      var d = time.getDate()
+      var h = time.getHours()
+      var mm = time.getMinutes()
+      var s = time.getSeconds()
+      return y + '-' + this.add0(m) + '-' + this.add0(d) + ' ' + this.add0(h) + ':' + this.add0(mm) + ':' + this.add0(s)
     },
     // 取消同步
     cancerCompare() {
       // alert(this.dataRuning)
       this.dataRuning = true
       terminateThread()
-      this.$refs.autoReplyLogs.writeLog(`已取消同步`)
+      this.$refs.autoReplyLogs.writeLog(`正在取消同步---------`)
       // this.$message.success('正在取消同步，大概需要几秒，请耐心等待......')
     },
     async startCompare() {
@@ -78,30 +207,10 @@ export default {
       this.dataRuning = false
       await this.getinfo()
       await batchOperation(this.tableList, this.comparefun)
+      this.$refs.autoReplyLogs.writeLog(`数据请求结束---------`)
       this.isStart = false
     },
     async comparefun(item, count = { count: 1 }) {
-      // 四小时同步一次
-      // const mallName = item.mall_alias_name || item.platform_mall_name
-      // const des = this.mallTimeList.findIndex(el => { return el.mallName === mallName })
-      // if (des >= 0) {
-      //   if (this.mallTimeList[des].nextTime > new Date().getTime()) {
-      //     this.$refs.autoReplyLogs.writeLog(`【${mallName}】每4小时可进行一次同步，下次同步时间为【${new Date(this.mallTimeList[des].nextTime).toLocaleString().replace(/:\d{1,2}$/, ' ')}】`, true)
-      //     this.isStart = false
-      //     terminateThread()
-      //     return
-      //   } else {
-      //     this.mallTimeList[des].nextTime = new Date().getTime() + 3600 * 4 * 1000
-      //   }
-      // } else {
-      //   const mallinfo = {
-      //     mallName: mallName,
-      //     firstTime: new Date().getTime(),
-      //     nextTime: new Date().getTime() + 3600 * 4 * 1000
-      //   }
-      //   this.mallTimeList.push(mallinfo)
-      // }
-      // 同步
       try {
         const goodsinfo = {
           country: this.query.country,
@@ -109,107 +218,133 @@ export default {
           mallId: item.platform_mall_id,
           page_size: 48
         }
-        let arrIndex = 2
-        // 循环获取平台商品
-        for (let index = 1; index <= arrIndex; index++) {
-          goodsinfo.page_number = index
-          this.$refs.autoReplyLogs.writeLog(`店铺【${item.mall_alias_name || item.platform_mall_name}】正在获取虾皮商品数据...`, true)
-          const res = await this.GoodsManagerAPIInstance.getSkuList(goodsinfo)
-          if (this.dataRuning) { // 终止循环---------
-            // this.$refs.autoReplyLogs.writeLog(`取消同步`)
-            break
-          }
-          // console.log('************', res)
-          if (res.ecode === 0) {
-            const total = res.data.page_info.total
-            const psize = res.data.page_info.page_size
-            arrIndex = total / psize === 0 ? total / psize : Math.floor(total / psize) + 1
-            this.$refs.autoReplyLogs.writeLog(`店铺【${item.mall_alias_name || item.platform_mall_name}】商品总数${res.data.page_info.total}个`, true)
-            this.$refs.autoReplyLogs.writeLog(`店铺【${item.mall_alias_name || item.platform_mall_name}】正获取第【${index}】页数据,一页${goodsinfo.page_size}个`, true)
-            const lol = res.data.list
-            item.plantDate.push(...lol)
-            this.$set(item, 'totalGoods', total)
-            this.$set(item, 'getGoods', item.plantDate.length)
-            if (this.dataRuning) { // 终止循环------------
-              // this.$refs.autoReplyLogs.writeLog(`取消同步`)
-              break
-            }
-            if (index === arrIndex) { // 平台商品获取结束
-              this.$refs.autoReplyLogs.writeLog(`店铺【${item.mall_alias_name || item.platform_mall_name}】虾皮商品数据获取完毕，开始获取服务端商品数据`, true)
-              if (this.dataRuning) { // 终止循环-----------
-                // this.$refs.autoReplyLogs.writeLog(`取消同步`)
-                break
-              }
-              // 获取服务器商品
-              const sysMallId = item.id
-              try {
-                const res = await this.$commodityService.getMallAllRecordList(sysMallId.toString())// 获取服务端商品信息
-                const serviceRes = JSON.parse(res)
-                console.log('service-mallid' + item.platform_mall_id, serviceRes)
-                if (serviceRes.code === 200) {
-                  const serviceList = serviceRes.data.info // 保存服务端数据
-                  this.$refs.autoReplyLogs.writeLog(`店铺【${item.mall_alias_name || item.platform_mall_name}】虾皮商品数据获取完毕，服务端商品【${serviceList.length}】个`, true)
-                  this.$refs.autoReplyLogs.writeLog(`店铺【${item.mall_alias_name || item.platform_mall_name}】虾皮商品数据获取完毕，服务端商品数据获取完毕`, true)
-                  // 过滤服务端未出现的数据
-                  const delarr = []
-                  serviceList.forEach(ol => {
-                    const nonIndex = item.plantDate.findIndex(el => { return Number(el.id) === Number(ol.listing_id) })// listing_id
-                    if (nonIndex < 0) {
-                      // delarr.push({ sysmallId: ol.item_sku })
-                      delarr.push({ sysmallId: ol.listing_id })
-                    }
-                  })
-                  // console.log('this.plantDate', item.plantDate)
-                  // console.log('serviceList', serviceList)
-                  // console.log('derr', delarr)
-                  console.log('this.tableList', this.tableList)
-                  this.$refs.autoReplyLogs.writeLog(`店铺【${item.mall_alias_name || item.platform_mall_name}】开始同步商品数据`, true)
-                  if (this.dataRuning) { // 终止循环---------
-                    // this.$refs.autoReplyLogs.writeLog(`取消同步`)
-                    break
-                  }
-                  if (delarr.length === 0) {
-                    this.$refs.autoReplyLogs.writeLog(`店铺【${item.mall_alias_name || item.platform_mall_name}】同步完成`, true)
-                    break
-                  }
-                  const loop = Math.floor(delarr.length / 100) + 1
-                  // for (let j = 0; j < loop; j++) {
-                  //   const newdelarr = delarr.splice(0, 100)
-                  //   // 删除服务端数据
-                  //   if (this.dataRuning) { // 终止循环----------
-                  //     // this.$refs.autoReplyLogs.writeLog(`取消同步`)
-                  //     break
-                  //   }
-                  //   debugger
-                  //   const tes = await this.$commodityService.delCloudItems(JSON.stringify(newdelarr))
-                  //   debugger
-                  //   const jsontes = JSON.parse(tes)
-                  //   if (jsontes.code === 200) {
-                  //   // this.$refs.autoReplyLogs.writeLog(`店铺【${this.tableList[i].mall_alias_name || this.tableList[i].platform_mall_name}】同步完成`, true)
-                  //     this.$refs.autoReplyLogs.writeLog(`-----------`, true)
-                  //     this.$refs.autoReplyLogs.writeLog(`店铺【${item.mall_alias_name || item.platform_mall_name}】服务端已删除【${newdelarr.length}】个商品`, true)
-                  //     this.$refs.autoReplyLogs.writeLog(`-----------`, true)
-                  //   } else {
-                  //     this.$refs.autoReplyLogs.writeLog(`店铺【${item.mall_alias_name || item.platform_mall_name}】同步失败，${jsontes.msg}`, false)
-                  //   }
-                  //   this.$refs.autoReplyLogs.writeLog(`店铺【${item.mall_alias_name || item.platform_mall_name}】同步完成`, true)
-                  // }
-                } else {
-                  this.$refs.autoReplyLogs.writeLog(`店铺【${item.mall_alias_name || item.platform_mall_name}】虾皮商品数据获取完毕，服务端商品数据获取失败`, false)
-                  break
-                }
-              } catch (error) {
-                this.$refs.autoReplyLogs.writeLog(`店铺【${item.mall_alias_name || item.platform_mall_name}】店铺,数据捕获异常，${error}`, false)
-                continue
-              }
+        if (this.dataRuning) { // 终止循环---------
+          return
+        }
+        // 获取官网商品
+        const plantList = []// 平台数据
+        const res = await this.GoodsManagerAPIInstance.getSkuList(goodsinfo)
+        if (res.ecode !== 0) {
+          this.$refs.autoReplyLogs.writeLog(`店铺【${item.mall_alias_name || item.platform_mall_name}】平台数据：店铺未登录`, false)
+          return
+        }
+        this.$refs.autoReplyLogs.writeLog(`店铺【${item.mall_alias_name || item.platform_mall_name}】正在获取平台数据`)
+        // 四小时同步一次
+        const mallName = item.mall_alias_name || item.platform_mall_name
+        const TimeList = await this.$appConfig.temporaryCacheInfo('get', 'mallTimeList', '')
+        const mallTimeList = JSON.parse(TimeList)
+        console.log('*-*-', mallTimeList)
+        if (mallTimeList.length) {
+          const des = mallTimeList.findIndex(el => { return el.mallName === mallName })
+          if (des >= 0) {
+            if (mallTimeList[des].nextTime > new Date().getTime()) {
+              this.$refs.autoReplyLogs.writeLog(`【店铺：${mallName}】每4小时可进行一次同步，下次同步时间为【${this.formatTime(mallTimeList[des].nextTime)}】`, true)
+              return
+            } else {
+              mallTimeList[des].nextTime = new Date().getTime() + 3600 * 4 * 1000
             }
           } else {
-            this.$set(item, 'totalGoods', 0)
-            this.$set(item, 'getGoods', 0)
-            this.$refs.autoReplyLogs.writeLog(`店铺【${item.mall_alias_name || item.platform_mall_name}】同步失败，发生异常：店铺未登录,请重新登录`, false)
-            break
+            const mallinfo = {
+              mallName: mallName,
+              firstTime: new Date().getTime(),
+              nextTime: new Date().getTime() + 3600 * 4 * 1000
+            }
+            mallTimeList.push(mallinfo)
+          }
+        } else {
+          const mallinfo = {
+            mallName: mallName,
+            firstTime: new Date().getTime(),
+            nextTime: new Date().getTime() + 3600 * 4 * 1000
+          }
+          mallTimeList.push(mallinfo)
+        }
+        this.$appConfig.temporaryCacheInfo('save', 'mallTimeList', mallTimeList)
+        // ---end---//
+        let array = res.ecode === 0 ? res.data.list : []
+        const total = res.data.page_info.total
+        if (!total) {
+          this.$refs.autoReplyLogs.writeLog(`店铺【${item.mall_alias_name || item.platform_mall_name}】平台暂无商品`, true)
+          return
+        }
+        this.$refs.autoReplyLogs.writeLog(`店铺【${item.mall_alias_name || item.platform_mall_name}】平台商品总数${total}个`, true)
+        this.$set(item, 'totalGoods', 0)
+        this.$set(item, 'getGoods', 0)
+        while (array.length) {
+          if (this.dataRuning) { // 终止循环---------
+            return
+          }
+          this.$set(item, 'totalGoods', total)
+          this.$set(item, 'getGoods', Number(item.getGoods) + array.length)
+          this.$refs.autoReplyLogs.writeLog(`店铺【${item.mall_alias_name || item.platform_mall_name}】正获取第【${goodsinfo.page_number}】页数据,一页${goodsinfo.page_size}个`, true)
+          for (let i = 0; i < array.length; i++) { // 解析IP
+            const el = array[i]
+            await this.decryptShopeeItemSku(el.parent_sku)
+            if (this.platformData.platform !== '5' && this.platformData.productId) { // 获取上家IP
+              plantList.push(this.platformData.productId)
+            }
+          }
+          if (array.length < 48) {
+            array = []
+          } else {
+            goodsinfo.page_number++
+            const res = await this.GoodsManagerAPIInstance.getSkuList(goodsinfo)
+            array = res.ecode === 0 ? res.data.list : []
           }
         }
+        this.$refs.autoReplyLogs.writeLog(`店铺【${item.mall_alias_name || item.platform_mall_name}】平台数据获取结束`)
+        // 获取服务端商品
+        let serList = []
+        this.$refs.autoReplyLogs.writeLog(`店铺【${item.mall_alias_name || item.platform_mall_name}】正在获取服务端数据`)
+        const res0 = await this.$commodityService.getMallAllRecordList(item.id.toString())
+        if (JSON.parse(res0).code === 200) {
+          serList = JSON.parse(res0).code === 200 ? JSON.parse(res0).data.info : []
+          if (serList.length) {
+            this.$refs.autoReplyLogs.writeLog(`店铺【${item.mall_alias_name || item.platform_mall_name}】服务端商品总数${serList.length}个`, true)
+          } else {
+            this.$refs.autoReplyLogs.writeLog(`店铺【${item.mall_alias_name || item.platform_mall_name}】服务端商品暂无商品信息`, true)
+            return
+          }
+        } else {
+          this.$refs.autoReplyLogs.writeLog(`店铺【${item.mall_alias_name || item.platform_mall_name}】服务端商品数据：${JSON.parse(res0).msg}`, false)
+          return
+        }
+        this.$refs.autoReplyLogs.writeLog(`店铺【${item.mall_alias_name || item.platform_mall_name}】服务端数据获取结束`)
+
+        // 同步--获取被删除的商品数据
+        const delList = []
+        if (!delList.length) {
+          this.$refs.autoReplyLogs.writeLog(`店铺【${item.mall_alias_name || item.platform_mall_name}】无需删除，已是同步状态`, true)
+          return
+        }
+        serList.forEach(ol => {
+          const num = plantList.findIndex(el => { return Number(el) === Number(ol.item_sku) })
+          if (num < 0) {
+            delList.push({ sysmallId: ol.item_sku })
+          }
+        })
+        let delL = delList.splice(0, 100)// 一次上限一百
+        while (delL.length) {
+          if (this.dataRuning) { // 终止循环---------
+            return
+          }
+          const tes = await this.$commodityService.delCloudItems(JSON.stringify(delL))
+          const jsontes = JSON.parse(tes)
+          if (jsontes.code === 200) {
+            this.$refs.autoReplyLogs.writeLog(`-----------`, true)
+            this.$refs.autoReplyLogs.writeLog(`店铺【${item.mall_alias_name || item.platform_mall_name}】服务端已删除【${delL.length}】个商品`, true)
+            this.$refs.autoReplyLogs.writeLog(`-----------`, true)
+          } else {
+            this.$refs.autoReplyLogs.writeLog(`店铺【${item.mall_alias_name || item.platform_mall_name}】服务端删除失败，${jsontes.msg}`, false)
+            return
+          }
+          if (delList.length < 100) {
+            delL = []
+          } else {
+            delL = delList.splice(0, 100)
+          }
+        }
+        this.$refs.autoReplyLogs.writeLog(`店铺【${item.mall_alias_name || item.platform_mall_name}】同步完成`)
       } catch (error) {
         this.$refs.autoReplyLogs.writeLog(`店铺【${item.mall_alias_name || item.platform_mall_name}】同步失败，发生异常：${error}`, false)
       } finally {
