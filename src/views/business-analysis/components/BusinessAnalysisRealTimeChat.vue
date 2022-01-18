@@ -376,7 +376,7 @@ export default {
             }
             if (this.Statisticaltime === 'yesterday') {
               if (item === 'sales') {
-                data[`${item}`] = `<pre style='color:${color}'>${this.$filters.currencyShow(this.site)}${(attributeTreeRes.data.result[item].value).toFixed(2)}</pre>` + `<pre style='color:${color}'>vs 前一天  ${(attributeTreeRes.data.result[item].ratio * 100).toFixed(2)}%</pre>`
+                data[`${item}`] = `<pre style='color:${color}'>${this.$filters.siteCoin(this.site)}${(attributeTreeRes.data.result[item].value).toFixed(2)}</pre>` + `<pre style='color:${color}'>vs 前一天  ${(attributeTreeRes.data.result[item].ratio * 100).toFixed(2)}%</pre>`
               } else if (item === 'response_time') {
                 const time = []
                 if (attributeTreeRes.data.result[item].value / 3600 >= 1) {
@@ -434,7 +434,7 @@ export default {
               } else { data[`${item}`] = `<pre style='color:${color}'>${attributeTreeRes.data.result[item].value}</pre>` + `<pre style='color:${color}'>vs 前一天  ${(attributeTreeRes.data.result[item].ratio * 100).toFixed(2)}%</pre>` }
             } else if (this.Statisticaltime === 'past7days') {
               if (item === 'sales') {
-                data[`${item}`] = `<pre style='color:${color}'>${this.$filters.currencyShow(this.site)}${(attributeTreeRes.data.result[item].value).toFixed(2)}</pre>` + `<pre style='color:${color}'>vs 前7天  ${(attributeTreeRes.data.result[item].ratio * 100).toFixed(2)}%</pre>`
+                data[`${item}`] = `<pre style='color:${color}'>${this.$filters.siteCoin(this.site)}${(attributeTreeRes.data.result[item].value).toFixed(2)}</pre>` + `<pre style='color:${color}'>vs 前7天  ${(attributeTreeRes.data.result[item].ratio * 100).toFixed(2)}%</pre>`
               } else if (item === 'response_time') {
                 const time = []
                 if (attributeTreeRes.data.result[item].value / 3600 >= 1) {
@@ -492,7 +492,7 @@ export default {
               } else { data[`${item}`] = `<pre style='color:${color}'>${attributeTreeRes.data.result[item].value}</pre>` + `<pre style='color:${color}'>vs 前7天  ${(attributeTreeRes.data.result[item].ratio * 100).toFixed(2)}%</pre>` }
             } else if (this.Statisticaltime === 'past30days') {
               if (item === 'sales') {
-                data[`${item}`] = `<pre style='color:${color}'>${this.$filters.currencyShow(this.site)}${(attributeTreeRes.data.result[item].value).toFixed(2)}</pre>` + `<pre style='color:${color}'>vs 前30天  ${(attributeTreeRes.data.result[item].ratio * 100).toFixed(2)}%</pre>`
+                data[`${item}`] = `<pre style='color:${color}'>${this.$filters.siteCoin(this.site)}${(attributeTreeRes.data.result[item].value).toFixed(2)}</pre>` + `<pre style='color:${color}'>vs 前30天  ${(attributeTreeRes.data.result[item].ratio * 100).toFixed(2)}%</pre>`
               } else if (item === 'response_time') {
                 const time = []
                 if (attributeTreeRes.data.result[item].value / 3600 >= 1) {
@@ -603,7 +603,7 @@ export default {
           <td style="text-align:left;">${item.buyers}</td>
           <td style="text-align:left;">${item.orders}</td>
           <td style="text-align:left;">${item.units}</td>
-          <td style="text-align:left;">${this.$filters.currencyShow(this.site)}${item.sales}</td>
+          <td style="text-align:left;">${this.$filters.siteCoin(this.site)}${item.sales}</td>
         </tr>
         `
         })

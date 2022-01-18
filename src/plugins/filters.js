@@ -119,6 +119,9 @@ const site_coin_symbol = {
   'PL': 'zł'
 }
 
+/***
+ * 虾皮各站点
+ */
 // 各站点平台
 const site_platform = {
   'MY': '0',

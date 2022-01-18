@@ -258,10 +258,10 @@ export default class GoodsList {
   }
   // 输入条件时查询
   async searchProductList(val) {
-    const { mItem, pageSize, searchType, keyword, goodsMin, goodsMax, soldMin, soldMax, listType, categoryId } = val
+    const { mItem, pageSize, searchType, keyword, goodsMin, goodsMax, soldMin, soldMax, listType, categoryId, cursor } = val
     try {
       const params = {
-        page_number: mItem.pageNumberA,
+        page_number: mItem.pageNumber,
         page_size: pageSize,
         mallId: mItem.platform_mall_id,
         search_type: searchType,
@@ -274,6 +274,7 @@ export default class GoodsList {
         list_type: listType,
         count_list_types: 'sold_out,banned,deboosted,deleted,unlisted',
         source: 'seller_center',
+        cursor: cursor,
         version: '4.0.0'
       }
       const res = await this._this.$shopeemanService.getChinese(mItem.country, '/api/v3/product/search_product_list/?', params, { headers: { 'accept': 'application/json, text/plain, */*' }})

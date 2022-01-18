@@ -601,7 +601,7 @@ export default {
     },
     // 保存退件信息
     async saveReturnMsg() {
-      const reg = /^1([38]\d|5[0-35-9]|7[3678]|9[9])\d{8}$/
+      const reg = /^1(?:3\d|4[4-9]|5[0-35-9]|6[67]|7[013-8]|8\d|9\d)\d{8}$/
       if (!this.returnMsg.returnContact) return this.$message('收件人不能为空')
       if (!this.returnMsg.returnPhoneNumber) return this.$message('联系电话不能为空')
       if (!reg.test(this.returnMsg.returnPhoneNumber) && !this.isOverseas) return this.$message('联系电话码格式有误')

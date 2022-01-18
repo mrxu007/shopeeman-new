@@ -247,8 +247,8 @@ export default {
               data['productid'] = attributeTreeRes.data.data.list[j].itemid
               data['img'] = attributeTreeRes.data.data.list[j].image
               data['title'] = attributeTreeRes.data.data.list[j].title
-              data['d2'] = `${this.$filters.currencyShow(this.site)}${attributeTreeRes.data.data.list[j].d1}`
-              data['d3'] = `${this.$filters.currencyShow(this.site)}${attributeTreeRes.data.data.list[j].d2} ${attributeTreeRes.data.data.list[j].d3}%`
+              data['d2'] = `${this.$filters.siteCoin(this.site)}${attributeTreeRes.data.data.list[j].d1}`
+              data['d3'] = `${this.$filters.siteCoin(this.site)}${attributeTreeRes.data.data.list[j].d2} ${attributeTreeRes.data.data.list[j].d3}%`
               this.tableData.push(data)
             }
           } else if (this.type === 10002 && attributeTreeRes.data.data.list) { // 差评

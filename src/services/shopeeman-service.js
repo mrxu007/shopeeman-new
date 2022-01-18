@@ -46,7 +46,7 @@ export default class NetMessageBridgeService {
 
     let url = this.site_domain_chinese_pre[country]
     const domain_switch = userSettings && (userSettings.SwitchDominTypeSetting || userSettings.domain_switch) || '1'
-    console.log(userSettings, domain_switch, IPType, mall_main_id)
+    // console.log(userSettings, domain_switch, IPType, mall_main_id)
     if (domain_switch === '3' || domain_switch === `Abroad`) {
       url = this.site_domain_local_pre[country]
     } else if ((domain_switch === '1' || domain_switch === 'Auto') &&
@@ -79,7 +79,7 @@ export default class NetMessageBridgeService {
         }
       }
     }
-    console.log('后台url', url)
+    // console.log('后台url', url)
     return url
   }
 
@@ -297,7 +297,7 @@ export default class NetMessageBridgeService {
         referer: baseUrl + referer
       })
     }
-    // console.log(baseUrl + api, JSON.stringify(options), JSON.stringify(data))
+    console.log(baseUrl + api, JSON.stringify(options), JSON.stringify(data))
     return this.NetMessageBridgeService().post(baseUrl + api, JSON.stringify(options), JSON.stringify(data))
   }
 

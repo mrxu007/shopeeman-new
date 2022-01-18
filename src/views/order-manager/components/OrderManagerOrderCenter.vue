@@ -1348,7 +1348,9 @@ export default {
           order.goods_info.goods_id,
           order.country,
           order.order_sn,
-          this.$refs.Logs.writeLog
+          this.$refs.Logs.writeLog,
+          order.goods_info.ori_platform_mall_id,
+          order.goods_info.ori_country,
         )
         // let params = {
         //   GoodsId: order.goods_info.ori_goods_id,

@@ -114,7 +114,8 @@ export default {
       mallListAPIInstance: new MallListAPI(this),
       isShowName: '',
       showMallNumber: 100,
-      mallShowIndex: 0
+      mallShowIndex: 0,
+      jsonMallData: []
     }
   },
   watch: {
@@ -194,37 +195,106 @@ export default {
     async ddMallGoodsGetMallList(val) {
       this.site = []
       const country = this.countryVal
-      const groupId = (this.groupId.indexOf('') > -1 && this.groupId.slice(1).toString()) || this.groupId.toString()
-      const param = {
-        country: country,
-        mallGroupIds: groupId
-      }
-      const res = await this.mallListAPIInstance.ddMallGoodsGetMallList(param)
-      // console.log('ddMallGoodsGetMallList - res', res)
-      if (res.code === 200) {
-        console.log(res.data)
-        this.siteList = res.data || []
-        if (this.groupIdList.length === 0) {
-          this.groupId = ['']
-          this.siteList.forEach((item) => {
-            const index = this.groupIdList.findIndex((i) => i.id === item.group_id)
-            if (item.group_name && index < 0) {
-              this.groupIdList.push({
-                group_name: item.group_name,
-                id: item.group_id
-              })
-              this.groupId.push(item.group_id)
-            }
-          })
-        }
-        setTimeout(() => {
-          this.isAllowSet2 = true
-          this.isAllowSet1 = true
-          this.site = ['']
-        }, 10)
+      let jsonMallData = []
+      if (this.jsonMallData.length > 0) {
+        jsonMallData = this.jsonMallData
       } else {
-        this.$message.error('获取分组、店铺列表失败')
+        const mallData = await this.$appConfig.temporaryCacheInfo('get', 'mallAllData', '')
+        jsonMallData = JSON.parse(mallData) || []
+        this.jsonMallData = JSON.parse(mallData) || []
       }
+      if (jsonMallData.length > 0) {
+        if (val === 1) {
+          this.siteList = country === '' ? jsonMallData : jsonMallData.filter(item => { return item.country === country })
+        }
+        if (val === 2) {
+          if (this.groupId.length === 0) {
+            this.siteList = []
+          } else {
+            this.siteList = []
+            this.groupId.forEach(item => {
+              jsonMallData.forEach(mItem => {
+                if (country) {
+                  if (item === mItem.group_id && country === mItem.country) {
+                    this.siteList.push(mItem)
+                  }
+                } else {
+                  if (item === mItem.group_id) {
+                    this.siteList.push(mItem)
+                  }
+                }
+              })
+            })
+          }
+        }
+      } else {
+        const param = {
+          country: '',
+          mallGroupIds: ''
+        }
+        const res = await this.mallListAPIInstance.ddMallGoodsGetMallList(param)
+        if (res.code === 200) {
+          this.$appConfig.temporaryCacheInfo('save', 'mallAllData', res.data)
+          const data = res.data || []
+          this.siteList = data
+          this.jsonMallData = data
+          this.siteList = country === '' ? data : data.filter(item => { return item.country === country })
+        } else {
+          this.$message.error('获取分组、店铺列表失败')
+        }
+      }
+      if (this.groupIdList.length === 0) {
+        this.groupId = ['']
+        this.siteList.forEach((item) => {
+          const index = this.groupIdList.findIndex((i) => i.id === item.group_id)
+          if (item.group_name && index < 0) {
+            this.groupIdList.push({
+              group_name: item.group_name,
+              id: item.group_id
+            })
+            this.groupId.push(item.group_id)
+          }
+        })
+      }
+      setTimeout(() => {
+        this.isAllowSet2 = true
+        this.isAllowSet1 = true
+        this.site = ['']
+      }, 10)
+
+      // this.site = []
+      // const country = this.countryVal
+      // const groupId = (this.groupId.indexOf('') > -1 && this.groupId.slice(1).toString()) || this.groupId.toString()
+      // const param = {
+      //   country: country,
+      //   mallGroupIds: groupId
+      // }
+      // const res = await this.mallListAPIInstance.ddMallGoodsGetMallList(param)
+      // // console.log('ddMallGoodsGetMallList - res', res)
+      // if (res.code === 200) {
+      //   console.log(res.data)
+      //   this.siteList = res.data || []
+      //   if (this.groupIdList.length === 0) {
+      //     this.groupId = ['']
+      //     this.siteList.forEach((item) => {
+      //       const index = this.groupIdList.findIndex((i) => i.id === item.group_id)
+      //       if (item.group_name && index < 0) {
+      //         this.groupIdList.push({
+      //           group_name: item.group_name,
+      //           id: item.group_id
+      //         })
+      //         this.groupId.push(item.group_id)
+      //       }
+      //     })
+      //   }
+      //   setTimeout(() => {
+      //     this.isAllowSet2 = true
+      //     this.isAllowSet1 = true
+      //     this.site = ['']
+      //   }, 10)
+      // } else {
+      //   this.$message.error('获取分组、店铺列表失败')
+      // }
     },
     changeMallList() {
       const mallList = []

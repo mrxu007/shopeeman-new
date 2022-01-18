@@ -63,7 +63,7 @@
     <el-dialog
       class="edit-group-dialog"
       :visible.sync="proVisible"
-      width="1100px"
+      width="1150px"
       height="600px"
       top="5vh"
       title="加购优惠"
@@ -73,25 +73,28 @@
       <ul>
         <!-- 基本资料 -->
         <li>
+          <div style="margin-left: 10px;margin-bottom: 5px;">基本资料</div>
           <ul style="border: 1px solid #d4d1d1;padding: 10px;border-radius: 8px;">
-            <div>基本资料</div>
             <!-- row1 -->
-            <li style="display: flex;">
+            <li style="display: flex;margin-bottom:10px">
               <div>
-                <label>操作店铺</label>
+                操作店铺
                 <el-select v-model="optionMall" placeholder="请选择" size="mini" style="width:120px">
                   <el-option label="全部" value="" />
                   <el-option v-for="mall in shopAccountMallList" :key="mall.id" :label="mall.label" :value="mall.id" />
                 </el-select>
               </div>
 
-              <div>
+              <div style="margin-left:50px">
                 <el-radio-group v-model="discountType">
                   <el-radio label="0">折扣优惠</el-radio>
                   <el-radio label="1">赠品满最低消费</el-radio>
                 </el-radio-group>
                 <span v-if="discountType==='0'">
-                  加购限制 <el-input v-model="addLimit" size="mini" style="width:100px" onkeyup="value=value.replace(/[^\d]/g,0)" />
+                  加购限制
+                  <el-tooltip class="item" effect="dark" content="买家在同一个订单里最多加购的商品数量是(1-100)" placement="top-start">
+                    <el-input v-model="addLimit" size="mini" style="width:100px" onkeyup="value=value.replace(/[^\d]/g,0)" />
+                  </el-tooltip>
                 </span>
                 <span v-if="discountType==='1'">
                   赠品规则 消费<el-input v-model="costNum" size="mini" style="width:100px" onkeyup="value=value.replace(/[^\d]/g,0)" />
@@ -105,12 +108,12 @@
               <div>
                 促销名称 <el-input v-model="proName" size="mini" style="width:120px" maxlength="24" />
               </div>
-              <div>
+              <div style="margin-left:50px">
                 活动时间
                 <el-tooltip class="item" effect="dark" content="开始时间必须比当前时间晚一个小时;结束时间必须比开始时间晚一个小时" placement="top-start">
                   <el-date-picker
                     v-model="proTime"
-                    style="width:330px;"
+                    style="width:315px;"
                     size="mini"
                     value-format="timestamp"
                     type="datetimerange"
@@ -121,30 +124,32 @@
                   />
                 </el-tooltip>
               </div>
-              <el-button size="mini" type="primary" @click="clearLog">保存活动</el-button>
+              <el-button size="mini" type="primary" style="margin-left:10px" @click="clearLog">保存活动</el-button>
               <el-button size="mini" type="primary" @click="clearLog">清除日志</el-button>
-              <el-checkbox v-model="showlog" style="margin-left:8px">隐藏日志</el-checkbox>
+              <el-checkbox v-model="showlog" style="margin-left:8px;margin-top:5px">隐藏日志</el-checkbox>
             </li>
           </ul>
         </li>
         <!-- 主要商品  加购商品 -->
-        <li style="display:flex">
+        <li style="display:flex;margin-top:10px">
           <!-- 主要商品-->
           <div class="masterGoods">
-            <span>主要商品</span>
-            <ul>
+            <div style="margin-left: 10px;margin-bottom: 5px;">主要商品</div>
+            <ul style="border: 1px solid #d4d1d1;padding: 10px;border-radius: 8px;">
               <!-- row1 -->
-              <li>
+              <li style="margin-bottom:5px">
                 <el-button size="mini" type="primary">开启</el-button>
                 <el-button size="mini" type="primary">关闭</el-button>
                 <el-button size="mini" type="primary">删除</el-button>
-                <el-button size="mini" type="primary">添加主要商品</el-button>
+                <el-button size="mini" type="primary" style="margin-left: 65px">添加主要商品</el-button>
               </li>
               <!-- row2 -->
               <li>
                 <el-table
                   :data="masterGoodslist"
                   :header-cell-style="{ background: '#f7fafa' }"
+                  style="width: 360px"
+                  height="400px"
                 >
                   <el-table-column type="index" label="店铺" align="center" min-width="60px" />
                   <el-table-column prop="itemid" label="商品" align="center" min-width="100px" />
@@ -157,21 +162,22 @@
             </ul>
           </div>
           <!-- 加购商品 -->
-          <div class="addGoods">
-            <span>加购商品</span>
-            <ul>
-              <li>
+          <div class="addGoods" style="margin-left:10px">
+            <div style="margin-left: 10px;margin-bottom: 5px;">加购商品</div>
+            <ul style="border: 1px solid #d4d1d1;padding: 10px;border-radius: 8px;">
+              <li style="display:flex;margin-bottom:5px">
                 <div>折扣：<el-input v-model="addGoodsDiscount" size="mini" style="width:50px" />%</div>
-                <el-button size="mini" type="primary">批量更新</el-button>
+                <el-button size="mini" type="primary" style="margin-left:10px">批量更新</el-button>
                 <el-button size="mini" type="primary">开启</el-button>
                 <el-button size="mini" type="primary">关闭</el-button>
                 <el-button size="mini" type="primary">删除</el-button>
-                <el-button size="mini" type="primary">添加加购商品</el-button>
+                <el-button size="mini" type="primary" style="margin-left: 200px">添加加购商品</el-button>
               </li>
               <li>
                 <el-table
                   :data="addGoodsList"
                   :header-cell-style="{ background: '#f7fafa' }"
+                  height="400px"
                 >
                   <el-table-column align="center" type="selection" width="50" />
                   <el-table-column type="index" label="店铺" align="center" min-width="60px" />

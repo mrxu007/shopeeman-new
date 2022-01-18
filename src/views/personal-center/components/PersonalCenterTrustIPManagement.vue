@@ -287,7 +287,7 @@ export default {
       this.remark = val.remark
     },
     updatePhoneNum(actionVal, phoneNumVal) {
-      const reg = /^1([38]\d|5[0-35-9]|7[3678])\d{8}$/
+      const reg = /^1(?:3\d|4[4-9]|5[0-35-9]|6[67]|7[013-8]|8\d|9\d)\d{8}$/
       switch (actionVal) {
         case 1:
           if (actionVal === 1) {
