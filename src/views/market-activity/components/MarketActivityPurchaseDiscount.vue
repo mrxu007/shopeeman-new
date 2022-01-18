@@ -64,7 +64,7 @@
         <u-table-column prop="min_spend" label="操作" align="center" min-width="180px">
           <template v-slot="{row}">
             <div style="display:flex">
-              <el-button v-if="row.voucher_status==='进行中'" size="mini" type="primary" @click="clearLog">停止</el-button>
+              <el-button v-if="row.voucher_status==='进行中'" size="mini" type="primary" @click="MallvoucherStopFun(row)">停止</el-button>
               <el-button v-if="row.voucher_status==='即将开始'" size="mini" type="primary" @click="MallvoucherDelFun(row)">删除</el-button>
               <el-button size="mini" type="primary" @click="clearLog">编辑商品</el-button>
               <el-button size="mini" type="primary" @click="clearLog">复制活动</el-button>
@@ -95,7 +95,7 @@
                 操作店铺
                 <el-select v-model="optionMall" placeholder="请选择" size="mini" style="width:120px">
                   <el-option label="全部" value="" />
-                  <el-option v-for="mall in shopAccountMallList" :key="mall.id" :label="mall.label" :value="mall.id" />
+                  <el-option v-for="mall in selectMallList" :key="mall.id" :label="mall.mall_alias_name || mall.platform_mall_name" :value="mall.id" />
                 </el-select>
               </div>
 
@@ -105,7 +105,7 @@
                   <el-radio label="0">折扣优惠</el-radio>
                   <el-radio label="1">赠品满最低消费</el-radio>
                 </el-radio-group>
-                <span v-if="discountType==='0'">
+                <span v-if="discountType==='0'" style="margin-left：20px">
                   加购限制
                   <!-- 必须在1-100 -->
                   <el-tooltip class="item" effect="dark" content="买家在同一个订单里最多加购的商品数量是(1-100)" placement="top-start">
@@ -114,7 +114,10 @@
                 </span>
                 <span v-if="discountType==='1'">
                   赠品规则 消费<el-input v-model="costNum" size="mini" style="width:100px" onkeyup="value=value.replace(/[^\d]/g,0)" />
-                  以获得<el-input v-model="sendNum" size="mini" style="width:100px" onkeyup="value=value.replace(/[^\d]/g,0)" />
+                  以获得
+                  <el-tooltip class="item" effect="dark" content="赠品的数量应在(1-50)内" placement="top-start">
+                    <el-input v-model="sendNum" size="mini" style="width:100px" onkeyup="value=value.replace(/[^\d]/g,0)" />
+                  </el-tooltip>
                   个赠品
                 </span>
               </div>
@@ -288,8 +291,7 @@ export default {
   //   }
   // },
   created() {
-    this.freightlist.push(this.freightobj)
-    this.initMall()
+    // this.initMall()
   },
   methods: {
     // 取消查询
@@ -299,13 +301,59 @@ export default {
       this.$refs.Logs.writeLog(`正在停止查询`)
     },
     // 保存活动
-    saveActiveInfo() {},
-    // 初始化店铺信息
-    initMall() {
-      getMalls(res => {
-        this.shopAccountMallList = res
-      })
+    saveActiveInfo() {
+      if (this.discountType === '0' && (Number(this.addLimit) === 0 || Number(this.addLimit) > 100)) {
+        this.$message.warning('请输入加购限制,限制范围在1-100')
+        return
+      }
+      if (!this.proName.length || this.proName.length > 24) {
+        this.$message.warning('请输入促销名称，名称长不可超过24个字符')
+        return
+      }
+      const cTime = new Date().getTime()
+      if (cTime > Number(this.proTime[0])) {
+        this.$message.warning('请输入比当前较晚的开始时间')
+        return
+      }
+      if (Number(this.proTime[1] - Number(this.proTime[0]) < 3600 * 1000)) {
+        this.$message.warning('结束时间至少比开始时间晚一个小时')
+        return
+      }
+      for (let i = 0; i < this.mallTableSelect.length; i++) {
+        this.saveActiveInfoFun(this.mallTableSelect[i])
+      }
     },
+    async saveActiveInfoFun(val) {
+      try {
+        this.showlog = false
+        const params = {
+          country: val.country,
+          mallId: val.platform_mall_id
+        // add_on_deal_id,
+        // add_on_deal_name,
+        // start_time,
+        // end_time,
+        // sub_type,
+        // sub_item_limit,
+        // sub_item_priority
+        }
+        const res = await this.MarketManagerAPIInstance.saveActiveAddondeal(params)
+        if (res.ecode === 0) {
+          this.$refs.Logs.writeLog(`------成功停止【${val.add_on_deal_name}】优惠活动------`, true)
+        } else {
+          this.$refs.Logs.writeLog(`停止【${val.add_on_deal_name}】优惠活动,${res.message}`, false)
+        }
+      } catch (error) {
+        this.$refs.Logs.writeLog(`停止【${val.add_on_deal_name}】--catch,${error}`, false)
+      }
+    },
+
+    // // 初始化店铺信息
+    // initMall() {
+    //   getMalls(res => {
+    //     this.shopAccountMallList = res
+    //   })
+    // },
     // 清除日志
     clearLog() {
       this.$refs.Logs.consoleMsg = ''
@@ -314,26 +362,61 @@ export default {
     handleSelectionChange(val) {
       this.mallTableSelect = val
     },
-    // 批量删除
+    // 批量删除/停止
     MallvoucherDelMul() {
       if (!this.mallTableSelect.length) {
         this.$message.warning('请选择要操作的数据')
         return
       }
-      this.$confirm('确定要删除这些活动吗？, 是否继续?', '提示', {
+      this.$confirm('确定要删除或停止这些活动吗？, 是否继续?', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
       }).then(async() => {
         for (let i = 0; i < this.mallTableSelect.length; i++) {
-          await this.MallvoucherDel(this.mallTableSelect[i])
+          const item = this.mallTableSelect[i]
+          if (item.voucher_status === '即将开始') { // 删除
+            await this.MallvoucherDel(item)
+          }
+          if (item.voucher_status === '进行中') { // 停止
+            await this.MallvoucherStop(item)
+          }
         }
         this.getTableList()
       })
     },
+    // 停止
+    MallvoucherStopFun(val) {
+      this.$confirm('确定要停止该活动吗？, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(async() => {
+        await this.MallvoucherStop(val)
+        this.getTableList()
+      })
+    },
+    async  MallvoucherStop(val) {
+      const params = {
+        country: val.country,
+        mallId: val.platform_mall_id,
+        add_on_deal_id: val.add_on_deal_id
+      }
+      try {
+        this.showlog = false
+        const res = await this.MarketManagerAPIInstance.stopOndealList(params)
+        if (res.ecode === 0) {
+          this.$refs.Logs.writeLog(`------成功停止【${val.add_on_deal_name}】优惠活动------`, true)
+        } else {
+          this.$refs.Logs.writeLog(`停止【${val.add_on_deal_name}】优惠活动,${res.message}`, false)
+        }
+      } catch (error) {
+        this.$refs.Logs.writeLog(`停止【${val.add_on_deal_name}】--catch,${error}`, false)
+      }
+    },
     // 删除
     MallvoucherDelFun(val) {
-      this.$confirm('确定该优惠卷吗？, 是否继续?', '提示', {
+      this.$confirm('确定要删除该活动吗？, 是否继续?', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
@@ -354,7 +437,11 @@ export default {
         if (res.ecode === 0) {
           this.$refs.Logs.writeLog(`------成功删除【${val.add_on_deal_name}】优惠活动------`, true)
         } else {
-          this.$refs.Logs.writeLog(`删除【${val.add_on_deal_name}】优惠活动,${res.message}`, false)
+          let mes = ''
+          if (res.message === 'only upcoming campaign can delete') {
+            mes = '只有即将进行的活动才能删除'
+          }
+          this.$refs.Logs.writeLog(`删除【${val.add_on_deal_name}】优惠活动,${mes || res.message}`, false)
         }
       } catch (error) {
         this.$refs.Logs.writeLog(`删除【${val.add_on_deal_name}】--catch,${error}`, false)

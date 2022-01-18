@@ -582,4 +582,29 @@ export default class MarketManagerAPI {
       return { code: -2, data: `delPromotion-catch: ${error}` }
     }
   }
+  // 加购优惠--停止活动
+  async stopOndealList(goodsinfo) {
+    try {
+      const { country, mallId, status, add_on_deal_id } = goodsinfo
+      const params = {
+        mallId: mallId,
+        action: 2,
+        add_on_deal_id: add_on_deal_id
+      }
+      const res = await this._this.$shopeemanService.postChineseReferer(country, '/api/marketing/v3/add_on_deal/operation/?', params, {
+        headers: {
+          'Content-Type': 'application/json; charset=utf-8',
+          'Accept': 'application/json, text/plain, */*',
+          referer: `/portal/marketing/add-on-deal/list?status=${status}&searchType=promotion_name`
+        }
+      })
+      const des = JSON.parse(res)
+      const data = JSON.parse(des.data)
+      const ecode = data?.data ? data.code : data.errcode
+      const message = data.message
+      return { ecode, data, message }
+    } catch (error) {
+      return { code: -2, data: `delPromotion-catch: ${error}` }
+    }
+  }
 }
