@@ -452,7 +452,6 @@
         :header-cell-style="{
           backgroundColor: '#f5f7fa',
         }"
-        row-key="id"
         :big-data-checkbox="true"
         :border="false"
         @selection-change="handleSelectionChange"
@@ -1001,6 +1000,7 @@ export default {
       this.buttonStatus.start = true
       this.consoleMsg = ''
       this.goodsList = []
+      this.commonAttr.wordLimit = this.commonAttr.wordLimit === '' ? 10 : this.commonAttr.wordLimit
       this.$refs.plTable.reloadData(this.goodsList)
       this.CollectKeyWordApInstance._initKeyWord(platForm, this.commonAttr)
       this.writeLog('开始采集搜索........', true)
@@ -1073,20 +1073,24 @@ export default {
           return
         }
         const res2 = await this.collectLinkApInstance.getGoodsDeail(item)
+        console.log(res2)
         if (res2.code !== 200) {
           this.writeLog(`商品ID: ${item.GoodsId} 采集失败: ${res2.data}`, false)
         } else {
-          const data = []
-          data.Image = res2.data.ListItem[0].Image
-          data.GoodsId = res2.data.CollectGoodsData.GoodsId
-          data.Title = res2.data.CollectGoodsData.Title
-          data.CategoryName = res2.data.ListItem[0].CategoryName
-          data.Price = res2.data.CollectGoodsData.Price
-          data.Sales = res2.data.CollectGoodsData.Sales
-          data.Origin = res2.data.ListItem[0].Origin
+          const data = {}
+          const resData = res2.data.ListItem[0]
+          data.Image = resData.Image
+          data.GoodsId = resData.GoodsId
+          data.Title = resData.Title
+          data.CategoryName = resData.CategoryName
+          data.Price = resData.Price
+          data.Sales = resData.Sales
+          data.Origin = resData.Origin
           data.isDetail = true
           data.Platform = item.platformId
           data.Url = item.Url
+          data.Site = item.Site || null
+          data.ShopId = item.ShopId || null
           if (item.type === 2) {
             data.isLink = true
             data.Weight = item.Weight || 0
@@ -1099,6 +1103,7 @@ export default {
           console.log('linkData', this.goodsList)
         }
       } catch (error) {
+        console.log(error)
         this.writeLog(`商品ID: ${item.GoodsId} 异常`, false)
       } finally {
         --count.count
@@ -1223,6 +1228,7 @@ export default {
       this.writeLog('开始收藏商品........', true)
       // 编辑上新时根据用户选择的起止数据切割
       this.multipleSelection = this.isEditorVisible ? this.multipleSelection.splice(Number(this.start) - 1, Number(this.end) - Number(this.start) + 1) : this.multipleSelection
+      this.CollectPublicApInstance.initData(this.activeName)
       await batchOperation(this.multipleSelection, this.saveGoods)
       this.writeLog(`共收藏成功：${this.successNum}个商品, 收藏失败：${this.failNum}个商品`, true)
       this.writeLog(`收藏商品完毕........`, true)
@@ -1295,7 +1301,7 @@ export default {
     // 过滤数据
     filterData(data) {
       console.log('data', data)
-      let fData = []
+      const fData = []
       for (let i = 0; i < data.length; i++) {
         const item = data[i]
         item.Sales = Number(item.Sales)
@@ -1337,12 +1343,6 @@ export default {
           continue
         }
         fData.push(item)
-      }
-      // 单词最大
-      if (this.isShowTaobao) {
-        if (this.commonAttr.wordLimit) {
-          fData = fData.splice(0, this.commonAttr.wordLimit)
-        }
       }
       // 淘宝 虾皮 排序方式
       if (this.isShowTaobao || this.isShowShopeeSite) {

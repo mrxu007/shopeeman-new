@@ -111,7 +111,7 @@
             <span class="tableActive" @click="viewDetails('orderDetail', scope.row.order_id, scope.row.mall_info.platform_mall_id)">{{ scope.row.order_sn }}</span>
           </template>
         </el-table-column>
-        <el-table-column min-width="80px" label="站点" prop="country" align="center">
+        <el-table-column min-width="80px" label="站点" prop="country" align="center" fixed="left">
           <template slot-scope="scope" v-if="scope.row.mall_info">{{ scope.row.mall_info.country | chineseSite }}</template>
         </el-table-column>
         <el-table-column label="店铺名称" prop="mall_info.platform_mall_name" min-width="120px" align="center" show-overflow-tooltip />
