@@ -227,7 +227,7 @@
         }"
         :row-style="{
           color: 'black',
-          height: '50px',
+          height: '60px',
         }"
       >
         <el-table-column
@@ -545,7 +545,10 @@
           fixed="right"
         >
           <template slot-scope="{ row }">
-            <span :style="row.color && 'color:' + row.color">{{ row.status }}</span>
+            <div :style="row.color && 'color:' + row.color" class="status" style="height: 60px;text-align: left">
+              {{ row.status }}
+            </div>
+            <!-- <span :style="row.color && 'color:' + row.color">{{ row.status }}</span> -->
           </template>
         </el-table-column>
       </el-table>
