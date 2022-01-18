@@ -671,9 +671,10 @@ export function getGoodsUrl(platform, data) {
    * @param {*} orderSn 订单号传null
    * @param {*} writeLog 日志函数
    */
-export async function dealwithOriginGoodsNum(oriGoodsId, oriPlatformId, shopMallId, shopGoodsId, country, orderSn, writeLog) {
+export async function dealwithOriginGoodsNum(oriGoodsId, oriPlatformId, shopMallId, shopGoodsId, country, orderSn, writeLog, oriShopMallId, oriSite, that) {
   let msg = ''
   let flag = false
+  const _that = that
   try {
     // 1、同步shopee库存
     const params = {
@@ -689,21 +690,22 @@ export async function dealwithOriginGoodsNum(oriGoodsId, oriPlatformId, shopMall
     if (shopeeGoods.code === 200 && shopeeGoods.data) {
       const logistics_channels = await dealwithLogisi(shopGoodsId, shopMallId, country)
       if (!logistics_channels.length) {
+        _that.failNum++
         return writeLog(`${orderSn ? `订单【${orderSn}】` : `商品【${shopGoodsId}】`}同步上家失败，未获取到物流信息！`, false)
       }
       shopeeGoodsInfo = shopeeGoods.data
       shopeeSkuList = shopeeGoods.data.model_list || [] // shopee规格list
       const params = {
         GoodsId: oriGoodsId,
-        shop_id: shopMallId
+        ShopId: oriShopMallId
       }
       if (oriPlatformId == 9) {
-        params['Site'] = country
+        params['Site'] = oriSite
       } else if (oriPlatformId == 11) {
-        params['ShopId'] = shopMallId
-        params['Site'] = country
+        params['ShopId'] = oriShopMallId
+        params['Site'] = oriSite
       } else if (oriPlatformId == 13) {
-        params['ShopId'] = shopMallId
+        // params['ShopId'] = shopMallId
         params['AccessToken'] = ''
       }
 
@@ -713,49 +715,59 @@ export async function dealwithOriginGoodsNum(oriGoodsId, oriPlatformId, shopMall
       console.log(res, '----------')
       msg = res
       console.log(Number(oriPlatformId), params, '4654689')
-      const resObj = res && JSON.parse(res)
+      const resObj = res && isJsonString(res)
       console.log(resObj, '----------')
+      let totalStock = 0
+      const dealWithSkuList = []
       if (resObj && resObj.Code === 200) {
         const {
-          CollectGoodsSkus
+          CollectGoodsSkus,
+          CollectGoodsData
         } = resObj
-        for (const key in CollectGoodsSkus) {
-          const skuInfo = CollectGoodsSkus[key]
-          // console.log(skuInfo, 'skuInfo')
-          let skuName = ''
-          // ---------------------处理skuName--------------------------------//
-          if ((skuInfo.PddProps && !skuInfo.originProps) || (skuInfo.PddProps && skuInfo.originProps && skuInfo.PddProps.length >= skuInfo.originProps.length)) {
-            if (skuInfo.PddProps.length === 1) {
-              skuName = skuInfo.PddProps[0].spec_name
-            } else if (skuInfo.PddProps.length >= 2) {
-              skuName = skuInfo.PddProps[0].spec_name + ',' + skuInfo.PddProps[1].spec_name
-            } else {
-              skuName = ''
-            }
-          } else if ((!skuInfo.PddProps && skuInfo.originProps) || (skuInfo.PddProps && skuInfo.originProps && skuInfo.PddProps.length <= skuInfo.originProps.length)) {
-            if (skuInfo.originProps.length === 1) {
-              skuName = skuInfo.originProps[0].name
-            } else if (skuInfo.originProps.length >= 2) {
-              skuName = skuInfo.originProps[0].name + ',' + skuInfo.originProps[1].name
-            } else {
-              skuName = ''
-            }
+        if (JSON.stringify(CollectGoodsSkus) === '{}') {
+          if (shopeeSkuList.length === 0) {
+            totalStock = CollectGoodsData.TotalQuantity
           } else {
-            skuName = ''
+            return writeLog(`${orderSn ? `订单【${orderSn}】` : `商品【${shopGoodsId}】`}同步库存失败，获取到上家规格为空，未匹配到相同的规格信息！`, false)
           }
-          // ----------------------------------------------------------------//
-          const spIndex = shopeeSkuList.findIndex((n) => n.sku.replace('=|=', ',') == skuName)
-          if (spIndex > -1) {
-            flag = true
-            shopeeSkuList[spIndex].stock = Number(skuInfo.quantity)
+        } else {
+          for (const key in CollectGoodsSkus) {
+            const skuInfo = CollectGoodsSkus[key]
+            // console.log(skuInfo, 'skuInfo')
+            let skuName = ''
+            // ---------------------处理skuName--------------------------------//
+            if ((skuInfo.PddProps && !skuInfo.originProps) || (skuInfo.PddProps && skuInfo.originProps && skuInfo.PddProps.length >= skuInfo.originProps.length)) {
+              if (skuInfo.PddProps.length === 1) {
+                skuName = skuInfo.PddProps[0].spec_name
+              } else if (skuInfo.PddProps.length >= 2) {
+                skuName = skuInfo.PddProps[0].spec_name + ',' + skuInfo.PddProps[1].spec_name
+              } else {
+                skuName = ''
+              }
+            } else if ((!skuInfo.PddProps && skuInfo.originProps) || (skuInfo.PddProps && skuInfo.originProps && skuInfo.PddProps.length <= skuInfo.originProps.length)) {
+              if (skuInfo.originProps.length === 1) {
+                skuName = skuInfo.originProps[0].name
+              } else if (skuInfo.originProps.length >= 2) {
+                skuName = skuInfo.originProps[0].name + ',' + skuInfo.originProps[1].name
+              } else {
+                skuName = ''
+              }
+            } else {
+              skuName = ''
+            }
+            // ----------------------------------------------------------------//
+            const spIndex = shopeeSkuList.findIndex((n) => n.sku.replace('=|=', ',') == skuName)
+            if (spIndex > -1) {
+              flag = true
+              shopeeSkuList[spIndex].stock = Number(skuInfo.quantity)
+            }
+          }
+          // -----------判断是否更新并组装数据--------------//
+          if (!flag) {
+            _that.failNum++
+            return writeLog(`${orderSn ? `订单【${orderSn}】` : `商品【${shopGoodsId}】`}同步库存失败，未匹配到相同的规格信息！`, false)
           }
         }
-        // -----------判断是否更新并组装数据--------------//
-        if (!flag) {
-          return writeLog(`${orderSn ? `订单【${orderSn}】` : `商品【${shopGoodsId}】`}同步库存失败，未匹配到相同的规格信息！`, false)
-        }
-        let totalStock = 0
-        const dealWithSkuList = []
         shopeeSkuList.forEach((item) => {
           totalStock += item.stock
           const subItem = {
@@ -815,19 +827,27 @@ export async function dealwithOriginGoodsNum(oriGoodsId, oriPlatformId, shopMall
         }
         const editRes = await instance.$shopeemanService.handleProductEdit(country, data, [editParams])
         if (editRes.code === 200) {
+          _that.successNum++
           return writeLog(`同步库存成功，${orderSn ? `订单【${orderSn}】` : `商品【${shopGoodsId}】`}同步库存成功！`, true)
         } else {
+          _that.failNum++
           return writeLog(`同步库存失败，${orderSn ? `订单【${orderSn}】` : `商品【${shopGoodsId}】`}同步库存失败，${instance.$filters.errorMsg(editRes.data)}！`, false)
         }
+      } else {
+        _that.failNum++
+        return writeLog(`${orderSn ? `订单【${orderSn}】` : `商品【${shopGoodsId}】上家平台`}${resObj}！`, false)
       }
     } else {
       if (shopeeGoods.code === 403) {
+        _that.failNum++
         return writeLog(`同步库存失败，店铺【${shopMallId}】未登录！`, false)
       }
+      _that.failNum++
       return writeLog(`同步库存失败，${orderSn ? `订单【${orderSn}】` : `商品【${shopGoodsId}】`}未获取到shopee商品信息！`, false)
     }
   } catch (error) {
     console.log('catch', error)
+    _that.failNum++
     return writeLog(`${orderSn ? `订单【${orderSn}】` : `商品【${shopGoodsId}】`}同步上家库存失败，${msg}！`, false)
   }
 }
@@ -1016,5 +1036,18 @@ export function imageCompressionUpload(mall, imageList, that, thread = 3) {
       return sizeStr.substring(0, index) + sizeStr.substr(index + 3, 2)
     }
     return size
+  }
+}
+// 判断能否转JSON
+export function isJsonString(str) {
+  if (typeof str === 'string') {
+    try {
+      JSON.parse(str)
+      return JSON.parse(str)
+    } catch (e) {
+      return str
+    }
+  } else {
+    return str
   }
 }
