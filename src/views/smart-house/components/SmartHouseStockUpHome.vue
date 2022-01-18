@@ -538,8 +538,7 @@
           show-overflow-tooltip
         />
         <el-table-column
-          width="100"
-          align="center"
+          width="150"
           label="操作状态"
           prop="status"
           fixed="right"

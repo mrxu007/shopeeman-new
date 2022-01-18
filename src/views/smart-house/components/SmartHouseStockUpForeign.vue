@@ -769,7 +769,6 @@
         />
         <el-table-column
           width="150"
-          align="center"
           label="操作状态"
           prop="status"
           fixed="right"
