@@ -73,32 +73,32 @@ export default class buyerAccountService {
     this.nativeService.buyerLogin(platform, url, ShotOrderBuyerAccount)
   }
   /**
-   * 1688登陆
+   * 1688登录
    */
   alibabaLogin() {
     return this.nativeService.buyerLogin(this.ShotOrderPlatform.Alibaba, 'https://login.1688.com/member/signin.htm?tracelog=member_signout_signin', null)
   }
   /**
-   * taobao登陆
+   * taobao登录
    */
   taobaoLogin() {
     console.log(2)
     return this.nativeService.buyerLogin(this.ShotOrderPlatform.TaoBao, 'https://login.taobao.com/member/login.jhtml?from=taobaoindex&f=top&style=&sub=true&redirect_url=https://member1.taobao.com/member/fresh/deliver_address.htm', null)
   }
   /**
-   * pdd登陆
+   * pdd登录
    */
   pddLogin() {
     return this.nativeService.buyerLogin(this.ShotOrderPlatform.PinDuoduo, 'http://mobile.yangkeduo.com/login.html', null)
   }
   /**
-   * jx登陆
+   * jx登录
    */
   jingxiLogin() {
     return this.nativeService.buyerLogin(this.ShotOrderPlatform.JingXi, 'https://plogin.m.jd.com/login/login', null)
   }
   /**
-   * lazada登陆
+   * lazada登录
    */
   lazadaLogin(country) {
     const url = this.lazada[country] + '/user/profile#/'
@@ -108,7 +108,7 @@ export default class buyerAccountService {
     })
   }
   /**
-   * shopee登陆
+   * shopee登录
    */
   shopeeLogin(country) {
     const url = this.shopee[country] + '/user/account/address'

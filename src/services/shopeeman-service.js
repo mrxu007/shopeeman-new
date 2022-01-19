@@ -471,7 +471,7 @@ export default class NetMessageBridgeService {
     }
     options.vcode ? params['vcode'] = options.vcode : ''
     let copy_mallInfo = null
-    if (flat === 2) { // 导入店铺必须参数   flat 1 一键登陆  2导入店铺
+    if (flat === 2) { // 导入店铺必须参数   flat 1 一键登录  2导入店铺
       copy_mallInfo = {}
       copy_mallInfo['accountName'] = acccount_info.username
       copy_mallInfo['mall_account_info'] = acccount_info
@@ -518,7 +518,7 @@ export default class NetMessageBridgeService {
           shopid: mallId,
           SPC_F: SetCookie || mallInfo.SPC_F || '',
           spc_f: SetCookie || mallInfo.SPC_F || ''
-        } // (一键登陆专用)
+        } // (一键登录专用)
         console.log('Cookie', Cookie)
         const Cookie_new = { // 店铺cookie信息(导入店铺专用)(更新壳)
           'SPC_CDS_VER': '2',
@@ -544,7 +544,7 @@ export default class NetMessageBridgeService {
           'OtherCookieInfo': '',
           'spcf_update_time': ''
         }
-        const mallInfo_new = { // 通知壳更新店铺信息 (导入店铺、一键登陆) 数据结构与壳内店铺信息一致
+        const mallInfo_new = { // 通知壳更新店铺信息 (导入店铺、一键登录) 数据结构与壳内店铺信息一致
           'IPIsExpired': true,
           'IsOpenSIP': false,
           'ProxyType': 'ssr',
@@ -677,7 +677,7 @@ export default class NetMessageBridgeService {
         const mallUId = `${data.id}` // 平台店铺ID
         const username = data.username
 
-        const Cookie = {} // (一键登陆专用)
+        const Cookie = {} // (一键登录专用)
         Cookie['SPC_EC'] = data.sso
         Cookie['SPC_SC_TK'] = data.token
         Cookie['ShopeeUid'] = mallUId // 虾皮平台用户Uid
@@ -710,7 +710,7 @@ export default class NetMessageBridgeService {
           'spcf_update_time': ''
         }
 
-        const mallInfo_new = { // 通知壳更新店铺信息 (导入店铺、一键登陆) 数据结构与壳内店铺信息一致
+        const mallInfo_new = { // 通知壳更新店铺信息 (导入店铺、一键登录) 数据结构与壳内店铺信息一致
           'IPIsExpired': true,
           'IsOpenSIP': false,
           'ProxyType': 'ssr',
