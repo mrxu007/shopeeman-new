@@ -240,6 +240,7 @@ export default class ShopeemanConfig {
           'IsCustomShipFee': true,
           'ShipId': '70016',
           'ShipName': 'Thailand Post - Registered Mail'
+          //Registered Mail - Thailand Post
         },
         {
           'Country': '泰国站',

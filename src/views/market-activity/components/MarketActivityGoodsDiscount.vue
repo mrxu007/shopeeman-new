@@ -351,11 +351,11 @@ export default {
       if (this.activeDiscount < 0 || this.activeDiscount > 100 || this.limitNum < 0 || this.activeDiscount % 1 !== 0) {
         return this.$message.warning('折扣信息或限购数量有误！')
       }
-      if (!this.activeDicountName) {
+      if(!this.activeDicountName){
         return this.$message.warning('活动名称不能为空')
       }
-      console.log(this.activeDate, 'this.activeDate')
-      if (!this.activeDate || !this.activeDate.length) {
+      console.log(this.activeDate,"this.activeDate")
+      if(!this.activeDate || !this.activeDate.length){
         return this.$message.warning('请选择活动时间')
       }
       this.goodsItemSelectorVisible = true
@@ -371,7 +371,7 @@ export default {
       if (!this.selectGoods.length) {
         return this.$message.warning('请先选择商品！')
       }
-      if (!this.activeDate || !this.activeDate.length) {
+      if(!this.activeDate || !this.activeDate.length) {
         return this.$message.warning('请先选择活动时间！')
       }
       this.showConsole = false
@@ -416,9 +416,9 @@ export default {
                 }
               }
             })
-          } else if (res.code === 403) {
+          } else if(res.code === 403){
             this.$refs.Logs.writeLog(`店铺【${mall.mall_alias_name || mall.platform_mall_name}】创建活动失败,店铺未登录`, false)
-          } else {
+          }else{
             this.$refs.Logs.writeLog(`店铺【${mall.mall_alias_name || mall.platform_mall_name}】创建活动失败,${res.data}`, false)
           }
         } catch (error) {

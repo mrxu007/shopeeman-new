@@ -621,7 +621,7 @@
         }"
         :row-style="{
           color: 'black',
-          height: '50px',
+          height: '60px',
         }"
         @selection-change="foreignSelectionChange"
       >
@@ -768,14 +768,16 @@
           show-overflow-tooltip
         />
         <el-table-column
-          width="100"
-          align="center"
+          width="150"
           label="操作状态"
           prop="status"
           fixed="right"
         >
           <template slot-scope="{ row }">
-            <span :style="row.color && 'color:' + row.color">{{ row.status }}</span>
+            <div :style="row.color && 'color:' + row.color" class="status" style="height: 60px;text-align: left">
+              {{ row.status }}
+            </div>
+            <!-- <span :style="row.color && 'color:' + row.color">{{ row.status }}</span> -->
           </template>
         </el-table-column>
       </el-table>
@@ -1908,7 +1910,7 @@ export default {
         const element = this.importTemplateData[index]
         const package_code = element['物流单号(必填：多个SKU可对应同一物流单号)']
         const sku_id = element['商品编号(sku)(必填：只能填字母或数字)']
-        const forecaster = element['填报人(必填)']
+        const forecaster = element['填报人']
         const goods_name = element['商品名称(必填：中文)']
         const sku_num = element['商品数量(必填)']
         const sku_price = element['商品单价(RMB)(必填)']
@@ -1928,10 +1930,6 @@ export default {
         }
         if (!sku_id) {
           this.$refs.Logs.writeLog(`【${index + 1}】商品编号(sku)为空`, false)
-          continue
-        }
-        if (!forecaster) {
-          this.$refs.Logs.writeLog(`【${index + 1}】填报人为空`, false)
           continue
         }
         if (!goods_name) {
@@ -2069,7 +2067,7 @@ export default {
       const template = `<tr>
       <td style="width: 300px">物流单号<span style="color:red">(必填：多个SKU可对应同一物流单号)</span></td>
       <td style="width: 280px">商品编号(sku)<span style="color:red">(必填：只能填字母或数字)</span></td>
-      <td style="width: 100px">填报人<span style="color:red">(必填)</span></td>
+      <td style="width: 100px">填报人</td>
       <td style="width: 180px">商品名称<span style="color:red">(必填：中文)</span></td>
       <td style="width: 100px">商品数量<span style="color:red">(必填)</span></td>
       <td style="width: 150px">商品单价(RMB)<span style="color:red">(必填)</span></td>
@@ -2164,6 +2162,7 @@ export default {
           obj['forecast_code'] = item.forecast_code
           obj['warehouse_name'] = item.warehouse_name
           obj['oversea_warehouse_name'] = item.oversea_warehouse_name
+          obj['forecaster'] = item.forecaster
           obj['created_at'] = item.created_at
           obj['sign_time'] = item.sign_time
           obj['store_time'] = item.store_time
@@ -2192,7 +2191,8 @@ export default {
           <td>海外仓单号</td>
           <td>中转仓库</td>
           <td>海外仓库</td>
-          <td>预报时间(RMB)</td>
+          <td>填报人</td>
+          <td>预报时间</td>
           <td>签收时间</td>
           <td>中转仓入库时间</td>
           <td>预报单状态</td>
@@ -2218,6 +2218,7 @@ export default {
         <td>${item.forecast_code ? item.forecast_code : '' + '\t'}</td>
         <td>${item.warehouse_name ? item.warehouse_name : '' + '\t'}</td>
         <td>${item.oversea_warehouse_name ? item.oversea_warehouse_name : '' + '\t'}</td>
+        <td>${item.forecaster ? item.forecaster : '' + '\t'}</td>
         <td>${item.created_at ? item.created_at : '' + '\t'}</td>
         <td>${item.sign_time ? item.sign_time : '' + '\t'}</td>
         <td>${item.store_time ? item.store_time : '' + '\t'}</td>

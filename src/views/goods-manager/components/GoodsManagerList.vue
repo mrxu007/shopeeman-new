@@ -1675,22 +1675,19 @@ export default {
     // 同步上家库存
     async syncOriginGoodsNum() {
       this.flag = false
-      this.showConsole = false
-      this.$refs.Logs.consoleMsg = ''
-      this.$refs.Logs.writeLog(`开始同步上家库存，请耐心等待！`, true)
       this.initData()
       this.updateNum = this.multipleSelection.length
       await batchOperation(this.multipleSelection, this.syncOriginGoods)
       this.operationBut = false
-      this.$refs.Logs.writeLog(`同步完成！`, true)
     },
     async syncOriginGoods(item, count = { count: 1 }) {
       try {
         if (this.flag) {
-          stop()
+          terminateThread()
           return
         }
-        await dealwithOriginGoodsNum(item.productId, item.platform, item.platform_mall_id, item.id, item.country, '', this.$refs.Logs.writeLog, item.oriShopId, item.oriSite, this)
+        this.batchStatus(item, `开始同步上家库存...`, true)
+        await dealwithOriginGoodsNum(item.productId, item.platform, item.platform_mall_id, item.id, item.country, '', this.$refs.Logs.writeLog, item.oriShopId, item.oriSite, this, item)
       } catch (error) {
         console.log(error)
       } finally {
@@ -3330,12 +3327,17 @@ export default {
         // 获取类目名
         for (let j = 0; j < item.category_path.length; j++) {
           const cItem = item.category_path[j]
-          const res = await this.GoodsList.getCategoryName(item.country, cItem, '0', '')
-          if (res.code === 200) {
-            categoryName.push(res.data.categories ? `${res.data.categories[0].category_name}(${res.data.categories[0].category_cn_name})` : '')
+          if (this.categoryIdList.cItem && Object.keys(this.categoryIdList.cItem).length > 0) {
+            categoryName.push(this.categoryIdList.cItem.categories ? `${this.categoryIdList.cItem.categories[0].category_name}(${this.categoryIdList.cItem.categories[0].category_cn_name})` : '')
           } else {
-            categoryName = ''
-            this.$refs.Logs.writeLog(`${res.data}`, false)
+            const res = await this.GoodsList.getCategoryName(item.country, cItem, '0', '')
+            if (res.code === 200) {
+              categoryName.push(res.data.categories ? `${res.data.categories[0].category_name}(${res.data.categories[0].category_cn_name})` : '')
+              this.categoryIdList[cItem] = res.data
+            } else {
+              categoryName = ''
+              this.$refs.Logs.writeLog(`${res.data}`, false)
+            }
           }
         }
         item.stock = stock // 库存

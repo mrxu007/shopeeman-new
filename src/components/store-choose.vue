@@ -5,37 +5,38 @@
       <li v-else :style="isReset && 'margin-bottom: 5px'">
         <span :style="{ width: spanWidth }">所属站点：</span>
         <el-select v-model="countryVal" size="mini" filterable class="siteSelectBox">
-          <el-option v-if="isAll" label="全部" :value="''" />
-          <el-option v-for="(item, index) in countries" :key="index" :label="item.label" :value="item.value" />
+          <el-option v-if="isAll" label="全部" :value="''"/>
+          <el-option v-for="(item, index) in countries" :key="index" :label="item.label" :value="item.value"/>
         </el-select>
       </li>
       <li :style="isReset && 'margin-bottom: 5px'">
         <span :style="{ width: spanWidth }">店铺分组：</span>
         <el-select v-model="groupId" placeholder="" multiple collapse-tags size="mini" filterable class="selectBox">
-          <el-option label="全部" :value="''" />
-          <el-option v-for="(item, index) in groupIdList" :key="index" :label="item.group_name" :value="item.id" />
+          <el-option label="全部" :value="''"/>
+          <el-option v-for="(item, index) in groupIdList" :key="index" :label="item.group_name" :value="item.id"/>
         </el-select>
       </li>
       <li :style="isReset && 'margin-bottom: 5px'">
         <span :style="{ width: spanWidth }">店铺名称：</span>
         <el-select
-          v-model="site"
-          v-loadmore="loadmoreMall"
-          placeholder=""
-          multiple
-          collapse-tags
-          :filter-method="filterMall"
-          size="mini"
-          filterable
-          class="selectBox"
+            v-model="site"
+            v-loadmore="loadmoreMall"
+            placeholder=""
+            multiple
+            collapse-tags
+            :filter-method="filterMall"
+            size="mini"
+            filterable
+            class="selectBox"
+            @visible-change="filterMall('')"
         >
-          <el-option v-if="!isShowName" label="全部" :value="''" />
+          <el-option label="全部" :value="''"/>
           <el-option
-            v-for="(item, index) in siteShowList"
-            v-if="showMall(item,index)"
-            :key="index"
-            :label="item.mall_alias_name || item.platform_mall_name"
-            :value="item.platform_mall_id"
+              v-for="(item, index) in siteShowList"
+              v-if="showMall(item,index)"
+              :key="index"
+              :label="item.mall_alias_name || item.platform_mall_name"
+              :value="item.platform_mall_id"
           />
         </el-select>
       </li>
@@ -61,6 +62,10 @@ Vue.directive('loadmore', {
       } else if (this.scrollTop < 30) {
         binding.value(false, this)
       }
+    })
+    SELECTWRAP_DOM.addEventListener('blur', () => {
+      console.log('测试')
+      this.scrollTop = 0
     })
   }
 })
@@ -113,9 +118,11 @@ export default {
       countries: this.$filters.countries_option,
       mallListAPIInstance: new MallListAPI(this),
       isShowName: '',
+      isShowNameAll: false,
       showMallNumber: 100,
       mallShowIndex: 0,
-      jsonMallData: []
+      jsonMallData: [],
+      filterMallTime: null
     }
   },
   watch: {
@@ -124,6 +131,7 @@ export default {
     },
     countryVal: {
       handler(val, oldVal) {
+        this.isShowName = ''
         this.isAllowSet2 = false
         this.groupId = []
         this.groupIdList = []
@@ -134,6 +142,7 @@ export default {
     groupId: {
       handler(val, oldVal) {
         if (this.isAllowSet2) {
+          this.isShowName = ''
           this.isAllowSet2 = false
           const isOldAll = oldVal.indexOf('') > -1
           const isAll = val.indexOf('') > -1
@@ -160,21 +169,44 @@ export default {
       handler(val, oldVal) {
         if (this.isAllowSet1) {
           this.isAllowSet1 = false
-          const isOldAll = oldVal.indexOf('') > -1
-          const isAll = val.indexOf('') > -1
-          if (isOldAll !== isAll) {
-            if (isAll) {
-              this.site = ['', ...this.siteList.map(i => i.platform_mall_id)]
+          let showName = this.isShowName
+          const isOldAll = oldVal.includes('')
+          const isAll = val.includes('')
+          if (isOldAll !== isAll || (oldVal.toString() === val.toString() && this.isShowNameAll)) {
+            console.log(isAll && (!showName || showName && !this.isShowNameAll))
+            if (isAll && (!showName || showName && !this.isShowNameAll)) {
+              let showList = showName && [...this.siteShowList.map(i => i.platform_mall_id)] || ['', ...this.siteList.map(i => i.platform_mall_id)]
+              let setList = new Set([...showList, ...oldVal])
+              this.site = [...setList]
+              this.isShowNameAll = true
+              showName && this.siteList.length === this.site.length && this.site.unshift('')
             } else {
-              this.site = []
+              this.isShowNameAll = false
+              let setList = []
+              if (showName) {
+                let showList = showName && [...this.siteShowList.map(i => i.platform_mall_id)]
+                let maxList = showList.length > this.site.length && this.site || showList
+                let minList = showList.length > this.site.length && showList || this.site
+                setList = new Set(this.site)
+                for (let item of minList) {
+                  if (maxList.includes(item)) {
+                    setList.delete(item)
+                  }
+                }
+                setList.delete('')
+              }
+              this.site = [...setList]
             }
           } else if (isAll) {
             this.site = val.slice(1)
           } else if (this.siteList.length > 0 && this.siteList.length === this.site.length) {
             this.site.unshift('')
+          } else {
+            this.isShowNameAll = false
           }
           setTimeout(() => {
             this.changeMallList()
+            this.filterMall(showName)
             this.isAllowSet1 = true
           }, 10)
         }
@@ -205,7 +237,9 @@ export default {
       }
       if (jsonMallData.length > 0) {
         if (val === 1) {
-          this.siteList = country === '' ? jsonMallData : jsonMallData.filter(item => { return item.country === country })
+          this.siteList = country === '' ? jsonMallData : jsonMallData.filter(item => {
+            return item.country === country
+          })
         }
         if (val === 2) {
           if (this.groupId.length === 0) {
@@ -238,7 +272,9 @@ export default {
           const data = res.data || []
           this.siteList = data
           this.jsonMallData = data
-          this.siteList = country === '' ? data : data.filter(item => { return item.country === country })
+          this.siteList = country === '' ? data : data.filter(item => {
+            return item.country === country
+          })
         } else {
           this.$message.error('获取分组、店铺列表失败')
         }
@@ -322,17 +358,23 @@ export default {
       }
     },
     filterMall(val) {
-      this.isShowName = val || ''
-      const list1 = this.siteList.filter(i => {
-        const name = i.mall_alias_name || i.platform_mall_name
-        return name.includes(val)
-      })
-      this.showMallNumber = list1.length - this.showMallNumber
-      const list2 = this.siteList.filter(i => {
-        const name = i.mall_alias_name || i.platform_mall_name
-        return !name.includes(val)
-      })
-      this.siteShowList = [...list1, ...list2]
+      let time = val && this.isShowName !== val && 1000 || 100
+      if (this.filterMallTime) {
+        clearTimeout(this.filterMallTime)
+        this.filterMallTime = null
+      }
+      this.filterMallTime = setTimeout(() => {
+        this.isShowName = val || ''
+        let list1 = this.siteList
+        if (val) {
+          list1 = this.siteList.filter(i => {
+            const name = i.mall_alias_name || i.platform_mall_name
+            return name.includes(val)
+          })
+        }
+        this.mallShowIndex = 0
+        this.siteShowList = list1
+      }, time)
     },
     showMall(item, index) {
       const name = item.mall_alias_name || item.platform_mall_name
@@ -344,7 +386,7 @@ export default {
         let newIndex = 0
         if (val) {
           newIndex = this.mallShowIndex + 10
-          newIndex = newIndex < this.siteShowList.length && newIndex || this.mallShowIndex
+          newIndex = newIndex < (this.siteShowList.length - this.showMallNumber) && newIndex || (this.siteShowList.length - this.showMallNumber)
         } else {
           newIndex = this.mallShowIndex - 10
           newIndex = newIndex > 0 && newIndex || 0
@@ -392,9 +434,14 @@ export default {
     }
 
     .el-select__tags {
+      max-width: 153px !important;
       display: flex;
       flex-wrap: nowrap;
       overflow: hidden;
+    }
+
+    .el-input__suffix {
+      right: 0;
     }
   }
 }

@@ -10,8 +10,8 @@
             <div>物流设置：</div>
             <div>
               <el-checkbox-group v-model="logistics" size="mini">
-                <el-checkbox :label="item.ShipName" :value="item" v-for="item in logisticsList"
-                             :key="item.ShipId" :disabled="isBanPerform"></el-checkbox>
+                <el-checkbox :label="item.ShipId" v-for="item in logisticsList"
+                             :key="item.ShipId" :disabled="isBanPerform">{{item.ShipName}}</el-checkbox>
               </el-checkbox-group>
               <div v-if="customLogistics[0]">
                 <p style="color: var(--themeColor)">确保此物流方式已在商家后台开启
@@ -1335,15 +1335,29 @@ export default {
     },
     async prepareWork(mall, count = { count: 1 }) {
       try {
+        let mallName = mall.mall_alias_name || mall.platform_mall_name
         let goodsList = []
+        let loginRes = await this.$shopeemanService.getUserInfo(mall)
+        let loginSuccess = loginRes.code === 200
+        if(loginSuccess){
+          const params = {}
+          params['mallId'] = mall.platform_mall_id
+          const channelListJSON = await this.$shopeemanService.getChinese(mall.country, '/api/v3/logistics/get_channel_list/?', params)
+          const channelListRes = JSON.parse(channelListJSON)
+          const channelListData = JSON.parse(channelListRes.data)
+          let channelList = channelListData.data && channelListData.data.list || []
+          console.log('channelListRes',channelList,this.logistics)
+        }
+        return
         if (this.associatedConfig.dimensionRadio < 2) {
           let mallCount = this.mallList.length
           let mallIndex = this.mallList.findIndex(son=> son.id === mall.id)
-          let goodsList = this.goodsTable.length
-          for (let i=0;mallIndex<goodsList;i++){
+          let goodsCount = this.goodsTable.length
+          for (let i=0;mallIndex<goodsCount;i++){
             mallIndex = mallIndex + mallCount * i
-            if(mallIndex > goodsList){
-              goodsList = [...goodsList,mallIndex]
+            console.log(mallIndex)
+            if(mallIndex < goodsCount){
+              goodsList = [...goodsList,this.goodsTableSelect[mallIndex]]
             }
           }
         } else {
@@ -1351,6 +1365,10 @@ export default {
         }
         for (let item of goodsList) {
           this.updateAttributeName(item, '正在准备发布')
+          if (!loginSuccess){
+            this.updateAttributeName(item, `${mallName}店铺未登陆发布失败`)
+            continue
+          }
           let goodsInitParam = {
             attributes: [],
             stock: item.stock,
@@ -1407,9 +1425,7 @@ export default {
           }
           let neededTranslateInfoJson = await this.$commodityService.getSpuDetailByIdV2(item.id)
           let neededTranslateInfoData = JSON.parse(neededTranslateInfoJson) && JSON.parse(neededTranslateInfoJson).data
-          console.log('getSpuDetailByIdV2 - data', neededTranslateInfoData)
           let goodsParam = JSON.parse(JSON.stringify(goodsInitParam))
-          let mallName = mall.mall_alias_name || mall.platform_mall_name
           this.updateAttributeName(item, mallName, 'mallName')
           // weight
           if (goodsParam['weight'] === '0') {
@@ -1532,7 +1548,7 @@ export default {
         }
       } catch (e) {
         console.log(e)
-        this.updateAttributeName(item, '发布失败，数据或请求异常')
+        // this.updateAttributeName( '发布失败，数据或请求异常')
       } finally {
         --count.count
       }
@@ -1902,7 +1918,7 @@ export default {
       logisticsList.forEach(item => {
         this.logisticsList.push(item)
         if (item.IsSelected) {
-          this.logistics.push(item.ShipName)
+          this.logistics.push(item.ShipId)
         }
       })
     },

@@ -12,15 +12,15 @@
         </li>
         <li>
           <span>系统商品编号：</span>
-          <el-input v-model="form.systemskuid" clearable size="mini" oninput="value=value.replace(/\s+/g,'')" />
+          <el-input v-model="form.systemskuid" clearable size="mini" />
         </li>
         <li>
           <span>商品编号：</span>
-          <el-input v-model="form.skuid" clearable size="mini" oninput="value=value.replace(/\s+/g,'')" />
+          <el-input v-model="form.skuid" clearable size="mini" />
         </li>
         <li>
           <span>商品规格：</span>
-          <el-input v-model="form.sku_name" clearable size="mini" oninput="value=value.replace(/\s+/g,'')" />
+          <el-input v-model="form.sku_name" clearable size="mini" />
         </li>
         <li>
           <el-checkbox
@@ -393,9 +393,9 @@ export default {
         page_num: this.pageSize,
         page: this.page,
         wid: this.form.returnWheareHouseName,
-        sys_sku_id: this.form.systemskuid,
-        sku_id: this.form.skuid,
-        sku_name: this.form.sku_name,
+        sys_sku_id: this.form.systemskuid.trim(),
+        sku_id: this.form.skuid.trim(),
+        sku_name: this.form.sku_name.trim(),
         is_zero_filter: this.is_zero_filter,
         type: 'query',
         app_uid: ''
@@ -462,9 +462,9 @@ export default {
           page_num: 200,
           page: page,
           wid: this.form.returnWheareHouseName,
-          sys_sku_id: this.form.systemskuid,
-          sku_id: this.form.skuid,
-          sku_name: this.form.sku_name,
+          sys_sku_id: this.form.systemskuid.trim(),
+          sku_id: this.form.skuid.trim(),
+          sku_name: this.form.sku_name.trim(),
           is_zero_filter: this.is_zero_filter,
           type: 'query',
           app_uid: ''
