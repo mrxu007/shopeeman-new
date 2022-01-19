@@ -406,7 +406,7 @@ export default {
         const params = {
           action: type,
           order_id: order.order_id,
-          shop_id: order.mall_info.platform_mall_id
+          mallId: order.mall_info.platform_mall_id
         }
         const res = await this.$shopeemanService.respondCancelRequest(order.country, params)
         if (res.code === 200) {
@@ -415,10 +415,13 @@ export default {
           if (res.code === 403) {
             this.$refs.Logs.writeLog(`订单【${order.order_sn}】${typeC}买家取消订单操作失败，店铺未登录`, false)
           } else {
-            this.$refs.Logs.writeLog(`订单【${order.order_sn}】${typeC}买家取消订单操作失败，${res.data}`, false)
+            if(res.data.indexOf('order not ready to cancel')>-1){
+              this.$refs.Logs.writeLog(`订单【${order.order_sn}】${typeC}该订单状态无法执行此操作，可能已回复，请知悉！`,true)
+            }else{
+              this.$refs.Logs.writeLog(`订单【${order.order_sn}】${typeC}买家取消订单操作失败，${res.data}`, false)
+            }
           }
         }
-        console.log(res, 'respondCancelRequest')
       }
     },
     // 商品删除

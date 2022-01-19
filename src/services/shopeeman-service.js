@@ -1849,7 +1849,7 @@ export default class NetMessageBridgeService {
   //  莱尔富经济包的面单信息
   async getLaiErFuFace(country, data) {
     const res = await this.postChinese(country, '/api/v3/logistics/get_waybill_list', data, {
-      Headers: {
+      headers: {
         'Content-Type': ' application/json'
       }
     })
@@ -1878,10 +1878,10 @@ export default class NetMessageBridgeService {
 
   // 拒绝取消订单-接受取消订单
   async respondCancelRequest(country, data) {
-    const res = await this.postChinese(country, `/api/v3/order/respond_cancel_request/?`, data, {
-      Headers: {
-        'referer': `/portal/sale/${data.order_id}`,
-        'Content-Type': ' application/json'
+    const res = await this.postChinese(country, `/api/v3/order/respond_cancel_request/`, data, {
+      headers: {
+        'referer': `/portal/sale/order/${data.order_id}`,
+        'Content-Type': 'application/json;charset=UTF-8'
       }
     })
     const resObj = res && JSON.parse(res)
@@ -2093,7 +2093,7 @@ export default class NetMessageBridgeService {
   // 商品一键翻新
   async createProduct(country, data, params) {
     const res = await this.postChineseShop(country, '/api/v3/product/create_product/', data, params, {
-      Headers: {
+      headers: {
         'Content-Type': ' application/json'
       },
       params: {
@@ -2129,7 +2129,7 @@ export default class NetMessageBridgeService {
   // 创建套装优惠
   async createSuit(country, data) {
     const res = await this.postChinese(country, `/api/marketing/v3/bundle_deal/`, data, {
-      Headers: {
+      headers: {
         'Content-Type': ' application/json'
       }
     })
@@ -2157,7 +2157,7 @@ export default class NetMessageBridgeService {
   // 停止或删除套装优惠
   async stopSuit(country, data) {
     const res = await this.postChinese(country, `/api/marketing/v3/bundle_deal/operation/`, data, {
-      Headers: {
+      headers: {
         'Content-Type': ' application/json'
       }
     })
