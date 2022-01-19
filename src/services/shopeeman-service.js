@@ -2090,7 +2090,7 @@ export default class NetMessageBridgeService {
       }
     }
   }
-  // 商品一键翻新
+  // 商品上新
   async createProduct(country, data, params) {
     const res = await this.postChineseShop(country, '/api/v3/product/create_product/', data, params, {
       headers: {
@@ -2098,10 +2098,11 @@ export default class NetMessageBridgeService {
       },
       params: {
         version: '3.1.0',
-        source: 'seller_center'
+        // source: 'seller_center'
       }
     })
     const resObj = res && JSON.parse(res)
+    console.log('resObj',resObj)
     if (resObj && resObj.status === 200) {
       const info = JSON.parse(resObj.data)
       if (info && info.code === 0) {
@@ -2123,7 +2124,7 @@ export default class NetMessageBridgeService {
       }
       return {
         code: resObj.status,
-        data: `商品翻新失败${resObj.statusText}` }
+        data: `商品上新失败${resObj.statusText}` }
     }
   }
   // 创建套装优惠

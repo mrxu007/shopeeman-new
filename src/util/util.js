@@ -1031,7 +1031,8 @@ export function imageCompressionUpload(mall, imageList, that, thread = 3) {
       }
       const base64File = await getBase64file(imageUrl)
       const country = that.country || mall.country
-      const imageFileJSON = await that.$shopeemanService.upload_image(country, { mallId: item.platform_mall_id }, '', base64File)
+      const imageFileJSON = await that.$shopeemanService.upload_image(country, { mallId: item.platform_mall_id },
+        {params:{aspect: 1}}, base64File)
       const imageFileRes = JSON.parse(imageFileJSON)
       const imageFileData = JSON.parse(imageFileRes.data)
       newImage[item.url] = imageFileData?.data?.resource_id

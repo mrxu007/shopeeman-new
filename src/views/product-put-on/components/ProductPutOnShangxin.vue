@@ -1427,7 +1427,7 @@ export default {
             dimension: {
               width: item.width,
               height: item.height,
-              long: item.long
+              length: item.long
             },
             condition: 1,
             dangerous_goods: 0, //待修改
@@ -1440,10 +1440,10 @@ export default {
             category_recommend: [],
             price_before_discount: '',
             wholesale_list: [],
-            installment_tenures: [],
+            installment_tenures: {},
             pre_order: this.basicConfig.stockUpChecked,
             days_to_ship: Math.floor(this.basicConfig.stockUpNumber) || 15,
-            logistics_channels: logistics_channels,
+            logistics_channels: logistics_channels.slice(0, 4),
             unlisted: this.basicConfig.usedChecked,
             add_on_deal: []
           }
@@ -1488,8 +1488,8 @@ export default {
           let tmall_cross_border_user_id = extrainfo && extrainfo.tmall_cross_border_user_id || ''
           goodsParam['parent_sku'] = await this.$BaseUtilService.buildGoodCode(platformId, item.goods_id, this.country, mall.platform_mall_id, tmall_cross_border_user_id)
           let guid = new GUID()
-          goodsParam['ds_cat_rcmd_id'] = guid.newGUID()
-          goodsParam['ds_attr_rcmd_id'] = guid.newGUID()
+          goodsParam['ds_cat_rcmd_id'] = guid.newGUID() + '|c|EN'
+          goodsParam['ds_attr_rcmd_id'] = guid.newGUID() + '|a|EN'
           // name description
           goodsParam['description'] = neededTranslateInfoData.description || ''
           let hotList = this.basicConfig.hotList || ''
@@ -1497,17 +1497,17 @@ export default {
           hotList = hotList.split(',') || []
           let hotStr = ''
           let name = item.title
-          if (this.basicConfig.hotSearch > 0) {
+          if (this.basicConfig.hotSearch > 0 && hotList[0]) {
             let hotListCount = hotList.length
             for (let i = 0; i < this.basicConfig.hotSearch; i++) {
-              let hotIndex = hotList[Math.floor(Math.random() * hotListCount)]
+              let hotIndex = hotList[Math.floor(Math.random() * hotListCount)] || ''
               hotStr += hotList[hotIndex] + ' '
             }
-          }
-          if (this.basicConfig.headlineRadio) {
-            name = name + ' ' + hotStr
-          } else {
-            name = hotStr + '' + name
+            if (this.basicConfig.headlineRadio) {
+              name = name + ' ' + hotStr
+            } else {
+              name = hotStr + '' + name
+            }
           }
           if (this.associatedConfig.specialCharChecked) {
             let specialCharList = this.$filters.special_characters
@@ -1571,37 +1571,28 @@ export default {
             })
           }
           goodsParam['price'] = this.getValuationPrice(neededTranslateInfoData.price, neededTranslateInfoData)
-          goodsParam['price'] = Math.ceil(goodsParam['price'] / this.rateList[this.country])+''
+          goodsParam['price'] = Math.ceil(goodsParam['price'] / this.rateList[this.country]) + ''
+
           let itemmodelsJson = JSON.stringify(neededTranslateInfoData.itemmodels)
-          // itemmodelsJson = itemmodelsJson.replaceAll(/"id":[0-9]*,/g, '"id":0,')
-          // itemmodelsJson = itemmodelsJson.replaceAll(/"selection_id":[0-9]*,/g, '"name":"",')
-          // itemmodelsJson = itemmodelsJson.replaceAll(/"skuId":"(((?!",).)*)",/g, '"is_default":false,')
-          // itemmodelsJson = itemmodelsJson.replaceAll(/"sku_image":"(((?!",).)*)",/g, '"item_price":"",')
-          // itemmodelsJson = itemmodelsJson.replaceAll(/"sku_sn":"(((?!",).)*)",/g, '"input_normal_price":null,')
-          // itemmodelsJson = itemmodelsJson.replaceAll(/"sku_spec1":"(((?!",).)*)",/g, '"input_promotion_price":null,')
-          // itemmodelsJson = itemmodelsJson.replaceAll(/"sku_spec2":"(((?!",).)*)",/g, '')
-          // itemmodelsJson = itemmodelsJson.replaceAll(/"sku_price":[0-9.]*,/g, '')
-          // itemmodelsJson = itemmodelsJson.replaceAll(/"sku_stock":[0-9.]*,/g, '')
-          // console.log(itemmodelsJson)
-          goodsParam['model_list'] = JSON.parse(itemmodelsJson).map(son=>{
-            let price =  this.getValuationPrice(son.price, neededTranslateInfoData)
-            price = Math.ceil(price/ this.rateList[this.country])+''
+          goodsParam['model_list'] = JSON.parse(itemmodelsJson).map(son => {
+            let price = this.getValuationPrice(son.price, neededTranslateInfoData)
+            price = Math.ceil(price / this.rateList[this.country]) + ''
             son = {
-              id:0,
-              name:"",
-              is_default:false,
-              item_price:"",
-              input_normal_price:null,
-              input_promotion_price:null,
-              tier_index:son.tier_index,
-              sku:son.sku,
-              stock:son.stock,
-              price:price
+              id: 0,
+              name: '',
+              is_default: false,
+              item_price: '',
+              input_normal_price: null,
+              input_promotion_price: null,
+              tier_index: son.tier_index,
+              sku: son.sku,
+              stock: son.stock,
+              price: price
             }
             return son
           })
           console.log('goodsParam', goodsParam)
-          return
+          // return
           this.updateAttributeName(item, '正在上传轮播图')
           let imageMapping = await imageCompressionUpload(mall, goodsParam['images'], this, this.storeConfig.pictureThread)
           goodsParam['images'] = goodsParam.images.map(son => {
@@ -1622,13 +1613,15 @@ export default {
             let size_chartMapping = await imageCompressionUpload(mall, [goodsParam['size_chart']], this, this.storeConfig.pictureThread)
             goodsParam['size_chart'] = size_chartMapping[goodsParam['size_chart']]
           }
-          if(this.basicConfig.autoCompleteChecked){
-            if(goodsParam['images'].length < 9){
-              let imageList = [...goodsParam['images'],...spec_list]
-              goodsParam['images'] = imageList.slice(0,9)
+          if (this.basicConfig.autoCompleteChecked) {
+            if (goodsParam['images'].length < 9) {
+              let imageList = [...goodsParam['images'], ...spec_list]
+              goodsParam['images'] = imageList.slice(0, 9)
             }
           }
-          console.log('imageMapping', imageMapping, spec_imageMapping)
+          let resJSON = await this.$shopeemanService.createProduct(this.country,{mallId:mall.platform_mall_id},[goodsParam])
+          console.log('createProduct', resJSON)
+
           this.updateAttributeName(item, '发布完成')
         }
       } catch (e) {
@@ -1662,7 +1655,7 @@ export default {
       } else if (this.basicConfig.valuationRadio === 2) {
         setting = setting || this.valuationSetting
         if (setting && setting.bubbleHeavy >= 0) {
-          let long = data.long
+          let long = data.long || data.length
           let width = data.width
           let height = data.height
           let bulkWeightFormula = ((long * width * height) / setting.bubbleHeavy * 1000).toFixed(2) * 1
