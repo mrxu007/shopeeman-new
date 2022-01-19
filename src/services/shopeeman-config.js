@@ -232,24 +232,43 @@ export default class ShopeemanConfig {
           'ShipId': '70024',
           'ShipName': 'DHL Bulky'
         },
+        // {
+        //   'Country': '泰国站',
+        //   'CountryCode': 'TH',
+        //   'IsDeafult': false,
+        //   'IsSelected': false,
+        //   'IsCustomShipFee': true,
+        //   'ShipId': '70016',
+        //   'ShipName': 'Thailand Post - Registered Mail'
+        //   //Registered Mail - Thailand Post
+        // },
         {
           'Country': '泰国站',
           'CountryCode': 'TH',
           'IsDeafult': false,
           'IsSelected': false,
           'IsCustomShipFee': true,
-          'ShipId': '70016',
-          'ShipName': 'Thailand Post - Registered Mail'
+          'ShipId': '70017',
+          'ShipName': 'Registered Mail - Thailand Post'
           //Registered Mail - Thailand Post
         },
+        // {
+        //   'Country': '泰国站',
+        //   'CountryCode': 'TH',
+        //   'IsDeafult': false,
+        //   'IsSelected': false,
+        //   'IsCustomShipFee': true,
+        //   'ShipId': '70015',
+        //   'ShipName': 'Thailand Post - EMS'
+        // },
         {
           'Country': '泰国站',
           'CountryCode': 'TH',
           'IsDeafult': false,
           'IsSelected': false,
           'IsCustomShipFee': true,
-          'ShipId': '70015',
-          'ShipName': 'Thailand Post - EMS'
+          'ShipId': '70018',
+          'ShipName': 'EMS - Thailand Post'
         },
         {
           'Country': '泰国站',

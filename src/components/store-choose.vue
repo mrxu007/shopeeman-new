@@ -173,7 +173,6 @@ export default {
           const isOldAll = oldVal.includes('')
           const isAll = val.includes('')
           if (isOldAll !== isAll || (oldVal.toString() === val.toString() && this.isShowNameAll)) {
-            console.log(isAll && (!showName || showName && !this.isShowNameAll))
             if (isAll && (!showName || showName && !this.isShowNameAll)) {
               let showList = showName && [...this.siteShowList.map(i => i.platform_mall_id)] || ['', ...this.siteList.map(i => i.platform_mall_id)]
               let setList = new Set([...showList, ...oldVal])

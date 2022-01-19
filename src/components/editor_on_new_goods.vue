@@ -994,7 +994,7 @@ export default {
           const aLiUsernameIndex = this.aLiUsernameList.findIndex(i => i.name === this.aLiUsername)
           const aliAccount = this.aLiUsernameList[aLiUsernameIndex]
           if (!aliAccount && this.pictureConfig.typeRadio === 0) {
-            this.$message.error('阿里图片翻译账户尚未登陆')
+            this.$message.error('阿里图片翻译账户尚未登录')
             return false
           }
           success = await this.translationPicture(item, index)

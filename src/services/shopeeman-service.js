@@ -471,7 +471,7 @@ export default class NetMessageBridgeService {
     }
     options.vcode ? params['vcode'] = options.vcode : ''
     let copy_mallInfo = null
-    if (flat === 2) { // 导入店铺必须参数   flat 1 一键登陆  2导入店铺
+    if (flat === 2) { // 导入店铺必须参数   flat 1 一键登录  2导入店铺
       copy_mallInfo = {}
       copy_mallInfo['accountName'] = acccount_info.username
       copy_mallInfo['mall_account_info'] = acccount_info
@@ -518,7 +518,7 @@ export default class NetMessageBridgeService {
           shopid: mallId,
           SPC_F: SetCookie || mallInfo.SPC_F || '',
           spc_f: SetCookie || mallInfo.SPC_F || ''
-        } // (一键登陆专用)
+        } // (一键登录专用)
         console.log('Cookie', Cookie)
         const Cookie_new = { // 店铺cookie信息(导入店铺专用)(更新壳)
           'SPC_CDS_VER': '2',
@@ -544,7 +544,7 @@ export default class NetMessageBridgeService {
           'OtherCookieInfo': '',
           'spcf_update_time': ''
         }
-        const mallInfo_new = { // 通知壳更新店铺信息 (导入店铺、一键登陆) 数据结构与壳内店铺信息一致
+        const mallInfo_new = { // 通知壳更新店铺信息 (导入店铺、一键登录) 数据结构与壳内店铺信息一致
           'IPIsExpired': true,
           'IsOpenSIP': false,
           'ProxyType': 'ssr',
@@ -677,7 +677,7 @@ export default class NetMessageBridgeService {
         const mallUId = `${data.id}` // 平台店铺ID
         const username = data.username
 
-        const Cookie = {} // (一键登陆专用)
+        const Cookie = {} // (一键登录专用)
         Cookie['SPC_EC'] = data.sso
         Cookie['SPC_SC_TK'] = data.token
         Cookie['ShopeeUid'] = mallUId // 虾皮平台用户Uid
@@ -710,7 +710,7 @@ export default class NetMessageBridgeService {
           'spcf_update_time': ''
         }
 
-        const mallInfo_new = { // 通知壳更新店铺信息 (导入店铺、一键登陆) 数据结构与壳内店铺信息一致
+        const mallInfo_new = { // 通知壳更新店铺信息 (导入店铺、一键登录) 数据结构与壳内店铺信息一致
           'IPIsExpired': true,
           'IsOpenSIP': false,
           'ProxyType': 'ssr',
@@ -2325,12 +2325,12 @@ export default class NetMessageBridgeService {
     const resObj = res && JSON.parse(res)
     const dataInfo = resObj.data && JSON.parse(resObj.data)
     if (resObj.status === 200) {
-      if(dataInfo && dataInfo.code === 0){
+      if (dataInfo && dataInfo.code === 0) {
         return {
           code: 200,
           data: dataInfo.data
         }
-      }else{
+      } else {
         return {
           code: 50001,
           data: dataInfo.message
@@ -2370,7 +2370,29 @@ export default class NetMessageBridgeService {
       }
     }
   }
-
+  // 用来检测 店铺是否已经登陆
+  async getUserInfo(mallInfo) {
+    try {
+      const { country, platform_mall_id } = mallInfo
+      const params = {
+        'platform_mall_id': platform_mall_id // 导入店铺初始没有mallId
+      }
+      let res = await this.getChinese(country, '/api/selleraccount/user_info/?', params)
+      res = JSON.parse(JSON.parse(res).data)
+      if (res.code === 0) {
+        return { code: 200, data: res.data }
+      }
+      if (res.errcode === 2) {
+        return { code: 2, data: `店铺未登录` }
+      }
+      return { code: res.errcode, data: `${res.errcode} ${res.message}` }
+    } catch (error) {
+      if ((error + '').indexOf('Unexpected token < in JSON at') >= 0 || (error + '').indexOf('of JSON input') >= 0) {
+        return { code: 502, data: '请检测代理信息' }
+      }
+      return { code: -2, data: `getUserInfo-catch: ${error}` }
+    }
+  }
   // 获取地址
   getNextLevelAddresses(country, data, option) {
     return this.getChinese(country, '/api/v3/general/get_next_level_addresses', data, option)

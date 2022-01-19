@@ -1903,7 +1903,7 @@
         const returnData = result.data.data
         mallInfo.platform_mall_id = `${mallInfo.platform_mall_id}`
         this.phoneInfo_accountName = mallInfo.mall_account_info.username
-        const mallInfo_new = { // 通知壳更新店铺信息 (导入店铺、一键登陆) 数据结构与壳内店铺信息一致
+        const mallInfo_new = { // 通知壳更新店铺信息 (导入店铺、一键登录) 数据结构与壳内店铺信息一致
           'IPIsExpired': true,
           'IsOpenSIP': false,
           'ProxyType': 'ssr',
