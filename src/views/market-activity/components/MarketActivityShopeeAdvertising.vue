@@ -88,19 +88,11 @@
             </div>
             <div class="select-row">
               <el-button type="primary" size="mini" :disabled="loading" @click="createSingleKeyword">创建单个商品关键字广告</el-button>
-              <el-button
-                type="primary"
-                size="mini"
-                @click="
-                  createType = 'batch'
-                  createAdventVisible = true
-                "
-                >创建批量商品关键字广告</el-button
-              >
-              <el-button type="primary" size="mini" :disabled="loading" >创建关联广告</el-button>
-              <el-button type="primary" size="mini"  >停止创建广告</el-button>
-              <el-button type="primary" size="mini" plain :disabled="loading" >暂停广告活动</el-button>
-              <el-button type="primary" size="mini" plain :disabled="loading" >继续广告活动</el-button>
+              <el-button type="primary" size="mini" @click="createBatchKeyword">创建批量商品关键字广告</el-button>
+              <el-button type="primary" size="mini" :disabled="loading">创建关联广告</el-button>
+              <el-button type="primary" size="mini" @click="stopCreateAdvent">停止创建广告</el-button>
+              <el-button type="primary" size="mini" plain :disabled="loading">暂停广告活动</el-button>
+              <el-button type="primary" size="mini" plain :disabled="loading">继续广告活动</el-button>
             </div>
           </div>
         </div>
@@ -253,7 +245,7 @@
             最多20个商品，超过将自动选取前20个商品
           </p>
         </div>
-        <el-button size="mini" type="primary">添加商品</el-button>
+        <el-button size="mini" type="primary" @click="goodsItemSelectorVisible = true">添加商品</el-button>
         <el-table
           :data="createChooseGoods"
           style="width: 100%; margin: 10px 0"
@@ -304,7 +296,7 @@
             <p v-if="budgetSingle === '2' && budgetType === 'day' && (!budget || budget < dailyBudgetMinLimit)" class="activeColor mar-top">预算必须大于{{ dailyBudgetMinLimit }}</p>
             <p v-if="budgetType === 'total' && (!budget || budget < totalBudgetMinLimit)" class="activeColor mar-top">预算必须大于{{ totalBudgetMinLimit }}</p>
             <p v-if="budget" class="mar-top">
-              根据您目前的广告预算余额，您的广告最多壳获得<span class="activeColor">{{
+              根据您目前的广告预算余额，您的广告最多可获得<span class="activeColor">{{
                 budgetType === 'day' ? Math.floor(budget / dailySingleClickPrice) : Math.floor(budget / totalSingleClickPrice)
               }}</span
               >个点击数
@@ -379,7 +371,8 @@
           </div>
         </div>
         <div class="footer-btn">
-          <el-button size="mini" type="primary" :disabled="loading" @click="publishAdvent">确认发布</el-button>
+          <el-button size="mini" type="primary" :disabled="loading" v-if="createType === 'single'" @click="publishAdvent">确认发布</el-button>
+          <el-button size="mini" type="primary" :disabled="loading" v-if="createType === 'batch'" @click="batchCreateKeyWord">确认发布</el-button>
           <el-button size="mini" type="primary" @click="createAdventVisible = false">取消发布</el-button>
         </div>
       </div>
@@ -555,10 +548,92 @@ export default {
     this.setClickPrice()
   },
   methods: {
+    stopCreateAdvent() {
+      terminateThread()
+      this.$alert('正在停止操作，可能需要一些时间！', '提示', {
+        confirmButtonText: '确定',
+      })
+    },
+    createBatchKeyword() {
+      if (!this.selectMallList.length) {
+        return this.$message.warning('请选择店铺！')
+      }
+      this.createType = 'batch'
+      this.createAdventVisible = true
+    },
+    //批量添加关键词广告
+    async batchCreateKeyWord() {
+      if (!this.createChooseGoods.length) {
+        return this.$message.warning('请先选择商品！')
+      }
+      if (this.budgetSingle === '2' && !this.budget) {
+        return this.$message.warning('请设置预算！')
+      }
+      this.showConsole = false
+      await batchOperation(this.selectMallList, this.createBatchKeyWordAdvent)
+      this.createAdventVisible = false
+      this.batchGetAdventList()
+    },
+    async createBatchKeyWordAdvent(mall, count = { count: 1 }) {
+      console.log('1111111111111111')
+      try {
+        this.$refs.Logs.writeLog(`店铺【${mall.mall_alias_name || mall.platform_mall_name}】开始创建广告`, true)
+        let chooseGoods = this.createChooseGoods.filter((n) => n.platform_mall_id == mall.platform_mall_id)
+        if (!chooseGoods.length) {
+          return this.$refs.Logs.writeLog(`店铺【${mall.mall_alias_name || mall.platform_mall_name}】停止创建广告，该店铺未选择商品`, true)
+        }
+        let campaign_ads_list = []
+        let campaign = {
+          start_time: this.timeRange.length ? Math.round(new Date(this.timeRange[0]).getTime() / 1000) : 0,
+          end_time: this.timeRange.length ? Math.round(new Date(this.timeRange[1]).getTime() / 1000) : 0,
+          daily_quota: this.budgetType === 'day' ? this.budget : 0,
+          total_quota: this.budgetType === 'total' ? this.budget : 0,
+          status: 1,
+        }
+        chooseGoods.forEach((goods) => {
+          let obj1 = {
+            itemid: goods.itemid,
+            status: 1,
+            placement: 4,
+            extinfo: {
+              target_roi: 0,
+            },
+          }
+          let advertisements = [obj1]
+          let adsParams = {
+            campaign: campaign,
+            advertisements: advertisements,
+          }
+          campaign_ads_list.push(adsParams)
+        })
+        let params = {
+          campaign_ads_list: campaign_ads_list,
+          ads_audit_event: 4,
+          mallId: mall.platform_mall_id,
+        }
+        this.showConsole = false
+        let res = await this.$shopeemanService.createKeyAdvent(mall.country, params)
+        if (res.code === 200) {
+          this.$refs.Logs.writeLog(`店铺【${mall.mall_alias_name || mall.platform_mall_name}】创建广告成功`, true)
+          // this.batchGetAdventList()
+        } else if (res.code === 403) {
+          this.$refs.Logs.writeLog(`店铺【${mall.mall_alias_name || mall.platform_mall_name}】创建广告失败，店铺未登录`, false)
+        } else {
+          this.$refs.Logs.writeLog(`店铺【${mall.mall_alias_name || mall.platform_mall_name}】创建广告失败，${res.data}`, false)
+        }
+      } catch (error) {
+        console.log(error, 'error')
+      } finally {
+        --count.count
+      }
+    },
     //确定发布单个商品关键字广告
     async publishAdvent() {
       if (!this.autoKeyword && !this.handleKeyword && !this.multipleSelectionKey.length) {
         return this.$message.warning('请切换自动选择或至少选择一个关键字')
+      }
+      if (this.budgetSingle === '2' && !this.budget) {
+        return this.$message.warning('请设置预算！')
       }
       this.loading = true
       console.log(this.timeRange)
@@ -600,7 +675,7 @@ export default {
               placement: 0,
               extinfo: {
                 keywords: keyList,
-              }
+              },
             }
             advertisements.push(obj2)
           }
@@ -615,6 +690,7 @@ export default {
           ads_audit_event: 4,
           mallId: this.selectMallList[0].platform_mall_id,
         }
+        this.showConsole = false
         let res = await this.$shopeemanService.createKeyAdvent(this.country, params)
         if (res.code === 200) {
           this.$refs.Logs.writeLog(`创建广告成功`, true)
@@ -739,6 +815,11 @@ export default {
         //获取广告关键字
         // this.getKeyWordList()
         console.log(this.createChooseGoods, 'this.createChooseGoods')
+      } else if (this.createType == 'batch') {
+        this.createChooseGoods = this.createChooseGoods.concat(val.goodsList)
+        this.createChooseGoods.forEach((item) => {
+          item.image = item.images.split(',')[0]
+        })
       }
     },
     //创建单个商品关键字广告
@@ -911,7 +992,7 @@ export default {
       this.loading = false
     },
     //列表数据
-    async getAdventList(mall, count = { count: 5 }) {
+    async getAdventList(mall, count = { count: 1 }) {
       let startTime = Math.round(new Date(this.statisticalTime[0]).getTime() / 1000)
       let endTime = Math.round(new Date(this.statisticalTime[1]).getTime() / 1000)
       let limit = 40

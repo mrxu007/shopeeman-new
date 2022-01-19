@@ -740,12 +740,11 @@ export async function dealwithOriginGoodsNum(oriGoodsId, oriPlatformId, shopMall
                 is_default: item.is_default,
                 name: item.name,
                 item_price: '',
-                stock: 500
+                stock: CollectGoodsData.TotalQuantity
               }
               dealWithSkuList.push(subItem)
             })
-            // totalStock = CollectGoodsData.TotalQuantity
-            totalStock = 500
+            totalStock = CollectGoodsData.TotalQuantity
           } else {
             if (orderSn) {
               return writeLog(`订单【${orderSn}】同步库存失败，获取到上家规格为空，未匹配到相同的规格信息！`, false)
@@ -795,20 +794,20 @@ export async function dealwithOriginGoodsNum(oriGoodsId, oriPlatformId, shopMall
               return _that.batchStatus(shopeeItem, `未匹配到相同的规格信息`, false)
             }
           }
+          shopeeSkuList.forEach((item) => {
+            totalStock += item.stock
+            const subItem = {
+              id: item.id,
+              sku: item.sku,
+              tier_index: item.tier_index,
+              is_default: item.is_default,
+              name: item.name,
+              item_price: '',
+              stock: item.stock
+            }
+            dealWithSkuList.push(subItem)
+          })
         }
-        shopeeSkuList.forEach((item) => {
-          totalStock += item.stock
-          const subItem = {
-            id: item.id,
-            sku: item.sku,
-            tier_index: item.tier_index,
-            is_default: item.is_default,
-            name: item.name,
-            item_price: '',
-            stock: item.stock
-          }
-          dealWithSkuList.push(subItem)
-        })
         const attributes = []
         shopeeGoodsInfo.attributes.forEach(item => {
           const obj = {

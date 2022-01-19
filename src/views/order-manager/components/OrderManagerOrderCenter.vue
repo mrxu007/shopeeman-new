@@ -29,6 +29,7 @@
                       @change="changeTime($event, 'selectForm', 'otherTime')"
                       v-model="selectForm.otherTime"
                       size="mini"
+                      unlink-panels
                       value-format="yyyy-MM-dd"
                       type="daterange"
                       style="width: 300px"
@@ -67,6 +68,7 @@
                       @change="changeTime($event, 'createTime')"
                       v-model="createTime"
                       size="mini"
+                      unlink-panels
                       value-format="yyyy-MM-dd"
                       type="daterange"
                       style="width: 300px"
@@ -103,6 +105,7 @@
                       @change="changeTime($event, 'selectForm', 'shotTime')"
                       v-model="selectForm.shotTime"
                       size="mini"
+                      unlink-panels
                       value-format="yyyy-MM-dd"
                       type="daterange"
                       style="width: 300px"
@@ -251,7 +254,7 @@
         <u-table-column align="center" prop="shopee_delivery_time" label="发货时间" width="140" v-if="showTableColumn('发货时间')">
           <template slot-scope="scope">{{ scope.row.shopee_delivery_time }}</template>
         </u-table-column>
-        <u-table-column align="center" prop="ori_platform_id" label="采购类型" width="120" v-if="showTableColumn('采购类型')">
+        <u-table-column sortable align="center" prop="goods_info.ori_platform_id" label="采购类型" width="120" v-if="showTableColumn('采购类型')">
           <template slot-scope="scope">{{ changeTypeName(scope.row.goods_info.ori_platform_id, goodsSourceList) }}</template>
         </u-table-column>
         <u-table-column align="center" prop="123456" label="查看采购地址" width="130" v-if="showTableColumn('查看采购地址')">
@@ -459,7 +462,7 @@
         <u-table-column sortable align="center" prop="delivery_time" label="出库时间" width="140" v-if="showTableColumn('出库时间')">
           <template slot-scope="scope">{{ scope.row.delivery_time }}</template>
         </u-table-column>
-        <u-table-column align="center" prop="remark" label="本地备注" width="150" show-overflow-tooltip v-if="showTableColumn('本地备注')">
+        <u-table-column sortable align="center" prop="remark" label="本地备注" width="150" show-overflow-tooltip v-if="showTableColumn('本地备注')">
           <template slot-scope="scope">
             <div v-show="!(scope.row.id === activeRemarkID ? true : false)" @click="editRemark(scope.$index, scope.row.id)" style="cursor: pointer">
               <el-input v-model="scope.row.remark" disabled size="mini"></el-input>
