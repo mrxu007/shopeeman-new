@@ -720,6 +720,7 @@ export async function dealwithOriginGoodsNum(oriGoodsId, oriPlatformId, shopMall
       msg = res
       console.log(Number(oriPlatformId), params, '4654689')
       const resObj = res && isJsonString(res)
+      console.log('shopeeSkuList', shopeeSkuList)
       console.log(resObj, '----------')
       let totalStock = 0
       const dealWithSkuList = []
@@ -729,8 +730,22 @@ export async function dealwithOriginGoodsNum(oriGoodsId, oriPlatformId, shopMall
           CollectGoodsData
         } = resObj
         if (JSON.stringify(CollectGoodsSkus) === '{}') {
-          if (shopeeSkuList.length === 0) {
-            totalStock = CollectGoodsData.TotalQuantity
+          if (shopeeSkuList.length === 1) {
+            shopeeSkuList.forEach((item) => {
+              totalStock += item.stock
+              const subItem = {
+                id: item.id,
+                sku: item.sku,
+                tier_index: item.tier_index,
+                is_default: item.is_default,
+                name: item.name,
+                item_price: '',
+                stock: 500
+              }
+              dealWithSkuList.push(subItem)
+            })
+            // totalStock = CollectGoodsData.TotalQuantity
+            totalStock = 500
           } else {
             if (orderSn) {
               return writeLog(`订单【${orderSn}】同步库存失败，获取到上家规格为空，未匹配到相同的规格信息！`, false)
