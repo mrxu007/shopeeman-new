@@ -398,7 +398,7 @@
             <span class="base-title">操作进度相关</span>
             <div class="base-item">
               <ul>
-                <el-progress style="width: 230px" :text-inside="true" :stroke-width="24" :percentage="percentage" status="success" />
+                <el-progress style="width: 230px" :text-inside="true" :stroke-width="24" :percentage="parseInt(percentage)" status="success" />
               </ul>
               <ul>
                 <li>
@@ -447,7 +447,11 @@
             {{ row.country | chineseSite }}
           </template>
         </u-table-column>
-        <u-table-column align="center" min-width="150" label="类目" prop="categoryName" show-overflow-tooltip />
+        <u-table-column align="center" min-width="200" label="类目" prop="" show-overflow-tooltip>
+          <template v-slot="{row}">
+            {{ getCategoryName(row.categoryId,row.country) }}
+          </template>
+        </u-table-column>
         <u-table-column align="center" min-width="120" label="店铺名" prop="mallName" show-overflow-tooltip />
         <u-table-column align="center" min-width="100" label="主图">
           <template v-slot="{row}">
@@ -1106,7 +1110,9 @@ export default {
 
       editCategory: null,
       categoryList: {}, // 类目数据
-      categoryIdList: {}, // 类目缓存
+      categoryNameArr: {}, // 计算类目
+      categoryIdList: [],
+      testStr: '',
       categoryName: '', // 类目名
       productNumChecked: false,
       productNum: 50, // 单店查询商品数据
@@ -1304,6 +1310,19 @@ export default {
 
     }
   },
+  computed: {
+    getCategoryName() {
+      return function(id, country) {
+        if (!this.categoryNameArr[id]) {
+          const categoryName = '正在获取类目...'
+          this.setCategoryName(id, country)
+          return categoryName || ''
+        }
+        const categoryName = this.categoryNameArr[id]
+        return categoryName || ''
+      }
+    }
+  },
   watch: {
     country(val) {
       this.getLogistics()
@@ -1322,6 +1341,29 @@ export default {
     await this.selectAll('source', this.sourceList)
   },
   methods: {
+    // 获取类目名
+    async setCategoryName(id, country) {
+      let categoryName = []
+      const idList = id.split(',')
+      for (const idItem of idList) {
+        if (this.categoryIdList[idItem]) {
+          if (this.categoryIdList[idItem] === '类目获取失败') {
+            categoryName = ['类目获取失败']
+          } else {
+            categoryName.push(this.categoryIdList[idItem].categories ? `${this.categoryIdList[idItem].categories[0].category_name}(${this.categoryIdList[idItem].categories[0].category_cn_name})` : '')
+          }
+        } else {
+          const res = await this.GoodsList.getCategoryName(country, idItem, '0', '')
+          if (res.code === 200) {
+            this.categoryIdList[idItem] = res.data
+            categoryName.push(res.data.categories ? `${res.data.categories[0].category_name}(${res.data.categories[0].category_cn_name})` : '')
+          } else {
+            this.categoryIdList[idItem] = '类目获取失败'
+          }
+        }
+      }
+      this.categoryNameArr[id] = categoryName.join('->')
+    },
     // 跳转至采集页面
     setLink() {
       const linkKey = []
@@ -2370,9 +2412,6 @@ export default {
       }
       try {
         let productInfo = {}
-        // if (item.holiday_mode_on) {
-        //   return this.batchStatus(item, `店铺正处于休假模式`, false)
-        // }
         this.batchStatus(item, `正在获取商品详情...`, true)
         const res = await this.getProductDetail(item)
         if (res.code === 200) {
@@ -2991,8 +3030,25 @@ export default {
       }
     },
     // 批量操作
-    operation(operationName) {
+    async operation(operationName) {
       if (!this.multipleSelection?.length) return this.$message('没有可操作的商品，请选择')
+      // const obj = {}
+      // const newData = this.multipleSelection.reduce((cur, next) => {
+      //   obj[next.platform_mall_id] ? '' : obj[next.platform_mall_id] = true && cur.push(next)
+      //   return cur
+      // }, [])
+      // for (const mItem of newData) {
+      //   const res = await this.$shopeemanService.getUserInfo() // 获取店铺信息
+      //   if (res.code === 200) {
+      //     for (const item of this.multipleSelection) {
+      //       if (item.platform_mall_id === mItem.platform_mall_id) {
+      //         item.holiday_mode_on = res.data.holiday_mode_on
+      //       } else {
+      //         item.holiday_mode_on = false
+      //       }
+      //     }
+      //   }
+      // }
       this[operationName]()
     },
     // 选择模板
@@ -3125,12 +3181,8 @@ export default {
         return
       }
       let res = ''
-      let mallName = ''
-      // let mallRes = ''
+      const mallName = mItem.mall_alias_name || mItem.platform_mall_name
       try {
-        // mallRes = await this.$shopeemanService.getUserInfo(mItem)
-        mallName = mItem.mall_alias_name || mItem.platform_mall_name
-        // if (mallRes.code === 200) {
         const params = {}
         params['mItem'] = mItem
         params['pageSize'] = this.pageSize
@@ -3164,7 +3216,6 @@ export default {
             this.$refs.Logs.writeLog(`查询店铺【${mallName}】第【${mItem.pageNumber}】页数据：${res.data.list.length}`, true)
             // 组装数据
             await this.setTableData(res.data.list, mItem, mallName)
-            // await this.setTableData(res.data.list, mItem, mallName, mallRes.data)
             // 过滤数据
             const newData = this.filterData(res.data.list)
             if (!this.productNumChecked) {
@@ -3178,9 +3229,6 @@ export default {
         } else {
           this.$refs.Logs.writeLog(`店铺【${mallName}】${res.data}`, false)
         }
-        // } else {
-        //   this.$refs.Logs.writeLog(`店铺【${mallName}】${mallRes.data}`, false)
-        // }
       } catch (error) {
         console.log(error)
         this.$refs.Logs.writeLog(`店铺【${mallName}】获取数据异常`, false)
@@ -3239,12 +3287,8 @@ export default {
         return
       }
       let res = ''
-      let mallName = ''
-      // let mallRes = ''
+      const mallName = mItem.mall_alias_name || mItem.platform_mall_name
       try {
-        // mallRes = await this.$shopeemanService.getUserInfo(mItem)
-        mallName = mItem.mall_alias_name || mItem.platform_mall_name
-        // if (mallRes.code === 200) {
         const params = {}
         params['mItem'] = mItem
         params['pageSize'] = this.pageSize
@@ -3256,7 +3300,6 @@ export default {
             this.$refs.Logs.writeLog(`查询店铺【${mallName}】第【${mItem.pageNumber}】页数据：${res.data.list.length}`, true)
             // 组装数据
             await this.setTableData(res.data.list, mItem, mallName)
-            // await this.setTableData(res.data.list, mItem, mallName, mallRes.data)
             if (!this.productNumChecked) {
               this.tableData = this.tableData.concat(res.data.list)
               this.queryNum = this.tableData.length
@@ -3268,9 +3311,6 @@ export default {
         } else {
           this.$refs.Logs.writeLog(`店铺【${mallName}】${res.data}`, false)
         }
-        // } else {
-        //   this.$refs.Logs.writeLog(`店铺【${mallName}】${mallRes.data}`, false)
-        // }
       } catch (error) {
         this.$refs.Logs.writeLog(`店铺【${mallName}】获取数据异常`, false)
       } finally {
@@ -3304,13 +3344,13 @@ export default {
       }
     },
     // 表格数据组装
-    async setTableData(data, mItem, mallName, mallRes) {
+    async setTableData(data, mItem, mallName) {
       for (let i = 0; i < data.length; i++) {
         const item = data[i]
         let stock = 0
         let sold = 0
         const price = []
-        let categoryName = []
+        // const categoryName = []
         let status = ''
         item.country = mItem.country
         item.mallName = mallName
@@ -3318,32 +3358,27 @@ export default {
         item.modify_time = item.modify_time * 1000
         item.images = item.images[0]
         item.platform_mall_id = mItem.platform_mall_id
-        // item.holiday_mode_on = mallRes.holiday_mode_on// 店铺是否开启休假true:开启休假模式
         item.model_list.forEach(modelItem => {
           price.push(Number(modelItem.price_info.normal_price))
           stock += Number(modelItem.stock_info.normal_stock)
           sold += Number(modelItem.sold)
         })
+        item.categoryId = item.category_path.toString()
         // 获取类目名
-        for (let j = 0; j < item.category_path.length; j++) {
-          const cItem = item.category_path[j]
-          if (this.categoryIdList.cItem && Object.keys(this.categoryIdList.cItem).length > 0) {
-            categoryName.push(this.categoryIdList.cItem.categories ? `${this.categoryIdList.cItem.categories[0].category_name}(${this.categoryIdList.cItem.categories[0].category_cn_name})` : '')
-          } else {
-            const res = await this.GoodsList.getCategoryName(item.country, cItem, '0', '')
-            if (res.code === 200) {
-              categoryName.push(res.data.categories ? `${res.data.categories[0].category_name}(${res.data.categories[0].category_cn_name})` : '')
-              this.categoryIdList[cItem] = res.data
-            } else {
-              categoryName = ''
-              this.$refs.Logs.writeLog(`${res.data}`, false)
-            }
-          }
-        }
+        // for (let j = 0; j < item.category_path.length; j++) {
+        //   const cItem = item.cacategory_path[j]
+        //   const res = await this.GoodsList.getCategoryName(item.country, cItem, '0', '')
+        //   if (res.code === 200) {
+        //     categoryName.push(res.data.categories ? `${res.data.categories[0].category_name}(${res.data.categories[0].category_cn_name})` : '')
+        //   } else {
+        //     categoryName = ''
+        //     this.$refs.Logs.writeLog(`${res.data}`, false)
+        //   }
+        // }
         item.stock = stock // 库存
         item.sold = sold // 销售量
         item.price = Math.min.apply(null, price) // 价格
-        item.categoryName = categoryName.join('->') // 类目
+        // item.categoryName = categoryName.join('->') // 类目
         if (item.status === 2) { // 状态
           status = 6
         } else if (item.status === 1 && item.stock === 0) {
@@ -3718,7 +3753,7 @@ export default {
         <td>${item.country ? this.$filters.chineseSite(item.country) : '' + '\t'}</td>
         <td>${item.mallName ? item.mallName : '' + '\t'}</td>
         <td>${item.images ? this.$filters.imageRender([item.images]) : '' + '\t'}</td>
-        <td>${item.categoryName ? item.categoryName : '' + '\t'}</td>
+        <td>${item.categoryId ? this.getCategoryName(item.categoryId, item.country) : '' + '\t'}</td>
         <td>${item.platformTypeStr ? item.platformTypeStr : '' + '\t'}</td>
         <td>${item.url ? item.url : '' + '\t'}</td>
         <td>${item.id ? item.id : '' + '\t'}</td>
