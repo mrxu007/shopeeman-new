@@ -90,7 +90,7 @@
               <el-button type="primary" size="mini" :disabled="loading" @click="createSingleKeyword">创建单个商品关键字广告</el-button>
               <el-button type="primary" size="mini" @click="createBatchKeyword">创建批量商品关键字广告</el-button>
               <el-button type="primary" size="mini" :disabled="loading">创建关联广告</el-button>
-              <el-button type="primary" size="mini">停止创建广告</el-button>
+              <el-button type="primary" size="mini" @click="stopCreateAdvent">停止创建广告</el-button>
               <el-button type="primary" size="mini" plain :disabled="loading">暂停广告活动</el-button>
               <el-button type="primary" size="mini" plain :disabled="loading">继续广告活动</el-button>
             </div>
@@ -372,7 +372,7 @@
         </div>
         <div class="footer-btn">
           <el-button size="mini" type="primary" :disabled="loading" v-if="createType === 'single'" @click="publishAdvent">确认发布</el-button>
-          <el-button size="mini" type="primary" :disabled="loading" v-if="createType === 'batch'" @click="batchCreateKeyWord">确认1发布</el-button>
+          <el-button size="mini" type="primary" :disabled="loading" v-if="createType === 'batch'" @click="batchCreateKeyWord">确认发布</el-button>
           <el-button size="mini" type="primary" @click="createAdventVisible = false">取消发布</el-button>
         </div>
       </div>
@@ -548,6 +548,12 @@ export default {
     this.setClickPrice()
   },
   methods: {
+    stopCreateAdvent() {
+      terminateThread()
+      this.$alert('正在停止操作，可能需要一些时间！', '提示', {
+        confirmButtonText: '确定',
+      })
+    },
     createBatchKeyword() {
       if (!this.selectMallList.length) {
         return this.$message.warning('请选择店铺！')
@@ -560,15 +566,16 @@ export default {
       if (!this.createChooseGoods.length) {
         return this.$message.warning('请先选择商品！')
       }
-      if(this.budgetSingle === '2' && !this.budget){
+      if (this.budgetSingle === '2' && !this.budget) {
         return this.$message.warning('请设置预算！')
       }
       this.showConsole = false
       await batchOperation(this.selectMallList, this.createBatchKeyWordAdvent)
       this.createAdventVisible = false
+      this.batchGetAdventList()
     },
     async createBatchKeyWordAdvent(mall, count = { count: 1 }) {
-      console.log("1111111111111111")
+      console.log('1111111111111111')
       try {
         this.$refs.Logs.writeLog(`店铺【${mall.mall_alias_name || mall.platform_mall_name}】开始创建广告`, true)
         let chooseGoods = this.createChooseGoods.filter((n) => n.platform_mall_id == mall.platform_mall_id)
@@ -583,7 +590,7 @@ export default {
           total_quota: this.budgetType === 'total' ? this.budget : 0,
           status: 1,
         }
-        this.createChooseGoods.forEach((goods) => {
+        chooseGoods.forEach((goods) => {
           let obj1 = {
             itemid: goods.itemid,
             status: 1,
@@ -625,7 +632,7 @@ export default {
       if (!this.autoKeyword && !this.handleKeyword && !this.multipleSelectionKey.length) {
         return this.$message.warning('请切换自动选择或至少选择一个关键字')
       }
-      if(this.budgetSingle === '2' && !this.budget){
+      if (this.budgetSingle === '2' && !this.budget) {
         return this.$message.warning('请设置预算！')
       }
       this.loading = true
