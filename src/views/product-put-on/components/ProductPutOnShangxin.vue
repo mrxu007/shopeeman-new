@@ -1570,27 +1570,43 @@ export default {
               images: []
             })
           }
-          let itemmodelsJson = JSON.stringify(neededTranslateInfoData.itemmodels)
-          itemmodelsJson = itemmodelsJson.replaceAll(/"id":[0-9]*,/g, '"id":0,')
-          itemmodelsJson = itemmodelsJson.replaceAll(/"selection_id":[0-9]*,/g, '"name":"",')
-          itemmodelsJson = itemmodelsJson.replaceAll(/"skuId":"(((?!",).)*)",/g, '"is_default":false,')
-          itemmodelsJson = itemmodelsJson.replaceAll(/"sku_image":"(((?!",).)*)",/g, '"item_price":"",')
-          itemmodelsJson = itemmodelsJson.replaceAll(/"sku_sn":"(((?!",).)*)",/g, '"input_normal_price":null,')
-          itemmodelsJson = itemmodelsJson.replaceAll(/"sku_spec1":"(((?!",).)*)",/g, '"input_promotion_price":null,')
-          itemmodelsJson = itemmodelsJson.replaceAll(/"sku_spec2":"(((?!",).)*)",/g, '')
-          itemmodelsJson = itemmodelsJson.replaceAll(/"sku_price":[0-9.]*,/g, '')
-          itemmodelsJson = itemmodelsJson.replaceAll(/"sku_stock":[0-9.]*,/g, '')
-          console.log(itemmodelsJson)
-          goodsParam['model_list'] = JSON.parse(itemmodelsJson)
           goodsParam['price'] = this.getValuationPrice(neededTranslateInfoData.price, neededTranslateInfoData)
           goodsParam['price'] = Math.ceil(goodsParam['price'] / this.rateList[this.country])+''
+          let itemmodelsJson = JSON.stringify(neededTranslateInfoData.itemmodels)
+          // itemmodelsJson = itemmodelsJson.replaceAll(/"id":[0-9]*,/g, '"id":0,')
+          // itemmodelsJson = itemmodelsJson.replaceAll(/"selection_id":[0-9]*,/g, '"name":"",')
+          // itemmodelsJson = itemmodelsJson.replaceAll(/"skuId":"(((?!",).)*)",/g, '"is_default":false,')
+          // itemmodelsJson = itemmodelsJson.replaceAll(/"sku_image":"(((?!",).)*)",/g, '"item_price":"",')
+          // itemmodelsJson = itemmodelsJson.replaceAll(/"sku_sn":"(((?!",).)*)",/g, '"input_normal_price":null,')
+          // itemmodelsJson = itemmodelsJson.replaceAll(/"sku_spec1":"(((?!",).)*)",/g, '"input_promotion_price":null,')
+          // itemmodelsJson = itemmodelsJson.replaceAll(/"sku_spec2":"(((?!",).)*)",/g, '')
+          // itemmodelsJson = itemmodelsJson.replaceAll(/"sku_price":[0-9.]*,/g, '')
+          // itemmodelsJson = itemmodelsJson.replaceAll(/"sku_stock":[0-9.]*,/g, '')
+          // console.log(itemmodelsJson)
+          goodsParam['model_list'] = JSON.parse(itemmodelsJson).map(son=>{
+            let price =  this.getValuationPrice(son.price, neededTranslateInfoData)
+            price = Math.ceil(price/ this.rateList[this.country])+''
+            son = {
+              id:0,
+              name:"",
+              is_default:false,
+              item_price:"",
+              input_normal_price:null,
+              input_promotion_price:null,
+              tier_index:son.tier_index,
+              sku:son.sku,
+              stock:son.stock,
+              price:price
+            }
+            return son
+          })
           console.log('goodsParam', goodsParam)
           return
           this.updateAttributeName(item, '正在上传轮播图')
           let imageMapping = await imageCompressionUpload(mall, goodsParam['images'], this, this.storeConfig.pictureThread)
-          goodsParam['images'] = goodsParam.images.map(item => {
-            item = imageMapping[item]
-            return item
+          goodsParam['images'] = goodsParam.images.map(son => {
+            son = imageMapping[son]
+            return son
           })
           this.updateAttributeName(item, '正在上传规格图')
           let spec_imageMapping = await imageCompressionUpload(mall, neededTranslateInfoData.spec_image, this, this.storeConfig.pictureThread)
