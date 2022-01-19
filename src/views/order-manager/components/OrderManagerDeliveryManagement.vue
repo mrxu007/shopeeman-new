@@ -277,7 +277,7 @@ export default {
     }
   },
   mounted() {
-    this.createTime = creatDate(30)
+    this.createTime = creatDate(15)
     setTimeout(() => {
       this.getOrderList()
     }, 2000)

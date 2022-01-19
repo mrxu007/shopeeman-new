@@ -6,7 +6,7 @@ const baseURL = window.appInfo.route
 // const baseURL = 'http://local.spm.com/api'
 const AppRequest = axios.create({ // 壳内转发请求
   baseURL,
-  timeout: 50000,
+  timeout: 5000,
   headers: {
     'Accept': 'application/vnd.ppxias.v3+json'
   },

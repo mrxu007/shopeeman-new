@@ -88,11 +88,11 @@
             </div>
             <div class="select-row">
               <el-button type="primary" size="mini" :disabled="loading" @click="createSingleKeyword">创建单个商品关键字广告</el-button>
-              <el-button type="primary" size="mini" @click="createBatchKeyword">创建批量商品关键字广告</el-button>
+              <el-button type="primary" size="mini" :disabled="loading" @click="createBatchKeyword">创建批量商品关键字广告</el-button>
               <el-button type="primary" size="mini" :disabled="loading">创建关联广告</el-button>
               <el-button type="primary" size="mini" @click="stopCreateAdvent">停止创建广告</el-button>
-              <el-button type="primary" size="mini" plain :disabled="loading">暂停广告活动</el-button>
-              <el-button type="primary" size="mini" plain :disabled="loading">继续广告活动</el-button>
+              <el-button type="primary" size="mini" plain :disabled="loading" @click="stopStartActive(1)">暂停广告活动</el-button>
+              <el-button type="primary" size="mini" plain :disabled="loading" @click="stopStartActive(3)">继续广告活动</el-button>
             </div>
           </div>
         </div>
@@ -548,6 +548,33 @@ export default {
     this.setClickPrice()
   },
   methods: {
+    //暂停或继续广告活动
+    async stopStartActive(type){
+      //type 1 stop,
+      if(!this.multipleSelection.length){
+        return this.$message.warning('请先选择数据！')
+      }
+      this.showConsole = false
+      this.multipleSelection.forEach(async (item,index)=>{
+        let params = {
+          campaignid_list:[item.campaign.campaignid],
+          action: type,
+          need_campaign: true ,
+          mallId: item.mallInfo.platform_mall_id
+        }
+        let res = await this.$shopeemanService.stopStartAdvent(item.mallInfo.country, params)
+        if(res.code === 200){
+          this.$refs.Logs.writeLog(`店铺【${item.mallInfo.mall_alias_name || item.mallInfo.platform_mall_name}】，商品【${item.product.itemid}】${type ===1 ?'暂停':'继续'}广告成功！`,true)
+        }else if(res.code === 403){
+          this.$refs.Logs.writeLog(`店铺【${item.mallInfo.mall_alias_name || item.mallInfo.platform_mall_name}】，商品【${item.product.itemid}】${type ===1 ?'暂停':'继续'}广告失败，店铺未登录！`,false)
+        }else{
+          this.$refs.Logs.writeLog(`店铺【${item.mallInfo.mall_alias_name || item.mallInfo.platform_mall_name}】，商品【${item.product.itemid}】${type ===1 ?'暂停':'继续'}广告失败，${res.data}！`,false)
+        }
+        if(index === this.multipleSelection.length-1){
+          this.batchGetAdventList()
+        }
+      })
+    },
     stopCreateAdvent() {
       terminateThread()
       this.$alert('正在停止操作，可能需要一些时间！', '提示', {
