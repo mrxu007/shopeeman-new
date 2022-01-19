@@ -50,7 +50,7 @@ export default class logisticeSyncService {
     const accountMapOrderId = new Map()
     for (let i = 0; i < orders.length; i++) {
       const item = orders[i]
-      console.log(item,"item")
+      // console.log(item,"item")
       const buyer_name =  item.shot_order_info.buy_account_info ? item.shot_order_info.buy_account_info.name : '' 
       const type = item.shot_order_info.buy_account_info ? item.shot_order_info.buy_account_info.type : ''
       const shot_order_sn = item.shot_order_sn || item.order_sn
@@ -211,13 +211,13 @@ export default class logisticeSyncService {
    * 买手号物流同步聚合接口
    */
   async syncLogisticAggregation(type) {
-    console.log(type, "syncLogisticAggregation", this.ordersContainer)
+    // console.log(type, "syncLogisticAggregation", this.ordersContainer)
     const orders = this.ordersContainer
     const ordersLen = orders.length
     const buyerAccount = this.changeAccountParams(this.buyerAccountContainer)
     for (let index = 0; index < ordersLen; index++) {
       const item = orders[index]
-      console.log(item, "56656")
+      // console.log(item, "56656")
       const shot_order_sn = item.shot_order_info.shot_order_sn || ''
       // const shot_order_sn = '2229427695828657966' //tb
       // const shot_order_sn = '2161702586001984947' //1688
@@ -226,9 +226,9 @@ export default class logisticeSyncService {
           continue
       }
       try {
-        console.log(buyerAccount.shotOrderPlatform, shot_order_sn, JSON.stringify(buyerAccount), "=========================")
+        // console.log(buyerAccount.shotOrderPlatform, shot_order_sn, JSON.stringify(buyerAccount), "=========================")
         const logisticInfo = await this.$baseUtilService.getOriginLogistics(buyerAccount.shotOrderPlatform, shot_order_sn, buyerAccount)
-        console.log(logisticInfo)
+        // console.log(logisticInfo)
         if (logisticInfo.Code !== 200) {
           this.writeLog(`(${type})订单【${shot_order_sn}】获取上家物流失败, ${logisticInfo.Msg}(买手号: ${buyerAccount.UserName})`, false)
           continue

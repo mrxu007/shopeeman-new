@@ -1228,6 +1228,7 @@ export default {
       this.writeLog('开始收藏商品........', true)
       // 编辑上新时根据用户选择的起止数据切割
       this.multipleSelection = this.isEditorVisible ? this.multipleSelection.splice(Number(this.start) - 1, Number(this.end) - Number(this.start) + 1) : this.multipleSelection
+      this.CollectPublicApInstance.initData(this.activeName)
       await batchOperation(this.multipleSelection, this.saveGoods)
       this.writeLog(`共收藏成功：${this.successNum}个商品, 收藏失败：${this.failNum}个商品`, true)
       this.writeLog(`收藏商品完毕........`, true)

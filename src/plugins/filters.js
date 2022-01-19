@@ -205,6 +205,39 @@ const lazadaGoodsUrl = function(val) {
   return lazada_goods_url[attribute] || attribute
 }
 
+const currencyShow = function(data) {
+  let temp = ''
+  switch (data) {
+    case 'MY':
+      temp = 'RM'
+      break
+    case 'PH':
+      temp = '₱'
+      break
+    case 'ID':
+      temp = 'Rp'
+      break
+    case 'VN':
+      temp = '₫'
+      break
+    case 'TH':
+      temp = '฿'
+      break
+    case 'BR':
+      temp = 'R$'
+      break
+    case 'MX':
+      temp = 'MX$'
+      break
+    case 'PL':
+      temp = 'zł'
+      break
+    default :
+      temp = '$'
+  }
+  return temp
+}
+
 const changeImgSizeFilter = (value) => {
   const source = Number(value.source)
   const url = value.url
@@ -289,4 +322,4 @@ const errorMsg = function(userMessage) {
   return msg
 }
 export { chineseSite, imageRender, siteCoin, sitePlatform, countryShopeebuyCom, changeImgSizeFilter, special_characters,
-  lazadaGoodsUrl, countries_option, countries_site, countries_option_sub, countries_option_sub_abroad, errorMsg }
+  lazadaGoodsUrl, countries_option, countries_site, countries_option_sub, currencyShow, countries_option_sub_abroad, errorMsg }

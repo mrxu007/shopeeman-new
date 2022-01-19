@@ -13,16 +13,16 @@
           </el-select>
         </div>
         <el-button size="mini" type="primary" style="margin-left:20px" @click="getTableList">搜索</el-button>
+        <el-button size="mini" type="primary" style="margin-left:20px" @click="stopSearch">停止搜索</el-button>
       </div>
 
       <div class="row2" style="margin-top:8px">
         <!-- <el-button size="mini" type="primary" @click="stopSearch">取消查询</el-button> -->
         <el-button size="mini" type="primary" @click="mallCoupon">创建加购促销活动</el-button>
-        <!-- <el-button size="mini" @click="stopCreate">批量删除/结束活动</el-button> -->
-        <el-button size="mini" type="primary" @click="MallvoucherStopMul">批量删除/结束活动</el-button>
+        <el-button size="mini" type="primary" @click="MallvoucherDelMul">批量删除/结束活动</el-button>
         <el-button size="mini" type="primary" @click="clearLog">清除日志</el-button>
         <el-checkbox v-model="showlog" style="margin-left:8px">隐藏日志</el-checkbox>
-        <el-checkbox v-model="isShowPast" style="margin-left:8px">不显示过期活动</el-checkbox>
+        <el-checkbox v-model="isShowPast" style="margin-left:-10px">不显示过期活动</el-checkbox>
       </div>
     </div>
     <Logs ref="Logs" v-model="showlog" clear />
@@ -43,18 +43,32 @@
           <template v-slot="{row}">{{ row.country | chineseSite }}</template>
         </u-table-column> -->
         <u-table-column prop="mallName" label="店铺" align="center" min-width="150px" />
-        <u-table-column prop="follow_prize_name" label="促销名称" align="center" min-width="150px" />
-        <u-table-column prop="quota" label="活动状态" align="center" min-width="180px" />
-        <u-table-column prop="claimed" label="促销期间" align="center" min-width="100px">
-          <!-- <template v-slot="{row}">{{ row.rule && row.rule.shopids.length===0 ? '店铺优惠卷' :'商品优惠卷' }}</template> -->
+        <u-table-column prop="add_on_deal_name" label="活动名称" align="center" min-width="150px" />
+        <u-table-column prop="sub_type" label="活动类型" align="center" min-width="100px">
+          <template v-slot="{row}">{{ Number(row.sub_type)===1?'消费满赠':'加购折扣' }}</template>
         </u-table-column>
-        <u-table-column prop="discountInfo" label="运送渠道" align="center" min-width="180px" />
-        <u-table-column prop="topNum" label="运费" align="center" min-width="150px" />
-        <u-table-column prop="min_spend" label="操作" align="center" min-width="150px">
-          <template>
-            <el-button size="mini" type="primary" @click="clearLog">删除</el-button>
-            <el-button size="mini" type="primary" @click="clearLog">编辑商品</el-button>
-            <el-button size="mini" type="primary" @click="clearLog">复制活动</el-button>
+        <u-table-column prop="voucher_status" label="活动状态" align="center" min-width="100px">
+          <template v-slot="{row}">
+            <span v-if="row.voucher_status==='进行中'" style="color:#0ad10a">{{ row.voucher_status }}</span>
+            <span v-if="row.voucher_status==='即将开始'" style="color:orange">{{ row.voucher_status }}</span>
+            <span v-if="row.voucher_status==='已过期'">{{ row.voucher_status }}</span>
+          </template>
+        </u-table-column>
+        <u-table-column prop="" label="促销期间" align="center" min-width="200px">
+          <template v-slot="{row}">
+            <div style="display:flex;flex-flow: column;">
+              <span>{{ row.formStartime }}-{{ row.formEndtime }}</span>
+            </div>
+          </template>
+        </u-table-column>
+        <u-table-column prop="min_spend" label="操作" align="center" min-width="180px">
+          <template v-slot="{row}">
+            <div style="display:flex">
+              <el-button v-if="row.voucher_status==='进行中'" size="mini" type="primary" @click="MallvoucherStopFun(row)">停止</el-button>
+              <el-button v-if="row.voucher_status==='即将开始'" size="mini" type="primary" @click="MallvoucherDelFun(row)">删除</el-button>
+              <el-button size="mini" type="primary" @click="clearLog">编辑商品</el-button>
+              <el-button size="mini" type="primary" @click="clearLog">复制活动</el-button>
+            </div>
           </template>
         </u-table-column>
       </u-table>
@@ -81,24 +95,29 @@
                 操作店铺
                 <el-select v-model="optionMall" placeholder="请选择" size="mini" style="width:120px">
                   <el-option label="全部" value="" />
-                  <el-option v-for="mall in shopAccountMallList" :key="mall.id" :label="mall.label" :value="mall.id" />
+                  <el-option v-for="mall in selectMallList" :key="mall.id" :label="mall.mall_alias_name || mall.platform_mall_name" :value="mall.id" />
                 </el-select>
               </div>
 
               <div style="margin-left:50px">
+                <!-- 保存之后就不可选了 -->
                 <el-radio-group v-model="discountType">
                   <el-radio label="0">折扣优惠</el-radio>
                   <el-radio label="1">赠品满最低消费</el-radio>
                 </el-radio-group>
-                <span v-if="discountType==='0'">
+                <span v-if="discountType==='0'" style="margin-left：20px">
                   加购限制
+                  <!-- 必须在1-100 -->
                   <el-tooltip class="item" effect="dark" content="买家在同一个订单里最多加购的商品数量是(1-100)" placement="top-start">
                     <el-input v-model="addLimit" size="mini" style="width:100px" onkeyup="value=value.replace(/[^\d]/g,0)" />
                   </el-tooltip>
                 </span>
                 <span v-if="discountType==='1'">
                   赠品规则 消费<el-input v-model="costNum" size="mini" style="width:100px" onkeyup="value=value.replace(/[^\d]/g,0)" />
-                  以获得<el-input v-model="sendNum" size="mini" style="width:100px" onkeyup="value=value.replace(/[^\d]/g,0)" />
+                  以获得
+                  <el-tooltip class="item" effect="dark" content="赠品的数量应在(1-50)内" placement="top-start">
+                    <el-input v-model="sendNum" size="mini" style="width:100px" onkeyup="value=value.replace(/[^\d]/g,0)" />
+                  </el-tooltip>
                   个赠品
                 </span>
               </div>
@@ -124,7 +143,8 @@
                   />
                 </el-tooltip>
               </div>
-              <el-button size="mini" type="primary" style="margin-left:10px" @click="clearLog">保存活动</el-button>
+              <!-- 请求保存活动接口 -->
+              <el-button size="mini" type="primary" style="margin-left:10px" @click="saveActiveInfo">保存活动</el-button>
               <el-button size="mini" type="primary" @click="clearLog">清除日志</el-button>
               <el-checkbox v-model="showlog" style="margin-left:8px;margin-top:5px">隐藏日志</el-checkbox>
             </li>
@@ -141,6 +161,7 @@
                 <el-button size="mini" type="primary">开启</el-button>
                 <el-button size="mini" type="primary">关闭</el-button>
                 <el-button size="mini" type="primary">删除</el-button>
+                <!-- 先保存活动信息 -->
                 <el-button size="mini" type="primary" style="margin-left: 65px">添加主要商品</el-button>
               </li>
               <!-- row2 -->
@@ -171,6 +192,7 @@
                 <el-button size="mini" type="primary">开启</el-button>
                 <el-button size="mini" type="primary">关闭</el-button>
                 <el-button size="mini" type="primary">删除</el-button>
+                <!-- 先保存活动信息 -->
                 <el-button size="mini" type="primary" style="margin-left: 200px">添加加购商品</el-button>
               </li>
               <li>
@@ -209,6 +231,10 @@ export default {
   },
   data() {
     return {
+      arrList: [],
+      willList: [],
+      doingList: [],
+      pastList: [],
       // 弹窗
       addGoodsDiscount: '', // 添加折扣
       addGoodsList: [], // 加购商品
@@ -229,15 +255,15 @@ export default {
       proTimeType: '0', // 促销时间类型
       proTime: [], // 促销时间
       proName: '', // 促销名称
-      isShowPast: false,
+      isShowPast: true,
       tableLoading: false,
       singerStop: false, // 单个停止
       MarketManagerAPIInstance: new MarketManagerAPI(this),
       showlog: true,
       activeType: '0', // 活动
       tableList: [], // 主表数据
-      proVisible: true, // 弹窗
-      dialogtitle: '', // 弹窗标题
+      proVisible: false, // 弹窗
+      dialogtitle: '', // 弹窗标题s
       coupontype: '2', // 创建优惠卷类型 1.店铺 2.商品
       // 创建优惠卷参数
       couponName: '', // 优惠劵名称
@@ -265,27 +291,69 @@ export default {
   //   }
   // },
   created() {
-    this.freightlist.push(this.freightobj)
-    this.initMall()
+    // this.initMall()
   },
   methods: {
-    // 初始化店铺信息
-    initMall() {
-      getMalls(res => {
-        this.shopAccountMallList = res
-      })
+    // 取消查询
+    stopSearch() {
+      terminateThread()
+      this.stoptoping = true
+      this.$refs.Logs.writeLog(`正在停止查询`)
     },
-    // 删除规则
-    delrule(val) {
-      const index = this.couponGoodslist.findIndex(el => { return el === val })
-      this.freightlist.splice(index, 1)
+    // 保存活动
+    saveActiveInfo() {
+      if (this.discountType === '0' && (Number(this.addLimit) === 0 || Number(this.addLimit) > 100)) {
+        this.$message.warning('请输入加购限制,限制范围在1-100')
+        return
+      }
+      if (!this.proName.length || this.proName.length > 24) {
+        this.$message.warning('请输入促销名称，名称长不可超过24个字符')
+        return
+      }
+      const cTime = new Date().getTime()
+      if (cTime > Number(this.proTime[0])) {
+        this.$message.warning('请输入比当前较晚的开始时间')
+        return
+      }
+      if (Number(this.proTime[1] - Number(this.proTime[0]) < 3600 * 1000)) {
+        this.$message.warning('结束时间至少比开始时间晚一个小时')
+        return
+      }
+      for (let i = 0; i < this.mallTableSelect.length; i++) {
+        this.saveActiveInfoFun(this.mallTableSelect[i])
+      }
     },
-    // 保存
-    save() {},
-    // 新增运费规则
-    addRule() {
-      this.freightlist.push(this.freightobj)
+    async saveActiveInfoFun(val) {
+      try {
+        this.showlog = false
+        const params = {
+          country: val.country,
+          mallId: val.platform_mall_id
+        // add_on_deal_id,
+        // add_on_deal_name,
+        // start_time,
+        // end_time,
+        // sub_type,
+        // sub_item_limit,
+        // sub_item_priority
+        }
+        const res = await this.MarketManagerAPIInstance.saveActiveAddondeal(params)
+        if (res.ecode === 0) {
+          this.$refs.Logs.writeLog(`------成功停止【${val.add_on_deal_name}】优惠活动------`, true)
+        } else {
+          this.$refs.Logs.writeLog(`停止【${val.add_on_deal_name}】优惠活动,${res.message}`, false)
+        }
+      } catch (error) {
+        this.$refs.Logs.writeLog(`停止【${val.add_on_deal_name}】--catch,${error}`, false)
+      }
     },
+
+    // // 初始化店铺信息
+    // initMall() {
+    //   getMalls(res => {
+    //     this.shopAccountMallList = res
+    //   })
+    // },
     // 清除日志
     clearLog() {
       this.$refs.Logs.consoleMsg = ''
@@ -294,106 +362,94 @@ export default {
     handleSelectionChange(val) {
       this.mallTableSelect = val
     },
-    // 批量停止
-    async  MallvoucherStopMul() {
-      if (!this.mallTableSelect.length) {
-        this.$message.warning('请选择要操作的数据')
-        return
-      }
-      for (let i = 0; i < this.mallTableSelect.length; i++) {
-        if (Number(this.mallTableSelect[i].promotion_type) === 2) {
-          await this.MallvoucherStop(this.mallTableSelect[i])
-        }
-      }
-      this.getTableList()
-    },
-    // 停止
-    async  MallvoucherStop(val) {
-      const params = {
-        country: val.country,
-        mallId: val.platform_mall_id,
-        campaign_id: Number(val.campaign_id),
-        action: 'stop'
-      }
-      try {
-        this.showlog = false
-        const res = await this.MarketManagerAPIInstance.MallPrizeDel(params)
-        if (res.ecode === 0) {
-          this.$refs.Logs.writeLog(`------已停止【${val.follow_prize_name}】优惠活动------`, true)
-        } else {
-          this.$refs.Logs.writeLog(`停止【${val.follow_prize_name}】优惠活动,${res.message}`, false)
-        }
-      } catch (error) {
-        this.$refs.Logs.writeLog(`停止【${val.follow_prize_name}】--catch,${error}`, false)
-      }
-      if (this.singerStop) {
-        this.getTableList()
-      }
-      this.singerStop = false
-    },
-    // 批量删除
+    // 批量删除/停止
     MallvoucherDelMul() {
       if (!this.mallTableSelect.length) {
         this.$message.warning('请选择要操作的数据')
         return
       }
-
-      this.$confirm('确定要删除这些优惠卷吗？, 是否继续?', '提示', {
+      this.$confirm('确定要删除或停止这些活动吗？, 是否继续?', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
-      }).then(() => {
-        this.MallvoucherDelMulFun()
-      }).catch(() => {
+      }).then(async() => {
+        for (let i = 0; i < this.mallTableSelect.length; i++) {
+          const item = this.mallTableSelect[i]
+          if (item.voucher_status === '即将开始') { // 删除
+            await this.MallvoucherDel(item)
+          }
+          if (item.voucher_status === '进行中') { // 停止
+            await this.MallvoucherStop(item)
+          }
+        }
+        this.getTableList()
       })
     },
-    async  MallvoucherDelMulFun() {
-      for (let i = 0; i < this.mallTableSelect.length; i++) {
-        if (Number(this.mallTableSelect[i].promotion_type) === 1) {
-          await this.MallvoucherDel(this.mallTableSelect[i])
-        }
+    // 停止
+    MallvoucherStopFun(val) {
+      this.$confirm('确定要停止该活动吗？, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(async() => {
+        await this.MallvoucherStop(val)
+        this.getTableList()
+      })
+    },
+    async  MallvoucherStop(val) {
+      const params = {
+        country: val.country,
+        mallId: val.platform_mall_id,
+        add_on_deal_id: val.add_on_deal_id
       }
-      this.getTableList()
+      try {
+        this.showlog = false
+        const res = await this.MarketManagerAPIInstance.stopOndealList(params)
+        if (res.ecode === 0) {
+          this.$refs.Logs.writeLog(`------成功停止【${val.add_on_deal_name}】优惠活动------`, true)
+        } else {
+          this.$refs.Logs.writeLog(`停止【${val.add_on_deal_name}】优惠活动,${res.message}`, false)
+        }
+      } catch (error) {
+        this.$refs.Logs.writeLog(`停止【${val.add_on_deal_name}】--catch,${error}`, false)
+      }
     },
     // 删除
     MallvoucherDelFun(val) {
-      this.$confirm('确定该优惠卷吗？, 是否继续?', '提示', {
+      this.$confirm('确定要删除该活动吗？, 是否继续?', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
-      }).then(() => {
-        this.MallvoucherDel(val)
-      }).catch(() => {
+      }).then(async() => {
+        await this.MallvoucherDel(val)
+        this.getTableList()
       })
     },
     async  MallvoucherDel(val) {
       const params = {
         country: val.country,
         mallId: val.platform_mall_id,
-        campaign_id: Number(val.campaign_id),
-        action: 'delete'
+        add_on_deal_id: val.add_on_deal_id
       }
       try {
         this.showlog = false
-        const res = await this.MarketManagerAPIInstance.MallPrizeDel(params)
+        const res = await this.MarketManagerAPIInstance.delondealList(params)
         if (res.ecode === 0) {
-          this.$refs.Logs.writeLog(`------成功删除【${val.follow_prize_name}】优惠活动------`, true)
+          this.$refs.Logs.writeLog(`------成功删除【${val.add_on_deal_name}】优惠活动------`, true)
         } else {
-          this.$refs.Logs.writeLog(`删除【${val.follow_prize_name}】优惠活动,${res.message}`, false)
+          let mes = ''
+          if (res.message === 'only upcoming campaign can delete') {
+            mes = '只有即将进行的活动才能删除'
+          }
+          this.$refs.Logs.writeLog(`删除【${val.add_on_deal_name}】优惠活动,${mes || res.message}`, false)
         }
       } catch (error) {
-        this.$refs.Logs.writeLog(`删除【${val.follow_prize_name}】--catch,${error}`, false)
+        this.$refs.Logs.writeLog(`删除【${val.add_on_deal_name}】--catch,${error}`, false)
       }
-      if (this.singerStop) {
-        this.getTableList()
-      }
-      this.singerStop = false
-    },
-    // 取消查询
-    stopSearch() {
-      terminateThread()
-      this.stoptoping = true
-      this.$refs.Logs.writeLog(`正在停止查询`)
+      // if (this.singerStop) {
+      // this.getTableList()
+      // }
+      // this.singerStop = false
     },
     // 停止创建活动
     stopCreate() {
@@ -416,76 +472,82 @@ export default {
     changeMallList(val) {
       this.selectMallList = val
     },
-    // 获取店铺优惠卷信息
+    // 获取折扣信息
     async  getInfo(item, count = { count: 1 }) {
       try {
         const params = {
           country: item.country,
           mallId: item.platform_mall_id,
           offset: item.offset,
-          limit: 20
+          count: 50
         }
-        const res = await this.MarketManagerAPIInstance.FollowPrize(params)
-        if (res.data.code === 0) {
-          const list = res.data.data.follow_prize_list
-          list.forEach(el => {
+        const res = await this.MarketManagerAPIInstance.getAddondealList(params)
+        if (res.ecode !== 0) {
+          let message = ''
+          if (res.message === 'token not found') {
+            message = '店铺未登录'
+          }
+          this.$refs.Logs.writeLog(`【${item.mall_alias_name || item.platform_mall_name}】数据请求失败,${message || res.message}`, false)
+          return
+        }
+        let promotionsList = res.ecode === 0 ? res.data.data.add_on_deal_list : []
+        if (!promotionsList.length) {
+          this.$refs.Logs.writeLog(`【${item.mall_alias_name || item.platform_mall_name}】暂无数据`)
+          return
+        }
+        while (promotionsList.length) {
+          if (this.stoptoping) {
+            return
+          }
+          // 列表数据处理
+          for (let i = 0; i < promotionsList.length; i++) {
+            if (this.stoptoping) {
+              return
+            }
+            const el = promotionsList[i]
             el.platform_mall_id = item.platform_mall_id
             el.country = item.country
             el.mallName = item.mall_alias_name || item.platform_mall_name
             el.formStartime = this.formatTime(el.start_time * 1000)
             el.formEndtime = this.formatTime(el.end_time * 1000)
-          })
-          item.prizeList.push(...list)
-          this.$refs.Logs.writeLog(`【${item.mall_alias_name || item.platform_mall_name}】总数据：${res.data.data.total_count}条,正在请求第【${(params.offset / params.limit) + 1}】页`, true)
-          // this.getTable.push(...list)// 存储数据
-          if (list?.length >= params.limit) {
-            item.offset = item.offset + params.limit
-            this.getInfo(item, { count: 1 })
+            // 时间筛选
+            if (Number(el.status) === 1) {
+              el.voucher_status = '即将开始'
+              this.willList.push(el)
+            } else if (Number(el.status) === 2) {
+              el.voucher_status = '进行中'
+              this.doingList.push(el)
+            } else {
+              el.voucher_status = '已过期'
+              this.pastList.push(el)
+            }
+            this.arrList.push(el)
+          }
+          this.$refs.Logs.writeLog(`【${item.mall_alias_name || item.platform_mall_name}】,正在请求第【${(params.offset / params.count) + 1}】页`, true)
+          if (promotionsList.length < params.count) {
+            promotionsList.length = []
           } else {
-            const ableUserList = [] // 需要查看详情的优惠券
-            const arrList = []
-            const willList = []
-            const doingList = []
-            const pastList = []
-            for (let i = 0; i < item.prizeList.length; i++) {
-              const el = item.prizeList[i]
-              el.discountInfo = ''// 折扣金额（折）
-              el.topNum = ''// 最高上限数额
-              el.min_spend = ''// 最低消费金额
-              const nowD = new Date().getTime()
-              if (nowD < el.start_time * 1000) {
-                el.voucher_status = '即将开始'
-                el.promotion_type = 1
-                ableUserList.push(el)
-              } else if (nowD > el.start_time * 1000 && nowD < el.end_time * 1000) {
-                el.voucher_status = '进行中'
-                el.promotion_type = 2
-                ableUserList.push(el)
-              } else {
-                el.voucher_status = '已过期'
-                el.promotion_type = 3
-              }
-              // 条件筛选
-              if (this.saleType === '1' && nowD < el.start_time * 1000) { willList.push(el) }
-              if (this.saleType === '2' && nowD > el.start_time * 1000 && nowD < el.end_time * 1000) { doingList.push(el) }
-              if (this.saleType === '3' && nowD > el.end_time * 1000) { pastList.push(el) }
-              arrList.push(el)
-            }
-            if (this.saleType === '1') { this.getTable.push(...willList) }
-            if (this.saleType === '2') { this.getTable.push(...doingList) }
-            if (this.saleType === '3') { this.getTable.push(...pastList) }
-            if (this.saleType === '0') { this.getTable.push(...arrList) }
-            // this.getTable.push(...item.prizeList)
-            // 查看未过期活动详情
-            if (!ableUserList.length) {
-              return
-            }
-            this.$refs.Logs.writeLog(`正在查看店铺【${item.mall_alias_name || item.platform_mall_name}】优惠卡券详情`, true)
-            const res1 = await batchOperation(ableUserList, this.getPrizeDetail)
-            this.$refs.Logs.writeLog(`店铺【${item.mall_alias_name || item.platform_mall_name}】查找完毕`, true)
+            params.offset = params.offset + params.count
+            const res = await this.MarketManagerAPIInstance.logisticsPromotion(params)
+            promotionsList = res.data.code === 0 ? res.data.data.add_on_deal_list : []
+          }
+        }
+        // 条件筛选
+        if (this.isShowPast) {
+          if (this.activeType === '0') {
+            this.getTable = this.willList.concat(this.doingList)
+          } else if (this.activeType === '1') {
+            this.getTable = this.doingList
+          } else if (this.activeType === '2') {
+            this.getTable = this.willList
+          } else {
+            this.getTable = []
           }
         } else {
-          this.$refs.Logs.writeLog(`【${item.mall_alias_name || item.platform_mall_name}】${res.data.message || '店铺异常'}`, false)
+          if (this.activeType === '1') { this.getTable = this.doingList }
+          if (this.activeType === '2') { this.getTable = this.willList }
+          if (this.activeType === '3') { this.getTable = this.pastList }
+          if (this.activeType === '0') { this.getTable = this.arrList }
         }
       } catch (error) {
         this.$refs.Logs.writeLog(`【${item.mall_alias_name || item.platform_mall_name}】--catch，${error}`, false)
@@ -540,9 +602,12 @@ export default {
       // this.clearLog()
       this.selectMallList.forEach(el => {
         el.offset = 0
-        el.prizeList = [] // 优惠券列表
       })
       this.getTable = []
+      this.arrList = []
+      this.willList = []
+      this.doingList = []
+      this.pastList = []
       this.showlog = false
       this.tableLoading = true
       this.$refs.Logs.writeLog(`正在请求数据......`, true)
