@@ -465,9 +465,9 @@ export default {
         return true
       } else {
         if(creatRes.data.indexOf('some item has participated in promotion')>-1){
-          this.$refs.Logs.writeLog(`店铺【${mallName}】,添加商品【${goodsId}】至活动失败,商品已参加活动不能再此参加`, false)
+          this.$refs.Logs.writeLog(`店铺【${mallName}】,添加商品【${goodsId}】至活动失败,商品已参加活动不能再此参加`, true)
         }else{
-          this.$refs.Logs.writeLog(`店铺【${mallName}】,添加商品【${goodsId}】至活动失败,${creatRes.data}`, false)
+          this.$refs.Logs.writeLog(`店铺【${mallName}】,添加商品【${goodsId}】至活动失败,${creatRes.data?creatRes.data:''}`, false)
         }
         return false
       }
@@ -529,18 +529,18 @@ export default {
       }
       this.editMultipleSelection.forEach((item) => {
         this.$set(item, 'discount', (1 - this.activeDiscount / 100).toFixed(2))
-        this.$set(item, 'promotion_price', Number(((this.activeDiscount / 100) * item.price).toFixed(1)))
+        this.$set(item, 'promotion_price', Number(((this.activeDiscount / 100) * item.normal_price).toFixed(1)))
         this.$set(item, 'user_item_limit', this.limitNum)
         let index = this.editTableData.findIndex((n) => n.modelid == item.modelid)
         let indexC = this.editTableDataCopy.findIndex((n) => n.modelid == item.modelid)
         if (index > -1) {
           this.$set(this.editTableData[index], 'discount', (1 - this.activeDiscount / 100).toFixed(2))
-          this.$set(this.editTableData[index], 'promotion_price', Number(((this.activeDiscount / 100) * item.price).toFixed(1)))
+          this.$set(this.editTableData[index], 'promotion_price', Number(((this.activeDiscount / 100) * item.normal_price).toFixed(1)))
           this.$set(this.editTableData[index], 'user_item_limit', this.limitNum)
         }
         if (indexC > -1) {
           this.editTableDataCopy[indexC].discount = (1 - this.activeDiscount / 100).toFixed(2)
-          this.editTableDataCopy[indexC].promotion_price = Number(((this.activeDiscount / 100) * item.price).toFixed(1))
+          this.editTableDataCopy[indexC].promotion_price = Number(((this.activeDiscount / 100) * item.normal_price).toFixed(1))
           this.editTableDataCopy[indexC].user_item_limit = this.limitNum
         }
       })
@@ -555,7 +555,7 @@ export default {
         let obj = {
           itemid: item.itemid,
           modelid: item.modelid,
-          promotion_price: Number(((this.activeDiscount / 100) * item.price).toFixed(1)),
+          promotion_price: Number(((this.activeDiscount / 100) * item.normal_price).toFixed(1)),
           user_item_limit: Number(this.limitNum),
           status: item.status,
         }
@@ -681,11 +681,8 @@ export default {
                 let itemC = JSON.parse(JSON.stringify(item))
                 let objDiscount = res.data.discount_item_list.find((n) => n.itemid === item.itemid && n.modelid === subItem.modelid)
                 let obj = res.data.price_stock_info.find((n) => n.item_id === item.itemid)
-                // console.log(obj, 'obj', res.data.price_stock_info, item.itemid)
                 let discountPriceInfo = obj.sku_stock_price_list.find((n) => n.model_id === subItem.modelid)
-                // console.log(itemC, subItem, obj)
                 let obj2 = Object.assign(itemC, subItem, objDiscount, discountPriceInfo.price_info)
-                // console.log('item', obj2)
                 obj2.price = subItem.price
                 obj2.name = item.name
                 obj2.skuName = subItem.name
@@ -695,7 +692,6 @@ export default {
                 obj2.platform_mall_id = val.platform_mall_id
                 obj2.promotion_price = objDiscount.promotion_price
                 obj2.discount = discountPriceInfo && discountPriceInfo.price_info ? (1 - obj2.promotion_price / obj2.normal_price).toFixed(2) : ''
-                // console.log(obj2, 'obj2')
                 let index = this.editTableData.findIndex((n) => n.deleteStatus && obj2.itemid === n.itemid)
                 if (index < 0) {
                   obj2.deleteStatus = true

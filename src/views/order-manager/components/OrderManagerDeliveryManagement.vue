@@ -100,56 +100,64 @@
       </div>
     </div>
     <div class="content">
-      <el-table v-loading="tableLoading" ref="multipleTable" :data="tableData" tooltip-effect="dark" @selection-change="handleSelectionChange" height="calc(100vh - 257px)">
-        <el-table-column align="center" type="selection" width="50" />
-        <el-table-column align="center" type="index" label="序号" width="50" fixed="left">
+      <u-table 
+       use-virtual
+      :border="false"
+      v-loading="tableLoading" 
+      ref="multipleTable" 
+      :data="tableData" 
+      tooltip-effect="dark" 
+      @selection-change="handleSelectionChange" 
+      height="580px">
+        <u-table-column align="center" type="selection" width="50" />
+        <u-table-column align="center" type="index" label="序号" width="50" fixed="left">
           <template slot-scope="scope">{{ (currentPage - 1) * pageSize + scope.$index + 1 }}</template>
-        </el-table-column>
-        <el-table-column prop="order_sn" label="订单编号" min-width="170px" fixed="left">
+        </u-table-column>
+        <u-table-column prop="order_sn" label="订单编号" min-width="170px" fixed="left">
           <template slot-scope="scope">
             <i class="el-icon-document-copy copyStyle" @click="copyItem(scope.row.order_sn)"></i>
             <span class="tableActive" @click="viewDetails('orderDetail', scope.row.order_id, scope.row.mall_info.platform_mall_id)">{{ scope.row.order_sn }}</span>
           </template>
-        </el-table-column>
-        <el-table-column min-width="80px" label="站点" prop="country" align="center" fixed="left">
+        </u-table-column>
+        <u-table-column min-width="80px" label="站点" prop="country" align="center" fixed="left">
           <template slot-scope="scope" v-if="scope.row.mall_info">{{ scope.row.mall_info.country | chineseSite }}</template>
-        </el-table-column>
-        <el-table-column label="店铺名称" prop="mall_info.platform_mall_name" min-width="120px" align="center" show-overflow-tooltip />
+        </u-table-column>
+        <u-table-column label="店铺名称" prop="mall_info.platform_mall_name" min-width="120px" align="center" show-overflow-tooltip />
 
-        <el-table-column align="center" label="商品数量" min-width="80">
+        <u-table-column align="center" label="商品数量" min-width="80">
           <template slot-scope="scope">{{ scope.row.goods_count }}</template>
-        </el-table-column>
-        <el-table-column align="center" prop="123456" label="商品详情" min-width="100">
+        </u-table-column>
+        <u-table-column align="center" prop="123456" label="商品详情" min-width="100">
           <template slot-scope="scope">
             <el-button size="mini" type="primary" @click="openGoodsDetail(scope.row)">商品详情</el-button>
           </template>
-        </el-table-column>
-        <el-table-column align="center" prop="created_time" label="订单创建时间" min-width="140" />
-        <el-table-column align="center" prop="ship_by_date" label="截止发货时间" min-width="140">
+        </u-table-column>
+        <u-table-column align="center" prop="created_time" label="订单创建时间" min-width="140" />
+        <u-table-column align="center" prop="ship_by_date" label="截止发货时间" min-width="140">
           <template slot-scope="scope">{{ scope.row.ship_by_date }}</template>
-        </el-table-column>
-        <el-table-column align="center" prop="ship_by_date" label="是否已申请物流单号" min-width="140">
+        </u-table-column>
+        <u-table-column align="center" prop="ship_by_date" label="是否已申请物流单号" min-width="140">
           <template slot-scope="scope">
             <p :style="{ color: scope.row.tracking_no == '' ? 'red' : '#32CD32' }">{{ scope.row.tracking_no == '' ? '未申请' : '已申请' }}</p>
           </template>
-        </el-table-column>
-        <el-table-column align="center" prop="ship_by_date" label="是否同步面单信息" min-width="140">
+        </u-table-column>
+        <u-table-column align="center" prop="ship_by_date" label="是否同步面单信息" min-width="140">
           <template slot-scope="scope">
             <p :style="{ color: scope.row.hasLogistics == 0 ? 'red' : '#32CD32' }">{{ scope.row.hasLogistics == 0 ? '否' : '是' }}</p>
           </template>
-        </el-table-column>
-        <el-table-column align="center" prop="order_status" label="发货状态" min-width="100">
+        </u-table-column>
+        <u-table-column align="center" prop="order_status" label="发货状态" min-width="100">
           <template slot-scope="scope">
             <p :style="{ color: changeOrderStatus(scope.row.order_status, 'color') }">{{ changeOrderStatus(scope.row.order_status) }}</p>
           </template>
-        </el-table-column>
-        <el-table-column align="center" prop="logistics_name" label="虾皮物流" min-width="120" show-overflow-tooltip>
+        </u-table-column>
+        <u-table-column align="center" prop="logistics_name" label="虾皮物流" min-width="120" show-overflow-tooltip>
           <template slot-scope="scope">{{ scope.row.logistics_name }}</template>
-        </el-table-column>
-        <el-table-column align="center" prop="tracking_no" label="虾皮物流单号" min-width="150">
+        </u-table-column>
+        <u-table-column align="center" prop="tracking_no" label="虾皮物流单号" min-width="150">
           <template slot-scope="scope">{{ scope.row.tracking_no }}</template>
-        </el-table-column>
-        <el-table-column align="center" prop="remark" label="本地备注" min-width="120" show-overflow-tooltip>
+        </u-table-column>
+        <u-table-column align="center" prop="remark" label="本地备注" min-width="120" show-overflow-tooltip>
           <template slot-scope="scope">
             <div v-show="!(scope.row.id === activeRemarkID ? true : false)" @click="editRemark(scope.$index, scope.row.id)" style="cursor: pointer">
               <el-input v-model="scope.row.remark" disabled size="mini"></el-input>
@@ -158,17 +166,17 @@
             <!-- <i @click="editRemark(scope.$index, scope.row.id)" style="cursor: pointer" class="el-icon-edit-outline"></i> -->
             <!-- {{ scope.row.remark }} -->
           </template>
-        </el-table-column>
-        <el-table-column align="center" prop="note" label="shopee备注" min-width="100" show-overflow-tooltip>
+        </u-table-column>
+        <u-table-column align="center" prop="note" label="shopee备注" min-width="100" show-overflow-tooltip>
           <template slot-scope="scope">{{ scope.row.note }}</template>
-        </el-table-column>
-        <!-- <el-table-column align="center" prop="note" label="买家备注" min-width="80">
+        </u-table-column>
+        <!-- <u-table-column align="center" prop="note" label="买家备注" min-width="80">
           <template slot-scope="scope">{{}}</template>
-        </el-table-column> -->
-        <el-table-column align="center" prop="note" label="是否已下载面单" min-width="120">
+        </u-table-column> -->
+        <u-table-column align="center" prop="note" label="是否已下载面单" min-width="120">
           <template slot-scope="scope">{{ scope.row.is_print == '1' ? '已下载' : '未下载' }}</template>
-        </el-table-column>
-        <el-table-column label="操作" prop="" min-width="150px" fixed="right" align="center">
+        </u-table-column>
+        <u-table-column label="操作" prop="" min-width="150px" fixed="right" align="center">
           <template slot-scope="scope">
             <el-dropdown style="width: 100px; margin-left: 10px">
               <el-button style="width: 100px" size="mini" plain type="primary"> 更多操作<i class="el-icon-arrow-down el-icon--right" /> </el-button>
@@ -179,12 +187,12 @@
               </el-dropdown-menu>
             </el-dropdown>
           </template>
-        </el-table-column>
-      </el-table>
+        </u-table-column>
+      </u-table>
       <div class="pagination">
         <el-pagination
           background
-          :page-sizes="[20, 50, 100]"
+          :page-sizes="[20, 50, 100,200]"
           :page-size="pageSize"
           :current-page.sync="currentPage"
           layout="total, sizes, prev, pager, next, jumper"
@@ -260,7 +268,7 @@ export default {
       trackStatus: ['', '已申请', '未申请'],
       logisticsStatusList: ['未下载', '已下载', '未下载'],
       total: 0,
-      pageSize: 20,
+      pageSize: 200,
       currentPage: 1,
       multipleSelection: [],
       tableLoading: false,
@@ -885,6 +893,7 @@ export default {
       this.getOrderList()
     },
     handleSizeChange(size) {
+      this.currentPage = 1
       this.pageSize = size
       this.getOrderList()
     },
