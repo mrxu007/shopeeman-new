@@ -117,91 +117,100 @@
       </div>
     </div>
     <div class="table-form">
-      <el-table
+      <u-table
+      :border="false"
+       use-virtual
         ref="multipleTable"
         v-loading="loading"
-        width="100%"
-        height="calc(100vh - 243px)"
+        height="600px"
         :data="tableList"
-        :header-cell-style="{ background: '#f7fafa' }"
+        tooltip-effect="dark"
         @selection-change="handleSelectionChange"
+        :row-style="{ height: '60px !important' }"
+        :cell-style="{ padding: '0px' }"
       >
-        <el-table-column type="selection" width="55" fixed />
-        <el-table-column align="center" type="index" label="序号" width="50" fixed="left">
+        <u-table-column type="selection" width="55" fixed />
+        <u-table-column align="center" type="index" label="序号" width="50" fixed="left">
           <template slot-scope="scope">{{ (page - 1) * pageSize + scope.$index + 1 }}</template>
-        </el-table-column>
-        <el-table-column label="订单编号" prop="order_sn" min-width="180px" fixed="left">
+        </u-table-column>
+        <u-table-column label="订单编号" prop="order_sn" min-width="180px" fixed="left">
           <template slot-scope="{ row }">
             <span>
               <i class="el-icon-document-copy copyStyle" @click="copy(row.order_sn)" />
               <span class="tableActive" @click="viewDetails('orderDetail', row.order_id, row.mall_info.platform_mall_id)">{{ row.order_sn }}</span>
             </span>
           </template>
-        </el-table-column>
-        <el-table-column label="站点" prop="country" min-width="60px" align="center">
+        </u-table-column>
+        <u-table-column label="站点" prop="country" min-width="60px" align="center">
           <template slot-scope="{ row }"
             ><span>{{ row.mall_info.country | chineseSite }}</span></template
           >
-        </el-table-column>
-        <el-table-column label="店铺名称" prop="mall_info.platform_mall_name" width="120px" align="center" show-overflow-tooltip />
-        <el-table-column align="center" prop="color_id" label="颜色标识" min-width="70">
+        </u-table-column>
+        <u-table-column label="店铺名称" prop="mall_info.platform_mall_name" width="120px" align="center" show-overflow-tooltip />
+        <u-table-column align="center" prop="color_id" label="颜色标识" width="120"  show-overflow-tooltip>
+          <template slot-scope="scope">
+            <p :style="{ background: changeColorLabel(scope.row.color_id), height: '20px' }" />
+            <span >{{ changeColorLabel(scope.row.color_id, 'name') }}</span>
+          </template>
+        </u-table-column>
+        <!-- <u-table-column align="center" prop="color_id" label="颜色标识" min-width="70">
           <template slot-scope="scope">
             <p :style="{ background: changeColorLabel(scope.row.color_id), height: '26px' }" />
           </template>
-        </el-table-column>
-        <el-table-column align="center" prop="color_id" label="标识名称" min-width="70">
+        </u-table-column>
+        <u-table-column align="center" prop="color_id" label="标识名称" min-width="70">
           <template slot-scope="scope">
             <span>{{ changeColorLabel(scope.row.color_id, 'name') }}</span>
           </template>
-        </el-table-column>
-        <el-table-column label="退款金额" prop="refund_amount" min-width="100px" align="center" />
-        <el-table-column label="售后状态" prop="status" min-width="100px" align="center">
+        </u-table-column> -->
+        <u-table-column label="退款金额" prop="refund_amount" min-width="100px" align="center" />
+        <u-table-column label="售后状态" prop="status" min-width="100px" align="center">
           <template slot-scope="{ row }"
             ><p :style="{ color: changeOrderStatus(row.status, 'color') }">{{ changeOrderStatus(row.status) }}</p></template
-          ></el-table-column
+          ></u-table-column
         >
-        <el-table-column label="申请时间" prop="update_time" min-width="180px" align="center" />
-        <el-table-column label="采购状态" prop="shot_order_info.shot_status" min-width="90px" align="center">
+        <u-table-column label="申请时间" prop="update_time" min-width="180px" align="center" />
+        <u-table-column label="采购状态" prop="shot_order_info.shot_status" min-width="90px" align="center">
           <template slot-scope="{ row }"
             ><span :style="{ color: changeShotStatus(row.shot_order_info.shot_status, 'color') }">{{ changeShotStatus(row.shot_order_info.shot_status) }}</span></template
-          ></el-table-column
+          ></u-table-column
         >
-        <el-table-column label="售后原因" prop="after_reason" min-width="150px" align="center" show-overflow-tooltip />
-        <el-table-column label="本地备注" prop="remark" min-width="180px" align="center">
+        <u-table-column label="售后原因" prop="after_reason" min-width="150px" align="center" show-overflow-tooltip />
+        <u-table-column label="本地备注" prop="remark" min-width="180px" align="center">
           <template v-slot="{ row }">
             <el-input v-if="row.isChecked" v-model="row.remark" v-fo size="mini" resize="none" placeholder="本地备注" @blur="changeRemark(row)" />
             <span v-else @click="row.isChecked = true">
               <el-input v-model="row.remark" :disabled="!row.isChecked" size="mini" />
             </span>
           </template>
-        </el-table-column>
-        <el-table-column label="商品ID" prop="goods_info.goods_id" min-width="150px">
+        </u-table-column>
+        <u-table-column label="商品ID" prop="goods_info.goods_id" min-width="150px">
           <template slot-scope="{ row }">
             <span>
               <i class="el-icon-document-copy copyStyle" @click="copy(row.goods_info.goods_id)" />
               <span class="tableActive" @click="openUrl(row, 'product')">{{ row.goods_info.goods_id }}</span>
             </span>
           </template>
-        </el-table-column>
-        <el-table-column label="商品数量" prop="goods_info.goods_count" min-width="150px" align="center" />
-        <el-table-column label="商品图片" prop="goods_info.goods_img" min-width="100px" align="center">
+        </u-table-column>
+        <u-table-column label="商品数量" prop="goods_info.goods_count" min-width="150px" align="center" />
+        <u-table-column label="商品图片" prop="goods_info.goods_img" min-width="100px" align="center">
           <template slot-scope="{ row }">
-            <el-tooltip effect="light" placement="right-end" :visible-arrow="false" :enterable="false" style="width: 56px; height: 56px; display: inline-block">
+            <el-tooltip effect="light" placement="right-end" :visible-arrow="false" :enterable="false" style="width: 32px; height: 32px; display: inline-block">
               <div slot="content">
                 <el-image :src="[row.goods_info.goods_img] | imageRender" style="width: 400px; height: 400px" />
               </div>
-              <el-image :src="[row.goods_info.goods_img, true] | imageRender" style="width: 56px; height: 56px" />
+              <el-image :src="[row.goods_info.goods_img, true] | imageRender" style="width: 32px; height: 32px" />
             </el-tooltip>
           </template>
-        </el-table-column>
-        <el-table-column align="center" label="商品类目" width="120">
+        </u-table-column>
+        <u-table-column align="center" label="商品类目" width="120">
           <template slot-scope="scope">
             <span>{{ scope.row.categoryName }} </span>
           </template>
-        </el-table-column>
-        <!-- <el-table-column label="商品类目" prop="goods_info.goods_category_id" min-width="100px" align="center" /> -->
-        <el-table-column label="商品规格" prop="goods_info.variation_name" min-width="100px" align="center" />
-        <el-table-column label="采购商品ID" prop="goods_info.ori_goods_id" min-width="180px">
+        </u-table-column>
+        <!-- <u-table-column label="商品类目" prop="goods_info.goods_category_id" min-width="100px" align="center" /> -->
+        <u-table-column label="商品规格" prop="goods_info.variation_name" min-width="100px" align="center" />
+        <u-table-column label="采购商品ID" prop="goods_info.ori_goods_id" min-width="180px">
           <template slot-scope="{ row }">
             <i v-if="row.goods_info.ori_goods_id" class="el-icon-document-copy copyStyle" @click="copy(row.goods_info.ori_goods_id)" />
             <span v-if="row.goods_info.ori_goods_id">
@@ -210,31 +219,31 @@
               </el-button>
             </span>
           </template>
-        </el-table-column>
-        <el-table-column label="采购订单号" width="150" show-overflow-tooltip>
+        </u-table-column>
+        <u-table-column label="采购订单号" width="150" show-overflow-tooltip>
           <template slot-scope="scope">
             <i v-if="scope.row.shot_order_info.shot_order_sn" class="el-icon-document-copy copyStyle" @click="copy(scope.row.shot_order_info.shot_order_sn)" />
             <span class="tableActive">{{ scope.row.shot_order_info.shot_order_sn }}</span>
           </template>
-        </el-table-column>
-        <!-- <el-table-column label="采购价" prop="" min-width="100px" align="center" /> -->
-        <el-table-column label="采购时间" prop="shot_order_info.shotted_at" min-width="180px" align="center" />
-        <el-table-column label="采购物流单号" prop="shot_order_info.shot_tracking_number" min-width="180px">
+        </u-table-column>
+        <!-- <u-table-column label="采购价" prop="" min-width="100px" align="center" /> -->
+        <u-table-column label="采购时间" prop="shot_order_info.shotted_at" min-width="180px" align="center" />
+        <u-table-column label="采购物流单号" prop="shot_order_info.shot_tracking_number" min-width="180px">
           <template slot-scope="{ row }">
             <i v-if="row.shot_order_info.shot_tracking_number" class="el-icon-document-copy copyStyle" @click="copy(row.shot_order_info.shot_tracking_number)" />
             <span v-if="row.shot_order_info.shot_tracking_number" class="tableActive">{{ row.shot_order_info.shot_tracking_number }} </span>
           </template>
-        </el-table-column>
-        <el-table-column align="center" prop="buy_account_info" label="采购账号" width="120">
+        </u-table-column>
+        <u-table-column align="center" prop="buy_account_info" label="采购账号" width="120">
           <template slot-scope="scope">{{ scope.row.shot_order_info.buy_account_info ? scope.row.shot_order_info.buy_account_info.name : '' }}</template>
-        </el-table-column>
-        <el-table-column label="订单创建时间" prop="after_created_at" min-width="180px" align="center" />
-        <el-table-column label="订单截止发货时间" prop="" min-width="180px" align="center" />
-        <el-table-column label="退货物流号" prop="return_tracking_number" min-width="180px" align="center" />
-        <el-table-column label="退件发货地址" prop="return_delivery_time" min-width="200px" align="center" />
-        <el-table-column label="退货地址" prop="return_address" min-width="200px" align="center" />
-        <el-table-column label="退货邮寄地址" prop="return_pickup_address" min-width="200px" align="center" />
-        <el-table-column label="操作" prop="" min-width="150px" fixed="right" align="center">
+        </u-table-column>
+        <u-table-column label="订单创建时间" prop="after_created_at" min-width="180px" align="center" />
+        <u-table-column label="订单截止发货时间" prop="" min-width="180px" align="center" />
+        <u-table-column label="退货物流号" prop="return_tracking_number" min-width="180px" align="center" />
+        <u-table-column label="退件发货地址" prop="return_delivery_time" min-width="200px" align="center" />
+        <u-table-column label="退货地址" prop="return_address" min-width="200px" align="center" />
+        <u-table-column label="退货邮寄地址" prop="return_pickup_address" min-width="200px" align="center" />
+        <u-table-column label="操作" prop="" min-width="150px" fixed="right" align="center">
           <template v-slot="{ row, $index }">
             <el-dropdown style="width: 100px; margin-left: 10px">
               <el-button style="width: 100px" size="mini" plain type="primary"> 更多操作<i class="el-icon-arrow-down el-icon--right" /> </el-button>
@@ -248,8 +257,8 @@
               </el-dropdown-menu>
             </el-dropdown>
           </template>
-        </el-table-column>
-      </el-table>
+        </u-table-column>
+      </u-table>
       <div class="pagination">
         <el-pagination
           background
@@ -351,7 +360,7 @@ export default {
         colorLabelId: 0, // 颜色标识id
       },
       page: 1,
-      pageSize: 20,
+      pageSize: 200,
       total: 0,
       tableList: [],
       loading: false,
@@ -920,6 +929,7 @@ export default {
     changeShotStatus,
     // 分页
     handleSizeChange(val) {
+      this.page  = 1
       this.pageSize = val
       this.search()
     },
