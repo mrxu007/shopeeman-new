@@ -3449,9 +3449,6 @@ export default {
         if (this.modifyTime?.length && !(item.modify_time <= new Date(this.modifyTime[1]).getTime())) {
           continue
         }
-        console.log(item.create_time)
-        console.log('this.createTime[0]', this.createTime[0])
-        console.log('this.createTime[1]', new Date(this.createTime[1]).getTime())
         // 过滤创建时间
         if (this.createTime?.length && !(item.create_time >= this.createTime[0])) {
           continue
@@ -3732,7 +3729,7 @@ export default {
       this.$refs.Logs.writeLog(`停止操作`, true)
       terminateThread()
     },
-    async initData(type) {
+    async initData() {
       this.operationBut = true
       this.isMove = false
       this.isRefurbishProduct = false
@@ -3741,37 +3738,24 @@ export default {
       this.successNum = 0
       this.failNum = 0
       this.flag = false
-      if (type === 1) { // 判断店铺是否休假
-        try {
-          const holidayData = {}
-          for (const item of this.multipleSelection) {
-            if (!JSON.stringify(holidayData[item.platform_mall_id])) {
-              const res = await this.$shopeemanService.getUserInfo(item) // 获取店铺信息
-              console.log('getUserInfo', res)
-              if (res.code === 200) {
-                item.holiday_mode_on = res.data.holiday_mode_on
-                holidayData[item.platform_mall_id] = res.data.holiday_mode_on
-              }
-            } else {
-              item.holiday_mode_on = holidayData[item.platform_mall_id]
-            }
-          }
-        } catch (error) {
-          this.showConsole = false
-          this.$refs.Logs.writeLog(`${error}`, true)
-        }
-      }
     },
     // 判断店铺是否休假
     async isHoliday(data) {
       const holidayData = {}
       for (const item of data) {
-        if (!JSON.stringify(holidayData[item.platform_mall_id])) {
-          const res = await this.$shopeemanService.getUserInfo(item) // 获取店铺信息
-          console.log('getUserInfo', res)
-          if (res.code === 200) {
-            item.holiday_mode_on = res.data.holiday_mode_on
-            holidayData[item.platform_mall_id] = res.data.holiday_mode_on
+        if (!holidayData[item.platform_mall_id]) {
+          const holidayStatus = await this.$appConfig.temporaryCacheInfo('get', `holiday_${item.platform_mall_id}`)
+          if (holidayStatus === '{}') {
+            const res = await this.$shopeemanService.getUserInfo(item) // 获取店铺信息
+            console.log('getUserInfo', res)
+            if (res.code === 200) {
+              item.holiday_mode_on = res.data.holiday_mode_on
+              this.$appConfig.temporaryCacheInfo('save', `holiday_${item.platform_mall_id}`, res.data.holiday_mode_on)
+              holidayData[item.platform_mall_id] = res.data.holiday_mode_on
+            }
+          } else {
+            item.holiday_mode_on = JSON.parse(holidayStatus)
+            holidayData[item.platform_mall_id] = JSON.parse(holidayStatus)
           }
         } else {
           item.holiday_mode_on = holidayData[item.platform_mall_id]
