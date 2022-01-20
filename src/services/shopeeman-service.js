@@ -471,7 +471,7 @@ export default class NetMessageBridgeService {
     }
     options.vcode ? params['vcode'] = options.vcode : ''
     let copy_mallInfo = null
-    if (flat === 2) { // 导入店铺必须参数   flat 1 一键登陆  2导入店铺
+    if (flat === 2) { // 导入店铺必须参数   flat 1 一键登录  2导入店铺
       copy_mallInfo = {}
       copy_mallInfo['accountName'] = acccount_info.username
       copy_mallInfo['mall_account_info'] = acccount_info
@@ -518,7 +518,7 @@ export default class NetMessageBridgeService {
           shopid: mallId,
           SPC_F: SetCookie || mallInfo.SPC_F || '',
           spc_f: SetCookie || mallInfo.SPC_F || ''
-        } // (一键登陆专用)
+        } // (一键登录专用)
         console.log('Cookie', Cookie)
         const Cookie_new = { // 店铺cookie信息(导入店铺专用)(更新壳)
           'SPC_CDS_VER': '2',
@@ -544,7 +544,7 @@ export default class NetMessageBridgeService {
           'OtherCookieInfo': '',
           'spcf_update_time': ''
         }
-        const mallInfo_new = { // 通知壳更新店铺信息 (导入店铺、一键登陆) 数据结构与壳内店铺信息一致
+        const mallInfo_new = { // 通知壳更新店铺信息 (导入店铺、一键登录) 数据结构与壳内店铺信息一致
           'IPIsExpired': true,
           'IsOpenSIP': false,
           'ProxyType': 'ssr',
@@ -677,7 +677,7 @@ export default class NetMessageBridgeService {
         const mallUId = `${data.id}` // 平台店铺ID
         const username = data.username
 
-        const Cookie = {} // (一键登陆专用)
+        const Cookie = {} // (一键登录专用)
         Cookie['SPC_EC'] = data.sso
         Cookie['SPC_SC_TK'] = data.token
         Cookie['ShopeeUid'] = mallUId // 虾皮平台用户Uid
@@ -710,7 +710,7 @@ export default class NetMessageBridgeService {
           'spcf_update_time': ''
         }
 
-        const mallInfo_new = { // 通知壳更新店铺信息 (导入店铺、一键登陆) 数据结构与壳内店铺信息一致
+        const mallInfo_new = { // 通知壳更新店铺信息 (导入店铺、一键登录) 数据结构与壳内店铺信息一致
           'IPIsExpired': true,
           'IsOpenSIP': false,
           'ProxyType': 'ssr',
@@ -1849,7 +1849,7 @@ export default class NetMessageBridgeService {
   //  莱尔富经济包的面单信息
   async getLaiErFuFace(country, data) {
     const res = await this.postChinese(country, '/api/v3/logistics/get_waybill_list', data, {
-      Headers: {
+      headers: {
         'Content-Type': ' application/json'
       }
     })
@@ -1878,10 +1878,10 @@ export default class NetMessageBridgeService {
 
   // 拒绝取消订单-接受取消订单
   async respondCancelRequest(country, data) {
-    const res = await this.postChinese(country, `/api/v3/order/respond_cancel_request/?`, data, {
-      Headers: {
-        'referer': `/portal/sale/${data.order_id}`,
-        'Content-Type': ' application/json'
+    const res = await this.postChinese(country, `/api/v3/order/respond_cancel_request/`, data, {
+      headers: {
+        'referer': `/portal/sale/order/${data.order_id}`,
+        'Content-Type': 'application/json;charset=UTF-8'
       }
     })
     const resObj = res && JSON.parse(res)
@@ -2090,18 +2090,19 @@ export default class NetMessageBridgeService {
       }
     }
   }
-  // 商品一键翻新
+  // 商品上新
   async createProduct(country, data, params) {
     const res = await this.postChineseShop(country, '/api/v3/product/create_product/', data, params, {
-      Headers: {
+      headers: {
         'Content-Type': ' application/json'
       },
       params: {
-        version: '3.1.0',
-        source: 'seller_center'
+        version: '3.1.0'
+        // source: 'seller_center'
       }
     })
     const resObj = res && JSON.parse(res)
+    console.log('resObj', resObj)
     if (resObj && resObj.status === 200) {
       const info = JSON.parse(resObj.data)
       if (info && info.code === 0) {
@@ -2123,13 +2124,13 @@ export default class NetMessageBridgeService {
       }
       return {
         code: resObj.status,
-        data: `商品翻新失败${resObj.statusText}` }
+        data: `商品上新失败${resObj.statusText}` }
     }
   }
   // 创建套装优惠
   async createSuit(country, data) {
     const res = await this.postChinese(country, `/api/marketing/v3/bundle_deal/`, data, {
-      Headers: {
+      headers: {
         'Content-Type': ' application/json'
       }
     })
@@ -2157,7 +2158,7 @@ export default class NetMessageBridgeService {
   // 停止或删除套装优惠
   async stopSuit(country, data) {
     const res = await this.postChinese(country, `/api/marketing/v3/bundle_deal/operation/`, data, {
-      Headers: {
+      headers: {
         'Content-Type': ' application/json'
       }
     })
@@ -2391,6 +2392,33 @@ export default class NetMessageBridgeService {
         return { code: 502, data: '请检测代理信息' }
       }
       return { code: -2, data: `getUserInfo-catch: ${error}` }
+    }
+  }
+  // 暂停或继续广告
+  async stopStartAdvent(country, data) {
+    const res = await this.postChinese(country, `/api/marketing/v3/pas/mass_edit/`, data, {
+      headers: {
+        'Content-Type': ' application/json'
+      }
+    })
+    const resObj = res && JSON.parse(res)
+    if (resObj && resObj.status === 200) {
+      const info = JSON.parse(resObj.data)
+      if (info && info.code === 0) {
+        return {
+          code: 200,
+          data: info.data || []
+        }
+      } else {
+        return { code: 50001,
+          data: info.message || []
+        }
+      }
+    } else {
+      return {
+        code: resObj.status,
+        data: `操作失败${resObj.statusText}`
+      }
     }
   }
   // 获取地址

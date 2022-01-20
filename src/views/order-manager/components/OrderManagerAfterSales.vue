@@ -139,9 +139,9 @@
           </template>
         </el-table-column>
         <el-table-column label="站点" prop="country" min-width="60px" align="center">
-          <template
-            slot-scope="{ row }"
-          ><span>{{ row.mall_info.country | chineseSite }}</span></template>
+          <template slot-scope="{ row }"
+            ><span>{{ row.mall_info.country | chineseSite }}</span></template
+          >
         </el-table-column>
         <el-table-column label="店铺名称" prop="mall_info.platform_mall_name" width="120px" align="center" show-overflow-tooltip />
         <el-table-column align="center" prop="color_id" label="颜色标识" min-width="70">
@@ -156,14 +156,16 @@
         </el-table-column>
         <el-table-column label="退款金额" prop="refund_amount" min-width="100px" align="center" />
         <el-table-column label="售后状态" prop="status" min-width="100px" align="center">
-          <template
-            slot-scope="{ row }"
-          ><p :style="{ color: changeOrderStatus(row.status, 'color') }">{{ changeOrderStatus(row.status) }}</p></template></el-table-column>
+          <template slot-scope="{ row }"
+            ><p :style="{ color: changeOrderStatus(row.status, 'color') }">{{ changeOrderStatus(row.status) }}</p></template
+          ></el-table-column
+        >
         <el-table-column label="申请时间" prop="update_time" min-width="180px" align="center" />
         <el-table-column label="采购状态" prop="shot_order_info.shot_status" min-width="90px" align="center">
-          <template
-            slot-scope="{ row }"
-          ><span :style="{ color: changeShotStatus(row.shot_order_info.shot_status, 'color') }">{{ changeShotStatus(row.shot_order_info.shot_status) }}</span></template></el-table-column>
+          <template slot-scope="{ row }"
+            ><span :style="{ color: changeShotStatus(row.shot_order_info.shot_status, 'color') }">{{ changeShotStatus(row.shot_order_info.shot_status) }}</span></template
+          ></el-table-column
+        >
         <el-table-column label="售后原因" prop="after_reason" min-width="150px" align="center" show-overflow-tooltip />
         <el-table-column label="本地备注" prop="remark" min-width="180px" align="center">
           <template v-slot="{ row }">
@@ -186,9 +188,9 @@
           <template slot-scope="{ row }">
             <el-tooltip effect="light" placement="right-end" :visible-arrow="false" :enterable="false" style="width: 56px; height: 56px; display: inline-block">
               <div slot="content">
-                <el-image :src="[ row.goods_info.goods_img] | imageRender" style="width: 400px; height: 400px" />
+                <el-image :src="[row.goods_info.goods_img] | imageRender" style="width: 400px; height: 400px" />
               </div>
-              <el-image :src="[row.goods_info.goods_img,true] | imageRender" style="width: 56px; height: 56px" />
+              <el-image :src="[row.goods_info.goods_img, true] | imageRender" style="width: 56px; height: 56px" />
             </el-tooltip>
           </template>
         </el-table-column>
@@ -209,7 +211,7 @@
             </span>
           </template>
         </el-table-column>
-        <el-table-column label="采购订单号" width="150">
+        <el-table-column label="采购订单号" width="150" show-overflow-tooltip>
           <template slot-scope="scope">
             <i v-if="scope.row.shot_order_info.shot_order_sn" class="el-icon-document-copy copyStyle" @click="copy(scope.row.shot_order_info.shot_order_sn)" />
             <span class="tableActive">{{ scope.row.shot_order_info.shot_order_sn }}</span>
@@ -305,14 +307,14 @@ import orderSync from '../../../services/timeOrder'
 import { setGoodsDelist, setGoodsDelete } from './orderCenter/handleGoods'
 export default {
   components: {
-    storeChoose
+    storeChoose,
   },
   data() {
     return {
       pickerOptions: {
         disabledDate(time) {
           return time.getTime() > Date.now()
-        }
+        },
       },
       orderRemark: '',
       activeRemarkID: 0,
@@ -328,7 +330,7 @@ export default {
         { label: '已取消', value: 7 },
         { label: '已申请退款', value: 8 },
         { label: '退款成功', value: 9 },
-        { label: '付款失败', value: 10 }
+        { label: '付款失败', value: 10 },
       ],
       rowData: '', // 操作行数据
       multipleSelection: [],
@@ -346,7 +348,7 @@ export default {
         shotOrderStatus: '', // 拍单状态
         afterApplyTime: '', // 申请时间
         createdTime: '', // 创建时间
-        colorLabelId: 0 // 颜色标识id
+        colorLabelId: 0, // 颜色标识id
       },
       page: 1,
       pageSize: 20,
@@ -362,14 +364,14 @@ export default {
       colorVisible: false,
       colorRadio: '',
       selectColorList: [],
-      categoryInfo: {}
+      categoryInfo: {},
     }
   },
   mounted() {
     this.loading = true
     this.getBuyerList() // 获取买手号信息
     this.getColorList()
-    this.cloumn_date1 = creatDate(30)
+    this.cloumn_date1 = creatDate(15)
     setTimeout(() => {
       this.search()
     }, 2000)
@@ -406,7 +408,7 @@ export default {
         const params = {
           action: type,
           order_id: order.order_id,
-          shop_id: order.mall_info.platform_mall_id
+          mallId: order.mall_info.platform_mall_id,
         }
         const res = await this.$shopeemanService.respondCancelRequest(order.country, params)
         if (res.code === 200) {
@@ -415,10 +417,14 @@ export default {
           if (res.code === 403) {
             this.$refs.Logs.writeLog(`订单【${order.order_sn}】${typeC}买家取消订单操作失败，店铺未登录`, false)
           } else {
-            this.$refs.Logs.writeLog(`订单【${order.order_sn}】${typeC}买家取消订单操作失败，${res.data}`, false)
+            if (res.data.indexOf('order not ready to cancel') > -1) {
+              //code 120410416
+              this.$refs.Logs.writeLog(`订单【${order.order_sn}】${typeC}该订单状态无法执行此操作，可能已回复，请知悉！`, true)
+            } else {
+              this.$refs.Logs.writeLog(`订单【${order.order_sn}】${typeC}买家取消订单操作失败，${res.data}`, false)
+            }
           }
         }
-        console.log(res, 'respondCancelRequest')
       }
     },
     // 商品删除
@@ -426,7 +432,7 @@ export default {
       this.$confirm('是否删除该商品?', '商品删除', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
-        type: 'warning'
+        type: 'warning',
       })
         .then(() => {
           setGoodsDelete(this, row)
@@ -438,7 +444,7 @@ export default {
       this.$confirm('是否下架该商品?', '商品下架', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
-        type: 'warning'
+        type: 'warning',
       })
         .then(() => {
           setGoodsDelist(this, row)
@@ -470,7 +476,7 @@ export default {
       })
       const params = {
         sysOrderIds: ids,
-        id: this.colorRow.id
+        id: this.colorRow.id,
       }
       const res = await this.$api.setColorLabel(params)
       if (res.data.code === 200) {
@@ -496,7 +502,7 @@ export default {
         const obj = {
           id: 0,
           name: '取消标识',
-          color: ''
+          color: '',
         }
         this.colorList.unshift(obj)
       }
@@ -554,7 +560,7 @@ export default {
       row.isChecked = false
       const res = await this.$api.orderSaveRemark({
         id: row.id,
-        remark: row.remark
+        remark: row.remark,
       })
       if (res.data.code !== 200) {
         this.$message.error(`修改失败:${res.data.message}`, false)
@@ -567,7 +573,7 @@ export default {
       const reqStr = {
         type: type,
         shopId: shopId,
-        id: id
+        id: id,
       }
       this.$BaseUtilService.getOrderDetailInfo(shopId, JSON.stringify(reqStr))
     },
@@ -576,7 +582,7 @@ export default {
       let url = data
       if (type === 'product') {
         const params = {
-          platform_mall_id: data.mall_info.platform_mall_id
+          platform_mall_id: data.mall_info.platform_mall_id,
         }
         const webUrl = await this.$shopeemanService.getWebUrl(data.country, params)
         console.log(webUrl, 'webUrl', data.country)
@@ -591,7 +597,7 @@ export default {
         const reqStr = {
           type: type,
           shopId: shopId,
-          id: goodsid
+          id: goodsid,
         }
         this.$BaseUtilService.getOrderDetailInfo(shopId, JSON.stringify(reqStr))
       }
@@ -666,7 +672,7 @@ export default {
         Cookiestr: JSON.stringify(account.login_info),
         AccountType: account.type,
         Ua: account.ua,
-        Country: account.site || ''
+        Country: account.site || '',
       }
       return params
     },
@@ -770,7 +776,7 @@ export default {
       if (window.performance && typeof window.performance.now === 'function') {
         d += performance.now() // use high-precision timer if available
       }
-      var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+      var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
         var r = (d + Math.random() * 16) % 16 | 0
         d = Math.floor(d / 16)
         return (c === 'x' ? r : (r & 0x3) | 0x8).toString(16)
@@ -806,7 +812,7 @@ export default {
       const list = []
       const query = {
         sysOrderIds: '',
-        status: this.shotstatus
+        status: this.shotstatus,
       }
       arr.forEach((item) => {
         list.push(item.sys_order_id)
@@ -848,23 +854,22 @@ export default {
       this.searchMallList = val
     },
     // 获取类目
-    getCategoryInfo(country, cateId) {
+    async getCategoryInfo(country, cateId) {
       if (this.categoryInfo[cateId]) {
         return this.categoryInfo[cateId]
       } else {
         this.categoryInfo[cateId] = ''
-        this.$commodityService.getCategoryTbInfo(country, cateId.toString(), '0', '').then((res) => {
-          const resObj = res && JSON.parse(res)
-          // console.log(resObj, '类目')
-          if (resObj && resObj.code === 200) {
-            if (resObj.data.categories) {
-              this.categoryInfo[cateId] = ''
-              return this.categoryInfo[cateId]
-            } else {
-              return ''
-            }
-          }
-        })
+        let res = await this.$commodityService.getCategoryTbInfo(country, cateId.toString(), '0', '')
+        let resObj = res && JSON.parse(res)
+        // console.log(resObj, '类目')
+        if (resObj && resObj.code === 200 && resObj.data.categories && resObj.data.categories.length) {
+          let categoryName = resObj.data.categories[0].category_cn_name
+          this.categoryInfo[cateId] = categoryName
+          // console.log(this.categoryInfo[cateId], categoryName)
+          return categoryName
+        } else {
+          return ''
+        }
       }
     },
     // 搜索
@@ -887,24 +892,29 @@ export default {
       this.tableList = []
       try {
         const res = await this.$api.aftermarket(params)
+        this.loading = false
         if (res.status === 200) {
           const list = res.data.data.data || []
-          list.forEach((row, i) => {
-            row.isChecked = false
-            row.categoryName = ''
-            // row.categoryName = this.getCategoryInfo(row.country, row.goods_info.goods_category_id)
-          })
           this.tableList = list
           this.total = res.data.data.total
+          this.$nextTick(() => {
+            this.getCate()
+          })
         } else {
           this.$message.error('数据请求失败')
         }
-        this.loading = false
       } catch (error) {
         console.log('初始化', error)
         this.loading = false
       }
       console.log(this.tableList)
+    },
+    async getCate() {
+      this.tableList.forEach(async (row, i) => {
+        row.isChecked = false
+        // row.categoryName = ''
+        row.categoryName = await this.getCategoryInfo(row.country, row.goods_info.goods_category_id)
+      })
     },
     changeOrderStatus,
     changeShotStatus,
@@ -936,8 +946,8 @@ export default {
         // console.log('复制失败')
       }
       target.parentElement.removeChild(target)
-    }
-  }
+    },
+  },
 }
 </script>
 <style lang="less">

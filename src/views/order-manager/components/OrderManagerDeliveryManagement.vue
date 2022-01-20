@@ -277,7 +277,7 @@ export default {
     }
   },
   mounted() {
-    this.createTime = creatDate(30)
+    this.createTime = creatDate(15)
     setTimeout(() => {
       this.getOrderList()
     }, 2000)
@@ -833,11 +833,12 @@ export default {
       }
       this.tableLoading = true
       let res = await this.$api.getDeliveryList(params)
+      console.log(res,"111111111")
       if (res.data.code === 200) {
         this.tableData = res.data.data.data
         this.total = res.data.data.total
       } else {
-        this.$message.error(`获取列表失败，${res.data.message}`)
+        this.$message.error(`获取列表失败，${res.data?res.data.message:''}`)
       }
       this.tableLoading = false
       this.closeDialog()
