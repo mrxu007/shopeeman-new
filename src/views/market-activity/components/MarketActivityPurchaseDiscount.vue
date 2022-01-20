@@ -18,7 +18,7 @@
 
       <div class="row2" style="margin-top:8px">
         <!-- <el-button size="mini" type="primary" @click="stopSearch">取消查询</el-button> -->
-        <el-button size="mini" type="primary" @click="mallCoupon">创建加购促销活动</el-button>
+        <el-button size="mini" type="primary" @click="createTestVisile">创建加购促销活动</el-button>
         <el-button size="mini" type="primary" @click="MallvoucherDelMul">批量删除/结束活动</el-button>
         <el-button size="mini" type="primary" @click="clearLog">清除日志</el-button>
         <el-checkbox v-model="showlog" style="margin-left:8px">隐藏日志</el-checkbox>
@@ -77,12 +77,13 @@
     <el-dialog
       class="edit-group-dialog"
       :visible.sync="proVisible"
-      width="1150px"
+      width="1250px"
       height="600px"
       top="5vh"
       title="加购优惠"
       :close-on-click-modal="false"
       :close-on-press-escape="false"
+      :close="getTableList"
     >
       <ul>
         <!-- 基本资料 -->
@@ -105,14 +106,14 @@
                   <el-radio label="0">折扣优惠</el-radio>
                   <el-radio label="1">赠品满最低消费</el-radio>
                 </el-radio-group>
-                <span v-if="discountType==='0'" style="margin-left：20px">
+                <span v-if="discountType==='0'" style="margin-left: 16px;">
                   加购限制
                   <!-- 必须在1-100 -->
                   <el-tooltip class="item" effect="dark" content="买家在同一个订单里最多加购的商品数量是(1-100)" placement="top-start">
                     <el-input v-model="addLimit" size="mini" style="width:100px" onkeyup="value=value.replace(/[^\d]/g,0)" />
                   </el-tooltip>
                 </span>
-                <span v-if="discountType==='1'">
+                <span v-if="discountType==='1'" style="margin-left: 16px;">
                   赠品规则 消费<el-input v-model="costNum" size="mini" style="width:100px" onkeyup="value=value.replace(/[^\d]/g,0)" />
                   以获得
                   <el-tooltip class="item" effect="dark" content="赠品的数量应在(1-50)内" placement="top-start">
@@ -132,7 +133,7 @@
                 <el-tooltip class="item" effect="dark" content="开始时间必须比当前时间晚一个小时;结束时间必须比开始时间晚一个小时" placement="top-start">
                   <el-date-picker
                     v-model="proTime"
-                    style="width:315px;"
+                    style="width:330px;"
                     size="mini"
                     value-format="timestamp"
                     type="datetimerange"
@@ -158,11 +159,11 @@
             <ul style="border: 1px solid #d4d1d1;padding: 10px;border-radius: 8px;">
               <!-- row1 -->
               <li style="margin-bottom:5px">
-                <el-button size="mini" type="primary">开启</el-button>
-                <el-button size="mini" type="primary">关闭</el-button>
-                <el-button size="mini" type="primary">删除</el-button>
+                <el-button size="mini" type="primary" @click="openShowMul(1)">开启</el-button>
+                <el-button size="mini" type="primary" @click="openShowMul(2)">关闭</el-button>
+                <el-button size="mini" type="primary" @click="delMasterMul">删除</el-button>
                 <!-- 先保存活动信息 -->
-                <el-button size="mini" type="primary" style="margin-left: 65px">添加主要商品</el-button>
+                <el-button size="mini" type="primary" style="margin-left: 65px" @click="addMasterGoods">添加主要商品</el-button>
               </li>
               <!-- row2 -->
               <li>
@@ -171,12 +172,19 @@
                   :header-cell-style="{ background: '#f7fafa' }"
                   style="width: 360px"
                   height="400px"
+                  @selection-change="MasterSelectionChange"
                 >
-                  <el-table-column type="index" label="店铺" align="center" min-width="60px" />
-                  <el-table-column prop="itemid" label="商品" align="center" min-width="100px" />
-                  <el-table-column prop="itemid" label="状态" align="center" min-width="100px" />
-                  <el-table-column label="操作" align="center" min-width="100px">
-                    <template v-slot="{row}"><span><el-button size="mini" type="primary" @click="delCouponGoods(row)">删除</el-button></span></template>
+                  <el-table-column align="center" type="selection" width="50" fixed />
+                  <!-- <el-table-column align="center" type="index" label="序号" width="50" /> -->
+                  <el-table-column prop="mallName" label="店铺" align="center" min-width="120px" />
+                  <el-table-column prop="item_id" label="商品" align="center" min-width="100px" />
+                  <el-table-column prop="statusShow" label="状态" align="center" min-width="50px">
+                    <template slot-scope="scope">
+                      <div><el-switch v-model="scope.row.statusShow" active-color="#13ce66" @change="changeShow(scope.row,scope.$index)" /></div>
+                    </template>
+                  </el-table-column>
+                  <el-table-column label="操作" align="center" min-width="80px" fixed="right">
+                    <template slot-scope="scope"><span><el-button size="mini" type="primary" @click="delMaster(scope.row,scope.$index)">删除</el-button></span></template>
                   </el-table-column>
                 </el-table>
               </li>
@@ -192,8 +200,8 @@
                 <el-button size="mini" type="primary">开启</el-button>
                 <el-button size="mini" type="primary">关闭</el-button>
                 <el-button size="mini" type="primary">删除</el-button>
-                <!-- 先保存活动信息 -->
-                <el-button size="mini" type="primary" style="margin-left: 200px">添加加购商品</el-button>
+                <!-- 先保存主要商品信息 -->
+                <el-button size="mini" type="primary" style="margin-left: 200px" @click="addOtherGoodsFun">添加加购商品</el-button>
               </li>
               <li>
                 <el-table
@@ -201,14 +209,25 @@
                   :header-cell-style="{ background: '#f7fafa' }"
                   height="400px"
                 >
-                  <el-table-column align="center" type="selection" width="50" />
-                  <el-table-column type="index" label="店铺" align="center" min-width="60px" />
+                  <el-table-column align="center" type="selection" width="50" fixed />
+                  <el-table-column prop="" label="店铺" align="center" min-width="120px" fixed>
+                    <template v-slot="{row}">{{ row.mall_alias_name || row.platform_mall_name }}</template>
+                  </el-table-column>
                   <el-table-column prop="itemid" label="商品" align="center" min-width="100px" />
-                  <el-table-column prop="itemid" label="原价" align="center" min-width="100px" />
-                  <el-table-column prop="itemid" label="折扣" align="center" min-width="100px" />
-                  <el-table-column prop="itemid" label="加购价格" align="center" min-width="100px" />
-                  <el-table-column prop="itemid" label="状态" align="center" min-width="100px" />
-                  <el-table-column label="操作" align="center" min-width="100px">
+                  <el-table-column prop="price" label="原价" align="center" min-width="100px" />
+                  <el-table-column v-if="othertableType==='0'" prop="discount" label="折扣" align="center" min-width="100px" />
+                  <el-table-column prop="addPrice" label="加购价格" align="center" min-width="100px" />
+                  <el-table-column v-if="othertableType==='0'" prop="addStatus" label="加购显示" align="center" min-width="50px">
+                    <template slot-scope="scope">
+                      <div><el-switch v-model="scope.row.addStatus" active-color="#13ce66" @change="changeShow(scope.row,scope.$index)" /></div>
+                    </template>
+                  </el-table-column>
+                  <el-table-column prop="showStatus" label="状态" align="center" min-width="50px">
+                    <template slot-scope="scope">
+                      <div><el-switch v-model="scope.row.showStatus" active-color="#13ce66" @change="changeShow(scope.row,scope.$index)" /></div>
+                    </template>
+                  </el-table-column>
+                  <el-table-column label="操作" align="center" min-width="100px" fixed="right">
                     <template v-slot="{row}"><span><el-button size="mini" type="primary" @click="delCouponGoods(row)">删除</el-button></span></template>
                   </el-table-column>
                 </el-table>
@@ -218,6 +237,18 @@
         </li>
       </ul>
     </el-dialog>
+    <div class="on_new_dialog">
+      <el-dialog
+        :visible.sync="goodsItemSelectorVisible"
+        top="7vh"
+        title="商品选择"
+        :close-on-click-modal="false"
+        :close-on-press-escape="false"
+        width="1280px"
+      >
+        <goodsItemSelector v-if="goodsItemSelectorVisible" :mall="selectMallList" @changeGoodsItem="changeGoodsItem" />
+      </el-dialog>
+    </div>
   </div>
 </template>
 
@@ -225,12 +256,20 @@
 import storeChoose from '../../../components/store-choose'
 import MarketManagerAPI from '../../../module-api/market-manager-api/market-data'
 import { GoodsMallgetValue, getMalls, batchOperation, terminateThread } from '../../../util/util'
+import goodsItemSelector from '../../../components/goods-item-selector'
+import { forEach } from 'jszip'
 export default {
   components: {
-    storeChoose
+    storeChoose, goodsItemSelector
   },
   data() {
     return {
+      // masterGoodsAdd: false, // ture masterGoodslist增加数据 false:单个修改数据[开启 关闭 删除]
+      othertableType: '0', // 添加加购商品列表类型
+      masterGoods: false, // 添加主要商品
+      otherGoods: false, // 添加加购商品
+      goodsItemSelectorVisible: false,
+      // 搜索条件筛选
       arrList: [],
       willList: [],
       doingList: [],
@@ -243,46 +282,31 @@ export default {
       costNum: 0, // 消费金额
       addLimit: 0,
       optionMall: '',
-
       //
-      freightobj: {
-        minCost: null,
-        freightType: 0,
-        freight: 1
-      },
-      freightlist: [], // 运费列表
-      deliverWay: [], // 运输渠道
-      proTimeType: '0', // 促销时间类型
+      discountType: '0', // 加购类型
       proTime: [], // 促销时间
       proName: '', // 促销名称
       isShowPast: true,
       tableLoading: false,
-      singerStop: false, // 单个停止
       MarketManagerAPIInstance: new MarketManagerAPI(this),
       showlog: true,
-      activeType: '0', // 活动
+      activeType: '0', // 活动时间类型
       tableList: [], // 主表数据
       proVisible: false, // 弹窗
-      dialogtitle: '', // 弹窗标题s
-      coupontype: '2', // 创建优惠卷类型 1.店铺 2.商品
-      // 创建优惠卷参数
-      couponName: '', // 优惠劵名称
-      rewardType: '0', // 奖励类型 0 折扣 1 Shoppe币折扣
-      discountType: '0', // 0 折扣优惠 1 赠品满最低消费
-      discountNum: '', // 折扣数额
-      limitPrice: '0', // 最高优惠金额限制类型 0 无限制 1设置金额
-      maxPrice: '', // 最高优惠金额
-      minPrice: '', // 最低消费金额
       pickerOptions: {
         disabledDate(time) {
-          // return time.getTime() < (new Date().getTime() - 3600 * 1000 * 24)
+          return time.getTime() < (new Date().getTime() - 3600 * 1000 * 24)
         }
       },
       shopAccountMallList: [], // 所有的店铺信息
       selectMallList: [], // 选择的店铺
       stoptoping: false,
-      mallTableSelect: [],
-      getTable: []
+      mallTableSelect: [], // 列表多选
+      goodsMasterTableSelect: [], // 主要商品多选
+      goodsLitterTableSelect: [], // 附加商品多选
+      getTable: [],
+      getcreateNewTest: [], // 获取创建的新任务ID
+      saveActive: false // 保存活动是否成功
     }
   },
   // computed:{
@@ -292,18 +316,42 @@ export default {
   // },
   created() {
     // this.initMall()
+    this.inittime()
   },
   methods: {
+    // 初始化时间
+    inittime() {
+      const d1 = new Date().getTime() + 5 * 60 * 1000
+      const d2 = d1 + 3600 * 1000
+      this.proTime = [d1, d2]
+    },
     // 取消查询
     stopSearch() {
       terminateThread()
       this.stoptoping = true
       this.$refs.Logs.writeLog(`正在停止查询`)
     },
+    // 创建加购优惠
+    createTestVisile() {
+      this.showlog = true
+      if (!this.selectMallList.length) {
+        this.$message.warning('请选择店铺')
+        return
+      }
+      this.getcreateNewTest = [] // 获取创建的新任务ID
+      this.masterGoods = false, // 添加主要商品
+      this.otherGoods = false, // 添加加购商品
+      this.proVisible = true
+    },
     // 保存活动
     saveActiveInfo() {
+      this.saveActive = false
       if (this.discountType === '0' && (Number(this.addLimit) === 0 || Number(this.addLimit) > 100)) {
-        this.$message.warning('请输入加购限制,限制范围在1-100')
+        this.$message.warning('请输入加购限制,加购限制范围在1-100')
+        return
+      }
+      if (this.discountType === '1' && (!this.costNum || Number(this.sendNum) === 0 || Number(this.sendNum) > 50)) {
+        this.$message.warning('请输入消费数量以及赠品数量,赠品限制范围在1-50')
         return
       }
       if (!this.proName.length || this.proName.length > 24) {
@@ -319,8 +367,8 @@ export default {
         this.$message.warning('结束时间至少比开始时间晚一个小时')
         return
       }
-      for (let i = 0; i < this.mallTableSelect.length; i++) {
-        this.saveActiveInfoFun(this.mallTableSelect[i])
+      for (let i = 0; i < this.selectMallList.length; i++) {
+        this.saveActiveInfoFun(this.selectMallList[i])
       }
     },
     async saveActiveInfoFun(val) {
@@ -328,26 +376,271 @@ export default {
         this.showlog = false
         const params = {
           country: val.country,
-          mallId: val.platform_mall_id
-        // add_on_deal_id,
-        // add_on_deal_name,
-        // start_time,
-        // end_time,
-        // sub_type,
-        // sub_item_limit,
-        // sub_item_priority
+          mallId: val.platform_mall_id,
+          add_on_deal_name: this.proName,
+          start_time: Math.floor(this.proTime[0] / 1000),
+          end_time: Math.floor(this.proTime[1] / 1000),
+          sub_type: this.discountType,
+          sub_item_limit: this.addLimit,
+          purchase_min_spend: this.costNum,
+          per_gift_num: this.sendNum
         }
+        // if (this.discountType === '0') { //折扣优惠
+        //   params.sub_item_limit = this.addLimit
+        // }
+        // if (this.discountType === '1') { //满减优惠
+        //   params.purchase_min_spend = this.costNum
+        //   params.per_gift_num = this.sendNum
+        // }
         const res = await this.MarketManagerAPIInstance.saveActiveAddondeal(params)
         if (res.ecode === 0) {
-          this.$refs.Logs.writeLog(`------成功停止【${val.add_on_deal_name}】优惠活动------`, true)
+          this.$refs.Logs.writeLog(`------【${val.mall_alias_name || val.platform_mall_name}】创建成功------`, true)
+          this.saveActive = true
+          const item = res.data.data
+          item.country = val.country
+          item.mallId = val.platform_mall_id
+          item.mallname = val.mall_alias_name || val.platform_mall_name
+          this.getcreateNewTest.push(item)
+          this.othertableType = this.discountType // 加购商品列表类型 1 折扣类型 2 满减类型
+          // this.getTableList() //关闭的时候再请求
+          // add_on_deal_id: 6664172
+          // add_on_deal_name: "买买买买买"
+          // create_time: 1642512247
+          // end_time: 1645803000
+          // source: 1
+          // start_time: 1642516200
+          // status: 1
+          // sub_item_limit: 44
+          // sub_item_priority: []
+          // sub_type: 0
         } else {
-          this.$refs.Logs.writeLog(`停止【${val.add_on_deal_name}】优惠活动,${res.message}`, false)
+          this.$refs.Logs.writeLog(`【${val.mall_alias_name || val.platform_mall_name}】创建失败,${res.message}`, false)
         }
       } catch (error) {
-        this.$refs.Logs.writeLog(`停止【${val.add_on_deal_name}】--catch,${error}`, false)
+        this.$refs.Logs.writeLog(`【${val.mall_alias_name || val.platform_mall_name}】创建失败--catch,${error}`, false)
       }
     },
+    // 添加主要商品--预先限制
+    addMasterGoods() {
+      if (!this.saveActive) {
+        this.$message.warning('请先保存活动')
+        return
+      }
+      this.goodsItemSelectorVisible = true
+      this.masterGoods = true
+    },
+    // 获取商品列表
+    async  changeGoodsItem(val) {
+      console.log(val)
+      if (!val.goodsList.length) {
+        this.$message.warning('请先选择商品')
+        return
+      }
+      if (this.masterGoods) { // 获取主要商品
+        const goodsList = []
+        val.goodsList.forEach(el => {
+          goodsList.push({ item_id: el.itemid, status: el.status })
+        })
+        this.getcreateNewTest.forEach(el => { // 添加商品到任务中
+          el.main_item_list = goodsList
+        })
+        this.masterGoodslist = [] // 主要商品列表
+        for (let i = 0; i < this.getcreateNewTest.length; i++) { // 执行任务
+          const item = this.getcreateNewTest[i]
+          const res = await this.saveActiveMasterGoods(item)
+          if (res.ecode === 0) {
+            this.$refs.Logs.writeLog(`------【${item.mallname}】添加成功${goodsList.length}个商品------`, true)
+            this.getcreateNewTest[i].main_item_list.forEach(el => { // 加载列表
+              el.statusShow = el.status === 1
+              el.mallName = item.mallname
+              el.mallId = item.mallId
+            })
+            this.masterGoodslist = this.masterGoodslist.concat(item.main_item_list)
+          } else {
+            this.$refs.Logs.writeLog(`【${item.mallname}】商品添加添加失败,${res.message}`, false)
+            continue
+          }
+        }
+      }
+      if (this.otherGoods) { // 获取商品
+        const goodsList2 = []
+        val.goodsList.forEach(el => {
+          goodsList2.push(el)
+        })
+        this.getcreateNewTest.forEach(el => { // 添加商品到任务中
+          el.item_list = goodsList2
+        })
+        this.addGoodsList = []
+        for (let i = 0; i < this.getcreateNewTest.length; i++) { // 执行任务
+          this.addOtherGoods(this.getcreateNewTest[i])
+        }
+      }
+    },
+    // 执行主要商品任务[添加、展示、删除]
+    async saveActiveMasterGoods(val) {
+      try {
+        this.showlog = false
+        const params = {
+          country: val.country,
+          mallId: val.mallId,
+          add_on_deal_id: val.add_on_deal_id,
+          main_item_list: val.main_item_list
+        }
+        debugger
+        const res = await this.MarketManagerAPIInstance.ActiveAddMasterGooods(params)
+        this.goodsItemSelectorVisible = false
+        return res
+      } catch (error) {
+        this.$refs.Logs.writeLog(`【${val.mallname}】操作添加失败--catch,${error}`, false)
+      }
+    },
+    // 多选-主要商品信息
+    MasterSelectionChange(val) {
+      this.goodsMasterTableSelect = val
+    },
+    // 批量开启/关闭知名度
+    openShowMul(val) {
+      // val 1 开启 2 关闭 getcreateNewTest=[](是创建任务)
+      if (!this.goodsMasterTableSelect.length) {
+        this.$message.warning('请先选择商品信息!')
+        return
+      }
+      if (this.getcreateNewTest.length) { // 初始创建的任务,改变知名度
+        for (let i = 0; i < this.getcreateNewTest.length; i++) { // 获取任务
+          const item = this.getcreateNewTest[i]
+          for (let j = 0; j < item.main_item_list.length; j++) { // 筛选需要修改状态的列表的任务
+            const el = item.main_item_list[j]
+            const index = this.goodsMasterTableSelect.findIndex(ol => { return el === ol })
+            if (index > 0) {
+              el.status = val
+              delete el.statusShow && el.mallName && el.mallId
+              const res = this.saveActiveMasterGoods(item)
+              debugger
+              if (res.ecode !== 0) {
+                this.$refs.Logs.writeLog(`【${item.mallname}】商品状态修改失败,${res.message}`, false)
+                continue
+              } else {
+                this.$refs.Logs.writeLog(`【${item.mallname}】商品状态修改成功`, true)
+              }
+            }
+          }
+        }
+      } else { // 行级任务，改变知名度
 
+      }
+    },
+    // 单个开启/关闭知名度
+    changeShow(row, index) {
+      if (row.statusShow) { // status 1 开启 2 关闭
+        row.main_item_list.status === 2
+      } else {
+        row.main_item_list.status === 1
+      }
+      const res = this.saveActiveMasterGoods(row)
+      if (res.ecode !== 0) {
+        this.$refs.Logs.writeLog(`【${row.mallname}】操作添加失败,${res.message}`, false)
+      } else {
+        this.$refs.Logs.writeLog(`【${row.mallname}】商品状态修改成功`, true)
+      }
+    },
+    // 批量删除
+    delMasterMulFun() {
+      if (!this.masterGoodslist.length) {
+        this.$message.warning('请先选择商品信息')
+      }
+      this.$confirm('您确定要删除这些商品吗?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(async() => {
+        this.delMasterMul()
+      })
+    },
+    delMasterMul() {
+      if (this.getcreateNewTest.length) { // 初始创建的任务,改变知名度
+        for (let i = 0; i < this.getcreateNewTest.length; i++) {
+          const item = this.getcreateNewTest[i]
+          item.main_item_list.status = 0
+          this.saveActiveMasterGoods(item)
+        }
+      } else { // 行级任务，改变知名度
+
+      }
+    },
+    // 单个删除
+    delMasterFun(row, index) {
+      this.$confirm('您确定要删除改商品吗?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(async() => {
+        this.delMaster(row, index)
+      })
+    },
+    delMaster(row, index) {
+      row.main_item_list.status === 0
+      this.saveActiveMasterGoods(row, index)
+    },
+    // 添加加购商品--预先限制
+    addOtherGoodsFun() {
+      if (!this.masterGoodslist.length) {
+        this.$message.warning('请至少选择一个主要商品')
+        return
+      }
+      this.goodsItemSelectorVisible = true
+      this.otherGoods = true
+    },
+    // 添加加购商品
+    async addOtherGoods(val) {
+      try {
+        this.showlog = false
+        const itemlist = []
+        val.item_list.forEach(el => {
+          itemlist.push(el.itemid)
+        })
+        const params = {
+          country: val.country,
+          mallId: val.mallId,
+          add_on_deal_id: val.add_on_deal_id,
+          item_list: itemlist
+        }
+        console.log(val)
+        debugger
+        const res = await this.MarketManagerAPIInstance.AddotherGooods(params)
+        debugger
+        if (res.ecode === 0) {
+          this.$refs.Logs.writeLog(`------【${val.mallname}】成功添加${val.item_list.length}个加购商品------`, true)
+          // 根据任务类型，判断添加附加商品的列表
+          if (this.getcreateNewTest.length) {
+            val.item_list.forEach(el => {
+              if (val.sub_type === 0) { // 折扣类型
+                el.discount = 0 // 折扣
+                el.addPrice = el.discount ? el.price : el.price * Number(el.discount)// 加购价格
+                el.addStatus = true // 加购状态
+                el.showStatus = true// 状态
+              } else { // 满减类型
+                el.addPrice = 0
+                el.showStatus = true
+              }
+              this.addGoodsList.push(el)
+            })
+          }
+          // 数据来源于公共组件商品信息
+        //  val.item_list.forEach(el => {
+        //     el.discount=0 //折扣
+        //     el.addPrice=  //加购价格
+        //     el.addStatus= //加购状态
+        //     el.showStatus= //状态
+        //   })
+        //   this.addGoodsList = val.item_list
+        } else {
+          this.$refs.Logs.writeLog(`【${val.mallname}】加购商品添加失败,${res.message}`, false)
+        }
+        this.goodsItemSelectorVisible = false
+      } catch (error) {
+        this.$refs.Logs.writeLog(`【${val.mallname}】加购商品添加失败--catch,${error}`, false)
+      }
+    },
     // // 初始化店铺信息
     // initMall() {
     //   getMalls(res => {
@@ -615,88 +908,6 @@ export default {
       this.$refs.Logs.writeLog(`请求数据结束`)
       this.tableLoading = false
       this.tableList = this.getTable
-    },
-    // 创建店铺优惠卷
-    mallCoupon() {
-      this.showlog = true
-      if (!this.selectMallList.length) {
-        this.$message.warning('请选择店铺')
-        return
-      }
-      this.proVisible = true
-    },
-    async mallCouponFun() {
-      // this.selectMallList.forEach(el => {
-      //   this.createCoupon(el)
-      // })
-      if (this.discountNum > 100) {
-        this.$message.warning('请输入有效折扣')
-        return
-      }
-      if ((this.dateTime[1] - this.dateTime[0]) <= 3600 * 24 * 1000) {
-        this.$message.warning('活动期间不能少于一天')
-        return
-      }
-      if (this.couponName.length > 20) {
-        this.$message.warning('关注礼名称不能超过20个字符')
-        return
-      }
-      this.proVisible = false
-      this.showlog = false
-      this.$refs.Logs.writeLog(`正在创建任务......`)
-      const res1 = await batchOperation(this.selectMallList, this.createCoupon)
-      this.$refs.Logs.writeLog(`创建任务结束`)
-      this.getTableList()
-    },
-    // 创建店铺优惠卷--接口
-    async createCoupon(val, count = { count: 1 }) {
-      try {
-        let discount = null // 折扣--折扣
-        let coin_cash_back = null // 虾皮折扣
-        if (this.rewardType === '0') { // 普通折扣
-          if (this.discountType === '0') {
-            discount = {
-              percentage: (100 - this.discountNum) / 10,
-              cap: this.limitPrice === '0' ? null : this.maxPrice
-            }
-          } else {
-            discount = {
-              value: Number(this.discountNum)
-            }
-          }
-        } else { // 虾皮折扣
-          coin_cash_back = {
-            percentage: this.discountNum,
-            cap: this.limitPrice === '0' ? 0 : this.maxPrice
-          }
-        }
-
-        const params = {
-          country: val.country,
-          mallId: val.platform_mall_id,
-          discount: discount,
-          end_time: this.dateTime[1] / 1000,
-          follow_prize_name: this.couponName,
-          min_spend: this.minPrice,
-          quota: this.useQuantity,
-          reward_type: this.rewardType,
-          start_time: this.dateTime[0] / 1000
-          // coin_cash_back: coin_cash_back
-        }
-        if (this.rewardType === '1') {
-          params.coin_cash_back = coin_cash_back
-        }
-        const result = await this.MarketManagerAPIInstance.followPrizeCreate(params)// 创建优惠券
-        if (result.ecode !== 0) {
-          this.$refs.Logs.writeLog(`【${val.mall_alias_name || val.platform_mall_name}】创建失败：${result.message}`, false)
-        } else {
-          this.$refs.Logs.writeLog(`【${val.mall_alias_name || val.platform_mall_name}】创建成功`, true)
-        }
-      } catch (error) {
-        this.$refs.Logs.writeLog(`【${val.mall_alias_name || val.platform_mall_name}】创建失败：${error}};`, false)
-      } finally {
-        count.count--
-      }
     }
   }
 }

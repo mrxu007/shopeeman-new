@@ -232,7 +232,7 @@ export default {
         // 四小时同步一次
         const mallName = item.mall_alias_name || item.platform_mall_name
         const TimeList = await this.$appConfig.temporaryCacheInfo('get', 'mallTimeList', '')
-        const mallTimeList = JSON.parse(TimeList)
+        let mallTimeList = JSON.parse(TimeList)
         console.log('*-*-', mallTimeList)
         if (mallTimeList.length) {
           const des = mallTimeList.findIndex(el => { return el.mallName === mallName })
@@ -257,7 +257,8 @@ export default {
             firstTime: new Date().getTime(),
             nextTime: new Date().getTime() + 3600 * 4 * 1000
           }
-          mallTimeList.push(mallinfo)
+          // mallTimeList.push(mallinfo)
+          mallTimeList = [mallinfo]
         }
         this.$appConfig.temporaryCacheInfo('save', 'mallTimeList', mallTimeList)
         // ---end---//

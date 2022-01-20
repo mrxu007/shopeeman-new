@@ -492,29 +492,142 @@ export default class MarketManagerAPI {
   async saveActiveAddondeal(goodsinfo) {
     try {
       const { country, mallId,
-        add_on_deal_id,
         add_on_deal_name,
         start_time,
         end_time,
         sub_type,
         sub_item_limit,
-        sub_item_priority } = goodsinfo
+        purchase_min_spend,
+        per_gift_num } = goodsinfo
       const params = {
         mallId: mallId,
-        add_on_deal_id: add_on_deal_id,
         add_on_deal_name: add_on_deal_name,
         start_time: start_time,
         end_time: end_time,
         sub_type: sub_type,
         sub_item_limit: sub_item_limit,
-        sub_item_priority: sub_item_priority
-
+        purchase_min_spend: purchase_min_spend,
+        per_gift_num: per_gift_num
+      }
+      if (sub_type === '0') {
+        delete params.purchase_min_spend && params.per_gift_num
+      } else {
+        delete params.sub_item_limit
       }
       const res = await this._this.$shopeemanService.postChineseReferer(country, '/api/marketing/v3/add_on_deal/?', params, {
         headers: {
           'Content-Type': 'application/json; charset=utf-8',
           'Accept': 'application/json, text/plain, */*',
           referer: `/portal/marketing/add-on-deal/list?tab=list`
+        }
+      })
+      const des = JSON.parse(res)
+      const data = JSON.parse(des.data)
+      const ecode = data?.data ? data.code : data.errcode
+      const message = data.message
+      //   console.log('=============', 'mallid:' + params.mallId, ecode, des)
+      return { ecode, data, message }
+    } catch (error) {
+      return { code: -2, data: `delPromotion-catch: ${error}` }
+    }
+  }
+  // 加购优惠--创建活动-保存主要商品信息(添加、开启知名度、删除)
+  async ActiveAddMasterGooods(goodsinfo) {
+    try {
+      const { country, mallId,
+        add_on_deal_id,
+        main_item_list } = goodsinfo
+      const params = {
+        mallId: mallId,
+        add_on_deal_id: add_on_deal_id,
+        main_item_list: main_item_list
+      }
+      // main_item_list={
+      //   item_id:'',
+      //   status:''
+      // }
+      const res = await this._this.$shopeemanService.postChineseReferer(country, '/api/marketing/v3/add_on_deal/main_item_list/?', params, {
+        headers: {
+          'Content-Type': 'application/json; charset=utf-8',
+          'Accept': 'application/json, text/plain, */*',
+          referer: `/portal/marketing/add-on-deal/${add_on_deal_id}`
+        }
+      })
+      const des = JSON.parse(res)
+      const data = JSON.parse(des.data)
+      const ecode = data?.data ? data.code : data.errcode
+      const message = data.message
+      //   console.log('=============', 'mallid:' + params.mallId, ecode, des)
+      return { ecode, data, message }
+    } catch (error) {
+      return { code: -2, data: `delPromotion-catch: ${error}` }
+    }
+  }
+  // 加购优惠--创建活动-添加附加商品信息
+  async AddotherGooods(goodsinfo) {
+    try {
+      const { country, mallId,
+        add_on_deal_id,
+        item_list } = goodsinfo
+      const params = {
+        mallId: mallId,
+        add_on_deal_id: add_on_deal_id,
+        item_list: item_list
+      }
+      // main_item_list={
+      //   item_id:'',
+      //   status:''
+      // }
+      const res = await this._this.$shopeemanService.postChineseReferer(country, '/api/marketing/v3/add_on_deal/check_item_logistic/?', params, {
+        headers: {
+          'Content-Type': 'application/json; charset=utf-8',
+          'Accept': 'application/json, text/plain, */*',
+          referer: `/portal/marketing/add-on-deal/${add_on_deal_id}`
+        }
+      })
+      const des = JSON.parse(res)
+      const data = JSON.parse(des.data)
+      const ecode = data?.data ? data.code : data.errcode
+      const message = data.message
+      //   console.log('=============', 'mallid:' + params.mallId, ecode, des)
+      return { ecode, data, message }
+    } catch (error) {
+      return { code: -2, data: `delPromotion-catch: ${error}` }
+    }
+  }
+  // 加购优惠--创建活动-是否显示加购商品信息
+  async isShowGooods(goodsinfo) {
+    try {
+      const { country, mallId,
+        add_on_deal_name,
+        start_time,
+        end_time,
+        sub_type,
+        sub_item_limit,
+        purchase_min_spend,
+        per_gift_num,
+        sub_item_priority } = goodsinfo
+      const params = {
+        mallId: mallId,
+        add_on_deal_name: add_on_deal_name,
+        start_time: start_time,
+        end_time: end_time,
+        sub_type: sub_type,
+        sub_item_limit: sub_item_limit,
+        purchase_min_spend: purchase_min_spend,
+        per_gift_num: per_gift_num,
+        sub_item_priority: sub_item_priority
+      }
+      if (sub_type === '0') {
+        delete params.purchase_min_spend && params.per_gift_num
+      } else {
+        delete params.sub_item_limit
+      }
+      const res = await this._this.$shopeemanService.postChineseReferer(country, '/api/marketing/v3/add_on_deal/check_item_logistic/?', params, {
+        headers: {
+          'Content-Type': 'application/json; charset=utf-8',
+          'Accept': 'application/json, text/plain, */*',
+          referer: `/portal/marketing/add-on-deal/${add_on_deal_id}`
         }
       })
       const des = JSON.parse(res)
