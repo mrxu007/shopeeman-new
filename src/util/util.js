@@ -860,6 +860,9 @@ export async function dealwithOriginGoodsNum(oriGoodsId, oriPlatformId, shopMall
             return writeLog(`同步库存成功，订单【${orderSn}】同步库存成功！`, true)
           } else {
             _that && _that.successNum++
+            _that.$nextTick(() => {
+              _that.$refs.plTable.toggleRowSelection([{ row: shopeeItem, selected: false }])
+            })
             return _that.batchStatus(shopeeItem, `同步库存成功！`, true)
           }
         } else {
@@ -1103,4 +1106,177 @@ export function isJsonString(str) {
   } else {
     return str
   }
+}
+// 用于判断采集链接
+function shopeeBuyerAllDomain() {
+  const data = {}
+  // 国外域名
+  data['MY'] = 'https://shopee.com.my'
+  data['TW'] = 'https://shopee.tw'
+  data['VN'] = 'https://shopee.vn'
+  data['ID'] = 'https://shopee.co.id'
+  data['PH'] = 'https://shopee.ph'
+  data['TH'] = 'https://shopee.co.th'
+  data['SG'] = 'https://shopee.sg'
+  data['BR'] = 'https://shopee.com.br'
+  data['MX'] = 'https://shopee.com.mx'
+  data['CO'] = 'https://shopee.com.co'
+  data['CL'] = 'https://shopee.cl'
+  data['PL'] = 'https://shopee.pl'
+  data['FR'] = 'https://shopee.fr'
+  data['ES'] = 'https://shopee.es'
+  // 国内域名
+  data['my'] = 'https://my.xiapibuy.com'
+  data['tw'] = 'https://xiapi.xiapibuy.com'
+  data['vn'] = 'https://vn.xiapibuy.com'
+  data['id'] = 'https://id.xiapibuy.com'
+  data['ph'] = 'https://ph.xiapibuy.com'
+  data['th'] = 'https://th.xiapibuy.com'
+  data['sg'] = 'https://sg.xiapibuy.com'
+  data['br'] = 'https://br.xiapibuy.com'
+  data['mx'] = 'https://mx.xiapibuy.com'
+  data['co'] = 'https://co.xiapibuy.com/'
+  data['cl'] = 'https://cl.xiapibuy.com/'
+  data['pl'] = 'https://pl.xiapibuy.com/'
+  data['fr'] = 'https://fr.xiapibuy.com/'
+  data['es'] = 'https://es.xiapibuy.com/'
+  return data
+}
+// 分割一段链接，获取里面的参数
+function getRequestParameters(row) {
+  try {
+    if (!row) return null
+    const getRow = row.split('?')
+    const getRequest = getRow[getRow.length - 1]
+    const kvs = getRequest.split('&')
+    const newKvs = [...new Set(kvs)]
+    let enumerable = {}
+    if (newKvs.length > 0) {
+      for (const item of newKvs) {
+        enumerable[item.split('=')[0]] = item.split('=')[1]
+      }
+    } else {
+      enumerable = null
+    }
+    return enumerable
+  } catch (error) {
+    return `传入的店铺链接存在非法信息${error}`
+  }
+}
+// 链接判断
+export function getGoodLinkModel(link) {
+  console.log(link)
+  const execPlatform = /(yangkeduo)|(taobao)|(aliexpress)|(jd)|(jx)|(1688)|(detail.tmall)|(pinduoduo)|(lazada)|(xiapibuy)|(shopee)|(distributor.taobao.global)/g
+  const platform = link.match(execPlatform)
+  if (!platform) return { code: 201, data: `链接${link}识别平台失败` }
+  const data = {}
+  switch (platform[0]) {
+    case 'yangkeduo':
+    case 'pinduoduo':
+      data['GoodsId'] = link.match(/goods_id=(\d+)/)[1]
+      data['platformId'] = 1
+      break
+    case 'taobao':
+      data['GoodsId'] = link.match(/id=(\d+)/)[1]
+      data['platformId'] = 2
+      break
+    case 'detail.tmall':
+      data['GoodsId'] = link.match(/id=(\d+)/)[1]
+      data['platformId'] = 3
+      break
+    case 'jx':
+    case 'jd': {
+      const newLink = link.split('/')
+      for (const linkString of newLink) {
+        if (linkString.toLocaleLowerCase().indexOf('.html') === -1) continue
+        const index = linkString.toLocaleLowerCase().indexOf('.html')
+        data['GoodsId'] = linkString.substr(0, index)
+        break
+      }
+      if (!data['GoodsId']) {
+        const jxMatch = getRequestParameters(link)
+        const keys = Object.keys(jxMatch)
+        if (keys.includes('sku')) {
+          const skuId = jxMatch['sku']
+          data['GoodsId'] = skuId
+        }
+      }
+      data['Site'] = link.toLocaleLowerCase().indexOf('jd') !== -1 ? 'jd' : 'jx'
+      data['platformId'] = data.Site === 'jd' ? 4 : 10
+      break
+    }
+    case '1688':
+      data['GoodsId'] = link.match(/offer\/(\d+)/)[1]
+      data['platformId'] = 8
+      break
+    case 'jinritemai':
+      data['GoodsId'] = link.match(/id=(\d+)/)[1]
+      data['platformId'] = 14
+      break
+    case 'aliexpress': {
+      const newLink = link.split('/')
+      for (const linkString of newLink) {
+        if (linkString.toLocaleLowerCase().indexOf('.html') === -1) continue
+        const index = linkString.toLocaleLowerCase().indexOf('.html')
+        data['GoodsId'] = linkString.substr(0, index)
+        break
+      }
+      data['platformId'] = 12
+      break
+    }
+    case 'lazada': {
+      const match = link.match(/^((http:\/\/)|(https:\/\/))?([a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,6}(\/)/)[0]
+      const url = match.toUpperCase()
+      data['Site'] = instance.$filters.lazadaGoodsSite(url)
+      console.log('Site', data['Site'])
+      const index = link.toLocaleLowerCase().indexOf('.html')
+      link = link.substr(0, index)
+      let firstIndex = link.lastIndexOf('-')
+      const iIndex = link.toLocaleLowerCase().lastIndexOf('i')
+      const charIndex = link.toLocaleLowerCase().lastIndexOf('-')
+      if (charIndex < iIndex) firstIndex = link.length
+      const lastIndex = link.lastIndexOf('i') + 1
+      const goodsId = link.substr(lastIndex, firstIndex - lastIndex)
+      data['GoodsId'] = goodsId
+      data['platformId'] = 9
+      break
+    }
+    case 'shopee':
+    case 'xiapibuy': {
+      // 确定站点
+      const shopeeAllDomain = shopeeBuyerAllDomain()
+      const keys = Object.keys(shopeeAllDomain)
+      for (const key of keys) {
+        if (link.indexOf(shopeeAllDomain[key].replace('https://', '')) === -1) continue
+        data['Site'] = key
+        break
+      }
+      console.log('Site', data['Site'])
+      // https://shopee.co.th/product/166615622/7918020675
+      if (link.indexOf('/product/') > -1) {
+        const newLink = link.split('/')
+        data['GoodsId'] = newLink[newLink.length - 1]
+        data['ShopId'] = newLink[newLink.length - 2]
+      } else {
+        // https://shopee.co.th/%E0%B9%80%E0%B8%84%E0%B8%A-i.144175763.3115159607
+        const arr = link.split('.')
+        const goodsIdStr = arr[arr.length - 1]
+        const length = goodsIdStr.indexOf('?')
+        if (length > -1) {
+          data['GoodsId'] = goodsIdStr.substr(0, length)
+        } else {
+          data['GoodsId'] = goodsIdStr
+        }
+        data['ShopId'] = arr[arr.length - 2]
+      }
+      data['platformId'] = 11
+      break
+    }
+    case 'distributor.taobao.global': // 天猫淘宝海外平台
+      data['GoodsId'] = link.match(/mpId=(\d+)/)[1]
+      data['platformId'] = 13
+      break
+  }
+  if (!data.GoodsId) return { code: 201, data: `链接:${link}识别商品ID失败` }
+  return { code: 200, data }
 }
