@@ -2097,12 +2097,12 @@ export default class NetMessageBridgeService {
         'Content-Type': ' application/json'
       },
       params: {
-        version: '3.1.0',
+        version: '3.1.0'
         // source: 'seller_center'
       }
     })
     const resObj = res && JSON.parse(res)
-    console.log('resObj',resObj)
+    console.log('resObj', resObj)
     if (resObj && resObj.status === 200) {
       const info = JSON.parse(resObj.data)
       if (info && info.code === 0) {
