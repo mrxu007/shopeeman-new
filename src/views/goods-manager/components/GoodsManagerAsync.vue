@@ -221,6 +221,8 @@ export default {
         if (this.dataRuning) { // 终止循环---------
           return
         }
+        this.$set(item, 'totalGoods', 0)
+        this.$set(item, 'getGoods', 0)
         // 获取官网商品
         const plantList = []// 平台数据
         const res = await this.GoodsManagerAPIInstance.getSkuList(goodsinfo)
@@ -233,7 +235,6 @@ export default {
         const mallName = item.mall_alias_name || item.platform_mall_name
         const TimeList = await this.$appConfig.temporaryCacheInfo('get', 'mallTimeList', '')
         let mallTimeList = JSON.parse(TimeList)
-        console.log('*-*-', mallTimeList)
         if (mallTimeList.length) {
           const des = mallTimeList.findIndex(el => { return el.mallName === mallName })
           if (des >= 0) {
@@ -269,8 +270,6 @@ export default {
           return
         }
         this.$refs.autoReplyLogs.writeLog(`店铺【${item.mall_alias_name || item.platform_mall_name}】平台商品总数${total}个`, true)
-        this.$set(item, 'totalGoods', 0)
-        this.$set(item, 'getGoods', 0)
         while (array.length) {
           if (this.dataRuning) { // 终止循环---------
             return
