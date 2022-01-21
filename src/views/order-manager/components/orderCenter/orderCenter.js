@@ -1365,11 +1365,13 @@ const columnData = [{
     column_header: '采购账号',
     is_show: 1,
     first_column_is_checkbox: -1
-  }, {
-    column_header: '账单明细',
-    is_show: 1,
-    first_column_is_checkbox: -1
-  }, {
+  }, 
+  // {
+  //   column_header: '账单明细',
+  //   is_show: 1,
+  //   first_column_is_checkbox: -1
+  // }, 
+  {
     column_header: '拍单',
     is_show: 1,
     first_column_is_checkbox: -1
@@ -1405,11 +1407,13 @@ const columnData = [{
     column_header: '采购发货时间',
     is_show: 1,
     first_column_is_checkbox: -1
-  }, {
-    column_header: '采购物流轨迹',
-    is_show: 1,
-    first_column_is_checkbox: -1
-  }, {
+  },
+  //  {
+  //   column_header: '采购物流轨迹',
+  //   is_show: 1,
+  //   first_column_is_checkbox: -1
+  // }, 
+  {
     column_header: '商户订单号',
     is_show: 1,
     first_column_is_checkbox: -1
@@ -1477,11 +1481,13 @@ const columnData = [{
     column_header: '订单支付时间',
     is_show: 1,
     first_column_is_checkbox: -1
-  }, {
-    column_header: '订单轨迹',
-    is_show: 1,
-    first_column_is_checkbox: -1
-  }, {
+  }, 
+  // {
+  //   column_header: '订单轨迹',
+  //   is_show: 1,
+  //   first_column_is_checkbox: -1
+  // }, 
+  {
     column_header: '订单更新时间',
     is_show: 1,
     first_column_is_checkbox: -1

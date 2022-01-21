@@ -721,7 +721,7 @@ export default {
         }
         this.editTableDataCopy = JSON.parse(JSON.stringify(this.editTableData))
         console.log('editTableData', this.editTableData, this.editTableDataCopy)
-        this.$refs.Logs.writeLog('获取详情结束', true)
+        this.$refs.Logs.writeLog(`获取详情结束,${this.editTableData.length}条`, true)
         this.loading = false
       } catch (error) {
         console.log(error)

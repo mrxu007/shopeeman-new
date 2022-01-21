@@ -2421,6 +2421,33 @@ export default class NetMessageBridgeService {
       }
     }
   }
+    // 获取关联广告推荐出价
+    async getRelevancePrice(country, data) {
+      const res = await this.postChinese(country, `/api/marketing/v3/pas/get_suggest_price/`, data, {
+        headers: {
+          'Content-Type': ' application/json'
+        }
+      })
+      const resObj = res && JSON.parse(res)
+      if (resObj && resObj.status === 200) {
+        const info = JSON.parse(resObj.data)
+        if (info && info.code === 0) {
+          return {
+            code: 200,
+            data: info.data || []
+          }
+        } else {
+          return { code: 50001,
+            data: info.message || []
+          }
+        }
+      } else {
+        return {
+          code: resObj.status,
+          data: `操作失败${resObj.statusText}`
+        }
+      }
+    }
   // 获取地址
   getNextLevelAddresses(country, data, option) {
     return this.getChinese(country, '/api/v3/general/get_next_level_addresses', data, option)
