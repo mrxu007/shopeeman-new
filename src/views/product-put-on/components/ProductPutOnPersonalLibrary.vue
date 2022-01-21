@@ -578,19 +578,20 @@ export default {
     },
     async getLabelList(type) {
       const goodsLabelList = await this.$appConfig.temporaryCacheInfo('get', 'goodsLabelList', '')
-      const jsonData = JSON.parse(goodsLabelList)
-      console.log('goodsLabelList', jsonData)
-      if (Object.keys(jsonData).length > 0 && type !== 'refresh') {
-        this.labelList = jsonData || []
-        return
+      if (goodsLabelList !== '{}') {
+        const jsonData = JSON.parse(goodsLabelList)
+        if (jsonData && jsonData.length > 0 && type !== 'refresh') {
+          this.labelList = jsonData || []
+          return
+        }
       }
       const res = await this.personalLibraryAPInstance.getLabelList()
       if (res.code !== 200) {
         return this.$message.error(`获取标签列表失败:${res.code}:${res.data}`)
       }
-      this.$appConfig.temporaryCacheInfo('save', 'goodsLabelList', res.data)
-      this.$message.success('获取标签列表成功')
       this.labelList = res.data || []
+      this.$appConfig.temporaryCacheInfo('save', 'goodsLabelList', this.labelList)
+      this.$message.success('获取标签列表成功')
     },
     async goodsTagChange(val) {
       if (val) {

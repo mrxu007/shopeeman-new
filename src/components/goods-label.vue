@@ -92,14 +92,16 @@ export default {
     },
     async enterGoodsTag() {
       const goodsLabelList = await this.$appConfig.temporaryCacheInfo('get', 'goodsLabelList', '')
-      const jsonData = JSON.parse(goodsLabelList)
-      if (Object.keys(jsonData).length > 0) {
-        this.goodsTagList = jsonData || []
+      if (goodsLabelList !== '{}') {
+        const jsonData = JSON.parse(goodsLabelList)
+        if (jsonData && jsonData.length > 0) {
+          this.goodsTagList = jsonData || []
+        }
       } else {
         const goodsTagListJson = await this.$commodityService.getGoodsTagList()
         const goodsTagListRes = JSON.parse(goodsTagListJson)
         this.goodsTagList = goodsTagListRes.data || []
-        this.$appConfig.temporaryCacheInfo('save', 'goodsLabelList', goodsTagListRes.data)
+        this.$appConfig.temporaryCacheInfo('save', 'goodsLabelList', this.goodsTagList)
       }
       this.goodsTagAction = this.goodsTagList[0].label_name
       this.goodsTagCurrent = this.goodsTagList[0].label_name
@@ -116,7 +118,7 @@ export default {
       const goodsTagListJson = await this.$commodityService.getGoodsTagList()
       const goodsTagListRes = JSON.parse(goodsTagListJson)
       this.goodsTagList = goodsTagListRes.data || []
-      this.$appConfig.temporaryCacheInfo('save', 'goodsLabelList', goodsTagListRes.data)
+      this.$appConfig.temporaryCacheInfo('save', 'goodsLabelList', this.goodsTagList)
     }
   }
 }
