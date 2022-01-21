@@ -492,6 +492,7 @@ export default class MarketManagerAPI {
   async saveActiveAddondeal(goodsinfo) {
     try {
       const { country, mallId,
+<<<<<<< HEAD
         add_on_deal_name,
         start_time,
         end_time,
@@ -599,21 +600,32 @@ export default class MarketManagerAPI {
   async isShowGooods(goodsinfo) {
     try {
       const { country, mallId,
+=======
+        add_on_deal_id,
+>>>>>>> a0e15acfa86501d7d4a03708e6989280b6da1287
         add_on_deal_name,
         start_time,
         end_time,
         sub_type,
         sub_item_limit,
+<<<<<<< HEAD
         purchase_min_spend,
         per_gift_num,
         sub_item_priority } = goodsinfo
       const params = {
         mallId: mallId,
+=======
+        sub_item_priority } = goodsinfo
+      const params = {
+        mallId: mallId,
+        add_on_deal_id: add_on_deal_id,
+>>>>>>> a0e15acfa86501d7d4a03708e6989280b6da1287
         add_on_deal_name: add_on_deal_name,
         start_time: start_time,
         end_time: end_time,
         sub_type: sub_type,
         sub_item_limit: sub_item_limit,
+<<<<<<< HEAD
         purchase_min_spend: purchase_min_spend,
         per_gift_num: per_gift_num,
         sub_item_priority: sub_item_priority
@@ -628,6 +640,16 @@ export default class MarketManagerAPI {
           'Content-Type': 'application/json; charset=utf-8',
           'Accept': 'application/json, text/plain, */*',
           referer: `/portal/marketing/add-on-deal/${add_on_deal_id}`
+=======
+        sub_item_priority: sub_item_priority
+
+      }
+      const res = await this._this.$shopeemanService.postChineseReferer(country, '/api/marketing/v3/add_on_deal/?', params, {
+        headers: {
+          'Content-Type': 'application/json; charset=utf-8',
+          'Accept': 'application/json, text/plain, */*',
+          referer: `/portal/marketing/add-on-deal/list?tab=list`
+>>>>>>> a0e15acfa86501d7d4a03708e6989280b6da1287
         }
       })
       const des = JSON.parse(res)
@@ -695,6 +717,7 @@ export default class MarketManagerAPI {
       return { code: -2, data: `delPromotion-catch: ${error}` }
     }
   }
+<<<<<<< HEAD
 
   // 加购优惠--编辑商品-主要商品请求
   async getMasterGoods(goodsinfo) {
@@ -735,6 +758,22 @@ export default class MarketManagerAPI {
         headers: {
           'Accept': 'application/json, application/xml, text/json, text/x-json, text/javascript, text/xml',
           referer: `/portal/marketing/add-on-deal/list?tab=list`
+=======
+  // 加购优惠--停止活动
+  async stopOndealList(goodsinfo) {
+    try {
+      const { country, mallId, status, add_on_deal_id } = goodsinfo
+      const params = {
+        mallId: mallId,
+        action: 2,
+        add_on_deal_id: add_on_deal_id
+      }
+      const res = await this._this.$shopeemanService.postChineseReferer(country, '/api/marketing/v3/add_on_deal/operation/?', params, {
+        headers: {
+          'Content-Type': 'application/json; charset=utf-8',
+          'Accept': 'application/json, text/plain, */*',
+          referer: `/portal/marketing/add-on-deal/list?status=${status}&searchType=promotion_name`
+>>>>>>> a0e15acfa86501d7d4a03708e6989280b6da1287
         }
       })
       const des = JSON.parse(res)
@@ -743,7 +782,11 @@ export default class MarketManagerAPI {
       const message = data.message
       return { ecode, data, message }
     } catch (error) {
+<<<<<<< HEAD
       return { code: -2, data: `getMasterGoods-catch: ${error}` }
+=======
+      return { code: -2, data: `delPromotion-catch: ${error}` }
+>>>>>>> a0e15acfa86501d7d4a03708e6989280b6da1287
     }
   }
 }

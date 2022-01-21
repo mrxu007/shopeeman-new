@@ -26,10 +26,16 @@
         <el-table-column prop="totalGoods" label="虾皮商品总数" align="center" min-width="100px">
           <template v-slot="{row}">{{ row.totalGoods? row.totalGoods:'--' }}</template>
         </el-table-column>
+<<<<<<< HEAD
         <el-table-column prop="getGoods" label="已获取虾皮商品数量" align="center" min-width="100px">
           <template v-slot="{row}">{{ row.getGoods? row.getGoods:'--' }}</template>
         </el-table-column>
         <el-table-column prop="endstatus" label="同步状态" align="center" min-width="120px" fixed="right" />
+=======
+        <el-table-column prop="getGoods" label="已获取虾皮商品数量" align="center" min-width="100px" fixed="right">
+          <template v-slot="{row}">{{ row.getGoods? row.getGoods:'--' }}</template>
+        </el-table-column>
+>>>>>>> a0e15acfa86501d7d4a03708e6989280b6da1287
       </el-table>
       <Logs ref="autoReplyLogs" v-model="showlog" clear />
     </div>
@@ -222,14 +228,20 @@ export default {
         if (this.dataRuning) { // 终止循环---------
           return
         }
+<<<<<<< HEAD
         this.$set(item, 'totalGoods', 0)
         this.$set(item, 'getGoods', 0)
         this.$set(item, 'endstatus', '')
+=======
+>>>>>>> a0e15acfa86501d7d4a03708e6989280b6da1287
         // 获取官网商品
         const plantList = []// 平台数据
         const res = await this.GoodsManagerAPIInstance.getSkuList(goodsinfo)
         if (res.ecode !== 0) {
+<<<<<<< HEAD
           this.$set(item, 'endstatus', '店铺未登录')
+=======
+>>>>>>> a0e15acfa86501d7d4a03708e6989280b6da1287
           this.$refs.autoReplyLogs.writeLog(`店铺【${item.mall_alias_name || item.platform_mall_name}】平台数据：店铺未登录`, false)
           return
         }
@@ -237,12 +249,20 @@ export default {
         // 四小时同步一次
         const mallName = item.mall_alias_name || item.platform_mall_name
         const TimeList = await this.$appConfig.temporaryCacheInfo('get', 'mallTimeList', '')
+<<<<<<< HEAD
         let mallTimeList = JSON.parse(TimeList)
+=======
+        const mallTimeList = JSON.parse(TimeList)
+        console.log('*-*-', mallTimeList)
+>>>>>>> a0e15acfa86501d7d4a03708e6989280b6da1287
         if (mallTimeList.length) {
           const des = mallTimeList.findIndex(el => { return el.mallName === mallName })
           if (des >= 0) {
             if (mallTimeList[des].nextTime > new Date().getTime()) {
+<<<<<<< HEAD
               this.$set(item, 'endstatus', `同步时间未到,下次时间：${this.formatTime(mallTimeList[des].nextTime)}`)
+=======
+>>>>>>> a0e15acfa86501d7d4a03708e6989280b6da1287
               this.$refs.autoReplyLogs.writeLog(`【店铺：${mallName}】每4小时可进行一次同步，下次同步时间为【${this.formatTime(mallTimeList[des].nextTime)}】`, true)
               return
             } else {
@@ -262,19 +282,31 @@ export default {
             firstTime: new Date().getTime(),
             nextTime: new Date().getTime() + 3600 * 4 * 1000
           }
+<<<<<<< HEAD
           // mallTimeList.push(mallinfo)
           mallTimeList = [mallinfo]
+=======
+          mallTimeList.push(mallinfo)
+>>>>>>> a0e15acfa86501d7d4a03708e6989280b6da1287
         }
         this.$appConfig.temporaryCacheInfo('save', 'mallTimeList', mallTimeList)
         // ---end---//
         let array = res.ecode === 0 ? res.data.list : []
         const total = res.data.page_info.total
         if (!total) {
+<<<<<<< HEAD
           this.$set(item, 'endstatus', '平台无数据')
+=======
+>>>>>>> a0e15acfa86501d7d4a03708e6989280b6da1287
           this.$refs.autoReplyLogs.writeLog(`店铺【${item.mall_alias_name || item.platform_mall_name}】平台暂无商品`, true)
           return
         }
         this.$refs.autoReplyLogs.writeLog(`店铺【${item.mall_alias_name || item.platform_mall_name}】平台商品总数${total}个`, true)
+<<<<<<< HEAD
+=======
+        this.$set(item, 'totalGoods', 0)
+        this.$set(item, 'getGoods', 0)
+>>>>>>> a0e15acfa86501d7d4a03708e6989280b6da1287
         while (array.length) {
           if (this.dataRuning) { // 终止循环---------
             return
@@ -307,7 +339,10 @@ export default {
           if (serList.length) {
             this.$refs.autoReplyLogs.writeLog(`店铺【${item.mall_alias_name || item.platform_mall_name}】服务端商品总数${serList.length}个`, true)
           } else {
+<<<<<<< HEAD
             this.$set(item, 'endstatus', '服务端无数据')
+=======
+>>>>>>> a0e15acfa86501d7d4a03708e6989280b6da1287
             this.$refs.autoReplyLogs.writeLog(`店铺【${item.mall_alias_name || item.platform_mall_name}】服务端商品暂无商品信息`, true)
             return
           }
@@ -320,7 +355,10 @@ export default {
         // 同步--获取被删除的商品数据
         const delList = []
         if (!delList.length) {
+<<<<<<< HEAD
           this.$set(item, 'endstatus', '已是同步状态')
+=======
+>>>>>>> a0e15acfa86501d7d4a03708e6989280b6da1287
           this.$refs.autoReplyLogs.writeLog(`店铺【${item.mall_alias_name || item.platform_mall_name}】无需删除，已是同步状态`, true)
           return
         }
@@ -338,12 +376,18 @@ export default {
           const tes = await this.$commodityService.delCloudItems(JSON.stringify(delL))
           const jsontes = JSON.parse(tes)
           if (jsontes.code === 200) {
+<<<<<<< HEAD
             this.$set(item, 'endstatus', `同步成功，同步成功数：${delL.length}`)
+=======
+>>>>>>> a0e15acfa86501d7d4a03708e6989280b6da1287
             this.$refs.autoReplyLogs.writeLog(`-----------`, true)
             this.$refs.autoReplyLogs.writeLog(`店铺【${item.mall_alias_name || item.platform_mall_name}】服务端已删除【${delL.length}】个商品`, true)
             this.$refs.autoReplyLogs.writeLog(`-----------`, true)
           } else {
+<<<<<<< HEAD
             this.$set(item, 'endstatus', `同步失败`)
+=======
+>>>>>>> a0e15acfa86501d7d4a03708e6989280b6da1287
             this.$refs.autoReplyLogs.writeLog(`店铺【${item.mall_alias_name || item.platform_mall_name}】服务端删除失败，${jsontes.msg}`, false)
             return
           }

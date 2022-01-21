@@ -10,8 +10,9 @@
             <div>物流设置：</div>
             <div>
               <el-checkbox-group v-model="logistics" size="mini">
-                <el-checkbox :label="item.ShipName" :value="item" v-for="item in logisticsList"
-                             :key="item.ShipId" :disabled="isBanPerform"></el-checkbox>
+                <el-checkbox :label="item.ShipId" v-for="item in logisticsList"
+                             :key="item.ShipId" :disabled="isBanPerform">{{ item.ShipName }}
+                </el-checkbox>
               </el-checkbox-group>
               <div v-if="customLogistics[0]">
                 <p style="color: var(--themeColor)">确保此物流方式已在商家后台开启
@@ -483,7 +484,7 @@
       </u-table-column>
       <u-table-column align="left" :label="`上新价格(${$filters.siteCoin(country)})`" prop="CalAfterPrice" width="100">
         <template slot-scope="{ row }">
-          {{Math.ceil(getValuationPrice(row.price, row) / rateList[country])}}
+          {{ Math.ceil(getValuationPrice(row.price, row) / rateList[country]) }}
         </template>
       </u-table-column>
       <u-table-column align="left" label="销量" prop="sales" width="80"/>
@@ -859,15 +860,23 @@
           <div class="basisInstall-title">计算参考</div>
           <div class="basisInstall-box" style="flex-wrap: nowrap;">
             <div class="basisInstall-box-item">
-              <div class="item-name">上新价({{RMBShow && 'RMB' || $filters.siteCoin(country)}})：</div>
-              <div class="item-input">{{RMBShow && calculateResults.results || Math.ceil(calculateResults.results / rateList[this.country])}}</div>
+              <div class="item-name">上新价({{ RMBShow && 'RMB' || $filters.siteCoin(country) }})：</div>
+              <div class="item-input">
+                {{
+                  RMBShow && calculateResults.results || Math.ceil(calculateResults.results / rateList[this.country])
+                }}
+              </div>
               <el-tooltip class="item" effect="dark" content="标价=折后价/折扣率" placement="top">
                 <el-button size="mini" type="text"><i class="el-icon-question" style="padding: 0 2px;"></i></el-button>
               </el-tooltip>
             </div>
             <div class="basisInstall-box-item">
-              <div class="item-name">折后价({{RMBShow && 'RMB' || $filters.siteCoin(country)}})：</div>
-              <div class="item-input">{{RMBShow && calculateResults.discount || Math.ceil(calculateResults.discount / rateList[this.country])}}</div>
+              <div class="item-name">折后价({{ RMBShow && 'RMB' || $filters.siteCoin(country) }})：</div>
+              <div class="item-input">
+                {{
+                  RMBShow && calculateResults.discount || Math.ceil(calculateResults.discount / rateList[this.country])
+                }}
+              </div>
               <el-tooltip class="item" effect="dark" content="折后价=成本+运费+手续费+佣金+仓库服务费+利润+交店费/清关费+其它杂费" placement="top">
                 <el-button size="mini" type="text"><i class="el-icon-question" style="padding: 0 2px;"></i></el-button>
               </el-tooltip>
@@ -879,15 +888,23 @@
           </div>
           <div class="basisInstall-box" style="flex-wrap: nowrap;margin: 10px 0;">
             <div class="basisInstall-box-item">
-              <div class="item-name">运费({{RMBShow && 'RMB' || $filters.siteCoin(country)}})：</div>
-              <div class="item-input">{{RMBShow && calculateResults.freight || Math.ceil(calculateResults.freight / rateList[this.country])}}</div>
+              <div class="item-name">运费({{ RMBShow && 'RMB' || $filters.siteCoin(country) }})：</div>
+              <div class="item-input">
+                {{
+                  RMBShow && calculateResults.freight || Math.ceil(calculateResults.freight / rateList[this.country])
+                }}
+              </div>
               <el-tooltip class="item" effect="dark" content="运费=计费重*计费单价+仓库服务费+交店费/清关费" placement="top">
                 <el-button size="mini" type="text"><i class="el-icon-question" style="padding: 0 2px;"></i></el-button>
               </el-tooltip>
             </div>
             <div class="basisInstall-box-item">
-              <div class="item-name">利润({{RMBShow && 'RMB' || $filters.siteCoin(country)}})：</div>
-              <div class="item-input">{{RMBShow && calculateResults.profits || Math.ceil(calculateResults.profits / rateList[this.country])}}</div>
+              <div class="item-name">利润({{ RMBShow && 'RMB' || $filters.siteCoin(country) }})：</div>
+              <div class="item-input">
+                {{
+                  RMBShow && calculateResults.profits || Math.ceil(calculateResults.profits / rateList[this.country])
+                }}
+              </div>
               <el-tooltip class="item" effect="dark" content="利润=折后价*毛利率" placement="top">
                 <el-button size="mini" type="text"><i class="el-icon-question" style="padding: 0 2px;"></i></el-button>
               </el-tooltip>
@@ -952,10 +969,12 @@ import categoryMapping from '../../../components/category-mapping'
 import goodsLabel from '../../../components/goods-label'
 import { getGoodsUrl, batchOperation, terminateThread, getSectionRandom, imageCompressionUpload } from '@/util/util'
 import GUID from '@/util/guid'
+import MallListAPI from '@/module-api/mall-manager-api/mall-list-api'
 
 export default {
   data() {
     return {
+      mallListAPIInstance: new MallListAPI(this),
       goodsTable: [], // 商品列表
       goodsTableSelect: [], // 商品列表所选
       goodsCurrent: '',
@@ -1187,8 +1206,8 @@ export default {
       isBanPerform: false, //禁止按钮
 
       //rateList
-      RMBShow:true,
-      rateList:{},
+      RMBShow: true,
+      rateList: {}
     }
   },
   computed: {},
@@ -1223,7 +1242,7 @@ export default {
     logistics(val) {
       this.customLogistics = []
       val.forEach(item => {
-        let temp = this.logisticsList.filter(i => i.ShipName === item)[0]
+        let temp = this.logisticsList.filter(i => i.ShipId === item)[0]
         if (temp && temp.IsCustomShipFee) {
           this.customLogistics.push(temp)
         }
@@ -1237,14 +1256,14 @@ export default {
       },
       deep: true
     },
-    calculateReference:{
+    calculateReference: {
       handler(data) {
         let long = data.long || 0
         let width = data.width || 0
         let height = data.height || 0
         let bubbleHeavy = data.bubbleHeavyNum || 0
         let bulkWeightFormula = (long * width * height)
-        if(bubbleHeavy && bulkWeightFormula){
+        if (bubbleHeavy && bulkWeightFormula) {
           bulkWeightFormula = (bulkWeightFormula / bubbleHeavy * 1000).toFixed(2) * 1
         }
         this.calculateReference.bubbleHeavy = bulkWeightFormula
@@ -1326,6 +1345,14 @@ export default {
         this.$message.error('请选择店铺')
         return
       }
+      if (this.customLogistics.length > 0) {
+        for (let item of this.customLogistics) {
+          if (!(item.price * 1)) {
+            this.$message.error('运费价格有误，请确认')
+            return
+          }
+        }
+      }
       this.isBanPerform = true
       await batchOperation(this.mallList, this.prepareWork, this.basicConfig.onNewThread)
       this.isBanPerform = false
@@ -1334,23 +1361,64 @@ export default {
       terminateThread()
     },
     async prepareWork(mall, count = { count: 1 }) {
+      let errorItem = null
       try {
+        let mallName = mall.mall_alias_name || mall.platform_mall_name
         let goodsList = []
+        let logistics_channels = []
+        let loginRes = await this.mallListAPIInstance.getUserInfo(mall)
+        let loginSuccess = loginRes.code === 200
+        if (loginSuccess) {
+          const params = {}
+          params['mallId'] = mall.platform_mall_id
+          const channelListJSON = await this.$shopeemanService.getChinese(mall.country, '/api/v3/logistics/get_channel_list/?', params)
+          const channelListRes = JSON.parse(channelListJSON)
+          const channelListData = JSON.parse(channelListRes.data)
+          let channelList = channelListData.data && channelListData.data.list || []
+          // logistics_channels
+          console.log('channelListRes', channelList, this.logistics, this.customLogistics)
+          for (let item of channelList) {
+            if (item.enabled !== this.logistics.includes(item.channel_id + '') || item.is_mask_channel) {
+              let temp = {
+                enabled: this.logistics.includes(item.channel_id + ''),
+                channelid: item.channel_id,
+                sizeid: 0,
+                size: 0,
+                price: '0.00',
+                cover_shipping_fee: false,
+                parent_channel_id: 0
+              }
+              let findItem = this.customLogistics.find(son => son.shopId === (item.channel_id + ''))
+              if (findItem) {
+                temp['price'] = price + ''
+              }
+              logistics_channels.push(temp)
+            }
+          }
+        }
+        // console.log(logistics_channels)
+        // return
         if (this.associatedConfig.dimensionRadio < 2) {
           let mallCount = this.mallList.length
-          let mallIndex = this.mallList.findIndex(son=> son.id === mall.id)
-          let goodsList = this.goodsTable.length
-          for (let i=0;mallIndex<goodsList;i++){
+          let mallIndex = this.mallList.findIndex(son => son.id === mall.id)
+          let goodsCount = this.goodsTable.length
+          for (let i = 0; mallIndex < goodsCount; i++) {
             mallIndex = mallIndex + mallCount * i
-            if(mallIndex > goodsList){
-              goodsList = [...goodsList,mallIndex]
+            console.log(mallIndex)
+            if (mallIndex < goodsCount) {
+              goodsList = [...goodsList, this.goodsTableSelect[mallIndex]]
             }
           }
         } else {
           goodsList = this.goodsTableSelect
         }
         for (let item of goodsList) {
+          errorItem = item
           this.updateAttributeName(item, '正在准备发布')
+          if (!loginSuccess) {
+            this.updateAttributeName(item, `${mallName}店铺未登录发布失败`)
+            continue
+          }
           let goodsInitParam = {
             attributes: [],
             stock: item.stock,
@@ -1359,7 +1427,7 @@ export default {
             dimension: {
               width: item.width,
               height: item.height,
-              long: item.long
+              length: item.long
             },
             condition: 1,
             dangerous_goods: 0, //待修改
@@ -1372,9 +1440,10 @@ export default {
             category_recommend: [],
             price_before_discount: '',
             wholesale_list: [],
-            installment_tenures: [],
+            installment_tenures: {},
             pre_order: this.basicConfig.stockUpChecked,
             days_to_ship: Math.floor(this.basicConfig.stockUpNumber) || 15,
+            logistics_channels: logistics_channels.slice(0, 4),
             unlisted: this.basicConfig.usedChecked,
             add_on_deal: []
           }
@@ -1407,9 +1476,7 @@ export default {
           }
           let neededTranslateInfoJson = await this.$commodityService.getSpuDetailByIdV2(item.id)
           let neededTranslateInfoData = JSON.parse(neededTranslateInfoJson) && JSON.parse(neededTranslateInfoJson).data
-          console.log('getSpuDetailByIdV2 - data', neededTranslateInfoData)
           let goodsParam = JSON.parse(JSON.stringify(goodsInitParam))
-          let mallName = mall.mall_alias_name || mall.platform_mall_name
           this.updateAttributeName(item, mallName, 'mallName')
           // weight
           if (goodsParam['weight'] === '0') {
@@ -1421,8 +1488,8 @@ export default {
           let tmall_cross_border_user_id = extrainfo && extrainfo.tmall_cross_border_user_id || ''
           goodsParam['parent_sku'] = await this.$BaseUtilService.buildGoodCode(platformId, item.goods_id, this.country, mall.platform_mall_id, tmall_cross_border_user_id)
           let guid = new GUID()
-          goodsParam['ds_cat_rcmd_id'] = guid.newGUID()
-          goodsParam['ds_attr_rcmd_id'] = guid.newGUID()
+          goodsParam['ds_cat_rcmd_id'] = guid.newGUID() + '|c|EN'
+          goodsParam['ds_attr_rcmd_id'] = guid.newGUID() + '|a|EN'
           // name description
           goodsParam['description'] = neededTranslateInfoData.description || ''
           let hotList = this.basicConfig.hotList || ''
@@ -1430,17 +1497,17 @@ export default {
           hotList = hotList.split(',') || []
           let hotStr = ''
           let name = item.title
-          if (this.basicConfig.hotSearch > 0) {
+          if (this.basicConfig.hotSearch > 0 && hotList[0]) {
             let hotListCount = hotList.length
             for (let i = 0; i < this.basicConfig.hotSearch; i++) {
-              let hotIndex = hotList[Math.floor(Math.random() * hotListCount)]
+              let hotIndex = hotList[Math.floor(Math.random() * hotListCount)] || ''
               hotStr += hotList[hotIndex] + ' '
             }
-          }
-          if (this.basicConfig.headlineRadio) {
-            name = name + ' ' + hotStr
-          } else {
-            name = hotStr + '' + name
+            if (this.basicConfig.headlineRadio) {
+              name = name + ' ' + hotStr
+            } else {
+              name = hotStr + '' + name
+            }
           }
           if (this.associatedConfig.specialCharChecked) {
             let specialCharList = this.$filters.special_characters
@@ -1503,36 +1570,63 @@ export default {
               images: []
             })
           }
-          let itemmodelsJson = JSON.stringify(neededTranslateInfoData.itemmodels)
-          itemmodelsJson = itemmodelsJson.replaceAll(/"id":[0-9]*,/g, '"id":0,')
-          itemmodelsJson = itemmodelsJson.replaceAll(/"selection_id":[0-9]*,/g, '"name":"",')
-          itemmodelsJson = itemmodelsJson.replaceAll(/"skuId":"(((?!",).)*)",/g, '"is_default":false,')
-          itemmodelsJson = itemmodelsJson.replaceAll(/"sku_image":"(((?!",).)*)",/g, '"item_price":"",')
-          itemmodelsJson = itemmodelsJson.replaceAll(/"sku_sn":"(((?!",).)*)",/g, '"input_normal_price":null,')
-          itemmodelsJson = itemmodelsJson.replaceAll(/"sku_spec1":"(((?!",).)*)",/g, '"input_promotion_price":null,')
-          itemmodelsJson = itemmodelsJson.replaceAll(/"sku_spec2":"(((?!",).)*)",/g, '')
-          itemmodelsJson = itemmodelsJson.replaceAll(/"sku_price":[0-9.]*,/g, '')
-          itemmodelsJson = itemmodelsJson.replaceAll(/"sku_stock":[0-9.]*,/g, '')
-          console.log(itemmodelsJson)
-          goodsParam['model_list'] = JSON.parse(itemmodelsJson)
           goodsParam['price'] = this.getValuationPrice(neededTranslateInfoData.price, neededTranslateInfoData)
+          goodsParam['price'] = Math.ceil(goodsParam['price'] / this.rateList[this.country]) + ''
+
+          let itemmodelsJson = JSON.stringify(neededTranslateInfoData.itemmodels)
+          goodsParam['model_list'] = JSON.parse(itemmodelsJson).map(son => {
+            let price = this.getValuationPrice(son.price, neededTranslateInfoData)
+            price = Math.ceil(price / this.rateList[this.country]) + ''
+            son = {
+              id: 0,
+              name: '',
+              is_default: false,
+              item_price: '',
+              input_normal_price: null,
+              input_promotion_price: null,
+              tier_index: son.tier_index,
+              sku: son.sku,
+              stock: son.stock,
+              price: price
+            }
+            return son
+          })
           console.log('goodsParam', goodsParam)
+          // return
           this.updateAttributeName(item, '正在上传轮播图')
           let imageMapping = await imageCompressionUpload(mall, goodsParam['images'], this, this.storeConfig.pictureThread)
+          goodsParam['images'] = goodsParam.images.map(son => {
+            son = imageMapping[son]
+            return son
+          })
           this.updateAttributeName(item, '正在上传规格图')
           let spec_imageMapping = await imageCompressionUpload(mall, neededTranslateInfoData.spec_image, this, this.storeConfig.pictureThread)
+          let tier_variationJSON = JSON.stringify(goodsParam['tier_variation'])
+          let spec_list = []
+          for(let itemName in spec_imageMapping){
+            tier_variationJSON = tier_variationJSON.replaceAll('"'+itemName+'"','"'+spec_imageMapping[itemName]+'"')
+            spec_list.push(spec_imageMapping[itemName])
+          }
+          goodsParam['tier_variation'] = JSON.parse(tier_variationJSON)
           if (goodsParam['size_chart']) {
             this.updateAttributeName(item, '正在上传尺寸图')
             let size_chartMapping = await imageCompressionUpload(mall, [goodsParam['size_chart']], this, this.storeConfig.pictureThread)
             goodsParam['size_chart'] = size_chartMapping[goodsParam['size_chart']]
           }
+          if (this.basicConfig.autoCompleteChecked) {
+            if (goodsParam['images'].length < 9) {
+              let imageList = [...goodsParam['images'], ...spec_list]
+              goodsParam['images'] = imageList.slice(0, 9)
+            }
+          }
+          let resJSON = await this.$shopeemanService.createProduct(this.country,{mallId:mall.platform_mall_id},[goodsParam])
+          console.log('createProduct', resJSON)
 
-          console.log('imageMapping', imageMapping, spec_imageMapping)
           this.updateAttributeName(item, '发布完成')
         }
       } catch (e) {
         console.log(e)
-        this.updateAttributeName(item, '发布失败，数据或请求异常')
+        errorItem && this.updateAttributeName(errorItem, '发布失败，数据或请求异常')
       } finally {
         --count.count
       }
@@ -1548,7 +1642,7 @@ export default {
 
       }
     },
-    getValuationPrice(price, data,setting = null) {
+    getValuationPrice(price, data, setting = null) {
       price = price * 1
       if (this.basicConfig.valuationRadio === 1) {
         let addPrice = (price * this.basicConfig.formula.percentage / 100).toFixed(2)
@@ -1561,7 +1655,7 @@ export default {
       } else if (this.basicConfig.valuationRadio === 2) {
         setting = setting || this.valuationSetting
         if (setting && setting.bubbleHeavy >= 0) {
-          let long = data.long
+          let long = data.long || data.length
           let width = data.width
           let height = data.height
           let bulkWeightFormula = ((long * width * height) / setting.bubbleHeavy * 1000).toFixed(2) * 1
@@ -1575,14 +1669,14 @@ export default {
           let transactionCommission = setting.transactionCommission || 0
           let withdrawalCharge = setting.withdrawalCharge || 0
           let grossProfitMargin = setting.grossProfitMargin || 0
-          let commissionMargin = (100 - transactionCommission * 1) / 100 .toFixed(2)
-          let withdrawalFee = (100 + withdrawalCharge * 1) / 100 .toFixed(2)
-          let profitMargin = (100 - grossProfitMargin * 1) / 100 .toFixed(2)
+          let commissionMargin = ((100 - transactionCommission * 1) / 100).toFixed(2)
+          let withdrawalFee = ((100 + withdrawalCharge * 1) / 100).toFixed(2)
+          let profitMargin = ((100 - grossProfitMargin * 1) / 100).toFixed(2)
           let priceCount = (price + logisticsCosts + otherFee)
-          let priceFormula = (priceCount/commissionMargin/profitMargin)*withdrawalFee.toFixed(2) * 1
-          let profits =  (priceFormula * (1 - profitMargin)).toFixed(2) * 1
-          if (this.valuationVisible){
-            this.calculateResults.profits =this.country.includes('MY') && profits || Math.ceil(profits)
+          let priceFormula = (priceCount / commissionMargin / profitMargin) * withdrawalFee.toFixed(2) * 1
+          let profits = (priceFormula * (1 - profitMargin)).toFixed(2) * 1
+          if (this.valuationVisible) {
+            this.calculateResults.profits = this.country.includes('MY') && profits || Math.ceil(profits)
             this.calculateResults.discount = this.country.includes('MY') && priceFormula || Math.ceil(priceFormula)
             this.calculateResults.freight = this.country.includes('MY') && logisticsCosts || Math.ceil(logisticsCosts)
           }
@@ -1601,37 +1695,37 @@ export default {
         return this.basicConfig.fixedPrice
       }
     },
-    saveCalculate(){
+    saveCalculate() {
       let setting = this.valuationConfig
       let messages = ''
-      if (!setting.discount){
+      if (!setting.discount) {
         messages = '折扣率不能为空'
-      }else if (!setting.bubbleHeavy){
+      } else if (!setting.bubbleHeavy) {
         messages = '泡重计算比不能为空'
       }
-      if(messages){
+      if (messages) {
         this.$message.error(messages)
-      }else{
-        this.valuationSetting =JSON.parse(JSON.stringify(setting)) || ''
+      } else {
+        this.valuationSetting = JSON.parse(JSON.stringify(setting)) || ''
         this.valuationVisible = false
       }
     },
-    saveCalculateLabel(){
+    saveCalculateLabel() {
       this.$prompt('请输入标签名称', '提示', {
         confirmButtonText: '确定',
-        cancelButtonText: '取消',
+        cancelButtonText: '取消'
       }).then(({ value }) => {
 
         this.$message({
           type: 'success',
           message: '你的标签是: ' + value
-        });
+        })
       }).catch(() => {
         this.$message({
           type: 'info',
           message: '取消保存标签'
-        });
-      });
+        })
+      })
     },
     updateAttributeName(item, value, attributeName = 'statusName') {
       let index = this.goodsTable.findIndex(i => i.id === item.id)
@@ -1691,20 +1785,20 @@ export default {
       }
       this.valuationVisible = true
     },
-    referenceCalculate(){
+    referenceCalculate() {
       let setting = this.valuationConfig
       let calculate = this.calculateReference
       let messages = ''
-      if (!setting.discount){
+      if (!setting.discount) {
         messages = '折扣率不能为空'
-      }else if (!setting.bubbleHeavy){
+      } else if (!setting.bubbleHeavy) {
         messages = '泡重计算比不能为空'
       }
-      if (messages){
+      if (messages) {
         this.$message.error(messages)
         return
       }
-      this.calculateResults.results = this.getValuationPrice(calculate.costing,calculate,setting)
+      this.calculateResults.results = this.getValuationPrice(calculate.costing, calculate, setting)
     },
     goToGoods(item) {
       let extra_info = item.extra_info && JSON.parse(item.extra_info) || {}
@@ -1902,7 +1996,7 @@ export default {
       logisticsList.forEach(item => {
         this.logisticsList.push(item)
         if (item.IsSelected) {
-          this.logistics.push(item.ShipName)
+          this.logistics.push(item.ShipId)
         }
       })
     },

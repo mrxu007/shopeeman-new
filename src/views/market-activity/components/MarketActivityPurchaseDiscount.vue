@@ -18,7 +18,11 @@
 
       <div class="row2" style="margin-top:8px">
         <!-- <el-button size="mini" type="primary" @click="stopSearch">取消查询</el-button> -->
+<<<<<<< HEAD
         <el-button size="mini" type="primary" @click="createTestVisile">创建加购促销活动</el-button>
+=======
+        <el-button size="mini" type="primary" @click="mallCoupon">创建加购促销活动</el-button>
+>>>>>>> a0e15acfa86501d7d4a03708e6989280b6da1287
         <el-button size="mini" type="primary" @click="MallvoucherDelMul">批量删除/结束活动</el-button>
         <el-button size="mini" type="primary" @click="clearLog">清除日志</el-button>
         <el-checkbox v-model="showlog" style="margin-left:8px">隐藏日志</el-checkbox>
@@ -66,7 +70,11 @@
             <div style="display:flex">
               <el-button v-if="row.voucher_status==='进行中'" size="mini" type="primary" @click="MallvoucherStopFun(row)">停止</el-button>
               <el-button v-if="row.voucher_status==='即将开始'" size="mini" type="primary" @click="MallvoucherDelFun(row)">删除</el-button>
+<<<<<<< HEAD
               <el-button v-if="row.voucher_status==='进行中'|| row.voucher_status==='即将开始'" size="mini" type="primary" @click="editGoods(row)">编辑商品</el-button>
+=======
+              <el-button size="mini" type="primary" @click="clearLog">编辑商品</el-button>
+>>>>>>> a0e15acfa86501d7d4a03708e6989280b6da1287
               <el-button size="mini" type="primary" @click="clearLog">复制活动</el-button>
             </div>
           </template>
@@ -96,7 +104,11 @@
                 操作店铺
                 <el-select v-model="optionMall" placeholder="请选择" size="mini" style="width:120px">
                   <el-option label="全部" value="" />
+<<<<<<< HEAD
                   <el-option v-for="mall in selectMallList" :key="mall.id" :disabled="disSelect" :label="mall.mall_alias_name || mall.platform_mall_name" :value="mall.platform_mall_id" />
+=======
+                  <el-option v-for="mall in selectMallList" :key="mall.id" :label="mall.mall_alias_name || mall.platform_mall_name" :value="mall.id" />
+>>>>>>> a0e15acfa86501d7d4a03708e6989280b6da1287
                 </el-select>
               </div>
 
@@ -106,7 +118,11 @@
                   <el-radio label="0">折扣优惠</el-radio>
                   <el-radio label="1">赠品满最低消费</el-radio>
                 </el-radio-group>
+<<<<<<< HEAD
                 <span v-if="discountType==='0'" style="margin-left: 16px;">
+=======
+                <span v-if="discountType==='0'" style="margin-left：20px">
+>>>>>>> a0e15acfa86501d7d4a03708e6989280b6da1287
                   加购限制
                   <!-- 必须在1-100 -->
                   <el-tooltip class="item" effect="dark" content="买家在同一个订单里最多加购的商品数量是(1-100)" placement="top-start">
@@ -159,11 +175,19 @@
             <ul style="border: 1px solid #d4d1d1;padding: 10px;border-radius: 8px;">
               <!-- row1 -->
               <li style="margin-bottom:5px">
+<<<<<<< HEAD
                 <el-button size="mini" type="primary" @click="openShowMul(1)">开启</el-button>
                 <el-button size="mini" type="primary" @click="openShowMul(2)">关闭</el-button>
                 <el-button size="mini" type="primary" @click="delMasterMul">删除</el-button>
                 <!-- 先保存活动信息 -->
                 <el-button size="mini" type="primary" style="margin-left: 65px" @click="addMasterGoods">添加主要商品</el-button>
+=======
+                <el-button size="mini" type="primary">开启</el-button>
+                <el-button size="mini" type="primary">关闭</el-button>
+                <el-button size="mini" type="primary">删除</el-button>
+                <!-- 先保存活动信息 -->
+                <el-button size="mini" type="primary" style="margin-left: 65px">添加主要商品</el-button>
+>>>>>>> a0e15acfa86501d7d4a03708e6989280b6da1287
               </li>
               <!-- row2 -->
               <li>
@@ -200,8 +224,13 @@
                 <el-button size="mini" type="primary">开启</el-button>
                 <el-button size="mini" type="primary">关闭</el-button>
                 <el-button size="mini" type="primary">删除</el-button>
+<<<<<<< HEAD
                 <!-- 先保存主要商品信息 -->
                 <el-button size="mini" type="primary" style="margin-left: 200px" @click="addOtherGoodsFun">添加加购商品</el-button>
+=======
+                <!-- 先保存活动信息 -->
+                <el-button size="mini" type="primary" style="margin-left: 200px">添加加购商品</el-button>
+>>>>>>> a0e15acfa86501d7d4a03708e6989280b6da1287
               </li>
               <li>
                 <el-table
@@ -264,6 +293,7 @@ export default {
   },
   data() {
     return {
+<<<<<<< HEAD
       currentDate: false, // 编辑时当前选择的商品
       disSelect: false, // 基本资料选择框
       // masterGoodsAdd: false, // ture masterGoodslist增加数据 false:单个修改数据[开启 关闭 删除]
@@ -272,6 +302,8 @@ export default {
       otherGoods: false, // 添加加购商品
       goodsItemSelectorVisible: false,
       // 搜索条件筛选
+=======
+>>>>>>> a0e15acfa86501d7d4a03708e6989280b6da1287
       arrList: [],
       willList: [],
       doingList: [],
@@ -295,6 +327,19 @@ export default {
       activeType: '0', // 活动时间类型
       tableList: [], // 主表数据
       proVisible: false, // 弹窗
+<<<<<<< HEAD
+=======
+      dialogtitle: '', // 弹窗标题s
+      coupontype: '2', // 创建优惠卷类型 1.店铺 2.商品
+      // 创建优惠卷参数
+      couponName: '', // 优惠劵名称
+      rewardType: '0', // 奖励类型 0 折扣 1 Shoppe币折扣
+      discountType: '0', // 0 折扣优惠 1 赠品满最低消费
+      discountNum: '', // 折扣数额
+      limitPrice: '0', // 最高优惠金额限制类型 0 无限制 1设置金额
+      maxPrice: '', // 最高优惠金额
+      minPrice: '', // 最低消费金额
+>>>>>>> a0e15acfa86501d7d4a03708e6989280b6da1287
       pickerOptions: {
         disabledDate(time) {
           return time.getTime() < (new Date().getTime() - 3600 * 1000 * 24)
@@ -318,6 +363,7 @@ export default {
   // },
   created() {
     // this.initMall()
+<<<<<<< HEAD
     this.inittime()
   },
   methods: {
@@ -393,6 +439,73 @@ export default {
       this.masterGoods = false // 添加主要商品
       this.otherGoods = false // 添加加购商品
       this.proVisible = true
+=======
+  },
+  methods: {
+    // 取消查询
+    stopSearch() {
+      terminateThread()
+      this.stoptoping = true
+      this.$refs.Logs.writeLog(`正在停止查询`)
+    },
+    // 保存活动
+    saveActiveInfo() {
+      if (this.discountType === '0' && (Number(this.addLimit) === 0 || Number(this.addLimit) > 100)) {
+        this.$message.warning('请输入加购限制,限制范围在1-100')
+        return
+      }
+      if (!this.proName.length || this.proName.length > 24) {
+        this.$message.warning('请输入促销名称，名称长不可超过24个字符')
+        return
+      }
+      const cTime = new Date().getTime()
+      if (cTime > Number(this.proTime[0])) {
+        this.$message.warning('请输入比当前较晚的开始时间')
+        return
+      }
+      if (Number(this.proTime[1] - Number(this.proTime[0]) < 3600 * 1000)) {
+        this.$message.warning('结束时间至少比开始时间晚一个小时')
+        return
+      }
+      for (let i = 0; i < this.mallTableSelect.length; i++) {
+        this.saveActiveInfoFun(this.mallTableSelect[i])
+      }
+    },
+    async saveActiveInfoFun(val) {
+      try {
+        this.showlog = false
+        const params = {
+          country: val.country,
+          mallId: val.platform_mall_id
+        // add_on_deal_id,
+        // add_on_deal_name,
+        // start_time,
+        // end_time,
+        // sub_type,
+        // sub_item_limit,
+        // sub_item_priority
+        }
+        const res = await this.MarketManagerAPIInstance.saveActiveAddondeal(params)
+        if (res.ecode === 0) {
+          this.$refs.Logs.writeLog(`------成功停止【${val.add_on_deal_name}】优惠活动------`, true)
+        } else {
+          this.$refs.Logs.writeLog(`停止【${val.add_on_deal_name}】优惠活动,${res.message}`, false)
+        }
+      } catch (error) {
+        this.$refs.Logs.writeLog(`停止【${val.add_on_deal_name}】--catch,${error}`, false)
+      }
+    },
+
+    // // 初始化店铺信息
+    // initMall() {
+    //   getMalls(res => {
+    //     this.shopAccountMallList = res
+    //   })
+    // },
+    // 清除日志
+    clearLog() {
+      this.$refs.Logs.consoleMsg = ''
+>>>>>>> a0e15acfa86501d7d4a03708e6989280b6da1287
     },
     // 保存活动
     saveActiveInfo() {
@@ -422,6 +535,7 @@ export default {
         this.saveActiveInfoFun(this.selectMallList[i])
       }
     },
+<<<<<<< HEAD
     async saveActiveInfoFun(val) {
       try {
         this.showlog = false
@@ -598,6 +712,47 @@ export default {
       if (!this.goodsMasterTableSelect.length) {
         this.$message.warning('请先选择商品信息!')
         return
+=======
+    // 批量删除/停止
+    MallvoucherDelMul() {
+      if (!this.mallTableSelect.length) {
+        this.$message.warning('请选择要操作的数据')
+        return
+      }
+      this.$confirm('确定要删除或停止这些活动吗？, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(async() => {
+        for (let i = 0; i < this.mallTableSelect.length; i++) {
+          const item = this.mallTableSelect[i]
+          if (item.voucher_status === '即将开始') { // 删除
+            await this.MallvoucherDel(item)
+          }
+          if (item.voucher_status === '进行中') { // 停止
+            await this.MallvoucherStop(item)
+          }
+        }
+        this.getTableList()
+      })
+    },
+    // 停止
+    MallvoucherStopFun(val) {
+      this.$confirm('确定要停止该活动吗？, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(async() => {
+        await this.MallvoucherStop(val)
+        this.getTableList()
+      })
+    },
+    async  MallvoucherStop(val) {
+      const params = {
+        country: val.country,
+        mallId: val.platform_mall_id,
+        add_on_deal_id: val.add_on_deal_id
+>>>>>>> a0e15acfa86501d7d4a03708e6989280b6da1287
       }
       if (this.getcreateNewTest.length) { // 初始化创建时的修改
         for (let i = 0; i < this.getcreateNewTest.length; i++) { // 获取任务
@@ -733,6 +888,7 @@ export default {
     async addOtherGoods(val) {
       try {
         this.showlog = false
+<<<<<<< HEAD
         const itemlist = []
         val.item_list.forEach(el => {
           itemlist.push(el.itemid)
@@ -774,9 +930,17 @@ export default {
         //   this.addGoodsList = val.item_list
         } else {
           this.$refs.Logs.writeLog(`【${val.mallname}】加购商品添加失败,${res.message}`, false)
+=======
+        const res = await this.MarketManagerAPIInstance.stopOndealList(params)
+        if (res.ecode === 0) {
+          this.$refs.Logs.writeLog(`------成功停止【${val.add_on_deal_name}】优惠活动------`, true)
+        } else {
+          this.$refs.Logs.writeLog(`停止【${val.add_on_deal_name}】优惠活动,${res.message}`, false)
+>>>>>>> a0e15acfa86501d7d4a03708e6989280b6da1287
         }
         this.goodsItemSelectorVisible = false
       } catch (error) {
+<<<<<<< HEAD
         this.$refs.Logs.writeLog(`【${val.mallname}】加购商品添加失败--catch,${error}`, false)
       }
     },
@@ -845,6 +1009,10 @@ export default {
       } catch (error) {
         this.$refs.Logs.writeLog(`停止【${val.add_on_deal_name}】--catch,${error}`, false)
       }
+=======
+        this.$refs.Logs.writeLog(`停止【${val.add_on_deal_name}】--catch,${error}`, false)
+      }
+>>>>>>> a0e15acfa86501d7d4a03708e6989280b6da1287
     },
     // 删除
     MallvoucherDelFun(val) {

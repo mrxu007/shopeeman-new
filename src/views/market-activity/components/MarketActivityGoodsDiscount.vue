@@ -101,12 +101,21 @@
 
             <li>
               <span>活动时间：</span>
-              <el-date-picker v-model="activeDate" format="yyyy-MM-dd HH:mm:ss" size="mini" type="datetimerange" range-separator="-" start-placeholder="开始日期" end-placeholder="结束日期" />
+              <el-date-picker
+                v-model="activeDate"
+                format="yyyy-MM-dd HH:mm:ss"
+                size="mini"
+                type="datetimerange"
+                unlink-panels
+                range-separator="-"
+                start-placeholder="开始日期"
+                end-placeholder="结束日期"
+              />
             </li>
             <li>
               <span>商品编号：</span>
               <el-input style="width: 180px" size="mini" oninput="value=value.replace(/\s+/g,'')" v-model="activeProductId" clearable />
-              <el-button style="margin-left: 21px" type="primary" size="mini" @click="searchDetail">搜 索</el-button>
+              <el-button style="margin-left: 21px" type="primary" size="mini" @click="searchDetail" :disabled="btnLoading">搜 索</el-button>
             </li>
           </ul>
           <ul style="margin: 0 0 10px 20px">
@@ -120,11 +129,11 @@
             </li>
             <li>
               <!-- <el-button type="primary" size="mini">搜 索</el-button> -->
-              <el-button type="primary" size="mini" @click="batchUpdateDiscount">批量修改折扣和限购</el-button>
-              <el-button type="primary" size="mini" v-if="activeRow.discount_id" @click="changeDiscountInfo">修改活动信息</el-button>
-              <el-button type="primary" size="mini" @click="addGoods">添加商品</el-button>
-              <el-button type="primary" size="mini" v-if="activeRow.discount_id" @click="addActiveTo">添加商品到已有活动</el-button>
-              <el-button type="primary" size="mini" v-if="activeRow.discount_id" @click="searchDiscountDetail(activeRow)">获取活动已有物品</el-button>
+              <el-button type="primary" size="mini" @click="batchUpdateDiscount" :disabled="btnLoading">批量修改折扣和限购</el-button>
+              <el-button type="primary" size="mini" v-if="activeRow.discount_id" @click="changeDiscountInfo" :disabled="btnLoading">修改活动信息</el-button>
+              <el-button type="primary" size="mini" @click="addGoods" :disabled="btnLoading">添加商品</el-button>
+              <el-button type="primary" size="mini" v-if="activeRow.discount_id" @click="addActiveTo" :disabled="btnLoading">添加商品到已有活动</el-button>
+              <el-button type="primary" size="mini" v-if="activeRow.discount_id" @click="searchDiscountDetail(activeRow)" :disabled="btnLoading">获取活动已有物品</el-button>
               <el-button type="primary" size="mini" v-if="!activeRow.discount_id" @click="createActive" :disabled="btnLoading">创建活动</el-button>
               <el-checkbox v-model="showConsole" style="margin-left: 10px">隐藏日志</el-checkbox>
             </li>
@@ -342,6 +351,13 @@ export default {
       if (this.activeDiscount < 0 || this.activeDiscount > 100 || this.limitNum < 0 || this.activeDiscount % 1 !== 0) {
         return this.$message.warning('折扣信息或限购数量有误！')
       }
+      if(!this.activeDicountName){
+        return this.$message.warning('活动名称不能为空')
+      }
+      console.log(this.activeDate,"this.activeDate")
+      if(!this.activeDate || !this.activeDate.length){
+        return this.$message.warning('请选择活动时间')
+      }
       this.goodsItemSelectorVisible = true
     },
     //创建活动
@@ -355,7 +371,7 @@ export default {
       if (!this.selectGoods.length) {
         return this.$message.warning('请先选择商品！')
       }
-      if (!this.activeDate.length) {
+      if(!this.activeDate || !this.activeDate.length) {
         return this.$message.warning('请先选择活动时间！')
       }
       this.showConsole = false
@@ -400,8 +416,10 @@ export default {
                 }
               }
             })
-          } else {
-            this.$refs.Logs.writeLog(`店铺【${mall.mall_alias_name || mall.platform_mall_name}】创建活动失败`, false)
+          } else if(res.code === 403){
+            this.$refs.Logs.writeLog(`店铺【${mall.mall_alias_name || mall.platform_mall_name}】创建活动失败,店铺未登录`, false)
+          }else{
+            this.$refs.Logs.writeLog(`店铺【${mall.mall_alias_name || mall.platform_mall_name}】创建活动失败,${res.data}`, false)
           }
         } catch (error) {
           this.btnLoading = false
@@ -446,7 +464,11 @@ export default {
         this.$refs.Logs.writeLog(`店铺【${mallName}】,商品【${goodsId}】创建活动成功`, true)
         return true
       } else {
-        this.$refs.Logs.writeLog(`店铺【${mallName}】,商品【${goodsId}】创建活动失败`, false)
+        if(creatRes.data.indexOf('some item has participated in promotion')>-1){
+          this.$refs.Logs.writeLog(`店铺【${mallName}】,添加商品【${goodsId}】至活动失败,商品已参加活动不能再此参加`, true)
+        }else{
+          this.$refs.Logs.writeLog(`店铺【${mallName}】,添加商品【${goodsId}】至活动失败,${creatRes.data?creatRes.data:''}`, false)
+        }
         return false
       }
     },
@@ -507,18 +529,18 @@ export default {
       }
       this.editMultipleSelection.forEach((item) => {
         this.$set(item, 'discount', (1 - this.activeDiscount / 100).toFixed(2))
-        this.$set(item, 'promotion_price', Number(((this.activeDiscount / 100) * item.price).toFixed(1)))
+        this.$set(item, 'promotion_price', Number(((this.activeDiscount / 100) * item.normal_price).toFixed(1)))
         this.$set(item, 'user_item_limit', this.limitNum)
         let index = this.editTableData.findIndex((n) => n.modelid == item.modelid)
         let indexC = this.editTableDataCopy.findIndex((n) => n.modelid == item.modelid)
         if (index > -1) {
           this.$set(this.editTableData[index], 'discount', (1 - this.activeDiscount / 100).toFixed(2))
-          this.$set(this.editTableData[index], 'promotion_price', Number(((this.activeDiscount / 100) * item.price).toFixed(1)))
+          this.$set(this.editTableData[index], 'promotion_price', Number(((this.activeDiscount / 100) * item.normal_price).toFixed(1)))
           this.$set(this.editTableData[index], 'user_item_limit', this.limitNum)
         }
         if (indexC > -1) {
           this.editTableDataCopy[indexC].discount = (1 - this.activeDiscount / 100).toFixed(2)
-          this.editTableDataCopy[indexC].promotion_price = Number(((this.activeDiscount / 100) * item.price).toFixed(1))
+          this.editTableDataCopy[indexC].promotion_price = Number(((this.activeDiscount / 100) * item.normal_price).toFixed(1))
           this.editTableDataCopy[indexC].user_item_limit = this.limitNum
         }
       })
@@ -533,7 +555,7 @@ export default {
         let obj = {
           itemid: item.itemid,
           modelid: item.modelid,
-          promotion_price: Number(((this.activeDiscount / 100) * item.price).toFixed(1)),
+          promotion_price: Number(((this.activeDiscount / 100) * item.normal_price).toFixed(1)),
           user_item_limit: Number(this.limitNum),
           status: item.status,
         }
@@ -632,7 +654,9 @@ export default {
           mall_type: 1,
         },
       ]
-      this.getDiscountDetail(row)
+      this.btnLoading = true
+      await this.getDiscountDetail(row)
+      this.btnLoading = false
     },
     //查询折扣详情
     async getDiscountDetail(val) {
@@ -655,13 +679,10 @@ export default {
             if (res.data.model_info[item.itemid] && res.data.model_info[item.itemid].length) {
               res.data.model_info[item.itemid].forEach((subItem) => {
                 let itemC = JSON.parse(JSON.stringify(item))
-                let objDiscount = res.data.discount_item_list.find((n) => n.itemid === item.itemid)
+                let objDiscount = res.data.discount_item_list.find((n) => n.itemid === item.itemid && n.modelid === subItem.modelid)
                 let obj = res.data.price_stock_info.find((n) => n.item_id === item.itemid)
-                // console.log(obj, 'obj', res.data.price_stock_info, item.itemid)
                 let discountPriceInfo = obj.sku_stock_price_list.find((n) => n.model_id === subItem.modelid)
-                // console.log(itemC, subItem, obj)
                 let obj2 = Object.assign(itemC, subItem, objDiscount, discountPriceInfo.price_info)
-                // console.log('item', obj2)
                 obj2.price = subItem.price
                 obj2.name = item.name
                 obj2.skuName = subItem.name
@@ -671,7 +692,6 @@ export default {
                 obj2.platform_mall_id = val.platform_mall_id
                 obj2.promotion_price = objDiscount.promotion_price
                 obj2.discount = discountPriceInfo && discountPriceInfo.price_info ? (1 - obj2.promotion_price / obj2.normal_price).toFixed(2) : ''
-                // console.log(obj2, 'obj2')
                 let index = this.editTableData.findIndex((n) => n.deleteStatus && obj2.itemid === n.itemid)
                 if (index < 0) {
                   obj2.deleteStatus = true
@@ -701,7 +721,7 @@ export default {
         }
         this.editTableDataCopy = JSON.parse(JSON.stringify(this.editTableData))
         console.log('editTableData', this.editTableData, this.editTableDataCopy)
-        this.$refs.Logs.writeLog('获取详情结束', true)
+        this.$refs.Logs.writeLog(`获取详情结束,${this.editTableData.length}条`, true)
         this.loading = false
       } catch (error) {
         console.log(error)
@@ -713,6 +733,7 @@ export default {
       if (!this.multipleSelection.length) {
         return this.$message.warning('请先选择数据！')
       }
+      this.showConsole = false
       this.$refs.Logs.consoleMsg = ''
       this.$refs.Logs.writeLog(`请在执行操作，请稍等`, true)
       this.multipleSelection.forEach(async (item) => {
@@ -737,6 +758,7 @@ export default {
         }
       }
       console.log(row, 'row')
+      this.showConsole = false
       this.$refs.Logs.writeLog(`请在执行操作，请稍等`, true)
       let res = await this.GoodsDiscount.stopActive(row, actionType)
       if (res.code === 200) {
@@ -793,14 +815,14 @@ export default {
       }
       if (!this.endedActivityData.length) return this.$message('请选择已过期活动执行此操作')
       this.timeVisible = true
-      this.promotionTime = [new Date(), new Date().getTime() + 3600 * 1000]
+      this.promotionTime = [new Date().getTime() + 30*60*1000, new Date().getTime() + 90*60 * 1000]
     },
     // 确定重启
     async determineRestart() {
       if (!this.promotionTime?.length) return this.$message.warning('请选择折扣促销时间')
       this.timeVisible = false
       this.isDisabled = true
-      this.$refs.Logs.writeLog(`开始重启已过期的活动`, true)
+      this.$refs.Logs.writeLog(`开始重启已过期的活动，请耐心等待！`, true)
       this.endedActivityData.forEach((item) => {
         item.offset = 0
         item.mList = []
@@ -816,34 +838,37 @@ export default {
       const end_time = Math.round(new Date(this.promotionTime[1]).getTime() / 1000)
       let discount_id = null
       try {
-        let createParams = {
-          discount_id: null,
-          end_time: end_time,
-          start_time: start_time,
-          source: 0,
-          status: 1,
-          title: item.title,
-          mallId: item.platform_mall_id,
-        }
-        let resC = await this.GoodsDiscount.createActive(item.country, createParams)
-        console.log('resC', resC)
-        if (resC.code === 200) {
-          discount_id = resC.data.discount_id
-          this.$refs.Logs.writeLog(`店铺【${item.mallName}】,创建活动【${item.title}】成功，开始获取活动详情`, true)
-        } else {
-          this.$refs.Logs.writeLog(`店铺【${item.mallName}】,创建活动【${item.title}】失败,${resC.data}`, true)
-        }
         // 1、查询折扣活动详情
         let paramsA = {}
         paramsA['item'] = item
         const nominateRes = await this.GoodsDiscount.getDiscountNominate(paramsA)
-        console.log('nominateRe---------------', nominateRes)
         if (nominateRes.code !== 200) {
           return this.$refs.Logs.writeLog(`获取【${item.title}】【${item.discount_id}】错误：${nominateRes.data}`, false)
         }
-        this.$refs.Logs.writeLog(`获取【${item.title}】【${item.discount_id}】详情结束，共${nominateRes.data.item_info.length}件商品`, true)
+        let Item_info = nominateRes.data.item_info
+        let discount_item_list = nominateRes.data.discount_item_list
+        let model_info = nominateRes.data.model_info
+        let discount_item_list_array = []
+        let Item_info_array = []
+        let model_info_obj = {}
+        console.log('nominateRe---------------', nominateRes)
+        while (Item_info.length) {
+          Item_info_array = Item_info_array.concat(Item_info)
+          discount_item_list_array = discount_item_list_array.concat(discount_item_list)
+          model_info_obj = Object.assign(model_info_obj, model_info)
+          if (Item_info.length < 100) {
+            Item_info = []
+          } else {
+            paramsA.item.offset += 100
+            let resMore = await this.GoodsDiscount.getDiscountNominate(paramsA)
+            Item_info = resMore.code === 200 ? resMore.data.item_info : []
+            discount_item_list = resMore.code === 200 ? resMore.data.discount_item_list : []
+            model_info = resMore.code === 200 ? resMore.data.model_info : {}
+          }
+        }
+        this.$refs.Logs.writeLog(`获取【${item.title}】【${item.discount_id}】详情结束，共${Item_info_array.length}件商品`, true)
         //过滤活动商品
-        let itemFilter = nominateRes.data.item_info.filter((n) => n.status === 1)
+        let itemFilter = Item_info_array.filter((n) => n.status === 1)
         let itemIds = []
         itemFilter.forEach((item) => {
           itemIds.push(item.itemid)
@@ -865,12 +890,29 @@ export default {
             this.$refs.Logs.writeLog(`活动【${item.title}】,商品【${masItem.join(',')}】已经参加了活动，不能再重复参加`, true)
           }
           if (res.data.succ_main_items.length) {
+            let createParams = {
+              discount_id: null,
+              end_time: end_time,
+              start_time: start_time,
+              source: 0,
+              status: 1,
+              title: item.title,
+              mallId: item.platform_mall_id,
+            }
+            let resC = await this.GoodsDiscount.createActive(item.country, createParams)
+            console.log('resC', resC)
+            if (resC.code === 200) {
+              discount_id = resC.data.discount_id
+              this.$refs.Logs.writeLog(`店铺【${item.mallName}】,创建活动【${item.title}】成功，开始添加活动商品`, true)
+            } else {
+              return this.$refs.Logs.writeLog(`店铺【${item.mallName}】,创建活动【${item.title}】失败,${resC.data}`, true)
+            }
             let modelList = []
             res.data.succ_main_items.forEach((mainItem) => {
-              let skuList = nominateRes.data.model_info[mainItem.item_id]
+              let skuList = model_info_obj[mainItem.item_id]
               for (let i = 0; i < skuList.length; i++) {
                 let sku = skuList[i]
-                let discountInfo = nominateRes.data.discount_item_list.find((n) => n.itemid === mainItem.item_id && n.modelid === sku.modelid)
+                let discountInfo = discount_item_list_array.find((n) => n.itemid === mainItem.item_id && n.modelid === sku.modelid)
                 if (!discountInfo) {
                   continue
                 }
@@ -896,19 +938,36 @@ export default {
             if (putModelRes.code === 200) {
               this.$refs.Logs.writeLog(`活动【${item.title}】,重启成功，添加商品成功`, true)
             } else {
-              this.$refs.Logs.writeLog(`活动【${item.title}】,重启添加商品失败${putModelRes.data}`, true)
+              this.$refs.Logs.writeLog(`活动【${item.title}】重启失败,重启添加商品失败${putModelRes.data}`, true)
             }
             console.log('putModelRes', putModelRes)
           } else {
-            this.$refs.Logs.writeLog(`活动【${item.title}】,无可重启商品`, true)
+            this.$refs.Logs.writeLog(`活动【${item.title}】重启失败,无可重启商品`, true)
           }
         } else {
+          let createParams = {
+            discount_id: null,
+            end_time: end_time,
+            start_time: start_time,
+            source: 0,
+            status: 1,
+            title: item.title,
+            mallId: item.platform_mall_id,
+          }
+          let resC = await this.GoodsDiscount.createActive(item.country, createParams)
+          console.log('resC', resC)
+          if (resC.code === 200) {
+            discount_id = resC.data.discount_id
+            this.$refs.Logs.writeLog(`店铺【${item.mallName}】,创建活动【${item.title}】成功，开始添加活动商品`, true)
+          } else {
+            return this.$refs.Logs.writeLog(`店铺【${item.mallName}】,创建活动【${item.title}】失败,${resC.data}`, true)
+          }
           let modelList = []
-          nominateRes.data.item_info.forEach((mainItem) => {
-            let skuList = nominateRes.data.model_info[mainItem.itemid]
+          Item_info_array.forEach((mainItem) => {
+            let skuList = model_info_obj[mainItem.itemid]
             for (let i = 0; i < skuList.length; i++) {
               let sku = skuList[i]
-              let discountInfo = nominateRes.data.discount_item_list.find((n) => n.itemid === mainItem.itemid && n.modelid === sku.modelid)
+              let discountInfo = discount_item_list_array.find((n) => n.itemid === mainItem.itemid && n.modelid === sku.modelid)
               console.log(discountInfo, 'discountInfo')
               if (!discountInfo) {
                 continue

@@ -4,26 +4,26 @@
       <div class="header-list">
         <div class="header-item">
           <el-select v-model="searchParams.type" size="mini" style="margin-right: 5px;width: 120px;">
-            <el-option :value="0" label="关键字" />
-            <el-option :value="1" label="商品编号" />
+            <el-option :value="0" label="关键字"/>
+            <el-option :value="1" label="商品编号"/>
           </el-select>
-          <el-input v-model="searchParams.typeKey" style="width: 120px;" size="mini" />
+          <el-input v-model="searchParams.typeKey" style="width: 120px;" size="mini"/>
         </div>
         <div class="header-item">
           <div class="item-text">排序：</div>
           <el-select v-model="searchParams.sort" style="width: 120px;" size="mini">
-            <el-option :value="''" label="默认排序" />
-            <el-option :value="'sales'" label="销量从低往高" />
-            <el-option :value="'-sales'" label="销量从高往低" />
-            <el-option :value="'price'" label="价格从低往高" />
-            <el-option :value="'-price'" label="价格从高往低" />
+            <el-option :value="''" label="默认排序"/>
+            <el-option :value="'sales'" label="销量从低往高"/>
+            <el-option :value="'-sales'" label="销量从高往低"/>
+            <el-option :value="'price'" label="价格从低往高"/>
+            <el-option :value="'-price'" label="价格从高往低"/>
           </el-select>
         </div>
         <div class="header-item">
           <div class="item-text">价格区间：</div>
-          <el-input v-model="searchParams.minPrice" style="width: 120px;" size="mini" />
-          <div class="heng" />
-          <el-input v-model="searchParams.maxPrice" style="width: 120px;" size="mini" />
+          <el-input v-model="searchParams.minPrice" style="width: 120px;" size="mini"/>
+          <div class="heng"/>
+          <el-input v-model="searchParams.maxPrice" style="width: 120px;" size="mini"/>
         </div>
         <el-button type="primary" size="mini" :disabled="isRunning" @click="categoryVisible = true">选择类目</el-button>
         <el-button type="primary" size="mini" :disabled="isRunning" @click="queryGoods">查询商品</el-button>
@@ -32,41 +32,42 @@
       <div class="header-list">
         <div class="header-item">
           <div class="item-text" style="width: 120px;">每一个店铺商品数量：</div>
-          <el-input v-model="searchParams.goodsCount" style="width: 120px;" size="mini" />
+          <el-input v-model="searchParams.goodsCount" style="width: 120px;" size="mini"/>
         </div>
         <div class="header-item">
           <div class="item-text">过滤商品编号：</div>
-          <el-input v-model="searchParams.filterNo" style="width: 120px;" size="mini" />
+          <el-input v-model="searchParams.filterNo" style="width: 120px;" size="mini"/>
           <el-tooltip class="item" effect="dark" content="不同商品id使用,号隔开" placement="top">
-            <el-button size="mini" type="text"><i class="el-icon-question" style="padding: 0 2px;" /></el-button>
+            <el-button size="mini" type="text"><i class="el-icon-question" style="padding: 0 2px;"/></el-button>
           </el-tooltip>
         </div>
         <div class="header-item">
           <div class="item-text" style="width: 72px;">销量区间：</div>
-          <el-input v-model="searchParams.minSales" size="mini" style="width: 120px;" />
-          <div class="heng" />
-          <el-input v-model="searchParams.maxSales" size="mini" style="width: 120px;" />
+          <el-input v-model="searchParams.minSales" size="mini" style="width: 120px;"/>
+          <div class="heng"/>
+          <el-input v-model="searchParams.maxSales" size="mini" style="width: 120px;"/>
         </div>
         <el-button type="primary" size="mini" :disabled="isRunning" @click="changeGoodsItem">添加已选商品</el-button>
-        <el-checkbox v-model="isApplyCheck" :disabled="isRunning" style="margin-left: 10px;" size="mini">仅显示适用商品</el-checkbox>
+        <el-checkbox v-model="isApplyCheck" :disabled="isRunning" style="margin-left: 10px;" size="mini">仅显示适用商品
+        </el-checkbox>
         <el-checkbox v-model="showlog" style="margin-left: 10px;" size="mini">隐藏日志</el-checkbox>
       </div>
     </div>
-    <Logs ref="goods_item_Logs" v-model="showlog" clear />
+    <Logs ref="goods_item_Logs" v-model="showlog" clear/>
     <div class="goods-item-table">
       <u-table
-        ref="goodsTable"
-        height="620px"
-        :data="goodsTable"
-        :data-changes-scroll-top="false"
-        :header-cell-style="{backgroundColor: '#f5f7fa',}"
-        :big-data-checkbox="true"
-        :border="false"
-        use-virtual
-        @selection-change="handleSelectionChange"
+          ref="goodsTable"
+          height="620px"
+          :data="goodsTable"
+          :data-changes-scroll-top="false"
+          :header-cell-style="{backgroundColor: '#f5f7fa',}"
+          :big-data-checkbox="true"
+          :border="false"
+          use-virtual
+          @selection-change="handleSelectionChange"
       >
-        <u-table-column align="center" type="selection" />
-        <u-table-column align="center" type="index" width="80" label="序号" />
+        <u-table-column align="center" type="selection"/>
+        <u-table-column align="center" type="index" width="80" label="序号"/>
         <u-table-column align="center" label="店铺名称" width="150" show-overflow-tooltip>
           <template v-slot="{ row }">{{ row.mall_alias_name || row.platform_mall_name }}</template>
         </u-table-column>
@@ -79,17 +80,19 @@
           <template v-slot="{ row }">
             <div style="justify-content: center; display: flex">
               <el-tooltip
-                effect="light"
-                placement="right-end"
-                :visible-arrow="false"
-                :enterable="false"
-                style="width: 56px; height: 56px; display: inline-block"
+                  effect="light"
+                  placement="right-end"
+                  :visible-arrow="false"
+                  :enterable="false"
+                  style="width: 56px; height: 56px; display: inline-block"
               >
                 <div slot="content">
-                  <el-image v-if="row['isImgShow']" :src="[row.imageList[0]] | imageRender" style="width: 400px; height: 400px" />
-                  <el-image v-else :src="[ row.imageList[0],true] | imageRender" style="width: 400px; height: 400px" />
+                  <el-image v-if="row['isImgShow']" :src="[row.imageList[0]] | imageRender"
+                            style="width: 400px; height: 400px"/>
+                  <el-image v-else :src="[ row.imageList[0],true] | imageRender" style="width: 400px; height: 400px"/>
                 </div>
-                <el-image :src="[row.imageList[0],true] | imageRender" style="width: 56px; height: 56px" @mouseenter="row['isImgShow'] = true" />
+                <el-image :src="[row.imageList[0],true] | imageRender" style="width: 56px; height: 56px"
+                          @mouseenter="row['isImgShow'] = true"/>
               </el-tooltip>
             </div>
           </template>
@@ -104,21 +107,21 @@
             </div>
           </template>
         </u-table-column>
-        <u-table-column align="center" sortable label="库存" width="100" prop="stock" show-overflow-tooltip />
-        <u-table-column align="center" sortable label="销量" width="100" prop="sold" show-overflow-tooltip />
-        <u-table-column align="center" sortable label="价格" width="100" prop="price" show-overflow-tooltip />
+        <u-table-column align="center" sortable label="库存" width="100" prop="stock" show-overflow-tooltip/>
+        <u-table-column align="center" sortable label="销量" width="100" prop="sold" show-overflow-tooltip/>
+        <u-table-column align="center" sortable label="价格" width="100" prop="price" show-overflow-tooltip/>
       </u-table>
     </div>
     <div class="on_new_dialog">
       <el-dialog
-        title="类目映射"
-        width="700px"
-        top="25vh"
-        :close-on-click-modal="false"
-        :visible.sync="categoryVisible"
-        :modal="false"
+          title="类目映射"
+          width="700px"
+          top="25vh"
+          :close-on-click-modal="false"
+          :visible.sync="categoryVisible"
+          :modal="false"
       >
-        <categoryMapping v-if="categoryVisible" :goods-current="{}" :mall-list="mall" @categoryChange="categoryChange" />
+        <categoryMapping v-if="categoryVisible" :goods-current="{}" :mall-list="mall" @categoryChange="categoryChange"/>
       </el-dialog>
     </div>
   </div>
@@ -138,6 +141,12 @@ export default {
       type: Array,
       default() {
         return []
+      }
+    },
+    isNeedFilterAct:{
+      type: Boolean,
+      default() {
+        return false
       }
     }
   },
@@ -201,7 +210,6 @@ export default {
       terminateThread(this.queryGoodsList)
     },
     categoryChange(val) {
-      console.log('categoryChange', val)
       if (val) {
         const categoryList = val.categoryList
         const category = categoryList[categoryList.length - 1] || ''
@@ -210,34 +218,22 @@ export default {
       this.categoryVisible = false
     },
     async getCategoryTbInfo(item) {
-      // let categoryName = ''
-      // const catiDList = item?.global_cat?.catid || []
-      // const categoryId = catiDList[catiDList.length - 1] + ''
-      // categoryName = this.categoryList[categoryId]
-      // if (!categoryName) {
-      //   const category_id = await this.$appConfig.temporaryCacheInfo('get', `category_${categoryId}`, '')
-      //   console.log('category_id', category_id)
-      //   const categoryTbInfoRes = await this.$commodityService.getCategoryTbInfo(this.country, categoryId, '0', '')
-      //   const categoryTbInfoJson = JSON.parse(categoryTbInfoRes)
-      //   const categoryTbInfoData = categoryTbInfoJson.data
-      //   const categories = categoryTbInfoData.categories && categoryTbInfoData.categories[0]
-      //   this.categoryList[categoryId] = categories.category_cn_name
-      //   this.$appConfig.temporaryCacheInfo('save', `category_${categoryId}`, categories.category_cn_name)
-      // }
       const catiDList = item?.global_cat?.catid || []
       const categoryId = catiDList[catiDList.length - 1] + ''
       const categoryName = this.categoryList[`category_${categoryId}`]
-      if (!categoryName || categoryName === undefined) {
+      if (!categoryName) {
         const categoryRes = await this.$appConfig.temporaryCacheInfo('get', `category_${categoryId}`, '')
         const categoryName = JSON.parse(categoryRes)
-        if (Object.keys(categoryName).length === 0) {
+        if (!categoryName || Object.keys(categoryName).length === 0) {
+          this.$appConfig.temporaryCacheInfo('save', `category_${categoryId}`, '正在加载中...')
           const categoryTbInfoRes = await this.$commodityService.getCategoryTbInfo(this.country, categoryId, '0', '')
           const categoryTbInfoJson = JSON.parse(categoryTbInfoRes)
           const categoryTbInfoData = categoryTbInfoJson.data
-          const categories = categoryTbInfoData.categories && categoryTbInfoData.categories[0]
-          this.categoryList[categoryId] = categories.category_cn_name
-          this.categoryList[`category_${categoryId}`] = categories.category_cn_name
-          this.$appConfig.temporaryCacheInfo('save', `category_${categoryId}`, categories.category_cn_name)
+          const categories = categoryTbInfoData.categories && categoryTbInfoData.categories[0] || ''
+          let category_cn_name = categories && categories.category_cn_name || '未匹配到类目'
+          this.categoryList[categoryId] = category_cn_name
+          this.categoryList[`category_${categoryId}`] = category_cn_name
+          this.$appConfig.temporaryCacheInfo('save', `category_${categoryId}`, category_cn_name)
         } else {
           this.categoryList[`category_${categoryId}`] = categoryName
         }
@@ -277,15 +273,25 @@ export default {
         const productSelectorData = JSON.parse(productSelectorRes.data)
         console.log('productSelectorJson', productSelectorData)
         const tempList = productSelectorData.data && productSelectorData.data.item_list || []
-        this.$refs.goods_item_Logs.writeLog(`店铺【${mallName}】获取第${index}页商品列表成功，共商品${tempList.length}个`, true)
+        const item_stock_price_infos = productSelectorData.data && productSelectorData.data.item_stock_price_infos || []
+        let errorCount = 0
         for (const son of tempList) {
-          if (this.isApplyCheck) {
-            let filterNoStr = this.searchParams.filterNo || ''
-            filterNoStr = filterNoStr.replaceAll('，', ',')
-            const filterNoList = filterNoStr && filterNoStr.split(',')
-            if (son.price < this.searchParams.minPrice || son.price > this.searchParams.maxPrice || filterNoList.includes(son.itemid) ||
-                son.sold < this.searchParams.minSales || son.sold > this.searchParams.maxSales) {
-              return
+          let filterNoStr = this.searchParams.filterNo || ''
+          filterNoStr = filterNoStr.replaceAll('，', ',')
+          const filterNoList = filterNoStr && filterNoStr.split(',')
+          if (son.price < this.searchParams.minPrice || son.price > this.searchParams.maxPrice || filterNoList.includes(son.itemid) ||
+              son.sold < this.searchParams.minSales || son.sold > this.searchParams.maxSales) {
+            ++errorCount
+            continue
+          }
+          if (this.isApplyCheck && this.isNeedFilterAct) {
+            let info = item_stock_price_infos.find(i=>i.item_id === son.itemid)
+            if(info && info.sku_stock_price_list[0]){
+              let price_info = info.sku_stock_price_list[0].price_info
+              if(price_info.price_promotion_type){
+                ++errorCount
+                continue
+              }
             }
           }
           await this.getCategoryTbInfo(son)
@@ -301,6 +307,7 @@ export default {
           })
           temp && this.goodsTable.push(temp)
         }
+        this.$refs.goods_item_Logs.writeLog(`店铺【${mallName}】获取第${index}页商品列表成功，共商品${tempList.length - errorCount}个`, true)
         const goodsCount = this.searchParams.goodsCount
         offset += 100
         if (this.isRunning && tempList.length === 100 && offset < goodsCount) {

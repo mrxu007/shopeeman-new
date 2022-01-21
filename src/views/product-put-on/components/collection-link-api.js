@@ -1,4 +1,4 @@
-import { dateFormat, delay } from '../../../util/util'
+import { dateFormat, getGoodLinkModel } from '../../../util/util'
 class CollectLinkApI {
   _this = null // vue 实例
   constructor(that) {
@@ -11,10 +11,9 @@ class CollectLinkApI {
     try {
       this.goods = goods
       console.log('goodsData', this.goods)
-      const { platformId, GoodsId, ShopId, Site, Platform } = this.goods
+      const { platformId, GoodsId, ShopId, Site, Platform, AccessToken } = this.goods
       const params = {}
       params['GoodsId'] = GoodsId
-      params['ShopId'] = ShopId
       switch (platformId || Platform) {
         case 1: // 拼多多  1 拼多多接口、  1.1 拼多多补充接口、  1.2 拼多多优惠采集
         case 1.2:
@@ -36,10 +35,11 @@ class CollectLinkApI {
         case 12: // '速卖通'
           break
         case 13: // '天猫淘宝海外平台'
-          params['ShopId'] = ShopId
-          params['AccessToken'] = ''
+          // params['ShopId'] = ShopId
+          params['AccessToken'] = AccessToken
           break
       }
+      console.log(params)
       const res = await this._this.$collectService.queryDetailById(Number(platformId || Platform), params, isUseCache)
       const isJSONData = this.isJsonString(res)
       if (isJSONData?.Code === 200) {
@@ -78,155 +78,22 @@ class CollectLinkApI {
       } else {
         linkArr = linkKey
       }
-      const execPlatform = /(yangkeduo.com)|(taobao.com)|(jd.com)|(1688.com)|(detail.tmall.com)|(pinduoduo.com)/g
       linkArr.map(item => {
-        const platform = item.Url.match(execPlatform)
-        if (!platform) {
-          this.writeLog(`链接:${item.Url} 识别支持平台失败`, false)
-        } else {
-          let GoodsId = null
-          switch (platform[0]) {
-            case 'yangkeduo.com':
-              try {
-                GoodsId = item.Url.match(/goods_id=(\d+)/)[1]
-                if (GoodsId) {
-                  goodsArrInfo.push({
-                    'platformId': 1,
-                    GoodsId,
-                    Url: item.Url,
-                    Weight: item.Weight,
-                    Length: item.Length,
-                    Width: item.Width,
-                    Height: item.Height
-                  })
-                } else {
-                  this.writeLog(`链接:${item.Url} 识别商品ID失败`, false)
-                }
-              } catch (error) {
-                this.writeLog(`链接:${item.Url} 识别商品ID失败`, false)
-              }
-              break
-            case 'pinduoduo.com':
-              try {
-                GoodsId = item.Url.match(/goods_id=(\d+)/)[1]
-                if (GoodsId) {
-                  goodsArrInfo.push({
-                    'platformId': 1,
-                    GoodsId,
-                    Url: item.Url,
-                    Weight: item.Weight,
-                    Length: item.Length,
-                    Width: item.Width,
-                    Height: item.Height
-                  })
-                } else {
-                  this.writeLog(`链接:${item.Url} 识别商品ID失败`, false)
-                }
-              } catch (error) {
-                this.writeLog(`链接:${item.Url} 识别商品ID失败`, false)
-              }
-              break
-            case 'taobao.com':
-              try {
-                GoodsId = item.Url.match(/id=(\d+)/)[1]
-                if (GoodsId) {
-                  goodsArrInfo.push({
-                    'platformId': 2,
-                    GoodsId,
-                    Url: item.Url,
-                    Weight: item.Weight,
-                    Length: item.Length,
-                    Width: item.Width,
-                    Height: item.Height
-                  })
-                } else {
-                  this.writeLog(`链接:${item.Url} 识别商品ID失败`, false)
-                }
-              } catch (error) {
-                this.writeLog(`链接:${item.Url} 识别商品ID失败`, false)
-              }
-              break
-            case 'detail.tmall.com':
-              try {
-                GoodsId = item.Url.match(/id=(\d+)/)[1]
-                if (GoodsId) {
-                  goodsArrInfo.push({
-                    'platformId': 3,
-                    GoodsId,
-                    Url: item.Url,
-                    Weight: item.Weight,
-                    Length: item.Length,
-                    Width: item.Width,
-                    Height: item.Height
-                  })
-                } else {
-                  this.writeLog(`链接:${item.Url} 识别商品ID失败`, false)
-                }
-              } catch (error) {
-                this.writeLog(`链接:${item.Url} 识别商品ID失败`, false)
-              }
-              break
-            case 'jd.com':
-              try {
-                GoodsId = item.Url.match(/(\d+)\.html/)[1]
-                if (GoodsId) {
-                  goodsArrInfo.push({
-                    'platformId': 10,
-                    GoodsId,
-                    Url: item.Url,
-                    Weight: item.Weight,
-                    Length: item.Length,
-                    Width: item.Width,
-                    Height: item.Height
-                  })
-                } else {
-                  this.writeLog(`链接:${item.Url} 识别商品ID失败`, false)
-                }
-              } catch (error) {
-                this.writeLog(`链接:${item.Url} 识别商品ID失败`, false)
-              }
-              break
-            case '1688.com':
-              try {
-                GoodsId = item.Url.match(/(\d+)\.html/)[1]
-                if (GoodsId) {
-                  goodsArrInfo.push({
-                    'platformId': 8,
-                    GoodsId,
-                    Url: item.Url,
-                    Weight: item.Weight,
-                    Length: item.Length,
-                    Width: item.Width,
-                    Height: item.Height
-                  })
-                } else {
-                  this.writeLog(`链接:${item.Url} 识别商品ID失败`, false)
-                }
-              } catch (error) {
-                this.writeLog(`链接:${item.Url} 识别商品ID失败`, false)
-              }
-              break
-            case 'jinritemai.com':
-              try {
-                GoodsId = item.Url.match(/id=(\d+)/)[1]
-                if (GoodsId) {
-                  goodsArrInfo.push({
-                    'platformId': 14,
-                    GoodsId,
-                    Url: item.Url,
-                    Weight: item.Weight,
-                    Length: item.Length,
-                    Width: item.Width,
-                    Height: item.Height
-                  })
-                } else {
-                  this.writeLog(`链接:${item.Url} 识别商品ID失败`, false)
-                }
-              } catch (error) {
-                this.writeLog(`链接:${item.Url} 识别商品ID失败`, false)
-              }
-              break
-          }
+        const linkRes = getGoodLinkModel(item.Url.toString())
+        if (linkRes.code !== 200) this.writeLog(`${linkRes.data}`, false)
+        const data = linkRes.data
+        if (data.GoodsId) {
+          goodsArrInfo.push({
+            platformId: data['platformId'],
+            GoodsId: data['GoodsId'],
+            Site: data['Site'],
+            ShopId: data['ShopId'],
+            Url: item.Url,
+            Weight: item.Weight,
+            Length: item.Length,
+            Width: item.Width,
+            Height: item.Height
+          })
         }
       })
       return { code: 200, data: goodsArrInfo }

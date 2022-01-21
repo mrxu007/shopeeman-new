@@ -41,6 +41,8 @@ class CollectKeyWordApI {
 
     const params = {}
     params['Key'] = key
+    let wordLimitData = []
+    let fData = []
     while (StartPage) {
       if (this._this.flag) { // 取消采集
         break
@@ -98,29 +100,47 @@ class CollectKeyWordApI {
       res = JSON.parse(res)
       if (res.Code !== 200) {
         this.writeLog(`采集${key}关键词第${StartPage}页第一部分失败：${res.Code} ${res.Msg}`, false)
+        if (this.platformId === 2) break
       } else {
-        // 存放采集数据
-        this.writeLog(`采集${key}关键词第${StartPage}页第一部分，采集到约${res.ListItem.length}条`, true)
-        this.GoodsData.push(...res.ListItem)
+        if (this.platformId === 2) { // 淘宝关键词 判断单词最大
+          if (wordLimitData.length >= Number(this.commonAttr.wordLimit)) {
+            break
+          }
+          this.writeLog(`采集${key}关键词第${StartPage}页数据，采集到约${res.ListItem.length}条`, true)
+          fData = this._this.filterData(res.ListItem)
+          wordLimitData = wordLimitData.concat(fData).splice(0, Number(this.commonAttr.wordLimit))
+        } else {
+          // 存放采集数据
+          this.writeLog(`采集${key}关键词第${StartPage}页第一部分，采集到约${res.ListItem.length}条`, true)
+          this.GoodsData.push(...res.ListItem)
+        }
       }
       // 采集初始页大于总页码
-      if (StartPage >= EndPage) {
+      if (this.platformId !== 2 && StartPage >= EndPage) {
         break
       }
       StartPage++
     }
-
     // 处理所需参数
-    this.GoodsData = this.GoodsData.map((item, index) => {
-      item.id = index + 1
-      item.information = ''
-      if (this.platformId === 9) {
-        item.Site = params.Site
-      }
-      return item
-    })
-    const newData = this._this.filterData(this.GoodsData)
-    return { code: 200, data: newData }
+    if (this.platformId === 2) {
+      wordLimitData = wordLimitData.map((item, index) => {
+        item.id = index + 1
+        item.information = ''
+        return item
+      })
+      return { code: 200, data: wordLimitData }
+    } else {
+      this.GoodsData = this.GoodsData.map((item, index) => {
+        item.id = index + 1
+        item.information = ''
+        if (this.platformId === 9) {
+          item.Site = params.Site
+        }
+        return item
+      })
+      const newData = this._this.filterData(this.GoodsData)
+      return { code: 200, data: newData }
+    }
   }
   async keywordSearchTwo(key) { // 如果当前平台为拼多多需额外调用 拼多多补充接口  1.1-------------------------
     this.GoodsData = null

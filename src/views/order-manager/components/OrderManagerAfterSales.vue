@@ -117,89 +117,100 @@
       </div>
     </div>
     <div class="table-form">
-      <el-table
+      <u-table
+      :border="false"
+       use-virtual
         ref="multipleTable"
         v-loading="loading"
-        width="100%"
-        height="calc(100vh - 243px)"
+        height="600px"
         :data="tableList"
-        :header-cell-style="{ background: '#f7fafa' }"
+        tooltip-effect="dark"
         @selection-change="handleSelectionChange"
+        :row-style="{ height: '60px !important' }"
+        :cell-style="{ padding: '0px' }"
       >
-        <el-table-column type="selection" width="55" fixed />
-        <el-table-column align="center" type="index" label="序号" width="50" fixed="left">
+        <u-table-column type="selection" width="55" fixed />
+        <u-table-column align="center" type="index" label="序号" width="50" fixed="left">
           <template slot-scope="scope">{{ (page - 1) * pageSize + scope.$index + 1 }}</template>
-        </el-table-column>
-        <el-table-column label="订单编号" prop="order_sn" min-width="180px" fixed="left">
+        </u-table-column>
+        <u-table-column label="订单编号" prop="order_sn" min-width="180px" fixed="left">
           <template slot-scope="{ row }">
             <span>
               <i class="el-icon-document-copy copyStyle" @click="copy(row.order_sn)" />
               <span class="tableActive" @click="viewDetails('orderDetail', row.order_id, row.mall_info.platform_mall_id)">{{ row.order_sn }}</span>
             </span>
           </template>
-        </el-table-column>
-        <el-table-column label="站点" prop="country" min-width="60px" align="center">
-          <template
-            slot-scope="{ row }"
-          ><span>{{ row.mall_info.country | chineseSite }}</span></template>
-        </el-table-column>
-        <el-table-column label="店铺名称" prop="mall_info.platform_mall_name" width="120px" align="center" show-overflow-tooltip />
-        <el-table-column align="center" prop="color_id" label="颜色标识" min-width="70">
+        </u-table-column>
+        <u-table-column label="站点" prop="country" min-width="60px" align="center">
+          <template slot-scope="{ row }"
+            ><span>{{ row.mall_info.country | chineseSite }}</span></template
+          >
+        </u-table-column>
+        <u-table-column label="店铺名称" prop="mall_info.platform_mall_name" width="120px" align="center" show-overflow-tooltip />
+        <u-table-column align="center" prop="color_id" label="颜色标识" width="120"  show-overflow-tooltip>
+          <template slot-scope="scope">
+            <p :style="{ background: changeColorLabel(scope.row.color_id), height: '20px' }" />
+            <span >{{ changeColorLabel(scope.row.color_id, 'name') }}</span>
+          </template>
+        </u-table-column>
+        <!-- <u-table-column align="center" prop="color_id" label="颜色标识" min-width="70">
           <template slot-scope="scope">
             <p :style="{ background: changeColorLabel(scope.row.color_id), height: '26px' }" />
           </template>
-        </el-table-column>
-        <el-table-column align="center" prop="color_id" label="标识名称" min-width="70">
+        </u-table-column>
+        <u-table-column align="center" prop="color_id" label="标识名称" min-width="70">
           <template slot-scope="scope">
             <span>{{ changeColorLabel(scope.row.color_id, 'name') }}</span>
           </template>
-        </el-table-column>
-        <el-table-column label="退款金额" prop="refund_amount" min-width="100px" align="center" />
-        <el-table-column label="售后状态" prop="status" min-width="100px" align="center">
-          <template
-            slot-scope="{ row }"
-          ><p :style="{ color: changeOrderStatus(row.status, 'color') }">{{ changeOrderStatus(row.status) }}</p></template></el-table-column>
-        <el-table-column label="申请时间" prop="update_time" min-width="180px" align="center" />
-        <el-table-column label="采购状态" prop="shot_order_info.shot_status" min-width="90px" align="center">
-          <template
-            slot-scope="{ row }"
-          ><span :style="{ color: changeShotStatus(row.shot_order_info.shot_status, 'color') }">{{ changeShotStatus(row.shot_order_info.shot_status) }}</span></template></el-table-column>
-        <el-table-column label="售后原因" prop="after_reason" min-width="150px" align="center" show-overflow-tooltip />
-        <el-table-column label="本地备注" prop="remark" min-width="180px" align="center">
+        </u-table-column> -->
+        <u-table-column label="退款金额" prop="refund_amount" min-width="100px" align="center" />
+        <u-table-column label="售后状态" prop="status" min-width="100px" align="center">
+          <template slot-scope="{ row }"
+            ><p :style="{ color: changeOrderStatus(row.status, 'color') }">{{ changeOrderStatus(row.status) }}</p></template
+          ></u-table-column
+        >
+        <u-table-column label="申请时间" prop="update_time" min-width="180px" align="center" />
+        <u-table-column label="采购状态" prop="shot_order_info.shot_status" min-width="90px" align="center">
+          <template slot-scope="{ row }"
+            ><span :style="{ color: changeShotStatus(row.shot_order_info.shot_status, 'color') }">{{ changeShotStatus(row.shot_order_info.shot_status) }}</span></template
+          ></u-table-column
+        >
+        <u-table-column label="售后原因" prop="after_reason" min-width="150px" align="center" show-overflow-tooltip />
+        <u-table-column label="本地备注" prop="remark" min-width="180px" align="center">
           <template v-slot="{ row }">
             <el-input v-if="row.isChecked" v-model="row.remark" v-fo size="mini" resize="none" placeholder="本地备注" @blur="changeRemark(row)" />
             <span v-else @click="row.isChecked = true">
               <el-input v-model="row.remark" :disabled="!row.isChecked" size="mini" />
             </span>
           </template>
-        </el-table-column>
-        <el-table-column label="商品ID" prop="goods_info.goods_id" min-width="150px">
+        </u-table-column>
+        <u-table-column label="商品ID" prop="goods_info.goods_id" min-width="150px">
           <template slot-scope="{ row }">
             <span>
               <i class="el-icon-document-copy copyStyle" @click="copy(row.goods_info.goods_id)" />
               <span class="tableActive" @click="openUrl(row, 'product')">{{ row.goods_info.goods_id }}</span>
             </span>
           </template>
-        </el-table-column>
-        <el-table-column label="商品数量" prop="goods_info.goods_count" min-width="150px" align="center" />
-        <el-table-column label="商品图片" prop="goods_info.goods_img" min-width="100px" align="center">
+        </u-table-column>
+        <u-table-column label="商品数量" prop="goods_info.goods_count" min-width="150px" align="center" />
+        <u-table-column label="商品图片" prop="goods_info.goods_img" min-width="100px" align="center">
           <template slot-scope="{ row }">
-            <el-tooltip effect="light" placement="right-end" :visible-arrow="false" :enterable="false" style="width: 56px; height: 56px; display: inline-block">
+            <el-tooltip effect="light" placement="right-end" :visible-arrow="false" :enterable="false" style="width: 32px; height: 32px; display: inline-block">
               <div slot="content">
-                <el-image :src="[ row.goods_info.goods_img] | imageRender" style="width: 400px; height: 400px" />
+                <el-image :src="[row.goods_info.goods_img] | imageRender" style="width: 400px; height: 400px" />
               </div>
-              <el-image :src="[row.goods_info.goods_img,true] | imageRender" style="width: 56px; height: 56px" />
+              <el-image :src="[row.goods_info.goods_img, true] | imageRender" style="width: 32px; height: 32px" />
             </el-tooltip>
           </template>
-        </el-table-column>
-        <el-table-column align="center" label="商品类目" width="120">
+        </u-table-column>
+        <u-table-column align="center" label="商品类目" width="120">
           <template slot-scope="scope">
             <span>{{ scope.row.categoryName }} </span>
           </template>
-        </el-table-column>
-        <!-- <el-table-column label="商品类目" prop="goods_info.goods_category_id" min-width="100px" align="center" /> -->
-        <el-table-column label="商品规格" prop="goods_info.variation_name" min-width="100px" align="center" />
-        <el-table-column label="采购商品ID" prop="goods_info.ori_goods_id" min-width="180px">
+        </u-table-column>
+        <!-- <u-table-column label="商品类目" prop="goods_info.goods_category_id" min-width="100px" align="center" /> -->
+        <u-table-column label="商品规格" prop="goods_info.variation_name" min-width="100px" align="center" />
+        <u-table-column label="采购商品ID" prop="goods_info.ori_goods_id" min-width="180px">
           <template slot-scope="{ row }">
             <i v-if="row.goods_info.ori_goods_id" class="el-icon-document-copy copyStyle" @click="copy(row.goods_info.ori_goods_id)" />
             <span v-if="row.goods_info.ori_goods_id">
@@ -208,31 +219,31 @@
               </el-button>
             </span>
           </template>
-        </el-table-column>
-        <el-table-column label="采购订单号" width="150">
+        </u-table-column>
+        <u-table-column label="采购订单号" width="150" show-overflow-tooltip>
           <template slot-scope="scope">
             <i v-if="scope.row.shot_order_info.shot_order_sn" class="el-icon-document-copy copyStyle" @click="copy(scope.row.shot_order_info.shot_order_sn)" />
             <span class="tableActive">{{ scope.row.shot_order_info.shot_order_sn }}</span>
           </template>
-        </el-table-column>
-        <!-- <el-table-column label="采购价" prop="" min-width="100px" align="center" /> -->
-        <el-table-column label="采购时间" prop="shot_order_info.shotted_at" min-width="180px" align="center" />
-        <el-table-column label="采购物流单号" prop="shot_order_info.shot_tracking_number" min-width="180px">
+        </u-table-column>
+        <!-- <u-table-column label="采购价" prop="" min-width="100px" align="center" /> -->
+        <u-table-column label="采购时间" prop="shot_order_info.shotted_at" min-width="180px" align="center" />
+        <u-table-column label="采购物流单号" prop="shot_order_info.shot_tracking_number" min-width="180px">
           <template slot-scope="{ row }">
             <i v-if="row.shot_order_info.shot_tracking_number" class="el-icon-document-copy copyStyle" @click="copy(row.shot_order_info.shot_tracking_number)" />
             <span v-if="row.shot_order_info.shot_tracking_number" class="tableActive">{{ row.shot_order_info.shot_tracking_number }} </span>
           </template>
-        </el-table-column>
-        <el-table-column align="center" prop="buy_account_info" label="采购账号" width="120">
+        </u-table-column>
+        <u-table-column align="center" prop="buy_account_info" label="采购账号" width="120">
           <template slot-scope="scope">{{ scope.row.shot_order_info.buy_account_info ? scope.row.shot_order_info.buy_account_info.name : '' }}</template>
-        </el-table-column>
-        <el-table-column label="订单创建时间" prop="after_created_at" min-width="180px" align="center" />
-        <el-table-column label="订单截止发货时间" prop="" min-width="180px" align="center" />
-        <el-table-column label="退货物流号" prop="return_tracking_number" min-width="180px" align="center" />
-        <el-table-column label="退件发货地址" prop="return_delivery_time" min-width="200px" align="center" />
-        <el-table-column label="退货地址" prop="return_address" min-width="200px" align="center" />
-        <el-table-column label="退货邮寄地址" prop="return_pickup_address" min-width="200px" align="center" />
-        <el-table-column label="操作" prop="" min-width="150px" fixed="right" align="center">
+        </u-table-column>
+        <u-table-column label="订单创建时间" prop="after_created_at" min-width="180px" align="center" />
+        <u-table-column label="订单截止发货时间" prop="" min-width="180px" align="center" />
+        <u-table-column label="退货物流号" prop="return_tracking_number" min-width="180px" align="center" />
+        <u-table-column label="退件发货地址" prop="return_delivery_time" min-width="200px" align="center" />
+        <u-table-column label="退货地址" prop="return_address" min-width="200px" align="center" />
+        <u-table-column label="退货邮寄地址" prop="return_pickup_address" min-width="200px" align="center" />
+        <u-table-column label="操作" prop="" min-width="150px" fixed="right" align="center">
           <template v-slot="{ row, $index }">
             <el-dropdown style="width: 100px; margin-left: 10px">
               <el-button style="width: 100px" size="mini" plain type="primary"> 更多操作<i class="el-icon-arrow-down el-icon--right" /> </el-button>
@@ -246,8 +257,8 @@
               </el-dropdown-menu>
             </el-dropdown>
           </template>
-        </el-table-column>
-      </el-table>
+        </u-table-column>
+      </u-table>
       <div class="pagination">
         <el-pagination
           background
@@ -305,14 +316,14 @@ import orderSync from '../../../services/timeOrder'
 import { setGoodsDelist, setGoodsDelete } from './orderCenter/handleGoods'
 export default {
   components: {
-    storeChoose
+    storeChoose,
   },
   data() {
     return {
       pickerOptions: {
         disabledDate(time) {
           return time.getTime() > Date.now()
-        }
+        },
       },
       orderRemark: '',
       activeRemarkID: 0,
@@ -328,7 +339,7 @@ export default {
         { label: '已取消', value: 7 },
         { label: '已申请退款', value: 8 },
         { label: '退款成功', value: 9 },
-        { label: '付款失败', value: 10 }
+        { label: '付款失败', value: 10 },
       ],
       rowData: '', // 操作行数据
       multipleSelection: [],
@@ -346,7 +357,7 @@ export default {
         shotOrderStatus: '', // 拍单状态
         afterApplyTime: '', // 申请时间
         createdTime: '', // 创建时间
-        colorLabelId: 0 // 颜色标识id
+        colorLabelId: 0, // 颜色标识id
       },
       page: 1,
       pageSize: 20,
@@ -362,14 +373,14 @@ export default {
       colorVisible: false,
       colorRadio: '',
       selectColorList: [],
-      categoryInfo: {}
+      categoryInfo: {},
     }
   },
   mounted() {
     this.loading = true
     this.getBuyerList() // 获取买手号信息
     this.getColorList()
-    this.cloumn_date1 = creatDate(30)
+    this.cloumn_date1 = creatDate(15)
     setTimeout(() => {
       this.search()
     }, 2000)
@@ -406,7 +417,7 @@ export default {
         const params = {
           action: type,
           order_id: order.order_id,
-          shop_id: order.mall_info.platform_mall_id
+          mallId: order.mall_info.platform_mall_id,
         }
         const res = await this.$shopeemanService.respondCancelRequest(order.country, params)
         if (res.code === 200) {
@@ -415,10 +426,14 @@ export default {
           if (res.code === 403) {
             this.$refs.Logs.writeLog(`订单【${order.order_sn}】${typeC}买家取消订单操作失败，店铺未登录`, false)
           } else {
-            this.$refs.Logs.writeLog(`订单【${order.order_sn}】${typeC}买家取消订单操作失败，${res.data}`, false)
+            if (res.data.indexOf('order not ready to cancel') > -1) {
+              //code 120410416
+              this.$refs.Logs.writeLog(`订单【${order.order_sn}】${typeC}该订单状态无法执行此操作，可能已回复，请知悉！`, true)
+            } else {
+              this.$refs.Logs.writeLog(`订单【${order.order_sn}】${typeC}买家取消订单操作失败，${res.data}`, false)
+            }
           }
         }
-        console.log(res, 'respondCancelRequest')
       }
     },
     // 商品删除
@@ -426,7 +441,7 @@ export default {
       this.$confirm('是否删除该商品?', '商品删除', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
-        type: 'warning'
+        type: 'warning',
       })
         .then(() => {
           setGoodsDelete(this, row)
@@ -438,7 +453,7 @@ export default {
       this.$confirm('是否下架该商品?', '商品下架', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
-        type: 'warning'
+        type: 'warning',
       })
         .then(() => {
           setGoodsDelist(this, row)
@@ -470,7 +485,7 @@ export default {
       })
       const params = {
         sysOrderIds: ids,
-        id: this.colorRow.id
+        id: this.colorRow.id,
       }
       const res = await this.$api.setColorLabel(params)
       if (res.data.code === 200) {
@@ -496,7 +511,7 @@ export default {
         const obj = {
           id: 0,
           name: '取消标识',
-          color: ''
+          color: '',
         }
         this.colorList.unshift(obj)
       }
@@ -554,7 +569,7 @@ export default {
       row.isChecked = false
       const res = await this.$api.orderSaveRemark({
         id: row.id,
-        remark: row.remark
+        remark: row.remark,
       })
       if (res.data.code !== 200) {
         this.$message.error(`修改失败:${res.data.message}`, false)
@@ -567,7 +582,7 @@ export default {
       const reqStr = {
         type: type,
         shopId: shopId,
-        id: id
+        id: id,
       }
       this.$BaseUtilService.getOrderDetailInfo(shopId, JSON.stringify(reqStr))
     },
@@ -576,7 +591,7 @@ export default {
       let url = data
       if (type === 'product') {
         const params = {
-          platform_mall_id: data.mall_info.platform_mall_id
+          platform_mall_id: data.mall_info.platform_mall_id,
         }
         const webUrl = await this.$shopeemanService.getWebUrl(data.country, params)
         console.log(webUrl, 'webUrl', data.country)
@@ -591,7 +606,7 @@ export default {
         const reqStr = {
           type: type,
           shopId: shopId,
-          id: goodsid
+          id: goodsid,
         }
         this.$BaseUtilService.getOrderDetailInfo(shopId, JSON.stringify(reqStr))
       }
@@ -666,7 +681,7 @@ export default {
         Cookiestr: JSON.stringify(account.login_info),
         AccountType: account.type,
         Ua: account.ua,
-        Country: account.site || ''
+        Country: account.site || '',
       }
       return params
     },
@@ -770,7 +785,7 @@ export default {
       if (window.performance && typeof window.performance.now === 'function') {
         d += performance.now() // use high-precision timer if available
       }
-      var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+      var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
         var r = (d + Math.random() * 16) % 16 | 0
         d = Math.floor(d / 16)
         return (c === 'x' ? r : (r & 0x3) | 0x8).toString(16)
@@ -806,7 +821,7 @@ export default {
       const list = []
       const query = {
         sysOrderIds: '',
-        status: this.shotstatus
+        status: this.shotstatus,
       }
       arr.forEach((item) => {
         list.push(item.sys_order_id)
@@ -848,23 +863,22 @@ export default {
       this.searchMallList = val
     },
     // 获取类目
-    getCategoryInfo(country, cateId) {
+    async getCategoryInfo(country, cateId) {
       if (this.categoryInfo[cateId]) {
         return this.categoryInfo[cateId]
       } else {
         this.categoryInfo[cateId] = ''
-        this.$commodityService.getCategoryTbInfo(country, cateId.toString(), '0', '').then((res) => {
-          const resObj = res && JSON.parse(res)
-          // console.log(resObj, '类目')
-          if (resObj && resObj.code === 200) {
-            if (resObj.data.categories) {
-              this.categoryInfo[cateId] = ''
-              return this.categoryInfo[cateId]
-            } else {
-              return ''
-            }
-          }
-        })
+        let res = await this.$commodityService.getCategoryTbInfo(country, cateId.toString(), '0', '')
+        let resObj = res && JSON.parse(res)
+        // console.log(resObj, '类目')
+        if (resObj && resObj.code === 200 && resObj.data.categories && resObj.data.categories.length) {
+          let categoryName = resObj.data.categories[0].category_cn_name
+          this.categoryInfo[cateId] = categoryName
+          // console.log(this.categoryInfo[cateId], categoryName)
+          return categoryName
+        } else {
+          return ''
+        }
       }
     },
     // 搜索
@@ -887,29 +901,35 @@ export default {
       this.tableList = []
       try {
         const res = await this.$api.aftermarket(params)
+        this.loading = false
         if (res.status === 200) {
           const list = res.data.data.data || []
-          list.forEach((row, i) => {
-            row.isChecked = false
-            row.categoryName = ''
-            // row.categoryName = this.getCategoryInfo(row.country, row.goods_info.goods_category_id)
-          })
           this.tableList = list
           this.total = res.data.data.total
+          this.$nextTick(() => {
+            this.getCate()
+          })
         } else {
           this.$message.error('数据请求失败')
         }
-        this.loading = false
       } catch (error) {
         console.log('初始化', error)
         this.loading = false
       }
       console.log(this.tableList)
     },
+    async getCate() {
+      this.tableList.forEach(async (row, i) => {
+        row.isChecked = false
+        // row.categoryName = ''
+        row.categoryName = await this.getCategoryInfo(row.country, row.goods_info.goods_category_id)
+      })
+    },
     changeOrderStatus,
     changeShotStatus,
     // 分页
     handleSizeChange(val) {
+      this.page  = 1
       this.pageSize = val
       this.search()
     },
@@ -936,8 +956,8 @@ export default {
         // console.log('复制失败')
       }
       target.parentElement.removeChild(target)
-    }
-  }
+    },
+  },
 }
 </script>
 <style lang="less">
