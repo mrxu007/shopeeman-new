@@ -1327,6 +1327,7 @@ export default {
     getCategoryName() {
       return function(id, country) {
         if (!this.categoryNameArr[id]) {
+          this.categoryNameArr[id] = '正在获取类目...'
           const categoryName = '正在获取类目...'
           this.setCategoryName(id, country)
           return categoryName || ''
