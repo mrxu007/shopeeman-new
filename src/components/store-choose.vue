@@ -12,7 +12,6 @@
       <li :style="isReset && 'margin-bottom: 5px'">
         <span :style="{ width: spanWidth }">店铺分组：</span>
         <el-select v-model="groupId" placeholder="" multiple collapse-tags size="mini" filterable class="selectBox">
-          <el-option label="全部" :value="''"/>
           <el-option v-for="(item, index) in groupIdList" :key="index" :label="item.group_name" :value="item.id"/>
         </el-select>
       </li>
@@ -63,10 +62,10 @@ Vue.directive('loadmore', {
         binding.value(false, this)
       }
     })
-    SELECTWRAP_DOM.addEventListener('blur', () => {
-      console.log('测试')
-      this.scrollTop = 0
-    })
+    // SELECTWRAP_DOM.addEventListener('blur', () => {
+    //   console.log('测试')
+    //   this.scrollTop = 0
+    // })
   }
 })
 export default {
@@ -148,13 +147,13 @@ export default {
           const isAll = val.indexOf('') > -1
           if (isOldAll !== isAll) {
             if (isAll) {
-              this.groupId = ['', ...this.groupIdList.map(i => i.id)]
+              this.groupId = [...this.groupIdList.map(i => i.id)]
             } else {
               this.groupId = []
             }
           } else if (isAll) {
             this.groupId = val.slice(1)
-          } else if (this.groupIdList.length > 0 && this.groupId.length === this.groupIdList.length) {
+          } else if (this.groupIdList.length > 0 && this.groupId.length === this.groupIdList.length - 1) {
             this.groupId.unshift('')
           }
           setTimeout(() => {
@@ -279,6 +278,10 @@ export default {
         }
       }
       if (this.groupIdList.length === 0) {
+        this.groupIdList = [{
+          group_name: '全部',
+          id: ''
+        }]
         this.groupId = ['']
         this.siteList.forEach((item) => {
           const index = this.groupIdList.findIndex((i) => i.id === item.group_id)
@@ -296,40 +299,6 @@ export default {
         this.isAllowSet1 = true
         this.site = ['']
       }, 10)
-
-      // this.site = []
-      // const country = this.countryVal
-      // const groupId = (this.groupId.indexOf('') > -1 && this.groupId.slice(1).toString()) || this.groupId.toString()
-      // const param = {
-      //   country: country,
-      //   mallGroupIds: groupId
-      // }
-      // const res = await this.mallListAPIInstance.ddMallGoodsGetMallList(param)
-      // // console.log('ddMallGoodsGetMallList - res', res)
-      // if (res.code === 200) {
-      //   console.log(res.data)
-      //   this.siteList = res.data || []
-      //   if (this.groupIdList.length === 0) {
-      //     this.groupId = ['']
-      //     this.siteList.forEach((item) => {
-      //       const index = this.groupIdList.findIndex((i) => i.id === item.group_id)
-      //       if (item.group_name && index < 0) {
-      //         this.groupIdList.push({
-      //           group_name: item.group_name,
-      //           id: item.group_id
-      //         })
-      //         this.groupId.push(item.group_id)
-      //       }
-      //     })
-      //   }
-      //   setTimeout(() => {
-      //     this.isAllowSet2 = true
-      //     this.isAllowSet1 = true
-      //     this.site = ['']
-      //   }, 10)
-      // } else {
-      //   this.$message.error('获取分组、店铺列表失败')
-      // }
     },
     changeMallList() {
       const mallList = []

@@ -268,7 +268,7 @@ export default {
       trackStatus: ['', '已申请', '未申请'],
       logisticsStatusList: ['未下载', '已下载', '未下载'],
       total: 0,
-      pageSize: 200,
+      pageSize: 20,
       currentPage: 1,
       multipleSelection: [],
       tableLoading: false,

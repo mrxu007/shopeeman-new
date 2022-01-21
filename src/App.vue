@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-10-08 14:16:18
- * @LastEditTime: 2021-11-24 10:54:02
+ * @LastEditTime: 2022-01-21 10:39:22
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shopeeman-new\src\App.vue
@@ -55,8 +55,10 @@ import './assets/css/reset.css'
 import './assets/css/base.less'
 export default {
   name: 'App',
-  mounted() {
+ async mounted() {
+    console.log("00000000000000000",this.$appConfig)
     this.$appConfig.primaryColor().then(res => {
+      console.log("res-appvue",res)
       document.body.style.setProperty('--themeColor', 'red')
     })
   }

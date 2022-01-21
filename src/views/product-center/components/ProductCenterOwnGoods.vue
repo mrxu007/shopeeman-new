@@ -1187,7 +1187,7 @@ export default {
         remark: this.goodsRemark,
         sort: null,
         audit_status: null,
-        status: '1',
+        status: this.goodStatus,
         product_desc: this.goodsDes,
         // uid: 213791,
         // uuid: 0,
