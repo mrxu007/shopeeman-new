@@ -1559,14 +1559,14 @@ export default {
           if (tier_variation[tier_variation.spec1].length > 0) {
             goodsParam['tier_variation'].push({
               name: tier_variation.spec1,
-              options: tier_variation[tier_variation.spec1],
+              options: [...tier_variation[tier_variation.spec1].map(i => i.substring(0, 20).trim())],
               images: tier_variation.images
             })
           }
           if (tier_variation[tier_variation.spec2].length > 0) {
             goodsParam['tier_variation'].push({
               name: tier_variation.spec2,
-              options: tier_variation[tier_variation.spec2],
+              options: [tier_variation[tier_variation.spec2].map(i => i.substring(0, 20).trim())],
               images: []
             })
           }
@@ -1592,26 +1592,40 @@ export default {
             return son
           })
           console.log('goodsParam', goodsParam)
-          // return
           this.updateAttributeName(item, '正在上传轮播图')
           let imageMapping = await imageCompressionUpload(mall, goodsParam['images'], this, this.storeConfig.pictureThread)
           goodsParam['images'] = goodsParam.images.map(son => {
-            son = imageMapping[son]
+            son = imageMapping[son] || ''
             return son
           })
+          if (goodsParam['images'].includes('')) {
+            if (!this.associatedConfig.missingUploadChecked) {
+              this.updateAttributeName(item, '轮播图上传缺失')
+              continue
+            }
+            let temp = []
+            goodsParam['images'].forEach(i => {
+              i && temp.push(i)
+            })
+            goodsParam['images'] = temp
+          }
           this.updateAttributeName(item, '正在上传规格图')
           let spec_imageMapping = await imageCompressionUpload(mall, neededTranslateInfoData.spec_image, this, this.storeConfig.pictureThread)
           let tier_variationJSON = JSON.stringify(goodsParam['tier_variation'])
           let spec_list = []
-          for(let itemName in spec_imageMapping){
-            tier_variationJSON = tier_variationJSON.replaceAll('"'+itemName+'"','"'+spec_imageMapping[itemName]+'"')
+          for (let itemName in spec_imageMapping) {
+            tier_variationJSON = tier_variationJSON.replaceAll('"' + itemName + '"', '"' + spec_imageMapping[itemName] + '"')
             spec_list.push(spec_imageMapping[itemName])
+          }
+          if (spec_list.includes('')) {
+            this.updateAttributeName(item, '规格图上传缺失')
+            continue
           }
           goodsParam['tier_variation'] = JSON.parse(tier_variationJSON)
           if (goodsParam['size_chart']) {
             this.updateAttributeName(item, '正在上传尺寸图')
             let size_chartMapping = await imageCompressionUpload(mall, [goodsParam['size_chart']], this, this.storeConfig.pictureThread)
-            goodsParam['size_chart'] = size_chartMapping[goodsParam['size_chart']]
+            goodsParam['size_chart'] = size_chartMapping[goodsParam['size_chart']] || ''
           }
           if (this.basicConfig.autoCompleteChecked) {
             if (goodsParam['images'].length < 9) {
@@ -1619,7 +1633,7 @@ export default {
               goodsParam['images'] = imageList.slice(0, 9)
             }
           }
-          let resJSON = await this.$shopeemanService.createProduct(this.country,{mallId:mall.platform_mall_id},[goodsParam])
+          let resJSON = await this.$shopeemanService.createProduct(this.country, { mallId: mall.platform_mall_id }, [goodsParam])
           console.log('createProduct', resJSON)
 
           this.updateAttributeName(item, '发布完成')
