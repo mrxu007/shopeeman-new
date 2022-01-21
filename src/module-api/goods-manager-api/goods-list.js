@@ -148,6 +148,7 @@ export default class GoodsList {
     params['search_type'] = 'item_id'
     params['keyword'] = val.id
     params['mallId'] = val.platform_mall_id
+    params['promotion_status'] = 'ongoing'
     try {
       const res = await this._this.$shopeemanService.getChinese(val.country, '/api/marketing/v3/add_on_deal/standard_search/?', params)
       const jsonData = this.isJsonString(res)
@@ -189,6 +190,7 @@ export default class GoodsList {
     params['keyword'] = val.id
     params['search_type'] = 'item_id'
     params['mallId'] = val.platform_mall_id
+    params['promotion_status'] = 'ongoing'
     try {
       const res = await this._this.$shopeemanService.getChineseReferer(val.country, '/api/marketing/v3/bundle_deal/standard_search/?', params)
       const jsonData = this.isJsonString(res)
