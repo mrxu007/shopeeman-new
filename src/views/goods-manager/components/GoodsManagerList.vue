@@ -458,34 +458,11 @@
         <u-table-column align="center" min-width="120" label="店铺名" prop="mallName" show-overflow-tooltip />
         <u-table-column align="center" min-width="100" label="主图">
           <template v-slot="{row}">
-            <el-tooltip
-              v-if="row.images"
-              effect="light"
-              placement="right-end"
-              :visible-arrow="false"
-              :enterable="false"
-              style="width: 50px; height: 50px"
-            >
+            <el-tooltip effect="light" placement="right-end" :visible-arrow="false" :enterable="false" style="width: 50px; height: 50px; display: inline-block">
               <div slot="content">
-                <el-image
-                  :src="[ row.images] | imageRender"
-                  style="width: 400px; height: 400px"
-                >
-                  <div slot="error" class="image-slot" />
-                  <div slot="placeholder" class="image-slot">
-                    加载中<span class="dot">...</span>
-                  </div>
-                </el-image>
+                <el-image :src="[row.images] | imageRender" style="width: 400px; height: 400px" />
               </div>
-              <el-image
-                style="width: 40px; height: 40px"
-                :src="[row.images,true] | imageRender"
-              >
-                <div slot="error" class="image-slot" />
-                <div slot="placeholder" class="image-slot">
-                  加载中<span class="dot">...</span>
-                </div>
-              </el-image>
+              <el-image :src="[row.images, true] | imageRender" style="width: 50px; height: 50px" />
             </el-tooltip>
           </template>
         </u-table-column>
@@ -929,46 +906,23 @@
           </template>
         </el-table-column>
         <el-table-column align="center" min-width="120" label="店铺名" prop="mallName" show-overflow-tooltip />
-        <el-table-column align="center" min-width="150" label="shopee类目" prop="categoryName" show-overflow-tooltip>
+        <el-table-column align="center" min-width="150" label="shopee类目" prop="" show-overflow-tooltip>
           <template v-slot="{row}">
             <span
               class="red-span"
               @click="categoryVisible = true
                       editCategory = 3
                       moveCategory = row"
-            >{{ row.categoryName }}</span>
+            >{{ row.categoryName ? row.categoryName: getCategoryName(row.categoryId,row.country) }}</span>
           </template>
         </el-table-column>
         <el-table-column align="center" min-width="100" label="主图">
           <template v-slot="{row}">
-            <el-tooltip
-              v-if="row.images"
-              effect="light"
-              placement="right-end"
-              :visible-arrow="false"
-              :enterable="false"
-              style="width: 50px; height: 50px"
-            >
+            <el-tooltip effect="light" placement="right-end" :visible-arrow="false" :enterable="false" style="width: 50px; height: 50px; display: inline-block">
               <div slot="content">
-                <el-image
-                  :src="[ row.images] | imageRender"
-                  style="width: 400px; height: 400px"
-                >
-                  <div slot="error" class="image-slot" />
-                  <div slot="placeholder" class="image-slot">
-                    加载中<span class="dot">...</span>
-                  </div>
-                </el-image>
+                <el-image :src="[row.images] | imageRender" style="width: 400px; height: 400px" />
               </div>
-              <el-image
-                style="width: 40px; height: 40px"
-                :src="[row.images,true] | imageRender"
-              >
-                <div slot="error" class="image-slot" />
-                <div slot="placeholder" class="image-slot">
-                  加载中<span class="dot">...</span>
-                </div>
-              </el-image>
+              <el-image :src="[row.images, true] | imageRender" style="width: 50px; height: 50px" />
             </el-tooltip>
           </template>
         </el-table-column>
@@ -1006,7 +960,7 @@
           </template>
         </el-table-column>
         <el-table-column align="center" min-width="100" label="销售量" prop="sold" />
-        <el-table-column align="center" min-width="100" label="操作" fixed="right">
+        <el-table-column align="center" min-width="110" label="操作" fixed="right">
           <template v-slot="{row}">
             <el-button size="mini" type="primary" @click="getMoveDetails(row)">查看详情</el-button>
           </template>
@@ -1356,7 +1310,6 @@ export default {
   methods: {
     // 获取类目名
     async setCategoryName(id, country) {
-      console.log('id', id, 'categoryIdList', this.categoryIdList)
       let categoryName = []
       const idList = id.split(',')
       for (const idItem of idList) {
@@ -1405,7 +1358,6 @@ export default {
       this.isMove = true
       this.cancelMove = false
       this.moveDetails = []
-      // this.selectMoveMallList.forEach(i => { i['isCreate'] = false })
       this.selectMoveMallList.forEach(i => {
         i['isCreateNum'] = 0
         i['createNum'] = 0
@@ -1457,7 +1409,7 @@ export default {
                 attributes.push(obj)
               } else {
                 const obj = { custom_value: {}}
-                obj['custom_value ']['raw_value '] = att.selected_attribute_value_name
+                obj['custom_value ']['raw_value'] = att.selected_attribute_value_name
                 attributes.push(obj)
               }
             }
@@ -1475,7 +1427,6 @@ export default {
           }
           for (let index = 0; index < mallList.length; index++) {
             const mall = mallList[index]
-            console.log('mall', mall)
             try {
               if (this.cancelMove) {
                 break
@@ -1489,7 +1440,6 @@ export default {
                 mall['color'] = `red`
                 this.movefail++
                 ++mall['isCreateNum']
-                // mall.isCreate = false
               } else {
                 try {
                 // 获取物流
@@ -1534,7 +1484,9 @@ export default {
                 await waitStart(() => {
                   return createIndex === mall['isCreateNum']
                 }, 60 * 60 * 1000)
-                const createRes = await this.$shopeemanService.createProduct(mall.country, data, [productInfo])
+                // 组装上新数据
+                const parmas = this.setCreateData(productInfo)
+                const createRes = await this.$shopeemanService.createProduct(mall.country, data, [parmas])
                 if (createRes.code === 200) {
                   // mall.isCreate = true
                   setTimeout(() => { ++mall['isCreateNum'] }, Number(this.moveTime) * 1000)
@@ -1596,6 +1548,47 @@ export default {
         this.goodsMoveData.forEach(row => { this.$refs.moveTable.toggleRowSelection(row) })
       })
     },
+    // 组装上新数据
+    setCreateData(productInfo) {
+      const parmas = {
+        attributes: [],
+        stock: productInfo.stock,
+        model_list: productInfo.model_list,
+        weight: productInfo.weight,
+        dimension: {
+          width: productInfo.dimension.width,
+          height: productInfo.dimension.height,
+          length: productInfo.dimension.long
+        },
+        condition: 1,
+        parent_sku: productInfo.parent_sku,
+        dangerous_goods: 0,
+        min_purchase_limit: 1,
+        input_normal_price: null,
+        input_promotion_price: null,
+        ds_cat_rcmd_id: productInfo.ds_cat_rcmd_id,
+        ds_attr_rcmd_id: productInfo.ds_attr_rcmd_id,
+        id: 0,
+        name: productInfo.name,
+        images: productInfo.images,
+        brand_id: 0,
+        size_chart: '',
+        tier_variation: productInfo.tier_variation,
+        description: productInfo.description,
+        category_path: productInfo.category_path,
+        category_recommend: productInfo.category_recommend,
+        price_before_discount: productInfo.price_before_discount,
+        price: productInfo.price,
+        wholesale_list: productInfo.wholesale_list,
+        installment_tenures: productInfo.installment_tenures,
+        pre_order: productInfo.pre_order,
+        days_to_ship: productInfo.days_to_ship,
+        logistics_channels: productInfo.logistics_channels,
+        unlisted: false,
+        add_on_deal: productInfo.add_on_deal
+      }
+      return parmas
+    },
     // 批量调整重量/体积
     batchSetSize() {
       if (!this.moveSelection.length) return this.$message('请选择数据后操作')
@@ -1652,7 +1645,9 @@ export default {
           // 检测标题长度
           this.getTitleLength(item)
           productInfo['name'] = productInfo.name.trim().slice(0, this.maxLength)
-          const createRes = await this.$shopeemanService.createProduct(item.country, data, [productInfo])
+          // 组装上新数据
+          const parmas = this.setCreateData(productInfo)
+          const createRes = await this.$shopeemanService.createProduct(item.country, data, [parmas])
           if (createRes.code === 200) {
             this.batchStatus(item, `发布成功`, true)
             this.successNum++
@@ -1854,8 +1849,8 @@ export default {
           const index = this.categoryList.categoryList.length - 1
           const category_name = this.categoryList.categoryList[index].category_name
           const category_cn_name = this.categoryList.categoryList[index].category_cn_name
-          this.moveCategory.categoryName = `${category_name}(${category_cn_name})`
-          this.moveCategory.isCategoryName = true
+          this.$set(this.moveCategory, 'categoryName', `${category_name}(${category_cn_name})`)
+          this.$set(this.moveCategory, 'isCategoryName', true)
         }
       } else {
         this.categoryName = ''
@@ -2723,51 +2718,55 @@ export default {
           } else if (campaignType === 3) {
           // 获取该商品参加的套装活动ID
             const res = await this.GoodsList.getBundleDeal(item, activityid)
-            activityid = res.data.hits[0].bundle_deal_id
+            activityid = res.data?.hits[0]?.bundle_deal_id
             // 删除
-            const delRes = await this.GoodsList.deleteBundleGoods(item, activityid)
-            if (delRes.code !== 200) return { batchStatus: `删除套装活动失败：${delRes.data}`, color: false, code: delRes.code }
+            if (activityid) {
+              const delRes = await this.GoodsList.deleteBundleGoods(item, activityid)
+              if (delRes.code !== 200) return { batchStatus: `删除套装活动失败：${delRes.data}`, color: false, code: delRes.code }
+            }
           } else if (campaignType === 4) {
             // 获取该商品参加的加购活动ID
             const res1 = await this.GoodsList.getAddOnDealStandardSearch(item)
             if (res1.code !== 200) return { batchStatus: `获取该商品参加的加购活动ID失败：${res1.data}`, color: false, code: res1.code }
-            activityid = res1.data.add_on_deal_list[0].add_on_deal_id
+            activityid = res1.data?.add_on_deal_list[0]?.add_on_deal_id
             // IsSelected为真则是主商品
-            if (item.campaignTypeList.IsSelected) {
-            // 获取主商品加购活动列表
-              const res2 = await this.GoodsList.getAdd0nDealAggrMainItemList(item, activityid)
-              if (res2.code !== 200) return { batchStatus: `获取主商品加购活动列表失败：${res2.data}`, color: false, code: res2.code }
-              const filterData = res2.data.main_item_list.filter(listItem => {
-                return listItem.item_id === item.id
-              })
-              let status = ''
-              if (filterData[0].status === 1) {
-                status = 0
-              }
-              if (filterData[0].status === 2) {
-                status = 1
-              }
-              // 删除主商品加购活动商品
-              const delRes1 = await this.GoodsList.deleteAddOnDealMainItemList(item, status, activityid)
-              if (delRes1.code !== 200) return { batchStatus: `删除主商品加购活动失败：${delRes1.data}`, color: false, code: delRes1.code }
-            } else {
+            if (activityid) {
+              if (item.campaignTypeList.IsSelected) {
+                // 获取主商品加购活动列表
+                const res2 = await this.GoodsList.getAdd0nDealAggrMainItemList(item, activityid)
+                if (res2.code !== 200) return { batchStatus: `获取主商品加购活动列表失败：${res2.data}`, color: false, code: res2.code }
+                const filterData = res2.data.main_item_list.filter(listItem => {
+                  return listItem.item_id === item.id
+                })
+                let status = ''
+                if (filterData[0].status === 1) {
+                  status = 0
+                }
+                if (filterData[0].status === 2) {
+                  status = 1
+                }
+                // 删除主商品加购活动商品
+                const delRes1 = await this.GoodsList.deleteAddOnDealMainItemList(item, status, activityid)
+                if (delRes1.code !== 200) return { batchStatus: `删除主商品加购活动失败：${delRes1.data}`, color: false, code: delRes1.code }
+              } else {
               // 获取子商品列表
-              const res3 = await this.GoodsList.getAdd0nDealAggrSubItemList(item, activityid)
-              if (res3.code !== 200) return { batchStatus: `获取子商品加购活动列表失败：${res3.data}`, color: false, code: res3.code }
-              const subItemList = res3.data.sub_item_list.filter(listItem => {
-                return listItem.item_id === item.id
-              })
-              subItemList.map(filterItem => {
-                delete filterItem.input_sub_item_price
-                delete filterItem.price
-                delete filterItem.sub_item_price
-                filterItem.status = 0
-              })
-              if (subItemList?.length > 0) {
-                for (let j = 0; j < subItemList.length; j++) {
-                // 删除子商品加购活动商品
-                  const delRes2 = await this.GoodsList.deleteAddOnDealSubItemList(item, activityid, subItemList)
-                  if (delRes2.code !== 200) return { batchStatus: `删除子商品加购活动失败：${delRes2.data}`, color: false, code: delRes2.code }
+                const res3 = await this.GoodsList.getAdd0nDealAggrSubItemList(item, activityid)
+                if (res3.code !== 200) return { batchStatus: `获取子商品加购活动列表失败：${res3.data}`, color: false, code: res3.code }
+                const subItemList = res3.data.sub_item_list.filter(listItem => {
+                  return listItem.item_id === item.id
+                })
+                subItemList.map(filterItem => {
+                  delete filterItem.input_sub_item_price
+                  delete filterItem.price
+                  delete filterItem.sub_item_price
+                  filterItem.status = 0
+                })
+                if (subItemList?.length > 0) {
+                  for (let j = 0; j < subItemList.length; j++) {
+                    // 删除子商品加购活动商品
+                    const delRes2 = await this.GoodsList.deleteAddOnDealSubItemList(item, activityid, subItemList)
+                    if (delRes2.code !== 200) return { batchStatus: `删除子商品加购活动失败：${delRes2.data}`, color: false, code: delRes2.code }
+                  }
                 }
               }
             }
@@ -3376,21 +3375,9 @@ export default {
         })
         item.holiday_mode_on = null
         item.categoryId = item.category_path.toString()
-        // 获取类目名
-        // for (let j = 0; j < item.category_path.length; j++) {
-        //   const cItem = item.cacategory_path[j]
-        //   const res = await this.GoodsList.getCategoryName(item.country, cItem, '0', '')
-        //   if (res.code === 200) {
-        //     categoryName.push(res.data.categories ? `${res.data.categories[0].category_name}(${res.data.categories[0].category_cn_name})` : '')
-        //   } else {
-        //     categoryName = ''
-        //     this.$refs.Logs.writeLog(`${res.data}`, false)
-        //   }
-        // }
         item.stock = stock // 库存
         item.sold = sold // 销售量
         item.price = Math.min.apply(null, price) // 价格
-        // item.categoryName = categoryName.join('->') // 类目
         if (item.status === 2) { // 状态
           status = 6
         } else if (item.status === 1 && item.stock === 0) {
