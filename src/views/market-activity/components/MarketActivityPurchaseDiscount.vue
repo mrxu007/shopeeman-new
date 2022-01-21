@@ -257,7 +257,6 @@ import storeChoose from '../../../components/store-choose'
 import MarketManagerAPI from '../../../module-api/market-manager-api/market-data'
 import { GoodsMallgetValue, getMalls, batchOperation, terminateThread } from '../../../util/util'
 import goodsItemSelector from '../../../components/goods-item-selector'
-import { forEach } from 'jszip'
 export default {
   components: {
     storeChoose, goodsItemSelector
