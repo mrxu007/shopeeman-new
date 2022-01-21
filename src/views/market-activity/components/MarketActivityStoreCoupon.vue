@@ -569,7 +569,7 @@ export default {
           if (list?.length >= params.limit) {
             item.offset = item.offset + params.limit
             await this.getInfo(item, { count: 1 })
-          }else{
+          } else {
             this.$refs.Logs.writeLog(`【${item.mall_alias_name || item.platform_mall_name}】请求数据结束`)
           }
         } else {
