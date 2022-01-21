@@ -1559,7 +1559,7 @@ export default {
         dimension: {
           width: productInfo.dimension.width,
           height: productInfo.dimension.height,
-          length: productInfo.dimension.long
+          length: productInfo.dimension.length
         },
         condition: 1,
         parent_sku: productInfo.parent_sku,
