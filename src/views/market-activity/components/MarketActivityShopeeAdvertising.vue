@@ -450,43 +450,65 @@
               <el-table :data="relevanceList" style="width: 100%; margin: 10px 0" max-height="360px" @selection-change="handleSelectionChangeRelevance">
                 <el-table-column align="center" type="index" label="序号" width="50" />
                 <el-table-column align="center" type="selection" width="50" fixed="left" />
-                <el-table-column label="店铺名称" prop="id" width="180" show-overflow-tooltip>
+                <el-table-column label="店铺名称" prop="id" max-width="120" show-overflow-tooltip>
                   <template slot-scope="{ row }"> {{ row.country }}-{{ row.mall_alias_name || row.platform_mall_name }} </template>
                 </el-table-column>
-                <el-table-column label="商品ID" prop="relevance"> </el-table-column>
-                <el-table-column label="商品图片" prop="search_volume"> </el-table-column>
-                <el-table-column label="价格" prop="impression" width="140">
+                <el-table-column label="商品ID" prop="itemid" width="100" />
+                <el-table-column label="商品图片" prop="impression" width="80">
                   <template slot-scope="scope">
-                    <el-select v-model="scope.row.algorithm" style="width: 120px" size="mini">
-                      <el-option label="广泛匹配" value="kwrcmdv2"> </el-option>
-                      <el-option label="精准匹配" value="kwrcmdv1"> </el-option>
-                    </el-select>
+                    <el-tooltip effect="light" placement="right-end" :visible-arrow="false" :enterable="false" style="width: 32px; height: 32px; display: inline-block">
+                      <div slot="content">
+                        <el-image :src="[scope.row.image] | imageRender" style="width: 400px; height: 400px" />
+                      </div>
+                      <el-image v-bind:src="[scope.row.image, true] | imageRender" style="width: 32px; height: 32px"></el-image>
+                    </el-tooltip>
                   </template>
                 </el-table-column>
-                <el-table-column label="已选商品数量" prop="recommend_price" width="100">
+                <el-table-column label="价格" prop="price" width="120" />
+                <el-table-column label="已选商品数量" width="100">
                   <template slot-scope="scope">
-                    <span style="color: green">{{ country | siteCoin }}{{ Number(scope.row.recommend_price).toFixed(2) }}</span>
+                    <span style="color: green">0</span>
                   </template>
                 </el-table-column>
                 <el-table-column label="点击出价" width="160" align="center">
                   <template slot-scope="scope">
-                    <el-input v-model="scope.row.selfPrice" placeholder="请输入内容" size="mini" class="mar-left" style="width: 140px">
+                    <el-input v-model="scope.row.selfPrice" placeholder="请输入内容" size="mini" class="mar-left" style="width: 120px" >
+                      <template slot="prepend">{{ country | siteCoin }}</template>
+                    </el-input>
+                     <span style="color: #dcdcdc">每点击一次</span>
+                    <span style="color: green">推荐出价{{ country | siteCoin }}{{ scope.row.nominate1 > -1 ? scope.row.nominate1 : scope.row.nominateRemark }}</span>
+                  </template>
+                </el-table-column>
+                <el-table-column label="预算" width="160" prop="budgetType" align="center" >
+                  <template slot-scope="scope">
+                    <el-select v-model="scope.row.budgetType" style="width: 120px" size="mini" ref="select" @change="changeSelect($event,scope.$index)">
+                      <el-option label="无限制" value="all"> </el-option>
+                      <el-option label="每日预算" value="day"> </el-option>
+                      <el-option label="总预算" value="total"> </el-option>
+                    </el-select>
+                    <el-input v-if="scope.row.budgetType !== 'all'" v-model="scope.row.budget" placeholder="请输入内容" size="mini" class="mar-left" style="width: 120px;margin-top:5px;">
                       <template slot="prepend">{{ country | siteCoin }}</template>
                     </el-input>
                   </template>
                 </el-table-column>
-                <el-table-column label="预算" width="160" align="center">
+                <el-table-column label="时间长度" width="180" align="center">
                   <template slot-scope="scope">
-                    <el-input v-model="scope.row.selfPrice" placeholder="请输入内容" size="mini" class="mar-left" style="width: 140px">
-                      <template slot="prepend">{{ country | siteCoin }}</template>
-                    </el-input>
-                  </template>
-                </el-table-column>
-                <el-table-column label="时间长度" width="160" align="center">
-                  <template slot-scope="scope">
-                    <el-input v-model="scope.row.selfPrice" placeholder="请输入内容" size="mini" class="mar-left" style="width: 140px">
-                      <template slot="prepend">{{ country | siteCoin }}</template>
-                    </el-input>
+                    <el-select v-model="scope.row.timeType" style="width: 180px" size="mini">
+                      <el-option label="无限制" value="0"> </el-option>
+                      <el-option label="设定开始时间/结束时间" value="1"> </el-option>
+                    </el-select>
+                    <el-date-picker
+                      v-if="scope.row.timeType === '1'"
+                      v-model="scope.row.timeRange"
+                      value-format="yyyy-MM-dd"
+                      unlink-panels
+                      size="mini"
+                      type="daterange"
+                      range-separator="-"
+                      start-placeholder="开始日期"
+                      end-placeholder="结束日期"
+                      style="width: 180px;margin-top:5px;"
+                    />
                   </template>
                 </el-table-column>
                 <el-table-column label="操作">
@@ -665,13 +687,14 @@ export default {
       totalBudgetMinLimit: '', //点击量
       dailySingleClickPrice: '', //点击量
       totalSingleClickPrice: '', //点击量
-      relevanceVisible: true, //关联广告
-      detailPrice: 0,
-      detailRadio: true,
-      dailyPrice: 0,
-      dailyRadio: true,
-      mayLikePrice:0,
-      mayLikeRaido: true,
+      relevanceVisible: false, //关联广告
+      detailPrice: 0, //关联广告
+      detailRadio: true, //关联广告
+      dailyPrice: 0, //关联广告
+      dailyRadio: true, //关联广告
+      mayLikePrice: 0, //关联广告
+      mayLikeRaido: true, //关联广告
+      relevanceList: [], //关联广告
     }
   },
   mounted() {
@@ -683,6 +706,72 @@ export default {
     this.setClickPrice()
   },
   methods: {
+    changeSelect(val,index){
+      console.log(val,index,this.relevanceList)
+    },
+    //处理关联广告添加的商品
+    async dealWithTargetGoods(array) {
+
+      let arrayCut = array.splice(0, 10 - this.relevanceList.length)
+      console.log(arrayCut, 'arrayCut')
+      for (let i = 0; i < this.selectMallList.length; i++) {
+        let mall = this.selectMallList[i]
+        let goodsListFilter = arrayCut.filter((n) => n.platform_mall_id === mall.platform_mall_id)
+        if (!goodsListFilter.length) {
+          continue
+        }
+        let itemIds = goodsListFilter.map((item) => {
+          return item.itemid
+        })
+        let params = {
+          itemids: itemIds,
+          placement_list: [1, 2, 5],
+          mallId: mall.platform_mall_id,
+        }
+        let res = await this.$shopeemanService.getRelevancePrice(mall.country, params)
+        if (res.code === 200) {
+          goodsListFilter.forEach((item) => {
+            item.image = item.images.split(',')[0]
+            let obj1 = res.data.find((n) => n.itemid === item.itemid && n.placement === 1)
+            item.nominate1= obj1 ? obj1.price.toFixed(2) : 0
+            item.selfPrice = obj1 ? obj1.price.toFixed(1) : 0
+            let obj2 = res.data.find((n) => n.itemid === item.itemid && n.placement === 2)
+            item.nominate2 = obj2 ? obj2.price.toFixed(2) : 0
+            let obj5 = res.data.find((n) => n.itemid === item.itemid && n.placement === 5)
+            item.nominate5 = obj5 ?obj5.price.toFixed(2) : 0
+            item.budgetType = 'day'
+            item.budget = '0'
+            item.timeType = '0'
+            item.timeRange = []
+            this.relevanceList.push(JSON.parse(JSON.stringify(item)))
+          })
+          // this.relevanceList = this.relevanceList.concat(goodsListFilter)
+          console.log(this.relevanceList,"this.relevanceList")
+        } else {
+          let remark = ''
+          if (res.code === 403) {
+            remark = '获取失败，店铺未登录'
+            this.$refs.Logs.writeLog(`店铺【${mall.mall_alias_name || mall.platform_mall_name}】,商品【${itemIds.join(',')}】获取推荐价格失败,店铺未登录`, false)
+          } else {
+            remark = '获取失败'
+            this.$refs.Logs.writeLog(`店铺【${mall.mall_alias_name || mall.platform_mall_name}】,商品【${itemIds.join(',')}】获取推荐价格失败，${res.data}`, false)
+          }
+          goodsListFilter.forEach((item) => {
+            item.image = item.images.split(',')[0]
+            item['selfPrice'] = 0
+            item['nominate1'] = -1
+            item['nominate2'] = -1
+            item['nominate5'] = -1
+            item['nominateRemark'] = remark
+            item['budgetType'] = 'all'
+            item['budget'] = '0'
+            item['timeType'] = '0'
+            item['timeRange'] = []
+          })
+          this.relevanceList = this.relevanceList.concat(goodsListFilter)
+        }
+      }
+    },
     //创建关联广告
     async createRelevance() {
       this.adventType = 'targeting'
@@ -980,6 +1069,7 @@ export default {
       this.selectGoods = val.goodsList
       this.goodsItemSelectorVisible = false
       if (this.adventType === 'targeting') {
+        this.relevanceVisible = true
         this.dealWithTargetGoods(val.goodsList)
       } else {
         if (this.createType == 'single') {

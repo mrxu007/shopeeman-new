@@ -360,7 +360,7 @@ export default {
         colorLabelId: 0, // 颜色标识id
       },
       page: 1,
-      pageSize: 200,
+      pageSize: 20,
       total: 0,
       tableList: [],
       loading: false,
