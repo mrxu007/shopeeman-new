@@ -341,6 +341,9 @@
                   size="mini"
                 />
               </li>
+              <li>
+                <a href="#" @click="$BaseUtilService.openUrl('https:distributor.taobao.global/')">淘宝天猫海外商品铺货</a>
+              </li>
             </ul>
             <!--操作按钮 -->
             <ul class="item con-sub-2">
@@ -1181,6 +1184,7 @@ export default {
     },
     async getTaobaoAbroadAccount() {
       const res = await this.collectOtherApInstance.getTaobaoAbroadAccount()
+      console.log('getTaobaoAbroadAccount', res)
       if (res.code !== 200) {
         return this.$message.error(`获取淘宝天猫海外账号失败：${res.code} ${res.data}`)
       }
