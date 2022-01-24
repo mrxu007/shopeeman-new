@@ -195,7 +195,7 @@
             <div style="margin-left: 10px;margin-bottom: 5px;">加购商品</div>
             <ul style="border: 1px solid #d4d1d1;padding: 10px;border-radius: 8px;">
               <li style="display:flex;margin-bottom:5px">
-                <div>折扣：<el-input v-model="addGoodsDiscount" size="mini" style="width:50px" />%</div>
+                <div>折扣：<el-input v-model="addGoodsDiscount" size="mini" style="width:50px" maxlength="2" clearable onkeyup="value=value.replace(/[^\d]/g,0)" />%</div>
                 <el-button size="mini" type="primary" style="margin-left:10px">批量更新</el-button>
                 <el-button size="mini" type="primary">开启</el-button>
                 <el-button size="mini" type="primary">关闭</el-button>
@@ -216,7 +216,7 @@
                   <el-table-column v-if="othertableType==='0'" prop="discount" label="折扣" align="center" min-width="100px">
                     <template v-slot="{row}">
                       <div>
-                        <el-input v-model="row.discount" size="mini" style="width:50px" @change="changePrice" />%
+                        <el-input v-model="row.discount" size="mini" style="width:50px" maxlength="2" clearable onkeyup="value=value.replace(/[^\d]/g,0)" @change="changePrice" />%
                       </div>
                     </template>
                   </el-table-column>
