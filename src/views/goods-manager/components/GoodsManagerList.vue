@@ -1039,7 +1039,7 @@
 <script>
 import GoodsList from '../../../module-api/goods-manager-api/goods-list'
 import StoreChoose from '../../../components/store-choose'
-import { exportExcelDataCommon, batchOperation, terminateThread, dealwithOriginGoodsNum, getGoodsUrl, getGoodLinkModel, sleep, waitStart, imageCompressionUpload, delay } from '../../../util/util'
+import { exportExcelDataCommon, batchOperation, terminateThread, dealwithOriginGoodsNum, getGoodsUrl, getGoodLinkModel, waitStart, imageCompressionUpload, delay } from '../../../util/util'
 import categoryMapping from '../../../components/category-mapping'
 import goodsSize from '../../../components/goods-size.vue'
 export default {
@@ -1050,7 +1050,6 @@ export default {
   },
   data() {
     return {
-      createId: '',
       index: 1,
       isFold: true,
       showConsole: true,
@@ -1613,10 +1612,6 @@ export default {
       this.isMove = false
       this.updateNum = this.multipleSelection.length
       this.deleteId = []
-      // this.multipleSelection.forEach(item => {
-      //   item['isCreateNum'] = 0
-      //   item['createNum'] = 0
-      // })
       await batchOperation(this.multipleSelection, this.startRefurbishment, 1)
       await this.deleteCollectGoodsInfo()
       this.operationBut = false
@@ -1628,10 +1623,6 @@ export default {
         terminateThread()
         return
       }
-      if (item.platform_mall_id === this.createId) {
-        this.batchStatus(item, `等待中...`, true)
-        await delay(40000)
-      }
       this.batchStatus(item, `正在获取商品详情...`, true)
       try {
         let productInfo = {}
@@ -1641,7 +1632,6 @@ export default {
           // 删除商品
           const { batchStatus, code } = await this.deleteProduct(item)
           if (code === -2) {
-            this.createId = ''
             this.failNum++
             return this.batchStatus(item, `${batchStatus}`, false)
           }
@@ -1653,9 +1643,9 @@ export default {
           productInfo['name'] = productInfo.name.trim().slice(0, this.maxLength)
           // 组装上新数据
           const parmas = this.setCreateData(productInfo)
+          await delay(40000)
           const createRes = await this.$shopeemanService.createProduct(item.country, data, [parmas])
           if (createRes.code === 200) {
-            this.createId = item.platform_mall_id
             this.batchStatus(item, `发布成功`, true)
             this.successNum++
             // 如果翻新的商品存在折扣活动则把商品添加回活动中
@@ -1663,17 +1653,14 @@ export default {
               await this.putModelActive(item, createRes.data.product_id)
             }
           } else {
-            this.createId = ''
             this.batchStatus(item, `发布失败:${createRes.data}`, false)
             this.failNum++
           }
         } else {
-          this.createId = ''
           this.batchStatus(item, res.data, false)
           this.failNum++
         }
       } catch (error) {
-        this.createId = ''
         this.failNum++
         this.batchStatus(item, `翻新异常${error}`, false)
         console.log(error)
