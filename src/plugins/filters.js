@@ -119,7 +119,7 @@ const site_coin_symbol = {
   'PL': 'zł'
 }
 
-/***
+/** *
  * 虾皮各站点
  */
 // 各站点平台
@@ -159,6 +159,16 @@ const lazada_goods_url = {
   'ID': 'https://www.lazada.co.id/products/i', // 印度尼西亚
   'PH': 'https://www.lazada.com.ph/products/i', // 菲律宾
   'SG': 'https://www.lazada.sg/products/i'
+}
+
+// lazada各网址对应站点
+const lazada_goods_site = {
+  'http://www.lazada.co.th/': 'TH',
+  'https://www.lazada.com.my/': 'MY', // 马来西亚
+  'https://www.lazada.vn/': 'VN', // 越南
+  'https://www.lazada.co.id/': 'ID', // 印度尼西亚
+  'https://www.lazada.com.ph/': 'PH', // 菲律宾
+  'https://www.lazada.sg/': 'SG' // 新加坡
 }
 
 const special_characters = [
@@ -203,6 +213,12 @@ const lazadaGoodsUrl = function(val) {
   let attribute = val && (val + '').toLocaleUpperCase() || val
   attribute = lazada_goods_url[attribute] || attribute
   return lazada_goods_url[attribute] || attribute
+}
+
+const lazadaGoodsSite = function(val) {
+  let attribute = val && (val + '').toLocaleLowerCase() || val
+  attribute = lazada_goods_site[attribute] || attribute
+  return lazada_goods_site[attribute] || attribute
 }
 
 const currencyShow = function(data) {
@@ -322,4 +338,4 @@ const errorMsg = function(userMessage) {
   return msg
 }
 export { chineseSite, imageRender, siteCoin, sitePlatform, countryShopeebuyCom, changeImgSizeFilter, special_characters,
-  lazadaGoodsUrl, countries_option, countries_site, countries_option_sub, currencyShow, countries_option_sub_abroad, errorMsg }
+  lazadaGoodsUrl, countries_option, countries_site, countries_option_sub, currencyShow, countries_option_sub_abroad, errorMsg, lazadaGoodsSite }

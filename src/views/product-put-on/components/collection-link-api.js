@@ -1,4 +1,4 @@
-import { dateFormat, delay } from '../../../util/util'
+import { dateFormat, getGoodLinkModel } from '../../../util/util'
 class CollectLinkApI {
   _this = null // vue 实例
   constructor(that) {
@@ -78,90 +78,22 @@ class CollectLinkApI {
       } else {
         linkArr = linkKey
       }
-      const execPlatform = /(yangkeduo.com)|(taobao.com)|(aliexpress.com)|(jd.com)|(1688.com)|(detail.tmall.com)|(pinduoduo.com)|(lazada)|(xiapibuy)|(shopee.com)|(distributor.taobao.global)/g
-      let GoodsId = null
-      let platformId = null
-      let Site = null
-      let ShopId = null
       linkArr.map(item => {
-        const platform = item.Url.match(execPlatform)
-        if (!platform) {
-          this.writeLog(`链接:${item.Url} 识别支持平台失败`, false)
-        } else {
-          GoodsId = null
-          platformId = null
-          Site = null
-          ShopId = null
-          switch (platform[0]) {
-            case 'yangkeduo.com':
-            case 'pinduoduo.com':
-              GoodsId = item.Url.match(/goods_id=(\d+)/)[1]
-              platformId = 1
-              break
-            case 'taobao.com':
-              GoodsId = item.Url.match(/id=(\d+)/)[1]
-              platformId = 2
-              break
-            case 'detail.tmall.com':
-              GoodsId = item.Url.match(/id=(\d+)/)[1]
-              platformId = 3
-              break
-            case 'jd.com':
-              GoodsId = item.Url.match(/(\d+)\.html/)[1]
-              platformId = 10
-              break
-            case '1688.com':
-              GoodsId = item.Url.match(/(\d+)\.html/)[1]
-              platformId = 8
-              break
-            case 'jinritemai.com':
-              GoodsId = item.Url.match(/id=(\d+)/)[1]
-              platformId = 14
-              break
-            case 'aliexpress.com':
-              GoodsId = item.Url.match(/(\d+)\.html/)[1]
-              platformId = 12
-              break
-            case 'lazada':
-              GoodsId = item.Url.match(/(\d+)\.html/)[1]
-              platformId = 9
-              Site = item.Url.match(/\.(\w+)\/products/)[1]
-              break
-            case 'xiapibuy':
-              platformId = 11
-              Site = item.Url.match(/\/\/(\w+)/)[1] === 'xiapi' ? 'tw' : item.Url.match(/\/\/(\w+)/)[1]
-              ShopId = item.Url.match(/product\/(\d+)/)[1]
-              GoodsId = item.Url.match(/product\/(\d+)\/(\d+)/)[2]
-              break
-            case 'shopee.com':
-              platformId = 11
-              Site = item.Url.match(/shopee.com\.(\w+)/)[1]
-              ShopId = item.Url.match(/product\/(\d+)/)[1]
-              GoodsId = item.Url.match(/product\/(\d+)\/(\d+)/)[2]
-              break
-            case 'distributor.taobao.global':
-              GoodsId = item.Url.match(/mpId=(\d+)/)[1]
-              break
-          }
-          try {
-            if (GoodsId) {
-              goodsArrInfo.push({
-                platformId,
-                GoodsId,
-                Site,
-                ShopId,
-                Url: item.Url,
-                Weight: item.Weight,
-                Length: item.Length,
-                Width: item.Width,
-                Height: item.Height
-              })
-            } else {
-              this.writeLog(`链接:${item.Url} 识别商品ID失败`, false)
-            }
-          } catch (error) {
-            this.writeLog(`链接:${item.Url} 识别商品ID失败`, false)
-          }
+        const linkRes = getGoodLinkModel(item.Url.toString())
+        if (linkRes.code !== 200) this.writeLog(`${linkRes.data}`, false)
+        const data = linkRes.data
+        if (data.GoodsId) {
+          goodsArrInfo.push({
+            platformId: data['platformId'],
+            GoodsId: data['GoodsId'],
+            Site: data['Site'],
+            ShopId: data['ShopId'],
+            Url: item.Url,
+            Weight: item.Weight,
+            Length: item.Length,
+            Width: item.Width,
+            Height: item.Height
+          })
         }
       })
       return { code: 200, data: goodsArrInfo }

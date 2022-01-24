@@ -111,6 +111,7 @@
                     <el-form-item label="更新时间：">
                       <el-date-picker
                         v-model="modifyTime"
+                        :default-time="['00:00:00', '23:59:59']"
                         :disabled="operationBut"
                         unlink-panels
                         size="mini"
@@ -123,6 +124,7 @@
                     <el-form-item label="创建时间：">
                       <el-date-picker
                         v-model="createTime"
+                        :default-time="['00:00:00', '23:59:59']"
                         :disabled="operationBut"
                         unlink-panels
                         size="mini"
@@ -434,13 +436,14 @@
         :row-height="68"
         :data-changes-scroll-top="false"
         :border="false"
+        :row-key="getRowKey"
         :header-cell-style="{
           textAlign: 'center',
           backgroundColor: '#f5f7fa',
         }"
         @selection-change="handleSelectionChange"
       >
-        <u-table-column align="center" type="selection" width="50" />
+        <u-table-column align="center" type="selection" width="50" :reserve-selection="true" />
         <u-table-column align="center" type="index" label="序号" width="50" />
         <u-table-column align="center" min-width="80" label="站点">
           <template v-slot="{row}">
@@ -455,34 +458,11 @@
         <u-table-column align="center" min-width="120" label="店铺名" prop="mallName" show-overflow-tooltip />
         <u-table-column align="center" min-width="100" label="主图">
           <template v-slot="{row}">
-            <el-tooltip
-              v-if="row.images"
-              effect="light"
-              placement="right-end"
-              :visible-arrow="false"
-              :enterable="false"
-              style="width: 50px; height: 50px"
-            >
+            <el-tooltip effect="light" placement="right-end" :visible-arrow="false" :enterable="false" style="width: 50px; height: 50px; display: inline-block">
               <div slot="content">
-                <el-image
-                  :src="[ row.images] | imageRender"
-                  style="width: 400px; height: 400px"
-                >
-                  <div slot="error" class="image-slot" />
-                  <div slot="placeholder" class="image-slot">
-                    加载中<span class="dot">...</span>
-                  </div>
-                </el-image>
+                <el-image :src="[row.images] | imageRender" style="width: 400px; height: 400px" />
               </div>
-              <el-image
-                style="width: 40px; height: 40px"
-                :src="[row.images,true] | imageRender"
-              >
-                <div slot="error" class="image-slot" />
-                <div slot="placeholder" class="image-slot">
-                  加载中<span class="dot">...</span>
-                </div>
-              </el-image>
+              <el-image :src="[row.images, true] | imageRender" style="width: 50px; height: 50px" />
             </el-tooltip>
           </template>
         </u-table-column>
@@ -784,9 +764,9 @@
           <div class="base-box">
             <span class="base-title">上家产品链接设置</span>
             <div class="base-item">
-              <div style="margin-bottom:20px">
+              <!-- <div style="margin-bottom:20px">
                 1688链接模板：https://detail.1688.com/offer/604199841804.html
-              </div>
+              </div> -->
               <div>
                 <span>产品链接：</span>
                 <el-input
@@ -926,46 +906,23 @@
           </template>
         </el-table-column>
         <el-table-column align="center" min-width="120" label="店铺名" prop="mallName" show-overflow-tooltip />
-        <el-table-column align="center" min-width="150" label="shopee类目" prop="categoryName" show-overflow-tooltip>
+        <el-table-column align="center" min-width="150" label="shopee类目" prop="" show-overflow-tooltip>
           <template v-slot="{row}">
             <span
               class="red-span"
               @click="categoryVisible = true
                       editCategory = 3
                       moveCategory = row"
-            >{{ row.categoryName }}</span>
+            >{{ row.categoryName ? row.categoryName: getCategoryName(row.categoryId,row.country) }}</span>
           </template>
         </el-table-column>
         <el-table-column align="center" min-width="100" label="主图">
           <template v-slot="{row}">
-            <el-tooltip
-              v-if="row.images"
-              effect="light"
-              placement="right-end"
-              :visible-arrow="false"
-              :enterable="false"
-              style="width: 50px; height: 50px"
-            >
+            <el-tooltip effect="light" placement="right-end" :visible-arrow="false" :enterable="false" style="width: 50px; height: 50px; display: inline-block">
               <div slot="content">
-                <el-image
-                  :src="[ row.images] | imageRender"
-                  style="width: 400px; height: 400px"
-                >
-                  <div slot="error" class="image-slot" />
-                  <div slot="placeholder" class="image-slot">
-                    加载中<span class="dot">...</span>
-                  </div>
-                </el-image>
+                <el-image :src="[row.images] | imageRender" style="width: 400px; height: 400px" />
               </div>
-              <el-image
-                style="width: 40px; height: 40px"
-                :src="[row.images,true] | imageRender"
-              >
-                <div slot="error" class="image-slot" />
-                <div slot="placeholder" class="image-slot">
-                  加载中<span class="dot">...</span>
-                </div>
-              </el-image>
+              <el-image :src="[row.images, true] | imageRender" style="width: 50px; height: 50px" />
             </el-tooltip>
           </template>
         </el-table-column>
@@ -1003,7 +960,7 @@
           </template>
         </el-table-column>
         <el-table-column align="center" min-width="100" label="销售量" prop="sold" />
-        <el-table-column align="center" min-width="100" label="操作" fixed="right">
+        <el-table-column align="center" min-width="110" label="操作" fixed="right">
           <template v-slot="{row}">
             <el-button size="mini" type="primary" @click="getMoveDetails(row)">查看详情</el-button>
           </template>
@@ -1082,7 +1039,7 @@
 <script>
 import GoodsList from '../../../module-api/goods-manager-api/goods-list'
 import StoreChoose from '../../../components/store-choose'
-import { exportExcelDataCommon, batchOperation, terminateThread, dealwithOriginGoodsNum, getGoodsUrl, delay, sleep, waitStart, imageCompressionUpload } from '../../../util/util'
+import { exportExcelDataCommon, batchOperation, terminateThread, dealwithOriginGoodsNum, getGoodsUrl, getGoodLinkModel, sleep, waitStart, imageCompressionUpload } from '../../../util/util'
 import categoryMapping from '../../../components/category-mapping'
 import goodsSize from '../../../components/goods-size.vue'
 export default {
@@ -1096,7 +1053,6 @@ export default {
       index: 1,
       isFold: true,
       showConsole: true,
-      parentVisible: false,
       activityVisible: false,
       categoryVisible: false,
       titleVisible: false,
@@ -1112,7 +1068,7 @@ export default {
       categoryList: {}, // 类目数据
       categoryNameArr: {}, // 计算类目
       categoryIdList: [],
-      testStr: '',
+      mallHoliday: {},
       categoryName: '', // 类目名
       productNumChecked: false,
       productNum: 50, // 单店查询商品数据
@@ -1194,6 +1150,7 @@ export default {
       goodsValue: '', // 商品值
       parentLoad1: false,
       parentLoad2: false,
+      parentVisible: false,
 
       // 活动信息
       discountVal: null, // 活动折扣
@@ -1275,8 +1232,18 @@ export default {
       parentTypeObj: {
         1: '拼多多',
         2: '淘宝',
+        3: '天猫',
+        4: '京东',
+        5: '自有产品',
+        6: '皮皮虾供货平台',
+        7: '货源甲',
         8: '1688',
-        9: 'lazada'
+        9: 'lazada',
+        10: '京喜',
+        11: 'Shopee',
+        12: '速卖通',
+        13: '天猫淘宝海外平台',
+        15: '货老板云仓'
       },
       searchTypeList: [
         { value: 'name', label: '商品名称' },
@@ -1314,6 +1281,7 @@ export default {
     getCategoryName() {
       return function(id, country) {
         if (!this.categoryNameArr[id]) {
+          this.categoryNameArr[id] = '正在获取类目...'
           const categoryName = '正在获取类目...'
           this.setCategoryName(id, country)
           return categoryName || ''
@@ -1391,7 +1359,6 @@ export default {
       this.isMove = true
       this.cancelMove = false
       this.moveDetails = []
-      // this.selectMoveMallList.forEach(i => { i['isCreate'] = false })
       this.selectMoveMallList.forEach(i => {
         i['isCreateNum'] = 0
         i['createNum'] = 0
@@ -1443,7 +1410,7 @@ export default {
                 attributes.push(obj)
               } else {
                 const obj = { custom_value: {}}
-                obj['custom_value ']['raw_value '] = att.selected_attribute_value_name
+                obj['custom_value ']['raw_value'] = att.selected_attribute_value_name
                 attributes.push(obj)
               }
             }
@@ -1461,7 +1428,6 @@ export default {
           }
           for (let index = 0; index < mallList.length; index++) {
             const mall = mallList[index]
-            console.log('mall', mall)
             try {
               if (this.cancelMove) {
                 break
@@ -1475,7 +1441,6 @@ export default {
                 mall['color'] = `red`
                 this.movefail++
                 ++mall['isCreateNum']
-                // mall.isCreate = false
               } else {
                 try {
                 // 获取物流
@@ -1520,7 +1485,9 @@ export default {
                 await waitStart(() => {
                   return createIndex === mall['isCreateNum']
                 }, 60 * 60 * 1000)
-                const createRes = await this.$shopeemanService.createProduct(mall.country, data, [productInfo])
+                // 组装上新数据
+                const parmas = this.setCreateData(productInfo)
+                const createRes = await this.$shopeemanService.createProduct(mall.country, data, [parmas])
                 if (createRes.code === 200) {
                   // mall.isCreate = true
                   setTimeout(() => { ++mall['isCreateNum'] }, Number(this.moveTime) * 1000)
@@ -1582,6 +1549,47 @@ export default {
         this.goodsMoveData.forEach(row => { this.$refs.moveTable.toggleRowSelection(row) })
       })
     },
+    // 组装上新数据
+    setCreateData(productInfo) {
+      const parmas = {
+        attributes: [],
+        stock: productInfo.stock,
+        model_list: productInfo.model_list,
+        weight: productInfo.weight,
+        dimension: {
+          width: productInfo.dimension.width,
+          height: productInfo.dimension.height,
+          length: productInfo.dimension.length
+        },
+        condition: 1,
+        parent_sku: productInfo.parent_sku,
+        dangerous_goods: 0,
+        min_purchase_limit: 1,
+        input_normal_price: null,
+        input_promotion_price: null,
+        ds_cat_rcmd_id: productInfo.ds_cat_rcmd_id,
+        ds_attr_rcmd_id: productInfo.ds_attr_rcmd_id,
+        id: 0,
+        name: productInfo.name,
+        images: productInfo.images,
+        brand_id: 0,
+        size_chart: '',
+        tier_variation: productInfo.tier_variation,
+        description: productInfo.description,
+        category_path: productInfo.category_path,
+        category_recommend: productInfo.category_recommend,
+        price_before_discount: productInfo.price_before_discount,
+        price: productInfo.price,
+        wholesale_list: productInfo.wholesale_list,
+        installment_tenures: productInfo.installment_tenures,
+        pre_order: productInfo.pre_order,
+        days_to_ship: productInfo.days_to_ship,
+        logistics_channels: productInfo.logistics_channels,
+        unlisted: false,
+        add_on_deal: productInfo.add_on_deal
+      }
+      return parmas
+    },
     // 批量调整重量/体积
     batchSetSize() {
       if (!this.moveSelection.length) return this.$message('请选择数据后操作')
@@ -1638,7 +1646,9 @@ export default {
           // 检测标题长度
           this.getTitleLength(item)
           productInfo['name'] = productInfo.name.trim().slice(0, this.maxLength)
-          const createRes = await this.$shopeemanService.createProduct(item.country, data, [productInfo])
+          // 组装上新数据
+          const parmas = this.setCreateData(productInfo)
+          const createRes = await this.$shopeemanService.createProduct(item.country, data, [parmas])
           if (createRes.code === 200) {
             this.batchStatus(item, `发布成功`, true)
             this.successNum++
@@ -1716,7 +1726,6 @@ export default {
     },
     // 同步上家库存
     async syncOriginGoodsNum() {
-      this.flag = false
       this.initData()
       this.updateNum = this.multipleSelection.length
       await batchOperation(this.multipleSelection, this.syncOriginGoods)
@@ -1751,29 +1760,13 @@ export default {
           this.parentLoad1 = true
         } else {
           if (!this.parentUrl.trim()) return this.$message('产品链接不能为空')
-          const execPlatform = /(yangkeduo.com)|(item.taobao.com)|(detail.1688.com)|(www.lazada)/g
-          const platform = this.parentUrl.match(execPlatform)
-          if (!platform) return this.$message(`链接:${this.parentUrl} 识别支持平台失败`, false)
-          switch (platform[0]) {
-            case 'yangkeduo.com':
-              parentId = this.parentUrl.match(/goods_id=(\d+)/)[1]
-              parentType = 1
-              break
-            case 'item.taobao.com':
-              parentId = this.parentUrl.match(/id=(\d+)/)[1]
-              parentType = 2
-              break
-            case 'detail.1688.com':
-              parentId = this.parentUrl.match(/(\d+)\.html/)[1]
-              parentType = 8
-              break
-            case 'www.lazada':
-              parentId = this.parentUrl.match(/(\d+)\.html/)[1]
-              parentType = 9
-              break
-          }
+          const linkRes = getGoodLinkModel(this.parentUrl)
+          if (linkRes.code !== 200) return this.$message(`${linkRes.data}`, false)
+          parentId = linkRes.data.GoodsId
+          parentType = linkRes.data.platformId
           this.parentLoad2 = true
         }
+        if (!parentId) return this.writeLog(`链接:${this.parentUrl} 识别商品ID失败`, false)
         const tmallCrossBorderUserId = this.goodsValue.platformTypeStr === '天猫淘宝海外平台' ? this.goodsValue.id : ''
         const parent_sku = await this.$BaseUtilService.buildGoodCode(parentType, parentId, this.goodsValue.country, this.goodsValue.platform_mall_id, tmallCrossBorderUserId)
         let productInfo = {}
@@ -1787,25 +1780,29 @@ export default {
             this.batchStatus(this.goodsValue, `修改成功`, true)
             this.goodsValue.platformTypeStr = this.parentTypeObj[parentType]
             this.goodsValue.productId = parentId
-            switch (parentType) {
-              case 1:
-                this.goodsValue.url = `http://mobile.yangkeduo.com/goods.html?goods_id=${parentId}`
-                break
-              case 2:
-                this.goodsValue.url = `https://item.taobao.com/item.htm?id=${parentId}`
-                break
-              case 8:
-                this.goodsValue.url = `https://detail.1688.com/offer/${parentId}.html`
-                break
-              case 9:
-                this.goodsValue.url = `${this.$filters.lazadaGoodsUrl(this.goodsValue.country)}/${parentId}.html`
-                break
+            if (type === 1) {
+              switch (parentType) {
+                case 1:
+                  this.goodsValue.url = `http://mobile.yangkeduo.com/goods.html?goods_id=${parentId}`
+                  break
+                case 2:
+                  this.goodsValue.url = `https://item.taobao.com/item.htm?id=${parentId}`
+                  break
+                case 8:
+                  this.goodsValue.url = `https://detail.1688.com/offer/${parentId}.html`
+                  break
+                case 9:
+                  this.goodsValue.url = `${this.$filters.lazadaGoodsUrl(this.goodsValue.country)}/${parentId}.html`
+                  break
+              }
+            } else {
+              this.goodsValue.url = this.parentUrl
             }
           } else {
             this.batchStatus(this.goodsValue, `修改失败：${editProductRes.data}`, false)
           }
         } else {
-          this.$message.error(`${res.data}`)
+          this.batchStatus(this.goodsValue, `${res.data}`, false)
         }
       } catch (error) {
         this.batchStatus(this.goodsValue, `修改上家异常：${error}`, false)
@@ -1853,8 +1850,8 @@ export default {
           const index = this.categoryList.categoryList.length - 1
           const category_name = this.categoryList.categoryList[index].category_name
           const category_cn_name = this.categoryList.categoryList[index].category_cn_name
-          this.moveCategory.categoryName = `${category_name}(${category_cn_name})`
-          this.moveCategory.isCategoryName = true
+          this.$set(this.moveCategory, 'categoryName', `${category_name}(${category_cn_name})`)
+          this.$set(this.moveCategory, 'isCategoryName', true)
         }
       } else {
         this.categoryName = ''
@@ -1870,6 +1867,10 @@ export default {
     async batchConfirm() {
       this.initData()
       this.updateNum = this.multipleSelection.length
+      // const newData = await this.isHoliday(this.multipleSelection)
+      // if (newData.length > 0) {
+      //   await batchOperation(newData, this.confirmProduct)
+      // }
       await batchOperation(this.multipleSelection, this.confirmProduct)
       this.operationBut = false
     },
@@ -1887,7 +1888,7 @@ export default {
           if (res.code === 200) {
             this.successNum++
             this.batchStatus(item, `确认禁卖成功`, true)
-            this.successNum++
+            this.rowSelection([], false, item)
           } else {
             this.failNum++
             this.batchStatus(item, `确认禁卖失败`, false)
@@ -1983,8 +1984,12 @@ export default {
         this.initData()
         this.titleVisible = false
         this.getDescriptionVisible = false
-        this.multipleSelection.forEach(item => { item.edit = name })
         this.updateNum = this.multipleSelection.length
+        // const newData = await this.isHoliday(this.multipleSelection)
+        // if (newData.length > 0) {
+        //   await batchOperation(newData, this[name])
+        // }
+        this.multipleSelection.forEach(item => { item.edit = name })
         await batchOperation(this.multipleSelection, this[name])
         this.operationBut = false
       })
@@ -2035,6 +2040,7 @@ export default {
         if (item.edit === 'setTitle') {
           item.name = productInfo.name
         }
+        this.rowSelection([], false, item)
         this.batchStatus(item, `更新${this.operationObj[item.edit]}成功`, true)
       } else {
         this.failNum++
@@ -2702,6 +2708,7 @@ export default {
             let activityid = ''
             // 获取该商品参加的折扣活动ID
             const res = await this.GoodsList.getMallDiscountsIdByKeyword(item)
+            if (res.code !== 200) return { batchStatus: `获取该商品参加的折扣活动ID失败：${res.data}`, color: false, code: res.code }
             activityid = res.data?.hits[0]?.promotionid
             if (activityid) {
               this.discountId = activityid // 商品一键翻新时，该商品有折扣活动，储存折扣活动id
@@ -2712,48 +2719,55 @@ export default {
           } else if (campaignType === 3) {
           // 获取该商品参加的套装活动ID
             const res = await this.GoodsList.getBundleDeal(item, activityid)
-            activityid = res.data.hits[0].bundle_deal_id
+            activityid = res.data?.hits[0]?.bundle_deal_id
             // 删除
-            const delRes = await this.GoodsList.deleteBundleGoods(item, activityid)
-            if (delRes.code !== 200) return { batchStatus: `删除套装活动失败：${delRes.data}`, color: false, code: delRes.code }
+            if (activityid) {
+              const delRes = await this.GoodsList.deleteBundleGoods(item, activityid)
+              if (delRes.code !== 200) return { batchStatus: `删除套装活动失败：${delRes.data}`, color: false, code: delRes.code }
+            }
           } else if (campaignType === 4) {
             // 获取该商品参加的加购活动ID
             const res1 = await this.GoodsList.getAddOnDealStandardSearch(item)
-            activityid = res1.data.add_on_deal_list[0].add_on_deal_id
+            if (res1.code !== 200) return { batchStatus: `获取该商品参加的加购活动ID失败：${res1.data}`, color: false, code: res1.code }
+            activityid = res1.data?.add_on_deal_list[0]?.add_on_deal_id
             // IsSelected为真则是主商品
-            if (item.campaignTypeList.IsSelected) {
-            // 获取主商品加购活动列表
-              const res2 = await this.GoodsList.getAdd0nDealAggrMainItemList(item, activityid)
-              const filterData = res2.data.main_item_list.filter(listItem => {
-                return listItem.item_id === item.id
-              })
-              let status = ''
-              if (filterData[0].status === 1) {
-                status = 0
-              }
-              if (filterData[0].status === 2) {
-                status = 1
-              }
-              // 删除主商品加购活动商品
-              const delRes1 = await this.GoodsList.deleteAddOnDealMainItemList(item, status, activityid)
-              if (delRes1.code !== 200) return { batchStatus: `删除主商品加购活动失败：${delRes1.data}`, color: false, code: delRes1.code }
-            } else {
+            if (activityid) {
+              if (item.campaignTypeList.IsSelected) {
+                // 获取主商品加购活动列表
+                const res2 = await this.GoodsList.getAdd0nDealAggrMainItemList(item, activityid)
+                if (res2.code !== 200) return { batchStatus: `获取主商品加购活动列表失败：${res2.data}`, color: false, code: res2.code }
+                const filterData = res2.data.main_item_list.filter(listItem => {
+                  return listItem.item_id === item.id
+                })
+                let status = ''
+                if (filterData[0].status === 1) {
+                  status = 0
+                }
+                if (filterData[0].status === 2) {
+                  status = 1
+                }
+                // 删除主商品加购活动商品
+                const delRes1 = await this.GoodsList.deleteAddOnDealMainItemList(item, status, activityid)
+                if (delRes1.code !== 200) return { batchStatus: `删除主商品加购活动失败：${delRes1.data}`, color: false, code: delRes1.code }
+              } else {
               // 获取子商品列表
-              const res3 = await this.GoodsList.getAdd0nDealAggrSubItemList(item, activityid)
-              const subItemList = res3.data.sub_item_list.filter(listItem => {
-                return listItem.item_id === item.id
-              })
-              subItemList.map(filterItem => {
-                delete filterItem.input_sub_item_price
-                delete filterItem.price
-                delete filterItem.sub_item_price
-                filterItem.status = 0
-              })
-              if (subItemList?.length > 0) {
-                for (let j = 0; j < subItemList.length; j++) {
-                // 删除子商品加购活动商品
-                  const delRes2 = await this.GoodsList.deleteAddOnDealSubItemList(item, activityid, subItemList)
-                  if (delRes2.code !== 200) return { batchStatus: `删除子商品加购活动失败：${delRes2.data}`, color: false, code: delRes2.code }
+                const res3 = await this.GoodsList.getAdd0nDealAggrSubItemList(item, activityid)
+                if (res3.code !== 200) return { batchStatus: `获取子商品加购活动列表失败：${res3.data}`, color: false, code: res3.code }
+                const subItemList = res3.data.sub_item_list.filter(listItem => {
+                  return listItem.item_id === item.id
+                })
+                subItemList.map(filterItem => {
+                  delete filterItem.input_sub_item_price
+                  delete filterItem.price
+                  delete filterItem.sub_item_price
+                  filterItem.status = 0
+                })
+                if (subItemList?.length > 0) {
+                  for (let j = 0; j < subItemList.length; j++) {
+                    // 删除子商品加购活动商品
+                    const delRes2 = await this.GoodsList.deleteAddOnDealSubItemList(item, activityid, subItemList)
+                    if (delRes2.code !== 200) return { batchStatus: `删除子商品加购活动失败：${delRes2.data}`, color: false, code: delRes2.code }
+                  }
                 }
               }
             }
@@ -2771,6 +2785,10 @@ export default {
     async batchUpDownProduct() {
       this.initData()
       this.updateNum = this.multipleSelection.length
+      // const newData = await this.isHoliday(this.multipleSelection)
+      // if (newData.length > 0) {
+      //   await batchOperation(newData, this.upDownProduct)
+      // }
       await batchOperation(this.multipleSelection, this.upDownProduct)
       this.operationBut = false
     },
@@ -2792,6 +2810,7 @@ export default {
         const data = { mallId: item.platform_mall_id }
         const res = await this.$shopeemanService.handleGoodsDelist(item.country, data, params)
         if (res.code === 200) {
+          this.rowSelection([], false, item)
           this.successNum++
           this.batchStatus(item, `${this.upDown ? '下架成功' : '上架成功'}`, true)
         } else {
@@ -2823,6 +2842,11 @@ export default {
         this.initData()
         this.deleteId = []
         this.updateNum = this.deleteData.length
+        // const newData = await this.isHoliday(this.deleteData)
+        // if (newData.length > 0) {
+        //   await batchOperation(newData, this.deleteProduct)
+        //   await this.deleteCollectGoodsInfo()
+        // }
         await batchOperation(this.deleteData, this.deleteProduct)
         await this.deleteCollectGoodsInfo()
         this.operationBut = false
@@ -2858,6 +2882,7 @@ export default {
           this.successNum++
           this.batchStatus(item, `删除成功`, true)
           this.deleteId.push(item.id) // 云端的商品记录
+          this.rowSelection([], false, item)
         } else {
           if (this.isRefurbishProduct) {
             return { batchStatus: `删除失败：${res.data}`, code: -2 }
@@ -3032,23 +3057,6 @@ export default {
     // 批量操作
     async operation(operationName) {
       if (!this.multipleSelection?.length) return this.$message('没有可操作的商品，请选择')
-      // const obj = {}
-      // const newData = this.multipleSelection.reduce((cur, next) => {
-      //   obj[next.platform_mall_id] ? '' : obj[next.platform_mall_id] = true && cur.push(next)
-      //   return cur
-      // }, [])
-      // for (const mItem of newData) {
-      //   const res = await this.$shopeemanService.getUserInfo() // 获取店铺信息
-      //   if (res.code === 200) {
-      //     for (const item of this.multipleSelection) {
-      //       if (item.platform_mall_id === mItem.platform_mall_id) {
-      //         item.holiday_mode_on = res.data.holiday_mode_on
-      //       } else {
-      //         item.holiday_mode_on = false
-      //       }
-      //     }
-      //   }
-      // }
       this[operationName]()
     },
     // 选择模板
@@ -3126,11 +3134,11 @@ export default {
       if (this.priceMin < 0 || this.priceMax > 99999999) return this.$message('价格请输入0-99999999之间的数字')
       if (this.goodsMin < 0 || this.goodsMax > 99999999) return this.$message('商品数量请输入0-99999999之间的数字')
       this.initData()
-      this.flag = false
       this.queryNum = 0
       this.tableData = []
       this.$refs.Logs.consoleMsg = ''
       this.showConsole = false
+      this.$refs.plTable.clearSelection()
       if (this.queryType === 1) {
         this.$refs.Logs.writeLog(`开始查询...`, true)
       } else if (this.queryType === 100) {
@@ -3221,6 +3229,7 @@ export default {
             if (!this.productNumChecked) {
               this.tableData = this.tableData.concat(newData)
               this.queryNum = this.tableData.length
+              this.rowSelection(newData, true, {})
             } else {
               mItem.mylist = newData
             }
@@ -3241,6 +3250,7 @@ export default {
             // 切割长度
             const num = Number(this.productNum) - nameData1.length
             this.tableData = this.tableData.concat(mItem.mylist.slice(0, num))
+            this.rowSelection(mItem.mylist.slice(0, num), true, {})
             // 加入数据后查询当前店铺的长度
             const nameData2 = this.tableData.filter(item => { return item.platform_mall_id === mItem.platform_mall_id })
             // 当前店铺长度 大于或等于设置的单店值 设置isFlag 值，不执行下一次查询
@@ -3266,10 +3276,9 @@ export default {
     async queryBanned() {
       this.initData()
       this.tableData = []
-      this.operationBut = true
       this.showConsole = false
       this.$refs.Logs.consoleMsg = ''
-      this.flag = false
+      this.$refs.plTable.clearSelection()
       this.$refs.Logs.writeLog(`开始查询禁卖商品...`, true)
       this.selectMallList.forEach(item => {
         item.pageNumber = 1
@@ -3302,6 +3311,7 @@ export default {
             await this.setTableData(res.data.list, mItem, mallName)
             if (!this.productNumChecked) {
               this.tableData = this.tableData.concat(res.data.list)
+              this.rowSelection(res.data.list, true, {})
               this.queryNum = this.tableData.length
             } else {
               mItem.mylist = res.data.list
@@ -3322,6 +3332,7 @@ export default {
             // 切割长度
             const num = Number(this.productNum) - nameData1.length
             this.tableData = this.tableData.concat(mItem.mylist.slice(0, num))
+            this.rowSelection(mItem.mylist.slice(0, num), true, {})
             // 加入数据后查询当前店铺的长度
             const nameData2 = this.tableData.filter(item => { return item.platform_mall_id === mItem.platform_mall_id })
             // 当前店铺长度 大于或等于设置的单店值 设置isFlag 值，不执行下一次查询
@@ -3363,22 +3374,11 @@ export default {
           stock += Number(modelItem.stock_info.normal_stock)
           sold += Number(modelItem.sold)
         })
+        item.holiday_mode_on = null
         item.categoryId = item.category_path.toString()
-        // 获取类目名
-        // for (let j = 0; j < item.category_path.length; j++) {
-        //   const cItem = item.cacategory_path[j]
-        //   const res = await this.GoodsList.getCategoryName(item.country, cItem, '0', '')
-        //   if (res.code === 200) {
-        //     categoryName.push(res.data.categories ? `${res.data.categories[0].category_name}(${res.data.categories[0].category_cn_name})` : '')
-        //   } else {
-        //     categoryName = ''
-        //     this.$refs.Logs.writeLog(`${res.data}`, false)
-        //   }
-        // }
         item.stock = stock // 库存
         item.sold = sold // 销售量
         item.price = Math.min.apply(null, price) // 价格
-        // item.categoryName = categoryName.join('->') // 类目
         if (item.status === 2) { // 状态
           status = 6
         } else if (item.status === 1 && item.stock === 0) {
@@ -3717,7 +3717,7 @@ export default {
       this.$refs.Logs.writeLog(`停止操作`, true)
       terminateThread()
     },
-    initData() {
+    async initData() {
       this.operationBut = true
       this.isMove = false
       this.isRefurbishProduct = false
@@ -3725,6 +3725,62 @@ export default {
       this.updateNum = 0
       this.successNum = 0
       this.failNum = 0
+      this.flag = false
+    },
+    // 判断店铺是否休假
+    async isHoliday(data) {
+      const holidayData = {}
+      for (const item of data) {
+        if (!holidayData[item.platform_mall_id]) {
+          const holidayStatus = await this.$appConfig.temporaryCacheInfo('get', `holiday_${item.platform_mall_id}`)
+          if (holidayStatus === '{}') {
+            const res = await this.$shopeemanService.getUserInfo(item) // 获取店铺信息
+            console.log('getUserInfo', res)
+            if (res.code === 200) {
+              item.holiday_mode_on = res.data.holiday_mode_on
+              this.$appConfig.temporaryCacheInfo('save', `holiday_${item.platform_mall_id}`, res.data.holiday_mode_on)
+              holidayData[item.platform_mall_id] = res.data.holiday_mode_on
+            }
+          } else {
+            item.holiday_mode_on = JSON.parse(holidayStatus)
+            holidayData[item.platform_mall_id] = JSON.parse(holidayStatus)
+          }
+        } else {
+          item.holiday_mode_on = holidayData[item.platform_mall_id]
+        }
+      }
+      const newData = []
+      data.forEach(item => {
+        if (item.holiday_mode_on) {
+          this.batchStatus(item, `该店铺正处于休假模式`)
+          this.failNum++
+          const temp = 100 / data.length
+          this.percentage += temp
+        } else {
+          newData.push(item)
+        }
+      })
+      return newData
+    },
+    // 表格是否选中
+    rowSelection(data, type, item) {
+      if (type) {
+        if (data.length > 0) {
+          this.$nextTick(() => {
+            data.forEach(row => { this.$refs.plTable.toggleRowSelection([{ row }]) })
+          })
+        }
+      } else {
+        if (JSON.stringify(item) !== '{}') {
+          this.$nextTick(() => {
+            this.$refs.plTable.toggleRowSelection([{ row: item, selected: false }])
+          })
+        }
+      }
+    },
+    // 记住所选项
+    getRowKey(row) {
+      return row.id
     },
     // 导出数据
     exportTableData() {

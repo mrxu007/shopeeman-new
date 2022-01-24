@@ -341,6 +341,9 @@
                   size="mini"
                 />
               </li>
+              <li>
+                <a href="#" @click="$BaseUtilService.openUrl('https:distributor.taobao.global/')">淘宝天猫海外商品铺货</a>
+              </li>
             </ul>
             <!--操作按钮 -->
             <ul class="item con-sub-2">
@@ -1052,19 +1055,22 @@ export default {
       if (res.code !== 200) {
         return this.$message.error(res.data)
       }
-      this.buttonStatus.start = true
       this.goodsList = []
       this.$refs.plTable.reloadData(this.goodsList)
       const data = res.data
-      this.writeLog('开始商品链接采集搜索........', true)
-      this.collectName = `商品链接采集数据`
-      data.forEach(item => { item.type = type })
-      await batchOperation(data, this.linkCollect)
-      if (this.flag) this.writeLog('取消链接采集', true)
-      this.goodsList.forEach(row => { this.$refs.plTable.toggleRowSelection([{ row }]) })
-      this.writeLog(`商品链接：共采集：${this.goodsList.length}条`, true)
-      this.writeLog(`商品链接采集完毕........`, true)
-      this.buttonStatus.start = false
+      console.log(data)
+      if (data.length > 0) {
+        this.buttonStatus.start = true
+        this.writeLog('开始商品链接采集搜索........', true)
+        this.collectName = `商品链接采集数据`
+        data.forEach(item => { item.type = type })
+        await batchOperation(data, this.linkCollect)
+        if (this.flag) this.writeLog('取消链接采集', true)
+        this.goodsList.forEach(row => { this.$refs.plTable.toggleRowSelection([{ row }]) })
+        this.writeLog(`商品链接：共采集：${this.goodsList.length}条`, true)
+        this.writeLog(`商品链接采集完毕........`, true)
+        this.buttonStatus.start = false
+      }
     },
     async linkCollect(item, count = { count: 1 }) {
       try {
@@ -1178,6 +1184,7 @@ export default {
     },
     async getTaobaoAbroadAccount() {
       const res = await this.collectOtherApInstance.getTaobaoAbroadAccount()
+      console.log('getTaobaoAbroadAccount', res)
       if (res.code !== 200) {
         return this.$message.error(`获取淘宝天猫海外账号失败：${res.code} ${res.data}`)
       }
@@ -1228,7 +1235,6 @@ export default {
       this.writeLog('开始收藏商品........', true)
       // 编辑上新时根据用户选择的起止数据切割
       this.multipleSelection = this.isEditorVisible ? this.multipleSelection.splice(Number(this.start) - 1, Number(this.end) - Number(this.start) + 1) : this.multipleSelection
-      this.CollectPublicApInstance.initData(this.activeName)
       await batchOperation(this.multipleSelection, this.saveGoods)
       this.writeLog(`共收藏成功：${this.successNum}个商品, 收藏失败：${this.failNum}个商品`, true)
       this.writeLog(`收藏商品完毕........`, true)

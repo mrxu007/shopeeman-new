@@ -97,12 +97,12 @@ export default class GoodsList {
     params['mallId'] = val.platform_mall_id
     try {
       const res = await this._this.$shopeemanService.getChinese(val.country, '/api/marketing/v3/add_on_deal/aggr_sub_item_list/?', params)
-      const jsonData = this.isJsonString(res)
-      if (jsonData.status === 200) {
-        const data = this.isJsonString(jsonData.data)
-        return { code: 200, data: data.data }
+      const jsonData = this.isJsonString(this.isJsonString(res).data)
+      console.log('获取子商品加购活动', jsonData)
+      if (jsonData.message === 'success') {
+        return { code: 200, data: jsonData.data }
       }
-      return { code: 201, data: jsonData.statusText }
+      return { code: 201, data: jsonData.message }
     } catch (error) {
       return { code: -2, data: `子商品加购活动列表异常： ${error}` }
     }
@@ -148,6 +148,7 @@ export default class GoodsList {
     params['search_type'] = 'item_id'
     params['keyword'] = val.id
     params['mallId'] = val.platform_mall_id
+    params['promotion_status'] = 'ongoing'
     try {
       const res = await this._this.$shopeemanService.getChinese(val.country, '/api/marketing/v3/add_on_deal/standard_search/?', params)
       const jsonData = this.isJsonString(res)
@@ -189,6 +190,7 @@ export default class GoodsList {
     params['keyword'] = val.id
     params['search_type'] = 'item_id'
     params['mallId'] = val.platform_mall_id
+    params['promotion_status'] = 'ongoing'
     try {
       const res = await this._this.$shopeemanService.getChineseReferer(val.country, '/api/marketing/v3/bundle_deal/standard_search/?', params)
       const jsonData = this.isJsonString(res)
