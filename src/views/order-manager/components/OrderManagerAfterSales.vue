@@ -580,13 +580,11 @@ export default {
     },
     // 修改备注
     editRemark(index, activeRemarkID) {
-      console.log(index, activeRemarkID)
       this.activeRemarkID = activeRemarkID
       this.orderRemark = this.tableList[index].remark
     },
         // 修改单个备注
     async changeRemark(id, index) {
-      console.log(id, index)
       const res = await this.$api.setLocalRemark({ id: id, remark: this.orderRemark })
       if (res.data.code == 200) {
         this.$message.success(`设置备注成功`)
