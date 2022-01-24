@@ -32,7 +32,14 @@
     </div>
     <!-- 表格区 -->
     <div class="content">
-      <el-table ref="multipleTable" v-loading="tableLoading" :data="tableData" tooltip-effect="dark" max-height="680" @selection-change="selectionChange">
+      <el-table
+        ref="multipleTable"
+        v-loading="tableLoading"
+        :data="tableData"
+        tooltip-effect="dark"
+        height="calc(100vh - 205px)"
+        @selection-change="selectionChange"
+      >
         <el-table-column type="selection" width="55" align="center" />
         <el-table-column align="center" type="index" label="序号" width="50">
           <template slot-scope="scope">{{ (currentPage - 1) * pageSize + scope.$index + 1 }}</template>
@@ -74,13 +81,13 @@
       </el-table>
       <div class="pagination">
         <el-pagination
-            background
-            :page-sizes="[10, 20, 50, 100]"
-            :page-size="pageSize"
-            layout="total, sizes, prev, pager, next, jumper"
-            :total="total"
-            @current-change="handleCurrentChange"
-            @size-change="handleSizeChange"
+          background
+          :page-sizes="[10, 20, 50, 100]"
+          :page-size="pageSize"
+          layout="total, sizes, prev, pager, next, jumper"
+          :total="total"
+          @current-change="handleCurrentChange"
+          @size-change="handleSizeChange"
         />
       </div>
     </div>
@@ -293,10 +300,10 @@ export default {
 .content {
   margin: 20px 0;
   background: #fff;
-  height: calc(100vh - 150px);
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
+  // height: calc(100vh - 150px);
+  // display: flex;
+  // flex-direction: column;
+  // justify-content: space-between;
   .pagination {
     display: flex;
     justify-content: flex-end;

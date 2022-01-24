@@ -226,6 +226,22 @@ export default {
   },
   data() {
     return {
+      siteLimitCost: { // 站点最低消费金额
+        MY: 1,
+        TW: 1,
+        VN: 1000,
+        ID: 100,
+        PH: 5,
+        TH: 1,
+        SG: 1,
+        BR: 1,
+        MX: 1,
+        CO: 1,
+        CL: 1,
+        PL: 1,
+        FR: 1,
+        ES: 1
+      },
       tableLoading: false,
       singerStop: false, // 单个停止
       MarketManagerAPIInstance: new MarketManagerAPI(this),
@@ -568,6 +584,10 @@ export default {
       }
       if (this.rewardType === '0' && this.discountType === '1' && Number(this.discountNum) > Number(this.minPrice)) {
         this.$message.warning('折扣金额不能大于最低消费金额')
+        return
+      }
+      if (Number(this.minPrice) < this.siteLimitCost[this.selectMallList[0].country.toLocaleUpperCase()]) {
+        this.$message.warning(`当前站点最低消费金额为${this.siteLimitCost[this.selectMallList[0].country.toLocaleUpperCase()]}`)
         return
       }
       if (!this.dateTime.length) {
