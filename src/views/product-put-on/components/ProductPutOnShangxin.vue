@@ -1207,7 +1207,75 @@ export default {
 
       //rateList
       RMBShow: true,
-      rateList: {}
+      rateList: {},
+      titleInterval:{
+        "TH":{
+          min:20,
+          max:120
+        },
+        "VN":{
+          min:10,
+          max:120
+        },
+        "MY":{
+          min:20,
+          max:120
+        },
+        "SG":{
+          min:10,
+          max:120
+        },
+        "TW":{
+          min:5,
+          max:60
+        },
+        "PH":{
+          min:20,
+          max:100
+        },
+        "ID":{
+          min:5,
+          max:100
+        },
+        "BR":{
+          min:1,
+          max:120
+        },
+      },
+      descriptionInterval:{
+        "TH":{
+          min:25,
+          max:3000
+        },
+        "VN":{
+          min:100,
+          max:3000
+        },
+        "MY":{
+          min:20,
+          max:3000
+        },
+        "SG":{
+          min:20,
+          max:3000
+        },
+        "TW":{
+          min:5,
+          max:3000
+        },
+        "PH":{
+          min:100,
+          max:3000
+        },
+        "ID":{
+          min:20,
+          max:3000
+        },
+        "BR":{
+          min:1,
+          max:3000
+        },
+      },
     }
   },
   computed: {},
@@ -1331,7 +1399,6 @@ export default {
         index >= 0 && this.$set(this.goodsTable, index, item) || this.goodsTable.push(item)
       }
       this.statistics.count = this.goodsTable.length
-      console.log(this.goodsTable)
     } catch (error) {
     }
   },
@@ -1390,14 +1457,12 @@ export default {
               }
               let findItem = this.customLogistics.find(son => son.shopId === (item.channel_id + ''))
               if (findItem) {
-                temp['price'] = price + ''
+                temp['price'] = findItem.price + ''
               }
               logistics_channels.push(temp)
             }
           }
         }
-        // console.log(logistics_channels)
-        // return
         if (this.associatedConfig.dimensionRadio < 2) {
           let mallCount = this.mallList.length
           let mallIndex = this.mallList.findIndex(son => son.id === mall.id)
@@ -1490,7 +1555,25 @@ export default {
           let guid = new GUID()
           goodsParam['ds_cat_rcmd_id'] = guid.newGUID() + '|c|EN'
           goodsParam['ds_attr_rcmd_id'] = guid.newGUID() + '|a|EN'
-          // name description
+          // name description tier_variation price
+          let tier_variation = neededTranslateInfoData.tier_variation
+          if (tier_variation[tier_variation.spec1].length > 0) {
+            goodsParam['tier_variation'].push({
+              name: tier_variation.spec1,
+              options: [...tier_variation[tier_variation.spec1].map(i => i.substring(0, 20).trim())],
+              images: tier_variation.images
+            })
+          }
+          if (tier_variation[tier_variation.spec2].length > 0) {
+            goodsParam['tier_variation'].push({
+              name: tier_variation.spec2,
+              options: [tier_variation[tier_variation.spec2].map(i => i.substring(0, 20).trim())],
+              images: []
+            })
+          }
+          goodsParam['price'] = this.getValuationPrice(neededTranslateInfoData.price, neededTranslateInfoData)
+          goodsParam['price'] = Math.ceil(goodsParam['price'] / this.rateList[this.country]) + ''
+
           goodsParam['description'] = neededTranslateInfoData.description || ''
           let hotList = this.basicConfig.hotList || ''
           hotList = hotList.replaceAll('，', ',')
@@ -1518,6 +1601,10 @@ export default {
             name = mall.platform_mall_name + ' ' + name
           }
           goodsParam['name'] = name
+          let isFieldFilter = await this.fieldFilter(goodsParam)
+          if(!isFieldFilter){
+            continue
+          }
           if (this.storeConfig.wordsHeavy) {
             let nameList = goodsParam['name'].split(' ')
             let setName = new Set()
@@ -1554,24 +1641,7 @@ export default {
           if (neededTranslateInfoData.sizeImages && neededTranslateInfoData.sizeImages[0]) {
             goodsParam['size_chart'] = neededTranslateInfoData.sizeImages[0].img || ''
           }
-          // tier_variation model_list price
-          let tier_variation = neededTranslateInfoData.tier_variation
-          if (tier_variation[tier_variation.spec1].length > 0) {
-            goodsParam['tier_variation'].push({
-              name: tier_variation.spec1,
-              options: [...tier_variation[tier_variation.spec1].map(i => i.substring(0, 20).trim())],
-              images: tier_variation.images
-            })
-          }
-          if (tier_variation[tier_variation.spec2].length > 0) {
-            goodsParam['tier_variation'].push({
-              name: tier_variation.spec2,
-              options: [tier_variation[tier_variation.spec2].map(i => i.substring(0, 20).trim())],
-              images: []
-            })
-          }
-          goodsParam['price'] = this.getValuationPrice(neededTranslateInfoData.price, neededTranslateInfoData)
-          goodsParam['price'] = Math.ceil(goodsParam['price'] / this.rateList[this.country]) + ''
+          // model_list
 
           let itemmodelsJson = JSON.stringify(neededTranslateInfoData.itemmodels)
           goodsParam['model_list'] = JSON.parse(itemmodelsJson).map(son => {
@@ -1644,6 +1714,93 @@ export default {
       } finally {
         --count.count
       }
+    },
+    //标题，描述，sku过滤
+    fieldFilter(goods){
+      return new Promise(async resolve => {
+        try {
+          let skuJson = JSON.stringify(goods['tier_variation'])
+          let keyFilter = this.associatedConfig.keyFilter
+          let titleInterval = this.titleInterval[this.country]
+          let descriptionInterval = this.descriptionInterval[this.country]
+          goods['name'] = goods['name'].slice(0,titleInterval.max)
+          if (goods['name'].length < titleInterval.min){
+            this.updateAttributeName(goods, '商品标题长度过短')
+            resolve(false)
+          }
+          goods['description'] = goods['description'].slice(0,descriptionInterval.max)
+          if (goods['description'].length < descriptionInterval.min){
+            this.updateAttributeName(goods, '商品描述长度过短')
+            resolve(false)
+          }
+          let keyListStr = this.associatedConfig.keyList
+          let keyList = keyListStr.split(',')
+          if(keyList.length > 0){
+            keyList.forEach(i=> {
+              if (i){
+                let isName = goods['name'].includes(i)
+                let isDescription = goods['description'].includes(i)
+                let isSKU = skuJson.search('"options":".*('+i+').*",')
+                let success = false
+                if (keyFilter === 0 && (isName || isDescription ||isSKU)){
+                  success = true
+                }else if(keyFilter === 1 && isName){
+                  success = true
+                }else if(keyFilter === 2 && isDescription){
+                  success = true
+                }else if(keyFilter === 3 && isSKU){
+                  success = true
+                }
+                success && this.updateAttributeName(goods, '关键词过滤成功')
+                success && resolve(false)
+              }
+            })
+          }
+          const wordParams  = {
+            page:"1",
+            perpage: "100",
+            word: "",
+            country: this.country,
+            source: '0',
+            type: '1'
+          }
+          const wordListJSON = await this.$commodityService.getBannedWordList(wordParams)
+          const wordListRes = JSON.parse(wordListJSON)
+          const wordListData = wordListRes.data && wordListRes.data.data || []
+          wordListData.forEach(i=> {
+            if (i.word){
+              let isName = goods['name'].includes(i.word)
+              let isDescription = goods['description'].includes(i.word)
+              let isSKU = skuJson.search('"options":".*('+i.word+').*",')
+              if ((isName || isDescription ||isSKU)){
+                this.updateAttributeName(goods, '禁运词过滤成功')
+                resolve(false)
+              }
+            }
+          })
+          const categoryParams = {
+            type: '0',
+            country: this.country,
+            page: '1',
+            perpage: '100',
+            parentCategoryTree: []
+          }
+          const categoryJson = await this.$commodityService.getBlackCategory(categoryParams)
+          const categoryRes = JSON.parse(categoryJson)
+          const categoryData = categoryRes.data && categoryRes.data.data || []
+          let category_path = goods['category_path'].join('-')
+          categoryData.forEach(item=>{
+            if (item && item.parent_category_tree === category_path){
+              this.updateAttributeName(goods, '禁运类目过滤成功')
+              resolve(false)
+            }
+          })
+          resolve(true)
+        }catch (e) {
+          this.updateAttributeName(goods, '网络异常请稍后再试')
+          resolve(false)
+        }
+      })
     },
     //附加水印图
     additionalWatermarking(url, mall) {
