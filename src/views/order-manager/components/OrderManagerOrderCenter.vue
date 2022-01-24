@@ -503,8 +503,8 @@
         </u-table-column>
         <u-table-column sortable align="center" prop="remark" label="本地备注" width="150" show-overflow-tooltip v-if="showTableColumn('本地备注')">
           <template slot-scope="scope">
-            <div v-show="!(scope.row.id === activeRemarkID ? true : false)" @click.stop="editRemark(scope.$index, scope.row.id)" style="cursor: pointer">
-              <span @dblclick="copyItem(scope.row.remark)">{{ scope.row.remark }}</span>
+            <div v-show="!(scope.row.id === activeRemarkID ? true : false) || scope.row.remark == ''" @click.stop="editRemark(scope.$index, scope.row.id)" style="cursor: pointer;min-width:20px;">
+              <p @dblclick="copyItem(scope.row.remark)" style="color:#000;">{{ scope.row.remark }}</p>
               <!-- <el-input v-model="scope.row.remark" disabled size="mini"></el-input> -->
             </div>
             <el-input v-if="scope.row.id === activeRemarkID ? true : false" v-model="orderRemark" size="mini" @blur="changeRemark(scope.row.id, scope.$index)"
