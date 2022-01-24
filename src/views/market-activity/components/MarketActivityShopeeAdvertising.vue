@@ -464,36 +464,46 @@
                     </el-tooltip>
                   </template>
                 </el-table-column>
-                <el-table-column label="价格" prop="price" width="120" />
+                <el-table-column label="价格" prop="price" width="80" />
                 <el-table-column label="已选商品数量" width="100">
                   <template slot-scope="scope">
                     <span style="color: green">0</span>
                   </template>
                 </el-table-column>
-                <el-table-column label="点击出价" width="160" align="center">
+                <el-table-column label="点击出价" width="180" align="center">
                   <template slot-scope="scope">
-                    <el-input v-model="scope.row.selfPrice" placeholder="请输入内容" size="mini" class="mar-left" style="width: 120px" >
+                    <el-input v-model="scope.row.selfPrice" placeholder="请输入内容" size="mini" class="mar-left" style="width: 100px">
                       <template slot="prepend">{{ country | siteCoin }}</template>
                     </el-input>
-                     <span style="color: #dcdcdc">每点击一次</span>
-                    <span style="color: green">推荐出价{{ country | siteCoin }}{{ scope.row.nominate1 > -1 ? scope.row.nominate1 : scope.row.nominateRemark }}</span>
+                    <p>
+                      <span style="color: #dcdcdc">每点击一次</span>
+                      <span style="color: green">推荐出价{{ country | siteCoin }}{{ scope.row.nominate1 > -1 ? scope.row.nominate1 : scope.row.nominateRemark }}</span>
+                    </p>
                   </template>
                 </el-table-column>
-                <el-table-column label="预算" width="160" prop="budgetType" align="center" >
+                <el-table-column label="预算" width="160" prop="budgetType" align="center">
                   <template slot-scope="scope">
-                    <el-select v-model="scope.row.budgetType" style="width: 120px" size="mini" ref="select" @change="changeSelect($event,scope.$index)">
+                    <el-select v-model="scope.row.budgetType" style="width: 120px" size="mini" ref="select" @change="changeBudgetType($event, scope.$index)">
                       <el-option label="无限制" value="all"> </el-option>
                       <el-option label="每日预算" value="day"> </el-option>
                       <el-option label="总预算" value="total"> </el-option>
                     </el-select>
-                    <el-input v-if="scope.row.budgetType !== 'all'" v-model="scope.row.budget" placeholder="请输入内容" size="mini" class="mar-left" style="width: 120px;margin-top:5px;">
+                    <el-input
+                      v-if="scope.row.budgetType !== 'all'"
+                      v-model="scope.row.budget"
+                      placeholder="请输入内容"
+                      size="mini"
+                      class="mar-left"
+                      style="width: 120px; margin-top: 5px"
+                      @change="changeBudget($event, scope.$index)"
+                    >
                       <template slot="prepend">{{ country | siteCoin }}</template>
                     </el-input>
                   </template>
                 </el-table-column>
-                <el-table-column label="时间长度" width="180" align="center">
+                <el-table-column label="时间长度" width="200" align="center">
                   <template slot-scope="scope">
-                    <el-select v-model="scope.row.timeType" style="width: 180px" size="mini">
+                    <el-select v-model="scope.row.timeType" style="width: 200px" size="mini">
                       <el-option label="无限制" value="0"> </el-option>
                       <el-option label="设定开始时间/结束时间" value="1"> </el-option>
                     </el-select>
@@ -507,7 +517,7 @@
                       range-separator="-"
                       start-placeholder="开始日期"
                       end-placeholder="结束日期"
-                      style="width: 180px;margin-top:5px;"
+                      style="width: 200px; margin-top: 5px"
                     />
                   </template>
                 </el-table-column>
@@ -706,12 +716,20 @@ export default {
     this.setClickPrice()
   },
   methods: {
-    changeSelect(val,index){
-      console.log(val,index,this.relevanceList)
+    changeBudgetType(val, index) {
+      // budgetType
+      if (val === 'day') {
+        this.relevanceList[index].budget = 20
+      } else if (val === 'total') {
+        this.relevanceList[index].budget = 100
+      } else {
+        this.relevanceList[index].budget = 0
+      }
+      console.log(val, index, this.relevanceList)
     },
+    changeBudget(val, index) {},
     //处理关联广告添加的商品
     async dealWithTargetGoods(array) {
-
       let arrayCut = array.splice(0, 10 - this.relevanceList.length)
       console.log(arrayCut, 'arrayCut')
       for (let i = 0; i < this.selectMallList.length; i++) {
@@ -733,20 +751,20 @@ export default {
           goodsListFilter.forEach((item) => {
             item.image = item.images.split(',')[0]
             let obj1 = res.data.find((n) => n.itemid === item.itemid && n.placement === 1)
-            item.nominate1= obj1 ? obj1.price.toFixed(2) : 0
+            item.nominate1 = obj1 ? obj1.price.toFixed(2) : 0
             item.selfPrice = obj1 ? obj1.price.toFixed(1) : 0
             let obj2 = res.data.find((n) => n.itemid === item.itemid && n.placement === 2)
             item.nominate2 = obj2 ? obj2.price.toFixed(2) : 0
             let obj5 = res.data.find((n) => n.itemid === item.itemid && n.placement === 5)
-            item.nominate5 = obj5 ?obj5.price.toFixed(2) : 0
-            item.budgetType = 'day'
+            item.nominate5 = obj5 ? obj5.price.toFixed(2) : 0
+            item.budgetType = 'all'
             item.budget = '0'
             item.timeType = '0'
             item.timeRange = []
             this.relevanceList.push(JSON.parse(JSON.stringify(item)))
           })
           // this.relevanceList = this.relevanceList.concat(goodsListFilter)
-          console.log(this.relevanceList,"this.relevanceList")
+          console.log(this.relevanceList, 'this.relevanceList')
         } else {
           let remark = ''
           if (res.code === 403) {
@@ -767,8 +785,8 @@ export default {
             item['budget'] = '0'
             item['timeType'] = '0'
             item['timeRange'] = []
+            this.relevanceList.push(JSON.parse(JSON.stringify(item)))
           })
-          this.relevanceList = this.relevanceList.concat(goodsListFilter)
         }
       }
     },

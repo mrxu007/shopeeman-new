@@ -191,7 +191,7 @@
         <p v-else @click="isShow = true">展开<i class="el-icon-caret-bottom" /></p>
       </div>
     </header>
-    <div class="content" :style="{ height: isShow ? '520px' : '800px' }">
+    <div class="content" :style="{ height: isShow ? '520px' : '840px' }">
       <p>
         温馨提示：1、最终毛利 = 订单收入-采购金额-仓库发货金额（生成仓库发货金额才会去计算，会有汇率差）；含邮费毛利 =
         订单收入-采购价；2、若登录了Lazada买手号但点击采购订单号依旧提示登录，请使用编辑采购信息编辑重新保存下拍单信息
@@ -203,9 +203,9 @@
         ref="multipleTable"
         :data="tableData"
         tooltip-effect="dark"
-        :height="isShow ? '420px' : '730px'"
+        :height="isShow ? 420 : 730"
         @selection-change="handleSelectionChange"
-        :row-style="{ height: '60px !important' }"
+        :row-height = 60
         :cell-style="{ padding: '0px' }"
       >
         <u-table-column align="center" type="selection" width="50" fixed="left" />
@@ -216,6 +216,45 @@
           <template slot-scope="scope">
             <i class="el-icon-document-copy copyStyle" @click="copyItem(scope.row.order_sn)"></i>
             <span class="tableActive" @click="viewDetails('orderDetail', scope.row.order_id, scope.row.mall_info.platform_mall_id)">{{ scope.row.order_sn }}</span>
+          </template>
+        </u-table-column>
+        <u-table-column align="center" prop="" label="操作" width="140" v-if="showTableColumn('操作')" fixed="left">
+          <template slot-scope="scope">
+            <el-dropdown style="width: 100px; margin-left: 10px" trigger="click" size="mini">
+              <el-button style="width: 100px" size="mini" plain type="primary"> 操作<i class="el-icon-arrow-down el-icon--right" /> </el-button>
+              <el-dropdown-menu slot="dropdown">
+                <el-dropdown-item> <div class="dropdownItem" @click="singleBuyInfo(scope.row)">采购信息编辑</div></el-dropdown-item>
+                <el-dropdown-item> <div class="dropdownItem" @click="addPurchaseLink(scope.row, scope.$index)">添加采购链接</div></el-dropdown-item>
+                <el-dropdown-item> <div class="dropdownItem" @click="addMoreTrackingNumber(scope.row, scope.$index)">添加多物流单号</div></el-dropdown-item>
+                <el-dropdown-item> <div class="" @click="setColorSingle(scope.row, scope.$index)">标记颜色标识</div></el-dropdown-item>
+                <el-dropdown-item> <div class="" @click="setAbroadSingle(scope.row, scope.$index)">标记海外商品</div></el-dropdown-item>
+                <el-dropdown-item> <div class="" @click="pushOrderToStoreSingle(scope.row, scope.$index)">推送订单至仓库</div></el-dropdown-item>
+                <el-dropdown-item>
+                  <div
+                    class="dropdownItemdropdownItem"
+                    @click="
+                      clickRow = scope.row
+                      billsDetailVisible = true
+                    "
+                  >
+                    账单明细
+                  </div></el-dropdown-item
+                >
+                <el-dropdown-item> <div class="dropdownItem" @click="SyncOrder(scope.row)">同步此店铺订单</div></el-dropdown-item>
+                <el-dropdown-item> <div class="dropdownItem" @click="SyncOrderSingle(scope.row)">同步此订单</div></el-dropdown-item>
+                <el-dropdown-item> <div class="dropdownItem" @click="syncLogisticsSingle(scope.row)">同步此订单物流</div></el-dropdown-item>
+                <el-dropdown-item> <div class="dropdownItem" @click="singlePurchase(scope.row)">重新采购</div></el-dropdown-item>
+                <el-dropdown-item> <div class="dropdownItem" @click="getSHtrackPath(scope.row)">虾皮物流轨迹</div></el-dropdown-item>
+                <el-dropdown-item> <div class="dropdownItem" @click="getorderPath(scope.row)">订单轨迹</div></el-dropdown-item>
+                <el-dropdown-item> <div class="dropdownItem" @click="handleOutOrder(scope.row)">手动发货</div></el-dropdown-item>
+                <el-dropdown-item> <div class="dropdownItem" @click="batchReplyOrderBuyer([scope.row])">回复订单评论</div></el-dropdown-item>
+                <el-dropdown-item> <div class="dropdownItem" @click="viewDetails('itemDetail', scope.row.goods_info.goods_id, scope.row.mall_info.platform_mall_id)">商品编辑</div></el-dropdown-item>
+                <el-dropdown-item> <div class="dropdownItem" @click="goodsDelist(scope.row)">商品下架</div></el-dropdown-item>
+                <el-dropdown-item> <div class="dropdownItem" @click="goodsDelete(scope.row)">商品删除</div></el-dropdown-item>
+                <el-dropdown-item> <div class="dropdownItem" @click="goodsTop(scope.row)">商品置顶</div></el-dropdown-item>
+                <!-- <el-dropdown-item> <div class="dropdownItem" @click="goodsTop(scope.row)">面单打印</div></el-dropdown-item> -->
+              </el-dropdown-menu>
+            </el-dropdown>
           </template>
         </u-table-column>
         <u-table-column width="80px" label="站点" prop="country" align="center" v-if="showTableColumn('站点')">
@@ -499,45 +538,7 @@
         <u-table-column align="center" label="是否为海外仓商品" width="120" v-if="showTableColumn('是否为海外仓商品')">
           <template slot-scope="scope">{{ scope.row.goods_info.is_overseas_goods == 1 ? '是' : '否' }}</template>
         </u-table-column>
-        <u-table-column align="center" prop="" label="操作" width="120" v-if="showTableColumn('操作')" fixed="right">
-          <template slot-scope="scope">
-            <el-dropdown style="width: 100px; margin-left: 10px" trigger="click" size="mini">
-              <el-button style="width: 100px" size="mini" plain type="primary"> 操作<i class="el-icon-arrow-down el-icon--right" /> </el-button>
-              <el-dropdown-menu slot="dropdown">
-                <el-dropdown-item> <div class="dropdownItem" @click="singleBuyInfo(scope.row)">采购信息编辑</div></el-dropdown-item>
-                <el-dropdown-item> <div class="dropdownItem" @click="addPurchaseLink(scope.row, scope.$index)">添加采购链接</div></el-dropdown-item>
-                <el-dropdown-item> <div class="dropdownItem" @click="addMoreTrackingNumber(scope.row, scope.$index)">添加多物流单号</div></el-dropdown-item>
-                <el-dropdown-item> <div class="" @click="setColorSingle(scope.row, scope.$index)">标记颜色标识</div></el-dropdown-item>
-                <el-dropdown-item> <div class="" @click="setAbroadSingle(scope.row, scope.$index)">标记海外商品</div></el-dropdown-item>
-                <el-dropdown-item> <div class="" @click="pushOrderToStoreSingle(scope.row, scope.$index)">推送订单至仓库</div></el-dropdown-item>
-                <el-dropdown-item>
-                  <div
-                    class="dropdownItemdropdownItem"
-                    @click="
-                      clickRow = scope.row
-                      billsDetailVisible = true
-                    "
-                  >
-                    账单明细
-                  </div></el-dropdown-item
-                >
-                <el-dropdown-item> <div class="dropdownItem" @click="SyncOrder(scope.row)">同步此店铺订单</div></el-dropdown-item>
-                <el-dropdown-item> <div class="dropdownItem" @click="SyncOrderSingle(scope.row)">同步此订单</div></el-dropdown-item>
-                <el-dropdown-item> <div class="dropdownItem" @click="syncLogisticsSingle(scope.row)">同步此订单物流</div></el-dropdown-item>
-                <el-dropdown-item> <div class="dropdownItem" @click="singlePurchase(scope.row)">重新采购</div></el-dropdown-item>
-                <el-dropdown-item> <div class="dropdownItem" @click="getSHtrackPath(scope.row)">虾皮物流轨迹</div></el-dropdown-item>
-                <el-dropdown-item> <div class="dropdownItem" @click="getorderPath(scope.row)">订单轨迹</div></el-dropdown-item>
-                <el-dropdown-item> <div class="dropdownItem" @click="handleOutOrder(scope.row)">手动发货</div></el-dropdown-item>
-                <el-dropdown-item> <div class="dropdownItem" @click="batchReplyOrderBuyer([scope.row])">回复订单评论</div></el-dropdown-item>
-                <el-dropdown-item> <div class="dropdownItem" @click="viewDetails('itemDetail', scope.row.goods_info.goods_id, scope.row.mall_info.platform_mall_id)">商品编辑</div></el-dropdown-item>
-                <el-dropdown-item> <div class="dropdownItem" @click="goodsDelist(scope.row)">商品下架</div></el-dropdown-item>
-                <el-dropdown-item> <div class="dropdownItem" @click="goodsDelete(scope.row)">商品删除</div></el-dropdown-item>
-                <el-dropdown-item> <div class="dropdownItem" @click="goodsTop(scope.row)">商品置顶</div></el-dropdown-item>
-                <!-- <el-dropdown-item> <div class="dropdownItem" @click="goodsTop(scope.row)">面单打印</div></el-dropdown-item> -->
-              </el-dropdown-menu>
-            </el-dropdown>
-          </template>
-        </u-table-column>
+        
       </u-table>
       <div class="pagination">
         <el-pagination
@@ -863,6 +864,7 @@ export default {
       shipTypeList: [], //物流方式
       tableLoading: false,
       tableData: [], // 分页
+      tableDataCopy:[],//分页
       pageSize: 20, // 分页
       currentPage: 1, // 分页
       total: 0, // 分页
@@ -2398,6 +2400,7 @@ export default {
         this.columnVisible = false
         this.getColumnsConfig()
       }
+       this.$refs.multipleTable.doLayout()
     },
     // 获取自定义配置列
     async getColumnsConfig() {
@@ -2681,6 +2684,7 @@ export default {
     // height: 26px;
     padding: 10px;
   }
+  padding-right: 8px;
   // margin: 20px 0;
   background: #fff;
   // min-height: calc(100vh - 360px);

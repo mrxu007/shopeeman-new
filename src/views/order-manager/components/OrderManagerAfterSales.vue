@@ -122,7 +122,7 @@
        use-virtual
         ref="multipleTable"
         v-loading="loading"
-        height="600px"
+        height="640px"
         :data="tableList"
         tooltip-effect="dark"
         @selection-change="handleSelectionChange"
