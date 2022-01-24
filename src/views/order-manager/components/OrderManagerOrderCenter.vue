@@ -2675,7 +2675,19 @@ export default {
       }
       target.parentElement.removeChild(target)
     },
-  },
+    isJsonString(str) {
+      if (typeof str === 'string') {
+        try {
+          JSON.parse(str)
+          return JSON.parse(str)
+        } catch (e) {
+          return str
+        }
+      } else {
+        return str
+      }
+    }
+  }
 }
 </script>
 

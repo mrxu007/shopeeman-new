@@ -95,6 +95,7 @@ export default class GoodsList {
     const params = {}
     params['add_on_deal_id'] = activityid
     params['mallId'] = val.platform_mall_id
+    params['promotion_status'] = 'ongoing'
     try {
       const res = await this._this.$shopeemanService.getChinese(val.country, '/api/marketing/v3/add_on_deal/aggr_sub_item_list/?', params)
       const jsonData = this.isJsonString(this.isJsonString(res).data)
