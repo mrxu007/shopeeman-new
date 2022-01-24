@@ -176,13 +176,14 @@
           ></u-table-column
         >
         <u-table-column label="售后原因" prop="after_reason" min-width="150px" align="center" show-overflow-tooltip />
-        <u-table-column label="本地备注" prop="remark" min-width="180px" align="center">
-          <template v-slot="{ row }">
-            <el-input v-if="row.isChecked" v-model="row.remark" v-fo size="mini" resize="none" placeholder="本地备注" @blur="changeRemark(row)" />
-            <span v-else @click="row.isChecked = true">
-              <el-input v-model="row.remark" :disabled="!row.isChecked" size="mini" />
-            </span>
-          </template>
+        <u-table-column  align="center" prop="remark" label="本地备注" width="150" show-overflow-tooltip >
+          <template slot-scope="scope">
+            <div v-show="!(scope.row.id === activeRemarkID ? true : false) || scope.row.remark == ''" @click.stop="editRemark(scope.$index, scope.row.id)" style="cursor: pointer;min-width:20px;">
+              <p @dblclick="copy(scope.row.remark)"  style="color:#000;height:20px;">{{ scope.row.remark }}</p>
+              <!-- <el-input v-model="scope.row.remark" disabled size="mini"></el-input> -->
+            </div>
+            <el-input v-if="scope.row.id === activeRemarkID ? true : false" v-model="orderRemark" size="mini" @blur="changeRemark(scope.row.id, scope.$index)"
+          /></template>
         </u-table-column>
         <u-table-column label="商品ID" prop="goods_info.goods_id" min-width="150px">
           <template slot-scope="{ row }">
@@ -203,9 +204,14 @@
             </el-tooltip>
           </template>
         </u-table-column>
-        <u-table-column align="center" label="商品类目" width="120">
+        <!-- <u-table-column align="center" label="商品类目" width="120">
           <template slot-scope="scope">
             <span>{{ scope.row.categoryName }} </span>
+          </template>
+        </u-table-column> -->
+        <u-table-column align="center" label="商品类目" width="120">
+          <template slot-scope="scope">
+            <span>{{ scope.row.goods_info ? getCategoryName(scope.row.goods_info.goods_category_id, scope.row.country) : '未匹配到类目' }} </span>
           </template>
         </u-table-column>
         <!-- <u-table-column label="商品类目" prop="goods_info.goods_category_id" min-width="100px" align="center" /> -->
@@ -375,6 +381,18 @@ export default {
       selectColorList: [],
       categoryInfo: {},
     }
+  },
+  computed: {
+    getCategoryName() {
+      return function (id, country) {
+        if (!this.categoryInfo[id]) {
+          this.categoryInfo[id] = '正在获取类目...'
+          this.getCategoryInfo(id, country)
+          return this.categoryInfo[id] || ''
+        }
+        return this.categoryInfo[id] || ''
+      }
+    },
   },
   mounted() {
     this.loading = true
@@ -562,21 +580,37 @@ export default {
     },
     // 修改备注
     editRemark(index, activeRemarkID) {
+      console.log(index, activeRemarkID)
       this.activeRemarkID = activeRemarkID
       this.orderRemark = this.tableList[index].remark
     },
-    async changeRemark(row) {
-      row.isChecked = false
-      const res = await this.$api.orderSaveRemark({
-        id: row.id,
-        remark: row.remark,
-      })
-      if (res.data.code !== 200) {
-        this.$message.error(`修改失败:${res.data.message}`, false)
+        // 修改单个备注
+    async changeRemark(id, index) {
+      console.log(id, index)
+      const res = await this.$api.setLocalRemark({ id: id, remark: this.orderRemark })
+      if (res.data.code == 200) {
+        this.$message.success(`设置备注成功`)
+        this.$set(this.tableList [index],'remark',this.orderRemark)
+        // this.tableList[index].remark = this.orderRemark
+        this.activeRemarkID = ''
         return
       }
-      this.$message.success(`修改成功`, true)
+      this.$message.error(`设置备注失败`)
+      this.activeRemarkID = ''
     },
+    // async changeRemark(row) {
+    //   // row.isChecked = false
+    //   const res = await this.$api.orderSaveRemark({
+    //     id: row.id,
+    //     remark: row.remark,
+    //   })
+    //   if (res.data.code !== 200) {
+    //     this.$message.error(`修改失败:${res.data.message}`, false)
+    //     return
+    //   }
+    //   this.activeRemarkID = ''
+    //   this.$message.success(`修改成功`, true)
+    // },
     // 打开订单页面
     viewDetails(type, id, shopId) {
       const reqStr = {
@@ -765,7 +799,7 @@ export default {
                 <td>${item.goods_info.goods_id ? item.goods_info.goods_id : '' + '\t'}</td>
                 <td>${item.goods_info.goods_count ? item.goods_info.goods_count : '' + '\t'}</td>
                 <td>${this.$filters.imageRender([item.image]) + '\t'}</td>
-                <td>${item.goods_info.goods_category_id ? item.goods_info.goods_category_id : '' + '\t'}</td>
+                <td>${item.goods_info.goods_category_id ? this.getCategoryName(item.goods_info.goods_category_id,item.country) : '' + '\t'}</td>
                 <td>${item.goods_info.goods_spec ? item.goods_info.goods_spec : '' + '\t'}</td>
                 <td>${item.shot_order_info.shot_order_sn ? item.shot_order_info.shot_order_sn : '' + '\t'}</td>
                 <td>${item.shot_order_info.shotted_at ? item.shot_order_info.shotted_at : '' + '\t'}</td>
@@ -862,25 +896,34 @@ export default {
     changeMallList(val) {
       this.searchMallList = val
     },
-    // 获取类目
-    async getCategoryInfo(country, cateId) {
-      if (this.categoryInfo[cateId]) {
-        return this.categoryInfo[cateId]
+    async getCategoryInfo(id, country) {
+      const res = await this.$commodityService.getCategoryTbInfo(country, id.toString(), '0', '')
+      const resObj = res && JSON.parse(res)
+      if (resObj && resObj.code === 200 && resObj.data.categories && resObj.data.categories.length) {
+        this.categoryInfo[id] = resObj.data.categories[0].category_cn_name || ''
       } else {
-        this.categoryInfo[cateId] = ''
-        let res = await this.$commodityService.getCategoryTbInfo(country, cateId.toString(), '0', '')
-        let resObj = res && JSON.parse(res)
-        // console.log(resObj, '类目')
-        if (resObj && resObj.code === 200 && resObj.data.categories && resObj.data.categories.length) {
-          let categoryName = resObj.data.categories[0].category_cn_name
-          this.categoryInfo[cateId] = categoryName
-          // console.log(this.categoryInfo[cateId], categoryName)
-          return categoryName
-        } else {
-          return ''
-        }
+        this.categoryInfo[id] = '类目获取失败'
       }
     },
+    // 获取类目
+    // async getCategoryInfo(country, cateId) {
+    //   if (this.categoryInfo[cateId]) {
+    //     return this.categoryInfo[cateId]
+    //   } else {
+    //     this.categoryInfo[cateId] = ''
+    //     let res = await this.$commodityService.getCategoryTbInfo(country, cateId.toString(), '0', '')
+    //     let resObj = res && JSON.parse(res)
+    //     // console.log(resObj, '类目')
+    //     if (resObj && resObj.code === 200 && resObj.data.categories && resObj.data.categories.length) {
+    //       let categoryName = resObj.data.categories[0].category_cn_name
+    //       this.categoryInfo[cateId] = categoryName
+    //       // console.log(this.categoryInfo[cateId], categoryName)
+    //       return categoryName
+    //     } else {
+    //       return ''
+    //     }
+    //   }
+    // },
     // 搜索
     async search(page) {
       let params = {}
@@ -906,9 +949,9 @@ export default {
           const list = res.data.data.data || []
           this.tableList = list
           this.total = res.data.data.total
-          this.$nextTick(() => {
-            this.getCate()
-          })
+          // this.$nextTick(() => {
+          //   this.getCate()
+          // })
         } else {
           this.$message.error('数据请求失败')
         }
@@ -920,9 +963,9 @@ export default {
     },
     async getCate() {
       this.tableList.forEach(async (row, i) => {
-        row.isChecked = false
+        // row.isChecked = false
         // row.categoryName = ''
-        row.categoryName = await this.getCategoryInfo(row.country, row.goods_info.goods_category_id)
+        // row.categoryName = await this.getCategoryInfo(row.country, row.goods_info.goods_category_id)
       })
     },
     changeOrderStatus,
