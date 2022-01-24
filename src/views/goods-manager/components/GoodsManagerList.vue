@@ -1039,7 +1039,7 @@
 <script>
 import GoodsList from '../../../module-api/goods-manager-api/goods-list'
 import StoreChoose from '../../../components/store-choose'
-import { exportExcelDataCommon, batchOperation, terminateThread, dealwithOriginGoodsNum, getGoodsUrl, getGoodLinkModel, sleep, waitStart, imageCompressionUpload } from '../../../util/util'
+import { exportExcelDataCommon, batchOperation, terminateThread, dealwithOriginGoodsNum, getGoodsUrl, getGoodLinkModel, sleep, waitStart, imageCompressionUpload, delay } from '../../../util/util'
 import categoryMapping from '../../../components/category-mapping'
 import goodsSize from '../../../components/goods-size.vue'
 export default {
@@ -1050,6 +1050,7 @@ export default {
   },
   data() {
     return {
+      createId: '',
       index: 1,
       isFold: true,
       showConsole: true,
@@ -1153,8 +1154,8 @@ export default {
       parentVisible: false,
 
       // 活动信息
-      discountVal: 12, // 活动折扣
-      quotaVal: 32, // 限购数量
+      discountVal: null, // 活动折扣
+      quotaVal: null, // 限购数量
       discountId: '', // 折扣活动id
 
       isRefurbishProduct: false, // 是否商品翻新（商品搬迁、翻新true 其它操作均为false）
@@ -1457,7 +1458,6 @@ export default {
                     productInfo['logistics_channels'] = await this.getLogisticsInfo(logisticsRes.data.list, false, mall)
                   }
                 } catch (error) {
-                  // mall.isCreate = false
                   ++mall['isCreateNum']
                   this.moveStatus(item, `商品信息物流异常${error}`, false)
                   console.log(error)
@@ -1480,11 +1480,6 @@ export default {
                 })
                 // 上新发布
                 const data = { mallId: mall.platform_mall_id }
-                console.log(`${item.id}-${mallName}`, mall.isCreate)
-                if (mall.isCreate) {
-                  console.log(`${item.id}-${mallName}睡眠`)
-                  await sleep(Number(this.moveTime) * 1000)
-                }
                 const createIndex = mall['createNum']++
                 await waitStart(() => {
                   return createIndex === mall['isCreateNum']
@@ -1493,7 +1488,6 @@ export default {
                 const parmas = this.setCreateData(productInfo)
                 const createRes = await this.$shopeemanService.createProduct(mall.country, data, [parmas])
                 if (createRes.code === 200) {
-                  // mall.isCreate = true
                   setTimeout(() => { ++mall['isCreateNum'] }, Number(this.moveTime) * 1000)
                   this.moveStatus(item, `店铺【${mallName}】发布成功`, true)
                   mall['status'] = `发布成功`
@@ -1510,7 +1504,6 @@ export default {
                   obj['price'] = detailRes.data.price
                 } else {
                   ++mall['isCreateNum']
-                  // mall.isCreate = false
                   this.moveStatus(item, `店铺【${mallName}】${createRes.data}`, false)
                   mall['status'] = `${createRes.data}`
                   mall['color'] = `red`
@@ -1527,7 +1520,6 @@ export default {
               this.moveDetails.push(obj)
             } catch (error) {
               console.log(error)
-              // mall.isCreate = false
               ++mall['isCreateNum']
             }
           }
@@ -1621,36 +1613,35 @@ export default {
       this.isMove = false
       this.updateNum = this.multipleSelection.length
       this.deleteId = []
-      await batchOperation(this.multipleSelection, this.startRefurbishment)
+      // this.multipleSelection.forEach(item => {
+      //   item['isCreateNum'] = 0
+      //   item['createNum'] = 0
+      // })
+      await batchOperation(this.multipleSelection, this.startRefurbishment, 1)
       await this.deleteCollectGoodsInfo()
       this.operationBut = false
       this.isRefurbishProduct = false
     },
     // 开始翻新
     async startRefurbishment(item, count = { count: 1 }) {
-      // const mallId = await this.$appConfig.temporaryCacheInfo('get', `time_${item.platform_mall_id}`, '')
-      // if (mallId && mallId !== '{}') {
-      //   const time = new Date().getTime() - Number(JSON.parse(mallId))
-      //   console.log(time)
-      //   if (time < 400000) {
-      //     this.batchStatus(item, `等待中...`, true)
-      //     await sleep(40000 - time)
-      //   }
-      // }
-      // await this.$appConfig.temporaryCacheInfo('save', `time_${item.platform_mall_id}`, new Date().getTime().toString())
       if (this.flag) {
         terminateThread()
         return
       }
+      if (item.platform_mall_id === this.createId) {
+        this.batchStatus(item, `等待中...`, true)
+        await delay(40000)
+      }
+      this.batchStatus(item, `正在获取商品详情...`, true)
       try {
         let productInfo = {}
-        this.batchStatus(item, `正在获取商品详情...`, true)
         const res = await this.getProductDetail(item)
         if (res.code === 200) {
           productInfo = res.data
           // 删除商品
           const { batchStatus, code } = await this.deleteProduct(item)
           if (code === -2) {
+            this.createId = ''
             this.failNum++
             return this.batchStatus(item, `${batchStatus}`, false)
           }
@@ -1664,6 +1655,7 @@ export default {
           const parmas = this.setCreateData(productInfo)
           const createRes = await this.$shopeemanService.createProduct(item.country, data, [parmas])
           if (createRes.code === 200) {
+            this.createId = item.platform_mall_id
             this.batchStatus(item, `发布成功`, true)
             this.successNum++
             // 如果翻新的商品存在折扣活动则把商品添加回活动中
@@ -1671,14 +1663,17 @@ export default {
               await this.putModelActive(item, createRes.data.product_id)
             }
           } else {
+            this.createId = ''
             this.batchStatus(item, `发布失败:${createRes.data}`, false)
             this.failNum++
           }
         } else {
+          this.createId = ''
           this.batchStatus(item, res.data, false)
           this.failNum++
         }
       } catch (error) {
+        this.createId = ''
         this.failNum++
         this.batchStatus(item, `翻新异常${error}`, false)
         console.log(error)
@@ -2764,16 +2759,22 @@ export default {
                 const delRes1 = await this.GoodsList.deleteAddOnDealMainItemList(item, status, activityid)
                 if (delRes1.code !== 200) return { batchStatus: `删除主商品加购活动失败：${delRes1.data}`, color: false, code: delRes1.code }
               } else {
-              // 获取子商品列表
+                // 判断是否有主商品
+                const mainItemRes = await this.GoodsList.getAdd0nDealAggrMainItemList(item, activityid)
+                const mainItemList = mainItemRes?.data?.main_item_list || []
+                console.log('mainItemList', mainItemList)
+                if (mainItemList.length <= 0) return { batchStatus: `删除子商品加购活动失败，请先确认主要产品`, color: false, code: 201 }
+                // 获取子商品列表
                 const res3 = await this.GoodsList.getAdd0nDealAggrSubItemList(item, activityid)
                 if (res3.code !== 200) return { batchStatus: `获取子商品加购活动列表失败：${res3.data}`, color: false, code: res3.code }
-                const subItemList = res3.data.sub_item_list.filter(listItem => {
+                const subItemList = res3.data?.sub_item_list.filter(listItem => {
                   return listItem.item_id === item.id
                 })
                 subItemList.map(filterItem => {
                   delete filterItem.input_sub_item_price
                   delete filterItem.price
                   delete filterItem.sub_item_price
+                  filterItem.sub_item_input_price = res3.data?.model_info[item.id][0].price || 0
                   filterItem.status = 0
                 })
                 if (subItemList?.length > 0) {
