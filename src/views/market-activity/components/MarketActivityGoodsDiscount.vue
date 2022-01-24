@@ -196,8 +196,8 @@
     <div class="logging">
       <Logs ref="Logs" v-model="showConsole" clear />
     </div>
-    <el-dialog :visible.sync="goodsItemSelectorVisible" top="7vh" title="商品选择" :close-on-click-modal="false" :close-on-press-escape="false" width="1280px">
-      <goodsItemSelector v-if="goodsItemSelectorVisible" :mall="selectMallListEdit" @changeGoodsItem="changeGoodsItem" />
+    <el-dialog :visible.sync="goodsItemSelectorVisible"  top="7vh" title="商品选择" :close-on-click-modal="false" :close-on-press-escape="false" width="1280px">
+      <goodsItemSelector v-if="goodsItemSelectorVisible" :is-need-filter-act="true" :mall="selectMallListEdit" @changeGoodsItem="changeGoodsItem" />
     </el-dialog>
   </el-row>
 </template>

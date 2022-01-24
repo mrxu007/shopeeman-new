@@ -270,7 +270,7 @@
         :close-on-press-escape="false"
         width="1280px"
       >
-        <goodsItemSelector v-if="goodsItemSelectorVisible" :mall="selectMallList" @changeGoodsItem="changeGoodsItem" />
+        <goodsItemSelector v-if="goodsItemSelectorVisible" :is-need-filter-act="true" :mall="selectMallList" @changeGoodsItem="changeGoodsItem" />
       </el-dialog>
     </div>
   </div>
@@ -569,7 +569,7 @@ export default {
           if (list?.length >= params.limit) {
             item.offset = item.offset + params.limit
             await this.getInfo(item, { count: 1 })
-          }else{
+          } else {
             this.$refs.Logs.writeLog(`【${item.mall_alias_name || item.platform_mall_name}】请求数据结束`)
           }
         } else {
