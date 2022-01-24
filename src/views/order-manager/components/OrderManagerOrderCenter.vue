@@ -979,9 +979,9 @@ export default {
         if (!this.categoryInfo[id]) {
           this.categoryInfo[id] = '正在获取类目...'
           this.getCategoryInfo(id, country)
-          return this.categoryInfo[id] || ''
+          return this.categoryInfo[`category_${id}`] || ''
         }
-        return this.categoryInfo[id] || ''
+        return this.categoryInfo[`category_${id}`] || ''
       }
     }
   },
@@ -1604,12 +1604,22 @@ export default {
     //   }
     // },
     async getCategoryInfo(id, country) {
-      const res = await this.$commodityService.getCategoryTbInfo(country, id.toString(), '0', '')
-      const resObj = res && JSON.parse(res)
-      if (resObj && resObj.code === 200 && resObj.data.categories && resObj.data.categories.length) {
-        this.categoryInfo[id] = resObj.data.categories[0].category_cn_name || ''
-      } else {
-        this.categoryInfo[id] = '类目获取失败'
+      const categoryName = this.categoryInfo[`category_${id}`]
+      if (!categoryName) {
+        const categoryRes = await this.$appConfig.temporaryCacheInfo('get', `category_${id}`, '')
+        const jsonCategoryRes = this.isJsonString(categoryRes)
+        if (!jsonCategoryRes || categoryRes === '{}') {
+          this.$appConfig.temporaryCacheInfo('save', `category_${id}`, '正在获取类目')
+          const res = await this.$commodityService.getCategoryTbInfo(country, id.toString(), '0', '')
+          const resObj = res && this.isJsonString(res)
+          const categories = resObj.data.categories && resObj.data.categories[0] || ''
+          const category_cn_name = categories?.category_cn_name ?? '未匹配到类目'
+          const category_name = categories?.category_name ?? '未匹配到类目'
+          this.categoryInfo[`category_${id}`] = category_cn_name
+          this.$appConfig.temporaryCacheInfo('save', `category_${id}`, { category_name, category_cn_name })
+        } else {
+          this.categoryInfo[`category_${id}`] = jsonCategoryRes['category_cn_name']
+        }
       }
     },
     // 打开订单页面
@@ -2671,6 +2681,18 @@ export default {
         // console.log('复制失败')
       }
       target.parentElement.removeChild(target)
+    },
+    isJsonString(str) {
+      if (typeof str === 'string') {
+        try {
+          JSON.parse(str)
+          return JSON.parse(str)
+        } catch (e) {
+          return str
+        }
+      } else {
+        return str
+      }
     }
   }
 }

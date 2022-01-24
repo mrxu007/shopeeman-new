@@ -1153,8 +1153,8 @@ export default {
       parentVisible: false,
 
       // 活动信息
-      discountVal: null, // 活动折扣
-      quotaVal: null, // 限购数量
+      discountVal: 12, // 活动折扣
+      quotaVal: 32, // 限购数量
       discountId: '', // 折扣活动id
 
       isRefurbishProduct: false, // 是否商品翻新（商品搬迁、翻新true 其它操作均为false）
@@ -1282,12 +1282,10 @@ export default {
       return function(id, country) {
         if (!this.categoryNameArr[id]) {
           this.categoryNameArr[id] = '正在获取类目...'
-          const categoryName = '正在获取类目...'
           this.setCategoryName(id, country)
-          return categoryName || ''
+          return this.categoryNameArr[id] || ''
         }
-        const categoryName = this.categoryNameArr[id]
-        return categoryName || ''
+        return this.categoryNameArr[id] || ''
       }
     }
   },
@@ -1311,23 +1309,29 @@ export default {
   methods: {
     // 获取类目名
     async setCategoryName(id, country) {
-      let categoryName = []
+      const categoryName = []
       const idList = id.split(',')
       for (const idItem of idList) {
-        if (this.categoryIdList[idItem]) {
-          if (this.categoryIdList[idItem] === '类目获取失败') {
-            categoryName = ['类目获取失败']
+        const categoryIdList = this.categoryIdList[idItem]
+        if (!categoryIdList) {
+          const categoryRes = await this.$appConfig.temporaryCacheInfo('get', `category_${idItem}`, '')
+          const categoryVal = this.isJsonString(categoryRes)
+          if (!categoryVal || categoryRes === '{}') {
+            this.$appConfig.temporaryCacheInfo('save', `category_${idItem}`, { category_name: '', category_cn_name: '' })
+            const res = await this.GoodsList.getCategoryName(country, idItem, '0', '')
+            const categories = res.data.categories && res.data.categories[0] || ''
+            const category_cn_name = categories?.category_cn_name ?? '未匹配到类目'
+            const category_name = categories?.category_name ?? '未匹配到类目'
+            const obj = { category_name, category_cn_name }
+            await this.$appConfig.temporaryCacheInfo('save', `category_${idItem}`, obj)
+            this.categoryIdList[idItem] = obj
+            categoryName.push(`${category_name}(${category_cn_name})`)
           } else {
-            categoryName.push(this.categoryIdList[idItem].categories ? `${this.categoryIdList[idItem].categories[0].category_name}(${this.categoryIdList[idItem].categories[0].category_cn_name})` : '')
+            this.categoryIdList[idItem] = categoryVal || '正在获取类目'
+            categoryName.push(`${categoryVal['category_name']}(${categoryVal['category_cn_name']})`)
           }
         } else {
-          const res = await this.GoodsList.getCategoryName(country, idItem, '0', '')
-          if (res.code === 200) {
-            this.categoryIdList[idItem] = res.data
-            categoryName.push(res.data.categories ? `${res.data.categories[0].category_name}(${res.data.categories[0].category_cn_name})` : '')
-          } else {
-            this.categoryIdList[idItem] = '类目获取失败'
-          }
+          categoryName.push(`${categoryIdList['category_name']}(${categoryIdList['category_cn_name']})`)
         }
       }
       this.categoryNameArr[id] = categoryName.join('->')
@@ -1624,6 +1628,16 @@ export default {
     },
     // 开始翻新
     async startRefurbishment(item, count = { count: 1 }) {
+      // const mallId = await this.$appConfig.temporaryCacheInfo('get', `time_${item.platform_mall_id}`, '')
+      // if (mallId && mallId !== '{}') {
+      //   const time = new Date().getTime() - Number(JSON.parse(mallId))
+      //   console.log(time)
+      //   if (time < 400000) {
+      //     this.batchStatus(item, `等待中...`, true)
+      //     await sleep(40000 - time)
+      //   }
+      // }
+      // await this.$appConfig.temporaryCacheInfo('save', `time_${item.platform_mall_id}`, new Date().getTime().toString())
       if (this.flag) {
         terminateThread()
         return
@@ -3221,17 +3235,18 @@ export default {
         if (res.code === 200) {
           this.cursor = res.data.page_info.cursor
           if (res.data.list?.length) {
-            this.$refs.Logs.writeLog(`查询店铺【${mallName}】第【${mItem.pageNumber}】页数据：${res.data.list.length}`, true)
             // 组装数据
             await this.setTableData(res.data.list, mItem, mallName)
             // 过滤数据
-            const newData = this.filterData(res.data.list)
+            const { fData, len } = this.filterData(res.data.list)
             if (!this.productNumChecked) {
-              this.tableData = this.tableData.concat(newData)
+              this.tableData = this.tableData.concat(fData)
               this.queryNum = this.tableData.length
-              this.rowSelection(newData, true, {})
+              this.rowSelection(fData, true, {})
+              this.$refs.Logs.writeLog(`查询店铺【${mallName}】第【${mItem.pageNumber}】页数据：${res.data.list.length}`, true)
+              if (len > 0) this.$refs.Logs.writeLog(`【${mallName}】第【${mItem.pageNumber}】页过滤数据【${len}】条`, false)
             } else {
-              mItem.mylist = newData
+              mItem.mylist = fData
             }
             console.log('tableData', res.data.list)
           }
@@ -3479,7 +3494,8 @@ export default {
         }
         fData.push(item)
       }
-      return fData
+      const len = data?.length - fData?.length || 0
+      return { fData, len }
     },
     // 获取上家类型,链接,id
     async getPlatformData(itemSku) {
@@ -3781,6 +3797,18 @@ export default {
     // 记住所选项
     getRowKey(row) {
       return row.id
+    },
+    isJsonString(str) {
+      if (typeof str === 'string') {
+        try {
+          JSON.parse(str)
+          return JSON.parse(str)
+        } catch (e) {
+          return str
+        }
+      } else {
+        return str
+      }
     },
     // 导出数据
     exportTableData() {
