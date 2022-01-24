@@ -1273,7 +1273,12 @@ const columnData = [{
     column_header: '商品单价',
     is_show: 1,
     first_column_is_checkbox: -1
-  }, {
+  },{
+    column_header: '商品单价(RMB)',
+    is_show: 1,
+    first_column_is_checkbox: -1
+  }, 
+  {
     column_header: '商品数量',
     is_show: 1,
     first_column_is_checkbox: -1

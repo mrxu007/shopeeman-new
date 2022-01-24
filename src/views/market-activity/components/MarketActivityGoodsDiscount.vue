@@ -60,7 +60,7 @@
                 </span>
               </template>
             </u-table-column>
-            <u-table-column align="center" label="商品数量" min-width="100" prop="total_product" />
+            <u-table-column sortable align="center" label="商品数量" min-width="100" prop="total_product" />
             <u-table-column align="center" label="活动时间" min-width="270">
               <template v-slot="{ row }">
                 {{ `${$dayjs(row.start_time).format('MM/DD/YYYY HH:mm:ss')} - ${$dayjs(row.end_time).format('MM/DD/YYYY HH:mm:ss')}` }}

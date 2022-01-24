@@ -108,7 +108,7 @@
       :data="tableData" 
       tooltip-effect="dark" 
       @selection-change="handleSelectionChange" 
-      height="580px">
+      height="630px">
         <u-table-column align="center" type="selection" width="50" />
         <u-table-column align="center" type="index" label="序号" width="50" fixed="left">
           <template slot-scope="scope">{{ (currentPage - 1) * pageSize + scope.$index + 1 }}</template>
@@ -963,7 +963,7 @@ export default {
 .content {
   margin-top: 20px;
   background: #fff;
-  min-height: calc(100vh - 212px);
+  min-height: calc(100vh - 202px);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
