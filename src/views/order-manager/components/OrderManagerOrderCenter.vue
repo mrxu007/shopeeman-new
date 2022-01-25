@@ -2419,15 +2419,15 @@ export default {
         }
         arr.push(par)
       })
-      let arrIndex = arr.findIndex((n) => n.columnHeader === '商品单价(RMB)')
-      console.log(arrIndex,"arrIndex")
-      if (arrIndex < 0) {
-        let obj = {
-          columnHeader: '商品单价(RMB)',
-          isShow: 1,
-        }
-        arr.push(obj)
-      }
+      // let arrIndex = arr.findIndex((n) => n.columnHeader === '商品单价(RMB)')
+      // console.log(arrIndex,"arrIndex")
+      // if (arrIndex < 0) {
+      //   let obj = {
+      //     columnHeader: '商品单价(RMB)',
+      //     isShow: 1,
+      //   }
+      //   arr.push(obj)
+      // }
       const params = {
         // columnId: 1, //  1 => '订单列表',         2 => '售后列表',
         lists: arr,
@@ -2450,6 +2450,15 @@ export default {
           this.columnConfigList = columnData
           // return
         } else {
+          let arrIndex = resData.findIndex((n) => n.column_header === '商品单价(RMB)')
+          console.log(arrIndex, 'arrIndex')
+          if (arrIndex < 0) {
+            let obj = {
+              column_header: '商品单价(RMB)',
+              is_show: 1,
+            }
+            resData.push(obj)
+          }
           this.columnConfigList = resData
         }
       }
