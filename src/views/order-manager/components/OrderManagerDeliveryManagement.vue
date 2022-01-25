@@ -119,6 +119,18 @@
             <span class="tableActive" @click="viewDetails('orderDetail', scope.row.order_id, scope.row.mall_info.platform_mall_id)">{{ scope.row.order_sn }}</span>
           </template>
         </u-table-column>
+        <u-table-column label="操作" prop="" min-width="150px" fixed="left" align="center">
+          <template slot-scope="scope">
+            <el-dropdown style="width: 100px; margin-left: 10px">
+              <el-button style="width: 100px" size="mini" plain type="primary"> 更多操作<i class="el-icon-arrow-down el-icon--right" /> </el-button>
+              <el-dropdown-menu slot="dropdown">
+                <el-dropdown-item><div class="dropdownItem" @click="syncFaceDataSingle(scope.row)">同步面单信息</div></el-dropdown-item>
+                <el-dropdown-item><div class="dropdownItem" @click="batnchDownLoad([scope.row], 'view')">面单预览</div></el-dropdown-item>
+                <el-dropdown-item><div class="dropdownItem" v-if="scope.row.hasLogistics != 0" @click="batnchDownLoad([scope.row], 'down')">下载面单</div></el-dropdown-item>
+              </el-dropdown-menu>
+            </el-dropdown>
+          </template>
+        </u-table-column>
         <u-table-column min-width="80px" label="站点" prop="country" align="center" fixed="left">
           <template slot-scope="scope" v-if="scope.row.mall_info">{{ scope.row.mall_info.country | chineseSite }}</template>
         </u-table-column>
@@ -176,18 +188,7 @@
         <u-table-column align="center" prop="note" label="是否已下载面单" min-width="120">
           <template slot-scope="scope">{{ scope.row.is_print == '1' ? '已下载' : '未下载' }}</template>
         </u-table-column>
-        <u-table-column label="操作" prop="" min-width="150px" fixed="right" align="center">
-          <template slot-scope="scope">
-            <el-dropdown style="width: 100px; margin-left: 10px">
-              <el-button style="width: 100px" size="mini" plain type="primary"> 更多操作<i class="el-icon-arrow-down el-icon--right" /> </el-button>
-              <el-dropdown-menu slot="dropdown">
-                <el-dropdown-item><div class="dropdownItem" @click="syncFaceDataSingle(scope.row)">同步面单信息</div></el-dropdown-item>
-                <el-dropdown-item><div class="dropdownItem" @click="batnchDownLoad([scope.row], 'view')">面单预览</div></el-dropdown-item>
-                <el-dropdown-item><div class="dropdownItem" v-if="scope.row.hasLogistics != 0" @click="batnchDownLoad([scope.row], 'down')">下载面单</div></el-dropdown-item>
-              </el-dropdown-menu>
-            </el-dropdown>
-          </template>
-        </u-table-column>
+        
       </u-table>
       <div class="pagination">
         <el-pagination
