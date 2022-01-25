@@ -248,6 +248,9 @@ export default {
   getLabel: (data) => AppRequest.get('/publishGoodsWindowConfig/get', { params: data }), // 编辑上新弹窗配置: 获取单个(根据标签)
   saveLabel: (data) => AppRequest.post('/publishGoodsWindowConfig/save', data), // 编辑上新弹窗配置: 保存配置
   deleteLabel: (data) => AppRequest.post('/publishGoodsWindowConfig/deleteLabel', data), // 编辑上新弹窗配置: 删除
+  valuationConfigSave: (data) => AppRequest.post('/publishGoodsValuationConfig/save', data), // 计价二标签: 保存
+  valuationConfigGetAll: (data) => AppRequest.get('/publishGoodsValuationConfig/getAll', { params: data }), // 计价二标签: 获取所有
+  valuationConfigGet: (data) => AppRequest.get('/publishGoodsValuationConfig/get',  data ), // 计价二标签: 获取
 
   updateOrderPrintStatus:(data) => AppRequest.post('/order/updateOrderPrintStatus', data) ,// 标记面单已打印或已下载
 }
