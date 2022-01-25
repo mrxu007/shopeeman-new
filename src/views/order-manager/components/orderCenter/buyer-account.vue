@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-11-09 10:14:02
- * @LastEditTime: 2022-01-15 10:41:50
+ * @LastEditTime: 2022-01-25 10:55:55
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shopeeman-new\src\components\buyer-account.vue
@@ -617,7 +617,7 @@ export default {
         const account = await this.$buyerAccountService.pddLogin()
         console.log(account, 'pddLoginHandler')
         if (account) {
-          this.upBuyerAccountList(account)
+          this.upBuyerAccountList(account,true)
         }
       }
     },
@@ -633,7 +633,7 @@ export default {
       if (this.$buyerAccountService) {
         const account = await this.$buyerAccountService.taobaoLogin()
         if (account) {
-          this.upBuyerAccountList(account)
+          this.upBuyerAccountList(account,true)
         }
       }
     },
@@ -649,7 +649,7 @@ export default {
       if (this.$buyerAccountService) {
         const account = await this.$buyerAccountService.jingxiLogin()
         if (account) {
-          this.upBuyerAccountList(account)
+          this.upBuyerAccountList(account,true)
         }
       }
     },
@@ -666,7 +666,7 @@ export default {
       if (this.$buyerAccountService) {
         const account = await this.$buyerAccountService.alibabaLogin()
         if (account) {
-          this.upBuyerAccountList(account)
+          this.upBuyerAccountList(account,true)
         }
       }
     },
@@ -683,7 +683,7 @@ export default {
         const account = await this.$buyerAccountService.lazadaLogin(this.siteCode)
         console.log('lazadaLogin', account,account.loginCookies.length)
         if (account && account.loginCookies.length !== 0) {
-          this.upBuyerAccountList(account)
+          this.upBuyerAccountList(account,true)
         }
       }
     },
@@ -701,7 +701,7 @@ export default {
         const account = await this.$buyerAccountService.shopeeLogin(this.siteCode)
         console.log('shopee', account)
         if (account && account.loginCookies.length !== 0) {
-          this.upBuyerAccountList(account)
+          this.upBuyerAccountList(account,true)
         }
       }
     },
@@ -737,7 +737,7 @@ export default {
       this.$message.success("上传买手号成功!")
     },
     // 更新买手号列表(自动上传)服务端
-    async upBuyerAccountList(account) {
+    async upBuyerAccountList(account,isLogis) {
       try {
         console.log(account, '============')
         let params = {
@@ -756,7 +756,9 @@ export default {
         if (data.code === 200) {
           this.updataBuyInfoWeb(params)
           // this.buyerAccount()
-          this.syncLogistics(true)
+          if(isLogis){
+            this.syncLogistics(true)
+          }
         } else {
           this.$message.warning("账户上传失败,请联系客服人员!")
         }
@@ -795,7 +797,7 @@ export default {
           this.$message.success('账户信息已更新')
         }
       }
-      this.syncLogistics(true)
+      // this.syncLogistics(true)
       console.log(this.buyerAccountList)
     },
     // 默认选中第一个账户信息

@@ -252,10 +252,10 @@
           max-height="200px"
           v-if="createChooseGoods.length"
           :row-style="{
-            background: '#a9a9a9',
+            background: '#dcdcdc',
           }"
         >
-          <el-table-column align="center" type="index" label="" width="20" />
+          <el-table-column align="center" type="index" label="" width="40" />
           <el-table-column label="店铺名称" prop="id" width="180">
             <template slot-scope="{ row }"> {{ row.country }}-{{ row.mall_alias_name || row.platform_mall_name }} </template>
           </el-table-column>
@@ -1166,6 +1166,7 @@ export default {
         let res = await this.$shopeemanService.createKeyAdvent(this.country, params)
         if (res.code === 200) {
           this.$refs.Logs.writeLog(`创建广告成功`, true)
+          this.createAdventVisible = false
           this.batchGetAdventList()
         } else if (res.code === 403) {
           this.$refs.Logs.writeLog(`创建广告失败，店铺未登录`, false)
@@ -1293,6 +1294,7 @@ export default {
           console.log(this.createChooseGoods, 'this.createChooseGoods')
         } else if (this.createType == 'batch') {
           this.createChooseGoods = this.createChooseGoods.concat(val.goodsList)
+          this.createChooseGoods = this.createChooseGoods.splice(0,20)
           this.createChooseGoods.forEach((item) => {
             item.image = item.images.split(',')[0]
           })

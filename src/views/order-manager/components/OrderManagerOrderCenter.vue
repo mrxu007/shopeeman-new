@@ -503,8 +503,8 @@
         </u-table-column>
         <u-table-column sortable align="center" prop="remark" label="本地备注" width="150" show-overflow-tooltip v-if="showTableColumn('本地备注')">
           <template slot-scope="scope">
-            <div v-show="!(scope.row.id === activeRemarkID ? true : false) || scope.row.remark == ''" @click.stop="editRemark(scope.$index, scope.row.id)" style="cursor: pointer;min-width:20px;">
-              <p @dblclick="copyItem(scope.row.remark)" style="color:#000;">{{ scope.row.remark }}</p>
+            <div v-show="!(scope.row.id === activeRemarkID ? true : false) || scope.row.remark == ''" @click.stop="editRemark(scope.$index, scope.row.id)" style="cursor: pointer; min-width: 20px">
+              <p @dblclick="copyItem(scope.row.remark)" style="color: #000">{{ scope.row.remark }}</p>
               <!-- <el-input v-model="scope.row.remark" disabled size="mini"></el-input> -->
             </div>
             <el-input v-if="scope.row.id === activeRemarkID ? true : false" v-model="orderRemark" size="mini" @blur="changeRemark(scope.row.id, scope.$index)"
@@ -2419,6 +2419,15 @@ export default {
         }
         arr.push(par)
       })
+      let arrIndex = arr.findIndex((n) => n.columnHeader === '商品单价(RMB)')
+      console.log(arrIndex,"arrIndex")
+      if (arrIndex < 0) {
+        let obj = {
+          columnHeader: '商品单价(RMB)',
+          isShow: 1,
+        }
+        arr.push(obj)
+      }
       const params = {
         // columnId: 1, //  1 => '订单列表',         2 => '售后列表',
         lists: arr,
