@@ -141,6 +141,21 @@
             </span>
           </template>
         </u-table-column>
+        <u-table-column label="操作" prop="" min-width="150px" fixed="left" align="center">
+          <template v-slot="{ row, $index }">
+            <el-dropdown style="width: 100px; margin-left: 10px">
+              <el-button style="width: 100px" size="mini" plain type="primary"> 更多操作<i class="el-icon-arrow-down el-icon--right" /> </el-button>
+              <el-dropdown-menu slot="dropdown">
+                <el-dropdown-item><div class="dropdownItem" @click="goodsDelete(row)">删除商品</div></el-dropdown-item>
+                <el-dropdown-item><div class="dropdownItem" @click="goodsDelist(row)">下架商品</div></el-dropdown-item>
+                <el-dropdown-item><div class="dropdownItem" @click=";(shotVisible = true), (multipleSelection = [row])">修改采购状态</div></el-dropdown-item>
+                <el-dropdown-item><div class="dropdownItem" @click="syncAfterOrder(row)">同步此店铺售后订单</div></el-dropdown-item>
+                <el-dropdown-item><div class="dropdownItem" @click="setColorSingle(row, $index)">订单颜色标识</div></el-dropdown-item>
+                <el-dropdown-item> <div class="dropdownItem" @click="SyncOrderSingle(row)">同步此订单</div></el-dropdown-item>
+              </el-dropdown-menu>
+            </el-dropdown>
+          </template>
+        </u-table-column>
         <u-table-column label="站点" prop="country" min-width="60px" align="center">
           <template slot-scope="{ row }"
             ><span>{{ row.mall_info.country | chineseSite }}</span></template
@@ -249,21 +264,7 @@
         <u-table-column label="退件发货地址" prop="return_delivery_time" min-width="200px" align="center" />
         <u-table-column label="退货地址" prop="return_address" min-width="200px" align="center" />
         <u-table-column label="退货邮寄地址" prop="return_pickup_address" min-width="200px" align="center" />
-        <u-table-column label="操作" prop="" min-width="150px" fixed="right" align="center">
-          <template v-slot="{ row, $index }">
-            <el-dropdown style="width: 100px; margin-left: 10px">
-              <el-button style="width: 100px" size="mini" plain type="primary"> 更多操作<i class="el-icon-arrow-down el-icon--right" /> </el-button>
-              <el-dropdown-menu slot="dropdown">
-                <el-dropdown-item><div class="dropdownItem" @click="goodsDelete(row)">删除商品</div></el-dropdown-item>
-                <el-dropdown-item><div class="dropdownItem" @click="goodsDelist(row)">下架商品</div></el-dropdown-item>
-                <el-dropdown-item><div class="dropdownItem" @click=";(shotVisible = true), (multipleSelection = [row])">修改采购状态</div></el-dropdown-item>
-                <el-dropdown-item><div class="dropdownItem" @click="syncAfterOrder(row)">同步此店铺售后订单</div></el-dropdown-item>
-                <el-dropdown-item><div class="dropdownItem" @click="setColorSingle(row, $index)">订单颜色标识</div></el-dropdown-item>
-                <el-dropdown-item> <div class="dropdownItem" @click="SyncOrderSingle(row)">同步此订单</div></el-dropdown-item>
-              </el-dropdown-menu>
-            </el-dropdown>
-          </template>
-        </u-table-column>
+        
       </u-table>
       <div class="pagination">
         <el-pagination
