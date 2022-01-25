@@ -195,7 +195,7 @@
             <div style="margin-left: 10px;margin-bottom: 5px;">加购商品</div>
             <ul style="border: 1px solid #d4d1d1;padding: 10px;border-radius: 8px;">
               <li style="display:flex;margin-bottom:5px">
-                <div>折扣：<el-input v-model="addGoodsDiscount" size="mini" style="width:50px" maxlength="2" clearable onkeyup="value=value.replace(/[^\d]/g,0)" />%</div>
+                <div>折扣：<el-input v-model="addGoodsDiscount" size="mini" style="width:50px" maxlength="2" onkeyup="value=value.replace(/[^\d]/g,0)" />%</div>
                 <el-button size="mini" type="primary" style="margin-left:10px">批量更新</el-button>
                 <el-button size="mini" type="primary">开启</el-button>
                 <el-button size="mini" type="primary">关闭</el-button>
@@ -216,11 +216,13 @@
                   <el-table-column v-if="othertableType==='0'" prop="discount" label="折扣" align="center" min-width="100px">
                     <template v-slot="{row}">
                       <div>
-                        <el-input v-model="row.discount" size="mini" style="width:50px" maxlength="2" clearable onkeyup="value=value.replace(/[^\d]/g,0)" @change="changePrice" />%
+                        <el-input v-model="row.discount" size="mini" style="width:62px" maxlength="2" onkeyup="value=value.replace(/[^\d]/g,0)" @blur="changePrice(row)" />%
                       </div>
                     </template>
                   </el-table-column>
-                  <el-table-column prop="addPrice" label="加购价格" align="center" min-width="100px" />
+                  <el-table-column prop="addPrice" label="加购价格" align="center" min-width="100px">
+                    <template v-slot="{row}">{{ (Number(row.price)*Number(row.discount)*0.01).toFixed(2) }}</template>
+                  </el-table-column>
                   <el-table-column v-if="othertableType==='0'" prop="addStatus" label="加购显示" align="center" min-width="50px">
                     <template slot-scope="scope">
                       <div><el-switch v-model="scope.row.addStatus" active-color="#13ce66" @change="changeShow(scope.row,scope.$index)" /></div>
@@ -369,12 +371,13 @@ export default {
         const priceList = res2.data.data.sub_item_list
         array.forEach(el => {
           el.mallName = val.mallName
+          // modelinfo
           el.modelinfo = mList[el.itemid]
           // 获取折扣价格
           const index = priceList.findIndex(ol => { return Number(ol.item_id) === Number(el.itemid) })
           el.addPrice = priceList[index].input_sub_item_price
           // 获取折扣
-          el.discount = (Number(el.addPrice) / Number(el.price)).toFixed(2) * 100
+          el.discount = (Number(el.addPrice) / Number(el.price) * 100).toFixed(2)
           el.showStatus = true
           // 加购显示
           const ishave = this.currentDate.sub_item_priority.findIndex(al => { return al === Number(el.itemid) })
@@ -383,6 +386,40 @@ export default {
         this.addGoodsList = array
       } else {
         this.$refs.Logs.writeLog(`附加商品请求失败：${res2.message}`, false)
+      }
+    },
+    // 加购价格
+    async changePrice(val) {
+      if (!val.discount) {
+        this.$message.warning('请输入正确的折扣信息')
+        return
+      }
+      if (this.getcreateNewTest.length) {
+
+      } else { // 编辑时修改价格
+        const params = {
+          country: this.currentDate.country,
+          mallId: this.currentDate.platform_mall_id,
+          add_on_deal_id: this.currentDate.add_on_deal_id,
+          sub_item_list: []
+        }
+        val.modelinfo.forEach(el => {
+          const obj = {
+            item_id: el.itemid,
+            model_id: el.modelid,
+            status: 1,
+            sub_item_price: Number(val.price) * Number(val.discount) * 0.01,
+            sub_item_limit: 1
+          }
+          params.sub_item_list.push(obj)
+        })
+        debugger
+        const res2 = await this.MarketManagerAPIInstance.getOtherGoods(params)
+        if (res2.ecode === 0) {
+          this.$refs.Logs.writeLog(`价格修改成功`, true)
+        } else {
+          this.$refs.Logs.writeLog(`价格修改失败${res2.message}`, false)
+        }
       }
     },
     // 初始化时间

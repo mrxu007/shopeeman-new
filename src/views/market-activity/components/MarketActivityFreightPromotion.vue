@@ -65,11 +65,13 @@
           </template>
         </u-table-column>
         <u-table-column prop="deliverWay" label="运送渠道" align="center" min-width="180px" />
-        <u-table-column prop="topNum" label="运费" align="center" min-width="200px">
+        <u-table-column prop="topNum" label="运费" align="center" min-width="150px">
           <template v-slot="{row}">
-            <span>购买满{{ row.country | siteCoin }}{{ row.tiers && row.tiers[0].min_order_total }},</span>
-            <span v-if="Number(row.tiers[0].discount_delta)===0">免运费</span>
-            <span v-else>运费减免{{ row.country | siteCoin }}{{ row.tiers && row.tiers[0].discount_delta }}</span>
+            <div v-for="(i,index) in row.tiers" :key="index" style="display:flex">
+              <span>购买满{{ row.country | siteCoin }}{{ i.min_order_total }},</span>
+              <span v-if="Number(i.discount_delta)===0">免运费</span>
+              <span v-else>运费减免{{ row.country | siteCoin }}{{ i.discount_delta }}</span>
+            </div>
           </template>
         </u-table-column>
         <u-table-column prop="min_spend" label="操作" align="center" min-width="80px" fixed="right">
@@ -110,6 +112,7 @@
                 start-placeholder="开始日期"
                 end-placeholder="结束日期"
                 :picker-options="pickerOptions"
+                @focus="proTimeType='1'"
               />
             </el-radio>
           </el-radio-group>
@@ -120,6 +123,7 @@
           <el-checkbox-group v-model="deliverWay">
             <el-checkbox v-for="item in deliverWayList" :key="item.channelid" :disabled="isDeliverWay" :label="item.channelid">{{ item.name }}</el-checkbox>
           </el-checkbox-group>
+          <el-button size="mini" type="primary" @click.native="getdeliverWay(),showlog=false">刷新物流渠道</el-button>
         </el-form-item>
 
         <el-form-item label="运费" align="center">
@@ -128,24 +132,32 @@
             <el-table-column type="index" label="阶层" max-width="60px" />
             <el-table-column prop="minCost" label="最低消费金额" width="190px">
               <template slot-scope="scope">
-                <!-- {{ selectMallList[0] && selectMallList[0].country | siteCoin }} -->
-                ￥|
-                <el-input v-model="scope.row.minCost" size="mini" style="width:120px;" onkeyup="value=value.replace(/[^\d]/g,0)" @blur="checkMinCost(scope.row.minCost)" /><br>
+                {{ selectMallList[0] && selectMallList[0].country | siteCoin }}
+                |
+                <el-tooltip class="item" effect="dark" :content="content1" placement="top-start">
+                  <span>
+                    <el-input v-model="scope.row.minCost" size="mini" style="width:120px;" onkeyup="value=value.replace(/[^\d]/g,0)" @focus="checkMinCost(scope.row,scope.$index)" @blur="clearCost(scope.row)" /><br>
+                  </span>
+                </el-tooltip>
                 <span style="color:red;margin-top: -4px;">
-                  {{ minCostLimit }}
+                  {{ scope.row.minCostLimit }}
                 </span>
                 <!-- <span v-if="scope.$index>1">少过{{ freightlist[scope.$index-1].minCost }}。</span> -->
               </template>
             </el-table-column>
             <el-table-column prop="freight" label="运费" width="340px">
               <template slot-scope="scope">
-                <el-radio-group v-model="scope.row.freightType" class="freightType">
+                <el-radio-group v-model="scope.row.freightType" class="freightType" @change="changeFreightType(scope.row)">
                   <el-radio label="1">免运费</el-radio>
                   <el-radio label="0">
-                    补贴{{ '￥|' }}
-                    <el-input v-model="scope.row.freight" size="mini" style="width:120px" @blur="checkFreightCost(scope.row.freight)" /><br>
+                    补贴{{ selectMallList[0] && selectMallList[0].country | siteCoin }}|
+                    <el-tooltip class="item" effect="dark" :content="content2" placement="top-start">
+                      <span>
+                        <el-input v-model="scope.row.freight" size="mini" style="width:120px" @focus="checkFreightCost(scope.row,scope.$index)" @blur="clearFreight(scope.row)" /><br>
+                      </span>
+                    </el-tooltip>
                     <span v-if="scope.row.freightType==='0'" style="color:red">
-                      {{ freightLimit }}
+                      {{ scope.row.freightLimit }}
                     </span>
                     <!-- <span v-if="scope.$index>1 && scope.row.freightType==='0'">少过{{ freightlist[scope.$index-1].freight }}。</span> -->
                   </el-radio>
@@ -159,8 +171,8 @@
             </el-table-column>
           </el-table>
           <!-- 按钮 -->
-          <span v-if="freightlist.length>1" style="color:red">
-            请注意，随后的阶级应具有更高的最低消费。更高的最低消费应具有更高的运费回扣，“免运”应运用于最高的最低消费。
+          <span v-if="freightlist.length>1" style="color:red;margin-left:-330px">
+            较高的最低消费将享有较高的运费折扣。免运费只能使用一层
           </span>
         </el-form-item>
         <el-form-item>
@@ -176,15 +188,68 @@
 </template>
 
 <script>
+import { forEach } from 'jszip'
 import storeChoose from '../../../components/store-choose'
 import MarketManagerAPI from '../../../module-api/market-manager-api/market-data'
 import { GoodsMallgetValue, getMalls, batchOperation, terminateThread } from '../../../util/util'
+import { t } from 'umy-table/lib/locale'
 export default {
   components: {
     storeChoose
   },
   data() {
     return {
+      runload: false, // 刷新加载按钮
+      freightArrange: {
+        MY: {
+          MaxMinAmmount: 10000.00, // 最低消费金额的最大
+          MinAmmount: 0, // 最低消费金额的最小值
+          MaxFreeAmmount: 10000.00, // 补贴的最大值
+          FreeAmmount: 0.50 // 补贴的最小值
+        },
+        VN: {
+          MinAmmount: 0,
+          FreeAmmount: 1,
+          MaxFreeAmmount: 999000,
+          MaxMinAmmount: 20000000
+        },
+        PH: {
+          MinAmmount: 0,
+          FreeAmmount: 1,
+          MaxFreeAmmount: 999,
+          MaxMinAmmount: 5000
+        },
+        ID: {
+          MinAmmount: 0,
+          FreeAmmount: 1,
+          MaxFreeAmmount: 500000,
+          MaxMinAmmount: 5000000
+        },
+        TW: {
+          MinAmmount: 0,
+          FreeAmmount: 0,
+          MaxFreeAmmount: 999999999,
+          MaxMinAmmount: 999999999
+        },
+        TH: {
+          MinAmmount: 0,
+          FreeAmmount: 1,
+          MaxFreeAmmount: 1500,
+          MaxMinAmmount: 30000
+        },
+        BR: {
+          MinAmmount: 999999999,
+          FreeAmmount: 0,
+          MaxFreeAmmount: 999999999,
+          MaxMinAmmount: 0
+        },
+        SG: {
+          MinAmmount: 0,
+          FreeAmmount: 0.5,
+          MaxFreeAmmount: 999999.00,
+          MaxMinAmmount: 5000
+        }
+      },
       arrList: [],
       willList: [],
       doingList: [],
@@ -196,7 +261,9 @@ export default {
         {
           minCost: '',
           freightType: '0',
-          freight: ''
+          freight: '',
+          minCostLimit: '', // 消费提示
+          freightLimit: '' // 运费提示
         }
       ], // 运费列表
       deliverWay: [], // 运输渠道
@@ -237,6 +304,18 @@ export default {
       freightLimit: ''// 最低运费
     }
   },
+  computed: {
+    content1() {
+      const maxCost = this.freightArrange[this.selectMallList[0].country.toLocaleUpperCase()].MaxMinAmmount
+      const minCost = this.freightArrange[this.selectMallList[0].country.toLocaleUpperCase()].MinAmmount
+      return `当前站点最低消费金额取值范围${minCost}-${maxCost}`
+    },
+    content2() {
+      const maxFree = this.freightArrange[this.selectMallList[0].country.toLocaleUpperCase()].MaxFreeAmmount
+      const minFree = this.freightArrange[this.selectMallList[0].country.toLocaleUpperCase()].FreeAmmount
+      return `当前站点运费折扣取值范围${minFree}-${maxFree}`
+    }
+  },
   // computed:{
   //   discountType(){
 
@@ -253,8 +332,10 @@ export default {
         mallId: val.platform_mall_id
       }
       try {
+        this.$refs.Logs.writeLog(`正在获取【${val.mall_alias_name || val.platform_mall_name}】物流信息`)
         const res = await this.MarketManagerAPIInstance.ProDelivery(params)
         if (res.ecode === 0) {
+          this.$refs.Logs.writeLog(`获取【${val.mall_alias_name || val.platform_mall_name}】物流成功`, true)
           const array = res.data.data.enabled || []
           if (!array.length) {
             this.$refs.Logs.writeLog(`【${val.mall_alias_name || val.platform_mall_name}】暂无物流选项`, false)
@@ -282,7 +363,11 @@ export default {
           //   }
           // })
         } else {
-          this.$refs.Logs.writeLog(`【${val.mall_alias_name || val.platform_mall_name}】物流：${res.message}`, false)
+          let mes = ''
+          if (res.message === 'token not found') {
+            mes = '店铺未登录'
+          }
+          this.$refs.Logs.writeLog(`【${val.mall_alias_name || val.platform_mall_name}】物流：${mes || res.message}`, false)
         }
       } catch (error) {
         this.$message.warning(`${error}`)
@@ -523,18 +608,63 @@ export default {
       this.tableList = this.getTable
     },
     // 创建促销任务--运费规则
-    checkMinCost(val) {
-      if (!Number(val) || Number(val) > 10000) {
-        this.minCostLimit = '最低消费金额范围0 -30000'
-      } else {
-        this.minCostLimit = ''
+    checkMinCost(val, int) {
+      // if (!Number(val) || Number(val) > 10000) {
+      //   this.minCostLimit = '最低消费金额范围0 -30000'
+      // } else {
+      //   this.minCostLimit = ''
+      // }
+      if (this.freightlist.length > 1) {
+        for (let i = 0; i < this.freightlist.length; i++) {
+          if (int === i) continue
+          const item = this.freightlist[i]
+          if (item.freightType === '1') { // 免运费
+            this.$set(val, 'minCostLimit', `少过${item.minCost}`)
+          }
+        }
       }
     },
-    checkFreightCost(val) {
-      if (!Number(val) || Number(val) > 1500) {
-        this.freightLimit = '最低消费金额范围0 -1500'
-      } else {
-        this.freightLimit = ''
+    clearCost(val) {
+      this.$set(val, 'minCostLimit', ``)
+    },
+    clearFreight(val) {
+      this.$set(val, 'freightLimit', ``)
+    },
+    // 改变运费类型选择，清空输入框
+    changeFreightType(val) {
+      this.$set(val, 'freight', ``)
+    },
+    checkFreightCost(val, int) {
+      // if (!Number(val) || Number(val) > 1500) {
+      //   this.freightLimit = '最低消费金额范围0 -1500'
+      // } else {
+      //   this.freightLimit = ''
+      // }
+      // // 运费规则限制
+      const aa = [] // 折扣数组
+      if (this.freightlist.length > 1) {
+        for (let i = 0; i < this.freightlist.length; i++) {
+          if (int === i) continue
+          const item = this.freightlist[i]
+          if (item.freightType === '1') { // 免运费
+            this.$set(val, 'freightLimit', `多于${aa[0] || '0'}`)
+          } else { // 不免运费
+            aa.push(Number(item.freight))
+            if (Number(item.minCost) > Number(val.minCost)) {
+              this.$set(val, 'freightLimit', `少过${Math.min(...aa)}`)
+            } else {
+              this.$set(val, 'freightLimit', `多过${Math.max(...aa)}`)
+            }
+          }
+          // if (item.freightType !== '1' && Number(item.minCost) < Number(val.minCost)) { // 补贴
+          //   this.$set(val, 'freightLimit', `少过${item.freight || 0}`)
+          // } else if (item.freight !== '1' && Number(item.minCost) > Number(val.minCost)) {
+          //   this.$set(val, 'freightLimit', `多过${item.freight}`)
+          // } else {
+          //   this.$set(val, 'freightLimit', ``)
+          // }
+        }
+        console.log(aa)
       }
     },
     // 创建促销任务--显示弹窗
@@ -546,9 +676,14 @@ export default {
       }
       this.proVisible = true
       this.deliverWayList = []
+      this.getdeliverWay()
+    },
+    // 物流接口
+    async getdeliverWay() {
       for (let i = 0; i < this.selectMallList.length; i++) {
-        this.getProDelivery(this.selectMallList[i])// 获取物流
+        await this.getProDelivery(this.selectMallList[i])// 获取物流
       }
+      this.$refs.Logs.writeLog(`物流请求结束`)
     },
     // 创建促销任务--执行1
     async addProTestFun() {
@@ -578,32 +713,70 @@ export default {
         this.$message.warning('运输渠道不能为空')
         return
       }
+      // 消费金额取值范围
+      const maxCost = this.freightArrange[this.selectMallList[0].country.toLocaleUpperCase()].MaxMinAmmount
+      const minCost = this.freightArrange[this.selectMallList[0].country.toLocaleUpperCase()].MinAmmount
+      // 运费促销取值范围
+      const maxFree = this.freightArrange[this.selectMallList[0].country.toLocaleUpperCase()].MaxFreeAmmount
+      const minFree = this.freightArrange[this.selectMallList[0].country.toLocaleUpperCase()].FreeAmmount
       for (let j = 0; j < this.freightlist.length; j++) {
         const el = this.freightlist[j]
         if (!el.minCost || (el.freightType === '0' && !el.freight)) {
           this.$message.warning('请设置运费规则')
           return
         }
-      }
+        if (Number(el.minCost) > maxCost || Number(el.minCost) < minCost) {
+          this.$message.warning(`当前站点最低消费金额取值范围${minCost}-${maxCost}`)
+          return
+        }
+        if (el.freightType !== '1' && (Number(el.freight) > maxFree || Number(el.freight) < minFree)) {
+          this.$message.warning(`当前站点运费折扣取值范围${minFree}-${maxFree}`)
+          return
+        }
 
-      if (this.freightlist.length) {
-        for (let i = 0; i < this.freightlist.length; i++) {
-          if (i >= 1) {
-            if (this.freightlist[i].minCost >= this.freightlist[i - 1].minCost) {
-              this.$message.warning('多层最低消费金额应小于上一层最低消费金额')
-              return
-            }
-            if (this.freightlist[0].freightType !== '1' && this.freightlist[i].freightType === '1') {
-              this.$message.warning('免运费应在最高层使用')
-              return
-            }
-            if (this.freightlist[0].freightType !== '0' && this.freightlist[i].freight >= this.freightlist[i - 1].freight) {
-              this.$message.warning('多层运费金额应小于上一层运费金额')
-              return
-            }
+        for (let k = 0; k < this.freightlist.length; k++) {
+          if (j === k) continue
+          const ol = this.freightlist[k]
+          if (el.freightType === '1' && ol.freightType === '1') {
+            this.$message.warning('免运费只能使用在一层，且在最低消费金额最大层')
+            return
+          }
+          if (el.freightType === '1' && Number(el.minCost) < Number(ol.minCost)) {
+            this.$message.warning('免运费只能使用在最低消费金额最大层')
+            return
+          }
+          if (el.freightType !== '1' && ol.freightType !== '1' && Number(el.minCost) < Number(ol.minCost) && Number(el.freight) > Number(ol.freight)) {
+            this.$message.warning('更高的最低消费金额应有更高的运费折扣金额')
+            return
           }
         }
       }
+
+      // if (this.freightlist.length>1) {
+      //   this.freightlist.forEach(el => {
+      //      this.freightlist.forEach(ol=>{
+      //        if (el.freightType==='1' && el.minCost>=ol.minCost && ol.freight>0) { //免运费
+
+      //        }
+      //      })
+      //   });
+      // for (let i = 0; i < this.freightlist.length; i++) {
+      //   if (i >= 1) {
+      //     if (this.freightlist[i].minCost >= this.freightlist[i - 1].minCost) {
+      //       this.$message.warning('多层最低消费金额应小于上一层最低消费金额')
+      //       return
+      //     }
+      //     if (this.freightlist[0].freightType !== '1' && this.freightlist[i].freightType === '1') {
+      //       this.$message.warning('免运费应在最高层使用')
+      //       return
+      //     }
+      //     if (this.freightlist[0].freightType !== '0' && this.freightlist[i].freight >= this.freightlist[i - 1].freight) {
+      //       this.$message.warning('多层运费金额应小于上一层运费金额')
+      //       return
+      //     }
+      //   }
+      // }
+      // }
       this.proVisible = false
       this.showlog = false
       this.$refs.Logs.writeLog(`正在创建任务......`)
@@ -627,11 +800,11 @@ export default {
       const tierList = []
       this.freightlist.forEach((el, index) => {
         const tier = {
-          discount_flag: el.freightType === '0' ? 2 : 4, // 2 免运费 4 运费减免
-          placeholder: '',
+          discount_flag: el.freightType === '0' ? 4 : 2, // 2 免运费 4 运费减免
+          placeholder: el.freightLimit,
           index: index,
           min_order_total: Number(el.minCost),
-          discount_delta: el.freightType === '0' ? 0 : Number(el.freight)
+          discount_delta: el.freightType === '0' ? Number(el.freight) : 0
         }
         tierList.push(tier)
       })
@@ -642,9 +815,10 @@ export default {
           start_time: sTime,
           end_time: eTime,
           tiers: tierList,
-          channel_ids: [Number(this.deliverWay)],
+          channel_ids: this.deliverWay,
           promotion_name: this.proName
         }
+        console.log(params.channel_ids)
         const result = await this.MarketManagerAPIInstance.checkPromotionTest(params)// 创建优惠券
         if (result.ecode !== 0) {
           let mes = ''
@@ -652,7 +826,10 @@ export default {
             mes = '所选期间与该店铺的其他活动期间重叠'
           }
           if (result.data.code === 1400101105) {
-            mes = '运输渠道未知'
+            mes = '运输渠道未知,或者时间勾选错误'
+          }
+          if (result.message === 'token not found') {
+            mes = '店铺未登录'
           }
           this.$refs.Logs.writeLog(`【${val.mall_alias_name || val.platform_mall_name}】创建失败：${mes || result.message}`, false)
         } else {

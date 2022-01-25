@@ -746,4 +746,29 @@ export default class MarketManagerAPI {
       return { code: -2, data: `getMasterGoods-catch: ${error}` }
     }
   }
+  // 加购优惠--编辑商品-附加商品-修改折扣
+  async changeDiscount(goodsinfo) {
+    try {
+      const { country, mallId, add_on_deal_id, sub_item_list } = goodsinfo
+      const params = {
+        mallId: mallId,
+        add_on_deal_id: add_on_deal_id,
+        sub_item_list: sub_item_list
+      }
+      const res = await this._this.$shopeemanService.getChineseReferer(country, '/api/marketing/v3/add_on_deal/sub_item_list/?', params, {
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json, application/xml, text/json, text/x-json, text/javascript, text/xml',
+          referer: `/portal/marketing/add-on-deal/list?tab=list`
+        }
+      })
+      const des = JSON.parse(res)
+      const data = JSON.parse(des.data)
+      const ecode = data?.data ? data.code : data.errcode
+      const message = data.message
+      return { ecode, data, message }
+    } catch (error) {
+      return { code: -2, data: `getMasterGoods-catch: ${error}` }
+    }
+  }
 }
