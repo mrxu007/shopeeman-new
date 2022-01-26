@@ -218,8 +218,6 @@
             <span class="tableActive" @click="viewDetails('orderDetail', scope.row.order_id, scope.row.mall_info.platform_mall_id)">{{ scope.row.order_sn }}</span>
           </template>
         </u-table-column>
-        <u-table-column v-if="showTableColumn('站点')" width="80px" label="站点" prop="country" align="center">
-          <template v-if="scope.row.mall_info" slot-scope="scope">{{ scope.row.mall_info.country | chineseSite }}</template>
         <u-table-column align="center" prop="" label="操作" width="140" v-if="showTableColumn('操作')" fixed="left">
           <template slot-scope="scope">
             <el-dropdown style="width: 100px; margin-left: 10px" trigger="click" size="mini">
