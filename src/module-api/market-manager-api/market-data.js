@@ -746,20 +746,21 @@ export default class MarketManagerAPI {
       return { code: -2, data: `getMasterGoods-catch: ${error}` }
     }
   }
-  // 加购优惠--编辑商品-附加商品-修改折扣
+  // 加购优惠--编辑商品-附加商品
   async changeDiscount(goodsinfo) {
     try {
       const { country, mallId, add_on_deal_id, sub_item_list } = goodsinfo
       const params = {
         mallId: mallId,
+        create_type: 0,
         add_on_deal_id: add_on_deal_id,
         sub_item_list: sub_item_list
       }
-      const res = await this._this.$shopeemanService.getChineseReferer(country, '/api/marketing/v3/add_on_deal/sub_item_list/?', params, {
+      const res = await this._this.$shopeemanService.postChineseReferer(country, '/api/marketing/v3/add_on_deal/sub_item_list/?', params, {
         headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json, application/xml, text/json, text/x-json, text/javascript, text/xml',
-          referer: `/portal/marketing/add-on-deal/list?tab=list`
+          'Content-Type': 'application/json;charset=UTF-8',
+          'Accept': 'application/json, text/plain, */*',
+          referer: `/portal/marketing/add-on-deal/${add_on_deal_id}`
         }
       })
       const des = JSON.parse(res)
