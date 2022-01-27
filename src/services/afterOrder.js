@@ -282,7 +282,7 @@ export default class {
               cookies: mall.web_login_info,
               'Content-Type': 'application/x-www-form-urlencoded',
               urlencoded: false,
-              accept: 'application/json',
+              // accept: 'application/json',
               authority: 'refund2.taobao.com',
               Host: 'refund2.taobao.com',
               origin: 'https://refund2.taobao.com',

@@ -332,6 +332,9 @@ export default {
         this.filterMallTime = null
       }
       this.filterMallTime = setTimeout(() => {
+        if (this.isShowName !== val){
+          this.mallShowIndex = 0
+        }
         this.isShowName = val || ''
         let list1 = this.siteList
         if (val) {
@@ -340,7 +343,6 @@ export default {
             return name.includes(val)
           })
         }
-        this.mallShowIndex = 0
         this.siteShowList = list1
       }, time)
     },

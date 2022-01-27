@@ -533,22 +533,22 @@
               <div
                   style="margin-right: 25px;display: flex; flex-flow: row;justify-content: center;align-items: center;">
                 <div style="text-align: justify; text-align-last: justify;display: inline-block;width: 20px">商品图</div>
-                <el-upload action="#" list-type="picture" :drag="true"
-                           :show-file-list="false" :limit="1" :auto-upload="false"
-                           :on-change="watermarkPreview1" style="display: flex; align-items: center;">
-                  <img v-if="watermarkConfig.goodsImageUrl" :src="watermarkConfig.goodsImageUrl" class="avatar">
+                <div @click="watermarkPreview1" class="watermarkConfig_img">
+                  <el-image v-if="watermarkConfig.goodsImg" :src="watermarkConfig.goodsImg" class="avatar"/>
                   <i v-else class="el-icon-plus avatar-uploader-icon"></i>
-                </el-upload>
+                </div>
               </div>
               <div style="display: flex; flex-flow: row;justify-content: center;align-items: center;">
                 <div style="text-align: justify; text-align-last: justify;width: 20px">水印图</div>
-                <el-upload action="#" list-type="picture" :drag="true"
-                           :show-file-list="false" :limit="1" :auto-upload="false"
-                           :on-change="watermarkPreview2" style="display: flex; align-items: center;">
-                  <img v-if="watermarkConfig.watermarkImageUrl" :src="watermarkConfig.watermarkImageUrl" class="avatar">
+                <div @click="watermarkPreview2" class="watermarkConfig_img">
+                  <el-image v-if="watermarkConfig.watermarkImg" :src="watermarkConfig.watermarkImg" class="avatar"/>
                   <i v-else class="el-icon-plus avatar-uploader-icon"></i>
-                </el-upload>
+                </div>
               </div>
+              <el-upload v-if="uploadImgAdd" action="#" list-type="picture-card" :drag="true" v-show="false"
+                         :show-file-list="false" :limit="1" :auto-upload="false" :on-change="watermarkPreview">
+                <el-button ref="uploadImg" size="mini" type="primary">选择图片</el-button>
+              </el-upload>
             </div>
           </div>
           <div v-show="watermarkConfig.type === 2" class="on_new_dialog_box">
@@ -593,7 +593,7 @@
           <div class="on_new_dialog_box" style="justify-content: center;margin-top: 5px;">
             <div class="watermark_palette">
               <div class="goods_image">
-                <img :src="watermarkConfig.goodsImageUrl || ''" alt="">
+                <img :src="watermarkConfig.goodsImg || ''" alt="">
               </div>
               <div class="watermark_image"
                    :class="watermarkConfig.type < 3 && locateClass || 'watermark_image_background'">
@@ -602,7 +602,7 @@
                   {{ watermarkConfig.text }}
                 </span>
                 <img :style="watermarkConfig.type === 2 && ('opacity: '+watermarkConfig.clarity) || ''"
-                     v-show="watermarkConfig.type !== 1" :src="watermarkConfig.watermarkImageUrl||''" alt="">
+                     v-show="watermarkConfig.type !== 1" :src="watermarkConfig.watermarkImg||''" alt="">
               </div>
 
             </div>
@@ -723,7 +723,7 @@
           <div class="basisInstall-box" style="flex-wrap: nowrap;">
             <div>标签：</div>
             <el-select value="" size="mini" v-model="valuationLabel">
-              <el-option value="" v-for="(item,index) in valuationLabelList" :key="index">item</el-option>
+              <el-option :value="item.id" v-for="(item,index) in valuationLabelList" :key="index" :label="item.label"/>
             </el-select>
             <el-tooltip class="item" effect="dark" content="可设置常用的标签，保存区域运费比例数据" placement="top">
               <el-button size="mini" type="text"><i class="el-icon-question" style="padding: 0 2px;"></i></el-button>
@@ -967,7 +967,14 @@
 import storeChoose from '../../../components/store-choose'
 import categoryMapping from '../../../components/category-mapping'
 import goodsLabel from '../../../components/goods-label'
-import { getGoodsUrl, batchOperation, terminateThread, getSectionRandom, imageCompressionUpload } from '@/util/util'
+import {
+  getGoodsUrl,
+  batchOperation,
+  terminateThread,
+  getSectionRandom,
+  imageCompressionUpload,
+  randomWord
+} from '@/util/util'
 import GUID from '@/util/guid'
 import MallListAPI from '@/module-api/mall-manager-api/mall-list-api'
 
@@ -1012,9 +1019,7 @@ export default {
         clarity: 0.3,  // 透明度 2
         imgSize: 1,  // 缩放方式 2
         goodsImg: '', // 商品图 2 3
-        goodsImageUrl: '', // 商品图 2 3
         watermarkImg: '',  //水印图 2 3
-        watermarkImageUrl: '',  //水印图 2 3
         text: '水印'
       },
       watermarkSetting: {},
@@ -1207,7 +1212,77 @@ export default {
 
       //rateList
       RMBShow: true,
-      rateList: {}
+      rateList: {},
+      titleInterval: {
+        'TH': {
+          min: 20,
+          max: 120
+        },
+        'VN': {
+          min: 10,
+          max: 120
+        },
+        'MY': {
+          min: 20,
+          max: 120
+        },
+        'SG': {
+          min: 10,
+          max: 120
+        },
+        'TW': {
+          min: 5,
+          max: 60
+        },
+        'PH': {
+          min: 20,
+          max: 100
+        },
+        'ID': {
+          min: 5,
+          max: 100
+        },
+        'BR': {
+          min: 1,
+          max: 120
+        }
+      },
+      descriptionInterval: {
+        'TH': {
+          min: 25,
+          max: 3000
+        },
+        'VN': {
+          min: 100,
+          max: 3000
+        },
+        'MY': {
+          min: 20,
+          max: 3000
+        },
+        'SG': {
+          min: 20,
+          max: 3000
+        },
+        'TW': {
+          min: 5,
+          max: 3000
+        },
+        'PH': {
+          min: 100,
+          max: 3000
+        },
+        'ID': {
+          min: 20,
+          max: 3000
+        },
+        'BR': {
+          min: 1,
+          max: 3000
+        }
+      },
+      uploadImgAdd: false,
+      watermarkPreviewType: 1
     }
   },
   computed: {},
@@ -1269,6 +1344,48 @@ export default {
         this.calculateReference.bubbleHeavy = bulkWeightFormula
       },
       deep: true
+    },
+    valuationLabel(val) {
+      try {
+        let configRes = this.valuationLabelList.find(i => i.id === val)
+        let config = configRes && configRes.config
+        let jsonStr = config && config[0] || ''
+        if (jsonStr) {
+          this.valuationSetting = JSON.parse(jsonStr)
+          this.valuationConfig = JSON.parse(jsonStr)
+          this.freightList = config[1] && JSON.parse(config[1]) || this.freightList
+        } else {
+          let temp = {
+            shippingMethod: config.TransportType || 'sea',
+            goodsType: config.GoodsType || 'general',
+            transactionCommission: config.Brokerage || '2', //Brokerage
+            warehouseServiceCharge: config.WarehouseFee || '3',  //WarehouseFee
+            discount: config.DiscountRate || '', //DiscountRate
+            grossProfitMargin: config.GrossMargin || '20', //GrossMargin
+            withdrawalCharge: config.HandlingFee || '3',  //HandlingFee
+            customsClearanceFee: config.ShopFeeOrClearanceFee || '4.5', // ShopFeeOrClearanceFee
+            other: config.OriginPrice || '',  //OriginPrice
+            bubbleHeavy: config.BulkRate || '' //BulkRate
+          }
+          this.valuationSetting = temp
+          this.valuationConfig = temp
+          if (config.FeeDetailList) {
+            for (let key in config.FeeDetailList) {
+              let item = config.FeeDetailList[key]
+              let name = item.TransportType
+              name.replaceAll('海运', 'sea')
+              name.replaceAll('陆运', 'land')
+              name.replaceAll('空运', 'air')
+              name.replaceAll('普货', 'general')
+              name.replaceAll('敏感货', 'sensitive')
+              name.replaceAll('特货', 'special')
+              this.freightList[name] = item.ShipFee
+            }
+          }
+        }
+      } catch (e) {
+
+      }
     }
   },
   async mounted() {
@@ -1331,18 +1448,20 @@ export default {
         index >= 0 && this.$set(this.goodsTable, index, item) || this.goodsTable.push(item)
       }
       this.statistics.count = this.goodsTable.length
-      console.log(this.goodsTable)
+      let valuationConfigRes = await this.$api.valuationConfigGetAll()
+      this.valuationLabelList = valuationConfigRes && valuationConfigRes.data.data || []
+      console.log(this.valuationLabelList)
     } catch (error) {
     }
   },
   methods: {
     async startRelease() {
       if (this.goodsTableSelect.length < 1) {
-        this.$message.error('请选择商品')
+        this.$message.error('请选择商品后再操作')
         return
       }
       if (this.mallList.length < 1) {
-        this.$message.error('请选择店铺')
+        this.$message.error('请选择店铺后再操作')
         return
       }
       if (this.customLogistics.length > 0) {
@@ -1352,6 +1471,10 @@ export default {
             return
           }
         }
+      }
+      if (this.storeConfig.watermarkChecked && this.watermarkSetting && !this.watermarkSetting.type) {
+        this.$message.error('配置水印后再操作')
+        return
       }
       this.isBanPerform = true
       await batchOperation(this.mallList, this.prepareWork, this.basicConfig.onNewThread)
@@ -1390,21 +1513,18 @@ export default {
               }
               let findItem = this.customLogistics.find(son => son.shopId === (item.channel_id + ''))
               if (findItem) {
-                temp['price'] = price + ''
+                temp['price'] = findItem.price + ''
               }
               logistics_channels.push(temp)
             }
           }
         }
-        // console.log(logistics_channels)
-        // return
         if (this.associatedConfig.dimensionRadio < 2) {
           let mallCount = this.mallList.length
           let mallIndex = this.mallList.findIndex(son => son.id === mall.id)
           let goodsCount = this.goodsTable.length
           for (let i = 0; mallIndex < goodsCount; i++) {
             mallIndex = mallIndex + mallCount * i
-            console.log(mallIndex)
             if (mallIndex < goodsCount) {
               goodsList = [...goodsList, this.goodsTableSelect[mallIndex]]
             }
@@ -1490,7 +1610,25 @@ export default {
           let guid = new GUID()
           goodsParam['ds_cat_rcmd_id'] = guid.newGUID() + '|c|EN'
           goodsParam['ds_attr_rcmd_id'] = guid.newGUID() + '|a|EN'
-          // name description
+          // name description tier_variation price
+          let tier_variation = neededTranslateInfoData.tier_variation
+          if (tier_variation[tier_variation.spec1].length > 0) {
+            goodsParam['tier_variation'].push({
+              name: tier_variation.spec1,
+              options: [...tier_variation[tier_variation.spec1].map(i => i.substring(0, 20).trim())],
+              images: tier_variation.images
+            })
+          }
+          if (tier_variation[tier_variation.spec2].length > 0) {
+            goodsParam['tier_variation'].push({
+              name: tier_variation.spec2,
+              options: [tier_variation[tier_variation.spec2].map(i => i.substring(0, 20).trim())],
+              images: []
+            })
+          }
+          goodsParam['price'] = this.getValuationPrice(neededTranslateInfoData.price, neededTranslateInfoData)
+          goodsParam['price'] = Math.ceil(goodsParam['price'] / this.rateList[this.country]) + ''
+
           goodsParam['description'] = neededTranslateInfoData.description || ''
           let hotList = this.basicConfig.hotList || ''
           hotList = hotList.replaceAll('，', ',')
@@ -1518,6 +1656,10 @@ export default {
             name = mall.platform_mall_name + ' ' + name
           }
           goodsParam['name'] = name
+          let isFieldFilter = await this.fieldFilter(goodsParam)
+          if (!isFieldFilter) {
+            continue
+          }
           if (this.storeConfig.wordsHeavy) {
             let nameList = goodsParam['name'].split(' ')
             let setName = new Set()
@@ -1528,7 +1670,9 @@ export default {
           }
           // images size_chart
           let imagesList = neededTranslateInfoData.images
+          let imageTemp = await this.additionalWatermarking(imagesList[0], mall)
           console.log(imagesList)
+          return
           if (this.associatedConfig.pictureSetting.firstChecked) {
             imagesList.splice(0, 1)
           }
@@ -1554,24 +1698,7 @@ export default {
           if (neededTranslateInfoData.sizeImages && neededTranslateInfoData.sizeImages[0]) {
             goodsParam['size_chart'] = neededTranslateInfoData.sizeImages[0].img || ''
           }
-          // tier_variation model_list price
-          let tier_variation = neededTranslateInfoData.tier_variation
-          if (tier_variation[tier_variation.spec1].length > 0) {
-            goodsParam['tier_variation'].push({
-              name: tier_variation.spec1,
-              options: tier_variation[tier_variation.spec1],
-              images: tier_variation.images
-            })
-          }
-          if (tier_variation[tier_variation.spec2].length > 0) {
-            goodsParam['tier_variation'].push({
-              name: tier_variation.spec2,
-              options: tier_variation[tier_variation.spec2],
-              images: []
-            })
-          }
-          goodsParam['price'] = this.getValuationPrice(neededTranslateInfoData.price, neededTranslateInfoData)
-          goodsParam['price'] = Math.ceil(goodsParam['price'] / this.rateList[this.country]) + ''
+          // model_list
 
           let itemmodelsJson = JSON.stringify(neededTranslateInfoData.itemmodels)
           goodsParam['model_list'] = JSON.parse(itemmodelsJson).map(son => {
@@ -1592,26 +1719,40 @@ export default {
             return son
           })
           console.log('goodsParam', goodsParam)
-          // return
           this.updateAttributeName(item, '正在上传轮播图')
           let imageMapping = await imageCompressionUpload(mall, goodsParam['images'], this, this.storeConfig.pictureThread)
           goodsParam['images'] = goodsParam.images.map(son => {
-            son = imageMapping[son]
+            son = imageMapping[son] || ''
             return son
           })
+          if (goodsParam['images'].includes('')) {
+            if (!this.associatedConfig.missingUploadChecked) {
+              this.updateAttributeName(item, '轮播图上传缺失')
+              continue
+            }
+            let temp = []
+            goodsParam['images'].forEach(i => {
+              i && temp.push(i)
+            })
+            goodsParam['images'] = temp
+          }
           this.updateAttributeName(item, '正在上传规格图')
           let spec_imageMapping = await imageCompressionUpload(mall, neededTranslateInfoData.spec_image, this, this.storeConfig.pictureThread)
           let tier_variationJSON = JSON.stringify(goodsParam['tier_variation'])
           let spec_list = []
-          for(let itemName in spec_imageMapping){
-            tier_variationJSON = tier_variationJSON.replaceAll('"'+itemName+'"','"'+spec_imageMapping[itemName]+'"')
+          for (let itemName in spec_imageMapping) {
+            tier_variationJSON = tier_variationJSON.replaceAll('"' + itemName + '"', '"' + spec_imageMapping[itemName] + '"')
             spec_list.push(spec_imageMapping[itemName])
+          }
+          if (spec_list.includes('')) {
+            this.updateAttributeName(item, '规格图上传缺失')
+            continue
           }
           goodsParam['tier_variation'] = JSON.parse(tier_variationJSON)
           if (goodsParam['size_chart']) {
             this.updateAttributeName(item, '正在上传尺寸图')
             let size_chartMapping = await imageCompressionUpload(mall, [goodsParam['size_chart']], this, this.storeConfig.pictureThread)
-            goodsParam['size_chart'] = size_chartMapping[goodsParam['size_chart']]
+            goodsParam['size_chart'] = size_chartMapping[goodsParam['size_chart']] || ''
           }
           if (this.basicConfig.autoCompleteChecked) {
             if (goodsParam['images'].length < 9) {
@@ -1619,7 +1760,7 @@ export default {
               goodsParam['images'] = imageList.slice(0, 9)
             }
           }
-          let resJSON = await this.$shopeemanService.createProduct(this.country,{mallId:mall.platform_mall_id},[goodsParam])
+          let resJSON = await this.$shopeemanService.createProduct(this.country, { mallId: mall.platform_mall_id }, [goodsParam])
           console.log('createProduct', resJSON)
 
           this.updateAttributeName(item, '发布完成')
@@ -1631,16 +1772,162 @@ export default {
         --count.count
       }
     },
+    //标题，描述，sku过滤
+    fieldFilter(goods) {
+      return new Promise(async resolve => {
+        try {
+          let skuJson = JSON.stringify(goods['tier_variation'])
+          let keyFilter = this.associatedConfig.keyFilter
+          let titleInterval = this.titleInterval[this.country]
+          let descriptionInterval = this.descriptionInterval[this.country]
+          goods['name'] = goods['name'].slice(0, titleInterval.max)
+          if (goods['name'].length < titleInterval.min) {
+            this.updateAttributeName(goods, '商品标题长度过短')
+            resolve(false)
+          }
+          goods['description'] = goods['description'].slice(0, descriptionInterval.max)
+          if (goods['description'].length < descriptionInterval.min) {
+            this.updateAttributeName(goods, '商品描述长度过短')
+            resolve(false)
+          }
+          let keyListStr = this.associatedConfig.keyList
+          let keyList = keyListStr.split(',')
+          if (keyList.length > 0) {
+            keyList.forEach(i => {
+              if (i) {
+                let isName = goods['name'].includes(i)
+                let isDescription = goods['description'].includes(i)
+                let isSKU = skuJson.search('"options":".*(' + i + ').*",')
+                let success = false
+                if (keyFilter === 0 && (isName || isDescription || isSKU)) {
+                  success = true
+                } else if (keyFilter === 1 && isName) {
+                  success = true
+                } else if (keyFilter === 2 && isDescription) {
+                  success = true
+                } else if (keyFilter === 3 && isSKU) {
+                  success = true
+                }
+                success && this.updateAttributeName(goods, '关键词过滤成功')
+                success && resolve(false)
+              }
+            })
+          }
+          const wordParams = {
+            page: '1',
+            perpage: '100',
+            word: '',
+            country: this.country,
+            source: '0',
+            type: '1'
+          }
+          const wordListJSON = await this.$commodityService.getBannedWordList(wordParams)
+          const wordListRes = JSON.parse(wordListJSON)
+          const wordListData = wordListRes.data && wordListRes.data.data || []
+          wordListData.forEach(i => {
+            if (i.word) {
+              let isName = goods['name'].includes(i.word)
+              let isDescription = goods['description'].includes(i.word)
+              let isSKU = skuJson.search('"options":".*(' + i.word + ').*",')
+              if ((isName || isDescription || isSKU)) {
+                this.updateAttributeName(goods, '禁运词过滤成功')
+                resolve(false)
+              }
+            }
+          })
+          const categoryParams = {
+            type: '0',
+            country: this.country,
+            page: '1',
+            perpage: '100',
+            parentCategoryTree: []
+          }
+          const categoryJson = await this.$commodityService.getBlackCategory(categoryParams)
+          const categoryRes = JSON.parse(categoryJson)
+          const categoryData = categoryRes.data && categoryRes.data.data || []
+          let category_path = goods['category_path'].join('-')
+          categoryData.forEach(item => {
+            if (item && item.parent_category_tree === category_path) {
+              this.updateAttributeName(goods, '禁运类目过滤成功')
+              resolve(false)
+            }
+          })
+          resolve(true)
+        } catch (e) {
+          this.updateAttributeName(goods, '网络异常请稍后再试')
+          resolve(false)
+        }
+      })
+    },
     //附加水印图
     additionalWatermarking(url, mall) {
-      let setting = this.watermarkSetting
-      if (setting.type === 1) {
+      let that = this
+      return new Promise(resolve => {
+        let setting = this.watermarkSetting
+        console.log('additionalWatermarking', setting)
+        const image = new Image()
+        image.setAttribute('crossOrigin', 'anonymous')
+        image.src = url
+        image.onload = async function() {
+          const canvas = document.createElement('canvas')
+          canvas.width = image.width
+          canvas.height = image.height
+          const context = canvas.getContext('2d')
+          context.drawImage(image, 0, 0, image.width, image.height)
+          if (setting.type === 1) {
 
-      } else if (setting.type === 2) {
+          }
+          else if (setting.type === 2) {
+            if (setting.watermarkImg) {
+              let watermark = new Image()
+              watermark.src = setting.watermarkImg
+              watermark.onload = async() => {
+                if (setting.imgSize === 1) {
+                  watermark.width = Math.floor(image.width / 5)
+                  watermark.height = Math.floor(image.height / 5)
+                } else if (setting.imgSize === 2) {
+                  watermark.width = image.width
+                } else if (setting.imgSize === 3) {
+                  watermark.height = image.height
+                }
+                let dx = 0, dy = 0
+                if (setting.locate === 1) {
+                  dx = 5
+                  dy = 5
+                } else if (setting.locate === 2) {
+                  dx = 5
+                  dy = Math.floor(image.height - watermark.height) - 5
+                } else if (setting.locate === 3) {
+                  dx = Math.floor(image.width - watermark.width) - 5
+                  dy = 5
+                } else if (setting.locate === 4) {
+                  dx = Math.floor(image.width - watermark.width) - 5
+                  dy = Math.floor(image.height - watermark.height) - 5
+                } else if (setting.locate === 5) {
+                  dx = Math.floor((image.width- watermark.width)/2 )
+                  dy = Math.floor((image.height - watermark.height) /2)
+                }
+                if (image.width <= watermark.width) {
+                  dx = 0
+                }
+                if (image.height <= watermark.height) {
+                  dy = 0
+                }
+                watermark.style.opacity = setting.clarity
+                context.drawImage(watermark, dx, dy, watermark.width, watermark.height)
+                console.log(dx, dy)
+                console.log(watermark.width, watermark.height,watermark)
+                let base64 = canvas.toDataURL('image/png')
+                console.log(base64)
+                that.goodsTable[0].image = base64
+              }
+            }
+          }
+          else if (setting.type === 3) {
+          }
 
-      } else if (setting.type === 3) {
-
-      }
+        }
+      })
     },
     getValuationPrice(price, data, setting = null) {
       price = price * 1
@@ -1673,7 +1960,7 @@ export default {
           let withdrawalFee = ((100 + withdrawalCharge * 1) / 100).toFixed(2)
           let profitMargin = ((100 - grossProfitMargin * 1) / 100).toFixed(2)
           let priceCount = (price + logisticsCosts + otherFee)
-          let priceFormula = (priceCount / commissionMargin / profitMargin) * withdrawalFee.toFixed(2) * 1
+          let priceFormula = ((priceCount / commissionMargin / profitMargin) * withdrawalFee).toFixed(2) * 1
           let profits = (priceFormula * (1 - profitMargin)).toFixed(2) * 1
           if (this.valuationVisible) {
             this.calculateResults.profits = this.country.includes('MY') && profits || Math.ceil(profits)
@@ -1714,11 +2001,16 @@ export default {
       this.$prompt('请输入标签名称', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消'
-      }).then(({ value }) => {
-
+      }).then(async({ value }) => {
+        let params = {
+          country: this.country,
+          label: value,
+          config: [JSON.stringify(this.valuationConfig), JSON.stringify(this.freightList)]
+        }
+        let res = await this.$api.valuationConfigSave(params)
         this.$message({
           type: 'success',
-          message: '你的标签是: ' + value
+          message: '保存标签成功'
         })
       }).catch(() => {
         this.$message({
@@ -1972,21 +2264,32 @@ export default {
         this.watermarkVisible = false
       }
     },
-    watermarkPreview1(file) {
-      this.watermarkPreview(file, 1)
+    watermarkPreview1() {
+      this.uploadImgAdd = true
+      this.watermarkPreviewType = 1
+      setTimeout(() => {
+        this.$refs['uploadImg'].$el.click()
+      }, 100)
     },
-    watermarkPreview2(file) {
-      this.watermarkPreview(file, 2)
+    watermarkPreview2() {
+      this.uploadImgAdd = true
+      this.watermarkPreviewType = 2
+      setTimeout(() => {
+        this.$refs['uploadImg'].$el.click()
+      }, 100)
     },
-    watermarkPreview(file, type) {
-      if (type === 1) {
-        this.watermarkConfig.goodsImg = file
-        this.watermarkConfig.goodsImageUrl = file.url
-      } else {
-        this.watermarkConfig.watermarkImg = file
-        this.watermarkConfig.watermarkImageUrl = file.url
+    watermarkPreview(file) {
+      const localFile = file.raw
+      const reader = new FileReader()
+      reader.readAsDataURL(localFile)
+      reader.onload = () => {
+        if (this.watermarkPreviewType === 1) {
+          this.watermarkConfig.goodsImg = reader.result
+        } else {
+          this.watermarkConfig.watermarkImg = reader.result
+        }
       }
-      console.log(file)
+      this.uploadImgAdd = false
     },
     changeLogistics() {
       let logisticsList = this.$shopeeManConfig.getLogisticsList()

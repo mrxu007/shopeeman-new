@@ -1039,7 +1039,7 @@
 <script>
 import GoodsList from '../../../module-api/goods-manager-api/goods-list'
 import StoreChoose from '../../../components/store-choose'
-import { exportExcelDataCommon, batchOperation, terminateThread, dealwithOriginGoodsNum, getGoodsUrl, getGoodLinkModel, sleep, waitStart, imageCompressionUpload } from '../../../util/util'
+import { exportExcelDataCommon, batchOperation, terminateThread, dealwithOriginGoodsNum, getGoodsUrl, getGoodLinkModel, waitStart, imageCompressionUpload, delay } from '../../../util/util'
 import categoryMapping from '../../../components/category-mapping'
 import goodsSize from '../../../components/goods-size.vue'
 export default {
@@ -1282,12 +1282,10 @@ export default {
       return function(id, country) {
         if (!this.categoryNameArr[id]) {
           this.categoryNameArr[id] = '正在获取类目...'
-          const categoryName = '正在获取类目...'
           this.setCategoryName(id, country)
-          return categoryName || ''
+          return this.categoryNameArr[id] || ''
         }
-        const categoryName = this.categoryNameArr[id]
-        return categoryName || ''
+        return this.categoryNameArr[id] || ''
       }
     }
   },
@@ -1311,23 +1309,29 @@ export default {
   methods: {
     // 获取类目名
     async setCategoryName(id, country) {
-      let categoryName = []
+      const categoryName = []
       const idList = id.split(',')
       for (const idItem of idList) {
-        if (this.categoryIdList[idItem]) {
-          if (this.categoryIdList[idItem] === '类目获取失败') {
-            categoryName = ['类目获取失败']
+        const categoryIdList = this.categoryIdList[idItem]
+        if (!categoryIdList) {
+          const categoryRes = await this.$appConfig.temporaryCacheInfo('get', `category_${idItem}`, '')
+          const categoryVal = this.isJsonString(categoryRes)
+          if (!categoryVal || categoryRes === '{}') {
+            this.$appConfig.temporaryCacheInfo('save', `category_${idItem}`, { category_name: '', category_cn_name: '' })
+            const res = await this.GoodsList.getCategoryName(country, idItem, '0', '')
+            const categories = res.data.categories && res.data.categories[0] || ''
+            const category_cn_name = categories?.category_cn_name ?? '未匹配到类目'
+            const category_name = categories?.category_name ?? '未匹配到类目'
+            const obj = { category_name, category_cn_name }
+            await this.$appConfig.temporaryCacheInfo('save', `category_${idItem}`, obj)
+            this.categoryIdList[idItem] = obj
+            categoryName.push(`${category_name}(${category_cn_name})`)
           } else {
-            categoryName.push(this.categoryIdList[idItem].categories ? `${this.categoryIdList[idItem].categories[0].category_name}(${this.categoryIdList[idItem].categories[0].category_cn_name})` : '')
+            this.categoryIdList[idItem] = categoryVal || '正在获取类目'
+            categoryName.push(`${categoryVal['category_name']}(${categoryVal['category_cn_name']})`)
           }
         } else {
-          const res = await this.GoodsList.getCategoryName(country, idItem, '0', '')
-          if (res.code === 200) {
-            this.categoryIdList[idItem] = res.data
-            categoryName.push(res.data.categories ? `${res.data.categories[0].category_name}(${res.data.categories[0].category_cn_name})` : '')
-          } else {
-            this.categoryIdList[idItem] = '类目获取失败'
-          }
+          categoryName.push(`${categoryIdList['category_name']}(${categoryIdList['category_cn_name']})`)
         }
       }
       this.categoryNameArr[id] = categoryName.join('->')
@@ -1453,7 +1457,6 @@ export default {
                     productInfo['logistics_channels'] = await this.getLogisticsInfo(logisticsRes.data.list, false, mall)
                   }
                 } catch (error) {
-                  // mall.isCreate = false
                   ++mall['isCreateNum']
                   this.moveStatus(item, `商品信息物流异常${error}`, false)
                   console.log(error)
@@ -1476,11 +1479,6 @@ export default {
                 })
                 // 上新发布
                 const data = { mallId: mall.platform_mall_id }
-                console.log(`${item.id}-${mallName}`, mall.isCreate)
-                if (mall.isCreate) {
-                  console.log(`${item.id}-${mallName}睡眠`)
-                  await sleep(Number(this.moveTime) * 1000)
-                }
                 const createIndex = mall['createNum']++
                 await waitStart(() => {
                   return createIndex === mall['isCreateNum']
@@ -1489,7 +1487,6 @@ export default {
                 const parmas = this.setCreateData(productInfo)
                 const createRes = await this.$shopeemanService.createProduct(mall.country, data, [parmas])
                 if (createRes.code === 200) {
-                  // mall.isCreate = true
                   setTimeout(() => { ++mall['isCreateNum'] }, Number(this.moveTime) * 1000)
                   this.moveStatus(item, `店铺【${mallName}】发布成功`, true)
                   mall['status'] = `发布成功`
@@ -1506,7 +1503,6 @@ export default {
                   obj['price'] = detailRes.data.price
                 } else {
                   ++mall['isCreateNum']
-                  // mall.isCreate = false
                   this.moveStatus(item, `店铺【${mallName}】${createRes.data}`, false)
                   mall['status'] = `${createRes.data}`
                   mall['color'] = `red`
@@ -1523,7 +1519,6 @@ export default {
               this.moveDetails.push(obj)
             } catch (error) {
               console.log(error)
-              // mall.isCreate = false
               ++mall['isCreateNum']
             }
           }
@@ -1559,7 +1554,7 @@ export default {
         dimension: {
           width: productInfo.dimension.width,
           height: productInfo.dimension.height,
-          length: productInfo.dimension.long
+          length: productInfo.dimension.length
         },
         condition: 1,
         parent_sku: productInfo.parent_sku,
@@ -1617,7 +1612,7 @@ export default {
       this.isMove = false
       this.updateNum = this.multipleSelection.length
       this.deleteId = []
-      await batchOperation(this.multipleSelection, this.startRefurbishment)
+      await batchOperation(this.multipleSelection, this.startRefurbishment, 1)
       await this.deleteCollectGoodsInfo()
       this.operationBut = false
       this.isRefurbishProduct = false
@@ -1628,9 +1623,9 @@ export default {
         terminateThread()
         return
       }
+      this.batchStatus(item, `正在获取商品详情...`, true)
       try {
         let productInfo = {}
-        this.batchStatus(item, `正在获取商品详情...`, true)
         const res = await this.getProductDetail(item)
         if (res.code === 200) {
           productInfo = res.data
@@ -1648,6 +1643,7 @@ export default {
           productInfo['name'] = productInfo.name.trim().slice(0, this.maxLength)
           // 组装上新数据
           const parmas = this.setCreateData(productInfo)
+          await delay(40000)
           const createRes = await this.$shopeemanService.createProduct(item.country, data, [parmas])
           if (createRes.code === 200) {
             this.batchStatus(item, `发布成功`, true)
@@ -2750,16 +2746,22 @@ export default {
                 const delRes1 = await this.GoodsList.deleteAddOnDealMainItemList(item, status, activityid)
                 if (delRes1.code !== 200) return { batchStatus: `删除主商品加购活动失败：${delRes1.data}`, color: false, code: delRes1.code }
               } else {
-              // 获取子商品列表
+                // 判断是否有主商品
+                const mainItemRes = await this.GoodsList.getAdd0nDealAggrMainItemList(item, activityid)
+                const mainItemList = mainItemRes?.data?.main_item_list || []
+                console.log('mainItemList', mainItemList)
+                if (mainItemList.length <= 0) return { batchStatus: `删除子商品加购活动失败，请先确认主要产品`, color: false, code: 201 }
+                // 获取子商品列表
                 const res3 = await this.GoodsList.getAdd0nDealAggrSubItemList(item, activityid)
                 if (res3.code !== 200) return { batchStatus: `获取子商品加购活动列表失败：${res3.data}`, color: false, code: res3.code }
-                const subItemList = res3.data.sub_item_list.filter(listItem => {
+                const subItemList = res3.data?.sub_item_list.filter(listItem => {
                   return listItem.item_id === item.id
                 })
                 subItemList.map(filterItem => {
                   delete filterItem.input_sub_item_price
                   delete filterItem.price
                   delete filterItem.sub_item_price
+                  filterItem.sub_item_input_price = res3.data?.model_info[item.id][0].price || 0
                   filterItem.status = 0
                 })
                 if (subItemList?.length > 0) {
@@ -3221,17 +3223,18 @@ export default {
         if (res.code === 200) {
           this.cursor = res.data.page_info.cursor
           if (res.data.list?.length) {
-            this.$refs.Logs.writeLog(`查询店铺【${mallName}】第【${mItem.pageNumber}】页数据：${res.data.list.length}`, true)
             // 组装数据
             await this.setTableData(res.data.list, mItem, mallName)
             // 过滤数据
-            const newData = this.filterData(res.data.list)
+            const { fData, len } = this.filterData(res.data.list)
             if (!this.productNumChecked) {
-              this.tableData = this.tableData.concat(newData)
+              this.tableData = this.tableData.concat(fData)
               this.queryNum = this.tableData.length
-              this.rowSelection(newData, true, {})
+              this.rowSelection(fData, true, {})
+              this.$refs.Logs.writeLog(`查询店铺【${mallName}】第【${mItem.pageNumber}】页数据：${res.data.list.length}`, true)
+              if (len > 0) this.$refs.Logs.writeLog(`【${mallName}】第【${mItem.pageNumber}】页过滤数据【${len}】条`, false)
             } else {
-              mItem.mylist = newData
+              mItem.mylist = fData
             }
             console.log('tableData', res.data.list)
           }
@@ -3479,7 +3482,8 @@ export default {
         }
         fData.push(item)
       }
-      return fData
+      const len = data?.length - fData?.length || 0
+      return { fData, len }
     },
     // 获取上家类型,链接,id
     async getPlatformData(itemSku) {
@@ -3781,6 +3785,18 @@ export default {
     // 记住所选项
     getRowKey(row) {
       return row.id
+    },
+    isJsonString(str) {
+      if (typeof str === 'string') {
+        try {
+          JSON.parse(str)
+          return JSON.parse(str)
+        } catch (e) {
+          return str
+        }
+      } else {
+        return str
+      }
     },
     // 导出数据
     exportTableData() {

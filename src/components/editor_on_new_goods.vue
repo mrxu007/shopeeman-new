@@ -1351,18 +1351,21 @@ export default {
     },
     async getLabelList(type) {
       const goodsLabelList = await this.$appConfig.temporaryCacheInfo('get', 'goodsLabelList', '')
-      const jsonData = JSON.parse(goodsLabelList)
-      if (Object.keys(jsonData).length > 0 && type !== 'refresh') {
-        this.labelList = jsonData || []
-        return
+      if (goodsLabelList !== '{}') {
+        const jsonData = JSON.parse(goodsLabelList)
+        if (jsonData && jsonData.length > 0 && type !== 'refresh') {
+          this.labelList = jsonData || []
+          return
+        }
       }
       const res = await this.personalLibraryAPInstance.getLabelList()
       if (res.code !== 200) {
         return this.$message.error(`获取标签列表失败:${res.code}:${res.data}`)
       }
-      this.$appConfig.temporaryCacheInfo('save', 'goodsLabelList', res.data)
+      const data = res.data || []
+      this.$appConfig.temporaryCacheInfo('save', 'goodsLabelList', data)
       this.$message.success('获取标签列表成功')
-      this.labelList = res.data || []
+      this.labelList = data
     },
     async deleteConfigClick(item, index) {
       const deleteLabelJson = await this.$api.deleteLabel({ label: item })

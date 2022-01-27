@@ -145,7 +145,6 @@ export default {
         categoryList: []
       },
       tableData: [],
-      tableLoading: false,
       addSelectCategory: {
         country: '',
         categoryFirst: '',
