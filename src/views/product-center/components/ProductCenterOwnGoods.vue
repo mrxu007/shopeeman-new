@@ -540,9 +540,9 @@ export default {
     }
   },
   mounted() {
-    let end = this.$dayjs(new Date().getTime()).format('YYYY-MM-DD')
-    let start = this.$dayjs(new Date().getTime() - 1 * 24 * 60 * 60 * 1000).format('YYYY-MM-DD')
-    this.form.returnCreateTime = [start, end]
+    // let end = this.$dayjs(new Date().getTime()).format('YYYY-MM-DD')
+    // let start = this.$dayjs(new Date().getTime() - 1 * 24 * 60 * 60 * 1000).format('YYYY-MM-DD')
+    // this.form.returnCreateTime = [start, end]
     this.getProductList()
     this.getskucode()
   },

@@ -38,7 +38,7 @@
             ref="plTable"
             :data="tableData"
             use-virtual
-            :height="640"
+            :height="660"
             :row-height="45"
             :data-changes-scroll-top="false"
             :border="false"
@@ -60,7 +60,7 @@
                 </span>
               </template>
             </u-table-column>
-            <u-table-column align="center" label="商品数量" min-width="100" prop="total_product" />
+            <u-table-column sortable align="center" label="商品数量" min-width="100" prop="total_product" />
             <u-table-column align="center" label="活动时间" min-width="270">
               <template v-slot="{ row }">
                 {{ `${$dayjs(row.start_time).format('MM/DD/YYYY HH:mm:ss')} - ${$dayjs(row.end_time).format('MM/DD/YYYY HH:mm:ss')}` }}
@@ -196,7 +196,7 @@
     <div class="logging">
       <Logs ref="Logs" v-model="showConsole" clear />
     </div>
-    <el-dialog :visible.sync="goodsItemSelectorVisible"  top="7vh" title="商品选择" :close-on-click-modal="false" :close-on-press-escape="false" width="1280px">
+    <el-dialog :visible.sync="goodsItemSelectorVisible" top="7vh" title="商品选择" :close-on-click-modal="false" :close-on-press-escape="false" width="1280px">
       <goodsItemSelector v-if="goodsItemSelectorVisible" :is-need-filter-act="true" :mall="selectMallListEdit" @changeGoodsItem="changeGoodsItem" />
     </el-dialog>
   </el-row>
@@ -351,11 +351,11 @@ export default {
       if (this.activeDiscount < 0 || this.activeDiscount > 100 || this.limitNum < 0 || this.activeDiscount % 1 !== 0) {
         return this.$message.warning('折扣信息或限购数量有误！')
       }
-      if(!this.activeDicountName){
+      if (!this.activeDicountName) {
         return this.$message.warning('活动名称不能为空')
       }
-      console.log(this.activeDate,"this.activeDate")
-      if(!this.activeDate || !this.activeDate.length){
+      console.log(this.activeDate, 'this.activeDate')
+      if (!this.activeDate || !this.activeDate.length) {
         return this.$message.warning('请选择活动时间')
       }
       this.goodsItemSelectorVisible = true
@@ -371,7 +371,7 @@ export default {
       if (!this.selectGoods.length) {
         return this.$message.warning('请先选择商品！')
       }
-      if(!this.activeDate || !this.activeDate.length) {
+      if (!this.activeDate || !this.activeDate.length) {
         return this.$message.warning('请先选择活动时间！')
       }
       this.showConsole = false
@@ -416,9 +416,9 @@ export default {
                 }
               }
             })
-          } else if(res.code === 403){
+          } else if (res.code === 403) {
             this.$refs.Logs.writeLog(`店铺【${mall.mall_alias_name || mall.platform_mall_name}】创建活动失败,店铺未登录`, false)
-          }else{
+          } else {
             this.$refs.Logs.writeLog(`店铺【${mall.mall_alias_name || mall.platform_mall_name}】创建活动失败,${res.data}`, false)
           }
         } catch (error) {
@@ -464,10 +464,10 @@ export default {
         this.$refs.Logs.writeLog(`店铺【${mallName}】,商品【${goodsId}】创建活动成功`, true)
         return true
       } else {
-        if(creatRes.data.indexOf('some item has participated in promotion')>-1){
+        if (creatRes.data.indexOf('some item has participated in promotion') > -1) {
           this.$refs.Logs.writeLog(`店铺【${mallName}】,添加商品【${goodsId}】至活动失败,商品已参加活动不能再此参加`, true)
-        }else{
-          this.$refs.Logs.writeLog(`店铺【${mallName}】,添加商品【${goodsId}】至活动失败,${creatRes.data?creatRes.data:''}`, false)
+        } else {
+          this.$refs.Logs.writeLog(`店铺【${mallName}】,添加商品【${goodsId}】至活动失败,${creatRes.data ? creatRes.data : ''}`, false)
         }
         return false
       }
@@ -673,14 +673,17 @@ export default {
         }
         let res = await this.GoodsDiscount.getDiscountNominate({ item: params })
         let array = (res.code === 200 && res.data.item_info) || []
-        console.log('array', array, res)
+        let model_info = res.data.model_info || {}
+        let discount_item_list = res.data.discount_item_list || []
+        let price_stock_info = res.data.price_stock_info || []
         while (array.length) {
+          // console.log('array', JSON.stringify(array), res)
           array.forEach((item) => {
-            if (res.data.model_info[item.itemid] && res.data.model_info[item.itemid].length) {
-              res.data.model_info[item.itemid].forEach((subItem) => {
+            if (model_info[item.itemid] && model_info[item.itemid].length) {
+              model_info[item.itemid].forEach((subItem) => {
                 let itemC = JSON.parse(JSON.stringify(item))
-                let objDiscount = res.data.discount_item_list.find((n) => n.itemid === item.itemid && n.modelid === subItem.modelid)
-                let obj = res.data.price_stock_info.find((n) => n.item_id === item.itemid)
+                let objDiscount = discount_item_list.find((n) => n.itemid === item.itemid && n.modelid === subItem.modelid)
+                let obj = price_stock_info.find((n) => n.item_id === item.itemid)
                 let discountPriceInfo = obj.sku_stock_price_list.find((n) => n.model_id === subItem.modelid)
                 let obj2 = Object.assign(itemC, subItem, objDiscount, discountPriceInfo.price_info)
                 obj2.price = subItem.price
@@ -717,10 +720,13 @@ export default {
             params.offset += limit
             let res = await this.GoodsDiscount.getDiscountNominate({ item: params })
             array = (res.code === 200 && res.data.item_info) || []
+            model_info = (res.code === 200 && res.data.model_info) || {}
+            discount_item_list = (res.code === 200 && res.data.discount_item_list) || []
+            price_stock_info = (res.code === 200 && res.data.price_stock_info) || []
           }
         }
         this.editTableDataCopy = JSON.parse(JSON.stringify(this.editTableData))
-        console.log('editTableData', this.editTableData, this.editTableDataCopy)
+        // console.log('editTableData', this.editTableData, this.editTableDataCopy)
         this.$refs.Logs.writeLog(`获取详情结束,${this.editTableData.length}条`, true)
         this.loading = false
       } catch (error) {
@@ -815,7 +821,7 @@ export default {
       }
       if (!this.endedActivityData.length) return this.$message('请选择已过期活动执行此操作')
       this.timeVisible = true
-      this.promotionTime = [new Date().getTime() + 30*60*1000, new Date().getTime() + 90*60 * 1000]
+      this.promotionTime = [new Date().getTime() + 30 * 60 * 1000, new Date().getTime() + 90 * 60 * 1000]
     },
     // 确定重启
     async determineRestart() {

@@ -191,7 +191,7 @@
         <p v-else @click="isShow = true">展开<i class="el-icon-caret-bottom" /></p>
       </div>
     </header>
-    <div class="content" :style="{ height: isShow ? '520px' : '800px' }">
+    <div class="content" :style="{ height: isShow ? '520px' : '840px' }">
       <p>
         温馨提示：1、最终毛利 = 订单收入-采购金额-仓库发货金额（生成仓库发货金额才会去计算，会有汇率差）；含邮费毛利 =
         订单收入-采购价；2、若登录了Lazada买手号但点击采购订单号依旧提示登录，请使用编辑采购信息编辑重新保存下拍单信息
@@ -203,8 +203,8 @@
         :border="false"
         :data="tableData"
         tooltip-effect="dark"
-        :height="isShow ? '420px' : '730px'"
-        :row-style="{ height: '60px !important' }"
+        :height="isShow ? 420 : 730"
+        :row-height="60"
         :cell-style="{ padding: '0px' }"
         @selection-change="handleSelectionChange"
       >
@@ -218,8 +218,47 @@
             <span class="tableActive" @click="viewDetails('orderDetail', scope.row.order_id, scope.row.mall_info.platform_mall_id)">{{ scope.row.order_sn }}</span>
           </template>
         </u-table-column>
-        <u-table-column v-if="showTableColumn('站点')" width="80px" label="站点" prop="country" align="center">
-          <template v-if="scope.row.mall_info" slot-scope="scope">{{ scope.row.mall_info.country | chineseSite }}</template>
+        <u-table-column align="center" prop="" label="操作" width="140" v-if="showTableColumn('操作')" fixed="left">
+          <template slot-scope="scope">
+            <el-dropdown style="width: 100px; margin-left: 10px" trigger="click" size="mini">
+              <el-button style="width: 100px" size="mini" plain type="primary"> 操作<i class="el-icon-arrow-down el-icon--right" /> </el-button>
+              <el-dropdown-menu slot="dropdown">
+                <el-dropdown-item> <div class="dropdownItem" @click="singleBuyInfo(scope.row)">采购信息编辑</div></el-dropdown-item>
+                <el-dropdown-item> <div class="dropdownItem" @click="addPurchaseLink(scope.row, scope.$index)">添加采购链接</div></el-dropdown-item>
+                <el-dropdown-item> <div class="dropdownItem" @click="addMoreTrackingNumber(scope.row, scope.$index)">添加多物流单号</div></el-dropdown-item>
+                <el-dropdown-item> <div class="" @click="setColorSingle(scope.row, scope.$index)">标记颜色标识</div></el-dropdown-item>
+                <el-dropdown-item> <div class="" @click="setAbroadSingle(scope.row, scope.$index)">标记海外商品</div></el-dropdown-item>
+                <el-dropdown-item> <div class="" @click="pushOrderToStoreSingle(scope.row, scope.$index)">推送订单至仓库</div></el-dropdown-item>
+                <el-dropdown-item>
+                  <div
+                    class="dropdownItemdropdownItem"
+                    @click="
+                      clickRow = scope.row
+                      billsDetailVisible = true
+                    "
+                  >
+                    账单明细
+                  </div></el-dropdown-item
+                >
+                <el-dropdown-item> <div class="dropdownItem" @click="SyncOrder(scope.row)">同步此店铺订单</div></el-dropdown-item>
+                <el-dropdown-item> <div class="dropdownItem" @click="SyncOrderSingle(scope.row)">同步此订单</div></el-dropdown-item>
+                <el-dropdown-item> <div class="dropdownItem" @click="syncLogisticsSingle(scope.row)">同步此订单物流</div></el-dropdown-item>
+                <el-dropdown-item> <div class="dropdownItem" @click="singlePurchase(scope.row)">重新采购</div></el-dropdown-item>
+                <el-dropdown-item> <div class="dropdownItem" @click="getSHtrackPath(scope.row)">虾皮物流轨迹</div></el-dropdown-item>
+                <el-dropdown-item> <div class="dropdownItem" @click="getorderPath(scope.row)">订单轨迹</div></el-dropdown-item>
+                <el-dropdown-item> <div class="dropdownItem" @click="handleOutOrder(scope.row)">手动发货</div></el-dropdown-item>
+                <el-dropdown-item> <div class="dropdownItem" @click="batchReplyOrderBuyer([scope.row])">回复订单评论</div></el-dropdown-item>
+                <el-dropdown-item> <div class="dropdownItem" @click="viewDetails('itemDetail', scope.row.goods_info.goods_id, scope.row.mall_info.platform_mall_id)">商品编辑</div></el-dropdown-item>
+                <el-dropdown-item> <div class="dropdownItem" @click="goodsDelist(scope.row)">商品下架</div></el-dropdown-item>
+                <el-dropdown-item> <div class="dropdownItem" @click="goodsDelete(scope.row)">商品删除</div></el-dropdown-item>
+                <el-dropdown-item> <div class="dropdownItem" @click="goodsTop(scope.row)">商品置顶</div></el-dropdown-item>
+                <!-- <el-dropdown-item> <div class="dropdownItem" @click="goodsTop(scope.row)">面单打印</div></el-dropdown-item> -->
+              </el-dropdown-menu>
+            </el-dropdown>
+          </template>
+        </u-table-column>
+        <u-table-column width="80px" label="站点" prop="country" align="center" v-if="showTableColumn('站点')">
+          <template slot-scope="scope" v-if="scope.row.mall_info">{{ scope.row.mall_info.country | chineseSite }}</template>
         </u-table-column>
         <u-table-column v-if="showTableColumn('店铺分组')" width="80px" label="店铺分组" prop="country" align="center">
           <template slot-scope="scope">{{ scope.row.group_name }}</template>
@@ -266,12 +305,9 @@
         </u-table-column>
         <u-table-column v-if="showTableColumn('是否可二次销售')" align="center" label="是否可二次销售" width="140">
           <template slot-scope="scope">
-            <el-button
-              v-if="scope.row.shot_order_info.buy_account_info && scope.row.shot_order_info.buy_account_info.second_sale_num"
-              size="mini"
-              type="primary"
-              @click="cancelSecondSale(scope.row)"
-            >取消二次销售</el-button>
+            <el-button v-if="scope.row.shot_order_info.buy_account_info && scope.row.shot_order_info.buy_account_info.second_sale_num" size="mini" type="primary" @click="cancelSecondSale(scope.row)"
+              >取消二次销售</el-button
+            >
             <el-button v-if="scope.row.isSecond" size="mini" type="primary" @click="chooseSecondSale(scope.row)">{{ scope.row.secondSaleTitle }}</el-button>
           </template>
         </u-table-column>
@@ -296,6 +332,9 @@
         </u-table-column>
         <u-table-column v-if="showTableColumn('商品单价')" sortable prop="goods_info.discounted_price" align="center" label="商品单价" width="100">
           <template slot-scope="scope">{{ scope.row.goods_info.discounted_price }}{{ scope.row.country | siteCoin }}</template>
+        </u-table-column>
+        <u-table-column v-if="showTableColumn('商品单价(RMB)')" sortable prop="goods_info.discounted_price" align="center" label="商品单价(RMB)" width="140">
+          <template slot-scope="scope">{{ changeMoney(scope.row.goods_info.discounted_price, scope.row.country) }}</template>
         </u-table-column>
         <u-table-column v-if="showTableColumn('商品数量')" align="center" label="商品数量" width="120">
           <template slot-scope="scope">{{ scope.row.goods_info.goods_count }}</template>
@@ -465,8 +504,8 @@
         </u-table-column>
         <u-table-column v-if="showTableColumn('本地备注')" sortable align="center" prop="remark" label="本地备注" width="150" show-overflow-tooltip>
           <template slot-scope="scope">
-            <div v-show="!(scope.row.id === activeRemarkID ? true : false)" style="cursor: pointer" @click.stop="editRemark(scope.$index, scope.row.id)">
-              <span @dblclick="copyItem(scope.row.remark)">{{ scope.row.remark }}</span>
+            <div v-show="!(scope.row.id === activeRemarkID ? true : false) || scope.row.remark == ''" @click.stop="editRemark(scope.$index, scope.row.id)" style="cursor: pointer; min-width: 20px">
+              <p @dblclick="copyItem(scope.row.remark)" style="color: #000">{{ scope.row.remark }}</p>
               <!-- <el-input v-model="scope.row.remark" disabled size="mini"></el-input> -->
             </div>
             <el-input v-if="scope.row.id === activeRemarkID ? true : false" v-model="orderRemark" size="mini" @blur="changeRemark(scope.row.id, scope.$index)" /></template>
@@ -501,49 +540,11 @@
         <u-table-column v-if="showTableColumn('订单支付时间')" sortable align="center" prop="pay_time " label="订单支付时间" width="140">
           <template slot-scope="scope">{{ scope.row.pay_time }}</template>
         </u-table-column>
-        <u-table-column v-if="showTableColumn('订单更新时间')" sortable align="center" prop="update_time" label="订单更新时间" width="140">
+        <u-table-column sortable align="center" prop="update_time" label="订单更新时间" width="140" v-if="showTableColumn('订单更新时间')">
           <template slot-scope="scope">{{ scope.row.update_time }}</template>
         </u-table-column>
         <u-table-column v-if="showTableColumn('是否为海外仓商品')" align="center" label="是否为海外仓商品" width="120">
           <template slot-scope="scope">{{ scope.row.goods_info.is_overseas_goods == 1 ? '是' : '否' }}</template>
-        </u-table-column>
-        <u-table-column v-if="showTableColumn('操作')" align="center" prop="" label="操作" width="120" fixed="right">
-          <template slot-scope="scope">
-            <el-dropdown style="width: 100px; margin-left: 10px" trigger="click" size="mini">
-              <el-button style="width: 100px" size="mini" plain type="primary"> 操作<i class="el-icon-arrow-down el-icon--right" /> </el-button>
-              <el-dropdown-menu slot="dropdown">
-                <el-dropdown-item> <div class="dropdownItem" @click="singleBuyInfo(scope.row)">采购信息编辑</div></el-dropdown-item>
-                <el-dropdown-item> <div class="dropdownItem" @click="addPurchaseLink(scope.row, scope.$index)">添加采购链接</div></el-dropdown-item>
-                <el-dropdown-item> <div class="dropdownItem" @click="addMoreTrackingNumber(scope.row, scope.$index)">添加多物流单号</div></el-dropdown-item>
-                <el-dropdown-item> <div class="" @click="setColorSingle(scope.row, scope.$index)">标记颜色标识</div></el-dropdown-item>
-                <el-dropdown-item> <div class="" @click="setAbroadSingle(scope.row, scope.$index)">标记海外商品</div></el-dropdown-item>
-                <el-dropdown-item> <div class="" @click="pushOrderToStoreSingle(scope.row, scope.$index)">推送订单至仓库</div></el-dropdown-item>
-                <el-dropdown-item>
-                  <div
-                    class="dropdownItemdropdownItem"
-                    @click="
-                      clickRow = scope.row
-                      billsDetailVisible = true
-                    "
-                  >
-                    账单明细
-                  </div></el-dropdown-item>
-                <el-dropdown-item> <div class="dropdownItem" @click="SyncOrder(scope.row)">同步此店铺订单</div></el-dropdown-item>
-                <el-dropdown-item> <div class="dropdownItem" @click="SyncOrderSingle(scope.row)">同步此订单</div></el-dropdown-item>
-                <el-dropdown-item> <div class="dropdownItem" @click="syncLogisticsSingle(scope.row)">同步此订单物流</div></el-dropdown-item>
-                <el-dropdown-item> <div class="dropdownItem" @click="singlePurchase(scope.row)">重新采购</div></el-dropdown-item>
-                <el-dropdown-item> <div class="dropdownItem" @click="getSHtrackPath(scope.row)">虾皮物流轨迹</div></el-dropdown-item>
-                <el-dropdown-item> <div class="dropdownItem" @click="getorderPath(scope.row)">订单轨迹</div></el-dropdown-item>
-                <el-dropdown-item> <div class="dropdownItem" @click="handleOutOrder(scope.row)">手动发货</div></el-dropdown-item>
-                <el-dropdown-item> <div class="dropdownItem" @click="batchReplyOrderBuyer([scope.row])">回复订单评论</div></el-dropdown-item>
-                <el-dropdown-item> <div class="dropdownItem" @click="viewDetails('itemDetail', scope.row.goods_info.goods_id, scope.row.mall_info.platform_mall_id)">商品编辑</div></el-dropdown-item>
-                <el-dropdown-item> <div class="dropdownItem" @click="goodsDelist(scope.row)">商品下架</div></el-dropdown-item>
-                <el-dropdown-item> <div class="dropdownItem" @click="goodsDelete(scope.row)">商品删除</div></el-dropdown-item>
-                <el-dropdown-item> <div class="dropdownItem" @click="goodsTop(scope.row)">商品置顶</div></el-dropdown-item>
-                <!-- <el-dropdown-item> <div class="dropdownItem" @click="goodsTop(scope.row)">面单打印</div></el-dropdown-item> -->
-              </el-dropdown-menu>
-            </el-dropdown>
-          </template>
         </u-table-column>
       </u-table>
       <div class="pagination">
@@ -2402,6 +2403,9 @@ export default {
     // 表头显示处理
     showTableColumn(name) {
       const hasName = this.columnConfigList.find((item) => item.column_header == name)
+      if (!hasName) {
+        return true
+      }
       if (hasName.is_show === 1) {
         return true
       } else {
@@ -2436,6 +2440,7 @@ export default {
         this.columnVisible = false
         this.getColumnsConfig()
       }
+      this.$refs.multipleTable.doLayout()
     },
     // 获取自定义配置列
     async getColumnsConfig() {
@@ -2446,6 +2451,15 @@ export default {
           this.columnConfigList = columnData
           // return
         } else {
+          let arrIndex = resData.findIndex((n) => n.column_header === '商品单价(RMB)')
+          console.log(arrIndex, 'arrIndex')
+          if (arrIndex < 0) {
+            let obj = {
+              column_header: '商品单价(RMB)',
+              is_show: 1,
+            }
+            resData.push(obj)
+          }
           this.columnConfigList = resData
         }
       }
