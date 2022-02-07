@@ -3197,7 +3197,7 @@ export default {
         params['mItem'] = mItem
         params['pageSize'] = this.pageSize
         params['listType'] = this.goodsStatusName ? this.goodsStatusName : 'all'
-        if ((this.searchType !== 'originId' && this.keyword) || (this.goodsMax < 99999999 && this.goodsMax > 0) || (this.goodsMin > 0 && this.goodsMin < 99999999) || (this.soldMin > 0 && this.soldMin < 99999999) || (this.soldMax < 99999999 && this.soldMax > 0) || this.categoryName) {
+        if ((this.searchType !== 'originId' && this.keyword) || (this.goodsMax < 99999999 && this.goodsMax >= 0) || (this.goodsMin > 0 && this.goodsMin < 99999999) || (this.soldMin > 0 && this.soldMin < 99999999) || (this.soldMax < 99999999 && this.soldMax >= 0) || this.categoryName) {
           if (!(this.queryType === 100 || this.queryType === 200)) {
             if (this.keyword) {
               params['searchType'] = this.searchType
