@@ -2060,7 +2060,7 @@ export default class NetMessageBridgeService {
     } else {
       return {
         code: resObj.status,
-        data: `获取失败${resObj.statusText}`
+        data: `获取失败${resObj.statusText?resObj.statusText:''}`
       }
     }
   }
@@ -2395,12 +2395,12 @@ export default class NetMessageBridgeService {
     }
   }
   // 暂停或继续广告
-  async stopStartAdvent(country, data) {
-    const res = await this.postChinese(country, `/api/marketing/v3/pas/mass_edit/`, data, {
+  async stopStartAdvent(country, data,type) {
+    const res = await this.mixChinese(country, `/api/marketing/v3/pas/mass_edit/`, data, {
       headers: {
         'Content-Type': ' application/json'
       }
-    })
+    },type)
     const resObj = res && JSON.parse(res)
     if (resObj && resObj.status === 200) {
       const info = JSON.parse(resObj.data)
