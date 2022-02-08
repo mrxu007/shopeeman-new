@@ -282,9 +282,9 @@
         <div class="base-box mar-top">
           <span class="base-title">每个广告的预算</span>
           <div class="base-item">
-            <el-radio v-model="budgetSingle" label="1">无限制</el-radio><br />
-            <p v-if="budgetSingle == '1'" style="margin: 5px 0">根据您目前的广告预算余额，您的广告最多可获得0个点击数。</p>
+            <el-radio v-model="budgetSingle" label="1">无限制</el-radio>
             <el-radio v-model="budgetSingle" label="2">设定预算</el-radio>
+            <p v-if="budgetSingle == '1'" style="margin: 5px 0">根据您目前的广告预算余额，您的广告最多可获得0个点击数。</p>
             <div v-if="budgetSingle == '2'" class="item-box mar-top">
               <el-select v-model="budgetType" placeholder="请选择" style="width: 120px" size="mini">
                 <el-option label="每日预算" value="day"> </el-option>
@@ -307,7 +307,7 @@
         <div class="base-box mar-top">
           <span class="base-title">每个广告的时长</span>
           <div class="base-item">
-            <el-radio v-model="timeSingle" label="1">不限时</el-radio><br />
+            <el-radio v-model="timeSingle" label="1">不限时</el-radio>
             <el-radio v-model="timeSingle" label="2">设定开始日期/结束日期</el-radio>
             <div v-if="timeSingle == '2'" class="item-box mar-top">
               <el-date-picker
@@ -319,7 +319,7 @@
                 range-separator="-"
                 start-placeholder="开始日期"
                 end-placeholder="结束日期"
-                :picker-options="pickerOptions"
+                :picker-options="pickerOptions1"
               />
             </div>
           </div>
@@ -467,9 +467,9 @@
                   </template>
                 </el-table-column>
                 <el-table-column label="价格" prop="price" width="80" />
-                <el-table-column label="已选商品数量" width="100">
+                <el-table-column label="商品数" width="60" align="center">
                   <template slot-scope="scope">
-                    <span style="color: green">0</span>
+                    <span style="color: green">{{ chooseGoodsNumber(scope.row.platform_mall_id)}}</span>
                   </template>
                 </el-table-column>
                 <el-table-column label="点击出价" width="180" align="center">
@@ -743,6 +743,10 @@ export default {
     this.setClickPrice()
   },
   methods: {
+    chooseGoodsNumber(id){
+      let filterArr = this.relevanceList.filter(n=> {return n.platform_mall_id == id})
+      return filterArr.length
+    },
     cancel() {
       this.loading = false
       terminateThread()
@@ -1061,6 +1065,7 @@ export default {
         return this.$message.warning('请选择店铺！')
       }
       this.createType = 'batch'
+      this.adventType = 'keyword'
       this.createAdventVisible = true
     },
     //批量添加关键词广告
@@ -1342,6 +1347,7 @@ export default {
         })
       }
       this.createType = 'single'
+      this.adventType = 'keyword'
       this.goodsItemSelectorVisible = true
     },
     //导出数据
