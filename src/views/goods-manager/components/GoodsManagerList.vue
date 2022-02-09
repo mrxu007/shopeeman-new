@@ -1060,7 +1060,6 @@ export default {
       getDescriptionVisible: false,
       operationBut: false,
       flag: false, // 判断是否停止
-      cursor: null,
       upDown: true,
       GoodsList: new GoodsList(this),
 
@@ -3152,6 +3151,7 @@ export default {
         item.pageNumber = 1
         item.mylist = []
         item.isFlag = true
+        item.cursor = ''
       })
       this.index = 1
       for (let i = 0; i < this.goodsStatus.length; i++) {
@@ -3170,13 +3170,13 @@ export default {
             item.pageNumber = 1
             item.mylist = []
             item.isFlag = true
+            item.cursor = ''
           })
           await batchOperation(this.selectMallList, this.getTableData)
         }
       }
       this.operationBut = false
       this.showConsole = true
-      this.cursor = null
       this.$refs.Logs.writeLog(`查询完成`, true)
       if (this.queryType === 100 || this.queryType === 200) {
         if (this.tableData?.length > 0) {
@@ -3213,15 +3213,15 @@ export default {
           // 销售量
           params['soldMin'] = this.soldMin
           params['soldMax'] = this.soldMax
-          if (this.cursor) {
-            params['cursor'] = this.cursor
+          if (mItem.cursor) {
+            params['cursor'] = mItem.cursor
           }
           res = await this.GoodsList.searchProductList(params)
         } else {
           res = await this.GoodsList.getMpskuList(params)
         }
         if (res.code === 200) {
-          this.cursor = res.data.page_info.cursor
+          mItem.cursor = res.data.page_info.cursor
           if (res.data.list?.length) {
             // 组装数据
             await this.setTableData(res.data.list, mItem, mallName)
@@ -3231,11 +3231,11 @@ export default {
               this.tableData = this.tableData.concat(fData)
               this.queryNum = this.tableData.length
               this.rowSelection(fData, true, {})
-              this.$refs.Logs.writeLog(`查询店铺【${mallName}】第【${mItem.pageNumber}】页数据：${res.data.list.length}`, true)
-              if (len > 0) this.$refs.Logs.writeLog(`【${mallName}】第【${mItem.pageNumber}】页过滤数据【${len}】条`, false)
             } else {
               mItem.mylist = fData
             }
+            this.$refs.Logs.writeLog(`查询店铺【${mallName}】第【${mItem.pageNumber}】页数据：${res.data.list.length}`, true)
+            if (len > 0) this.$refs.Logs.writeLog(`【${mallName}】第【${mItem.pageNumber}】页过滤数据【${len}】条`, false)
             console.log('tableData', res.data.list)
           }
         } else {
@@ -3434,20 +3434,19 @@ export default {
           continue
         }
         // 过滤更新时间
-        if (this.modifyTime?.length && !(item.modify_time >= this.modifyTime[0])) {
+        if (this.modifyTime?.length && item.modify_time < this.modifyTime[0]) {
           continue
         }
-        if (this.modifyTime?.length && !(item.modify_time <= new Date(this.modifyTime[1]).getTime())) {
+        if (this.modifyTime?.length && item.modify_time > new Date(this.modifyTime[1]).getTime()) {
           continue
         }
         // 过滤创建时间
-        if (this.createTime?.length && !(item.create_time >= this.createTime[0])) {
+        if (this.createTime?.length && item.create_time < this.createTime[0]) {
           continue
         }
-        if (this.createTime?.length && !(item.create_time <= new Date(this.createTime[1]).getTime())) {
+        if (this.createTime?.length && item.create_time > new Date(this.createTime[1]).getTime()) {
           continue
         }
-
         // 过滤价格
         if (!(Number(item.price) >= Number(this.priceMin))) {
           continue
