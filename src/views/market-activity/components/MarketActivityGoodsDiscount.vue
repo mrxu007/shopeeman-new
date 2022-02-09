@@ -693,7 +693,7 @@ export default {
                 obj2.platform_mall_name = val.mallName
                 obj2.country = val.country
                 obj2.platform_mall_id = val.platform_mall_id
-                obj2.promotion_price = objDiscount.promotion_price
+                obj2.promotion_price = objDiscount?objDiscount.promotion_price:0
                 obj2.discount = discountPriceInfo && discountPriceInfo.price_info ? (1 - obj2.promotion_price / obj2.normal_price).toFixed(2) : ''
                 let index = this.editTableData.findIndex((n) => n.deleteStatus && obj2.itemid === n.itemid)
                 if (index < 0) {
