@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-11-16 15:41:36
- * @LastEditTime: 2022-01-20 14:58:22
+ * @LastEditTime: 2022-02-10 15:38:30
  * @LastEditors: Please set LastEditors
  * @Description: 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  * @FilePath: \shopeeman-new\src\views\order-manager\components\orderCenter\goodsOutStore.vue
@@ -238,7 +238,7 @@ export default {
   },
   mounted() {
     this.exchangeRateList()
-    console.log(this.outStoreType)
+    // this.chooseData = this.uniqueArr(this.chooseData)
     this.orderInfo = this.chooseData[0]
     this.income = 0
     this.incomeRmb = 0
@@ -257,7 +257,7 @@ export default {
         numberS += Number(item.outStock)
       })
       this.outTotalStock = numberS
-      this.outTotalPriceRmb = price
+      this.outTotalPriceRmb = price.toFixed(2)
       this.outTotalPrice = (price * Number(this.rateList[this.orderInfo.country])).toFixed(2)
       this.grossProfit = (this.incomeRmb - this.outTotalPriceRmb).toFixed(2)
       this.interestRate = this.outTotalPriceRmb ? Math.round((this.grossProfit / this.outTotalPriceRmb) * 100).toFixed(2) : 100
@@ -334,6 +334,7 @@ export default {
       arr.forEach((item) => {
         widInfo[item.wid] = item.wid
         let obj = {
+          order_sn: item.orderSn,
           sys_sku_id: item.sys_sku_id,
           sku_id: item.sku_id,
           sku_name: item.sku_name,
@@ -381,12 +382,12 @@ export default {
         return this.$message.warning('出库数量不能为零！')
       }
       //国内仓出库：如果是台湾站，不校验是否存在面单和平台物流单号,其它校验
-      console.log(
-        this.orderInfo.country != 'TW' && this.flagBool == false && this.orderInfo.tracking_no == '',
-        this.orderInfo.country != 'TW',
-        this.flagBool == false,
-        this.orderInfo.tracking_no == ''
-      )
+      // console.log(
+      //   this.orderInfo.country != 'TW' && this.flagBool == false && this.orderInfo.tracking_no == '',
+      //   this.orderInfo.country != 'TW',
+      //   this.flagBool == false,
+      //   this.orderInfo.tracking_no == ''
+      // )
       if (this.orderInfo.country != 'TW' && (this.flagBool == false || this.orderInfo.tracking_no == '')) {
         this.flagText = '该订单面单信息或物流单号不存在，无法出库！'
         return this.$message.warning('该订单面单信息或物流单号不存在，无法出库！')
@@ -397,6 +398,7 @@ export default {
       this.matchOrderList.forEach((item) => {
         widInfo[item.wid] = item.wid
         let obj = {
+          order_sn: item.orderSn,
           sku_id: item.sku_id,
           goods_name: item.goods_name,
           goods_img: item.sku_image,
