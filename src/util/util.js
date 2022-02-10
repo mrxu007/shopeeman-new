@@ -1031,8 +1031,9 @@ export function imageCompressionUpload(mall, imageList, that, thread = 3) {
   async function imageUpload(item, count = { count: 1 }) {
     try {
       let imageUrl = item.url || ''
-      if (imageUrl && !imageUrl.includes('http://') && !imageUrl.includes('https://')) {
-        imageUrl = that.$filters.imageRender([imageUrl])
+      if (imageUrl && !imageUrl.includes('http://') &&
+        !imageUrl.includes('https://') && !imageUrl.includes('base64,')) {
+        imageUrl = that.$filters.imageRender([imageUrl]) || imageUrl
       }
       const base64File = await getBase64file(imageUrl)
       const country = that.country || mall.country

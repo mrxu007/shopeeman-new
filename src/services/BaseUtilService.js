@@ -156,8 +156,24 @@ export default class BaseUtilService {
   async clearGoodsTranslateInfo(start, end) {
     return this.nativeService.clearGoodsTranslateInfo(start, end)
   }
-  // 验证是否清空翻译缓存
+
+  /**
+   * 获取翻译缓存
+   * @param fromLanguage 原语言
+   * @param toLanguage 翻译后语言
+   * @param text 原数据
+   * @returns {Promise<*>}
+   */
   async getGoodsTranslateInfo(fromLanguage, toLanguage, text) {
     return this.nativeService.getGoodsTranslateInfo(fromLanguage, toLanguage, text)
+  }
+
+  /**
+   * 保存翻译
+   * @param jsonStr
+   * @returns {*}
+   */
+  async saveGoodsTranslation(jsonStr){
+    return this.nativeService.saveGoodsTranslation(jsonStr)
   }
 }

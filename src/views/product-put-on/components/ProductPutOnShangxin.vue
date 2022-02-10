@@ -643,7 +643,7 @@
                   </div>
                 </template>
               </u-table-column>
-              <u-table-column align="left" width="130px">
+              <u-table-column align="left" width="142px">
                 <template slot="header" slot-scope="scope">
                   商品分类ID
                   <el-tooltip class="item" effect="dark" content="分类ID请至【商品管理】 - 【商店分类】中查看" placement="top-end">
@@ -973,10 +973,12 @@ import {
   terminateThread,
   getSectionRandom,
   imageCompressionUpload,
-  randomWord
+  randomWord, sleep
 } from '@/util/util'
 import GUID from '@/util/guid'
 import MallListAPI from '@/module-api/mall-manager-api/mall-list-api'
+import GoodsManagerAPI from '@/module-api/goods-manager-api/goods-data'
+import GoodsDiscount from '@/module-api/market-activity-api/goods-discount'
 
 export default {
   data() {
@@ -1282,7 +1284,10 @@ export default {
         }
       },
       uploadImgAdd: false,
-      watermarkPreviewType: 1
+      watermarkPreviewType: 1,
+
+      GoodsManagerAPIInstance: new GoodsManagerAPI(this),
+      GoodsDiscount: new GoodsDiscount(this),
     }
   },
   computed: {},
@@ -1390,64 +1395,19 @@ export default {
   },
   async mounted() {
     try {
-      // this.$IpcMain.on('gotoUpload', async e => { // 点听
-      //   let goodsListJSON = await this.$BaseUtilService.getUploadGoodsId()
-      //   console.log('goodsListJSON', goodsListJSON)
-      //   let goodsList = JSON.parse(goodsListJSON)
-      //   for (let item of goodsList) {
-      //     let index = this.goodsTable.findIndex(i => i.id === item.id)
-      //     index >= 0 && this.$set(this.goodsTable, index, item) || this.goodsTable.push(item)
-      //   }
-      //   console.log(this.goodsTable)
-      //   await this.$BaseUtilService.gotoUploadTab('updateId', '')
-      // })
+      this.$IpcMain.on('gotoUpload', async e => { // 点听
+        let goodsListJSON = await this.$BaseUtilService.getUploadGoodsId()
+        console.log('goodsListJSON', goodsListJSON)
+        let goodsList = JSON.parse(goodsListJSON)
+        for (let item of goodsList) {
+          let index = this.goodsTable.findIndex(i => i.id === item.id)
+          index >= 0 && this.$set(this.goodsTable, index, item) || this.goodsTable.push(item)
+        }
+        this.statistics.count = this.goodsTable.length
+        await this.$BaseUtilService.gotoUploadTab('updateId', '')
+      })
       let info = await this.$appConfig.getUserInfo()
       this.rateList = info.ExchangeRates || {}
-      let goodsList = [{
-        'category_id': 8483,
-        'category_name': '牛仔裤',
-        'created_at': '2021-12-31 15:50:11',
-        'deleted_at': '0001-01-01T00:00:00Z',
-        'description': 'กางเกงยีนส์สีดำสำหรับผู้หญิง 2021 ใหม่ เอวสูง ทรงสลิม ทรงหลวม แฟชั่น กางเกงขายาว ทรงตรง ครอป แบรนด์: Senda\r\nสไตล์: กางเกงทรงตรง\r\nประเภทเอว: เอวสูง\r\nความยาวกางเกง: เก้ากางเกง\r\nสไตล์: เดินทางง่าย/เวอร์ชั่นเกาหลี\r\nองค์ประกอบยอดนิยม: ซิป\r\nผ้า/วัสดุ: เดนิม/ผ้าฝ้าย\r\nเนื้อหาส่วนผสม: 81% (รวม) -90% (รวม)\r\nไม่ว่าจะเพิ่มกำมะหยี่: ไม่มีกำมะหยี่\r\nเวลาออกสู่ตลาด: ฤดูใบไม้ร่วง 2021',
-        'goods_id': 292647902010,
-        'height': 10,
-        'id': 166292339,
-        'image': 'https://img.pddpic.com/mms-material-img/2021-09-08/6d3b4996-c4ee-4832-a4e1-530b642957ad.jpeg.a.jpeg',
-        'is_badword': '',
-        'is_blacklist': '',
-        'is_edit_description': 1,
-        'is_edit_title': 1,
-        'is_featured': '-1',
-        'language': 'th',
-        'long': 10,
-        'pid': 166289836,
-        'price': 51.97,
-        'sales': 100000,
-        'shopee_category': null,
-        'short_title': null,
-        'size_image_id': 0,
-        'source': 1,
-        'spec1': 'Variation',
-        'spec2': 'Size',
-        'stock': 2100,
-        'synchronized_at': '0001-01-01T00:00:00Z',
-        'title': 'กางเกงยีนส์ผู้หญิงสีดำ 2021 ใหม่เอวสูงบางหลวมอินเทรนด์ตรงยืดกางเกงตัด',
-        'uid': 974,
-        'updated_at': '2022-01-04 17:57:45',
-        'uuid': 0,
-        'weight': 1,
-        'width': 10,
-        'zhTitle': '',
-        'extra_info': '{"videoUrl": "[]"}',
-        'sys_label_id': '22648',
-        'sys_label_name': '123',
-        'sourceName': '拼多多'
-      }]
-      for (let item of goodsList) {
-        let index = this.goodsTable.findIndex(i => i.id === item.id)
-        index >= 0 && this.$set(this.goodsTable, index, item) || this.goodsTable.push(item)
-      }
-      this.statistics.count = this.goodsTable.length
       let valuationConfigRes = await this.$api.valuationConfigGetAll()
       this.valuationLabelList = valuationConfigRes && valuationConfigRes.data.data || []
       console.log(this.valuationLabelList)
@@ -1622,7 +1582,7 @@ export default {
           if (tier_variation[tier_variation.spec2].length > 0) {
             goodsParam['tier_variation'].push({
               name: tier_variation.spec2,
-              options: [tier_variation[tier_variation.spec2].map(i => i.substring(0, 20).trim())],
+              options: [...tier_variation[tier_variation.spec2].map(i => i.substring(0, 20).trim())],
               images: []
             })
           }
@@ -1670,9 +1630,8 @@ export default {
           }
           // images size_chart
           let imagesList = neededTranslateInfoData.images
-          let imageTemp = await this.additionalWatermarking(imagesList[0], mall)
-          console.log(imagesList)
-          return
+          let imageTemp = false
+
           if (this.associatedConfig.pictureSetting.firstChecked) {
             imagesList.splice(0, 1)
           }
@@ -1694,6 +1653,28 @@ export default {
             let newMain = imagesList.splice(this.associatedConfig.pictureSetting.index, 1)
             imagesList = [...newMain, ...imagesList]
           }
+          if (this.associatedConfig.pictureSetting.whiteChecked) {
+            let image = imagesList[0]
+            let byUrlRes = await this.$MattingService.getDrawbotMattingByUrl(image, new Date().getTime() + '.png')
+            if (byUrlRes.Code === 200) {
+              let byUrlData = byUrlRes.Data
+              let ImageURL = byUrlData.Data && byUrlData.Data.ImageURL
+              imagesList[0] = ImageURL || image
+            }
+          }
+          if (this.watermarkConfig.addType === 0) {
+            imageTemp = await this.additionalWatermarking(imagesList[0], mall)
+            imagesList[0] = imageTemp || imagesList[0]
+          } else {
+            for (let i = 0; i < imagesList.length; i++) {
+              imageTemp = await this.additionalWatermarking(imagesList[i], mall)
+              imagesList[i] = imageTemp || imagesList[i]
+              if (!imageTemp) {
+                return
+              }
+            }
+          }
+          console.log(imagesList)
           goodsParam['images'] = imagesList
           if (neededTranslateInfoData.sizeImages && neededTranslateInfoData.sizeImages[0]) {
             goodsParam['size_chart'] = neededTranslateInfoData.sizeImages[0].img || ''
@@ -1760,10 +1741,68 @@ export default {
               goodsParam['images'] = imageList.slice(0, 9)
             }
           }
+          console.log(goodsParam)
+          await sleep(this.associatedConfig.onNewInterval * 1000)
           let resJSON = await this.$shopeemanService.createProduct(this.country, { mallId: mall.platform_mall_id }, [goodsParam])
           console.log('createProduct', resJSON)
+          if (resJSON.code === 200) {
+            this.updateAttributeName(item, '发布完成')
+            console.log('sellActiveSetting', this.sellActiveSetting)
+            if (this.storeConfig.activityChecked) {
+              let product_id = resJSON.data && resJSON.data.product_id
+              let sellActive = this.sellActiveSetting.find(item => item.platform_mall_id === mall.platform_mall_id)
+              if (sellActive.goodsId) {
+                const params = {
+                  country: this.country,
+                  mallId: mall.platform_mall_id,
+                  collection_id: Number(sellActive.goodsId), // 分类id
+                  product_id_list: [product_id] // 商品id
+                }
+                const res = await this.GoodsManagerAPIInstance.addCollectionGoods(params)
+                if (res.ecode === 0) {
+                  this.$message.success('添加成功')
+                } else {
+                  this.$message.warning(`添加失败${res.message}`)
+                }
+              }
+              if (sellActive.discountId && sellActive.number && sellActive.discount) {
 
-          this.updateAttributeName(item, '发布完成')
+                const params = {}
+                params['product_id'] = productId
+                params['version'] = '3.2.0'
+                params['shop_id'] = item.platform_mall_id
+                const detailRes = await this.$shopeemanService.searchProductDetail(item.country, params)
+                if (detailRes.code === 200) {
+                  const discount_model_list = []
+                  detailRes.data.model_list.forEach(i => {
+                    const obj = {
+                      discount : Math.floor(100 - sellActive.discount),
+                      itemid: product_id,
+                      model_name : i.name,
+                      modelid: i.id,
+                      price_before_discount : Number(i.price),
+                      promotion_price :  (i.price * sellActive.discount / 100).toFixed(2),
+                      promotionid : sellActive.discountId,
+                      selected: true,
+                      shopid: Number(item.platform_mall_id),
+                      status: 1,
+                      total_item_limit: 0,
+                      user_item_limit : sellActive.number,
+                    }
+                    discount_model_list.push(obj)
+                  })
+                  const creatParams = {
+                    discount_id: sellActive.discountId,
+                    discount_model_list,
+                    mallId: item.platform_mall_id
+                  }
+                  await this.GoodsDiscount.putModelActive(item.country, creatParams)
+                }
+              }
+            }
+          } else {
+            this.updateAttributeName(item, '发布失败')
+          }
         }
       } catch (e) {
         console.log(e)
@@ -1874,58 +1913,97 @@ export default {
           canvas.height = image.height
           const context = canvas.getContext('2d')
           context.drawImage(image, 0, 0, image.width, image.height)
+          let dx = 0, dy = 0
           if (setting.type === 1) {
-
-          }
-          else if (setting.type === 2) {
+            let text = ''
+            if (that.watermarkConfig.textType === 1) {
+              text = mall.mall_alias_name || mall.platform_mall_name
+            } else if (that.watermarkConfig.textType === 2) {
+              text = mall.platform_mall_name
+            } else if (that.watermarkConfig.textType === 3) {
+              text = mall.platform_mall_name
+            }
+            context.font = `${that.watermarkConfig.textSize}px "微软雅黑"`
+            context.fillStyle = that.watermarkConfig.textColor
+            context.textBaseline = 'top'
+            if (setting.locate === 1) {
+              context.textAlign = 'left'
+              dx = 5
+              dy = 5
+            } else if (setting.locate === 2) {
+              context.textAlign = 'left'
+              dx = 5
+              dy = Math.floor(image.height) - 5
+            } else if (setting.locate === 3) {
+              context.textAlign = 'right'
+              dx = Math.floor(image.width) - 5
+              dy = 5
+            } else if (setting.locate === 4) {
+              context.textAlign = 'right'
+              dx = Math.floor(image.width) - 5
+              dy = Math.floor(image.height) - 5
+            } else if (setting.locate === 5) {
+              context.textBaseline = 'center'
+              context.textAlign = 'center'
+              dx = Math.floor((image.width) / 2)
+              dy = Math.floor((image.height) / 2)
+            }
+            context.fillText(text, dx, dy)
+            let base64 = canvas.toDataURL('image/png')
+            resolve(base64)
+          } else {
             if (setting.watermarkImg) {
               let watermark = new Image()
               watermark.src = setting.watermarkImg
               watermark.onload = async() => {
-                if (setting.imgSize === 1) {
-                  watermark.width = Math.floor(image.width / 5)
-                  watermark.height = Math.floor(image.height / 5)
-                } else if (setting.imgSize === 2) {
-                  watermark.width = image.width
-                } else if (setting.imgSize === 3) {
-                  watermark.height = image.height
+                if (setting.type === 2) {
+                  if (setting.imgSize === 1) {
+                    watermark.width = Math.floor(image.width / 5)
+                    watermark.height = Math.floor(image.height / 5)
+                  } else if (setting.imgSize === 2) {
+                    watermark.width = image.width
+                  } else if (setting.imgSize === 3) {
+                    watermark.height = image.height
+                  }
+                  if (setting.locate === 1) {
+                    dx = 5
+                    dy = 5
+                  } else if (setting.locate === 2) {
+                    dx = 5
+                    dy = Math.floor(image.height - watermark.height) - 5
+                  } else if (setting.locate === 3) {
+                    dx = Math.floor(image.width - watermark.width) - 5
+                    dy = 5
+                  } else if (setting.locate === 4) {
+                    dx = Math.floor(image.width - watermark.width) - 5
+                    dy = Math.floor(image.height - watermark.height) - 5
+                  } else if (setting.locate === 5) {
+                    dx = Math.floor((image.width - watermark.width) / 2)
+                    dy = Math.floor((image.height - watermark.height) / 2)
+                  }
+                  if (image.width <= watermark.width) {
+                    dx = 0
+                  }
+                  if (image.height <= watermark.height) {
+                    dy = 0
+                  }
+                  watermark.style.opacity = setting.clarity
+                  context.globalAlpha = setting.clarity
+                } else {
+                  watermark.width = watermark.width < image.width && watermark.width || image.width
+                  watermark.height = watermark.height < image.height && watermark.height || image.height
+                  context.globalAlpha = 1
                 }
-                let dx = 0, dy = 0
-                if (setting.locate === 1) {
-                  dx = 5
-                  dy = 5
-                } else if (setting.locate === 2) {
-                  dx = 5
-                  dy = Math.floor(image.height - watermark.height) - 5
-                } else if (setting.locate === 3) {
-                  dx = Math.floor(image.width - watermark.width) - 5
-                  dy = 5
-                } else if (setting.locate === 4) {
-                  dx = Math.floor(image.width - watermark.width) - 5
-                  dy = Math.floor(image.height - watermark.height) - 5
-                } else if (setting.locate === 5) {
-                  dx = Math.floor((image.width- watermark.width)/2 )
-                  dy = Math.floor((image.height - watermark.height) /2)
-                }
-                if (image.width <= watermark.width) {
-                  dx = 0
-                }
-                if (image.height <= watermark.height) {
-                  dy = 0
-                }
-                watermark.style.opacity = setting.clarity
+                context.beginPath()
                 context.drawImage(watermark, dx, dy, watermark.width, watermark.height)
-                console.log(dx, dy)
-                console.log(watermark.width, watermark.height,watermark)
+                context.closePath()
+                context.save()
                 let base64 = canvas.toDataURL('image/png')
-                console.log(base64)
-                that.goodsTable[0].image = base64
+                // that.goodsTable[0].image = base64
+                resolve(base64)
               }
             }
           }
-          else if (setting.type === 3) {
-          }
-
         }
       })
     },
@@ -2167,21 +2245,57 @@ export default {
     },
     async updateSellActive(type) {
       if (type) {
-        this.sellActiveTable.forEach(item => {
-          let index = this.sellActiveSetting.findIndex(i => i.platform_mall_id === item.platform_mall_id)
-          if (item.discount && item.number || item.goodsId) {
-            if (index > -1) {
-              this.sellActiveSetting[index] = item
-            } else {
-              this.sellActiveSetting.push(item)
-            }
-          } else {
-            if (index > -1) {
-              this.sellActiveSetting.splice(index, 1)
+        let noSell = this.sellActiveTable.find(i => {
+          if (!i.goodsId) {
+            if (!i.discountId || !i.discount || !i.number) {
+              return i
             }
           }
         })
-        this.sellActiveVisible = false
+        console.log(noSell)
+        if (noSell) {
+          this.$confirm('部分折扣活动未配置折扣信息，是否放弃并继续？', '提示', {
+            confirmButtonText: '继续',
+            cancelButtonText: '取消',
+            type: 'warning'
+          }).then(() => {
+            this.sellActiveTable.forEach(item => {
+              let index = this.sellActiveSetting.findIndex(i => i.platform_mall_id === item.platform_mall_id)
+              if (item.discount && item.number || item.goodsId) {
+                if (index > -1) {
+                  this.sellActiveSetting[index] = item
+                } else {
+                  this.sellActiveSetting.push(item)
+                }
+              } else {
+                if (index > -1) {
+                  this.sellActiveSetting.splice(index, 1)
+                }
+              }
+            })
+            console.log(this.sellActiveSetting)
+            this.sellActiveVisible = false
+          }).catch(() => {
+          })
+        } else {
+          this.sellActiveTable.forEach(item => {
+            let index = this.sellActiveSetting.findIndex(i => i.platform_mall_id === item.platform_mall_id)
+
+            if (item.discount && item.number || item.goodsId) {
+              if (index > -1) {
+                this.sellActiveSetting[index] = item
+              } else {
+                this.sellActiveSetting.push(item)
+              }
+            } else {
+              if (index > -1) {
+                this.sellActiveSetting.splice(index, 1)
+              }
+            }
+          })
+          console.log(this.sellActiveSetting)
+          this.sellActiveVisible = false
+        }
       } else {
         let discount = parseInt(this.sellActiveCurrent.discount)
         let number = parseInt(this.sellActiveCurrent.number)
