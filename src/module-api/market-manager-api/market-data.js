@@ -531,6 +531,47 @@ export default class MarketManagerAPI {
       return { code: -2, data: `delPromotion-catch: ${error}` }
     }
   }
+  // 改变加购显示
+  async changeBuyShow(goodsinfo) {
+    try {
+      const { country, mallId,
+        add_on_deal_id,
+        add_on_deal_name,
+        start_time,
+        end_time,
+        sub_type,
+        sub_item_limit,
+        sub_item_priority
+      } = goodsinfo
+      const params = {
+        mallId: mallId,
+        add_on_deal_id: add_on_deal_id,
+        add_on_deal_name: add_on_deal_name,
+        start_time: start_time,
+        end_time: end_time,
+        sub_type: sub_type,
+        sub_item_limit: sub_item_limit,
+        sub_item_priority: sub_item_priority
+      }
+      debugger
+      const res = await this._this.$shopeemanService.postChineseReferer(country, '/api/marketing/v3/add_on_deal/?', params, {
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json, application/xml, text/json, text/x-json, text/javascript, text/xml',
+          referer: `/portal/marketing/add-on-deal/list?tab=list`
+        }
+      })
+      debugger
+      const des = JSON.parse(res)
+      const data = JSON.parse(des.data)
+      const ecode = data?.data ? data.code : data.errcode
+      const message = data.message
+      //   console.log('=============', 'mallid:' + params.mallId, ecode, des)
+      return { ecode, data, message }
+    } catch (error) {
+      return { code: -2, data: `delPromotion-catch: ${error}` }
+    }
+  }
   // 加购优惠--创建活动-保存主要商品信息(添加、开启知名度、删除)
   async ActiveAddMasterGooods(goodsinfo) {
     try {
@@ -557,6 +598,7 @@ export default class MarketManagerAPI {
       const data = JSON.parse(des.data)
       const ecode = data?.data ? data.code : data.errcode
       const message = data.message
+      // 3450015 商品不能重复参与同一时段的活动，该商品正在参与其他活动
       //   console.log('=============', 'mallid:' + params.mallId, ecode, des)
       return { ecode, data, message }
     } catch (error) {
@@ -693,6 +735,31 @@ export default class MarketManagerAPI {
       return { ecode, data, message }
     } catch (error) {
       return { code: -2, data: `delPromotion-catch: ${error}` }
+    }
+  }
+  // 加购优惠--停止活动
+  async stopOndealList(goodsinfo) {
+    try {
+      const { country, mallId, status, add_on_deal_id } = goodsinfo
+      const params = {
+        mallId: mallId,
+        action: 2,
+        add_on_deal_id: add_on_deal_id
+      }
+      const res = await this._this.$shopeemanService.postChineseReferer(country, '/api/marketing/v3/add_on_deal/operation/?', params, {
+        headers: {
+          'Content-Type': 'application/json; charset=utf-8',
+          'Accept': 'application/json, text/plain, */*',
+          referer: `/portal/marketing/add-on-deal/list?status=${status}&searchType=promotion_name`
+        }
+      })
+      const des = JSON.parse(res)
+      const data = JSON.parse(des.data)
+      const ecode = data?.data ? data.code : data.errcode
+      const message = data.message
+      return { ecode, data, message }
+    } catch (error) {
+      return { code: -2, data: `stopOndealList-catch: ${error}` }
     }
   }
 
