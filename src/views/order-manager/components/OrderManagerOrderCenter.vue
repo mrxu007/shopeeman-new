@@ -449,7 +449,7 @@
         <u-table-column v-if="showTableColumn('采购时间')" sortable prop="shot_order_info.shotted_at" align="center" label="采购时间" width="140">
           <template slot-scope="scope">{{ scope.row.shot_order_info.shotted_at }}</template>
         </u-table-column>
-        <u-table-column v-if="showTableColumn('采购订单号')" label="采购订单号" width="150">
+        <u-table-column v-if="showTableColumn('采购订单号')" label="采购订单号" width="150" show-overflow-tooltip>
           <template slot-scope="scope">
             <i v-if="scope.row.shot_order_info.shot_order_sn" class="el-icon-document-copy copyStyle tableActive" @click="copyItem(scope.row.shot_order_info.shot_order_sn)" />
             <span class="tableActive" @click="clickBuyOrder(scope.row)">{{ scope.row.shot_order_info.shot_order_sn }}</span>
@@ -646,7 +646,7 @@
     <!-- 四类商品出库 -->
     <el-dialog v-if="goodsOutStoreVisible" :visible.sync="goodsOutStoreVisible" width="1400px" top="5vh" :close-on-click-modal="false">
       <div slot="title">{{ outStoreTitle }}</div>
-      <goods-out-store :choose-data="multipleSelection" :out-store-type="outStoreType" @close="closeDialog" />
+      <goods-out-store :choose-data="uniqueArr(multipleSelection)" :out-store-type="outStoreType" @close="closeDialog" />
     </el-dialog>
     <el-dialog v-if="addBuyLinkVisible" title="添加采购链接" :visible.sync="addBuyLinkVisible" width="1200px" append-to-body :close-on-click-modal="false" @close="closeDialog">
       <buy-link :link-row="clickRow" @close="closeDialog" />
@@ -1020,6 +1020,16 @@ export default {
     })
   },
   methods: {
+     //去重
+    uniqueArr(arr) {
+      let map = new Map()
+      for (let item of arr) {
+        if (!map.has(item.main_order_sn)) {
+          map.set(item.main_order_sn, item)
+        }
+      }
+      return [...map.values()]
+    },
     async clickBuyOrder(row) {
       console.log(row, 'row', this.buyerAccountList)
       if (!row.shot_order_info.buy_account_info) {

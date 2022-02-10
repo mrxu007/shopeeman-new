@@ -139,7 +139,7 @@
         <u-table-column align="center" label="商品数量" min-width="80">
           <template slot-scope="scope">{{ scope.row.goods_count }}</template>
         </u-table-column>
-        <u-table-column align="center" prop="123456" label="商品详情" min-width="100">
+        <u-table-column align="center" prop="123456" label="商品详情" min-width="120">
           <template slot-scope="scope">
             <el-button size="mini" type="primary" @click="openGoodsDetail(scope.row)">商品详情</el-button>
           </template>
