@@ -531,6 +531,51 @@ export default class MarketManagerAPI {
       return { code: -2, data: `delPromotion-catch: ${error}` }
     }
   }
+  // 加购优惠--编辑活动-保存活动
+  async saveActiveEdit(goodsinfo) {
+    try {
+      const { country, mallId,
+        add_on_deal_id,
+        add_on_deal_name,
+        start_time,
+        end_time,
+        sub_type,
+        sub_item_limit,
+        purchase_min_spend,
+        per_gift_num } = goodsinfo
+      const params = {
+        mallId: mallId,
+        add_on_deal_id: add_on_deal_id,
+        add_on_deal_name: add_on_deal_name,
+        start_time: start_time,
+        end_time: end_time,
+        sub_type: sub_type,
+        sub_item_limit: sub_item_limit,
+        purchase_min_spend: purchase_min_spend,
+        per_gift_num: per_gift_num
+      }
+      if (sub_type === '0') {
+        delete params.purchase_min_spend && params.per_gift_num
+      } else {
+        delete params.sub_item_limit
+      }
+      const res = await this._this.$shopeemanService.postChineseReferer(country, '/api/marketing/v3/add_on_deal/?', params, {
+        headers: {
+          'Content-Type': 'application/json; charset=utf-8',
+          'Accept': 'application/json, text/plain, */*',
+          referer: `/portal/marketing/add-on-deal/list?tab=list`
+        }
+      })
+      const des = JSON.parse(res)
+      const data = JSON.parse(des.data)
+      const ecode = data?.data ? data.code : data.errcode
+      const message = data.message
+      //   console.log('=============', 'mallid:' + params.mallId, ecode, des)
+      return { ecode, data, message }
+    } catch (error) {
+      return { code: -2, data: `delPromotion-catch: ${error}` }
+    }
+  }
   // 改变加购显示
   async changeBuyShow(goodsinfo) {
     try {
