@@ -83,7 +83,7 @@
                 <el-input size="mini" type="primary" v-model="keyWords" placeholder="可输入商品标题查询活动"></el-input>
               </div>
               <el-button type="primary" size="mini" class="mar-left" @click="batchGetAdventList" :disabled="loading">搜 索</el-button>
-              <el-button type="primary" size="mini">停止搜索</el-button>
+              <el-button type="primary" size="mini" @click="cancel">停止搜索</el-button>
               <el-checkbox v-model="showConsole" class="mar-left">隐藏日志</el-checkbox>
             </div>
             <div class="select-row">
@@ -100,6 +100,7 @@
     </div>
     <div class="content">
       <u-table
+        v-loading="loading"
         ref="editPlTable"
         :data="tableData"
         use-virtual
@@ -281,9 +282,9 @@
         <div class="base-box mar-top">
           <span class="base-title">每个广告的预算</span>
           <div class="base-item">
-            <el-radio v-model="budgetSingle" label="1">无限制</el-radio><br />
-            <p v-if="budgetSingle == '1'" style="margin: 5px 0">根据您目前的广告预算余额，您的广告最多可获得0个点击数。</p>
+            <el-radio v-model="budgetSingle" label="1">无限制</el-radio>
             <el-radio v-model="budgetSingle" label="2">设定预算</el-radio>
+            <p v-if="budgetSingle == '1'" style="margin: 5px 0">根据您目前的广告预算余额，您的广告最多可获得0个点击数。</p>
             <div v-if="budgetSingle == '2'" class="item-box mar-top">
               <el-select v-model="budgetType" placeholder="请选择" style="width: 120px" size="mini">
                 <el-option label="每日预算" value="day"> </el-option>
@@ -306,7 +307,7 @@
         <div class="base-box mar-top">
           <span class="base-title">每个广告的时长</span>
           <div class="base-item">
-            <el-radio v-model="timeSingle" label="1">不限时</el-radio><br />
+            <el-radio v-model="timeSingle" label="1">不限时</el-radio>
             <el-radio v-model="timeSingle" label="2">设定开始日期/结束日期</el-radio>
             <div v-if="timeSingle == '2'" class="item-box mar-top">
               <el-date-picker
@@ -318,7 +319,7 @@
                 range-separator="-"
                 start-placeholder="开始日期"
                 end-placeholder="结束日期"
-                :picker-options="pickerOptions"
+                :picker-options="pickerOptions1"
               />
             </div>
           </div>
@@ -436,7 +437,7 @@
         <el-button size="mini" type="primary" @click="setKeyType">确 定</el-button>
       </span>
     </el-dialog>
-    <el-dialog :visible.sync="relevanceVisible" title="创建关联广告" :close-on-click-modal="false" :close-on-press-escape="false" width="1200px" @close="closeDialog">
+    <el-dialog :visible.sync="relevanceVisible" title="创建关联广告" :close-on-click-modal="false" :close-on-press-escape="false" top="5vh" width="1200px" @close="closeDialog">
       <div class="relevance-style">
         <div class="base-box">
           <span class="base-title">设定关联广告</span>
@@ -466,9 +467,9 @@
                   </template>
                 </el-table-column>
                 <el-table-column label="价格" prop="price" width="80" />
-                <el-table-column label="已选商品数量" width="100">
+                <el-table-column label="商品数" width="60" align="center">
                   <template slot-scope="scope">
-                    <span style="color: green">0</span>
+                    <span style="color: green">{{ chooseGoodsNumber(scope.row.platform_mall_id)}}</span>
                   </template>
                 </el-table-column>
                 <el-table-column label="点击出价" width="180" align="center">
@@ -742,6 +743,36 @@ export default {
     this.setClickPrice()
   },
   methods: {
+    chooseGoodsNumber(id){
+      let filterArr = this.relevanceList.filter(n=> {return n.platform_mall_id == id})
+      return filterArr.length
+    },
+    cancel() {
+      this.loading = false
+      terminateThread()
+      this.totalAnalysisData = {
+        balance: 0, //余额
+        impression: 0, //浏览量
+        click: 0, //点击次数
+        order: 0, //订单数(商品已出售)
+        orderGmv: 0, //销售金额
+        cost: 0, //花费
+      }
+      this.$refs.Logs.writeLog(`停止操作,可能需要一些时间！`, false)
+      this.$alert('正在停止操作，可能需要一些时间！', '提示', {
+        confirmButtonText: '确定',
+        callback: () => {
+          this.totalData.forEach((item) => {
+            this.totalAnalysisData.balance += item.balance
+            this.totalAnalysisData.impression += item.impression
+            this.totalAnalysisData.click += item.click
+            this.totalAnalysisData.order += item.order
+            this.totalAnalysisData.orderGmv += item.orderGmv
+            this.totalAnalysisData.cost += item.cost
+          })
+        },
+      })
+    },
     //批量修改出价
     batchChnageRevelancePrice() {
       if (!this.multipleSelectionRelevance.length) {
@@ -777,6 +808,7 @@ export default {
     setRelevanceBudgetType() {
       this.multipleSelectionRelevance.forEach((item) => {
         let index = this.relevanceList.findIndex((m) => m.itemid === item.itemid)
+        console.log(index, 'setRelevanceBudgetType')
         if (index > -1) {
           this.$set(this.relevanceList[index], 'budgetType', this.relevanceBudgetType)
           this.$set(this.relevanceList[index], 'budget', this.relevanceBudget)
@@ -897,15 +929,16 @@ export default {
     changeBudgetType(val, index) {
       // budgetType
       if (val === 'day') {
-        index ? (this.relevanceList[index].budget = 20) : (this.relevanceBudget = 20)
+        index !== undefined && index > -1 ? (this.relevanceList[index].budget = 20) : (this.relevanceBudget = 20)
       } else if (val === 'total') {
-        index ? (this.relevanceList[index].budget = 100) : (this.relevanceBudget = 100)
+        index !== undefined && index > -1 ? (this.relevanceList[index].budget = 100) : (this.relevanceBudget = 100)
       } else {
-        index ? (this.relevanceList[index].budget = 0) : (this.relevanceBudget = 0)
+        index !== undefined && index > -1 ? (this.relevanceList[index].budget = 0) : (this.relevanceBudget = 0)
       }
+      console.log(this.relevanceList)
     },
     changeBudget(val, index) {
-      if (index) {
+      if (index !== undefined) {
         if (this.relevanceList[index].budgetType === 'day' && val < 20) {
           this.relevanceList[index].budget = 20
         } else if (this.relevanceList[index].budgetType === 'total' && val < 100) {
@@ -986,6 +1019,7 @@ export default {
     async createRelevance() {
       this.adventType = 'targeting'
       this.goodsItemSelectorVisible = true
+      this.relevanceList = []
     },
     //暂停或继续广告活动
     async stopStartActive(type) {
@@ -1001,7 +1035,7 @@ export default {
           need_campaign: true,
           mallId: item.mallInfo.platform_mall_id,
         }
-        let res = await this.$shopeemanService.stopStartAdvent(item.mallInfo.country, params)
+        let res = await this.$shopeemanService.stopStartAdvent(item.mallInfo.country, params, 'put')
         if (res.code === 200) {
           this.$refs.Logs.writeLog(`店铺【${item.mallInfo.mall_alias_name || item.mallInfo.platform_mall_name}】，商品【${item.product.itemid}】${type === 1 ? '暂停' : '继续'}广告成功！`, true)
         } else if (res.code === 403) {
@@ -1031,6 +1065,7 @@ export default {
         return this.$message.warning('请选择店铺！')
       }
       this.createType = 'batch'
+      this.adventType = 'keyword'
       this.createAdventVisible = true
     },
     //批量添加关键词广告
@@ -1058,8 +1093,8 @@ export default {
         let campaign = {
           start_time: this.timeRange.length ? Math.round(new Date(this.timeRange[0]).getTime() / 1000) : 0,
           end_time: this.timeRange.length ? Math.round(new Date(this.timeRange[1]).getTime() / 1000) : 0,
-          daily_quota: this.budgetType === 'day' ? this.budget : 0,
-          total_quota: this.budgetType === 'total' ? this.budget : 0,
+          daily_quota: this.budgetType === 'day' ? Number(this.budget) : 0,
+          total_quota: this.budgetType === 'total' ? Number(this.budget) : 0,
           status: 1,
         }
         chooseGoods.forEach((goods) => {
@@ -1114,8 +1149,8 @@ export default {
         let campaign = {
           start_time: this.timeRange.length ? Math.round(new Date(this.timeRange[0]).getTime() / 1000) : 0,
           end_time: this.timeRange.length ? Math.round(new Date(this.timeRange[1]).getTime() / 1000) : 0,
-          daily_quota: this.budgetType === 'day' ? this.budget : 0,
-          total_quota: this.budgetType === 'total' ? this.budget : 0,
+          daily_quota: this.budgetType === 'day' ? Number(this.budget) : 0,
+          total_quota: this.budgetType === 'total' ? Number(this.budget) : 0,
           status: 1,
         }
         this.createChooseGoods.forEach((goods) => {
@@ -1133,7 +1168,7 @@ export default {
             let keyList = []
             this.multipleSelectionKey.forEach((keyWords) => {
               let keyObj = {
-                match_type: 0,
+                match_type: 1,
                 keyword: keyWords.keyword,
                 price: Number(keyWords.selfPrice),
                 status: 1,
@@ -1294,7 +1329,7 @@ export default {
           console.log(this.createChooseGoods, 'this.createChooseGoods')
         } else if (this.createType == 'batch') {
           this.createChooseGoods = this.createChooseGoods.concat(val.goodsList)
-          this.createChooseGoods = this.createChooseGoods.splice(0,20)
+          this.createChooseGoods = this.createChooseGoods.splice(0, 20)
           this.createChooseGoods.forEach((item) => {
             item.image = item.images.split(',')[0]
           })
@@ -1312,6 +1347,7 @@ export default {
         })
       }
       this.createType = 'single'
+      this.adventType = 'keyword'
       this.goodsItemSelectorVisible = true
     },
     //导出数据
@@ -1348,7 +1384,9 @@ export default {
         <td>${item.campaign ? this.activeState[item.campaign.state] : '' + '\t'}</td>
         <td>${
           item.campaign.start_time
-            ? `${$dayjs(item.campaign.start_time * 1000).format('YYYY/MM/DD HH:mm:ss')} - ${item.campaign.end_time == 0 ? '' : $dayjs(item.campaign.end_time * 1000).format('YYYY/MM/DD HH:mm:ss')}`
+            ? `${this.$dayjs(item.campaign.start_time * 1000).format('YYYY/MM/DD HH:mm:ss')} - ${
+                item.campaign.end_time == 0 ? '' : this.$dayjs(item.campaign.end_time * 1000).format('YYYY/MM/DD HH:mm:ss')
+              }`
             : '' + '\t'
         }</td>
         <td>${this.dealWithQuota(item) + '\t'}</td>
@@ -1360,7 +1398,7 @@ export default {
         <td>${item.report ? item.report.order_gmv.value : '' + '\t'}</td>
         <td>${item.report ? item.report.cost.value : '' + '\t'}</td>
         <td>${Math.round(item.report.gmv_expense_ratio.value).toFixed(2) + '\t'}</td>
-        <td>${Math.round(row.report.cir.value * 100).toFixed(2) + '\t'}</td>
+        <td>${Math.round(item.report.cir.value * 100).toFixed(2) + '\t'}</td>
         </tr>
         `
       })
@@ -1373,7 +1411,7 @@ export default {
         mallId: mall.platform_mall_id,
       }
       let res = await this.$shopeemanService.getMallBalance(mall.country, params)
-      console.log(res, 'res')
+      // console.log(res, 'res')
       if (res.code === 200) {
         this.$refs.Logs.writeLog(`店铺【${mall.mall_alias_name || mall.platform_mall_name}】获取余额成功，余额【${res.data.balance}】`, true)
         return res.data.balance
@@ -1430,13 +1468,13 @@ export default {
     },
     //处理预算
     dealWithQuota(row) {
-      if (Number(row.campaign.daily_quota) == 0 && Number(row.campaign.total_expense) == 0) {
+      if (Number(row.campaign.daily_quota) == 0 && Number(row.campaign.total_quota) == 0) {
         return '无限制'
       } else {
         if (Number(row.campaign.daily_quota) !== 0) {
           return `日预算-${row.campaign.daily_quota}`
-        } else if (Number(row.campaign.total_expense) !== 0) {
-          return `总预算-${row.campaign.daily_quota}`
+        } else if (Number(row.campaign.total_quota) !== 0) {
+          return `总预算-${row.campaign.total_quota}`
         }
       }
     },
@@ -1467,7 +1505,7 @@ export default {
         this.totalAnalysisData.cost += item.cost
       })
       this.$refs.Logs.writeLog('查询结束！', true)
-      console.log(this.totalData, this.analysisData, '11111')
+      // console.log(this.totalData, this.analysisData, '11111')
       this.loading = false
     },
     //列表数据
@@ -1514,6 +1552,8 @@ export default {
           this.$refs.Logs.writeLog(`店铺【${mall.mall_alias_name || mall.platform_mall_name}】获取广告失败，${res.data}`, false)
         }
       } catch (error) {
+        console.log(error)
+        this.loading = false
       } finally {
         --count.count
       }
@@ -1586,9 +1626,9 @@ export default {
       this.budgetType = 'day' //预算类型
       this.budget = '' //预算
       this.keyType = ''
-      this.relevanceBudgetType  = 'all'
-      this.relevanceBudget = 0 
-      this.relevanceList = []
+      this.relevanceBudgetType = 'all'
+      this.relevanceBudget = 0
+      // this.relevanceList = []
     },
     closeKeyPrice() {
       this.keyPriceRadio = '1' //关键字出价

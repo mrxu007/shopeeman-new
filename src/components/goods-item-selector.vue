@@ -235,7 +235,7 @@ export default {
           const categoryTbInfoRes = await this.$commodityService.getCategoryTbInfo(this.country, categoryId, '0', '')
           const categoryTbInfoJson = this.isJsonString(categoryTbInfoRes)
           const categoryTbInfoData = categoryTbInfoJson.data
-          const categories = categoryTbInfoData.categories && categoryTbInfoData.categories[0] || ''
+          const categories = categoryTbInfoData && categoryTbInfoData.categories && categoryTbInfoData.categories[0] || ''
           const category_cn_name = categories && categories.category_cn_name || '未匹配到类目'
           const category_name = categories && categories.category_name || '未匹配到类目'
           this.categoryList[`category_${categoryId}`] = category_cn_name

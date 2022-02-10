@@ -936,9 +936,10 @@ export async function getLogisticsInfo(logisticsJarray, isUseProductChannel, mal
     if (res.data.list) {
       idDatas = res.data.list
     }
-    console.log(idDatas, 'idDatas')
+    const a = JSON.parse(JSON.stringify(idDatas))
+    console.log(a, 'idDatas')
     // 过滤无效物流
-    logisticsJarray = await filterLogistics(logisticsJarray, idDatas, isUseProductChannel)
+    logisticsJarray = await filterLogistics(logisticsJarray, a, isUseProductChannel)
     console.log(logisticsJarray, 'logisticsJarray222')
   }
   for (let i = 0; i < logisticsJarray.length; i++) {
@@ -973,7 +974,7 @@ export async function filterLogistics(logisticsJarray, idDatas, isUseProductChan
     let isAddToNewArray = false
     for (let j = 0; j < logisticsJarray.length; j++) {
       const logistics = logisticsJarray[j]
-      if (logistics.channel_id.toString === channelId) {
+      if (logistics.channel_id.toString() === channelId) {
         if (!isUseProductChannel) {
           logistics.enabled = channels.enabled.toString()
         }
@@ -986,7 +987,7 @@ export async function filterLogistics(logisticsJarray, idDatas, isUseProductChan
       }
     }
     if (!isAddToNewArray) {
-      channels.price = channels.price ? channels.price.toString : '0.00'
+      channels.price = channels.default_price ? channels.default_price.toString() : '0.00'
       channels.cover_shipping_fee = !((channels.cover_shipping_fee.toString() === '0' || channels.cover_shipping_fee.toString() === 'false'))
       channels.size_id = 0
       channels.size = 0
@@ -1031,8 +1032,9 @@ export function imageCompressionUpload(mall, imageList, that, thread = 3) {
   async function imageUpload(item, count = { count: 1 }) {
     try {
       let imageUrl = item.url || ''
-      if (imageUrl && !imageUrl.includes('http://') && !imageUrl.includes('https://')) {
-        imageUrl = that.$filters.imageRender([imageUrl])
+      if (imageUrl && !imageUrl.includes('http://') &&
+        !imageUrl.includes('https://') && !imageUrl.includes('base64,')) {
+        imageUrl = that.$filters.imageRender([imageUrl]) || imageUrl
       }
       const base64File = await getBase64file(imageUrl)
       const country = that.country || mall.country
