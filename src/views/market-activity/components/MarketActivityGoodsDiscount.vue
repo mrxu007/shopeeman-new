@@ -148,7 +148,7 @@
             ref="editPlTable"
             :data="editTableData"
             use-virtual
-            :height="580"
+            :height="620"
             :row-height="68"
             :data-changes-scroll-top="false"
             :border="false"
