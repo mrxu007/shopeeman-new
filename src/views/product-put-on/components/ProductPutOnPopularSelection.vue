@@ -74,22 +74,23 @@
         v-loading="tableLoading"
         :data="tableData"
         tooltip-effect="dark"
-        :row-style="{ height: '100px' }"
+        :row-style="{ height: '60px' }"
         :height="'calc(100vh - 215px)'"
       >
-        <el-table-column align="center" type="index" label="序号" width="50">
+        <el-table-column type="selection" width="55" fixed />
+        <el-table-column align="center" type="index" label="序号" min-width="50" fixed>
           <template slot-scope="scope">{{ (currentPage - 1) * pageSize + scope.$index + 1 }}</template>
         </el-table-column>
-        <el-table-column width="120px" label="站点" prop="country" align="center">
+        <el-table-column min-width="80px" label="站点" prop="country" align="center" fixed>
           <template slot-scope="scope">{{ scope.row.platform | chineseSite }}</template>
         </el-table-column>
-        <el-table-column width="120px" label="商品ID" prop="country" align="center">
+        <el-table-column min-width="120px" label="商品ID" prop="country" align="center" fixed>
           <template slot-scope="scope">
             <el-button type="text" @click="getLink(scope.row)">{{ scope.row.itemid }}</el-button>
             <span class="copyIcon" @click="copy(scope.row.itemid)"><i class="el-icon-document-copy copyStyle" /></span>
           </template>
         </el-table-column>
-        <el-table-column width="100px" label="商品图片" prop="country" align="center">
+        <el-table-column min-width="100px" label="商品图片" prop="country" align="center">
           <template slot-scope="scope">
             <el-tooltip effect="light" placement="right-end" :visible-arrow="false" :enterable="false" style="width: 56px; height: 56px; display: inline-block">
               <div slot="content">
@@ -99,35 +100,35 @@
             </el-tooltip>
           </template>
         </el-table-column>
-        <el-table-column min-width="60px" label="商品名称" prop="country" align="center" show-overflow-tooltip>
+        <el-table-column min-width="120px" label="商品名称" prop="country" align="center" show-overflow-tooltip>
           <template slot-scope="scope">{{ scope.row.name }}</template>
         </el-table-column>
-        <el-table-column width="100px" label="官方店铺" prop="country" align="center">
+        <el-table-column min-width="80px" label="官方店铺" prop="country" align="center">
           <template slot-scope="scope">{{ scope.row.is_official_shop&& '是' || '否' }}</template>
         </el-table-column>
-        <el-table-column min-width="60px" label="一级类目" prop="" align="center">
+        <el-table-column min-width="120px" label="一级类目" prop="" align="center" show-overflow-tooltip>
           <template slot-scope="scope">{{
             scope.row.cat_path && scope.row.cat_path.split('>')[0] }}({{ scope.row.display_path_cn && scope.row.display_path_cn.split('>')[0] }})
           </template>
         </el-table-column>
-        <el-table-column min-width="70px" label="二级类目" prop="" align="center">
+        <el-table-column min-width="120px" label="二级类目" prop="" align="center" show-overflow-tooltip>
           <template slot-scope="scope">{{ scope.row.cat_path.split('>')[1] &&
             (scope.row.cat_path.split('>')[1]+'('+scope.row.display_path_cn.split('>')[1]+')') || '' }}
           </template>
         </el-table-column>
-        <el-table-column min-width="80px" label="三级类目" prop="" align="center">
+        <el-table-column min-width="120px" label="三级类目" prop="" align="center" show-overflow-tooltip>
           <template slot-scope="scope">{{ scope.row.cat_path.split('>')[2] &&
             (scope.row.cat_path.split('>')[2]+'('+scope.row.display_path_cn.split('>')[2]+')') || '' }}
           </template>
         </el-table-column>
-        <el-table-column width="100px" label="创建时间" prop="created_at" align="center" sortable>
+        <el-table-column min-width="100px" label="创建时间" prop="created_at" align="center" sortable>
           <template slot-scope="scope">{{ $dayjs(scope.row.ctime*1000).format('YYYY-MM-DD') }}</template>
         </el-table-column>
-        <el-table-column width="100px" label="近30天销量" prop="warehouse_name" align="center" sortable>
+        <el-table-column min-width="120px" label="近30天销量" prop="warehouse_name" align="center" sortable>
           <template slot-scope="scope">{{ scope.row.sold || '' }}
           </template>
         </el-table-column>
-        <el-table-column width="80px" label="价格" prop="warehouse_name" align="center" sortable>
+        <el-table-column min-width="80px" label="价格" prop="warehouse_name" align="center" sortable fixed="right">
           <template slot-scope="scope">{{ scope.row.price || '' }}{{ scope.row.platform | siteCoin }}</template>
         </el-table-column>
       </el-table>
