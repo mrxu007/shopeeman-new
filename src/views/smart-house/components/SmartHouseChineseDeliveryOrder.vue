@@ -197,7 +197,11 @@
           label="出库商品总价(RMB)"
           align="center"
           min-width="135"
-        />
+        >
+          <template v-slot="{row}">
+            {{ row.goods_price && parseFloat(goods_price).toFixed(2)||0.00 }}
+          </template>
+        </el-table-column>
         <el-table-column
           align="center"
           label="操作"
