@@ -23,6 +23,10 @@
           <el-input v-model="form.sku_name" clearable size="mini" />
         </li>
         <li>
+          <span>商品名称：</span>
+          <el-input v-model="form.goods_name" clearable size="mini" />
+        </li>
+        <li>
           <el-checkbox
             v-model="filter"
             @change="flt"
@@ -239,7 +243,8 @@ export default {
         skuid: '',
         returnWheareHouseName: '0', // 仓库名称
         systemskuid: '', // 系统商品编号
-        sku_name: ''
+        sku_name: '', // 商品规格
+        goods_name: '' // 商品名称
       },
       wherehouseNameList: []
     }
@@ -396,11 +401,11 @@ export default {
         sys_sku_id: this.form.systemskuid.trim(),
         sku_id: this.form.skuid.trim(),
         sku_name: this.form.sku_name.trim(),
+        goods_name: this.form.goods_name.trim(),
         is_zero_filter: this.is_zero_filter,
         type: 'query',
         app_uid: ''
       }
-      console.log('parmas', parmas)
       try {
         let data = await this.$XzyNetMessageService.post('xzy.stock.index', parmas)
         data = JSON.parse(data)
