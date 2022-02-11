@@ -818,7 +818,7 @@ export default class MarketManagerAPI {
         offset: 0,
         add_on_deal_id: add_on_deal_id
       }
-      const res = await this._this.$shopeemanService.getChineseReferer(country, '/api/marketing/v3/add_on_deal//aggr_main_item_list/?', params, {
+      const res = await this._this.$shopeemanService.getChineseReferer(country, '/api/marketing/v3/add_on_deal/aggr_main_item_list/?', params, {
         headers: {
           'Accept': 'application/json, application/xml, text/json, text/x-json, text/javascript, text/xml',
           referer: `/portal/marketing/add-on-deal/${add_on_deal_id}?tab=list`
@@ -843,7 +843,7 @@ export default class MarketManagerAPI {
         offset: 0,
         add_on_deal_id: add_on_deal_id
       }
-      const res = await this._this.$shopeemanService.getChineseReferer(country, '/api/marketing/v3/add_on_deal//aggr_sub_item_list/?', params, {
+      const res = await this._this.$shopeemanService.getChineseReferer(country, '/api/marketing/v3/add_on_deal/aggr_sub_item_list/?', params, {
         headers: {
           'Accept': 'application/json, application/xml, text/json, text/x-json, text/javascript, text/xml',
           referer: `/portal/marketing/add-on-deal/list?tab=list`
