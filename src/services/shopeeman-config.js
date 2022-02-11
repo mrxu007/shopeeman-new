@@ -250,7 +250,7 @@ export default class ShopeemanConfig {
           'IsCustomShipFee': true,
           'ShipId': '70017',
           'ShipName': 'Registered Mail - Thailand Post'
-          //Registered Mail - Thailand Post
+          // Registered Mail - Thailand Post
         },
         // {
         //   'Country': '泰国站',
@@ -723,6 +723,134 @@ export default class ShopeemanConfig {
         }
       ]
     }
+
+    // pdd规格列表
+    this.pdd_spec_list = {
+      '尺寸': {
+        'parent_spec_id': 1216,
+        'parent_spec_name': '尺寸'
+      },
+      '型号': {
+        'parent_spec_id': 1473,
+        'parent_spec_name': '型号'
+      },
+      '款式': {
+        'parent_spec_id': 1218,
+        'parent_spec_name': '款式'
+      },
+      '器型': {
+        'parent_spec_id': 173120,
+        'parent_spec_name': '器型'
+      },
+      '材质': {
+        'parent_spec_id': 1282,
+        'parent_spec_name': '材质'
+      },
+      '口味': {
+        'parent_spec_id': 1219,
+        'parent_spec_name': '口味'
+      },
+      '色号': {
+        'parent_spec_id': 3203,
+        'parent_spec_name': '色号'
+      },
+      '适用人群': {
+        'parent_spec_id': 2499,
+        'parent_spec_name': '适用人群'
+      },
+      '容量': {
+        'parent_spec_id': 1287,
+        'parent_spec_name': '容量'
+      },
+      '花型': {
+        'parent_spec_id': 8137,
+        'parent_spec_name': '花型'
+      },
+      '尺码': {
+        'parent_spec_id': 1226,
+        'parent_spec_name': '尺码'
+      },
+      '地点': {
+        'parent_spec_id': 61011436,
+        'parent_spec_name': '地点'
+      },
+      '香型': {
+        'parent_spec_id': 1488,
+        'parent_spec_name': '香型'
+      },
+      '货号': {
+        'parent_spec_id': 8277,
+        'parent_spec_name': '货号'
+      },
+      '组合': {
+        'parent_spec_id': 2774,
+        'parent_spec_name': '组合'
+      },
+      '成份': {
+        'parent_spec_id': 174495,
+        'parent_spec_name': '成份'
+      },
+      '版本': {
+        'parent_spec_id': 10593,
+        'parent_spec_name': '版本'
+      },
+      '度数': {
+        'parent_spec_id': 6883,
+        'parent_spec_name': '度数'
+      },
+      '运营商': {
+        'parent_spec_id': 175974,
+        'parent_spec_name': '运营商'
+      },
+      '属性': {
+        'parent_spec_id': 4773,
+        'parent_spec_name': '属性'
+      },
+      '重量': {
+        'parent_spec_id': 1253,
+        'parent_spec_name': '重量'
+      },
+      '地区': {
+        'parent_spec_id': 61209667,
+        'parent_spec_name': '地区'
+      },
+      '套餐': {
+        'parent_spec_id': 20711,
+        'parent_spec_name': '套餐'
+      },
+      '类别': {
+        'parent_spec_id': 1384,
+        'parent_spec_name': '类别'
+      },
+      '适用年龄': {
+        'parent_spec_id': 3818,
+        'parent_spec_name': '适用年龄'
+      },
+      '功效': {
+        'parent_spec_id': 1900,
+        'parent_spec_name': '功效'
+      },
+      '品类': {
+        'parent_spec_id': 3820,
+        'parent_spec_name': '品类'
+      },
+      '时间': {
+        'parent_spec_id': 61011218,
+        'parent_spec_name': '时间'
+      },
+      '颜色': {
+        'parent_spec_id': 1215,
+        'parent_spec_name': '颜色'
+      },
+      '颜色分类': {
+        'parent_spec_id': 8640,
+        'parent_spec_name': '颜色分类'
+      },
+      '鞋码': {
+        'parent_spec_id': 26908,
+        'parent_spec_name': '鞋码'
+      }
+    }
   }
 
   async getUserInfo() {
@@ -770,6 +898,9 @@ export default class ShopeemanConfig {
   }
   getSiteCoinSymbol(val) { // 各站点货币符号
     return this.site_coin_symbol[val] || 'invalid_value'
+  }
+  getPddSpecList() { // 拼多多规格列表
+    return this.pdd_spec_list
   }
   // 域名切换设置 Auto:自动切换  Local：大陆  Abroad：境外
   async getSiteWebUrl(val) {

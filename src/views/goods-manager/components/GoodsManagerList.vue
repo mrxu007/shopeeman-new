@@ -1060,7 +1060,6 @@ export default {
       getDescriptionVisible: false,
       operationBut: false,
       flag: false, // 判断是否停止
-      cursor: null,
       upDown: true,
       GoodsList: new GoodsList(this),
 
@@ -1471,12 +1470,12 @@ export default {
                 // 检测标题长度
                 this.getTitleLength(item)
                 productInfo['name'] = productInfo.name.trim().slice(0, this.maxLength)
-                // 获取图片
-                const imageRes = await imageCompressionUpload(mall, productInfo.images, this)
-                productInfo['images'] = productInfo.images.map(item => {
-                  item = imageRes[item]
-                  return item
-                })
+                // // 获取图片
+                // const imageRes = await imageCompressionUpload(mall, productInfo.images, this)
+                // productInfo['images'] = productInfo.images.map(item => {
+                //   item = imageRes[item]
+                //   return item
+                // })
                 // 上新发布
                 const data = { mallId: mall.platform_mall_id }
                 const createIndex = mall['createNum']++
@@ -1546,10 +1545,28 @@ export default {
     },
     // 组装上新数据
     setCreateData(productInfo) {
+      const model_list = []
+      productInfo.model_list.forEach(item => {
+        const model = {}
+        model['stock'] = item.stock
+        model['sku'] = ''
+        model['input_normal_price'] = null
+        model['input_promotion_price'] = null
+        if (Number(item.price_before_discount) > 0) {
+          item.price = item.price_before_discount.toString()
+        }
+        model['price'] = item.price
+        model['id'] = 0
+        model['name'] = ''
+        model['tier_index'] = item.tier_index
+        model['is_default'] = item.is_default
+        model['item_price'] = ''
+        model_list.push(model)
+      })
       const parmas = {
-        attributes: [],
+        attributes: productInfo.attributes,
         stock: productInfo.stock,
-        model_list: productInfo.model_list,
+        model_list: model_list,
         weight: productInfo.weight,
         dimension: {
           width: productInfo.dimension.width,
@@ -1573,7 +1590,7 @@ export default {
         description: productInfo.description,
         category_path: productInfo.category_path,
         category_recommend: productInfo.category_recommend,
-        price_before_discount: productInfo.price_before_discount,
+        price_before_discount: '',
         price: productInfo.price,
         wholesale_list: productInfo.wholesale_list,
         installment_tenures: productInfo.installment_tenures,
@@ -1583,6 +1600,7 @@ export default {
         unlisted: false,
         add_on_deal: productInfo.add_on_deal
       }
+      console.log('组装上新数据', parmas)
       return parmas
     },
     // 批量调整重量/体积
@@ -2466,7 +2484,8 @@ export default {
     // 商品信息处理
     async getProductInfo(productInfo, item) {
       try {
-        productInfo.id = this.isRefurbishProduct ? 0 : Number(productInfo.id)
+        // productInfo.id = this.isRefurbishProduct ? 0 : Number(productInfo.id)
+        productInfo.id = Number(productInfo.id)
         productInfo.name = productInfo.name.toString().trim()
         productInfo.brand_id = Number(productInfo.brand_id)
         productInfo.size_chart = productInfo.size_chart.toString()
@@ -2508,9 +2527,9 @@ export default {
         productInfo.stock = Number(productInfo.stock)
         productInfo.parent_sku = productInfo.parent_sku.toString()
         productInfo.price = productInfo.price.toString()
-        if (this.isRefurbishProduct && Number(productInfo.price_before_discount) > 0) {
-          productInfo.price = productInfo.price_before_discount.toString()
-        }
+        // if (this.isRefurbishProduct && Number(productInfo.price_before_discount) > 0) {
+        //   productInfo.price = productInfo.price_before_discount.toString()
+        // }
         productInfo.price_before_discount = productInfo.price_before_discount.toString()
         productInfo.input_normal_price = productInfo.price_info ? productInfo.price_info.input_normal_price.toString() : '0'
         productInfo.input_promotion_price = productInfo.price_info ? productInfo.price_info.input_promotion_price.toString() : '0'
@@ -2676,14 +2695,16 @@ export default {
         if (itemModelsJarray?.length > 0) {
           for (let i = 0; i < itemModelsJarray.length; i++) {
             const item = itemModelsJarray[i]
-            item.id = isRefurbishProduct ? 0 : Number(item.id)
-            item.name = isRefurbishProduct ? '' : (!item.name && item.sku ? item.sku : item.name.toString())
+            // item.id = isRefurbishProduct ? 0 : Number(item.id)
+            // item.name = isRefurbishProduct ? '' : (!item.name && item.sku ? item.sku : item.name.toString())
+            item.id = Number(item.id)
+            item.name = !item.name && item.sku ? item.sku : item.name.toString()
             item.sku = item.sku.toString()
             item.stock = Number(item.stock)
             item.price = item.price.toString()
-            if (isRefurbishProduct && Number(item.price_before_discount) > 0) {
-              item.price = item.price_before_discount.toString()
-            }
+            // if (isRefurbishProduct && Number(item.price_before_discount) > 0) {
+            //   item.price = item.price_before_discount.toString()
+            // }
             item.tier_index = JSON.parse(JSON.stringify(item.tier_index))
             item.input_normal_price = item.price_info.input_normal_price.toString()
             item.input_promotion_price = item.price_info.input_promotion_price.toString()
@@ -3152,6 +3173,7 @@ export default {
         item.pageNumber = 1
         item.mylist = []
         item.isFlag = true
+        item.cursor = ''
       })
       this.index = 1
       for (let i = 0; i < this.goodsStatus.length; i++) {
@@ -3162,7 +3184,7 @@ export default {
         this.goodsStatusVal = item
         if (item === 0 || this.queryType === 100 || this.queryType === 200) {
           this.goodsStatusName = ''
-          await batchOperation(this.selectMallList, this.getTableData)
+          await batchOperation(this.selectMallList, this.getTableData, 3)
           break
         } else {
           this.goodsStatusName = this.statusFilter[item]
@@ -3170,13 +3192,13 @@ export default {
             item.pageNumber = 1
             item.mylist = []
             item.isFlag = true
+            item.cursor = ''
           })
-          await batchOperation(this.selectMallList, this.getTableData)
+          await batchOperation(this.selectMallList, this.getTableData, 3)
         }
       }
       this.operationBut = false
       this.showConsole = true
-      this.cursor = null
       this.$refs.Logs.writeLog(`查询完成`, true)
       if (this.queryType === 100 || this.queryType === 200) {
         if (this.tableData?.length > 0) {
@@ -3213,15 +3235,15 @@ export default {
           // 销售量
           params['soldMin'] = this.soldMin
           params['soldMax'] = this.soldMax
-          if (this.cursor) {
-            params['cursor'] = this.cursor
+          if (mItem.cursor) {
+            params['cursor'] = mItem.cursor
           }
           res = await this.GoodsList.searchProductList(params)
         } else {
           res = await this.GoodsList.getMpskuList(params)
         }
         if (res.code === 200) {
-          this.cursor = res.data.page_info.cursor
+          mItem.cursor = res.data.page_info.cursor
           if (res.data.list?.length) {
             // 组装数据
             await this.setTableData(res.data.list, mItem, mallName)
@@ -3231,11 +3253,11 @@ export default {
               this.tableData = this.tableData.concat(fData)
               this.queryNum = this.tableData.length
               this.rowSelection(fData, true, {})
-              this.$refs.Logs.writeLog(`查询店铺【${mallName}】第【${mItem.pageNumber}】页数据：${res.data.list.length}`, true)
-              if (len > 0) this.$refs.Logs.writeLog(`【${mallName}】第【${mItem.pageNumber}】页过滤数据【${len}】条`, false)
             } else {
               mItem.mylist = fData
             }
+            this.$refs.Logs.writeLog(`查询店铺【${mallName}】第【${mItem.pageNumber}】页数据：${res.data.list.length}`, true)
+            if (len > 0) this.$refs.Logs.writeLog(`【${mallName}】第【${mItem.pageNumber}】页过滤数据【${len}】条`, false)
             console.log('tableData', res.data.list)
           }
         } else {
@@ -3288,7 +3310,7 @@ export default {
         item.mylist = []
         item.isFlag = true
       })
-      await batchOperation(this.selectMallList, this.getBannedData)
+      await batchOperation(this.selectMallList, this.getBannedData, 3)
       this.operationBut = false
       this.showConsole = true
       this.$refs.Logs.writeLog(`禁卖商品查询结束`, true)
@@ -3434,20 +3456,19 @@ export default {
           continue
         }
         // 过滤更新时间
-        if (this.modifyTime?.length && !(item.modify_time >= this.modifyTime[0])) {
+        if (this.modifyTime?.length && item.modify_time < this.modifyTime[0]) {
           continue
         }
-        if (this.modifyTime?.length && !(item.modify_time <= new Date(this.modifyTime[1]).getTime())) {
+        if (this.modifyTime?.length && item.modify_time > new Date(this.modifyTime[1]).getTime()) {
           continue
         }
         // 过滤创建时间
-        if (this.createTime?.length && !(item.create_time >= this.createTime[0])) {
+        if (this.createTime?.length && item.create_time < this.createTime[0]) {
           continue
         }
-        if (this.createTime?.length && !(item.create_time <= new Date(this.createTime[1]).getTime())) {
+        if (this.createTime?.length && item.create_time > new Date(this.createTime[1]).getTime()) {
           continue
         }
-
         // 过滤价格
         if (!(Number(item.price) >= Number(this.priceMin))) {
           continue

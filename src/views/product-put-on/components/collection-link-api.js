@@ -41,6 +41,7 @@ class CollectLinkApI {
       }
       console.log(params)
       const res = await this._this.$collectService.queryDetailById(Number(platformId || Platform), params, isUseCache)
+      console.log(res)
       const isJSONData = this.isJsonString(res)
       if (isJSONData?.Code === 200) {
         return { code: 200, data: isJSONData }
@@ -49,17 +50,6 @@ class CollectLinkApI {
     } catch (error) {
       return { code: -2, data: `getGoodsDeail-catch: ${error}` }
     }
-  }
-  // 辅助--------------------------------------------
-  handleError() {
-    let errorText = JSON.stringify(this.errorCatchText).replace(/\s/g, '')
-    if (errorText.indexOf('数据列表为空') > -1) {
-      errorText = '数据列表为空'
-    } else if (errorText.indexOf('返回数据不能为空') > -1) {
-      errorText = '返回数据不能为空'
-    }
-    this.errorCatchText = null
-    return JSON.stringify({ Code: -2, Msg: `捕获错误${errorText}` })
   }
   handleLinkKeyFactory(linkKey, type) {
     try {

@@ -1,6 +1,6 @@
 <template>
   <div class="container-row">
-    <header>
+    <header class="operation-header">
       <el-tabs v-model="activeName" @tab-click="handleClick">
         <el-tab-pane label="关键词采集" name="keyPage">
           <div class="keyword-container">
@@ -64,24 +64,24 @@
                 </li>
                 <li v-show="isShowShopeeSite" class="li-shopee">
                   <p>出货地点：</p>
-                  <el-select v-model="commonAttr.shopeePlaceVal" :disabled="buttonStatus.start" placeholder="" size="mini" multiple collapse-tags @change="selectShopeePlaceValEvent">
-                    <el-checkbox v-model="isSelectAll" label="全部" @change="selectShopeeAllEvent" />
+                  <el-select v-model="commonAttr.shopeePlaceVal" :disabled="buttonStatus.start" placeholder="" size="mini">
+                    <el-option :label="'全部'" :value="'-1,-2'" />
                     <el-option v-for="(item, index) in commonAttr.shopeePlaceOrigin" :key="index" :label="item.label" :value="item.value" />
                   </el-select>
                   <el-checkbox v-model="commonAttr.isShopeeOffice" :disabled="buttonStatus.start" class="li-shopee-spec" label="全部">过滤虾皮官方店铺商品</el-checkbox>
                 </li>
                 <!-- lazada -->
                 <li v-show="isShowLazadaSite">
-                  <p>站点：</p>
-                  <el-select v-model="commonAttr.lazadaSiteCode" :disabled="buttonStatus.start" placeholder="" size="mini" @change="getLazadaGoodsPlace">
+                  <p style="min-width: 128px">站点：</p>
+                  <el-select v-model="commonAttr.lazadaSiteCode" style="width:140px" :disabled="buttonStatus.start" placeholder="" size="mini" @change="getLazadaGoodsPlace">
                     <el-option v-for="(item, index) in commonAttr.lazadaSite" :key="index" :label="item.label" :value="item.value" />
                   </el-select>
                 </li>
-                <li v-show="isShowLazadaSite">
+                <li v-show="isShowLazadaSite" class="li-lazada">
                   <div v-for="(item, itemKey, index) in commonAttr.lazadaPlaceOrigin" :key="index">
                     <p style="min-width: 128px">{{ itemKey }}</p>
-                    <el-select v-model="commonAttr[`lazadaPlaceVal${index}`]" :disabled="buttonStatus.start" placeholder="" size="mini" multiple collapse-tags @change="selectLazadaPlaceValEvent(itemKey, index)">
-                      <el-checkbox v-model="isSelectAll2[index]" label="全部" @change="selectLazadaAllEvent(itemKey, index)" />
+                    <el-select v-model="commonAttr[`lazadaPlaceVal${index}`]" style="width:140px" :disabled="buttonStatus.start" placeholder="" size="mini" multiple collapse-tags @change="changeSelect($event, `${commonAttr[`lazadaPlaceVal${index}`]}`,2)">
+                      <el-option :value="0" label="全部" @click.native="selectAll(`lazadaPlaceVal${index}`, item,2)" />
                       <el-option v-for="(subItem, subIndex) in item" :key="subIndex" :label="subItem.label" :value="subItem.value" />
                     </el-select>
                   </div>
@@ -124,8 +124,8 @@
               <!--操作按钮 -->
               <ul class="item con-sub-2">
                 <li>
-                  <el-button type="primary" size="mini" :disabled="buttonStatus.start" @click="StartCollection">开始采集</el-button>
-                  <el-button type="primary" size="mini" @click="flag = true">取消采集</el-button>
+                  <el-button type="primary" size="mini" :disabled="buttonStatus.start" @click="isCollection">开始采集</el-button>
+                  <el-button type="primary" size="mini" :disabled="!buttonStatus.start" :loading="flag" @click="flag = true">取消采集</el-button>
                 </li>
                 <li class="li-item-2">
                   <p>起：</p>
@@ -147,6 +147,18 @@
                 </li>
               </ul>
               <div class="item">
+                <p class="text">收藏操作</p>
+                <div class="con-sub-6">
+                  <div class="con-sub-6-log">
+                    <ul>
+                      <li><p>收藏总产品数量：</p>{{ goodsCollectionNum }}</li>
+                      <li><p>成功数量：</p>{{ successNum }}</li>
+                      <li><p>失败数量：</p>{{ failNum }}</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+              <div class="item">
                 <p class="text">执行日志</p>
                 <div class="con-sub-5">
                   <div class="con-sub-5-log" v-html="consoleMsg" />
@@ -163,8 +175,8 @@
             </div>
             <ul class="item linkcon-sub-2">
               <li>
-                <el-button type="primary" size="mini" :disabled="buttonStatus.start" @click="StartCollection">开始采集</el-button>
-                <el-button type="primary" size="mini" @click="flag = true">取消采集</el-button>
+                <el-button type="primary" size="mini" :disabled="buttonStatus.start" @click="isCollection">开始采集</el-button>
+                <el-button type="primary" size="mini" :disabled="!buttonStatus.start" @click="flag = true">取消采集</el-button>
               </li>
               <li class="li-item-2">
                 <p>起：</p>
@@ -191,6 +203,18 @@
                 <el-button type="primary" size="mini" :disabled="buttonStatus.start" @click="batchTableDelete(goodsList,multipleSelection)">批量删除</el-button>
               </li>
             </ul>
+            <div class="item">
+              <p class="text">收藏操作</p>
+              <div class="con-sub-6">
+                <div class="con-sub-6-log">
+                  <ul>
+                    <li><p>收藏总产品数量：</p>{{ goodsCollectionNum }}</li>
+                    <li><p>成功数量：</p>{{ successNum }}</li>
+                    <li><p>失败数量：</p>{{ failNum }}</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
             <div class="item">
               <p class="text">执行日志</p>
               <div class="linkcon-sub-4">
@@ -231,8 +255,8 @@
             <!--操作按钮 -->
             <ul class="item con-sub-2">
               <li>
-                <el-button type="primary" size="mini" :disabled="buttonStatus.start" @click="StartCollection">开始采集</el-button>
-                <el-button type="primary" size="mini" @click="flag = true">取消采集</el-button>
+                <el-button type="primary" size="mini" :disabled="buttonStatus.start" @click="isCollection">开始采集</el-button>
+                <el-button type="primary" size="mini" :disabled="!buttonStatus.start" @click="flag = true">取消采集</el-button>
               </li>
               <li class="li-item-2">
                 <p>起：</p>
@@ -253,6 +277,18 @@
                 <el-button type="primary" size="mini" :disabled="buttonStatus.start" @click="batchTableDelete(goodsList,multipleSelection)">批量删除</el-button>
               </li>
             </ul>
+            <div class="item">
+              <p class="text">收藏操作</p>
+              <div class="con-sub-6">
+                <div class="con-sub-6-log">
+                  <ul>
+                    <li><p>收藏总产品数量：</p>{{ goodsCollectionNum }}</li>
+                    <li><p>成功数量：</p>{{ successNum }}</li>
+                    <li><p>失败数量：</p>{{ failNum }}</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
             <div class="item">
               <p class="text">执行日志</p>
               <div class="con-sub-5">
@@ -286,8 +322,8 @@
             <!--操作按钮 -->
             <ul class="item con-sub-2">
               <li>
-                <el-button type="primary" size="mini" :disabled="buttonStatus.start" @click="StartCollection">开始采集</el-button>
-                <el-button type="primary" size="mini" @click="flag = true">取消采集</el-button>
+                <el-button type="primary" size="mini" :disabled="buttonStatus.start" @click="isCollection">开始采集</el-button>
+                <el-button type="primary" size="mini" :disabled="!buttonStatus.start" @click="flag = true">取消采集</el-button>
               </li>
               <li class="li-item-2">
                 <p>起：</p>
@@ -309,6 +345,18 @@
               </li>
             </ul>
             <div class="item">
+              <p class="text">收藏操作</p>
+              <div class="con-sub-6">
+                <div class="con-sub-6-log">
+                  <ul>
+                    <li><p>收藏总产品数量：</p>{{ goodsCollectionNum }}</li>
+                    <li><p>成功数量：</p>{{ successNum }}</li>
+                    <li><p>失败数量：</p>{{ failNum }}</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+            <div class="item">
               <p class="text">执行日志</p>
               <div class="con-sub-5">
                 <div class="con-sub-5-log" v-html="consoleMsg" />
@@ -321,8 +369,8 @@
             <ul class="item con-sub-1">
               <li>
                 <p>选择账号：</p>
-                <el-select v-model="TaobaoAbroadAccountId" :disabled="buttonStatus.start" placeholder="" size="mini" multiple collapse-tags @change="selectTaobaoAccountEventEvent">
-                  <el-checkbox v-model="isSelectAllTaobaoAccount" label="全部" @change="selectTaobaoAccountEventAllEvent" />
+                <el-select v-model="TaobaoAbroadAccountId" style="width: 140px;" :disabled="buttonStatus.start" placeholder="" size="mini" multiple collapse-tags @change="changeSelect($event, 'TaobaoAbroadAccountId',1)">
+                  <el-option :value="0" label="全部" @click.native="selectAll('TaobaoAbroadAccountId', TaobaoAbroadAccount,1)" />
                   <el-option v-for="(item, index) in TaobaoAbroadAccount" :key="index" :label="item.account_alias_name" :value="item.id" />
                 </el-select>
               </li>
@@ -348,8 +396,8 @@
             <!--操作按钮 -->
             <ul class="item con-sub-2">
               <li>
-                <el-button type="primary" size="mini" :disabled="buttonStatus.start" @click="StartCollection">开始采集</el-button>
-                <el-button type="primary" size="mini" @click="flag = true">取消采集</el-button>
+                <el-button type="primary" size="mini" :disabled="buttonStatus.start" @click="isCollection">开始采集</el-button>
+                <el-button type="primary" size="mini" :disabled="!buttonStatus.start" @click="flag = true">取消采集</el-button>
               </li>
               <li class="li-item-2">
                 <p>起：</p>
@@ -371,6 +419,18 @@
               </li>
             </ul>
             <div class="item">
+              <p class="text">收藏操作</p>
+              <div class="con-sub-6">
+                <div class="con-sub-6-log">
+                  <ul>
+                    <li><p>收藏总产品数量：</p>{{ goodsCollectionNum }}</li>
+                    <li><p>成功数量：</p>{{ successNum }}</li>
+                    <li><p>失败数量：</p>{{ failNum }}</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+            <div class="item">
               <p class="text">执行日志</p>
               <div class="con-sub-5">
                 <div class="con-sub-5-log" v-html="consoleMsg" />
@@ -382,10 +442,10 @@
           <div class="collection-settings">
             <ul class="item left">
               <li class="text">采集设置</li>
-              <li>
+              <!-- <li>
                 <el-checkbox disabled label="启动买手号采集" />
                 <p class="tip">（开启买手号，可提高收藏收藏率）</p>
-              </li>
+              </li> -->
               <li>
                 <el-checkbox v-model="IsDefaultFilterSkuCount" label="过滤多余的SKU" />
                 <p class="tip">（勾选多余的SKU，删除所有sku图）</p>
@@ -449,8 +509,9 @@
       <div style="color:red;padding-bottom: 10px;">温馨提示：拼多多产品加载不出来，收藏或者组装数据慢，请切换本地IP</div>
       <u-table
         ref="plTable"
-        :height="Height"
         use-virtual
+        :height="activeName==='keyPage'?500:540"
+        :data="goodsList"
         :data-changes-scroll-top="false"
         :header-cell-style="{
           backgroundColor: '#f5f7fa',
@@ -494,33 +555,37 @@
             </el-tooltip>
           </template>
         </u-table-column>
-        <u-table-column align="center" min-width="100" label="上家ID" prop="GoodsId">
+        <u-table-column align="center" min-width="150" label="上家ID" prop="GoodsId" show-overflow-tooltip>
           <template v-slot="{row}">
             <span
               v-if="row.GoodsId"
               class="copyIcon"
               @click="copy(row.GoodsId)"
             ><i class="el-icon-document-copy" /></span>
-            <span>
+            <span style="cursor: pointer;color:blue" @click="openUrl(row.Url)">
               {{ row.GoodsId }}
             </span>
           </template>
         </u-table-column>
-        <u-table-column align="center" label="标题" prop="Title" width="500px" fit>
+        <u-table-column align="center" label="标题" prop="Title" min-width="400px" show-overflow-tooltip>
           <template v-slot="{ row }">
             <p style="white-space: normal">{{ row.Title }}</p>
           </template>
         </u-table-column>
-        <u-table-column align="center" label="类目" prop="CategoryName">
+        <u-table-column align="center" min-width="200" label="类目" prop="CategoryName" show-overflow-tooltip>
           <template v-slot="{ row }">
             <p style="white-space: normal">{{ row.CategoryName }}</p>
           </template>
         </u-table-column>
         <u-table-column align="center" label="价格" prop="Price" sortable />
-        <u-table-column align="center" label="销量" prop="Sales" sortable />
+        <u-table-column align="center" label="销量" prop="Sales" sortable>
+          <template v-slot="{ row }">
+            {{ isNaN(row.Sales)?0:row.Sales }}
+          </template>
+        </u-table-column>
         <u-table-column align="center" label="发货地" prop="Location" />
-        <u-table-column align="center" label="来源" prop="Origin" />
-        <u-table-column align="center" label="操作">
+        <u-table-column align="center" min-width="150" label="来源" prop="Origin" show-overflow-tooltip />
+        <u-table-column align="center" min-width="80" label="操作">
           <template slot-scope="scope">
             <el-button
               size="mini"
@@ -531,7 +596,7 @@
             </el-button>
           </template>
         </u-table-column>
-        <u-table-column align="center" label="操作结果" prop="StatusName" show-overflow-tooltip>
+        <u-table-column min-width="100" align="center" label="操作结果" prop="StatusName" show-overflow-tooltip>
           <template v-slot="{ row }">
             <span :style="row.color && 'color:' + row.color">{{ row.StatusName }}</span>
           </template>
@@ -577,7 +642,7 @@
         </el-form-item>
       </el-form>
     </el-dialog>
-    <el-dialog width="1313px" :close-on-click-modal="false" top="0.5vh" :visible.sync="isEditorVisible" :modal="false">
+    <el-dialog width="1313px" :close-on-click-modal="false" top="0.5vh" :visible.sync="isEditorVisible" :modal="false" @close="closeEditor">
       <template slot="title">
         <div style="display: flex;align-items: center">
           <div style="margin-right: 25px;">上新编辑</div>
@@ -612,7 +677,7 @@ export default {
       required: false,
       default: () => {
         return {
-          keywordConfig: [1, 2, 11, 8, 1.2, 10, 12, 9] // 关键词采集配置
+          keywordConfig: [1, 2, 11, 8, 10, 12, 9] // 关键词采集配置
           // linkConfig: { // 链接采集配置
           // },
           // entireMallConfig: { // 整店采集配置
@@ -623,7 +688,6 @@ export default {
   },
   data() {
     return {
-      Height: 650,
       activeName: 'keyPage',
       collectName: '',
       CollectPublicApInstance: new CollectPublicApI(this),
@@ -645,7 +709,7 @@ export default {
         // 拼多多 淘宝 参数
         pddRadio: 1,
         StartPage: 1,
-        EndPage: 2,
+        EndPage: 100,
         StartSales: 0,
         EndSales: 999999999,
         StartPrice: 0,
@@ -665,7 +729,7 @@ export default {
         shopeeSite: [],
         shopeeSiteCode: 'TW',
         shopeePlaceOrigin: '',
-        shopeePlaceVal: [],
+        shopeePlaceVal: '-1,-2',
         // Lazada
         lazadaSite: [],
         lazadaSiteCode: 'MY',
@@ -723,7 +787,6 @@ export default {
       linkKeyArr: '',
       importLinkData: '',
       mallLinkKey: '',
-      isSelectAll: false,
       isSelectAll2: [
         false, false
       ],
@@ -750,6 +813,7 @@ export default {
 
       successNum: 0,
       failNum: 0,
+      goodsCollectionNum: 0,
 
       // 采集设置
       GoodsDeliveryAddress: 0, // 收藏时过滤商品发货地址（仅Shopee可用）
@@ -782,19 +846,19 @@ export default {
     keyworBar() {
       return getPlatform(this.baseConfig.keywordConfig)
     },
-    // 1 拼多多    2 淘宝/天猫  11 虾皮    8 1688   1.2 拼多多优惠采集
+    // 1 拼多多    2 淘宝/天猫  11 虾皮    8 1688
     // 10 京喜/京东     12 速卖通    9  lazada
     isShowPdd() { // 是否显示页码
       const supportPlarm = [1]
       return supportPlarm.includes(this.currentKeywordPlatform)
     },
     isShowPage() { // 是否显示页码
-      const supportPlarm = [1, 11, 8, 1.2, 10, 12, 9]
+      const supportPlarm = [1, 11, 8, 10, 12, 9]
       return supportPlarm.includes(this.currentKeywordPlatform)
     },
 
     isShowPageSize20() { // 是否显示页码
-      const supportPlarm = [1, 8, 1.2]
+      const supportPlarm = [1, 8]
       return supportPlarm.includes(this.currentKeywordPlatform)
     },
     isShowPageSize50() { // 是否显示页码
@@ -802,11 +866,11 @@ export default {
       return supportPlarm.includes(this.currentKeywordPlatform)
     },
     isShowSales() { // 销量区间
-      const supportPlarm = [1, 2, 11, 8, 1.2, 10, 12]
+      const supportPlarm = [1, 2, 11, 8, 10, 12]
       return supportPlarm.includes(this.currentKeywordPlatform)
     },
     isShowPrice() { // 价格区间
-      const supportPlarm = [1, 2, 11, 8, 1.2, 10, 12, 9]
+      const supportPlarm = [1, 2, 11, 8, 10, 12, 9]
       return supportPlarm.includes(this.currentKeywordPlatform)
     },
     isShowTaobao() {
@@ -834,7 +898,7 @@ export default {
       return supportPlarm.includes(this.currentKeywordPlatform)
     }
     // isShowPrice() { //
-    //   const supportPlarm = [1, 11, 8, 1.2, 10, 12, 9]
+    //   const supportPlarm = [1, 11, 8, 10, 12, 9]
     //   return supportPlarm.includes(this.currentKeywordPlatform)
     // }
   },
@@ -843,20 +907,57 @@ export default {
     this.commonAttr.lazadaSite = lazadaSite
     this.pictureSearchOrigin = pictureSearchOrigin
     const dataTime = new Date() - 0
-    this.taobaoTimeAt = [dataTime - 3600 * 1000 * 24 * 5, dataTime]
+    this.taobaoTimeAt = [dataTime - 3600 * 1000 * 24 * 62, dataTime]
     this.commonAttr.cacheTime = [dataTime - 3600 * 1000 * 24 * 1, dataTime + 3600 * 1000 * 24 * 1]
     this.getShopeeGoodsPlace()
     this.getLazadaGoodsPlace()
     await this.getTaobaoAbroadAccount()
-    document.querySelectorAll('.barChilren')[4].style.width = '102px'
-    // 获取插件port
-    this.port = await this.$BaseUtilService.getPluginPorts()
+    // 监听传入的链接
     this.linkKey = localStorage.getItem('linkKey') ? localStorage.getItem('linkKey').replaceAll(',', '\n') : ''
     window.addEventListener('storage', event => {
       this.linkKey = localStorage.getItem('linkKey') ? localStorage.getItem('linkKey').replaceAll(',', '\n') : ''
     })
+    // 获取插件port
+    await this.getPluginPorts()
+    // 监听插件采集
+    await this.getPluginData()
   },
   methods: {
+    // 监听插件采集
+    async getPluginData() {
+      // pddGoodsKeyword：PDD关键词采集推送数据
+      // pddGoodsDetail：PDD详情采集数据
+      // tbGoodsKeyword：TB关键词采集推送数据
+      // tbGoodsDetail：TB详情采集推送数据
+      try {
+        this.$IpcMain.on('pddGoodsKeyword', async(response) => {
+          this.collectName = `插件采集数据`
+          await this.CollectPublicApInstance.pddGoodsKeyword(response)
+        })
+        this.$IpcMain.on('pddGoodsDetail', async(response) => {
+          this.collectName = `插件采集数据`
+          await this.CollectPublicApInstance.pddGoodsDetail(response)
+        })
+        this.$IpcMain.on('tbGoodsKeyword', async(response) => {
+          this.collectName = `插件采集数据`
+          await this.CollectPublicApInstance.tbGoodsKeyword(response)
+        })
+        this.$IpcMain.on('tbGoodsDetail', async(response) => {
+          this.collectName = `插件采集数据`
+          await this.CollectPublicApInstance.tbGoodsDetail(response)
+        })
+      } catch (error) {
+        // console.log(error)
+      }
+    },
+    // 获取插件port
+    async getPluginPorts() {
+      try {
+        this.port = await this.$BaseUtilService.getPluginPorts()
+      } catch (error) {
+        this.$message.error(`获取插件路径异常${error}`)
+      }
+    },
     // 清理翻译缓存
     async clearTranslate() {
       try {
@@ -895,60 +996,8 @@ export default {
       this.isNoFoldShow = !this.isNoFoldShow
       this.$refs.editor_on_new_goods.setIsNoFoldShow()
     },
-    selectShopeePlaceValEvent() { // 出货地点全选事件
-      if (this.commonAttr.shopeePlaceOrigin.length === this.commonAttr.shopeePlaceVal.length) {
-        this.isSelectAll = true
-      } else {
-        this.isSelectAll = false
-      }
-    },
-    selectShopeeAllEvent() { // 出货地点全选事件
-      if (this.isSelectAll) {
-        this.commonAttr.shopeePlaceOrigin.map(item => {
-          this.commonAttr.shopeePlaceVal.push(item.value)
-        })
-      } else {
-        this.commonAttr.shopeePlaceVal = []
-      }
-    },
-    selectLazadaPlaceValEvent(name, index) { // lazada地点全选事件
-      if (this.commonAttr.lazadaPlaceOrigin[name].length === this.commonAttr[`lazadaPlaceVal${index}`].length) {
-        this.isSelectAll2[index] = true
-      } else {
-        this.isSelectAll2[index] = false
-      }
-    },
-    selectLazadaAllEvent(name, index) { // lazada出货地点全选事件
-      if (this.isSelectAll2[index]) {
-        console.log(name, index)
-        console.log('this.commonAttr.lazadaPlaceOrigin[name]', this.commonAttr.lazadaPlaceOrigin[name])
-        this.commonAttr.lazadaPlaceOrigin[name].map(item => {
-          this.commonAttr[`lazadaPlaceVal${index}`].push(item.value)
-        })
-      } else {
-        this.commonAttr[`lazadaPlaceVal${index}`] = []
-      }
-      console.log('this.commonAttr[`lazadaPlaceVal${index}`]', this.commonAttr[`lazadaPlaceVal${index}`])
-    },
-    selectTaobaoAccountEventEvent() { // 出货地点全选事件
-      if (this.TaobaoAbroadAccount.length === this.TaobaoAbroadAccountId.length) {
-        this.isSelectAllTaobaoAccount = true
-      } else {
-        this.isSelectAllTaobaoAccount = false
-      }
-    },
-    selectTaobaoAccountEventAllEvent() { // 出货地点全选事件
-      if (this.isSelectAllTaobaoAccount) {
-        this.TaobaoAbroadAccount.map(item => {
-          this.TaobaoAbroadAccountId.push(item.id)
-        })
-      } else {
-        this.TaobaoAbroadAccountId = []
-      }
-    },
     getShopeeGoodsPlace() { // 获取shopee出货地点
-      this.isSelectAll = false
-      this.commonAttr.shopeePlaceVal = []
+      this.commonAttr.shopeePlaceVal = '-1,-2'
       this.commonAttr.shopeePlaceOrigin = getShopeeSitePlace(this.commonAttr.shopeeSiteCode)
     },
     getLazadaGoodsPlace() { // 获取Lazada出货地点
@@ -966,6 +1015,19 @@ export default {
     },
     switchPlatform(row) { // 关键词选择平台
       this.currentKeywordPlatform = row.value
+    },
+    isCollection() {
+      if (this.goodsList.length > 0) {
+        this.$confirm('确定重新采集？', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          this.StartCollection()
+        })
+      } else {
+        this.StartCollection()
+      }
     },
     // 开始采集
     StartCollection() {
@@ -1004,37 +1066,28 @@ export default {
       this.consoleMsg = ''
       this.goodsList = []
       this.commonAttr.wordLimit = this.commonAttr.wordLimit === '' ? 10 : this.commonAttr.wordLimit
-      this.$refs.plTable.reloadData(this.goodsList)
       this.CollectKeyWordApInstance._initKeyWord(platForm, this.commonAttr)
       this.writeLog('开始采集搜索........', true)
       this.writeLog(`开始采集${platformObj[platForm]}商品.......`, true)
       this.collectName = `${platformObj[platForm]}关键词采集数据`
+      const keyList = []
       for (let i = 0; i < keyLen; i++) {
         if (this.flag) {
           this.buttonStatus.start = false
+          this.flag = false
           this.writeLog(`取消${platformObj[platForm]}商品采集`, true)
           break
         }
         const item = key[i]
-        const res2 = await this.CollectKeyWordApInstance.keywordSearch(item)
-        if (res2.code !== 200) {
+        if (keyList.includes(item)) {
+          this.writeLog(`重复关键词${item}`, false)
           continue
         }
-        this.goodsList.push(...res2.data)
-      }
-      if (platForm === 1) { // 如果当前平台为拼多多需额外调用 拼多多补充接口  1.1-------------------------
-        for (let i = 0; i < keyLen; i++) {
-          if (this.flag) {
-            this.buttonStatus.start = false
-            this.writeLog(`取消${platformObj[platForm]}商品采集`, true)
-            break
-          }
-          const item = key[i]
-          const res2 = await this.CollectKeyWordApInstance.keywordSearchTwo(item)
-          if (res2.code !== 200) {
-            continue
-          }
-          this.goodsList.push(...res2.data)
+        keyList.push(item)
+        const itemList = []
+        await this.CollectKeyWordApInstance.keywordSearch(item, itemList)
+        if (platForm === 1) { // 如果当前平台为拼多多需额外调用 拼多多补充接口
+          await this.CollectKeyWordApInstance.keywordSearchTwo(item)
         }
       }
       this.goodsList.forEach(row => { this.$refs.plTable.toggleRowSelection([{ row }]) })
@@ -1042,6 +1095,7 @@ export default {
       this.writeLog(`${platformObj[platForm]}商品采集完毕........`, true)
       key = null
       this.buttonStatus.start = false
+      this.flag = false
     },
     // 开始链接采集
     async linksSearch(type) {
@@ -1056,9 +1110,7 @@ export default {
         return this.$message.error(res.data)
       }
       this.goodsList = []
-      this.$refs.plTable.reloadData(this.goodsList)
       const data = res.data
-      console.log(data)
       if (data.length > 0) {
         this.buttonStatus.start = true
         this.writeLog('开始商品链接采集搜索........', true)
@@ -1070,6 +1122,7 @@ export default {
         this.writeLog(`商品链接：共采集：${this.goodsList.length}条`, true)
         this.writeLog(`商品链接采集完毕........`, true)
         this.buttonStatus.start = false
+        this.flag = false
       }
     },
     async linkCollect(item, count = { count: 1 }) {
@@ -1079,7 +1132,6 @@ export default {
           return
         }
         const res2 = await this.collectLinkApInstance.getGoodsDeail(item)
-        console.log(res2)
         if (res2.code !== 200) {
           this.writeLog(`商品ID: ${item.GoodsId} 采集失败: ${res2.data}`, false)
         } else {
@@ -1124,35 +1176,22 @@ export default {
       this.buttonStatus.start = true
       this.consoleMsg = ''
       this.goodsList = []
-      this.$refs.plTable.reloadData(this.goodsList)
       this.writeLog('开始整店链接采集搜索........', true)
       this.collectName = `整店采集数据`
       const data = res.data
-      await batchOperation(data, this.entriresCollection)
+      for (const item of data) {
+        if (this.flag) {
+          return
+        }
+        this.writeLog(`开始获取【${item}】`, true)
+        await this.collectEntireApInstance.mallSearch(item)
+      }
       if (this.flag) this.writeLog('取消整店采集', true)
       this.goodsList.forEach(row => { this.$refs.plTable.toggleRowSelection([{ row }]) })
       this.writeLog(`整店链接：共采集：${this.goodsList.length}条`, true)
       this.writeLog(`整店链接采集完毕........`, true)
       this.buttonStatus.start = false
-    },
-    async entriresCollection(item, count = { count: 1 }) {
-      try {
-        if (this.flag) {
-          terminateThread()
-          return
-        }
-        const res2 = await this.collectEntireApInstance.mallSearch(item)
-        if (res2.code !== 200) {
-          this.writeLog(`店铺链接: ${item} 采集失败: ${res2.data}`, false)
-        } else {
-          this.writeLog(`店铺链接: ${item} 采集成功`)
-          this.goodsList.push(...res2.data)
-        }
-      } catch (error) {
-        this.writeLog(`店铺链接: ${item} 采集异常`)
-      } finally {
-        --count.count
-      }
+      this.flag = false
     },
     // 开始图搜同款采集
     async picToPicSearch() {
@@ -1162,7 +1201,6 @@ export default {
       this.buttonStatus.start = true
       this.consoleMsg = ''
       this.goodsList = []
-      this.$refs.plTable.reloadData(this.goodsList)
       const Name = this.commonAttr.pictureSearchPlatformId === '8' ? '1688' : '淘宝'
       this.writeLog(`开始 ${Name} 图搜采集搜索........`, true)
       this.collectName = `图搜采集数据`
@@ -1181,6 +1219,7 @@ export default {
       this.writeLog(`图搜：共采集：${this.goodsList.length}条`, true)
       this.writeLog(`${Name} 图搜采集完毕........`, true)
       this.buttonStatus.start = false
+      this.flag = false
     },
     async getTaobaoAbroadAccount() {
       const res = await this.collectOtherApInstance.getTaobaoAbroadAccount()
@@ -1198,7 +1237,6 @@ export default {
       this.buttonStatus.start = true
       this.consoleMsg = ''
       this.goodsList = []
-      this.$refs.plTable.reloadData(this.goodsList)
       this.writeLog(`开始 淘宝天猫海外 采集搜索........`, true)
       this.collectName = '淘宝天猫海外采集数据'
       for (let i = 0; i < this.TaobaoAbroadAccountId.length; i++) {
@@ -1208,19 +1246,14 @@ export default {
         }
         const accountID = this.TaobaoAbroadAccountId[i]
         const account = this.TaobaoAbroadAccount.find(item => item.id === accountID)
-        const res = await this.collectOtherApInstance.queryTmCrossBorder(account, this.taobaoTimeAt)
-        if (res.code !== 200) {
-          this.writeLog(`淘宝天猫海外: 采集失败: ${res.data}`, false)
-        } else {
-          // this.writeLog('淘宝天猫海外: 采集成功', true)
-          this.goodsList.push(...res.data)
-        }
+        await this.collectOtherApInstance.queryTmCrossBorder(account, this.taobaoTimeAt)
       }
       console.log('taobaoData', this.goodsList)
       this.goodsList.forEach(row => { this.$refs.plTable.toggleRowSelection([{ row }]) })
       this.writeLog(`淘宝天猫海外：共采集：${this.goodsList.length}条`, true)
       this.writeLog('淘宝天猫海外采集完毕........', true)
       this.buttonStatus.start = false
+      this.flag = false
     },
     // 开始收藏
     async saveGoodsInfo() {
@@ -1229,18 +1262,17 @@ export default {
         return
       }
       this.buttonStatus.start = true
-      this.consoleMsg = ''
       this.successNum = 0
       this.failNum = 0
-      this.writeLog('开始收藏商品........', true)
       // 编辑上新时根据用户选择的起止数据切割
       this.multipleSelection = this.isEditorVisible ? this.multipleSelection.splice(Number(this.start) - 1, Number(this.end) - Number(this.start) + 1) : this.multipleSelection
+      this.goodsCollectionNum = this.multipleSelection.length
       await batchOperation(this.multipleSelection, this.saveGoods)
-      this.writeLog(`共收藏成功：${this.successNum}个商品, 收藏失败：${this.failNum}个商品`, true)
-      this.writeLog(`收藏商品完毕........`, true)
       this.buttonStatus.start = false
+      this.flag = false
     },
     async saveGoods(item, count = { count: 1 }) {
+      let res = null
       try {
         this.StatusName(item, `正在获取商品详情`, true)
         const res2 = await this.collectLinkApInstance.getGoodsDeail(item)
@@ -1250,34 +1282,36 @@ export default {
           return
         } else {
           console.log('详情数据', res2.data)
-          const res = await this.CollectPublicApInstance.setGoodsData(item, res2.data)
+          res = await this.CollectPublicApInstance.setGoodsData(item, res2.data)
           if (res.code === 200) {
+            res.data.operation_type = '收藏成功'
             this.StatusName(item, `收藏成功`, true)
             this.successNum++
             this.$nextTick(() => {
-              this.$refs.plTable.toggleRowSelection([
-                {
-                  row: item,
-                  selected: false
-                }
-              ])
+              this.$refs.plTable.toggleRowSelection([{ row: item, selected: false }])
             })
-            // 编辑上新数据
-            if (this.isEditorVisible) {
-              this.editorSelection.push(res.data)
-            }
           } else {
-            this.StatusName(item, `${res.data}`, false)
+            res.data.operation_type = '收藏失败'
+            this.StatusName(item, `${res.msg}`, false)
             this.failNum++
           }
         }
       } catch (error) {
+        res.data.operation_type = `${error}`
         this.StatusName(item, `${error}`, false)
         this.failNum++
         console.log(error)
       } finally {
         --count.count
       }
+      // 编辑上新数据
+      if (this.isEditorVisible) {
+        this.editorSelection.push(res.data)
+      }
+    },
+    // 关闭上新弹窗
+    closeEditor() {
+      terminateThread()
     },
     // 辅助-----------------------------
     writeLog(msg, success = true) {
@@ -1529,6 +1563,51 @@ export default {
         this.$refs.importRef.value = ''
       }
       fileReader.readAsBinaryString(files[0])
+    },
+    // 打开外部链接
+    async openUrl(url) {
+      if (url) {
+        this.$BaseUtilService.openUrl(url)
+      }
+    },
+    // 全选
+    selectAll(key, baseData, type) {
+      if (type === 1) {
+        if (this[key].length < baseData.length) {
+          this[key] = []
+          baseData.map((item) => {
+            this[key].push(item.id)
+          })
+        } else {
+          this[key] = []
+        }
+      } else {
+        if (this.commonAttr[key].length < baseData.length) {
+          this.commonAttr[key] = []
+          baseData.map((item) => {
+            this.commonAttr[key].push(item.value)
+          })
+        } else {
+          this.commonAttr[key] = []
+        }
+      }
+    },
+    changeSelect(val, key, type) {
+      if (type === 1) {
+        if (!val.includes(0) && val.length === this[key].length) {
+        } else if (val.includes(0) && val.length - 1 < this[key].length) {
+          this[key] = this[key].filter((item) => {
+            return item !== 0
+          })
+        } else {
+          if (!val.includes(0) && val.length === this.commonAttr[key].length) {
+          } else if (val.includes(0) && val.length - 1 < this.commonAttr[key].length) {
+            this.commonAttr[key] = this.commonAttr[key].filter((item) => {
+              return item !== 0
+            })
+          }
+        }
+      }
     }
   }
 }
