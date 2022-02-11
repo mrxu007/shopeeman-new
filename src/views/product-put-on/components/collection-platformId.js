@@ -658,6 +658,10 @@ const source = [
     label: '京东'
   },
   {
+    value: '5',
+    label: '自有'
+  },
+  {
     value: '10',
     label: '京喜'
   },
@@ -676,7 +680,23 @@ const source = [
   {
     value: '9',
     label: 'lazada'
-  }
+  },
+  {
+    value: '11',
+    label: 'shopee'
+  },
+  {
+    value: '12',
+    label: '速卖通'
+  },
+  {
+    value: '13',
+    label: '跨境供销平台'
+  },
+  {
+    value: '15',
+    label: '货老板海外商品'
+  },
 ]
 
 const sourceObj = {
@@ -684,11 +704,16 @@ const sourceObj = {
   '2': '淘宝',
   '3': '天猫',
   '4': '京东',
-  '10': '京喜',
-  '9': 'lazada',
-  '8': '1688',
+  '5': '自有',
   '6': '货老版',
-  '7': '多多进宝'
+  '7': '多多进宝',
+  '8': '1688',
+  '9': 'lazada',
+  '10': '京喜',
+  '11': 'shopee',
+  '12': '速卖通',
+  '13': '跨境供销平台',
+  '15': '货老板海外商品',
 }
 export {
   getPlatform,
