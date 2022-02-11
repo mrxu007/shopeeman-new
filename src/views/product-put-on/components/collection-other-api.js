@@ -73,12 +73,16 @@ class CollectOtherApI {
       try {
         res = await this._this.$collectService.queryTmCrossBorder(account.access_token, params)
         res = JSON.parse(res)
+        if (res.success !== true) {
+          this.writeLog(`账号【${account.account_alias_name}】${res.error_msg}`, false)
+          break
+        }
       } catch (error) {
         this.errorCatchText = error
         res = this.handleError()
       }
       if (res.data?.item_id !== 0) {
-        this.writeLog(`采集第${StartPage}页失败，数据为空`, false)
+        this.writeLog(`账号【${account.account_alias_name}】采集第${StartPage}页失败，数据为空`, false)
         break
       } else {
         let data = res.data.product_list
@@ -86,27 +90,27 @@ class CollectOtherApI {
         if (data.length === 0) { // 如果商品长度为0 跳出
           break
         }
-        // 存放采集数据
-        this.writeLog(`采集第${StartPage}页，采集到约${data.length}条`, true)
-        data = data.map(item => {
+        this.writeLog(`账号【${account.account_alias_name}】采集第${StartPage}页，采集到约${data.length}条`, true)
+        data = data.map(async item => {
           item.Image = item.images[0]
           item.GoodsId = item.item_id
           item.Title = item.title
-          item.CategoryName = item.category_name
+          const cat = await this._this.$collectService.getGoodsCat(Number(account.category_id), 13, '') || ''
+          item.CategoryName = cat.split('|')[0] || ''
           item.Price = item.price
           item.Sales = 0
           item.Origin = '天猫淘宝海外平台'
           item.Url = `https://distributor.taobao.global/apps/product/detail?mpId=${item.item_id}`
           item.platformId = 13
           item.AccessToken = account.access_token
+          item.UserId = account.user_id
           return item
         })
-        this.GoodsData.push(...data)
+        this._this.goodsList = this._this.goodsList.concat(data)
       }
       // 采集初始页大于总页码
       StartPage++
     }
-    return { code: 200, data: this.GoodsData }
   }
   // 辅助--------------------------------------------
   handleError() {

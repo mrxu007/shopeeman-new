@@ -1,5 +1,5 @@
 .container-row{
-  header {
+  .operation-header {
     background: #ffffff;
     padding: 0 16px 0 16px;
     .keyword-container{
@@ -21,7 +21,7 @@
         display: flex;
         overflow: auto;
         .item {
-          flex: 1;
+          // flex: 1;
           margin: 5px 0 10px 0;
           .text {
             margin: 5px 0 10px 0;
@@ -36,6 +36,25 @@
             height: 156px;
             overflow: auto;
             border: 1px solid #ccc;
+            border-radius: 5px;
+          }
+          .con-sub-6 {
+            width: 150px;
+            height: 156px;
+            overflow: auto;
+            margin:5px 0;
+            border-radius: 5px;
+            margin-right: 10px;
+            border: 1px solid #ccc;
+            padding: 10px 5px;
+            ul>li{
+              margin-bottom: 15px;
+              display: flex;
+              p{
+                width: 100px;
+                text-align: right;
+              }
+            }
           }
         }
         .con-sub-1 {
@@ -69,6 +88,13 @@
           .li-shopee {
             .li-shopee-spec {
               margin-left: 10px;
+            }
+          }
+          .li-lazada {
+            display: block;
+            div{
+              display: flex;
+              margin-bottom: 3px;
             }
           }
         }
@@ -117,7 +143,7 @@
       display: flex;
       overflow: auto;
       .item {
-        flex: 1;
+        // flex: 1;
         .text {
           margin: 5px 0 10px 0;
         }
@@ -131,6 +157,27 @@
           height: 156px;
           overflow: auto;
           border: 1px solid #ccc;
+          border-radius: 5px;
+        }
+        .con-sub-6 {
+          width: 150px;
+          height: 156px;
+          overflow: auto;
+          margin:5px 0;
+          border-radius: 5px;
+          margin-right: 10px;
+          border: 1px solid #ccc;
+          padding: 10px 5px;
+          ul {
+            margin: 0 !important;
+            li{
+            display: flex;
+            p{
+              width: 100px;
+              text-align: right;
+            }
+          }
+         }
         }
       }
       ul {
@@ -159,7 +206,7 @@
       display: flex;
       overflow: auto;
       .item {
-        flex: 1;
+        // flex: 1;
         margin: 5px 0 10px 0;
         .text {
           margin: 5px 0 10px 0;
@@ -174,6 +221,25 @@
           height: 156px;
           overflow: auto;
           border: 1px solid #ccc;
+          border-radius: 5px;
+        }
+        .con-sub-6 {
+          width: 150px;
+          height: 156px;
+          overflow: auto;
+          margin:5px 0;
+          border-radius: 5px;
+          margin-right: 10px;
+          border: 1px solid #ccc;
+          padding: 10px 5px;
+          ul>li{
+            margin-bottom: 15px;
+            display: flex;
+            p{
+              width: 100px;
+              text-align: right;
+            }
+          }
         }
       }
       .con-sub-1 {
@@ -261,6 +327,25 @@
           height: 156px;
           overflow: auto;
           border: 1px solid #ccc;
+          border-radius: 5px;
+        }
+        .con-sub-6 {
+          width: 150px;
+          height: 156px;
+          overflow: auto;
+          margin:5px 0;
+          border-radius: 5px;
+          margin-right: 10px;
+          border: 1px solid #ccc;
+          padding: 10px 5px;
+          ul>li{
+            margin-bottom: 15px;
+            display: flex;
+            p{
+              width: 100px;
+              text-align: right;
+            }
+          }
         }
       }
       .con-sub-1 {
@@ -341,6 +426,25 @@
           height: 156px;
           overflow: auto;
           border: 1px solid #ccc;
+          border-radius: 5px;
+        }
+        .con-sub-6 {
+          width: 150px;
+          height: 156px;
+          overflow: auto;
+          margin:5px 0;
+          border-radius: 5px;
+          margin-right: 10px;
+          border: 1px solid #ccc;
+          padding: 10px 5px;
+          ul>li{
+            margin-bottom: 15px;
+            display: flex;
+            p{
+              width: 100px;
+              text-align: right;
+            }
+          }
         }
       }
       .con-sub-1 {
@@ -450,10 +554,23 @@
 
       }
     }
+    /deep/.el-select__tags-text {
+      display: inline-block;
+      max-width: 30px;
+      @media (max-width: 1400px) {
+        max-width: 30px;
+      }
+      overflow: hidden;
+      text-overflow:ellipsis;
+      white-space: nowrap;
+    }
   }
   article {
     background: #ffffff;
     padding:0px 16px 16px 16px;
+    // /deep/.el-table{
+    //   height: calc(100vh - 350px);
+    // }
   }
   .active{
     border: 1px solid rgb(253, 61, 55);
