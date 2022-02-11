@@ -3162,7 +3162,7 @@ export default {
         this.goodsStatusVal = item
         if (item === 0 || this.queryType === 100 || this.queryType === 200) {
           this.goodsStatusName = ''
-          await batchOperation(this.selectMallList, this.getTableData)
+          await batchOperation(this.selectMallList, this.getTableData, 3)
           break
         } else {
           this.goodsStatusName = this.statusFilter[item]
@@ -3172,7 +3172,7 @@ export default {
             item.isFlag = true
             item.cursor = ''
           })
-          await batchOperation(this.selectMallList, this.getTableData)
+          await batchOperation(this.selectMallList, this.getTableData, 3)
         }
       }
       this.operationBut = false
@@ -3288,7 +3288,7 @@ export default {
         item.mylist = []
         item.isFlag = true
       })
-      await batchOperation(this.selectMallList, this.getBannedData)
+      await batchOperation(this.selectMallList, this.getBannedData, 3)
       this.operationBut = false
       this.showConsole = true
       this.$refs.Logs.writeLog(`禁卖商品查询结束`, true)
