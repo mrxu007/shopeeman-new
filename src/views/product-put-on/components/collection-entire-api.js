@@ -3,7 +3,6 @@ class CollectEntireApI {
   _this = null // vue 实例
   constructor(that) {
     this._this = that
-    this.GoodsData = null
   }
 
   async checkMallLink(link) { // 检测店铺链接
@@ -26,69 +25,66 @@ class CollectEntireApI {
     // shopee：callFunction（“SearchShopeeMallGoodsAsync”，MallInformationModel）
     // AliBaBa：callFunction（“SearchAliBaBaMallGoodsAsync”，MallInformationModel）
     // pdd：callFunction（“SearchPddMallGoodsAsync”，MallInformationModel）
-    this.GoodsData = null
-    this.GoodsData = []
     const res = await this.checkMallLink(link)
     if (res.code !== 200) {
-      return { code: res.code, data: res.data }
+      return this.writeLog(`${res.data}`, false)
     }
     let res2 = null
     switch (res.data.Platform) {
       case 1: // 拼多多  1 拼多多接口、  1.1 拼多多补充接口、  1.2 拼多多优惠采集
-      case 1.2:
-        res2 = await this.searchMallGoodsAsync(res.data, 'searchPddMallGoodsAsync')
+        res2 = await this.searchMallGoodsAsync(res.data, 'searchPddMallGoodsAsync', 'PddMallInformation')
         break
       case 2: // '淘宝'
       case 3: // '天猫'   天猫 === 淘宝
-        res2 = await this.searchMallGoodsAsync(res.data, 'searchTbMallGoodsAsync')
+        res2 = await this.searchMallGoodsAsync(res.data, 'searchTbMallGoodsAsync', 'TbMallInformation')
         break
       case 8: // '1688'
-        res2 = await this.searchMallGoodsAsync(res.data, 'searchAliBaBaMallGoodsAsync')
+        res2 = await this.searchMallGoodsAsync(res.data, 'searchAliBaBaMallGoodsAsync', 'AliBaBaMallInformation')
         break
       case 9: // 'Lazada'
-        res2 = await this.searchMallGoodsAsync(res.data, 'searchLazadaMallGoodsAsync')
+        res2 = await this.searchMallGoodsAsync(res.data, 'searchLazadaMallGoodsAsync', 'LazadaMallInformation')
         break
       case 10: // '京喜/京东'
-        res2 = await this.searchMallGoodsAsync(res.data, 'searchJxMallGoodsAsync')
+        res2 = await this.searchMallGoodsAsync(res.data, 'searchJxMallGoodsAsync', 'JxMallInformation')
         break
       case 11: // 'shopee'
-        res2 = await this.searchMallGoodsAsync(res.data, 'searchShopeeMallGoodsAsync')
+        res2 = await this.searchMallGoodsAsync(res.data, 'searchShopeeMallGoodsAsync', 'ShopeeMallInformation')
         break
       case 12: // '速卖通'
-        res2 = await this.searchMallGoodsAsync(res.data, 'searchExpressMallGoodsAsync')
+        res2 = await this.searchMallGoodsAsync(res.data, 'searchExpressMallGoodsAsync', 'ExpressMallInformation')
         break
     }
-    if (res2.code === 200) {
-      const newData = this._this.filterData(this.GoodsData)
-      return { code: 200, data: newData }
-    }
-    return { code: -2, data: res2.data }
   }
 
-  async searchMallGoodsAsync(params, methodName) {
-    try {
-      let res = await this._this.$collectService[methodName](params)
-      res = this.isJsonString(res)
-      if (typeof res === 'object' && res.Result.Code === 200) {
-        // && res.Result.ListItem.length > 0
-        this.GoodsData.push(...res.Result.ListItem)
-        return { code: 200, data: '' }
+  async searchMallGoodsAsync(params, methodName, name) {
+    let Page = 1
+    while (Page) {
+      if (this._this.flag) { // 取消采集
+        break
       }
-      return { code: -2, data: typeof res === 'string' ? res : res.Result.Msg }
-    } catch (error) {
-      return { code: -2, data: `SearchPddMallGoodsAsync-catch: ${error}` }
+      try {
+        params[name].Page = Page
+        let res = await this._this.$collectService[methodName](params)
+        res = this.isJsonString(res)
+        console.log('整店返回数据', res)
+        if (typeof res === 'object' && res.Result.Code === 200) {
+          const newData = this._this.filterData(res.Result.ListItem)
+          this.writeLog(`开始采集第【${Page}】页商品，共采集到【${res.Result.ListItem.length}】条，过滤【${res.Result.ListItem.length - newData.length}】条`, true)
+          this._this.goodsList = this._this.goodsList.concat(newData)
+        } else {
+          this.writeLog(`开始采集第【${Page}】页商品，采集失败${typeof res === 'string' ? res : res.Result.Msg || ''}`, false)
+          break
+        }
+      } catch (error) {
+        if (error.indexOf('超出页数限制') > -1 || error.indexOf('获取Shopee商品详情为空') > -1) {
+          this.writeLog(`采集完成，采集已达最大页数限制`, false)
+          break
+        }
+        this.writeLog(`采集异常，${error}`, false)
+        break
+      }
+      Page++
     }
-  }
-  // 辅助--------------------------------------------
-  handleError() {
-    let errorText = JSON.stringify(this.errorCatchText).replace(/\s/g, '')
-    if (errorText.indexOf('数据列表为空') > -1) {
-      errorText = '数据列表为空'
-    } else if (errorText.indexOf('返回数据不能为空') > -1) {
-      errorText = '返回数据不能为空'
-    }
-    this.errorCatchText = null
-    return JSON.stringify({ Code: -2, Msg: `捕获错误${errorText}` })
   }
   handleEntireKeyFactory(key) {
     try {

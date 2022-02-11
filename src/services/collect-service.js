@@ -87,4 +87,12 @@ export default class CollectService {
   getGoodsCat(category_id, source, site) {
     return this.nativeService.getGoodsCat(category_id, source, site)
   }
+  // 创建系统商品编码
+  createSysGoodsNo(goodsId, platform) {
+    return this.nativeService.createSysGoodsNo(goodsId, platform)
+  }
+  // 创建系统商品规格编码
+  createSysSkuNo(goodsId, skuId, platform) {
+    return this.nativeService.createSysSkuNo(goodsId, skuId, platform)
+  }
 }

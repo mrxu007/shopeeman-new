@@ -15,7 +15,7 @@ class CollectKeyWordApI {
     this.platformId = platformId // 关键词采集----平台ID
     this.commonAttr = commonAttr // // 关键词采集----公共参数
   }
-  async keywordSearch(key) { // 采集关键字模块
+  async keywordSearch(key, itemList) { // 采集关键字模块
     this.GoodsData = null
     this.GoodsData = []
     // 公共
@@ -41,15 +41,18 @@ class CollectKeyWordApI {
 
     const params = {}
     params['Key'] = key
-    let wordLimitData = []
-    let fData = []
     while (StartPage) {
       if (this._this.flag) { // 取消采集
         break
       }
+      if (this.platformId === 2) {
+        const filterData = this._this.goodsList.filter(item => {
+          return item.wordLimitKey === key
+        })
+        if (filterData.length >= Number(this.commonAttr.wordLimit)) break
+      }
       switch (this.platformId) {
-        case 1: // 拼多多  1 拼多多接口、  1.1 拼多多补充接口、  1.2 拼多多优惠采集
-        case 1.2:
+        case 1: // 拼多多  1 拼多多接口、  1.1 拼多多补充接口
           params['Page'] = StartPage // 页码
           break
         case 2: // '淘宝'
@@ -81,7 +84,7 @@ class CollectKeyWordApI {
           params['StartPrice'] = StartPrice // 价格范围
           params['EndPrice'] = EndPrice
           params['Site'] = shopeeSiteCode.toLowerCase() // 站点
-          params['Location'] = Location.join(',') // 发货位置
+          params['Location'] = Location // 发货位置
           break
         case 12: // '速卖通'
           params['Page'] = StartPage // 页码
@@ -99,20 +102,35 @@ class CollectKeyWordApI {
       }
       res = JSON.parse(res)
       if (res.Code !== 200) {
-        this.writeLog(`采集${key}关键词第${StartPage}页第一部分失败：${res.Code} ${res.Msg}`, false)
-        if (this.platformId === 2) break
-      } else {
-        if (this.platformId === 2) { // 淘宝关键词 判断单词最大
-          if (wordLimitData.length >= Number(this.commonAttr.wordLimit)) {
-            break
-          }
-          this.writeLog(`采集${key}关键词第${StartPage}页数据，采集到约${res.ListItem.length}条`, true)
-          fData = this._this.filterData(res.ListItem)
-          wordLimitData = wordLimitData.concat(fData).splice(0, Number(this.commonAttr.wordLimit))
+        if (this.platformId === 1) {
+          this.writeLog(`采集${key}关键词第${StartPage}页第一部分失败：已无可采数据`, false)
         } else {
-          // 存放采集数据
-          this.writeLog(`采集${key}关键词第${StartPage}页第一部分，采集到约${res.ListItem.length}条`, true)
-          this.GoodsData.push(...res.ListItem)
+          this.writeLog(`采集${key}关键词第${StartPage}页失败：已无可采数据`, false)
+        }
+        break
+      } else {
+        res.ListItem = res.ListItem.map((item, index) => {
+          item.id = index + 1
+          item.information = ''
+          if (this.platformId === 9) {
+            item.Site = params.Site
+          }
+          item.wordLimitKey = key
+          return item
+        })
+        const newData = this._this.filterData(res.ListItem)
+        if (this.platformId === 1) {
+          this.writeLog(`采集${key}关键词第${StartPage}页第一部分，采集到约${res.ListItem.length}条，过滤${res.ListItem.length - newData.length}条`, true)
+        } else {
+          this.writeLog(`采集${key}关键词第${StartPage}页数据，采集到约${res.ListItem.length}条，过滤${res.ListItem.length - newData.length}条`, true)
+        }
+        if (this.platformId === 2) { // 淘宝关键词 判断单词最大
+          const nameData = this._this.goodsList.filter(item => { return item.wordLimitKey === key })
+          const num = Number(this.commonAttr.wordLimit) - nameData.length
+          itemList = newData.splice(0, num)
+          this._this.goodsList = this._this.goodsList.concat(itemList)
+        } else {
+          this._this.goodsList = this._this.goodsList.concat(newData)
         }
       }
       // 采集初始页大于总页码
@@ -120,26 +138,6 @@ class CollectKeyWordApI {
         break
       }
       StartPage++
-    }
-    // 处理所需参数
-    if (this.platformId === 2) {
-      wordLimitData = wordLimitData.map((item, index) => {
-        item.id = index + 1
-        item.information = ''
-        return item
-      })
-      return { code: 200, data: wordLimitData }
-    } else {
-      this.GoodsData = this.GoodsData.map((item, index) => {
-        item.id = index + 1
-        item.information = ''
-        if (this.platformId === 9) {
-          item.Site = params.Site
-        }
-        return item
-      })
-      const newData = this._this.filterData(this.GoodsData)
-      return { code: 200, data: newData }
     }
   }
   async keywordSearchTwo(key) { // 如果当前平台为拼多多需额外调用 拼多多补充接口  1.1-------------------------
@@ -163,12 +161,20 @@ class CollectKeyWordApI {
         res = this.handleError()
       }
       res = JSON.parse(res)
+      console.log('res', res)
       if (res.Code !== 200) {
-        this.writeLog(`采集${key}关键词第${StartPage}页第二部分失败：${res.Code} ${res.Msg}`, false)
+        // this.writeLog(`采集${key}关键词第${StartPage}页第二部分失败：${res.Code} ${res.Msg}`, false)
+        this.writeLog(`采集${key}关键词第${StartPage}页第二部分失败：已无可采数据`, false)
+        break
       } else {
-        // 存放采集数据
-        this.writeLog(`采集${key}关键词第${StartPage}页第二部分，采集到约${res.ListItem.length}条`, true)
-        this.GoodsData.push(...res.ListItem)
+        res.ListItem = res.ListItem.map((item, index) => {
+          item.id = index + 1
+          item.information = ''
+          return item
+        })
+        const newData = this._this.filterData(res.ListItem)
+        this._this.goodsList = this._this.goodsList.concat(newData)
+        this.writeLog(`采集${key}关键词第${StartPage}页第二部分，采集到约${res.ListItem.length}条，过滤${res.ListItem.length - newData.length}条`, true)
       }
       // 采集初始页大于总页码
       if (StartPage >= EndPage) {
@@ -176,15 +182,6 @@ class CollectKeyWordApI {
       }
       StartPage++
     }
-
-    // 处理所需参数
-    this.GoodsData = this.GoodsData.map((item, index) => {
-      item.id = index + 1
-      item.information = ''
-      return item
-    })
-    const newData = this._this.filterData(this.GoodsData)
-    return { code: 200, data: newData }
   }
   // 辅助--------------------------------------------
   handleError() {
@@ -193,6 +190,8 @@ class CollectKeyWordApI {
       errorText = '数据列表为空'
     } else if (errorText.indexOf('返回数据不能为空') > -1) {
       errorText = '返回数据不能为空'
+    } else if (errorText.indexOf('超出页数限制') > -1 || errorText.indexOf('获取Shopee商品详情为空') > -1) {
+      errorText = '采集完成，采集已达最大页数限制'
     }
     this.errorCatchText = null
     return JSON.stringify({ Code: -2, Msg: `捕获错误${errorText}` })
