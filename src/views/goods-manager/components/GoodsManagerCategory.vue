@@ -217,8 +217,8 @@ export default {
         const params = {
           country: this.mallinfo.country,
           mallId: this.mallinfo.mallID,
-          collection_id: Number(this.selDate.id),
-          product_id_list: itemidList
+          collection_id: Number(this.selDate.id), // 分类id
+          product_id_list: itemidList // 商品id
         }
         try {
           const res = await this.GoodsManagerAPIInstance.addCollectionGoods(params)
