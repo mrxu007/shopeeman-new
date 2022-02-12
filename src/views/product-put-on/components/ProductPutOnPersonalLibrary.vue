@@ -15,15 +15,15 @@
         <el-button type="primary" size="mini" @click="batchProcessing(16)">批量设置重量/体积</el-button>
         <el-button type="primary" size="mini" @click="deleteGoods">取消收藏</el-button>
         <el-upload
-          v-if="uploadImgAdd"
-          v-show="false"
-          style="margin-right: 10px"
-          action="#"
-          :drag="true"
-          :show-file-list="false"
-          :limit="1"
-          :auto-upload="false"
-          :on-change="imageUpload"
+            v-if="uploadImgAdd"
+            v-show="false"
+            style="margin-right: 10px"
+            action="#"
+            :drag="true"
+            :show-file-list="false"
+            :limit="1"
+            :auto-upload="false"
+            :on-change="imageUpload"
         >
           <el-button ref="uploadImg" size="mini" type="primary">选择图片</el-button>
         </el-upload>
@@ -34,65 +34,69 @@
           <li>
             <p>采购来源：</p>
             <el-select v-model="sourceVal" placeholder="" size="mini">
-              <el-option label="全部" :value="''" />
-              <el-option v-for="(item, index) in source" :key="index" :label="item.label" :value="item.value" />
+              <el-option label="全部" :value="''"/>
+              <el-option v-for="(item, index) in source" :key="index" :label="item.label" :value="item.value"/>
             </el-select>
           </li>
           <li>
             <p>筛选时间：</p>
             <el-select v-model="timeType" placeholder="" size="mini">
-              <el-option v-for="(item, index) in timeAt" :key="index" :label="item.label" :value="item.value" />
+              <el-option v-for="(item, index) in timeAt" :key="index" :label="item.label" :value="item.value"/>
             </el-select>
             <el-date-picker
-              v-model="value2"
-              size="mini"
-              value-format="yyyy-MM-dd"
-              type="daterange"
-              range-separator="-"
-              start-placeholder="开始日期"
-              end-placeholder="结束日期"
+                v-model="value2"
+                size="mini"
+                value-format="yyyy-MM-dd"
+                type="daterange"
+                range-separator="-"
+                start-placeholder="开始日期"
+                end-placeholder="结束日期"
             />
           </li>
           <li>
             <p>优选商品：</p>
             <el-select v-model="isFeatured" placeholder="" size="mini">
-              <el-option label="全部" value="0" />
-              <el-option v-for="(item, index) in isFeaturedArr" :key="index" :label="item.label" :value="item.value" />
+              <el-option label="全部" value="0"/>
+              <el-option v-for="(item, index) in isFeaturedArr" :key="index" :label="item.label" :value="item.value"/>
             </el-select>
           </li>
           <li>
             <p>编辑状态：</p>
             <el-select v-model="isEditValue" placeholder="" size="mini">
-              <el-option label="全部" :value="''" />
-              <el-option v-for="(item, index) in editArr" :key="index" :label="item.label" :value="item.value" />
+              <el-option label="全部" :value="''"/>
+              <el-option v-for="(item, index) in editArr" :key="index" :label="item.label" :value="item.value"/>
             </el-select>
           </li>
           <li>
             <p>语种：</p>
             <el-select v-model="language" placeholder="" size="mini">
-              <el-option label="全部" :value="''" />
-              <el-option v-for="(item, index) in languageArr" :key="index" :label="item.label" :value="item.value" />
+              <el-option label="全部" :value="''"/>
+              <el-option v-for="(item, index) in languageArr" :key="index" :label="item.label" :value="item.value"/>
             </el-select>
           </li>
           <li>
             <p>价格区间：</p>
-            <el-input v-model="minPrice" size="mini" placeholder="" />
+            <el-input v-model="minPrice" size="mini" placeholder=""/>
             <span class="slot">-</span>
-            <el-input v-model="maxPrice" size="mini" placeholder="" />
+            <el-input v-model="maxPrice" size="mini" placeholder=""/>
           </li>
           <li>
             <p>商品ID：</p>
-            <el-input v-model="goodsId" size="mini" placeholder="" />
+            <el-input v-model="goodsId" size="mini" placeholder=""/>
           </li>
           <li>
             <p>商品标签：</p>
             <el-select v-model="labelId" placeholder="" size="mini">
-              <el-option label="全部" value="0" />
-              <el-option v-for="(item, index) in labelList" :key="index" :label="item.label_name" :value="item.id" />
+              <el-option label="全部" value="0"/>
+              <el-option v-for="(item, index) in labelList" :key="index" :label="item.label_name" :value="item.id"/>
             </el-select>
           </li>
           <li>
             <el-button type="primary" size="mini" @click="getLabelList('refresh')">刷新</el-button>
+          </li>
+        </ul>
+        <ul>
+          <li>
             <el-button type="primary" size="mini" @click="getGoodsList">搜索</el-button>
           </li>
         </ul>
@@ -101,62 +105,69 @@
     <article>
       <p class="tip">尊敬的用户：您好，为提高私有选品库模块的性能，系统只能保存近30天的非精选商品数据，为保证部分精选商品不被清理，请将需要保留的商品标记为精选商品</p>
       <u-table
-        ref="plTable"
-        v-loading="buttonStatus.getList"
-        :height="Height"
-        use-virtual
-        :data-changes-scroll-top="false"
-        :header-cell-style="{backgroundColor: '#f5f7fa',}"
-        row-key="id"
-        :big-data-checkbox="true"
-        :border="false"
-        @selection-change="handleSelectionChange"
+          ref="plTable"
+          v-loading="buttonStatus.getList"
+          :height="Height"
+          use-virtual
+          :data-changes-scroll-top="false"
+          :header-cell-style="{backgroundColor: '#f5f7fa',}"
+          row-key="id"
+          :big-data-checkbox="true"
+          :border="false"
+          @selection-change="handleSelectionChange"
       >
-        <u-table-column align="center" type="selection" />
-        <u-table-column align="center" type="index" label="序号" />
-        <u-table-column align="center" label="标签">
+        <u-table-column align="center" type="selection"/>
+        <u-table-column align="center" type="index" label="序号"/>
+        <u-table-column align="center" label="标签" width="70">
           <template v-slot="{ row }">
             <p style="white-space: normal">{{ getLabelName(row.sys_label_id) }}</p>
           </template>
         </u-table-column>
-        <u-table-column align="center" label="采购来源" width="80">
+        <u-table-column align="center" label="采购来源" width="70" show-overflow-tooltip>
           <template v-slot="{ row }">
             <p style="white-space: normal">{{ sourceObj[row.source + ''] }}</p>
           </template>
         </u-table-column>
-        <u-table-column align="center" label="优选商品" width="80">
+        <u-table-column align="center" label="优选商品" width="70">
           <template v-slot="{ row }">
             {{ row.is_featured === '1' ? '是' : '否' }}
           </template>
         </u-table-column>
-        <u-table-column align="center" label="商品Id" width="110">
+        <u-table-column align="center" label="商品Id" width="130">
           <template v-slot="{ row }">
-            <p class="goToGoods" @click.stop="goToGoods(row)">{{ row.goods_id }}</p>
+            <span class="goToGoods" @click.stop="goToGoods(row)">{{ row.goods_id }}</span>
+            <el-button type="text" class="copyIcon" @click="copy(row.goods_id)">
+              <i class="el-icon-document-copy"/></el-button>
           </template>
         </u-table-column>
         <u-table-column align="center" label="标题" prop="Price" width="150px" fit>
           <template v-slot="{ row }">
-            <div class="goodsTableLine" style="height: 80px;text-align: left">
-              {{ row.title }}
-            </div>
+            <el-input resize="none" type="textarea"
+                      :autosize="{ minRows: 4, maxRows: 4}"
+                      @blur.native="goodsListUpdate(row)"
+                      placeholder="请输入标题"
+                      v-model="row.title">
+            </el-input>
           </template>
         </u-table-column>
         <u-table-column align="center" label="主图" width="80" prop="Sales">
           <template v-slot="{ row }">
-            <el-tooltip effect="light" placement="right-end" :visible-arrow="false" :enterable="false" style="width: 56px; height: 56px; display: inline-block">
+            <el-tooltip effect="light" placement="right-end" :visible-arrow="false" :enterable="false"
+                        style="width: 56px; height: 56px; display: inline-block">
               <div slot="content">
-                <el-image :src=" row.image " style="width: 400px; height: 400px" />
+                <el-image :src=" row.image " style="width: 400px; height: 400px"/>
               </div>
-              <el-image :src="{url:row.image,source:row.source} | changeImgSizeFilter" style="width: 56px; height: 56px" />
+              <el-image :src="{url:row.image,source:row.source} | changeImgSizeFilter"
+                        style="width: 56px; height: 56px"/>
             </el-tooltip>
           </template>
         </u-table-column>
-        <u-table-column align="center" label="价格" width="70" prop="price" show-overflow-tooltip />
-        <u-table-column align="center" label="库存" width="80" prop="stock" show-overflow-tooltip />
-        <u-table-column align="center" label="销量" width="80" prop="sales" show-overflow-tooltip />
+        <u-table-column align="center" label="价格" width="80" prop="price" show-overflow-tooltip/>
+        <u-table-column align="center" label="库存" width="80" prop="stock" show-overflow-tooltip/>
+        <u-table-column align="center" label="销量" width="80" prop="sales" show-overflow-tooltip/>
         <u-table-column align="center" label="重量(kg)" width="80">
           <template v-slot="{ row }">
-            <el-input v-model="row.weight" size="mini" />
+            <el-input v-model="row.weight" size="mini" @keyup.enter.native="goodsListUpdate(row)"/>
           </template>
         </u-table-column>
         <u-table-column align="center" label="体积" width="110">
@@ -164,15 +175,15 @@
             <ul>
               <li style="display: flex">
                 <p style="margin-right: 5px;">长(cm)</p>
-                <el-input v-model="row.long" style="flex:1" size="mini" />
+                <el-input v-model="row.long" @keyup.enter.native="goodsListUpdate(row)" style="flex:1" size="mini"/>
               </li>
               <li style="display: flex">
                 <p style="margin-right: 5px;">宽(cm)</p>
-                <el-input v-model="row.width" style="flex:1" size="mini" />
+                <el-input v-model="row.width" @keyup.enter.native="goodsListUpdate(row)" style="flex:1" size="mini"/>
               </li>
               <li style="display: flex">
                 <p style="margin-right: 5px;">高(cm)</p>
-                <el-input v-model="row.height" style="flex:1" size="mini" />
+                <el-input v-model="row.height" @keyup.enter.native="goodsListUpdate(row)" style="flex:1" size="mini"/>
               </li>
             </ul>
           </template>
@@ -185,20 +196,26 @@
         <u-table-column align="center" label="源平台类目" show-overflow-tooltip>
           <template v-slot="{ row }">{{ getCategoty(row) || '未匹配到类目' }}</template>
         </u-table-column>
-        <u-table-column align="center" label="更新时间" width="140px" prop="updated_at" />
-        <u-table-column align="center" label="收藏时间" width="140px" prop="created_at" />
-        <u-table-column align="center" label="操作结果" />
+        <u-table-column align="center" label="更新时间" width="140px" prop="updated_at"/>
+        <u-table-column align="center" label="收藏时间" width="140px" prop="created_at"/>
+        <u-table-column align="center" label="操作结果" show-overflow-tooltip>
+          <template v-slot="{ row }">
+            <div class="goodsTableLine" style="height: 80px;text-align: left">
+              {{ row.operation_type || '' }}
+            </div>
+          </template>
+        </u-table-column>
       </u-table>
       <div class="pagination">
         <el-pagination
-          background
-          layout="total, sizes, prev, pager, next"
-          :total="total"
-          :current-page="currentPage"
-          :page-sizes="[30, 100, 200]"
-          :page-size="pageSize"
-          @size-change="handleSizeChange"
-          @current-change="handleCurrentChange"
+            background
+            layout="total, sizes, prev, pager, next"
+            :total="total"
+            :current-page="currentPage"
+            :page-sizes="[30, 100, 200, 500]"
+            :page-size="pageSize"
+            @size-change="handleSizeChange"
+            @current-change="handleCurrentChange"
         />
       </div>
     </article>
@@ -230,18 +247,18 @@
       </span>
     </el-dialog> -->
     <el-dialog
-      title="商品标签"
-      width="300px"
-      top="15vh"
-      class="label-dialog"
-      :close-on-click-modal="false"
-      :modal="false"
-      :visible.sync="goodsLabelVisiable"
+        title="商品标签"
+        width="300px"
+        top="15vh"
+        class="label-dialog"
+        :close-on-click-modal="false"
+        :modal="false"
+        :visible.sync="goodsLabelVisiable"
     >
       <goodsLabel
-        v-if="goodsLabelVisiable"
-        :goods-table-select="multipleSelection"
-        @goodsTagChange="goodsTagChange"
+          v-if="goodsLabelVisiable"
+          :goods-table-select="multipleSelection"
+          @goodsTagChange="goodsTagChange"
       />
     </el-dialog>
     <div class="on_new_dialog">
@@ -254,27 +271,29 @@
             </el-button>
           </div>
         </template>
-        <editor-on-new-goods v-if="isEditorVisible" ref="editor_on_new_goods" :mall-table="multipleSelection" @goodsTagChange="goodsTagChange" />
+        <editor-on-new-goods v-if="isEditorVisible" ref="editor_on_new_goods" :mall-table="multipleSelection"
+                             @goodsTagChange="goodsTagChange"/>
       </el-dialog>
-      <el-dialog title="类目映射" width="700px" top="25vh" :close-on-click-modal="false" :modal="false" :visible.sync="categoryVisible">
-        <categoryMapping v-if="categoryVisible" :goods-current="{}" :mall-list="[]" @categoryChange="categoryChange" />
+      <el-dialog title="类目映射" width="700px" top="25vh" :close-on-click-modal="false" :modal="false"
+                 :visible.sync="categoryVisible">
+        <categoryMapping v-if="categoryVisible" :goods-current="{}" :mall-list="[]" @categoryChange="categoryChange"/>
       </el-dialog>
       <el-dialog
-        title="设置商品重量和体积"
-        width="300px"
-        top="25vh"
-        :close-on-click-modal="false"
-        :modal="false"
-        :visible.sync="goodsSizeVisible"
+          title="设置商品重量和体积"
+          width="300px"
+          top="25vh"
+          :close-on-click-modal="false"
+          :modal="false"
+          :visible.sync="goodsSizeVisible"
       >
-        <goods-size v-if="goodsSizeVisible" @goodsSizeChange="goodsSizeChange" />
+        <goods-size v-if="goodsSizeVisible" @goodsSizeChange="goodsSizeChange"/>
       </el-dialog>
     </div>
   </div>
 </template>
 
 <script>
-import { delay, getGoodsUrl, importOrder, randomWord } from '../../../util/util'
+import { delay, getGoodsUrl, importOrder, randomWord, copyText } from '../../../util/util'
 import PersonalLibraryAPI from '../../../module-api/product-put-on-api/personal-library-api'
 import { source, sourceObj } from './collection-platformId'
 import editorOnNewGoods from '../../../components/editor_on_new_goods'
@@ -355,7 +374,8 @@ export default {
       categoryVisible: false,
       // 设置大小
       goodsSizeVisible: false,
-      categoryList: {}
+      categoryList: {},
+      isReplaceSize: true
     }
   },
   computed: {
@@ -411,18 +431,41 @@ export default {
       let messStr = ''
       if (type === 4) {
         this.uploadImgAdd = true
-        setTimeout(() => {
-          this.$refs['uploadImg'].$el.click()
-        }, 100)
+        let selectIndex = this.multipleSelection.findIndex(i => i.size_image_id)
+        if (selectIndex > -1) {
+          this.$confirm('批量新增尺寸图时，是否替换原有尺寸图?', '提示', {
+            confirmButtonText: '确定',
+            cancelButtonText: '取消',
+            type: 'warning'
+          }).then(() => {
+            this.isReplaceSize = true
+            setTimeout(() => {
+              this.$refs['uploadImg'].$el.click()
+            }, 100)
+          }).catch(() => {
+            this.isReplaceSize = false
+            setTimeout(() => {
+              this.$refs['uploadImg'].$el.click()
+            }, 100)
+          })
+        } else {
+          this.isReplaceSize = true
+          setTimeout(() => {
+            this.$refs['uploadImg'].$el.click()
+          }, 100)
+        }
       } else if (type === 7) {
         for (const i of this.multipleSelection) {
+          console.log(i)
+          let index = this.goodsList.findIndex(son => son.id === i.id)
           if (i.size_image_id) {
             const deleteGoodsImageJson = await this.$commodityService.deleteGoodsImage(2, i.id, '0')
             const deleteGoodsImage = JSON.parse(deleteGoodsImageJson)
             success = deleteGoodsImage.code === 200
-            messStr = success && '尺寸图删除成功' || '尺寸图删除失败'
+            this.$set(this.goodsList[index], 'operation_type', success && '尺寸图删除成功' || '尺寸图删除失败')
+            success && this.$set(this.goodsList[index], 'size_image_id', 0)
           } else {
-            this.$set(this.mallTable[index], 'operation_type', '无尺寸图可删除')
+            this.$set(this.goodsList[index], 'operation_type', '无尺寸图可删除')
           }
         }
       } else if (type === 8) {
@@ -472,16 +515,22 @@ export default {
         const imgData = reader.result
         const name = randomWord(false, 32) + '_' + new Date().getTime()
         const temp = await this.$ossService.uploadFile(imgData, name + '.png')
-        let success = false
         for (const i of this.multipleSelection) {
-          const storeGoodsSizeImagesJson = await this.$commodityService.storeGoodsSizeImages(i.id + '', temp)
-          const storeGoodsSizeImagesRes = JSON.parse(storeGoodsSizeImagesJson)
-          success = temp && storeGoodsSizeImagesRes.code === 200
-        }
-        if (success) {
-          this.$message.success('尺寸图添加成功')
-        } else {
-          this.$message.success('尺寸图添加失败')
+          let index = this.goodsList.findIndex(son => son.id === i.id)
+          if (i.language === 'zh-Hans') {
+            this.$set(this.goodsList[index], 'operation_type', '简体数据无需添加尺寸图')
+            continue
+          }
+          if (this.isReplaceSize || !i.size_image_id) {
+            const storeGoodsSizeImagesJson = await this.$commodityService.storeGoodsSizeImages(i.id + '', temp)
+            const storeGoodsSizeImagesRes = JSON.parse(storeGoodsSizeImagesJson)
+            let success = temp && storeGoodsSizeImagesRes.code === 200
+            this.$set(this.goodsList[index], 'operation_type', success && '尺寸图添加成功' || '尺寸图添加失败')
+            success && this.$set(this.goodsList[index], 'size_image_id', 1)
+          } else {
+            this.$set(this.goodsList[index], 'operation_type', '已有尺寸图，未替换')
+          }
+
         }
       }
     },
@@ -638,6 +687,7 @@ export default {
         console.log('this.goodsList', this.goodsList)
         console.log('this.labelList', this.labelList)
       }
+      this.$refs.plTable.toggleAllSelection()
       this.buttonStatus.getList = false
     },
     async markPreferredGoods(type) {
@@ -734,6 +784,32 @@ export default {
       })
       selectElement = null
     },
+    async goodsListUpdate(item) {
+      console.log('goodsListUpdate', item)
+      let index = this.goodsList.findIndex(son => son.id === item.id)
+      if (item) {
+        const sysGoodsId = item.id
+        const description = item.description
+        const title = item.title
+        let param = {
+          sysGoodsId,
+          description,
+          title,
+          weight: item.weight,
+          long: item.long,
+          height: item.height,
+          width: item.width,
+        }
+        const updateGoodsJson = await this.$commodityService.updateGoods(param)
+        console.log(updateGoodsJson)
+        const updateGoodsRes = JSON.parse(updateGoodsJson)
+        if (updateGoodsRes.code === 200) {
+          this.$set(this.goodsList[index], 'operation_type', '数据更新成功')
+        } else {
+          this.$set(this.goodsList[index], 'operation_type', '数据更新失败')
+        }
+      }
+    },
     // 取消商品
     async deleteGoods() {
       if (this.multipleSelection.length === 0) {
@@ -757,6 +833,9 @@ export default {
       oldDay = new Date(nowDay - 3600 * 24 * 1000 * 2).toISOString().slice(0, 10)
       nowDay = nowDay.toISOString().slice(0, 10)
       this.value2 = [oldDay, nowDay]
+    },
+    copy(str) {
+      copyText(str)
     }
   }
 }
@@ -784,11 +863,14 @@ export default {
   line-height: 1.5;
   overflow: auto;
 }
-.goToGoods{
+
+.goToGoods {
   white-space: normal;
   cursor: pointer;
   line-height: 40px;
-  &:hover{
+  margin-right: 5px;
+
+  &:hover {
     color: #ff0000;
   }
 }

@@ -264,7 +264,7 @@
                 <el-input v-model="row.sku_stock" size="mini"></el-input>
               </template>
             </u-table-column>
-            <u-table-column align="left" label="单买架(元)" width="200">
+            <u-table-column align="left" label="单买价(元)" width="200">
               <template slot-scope="{ row }">
                 <el-input v-model="row.sku_price" size="mini"></el-input>
               </template>
@@ -279,8 +279,8 @@
       </el-tab-pane>
     </el-tabs>
     <div style="display: flex; align-items: center;margin-top: 10px;justify-content: center">
-      <el-button size="mini" type="primary" @click="goodsChange">确定</el-button>
-      <el-button size="mini" @click="$emit('goodsEditorCancel','')">取消</el-button>
+      <el-button size="mini" type="primary" @click="goodsChange">保存</el-button>
+      <el-button size="mini" @click="$emit('goodsEditorCancel','')">关闭</el-button>
     </div>
     <div class="on_new_dialog upload_new">
       <el-dialog class="goods-edit-details" title="图片选择" width="830px" :close-on-click-modal="false"
