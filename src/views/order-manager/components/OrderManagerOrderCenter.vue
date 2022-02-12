@@ -2286,10 +2286,15 @@ export default {
       this.clickRow = row
       this.multipleSelection = [row]
       this.colorVisible = true
+      this.colorRadio = ''
       await this.getColorList()
     },
     // 设置颜色
     async setColor(arrData) {
+      console.log(this.colorRow)
+      if(!this.colorRow.id){
+        return this.$message.warning('请选择要标记的颜色!')
+      }
       let ids = ''
       arrData.forEach((item, index) => {
         if (index === 0) {
@@ -2312,6 +2317,7 @@ export default {
         })
         this.colorVisible = false
         this.colorRow = {}
+        this.colorRadio = ''
         this.$message.success('设置成功')
         // this.closeDialog()
       } else {

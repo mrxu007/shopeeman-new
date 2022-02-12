@@ -316,7 +316,7 @@ const errorMsg = function(userMessage) {
     } else if (userMessage.indexOf('param is invalid') > -1) {
       msg = '上新数据无效，请联系客服'
     } else if (userMessage.indexOf('create product failed') > -1) {
-      msg = 'shopee官网波动，暂时无法上新，请等待5分钟左右后重试'
+      msg = '商品创建失败'
     } else if (userMessage.indexOf('product is duplicated') > -1) {
       msg = '此产品已重复上新'
     } else if (userMessage.indexOf('Failed to create product with invalid param') > -1) {

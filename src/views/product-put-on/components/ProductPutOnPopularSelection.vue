@@ -69,24 +69,34 @@
 
     </div>
     <div class="content">
-      <el-table
+      <u-table
         ref="multipleTable"
         v-loading="tableLoading"
+        height="720px"
         :data="tableData"
+        :data-changes-scroll-top="false"
+        :header-cell-style="{backgroundColor: '#f5f7fa',}"
+        :big-data-checkbox="true"
+        :border="false"
+        use-virtual
         tooltip-effect="dark"
-        :row-style="{ height: '100px' }"
-        :height="'calc(100vh - 215px)'"
+        :row-style="{ height: '60px' }"
+        @selection-change="handleSelectionChange"
       >
-        <el-table-column align="center" type="index" label="序号" width="50">
+        <u-table-column align="center" type="selection" width="50" />
+        <u-table-column align="center" type="index" label="序号" width="80px">
           <template slot-scope="scope">{{ (currentPage - 1) * pageSize + scope.$index + 1 }}</template>
-        </el-table-column>
-        <el-table-column width="120px" label="站点" prop="country" align="center">
+        </u-table-column>
+        <u-table-column width="80px" label="站点" prop="country" align="center">
           <template slot-scope="scope">{{ scope.row.platform | chineseSite }}</template>
-        </el-table-column>
-        <el-table-column width="120px" label="商品ID" prop="country" align="center">
-          <template slot-scope="scope"><el-button type="text" @click="getLink(scope.row)">{{ scope.row.itemid }}</el-button></template>
-        </el-table-column>
-        <el-table-column width="100px" label="商品图片" prop="country" align="center">
+        </u-table-column>
+        <u-table-column width="120px" label="商品ID" prop="country" align="center">
+          <template slot-scope="scope">
+            <el-button type="text" @click="getLink(scope.row)">{{ scope.row.itemid }}</el-button>
+            <span class="copyIcon" @click="copy(scope.row.itemid)"><i class="el-icon-document-copy copyStyle" /></span>
+          </template>
+        </u-table-column>
+        <u-table-column width="100px" label="商品图片" prop="country" align="center">
           <template slot-scope="scope">
             <el-tooltip effect="light" placement="right-end" :visible-arrow="false" :enterable="false" style="width: 56px; height: 56px; display: inline-block">
               <div slot="content">
@@ -95,43 +105,43 @@
               <el-image :src="[scope.row.image,true] | imageRender" style="width: 56px; height: 56px" />
             </el-tooltip>
           </template>
-        </el-table-column>
-        <el-table-column min-width="60px" label="商品名称" prop="country" align="center">
+        </u-table-column>
+        <u-table-column min-width="120px" label="商品名称" prop="country" align="center" show-overflow-tooltip>
           <template slot-scope="scope">{{ scope.row.name }}</template>
-        </el-table-column>
-        <el-table-column width="100px" label="官方店铺" prop="country" align="center">
+        </u-table-column>
+        <u-table-column width="80px" label="官方店铺" prop="country" align="center">
           <template slot-scope="scope">{{ scope.row.is_official_shop&& '是' || '否' }}</template>
-        </el-table-column>
-        <el-table-column min-width="60px" label="一级类目" prop="" align="center">
+        </u-table-column>
+        <u-table-column min-width="120px" label="一级类目" prop="" align="center" show-overflow-tooltip>
           <template slot-scope="scope">{{
             scope.row.cat_path && scope.row.cat_path.split('>')[0] }}({{ scope.row.display_path_cn && scope.row.display_path_cn.split('>')[0] }})
           </template>
-        </el-table-column>
-        <el-table-column min-width="70px" label="二级类目" prop="" align="center">
+        </u-table-column>
+        <u-table-column min-width="120px" label="二级类目" prop="" align="center" show-overflow-tooltip>
           <template slot-scope="scope">{{ scope.row.cat_path.split('>')[1] &&
             (scope.row.cat_path.split('>')[1]+'('+scope.row.display_path_cn.split('>')[1]+')') || '' }}
           </template>
-        </el-table-column>
-        <el-table-column min-width="80px" label="三级类目" prop="" align="center">
+        </u-table-column>
+        <u-table-column min-width="120px" label="三级类目" prop="" align="center" show-overflow-tooltip>
           <template slot-scope="scope">{{ scope.row.cat_path.split('>')[2] &&
             (scope.row.cat_path.split('>')[2]+'('+scope.row.display_path_cn.split('>')[2]+')') || '' }}
           </template>
-        </el-table-column>
-        <el-table-column width="100px" label="创建时间" prop="created_at" align="center">
+        </u-table-column>
+        <u-table-column width="100px" label="创建时间" prop="created_at" align="center" sortable>
           <template slot-scope="scope">{{ $dayjs(scope.row.ctime*1000).format('YYYY-MM-DD') }}</template>
-        </el-table-column>
-        <el-table-column width="100px" label="近30天销量" prop="warehouse_name" align="center">
+        </u-table-column>
+        <u-table-column width="120px" label="近30天销量" prop="warehouse_name" align="center" sortable>
           <template slot-scope="scope">{{ scope.row.sold || '' }}
           </template>
-        </el-table-column>
-        <el-table-column width="80px" label="价格" prop="warehouse_name" align="center">
-          <template slot-scope="scope">{{ scope.row.price || '' }}</template>
-        </el-table-column>
-      </el-table>
+        </u-table-column>
+        <u-table-column width="100px" label="价格" prop="warehouse_name" align="center" sortable>
+          <template slot-scope="scope">{{ scope.row.price || '' }}{{ scope.row.platform | siteCoin }}</template>
+        </u-table-column>
+      </u-table>
       <div class="pagination" style="display: flex;flex-flow: row-reverse;margin-top: 10px;">
         <el-pagination
           background
-          :page-sizes="[10, 20, 50, 100]"
+          :page-sizes="[10, 20, 50, 100,500]"
           :page-size="pageSize"
           layout="total, sizes, prev, pager, next, jumper"
           :total="total"
@@ -207,6 +217,28 @@ export default {
     this.searchShopeeHotGoods()
   },
   methods: {
+    handleSelectionChange(val) {
+    },
+    // 复制
+    copy(attr) {
+      const target = document.createElement('div')
+      target.id = 'tempTarget'
+      target.style.opacity = '0'
+      target.innerText = attr
+      document.body.appendChild(target)
+      try {
+        const range = document.createRange()
+        range.selectNode(target)
+        window.getSelection().removeAllRanges()
+        window.getSelection().addRange(range)
+        document.execCommand('copy')
+        window.getSelection().removeAllRanges()
+        this.$message.success('复制成功')
+      } catch (e) {
+        // console.log('复制失败')
+      }
+      target.parentElement.removeChild(target)
+    },
     // 链接跳转
     getLink(row) {
       console.log('--', row)
@@ -369,5 +401,10 @@ export default {
         }
       }
     }
+  }
+  .copyStyle {
+    margin-left: 5px;
+    cursor: pointer;
+    color: orange;
   }
 </style>
