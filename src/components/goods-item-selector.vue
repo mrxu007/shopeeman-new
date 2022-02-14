@@ -256,10 +256,11 @@ export default {
         } else {
           index = Math.floor((offset / 100) + 1)
         }
+        let limit = this.searchParams.goodsCount < 100 && this.searchParams.goodsCount || item.limit || 100
         const parma = {
           mallId: item.platform_mall_id,
           offset: offset,
-          limit: item.limit || 100,
+          limit: limit,
           is_ads: '0',
           need_brand: '0',
           need_item_model: '0'

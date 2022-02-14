@@ -14,17 +14,8 @@
         <el-button type="primary" size="mini" @click="batchProcessing(20)">翻译后的数据导出</el-button>
         <el-button type="primary" size="mini" @click="batchProcessing(16)">批量设置重量/体积</el-button>
         <el-button type="primary" size="mini" @click="deleteGoods">取消收藏</el-button>
-        <el-upload
-            v-if="uploadImgAdd"
-            v-show="false"
-            style="margin-right: 10px"
-            action="#"
-            :drag="true"
-            :show-file-list="false"
-            :limit="1"
-            :auto-upload="false"
-            :on-change="imageUpload"
-        >
+        <el-upload v-if="uploadImgAdd" v-show="false" style="margin-right: 10px" action="#"
+            :drag="true" :show-file-list="false" :limit="1" :auto-upload="false" :on-change="imageUpload">
           <el-button ref="uploadImg" size="mini" type="primary">选择图片</el-button>
         </el-upload>
       </div>
@@ -144,7 +135,7 @@
           <template v-slot="{ row }">
             <el-input resize="none" type="textarea"
                       :autosize="{ minRows: 4, maxRows: 4}"
-                      @blur.native="goodsListUpdate(row)"
+                      @blur="goodsListUpdate(row)"
                       placeholder="请输入标题"
                       v-model="row.title">
             </el-input>
@@ -454,7 +445,8 @@ export default {
             this.$refs['uploadImg'].$el.click()
           }, 100)
         }
-      } else if (type === 7) {
+      }
+      else if (type === 7) {
         for (const i of this.multipleSelection) {
           console.log(i)
           let index = this.goodsList.findIndex(son => son.id === i.id)
@@ -468,7 +460,8 @@ export default {
             this.$set(this.goodsList[index], 'operation_type', '无尺寸图可删除')
           }
         }
-      } else if (type === 8) {
+      }
+      else if (type === 8) {
         this.isEditorVisible = true
       } else if (type === 14) {
         this.categoryVisible = true

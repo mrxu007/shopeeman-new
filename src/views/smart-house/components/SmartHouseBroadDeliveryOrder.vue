@@ -1,7 +1,7 @@
 <template>
   <el-row class="contaniner">
     <el-row class="header">
-      <ul style="margin-bottom: 10px">
+      <ul style="margin-bottom: 10px;width: auto">
         <li>
           <span>仓库名称：</span>
           <el-select
@@ -48,6 +48,15 @@
             end-placeholder="结束日期"
           />
         </li>
+<!--        <li>-->
+<!--          <span>出库单SKU：</span>-->
+<!--          <el-input-->
+<!--              v-model="form.outboundOrderSku"-->
+<!--              clearable-->
+<!--              size="mini"-->
+<!--              oninput="value=value.replace(/\s+/g,'')"-->
+<!--          />-->
+<!--        </li>-->
       </ul>
       <ul>
         <li>
@@ -204,7 +213,7 @@
           min-width="135"
         >
           <template v-slot="{row}">
-            {{ row.goods_price && parseFloat(goods_price).toFixed(2)||0.00 }}
+            {{ row.goods_price && parseFloat(row.goods_price).toFixed(2) ||0.00 }}
           </template>
         </el-table-column>
         <el-table-column
@@ -658,7 +667,8 @@ export default {
         oversea_order_sn: '', // 出库单号
         logistic_no: '', // 物流单号
         created_time: '', // 创建时间
-        status: ''// 订单出库状态
+        status: '',// 订单出库状态
+        outboundOrderSku:''
       },
 
       stockForm: { // 仓库条件搜索

@@ -180,6 +180,7 @@ export default {
       }
       this.tableLoading = true
       const res = await this.$commodityService.getBlackCategory(params)
+      console.log(res)
       if (!res) {
         return this.$message.warning('添加失败')
       }

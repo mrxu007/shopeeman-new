@@ -1205,7 +1205,7 @@ export default {
       itemmodels = itemmodels.replaceAll('"sku_price":', '"skuPrice":')
       itemmodels = itemmodels.replaceAll(/"sku_stock":([0-9]*),/ig, '"skuStock":"$1",')
       itemmodels = itemmodels.replaceAll('"sku_stock":', '"skuStock":')
-      let updateGoodsRes = await this.$commodityService.updateGoods({
+      let updateGoodsJson = await this.$commodityService.updateGoods({
         sysGoodsId,
         description,
         title,
@@ -1214,31 +1214,39 @@ export default {
         long,
         weight
       })
-      console.log('updateGoodsRes', updateGoodsRes)
-      console.log('itemmodels', itemmodels, JSON.parse(itemmodels))
-      let andUpdateSku = await this.$commodityService.saveAndUpdateSkuDatas(sysGoodsId, itemmodels)
-      console.log(andUpdateSku)
-      let descImages = [...this.goodsDetails.descImages.map(i => {
-        return { id: i.id + '', imageUrl: i.img }
-      })]
-      let images = [...this.goodsDetails.images1.map(i => {
-        return { id: i.id + '', imageUrl: i.img }
-      })]
-      let sizeImageUrl = this.goodsDetails.sizeImages[0] && this.goodsDetails.sizeImages[0].img || ''
-      let skuImages = []
-      let length = this.goodsDetails.spec_image.length >= this.lodSpecImage.length && this.goodsDetails.spec_image.length || this.lodSpecImage.length
-      for (let i = 0; i < length; i++) {
-        let oldImageUrl = this.lodSpecImage[i] || ''
-        let imageUrl = this.goodsDetails.spec_image[i] || ''
-        skuImages.push({ oldImageUrl, imageUrl })
+      let updateGoodsRes = JSON.parse(updateGoodsJson)
+      if(updateGoodsRes.code === 200){
+        let andUpdateSkuJson = await this.$commodityService.saveAndUpdateSkuDatas(sysGoodsId, itemmodels)
+        let andUpdateSkuRes = JSON.parse(andUpdateSkuJson)
+        if (andUpdateSkuRes.code === 200){
+          let descImages = [...this.goodsDetails.descImages.map(i => {
+            return { id: i.id + '', imageUrl: i.img }
+          })]
+          let images = [...this.goodsDetails.images1.map(i => {
+            return { id: i.id + '', imageUrl: i.img }
+          })]
+          let sizeImageUrl = this.goodsDetails.sizeImages[0] && this.goodsDetails.sizeImages[0].img || ''
+          let skuImages = []
+          let length = this.goodsDetails.spec_image.length >= this.lodSpecImage.length && this.goodsDetails.spec_image.length || this.lodSpecImage.length
+          for (let i = 0; i < length; i++) {
+            let oldImageUrl = this.lodSpecImage[i] || ''
+            let imageUrl = this.goodsDetails.spec_image[i] || ''
+            skuImages.push({ oldImageUrl, imageUrl })
+          }
+          let updateGoodsAllImageRes = await this.$commodityService.updateGoodsAllImage({
+            sysGoodsId,
+            descImages,
+            images,
+            sizeImageUrl
+          })
+          this.$message.success('保存成功')
+          this.$emit('goodsEditorCancel', { sysGoodsId, title, description, width, height, long, weight })
+        }else{
+          this.$message.error('保存失败')
+        }
+      }else{
+        this.$message.error('保存失败')
       }
-      let updateGoodsAllImageRes = await this.$commodityService.updateGoodsAllImage({
-        sysGoodsId,
-        descImages,
-        images,
-        sizeImageUrl
-      })
-      this.$emit('goodsEditorCancel', { sysGoodsId, title, description, width, height, long, weight })
     },
     handleClick(val) {
     }
