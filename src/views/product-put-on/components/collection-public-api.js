@@ -3,6 +3,7 @@ export default class CollectionPublicApi {
     constructor(that) {
       this._this = that
       this.PddSkuKeyMatch = ['颜色', '款式', '型号']
+      this.tbSkuKeyMatch = ['颜色', '款式']
     }
     // 收藏商品
     async setGoodsData(item, data) {
@@ -900,7 +901,7 @@ export default class CollectionPublicApi {
           // // 源类目ID
           goods.OriginCategoryId = goods.CategoryId !== 0 && item.p_search && item.p_search.gin_cat_id_3 && item.p_search.gin_cat_id_3 !== null && Number(item.p_search.gin_cat_id_3) || goods.CategoryId
           // 类目名称的获取
-          catData = await this._this.$collectService.getGoodsCat(goods.CategoryId, 1, '') || ''
+          catData = goods.CategoryId === '' ? '' : await this._this.$collectService.getGoodsCat(goods.CategoryId, 1, '')
           goods.CategoryName = catData && catData.split('|')[0] || ''
           // 平台ID
           goods.Platform = 1
@@ -956,7 +957,7 @@ export default class CollectionPublicApi {
         // 源类目ID
         goods.OriginCategoryId = 0
         // 类目名称的获取
-        catData = await this._this.$collectService.getGoodsCat(goods.CategoryId, 1, '') || ''
+        catData = goods.CategoryId === '' ? '' : await this._this.$collectService.getGoodsCat(goods.CategoryId, 1, '')
         goods.CategoryName = catData && catData.split('|')[0] || ''
         // 平台ID
         goods.Platform = 1
@@ -969,17 +970,14 @@ export default class CollectionPublicApi {
             this._this.$refs.plTable.toggleRowSelection([{ row: goods }])
           })
           if (this._this.goodsList.length > 0) {
-            this._this.goodsCollectionNum = this._this.goodsList.length
             this._this.StatusName(goods, `开始收藏`, true)
             const res = await this.DoPddPlugin(item, goods)
             if (res.code === 200) {
-              this._this.successNum++
               this._this.StatusName(goods, `收藏成功`, true)
               this._this.$nextTick(() => {
                 this._this.$refs.plTable.toggleRowSelection([{ row: goods, selected: false }])
               })
             } else {
-              this._this.failNum++
               this._this.StatusName(goods, res.data, false)
             }
           }
@@ -1028,7 +1026,7 @@ export default class CollectionPublicApi {
             goods.Url = `https://item.taobao.com/item.htm?id=${goods.GoodsId}`
           }
           // 类目名称
-          catData = await this._this.$collectService.getGoodsCat(goods.CategoryId, goods.Platform, '') || ''
+          catData = goods.CategoryId === '' ? '' : await this._this.$collectService.getGoodsCat(goods.CategoryId, goods.Platform, '')
           goods.CategoryName = catData && catData.split('|')[0] || ''
           if (JSON.stringify(this._this.goodsList).indexOf(goods.GoodsId) === -1) {
             this._this.goodsList.push(goods)
@@ -1088,77 +1086,179 @@ export default class CollectionPublicApi {
         goods.Price = jsonData?.itemDO?.reservePrice && Number(jsonData.itemDO.reservePrice) || jsonData?.ItemDO?.ReservePrice && Number(jsonData.ItemDO.ReservePrice) || 0
         goods.IsSelected = true
         goods.CategoryId = jsonData?.itemDO?.categoryId && Number(jsonData.itemDO.categoryId) || jsonData?.ItemDO?.CategoryId && Number(jsonData.itemDO.categoryId) || ''
-        catData = await this._this.$collectService.getGoodsCat(goods.CategoryId, goods.Platform, '') || ''
+        catData = goods.CategoryId === '' ? '' : await this._this.$collectService.getGoodsCat(goods.CategoryId, goods.Platform, '')
         goods.CategoryName = catData && catData.split('|')[0] || ''
         goods.OriginCategoryId = 0
         if (JSON.stringify(this._this.goodsList).indexOf(goods.GoodsId) === -1) {
           this._this.goodsList.push(goods)
-          console.log(goods)
           this._this.$nextTick(() => {
             this._this.$refs.plTable.toggleRowSelection([{ row: goods }])
           })
           if (this._this.goodsList.length > 0) {
-            this._this.goodsCollectionNum = this._this.goodsList.length
             this._this.StatusName(goods, `开始收藏`, true)
             const res = await this.DoTbPlugin(model, goods)
-            // if (res.code === 200) {
-            //   this._this.successNum++
-            //   this._this.StatusName(goods, `收藏成功`, true)
-            //   this._this.$nextTick(() => {
-            //     this._this.$refs.plTable.toggleRowSelection([{ row: goods, selected: false }])
-            //   })
-            // } else {
-            //   this._this.failNum++
-            //   this._this.StatusName(goods, res.data, false)
-            // }
+            if (res.code === 200) {
+              this._this.StatusName(goods, `收藏成功`, true)
+              this._this.$nextTick(() => {
+                this._this.$refs.plTable.toggleRowSelection([{ row: goods, selected: false }])
+              })
+            } else {
+              this._this.StatusName(goods, res.data, false)
+            }
           }
         }
       }
     }
     // 淘宝插件采集收藏
     async DoTbPlugin(model, goods) {
-      const detailResp = model.DetailData
-      const collectGoods = {}
-      collectGoods.GoodsId = goods.GoodsId
-      collectGoods.Title = goods.Title
-      collectGoods.ShortTitle = goods.Title
-      collectGoods.CategoryId = goods.CategoryId.toString()
-      collectGoods.CategoryName = goods.CategoryName
-      if (model.DescInfo && model.DescInfo !== null) {
-        collectGoods.GoodsDesc = {}
-        collectGoods.DetailGallery = []
-        try {
-          const imageList = model.DescInfo['images']
-          if (imageList && imageList !== null && imageList.length > 0) {
-            for (const img of imageList) {
-              if (img.indexOf('https:') > -1 && img.indexOf('.gif') > -1) {
-                collectGoods.DetailGallery.push(img)
+      try {
+        const detailResp = model.DetailData
+        const collectGoods = {}
+        collectGoods.GoodsId = goods.GoodsId
+        collectGoods.Title = goods.Title
+        collectGoods.ShortTitle = goods.Title
+        collectGoods.CategoryId = goods.CategoryId.toString()
+        collectGoods.CategoryName = goods.CategoryName
+        collectGoods.Images = []
+        collectGoods.GoodsExtraInfo = { }
+        if (model.DescInfo && model.DescInfo !== null) {
+          collectGoods.GoodsDesc = {}
+          collectGoods.DetailGallery = []
+          try {
+            const imageList = model.DescInfo['images']
+            if (imageList && imageList !== null && imageList.length > 0) {
+              for (const img of imageList) {
+                if (img.indexOf('https:') > -1 && img.indexOf('.gif') > -1) {
+                  collectGoods.DetailGallery.push(img)
+                }
+              }
+            }
+            const attributeList = model.DescInfo['attributes']
+            if (attributeList && attributeList !== null && attributeList.length > 0) {
+              const descList = {}
+              for (const brand of attributeList) {
+                descList[brand['name']] = brand['value'].trim()
+              }
+              collectGoods.GoodsDesc = descList
+            }
+          } catch (error) {
+            return { code: -2, data: `收藏失败，描述处理异常` }
+          }
+          if (JSON.stringify(collectGoods.GoodsDesc) === '{}') {
+            return { code: -2, data: `收藏失败，描述为空` }
+          }
+          const lunboPicDic = detailResp.propertyPics || detailResp.PropertyPics || {}
+          if (JSON.stringify(lunboPicDic) !== '{}' && lunboPicDic.default && lunboPicDic.default !== null) {
+            const picList = lunboPicDic.default
+            for (const pic of picList) {
+              if (pic) {
+                collectGoods.Images.push(this.RepairImageUrl(pic))
+              }
+            }
+            if (collectGoods.Images.length <= 0) {
+              return { code: -2, data: `收藏失败，轮播图没有数据` }
+            }
+          } else {
+            return { code: -2, data: `收藏失败，轮播图没有数据` }
+          }
+        } else {
+          return { code: -2, data: `收藏失败，轮播图没有数据` }
+        }
+        const skuBase = detailResp.skuBase || detailResp.SkuBase || null
+        const props = skuBase.props || skuBase.Props || null
+        collectGoods.GoodsType = props && props !== null && props.length || 0
+        let CollectGoodsSkus = {}
+        const skuBaseData = this.InitTbSkuData(detailResp, goods.GoodsId)
+        if (skuBase !== null) {
+        // 获取规格数量
+          if (props !== null) {
+            for (const prop of props) {
+              const name = prop.name || prop.Name || ''
+              const values = prop.values || prop.Vlues || []
+              if (name && this.tbSkuKeyMatch.includes(name)) {
+                collectGoods.VaCount = values.length
+                break
               }
             }
           }
-          const attributeList = model.DescInfo['attributes']
-          if (attributeList && attributeList !== null && attributeList.length > 0) {
-            const descList = {}
-            for (const brand of attributeList) {
-              descList[brand['name']] = brand['value'].trim()
+        } else {
+          collectGoods.VaCount = 0
+        }
+        const skuCore = detailResp?.valItemInfo?.skuMap && detailResp.valItemInfo.skuMap || detailResp?.ValItemInfo?.SkuMap && detailResp.ValItemInfo.SkuMap || ''
+        const skus = await this.InitTbGoodsSkuData(goods.GoodsId, skuCore, skuBaseData, goods.Platform)
+        CollectGoodsSkus = skus
+        collectGoods.TotalQuantity = detailResp?.itemDO?.quantity && Number(detailResp?.itemDO?.quantity) || detailResp?.ItemDO?.Quantity && Number(detailResp?.ItemDO?.Quantity) || 0
+        if (collectGoods.TotalQuantity < 1) {
+          return { code: -2, data: `收藏失败，商品总库存为0` }
+        }
+        collectGoods.Platform = goods.Platform
+        collectGoods.SysGoodsNo = await this._this.$collectService.createSysGoodsNo(goods.GoodsId, goods.Platform) || ''
+        collectGoods.IsOnSale = 1
+        goods.Sales = goods.Sales.replace('+', '')
+        if (goods.Sales.indexOf('万')) {
+          goods.Sales = goods.Sales.replace('万', '0000')
+        }
+        collectGoods.Sales = goods.Sales ? Number(goods.Sales) : 0
+        collectGoods.Price = goods.Price
+        collectGoods.Weight = 0
+        collectGoods.Length = 0
+        collectGoods.Width = 0
+        collectGoods.Height = 0
+        collectGoods.OriData = detailResp
+        // 库存判断
+        const totalStock = collectGoods.TotalQuantity
+        if (JSON.stringify(CollectGoodsSkus) !== '{}') {
+          let flag = false
+          for (const key in CollectGoodsSkus) {
+            if (CollectGoodsSkus[key]['quantity'] > 0) {
+              flag = true
+              break
             }
-            collectGoods.GoodsDesc = descList
           }
-        } catch (error) {
-          return { code: -2, data: `收藏失败，描述处理异常` }
-        }
-        if (JSON.stringify(collectGoods.GoodsDesc) === '{}') {
-          return { code: -2, data: `收藏失败，描述为空` }
-        }
-        const lunboPicDic = detailResp.propertyPics || detailResp.PropertyPics || {}
-        if (JSON.stringify(lunboPicDic) !== '{}' && lunboPicDic.default && lunboPicDic.default !== null) {
-          const picList = lunboPicDic.default
-          for (const pic of picList) {
-
+          if (!flag) {
+            return { code: -2, data: `收藏失败：此商品库存为0` }
+          }
+        } else {
+          if (totalStock <= 0) {
+            return { code: -2, data: `收藏失败：此商品库存为0` }
           }
         }
+        let GoodsData = {
+          CollectGoodsData: collectGoods,
+          CollectGoodsSkus: CollectGoodsSkus
+        }
+        if (this._this.IsDefaultFilterSkuCount) {
+          GoodsData = this.DealGoodsSkuCount(GoodsData)
+        }
+        console.log('GoodsData', GoodsData)
+        const buildgoodsRes = this.BuildGoodsData(GoodsData, {})
+        if (buildgoodsRes.code !== 200) {
+          return { code: buildgoodsRes.code, data: buildgoodsRes.data }
+        }
+        const buildgoods = buildgoodsRes.data
+        if (buildgoods['price'].toString() === '0' && GoodsData.CollectGoodsData.OriData?.data?.data?.mockData) {
+          const skuCord = GoodsData.CollectGoodsData.OriData['data']['data']['mockData']
+          const tempPrice = skuCord || 0
+          goods.Price = tempPrice
+          buildgoods['price'] = Number(goods.Price)
+        } else {
+          goods.Price = Number(buildgoods['price'])
+        }
+        buildgoods['price'] = Number(buildgoods.price)
+        buildgoods['image'] = goods.Image
+        console.log('buildgoods', buildgoods)
+        const res = await this._this.$commodityService.uploadCollectGoods(buildgoods)
+        const jsonData = this.isJsonString(res)
+        if (jsonData.code === 200) {
+          buildgoods['id'] = jsonData.data.id
+          return { code: 200, data: buildgoods }
+        } else {
+          return { code: -2, data: `收藏失败` }
+        }
+      } catch (error) {
+        console.log(error)
+        return { code: -2, data: `收藏异常${error}` }
       }
-      console.log(collectGoods)
     }
     // 拼多多插件采集收藏
     async DoPddPlugin(item, goods) {
@@ -1360,6 +1460,175 @@ export default class CollectionPublicApi {
       obj['vaCount'] = count
       return obj
     }
+    // 初始化淘宝sku数据
+    async InitTbGoodsSkuData(goodsId, skuInfos, skuBaseData, platform) {
+      const skus = {}
+      let existSkuId = ''
+      let skuBaseInfo = {}
+      const specHs = []
+      const sizeHs = []
+      const vaHs = []
+      for (const item in skuInfos) {
+        const skuInfo = skuInfos[item]
+        if (!skuInfo.skuId || skuInfo.skuId === null) continue
+        const id = skuInfo['skuId'].toString()
+        const sku = id === '0' ? goodsId : id
+        let arrayList = []
+        if (id !== '0') {
+          skuBaseInfo = skuBaseData[sku]
+          const list = skuBaseInfo['origin_props']
+          arrayList = this.DealTbProp(list)
+        }
+        const skuDic = this.TbSkuDeal(arrayList)
+        if (JSON.stringify(skuDic) !== '{}') {
+          specHs.push(skuDic['specStr'])
+          sizeHs.push(skuDic['sizeStr'])
+          vaHs.push(skuDic['vaStr'])
+          existSkuId = id
+        }
+        const collectSku = {}
+        const price = Number(skuInfo['price'])
+        collectSku.sku = sku
+        collectSku.originGoodsId = goodsId
+        collectSku.price = price
+        collectSku.marketPrice = collectSku.Price
+        collectSku.quantity = Number(skuInfo['stock'])
+        collectSku.platform = platform
+        collectSku.image = id === '0' ? '' : this.RepairImageUrl(skuBaseInfo['image'])
+        collectSku.originProps = arrayList
+        const vaStr = skuDic['vaStr']
+        if (!vaHs.includes(vaStr)) continue
+        collectSku.originGoodsId = goodsId
+        collectSku.isOnSale = 1
+        collectSku.sysSkuNo = await this._this.$collectService.createSysSkuNo(goodsId, collectSku.Sku, collectSku.Platform)
+        skus[id] = collectSku
+      }
+      const newCollectSku = await this.setFullSku(skus[existSkuId], specHs, sizeHs, vaHs, Object.keys(skus).length, goodsId)
+      if (JSON.stringify(newCollectSku) !== '{}') {
+        for (const key in newCollectSku) {
+          skus[key] = newCollectSku[key]
+        }
+      }
+      return skus
+    }
+    TbSkuDeal(originProps) {
+      const skuDic = {}
+      let vaStr = ''
+      let sizeStr = ''
+      let specStr = ''
+      for (let i = 0; i < originProps.length; i++) {
+        const dic = originProps[i]
+        const specValue = dic.name
+        if (i === 0) {
+          specStr = specValue
+        } else {
+          sizeStr = specValue
+        }
+        if (originProps.length === 1 && i === 0) {
+          vaStr = specValue
+        }
+        if (originProps.length === 2 && i === 0) {
+          const dic1 = originProps[1]
+          vaStr = dic.name + '||' + dic1.name
+        }
+      }
+      skuDic['vaStr'] = vaStr
+      skuDic['sizeStr'] = sizeStr
+      skuDic['specStr'] = specStr
+      return skuDic
+    }
+    DealTbProp(list) {
+      const model = []
+      if (list?.length > 0) {
+        for (const variable of list) {
+          const parentId = variable.parent_id || variable.parentId
+          const obj = {}
+          obj['name'] = variable.name.toString()
+          obj['parent_id '] = parentId
+          obj['vid'] = variable.vid.toString()
+          obj['skuName'] = variable.skuName.toString()
+          model.push(obj)
+        }
+      }
+      return model
+    }
+    InitTbSkuData(detailResp, goodsId) {
+      const skuInfo = {}
+      const parentInfo = {}
+      const vidInfos = {}
+      let count = 0
+      let flag = true
+      const skuBase = detailResp.skuBase || detailResp.SkuBase || null
+      if (skuBase !== null) {
+        // 判断是否包含关键字，若不包含关键字，则规格与尺寸是反着的，将数组逆序调整规格与尺寸的顺序
+        const props = skuBase.props || skuBase.Props || null
+        if (props !== null && props.length > 0) {
+          for (const prop of props) {
+            const name = prop.name || prop.Name || ''
+            const pid = prop.pid || prop.Pid || ''
+            const values = prop.values || prop.Vlues || []
+            if (count === 0) {
+              if (name && this.tbSkuKeyMatch.includes(name)) {
+                flag = false
+              }
+            }
+            count++
+            parentInfo[pid] = name
+            for (const value of values) {
+              const vid = value.vid || value.Vid || ''
+              vidInfos[vid] = value
+            }
+          }
+        }
+        const skuMap = skuBase.skuMap || skuBase.SkuMap || null
+        if (skuMap !== null) {
+          for (const sku of skuMap) {
+            const skuId = sku.skuID || sku.SkuID || ''
+            const propPath = sku.pvs && sku.pvs.split(';') || sku.Pvs && sku.Pvs.split(';') || []
+            const originProps = []
+            let skuImage = ''
+            for (const prop of propPath) {
+              const propArr = prop.split(':')
+              const parentId = propArr[0]
+              const vid = propArr[1]
+              const vidInfo = vidInfos[vid]
+              const skuName = parentInfo[parentId]
+              const obj = {}
+              obj['parent_id'] = parentId
+              obj['vid'] = vid
+              obj['name'] = vidInfo.name || vidInfo.Name
+              obj['skuName'] = skuName
+              originProps.push(obj)
+              const image = vidInfo.image || vidInfo.Image || null
+              if (image !== null) {
+                skuImage = this.RepairImageUrl(image)
+              }
+            }
+            if (flag) {
+              originProps.reverse()
+            }
+            const obj = {}
+            obj['image'] = skuImage
+            obj['origin_props'] = originProps
+            obj['skuId'] = skuId
+            skuInfo[skuId] = obj
+          }
+        }
+      }
+      return skuInfo
+    }
+    // 修复图片路径
+    RepairImageUrl(imgUrl) {
+      let url = ''
+      if (imgUrl) {
+        if (imgUrl.indexOf('https:') > -1) {
+          url = imgUrl.match(RegExp(/(?=https:).*/g))[0]
+        } else {
+          url = 'https:' + imgUrl
+        }
+      }
+      return url
+    }
     async setFullSku(oneCollectSku, specHs, sizeHs, vaHs, count, goodsId) {
       const newCollectSku = {}
       const actualCount = specHs.length * sizeHs.length
@@ -1377,15 +1646,10 @@ export default class CollectionPublicApi {
             collectSku.SysSkuNo = await this._this.$collectService.createSysSkuNo(goodsId, collectSku.Sku, collectSku.Platform)
             collectSku.IsOnSale = 0
             collectSku.Quantity = 0
-            const originProps = []
-            originProps[0]['vid'] = ''
-            originProps[0]['name'] = spec
-            originProps[0]['parentId'] = 0
-            originProps[0]['skuName'] = null
-            originProps[1]['vid'] = ''
-            originProps[1]['name'] = size
-            originProps[1]['parentId'] = 0
-            originProps[1]['skuName'] = null
+            const originProps = [
+              { vid: '', name: spec, parentId: 0, skuName: null },
+              { vid: '', name: size, parentId: 0, skuName: null }
+            ]
             collectSku.OriginProps = originProps
             newCollectSku[skuId] = collectSku
             index++

@@ -925,10 +925,6 @@ export default {
   methods: {
     // 监听插件采集
     async getPluginData() {
-      // pddGoodsKeyword：PDD关键词采集推送数据
-      // pddGoodsDetail：PDD详情采集数据
-      // tbGoodsKeyword：TB关键词采集推送数据
-      // tbGoodsDetail：TB详情采集推送数据
       try {
         this.$IpcMain.on('pddGoodsKeyword', async(response) => {
           this.collectName = `插件采集数据`
