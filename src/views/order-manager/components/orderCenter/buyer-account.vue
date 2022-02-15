@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-11-09 10:14:02
- * @LastEditTime: 2022-01-25 10:55:55
+ * @LastEditTime: 2022-02-14 15:48:03
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shopeeman-new\src\components\buyer-account.vue

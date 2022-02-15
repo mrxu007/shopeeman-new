@@ -977,7 +977,7 @@ export default class NetMessageBridgeService {
       }
     })
     const resObj = res && JSON.parse(res)
-    // console.log(resObj)
+    console.log(resObj)
     if (resObj && resObj.status === 200) {
       const info = JSON.parse(resObj.data)
       if (info && info.code === 0) {
