@@ -383,10 +383,10 @@
       </div>
       <div class="nowrapBox">
         <el-button size="mini" type="primary" @click="startRelease" :disabled="isBanPerform">开始发布</el-button>
-        <el-button size="mini" type="primary" :disabled="isBanPerform">导入数据</el-button>
+        <el-button size="mini" type="primary" :disabled="isBanPerform" disabled>导入数据</el-button>
         <el-button size="mini" @click="cancelRelease">取消发布</el-button>
         <el-button size="mini" type="primary" :disabled="isBanPerform">清理全部</el-button>
-        <el-button size="mini" type="primary" :disabled="isBanPerform">设置定时任务</el-button>
+        <el-button size="mini" type="primary" :disabled="isBanPerform" disabled>设置定时任务</el-button>
         <el-button size="mini" type="primary" @click="enterCategory(2,1)" :disabled="isBanPerform">批量映射虾皮类目
         </el-button>
         <el-button size="mini" :type="isNoFoldShow && 'primary' || ''" @click="isNoFoldShow = !isNoFoldShow">
@@ -430,7 +430,7 @@
           {{ scope.$index + 1 }}
         </template>
       </u-table-column>
-      <u-table-column align="center" label="商品主图" width="80">
+      <u-table-column align="center" label="商品主图" width="70">
         <template slot-scope="{ row }">
           <el-tooltip effect="light" placement="right-end" :visible-arrow="false" :enterable="false"
                       style="width: 56px; height: 56px; display: inline-block">
@@ -441,13 +441,18 @@
           </el-tooltip>
         </template>
       </u-table-column>
-      <u-table-column align="center" label="上家商品Id" width="110">
+      <u-table-column align="center" label="上家商品Id" width="130">
         <template v-slot="{ row }">
-          <p class="goToGoods" @click.stop="goToGoods(row)">{{ row.goods_id }}</p>
+          <span class="goToGoods" @click.stop="goToGoods(row)">{{ row.goods_id }}</span>
+          <el-button type="text" class="copyIcon" @click="copy(row.goods_id)">
+            <i class="el-icon-document-copy"/></el-button>
         </template>
       </u-table-column>
-      <u-table-column align="left" label="shopee-Id" width="120">
+      <u-table-column align="left" label="shopee-Id" width="130">
         <template slot-scope="{ row }">
+          <span class="goToGoods" >{{ row.product_id || '' }}</span>
+          <el-button v-if="row.product_id" type="text" class="copyIcon" @click="copy(row.product_id)">
+            <i class="el-icon-document-copy"/></el-button>
         </template>
       </u-table-column>
       <u-table-column align="left" label="标题" min-width="120">
@@ -973,7 +978,7 @@ import {
   terminateThread,
   getSectionRandom,
   imageCompressionUpload,
-  randomWord, sleep
+  randomWord, sleep, copyText
 } from '@/util/util'
 import GUID from '@/util/guid'
 import MallListAPI from '@/module-api/mall-manager-api/mall-list-api'
@@ -1061,7 +1066,7 @@ export default {
       customLogistics: [], //自定义物流列表
       //店铺设置
       storeConfig: {
-        watermarkChecked: false, // 水印配置
+        watermarkChecked: true, // 水印配置
         priceRadio: 1, // sku价格单选
         activityChecked: false, // 商品设置
         chineseChecked: [], //中文配置
@@ -1748,8 +1753,9 @@ export default {
           if (resJSON.code === 200) {
             this.updateAttributeName(item, '发布完成')
             console.log('sellActiveSetting', this.sellActiveSetting)
+            let product_id = resJSON.data && resJSON.data.product_id
+            this.updateAttributeName(item, product_id,'product_id')
             if (this.storeConfig.activityChecked) {
-              let product_id = resJSON.data && resJSON.data.product_id
               let sellActive = this.sellActiveSetting.find(item => item.platform_mall_id === mall.platform_mall_id)
               if (sellActive.goodsId) {
                 const params = {
@@ -2424,7 +2430,10 @@ export default {
     },
     handleSelectionChange(val) {
       this.goodsTableSelect = val || []
-    }
+    },
+  copy(str) {
+    copyText(str)
+  }
   }
 }
 </script>

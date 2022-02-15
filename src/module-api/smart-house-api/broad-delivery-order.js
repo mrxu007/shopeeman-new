@@ -64,6 +64,7 @@ export default class BroadDeliveryOrder {
       const pamars = JSON.parse(JSON.stringify(val))
       pamars.created_time = created_time
       const res = await this._this.$api.getOutOfStockList(pamars)
+      console.log(pamars,res)
       if (res.data.code === 200) {
         return { code: 200, data: res.data.data }
       }

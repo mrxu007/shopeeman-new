@@ -145,7 +145,9 @@
               <el-option label="英文" :value="2"/>
             </el-select>
             <div style="width: 10px;height: 1px;background-color: #333333;margin: 0 5px;"/>
-            <el-select v-model="translationConfig.after" size="mini" style="width: 80px;" value="">
+            <el-select v-if="translationConfig.before === 'no'" size="mini" style="width: 80px;" value="" disabled placeholder="不翻译">
+            </el-select>
+            <el-select v-else v-model="translationConfig.after" size="mini" style="width: 80px;" value="">
               <el-option
                   v-for="item in pictureLanguagesList"
                   v-show="(pictureConfig.typeRadio !== 0 || translationConfig.before !==2) || item.free"
@@ -196,9 +198,9 @@
         :height="isNoFoldShow && 400 || 680"
         @selection-change="handleSelectionChange"
     >
-      <u-table-column align="center" type="selection" width="30"/>
+      <u-table-column align="center" type="selection"/>
       <u-table-column align="left" type="index" width="50" label="序号"/>
-      <u-table-column align="left" label="主图" width="80" prop="Sales">
+      <u-table-column align="left" label="主图" width="70" prop="Sales">
         <template v-slot="{ row }">
           <el-tooltip effect="light" placement="right-end" :visible-arrow="false" :enterable="false"
                       style="width: 56px; height: 56px; display: inline-block">
@@ -216,7 +218,6 @@
       </u-table-column>
       <u-table-column align="left" label="商品编码" width="130" :show-overflow-tooltip="true">
         <template v-slot="{ row }">
-
           <span class="goToGoods" @click.stop="goToGoods(row)">{{ row.goods_id }}</span>
           <el-button type="text" class="copyIcon" @click="copy(row.goods_id)">
             <i class="el-icon-document-copy"/></el-button>
@@ -1104,7 +1105,7 @@ export default {
             let goodsTitleJson = await this.$BaseUtilService.getGoodsTranslateInfo(fromLanguage, toLanguage, title)
             let getGoodsTitle = JSON.parse(goodsTitleJson)
             if (getGoodsTitle && getGoodsTitle[title]) {
-              param.title = getGoodsTitle
+              param.title = getGoodsTitle[title]
             } else {
               const translationJson1 = title && await this.$translationBridgeService.getGoogleTransResult([title], fromLanguage, toLanguage)
               console.log('translationJson1', translationJson1)
@@ -1118,8 +1119,8 @@ export default {
               })
             }
             let getGoodsDescription = JSON.parse(await this.$BaseUtilService.getGoodsTranslateInfo(fromLanguage, toLanguage, description))
-            if (getGoodsTitle && getGoodsTitle[description]) {
-              param.titledescription = getGoodsDescription
+            if (getGoodsDescription && getGoodsDescription[description]) {
+              param.description = getGoodsTitle[description]
             } else {
               const translationJson2 = description && await this.$translationBridgeService.getGoogleTransResult([description], fromLanguage, toLanguage)
               console.log('translationJson2', translationJson2)
@@ -1136,8 +1137,9 @@ export default {
             param.spec2 = neededTranslateInfoData.spec2
             const tier_variation = neededTranslateInfoData.tier_variation
             console.log(neededTranslateInfoData, param)
+            let spec1List = tier_variation[tier_variation.spec1].join('<><>') || ''
+            let spec2List = tier_variation[tier_variation.spec2].join('<><>') || ''
             if (this.translationConfig.specChecked) {
-              const spec1List = tier_variation[tier_variation.spec1].join('<><>')
               let getGoodsSpec1 = JSON.parse(await this.$BaseUtilService.getGoodsTranslateInfo(fromLanguage, toLanguage, spec1List))
               let spec1ListDstStr = ''
               if (getGoodsSpec1 && getGoodsSpec1[spec1List]) {
@@ -1154,18 +1156,18 @@ export default {
                 })
               }
               if (spec1ListDstStr) {
-                const spec1ListDst = spec1ListDstStr.includes('<><>') && spec1ListDstStr.split('<><>') || spec1ListDstStr.split('<> <>')
-                const spec1ListSrc = spec1List.split('<><>')
-                const spec1List = this.getArraySrcLengthSort(spec1ListSrc)
-                console.log('itemmodelsJson1', spec1ListDst, spec1ListSrc, JSON.parse(itemmodelsJson))
-                spec1List.forEach(item => {
+                console.log('itemmodelsJson1', spec1ListDstStr, spec1List)
+                spec1ListDstStr =   spec1ListDstStr.replaceAll('<> <>','<><>')
+                const spec1ListDst = spec1ListDstStr.split('<><>')
+                const spec1ListSrc = spec1List && spec1List.split('<><>')
+                let spec1ListSort = this.getArraySrcLengthSort(spec1ListSrc)
+                spec1ListSort.forEach(item => {
                   itemmodelsJson = itemmodelsJson.replaceAll('"sku_spec1":"' + spec1ListSrc[item], '"sku_spec1":"' + spec1ListDst[item])
                   itemmodelsJson = itemmodelsJson.replaceAll('"sku":"' + spec1ListSrc[item], '"sku":"' + spec1ListDst[item])
                 })
               } else {
                 // 谷歌翻译失败
               }
-              const spec2List = tier_variation[tier_variation.spec2].join('<><>')
               let getGoodsSpec2 = JSON.parse(await this.$BaseUtilService.getGoodsTranslateInfo(fromLanguage, toLanguage, spec2List))
               let spec2ListDstStr = ''
               if (getGoodsSpec2 && getGoodsSpec2[spec2List]) {
@@ -1182,11 +1184,12 @@ export default {
                 })
               }
               if (spec2ListDstStr) {
-                const spec2ListDst = spec2ListDstStr.includes('<><>') && spec2ListDstStr.split('<><>') || spec2ListDstStr.split('<> <>')
-                const spec2ListSrc = spec2List.split('<><>')
-                const spec2List = this.getArraySrcLengthSort(spec2ListSrc)
-                console.log('itemmodelsJson2', spec2ListDst, spec2ListSrc, JSON.parse(itemmodelsJson))
-                spec2List.forEach(item => {
+                console.log('itemmodelsJson2', spec2ListDstStr, spec2List)
+                spec2ListDstStr =   spec2ListDstStr.replaceAll('<> <>','<><>')
+                const spec2ListDst = spec2ListDstStr.split('<><>')
+                const spec2ListSrc = spec2List && spec2List.split('<><>')
+                const spec2ListSort = this.getArraySrcLengthSort(spec2ListSrc)
+                spec2ListSort.forEach(item => {
                   itemmodelsJson = itemmodelsJson.replaceAll('"sku_spec2":"' + spec2ListSrc[item], '"sku_spec2":"' + spec2ListDst[item])
                   itemmodelsJson = itemmodelsJson.replaceAll('=|=' + spec2ListSrc[item] + '"', '=|=' + spec2ListDst[item] + '"')
                 })

@@ -141,7 +141,7 @@
             </el-input>
           </template>
         </u-table-column>
-        <u-table-column align="center" label="主图" width="80" prop="Sales">
+        <u-table-column align="center" label="主图" width="70" prop="Sales">
           <template v-slot="{ row }">
             <el-tooltip effect="light" placement="right-end" :visible-arrow="false" :enterable="false"
                         style="width: 56px; height: 56px; display: inline-block">
@@ -192,7 +192,7 @@
         <u-table-column align="center" label="操作结果" show-overflow-tooltip>
           <template v-slot="{ row }">
             <div class="goodsTableLine" style="height: 80px;text-align: left">
-              {{ row.operation_type || '' }}
+              {{ row.handle_type || '' }}
             </div>
           </template>
         </u-table-column>
@@ -390,7 +390,7 @@ export default {
   watch: {
     categoryList: {
       handler(val) {
-        console.log(val)
+        // console.log(val)
       },
       deep: true
     },
@@ -454,10 +454,10 @@ export default {
             const deleteGoodsImageJson = await this.$commodityService.deleteGoodsImage(2, i.id, '0')
             const deleteGoodsImage = JSON.parse(deleteGoodsImageJson)
             success = deleteGoodsImage.code === 200
-            this.$set(this.goodsList[index], 'operation_type', success && '尺寸图删除成功' || '尺寸图删除失败')
+            this.$set(this.goodsList[index], 'handle_type', success && '尺寸图删除成功' || '尺寸图删除失败')
             success && this.$set(this.goodsList[index], 'size_image_id', 0)
           } else {
-            this.$set(this.goodsList[index], 'operation_type', '无尺寸图可删除')
+            this.$set(this.goodsList[index], 'handle_type', '无尺寸图可删除')
           }
         }
       }
@@ -511,17 +511,17 @@ export default {
         for (const i of this.multipleSelection) {
           let index = this.goodsList.findIndex(son => son.id === i.id)
           if (i.language === 'zh-Hans') {
-            this.$set(this.goodsList[index], 'operation_type', '简体数据无需添加尺寸图')
+            this.$set(this.goodsList[index], 'handle_type', '简体数据无需添加尺寸图')
             continue
           }
           if (this.isReplaceSize || !i.size_image_id) {
             const storeGoodsSizeImagesJson = await this.$commodityService.storeGoodsSizeImages(i.id + '', temp)
             const storeGoodsSizeImagesRes = JSON.parse(storeGoodsSizeImagesJson)
             let success = temp && storeGoodsSizeImagesRes.code === 200
-            this.$set(this.goodsList[index], 'operation_type', success && '尺寸图添加成功' || '尺寸图添加失败')
+            this.$set(this.goodsList[index], 'handle_type', success && '尺寸图添加成功' || '尺寸图添加失败')
             success && this.$set(this.goodsList[index], 'size_image_id', 1)
           } else {
-            this.$set(this.goodsList[index], 'operation_type', '已有尺寸图，未替换')
+            this.$set(this.goodsList[index], 'handle_type', '已有尺寸图，未替换')
           }
 
         }
@@ -797,9 +797,9 @@ export default {
         console.log(updateGoodsJson)
         const updateGoodsRes = JSON.parse(updateGoodsJson)
         if (updateGoodsRes.code === 200) {
-          this.$set(this.goodsList[index], 'operation_type', '数据更新成功')
+          this.$set(this.goodsList[index], 'handle_type', '数据更新成功')
         } else {
-          this.$set(this.goodsList[index], 'operation_type', '数据更新失败')
+          this.$set(this.goodsList[index], 'handle_type', '数据更新失败')
         }
       }
     },
