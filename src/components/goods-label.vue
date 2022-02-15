@@ -69,27 +69,29 @@ export default {
         }
       }
       const temp = this.goodsTagList.find(i => i.label_name === this.goodsTagAction)
-      const data = []
-      this.goodsTableSelect.forEach(item => {
-        data.push(Object.assign(JSON.parse(JSON.stringify(item)), { sysLabelId: temp.id }))
-      })
-      await batchOperation(data, this.setGoodsTag)
+      const data = [...this.goodsTableSelect.map(i=>i.id)]
+      // this.goodsTableSelect.forEach(item => {
+      //    data.push(Object.assign(JSON.parse(JSON.stringify(item)), { sysLabelId: temp.id }))
+      // })
+      // await batchOperation(data, this.setGoodsTag)
+      const addGoodsToTagJson = await this.$commodityService.addGoodsToTag(temp.id, data)
+      console.log(addGoodsToTagJson)
       this.loadingBut = false
       this.$emit('goodsTagChange', { category: temp, goodsTagList: this.goodsTagList })
       console.log({ category: temp, goodsTagList: this.goodsTagList })
     },
-    async setGoodsTag(item, count = { count: 1 }) {
-      try {
-        const addGoodsToTagJson = await this.$commodityService.addGoodsToTag(item.sysLabelId, [item.id])
-        console.log(addGoodsToTagJson)
-        const addGoodsToTagRes = JSON.parse(addGoodsToTagJson)
-      } catch (e) {
-        console.log(e)
-        this.$message.error('设置失败')
-      } finally {
-        count.count--
-      }
-    },
+    // async setGoodsTag(item, count = { count: 1 }) {
+    //   try {
+    //     const addGoodsToTagJson = await this.$commodityService.addGoodsToTag(item.sysLabelId, [item.id])
+    //     console.log(addGoodsToTagJson)
+    //     const addGoodsToTagRes = JSON.parse(addGoodsToTagJson)
+    //   } catch (e) {
+    //     console.log(e)
+    //     this.$message.error('设置失败')
+    //   } finally {
+    //     count.count--
+    //   }
+    // },
     async enterGoodsTag() {
       const goodsLabelList = await this.$appConfig.temporaryCacheInfo('get', 'goodsLabelList', '')
       if (goodsLabelList !== '{}') {

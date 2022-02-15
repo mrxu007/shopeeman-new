@@ -256,7 +256,7 @@ export default class NetMessageBridgeService {
         'Host': aurl.replace('https://', '')
       })
     }
-    // console.log('NetMessageBridgeService', url, JSON.stringify(options), JSON.stringify(data))
+    console.log('NetMessageBridgeService', url, JSON.stringify(options), JSON.stringify(data))
     return this.NetMessageBridgeService().post(url, JSON.stringify(options), JSON.stringify(data))
   }
 
@@ -485,7 +485,7 @@ export default class NetMessageBridgeService {
       copy_mallInfo['SPC_SC_TK'] = mallInfo.SPC_SC_TK
       copy_mallInfo['SPC_F'] = mallInfo.SPC_F
     }
-    console.log('copy_mallInfo', copy_mallInfo)
+    console.log('copy_mallInfo', copy_mallInfo,params)
     try {
       let res = await this.postChinese(country, '/api/v2/login/?', params, { // option
         headers: {
@@ -493,8 +493,8 @@ export default class NetMessageBridgeService {
           'charset': 'UTF-8'
         }
       }, copy_mallInfo)
-      res = JSON.parse(res)
       console.log('postChinese', res)
+      res = JSON.parse(res)
       let SetCookie = null
       SetCookie = res.headers.find(item => item.Name === 'Set-Cookie')
       if (SetCookie) {
