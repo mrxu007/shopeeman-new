@@ -48,15 +48,15 @@
             end-placeholder="结束日期"
           />
         </li>
-<!--        <li>-->
-<!--          <span>出库单SKU：</span>-->
-<!--          <el-input-->
-<!--              v-model="form.outboundOrderSku"-->
-<!--              clearable-->
-<!--              size="mini"-->
-<!--              oninput="value=value.replace(/\s+/g,'')"-->
-<!--          />-->
-<!--        </li>-->
+        <li>
+          <span>出库单SKU：</span>
+          <el-input
+              v-model="form.skuId"
+              clearable
+              size="mini"
+              oninput="value=value.replace(/\s+/g,'')"
+          />
+        </li>
       </ul>
       <ul>
         <li>
@@ -668,7 +668,7 @@ export default {
         logistic_no: '', // 物流单号
         created_time: '', // 创建时间
         status: '',// 订单出库状态
-        outboundOrderSku:''
+        skuId:''
       },
 
       stockForm: { // 仓库条件搜索
@@ -862,6 +862,7 @@ export default {
       this.isShowLoading = true
       this.form.page = this.page
       this.form.pageSize = this.pageSize
+      console.log(this.form)
       const res = await this.BroadDeliveryOrder.getOutOfStockList(this.form)
       console.log('tableData', res)
       if (res.code === 200) {
