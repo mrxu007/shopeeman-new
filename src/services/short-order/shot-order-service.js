@@ -587,6 +587,7 @@ export default class {
           data: `【用户昵称含有特殊字符，Lazada平台不支持使用特殊字符创建收件人，请联系客服修改`
         }
       }
+      let buyerName = ''
       if (itemOrder.country == "PH") {
         //菲律宾站点名称不能包含#字符，且必须使用空格分隔，直接使用买家姓名
         buyerName = nickInfo.Nickname + " " + warehouseInfo.receiving_name + "-" + "SPM";
