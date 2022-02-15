@@ -244,6 +244,7 @@ export default class {
     }
     let configInfo = await this.$appConfig.getUserConfig()
     let configInfoObj = configInfo && JSON.parse(configInfo)
+    console.log()
     //设置信息中的是否自动申请Shopee物流单号选项
     if (country !== 'TW' && (!configInfoObj || !configInfoObj.is_apply_shopee_logistics)) {
       if (!this.isApplyForceFaceInfo) {
@@ -254,9 +255,10 @@ export default class {
     let logisDefault = site_mall.find(n => {
       return n.ShipId == logisticsChannel
     })
+    console.log(logisDefault,"logisDefault")
     if (logisDefault && !logisDefault.IsDeafult) {
       //非默认物流 获取下运输单号
-      return this.getShopeeShipNumber(orderId, shopId, country, sysMallId, orderSn); //获取shopee运输单号
+      return this.getShopeeShipNumber(orderId, shopId, country, sysMallId, orderSn,`【${logisDefault.ShipName}】不支持自动申请虾皮运输单号功能`); //获取shopee运输单号
     }
     try {
       if (country === 'TW') {
@@ -369,7 +371,7 @@ export default class {
     }
   }
   //获取物流单号
-  async getShopeeShipNumber(orderId, mallId, country, sysMallId, orderSn) {
+  async getShopeeShipNumber(orderId, mallId, country, sysMallId, orderSn,warningType) {
     console.log(orderId, mallId, country)
     try {
       let trackNo = ''
@@ -406,7 +408,7 @@ export default class {
       } else {
         return {
           code: 50005,
-          data: '未获取到物流单号'
+          data: warningType || '未获取到物流单号'
         }
       }
     } catch (error) {
