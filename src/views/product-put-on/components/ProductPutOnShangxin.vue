@@ -1527,7 +1527,7 @@ export default {
         if (this.associatedConfig.dimensionRadio < 2) {
           let mallCount = this.mallList.length
           let mallIndex = this.mallList.findIndex(son => son.id === mall.id)
-          let goodsCount = this.goodsTable.length
+          let goodsCount = this.goodsTableSelect.length
           for (let i = 0; mallIndex < goodsCount; i++) {
             mallIndex = mallIndex + mallCount * i
             if (mallIndex < goodsCount) {
@@ -1537,7 +1537,9 @@ export default {
         } else {
           goodsList = this.goodsTableSelect
         }
+        console.log(goodsList)
         for (let item of goodsList) {
+          console.log(item)
           errorItem = item
           this.updateAttributeName(item, '正在准备发布')
           if (!loginSuccess) {
@@ -1604,7 +1606,7 @@ export default {
           let goodsParam = JSON.parse(JSON.stringify(goodsInitParam))
           this.updateAttributeName(item, mallName, 'mallName')
           // weight
-          if (goodsParam['weight'] === '0') {
+          if (goodsParam['weight'] == '0') {
             goodsParam['weight'] = getSectionRandom(this.basicConfig.minHeavy, this.basicConfig.maxHeavy, 2) + ''
             neededTranslateInfoData['weight'] = goodsParam['weight']
           }
@@ -1707,15 +1709,17 @@ export default {
               imagesList[0] = ImageURL || image
             }
           }
-          if (this.watermarkConfig.addType === 0) {
-            imageTemp = await this.additionalWatermarking(imagesList[0], mall)
-            imagesList[0] = imageTemp || imagesList[0]
-          } else {
-            for (let i = 0; i < imagesList.length; i++) {
-              imageTemp = await this.additionalWatermarking(imagesList[i], mall)
-              imagesList[i] = imageTemp || imagesList[i]
-              if (!imageTemp) {
-                return
+          if (this.storeConfig.watermarkChecked){
+            if (this.watermarkConfig.addType === 0) {
+              imageTemp = await this.additionalWatermarking(imagesList[0], mall)
+              imagesList[0] = imageTemp || imagesList[0]
+            } else {
+              for (let i = 0; i < imagesList.length; i++) {
+                imageTemp = await this.additionalWatermarking(imagesList[i], mall)
+                imagesList[i] = imageTemp || imagesList[i]
+                if (!imageTemp) {
+                  return
+                }
               }
             }
           }
@@ -1746,6 +1750,7 @@ export default {
           })
           console.log('goodsParam', goodsParam)
           this.updateAttributeName(item, '正在上传轮播图')
+          console.log('正在上传轮播图',goodsParam['images'])
           let imageMapping = await imageCompressionUpload(mall, goodsParam['images'], this, this.storeConfig.pictureThread)
           goodsParam['images'] = goodsParam.images.map(son => {
             son = imageMapping[son] || ''
@@ -1763,6 +1768,7 @@ export default {
             goodsParam['images'] = temp
           }
           this.updateAttributeName(item, '正在上传规格图')
+          console.log('正在上传规格图',neededTranslateInfoData.spec_image)
           let spec_imageMapping = await imageCompressionUpload(mall, neededTranslateInfoData.spec_image, this, this.storeConfig.pictureThread)
           let tier_variationJSON = JSON.stringify(goodsParam['tier_variation'])
           let spec_list = []
@@ -1786,6 +1792,7 @@ export default {
               goodsParam['images'] = imageList.slice(0, 9)
             }
           }
+          this.updateAttributeName(item, '正在创建商品信息')
           console.log(goodsParam)
           await sleep(this.associatedConfig.onNewInterval * 1000)
           let resJSON = await this.$shopeemanService.createProduct(this.country, { mallId: mall.platform_mall_id }, [goodsParam])

@@ -3,7 +3,7 @@
     <div class="conditon" style="background-color: white; padding:8px 4px">
       <!-- row1 -->
       <div class="row">
-        <GoodsChoose @getmall="getmall" @changeMall="changeMall" />
+        <storeChoose :spanWidth="'60px'" :source="'true'" @changeMallList="changeMallList" :is-a-shop="true"/>
         <el-button style="margin-left:8px" size="mini" type="primary" :loading="searchLoading" @click="search">搜 索</el-button>
         <!-- <el-button size="mini" type="primary" @click="search">刷新</el-button> -->
       </div>
@@ -144,13 +144,13 @@
   </div>
 </template>
 <script>
-import GoodsChoose from '../../../components/goods-choose.vue'
+import storeChoose from '../../../components/store-choose'
 import GoodsManagerAPI from '../../../module-api/goods-manager-api/goods-data'
 import goodsItemSelector from '../../../components/goods-item-selector'
 import { GoodsMallgetValue, getMalls } from '../../../util/util'
 export default {
   components: {
-    GoodsChoose,
+    storeChoose,
     goodsItemSelector
   },
   data() {
@@ -204,9 +204,6 @@ export default {
   created() {
   },
   methods: {
-    changeMall(val) {
-      this.selectMalllist = val
-    },
     // 获取选择的商品
     async changeGoodsItem(val) {
       if (val.goodsList.length) {
@@ -746,8 +743,17 @@ export default {
       this.add_query.selcategory_id = val.categoryList.length && val.categoryList[val.categoryList.length - 1].toString() || ''
     },
     // 店铺选择
-    getmall(val) {
-      this.mallinfo = val
+    // getmall(val) {
+      //{mallID: 309056854, country: "TH"}
+      // console.log('getmall',val)
+      // this.mallinfo = val
+    // },
+    // changeMall(val) {
+    //   console.log(val) // [mall]
+    //   this.selectMalllist = val
+    // },
+    changeMallList(val){
+      console.log('changeMallList',val)
     },
     // 关闭弹窗
     clearDialog() {},

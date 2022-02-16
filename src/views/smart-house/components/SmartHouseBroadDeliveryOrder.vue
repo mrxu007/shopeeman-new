@@ -54,7 +54,6 @@
               v-model="form.skuId"
               clearable
               size="mini"
-              oninput="value=value.replace(/\s+/g,'')"
           />
         </li>
       </ul>

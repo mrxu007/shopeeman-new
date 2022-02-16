@@ -1003,7 +1003,7 @@ export async function filterLogistics(logisticsJarray, idDatas, isUseProductChan
    * @param {*} maxVal 最大
    * @param {*} fixed 小数位
    * */
-export async function getSectionRandom(minVal, maxVal, fixed = 0) {
+export function getSectionRandom(minVal, maxVal, fixed = 0) {
   minVal = (minVal < maxVal && minVal || maxVal) * 1
   maxVal = (minVal < maxVal && maxVal || minVal) * 1
   const gap = maxVal - minVal

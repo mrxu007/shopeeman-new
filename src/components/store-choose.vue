@@ -21,15 +21,16 @@
             v-model="site"
             v-loadmore="loadmoreMall"
             placeholder=""
-            multiple
+            :multiple="!isAShop"
             collapse-tags
             :filter-method="filterMall"
             size="mini"
             filterable
             class="selectBox"
+            clearable
             @visible-change="filterMall('')"
         >
-          <el-option label="全部" :value="''"/>
+          <el-option v-if="!isAShop" label="全部" :value="''"/>
           <el-option
               v-for="(item, index) in siteShowList"
               v-if="showMall(item,index)"
@@ -102,6 +103,12 @@ export default {
       default() {
         return ''
       }
+    },
+    isAShop:{
+      type: Boolean,
+      default() {
+        return false
+      }
     }
   },
   data() {
@@ -169,38 +176,40 @@ export default {
         if (this.isAllowSet1) {
           this.isAllowSet1 = false
           let showName = this.isShowName
-          const isOldAll = oldVal.includes('')
-          const isAll = val.includes('')
-          if (isOldAll !== isAll || (oldVal.toString() === val.toString() && this.isShowNameAll)) {
-            if (isAll && (!showName || showName && !this.isShowNameAll)) {
-              let showList = showName && [...this.siteShowList.map(i => i.platform_mall_id)] || ['', ...this.siteList.map(i => i.platform_mall_id)]
-              let setList = new Set([...showList, ...oldVal])
-              this.site = [...setList]
-              this.isShowNameAll = true
-              showName && this.siteList.length === this.site.length && this.site.unshift('')
+          if (!this.isAShop){
+            const isOldAll = oldVal.includes('')
+            const isAll = val.includes('')
+            if (isOldAll !== isAll || (oldVal.toString() === val.toString() && this.isShowNameAll)) {
+              if (isAll && (!showName || showName && !this.isShowNameAll)) {
+                let showList = showName && [...this.siteShowList.map(i => i.platform_mall_id)] || ['', ...this.siteList.map(i => i.platform_mall_id)]
+                let setList = new Set([...showList, ...oldVal])
+                this.site = [...setList]
+                this.isShowNameAll = true
+                showName && this.siteList.length === this.site.length && this.site.unshift('')
+              } else {
+                this.isShowNameAll = false
+                let setList = []
+                if (showName) {
+                  let showList = showName && [...this.siteShowList.map(i => i.platform_mall_id)]
+                  let maxList = showList.length > this.site.length && this.site || showList
+                  let minList = showList.length > this.site.length && showList || this.site
+                  setList = new Set(this.site)
+                  for (let item of minList) {
+                    if (maxList.includes(item)) {
+                      setList.delete(item)
+                    }
+                  }
+                  setList.delete('')
+                }
+                this.site = [...setList]
+              }
+            } else if (isAll) {
+              this.site = val.slice(1)
+            } else if (this.siteList.length > 0 && this.siteList.length === this.site.length) {
+              this.site.unshift('')
             } else {
               this.isShowNameAll = false
-              let setList = []
-              if (showName) {
-                let showList = showName && [...this.siteShowList.map(i => i.platform_mall_id)]
-                let maxList = showList.length > this.site.length && this.site || showList
-                let minList = showList.length > this.site.length && showList || this.site
-                setList = new Set(this.site)
-                for (let item of minList) {
-                  if (maxList.includes(item)) {
-                    setList.delete(item)
-                  }
-                }
-                setList.delete('')
-              }
-              this.site = [...setList]
             }
-          } else if (isAll) {
-            this.site = val.slice(1)
-          } else if (this.siteList.length > 0 && this.siteList.length === this.site.length) {
-            this.site.unshift('')
-          } else {
-            this.isShowNameAll = false
           }
           setTimeout(() => {
             this.changeMallList()
@@ -297,19 +306,24 @@ export default {
       setTimeout(() => {
         this.isAllowSet2 = true
         this.isAllowSet1 = true
-        this.site = ['']
+        this.site = !this.isAShop && [''] || ''
       }, 10)
     },
     changeMallList() {
       const mallList = []
       let searchAll = ''
-      this.site.forEach((item) => {
-        if (item) {
-          const temp = this.siteList.find((i) => i.platform_mall_id === item)
-          mallList.push(temp)
-          searchAll += (item + ',')
-        }
-      })
+      if (!this.isAShop){
+        this.site.forEach((item) => {
+          if (item) {
+            const temp = this.siteList.find((i) => i.platform_mall_id === item)
+            mallList.push(temp)
+            searchAll += (item + ',')
+          }
+        })
+      }else{
+        const temp = this.siteList.find((i) => i.platform_mall_id === this.site)
+        mallList.push(temp)
+      }
       if (!this.countryVal && this.groupId.indexOf('') > -1) {
         searchAll = mallList.length !== this.siteList.length && searchAll || ''
       }
