@@ -2569,10 +2569,8 @@ export default {
       params['otherTime'] = params['otherTime'] && params['otherTime'].length ? params['otherTime'][0] + ' 00:00:00' + '/' + params['otherTime'][1] + ' 23:59:59' : ''
       params['shotTime'] = params['shotTime'] && params['shotTime'].length ? params['shotTime'][0] + ' 00:00:00' + '/' + params['shotTime'][1] + ' 23:59:59' : ''
       this.tableLoading = true
-      console.log(params, 'params')
       const res = await this.$api.getOrderList(params)
       this.tableLoading = false
-      console.log(res, '111111111111111')
       try {
         if (res.data.code && res.data.code === 200) {
           this.tableData = res.data.data.data
@@ -2586,12 +2584,9 @@ export default {
           this.$message.warning(`${res.data.message ? res.data.message : '获取订单列表失败'}`)
         }
       } catch (error) {
-        console.log(error, '22222222222')
-        console.log(this.$message, this)
         this.$message.warning(`获取订单列表失败`)
         this.tableLoading = false
       }
-      // console.log(this.tableData)
     },
     async getSkuRelation() {
       let sysOrders = ''
@@ -2620,7 +2615,6 @@ export default {
     async dealWithTableList() {
       let sysOrders = ''
       const grossAmountRequest = []
-      console.log('this.tableData', this.tableData)
       this.tableData.forEach(async (row, i) => {
         // 计算含邮毛利
         if (row.shot_order_info.shot_order_sn) {
@@ -2636,7 +2630,12 @@ export default {
           }
         }
         // 计算最终毛利
-        if (Number(row.real_gross_profit) > 0 || [3, 4, 8].indexOf(Number(row.order_status)) > -1) {
+        //1、当含邮毛利存在，最终毛利重新计算 ：最终毛利=含邮毛利 - 仓库费用
+        if(Number(row.gross_profit) > 0){
+          const diff = (row.gross_profit - Number(row.warehouse_ship_amount) / Number(this.rateList[row.country])).toFixed(2)
+          row.real_gross_profit = diff
+        }
+        if (Number(row.warehouse_ship_amount) > 0 || [3, 4, 8].indexOf(Number(row.order_status)) > -1) {
           // console.log("计算最终毛利",Number(row.real_gross_profit)>0,Number(row.real_gross_profit))
           // 收入-采购价-仓库发货金额
           const diff = (row.escrow_amount - row.shot_order_info.shot_amount - Number(row.warehouse_ship_amount) / Number(this.rateList[row.country])).toFixed(2)
