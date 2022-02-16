@@ -400,7 +400,7 @@ export default class {
         }
       }
       if (trackNo) {
-        await this.uploadTrackingNo(sysMallId, mallId, orderSn, trackNo, logisticsId)
+        await this.uploadTrackingNo(sysMallId, mallId, orderSn, trackNo, channelId)
         return {
           code: 200,
           data: trackNo

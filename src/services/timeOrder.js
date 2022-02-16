@@ -72,6 +72,7 @@ constructor(mall, syncStatus, that, writeLog) {
     // this.mall = mall
     // this.syncStatus = syncStatus
     this.timeRange = timeRange
+    this.writeLog(`正在同步【${this.syncStatus.label}】状态订单......`,true)
     if (this.syncStatus.value === 'refund') {
       await this.refund(mallNo, upLoadType)
     } else if (this.syncStatus.value === 'toship') {
