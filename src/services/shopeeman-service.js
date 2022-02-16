@@ -958,13 +958,13 @@ export default class NetMessageBridgeService {
       } else {
         return {
           code: 50001,
-          data: info.message || []
+          data: `${info.message.includes('ConnectionRefused')?'请检查网络是否可用':info.message}`|| []
         }
       }
     } else {
       return {
         code: resObj.status,
-        data: `获取详情失败${resObj.statusText}`
+        data: `获取详情失败${resObj.statusText.includes('ConnectionRefused')?'请检查网络是否可用':resObj.statusText}`
       }
     }
   }
@@ -1014,13 +1014,13 @@ export default class NetMessageBridgeService {
       } else {
         return {
           code: 50001,
-          data: info.message || []
+          data: `${info.message.includes('ConnectionRefused')?'请检查网络是否可用':info.message}`|| []
         }
       }
     } else {
       return {
         code: resObj.status,
-        data: `获取详情失败${resObj.statusText}`
+        data: `获取详情失败${resObj.statusText.includes('ConnectionRefused')?'请检查网络是否可用':resObj.statusText}`
       }
     }
   }
@@ -1039,13 +1039,13 @@ export default class NetMessageBridgeService {
       } else {
         return {
           code: 50001,
-          data: info.message || []
+          data: `${info.message.includes('ConnectionRefused')?'请检查网络是否可用':info.message}`|| []
         }
       }
     } else {
       return {
         code: resObj.status,
-        data: `获取详情失败${resObj.statusText}`
+        data: `获取详情失败${resObj.statusText.includes('ConnectionRefused')?'请检查网络是否可用':resObj.statusText}`
       }
     }
   }
