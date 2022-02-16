@@ -211,7 +211,6 @@ constructor(mall, syncStatus, that, writeLog) {
           }
           //上报
           let afterRes = await this.afterUpLoadOrders(paramsUploadList)
-          // debugger
           if (afterRes) {
             orderDetailListCount += paramsUploadList.length
           }
@@ -419,7 +418,6 @@ constructor(mall, syncStatus, that, writeLog) {
     //   order['forderLogistics'] = res6.data
     // }
     console.log(order, "orderAll")
-    // debugger
   }
 
   //服务端检测订单 ---正常订单

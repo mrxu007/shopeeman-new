@@ -742,16 +742,6 @@ export default {
     setCategory(val) {
       this.add_query.selcategory_id = val.categoryList.length && val.categoryList[val.categoryList.length - 1].toString() || ''
     },
-    // 店铺选择
-    // getmall(val) {
-      //{mallID: 309056854, country: "TH"}s
-      // console.log('getmall',val)
-      // this.mallinfo = val
-    // },
-    // changeMall(val) {
-    //   console.log(val) // [mall]
-    //   this.selectMalllist = val
-    // },
     changeMallList(val){
       console.log('changeMallList',val)
       this.mallinfo = {

@@ -671,7 +671,6 @@ export default {
       this.goodsList = []
       this.$refs.plTable.reloadData(this.goodsList)
       const res = await this.personalLibraryAPInstance.getCollectGoodsV2(params)
-      // debugger
       if (res.code !== 200) {
         this.$message.error(`${res.code}:${res.data}`)
       } else {

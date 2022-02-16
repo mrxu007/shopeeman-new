@@ -19,7 +19,6 @@ export default class OrderManagerAPI {
       console.log('params', params)
       const res = await this._this.$shopeemanService.postChinese(country, '/api/v3/order/respond_cancel_request/?', params,
         { headers: { referer: '/portal/sale/88860579400074', 'Content-Type': 'application/json' }})
-      // debugger
       console.log('del', res)
       // res = JSON.parse(JSON.parse(res).data)
       // if (res.code === 0) {
