@@ -744,7 +744,7 @@ export default {
     },
     // 店铺选择
     // getmall(val) {
-      //{mallID: 309056854, country: "TH"}
+      //{mallID: 309056854, country: "TH"}s
       // console.log('getmall',val)
       // this.mallinfo = val
     // },
@@ -754,6 +754,11 @@ export default {
     // },
     changeMallList(val){
       console.log('changeMallList',val)
+      this.mallinfo = {
+        mallID : val.searchAll,
+        country : val.country,
+      }
+      this.selectMalllist = val.mallList
     },
     // 关闭弹窗
     clearDialog() {},

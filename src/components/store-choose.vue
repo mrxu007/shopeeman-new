@@ -322,6 +322,7 @@ export default {
         })
       }else{
         const temp = this.siteList.find((i) => i.platform_mall_id === this.site)
+        searchAll = this.site
         mallList.push(temp)
       }
       if (!this.countryVal && this.groupId.indexOf('') > -1) {
