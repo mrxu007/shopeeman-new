@@ -381,9 +381,9 @@ export default class {
         shop_id: mallId
       }
       for (let i = 0; i < 3; i++) {
-        console.log(orderId, mallId, country, params)
+        // console.log(orderId, mallId, country, params)
         let res = await this.$shopeemanService.getDropOff(country, params)
-        console.log("--------", orderId, mallId, country, res)
+        // console.log("--------", orderId, mallId, country, res)
         if (!res || !res.code === 200 || !res.data) {
           continue
         }
@@ -637,15 +637,15 @@ export default class {
       let faceData = await this.downloadSdJobTW(order.shop_id, jobId, country)
       console.log(faceData, "faceData")
       if (!faceData) {
+        debugger
         this.writeLog(`订单【${order.order_sn}】同步面单失败,下载失败[505]`, false)
         return
       }
       return this.getQuanJiaFaceInfo(trackingNo, faceData, order.shop_id)
     }
-    console.log(jobId, "jobId")
-    let faceData = await this.downloadSdJob(order.shop_id, jobId, country)
-    console.log(faceData, "faceData")
-    return faceData
+    // let faceData = await this.downloadSdJob(order.shop_id, jobId, country)
+    // console.log(faceData, "faceData")
+    // return faceData
   }
   //莱尔富经济包的面单信息
   async getLaiErFuFace(orderId, shopId) {
