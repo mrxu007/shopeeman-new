@@ -286,7 +286,11 @@
           <template slot-scope="{row}"><span>{{ packageType[row.package_type] }}</span></template>
         </el-table-column>
         <el-table-column label="增值服务名称" min-width="150px" prop="">
-          <template slot-scope="{row}"><span>{{ row.ext_service && row.ext_service.name }}</span></template>
+          <template slot-scope="{row}">
+            <el-button v-if="row.ext_service && row.ext_service.name" type="text" size="mini"
+                       style="min-width: 50px" @click="getOrderServicesDetail(row)">
+              {{ row.ext_service && row.ext_service.name }}
+            </el-button></template>
         </el-table-column>
         <el-table-column label="增值服务金额" min-width="150px" prop="">
           <template slot-scope="{row}"><span>{{ row.ext_service && row.ext_service.price }}</span></template>
@@ -1965,6 +1969,25 @@ export default {
       this.applyTypeCause = 1
       this.applyRemark = ''
       this.applyImages = ['', '', '']
+    },
+    async getOrderServicesDetail(val){
+      if (val && val.ext_service && val.wid){
+        console.log(val)
+        let params = {
+          wid: val.wid,
+          type:val.ext_service.name,
+          order_sn:val.package_order_sn,
+        }
+        let orderServicesDetailJson = await this.$XzyNetMessageService.post('xzy.order.getOrderServicesDetail', params)
+        let orderServicesDetailRes = JSON.parse(orderServicesDetailJson)
+        let orderServicesDetailData = JSON.parse(orderServicesDetailRes.data)
+        if (orderServicesDetailData.code === 200){
+
+        }else{
+          this.$message.error(orderServicesDetailData.message)
+        }
+        console.log('orderServicesDetail', orderServicesDetailData)
+      }
     }
   }
 }

@@ -304,7 +304,7 @@ export default class GoodsList {
   // 未输入条件时查询
 
   async getMpskuList(val) {
-    const { mItem, pageSize, listType, listOrderType } = val
+    const { mItem, pageSize, listType, listOrderType ,cursor} = val
     try {
       const params = {
         page_number: mItem.pageNumber,
@@ -317,6 +317,10 @@ export default class GoodsList {
       if (listOrderType) {
         params['list_order_type'] = listOrderType
       }
+      if (cursor) {
+        params['cursor'] = cursor
+      }
+      console.log('get_mpsku_list' , params)
       const res = await this._this.$shopeemanService.getChinese(mItem.country, '/api/v3/mpsku/get_mpsku_list/?', params, { headers: { 'accept': 'application/json, text/plain, */*' }})
       const jsonData = this.isJsonString(res)
       console.log(jsonData)

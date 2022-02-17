@@ -1442,12 +1442,13 @@ export default {
     try {
       this.$IpcMain.on('gotoUpload', async e => { // 点听
         let goodsListJSON = await this.$BaseUtilService.getUploadGoodsId()
-        console.log('goodsListJSON', goodsListJSON)
         let goodsList = JSON.parse(goodsListJSON)
+        console.log('goodsListJSON', goodsList)
         for (let item of goodsList) {
           let index = this.goodsTable.findIndex(i => i.id === item.id)
           index >= 0 && this.$set(this.goodsTable, index, item) || this.goodsTable.push(item)
         }
+        console.log(this.goodsTable)
         this.statistics.count = this.goodsTable.length
         await this.$BaseUtilService.gotoUploadTab('updateId', '')
       })
@@ -1580,6 +1581,7 @@ export default {
           let categoryRelationJson = await this.$commodityService.getCategoryRelation(originCategoryId, this.country, platformId)
           let categoryRelationRes = JSON.parse(categoryRelationJson)
           let categoryId = categoryRelationRes?.data?.category?.platform_category_id || ''
+          console.log('categoryId',categoryId)
           if (categoryId) {
             goodsInitParam['category_path'] = await this.getCategoryPath(categoryId) || []
             let attributesCurrent = categoryRelationRes.data && categoryRelationRes.data.attributes || []
@@ -1599,12 +1601,13 @@ export default {
             })
           } else {
             this.updateAttributeName(item, '无类目映射，请选择类目')
-            return
+            continue
           }
           let neededTranslateInfoJson = await this.$commodityService.getSpuDetailByIdV2(item.id)
           let neededTranslateInfoData = JSON.parse(neededTranslateInfoJson) && JSON.parse(neededTranslateInfoJson).data
           let goodsParam = JSON.parse(JSON.stringify(goodsInitParam))
           this.updateAttributeName(item, mallName, 'mallName')
+          this.updateAttributeName(item, '商品数据组装中')
           // weight
           if (goodsParam['weight'] == '0') {
             goodsParam['weight'] = getSectionRandom(this.basicConfig.minHeavy, this.basicConfig.maxHeavy, 2) + ''
@@ -1792,8 +1795,8 @@ export default {
               goodsParam['images'] = imageList.slice(0, 9)
             }
           }
+          console.log('goodsParam',goodsParam)
           this.updateAttributeName(item, '正在创建商品信息')
-          console.log(goodsParam)
           await sleep(this.associatedConfig.onNewInterval * 1000)
           let resJSON = await this.$shopeemanService.createProduct(this.country, { mallId: mall.platform_mall_id }, [goodsParam])
           console.log('createProduct', resJSON)
@@ -1854,7 +1857,8 @@ export default {
               }
             }
           } else {
-            this.updateAttributeName(item, '发布失败')
+            let meg = this.$filters.errorMsg(resJSON.data)
+            this.updateAttributeName(item, meg)
           }
         }
       } catch (e) {

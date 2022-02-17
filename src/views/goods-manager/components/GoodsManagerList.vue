@@ -1272,7 +1272,8 @@ export default {
         { value: 2, label: '淘宝天猫' },
         { value: 8, label: '1688' },
         { value: 9, label: 'lazada' }
-      ]
+      ],
+      statusObjName:'',
 
     }
   },
@@ -3184,10 +3185,12 @@ export default {
         this.goodsStatusVal = item
         if (item === 0 || this.queryType === 100 || this.queryType === 200) {
           this.goodsStatusName = ''
+          this.statusObjName = ''
           await batchOperation(this.selectMallList, this.getTableData, 3)
           break
         } else {
           this.goodsStatusName = this.statusFilter[item]
+          this.statusObjName = this.statusObj[item]
           this.selectMallList.forEach(item => {
             item.pageNumber = 1
             item.mylist = []
@@ -3219,7 +3222,18 @@ export default {
         params['mItem'] = mItem
         params['pageSize'] = this.pageSize
         params['listType'] = this.goodsStatusName ? this.goodsStatusName : 'all'
-        if ((this.searchType !== 'originId' && this.keyword) || (this.goodsMax < 99999999 && this.goodsMax >= 0) || (this.goodsMin > 0 && this.goodsMin < 99999999) || (this.soldMin > 0 && this.soldMin < 99999999) || (this.soldMax < 99999999 && this.soldMax >= 0) || this.categoryName) {
+        if (params['listType'] === 'deboosted'){
+          if (mItem.cursor) {
+            params['cursor'] = mItem.cursor
+          }
+          params['listOrderType'] = 'list_time_asc'
+        }
+        if ((this.searchType !== 'originId' && this.keyword)
+            || (this.goodsMax < 99999999 && this.goodsMax >= 0)
+            || (this.goodsMin > 0 && this.goodsMin < 99999999)
+            || (this.soldMin > 0 && this.soldMin < 99999999)
+            || (this.soldMax < 99999999 && this.soldMax >= 0)
+            || this.categoryName) {
           if (!(this.queryType === 100 || this.queryType === 200)) {
             if (this.keyword) {
               params['searchType'] = this.searchType
@@ -3256,8 +3270,10 @@ export default {
             } else {
               mItem.mylist = fData
             }
-            this.$refs.Logs.writeLog(`查询店铺【${mallName}】第【${mItem.pageNumber}】页数据：${res.data.list.length}`, true)
-            if (len > 0) this.$refs.Logs.writeLog(`【${mallName}】第【${mItem.pageNumber}】页过滤数据【${len}】条`, false)
+            console.log(this.tableData)
+            let statusObjName = this.statusObjName && (this.statusObjName + '商品的') || ''
+            this.$refs.Logs.writeLog(`查询店铺【${mallName}】${statusObjName}第【${mItem.pageNumber}】页数据：${res.data.list.length}`, true)
+            if (len > 0) this.$refs.Logs.writeLog(`【${mallName}】${statusObjName}第【${mItem.pageNumber}】页过滤数据【${len}】条`, false)
             console.log('tableData', res.data.list)
           }
         } else {
@@ -3500,6 +3516,11 @@ export default {
           if (((Number(new Date().getTime()) - Number(item.create_time)) < 720000000) || Number(item.view_count) !== 0 || Number(item.like_count) !== 0) {
             continue
           }
+        }
+        // 同商品去重
+        let index = this.tableData.findIndex(son=> son.id === item.id && son.productId === item.productId)
+        if(index >= 0){
+          continue
         }
         fData.push(item)
       }
