@@ -2773,6 +2773,7 @@ export default {
     // height: 26px;
     padding: 10px;
   }
+  padding: 0 16px;
   // margin: 20px 0;
   background: #fff;
   // min-height: calc(100vh - 360px);
