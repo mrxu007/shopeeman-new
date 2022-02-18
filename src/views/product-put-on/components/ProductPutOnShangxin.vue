@@ -433,7 +433,7 @@
           {{ scope.$index + 1 }}
         </template>
       </u-table-column>
-      <u-table-column align="center" label="商品主图" width="70">
+      <u-table-column align="center" label="商品主图" width="80">
         <template slot-scope="{ row }">
           <el-tooltip effect="light" placement="right-end" :visible-arrow="false" :enterable="false"
                       style="width: 56px; height: 56px; display: inline-block">
@@ -1483,10 +1483,12 @@ export default {
         return
       }
       this.isBanPerform = true
+      this.isCancelRelease = false
       await batchOperation(this.mallList, this.prepareWork, this.basicConfig.onNewThread)
       this.isBanPerform = false
     },
     async cancelRelease() {
+      this.isCancelRelease = true
       terminateThread()
     },
     async prepareWork(mall, count = { count: 1 }) {
@@ -1540,7 +1542,9 @@ export default {
         }
         console.log(goodsList)
         for (let item of goodsList) {
-          console.log(item)
+          if(this.isCancelRelease){
+            return
+          }
           errorItem = item
           this.updateAttributeName(item, '正在准备发布')
           if (!loginSuccess) {

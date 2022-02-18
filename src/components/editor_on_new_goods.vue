@@ -198,9 +198,9 @@
         :height="isNoFoldShow && 400 || 680"
         @selection-change="handleSelectionChange"
     >
-      <u-table-column align="center" type="selection"/>
-      <u-table-column align="left" type="index" width="50" label="序号"/>
-      <u-table-column align="left" label="主图" width="70" prop="Sales">
+      <u-table-column align="center" show-overflow-tooltip width="55" type="selection"/>
+      <u-table-column align="left" show-overflow-tooltip type="index" width="55" label="序号"/>
+      <u-table-column align="left" show-overflow-tooltip label="主图" width="80" prop="Sales">
         <template v-slot="{ row }">
           <el-tooltip effect="light" placement="right-end" :visible-arrow="false" :enterable="false"
                       style="width: 56px; height: 56px; display: inline-block">
@@ -223,7 +223,7 @@
             <i class="el-icon-document-copy"/></el-button>
         </template>
       </u-table-column>
-      <u-table-column align="left" label="采购来源" width="80">
+      <u-table-column align="left" label="采购来源" width="70">
         <template v-slot="{ row }">
           <p style="white-space: normal;overflow: hidden">{{ sourceObj[row.source + ''] }}</p>
         </template>
@@ -242,12 +242,12 @@
         <template v-slot="{ row }">{{ getCategoty(row) || '未匹配到类目' }}</template>
       </u-table-column>
       <u-table-column align="left" label="价格" prop="price" width="70"/>
-      <u-table-column align="left" label="重量(kg)" width="80">
+      <u-table-column align="left" label="重量(kg)" width="75">
         <template v-slot="{ row }">
           <el-input v-model="row.weight" size="mini" @keyup.enter.native="goodsListUpdate(row)"/>
         </template>
       </u-table-column>
-      <u-table-column align="left" label="体积" width="120">
+      <u-table-column align="left" label="体积" width="115">
         <template v-slot="{ row }">
           <ul>
             <li style="display: flex;align-items: center;">
@@ -274,7 +274,7 @@
           </div>
         </template>
       </u-table-column>
-      <u-table-column align="left" label="操作状态">
+      <u-table-column align="left" label="操作状态" width="90">
         <template v-slot="{row}">
           <div class="goodsTableLine" style="height: 80px">
             {{ row.operation_type || '' }}

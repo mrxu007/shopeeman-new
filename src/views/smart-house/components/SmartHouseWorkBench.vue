@@ -4,7 +4,7 @@
       <div class="operate">
         <!-- <div class="title">基础操作</div> -->
         <div>基础操作</div>
-        <div class="line" />
+        <div class="line"/>
         <div class="btn-items">
           <el-button type="primary" size="mini" @click="markOrderNeedDeal">标记需仓库紧急处理</el-button>
           <el-button type="primary" size="mini" @click="setNoWait">标记无需等待子包裹</el-button>
@@ -33,10 +33,10 @@
       <div class="search-list">
         <!-- <div class="title">列表筛选操作</div> -->
         <div>列表筛选操作</div>
-        <div class="line" />
+        <div class="line"/>
         <div class="form-items">
           <div class="select-item">
-            <storeChoose :is-all="true" :show-mall-all="true" @changeMallList="setMallId" />
+            <storeChoose :is-all="true" :show-mall-all="true" @changeMallList="setMallId"/>
 
             <!-- <storeChoose :is-all="true" style="margin-left:5px" @change="setMallId" /> -->
           </div>
@@ -45,36 +45,36 @@
           <div>
             <span class="search-title">订单创建时间：</span>
             <el-date-picker
-              v-model="createdTime"
-              size="mini"
-              value-format="yyyy-MM-dd"
-              type="daterange"
-              style="width: 220px"
-              range-separator="-"
-              :picker-options="pickerOptions"
-              start-placeholder="开始日期"
-              end-placeholder="结束日期"
+                v-model="createdTime"
+                size="mini"
+                value-format="yyyy-MM-dd"
+                type="daterange"
+                style="width: 220px"
+                range-separator="-"
+                :picker-options="pickerOptions"
+                start-placeholder="开始日期"
+                end-placeholder="结束日期"
             />
           </div>
 
           <div style="margin-left:30px">
             <span class="search-title ">颜色标识：</span>
             <el-select
-              v-model="colorLabelId"
-              size="mini"
-              style="width: 180px"
-              clearable
+                v-model="colorLabelId"
+                size="mini"
+                style="width: 180px"
+                clearable
             >
-              <el-option label="全部" value="0" />
-              <el-option label="未标识" value="-1" />
-              <el-option label="已标识" value="-2" />
+              <el-option label="全部" value="0"/>
+              <el-option label="未标识" value="-1"/>
+              <el-option label="已标识" value="-2"/>
 
               <el-option
-                v-for="item in colorLogoList"
-                :key="item.id"
-                :label="item.name"
-                :value="item.id"
-                :style="item.color"
+                  v-for="item in colorLogoList"
+                  :key="item.id"
+                  :label="item.name"
+                  :value="item.id"
+                  :style="item.color"
               />
             </el-select>
           </div>
@@ -84,70 +84,78 @@
           <div class="select-item">
             <span class="search-title">包裹入库时间：</span>
             <el-date-picker
-              v-model="storageTime"
-              size="mini"
-              value-format="yyyy-MM-dd"
-              type="daterange"
-              style="width: 220px"
-              range-separator="-"
-              :picker-options="pickerOptions"
-              start-placeholder="开始日期"
-              end-placeholder="结束日期"
+                v-model="storageTime"
+                size="mini"
+                value-format="yyyy-MM-dd"
+                type="daterange"
+                style="width: 220px"
+                range-separator="-"
+                :picker-options="pickerOptions"
+                start-placeholder="开始日期"
+                end-placeholder="结束日期"
             />
           </div>
 
           <div class="select-item" style="margin-left:25px">
             <span class="search-title">订单编号：</span>
-            <el-input v-model="packageOrderSn" size="mini" style="width: 180px" clearable />
+            <el-input v-model="packageOrderSn" size="mini" style="width: 180px" clearable/>
             <span style="margin-left: 8px" class="search-title">采购物流单号：</span>
-            <el-input v-model="statuoriginalTrackingNumbers" size="mini" style="width: 180px" clearable />
+            <el-input v-model="statuoriginalTrackingNumbers" size="mini" style="width: 180px" clearable/>
           </div>
         </div>
         <div class="form-items">
           <div class="select-item">
             <span class="search-title">包裹出库时间：</span>
             <el-date-picker
-              v-model="outboundTime"
-              size="mini"
-              value-format="yyyy-MM-dd"
-              type="daterange"
-              style="width: 220px"
-              range-separator="-"
-              :picker-options="pickerOptions"
-              start-placeholder="开始日期"
-              end-placeholder="结束日期"
+                v-model="outboundTime"
+                size="mini"
+                value-format="yyyy-MM-dd"
+                type="daterange"
+                style="width: 220px"
+                range-separator="-"
+                :picker-options="pickerOptions"
+                start-placeholder="开始日期"
+                end-placeholder="结束日期"
             />
           </div>
           <div class="select-item">
             <span class="search-title">订单发货状态：</span>
             <el-select
-              v-model="deliveryStatus"
-              size="mini"
-              style="width: 180px"
-              clearable
-              placeholder="全部"
+                v-model="deliveryStatus"
+                size="mini"
+                style="width: 180px"
+                clearable
+                placeholder="全部"
             >
-              <el-option v-for="item in deliverStateList" :key="item.deliveryStatus" :label="item.label" :value="item.deliveryStatus" />
+              <el-option v-for="item in deliverStateList" :key="item.deliveryStatus" :label="item.label"
+                         :value="item.deliveryStatus"/>
             </el-select>
           </div>
           <div class="select-item" style="margin-left:5px">
             <span class="search-title">包裹异常类型：</span>
             <el-select
-              v-model="exceptionType"
-              size="mini"
-              style="width: 180px"
-              clearable
-              placeholder="全部"
-            ><el-option label="全部" value="" />
-              <el-option v-for="item in abnormalTypeList" :key="item.exception_type" :label="item.label" :value="item.exception_type" />
+                v-model="exceptionType"
+                size="mini"
+                style="width: 180px"
+                clearable
+                placeholder="全部"
+            >
+              <el-option label="全部" value=""/>
+              <el-option v-for="item in abnormalTypeList" :key="item.exception_type" :label="item.label"
+                         :value="item.exception_type"/>
             </el-select>
           </div>
 
         </div>
         <div class="select-item" style="margin-top:10px">
-          <el-button type="primary" style="margin-left: 4px" size="mini" class="m-80" :loading="orderPackageLoading" @click="orderPackage">搜索</el-button>
-          <el-button v-if="!isExport" :loading="exportLoading" style="width:100px" type="primary" size="mini" class="m-80" @click="tableToExcel(1)">导出数据</el-button>
-          <el-progress v-else style="width: 160px; display: inline-block; margin-left: 10px" :text-inside="true" :stroke-width="26" :percentage="((exportNum * 100) / total).toFixed(2) - 0" />
+          <el-button type="primary" style="margin-left: 4px" size="mini" class="m-80" :loading="orderPackageLoading"
+                     @click="orderPackage">搜索
+          </el-button>
+          <el-button v-if="!isExport" :loading="exportLoading" style="width:100px" type="primary" size="mini"
+                     class="m-80" @click="tableToExcel(1)">导出数据
+          </el-button>
+          <el-progress v-else style="width: 160px; display: inline-block; margin-left: 10px" :text-inside="true"
+                       :stroke-width="26" :percentage="((exportNum * 100) / total).toFixed(2) - 0"/>
           <el-button type="primary" size="mini" class="m-80" style="width:120px" @click="remarkFun">批量更新用户备注</el-button>
           <el-button type="primary" size="mini" @click="closelogData">清空日志</el-button>
           <el-checkbox v-model="showlog" style="margin: 4px">隐藏日志</el-checkbox>
@@ -157,20 +165,20 @@
     </div>
     <div class="table-box">
       <el-table
-        ref="workbenchTable"
-        height="calc(100vh - 350px)"
-        :data="tableData"
-        tooltip-effect="dark"
-        style="width: 100%"
-        :header-cell-style="{
+          ref="workbenchTable"
+          height="calc(100vh - 350px)"
+          :data="tableData"
+          tooltip-effect="dark"
+          style="width: 100%"
+          :header-cell-style="{
           textAlign: 'center',
           backgroundColor: '#f5f7fa',
         }"
-        :cell-style="{ textAlign: 'center' }"
-        :row-style="{ height: '80px' }"
-        @selection-change="handleSelectionChange"
+          :cell-style="{ textAlign: 'center' }"
+          :row-style="{ height: '80px' }"
+          @selection-change="handleSelectionChange"
       >
-        <el-table-column type="selection" width="40" fixed />
+        <el-table-column type="selection" width="40" fixed/>
         <el-table-column label="序号" width="40" fixed>
           <template slot-scope="scope">
             {{ scope.$index + 1 + (currentPage - 1) * pageSize }}
@@ -182,25 +190,34 @@
         <el-table-column label="店铺名称" min-width="150px" prop="mall_alias_name">
           <!-- <template slot-scope="{row}"><span>{{ row.mall_alias_name ? row.mall_alias_name :row.platform_mall_name }}</span></template> -->
         </el-table-column>
-        <el-table-column label="仓库" min-width="120px" prop="warehouse_name" />
+        <el-table-column label="仓库" min-width="120px" prop="warehouse_name"/>
         <el-table-column label="颜色标识" min-width="100px" prop="colorText">
           <template slot-scope="{ row }">
             <!-- <span v-if="row.colorinfo" :style="row.color">{{ row.label }}</span> -->
             <el-tooltip v-if="row.colorinfo" effect="dark" placement="top-start">
               <div slot="content" style="width:auto;height:auto">{{ row.colorinfo.name }}</div>
               <!-- <el-button type="text"><div :style="row.colorinfo.color"></div></el-button> -->
-              <div :style="{'backgroundColor':row.colorinfo.color.split(':')[1] , 'width':colorStyle.width , 'height':colorStyle.height}" /></el-tooltip>
+              <div
+                  :style="{'backgroundColor':row.colorinfo.color.split(':')[1] , 'width':colorStyle.width , 'height':colorStyle.height}"/>
+            </el-tooltip>
           </template>
         </el-table-column>
         <el-table-column label="订单编号" min-width="180px" prop="package_order_sn">
           <template slot-scope="scope">
-            <span v-if="scope.row.package_order_sn">{{ scope.row.package_order_sn }} <span class="copyIcon" @click="copy(scope.row.package_order_sn)"><i class="el-icon-document-copy" /></span></span>
+            <span v-if="scope.row.package_order_sn">{{ scope.row.package_order_sn }} <span class="copyIcon"
+                                                                                           @click="copy(scope.row.package_order_sn)"><i
+                class="el-icon-document-copy"/></span></span>
           </template>
         </el-table-column>
-        <el-table-column label="数量" min-width="100px" prop="goodsCount" />
+        <el-table-column label="数量" min-width="100px" prop="goodsCount"/>
         <el-table-column label="商品详情" min-width="110px">
           <template slot-scope="scope">
-            <p><el-button type="primary" size="mini" @click="getGoodsInfo(scope.row.package_order_sn,scope.row.delivery_status,scope.row),currenWarehouse=scope.row.warehouse_name">查看签收详情</el-button></p>
+            <p>
+              <el-button type="primary" size="mini"
+                         @click="getGoodsInfo(scope.row.package_order_sn,scope.row.delivery_status,scope.row),currenWarehouse=scope.row.warehouse_name">
+                查看签收详情
+              </el-button>
+            </p>
           </template>
         </el-table-column>
         <el-table-column label="包裹重量" min-width="100px">
@@ -212,7 +229,7 @@
           </template>
         </el-table-column>
         <el-table-column label="发货金额" min-width="100px" prop="amount">
-          <template slot-scope="{row}"><span>{{ row.amount+'元' }}</span></template>
+          <template slot-scope="{row}"><span>{{ row.amount + '元' }}</span></template>
         </el-table-column>
         <!-- <el-table-column
           label="运费参考(元)"
@@ -229,31 +246,35 @@
         <el-table-column label="订单发货状态" min-width="100px" prop="delivery_status">
           <template slot-scope="{row}"><span>{{ delivery_statusList[row.delivery_status] }}</span></template>
         </el-table-column>
-        <el-table-column label="异常类型" min-width="100px" prop="exceptionText" />
-        <el-table-column label="订单创建时间" min-width="150px" prop="order_created_time" />
+        <el-table-column label="异常类型" min-width="100px" prop="exceptionText"/>
+        <el-table-column label="订单创建时间" min-width="150px" prop="order_created_time"/>
         <el-table-column label="订单平台状态" min-width="110px" prop="order_status">
           <template slot-scope="{row}"><span>{{ orderStatusList[row.order_status] }}</span></template>
         </el-table-column>
-        <el-table-column label="截止发货时间" min-width="150px" prop="order_ship_by_date" />
-        <el-table-column label="入库时间" min-width="150px" prop="storage_time" />
-        <el-table-column label="出库时间" min-width="150px" prop="outbound_time" />
+        <el-table-column label="截止发货时间" min-width="150px" prop="order_ship_by_date"/>
+        <el-table-column label="入库时间" min-width="150px" prop="storage_time"/>
+        <el-table-column label="出库时间" min-width="150px" prop="outbound_time"/>
         <el-table-column label="入库图片" min-width="150px">
           <template slot-scope="scope">
-            <el-tooltip v-if="scope.row.storage_image" effect="light" placement="right-end" :visible-arrow="false" :enterable="false" style="width: 56px; height: 56px">
+            <el-tooltip v-if="scope.row.storage_image" effect="light" placement="right-end" :visible-arrow="false"
+                        :enterable="false" style="width: 56px; height: 56px">
               <div slot="content">
                 <img :src="scope.row.storage_image" width="400px" height="400px">
               </div>
-              <el-image :src="scope.row.storage_image" alt="" width="56px" height="56px" style="border-radius: 4px; margin: 0 auto" />
+              <el-image :src="scope.row.storage_image" alt="" width="56px" height="56px"
+                        style="border-radius: 4px; margin: 0 auto"/>
             </el-tooltip>
           </template>
         </el-table-column>
         <el-table-column label="出库图片" min-width="150px">
           <template slot-scope="scope">
-            <el-tooltip v-if="scope.row.outbound_image" effect="light" placement="right-end" :visible-arrow="false" :enterable="false" style="width: 56px; height: 56px">
+            <el-tooltip v-if="scope.row.outbound_image" effect="light" placement="right-end" :visible-arrow="false"
+                        :enterable="false" style="width: 56px; height: 56px">
               <div slot="content">
                 <img :src="scope.row.outbound_image" width="400px" height="400px">
               </div>
-              <el-image :src="scope.row.outbound_image" alt="" width="56px" height="56px" style="border-radius: 4px; margin: 0 auto" />
+              <el-image :src="scope.row.outbound_image" alt="" width="56px" height="56px"
+                        style="border-radius: 4px; margin: 0 auto"/>
             </el-tooltip>
           </template>
         </el-table-column>
@@ -265,22 +286,22 @@
               <span v-show="!(scope.row.id === activeRemarkID ? true : false)">{{ scope.row.user_remark }}</span>
               <!-- <el-input type="text" v-model="orderRemark" size="mini"></el-input> -->
               <el-input
-                v-if="scope.row.id === activeRemarkID ? true : false"
-                v-model="orderRemark"
-                v-focus
-                style="width: 120px"
-                placeholder="请输入备注内容"
-                size="mini"
-                clearable
-                @blur="changeRemark(scope.row.package_order_sn, scope.$index)"
+                  v-if="scope.row.id === activeRemarkID ? true : false"
+                  v-model="orderRemark"
+                  v-focus
+                  style="width: 120px"
+                  placeholder="请输入备注内容"
+                  size="mini"
+                  clearable
+                  @blur="changeRemark(scope.row.package_order_sn, scope.$index)"
               />
-              <i style="cursor: pointer" class="el-icon-edit-outline" @click="editRemark(scope.$index, scope.row.id)" />
+              <i style="cursor: pointer" class="el-icon-edit-outline" @click="editRemark(scope.$index, scope.row.id)"/>
             </p>
           </template>
         </el-table-column>
 
         <el-table-column label="运输方式" min-width="150px" prop="transport_type">
-          <template slot-scope="{row}"><span>{{ Number(row.transport_type)===1 ? '空运':'陆运' }}</span></template>
+          <template slot-scope="{row}"><span>{{ Number(row.transport_type) === 1 ? '空运' : '陆运' }}</span></template>
         </el-table-column>
         <el-table-column label="货物类型" min-width="150px" prop="package_type">
           <template slot-scope="{row}"><span>{{ packageType[row.package_type] }}</span></template>
@@ -290,7 +311,8 @@
             <el-button v-if="row.ext_service && row.ext_service.name" type="text" size="mini"
                        style="min-width: 50px" @click="getOrderServicesDetail(row)">
               {{ row.ext_service && row.ext_service.name }}
-            </el-button></template>
+            </el-button>
+          </template>
         </el-table-column>
         <el-table-column label="增值服务金额" min-width="150px" prop="">
           <template slot-scope="{row}"><span>{{ row.ext_service && row.ext_service.price }}</span></template>
@@ -302,54 +324,59 @@
       </el-table>
       <div class="pagination">
         <el-pagination
-          background
-          :current-page.sync="currentPage"
-          :page-size="pageSize"
-          layout="total,sizes, prev, pager, next, jumper"
-          :total="total"
-          :page-sizes="[100, 200]"
-          @size-change="handleSizeChange"
-          @current-change="handleCurrentChange"
+            background
+            :current-page.sync="currentPage"
+            :page-size="pageSize"
+            layout="total,sizes, prev, pager, next, jumper"
+            :total="total"
+            :page-sizes="[100, 200]"
+            @size-change="handleSizeChange"
+            @current-change="handleCurrentChange"
         />
       </div>
     </div>
     <!-- 批量更新用户备注 -->
-    <el-dialog title="批量更新用户备注" class="dialog-order" width="400px" top="6vh" :close-on-press-escape="false" :close-on-click-modal="false" :visible.sync="remarkVisible" @closed="closeDialog5">
+    <el-dialog title="批量更新用户备注" class="dialog-order" width="400px" top="6vh" :close-on-press-escape="false"
+               :close-on-click-modal="false" :visible.sync="remarkVisible" @closed="closeDialog5">
       <div class="order-dialog">
         <div class="form-item" style="margin-left: -28px;">
-          <el-input v-model="newRemark" size="mini" style="width:220px" clearable placeholder="请输入备注" />
+          <el-input v-model="newRemark" size="mini" style="width:220px" clearable placeholder="请输入备注"/>
           <el-button type="primary" size="mini" @click="remarkServe">提交</el-button>
         </div>
       </div>
     </el-dialog>
     <!-- 采购物流单号变更弹窗 -->
-    <el-dialog title="采购物流单号变更" class="dialog-order" width="400px" top="6vh" :close-on-press-escape="false" :close-on-click-modal="false" :visible.sync="orderVisible" @closed="closeDialog1">
+    <el-dialog title="采购物流单号变更" class="dialog-order" width="400px" top="6vh" :close-on-press-escape="false"
+               :close-on-click-modal="false" :visible.sync="orderVisible" @closed="closeDialog1">
       <div class="order-dialog">
         <ul>
           <li>
             <label>原订单编号:</label>
-            <el-input v-model="oldOrderSn" size="mini" style="width:180px" clearable placeholder="原订单编号" />
+            <el-input v-model="oldOrderSn" size="mini" style="width:180px" clearable placeholder="原订单编号"/>
           </li>
           <li style="margin-left:-15px">
             <label>采购物流单号:</label>
-            <el-input v-model="package_code" size="mini" style="width:180px" clearable placeholder="采购物流单号" />
+            <el-input v-model="package_code" size="mini" style="width:180px" clearable placeholder="采购物流单号"/>
           </li>
           <li>
             <label>新订单编号:</label>
-            <el-input v-model="newOrderSn" size="mini" style="width:180px" clearable placeholder="新订单编号" />
+            <el-input v-model="newOrderSn" size="mini" style="width:180px" clearable placeholder="新订单编号"/>
           </li>
-          <el-button type="primary" style="margin-left:100px" size="mini" @click="trackingNumberChangeOrder">保存</el-button>
+          <el-button type="primary" style="margin-left:100px" size="mini" @click="trackingNumberChangeOrder">保存
+          </el-button>
         </ul>
       </div>
     </el-dialog>
     <!-- 批量标记颜色弹窗 -->
-    <el-dialog title="标记颜色标识" class="dialog-color" width="400px" top="6vh" :close-on-press-escape="false" :close-on-click-modal="false" :visible.sync="colorVisible" @closed="closeDialog">
+    <el-dialog title="标记颜色标识" class="dialog-color" width="400px" top="6vh" :close-on-press-escape="false"
+               :close-on-click-modal="false" :visible.sync="colorVisible" @closed="closeDialog">
       <div class="color-dialog">
         <div class="form-item" style="margin-left:28px">
           <span class="search-title">颜色标识：</span>
           <el-select v-model="colorLabelId1" size="mini" style="width: 150px" clearable>
-            <el-option label="取消标识" value="0" />
-            <el-option v-for="item in colorLogoList" :key="item.id" :label="item.name" :value="item.id" :style="item.color" />
+            <el-option label="取消标识" value="0"/>
+            <el-option v-for="item in colorLogoList" :key="item.id" :label="item.name" :value="item.id"
+                       :style="item.color"/>
           </el-select>
           <el-button type="primary" size="mini" @click="setColorLabel">保存</el-button>
         </div>
@@ -374,18 +401,18 @@
     </el-dialog> -->
     <!-- 设置延时退单时间弹窗 -->
     <el-dialog
-      title="设置延迟推单时间(小时)"
-      class="dialog-delay"
-      width="400px"
-      top="6vh"
-      :close-on-press-escape="false"
-      :close-on-click-modal="false"
-      :visible.sync="delayVisible"
-      @closed="closeDialog2"
+        title="设置延迟推单时间(小时)"
+        class="dialog-delay"
+        width="400px"
+        top="6vh"
+        :close-on-press-escape="false"
+        :close-on-click-modal="false"
+        :visible.sync="delayVisible"
+        @closed="closeDialog2"
     >
       <div class="delay-dialog">
         <div class="form-item">
-          <el-input v-model="delayTime" size="mini" clearable placeholder="不超过24小时" />
+          <el-input v-model="delayTime" size="mini" clearable placeholder="不超过24小时"/>
           <el-button type="primary" size="mini" @click="timeDelay">保存</el-button>
         </div>
       </div>
@@ -394,22 +421,23 @@
     <el-dialog title="包裹详情" class="dialog-order" width="1200px" top="6vh" :visible.sync="dialogVisible2">
       <div>
         <el-table
-          ref="workbenchTable"
-          v-loading="detailLoading"
-          max-height="590px"
-          :data="goodsList"
-          tooltip-effect="dark"
-          style="width: 100%"
-          :header-cell-style="{
+            ref="workbenchTable"
+            v-loading="detailLoading"
+            max-height="590px"
+            :data="goodsList"
+            tooltip-effect="dark"
+            style="width: 100%"
+            :header-cell-style="{
             textAlign: 'center',
             backgroundColor: '#f5f7fa',
           }"
-          :cell-style="{ textAlign: 'center' }"
-          :row-style="{ height: '80px' }"
+            :cell-style="{ textAlign: 'center' }"
+            :row-style="{ height: '80px' }"
         >
           <el-table-column label="订单编号" min-width="180px" prop="order_sn" fixed>
             <template slot-scope="{row}">
-              <span v-if="row.order_sn">{{ row.order_sn }} <span class="copyIcon" @click="copy(row.order_sn)"><i class="el-icon-document-copy" /></span></span>
+              <span v-if="row.order_sn">{{ row.order_sn }} <span class="copyIcon" @click="copy(row.order_sn)"><i
+                  class="el-icon-document-copy"/></span></span>
             </template>
           </el-table-column>
           <el-table-column label="商品名称" min-width="300px" prop="">
@@ -443,7 +471,9 @@
           <el-table-column label="拍单订单号" min-width="190px" prop="shot_order_sn">
             <template slot-scope="scope">
               <div v-if="scope.row.shotOrder && scope.row.shotOrder.shot_order_sn" class="goods-detail">
-                {{ scope.row.shotOrder.shot_order_sn }}<span class="copyIcon" @click="copy(scope.row.shotOrder.shot_order_sn)"><i class="el-icon-document-copy" /></span>
+                {{ scope.row.shotOrder.shot_order_sn }}<span class="copyIcon"
+                                                             @click="copy(scope.row.shotOrder.shot_order_sn)"><i
+                  class="el-icon-document-copy"/></span>
               </div>
             </template>
           </el-table-column>
@@ -456,7 +486,9 @@
           </el-table-column>
           <el-table-column label="物流单号" min-width="150px" prop="package_code">
             <template slot-scope="{row}">
-              <span v-if="row.package_code">{{ row.package_code }} <span class="copyIcon" @click="copy(row.package_code)"><i class="el-icon-document-copy" /></span></span>
+              <span v-if="row.package_code">{{ row.package_code }} <span class="copyIcon"
+                                                                         @click="copy(row.package_code)"><i
+                  class="el-icon-document-copy"/></span></span>
             </template>
           </el-table-column>
           <el-table-column label="状态" min-width="70px">
@@ -474,33 +506,39 @@
           </el-table-column>
           <el-table-column label="包裹签收图片" min-width="100px">
             <template slot-scope="scope">
-              <el-tooltip v-if="scope.row.package && scope.row.package.package_image" effect="light" placement="right-end" :visible-arrow="false" :enterable="false" style="width: 56px; height: 56px">
+              <el-tooltip v-if="scope.row.package && scope.row.package.package_image" effect="light"
+                          placement="right-end" :visible-arrow="false" :enterable="false"
+                          style="width: 56px; height: 56px">
                 <div slot="content">
                   <img :src="scope.row.package.package_image" width="400px" height="400px">
                 </div>
-                <el-image :src="scope.row.package.package_image" alt="" width="56px" height="56px" style="border-radius: 4px; margin: 0 auto" />
+                <el-image :src="scope.row.package.package_image" alt="" width="56px" height="56px"
+                          style="border-radius: 4px; margin: 0 auto"/>
               </el-tooltip>
             </template>
           </el-table-column>
           <el-table-column
-            label="申请赔付"
-            width="120"
-            fixed="right"
+              label="申请赔付"
+              width="120"
+              fixed="right"
           >
             <template slot-scope="scope">
               <!-- v-if="scope.row.isAbnormslPayment !==1 || scope.row.package || peifu" -->
               <el-button
-                v-if="peifu"
-                type="primary"
-                size="mini"
-                @click="applyDialog(scope.row)"
-              >申请赔付</el-button>
+                  v-if="peifu"
+                  type="primary"
+                  size="mini"
+                  @click="applyDialog(scope.row)"
+              >申请赔付
+              </el-button>
             </template>
           </el-table-column>
         </el-table>
       </div>
       <p slot="footer" style="text-align: center">
-        <el-button size="mini" style="width: 80px; margin: 0 30px 10px" type="primary" @click="dialogVisible2 = false">关 闭</el-button>
+        <el-button size="mini" style="width: 80px; margin: 0 30px 10px" type="primary" @click="dialogVisible2 = false">关
+          闭
+        </el-button>
       </p>
     </el-dialog>
 
@@ -511,16 +549,18 @@
           <span> 增值服务: </span>
           <el-select v-model="extParams.name" size="mini" style="width: 200px">
             <!-- <el-option v-for="item in list" :value="" :label=""></el-option> -->
-            <el-option :value="extParams.name" :label="extParams.name" />
+            <el-option :value="extParams.name" :label="extParams.name"/>
           </el-select>
         </div>
         <div class="exe_item">
           <span> 服务价格: </span>
-          <el-input v-model="extParams.price" disabled clearable size="mini" style="width: 200px" onkeyup="value=value.replace(/[^\d]/g,'')" />
+          <el-input v-model="extParams.price" disabled clearable size="mini" style="width: 200px"
+                    onkeyup="value=value.replace(/[^\d]/g,'')"/>
         </div>
         <div class="exe_item">
           <span> 服务备注: </span>
-          <el-input v-model="extParams.remark" clearable size="mini" style="width: 200px" onkeyup="value=value.replace(/[^\d]/g,'')" />
+          <el-input v-model="extParams.remark" clearable size="mini" style="width: 200px"
+                    onkeyup="value=value.replace(/[^\d]/g,'')"/>
         </div>
         <div class="exe_item">
           <!-- <el-button size="mini" @click="dialogExtService = false">取 消</el-button> -->
@@ -541,17 +581,20 @@
         </div>
 
         <div class="compareData_item">
-          <el-table :header-cell-style="{ background: '#f7fafa' }" :data="compareDataList" :row-style="{ height: '50px' }" max-height="400">
+          <el-table :header-cell-style="{ background: '#f7fafa' }" :data="compareDataList"
+                    :row-style="{ height: '50px' }" max-height="400">
             <el-table-column prop="country" label="站点" min-width="80px" align="center" fixed>
               <template slot-scope="{row}"><span>{{ row.country | chineseSite }}</span></template>
             </el-table-column>
             <el-table-column prop="mall_alias_name" label="店铺名称" min-width="150px" align="center">
-              <template slot-scope="{row}"><span>{{ row.mall_alias_name ? row.mall_alias_name :row.platform_mall_name }}</span></template>
+              <template slot-scope="{row}"><span>{{
+                  row.mall_alias_name ? row.mall_alias_name : row.platform_mall_name
+                }}</span></template>
             </el-table-column>
             <!-- <el-table-column prop="" label="采购类型" min-width="100px" align="center" /> -->
-            <el-table-column prop="warehouse_name" label="当前绑定仓库" min-width="200px" align="center" />
+            <el-table-column prop="warehouse_name" label="当前绑定仓库" min-width="200px" align="center"/>
             <el-table-column prop="" label="是否可同步" min-width="100px" align="center"><span>是</span></el-table-column>
-            <el-table-column prop="warehouse_num" label="主订单数" min-width="100px" align="center" fixed="right" />
+            <el-table-column prop="warehouse_num" label="主订单数" min-width="100px" align="center" fixed="right"/>
 
           </el-table>
         </div>
@@ -562,14 +605,14 @@
     </el-dialog>
     <!-- 申请赔付弹窗 -->
     <el-dialog
-      class="apply-dialog"
-      title="申请赔付"
-      top="6vh"
-      :visible.sync="applyVisible"
-      width="800px"
-      :close-on-click-modal="false"
-      :close-on-press-escape="false"
-      @close="handleClose"
+        class="apply-dialog"
+        title="申请赔付"
+        top="6vh"
+        :visible.sync="applyVisible"
+        width="800px"
+        :close-on-click-modal="false"
+        :close-on-press-escape="false"
+        @close="handleClose"
     >
       <div class="wrap">
         <div class="left">
@@ -584,7 +627,7 @@
               {{ applyPackageCode }}
             </el-form-item>
             <el-form-item label="当前状态：">
-              {{ packageStatus[applyStatus]?packageStatus[applyStatus]:'' }}
+              {{ packageStatus[applyStatus] ? packageStatus[applyStatus] : '' }}
             </el-form-item>
             <el-form-item label="包裹所属仓库：">
               {{ currenWarehouse }}
@@ -595,17 +638,17 @@
           <el-form label-position="right" label-width="80px">
             <el-form-item label="赔付类型：">
               <el-select
-                v-model="applyType"
-                placeholder=""
-                size="mini"
-                filterable
-                @change="handleChange1"
+                  v-model="applyType"
+                  placeholder=""
+                  size="mini"
+                  filterable
+                  @change="handleChange1"
               >
                 <el-option
-                  v-for="(item, index) in applyTypeList"
-                  :key="index"
-                  :label="item.label"
-                  :value="item.value"
+                    v-for="(item, index) in applyTypeList"
+                    :key="index"
+                    :label="item.label"
+                    :value="item.value"
                 />
               </el-select>
               <span style="color:red;margin-left:5px">如需赔付清关费，请填写在备注中</span>
@@ -615,48 +658,48 @@
             </el-form-item>
             <el-form-item label="赔付原因：">
               <el-select
-                v-model="applyTypeCause"
-                placeholder=""
-                size="mini"
-                filterable
+                  v-model="applyTypeCause"
+                  placeholder=""
+                  size="mini"
+                  filterable
               >
                 <el-option
-                  v-for="(item, index) in applyTypeCauseList"
-                  :key="index"
-                  :label="item.label"
-                  :value="item.value"
+                    v-for="(item, index) in applyTypeCauseList"
+                    :key="index"
+                    :label="item.label"
+                    :value="item.value"
                 />
               </el-select>
             </el-form-item>
             <el-form-item label="图片凭证：">
               <div v-for="(item, i) in applyImages" :key="i">
                 <div v-if="item">
-                  <el-image :src="item" @click="item = ''" />
+                  <el-image :src="item" @click="item = ''"/>
                 </div>
                 <div v-else>
                   <el-upload
-                    accept=".jpg,.jpeg,.png,.webp"
-                    action="#"
-                    :show-file-list="false"
-                    :auto-upload="false"
-                    list-type="picture-card"
-                    :on-change="handleChange2"
+                      accept=".jpg,.jpeg,.png,.webp"
+                      action="#"
+                      :show-file-list="false"
+                      :auto-upload="false"
+                      list-type="picture-card"
+                      :on-change="handleChange2"
                   >
-                    <i class="el-icon-plus" @click="getImagesIndex(i)" />
+                    <i class="el-icon-plus" @click="getImagesIndex(i)"/>
                   </el-upload>
                 </div>
               </div>
             </el-form-item>
             <el-form-item label="备注：">
               <el-input
-                v-model="applyRemark"
-                type="textarea"
-                :rows="5"
-                size="mini"
-                resize="none"
-                placeholder="请输入内容"
-                maxlength="150"
-                show-word-limit
+                  v-model="applyRemark"
+                  type="textarea"
+                  :rows="5"
+                  size="mini"
+                  resize="none"
+                  placeholder="请输入内容"
+                  maxlength="150"
+                  show-word-limit
               />
             </el-form-item>
           </el-form>
@@ -664,16 +707,28 @@
       </div>
       <div class="footer">
         <el-button
-          type="primary"
-          size="mini"
-          :loading="applyLoading"
-          @click="applyCompensation"
+            type="primary"
+            size="mini"
+            :loading="applyLoading"
+            @click="applyCompensation"
         >
           申请赔付
         </el-button>
       </div>
     </el-dialog>
-    <Logs ref="autoReplyLogs" v-model="showlog" clear />
+    <el-dialog class="apply-dialog" title="增值服务详情" :visible.sync="dialog_image" top="8vh" width="800px"
+               :close-on-click-modal="false">
+      <div class="image_newline">
+        <div class="newline" style="margin-right: 20px;" @click="image_show_add(1)">
+          <i class="el-icon-arrow-left" style="font-size: 20px!important;"/>
+        </div>
+        <el-image :src="image_show_list[image_show_index]" style="width: 648px;user-select: none" lazy></el-image>
+        <div class="newline" style="margin-left: 20px;" @click="image_show_add(1)">
+          <i class="el-icon-arrow-right" style="font-size: 20px!important;"/>
+        </div>
+      </div>
+    </el-dialog>
+    <Logs ref="autoReplyLogs" v-model="showlog" clear/>
 
   </div>
 </template>
@@ -685,6 +740,7 @@ import { statusList, exceptionList, orderStatusList, packageStatusList } from '.
 import storeChoose from '../../../components/store-choose.vue'
 import ShopeeConfig from '@/services/shopeeman-config'
 import { randomWord } from '../../../util/util'
+
 export default {
   components: {
     storeChoose // 店铺选择组件
@@ -856,8 +912,10 @@ export default {
         { value: 4, label: '买家收货不符' },
         { value: 5, label: '包裹到齐48小时未出库' },
         { value: 6, label: '已出库，虾皮仓未发货致订单取消' }
-      ]
-
+      ],
+      dialog_image: false,
+      image_show_list: [],
+      image_show_index: 0
     }
   },
   mounted() {
@@ -872,7 +930,9 @@ export default {
     },
     // 申请赔付
     async applyCompensation() {
-      const flag = this.applyImages.some(item => { return item !== '' })
+      const flag = this.applyImages.some(item => {
+        return item !== ''
+      })
       if (!flag) return this.$message.warning('请上传图片凭证')
       this.applyLoading = true
       const params = {
@@ -1683,27 +1743,27 @@ export default {
         xzyDelayedTime: Math.round(delayTime)
       }
       this.$api
-        .timeDelay(query)
-        .then((res) => {
-          // console.log(res)
-          if (res.data.code === 200) {
-            // this.$notify({
-            //   type: 'success',
-            //   message: '设置成功'
-            // })
-            this.$message.success('设置成功')
-          } else {
-            // this.$notify({
-            //   type: 'error',
-            //   message: res.data.message
-            // })
-            this.$message.error(res.data.message)
-          }
-          this.closeDialog2()
-        })
-        .catch(() => {
-          this.closeDialog2()
-        })
+          .timeDelay(query)
+          .then((res) => {
+            // console.log(res)
+            if (res.data.code === 200) {
+              // this.$notify({
+              //   type: 'success',
+              //   message: '设置成功'
+              // })
+              this.$message.success('设置成功')
+            } else {
+              // this.$notify({
+              //   type: 'error',
+              //   message: res.data.message
+              // })
+              this.$message.error(res.data.message)
+            }
+            this.closeDialog2()
+          })
+          .catch(() => {
+            this.closeDialog2()
+          })
     },
     // 日期选择器时间处理
     setDateFmt(data) {
@@ -1933,10 +1993,10 @@ export default {
       // a.href = uri + this.base64(template)
       a.href = URL.createObjectURL(blob)
       a.download = `仓库包裹数据${new Date(Date.now() + 8 * 3600 * 1000)
-        .toISOString()
-        .replace(/T/g, ' ')
-        .replace(/\.[\d]{3}Z/, '')
-        .slice(0, 20)}.xls`
+          .toISOString()
+          .replace(/T/g, ' ')
+          .replace(/\.[\d]{3}Z/, '')
+          .slice(0, 20)}.xls`
       a.click()
       document.body.removeChild(a)
     },
@@ -1970,9 +2030,10 @@ export default {
       this.applyRemark = ''
       this.applyImages = ['', '', '']
     },
-    async getOrderServicesDetail(val){
-      if (val && val.ext_service && val.wid){
+    async getOrderServicesDetail(val) {
+      if (val && val.ext_service && val.wid) {
         console.log(val)
+        // let params = { 'wid': '6', 'type': '质检拍照', 'order_sn': '200831G7WGC4TH', 'app_uid': '974' }
         let params = {
           wid: val.wid,
           type:val.ext_service.name,
@@ -1981,12 +2042,32 @@ export default {
         let orderServicesDetailJson = await this.$XzyNetMessageService.post('xzy.order.getOrderServicesDetail', params)
         let orderServicesDetailRes = JSON.parse(orderServicesDetailJson)
         let orderServicesDetailData = JSON.parse(orderServicesDetailRes.data)
-        if (orderServicesDetailData.code === 200){
-
-        }else{
+        console.log('orderServicesDetail', orderServicesDetailData)
+        if (orderServicesDetailData.code === 200) {
+          let data = orderServicesDetailData.data
+          let imageList = data.detail
+          if (imageList.length > 0) {
+            this.image_show_index = 0
+            this.image_show_list = imageList
+            this.dialog_image = true
+          }
+        } else {
           this.$message.error(orderServicesDetailData.message)
         }
-        console.log('orderServicesDetail', orderServicesDetailData)
+      }
+    },
+    image_show_add(type) {
+      let length = this.image_show_list.length
+      if (type) {
+        let index = this.image_show_index + 1
+        this.image_show_index = index < length && index || 0
+      } else {
+        let index = this.image_show_index - 1
+        if (index > -1) {
+          this.image_show_index = index
+        } else {
+          this.image_show_index = length - 1
+        }
       }
     }
   }
@@ -1997,30 +2078,36 @@ export default {
 .workbench {
   min-width: 1280px;
   padding: 0 5px;
+
   /deep/ .el-table .cell {
     padding-left: 2px !important;
     padding-right: 2px !important;
     line-height: 18px !important;
   }
+
   .copyIcon {
     color: var(--themeColor);
     margin-left: 1px;
     font-size: 16px;
     cursor: pointer;
   }
+
   .top-box {
     display: flex;
     overflow-x: auto;
+
     .operate {
       width: 320px;
       height: 245px;
       padding: 15px;
       border-radius: 10px;
       background: #fff;
+
       .btn-items {
         display: flex;
         align-items: center;
         height: 36px;
+
         .el-button {
           width: 140px;
           height: 28px;
@@ -2036,12 +2123,15 @@ export default {
       background: #fff;
       margin-left: 15px;
       min-width: 854px;
+
       .form-items {
         display: flex;
         flex-wrap: wrap;
+
         .select-item {
           margin-right: 5px;
           margin-bottom: 5px;
+
           .search-title {
             // width: 98px;
             text-align: right;
@@ -2064,11 +2154,13 @@ export default {
       background: rgb(223, 223, 223);
     }
   }
+
   .m-80 {
     width: 80px;
     height: 30px;
     line-height: 13px;
   }
+
   .table-box {
     margin-top: 15px;
     width: 100%;
@@ -2094,14 +2186,16 @@ export default {
 
   .dialog-order {
     .order-dialog {
-      margin-left:60px;
+      margin-left: 60px;
       margin-top: -20px;
-      ul{
-        li{
+
+      ul {
+        li {
           display: flex;
           align-items: center;
           margin-bottom: 10px;
-          label{
+
+          label {
             margin-right: 5px;
           }
         }
@@ -2136,7 +2230,7 @@ export default {
     margin: 0 5px;
   }
 
-  /deep/.el-select {
+  /deep/ .el-select {
     .el-tag:first-of-type {
       display: flex;
       align-items: center;
@@ -2148,62 +2242,76 @@ export default {
       }
     }
   }
+
   .exe_itemAll {
     display: flex;
     flex-flow: column;
     align-items: center;
     justify-content: center;
+
     .exe_item {
       margin-bottom: 10px;
       display: flex;
       align-items: center;
+
       span {
         margin-right: 5px;
       }
     }
   }
+
   .compareData_allItem {
     .compareData_item {
       display: flex;
       flex-flow: column;
       font-size: smaller;
       color: rebeccapurple;
+
       span {
         margin-bottom: 5px;
       }
     }
   }
-  .apply-dialog{
-    /deep/.el-dialog__body{
+
+  .apply-dialog {
+    /deep/ .el-dialog__body {
       padding: 0 20px 20px 20px !important;
-      .wrap{
+
+      .wrap {
         display: flex;
-        .el-form-item{
+
+        .el-form-item {
           margin-bottom: 10px;
         }
-        .left{
+
+        .left {
           width: 290px;
           margin-right: 10px;
         }
-        .right{
+
+        .right {
           width: 500px;
-          .el-form-item__content{
+
+          .el-form-item__content {
             display: flex;
           }
-          .el-image{
+
+          .el-image {
             margin-right: 10px;
             width: 80px !important;
             height: 80px !important;
             line-height: 80px !important;
             border-radius: 6px;
           }
-          .el-upload{
+
+          .el-upload {
             margin-right: 10px;
             width: 80px !important;
             height: 80px !important;
             line-height: 80px !important;
           }
-          /deep/.el-icon-plus{
+
+          /deep/ .el-icon-plus {
             width: 80px;
             height: 80px;
             line-height: 81px;
@@ -2211,19 +2319,43 @@ export default {
           }
         }
       }
-      .footer{
+
+      .footer {
         text-align: center;
       }
     }
   }
 }
-.bindmallclass{
-   width: 200px;
-      // height: 50px;
-      overflow: hidden;
-      text-overflow:ellipsis;
-      white-space: nowrap;
+
+.bindmallclass {
+  width: 200px;
+  // height: 50px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
+
+.image_newline {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  &:hover{
+    .newline{
+      display: flex;
+    }
+  }
+  .newline {
+    display: none;
+    border-radius: 50%;
+    border: 1px #999 solid;
+    width: 30px;
+    height: 30px;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+  }
+}
+
 @media screen and (max-width: 1335px) {
 }
 </style>

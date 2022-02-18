@@ -19,18 +19,16 @@
           <el-button ref="uploadImg" size="mini" type="primary">选择图片</el-button>
         </el-upload>
       </div>
-      <div class="header-right">
+      <div class="header-right" style="width: calc(100vw - 500px);">
         <p class="text">列表筛选</p>
-        <ul class="search-list">
+        <ul class="search-list" style="flex-flow: column">
           <li>
             <p>采购来源：</p>
             <el-select v-model="sourceVal" placeholder="" size="mini">
               <el-option label="全部" :value="''"/>
               <el-option v-for="(item, index) in source" :key="index" :label="item.label" :value="item.value"/>
             </el-select>
-          </li>
-          <li>
-            <p>筛选时间：</p>
+            <p style="margin-left: 10px;">筛选时间：</p>
             <el-select v-model="timeType" placeholder="" size="mini">
               <el-option v-for="(item, index) in timeAt" :key="index" :label="item.label" :value="item.value"/>
             </el-select>
@@ -50,43 +48,31 @@
               <el-option label="全部" value="0"/>
               <el-option v-for="(item, index) in isFeaturedArr" :key="index" :label="item.label" :value="item.value"/>
             </el-select>
-          </li>
-          <li>
-            <p>编辑状态：</p>
+            <p style="margin-left: 10px;">编辑状态：</p>
             <el-select v-model="isEditValue" placeholder="" size="mini">
               <el-option label="全部" :value="''"/>
               <el-option v-for="(item, index) in editArr" :key="index" :label="item.label" :value="item.value"/>
             </el-select>
-          </li>
-          <li>
-            <p>语种：</p>
+            <p style="margin-left: 10px;">语种：</p>
             <el-select v-model="language" placeholder="" size="mini">
               <el-option label="全部" :value="''"/>
               <el-option v-for="(item, index) in languageArr" :key="index" :label="item.label" :value="item.value"/>
             </el-select>
-          </li>
-          <li>
-            <p>价格区间：</p>
-            <el-input v-model="minPrice" size="mini" placeholder=""/>
+            <p style="margin-left: 10px;">价格区间：</p>
+            <el-input style="width: 80px;" v-model="minPrice" size="mini" placeholder=""/>
             <span class="slot">-</span>
-            <el-input v-model="maxPrice" size="mini" placeholder=""/>
+            <el-input style="width: 80px;" v-model="maxPrice" size="mini" placeholder=""/>
           </li>
           <li>
             <p>商品ID：</p>
             <el-input v-model="goodsId" size="mini" placeholder=""/>
-          </li>
-          <li>
-            <p>商品标签：</p>
+            <p style="margin-left: 10px;">商品标签：</p>
             <el-select v-model="labelId" placeholder="" size="mini">
               <el-option label="全部" value="0"/>
               <el-option v-for="(item, index) in labelList" :key="index" :label="item.label_name" :value="item.id"/>
             </el-select>
+            <el-button style="margin-left: 10px;" type="primary" size="mini" @click="getLabelList('refresh')">刷新</el-button>
           </li>
-          <li>
-            <el-button type="primary" size="mini" @click="getLabelList('refresh')">刷新</el-button>
-          </li>
-        </ul>
-        <ul>
           <li>
             <el-button type="primary" size="mini" @click="getGoodsList">搜索</el-button>
           </li>
@@ -141,7 +127,7 @@
             </el-input>
           </template>
         </u-table-column>
-        <u-table-column align="center" label="主图" width="70" prop="Sales">
+        <u-table-column align="center" label="主图" width="80" prop="Sales">
           <template v-slot="{ row }">
             <el-tooltip effect="light" placement="right-end" :visible-arrow="false" :enterable="false"
                         style="width: 56px; height: 56px; display: inline-block">
@@ -189,7 +175,7 @@
         </u-table-column>
         <u-table-column align="center" label="更新时间" width="140px" prop="updated_at"/>
         <u-table-column align="center" label="收藏时间" width="140px" prop="created_at"/>
-        <u-table-column align="center" label="操作结果" show-overflow-tooltip>
+        <u-table-column align="center" label="操作结果" width="90px" show-overflow-tooltip>
           <template v-slot="{ row }">
             <div class="goodsTableLine" style="height: 80px;text-align: left">
               {{ row.handle_type || '' }}
