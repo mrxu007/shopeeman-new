@@ -512,13 +512,13 @@ export default class {
       //7、上报面单信息
       let faceSheetInfos = [{
         url: url,
-        orderSn: orderSn.toString()
+        orderSn: orderSn.toString(),
+        is_auto: this.isAuto
       }]
       let params = {
         sysMallId: sysMallId.toString(),
         mallId: mallId,
         faceSheetInfos: faceSheetInfos,
-        is_auto: this.isAuto
       }
       console.log(params)
       let res = await this.$commodityService.saveFaceSheetInfo(sysMallId, mallId, faceSheetInfos)
