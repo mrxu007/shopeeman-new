@@ -408,6 +408,7 @@ export default {
       }
       try {
         let data = await this.$XzyNetMessageService.post('xzy.stock.index', parmas)
+        console.log('$XzyNetMessageService',data)
         data = JSON.parse(data)
         const res = JSON.parse(data.data)
         if (res.code !== 200) {
@@ -419,8 +420,9 @@ export default {
             // 价格处理
             getdata[i].sku_price = getdata[i].sku_price / 100
             // 获取仓库名称
-            const wareinfo = await this.$appConfig.getGlobalCacheInfo('overseasWh', Number(getdata[i].wid))
-            if (JSON.parse(wareinfo).warehouse_name) {
+            const wareinfo = await this.$appConfig.getGlobalCacheInfo('overseasWh', Number(getdata[i].wid)) || ''
+            console.log('overseasWh',wareinfo)
+            if (wareinfo && JSON.parse(wareinfo) && JSON.parse(wareinfo).warehouse_name) {
               getdata[i].warehouse_name = JSON.parse(wareinfo).warehouse_name
             } else {
               // this.$message.error('仓库名称获取失败')
@@ -456,7 +458,6 @@ export default {
       } catch (error) {
         console.log(error)
       }
-      // this.Loading1 = false
       this.Loading3 = false
     },
     // 数据导出功能

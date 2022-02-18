@@ -433,7 +433,7 @@
           {{ scope.$index + 1 }}
         </template>
       </u-table-column>
-      <u-table-column align="center" label="商品主图" width="70">
+      <u-table-column align="center" label="商品主图" width="80">
         <template slot-scope="{ row }">
           <el-tooltip effect="light" placement="right-end" :visible-arrow="false" :enterable="false"
                       style="width: 56px; height: 56px; display: inline-block">
@@ -1442,12 +1442,13 @@ export default {
     try {
       this.$IpcMain.on('gotoUpload', async e => { // 点听
         let goodsListJSON = await this.$BaseUtilService.getUploadGoodsId()
-        console.log('goodsListJSON', goodsListJSON)
         let goodsList = JSON.parse(goodsListJSON)
+        console.log('goodsListJSON', goodsList)
         for (let item of goodsList) {
           let index = this.goodsTable.findIndex(i => i.id === item.id)
           index >= 0 && this.$set(this.goodsTable, index, item) || this.goodsTable.push(item)
         }
+        console.log(this.goodsTable)
         this.statistics.count = this.goodsTable.length
         await this.$BaseUtilService.gotoUploadTab('updateId', '')
       })
@@ -1482,10 +1483,12 @@ export default {
         return
       }
       this.isBanPerform = true
+      this.isCancelRelease = false
       await batchOperation(this.mallList, this.prepareWork, this.basicConfig.onNewThread)
       this.isBanPerform = false
     },
     async cancelRelease() {
+      this.isCancelRelease = true
       terminateThread()
     },
     async prepareWork(mall, count = { count: 1 }) {
@@ -1527,7 +1530,7 @@ export default {
         if (this.associatedConfig.dimensionRadio < 2) {
           let mallCount = this.mallList.length
           let mallIndex = this.mallList.findIndex(son => son.id === mall.id)
-          let goodsCount = this.goodsTable.length
+          let goodsCount = this.goodsTableSelect.length
           for (let i = 0; mallIndex < goodsCount; i++) {
             mallIndex = mallIndex + mallCount * i
             if (mallIndex < goodsCount) {
@@ -1537,7 +1540,11 @@ export default {
         } else {
           goodsList = this.goodsTableSelect
         }
+        console.log(goodsList)
         for (let item of goodsList) {
+          if(this.isCancelRelease){
+            return
+          }
           errorItem = item
           this.updateAttributeName(item, '正在准备发布')
           if (!loginSuccess) {
@@ -1578,6 +1585,7 @@ export default {
           let categoryRelationJson = await this.$commodityService.getCategoryRelation(originCategoryId, this.country, platformId)
           let categoryRelationRes = JSON.parse(categoryRelationJson)
           let categoryId = categoryRelationRes?.data?.category?.platform_category_id || ''
+          console.log('categoryId',categoryId)
           if (categoryId) {
             goodsInitParam['category_path'] = await this.getCategoryPath(categoryId) || []
             let attributesCurrent = categoryRelationRes.data && categoryRelationRes.data.attributes || []
@@ -1597,14 +1605,15 @@ export default {
             })
           } else {
             this.updateAttributeName(item, '无类目映射，请选择类目')
-            return
+            continue
           }
           let neededTranslateInfoJson = await this.$commodityService.getSpuDetailByIdV2(item.id)
           let neededTranslateInfoData = JSON.parse(neededTranslateInfoJson) && JSON.parse(neededTranslateInfoJson).data
           let goodsParam = JSON.parse(JSON.stringify(goodsInitParam))
           this.updateAttributeName(item, mallName, 'mallName')
+          this.updateAttributeName(item, '商品数据组装中')
           // weight
-          if (goodsParam['weight'] === '0') {
+          if (goodsParam['weight'] == '0') {
             goodsParam['weight'] = getSectionRandom(this.basicConfig.minHeavy, this.basicConfig.maxHeavy, 2) + ''
             neededTranslateInfoData['weight'] = goodsParam['weight']
           }
@@ -1707,15 +1716,17 @@ export default {
               imagesList[0] = ImageURL || image
             }
           }
-          if (this.watermarkConfig.addType === 0) {
-            imageTemp = await this.additionalWatermarking(imagesList[0], mall)
-            imagesList[0] = imageTemp || imagesList[0]
-          } else {
-            for (let i = 0; i < imagesList.length; i++) {
-              imageTemp = await this.additionalWatermarking(imagesList[i], mall)
-              imagesList[i] = imageTemp || imagesList[i]
-              if (!imageTemp) {
-                return
+          if (this.storeConfig.watermarkChecked){
+            if (this.watermarkConfig.addType === 0) {
+              imageTemp = await this.additionalWatermarking(imagesList[0], mall)
+              imagesList[0] = imageTemp || imagesList[0]
+            } else {
+              for (let i = 0; i < imagesList.length; i++) {
+                imageTemp = await this.additionalWatermarking(imagesList[i], mall)
+                imagesList[i] = imageTemp || imagesList[i]
+                if (!imageTemp) {
+                  return
+                }
               }
             }
           }
@@ -1746,6 +1757,7 @@ export default {
           })
           console.log('goodsParam', goodsParam)
           this.updateAttributeName(item, '正在上传轮播图')
+          console.log('正在上传轮播图',goodsParam['images'])
           let imageMapping = await imageCompressionUpload(mall, goodsParam['images'], this, this.storeConfig.pictureThread)
           goodsParam['images'] = goodsParam.images.map(son => {
             son = imageMapping[son] || ''
@@ -1763,6 +1775,7 @@ export default {
             goodsParam['images'] = temp
           }
           this.updateAttributeName(item, '正在上传规格图')
+          console.log('正在上传规格图',neededTranslateInfoData.spec_image)
           let spec_imageMapping = await imageCompressionUpload(mall, neededTranslateInfoData.spec_image, this, this.storeConfig.pictureThread)
           let tier_variationJSON = JSON.stringify(goodsParam['tier_variation'])
           let spec_list = []
@@ -1786,7 +1799,8 @@ export default {
               goodsParam['images'] = imageList.slice(0, 9)
             }
           }
-          console.log(goodsParam)
+          console.log('goodsParam',goodsParam)
+          this.updateAttributeName(item, '正在创建商品信息')
           await sleep(this.associatedConfig.onNewInterval * 1000)
           let resJSON = await this.$shopeemanService.createProduct(this.country, { mallId: mall.platform_mall_id }, [goodsParam])
           console.log('createProduct', resJSON)
@@ -1847,7 +1861,8 @@ export default {
               }
             }
           } else {
-            this.updateAttributeName(item, '发布失败')
+            let meg = this.$filters.errorMsg(resJSON.data)
+            this.updateAttributeName(item, meg)
           }
         }
       } catch (e) {

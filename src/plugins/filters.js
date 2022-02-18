@@ -329,6 +329,8 @@ const errorMsg = function(userMessage) {
       msg = '请检查物流配置是否开启'
     } else if (userMessage.indexOf('not enough logistics channel') > -1) {
       msg = '未设置物流，请商家后台至少开启一种物流方式'
+    } else if (userMessage.indexOf('product has invalid weight') > -1) {
+      msg = '产品重量无效请设置重量或调整重量后再试'
     } else {
       msg = userMessage
     }
