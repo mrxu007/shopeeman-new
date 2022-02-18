@@ -832,10 +832,10 @@ const syncStatus = [
   //   label: '未支付',
   //   value: 'unpaid'
   // // },
-  // {
-  //   label: '全部',
-  //   value: 'all'
-  // },
+  {
+    label: '全部',
+    value: 'all'
+  },
   {
     label: '待发货',
     value: 'toship'
