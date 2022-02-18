@@ -22,6 +22,7 @@ export default class {
   orders = []
   schemaType = ''
   activeType = 'handle'
+  isAuto = false //是否自动同步
   isApplyForceFaceInfo = false //是否强制申请面单
   /// <param name="isApplyForceFaceInfo">是否强制申请面单 </param>
   /// 增量同步运输中和已完成订单 同步面单时 false 启动后8分钟开始同步面单,4小时间隔            auto-third
@@ -43,6 +44,7 @@ export default class {
 
   //自动同步流程（不能同步台湾面单）
   async autoStart() {
+    this.isAuto = true
     this.activeType = 'auto'
     try {
       this.isApplyForceFaceInfo = false
@@ -132,6 +134,7 @@ export default class {
   }
   //手动同步
   async handleStart(orders, isApplyForceFaceInfo) {
+    this.isAuto = false
     this.activeType = 'handle'
     this.isApplyForceFaceInfo = isApplyForceFaceInfo || false
     this.orders = orders
@@ -234,6 +237,17 @@ export default class {
     trackInfo['logistics_channel'] = orderInfo.logistics_channel || ''
     return trackInfo
   }
+  //判断默认物流
+  checkIsAutoApplyTrackingNumber(logisticsChannel){
+    let logisDefault = site_mall.find(n => {
+      return n.ShipId == logisticsChannel
+    })
+    if(logisDefault && logisDefault.IsDeafult == true){
+      return true;
+    }else{
+      return false;
+    }
+  }
   //申请物流单号
   async applyOrderTrackingNo(orderId, shopId, logisticsChannel, country, sysMallId, orderSn) {
     if (country === 'TW' && !this.isApplyForceFaceInfo) {
@@ -252,13 +266,10 @@ export default class {
       }
     }
     //判断所选择的运输方式能否申请物流单号  和店铺导入的那份物流信息比对，判断物流id的信息的default值是否为true orderInfo.logistics_channel
-    let logisDefault = site_mall.find(n => {
-      return n.ShipId == logisticsChannel
-    })
-    console.log(logisDefault,"logisDefault")
-    if (logisDefault && !logisDefault.IsDeafult) {
+    let logisDefault = this.checkIsAutoApplyTrackingNumber(logisticsChannel)
+    if (!logisDefault ) {
       //非默认物流 获取下运输单号
-      return this.getShopeeShipNumber(orderId, shopId, country, sysMallId, orderSn,`【${logisDefault.ShipName}】不支持自动申请虾皮运输单号功能`); //获取shopee运输单号
+      return this.getShopeeShipNumber(orderId, shopId, country, sysMallId, orderSn,`不支持自动申请虾皮运输单号功能`); //获取shopee运输单号
     }
     try {
       if (country === 'TW') {
@@ -337,7 +348,6 @@ export default class {
           shop_id: shopId
         }
         let applyResult = await this.$shopeemanService.handleOutOrder(country, params)
-
         console.log("applyResult33", applyResult)
       }
       return this.getShopeeShipNumber(orderId, shopId, country, sysMallId, orderSn); //获取shopee运输单号
@@ -507,7 +517,8 @@ export default class {
       let params = {
         sysMallId: sysMallId.toString(),
         mallId: mallId,
-        faceSheetInfos: faceSheetInfos
+        faceSheetInfos: faceSheetInfos,
+        is_auto: this.isAuto
       }
       console.log(params)
       let res = await this.$commodityService.saveFaceSheetInfo(sysMallId, mallId, faceSheetInfos)
