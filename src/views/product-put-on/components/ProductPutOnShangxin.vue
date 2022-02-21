@@ -2298,9 +2298,12 @@ export default {
       this.goodsTagVisible = true
     },
     goodsTagChange(val) {
-      console.log('goodsTagChange', val)
       if (val) {
-
+        this.goodsTableSelect.forEach(item=>{
+          let label_name = val.category && val.category.label_name
+          this.updateAttributeName(item,label_name,'sys_label_name')
+        })
+        this.$message.success('商品标签修改成功')
       }
       this.goodsTagVisible = false
     },

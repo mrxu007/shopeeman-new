@@ -1767,6 +1767,8 @@ export default {
       // 获取商品编码加密值
       let parentId = ''
       let parentType = ''
+      let shopId = ''
+      let site = ''
       try {
         if (type === 1) {
           if (!this.parentId.trim()) return this.$message('产品ID不能为空')
@@ -1776,20 +1778,24 @@ export default {
         } else {
           if (!this.parentUrl.trim()) return this.$message('产品链接不能为空')
           const linkRes = getGoodLinkModel(this.parentUrl)
+          console.log(linkRes)
           if (linkRes.code !== 200) return this.$message(`${linkRes.data}`, false)
           parentId = linkRes.data.GoodsId
+          site = linkRes.data.Site || ''
+          shopId = linkRes.data.ShopId || ''
           parentType = linkRes.data.platformId
           this.parentLoad2 = true
         }
         if (!parentId) return this.writeLog(`链接:${this.parentUrl} 识别商品ID失败`, false)
         const tmallCrossBorderUserId = this.goodsValue.platformTypeStr === '天猫淘宝海外平台' ? this.goodsValue.id : ''
-        const parent_sku = await this.$BaseUtilService.buildGoodCode(parentType, parentId, this.goodsValue.country, this.goodsValue.platform_mall_id, tmallCrossBorderUserId)
+        const parent_sku = await this.$BaseUtilService.buildGoodCode(parentType, parentId, site, shopId, tmallCrossBorderUserId)
         let productInfo = {}
         const res = await this.getProductDetail(this.goodsValue)
         if (res.code === 200) {
           productInfo = res.data
           productInfo['parent_sku'] = parent_sku
           const data = { mallId: this.goodsValue.platform_mall_id }
+          console.log(this.goodsValue.country, data, [productInfo])
           const editProductRes = await this.$shopeemanService.handleProductEdit(this.goodsValue.country, data, [productInfo])
           if (editProductRes.code === 200) {
             this.batchStatus(this.goodsValue, `修改成功`, true)
