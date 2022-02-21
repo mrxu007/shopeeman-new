@@ -194,12 +194,12 @@ export default {
     changeAmount() {
       if (this.amountType === 1) {
         this.form.shotAmountRmb = this.shotAmount
-        this.form.shotAmount = (Number(this.shotAmount) * Number(this.rateList[this.country.toUpperCase()])).toFixed(2)
-        this.shotAmountRmb = (Number(this.shotAmount) * Number(this.rateList[this.country.toUpperCase()])).toFixed(2)
+        this.form.shotAmount = (Number(this.shotAmount) / Number(this.rateList[this.country.toUpperCase()])).toFixed(2)
+        this.shotAmountRmb = (Number(this.shotAmount) / Number(this.rateList[this.country.toUpperCase()])).toFixed(2)
       } else {
         this.form.shotAmount = this.shotAmount
-        this.form.shotAmountRmb = (Number(this.shotAmount) / Number(this.rateList[this.country.toUpperCase()])).toFixed(2)
-        this.shotAmountRmb = (Number(this.shotAmount) / Number(this.rateList[this.country.toUpperCase()])).toFixed(2)
+        this.form.shotAmountRmb = (Number(this.shotAmount) * Number(this.rateList[this.country.toUpperCase()])).toFixed(2)
+        this.shotAmountRmb = (Number(this.shotAmount) * Number(this.rateList[this.country.toUpperCase()])).toFixed(2)
       }
       console.log(this.form, 'ooo')
     },
