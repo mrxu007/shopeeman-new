@@ -92,9 +92,7 @@
             </template>
           </el-table-column>
           <el-table-column min-width="120px" label="店铺名称" align="center">
-            <template v-slot="{row}">
-              {{ row.mall_alias_name?row.mall_alias_name:row.platform_mall_name }}
-            </template>
+            <template v-slot="{row}">{{ row.mall_alias_name || row.platform_mall_name }}</template>
           </el-table-column>
           <el-table-column prop="order_sn" label="订单编号" min-width="120px" align="center" />
           <el-table-column prop="" min-width="80px" label="状态" align="center">
@@ -317,13 +315,17 @@ export default {
     },
     // 获取汇率
     async exchangeRateList() {
-      const data = await this.$api.exchangeRateList()
-      console.log(data.data.data)
-      if (data.data.code === 200) {
-        this.site_query.rate_coin = data.data.data[this.site_query.country]
-      } else {
-        this.$message.warning('网络请求失败')
-      }
+      let info = await window['ConfigBridgeService'].getUserInfo()
+      this.rateList = info.ExchangeRates || {}
+      console.log(this.rateList)
+      this.site_query.rate_coin = this.rateList[this.site_query.country]
+      // const data = await this.$api.exchangeRateList()
+      // console.log(data.data.data)
+      // if (data.data.code === 200) {
+      //   this.site_query.rate_coin = data.data.data[this.site_query.country]
+      // } else {
+      //   this.$message.warning('网络请求失败')
+      // }
     },
     // 导出
     async export_table() {
@@ -409,7 +411,7 @@ export default {
       } else {
         this.$message.warning('数据请求失败！')
       }
-      console.log(data.data.data)
+      console.log(data.data.data,this.tableList)
       this.isLoading = false
     },
     handleSizeChange(val) {

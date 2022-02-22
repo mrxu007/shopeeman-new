@@ -4,20 +4,21 @@
       <li v-if="isMall">{{ countryVal | chineseSite }}</li>
       <li v-else :style="isReset && 'margin-bottom: 5px'">
         <span :style="{ width: spanWidth }">所属站点：</span>
-        <el-select v-model="countryVal" size="mini" filterable class="siteSelectBox">
+        <el-select v-model="countryVal" size="mini" filterable class="siteSelectBox" :disabled="isBanPerform">
           <el-option v-if="isAll" label="全部" :value="''"/>
           <el-option v-for="(item, index) in countries" :key="index" :label="item.label" :value="item.value"/>
         </el-select>
       </li>
       <li :style="isReset && 'margin-bottom: 5px'">
         <span :style="{ width: spanWidth }">店铺分组：</span>
-        <el-select v-model="groupId" placeholder="" multiple collapse-tags size="mini" filterable class="selectBox">
+        <el-select :disabled="isBanPerform" v-model="groupId" placeholder="" multiple collapse-tags size="mini" filterable class="selectBox">
           <el-option v-for="(item, index) in groupIdList" :key="index" :label="item.group_name" :value="item.id"/>
         </el-select>
       </li>
       <li :style="isReset && 'margin-bottom: 5px'">
         <span :style="{ width: spanWidth }">店铺名称：</span>
         <el-select
+            :disabled="isBanPerform"
             v-model="site"
             v-loadmore="loadmoreMall"
             placeholder=""
@@ -41,7 +42,7 @@
         </el-select>
       </li>
       <li v-if="isReset" style="margin-bottom: 5px;margin-left: 25px;">
-        <el-button size="mini" type="primary" style="justify-self: self-end" @click="reset">　刷　　新　</el-button>
+        <el-button size="mini" type="primary" style="justify-self: self-end" @click="reset" :disabled="isBanPerform">　刷　　新　</el-button>
       </li>
     </ul>
   </div>
@@ -81,6 +82,12 @@ export default {
       default: 'TH'
     },
     isMall: {
+      type: Boolean,
+      default() {
+        return false
+      }
+    },
+    isBanPerform: {
       type: Boolean,
       default() {
         return false

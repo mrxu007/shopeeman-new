@@ -272,7 +272,7 @@
             </span>
           </template>
         </u-table-column>
-        <u-table-column v-if="showTableColumn('采购绑定仓库')" align="center" label="采购绑定仓库" width="120">
+        <u-table-column v-if="showTableColumn('采购绑定仓库')" align="center" label="采购绑定仓库" width="120" show-overflow-tooltip>
           <template slot-scope="scope">{{ scope.row.shot_order_info.warehouse_name }}</template>
         </u-table-column>
         <u-table-column v-if="showTableColumn('颜色标识')" align="center" prop="color_id" label="颜色标识" width="120" show-overflow-tooltip>
@@ -849,8 +849,6 @@ export default {
         createTime: '', // 创建时间
         shotTime: '', // 采购时间
         // paymentMenthod: '', //付款方式
-        isOverseasGoods: '', // 海外商品
-        isOverseasGoods: '', // 海外商品
         sysMallId: '', // 系统店铺id  多个用英文逗号隔开
         logisticsIds: '', // 物流方式
       },
@@ -921,7 +919,6 @@ export default {
       abroadVisible: false, // 标记为海外商品
       isAbroadGood: 0, // 标记为海外商品
       localRamarkVisible: false, // 本地备注
-      localRamark: '', // 本地备注
       colorVisible: false, // 颜色标识
       colorList: [], // 颜色标识
       selectColorList: [],
@@ -966,7 +963,6 @@ export default {
       collectType: '淘宝', // 图搜同款
       rateList: {}, // 汇率
       categoryInfo: {},
-      localRamark: '', // 本地备注
       activeRemarkID: '', // 本地备注
       orderRemark: '', // 本地备注
       localRamarkNode: '', // shopee备注
