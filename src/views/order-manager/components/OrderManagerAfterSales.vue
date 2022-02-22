@@ -179,6 +179,12 @@
           </template>
         </u-table-column> -->
         <u-table-column label="退款金额" prop="refund_amount" min-width="100px" align="center" />
+         <u-table-column align="center" prop="shot_order_info.shot_amount" label="采购价" width="120">
+          <template slot-scope="scope">{{ scope.row.shot_order_info.shot_amount }}{{ scope.row.country | siteCoin }}</template>
+        </u-table-column>
+         <u-table-column align="center" prop="shot_amount_rmb" label="采购价(RMB)" width="100">
+          <template slot-scope="scope">{{ scope.row.shot_order_info.shot_amount_rmb }}元</template>
+        </u-table-column>
         <u-table-column label="售后状态" prop="status" min-width="100px" align="center">
           <template slot-scope="{ row }"
             ><p :style="{ color: changeOrderStatus(row.status, 'color') }">{{ changeOrderStatus(row.status) }}</p></template
