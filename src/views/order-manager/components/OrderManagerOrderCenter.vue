@@ -1761,7 +1761,7 @@ export default {
       this.clickRow = row
       this.handOutOrderVisible = true
       this.shippingProof = row.logistics_name
-      this.shippingTraceNo = row.tracking_no
+      this.shippingTraceNo = row.tracking_no || ''
     },
     // 拼多多月卡优惠券查询
     async openPddDisount() {
