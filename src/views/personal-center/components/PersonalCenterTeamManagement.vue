@@ -110,7 +110,7 @@
                 <el-input v-model="name" size="mini" placeholder="请输入子账号名" clearable oninput="value=value.replace(/\s+/g,'')" />
               </el-form-item>
               <el-form-item label="密码:">
-                <el-input v-model="password" placeholder="请输入密码(不得小于9位)" oninput="value=value.replace(/[\W]/g,'')" show-password size="mini" />
+                <el-input v-model="password" placeholder="请输入密码(不得小于9位)" oninput="value=value.replace(/\s+/g,'')" show-password size="mini" />
               </el-form-item>
               <el-form-item label="状态:">
                 <el-radio v-model="diaIsEnable" label="1">启用</el-radio>

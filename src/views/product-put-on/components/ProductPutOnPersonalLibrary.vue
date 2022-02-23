@@ -93,31 +93,31 @@
           :border="false"
           @selection-change="handleSelectionChange"
       >
-        <u-table-column align="center" type="selection"/>
-        <u-table-column align="center" type="index" label="序号"/>
-        <u-table-column align="center" label="标签" width="70">
+        <u-table-column align="left" type="selection"/>
+        <u-table-column align="left" type="index" label="序号"/>
+        <u-table-column align="left" label="标签" width="70">
           <template v-slot="{ row }">
             <p style="white-space: normal">{{ getLabelName(row.sys_label_id) }}</p>
           </template>
         </u-table-column>
-        <u-table-column align="center" label="采购来源" width="70" show-overflow-tooltip>
+        <u-table-column align="left" label="采购来源" width="70" show-overflow-tooltip>
           <template v-slot="{ row }">
             <p style="white-space: normal">{{ sourceObj[row.source + ''] }}</p>
           </template>
         </u-table-column>
-        <u-table-column align="center" label="优选商品" width="70">
+        <u-table-column align="left" label="优选商品" width="70">
           <template v-slot="{ row }">
             {{ row.is_featured === '1' ? '是' : '否' }}
           </template>
         </u-table-column>
-        <u-table-column align="center" label="商品Id" width="130">
+        <u-table-column align="left" label="商品Id" width="130">
           <template v-slot="{ row }">
             <span class="goToGoods" @click.stop="goToGoods(row)">{{ row.goods_id }}</span>
             <el-button type="text" class="copyIcon" @click="copy(row.goods_id)">
               <i class="el-icon-document-copy"/></el-button>
           </template>
         </u-table-column>
-        <u-table-column align="center" label="标题" prop="Price" width="150px" fit>
+        <u-table-column align="left" label="标题" prop="Price" width="150px" fit>
           <template v-slot="{ row }">
             <el-input resize="none" type="textarea"
                       :autosize="{ minRows: 4, maxRows: 4}"
@@ -127,7 +127,7 @@
             </el-input>
           </template>
         </u-table-column>
-        <u-table-column align="center" label="主图" width="80" prop="Sales">
+        <u-table-column align="left" label="主图" width="80" prop="Sales">
           <template v-slot="{ row }">
             <el-tooltip effect="light" placement="right-end" :visible-arrow="false" :enterable="false"
                         style="width: 56px; height: 56px; display: inline-block">
@@ -139,15 +139,15 @@
             </el-tooltip>
           </template>
         </u-table-column>
-        <u-table-column align="center" label="价格" width="80" prop="price" show-overflow-tooltip/>
-        <u-table-column align="center" label="库存" width="80" prop="stock" show-overflow-tooltip/>
-        <u-table-column align="center" label="销量" width="80" prop="sales" show-overflow-tooltip/>
-        <u-table-column align="center" label="重量(kg)" width="80">
+        <u-table-column align="left" label="价格" width="80" prop="price" show-overflow-tooltip/>
+        <u-table-column align="left" label="库存" width="80" prop="stock" show-overflow-tooltip/>
+        <u-table-column align="left" label="销量" width="80" prop="sales" show-overflow-tooltip/>
+        <u-table-column align="left" label="重量(kg)" width="80">
           <template v-slot="{ row }">
             <el-input v-model="row.weight" size="mini" @keyup.enter.native="goodsListUpdate(row)"/>
           </template>
         </u-table-column>
-        <u-table-column align="center" label="体积" width="110">
+        <u-table-column align="left" label="体积" width="110">
           <template v-slot="{ row }">
             <ul>
               <li style="display: flex">
@@ -165,17 +165,17 @@
             </ul>
           </template>
         </u-table-column>
-        <u-table-column align="center" label="翻译语种" width="80" prop="language">
+        <u-table-column align="left" label="翻译语种" width="80" prop="language">
           <template v-slot="{ row }">
             <p style="white-space: normal">{{ languageArrObj[row.language] || row.language }}</p>
           </template>
         </u-table-column>
-        <u-table-column align="center" label="源平台类目" show-overflow-tooltip>
+        <u-table-column align="left" label="源平台类目" show-overflow-tooltip>
           <template v-slot="{ row }">{{ getCategoty(row) || '未匹配到类目' }}</template>
         </u-table-column>
-        <u-table-column align="center" label="更新时间" width="140px" prop="updated_at"/>
-        <u-table-column align="center" label="收藏时间" width="140px" prop="created_at"/>
-        <u-table-column align="center" label="操作结果" width="90px" show-overflow-tooltip>
+        <u-table-column align="left" label="更新时间" width="140px" prop="updated_at"/>
+        <u-table-column align="left" label="收藏时间" width="140px" prop="created_at"/>
+        <u-table-column align="left" label="操作结果" width="100px" show-overflow-tooltip>
           <template v-slot="{ row }">
             <div class="goodsTableLine" style="height: 80px;text-align: left">
               {{ row.handle_type || '' }}

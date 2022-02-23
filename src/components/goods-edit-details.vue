@@ -8,10 +8,8 @@
             <el-input type="textarea" :rows="2" resize="none" placeholder="" size="mini"
                       v-model="goodsDetails.title"></el-input>
           </div>
-          <div style="color: red;width: 60px;padding-left: 10px;">{{
-              goodsDetails.title && goodsDetails.title.length ||
-              0
-            }}
+          <div style="color: red;width: 60px;padding-left: 10px;">
+            {{ goodsDetails.title && goodsDetails.title.length || 0 }}
           </div>
         </div>
         <div class="goods-detail-block">
@@ -20,10 +18,8 @@
             <el-input type="textarea" :rows="8" resize="none" placeholder="" size="mini"
                       v-model="goodsDetails.description"></el-input>
           </div>
-          <div style="color: red;width: 60px;padding-left: 10px;">{{
-              goodsDetails.description &&
-              goodsDetails.description.length || 0
-            }}
+          <div style="color: red;width: 60px;padding-left: 10px;">
+            {{goodsDetails.description && goodsDetails.description.length || 0}}
           </div>
         </div>
         <div class="goods-detail-block">

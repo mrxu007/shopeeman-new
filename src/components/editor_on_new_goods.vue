@@ -36,6 +36,9 @@
         <div class="basisInstall-box">
           <el-button style="flex: 1" size="mini" type="primary" @click="batchDealWith(17)">批量删除</el-button>
         </div>
+        <div style="color: red;display: flex; justify-content: space-between;">
+          马来站和菲律宾的部分类目需要设置体积和重量后才能上新
+        </div>
         <el-upload
             v-if="uploadImgAdd"
             v-show="false"
@@ -50,9 +53,9 @@
           <el-button ref="uploadImg" size="mini" type="primary">选择图片</el-button>
         </el-upload>
       </div>
-      <div class="basisInstall width_600" style="padding: 10px;">
+      <div class="basisInstall width_600" style="padding: 10px 10px 0;">
         <div class="basisInstall-title">功能区</div>
-        <div class="basisInstall-box" style="color: red" s>
+        <div class="basisInstall-box" style="color: red">
           <div>温馨提示：</div>
           使用【翻译数据】【一键组装数据到上新】功能前，先配置以下信息
         </div>
@@ -123,6 +126,7 @@
           <el-input v-model="pictureConfig.inventoryNumber" size="mini" style="width: 80px;"/>
         </div>
         <div class="basisInstall-box">
+          <div style="display: flex;align-items: center">
           <div>图片翻译：</div>
 <!--          <el-radio v-model="pictureConfig.typeRadio" :label="0">阿里免费翻译</el-radio>-->
           <el-radio v-model="pictureConfig.typeRadio" style="margin-right: 0;" :label="1">阿里付费翻译</el-radio>
@@ -130,24 +134,18 @@
             <el-button size="mini" type="text"><i class="el-icon-question" style="padding: 0 2px;"/></el-button>
           </el-tooltip>
           <el-radio v-model="pictureConfig.typeRadio" :label="2">云图像翻译</el-radio>
-          <div v-if="false && !pictureConfig.typeRadio" style="display: flex;">
-            <div style="margin-left: 5px;">图片翻译检验：</div>
-            <el-radio v-model="pictureConfig.checkedRadio" :label="1">检验</el-radio>
-            <el-radio v-model="pictureConfig.checkedRadio" :label="0">不检验</el-radio>
           </div>
-        </div>
-        <div class="basisInstall-box">
           <div style="display: flex;align-items: center">
             <div>图片翻译：</div>
-            <el-select v-model="translationConfig.before" size="mini" style="width: 80px;" value="">
+            <el-select v-model="translationConfig.before" size="mini" style="width: 100px;" value="">
               <el-option label="不翻译" :value="'no'"/>
               <el-option label="中文" :value="1"/>
               <el-option label="英文" :value="2"/>
             </el-select>
             <div style="width: 10px;height: 1px;background-color: #333333;margin: 0 5px;"/>
-            <el-select v-if="translationConfig.before === 'no'" size="mini" style="width: 80px;" value="" disabled placeholder="不翻译">
+            <el-select v-if="translationConfig.before === 'no'" size="mini" style="width: 100px;" value="" disabled placeholder="不翻译">
             </el-select>
-            <el-select v-else v-model="translationConfig.after" size="mini" style="width: 80px;" value="">
+            <el-select v-else v-model="translationConfig.after" size="mini" style="width: 100px;" value="">
               <el-option
                   v-for="item in pictureLanguagesList"
                   v-show="(pictureConfig.typeRadio !== 0 || translationConfig.before !==2) || item.free"
@@ -158,17 +156,45 @@
               />
             </el-select>
           </div>
-          <div v-if="!pictureConfig.typeRadio" style="display: flex;align-items: center;margin-left: 10px;">
-            <div>阿里翻译账号：</div>
-            <el-select v-model="aLiUsername" class="select-right-30" size="mini" style="width: 120px;" value="">
-              <el-option v-for="item in aLiUsernameList" :key="item.id" :label="item.name" :value="item.name">
-                <span>{{ item.name }}</span>
-                <span class="span-but" @click.stop="deleteAliTranslation(item.id)">X</span>
-              </el-option>
-            </el-select>
-            <el-button size="mini" style="margin-left: 5px" @click="joinAliTranslation">账号个人中心</el-button>
+          <div v-if="false && !pictureConfig.typeRadio" style="display: flex;">
+            <div style="margin-left: 5px;">图片翻译检验：</div>
+            <el-radio v-model="pictureConfig.checkedRadio" :label="1">检验</el-radio>
+            <el-radio v-model="pictureConfig.checkedRadio" :label="0">不检验</el-radio>
           </div>
         </div>
+<!--        <div class="basisInstall-box">-->
+<!--          <div style="display: flex;align-items: center">-->
+<!--            <div>图片翻译：</div>-->
+<!--            <el-select v-model="translationConfig.before" size="mini" style="width: 100px;" value="">-->
+<!--              <el-option label="不翻译" :value="'no'"/>-->
+<!--              <el-option label="中文" :value="1"/>-->
+<!--              <el-option label="英文" :value="2"/>-->
+<!--            </el-select>-->
+<!--            <div style="width: 10px;height: 1px;background-color: #333333;margin: 0 5px;"/>-->
+<!--            <el-select v-if="translationConfig.before === 'no'" size="mini" style="width: 100px;" value="" disabled placeholder="不翻译">-->
+<!--            </el-select>-->
+<!--            <el-select v-else v-model="translationConfig.after" size="mini" style="width: 100px;" value="">-->
+<!--              <el-option-->
+<!--                  v-for="item in pictureLanguagesList"-->
+<!--                  v-show="(pictureConfig.typeRadio !== 0 || translationConfig.before !==2) || item.free"-->
+<!--                  v-if="item.isShow.indexOf(translationConfig.before)>=0"-->
+<!--                  :key="item.value"-->
+<!--                  :label="item.label"-->
+<!--                  :value="item.value"-->
+<!--              />-->
+<!--            </el-select>-->
+<!--          </div>-->
+<!--          <div v-if="!pictureConfig.typeRadio" style="display: flex;align-items: center;margin-left: 10px;">-->
+<!--            <div>阿里翻译账号：</div>-->
+<!--            <el-select v-model="aLiUsername" class="select-right-30" size="mini" style="width: 120px;" value="">-->
+<!--              <el-option v-for="item in aLiUsernameList" :key="item.id" :label="item.name" :value="item.name">-->
+<!--                <span>{{ item.name }}</span>-->
+<!--                <span class="span-but" @click.stop="deleteAliTranslation(item.id)">X</span>-->
+<!--              </el-option>-->
+<!--            </el-select>-->
+<!--            <el-button size="mini" style="margin-left: 5px" @click="joinAliTranslation">账号个人中心</el-button>-->
+<!--          </div>-->
+<!--        </div>-->
       </div>
       <div class="basisInstall" style="padding: 10px;">
         <div class="basisInstall-title">日志区</div>
@@ -274,7 +300,7 @@
           </div>
         </template>
       </u-table-column>
-      <u-table-column align="left" label="操作状态" width="90">
+      <u-table-column align="left" label="操作状态" width="100">
         <template v-slot="{row}">
           <div class="goodsTableLine" style="height: 80px">
             {{ row.operation_type || '' }}
