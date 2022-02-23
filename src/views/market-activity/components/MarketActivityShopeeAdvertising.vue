@@ -1425,8 +1425,10 @@ export default {
     },
     //图表数据
     async getAdventAnalysis(mall, balance) {
-      let startTime = Math.round(new Date(this.statisticalTime[0]).getTime() / 1000)
-      let endTime = Math.round(new Date(this.statisticalTime[1]).getTime() / 1000)
+      let startTime = Math.round(new Date(new Date(this.statisticalTime[0]).setHours(0, 0, 0, 0)).getTime() / 1000)
+      let endTime = Math.round(new Date(new Date(this.statisticalTime[1]).setHours(23, 59, 59, 0)).getTime() / 1000)
+      // let startTime = Math.round(new Date(this.statisticalTime[0]).getTime() / 1000)
+      // let endTime = Math.round(new Date(this.statisticalTime[1]).getTime() / 1000)
       let params = {
         start_time: startTime,
         end_time: endTime,
@@ -1510,8 +1512,10 @@ export default {
     },
     //列表数据
     async getAdventList(mall, count = { count: 1 }) {
-      let startTime = Math.round(new Date(this.statisticalTime[0]).getTime() / 1000)
-      let endTime = Math.round(new Date(this.statisticalTime[1]).getTime() / 1000)
+      // let startTime = Math.round(new Date(this.statisticalTime[0]).getTime() / 1000)  
+      let startTime = Math.round(new Date(new Date(this.statisticalTime[0]).setHours(0, 0, 0, 0)).getTime() / 1000)  
+      // let endTime = Math.round(new Date(this.statisticalTime[1]).getTime() / 1000)
+      let endTime = Math.round(new Date(new Date(this.statisticalTime[1]).setHours(23, 59, 59, 0)).getTime() / 1000)
       let limit = 40
       let mallCount = 0
       let balance = await this.getMallBalance(mall)

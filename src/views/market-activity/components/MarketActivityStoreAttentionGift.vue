@@ -86,12 +86,12 @@
 
         <el-form-item label="当前站点">
           <!-- {{ rowx.goods_name }} -->
-          {{ selectMallList[0] && selectMallList[0].country | chineseSite }}
+          {{  this.country | chineseSite }}
         </el-form-item>
 
         <el-form-item label="币种" style="color:red">
           <!-- selectMallList[0].country | siteCoin -->
-          {{ selectMallList[0] && selectMallList[0].country | siteCoin }}(优惠劵活动使用的是当地币种)
+          {{  this.country | siteCoin }}(优惠劵活动使用的是当地币种)
           <!-- <el-input v-model="rowx.sku_name" size="mini" disabled/> -->
         </el-form-item>
 
@@ -209,7 +209,7 @@
 
         <el-form-item>
           <el-button size="mini" type="primary" @click="mallCouponFun">创建关注礼活动</el-button>
-          <el-button size="mini" type="primary">取消</el-button>
+<!--          <el-button size="mini" type="primary">取消</el-button>-->
         </el-form-item>
       </el-form>
     </el-dialog>
@@ -271,12 +271,13 @@ export default {
       selectMallList: [], // 选择的店铺
       stoptoping: false,
       mallTableSelect: [],
-      getTable: []
+      getTable: [],
+      country:'TH',
     }
   },
   computed: {
     contentDes() {
-      const coinType = this.$filters.siteCoin(this.selectMallList[0].country)
+      const coinType = this.$filters.siteCoin( this.country)
       return `Shopee币交换规则，${coinType}100=100 Shopee币`
     }
   },
@@ -416,13 +417,14 @@ export default {
     },
     // 店铺选择
     changeMallList(val) {
+      this.country = val.country
       this.selectMallList = val
     },
     // 获取店铺优惠券信息
     async  getInfo(item, count = { count: 1 }) {
       try {
         const params = {
-          country: item.country,
+          country: this.country,
           mallId: item.platform_mall_id,
           offset: item.offset,
           limit: 20
@@ -586,8 +588,8 @@ export default {
         this.$message.warning('折扣金额不能大于最低消费金额')
         return
       }
-      if (Number(this.minPrice) < this.siteLimitCost[this.selectMallList[0].country.toLocaleUpperCase()]) {
-        this.$message.warning(`当前站点最低消费金额为${this.siteLimitCost[this.selectMallList[0].country.toLocaleUpperCase()]}`)
+      if (Number(this.minPrice) < this.siteLimitCost[ this.country.toLocaleUpperCase()]) {
+        this.$message.warning(`当前站点最低消费金额为${this.siteLimitCost[ this.country.toLocaleUpperCase()]}`)
         return
       }
       if (!this.dateTime.length) {
@@ -618,7 +620,8 @@ export default {
         if (this.rewardType === '0') { // 普通折扣
           if (this.discountType === '0') {
             discount = {
-              percentage: (100 - this.discountNum) / 10,
+              percentage: Number(this.discountNum),
+              // percentage: (100 - this.discountNum) / 10,
               cap: this.limitPrice === '0' ? null : this.maxPrice
             }
           } else {
@@ -649,6 +652,7 @@ export default {
           params.coin_cash_back = coin_cash_back
         }
         const result = await this.MarketManagerAPIInstance.followPrizeCreate(params)// 创建优惠券
+        console.log(result)
         if (result.ecode !== 0) {
           let message = ''
           if (result.message === 'param err') {

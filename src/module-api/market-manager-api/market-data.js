@@ -261,12 +261,12 @@ export default class MarketManagerAPI {
         params.coin_cash_back = coin_cash_back
         delete params.discount
       }
-      debugger
-      const res = await this._this.$shopeemanService.postChineseReferer(country, '/api/marketing/v4/follow_prize/?', params, {
+      console.log(params)
+      const res = await this._this.$shopeemanService.postChineseReferer(country, '/api/marketing/v4/follow_prize/create?', params, {
         headers: {
           'Content-Type': 'application/json',
-          'accept': 'application/json, application/xml, text/json, text/x-json, text/javascript, text/xml',
-          referer: `/portal/marketing/follow-prize/create`
+          'accept': 'application/json, text/plain, */*',
+          referer: '/portal/marketing/follow-prize/create'
         }
       })
 

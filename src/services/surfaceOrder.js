@@ -22,6 +22,7 @@ export default class {
   orders = []
   schemaType = ''
   activeType = 'handle'
+  isAuto = false //是否自动同步
   isApplyForceFaceInfo = false //是否强制申请面单
   /// <param name="isApplyForceFaceInfo">是否强制申请面单 </param>
   /// 增量同步运输中和已完成订单 同步面单时 false 启动后8分钟开始同步面单,4小时间隔            auto-third
@@ -43,6 +44,7 @@ export default class {
 
   //自动同步流程（不能同步台湾面单）
   async autoStart() {
+    this.isAuto = true
     this.activeType = 'auto'
     try {
       this.isApplyForceFaceInfo = false
@@ -132,6 +134,7 @@ export default class {
   }
   //手动同步
   async handleStart(orders, isApplyForceFaceInfo) {
+    this.isAuto = false
     this.activeType = 'handle'
     this.isApplyForceFaceInfo = isApplyForceFaceInfo || false
     this.orders = orders
@@ -234,6 +237,17 @@ export default class {
     trackInfo['logistics_channel'] = orderInfo.logistics_channel || ''
     return trackInfo
   }
+  //判断默认物流
+  checkIsAutoApplyTrackingNumber(logisticsChannel){
+    let logisDefault = site_mall.find(n => {
+      return n.ShipId == logisticsChannel
+    })
+    if(logisDefault && logisDefault.IsDeafult == true){
+      return true;
+    }else{
+      return false;
+    }
+  }
   //申请物流单号
   async applyOrderTrackingNo(orderId, shopId, logisticsChannel, country, sysMallId, orderSn) {
     if (country === 'TW' && !this.isApplyForceFaceInfo) {
@@ -244,6 +258,7 @@ export default class {
     }
     let configInfo = await this.$appConfig.getUserConfig()
     let configInfoObj = configInfo && JSON.parse(configInfo)
+    console.log()
     //设置信息中的是否自动申请Shopee物流单号选项
     if (country !== 'TW' && (!configInfoObj || !configInfoObj.is_apply_shopee_logistics)) {
       if (!this.isApplyForceFaceInfo) {
@@ -251,12 +266,10 @@ export default class {
       }
     }
     //判断所选择的运输方式能否申请物流单号  和店铺导入的那份物流信息比对，判断物流id的信息的default值是否为true orderInfo.logistics_channel
-    let logisDefault = site_mall.find(n => {
-      return n.ShipId == logisticsChannel
-    })
-    if (logisDefault && !logisDefault.IsDeafult) {
+    let logisDefault = this.checkIsAutoApplyTrackingNumber(logisticsChannel)
+    if (!logisDefault ) {
       //非默认物流 获取下运输单号
-      return this.getShopeeShipNumber(orderId, shopId, country, sysMallId, orderSn); //获取shopee运输单号
+      return this.getShopeeShipNumber(orderId, shopId, country, sysMallId, orderSn,`不支持自动申请虾皮运输单号功能`); //获取shopee运输单号
     }
     try {
       if (country === 'TW') {
@@ -335,7 +348,6 @@ export default class {
           shop_id: shopId
         }
         let applyResult = await this.$shopeemanService.handleOutOrder(country, params)
-
         console.log("applyResult33", applyResult)
       }
       return this.getShopeeShipNumber(orderId, shopId, country, sysMallId, orderSn); //获取shopee运输单号
@@ -369,7 +381,7 @@ export default class {
     }
   }
   //获取物流单号
-  async getShopeeShipNumber(orderId, mallId, country, sysMallId, orderSn) {
+  async getShopeeShipNumber(orderId, mallId, country, sysMallId, orderSn,warningType) {
     console.log(orderId, mallId, country)
     try {
       let trackNo = ''
@@ -379,9 +391,9 @@ export default class {
         shop_id: mallId
       }
       for (let i = 0; i < 3; i++) {
-        console.log(orderId, mallId, country, params)
+        // console.log(orderId, mallId, country, params)
         let res = await this.$shopeemanService.getDropOff(country, params)
-        console.log("--------", orderId, mallId, country, res)
+        // console.log("--------", orderId, mallId, country, res)
         if (!res || !res.code === 200 || !res.data) {
           continue
         }
@@ -398,7 +410,7 @@ export default class {
         }
       }
       if (trackNo) {
-        await this.uploadTrackingNo(sysMallId, mallId, orderSn, trackNo, logisticsId)
+        await this.uploadTrackingNo(sysMallId, mallId, orderSn, trackNo, channelId)
         return {
           code: 200,
           data: trackNo
@@ -406,7 +418,7 @@ export default class {
       } else {
         return {
           code: 50005,
-          data: '未获取到物流单号'
+          data: warningType || '未获取到物流单号'
         }
       }
     } catch (error) {
@@ -500,12 +512,13 @@ export default class {
       //7、上报面单信息
       let faceSheetInfos = [{
         url: url,
-        orderSn: orderSn.toString()
+        orderSn: orderSn.toString(),
+        is_auto: this.isAuto
       }]
       let params = {
         sysMallId: sysMallId.toString(),
         mallId: mallId,
-        faceSheetInfos: faceSheetInfos
+        faceSheetInfos: faceSheetInfos,
       }
       console.log(params)
       let res = await this.$commodityService.saveFaceSheetInfo(sysMallId, mallId, faceSheetInfos)
@@ -635,15 +648,15 @@ export default class {
       let faceData = await this.downloadSdJobTW(order.shop_id, jobId, country)
       console.log(faceData, "faceData")
       if (!faceData) {
+        debugger
         this.writeLog(`订单【${order.order_sn}】同步面单失败,下载失败[505]`, false)
         return
       }
       return this.getQuanJiaFaceInfo(trackingNo, faceData, order.shop_id)
     }
-    console.log(jobId, "jobId")
-    let faceData = await this.downloadSdJob(order.shop_id, jobId, country)
-    console.log(faceData, "faceData")
-    return faceData
+    // let faceData = await this.downloadSdJob(order.shop_id, jobId, country)
+    // console.log(faceData, "faceData")
+    // return faceData
   }
   //莱尔富经济包的面单信息
   async getLaiErFuFace(orderId, shopId) {

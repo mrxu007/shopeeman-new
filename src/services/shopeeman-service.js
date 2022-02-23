@@ -256,7 +256,7 @@ export default class NetMessageBridgeService {
         'Host': aurl.replace('https://', '')
       })
     }
-    // console.log('NetMessageBridgeService', url, JSON.stringify(options), JSON.stringify(data))
+    console.log('NetMessageBridgeService', url, JSON.stringify(options), JSON.stringify(data))
     return this.NetMessageBridgeService().post(url, JSON.stringify(options), JSON.stringify(data))
   }
 
@@ -297,7 +297,7 @@ export default class NetMessageBridgeService {
         referer: baseUrl + referer
       })
     }
-    // console.log(baseUrl + api, JSON.stringify(options), JSON.stringify(data))
+    console.log(baseUrl + api, JSON.stringify(options), JSON.stringify(data))
     return this.NetMessageBridgeService().post(baseUrl + api, JSON.stringify(options), JSON.stringify(data))
   }
 
@@ -485,7 +485,7 @@ export default class NetMessageBridgeService {
       copy_mallInfo['SPC_SC_TK'] = mallInfo.SPC_SC_TK
       copy_mallInfo['SPC_F'] = mallInfo.SPC_F
     }
-    console.log('copy_mallInfo', copy_mallInfo)
+    console.log('copy_mallInfo', copy_mallInfo,params)
     try {
       let res = await this.postChinese(country, '/api/v2/login/?', params, { // option
         headers: {
@@ -493,8 +493,8 @@ export default class NetMessageBridgeService {
           'charset': 'UTF-8'
         }
       }, copy_mallInfo)
-      res = JSON.parse(res)
       console.log('postChinese', res)
+      res = JSON.parse(res)
       let SetCookie = null
       SetCookie = res.headers.find(item => item.Name === 'Set-Cookie')
       if (SetCookie) {
@@ -958,13 +958,13 @@ export default class NetMessageBridgeService {
       } else {
         return {
           code: 50001,
-          data: info.message || []
+          data: `${info.message.includes('ConnectionRefused')?'请检查网络是否可用':info.message}`|| []
         }
       }
     } else {
       return {
         code: resObj.status,
-        data: `获取详情失败${resObj.statusText}`
+        data: `获取详情失败${resObj.statusText.includes('ConnectionRefused')?'请检查网络是否可用':resObj.statusText}`
       }
     }
   }
@@ -977,7 +977,7 @@ export default class NetMessageBridgeService {
       }
     })
     const resObj = res && JSON.parse(res)
-    // console.log(resObj)
+    console.log(resObj)
     if (resObj && resObj.status === 200) {
       const info = JSON.parse(resObj.data)
       if (info && info.code === 0) {
@@ -1014,13 +1014,13 @@ export default class NetMessageBridgeService {
       } else {
         return {
           code: 50001,
-          data: info.message || []
+          data: `${info.message.includes('ConnectionRefused')?'请检查网络是否可用':info.message}`|| []
         }
       }
     } else {
       return {
         code: resObj.status,
-        data: `获取详情失败${resObj.statusText}`
+        data: `获取详情失败${resObj.statusText.includes('ConnectionRefused')?'请检查网络是否可用':resObj.statusText}`
       }
     }
   }
@@ -1039,13 +1039,13 @@ export default class NetMessageBridgeService {
       } else {
         return {
           code: 50001,
-          data: info.message || []
+          data: `${info.message.includes('ConnectionRefused')?'请检查网络是否可用':info.message}`|| []
         }
       }
     } else {
       return {
         code: resObj.status,
-        data: `获取详情失败${resObj.statusText}`
+        data: `获取详情失败${resObj.statusText.includes('ConnectionRefused')?'请检查网络是否可用':resObj.statusText}`
       }
     }
   }

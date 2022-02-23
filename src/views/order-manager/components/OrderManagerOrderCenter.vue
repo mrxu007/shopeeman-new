@@ -20,7 +20,9 @@
               <span class="base-title">列表筛选操作</span>
               <div class="base-item">
                 <el-row class="row-style">
-                  <storeChoose :is-all="true" :span-width="'80px'" :select-width="'180px'" :source="'orderCenter'" @changeMallList="changeMallList" />
+                  <div class="tool-item mar-right">
+                    <storeChoose :is-all="true" :span-width="'80px'" :select-width="'180px'" :source="'orderCenter'" @changeMallList="changeMallList" />
+                  </div>
                   <div class="tool-item">
                     <el-select v-model="selectForm.timeType" placeholder="" size="mini" filterable style="width: 140px">
                       <el-option v-for="(item, index) in timeTypeList" :key="index" :label="item.label" :value="item.value" />
@@ -95,9 +97,9 @@
                   </div>
                   <div class="tool-item mar-right">
                     <span>毛利值：</span>
-                    <el-input v-model="selectForm.minGrossProfit" size="mini" clearable style="width: 85px" />
+                    <el-input v-model="selectForm.minGrossProfit" size="mini" clearable style="width: 63px" />
                     <p style="margin: 0 4px">-</p>
-                    <el-input v-model="selectForm.maxGrossProfit" size="mini" clearable style="width: 83px" />
+                    <el-input v-model="selectForm.maxGrossProfit" size="mini" clearable style="width: 64px" />
                   </div>
                   <div class="tool-item mar-right">
                     <span>采购时间：</span>
@@ -121,14 +123,14 @@
                     <el-select v-model="inputType" placeholder="" size="mini" filterable style="width: 80px" @change="inputContent = ''">
                       <el-option v-for="(item, index) in inputTypeList" :key="index" :label="item.label" :value="item.value" />
                     </el-select>
-                    <el-input v-model="inputContent" size="mini" clearable style="width: 160px" />
+                    <el-input v-model="inputContent" size="mini" clearable style="width: 140px" />
                     <el-tooltip effect="dark" placement="bottom-start">
                       <div slot="content">
-                        查询选项为订单编号时：<br>
-                        1、需进行批量查询时，可用英文逗号隔开各个订单编号<br>
-                        查询选项为备注或商品货号时：<br>
-                        1、查询全部数据传空<br>
-                        2、查未备注或无商品货号数据时，传‘无’<br>
+                        查询选项为订单编号时：<br />
+                        1、需进行批量查询时，可用英文逗号隔开各个订单编号<br />
+                        查询选项为备注或商品货号时：<br />
+                        1、查询全部数据传空<br />
+                        2、查未备注或无商品货号数据时，传‘无’<br />
                       </div>
                       <i class="el-icon-question" />
                     </el-tooltip>
@@ -149,7 +151,7 @@
                   </div>
                   <div class="tool-item mar-right">
                     <span>海外商品：</span>
-                    <el-select v-model="selectForm.isOverseasGoods" placeholder="" size="mini" filterable　class="inputBox">
+                    <el-select v-model="selectForm.isOverseasGoods" placeholder="" size="mini" filterable　class="inputBox" style="width: 100ox">
                       <el-option label="全部" :value="''" />
                       <el-option label="是" :value="'1'" />
                       <el-option label="否" :value="'-1'" />
@@ -265,14 +267,12 @@
         </u-table-column>
         <u-table-column v-if="showTableColumn('店铺名称')" width="120px" label="店铺名称" prop="platform_mall_name" align="center" show-overflow-tooltip>
           <template v-if="scope.row.mall_info" slot-scope="scope">
-            <span
-              class="copyStyle"
-              @dblclick="copyItem(scope.row.mall_info.mall_alias_name ? scope.row.mall_info.mall_alias_name : scope.row.mall_info.platform_mall_name)"
-            >{{ scope.row.mall_info.mall_alias_name || scope.row.mall_info.platform_mall_name }}
+            <span class="copyStyle" @dblclick="copyItem(scope.row.mall_info.mall_alias_name ? scope.row.mall_info.mall_alias_name : scope.row.mall_info.platform_mall_name)"
+              >{{ scope.row.mall_info.mall_alias_name || scope.row.mall_info.platform_mall_name }}
             </span>
           </template>
         </u-table-column>
-        <u-table-column v-if="showTableColumn('采购绑定仓库')" align="center" label="采购绑定仓库" width="120">
+        <u-table-column v-if="showTableColumn('采购绑定仓库')" align="center" label="采购绑定仓库" width="120" show-overflow-tooltip>
           <template slot-scope="scope">{{ scope.row.shot_order_info.warehouse_name }}</template>
         </u-table-column>
         <u-table-column v-if="showTableColumn('颜色标识')" align="center" prop="color_id" label="颜色标识" width="120" show-overflow-tooltip>
@@ -317,8 +317,8 @@
             <i class="el-icon-document-copy" style="margin-left: 8px; cursor: pointer" @click="copyItem(scope.row.goods_info.goods_id)" />
           </template>
         </u-table-column>
-        <u-table-column v-if="showTableColumn('商品创建时间')" sortable prop="goods_info.created_at" align="center" label="商品创建时间" width="140">
-          <template slot-scope="scope">{{ scope.row.goods_info.created_at }}</template>
+        <u-table-column v-if="showTableColumn('商品创建时间')" sortable prop="goods_info.platform_create_time" align="center" label="商品创建时间" width="140">
+          <template slot-scope="scope">{{ scope.row.goods_info.platform_create_time }}</template>
         </u-table-column>
         <u-table-column v-if="showTableColumn('商品图片')" align="center" label="商品图片" width="80">
           <template slot-scope="scope">
@@ -368,7 +368,7 @@
         </u-table-column> -->
         <u-table-column v-if="showTableColumn('商品类目')" align="center" label="商品类目" width="120">
           <template slot-scope="scope">
-            <span>{{ scope.row.goods_info ? getCategoryName(scope.row.goods_info.goods_category_id,scope.row.country):'未匹配到类目' }} </span>
+            <span>{{ scope.row.goods_info ? getCategoryName(scope.row.goods_info.goods_category_id, scope.row.country) : '未匹配到类目' }} </span>
           </template>
         </u-table-column>
         <u-table-column v-if="showTableColumn('规格编号')" align="center" label="规格编号" width="120">
@@ -379,7 +379,8 @@
             <div style="display: flex; flex-direction: column">
               <span>{{ scope.row.goods_info.variation_name }}</span>
               <el-link v-if="scope.row.goods_info && Number(scope.row.goods_info.ori_platform_id) === 1" size="mini" type="danger" @click="setSKURelation(scope.row)">
-                {{ scope.row.empty_info ? '重新映射SKU' : '加入收藏' }}</el-link>
+                {{ scope.row.empty_info ? '重新映射SKU' : '加入收藏' }}</el-link
+              >
             </div>
           </template>
         </u-table-column>
@@ -508,7 +509,8 @@
               <p @dblclick="copyItem(scope.row.remark)" style="color: #000">{{ scope.row.remark }}</p>
               <!-- <el-input v-model="scope.row.remark" disabled size="mini"></el-input> -->
             </div>
-            <el-input v-if="scope.row.id === activeRemarkID ? true : false" v-model="orderRemark" size="mini" @blur="changeRemark(scope.row.id, scope.$index)" /></template>
+            <el-input v-if="scope.row.id === activeRemarkID ? true : false" v-model="orderRemark" size="mini" @blur="changeRemark(scope.row.id, scope.$index)"
+          /></template>
         </u-table-column>
         <u-table-column v-if="showTableColumn('shopee备注')" align="center" prop="note" label="shopee备注" width="150" show-overflow-tooltip>
           <template slot-scope="scope">
@@ -790,7 +792,7 @@ import {
   changePlatformPayMethod,
   platformPayMethod,
   changeOrderStatus,
-  changeShotStatus
+  changeShotStatus,
 } from '../components/orderCenter/orderCenter'
 import { setGoodsDelist, setGoodsDelete } from './orderCenter/handleGoods'
 import { creatDate, getDaysBetween, dealwithOriginGoodsNum } from '../../../util/util'
@@ -823,14 +825,14 @@ export default {
     ExportReport,
     ReplyBuyer,
     SecondSale,
-    ImageCollection
+    ImageCollection,
   },
   data() {
     return {
       pickerOptions: {
         disabledDate(time) {
           return time.getTime() > Date.now()
-        }
+        },
       },
       selectForm: {
         timeType: 'payTime', // 其它时间类型
@@ -847,10 +849,8 @@ export default {
         createTime: '', // 创建时间
         shotTime: '', // 采购时间
         // paymentMenthod: '', //付款方式
-        isOverseasGoods: '', // 海外商品
-        isOverseasGoods: '', // 海外商品
         sysMallId: '', // 系统店铺id  多个用英文逗号隔开
-        logisticsIds: '' // 物流方式
+        logisticsIds: '', // 物流方式
       },
       createTime: [], // 创建时间 --搜索
       logisticsIds: [''], // 物流方式--搜索
@@ -886,7 +886,7 @@ export default {
           { title: '批量拍单', type: 'primary', key: 4, click: 'purchaseHandler' },
           { title: '配置自定义列', type: 'primary', key: 5 },
           { title: '上传账号信息', type: 'primary', key: 6 },
-          { title: '下载账号信息', type: 'primary', key: 7 }
+          { title: '下载账号信息', type: 'primary', key: 7 },
         ],
         center: [
           { title: '拼多多账号', platform: 1, centerTitle: '拼多多个人中心' },
@@ -894,15 +894,15 @@ export default {
           { title: '1688账号', platform: 8, centerTitle: '1688个人中心' },
           { title: '京喜账号', platform: 10, centerTitle: '京喜个人中心' },
           { title: 'lazada账号', platform: 9, centerTitle: 'lazada个人中心' },
-          { title: 'shopee账号', platform: 11, centerTitle: 'shopee个人中心' }
+          { title: 'shopee账号', platform: 11, centerTitle: 'shopee个人中心' },
           // { title: '天猫淘宝海外账号', platform: 888, centerTitle: '刷新天猫淘宝海外平台账号' },
         ],
         right: [
           { title: '批量推送订单至仓库 ', key: 8, type: 'primary' },
           { title: '批量标记颜色', key: 9, type: 'primary', click: 'getColorList' },
           { title: '批量标记海外商品', key: 10, type: 'primary' },
-          { title: '批量添加采购信息', key: 11, type: 'primary', click: 'batchAddBuyInfo' }
-        ]
+          { title: '批量添加采购信息', key: 11, type: 'primary', click: 'batchAddBuyInfo' },
+        ],
       },
       selectMallList: [], // 店铺选择
       multipleSelection: [],
@@ -919,7 +919,6 @@ export default {
       abroadVisible: false, // 标记为海外商品
       isAbroadGood: 0, // 标记为海外商品
       localRamarkVisible: false, // 本地备注
-      localRamark: '', // 本地备注
       colorVisible: false, // 颜色标识
       colorList: [], // 颜色标识
       selectColorList: [],
@@ -964,19 +963,18 @@ export default {
       collectType: '淘宝', // 图搜同款
       rateList: {}, // 汇率
       categoryInfo: {},
-      localRamark: '', // 本地备注
       activeRemarkID: '', // 本地备注
       orderRemark: '', // 本地备注
       localRamarkNode: '', // shopee备注
       activeRemarkIDNode: '', // shopee备注
       orderRemarkNode: '', // shopee备注
       shipLoading: false,
-      colorLoading: false
+      colorLoading: false,
     }
   },
   computed: {
     getCategoryName() {
-      return function(id, country) {
+      return function (id, country) {
         if (!this.categoryInfo[id]) {
           this.categoryInfo[id] = '正在获取类目...'
           this.getCategoryInfo(id, country)
@@ -984,7 +982,7 @@ export default {
         }
         return this.categoryInfo[`category_${id}`] || ''
       }
-    }
+    },
   },
   mounted() {
     this.tableLoading = true
@@ -997,7 +995,7 @@ export default {
       this.getOrderList(1)
     }, 2000)
     // 保存sku映射
-    this.$IpcMain.on('skuRelation', async(response) => {
+    this.$IpcMain.on('skuRelation', async (response) => {
       console.log('skuRelation', response)
       response['OriGoodsPlatform '] = 1
       console.log(JSON.stringify(response), 'response')
@@ -1010,17 +1008,17 @@ export default {
         return this.$message.error(`收藏失败，${resObj.msg}`)
       }
     })
-    this.$IpcMain.on('FinishShotOrderMessage', async(response) => {
+    this.$IpcMain.on('FinishShotOrderMessage', async (response) => {
       console.log('FinishShotOrderMessage', response)
       this.getOrderList()
     })
-    this.$IpcMain.on('updateShopeeCookie', async(response) => {
+    this.$IpcMain.on('updateShopeeCookie', async (response) => {
       // let obj = response && JSON.parse(response) || ''
       console.log('updateShopeeCookie', response)
     })
   },
   methods: {
-     //去重
+    //去重
     uniqueArr(arr) {
       let map = new Map()
       for (let item of arr) {
@@ -1083,7 +1081,7 @@ export default {
       const params = {
         order_id: this.tableData[index].order_id,
         new_note: this.orderRemarkNode,
-        shop_id: this.tableData[index].mall_info.platform_mall_id
+        shop_id: this.tableData[index].mall_info.platform_mall_id,
       }
       const res = await this.$shopeemanService.updateNode(this.tableData[index].country, params)
       console.log(res)
@@ -1115,6 +1113,10 @@ export default {
       this.activeRemarkID = ''
     },
     changeTime(val, key, subKey) {
+      console.log(val)
+      if (!val) {
+        return
+      }
       const days = getDaysBetween(new Date(val[0]).getTime(), new Date(val[1]).getTime())
       if (days > 93) {
         if (subKey) {
@@ -1147,7 +1149,7 @@ export default {
         return this.$message.warning('由于每个站点面单不一致，请分站点批量预览和打印！')
       }
       const params = {
-        mainOrderSns: mainOrders
+        mainOrderSns: mainOrders,
       }
       let sheetInfo = []
       try {
@@ -1187,7 +1189,7 @@ export default {
             BarInfo: {
               BarCode: orderInfo.main_order_sn,
               BarCodeWidth: 200,
-              BarCodeHeight: 50
+              BarCodeHeight: 50,
             },
             SkuList: [orderInfo.goods_info.variation_sku.replace('=|=', ''), orderInfo.goods_info.goods_count],
             IsNeedCut: !!(orderInfo.logistics_id == 30008 || orderInfo.logistics_id == 30007),
@@ -1197,7 +1199,7 @@ export default {
             LocationY: -420,
             PrintStatus: '0',
             MallId: orderInfo.mall_info.platform_mall_id,
-            MallName: orderInfo.mall_info.platform_mall_name
+            MallName: orderInfo.mall_info.platform_mall_name,
           }
           PdfInfoModel.push(params)
 
@@ -1220,7 +1222,7 @@ export default {
           IsShowWindow: true,
           PdfInfoList: PdfInfoModel,
           VirtualPdfPath: {},
-          ConvertFaceInfoList: []
+          ConvertFaceInfoList: [],
         }
         console.log(JSON.stringify(pdfDownloadModel1), '111')
         const pdfInfo = await window['BaseUtilBridgeService'].getOrderPdfInfo(pdfDownloadModel1)
@@ -1255,7 +1257,7 @@ export default {
             LogisticsId: orderInfo.logistics_id.toString(),
             OrderSn: orderInfo.main_order_sn,
             MallId: Number(orderInfo.mall_info.platform_mall_id),
-            VirtualFilePath: ''
+            VirtualFilePath: '',
           }
           ConvertFaceInfoModel.push(conParams)
           console.log(ConvertFaceInfoModel, '-------')
@@ -1289,7 +1291,7 @@ export default {
           IsShowWindow: true,
           PdfInfoList: PdfInfoList,
           VirtualPdfPath: {},
-          ConvertFaceInfoList: convertResObj.data
+          ConvertFaceInfoList: convertResObj.data,
         }
         console.log(JSON.stringify(pdfDownloadModel))
         this.tableLoading = true
@@ -1348,7 +1350,7 @@ export default {
         OriGoodsSku: '',
         OriGoodsSkuId: row.ori_sku_id || '',
         OriGoodsNum: '',
-        OriGoodsId: row.ori_goods_id || ''
+        OriGoodsId: row.ori_goods_id || '',
       }
       this.$buyerAccountService.getSkuRelation(skuInfo, buyer)
     },
@@ -1393,7 +1395,7 @@ export default {
     // 取消二次销售
     async cancelSecondSale(row) {
       const params = {
-        sysOrderId: row.id
+        sysOrderId: row.id,
       }
       const res = await this.$api.cancelSecondSale(params)
       if (res.data.code === 200) {
@@ -1408,7 +1410,7 @@ export default {
       const params = {
         goodsId: this.goodsId,
         variationId: this.skuId,
-        goodsSpec: this.goodsNum
+        goodsSpec: this.goodsNum,
       }
       const res = await this.$api.getsecondlist(params)
       if (res.data.code === 200) {
@@ -1477,7 +1479,7 @@ export default {
     async goodsTop(row) {
       const params = {
         id: Number(row.goods_info.goods_id),
-        shop_id: row.mall_info.platform_mall_id
+        shop_id: row.mall_info.platform_mall_id,
       }
       const res = await this.$shopeemanService.handleGoodsTop(row.country, params)
       if (res.code === 200) {
@@ -1491,7 +1493,7 @@ export default {
       this.$confirm('是否删除该商品?', '商品删除', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
-        type: 'warning'
+        type: 'warning',
       })
         .then(() => {
           setGoodsDelete(this, row)
@@ -1517,7 +1519,7 @@ export default {
       this.$confirm('是否下架该商品?', '商品下架', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
-        type: 'warning'
+        type: 'warning',
       })
         .then(() => {
           setGoodsDelist(this, row)
@@ -1546,20 +1548,25 @@ export default {
     // },
     // 订单出库
     async saveHandleOut() {
-      const params = {
-        order_id: this.clickRow.order_id,
-        shipping_proof: this.shippingProof,
-        shipping_trace_no: this.shippingTraceNo,
-        channel_id: 79900,
-        integrated: '',
-        shop_id: this.clickRow.mall_info.platform_mall_id
-      }
-      const res = await this.$shopeemanService.handleOutOrder(this.clickRow.country, params)
-      if (res.data === 200) {
-        this.$message.success('发货成功！')
-        this.closeDialog()
-      } else {
-        this.$message.error(`发货失败，${res.data}`)
+      try {
+        const params = {
+          order_id: this.clickRow.order_id,
+          shipping_proof: this.shippingProof,
+          shipping_trace_no: this.shippingTraceNo,
+          channel_id: 79900,
+          integrated: '',
+          shop_id: this.clickRow.mall_info.platform_mall_id,
+        }
+        const res = await this.$shopeemanService.handleOutOrder(this.clickRow.country, params)
+        console.log('res===', res)
+        if (res.data === 200) {
+          this.$message.success('发货成功！')
+          this.closeDialog()
+        } else {
+          this.$message.error(`发货失败，${res.data}`)
+        }
+      } catch (error) {
+        console.log(error)
       }
     },
     handleOutOrder(row) {
@@ -1591,7 +1598,7 @@ export default {
         Cookiestr: JSON.stringify(account.login_info),
         AccountType: account.type,
         Ua: account.ua,
-        Country: account.site || ''
+        Country: account.site || '',
       }
       return params
     },
@@ -1623,7 +1630,7 @@ export default {
           this.$appConfig.temporaryCacheInfo('save', `category_${id}`, '正在获取类目')
           const res = await this.$commodityService.getCategoryTbInfo(country, id.toString(), '0', '')
           const resObj = res && this.isJsonString(res)
-          const categories = resObj.data.categories && resObj.data.categories[0] || ''
+          const categories = (resObj.data.categories && resObj.data.categories[0]) || ''
           const category_cn_name = categories?.category_cn_name ?? '未匹配到类目'
           const category_name = categories?.category_name ?? '未匹配到类目'
           this.categoryInfo[`category_${id}`] = category_cn_name
@@ -1638,7 +1645,7 @@ export default {
       const reqStr = {
         type: type,
         shopId: shopId,
-        id: id
+        id: id,
       }
       this.$BaseUtilService.getOrderDetailInfo(shopId, JSON.stringify(reqStr))
     },
@@ -1689,7 +1696,7 @@ export default {
             const params = {
               sysOrderId: order.id,
               shotOrderSn: order.shot_order_info.shot_order_sn,
-              paymentMethod: payRes
+              paymentMethod: payRes,
             }
             const uploadRes = await this.$api.uplaodLazadaPaymentMethod(params)
             if (uploadRes.data.code === 200) {
@@ -1710,7 +1717,7 @@ export default {
       this.clickRow = row
       this.orderPathVisible = true
       const params = {
-        package_order_sn: row.order_sn
+        package_order_sn: row.order_sn,
         // package_order_sn: '210516S654NNU9',
       }
       this.orderPathInfoLoading = true
@@ -1733,7 +1740,7 @@ export default {
       this.clickRow = row
       const params = {
         order_id: row.order_id,
-        shop_id: row.mall_info.platform_mall_id
+        shop_id: row.mall_info.platform_mall_id,
       }
       this.shipInfoLoading = true
       if (row.order_status == 7) {
@@ -1750,7 +1757,7 @@ export default {
       if (!this.spTrackPath.length) {
         const params = {
           ctime: Math.round(new Date().getTime() / 1000),
-          description: '暂无物流信息'
+          description: '暂无物流信息',
         }
         this.spTrackPath.push(params)
       }
@@ -1802,7 +1809,7 @@ export default {
       let url = data
       if (type === 'product') {
         const params = {
-          platform_mall_id: data.mall_info.platform_mall_id
+          platform_mall_id: data.mall_info.platform_mall_id,
         }
         const webUrl = await this.$shopeemanService.getWebUrl(data.country, params)
         console.log(webUrl, 'webUrl', data.country)
@@ -1848,14 +1855,14 @@ export default {
         const obj = {
           id: item.id,
           trackingNumber: item.original_tracking_number,
-          trackingNumberCompany: item.original_logistics_company
+          trackingNumberCompany: item.original_logistics_company,
         }
         list.push(obj)
       })
       const params = {
         sysOrderId: this.clickRow.id,
         lists: list,
-        warehouseId: this.bindStore
+        warehouseId: this.bindStore,
       }
       const res = await this.$api.updateOrderTrackingNumber(params)
       if (res.data.code === 200) {
@@ -1888,7 +1895,7 @@ export default {
       }
       console.log(this.warehouseData, 'this.warehouseData')
       const params = {
-        sysOrderId: row.id
+        sysOrderId: row.id,
       }
       const resF = await this.$api.getOrderTrackingNumber(params)
       console.log('resF', resF)
@@ -1908,7 +1915,7 @@ export default {
         id: '0',
         original_tracking_number: '',
         original_logistics_company: '',
-        warehouse_user_id: ''
+        warehouse_user_id: '',
       }
       this.trackingNumberList.push(par)
     },
@@ -1953,10 +1960,10 @@ export default {
             {
               id: '0',
               trackingNumber: this.shipNo,
-              trackingNumberCompany: this.shipCompany
-            }
+              trackingNumberCompany: this.shipCompany,
+            },
           ],
-          warehouseId: this.shipBindStore
+          warehouseId: this.shipBindStore,
         }
 
         const res = await this.$api.updateOrderTrackingNumber(params)
@@ -1969,7 +1976,7 @@ export default {
       this.shipLoading = false
       this.$alert(message, '提示', {
         dangerouslyUseHTMLString: true,
-        confirmButtonText: '确定'
+        confirmButtonText: '确定',
       })
     },
     // 批量添加采购物流单号
@@ -2069,7 +2076,7 @@ export default {
               trackingNumber: resOrder.sub_purchase_orders[0].logistic_number || '',
               // shippingId:,
               deliveryTime: resOrder.sub_purchase_orders[0].rts_time || '',
-              trackingNumberCompany: resOrder.sub_purchase_orders[0].logistic_company_name || ''
+              trackingNumberCompany: resOrder.sub_purchase_orders[0].logistic_company_name || '',
             }
             const trackRes = await this.$api.uploadTrackingNumber(params)
             console.log(trackRes, 'trackRes')
@@ -2286,10 +2293,15 @@ export default {
       this.clickRow = row
       this.multipleSelection = [row]
       this.colorVisible = true
+      this.colorRadio = ''
       await this.getColorList()
     },
     // 设置颜色
     async setColor(arrData) {
+      console.log(this.colorRow)
+      if (!this.colorRow || JSON.stringify(this.colorRow) === '{}') {
+        return this.$message.warning('请选择要标记的颜色!')
+      }
       let ids = ''
       arrData.forEach((item, index) => {
         if (index === 0) {
@@ -2300,7 +2312,7 @@ export default {
       })
       const params = {
         sysOrderIds: ids,
-        id: this.colorRow.id
+        id: this.colorRow.id,
       }
       const res = await this.$api.setColorLabel(params)
       if (res.data.code === 200) {
@@ -2312,6 +2324,7 @@ export default {
         })
         this.colorVisible = false
         this.colorRow = {}
+        this.colorRadio = ''
         this.$message.success('设置成功')
         // this.closeDialog()
       } else {
@@ -2330,7 +2343,7 @@ export default {
         const obj = {
           id: 0,
           name: '取消标识',
-          color: ''
+          color: '',
         }
         this.colorList.unshift(obj)
       }
@@ -2352,10 +2365,10 @@ export default {
       }
       this.showConsole = false
       // this.$refs.Logs.consoleMsg = ''
-      this.multipleSelection.forEach(async(item) => {
+      this.multipleSelection.forEach(async (item) => {
         const params = {
           id: item.id,
-          remark: this.localRamark
+          remark: this.localRamark,
         }
         const res = await this.$api.setLocalRemark(params)
         if (res.data.code === 200) {
@@ -2387,10 +2400,10 @@ export default {
       }
       // this.showConsole = false
       this.$refs.Logs.consoleMsg = ''
-      array.forEach(async(item) => {
+      array.forEach(async (item) => {
         const params = {
           sysOrderId: item.id,
-          status: this.isAbroadGood
+          status: this.isAbroadGood,
         }
         try {
           const res = await this.$api.markGoodsIsOverseas(params)
@@ -2434,14 +2447,14 @@ export default {
       this.columnConfigList.forEach((item) => {
         const par = {
           columnHeader: item.column_header,
-          isShow: item.is_show
+          isShow: item.is_show,
           // firstColumnIsCheckbox: item.first_column_is_checkbox,
         }
         arr.push(par)
       })
       const params = {
         // columnId: 1, //  1 => '订单列表',         2 => '售后列表',
-        lists: arr
+        lists: arr,
       }
       const res = await this.$api.uploadColumnsConfig(params)
       this.columnVisible = false
@@ -2510,6 +2523,8 @@ export default {
       params['shotStatus'] = this.shotStatus.join(',')
       params['logisticsIds'] = this.logisticsIds.join(',')
       params['createTime'] = this.createTime.length ? this.createTime[0] + ' 00:00:00' + '/' + this.createTime[1] + ' 23:59:59' : ''
+      params['otherTime'] = params['otherTime'] && params['otherTime'].length ? params['otherTime'][0] + ' 00:00:00' + '/' + params['otherTime'][1] + ' 23:59:59' : ''
+      params['shotTime'] = params['shotTime'] && params['shotTime'].length ? params['shotTime'][0] + ' 00:00:00' + '/' + params['shotTime'][1] + ' 23:59:59' : ''
       console.log(params, 'params')
       const res = await this.$api.applyAsyncExportOrder(params)
       console.log(res, 'applyAsyncExportOrder')
@@ -2550,10 +2565,8 @@ export default {
       params['otherTime'] = params['otherTime'] && params['otherTime'].length ? params['otherTime'][0] + ' 00:00:00' + '/' + params['otherTime'][1] + ' 23:59:59' : ''
       params['shotTime'] = params['shotTime'] && params['shotTime'].length ? params['shotTime'][0] + ' 00:00:00' + '/' + params['shotTime'][1] + ' 23:59:59' : ''
       this.tableLoading = true
-      console.log(params, 'params')
       const res = await this.$api.getOrderList(params)
       this.tableLoading = false
-      console.log(res, '111111111111111')
       try {
         if (res.data.code && res.data.code === 200) {
           this.tableData = res.data.data.data
@@ -2567,12 +2580,9 @@ export default {
           this.$message.warning(`${res.data.message ? res.data.message : '获取订单列表失败'}`)
         }
       } catch (error) {
-        console.log(error, '22222222222')
-        console.log(this.$message, this)
         this.$message.warning(`获取订单列表失败`)
         this.tableLoading = false
       }
-      // console.log(this.tableData)
     },
     async getSkuRelation() {
       let sysOrders = ''
@@ -2601,8 +2611,7 @@ export default {
     async dealWithTableList() {
       let sysOrders = ''
       const grossAmountRequest = []
-      console.log('this.tableData', this.tableData)
-      this.tableData.forEach(async(row, i) => {
+      this.tableData.forEach(async (row, i) => {
         // 计算含邮毛利
         if (row.shot_order_info.shot_order_sn) {
           const diff = Number(row.escrow_amount - row.shot_order_info.shot_amount).toFixed(2)
@@ -2611,13 +2620,18 @@ export default {
             // console.log(i, Number(row.gross_profit).toFixed(2))
             row.gross_profit = diff
             const obj = {
-              sys_order_id: row.id
+              sys_order_id: row.id,
             }
             grossAmountRequest.push(obj)
           }
         }
         // 计算最终毛利
-        if (Number(row.real_gross_profit) > 0 || [3, 4, 8].indexOf(Number(row.order_status)) > -1) {
+        //1、当含邮毛利存在，最终毛利重新计算 ：最终毛利=含邮毛利 - 仓库费用
+        if(Number(row.gross_profit) > 0){
+          const diff = (row.gross_profit - Number(row.warehouse_ship_amount) / Number(this.rateList[row.country])).toFixed(2)
+          row.real_gross_profit = diff
+        }
+        if (Number(row.warehouse_ship_amount) > 0 || [3, 4, 8].indexOf(Number(row.order_status)) > -1) {
           // console.log("计算最终毛利",Number(row.real_gross_profit)>0,Number(row.real_gross_profit))
           // 收入-采购价-仓库发货金额
           const diff = (row.escrow_amount - row.shot_order_info.shot_amount - Number(row.warehouse_ship_amount) / Number(this.rateList[row.country])).toFixed(2)
@@ -2717,8 +2731,8 @@ export default {
       } else {
         return str
       }
-    }
-  }
+    },
+  },
 }
 </script>
 
@@ -2755,6 +2769,7 @@ export default {
     // height: 26px;
     padding: 10px;
   }
+  padding: 0 16px;
   // margin: 20px 0;
   background: #fff;
   // min-height: calc(100vh - 360px);
@@ -2787,7 +2802,7 @@ export default {
   border-radius: 4px;
   padding: 10px;
   position: relative;
-  min-width: 702px;
+  // min-width: 650px;
   height: 100%;
   .base-title {
     padding: 0 5px;
@@ -2810,13 +2825,25 @@ export default {
   .tool-item {
     display: flex;
     align-items: center;
+    /deep/.storeChooseUL {
+      flex-wrap: nowrap;
+    }
+    /deep/.el-select__tags {
+      max-width: 153px !important;
+      display: flex;
+      flex-wrap: nowrap;
+      overflow: hidden;
+    }
+    /deep/.el-range-input{
+      width: 24%;
+    }
     span {
       display: inline-block;
       width: 80px;
       text-align: right;
     }
     .inputBox {
-      width: 180px;
+      width: 140px;
     }
     i {
       padding-left: 8px;

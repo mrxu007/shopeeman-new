@@ -1003,7 +1003,7 @@ export async function filterLogistics(logisticsJarray, idDatas, isUseProductChan
    * @param {*} maxVal 最大
    * @param {*} fixed 小数位
    * */
-export async function getSectionRandom(minVal, maxVal, fixed = 0) {
+export function getSectionRandom(minVal, maxVal, fixed = 0) {
   minVal = (minVal < maxVal && minVal || maxVal) * 1
   maxVal = (minVal < maxVal && maxVal || minVal) * 1
   const gap = maxVal - minVal
@@ -1281,4 +1281,28 @@ export function getGoodLinkModel(link) {
   }
   if (!data.GoodsId) return { code: 201, data: `链接:${link}识别商品ID失败` }
   return { code: 200, data }
+}
+
+/**
+ * 复制字符串
+ * @param attr String
+ */
+export function copyText(attr) {
+  const target = document.createElement('div')
+  target.id = 'tempTarget'
+  target.style.opacity = '0'
+  target.innerText = attr
+  document.body.appendChild(target)
+  try {
+    const range = document.createRange()
+    range.selectNode(target)
+    window.getSelection().removeAllRanges()
+    window.getSelection().addRange(range)
+    document.execCommand('copy')
+    window.getSelection().removeAllRanges()
+    instance.$message.success('复制成功')
+  } catch (e) {
+    // console.log('复制失败')
+  }
+  target.parentElement.removeChild(target)
 }

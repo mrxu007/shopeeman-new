@@ -5,7 +5,7 @@
         <div class="basisInstall">
           <div class="basisInstall-title">店铺设置</div>
           <storeChoose @changeMallList="changeMallList" :spanWidth="'60px'" :source="'true'" :is-reset="true"
-                       style="margin-bottom: 5px;"></storeChoose>
+                       style="margin-bottom: 5px;" :is-ban-perform="isBanPerform"></storeChoose>
           <div class="basisInstall-box" style="flex-wrap: nowrap">
             <div>物流设置：</div>
             <div>
@@ -94,11 +94,11 @@
         <div class="basisInstall">
           <div class="basisInstall-title">基础设置</div>
           <div class="basisInstall-box">
-            <el-radio :disabled="isBanPerform" v-model="basicConfig.valuationRadio" :label="1">计价方式一</el-radio>
-            <el-radio :disabled="isBanPerform" v-model="basicConfig.valuationRadio" :label="2">计价方式二</el-radio>
-            <el-radio :disabled="isBanPerform" v-model="basicConfig.valuationRadio" :label="3">计价方式三</el-radio>
+            <el-radio :disabled="isBanPerform" v-model="valuationRadio" :label="1">计价方式一</el-radio>
+            <el-radio :disabled="isBanPerform" v-model="valuationRadio" :label="2">计价方式二</el-radio>
+            <el-radio :disabled="isBanPerform" v-model="valuationRadio" :label="3">计价方式三</el-radio>
           </div>
-          <div v-if="basicConfig.valuationRadio === 1">
+          <div v-if="valuationRadio === 1">
             <div class="basisInstall-box">
               <div>基础加价：</div>
               <el-input size="mini" style="width: 60px;margin-right: 5px"
@@ -130,7 +130,7 @@
               </el-radio>
             </div>
           </div>
-          <div v-if="basicConfig.valuationRadio === 2">
+          <div v-if="valuationRadio === 2">
             <div class="basisInstall-box">
               <div>计价方式：</div>
               <el-radio :disabled="isBanPerform" v-model="basicConfig.valuationMethodsRadio" :label="0"
@@ -141,7 +141,7 @@
               <el-button :disabled="isBanPerform" size="mini" type="primary" @click="valuationInit">计价配置</el-button>
             </div>
           </div>
-          <div v-if="basicConfig.valuationRadio === 3">
+          <div v-if="valuationRadio === 3">
             <div class="basisInstall-box">
               <div>商品价格：</div>
               <el-input size="mini" v-model="basicConfig.fixedPrice" style="width: 120px;"></el-input>
@@ -223,10 +223,12 @@
                         :max="30"
                         @change="changeStockUpNumber(basicConfig.stockUpNumber,1)"></el-input>
               天
-              <el-tooltip class="item" effect="dark" content="如果备货最短7天，最长30天" placement="top">
+              <el-tooltip class="item" effect="dark" :content="`如果备货最短${preorderMinDays}天，最长${preorderMaxDays}天`" placement="top">
                 <el-button size="mini" type="text"><i class="el-icon-question" style="padding: 0 2px;"></i></el-button>
               </el-tooltip>
             </div>
+            <div v-if="country==='TW'">最小购物数：</div>
+            <div v-if="country==='TW'"><el-input style="width: 60px;margin: 0 5px;" size="mini" v-model="basicConfig.min_purchase_limit"></el-input></div>
           </div>
           <div class="basisInstall-box">
             <div>上新线程：</div>
@@ -268,8 +270,7 @@
           <div class="basisInstall-box">
             <div class="keepRight">上新时间间隔：</div>
             <el-input size="mini" v-model="associatedConfig.onNewInterval"
-                      style="width: 120px;margin-right: 5px;"></el-input>
-            S
+                      style="width: 120px;margin-right: 5px;"></el-input>S
             <el-tooltip class="item" effect="dark" content="默认印尼站点上新时间间隔为50S，其他站点为40S" placement="top">
               <el-button size="mini" type="text"><i class="el-icon-question" style="padding: 0 2px;"></i></el-button>
             </el-tooltip>
@@ -289,7 +290,8 @@
           <div class="basisInstall-box" v-if="associatedConfig.dimensionRadio === 2">
             <div class="keepRight">商品价格幅度：</div>
             一商品多店铺上新价格幅度±
-            <el-input size="mini" v-model="associatedConfig.priceRange" style="width: 60px;margin:0 5px;"
+            <el-input size="mini" v-model="associatedConfig.priceRange" style="width: 80px;margin:0 5px;"
+                      oninput="value=value.replace(/[^0-9]+/g,'')"
                       @change="changeStockUpNumber(associatedConfig.priceRange,3)"></el-input>
             %
             <el-tooltip class="item" effect="dark" content="避免同一商品在多个店铺中价格相同，最大幅度10%，不设置请填入0" placement="top">
@@ -339,8 +341,13 @@
           <div class="basisInstall-box">
             <div class="keepRight">关键词过滤：</div>
             <div>
-              <el-select v-model="associatedConfig.keyFilter" size="mini" style="width: 120px;">
+              <el-select v-model="associatedConfig.keyFilter"
+                         multiple
+                         collapse-tags
+                         size="mini" style="width: 180px;">
+                <el-option label="全部" :value="0" @click.native="keyFilterChange(1)"></el-option>
                 <el-option
+                    @click.native="keyFilterChange()"
                     v-for="item in keyFilterList"
                     :key="item.value"
                     :label="item.label"
@@ -383,16 +390,16 @@
       </div>
       <div class="nowrapBox">
         <el-button size="mini" type="primary" @click="startRelease" :disabled="isBanPerform">开始发布</el-button>
-        <el-button size="mini" type="primary" :disabled="isBanPerform">导入数据</el-button>
+        <el-button size="mini" type="primary" :disabled="isBanPerform" disabled>导入数据</el-button>
         <el-button size="mini" @click="cancelRelease">取消发布</el-button>
-        <el-button size="mini" type="primary" :disabled="isBanPerform">清理全部</el-button>
-        <el-button size="mini" type="primary" :disabled="isBanPerform">设置定时任务</el-button>
+        <el-button size="mini" type="primary" @click="deleteGoodsList(true)" :disabled="isBanPerform">清理全部</el-button>
+        <el-button size="mini" type="primary" :disabled="isBanPerform" disabled>设置定时任务</el-button>
         <el-button size="mini" type="primary" @click="enterCategory(2,1)" :disabled="isBanPerform">批量映射虾皮类目
         </el-button>
         <el-button size="mini" :type="isNoFoldShow && 'primary' || ''" @click="isNoFoldShow = !isNoFoldShow">
           {{ isNoFoldShow && '折叠' || '展开' }}
         </el-button>
-        <el-button size="mini" type="primary">清理类目缓存</el-button>
+        <el-button size="mini" type="primary" :disabled="isBanPerform">清理类目缓存</el-button>
         <div style="margin-left: 10px;">源商品类目：
           <el-select size="mini" v-model="sourceCategory" style="width: 120px;">
             <el-option v-for="(item,index) in sourceCategoryList"
@@ -409,8 +416,8 @@
                        :value="item.value"></el-option>
           </el-select>
         </div>
-        <el-button size="mini" type="primary" style="margin-left: 10px;">查询</el-button>
-        <el-button size="mini" type="primary">删除</el-button>
+        <el-button size="mini" type="primary" style="margin-left: 10px;" :disabled="isBanPerform">查询</el-button>
+        <el-button size="mini" type="primary" @click="deleteGoodsList()" :disabled="isBanPerform">删除</el-button>
         <div style="margin-left: 10px;display: flex;align-items: center">
           <span>上新进度：</span>
           <el-progress style="width: 180px" :text-inside="true" :stroke-width="18"
@@ -441,13 +448,18 @@
           </el-tooltip>
         </template>
       </u-table-column>
-      <u-table-column align="center" label="上家商品Id" width="110">
+      <u-table-column align="center" label="上家商品Id" width="130">
         <template v-slot="{ row }">
-          <p class="goToGoods" @click.stop="goToGoods(row)">{{ row.goods_id }}</p>
+          <span class="goToGoods" @click.stop="goToGoods(row)">{{ row.goods_id }}</span>
+          <el-button type="text" class="copyIcon" @click="copy(row.goods_id)">
+            <i class="el-icon-document-copy"/></el-button>
         </template>
       </u-table-column>
-      <u-table-column align="left" label="shopee-Id" width="120">
+      <u-table-column align="left" label="shopee-Id" width="130">
         <template slot-scope="{ row }">
+          <span class="goToGoods" @click.stop="goToGoods(row,1)">{{ row.product_id || '' }}</span>
+          <el-button v-if="row.product_id" type="text" class="copyIcon" @click="copy(row.product_id)">
+            <i class="el-icon-document-copy"/></el-button>
         </template>
       </u-table-column>
       <u-table-column align="left" label="标题" min-width="120">
@@ -461,7 +473,7 @@
         <template slot-scope="{ row }">{{ row.mallName || '' }}
         </template>
       </u-table-column>
-      <u-table-column align="left" label="状态" min-width="80">
+      <u-table-column align="left" label="状态" width="80">
         <template slot-scope="{ row }">
           <div class="goodsTableLine">
             {{ row.statusName }}
@@ -973,7 +985,7 @@ import {
   terminateThread,
   getSectionRandom,
   imageCompressionUpload,
-  randomWord, sleep
+  randomWord, sleep, copyText
 } from '@/util/util'
 import GUID from '@/util/guid'
 import MallListAPI from '@/module-api/mall-manager-api/mall-list-api'
@@ -1061,8 +1073,8 @@ export default {
       customLogistics: [], //自定义物流列表
       //店铺设置
       storeConfig: {
-        watermarkChecked: false, // 水印配置
-        priceRadio: 1, // sku价格单选
+        watermarkChecked: true, // 水印配置
+        priceRadio: 0, // sku价格单选
         activityChecked: false, // 商品设置
         chineseChecked: [], //中文配置
         pictureThread: '3', //线程数量
@@ -1070,8 +1082,8 @@ export default {
         wordsHeavy: false //单词去重
       },
       //基础配置
+      valuationRadio: 1, //计价方式
       basicConfig: {
-        valuationRadio: 1, //计价方式
         formula: {
           percentage: '50',
           basis: '5',
@@ -1096,7 +1108,8 @@ export default {
         numberCeiling: '1000', //上货上限
         usedChecked: false, //二手商品
         deleteCollectChecked: false, //删除收藏
-        autoCompleteChecked: false //自动补齐轮播主图
+        autoCompleteChecked: false, //自动补齐轮播主图
+        min_purchase_limit: 1
       },
       valuationVisible: false,
       valuationLabel: '',
@@ -1172,17 +1185,13 @@ export default {
           whiteChecked: false,
           index: '1',
           compressionChecked: true
-        }, //图片设置
+        }, //图片设置s
         missingUploadChecked: false, //图片缺失上传
-        keyFilter: 0, //关键词过滤 0全部 1标题 2描述 3SKU
+        keyFilter: [0,1,2,3], //关键词过滤 0全部 1标题 2描述 3SKU
         keyList: '',
-        priceRange: '0'
+        priceRange: '2'
       },
       keyFilterList: [
-        {
-          label: '全部',
-          value: 0
-        },
         {
           label: '标题',
           value: 1
@@ -1288,6 +1297,8 @@ export default {
 
       GoodsManagerAPIInstance: new GoodsManagerAPI(this),
       GoodsDiscount: new GoodsDiscount(this),
+      preorderMinDays:'',
+      preorderMaxDays:'',
     }
   },
   computed: {},
@@ -1296,7 +1307,41 @@ export default {
     country(value) {
       this.associatedConfig.onNewInterval = value !== 'ID' && '40' || '50'
       this.sellActiveSetting = []
+      switch (value){
+        case 'BR':
+          this.preorderMaxDays = 10
+          this.preorderMinDays = 5
+          this.basicConfig.stockUpNumber = 7
+          break;
+        case 'TW':
+          this.preorderMaxDays = 20
+          this.preorderMinDays = 5
+          this.basicConfig.stockUpNumber = 10
+          break;
+        case 'ID':
+        case 'VN':
+          this.preorderMaxDays = 15
+          this.preorderMinDays = 7
+          this.basicConfig.stockUpNumber = 10
+          break;
+        default :
+          this.preorderMaxDays = 30
+          this.preorderMinDays = 7
+          this.basicConfig.stockUpNumber = 15
+          break;
+      }
       this.changeLogistics()
+    },
+    valuationRadio(val){
+      if(val === 2){
+        let setting = this.valuationSetting
+        if (!(setting && setting.bubbleHeavy >= 0)) {
+          this.$alert('计价信息为空，请填写点击确认后再选择此计价方式上新！', '提示', {
+            confirmButtonText: '确定',
+            callback: action => {}
+          });
+        }
+      }
     },
     watermarkConfig: {
       handler(val) {
@@ -1397,12 +1442,13 @@ export default {
     try {
       this.$IpcMain.on('gotoUpload', async e => { // 点听
         let goodsListJSON = await this.$BaseUtilService.getUploadGoodsId()
-        console.log('goodsListJSON', goodsListJSON)
         let goodsList = JSON.parse(goodsListJSON)
+        console.log('goodsListJSON', goodsList)
         for (let item of goodsList) {
           let index = this.goodsTable.findIndex(i => i.id === item.id)
           index >= 0 && this.$set(this.goodsTable, index, item) || this.goodsTable.push(item)
         }
+        console.log(this.goodsTable)
         this.statistics.count = this.goodsTable.length
         await this.$BaseUtilService.gotoUploadTab('updateId', '')
       })
@@ -1437,16 +1483,20 @@ export default {
         return
       }
       this.isBanPerform = true
+      this.isCancelRelease = false
       await batchOperation(this.mallList, this.prepareWork, this.basicConfig.onNewThread)
       this.isBanPerform = false
     },
     async cancelRelease() {
+      this.isCancelRelease = true
       terminateThread()
     },
     async prepareWork(mall, count = { count: 1 }) {
       let errorItem = null
+      let messageName = ''
       try {
         let mallName = mall.mall_alias_name || mall.platform_mall_name
+        let mallId = mall.platform_mall_id
         let goodsList = []
         let logistics_channels = []
         let loginRes = await this.mallListAPIInstance.getUserInfo(mall)
@@ -1482,7 +1532,7 @@ export default {
         if (this.associatedConfig.dimensionRadio < 2) {
           let mallCount = this.mallList.length
           let mallIndex = this.mallList.findIndex(son => son.id === mall.id)
-          let goodsCount = this.goodsTable.length
+          let goodsCount = this.goodsTableSelect.length
           for (let i = 0; mallIndex < goodsCount; i++) {
             mallIndex = mallIndex + mallCount * i
             if (mallIndex < goodsCount) {
@@ -1492,11 +1542,16 @@ export default {
         } else {
           goodsList = this.goodsTableSelect
         }
+        console.log(goodsList)
         for (let item of goodsList) {
+          if(this.isCancelRelease){
+            return
+          }
           errorItem = item
           this.updateAttributeName(item, '正在准备发布')
+          this.updateAttributeName(item, mallName, 'mallName')
           if (!loginSuccess) {
-            this.updateAttributeName(item, `${mallName}店铺未登录发布失败`)
+            this.updateAttributeName(item, `发布失败：${mallName}店铺未登录`)
             continue
           }
           let goodsInitParam = {
@@ -1511,7 +1566,7 @@ export default {
             },
             condition: 1,
             dangerous_goods: 0, //待修改
-            min_purchase_limit: 1,
+            min_purchase_limit: this.country === 'TW' && parseInt(this.basicConfig.min_purchase_limit) || 1,
             input_normal_price: null,
             input_promotion_price: null,
             id: 0,
@@ -1530,9 +1585,19 @@ export default {
           let originCategoryId = item.originCategoryId || item.category_id
           let platformId = item.platform || item.source
           // attributes brand_id category_path
+          this.updateAttributeName(item, '正在抓取产品')
+          let neededTranslateInfoJson = await this.$commodityService.getSpuDetailByIdV2(item.id)
+          let neededTranslateInfoRes = JSON.parse(neededTranslateInfoJson)
+          let neededTranslateInfoData = neededTranslateInfoRes.data
+          if(neededTranslateInfoRes.code != 200){
+            messageName = neededTranslateInfoRes.msg || ''
+          }
+          let goodsParam = JSON.parse(JSON.stringify(goodsInitParam))
+          this.updateAttributeName(item, '正在匹配类目')
           let categoryRelationJson = await this.$commodityService.getCategoryRelation(originCategoryId, this.country, platformId)
           let categoryRelationRes = JSON.parse(categoryRelationJson)
           let categoryId = categoryRelationRes?.data?.category?.platform_category_id || ''
+          console.log('categoryId',categoryId)
           if (categoryId) {
             goodsInitParam['category_path'] = await this.getCategoryPath(categoryId) || []
             let attributesCurrent = categoryRelationRes.data && categoryRelationRes.data.attributes || []
@@ -1552,14 +1617,11 @@ export default {
             })
           } else {
             this.updateAttributeName(item, '无类目映射，请选择类目')
-            return
+            continue
           }
-          let neededTranslateInfoJson = await this.$commodityService.getSpuDetailByIdV2(item.id)
-          let neededTranslateInfoData = JSON.parse(neededTranslateInfoJson) && JSON.parse(neededTranslateInfoJson).data
-          let goodsParam = JSON.parse(JSON.stringify(goodsInitParam))
-          this.updateAttributeName(item, mallName, 'mallName')
+          this.updateAttributeName(item, '开始组装商品数据')
           // weight
-          if (goodsParam['weight'] === '0') {
+          if (goodsParam['weight'] == '0') {
             goodsParam['weight'] = getSectionRandom(this.basicConfig.minHeavy, this.basicConfig.maxHeavy, 2) + ''
             neededTranslateInfoData['weight'] = goodsParam['weight']
           }
@@ -1598,7 +1660,7 @@ export default {
           if (this.basicConfig.hotSearch > 0 && hotList[0]) {
             let hotListCount = hotList.length
             for (let i = 0; i < this.basicConfig.hotSearch; i++) {
-              let hotIndex = hotList[Math.floor(Math.random() * hotListCount)] || ''
+              let hotIndex = Math.floor(Math.random() * hotListCount)
               hotStr += hotList[hotIndex] + ' '
             }
             if (this.basicConfig.headlineRadio) {
@@ -1662,15 +1724,17 @@ export default {
               imagesList[0] = ImageURL || image
             }
           }
-          if (this.watermarkConfig.addType === 0) {
-            imageTemp = await this.additionalWatermarking(imagesList[0], mall)
-            imagesList[0] = imageTemp || imagesList[0]
-          } else {
-            for (let i = 0; i < imagesList.length; i++) {
-              imageTemp = await this.additionalWatermarking(imagesList[i], mall)
-              imagesList[i] = imageTemp || imagesList[i]
-              if (!imageTemp) {
-                return
+          if (this.storeConfig.watermarkChecked){
+            if (this.watermarkConfig.addType === 0) {
+              imageTemp = await this.additionalWatermarking(imagesList[0], mall)
+              imagesList[0] = imageTemp || imagesList[0]
+            } else {
+              for (let i = 0; i < imagesList.length; i++) {
+                imageTemp = await this.additionalWatermarking(imagesList[i], mall)
+                imagesList[i] = imageTemp || imagesList[i]
+                if (!imageTemp) {
+                  return
+                }
               }
             }
           }
@@ -1701,6 +1765,7 @@ export default {
           })
           console.log('goodsParam', goodsParam)
           this.updateAttributeName(item, '正在上传轮播图')
+          console.log('正在上传轮播图',goodsParam['images'])
           let imageMapping = await imageCompressionUpload(mall, goodsParam['images'], this, this.storeConfig.pictureThread)
           goodsParam['images'] = goodsParam.images.map(son => {
             son = imageMapping[son] || ''
@@ -1718,6 +1783,7 @@ export default {
             goodsParam['images'] = temp
           }
           this.updateAttributeName(item, '正在上传规格图')
+          console.log('正在上传规格图',neededTranslateInfoData.spec_image)
           let spec_imageMapping = await imageCompressionUpload(mall, neededTranslateInfoData.spec_image, this, this.storeConfig.pictureThread)
           let tier_variationJSON = JSON.stringify(goodsParam['tier_variation'])
           let spec_list = []
@@ -1741,15 +1807,19 @@ export default {
               goodsParam['images'] = imageList.slice(0, 9)
             }
           }
-          console.log(goodsParam)
+          console.log('goodsParam',goodsParam)
+          this.updateAttributeName(item, '正在创建商品信息')
           await sleep(this.associatedConfig.onNewInterval * 1000)
           let resJSON = await this.$shopeemanService.createProduct(this.country, { mallId: mall.platform_mall_id }, [goodsParam])
           console.log('createProduct', resJSON)
           if (resJSON.code === 200) {
             this.updateAttributeName(item, '发布完成')
             console.log('sellActiveSetting', this.sellActiveSetting)
+            let product_id = resJSON.data && resJSON.data.product_id
+            this.updateAttributeName(item, product_id, 'product_id')
+            this.updateAttributeName(item, mallId, 'mallId')
+            this.updateAttributeName(item, this.country, 'country')
             if (this.storeConfig.activityChecked) {
-              let product_id = resJSON.data && resJSON.data.product_id
               let sellActive = this.sellActiveSetting.find(item => item.platform_mall_id === mall.platform_mall_id)
               if (sellActive.goodsId) {
                 const params = {
@@ -1776,18 +1846,18 @@ export default {
                   const discount_model_list = []
                   detailRes.data.model_list.forEach(i => {
                     const obj = {
-                      discount : Math.floor(100 - sellActive.discount),
+                      discount: Math.floor(100 - sellActive.discount),
                       itemid: product_id,
-                      model_name : i.name,
+                      model_name: i.name,
                       modelid: i.id,
-                      price_before_discount : Number(i.price),
-                      promotion_price :  (i.price * sellActive.discount / 100).toFixed(2),
-                      promotionid : sellActive.discountId,
+                      price_before_discount: Number(i.price),
+                      promotion_price: (i.price * sellActive.discount / 100).toFixed(2),
+                      promotionid: sellActive.discountId,
                       selected: true,
                       shopid: Number(item.platform_mall_id),
                       status: 1,
                       total_item_limit: 0,
-                      user_item_limit : sellActive.number,
+                      user_item_limit: sellActive.number
                     }
                     discount_model_list.push(obj)
                   })
@@ -1801,12 +1871,13 @@ export default {
               }
             }
           } else {
-            this.updateAttributeName(item, '发布失败')
+            let meg = this.$filters.errorMsg(resJSON.data)
+            this.updateAttributeName(item, meg)
           }
         }
       } catch (e) {
         console.log(e)
-        errorItem && this.updateAttributeName(errorItem, '发布失败，数据或请求异常')
+        errorItem && this.updateAttributeName(errorItem, messageName || '发布失败，数据或请求异常')
       } finally {
         --count.count
       }
@@ -1838,14 +1909,18 @@ export default {
                 let isDescription = goods['description'].includes(i)
                 let isSKU = skuJson.search('"options":".*(' + i + ').*",')
                 let success = false
-                if (keyFilter === 0 && (isName || isDescription || isSKU)) {
+                if (keyFilter.includes(0) && (isName || isDescription || isSKU)) {
                   success = true
-                } else if (keyFilter === 1 && isName) {
-                  success = true
-                } else if (keyFilter === 2 && isDescription) {
-                  success = true
-                } else if (keyFilter === 3 && isSKU) {
-                  success = true
+                }else {
+                  if (keyFilter.includes(1) && isName) {
+                    success = true
+                  }
+                  if (keyFilter.includes(2) && isDescription) {
+                    success = true
+                  }
+                  if (keyFilter.includes(3) && isSKU) {
+                    success = true
+                  }
                 }
                 success && this.updateAttributeName(goods, '关键词过滤成功')
                 success && resolve(false)
@@ -2009,7 +2084,7 @@ export default {
     },
     getValuationPrice(price, data, setting = null) {
       price = price * 1
-      if (this.basicConfig.valuationRadio === 1) {
+      if (this.valuationRadio === 1) {
         let addPrice = (price * this.basicConfig.formula.percentage / 100).toFixed(2)
         let newPrice = addPrice * 1 + this.basicConfig.formula.hidden * 1 + this.basicConfig.formula.basis * 1
         newPrice = (price + newPrice * this.basicConfig.discount / 100).toFixed(2)
@@ -2017,7 +2092,7 @@ export default {
           newPrice = Math.ceil(newPrice)
         }
         return newPrice
-      } else if (this.basicConfig.valuationRadio === 2) {
+      } else if (this.valuationRadio === 2) {
         setting = setting || this.valuationSetting
         if (setting && setting.bubbleHeavy >= 0) {
           let long = data.long || data.length
@@ -2056,7 +2131,7 @@ export default {
           return 0
         }
 
-      } else if (this.basicConfig.valuationRadio === 3) {
+      } else if (this.valuationRadio === 3) {
         return this.basicConfig.fixedPrice
       }
     },
@@ -2117,8 +2192,8 @@ export default {
     //-------------以上为上新操作---------------------
     changeStockUpNumber(data, type) {
       if (type === 1) {
-        data = data < 7 && 7 || data
-        data = data > 30 && 30 || data
+        data = data < this.preorderMinDays && this.preorderMinDays || data
+        data = data > this.preorderMaxDays && this.preorderMaxDays || data
         this.basicConfig.stockUpNumber = data
       } else if (type === 2) {
         data = data < 1 && 1 || data
@@ -2170,11 +2245,20 @@ export default {
       }
       this.calculateResults.results = this.getValuationPrice(calculate.costing, calculate, setting)
     },
-    goToGoods(item) {
-      let extra_info = item.extra_info && JSON.parse(item.extra_info) || {}
-      let temp = Object.assign({ productId: item.goods_id }, extra_info)
-      let goods = getGoodsUrl(item.source, temp)
-      this.$BaseUtilService.openUrl(goods.url)
+    goToGoods(item,type) {
+      if(type){
+        try {
+          const url = this.$filters.countryShopeebuyCom(item.country)
+          this.$BaseUtilService.openUrl(`${url}/product/${item.mallId}/${item.product_id}`)
+        } catch (error) {
+          this.$message.error(`打开失败`)
+        }
+      }else{
+        let extra_info = item.extra_info && JSON.parse(item.extra_info) || {}
+        let temp = Object.assign({ productId: item.goods_id }, extra_info)
+        let goods = getGoodsUrl(item.source, temp)
+        this.$BaseUtilService.openUrl(goods.url)
+      }
     },
     async enterCategory(type = 0, row = null) {
       console.log(this.mallList)
@@ -2237,9 +2321,12 @@ export default {
       this.goodsTagVisible = true
     },
     goodsTagChange(val) {
-      console.log('goodsTagChange', val)
       if (val) {
-
+        this.goodsTableSelect.forEach(item=>{
+          let label_name = val.category && val.category.label_name
+          this.updateAttributeName(item,label_name,'sys_label_name')
+        })
+        this.$message.success('商品标签修改成功')
       }
       this.goodsTagVisible = false
     },
@@ -2424,6 +2511,41 @@ export default {
     },
     handleSelectionChange(val) {
       this.goodsTableSelect = val || []
+    },
+    deleteGoodsList(isAll){
+      if (isAll){
+        this.goodsTable = []
+      }else{
+        if(this.goodsTableSelect.length > 0){
+          this.goodsTableSelect.forEach(item=>{
+            let index = this.goodsTable.findIndex(son=>son.id === item.id)
+            this.goodsTable.splice(index,1)
+          })
+        }else{
+          this.$message.error('请选择一个商品')
+        }
+      }
+    },
+    copy(str) {
+      copyText(str)
+    },
+    keyFilterChange(type){
+      console.log(type)
+      if(type){
+        if(this.associatedConfig.keyFilter.includes(0)){
+          this.associatedConfig.keyFilter = [0,1,2,3]
+        }else{
+          this.associatedConfig.keyFilter = []
+        }
+      }else{
+        if(this.associatedConfig.keyFilter.includes(0)){
+          this.associatedConfig.keyFilter.splice(0,1)
+        }else{
+          if(this.associatedConfig.keyFilter.length === 3){
+            this.associatedConfig.keyFilter = [0,1,2,3]
+          }
+        }
+      }
     }
   }
 }

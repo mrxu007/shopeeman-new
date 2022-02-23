@@ -628,6 +628,7 @@ export default class CommodityService {
    parentCategoryTree：类目id父级集合
    */
   getBlackCategory(data) {
+    console.log(JSON.stringify(data))
     return this.nativeService.callCategoryFunction('GetCategoryBlackList', JSON.stringify(data))
   }
 

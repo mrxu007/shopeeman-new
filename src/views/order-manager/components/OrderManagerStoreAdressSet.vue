@@ -572,14 +572,14 @@ export default {
     // 绑定店铺、申请仓库的店铺列表
     async getBindMall() {
       this.warehouseLoading = true
-      const groupIds = []
+      const groupIds = new Set()
       this.mallList.forEach((item) => {
-        groupIds.push(item.group_id)
+        groupIds.add(item.group_id)
       })
       const params = {
         id: this.sysWarehouseId,
-        country: this.mallList.country,
-        groupIds: groupIds.toString(),
+        country: this.mallList.country || '',
+        groupIds: [...groupIds].toString(),
       }
       console.log(params, '-----------')
       const res = await this.AddressSet.getBindMall(params)
