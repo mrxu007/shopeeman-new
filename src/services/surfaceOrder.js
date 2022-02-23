@@ -58,12 +58,17 @@ export default class {
         if (!arrFilter.length) {
           return this.writeLog(`【自动同步物流-面单】，终止-目前没有要同步的订单！`, false)
         }
-        arrFilter.forEach(async (order, i) => {
-          this.autoMainFlow(order)
-          if (i == arrFilter.length - 1) {
-            this.writeLog(`自动同步物流-面单完成`, true)
-          }
-        })
+        this.writeLog(`一共获取到需要自动同步的订单${arrFilter.length}条`, true)
+        for(let i=0;i<arrFilter.length;i++){
+          await this.autoMainFlow(order)
+        }
+        this.writeLog(`自动同步物流-面单完成`, true)
+        // arrFilter.forEach(async (order, i) => {
+        //   this.autoMainFlow(order)
+        //   if (i == arrFilter.length - 1) {
+        //     this.writeLog(`自动同步物流-面单完成`, true)
+        //   }
+        // })
       } else {
         this.writeLog('【自动同步物流-面单】，终止-获取待同步物流订单数据失败', false)
       }
