@@ -5,7 +5,7 @@
         <div class="basisInstall">
           <div class="basisInstall-title">店铺设置</div>
           <storeChoose @changeMallList="changeMallList" :spanWidth="'60px'" :source="'true'" :is-reset="true"
-                       style="margin-bottom: 5px;"></storeChoose>
+                       style="margin-bottom: 5px;" :is-ban-perform="isBanPerform"></storeChoose>
           <div class="basisInstall-box" style="flex-wrap: nowrap">
             <div>物流设置：</div>
             <div>
@@ -270,8 +270,7 @@
           <div class="basisInstall-box">
             <div class="keepRight">上新时间间隔：</div>
             <el-input size="mini" v-model="associatedConfig.onNewInterval"
-                      style="width: 120px;margin-right: 5px;"></el-input>
-            S
+                      style="width: 120px;margin-right: 5px;"></el-input>S
             <el-tooltip class="item" effect="dark" content="默认印尼站点上新时间间隔为50S，其他站点为40S" placement="top">
               <el-button size="mini" type="text"><i class="el-icon-question" style="padding: 0 2px;"></i></el-button>
             </el-tooltip>
@@ -342,8 +341,13 @@
           <div class="basisInstall-box">
             <div class="keepRight">关键词过滤：</div>
             <div>
-              <el-select v-model="associatedConfig.keyFilter" size="mini" style="width: 120px;">
+              <el-select v-model="associatedConfig.keyFilter"
+                         multiple
+                         collapse-tags
+                         size="mini" style="width: 180px;">
+                <el-option label="全部" :value="0" @click.native="keyFilterChange(1)"></el-option>
                 <el-option
+                    @click.native="keyFilterChange()"
                     v-for="item in keyFilterList"
                     :key="item.value"
                     :label="item.label"
@@ -453,7 +457,7 @@
       </u-table-column>
       <u-table-column align="left" label="shopee-Id" width="130">
         <template slot-scope="{ row }">
-          <span class="goToGoods">{{ row.product_id || '' }}</span>
+          <span class="goToGoods" @click.stop="goToGoods(row,1)">{{ row.product_id || '' }}</span>
           <el-button v-if="row.product_id" type="text" class="copyIcon" @click="copy(row.product_id)">
             <i class="el-icon-document-copy"/></el-button>
         </template>
@@ -469,7 +473,7 @@
         <template slot-scope="{ row }">{{ row.mallName || '' }}
         </template>
       </u-table-column>
-      <u-table-column align="left" label="状态" min-width="80">
+      <u-table-column align="left" label="状态" width="80">
         <template slot-scope="{ row }">
           <div class="goodsTableLine">
             {{ row.statusName }}
@@ -1181,17 +1185,13 @@ export default {
           whiteChecked: false,
           index: '1',
           compressionChecked: true
-        }, //图片设置
+        }, //图片设置s
         missingUploadChecked: false, //图片缺失上传
-        keyFilter: 0, //关键词过滤 0全部 1标题 2描述 3SKU
+        keyFilter: [0,1,2,3], //关键词过滤 0全部 1标题 2描述 3SKU
         keyList: '',
         priceRange: '2'
       },
       keyFilterList: [
-        {
-          label: '全部',
-          value: 0
-        },
         {
           label: '标题',
           value: 1
@@ -1493,8 +1493,10 @@ export default {
     },
     async prepareWork(mall, count = { count: 1 }) {
       let errorItem = null
+      let messageName = ''
       try {
         let mallName = mall.mall_alias_name || mall.platform_mall_name
+        let mallId = mall.platform_mall_id
         let goodsList = []
         let logistics_channels = []
         let loginRes = await this.mallListAPIInstance.getUserInfo(mall)
@@ -1547,8 +1549,9 @@ export default {
           }
           errorItem = item
           this.updateAttributeName(item, '正在准备发布')
+          this.updateAttributeName(item, mallName, 'mallName')
           if (!loginSuccess) {
-            this.updateAttributeName(item, `${mallName}店铺未登录发布失败`)
+            this.updateAttributeName(item, `发布失败：${mallName}店铺未登录`)
             continue
           }
           let goodsInitParam = {
@@ -1582,6 +1585,15 @@ export default {
           let originCategoryId = item.originCategoryId || item.category_id
           let platformId = item.platform || item.source
           // attributes brand_id category_path
+          this.updateAttributeName(item, '正在抓取产品')
+          let neededTranslateInfoJson = await this.$commodityService.getSpuDetailByIdV2(item.id)
+          let neededTranslateInfoRes = JSON.parse(neededTranslateInfoJson)
+          let neededTranslateInfoData = neededTranslateInfoRes.data
+          if(neededTranslateInfoRes.code != 200){
+            messageName = neededTranslateInfoRes.msg || ''
+          }
+          let goodsParam = JSON.parse(JSON.stringify(goodsInitParam))
+          this.updateAttributeName(item, '正在匹配类目')
           let categoryRelationJson = await this.$commodityService.getCategoryRelation(originCategoryId, this.country, platformId)
           let categoryRelationRes = JSON.parse(categoryRelationJson)
           let categoryId = categoryRelationRes?.data?.category?.platform_category_id || ''
@@ -1607,11 +1619,7 @@ export default {
             this.updateAttributeName(item, '无类目映射，请选择类目')
             continue
           }
-          let neededTranslateInfoJson = await this.$commodityService.getSpuDetailByIdV2(item.id)
-          let neededTranslateInfoData = JSON.parse(neededTranslateInfoJson) && JSON.parse(neededTranslateInfoJson).data
-          let goodsParam = JSON.parse(JSON.stringify(goodsInitParam))
-          this.updateAttributeName(item, mallName, 'mallName')
-          this.updateAttributeName(item, '商品数据组装中')
+          this.updateAttributeName(item, '开始组装商品数据')
           // weight
           if (goodsParam['weight'] == '0') {
             goodsParam['weight'] = getSectionRandom(this.basicConfig.minHeavy, this.basicConfig.maxHeavy, 2) + ''
@@ -1652,7 +1660,7 @@ export default {
           if (this.basicConfig.hotSearch > 0 && hotList[0]) {
             let hotListCount = hotList.length
             for (let i = 0; i < this.basicConfig.hotSearch; i++) {
-              let hotIndex = hotList[Math.floor(Math.random() * hotListCount)] || ''
+              let hotIndex = Math.floor(Math.random() * hotListCount)
               hotStr += hotList[hotIndex] + ' '
             }
             if (this.basicConfig.headlineRadio) {
@@ -1809,6 +1817,8 @@ export default {
             console.log('sellActiveSetting', this.sellActiveSetting)
             let product_id = resJSON.data && resJSON.data.product_id
             this.updateAttributeName(item, product_id, 'product_id')
+            this.updateAttributeName(item, mallId, 'mallId')
+            this.updateAttributeName(item, this.country, 'country')
             if (this.storeConfig.activityChecked) {
               let sellActive = this.sellActiveSetting.find(item => item.platform_mall_id === mall.platform_mall_id)
               if (sellActive.goodsId) {
@@ -1867,7 +1877,7 @@ export default {
         }
       } catch (e) {
         console.log(e)
-        errorItem && this.updateAttributeName(errorItem, '发布失败，数据或请求异常')
+        errorItem && this.updateAttributeName(errorItem, messageName || '发布失败，数据或请求异常')
       } finally {
         --count.count
       }
@@ -1899,14 +1909,18 @@ export default {
                 let isDescription = goods['description'].includes(i)
                 let isSKU = skuJson.search('"options":".*(' + i + ').*",')
                 let success = false
-                if (keyFilter === 0 && (isName || isDescription || isSKU)) {
+                if (keyFilter.includes(0) && (isName || isDescription || isSKU)) {
                   success = true
-                } else if (keyFilter === 1 && isName) {
-                  success = true
-                } else if (keyFilter === 2 && isDescription) {
-                  success = true
-                } else if (keyFilter === 3 && isSKU) {
-                  success = true
+                }else {
+                  if (keyFilter.includes(1) && isName) {
+                    success = true
+                  }
+                  if (keyFilter.includes(2) && isDescription) {
+                    success = true
+                  }
+                  if (keyFilter.includes(3) && isSKU) {
+                    success = true
+                  }
                 }
                 success && this.updateAttributeName(goods, '关键词过滤成功')
                 success && resolve(false)
@@ -2231,11 +2245,20 @@ export default {
       }
       this.calculateResults.results = this.getValuationPrice(calculate.costing, calculate, setting)
     },
-    goToGoods(item) {
-      let extra_info = item.extra_info && JSON.parse(item.extra_info) || {}
-      let temp = Object.assign({ productId: item.goods_id }, extra_info)
-      let goods = getGoodsUrl(item.source, temp)
-      this.$BaseUtilService.openUrl(goods.url)
+    goToGoods(item,type) {
+      if(type){
+        try {
+          const url = this.$filters.countryShopeebuyCom(item.country)
+          this.$BaseUtilService.openUrl(`${url}/product/${item.mallId}/${item.product_id}`)
+        } catch (error) {
+          this.$message.error(`打开失败`)
+        }
+      }else{
+        let extra_info = item.extra_info && JSON.parse(item.extra_info) || {}
+        let temp = Object.assign({ productId: item.goods_id }, extra_info)
+        let goods = getGoodsUrl(item.source, temp)
+        this.$BaseUtilService.openUrl(goods.url)
+      }
     },
     async enterCategory(type = 0, row = null) {
       console.log(this.mallList)
@@ -2298,9 +2321,12 @@ export default {
       this.goodsTagVisible = true
     },
     goodsTagChange(val) {
-      console.log('goodsTagChange', val)
       if (val) {
-
+        this.goodsTableSelect.forEach(item=>{
+          let label_name = val.category && val.category.label_name
+          this.updateAttributeName(item,label_name,'sys_label_name')
+        })
+        this.$message.success('商品标签修改成功')
       }
       this.goodsTagVisible = false
     },
@@ -2502,6 +2528,24 @@ export default {
     },
     copy(str) {
       copyText(str)
+    },
+    keyFilterChange(type){
+      console.log(type)
+      if(type){
+        if(this.associatedConfig.keyFilter.includes(0)){
+          this.associatedConfig.keyFilter = [0,1,2,3]
+        }else{
+          this.associatedConfig.keyFilter = []
+        }
+      }else{
+        if(this.associatedConfig.keyFilter.includes(0)){
+          this.associatedConfig.keyFilter.splice(0,1)
+        }else{
+          if(this.associatedConfig.keyFilter.length === 3){
+            this.associatedConfig.keyFilter = [0,1,2,3]
+          }
+        }
+      }
     }
   }
 }
