@@ -416,6 +416,7 @@
         </div>
         <div style="margin-left: 10px;">发布结果过滤：
           <el-select size="mini" v-model="resultsFilter" style="width: 120px;">
+            <el-option label="全部" value=""></el-option>
             <el-option v-for="(item,index) in resultsFilterList"
                        :key="index"
                        :label="item.label"
@@ -1009,7 +1010,13 @@ export default {
       country: '',  // 店铺站点
       sourceCategoryList: [], //源商品类目
       sourceCategory: [],
-      resultsFilterList: [], //结果过滤
+      resultsFilterList: [
+        { label: '待发布', value: '1' },
+        { label: '发布成功', value: '2' },
+        { label: '发布失败', value: '3' },
+        { label: '重新刊登', value: '4' },
+        { label: '已过滤数据', value: '5' }
+      ], //结果过滤
       resultsFilter: '',
       mewOnProgress: 0,
       isNoFoldShow: true,
@@ -1474,6 +1481,10 @@ export default {
         this.$message.error('请选择商品后再操作')
         return
       }
+      if (this.logistics.length < 1) {
+        this.$message.error('配置物流信息后再操作')
+        return
+      }
       if (this.mallList.length < 1) {
         this.$message.error('请选择店铺后再操作')
         return
@@ -1564,7 +1575,7 @@ export default {
             return
           }
           errorItem = item
-          console.log(item,mall)
+          console.log(item, mall)
           this.updateAttributeName(item, '正在准备发布')
           this.updateAttributeName(item, mallName, 'mallName')
           if (!loginSuccess) {
@@ -1638,28 +1649,27 @@ export default {
             ++this.statistics.failure
             continue
           }
-          if (this.associatedConfig.dimensionRadio < 2){
-            let dimension = this.associatedConfig.dimensionRadio + 1
-            let checkListingRepeatParma = {
-              sysMallId: mall.id+'',
-              platformType: item.source,
-              itemSku: item.goods_id+'',
-              title: item.title,
-              country: this.country,
-              dimension: dimension+''
-            }
-            console.log(checkListingRepeatParma)
-            let checkListingRepeatJson = await this.$commodityService.checkListingRepeat(checkListingRepeatParma)
-            let checkListingRepeatRes = JSON.parse(checkListingRepeatJson)
-            console.log('checkListingRepeat', checkListingRepeatRes)
-            if(checkListingRepeatRes.code === 200){
-              let checkListingRepeatData = checkListingRepeatRes.data
-              let status = checkListingRepeatData.status
-              if (status > 0){
-                this.updateAttributeName(item, '发布失败：此产品已重复上新')
-                ++this.statistics.failure
-                continue
-              }
+          let dimension = 1
+          if (this.associatedConfig.dimensionRadio < 2) {
+            dimension = this.associatedConfig.dimensionRadio + 1
+          }
+          let checkListingRepeatParma = {
+            sysMallId: mall.id + '',
+            platformType: item.source,
+            itemSku: item.goods_id + '',
+            title: item.title,
+            country: this.country,
+            dimension: dimension + ''
+          }
+          let checkListingRepeatJson = await this.$commodityService.checkListingRepeat(checkListingRepeatParma)
+          let checkListingRepeatRes = JSON.parse(checkListingRepeatJson)
+          if (checkListingRepeatRes.code === 200) {
+            let checkListingRepeatData = checkListingRepeatRes.data
+            let status = checkListingRepeatData.status
+            if (status > 0) {
+              this.updateAttributeName(item, '发布失败：此产品已重复上新')
+              ++this.statistics.failure
+              continue
             }
           }
           this.updateAttributeName(item, '开始组装商品数据')
@@ -1722,7 +1732,7 @@ export default {
           }
           goodsParam['name'] = name
           this.updateAttributeName(item, '检测商品数据是否合格')
-          let isFieldFilter = await this.fieldFilter(goodsParam,item)
+          let isFieldFilter = await this.fieldFilter(goodsParam, item)
           if (!isFieldFilter) {
             ++this.statistics.failure
             continue
@@ -1861,18 +1871,19 @@ export default {
           console.log('createProduct', resJSON)
           if (resJSON.code === 200) {
             let product_id = resJSON.data && resJSON.data.product_id
+            ++this.statistics.success
             this.updateAttributeName(item, '发布完成')
             //sysMallId, platformType, itemSku, title, listingId, country, mallId, categoryId, skuDatas
             let saveListingRecordParma = {
-              sysMallId: mall.id+'',
-              platformType: item.source+'',
-              itemSku: item.goods_id+'',
+              sysMallId: mall.id + '',
+              platformType: item.source + '',
+              itemSku: item.goods_id + '',
               title: item.title,
-              listingId: product_id+'',
+              listingId: product_id + '',
               country: this.country,
               mallId: mall.platform_mall_id,
-              categoryId: categoryId+'',
-              skuDatas:''
+              categoryId: categoryId + '',
+              skuDatas: ''
             }
             console.log(saveListingRecordParma)
             let saveListingRecordParmaJson = await this.$commodityService.SaveListingRecord(saveListingRecordParma)
@@ -1892,10 +1903,8 @@ export default {
                 }
                 const res = await this.GoodsManagerAPIInstance.addCollectionGoods(params)
                 if (res.ecode === 0) {
-                  ++this.statistics.success
                   this.$message.success('添加成功')
                 } else {
-                  ++this.statistics.failure
                   this.$message.warning(`添加失败${res.message}`)
                 }
               }
@@ -1934,6 +1943,7 @@ export default {
               }
             }
           } else {
+            ++this.statistics.failure
             let meg = this.$filters.errorMsg(resJSON.data)
             this.updateAttributeName(item, meg)
           }
@@ -1944,13 +1954,13 @@ export default {
       } finally {
         let progress = 100 / this.mallList.length
         let mewOnProgress = (this.mewOnProgress + progress).toFixed(2)
-        mewOnProgress = mewOnProgress<100 && mewOnProgress || 100
+        mewOnProgress = mewOnProgress < 100 && mewOnProgress || 100
         this.mewOnProgress = mewOnProgress * 1
         --count.count
       }
     },
     //标题，描述，sku过滤
-    fieldFilter(goods,goodItem) {
+    fieldFilter(goods, goodItem) {
       return new Promise(async resolve => {
         try {
           let skuJson = JSON.stringify(goods['tier_variation'])
@@ -2013,13 +2023,13 @@ export default {
               let isSKU = skuJson.search('"options":".*(' + i.word + ').*",')
               if ((isName || isDescription || isSKU)) {
                 let mag = []
-                if(isName){
+                if (isName) {
                   mag.push('标题')
                 }
-                if(isDescription){
+                if (isDescription) {
                   mag.push('描述')
                 }
-                if(isSKU){
+                if (isSKU) {
                   mag.push('SKU')
                 }
                 mag = mag.join('、')
@@ -2039,7 +2049,7 @@ export default {
           const categoryJson = await this.$commodityService.getBlackCategory(categoryParams)
           const categoryRes = JSON.parse(categoryJson)
           const categoryData = categoryRes.data && categoryRes.data.data || []
-          console.log('category_path',goods,categoryData)
+          console.log('category_path', goods, categoryData)
           let category_path = goods['category_path'].join('-')
           categoryData.forEach(item => {
             if (item && item.parent_category_tree === category_path) {

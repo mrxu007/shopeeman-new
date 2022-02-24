@@ -24,7 +24,7 @@
                                  @changeMallList="changeMallList"/>
                   </div>
                   <div class="tool-item">
-                    <el-select v-model="selectForm.timeType" placeholder="" size="mini" filterable style="width: 140px">
+                    <el-select v-model="selectForm.timeType" placeholder="" size="mini" filterable style="width: 120px">
                       <el-option v-for="(item, index) in timeTypeList" :key="index" :label="item.label"
                                  :value="item.value"/>
                     </el-select>
@@ -954,6 +954,10 @@
                :close-on-click-modal="false" @close="closeDialog('noRefresh')">
       <image-collection :choose-data="clickRow" :collect-type="collectType" @close="closeDialog('noRefresh')"/>
     </el-dialog>
+    <el-dialog v-if="ordersShipmentVisible" title="批量订单发货" :visible.sync="ordersShipmentVisible" top="5vh" width="1200px"
+               :close-on-click-modal="false" :close-on-press-escape="false">
+      <UploadOrdersShipment :select-mall-list="selectMallList" />
+    </el-dialog>
   </div>
 </template>
 
@@ -979,7 +983,7 @@ import {
   changeShotStatus
 } from '../components/orderCenter/orderCenter'
 import { setGoodsDelist, setGoodsDelete } from './orderCenter/handleGoods'
-import { creatDate, getDaysBetween, dealwithOriginGoodsNum } from '../../../util/util'
+import { creatDate, getDaysBetween, dealwithOriginGoodsNum, importOrder } from '../../../util/util'
 import storeChoose from '../../../components/store-choose'
 import BuyerAccount from './orderCenter/buyer-account.vue'
 import LogisticeSyncService from '../../../services/logistics-sync-service/logistics-sync-service-new-copy'
@@ -993,9 +997,11 @@ import ReplyBuyer from './orderCenter/replyBuyer.vue'
 import SecondSale from './orderCenter/secondSale.vue'
 import ImageCollection from './orderCenter/imageCollection.vue'
 import UploadStoreShipAmount from './orderCenter/uploadStoreShipAmount.vue'
+import UploadOrdersShipment from './orderCenter/uploadOrdersShipment.vue'
 import _ from 'lodash'
 import ShotOrderService from '../../../services/short-order/shot-order-service'
 import orderSync from '../../../services/timeOrder'
+import xlsx from 'xlsx'
 
 export default {
   components: {
@@ -1010,7 +1016,8 @@ export default {
     ExportReport,
     ReplyBuyer,
     SecondSale,
-    ImageCollection
+    ImageCollection,
+    UploadOrdersShipment
   },
   data() {
     return {
@@ -1086,7 +1093,8 @@ export default {
           { title: '批量推送订单至仓库 ', key: 8, type: 'primary' },
           { title: '批量标记颜色', key: 9, type: 'primary', click: 'getColorList' },
           { title: '批量标记海外商品', key: 10, type: 'primary' },
-          { title: '批量添加采购信息', key: 11, type: 'primary', click: 'batchAddBuyInfo' }
+          { title: '批量添加采购信息', key: 11, type: 'primary', click: 'batchAddBuyInfo' },
+          { title: '批量订单发货', key: 12, type: 'primary', click: 'ordersShipmentShow' }
         ]
       },
       selectMallList: [], // 店铺选择
@@ -1155,7 +1163,10 @@ export default {
       orderRemarkNode: '', // shopee备注
       shipLoading: false,
       colorLoading: false,
-      localRamark: ''
+      localRamark: '',
+      ordersShipmentVisible: false,
+      importOrdersShipment: '',
+      ordersShipmentData: [],
     }
   },
   computed: {
@@ -1759,6 +1770,7 @@ export default {
     },
     handleOutOrder(row) {
       this.clickRow = row
+      console.log(this.clickRow)
       this.handOutOrderVisible = true
       this.shippingProof = row.logistics_name
       this.shippingTraceNo = row.tracking_no || ''
@@ -2753,6 +2765,7 @@ export default {
       params['otherTime'] = params['otherTime'] && params['otherTime'].length ? params['otherTime'][0] + ' 00:00:00' + '/' + params['otherTime'][1] + ' 23:59:59' : ''
       params['shotTime'] = params['shotTime'] && params['shotTime'].length ? params['shotTime'][0] + ' 00:00:00' + '/' + params['shotTime'][1] + ' 23:59:59' : ''
       this.tableLoading = true
+      console.log(params)
       const res = await this.$api.getOrderList(params)
       this.tableLoading = false
       try {
@@ -2919,7 +2932,10 @@ export default {
       } else {
         return str
       }
-    }
+    },
+    ordersShipmentShow() {
+      this.ordersShipmentVisible = true
+    },
   }
 }
 </script>
@@ -3271,10 +3287,9 @@ export default {
 
 </style>
 <style lang="less">
-
 .timeFormat {
   .el-range-input {
-    width: 70px!important;
+    width: 70px !important;
   }
 }
 </style>

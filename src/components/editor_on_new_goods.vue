@@ -36,9 +36,6 @@
         <div class="basisInstall-box">
           <el-button style="flex: 1" size="mini" type="primary" @click="batchDealWith(17)">批量删除</el-button>
         </div>
-        <div style="color: red;display: flex; justify-content: space-between;">
-          马来站和菲律宾的部分类目需要设置体积和重量后才能上新
-        </div>
         <el-upload
             v-if="uploadImgAdd"
             v-show="false"
@@ -53,7 +50,7 @@
           <el-button ref="uploadImg" size="mini" type="primary">选择图片</el-button>
         </el-upload>
       </div>
-      <div class="basisInstall width_600" style="padding: 10px 10px 0;">
+      <div class="basisInstall width_600" style="padding: 10px 10px 5px;">
         <div class="basisInstall-title">功能区</div>
         <div class="basisInstall-box" style="color: red">
           <div>温馨提示：</div>
@@ -195,6 +192,9 @@
 <!--            <el-button size="mini" style="margin-left: 5px" @click="joinAliTranslation">账号个人中心</el-button>-->
 <!--          </div>-->
 <!--        </div>-->
+        <div style="color: red;display: flex; justify-content: space-between;margin-top: -5px;">
+          马来站和菲律宾的部分类目需要设置体积和重量后才能上新
+        </div>
       </div>
       <div class="basisInstall" style="padding: 10px;">
         <div class="basisInstall-title">日志区</div>
