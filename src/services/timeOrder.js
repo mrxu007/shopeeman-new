@@ -468,6 +468,10 @@ constructor(mall, syncStatus, that, writeLog) {
       let paramsRufundList = []
       for (let i = 0; i < checkedList.length; i++) {
         let order = checkedList[i]
+        let first_item_return = 1
+        if(order.first_item_return && order.first_item_return === false){
+          first_item_return = 0
+        }
         console.log(order, "upLoadOrders--------------")
         let params = {
           "order_id": order.order_id,
@@ -526,7 +530,8 @@ constructor(mall, syncStatus, that, writeLog) {
           "order_logistics_info": "",
           // "ckeckOrderSnKey": this.getCheckKey(order),
           "checkOrderSnKeyNew": this.getCheckKeyNew(order),
-          "fulfillment_shipping_method": order.fulfillment_shipping_method
+          "fulfillment_shipping_method": order.fulfillment_shipping_method,
+          "first_item_return": first_item_return,//用于标识订单是已完成还是退款成功（默认值为1）
         }
         paramsArr.push(params)
         if (params.return_id) {

@@ -16,10 +16,12 @@ export default class CommodityService {
   delCloudItems(idsList) {
     return this.nativeService.callFunction('DeleteCloudItems', idsList)
   }
+
   /** 获取服务端商品上新记录 */
   getMallAllRecordList(sysMallId) {
     return this.nativeService.callFunction('MallAllList', sysMallId)
   }
+
   /**
    * 新增公司主体(系统)
    * @param {string} uid 主账号ID
@@ -454,6 +456,7 @@ export default class CommodityService {
   descriptionTemplateList(templateType, noDescription) {
     return this.nativeService.callFunction('DescriptionTemplateList', templateType, noDescription)
   }
+
   /**
    * 删除描述模板
    * @param {string} sysMallId
@@ -480,32 +483,19 @@ export default class CommodityService {
   checkListingRepeat(data) {
     // string sysMallId, string platformType, string itemSku, string title, string country, string dimension
     const {
-      sysMallId,
-      platformType,
-      itemSku,
-      title,
-      country,
-      dimension
+      sysMallId, platformType, itemSku, title, country, dimension
     } = data
-    return this.nativeService.callFunction('CheckListingRepeat', sysMallId, platformType, itemSku, title, country, dimension)
+    return this.nativeService.callFunction('CheckListingRepeat', sysMallId, platformType.toString(), itemSku, title, country, dimension)
   }
 
   /**
-   *
+   * 保存上新记录
    * @param {object} data
    */
   SaveListingRecord(data) {
     // long sysMallId, int platformType, string itemSku, string title, string listingId, string country, string mallId, long categoryId, string skuDatas = ""
     const {
-      sysMallId,
-      platformType,
-      itemSku,
-      title,
-      listingId,
-      country,
-      mallId,
-      categoryId,
-      skuDatas
+      sysMallId, platformType, itemSku, title, listingId, country, mallId, categoryId, skuDatas
     } = data
 
     return this.nativeService.callFunction('SaveListingRecord', sysMallId, platformType, itemSku, title, listingId, country, mallId, categoryId, skuDatas)
@@ -551,6 +541,7 @@ export default class CommodityService {
   async getCategoryTbInfo(country, categoryId = '0', isParent = '1', tableType = '') {
     return await this.nativeService.callCategoryFunction('GetCategoryInfo', country, categoryId.toString(), isParent.toString(), tableType)
   }
+
   /**
    * 获取类目属性
    */
@@ -767,12 +758,14 @@ export default class CommodityService {
     // console.log(JSON.stringify(data))
     return this.nativeService.callCategoryFunction('GetCategoryInfo', data[0] + '', data[1] + '', data[2] + '', data[3])
   }
+
   /**
    * 获取产品中心类目
    */
   getCategoryInfo(data) {
     return this.nativeService.callProductCenter('GetCategoryInfo', data.toString())
   }
+
   /**
    * 获取产品中心列表数据
    */
@@ -786,6 +779,7 @@ export default class CommodityService {
   getProductSkuList(data) {
     return this.nativeService.callProductCenter('GetProductSkuList', data.toString())
   }
+
   /**
    * @name : 更新产品中心库存
    * @param  {*}
@@ -795,6 +789,7 @@ export default class CommodityService {
   updateSkuStock(skuId, stock) {
     return this.nativeService.callProductCenter('UpdateSkuStock', skuId.toString(), stock.toString())
   }
+
   delgoods(data) {
     return this.nativeService.callProductCenter('DeleteProduct', data.productId, data.productUid)
   }
@@ -819,6 +814,7 @@ export default class CommodityService {
   getShopeeAddress(platform, type, parant) {
     return this.nativeService.callAddrHelper('GetAddress', platform, type, parant.toString())
   }
+
   // }
 
   /**
@@ -830,6 +826,7 @@ export default class CommodityService {
   async getLazadaOrderDetail(country, cookieStr, orderId) {
     return await this.nativeService.callLazadaService('GetLazadaOrderDetail', country, cookieStr, orderId)
   }
+
   /**
    * @name : 获取订单支付方式
    * @param  {country} 站点
@@ -840,6 +837,7 @@ export default class CommodityService {
   async getLazadaPayMethod(country, cookieStr, orderDetial, shotOrderSn) {
     return await this.nativeService.callLazadaService('GetPayMethod', country, cookieStr, orderDetial, shotOrderSn)
   }
+
   /**
    * @name :
    * @param  {String} sysOrderIds 系统订单id，用逗号隔开
@@ -847,6 +845,7 @@ export default class CommodityService {
   async getSkuRelation(sysOrderIds) {
     return await this.nativeService.callSkuRelationClient('GetBySysOrderIds', sysOrderIds.toString())
   }
+
   /**
    * @name : 保存映射
    * @param  {*}
@@ -877,6 +876,7 @@ export default class CommodityService {
   async saveLogisticsInfo(sysMallId, mallId, trackObj) {
     return await this.nativeService.callOrderAndMallUpload('SaveLogisticsInfo', sysMallId.toString(), mallId.toString(), JSON.stringify(trackObj))
   }
+
   /**
    * @name : 上报平台订单信息
    * @param  {*}
@@ -887,6 +887,7 @@ export default class CommodityService {
   async saveOrder(sysMallId, mallId, orderData) {
     return await this.nativeService.callOrderAndMallUpload('SaveOrder', sysMallId, mallId, JSON.stringify(orderData))
   }
+
   /**
    * @name : 上报售后订单信息
    * @param  {*}
@@ -904,6 +905,7 @@ export default class CommodityService {
   async getSkuRelation(sysOrderIds) {
     return await this.nativeService.callSkuRelationClient('GetBySysOrderIds', sysOrderIds)
   }
+
   /**
    * 保存产品中心列表数据
    */

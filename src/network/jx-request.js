@@ -251,10 +251,8 @@ export default {
   valuationConfigSave: (data) => AppRequest.post('/publishGoodsValuationConfig/save', data), // 计价二标签: 保存
   valuationConfigGetAll: (data) => AppRequest.get('/publishGoodsValuationConfig/getAll', { params: data }), // 计价二标签: 获取所有
   valuationConfigGet: (data) => AppRequest.get('/publishGoodsValuationConfig/get', data), // 计价二标签: 获取
-
-  updateOrderPrintStatus: (data) => AppRequest.post('/order/updateOrderPrintStatus', data), // 标记面单已打印或已下载
-
-  // 海外异常通告
-  overseasStockAbnormal: (data) => AppRequest.get('/overseasStockAbnormal/index', { params: data }) // 海外异常通告
+  publishGoodsConfigGetAll: (data) => AppRequest.get('/publishGoodsConfig/getAll', data), // 一键上新 - 获取所有配置
+  publishGoodsConfigGet: (data) => AppRequest.get('/publishGoodsConfig/get', { params: data }), // 一键上新 - 获取配置
+  publishGoodsConfigSave: (data) => AppRequest.post('/publishGoodsConfig/save', data) // 一键上新 - 保存
 
 }

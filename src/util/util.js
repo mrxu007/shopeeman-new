@@ -1008,7 +1008,7 @@ export function getSectionRandom(minVal, maxVal, fixed = 0) {
   maxVal = (minVal < maxVal && maxVal || minVal) * 1
   const gap = maxVal - minVal
   const random = 1 * (Math.random() * gap).toFixed(fixed)
-  return minVal + random
+  return (minVal + random).toFixed(fixed)
 }
 
 /** *
