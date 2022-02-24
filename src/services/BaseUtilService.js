@@ -11,6 +11,14 @@ export default class BaseUtilService {
     this.nativeService = window['BaseUtilBridgeService']
   }
 
+  /**
+   @param :json
+   @name :params
+   *
+   */
+  updateUserConfig(params) { // 更改用户配置
+    return this.nativeService.updateUserConfig(params)
+  }
   UpdateProxy() { // 清除缓存
     return this.nativeService.updateProxy()
   }
@@ -173,7 +181,7 @@ export default class BaseUtilService {
    * @param jsonStr
    * @returns {*}
    */
-  async saveGoodsTranslation(jsonStr){
+  async saveGoodsTranslation(jsonStr) {
     return this.nativeService.saveGoodsTranslation(jsonStr)
   }
 }
