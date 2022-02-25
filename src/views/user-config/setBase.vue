@@ -31,11 +31,11 @@
         </div>
       </li>
       <!-- row3 -->
-      <!-- <span>&nbsp;颜色标识设置：&nbsp;</span>
+      <span>&nbsp;颜色标识设置：&nbsp;</span>
       <li>
         <label>针对于订单列表和售后列表，对订单进行颜色标识</label>
-        <el-button type="primary" size="mini" style="margin-left:10px">颜色标识设置</el-button>
-      </li> -->
+        <el-button type="primary" size="mini" style="margin-left:10px" @click="setColor">颜色标识设置</el-button>
+      </li>
       <!-- row4 -->
       <span>&nbsp;网页翻译设置&nbsp;</span>
       <li>
@@ -65,6 +65,43 @@
         <el-button type="primary" size="mini" style="margin-left:10px" @click="save()">保存</el-button>
       </li>
     </ul>
+    <!-- 批量标记颜色弹窗 -->
+    <el-dialog
+      title="标记颜色标识"
+      class="dialog-color"
+      width="400px"
+      top="6vh"
+      :close-on-press-escape="false"
+      :close-on-click-modal="false"
+      :visible.sync="colorVisible"
+    >
+      <el-table
+        :header-cell-style="{ background: '#f7fafa' }"
+        :data="colorLogoList"
+        :row-style="{ height: '50px' }"
+        max-height="400"
+      >
+
+        <el-table-column prop="color_name" label="颜色" min-width="100px" align="center">
+          <template v-slot="{row}">
+            <div :style="'width:100px;height:28px;background-color:'+row.color+';margin:0px auto'" />
+          </template>
+        </el-table-column>
+        <el-table-column prop="name" label="标识名称" min-width="150px" align="center">
+          <template v-slot="{row}">
+            <el-input v-model="row.name" size="mini" style="width:120px" />
+          </template>
+        </el-table-column>
+      </el-table>
+      <el-button
+        type="primary"
+        size="mini"
+        style="width: 120px;
+    margin-top: 5px;
+    margin-left: 111px;"
+        @click="updateColor"
+      >保存</el-button>
+    </el-dialog>
   </div>
 </template>
 
@@ -79,6 +116,11 @@ export default {
     return {
       userID: '', // 用户ID
       uid: '', // 用户ID
+
+      // 弹窗
+      colorVisible: false,
+      colorLogoList: [],
+      colorLabelId1: '0', // 标记弹窗选择颜色标识
 
       interTime: '2', // 获取物流单号间隔时间
       isAutoToken: '1', // 是否自定获取
@@ -114,21 +156,63 @@ export default {
       changeIp: '1'
     }
   },
-  created() {
+  mounted() {
     this.getUserinfo()
+    this.getcolorList()
   },
   methods: {
+    // 颜色标识
+    async getcolorList() {
+      const res = await this.$api.getcolorList()
+      if (res.data.code === 200) {
+        this.colorLogoList = res.data.data
+      } else {
+        this.$message.warning(`颜色标识获取失败！${res.data.data.message}`)
+      }
+    },
+    // 颜色修改
+    async updateColor() {
+      const param = {
+        lists: []
+      }
+      this.colorLogoList.forEach(el => {
+        const obj = {
+          id: el.id,
+          color_name: el.color_name,
+          color: el.color,
+          Color: el.color,
+          name: el.name,
+          Name: el.name,
+          status: '1',
+          'IsSelected': false
+        }
+        param.lists.push(obj)
+      })
+      const res = await this.$api.updataColorList(param)
+      if (res.data.code === 200) {
+        this.$message.success('修改成功')
+      } else {
+        this.$message.warning(`修改失败${res.data.data.message}`)
+      }
+    },
+    //
+    setColor() {
+      this.colorVisible = true
+      this.getcolorList()
+    },
     // 初始化用户信息
     getUserinfo() {
       const data = this.userInfo
-      this.userID = data.id // 用户信息
-      this.uid = data.uid // 用户信息
-      this.interTime = data.ori_logistics_interval_time // 获取物流单号间隔时间：
-      this.isAutoToken = data.is_auto_ori_logistics.toString() // 是否自定获取：
-      this.accountZFB = data.pay_account// 支付宝账号：
-      this.psdZFB = data.pay_password // 支付密码：
-      this.setLanguage = data.translate_language// 翻译语言
-      this.changeIp = data.domain_switch.toString() // 域名切换
+      if (data) {
+        this.userID = data.id // 用户信息
+        this.uid = data.uid // 用户信息
+        this.interTime = data.ori_logistics_interval_time // 获取物流单号间隔时间：
+        this.isAutoToken = data.is_auto_ori_logistics.toString() // 是否自定获取：
+        this.accountZFB = data.pay_account// 支付宝账号：
+        this.psdZFB = data.pay_password // 支付密码：
+        this.setLanguage = data.translate_language// 翻译语言
+        this.changeIp = data.domain_switch.toString() // 域名切换
+      }
     },
     async save() {
       if (Number(this.interTime) < 2) {

@@ -5,7 +5,7 @@
       <span>&nbsp; 申请虾皮物流单号设置 &nbsp;</span>
       <li>
         <label style="color:red;margin-bottom:10px;">温馨提示：请谨慎选择（应用于虾皮发货）</label>
-        <el-radio-group v-model="set_AutoApply">
+        <el-radio-group v-model="set_AutoApply" @change="save()">
           <el-radio label="1">开启自动申请</el-radio>
           <el-radio label="2">关闭自动申请</el-radio>
         </el-radio-group>
@@ -16,7 +16,7 @@
         <label style="color:red;margin-bottom:10px;">温馨提示：应用于淘宝</label>
         <div>
           <el-input v-model="taobaoLeave" placeholder="请不要放价格单" type="textarea" :rows="3" size="mini" style="width:400px" />
-          <el-button type="primary" size="mini" style="margin-left:10px">保存</el-button>
+          <el-button type="primary" size="mini" style="margin-left:10px" @change="save()">保存</el-button>
         </div>
         <el-checkbox v-model="checked">淘宝物流同步异常(需要滑块验证)时，启用弹窗验证</el-checkbox>
       </li>
@@ -26,7 +26,7 @@
         <label style="color:red;margin-bottom:10px;">温馨提示：应用于1688拍单</label>
         <div>
           <el-input v-model="aliLeave" placeholder="请不要放价格单" type="textarea" :rows="3" size="mini" style="width:400px" />
-          <el-button type="primary" size="mini" style="margin-left:10px">保存</el-button>
+          <el-button type="primary" size="mini" style="margin-left:10px" @change="save()">保存</el-button>
         </div>
       </li>
       <!-- row4 -->
@@ -35,20 +35,19 @@
         <label style="color:red;margin-bottom:5px;">温馨提示：此设置只针对于自有仓库用户，若拍单发货至系统仓库，请勿取消勾选！</label>
         <label style="color:red;margin-bottom:5px;">温馨提示：由于部分拍单平台的买家姓名不能含有特殊字符，请以实际买家姓名为准！</label>
         <div style="height:8px" />
-        <el-checkbox v-model="orderset_1">拍单时买家姓名自动增加软件用户名称标识（拼多多平台将放在详细地址末尾）</el-checkbox>
-        <el-checkbox v-model="orderset_2">拍单时买家姓名自动增加拍单日期标识（拼多多平台将放在详细地址末尾）</el-checkbox>
-        <el-checkbox v-model="orderset_3">拍单时买家姓名自动增加SPM字样标识（拼多多平台将放在详细地址末尾）</el-checkbox>
-        <el-checkbox v-model="orderset_4">拍单时自动增加买家地址标识</el-checkbox>
-        <el-checkbox v-model="orderset_5">拍单时买家姓名自动增加订单后6位</el-checkbox>
-        <el-checkbox v-model="orderset_6">拍单时买家地址自动增加订单后6位</el-checkbox>
+        <el-checkbox v-model="orderset_1" @change="save()">拍单时买家姓名自动增加软件用户名称标识（拼多多平台将放在详细地址末尾）</el-checkbox>
+        <el-checkbox v-model="orderset_2" @change="save()">拍单时买家姓名自动增加拍单日期标识（拼多多平台将放在详细地址末尾）</el-checkbox>
+        <el-checkbox v-model="orderset_3" @change="save()">拍单时买家姓名自动增加SPM字样标识（拼多多平台将放在详细地址末尾）</el-checkbox>
+        <el-checkbox v-model="orderset_4" @change="save()">拍单时自动增加买家地址标识</el-checkbox>
+        <el-checkbox v-model="orderset_5" @change="save()">拍单时买家姓名自动增加订单后6位</el-checkbox>
+        <el-checkbox v-model="orderset_6" @change="save()">拍单时买家地址自动增加订单后6位</el-checkbox>
 
       </li>
       <!-- row5 -->
       <span>&nbsp; 拼多多拍单 &nbsp;</span>
       <li>
-        <el-checkbox v-model="PDDset_defail">默认使用拼多多快捷拍单</el-checkbox>
-        <el-checkbox v-model="PDDset_other">使用拼多多聚合拍单</el-checkbox>
-
+        <el-checkbox v-model="PDDset_defail" @change="save()">默认使用拼多多快捷拍单</el-checkbox>
+        <el-checkbox v-model="PDDset_other" @change="save()">使用拼多多聚合拍单</el-checkbox>
       </li>
 
     </ul>
@@ -89,8 +88,8 @@ export default {
   methods: {
     // 初始化用户信息
     getUserinfo() {
-      console.log(this.userInfo)
       if (this.userInfo) {
+        console.log(this.userInfo)
         const data = this.userInfo
         this.userID = data.id // 用户信息
         this.uid = data.uid // 用户信息
@@ -126,6 +125,65 @@ export default {
         if (data.pdd_shot_order_set) {
           Number(data.pdd_shot_order_set) === 1 ? this.PDDset_defail = true : this.PDDset_other = true
         }
+      }
+    },
+    async save() {
+      const param = {
+        content: {
+          id: this.userID,
+          uid: this.uid,
+          uuid: 0,
+          isApplyShopeeLogistics: this.set_AutoApply, // 自动申请
+          taobaoLeaveContent: this.taobaoLeave, // 淘宝相关设置
+          isTaobaoAlertCheck: this.checked ? '1' : '2', // 需要滑块验证
+          aliLeaveContent: this.aliLeave, // 1688自定义留言设置
+          shotOrderAddressLabel: '', // 拍单地址标识
+          pddShotOrderSet: '' // 拼多多拍单
+        },
+        type: 3
+      }
+      // 拍单
+      const shotOrderList = []
+      if (this.orderset_1) {
+        shotOrderList.push('1')
+      }
+      if (this.orderset_2) {
+        shotOrderList.push('2')
+      }
+      if (this.orderset_3) {
+        shotOrderList.push('3')
+      }
+      if (this.orderset_4) {
+        shotOrderList.push('4')
+      }
+      if (this.orderset_5) {
+        shotOrderList.push('5')
+      }
+      if (this.orderset_6) {
+        shotOrderList.push('6')
+      }
+      param.content.shotOrderAddressLabel = shotOrderList.toString() || ''
+      // pdd 拍单
+      const pddShotOrderList = []
+      if (this.PDDset_defail) {
+        pddShotOrderList.push('1')
+      }
+      if (this.PDDset_other) {
+        pddShotOrderList.push('2')
+      }
+      param.content.pddShotOrderSet = pddShotOrderList.toString() || ''
+      console.log(JSON.stringify(param))
+      try {
+        const res = await this.$BaseUtilService.updateUserConfig(JSON.stringify(param))
+        if (res) {
+          this.$message.success('信息修改成功！')
+        } else {
+          this.$message.warning('信息修改失败！')
+        }
+        console.log('183', res)
+      } catch (error) {
+        this.$message.warning(`信息修改失败！${error}`)
+        console.log(`185line-${error}`)
       }
     }
   }

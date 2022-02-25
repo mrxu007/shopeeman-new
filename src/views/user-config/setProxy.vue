@@ -103,7 +103,7 @@ export default {
   },
   mounted() {
     this.getUserinfo()
-    this.getAppList()
+    // this.getAppList()
   },
   methods: {
     // 获取applist
@@ -117,13 +117,15 @@ export default {
     },
     // 初始化用户信息
     getUserinfo() {
-      console.log(this.userInfo)
       const data = this.userInfo
-      this.userID = data.id // 用户信息
-      this.uid = data.uid // 用户信息
-      this.selTrans = data.translate_set.toString() // 翻译
-      this.setLanguage = data.language_set === 'zh_CN' ? '1' : '2' // 语言
+      if (data) {
+        console.log(this.userInfo)
+        this.userID = data.id // 用户信息
+        this.uid = data.uid // 用户信息
+        this.selTrans = data.translate_set.toString() // 翻译
+        this.setLanguage = data.language_set === 'zh_CN' ? '1' : '2' // 语言
       // 翻译配置信息---
+      }
     },
     checkApi() {
 

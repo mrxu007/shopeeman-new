@@ -47,6 +47,7 @@ export default {
       const res = await this.$api.userSet()
       if (res.data.code === 200) {
         this.userInfo = res.data.data
+        console.log(this.userInfo)
       } else {
         this.$message.warning(`信息获取失败！${res.data.data.message}`)
       }

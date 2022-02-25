@@ -19,8 +19,8 @@
           <span style="margin-left:-20px">&nbsp;  关注对象 &nbsp;</span>
           <li style="width:450px;margin-left:-20px">
             <el-radio-group v-model="followActor">
-              <el-radio label="1">店铺粉丝</el-radio>
-              <el-radio label="2">店铺评价用户</el-radio>
+              <el-radio label="0">店铺粉丝</el-radio>
+              <el-radio label="1">店铺评价用户</el-radio>
             </el-radio-group>
           </li>
         </ul>
@@ -77,7 +77,7 @@
         </div>
 
       </li>
-      <el-button type="primary" size="mini" style="flex:1;margin-left:200px;width:100px ;">保存</el-button>
+      <el-button type="primary" size="mini" style="flex:1;margin-left:200px;width:100px;" @click="save()">保存</el-button>
     </ul>
     <Logs ref="Logs" v-model="showlog" clear class="logBox" />
   </div>
@@ -99,7 +99,7 @@ export default {
       limitgGoods: '5', // 店铺商品上限
       lastOnline: '1', // 最后活跃时间
 
-      followActor: '1', // 关注对象
+      followActor: '0', // 关注对象
       followNum: '100', // 关注数量
       interTime: '10', // 关注间隔
       market: true, // 不关注订单评价小于等于
@@ -114,10 +114,74 @@ export default {
     }
   },
   mounted() {
-    this.getUserinfo()
+    this.getUserinfo() // 用户信息
   },
   methods: {
-    getUserinfo
+
+    getUserinfo() {
+      if (this.userInfo && this.userInfo.autoAttentionSet) {
+        const data = this.userInfo
+        console.log('124', data)
+        this.userID = data.id // 用户信息
+        this.uid = data.uid // 用户信息
+
+        this.limitgGoods = data.ProductMax // 店铺商品上限
+        this.lastOnline = data.LastLoginDay // 最后活跃时间
+        this.followActor = data.FollowType.toString() // 关注对象
+        this.followNum = data.FollowNumber // 关注数量
+        this.interTime = data.FollowInterval// 关注间隔
+        this.marketNum = data.MinOrderEvaluation // //不关注订单评价小于等于
+        this.market = data.IsNotFollowMinOrderEvaluation // 是否不关注订单评价小于等于最小值的卖家
+        this.followDayNum = data.FollowedDay // 天内关注过的用户
+        this.followDay = data.IsNotFollowFollowedDay // 是否不关注一定天数内已关注的卖家
+        this.cancerFollowNum = data.CancelFollowNumber // 取关数量：
+        this.startAddFence = data.IsOpenTimerBrushFans // 开启定时刷粉
+        this.startTime = data.OpenHour < 10 ? '0' + data.OpenHour : data.OpenHour + data.OpenMinute < 10 ? '0' + data.OpenMinute : data.OpenMinute // 每日启动时间
+        this.followKey = data.KeyWord // 关注关键词
+      }
+    },
+    async save() {
+      const cTime = this.startTime.split(':')
+      const content = {
+        ProductMax: this.limitgGoods, // 店铺商品上限
+        LastLoginDay: this.lastOnline, // 最后活跃时间
+        FollowType: this.followActor, // 关注对象
+        FollowNumber: this.followNum, // 关注数量
+        FollowInterval: this.interTime, // 关注间隔
+        MinOrderEvaluation: this.marketNum, // //不关注订单评价小于等于
+        IsNotFollowMinOrderEvaluation: this.market, //
+        FollowedDay: this.followDayNum, // 天内关注过的用户
+        IsNotFollowFollowedDay: this.followDay, //
+        CancelFollowNumber: this.cancerFollowNum, // 取关数量：
+        IsOpenTimerBrushFans: this.startAddFence, // 开启定时刷粉
+        OpenHour: cTime[0],
+        OpenMinute: cTime[1],
+        KeyWord: this.followKey, // 关注关键词
+        IsNotFollowCrossBorderSeller: false, // 是否不关注跨境卖家
+        CancelFollowSortType: '0' // 取消关注排序
+      }
+      const param = {
+        content: {
+          id: this.userID,
+          uid: this.uid,
+          uuid: 0,
+          autoAttentionSet: JSON.stringify(content)
+        },
+        type: 4
+      }
+      console.log(JSON.stringify(param))
+      try {
+        const res = await this.$BaseUtilService.updateUserConfig(JSON.stringify(param))
+        if (res) {
+          this.$message.success('信息修改成功！')
+        } else {
+          this.$message.warning('信息修改失败！')
+        }
+        console.log('137', res)
+      } catch (error) {
+        console.log(`139line-${error}`)
+      }
+    }
   }
 }
 
