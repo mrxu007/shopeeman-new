@@ -89,8 +89,13 @@ export default {
   components: {
 
   },
+  props: ['userInfo'],
   data() {
     return {
+      userID: '', // 用户ID
+      uid: '', // 用户ID
+
+      showlog: false, // 日志
       limitgGoods: '5', // 店铺商品上限
       lastOnline: '1', // 最后活跃时间
 
@@ -108,11 +113,11 @@ export default {
       followKey: ''// 关注关键词
     }
   },
-  created() {
-
+  mounted() {
+    this.getUserinfo()
   },
   methods: {
-
+    getUserinfo
   }
 }
 

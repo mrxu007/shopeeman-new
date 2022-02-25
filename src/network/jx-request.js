@@ -253,6 +253,8 @@ export default {
   valuationConfigGet: (data) => AppRequest.get('/publishGoodsValuationConfig/get', data), // 计价二标签: 获取
   publishGoodsConfigGetAll: (data) => AppRequest.get('/publishGoodsConfig/getAll', data), // 一键上新 - 获取所有配置
   publishGoodsConfigGet: (data) => AppRequest.get('/publishGoodsConfig/get', { params: data }), // 一键上新 - 获取配置
-  publishGoodsConfigSave: (data) => AppRequest.post('/publishGoodsConfig/save', data) // 一键上新 - 保存
+  publishGoodsConfigSave: (data) => AppRequest.post('/publishGoodsConfig/save', data), // 一键上新 - 保存
 
+  userSet: (data) => AppRequest.get('/userSet/get', { params: data }), // 获取用户基本设置
+  getAppList: (data) => AppRequest.get('/userSet/get', { params: data }) // 获取applist
 }

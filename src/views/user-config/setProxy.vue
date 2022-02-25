@@ -4,7 +4,7 @@
       <!-- row1 -->
       <span>&nbsp;翻译设置&nbsp;</span>
       <li>
-        <el-radio-group v-model="selTrans">
+        <el-radio-group v-model="selTrans" @change="save()">
           <el-radio label="1">阿里翻译（付费翻译，推荐使用0.000085元/字符）</el-radio>
           <el-radio label="2">有道翻译（免费翻译，接口调用频繁容易封IP，只支持英文）</el-radio>
           <el-radio label="3">谷歌翻译</el-radio>
@@ -16,7 +16,7 @@
       <!-- row2 -->
       <span>&nbsp;语言设置&nbsp;</span>
       <li>
-        <el-radio-group v-model="setLanguage">
+        <el-radio-group v-model="setLanguage" @change="save()">
           <el-radio label="1">简体中文</el-radio>
           <el-radio label="2">English</el-radio>
         </el-radio-group>
@@ -55,15 +55,19 @@
             :row-style="{ height: '50px' }"
             max-height="400"
           >
-            <el-table-column prop="warehouse_name" label="APP类别" min-width="100px" align="center" />
-            <el-table-column prop="warehouse_name" label="APPid" min-width="150px" align="center" />
-            <el-table-column prop="warehouse_name" label="APPKey" min-width="150px" align="center" />
-            <el-table-column prop="warehouse_name" label="状态" min-width="80px" align="center" />
-            <el-table-column prop="warehouse_num" label="备注" min-width="100px" align="center" fixed="right" />
-            <el-table-column prop="warehouse_num" label="操作" min-width="100px" align="center" fixed="right">
+            <el-table-column prop="type" label="APP类别" min-width="100px" align="center">
+              <template v-slot="{row}">{{ row.type===1?'百度APP':'必应APP' }}</template>
+            </el-table-column>
+            <el-table-column prop="appid" label="APPid" min-width="150px" align="center" />
+            <el-table-column prop="appkey" label="APPKey" min-width="150px" align="center" />
+            <el-table-column prop="" label="状态" min-width="80px" align="center">
+              <template v-slot="{row}">{{ row.state===1?'正常':'异常' }}</template>
+            </el-table-column>
+            <el-table-column prop="comment" label="备注" min-width="100px" align="center" fixed="right" />
+            <el-table-column prop="" label="操作" min-width="100px" align="center" fixed="right">
               <template> <el-button type="primary" size="mini">重置状态</el-button> </template>
             </el-table-column>
-            <el-table-column prop="warehouse_num" label="删除" min-width="100px" align="center" fixed="right">
+            <el-table-column prop="" label="删除" min-width="100px" align="center" fixed="right">
               <template> <el-button type="primary" size="mini">删除</el-button> </template>
             </el-table-column>
 
@@ -81,24 +85,73 @@ export default {
   components: {
 
   },
+  props: ['userInfo'],
   data() {
     return {
+      userID: '', // 用户ID
+      uid: '', // 用户ID
+
       selTrans: '1',
       setLanguage: '1',
       // 弹窗
-      dialog_compareData: true,
+      dialog_compareData: false,
       typeAPP: '1', // APP类别
       APPid: '', // APPid
       APPKey: '', // APPKey
       tableList: []// 表格
     }
   },
-  created() {
-
+  mounted() {
+    this.getUserinfo()
+    this.getAppList()
   },
   methods: {
+    // 获取applist
+    async getAppList() {
+      const res = await this.$api.getAppList()
+      if (res.status === 1) {
+        this.tableList = res.data
+      } else {
+        this.$message.warning('APP类别获取失败！')
+      }
+    },
+    // 初始化用户信息
+    getUserinfo() {
+      console.log(this.userInfo)
+      const data = this.userInfo
+      this.userID = data.id // 用户信息
+      this.uid = data.uid // 用户信息
+      this.selTrans = data.translate_set.toString() // 翻译
+      this.setLanguage = data.language_set === 'zh_CN' ? '1' : '2' // 语言
+      // 翻译配置信息---
+    },
     checkApi() {
 
+    },
+    async save() {
+      const param = {
+        content: {
+          id: this.userID,
+          uid: this.uid,
+          uuid: 0,
+          ori_logistics_interval_time: this.interTime, // 翻译
+          is_auto_ori_logistics: this.isAutoToken // 语言
+          // api信息
+        },
+        type: 2
+      }
+      console.log(JSON.stringify(param))
+      try {
+        const res = await this.$BaseUtilService.updateUserConfig(JSON.stringify(param))
+        if (res) {
+          this.$message.success('信息修改成功！')
+        } else {
+          this.$message.warning('信息修改失败！')
+        }
+        console.log('137', res)
+      } catch (error) {
+        console.log(`139line-${error}`)
+      }
     }
   }
 }

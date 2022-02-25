@@ -61,16 +61,21 @@ export default {
   components: {
 
   },
+  props: ['userInfo'],
   data() {
     return {
+      userID: '', // 用户ID
+      uid: '', // 用户ID
+
       set_AutoApply: '1', // 开启 关闭自动申请
       taobaoLeave: '', // 淘宝相关设置
+      checked: false, // 滑块验证
       aliLeave: '', // 1688自定义留言设置
       // 拍单标识设置
-      orderset_1: true,
-      orderset_2: true,
-      orderset_3: true,
-      orderset_4: true,
+      orderset_1: false,
+      orderset_2: false,
+      orderset_3: false,
+      orderset_4: false,
       orderset_5: false,
       orderset_6: false,
       // 拼多多拍单
@@ -78,11 +83,51 @@ export default {
       PDDset_other: false // 使用拼多多聚合拍单
     }
   },
-  created() {
-
+  mounted() {
+    this.getUserinfo()
   },
   methods: {
-
+    // 初始化用户信息
+    getUserinfo() {
+      console.log(this.userInfo)
+      if (this.userInfo) {
+        const data = this.userInfo
+        this.userID = data.id // 用户信息
+        this.uid = data.uid // 用户信息
+        this.set_AutoApply = data.is_apply_shopee_logistics.toString() // 申请虾皮物流单号设置
+        this.taobaoLeave = data.taobao_leave_content // 淘宝相关设置
+        this.checked = data.is_taobao_alert_check === 1 // 需要滑块验证
+        this.aliLeave = data.ali_leave_content // 1688自定义留言设置
+        // 拍单设置
+        const orderSetList = data.shot_order_address_label.split(',') || []
+        orderSetList.forEach(el => {
+          switch (el) {
+            case '1':
+              this.orderset_1 = true
+              break
+            case '2':
+              this.orderset_2 = true
+              break
+            case '3':
+              this.orderset_3 = true
+              break
+            case '4':
+              this.orderset_4 = true
+              break
+            case '5':
+              this.orderset_5 = true
+              break
+            case '6':
+              this.orderset_6 = true
+              break
+          }
+        })
+        // 拍单设置
+        if (data.pdd_shot_order_set) {
+          Number(data.pdd_shot_order_set) === 1 ? this.PDDset_defail = true : this.PDDset_other = true
+        }
+      }
+    }
   }
 }
 
