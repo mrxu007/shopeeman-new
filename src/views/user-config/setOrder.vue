@@ -55,7 +55,7 @@
 </template>
 
 <script>
-
+import { waitStart } from '@/util/util'
 export default {
   components: {
 
@@ -82,8 +82,11 @@ export default {
       PDDset_other: false // 使用拼多多聚合拍单
     }
   },
-  mounted() {
-    this.getUserinfo()
+  async mounted() {
+    await waitStart(() => {
+      return this.userInfo && this.userInfo.id
+    })
+    await this.getUserinfo() // 用户信息
   },
   methods: {
     // 初始化用户信息
@@ -91,8 +94,6 @@ export default {
       if (this.userInfo) {
         console.log(this.userInfo)
         const data = this.userInfo
-        this.userID = data.id // 用户信息
-        this.uid = data.uid // 用户信息
         this.set_AutoApply = data.is_apply_shopee_logistics.toString() // 申请虾皮物流单号设置
         this.taobaoLeave = data.taobao_leave_content // 淘宝相关设置
         this.checked = data.is_taobao_alert_check === 1 // 需要滑块验证
@@ -130,9 +131,6 @@ export default {
     async save() {
       const param = {
         content: {
-          id: this.userID,
-          uid: this.uid,
-          uuid: 0,
           isApplyShopeeLogistics: this.set_AutoApply, // 自动申请
           taobaoLeaveContent: this.taobaoLeave, // 淘宝相关设置
           isTaobaoAlertCheck: this.checked ? '1' : '2', // 需要滑块验证
@@ -174,11 +172,11 @@ export default {
       param.content.pddShotOrderSet = pddShotOrderList.toString() || ''
       console.log(JSON.stringify(param))
       try {
-        const res = await this.$BaseUtilService.updateUserConfig(JSON.stringify(param))
-        if (res) {
+        const res = await this.$api.setUserinfo(JSON.stringify(param))
+        if (res.data.code === 200) {
           this.$message.success('信息修改成功！')
         } else {
-          this.$message.warning('信息修改失败！')
+          this.$message.warning(`信息修改失败！${res.data.message}`)
         }
         console.log('183', res)
       } catch (error) {

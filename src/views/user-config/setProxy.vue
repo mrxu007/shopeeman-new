@@ -40,12 +40,12 @@
           </el-select>
 
           <label>APPid：</label>
-          <el-input v-model="APPid" size="mini" style="width:200px" />
+          <el-input v-model="APPid" size="mini" style="width:200px" clearable />
 
           <label>APPKey：</label>
-          <el-input v-model="APPKey" size="mini" style="width:200px" />
+          <el-input v-model="APPKey" size="mini" style="width:200px" clearable />
 
-          <el-button type="primary" size="mini" style="margin-left:10px">添加</el-button>
+          <el-button type="primary" size="mini" style="margin-left:10px" @click="newAddAPP">添加</el-button>
         </div>
 
         <div>
@@ -58,17 +58,17 @@
             <el-table-column prop="type" label="APP类别" min-width="100px" align="center">
               <template v-slot="{row}">{{ row.type===1?'百度APP':'必应APP' }}</template>
             </el-table-column>
-            <el-table-column prop="appid" label="APPid" min-width="150px" align="center" />
-            <el-table-column prop="appkey" label="APPKey" min-width="150px" align="center" />
+            <el-table-column prop="appid" label="appid" min-width="150px" align="center" />
+            <el-table-column prop="appkey" label="appkey" min-width="150px" align="center" />
             <el-table-column prop="" label="状态" min-width="80px" align="center">
               <template v-slot="{row}">{{ row.state===1?'正常':'异常' }}</template>
             </el-table-column>
             <el-table-column prop="comment" label="备注" min-width="100px" align="center" fixed="right" />
             <el-table-column prop="" label="操作" min-width="100px" align="center" fixed="right">
-              <template> <el-button type="primary" size="mini">重置状态</el-button> </template>
+              <template v-slot="{row}"> <el-button type="primary" size="mini" @click="updataAPP(row)">重置状态</el-button> </template>
             </el-table-column>
             <el-table-column prop="" label="删除" min-width="100px" align="center" fixed="right">
-              <template> <el-button type="primary" size="mini">删除</el-button> </template>
+              <template v-slot="{row}"> <el-button type="primary" size="mini" @click="deleteAPP(row)">删除</el-button> </template>
             </el-table-column>
 
           </el-table>
@@ -80,7 +80,7 @@
 </template>
 
 <script>
-
+import { waitStart } from '@/util/util'
 export default {
   components: {
 
@@ -101,9 +101,11 @@ export default {
       tableList: []// 表格
     }
   },
-  mounted() {
-    this.getUserinfo()
-    // this.getAppList()
+  async mounted() {
+    await waitStart(() => {
+      return this.userInfo && this.userInfo.id
+    })
+    await this.getUserinfo() // 用户信息
   },
   methods: {
     // 获取applist
@@ -117,38 +119,81 @@ export default {
     },
     // 初始化用户信息
     getUserinfo() {
-      const data = this.userInfo
-      if (data) {
-        console.log(this.userInfo)
-        this.userID = data.id // 用户信息
-        this.uid = data.uid // 用户信息
-        this.selTrans = data.translate_set.toString() // 翻译
-        this.setLanguage = data.language_set === 'zh_CN' ? '1' : '2' // 语言
-      // 翻译配置信息---
+      console.log(this.userInfo)
+      this.selTrans = this.userInfo.translate_set.toString() // 翻译
+      this.setLanguage = this.userInfo.language_set === 'zh_CN' ? '1' : '2' // 语言
+    },
+    // 翻译--状态重置
+    async updataAPP(val) {
+      const params = {
+        id: val.id,
+        state: val.state
+      }
+      const res = await this.$api.translateAppUpdate(params)
+      if (res.data.code === 200) {
+        this.$message.success('重置成功！')
+      } else {
+        this.$message.warning(`重置失败！${res.data.message}`)
       }
     },
-    checkApi() {
-
+    // 翻译--删除
+    async deleteAPP(val) {
+      const params = {
+        id: val.id
+      }
+      const res = await this.$api.translateAppDelete(params)
+      if (res.data.code === 200) {
+        const index = this.tableList.findIndex(el => { return el.id === val.id })
+        this.tableList.splice(index, 1)
+        this.$message.success('删除成功！')
+      } else {
+        this.$message.warning(`删除失败！${res.data.message}`)
+      }
+    },
+    // 翻译--新增
+    async newAddAPP() {
+      if (!this.APPid || !this.APPKey) {
+        this.$message.warning('请输入添加信息')
+        return
+      }
+      const params = {
+        type: this.typeAPP,
+        appId: this.APPid,
+        appKey: this.APPKey
+      }
+      const res = await this.$api.translateAppAdd(params)
+      if (res.data.code === 200) {
+        this.checkApi()
+      } else {
+        this.$message.warning(`添加失败！${res.data.message}`)
+      }
+    },
+    // 初始化翻译信息
+    async checkApi() {
+      this.dialog_compareData = true
+      const res = await this.$api.translateApp()
+      if (res.data.code === 200) {
+        this.tableList = res.data.data
+        console.log(this.tableList)
+      } else {
+        this.$message.warning(`信息修改失败！${res.data.message}`)
+      }
     },
     async save() {
       const param = {
         content: {
-          id: this.userID,
-          uid: this.uid,
-          uuid: 0,
-          ori_logistics_interval_time: this.interTime, // 翻译
-          is_auto_ori_logistics: this.isAutoToken // 语言
-          // api信息
+          translateSet: this.selTrans, // 翻译
+          languageSet: this.setLanguage === '1' ? 'zh_CN' : 'en_US' // 语言
         },
         type: 2
       }
       console.log(JSON.stringify(param))
       try {
-        const res = await this.$BaseUtilService.updateUserConfig(JSON.stringify(param))
-        if (res) {
+        const res = await this.$api.setUserinfo(JSON.stringify(param))
+        if (res.data.code === 200) {
           this.$message.success('信息修改成功！')
         } else {
-          this.$message.warning('信息修改失败！')
+          this.$message.warning(`信息修改失败！${res.data.message}`)
         }
         console.log('137', res)
       } catch (error) {

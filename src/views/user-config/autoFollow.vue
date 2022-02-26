@@ -34,15 +34,19 @@
           秒
         </div>
         <!--  -->
-        <el-checkbox v-model="market" style="margin-bottom:10px">不关注订单评价小于等于
-          <el-input v-model="marketNum" onkeyup="value=value.replace(/[^\d]/g,0)" style="width:50px" size="mini" />
+        <div>
+          <el-checkbox v-model="market" style="margin-bottom:10px">不关注订单评价小于等于
+          </el-checkbox>
+          <el-input v-model="marketNum" style="width:50px" size="mini" @blur="market=true" />
           的用户
-        </el-checkbox>
+        </div>
         <!--  -->
-        <el-checkbox v-model="followDay">不关注
-          <el-input v-model="followDayNum" onkeyup="value=value.replace(/[^\d]/g,0)" style="width:75px" size="mini" />
+        <div>
+          <el-checkbox v-model="followDay">不关注
+          </el-checkbox>
+          <el-input v-model="followDayNum" onkeyup="value=value.replace(/[^\d]/g,0)" style="width:75px" size="mini" @blur="followDay=true" />
           天内关注过的用户
-        </el-checkbox>
+        </div>
       </li>
       <!-- row3 -->
       <span>&nbsp; 取关设置  &nbsp;</span>
@@ -72,8 +76,8 @@
             size="mini"
           />
           <label style="margin-left:20px">关注关键词：</label>
-          <el-input v-model="followKey" onkeyup="value=value.replace(/[^\d]/g,0)" style="width:50px" size="mini" />
-          <el-checkbox v-model="showlog" style="margin-left:30px">隐藏日志</el-checkbox>
+          <el-input v-model="followKey" style="width:80px" size="mini" />
+          <el-checkbox v-model="showlog" style="margin-left:8px">隐藏日志</el-checkbox>
         </div>
 
       </li>
@@ -84,7 +88,7 @@
 </template>
 
 <script>
-
+import { waitStart } from '@/util/util'
 export default {
   components: {
 
@@ -113,31 +117,31 @@ export default {
       followKey: ''// 关注关键词
     }
   },
-  mounted() {
-    this.getUserinfo() // 用户信息
+  async mounted() {
+    await waitStart(() => {
+      return this.userInfo && this.userInfo.id
+    })
+    await this.getUserinfo() // 用户信息
   },
   methods: {
-
     getUserinfo() {
-      if (this.userInfo && this.userInfo.autoAttentionSet) {
+      if (this.userInfo && this.userInfo.auto_attention_set) {
         const data = this.userInfo
-        console.log('124', data)
-        this.userID = data.id // 用户信息
-        this.uid = data.uid // 用户信息
-
-        this.limitgGoods = data.ProductMax // 店铺商品上限
-        this.lastOnline = data.LastLoginDay // 最后活跃时间
-        this.followActor = data.FollowType.toString() // 关注对象
-        this.followNum = data.FollowNumber // 关注数量
-        this.interTime = data.FollowInterval// 关注间隔
-        this.marketNum = data.MinOrderEvaluation // //不关注订单评价小于等于
-        this.market = data.IsNotFollowMinOrderEvaluation // 是否不关注订单评价小于等于最小值的卖家
-        this.followDayNum = data.FollowedDay // 天内关注过的用户
-        this.followDay = data.IsNotFollowFollowedDay // 是否不关注一定天数内已关注的卖家
-        this.cancerFollowNum = data.CancelFollowNumber // 取关数量：
-        this.startAddFence = data.IsOpenTimerBrushFans // 开启定时刷粉
-        this.startTime = data.OpenHour < 10 ? '0' + data.OpenHour : data.OpenHour + data.OpenMinute < 10 ? '0' + data.OpenMinute : data.OpenMinute // 每日启动时间
-        this.followKey = data.KeyWord // 关注关键词
+        console.log('124', data.autoAttentionSet)
+        this.limitgGoods = this.userInfo.auto_attention_set.ProductMax // 店铺商品上限
+        this.lastOnline = this.userInfo.auto_attention_set.LastLoginDay // 最后活跃时间
+        this.followActor = this.userInfo.auto_attention_set.FollowType.toString() // 关注对象
+        this.followNum = this.userInfo.auto_attention_set.FollowNumber // 关注数量
+        this.interTime = this.userInfo.auto_attention_set.FollowInterval// 关注间隔
+        this.marketNum = this.userInfo.auto_attention_set.MinOrderEvaluation // //不关注订单评价小于等于
+        this.market = this.userInfo.auto_attention_set.IsNotFollowMinOrderEvaluation // 是否不关注订单评价小于等于最小值的卖家
+        this.followDayNum = this.userInfo.auto_attention_set.FollowedDay // 天内关注过的用户
+        this.followDay = this.userInfo.auto_attention_set.IsNotFollowFollowedDay // 是否不关注一定天数内已关注的卖家
+        this.cancerFollowNum = this.userInfo.auto_attention_set.CancelFollowNumber // 取关数量：
+        this.startAddFence = this.userInfo.auto_attention_set.IsOpenTimerBrushFans // 开启定时刷粉
+        this.startTime = (this.userInfo.auto_attention_set.OpenHour) + ':' + (this.userInfo.auto_attention_set.OpenMinute) // 每日启动时间
+        console.log(this.startTime)
+        this.followKey = this.userInfo.auto_attention_set.KeyWord // 关注关键词
       }
     },
     async save() {
@@ -162,20 +166,17 @@ export default {
       }
       const param = {
         content: {
-          id: this.userID,
-          uid: this.uid,
-          uuid: 0,
           autoAttentionSet: JSON.stringify(content)
         },
         type: 4
       }
       console.log(JSON.stringify(param))
       try {
-        const res = await this.$BaseUtilService.updateUserConfig(JSON.stringify(param))
-        if (res) {
+        const res = await this.$api.setUserinfo(JSON.stringify(param))
+        if (res.data.code === 200) {
           this.$message.success('信息修改成功！')
         } else {
-          this.$message.warning('信息修改失败！')
+          this.$message.warning(`信息修改失败！${res.data.message}`)
         }
         console.log('137', res)
       } catch (error) {

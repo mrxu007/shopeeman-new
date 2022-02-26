@@ -879,6 +879,7 @@ export default {
     },
     // 保存活动
     async  saveActiveInfo() {
+      this.$refs.Logs.writeLog(`活动保存中...请勿重复操作`)
       this.saveActive = false
       if (this.discountType === '0' && (Number(this.addLimit) === 0 || Number(this.addLimit) > 100)) {
         this.$message.warning('请输入加购限制,加购限制范围在1-100')
@@ -999,6 +1000,7 @@ export default {
         for (let i = 0; i < this.selectMallList.length; i++) {
           await this.saveActiveInfoFun(this.selectMallList[i])
         }
+        this.$refs.Logs.writeLog(`活动创建结束`)
       }
     },
     // 保存活动--编辑
@@ -1122,7 +1124,7 @@ export default {
             })
             const res = await this.saveActiveMasterGoods(item)
             if (res.ecode !== 0) {
-              this.$refs.Logs.writeLog(`请求异常,商品添加失败`, true)
+              this.$refs.Logs.writeLog(`1126-请求异常,商品添加失败${res.message}`, false)
             } else {
               const sucList = [] // 添加成功的商品
               res.data.data.main_item_list.forEach(al => {
@@ -1786,12 +1788,13 @@ export default {
           count: 50
         }
         const res = await this.MarketManagerAPIInstance.getAddondealList(params)
+        console.log('1794', res)
         if (res.ecode !== 0) {
           let message = ''
           if (res.message === 'token not found') {
             message = '店铺未登录'
           }
-          this.$refs.Logs.writeLog(`【${item.mall_alias_name || item.platform_mall_name}】数据请求失败,${message || res.message}`, false)
+          this.$refs.Logs.writeLog(`1794-【${item.mall_alias_name || item.platform_mall_name}】数据请求失败,${message || res.message || res.data}`, false)
           return
         }
         let promotionsList = res.ecode === 0 ? res.data.data.add_on_deal_list : []
@@ -1905,6 +1908,8 @@ export default {
       this.disSelect = false// 弹窗多选框可选
       this.$refs.multipleTable.clearSelection()// 清空多选
       // this.clearLog()
+      console.log('1908', this.selectMallList)
+
       this.selectMallList.forEach(el => {
         el.offset = 0
       })

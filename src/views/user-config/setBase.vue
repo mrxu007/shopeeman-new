@@ -102,10 +102,12 @@
         @click="updateColor"
       >保存</el-button>
     </el-dialog>
+
   </div>
 </template>
 
 <script>
+import { waitStart } from '@/util/util'
 
 export default {
   components: {
@@ -120,15 +122,15 @@ export default {
       // 弹窗
       colorVisible: false,
       colorLogoList: [],
-      colorLabelId1: '0', // 标记弹窗选择颜色标识
+      colorLabelId1: '', // 标记弹窗选择颜色标识
 
-      interTime: '2', // 获取物流单号间隔时间
-      isAutoToken: '1', // 是否自定获取
+      interTime: '', // 获取物流单号间隔时间
+      isAutoToken: '', // 是否自定获取
 
       accountZFB: '', // 支付宝账号
       psdZFB: '', // 支付密码
 
-      setLanguage: 'zh-CN',
+      setLanguage: '',
       transLanguage: [ // 翻译语言
         { name: '英文', value: 'en' },
         { name: '繁体', value: 'zh-TW' },
@@ -153,12 +155,15 @@ export default {
         { name: '越南站', value: '0.00027723' },
         { name: '巴西站', value: '1.22500000' }
       ],
-      changeIp: '1'
+      changeIp: ''
     }
   },
-  mounted() {
-    this.getUserinfo()
-    this.getcolorList()
+  async mounted() {
+    await waitStart(() => {
+      return this.userInfo && this.userInfo.id
+    })
+    await this.getUserinfo()
+    await this.getcolorList()
   },
   methods: {
     // 颜色标识
@@ -202,17 +207,15 @@ export default {
     },
     // 初始化用户信息
     getUserinfo() {
-      const data = this.userInfo
-      if (data) {
-        this.userID = data.id // 用户信息
-        this.uid = data.uid // 用户信息
-        this.interTime = data.ori_logistics_interval_time // 获取物流单号间隔时间：
-        this.isAutoToken = data.is_auto_ori_logistics.toString() // 是否自定获取：
-        this.accountZFB = data.pay_account// 支付宝账号：
-        this.psdZFB = data.pay_password // 支付密码：
-        this.setLanguage = data.translate_language// 翻译语言
-        this.changeIp = data.domain_switch.toString() // 域名切换
-      }
+      console.log(this.userInfo)
+      this.userID = this.userInfo.id // 用户信息
+      this.uid = this.userInfo.uid // 用户信息
+      this.interTime = this.userInfo.ori_logistics_interval_time // 获取物流单号间隔时间：
+      this.isAutoToken = this.userInfo.is_auto_ori_logistics.toString() // 是否自定获取：
+      this.accountZFB = this.userInfo.pay_account// 支付宝账号：
+      this.psdZFB = this.userInfo.pay_password // 支付密码：
+      this.setLanguage = this.userInfo.translate_language// 翻译语言
+      this.changeIp = this.userInfo.domain_switch.toString() // 域名切换
     },
     async save() {
       if (Number(this.interTime) < 2) {
@@ -221,25 +224,25 @@ export default {
       }
       const param = {
         content: {
-          id: this.userID,
-          uid: this.uid,
-          uuid: 0,
-          ori_logistics_interval_time: this.interTime, // 获取物流单号间隔时间
-          is_auto_ori_logistics: this.isAutoToken, // 是否自定获取
-          pay_account: this.accountZFB, // 支付宝账号
-          pay_password: this.psdZFB, // 支付密码
-          translate_language: this.setLanguage, // 翻译语言
-          domain_switch: this.changeIp // 域名切换
+          // id: this.userInfo.id,
+          // uid: this.userInfo.uid,
+          // uuid: 0,
+          oriLogisticsIntervalTime: this.interTime, // 获取物流单号间隔时间
+          isAutoOriLogistics: this.isAutoToken, // 是否自定获取
+          payAccount: this.accountZFB, // 支付宝账号
+          payPassword: this.psdZFB, // 支付密码
+          translateLanguage: this.setLanguage, // 翻译语言
+          domainSwitch: this.changeIp // 域名切换
         },
         type: 1
       }
       console.log(JSON.stringify(param))
       try {
-        const res = await this.$BaseUtilService.updateUserConfig(JSON.stringify(param))
-        if (res) {
+        const res = await this.$api.setUserinfo(JSON.stringify(param))
+        if (res.data.code === 200) {
           this.$message.success('信息修改成功！')
         } else {
-          this.$message.warning('信息修改失败！')
+          this.$message.warning(`信息修改失败！${res.data.message}`)
         }
         console.log('137', res)
       } catch (error) {
