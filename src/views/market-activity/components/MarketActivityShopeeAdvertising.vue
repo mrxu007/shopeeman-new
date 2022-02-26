@@ -26,7 +26,7 @@
             <div class="over-view">
               <div class="item">
                 <span>余额</span>
-                <span class="mar-left">{{ totalAnalysisData.balance }}</span>
+                <span class="mar-left">{{ (totalAnalysisData.balance).toFixed(2) }}</span>
               </div>
               <div class="item">
                 <span>浏览数</span>

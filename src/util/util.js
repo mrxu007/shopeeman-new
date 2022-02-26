@@ -1023,7 +1023,9 @@ export function imageCompressionUpload(mall, imageList, that, thread = 3) {
   return new Promise(async(resolve) => {
     const params = []
     imageList.forEach(item => {
-      params.push(Object.assign({ url: item }, mall))
+      if(item){
+        params.push(Object.assign({ url: item }, mall))
+      }
     })
     await batchOperation(params, imageUpload, thread)
     resolve(newImage)
