@@ -1794,7 +1794,7 @@ export default {
           if (res.message === 'token not found') {
             message = '店铺未登录'
           }
-          this.$refs.Logs.writeLog(`1794-【${item.mall_alias_name || item.platform_mall_name}】数据请求失败,${message || res.message || res.data}`, false)
+          this.$refs.Logs.writeLog(`1794-【${item.mall_alias_name || item.platform_mall_name}】数据请求失败,${message || res.message || '操作频繁，请稍后再试'}`, false)
           return
         }
         let promotionsList = res.ecode === 0 ? res.data.data.add_on_deal_list : []
