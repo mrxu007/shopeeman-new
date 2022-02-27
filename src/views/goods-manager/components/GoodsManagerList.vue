@@ -2941,7 +2941,7 @@ export default {
       if (this.deleteId.length > 0) {
         this.$refs.Logs.writeLog(`正在删除云商品库数据...`, true)
         // const res = await this.GoodsList.deleteCollectGoodsInfo(this.deleteId)
-        let deleteList = [...this.deleteId.map(item=>{sysmallId:item})]
+        let deleteList = [...this.deleteId.map(item=>{return {sysmallId:item}})]
         let delL = deleteList.splice(0, 100)
         while (delL.length) {
           console.log('delCloudItems - params',delL)
