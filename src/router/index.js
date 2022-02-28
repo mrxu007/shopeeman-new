@@ -22,13 +22,13 @@ const routes = [
     name: 'data-statistics',
     component: () =>
       import('../views/data-statistics/index.vue')
-  },// 数据统计
+  }, // 数据统计
   {
     path: '/order-manager',
     name: 'order-manager',
     component: () =>
       import('../views/order-manager/index.vue')
-  },// 订单管理
+  }, // 订单管理
   {
     path: '/product-put',
     name: 'product-put',
@@ -46,7 +46,7 @@ const routes = [
     name: 'goods-manager',
     component: () =>
       import('../views/goods-manager/index.vue')
-  },// 商品管理
+  }, // 商品管理
   {
     path: '/market-activity',
     name: 'market-activity',
@@ -64,7 +64,7 @@ const routes = [
     name: 'catch-notice',
     component: () =>
       import('../views/catch-notice/index.vue')
-  },// 异常公告
+  }, // 异常公告
   {
     path: '/personal-center',
     name: 'personal-center',
@@ -112,7 +112,25 @@ const routes = [
     name: '/orderAuto',
     component: () =>
       import('../views/order-manager/components/orderCenter/autoUploadOrder.vue')
-  }
+  },
+  {
+    path: '/customer-service',
+    name: 'customer-service',
+    component: () =>
+      import('../views/customer-service/index.vue')
+  }, // 客服
+  {
+    path: '/history-notice',
+    name: 'history-notice',
+    component: () =>
+      import('../views/history-notice/index.vue')
+  }, // 历史公告
+  {
+    path: '/encyclopedia',
+    name: 'encyclopedia',
+    component: () =>
+      import('../views/encyclopedia/index.vue')
+  } // 百科
 ]
 const originalPush = VueRouter.prototype.push
 
