@@ -11,7 +11,7 @@
         <el-input v-model="form.shotOrderSn" size="mini" class="inputWidth"></el-input>
       </el-form-item>
       <el-form-item label="shopee订单详情链接:">
-        <el-input v-model="shopeeLink" size="mini" class="inputWidth"></el-input>
+        <el-input v-model="shopeeLink" size="mini" class="inputWidth"  type="textarea" :rows="2"></el-input>
       </el-form-item>
       <p style="color: red; margin-bottom: 10px">注:shopee订单详情链接,请在个人中心订单详情页,右键复制当前链接植入</p>
       <el-form-item prop="shotAmountRmb" v-if="dealType === 'single'">
@@ -130,6 +130,16 @@ export default {
       warehouse: {},
       warehouseList: [],
       loading: false,
+      shopeeLinks: {
+        MY: 'https://shopee.com.my',
+        TW: 'https://shopee.tw',
+        VN: 'https://shopee.vn',
+        ID: 'https://shopee.co.id',
+        PH: 'https://shopee.ph',
+        TH: 'https://shopee.co.th',
+        SG: 'https://shopee.sg',
+        BR: 'https://shopee.com.br',
+      },
     }
   },
   props: {
@@ -154,12 +164,18 @@ export default {
     if (this.dealType === 'single') {
       this.form.shotOrderSn = data.shot_order_info.shot_order_sn
       this.form.shotStatus = data.shot_order_info.shot_status
-      this.form.shotAmount = data.shot_order_info.shot_amount_rmb
-      this.form.shotAmountRmb = data.shot_order_info.shot_amount
+      this.form.shotAmount = data.shot_order_info.shot_amount  
+      this.form.shotAmountRmb = data.shot_order_info.shot_amount_rmb   
       this.country = data.country
       this.shotAmount = data.shot_order_info.shot_amount_rmb
-      this.shotAmountRmb = data.shot_order_info.shot_amount
-      console.log(this.shotAmount, this.shotAmountRmb)
+      this.shotAmountRmb = data.shot_order_info.shot_amount   
+      if (this.form.platformId === 11) { 
+        if (data.shot_order_info.buy_account_info && data.shot_order_info.buy_account_info.orderType && data.shot_order_info.buy_account_info.orderId) {
+          this.shopeeLink = `${this.shopeeLinks[data.country]}/user/purchase/order/${data.shot_order_info.buy_account_info.orderId}?type=${data.shot_order_info.buy_account_info.orderType}`
+        } else if (data.shot_order_info.shop_id && data.shot_order_info.buy_account_info.orderId) {
+          this.shopeeLink = `${this.shopeeLinks[data.country]}user/purchase/order/${data.shot_order_info.buy_account_info.orderId}/?shopid=${data.shot_order_info.shop_id}`
+        }
+      }
       console.log('single', data, this.chooseData)
       this.getWareHouse(data.mall_info.platform_mall_id, data.goods_info.ori_platform_id)
     }
@@ -169,7 +185,7 @@ export default {
       console.log(mallId, 'mallId')
       let res = await this.$appConfig.getWarehouseInfo(mallId)
       console.log(JSON.parse(res), '0---')
-      this.warehouseList = (res && JSON.parse(res)) || []
+      this.warehouseList = (res && res !== '{}' && JSON.parse(res)) || []
       console.log(this.warehouseList, 'warehouseList')
       if ([1, 2, 3, 5, 8, 10].indexOf(Number(platformId)) > -1) {
         this.warehouse = this.warehouseList.find((n) => n.type == 0)
@@ -183,13 +199,6 @@ export default {
     async getRate() {
       let info = await window['ConfigBridgeService'].getUserInfo()
       this.rateList = info.ExchangeRates || {}
-      console.log('rateList', this.rateList)
-      // console.log("aa",aa)
-      // const data = await this.$api.exchangeRateList()
-      // if (data.data.code === 200) {
-      //   this.rateList = data.data.data
-      // }
-      // console.log(this.rateList)
     },
     changeAmount() {
       if (this.amountType === 1) {
@@ -201,7 +210,6 @@ export default {
         this.form.shotAmountRmb = (Number(this.shotAmount) * Number(this.rateList[this.country.toUpperCase()])).toFixed(2)
         this.shotAmountRmb = (Number(this.shotAmount) * Number(this.rateList[this.country.toUpperCase()])).toFixed(2)
       }
-      console.log(this.form, 'ooo')
     },
     changePlatform(val) {
       this.form.buyAccountInfo = ''
@@ -209,6 +217,23 @@ export default {
         return item.type == val
       })
       // this.form.buyAccountInfo = JSON.stringify(item)
+    },
+    //处理shopee地址
+    dealWithShopeeLink(link) {
+      let linkInfo = {}
+      let shopidInfo = link.match(/shopid=(\d+)/)
+      if (shopidInfo) {
+        linkInfo['shopId'] = shopidInfo[1]
+      }
+      let strArr = link.split('/')
+      if (strArr.length > 2) {
+        linkInfo['orderId'] = strArr[strArr.length - 2]
+      }
+      let typeInfo = link.match(/type=(\d+)/)
+      if (typeInfo) {
+        linkInfo['orderType'] = typeInfo[1]
+      }
+      return linkInfo
     },
     //batch保存
     async saveBatchSetting() {
@@ -236,16 +261,20 @@ export default {
             params.sysOrderId = order.id
             params.platformId = params.platformId.toString()
             params.shotStatus = params.shotStatus.toString()
-            params.buyAccountInfo = JSON.stringify(obj)
+
+            if (this.form.platformId == 11 && this.shopeeLink === '') {
+              return this.$message.warning('采购链接不能为空')
+            }
             if (this.dealType === 'batch') {
               params.shotAmountRmb = this.shotAmount
             }
             if (this.shopeeLink) {
-              let shopid = this.shopeeLink.match(/shopid=(\d+)/)
-              params.shopid = shopid ? shopid[1] : ''
-              let orderId = this.shopeeLink.match(/orderId=(\d+)/)
-              orderId = orderId ? orderId[1] : ''
+              let linkInfo = this.dealWithShopeeLink(this.shopeeLink)
+              params.shopId = linkInfo.shopId || ''
+              obj['orderId'] = linkInfo.orderId || ''
+              obj['orderType'] = linkInfo.orderType || ''
             }
+            params.buyAccountInfo = JSON.stringify(obj)
             params.markStatus = '0'
             if (this.dealType === 'single') {
               if (!this.warehouse) {
@@ -285,7 +314,7 @@ export default {
   }
 }
 .inputWidth {
-  width: 200px;
+  width: 270px;
 }
 .inputWidthMini {
   width: 80px;
