@@ -2883,6 +2883,7 @@ export default {
       })
     },
     async deleteProduct(item, count = { count: 1 }) {
+      console.log('deleteProduct', item)
       if (this.flag) {
         terminateThread()
         return
@@ -2911,7 +2912,10 @@ export default {
           }
           this.successNum++
           this.batchStatus(item, `删除成功`, true)
-          this.deleteId.push(item.id) // 云端的商品记录
+          let mall = this.selectMallList.find(son=> son.platform_mall_id == item.platform_mall_id)
+          let temp = {}
+          temp[mall.id] = item.productId
+          this.deleteId.push(temp) // 云端的商品记录
           this.rowSelection([], false, item)
         } else {
           if (this.isRefurbishProduct) {
@@ -2941,7 +2945,7 @@ export default {
       if (this.deleteId.length > 0) {
         this.$refs.Logs.writeLog(`正在删除云商品库数据...`, true)
         // const res = await this.GoodsList.deleteCollectGoodsInfo(this.deleteId)
-        let deleteList = [...this.deleteId.map(item=>{return {sysmallId:item}})]
+        let deleteList = [...this.deleteId]
         let delL = deleteList.splice(0, 100)
         while (delL.length) {
           console.log('delCloudItems - params',delL)

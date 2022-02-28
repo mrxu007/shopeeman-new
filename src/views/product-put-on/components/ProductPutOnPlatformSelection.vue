@@ -1224,6 +1224,7 @@ export default {
         this.goodsList.forEach(row => {
           this.$refs.plTable.toggleRowSelection([{ row }])
         })
+        console.log(this.goodsList)
         this.writeLog(`商品链接：共采集：${this.goodsList.length}条`, true)
         this.writeLog(`商品链接采集完毕........`, true)
         this.buttonStatus.start = false
