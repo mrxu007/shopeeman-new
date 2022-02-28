@@ -349,6 +349,7 @@ export default {
           this.$message.error(`${res.message}`)
         }
       } catch (error) {
+        this.$message.warning(`${error}`)
         console.log(`${error}`)
       }
       this.getoverseaswarehouse()
@@ -408,7 +409,7 @@ export default {
       }
       try {
         let data = await this.$XzyNetMessageService.post('xzy.stock.index', parmas)
-        console.log('$XzyNetMessageService',data)
+        // console.log('$XzyNetMessageService', data)
         data = JSON.parse(data)
         const res = JSON.parse(data.data)
         if (res.code !== 200) {
@@ -421,7 +422,7 @@ export default {
             getdata[i].sku_price = getdata[i].sku_price / 100
             // 获取仓库名称
             const wareinfo = await this.$appConfig.getGlobalCacheInfo('overseasWh', Number(getdata[i].wid)) || ''
-            console.log('overseasWh',wareinfo)
+            console.log('overseasWh', wareinfo)
             if (wareinfo && JSON.parse(wareinfo) && JSON.parse(wareinfo).warehouse_name) {
               getdata[i].warehouse_name = JSON.parse(wareinfo).warehouse_name
             } else {
@@ -490,7 +491,7 @@ export default {
               getdata[i].sku_price = getdata[i].sku_price / 100
               // 获取仓库名称
               const wareinfo = await this.$appConfig.getGlobalCacheInfo('overseasWh', Number(getdata[i].wid))
-              if (JSON.parse(wareinfo).warehouse_name) {
+              if (JSON.parse(wareinfo) && JSON.parse(wareinfo).warehouse_name) {
                 getdata[i].warehouse_name = JSON.parse(wareinfo).warehouse_name
               } else {
                 // this.$message.error('仓库名称获取失败')
@@ -501,6 +502,8 @@ export default {
             this.DerivedData(page + 1)
           }
         } catch (error) {
+          this.$message.warning(`${error}`)
+          this.Loading2 = false
           console.log(`${error}`)
         }
       } else {

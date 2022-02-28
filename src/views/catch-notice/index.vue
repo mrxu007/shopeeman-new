@@ -14,6 +14,10 @@
 
     <!-- 仓库公众号绑定 -->
     <main v-if="activeVal === '4'"><CatchNoticeOfficialAccountBind /></main>
+
+    <!-- 海外仓库异常信息 -->
+    <main v-if="activeVal === '5'"><CatchNoticeStoreExceptionOverSea /></main>
+
   </div>
 </template>
 
@@ -23,6 +27,7 @@ import {
   CatchNoticeGetLogisticsOrderNo,
   CatchNoticeOfficialAccountBind,
   CatchNoticeSignForPackage,
+  CatchNoticeStoreExceptionOverSea,
   CatchNoticeStoreExceptionInfo } from './index'
 export default {
   components: {
@@ -30,7 +35,8 @@ export default {
     CatchNoticeGetLogisticsOrderNo,
     CatchNoticeOfficialAccountBind,
     CatchNoticeSignForPackage,
-    CatchNoticeStoreExceptionInfo
+    CatchNoticeStoreExceptionInfo,
+    CatchNoticeStoreExceptionOverSea
   },
   data() {
     return {

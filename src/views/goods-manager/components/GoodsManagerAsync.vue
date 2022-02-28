@@ -274,6 +274,7 @@ export default {
           this.$refs.autoReplyLogs.writeLog(`店铺【${item.mall_alias_name || item.platform_mall_name}】平台暂无商品`, true)
           return
         }
+        console.log('277', array)
         this.$refs.autoReplyLogs.writeLog(`店铺【${item.mall_alias_name || item.platform_mall_name}】平台商品总数${total}个`, true)
         while (array.length) {
           if (this.dataRuning) { // 终止循环---------
@@ -286,7 +287,7 @@ export default {
             const el = array[i]
             await this.decryptShopeeItemSku(el.parent_sku)
             if (this.platformData.platform !== '5' && this.platformData.productId) { // 获取上家IP
-              plantList.push(this.platformData.productId)
+              plantList.push({ homeID: this.platformData.productId, gID: el.id })
             }
           }
           if (array.length < 48) {
@@ -297,6 +298,7 @@ export default {
             array = res.ecode === 0 ? res.data.list : []
           }
         }
+        console.log('300', plantList)
         this.$refs.autoReplyLogs.writeLog(`店铺【${item.mall_alias_name || item.platform_mall_name}】平台数据获取结束`)
         // 获取服务端商品
         let serList = []
@@ -304,6 +306,7 @@ export default {
         const res0 = await this.$commodityService.getMallAllRecordList(item.id.toString())
         if (JSON.parse(res0).code === 200) {
           serList = JSON.parse(res0).code === 200 ? JSON.parse(res0).data.info : []
+          console.log('307', serList) // listing_id 商品id
           if (serList.length) {
             this.$refs.autoReplyLogs.writeLog(`店铺【${item.mall_alias_name || item.platform_mall_name}】服务端商品总数${serList.length}个`, true)
           } else {
@@ -316,29 +319,28 @@ export default {
           return
         }
         this.$refs.autoReplyLogs.writeLog(`店铺【${item.mall_alias_name || item.platform_mall_name}】服务端数据获取结束`)
-        console.log('同步--获取被删除的商品数据')
         // 同步--获取被删除的商品数据
         const delList = []
-        if (!delList.length) {
+        serList.forEach(ol => {
+          const num = plantList.findIndex(el => { return Number(el.homeID) === Number(ol.item_sku) })
+          if (num < 0) {
+            delList.push({ [ol.sys_mall_id.toString()]: ol.item_sku })
+          }
+        })
+        let delL = delList.splice(0, 100)// 一次上限一百
+        console.log('delL', delL)
+        if (!delL.length) {
           this.$set(item, 'endstatus', '已是同步状态')
           this.$refs.autoReplyLogs.writeLog(`店铺【${item.mall_alias_name || item.platform_mall_name}】无需删除，已是同步状态`, true)
           return
         }
-        serList.forEach(ol => {
-          const num = plantList.findIndex(el => { return Number(el) === Number(ol.item_sku) })
-          if (num < 0) {
-            delList.push({ sysmallId: ol.item_sku })
-          }
-        })
-        let delL = delList.splice(0, 100)// 一次上限一百
-        console.log('delList',delList,delL)
         while (delL.length) {
           if (this.dataRuning) { // 终止循环---------
             return
           }
-          console.log('delCloudItems - params',delL)
+          console.log('delCloudItems - params', delL)
           const tes = await this.$commodityService.delCloudItems(JSON.stringify(delL))
-          console.log('delCloudItems',tes)
+          console.log('delCloudItems', tes)
           const jsontes = JSON.parse(tes)
           if (jsontes.code === 200) {
             this.$set(item, 'endstatus', `同步成功，同步成功数：${delL.length}`)
