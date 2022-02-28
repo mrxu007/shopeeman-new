@@ -236,6 +236,13 @@ export default {
       flagBool: false,
     }
   },
+  watch:{
+    orderInfo:{
+      handler(val) {
+      },
+      deep: true
+    }
+  },
   mounted() {
     this.exchangeRateList()
     // this.chooseData = this.uniqueArr(this.chooseData)
@@ -302,8 +309,7 @@ export default {
             } else {
               this.placeOrder()
             }
-          })
-          .catch(() => {
+          }).catch(() => {
             this.$message({
               type: 'info',
               message: '已取消出库',
@@ -362,6 +368,7 @@ export default {
         sku_list: list,
       }
       let res = await this.$api.outOfStockAbroad(params)
+      await this.saveStockSkuId()
       if (res.data.code === 200) {
         this.$message.success('下单成功')
         this.flagText = '出库成功'
@@ -544,6 +551,9 @@ export default {
         console.log(this.income, this.orderInfo.country, this.rateList, Number(this.rateList[this.orderInfo.country]))
         this.incomeRmb = this.income * Number(this.rateList[this.orderInfo.country])
       }
+      if (this.outStoreType === 3 || this.outStoreType === '3'){
+        this.getStockSkuId()
+      }
       console.log(data, '')
     },
     goNext() {
@@ -575,6 +585,44 @@ export default {
       this.flagText = ''
     },
     changeOrderStatus,
+    async getStockSkuId(){
+      return
+      console.log('orderList',this.orderList)
+      for (let i=0;i<this.orderList.length;i++){
+        let item = this.orderList[i]
+        let params = {
+          platformSkuId : item.variation_id
+        }
+        let stockSkuIdRes = await this.$api.getStockSkuId(params)
+        console.log('getStockSkuId',stockSkuIdRes)
+        if(stockSkuIdRes.data && stockSkuIdRes.data.code === 200){
+          let stockSkuIdData = stockSkuIdRes.data && stockSkuIdRes.data.data
+          if (stockSkuIdData){
+            let matchOrder = stockSkuIdData.data && stockSkuIdData.data[0]
+            let order = this.orderList.find(son=>son.variation_id === item.variation_id)
+            if (matchOrder && order){
+              this.matchOrderList.push(Object.assign(matchOrder,{orderSn:order.order_sn}))
+            }
+          }
+        }
+      }
+    },
+    async saveStockSkuId(){
+      console.log('matchOrderList',this.matchOrderList)
+      for (const item of this.matchOrderList) {
+        if(!item.shared_id && !item.isGift){
+          let index = this.orderList.findIndex(son=>son.order_sn === item.orderSn)
+          let order = this.orderList[index]
+          let params = {
+            platformSkuId : order.variation_id,
+            stockSkuId : item.sys_sku_id,
+          }
+          console.log('uploadStockSkuId - params',params)
+          let res = await this.$api.uploadStockSkuId(params)
+          console.log('uploadStockSkuId',res)
+        }
+      }
+    }
   },
 }
 </script>

@@ -49,6 +49,9 @@ i.close-right{
   position: absolute;
   right: 5px;
 }
+.el-dialog {
+  margin-bottom: 10px;
+}
 </style>
 <script>
 import './assets/css/reset.css'

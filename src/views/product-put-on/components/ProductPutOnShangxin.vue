@@ -347,13 +347,10 @@
           <div class="basisInstall-box">
             <div class="keepRight">关键词过滤：</div>
             <div>
-              <el-select v-model="associatedConfig.keyFilter"
-                         multiple
-                         collapse-tags
-                         size="mini" style="width: 180px;">
-                <el-option label="全部" :value="0" @click.native="keyFilterChange(1)"></el-option>
+              <el-select v-model="associatedConfig.keyFilter" multiple collapse-tags size="mini" style="width: 180px;">
+                <el-option label="全部" :value="0" @click.native="keyFilterChange(1,true)"></el-option>
                 <el-option
-                    @click.native="keyFilterChange()"
+                    @click.native="keyFilterChange(1)"
                     v-for="item in keyFilterList"
                     :key="item.value"
                     :label="item.label"
@@ -407,22 +404,20 @@
         </el-button>
         <el-button size="mini" type="primary" :disabled="isBanPerform">清理类目缓存</el-button>
         <div style="margin-left: 10px;">源商品类目：
-          <el-select size="mini" v-model="sourceCategory" style="width: 120px;">
-            <el-option v-for="(item,index) in sourceCategoryList"
-                       :key="index"
-                       :label="item.label"
-                       :value="item.value"></el-option>
+          <el-select v-model="sourceCategory" multiple collapse-tags filterable size="mini" class="source-category">
+            <el-option label="全部" :value="0" @click.native="keyFilterChange(2,true)"/>
+            <el-option v-for="(item,index) in sourceCategoryList" :key="index" @click.native="keyFilterChange(2)"
+                       :label="item" :value="item"/>
           </el-select>
         </div>
         <div style="margin-left: 10px;">发布结果过滤：
           <el-select size="mini" v-model="resultsFilter" style="width: 120px;">
-            <el-option v-for="(item,index) in resultsFilterList"
-                       :key="index"
-                       :label="item.label"
-                       :value="item.value"></el-option>
+            <el-option v-for="(item,index) in resultsFilterList" :key="index" :label="item.label" :value="item.value"/>
           </el-select>
         </div>
-        <el-button size="mini" type="primary" style="margin-left: 10px;" :disabled="isBanPerform">查询</el-button>
+        <el-button size="mini" type="primary" @click="queryGoodsTable()" style="margin-left: 10px;"
+                   :disabled="isBanPerform">查询
+        </el-button>
         <el-button size="mini" type="primary" @click="deleteGoodsList()" :disabled="isBanPerform">删除</el-button>
         <div style="margin-left: 10px;display: flex;align-items: center">
           <span>上新进度：</span>
@@ -436,14 +431,14 @@
              use-virtual :data-changes-scroll-top="false"
              :header-cell-style="{backgroundColor: '#f5f7fa',}"
              row-key="id" :border="false" :big-data-checkbox="true"
-             :height="isNoFoldShow && 320 || 729">
+             :height="isNoFoldShow && (associatedConfig.dimensionRadio === 2 && 321 || 320) || 729">
       <u-table-column align="left" type="selection" width="50"/>
       <u-table-column align="left" label="序列号" type="index" width="60">
         <template slot-scope="scope">
           {{ scope.$index + 1 }}
         </template>
       </u-table-column>
-      <u-table-column align="center" label="商品主图" width="80">
+      <u-table-column align="left" label="商品主图" width="80">
         <template slot-scope="{ row }">
           <el-tooltip effect="light" placement="right-end" :visible-arrow="false" :enterable="false"
                       style="width: 56px; height: 56px; display: inline-block">
@@ -454,28 +449,28 @@
           </el-tooltip>
         </template>
       </u-table-column>
-      <u-table-column align="center" label="上家商品Id" width="130">
+      <u-table-column align="left" label="上家商品Id" width="126">
         <template v-slot="{ row }">
           <span class="goToGoods" @click.stop="goToGoods(row)">{{ row.goods_id }}</span>
           <el-button type="text" class="copyIcon" @click="copy(row.goods_id)">
             <i class="el-icon-document-copy"/></el-button>
         </template>
       </u-table-column>
-      <u-table-column align="left" label="shopee-Id" width="130">
+      <u-table-column align="left" label="shopee-Id" width="126">
         <template slot-scope="{ row }">
           <span class="goToGoods" @click.stop="goToGoods(row,1)">{{ row.product_id || '' }}</span>
           <el-button v-if="row.product_id" type="text" class="copyIcon" @click="copy(row.product_id)">
             <i class="el-icon-document-copy"/></el-button>
         </template>
       </u-table-column>
-      <u-table-column align="left" label="标题" min-width="120">
+      <u-table-column align="left" label="标题" min-width="100">
         <template slot-scope="{ row }">
           <div class="goodsTableLine">
             {{ row.title }}
           </div>
         </template>
       </u-table-column>
-      <u-table-column align="left" label="店铺" width="120">
+      <u-table-column align="left" label="店铺" width="110">
         <template slot-scope="{ row }">{{ row.mallName || '' }}
         </template>
       </u-table-column>
@@ -486,11 +481,18 @@
           </div>
         </template>
       </u-table-column>
-      <u-table-column align="left" label="源平台类目" prop="category_name" width="120" show-overflow-tooltip/>
-      <u-table-column align="left" label="shopee类目" show-overflow-tooltip prop="categoryName" width="120">
+      <u-table-column align="left" label="源平台类目" prop="category_name" width="114" show-overflow-tooltip/>
+      <u-table-column align="left" label="shopee类目" show-overflow-tooltip prop="categoryName" width="114">
         <template slot-scope="scope">
           <el-button type="text" @click="enterCategory(0,scope.row)">
             {{ scope.row.categoryName || '请选择类目' }}
+          </el-button>
+        </template>
+      </u-table-column>
+      <u-table-column v-if="associatedConfig.dimensionRadio === 2" align="left" label="上新状态" width="80">
+        <template slot-scope="{row}">
+          <el-button type="text" @click="viewDetails(row.id)">
+            上新详情
           </el-button>
         </template>
       </u-table-column>
@@ -977,6 +979,60 @@
           </div>
         </div>
       </el-dialog>
+      <el-dialog title="上新状态详情" width="1000px" top="10vh" :close-on-click-modal="false" :visible.sync="detailsVisible">
+        <div class="" style="width: 100%">
+          <u-table :data="newOnDetailsList" use-virtual :data-changes-scroll-top="false" :border="false" height="500"
+                   :header-cell-style="{backgroundColor: '#f5f7fa'}" :big-data-checkbox="true">
+            <u-table-column align="left" label="序列号" type="index" width="60">
+              <template slot-scope="scope">
+                {{ scope.$index + 1 }}
+              </template>
+            </u-table-column>
+            <u-table-column align="left" label="上家商品Id" width="130">
+              <template v-slot="{ row }">
+                <span class="goToGoods" @click.stop="goToGoods(row)">{{ row.goods_id }}</span>
+                <el-button type="text" class="copyIcon" @click="copy(row.goods_id)">
+                  <i class="el-icon-document-copy"/></el-button>
+              </template>
+            </u-table-column>
+            <u-table-column align="left" label="shopee-Id" width="130">
+              <template slot-scope="{ row }">
+                <span class="goToGoods" @click.stop="goToGoods(row,1)">{{ row.product_id || '' }}</span>
+                <el-button v-if="row.product_id" type="text" class="copyIcon" @click="copy(row.product_id)">
+                  <i class="el-icon-document-copy"/></el-button>
+              </template>
+            </u-table-column>
+            <u-table-column align="left" label="店铺分组" show-overflow-tooltip width="80">
+              <template slot-scope="{ row }">{{ row.group_name || '' }}
+              </template>
+            </u-table-column>
+            <u-table-column align="left" label="店铺名称" show-overflow-tooltip width="110">
+              <template slot-scope="{ row }">{{ row.mallName || '' }}
+              </template>
+            </u-table-column>
+            <u-table-column align="left" label="上新后标题" min-width="100">
+              <template slot-scope="{ row }">
+                <div class="goodsTableLine">
+                  {{ row.name }}
+                </div>
+              </template>
+            </u-table-column>
+            <u-table-column align="left" label="上新状态" width="120">
+              <template slot-scope="{ row }">
+                <div class="goodsTableLine">
+                  {{ row.state || '' }}
+                </div>
+              </template>
+            </u-table-column>
+            <u-table-column align="left" label="上新后价格" prop="CalAfterPrice" width="100">
+              <template slot-scope="{ row }">
+                {{ row.price || '' }}{{ row.price && $filters.siteCoin(row.country) || '' }}
+              </template>
+            </u-table-column>
+            <u-table-column align="left" label="来源" prop="sourceName" width="80"/>
+          </u-table>
+        </div>
+      </el-dialog>
     </div>
   </el-row>
 </template>
@@ -1008,9 +1064,16 @@ export default {
       mallList: [], // 店铺列表
       country: '',  // 店铺站点
       sourceCategoryList: [], //源商品类目
-      sourceCategory: [],
-      resultsFilterList: [], //结果过滤
-      resultsFilter: '',
+      sourceCategory: [0],
+      resultsFilterList: [
+        { label: '全部', value: 0 },
+        { label: '待发布', value: 1 },
+        { label: '发布成功', value: 2 },
+        { label: '发布失败', value: 3 },
+        { label: '重新刊登', value: 4 },
+        { label: '已过滤数据', value: 5 }
+      ], //结果过滤
+      resultsFilter: 0,
       mewOnProgress: 0,
       isNoFoldShow: true,
       //弹窗
@@ -1300,11 +1363,13 @@ export default {
       },
       uploadImgAdd: false,
       watermarkPreviewType: 1,
-
       GoodsManagerAPIInstance: new GoodsManagerAPI(this),
       GoodsDiscount: new GoodsDiscount(this),
       preorderMinDays: '',
-      preorderMaxDays: ''
+      preorderMaxDays: '',
+      detailsVisible: false,
+      newOnDetails: {},
+      newOnDetailsList: []
     }
   },
   computed: {},
@@ -1457,13 +1522,20 @@ export default {
           index >= 0 && this.$set(this.goodsTable, index, item) || this.goodsTable.push(item)
         }
         this.statistics.count = this.goodsTable.length
+        let sourceCategoryList = new Set()
+        this.goodsTable.forEach(item => {
+          sourceCategoryList.add(item.category_name)
+        })
+        this.sourceCategoryList = [...sourceCategoryList]
+        this.sourceCategory = [0, ...sourceCategoryList]
+        localStorage.setItem('goodsTableJson', JSON.stringify(this.goodsTable))
         await this.$BaseUtilService.gotoUploadTab('updateId', '')
       })
       let info = await this.$appConfig.getUserInfo()
       this.rateList = info.ExchangeRates || {}
       let valuationConfigRes = await this.$api.valuationConfigGetAll()
       this.valuationLabelList = valuationConfigRes && valuationConfigRes.data.data || []
-      this.publishGoodsConfigGet()
+      await this.publishGoodsConfigGet()
       console.log(this.valuationLabelList)
     } catch (error) {
     }
@@ -1472,6 +1544,10 @@ export default {
     async startRelease() {
       if (this.goodsTableSelect.length < 1) {
         this.$message.error('请选择商品后再操作')
+        return
+      }
+      if (this.logistics.length < 1) {
+        this.$message.error('配置物流信息后再操作')
         return
       }
       if (this.mallList.length < 1) {
@@ -1493,6 +1569,7 @@ export default {
       this.isBanPerform = true
       this.isCancelRelease = false
       this.mewOnProgress = 0
+      this.newOnDetails = {}
       this.statistics = Object.assign(this.statistics, {
         success: 0,
         failure: 0,
@@ -1508,11 +1585,12 @@ export default {
       terminateThread()
     },
     async prepareWork(mall, count = { count: 1 }) {
-      let errorItem = null
       let messageName = ''
+      let mallId = mall.platform_mall_id
+      let mallName = mall.mall_alias_name || mall.platform_mall_name
+      let ratio = 100
+      let progress = 100 / this.mallList.length
       try {
-        let mallName = mall.mall_alias_name || mall.platform_mall_name
-        let mallId = mall.platform_mall_id
         let goodsList = []
         let logistics_channels = []
         let loginRes = await this.mallListAPIInstance.getUserInfo(mall)
@@ -1556,401 +1634,440 @@ export default {
             }
           }
         } else {
+          let offset = Math.floor(Math.random() * 100) % 2
           goodsList = this.goodsTableSelect
+          let amplitude = Number(this.associatedConfig.priceRange) || 0
+          if (!(amplitude >= 0)) {
+            this.associatedConfig.priceRange = 2
+            amplitude = 2
+          }
+          amplitude = Number((Math.random() * amplitude).toFixed(2))
+          if (offset) {
+            ratio = Number((ratio + amplitude).toFixed(2))
+          } else {
+            ratio = Number((ratio - amplitude).toFixed(2))
+          }
+          ratio = Number(ratio / 100)
         }
         console.log(goodsList)
-        for (let item of goodsList) {
-          if (this.isCancelRelease) {
-            return
-          }
-          errorItem = item
-          console.log(item,mall)
-          this.updateAttributeName(item, '正在准备发布')
-          this.updateAttributeName(item, mallName, 'mallName')
-          if (!loginSuccess) {
-            this.updateAttributeName(item, `发布失败：${mallName}店铺未登录`)
-            ++this.statistics.failure
-            continue
-          }
-          let goodsInitParam = {
-            attributes: [],
-            stock: item.stock,
-            model_list: [],
-            weight: item.weight + '',
-            dimension: {
-              width: item.width,
-              height: item.height,
-              length: item.long
-            },
-            condition: 1,
-            dangerous_goods: 0, //待修改
-            min_purchase_limit: this.country === 'TW' && parseInt(this.basicConfig.min_purchase_limit) || 1,
-            input_normal_price: null,
-            input_promotion_price: null,
-            id: 0,
-            images: [],
-            tier_variation: [],
-            category_recommend: [],
-            price_before_discount: '',
-            wholesale_list: [],
-            installment_tenures: {},
-            pre_order: this.basicConfig.stockUpChecked,
-            days_to_ship: Math.floor(this.basicConfig.stockUpNumber) || 15,
-            logistics_channels: logistics_channels.slice(0, 4),
-            unlisted: this.basicConfig.usedChecked,
-            add_on_deal: []
-          }
-          let originCategoryId = item.originCategoryId || item.category_id
-          let platformId = item.platform || item.source
-          // attributes brand_id category_path
-          this.updateAttributeName(item, '正在抓取产品')
-          let neededTranslateInfoJson = await this.$commodityService.getSpuDetailByIdV2(item.id)
-          let neededTranslateInfoRes = JSON.parse(neededTranslateInfoJson)
-          let neededTranslateInfoData = neededTranslateInfoRes.data
-          if (neededTranslateInfoRes.code != 200) {
-            messageName = neededTranslateInfoRes.msg || ''
-          }
-          let goodsParam = JSON.parse(JSON.stringify(goodsInitParam))
-          this.updateAttributeName(item, '正在匹配类目')
-          let categoryRelationJson = await this.$commodityService.getCategoryRelation(originCategoryId, this.country, platformId)
-          let categoryRelationRes = JSON.parse(categoryRelationJson)
-          let categoryId = categoryRelationRes?.data?.category?.platform_category_id || ''
-          console.log('categoryId', categoryId)
-          if (categoryId) {
-            goodsParam['category_path'] = await this.getCategoryPath(categoryId) || []
-            let attributesCurrent = categoryRelationRes.data && categoryRelationRes.data.attributes || []
-            let category = categoryRelationRes.data.category
-            let categoryName = `${category.platform_category_name}(${category.platform_category_cn_name})`
-            let index = this.goodsTable.findIndex(son => son.id === item.id)
-            this.$set(this.goodsTable[index], 'categoryName', categoryName)
-            attributesCurrent.forEach(son => {
-              if (son.attribute_id) {
-                goodsParam['attributes'].push({
-                  attribute_id: son.attribute_id,
-                  attribute_value_id: Math.floor(son.value_id)
-                })
-              } else {
-                goodsParam['brand_id'] = Math.floor(son.value_id) || 0
-              }
-            })
-          } else {
-            this.updateAttributeName(item, '无类目映射，请选择类目')
-            ++this.statistics.failure
-            continue
-          }
-          if (this.associatedConfig.dimensionRadio < 2){
-            let dimension = this.associatedConfig.dimensionRadio + 1
-            let checkListingRepeatParma = {
-              sysMallId: mall.id+'',
-              platformType: item.source,
-              itemSku: item.goods_id+'',
-              title: item.title,
-              country: this.country,
-              dimension: dimension+''
+        if(goodsList.length > 0){
+          for (let item of goodsList) {
+            if (this.isCancelRelease) {
+              return
             }
-            console.log(checkListingRepeatParma)
-            let checkListingRepeatJson = await this.$commodityService.checkListingRepeat(checkListingRepeatParma)
-            let checkListingRepeatRes = JSON.parse(checkListingRepeatJson)
-            console.log('checkListingRepeat', checkListingRepeatRes)
-            if(checkListingRepeatRes.code === 200){
-              let checkListingRepeatData = checkListingRepeatRes.data
-              let status = checkListingRepeatData.status
-              if (status > 0){
-                this.updateAttributeName(item, '发布失败：此产品已重复上新')
+            try {
+              console.log(item, mall)
+              this.updateAttributeName(item, '正在准备发布', '', mall)
+              this.updateOnNewDetails(item.id, mallId, {
+                goods_id: item.goods_id, mallName,
+                group_name: mall.group_name, sourceName: item.sourceName, country: mall.country
+              })
+              if (!loginSuccess) {
+                this.updateAttributeName(item, `发布失败：${mallName}店铺未登录`, '', mall)
+                this.updateAttributeName(item, 3, 'resultsFilter')
                 ++this.statistics.failure
                 continue
               }
-            }
-          }
-          this.updateAttributeName(item, '开始组装商品数据')
-          // weight
-          if (goodsParam['weight'] == '0') {
-            goodsParam['weight'] = getSectionRandom(this.basicConfig.minHeavy, this.basicConfig.maxHeavy, 2) + ''
-            neededTranslateInfoData['weight'] = goodsParam['weight']
-          }
-          // parent_sku ds_cat_rcmd_id ds_attr_rcmd_id
-          let extrainfo = item.extra_info && JSON.parse(item.extra_info)
-          let tmall_cross_border_user_id = extrainfo && extrainfo.tmall_cross_border_user_id || ''
-          goodsParam['parent_sku'] = await this.$BaseUtilService.buildGoodCode(platformId, item.goods_id, this.country, mall.platform_mall_id, tmall_cross_border_user_id)
-          let guid = new GUID()
-          goodsParam['ds_cat_rcmd_id'] = guid.newGUID() + '|c|EN'
-          goodsParam['ds_attr_rcmd_id'] = guid.newGUID() + '|a|EN'
-          // name description tier_variation price
-          let tier_variation = neededTranslateInfoData.tier_variation
-          if (tier_variation[tier_variation.spec1].length > 0) {
-            goodsParam['tier_variation'].push({
-              name: tier_variation.spec1,
-              options: [...tier_variation[tier_variation.spec1].map(i => i.substring(0, 20).trim())],
-              images: tier_variation.images
-            })
-          }
-          if (tier_variation[tier_variation.spec2].length > 0) {
-            goodsParam['tier_variation'].push({
-              name: tier_variation.spec2,
-              options: [...tier_variation[tier_variation.spec2].map(i => i.substring(0, 20).trim())],
-              images: []
-            })
-          }
-          goodsParam['price'] = this.getValuationPrice(neededTranslateInfoData.price, neededTranslateInfoData)
-          goodsParam['price'] = Math.ceil(goodsParam['price'] / this.rateList[this.country]) + ''
-
-          goodsParam['description'] = neededTranslateInfoData.description || ''
-          let hotList = this.basicConfig.hotList || ''
-          hotList = hotList.replaceAll('，', ',')
-          hotList = hotList.split(',') || []
-          let hotStr = ''
-          let name = item.title
-          if (this.basicConfig.hotSearch > 0 && hotList[0]) {
-            let hotListCount = hotList.length
-            for (let i = 0; i < this.basicConfig.hotSearch; i++) {
-              let hotIndex = Math.floor(Math.random() * hotListCount)
-              hotStr += hotList[hotIndex] + ' '
-            }
-            if (this.basicConfig.headlineRadio) {
-              name = name + ' ' + hotStr
-            } else {
-              name = hotStr + '' + name
-            }
-          }
-          if (this.associatedConfig.specialCharChecked) {
-            let specialCharList = this.$filters.special_characters
-            let specialChar = specialCharList[Math.floor(Math.random() * specialCharList.length)]
-            name = specialChar + ' ' + name
-          }
-          if (this.associatedConfig.realNameChecked) {
-            name = mall.platform_mall_name + ' ' + name
-          }
-          goodsParam['name'] = name
-          this.updateAttributeName(item, '检测商品数据是否合格')
-          let isFieldFilter = await this.fieldFilter(goodsParam,item)
-          if (!isFieldFilter) {
-            ++this.statistics.failure
-            continue
-          }
-          if (this.storeConfig.wordsHeavy) {
-            let nameList = goodsParam['name'].split(' ')
-            let setName = new Set()
-            nameList.forEach(i => {
-              setName.add(i)
-            })
-            goodsParam['name'] = [...setName].join('')
-          }
-          // images size_chart
-          let imagesList = neededTranslateInfoData.images
-          let imageTemp = false
-
-          if (this.associatedConfig.pictureSetting.firstChecked) {
-            imagesList.splice(0, 1)
-          }
-          if (this.associatedConfig.pictureSetting.cutChecked) {
-            let maxCount = Math.floor(imagesList.length / 3)
-            let count = Math.ceil(Math.random() * maxCount) || 0
-            while (count--) {
-              let index = Math.floor(Math.random() * imagesList.length)
-              imagesList.splice(index, 1)
-            }
-          }
-          if (this.associatedConfig.dimensionRadio === 2) {
-            if (this.associatedConfig.pictureSetting.mainRandomChecked) {
-              let index = Math.floor(Math.random() * imagesList.length)
-              let newMain = imagesList.splice(index, 1)
-              imagesList = [...newMain, ...imagesList]
-            }
-          } else {
-            let newMain = imagesList.splice(this.associatedConfig.pictureSetting.index, 1)
-            imagesList = [...newMain, ...imagesList]
-          }
-          if (this.associatedConfig.pictureSetting.whiteChecked) {
-            let image = imagesList[0]
-            let byUrlRes = await this.$MattingService.getDrawbotMattingByUrl(image, new Date().getTime() + '.png')
-            if (byUrlRes.Code === 200) {
-              let byUrlData = byUrlRes.Data
-              let ImageURL = byUrlData.Data && byUrlData.Data.ImageURL
-              imagesList[0] = ImageURL || image
-            }
-          }
-          if (this.storeConfig.watermarkChecked) {
-            if (this.watermarkConfig.addType === 0) {
-              imageTemp = await this.additionalWatermarking(imagesList[0], mall)
-              imagesList[0] = imageTemp || imagesList[0]
-            } else {
-              for (let i = 0; i < imagesList.length; i++) {
-                imageTemp = await this.additionalWatermarking(imagesList[i], mall)
-                imagesList[i] = imageTemp || imagesList[i]
-                if (!imageTemp) {
-                  return
+              let goodsInitParam = {
+                attributes: [],
+                stock: item.stock,
+                model_list: [],
+                weight: item.weight + '',
+                dimension: {
+                  width: item.width,
+                  height: item.height,
+                  length: item.long
+                },
+                condition: 1,
+                dangerous_goods: 0, //待修改
+                min_purchase_limit: this.country === 'TW' && parseInt(this.basicConfig.min_purchase_limit) || 1,
+                input_normal_price: null,
+                input_promotion_price: null,
+                id: 0,
+                images: [],
+                tier_variation: [],
+                category_recommend: [],
+                price_before_discount: '',
+                wholesale_list: [],
+                installment_tenures: {},
+                pre_order: this.basicConfig.stockUpChecked,
+                days_to_ship: Math.floor(this.basicConfig.stockUpNumber) || 15,
+                logistics_channels: logistics_channels.slice(0, 4),
+                unlisted: this.basicConfig.usedChecked,
+                add_on_deal: []
+              }
+              let originCategoryId = item.originCategoryId || item.category_id
+              let platformId = item.platform || item.source
+              // attributes brand_id category_path
+              this.updateAttributeName(item, '正在抓取产品', '', mall)
+              let neededTranslateInfoJson = await this.$commodityService.getSpuDetailByIdV2(item.id)
+              let neededTranslateInfoRes = JSON.parse(neededTranslateInfoJson)
+              let neededTranslateInfoData = neededTranslateInfoRes.data
+              if (neededTranslateInfoRes.code != 200) {
+                messageName = neededTranslateInfoRes.msg || ''
+              }
+              let goodsParam = JSON.parse(JSON.stringify(goodsInitParam))
+              this.updateAttributeName(item, '正在匹配类目', '', mall)
+              let categoryRelationJson = await this.$commodityService.getCategoryRelation(originCategoryId, this.country, platformId)
+              let categoryRelationRes = JSON.parse(categoryRelationJson)
+              let categoryId = categoryRelationRes?.data?.category?.platform_category_id || ''
+              console.log('categoryId', categoryId)
+              if (categoryId) {
+                goodsParam['category_path'] = await this.getCategoryPath(categoryId) || []
+                let attributesCurrent = categoryRelationRes.data && categoryRelationRes.data.attributes || []
+                let category = categoryRelationRes.data.category
+                let categoryName = `${category.platform_category_name}(${category.platform_category_cn_name})`
+                let index = this.goodsTable.findIndex(son => son.id === item.id)
+                this.$set(this.goodsTable[index], 'categoryName', categoryName)
+                attributesCurrent.forEach(son => {
+                  if (son.attribute_id) {
+                    goodsParam['attributes'].push({
+                      attribute_id: son.attribute_id,
+                      attribute_value_id: Math.floor(son.value_id)
+                    })
+                  } else {
+                    goodsParam['brand_id'] = Math.floor(son.value_id) || 0
+                  }
+                })
+              } else {
+                this.updateAttributeName(item, '发布失败：无类目映射，请选择类目', '', mall)
+                this.updateAttributeName(item, 3, 'resultsFilter')
+                ++this.statistics.failure
+                continue
+              }
+              let dimension = 1
+              if (this.associatedConfig.dimensionRadio < 2) {
+                dimension = this.associatedConfig.dimensionRadio + 1
+              }
+              let checkListingRepeatParma = {
+                sysMallId: mall.id + '',
+                platformType: item.source,
+                itemSku: item.goods_id + '',
+                title: item.title,
+                country: this.country,
+                dimension: dimension + ''
+              }
+              let checkListingRepeatJson = await this.$commodityService.checkListingRepeat(checkListingRepeatParma)
+              let checkListingRepeatRes = JSON.parse(checkListingRepeatJson)
+              if (checkListingRepeatRes.code === 200) {
+                let checkListingRepeatData = checkListingRepeatRes.data
+                let status = checkListingRepeatData.status
+                if (status > 0) {
+                  this.updateAttributeName(item, 4, 'resultsFilter')
+                  this.updateAttributeName(item, '发布失败：此产品已重复上新', '', mall)
+                  ++this.statistics.repeat
+                  continue
                 }
               }
-            }
-          }
-          console.log(imagesList)
-          goodsParam['images'] = imagesList
-          if (neededTranslateInfoData.sizeImages && neededTranslateInfoData.sizeImages[0]) {
-            goodsParam['size_chart'] = neededTranslateInfoData.sizeImages[0].img || ''
-          }
-          // model_list
+              this.updateAttributeName(item, '开始组装商品数据', '', mall)
+              // weight
+              if (goodsParam['weight'] == '0') {
+                goodsParam['weight'] = getSectionRandom(this.basicConfig.minHeavy, this.basicConfig.maxHeavy, 2) + ''
+                neededTranslateInfoData['weight'] = goodsParam['weight']
+              }
+              // parent_sku ds_cat_rcmd_id ds_attr_rcmd_id
+              let extrainfo = item.extra_info && JSON.parse(item.extra_info)
+              let tmall_cross_border_user_id = extrainfo && extrainfo.tmall_cross_border_user_id || ''
+              goodsParam['parent_sku'] = await this.$BaseUtilService.buildGoodCode(platformId,
+                  item.goods_id, this.country, mall.platform_mall_id, tmall_cross_border_user_id)
+              let guid = new GUID()
+              goodsParam['ds_cat_rcmd_id'] = guid.newGUID() + '|c|EN'
+              goodsParam['ds_attr_rcmd_id'] = guid.newGUID() + '|a|EN'
+              // name description tier_variation price
+              let tier_variation = neededTranslateInfoData.tier_variation
+              if (tier_variation[tier_variation.spec1].length > 0) {
+                goodsParam['tier_variation'].push({
+                  name: tier_variation.spec1,
+                  options: [...tier_variation[tier_variation.spec1].map(i => i.substring(0, 20).trim())],
+                  images: tier_variation.images
+                })
+              }
+              if (tier_variation[tier_variation.spec2].length > 0) {
+                goodsParam['tier_variation'].push({
+                  name: tier_variation.spec2,
+                  options: [...tier_variation[tier_variation.spec2].map(i => i.substring(0, 20).trim())],
+                  images: []
+                })
+              }
+              goodsParam['price'] = this.getValuationPrice(neededTranslateInfoData.price, neededTranslateInfoData)
+              goodsParam['price'] = Math.ceil(goodsParam['price'] / this.rateList[this.country] * ratio) + ''
 
-          let itemmodelsJson = JSON.stringify(neededTranslateInfoData.itemmodels)
-          goodsParam['model_list'] = JSON.parse(itemmodelsJson).map(son => {
-            let price = this.getValuationPrice(son.price, neededTranslateInfoData)
-            price = Math.ceil(price / this.rateList[this.country]) + ''
-            son = {
-              id: 0,
-              name: '',
-              is_default: false,
-              item_price: '',
-              input_normal_price: null,
-              input_promotion_price: null,
-              tier_index: son.tier_index,
-              sku: son.sku,
-              stock: son.stock,
-              price: price
-            }
-            return son
-          })
-          console.log('goodsParam', goodsParam)
-          this.updateAttributeName(item, '正在上传轮播图')
-          console.log('正在上传轮播图', goodsParam['images'])
-          let imageMapping = await imageCompressionUpload(mall, goodsParam['images'], this, this.storeConfig.pictureThread)
-          goodsParam['images'] = goodsParam.images.map(son => {
-            son = imageMapping[son] || ''
-            return son
-          })
-          if (goodsParam['images'].includes('')) {
-            if (!this.associatedConfig.missingUploadChecked) {
-              this.updateAttributeName(item, '轮播图上传缺失')
-              ++this.statistics.failure
-              continue
-            }
-            let temp = []
-            goodsParam['images'].forEach(i => {
-              i && temp.push(i)
-            })
-            goodsParam['images'] = temp
-          }
-          this.updateAttributeName(item, '正在上传规格图')
-          console.log('正在上传规格图', neededTranslateInfoData.spec_image)
-          let spec_imageMapping = await imageCompressionUpload(mall, neededTranslateInfoData.spec_image, this, this.storeConfig.pictureThread)
-          let tier_variationJSON = JSON.stringify(goodsParam['tier_variation'])
-          let spec_list = []
-          for (let itemName in spec_imageMapping) {
-            tier_variationJSON = tier_variationJSON.replaceAll('"' + itemName + '"', '"' + spec_imageMapping[itemName] + '"')
-            spec_list.push(spec_imageMapping[itemName])
-          }
-          if (spec_list.includes('')) {
-            this.updateAttributeName(item, '规格图上传缺失')
-            ++this.statistics.failure
-            continue
-          }
-          goodsParam['tier_variation'] = JSON.parse(tier_variationJSON)
-          if (goodsParam['size_chart']) {
-            this.updateAttributeName(item, '正在上传尺寸图')
-            let size_chartMapping = await imageCompressionUpload(mall, [goodsParam['size_chart']], this, this.storeConfig.pictureThread)
-            goodsParam['size_chart'] = size_chartMapping[goodsParam['size_chart']] || ''
-          }
-          if (this.basicConfig.autoCompleteChecked) {
-            if (goodsParam['images'].length < 9) {
-              let imageList = [...goodsParam['images'], ...spec_list]
-              goodsParam['images'] = imageList.slice(0, 9)
-            }
-          }
-          console.log('goodsParam', goodsParam)
-          this.updateAttributeName(item, '正在创建商品信息')
-          await sleep(this.associatedConfig.onNewInterval * 1000)
-          let resJSON = await this.$shopeemanService.createProduct(this.country, { mallId: mall.platform_mall_id }, [goodsParam])
-          console.log('createProduct', resJSON)
-          if (resJSON.code === 200) {
-            let product_id = resJSON.data && resJSON.data.product_id
-            this.updateAttributeName(item, '发布完成')
-            //sysMallId, platformType, itemSku, title, listingId, country, mallId, categoryId, skuDatas
-            let saveListingRecordParma = {
-              sysMallId: mall.id+'',
-              platformType: item.source+'',
-              itemSku: item.goods_id+'',
-              title: item.title,
-              listingId: product_id+'',
-              country: this.country,
-              mallId: mall.platform_mall_id,
-              categoryId: categoryId+'',
-              skuDatas:''
-            }
-            console.log(saveListingRecordParma)
-            let saveListingRecordParmaJson = await this.$commodityService.SaveListingRecord(saveListingRecordParma)
-            let saveListingRecordParmaRes = JSON.parse(saveListingRecordParmaJson)
-            console.log('saveListingRecordParmaRes', saveListingRecordParmaRes)
-            this.updateAttributeName(item, product_id, 'product_id')
-            this.updateAttributeName(item, mallId, 'mallId')
-            this.updateAttributeName(item, this.country, 'country')
-            if (this.storeConfig.activityChecked) {
-              let sellActive = this.sellActiveSetting.find(item => item.platform_mall_id === mall.platform_mall_id)
-              if (sellActive.goodsId) {
-                const params = {
+              goodsParam['description'] = neededTranslateInfoData.description || ''
+              let hotList = this.basicConfig.hotList || ''
+              hotList = hotList.replaceAll('，', ',')
+              hotList = hotList.split(',') || []
+              let hotStr = ''
+              let name = item.title
+              if (this.basicConfig.hotSearch > 0 && hotList[0]) {
+                let hotListCount = hotList.length
+                for (let i = 0; i < this.basicConfig.hotSearch; i++) {
+                  let hotIndex = Math.floor(Math.random() * hotListCount)
+                  hotStr += hotList[hotIndex] + ' '
+                }
+                if (this.basicConfig.headlineRadio) {
+                  name = name + ' ' + hotStr
+                } else {
+                  name = hotStr + '' + name
+                }
+              }
+              if (this.associatedConfig.specialCharChecked) {
+                let specialCharList = this.$filters.special_characters
+                let specialChar = specialCharList[Math.floor(Math.random() * specialCharList.length)]
+                name = specialChar + ' ' + name
+              }
+              if (this.associatedConfig.realNameChecked) {
+                name = mall.platform_mall_name + ' ' + name
+              }
+              goodsParam['name'] = name
+              this.updateAttributeName(item, '检测商品数据是否合格', '', mall)
+              let isFieldFilter = await this.fieldFilter(goodsParam, item)
+              if (!isFieldFilter) {
+                this.updateAttributeName(item, 3, 'resultsFilter')
+                this.updateOnNewDetails(item.id, mallId, { state: `发布失败：此产品已重复上新` })
+                ++this.statistics.failure
+                continue
+              }
+              if (this.storeConfig.wordsHeavy) {
+                let nameList = goodsParam['name'].split(' ')
+                let setName = new Set()
+                nameList.forEach(i => {
+                  setName.add(i)
+                })
+                goodsParam['name'] = [...setName].join('')
+              }
+              // images size_chart
+              let imagesList = neededTranslateInfoData.images
+              let imageTemp = false
+
+              if (this.associatedConfig.pictureSetting.firstChecked) {
+                imagesList.splice(0, 1)
+              }
+              if (this.associatedConfig.pictureSetting.cutChecked) {
+                let maxCount = Math.floor(imagesList.length / 3)
+                let count = Math.ceil(Math.random() * maxCount) || 0
+                while (count--) {
+                  let index = Math.floor(Math.random() * imagesList.length)
+                  imagesList.splice(index, 1)
+                }
+              }
+              if (this.associatedConfig.dimensionRadio === 2) {
+                if (this.associatedConfig.pictureSetting.mainRandomChecked) {
+                  let index = Math.floor(Math.random() * imagesList.length)
+                  let newMain = imagesList.splice(index, 1)
+                  imagesList = [...newMain, ...imagesList]
+                }
+              } else {
+                let newMain = imagesList.splice(this.associatedConfig.pictureSetting.index, 1)
+                imagesList = [...newMain, ...imagesList]
+              }
+              if (this.associatedConfig.pictureSetting.whiteChecked) {
+                let image = imagesList[0]
+                let byUrlRes = await this.$MattingService.getDrawbotMattingByUrl(image, new Date().getTime() + '.png')
+                if (byUrlRes.Code === 200) {
+                  let byUrlData = byUrlRes.Data
+                  let ImageURL = byUrlData.Data && byUrlData.Data.ImageURL
+                  imagesList[0] = ImageURL || image
+                }
+              }
+              if (this.storeConfig.watermarkChecked) {
+                if (this.watermarkConfig.addType === 0) {
+                  imageTemp = await this.additionalWatermarking(imagesList[0], mall)
+                  imagesList[0] = imageTemp || imagesList[0]
+                } else {
+                  for (let i = 0; i < imagesList.length; i++) {
+                    imageTemp = await this.additionalWatermarking(imagesList[i], mall)
+                    imagesList[i] = imageTemp || imagesList[i]
+                    if (!imageTemp) {
+                      return
+                    }
+                  }
+                }
+              }
+              console.log(imagesList)
+              goodsParam['images'] = imagesList
+              if (neededTranslateInfoData.sizeImages && neededTranslateInfoData.sizeImages[0]) {
+                goodsParam['size_chart'] = neededTranslateInfoData.sizeImages[0].img || ''
+              }
+              // model_list
+
+              let itemmodelsJson = JSON.stringify(neededTranslateInfoData.itemmodels)
+              goodsParam['model_list'] = JSON.parse(itemmodelsJson).map(son => {
+                let price = this.getValuationPrice(son.price, neededTranslateInfoData)
+                price = Math.ceil(price / this.rateList[this.country] * ratio) + ''
+                son = {
+                  id: 0,
+                  name: '',
+                  is_default: false,
+                  item_price: '',
+                  input_normal_price: null,
+                  input_promotion_price: null,
+                  tier_index: son.tier_index,
+                  sku: son.sku,
+                  stock: son.stock,
+                  price: price
+                }
+                return son
+              })
+              console.log('goodsParam', goodsParam)
+              this.updateAttributeName(item, '正在上传轮播图', '', mall)
+              console.log('正在上传轮播图', goodsParam['images'])
+              let imageMapping = await imageCompressionUpload(mall, goodsParam['images'], this, this.storeConfig.pictureThread)
+              goodsParam['images'] = goodsParam.images.map(son => {
+                son = imageMapping[son] || ''
+                return son
+              })
+              if (goodsParam['images'].includes('')) {
+                if (!this.associatedConfig.missingUploadChecked) {
+                  this.updateAttributeName(item, '发布失败：轮播图上传缺失', '', mall)
+                  this.updateAttributeName(item, 3, 'resultsFilter')
+                  ++this.statistics.failure
+                  continue
+                }
+                let temp = []
+                goodsParam['images'].forEach(i => {
+                  i && temp.push(i)
+                })
+                goodsParam['images'] = temp
+              }
+              this.updateAttributeName(item, '正在上传规格图', '', mall)
+              console.log('正在上传规格图', neededTranslateInfoData.spec_image)
+              let spec_imageMapping = await imageCompressionUpload(mall, neededTranslateInfoData.spec_image, this, this.storeConfig.pictureThread)
+              let tier_variationJSON = JSON.stringify(goodsParam['tier_variation'])
+              let spec_list = []
+              for (let itemName in spec_imageMapping) {
+                tier_variationJSON = tier_variationJSON.replaceAll('"' + itemName + '"', '"' + spec_imageMapping[itemName] + '"')
+                spec_list.push(spec_imageMapping[itemName])
+              }
+              if (spec_list.includes('')) {
+                this.updateAttributeName(item, '发布失败：规格图上传缺失', '', mall)
+                this.updateAttributeName(item, 3, 'resultsFilter')
+                ++this.statistics.failure
+                continue
+              }
+              goodsParam['tier_variation'] = JSON.parse(tier_variationJSON)
+              if (goodsParam['size_chart']) {
+                this.updateAttributeName(item, '正在上传尺寸图', '', mall)
+                let size_chartMapping = await imageCompressionUpload(mall, [goodsParam['size_chart']], this, this.storeConfig.pictureThread)
+                goodsParam['size_chart'] = size_chartMapping[goodsParam['size_chart']] || ''
+              }
+              if (this.basicConfig.autoCompleteChecked) {
+                if (goodsParam['images'].length < 9) {
+                  let imageList = [...goodsParam['images'], ...spec_list]
+                  goodsParam['images'] = imageList.slice(0, 9)
+                }
+              }
+              console.log('goodsParam', goodsParam)
+              this.updateAttributeName(item, '正在创建商品信息', '', mall)
+              await sleep(this.associatedConfig.onNewInterval * 1000)
+              let resJSON = await this.$shopeemanService.createProduct(this.country, { mallId: mall.platform_mall_id }, [goodsParam])
+              console.log('createProduct', resJSON)
+              if (resJSON.code === 200) {
+                let product_id = resJSON.data && resJSON.data.product_id
+                ++this.statistics.success
+                this.updateAttributeName(item, '发布完成', '', mall)
+                this.updateOnNewDetails(item.id, mallId, {
+                  name: goodsParam['name'],
+                  product_id: product_id,
+                  price: goodsParam['price']
+                })
+                //sysMallId, platformType, itemSku, title, listingId, country, mallId, categoryId, skuDatas
+                let saveListingRecordParma = {
+                  sysMallId: mall.id + '',
+                  platformType: item.source + '',
+                  itemSku: item.goods_id + '',
+                  title: item.title,
+                  listingId: product_id + '',
                   country: this.country,
                   mallId: mall.platform_mall_id,
-                  collection_id: Number(sellActive.goodsId), // 分类id
-                  product_id_list: [product_id] // 商品id
+                  categoryId: categoryId + '',
+                  skuDatas: ''
                 }
-                const res = await this.GoodsManagerAPIInstance.addCollectionGoods(params)
-                if (res.ecode === 0) {
-                  ++this.statistics.success
-                  this.$message.success('添加成功')
-                } else {
-                  ++this.statistics.failure
-                  this.$message.warning(`添加失败${res.message}`)
-                }
-              }
-              if (sellActive.discountId && sellActive.number && sellActive.discount) {
-                const params = {}
-                params['product_id'] = product_id
-                params['version'] = '3.2.0'
-                params['shop_id'] = item.platform_mall_id
-                const detailRes = await this.$shopeemanService.searchProductDetail(item.country, params)
-                if (detailRes.code === 200) {
-                  const discount_model_list = []
-                  detailRes.data.model_list.forEach(i => {
-                    const obj = {
-                      discount: Math.floor(100 - sellActive.discount),
-                      itemid: product_id,
-                      model_name: i.name,
-                      modelid: i.id,
-                      price_before_discount: Number(i.price),
-                      promotion_price: (i.price * sellActive.discount / 100).toFixed(2),
-                      promotionid: sellActive.discountId,
-                      selected: true,
-                      shopid: Number(item.platform_mall_id),
-                      status: 1,
-                      total_item_limit: 0,
-                      user_item_limit: sellActive.number
+                console.log(saveListingRecordParma)
+                let saveListingRecordParmaJson = await this.$commodityService.SaveListingRecord(saveListingRecordParma)
+                let saveListingRecordParmaRes = JSON.parse(saveListingRecordParmaJson)
+                console.log('saveListingRecordParmaRes', saveListingRecordParmaRes)
+                this.updateAttributeName(item, product_id, 'product_id')
+                this.updateAttributeName(item, mallId, 'mallId')
+                this.updateAttributeName(item, this.country, 'country')
+                if (this.storeConfig.activityChecked) {
+                  let sellActive = this.sellActiveSetting.find(item => item.platform_mall_id === mall.platform_mall_id)
+                  if (sellActive.goodsId) {
+                    const params = {
+                      country: this.country,
+                      mallId: mall.platform_mall_id,
+                      collection_id: Number(sellActive.goodsId), // 分类id
+                      product_id_list: [product_id] // 商品id
                     }
-                    discount_model_list.push(obj)
-                  })
-                  const creatParams = {
-                    discount_id: sellActive.discountId,
-                    discount_model_list,
-                    mallId: item.platform_mall_id
+                    const res = await this.GoodsManagerAPIInstance.addCollectionGoods(params)
+                    if (res.ecode === 0) {
+                      this.$message.success('添加成功')
+                    } else {
+                      this.$message.warning(`添加失败${res.message}`)
+                    }
                   }
-                  await this.GoodsDiscount.putModelActive(item.country, creatParams)
+                  if (sellActive.discountId && sellActive.number && sellActive.discount) {
+                    const params = {}
+                    params['product_id'] = product_id
+                    params['version'] = '3.2.0'
+                    params['shop_id'] = item.platform_mall_id
+                    const detailRes = await this.$shopeemanService.searchProductDetail(item.country, params)
+                    if (detailRes.code === 200) {
+                      const discount_model_list = []
+                      detailRes.data.model_list.forEach(i => {
+                        const obj = {
+                          discount: Math.floor(100 - sellActive.discount),
+                          itemid: product_id,
+                          model_name: i.name,
+                          modelid: i.id,
+                          price_before_discount: Number(i.price),
+                          promotion_price: (i.price * sellActive.discount / 100).toFixed(2),
+                          promotionid: sellActive.discountId,
+                          selected: true,
+                          shopid: Number(item.platform_mall_id),
+                          status: 1,
+                          total_item_limit: 0,
+                          user_item_limit: sellActive.number
+                        }
+                        discount_model_list.push(obj)
+                      })
+                      const creatParams = {
+                        discount_id: sellActive.discountId,
+                        discount_model_list,
+                        mallId: item.platform_mall_id
+                      }
+                      await this.GoodsDiscount.putModelActive(item.country, creatParams)
+                    }
+                  }
                 }
+              } else {
+                this.updateAttributeName(item, 3, 'resultsFilter')
+                ++this.statistics.failure
+                let meg = this.$filters.errorMsg(resJSON.data)
+                this.updateAttributeName(item, meg, '', mall)
               }
+            } catch (e) {
+              this.updateAttributeName(item, messageName || '发布失败，数据或请求异常', '', mall)
+            }finally {
+              let progressItem = progress / goodsList.length
+              let mewOnProgress = (this.mewOnProgress + progressItem).toFixed(2)
+              mewOnProgress = mewOnProgress < 100 && mewOnProgress || 100
+              this.mewOnProgress = mewOnProgress * 1
             }
-          } else {
-            let meg = this.$filters.errorMsg(resJSON.data)
-            this.updateAttributeName(item, meg)
           }
+        }else{
+          let progressItem = progress
+          let mewOnProgress = (this.mewOnProgress + progressItem).toFixed(2)
+          mewOnProgress = mewOnProgress < 100 && mewOnProgress || 100
+          this.mewOnProgress = mewOnProgress * 1
         }
       } catch (e) {
-        console.log(e)
-        errorItem && this.updateAttributeName(errorItem, messageName || '发布失败，数据或请求异常')
+
       } finally {
-        let progress = 100 / this.mallList.length
-        let mewOnProgress = (this.mewOnProgress + progress).toFixed(2)
-        mewOnProgress = mewOnProgress<100 && mewOnProgress || 100
-        this.mewOnProgress = mewOnProgress * 1
         --count.count
       }
     },
     //标题，描述，sku过滤
-    fieldFilter(goods,goodItem) {
+    fieldFilter(goods, goodItem) {
       return new Promise(async resolve => {
         try {
           let skuJson = JSON.stringify(goods['tier_variation'])
@@ -1990,6 +2107,7 @@ export default {
                   }
                 }
                 success && this.updateAttributeName(goodItem, '关键词过滤成功')
+                this.updateAttributeName(goodItem, 5, 'resultsFilter')
                 success && ++this.statistics.filter
                 success && resolve(false)
               }
@@ -2013,17 +2131,18 @@ export default {
               let isSKU = skuJson.search('"options":".*(' + i.word + ').*",')
               if ((isName || isDescription || isSKU)) {
                 let mag = []
-                if(isName){
+                if (isName) {
                   mag.push('标题')
                 }
-                if(isDescription){
+                if (isDescription) {
                   mag.push('描述')
                 }
-                if(isSKU){
+                if (isSKU) {
                   mag.push('SKU')
                 }
                 mag = mag.join('、')
                 this.updateAttributeName(goodItem, `发布失败：此商品${mag}含有禁运词`)
+                this.updateAttributeName(goodItem, 5, 'resultsFilter')
                 ++this.statistics.filter
                 resolve(false)
               }
@@ -2039,17 +2158,19 @@ export default {
           const categoryJson = await this.$commodityService.getBlackCategory(categoryParams)
           const categoryRes = JSON.parse(categoryJson)
           const categoryData = categoryRes.data && categoryRes.data.data || []
-          console.log('category_path',goods,categoryData)
+          console.log('category_path', goods, categoryData)
           let category_path = goods['category_path'].join('-')
           categoryData.forEach(item => {
             if (item && item.parent_category_tree === category_path) {
-              ++this.statistics.filter
+              this.updateAttributeName(goodItem, 5, 'resultsFilter')
               this.updateAttributeName(goodItem, '发布失败：该类目是禁运类目')
+              ++this.statistics.filter
               resolve(false)
             }
           })
           resolve(true)
         } catch (e) {
+          this.updateAttributeName(goodItem, 5, 'resultsFilter')
           this.updateAttributeName(goodItem, '发布失败：网络异常请稍后再试')
           ++this.statistics.filter
           resolve(false)
@@ -2213,7 +2334,6 @@ export default {
         } else {
           return 0
         }
-
       } else if (this.valuationRadio === 3) {
         return this.basicConfig.fixedPrice
       }
@@ -2255,10 +2375,17 @@ export default {
         })
       })
     },
-    updateAttributeName(item, value, attributeName = 'statusName') {
+    updateAttributeName(item, value, attributeName, mall) {
+      attributeName = attributeName || 'statusName'
       let index = this.goodsTable.findIndex(i => i.id === item.id)
       if (index >= 0) {
         this.$set(this.goodsTable[index], attributeName, value)
+        if (attributeName === 'statusName' && mall) {
+          let mallId = mall.platform_mall_id
+          let mallName = mall.mall_alias_name || mall.platform_mall_name
+          this.$set(this.goodsTable[index], 'mallName', mallName)
+          this.updateOnNewDetails(item.id, mallId, { state: value })
+        }
       }
     },
     async getCategoryPath(categoryId) {
@@ -2598,12 +2725,27 @@ export default {
     deleteGoodsList(isAll) {
       if (isAll) {
         this.goodsTable = []
+        localStorage.setItem('goodsTableJson', '')
+        this.sourceCategoryList = []
+        this.sourceCategory = [0]
       } else {
         if (this.goodsTableSelect.length > 0) {
-          this.goodsTableSelect.forEach(item => {
+          let goodsTableJson = localStorage.getItem('goodsTableJson')
+          let goodsList = goodsTableJson && JSON.parse(goodsTableJson) || []
+          for (let i = 0; i < this.goodsTableSelect.length; i++) {
+            let item = this.goodsTableSelect[i]
             let index = this.goodsTable.findIndex(son => son.id === item.id)
+            let sIndex = goodsList.findIndex(son => son.id === item.id)
             this.goodsTable.splice(index, 1)
+            goodsList.splice(sIndex, 1)
+          }
+          let sourceCategoryList = new Set()
+          goodsList.forEach(item => {
+            sourceCategoryList.add(item.category_name)
           })
+          this.sourceCategoryList = [...sourceCategoryList]
+          this.sourceCategory = [0, ...sourceCategoryList]
+          localStorage.setItem('goodsTableJson', JSON.stringify(goodsList))
         } else {
           this.$message.error('请选择一个商品')
         }
@@ -2612,20 +2754,37 @@ export default {
     copy(str) {
       copyText(str)
     },
-    keyFilterChange(type) {
-      console.log(type)
-      if (type) {
-        if (this.associatedConfig.keyFilter.includes(0)) {
-          this.associatedConfig.keyFilter = [0, 1, 2, 3]
+    keyFilterChange(type, state) {
+      if (type === 1) {
+        if (state) {
+          if (this.associatedConfig.keyFilter.includes(0)) {
+            this.associatedConfig.keyFilter = [0, ...this.keyFilterList.map(i => i.value)]
+          } else {
+            this.associatedConfig.keyFilter = []
+          }
         } else {
-          this.associatedConfig.keyFilter = []
+          if (this.associatedConfig.keyFilter.includes(0)) {
+            this.associatedConfig.keyFilter.splice(0, 1)
+          } else {
+            if (this.associatedConfig.keyFilter.length === this.keyFilterList.length) {
+              this.associatedConfig.keyFilter = [0, ...this.keyFilterList.map(i => i.value)]
+            }
+          }
         }
-      } else {
-        if (this.associatedConfig.keyFilter.includes(0)) {
-          this.associatedConfig.keyFilter.splice(0, 1)
+      } else if (type === 2) {
+        if (state) {
+          if (this.sourceCategory.includes(0)) {
+            this.sourceCategory = [0, ...this.sourceCategoryList]
+          } else {
+            this.sourceCategory = []
+          }
         } else {
-          if (this.associatedConfig.keyFilter.length === 3) {
-            this.associatedConfig.keyFilter = [0, 1, 2, 3]
+          if (this.sourceCategory.includes(0)) {
+            this.sourceCategory.splice(0, 1)
+          } else {
+            if (this.sourceCategory.length === this.sourceCategoryList.length) {
+              this.sourceCategory = [0, ...this.sourceCategoryList]
+            }
           }
         }
       }
@@ -2681,6 +2840,87 @@ export default {
           }
         }
       }
+    },
+    queryGoodsTable() {
+      let goodsTable = this.goodsTable
+      if (this.resultsFilter === 0) {
+        let goodsTableJson = localStorage.getItem('goodsTableJson')
+        goodsTable = goodsTableJson && JSON.parse(goodsTableJson) || []
+        if (this.sourceCategory.includes(0)) {
+          let sourceCategoryList = new Set()
+          goodsTable.forEach(item => {
+            sourceCategoryList.add(item.category_name)
+          })
+          this.sourceCategoryList = [...sourceCategoryList]
+          this.sourceCategory = [0, ...sourceCategoryList]
+        }
+      } else if (this.resultsFilter === 1) {
+        let goodsTableJson = localStorage.getItem('goodsTableJson')
+        let goodsTableList = goodsTableJson && JSON.parse(goodsTableJson) || []
+        goodsTable.forEach(item => {
+          let index = goodsTableList.findIndex(son => son.id === item.id)
+          if (index >= 0) {
+            goodsTableList[index] = item
+          }
+        })
+        goodsTable = []
+        goodsTableList.forEach(item => {
+          if (!item.resultsFilter) {
+            goodsTable.push(item)
+          }
+        })
+      } else {
+        let goodsTableList = goodsTable
+        goodsTable = []
+        goodsTableList.forEach(item => {
+          if (item.resultsFilter === this.resultsFilter) {
+            goodsTable.push(item)
+          }
+        })
+      }
+      console.log('goodsTable', goodsTable)
+      if (this.sourceCategory.includes(0)) {
+        this.goodsTable = goodsTable
+      } else {
+        let goodsList = []
+        goodsTable.forEach(item => {
+          if (this.sourceCategory.includes(item.category_name)) {
+            goodsList.push(item)
+          }
+        })
+        this.goodsTable = goodsList
+      }
+
+    },
+    updateOnNewDetails(id, mallId, data) {
+      if (!this.newOnDetails[id]) {
+        this.newOnDetails[id] = {}
+      }
+      if (!this.newOnDetails[id][mallId]) {
+        this.newOnDetails[id][mallId] = data
+      } else {
+        this.newOnDetails[id][mallId] = Object.assign(this.newOnDetails[id][mallId], data)
+      }
+    },
+    viewDetails(id) {
+      console.log('viewDetails', id)
+      this.newOnDetailsList = []
+      let newOnDetails = this.newOnDetails[id]
+      if (newOnDetails) {
+        for (let key in newOnDetails) {
+          /**
+           * goods_id
+           * mallName
+           * state
+           * sourceName
+           * name
+           * product_id
+           * price
+           */
+          this.newOnDetailsList.push(newOnDetails[key])
+        }
+      }
+      this.detailsVisible = true
     }
   }
 }
@@ -2753,6 +2993,20 @@ export default {
 
   &:hover {
     color: #ff0000;
+  }
+}
+
+.source-category {
+  width: 175px;
+
+  .el-select__tags {
+    display: flex;
+    flex-wrap: nowrap;
+    overflow: hidden;
+
+    .el-tag {
+      max-width: 90px;
+    }
   }
 }
 </style>

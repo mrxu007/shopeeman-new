@@ -316,7 +316,7 @@ export default {
           return
         }
         this.$refs.autoReplyLogs.writeLog(`店铺【${item.mall_alias_name || item.platform_mall_name}】服务端数据获取结束`)
-
+        console.log('同步--获取被删除的商品数据')
         // 同步--获取被删除的商品数据
         const delList = []
         if (!delList.length) {
@@ -331,11 +331,14 @@ export default {
           }
         })
         let delL = delList.splice(0, 100)// 一次上限一百
+        console.log('delList',delList,delL)
         while (delL.length) {
           if (this.dataRuning) { // 终止循环---------
             return
           }
+          console.log('delCloudItems - params',delL)
           const tes = await this.$commodityService.delCloudItems(JSON.stringify(delL))
+          console.log('delCloudItems',tes)
           const jsontes = JSON.parse(tes)
           if (jsontes.code === 200) {
             this.$set(item, 'endstatus', `同步成功，同步成功数：${delL.length}`)

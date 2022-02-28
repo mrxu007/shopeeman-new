@@ -3,7 +3,8 @@ import jxAdapter from './jx-apdater'
 import tbAdaptert from './gateway/gateway-adapter'
 
 const baseURL = window.appInfo.route
-// const baseURL = 'http://local.spm.com/api'
+// const baseURL = 'http://release.shopeeman.com/api'
+// const baseURL = 'http://www-lyj.shopee-native.com/api'
 const AppRequest = axios.create({ // 壳内转发请求
   baseURL,
   timeout: 5000,
@@ -218,6 +219,9 @@ export default {
   getsecondStroelist: (data) => AppRequest.post('/overseasTansferPackage/index', data), // 获取智能仓库二次销售列表
   getlupplementlist: (data) => AppRequest.get('/getReissueStoreList', { params: data }), // 获取海外仓补件列表
   cancelsupplement: (data) => AppRequest.post('/cancelReissueOrder', data), // 取消补件
+  getStockSkuId: (data) => AppRequest.post('/warehouse/stockListV2', data), //获取备货库存skuId
+  uploadStockSkuId: (data) => AppRequest.post('/goodsStockSkuRelation/uploadStockSkuId',  data ), // 上报备货库存skuId
+
   // 产品中心------------------------------------------------------------------------
   getproductlist: (data) => AppRequest.get('/product/list', { params: data }), // 获取产品列表
   deleteproduct: (data) => AppRequest.post('/product/delete', data), // 删除产品

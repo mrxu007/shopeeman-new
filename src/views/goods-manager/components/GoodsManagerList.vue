@@ -2940,11 +2940,28 @@ export default {
       console.log('deleteId', this.deleteId)
       if (this.deleteId.length > 0) {
         this.$refs.Logs.writeLog(`正在删除云商品库数据...`, true)
-        const res = await this.GoodsList.deleteCollectGoodsInfo(this.deleteId)
-        if (res.code === 200) {
-          this.$refs.Logs.writeLog(`删除云商品库数据成功`, true)
-        } else {
-          this.$refs.Logs.writeLog(`删除云商品库数据失败：${res.data}`, false)
+        // const res = await this.GoodsList.deleteCollectGoodsInfo(this.deleteId)
+        let deleteList = [...this.deleteId.map(item=>{return {sysmallId:item}})]
+        let delL = deleteList.splice(0, 100)
+        while (delL.length) {
+          console.log('delCloudItems - params',delL)
+          const tes = await this.$commodityService.delCloudItems(JSON.stringify(delL))
+          console.log('delCloudItems',tes)
+          const jsontes = JSON.parse(tes)
+          if (jsontes.code === 200) {
+          } else {
+            return
+          }
+          if (deleteList.length < 100) {
+            if(deleteList.length === 0){
+              delL = []
+            }else{
+              delL = deleteList
+              deleteList = []
+            }
+          } else {
+            delL = deleteList.splice(0, 100)
+          }
         }
       }
     },
@@ -3209,6 +3226,7 @@ export default {
       this.operationBut = false
       this.showConsole = true
       this.$refs.Logs.writeLog(`查询完成`, true)
+      console.log('tableData',this.tableData)
       if (this.queryType === 100 || this.queryType === 200) {
         if (this.tableData?.length > 0) {
           this.batchDelete()

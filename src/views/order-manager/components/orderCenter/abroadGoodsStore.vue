@@ -183,7 +183,7 @@ export default {
            item.shared_id = item.id
            item.sku_price = item.sku_price/100
            this.tableData.push(item)
-        })  
+        })
       }
       this.tableLoading = false
     },
