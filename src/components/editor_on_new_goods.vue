@@ -5,36 +5,65 @@
         <div class="basisInstall-title">功能区</div>
         <div class="basisInstall-box">
           <div class="button_mini_box">
-            <el-button class="button_mini" size="mini" type="primary" disabled @click="batchDealWith(1)">收藏数据
+            <el-button class="button_mini" size="mini" type="primary" @click="batchDealWith(1)" disabled>收藏数据
             </el-button>
-            <el-button class="button_mini" size="mini" type="primary" @click="batchDealWith(2,1)">翻译数据</el-button>
+            <el-button class="button_mini" size="mini" type="primary" @click="batchDealWith(2,1)"
+                       :disabled="isCollectShow">翻译数据
+            </el-button>
           </div>
-          <el-button style="flex: 1;margin-left: 10px;" size="mini" type="primary" @click="batchDealWith(3)">批量编辑标题/描述
+          <el-button style="flex: 1;margin-left: 10px;" size="mini" type="primary" @click="batchDealWith(3)"
+                     :disabled="isCollectShow">批量编辑标题/描述
           </el-button>
-          <el-button style="flex: 1" size="mini" type="primary" @click="batchDealWith(4)">批量添加尺寸图</el-button>
+          <el-button style="flex: 1" size="mini" type="primary" @click="batchDealWith(4)" :disabled="isCollectShow">
+            批量添加尺寸图
+          </el-button>
         </div>
         <div class="basisInstall-box">
-          <el-button style="flex: 1" size="mini" type="primary" @click="batchDealWith(5)">一件组装数据到上新</el-button>
-          <el-button style="flex: 1" size="mini" type="primary" @click="batchDealWith(6)">产品到上新</el-button>
-          <el-button style="flex: 1" size="mini" type="primary" @click="batchDealWith(7)">批量删除尺寸图</el-button>
+          <el-button style="flex: 1" size="mini" type="primary" @click="batchDealWith(5)" :disabled="isCollectShow">
+            一件组装数据到上新
+          </el-button>
+          <el-button style="flex: 1" size="mini" type="primary" @click="batchDealWith(6)" :disabled="isCollectShow">
+            产品到上新
+          </el-button>
+          <el-button style="flex: 1" size="mini" type="primary" @click="batchDealWith(7)" :disabled="isCollectShow">
+            批量删除尺寸图
+          </el-button>
         </div>
         <div class="basisInstall-box">
-          <el-button style="flex: 1" size="mini" type="primary" disabled @click="batchDealWith(8)">收藏失败产品重试</el-button>
+          <el-button style="flex: 1" size="mini" type="primary" @click="batchDealWith(8)"
+                     :disabled="!isCollect || isCollectShow">收藏失败产品重试
+          </el-button>
           <el-button style="flex: 1" size="mini" type="primary" @click="batchDealWith(9)">取消操作</el-button>
-          <el-button style="flex: 1" size="mini" type="primary" @click="batchDealWith(10)">标记商品标签</el-button>
+          <el-button style="flex: 1" size="mini" type="primary" @click="batchDealWith(10)" :disabled="isCollectShow">
+            标记商品标签
+          </el-button>
         </div>
         <div class="basisInstall-box">
-          <el-button style="flex: 1" size="mini" type="primary" @click="batchDealWith(11)">翻译失败产品重试</el-button>
-          <el-button style="flex: 1" size="mini" type="primary" @click="batchDealWith(12)">标题首字母大写</el-button>
-          <el-button style="flex: 1" size="mini" type="primary" @click="batchDealWith(13)">取消商品标签</el-button>
+          <el-button style="flex: 1" size="mini" type="primary" @click="batchDealWith(11)" :disabled="isCollectShow">
+            翻译失败产品重试
+          </el-button>
+          <el-button style="flex: 1" size="mini" type="primary" @click="batchDealWith(12)" :disabled="isCollectShow">
+            标题首字母大写
+          </el-button>
+          <el-button style="flex: 1" size="mini" type="primary" @click="batchDealWith(13)" :disabled="isCollectShow">
+            取消商品标签
+          </el-button>
         </div>
         <div class="basisInstall-box">
-          <el-button style="flex: 1" size="mini" type="primary" @click="batchDealWith(14)">批量映射虾皮类目</el-button>
-          <el-button style="flex: 1" size="mini" type="primary" @click="batchDealWith(15)">翻译图片</el-button>
-          <el-button style="flex: 1" size="mini" type="primary" @click="batchDealWith(16)">批量设置重量/体积</el-button>
+          <el-button style="flex: 1" size="mini" type="primary" @click="batchDealWith(14)" :disabled="isCollectShow">
+            批量映射虾皮类目
+          </el-button>
+          <el-button style="flex: 1" size="mini" type="primary" @click="batchDealWith(15)" :disabled="isCollectShow">
+            翻译图片
+          </el-button>
+          <el-button style="flex: 1" size="mini" type="primary" @click="batchDealWith(16)" :disabled="isCollectShow">
+            批量设置重量/体积
+          </el-button>
         </div>
         <div class="basisInstall-box">
-          <el-button style="flex: 1" size="mini" type="primary" @click="batchDealWith(17)">批量删除</el-button>
+          <el-button style="flex: 1" size="mini" type="primary" @click="batchDealWith(17)" :disabled="isCollectShow">
+            批量删除
+          </el-button>
         </div>
         <el-upload
             v-if="uploadImgAdd"
@@ -45,27 +74,20 @@
             :show-file-list="false"
             :limit="1"
             :auto-upload="false"
-            :on-change="imageUpload"
-        >
+            :on-change="imageUpload">
           <el-button ref="uploadImg" size="mini" type="primary">选择图片</el-button>
         </el-upload>
       </div>
-      <div class="basisInstall width_600" style="padding: 10px;">
+      <div class="basisInstall width_600" style="padding: 10px 10px 5px;">
         <div class="basisInstall-title">功能区</div>
-        <div class="basisInstall-box" style="color: red" s>
+        <div class="basisInstall-box" style="color: red">
           <div>温馨提示：</div>
           使用【翻译数据】【一键组装数据到上新】功能前，先配置以下信息
         </div>
         <div class="basisInstall-box">
           <div>标签列表：</div>
-          <el-select
-              v-model="configLabel"
-              value=""
-              size="mini"
-              filterable
-              allow-create
-              style="width: 120px;margin-right: 5px;"
-          >
+          <el-select v-model="configLabel" value="" size="mini" filterable allow-create
+                     style="width: 120px;margin-right: 5px;" :disabled="isCollectShow">
             <el-option v-for="(item,index) in configLabelList" :key="index" :value="item">
               <div style="display: flex;justify-content: space-between;align-items: center">
                 <div>{{ item }}</div>
@@ -73,30 +95,35 @@
               </div>
             </el-option>
           </el-select>
-          <el-button size="mini" type="primary" @click.native="saveConfigLabel">保存配置信息</el-button>
-          <el-button size="mini" type="primary" @click.native="selectDescribe(0)">选择模板</el-button>
-<!--          <el-button size="mini" type="primary" @click.native="loginAliTranslation">登录阿里翻译</el-button>-->
+          <el-button size="mini" type="primary" @click.native="saveConfigLabel" :disabled="isCollectShow">保存配置信息
+          </el-button>
+          <el-button size="mini" type="primary" @click.native="selectDescribe(0)" :disabled="isCollectShow">选择模板
+          </el-button>
+          <!--          <el-button size="mini" type="primary" @click.native="loginAliTranslation">登录阿里翻译</el-button>-->
         </div>
         <div class="basisInstall-box">
           <div>商品描述：</div>
-          <el-radio v-model="goodsDescribeRadio" :label="0">自定义+SKU描述</el-radio>
-          <el-radio v-model="goodsDescribeRadio" :label="1">原描述</el-radio>
-          <el-radio v-model="goodsDescribeRadio" :label="2">原描述+自定义</el-radio>
-          <el-radio v-model="goodsDescribeRadio" :label="3">原描述+SKU描述</el-radio>
-          <el-radio v-model="goodsDescribeRadio" :label="4">自定义</el-radio>
+          <el-radio v-model="goodsDescribeRadio" :label="0" :disabled="isCollectShow">自定义+SKU描述</el-radio>
+          <el-radio v-model="goodsDescribeRadio" :label="1" :disabled="isCollectShow">原描述</el-radio>
+          <el-radio v-model="goodsDescribeRadio" :label="2" :disabled="isCollectShow">原描述+自定义</el-radio>
+          <el-radio v-model="goodsDescribeRadio" :label="3" :disabled="isCollectShow">原描述+SKU描述</el-radio>
+          <el-radio v-model="goodsDescribeRadio" :label="4" :disabled="isCollectShow">自定义</el-radio>
         </div>
         <div class="basisInstall-box">
           <div>翻译配置：</div>
-          <el-checkbox v-model="translationConfig.titleChecked" size="mini">翻译标题</el-checkbox>
-          <el-checkbox v-model="translationConfig.specChecked" size="mini">翻译规格信息</el-checkbox>
-          <el-checkbox v-model="translationConfig.describeChecked" size="mini">翻译描述</el-checkbox>
+          <el-checkbox v-model="translationConfig.titleChecked" size="mini" :disabled="isCollectShow">翻译标题</el-checkbox>
+          <el-checkbox v-model="translationConfig.specChecked" size="mini" :disabled="isCollectShow">翻译规格信息
+          </el-checkbox>
+          <el-checkbox v-model="translationConfig.describeChecked" size="mini" :disabled="isCollectShow">翻译描述
+          </el-checkbox>
           <el-tooltip class="item" effect="dark" content="如果选择付费翻译描述，将会产生大量扣费" placement="top">
             <el-button size="mini" type="text"><i class="el-icon-question" style="padding: 0 2px;"/></el-button>
           </el-tooltip>
         </div>
         <div class="basisInstall-box">
           <div>翻译语种：</div>
-          <el-select v-model="translationConfig.languages" size="mini" style="width: 80px;" value="">
+          <el-select v-model="translationConfig.languages" size="mini" style="width: 80px;" value=""
+                     :disabled="isCollectShow">
             <el-option
                 v-for="item in languagesList"
                 :key="item.value"
@@ -105,49 +132,50 @@
             />
           </el-select>
           <div style="margin-left: 10px;">失败类型：</div>
-          <el-select v-model="translationConfig.failureType" size="mini" style="width: 110px;" value="">
+          <el-select v-model="translationConfig.failureType" size="mini" style="width: 110px;" value=""
+                     :disabled="isCollectShow">
             <el-option :label="'全部'" :value="0"/>
             <el-option :label="'文字翻译失败'" :value="'3'"/>
             <el-option :label="'图片翻译失败'" :value="'5'"/>
           </el-select>
           <div style="margin-left: 10px;">线程数量：</div>
-          <el-input v-model="threadNumber" size="mini" style="width: 40px;margin-right: 10px;"/>
-          <el-checkbox v-model="filterSimplifiedChecked" size="mini">上新过滤简体数据</el-checkbox>
+          <el-input v-model="threadNumber" size="mini" style="width: 40px;margin-right: 10px;"
+                    :disabled="isCollectShow"/>
+          <el-checkbox v-model="filterSimplifiedChecked" size="mini" :disabled="isCollectShow">上新过滤简体数据</el-checkbox>
         </div>
         <div class="basisInstall-box">
           <div>图片类型：</div>
-          <el-checkbox v-model="pictureConfig.specChecked" size="mini">翻译规格图</el-checkbox>
-          <el-checkbox v-model="pictureConfig.shuffleChecked" size="mini">翻译轮播图</el-checkbox>
+          <el-checkbox v-model="pictureConfig.specChecked" size="mini" :disabled="isCollectShow">翻译规格图</el-checkbox>
+          <el-checkbox v-model="pictureConfig.shuffleChecked" size="mini" :disabled="isCollectShow">翻译轮播图</el-checkbox>
           <div>删除条件：</div>
-          <el-checkbox v-model="pictureConfig.deleteGoodsChecked" size="mini">删除库存低于设定值的商品</el-checkbox>
-          <el-input v-model="pictureConfig.inventoryNumber" size="mini" style="width: 80px;"/>
-        </div>
-        <div class="basisInstall-box">
-          <div>图片翻译：</div>
-<!--          <el-radio v-model="pictureConfig.typeRadio" :label="0">阿里免费翻译</el-radio>-->
-          <el-radio v-model="pictureConfig.typeRadio" style="margin-right: 0;" :label="1">阿里付费翻译</el-radio>
-          <el-tooltip style="margin-right: 10px;" class="item" effect="dark" content="0.06元一张图片" placement="top">
-            <el-button size="mini" type="text"><i class="el-icon-question" style="padding: 0 2px;"/></el-button>
-          </el-tooltip>
-          <el-radio v-model="pictureConfig.typeRadio" :label="2">云图像翻译</el-radio>
-          <div v-if="false && !pictureConfig.typeRadio" style="display: flex;">
-            <div style="margin-left: 5px;">图片翻译检验：</div>
-            <el-radio v-model="pictureConfig.checkedRadio" :label="1">检验</el-radio>
-            <el-radio v-model="pictureConfig.checkedRadio" :label="0">不检验</el-radio>
-          </div>
+          <el-checkbox v-model="pictureConfig.deleteGoodsChecked" size="mini" :disabled="isCollectShow">删除库存低于设定值的商品
+          </el-checkbox>
+          <el-input v-model="pictureConfig.inventoryNumber" size="mini" style="width: 80px;" :disabled="isCollectShow"/>
         </div>
         <div class="basisInstall-box">
           <div style="display: flex;align-items: center">
             <div>图片翻译：</div>
-            <el-select v-model="translationConfig.before" size="mini" style="width: 80px;" value="">
+            <!--          <el-radio v-model="pictureConfig.typeRadio" :label="0">阿里免费翻译</el-radio>-->
+            <el-radio v-model="pictureConfig.typeRadio" style="margin-right: 0;" :label="1" :disabled="isCollectShow">
+              阿里付费翻译
+            </el-radio>
+            <el-tooltip style="margin-right: 10px;" class="item" effect="dark" content="0.06元一张图片" placement="top">
+              <el-button size="mini" type="text"><i class="el-icon-question" style="padding: 0 2px;"/></el-button>
+            </el-tooltip>
+            <el-radio v-model="pictureConfig.typeRadio" :label="2" :disabled="isCollectShow">云图像翻译</el-radio>
+          </div>
+          <div style="display: flex;align-items: center">
+            <div>图片翻译：</div>
+            <el-select v-model="translationConfig.before" size="mini" style="width: 100px;" value="">
               <el-option label="不翻译" :value="'no'"/>
               <el-option label="中文" :value="1"/>
               <el-option label="英文" :value="2"/>
             </el-select>
             <div style="width: 10px;height: 1px;background-color: #333333;margin: 0 5px;"/>
-            <el-select v-if="translationConfig.before === 'no'" size="mini" style="width: 80px;" value="" disabled placeholder="不翻译">
+            <el-select v-if="translationConfig.before === 'no'" size="mini" style="width: 100px;" value="" disabled
+                       placeholder="不翻译">
             </el-select>
-            <el-select v-else v-model="translationConfig.after" size="mini" style="width: 80px;" value="">
+            <el-select v-else v-model="translationConfig.after" size="mini" style="width: 100px;" value="">
               <el-option
                   v-for="item in pictureLanguagesList"
                   v-show="(pictureConfig.typeRadio !== 0 || translationConfig.before !==2) || item.free"
@@ -158,16 +186,47 @@
               />
             </el-select>
           </div>
-          <div v-if="!pictureConfig.typeRadio" style="display: flex;align-items: center;margin-left: 10px;">
-            <div>阿里翻译账号：</div>
-            <el-select v-model="aLiUsername" class="select-right-30" size="mini" style="width: 120px;" value="">
-              <el-option v-for="item in aLiUsernameList" :key="item.id" :label="item.name" :value="item.name">
-                <span>{{ item.name }}</span>
-                <span class="span-but" @click.stop="deleteAliTranslation(item.id)">X</span>
-              </el-option>
-            </el-select>
-            <el-button size="mini" style="margin-left: 5px" @click="joinAliTranslation">账号个人中心</el-button>
+          <div v-if="false && !pictureConfig.typeRadio" style="display: flex;">
+            <div style="margin-left: 5px;">图片翻译检验：</div>
+            <el-radio v-model="pictureConfig.checkedRadio" :label="1" :disabled="isCollectShow">检验</el-radio>
+            <el-radio v-model="pictureConfig.checkedRadio" :label="0" :disabled="isCollectShow">不检验</el-radio>
           </div>
+        </div>
+        <!--        <div class="basisInstall-box">-->
+        <!--          <div style="display: flex;align-items: center">-->
+        <!--            <div>图片翻译：</div>-->
+        <!--            <el-select v-model="translationConfig.before" size="mini" style="width: 100px;" value="">-->
+        <!--              <el-option label="不翻译" :value="'no'"/>-->
+        <!--              <el-option label="中文" :value="1"/>-->
+        <!--              <el-option label="英文" :value="2"/>-->
+        <!--            </el-select>-->
+        <!--            <div style="width: 10px;height: 1px;background-color: #333333;margin: 0 5px;"/>-->
+        <!--            <el-select v-if="translationConfig.before === 'no'" size="mini" style="width: 100px;" value="" disabled placeholder="不翻译">-->
+        <!--            </el-select>-->
+        <!--            <el-select v-else v-model="translationConfig.after" size="mini" style="width: 100px;" value="">-->
+        <!--              <el-option-->
+        <!--                  v-for="item in pictureLanguagesList"-->
+        <!--                  v-show="(pictureConfig.typeRadio !== 0 || translationConfig.before !==2) || item.free"-->
+        <!--                  v-if="item.isShow.indexOf(translationConfig.before)>=0"-->
+        <!--                  :key="item.value"-->
+        <!--                  :label="item.label"-->
+        <!--                  :value="item.value"-->
+        <!--              />-->
+        <!--            </el-select>-->
+        <!--          </div>-->
+        <!--          <div v-if="!pictureConfig.typeRadio" style="display: flex;align-items: center;margin-left: 10px;">-->
+        <!--            <div>阿里翻译账号：</div>-->
+        <!--            <el-select v-model="aLiUsername" class="select-right-30" size="mini" style="width: 120px;" value="">-->
+        <!--              <el-option v-for="item in aLiUsernameList" :key="item.id" :label="item.name" :value="item.name">-->
+        <!--                <span>{{ item.name }}</span>-->
+        <!--                <span class="span-but" @click.stop="deleteAliTranslation(item.id)">X</span>-->
+        <!--              </el-option>-->
+        <!--            </el-select>-->
+        <!--            <el-button size="mini" style="margin-left: 5px" @click="joinAliTranslation">账号个人中心</el-button>-->
+        <!--          </div>-->
+        <!--        </div>-->
+        <div style="color: red;display: flex; justify-content: space-between;margin-top: -5px;">
+          马来站和菲律宾的部分类目需要设置体积和重量后才能上新
         </div>
       </div>
       <div class="basisInstall" style="padding: 10px;">
@@ -195,7 +254,7 @@
         row-key="id"
         :border="false"
         :big-data-checkbox="true"
-        :height="isNoFoldShow && 400 || 680"
+        :height="isNoFoldShow && 430 || 680"
         @selection-change="handleSelectionChange"
     >
       <u-table-column align="center" show-overflow-tooltip width="55" type="selection"/>
@@ -274,7 +333,7 @@
           </div>
         </template>
       </u-table-column>
-      <u-table-column align="left" label="操作状态" width="90">
+      <u-table-column align="left" label="操作状态" width="100">
         <template v-slot="{row}">
           <div class="goodsTableLine" style="height: 80px">
             {{ row.operation_type || '' }}
@@ -434,6 +493,9 @@ import categoryMapping from './category-mapping'
 import goodsLabel from './goods-label'
 import goodsSize from './goods-size'
 import { batchOperation, copyText, getGoodsUrl, randomWord, selfAliYunTransImage, terminateThread } from '../util/util'
+import CollectKeyWordApI from '@/views/product-put-on/components/collection-keyword-api'
+import CollectLinkApI from '@/views/product-put-on/components/collection-link-api'
+import CollectPublicApI from '@/views/product-put-on/components/collection-public-api'
 
 export default {
   name: 'EditorOnNewGoods',
@@ -442,10 +504,19 @@ export default {
     mallTable: {
       type: Array,
       default: []
+    },
+    isCollect: {
+      type: Boolean,
+      default() {
+        return false
+      }
     }
   },
   data() {
     return {
+      CollectPublicApInstance: new CollectPublicApI(this),
+      CollectKeyWordApInstance: new CollectKeyWordApI(this), // 关键词采集
+      collectLinkApInstance: new CollectLinkApI(this), // 链接采集
       isNoFoldShow: true, // 折叠
       mallTableSelect: [], // 商品选择列表
       categoryList: {},
@@ -584,8 +655,8 @@ export default {
       goodsSizeVisible: false,
       configLabelList: [],
       configLabel: '',
-      isReplaceSize: true
-
+      isReplaceSize: true,
+      isCollectShow: false
     }
   },
   computed: {
@@ -601,7 +672,7 @@ export default {
     },
     getCategoty() {
       return function(row) {
-        return this.categoryList[row.category_id]
+        return row.category_name || this.categoryList[row.category_id]
       }
     }
   },
@@ -637,6 +708,12 @@ export default {
     this.getValueFormat()
   },
   async mounted() {
+    this.statistics.count = this.mallTable.length
+    if (this.isCollect) {
+      this.isCollectShow = this.isCollect
+      await batchOperation(this.mallTable, this.saveGoods)
+      this.isCollectShow = false
+    }
     this.$refs.mallTableRef.toggleAllSelection()
     const getLabelsRes = await this.$api.getLabels()
     const getLabelsData = getLabelsRes.data
@@ -650,7 +727,6 @@ export default {
     const userInfo = await this.$appConfig.getUserInfo()
     this.userInfo = Object.assign(JSON.parse(userJson), userInfo)
     console.log('this.userInfo', this.userInfo)
-    this.statistics.count = this.mallTable.length
     await this.showCategory()
     const buyerList = await this.$api.getBuyerList()
     buyerList.data.data.forEach(item => {
@@ -667,7 +743,25 @@ export default {
         this.$message.error('请选择一个商品信息')
         return false
       }
+      if (type !== 1) {
+        let list = []
+        this.mallTableSelect.forEach(item => {
+          if (!item.isFailure) {
+            list.push(item)
+          }
+        })
+        this.mallTableSelect = list
+      }
       if (type === 1) {
+        let list = []
+        this.mallTableSelect.forEach(item => {
+          if (item.isFailure) {
+            list.push(item)
+          }
+        })
+        this.isCollectShow = true
+        await batchOperation(list, this.saveGoods)
+        this.isCollectShow = false
       } else if (type === 2) {
         await this.translationPrepare(1)
       } else if (type === 3) {
@@ -711,13 +805,13 @@ export default {
           if (this.filterSimplifiedChecked) {
             if (temp.language === 'zh-Hans') {
               const index = this.mallTable.findIndex(son => i.id === son.id)
-              this.$set(this.mallTable[index], 'operation_type', '中文简体无法直接上新')
+              this.StatusName(i, '中文简体无法直接上新')
               return
             }
           }
           goodsList.push(temp)
         })
-        if (goodsList.length > 0){
+        if (goodsList.length > 0) {
           this.$BaseUtilService.gotoUploadTab('gotoUpload', JSON.stringify(goodsList))
         }
       } else if (type === 7) {
@@ -737,7 +831,15 @@ export default {
           }
         }
       } else if (type === 8) {
-
+        let list = []
+        this.mallTable.forEach(item => {
+          if (item.isFailure) {
+            list.push(item)
+          }
+        })
+        this.isCollectShow = true
+        await batchOperation(list, this.saveGoods)
+        this.isCollectShow = false
       } else if (type === 9) {
         terminateThread()
       } else if (type === 10) {
@@ -825,9 +927,9 @@ export default {
         this.mallTable.splice(index, 1)
         this.mallTableSelect.splice(index1, 1)
         let res = JSON.parse(json)
-        if (res.code === 200){
+        if (res.code === 200) {
           this.$message.success('商品删除成功')
-        }else{
+        } else {
           this.$message.success('商品删除失败')
         }
       }
@@ -880,7 +982,7 @@ export default {
         } else {
           tempText = neededTranslateInfoData.title
         }
-        let titleDescribeKey = this.titleDescribeKey.replaceAll('，',',')
+        let titleDescribeKey = this.titleDescribeKey.replaceAll('，', ',')
         const keyList = titleDescribeKey.split(',')
         if (this.titleDescribeHandleRadio === 0) {
           keyList.forEach(i => {
@@ -896,7 +998,7 @@ export default {
           }
         } else if (this.titleDescribeHandleRadio === 4) {
           keyList.forEach(i => {
-            let key = i.replaceAll('；',';')
+            let key = i.replaceAll('；', ';')
             key = key.split(';')
             const oldStr = key[0] || ''
             const newStr = key[1] || ''
@@ -1008,26 +1110,26 @@ export default {
           this.describeConfigId = parseInt(data.data)
           this.describeConfig.describe = this.describeConfig.text
           this.describeVisible = false
-          if (data.code === 200){
+          if (data.code === 200) {
             this.$message.success('保存成功')
-          }else{
+          } else {
             this.$message.error('保存失败【请求异常】')
           }
         } else if (type === 2) {
           const resJson = await this.$commodityService.deleteDescriptionTemplate(this.describeConfigId)
           const res = JSON.parse(resJson)
           if (res.code === 200) {
-            let index = this.describeLabelList.findIndex(son=>son.id === this.describeConfigId)
-            console.log(this.describeConfigId,this.describeLabelList,index)
-            this.describeLabelList.splice(index,1)
+            let index = this.describeLabelList.findIndex(son => son.id === this.describeConfigId)
+            console.log(this.describeConfigId, this.describeLabelList, index)
+            this.describeLabelList.splice(index, 1)
             this.describeConfigId = ''
             this.$message.success('删除成功')
           } else {
             this.$message.error('删除失败')
           }
         } else if (type === 3) {
-          if (this.describeConfigId){
-            let index = this.describeLabelList.findIndex(son=>son.id === this.describeConfigId)
+          if (this.describeConfigId) {
+            let index = this.describeLabelList.findIndex(son => son.id === this.describeConfigId)
             const label = this.describeLabelList[index].lable
             const descriptionTemplate = await this.$commodityService.uploadDescriptionTemplate(label, this.describeConfig.text)
             const data = JSON.parse(descriptionTemplate)
@@ -1035,13 +1137,13 @@ export default {
             this.describeConfigId = parseInt(data.data)
             this.describeConfig.describe = this.describeConfig.text
             this.describeVisible = false
-            if (data.code === 200){
+            if (data.code === 200) {
               this.$message.success('保存成功')
-            }else{
+            } else {
               this.$message.error('保存失败【请求异常】')
             }
             this.describeVisible = false
-          }else{
+          } else {
             this.$message.error('保存失败【参数异常】')
           }
         } else if (type === 4) {
@@ -1157,10 +1259,10 @@ export default {
               }
               if (spec1ListDstStr) {
                 console.log('itemmodelsJson1', spec1ListDstStr, spec1List)
-                spec1ListDstStr =   spec1ListDstStr.replaceAll('> <','><')
-                spec1ListDstStr =   spec1ListDstStr.replaceAll('< ><>','<><>')
-                spec1ListDstStr =   spec1ListDstStr.replaceAll('<>< >','<><>')
-                spec1ListDstStr =   spec1ListDstStr.replaceAll('< >< >','<><>')
+                spec1ListDstStr = spec1ListDstStr.replaceAll('> <', '><')
+                spec1ListDstStr = spec1ListDstStr.replaceAll('< ><>', '<><>')
+                spec1ListDstStr = spec1ListDstStr.replaceAll('<>< >', '<><>')
+                spec1ListDstStr = spec1ListDstStr.replaceAll('< >< >', '<><>')
                 const spec1ListDst = spec1ListDstStr.split('<><>')
                 const spec1ListSrc = spec1List && spec1List.split('<><>')
                 let spec1ListSort = this.getArraySrcLengthSort(spec1ListSrc)
@@ -1188,7 +1290,7 @@ export default {
               }
               if (spec2ListDstStr) {
                 console.log('itemmodelsJson2', spec2ListDstStr, spec2List)
-                spec2ListDstStr =   spec2ListDstStr.replaceAll('<> <>','<><>')
+                spec2ListDstStr = spec2ListDstStr.replaceAll('<> <>', '<><>')
                 const spec2ListDst = spec2ListDstStr.split('<><>')
                 const spec2ListSrc = spec2List && spec2List.split('<><>')
                 const spec2ListSort = this.getArraySrcLengthSort(spec2ListSrc)
@@ -1413,7 +1515,13 @@ export default {
       })
     },
     handleSelectionChange(val) {
-      this.mallTableSelect = val
+      let list = []
+      val.forEach(item => {
+        if (!item.isFailure) {
+          list.push(item)
+        }
+      })
+      this.mallTableSelect = list
       console.log(this.mallTableSelect)
     },
     getValueFormat() {
@@ -1481,7 +1589,7 @@ export default {
           weight: item.weight,
           long: item.long,
           height: item.height,
-          width: item.width,
+          width: item.width
         }
         const updateGoodsJson = await this.$commodityService.updateGoods(param)
         console.log(updateGoodsJson)
@@ -1679,8 +1787,43 @@ export default {
     },
     copy(str) {
       copyText(str)
+    },
+    async saveGoods(item, count = { count: 1 }) {
+      let res = null
+      try {
+        this.StatusName(item, `正在获取商品详情`)
+        const res2 = await this.collectLinkApInstance.getGoodsDeail(item)
+        if (res2.code !== 200) {
+          this.StatusName(item, `收藏失败：${res2.data}`)
+          this.$set(item, 'isFailure', true)
+        } else {
+          console.log('详情数据', res2.data)
+          res = await this.CollectPublicApInstance.setGoodsData(item, res2.data)
+          if (res.code === 200) {
+            res.data.operation_type = '收藏成功'
+            res.data.isFailure = false
+            let index = this.mallTable.findIndex(son => son.id === item.id)
+            this.$set(this.mallTable, index, res.data)
+            this.statistics.scSuccess++
+          } else {
+            this.StatusName(item, `收藏失败`)
+            this.$set(item, 'isFailure', true)
+          }
+        }
+      } catch (error) {
+        this.StatusName(item, `${error}`)
+        this.$set(item, 'isFailure', true)
+        console.log(error)
+      } finally {
+        --count.count
+      }
+    },
+    // 操作结果字段
+    StatusName(item, msg, status) {
+      let index = this.mallTable.findIndex(son => son.id === item.id)
+      this.$set(this.mallTable[index], 'operation_type', msg)
+      // this.$set(item, 'color', status ? 'green' : 'red')
     }
-
   }
 }
 </script>

@@ -3,7 +3,8 @@ import jxAdapter from './jx-apdater'
 import tbAdaptert from './gateway/gateway-adapter'
 
 const baseURL = window.appInfo.route
-// const baseURL = 'http://local.spm.com/api'
+// const baseURL = 'http://release.shopeeman.com/api'
+// const baseURL = 'http://www-lyj.shopee-native.com/api'
 const AppRequest = axios.create({ // 壳内转发请求
   baseURL,
   timeout: 5000,
@@ -218,6 +219,9 @@ export default {
   getsecondStroelist: (data) => AppRequest.post('/overseasTansferPackage/index', data), // 获取智能仓库二次销售列表
   getlupplementlist: (data) => AppRequest.get('/getReissueStoreList', { params: data }), // 获取海外仓补件列表
   cancelsupplement: (data) => AppRequest.post('/cancelReissueOrder', data), // 取消补件
+  getStockSkuId: (data) => AppRequest.post('/warehouse/stockListV2', data), //获取备货库存skuId
+  uploadStockSkuId: (data) => AppRequest.post('/goodsStockSkuRelation/uploadStockSkuId',  data ), // 上报备货库存skuId
+
   // 产品中心------------------------------------------------------------------------
   getproductlist: (data) => AppRequest.get('/product/list', { params: data }), // 获取产品列表
   deleteproduct: (data) => AppRequest.post('/product/delete', data), // 删除产品
@@ -251,6 +255,9 @@ export default {
   valuationConfigSave: (data) => AppRequest.post('/publishGoodsValuationConfig/save', data), // 计价二标签: 保存
   valuationConfigGetAll: (data) => AppRequest.get('/publishGoodsValuationConfig/getAll', { params: data }), // 计价二标签: 获取所有
   valuationConfigGet: (data) => AppRequest.get('/publishGoodsValuationConfig/get',  data ), // 计价二标签: 获取
+  publishGoodsConfigGetAll: (data) => AppRequest.get('/publishGoodsConfig/getAll',  data ), // 一键上新 - 获取所有配置
+  publishGoodsConfigGet: (data) => AppRequest.get('/publishGoodsConfig/get',  { params: data } ), // 一键上新 - 获取配置
+  publishGoodsConfigSave: (data) => AppRequest.post('/publishGoodsConfig/save',  data ), // 一键上新 - 保存
 
   updateOrderPrintStatus:(data) => AppRequest.post('/order/updateOrderPrintStatus', data) ,// 标记面单已打印或已下载
 }

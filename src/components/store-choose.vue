@@ -11,7 +11,7 @@
       </li>
       <li :style="isReset && 'margin-bottom: 5px'">
         <span :style="{ width: spanWidth }">店铺分组：</span>
-        <el-select :disabled="isBanPerform" v-model="groupId" placeholder="" multiple collapse-tags size="mini" filterable class="selectBox">
+        <el-select :disabled="isBanPerform" v-model="groupId" multiple collapse-tags filterable size="mini" class="selectBox">
           <el-option v-for="(item, index) in groupIdList" :key="index" :label="item.group_name" :value="item.id"/>
         </el-select>
       </li>

@@ -25,7 +25,8 @@
     </div>
     <!-- 下面表格部分 -->
     <div class="bottom">
-      <el-table v-loading="isStart" :header-cell-style="{ background: '#f5f7fa' }" :data="tableData" border style="width: 100%" height="calc(100vh - 130px)" @selection-change="handleSelectionChange">
+      <el-table v-loading="isStart" :header-cell-style="{ background: '#f5f7fa' }" :data="tableData"
+                border style="width: 100%" height="calc(100vh - 130px)" @selection-change="handleSelectionChange">
         <el-table-column align="center" type="selection" width="50" />
         <el-table-column type="index" label="序列号" width="80" />
         <el-table-column label="订单号" prop="order_sn" />

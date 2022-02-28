@@ -19,7 +19,8 @@
       <!-- 第三行 -->
       <div class="rowThree">操作指引：请在此界面手动标记订单号或者在【订单列表】右键【同步此订单】获取订单信息</div>
     </div>
-    <el-table v-loading="buttonStatus.getList" :header-cell-style="{ background: '#f5f7fa' }" :data="tableData" style="width: 100%" height="calc(100vh - 135px)">
+    <el-table v-loading="buttonStatus.getList" :header-cell-style="{ background: '#f5f7fa' }"
+              :data="tableData" style="width: 100%" height="calc(100vh - 135px)">
       <el-table-column type="index" label="序列号" width="80" align="center" />
       <el-table-column label="仓库" prop="warehouse_name" min-width="100" align="center" />
       <el-table-column prop="package_time" label="签收时间" min-width="140" align="center" />
