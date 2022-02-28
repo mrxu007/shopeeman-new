@@ -2,6 +2,14 @@ export default class YipService {
   nativeService() {
     return window['CommodityBridgeService']
   }
+  // 获取历史公告
+  HistoryNotice(codeID, page, pageNum) {
+    return this.nativeService().callCmsFunction('GetNoticeContentList', codeID, page, pageNum)
+  }
+  // 获取历史公告-详情
+  HistoryNoticeDetail(codeID, contentId) {
+    return this.nativeService().callCmsFunction('GetNoticeContentDetail', codeID, contentId)
+  }
 
   // 解绑IP
   async BusinessunbindiP(target_id) {
@@ -86,7 +94,7 @@ export default class YipService {
        * @param  {int} targetId IP绑定ID
        * @param  {string} mallIds 店铺ID
        */
-  async NewBindingMallBySysMallId(uid,targetId, mallIds) {
+  async NewBindingMallBySysMallId(uid, targetId, mallIds) {
     return await this.nativeService().callCloudIpFunction('NewBindingMallBySysMallId', uid, targetId, mallIds)
   }
   /**
