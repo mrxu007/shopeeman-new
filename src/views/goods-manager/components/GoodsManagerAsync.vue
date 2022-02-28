@@ -235,37 +235,37 @@ export default {
         }
         this.$refs.autoReplyLogs.writeLog(`店铺【${item.mall_alias_name || item.platform_mall_name}】正在获取平台数据`)
         // 四小时同步一次
-        // const mallName = item.mall_alias_name || item.platform_mall_name
-        // const TimeList = await this.$appConfig.temporaryCacheInfo('get', 'mallTimeList', '')
-        // let mallTimeList = JSON.parse(TimeList)
-        // if (mallTimeList.length) {
-        //   const des = mallTimeList.findIndex(el => { return el.mallName === mallName })
-        //   if (des >= 0) {
-        //     if (mallTimeList[des].nextTime > new Date().getTime()) {
-        //       this.$set(item, 'endstatus', `同步时间未到,下次时间：${this.formatTime(mallTimeList[des].nextTime)}`)
-        //       this.$refs.autoReplyLogs.writeLog(`【店铺：${mallName}】每4小时可进行一次同步，下次同步时间为【${this.formatTime(mallTimeList[des].nextTime)}】`, true)
-        //       return
-        //     } else {
-        //       mallTimeList[des].nextTime = new Date().getTime() + 3600 * 4 * 1000
-        //     }
-        //   } else {
-        //     const mallinfo = {
-        //       mallName: mallName,
-        //       firstTime: new Date().getTime(),
-        //       nextTime: new Date().getTime() + 3600 * 4 * 1000
-        //     }
-        //     mallTimeList.push(mallinfo)
-        //   }
-        // } else {
-        //   const mallinfo = {
-        //     mallName: mallName,
-        //     firstTime: new Date().getTime(),
-        //     nextTime: new Date().getTime() + 3600 * 4 * 1000
-        //   }
-        //   // mallTimeList.push(mallinfo)
-        //   mallTimeList = [mallinfo]
-        // }
-        // this.$appConfig.temporaryCacheInfo('save', 'mallTimeList', mallTimeList)
+        const mallName = item.mall_alias_name || item.platform_mall_name
+        const TimeList = await this.$appConfig.temporaryCacheInfo('get', 'mallTimeList', '')
+        let mallTimeList = JSON.parse(TimeList)
+        if (mallTimeList.length) {
+          const des = mallTimeList.findIndex(el => { return el.mallName === mallName })
+          if (des >= 0) {
+            if (mallTimeList[des].nextTime > new Date().getTime()) {
+              this.$set(item, 'endstatus', `同步时间未到,下次时间：${this.formatTime(mallTimeList[des].nextTime)}`)
+              this.$refs.autoReplyLogs.writeLog(`【店铺：${mallName}】每4小时可进行一次同步，下次同步时间为【${this.formatTime(mallTimeList[des].nextTime)}】`, true)
+              return
+            } else {
+              mallTimeList[des].nextTime = new Date().getTime() + 3600 * 4 * 1000
+            }
+          } else {
+            const mallinfo = {
+              mallName: mallName,
+              firstTime: new Date().getTime(),
+              nextTime: new Date().getTime() + 3600 * 4 * 1000
+            }
+            mallTimeList.push(mallinfo)
+          }
+        } else {
+          const mallinfo = {
+            mallName: mallName,
+            firstTime: new Date().getTime(),
+            nextTime: new Date().getTime() + 3600 * 4 * 1000
+          }
+          // mallTimeList.push(mallinfo)
+          mallTimeList = [mallinfo]
+        }
+        this.$appConfig.temporaryCacheInfo('save', 'mallTimeList', mallTimeList)
         // ---end---//
         let array = res.ecode === 0 ? res.data.list : []
         const total = res.data.page_info.total
