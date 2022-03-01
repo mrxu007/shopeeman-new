@@ -1938,12 +1938,12 @@ export default {
                 tier_variationJSON = tier_variationJSON.replaceAll('"' + itemName + '"', '"' + spec_imageMapping[itemName] + '"')
                 spec_list.push(spec_imageMapping[itemName])
               }
-              if (spec_list.includes('')) {
-                this.updateAttributeName(item, '发布失败：规格图上传缺失', '', mall)
-                this.updateAttributeName(item, 3, 'resultsFilter')
-                ++this.statistics.failure
-                continue
-              }
+              // if (spec_list.includes('')) {
+              //   this.updateAttributeName(item, '发布失败：规格图上传缺失', '', mall)
+              //   this.updateAttributeName(item, 3, 'resultsFilter')
+              //   ++this.statistics.failure
+              //   continue
+              // }
               goodsParam['tier_variation'] = JSON.parse(tier_variationJSON)
               if (goodsParam['size_chart']) {
                 this.updateAttributeName(item, '正在上传尺寸图', '', mall)

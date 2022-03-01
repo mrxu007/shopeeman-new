@@ -431,18 +431,17 @@ export default {
         }
         try {
           this.itselfProvinceId = 'R' + row.province_id
-          await this.getLazadaDetailAddress('', this.itselfCountry, 'provinceList', 'ProvinceId')
+          await this.getLazadaDetailAddress('',  'provinceList', 'ProvinceId')
           this.itselfCityId = 'R' + row.city_id
-          await this.getLazadaDetailAddress(this.itselfProvinceId, this.itselfCountry, 'cityList', 'CityId')
+          await this.getLazadaDetailAddress(this.itselfProvinceId, 'cityList', 'CityId')
           this.itselfDistrictId = 'R' + row.distinct_id
-          await this.getLazadaDetailAddress(this.itselfCityId, this.itselfCountry, 'distinctList', 'DistrictId')
+          await this.getLazadaDetailAddress(this.itselfCityId, 'distinctList', 'DistrictId')
         } catch (error) {
           console.log(error)
           this.itselfProvinceId = ''
           this.itselfCityId = ''
         }
       }
-      // this.xzyAllIndex()
     },
     // 修改自有仓库
     async updateItselfData(params) {
@@ -796,10 +795,10 @@ export default {
     // 获取海外地址信息
     async getLazadaDetailAddress(id, list, val) {
       const res = await this.$BaseUtilService.getLazadaDetailAddress(id, this.itselfCountry)
-      console.log(' this.itselfCountry', this.itselfCountry)
+      console.log('getLazadaDetailAddress', res)
       this[list] = res
       this['itself' + val] = this.flag5 ? this['itself' + val] : this[list][0][val]
-      console.log(list, this[list])
+      console.log(list, this[list],"1111111")
     },
     // 获取所属仓库
     async xzyAllIndex() {

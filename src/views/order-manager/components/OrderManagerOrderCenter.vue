@@ -224,18 +224,9 @@
         温馨提示：1、最终毛利 = 订单收入-采购金额-仓库发货金额（生成仓库发货金额才会去计算，会有汇率差）；含邮费毛利 =
         订单收入-采购价；2、若登录了Lazada买手号但点击采购订单号依旧提示登录，请使用编辑采购信息编辑重新保存下拍单信息
       </p>
-      <u-table
-          ref="multipleTable"
-          v-loading="tableLoading"
-          use-virtual
-          :border="false"
-          :data="tableData"
-          tooltip-effect="dark"
-          :height="isShow ? 420 : 730"
-          :row-height="60"
-          :cell-style="{ padding: '0px' }"
-          @selection-change="handleSelectionChange"
-      >
+      <u-table ref="multipleTable" v-loading="tableLoading" use-virtual :row-height="60" :border="false"
+           :data="tableData" tooltip-effect="dark" :height="isShow && (tableColumnShow && 410 || 411) || 730"
+               :cell-style="{ padding: '0px' }" @selection-change="handleSelectionChange">
         <u-table-column align="center" type="selection" width="50" fixed="left"/>
         <u-table-column align="center" type="index" label="序号" width="50" fixed="left">
           <template slot-scope="scope">{{ (currentPage - 1) * pageSize + scope.$index + 1 }}</template>
@@ -249,7 +240,7 @@
               }}</span>
           </template>
         </u-table-column>
-        <u-table-column align="center" prop="" label="操作" width="140" v-if="showTableColumn('操作')" fixed="left">
+        <u-table-column v-if="showTableColumn('操作')" align="center" prop="" label="操作" width="140" fixed="left">
           <template slot-scope="scope">
             <el-dropdown style="width: 100px; margin-left: 10px" trigger="click" size="mini">
               <el-button style="width: 100px" size="mini" plain type="primary"> 操作<i
@@ -329,7 +320,7 @@
             </el-dropdown>
           </template>
         </u-table-column>
-        <u-table-column width="80px" label="站点" prop="country" align="center" v-if="showTableColumn('站点')">
+        <u-table-column v-if="showTableColumn('站点')"  width="80px" label="站点" prop="country" align="center">
           <template slot-scope="scope" v-if="scope.row.mall_info">{{
               scope.row.mall_info.country | chineseSite
             }}
@@ -358,11 +349,6 @@
             <span>{{ changeColorLabel(scope.row.color_id, 'name') }}</span>
           </template>
         </u-table-column>
-        <!-- <u-table-column align="center" prop="color_id" label="标识名称" width="120" v-if="showTableColumn('标识名称')">
-          <template slot-scope="scope">
-            <span>{{ changeColorLabel(scope.row.color_id, 'name') }}</span>
-          </template>
-        </u-table-column> -->
         <u-table-column v-if="showTableColumn('订单创建时间')" sortable align="center" prop="created_time" label="订单创建时间"
                         width="140"/>
         <u-table-column v-if="showTableColumn('发货状态')" sortable align="center" prop="order_status" label="发货状态"
@@ -461,12 +447,6 @@
             </el-dropdown>
           </template>
         </u-table-column>
-        <!-- <u-table-column v-if="showTableColumn('商品类目')" align="center" label="商品类目" width="120">
-          <template slot-scope="scope"></template>
-          <template slot-scope="scope">
-            <span>{{ scope.row.categoryName }} </span>
-          </template>
-        </u-table-column> -->
         <u-table-column v-if="showTableColumn('商品类目')" align="center" label="商品类目" width="120">
           <template slot-scope="scope">
             <span>{{
@@ -557,11 +537,6 @@
             {{ scope.row.shot_order_info.buy_account_info ? scope.row.shot_order_info.buy_account_info.name : '' }}
           </template>
         </u-table-column>
-        <!-- <u-table-column align="center" prop="" label="账单明细" width="80" v-if="showTableColumn('账单明细')">
-          <template slot-scope="scope">
-            <el-button type="primary" size="mini">账单明细</el-button>
-          </template>
-        </u-table-column> -->
         <u-table-column v-if="showTableColumn('拍单')" align="center" prop="" label="拍单" width="80">
           <template v-if="scope.row.shot_order_info.shot_status == 1" slot-scope="scope">
             <el-button type="primary" size="mini" @click="singlePurchase(scope.row)">采购</el-button>
@@ -638,13 +613,11 @@
                         width="120">
           <template slot-scope="scope">{{ changeDeliveryStatus(scope.row.delivery_status) }}</template>
         </u-table-column>
-        <u-table-column v-if="showTableColumn('入库时间')" sortable align="center" prop="arrival_time" label="入库时间"
-                        width="140">
-          <template slot-scope="scope">{{ scope.row.arrival_time }}</template>
+        <u-table-column v-if="showTableColumn('入库时间')" sortable align="center" prop="storage_time" label="入库时间" width="140">
+          <template slot-scope="scope">{{ scope.row.storage_time }}</template>
         </u-table-column>
-        <u-table-column v-if="showTableColumn('出库时间')" sortable align="center" prop="delivery_time" label="出库时间"
-                        width="140">
-          <template slot-scope="scope">{{ scope.row.delivery_time }}</template>
+        <u-table-column v-if="showTableColumn('出库时间')" sortable align="center" prop="outbound_time" label="出库时间" width="140">
+          <template slot-scope="scope">{{ scope.row.outbound_time }}</template>
         </u-table-column>
         <u-table-column v-if="showTableColumn('本地备注')" sortable align="center" prop="remark" label="本地备注" width="150"
                         show-overflow-tooltip>
@@ -695,8 +668,7 @@
                         width="140">
           <template slot-scope="scope">{{ scope.row.pay_time }}</template>
         </u-table-column>
-        <u-table-column sortable align="center" prop="update_time" label="订单更新时间" width="140"
-                        v-if="showTableColumn('订单更新时间')">
+        <u-table-column v-if="showTableColumn('订单更新时间')" sortable align="center" prop="update_time" label="订单更新时间" width="140">
           <template slot-scope="scope">{{ scope.row.update_time }}</template>
         </u-table-column>
         <u-table-column v-if="showTableColumn('是否为海外仓商品')" align="center" label="是否为海外仓商品" width="120">
@@ -980,7 +952,7 @@ import {
   changePlatformPayMethod,
   platformPayMethod,
   changeOrderStatus,
-  changeShotStatus
+  changeShotStatus,
 } from '../components/orderCenter/orderCenter'
 import { setGoodsDelist, setGoodsDelete } from './orderCenter/handleGoods'
 import { creatDate, getDaysBetween, dealwithOriginGoodsNum, importOrder } from '../../../util/util'
@@ -1002,7 +974,6 @@ import _ from 'lodash'
 import ShotOrderService from '../../../services/short-order/shot-order-service'
 import orderSync from '../../../services/timeOrder'
 import xlsx from 'xlsx'
-
 export default {
   components: {
     BuyerAccount,
@@ -1024,7 +995,7 @@ export default {
       pickerOptions: {
         disabledDate(time) {
           return time.getTime() > Date.now()
-        }
+        },
       },
       selectForm: {
         timeType: 'payTime', // 其它时间类型
@@ -1042,7 +1013,7 @@ export default {
         shotTime: '', // 采购时间
         // paymentMenthod: '', //付款方式
         sysMallId: '', // 系统店铺id  多个用英文逗号隔开
-        logisticsIds: '' // 物流方式
+        logisticsIds: '', // 物流方式
       },
       createTime: [], // 创建时间 --搜索
       logisticsIds: [''], // 物流方式--搜索
@@ -1078,7 +1049,7 @@ export default {
           { title: '批量拍单', type: 'primary', key: 4, click: 'purchaseHandler' },
           { title: '配置自定义列', type: 'primary', key: 5 },
           { title: '上传账号信息', type: 'primary', key: 6 },
-          { title: '下载账号信息', type: 'primary', key: 7 }
+          { title: '下载账号信息', type: 'primary', key: 7 },
         ],
         center: [
           { title: '拼多多账号', platform: 1, centerTitle: '拼多多个人中心' },
@@ -1086,7 +1057,7 @@ export default {
           { title: '1688账号', platform: 8, centerTitle: '1688个人中心' },
           { title: '京喜账号', platform: 10, centerTitle: '京喜个人中心' },
           { title: 'lazada账号', platform: 9, centerTitle: 'lazada个人中心' },
-          { title: 'shopee账号', platform: 11, centerTitle: 'shopee个人中心' }
+          { title: 'shopee账号', platform: 11, centerTitle: 'shopee个人中心' },
           // { title: '天猫淘宝海外账号', platform: 888, centerTitle: '刷新天猫淘宝海外平台账号' },
         ],
         right: [
@@ -1167,11 +1138,12 @@ export default {
       ordersShipmentVisible: false,
       importOrdersShipment: '',
       ordersShipmentData: [],
+      tableColumnShow:false,
     }
   },
   computed: {
     getCategoryName() {
-      return function(id, country) {
+      return function (id, country) {
         if (!this.categoryInfo[id]) {
           this.categoryInfo[id] = '正在获取类目...'
           this.getCategoryInfo(id, country)
@@ -1179,7 +1151,7 @@ export default {
         }
         return this.categoryInfo[`category_${id}`] || ''
       }
-    }
+    },
   },
   mounted() {
     this.tableLoading = true
@@ -1192,7 +1164,7 @@ export default {
       this.getOrderList(1)
     }, 2000)
     // 保存sku映射
-    this.$IpcMain.on('skuRelation', async(response) => {
+    this.$IpcMain.on('skuRelation', async (response) => {
       console.log('skuRelation', response)
       response['OriGoodsPlatform '] = 1
       console.log(JSON.stringify(response), 'response')
@@ -1205,11 +1177,11 @@ export default {
         return this.$message.error(`收藏失败，${resObj.msg}`)
       }
     })
-    this.$IpcMain.on('FinishShotOrderMessage', async(response) => {
+    this.$IpcMain.on('FinishShotOrderMessage', async (response) => {
       console.log('FinishShotOrderMessage', response)
       this.getOrderList()
     })
-    this.$IpcMain.on('updateShopeeCookie', async(response) => {
+    this.$IpcMain.on('updateShopeeCookie', async (response) => {
       // let obj = response && JSON.parse(response) || ''
       console.log('updateShopeeCookie', response)
     })
@@ -1254,12 +1226,12 @@ export default {
           case 11:
             let url = ''
             if (row.shot_order_info.buy_account_info.orderType) {
-              url = `/user/purchase/order/${row.shot_order_info.shot_order_sn}?type=${row.shot_order_info.buy_account_info.orderType}`
+              url = `/user/purchase/order/${row.shot_order_info.buy_account_info.orderId}?type=${row.shot_order_info.buy_account_info.orderType}`
             } else {
-              url = `/user/purchase/order/${row.shot_order_info.shot_order_sn}/?shopid=${row.mall_info.platform_mall_id}`
+              url = `/user/purchase/order/${row.shot_order_info.buy_account_info.orderId}/?shopid=${row.shot_order_info.shop_id}`
             }
             account = this.changeAccountParams(buy)
-            await this.$buyerAccountService.shopeeOrderCenter(row.country, account, row.shot_order_info.url)
+            await this.$buyerAccountService.shopeeOrderCenter(row.country, account, url)
             break
           default:
             break
@@ -1278,7 +1250,7 @@ export default {
       const params = {
         order_id: this.tableData[index].order_id,
         new_note: this.orderRemarkNode,
-        shop_id: this.tableData[index].mall_info.platform_mall_id
+        shop_id: this.tableData[index].mall_info.platform_mall_id,
       }
       const res = await this.$shopeemanService.updateNode(this.tableData[index].country, params)
       console.log(res)
@@ -1346,7 +1318,7 @@ export default {
         return this.$message.warning('由于每个站点面单不一致，请分站点批量预览和打印！')
       }
       const params = {
-        mainOrderSns: mainOrders
+        mainOrderSns: mainOrders,
       }
       let sheetInfo = []
       try {
@@ -1386,7 +1358,7 @@ export default {
             BarInfo: {
               BarCode: orderInfo.main_order_sn,
               BarCodeWidth: 200,
-              BarCodeHeight: 50
+              BarCodeHeight: 50,
             },
             SkuList: [orderInfo.goods_info.variation_sku.replace('=|=', ''), orderInfo.goods_info.goods_count],
             IsNeedCut: !!(orderInfo.logistics_id == 30008 || orderInfo.logistics_id == 30007),
@@ -1396,7 +1368,7 @@ export default {
             LocationY: -420,
             PrintStatus: '0',
             MallId: orderInfo.mall_info.platform_mall_id,
-            MallName: orderInfo.mall_info.platform_mall_name
+            MallName: orderInfo.mall_info.platform_mall_name,
           }
           PdfInfoModel.push(params)
 
@@ -1419,7 +1391,7 @@ export default {
           IsShowWindow: true,
           PdfInfoList: PdfInfoModel,
           VirtualPdfPath: {},
-          ConvertFaceInfoList: []
+          ConvertFaceInfoList: [],
         }
         console.log(JSON.stringify(pdfDownloadModel1), '111')
         const pdfInfo = await window['BaseUtilBridgeService'].getOrderPdfInfo(pdfDownloadModel1)
@@ -1454,7 +1426,7 @@ export default {
             LogisticsId: orderInfo.logistics_id.toString(),
             OrderSn: orderInfo.main_order_sn,
             MallId: Number(orderInfo.mall_info.platform_mall_id),
-            VirtualFilePath: ''
+            VirtualFilePath: '',
           }
           ConvertFaceInfoModel.push(conParams)
           console.log(ConvertFaceInfoModel, '-------')
@@ -1488,7 +1460,7 @@ export default {
           IsShowWindow: true,
           PdfInfoList: PdfInfoList,
           VirtualPdfPath: {},
-          ConvertFaceInfoList: convertResObj.data
+          ConvertFaceInfoList: convertResObj.data,
         }
         console.log(JSON.stringify(pdfDownloadModel))
         this.tableLoading = true
@@ -1547,7 +1519,7 @@ export default {
         OriGoodsSku: '',
         OriGoodsSkuId: row.ori_sku_id || '',
         OriGoodsNum: '',
-        OriGoodsId: row.ori_goods_id || ''
+        OriGoodsId: row.ori_goods_id || '',
       }
       this.$buyerAccountService.getSkuRelation(skuInfo, buyer)
     },
@@ -1592,7 +1564,7 @@ export default {
     // 取消二次销售
     async cancelSecondSale(row) {
       const params = {
-        sysOrderId: row.id
+        sysOrderId: row.id,
       }
       const res = await this.$api.cancelSecondSale(params)
       if (res.data.code === 200) {
@@ -1607,7 +1579,7 @@ export default {
       const params = {
         goodsId: this.goodsId,
         variationId: this.skuId,
-        goodsSpec: this.goodsNum
+        goodsSpec: this.goodsNum,
       }
       const res = await this.$api.getsecondlist(params)
       if (res.data.code === 200) {
@@ -1676,7 +1648,7 @@ export default {
     async goodsTop(row) {
       const params = {
         id: Number(row.goods_info.goods_id),
-        shop_id: row.mall_info.platform_mall_id
+        shop_id: row.mall_info.platform_mall_id,
       }
       const res = await this.$shopeemanService.handleGoodsTop(row.country, params)
       if (res.code === 200) {
@@ -1690,7 +1662,7 @@ export default {
       this.$confirm('是否删除该商品?', '商品删除', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
-        type: 'warning'
+        type: 'warning',
       })
           .then(() => {
             setGoodsDelete(this, row)
@@ -1717,7 +1689,7 @@ export default {
       this.$confirm('是否下架该商品?', '商品下架', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
-        type: 'warning'
+        type: 'warning',
       })
           .then(() => {
             setGoodsDelist(this, row)
@@ -1754,7 +1726,7 @@ export default {
           shipping_trace_no: this.shippingTraceNo,
           channel_id: 79900,
           integrated: '',
-          shop_id: this.clickRow.mall_info.platform_mall_id
+          shop_id: this.clickRow.mall_info.platform_mall_id,
         }
         const res = await this.$shopeemanService.handleOutOrder(this.clickRow.country, params)
         console.log('res===', res)
@@ -1770,10 +1742,9 @@ export default {
     },
     handleOutOrder(row) {
       this.clickRow = row
-      console.log(this.clickRow)
       this.handOutOrderVisible = true
       this.shippingProof = row.logistics_name
-      this.shippingTraceNo = row.tracking_no || ''
+      this.shippingTraceNo = row.tracking_no
     },
     // 拼多多月卡优惠券查询
     async openPddDisount() {
@@ -1798,7 +1769,7 @@ export default {
         Cookiestr: JSON.stringify(account.login_info),
         AccountType: account.type,
         Ua: account.ua,
-        Country: account.site || ''
+        Country: account.site || '',
       }
       return params
     },
@@ -1845,7 +1816,7 @@ export default {
       const reqStr = {
         type: type,
         shopId: shopId,
-        id: id
+        id: id,
       }
       this.$BaseUtilService.getOrderDetailInfo(shopId, JSON.stringify(reqStr))
     },
@@ -1896,7 +1867,7 @@ export default {
             const params = {
               sysOrderId: order.id,
               shotOrderSn: order.shot_order_info.shot_order_sn,
-              paymentMethod: payRes
+              paymentMethod: payRes,
             }
             const uploadRes = await this.$api.uplaodLazadaPaymentMethod(params)
             if (uploadRes.data.code === 200) {
@@ -1917,7 +1888,7 @@ export default {
       this.clickRow = row
       this.orderPathVisible = true
       const params = {
-        package_order_sn: row.order_sn
+        package_order_sn: row.order_sn,
         // package_order_sn: '210516S654NNU9',
       }
       this.orderPathInfoLoading = true
@@ -1940,7 +1911,7 @@ export default {
       this.clickRow = row
       const params = {
         order_id: row.order_id,
-        shop_id: row.mall_info.platform_mall_id
+        shop_id: row.mall_info.platform_mall_id,
       }
       this.shipInfoLoading = true
       if (row.order_status == 7) {
@@ -1957,7 +1928,7 @@ export default {
       if (!this.spTrackPath.length) {
         const params = {
           ctime: Math.round(new Date().getTime() / 1000),
-          description: '暂无物流信息'
+          description: '暂无物流信息',
         }
         this.spTrackPath.push(params)
       }
@@ -2009,7 +1980,7 @@ export default {
       let url = data
       if (type === 'product') {
         const params = {
-          platform_mall_id: data.mall_info.platform_mall_id
+          platform_mall_id: data.mall_info.platform_mall_id,
         }
         const webUrl = await this.$shopeemanService.getWebUrl(data.country, params)
         console.log(webUrl, 'webUrl', data.country)
@@ -2055,14 +2026,14 @@ export default {
         const obj = {
           id: item.id,
           trackingNumber: item.original_tracking_number,
-          trackingNumberCompany: item.original_logistics_company
+          trackingNumberCompany: item.original_logistics_company,
         }
         list.push(obj)
       })
       const params = {
         sysOrderId: this.clickRow.id,
         lists: list,
-        warehouseId: this.bindStore
+        warehouseId: this.bindStore,
       }
       const res = await this.$api.updateOrderTrackingNumber(params)
       if (res.data.code === 200) {
@@ -2095,7 +2066,7 @@ export default {
       }
       console.log(this.warehouseData, 'this.warehouseData')
       const params = {
-        sysOrderId: row.id
+        sysOrderId: row.id,
       }
       const resF = await this.$api.getOrderTrackingNumber(params)
       console.log('resF', resF)
@@ -2115,7 +2086,7 @@ export default {
         id: '0',
         original_tracking_number: '',
         original_logistics_company: '',
-        warehouse_user_id: ''
+        warehouse_user_id: '',
       }
       this.trackingNumberList.push(par)
     },
@@ -2160,10 +2131,10 @@ export default {
             {
               id: '0',
               trackingNumber: this.shipNo,
-              trackingNumberCompany: this.shipCompany
-            }
+              trackingNumberCompany: this.shipCompany,
+            },
           ],
-          warehouseId: this.shipBindStore
+          warehouseId: this.shipBindStore,
         }
 
         const res = await this.$api.updateOrderTrackingNumber(params)
@@ -2176,7 +2147,7 @@ export default {
       this.shipLoading = false
       this.$alert(message, '提示', {
         dangerouslyUseHTMLString: true,
-        confirmButtonText: '确定'
+        confirmButtonText: '确定',
       })
     },
     // 批量添加采购物流单号
@@ -2276,7 +2247,7 @@ export default {
               trackingNumber: resOrder.sub_purchase_orders[0].logistic_number || '',
               // shippingId:,
               deliveryTime: resOrder.sub_purchase_orders[0].rts_time || '',
-              trackingNumberCompany: resOrder.sub_purchase_orders[0].logistic_company_name || ''
+              trackingNumberCompany: resOrder.sub_purchase_orders[0].logistic_company_name || '',
             }
             const trackRes = await this.$api.uploadTrackingNumber(params)
             console.log(trackRes, 'trackRes')
@@ -2512,7 +2483,7 @@ export default {
       })
       const params = {
         sysOrderIds: ids,
-        id: this.colorRow.id
+        id: this.colorRow.id,
       }
       const res = await this.$api.setColorLabel(params)
       if (res.data.code === 200) {
@@ -2543,7 +2514,7 @@ export default {
         const obj = {
           id: 0,
           name: '取消标识',
-          color: ''
+          color: '',
         }
         this.colorList.unshift(obj)
       }
@@ -2568,7 +2539,7 @@ export default {
       this.multipleSelection.forEach(async(item) => {
         const params = {
           id: item.id,
-          remark: this.localRamark
+          remark: this.localRamark,
         }
         const res = await this.$api.setLocalRemark(params)
         if (res.data.code === 200) {
@@ -2603,7 +2574,7 @@ export default {
       array.forEach(async(item) => {
         const params = {
           sysOrderId: item.id,
-          status: this.isAbroadGood
+          status: this.isAbroadGood,
         }
         try {
           const res = await this.$api.markGoodsIsOverseas(params)
@@ -2637,24 +2608,26 @@ export default {
     },
     // 显示、隐藏所有列
     checkAllColumn(val) {
+      this.tableColumnShow = !this.tableColumnShow
       this.columnConfigList.forEach((item) => {
         item.is_show = val
       })
     },
     // 上传配置列
     async uploadColumn() {
+      this.tableColumnShow = !this.tableColumnShow
       const arr = []
       this.columnConfigList.forEach((item) => {
         const par = {
           columnHeader: item.column_header,
-          isShow: item.is_show
+          isShow: item.is_show,
           // firstColumnIsCheckbox: item.first_column_is_checkbox,
         }
         arr.push(par)
       })
       const params = {
         // columnId: 1, //  1 => '订单列表',         2 => '售后列表',
-        lists: arr
+        lists: arr,
       }
       const res = await this.$api.uploadColumnsConfig(params)
       this.columnVisible = false
@@ -2679,7 +2652,7 @@ export default {
           if (arrIndex < 0) {
             let obj = {
               column_header: '商品单价(RMB)',
-              is_show: 1
+              is_show: 1,
             }
             resData.push(obj)
           }
@@ -2765,7 +2738,6 @@ export default {
       params['otherTime'] = params['otherTime'] && params['otherTime'].length ? params['otherTime'][0] + ' 00:00:00' + '/' + params['otherTime'][1] + ' 23:59:59' : ''
       params['shotTime'] = params['shotTime'] && params['shotTime'].length ? params['shotTime'][0] + ' 00:00:00' + '/' + params['shotTime'][1] + ' 23:59:59' : ''
       this.tableLoading = true
-      console.log(params)
       const res = await this.$api.getOrderList(params)
       this.tableLoading = false
       try {
@@ -2821,7 +2793,7 @@ export default {
             // console.log(i, Number(row.gross_profit).toFixed(2))
             row.gross_profit = diff
             const obj = {
-              sys_order_id: row.id
+              sys_order_id: row.id,
             }
             grossAmountRequest.push(obj)
           }
@@ -2944,43 +2916,35 @@ export default {
 .slide-fade-enter-active {
   transition: all 0.5s cubic-bezier(1, 0.5, 0.8, 1);
 }
-
 .slide-fade-leave-active {
   transition: all 0.3s ease;
 }
-
 .slide-fade-enter,
 .slide-fade-leave-to {
   transform: translateY(10px);
   opacity: 0;
 }
-
 .order-center {
   margin: 10px;
   overflow: hidden;
-
-  /deep/ .el-dialog__body {
+  /deep/.el-dialog__body {
     padding: 10px 20px;
   }
-
   .tableActive {
     color: red;
     cursor: pointer;
   }
-
   .copyStyle {
     margin-right: 8px;
     cursor: pointer;
   }
 }
-
 .content {
   p {
     color: red;
     // height: 26px;
     padding: 10px;
   }
-
   padding: 0 16px;
   // margin: 20px 0;
   background: #fff;
@@ -2989,32 +2953,26 @@ export default {
   flex-direction: column;
   justify-content: space-between;
   overflow: auto;
-
   .pagination {
     display: flex;
     justify-content: flex-end;
   }
 }
-
 .mar-right {
   margin-right: 10px;
 }
-
 .selectBox {
   padding: 16px;
   display: flex;
   background: #fff;
   overflow: auto;
-
   .left-box {
     width: 730px;
   }
-
   .right-box {
     flex: 1;
   }
 }
-
 .base-box {
   border: 1px solid #dcdcdc;
   border-radius: 4px;
@@ -3022,7 +2980,6 @@ export default {
   position: relative;
   // min-width: 650px;
   height: 100%;
-
   .base-title {
     padding: 0 5px;
     display: inline-block;
@@ -3034,45 +2991,36 @@ export default {
     left: 10px;
     top: -10px;
   }
-
   .base-item {
   }
 }
-
 .row-style {
   display: flex;
   padding-bottom: 8px;
   align-items: center;
-
   .tool-item {
     display: flex;
     align-items: center;
-
-    /deep/ .storeChooseUL {
+    /deep/.storeChooseUL {
       flex-wrap: nowrap;
     }
-
-    /deep/ .el-select__tags {
+    /deep/.el-select__tags {
       max-width: 153px !important;
       display: flex;
       flex-wrap: nowrap;
       overflow: hidden;
     }
-
-    /deep/ .el-range-input {
+    /deep/.el-range-input{
       width: 24%;
     }
-
     span {
       display: inline-block;
       width: 80px;
       text-align: right;
     }
-
     .inputBox {
       width: 140px;
     }
-
     i {
       padding-left: 8px;
       width: 20px;
@@ -3081,7 +3029,6 @@ export default {
     }
   }
 }
-
 .showBtn {
   width: 100%;
   height: 26px;
@@ -3093,40 +3040,32 @@ export default {
   text-align: right;
   z-index: 99;
   cursor: pointer;
-
   p {
     display: inline-block;
   }
-
   i {
     font-size: 18px;
     vertical-align: middle;
   }
 }
-
 .btnMini {
   width: 80px;
 }
-
 .btnMedium {
   width: 120px;
 }
-
 .btnLong {
   width: 160px;
 }
-
 .btnLongMax {
   width: 220px;
 }
-
 .column-style {
   overflow: auto;
   height: 600px;
   display: flex;
   // justify-content: center;
   flex-wrap: wrap;
-
   .column-item {
     span {
       display: inline-block;
@@ -3137,49 +3076,41 @@ export default {
       border: 1px solid #dcdcdc;
       margin-right: 5px;
     }
-
     display: flex;
     margin: 10px;
     align-items: center;
     min-width: 160px;
   }
 }
-
 .remark-style {
   span {
     display: inline-block;
     width: 80px;
   }
-
   display: flex;
   align-items: center;
   justify-content: space-between;
 }
-
 .abroad-mar {
   margin: 0 20px;
   display: flex;
   justify-content: center;
 }
-
 .colorBox {
   height: 30px;
   width: 80px;
 }
-
 .item-box {
   display: flex;
   align-items: center;
   // justify-content: center;
   margin-bottom: 20px;
-
   span {
     display: inline-block;
     width: 120px;
     text-align: right;
     margin-right: 10px;
   }
-
   i {
     font-size: 18px !important;
     color: red;
@@ -3187,60 +3118,47 @@ export default {
     cursor: pointer;
   }
 }
-
 .forbid {
   display: flex;
-
-  /deep/ .el-dialog__body {
+  /deep/.el-dialog__body {
     padding: 10px 20px;
   }
-
   .title {
     font-weight: 900;
     font-size: 14px !important;
   }
-
   p {
     height: 26px;
   }
-
   .forbid-left {
     flex: 6;
   }
-
   .forbid-right {
     flex: 4;
-
     .right-col {
       display: flex;
       flex-wrap: wrap;
-
       .half {
         width: 50%;
       }
     }
   }
 }
-
 .tra-style {
   display: flex;
   flex-direction: column;
-
   .tra-content {
     display: flex;
   }
-
   p {
     color: red;
     height: 26px;
   }
 }
-
 .track-step {
   .step-header {
     .step-item {
       display: flex;
-
       span {
         font-weight: 900;
         font-size: 14px !important;
@@ -3252,18 +3170,15 @@ export default {
     align-items: center;
     margin-bottom: 20px;
   }
-
   .step-content {
     height: 500px;
     overflow: auto;
   }
 }
-
 .handle-out {
   .item {
     display: flex;
     align-items: center;
-
     span {
       line-height: 28px;
       height: 28px;
@@ -3271,16 +3186,13 @@ export default {
       width: 120px;
       text-align: right;
     }
-
     .inputWidth {
       width: 200px;
     }
-
     p {
       height: 28px;
       line-height: 28px;
     }
-
     margin-bottom: 10px;
   }
 }
