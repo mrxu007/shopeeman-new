@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-11-09 10:14:02
- * @LastEditTime: 2022-02-14 15:48:03
+ * @LastEditTime: 2022-03-01 14:12:40
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \shopeeman-new\src\components\buyer-account.vue
@@ -354,7 +354,7 @@ export default {
     },
     //同步物流单号
     async syncLogistics(isLog) {
-      const service = new LogisticeSyncService(this.$parent.$refs.Logs.writeLog)
+      const service = new LogisticeSyncService()
       if (!this.buyerAccountList.length) {
         this.$refs.Logs.writeLog(`没有买手号，请登录买手号`, false)
         return this.$message.warning('没有买手号,请登录！')
@@ -366,12 +366,12 @@ export default {
         this.$parent.showConsole = isLog ?isLog: false //打开日志
         this.$parent.$refs.Logs.consoleMsg = ''
         this.$parent.$refs.Logs.writeLog(`获取采购物流轨迹开始`, true)
-        service.start(this, this.buyerAccountList, this.$parent.multipleSelection)
+        service.start(this, this.buyerAccountList,this.$parent.$refs.Logs.writeLog, this.$parent.multipleSelection)
       } else {
         this.$parent.showConsole = isLog ?isLog: false //打开日志
         this.$parent.$refs.Logs.consoleMsg = ''
         this.$parent.$refs.Logs.writeLog(`获取采购物流轨迹开始`, true)
-        service.start(this, this.buyerAccountList)
+        service.start(this, this.buyerAccountList,this.$parent.$refs.Logs.writeLog)
       }
       console.log(this.buyerAccountList)
     },
@@ -403,8 +403,9 @@ export default {
         for (let i = 0; i < syncStatus.length; i++) {
           //同步状态
           let statusObj = syncStatus[i]
-          const orderService = new orderSync(mall, statusObj, this, this.$parent.$refs.Logs.writeLog)
-          await orderService.start(`${mI + 1}/${mallList.length}`, 'manual', 60)
+          // const orderService = new orderSync(mall, statusObj, this, this.$parent.$refs.Logs.writeLog)
+          const orderService = new orderSync()
+          await orderService.start(`${mI + 1}/${mallList.length}`, 'manual', 60,mall, statusObj, this, this.$parent.$refs.Logs.writeLog)
         }
       }
       this.$parent.$refs.Logs.writeLog('订单同步已完成！！！', true)

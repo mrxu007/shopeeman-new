@@ -31,7 +31,8 @@ export default class logisticeSyncService {
    * @param {订单} ordersList
    * @returns
    */
-  async start(that, buyerAccounts, ordersList = []) { // singleOrders
+  async start(that, buyerAccounts, writeLog,ordersList = []) { // singleOrders
+    this.writeLog = writeLog
     this._that = that
     await this.getGlobalSetting() // 全局设置
     let orders = []

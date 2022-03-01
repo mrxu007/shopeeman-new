@@ -2838,6 +2838,15 @@ export default {
       })
       return (res && res.label) || ''
     },
+    changeSelect(val, key, baseData) {
+      if (!val.includes('') && val.length === baseData.length) {
+        // this.formData.sysMallId.unshift('全选')
+      } else if (val.includes('') && val.length - 1 < baseData.length) {
+        this[key] = this[key].filter((item) => {
+          return item !== ''
+        })
+      }
+    },
     // 全选
     selectAll(key, baseData) {
       if (this[key].length < baseData.length) {

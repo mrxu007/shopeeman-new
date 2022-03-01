@@ -442,6 +442,7 @@ export default {
           this.itselfCityId = ''
         }
       }
+      // this.xzyAllIndex()
     },
     // 修改自有仓库
     async updateItselfData(params) {
@@ -716,7 +717,6 @@ export default {
             }
           }
         }
-        console.log(this.itselfProvinceId,"444444444444444444444444444444")
         params['warehouseName'] = this.itselfWarehouseName
         params['address']['province_id'] = this.itselfCountry == 'TW'?1:this.itselfProvinceId.replace('R', '')
         params['address']['province_text'] = this.itselfProvinceText || this.addressData.province_text
@@ -731,7 +731,6 @@ export default {
         params['address']['type'] = this.flag4 ? 0 : 3 // 国内/海外
         if (!this.flag4) {
           this.abroadAddressParams = params
-          console.log(this.abroadAddressParams, '5445465465')
           return
         }
         if (this.flag4) {
@@ -795,17 +794,14 @@ export default {
     // 获取海外地址信息
     async getLazadaDetailAddress(id, list, val) {
       const res = await this.$BaseUtilService.getLazadaDetailAddress(id, this.itselfCountry)
-      console.log('getLazadaDetailAddress', res)
       this[list] = res
       this['itself' + val] = this.flag5 ? this['itself' + val] : this[list][0][val]
-      console.log(list, this[list],"1111111")
     },
     // 获取所属仓库
     async xzyAllIndex() {
       const res = await this.AddressSet.xzyAllIndex()
       if (res.code === 200) {
         this.warehouseList = res.data
-        console.log('warehouseList', this.warehouseList)
       } else {
         this.$message.error(res.data)
       }
@@ -832,7 +828,6 @@ export default {
           return item.type === 2 || item.type === 3
         })
       }
-      console.log(this.tableData, 'this.tableData')
     },
     // 获取系统仓库，用来判断是否显示申请系统仓库地址
     async xzyIndex(typeLists) {
@@ -847,7 +842,6 @@ export default {
           this.$message.error(res.data)
         }
       }
-      console.log('sysWarehouseData', resData)
       if (resData?.length) {
         if (resData[0].data?.length > 0) {
           this.isHomeApplyAddress = true
@@ -907,9 +901,7 @@ export default {
       const platform = this.$filters.sitePlatform(this.itselfCountry)
       console.log(platform, '1', id.toString())
       const res = await this.$commodityService.getShopeeAddress(platform, '1', id)
-      console.log(res, 'getShopeeAddress')
       const jsonData = this.isJsonString(res)
-      // console.log(jsonData)
       this[list] = jsonData
       this[val] = this[list][0]?this[list][0].id :''
     },
@@ -1004,13 +996,12 @@ export default {
       }
     },
     sendData(val) {
-      console.log('addressData', val)
       this.itselfProvinceId = val.province_id
       this.itselfProvinceText = val.province_text
       this.itselfCityId = val.city_id 
       this.itselfCityText = val.city_text
-      this.itselfDistrictId = this.itselfCountry === 'TW'?1:val.distinct_id
-      this.itselfDistinctText = this.itselfCountry === 'TW'?'':val.distinct_text
+      this.itselfDistrictId = val.distinct_id
+      this.itselfDistinctText = val.distinct_text
     },
     handleSelectionChange(val) {
       this.multipleSelection = val

@@ -47,24 +47,17 @@
             <div class="row">
               <div class="row_item">
                 <label>售后状态：</label>
-                <el-select v-model="query.refundStatus" size="mini" style="width: 100px">
-                  <el-option label="全部" value="" />
-                  <el-option label="取消中" value="5" />
-                  <el-option label="已取消" value="6" />
-                  <el-option label="退货退款中" value="7" />
-                  <el-option label="退款成功" value="9" />
-                  <el-option label="退款失败" value="10" />
+                <el-select v-model="query.refundStatus" size="mini" style="width: 100px" multiple collapse-tags filterable @change="changeSelect($event,'refundStatus', afterSaleList)">
+                  <el-option label="全部" :value="''" @click.native="selectAll('refundStatus', afterSaleList)" />
+                  <el-option v-for="(item, index) in afterSaleList" :key="index" :label="item.label" :value="item.value" />
                 </el-select>
               </div>
 
               <div class="row_item">
                 <label>采购状态：</label>
-                <el-select v-model="query.shotOrderStatus" size="mini" style="width: 180px">
-                  <el-option label="全部" value="" />
-                  <el-option label="待拍单" value="1" />
-                  <el-option label="拍单中" value="2" />
-                  <el-option label="拍单成功" value="3" />
-                  <el-option label="拍单失败" value="4" />
+                <el-select v-model="query.shotOrderStatus" size="mini" multiple collapse-tags filterable style="width: 180px" @change="changeSelect($event,'shotOrderStatus', shotstatusList)">
+                  <el-option label="全部" :value="''" @click.native="selectAll('shotOrderStatus', shotstatusList)" />
+                  <el-option v-for="(item, index) in shotstatusList" :key="index" :label="item.label" :value="item.value" />
                 </el-select>
               </div>
 
@@ -118,8 +111,8 @@
     </div>
     <div class="table-form">
       <u-table
-      :border="false"
-       use-virtual
+        :border="false"
+        use-virtual
         ref="multipleTable"
         v-loading="loading"
         height="640px"
@@ -162,27 +155,17 @@
           >
         </u-table-column>
         <u-table-column label="店铺名称" prop="mall_info.platform_mall_name" width="120px" align="center" show-overflow-tooltip />
-        <u-table-column align="center" prop="color_id" label="颜色标识" width="120"  show-overflow-tooltip>
+        <u-table-column align="center" prop="color_id" label="颜色标识" width="120" show-overflow-tooltip>
           <template slot-scope="scope">
             <p :style="{ background: changeColorLabel(scope.row.color_id), height: '20px' }" />
-            <span >{{ changeColorLabel(scope.row.color_id, 'name') }}</span>
-          </template>
-        </u-table-column>
-        <!-- <u-table-column align="center" prop="color_id" label="颜色标识" min-width="70">
-          <template slot-scope="scope">
-            <p :style="{ background: changeColorLabel(scope.row.color_id), height: '26px' }" />
-          </template>
-        </u-table-column>
-        <u-table-column align="center" prop="color_id" label="标识名称" min-width="70">
-          <template slot-scope="scope">
             <span>{{ changeColorLabel(scope.row.color_id, 'name') }}</span>
           </template>
-        </u-table-column> -->
+        </u-table-column>
         <u-table-column label="退款金额" prop="refund_amount" min-width="100px" align="center" />
-         <u-table-column align="center" prop="shot_order_info.shot_amount" label="采购价" width="120">
+        <u-table-column align="center" prop="shot_order_info.shot_amount" label="采购价" width="120">
           <template slot-scope="scope">{{ scope.row.shot_order_info.shot_amount }}{{ scope.row.country | siteCoin }}</template>
         </u-table-column>
-         <u-table-column align="center" prop="shot_amount_rmb" label="采购价(RMB)" width="100">
+        <u-table-column align="center" prop="shot_amount_rmb" label="采购价(RMB)" width="100">
           <template slot-scope="scope">{{ scope.row.shot_order_info.shot_amount_rmb }}元</template>
         </u-table-column>
         <u-table-column label="售后状态" prop="status" min-width="100px" align="center">
@@ -197,11 +180,10 @@
           ></u-table-column
         >
         <u-table-column label="售后原因" prop="after_reason" min-width="150px" align="center" show-overflow-tooltip />
-        <u-table-column  align="center" prop="remark" label="本地备注" width="150" show-overflow-tooltip >
+        <u-table-column align="center" prop="remark" label="本地备注" width="150" show-overflow-tooltip>
           <template slot-scope="scope">
-            <div v-show="!(scope.row.id === activeRemarkID ? true : false) || scope.row.remark == ''" @click.stop="editRemark(scope.$index, scope.row.id)" style="cursor: pointer;min-width:20px;">
-              <p @dblclick="copy(scope.row.remark)"  style="color:#000;height:20px;">{{ scope.row.remark }}</p>
-              <!-- <el-input v-model="scope.row.remark" disabled size="mini"></el-input> -->
+            <div v-show="!(scope.row.id === activeRemarkID ? true : false) || scope.row.remark == ''" @click.stop="editRemark(scope.$index, scope.row.id)" style="cursor: pointer; min-width: 20px">
+              <p @dblclick="copy(scope.row.remark)" style="color: #000; height: 20px">{{ scope.row.remark }}</p>
             </div>
             <el-input v-if="scope.row.id === activeRemarkID ? true : false" v-model="orderRemark" size="mini" @blur="changeRemark(scope.row.id, scope.$index)"
           /></template>
@@ -225,17 +207,11 @@
             </el-tooltip>
           </template>
         </u-table-column>
-        <!-- <u-table-column align="center" label="商品类目" width="120">
-          <template slot-scope="scope">
-            <span>{{ scope.row.categoryName }} </span>
-          </template>
-        </u-table-column> -->
         <u-table-column align="center" label="商品类目" width="120">
           <template slot-scope="scope">
             <span>{{ scope.row.goods_info ? getCategoryName(scope.row.goods_info.goods_category_id, scope.row.country) : '未匹配到类目' }} </span>
           </template>
         </u-table-column>
-        <!-- <u-table-column label="商品类目" prop="goods_info.goods_category_id" min-width="100px" align="center" /> -->
         <u-table-column label="商品规格" prop="goods_info.variation_name" min-width="100px" align="center" />
         <u-table-column label="采购商品ID" prop="goods_info.ori_goods_id" min-width="180px">
           <template slot-scope="{ row }">
@@ -253,7 +229,6 @@
             <span class="tableActive">{{ scope.row.shot_order_info.shot_order_sn }}</span>
           </template>
         </u-table-column>
-        <!-- <u-table-column label="采购价" prop="" min-width="100px" align="center" /> -->
         <u-table-column label="采购时间" prop="shot_order_info.shotted_at" min-width="180px" align="center" />
         <u-table-column label="采购物流单号" prop="shot_order_info.shot_tracking_number" min-width="180px">
           <template slot-scope="{ row }">
@@ -270,7 +245,6 @@
         <u-table-column label="退件发货地址" prop="return_delivery_time" min-width="200px" align="center" />
         <u-table-column label="退货地址" prop="return_address" min-width="200px" align="center" />
         <u-table-column label="退货邮寄地址" prop="return_pickup_address" min-width="200px" align="center" />
-        
       </u-table>
       <div class="pagination">
         <el-pagination
@@ -322,7 +296,7 @@
   </div>
 </template>
 <script>
-import { changeShotStatus, changeOrderStatus, statusAfterList } from './orderCenter/orderCenter'
+import { changeShotStatus, changeOrderStatus, statusAfterList, shotStatusList } from './orderCenter/orderCenter'
 import storeChoose from '../../../components/store-choose.vue'
 import { exportExcelDataCommon, creatDate, getDaysBetween } from '../../../util/util'
 import orderSync from '../../../services/timeOrder'
@@ -342,17 +316,14 @@ export default {
       activeRemarkID: 0,
       shotVisible: false,
       shotstatus: '', // 采购状态
-      shotstatusList: [
-        { label: '待拍单', value: 1 },
-        { label: '拍单中', value: 2 },
-        { label: '拍单成功', value: 3 },
-        { label: '拍单失败', value: 4 },
-        { label: '待支付', value: 5 },
-        { label: '已完成', value: 6 },
-        { label: '已取消', value: 7 },
-        { label: '已申请退款', value: 8 },
+      shotstatusList: shotStatusList,
+
+      afterSaleList: [
+        { label: '取消中', value: 5 },
+        { label: '已取消', value: 6 },
+        { label: '退货退款中', value: 7 },
         { label: '退款成功', value: 9 },
-        { label: '付款失败', value: 10 },
+        { label: '退款失败', value: 10 },
       ],
       rowData: '', // 操作行数据
       multipleSelection: [],
@@ -365,9 +336,9 @@ export default {
       cloumn_date2: [],
       query: {
         sysMallIds: '', // 店铺ids
-        refundStatus: '', // 售后状态
+        refundStatus: [''], // 售后状态
         color: '', // 颜色标识
-        shotOrderStatus: '', // 拍单状态
+        shotOrderStatus: [''], // 拍单状态
         afterApplyTime: '', // 申请时间
         createdTime: '', // 创建时间
         colorLabelId: 0, // 颜色标识id
@@ -411,6 +382,26 @@ export default {
     }, 2000)
   },
   methods: {
+    changeSelect(val,key, baseData) {
+      if (!val.includes('') && val.length === baseData.length) {
+        // this.formData.sysMallId.unshift('全选')
+      } else if (val.includes('') && val.length - 1 < baseData.length) {
+        this.query[key] = this.query[key].filter((item) => {
+          return item !== ''
+        })
+      }
+    },
+    // 全选
+    selectAll(key, baseData) {
+      if (this.query[key].length < baseData.length) {
+        this.query[key] = []
+        baseData.map((item) => {
+          this.query[key].push(item.value || item.ShipId)
+        })
+      } else {
+        this.query[key] = []
+      }
+    },
     // 同步此订单
     async SyncOrderSingle(row) {
       this.showConsole = false // 打开日志
@@ -590,12 +581,12 @@ export default {
       this.activeRemarkID = activeRemarkID
       this.orderRemark = this.tableList[index].remark
     },
-        // 修改单个备注
+    // 修改单个备注
     async changeRemark(id, index) {
       const res = await this.$api.setLocalRemark({ id: id, remark: this.orderRemark })
       if (res.data.code == 200) {
         this.$message.success(`设置备注成功`)
-        this.$set(this.tableList [index],'remark',this.orderRemark)
+        this.$set(this.tableList[index], 'remark', this.orderRemark)
         // this.tableList[index].remark = this.orderRemark
         this.activeRemarkID = ''
         return
@@ -739,6 +730,8 @@ export default {
       const params = this.query
       params.sysMallIds = sysMallId
       params[this.selType] = this.inputDes
+      params['shotOrderStatus'] = this.query.shotOrderStatus.join(',')
+      params['refundStatus'] = this.query.refundStatus.join(',')
       params.page = 1
       params.pageSize = 200
       this.loading = true
@@ -804,7 +797,7 @@ export default {
                 <td>${item.goods_info.goods_id ? item.goods_info.goods_id : '' + '\t'}</td>
                 <td>${item.goods_info.goods_count ? item.goods_info.goods_count : '' + '\t'}</td>
                 <td>${this.$filters.imageRender([item.image]) + '\t'}</td>
-                <td>${item.goods_info.goods_category_id ? this.getCategoryName(item.goods_info.goods_category_id,item.country) : '' + '\t'}</td>
+                <td>${item.goods_info.goods_category_id ? this.getCategoryName(item.goods_info.goods_category_id, item.country) : '' + '\t'}</td>
                 <td>${item.goods_info.goods_spec ? item.goods_info.goods_spec : '' + '\t'}</td>
                 <td>${item.shot_order_info.shot_order_sn ? item.shot_order_info.shot_order_sn : '' + '\t'}</td>
                 <td>${item.shot_order_info.shotted_at ? item.shot_order_info.shotted_at : '' + '\t'}</td>
@@ -943,6 +936,8 @@ export default {
       params = JSON.parse(JSON.stringify(this.query))
       params.sysMallIds = sysMallIdList.toString()
       params[this.selType] = this.inputDes
+      params['refundStatus'] = this.query.refundStatus.join(',')
+      params['shotOrderStatus'] = this.query.shotOrderStatus.join(',')
       params.page = this.page
       params.pageSize = this.pageSize
       this.loading = true
@@ -977,7 +972,7 @@ export default {
     changeShotStatus,
     // 分页
     handleSizeChange(val) {
-      this.page  = 1
+      this.page = 1
       this.pageSize = val
       this.search()
     },
@@ -1047,6 +1042,12 @@ export default {
       .row_item {
         margin-left: 20px;
         margin-right: 10px;
+        /deep/.el-select__tags {
+          max-width: 153px !important;
+          display: flex;
+          flex-wrap: nowrap;
+          overflow: hidden;
+        }
       }
     }
   }
