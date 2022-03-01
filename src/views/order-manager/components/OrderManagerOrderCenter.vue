@@ -2494,15 +2494,15 @@ export default {
       this.showConsole = false // 打开日志
       this.$refs.Logs.consoleMsg = ''
       this.$refs.Logs.writeLog(`获取采购物流轨迹开始`, true)
-      const service = new LogisticeSyncService(this.$refs.Logs.writeLog)
+      const service = new LogisticeSyncService()
       if (!this.buyerAccountList.length) {
         this.$refs.Logs.writeLog(`没有买手号，请登录买手号`, false)
         return this.$message.warning('没有买手号,请登录！')
       }
       if (this.multipleSelection.length > 0) {
-        service.start(this, this.buyerAccountList, this.multipleSelection)
+        service.start(this, this.buyerAccountList, this.$refs.Logs.writeLog,this.multipleSelection)
       } else {
-        service.start(this, this.buyerAccountList)
+        service.start(this, this.buyerAccountList,this.$refs.Logs.writeLog)
       }
     },
     // 导出数据
