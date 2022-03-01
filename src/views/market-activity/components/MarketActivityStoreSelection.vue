@@ -592,7 +592,9 @@ export default {
       mallName = mItem.mall_alias_name || mItem.platform_mall_name
       try {
         // 1、查询列表数据
+        console.log('595', mItem)
         const res = await this.StoreSelection.markeHotSalePlanList(mItem)
+        console.log('596', res)
         if (res.code === 200) {
           this.$refs.Logs.writeLog(`查询店铺【${mallName}】【${res.data.length}】条数据`, true)
           if (res.data?.length > 0) {

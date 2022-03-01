@@ -69,6 +69,64 @@
         </el-table>
       </li>
     </ul>
+    <el-dialog
+      title="店铺搜索"
+      :visible.sync="dialog_mallSearch"
+      width="950px"
+      :close-on-click-modal="false"
+      :close-on-press-escape="false"
+      class="dialog_mall"
+    >
+      <ul>
+        <!-- row1 -->
+        <li>
+          <label>关键词</label>
+          <el-input v-model="keyword" size="mini" style="width:100px" clearable />
+          <label>评论数</label>
+          <el-input v-model="minComment" onkeyup="value=value.replace(/[^\d]/g,0)" style="width:80px" size="mini" />-
+          <el-input v-model="maxComment" onkeyup="value=value.replace(/[^\d]/g,0)" style="width:80px" size="mini" />
+          <label>点赞数</label>
+          <el-input v-model="minLike" onkeyup="value=value.replace(/[^\d]/g,0)" style="width:80px" size="mini" />-
+          <el-input v-model="maxLike" onkeyup="value=value.replace(/[^\d]/g,0)" style="width:80px" size="mini" />
+        </li>
+        <!-- row3 -->
+        <li>
+          <label>评分数</label>
+          <el-input v-model="minScore" onkeyup="value=value.replace(/[^\d]/g,0)" style="width:80px" size="mini" />-
+          <el-input v-model="maxScore" onkeyup="value=value.replace(/[^\d]/g,0)" style="width:80px" size="mini" />
+          <label style="margin-left:50px">店铺数</label>
+          <el-input v-model="mallNum" onkeyup="value=value.replace(/[^\d]/g,0)" style="width:80px" size="mini" />
+          <el-button type="primary" size="mini" style="margin-left:30px">搜索</el-button>
+          <el-button type="primary" size="mini">添加勾选店铺</el-button>
+          <el-button type="primary" size="mini">关闭弹窗</el-button>
+        </li>
+        <!-- row2 -->
+        <li>
+          <el-table
+            :header-cell-style="{ background: '#f7fafa' }"
+            :data="mallSearchList"
+            :row-style="{ height: '50px' }"
+            max-height="400"
+            @selection-change="handleSelectionChange"
+          >
+            <el-table-column align="center" width="55" type="selection" />
+            <el-table-column prop="" label="店铺ID" min-width="100px" align="center" />
+            <el-table-column prop="" label="产品标题" min-width="150px" align="center" />
+            <el-table-column prop="" label="主图" min-width="100px" align="center" fixed="right" />
+            <el-table-column prop="" label="点赞数" min-width="100px" align="center" fixed="right" />
+            <el-table-column prop="" label="评论数" min-width="100px" align="center" fixed="right" />
+            <el-table-column prop="" label="产品评分" min-width="100px" align="center" fixed="right" />
+            <el-table-column prop="" label="操作" min-width="100px" align="center" fixed="right">
+              <template>
+                <el-button type="primary" size="mini">查看产品</el-button>
+                <el-button type="primary" size="mini">添加店铺</el-button>
+              </template>
+            </el-table-column>
+          </el-table>
+        </li>
+
+      </ul>
+    </el-dialog>
     <Logs ref="Logs" v-model="showlog" clear />
   </div>
 </template>
@@ -83,7 +141,18 @@ export default {
   data() {
     return {
       mallIDinfo: '', // 店铺ID信息
-      showlog: false
+      showlog: false,
+      // 弹窗
+      dialog_mallSearch: true,
+      keyword: '', // 关键词
+      minComment: '50', // 评论数
+      maxComment: '5000',
+      minLike: '100', // 点赞数
+      maxLike: '10000',
+      minScore: '4.5', // 评分数
+      maxScore: '5',
+      mallNum: '10', // 店铺数
+      mallSearchList: [] // 弹窗列表
     }
   },
   methods: {
@@ -92,7 +161,9 @@ export default {
       this.$refs.Logs.consoleMsg = ''
     },
     // 选择的店铺
-    changeMallList() {}
+    changeMallList() {},
+    // 多选
+    handleSelectionChange() {}
   }
 }
 </script>
@@ -103,10 +174,21 @@ export default {
   height: 100%;
   padding: 5px;
   background-color: white;
+  .dialog_mall{
+    label:not(:first-child){
+        margin-left: 30px;
+      }
+    .el-input{
+        margin:0px 5px;
+    }
+
+  }
     li{
      display: flex;
      margin-bottom: 5px;
+     align-items: center;
     }
+
     .row2{
       ul{
         border: 1px solid #dcdedc;
@@ -132,6 +214,7 @@ export default {
     top: 35px;
 
     }
+
   }
 
 </style>
