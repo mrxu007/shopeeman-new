@@ -1535,15 +1535,15 @@ export default {
       for (let i = 0; i < this.multipleSelection.length; i++) {
         const order = this.multipleSelection[i]
         await dealwithOriginGoodsNum(
-          order.goods_info.ori_goods_id,
-          order.goods_info.ori_platform_id,
-          order.mall_info.platform_mall_id,
-          order.goods_info.goods_id,
-          order.country,
-          order.order_sn,
-          this.$refs.Logs.writeLog,
-          order.goods_info.ori_platform_mall_id,
-          order.goods_info.ori_country
+            order.goods_info.ori_goods_id,
+            order.goods_info.ori_platform_id,
+            order.mall_info.platform_mall_id,
+            order.goods_info.goods_id,
+            order.country,
+            order.order_sn,
+            this.$refs.Logs.writeLog,
+            order.goods_info.ori_platform_mall_id,
+            order.goods_info.ori_country
         )
       }
     },
@@ -1664,11 +1664,12 @@ export default {
         cancelButtonText: '取消',
         type: 'warning',
       })
-        .then(() => {
-          setGoodsDelete(this, row)
-          // this.setGoodsDelete(row)
-        })
-        .catch(() => {})
+          .then(() => {
+            setGoodsDelete(this, row)
+            // this.setGoodsDelete(row)
+          })
+          .catch(() => {
+          })
     },
     // 商品删除
     // async setGoodsDelete(row) {
@@ -1690,11 +1691,12 @@ export default {
         cancelButtonText: '取消',
         type: 'warning',
       })
-        .then(() => {
-          setGoodsDelist(this, row)
-          // this.setGoodsDelist(row)
-        })
-        .catch(() => {})
+          .then(() => {
+            setGoodsDelist(this, row)
+            // this.setGoodsDelist(row)
+          })
+          .catch(() => {
+          })
     },
     // 商品下架
     // async setGoodsDelist(row) {
@@ -2534,7 +2536,7 @@ export default {
       }
       this.showConsole = false
       // this.$refs.Logs.consoleMsg = ''
-      this.multipleSelection.forEach(async (item) => {
+      this.multipleSelection.forEach(async(item) => {
         const params = {
           id: item.id,
           remark: this.localRamark,
@@ -2569,7 +2571,7 @@ export default {
       }
       // this.showConsole = false
       this.$refs.Logs.consoleMsg = ''
-      array.forEach(async (item) => {
+      array.forEach(async(item) => {
         const params = {
           sysOrderId: item.id,
           status: this.isAbroadGood,
@@ -2782,7 +2784,7 @@ export default {
     async dealWithTableList() {
       let sysOrders = ''
       const grossAmountRequest = []
-      this.tableData.forEach(async (row, i) => {
+      this.tableData.forEach(async(row, i) => {
         // 计算含邮毛利
         if (row.shot_order_info.shot_order_sn) {
           const diff = Number(row.escrow_amount - row.shot_order_info.shot_amount).toFixed(2)
@@ -2798,7 +2800,7 @@ export default {
         }
         // 计算最终毛利
         //1、当含邮毛利存在，最终毛利重新计算 ：最终毛利=含邮毛利 - 仓库费用
-        if(Number(row.gross_profit) > 0){
+        if (Number(row.gross_profit) > 0) {
           const diff = (row.gross_profit - Number(row.warehouse_ship_amount) / Number(this.rateList[row.country])).toFixed(2)
           row.real_gross_profit = diff
         }
@@ -2906,6 +2908,7 @@ export default {
     ordersShipmentShow() {
       this.ordersShipmentVisible = true
     },
+  }
 }
 </script>
 
