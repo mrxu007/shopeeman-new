@@ -99,7 +99,7 @@ export default {
       userID: '', // 用户ID
       uid: '', // 用户ID
 
-      showlog: false, // 日志
+      showlog: true, // 日志
       limitgGoods: '5', // 店铺商品上限
       lastOnline: '1', // 最后活跃时间
 
@@ -182,6 +182,7 @@ export default {
       } catch (error) {
         console.log(`139line-${error}`)
       }
+      this.$emit('isSave', true)
     }
   }
 }
