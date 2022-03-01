@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-11-12 10:09:55
- * @LastEditTime: 2022-02-21 14:50:27
+ * @LastEditTime: 2022-02-28 18:18:20
  * @LastEditors: Please set LastEditors
  * @Description: 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  * @FilePath: \shopeeman-new\src\views\order-manager\components\orderCenter\autoUploadOrder.vue
@@ -29,6 +29,7 @@ export default {
   mounted() {
     this.getAllMall()
     this.$refs.Logs.writeLog(`定时任务分别在五分钟、八分钟之后开启`, true)
+    try {
     // first task 每隔4小时同步一次
     setTimeout(() => {
       this.syncOrders(this.statusListFirst, 'auto-first', 60)
@@ -56,7 +57,11 @@ export default {
       setInterval(() => {
         this.syncFaceData()
       }, 2 * 60 * 60 * 1000)
-    }, 8 * 60 * 1000)
+    }, 0 * 60 * 1000)
+     } catch (error) {
+       this.$refs.Logs.writeLog(`error${error}`,false)
+      console.log(error,"errorerrorerrorerrorerror")
+    }
   },
   methods: {
     // a.第一个定时任务（同步 toship、shipping、completed、cancelled、refund）：5分钟后启动后每隔4小时同步一次 改all
