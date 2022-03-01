@@ -47,27 +47,17 @@
             <div class="row">
               <div class="row_item">
                 <label>售后状态：</label>
-                <el-select v-model="query.refundStatus" size="mini" style="width: 100px" multiple collapse-tags filterable>
+                <el-select v-model="query.refundStatus" size="mini" style="width: 100px" multiple collapse-tags filterable @change="changeSelect($event,'refundStatus', afterSaleList)">
                   <el-option label="全部" :value="''" @click.native="selectAll('refundStatus', afterSaleList)" />
                   <el-option v-for="(item, index) in afterSaleList" :key="index" :label="item.label" :value="item.value" />
-                  <!-- <el-option label="全部" value="" />
-                  <el-option label="取消中" value="5" />
-                  <el-option label="已取消" value="6" />
-                  <el-option label="退货退款中" value="7" />
-                  <el-option label="退款成功" value="9" />
-                  <el-option label="退款失败" value="10" /> -->
                 </el-select>
               </div>
 
               <div class="row_item">
                 <label>采购状态：</label>
-                <el-select v-model="query.shotOrderStatus" size="mini" multiple collapse-tags filterable style="width: 180px">
-                  <el-option label="全部" value="" @click.native="selectAll('shotOrderStatus', shotstatusList)" />
+                <el-select v-model="query.shotOrderStatus" size="mini" multiple collapse-tags filterable style="width: 180px" @change="changeSelect($event,'shotOrderStatus', shotstatusList)">
+                  <el-option label="全部" :value="''" @click.native="selectAll('shotOrderStatus', shotstatusList)" />
                   <el-option v-for="(item, index) in shotstatusList" :key="index" :label="item.label" :value="item.value" />
-                  <!-- <el-option label="待拍单" value="1" />
-                  <el-option label="拍单中" value="2" />
-                  <el-option label="拍单成功" value="3" />
-                  <el-option label="拍单失败" value="4" /> -->
                 </el-select>
               </div>
 
@@ -306,7 +296,7 @@
   </div>
 </template>
 <script>
-import { changeShotStatus, changeOrderStatus, statusAfterList,shotStatusList } from './orderCenter/orderCenter'
+import { changeShotStatus, changeOrderStatus, statusAfterList, shotStatusList } from './orderCenter/orderCenter'
 import storeChoose from '../../../components/store-choose.vue'
 import { exportExcelDataCommon, creatDate, getDaysBetween } from '../../../util/util'
 import orderSync from '../../../services/timeOrder'
@@ -392,6 +382,15 @@ export default {
     }, 2000)
   },
   methods: {
+    changeSelect(val,key, baseData) {
+      if (!val.includes('') && val.length === baseData.length) {
+        // this.formData.sysMallId.unshift('全选')
+      } else if (val.includes('') && val.length - 1 < baseData.length) {
+        this.query[key] = this.query[key].filter((item) => {
+          return item !== ''
+        })
+      }
+    },
     // 全选
     selectAll(key, baseData) {
       if (this.query[key].length < baseData.length) {

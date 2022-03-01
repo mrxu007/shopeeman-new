@@ -45,14 +45,14 @@
                 <el-row class="row-style">
                   <div class="tool-item mar-right">
                     <span>发货状态：</span>
-                    <el-select v-model="orderStatus" placeholder="" size="mini" multiple collapse-tags filterable　class="inputBox">
+                    <el-select v-model="orderStatus" placeholder="" size="mini" multiple collapse-tags filterable　class="inputBox" @change="changeSelect($event,'orderStatus', orderStatusList)">
                       <el-option label="全部" :value="''" @click.native="selectAll('orderStatus', orderStatusList)" />
                       <el-option v-for="(item, index) in orderStatusList" :key="index" :label="item.label" :value="item.value" />
                     </el-select>
                   </div>
                   <div class="tool-item mar-right">
                     <span>采购状态：</span>
-                    <el-select v-model="shotStatus" placeholder="" size="mini" multiple collapse-tags filterable　class="inputBox">
+                    <el-select v-model="shotStatus" placeholder="" size="mini" multiple collapse-tags filterable　class="inputBox" @change="changeSelect($event,'shotStatus', shotStatusList)">
                       <el-option label="全部" :value="''" @click.native="selectAll('shotStatus', shotStatusList)" />
                       <el-option v-for="(item, index) in shotStatusList" :key="index" :label="item.label" :value="item.value" />
                     </el-select>
@@ -137,7 +137,7 @@
                   </div>
                   <div class="tool-item mar-right">
                     <span>物流方式：</span>
-                    <el-select v-model="logisticsIds" placeholder="" size="mini" multiple collapse-tags filterable　class="inputBox">
+                    <el-select v-model="logisticsIds" placeholder="" size="mini" multiple collapse-tags filterable　class="inputBox" >
                       <el-option label="全部物流" :value="''" @click.native="selectAll('logisticsIds', shipTypeList)" />
                       <el-option v-for="(item, index) in shipTypeList" :key="index" :label="item.ShipName" :value="item.ShipId" />
                     </el-select>
@@ -970,7 +970,7 @@ export default {
       orderRemarkNode: '', // shopee备注
       shipLoading: false,
       colorLoading: false,
-      localRamark:'',
+      localRamark: '',
     }
   },
   computed: {
@@ -2500,9 +2500,9 @@ export default {
         return this.$message.warning('没有买手号,请登录！')
       }
       if (this.multipleSelection.length > 0) {
-        service.start(this, this.buyerAccountList, this.$refs.Logs.writeLog,this.multipleSelection)
+        service.start(this, this.buyerAccountList, this.$refs.Logs.writeLog, this.multipleSelection)
       } else {
-        service.start(this, this.buyerAccountList,this.$refs.Logs.writeLog)
+        service.start(this, this.buyerAccountList, this.$refs.Logs.writeLog)
       }
     },
     // 导出数据
@@ -2628,7 +2628,7 @@ export default {
         }
         // 计算最终毛利
         //1、当含邮毛利存在，最终毛利重新计算 ：最终毛利=含邮毛利 - 仓库费用
-        if(Number(row.gross_profit) > 0){
+        if (Number(row.gross_profit) > 0) {
           const diff = (row.gross_profit - Number(row.warehouse_ship_amount) / Number(this.rateList[row.country])).toFixed(2)
           row.real_gross_profit = diff
         }
@@ -2665,6 +2665,15 @@ export default {
         return item.value == code
       })
       return (res && res.label) || ''
+    },
+    changeSelect(val, key, baseData) {
+      if (!val.includes('') && val.length === baseData.length) {
+        // this.formData.sysMallId.unshift('全选')
+      } else if (val.includes('') && val.length - 1 < baseData.length) {
+        this[key] = this[key].filter((item) => {
+          return item !== ''
+        })
+      }
     },
     // 全选
     selectAll(key, baseData) {
@@ -2835,7 +2844,7 @@ export default {
       flex-wrap: nowrap;
       overflow: hidden;
     }
-    /deep/.el-range-input{
+    /deep/.el-range-input {
       width: 24%;
     }
     span {
