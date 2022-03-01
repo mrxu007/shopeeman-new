@@ -23,6 +23,7 @@ import setOrder from './setOrder.vue'
 import setProxy from './setProxy.vue'
 import autoFollow from './autoFollow.vue'
 export default {
+  name: 'UserConfig',
   components: {
     setBase,
     setOrder,
@@ -40,7 +41,7 @@ export default {
   },
   methods: {
     handleClick(tab, event) {
-      // console.log(tab, event)
+      // console.log(tab)
     },
     // 初始化用户信息
     async getUserinfo() {
