@@ -1,6 +1,6 @@
 <template>
   <div class="auto-order">
-    <Logs ref="Logs" v-model="showConsole" clear class="logBox"/>
+    <Logs ref="Logs" v-model="showConsole" clear class="logBox" />
   </div>
 </template>
 
@@ -19,7 +19,8 @@ export default {
       statusListThird: statusListThird,
       buyerAccountList: [],
       logisiticeTime: 2,
-      isAutoLogisitice: '2', //1：自动获取 2：不自动获取
+      isAutoLogisitice: '1', // 2：自动获取 1：不自定获取
+      isApplyShopeeLogistics: '2' // 1：申请 2：不申请
     }
   },
   mounted() {
@@ -27,9 +28,10 @@ export default {
     this.$refs.Logs.writeLog(`定时任务分别在五分钟、八分钟之后开启`, true)
     window['BaseUtilBridgeService'].checkAutoScriptLog('定时任务分别在五分钟、八分钟之后开启')
     try {
-      //自动同步物流，软件启动后6分钟开始，间隔N小时，间隔时间可设置，需要从设置信息中获取
+      // 自动同步物流，软件启动后6分钟开始，间隔N小时，间隔时间可设置，需要从设置信息中获取
       this.syncLogis()
-
+      // 自动同步虾皮物流、面单
+      this.syncShopeeFace()
       // first task 每隔4小时同步一次
       setTimeout(() => {
         this.syncOrders(this.statusListFirst, 'auto-first', 60)
@@ -51,27 +53,34 @@ export default {
           this.syncOrders(this.statusListThird, 'auto-third', 60)
         }, 60 * 60 * 1000)
       }, 8 * 60 * 1000)
-      // 自动同步面单 8分钟开启，2小时间隔
-      setTimeout(() => {
-        this.syncFaceData()
-        setInterval(() => {
-          this.syncFaceData()
-        }, 2 * 60 * 60 * 1000)
-      }, 8 * 60 * 1000)
     } catch (error) {
       this.$refs.Logs.writeLog(`error${error}`, false)
       console.log(error, 'errorerrorerrorerrorerror')
     }
   },
   methods: {
+    // 自动同步面单 8分钟开启，2小时间隔
+    async syncShopeeFace() {
+      let configInfo = await window['ConfigBridgeService'].getUserConfig()
+      configInfo = configInfo && JSON.parse(configInfo) || {}
+      this.isApplyShopeeLogistics = (configInfo && configInfo.is_apply_shopee_logistics) || '2'
+      if (this.isApplyShopeeLogistics === '1') {
+        setTimeout(() => {
+          this.syncFaceData()
+          setInterval(() => {
+            this.syncFaceData()
+          }, 2 * 60 * 60 * 1000)
+        }, 8 * 60 * 1000)
+      }
+    },
     async syncLogis() {
       let configInfo = await window['ConfigBridgeService'].getUserConfig()
       configInfo = configInfo && JSON.parse(configInfo) || {}
       this.isAutoLogisitice = (configInfo && configInfo.is_auto_ori_logistics) || '1'
       this.logisiticeTime = (configInfo && configInfo.ori_logistics_interval_time) || 4
-      if (this.isAutoLogisitice === '1') {
+      if (this.isAutoLogisitice === '2') {
         await this.getAccountList()
-        //自动同步物流，软件启动后6分钟开始，间隔N小时，间隔时间可设置，需要从设置信息中获取
+        // 自动同步物流，软件启动后6分钟开始，间隔N小时，间隔时间可设置，需要从设置信息中获取
         setTimeout(() => {
           this.logisticeSync()
           setInterval(() => {
@@ -123,8 +132,8 @@ export default {
       this.$refs.Logs.writeLog(`开始自动同步采购物流---------------------------`, true)
       const logisiService = new LogisticeSyncService()
       await logisiService.start(this, this.buyerAccountList, this.$refs.Logs.writeLog)
-    },
-  },
+    }
+  }
 }
 </script>
 
