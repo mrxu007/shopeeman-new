@@ -1257,11 +1257,7 @@ const columnData = [{
     column_header: '商品单价',
     is_show: 1,
     first_column_is_checkbox: -1
-  },{
-    column_header: '商品单价(RMB)',
-    is_show: 1,
-    first_column_is_checkbox: -1
-  }, 
+  },
   {
     column_header: '商品数量',
     is_show: 1,
@@ -1302,11 +1298,7 @@ const columnData = [{
     column_header: '订单收入',
     is_show: 1,
     first_column_is_checkbox: -1
-  }, {
-    column_header: '订单收入(RMB)',
-    is_show: 1,
-    first_column_is_checkbox: -1
-  }, {
+  },  {
     column_header: '实际总邮费',
     is_show: 1,
     first_column_is_checkbox: -1
@@ -1318,32 +1310,16 @@ const columnData = [{
     column_header: '采购价',
     is_show: 1,
     first_column_is_checkbox: -1
-  }, {
-    column_header: '采购价(RMB)',
-    is_show: 1,
-    first_column_is_checkbox: -1
-  }, {
+  },  {
     column_header: '仓库发货金额',
     is_show: 1,
     first_column_is_checkbox: -1
-  }, {
-    column_header: '仓库发货金额(RMB)',
-    is_show: 1,
-    first_column_is_checkbox: -1
-  }, {
+  },  {
     column_header: '含邮费毛利',
     is_show: 1,
     first_column_is_checkbox: -1
-  }, {
-    column_header: '含邮费毛利(RMB)',
-    is_show: 1,
-    first_column_is_checkbox: -1
-  }, {
+  },{
     column_header: '最终毛利',
-    is_show: 1,
-    first_column_is_checkbox: -1
-  }, {
-    column_header: '最终毛利(RMB)',
     is_show: 1,
     first_column_is_checkbox: -1
   }, {
@@ -1354,12 +1330,7 @@ const columnData = [{
     column_header: '采购账号',
     is_show: 1,
     first_column_is_checkbox: -1
-  }, 
-  // {
-  //   column_header: '账单明细',
-  //   is_show: 1,
-  //   first_column_is_checkbox: -1
-  // }, 
+  },
   {
     column_header: '拍单',
     is_show: 1,
@@ -1470,12 +1441,7 @@ const columnData = [{
     column_header: '订单支付时间',
     is_show: 1,
     first_column_is_checkbox: -1
-  }, 
-  // {
-  //   column_header: '订单轨迹',
-  //   is_show: 1,
-  //   first_column_is_checkbox: -1
-  // }, 
+  },
   {
     column_header: '订单更新时间',
     is_show: 1,

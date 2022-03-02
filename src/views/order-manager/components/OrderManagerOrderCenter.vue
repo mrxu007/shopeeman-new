@@ -44,23 +44,54 @@
                 <el-row class="row-style">
                   <div class="tool-item mar-right">
                     <span>发货状态：</span>
-                    <el-select v-model="orderStatus" placeholder="" size="mini" multiple collapse-tags filterable　class="inputBox" @change="changeSelect($event, 'orderStatus', orderStatusList)">
+                    <el-select
+                      v-model="orderStatus"
+                      placeholder=""
+                      size="mini"
+                      multiple
+                      collapse-tags
+                      filterable　class="inputBox"
+                      @change="changeSelect($event,'orderStatus', orderStatusList)"
+                    >
                       <el-option label="全部" :value="''" @click.native="selectAll('orderStatus', orderStatusList)" />
-                      <el-option v-for="(item, index) in orderStatusList" :key="index" :label="item.label" :value="item.value" />
+                      <el-option
+                        v-for="(item, index) in orderStatusList"
+                        :key="index"
+                        :label="item.label"
+                        :value="item.value"
+                      />
                     </el-select>
                   </div>
                   <div class="tool-item mar-right">
                     <span>采购状态：</span>
-                    <el-select v-model="shotStatus" placeholder="" size="mini" multiple collapse-tags filterable　class="inputBox" @change="changeSelect($event, 'shotStatus', shotStatusList)">
+                    <el-select
+                      v-model="shotStatus"
+                      placeholder=""
+                      size="mini"
+                      multiple
+                      collapse-tags
+                      filterable　class="inputBox"
+                      @change="changeSelect($event,'shotStatus', shotStatusList)"
+                    >
                       <el-option label="全部" :value="''" @click.native="selectAll('shotStatus', shotStatusList)" />
-                      <el-option v-for="(item, index) in shotStatusList" :key="index" :label="item.label" :value="item.value" />
+                      <el-option
+                        v-for="(item, index) in shotStatusList"
+                        :key="index"
+                        :label="item.label"
+                        :value="item.value"
+                      />
                     </el-select>
                   </div>
                   <div class="tool-item mar-right">
                     <span>商品来源：</span>
                     <el-select v-model="selectForm.isOwnOrder" placeholder="" size="mini" filterable　class="inputBox">
                       <el-option label="全部" :value="''" />
-                      <el-option v-for="(item, index) in goodsSourceList" :key="index" :label="item.label" :value="item.value" />
+                      <el-option
+                        v-for="(item, index) in goodsSourceList"
+                        :key="index"
+                        :label="item.label"
+                        :value="item.value"
+                      />
                     </el-select>
                   </div>
                   <div class="tool-item mar-right">
@@ -91,7 +122,13 @@
                       <el-option label="全部" :value="0" />
                       <el-option label="未标识" :value="-1" />
                       <el-option label="已标识" :value="-2" />
-                      <el-option v-for="item in selectColorList" :key="item.id" :label="item.name" :value="item.id" :style="{ color: item.color }" />
+                      <el-option
+                        v-for="item in selectColorList"
+                        :key="item.id"
+                        :label="item.name"
+                        :value="item.id"
+                        :style="{ color: item.color }"
+                      />
                     </el-select>
                   </div>
                   <div class="tool-item mar-right">
@@ -119,8 +156,20 @@
                 </el-row>
                 <el-row class="row-style">
                   <div class="tool-item mar-right">
-                    <el-select v-model="inputType" placeholder="" size="mini" filterable style="width: 80px" @change="inputContent = ''">
-                      <el-option v-for="(item, index) in inputTypeList" :key="index" :label="item.label" :value="item.value" />
+                    <el-select
+                      v-model="inputType"
+                      placeholder=""
+                      size="mini"
+                      filterable
+                      style="width: 80px"
+                      @change="inputContent = ''"
+                    >
+                      <el-option
+                        v-for="(item, index) in inputTypeList"
+                        :key="index"
+                        :label="item.label"
+                        :value="item.value"
+                      />
                     </el-select>
                     <el-input v-model="inputContent" size="mini" clearable style="width: 140px" />
                     <el-tooltip effect="dark" placement="bottom-start">
@@ -135,22 +184,50 @@
                     </el-tooltip>
                   </div>
                   <div class="tool-item mar-right">
-                    <span>物流方式：</span>
-                    <el-select v-model="logisticsIds" placeholder="" size="mini" multiple collapse-tags filterable　class="inputBox">
+                    <span style="width: 60px;">物流方式：</span>
+                    <el-select
+                      v-model="logisticsIds"
+                      placeholder=""
+                      size="mini"
+                      multiple
+                      collapse-tags
+                      filterable　class="inputBox"
+                    >
                       <el-option label="全部物流" :value="''" @click.native="selectAll('logisticsIds', shipTypeList)" />
-                      <el-option v-for="(item, index) in shipTypeList" :key="index" :label="item.ShipName" :value="item.ShipId" />
+                      <el-option
+                        v-for="(item, index) in shipTypeList"
+                        :key="index"
+                        :label="item.ShipName"
+                        :value="item.ShipId"
+                      />
                     </el-select>
                   </div>
                   <div class="tool-item mar-right">
                     <span>付款方式：</span>
-                    <el-select v-model="selectForm.paymentMenthod" placeholder="" size="mini" filterable　class="inputBox">
+                    <el-select
+                      v-model="selectForm.paymentMenthod"
+                      placeholder=""
+                      size="mini"
+                      filterable　class="inputBox"
+                    >
                       <!-- <el-option label="全部付款方式" :value="''" /> -->
-                      <el-option v-for="(item, index) in payMethodList" :key="index" :label="item.label" :value="item.value" />
+                      <el-option
+                        v-for="(item, index) in payMethodList"
+                        :key="index"
+                        :label="item.label"
+                        :value="item.value"
+                      />
                     </el-select>
                   </div>
                   <div class="tool-item mar-right">
                     <span>海外商品：</span>
-                    <el-select v-model="selectForm.isOverseasGoods" placeholder="" size="mini" filterable　class="inputBox" style="width: 100ox">
+                    <el-select
+                      v-model="selectForm.isOverseasGoods"
+                      placeholder=""
+                      size="mini"
+                      filterable　class="inputBox"
+                      style="width: 100px"
+                    >
                       <el-option label="全部" :value="''" />
                       <el-option label="是" :value="'1'" />
                       <el-option label="否" :value="'-1'" />
@@ -159,27 +236,50 @@
                 </el-row>
                 <el-row class="row-style">
                   <el-button type="primary" size="mini" class="btnMini" @click="getOrderList(1)">搜索</el-button>
-                  <el-button type="primary" size="mini" class="btnMedium" @click="syncOriginGoodsNum">一键同步上家库存</el-button>
+                  <el-button type="primary" size="mini" class="btnMedium" @click="syncOriginGoodsNum">一键同步上家库存
+                  </el-button>
                   <el-button type="primary" size="mini" class="btnLong" @click="batchShipInfo">批量添加采购物流单号</el-button>
-                  <el-button type="primary" size="mini" class="btnLong" @click="getLazadaPayType">批量获取Lazada付款方式</el-button>
-                  <el-button type="primary" size="mini" class="btnLong" @click="uploadStoreShipAmountVisible = true">上报仓库发货金额</el-button>
+                  <el-button type="primary" size="mini" class="btnLong" @click="getLazadaPayType">批量获取Lazada付款方式
+                  </el-button>
+                  <el-button type="primary" size="mini" class="btnLong" @click="uploadStoreShipAmountVisible = true">
+                    上报仓库发货金额
+                  </el-button>
                   <el-button type="primary" size="mini" class="btnMedium" @click="openBefore">批量添加本地备注</el-button>
                 </el-row>
                 <el-row class="row-style">
-                  <el-button type="primary" size="mini" class="btnMini" @click="lookForbidVisible = true">查看禁运品</el-button>
-                  <el-button type="primary" size="mini" class="btnMedium" @click="outStoreBefore('自有仓库商品出库', '1')">自有仓库商品出库</el-button>
-                  <el-button type="primary" size="mini" class="btnLong" @click="outStoreBefore('产品中心商品出库', '2')">产品中心商品出库</el-button>
-                  <el-button type="primary" size="mini" class="btnLong" @click="outStoreBefore('海外仓备货商品出库', '3')">海外仓备货商品出库</el-button>
-                  <el-button type="primary" size="mini" class="btnLong" @click="outStoreBefore('国内仓备货商品出库', '4')">国内仓备货商品出库</el-button>
-                  <el-button type="primary" size="mini" class="btnMedium mar-right" @click="batchReplyOrderBuyer(multipleSelection)">批量评价订单买家</el-button>
+                  <el-button type="primary" size="mini" class="btnMini" @click="lookForbidVisible = true">查看禁运品
+                  </el-button>
+                  <el-button type="primary" size="mini" class="btnMedium" @click="outStoreBefore('自有仓库商品出库', '1')">
+                    自有仓库商品出库
+                  </el-button>
+                  <el-button type="primary" size="mini" class="btnLong" @click="outStoreBefore('产品中心商品出库', '2')">
+                    产品中心商品出库
+                  </el-button>
+                  <el-button type="primary" size="mini" class="btnLong" @click="outStoreBefore('海外仓备货商品出库', '3')">
+                    海外仓备货商品出库
+                  </el-button>
+                  <el-button type="primary" size="mini" class="btnLong" @click="outStoreBefore('国内仓备货商品出库', '4')">
+                    国内仓备货商品出库
+                  </el-button>
+                  <el-button
+                    type="primary"
+                    size="mini"
+                    class="btnMedium mar-right"
+                    @click="batchReplyOrderBuyer(multipleSelection)"
+                  >批量评价订单买家
+                  </el-button>
                   <el-checkbox v-model="showConsole" class="mar-right">隐藏日志</el-checkbox>
                 </el-row>
                 <el-row class="row-style">
                   <el-button size="mini" class="btnMini" @click="applyAsyncExportOrder">导出数据</el-button>
                   <el-button size="mini" class="btnMedium" @click="orderReportVisible = true">导出数据报表</el-button>
-                  <el-button type="primary" size="mini" class="btnLong" @click="batchPrintOrderSurface">批量打印面单</el-button>
-                  <el-button type="primary" size="mini" class="btnLong" @click="purchaseGlobalOrder">批量天猫淘宝海外平台拍单</el-button>
-                  <el-button type="primary" size="mini" class="btnLongMax" @click="getCrossBorderOrderInfo">批量获取天猫淘宝海外平台订单信息</el-button>
+                  <el-button type="primary" size="mini" class="btnLong" @click="batchPrintOrderSurface">批量打印面单
+                  </el-button>
+                  <el-button type="primary" size="mini" class="btnLong" @click="purchaseGlobalOrder">批量天猫淘宝海外平台拍单
+                  </el-button>
+                  <el-button type="primary" size="mini" class="btnLongMax" @click="getCrossBorderOrderInfo">
+                    批量获取天猫淘宝海外平台订单信息
+                  </el-button>
                   <el-button type="primary" size="mini" class="btnLong" @click="openPddDisount">拼多多月卡优惠券查询</el-button>
                 </el-row>
               </div>
@@ -195,7 +295,7 @@
     <div class="content" :style="{ height: isShow ? '520px' : '840px' }">
       <p>
         温馨提示：1、最终毛利 = 订单收入-采购金额-仓库发货金额（生成仓库发货金额才会去计算，会有汇率差）；含邮费毛利 =
-        订单收入-采购价；2、若登录了Lazada买手号但点击采购订单号依旧提示登录，请使用编辑采购信息编辑重新保存下拍单信息
+        订单收入-采购价；2、调整列表顺序，请至【配置自定义列】按钮，拖动表头进行排列
       </p>
       <u-table
         ref="multipleTable"
@@ -208,6 +308,7 @@
         :height="isShow && (tableColumnShow && 410 || 411) || 730"
         :cell-style="{ padding: '0px' }"
         :header-cell-style="{backgroundColor: '#f5f7fa'}"
+        :resizable="true"
         @selection-change="handleSelectionChange"
       >
         <u-table-column align="center" type="selection" width="50" fixed="left" />
@@ -223,14 +324,20 @@
           :label="item.name"
           :prop="item.prop || ''"
           :sortable="item.sortable || false"
+          :fixed="item.fixed"
           :show-overflow-tooltip="item.showOverflowTooltip || false"
+          :resizable="true"
         >
           <template slot-scope="{row,$index}">
-            <i v-if="item.iCopy" class="el-icon-document-copy copyStyle" @click="copyItem(getTableRow(row,item.iCopy))" />
+            <i
+              v-if="item.iCopy"
+              class="el-icon-document-copy copyStyle"
+              @click="copyItem(getTableRow(row,item.iCopy))"
+            />
             <p v-if="item.iColor" :style="{ background: changeColorLabel(row[item.iColor]), height: '20px' }" />
             <span
               v-if="item.showType === 0"
-              :class="(item.rowClick && 'tableActive' || item.rowDblClick && 'copyStyle') || ''"
+              :class="item.rowClick && 'tableActive' || item.rowDblClick && 'copyStyle' || ''"
               @click="item.rowClick && tableRowBound(item.rowClick,row,$index,item) || ''"
               @dblclick="item.rowDblClick && tableRowBound(item.rowDblClick,row,$index,item) || ''"
             >
@@ -337,7 +444,7 @@
                 取消二次销售
               </el-button>
               <el-button v-if="row.isSecond" size="mini" type="primary" @click="chooseSecondSale(row)">
-                {{ scope.row.secondSaleTitle }}
+                {{ row.secondSaleTitle }}
               </el-button>
             </div>
             <el-tooltip
@@ -389,7 +496,10 @@
             <div v-else-if="item.showType === 17 && row.shot_order_info.shot_status == 1">
               <el-button type="primary" size="mini" @click="singlePurchase(row)">采购</el-button>
             </div>
-            <p v-else-if="item.showType === 18" :style="{ color: changeShotStatus(getTableRow(row,item.prop), 'color') }">
+            <p
+              v-else-if="item.showType === 18"
+              :style="{ color: changeShotStatus(getTableRow(row,item.prop), 'color') }"
+            >
               {{ changeShotStatus(getTableRow(row, item.prop)) }}
             </p>
             <p v-else-if="item.showType === 19">
@@ -447,12 +557,31 @@
       </div>
     </div>
     <Logs ref="Logs" v-model="showConsole" clear />
-    <el-dialog v-if="columnVisible" title="配置订单列表显示列" :visible.sync="columnVisible" width="800px" top="5vh" :close-on-click-modal="false" @close="closeDialog">
+    <el-dialog
+      v-if="columnVisible"
+      title="配置订单列表显示列"
+      :visible.sync="columnVisible"
+      width="800px"
+      top="5vh"
+      :close-on-click-modal="false"
+      @close="closeDialog"
+    >
       <div class="column-style">
-        <div v-for="(item, index) in columnConfigList" :key="index" class="column-item">
-          <span>{{ item.column_header }}</span>
-          <el-switch v-model="item.is_show" style="display: block" active-color="#13ce66" inactive-color="#a9a9a9" :active-value="1" :inactive-value="-1" />
-        </div>
+        <draggable v-model="columnConfigList" filter=".forbid" group="columnConfig" @update="datadragEnd">
+          <transition-group>
+            <div v-for="(item, index) in columnConfigList" :key="index" :class="index < 2 &&'forbid column-item' || 'column-item'">
+              <span>{{ item.column_header }}</span>
+              <el-switch
+                v-model="item.is_show"
+                style="display: block"
+                active-color="#13ce66"
+                inactive-color="#a9a9a9"
+                :active-value="1"
+                :inactive-value="-1"
+              />
+            </div>
+          </transition-group>
+        </draggable>
       </div>
       <span slot="footer">
         <el-button type="primary" size="mini" @click="checkAllColumn(1)">显示所有列</el-button>
@@ -460,7 +589,13 @@
         <el-button type="primary" size="mini" @click="uploadColumn">应用</el-button>
       </span>
     </el-dialog>
-    <el-dialog title="标记为海外商品" :visible.sync="abroadVisible" width="400px" :close-on-click-modal="false" @close="closeDialog('noRefresh')">
+    <el-dialog
+      title="标记为海外商品"
+      :visible.sync="abroadVisible"
+      width="400px"
+      :close-on-click-modal="false"
+      @close="closeDialog('noRefresh')"
+    >
       <div class="abroad-mar">
         <el-radio v-model="isAbroadGood" :label="1">海外商品</el-radio>
         <el-radio v-model="isAbroadGood" :label="-1">非海外商品</el-radio>
@@ -469,7 +604,13 @@
         <el-button type="primary" size="mini" @click="setAbroadGood(multipleSelection)">确 定</el-button>
       </span>
     </el-dialog>
-    <el-dialog title="批量添加本地备注" :visible.sync="localRamarkVisible" width="400px" :close-on-click-modal="false" @open="openBefore">
+    <el-dialog
+      title="批量添加本地备注"
+      :visible.sync="localRamarkVisible"
+      width="400px"
+      :close-on-click-modal="false"
+      @open="openBefore"
+    >
       <div class="remark-style">
         <span>本地备注</span>
         <el-input v-model="localRamark" type="textarea" :rows="4" placeholder="请输入内容" />
@@ -478,9 +619,22 @@
         <el-button type="primary" size="mini" @click="batchSetRemark">批量添加</el-button>
       </span>
     </el-dialog>
-    <el-dialog v-if="colorVisible" title="选择颜色标识" :visible.sync="colorVisible" width="600px" :close-on-click-modal="false">
+    <el-dialog
+      v-if="colorVisible"
+      title="选择颜色标识"
+      :visible.sync="colorVisible"
+      width="600px"
+      :close-on-click-modal="false"
+    >
       <div class="color-style">
-        <el-table ref="colorTable" :data="colorList" tooltip-effect="dark" style="width: 100%" height="500" :loading="colorLoading">
+        <el-table
+          ref="colorTable"
+          :data="colorList"
+          tooltip-effect="dark"
+          style="width: 100%"
+          height="500"
+          :loading="colorLoading"
+        >
           <el-table-column label="标识选择" width="120">
             <template slot-scope="scope">
               <el-radio v-model="colorRadio" :label="scope.$index" @change.native="getCurrentRow(scope.row)" />
@@ -498,18 +652,50 @@
         <el-button type="primary" size="mini" @click="setColor(multipleSelection)">设置颜色</el-button>
       </span>
     </el-dialog>
-    <el-dialog v-if="purchaseInfoVisible" title="添加采购信息" :visible.sync="purchaseInfoVisible" width="500px" top="5vh" :close-on-click-modal="false">
-      <purchase-info :choose-data="multipleSelection" :buyer-account-list="buyerAccountList" :deal-type="dealType" @close="closeDialog" />
+    <el-dialog
+      v-if="purchaseInfoVisible"
+      title="添加采购信息"
+      :visible.sync="purchaseInfoVisible"
+      width="500px"
+      top="5vh"
+      :close-on-click-modal="false"
+    >
+      <purchase-info
+        :choose-data="multipleSelection"
+        :buyer-account-list="buyerAccountList"
+        :deal-type="dealType"
+        @close="closeDialog"
+      />
     </el-dialog>
-    <el-dialog v-if="pushOrderToStoreVisible" title="同步数据至仓库" :visible.sync="pushOrderToStoreVisible" width="1200px" top="5vh" :close-on-click-modal="false" @close="closeDialog('noRefresh')">
+    <el-dialog
+      v-if="pushOrderToStoreVisible"
+      title="同步数据至仓库"
+      :visible.sync="pushOrderToStoreVisible"
+      width="1200px"
+      top="5vh"
+      :close-on-click-modal="false"
+      @close="closeDialog('noRefresh')"
+    >
       <push-order :choose-data="multipleSelection" />
     </el-dialog>
-    <el-dialog v-if="shipInfoVisible" title="批量添加采购物流单号" :visible.sync="shipInfoVisible" width="400px" :close-on-click-modal="false" @close="closeDialog">
+    <el-dialog
+      v-if="shipInfoVisible"
+      title="批量添加采购物流单号"
+      :visible.sync="shipInfoVisible"
+      width="400px"
+      :close-on-click-modal="false"
+      @close="closeDialog"
+    >
       <div v-loading="shipLoading">
         <div class="item-box">
           <span>绑定仓库：</span>
           <el-select v-model="shipBindStore" size="mini" class="btnLongMax">
-            <el-option v-for="(item, index) in shipStoreList" :key="index" :label="item.warehouse_name" :value="item.id" />
+            <el-option
+              v-for="(item, index) in shipStoreList"
+              :key="index"
+              :label="item.warehouse_name"
+              :value="item.id"
+            />
           </el-select>
         </div>
         <div class="item-box">
@@ -526,15 +712,35 @@
         <el-button type="primary" size="mini" @click="batchSaveShipInfo">确 定</el-button>
       </span>
     </el-dialog>
-    <el-dialog v-if="uploadStoreShipAmountVisible" title="上报仓库发货金额" :visible.sync="uploadStoreShipAmountVisible" width="1200px" :close-on-click-modal="false">
+    <el-dialog
+      v-if="uploadStoreShipAmountVisible"
+      title="上报仓库发货金额"
+      :visible.sync="uploadStoreShipAmountVisible"
+      width="1200px"
+      :close-on-click-modal="false"
+    >
       <upload-store-ship-amount @close="closeDialog" />
     </el-dialog>
     <!-- 四类商品出库 -->
-    <el-dialog v-if="goodsOutStoreVisible" :visible.sync="goodsOutStoreVisible" width="1400px" top="5vh" :close-on-click-modal="false">
+    <el-dialog
+      v-if="goodsOutStoreVisible"
+      :visible.sync="goodsOutStoreVisible"
+      width="1400px"
+      top="5vh"
+      :close-on-click-modal="false"
+    >
       <div slot="title">{{ outStoreTitle }}</div>
       <goods-out-store :choose-data="uniqueArr(multipleSelection)" :out-store-type="outStoreType" @close="closeDialog" />
     </el-dialog>
-    <el-dialog v-if="addBuyLinkVisible" title="添加采购链接" :visible.sync="addBuyLinkVisible" width="1200px" append-to-body :close-on-click-modal="false" @close="closeDialog">
+    <el-dialog
+      v-if="addBuyLinkVisible"
+      title="添加采购链接"
+      :visible.sync="addBuyLinkVisible"
+      width="1200px"
+      append-to-body
+      :close-on-click-modal="false"
+      @close="closeDialog"
+    >
       <buy-link :link-row="clickRow" @close="closeDialog" />
     </el-dialog>
     <el-dialog title="查看禁运品" :visible.sync="lookForbidVisible" width="1200px" :close-on-click-modal="false">
@@ -551,12 +757,24 @@
         </div>
       </div>
     </el-dialog>
-    <el-dialog v-if="addMoreTraNumberVisible" title="添加多物流单号" :visible.sync="addMoreTraNumberVisible" width="700px" :close-on-click-modal="false" @close="closeDialog">
+    <el-dialog
+      v-if="addMoreTraNumberVisible"
+      title="添加多物流单号"
+      :visible.sync="addMoreTraNumberVisible"
+      width="700px"
+      :close-on-click-modal="false"
+      @close="closeDialog"
+    >
       <div class="tra-style">
         <div class="item-box">
           <span style="width: 60px">绑定仓库</span>
           <el-select v-model="bindStore" size="mini" class="inputWidth">
-            <el-option v-for="(item, index) in warehouseData" :key="index" :label="item.warehouse_name" :value="item.id" />
+            <el-option
+              v-for="(item, index) in warehouseData"
+              :key="index"
+              :label="item.warehouse_name"
+              :value="item.id"
+            />
           </el-select>
         </div>
         <div v-for="(item, index) in trackingNumberList" :key="index" class="tra-content">
@@ -568,8 +786,16 @@
             <span style="width: 80px">物流公司{{ index + 1 }}</span>
             <el-input v-model="item.original_logistics_company" size="mini" class="inputWidth mar-right" />
           </div>
-          <el-button type="primary" size="mini" class="item-box mar-right" @click="deleteTraNumber(index)">删除</el-button>
-          <el-button v-if="index === trackingNumberList.length - 1" type="primary" size="mini" class="item-box" @click="addTraNumber">添加</el-button>
+          <el-button type="primary" size="mini" class="item-box mar-right" @click="deleteTraNumber(index)">删除
+          </el-button>
+          <el-button
+            v-if="index === trackingNumberList.length - 1"
+            type="primary"
+            size="mini"
+            class="item-box"
+            @click="addTraNumber"
+          >添加
+          </el-button>
         </div>
         <p>关于绑定仓库选项:</p>
         <p>1、仅显示当前订单店铺绑定的仓库</p>
@@ -579,15 +805,37 @@
         <el-button type="primary" size="mini" @click="saveAddMoreTra">保 存</el-button>
       </span>
     </el-dialog>
-    <el-dialog v-if="billsDetailVisible" title="账单明细" :visible.sync="billsDetailVisible" top="5vh" width="1200px" :close-on-click-modal="false" @close="closeDialog('noRefresh')">
+    <el-dialog
+      v-if="billsDetailVisible"
+      title="账单明细"
+      :visible.sync="billsDetailVisible"
+      top="5vh"
+      width="1200px"
+      :close-on-click-modal="false"
+      @close="closeDialog('noRefresh')"
+    >
       <bill-detail :choose-data="clickRow" />
     </el-dialog>
-    <el-dialog v-if="trackPathVisible" title="物流轨迹" :visible.sync="trackPathVisible" width="400px" :close-on-click-modal="false" @close="closeDialog('noRefresh')">
+    <el-dialog
+      v-if="trackPathVisible"
+      title="物流轨迹"
+      :visible.sync="trackPathVisible"
+      width="400px"
+      :close-on-click-modal="false"
+      @close="closeDialog('noRefresh')"
+    >
       <el-steps direction="vertical" :active="1">
         <el-step title="暂无物流信息" :description="$dayjs(new Date()).format('YYYY-MM-DD HH:mm')" />
       </el-steps>
     </el-dialog>
-    <el-dialog v-if="spTrackPathVisible" title="虾皮物流轨迹" :visible.sync="spTrackPathVisible" width="500px" :close-on-click-modal="false" @close="closeDialog('noRefresh')">
+    <el-dialog
+      v-if="spTrackPathVisible"
+      title="虾皮物流轨迹"
+      :visible.sync="spTrackPathVisible"
+      width="500px"
+      :close-on-click-modal="false"
+      @close="closeDialog('noRefresh')"
+    >
       <div class="track-step">
         <div class="step-header">
           <div class="step-item">
@@ -601,27 +849,70 @@
         </div>
         <div v-loading="shipInfoLoading" class="step-content">
           <el-steps direction="vertical" :active="1" space="80px">
-            <el-step v-for="(item, index) in spTrackPath" :key="index" icon="el-icon-s-help" :title="item.description" :description="$dayjs(item.ctime * 1000).format('YYYY-MM-DD HH:mm')" />
+            <el-step
+              v-for="(item, index) in spTrackPath"
+              :key="index"
+              icon="el-icon-s-help"
+              :title="item.description"
+              :description="$dayjs(item.ctime * 1000).format('YYYY-MM-DD HH:mm')"
+            />
           </el-steps>
         </div>
       </div>
     </el-dialog>
-    <el-dialog v-if="orderPathVisible" title="订单轨迹" :visible.sync="orderPathVisible" width="500px" :close-on-click-modal="false" @close="closeDialog('noRefresh')">
+    <el-dialog
+      v-if="orderPathVisible"
+      title="订单轨迹"
+      :visible.sync="orderPathVisible"
+      width="500px"
+      :close-on-click-modal="false"
+      @close="closeDialog('noRefresh')"
+    >
       <div class="track-step">
         <div v-loading="orderPathInfoLoading" class="step-content">
           <el-steps direction="vertical" :active="1" space="80px">
-            <el-step v-for="(item, index) in orderTrackPath" :key="index" icon="el-icon-s-help" :title="item[0]" :description="item[1]" />
+            <el-step
+              v-for="(item, index) in orderTrackPath"
+              :key="index"
+              icon="el-icon-s-help"
+              :title="item[0]"
+              :description="item[1]"
+            />
           </el-steps>
         </div>
       </div>
     </el-dialog>
-    <el-dialog v-if="orderReportVisible" title="订单报表" :visible.sync="orderReportVisible" top="5vh" width="800px" :close-on-click-modal="false" @close="closeDialog('noRefresh')">
+    <el-dialog
+      v-if="orderReportVisible"
+      title="订单报表"
+      :visible.sync="orderReportVisible"
+      top="5vh"
+      width="800px"
+      :close-on-click-modal="false"
+      @close="closeDialog('noRefresh')"
+    >
       <export-report />
     </el-dialog>
-    <el-dialog v-if="replayOrderBuyerVisible" title="回复订单买家" :visible.sync="replayOrderBuyerVisible" top="5vh" width="600px" :close-on-click-modal="false" @close="closeDialog('noRefresh')">
+    <el-dialog
+      v-if="replayOrderBuyerVisible"
+      title="回复订单买家"
+      :visible.sync="replayOrderBuyerVisible"
+      top="5vh"
+      width="600px"
+      :close-on-click-modal="false"
+      @close="closeDialog('noRefresh')"
+    >
       <reply-buyer :choose-data="replyBuyerData" @close="closeDialog('noRefresh')" />
     </el-dialog>
-    <el-dialog v-if="handOutOrderVisible" title="填写发货单号" :visible.sync="handOutOrderVisible" top="5vh" width="500px" :close-on-click-modal="false" @close="closeDialog">
+    <el-dialog
+      v-if="handOutOrderVisible"
+      title="填写发货单号"
+      :visible.sync="handOutOrderVisible"
+      top="5vh"
+      width="500px"
+      :close-on-click-modal="false"
+      @close="closeDialog"
+    >
       <div class="handle-out">
         <div class="item">
           <span>当前订单状态：</span>
@@ -724,11 +1015,12 @@ import UploadStoreShipAmount from './orderCenter/uploadStoreShipAmount.vue'
 import _ from 'lodash'
 import ShotOrderService from '../../../services/short-order/shot-order-service'
 import orderSync from '../../../services/timeOrder'
-import xlsx from 'xlsx'
+import draggable from 'vuedraggable'
 import * as $filter from '@/plugins/filters'
 
 export default {
   components: {
+    draggable,
     BuyerAccount,
     storeChoose,
     PurchaseInfo,
@@ -799,7 +1091,6 @@ export default {
           { title: '同步订单', type: 'primary', key: 2, check: 'order' },
           { title: '获取物流单号', type: 'primary', key: 3, check: 'ship' },
           { title: '批量拍单', type: 'primary', key: 4, click: 'purchaseHandler' },
-          { title: '配置自定义列', type: 'primary', key: 5 },
           { title: '上传账号信息', type: 'primary', key: 6 },
           { title: '下载账号信息', type: 'primary', key: 7 }
         ],
@@ -816,7 +1107,9 @@ export default {
           { title: '批量推送订单至仓库 ', key: 8, type: 'primary' },
           { title: '批量标记颜色', key: 9, type: 'primary', click: 'getColorList' },
           { title: '批量标记海外商品', key: 10, type: 'primary' },
-          { title: '批量添加采购信息', key: 11, type: 'primary', click: 'batchAddBuyInfo' }
+          { title: '批量添加采购信息', key: 11, type: 'primary', click: 'batchAddBuyInfo' },
+          { title: '批量订单发货', key: 12, type: 'primary', click: 'ordersShipmentShow' },
+          { title: '配置自定义列', type: 'primary', key: 5 }
         ]
       },
       selectMallList: [], // 店铺选择
@@ -890,505 +1183,504 @@ export default {
       importOrdersShipment: '',
       ordersShipmentData: [],
       tableColumnShow: false,
-
-      tableColumnList: [{
-        key: 1,
-        name: '订单编号',
-        width: '170',
-        fixed: 'left',
-        align: '',
-        iCopy: 'order_sn',
-        prop: 'order_sn',
-        rowDblClick: 'viewDetails_orderDetail',
-        showType: 0
-      }, {
-        key: 2,
-        name: '操作',
-        width: '140',
-        fixed: 'left',
-        align: 'center',
-        showType: 2
-      }, {
-        key: 3,
-        name: '站点',
-        width: '80',
-        align: '',
-        filter: $filter.chineseSite,
-        prop: 'country',
-        showType: 0
-      }, {
-        key: 4,
-        name: '店铺分组',
-        width: '80',
-        align: '',
-        prop: 'group_name',
-        showOverflowTooltip: true,
-        showType: 0
-      }, {
-        key: 5,
-        name: '店铺名称',
-        width: '120',
-        align: '',
-        rowDblClick: 'copyItem',
-        prop: 'mall_info.platform_mall_name,mall_info.platform_mall_name',
-        showOverflowTooltip: true,
-        showType: 0
-      }, {
-        key: 6,
-        name: '采购绑定仓库',
-        width: '120',
-        align: '',
-        prop: 'shot_order_info.warehouse_name',
-        showOverflowTooltip: true,
-        showType: 0
-      }, {
-        key: 7,
-        name: '颜色标识',
-        width: '120',
-        align: 'center',
-        prop: 'color_id',
-        iColor: 'color_id',
-        rowShow: 'changeColorLabel',
-        showType: 4
-      }, {
-        key: 8,
-        name: '订单创建时间',
-        width: '140',
-        align: '',
-        prop: 'created_time',
-        showType: 0
-      }, {
-        key: 9,
-        name: '发货状态',
-        width: '100',
-        align: '',
-        rowShow: 'changeOrderStatus',
-        prop: 'order_status',
-        showType: 5
-      }, {
-        key: 10,
-        name: '发货时间',
-        width: '140',
-        align: '',
-        prop: 'shopee_delivery_time',
-        showType: 0
-      }, {
-        key: 11,
-        name: '采购类型',
-        width: '120',
-        align: '',
-        rowShow: 'changeTypeName',
-        prop: 'goods_info.ori_platform_id',
-        sortable: true,
-        showType: 4
-      }, {
-        key: 12,
-        name: '查看采购地址',
-        width: '130',
-        prop: 'goods_info.ori_url',
-        align: '',
-        rowClick: 'openUrl',
-        buttonName: '查看采购地址',
-        showType: 7
-      }, {
-        key: 13,
-        name: '是否可二次销售',
-        width: '140',
-        prop: 'shot_order_info.buy_account_info.second_sale_num',
-        align: '',
-        showType: 8
-      }, {
-        key: 14,
-        name: '商品ID',
-        width: '140',
-        align: '',
-        iCopy: 'goods_info.goods_id',
-        prop: 'goods_info.goods_id',
-        rowClick: 'openUrl_product',
-        showType: 0
-      }, {
-        key: 15,
-        name: '商品创建时间',
-        width: '140',
-        align: '',
-        prop: 'goods_info.platform_create_time',
-        sortable: true,
-        showType: 0
-      }, {
-        key: 16,
-        name: '商品图片',
-        width: '80',
-        align: 'center',
-        filter: $filter.imageRender,
-        prop: 'goods_info.goods_img',
-        showType: 10
-      }, {
-        key: 17,
-        name: '商品单价',
-        width: '120',
-        filter: $filter.siteCoin,
-        align: '',
-        prop: 'goods_info.discounted_price',
-        sortable: true,
-        showType: 11
-      }, {
-        key: 18,
-        name: '商品数量',
-        width: '80',
-        align: '',
-        prop: 'goods_info.goods_count',
-        showType: 0
-      }, {
-        key: 19,
-        name: '商品标题',
-        width: '120',
-        align: '',
-        prop: 'goods_info.goods_name',
-        showOverflowTooltip: true,
-        showType: 0
-      }, {
-        key: 20,
-        name: '搜同款',
-        width: '120',
-        align: '',
-        showType: 12
-      }, {
-        key: 21,
-        name: '商品类目',
-        width: '120',
-        align: '',
-        rowShow: 'getCategoryName',
-        prop: 'goods_info.goods_category_id',
-        showOverflowTooltip: true,
-        showType: 4
-      }, {
-        key: 22,
-        name: '规格编号',
-        width: '120',
-        align: '',
-        prop: 'goods_info.variation_id',
-        showType: 0
-      }, {
-        key: 23,
-        name: '商品规格',
-        width: '100',
-        align: 'center',
-        showOverflowTooltip: true,
-        showType: 14
-      }, {
-        key: 24,
-        name: '商品货号',
-        width: '120',
-        align: '',
-        rowShow: 'replace_=|=',
-        prop: 'goods_info.variation_sku',
-        showOverflowTooltip: true,
-        showType: 4
-      }, {
-        key: 25,
-        name: '买家付款金额',
-        width: '120',
-        filter: $filter.siteCoin,
-        prop: 'total_amount',
-        sortable: true,
-        showType: 11
-      }, {
-        key: 26,
-        name: '订单收入',
-        width: '120',
-        align: '',
-        filter: $filter.siteCoin,
-        prop: 'escrow_amount',
-        sortable: true,
-        showType: 11
-      }, {
-        key: 27,
-        name: '实际总邮费',
-        width: '100',
-        align: '',
-        filter: $filter.siteCoin,
-        prop: 'actual_shipping_cost',
-        showType: 11
-      }, {
-        key: 28,
-        name: '卖家补贴邮费',
-        width: '120',
-        align: '',
-        filter: $filter.siteCoin,
-        prop: 'sell_shipping_cost',
-        showType: 11
-      }, {
-        key: 29,
-        name: '采购价',
-        width: '120',
-        align: '',
-        filter: $filter.siteCoin,
-        prop: 'shot_order_info.shot_amount',
-        sortable: true,
-        showType: 11
-      }, {
-        key: 30,
-        name: '仓库发货金额',
-        width: '120',
-        align: '',
-        filter: $filter.siteCoin,
-        prop: 'warehouse_ship_amount',
-        sortable: true,
-        showType: 16
-      }, {
-        key: 31,
-        name: '含邮费毛利',
-        width: '120',
-        align: '',
-        filter: $filter.siteCoin,
-        prop: 'gross_profit',
-        showType: 11
-      }, {
-        key: 32,
-        name: '最终毛利',
-        width: '120',
-        align: '',
-        filter: $filter.siteCoin,
-        prop: 'real_gross_profit',
-        showType: 11
-      }, {
-        key: 33,
-        name: '付款账号',
-        width: '120',
-        align: '',
-        prop: 'shot_order_info.pay_account_info.name',
-        showType: 0
-      }, {
-        key: 34,
-        name: '采购账号',
-        width: '120',
-        align: '',
-        prop: 'shot_order_info.buy_account_info.name',
-        showType: 0
-      }, {
-        key: 35,
-        name: '拍单',
-        width: '80',
-        align: '',
-        showType: 17
-      }, {
-        key: 36,
-        name: '采购状态',
-        width: '120',
-        align: '',
-        prop: 'shot_order_info.shot_status',
-        showType: 18
-      }, {
-        key: 37,
-        name: '采购时间',
-        width: '140',
-        align: '',
-        prop: 'shot_order_info.shotted_at',
-        sortable: true,
-        showType: 0
-      }, {
-        key: 38,
-        name: '采购订单号',
-        width: '140',
-        align: '',
-        prop: 'shot_order_info.shot_order_sn',
-        showOverflowTooltip: true,
-        showType: 19
-      }, {
-        key: 39,
-        name: '采购付款方式',
-        width: '120',
-        align: '',
-        rowShow: 'buyPayMethod',
-        prop: 'shot_order_info.shot_payment_method',
-        showType: 4
-      }, {
-        key: 40,
-        name: '平台付款方式',
-        width: '120',
-        align: '',
-        rowShow: 'changePlatformPayMethod',
-        prop: 'payment_method',
-        showType: 4
-      }, {
-        key: 41,
-        name: '采购物流公司',
-        width: '120',
-        align: '',
-        prop: 'shot_order_info.shot_logistics_company',
-        sortable: true,
-        showType: 0
-      }, {
-        key: 42,
-        name: '采购物流单号',
-        width: '120',
-        align: '',
-        prop: 'shot_order_info.shot_tracking_number',
-        showType: 0
-      }, {
-        key: 43,
-        name: '采购发货时间',
-        width: '140',
-        align: '',
-        prop: 'shot_order_info.shot_shipping_time',
-        showType: 0
-      }, {
-        key: 44,
-        name: '商户订单号',
-        width: '140',
-        align: '',
-        prop: 'shot_order_info.merchant_no',
-        showOverflowTooltip: true,
-        showType: 0
-      }, {
-        key: 45,
-        name: '运输方式',
-        width: '80',
-        align: '',
-        filter: getTransportType,
-        prop: 'transport_type',
-        showType: 0
-      }, {
-        key: 46,
-        name: '货物类型',
-        width: '80',
-        align: '',
-        filter: changePackageType,
-        prop: 'package_type',
-        showType: 0
-      }, {
-        key: 47,
-        name: '虾皮物流',
-        width: '100',
-        align: '',
-        prop: 'logistics_name',
-        showOverflowTooltip: true,
-        showType: 0
-      }, {
-        key: 48,
-        name: '虾皮物流单号',
-        width: '140',
-        align: '',
-        prop: 'tracking_no',
-        showOverflowTooltip: true,
-        showType: 0
-      }, {
-        key: 49,
-        name: '虾皮物流轨迹',
-        width: '130',
-        align: '',
-        rowClick: 'getSHtrackPath',
-        buttonName: '虾皮物流轨迹',
-        prop: '123456',
-        showType: 7
-      }, {
-        key: 50,
-        name: '截止发货时间',
-        width: '140',
-        align: '',
-        prop: 'ship_by_date',
-        sortable: true,
-        showType: 0
-      }, {
-        key: 51,
-        name: '仓库发货状态',
-        width: '120',
-        align: '',
-        filter: changeDeliveryStatus,
-        prop: 'delivery_status',
-        showType: 0
-      }, {
-        key: 52,
-        name: '入库时间',
-        width: '140',
-        align: '',
-        prop: 'storage_time',
-        sortable: true,
-        showType: 0
-      }, {
-        key: 53,
-        name: '出库时间',
-        width: '140',
-        align: '',
-        prop: 'outbound_time',
-        sortable: true,
-        showType: 0
-      }, {
-        key: 54,
-        name: '本地备注',
-        width: '120',
-        align: '',
-        prop: 'mall_alias_name',
-        showOverflowTooltip: true,
-        sortable: true,
-        showType: 23
-      }, {
-        key: 55,
-        name: 'shopee备注',
-        width: '120',
-        align: '',
-        prop: 'mall_alias_name',
-        showOverflowTooltip: true,
-        showType: 24
-      }, {
-        key: 56,
-        name: 'shopee备注更新时间',
-        width: '140',
-        align: '',
-        prop: 'note_update_time',
-        showType: 0
-      }, {
-        key: 57,
-        name: '买家姓名',
-        width: '120',
-        align: '',
-        prop: 'name',
-        showOverflowTooltip: true,
-        rowDblClick: 'copyItem',
-        showType: 0
-      }, {
-        key: 58,
-        name: '买家地址',
-        width: '120',
-        align: '',
-        prop: 'receiver_info.address',
-        showOverflowTooltip: true,
-        rowDblClick: 'copyItem',
-        showType: 0
-      }, {
-        key: 59,
-        name: '手机号',
-        width: '120',
-        align: '',
-        prop: 'phone',
-        rowDblClick: 'copyItem',
-        showType: 0
-      }, {
-        key: 60,
-        name: '订单支付时间',
-        width: '140',
-        align: '',
-        prop: 'pay_time',
-        sortable: true,
-        showType: 0
-      }, {
-        key: 61,
-        name: '订单更新时间',
-        width: '140',
-        align: '',
-        prop: 'update_time',
-        sortable: true,
-        showType: 0
-      }, {
-        key: 62,
-        name: '是否为海外仓商品',
-        width: '120',
-        rowShow: '1_or_true',
-        align: '',
-        prop: 'goods_info.is_overseas_goods',
-        showType: 4
-      }]
-
+      tableColumnList: [
+        {
+          key: 1,
+          name: '订单编号',
+          width: '170',
+          fixed: 'left',
+          align: '',
+          iCopy: 'order_sn',
+          prop: 'order_sn',
+          rowClick: 'viewDetails_orderDetail',
+          showType: 0
+        }, {
+          key: 2,
+          name: '操作',
+          width: '140',
+          fixed: 'left',
+          align: 'center',
+          showType: 2
+        }, {
+          key: 3,
+          name: '站点',
+          width: '80',
+          align: '',
+          filter: $filter.chineseSite,
+          prop: 'country',
+          showType: 0
+        }, {
+          key: 4,
+          name: '店铺分组',
+          width: '80',
+          align: '',
+          prop: 'group_name',
+          showOverflowTooltip: true,
+          showType: 0
+        }, {
+          key: 5,
+          name: '店铺名称',
+          width: '120',
+          align: '',
+          rowDblClick: 'copyItem',
+          prop: 'mall_info.platform_mall_name,mall_info.platform_mall_name',
+          showOverflowTooltip: true,
+          showType: 0
+        }, {
+          key: 6,
+          name: '采购绑定仓库',
+          width: '120',
+          align: '',
+          prop: 'shot_order_info.warehouse_name',
+          showOverflowTooltip: true,
+          showType: 0
+        }, {
+          key: 7,
+          name: '颜色标识',
+          width: '120',
+          align: 'center',
+          prop: 'color_id',
+          iColor: 'color_id',
+          rowShow: 'changeColorLabel',
+          showType: 4
+        }, {
+          key: 8,
+          name: '订单创建时间',
+          width: '140',
+          align: '',
+          prop: 'created_time',
+          showType: 0
+        }, {
+          key: 9,
+          name: '发货状态',
+          width: '100',
+          align: '',
+          rowShow: 'changeOrderStatus',
+          prop: 'order_status',
+          showType: 5
+        }, {
+          key: 10,
+          name: '发货时间',
+          width: '140',
+          align: '',
+          prop: 'shopee_delivery_time',
+          showType: 0
+        }, {
+          key: 11,
+          name: '采购类型',
+          width: '120',
+          align: '',
+          rowShow: 'changeTypeName',
+          prop: 'goods_info.ori_platform_id',
+          sortable: true,
+          showType: 4
+        }, {
+          key: 12,
+          name: '查看采购地址',
+          width: '130',
+          prop: 'goods_info.ori_url',
+          align: '',
+          rowClick: 'openUrl',
+          buttonName: '查看采购地址',
+          showType: 7
+        }, {
+          key: 13,
+          name: '是否可二次销售',
+          width: '140',
+          prop: 'shot_order_info.buy_account_info.second_sale_num',
+          align: '',
+          showType: 8
+        }, {
+          key: 14,
+          name: '商品ID',
+          width: '140',
+          align: '',
+          iCopy: 'goods_info.goods_id',
+          prop: 'goods_info.goods_id',
+          rowClick: 'openUrl_product',
+          showType: 0
+        }, {
+          key: 15,
+          name: '商品创建时间',
+          width: '140',
+          align: '',
+          prop: 'goods_info.platform_create_time',
+          sortable: true,
+          showType: 0
+        }, {
+          key: 16,
+          name: '商品图片',
+          width: '80',
+          align: 'center',
+          filter: $filter.imageRender,
+          prop: 'goods_info.goods_img',
+          showType: 10
+        }, {
+          key: 17,
+          name: '商品单价',
+          width: '120',
+          filter: $filter.siteCoin,
+          align: '',
+          prop: 'goods_info.discounted_price',
+          sortable: true,
+          showType: 11
+        }, {
+          key: 18,
+          name: '商品数量',
+          width: '80',
+          align: '',
+          prop: 'goods_info.goods_count',
+          showType: 0
+        }, {
+          key: 19,
+          name: '商品标题',
+          width: '120',
+          align: '',
+          prop: 'goods_info.goods_name',
+          showOverflowTooltip: true,
+          showType: 0
+        }, {
+          key: 20,
+          name: '搜同款',
+          width: '120',
+          align: '',
+          showType: 12
+        }, {
+          key: 21,
+          name: '商品类目',
+          width: '120',
+          align: '',
+          rowShow: 'getCategoryName',
+          prop: 'goods_info.goods_category_id',
+          showOverflowTooltip: true,
+          showType: 4
+        }, {
+          key: 22,
+          name: '规格编号',
+          width: '120',
+          align: '',
+          prop: 'goods_info.variation_id',
+          showType: 0
+        }, {
+          key: 23,
+          name: '商品规格',
+          width: '100',
+          align: 'center',
+          showOverflowTooltip: true,
+          showType: 14
+        }, {
+          key: 24,
+          name: '商品货号',
+          width: '120',
+          align: '',
+          rowShow: 'replace_=|=',
+          prop: 'goods_info.variation_sku',
+          showOverflowTooltip: true,
+          showType: 4
+        }, {
+          key: 25,
+          name: '买家付款金额',
+          width: '120',
+          filter: $filter.siteCoin,
+          prop: 'total_amount',
+          sortable: true,
+          showType: 11
+        }, {
+          key: 26,
+          name: '订单收入',
+          width: '120',
+          align: '',
+          filter: $filter.siteCoin,
+          prop: 'escrow_amount',
+          sortable: true,
+          showType: 11
+        }, {
+          key: 27,
+          name: '实际总邮费',
+          width: '100',
+          align: '',
+          filter: $filter.siteCoin,
+          prop: 'actual_shipping_cost',
+          showType: 11
+        }, {
+          key: 28,
+          name: '卖家补贴邮费',
+          width: '120',
+          align: '',
+          filter: $filter.siteCoin,
+          prop: 'sell_shipping_cost',
+          showType: 11
+        }, {
+          key: 29,
+          name: '采购价',
+          width: '120',
+          align: '',
+          filter: $filter.siteCoin,
+          prop: 'shot_order_info.shot_amount',
+          sortable: true,
+          showType: 11
+        }, {
+          key: 30,
+          name: '仓库发货金额',
+          width: '120',
+          align: '',
+          filter: $filter.siteCoin,
+          prop: 'warehouse_ship_amount',
+          sortable: true,
+          showType: 16
+        }, {
+          key: 31,
+          name: '含邮费毛利',
+          width: '120',
+          align: '',
+          filter: $filter.siteCoin,
+          prop: 'gross_profit',
+          showType: 11
+        }, {
+          key: 32,
+          name: '最终毛利',
+          width: '120',
+          align: '',
+          filter: $filter.siteCoin,
+          prop: 'real_gross_profit',
+          showType: 11
+        }, {
+          key: 33,
+          name: '付款账号',
+          width: '120',
+          align: '',
+          prop: 'shot_order_info.pay_account_info.name',
+          showType: 0
+        }, {
+          key: 34,
+          name: '采购账号',
+          width: '120',
+          align: '',
+          prop: 'shot_order_info.buy_account_info.name',
+          showType: 0
+        }, {
+          key: 35,
+          name: '拍单',
+          width: '80',
+          align: '',
+          showType: 17
+        }, {
+          key: 36,
+          name: '采购状态',
+          width: '120',
+          align: '',
+          prop: 'shot_order_info.shot_status',
+          showType: 18
+        }, {
+          key: 37,
+          name: '采购时间',
+          width: '140',
+          align: '',
+          prop: 'shot_order_info.shotted_at',
+          sortable: true,
+          showType: 0
+        }, {
+          key: 38,
+          name: '采购订单号',
+          width: '140',
+          align: '',
+          prop: 'shot_order_info.shot_order_sn',
+          showOverflowTooltip: true,
+          showType: 19
+        }, {
+          key: 39,
+          name: '采购付款方式',
+          width: '120',
+          align: '',
+          rowShow: 'buyPayMethod',
+          prop: 'shot_order_info.shot_payment_method',
+          showType: 4
+        }, {
+          key: 40,
+          name: '平台付款方式',
+          width: '120',
+          align: '',
+          rowShow: 'changePlatformPayMethod',
+          prop: 'payment_method',
+          showType: 4
+        }, {
+          key: 41,
+          name: '采购物流公司',
+          width: '120',
+          align: '',
+          prop: 'shot_order_info.shot_logistics_company',
+          sortable: true,
+          showType: 0
+        }, {
+          key: 42,
+          name: '采购物流单号',
+          width: '120',
+          align: '',
+          prop: 'shot_order_info.shot_tracking_number',
+          showType: 0
+        }, {
+          key: 43,
+          name: '采购发货时间',
+          width: '140',
+          align: '',
+          prop: 'shot_order_info.shot_shipping_time',
+          showType: 0
+        }, {
+          key: 44,
+          name: '商户订单号',
+          width: '140',
+          align: '',
+          prop: 'shot_order_info.merchant_no',
+          showOverflowTooltip: true,
+          showType: 0
+        }, {
+          key: 45,
+          name: '运输方式',
+          width: '80',
+          align: '',
+          filter: getTransportType,
+          prop: 'transport_type',
+          showType: 0
+        }, {
+          key: 46,
+          name: '货物类型',
+          width: '80',
+          align: '',
+          filter: changePackageType,
+          prop: 'package_type',
+          showType: 0
+        }, {
+          key: 47,
+          name: '虾皮物流',
+          width: '100',
+          align: '',
+          prop: 'logistics_name',
+          showOverflowTooltip: true,
+          showType: 0
+        }, {
+          key: 48,
+          name: '虾皮物流单号',
+          width: '140',
+          align: '',
+          prop: 'tracking_no',
+          showOverflowTooltip: true,
+          showType: 0
+        }, {
+          key: 49,
+          name: '虾皮物流轨迹',
+          width: '130',
+          align: '',
+          rowClick: 'getSHtrackPath',
+          buttonName: '虾皮物流轨迹',
+          prop: '123456',
+          showType: 7
+        }, {
+          key: 50,
+          name: '截止发货时间',
+          width: '140',
+          align: '',
+          prop: 'ship_by_date',
+          sortable: true,
+          showType: 0
+        }, {
+          key: 51,
+          name: '仓库发货状态',
+          width: '120',
+          align: '',
+          filter: changeDeliveryStatus,
+          prop: 'delivery_status',
+          showType: 0
+        }, {
+          key: 52,
+          name: '入库时间',
+          width: '140',
+          align: '',
+          prop: 'storage_time',
+          sortable: true,
+          showType: 0
+        }, {
+          key: 53,
+          name: '出库时间',
+          width: '140',
+          align: '',
+          prop: 'outbound_time',
+          sortable: true,
+          showType: 0
+        }, {
+          key: 54,
+          name: '本地备注',
+          width: '120',
+          align: '',
+          prop: 'mall_alias_name',
+          showOverflowTooltip: true,
+          sortable: true,
+          showType: 23
+        }, {
+          key: 55,
+          name: 'shopee备注',
+          width: '120',
+          align: '',
+          prop: 'mall_alias_name',
+          showOverflowTooltip: true,
+          showType: 24
+        }, {
+          key: 56,
+          name: 'shopee备注更新时间',
+          width: '140',
+          align: '',
+          prop: 'note_update_time',
+          showType: 0
+        }, {
+          key: 57,
+          name: '买家姓名',
+          width: '120',
+          align: '',
+          prop: 'name',
+          showOverflowTooltip: true,
+          rowDblClick: 'copyItem',
+          showType: 0
+        }, {
+          key: 58,
+          name: '买家地址',
+          width: '120',
+          align: '',
+          prop: 'receiver_info.address',
+          showOverflowTooltip: true,
+          rowDblClick: 'copyItem',
+          showType: 0
+        }, {
+          key: 59,
+          name: '手机号',
+          width: '120',
+          align: '',
+          prop: 'phone',
+          rowDblClick: 'copyItem',
+          showType: 0
+        }, {
+          key: 60,
+          name: '订单支付时间',
+          width: '140',
+          align: '',
+          prop: 'pay_time',
+          sortable: true,
+          showType: 0
+        }, {
+          key: 61,
+          name: '订单更新时间',
+          width: '140',
+          align: '',
+          prop: 'update_time',
+          sortable: true,
+          showType: 0
+        }, {
+          key: 62,
+          name: '是否为海外仓商品',
+          width: '120',
+          rowShow: '1_or_true',
+          align: '',
+          prop: 'goods_info.is_overseas_goods',
+          showType: 4
+        }]
     }
   },
   computed: {
@@ -1401,6 +1693,14 @@ export default {
         }
         return this.categoryInfo[`category_${id}`] || ''
       }
+    }
+  },
+  watch: {
+    columnConfigList: {
+      handler(val) {
+        console.log(val)
+      },
+      deep: true
     }
   },
   mounted() {
@@ -1802,7 +2102,6 @@ export default {
       }
       this.$buyerAccountService.getSkuRelation(skuInfo, buyer)
     },
-
     // 一键同步上家库存
     async syncOriginGoodsNum() {
       if (!this.multipleSelection.length) {
@@ -1947,22 +2246,9 @@ export default {
           setGoodsDelete(this, row)
           // this.setGoodsDelete(row)
         })
-        .catch(() => {})
+        .catch(() => {
+        })
     },
-    // 商品删除
-    // async setGoodsDelete(row) {
-    //   let params = {
-    //     product_id_list: [Number(row.goods_info.goods_id)],
-    //     shop_id: row.mall_info.platform_mall_id,
-    //   }
-    //   let res = await this.$shopeemanService.handleGoodsDelete(row.country, params)
-    //   if (res.code === 200) {
-    //     this.$message.success(`商品删除成功！`)
-    //   } else {
-    //     this.$message.error(`${res.data}`)
-    //   }
-    // },
-    // 商品下架
     async goodsDelist(row) {
       this.$confirm('是否下架该商品?', '商品下架', {
         confirmButtonText: '确定',
@@ -1973,28 +2259,9 @@ export default {
           setGoodsDelist(this, row)
           // this.setGoodsDelist(row)
         })
-        .catch(() => {})
+        .catch(() => {
+        })
     },
-    // 商品下架
-    // async setGoodsDelist(row) {
-    //   let params = [
-    //     {
-    //       id: Number(row.goods_info.goods_id),
-    //       unlisted: true,
-    //     },
-    //   ]
-    //   let data = {
-    //     shop_id: row.mall_info.platform_mall_id,
-    //   }
-    //   let res = await this.$shopeemanService.handleGoodsDelist(row.country, data, params)
-    //   if (res.code === 200) {
-    //     this.$message.success(`商品下架成功！`)
-    //   } else {
-    //     this.$message.error(`${res.data}`)
-    //   }
-    //   console.log(res, 'res')
-    // },
-    // 订单出库
     async saveHandleOut() {
       try {
         const params = {
@@ -2050,25 +2317,6 @@ export default {
       }
       return params
     },
-    // 获取类目
-    // async getCategoryInfo(country, cateId) {
-    //   if (this.categoryInfo[cateId]) {
-    //     return this.categoryInfo[cateId]
-    //   } else {
-    //     this.categoryInfo[cateId] = ''
-    //     const res = await this.$commodityService.getCategoryTbInfo(country, cateId.toString(), '0', '')
-    //     const resObj = res && JSON.parse(res)
-    //     // console.log(resObj, '类目')
-    //     if (resObj && resObj.code === 200 && resObj.data.categories && resObj.data.categories.length) {
-    //       const categoryName = resObj.data.categories[0].category_cn_name
-    //       this.categoryInfo[cateId] = categoryName
-    //       // console.log(this.categoryInfo[cateId], categoryName)
-    //       return categoryName
-    //     } else {
-    //       return ''
-    //     }
-    //   }
-    // },
     async getCategoryInfo(id, country) {
       const categoryName = this.categoryInfo[`category_${id}`]
       if (!categoryName) {
@@ -2920,19 +3168,7 @@ export default {
       const { data } = await this.$api.getColumnsConfig()
       if (data.code === 200) {
         const resData = data.data || []
-        if (!resData.length) {
-          this.columnConfigList = columnData
-          // return
-        } else {
-          const arrIndex = resData.findIndex((n) => n.column_header === '商品单价(RMB)')
-          console.log(arrIndex, 'arrIndex')
-          if (arrIndex < 0) {
-            const obj = {
-              column_header: '商品单价(RMB)',
-              is_show: 1
-            }
-            resData.push(obj)
-          }
+        if (resData.length) {
           this.columnConfigList = resData
         }
       }
@@ -3100,14 +3336,6 @@ export default {
         this.$api.uploadGressProfit({ lists: grossAmountRequest })
       }
     },
-    // 获取买手号（服务端）
-    // async getBuyerList() {
-    //   let res = await this.$api.getBuyerList()
-    //   if (res.data.code === 200) {
-    //     this.buyerAccountList = res.data.data
-    //   }
-    //   console.log('getBuyerList', this.buyerAccountList)
-    // },
     // 商品来源中文信息
     changeTypeName(code, arr) {
       const res = arr.find((item) => {
@@ -3210,6 +3438,20 @@ export default {
         if (value) break
       }
       return value
+    },
+    datadragEnd(evt) {
+      evt.preventDefault()
+      console.log('拖动前的索引 :' + evt.oldIndex)
+      console.log('拖动后的索引 :' + evt.newIndex)
+      const checkMenusList = []
+      this.columnConfigList.map((item, index) => {
+        checkMenusList.push(Object.assign(item, { sortNum: index + 1 + '' }))
+        return checkMenusList
+      })
+    },
+    getdata(evt) {
+      console.log(evt.draggedContext.filterKey)
+      // 这里evt.draggedContext后续的内容根据具体的定义变量而定
     }
   }
 }
@@ -3219,36 +3461,44 @@ export default {
 .slide-fade-enter-active {
   transition: all 0.5s cubic-bezier(1, 0.5, 0.8, 1);
 }
+
 .slide-fade-leave-active {
   transition: all 0.3s ease;
 }
+
 .slide-fade-enter,
 .slide-fade-leave-to {
   transform: translateY(10px);
   opacity: 0;
 }
+
 .order-center {
   margin: 10px;
   overflow: hidden;
+
   /deep/ .el-dialog__body {
     padding: 10px 20px;
   }
+
   .tableActive {
     color: red;
     cursor: pointer;
   }
+
   .copyStyle {
     user-select: none;
     margin-right: 8px;
     cursor: pointer;
   }
 }
+
 .content {
   p {
     color: red;
     // height: 26px;
     padding: 10px;
   }
+
   padding: 0 16px;
   // margin: 20px 0;
   background: #fff;
@@ -3257,26 +3507,32 @@ export default {
   flex-direction: column;
   justify-content: space-between;
   overflow: auto;
+
   .pagination {
     display: flex;
     justify-content: flex-end;
   }
 }
+
 .mar-right {
   margin-right: 10px;
 }
+
 .selectBox {
   padding: 16px;
   display: flex;
   background: #fff;
   overflow: auto;
+
   .left-box {
     width: 730px;
   }
+
   .right-box {
     flex: 1;
   }
 }
+
 .base-box {
   border: 1px solid #dcdcdc;
   border-radius: 4px;
@@ -3284,6 +3540,7 @@ export default {
   position: relative;
   // min-width: 650px;
   height: 100%;
+
   .base-title {
     padding: 0 5px;
     display: inline-block;
@@ -3295,36 +3552,45 @@ export default {
     left: 10px;
     top: -10px;
   }
+
   .base-item {
   }
 }
+
 .row-style {
   display: flex;
   padding-bottom: 8px;
   align-items: center;
+
   .tool-item {
     display: flex;
     align-items: center;
+
     /deep/ .storeChooseUL {
       flex-wrap: nowrap;
     }
+
     /deep/ .el-select__tags {
       max-width: 153px !important;
       display: flex;
       flex-wrap: nowrap;
       overflow: hidden;
     }
+
     /deep/ .el-range-input {
       width: 24%;
     }
+
     span {
       display: inline-block;
       width: 80px;
       text-align: right;
     }
+
     .inputBox {
       width: 140px;
     }
+
     i {
       padding-left: 8px;
       width: 20px;
@@ -3333,6 +3599,7 @@ export default {
     }
   }
 }
+
 .showBtn {
   width: 100%;
   height: 26px;
@@ -3344,32 +3611,40 @@ export default {
   text-align: right;
   z-index: 99;
   cursor: pointer;
+
   p {
     display: inline-block;
   }
+
   i {
     font-size: 18px;
     vertical-align: middle;
   }
 }
+
 .btnMini {
   width: 80px;
 }
+
 .btnMedium {
   width: 120px;
 }
+
 .btnLong {
   width: 160px;
 }
+
 .btnLongMax {
   width: 220px;
 }
+
 .column-style {
   overflow: auto;
   height: 600px;
   display: flex;
   // justify-content: center;
   flex-wrap: wrap;
+
   .column-item {
     span {
       display: inline-block;
@@ -3380,41 +3655,57 @@ export default {
       border: 1px solid #dcdcdc;
       margin-right: 5px;
     }
+    user-select: none;
     display: flex;
     margin: 10px;
     align-items: center;
     min-width: 160px;
+    float: left;
+    cursor: all-scroll;
+  }
+  .forbid{
+    cursor: initial;
+  span{
+    background: #ddd;
+  }
   }
 }
+
 .remark-style {
   span {
     display: inline-block;
     width: 80px;
   }
+
   display: flex;
   align-items: center;
   justify-content: space-between;
 }
+
 .abroad-mar {
   margin: 0 20px;
   display: flex;
   justify-content: center;
 }
+
 .colorBox {
   height: 30px;
   width: 80px;
 }
+
 .item-box {
   display: flex;
   align-items: center;
   // justify-content: center;
   margin-bottom: 20px;
+
   span {
     display: inline-block;
     width: 120px;
     text-align: right;
     margin-right: 10px;
   }
+
   i {
     font-size: 18px !important;
     color: red;
@@ -3422,47 +3713,60 @@ export default {
     cursor: pointer;
   }
 }
+
 .forbid {
   display: flex;
+
   /deep/ .el-dialog__body {
     padding: 10px 20px;
   }
+
   .title {
     font-weight: 900;
     font-size: 14px !important;
   }
+
   p {
     height: 26px;
   }
+
   .forbid-left {
     flex: 6;
   }
+
   .forbid-right {
     flex: 4;
+
     .right-col {
       display: flex;
       flex-wrap: wrap;
+
       .half {
         width: 50%;
       }
     }
   }
 }
+
 .tra-style {
   display: flex;
   flex-direction: column;
+
   .tra-content {
     display: flex;
   }
+
   p {
     color: red;
     height: 26px;
   }
 }
+
 .track-step {
   .step-header {
     .step-item {
       display: flex;
+
       span {
         font-weight: 900;
         font-size: 14px !important;
@@ -3474,15 +3778,18 @@ export default {
     align-items: center;
     margin-bottom: 20px;
   }
+
   .step-content {
     height: 500px;
     overflow: auto;
   }
 }
+
 .handle-out {
   .item {
     display: flex;
     align-items: center;
+
     span {
       line-height: 28px;
       height: 28px;
@@ -3490,13 +3797,16 @@ export default {
       width: 120px;
       text-align: right;
     }
+
     .inputWidth {
       width: 200px;
     }
+
     p {
       height: 28px;
       line-height: 28px;
     }
+
     margin-bottom: 10px;
   }
 }
