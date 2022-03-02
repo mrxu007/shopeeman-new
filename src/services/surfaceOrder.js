@@ -43,9 +43,7 @@ export default class {
   }
 
   //自动同步流程（不能同步台湾面单）
-  async autoStart(that, writeLog) {
-    this._this = that
-    this.writeLog = writeLog
+  async autoStart() {
     this.isAuto = true
     this.activeType = 'auto'
     try {

@@ -788,7 +788,6 @@ export default {
           { title: '同步订单', type: 'primary', key: 2, check: 'order' },
           { title: '获取物流单号', type: 'primary', key: 3, check: 'ship' },
           { title: '批量拍单', type: 'primary', key: 4, click: 'purchaseHandler' },
-          { title: '配置自定义列', type: 'primary', key: 5 },
           { title: '上传账号信息', type: 'primary', key: 6 },
           { title: '下载账号信息', type: 'primary', key: 7 }
         ],
@@ -806,8 +805,9 @@ export default {
           { title: '批量标记颜色', key: 9, type: 'primary', click: 'getColorList' },
           { title: '批量标记海外商品', key: 10, type: 'primary' },
           { title: '批量添加采购信息', key: 11, type: 'primary', click: 'batchAddBuyInfo' },
-          { title: '批量订单发货', key: 12, type: 'primary', click: 'ordersShipmentShow' }
-        ]
+          { title: '批量订单发货', key: 12, type: 'primary', click: 'ordersShipmentShow' },
+          { title: '配置自定义列', type: 'primary', key: 5 },
+        ],
       },
       selectMallList: [], // 店铺选择
       multipleSelection: [],
@@ -1378,7 +1378,6 @@ export default {
           prop: 'goods_info.is_overseas_goods',
           showType: 4
         }],
-      options:[]
     }
   },
   computed: {
@@ -2207,12 +2206,12 @@ export default {
     async syncLogisticsSingle(row) {
       this.showConsole = false // 打开日志
       this.$refs.Logs.consoleMsg = ''
-      const service = new LogisticeSyncService(this.$refs.Logs.writeLog)
+      const service = new LogisticeSyncService()
       if (!this.buyerAccountList.length) {
         this.$refs.Logs.writeLog(`没有买手号，请登录买手号`, false)
       }
       this.$refs.Logs.writeLog(`【${row.order_id}】获取采购物流轨迹开始`, true)
-      service.start(this, this.buyerAccountList, [row])
+      service.start(this, this.buyerAccountList, this.$refs.Logs.writeLog, [row])
     },
     // 同步此订单
     async SyncOrderSingle(row) {
@@ -2239,7 +2238,7 @@ export default {
           // 同步状态
           const statusObj = syncStatus[i]
           const orderService = new orderSync(mall, statusObj, this, this.$refs.Logs.writeLog)
-          await orderService.start(`${mI + 1}/${mallList.length}`, 'manual')
+          await orderService.start(`${mI + 1}/${mallList.length}`, 'manual', 60)
         }
       }
       this.$refs.Logs.writeLog('订单同步已完成！！！', true)
@@ -3556,7 +3555,6 @@ export default {
     margin-bottom: 10px;
   }
 }
-
 </style>
 <style lang="less">
 .timeFormat {
