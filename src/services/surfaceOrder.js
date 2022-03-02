@@ -43,13 +43,14 @@ export default class {
   }
 
   //自动同步流程（不能同步台湾面单）
-  async autoStart() {
+  async autoStart(that, writeLog) {
+    this._this = that
+    this.writeLog = writeLog
     this.isAuto = true
     this.activeType = 'auto'
     try {
       this.isApplyForceFaceInfo = false
       let res = await this.$api.getEmptyTrackingNoOrder()
-      console.log(res, "res")
       if (res.data.code === 200) {
         let arrList = res.data.data || []
         let arrFilter = arrList.filter(n => {
@@ -60,19 +61,15 @@ export default class {
         }
         this.writeLog(`一共获取到需要自动同步的订单${arrFilter.length}条`, true)
         for(let i=0;i<arrFilter.length;i++){
+          let order = arrFilter[i]
           await this.autoMainFlow(order)
         }
         this.writeLog(`自动同步物流-面单完成`, true)
-        // arrFilter.forEach(async (order, i) => {
-        //   this.autoMainFlow(order)
-        //   if (i == arrFilter.length - 1) {
-        //     this.writeLog(`自动同步物流-面单完成`, true)
-        //   }
-        // })
       } else {
         this.writeLog('【自动同步物流-面单】，终止-获取待同步物流订单数据失败', false)
       }
     } catch (error) {
+      console.log(error,"error")
       return this.writeLog(`【自动同步物流-面单】，终止-${error}`, false)
     }
 
@@ -82,8 +79,9 @@ export default class {
     if (order.country === 'TW') {
       return this.writeLog('自动流程不同步台湾站面单', false)
     }
-    let mallId = order.mall_info.platform_mall_id || order.platform_mall_id
-    let sysMallId = order.mall_info.id || order.sys_mall_id
+    console.log(order,"4244242425432")
+    let mallId = order.platform_mall_id ||( order.mall_info?order.mall_info.platform_mall_id:'')
+    let sysMallId = order.sys_mall_id || (order.mall_info?order.mall_info.id:'')
     let orderId = order.order_id
     let country = order.country
     let orderSn = order.order_sn || order.main_order_sn
@@ -152,8 +150,10 @@ export default class {
   }
   //手动同步
   async handleMainFlow(order) {
-    let mallId = order.mall_info.platform_mall_id || order.platform_mall_id
-    let sysMallId = order.mall_info.id || order.sys_mall_id
+    // let mallId = order.mall_info.platform_mall_id || order.platform_mall_id
+    // let sysMallId = order.mall_info.id || order.sys_mall_id
+    let mallId = order.platform_mall_id ||( order.mall_info?order.mall_info.platform_mall_id:'')
+    let sysMallId = order.sys_mall_id || (order.mall_info?order.mall_info.id:'')
     let orderId = order.order_id
     let country = order.country
     let orderSn = order.order_sn || order.main_order_sn

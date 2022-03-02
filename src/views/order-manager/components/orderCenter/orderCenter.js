@@ -817,7 +817,7 @@ const syncStatusAll = [
     value: 'cancelled'
   },
   {
-    label: '退款中',
+    label: '退货/退款',
     value: 'refund'
   },
 ]
@@ -828,10 +828,6 @@ const syncStatusFirst = [
   },
 ]
 const syncStatus = [
-  // {
-  //   label: '未支付',
-  //   value: 'unpaid'
-  // // },
   {
     label: '全部',
     value: 'all'
@@ -840,20 +836,8 @@ const syncStatus = [
     label: '待发货',
     value: 'toship'
   },
-  // {
-  //   label: '运送中',
-  //   value: 'shipping'
-  // },
-  // {
-  //   label: '已完成',
-  //   value: 'completed'
-  // },
-  // {
-  //   label: '取消中',
-  //   value: 'cancelled'
-  // }, 
   {
-    label: '退款中',
+    label: '退货/退款',
     value: 'refund'
   },
 ]

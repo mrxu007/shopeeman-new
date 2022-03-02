@@ -1034,10 +1034,10 @@ export default {
     },
     // 绑定用户信息
     async  updataMallList() {
-      // if (this.dialog_selectMallList.length > 10) {
-      //   this.$message.warning('一个主体最多绑定10个店铺')
-      //   return
-      // }
+      if (this.rowData._source === '1' && this.dialog_selectMallList.length > 10) {
+        this.$message.warning('一个系统IP最多绑定10个店铺')
+        return
+      }
       const userInfo = await this.$appConfig.getUserInfo()
       const uid = userInfo.muid.toString()
       const targetId = this.targetId.toString()
