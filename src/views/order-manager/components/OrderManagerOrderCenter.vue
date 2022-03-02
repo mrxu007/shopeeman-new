@@ -198,26 +198,10 @@
         温馨提示：1、最终毛利 = 订单收入-采购金额-仓库发货金额（生成仓库发货金额才会去计算，会有汇率差）；含邮费毛利 =
         订单收入-采购价；2、若登录了Lazada买手号但点击采购订单号依旧提示登录，请使用编辑采购信息编辑重新保存下拍单信息
       </p>
-<<<<<<< HEAD
-      <u-table
-        ref="multipleTable"
-        v-loading="tableLoading"
-        use-virtual
-        :border="false"
-        :data="tableData"
-        tooltip-effect="dark"
-        :height="isShow ? 420 : 730"
-        :row-height="60"
-        :cell-style="{ padding: '0px' }"
-        @selection-change="handleSelectionChange"
-      >
-        <u-table-column align="center" type="selection" width="50" fixed="left" />
-=======
       <u-table ref="multipleTable" v-loading="tableLoading" use-virtual :row-height="60" :border="false"
            :data="tableData" tooltip-effect="dark" :height="isShow && (tableColumnShow && 410 || 411) || 730"
                :cell-style="{ padding: '0px' }" @selection-change="handleSelectionChange">
         <u-table-column align="center" type="selection" width="50" fixed="left"/>
->>>>>>> 868f5c2e484f008df7173420c65e4c6fb7ca918c
         <u-table-column align="center" type="index" label="序号" width="50" fixed="left">
           <template slot-scope="scope">{{ (currentPage - 1) * pageSize + scope.$index + 1 }}</template>
         </u-table-column>
@@ -266,16 +250,11 @@
             </el-dropdown>
           </template>
         </u-table-column>
-<<<<<<< HEAD
-        <u-table-column width="80px" label="站点" prop="country" align="center" v-if="showTableColumn('站点')">
-          <template slot-scope="scope" v-if="scope.row.mall_info">{{ scope.row.mall_info.country | chineseSite }}</template>
-=======
         <u-table-column v-if="showTableColumn('站点')"  width="80px" label="站点" prop="country" align="center">
           <template slot-scope="scope" v-if="scope.row.mall_info">{{
               scope.row.mall_info.country | chineseSite
             }}
           </template>
->>>>>>> 868f5c2e484f008df7173420c65e4c6fb7ca918c
         </u-table-column>
         <u-table-column v-if="showTableColumn('店铺分组')" width="80px" label="店铺分组" prop="country" align="center">
           <template slot-scope="scope">{{ scope.row.group_name }}</template>
@@ -296,20 +275,10 @@
             <span>{{ changeColorLabel(scope.row.color_id, 'name') }}</span>
           </template>
         </u-table-column>
-<<<<<<< HEAD
-        <!-- <u-table-column align="center" prop="color_id" label="标识名称" width="120" v-if="showTableColumn('标识名称')">
-          <template slot-scope="scope">
-            <span>{{ changeColorLabel(scope.row.color_id, 'name') }}</span>
-          </template>
-        </u-table-column> -->
-        <u-table-column v-if="showTableColumn('订单创建时间')" sortable align="center" prop="created_time" label="订单创建时间" width="140" />
-        <u-table-column v-if="showTableColumn('发货状态')" sortable align="center" prop="order_status" label="发货状态" width="100">
-=======
         <u-table-column v-if="showTableColumn('订单创建时间')" sortable align="center" prop="created_time" label="订单创建时间"
                         width="140"/>
         <u-table-column v-if="showTableColumn('发货状态')" sortable align="center" prop="order_status" label="发货状态"
                         width="100">
->>>>>>> 868f5c2e484f008df7173420c65e4c6fb7ca918c
           <template slot-scope="scope">
             <p :style="{ color: changeOrderStatus(scope.row.order_status, 'color') }">{{ changeOrderStatus(scope.row.order_status) }}</p>
           </template>
@@ -553,11 +522,7 @@
         <u-table-column v-if="showTableColumn('订单支付时间')" sortable align="center" prop="pay_time " label="订单支付时间" width="140">
           <template slot-scope="scope">{{ scope.row.pay_time }}</template>
         </u-table-column>
-<<<<<<< HEAD
-        <u-table-column sortable align="center" prop="update_time" label="订单更新时间" width="140" v-if="showTableColumn('订单更新时间')">
-=======
         <u-table-column v-if="showTableColumn('订单更新时间')" sortable align="center" prop="update_time" label="订单更新时间" width="140">
->>>>>>> 868f5c2e484f008df7173420c65e4c6fb7ca918c
           <template slot-scope="scope">{{ scope.row.update_time }}</template>
         </u-table-column>
         <u-table-column v-if="showTableColumn('是否为海外仓商品')" align="center" label="是否为海外仓商品" width="120">
@@ -827,10 +792,7 @@ import UploadStoreShipAmount from './orderCenter/uploadStoreShipAmount.vue'
 import _ from 'lodash'
 import ShotOrderService from '../../../services/short-order/shot-order-service'
 import orderSync from '../../../services/timeOrder'
-<<<<<<< HEAD
-=======
 import xlsx from 'xlsx'
->>>>>>> 868f5c2e484f008df7173420c65e4c6fb7ca918c
 export default {
   components: {
     BuyerAccount,
@@ -990,13 +952,10 @@ export default {
       shipLoading: false,
       colorLoading: false,
       localRamark: '',
-<<<<<<< HEAD
-=======
       ordersShipmentVisible: false,
       importOrdersShipment: '',
       ordersShipmentData: [],
       tableColumnShow:false,
->>>>>>> 868f5c2e484f008df7173420c65e4c6fb7ca918c
     }
   },
   computed: {
@@ -2872,11 +2831,7 @@ export default {
       flex-wrap: nowrap;
       overflow: hidden;
     }
-<<<<<<< HEAD
-    /deep/.el-range-input {
-=======
     /deep/.el-range-input{
->>>>>>> 868f5c2e484f008df7173420c65e4c6fb7ca918c
       width: 24%;
     }
     span {
