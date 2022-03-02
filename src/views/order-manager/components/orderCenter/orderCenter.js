@@ -1825,6 +1825,12 @@ function changeBuyerType(type) {
       return shotOrderPlatform.PinDuoduo
   }
 }
+
+
+function getTransportType(val){
+  return val == 1 && '空运' || val == 2 && '陆运' || ''
+}
+
 export {
   orderStatusList,
   shotStatusList,
@@ -1859,5 +1865,6 @@ export {
   changePackageType,
   sourceName,
   orderStatusName,
-  siteShip
+  siteShip,
+  getTransportType
 }
