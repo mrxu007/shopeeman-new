@@ -45,14 +45,14 @@
                 <el-row class="row-style">
                   <div class="tool-item mar-right">
                     <span>发货状态：</span>
-                    <el-select v-model="orderStatus" placeholder="" size="mini" multiple collapse-tags filterable　class="inputBox" @change="changeSelect($event,'orderStatus', orderStatusList)">
+                    <el-select v-model="orderStatus" placeholder="" size="mini" multiple collapse-tags filterable　class="inputBox" @change="changeSelect($event, 'orderStatus', orderStatusList)">
                       <el-option label="全部" :value="''" @click.native="selectAll('orderStatus', orderStatusList)" />
                       <el-option v-for="(item, index) in orderStatusList" :key="index" :label="item.label" :value="item.value" />
                     </el-select>
                   </div>
                   <div class="tool-item mar-right">
                     <span>采购状态：</span>
-                    <el-select v-model="shotStatus" placeholder="" size="mini" multiple collapse-tags filterable　class="inputBox" @change="changeSelect($event,'shotStatus', shotStatusList)">
+                    <el-select v-model="shotStatus" placeholder="" size="mini" multiple collapse-tags filterable　class="inputBox" @change="changeSelect($event, 'shotStatus', shotStatusList)">
                       <el-option label="全部" :value="''" @click.native="selectAll('shotStatus', shotStatusList)" />
                       <el-option v-for="(item, index) in shotStatusList" :key="index" :label="item.label" :value="item.value" />
                     </el-select>
@@ -137,7 +137,7 @@
                   </div>
                   <div class="tool-item mar-right">
                     <span>物流方式：</span>
-                    <el-select v-model="logisticsIds" placeholder="" size="mini" multiple collapse-tags filterable　class="inputBox" >
+                    <el-select v-model="logisticsIds" placeholder="" size="mini" multiple collapse-tags filterable　class="inputBox">
                       <el-option label="全部物流" :value="''" @click.native="selectAll('logisticsIds', shipTypeList)" />
                       <el-option v-for="(item, index) in shipTypeList" :key="index" :label="item.ShipName" :value="item.ShipId" />
                     </el-select>
@@ -198,10 +198,19 @@
         温馨提示：1、最终毛利 = 订单收入-采购金额-仓库发货金额（生成仓库发货金额才会去计算，会有汇率差）；含邮费毛利 =
         订单收入-采购价；2、若登录了Lazada买手号但点击采购订单号依旧提示登录，请使用编辑采购信息编辑重新保存下拍单信息
       </p>
-      <u-table ref="multipleTable" v-loading="tableLoading" use-virtual :row-height="60" :border="false"
-           :data="tableData" tooltip-effect="dark" :height="isShow && (tableColumnShow && 410 || 411) || 730"
-               :cell-style="{ padding: '0px' }" @selection-change="handleSelectionChange">
-        <u-table-column align="center" type="selection" width="50" fixed="left"/>
+      <u-table
+        ref="multipleTable"
+        v-loading="tableLoading"
+        use-virtual
+        :row-height="60"
+        :border="false"
+        :data="tableData"
+        tooltip-effect="dark"
+        :height="(isShow && ((tableColumnShow && 410) || 411)) || 730"
+        :cell-style="{ padding: '0px' }"
+        @selection-change="handleSelectionChange"
+      >
+        <u-table-column align="center" type="selection" width="50" fixed="left" />
         <u-table-column align="center" type="index" label="序号" width="50" fixed="left">
           <template slot-scope="scope">{{ (currentPage - 1) * pageSize + scope.$index + 1 }}</template>
         </u-table-column>
@@ -250,11 +259,8 @@
             </el-dropdown>
           </template>
         </u-table-column>
-        <u-table-column v-if="showTableColumn('站点')"  width="80px" label="站点" prop="country" align="center">
-          <template slot-scope="scope" v-if="scope.row.mall_info">{{
-              scope.row.mall_info.country | chineseSite
-            }}
-          </template>
+        <u-table-column v-if="showTableColumn('站点')" width="80px" label="站点" prop="country" align="center">
+          <template slot-scope="scope" v-if="scope.row.mall_info">{{ scope.row.mall_info.country | chineseSite }} </template>
         </u-table-column>
         <u-table-column v-if="showTableColumn('店铺分组')" width="80px" label="店铺分组" prop="country" align="center">
           <template slot-scope="scope">{{ scope.row.group_name }}</template>
@@ -275,10 +281,8 @@
             <span>{{ changeColorLabel(scope.row.color_id, 'name') }}</span>
           </template>
         </u-table-column>
-        <u-table-column v-if="showTableColumn('订单创建时间')" sortable align="center" prop="created_time" label="订单创建时间"
-                        width="140"/>
-        <u-table-column v-if="showTableColumn('发货状态')" sortable align="center" prop="order_status" label="发货状态"
-                        width="100">
+        <u-table-column v-if="showTableColumn('订单创建时间')" sortable align="center" prop="created_time" label="订单创建时间" width="140" />
+        <u-table-column v-if="showTableColumn('发货状态')" sortable align="center" prop="order_status" label="发货状态" width="100">
           <template slot-scope="scope">
             <p :style="{ color: changeOrderStatus(scope.row.order_status, 'color') }">{{ changeOrderStatus(scope.row.order_status) }}</p>
           </template>
@@ -955,7 +959,7 @@ export default {
       ordersShipmentVisible: false,
       importOrdersShipment: '',
       ordersShipmentData: [],
-      tableColumnShow:false,
+      tableColumnShow: false,
     }
   },
   computed: {
@@ -1753,12 +1757,12 @@ export default {
     async syncLogisticsSingle(row) {
       this.showConsole = false // 打开日志
       this.$refs.Logs.consoleMsg = ''
-      const service = new LogisticeSyncService(this.$refs.Logs.writeLog)
+      const service = new LogisticeSyncService()
       if (!this.buyerAccountList.length) {
         this.$refs.Logs.writeLog(`没有买手号，请登录买手号`, false)
       }
       this.$refs.Logs.writeLog(`【${row.order_id}】获取采购物流轨迹开始`, true)
-      service.start(this, this.buyerAccountList, [row])
+      service.start(this, this.buyerAccountList, this.$refs.Logs.writeLog, [row])
     },
     // 同步此订单
     async SyncOrderSingle(row) {
@@ -1784,8 +1788,8 @@ export default {
         for (let i = 0; i < syncStatus.length; i++) {
           // 同步状态
           const statusObj = syncStatus[i]
-          const orderService = new orderSync(mall, statusObj, this, this.$refs.Logs.writeLog)
-          await orderService.start(`${mI + 1}/${mallList.length}`, 'manual')
+          const orderService = new orderSync()
+          await orderService.start(`${mI + 1}/${mallList.length}`, 'manual', 60, mall, statusObj, this, this.$refs.Logs.writeLog)
         }
       }
       this.$refs.Logs.writeLog('订单同步已完成！！！', true)
@@ -2831,7 +2835,7 @@ export default {
       flex-wrap: nowrap;
       overflow: hidden;
     }
-    /deep/.el-range-input{
+    /deep/.el-range-input {
       width: 24%;
     }
     span {

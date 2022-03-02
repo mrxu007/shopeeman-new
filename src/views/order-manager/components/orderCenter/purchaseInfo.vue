@@ -36,7 +36,7 @@
       </el-form-item>
       <el-form-item label="采购账号:" prop="buyAccountInfo">
         <el-select v-model="form.buyAccountInfo" placeholder="请选择活动区域" size="mini" class="inputWidth">
-          <el-option :label="item.name" :value="JSON.stringify(item)" v-for="(item, index) in buyerAccountListFilter" :key="index"></el-option>
+          <el-option :label="item.name" :value="item.name" v-for="(item, index) in buyerAccountListFilter" :key="index"></el-option>
         </el-select>
       </el-form-item>
       <el-form-item label="绑定仓库:" prop="warehouseName" v-if="dealType === 'single'">
@@ -166,6 +166,7 @@ export default {
       this.form.shotStatus = data.shot_order_info.shot_status
       this.form.shotAmount = data.shot_order_info.shot_amount  
       this.form.shotAmountRmb = data.shot_order_info.shot_amount_rmb   
+      this.form.buyAccountInfo = data.shot_order_info.buy_account
       this.country = data.country
       this.shotAmount = data.shot_order_info.shot_amount_rmb
       this.shotAmountRmb = data.shot_order_info.shot_amount   
@@ -246,7 +247,9 @@ export default {
         }
         let obj = {}
         if (this.form.buyAccountInfo) {
-          let buy = JSON.parse(this.form.buyAccountInfo)
+          // let buy = JSON.parse(this.form.buyAccountInfo) 
+          let buy = this.buyerAccountListFilter.find(n=>{return n.name == this.form.buyAccountInfo && n.type == this.form.platformId})
+          
           // console.log(buy, 'buy')
           obj = {
             name: buy.name,
