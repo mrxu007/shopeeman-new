@@ -223,11 +223,11 @@
     <div class="content" :style="{ height: isShow ? '520px' : '840px' }">
       <p>
         温馨提示：1、最终毛利 = 订单收入-采购金额-仓库发货金额（生成仓库发货金额才会去计算，会有汇率差）；含邮费毛利 =
-        订单收入-采购价；2、若登录了Lazada买手号但点击采购订单号依旧提示登录，请使用编辑采购信息编辑重新保存下拍单信息
+        订单收入-采购价；2、调整列表顺序，请至【配置自定义列】按钮，拖动表头进行排列
       </p>
       <u-table ref="multipleTable" v-loading="tableLoading" use-virtual :row-height="60" :border="false"
                :data="tableData" tooltip-effect="dark" :height="isShow && (tableColumnShow && 410 || 411) || 730"
-               :cell-style="{ padding: '0px' }" :header-cell-style="{backgroundColor: '#f5f7fa'}"
+               :cell-style="{ padding: '0px' }" :header-cell-style="{backgroundColor: '#f5f7fa'}" :resizable="true"
                @selection-change="handleSelectionChange">
         <u-table-column align="center" type="selection" width="50" fixed="left"/>
         <u-table-column align="center" type="index" label="序号" width="50" fixed="left">
@@ -235,14 +235,14 @@
         </u-table-column>
         <u-table-column v-for="item in tableColumnList" :key="item.key" v-if="showTableColumn(item.name)"
                         :width="item.width || '80'" :align="item.align||'left'" :label="item.name"
-                        :prop="item.prop || ''" :sortable="item.sortable || false"
-                        :show-overflow-tooltip="item.showOverflowTooltip || false">
+                        :prop="item.prop || ''" :sortable="item.sortable || false" :fixed="item.fixed"
+                        :show-overflow-tooltip="item.showOverflowTooltip || false" :resizable="true">
           <template slot-scope="{row,$index}">
             <i v-if="item.iCopy" class="el-icon-document-copy copyStyle"
                @click="copyItem(getTableRow(row,item.iCopy))"/>
             <p v-if="item.iColor" :style="{ background: changeColorLabel(row[item.iColor]), height: '20px' }"/>
             <span v-if="item.showType === 0"
-                  :class="(item.rowClick && 'tableActive' || item.rowDblClick && 'copyStyle') || ''"
+                  :class="item.rowClick && 'tableActive' || item.rowDblClick && 'copyStyle' || ''"
                   @click="item.rowClick && tableRowBound(item.rowClick,row,$index,item) || ''"
                   @dblclick="item.rowDblClick && tableRowBound(item.rowDblClick,row,$index,item) || ''">
               {{ item.filter && item.filter(getTableRow(row, item.prop)) || getTableRow(row, item.prop) }}
@@ -424,12 +424,12 @@
     <el-dialog v-if="columnVisible" title="配置订单列表显示列" :visible.sync="columnVisible" width="800px" top="5vh"
                :close-on-click-modal="false" @close="closeDialog">
       <div class="column-style">
-        <draggable @update="datadragEnd" v-model="columnConfigList" group="columnConfig">
+        <draggable @update="datadragEnd" filter=".forbid" v-model="columnConfigList" group="columnConfig">
           <transition-group>
-            <div v-for="(item, index) in columnConfigList" :key="index" class="column-item">
+            <div :class="index < 2 &&'forbid column-item' || 'column-item'" v-for="(item, index) in columnConfigList" :key="index" >
               <span>{{ item.column_header }}</span>
-              <el-switch v-model="item.is_show" style="display: block" active-color="#13ce66" inactive-color="#a9a9a9"
-                         :active-value="1" :inactive-value="-1"/>
+              <el-switch v-model="item.is_show" style="display: block" active-color="#13ce66"
+                         inactive-color="#a9a9a9" :active-value="1" :inactive-value="-1"/>
             </div>
           </transition-group>
         </draggable>
@@ -889,7 +889,7 @@ export default {
           align: '',
           iCopy: 'order_sn',
           prop: 'order_sn',
-          rowDblClick: 'viewDetails_orderDetail',
+          rowClick: 'viewDetails_orderDetail',
           showType: 0
         }, {
           key: 2,
@@ -1378,6 +1378,14 @@ export default {
           prop: 'goods_info.is_overseas_goods',
           showType: 4
         }],
+    }
+  },
+  watch:{
+    columnConfigList:{
+      handler(val) {
+        console.log(val)
+      },
+      deep: true
     }
   },
   computed: {
@@ -3351,6 +3359,12 @@ export default {
     min-width: 160px;
     float: left;
     cursor: all-scroll;
+  }
+  .forbid{
+    cursor: initial;
+  span{
+    background: #ddd;
+  }
   }
 }
 
