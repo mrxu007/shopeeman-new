@@ -11,7 +11,7 @@
     <div class="out-header">
       <span>{{ clickNum }}/{{ chooseData.length }}</span>
       <el-button type="primary" size="mini" @click="goNext">{{ clickNum == chooseData.length ? '关闭' : '匹配下一单' }}</el-button>
-      <el-button type="primary" size="mini" @click="getSheetInfo" v-if="outStoreType === '3' || outStoreType === '4'">获取面单信息</el-button>
+      <el-button v-if="outStoreType === '3' || outStoreType === '4'" type="primary" size="mini" @click="getSheetInfo">获取面单信息</el-button>
       <span class="warning-style">{{ flagText }}</span>
       <p>温馨提示: 1、请确保该主订单下所有子订单商品在海外仓都有库存，如果只有部分订单有库存商品，请不要出库，否则会导致没有库存的商品无法发货；</p>
       <p>温馨提示: 2、商品出库前，请确保平台物流和面单已申请</p>
@@ -26,7 +26,7 @@
               <el-table-column align="center" type="index" label="序号" min-width="50px" />
               <el-table-column min-width="120px" label="订单编号" prop="order_sn" align="center" />
               <el-table-column width="80px" label="订单状态" prop="order_status" align="center">
-                <template slot-scope="scope" v-if="scope.row.order_status">{{ changeOrderStatus(scope.row.order_status) }}</template>
+                <template v-if="scope.row.order_status" slot-scope="scope">{{ changeOrderStatus(scope.row.order_status) }}</template>
               </el-table-column>
               <el-table-column min-width="120px" label="商品名称" prop="goods_name" align="center" show-overflow-tooltip />
               <el-table-column width="120px" label="SKUID" prop="variation_id" align="center" show-overflow-tooltip />
@@ -39,7 +39,7 @@
                     <div slot="content">
                       <el-image :src="[ scope.row.goods_img] | imageRender" style="width: 400px; height: 400px" />
                     </div>
-                    <el-image v-bind:src="[scope.row.goods_img,true] | imageRender" style="width: 56px; height: 56px" />
+                    <el-image :src="[scope.row.goods_img,true] | imageRender" style="width: 56px; height: 56px" />
                   </el-tooltip>
                 </template>
               </el-table-column>
@@ -59,8 +59,7 @@
                         clickRow = scope.row
                         country = scope.row.country
                       "
-                      >匹配商品</el-button
-                    >
+                    >匹配商品</el-button>
                     <el-button
                       v-if="outStoreType == '3' || outStoreType == '4'"
                       type="primary"
@@ -71,8 +70,7 @@
                         addGiftAbroad = 'gift'
                         clickRow = scope.row
                       "
-                      >添加赠品</el-button
-                    >
+                    >添加赠品</el-button>
                   </div>
                 </template>
               </el-table-column>
@@ -91,7 +89,7 @@
               <el-table-column align="center" prop="stock_num" label="可用库存" width="80" />
               <el-table-column align="center" prop="outStock" label="出库数量" min-width="80">
                 <template slot-scope="scope">
-                  <el-input v-model="outStock[scope.$index]" @input="setOutStock(scope.row, scope.$index)" size="mini"></el-input>
+                  <el-input v-model="outStock[scope.$index]" size="mini" @input="setOutStock(scope.row, scope.$index)" />
                 </template>
               </el-table-column>
               <el-table-column width="120px" label="商品单价(RMB)" prop="sku_price" align="center" />
@@ -118,7 +116,7 @@
           <span class="mar-right activeColor">{{ outTotalPriceRmb }}</span>
           <span class="mar-right">出库总价</span>
           <span class="mar-right activeColor">{{ outTotalPrice }}</span>
-          <el-button size="mini" type="primary" @click="outStore" :disabled="!matchOrderList.length || (clickNum === chooseData.length && flagText === '出库成功')">立即下单</el-button>
+          <el-button size="mini" type="primary" :disabled="!matchOrderList.length || (clickNum === chooseData.length && flagText === '出库成功')" @click="outStore">立即下单</el-button>
         </div>
       </div>
       <div class="content-right">
@@ -136,15 +134,15 @@
               </div>
               <div class="item">
                 <span>买家姓名</span>
-                <p class="content" v-if="orderInfo.receiver_info">{{ orderInfo.receiver_info.name }}</p>
+                <p v-if="orderInfo.receiver_info" class="content">{{ orderInfo.receiver_info.name }}</p>
               </div>
               <div class="item">
                 <span>买家电话</span>
-                <p class="content" v-if="orderInfo.receiver_info">{{ orderInfo.receiver_info.phone }}</p>
+                <p v-if="orderInfo.receiver_info" class="content">{{ orderInfo.receiver_info.phone }}</p>
               </div>
               <div class="item">
                 <span>买家地址</span>
-                <p class="content" v-if="orderInfo.receiver_info">{{ orderInfo.receiver_info.address }}</p>
+                <p v-if="orderInfo.receiver_info" class="content">{{ orderInfo.receiver_info.address }}</p>
               </div>
               <div class="item">
                 <span>物流公司</span>
@@ -156,7 +154,7 @@
               </div>
               <div class="item">
                 <span>订单收入</span>
-                <p class="content" v-if="income">{{ income.toFixed(2) }}{{ orderInfo.country | siteCoin }} ({{ incomeRmb.toFixed(2) }}元)</p>
+                <p v-if="income" class="content">{{ income.toFixed(2) }}{{ orderInfo.country | siteCoin }} ({{ incomeRmb.toFixed(2) }}元)</p>
               </div>
             </div>
           </div>
@@ -171,13 +169,13 @@
         </div>
       </div>
     </div>
-    <el-dialog :visible.sync="selfGoodsStoreVisible" width="1200px" append-to-body top="5vh" v-if="selfGoodsStoreVisible">
+    <el-dialog v-if="selfGoodsStoreVisible" :visible.sync="selfGoodsStoreVisible" width="1200px" append-to-body top="5vh">
       <div slot="title">{{ title[Number(outStoreType)] }}</div>
       <div class="go-out-store">
-        <self-goods-store @getChooseData="getChooseData" v-if="outStoreType === '1'"></self-goods-store>
-        <product-goods-store @getChooseData="getChooseData" v-if="outStoreType === '2'"></product-goods-store>
-        <abroad-goods-store @getChooseData="getChooseData" v-if="outStoreType === '3'" :addGiftAbroad="addGiftAbroad"></abroad-goods-store>
-        <inLand-goods-store @getChooseData="getChooseData" v-if="outStoreType === '4'"></inLand-goods-store>
+        <self-goods-store v-if="outStoreType === '1'" @getChooseData="getChooseData" />
+        <product-goods-store v-if="outStoreType === '2'" @getChooseData="getChooseData" />
+        <abroad-goods-store v-if="outStoreType === '3'" :add-gift-abroad="addGiftAbroad" @getChooseData="getChooseData" />
+        <inLand-goods-store v-if="outStoreType === '4'" @getChooseData="getChooseData" />
       </div>
     </el-dialog>
   </div>
@@ -195,17 +193,17 @@ export default {
     SelfGoodsStore,
     ProductGoodsStore,
     InLandGoodsStore,
-    AbroadGoodsStore,
+    AbroadGoodsStore
   },
   props: {
     chooseData: {
       type: Array,
-      default: [],
+      default: []
     },
     outStoreType: {
       type: String,
-      default: '1',
-    },
+      default: '1'
+    }
   },
   data() {
     return {
@@ -226,18 +224,18 @@ export default {
       grossProfit: null,
       interestRate: null,
       flagText: '',
-      wid: '', //海外仓仓库ID
+      wid: '', // 海外仓仓库ID
       sheetInfo: {},
       addGiftAbroad: '',
       title: ['', '自有仓库商品列表', '产品中心库存列表', '海外仓库存列表', '国内仓库存列表'],
       clickRow: {},
       country: '',
       clickNum: 1,
-      flagBool: false,
+      flagBool: false
     }
   },
-  watch:{
-    orderInfo:{
+  watch: {
+    orderInfo: {
       handler(val) {
       },
       deep: true
@@ -256,7 +254,7 @@ export default {
   },
   methods: {
     totalPrice() {
-      let arr = this.matchOrderList.filter((item) => Number(item.outStock) > 0)
+      const arr = this.matchOrderList.filter((item) => Number(item.outStock) > 0)
       let price = 0
       let numberS = 0
       arr.forEach((item) => {
@@ -270,12 +268,12 @@ export default {
       this.interestRate = this.outTotalPriceRmb ? Math.round((this.grossProfit / this.outTotalPriceRmb) * 100).toFixed(2) : 100
       // console.log(this.rateList[this.orderInfo.country])
     },
-    //获取面单信息
+    // 获取面单信息
     async getSheetInfo() {
-      let params = {
-        mainOrderSns: this.orderInfo.main_order_sn,
+      const params = {
+        mainOrderSns: this.orderInfo.main_order_sn
       }
-      let res = await this.$api.getLogisticsInformationBatch(params)
+      const res = await this.$api.getLogisticsInformationBatch(params)
       console.log(res, 'res')
       if (res.data.code === 200 && res.data.data.length && res.data.data[0].url) {
         this.flagText = '面单信息获取成功'
@@ -288,16 +286,16 @@ export default {
     },
     // 获取汇率
     async exchangeRateList() {
-      let info = await window['ConfigBridgeService'].getUserInfo()
+      const info = await window['ConfigBridgeService'].getUserInfo()
       this.rateList = info.ExchangeRates || {}
     },
     async outStore() {
-      let arrFilter = this.matchOrderList.filter((item) => !item.isGift)
+      const arrFilter = this.matchOrderList.filter((item) => !item.isGift)
       if (this.orderList.length !== arrFilter.length) {
         this.$confirm('订单信息不匹配，是否确认出库?', '提示', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
-          type: 'warning',
+          type: 'warning'
         })
           .then(() => {
             if (this.outStoreType === '4') {
@@ -312,7 +310,7 @@ export default {
           }).catch(() => {
             this.$message({
               type: 'info',
-              message: '已取消出库',
+              message: '已取消出库'
             })
           })
       } else {
@@ -331,15 +329,15 @@ export default {
       if (!this.matchOrderList.length) {
         return this.$message.warning('请先选择商品！')
       }
-      let arr = this.matchOrderList.filter((item) => Number(item.outStock) > 0)
+      const arr = this.matchOrderList.filter((item) => Number(item.outStock) > 0)
       if (!arr.length) {
         return this.$message.warning('出库数量不能为零！')
       }
-      let list = []
-      let widInfo = {}
+      const list = []
+      const widInfo = {}
       arr.forEach((item) => {
         widInfo[item.wid] = item.wid
-        let obj = {
+        const obj = {
           order_sn: item.orderSn,
           sys_sku_id: item.sys_sku_id,
           sku_id: item.sku_id,
@@ -351,23 +349,23 @@ export default {
           sku_image: item.sku_image,
           sku_url: item.sku_url,
           is_gift: item.isGift ? 1 : 2,
-          shared_id: item.shared_id ? item.shared_id + '' : '0',
+          shared_id: item.shared_id ? item.shared_id + '' : '0'
         }
         list.push(obj)
       })
       if (Object.keys(widInfo).length > 1) {
         return this.$message.warning('只能出库同一个仓库的商品！')
       }
-      let params = {
+      const params = {
         wid: arr[0].wid,
         oversea_order_sn: this.orderInfo.main_order_sn,
         express_pdf: this.sheetInfo.url,
         type: this.orderInfo.logistics_id,
         logistic_no: this.orderInfo.tracking_no,
         country: this.orderInfo.country,
-        sku_list: list,
+        sku_list: list
       }
-      let res = await this.$api.outOfStockAbroad(params)
+      const res = await this.$api.outOfStockAbroad(params)
       await this.saveStockSkuId()
       if (res.data.code === 200) {
         this.$message.success('下单成功')
@@ -384,11 +382,11 @@ export default {
       if (!this.matchOrderList.length) {
         return this.$message.warning('请先选择商品！')
       }
-      let arr = this.matchOrderList.filter((item) => Number(item.outStock) == 0)
+      const arr = this.matchOrderList.filter((item) => Number(item.outStock) == 0)
       if (arr.length) {
         return this.$message.warning('出库数量不能为零！')
       }
-      //国内仓出库：如果是台湾站，不校验是否存在面单和平台物流单号,其它校验
+      // 国内仓出库：如果是台湾站，不校验是否存在面单和平台物流单号,其它校验
       // console.log(
       //   this.orderInfo.country != 'TW' && this.flagBool == false && this.orderInfo.tracking_no == '',
       //   this.orderInfo.country != 'TW',
@@ -399,12 +397,12 @@ export default {
         this.flagText = '该订单面单信息或物流单号不存在，无法出库！'
         return this.$message.warning('该订单面单信息或物流单号不存在，无法出库！')
       }
-      let itemF = this.matchOrderList[0]
-      let lists = []
-      let widInfo = {}
+      const itemF = this.matchOrderList[0]
+      const lists = []
+      const widInfo = {}
       this.matchOrderList.forEach((item) => {
         widInfo[item.wid] = item.wid
-        let obj = {
+        const obj = {
           order_sn: item.orderSn,
           sku_id: item.sku_id,
           goods_name: item.goods_name,
@@ -414,21 +412,21 @@ export default {
           goods_count: item.outStock,
           goods_price: item.sku_price,
           // order_sn: this.orderInfo.order_sn,
-          is_gift: item.isGift ? 1 : 2,
+          is_gift: item.isGift ? 1 : 2
         }
         lists.push(obj)
       })
       if (Object.keys(widInfo).length > 1) {
         return this.$message.warning('只能出库同一个仓库的商品！')
       }
-      let params = {
+      const params = {
         wid: itemF.wid,
         homeOrderSn: this.orderInfo.main_order_sn,
         platformTrackingNumber: this.orderInfo.tracking_no,
         platformLogisticsType: this.orderInfo.logistics_id,
-        goodsList: lists,
+        goodsList: lists
       }
-      let res = await this.$api.homeOutStockOrder(params)
+      const res = await this.$api.homeOutStockOrder(params)
       if (res.data.code === 200) {
         this.$message.success('下单成功')
         this.flagText = '出库成功'
@@ -440,26 +438,26 @@ export default {
       }
       console.log(res, 'placeOrder')
     },
-    //自有出库
+    // 自有出库
     async selfPlaceOrder() {
       if (!this.matchOrderList.length) {
         return this.$message.warning('请先选择商品！')
       }
-      let arr = this.matchOrderList.filter((item) => Number(item.outStock) > 0)
+      const arr = this.matchOrderList.filter((item) => Number(item.outStock) > 0)
       if (!arr.length) {
         return this.$message.warning('出库数量不能为零！')
       }
       console.log(arr, 'arr')
-      let paramsList = []
+      const paramsList = []
       arr.forEach((item) => {
-        let obj = {
-          sys_order_id: this.orderInfo.id, //系统订单ID
-          sku_id: item.sku_id, //sku_id
-          number: item.outStock, //出库数量
+        const obj = {
+          sys_order_id: this.orderInfo.id, // 系统订单ID
+          sku_id: item.sku_id, // sku_id
+          number: item.outStock // 出库数量
         }
         paramsList.push(obj)
       })
-      let res = await this.$api.selfOutStock({ lists: paramsList })
+      const res = await this.$api.selfOutStock({ lists: paramsList })
       if (res.data.code === 200) {
         this.$message.success('出库成功')
         this.flagText = '出库成功'
@@ -469,32 +467,32 @@ export default {
       }
       console.log(res, 'selfOutStock')
     },
-    //立即下单
+    // 立即下单
     async productPlaceOrder() {
       if (!this.matchOrderList.length) {
         return this.$message.warning('请先选择商品！')
       }
-      let arr = this.matchOrderList.filter((item) => Number(item.outStock) > 0)
+      const arr = this.matchOrderList.filter((item) => Number(item.outStock) > 0)
       if (!arr.length) {
         return this.$message.warning('出库数量不能为零！')
       }
-      let paramsList = []
+      const paramsList = []
       arr.forEach((item) => {
-        let obj = {
-          sys_order_id: this.orderInfo.id, //系统订单ID
-          sku_id: item.sku_id, //sku_id
-          sku_price: item.sku_price, //sku价格（RMB）
+        const obj = {
+          sys_order_id: this.orderInfo.id, // 系统订单ID
+          sku_id: item.sku_id, // sku_id
+          sku_price: item.sku_price, // sku价格（RMB）
           number: item.outStock
         }
         paramsList.push(obj)
       })
-      let res = await this.$api.productOutStock({ lists: paramsList })
+      const res = await this.$api.productOutStock({ lists: paramsList })
       if (res.data.code === 200) {
         this.$message.success('出库成功')
         this.flagText = '出库成功'
-        arr.forEach(async (item) => {
-          let res = await this.$commodityService.updateSkuStock(item.sku_id,item.stock_num - item.outStock)
-          console.log(res,"updateSkuStock",item.stock_num - item.outStock)
+        arr.forEach(async(item) => {
+          const res = await this.$commodityService.updateSkuStock(item.sku_id, item.stock_num - item.outStock)
+          console.log(res, 'updateSkuStock', item.stock_num - item.outStock)
         })
       } else {
         this.flagText = `出库失败，${res.data.message}`
@@ -506,7 +504,7 @@ export default {
       this.outStock[index] = '0'
       this.totalPrice()
     },
-    //出库数量
+    // 出库数量
     setOutStock(row, index) {
       if (Number(this.outStock[index]) > Number(row.stock_num)) {
         this.outStock[index] = 0
@@ -525,7 +523,7 @@ export default {
         this.matchOrderList.push(val)
         this.outStock[this.matchOrderList.length - 1] = '0'
       } else {
-        let index = this.matchOrderList.findIndex((item) => !item.isGift && item.orderSn === val.orderSn)
+        const index = this.matchOrderList.findIndex((item) => !item.isGift && item.orderSn === val.orderSn)
         if (index > -1) {
           this.$set(this.matchOrderList, index, val)
         } else {
@@ -535,12 +533,12 @@ export default {
       }
       this.selfGoodsStoreVisible = false
     },
-    //获取详情
+    // 获取详情
     async getDetail(orderInfo) {
-      let params = {
-        mainOrderSn: orderInfo.main_order_sn,
+      const params = {
+        mainOrderSn: orderInfo.main_order_sn
       }
-      let { data } = await this.$api.getDetail(params)
+      const { data } = await this.$api.getDetail(params)
       if (data.code === 200) {
         this.orderList = data.data.orderInfos
         this.orderList.forEach((item) => {
@@ -551,7 +549,7 @@ export default {
         console.log(this.income, this.orderInfo.country, this.rateList, Number(this.rateList[this.orderInfo.country]))
         this.incomeRmb = this.income * Number(this.rateList[this.orderInfo.country])
       }
-      if (this.outStoreType === 3 || this.outStoreType === '3'){
+      if (this.outStoreType === 3 || this.outStoreType === '3') {
         this.getStockSkuId()
       }
       console.log(data, '')
@@ -561,7 +559,7 @@ export default {
         this.$confirm('是否关闭窗口', '提示', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
-          type: 'warning',
+          type: 'warning'
         })
           .then(() => {
             this.$emit('close')
@@ -585,44 +583,44 @@ export default {
       this.flagText = ''
     },
     changeOrderStatus,
-    async getStockSkuId(){
-      console.log('orderList',this.orderList)
-      for (let i=0;i<this.orderList.length;i++){
-        let item = this.orderList[i]
-        let params = {
-          platformSkuId : item.variation_id
+    async getStockSkuId() {
+      console.log('orderList', this.orderList)
+      for (let i = 0; i < this.orderList.length; i++) {
+        const item = this.orderList[i]
+        const params = {
+          platformSkuId: item.variation_id
         }
-        let stockSkuIdRes = await this.$api.getStockSkuId(params)
-        console.log('getStockSkuId',stockSkuIdRes)
-        if(stockSkuIdRes.data && stockSkuIdRes.data.code === 200){
-          let stockSkuIdData = stockSkuIdRes.data && stockSkuIdRes.data.data
-          if (stockSkuIdData){
-            let matchOrder = stockSkuIdData.data && stockSkuIdData.data[0]
-            let order = this.orderList.find(son=>son.variation_id === item.variation_id)
-            if (matchOrder && order){
-              this.matchOrderList.push(Object.assign(matchOrder,{orderSn:order.order_sn}))
+        const stockSkuIdRes = await this.$api.getStockSkuId(params)
+        console.log('getStockSkuId', stockSkuIdRes)
+        if (stockSkuIdRes.data && stockSkuIdRes.data.code === 200) {
+          const stockSkuIdData = stockSkuIdRes.data && stockSkuIdRes.data.data
+          if (stockSkuIdData) {
+            const matchOrder = stockSkuIdData.data && stockSkuIdData.data[0]
+            const order = this.orderList.find(son => son.variation_id === item.variation_id)
+            if (matchOrder && order) {
+              this.matchOrderList.push(Object.assign(matchOrder, { orderSn: order.order_sn }))
             }
           }
         }
       }
     },
-    async saveStockSkuId(){
-      console.log('matchOrderList',this.matchOrderList)
+    async saveStockSkuId() {
+      console.log('matchOrderList', this.matchOrderList)
       for (const item of this.matchOrderList) {
-        if(!item.shared_id && !item.isGift){
-          let index = this.orderList.findIndex(son=>son.order_sn === item.orderSn)
-          let order = this.orderList[index]
-          let params = {
-            platformSkuId : order.variation_id,
-            stockSkuId : item.sys_sku_id,
+        if (!item.shared_id && !item.isGift) {
+          const index = this.orderList.findIndex(son => son.order_sn === item.orderSn)
+          const order = this.orderList[index]
+          const params = {
+            platformSkuId: order.variation_id,
+            stockSkuId: item.sys_sku_id
           }
-          console.log('uploadStockSkuId - params',params)
-          let res = await this.$api.uploadStockSkuId(params)
-          console.log('uploadStockSkuId',res)
+          console.log('uploadStockSkuId - params', params)
+          const res = await this.$api.uploadStockSkuId(params)
+          console.log('uploadStockSkuId', res)
         }
       }
     }
-  },
+  }
 }
 </script>
 

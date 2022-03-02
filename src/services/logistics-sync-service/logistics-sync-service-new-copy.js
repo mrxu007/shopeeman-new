@@ -31,7 +31,7 @@ export default class logisticeSyncService {
    * @param {订单} ordersList
    * @returns
    */
-  async start(that, buyerAccounts, writeLog,ordersList = []) { // singleOrders
+  async start(that, buyerAccounts, writeLog, ordersList = []) { // singleOrders
     this.writeLog = writeLog
     this._that = that
     await this.getGlobalSetting() // 全局设置
@@ -52,22 +52,22 @@ export default class logisticeSyncService {
     for (let i = 0; i < orders.length; i++) {
       const item = orders[i]
       // console.log(item,"item")
-      const buyer_name =  item.shot_order_info.buy_account_info ? item.shot_order_info.buy_account_info.name : '' 
+      const buyer_name = item.shot_order_info.buy_account_info ? item.shot_order_info.buy_account_info.name : ''
       const type = item.shot_order_info.buy_account_info ? item.shot_order_info.buy_account_info.type : ''
       const shot_order_sn = item.shot_order_sn || item.order_sn
       // const buyer_name = "tt939242551"
       // console.log(buyer_name,"buyer_name")
-      if(!buyer_name){
-        this.writeLog(`【${i+1}/${orders.length}】订单【${shot_order_sn}】对应的买手号为空，请检查！`, false)
+      if (!buyer_name) {
+        this.writeLog(`【${i + 1}/${orders.length}】订单【${shot_order_sn}】对应的买手号为空，请检查！`, false)
         continue
       }
-      if(type == 10001 || type == 10000){
-        this.writeLog(`【${i+1}/${orders.length}】订单【${shot_order_sn}】对应的买手号【${buyer_name}】无需同步采购物流！`, true)
+      if (type == 10001 || type == 10000) {
+        this.writeLog(`【${i + 1}/${orders.length}】订单【${shot_order_sn}】对应的买手号【${buyer_name}】无需同步采购物流！`, true)
         continue
       }
       const account = buyerAccounts.find(buyer => buyer.name === buyer_name)
       if (!account) {
-        this.writeLog(`【${i+1}/${orders.length}】订单【${shot_order_sn}】对应的买手号【${buyer_name}】没有找到，请登录对应买手号.`, false)
+        this.writeLog(`【${i + 1}/${orders.length}】订单【${shot_order_sn}】对应的买手号【${buyer_name}】没有找到，请登录对应买手号.`, false)
         continue
       }
       if (accountMapOrderId.has(account)) {
@@ -104,7 +104,7 @@ export default class logisticeSyncService {
   async getOrdersFromServerCycle() {
     try {
       const res = await this.$api.getOriginalTrackingNumberEmpty()
-      console.log(res, "getOrdersFromServerCycle")
+      console.log(res, 'getOrdersFromServerCycle')
       if (res.data.code === 200) {
         const data = {
           total: res.data.data.length,
@@ -142,7 +142,7 @@ export default class logisticeSyncService {
    * @param {*} orders
    */
   async syncLogistic() {
-    console.log(this.buyerAccountContainer, this.ordersContainer, "syncLogistic")
+    console.log(this.buyerAccountContainer, this.ordersContainer, 'syncLogistic')
     if (this.buyerAccountContainer && this.ordersContainer) {
       switch (this.buyerAccountContainer.type) {
         case 1: // 拼多多
@@ -168,34 +168,34 @@ export default class logisticeSyncService {
       }
     }
   }
-  //转换拍单平台type
+  // 转换拍单平台type
   changeType(type) {
     switch (type) {
-      //pdd
+      // pdd
       case 1:
         return 1
-        //tb
+        // tb
       case 2:
         return 0
-        //1688
+        // 1688
       case 8:
         return 5
-        //jingxi
+        // jingxi
       case 10:
         return 3
-        //lazada
+        // lazada
       case 9:
         return 7
-        //shopee
+        // shopee
       case 11:
         return 8
       default:
         return type
     }
   }
-  //买手号转换参数为壳需要
+  // 买手号转换参数为壳需要
   changeAccountParams(account) {
-    let params = {
+    const params = {
       UserNameCache: account.cache_path,
       Password: '',
       shotOrderPlatform: this.changeType(account.type),
@@ -204,7 +204,7 @@ export default class logisticeSyncService {
       Cookiestr: JSON.stringify(account.login_info),
       AccountType: account.type,
       Ua: account.ua,
-      Country: account.site || '',
+      Country: account.site || ''
     }
     return params
   }
@@ -222,9 +222,9 @@ export default class logisticeSyncService {
       const shot_order_sn = item.shot_order_info.shot_order_sn || ''
       // const shot_order_sn = '2229427695828657966' //tb
       // const shot_order_sn = '2161702586001984947' //1688
-      if(!shot_order_sn){
+      if (!shot_order_sn) {
         this.writeLog(`(${type})订单【${item.order_sn}】获取上家物流失败,订单无采购单号`, false)
-          continue
+        continue
       }
       try {
         // console.log(buyerAccount.shotOrderPlatform, shot_order_sn, JSON.stringify(buyerAccount), "=========================")
@@ -240,11 +240,11 @@ export default class logisticeSyncService {
         }
         const tbshippingName = this.changetbOrderName(logisticInfo.TrackingName)
         const params = {
-          sysOrderId: item.id, //系统订单id
-          trackingNumber: logisticInfo.TrackingNumber, //平台物流单号
+          sysOrderId: item.id, // 系统订单id
+          trackingNumber: logisticInfo.TrackingNumber, // 平台物流单号
           // shippingId: logisticInfo.TrackCode, //物流公司id
           // deliveryTime: logisticInfo.DeliveryTime, //上家发货时间
-          trackingNumberCompany: logisticInfo.TrackingName, //快递物流公司
+          trackingNumberCompany: logisticInfo.TrackingName // 快递物流公司
           // transitList: JSON.parse(logisticInfo.LogisticsRoute) || [], //物流轨迹
         }
         // JSON.parse(res.replace(/^\"|\"$/g, ''))
@@ -255,7 +255,6 @@ export default class logisticeSyncService {
         }
         this.writeLog(`(${type})订单【${shot_order_sn}】同步物流成功`, true)
         if (!item.logistics) {
-
           item.logistics = {}
         }
         item.logistics.tracking_number = logisticInfo.TrackingNumber
@@ -284,8 +283,8 @@ export default class logisticeSyncService {
 
   async saveOrderLogistics(params) { // 上报/更新 物流信息
     try {
-      const res = await  this.$api.uploadTrackingNumber(params)
-      console.log(res, "saveOrderLogistics")
+      const res = await this.$api.uploadTrackingNumber(params)
+      console.log(res, 'saveOrderLogistics')
       if (res.data.code === 200) {
         return {
           code: 200,
