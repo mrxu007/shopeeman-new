@@ -1,7 +1,7 @@
 <!--
  * @Author: your name
  * @Date: 2021-11-12 10:09:55
- * @LastEditTime: 2022-03-01 14:56:49
+ * @LastEditTime: 2022-03-02 10:05:21
  * @LastEditors: Please set LastEditors
  * @Description: 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  * @FilePath: \shopeeman-new\src\views\order-manager\components\orderCenter\autoUploadOrder.vue
@@ -17,7 +17,6 @@ import { syncStatusAll, syncStatusFirst, statusListSecond, statusListThird } fro
 import orderSync from '../../../../services/timeOrder'
 import surFaceService from '../../../../services/surfaceOrder'
 import LogisticeSyncService from '../../../../services/logistics-sync-service/logistics-sync-service-new-copy'
-
 export default {
   data() {
     return {
@@ -31,7 +30,7 @@ export default {
       logisticeSyncService: new LogisticeSyncService(),
       buyerAccountList: [],
       logisiticeTime: 2,
-      isAutoLogisitice: '2' //1：自动获取 2：不自动获取
+      isAutoLogisitice: '2', //1：自动获取 2：不自动获取
     }
   },
   mounted() {
@@ -132,8 +131,8 @@ export default {
     async logisticeSync() {
       this.$refs.Logs.writeLog(`开始同步物流---------------------------`, true)
       await this.logisticeSyncService.start(this, this.buyerAccountList, this.$refs.Logs.writeLog)
-    }
-  }
+    },
+  },
 }
 </script>
 

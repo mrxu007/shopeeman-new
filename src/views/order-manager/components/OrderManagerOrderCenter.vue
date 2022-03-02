@@ -1,3 +1,4 @@
+
 <template>
   <div class="order-center">
     <header>
@@ -9,7 +10,7 @@
             <div class="base-box">
               <span class="base-title">基础操作</span>
               <div class="base-item">
-                <buyer-account :operation="operation" :buyer-account-list="buyerAccountList"/>
+                <buyer-account :operation="operation" :buyer-account-list="buyerAccountList" />
               </div>
             </div>
           </div>
@@ -46,28 +47,23 @@
                 <el-row class="row-style">
                   <div class="tool-item mar-right">
                     <span>发货状态：</span>
-                    <el-select v-model="orderStatus" placeholder="" size="mini" multiple collapse-tags
-                               filterable　class="inputBox">
-                      <el-option label="全部" :value="''" @click.native="selectAll('orderStatus', orderStatusList)"/>
-                      <el-option v-for="(item, index) in orderStatusList" :key="index" :label="item.label"
-                                 :value="item.value"/>
+                    <el-select v-model="orderStatus" placeholder="" size="mini" multiple collapse-tags filterable　class="inputBox" @change="changeSelect($event,'orderStatus', orderStatusList)">
+                      <el-option label="全部" :value="''" @click.native="selectAll('orderStatus', orderStatusList)" />
+                      <el-option v-for="(item, index) in orderStatusList" :key="index" :label="item.label" :value="item.value" />
                     </el-select>
                   </div>
                   <div class="tool-item mar-right">
                     <span>采购状态：</span>
-                    <el-select v-model="shotStatus" placeholder="" size="mini" multiple collapse-tags
-                               filterable　class="inputBox">
-                      <el-option label="全部" :value="''" @click.native="selectAll('shotStatus', shotStatusList)"/>
-                      <el-option v-for="(item, index) in shotStatusList" :key="index" :label="item.label"
-                                 :value="item.value"/>
+                    <el-select v-model="shotStatus" placeholder="" size="mini" multiple collapse-tags filterable　class="inputBox" @change="changeSelect($event,'shotStatus', shotStatusList)">
+                      <el-option label="全部" :value="''" @click.native="selectAll('shotStatus', shotStatusList)" />
+                      <el-option v-for="(item, index) in shotStatusList" :key="index" :label="item.label" :value="item.value" />
                     </el-select>
                   </div>
                   <div class="tool-item mar-right">
                     <span>商品来源：</span>
                     <el-select v-model="selectForm.isOwnOrder" placeholder="" size="mini" filterable　class="inputBox">
-                      <el-option label="全部" :value="''"/>
-                      <el-option v-for="(item, index) in goodsSourceList" :key="index" :label="item.label"
-                                 :value="item.value"/>
+                      <el-option label="全部" :value="''" />
+                      <el-option v-for="(item, index) in goodsSourceList" :key="index" :label="item.label" :value="item.value" />
                     </el-select>
                   </div>
                   <div class="tool-item mar-right">
@@ -83,130 +79,103 @@
                 <el-row class="row-style">
                   <div class="tool-item mar-right">
                     <span>商品ID：</span>
-                    <el-input v-model="selectForm.goodsId" size="mini" clearable class="inputBox"/>
+                    <el-input v-model="selectForm.goodsId" size="mini" clearable class="inputBox" />
                   </div>
                   <div class="tool-item mar-right">
                     <span>颜色标识：</span>
                     <el-select v-model="selectForm.colorLabelId" placeholder="" size="mini" filterable　class="inputBox">
-                      <el-option label="全部" :value="0"/>
-                      <el-option label="未标识" :value="-1"/>
-                      <el-option label="已标识" :value="-2"/>
-                      <el-option v-for="item in selectColorList" :key="item.id" :label="item.name" :value="item.id"
-                                 :style="{ color: item.color }"/>
+                      <el-option label="全部" :value="0" />
+                      <el-option label="未标识" :value="-1" />
+                      <el-option label="已标识" :value="-2" />
+                      <el-option v-for="item in selectColorList" :key="item.id" :label="item.name" :value="item.id" :style="{ color: item.color }" />
                     </el-select>
                   </div>
                   <div class="tool-item mar-right">
                     <span>毛利值：</span>
-                    <el-input v-model="selectForm.minGrossProfit" size="mini" clearable style="width: 63px"/>
+                    <el-input v-model="selectForm.minGrossProfit" size="mini" clearable style="width: 63px" />
                     <p style="margin: 0 4px">-</p>
-                    <el-input v-model="selectForm.maxGrossProfit" size="mini" clearable style="width: 64px"/>
+                    <el-input v-model="selectForm.maxGrossProfit" size="mini" clearable style="width: 64px" />
                   </div>
                   <div class="tool-item mar-right">
                     <span>采购时间：</span>
                     <el-date-picker class="timeFormat"
-                                    v-model="selectForm.shotTime"
-                                    size="mini"
-                                    unlink-panels
+                      v-model="selectForm.shotTime"
+                      size="mini"
+                      unlink-panels
                                     value-format="yyyy-MM-dd"
                                     type="daterange"
                                     style="width: 200px"
-                                    range-separator="-"
-                                    start-placeholder="开始日期"
-                                    end-placeholder="结束日期"
-                                    :picker-options="pickerOptions"
-                                    @change="changeTime($event, 'selectForm', 'shotTime')"
+                      range-separator="-"
+                      start-placeholder="开始日期"
+                      end-placeholder="结束日期"
+                      :picker-options="pickerOptions"
+                      @change="changeTime($event, 'selectForm', 'shotTime')"
                     />
                   </div>
                 </el-row>
                 <el-row class="row-style">
                   <div class="tool-item mar-right">
-                    <el-select v-model="inputType" placeholder="" size="mini" filterable style="width: 80px"
-                               @change="inputContent = ''">
-                      <el-option v-for="(item, index) in inputTypeList" :key="index" :label="item.label"
-                                 :value="item.value"/>
+                    <el-select v-model="inputType" placeholder="" size="mini" filterable style="width: 80px" @change="inputContent = ''">
+                      <el-option v-for="(item, index) in inputTypeList" :key="index" :label="item.label" :value="item.value" />
                     </el-select>
-                    <el-input v-model="inputContent" size="mini" clearable style="width: 140px"/>
+                    <el-input v-model="inputContent" size="mini" clearable style="width: 140px" />
                     <el-tooltip effect="dark" placement="bottom-start">
                       <div slot="content">
-                        查询选项为订单编号时：<br/>
-                        1、需进行批量查询时，可用英文逗号隔开各个订单编号<br/>
-                        查询选项为备注或商品货号时：<br/>
-                        1、查询全部数据传空<br/>
-                        2、查未备注或无商品货号数据时，传‘无’<br/>
+                        查询选项为订单编号时：<br />
+                        1、需进行批量查询时，可用英文逗号隔开各个订单编号<br />
+                        查询选项为备注或商品货号时：<br />
+                        1、查询全部数据传空<br />
+                        2、查未备注或无商品货号数据时，传‘无’<br />
                       </div>
-                      <i class="el-icon-question"/>
+                      <i class="el-icon-question" />
                     </el-tooltip>
                   </div>
                   <div class="tool-item mar-right">
                     <span style="width: 60px;">物流方式：</span>
-                    <el-select v-model="logisticsIds" placeholder="" size="mini" multiple collapse-tags
-                               filterable　class="inputBox">
-                      <el-option label="全部物流" :value="''" @click.native="selectAll('logisticsIds', shipTypeList)"/>
-                      <el-option v-for="(item, index) in shipTypeList" :key="index" :label="item.ShipName"
-                                 :value="item.ShipId"/>
+                    <el-select v-model="logisticsIds" placeholder="" size="mini" multiple collapse-tags filterable　class="inputBox" >
+                      <el-option label="全部物流" :value="''" @click.native="selectAll('logisticsIds', shipTypeList)" />
+                      <el-option v-for="(item, index) in shipTypeList" :key="index" :label="item.ShipName" :value="item.ShipId" />
                     </el-select>
                   </div>
                   <div class="tool-item mar-right">
                     <span>付款方式：</span>
-                    <el-select v-model="selectForm.paymentMenthod" placeholder="" size="mini"
-                               filterable　class="inputBox">
+                    <el-select v-model="selectForm.paymentMenthod" placeholder="" size="mini" filterable　class="inputBox">
                       <!-- <el-option label="全部付款方式" :value="''" /> -->
-                      <el-option v-for="(item, index) in payMethodList" :key="index" :label="item.label"
-                                 :value="item.value"/>
+                      <el-option v-for="(item, index) in payMethodList" :key="index" :label="item.label" :value="item.value" />
                     </el-select>
                   </div>
                   <div class="tool-item mar-right">
                     <span>海外商品：</span>
-                    <el-select v-model="selectForm.isOverseasGoods" placeholder="" size="mini"
-                               filterable　class="inputBox" style="width: 100px">
-                      <el-option label="全部" :value="''"/>
-                      <el-option label="是" :value="'1'"/>
-                      <el-option label="否" :value="'-1'"/>
+                    <el-select v-model="selectForm.isOverseasGoods" placeholder="" size="mini" filterable　class="inputBox" style="width: 100ox">
+                      <el-option label="全部" :value="''" />
+                      <el-option label="是" :value="'1'" />
+                      <el-option label="否" :value="'-1'" />
                     </el-select>
                   </div>
                 </el-row>
                 <el-row class="row-style">
                   <el-button type="primary" size="mini" class="btnMini" @click="getOrderList(1)">搜索</el-button>
-                  <el-button type="primary" size="mini" class="btnMedium" @click="syncOriginGoodsNum">一键同步上家库存
-                  </el-button>
+                  <el-button type="primary" size="mini" class="btnMedium" @click="syncOriginGoodsNum">一键同步上家库存</el-button>
                   <el-button type="primary" size="mini" class="btnLong" @click="batchShipInfo">批量添加采购物流单号</el-button>
-                  <el-button type="primary" size="mini" class="btnLong" @click="getLazadaPayType">批量获取Lazada付款方式
-                  </el-button>
-                  <el-button type="primary" size="mini" class="btnLong" @click="uploadStoreShipAmountVisible = true">
-                    上报仓库发货金额
-                  </el-button>
+                  <el-button type="primary" size="mini" class="btnLong" @click="getLazadaPayType">批量获取Lazada付款方式</el-button>
+                  <el-button type="primary" size="mini" class="btnLong" @click="uploadStoreShipAmountVisible = true">上报仓库发货金额</el-button>
                   <el-button type="primary" size="mini" class="btnMedium" @click="openBefore">批量添加本地备注</el-button>
                 </el-row>
                 <el-row class="row-style">
-                  <el-button type="primary" size="mini" class="btnMini" @click="lookForbidVisible = true">查看禁运品
-                  </el-button>
-                  <el-button type="primary" size="mini" class="btnMedium" @click="outStoreBefore('自有仓库商品出库', '1')">
-                    自有仓库商品出库
-                  </el-button>
-                  <el-button type="primary" size="mini" class="btnLong" @click="outStoreBefore('产品中心商品出库', '2')">
-                    产品中心商品出库
-                  </el-button>
-                  <el-button type="primary" size="mini" class="btnLong" @click="outStoreBefore('海外仓备货商品出库', '3')">
-                    海外仓备货商品出库
-                  </el-button>
-                  <el-button type="primary" size="mini" class="btnLong" @click="outStoreBefore('国内仓备货商品出库', '4')">
-                    国内仓备货商品出库
-                  </el-button>
-                  <el-button type="primary" size="mini" class="btnMedium mar-right"
-                             @click="batchReplyOrderBuyer(multipleSelection)">批量评价订单买家
-                  </el-button>
+                  <el-button type="primary" size="mini" class="btnMini" @click="lookForbidVisible = true">查看禁运品</el-button>
+                  <el-button type="primary" size="mini" class="btnMedium" @click="outStoreBefore('自有仓库商品出库', '1')">自有仓库商品出库</el-button>
+                  <el-button type="primary" size="mini" class="btnLong" @click="outStoreBefore('产品中心商品出库', '2')">产品中心商品出库</el-button>
+                  <el-button type="primary" size="mini" class="btnLong" @click="outStoreBefore('海外仓备货商品出库', '3')">海外仓备货商品出库</el-button>
+                  <el-button type="primary" size="mini" class="btnLong" @click="outStoreBefore('国内仓备货商品出库', '4')">国内仓备货商品出库</el-button>
+                  <el-button type="primary" size="mini" class="btnMedium mar-right" @click="batchReplyOrderBuyer(multipleSelection)">批量评价订单买家</el-button>
                   <el-checkbox v-model="showConsole" class="mar-right">隐藏日志</el-checkbox>
                 </el-row>
                 <el-row class="row-style">
                   <el-button size="mini" class="btnMini" @click="applyAsyncExportOrder">导出数据</el-button>
                   <el-button size="mini" class="btnMedium" @click="orderReportVisible = true">导出数据报表</el-button>
-                  <el-button type="primary" size="mini" class="btnLong" @click="batchPrintOrderSurface">批量打印面单
-                  </el-button>
-                  <el-button type="primary" size="mini" class="btnLong" @click="purchaseGlobalOrder">批量天猫淘宝海外平台拍单
-                  </el-button>
-                  <el-button type="primary" size="mini" class="btnLongMax" @click="getCrossBorderOrderInfo">
-                    批量获取天猫淘宝海外平台订单信息
-                  </el-button>
+                  <el-button type="primary" size="mini" class="btnLong" @click="batchPrintOrderSurface">批量打印面单</el-button>
+                  <el-button type="primary" size="mini" class="btnLong" @click="purchaseGlobalOrder">批量天猫淘宝海外平台拍单</el-button>
+                  <el-button type="primary" size="mini" class="btnLongMax" @click="getCrossBorderOrderInfo">批量获取天猫淘宝海外平台订单信息</el-button>
                   <el-button type="primary" size="mini" class="btnLong" @click="openPddDisount">拼多多月卡优惠券查询</el-button>
                 </el-row>
               </div>
@@ -215,8 +184,8 @@
         </div>
       </transition>
       <div class="showBtn">
-        <p v-if="isShow" @click="isShow = false">收起<i class="el-icon-caret-top"/></p>
-        <p v-else @click="isShow = true">展开<i class="el-icon-caret-bottom"/></p>
+        <p v-if="isShow" @click="isShow = false">收起<i class="el-icon-caret-top" /></p>
+        <p v-else @click="isShow = true">展开<i class="el-icon-caret-bottom" /></p>
       </div>
     </header>
     <div class="content" :style="{ height: isShow ? '520px' : '840px' }">
@@ -233,88 +202,44 @@
         </u-table-column>
         <u-table-column v-if="showTableColumn('订单编号')" prop="order_sn" label="订单编号" width="170px" fixed="left">
           <template slot-scope="scope">
-            <i class="el-icon-document-copy copyStyle" @click="copyItem(scope.row.order_sn)"/>
-            <span class="tableActive"
-                  @click="viewDetails('orderDetail', scope.row.order_id, scope.row.mall_info.platform_mall_id)">{{
-                scope.row.order_sn
-              }}</span>
+            <i class="el-icon-document-copy copyStyle" @click="copyItem(scope.row.order_sn)" />
+            <span class="tableActive" @click="viewDetails('orderDetail', scope.row.order_id, scope.row.mall_info.platform_mall_id)">{{ scope.row.order_sn }}</span>
           </template>
         </u-table-column>
         <u-table-column v-if="showTableColumn('操作')" align="center" prop="" label="操作" width="140" fixed="left">
           <template slot-scope="scope">
             <el-dropdown style="width: 100px; margin-left: 10px" trigger="click" size="mini">
-              <el-button style="width: 100px" size="mini" plain type="primary"> 操作<i
-                  class="el-icon-arrow-down el-icon--right"/></el-button>
+              <el-button style="width: 100px" size="mini" plain type="primary"> 操作<i class="el-icon-arrow-down el-icon--right" /> </el-button>
               <el-dropdown-menu slot="dropdown">
-                <el-dropdown-item>
-                  <div class="dropdownItem" @click="singleBuyInfo(scope.row)">采购信息编辑</div>
-                </el-dropdown-item>
-                <el-dropdown-item>
-                  <div class="dropdownItem" @click="addPurchaseLink(scope.row, scope.$index)">添加采购链接</div>
-                </el-dropdown-item>
-                <el-dropdown-item>
-                  <div class="dropdownItem" @click="addMoreTrackingNumber(scope.row, scope.$index)">添加多物流单号</div>
-                </el-dropdown-item>
-                <el-dropdown-item>
-                  <div class="" @click="setColorSingle(scope.row, scope.$index)">标记颜色标识</div>
-                </el-dropdown-item>
-                <el-dropdown-item>
-                  <div class="" @click="setAbroadSingle(scope.row, scope.$index)">标记海外商品</div>
-                </el-dropdown-item>
-                <el-dropdown-item>
-                  <div class="" @click="pushOrderToStoreSingle(scope.row, scope.$index)">推送订单至仓库</div>
-                </el-dropdown-item>
+                <el-dropdown-item> <div class="dropdownItem" @click="singleBuyInfo(scope.row)">采购信息编辑</div></el-dropdown-item>
+                <el-dropdown-item> <div class="dropdownItem" @click="addPurchaseLink(scope.row, scope.$index)">添加采购链接</div></el-dropdown-item>
+                <el-dropdown-item> <div class="dropdownItem" @click="addMoreTrackingNumber(scope.row, scope.$index)">添加多物流单号</div></el-dropdown-item>
+                <el-dropdown-item> <div class="" @click="setColorSingle(scope.row, scope.$index)">标记颜色标识</div></el-dropdown-item>
+                <el-dropdown-item> <div class="" @click="setAbroadSingle(scope.row, scope.$index)">标记海外商品</div></el-dropdown-item>
+                <el-dropdown-item> <div class="" @click="pushOrderToStoreSingle(scope.row, scope.$index)">推送订单至仓库</div></el-dropdown-item>
                 <el-dropdown-item>
                   <div
-                      class="dropdownItemdropdownItem"
-                      @click="
+                    class="dropdownItemdropdownItem"
+                    @click="
                       clickRow = scope.row
                       billsDetailVisible = true
                     "
                   >
                     账单明细
-                  </div>
-                </el-dropdown-item
+                  </div></el-dropdown-item
                 >
-                <el-dropdown-item>
-                  <div class="dropdownItem" @click="SyncOrder(scope.row)">同步此店铺订单</div>
-                </el-dropdown-item>
-                <el-dropdown-item>
-                  <div class="dropdownItem" @click="SyncOrderSingle(scope.row)">同步此订单</div>
-                </el-dropdown-item>
-                <el-dropdown-item>
-                  <div class="dropdownItem" @click="syncLogisticsSingle(scope.row)">同步此订单物流</div>
-                </el-dropdown-item>
-                <el-dropdown-item>
-                  <div class="dropdownItem" @click="singlePurchase(scope.row)">重新采购</div>
-                </el-dropdown-item>
-                <el-dropdown-item>
-                  <div class="dropdownItem" @click="getSHtrackPath(scope.row)">虾皮物流轨迹</div>
-                </el-dropdown-item>
-                <el-dropdown-item>
-                  <div class="dropdownItem" @click="getorderPath(scope.row)">订单轨迹</div>
-                </el-dropdown-item>
-                <el-dropdown-item>
-                  <div class="dropdownItem" @click="handleOutOrder(scope.row)">手动发货</div>
-                </el-dropdown-item>
-                <el-dropdown-item>
-                  <div class="dropdownItem" @click="batchReplyOrderBuyer([scope.row])">回复订单评论</div>
-                </el-dropdown-item>
-                <el-dropdown-item>
-                  <div class="dropdownItem"
-                       @click="viewDetails('itemDetail', scope.row.goods_info.goods_id, scope.row.mall_info.platform_mall_id)">
-                    商品编辑
-                  </div>
-                </el-dropdown-item>
-                <el-dropdown-item>
-                  <div class="dropdownItem" @click="goodsDelist(scope.row)">商品下架</div>
-                </el-dropdown-item>
-                <el-dropdown-item>
-                  <div class="dropdownItem" @click="goodsDelete(scope.row)">商品删除</div>
-                </el-dropdown-item>
-                <el-dropdown-item>
-                  <div class="dropdownItem" @click="goodsTop(scope.row)">商品置顶</div>
-                </el-dropdown-item>
+                <el-dropdown-item> <div class="dropdownItem" @click="SyncOrder(scope.row)">同步此店铺订单</div></el-dropdown-item>
+                <el-dropdown-item> <div class="dropdownItem" @click="SyncOrderSingle(scope.row)">同步此订单</div></el-dropdown-item>
+                <el-dropdown-item> <div class="dropdownItem" @click="syncLogisticsSingle(scope.row)">同步此订单物流</div></el-dropdown-item>
+                <el-dropdown-item> <div class="dropdownItem" @click="singlePurchase(scope.row)">重新采购</div></el-dropdown-item>
+                <el-dropdown-item> <div class="dropdownItem" @click="getSHtrackPath(scope.row)">虾皮物流轨迹</div></el-dropdown-item>
+                <el-dropdown-item> <div class="dropdownItem" @click="getorderPath(scope.row)">订单轨迹</div></el-dropdown-item>
+                <el-dropdown-item> <div class="dropdownItem" @click="handleOutOrder(scope.row)">手动发货</div></el-dropdown-item>
+                <el-dropdown-item> <div class="dropdownItem" @click="batchReplyOrderBuyer([scope.row])">回复订单评论</div></el-dropdown-item>
+                <el-dropdown-item> <div class="dropdownItem" @click="viewDetails('itemDetail', scope.row.goods_info.goods_id, scope.row.mall_info.platform_mall_id)">商品编辑</div></el-dropdown-item>
+                <el-dropdown-item> <div class="dropdownItem" @click="goodsDelist(scope.row)">商品下架</div></el-dropdown-item>
+                <el-dropdown-item> <div class="dropdownItem" @click="goodsDelete(scope.row)">商品删除</div></el-dropdown-item>
+                <el-dropdown-item> <div class="dropdownItem" @click="goodsTop(scope.row)">商品置顶</div></el-dropdown-item>
                 <!-- <el-dropdown-item> <div class="dropdownItem" @click="goodsTop(scope.row)">面单打印</div></el-dropdown-item> -->
               </el-dropdown-menu>
             </el-dropdown>
@@ -329,23 +254,19 @@
         <u-table-column v-if="showTableColumn('店铺分组')" width="80px" label="店铺分组" prop="country" align="center">
           <template slot-scope="scope">{{ scope.row.group_name }}</template>
         </u-table-column>
-        <u-table-column v-if="showTableColumn('店铺名称')" width="120px" label="店铺名称" prop="platform_mall_name"
-                        align="center" show-overflow-tooltip>
+        <u-table-column v-if="showTableColumn('店铺名称')" width="120px" label="店铺名称" prop="platform_mall_name" align="center" show-overflow-tooltip>
           <template v-if="scope.row.mall_info" slot-scope="scope">
-            <span class="copyStyle"
-                  @dblclick="copyItem(scope.row.mall_info.mall_alias_name ? scope.row.mall_info.mall_alias_name : scope.row.mall_info.platform_mall_name)"
-            >{{ scope.row.mall_info.mall_alias_name || scope.row.mall_info.platform_mall_name }}
+            <span class="copyStyle" @dblclick="copyItem(scope.row.mall_info.mall_alias_name ? scope.row.mall_info.mall_alias_name : scope.row.mall_info.platform_mall_name)"
+              >{{ scope.row.mall_info.mall_alias_name || scope.row.mall_info.platform_mall_name }}
             </span>
           </template>
         </u-table-column>
-        <u-table-column v-if="showTableColumn('采购绑定仓库')" align="center" label="采购绑定仓库" width="120"
-                        show-overflow-tooltip>
+        <u-table-column v-if="showTableColumn('采购绑定仓库')" align="center" label="采购绑定仓库" width="120" show-overflow-tooltip>
           <template slot-scope="scope">{{ scope.row.shot_order_info.warehouse_name }}</template>
         </u-table-column>
-        <u-table-column v-if="showTableColumn('颜色标识')" align="center" prop="color_id" label="颜色标识" width="120"
-                        show-overflow-tooltip>
+        <u-table-column v-if="showTableColumn('颜色标识')" align="center" prop="color_id" label="颜色标识" width="120" show-overflow-tooltip>
           <template slot-scope="scope">
-            <p :style="{ background: changeColorLabel(scope.row.color_id), height: '20px' }"/>
+            <p :style="{ background: changeColorLabel(scope.row.color_id), height: '20px' }" />
             <span>{{ changeColorLabel(scope.row.color_id, 'name') }}</span>
           </template>
         </u-table-column>
@@ -354,20 +275,14 @@
         <u-table-column v-if="showTableColumn('发货状态')" sortable align="center" prop="order_status" label="发货状态"
                         width="100">
           <template slot-scope="scope">
-            <p :style="{ color: changeOrderStatus(scope.row.order_status, 'color') }">
-              {{ changeOrderStatus(scope.row.order_status) }}</p>
+            <p :style="{ color: changeOrderStatus(scope.row.order_status, 'color') }">{{ changeOrderStatus(scope.row.order_status) }}</p>
           </template>
         </u-table-column>
-        <u-table-column v-if="showTableColumn('发货时间')" align="center" prop="shopee_delivery_time" label="发货时间"
-                        width="140">
+        <u-table-column v-if="showTableColumn('发货时间')" align="center" prop="shopee_delivery_time" label="发货时间" width="140">
           <template slot-scope="scope">{{ scope.row.shopee_delivery_time }}</template>
         </u-table-column>
-        <u-table-column v-if="showTableColumn('采购类型')" sortable align="center" prop="goods_info.ori_platform_id"
-                        label="采购类型" width="120">
-          <template slot-scope="scope">{{
-              changeTypeName(scope.row.goods_info.ori_platform_id, goodsSourceList)
-            }}
-          </template>
+        <u-table-column v-if="showTableColumn('采购类型')" sortable align="center" prop="goods_info.ori_platform_id" label="采购类型" width="120">
+          <template slot-scope="scope">{{ changeTypeName(scope.row.goods_info.ori_platform_id, goodsSourceList) }}</template>
         </u-table-column>
         <u-table-column v-if="showTableColumn('查看采购地址')" align="center" prop="123456" label="查看采购地址" width="130">
           <template slot-scope="scope">
@@ -376,52 +291,36 @@
         </u-table-column>
         <u-table-column v-if="showTableColumn('是否可二次销售')" align="center" label="是否可二次销售" width="140">
           <template slot-scope="scope">
-            <el-button
-                v-if="scope.row.shot_order_info.buy_account_info && scope.row.shot_order_info.buy_account_info.second_sale_num"
-                size="mini" type="primary" @click="cancelSecondSale(scope.row)"
-            >取消二次销售
-            </el-button
+            <el-button v-if="scope.row.shot_order_info.buy_account_info && scope.row.shot_order_info.buy_account_info.second_sale_num" size="mini" type="primary" @click="cancelSecondSale(scope.row)"
+              >取消二次销售</el-button
             >
-            <el-button v-if="scope.row.isSecond" size="mini" type="primary" @click="chooseSecondSale(scope.row)">
-              {{ scope.row.secondSaleTitle }}
-            </el-button>
+            <el-button v-if="scope.row.isSecond" size="mini" type="primary" @click="chooseSecondSale(scope.row)">{{ scope.row.secondSaleTitle }}</el-button>
           </template>
         </u-table-column>
         <u-table-column v-if="showTableColumn('商品ID')" align="center" label="商品ID" width="140">
           <template slot-scope="scope">
             <span class="tableActive" @click="openUrl(scope.row, 'product')">{{ scope.row.goods_info.goods_id }}</span>
-            <i class="el-icon-document-copy" style="margin-left: 8px; cursor: pointer"
-               @click="copyItem(scope.row.goods_info.goods_id)"/>
+            <i class="el-icon-document-copy" style="margin-left: 8px; cursor: pointer" @click="copyItem(scope.row.goods_info.goods_id)" />
           </template>
         </u-table-column>
-        <u-table-column v-if="showTableColumn('商品创建时间')" sortable prop="goods_info.platform_create_time" align="center"
-                        label="商品创建时间" width="140">
+        <u-table-column v-if="showTableColumn('商品创建时间')" sortable prop="goods_info.platform_create_time" align="center" label="商品创建时间" width="140">
           <template slot-scope="scope">{{ scope.row.goods_info.platform_create_time }}</template>
         </u-table-column>
         <u-table-column v-if="showTableColumn('商品图片')" align="center" label="商品图片" width="80">
           <template slot-scope="scope">
-            <el-tooltip effect="light" placement="right-end" :visible-arrow="false" :enterable="false"
-                        style="width: 32px; height: 32px; display: inline-block">
+            <el-tooltip effect="light" placement="right-end" :visible-arrow="false" :enterable="false" style="width: 32px; height: 32px; display: inline-block">
               <div slot="content">
-                <el-image :src="[scope.row.goods_info.goods_img] | imageRender" style="width: 400px; height: 400px"/>
+                <el-image :src="[scope.row.goods_info.goods_img] | imageRender" style="width: 400px; height: 400px" />
               </div>
-              <el-image :src="[scope.row.goods_info.goods_img, true] | imageRender" style="width: 32px; height: 32px"/>
+              <el-image :src="[scope.row.goods_info.goods_img, true] | imageRender" style="width: 32px; height: 32px" />
             </el-tooltip>
           </template>
         </u-table-column>
-        <u-table-column v-if="showTableColumn('商品单价')" sortable prop="goods_info.discounted_price" align="center"
-                        label="商品单价" width="100">
-          <template slot-scope="scope">{{ scope.row.goods_info.discounted_price }}{{
-              scope.row.country | siteCoin
-            }}
-          </template>
+        <u-table-column v-if="showTableColumn('商品单价')" sortable prop="goods_info.discounted_price" align="center" label="商品单价" width="100">
+          <template slot-scope="scope">{{ scope.row.goods_info.discounted_price }}{{ scope.row.country | siteCoin }}</template>
         </u-table-column>
-        <u-table-column v-if="showTableColumn('商品单价(RMB)')" sortable prop="goods_info.discounted_price" align="center"
-                        label="商品单价(RMB)" width="140">
-          <template slot-scope="scope">{{
-              changeMoney(scope.row.goods_info.discounted_price, scope.row.country)
-            }}
-          </template>
+        <u-table-column v-if="showTableColumn('商品单价(RMB)')" sortable prop="goods_info.discounted_price" align="center" label="商品单价(RMB)" width="140">
+          <template slot-scope="scope">{{ changeMoney(scope.row.goods_info.discounted_price, scope.row.country) }}</template>
         </u-table-column>
         <u-table-column v-if="showTableColumn('商品数量')" align="center" label="商品数量" width="120">
           <template slot-scope="scope">{{ scope.row.goods_info.goods_count }}</template>
@@ -432,7 +331,7 @@
         <u-table-column v-if="showTableColumn('搜同款')" align="center" label="搜同款" width="120">
           <template slot-scope="scope">
             <el-dropdown
-                @command="
+              @command="
                 (val) => {
                   soSameItem(val, scope.row)
                 }
@@ -449,9 +348,7 @@
         </u-table-column>
         <u-table-column v-if="showTableColumn('商品类目')" align="center" label="商品类目" width="120">
           <template slot-scope="scope">
-            <span>{{
-                scope.row.goods_info ? getCategoryName(scope.row.goods_info.goods_category_id, scope.row.country) : '未匹配到类目'
-              }} </span>
+            <span>{{ scope.row.goods_info ? getCategoryName(scope.row.goods_info.goods_category_id, scope.row.country) : '未匹配到类目' }} </span>
           </template>
         </u-table-column>
         <u-table-column v-if="showTableColumn('规格编号')" align="center" label="规格编号" width="120">
@@ -461,10 +358,8 @@
           <template slot-scope="scope">
             <div style="display: flex; flex-direction: column">
               <span>{{ scope.row.goods_info.variation_name }}</span>
-              <el-link v-if="scope.row.goods_info && Number(scope.row.goods_info.ori_platform_id) === 1" size="mini"
-                       type="danger" @click="setSKURelation(scope.row)">
-                {{ scope.row.empty_info ? '重新映射SKU' : '加入收藏' }}
-              </el-link
+              <el-link v-if="scope.row.goods_info && Number(scope.row.goods_info.ori_platform_id) === 1" size="mini" type="danger" @click="setSKURelation(scope.row)">
+                {{ scope.row.empty_info ? '重新映射SKU' : '加入收藏' }}</el-link
               >
             </div>
           </template>
@@ -478,64 +373,44 @@
         <u-table-column v-if="showTableColumn('订单收入')" align="center" prop="escrow_amount" label="订单收入" width="120">
           <template slot-scope="scope">{{ scope.row.escrow_amount }}{{ scope.row.country | siteCoin }}</template>
         </u-table-column>
-        <u-table-column v-if="showTableColumn('订单收入(RMB)')" align="center" prop="escrow_amount" label="订单收入(RMB)"
-                        width="120">
+        <u-table-column v-if="showTableColumn('订单收入(RMB)')" align="center" prop="escrow_amount" label="订单收入(RMB)" width="120">
           <template slot-scope="scope">{{ changeMoney(scope.row.escrow_amount, scope.row.country) }}元</template>
         </u-table-column>
-        <u-table-column v-if="showTableColumn('实际总邮费')" align="center" prop="actual_shipping_cost" label="实际总邮费"
-                        width="80">
+        <u-table-column v-if="showTableColumn('实际总邮费')" align="center" prop="actual_shipping_cost" label="实际总邮费" width="80">
           <template slot-scope="scope">{{ scope.row.actual_shipping_cost }}{{ scope.row.country | siteCoin }}</template>
         </u-table-column>
-        <u-table-column v-if="showTableColumn('卖家补贴邮费')" align="center" prop="sell_shipping_cost" label="卖家补贴邮费"
-                        width="120">
+        <u-table-column v-if="showTableColumn('卖家补贴邮费')" align="center" prop="sell_shipping_cost" label="卖家补贴邮费" width="120">
           <template slot-scope="scope">{{ scope.row.sell_shipping_cost }}{{ scope.row.country | siteCoin }}</template>
         </u-table-column>
-        <u-table-column v-if="showTableColumn('采购价')" sortable align="center" prop="shot_order_info.shot_amount"
-                        label="采购价" width="120">
-          <template slot-scope="scope">{{ scope.row.shot_order_info.shot_amount }}{{
-              scope.row.country | siteCoin
-            }}
-          </template>
+        <u-table-column v-if="showTableColumn('采购价')" sortable align="center" prop="shot_order_info.shot_amount" label="采购价" width="120">
+          <template slot-scope="scope">{{ scope.row.shot_order_info.shot_amount }}{{ scope.row.country | siteCoin }}</template>
         </u-table-column>
-        <u-table-column v-if="showTableColumn('采购价(RMB)')" align="center" prop="shot_amount_rmb" label="采购价(RMB)"
-                        width="100">
+        <u-table-column v-if="showTableColumn('采购价(RMB)')" align="center" prop="shot_amount_rmb" label="采购价(RMB)" width="100">
           <template slot-scope="scope">{{ scope.row.shot_order_info.shot_amount_rmb }}元</template>
         </u-table-column>
-        <u-table-column v-if="showTableColumn('仓库发货金额')" sortable align="center" prop="warehouse_ship_amount"
-                        label="仓库发货金额" width="120">
-          <template slot-scope="scope">{{
-              changeMoney(scope.row.warehouse_ship_amount, scope.row.country, 'toA')
-            }}{{ scope.row.country | siteCoin }}
-          </template>
+        <u-table-column v-if="showTableColumn('仓库发货金额')" sortable align="center" prop="warehouse_ship_amount" label="仓库发货金额" width="120">
+          <template slot-scope="scope">{{ changeMoney(scope.row.warehouse_ship_amount, scope.row.country, 'toA') }}{{ scope.row.country | siteCoin }}</template>
         </u-table-column>
-        <u-table-column v-if="showTableColumn('仓库发货金额(RMB)')" align="center" prop="warehouse_ship_amount"
-                        label="仓库发货金额(RMB)" width="140">
+        <u-table-column v-if="showTableColumn('仓库发货金额(RMB)')" align="center" prop="warehouse_ship_amount" label="仓库发货金额(RMB)" width="140">
           <template slot-scope="scope">{{ scope.row.warehouse_ship_amount }}元</template>
         </u-table-column>
         <u-table-column v-if="showTableColumn('含邮费毛利')" align="center" prop="gross_profit" label="含邮费毛利" width="120">
           <template slot-scope="scope">{{ scope.row.gross_profit }}{{ scope.row.country | siteCoin }}</template>
         </u-table-column>
-        <u-table-column v-if="showTableColumn('含邮费毛利(RMB)')" align="center" prop="gross_profit" label="含邮费毛利(RMB)"
-                        width="120">
+        <u-table-column v-if="showTableColumn('含邮费毛利(RMB)')" align="center" prop="gross_profit" label="含邮费毛利(RMB)" width="120">
           <template slot-scope="scope">{{ changeMoney(scope.row.gross_profit, scope.row.country) }}元</template>
         </u-table-column>
-        <u-table-column v-if="showTableColumn('最终毛利')" sortable align="center" prop="real_gross_profit" label="最终毛利"
-                        width="100">
+        <u-table-column v-if="showTableColumn('最终毛利')" sortable align="center" prop="real_gross_profit" label="最终毛利" width="100">
           <template slot-scope="scope">{{ scope.row.real_gross_profit }}{{ scope.row.country | siteCoin }}</template>
         </u-table-column>
-        <u-table-column v-if="showTableColumn('最终毛利(RMB)')" align="center" prop="real_gross_profit" label="最终毛利(RMB)"
-                        width="120">
+        <u-table-column v-if="showTableColumn('最终毛利(RMB)')" align="center" prop="real_gross_profit" label="最终毛利(RMB)" width="120">
           <template slot-scope="scope">{{ changeMoney(scope.row.real_gross_profit, scope.row.country) }}元</template>
         </u-table-column>
         <u-table-column v-if="showTableColumn('付款账号')" align="center" prop="pay_account_info" label="付款账号" width="120">
-          <template slot-scope="scope">
-            {{ scope.row.shot_order_info.pay_account_info ? scope.row.shot_order_info.pay_account_info.name : '' }}
-          </template>
+          <template slot-scope="scope">{{ scope.row.shot_order_info.pay_account_info ? scope.row.shot_order_info.pay_account_info.name : '' }}</template>
         </u-table-column>
         <u-table-column v-if="showTableColumn('采购账号')" align="center" prop="buy_account_info" label="采购账号" width="120">
-          <template slot-scope="scope">
-            {{ scope.row.shot_order_info.buy_account_info ? scope.row.shot_order_info.buy_account_info.name : '' }}
-          </template>
+          <template slot-scope="scope">{{ scope.row.shot_order_info.buy_account_info ? scope.row.shot_order_info.buy_account_info.name : '' }}</template>
         </u-table-column>
         <u-table-column v-if="showTableColumn('拍单')" align="center" prop="" label="拍单" width="80">
           <template v-if="scope.row.shot_order_info.shot_status == 1" slot-scope="scope">
@@ -544,35 +419,25 @@
         </u-table-column>
         <u-table-column v-if="showTableColumn('采购状态')" align="center" label="采购状态" width="120">
           <template slot-scope="scope">
-            <p :style="{ color: changeShotStatus(scope.row.shot_order_info.shot_status, 'color') }">
-              {{ changeShotStatus(scope.row.shot_order_info.shot_status) }}</p>
+            <p :style="{ color: changeShotStatus(scope.row.shot_order_info.shot_status, 'color') }">{{ changeShotStatus(scope.row.shot_order_info.shot_status) }}</p>
           </template>
         </u-table-column>
-        <u-table-column v-if="showTableColumn('采购时间')" sortable prop="shot_order_info.shotted_at" align="center"
-                        label="采购时间" width="140">
+        <u-table-column v-if="showTableColumn('采购时间')" sortable prop="shot_order_info.shotted_at" align="center" label="采购时间" width="140">
           <template slot-scope="scope">{{ scope.row.shot_order_info.shotted_at }}</template>
         </u-table-column>
         <u-table-column v-if="showTableColumn('采购订单号')" label="采购订单号" width="150" show-overflow-tooltip>
           <template slot-scope="scope">
-            <i v-if="scope.row.shot_order_info.shot_order_sn" class="el-icon-document-copy copyStyle tableActive"
-               @click="copyItem(scope.row.shot_order_info.shot_order_sn)"/>
-            <span class="tableActive" @click="clickBuyOrder(scope.row)">{{
-                scope.row.shot_order_info.shot_order_sn
-              }}</span>
+            <i v-if="scope.row.shot_order_info.shot_order_sn" class="el-icon-document-copy copyStyle tableActive" @click="copyItem(scope.row.shot_order_info.shot_order_sn)" />
+            <span class="tableActive" @click="clickBuyOrder(scope.row)">{{ scope.row.shot_order_info.shot_order_sn }}</span>
           </template>
         </u-table-column>
         <u-table-column v-if="showTableColumn('采购付款方式')" align="center" label="采购付款方式" width="120">
           <template slot-scope="scope">{{ buyPayMethod[scope.row.shot_order_info.shot_payment_method] }}</template>
         </u-table-column>
-        <u-table-column v-if="showTableColumn('平台付款方式')" align="center" prop="payment_method" label="平台付款方式"
-                        width="120">
-          <template slot-scope="scope">{{
-              changePlatformPayMethod(scope.row.country, scope.row.payment_method)
-            }}
-          </template>
+        <u-table-column v-if="showTableColumn('平台付款方式')" align="center" prop="payment_method" label="平台付款方式" width="120">
+          <template slot-scope="scope">{{ changePlatformPayMethod(scope.row.country, scope.row.payment_method) }}</template>
         </u-table-column>
-        <u-table-column v-if="showTableColumn('采购物流公司')" sortable prop="shot_order_info.shot_logistics_company"
-                        align="center" label="采购物流公司" width="120">
+        <u-table-column v-if="showTableColumn('采购物流公司')" sortable prop="shot_order_info.shot_logistics_company" align="center" label="采购物流公司" width="120">
           <template slot-scope="scope">{{ scope.row.shot_order_info.shot_logistics_company }}</template>
         </u-table-column>
         <u-table-column v-if="showTableColumn('采购物流单号')" align="center" label="采购物流单号" width="120">
@@ -581,20 +446,16 @@
         <u-table-column v-if="showTableColumn('采购发货时间')" align="center" label="采购发货时间" width="140">
           <template slot-scope="scope">{{ scope.row.shot_order_info.shot_shipping_time }}</template>
         </u-table-column>
-        <u-table-column v-if="showTableColumn('商户订单号')" align="center" prop="merchant_no" label="商户订单号" width="140"
-                        show-overflow-tooltip>
+        <u-table-column v-if="showTableColumn('商户订单号')" align="center" prop="merchant_no" label="商户订单号" width="140" show-overflow-tooltip>
           <template slot-scope="scope">{{ scope.row.shot_order_info.merchant_no }}</template>
         </u-table-column>
         <u-table-column v-if="showTableColumn('运输方式')" align="center" prop="transport_type" label="运输方式" width="80">
-          <template slot-scope="scope">
-            {{ scope.row.transport_type === 1 ? '空运' : scope.row.transport_type === 2 ? '陆运' : '' }}
-          </template>
+          <template slot-scope="scope">{{ scope.row.transport_type === 1 ? '空运' : scope.row.transport_type === 2 ? '陆运' : '' }}</template>
         </u-table-column>
         <u-table-column v-if="showTableColumn('货物类型')" align="center" prop="package_type" label="货物类型" width="80">
           <template slot-scope="scope">{{ changePackageType(scope.row.package_type) }}</template>
         </u-table-column>
-        <u-table-column v-if="showTableColumn('虾皮物流')" align="center" prop="logistics_name" label="虾皮物流" width="100"
-                        show-overflow-tooltip>
+        <u-table-column v-if="showTableColumn('虾皮物流')" align="center" prop="logistics_name" label="虾皮物流" width="100" show-overflow-tooltip>
           <template slot-scope="scope">{{ scope.row.logistics_name }}</template>
         </u-table-column>
         <u-table-column v-if="showTableColumn('虾皮物流单号')" align="center" prop="tracking_no" label="虾皮物流单号" width="150">
@@ -605,12 +466,10 @@
             <el-button type="primary" size="mini" @click="getSHtrackPath(scope.row)">虾皮物流轨迹</el-button>
           </template>
         </u-table-column>
-        <u-table-column v-if="showTableColumn('截止发货时间')" sortable align="center" prop="ship_by_date" label="截止发货时间"
-                        width="140">
+        <u-table-column v-if="showTableColumn('截止发货时间')" sortable align="center" prop="ship_by_date" label="截止发货时间" width="140">
           <template slot-scope="scope">{{ scope.row.ship_by_date }}</template>
         </u-table-column>
-        <u-table-column v-if="showTableColumn('仓库发货状态')" sortable align="center" prop="delivery_status" label="仓库发货状态"
-                        width="120">
+        <u-table-column v-if="showTableColumn('仓库发货状态')" sortable align="center" prop="delivery_status" label="仓库发货状态" width="120">
           <template slot-scope="scope">{{ changeDeliveryStatus(scope.row.delivery_status) }}</template>
         </u-table-column>
         <u-table-column v-if="showTableColumn('入库时间')" sortable align="center" prop="storage_time" label="入库时间" width="140">
@@ -619,33 +478,25 @@
         <u-table-column v-if="showTableColumn('出库时间')" sortable align="center" prop="outbound_time" label="出库时间" width="140">
           <template slot-scope="scope">{{ scope.row.outbound_time }}</template>
         </u-table-column>
-        <u-table-column v-if="showTableColumn('本地备注')" sortable align="center" prop="remark" label="本地备注" width="150"
-                        show-overflow-tooltip>
+        <u-table-column v-if="showTableColumn('本地备注')" sortable align="center" prop="remark" label="本地备注" width="150" show-overflow-tooltip>
           <template slot-scope="scope">
-            <div v-show="!(scope.row.id === activeRemarkID ? true : false) || scope.row.remark == ''"
-                 @click.stop="editRemark(scope.$index, scope.row.id)" style="cursor: pointer; min-width: 20px">
+            <div v-show="!(scope.row.id === activeRemarkID ? true : false) || scope.row.remark == ''" @click.stop="editRemark(scope.$index, scope.row.id)" style="cursor: pointer; min-width: 20px">
               <p @dblclick="copyItem(scope.row.remark)" style="color: #000">{{ scope.row.remark }}</p>
               <!-- <el-input v-model="scope.row.remark" disabled size="mini"></el-input> -->
             </div>
-            <el-input v-if="scope.row.id === activeRemarkID ? true : false" v-model="orderRemark" size="mini"
-                      @blur="changeRemark(scope.row.id, scope.$index)"
-            />
-          </template>
+            <el-input v-if="scope.row.id === activeRemarkID ? true : false" v-model="orderRemark" size="mini" @blur="changeRemark(scope.row.id, scope.$index)"
+          /></template>
         </u-table-column>
-        <u-table-column v-if="showTableColumn('shopee备注')" align="center" prop="note" label="shopee备注" width="150"
-                        show-overflow-tooltip>
+        <u-table-column v-if="showTableColumn('shopee备注')" align="center" prop="note" label="shopee备注" width="150" show-overflow-tooltip>
           <template slot-scope="scope">
-            <div v-show="!(scope.row.id === activeRemarkIDNode ? true : false)" style="cursor: pointer"
-                 @click="editRemarkNode(scope.$index, scope.row.id)">
-              <el-input v-model="scope.row.note" disabled size="mini"/>
+            <div v-show="!(scope.row.id === activeRemarkIDNode ? true : false)" style="cursor: pointer" @click="editRemarkNode(scope.$index, scope.row.id)">
+              <el-input v-model="scope.row.note" disabled size="mini" />
             </div>
-            <el-input v-if="scope.row.id === activeRemarkIDNode ? true : false" v-model="orderRemarkNode" size="mini"
-                      @blur="changeRemarkNode(scope.row.id, scope.$index)"/>
+            <el-input v-if="scope.row.id === activeRemarkIDNode ? true : false" v-model="orderRemarkNode" size="mini" @blur="changeRemarkNode(scope.row.id, scope.$index)" />
             <!-- {{ scope.row.note }} -->
           </template>
         </u-table-column>
-        <u-table-column v-if="showTableColumn('shopee备注更新时间')" align="center" prop="note_update_time"
-                        label="shopee备注更新时间" width="140">
+        <u-table-column v-if="showTableColumn('shopee备注更新时间')" align="center" prop="note_update_time" label="shopee备注更新时间" width="140">
           <template slot-scope="scope">{{ scope.row.note_update_time }}</template>
         </u-table-column>
         <u-table-column v-if="showTableColumn('买家姓名')" align="center" prop="name" label="买家姓名" width="140">
@@ -655,8 +506,7 @@
         </u-table-column>
         <u-table-column v-if="showTableColumn('买家地址')" align="center" label="买家地址" width="140" show-overflow-tooltip>
           <template slot-scope="scope">
-            <span class="copyStyle"
-                  @dblclick="copyItem(scope.row.receiver_info.address)"> {{ scope.row.receiver_info.address }} </span>
+            <span class="copyStyle" @dblclick="copyItem(scope.row.receiver_info.address)"> {{ scope.row.receiver_info.address }} </span>
           </template>
         </u-table-column>
         <u-table-column v-if="showTableColumn('手机号')" align="center" prop="phone" label="手机号" width="120">
@@ -664,8 +514,7 @@
             <span class="copyStyle" @dblclick="copyItem(scope.row.phone)"> {{ scope.row.phone }}</span>
           </template>
         </u-table-column>
-        <u-table-column v-if="showTableColumn('订单支付时间')" sortable align="center" prop="pay_time " label="订单支付时间"
-                        width="140">
+        <u-table-column v-if="showTableColumn('订单支付时间')" sortable align="center" prop="pay_time " label="订单支付时间" width="140">
           <template slot-scope="scope">{{ scope.row.pay_time }}</template>
         </u-table-column>
         <u-table-column v-if="showTableColumn('订单更新时间')" sortable align="center" prop="update_time" label="订单更新时间" width="140">
@@ -677,25 +526,23 @@
       </u-table>
       <div class="pagination">
         <el-pagination
-            background
-            :page-sizes="[20, 50, 100, 200]"
-            :page-size="pageSize"
-            :current-page.sync="currentPage"
-            layout="total, sizes, prev, pager, next, jumper"
-            :total="total"
-            @current-change="handleCurrentChange"
-            @size-change="handleSizeChange"
+          background
+          :page-sizes="[20, 50, 100, 200]"
+          :page-size="pageSize"
+          :current-page.sync="currentPage"
+          layout="total, sizes, prev, pager, next, jumper"
+          :total="total"
+          @current-change="handleCurrentChange"
+          @size-change="handleSizeChange"
         />
       </div>
     </div>
-    <Logs ref="Logs" v-model="showConsole" clear/>
-    <el-dialog v-if="columnVisible" title="配置订单列表显示列" :visible.sync="columnVisible" width="800px" top="5vh"
-               :close-on-click-modal="false" @close="closeDialog">
+    <Logs ref="Logs" v-model="showConsole" clear />
+    <el-dialog v-if="columnVisible" title="配置订单列表显示列" :visible.sync="columnVisible" width="800px" top="5vh" :close-on-click-modal="false" @close="closeDialog">
       <div class="column-style">
         <div v-for="(item, index) in columnConfigList" :key="index" class="column-item">
           <span>{{ item.column_header }}</span>
-          <el-switch v-model="item.is_show" style="display: block" active-color="#13ce66" inactive-color="#a9a9a9"
-                     :active-value="1" :inactive-value="-1"/>
+          <el-switch v-model="item.is_show" style="display: block" active-color="#13ce66" inactive-color="#a9a9a9" :active-value="1" :inactive-value="-1" />
         </div>
       </div>
       <span slot="footer">
@@ -704,8 +551,7 @@
         <el-button type="primary" size="mini" @click="uploadColumn">应用</el-button>
       </span>
     </el-dialog>
-    <el-dialog title="标记为海外商品" :visible.sync="abroadVisible" width="400px" :close-on-click-modal="false"
-               @close="closeDialog('noRefresh')">
+    <el-dialog title="标记为海外商品" :visible.sync="abroadVisible" width="400px" :close-on-click-modal="false" @close="closeDialog('noRefresh')">
       <div class="abroad-mar">
         <el-radio v-model="isAbroadGood" :label="1">海外商品</el-radio>
         <el-radio v-model="isAbroadGood" :label="-1">非海外商品</el-radio>
@@ -714,8 +560,7 @@
         <el-button type="primary" size="mini" @click="setAbroadGood(multipleSelection)">确 定</el-button>
       </span>
     </el-dialog>
-    <el-dialog title="批量添加本地备注" :visible.sync="localRamarkVisible" width="400px" :close-on-click-modal="false"
-               @open="openBefore">
+    <el-dialog title="批量添加本地备注" :visible.sync="localRamarkVisible" width="400px" :close-on-click-modal="false" @open="openBefore">
       <div class="remark-style">
         <span>本地备注</span>
         <el-input v-model="localRamark" type="textarea" resize="none" :rows="4" placeholder="请输入内容"/>
@@ -724,54 +569,47 @@
         <el-button type="primary" size="mini" @click="batchSetRemark">批量添加</el-button>
       </span>
     </el-dialog>
-    <el-dialog v-if="colorVisible" title="选择颜色标识" :visible.sync="colorVisible" width="600px"
-               :close-on-click-modal="false">
+    <el-dialog v-if="colorVisible" title="选择颜色标识" :visible.sync="colorVisible" width="600px" :close-on-click-modal="false">
       <div class="color-style">
-        <el-table ref="colorTable" :data="colorList" tooltip-effect="dark" style="width: 100%" height="500"
-                  :loading="colorLoading">
+        <el-table ref="colorTable" :data="colorList" tooltip-effect="dark" style="width: 100%" height="500" :loading="colorLoading">
           <el-table-column label="标识选择" width="120">
             <template slot-scope="scope">
-              <el-radio v-model="colorRadio" :label="scope.$index" @change.native="getCurrentRow(scope.row)"/>
+              <el-radio v-model="colorRadio" :label="scope.$index" @change.native="getCurrentRow(scope.row)" />
             </template>
           </el-table-column>
           <el-table-column prop="name" label="颜色">
             <template slot-scope="scope">
-              <div class="colorBox" :style="{ background: scope.row.color }"/>
+              <div class="colorBox" :style="{ background: scope.row.color }" />
             </template>
           </el-table-column>
-          <el-table-column prop="name" label="标识名称"/>
+          <el-table-column prop="name" label="标识名称" />
         </el-table>
       </div>
       <span slot="footer">
         <el-button type="primary" size="mini" @click="setColor(multipleSelection)">设置颜色</el-button>
       </span>
     </el-dialog>
-    <el-dialog v-if="purchaseInfoVisible" title="添加采购信息" :visible.sync="purchaseInfoVisible" width="500px" top="5vh"
-               :close-on-click-modal="false">
-      <purchase-info :choose-data="multipleSelection" :buyer-account-list="buyerAccountList" :deal-type="dealType"
-                     @close="closeDialog"/>
+    <el-dialog v-if="purchaseInfoVisible" title="添加采购信息" :visible.sync="purchaseInfoVisible" width="500px" top="5vh" :close-on-click-modal="false">
+      <purchase-info :choose-data="multipleSelection" :buyer-account-list="buyerAccountList" :deal-type="dealType" @close="closeDialog" />
     </el-dialog>
-    <el-dialog v-if="pushOrderToStoreVisible" title="同步数据至仓库" :visible.sync="pushOrderToStoreVisible" width="1200px"
-               top="5vh" :close-on-click-modal="false" @close="closeDialog('noRefresh')">
-      <push-order :choose-data="multipleSelection"/>
+    <el-dialog v-if="pushOrderToStoreVisible" title="同步数据至仓库" :visible.sync="pushOrderToStoreVisible" width="1200px" top="5vh" :close-on-click-modal="false" @close="closeDialog('noRefresh')">
+      <push-order :choose-data="multipleSelection" />
     </el-dialog>
-    <el-dialog v-if="shipInfoVisible" title="批量添加采购物流单号" :visible.sync="shipInfoVisible" width="400px"
-               :close-on-click-modal="false" @close="closeDialog">
+    <el-dialog v-if="shipInfoVisible" title="批量添加采购物流单号" :visible.sync="shipInfoVisible" width="400px" :close-on-click-modal="false" @close="closeDialog">
       <div v-loading="shipLoading">
         <div class="item-box">
           <span>绑定仓库：</span>
           <el-select v-model="shipBindStore" size="mini" class="btnLongMax">
-            <el-option v-for="(item, index) in shipStoreList" :key="index" :label="item.warehouse_name"
-                       :value="item.id"/>
+            <el-option v-for="(item, index) in shipStoreList" :key="index" :label="item.warehouse_name" :value="item.id" />
           </el-select>
         </div>
         <div class="item-box">
           <span>采购物流单号：</span>
-          <el-input v-model="shipNo" size="mini" clearable class="btnLongMax"/>
+          <el-input v-model="shipNo" size="mini" clearable class="btnLongMax" />
         </div>
         <div class="item-box">
           <span>采购物流公司：</span>
-          <el-input v-model="shipCompany" size="mini" clearable class="btnLongMax"/>
+          <el-input v-model="shipCompany" size="mini" clearable class="btnLongMax" />
         </div>
       </div>
       <span slot="footer">
@@ -779,19 +617,16 @@
         <el-button type="primary" size="mini" @click="batchSaveShipInfo">确 定</el-button>
       </span>
     </el-dialog>
-    <el-dialog v-if="uploadStoreShipAmountVisible" title="上报仓库发货金额" :visible.sync="uploadStoreShipAmountVisible"
-               width="1200px" :close-on-click-modal="false">
-      <upload-store-ship-amount @close="closeDialog"/>
+    <el-dialog v-if="uploadStoreShipAmountVisible" title="上报仓库发货金额" :visible.sync="uploadStoreShipAmountVisible" width="1200px" :close-on-click-modal="false">
+      <upload-store-ship-amount @close="closeDialog" />
     </el-dialog>
     <!-- 四类商品出库 -->
-    <el-dialog v-if="goodsOutStoreVisible" :visible.sync="goodsOutStoreVisible" width="1400px" top="5vh"
-               :close-on-click-modal="false">
+    <el-dialog v-if="goodsOutStoreVisible" :visible.sync="goodsOutStoreVisible" width="1400px" top="5vh" :close-on-click-modal="false">
       <div slot="title">{{ outStoreTitle }}</div>
-      <goods-out-store :choose-data="uniqueArr(multipleSelection)" :out-store-type="outStoreType" @close="closeDialog"/>
+      <goods-out-store :choose-data="uniqueArr(multipleSelection)" :out-store-type="outStoreType" @close="closeDialog" />
     </el-dialog>
-    <el-dialog v-if="addBuyLinkVisible" title="添加采购链接" :visible.sync="addBuyLinkVisible" width="1200px" append-to-body
-               :close-on-click-modal="false" @close="closeDialog">
-      <buy-link :link-row="clickRow" @close="closeDialog"/>
+    <el-dialog v-if="addBuyLinkVisible" title="添加采购链接" :visible.sync="addBuyLinkVisible" width="1200px" append-to-body :close-on-click-modal="false" @close="closeDialog">
+      <buy-link :link-row="clickRow" @close="closeDialog" />
     </el-dialog>
     <el-dialog title="查看禁运品" :visible.sync="lookForbidVisible" width="1200px" :close-on-click-modal="false">
       <div class="forbid">
@@ -807,30 +642,25 @@
         </div>
       </div>
     </el-dialog>
-    <el-dialog v-if="addMoreTraNumberVisible" title="添加多物流单号" :visible.sync="addMoreTraNumberVisible" width="700px"
-               :close-on-click-modal="false" @close="closeDialog">
+    <el-dialog v-if="addMoreTraNumberVisible" title="添加多物流单号" :visible.sync="addMoreTraNumberVisible" width="700px" :close-on-click-modal="false" @close="closeDialog">
       <div class="tra-style">
         <div class="item-box">
           <span style="width: 60px">绑定仓库</span>
           <el-select v-model="bindStore" size="mini" class="inputWidth">
-            <el-option v-for="(item, index) in warehouseData" :key="index" :label="item.warehouse_name"
-                       :value="item.id"/>
+            <el-option v-for="(item, index) in warehouseData" :key="index" :label="item.warehouse_name" :value="item.id" />
           </el-select>
         </div>
         <div v-for="(item, index) in trackingNumberList" :key="index" class="tra-content">
           <div class="item-box">
             <span style="width: 80px">物流单号{{ index + 1 }}</span>
-            <el-input v-model="item.original_tracking_number" size="mini" class="inputWidth"/>
+            <el-input v-model="item.original_tracking_number" size="mini" class="inputWidth" />
           </div>
           <div class="item-box">
             <span style="width: 80px">物流公司{{ index + 1 }}</span>
-            <el-input v-model="item.original_logistics_company" size="mini" class="inputWidth mar-right"/>
+            <el-input v-model="item.original_logistics_company" size="mini" class="inputWidth mar-right" />
           </div>
-          <el-button type="primary" size="mini" class="item-box mar-right" @click="deleteTraNumber(index)">删除
-          </el-button>
-          <el-button v-if="index === trackingNumberList.length - 1" type="primary" size="mini" class="item-box"
-                     @click="addTraNumber">添加
-          </el-button>
+          <el-button type="primary" size="mini" class="item-box mar-right" @click="deleteTraNumber(index)">删除</el-button>
+          <el-button v-if="index === trackingNumberList.length - 1" type="primary" size="mini" class="item-box" @click="addTraNumber">添加</el-button>
         </div>
         <p>关于绑定仓库选项:</p>
         <p>1、仅显示当前订单店铺绑定的仓库</p>
@@ -840,18 +670,15 @@
         <el-button type="primary" size="mini" @click="saveAddMoreTra">保 存</el-button>
       </span>
     </el-dialog>
-    <el-dialog v-if="billsDetailVisible" title="账单明细" :visible.sync="billsDetailVisible" top="5vh" width="1200px"
-               :close-on-click-modal="false" @close="closeDialog('noRefresh')">
-      <bill-detail :choose-data="clickRow"/>
+    <el-dialog v-if="billsDetailVisible" title="账单明细" :visible.sync="billsDetailVisible" top="5vh" width="1200px" :close-on-click-modal="false" @close="closeDialog('noRefresh')">
+      <bill-detail :choose-data="clickRow" />
     </el-dialog>
-    <el-dialog v-if="trackPathVisible" title="物流轨迹" :visible.sync="trackPathVisible" width="400px"
-               :close-on-click-modal="false" @close="closeDialog('noRefresh')">
+    <el-dialog v-if="trackPathVisible" title="物流轨迹" :visible.sync="trackPathVisible" width="400px" :close-on-click-modal="false" @close="closeDialog('noRefresh')">
       <el-steps direction="vertical" :active="1">
-        <el-step title="暂无物流信息" :description="$dayjs(new Date()).format('YYYY-MM-DD HH:mm')"/>
+        <el-step title="暂无物流信息" :description="$dayjs(new Date()).format('YYYY-MM-DD HH:mm')" />
       </el-steps>
     </el-dialog>
-    <el-dialog v-if="spTrackPathVisible" title="虾皮物流轨迹" :visible.sync="spTrackPathVisible" width="500px"
-               :close-on-click-modal="false" @close="closeDialog('noRefresh')">
+    <el-dialog v-if="spTrackPathVisible" title="虾皮物流轨迹" :visible.sync="spTrackPathVisible" width="500px" :close-on-click-modal="false" @close="closeDialog('noRefresh')">
       <div class="track-step">
         <div class="step-header">
           <div class="step-item">
@@ -865,33 +692,27 @@
         </div>
         <div v-loading="shipInfoLoading" class="step-content">
           <el-steps direction="vertical" :active="1" space="80px">
-            <el-step v-for="(item, index) in spTrackPath" :key="index" icon="el-icon-s-help" :title="item.description"
-                     :description="$dayjs(item.ctime * 1000).format('YYYY-MM-DD HH:mm')"/>
+            <el-step v-for="(item, index) in spTrackPath" :key="index" icon="el-icon-s-help" :title="item.description" :description="$dayjs(item.ctime * 1000).format('YYYY-MM-DD HH:mm')" />
           </el-steps>
         </div>
       </div>
     </el-dialog>
-    <el-dialog v-if="orderPathVisible" title="订单轨迹" :visible.sync="orderPathVisible" width="500px"
-               :close-on-click-modal="false" @close="closeDialog('noRefresh')">
+    <el-dialog v-if="orderPathVisible" title="订单轨迹" :visible.sync="orderPathVisible" width="500px" :close-on-click-modal="false" @close="closeDialog('noRefresh')">
       <div class="track-step">
         <div v-loading="orderPathInfoLoading" class="step-content">
           <el-steps direction="vertical" :active="1" space="80px">
-            <el-step v-for="(item, index) in orderTrackPath" :key="index" icon="el-icon-s-help" :title="item[0]"
-                     :description="item[1]"/>
+            <el-step v-for="(item, index) in orderTrackPath" :key="index" icon="el-icon-s-help" :title="item[0]" :description="item[1]" />
           </el-steps>
         </div>
       </div>
     </el-dialog>
-    <el-dialog v-if="orderReportVisible" title="订单报表" :visible.sync="orderReportVisible" top="5vh" width="800px"
-               :close-on-click-modal="false" @close="closeDialog('noRefresh')">
-      <export-report/>
+    <el-dialog v-if="orderReportVisible" title="订单报表" :visible.sync="orderReportVisible" top="5vh" width="800px" :close-on-click-modal="false" @close="closeDialog('noRefresh')">
+      <export-report />
     </el-dialog>
-    <el-dialog v-if="replayOrderBuyerVisible" title="回复订单买家" :visible.sync="replayOrderBuyerVisible" top="5vh"
-               width="600px" :close-on-click-modal="false" @close="closeDialog('noRefresh')">
-      <reply-buyer :choose-data="replyBuyerData" @close="closeDialog('noRefresh')"/>
+    <el-dialog v-if="replayOrderBuyerVisible" title="回复订单买家" :visible.sync="replayOrderBuyerVisible" top="5vh" width="600px" :close-on-click-modal="false" @close="closeDialog('noRefresh')">
+      <reply-buyer :choose-data="replyBuyerData" @close="closeDialog('noRefresh')" />
     </el-dialog>
-    <el-dialog v-if="handOutOrderVisible" title="填写发货单号" :visible.sync="handOutOrderVisible" top="5vh" width="500px"
-               :close-on-click-modal="false" @close="closeDialog">
+    <el-dialog v-if="handOutOrderVisible" title="填写发货单号" :visible.sync="handOutOrderVisible" top="5vh" width="500px" :close-on-click-modal="false" @close="closeDialog">
       <div class="handle-out">
         <div class="item">
           <span>当前订单状态：</span>
@@ -907,11 +728,11 @@
         </div>
         <div class="item">
           <span>发货物流名称：</span>
-          <el-input v-model="shippingProof" size="mini" class="inputWidth"/>
+          <el-input v-model="shippingProof" size="mini" class="inputWidth" />
         </div>
         <div class="item">
           <span>发货物流单号：</span>
-          <el-input v-model="shippingTraceNo" size="mini" class="inputWidth"/>
+          <el-input v-model="shippingTraceNo" size="mini" class="inputWidth" />
         </div>
       </div>
       <span slot="footer">
@@ -1535,15 +1356,15 @@ export default {
       for (let i = 0; i < this.multipleSelection.length; i++) {
         const order = this.multipleSelection[i]
         await dealwithOriginGoodsNum(
-            order.goods_info.ori_goods_id,
-            order.goods_info.ori_platform_id,
-            order.mall_info.platform_mall_id,
-            order.goods_info.goods_id,
-            order.country,
-            order.order_sn,
-            this.$refs.Logs.writeLog,
-            order.goods_info.ori_platform_mall_id,
-            order.goods_info.ori_country
+          order.goods_info.ori_goods_id,
+          order.goods_info.ori_platform_id,
+          order.mall_info.platform_mall_id,
+          order.goods_info.goods_id,
+          order.country,
+          order.order_sn,
+          this.$refs.Logs.writeLog,
+          order.goods_info.ori_platform_mall_id,
+          order.goods_info.ori_country
         )
       }
     },
@@ -1664,12 +1485,11 @@ export default {
         cancelButtonText: '取消',
         type: 'warning',
       })
-          .then(() => {
-            setGoodsDelete(this, row)
-            // this.setGoodsDelete(row)
-          })
-          .catch(() => {
-          })
+        .then(() => {
+          setGoodsDelete(this, row)
+          // this.setGoodsDelete(row)
+        })
+        .catch(() => {})
     },
     // 商品删除
     // async setGoodsDelete(row) {
@@ -1691,12 +1511,11 @@ export default {
         cancelButtonText: '取消',
         type: 'warning',
       })
-          .then(() => {
-            setGoodsDelist(this, row)
-            // this.setGoodsDelist(row)
-          })
-          .catch(() => {
-          })
+        .then(() => {
+          setGoodsDelist(this, row)
+          // this.setGoodsDelist(row)
+        })
+        .catch(() => {})
     },
     // 商品下架
     // async setGoodsDelist(row) {
@@ -2536,7 +2355,7 @@ export default {
       }
       this.showConsole = false
       // this.$refs.Logs.consoleMsg = ''
-      this.multipleSelection.forEach(async(item) => {
+      this.multipleSelection.forEach(async (item) => {
         const params = {
           id: item.id,
           remark: this.localRamark,
@@ -2571,7 +2390,7 @@ export default {
       }
       // this.showConsole = false
       this.$refs.Logs.consoleMsg = ''
-      array.forEach(async(item) => {
+      array.forEach(async (item) => {
         const params = {
           sysOrderId: item.id,
           status: this.isAbroadGood,
@@ -2666,15 +2485,15 @@ export default {
       this.showConsole = false // 打开日志
       this.$refs.Logs.consoleMsg = ''
       this.$refs.Logs.writeLog(`获取采购物流轨迹开始`, true)
-      const service = new LogisticeSyncService(this.$refs.Logs.writeLog)
+      const service = new LogisticeSyncService()
       if (!this.buyerAccountList.length) {
         this.$refs.Logs.writeLog(`没有买手号，请登录买手号`, false)
         return this.$message.warning('没有买手号,请登录！')
       }
       if (this.multipleSelection.length > 0) {
-        service.start(this, this.buyerAccountList, this.multipleSelection)
+        service.start(this, this.buyerAccountList, this.$refs.Logs.writeLog, this.multipleSelection)
       } else {
-        service.start(this, this.buyerAccountList)
+        service.start(this, this.buyerAccountList, this.$refs.Logs.writeLog)
       }
     },
     // 导出数据
@@ -2784,7 +2603,7 @@ export default {
     async dealWithTableList() {
       let sysOrders = ''
       const grossAmountRequest = []
-      this.tableData.forEach(async(row, i) => {
+      this.tableData.forEach(async (row, i) => {
         // 计算含邮毛利
         if (row.shot_order_info.shot_order_sn) {
           const diff = Number(row.escrow_amount - row.shot_order_info.shot_amount).toFixed(2)
