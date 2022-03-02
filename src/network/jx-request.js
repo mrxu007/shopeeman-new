@@ -254,10 +254,18 @@ export default {
   deleteLabel: (data) => AppRequest.post('/publishGoodsWindowConfig/deleteLabel', data), // 编辑上新弹窗配置: 删除
   valuationConfigSave: (data) => AppRequest.post('/publishGoodsValuationConfig/save', data), // 计价二标签: 保存
   valuationConfigGetAll: (data) => AppRequest.get('/publishGoodsValuationConfig/getAll', { params: data }), // 计价二标签: 获取所有
-  valuationConfigGet: (data) => AppRequest.get('/publishGoodsValuationConfig/get',  data ), // 计价二标签: 获取
-  publishGoodsConfigGetAll: (data) => AppRequest.get('/publishGoodsConfig/getAll',  data ), // 一键上新 - 获取所有配置
-  publishGoodsConfigGet: (data) => AppRequest.get('/publishGoodsConfig/get',  { params: data } ), // 一键上新 - 获取配置
-  publishGoodsConfigSave: (data) => AppRequest.post('/publishGoodsConfig/save',  data ), // 一键上新 - 保存
-
-  updateOrderPrintStatus:(data) => AppRequest.post('/order/updateOrderPrintStatus', data) ,// 标记面单已打印或已下载
+  valuationConfigGet: (data) => AppRequest.get('/publishGoodsValuationConfig/get', data), // 计价二标签: 获取
+  publishGoodsConfigGetAll: (data) => AppRequest.get('/publishGoodsConfig/getAll', data), // 一键上新 - 获取所有配置
+  publishGoodsConfigGet: (data) => AppRequest.get('/publishGoodsConfig/get', { params: data }), // 一键上新 - 获取配置
+  publishGoodsConfigSave: (data) => AppRequest.post('/publishGoodsConfig/save', data), // 一键上新 - 保存
+  // 用户基本设置
+  userSet: (data) => AppRequest.get('/userSet/get', { params: data }), // 获取用户基本设置
+  getAppList: (data) => AppRequest.get('/translateApp', { params: data }), // 获取applist
+  getcolorList: (data) => AppRequest.get('/colorLabel', { params: data }), // 获取颜色标识
+  updataColorList: (data) => AppRequest.post('/colorLabel/update', data), // 修改颜色信息
+  setUserinfo: (data) => AppRequest.post('/userSet/save', data), // 用户信息修改
+  translateApp: (data) => AppRequest.get('/translateApp/index', { params: data }), // 获取翻译
+  translateAppAdd: (data) => AppRequest.post('/translateApp/add', data), // 新增翻译
+  translateAppUpdate: (data) => AppRequest.post('/translateApp/update', data), // 刷新翻译
+  translateAppDelete: (data) => AppRequest.post('/translateApp/delete', data) // 删除翻译
 }

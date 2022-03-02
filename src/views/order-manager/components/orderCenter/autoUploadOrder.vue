@@ -1,18 +1,18 @@
 <!--
  * @Author: your name
  * @Date: 2021-11-12 10:09:55
- * @LastEditTime: 2022-03-01 14:56:49
+ * @LastEditTime: 2022-03-02 10:05:21
  * @LastEditors: Please set LastEditors
  * @Description: 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
  * @FilePath: \shopeeman-new\src\views\order-manager\components\orderCenter\autoUploadOrder.vue
 -->
 <template>
   <div class="auto-order">
-    <Logs ref="Logs" v-model="showConsole" clear class="logBox" />
+    <Logs ref="Logs" v-model="showConsole" clear class="logBox"/>
   </div>
 </template>
 
-<script >
+<script>
 import { syncStatusAll, syncStatusFirst, statusListSecond, statusListThird } from './orderCenter'
 import orderSync from '../../../../services/timeOrder'
 import surFaceService from '../../../../services/surfaceOrder'
@@ -138,10 +138,11 @@ export default {
 
 <style lang="less" scoped>
 .auto-order {
-  /deep/.showLogBox {
+  /deep/ .showLogBox {
     height: 600px;
     width: 800px;
     bottom: 100px;
+
     .consoleBox {
       height: 600px;
       width: 800px;

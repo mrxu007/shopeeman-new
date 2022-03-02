@@ -13,11 +13,15 @@ const CatchNoticeSignForPackage = () => import('./components/CatchNoticeSignForP
 // 仓库异常信息
 const CatchNoticeStoreExceptionInfo = () => import('./components/CatchNoticeStoreExceptionInfo.vue')
 
+// 海外仓库异常信息
+const CatchNoticeStoreExceptionOverSea = () => import('./components/CatchNoticeStoreExceptionOverSea.vue')
+
 // 导出
 export {
   CatchNoticeExpiringOrder,
   CatchNoticeGetLogisticsOrderNo,
   CatchNoticeOfficialAccountBind,
   CatchNoticeSignForPackage,
-  CatchNoticeStoreExceptionInfo
+  CatchNoticeStoreExceptionInfo,
+  CatchNoticeStoreExceptionOverSea
 }

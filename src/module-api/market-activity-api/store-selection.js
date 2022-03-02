@@ -118,7 +118,7 @@ export default class StoreSelection {
     try {
       const res = await this._this.$shopeemanService.getChineseReferer(val.country, '/api/marketing/v4/hot_sale/plan/list/?', params, {
         headers: {
-          'Content-Type': 'application/json',
+          accept: 'application/json, text/plain, */*',
           referer: `/portal/marketing/hotsale`
         }
       })
