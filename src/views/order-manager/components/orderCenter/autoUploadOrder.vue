@@ -1,4 +1,3 @@
-
 <template>
   <div class="auto-order">
     <Logs ref="Logs" v-model="showConsole" clear class="logBox"/>

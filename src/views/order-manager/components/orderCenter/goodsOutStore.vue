@@ -586,7 +586,6 @@ export default {
     },
     changeOrderStatus,
     async getStockSkuId(){
-      return
       console.log('orderList',this.orderList)
       for (let i=0;i<this.orderList.length;i++){
         let item = this.orderList[i]
