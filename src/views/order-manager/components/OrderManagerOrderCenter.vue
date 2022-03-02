@@ -338,7 +338,7 @@
                 取消二次销售
               </el-button>
               <el-button v-if="row.isSecond" size="mini" type="primary" @click="chooseSecondSale(row)">
-                {{ scope.row.secondSaleTitle }}
+                {{ row.secondSaleTitle }}
               </el-button>
             </div>
             <el-tooltip v-else-if="item.showType === 10" effect="light" placement="right-end" :visible-arrow="false"
@@ -1791,7 +1791,6 @@ export default {
       }
       this.$buyerAccountService.getSkuRelation(skuInfo, buyer)
     },
-
     // 一键同步上家库存
     async syncOriginGoodsNum() {
       if (!this.multipleSelection.length) {
@@ -1939,20 +1938,6 @@ export default {
           .catch(() => {
           })
     },
-    // 商品删除
-    // async setGoodsDelete(row) {
-    //   let params = {
-    //     product_id_list: [Number(row.goods_info.goods_id)],
-    //     shop_id: row.mall_info.platform_mall_id,
-    //   }
-    //   let res = await this.$shopeemanService.handleGoodsDelete(row.country, params)
-    //   if (res.code === 200) {
-    //     this.$message.success(`商品删除成功！`)
-    //   } else {
-    //     this.$message.error(`${res.data}`)
-    //   }
-    // },
-    // 商品下架
     async goodsDelist(row) {
       this.$confirm('是否下架该商品?', '商品下架', {
         confirmButtonText: '确定',
@@ -1966,26 +1951,6 @@ export default {
           .catch(() => {
           })
     },
-    // 商品下架
-    // async setGoodsDelist(row) {
-    //   let params = [
-    //     {
-    //       id: Number(row.goods_info.goods_id),
-    //       unlisted: true,
-    //     },
-    //   ]
-    //   let data = {
-    //     shop_id: row.mall_info.platform_mall_id,
-    //   }
-    //   let res = await this.$shopeemanService.handleGoodsDelist(row.country, data, params)
-    //   if (res.code === 200) {
-    //     this.$message.success(`商品下架成功！`)
-    //   } else {
-    //     this.$message.error(`${res.data}`)
-    //   }
-    //   console.log(res, 'res')
-    // },
-    // 订单出库
     async saveHandleOut() {
       try {
         const params = {
@@ -2041,25 +2006,6 @@ export default {
       }
       return params
     },
-    // 获取类目
-    // async getCategoryInfo(country, cateId) {
-    //   if (this.categoryInfo[cateId]) {
-    //     return this.categoryInfo[cateId]
-    //   } else {
-    //     this.categoryInfo[cateId] = ''
-    //     const res = await this.$commodityService.getCategoryTbInfo(country, cateId.toString(), '0', '')
-    //     const resObj = res && JSON.parse(res)
-    //     // console.log(resObj, '类目')
-    //     if (resObj && resObj.code === 200 && resObj.data.categories && resObj.data.categories.length) {
-    //       const categoryName = resObj.data.categories[0].category_cn_name
-    //       this.categoryInfo[cateId] = categoryName
-    //       // console.log(this.categoryInfo[cateId], categoryName)
-    //       return categoryName
-    //     } else {
-    //       return ''
-    //     }
-    //   }
-    // },
     async getCategoryInfo(id, country) {
       const categoryName = this.categoryInfo[`category_${id}`]
       if (!categoryName) {
@@ -3079,14 +3025,6 @@ export default {
         this.$api.uploadGressProfit({ lists: grossAmountRequest })
       }
     },
-    // 获取买手号（服务端）
-    // async getBuyerList() {
-    //   let res = await this.$api.getBuyerList()
-    //   if (res.data.code === 200) {
-    //     this.buyerAccountList = res.data.data
-    //   }
-    //   console.log('getBuyerList', this.buyerAccountList)
-    // },
     // 商品来源中文信息
     changeTypeName(code, arr) {
       const res = arr.find((item) => {
@@ -3406,7 +3344,7 @@ export default {
       border: 1px solid #dcdcdc;
       margin-right: 5px;
     }
-
+    user-select: none;
     display: flex;
     margin: 10px;
     align-items: center;
