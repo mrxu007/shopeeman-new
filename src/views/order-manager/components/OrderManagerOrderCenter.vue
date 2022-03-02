@@ -220,15 +220,15 @@
         <p v-else @click="isShow = true">展开<i class="el-icon-caret-bottom"/></p>
       </div>
     </header>
-    <div class="content" :style="{ height: isShow ? '520px' : '840px' }">
-      <p>
+    <div class="content" :style="{ height: isShow ? '520px' : '820px' }">
+      <p style="padding: 5px 10px 0;">
         温馨提示：1、最终毛利 = 订单收入-采购金额-仓库发货金额（生成仓库发货金额才会去计算，会有汇率差）；含邮费毛利 =
         订单收入-采购价；2、调整列表顺序，请至【配置自定义列】按钮，拖动表头进行排列
       </p>
-      <u-table ref="multipleTable" v-loading="tableLoading" use-virtual :row-height="60" :border="false"
+      <u-table style="margin-top: -10px;" ref="multipleTable" v-loading="tableLoading" use-virtual :row-height="60" :border="false"
                :data="tableData" tooltip-effect="dark" :height="isShow && (tableColumnShow && 410 || 411) || 730"
                :cell-style="{ padding: '0px' }" :header-cell-style="{backgroundColor: '#f5f7fa'}" :resizable="true"
-               @selection-change="handleSelectionChange">
+               @selection-change="handleSelectionChange" v-if="tableColumnShow">
         <u-table-column align="center" type="selection" width="50" fixed="left"/>
         <u-table-column align="center" type="index" label="序号" width="50" fixed="left">
           <template slot-scope="scope">{{ (currentPage - 1) * pageSize + scope.$index + 1 }}</template>
@@ -237,7 +237,7 @@
                         :width="item.width || '80'" :align="item.align||'left'" :label="item.name"
                         :prop="item.prop || ''" :sortable="item.sortable || false" :fixed="item.fixed"
                         :show-overflow-tooltip="item.showOverflowTooltip || false" :resizable="true">
-          <template slot-scope="{row,$index}">
+          <template slot-scope="{row,$index}" >
             <i v-if="item.iCopy" class="el-icon-document-copy copyStyle"
                @click="copyItem(getTableRow(row,item.iCopy))"/>
             <p v-if="item.iColor" :style="{ background: changeColorLabel(row[item.iColor]), height: '20px' }"/>
@@ -424,9 +424,9 @@
     <el-dialog v-if="columnVisible" title="配置订单列表显示列" :visible.sync="columnVisible" width="800px" top="5vh"
                :close-on-click-modal="false" @close="closeDialog">
       <div class="column-style">
-        <draggable @update="datadragEnd" filter=".forbid" v-model="columnConfigList" group="columnConfig">
+        <draggable @update="datadragEnd" filter=".forbid" v-model="columnConfigShowList" group="columnConfig">
           <transition-group>
-            <div :class="index < 2 &&'forbid column-item' || 'column-item'" v-for="(item, index) in columnConfigList" :key="index" >
+            <div :class="index < 2 &&'forbid column-item' || 'column-item'" v-for="(item, index) in columnConfigShowList" :key="index" >
               <span>{{ item.column_header }}</span>
               <el-switch v-model="item.is_show" style="display: block" active-color="#13ce66"
                          inactive-color="#a9a9a9" :active-value="1" :inactive-value="-1"/>
@@ -1378,6 +1378,7 @@ export default {
           prop: 'goods_info.is_overseas_goods',
           showType: 4
         }],
+      columnConfigShowList: []
     }
   },
   watch:{
@@ -2818,7 +2819,7 @@ export default {
     },
     // 表头显示处理
     showTableColumn(name) {
-      const hasName = this.columnConfigList.find((item) => item.column_header == name)
+      const hasName = this.columnConfigShowList.find((item) => item.column_header == name)
       if (!hasName) {
         return true
       }
@@ -2830,20 +2831,25 @@ export default {
     },
     // 显示、隐藏所有列
     checkAllColumn(val) {
-      this.tableColumnShow = !this.tableColumnShow
-      this.columnConfigList.forEach((item) => {
+      this.columnConfigShowList.forEach((item) => {
         item.is_show = val
       })
     },
     // 上传配置列
     async uploadColumn() {
-      this.tableColumnShow = !this.tableColumnShow
+      this.tableColumnShow = false
+      let list = [...this.columnConfigShowList.map((item,index)=>{
+        return Object.assign(item,{sortNumber:index})
+      })]
+      this.columnConfigShowList = list
+      this.columnConfigList = list
+      this.tableColumnList = list
       const arr = []
-      this.columnConfigList.forEach((item) => {
+      this.columnConfigShowList.forEach((item) => {
         const par = {
           columnHeader: item.column_header,
-          isShow: item.is_show
-          // firstColumnIsCheckbox: item.first_column_is_checkbox,
+          isShow: item.is_show,
+          sortNumber: item.sortNumber
         }
         arr.push(par)
       })
@@ -2851,12 +2857,14 @@ export default {
         // columnId: 1, //  1 => '订单列表',         2 => '售后列表',
         lists: arr
       }
+      console.log(params)
       const res = await this.$api.uploadColumnsConfig(params)
+      this.tableColumnShow = true
       this.columnVisible = false
       if (res.data.code === 200) {
-        this.$message.success('配置成功！')
-        this.columnVisible = false
-        this.getColumnsConfig()
+       this.$message.success('配置成功！')
+       this.columnVisible = false
+       // this.getColumnsConfig()
       }
       this.$refs.multipleTable.doLayout()
     },
@@ -2869,7 +2877,7 @@ export default {
           this.columnConfigList = resData
         }
       }
-      console.log(data, 'getColumnsConfig')
+      this.setColumnConfigShowList()
     },
     // 同步物流单号
     async syncLogistics() {
@@ -3149,6 +3157,31 @@ export default {
     getdata(evt) {
       console.log(evt.draggedContext.filterKey)
       //这里evt.draggedContext后续的内容根据具体的定义变量而定
+    },
+    setColumnConfigShowList(){
+      let list = [{},{}]
+      let list1 = []
+      this.tableColumnList.forEach(item=>{
+        let itemShow = this.columnConfigList.find(son=>item.name === son.column_header)
+        if (item.name === '订单编号'){
+          list[0] = Object.assign(item,itemShow)
+        }else if(item.name === '操作'){
+          list[1] = Object.assign(item,itemShow)
+        }else if(itemShow.sortNumber){
+          list1.push(Object.assign(item,itemShow))
+        }else {
+          list.push(Object.assign(item,itemShow))
+        }
+      })
+      for(let item of list1){
+        list.splice(list1.sortNumber,0,item)
+      }
+      list = [...list.map((item,index)=>{
+        return Object.assign(item,{sortNumber:index})
+      })]
+      this.columnConfigShowList = list
+      this.tableColumnList = list
+      this.tableColumnShow= true
     }
   }
 }
