@@ -68,11 +68,7 @@ constructor(mall, syncStatus, that, writeLog) {
     // }
   }
   //手动同步/自动同步
-  async start(mallNo, upLoadType, timeRange,mall, syncStatus, that, writeLog) {
-    this.mall = mall
-    this._this = that
-    this.syncStatus = syncStatus
-    this.writeLog = writeLog
+  async start(mallNo, upLoadType, timeRange) {
     // this.mall = mall
     // this.syncStatus = syncStatus
     this.timeRange = timeRange

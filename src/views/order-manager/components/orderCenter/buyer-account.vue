@@ -403,9 +403,8 @@ export default {
         for (let i = 0; i < syncStatus.length; i++) {
           //同步状态
           let statusObj = syncStatus[i]
-          // const orderService = new orderSync(mall, statusObj, this, this.$parent.$refs.Logs.writeLog)
-          const orderService = new orderSync()
-          await orderService.start(`${mI + 1}/${mallList.length}`, 'manual', 60,mall, statusObj, this, this.$parent.$refs.Logs.writeLog)
+          const orderService = new orderSync(mall, statusObj, this, this.$parent.$refs.Logs.writeLog)
+          await orderService.start(`${mI + 1}/${mallList.length}`, 'manual', 60)
         }
       }
       this.$parent.$refs.Logs.writeLog('订单同步已完成！！！', true)

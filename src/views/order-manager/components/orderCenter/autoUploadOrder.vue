@@ -17,9 +17,6 @@ export default {
       statusListFirst: syncStatusFirst,
       statusListSecond: statusListSecond,
       statusListThird: statusListThird,
-      orderService: new orderSync(),
-      surFaceService: new surFaceService(),
-      logisticeSyncService: new LogisticeSyncService(),
       buyerAccountList: [],
       logisiticeTime: 2,
       isAutoLogisitice: '2', //1：自动获取 2：不自动获取
@@ -94,8 +91,8 @@ export default {
         for (let i = 0; i < statusList.length; i++) {
           // 同步状态
           const statusObj = statusList[i]
-          // const orderService = new orderSync(mall, statusObj, this, this.$refs.Logs.writeLog)
-          await this.orderService.start(`${mI + 1}/${this.mallList.length}`, type, timeRange, mall, statusObj, this, this.$refs.Logs.writeLog)
+          const orderService = new orderSync(mall, statusObj, this, this.$refs.Logs.writeLog)
+          await orderService.start(`${mI + 1}/${this.mallList.length}`, type, timeRange)
         }
       }
     },
@@ -112,8 +109,8 @@ export default {
     async syncFaceData() {
       this.$refs.Logs.writeLog(`开始同步面单---------------------------`, true)
       window['BaseUtilBridgeService'].checkAutoScriptLog('开始同步面单、平台物流')
-      // const service = new surFaceService(this, this.$refs.Logs.writeLog)
-      this.surFaceService.autoStart(this, this.$refs.Logs.writeLog)
+      const service = new surFaceService(this, this.$refs.Logs.writeLog)
+      service.autoStart()
     },
     async getAccountList() {
       const { data } = await this.$api.getBuyerList()
@@ -124,7 +121,8 @@ export default {
     async logisticeSync() {
       window['BaseUtilBridgeService'].checkAutoScriptLog('开始自动同步采购物流')
       this.$refs.Logs.writeLog(`开始自动同步采购物流---------------------------`, true)
-      await this.logisticeSyncService.start(this, this.buyerAccountList, this.$refs.Logs.writeLog)
+      const logisiService = new LogisticeSyncService()
+      await logisiService.start(this, this.buyerAccountList, this.$refs.Logs.writeLog)
     },
   },
 }
