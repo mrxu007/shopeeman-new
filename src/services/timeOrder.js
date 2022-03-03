@@ -5,9 +5,9 @@ import commodityService from '../services/commodity-service'
 import applicationConfig from './application-config'
 // import JSEncrypt from 'jsencrypt'
 import shopeemanService from '../services/shopeeman-service'
-import surFaceService from './surfaceOrder'
 import {
-  site_mall
+  site_mall,
+  muidList
 } from '../views/order-manager/components/orderCenter/orderCenter'
 
 export default class {
@@ -431,17 +431,18 @@ export default class {
       const log_current_status = order && order.ordeTrackingHistory && order.ordeTrackingHistory.history && order.ordeTrackingHistory.history[0] && order.ordeTrackingHistory.history[0].new_status || ''
       const actual_shipping_cost = order && order.transactionHistoryDetail && order.transactionHistoryDetail.payment_info && order.transactionHistoryDetail.payment_info.shipping_subtotal && order.transactionHistoryDetail.payment_info.shipping_subtotal.shipping_fee_paid_by_shopee_on_your_behalf || 0
       const key = order.order_sn + '_' + order.status + '_' + order.status_ext + '_' + order.logistics_status + '_' + log_current_status + '_' + actual_shipping_cost
-      const res = await this.$api.checkOrderSnStatus({
-        orderSn: order.order_sn,
-        orderKey: key,
-        muid: this.muid
-      })
-      if (!res.data.orderKey) {
+      if (muidList.includes(this.muid)) {
         checkList.push(order)
+      } else {
+        const res = await this.$api.checkOrderSnStatus({
+          orderSn: order.order_sn,
+          orderKey: key,
+          muid: this.muid
+        })
+        if (!res.data.orderKey) {
+          checkList.push(order)
+        }
       }
-      // if (i === orderDetailListFilter.length - 1) {
-      //   return checkList
-      // }
     }
     return checkList
   }
