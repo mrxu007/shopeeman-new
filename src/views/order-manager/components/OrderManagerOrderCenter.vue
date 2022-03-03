@@ -332,7 +332,8 @@
                 <!-- <el-dropdown-item> <div class="dropdownItem" @click="goodsTop(scope.row)">面单打印</div></el-dropdown-item> -->
               </el-dropdown-menu>
             </el-dropdown>
-            <p v-else-if="item.showType === 4" style="display: flex; flex-direction: column">
+            <p v-else-if="item.showType === 4" style="display: flex; flex-direction: column;padding: 0;"
+               :style="{ color: item.rowColor && tableRowBound(item.rowColor,row,$index,item) || ''}">
               <span>{{item.rowShow && tableRowBound(item.rowShow, row, $index, item) || getTableRow(row,item.prop)}}</span>
               <el-link v-if="item.propLink" size="mini" type="danger" @click="item.rowClick && tableRowBound(item.rowClick,row,$index,item) || ''">
                 查看采购地址
@@ -341,10 +342,12 @@
                 {{ row.empty_info ? '重新映射SKU' : '加入收藏' }}
               </el-link>
             </p>
-            <span v-else-if="item.showType === 5"
-                  :style="{ color: changeOrderStatus(getTableRow(row, item.prop), 'color') }">
-              {{ tableRowBound(item.rowShow, row, $index, item) }}
-            </span>
+<!--            <span v-else-if="item.showType === 5" :style="{ color: changeOrderStatus(getTableRow(row, item.prop), 'color') }">-->
+<!--              {{ tableRowBound(item.rowShow, row, $index, item) }}-->
+<!--            </span>-->
+<!--            <p v-else-if="item.showType === 18" style="padding: 0" :style="{ color: changeShotStatus(getTableRow(row,item.prop), 'color') }">-->
+<!--              {{ changeShotStatus(getTableRow(row, item.prop)) }}-->
+<!--            </p>-->
             <el-button v-else-if="item.showType === 7" size="mini" type="primary"
                        @click="item.rowClick && tableRowBound(item.rowClick,row,$index,item) || ''">
               {{ item.buttonName }}
@@ -390,11 +393,7 @@
             <div v-else-if="item.showType === 17 && row.shot_order_info.shot_status == 1">
               <el-button type="primary" size="mini" @click="singlePurchase(row)">采购</el-button>
             </div>
-            <p v-else-if="item.showType === 18"
-               :style="{ color: changeShotStatus(getTableRow(row,item.prop), 'color') }">
-              {{ changeShotStatus(getTableRow(row, item.prop)) }}
-            </p>
-            <p v-else-if="item.showType === 19">
+            <p v-else-if="item.showType === 19" style="padding: 0">
               <i v-if="getTableRow(row,item.prop)" class="el-icon-document-copy copyStyle tableActive"
                  @click="copyItem(getTableRow(row,item.prop))"/>
               <span class="tableActive" @click="clickBuyOrder(row)">{{ getTableRow(row, item.prop) }}</span>
@@ -958,9 +957,10 @@ export default {
           name: '发货状态',
           width: '100',
           align: '',
+          rowColor: 'changeOrderStatus_color',
           rowShow: 'changeOrderStatus',
           prop: 'order_status',
-          showType: 5
+          showType: 4
         }, {
           key: 8,
           name: '订单时间信息',
@@ -1173,8 +1173,10 @@ export default {
           name: '采购状态',
           width: '120',
           align: '',
+          rowColor:'changeShotStatus_color',
+          rowShow: 'changeShotStatus',
           prop: 'shot_order_info.shot_status',
-          showType: 18
+          showType: 4
         }, {
           key: 37,
           name: '采购时间',
@@ -1467,6 +1469,12 @@ export default {
         this.getSHtrackPath(row)
       } else if(methodName === 'clickBuyOrder'){
         this.clickBuyOrder(row)
+      } else if(methodName === 'changeOrderStatus_color'){
+        return this.changeOrderStatus(this.getTableRow(row, item.prop), 'color')
+      } else if(methodName === 'changeShotStatus_color'){
+        return this.changeShotStatus(this.getTableRow(row,item.prop), 'color')
+      } else if(methodName === 'changeShotStatus'){
+        return this.changeShotStatus(this.getTableRow(row,item.prop))
       }
     },
     //去重
