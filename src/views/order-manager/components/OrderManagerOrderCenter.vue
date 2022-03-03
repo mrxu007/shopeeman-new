@@ -220,34 +220,42 @@
         <p v-else @click="isShow = true">展开<i class="el-icon-caret-bottom"/></p>
       </div>
     </header>
-    <div class="content" :style="{ height: isShow ? '520px' : '820px' }">
-      <p style="padding: 5px 10px 0;">
+    <div class="content" :style="{ height: isShow ? '480px' : '800px' }">
+      <p style="padding: 0 10px; color: red;">
         温馨提示：1、最终毛利 = 订单收入-采购金额-仓库发货金额（生成仓库发货金额才会去计算，会有汇率差）；含邮费毛利 =
         订单收入-采购价；2、调整列表顺序，请至【配置自定义列】按钮，拖动表头进行排列
       </p>
-      <u-table style="margin-top: -10px;" ref="multipleTable" v-loading="tableLoading" use-virtual :row-height="60" :border="false"
-               :data="tableData" tooltip-effect="dark" :height="isShow && (tableColumnShow && 410 || 411) || 730"
-               :cell-style="{ padding: '0px' }" :header-cell-style="{backgroundColor: '#f5f7fa'}" :resizable="true"
-               @selection-change="handleSelectionChange" v-if="tableColumnShow">
-        <u-table-column align="center" type="selection" width="50" fixed="left"/>
-        <u-table-column align="center" type="index" label="序号" width="50" fixed="left">
+      <u-table style="" ref="multipleTable" v-loading="tableLoading" use-virtual :row-height="60" :border="false"
+               :data="tableData" tooltip-effect="dark" :height="isShow && 410 || 730"
+               :cell-style="{ padding: '0' }" :header-cell-style="{backgroundColor: '#f5f7fa'}" :resizable="true"
+               @selection-change="handleSelectionChange">
+        <u-table-column align="center" type="selection" width="50" fixed="left" v-if="tableColumnShow"/>
+        <u-table-column align="center" type="index" label="序号" width="50" fixed="left" v-if="tableColumnShow">
           <template slot-scope="scope">{{ (currentPage - 1) * pageSize + scope.$index + 1 }}</template>
         </u-table-column>
-        <u-table-column v-for="item in tableColumnList" :key="item.key" v-if="showTableColumn(item.name)"
+        <u-table-column v-for="item in tableColumnList" :key="item.key" v-if="tableColumnShow && item.is_show"
                         :width="item.width || '80'" :align="item.align||'left'" :label="item.name"
                         :prop="item.prop || ''" :sortable="item.sortable || false" :fixed="item.fixed"
                         :show-overflow-tooltip="item.showOverflowTooltip || false" :resizable="true">
-          <template slot-scope="{row,$index}" >
-            <i v-if="item.iCopy" class="el-icon-document-copy copyStyle"
+          <template slot-scope="{row,$index}">
+            <i v-if="item.iCopy" class="el-icon-document-copy copyStyle" style="float: left;line-height: 20px;"
                @click="copyItem(getTableRow(row,item.iCopy))"/>
             <p v-if="item.iColor" :style="{ background: changeColorLabel(row[item.iColor]), height: '20px' }"/>
-            <span v-if="item.showType === 0"
-                  :class="item.rowClick && 'tableActive' || item.rowDblClick && 'copyStyle' || ''"
-                  @click="item.rowClick && tableRowBound(item.rowClick,row,$index,item) || ''"
-                  @dblclick="item.rowDblClick && tableRowBound(item.rowDblClick,row,$index,item) || ''">
+            <p v-if="item.showType === 0" style="padding: 0;display: flex;flex-flow: column;">
+              <span v-if="!item.propList" style="text-overflow: ellipsis; overflow: hidden;"
+                    :class="item.rowClick && 'tableActive' || item.rowDblClick && 'copyStyle' || ''"
+                    @click="item.rowClick && tableRowBound(item.rowClick,row,$index,item) || ''"
+                    @dblclick="item.rowDblClick && tableRowBound(item.rowDblClick,row,$index,item) || ''">
               {{ item.filter && item.filter(getTableRow(row, item.prop)) || getTableRow(row, item.prop) }}
-            </span>
-            <el-dropdown v-else-if="item.showType === 2" style="width: 100px; margin-left: 10px" trigger="click"
+              </span>
+              <span v-else v-for="(son,i) in item.propList" :key="i" style="text-overflow: ellipsis; overflow: hidden;"
+                    :class="son.rowClick && 'tableActive' || son.rowDblClick && 'copyStyle' || ''"
+                    @click="son.rowClick && tableRowBound(son.rowClick,row,$index,son) || ''"
+                    @dblclick="son.rowDblClick && tableRowBound(son.rowDblClick,row,$index,son) || ''">
+              {{ son.name }}：{{ son.filter && son.filter(getTableRow(row, son.prop)) || getTableRow(row, son.prop) }}
+              </span>
+            </p>
+            <el-dropdown v-else-if="item.showType === 2" style="width: 100px;" trigger="click"
                          size="mini">
               <el-button style="width: 100px;margin: 0 " size="mini" plain type="primary"> 操作<i
                   class="el-icon-arrow-down el-icon--right"/></el-button>
@@ -324,14 +332,22 @@
                 <!-- <el-dropdown-item> <div class="dropdownItem" @click="goodsTop(scope.row)">面单打印</div></el-dropdown-item> -->
               </el-dropdown-menu>
             </el-dropdown>
-            <span v-else-if="item.showType === 4">{{ tableRowBound(item.rowShow, row, $index, item) }}</span>
+            <p v-else-if="item.showType === 4" style="display: flex; flex-direction: column">
+              <span>{{item.rowShow && tableRowBound(item.rowShow, row, $index, item) || getTableRow(row,item.prop)}}</span>
+              <el-link v-if="item.propLink" size="mini" type="danger" @click="item.rowClick && tableRowBound(item.rowClick,row,$index,item) || ''">
+                查看采购地址
+              </el-link>
+              <el-link v-else-if="Number(getTableRow(row,item.prop)) === 1" size="mini" type="danger" @click="setSKURelation(row)">
+                {{ row.empty_info ? '重新映射SKU' : '加入收藏' }}
+              </el-link>
+            </p>
             <span v-else-if="item.showType === 5"
                   :style="{ color: changeOrderStatus(getTableRow(row, item.prop), 'color') }">
               {{ tableRowBound(item.rowShow, row, $index, item) }}
             </span>
-            <el-button v-else-if="item.showType === 7"
-                       @click="item.rowClick && tableRowBound(item.rowClick,row,$index,item) || ''"
-                       size="mini" type="primary">{{ item.buttonName }}
+            <el-button v-else-if="item.showType === 7" size="mini" type="primary"
+                       @click="item.rowClick && tableRowBound(item.rowClick,row,$index,item) || ''">
+              {{ item.buttonName }}
             </el-button>
             <div v-else-if="item.showType === 8">
               <el-button v-if="getTableRow(row,item.prop)" size="mini" type="primary" @click="cancelSecondSale(row)">
@@ -351,9 +367,11 @@
             </el-tooltip>
             <div v-else-if="item.showType === 11">
               <p style="line-height: 20px; padding: 0;color: #000;">
-                {{ getTableRow(row, item.prop) }}{{ item.filter(row.country) }}</p>
+                {{ getTableRow(row, item.prop) }}{{ item.filter && item.filter(row.country) }}
+              </p>
               <p style="line-height: 20px; padding: 0;color: #000;">
-                {{ changeMoney(getTableRow(row, item.prop), row.country) }}￥</p>
+                {{ changeMoney(getTableRow(row, item.prop), row.country) }}￥
+              </p>
             </div>
             <el-dropdown v-else-if="item.showType === 12"
                          @command="(val) => {soSameItem(val, row)}">
@@ -364,13 +382,6 @@
                 <el-dropdown-item command="1688">1688</el-dropdown-item>
               </el-dropdown-menu>
             </el-dropdown>
-            <div v-else-if="item.showType === 14" style="display: flex; flex-direction: column">
-              <span>{{ row.goods_info.variation_name }}</span>
-              <el-link v-if="row.goods_info && Number(row.goods_info.ori_platform_id) === 1" size="mini"
-                       type="danger" @click="setSKURelation(row)">
-                {{ row.empty_info ? '重新映射SKU' : '加入收藏' }}
-              </el-link>
-            </div>
             <div v-else-if="item.showType === 16">
               <p style="line-height: 20px; padding: 0;color: #000;">
                 {{ changeMoney(getTableRow(row, item.prop), row.country, 'toA') }}{{ item.filter(row.country) }}</p>
@@ -388,15 +399,15 @@
                  @click="copyItem(getTableRow(row,item.prop))"/>
               <span class="tableActive" @click="clickBuyOrder(row)">{{ getTableRow(row, item.prop) }}</span>
             </p>
-            <div v-else-if="item.showType ===23">
-              <div v-show="!(row.id === activeRemarkID) || row.remark == ''"
-                   @click.stop="editRemark($index, row.id)" style="cursor: pointer; min-width: 20px">
-                <p @dblclick="copyItem(row.remark)" style="color: #000">{{ row.remark }}</p>
+            <div v-else-if="item.showType === 23">
+              <div v-if="!(row.id === activeRemarkID) && row.remark == ''" @click.stop="editRemark($index, row.id)"
+                   style="cursor: pointer; min-width: 20px">
+                <p @dblclick="copyItem(row.remark)" class="remark_p">{{ row.remark }}</p>
               </div>
               <el-input v-if="row.id === activeRemarkID" v-model="orderRemark" size="mini"
                         @blur="changeRemark(row.id, $index)"/>
             </div>
-            <div v-else-if="item.showType ===24">
+            <div v-else-if="item.showType === 24">
               <div v-show="!(row.id === activeRemarkIDNode)" style="cursor: pointer"
                    @click="editRemarkNode($index, row.id)">
                 <el-input v-model="row.note" disabled size="mini"/>
@@ -421,13 +432,15 @@
       </div>
     </div>
     <Logs ref="Logs" v-model="showConsole" clear/>
-    <el-dialog v-if="columnVisible" title="配置订单列表显示列" :visible.sync="columnVisible" width="800px" top="5vh"
-               :close-on-click-modal="false" @close="closeDialog">
+    <el-dialog v-if="columnVisible" title="配置订单列表显示列" :visible.sync="columnVisible"
+               width="800px" top="5vh" :close-on-click-modal="false">
       <div class="column-style">
-        <draggable @update="datadragEnd" filter=".forbid" v-model="columnConfigShowList" group="columnConfig">
+        <draggable @update="datadragEnd" filter=".forbid" handle=".mover" v-model="columnConfigShowList"
+                   group="columnConfig">
           <transition-group>
-            <div :class="index < 2 &&'forbid column-item' || 'column-item'" v-for="(item, index) in columnConfigShowList" :key="index" >
-              <span>{{ item.column_header }}</span>
+            <div :class="index < 2 &&'forbid column-item' || 'column-item'"
+                 v-for="(item, index) in columnConfigShowList" :key="index">
+              <span class="mover">{{ item.column_header }}</span>
               <el-switch v-model="item.is_show" style="display: block" active-color="#13ce66"
                          inactive-color="#a9a9a9" :active-value="1" :inactive-value="-1"/>
             </div>
@@ -806,8 +819,8 @@ export default {
           { title: '批量标记海外商品', key: 10, type: 'primary' },
           { title: '批量添加采购信息', key: 11, type: 'primary', click: 'batchAddBuyInfo' },
           { title: '批量订单发货', key: 12, type: 'primary', click: 'ordersShipmentShow' },
-          { title: '配置自定义列', type: 'primary', key: 5 },
-        ],
+          { title: '配置自定义列', type: 'primary', key: 5 }
+        ]
       },
       selectMallList: [], // 店铺选择
       multipleSelection: [],
@@ -894,24 +907,24 @@ export default {
         }, {
           key: 2,
           name: '操作',
-          width: '140',
+          width: '125',
           fixed: 'left',
           align: 'center',
           showType: 2
         }, {
           key: 3,
-          name: '站点',
-          width: '80',
+          width: '120',
+          name: '店铺所属信息',
           align: '',
-          filter: $filter.chineseSite,
-          prop: 'country',
-          showType: 0
-        }, {
-          key: 4,
-          name: '店铺分组',
-          width: '80',
-          align: '',
-          prop: 'group_name',
+          propList: [{
+            name: '站点',
+            filter: $filter.chineseSite,
+            prop: 'country'
+          }, {
+            name: '分组',
+            width: '80',
+            prop: 'group_name'
+          }],
           showOverflowTooltip: true,
           showType: 0
         }, {
@@ -941,13 +954,6 @@ export default {
           rowShow: 'changeColorLabel',
           showType: 4
         }, {
-          key: 8,
-          name: '订单创建时间',
-          width: '140',
-          align: '',
-          prop: 'created_time',
-          showType: 0
-        }, {
           key: 9,
           name: '发货状态',
           width: '100',
@@ -956,30 +962,31 @@ export default {
           prop: 'order_status',
           showType: 5
         }, {
-          key: 10,
-          name: '发货时间',
-          width: '140',
+          key: 8,
+          name: '订单时间信息',
+          width: '180',
           align: '',
-          prop: 'shopee_delivery_time',
+          prop: 'created_time',
+          sortable: true,
+          propList: [{
+            name: '创建',
+            prop: 'created_time'
+          }, {
+            name: '发货',
+            prop: 'shopee_delivery_time'
+          }],
           showType: 0
         }, {
           key: 11,
           name: '采购类型',
           width: '120',
-          align: '',
+          align: 'center',
           rowShow: 'changeTypeName',
           prop: 'goods_info.ori_platform_id',
+          propLink: 'goods_info.ori_url',
+          rowClick: 'openUrl',
           sortable: true,
           showType: 4
-        }, {
-          key: 12,
-          name: '查看采购地址',
-          width: '130',
-          prop: 'goods_info.ori_url',
-          align: '',
-          rowClick: 'openUrl',
-          buttonName: '查看采购地址',
-          showType: 7
         }, {
           key: 13,
           name: '是否可二次销售',
@@ -1023,17 +1030,16 @@ export default {
           showType: 11
         }, {
           key: 18,
-          name: '商品数量',
-          width: '80',
-          align: '',
+          name: '商品信息',
+          width: '140',
+          propList: [{
+            name: '数量',
+            prop: 'goods_info.goods_count',
+          },{
+            name: '标题',
+            prop: 'goods_info.goods_name',
+          }],
           prop: 'goods_info.goods_count',
-          showType: 0
-        }, {
-          key: 19,
-          name: '商品标题',
-          width: '120',
-          align: '',
-          prop: 'goods_info.goods_name',
           showOverflowTooltip: true,
           showType: 0
         }, {
@@ -1063,8 +1069,9 @@ export default {
           name: '商品规格',
           width: '100',
           align: 'center',
+          prop: 'goods_info.ori_platform_id',
           showOverflowTooltip: true,
-          showType: 14
+          showType: 4
         }, {
           key: 24,
           name: '商品货号',
@@ -1181,6 +1188,7 @@ export default {
           name: '采购订单号',
           width: '140',
           align: '',
+          rowClick: 'clickBuyOrder',
           prop: 'shot_order_info.shot_order_sn',
           showOverflowTooltip: true,
           showType: 19
@@ -1202,18 +1210,18 @@ export default {
           showType: 4
         }, {
           key: 41,
-          name: '采购物流公司',
-          width: '120',
+          name: '采购物流信息',
+          width: '140',
           align: '',
           prop: 'shot_order_info.shot_logistics_company',
+          propList: [{
+            name: '公司',
+            prop: 'shot_order_info.shot_logistics_company'
+          }, {
+            name: '单号',
+            prop: 'shot_order_info.shot_tracking_number'
+          }],
           sortable: true,
-          showType: 0
-        }, {
-          key: 42,
-          name: '采购物流单号',
-          width: '120',
-          align: '',
-          prop: 'shot_order_info.shot_tracking_number',
           showType: 0
         }, {
           key: 43,
@@ -1232,34 +1240,32 @@ export default {
           showType: 0
         }, {
           key: 45,
-          name: '运输方式',
-          width: '80',
+          name: '货物运输及类型',
+          width: '120',
           align: '',
-          filter: getTransportType,
-          prop: 'transport_type',
-          showType: 0
-        }, {
-          key: 46,
-          name: '货物类型',
-          width: '80',
-          align: '',
-          filter: changePackageType,
-          prop: 'package_type',
+          propList: [{
+            name: '运输方式',
+            filter: getTransportType,
+            prop: 'transport_type',
+          },{
+            name: '货物类型',
+            filter: changePackageType,
+            prop: 'package_type',
+          }],
           showType: 0
         }, {
           key: 47,
-          name: '虾皮物流',
-          width: '100',
+          name: '虾皮物流信息',
+          width: '170',
           align: '',
+          propList: [{
+            name: '公司',
+            prop: 'logistics_name'
+          }, {
+            name: '单号',
+            prop: 'tracking_no'
+          }],
           prop: 'logistics_name',
-          showOverflowTooltip: true,
-          showType: 0
-        }, {
-          key: 48,
-          name: '虾皮物流单号',
-          width: '140',
-          align: '',
-          prop: 'tracking_no',
           showOverflowTooltip: true,
           showType: 0
         }, {
@@ -1289,17 +1295,15 @@ export default {
           showType: 0
         }, {
           key: 52,
-          name: '入库时间',
-          width: '140',
-          align: '',
-          prop: 'storage_time',
-          sortable: true,
-          showType: 0
-        }, {
-          key: 53,
-          name: '出库时间',
-          width: '140',
-          align: '',
+          name: '仓库时间信息',
+          width: '180',
+          propList: [{
+            name: '入库',
+            prop: 'storage_time',
+          },{
+            name: '出库',
+            prop: 'outbound_time',
+          }],
           prop: 'outbound_time',
           sortable: true,
           showType: 0
@@ -1308,7 +1312,6 @@ export default {
           name: '本地备注',
           width: '120',
           align: '',
-          prop: 'mall_alias_name',
           showOverflowTooltip: true,
           sortable: true,
           showType: 23
@@ -1317,7 +1320,6 @@ export default {
           name: 'shopee备注',
           width: '120',
           align: '',
-          prop: 'mall_alias_name',
           showOverflowTooltip: true,
           showType: 24
         }, {
@@ -1329,12 +1331,19 @@ export default {
           showType: 0
         }, {
           key: 57,
-          name: '买家姓名',
-          width: '120',
+          name: '买家信息',
+          width: '150',
           align: '',
-          prop: 'name',
+          propList: [{
+            prop: 'name',
+            name: '姓名',
+            rowDblClick: 'copyItem'
+          }, {
+            name: '手机',
+            prop: 'phone',
+            rowDblClick: 'copyItem'
+          }],
           showOverflowTooltip: true,
-          rowDblClick: 'copyItem',
           showType: 0
         }, {
           key: 58,
@@ -1343,14 +1352,6 @@ export default {
           align: '',
           prop: 'receiver_info.address',
           showOverflowTooltip: true,
-          rowDblClick: 'copyItem',
-          showType: 0
-        }, {
-          key: 59,
-          name: '手机号',
-          width: '120',
-          align: '',
-          prop: 'phone',
           rowDblClick: 'copyItem',
           showType: 0
         }, {
@@ -1381,12 +1382,14 @@ export default {
       columnConfigShowList: []
     }
   },
-  watch:{
-    columnConfigList:{
-      handler(val) {
-        console.log(val)
-      },
-      deep: true
+  watch: {
+    columnVisible(val) {
+      if (val) {
+        this.columnConfigShowList = []
+        this.tableColumnList.forEach(item=>{
+          this.columnConfigShowList.push({ ...item })
+        })
+      }
     }
   },
   computed: {
@@ -1462,6 +1465,8 @@ export default {
         return this.getTableRow(row, item.prop) == 1 && '是' || '否'
       } else if (methodName === 'getSHtrackPath') {
         this.getSHtrackPath(row)
+      } else if(methodName === 'clickBuyOrder'){
+        this.clickBuyOrder(row)
       }
     },
     //去重
@@ -2817,33 +2822,16 @@ export default {
       this.isAbroadGood = 0
       this.abroadVisible = false
     },
-    // 表头显示处理
-    showTableColumn(name) {
-      const hasName = this.columnConfigShowList.find((item) => item.column_header == name)
-      if (!hasName) {
-        return true
-      }
-      if (hasName.is_show === 1) {
-        return true
-      } else {
-        return false
-      }
-    },
     // 显示、隐藏所有列
     checkAllColumn(val) {
-      this.columnConfigShowList.forEach((item) => {
-        item.is_show = val
-      })
+      this.columnConfigShowList = [...this.columnConfigShowList.map((item) => {
+        return Object.assign(item, { is_show: val })
+      })]
     },
     // 上传配置列
     async uploadColumn() {
       this.tableColumnShow = false
-      let list = [...this.columnConfigShowList.map((item,index)=>{
-        return Object.assign(item,{sortNumber:index})
-      })]
-      this.columnConfigShowList = list
-      this.columnConfigList = list
-      this.tableColumnList = list
+      this.tableColumnList = this.columnConfigShowList
       const arr = []
       this.columnConfigShowList.forEach((item) => {
         const par = {
@@ -2860,13 +2848,13 @@ export default {
       console.log(params)
       const res = await this.$api.uploadColumnsConfig(params)
       this.tableColumnShow = true
+      this.closeDialog()
       this.columnVisible = false
       if (res.data.code === 200) {
-       this.$message.success('配置成功！')
-       this.columnVisible = false
-       // this.getColumnsConfig()
+        this.$message.success('配置成功！')
+        this.columnVisible = false
+        // this.getColumnsConfig()
       }
-      this.$refs.multipleTable.doLayout()
     },
     // 获取自定义配置列
     async getColumnsConfig() {
@@ -3146,42 +3134,37 @@ export default {
     },
     datadragEnd(evt) {
       evt.preventDefault()
-      console.log('拖动前的索引 :' + evt.oldIndex)
-      console.log('拖动后的索引 :' + evt.newIndex)
       let checkMenusList = []
-      this.columnConfigList.map((item, index) => {
-        checkMenusList.push(Object.assign(item,{sortNum: index + 1 + ''}))
+      this.columnConfigShowList.map((item, index) => {
+        checkMenusList.push(Object.assign(item, { sortNumber: index }))
         return checkMenusList
       })
+      console.log('columnConfigShowList', this.columnConfigShowList)
     },
-    getdata(evt) {
-      console.log(evt.draggedContext.filterKey)
-      //这里evt.draggedContext后续的内容根据具体的定义变量而定
-    },
-    setColumnConfigShowList(){
-      let list = [{},{}]
+    setColumnConfigShowList() {
+      let list = [{}, {}]
       let list1 = []
-      this.tableColumnList.forEach(item=>{
-        let itemShow = this.columnConfigList.find(son=>item.name === son.column_header)
-        if (item.name === '订单编号'){
-          list[0] = Object.assign(item,itemShow)
-        }else if(item.name === '操作'){
-          list[1] = Object.assign(item,itemShow)
-        }else if(itemShow.sortNumber){
-          list1.push(Object.assign(item,itemShow))
-        }else {
-          list.push(Object.assign(item,itemShow))
+      this.tableColumnList.forEach(item => {
+        let itemShow = this.columnConfigList.find(son => item.name === son.column_header)
+        if (item.name === '订单编号') {
+          list[0] = Object.assign(item, itemShow)
+        } else if (item.name === '操作') {
+          list[1] = Object.assign(item, itemShow)
+        } else if (itemShow && itemShow.sortNumber) {
+          list1.push(Object.assign(item, itemShow,{is_show: 1}))
+        } else {
+          list.push(Object.assign(item, itemShow))
         }
       })
-      for(let item of list1){
-        list.splice(list1.sortNumber,0,item)
+      for (let item of list1) {
+        list.splice(list1.sortNumber, 0, item)
       }
-      list = [...list.map((item,index)=>{
-        return Object.assign(item,{sortNumber:index})
+      list = [...list.map((item, index) => {
+        return Object.assign(item, { sortNumber: index ,
+          column_header:item.column_header || item.name})
       })]
-      this.columnConfigShowList = list
       this.tableColumnList = list
-      this.tableColumnShow= true
+      this.tableColumnShow = true
     }
   }
 }
@@ -3224,7 +3207,7 @@ export default {
 
 .content {
   p {
-    color: red;
+    //color: red;
     // height: 26px;
     padding: 10px;
   }
@@ -3385,6 +3368,7 @@ export default {
       border: 1px solid #dcdcdc;
       margin-right: 5px;
     }
+
     user-select: none;
     display: flex;
     margin: 10px;
@@ -3393,11 +3377,13 @@ export default {
     float: left;
     cursor: all-scroll;
   }
-  .forbid{
+
+  .forbid {
     cursor: initial;
-  span{
-    background: #ddd;
-  }
+
+    span {
+      background: #ddd;
+    }
   }
 }
 
@@ -3546,5 +3532,15 @@ export default {
   .el-range-input {
     width: 70px !important;
   }
+}
+
+.remark_p {
+  cursor: pointer;
+  min-width: 20px;
+  background-color: #F5F7FA;
+  border: 1px #E4E7ED solid;
+  color: #C0C4CC;
+  border-radius: 4px;
+  height: 28px;
 }
 </style>
