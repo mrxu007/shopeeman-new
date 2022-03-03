@@ -51,12 +51,9 @@ export default class logisticeSyncService {
     const accountMapOrderId = new Map()
     for (let i = 0; i < orders.length; i++) {
       const item = orders[i]
-      // console.log(item,"item")
       const buyer_name = item.shot_order_info.buy_account_info ? item.shot_order_info.buy_account_info.name : ''
       const type = item.shot_order_info.buy_account_info ? item.shot_order_info.buy_account_info.type : ''
       const shot_order_sn = item.shot_order_sn || item.order_sn
-      // const buyer_name = "tt939242551"
-      // console.log(buyer_name,"buyer_name")
       if (!buyer_name) {
         this.writeLog(`【${i + 1}/${orders.length}】订单【${shot_order_sn}】对应的买手号为空，请检查！`, false)
         continue
@@ -93,7 +90,6 @@ export default class logisticeSyncService {
   async getOrdersFromServer() {
     let orderList = []
     const res = await this.getOrdersFromServerCycle()
-    console.log(res)
     if (res.code === 200) {
       orderList = res.data.orderList
     } else {
@@ -104,7 +100,6 @@ export default class logisticeSyncService {
   async getOrdersFromServerCycle() {
     try {
       const res = await this.$api.getOriginalTrackingNumberEmpty()
-      console.log(res, 'getOrdersFromServerCycle')
       if (res.data.code === 200) {
         const data = {
           total: res.data.data.length,
@@ -212,30 +207,24 @@ export default class logisticeSyncService {
    * 买手号物流同步聚合接口
    */
   async syncLogisticAggregation(type) {
-    // console.log(type, "syncLogisticAggregation", this.ordersContainer)
     const orders = this.ordersContainer
     const ordersLen = orders.length
     const buyerAccount = this.changeAccountParams(this.buyerAccountContainer)
     for (let index = 0; index < ordersLen; index++) {
       const item = orders[index]
-      // console.log(item, "56656")
       const shot_order_sn = item.shot_order_info.shot_order_sn || ''
-      // const shot_order_sn = '2229427695828657966' //tb
-      // const shot_order_sn = '2161702586001984947' //1688
       if (!shot_order_sn) {
         this.writeLog(`(${type})订单【${item.order_sn}】获取上家物流失败,订单无采购单号`, false)
         continue
       }
       try {
-        // console.log(buyerAccount.shotOrderPlatform, shot_order_sn, JSON.stringify(buyerAccount), "=========================")
         const logisticInfo = await this.$baseUtilService.getOriginLogistics(buyerAccount.shotOrderPlatform, shot_order_sn, buyerAccount)
-        // console.log(logisticInfo)
         if (logisticInfo.Code !== 200) {
           this.writeLog(`(${type})订单【${shot_order_sn}】获取上家物流失败, ${logisticInfo.Msg}(买手号: ${buyerAccount.UserName})`, false)
           continue
         }
         if (!logisticInfo.TrackingNumber) {
-          this.writeLog(`(${type})订单【${shot_order_sn}】未发货`, false, '#ff9900')
+          this.writeLog(`(${type})订单【${shot_order_sn}】未发货，(买手号: ${buyerAccount.UserName})`, false, '#ff9900')
           continue
         }
         const tbshippingName = this.changetbOrderName(logisticInfo.TrackingName)
@@ -247,7 +236,6 @@ export default class logisticeSyncService {
           trackingNumberCompany: logisticInfo.TrackingName // 快递物流公司
           // transitList: JSON.parse(logisticInfo.LogisticsRoute) || [], //物流轨迹
         }
-        // JSON.parse(res.replace(/^\"|\"$/g, ''))
         const res = await this.saveOrderLogistics(params)
         if (res.code !== 200) {
           this.writeLog(`(${type})订单【${shot_order_sn}】上报物流失败原因: ${res.code}: ${res.data}`, false)
