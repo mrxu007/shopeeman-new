@@ -220,7 +220,7 @@
         <p v-else @click="isShow = true">展开<i class="el-icon-caret-bottom"/></p>
       </div>
     </header>
-    <div class="content" :style="{ height: isShow ? '480px' : '800px' }">
+    <div class="content" :style="{ height: isShow ? 'calc(100vh - 360px)' : 'calc(100vh - 50px)' }">
       <p style="padding: 0 10px; color: red;">
         温馨提示：1、最终毛利 = 订单收入-采购金额-仓库发货金额（生成仓库发货金额才会去计算，会有汇率差）；含邮费毛利 =
         订单收入-采购价；2、调整列表顺序，请至【配置自定义列】按钮，拖动表头进行排列
