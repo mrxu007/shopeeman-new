@@ -292,14 +292,16 @@
         <p v-else @click="isShow = true">展开<i class="el-icon-caret-bottom" /></p>
       </div>
     </header>
-    <div class="content" :style="{ height: isShow ? '520px' : '840px' }">
-      <p>
+    <div class="content" :style="{ height: isShow ? '520px' : '820px' }">
+      <p style="padding: 5px 10px 0;">
         温馨提示：1、最终毛利 = 订单收入-采购金额-仓库发货金额（生成仓库发货金额才会去计算，会有汇率差）；含邮费毛利 =
         订单收入-采购价；2、调整列表顺序，请至【配置自定义列】按钮，拖动表头进行排列
       </p>
       <u-table
+        v-if="tableColumnShow"
         ref="multipleTable"
         v-loading="tableLoading"
+        style="margin-top: -10px;"
         use-virtual
         :row-height="60"
         :border="false"
@@ -567,9 +569,9 @@
       @close="closeDialog"
     >
       <div class="column-style">
-        <draggable v-model="columnConfigList" filter=".forbid" group="columnConfig" @update="datadragEnd">
+        <draggable v-model="columnConfigShowList" filter=".forbid" group="columnConfig" @update="datadragEnd">
           <transition-group>
-            <div v-for="(item, index) in columnConfigList" :key="index" :class="index < 2 &&'forbid column-item' || 'column-item'">
+            <div v-for="(item, index) in columnConfigShowList" :key="index" :class="index < 2 &&'forbid column-item' || 'column-item'">
               <span>{{ item.column_header }}</span>
               <el-switch
                 v-model="item.is_show"
@@ -1680,7 +1682,8 @@ export default {
           align: '',
           prop: 'goods_info.is_overseas_goods',
           showType: 4
-        }]
+        }],
+      columnConfigShowList: []
     }
   },
   computed: {
@@ -1693,6 +1696,14 @@ export default {
         }
         return this.categoryInfo[`category_${id}`] || ''
       }
+    }
+  },
+  watch: {
+    columnConfigList: {
+      handler(val) {
+        console.log(val)
+      },
+      deep: true
     }
   },
   watch: {
@@ -3121,7 +3132,7 @@ export default {
     },
     // 表头显示处理
     showTableColumn(name) {
-      const hasName = this.columnConfigList.find((item) => item.column_header == name)
+      const hasName = this.columnConfigShowList.find((item) => item.column_header == name)
       if (!hasName) {
         return true
       }
@@ -3133,20 +3144,25 @@ export default {
     },
     // 显示、隐藏所有列
     checkAllColumn(val) {
-      this.tableColumnShow = !this.tableColumnShow
-      this.columnConfigList.forEach((item) => {
+      this.columnConfigShowList.forEach((item) => {
         item.is_show = val
       })
     },
     // 上传配置列
     async uploadColumn() {
-      this.tableColumnShow = !this.tableColumnShow
+      this.tableColumnShow = false
+      const list = [...this.columnConfigShowList.map((item, index) => {
+        return Object.assign(item, { sortNumber: index })
+      })]
+      this.columnConfigShowList = list
+      this.columnConfigList = list
+      this.tableColumnList = list
       const arr = []
-      this.columnConfigList.forEach((item) => {
+      this.columnConfigShowList.forEach((item) => {
         const par = {
           columnHeader: item.column_header,
-          isShow: item.is_show
-          // firstColumnIsCheckbox: item.first_column_is_checkbox,
+          isShow: item.is_show,
+          sortNumber: item.sortNumber
         }
         arr.push(par)
       })
@@ -3154,12 +3170,14 @@ export default {
         // columnId: 1, //  1 => '订单列表',         2 => '售后列表',
         lists: arr
       }
+      console.log(params)
       const res = await this.$api.uploadColumnsConfig(params)
+      this.tableColumnShow = true
       this.columnVisible = false
       if (res.data.code === 200) {
         this.$message.success('配置成功！')
         this.columnVisible = false
-        this.getColumnsConfig()
+        // this.getColumnsConfig()
       }
       this.$refs.multipleTable.doLayout()
     },
@@ -3172,7 +3190,7 @@ export default {
           this.columnConfigList = resData
         }
       }
-      console.log(data, 'getColumnsConfig')
+      this.setColumnConfigShowList()
     },
     // 同步物流单号
     async syncLogistics() {
@@ -3452,6 +3470,31 @@ export default {
     getdata(evt) {
       console.log(evt.draggedContext.filterKey)
       // 这里evt.draggedContext后续的内容根据具体的定义变量而定
+    },
+    setColumnConfigShowList() {
+      let list = [{}, {}]
+      const list1 = []
+      this.tableColumnList.forEach(item => {
+        const itemShow = this.columnConfigList.find(son => item.name === son.column_header)
+        if (item.name === '订单编号') {
+          list[0] = Object.assign(item, itemShow)
+        } else if (item.name === '操作') {
+          list[1] = Object.assign(item, itemShow)
+        } else if (itemShow.sortNumber) {
+          list1.push(Object.assign(item, itemShow))
+        } else {
+          list.push(Object.assign(item, itemShow))
+        }
+      })
+      for (const item of list1) {
+        list.splice(list1.sortNumber, 0, item)
+      }
+      list = [...list.map((item, index) => {
+        return Object.assign(item, { sortNumber: index })
+      })]
+      this.columnConfigShowList = list
+      this.tableColumnList = list
+      this.tableColumnShow = true
     }
   }
 }
