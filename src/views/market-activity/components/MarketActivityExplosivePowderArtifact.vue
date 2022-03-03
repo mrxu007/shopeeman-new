@@ -213,6 +213,7 @@ export default {
     },
     async test() {
       const params = {}
+      // 获取店铺粉丝
       params['country'] = 'MY'
       params['mallId'] = '268048262'
 
@@ -257,7 +258,7 @@ export default {
       }
     },
     // 添加关注店铺--店铺条件过滤
-    filterList(goodsMalllist) {
+    async  filterList(goodsMalllist) {
       let getList = []
       const map = new Map()
       goodsMalllist.forEach(el => { // 去重
@@ -266,7 +267,6 @@ export default {
         }
       })
       getList = [...map.values()]
-      console.log('266', 'liked_count,rating_star,totalRate')
       const getList2 = getList.filter(el => { // 条件过滤
         let flag = null
         const totalRate = el.item_basic.item_rating.rating_count.reduce(function(prev, curr, idx, arr) {
@@ -274,7 +274,8 @@ export default {
         }) // 评论总数求和
         if (Number(el.item_basic.liked_count) >= Number(this.minLike) && Number(el.item_basic.liked_count) <= Number(this.maxLike) && // 点赞
              (el.item_basic.item_rating.rating_star).toFixed(2) >= Number(this.minScore) && el.item_basic.item_rating.rating_star.toFixed(2) <= Number(this.maxScore) && // 评分
-            totalRate >= Number(this.minComment) && totalRate <= Number(this.maxComment) // 评论
+            totalRate >= Number(this.minComment) && totalRate <= Number(this.maxComment) && // 评论
+            el.item_basic.stock >= Number(this.userInfo.auto_attention_set.ProductMax) // 库存
         ) {
           flag = true
         } else {
@@ -305,9 +306,10 @@ export default {
           params['mallId'] = this.tableList[0].platform_mall_id // [country mallid 不影响搜索结果，去表格第一个]
           params['newest'] = 60 * i
           const goodsMalllist = await this.searchMallInstance(params)
+          console.log('310', goodsMalllist)
           if (goodsMalllist.length) {
             // 店铺条件过滤
-            const fansMallsList = this.filterList(goodsMalllist)
+            const fansMallsList = await this.filterList(goodsMalllist)
             console.log('299', fansMallsList)
             if (fansMallsList.length) {
               AllgoodsMalllist.push(...fansMallsList)
@@ -337,6 +339,10 @@ export default {
     },
     // 添加关注店铺--目标店铺--赋值给mallIDinfo
     addTargetMall(val) {
+      if (!this.sel_mallSearchList.length) {
+        this.$message.warning('请选择店铺')
+        return
+      }
       const mallIDList = []
       this.sel_mallSearchList.forEach(el => {
         mallIDList.push(el.shopid)
@@ -345,40 +351,129 @@ export default {
       this.mallIDinfo = mallIDList.toString()
       this.dialog_mallSearch = false
     },
-    // 开始关注
+    // 开始关注---根据店铺获取粉丝或者用户信息
     async startCancer() {
-      this.$refs.Logs.writeLog(`开始关注店铺......`, true)
-      await batchOperation(this.tableList, this.RunAttentionUsers)
-      this.$refs.Logs.writeLog(`店铺关注结束`, true)
+      if (!this.mallIDinfo) {
+        this.$message.warning('请先获取关注店铺')
+        return
+      }
+      this.$refs.Logs.writeLog(`数据正在处理......`, true)
+      const mallIDlist = this.mallIDinfo.split(',')
+      await batchOperation(mallIDlist, this.getFllowerInfo)
+      this.$refs.Logs.writeLog(`数据处理结束`, true)
     },
-    // 开始关注-根据userinfo配置关注用户
-    RunAttentionUsers(item, count = { count: 1 }) {
+    // 开始关注---筛选粉丝
+    async getFllowerInfo(followermallID, count = { count: 1 }) {
       try {
-        let shopDatas = []
-        if (this.userInfo.auto_attention_set.FollowType === 0) { // 关注店铺粉丝
-          item['offset'] = 0
-          shopDatas = this.GetShopLikes(item) // 获取粉丝信息
-        } else {
-          shopDatas = this.GetShopComment(item) // 店铺评价用户
+        for (const mall of this.tableList) { // 需要涨粉的店铺
+          this.$refs.Logs.writeLog(`【${mall.mall_alias_name || mall.platform_mall_name}】开始处理......`, true)
+          // 店铺登录检测------
+          const params = {}
+          params['country'] = mall.country
+          params['mallId'] = mall.platform_mall_id
+          const mallName = mall.mall_alias_name || mall.platform_mall_name
+          // 获取该店铺的粉丝
+          let shopDatas = [] //
+          if (this.userInfo.auto_attention_set.FollowType === '0') { // 关注店铺粉丝
+            // 开始关注
+            params['offset'] = 0
+            const ALLshopDatas = await this.GetShopLikes(params) // 获取粉丝信息
+            shopDatas = await this.filterShopDatas(ALLshopDatas, mall.country, mall.platform_mall_id) // 筛选活跃粉丝
+            this.$set(mall, 'following', shopDatas.length)
+            const sucFollow = this.runAttention(shopDatas, mall.country, mall.platform_mall_id, mallName) // 开始关注
+            this.$set(mall, 'newFollow', sucFollow)
+            this.$set(mall, 'state', `成功关注${sucFollow}个用户`)
+            if (Number(this.userInfo.auto_attention_set.FollowNumber)) { // 关注数量不等于0
+              while (shopDatas.length < this.userInfo.auto_attention_set.FollowNumber) {
+                return
+                params['offset'] += 20
+                const ALLshopDatas = await this.GetShopLikes(params) // 获取粉丝信息
+                shopDatas = await this.filterShopDatas(ALLshopDatas, mall.country, mall.platform_mall_id) // 筛选活跃粉丝
+                this.$set(mall, 'following', shopDatas.length)
+                const sucFollow = this.runAttention(shopDatas, mall.country, mall.platform_mall_id, mallName) // 开始关注
+                this.$set(mall, 'newFollow', sucFollow)
+                this.$set(mall, 'state', `成功关注${sucFollow}个用户`)
+              }
+            } else { // 关注数量等于0
+
+            }
+          } else {
+            shopDatas = await this.GetShopComment(params) // 店铺评价用户
+            // 筛选订单评价
+          }
+          if (!shopDatas.length) {
+            this.$refs.Logs.writeLog(`${mall.mall_alias_name || mall.platform_mall_name}无粉丝`, true)
+          }
         }
       } catch (e) {
-
+        this.$refs.Logs.writeLog(`用户信息获取失败-line373，${e}`, false)
       } finally {
         --count.count
       }
     },
-
+    //
+    async runAttention(mallList, country, masterMallID, mallName) {
+      let err = 0
+      for (const mall of mallList) {
+        const param = {}
+        param['country'] = country
+        param['mallId'] = masterMallID
+        param['UserId'] = mall.UserId
+        const res = await this.MallAPIInstance.buyerFollow(param)
+        if (res.code !== 200) {
+          this.$refs.Logs.writeLog(`【${mallName}】关注${mall.UserId}失败`, false)
+          err++
+        }
+      }
+      this.$refs.Logs.writeLog(`【${mallName}】成功关注${mallList.length - err}个用户`, true)
+      return mallList.length - err
+    },
+    // 筛选活跃粉丝()
+    async filterShopDatas(shopDatas, country, platform_mall_id) {
+      const resLst = []
+      for (const sd of shopDatas) {
+        const timeStamp = await this.getActiveUser({ country: country, mallId: platform_mall_id, userName: sd.UserName })
+        const zeroTime = new Date(new Date().toLocaleDateString()).getTime()
+        const setTime = zeroTime - zeroTime * (Number(this.userInfo.auto_attention_set.LastLoginDay) - 1)
+        if (timeStamp > setTime) {
+          resLst.push(sd)
+        }
+      }
+      return resLst
+    },
+    // 获取店铺活跃时间
+    async getActiveUser(user) {
+      const params = {}
+      // 获取店铺粉丝
+      params['country'] = user.country
+      params['mallId'] = user.mallId
+      params['username'] = user.userName
+      const res = await this.MallAPIInstance.getActiveTimeFollower(params)
+      if (res.code === 200) {
+        return Number(res.data.last_active_time) * 1000
+      } else {
+        this.$refs.Logs.writeLog(`店铺活跃状态获取失败:${res.message}`, false)
+        return ''
+      }
+    },
     // 获取粉丝信息
     async GetShopLikes(item) {
       const params = {}
       params['country'] = item.country
-      params['mallId'] = item.platform_mall_id
+      params['mallId'] = item.mallId
 
       params['offset'] = item.offset
       params['limit'] = 20
       params['offset_of_offset'] = 0
       params['timeStamp'] = new Date().getTime()
       const res = await this.MallAPIInstance.getFllower(params)
+      if (res.code === 200) {
+        this.$refs.Logs.writeLog(`粉丝获取成功`, true)
+        return res.data
+      } else {
+        this.$refs.Logs.writeLog(`粉丝获取失败，${res.message}`, false)
+        return []
+      }
     },
     // 获取用户数据
     async getUserinfo() {

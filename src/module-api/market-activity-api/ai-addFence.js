@@ -39,7 +39,6 @@ export default class GoodsDiscount {
       // params['skip_autocorrect'] = 1
       params['version'] = 2
       const strGuid = this.guid()
-      console.log('36', keywordEncode)
       const res = await this._this.$shopeemanService.getChineseBuyer(item.country, '/api/v4/search/search_items?', params, {
         headers: {
           'Content-type': 'application/json',
@@ -95,10 +94,10 @@ export default class GoodsDiscount {
       const mallList = []
       do {
         info = reg.exec(data)
-        console.log(info.groups)
-        mallList.push(info.groups)
+        if (info?.groups) {
+          mallList.push(info.groups)
+        }
       } while (info = reg.exec(data))
-
       if (res) {
         return { code: 200, data: mallList }
       } else {
@@ -133,6 +132,7 @@ export default class GoodsDiscount {
 
         }
       })
+      console.log('135', res)
       if (res) {
         return { code: 200, data: true }
       } else {
@@ -174,6 +174,79 @@ export default class GoodsDiscount {
       }
     } catch (error) {
       return { code: -2, data: `关注请求异常 ${error}` }
+    }
+  }
+  // 获取店铺活跃时间
+  async getActiveTimeFollower(val) {
+    const item = val
+    try {
+      const params = {}
+      params['mallId'] = item.mallId
+      params['shopid'] = item.mallId
+      params['username'] = item.username
+      const res = await this._this.$shopeemanService.getChineseBuyer(item.country, `/api/v4/shop/get_shop_detail?`, params, {
+        headers: {
+          'X-API-SOURCE': 'pc',
+          'Content-Type': 'application/xml'
+        }
+      })
+      const data = JSON.parse(JSON.parse(res).data)
+      if (!data.error) {
+        return { code: 200, data: data.data }
+      } else {
+        return { code: 201, data: [], message: data.error }
+      }
+    } catch (error) {
+      return { code: -2, data: [], message: `粉丝活跃时间 ${error}` }
+    }
+  }
+  // 获取host店铺粉丝
+  async getFllowerHostMall(val) {
+    const item = val
+    try {
+      const params = {}
+      params['mallId'] = item.mallId
+
+      params['offset'] = item.offset
+      params['limit'] = item.limit
+      params['offset_of_offset'] = item.offset_of_offset
+      params['_'] = item.timeStamp
+      const res = await this._this.$shopeemanService.getChineseBuyer(item.country, `/shop/${item.mallId}/followers/?`, params, {
+        headers: {
+          'Content-type': 'text/html; charset=utf-8',
+          referer: `/shop/${item.mallId}/followers/?__classic__=1`,
+          'accept': '*/*',
+          'user-agent': 'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.102 Mobile Safari/537.36',
+          'sec-ch-ua': '" Not A;Brand";v="99", "Chromium";v="98", "Google Chrome";v="98"',
+          'x-requested-with': 'XMLHttpRequest',
+          'If-None-Match-': this.guid(),
+          'sec-ch-ua-mobile': '?1',
+          'sec-ch-ua-platform': '"Android"',
+          'sec-fetch-site': 'same-origin',
+          'sec-fetch-mode': 'cors',
+          'sec-fetch-dest': 'empty',
+          'Accept-Encoding': 'gzip, deflate, br'
+
+        }
+      })
+      // 正则表达转换
+      const data = JSON.parse(res).data
+      const reg = /<li\s*?data-follower-shop-id=.(?<ShopId>[0-9]+?).\s*?data-follower[^>]+>\s*?<a(([^>]+username='(?<UserName>[^>]+)'\s*?userid=.(?<UserId>[0-9]+?).\s*?class=.shop-href.)|())>/igs
+      let info = {}
+      const mallList = []
+      do {
+        info = reg.exec(data)
+        if (info?.groups) {
+          mallList.push(info.groups)
+        }
+      } while (info = reg.exec(data))
+      if (res) {
+        return { code: 200, data: mallList }
+      } else {
+        return { code: 201, data: [], message: '请求失败' }
+      }
+    } catch (error) {
+      return { code: -2, data: `粉丝请求异常 ${error}` }
     }
   }
 }

@@ -170,7 +170,7 @@ export default {
         },
         type: 4
       }
-      console.log(JSON.stringify(param))
+      // console.log(JSON.stringify(param))
       try {
         const res = await this.$api.setUserinfo(JSON.stringify(param))
         if (res.data.code === 200) {
