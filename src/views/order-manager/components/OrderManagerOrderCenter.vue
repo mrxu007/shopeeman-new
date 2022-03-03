@@ -341,7 +341,7 @@
                        @click="item.rowClick && tableRowBound(item.rowClick,row,$index,item) || ''">
                 {{item.propLinkName}}
               </el-link>
-              <el-link v-else-if="!item.propLink && Number(getTableRow(row,item.prop)) === 1"
+              <el-link v-else-if="item.propLink && Number(getTableRow(row,item.propLink)) === 1"
                        size="mini" type="danger" @click="setSKURelation(row)">
                 {{ row.empty_info ? '重新映射SKU' : '加入收藏' }}
               </el-link>
@@ -936,7 +936,7 @@ export default {
           width: '120',
           align: '',
           rowDblClick: 'copyItem',
-          prop: 'mall_info.platform_mall_name,mall_info.platform_mall_name',
+          prop: 'mall_info.mall_alias_name,mall_info.platform_mall_name',
           showOverflowTooltip: true,
           showType: 0
         }, {
@@ -1074,7 +1074,8 @@ export default {
           name: '商品规格',
           width: '100',
           align: 'center',
-          prop: 'goods_info.ori_platform_id',
+          propLink:'goods_info.ori_platform_id',
+          prop: 'goods_info.variation_name',
           showOverflowTooltip: true,
           showType: 4
         }, {
@@ -2977,6 +2978,7 @@ export default {
         this.$message.warning(`获取订单列表失败`)
         this.tableLoading = false
       }
+      console.log('tableData',this.tableData)
     },
     async getSkuRelation() {
       let sysOrders = ''
