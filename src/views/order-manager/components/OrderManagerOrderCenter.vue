@@ -2849,18 +2849,17 @@ export default {
       console.log(this.tableColumnList)
       const arr = []
       this.columnConfigShowList.forEach((item) => {
-        const par = {
+        arr.push({
           columnHeader: item.column_header,
           isShow: item.is_show,
           sortNumber: item.sort_number
-        }
-        arr.push(par)
+        })
       })
       const params = {
         // columnId: 1, //  1 => '订单列表',         2 => '售后列表',
         lists: arr
       }
-      console.log(params)
+      console.log('params',params)
       const res = await this.$api.uploadColumnsConfig(params)
       this.tableColumnShow = true
       this.closeDialog()
@@ -3158,7 +3157,7 @@ export default {
       console.log('columnConfigShowList', this.columnConfigShowList)
     },
     setColumnConfigShowList() {
-      let list = [{}, {}]
+      let list = [{},{}]
       let list1 = []
       this.tableColumnList.forEach(item => {
         let itemShow = this.columnConfigList.find(son => item.name === son.column_header)
@@ -3167,13 +3166,19 @@ export default {
         } else if (item.name === '操作') {
           list[1] = Object.assign(item, itemShow)
         } else if (itemShow && itemShow.sort_number) {
-          list1.push(Object.assign(item, itemShow,{is_show: 1}))
+          list[itemShow.sort_number] = (Object.assign(item, itemShow,{is_show: 1}))
         } else {
-          list.push(Object.assign(item, itemShow))
+          list1.push(Object.assign(item, itemShow))
         }
       })
-      for (let item of list1) {
-        list.splice(list1.sort_number, 0, item)
+      for (let i=0 ;i<list.length;i++) {
+        let item = list[i]
+        if(!item){
+          list[i] = list1.splice(0,1)[0]
+        }
+      }
+      for(let item of list1){
+        list.push(item)
       }
       list = [...list.map((item, index) => {
         return Object.assign(item, { sort_number: index ,
