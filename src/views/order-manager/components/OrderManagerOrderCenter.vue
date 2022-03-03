@@ -2852,7 +2852,7 @@ export default {
         const par = {
           columnHeader: item.column_header,
           isShow: item.is_show,
-          sortNumber: item.sortNumber
+          sortNumber: item.sort_number
         }
         arr.push(par)
       })
@@ -2880,6 +2880,7 @@ export default {
           this.columnConfigList = resData
         }
       }
+      console.log(this.columnConfigList)
       this.setColumnConfigShowList()
     },
     // 同步物流单号
@@ -3151,7 +3152,7 @@ export default {
       evt.preventDefault()
       let checkMenusList = []
       this.columnConfigShowList.map((item, index) => {
-        checkMenusList.push(Object.assign(item, { sortNumber: index }))
+        checkMenusList.push(Object.assign(item, { sort_number: index }))
         return checkMenusList
       })
       console.log('columnConfigShowList', this.columnConfigShowList)
@@ -3165,17 +3166,17 @@ export default {
           list[0] = Object.assign(item, itemShow)
         } else if (item.name === '操作') {
           list[1] = Object.assign(item, itemShow)
-        } else if (itemShow && itemShow.sortNumber) {
+        } else if (itemShow && itemShow.sort_number) {
           list1.push(Object.assign(item, itemShow,{is_show: 1}))
         } else {
           list.push(Object.assign(item, itemShow))
         }
       })
       for (let item of list1) {
-        list.splice(list1.sortNumber, 0, item)
+        list.splice(list1.sort_number, 0, item)
       }
       list = [...list.map((item, index) => {
-        return Object.assign(item, { sortNumber: index ,
+        return Object.assign(item, { sort_number: index ,
           column_header:item.column_header || item.name})
       })]
       this.tableColumnList = list
