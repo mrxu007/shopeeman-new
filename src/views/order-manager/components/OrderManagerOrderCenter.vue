@@ -334,6 +334,9 @@
             </el-dropdown>
             <p v-else-if="item.showType === 4" style="display: flex; flex-direction: column;padding: 0;"
                :style="{ color: item.rowColor && tableRowBound(item.rowColor,row,$index,item) || ''}">
+<!--              <span v-if="item.rowShow === 'getCategoryName'" style="text-overflow: ellipsis; overflow: hidden;">-->
+<!--                {{ row.goods_info ? getCategoryName(row.goods_info.goods_category_id, row.country) : '未匹配到类目' }}-->
+<!--              </span>-->
               <span style="text-overflow: ellipsis; overflow: hidden;">
                 {{item.rowShow && tableRowBound(item.rowShow, row, $index, item) || getTableRow(row,item.prop)}}
               </span>
@@ -346,12 +349,6 @@
                 {{ row.empty_info ? '重新映射SKU' : '加入收藏' }}
               </el-link>
             </p>
-<!--            <span v-else-if="item.showType === 5" :style="{ color: changeOrderStatus(getTableRow(row, item.prop), 'color') }">-->
-<!--              {{ tableRowBound(item.rowShow, row, $index, item) }}-->
-<!--            </span>-->
-<!--            <p v-else-if="item.showType === 18" style="padding: 0" :style="{ color: changeShotStatus(getTableRow(row,item.prop), 'color') }">-->
-<!--              {{ changeShotStatus(getTableRow(row, item.prop)) }}-->
-<!--            </p>-->
             <el-button v-else-if="item.showType === 7" size="mini" type="primary"
                        @click="item.rowClick && tableRowBound(item.rowClick,row,$index,item) || ''">
               {{ item.buttonName }}
