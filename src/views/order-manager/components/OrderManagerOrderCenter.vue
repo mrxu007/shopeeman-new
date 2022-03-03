@@ -335,10 +335,10 @@
             <p v-else-if="item.showType === 4" style="display: flex; flex-direction: column;padding: 0;"
                :style="{ color: item.rowColor && tableRowBound(item.rowColor,row,$index,item) || ''}">
               <span>{{item.rowShow && tableRowBound(item.rowShow, row, $index, item) || getTableRow(row,item.prop)}}</span>
-              <el-link v-if="item.propLink" size="mini" type="danger" @click="item.rowClick && tableRowBound(item.rowClick,row,$index,item) || ''">
-                查看采购地址
+              <el-link v-if="item.propLink && item.propLinkName" size="mini" type="danger" @click="item.rowClick && tableRowBound(item.rowClick,row,$index,item) || ''">
+                {{item.propLinkName}}
               </el-link>
-              <el-link v-else-if="Number(getTableRow(row,item.prop)) === 1" size="mini" type="danger" @click="setSKURelation(row)">
+              <el-link v-else-if="!item.propLink && Number(getTableRow(row,item.prop)) === 1" size="mini" type="danger" @click="setSKURelation(row)">
                 {{ row.empty_info ? '重新映射SKU' : '加入收藏' }}
               </el-link>
             </p>
@@ -984,6 +984,7 @@ export default {
           rowShow: 'changeTypeName',
           prop: 'goods_info.ori_platform_id',
           propLink: 'goods_info.ori_url',
+          propLinkName: '查看采购地址',
           rowClick: 'openUrl',
           sortable: true,
           showType: 4
@@ -1173,6 +1174,7 @@ export default {
           name: '采购状态',
           width: '120',
           align: '',
+          propLink:'true',
           rowColor:'changeShotStatus_color',
           rowShow: 'changeShotStatus',
           prop: 'shot_order_info.shot_status',
