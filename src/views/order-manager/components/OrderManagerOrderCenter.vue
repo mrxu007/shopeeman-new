@@ -233,7 +233,7 @@
         <u-table-column align="center" type="index" label="序号" width="50" fixed="left" v-if="tableColumnShow">
           <template slot-scope="scope">{{ (currentPage - 1) * pageSize + scope.$index + 1 }}</template>
         </u-table-column>
-        <u-table-column v-for="item in tableColumnList" :key="item.key" v-if="tableColumnShow && item.is_show"
+        <u-table-column v-for="item in tableColumnList" :key="item.key" v-if="tableColumnShow && item.is_show === 1"
                         :width="item.width || '80'" :align="item.align||'left'" :label="item.name"
                         :prop="item.prop || ''" :sortable="item.sortable || false" :fixed="item.fixed"
                         :show-overflow-tooltip="item.showOverflowTooltip || false" :resizable="true">
@@ -2842,6 +2842,7 @@ export default {
     async uploadColumn() {
       this.tableColumnShow = false
       this.tableColumnList = this.columnConfigShowList
+      console.log(this.tableColumnList)
       const arr = []
       this.columnConfigShowList.forEach((item) => {
         const par = {
