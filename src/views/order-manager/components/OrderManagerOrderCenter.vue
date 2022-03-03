@@ -226,7 +226,7 @@
         订单收入-采购价；2、调整列表顺序，请至【配置自定义列】按钮，拖动表头进行排列
       </p>
       <u-table style="" ref="multipleTable" v-loading="tableLoading" use-virtual :row-height="60" :border="false"
-               :data="tableData" tooltip-effect="dark" :height="isShow && 410 || 730"
+               :data="tableData" tooltip-effect="dark" :height="isShow && 420 || 730"
                :cell-style="{ padding: '0' }" :header-cell-style="{backgroundColor: '#f5f7fa'}" :resizable="true"
                @selection-change="handleSelectionChange">
         <u-table-column align="center" type="selection" width="50" fixed="left" v-if="tableColumnShow"/>
@@ -334,11 +334,15 @@
             </el-dropdown>
             <p v-else-if="item.showType === 4" style="display: flex; flex-direction: column;padding: 0;"
                :style="{ color: item.rowColor && tableRowBound(item.rowColor,row,$index,item) || ''}">
-              <span>{{item.rowShow && tableRowBound(item.rowShow, row, $index, item) || getTableRow(row,item.prop)}}</span>
-              <el-link v-if="item.propLink && item.propLinkName" size="mini" type="danger" @click="item.rowClick && tableRowBound(item.rowClick,row,$index,item) || ''">
+              <span style="text-overflow: ellipsis; overflow: hidden;">
+                {{item.rowShow && tableRowBound(item.rowShow, row, $index, item) || getTableRow(row,item.prop)}}
+              </span>
+              <el-link v-if="item.propLink && item.propLinkName" size="mini" type="danger"
+                       @click="item.rowClick && tableRowBound(item.rowClick,row,$index,item) || ''">
                 {{item.propLinkName}}
               </el-link>
-              <el-link v-else-if="!item.propLink && Number(getTableRow(row,item.prop)) === 1" size="mini" type="danger" @click="setSKURelation(row)">
+              <el-link v-else-if="!item.propLink && Number(getTableRow(row,item.prop)) === 1"
+                       size="mini" type="danger" @click="setSKURelation(row)">
                 {{ row.empty_info ? '重新映射SKU' : '加入收藏' }}
               </el-link>
             </p>
