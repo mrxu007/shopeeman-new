@@ -219,11 +219,10 @@ export default class logisticeSyncService {
       }
       try {
         const logisticInfo = await this.$baseUtilService.getOriginLogistics(buyerAccount.shotOrderPlatform, shot_order_sn, buyerAccount)
-        console.log(logisticInfo, 'logisticInfo')
-        // if (logisticInfo.Code !== 200) {
-        //   this.writeLog(`(${type})订单【${shot_order_sn}】获取上家物流失败, ${logisticInfo.Msg}(买手号: ${buyerAccount.UserName})`, false)
-        //   continue
-        // }
+        if (logisticInfo.Code !== 200) {
+          this.writeLog(`(${type})订单【${shot_order_sn}】获取上家物流失败, ${logisticInfo.Msg}(买手号: ${buyerAccount.UserName})`, false)
+          continue
+        }
         if (!logisticInfo.TrackingNumber) {
           this.writeLog(`(${type})订单【${shot_order_sn}】未发货，(买手号: ${buyerAccount.UserName})`, false, '#ff9900')
           continue
