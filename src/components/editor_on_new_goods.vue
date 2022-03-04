@@ -335,7 +335,8 @@
       </u-table-column>
       <u-table-column align="left" label="操作状态" width="100">
         <template v-slot="{row}">
-          <div class="goodsTableLine" style="height: 80px">
+          <div class="goodsTableLine" style="height: 80px"
+               :style="`color:${row.operation_type && row.operation_type.includes('收藏失败') && 'red' || '#000'}`">
             {{ row.operation_type || '' }}
           </div>
         </template>
@@ -577,7 +578,7 @@ export default {
           value: 'en'
         }, {
           label: '繁体',
-          value: 'zh-tw'
+          value: 'zh-TW'
         }, {
           label: '中文',
           value: 'zh'
@@ -1388,7 +1389,7 @@ export default {
           itemmodelsJson = itemmodelsJson.replaceAll(/"selection_id":[0-9]*,/ig, '')
           itemmodelsJson = itemmodelsJson.replaceAll(/"skuId":([0-9]*),/ig, '"skuId":"$1",')
           param['skuSpecs'] = itemmodelsJson
-          param.language = toLanguage === 'zh' && 'zh-Hans' || toLanguage === 'zh-tw' && 'zh-Hant' || toLanguage
+          param.language = toLanguage === 'zh' && 'zh-Hans' || toLanguage === 'zh-TW' && 'zh-Hant' || toLanguage
           console.log('saveTranslationData - param', param, JSON.parse(itemmodelsJson))
           const translationDataJson = await this.$commodityService.saveTranslationData(param)
           const translationDataRes = JSON.parse(translationDataJson)

@@ -400,7 +400,7 @@
               <span class="tableActive" @click="clickBuyOrder(row)">{{ getTableRow(row, item.prop) }}</span>
             </p>
             <div v-else-if="item.showType === 23">
-              <div v-if="!(row.id === activeRemarkID) && row.remark == ''" @click.stop="editRemark($index, row.id)"
+              <div v-if="!(row.id === activeRemarkID) || row.remark == ''" @click.stop="editRemark($index, row.id)"
                    style="cursor: pointer; min-width: 20px">
                 <p @dblclick="copyItem(row.remark)" class="remark_p">{{ row.remark }}</p>
               </div>
@@ -3559,8 +3559,11 @@ export default {
   min-width: 20px;
   background-color: #F5F7FA;
   border: 1px #E4E7ED solid;
-  color: #C0C4CC;
   border-radius: 4px;
   height: 28px;
+  line-height: 26px;
+  color: #C0C4CC;
+  padding: 0 10px !important;
+  overflow: hidden;
 }
 </style>
