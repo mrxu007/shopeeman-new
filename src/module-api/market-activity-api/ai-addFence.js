@@ -65,19 +65,20 @@ export default class GoodsDiscount {
       const params = {}
       params['mallId'] = item.mallId
 
+      params['shopid'] = item.shopid
       params['offset'] = item.offset
       params['limit'] = item.limit
       params['offset_of_offset'] = item.offset_of_offset
       params['_'] = item.timeStamp
-      const res = await this._this.$shopeemanService.getChineseBuyer(item.country, `/shop/${item.mallId}/followers/?`, params, {
+      const res = await this._this.$shopeemanService.getChineseBuyer(item.country, `/shop/${item.shopid}/followers/?`, params, {
         headers: {
           'Content-type': 'text/html; charset=utf-8',
-          referer: `/shop/${item.mallId}/followers/?__classic__=1`,
+          referer: `/shop/${item.shopid}/followers/?__classic__=1`,
           'accept': '*/*',
           'user-agent': 'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.102 Mobile Safari/537.36',
-          'sec-ch-ua': '" Not A;Brand";v="99", "Chromium";v="98", "Google Chrome";v="98"',
           'x-requested-with': 'XMLHttpRequest',
           'If-None-Match-': this.guid(),
+          'sec-ch-ua': '" Not A;Brand";v="99", "Chromium";v="98", "Google Chrome";v="98"',
           'sec-ch-ua-mobile': '?1',
           'sec-ch-ua-platform': '"Android"',
           'sec-fetch-site': 'same-origin',
@@ -113,31 +114,32 @@ export default class GoodsDiscount {
     try {
       const params = {}
       params['mallId'] = item.mallId
+      // params['userShopid'] = item.userShopid
+      // params['ShopId'] = item.ShopId
       params['csrfmiddlewaretoken'] = this.guid().replaceAll('-', '')
-      const res = await this._this.$shopeemanService.postChineseBuyer(item.country, `/shop/${item.UserId}/followers/?`, params, {
+      const res = await this._this.$shopeemanService.postChineseBuyer(item.country, `/buyer/follow/shop/${item.ShopId}/`, params, {
         headers: {
-          'Content-type': 'application/x-www-form-urlencoded; charset=UTF-8',
-          referer: `/shop/${item.mallId}/followers/?__classic__=1`,
-          'accept': '*/*',
-          'user-agent': 'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.102 Mobile Safari/537.36',
+          'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+          'Content-Length': '52',
           'sec-ch-ua': '" Not A;Brand";v="99", "Chromium";v="98", "Google Chrome";v="98"',
-          'x-requested-with': 'XMLHttpRequest',
-          'If-None-Match-': this.guid(),
           'sec-ch-ua-mobile': '?1',
-          'sec-ch-ua-platform': '"Android"',
-          'sec-fetch-site': 'same-origin',
-          'sec-fetch-mode': 'cors',
-          'sec-fetch-dest': 'empty',
-          'Accept-Encoding': 'gzip, deflate, br'
+          referer: `/shop/${item.followMallID}/followers/?__classic__=1`,
+          'Sec-Fetch-Dest': 'empty',
+          'Sec-Fetch-Mode': 'cors',
+          'Sec-Fetch-Site': 'same-origin',
+          'Accept': ' */*',
+          'X-Requested-With': 'XMLHttpRequest',
+          'If-None-Match-': this.guid()
 
         }
       })
       console.log('135', res)
-      if (res) {
-        return { code: 200, data: true }
-      } else {
-        return { code: 201, data: false, message: '请求失败' }
-      }
+      return { code: 201, data: false, message: '请求失败' }
+      // if (res) {
+      //   return { code: 200, data: true }
+      // } else {
+      //   return { code: 201, data: false, message: '请求失败' }
+      // }
     } catch (error) {
       return { code: -2, data: `关注请求异常 ${error}` }
     }
@@ -247,6 +249,91 @@ export default class GoodsDiscount {
       }
     } catch (error) {
       return { code: -2, data: `粉丝请求异常 ${error}` }
+    }
+  }
+  // 获取评论
+  async getShoppComment(val) {
+    const item = val
+    try {
+      const params = {}
+      params['mallId'] = item.mallId
+      params['filter'] = 0
+      params['flag'] = 1
+      params['itemid'] = item.itemid
+      params['limit'] = 52
+      params['offset'] = item.offset
+      params['shopid'] = item.shopid
+      params['type'] = 0
+      const res = await this._this.$shopeemanService.getChineseBuyer(item.country, `/api/v2/item/get_ratings?`, params, {
+        headers: {
+          // referer: `/shop/${item.mallId}/followers/?__classic__=1`,
+          'accept': '*/*',
+          'user-agent': 'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.102 Mobile Safari/537.36',
+          'sec-ch-ua': '" Not A;Brand";v="99", "Chromium";v="98", "Google Chrome";v="98"',
+          'x-requested-with': 'XMLHttpRequest',
+          'If-None-Match-': this.guid(),
+          'sec-ch-ua-mobile': '?1',
+          'sec-ch-ua-platform': '"Android"',
+          'sec-fetch-site': 'same-origin',
+          'sec-fetch-mode': 'cors',
+          'sec-fetch-dest': 'empty',
+          'Accept-Encoding': 'gzip, deflate, br'
+        }
+      })
+      const data = JSON.parse(JSON.parse(res).data)
+      if (!data.error) {
+        return { code: 200, data: data.data }
+      } else {
+        return { code: 201, data: [], message: data.error }
+      }
+    } catch (error) {
+      return { code: -2, data: [], message: `获取评论 ${error}` }
+    }
+  }
+  // 获取主要店铺信息
+  async getHomeMallinfo(val) {
+    try {
+      const item = val
+      const params = {}
+      params['mallId'] = item.mallId
+      params['username'] = item.username
+      const res = await this._this.$shopeemanService.getChinese(item.country, `/api/v4/shop/get_shop_detail?`, params, {
+        headers: {
+          'X-API-SOURCE': 'pc',
+          'Content-Type': 'application/xml',
+          'Accept': 'application/json, application/xml, text/json, text/x-json, text/javascript, text/xml',
+          'Accept-Encoding': 'gzip, deflate'
+        }
+      })
+      const data = JSON.parse(JSON.parse(res).data)
+      if (!data.error) {
+        return { code: 200, data: data.data }
+      } else {
+        return { code: 201, data: [], message: data.error }
+      }
+    } catch (error) {
+      return { code: -2, data: [], message: `主要店铺信息 ${error}` }
+    }
+  }
+  // 获取用户基本信息
+  async UserProfile(val) {
+    const item = val
+    try {
+      const params = {}
+      params['mallId'] = item.mallId
+      const res = await this._this.$shopeemanService.getChineseBuyer(item.country, `/api/v2/user/profile/get/`, params, {
+        headers: {
+          'Accept': 'application/json, application/xml, text/json, text/x-json, text/javascript, text/xml'
+        }
+      })
+      const data = JSON.parse(JSON.parse(res).data)
+      if (data.error) {
+        return { code: 201, data: '', message: data.error_msg }
+      } else {
+        return { code: 200, data: data.data }
+      }
+    } catch (error) {
+      return { code: -2, data: [], message: `用户信息获取 ${error}` }
     }
   }
 }
