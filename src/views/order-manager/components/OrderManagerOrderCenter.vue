@@ -3165,7 +3165,7 @@ export default {
       let list = [{},{}]
       let list1 = []
       this.tableColumnList.forEach(item => {
-        let itemShow = this.columnConfigList.find(son => item.name === son && son.column_header)
+        let itemShow = this.columnConfigList.find(son => item.name === (son && son.column_header || ''))
         if (item.name === '订单编号') {
           list[0] = Object.assign(item, itemShow)
         } else if (item.name === '操作') {
