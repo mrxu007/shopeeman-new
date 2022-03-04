@@ -1395,6 +1395,7 @@ export default {
         } else {
           console.log('详情数据', res2.data)
           res = await this.CollectPublicApInstance.setGoodsData(item, res2.data)
+          console.log('CollectPublicApInstance',res)
           if (res.code === 200) {
             res.data.operation_type = '收藏成功'
             this.StatusName(item, `收藏成功`, true)
@@ -1409,6 +1410,7 @@ export default {
           }
         }
       } catch (error) {
+        console.log('operation_type',res.data)
         res.data.operation_type = `${error}`
         this.StatusName(item, `${error}`, false)
         this.failNum++

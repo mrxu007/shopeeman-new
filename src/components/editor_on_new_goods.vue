@@ -1445,9 +1445,9 @@ export default {
                 imageData = Data.Data && Data.Data.Url || son.img
               } else if (this.pictureConfig.typeRadio === 2) {
                 console.log(son.img, this.translationConfig.after)
-                const json = await this.$translationBridgeService.getYunTranslateImg(son.img, this.translationConfig.after)
+                const json =son && son.img && await this.$translationBridgeService.getYunTranslateImg(son.img, this.translationConfig.after) || ''
                 console.log(json)
-                if (json.Code === 200) {
+                if (json && json.Code === 200) {
                   imageData = json.Data && json.Data.Url || son.img
                 } else {
                   imageData = son.img
@@ -1482,9 +1482,9 @@ export default {
                 const { Data } = await this.$translationBridgeService.getAliYunTranslateImg(son, fromLa, this.translationConfig.after)
                 imageData = Data.Data && Data.Data.Url || son
               } else if (this.pictureConfig.typeRadio === 2) {
-                const json = await this.$translationBridgeService.getYunTranslateImg(son, this.translationConfig.after)
+                const json = son &&  await this.$translationBridgeService.getYunTranslateImg(son, this.translationConfig.after) || ''
                 console.log(json)
-                if (json.Code === 200) {
+                if (json && json.Code === 200) {
                   imageData = json.Data && json.Data.Url || son
                 } else {
                   imageData = son
