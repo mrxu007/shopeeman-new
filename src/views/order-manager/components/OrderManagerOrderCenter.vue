@@ -400,7 +400,7 @@
               <span class="tableActive" @click="clickBuyOrder(row)">{{ getTableRow(row, item.prop) }}</span>
             </p>
             <div v-else-if="item.showType === 23">
-              <div v-if="!(row.id === activeRemarkID) || row.remark == ''" @click.stop="editRemark($index, row.id)"
+              <div v-if="!(row.id === activeRemarkID) " @click.stop="editRemark($index, row.id)"
                    style="cursor: pointer; min-width: 20px">
                 <p @dblclick="copyItem(row.remark)" class="remark_p">{{ row.remark }}</p>
               </div>
@@ -2870,15 +2870,21 @@ export default {
     },
     // 获取自定义配置列
     async getColumnsConfig() {
-      const { data } = await this.$api.getColumnsConfig()
-      if (data.code === 200) {
-        const resData = data.data || []
-        if (resData.length) {
-          this.columnConfigList = resData
+      try {
+        const { data } = await this.$api.getColumnsConfig()
+        if (data.code === 200) {
+          const resData = data.data || []
+          if (resData.length) {
+            this.columnConfigList = resData
+          }
         }
+        console.log(this.columnConfigList)
+      }catch (e) {
+
+      }finally {
+        this.setColumnConfigShowList()
+
       }
-      console.log(this.columnConfigList)
-      this.setColumnConfigShowList()
     },
     // 同步物流单号
     async syncLogistics() {
@@ -3159,15 +3165,15 @@ export default {
       let list = [{},{}]
       let list1 = []
       this.tableColumnList.forEach(item => {
-        let itemShow = this.columnConfigList.find(son => item.name === son.column_header)
+        let itemShow = this.columnConfigList.find(son => item.name === son && son.column_header)
         if (item.name === '订单编号') {
           list[0] = Object.assign(item, itemShow)
         } else if (item.name === '操作') {
           list[1] = Object.assign(item, itemShow)
         } else if (itemShow && itemShow.sort_number) {
-          list[itemShow.sort_number] = (Object.assign(item, itemShow,{is_show: 1}))
+          list[itemShow.sort_number] = (Object.assign(item, itemShow,))
         } else {
-          list1.push(Object.assign(item, itemShow))
+          list1.push(Object.assign(item,{is_show: 1}))
         }
       })
       for (let i=0 ;i<list.length;i++) {

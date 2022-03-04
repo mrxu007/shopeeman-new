@@ -511,10 +511,56 @@ export default {
       default() {
         return false
       }
-    }
+    },
+    GoodsDeliveryAddress:{
+      type: Number,
+      default() {
+        return 0
+      }
+    },
+    IsCollectDescriptionIsNull:{
+      type: Boolean,
+      default() {
+        return false
+      }},
+    IsDefaultFilterSkuCount:{
+      type: Boolean,
+      default() {
+        return true
+      }},
+    IsFilterLazadaDeliveryDay:{
+      type: Boolean,
+      default() {
+        return false
+      }},
+    IsFilterShopeeDeliveryDay:{
+      type: Boolean,
+      default() {
+        return false
+      }},
+    MinShoppeDeliveryDay:{
+      type: Number,
+      default() {
+        return 0
+      }},
+    MaxShoppeDeliveryDay:{
+      type: Number,
+      default() {
+        return 20
+      }},
   },
   data() {
     return {
+      shopeeGoodsDeliveryAddressDic:{ // 收藏商品时使用
+        'MY': 'Mainland China',
+        'TW': '中國大陸',
+        'VN': 'Nước ngoài',
+        'ID': 'Luar Negeri',
+        'PH': 'Mainland China',
+        'TH': 'ต่างประเทศ',
+        'SG': 'Mainland China',
+        'BR': 'China Continental'
+      },
       CollectPublicApInstance: new CollectPublicApI(this),
       CollectKeyWordApInstance: new CollectKeyWordApI(this), // 关键词采集
       collectLinkApInstance: new CollectLinkApI(this), // 链接采集
@@ -740,7 +786,7 @@ export default {
     // 开启任务
     async batchDealWith(type, data) {
       console.log('type ===', type)
-      if (this.mallTableSelect.length < 1) {
+      if (this.mallTableSelect.length < 1 || type === 8) {
         this.$message.error('请选择一个商品信息')
         return false
       }
@@ -1807,11 +1853,22 @@ export default {
             this.$set(this.mallTable, index, res.data)
             this.statistics.scSuccess++
           } else {
-            this.StatusName(item, `收藏失败`)
+            let errorStr = ''
+            if(res.msg){
+              errorStr = res.msg
+            }else {
+              errorStr = '收藏失败：'+res.data
+            }
+            this.StatusName(item, errorStr)
             this.$set(item, 'isFailure', true)
           }
         }
       } catch (error) {
+        if(res.msg){
+          error = res.msg
+        }else {
+          error = '收藏失败：'+res.data
+        }
         this.StatusName(item, `${error}`)
         this.$set(item, 'isFailure', true)
         console.log(error)
