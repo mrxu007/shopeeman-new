@@ -1,40 +1,31 @@
-<!--
- * @Author: your name
- * @Date: 2021-11-20 21:08:11
- * @LastEditTime: 2021-12-17 18:37:27
- * @LastEditors: Please set LastEditors
- * @Description: 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
- * @FilePath: \shopeeman-new\src\views\order-manager\components\orderCenter\addBuyLink.vue
--->
 
 <template>
   <div class="buy-link">
     <div class="link-show">
-      <div class="item-box" v-for="(item, index) in platformLinkList" :key="index">
+      <div v-for="(item, index) in platformLinkList" :key="index" class="item-box">
         <span>{{ item.label }}</span>
         <p>{{ item.purchase_url_all }}</p>
-        <i class="el-icon-s-order" @click="copyItem(item.purchase_url_all)"></i>
+        <i class="el-icon-s-order" @click="copyItem(item.purchase_url_all)" />
       </div>
     </div>
     <div class="buy-content">
-      <div class="item-box" v-for="(item, index) in rowBuyLinks" :key="index">
+      <div v-for="(item, index) in rowBuyLinks" :key="index" class="item-box">
         <!-- <span class="mar-right spanWidth">采购类型</span>
         <el-select v-model="item.purchase_platform_id" size="mini" class="inputWidth" @change="changeSourceType($event,index)">
           <el-option :label="item.label" :value="item.value" v-for="(item, index) in goodsSourceListLink" :key="index"></el-option>
         </el-select> -->
         <span>采购地址{{ index + 1 }}</span>
-        <el-input v-model="item.purchase_url" size="mini" clearable style="width: 600px" class="mar-right" />
+        <el-input v-model="item.purchase_url" size="mini" clearable style="width: 600px" class="mar-right" @change="((val)=>{changeLink(val,index)})" />
         <el-button size="mini" type="primary" @click="openUrl(item.purchase_url)">浏览</el-button>
         <el-button
           size="mini"
           type="primary"
+          class="mar-right"
           @click="
             createUrlByIdVisible = true
             indexLink = index
           "
-          class="mar-right"
-          >使用商品ID生成</el-button
-        >
+        >使用商品ID生成</el-button>
         <span>备注:</span>
         <el-input v-model="item.note" size="mini" clearable style="width: 300px" class="mar-right" />
         <el-radio v-model="item.is_default" label="1" @change="changeDefault(index)">默认</el-radio>
@@ -45,14 +36,14 @@
       <el-button type="primary" size="mini" @click="saveAddLink">保 存</el-button>
       <el-button type="primary" size="mini" @click="addBuyLink">添 加</el-button>
     </div>
-    <el-dialog title="添加采购链接" :visible.sync="createUrlByIdVisible" width="500px" v-if="createUrlByIdVisible" append-to-body>
+    <el-dialog v-if="createUrlByIdVisible" title="添加采购链接" :visible.sync="createUrlByIdVisible" width="500px" append-to-body>
       <div>
         <div class="content-link">
           <span class="mar-right spanWidth">商品ID</span>
           <el-input v-model="goodID" size="mini" clearable style="width: 200px" class="mar-right" />
           <span class="mar-right spanWidth">采购类型</span>
           <el-select v-model="sourceType" size="mini" class="inputWidth">
-            <el-option :label="item.label" :value="item.value" v-for="(item, index) in goodsSourceListLink" :key="index"></el-option>
+            <el-option v-for="(item, index) in goodsSourceListLink" :key="index" :label="item.label" :value="item.value" />
           </el-select>
         </div>
         <div class="content-link">
@@ -64,47 +55,66 @@
 </template>
 
 <script>
-import {  goodsSourceListLink, platformLinkList } from './orderCenter'
+import { goodsSourceListLink, platformLinkList, lazadaBuyLinkList } from './orderCenter'
 export default {
   name: 'BuyLink',
+  props: {
+    linkRow: {
+      type: Object,
+      default: {}
+    }
+  },
   data() {
     return {
-      rowBuyLinks: [], //目标行采购链接
+      rowBuyLinks: [], // 目标行采购链接
       createUrlByIdVisible: false,
       radio: true,
       goodID: '',
       sourceType: '1',
       goodsSourceListLink: goodsSourceListLink,
       indexLink: -1,
-      platformLinkList:platformLinkList
+      platformLinkList: platformLinkList
     }
-  },
-  props: {
-    linkRow: {
-      type: Object,
-      default: {},
-    },
   },
   mounted() {
     this.addPurchaseLink()
   },
   methods: {
-    changeDefault(index){
-      this.rowBuyLinks.forEach((item,i)=>{
-        if(i!==index){
+    changeLink(val, index) {
+      if (!val) {
+        return
+      }
+      const execPlatform = /(lazada)/g
+      const platform = val.match(execPlatform)
+      if (!platform) {
+        return
+      }
+      const lazadaReg = /(http|https):\/\/?([a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,6}/
+      const lazadaMatch = val.match(lazadaReg)
+      console.log(lazadaMatch, lazadaBuyLinkList.includes(lazadaMatch[0]))
+      if (lazadaMatch) {
+        if (!lazadaBuyLinkList.includes(lazadaMatch[0])) {
+          this.rowBuyLinks[index].purchase_url = ''
+          return this.$message.warning('该地址无法采购请更换')
+        }
+      }
+    },
+    changeDefault(index) {
+      this.rowBuyLinks.forEach((item, i) => {
+        if (i !== index) {
           item.is_default = ''
         }
       })
     },
     changeSourceType(e, index) {
       console.log(e, index)
-      let res = this.platformLinkList.find((item) => {
+      const res = this.platformLinkList.find((item) => {
         return item.purchase_platform_id == e
       })
       this.rowBuyLinks[index].purchase_url = res.purchase_url_all
     },
     creatLink() {
-      let res = this.platformLinkList.find((item) => {
+      const res = this.platformLinkList.find((item) => {
         return item.purchase_platform_id == this.sourceType
       })
       let url = res ? res.purchase_url + this.goodID : ''
@@ -122,36 +132,36 @@ export default {
     async openUrl(url) {
       this.$BaseUtilService.openUrl(url)
     },
-    //添加采购链接
+    // 添加采购链接
     addBuyLink() {
-      let params = {
+      const params = {
         note: '',
         purchase_url: '',
         purchase_goods_id: '',
         purchase_platform_id: '',
-        is_default: '',
+        is_default: ''
       }
       this.rowBuyLinks.push(params)
     },
-    //保存添加采购链接
+    // 保存添加采购链接
     async saveAddLink() {
-      // if (this.rowBuyLinks.length == 0) {
-      //    return this.$message.error(`采购地址不能设置为空`)
-      // }
       this.rowBuyLinks.forEach((item, index) => {
-        let execPlatform = /(yangkeduo.com)|(taobao.com)|(jingxi.com)|(jd.com)|(1688.com)|(tmall.com)|(pinduoduo.com)|(xiapi.xiapibuy.com)|(taobao.global)|(lazada.com)/g
-        let execGoods = /goods_id=([0-9]*)/
-        let pddGoods = /goodsId=(\d+)/
-        let execIDs = /id=([0-9]*)/
-        let jxIDs = /sku=([0-9]*)/
-        let tmGlobalIDs = /mpId=(\d+)/
-        let jdlazada1688IDs = /(\d+)\.html/
-        let shopeeIDs =  /[^\/]+(?!.*\/)/
-        let platform = item.purchase_url.match(execPlatform)
-        if (!item.purchase_url.length) {
-         return this.$message.error(`采购链接不能为空,请检查采购链接`)
+        const execPlatform = /(yangkeduo.com)|(taobao.com)|(jingxi.com)|(jd.com)|(1688.com)|(tmall.com)|(pinduoduo.com)|(xiapi.xiapibuy.com)|(taobao.global)|(lazada.com)|(lazada)|(shopee)/g
+        const execGoods = /goods_id=([0-9]*)/
+        const pddGoods = /goodsId=(\d+)/
+        const execIDs = /id=([0-9]*)/
+        const jxIDs = /sku=([0-9]*)/
+        const tmGlobalIDs = /mpId=(\d+)/
+        const jdlazada1688IDs = /(\d+)\.html/
+        const shopeeIDs = /[^\/]+(?!.*\/)/
+        const platform = item.purchase_url.match(execPlatform)
+        if (!platform) {
+          return this.$message.error(`采购链接错误，请检查！`)
         }
-        console.log(item.purchase_url.match(pddGoods),"4646546554")
+        if (!item.purchase_url.length) {
+          return this.$message.error(`采购链接不能为空,请检查采购链接`)
+        }
+        console.log(item.purchase_url.match(shopeeIDs), '4646546554')
         if (item.purchase_url.match(execGoods)) {
           item.purchase_goods_id = item.purchase_url.match(execGoods)[1]
         } else if (item.purchase_url.match(execIDs)) {
@@ -162,13 +172,12 @@ export default {
           item.purchase_goods_id = item.purchase_url.match(tmGlobalIDs)[1]
         } else if (item.purchase_url.match(jdlazada1688IDs)) {
           item.purchase_goods_id = item.purchase_url.match(jdlazada1688IDs)[1]
+        } else if (item.purchase_url.match(pddGoods)) {
+          item.purchase_goods_id = item.purchase_url.match(pddGoods)[1]
         } else if (item.purchase_url.match(shopeeIDs)) {
           item.purchase_goods_id = item.purchase_url.match(shopeeIDs)[0]
-        } else if (item.purchase_url.match(pddGoods)) {
-          console.log(item.purchase_url.match(pddGoods),"kfjhgkfhkjghfkjh")
-          item.purchase_goods_id = item.purchase_url.match(pddGoods)[1]
         } else {
-         return this.$message.error(`采购链接错误,请填写正确的采购链接或参考采购链接右边的提示信息`)
+          return this.$message.error(`采购链接错误,请填写正确的采购链接或参考采购链接上边的提示信息`)
         }
         switch (platform[0]) {
           case 'yangkeduo.com':
@@ -192,8 +201,11 @@ export default {
           case '1688.com':
             item.purchase_platform_id = '8'
             break
-          case 'lazada.com':
+          case 'lazada':
             item.purchase_platform_id = '9'
+            break
+          case 'shopee':
+            item.purchase_platform_id = '11'
             break
           case 'xiapi.xiapibuy.com':
             item.purchase_platform_id = '11'
@@ -206,32 +218,31 @@ export default {
             break
         }
       })
-      console.log(this.rowBuyLinks)
-      let params = {
+      const params = {
         goods_id: this.linkRow.goods_info.goods_id,
-        purchase_list: this.rowBuyLinks,
+        purchase_list: this.rowBuyLinks
       }
-      let res = await this.$api.savePurchase(params)
-      if(res.data.code === 200){
-          this.$message.success(`保存成功!`)
-          this.$emit('close')
-      }else{
-          this.$message.error(`保存失败${res.data.message}`)
+      const res = await this.$api.savePurchase(params)
+      if (res.data.code === 200) {
+        this.$message.success(`保存成功!`)
+        this.$emit('close')
+      } else {
+        this.$message.error(`保存失败${res.data.message}`)
       }
       console.log(res, 'res', params)
     },
     async addPurchaseLink() {
-      let params = {
-        goodsIdLists: this.linkRow.goods_info.goods_id,
+      const params = {
+        goodsIdLists: this.linkRow.goods_info.goods_id
       }
-      let res = await this.$api.getPurchaseLists(params)
+      const res = await this.$api.getPurchaseLists(params)
       if (res.data.code === 200) {
-        let params = {
+        const params = {
           note: '',
           purchase_url: '',
           purchase_platform_id: '',
           purchase_goods_id: '',
-          is_default: '',
+          is_default: ''
         }
         if (res.data.data[0].purchase_detail.length > 0) {
           this.rowBuyLinks = res.data.data[0].purchase_detail
@@ -242,15 +253,15 @@ export default {
       console.log(this.rowBuyLinks, 'rowBuyLinks')
       this.addBuyLinkVisible = true
     },
-    //点击复制
+    // 点击复制
     copyItem(attr) {
-      let target = document.createElement('div')
+      const target = document.createElement('div')
       target.id = 'tempTarget'
       target.style.opacity = '0'
       target.innerText = attr
       document.body.appendChild(target)
       try {
-        let range = document.createRange()
+        const range = document.createRange()
         range.selectNode(target)
         window.getSelection().removeAllRanges()
         window.getSelection().addRange(range)
@@ -258,11 +269,11 @@ export default {
         window.getSelection().removeAllRanges()
         this.$message.success('复制成功')
       } catch (e) {
-        //console.log('复制失败')
+        // console.log('复制失败')
       }
       target.parentElement.removeChild(target)
-    },
-  },
+    }
+  }
 }
 </script>
 

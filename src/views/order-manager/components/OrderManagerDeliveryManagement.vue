@@ -583,9 +583,9 @@ export default {
     // 同步单个面单信息
     async syncFaceDataSingle(row) {
       // 同步单个，强制开启申请面单
-      if (row.hasLogistics == '1' && row.tracking_no != '') {
-        return this.$message.warning('订单面单已存在，无需再同步！')
-      }
+      // if (row.hasLogistics == '1' && row.tracking_no != '') {
+      //   return this.$message.warning('订单面单已存在，无需再同步！')
+      // }
       this.syncSurface([row], true)
     },
     // 同步面单信息

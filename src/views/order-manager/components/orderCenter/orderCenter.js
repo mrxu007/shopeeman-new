@@ -1527,6 +1527,14 @@ const lazadaUrlList = {
   'PH': 'https://acs-m.lazada.com.ph',
   'SG': 'https://acs-m.lazada.sg'
 }
+const lazadaBuyLinkList = [
+  'https://www.lazada.com.my',
+  'https://www.lazada.vn',
+  'https://www.lazada.co.id',
+  'https://www.lazada.com.ph',
+  'http://www.lazada.co.th',
+  'https://www.lazada.sg'
+]
 const forbidData = [
   '爆炸性、易燃性、腐蚀性、放射性和毒性等危险物品',
   '货币、支票、有价证券、有价金属、人造钻石、珠宝或其他贵重物品',
@@ -2078,6 +2086,7 @@ export {
   platformPayMethod,
   goodsSourceListPurchase,
   muidList,
+  lazadaBuyLinkList,
   changePlatformPayMethod,
   changeShotStatus,
   changeBuyerType,
