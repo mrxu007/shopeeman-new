@@ -396,7 +396,7 @@
         <el-button size="mini" type="primary" :disabled="isBanPerform" disabled>导入数据</el-button>
         <el-button size="mini" @click="cancelRelease">取消发布</el-button>
         <el-button size="mini" type="primary" @click="deleteGoodsList(true)" :disabled="isBanPerform">清理全部</el-button>
-        <el-button size="mini" type="primary" :disabled="isBanPerform" disabled>设置定时任务</el-button>
+        <el-button size="mini" type="primary" @click="setTimeShow" :disabled="isBanPerform">设置定时任务</el-button>
         <el-button size="mini" type="primary" @click="enterCategory(2,1)" :disabled="isBanPerform">批量映射虾皮类目
         </el-button>
         <el-button size="mini" :type="isNoFoldShow && 'primary' || ''" @click="isNoFoldShow = !isNoFoldShow">
@@ -1033,6 +1033,11 @@
           </u-table>
         </div>
       </el-dialog>
+      <el-dialog title="定时刊登配置" width="700px" top="10vh" :close-on-click-modal="false" :visible.sync="setTimeVisible">
+        <div>
+
+        </div>
+      </el-dialog>
     </div>
   </el-row>
 </template>
@@ -1369,7 +1374,8 @@ export default {
       preorderMaxDays: '',
       detailsVisible: false,
       newOnDetails: {},
-      newOnDetailsList: []
+      newOnDetailsList: [],
+      setTimeVisible: false,
     }
   },
   computed: {},
@@ -2921,6 +2927,34 @@ export default {
         }
       }
       this.detailsVisible = true
+    },
+    setTimeShow(){
+      if (this.goodsTableSelect.length < 1) {
+        this.$message.error('请选择商品后再操作')
+        return
+      }
+      if (this.logistics.length < 1) {
+        this.$message.error('配置物流信息后再操作')
+        return
+      }
+      if (this.mallList.length < 1) {
+        this.$message.error('请选择店铺后再操作')
+        return
+      }
+      if (this.customLogistics.length > 0) {
+        for (let item of this.customLogistics) {
+          if (!(item.price * 1)) {
+            this.$message.error('运费价格有误，请确认')
+            return
+          }
+        }
+      }
+      if (this.storeConfig.watermarkChecked && this.watermarkSetting && !this.watermarkSetting.type) {
+        this.$message.error('配置水印后再操作')
+        return
+      }
+      
+      this.setTimeVisible = true
     }
   }
 }
