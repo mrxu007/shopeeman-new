@@ -1447,7 +1447,8 @@ export default {
       },
       shipTypeNameObj: {
         '陆运': 1,
-        '海运': 2
+        '海运': 2,
+        '空运': 3
       },
       isVerifyObj: {
         '-1': '未审核',
@@ -1503,6 +1504,10 @@ export default {
         {
           value: '2',
           name: '海运'
+        },
+        {
+          value: '3',
+          name: '空运'
         }
       ],
       serviceList: [// 质检,贴单服务

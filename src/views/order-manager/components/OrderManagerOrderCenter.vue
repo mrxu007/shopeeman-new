@@ -306,7 +306,7 @@
         :border="false"
         :data="tableData"
         tooltip-effect="dark"
-        :height="isShow && 410 || 730"
+        :height="isShow && 420 || 730"
         :cell-style="{ padding: '0' }"
         :header-cell-style="{backgroundColor: '#f5f7fa'}"
         :resizable="true"
@@ -318,7 +318,7 @@
         </u-table-column>
         <u-table-column
           v-for="item in tableColumnList"
-          v-if="tableColumnShow && item.is_show"
+          v-if="tableColumnShow && item.is_show === 1"
           :key="item.key"
           :width="item.width || '80'"
           :align="item.align||'left'"
@@ -446,20 +446,29 @@
               style="display: flex; flex-direction: column;padding: 0;"
               :style="{ color: item.rowColor && tableRowBound(item.rowColor,row,$index,item) || ''}"
             >
-              <span>{{ item.rowShow && tableRowBound(item.rowShow, row, $index, item) || getTableRow(row,item.prop) }}</span>
-              <el-link v-if="item.propLink" size="mini" type="danger" @click="item.rowClick && tableRowBound(item.rowClick,row,$index,item) || ''">
-                查看采购地址
+              <!--              <span v-if="item.rowShow === 'getCategoryName'" style="text-overflow: ellipsis; overflow: hidden;">-->
+              <!--                {{ row.goods_info ? getCategoryName(row.goods_info.goods_category_id, row.country) : '未匹配到类目' }}-->
+              <!--              </span>-->
+              <span style="text-overflow: ellipsis; overflow: hidden;">
+                {{ item.rowShow && tableRowBound(item.rowShow, row, $index, item) || getTableRow(row,item.prop) }}
+              </span>
+              <el-link
+                v-if="item.propLink && item.propLinkName"
+                size="mini"
+                type="danger"
+                @click="item.rowClick && tableRowBound(item.rowClick,row,$index,item) || ''"
+              >
+                {{ item.propLinkName }}
               </el-link>
-              <el-link v-else-if="Number(getTableRow(row,item.prop)) === 1" size="mini" type="danger" @click="setSKURelation(row)">
+              <el-link
+                v-else-if="item.propLink && Number(getTableRow(row,item.propLink)) === 1"
+                size="mini"
+                type="danger"
+                @click="setSKURelation(row)"
+              >
                 {{ row.empty_info ? '重新映射SKU' : '加入收藏' }}
               </el-link>
             </p>
-            <!--            <span v-else-if="item.showType === 5" :style="{ color: changeOrderStatus(getTableRow(row, item.prop), 'color') }">-->
-            <!--              {{ tableRowBound(item.rowShow, row, $index, item) }}-->
-            <!--            </span>-->
-            <!--            <p v-else-if="item.showType === 18" style="padding: 0" :style="{ color: changeShotStatus(getTableRow(row,item.prop), 'color') }">-->
-            <!--              {{ changeShotStatus(getTableRow(row, item.prop)) }}-->
-            <!--            </p>-->
             <el-button
               v-else-if="item.showType === 7"
               size="mini"
@@ -526,7 +535,7 @@
             </p>
             <div v-else-if="item.showType === 23">
               <div
-                v-if="!(row.id === activeRemarkID) && row.remark == ''"
+                v-if="!(row.id === activeRemarkID) "
                 style="cursor: pointer; min-width: 20px"
                 @click.stop="editRemark($index, row.id)"
               >
@@ -1246,7 +1255,7 @@ export default {
           width: '120',
           align: '',
           rowDblClick: 'copyItem',
-          prop: 'mall_info.platform_mall_name,mall_info.platform_mall_name',
+          prop: 'mall_info.mall_alias_name,mall_info.platform_mall_name',
           showOverflowTooltip: true,
           showType: 0
         }, {
@@ -1298,6 +1307,7 @@ export default {
           rowShow: 'changeTypeName',
           prop: 'goods_info.ori_platform_id',
           propLink: 'goods_info.ori_url',
+          propLinkName: '查看采购地址',
           rowClick: 'openUrl',
           sortable: true,
           showType: 4
@@ -1383,7 +1393,8 @@ export default {
           name: '商品规格',
           width: '100',
           align: 'center',
-          prop: 'goods_info.ori_platform_id',
+          propLink: 'goods_info.ori_platform_id',
+          prop: 'goods_info.variation_name',
           showOverflowTooltip: true,
           showType: 4
         }, {
@@ -1487,6 +1498,7 @@ export default {
           name: '采购状态',
           width: '120',
           align: '',
+          propLink: 'true',
           rowColor: 'changeShotStatus_color',
           rowShow: 'changeShotStatus',
           prop: 'shot_order_info.shot_status',
@@ -3154,20 +3166,20 @@ export default {
     async uploadColumn() {
       this.tableColumnShow = false
       this.tableColumnList = this.columnConfigShowList
+      console.log(this.tableColumnList)
       const arr = []
       this.columnConfigShowList.forEach((item) => {
-        const par = {
+        arr.push({
           columnHeader: item.column_header,
           isShow: item.is_show,
-          sortNumber: item.sortNumber
-        }
-        arr.push(par)
+          sortNumber: item.sort_number
+        })
       })
       const params = {
         // columnId: 1, //  1 => '订单列表',         2 => '售后列表',
         lists: arr
       }
-      console.log(params)
+      console.log('params', params)
       const res = await this.$api.uploadColumnsConfig(params)
       this.tableColumnShow = true
       this.closeDialog()
@@ -3180,14 +3192,20 @@ export default {
     },
     // 获取自定义配置列
     async getColumnsConfig() {
-      const { data } = await this.$api.getColumnsConfig()
-      if (data.code === 200) {
-        const resData = data.data || []
-        if (resData.length) {
-          this.columnConfigList = resData
+      try {
+        const { data } = await this.$api.getColumnsConfig()
+        if (data.code === 200) {
+          const resData = data.data || []
+          if (resData.length) {
+            this.columnConfigList = resData
+          }
         }
+        console.log(this.columnConfigList)
+      } catch (e) {
+
+      } finally {
+        this.setColumnConfigShowList()
       }
-      this.setColumnConfigShowList()
     },
     // 同步物流单号
     async syncLogistics() {
@@ -3284,6 +3302,7 @@ export default {
         this.$message.warning(`获取订单列表失败`)
         this.tableLoading = false
       }
+      console.log('tableData', this.tableData)
     },
     async getSkuRelation() {
       let sysOrders = ''
@@ -3458,7 +3477,7 @@ export default {
       evt.preventDefault()
       const checkMenusList = []
       this.columnConfigShowList.map((item, index) => {
-        checkMenusList.push(Object.assign(item, { sortNumber: index }))
+        checkMenusList.push(Object.assign(item, { sort_number: index }))
         return checkMenusList
       })
       console.log('columnConfigShowList', this.columnConfigShowList)
@@ -3467,22 +3486,28 @@ export default {
       let list = [{}, {}]
       const list1 = []
       this.tableColumnList.forEach(item => {
-        const itemShow = this.columnConfigList.find(son => item.name === son.column_header)
+        const itemShow = this.columnConfigList.find(son => item.name === (son && son.column_header || ''))
         if (item.name === '订单编号') {
           list[0] = Object.assign(item, itemShow)
         } else if (item.name === '操作') {
           list[1] = Object.assign(item, itemShow)
-        } else if (itemShow && itemShow.sortNumber) {
-          list1.push(Object.assign(item, itemShow, { is_show: 1 }))
+        } else if (itemShow && itemShow.sort_number) {
+          list[itemShow.sort_number] = (Object.assign(item, itemShow))
         } else {
-          list.push(Object.assign(item, itemShow))
+          list1.push(Object.assign(item, { is_show: 1 }))
         }
       })
+      for (let i = 0; i < list.length; i++) {
+        const item = list[i]
+        if (!item) {
+          list[i] = list1.splice(0, 1)[0]
+        }
+      }
       for (const item of list1) {
-        list.splice(list1.sortNumber, 0, item)
+        list.push(item)
       }
       list = [...list.map((item, index) => {
-        return Object.assign(item, { sortNumber: index,
+        return Object.assign(item, { sort_number: index,
           column_header: item.column_header || item.name })
       })]
       this.tableColumnList = list
@@ -3861,8 +3886,11 @@ export default {
   min-width: 20px;
   background-color: #F5F7FA;
   border: 1px #E4E7ED solid;
-  color: #C0C4CC;
   border-radius: 4px;
   height: 28px;
+  line-height: 26px;
+  color: #C0C4CC;
+  padding: 0 10px !important;
+  overflow: hidden;
 }
 </style>

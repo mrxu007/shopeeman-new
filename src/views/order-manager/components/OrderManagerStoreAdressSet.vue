@@ -27,28 +27,27 @@
         </el-tab-pane>
       </el-tabs>
       <div class="content">
-        <el-table
+        <u-table
           ref="multipleTable"
           :data="tableData"
+          use-virtual
+          height="640"
           tooltip-effect="dark"
-          height="calc(100vh - 206px)"
           :header-cell-style="{
-            backgroundColor: '#f5f7fa',
-          }"
-        >
-          <el-table-column type="index" label="序号" min-width="50px" align="center" fixed />
-          <el-table-column min-width="140px" label="仓库" fixed prop="warehouse_name" />
-          <el-table-column min-width="300px" label="地址" prop="full_address" show-overflow-tooltip>
+            backgroundColor: '#f5f7fa'}">
+          <u-table-column type="index" label="序号" min-width="50px" align="center" fixed />
+          <u-table-column min-width="140px" label="仓库" fixed prop="warehouse_name" />
+          <u-table-column min-width="300px" label="地址" prop="full_address" show-overflow-tooltip>
             <template slot-scope="{ row }">
               <div>{{ row.full_address }}</div>
             </template>
-          </el-table-column>
-          <el-table-column min-width="120px" label="收件人" prop="receiving_name" />
-          <el-table-column prop="type" label="仓库类型" min-width="100px">
+          </u-table-column>
+          <u-table-column min-width="120px" label="收件人" prop="receiving_name" />
+          <u-table-column prop="type" label="仓库类型" min-width="100px">
             <template slot-scope="scope"> {{ typeObj[scope.row.type] }} </template>
-          </el-table-column>
-          <el-table-column min-width="100px" label="联系电话" prop="receiving_tel" show-overflow-tooltip />
-          <el-table-column min-width="130px" label="自有手机号" prop="own_phone">
+          </u-table-column>
+          <u-table-column min-width="100px" label="联系电话" prop="receiving_tel" show-overflow-tooltip />
+          <u-table-column min-width="130px" label="自有手机号" prop="own_phone">
             <template slot-scope="{ row }">
               <div v-if="row.isUser === 0">
                 <el-input v-if="row.isPhone" v-model="row.own_phone" v-fo size="mini" @blur="updateOwnPhone(row)" />
@@ -58,30 +57,30 @@
                 </span>
               </div>
             </template>
-          </el-table-column>
-          <el-table-column min-width="80px" label="邮编" prop="post_code" />
-          <el-table-column min-width="140px" label="是否开启自有手机号" align="center">
+          </u-table-column>
+          <u-table-column min-width="80px" label="邮编" prop="post_code" />
+          <u-table-column min-width="140px" label="是否开启自有手机号" align="center">
             <template slot-scope="{ row }">
               <el-switch v-model="row.is_use_own_phone" :disabled="row.isUser === 1 || row.own_phone === ''" active-color="#13ce66" inactive-color="#ff4949" @change="updateOwnPhone(row)" />
             </template>
-          </el-table-column>
-          <el-table-column min-width="100px" label="绑定店铺数量">
+          </u-table-column>
+          <u-table-column min-width="100px" label="绑定店铺数量">
             <template slot-scope="scope"> {{ scope.row.mallInfo.length }} </template>
-          </el-table-column>
-          <el-table-column min-width="90px" label="对应站点" prop="country">
+          </u-table-column>
+          <u-table-column min-width="90px" label="对应站点" prop="country">
             <template slot-scope="scope"> {{ scope.row.country | chineseSite }} </template>
-          </el-table-column>
-          <el-table-column min-width="120px" label="绑定的店铺" show-overflow-tooltip>
+          </u-table-column>
+          <u-table-column min-width="120px" label="绑定的店铺" show-overflow-tooltip>
             <template slot-scope="scope"> {{ bindMallName(scope.row.mallInfo) }} </template>
-          </el-table-column>
-          <el-table-column label="操作" min-width="360px">
+          </u-table-column>
+          <u-table-column label="操作" min-width="360px">
             <template slot-scope="{ row }">
               <el-button type="primary" size="mini" @click="updateBindMall(row)">修改绑定店铺</el-button>
               <el-button v-if="row.isUser === 1" type="primary" size="mini" @click="updateItself(row, flag4 ? 1 : 2)">修改自有仓库地址</el-button>
               <el-button v-if="row.isUser === 1" type="primary" size="mini" @click="deleteOwnStore(row)">删除仓库</el-button>
             </template>
-          </el-table-column>
-        </el-table>
+          </u-table-column>
+        </u-table>
       </div>
     </div>
     <!--选择地址弹窗-->
@@ -223,38 +222,37 @@
           <store-choose-mall :key="changeIndex" :is-all="true" :show-mall="false" @changeMallList="changeMallList" />
           <el-button style="margin-left: 15px" type="primary" size="mini" @click="getBindMall">查 询</el-button>
         </div>
-        <el-table
+        <u-table
           ref="bindMallDataRef"
+          height="420"
           v-loading="warehouseLoading"
           :data="bindMallData"
-          stripe
-          style="min-width: 240px"
-          max-height="450"
-          :row-key="getRowKey"
+          stripe use-virtual :row-key="getRowKey"
           @selection-change="handleSelectionChange"
-        >
-          <el-table-column type="selection" align="center" min-width="45" :reserve-selection="true" />
-          <el-table-column prop="country" align="center" label="站点" min-width="90">
+          :header-cell-style="{
+            backgroundColor: '#f5f7fa'}">
+          <u-table-column type="selection" align="center" min-width="45" :reserve-selection="true" />
+          <u-table-column prop="country" align="center" label="站点" min-width="90">
             <template slot-scope="{ row }">
               {{ row.country | chineseSite }}
             </template>
-          </el-table-column>
-          <el-table-column align="center" label="店铺名称" min-width="120">
+          </u-table-column>
+          <u-table-column align="center" label="店铺名称" min-width="120">
             <template slot-scope="{ row }">
               {{ row.mallAliasName ? row.mallAliasName : row.platformMallName }}
             </template>
-          </el-table-column>
-          <el-table-column align="center" label="绑定国内仓" min-width="120">
+          </u-table-column>
+          <u-table-column align="center" label="绑定国内仓" min-width="120">
             <template slot-scope="{ row }">
               {{ row.address.warehouse_name }}
             </template>
-          </el-table-column>
-          <el-table-column align="center" label="绑定海外仓" min-width="120">
+          </u-table-column>
+          <u-table-column align="center" label="绑定海外仓" min-width="120">
             <template slot-scope="{ row }">
               {{ row.overseas_address.warehouse_name }}
             </template>
-          </el-table-column>
-        </el-table>
+          </u-table-column>
+        </u-table>
       </div>
     </el-dialog>
     <!--Shopee地址设置弹窗-->

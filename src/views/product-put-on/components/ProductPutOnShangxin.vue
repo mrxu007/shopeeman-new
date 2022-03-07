@@ -2917,7 +2917,7 @@ export default {
            * product_id
            * price
            */
-          this.newOnDetailsList.push(newOnDetails[key])
+          this.newOnDetailsList.push({...newOnDetails[key],mallId:key})
         }
       }
       this.detailsVisible = true
