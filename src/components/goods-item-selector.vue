@@ -189,7 +189,7 @@ export default {
       }
     }
   },
-  watch: {},
+
   mounted() {
     console.log('mallList', this.mall)
     this.country = this.mall.country
@@ -256,7 +256,7 @@ export default {
         } else {
           index = Math.floor((offset / 100) + 1)
         }
-        let limit = this.searchParams.goodsCount < 100 && this.searchParams.goodsCount || item.limit || 100
+        const limit = this.searchParams.goodsCount < 100 && this.searchParams.goodsCount || item.limit || 100
         const parma = {
           mallId: item.platform_mall_id,
           offset: offset,
