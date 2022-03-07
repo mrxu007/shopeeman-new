@@ -26,7 +26,8 @@ export default class NetMessageBridgeService {
     return {
       mallId: data.mallId || data.platform_mall_id || data.shop_id,
       isEmoticons: false,
-      isFrontShopeeApi: true
+      isFrontShopeeApi: true,
+      isAddCsrfToken: data.isAddCsrfToken || false
     }
   }
   // 各站点本土前台网址
@@ -206,6 +207,7 @@ export default class NetMessageBridgeService {
       options['extrainfo']['exportInfo'] = exportInfo
     }
     delete data.mallId // body 里面不能带店铺id
+    delete data.isAddCsrfToken
     options['params'] = data
     const referer = options['headers'] && options['headers'].referer
     if (referer) {
@@ -228,6 +230,7 @@ export default class NetMessageBridgeService {
       // Object.assign(options['extrainfo'],JSON.parse(JSON.stringify()))
     }
     delete data.mallId
+    delete data.isAddCsrfToken
     const referer = options['headers'] && options['headers'].referer
     if (referer) {
       options['headers'] = Object.assign(options['headers'], {

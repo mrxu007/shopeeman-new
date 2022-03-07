@@ -664,9 +664,14 @@ export default {
       debugger
       if (res.code !== 200) {
         this.$refs.Logs.writeLog(`【${mall.mall_alias_name || mall.platform_mall_name}】关注${shop.ShopId}失败`, false)
-        return true
+      } else {
+        if (res.data) {
+          this.$refs.Logs.writeLog(`【${mall.mall_alias_name || mall.platform_mall_name}】关注${shop.ShopId}成功`, true)
+          return true
+        } else {
+          this.$refs.Logs.writeLog(`【${mall.mall_alias_name || mall.platform_mall_name}】关注${shop.ShopId}失败`, false)
+        }
       }
-      this.$refs.Logs.writeLog(`【${mall.mall_alias_name || mall.platform_mall_name}】关注${shop.ShopId}成功`, true)
       return false
     },
     // 取关用户

@@ -114,6 +114,7 @@ export default class GoodsDiscount {
     try {
       const params = {}
       params['mallId'] = item.mallId
+      params['isAddCsrfToken'] = true
       params['userShopid'] = item.userShopid
       // params['ShopId'] = item.ShopId
       params['csrfmiddlewaretoken'] = this.guid().replaceAll('-', '')
@@ -133,13 +134,16 @@ export default class GoodsDiscount {
 
         }
       })
-      console.log('135', res)
-      return { code: 201, data: false, message: '请求失败' }
-      // if (res) {
-      //   return { code: 200, data: true }
-      // } else {
-      //   return { code: 201, data: false, message: '请求失败' }
-      // }
+      const data = JSON.parse(res)
+      if (data.status === 200) {
+        if (JSON.parse(data.data).success) {
+          return { code: 200, data: true }
+        } else {
+          return { code: 200, data: false }
+        }
+      } else {
+        return { code: 201, data: false, message: '请求失败' }
+      }
     } catch (error) {
       return { code: -2, data: `关注请求异常 ${error}` }
     }
@@ -150,6 +154,8 @@ export default class GoodsDiscount {
     try {
       const params = {}
       params['mallId'] = item.mallId
+      params['isAddCsrfToken'] = true
+
       params['userShopid'] = item.userShopid
       // params['ShopId'] = item.ShopId
       params['csrfmiddlewaretoken'] = this.guid().replaceAll('-', '')
