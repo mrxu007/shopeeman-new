@@ -219,8 +219,8 @@ export default {
   getsecondStroelist: (data) => AppRequest.post('/overseasTansferPackage/index', data), // 获取智能仓库二次销售列表
   getlupplementlist: (data) => AppRequest.get('/getReissueStoreList', { params: data }), // 获取海外仓补件列表
   cancelsupplement: (data) => AppRequest.post('/cancelReissueOrder', data), // 取消补件
-  getStockSkuId: (data) => AppRequest.post('/warehouse/stockListV2', data), //获取备货库存skuId
-  uploadStockSkuId: (data) => AppRequest.post('/goodsStockSkuRelation/uploadStockSkuId',  data ), // 上报备货库存skuId
+  getStockSkuId: (data) => AppRequest.post('/warehouse/stockListV2', data), // 获取备货库存skuId
+  uploadStockSkuId: (data) => AppRequest.post('/goodsStockSkuRelation/uploadStockSkuId', data), // 上报备货库存skuId
 
   // 产品中心------------------------------------------------------------------------
   getproductlist: (data) => AppRequest.get('/product/list', { params: data }), // 获取产品列表
@@ -267,5 +267,6 @@ export default {
   translateApp: (data) => AppRequest.get('/translateApp/index', { params: data }), // 获取翻译
   translateAppAdd: (data) => AppRequest.post('/translateApp/add', data), // 新增翻译
   translateAppUpdate: (data) => AppRequest.post('/translateApp/update', data), // 刷新翻译
-  translateAppDelete: (data) => AppRequest.post('/translateApp/delete', data) // 删除翻译
+  translateAppDelete: (data) => AppRequest.post('/translateApp/delete', data), // 删除翻译
+  updateOrderPrintStatus: (data) => AppRequest.post('/order/updateOrderPrintStatus', data) // 标记面单已打印或已下载
 }
