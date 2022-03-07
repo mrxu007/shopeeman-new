@@ -36,12 +36,12 @@
             <ul>
               <!-- row2.1 -->
               <li>
-                <el-button type="primary" size="mini" style="width:105px">开始取关</el-button>
+                <el-button type="primary" size="mini" style="width:105px" @click="Unfollower(1)">开始取关</el-button>
                 <el-button type="primary" size="mini">取消操作</el-button>
               </li>
               <!-- row2.2 -->
               <li>
-                <el-button type="primary" size="mini">取关所有用户</el-button>
+                <el-button type="primary" size="mini" @click="Unfollower(0)">取关所有用户</el-button>
                 <el-button type="primary" size="mini">取关未关注我的用户</el-button>
               </li>
               <li style="height:30px" />
@@ -203,14 +203,89 @@ export default {
     this.getUserinfo() // 获取用户设置数据
   },
   methods: {
-    // 取关
-    Unfollower() {
-      for (const mall of this.tableList) {
-        // 获取HOME店铺数据
-        this.getHomeMallData(mall)
-        // 获取店铺粉丝
+    // 定时刷粉？？？？？？？？？？？？？？？？？？
+    // 判断用户是否登录
+    async isLogin(mall) {
+      const res = await this.MallAPIInstance.isLogin(mall)
+      if (res.code === 200 && res.data) {
+        return true
+      } else {
+        this.$refs.Logs.writeLog(`【${mall.mall_alias_name || mall.platform_mall_name}】店铺未登录`, false)
+        return false
       }
     },
+    // 取关
+    async Unfollower(type) {
+      for (const mall of this.tableList) {
+        // 判断店铺未登录
+        const islogin = await this.isLogin(mall)
+        if (!islogin) {
+          continue
+        }
+        // 获取店铺粉丝数据
+        const resMall = this.getHomeMallData(mall)
+        this.$set(mall, 'following', resMall ? resMall.account.following_count : 0)
+        this.$set(mall, 'fence', resMall ? resMall.follower_count : 0)
+        if (!resMall) {
+          // 打印该店铺暂无粉丝
+          this.$refs.Logs.writeLog(`【${mall.mall_alias_name || mall.platform_mall_name}】店铺暂无粉丝`)
+          continue
+        }
+        let shopDatas = []
+        let flag = true
+
+        // 获取第一页店铺粉丝
+        const params = {}
+        params['country'] = mall.country
+        params['mallId'] = mall.platform_mall_id
+        params['offset'] = 0
+        let totalMallFollow = 0
+        let ALLshopDatas = await this.getHomeFllowering(params) // 获取粉丝信息
+        console.log('217', ALLshopDatas)
+        // 获取粉丝详情过滤
+        shopDatas = await this.filterShopDatas(ALLshopDatas, mall.country, mall.platform_mall_id) // 筛选活跃粉丝
+        for (const shop of shopDatas) {
+          debugger
+          // 开始取关
+          const isFollow = await this.runCancerAttention(shop, mall, mall.platform_mall_id) // 开始关注
+          if (isFollow) {
+            totalMallFollow++
+          }
+          if (Number(this.userInfo.auto_attention_set.CancelFollowNumber)) { // 有数量限制取关
+            if (totalMallFollow >= Number(this.userInfo.auto_attention_set.FollowNumber)) {
+              flag = false
+              break
+            }
+          }
+        }
+        // 取关更多粉丝
+        while (flag) {
+          params['offset'] += 20
+          ALLshopDatas = await this.getHomeFllowering(params)
+          shopDatas = await this.filterShopDatas(ALLshopDatas, mall.country, mall.platform_mall_id)
+          for (let index = 0; index < shopDatas.length; index++) {
+            const shop = shopDatas[index]
+            // 开始取关
+            const isFollow = await this.runCancerAttention(shop, mall, mall.platform_mall_id)
+            if (isFollow) {
+              totalMallFollow++
+            }
+            if (Number(this.userInfo.auto_attention_set.FollowNumber) && type === 1) { // 有数量限制关注
+              if (totalMallFollow >= Number(this.userInfo.auto_attention_set.FollowNumber)) {
+                flag = false
+                break
+              }
+            } else { // 取关所有
+              if (!isFollow || totalMallFollow === Number(resMall.account.following_count)) {
+                flag = false
+                break
+              }
+            }
+          }
+        }
+      }
+    },
+
     // 获取HOME店铺数据
     async getHomeMallData(mall) {
       const params = {}
@@ -230,7 +305,25 @@ export default {
         return ''
       }
     },
+    // 获取HOME店铺数据
+    async getHomeFllowering(item) {
+      const params = {}
+      params['country'] = item.country
+      params['mallId'] = item.mallId
 
+      params['offset'] = item.offset
+      params['limit'] = 20
+      params['offset_of_offset'] = 0
+      params['timeStamp'] = new Date().getTime()
+      const res = await this.MallAPIInstance.getFllowering(params)
+      if (res.code === 200) {
+        this.$refs.Logs.writeLog(`host粉丝获取成功`, true)
+        return res.data
+      } else {
+        this.$refs.Logs.writeLog(`host粉丝获取失败，${res.message}`, false)
+        return []
+      }
+    },
     // 跳转链接
     async open(val) {
       const country = this.tableList[0].country
@@ -251,18 +344,22 @@ export default {
       // 关注
       params['country'] = 'MY'
       params['mallId'] = '268048262'
-      // params['userShopid'] = '419479351'
+      params['userShopid'] = '29058527'
       // params['ShopId'] = '239487269'
-      // const res = await this.MallAPIInstance.buyerFollow(params)
-      const resUser = await this.MallAPIInstance.UserProfile(params) // 获取userName
-      if (resUser.code === 200) {
-        const userName = resUser.data.username
-        params['username'] = userName
-        const resMall = await this.MallAPIInstance.getHomeMallinfo(params)
-        console.log('249', resMall)
-      } else {
-        return ''
-      }
+      params['followMallID'] = '239487269'
+      const res = await this.MallAPIInstance.buyerFollow(params)
+
+      // 获取userName
+      // const resUser = await this.MallAPIInstance.UserProfile(params) // 获取userName
+      // if (resUser.code === 200) {
+      //   const userName = resUser.data.username
+      //   params['username'] = userName
+      //   const resMall = await this.MallAPIInstance.getHomeMallinfo(params)
+      //   console.log('249', resMall)
+      // } else {
+      //   return ''
+      // }
+      // const res = await this.MallAPIInstance.isLogin(params)
     },
     // 添加关注店铺--弹窗
     addCancerMall() {
@@ -409,7 +506,20 @@ export default {
         // 需要涨粉的店铺
         for (const mall of this.tableList) {
           this.$refs.Logs.writeLog(`【${mall.mall_alias_name || mall.platform_mall_name}】开始处理......`, true)
-          // 店铺登录检测------
+          // 判断店铺未登录
+          const islogin = await this.isLogin(mall)
+          if (!islogin) {
+            continue
+          }
+          // 获取店铺粉丝数据
+          const resMall = this.getHomeMallData(mall)
+          this.$set(mall, 'following', resMall ? resMall.account.following_count : 0)
+          this.$set(mall, 'fence', resMall ? resMall.follower_count : 0)
+          if (!resMall) {
+          // 打印该店铺暂无粉丝
+            this.$refs.Logs.writeLog(`【${mall.mall_alias_name || mall.platform_mall_name}】店铺暂无粉丝`)
+            continue
+          }
           const params = {}
           params['country'] = mall.country
           params['mallId'] = mall.platform_mall_id
@@ -545,6 +655,22 @@ export default {
     },
     // 关注用户
     async runAttention(shop, mall, followermallID) {
+      const param = {}
+      param['country'] = mall.country
+      param['mallId'] = mall.platform_mall_id
+      param['ShopId'] = shop.ShopId
+      param['followMallID'] = followermallID
+      const res = await this.MallAPIInstance.buyerFollow(param)
+      debugger
+      if (res.code !== 200) {
+        this.$refs.Logs.writeLog(`【${mall.mall_alias_name || mall.platform_mall_name}】关注${shop.ShopId}失败`, false)
+        return true
+      }
+      this.$refs.Logs.writeLog(`【${mall.mall_alias_name || mall.platform_mall_name}】关注${shop.ShopId}成功`, true)
+      return false
+    },
+    // 取关用户
+    async runCancerAttention(shop, mall, followermallID) {
       const param = {}
       param['country'] = mall.country
       param['mallId'] = mall.platform_mall_id

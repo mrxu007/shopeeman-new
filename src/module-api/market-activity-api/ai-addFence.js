@@ -114,10 +114,10 @@ export default class GoodsDiscount {
     try {
       const params = {}
       params['mallId'] = item.mallId
-      // params['userShopid'] = item.userShopid
+      params['userShopid'] = item.userShopid
       // params['ShopId'] = item.ShopId
       params['csrfmiddlewaretoken'] = this.guid().replaceAll('-', '')
-      const res = await this._this.$shopeemanService.postChineseBuyer(item.country, `/buyer/follow/shop/${item.ShopId}/`, params, {
+      const res = await this._this.$shopeemanService.postChineseBuyer(item.country, `/buyer/follow/shop/${item.userShopid}/`, params, {
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
           'Content-Length': '52',
@@ -150,23 +150,22 @@ export default class GoodsDiscount {
     try {
       const params = {}
       params['mallId'] = item.mallId
+      params['userShopid'] = item.userShopid
+      // params['ShopId'] = item.ShopId
       params['csrfmiddlewaretoken'] = this.guid().replaceAll('-', '')
-      const res = await this._this.$shopeemanService.postChineseBuyer(item.country, `/shop/${item.UserId}/unfollowers/?`, params, {
+      const res = await this._this.$shopeemanService.postChineseBuyer(item.country, `/buyer/unfollow/shop/${item.userShopid}/`, params, {
         headers: {
-          'Content-type': 'application/x-www-form-urlencoded; charset=UTF-8',
-          referer: `/shop/${item.mallId}/followers/?__classic__=1`,
-          'accept': '*/*',
-          'user-agent': 'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.102 Mobile Safari/537.36',
+          'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+          'Content-Length': '52',
           'sec-ch-ua': '" Not A;Brand";v="99", "Chromium";v="98", "Google Chrome";v="98"',
-          'x-requested-with': 'XMLHttpRequest',
-          'If-None-Match-': this.guid(),
           'sec-ch-ua-mobile': '?1',
-          'sec-ch-ua-platform': '"Android"',
-          'sec-fetch-site': 'same-origin',
-          'sec-fetch-mode': 'cors',
-          'sec-fetch-dest': 'empty',
-          'Accept-Encoding': 'gzip, deflate, br'
-
+          referer: `/shop/${item.followMallID}/followers/?__classic__=1`,
+          'Sec-Fetch-Dest': 'empty',
+          'Sec-Fetch-Mode': 'cors',
+          'Sec-Fetch-Site': 'same-origin',
+          'Accept': ' */*',
+          'X-Requested-With': 'XMLHttpRequest',
+          'If-None-Match-': this.guid()
         }
       })
       if (res) {
@@ -334,6 +333,66 @@ export default class GoodsDiscount {
       }
     } catch (error) {
       return { code: -2, data: [], message: `用户信息获取 ${error}` }
+    }
+  }
+  // home店铺关注粉丝列表
+  async getFllowering(val) {
+    const item = val
+    try {
+      const params = {}
+      params['mallId'] = item.mallId
+
+      params['offset'] = item.offset
+      params['limit'] = item.limit
+      params['offset_of_offset'] = item.offset_of_offset
+      params['_'] = item.timeStamp
+      params['__classic__'] = 1
+      const res = await this._this.$shopeemanService.getChineseBuyer(item.country, `/shop/${item.mallId}/following/?`, params, {
+        headers: {
+          referer: `/shop/${item.mallId}/following/`,
+          'Accept-Encoding': 'gzip, deflate'
+        }
+      })
+      // 正则表达转换
+      const data = JSON.parse(res).data
+      const reg = /<li\s*?data-follower-shop-id=.(?<ShopId>[0-9]+?).\s*?data-follower[^>]+>\s*?<a(([^>]+username='(?<UserName>[^>]+)'\s*?userid=.(?<UserId>[0-9]+?).\s*?class=.shop-href.)|())>/igs
+      let info = {}
+      const mallList = []
+      do {
+        info = reg.exec(data)
+        if (info?.groups) {
+          mallList.push(info.groups)
+        }
+      } while (info = reg.exec(data))
+      if (res) {
+        return { code: 200, data: mallList }
+      } else {
+        return { code: 201, data: [], message: '请求失败' }
+      }
+    } catch (error) {
+      return { code: -2, data: `host粉丝请求异常 ${error}` }
+    }
+  }
+  // 用户是否登录
+  async isLogin(val) {
+    const item = val
+    try {
+      const params = {}
+      params['mallId'] = item.platform_mall_id
+      const res = await this._this.$shopeemanService.getChinese(item.country, `/api/v2/login/?`, params, {
+        headers: {
+          Accept: 'application/json, application/xml, text/json, text/x-json, text/javascript, text/xml'
+        }
+      })
+      const data = JSON.parse(JSON.parse(res).data)
+      console.log(data)
+      if (data.errcode) {
+        return { code: 200, data: false, message: '店铺未登录' }
+      } else {
+        return { code: 200, data: true }
+      }
+    } catch (error) {
+      return { code: -2, data: `判断用户是否登录请求异常 ${error}` }
     }
   }
 }
