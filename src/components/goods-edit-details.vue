@@ -69,7 +69,8 @@
           <div class="goods-detail-box">
             <div class="goods-image-detail" v-if="goodsDetails.spec_image.length > 0"
                  v-for="(item,index) in goodsDetails.spec_image" :key="index">
-              <el-image :src="item" @click.native="multipleCheckClick(index,1)"/>
+              <el-image v-if="item" :src="item" @click.native="multipleCheckClick(index,1)"/>
+              <div></div>
               <div class="goods-image-top-right">
                 <el-checkbox v-model="specImageCheck[index]"></el-checkbox>
               </div>
@@ -1283,7 +1284,7 @@ export default {
 
   .edit-details-box {
     min-height: 400px;
-    max-height: 70vh;
+    max-height: 78vh;
     overflow: auto;
   }
 

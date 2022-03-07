@@ -39,6 +39,7 @@ class CollectLinkApI {
           params['AccessToken'] = AccessToken
           break
       }
+      console.log(Number(platformId || Platform), params, isUseCache)
       const res = await this._this.$collectService.queryDetailById(Number(platformId || Platform), params, isUseCache)
       console.log(res)
       const isJSONData = this.isJsonString(res)

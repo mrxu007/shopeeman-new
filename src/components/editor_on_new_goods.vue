@@ -297,7 +297,7 @@
           </el-input>
         </template>
       </u-table-column>
-      <u-table-column align="left" :show-overflow-tooltip="true" label="类目" min-width="80">
+      <u-table-column align="left" show-overflow-tooltip label="类目" width="80">
         <template v-slot="{ row }">{{ getCategoty(row) || '未匹配到类目' }}</template>
       </u-table-column>
       <u-table-column align="left" label="价格" prop="price" width="70"/>
@@ -346,7 +346,7 @@
       <el-dialog
           title="商品编辑"
           width="1000px"
-          top="8vh"
+          top="2vh"
           :close-on-click-modal="false"
           :close-on-press-escape="false"
           :modal="false"
@@ -786,9 +786,11 @@ export default {
     // 开启任务
     async batchDealWith(type, data) {
       console.log('type ===', type)
-      if (this.mallTableSelect.length < 1 || type === 8) {
-        this.$message.error('请选择一个商品信息')
-        return false
+      if (type !== 8){
+        if (this.mallTableSelect.length < 1) {
+          this.$message.error('请选择一个商品信息')
+          return false
+        }
       }
       if (type !== 1) {
         let list = []
