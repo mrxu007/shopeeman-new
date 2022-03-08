@@ -485,7 +485,7 @@
       <u-table-column align="left" label="shopee类目" show-overflow-tooltip prop="categoryName" width="114">
         <template slot-scope="scope">
           <el-button type="text" @click="enterCategory(0,scope.row)">
-            {{ scope.row.categoryName || '请选择类目' }}
+            {{ scope.row.categoryName || goodsClassName[scope.row.category_id] || '请选择类目' }}
           </el-button>
         </template>
       </u-table-column>
@@ -1035,7 +1035,34 @@
       </el-dialog>
       <el-dialog title="定时刊登配置" width="700px" top="10vh" :close-on-click-modal="false" :visible.sync="setTimeVisible">
         <div>
-
+          <div class="basisInstall" style="width: 100%">
+            <div class="basisInstall-title">定时刊登设置</div>
+            <div class="basisInstall-box">
+              <div class="keepRight">上新时间间隔：</div>
+              <el-input size="mini" v-model="associatedConfig.onNewInterval"
+                        style="width: 120px;margin-right: 5px;"></el-input>S
+              <el-tooltip class="item" effect="dark" content="默认印尼站点上新时间间隔为50S，其他站点为40S" placement="top">
+                <el-button size="mini" type="text"><i class="el-icon-question" style="padding: 0 2px;"></i></el-button>
+              </el-tooltip>
+            </div>
+            <div class="basisInstall-box">
+              <div>上新加速：</div>
+              <el-input style="width: 100px;margin: 0 5px;" size="mini" v-model="basicConfig.onNewThread"
+                        @change="changeStockUpNumber(basicConfig.onNewThread,2)"></el-input>条线程
+              <el-tooltip class="item" effect="dark" content="请根据电脑配置合理设置上新线程数，最大为5" :min="1" :max="5" placement="top">
+                <el-button size="mini" type="text"><i class="el-icon-question" style="padding: 0 2px;"></i></el-button>
+              </el-tooltip>
+            </div>
+            <div class="basisInstall-box">
+              <div>时间选择：</div>
+              <el-input style="width: 60px;margin: 0 5px;" size="mini" v-model="basicConfig.onNewThread"
+                        @change="changeStockUpNumber(basicConfig.onNewThread,2)"></el-input>
+            </div>
+            <div class="basisInstall-box">
+              <div>任务名称：</div>
+              <el-input style="width: 60px;margin: 0 5px;" size="mini" v-model="basicConfig.onNewThread"></el-input>
+            </div>
+          </div>
         </div>
       </el-dialog>
     </div>
@@ -1376,6 +1403,7 @@ export default {
       newOnDetails: {},
       newOnDetailsList: [],
       setTimeVisible: false,
+      goodsClassName:{}
     }
   },
   computed: {},
@@ -1725,6 +1753,7 @@ export default {
                 let categoryName = `${category.platform_category_name}(${category.platform_category_cn_name})`
                 let index = this.goodsTable.findIndex(son => son.id === item.id)
                 this.$set(this.goodsTable[index], 'categoryName', categoryName)
+                this.goodsClassName[originCategoryId] = categoryName
                 attributesCurrent.forEach(son => {
                   if (son.attribute_id) {
                     goodsParam['attributes'].push({
@@ -2502,6 +2531,7 @@ export default {
         if (this.goodsCurrent) {
           let index = this.goodsTable.findIndex(son => son.id === this.goodsCurrent.id)
           this.$set(this.goodsTable[index], 'categoryName', categoryName)
+          this.goodsClassName[this.goodsTable[index].category_id] = categoryName
         } else {
           let attributesList = []
           val.attributesList.forEach(son => {
@@ -2524,6 +2554,7 @@ export default {
             let save = await this.$commodityService.saveCategoryRelation(param)
             let index = this.goodsTable.findIndex(son => son.id === item.id)
             this.$set(this.goodsTable[index], 'categoryName', categoryName)
+            this.goodsClassName[this.goodsTable[index].category_id] = categoryName
           })
         }
       }

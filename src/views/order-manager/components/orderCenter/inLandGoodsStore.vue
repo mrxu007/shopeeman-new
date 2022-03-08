@@ -137,19 +137,11 @@ export default {
         this.total = data.data.total
         let arr = data.data.data
         arr.forEach(async (item) => {
-          item.stock_num = item.frozen_num
+          item.stock_num = item.stock - item.frozen_num
         })
         this.tableData = arr
       }
       this.tableLoading = false
-    },
-    // 计算总库存
-    totalStock(data) {
-      let stock = 0
-      for (let i = 0; i < data.length; i++) {
-        stock += data[i].stock_num
-      }
-      return stock
     },
     handleCurrentChange(val) {
       this.currentPage = val

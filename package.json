@@ -17,7 +17,7 @@
         "compression-webpack-plugin": "^5.0.1",
         "core-js": "^3.6.5",
         "cyt-ipc": "^1.1.8",
-        "cyt-pl-plug": "^0.1.9",
+        "cyt-pl-plug": "^0.2.1",
         "dayjs": "^1.10.7",
         "echarts": "^4.9.0",
         "element-ui": "^2.13.2",
