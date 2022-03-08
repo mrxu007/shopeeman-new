@@ -25,10 +25,7 @@
               <i
                 class="el-icon-delete"
                 style="float: right; color: #8492a6; font-size: 14px; margin: 10px -10px 0 0"
-                @click="
-                  activeAccount = items
-                  deleteAccount = true
-                "
+                @click="activeAccount = items;deleteAccount = true"
               />
             </el-option>
           </el-select>
