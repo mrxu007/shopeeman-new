@@ -2018,7 +2018,7 @@ export default class NetMessageBridgeService {
 
   // 获取广告图表数据
   async getAdventAnalysis(country, data) {
-    const res = await this.getChinese(country, '/api/marketing/v3/pas/report/shop_report_by_time/', data)
+    const res = await this.getChinese(country, '/api/marketing/v3/pas/report/homepage_report_by_time/', data)
     const resObj = res && JSON.parse(res)
     // console.log(res,resObj)
     if (resObj && resObj.status === 200) {
