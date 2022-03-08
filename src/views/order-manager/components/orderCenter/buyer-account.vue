@@ -154,12 +154,12 @@
         <div class="row-style">
           <div class="tool-item">
             <span>订单状态：</span>
-            <el-select v-model="syncOrderStatus" placeholder="" size="mini" multiple collapse-tags filterable　class="inputBox" >
+            <el-select v-model="syncOrderStatus" placeholder="" size="mini" multiple collapse-tags filterable　class="inputBox">
               <el-option label="全部" value="all" @click.native="selectAll('syncOrderStatus', syncStatusList)" />
               <el-option v-for="(item, index) in syncStatusList" :key="index" :label="item.label" :value="item.value" />
             </el-select>
           </div>
-            <div class="tool-item">
+          <div class="tool-item">
             <span>同步天数：</span>
             <el-input-number v-model="syncDays" :min="1" :max="30" size="mini" label="描述文字"></el-input-number>
           </div>
@@ -167,15 +167,7 @@
       </div>
       <span slot="footer" class="dialog-footer">
         <el-button size="small" style="width: 80px; margin: 0 20px 20px" @click="sycnOrderVisible = false">取 消</el-button>
-        <el-button
-          size="small"
-          style="width: 80px; margin: 0 55px"
-          type="primary"
-          @click="
-            saveSyncOrder()
-          "
-          >确 定</el-button
-        >
+        <el-button size="small" style="width: 80px; margin: 0 55px" type="primary" @click="saveSyncOrder()">确 定</el-button>
       </span>
     </el-dialog>
   </div>
@@ -239,7 +231,7 @@ export default {
   data () {
     return {
       syncStatusList: syncStatusAll,
-      syncDays:3,//同步天数
+      syncDays: 3,//同步天数
       syncOrderStatus: ['all'],//同步状态
       selectMallList: [],//同步订单店铺选择
       sycnOrderVisible: false,//同步订单弹窗
@@ -338,7 +330,7 @@ export default {
     this.defaultSelect()
   },
   methods: {
-     changeSelect(val, key, baseData) {
+    changeSelect (val, key, baseData) {
       if (!val.includes('') && val.length === baseData.length) {
         // this.formData.sysMallId.unshift('全选')
       } else if (val.includes('') && val.length - 1 < baseData.length) {
@@ -348,7 +340,7 @@ export default {
       }
     },
     // 全选
-    selectAll(key, baseData) {
+    selectAll (key, baseData) {
       if (this[key].length < baseData.length) {
         this[key] = []
         baseData.map((item) => {
@@ -436,13 +428,13 @@ export default {
       console.log(this.buyerAccountList)
     },
     //同步
-    async saveSyncOrder(){
+    async saveSyncOrder () {
       this.sycnOrderVisible = false
       this.$parent.showConsole = false //打开日志
-      if(!this.selectMallList.length){
+      if (!this.selectMallList.length) {
         this.$parent.$refs.Logs.writeLog('店铺数据为空，同步操作已取消!', false)
       }
-      if(!this.syncOrderStatus.length){
+      if (!this.syncOrderStatus.length) {
         this.$parent.$refs.Logs.writeLog('未选择同步状态，同步操作已取消!', false)
       }
       this.$parent.$refs.Logs.writeLog(`开始同步订单，请耐心等待!`, true)
@@ -450,7 +442,15 @@ export default {
         let mall = this.selectMallList[mI]
         for (let i = 0; i < this.syncOrderStatus.length; i++) {
           //同步状态
-          let statusObj = this.syncStatusList.find(n => {return n.value === this.syncOrderStatus[i]})
+          let statusObj = {}
+          if (this.syncOrderStatus[i] === 'all') {
+            statusObj = {
+              label: '全部',
+              value: 'all'
+            }
+          }else{
+            statusObj  = this.syncStatusList.find(n => { return n.value === this.syncOrderStatus[i] })
+          }
           const orderService = new orderSync(mall, statusObj, this, this.$parent.$refs.Logs.writeLog)
           await orderService.start(`${mI + 1}/${this.selectMallList.length}`, 'manual', this.syncDays)
         }
@@ -1075,7 +1075,7 @@ export default {
   .row-style {
     display: flex;
     align-items: center;
-    margin-top:10px;
+    margin-top: 10px;
     .tool-item {
       display: flex;
       align-items: center;
