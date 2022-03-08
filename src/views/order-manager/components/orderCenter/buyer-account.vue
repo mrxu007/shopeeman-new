@@ -61,7 +61,7 @@
              </div>
         <div class="row">
           代理设置：
-          <el-select v-model="proxyType" placeholder="" size="mini" filterable　style="width:100px;margin-right:10px;">
+          <el-select v-model="proxyType" placeholder="" size="mini" filterable clearable　style="width:100px;margin-right:10px;">
             <el-option v-for="(item, index) in proxyList" :key="index" :label="item.ip_alias" :value="item.id" />
           </el-select>
           <el-select v-model="siteCode" placeholder="" size="mini" filterable style="width: 100px">
