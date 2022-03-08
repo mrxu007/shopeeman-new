@@ -431,9 +431,9 @@ export default class {
       const log_current_status = order && order.ordeTrackingHistory && order.ordeTrackingHistory.history && order.ordeTrackingHistory.history[0] && order.ordeTrackingHistory.history[0].new_status || ''
       const actual_shipping_cost = order && order.transactionHistoryDetail && order.transactionHistoryDetail.payment_info && order.transactionHistoryDetail.payment_info.shipping_subtotal && order.transactionHistoryDetail.payment_info.shipping_subtotal.shipping_fee_paid_by_shopee_on_your_behalf || 0
       const key = order.order_sn + '_' + order.status + '_' + order.status_ext + '_' + order.logistics_status + '_' + log_current_status + '_' + actual_shipping_cost
-      if (muidList.includes(this.muid)) {
-        checkList.push(order)
-      } else {
+      // if (muidList.includes(this.muid)) {
+      //   checkList.push(order)
+      // } else {
         const res = await this.$api.checkOrderSnStatus({
           orderSn: order.order_sn,
           orderKey: key,
@@ -442,7 +442,7 @@ export default class {
         if (!res.data.orderKey) {
           checkList.push(order)
         }
-      }
+      // }
     }
     return checkList
   }
