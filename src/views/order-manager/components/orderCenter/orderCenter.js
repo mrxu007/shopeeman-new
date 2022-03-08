@@ -800,12 +800,16 @@ const site_mall = [{
 // 每隔4小时同步一次 手动同步
 const syncStatusAll = [
   // { label: '未支付', value: 'unpaid'},
+  // {
+  //   label: '全部',
+  //   value: 'all'
+  // },
   {
     label: '待发货',
     value: 'toship'
   },
   {
-    label: '运送中',
+    label: '已发货',
     value: 'shipping'
   },
   {
@@ -921,7 +925,7 @@ const statusListSecond = [{
 
 // 每隔60分钟同步一次
 const statusListThird = [{
-  label: '运送中',
+  label: '已发货',
   value: 'shipping'
 },
 {

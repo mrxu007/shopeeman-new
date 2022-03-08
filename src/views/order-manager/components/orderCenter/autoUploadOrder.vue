@@ -5,7 +5,7 @@
 </template>
 
 <script>
-import { syncStatusAll, syncStatusFirst, statusListSecond, statusListThird } from './orderCenter'
+import {  syncStatusFirst, statusListSecond, statusListThird } from './orderCenter'
 import orderSync from '../../../../services/timeOrder'
 import surFaceService from '../../../../services/surfaceOrder'
 import LogisticeSyncService from '../../../../services/logistics-sync-service/logistics-sync-service-new-copy'
