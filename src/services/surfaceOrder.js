@@ -654,9 +654,9 @@ export default class {
       }
       return this.getQuanJiaFaceInfo(trackingNo, faceData, order.shop_id)
     }
-    // let faceData = await this.downloadSdJob(order.shop_id, jobId, country)
+    let faceData = await this.downloadSdJob(order.shop_id, jobId, country)
     // console.log(faceData, "faceData")
-    // return faceData
+    return faceData
   }
   // 莱尔富经济包的面单信息
   async getLaiErFuFace(orderId, shopId) {
