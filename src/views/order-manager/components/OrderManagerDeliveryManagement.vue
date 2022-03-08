@@ -89,6 +89,10 @@
                 <span>订单编号：</span>
                 <el-input v-model="selectForm.orderSn" size="mini" clearable class="inputBox" />
               </div>
+               <div class="tool-item mar-right">
+                <span>采购物流单号：</span>
+                <el-input v-model="selectForm.originalTrackingNumber" size="mini" clearable class="inputBox" />
+              </div>
               <el-button size="mini" type="primary" class="mar-right" @click="getOrderList(1)">搜索</el-button>
               <el-button size="mini" type="primary" class="mar-right" @click="goodsSearchVisible = true">订单号批量查询</el-button>
               <el-button size="mini" type="primary" class="mar-right" @click="openBefore">批量添加本地备注</el-button>
@@ -264,7 +268,8 @@ export default {
         orderStatus: 2, // 订单状态
         orderSn: '', // 订单号
         isPrint: '', // 是否下载面单
-        hasTrackingNo: '2' // 是否申请物流单号
+        hasTrackingNo: '2', // 是否申请物流单号
+        originalTrackingNumber:''//采购物流单号
       },
       orderStatusList: orderStatusList, // 订单状态
       trackStatus: ['', '已申请', '未申请'],
@@ -820,6 +825,7 @@ export default {
     },
     // 获取列表
     async getOrderList(page, goodsOrderSnStr) {
+      try {
       let sysMallId = ''
       this.selectMallList.forEach((item, index) => {
         if (index === 0) {
@@ -853,6 +859,9 @@ export default {
       this.tableLoading = false
       this.closeDialog()
       console.log(this.tableData)
+      } catch (error) {
+        this.tableLoading = false
+      }
     },
     async joinLink(row, goodsId) {
       let url = ''
