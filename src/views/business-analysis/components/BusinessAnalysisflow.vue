@@ -327,7 +327,10 @@ export default {
           dt: yesterdaytime
         }
         console.log('this is my parmas', params)
-        const attributeTreeJson = await this.$shopeemanService.getFlow(this.site, params, { headers: { 'Content-Type': 'application/json; charset=utf-8' }})
+        const attributeTreeJson = await this.$shopeemanService.getFlow(this.site, params, {
+          headers: {
+            'Content-Type': 'application/json; charset=utf-8'
+          }})
         let attributeTreeRes
         if (attributeTreeJson) {
           attributeTreeRes = JSON.parse(attributeTreeJson)
@@ -522,6 +525,7 @@ export default {
           this.tableData.push(data)
         } else if (attributeTreeRes.status === 403) {
           this.errmall.push(mallname)
+          this.$message.warning(`【${item.mall_alias_name || item.platform_mall_name}】店铺未登录`)
         }
       } catch (e) {
         console.log(e)
@@ -539,6 +543,8 @@ export default {
         await batchOperation(this.mall, this.getTableData)
         this.Loading1 = false
         this.Loading3 = false
+      } else {
+        this.$message.warning('请选择要操作的店铺')
       }
     },
     // 数据导出功能

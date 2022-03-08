@@ -223,6 +223,59 @@ export default {
     this.getUserinfo() // 获取用户设置数据
   },
   methods: {
+    // 取关未关注我的用户
+    async canCerFollowUnFollowMe() {
+      if (!this.tableList.length) {
+        this.$message.warning('请选择要操作的数据')
+        return
+      }
+      this.$refs.Logs.writeLog(`正在执行数据.....`, true)
+      for (const mall of this.tableList) {
+        this.$refs.Logs.writeLog(`当前操作店铺：【${mall.mall_alias_name || mall.platform_mall_name}】`, true)
+        // 判断HOME店铺未登录（方法里已打印了日志）
+        const islogin = await this.isLogin(mall)
+        if (!islogin) {
+          continue
+        }
+        // 获取我的关注
+        const resMall = await this.getHomeMallData(mall)
+        if (!resMall) {
+          this.$refs.Logs.writeLog(`店铺暂无关注`)
+          continue
+        }
+        const allhomeFollowringList = await this.getHomeFollowingList(mall, resMall.follower_count)
+        this.$refs.Logs.writeLog(`店铺关注获取完毕`, true)
+        // 我的粉丝
+        const params = {}
+        params['country'] = mall.country
+        params['mallId'] = mall.platform_mall_id
+        params['shopid'] = mall.platform_mall_id
+        let shopDatas = await this.GetShopLikes(params) // 获取粉丝信息
+        let ALLshopDatas = shopDatas
+        while (shopDatas.length === 20) {
+          params['offset'] += 20
+          this.$refs.Logs.writeLog(`店铺第【${(params.offset / 20) + 1}】页粉丝获取`, true)
+          shopDatas = await this.GetShopLikes(params)
+          ALLshopDatas = ALLshopDatas.concat(shopDatas)
+        }
+        this.$refs.Logs.writeLog(`店铺粉丝获取结束`, true)
+        // 筛选关注
+        let canCerFollowN = 0
+        for (const homeFollow of allhomeFollowringList) {
+          const isFollow = ALLshopDatas.indexOf(el => { return Number(el.userid) === Number(homeFollow.userid) })
+          if (isFollow < 0) {
+            // 取关
+            const isFollow = await this.runCancerAttention(homeFollow, mall, mall.platform_mall_id)
+            if (isFollow) {
+              canCerFollowN++
+            }
+          }
+        }
+        this.$refs.Logs.writeLog(`成功取关【${canCerFollowN}】个用户`, true)
+        this.$refs.Logs.writeLog(`店铺执行结束`, true)
+      }
+      this.$refs.Logs.writeLog(`数据执行结束`, true)
+    },
     stopSet() {
       this.isStop = true
       this.$refs.Logs.writeLog(`正在取消操作`)
@@ -244,6 +297,14 @@ export default {
         this.$message.warning('请选择要操作的店铺')
         return
       }
+      this.tableList.forEach(el => {
+        const obj = { ...el }
+        obj['following'] = 0
+        obj['fence'] = 0
+        obj['newFollow'] = 0
+        obj['cancerFollow'] = 0
+        obj['state'] = '-'
+      })
       await batchOperation(this.tableList, this.UnfollowerFun)
     },
     async UnfollowerFun(mall, count = { count: 1 }) {
@@ -540,6 +601,11 @@ export default {
       try {
         // 需要涨粉的店铺
         for (const mall of this.tableList) {
+          this.$set(mall, 'following', 0)
+          this.$set(mall, 'fence', 0)
+          this.$set(mall, 'newFollow', 0)
+          this.$set(mall, 'cancerFollow', 0)
+          this.$set(mall, 'state', '-')
           this.$refs.Logs.writeLog(`正在查询【${mall.mall_alias_name || mall.platform_mall_name}】店铺信息`)
           if (this.isStop) {
             return
@@ -786,7 +852,7 @@ export default {
       param['mallId'] = mall.platform_mall_id
       param['ShopId'] = shop.ShopId
       param['followMallID'] = followermallID
-      const res = await this.MallAPIInstance.buyerFollow(param)
+      const res = await this.MallAPIInstance.buyerUNFollow(param)
       debugger
       if (res.code !== 200) {
         this.$refs.Logs.writeLog(`【${mall.mall_alias_name || mall.platform_mall_name}】关注${shop.ShopId}失败`, false)

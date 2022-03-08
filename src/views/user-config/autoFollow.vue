@@ -61,8 +61,15 @@
       <span>&nbsp; 自动关注 &nbsp;</span>
       <li class="orderSet">
         <div>
-
-          <el-checkbox v-model="startAddFence">开启定时刷粉</el-checkbox>
+          <el-tooltip class="item" effect="dark" placement="top-start">
+            <div slot="content">
+              开启任务请前往【爆粉神器】添加执行任务的店铺，随后进行参数设置<br>
+              注意：1.关键词不能为空<br>
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2.一个站点只能执行一条任务<br>
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;3.同一个站点的任务保存会替换原来的任务<br>
+            </div>
+            <el-checkbox v-model="startAddFence">开启定时刷粉</el-checkbox>
+          </el-tooltip>
           <label>每日启动时间 &nbsp;</label>
           <el-time-select
             v-model="startTime"
@@ -93,7 +100,7 @@ export default {
   components: {
 
   },
-  props: ['userInfo'],
+  props: ['userInfo', 'mall'],
   data() {
     return {
       userID: '', // 用户ID
@@ -114,7 +121,7 @@ export default {
       cancerFollowNum: 100, // 取关数量
       startAddFence: false, // 开启定时刷粉
       startTime: '10:00', // 每日启动时间
-      followKey: ''// 关注关键词
+      followKey: '' // 关注关键词
     }
   },
   async mounted() {
@@ -145,6 +152,26 @@ export default {
       }
     },
     async save() {
+      // 自动刷粉
+      if (this.startAddFence && !this.mall) {
+        this.$message.warning('请前往【爆粉神器】设置需要执行的任务的店铺')
+        return
+      }
+      if (this.startAddFence && !this.KeyWord) {
+        this.$message.warning('关键词不能为空')
+        return
+      }
+      // 自动刷粉-任务
+      if (this.startAddFence) {
+        // 查看当前站点是否有过任务
+        const mallTest = await window.BaseUtilBridgeService.getAttentionUserTask(this.mall)
+        // 删除原任务
+        if (mallTest) {
+          const delMallTest = await window.BaseUtilBridgeService.deleteAttentionUserTask(mallTest.id)
+        }
+        // 添加新任务
+      }
+      // 保存设置
       const cTime = this.startTime.split(':')
       const content = {
         ProductMax: this.limitgGoods, // 店铺商品上限
@@ -218,6 +245,7 @@ export default {
          margin-bottom: 5px;
        }
      }
+
  }
 </style>
 

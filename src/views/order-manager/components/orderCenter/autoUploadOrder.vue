@@ -31,36 +31,38 @@ export default {
     this.$refs.Logs.writeLog(`定时任务分别在五分钟、八分钟之后开启`, true)
     try {
     // first task 每隔4小时同步一次
-    setTimeout(() => {
-      this.syncOrders(this.statusListFirst, 'auto-first', 60)
-      setInterval(() => {
+      setTimeout(() => {
         this.syncOrders(this.statusListFirst, 'auto-first', 60)
-      }, 4 * 60 * 60 * 1000)
-    }, 5 * 60 * 1000)
-    // second task 每隔30分钟同步一次
-    setTimeout(() => {
-      this.syncOrders(this.statusListSecond, 'auto-second', 60)
-      setInterval(() => {
+        setInterval(() => {
+          this.syncOrders(this.statusListFirst, 'auto-first', 60)
+        }, 4 * 60 * 60 * 1000)
+      }, 5 * 60 * 1000)
+      // second task 每隔30分钟同步一次
+      setTimeout(() => {
         this.syncOrders(this.statusListSecond, 'auto-second', 60)
-      }, 30 * 60 * 1000)
-    }, 8 * 60 * 1000)
-    // third task 每隔60分钟同步一次
-    setTimeout(() => {
-      this.syncOrders(this.statusListThird, 'auto-third', 60)
-      setInterval(() => {
+        setInterval(() => {
+          this.syncOrders(this.statusListSecond, 'auto-second', 60)
+        }, 30 * 60 * 1000)
+      }, 8 * 60 * 1000)
+      // third task 每隔60分钟同步一次
+      setTimeout(() => {
         this.syncOrders(this.statusListThird, 'auto-third', 60)
-      }, 60 * 60 * 1000)
-    }, 8 * 60 * 1000)
-    // 自动同步面单 8分钟开启，2小时间隔
-    setTimeout(() => {
-      this.syncFaceData()
-      setInterval(() => {
+        setInterval(() => {
+          this.syncOrders(this.statusListThird, 'auto-third', 60)
+        }, 60 * 60 * 1000)
+      }, 8 * 60 * 1000)
+      // 自动同步面单 8分钟开启，2小时间隔
+      setTimeout(() => {
         this.syncFaceData()
-      }, 2 * 60 * 60 * 1000)
-    }, 0 * 60 * 1000)
-     } catch (error) {
-       this.$refs.Logs.writeLog(`error${error}`,false)
-      console.log(error,"errorerrorerrorerrorerror")
+        setInterval(() => {
+          this.syncFaceData()
+        }, 2 * 60 * 60 * 1000)
+      }, 0 * 60 * 1000)
+      // 爆粉生神器--自动刷粉
+      this.checkTimeAutoFollow()
+    } catch (error) {
+      this.$refs.Logs.writeLog(`error${error}`, false)
+      console.log(error, 'errorerrorerrorerrorerror')
     }
   },
   methods: {
@@ -96,6 +98,12 @@ export default {
       this.$refs.Logs.writeLog(`开始同步面单---------------------------`, true)
       const service = new surFaceService(this, this.$refs.Logs.writeLog)
       service.autoStart()
+    },
+    // 爆粉生神器--自动刷粉
+    checkTimeAutoFollow() {
+      // 检测是否到达时间--获取(time mall isCheck keyword)
+      // 执行任务
+
     }
   }
 }
