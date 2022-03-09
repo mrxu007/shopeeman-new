@@ -64,9 +64,10 @@ export default class CollectionPublicApi {
         // 5：过滤特殊字符：标题、短标题、描述、过滤Emoji字符串
         await this.FilterSpecialSymbol(goodsData, item)
         // 6：对类目进行处理
-        if (item.CategoryName === '未匹配到类目' && item.OriginCategoryId !== 0) {
+        if (item.CategoryName.includes('未匹配') && item.OriginCategoryId !== 0) {
+          console.log(item.OriginCategoryId, item.Platform, item.Site)
           const cat = await this._this.$collectService.getGoodsCat(item.OriginCategoryId, item.Platform, item.Site)
-          item.CategoryName = cat.split('|')[0] || ''
+          item.CategoryName = cat.split('|')[0] || item.CategoryName
         }
         // 7:组装上报的SKU数据
         const goodsBulkInfo = {} // 商品链接采集-链接导入设置数据

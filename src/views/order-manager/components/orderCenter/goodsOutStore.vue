@@ -335,6 +335,7 @@ export default {
       }
       const list = []
       const widInfo = {}
+      console.log('zzz',arr)
       arr.forEach((item) => {
         widInfo[item.wid] = item.wid
         const obj = {

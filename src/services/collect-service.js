@@ -84,7 +84,8 @@ export default class CollectService {
   }
 
   // 获取类目名
-  getGoodsCat(category_id, source, site) {
+  getGoodsCat(category_id, source, site='') {
+    console.log('getGoodsCat',category_id, source, site)
     return this.nativeService.getGoodsCat(category_id, source, site)
   }
   // 创建系统商品编码

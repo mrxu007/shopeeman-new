@@ -161,7 +161,7 @@ export default {
         if (!item.purchase_url.length) {
           return this.$message.error(`采购链接不能为空,请检查采购链接`)
         }
-        console.log(item.purchase_url.match(shopeeIDs), '4646546554')
+        console.log(platform, '4646546554')
         if (item.purchase_url.match(execGoods)) {
           item.purchase_goods_id = item.purchase_url.match(execGoods)[1]
         } else if (item.purchase_url.match(execIDs)) {
@@ -202,6 +202,7 @@ export default {
             item.purchase_platform_id = '8'
             break
           case 'lazada':
+             case 'lazada.com':
             item.purchase_platform_id = '9'
             break
           case 'shopee':

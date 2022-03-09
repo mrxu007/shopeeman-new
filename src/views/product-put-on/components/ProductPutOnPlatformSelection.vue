@@ -932,6 +932,13 @@ export default {
       editorSelection: []
     }
   },
+  watch:{
+    flag(val){
+      if (val){
+        terminateThread()
+      }
+    }
+  },
   computed: {
     keyworBar() {
       return getPlatform(this.baseConfig.keywordConfig)

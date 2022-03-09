@@ -324,7 +324,7 @@
       </u-table-column>
       <u-table-column align="left" label="商品编码" width="130" :show-overflow-tooltip="true">
         <template v-slot="{ row }">
-          <span class="goToGoods" @click.stop="goToGoods(row)">{{ row.goods_id }}</span>
+          <span class="goToGoods" @click.stop="goToGoods(row)" style="color: red;cursor: pointer">{{ row.goods_id }}</span>
           <el-button type="text" class="copyIcon" @click="copy(row.goods_id)">
             <i class="el-icon-document-copy" /></el-button>
         </template>
