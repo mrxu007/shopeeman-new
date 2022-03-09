@@ -59,26 +59,26 @@
           </div>
         </template>
       </u-table-column>
-      <u-table-column align="left" label="上新成功数" prop="category_name" width="120">
+      <u-table-column align="left" label="上新成功数" width="120" prop="category_name">
         <template slot-scope="{ row }">{{ row.mallName || '' }}
         </template>
       </u-table-column>
-      <u-table-column align="left" label="上新失败数" prop="categoryName" width="120" show-overflow-tooltip>
+      <u-table-column align="left" label="上新失败数" width="120" prop="categoryName" show-overflow-tooltip>
         <template slot-scope="scope">
           <el-button type="text" @click="enterCategory(0,scope.row)">
             {{ scope.row.categoryName || goodsClassName[scope.row.category_id] || '请选择类目' }}
           </el-button>
         </template>
       </u-table-column>
-      <u-table-column align="left" label="执行状态" prop="price" width="120">
+      <u-table-column align="left" label="执行状态" width="120" prop="price">
         <template slot-scope="{ row }">{{ row.mallName || '' }}
         </template>
       </u-table-column>
-      <u-table-column align="left" label="任务详情" prop="sys_label_name" width="120" show-overflow-tooltip>
+      <u-table-column align="left" label="任务详情" width="120" prop="sys_label_name" show-overflow-tooltip>
         <template slot-scope="{ row }">{{ row.mallName || '' }}
         </template>
       </u-table-column>
-      <u-table-column align="left" label="启动任务" prop="sourceName" width="120">
+      <u-table-column align="left" label="启动任务" width="120" prop="sourceName">
         <template slot-scope="{ row }">{{ row.mallName || '' }}
         </template>
       </u-table-column>

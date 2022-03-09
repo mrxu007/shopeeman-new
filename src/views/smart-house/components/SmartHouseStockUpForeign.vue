@@ -533,10 +533,8 @@
                 v-model="foreignWid"
                 size="mini"
                 filterable
-                @change="
-                  foreignOverseaWid = ''
-                  widCollect(2)"
-              >
+                @change="foreignOverseaWid = ''
+                  widCollect(2)">
                 <el-option
                   v-for="(item, index) in widList"
                   :key="index"
@@ -1984,8 +1982,9 @@ export default {
           continue
         }
         if (ship_type === '空运'){
-          let url = (sku_url + '').toLocaleString()
-          if (!(url.includes('ph.') || url.includes('my.'))){
+          let wid = this.foreignWid
+          let widName = this.widList.find(son=>son.id == wid).warehouse_name
+          if (widName.includes('菲律宾') || widName.includes('马来')){
             this.$refs.Logs.writeLog(`【${index + 1}】空运暂时只支持菲律宾和马来西亚站点`, false)
             continue
           }

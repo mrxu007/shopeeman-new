@@ -173,14 +173,16 @@ export default {
       let res = await this.$XzyNetMessageService.post('xzy.getSharedIndex', params) //item.shared_id = item.id
       let resObj = res && JSON.parse(res)
       let data = resObj && JSON.parse(resObj.data)
+      console.log('getSharedIndex',data)
       let arrList = []
       if(data.code === 200){
          this.total = data.data.total
          let arr = data.data.data
          arr.forEach(item=>{
+           let id =  item.id
            let obj = item.stock
            item = obj
-           item.shared_id = item.id
+           item.shared_id = id
            item.sku_price = item.sku_price/100
            this.tableData.push(item)
         })
