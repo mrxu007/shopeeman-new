@@ -61,8 +61,15 @@
       <span>&nbsp; 自动关注 &nbsp;</span>
       <li class="orderSet">
         <div>
-
-          <el-checkbox v-model="startAddFence">开启定时刷粉</el-checkbox>
+          <el-tooltip class="item" effect="dark" placement="top-start">
+            <div slot="content">
+              开启任务请前往【爆粉神器】添加执行任务的店铺，随后进行参数设置<br>
+              注意：1.关键词不能为空<br>
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2.一个站点只能执行一条任务<br>
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;3.同一个站点的任务保存会替换原来的任务<br>
+            </div>
+            <el-checkbox v-model="startAddFence">开启定时刷粉</el-checkbox>
+          </el-tooltip>
           <label>每日启动时间 &nbsp;</label>
           <el-time-select
             v-model="startTime"
@@ -93,7 +100,7 @@ export default {
   components: {
 
   },
-  props: ['userInfo'],
+  props: ['userInfo', 'mall'],
   data() {
     return {
       userID: '', // 用户ID
@@ -114,7 +121,7 @@ export default {
       cancerFollowNum: 100, // 取关数量
       startAddFence: false, // 开启定时刷粉
       startTime: '10:00', // 每日启动时间
-      followKey: ''// 关注关键词
+      followKey: '' // 关注关键词
     }
   },
   async mounted() {
@@ -122,6 +129,8 @@ export default {
       return this.userInfo && this.userInfo.id
     })
     await this.getUserinfo() // 用户信息
+
+    this.initLog()// 初始化加载日志
   },
   methods: {
     getUserinfo() {
@@ -144,8 +153,89 @@ export default {
         this.followKey = this.userInfo.auto_attention_set.KeyWord // 关注关键词
       }
     },
+    // 时间格式转换
+    add0(m) { return m < 10 ? '0' + m : m },
+    formatTime(val) {
+      var time = new Date(val)
+      var y = time.getFullYear()
+      var m = time.getMonth() + 1
+      var d = time.getDate()
+      var h = time.getHours()
+      var mm = time.getMinutes()
+      var s = time.getSeconds()
+      return y + '-' + this.add0(m) + '-' + this.add0(d) + ' ' + this.add0(h) + ':' + this.add0(mm) + ':' + this.add0(s)
+    },
+    // 定时任务日志加载
+    async initLog() {
+      if (this.userInfo.auto_attention_set.IsOpenTimerBrushFans) {
+        const mallTest = await window.BaseUtilBridgeService.getAttentionUserTask(this.mall[0].country)
+        const logList = await window.BaseUtilBridgeService.getAttentionUserLog(mallTest.taskId)
+        logList.forEach(el => {
+          this.$refs.Logs.writeLog(`${el}`, true)
+        })
+      }
+    },
     async save() {
+      // 自动刷粉--------------
+      if (this.startAddFence && !this.mall) {
+        this.$message.warning('请前往【爆粉神器】设置需要执行的任务的店铺')
+        return
+      }
+      debugger
+      if (this.startAddFence && !this.followKey) {
+        this.$message.warning('关键词不能为空')
+        return
+      }
       const cTime = this.startTime.split(':')
+      if (this.startAddFence) {
+        const storeLog = {}
+        storeLog['country'] = this.mall[0].country
+        storeLog['log_message'] = []
+        // 查看当前站点是否有过任务
+        const mallTest = await window.BaseUtilBridgeService.getAttentionUserTask(this.mall[0].country)
+        debugger
+        // 删除原任务
+        if (mallTest) {
+          const delMallTest = await window.BaseUtilBridgeService.deleteAttentionUserTask(mallTest.id)
+          storeLog['log_message'].push('任务删除')
+          storeLog['created_at'] = this.formatTime(new Date().getTime())
+        }
+        // 添加新任务
+        const params = {
+          'country': this.mall[0].country,
+          'mall_ids': this.mall.map(item => item['platform_mall_id']).toString(),
+          'mall_names': this.mall.map(item => item['mall_alias_name'] || item['platform_mall_name']).toString(),
+          'product_max': this.limitgGoods,
+          'last_login_day': this.lastOnline,
+          'open_hour': cTime[0],
+          'open_minute': cTime[1],
+          'key_word': this.followKey,
+          'follow_number': this.followNum,
+          'follow_interval': this.interTime,
+          'is_not_follow_min_order_evaluation': this.market,
+          'min_order_evaluation': this.marketNum,
+          'is_not_follow_followed_day': this.followDay,
+          'followed_day': this.followDayNum,
+          'followed_type': this.followActor,
+          'cancel_follow_number': this.cancerFollowNum,
+          'cancel_follow_sort_type': 0
+        }
+        debugger
+        const addTest = await window.BaseUtilBridgeService.saveAttentionUserTask(JSON.stringify(params))
+        debugger
+        if (addTest) {
+          storeLog['task_id'] = addTest.task_id
+          storeLog['log_message'].push('任务创建成功')
+          storeLog['created_at'] = this.formatTime(new Date().getTime())
+        } else {
+          storeLog['log_message'].push('任务创建失败')
+          storeLog['created_at'] = this.formatTime(new Date().getTime())
+        }
+        // 存储日志
+        storeLog['log_message'] = storeLog['log_message'].toString()
+        const storLog = await window.BaseUtilBridgeService.saveAttentionUserLog(storeLog)
+      }
+      // 保存设置----------
       const content = {
         ProductMax: this.limitgGoods, // 店铺商品上限
         LastLoginDay: this.lastOnline, // 最后活跃时间
@@ -170,7 +260,7 @@ export default {
         },
         type: 4
       }
-      console.log(JSON.stringify(param))
+      // console.log(JSON.stringify(param))
       try {
         const res = await this.$api.setUserinfo(JSON.stringify(param))
         if (res.data.code === 200) {
@@ -218,6 +308,7 @@ export default {
          margin-bottom: 5px;
        }
      }
+
  }
 </style>
 

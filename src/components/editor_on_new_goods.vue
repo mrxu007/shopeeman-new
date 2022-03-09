@@ -5,76 +5,92 @@
         <div class="basisInstall-title">功能区</div>
         <div class="basisInstall-box">
           <div class="button_mini_box">
-            <el-button class="button_mini" size="mini" type="primary" @click="batchDealWith(1)" disabled>收藏数据
+            <el-button class="button_mini" size="mini" type="primary" disabled @click="batchDealWith(1)">收藏数据
             </el-button>
-            <el-button class="button_mini" size="mini" type="primary" @click="batchDealWith(2,1)"
-                       :disabled="isCollectShow">翻译数据
+            <el-button
+              class="button_mini"
+              size="mini"
+              type="primary"
+              :disabled="isCollectShow"
+              @click="batchDealWith(2,1)"
+            >翻译数据
             </el-button>
           </div>
-          <el-button style="flex: 1;margin-left: 10px;" size="mini" type="primary" @click="batchDealWith(3)"
-                     :disabled="isCollectShow">批量编辑标题/描述
+          <el-button
+            style="flex: 1;margin-left: 10px;"
+            size="mini"
+            type="primary"
+            :disabled="isCollectShow"
+            @click="batchDealWith(3)"
+          >批量编辑标题/描述
           </el-button>
-          <el-button style="flex: 1" size="mini" type="primary" @click="batchDealWith(4)" :disabled="isCollectShow">
+          <el-button style="flex: 1" size="mini" type="primary" :disabled="isCollectShow" @click="batchDealWith(4)">
             批量添加尺寸图
           </el-button>
         </div>
         <div class="basisInstall-box">
-          <el-button style="flex: 1" size="mini" type="primary" @click="batchDealWith(5)" :disabled="isCollectShow">
+          <el-button style="flex: 1" size="mini" type="primary" :disabled="isCollectShow" @click="batchDealWith(5)">
             一件组装数据到上新
           </el-button>
-          <el-button style="flex: 1" size="mini" type="primary" @click="batchDealWith(6)" :disabled="isCollectShow">
+          <el-button style="flex: 1" size="mini" type="primary" :disabled="isCollectShow" @click="batchDealWith(6)">
             产品到上新
           </el-button>
-          <el-button style="flex: 1" size="mini" type="primary" @click="batchDealWith(7)" :disabled="isCollectShow">
+          <el-button style="flex: 1" size="mini" type="primary" :disabled="isCollectShow" @click="batchDealWith(7)">
             批量删除尺寸图
           </el-button>
         </div>
         <div class="basisInstall-box">
-          <el-button style="flex: 1" size="mini" type="primary" @click="batchDealWith(8)"
-                     :disabled="!isCollect || isCollectShow">收藏失败产品重试
+          <el-button
+            style="flex: 1"
+            size="mini"
+            type="primary"
+            :disabled="!isCollect || isCollectShow"
+            @click="batchDealWith(8)"
+          >收藏失败产品重试
           </el-button>
           <el-button style="flex: 1" size="mini" type="primary" @click="batchDealWith(9)">取消操作</el-button>
-          <el-button style="flex: 1" size="mini" type="primary" @click="batchDealWith(10)" :disabled="isCollectShow">
+          <el-button style="flex: 1" size="mini" type="primary" :disabled="isCollectShow" @click="batchDealWith(10)">
             标记商品标签
           </el-button>
         </div>
         <div class="basisInstall-box">
-          <el-button style="flex: 1" size="mini" type="primary" @click="batchDealWith(11)" :disabled="isCollectShow">
+          <el-button style="flex: 1" size="mini" type="primary" :disabled="isCollectShow" @click="batchDealWith(11)">
             翻译失败产品重试
           </el-button>
-          <el-button style="flex: 1" size="mini" type="primary" @click="batchDealWith(12)" :disabled="isCollectShow">
+          <el-button style="flex: 1" size="mini" type="primary" :disabled="isCollectShow" @click="batchDealWith(12)">
             标题首字母大写
           </el-button>
-          <el-button style="flex: 1" size="mini" type="primary" @click="batchDealWith(13)" :disabled="isCollectShow">
+          <el-button style="flex: 1" size="mini" type="primary" :disabled="isCollectShow" @click="batchDealWith(13)">
             取消商品标签
           </el-button>
         </div>
         <div class="basisInstall-box">
-          <el-button style="flex: 1" size="mini" type="primary" @click="batchDealWith(14)" :disabled="isCollectShow">
+          <el-button style="flex: 1" size="mini" type="primary" :disabled="isCollectShow" @click="batchDealWith(14)">
             批量映射虾皮类目
           </el-button>
-          <el-button style="flex: 1" size="mini" type="primary" @click="batchDealWith(15)" :disabled="isCollectShow">
+          <el-button style="flex: 1" size="mini" type="primary" :disabled="isCollectShow" @click="batchDealWith(15)">
             翻译图片
           </el-button>
-          <el-button style="flex: 1" size="mini" type="primary" @click="batchDealWith(16)" :disabled="isCollectShow">
+          <el-button style="flex: 1" size="mini" type="primary" :disabled="isCollectShow" @click="batchDealWith(16)">
             批量设置重量/体积
           </el-button>
         </div>
         <div class="basisInstall-box">
-          <el-button style="flex: 1" size="mini" type="primary" @click="batchDealWith(17)" :disabled="isCollectShow">
+          <el-button style="flex: 1" size="mini" type="primary" :disabled="isCollectShow" @click="batchDealWith(17)">
             批量删除
           </el-button>
         </div>
         <el-upload
-            v-if="uploadImgAdd"
-            v-show="false"
-            style="margin-right: 10px"
-            action="#"
-            :drag="true"
-            :show-file-list="false"
-            :limit="1"
-            :auto-upload="false"
-            :on-change="imageUpload">
+          v-if="uploadImgAdd"
+          v-show="false"
+          style="margin-right: 10px"
+          action="#"
+          :drag="true"
+          :show-file-list="false"
+          :limit="1"
+          :auto-upload="false"
+          :on-change="imageUpload"
+        >
           <el-button ref="uploadImg" size="mini" type="primary">选择图片</el-button>
         </el-upload>
       </div>
@@ -86,18 +102,25 @@
         </div>
         <div class="basisInstall-box">
           <div>标签列表：</div>
-          <el-select v-model="configLabel" value="" size="mini" filterable allow-create
-                     style="width: 120px;margin-right: 5px;" :disabled="isCollectShow">
+          <el-select
+            v-model="configLabel"
+            value=""
+            size="mini"
+            filterable
+            allow-create
+            style="width: 120px;margin-right: 5px;"
+            :disabled="isCollectShow"
+          >
             <el-option v-for="(item,index) in configLabelList" :key="index" :value="item">
               <div style="display: flex;justify-content: space-between;align-items: center">
                 <div>{{ item }}</div>
-                <i class="el-icon-circle-close close-right" @click.stop="deleteConfigClick(item,index)"/>
+                <i class="el-icon-circle-close close-right" @click.stop="deleteConfigClick(item,index)" />
               </div>
             </el-option>
           </el-select>
-          <el-button size="mini" type="primary" @click.native="saveConfigLabel" :disabled="isCollectShow">保存配置信息
+          <el-button size="mini" type="primary" :disabled="isCollectShow" @click.native="saveConfigLabel">保存配置信息
           </el-button>
-          <el-button size="mini" type="primary" @click.native="selectDescribe(0)" :disabled="isCollectShow">选择模板
+          <el-button size="mini" type="primary" :disabled="isCollectShow" @click.native="selectDescribe(0)">选择模板
           </el-button>
           <!--          <el-button size="mini" type="primary" @click.native="loginAliTranslation">登录阿里翻译</el-button>-->
         </div>
@@ -117,30 +140,44 @@
           <el-checkbox v-model="translationConfig.describeChecked" size="mini" :disabled="isCollectShow">翻译描述
           </el-checkbox>
           <el-tooltip class="item" effect="dark" content="如果选择付费翻译描述，将会产生大量扣费" placement="top">
-            <el-button size="mini" type="text"><i class="el-icon-question" style="padding: 0 2px;"/></el-button>
+            <el-button size="mini" type="text"><i class="el-icon-question" style="padding: 0 2px;" /></el-button>
           </el-tooltip>
         </div>
         <div class="basisInstall-box">
           <div>翻译语种：</div>
-          <el-select v-model="translationConfig.languages" size="mini" style="width: 80px;" value=""
-                     :disabled="isCollectShow">
+          <el-select
+            v-model="translationConfig.languages"
+            size="mini"
+            style="width: 80px;"
+            value=""
+            :disabled="isCollectShow"
+          >
             <el-option
-                v-for="item in languagesList"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
+              v-for="item in languagesList"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
             />
           </el-select>
           <div style="margin-left: 10px;">失败类型：</div>
-          <el-select v-model="translationConfig.failureType" size="mini" style="width: 110px;" value=""
-                     :disabled="isCollectShow">
-            <el-option :label="'全部'" :value="0"/>
-            <el-option :label="'文字翻译失败'" :value="'3'"/>
-            <el-option :label="'图片翻译失败'" :value="'5'"/>
+          <el-select
+            v-model="translationConfig.failureType"
+            size="mini"
+            style="width: 110px;"
+            value=""
+            :disabled="isCollectShow"
+          >
+            <el-option :label="'全部'" :value="0" />
+            <el-option :label="'文字翻译失败'" :value="'3'" />
+            <el-option :label="'图片翻译失败'" :value="'5'" />
           </el-select>
           <div style="margin-left: 10px;">线程数量：</div>
-          <el-input v-model="threadNumber" size="mini" style="width: 40px;margin-right: 10px;"
-                    :disabled="isCollectShow"/>
+          <el-input
+            v-model="threadNumber"
+            size="mini"
+            style="width: 40px;margin-right: 10px;"
+            :disabled="isCollectShow"
+          />
           <el-checkbox v-model="filterSimplifiedChecked" size="mini" :disabled="isCollectShow">上新过滤简体数据</el-checkbox>
         </div>
         <div class="basisInstall-box">
@@ -150,7 +187,7 @@
           <div>删除条件：</div>
           <el-checkbox v-model="pictureConfig.deleteGoodsChecked" size="mini" :disabled="isCollectShow">删除库存低于设定值的商品
           </el-checkbox>
-          <el-input v-model="pictureConfig.inventoryNumber" size="mini" style="width: 80px;" :disabled="isCollectShow"/>
+          <el-input v-model="pictureConfig.inventoryNumber" size="mini" style="width: 80px;" :disabled="isCollectShow" />
         </div>
         <div class="basisInstall-box">
           <div style="display: flex;align-items: center">
@@ -160,29 +197,34 @@
               阿里付费翻译
             </el-radio>
             <el-tooltip style="margin-right: 10px;" class="item" effect="dark" content="0.06元一张图片" placement="top">
-              <el-button size="mini" type="text"><i class="el-icon-question" style="padding: 0 2px;"/></el-button>
+              <el-button size="mini" type="text"><i class="el-icon-question" style="padding: 0 2px;" /></el-button>
             </el-tooltip>
             <el-radio v-model="pictureConfig.typeRadio" :label="2" :disabled="isCollectShow">云图像翻译</el-radio>
           </div>
           <div style="display: flex;align-items: center">
             <div>图片翻译：</div>
             <el-select v-model="translationConfig.before" size="mini" style="width: 100px;" value="">
-              <el-option label="不翻译" :value="'no'"/>
-              <el-option label="中文" :value="1"/>
-              <el-option label="英文" :value="2"/>
+              <el-option label="不翻译" :value="'no'" />
+              <el-option label="中文" :value="1" />
+              <el-option label="英文" :value="2" />
             </el-select>
-            <div style="width: 10px;height: 1px;background-color: #333333;margin: 0 5px;"/>
-            <el-select v-if="translationConfig.before === 'no'" size="mini" style="width: 100px;" value="" disabled
-                       placeholder="不翻译">
-            </el-select>
+            <div style="width: 10px;height: 1px;background-color: #333333;margin: 0 5px;" />
+            <el-select
+              v-if="translationConfig.before === 'no'"
+              size="mini"
+              style="width: 100px;"
+              value=""
+              disabled
+              placeholder="不翻译"
+            />
             <el-select v-else v-model="translationConfig.after" size="mini" style="width: 100px;" value="">
               <el-option
-                  v-for="item in pictureLanguagesList"
-                  v-show="(pictureConfig.typeRadio !== 0 || translationConfig.before !==2) || item.free"
-                  v-if="item.isShow.indexOf(translationConfig.before)>=0"
-                  :key="item.value"
-                  :label="item.label"
-                  :value="item.value"
+                v-for="item in pictureLanguagesList"
+                v-show="(pictureConfig.typeRadio !== 0 || translationConfig.before !==2) || item.free"
+                v-if="item.isShow.indexOf(translationConfig.before)>=0"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value"
               />
             </el-select>
           </div>
@@ -246,27 +288,32 @@
       </div>
     </div>
     <u-table
-        ref="mallTableRef"
-        :data="mallTable"
-        use-virtual
-        :data-changes-scroll-top="false"
-        :header-cell-style="{backgroundColor: '#f5f7fa',}"
-        row-key="id"
-        :border="false"
-        :big-data-checkbox="true"
-        :height="isNoFoldShow && 430 || 680"
-        @selection-change="handleSelectionChange"
+      ref="mallTableRef"
+      :data="mallTable"
+      use-virtual
+      :data-changes-scroll-top="false"
+      :header-cell-style="{backgroundColor: '#f5f7fa',}"
+      row-key="id"
+      :border="false"
+      :big-data-checkbox="true"
+      :height="isNoFoldShow && 430 || 680"
+      @selection-change="handleSelectionChange"
     >
-      <u-table-column align="center" show-overflow-tooltip width="55" type="selection"/>
-      <u-table-column align="left" show-overflow-tooltip type="index" width="55" label="序号"/>
+      <u-table-column align="center" show-overflow-tooltip width="55" type="selection" />
+      <u-table-column align="left" show-overflow-tooltip type="index" width="55" label="序号" />
       <u-table-column align="left" show-overflow-tooltip label="主图" width="80" prop="Sales">
         <template v-slot="{ row }">
-          <el-tooltip effect="light" placement="right-end" :visible-arrow="false" :enterable="false"
-                      style="width: 56px; height: 56px; display: inline-block">
+          <el-tooltip
+            effect="light"
+            placement="right-end"
+            :visible-arrow="false"
+            :enterable="false"
+            style="width: 56px; height: 56px; display: inline-block"
+          >
             <div slot="content">
-              <el-image :src="row.image " style="width: 400px; height: 400px"/>
+              <el-image :src="row.image " style="width: 400px; height: 400px" />
             </div>
-            <el-image :src="{url:row.image,source:row.source} | changeImgSizeFilter" style="width: 56px; height: 56px"/>
+            <el-image :src="{url:row.image,source:row.source} | changeImgSizeFilter" style="width: 56px; height: 56px" />
           </el-tooltip>
         </template>
       </u-table-column>
@@ -279,7 +326,7 @@
         <template v-slot="{ row }">
           <span class="goToGoods" @click.stop="goToGoods(row)" style="color: red;cursor: pointer">{{ row.goods_id }}</span>
           <el-button type="text" class="copyIcon" @click="copy(row.goods_id)">
-            <i class="el-icon-document-copy"/></el-button>
+            <i class="el-icon-document-copy" /></el-button>
         </template>
       </u-table-column>
       <u-table-column align="left" label="采购来源" width="70">
@@ -289,21 +336,23 @@
       </u-table-column>
       <u-table-column align="left" label="标题" width="140">
         <template v-slot="{ row }">
-          <el-input resize="none" type="textarea"
-                    :autosize="{ minRows: 4, maxRows: 4}"
-                    @blur="goodsListUpdate(row)"
-                    placeholder="请输入标题"
-                    v-model="row.title">
-          </el-input>
+          <el-input
+            v-model="row.title"
+            resize="none"
+            type="textarea"
+            :autosize="{ minRows: 4, maxRows: 4}"
+            placeholder="请输入标题"
+            @blur="goodsListUpdate(row)"
+          />
         </template>
       </u-table-column>
       <u-table-column align="left" show-overflow-tooltip label="类目" width="80">
         <template v-slot="{ row }">{{ getCategoty(row) || '未匹配到类目' }}</template>
       </u-table-column>
-      <u-table-column align="left" label="价格" prop="price" width="70"/>
+      <u-table-column align="left" label="价格" prop="price" width="70" />
       <u-table-column align="left" label="重量(kg)" width="75">
         <template v-slot="{ row }">
-          <el-input v-model="row.weight" size="mini" @keyup.enter.native="goodsListUpdate(row)"/>
+          <el-input v-model="row.weight" size="mini" @keyup.enter.native="goodsListUpdate(row)" />
         </template>
       </u-table-column>
       <u-table-column align="left" label="体积" width="115">
@@ -311,20 +360,20 @@
           <ul>
             <li style="display: flex;align-items: center;">
               <p style="white-space: nowrap;margin-right: 5px;">长(cm) </p>
-              <el-input v-model="row.long" size="mini" @keyup.enter.native="goodsListUpdate(row)"/>
+              <el-input v-model="row.long" size="mini" @keyup.enter.native="goodsListUpdate(row)" />
             </li>
             <li style="display: flex;align-items: center;">
               <p style="white-space: nowrap;padding-right: 5px;">宽(cm) </p>
-              <el-input v-model="row.width" size="mini" @keyup.enter.native="goodsListUpdate(row)"/>
+              <el-input v-model="row.width" size="mini" @keyup.enter.native="goodsListUpdate(row)" />
             </li>
             <li style="display: flex;align-items: center;">
               <p style="white-space: nowrap;padding-right: 5px;">高(cm) </p>
-              <el-input v-model="row.height" size="mini" @keyup.enter.native="goodsListUpdate(row)"/>
+              <el-input v-model="row.height" size="mini" @keyup.enter.native="goodsListUpdate(row)" />
             </li>
           </ul>
         </template>
       </u-table-column>
-      <u-table-column align="left" label="库存" width="80" prop="stock"/>
+      <u-table-column align="left" label="库存" width="80" prop="stock" />
       <u-table-column align="left" label="操作" width="130">
         <template v-slot="scope">
           <div style="display: flex;align-items: center;">
@@ -335,8 +384,11 @@
       </u-table-column>
       <u-table-column align="left" label="操作状态" width="100">
         <template v-slot="{row}">
-          <div class="goodsTableLine" style="height: 80px"
-               :style="`color:${row.operation_type && row.operation_type.includes('收藏失败') && 'red' || '#000'}`">
+          <div
+            class="goodsTableLine"
+            style="height: 80px"
+            :style="`color:${row.operation_type && row.operation_type.includes('收藏失败') && 'red' || '#000'}`"
+          >
             {{ row.operation_type || '' }}
           </div>
         </template>
@@ -344,26 +396,26 @@
     </u-table>
     <div class="on_new_dialog">
       <el-dialog
-          title="商品编辑"
-          width="1000px"
-          top="2vh"
-          :close-on-click-modal="false"
-          :close-on-press-escape="false"
-          :modal="false"
-          :visible.sync="goodsEditorVisible"
+        title="商品编辑"
+        width="1000px"
+        top="2vh"
+        :close-on-click-modal="false"
+        :close-on-press-escape="false"
+        :modal="false"
+        :visible.sync="goodsEditorVisible"
       >
         <goods-edit-details
-            v-if="goodsEditorVisible"
-            :goods-editor="goodsEditor"
-            @goodsEditorCancel="goodsEditorCancel"
+          v-if="goodsEditorVisible"
+          :goods-editor="goodsEditor"
+          @goodsEditorCancel="goodsEditorCancel"
         />
       </el-dialog>
       <el-dialog
-          title="编辑标题描述"
-          width="620px"
-          :close-on-click-modal="false"
-          :modal="false"
-          :visible.sync="titleDescribeVisible"
+        title="编辑标题描述"
+        width="620px"
+        :close-on-click-modal="false"
+        :modal="false"
+        :visible.sync="titleDescribeVisible"
       >
         <div class="watermark_dialog">
           <div class="on_new_dialog_box">
@@ -382,24 +434,24 @@
           <div class="on_new_dialog_box" style="margin: 10px 0;">
             <div class="keepRight" style="width: 60px;">关键词：</div>
             <el-input
-                v-model="titleDescribeKey"
-                type="textarea"
-                :rows="6"
-                resize="none"
-                style="width: 100%"
-                size="mini"
-                placeholder="请输入关键词，每个单词以逗号','隔开"
+              v-model="titleDescribeKey"
+              type="textarea"
+              :rows="6"
+              resize="none"
+              style="width: 100%"
+              size="mini"
+              placeholder="请输入关键词，每个单词以逗号','隔开"
             />
           </div>
           <div class="on_new_dialog_box">
-            <div class="keepRight" style="width: 50px;"/>
+            <div class="keepRight" style="width: 50px;" />
             <el-radio v-model="titleDescribeHandleRadio" :label="0" size="mini">删除关键词</el-radio>
             <el-radio v-model="titleDescribeHandleRadio" :label="1" size="mini">添加到标题/描述前</el-radio>
             <el-radio v-model="titleDescribeHandleRadio" :label="2" size="mini">添加到标题/描述后</el-radio>
             <el-radio v-model="titleDescribeHandleRadio" :label="3" size="mini">替换标题</el-radio>
             <el-radio v-model="titleDescribeHandleRadio" :label="4" size="mini" style="margin-right: 0">替换关键词</el-radio>
             <el-tooltip class="item" effect="dark" content="原词与新词间用';'隔开，需替换多个关键词时用','间隔" placement="top">
-              <el-button size="mini" type="text"><i class="el-icon-question" style="padding: 0 2px;"/></el-button>
+              <el-button size="mini" type="text"><i class="el-icon-question" style="padding: 0 2px;" /></el-button>
             </el-tooltip>
           </div>
           <div style="display:flex;justify-content: space-evenly;margin: 15px 0;">
@@ -409,35 +461,35 @@
         </div>
       </el-dialog>
       <el-dialog
-          title="描述模板"
-          width="500px"
-          :close-on-click-modal="false"
-          :modal="false"
-          :visible.sync="describeVisible"
+        title="描述模板"
+        width="500px"
+        :close-on-click-modal="false"
+        :modal="false"
+        :visible.sync="describeVisible"
       >
         <div class="watermark_dialog">
           <div class="on_new_dialog_box">
             <div style="display: flex;align-items: center;">
               <div>标签：</div>
               <el-select v-model="describeConfigId" size="mini" style="width: 120px;" value="" @change="">
-                <el-option v-for="(item,index) in describeLabelList" :key="index" :label="item.lable" :value="item.id"/>
+                <el-option v-for="(item,index) in describeLabelList" :key="index" :label="item.lable" :value="item.id" />
               </el-select>
             </div>
             <div style="display: flex;align-items: center;margin-left: 15px;">
               新增标签：
-              <el-input v-model="describeConfig.tag" size="mini" style="width: 120px;"/>
+              <el-input v-model="describeConfig.tag" size="mini" style="width: 120px;" />
             </div>
           </div>
           <div class="on_new_dialog_box">
             <div style="white-space: nowrap">描述：</div>
             <el-input
-                v-model="describeConfig.text"
-                type="textarea"
-                :rows="6"
-                resize="none"
-                style="width: 100%"
-                placeholder=""
-                size="mini"
+              v-model="describeConfig.text"
+              type="textarea"
+              :rows="6"
+              resize="none"
+              style="width: 100%"
+              placeholder=""
+              size="mini"
             />
           </div>
           <div style="display:flex;justify-content: space-evenly;margin-top: 15px;">
@@ -449,39 +501,39 @@
         </div>
       </el-dialog>
       <el-dialog
-          title="商品标签"
-          width="300px"
-          top="25vh"
-          :close-on-click-modal="false"
-          :modal="false"
-          :visible.sync="goodsTagVisible"
+        title="商品标签"
+        width="300px"
+        top="25vh"
+        :close-on-click-modal="false"
+        :modal="false"
+        :visible.sync="goodsTagVisible"
       >
-        <goodsLabel v-if="goodsTagVisible" :goods-table-select="mallTableSelect" @goodsTagChange="goodsTagChange"/>
+        <goodsLabel v-if="goodsTagVisible" :goods-table-select="mallTableSelect" @goodsTagChange="goodsTagChange" />
       </el-dialog>
       <el-dialog
-          title="类目映射"
-          width="700px"
-          top="25vh"
-          :close-on-click-modal="false"
-          :modal="false"
-          :visible.sync="categoryVisible"
+        title="类目映射"
+        width="700px"
+        top="25vh"
+        :close-on-click-modal="false"
+        :modal="false"
+        :visible.sync="categoryVisible"
       >
         <categoryMapping
-            v-if="categoryVisible"
-            :goods-current="{}"
-            :mall-list="[]"
-            @categoryChange="categoryChange"
+          v-if="categoryVisible"
+          :goods-current="{}"
+          :mall-list="[]"
+          @categoryChange="categoryChange"
         />
       </el-dialog>
       <el-dialog
-          title="设置商品重量和体积"
-          width="300px"
-          top="25vh"
-          :close-on-click-modal="false"
-          :modal="false"
-          :visible.sync="goodsSizeVisible"
+        title="设置商品重量和体积"
+        width="300px"
+        top="25vh"
+        :close-on-click-modal="false"
+        :modal="false"
+        :visible.sync="goodsSizeVisible"
       >
-        <goods-size v-if="goodsSizeVisible" @goodsSizeChange="goodsSizeChange"/>
+        <goods-size v-if="goodsSizeVisible" @goodsSizeChange="goodsSizeChange" />
       </el-dialog>
     </div>
   </el-row>
@@ -512,46 +564,46 @@ export default {
         return false
       }
     },
-    GoodsDeliveryAddress:{
+    GoodsDeliveryAddress: {
       type: Number,
       default() {
         return 0
       }
     },
-    IsCollectDescriptionIsNull:{
+    IsCollectDescriptionIsNull: {
       type: Boolean,
       default() {
         return false
-      }},
-    IsDefaultFilterSkuCount:{
+      } },
+    IsDefaultFilterSkuCount: {
       type: Boolean,
       default() {
         return true
-      }},
-    IsFilterLazadaDeliveryDay:{
+      } },
+    IsFilterLazadaDeliveryDay: {
       type: Boolean,
       default() {
         return false
-      }},
-    IsFilterShopeeDeliveryDay:{
+      } },
+    IsFilterShopeeDeliveryDay: {
       type: Boolean,
       default() {
         return false
-      }},
-    MinShoppeDeliveryDay:{
+      } },
+    MinShoppeDeliveryDay: {
       type: Number,
       default() {
         return 0
-      }},
-    MaxShoppeDeliveryDay:{
+      } },
+    MaxShoppeDeliveryDay: {
       type: Number,
       default() {
         return 20
-      }},
+      } }
   },
   data() {
     return {
-      shopeeGoodsDeliveryAddressDic:{ // 收藏商品时使用
+      shopeeGoodsDeliveryAddressDic: { // 收藏商品时使用
         'MY': 'Mainland China',
         'TW': '中國大陸',
         'VN': 'Nước ngoài',
@@ -786,14 +838,14 @@ export default {
     // 开启任务
     async batchDealWith(type, data) {
       console.log('type ===', type)
-      if (type !== 8){
+      if (type !== 8) {
         if (this.mallTableSelect.length < 1) {
           this.$message.error('请选择一个商品信息')
           return false
         }
       }
       if (type !== 1) {
-        let list = []
+        const list = []
         this.mallTableSelect.forEach(item => {
           if (!item.isFailure) {
             list.push(item)
@@ -802,7 +854,7 @@ export default {
         this.mallTableSelect = list
       }
       if (type === 1) {
-        let list = []
+        const list = []
         this.mallTableSelect.forEach(item => {
           if (item.isFailure) {
             list.push(item)
@@ -817,7 +869,7 @@ export default {
         this.titleDescribeVisible = true
       } else if (type === 4) {
         this.uploadImgAdd = true
-        let selectIndex = this.mallTableSelect.findIndex(i => i.size_image_id)
+        const selectIndex = this.mallTableSelect.findIndex(i => i.size_image_id)
         if (selectIndex > -1) {
           this.$confirm('批量新增尺寸图时，是否替换原有尺寸图?', '提示', {
             confirmButtonText: '确定',
@@ -880,7 +932,7 @@ export default {
           }
         }
       } else if (type === 8) {
-        let list = []
+        const list = []
         this.mallTable.forEach(item => {
           if (item.isFailure) {
             list.push(item)
@@ -975,7 +1027,7 @@ export default {
         const index1 = this.mallTableSelect.findIndex(i => i.id === item.id)
         this.mallTable.splice(index, 1)
         this.mallTableSelect.splice(index1, 1)
-        let res = JSON.parse(json)
+        const res = JSON.parse(json)
         if (res.code === 200) {
           this.$message.success('商品删除成功')
         } else {
@@ -984,12 +1036,12 @@ export default {
       }
     },
     async translationPrepare(type) {
-      console.log('translationPrepare',type)
+      console.log('translationPrepare', type)
       const goodsList = []
       this.mallTableSelect.forEach(item => {
         if (type === 3 && item.operation_type && item.operation_type.includes('翻译失败')) {
           goodsList.push(item)
-        } else if (type === 2 && this.translationConfig.before !== 'no'){
+        } else if (type === 2 && this.translationConfig.before !== 'no') {
           goodsList.push(item)
         } else if (item.language.toLocaleUpperCase() !== this.translationConfig.languages.toLocaleUpperCase()) {
           if (item.language !== 'zh-Hans' || this.translationConfig.languages !== 'zh') {
@@ -1035,7 +1087,7 @@ export default {
         } else {
           tempText = neededTranslateInfoData.title
         }
-        let titleDescribeKey = this.titleDescribeKey.replaceAll('，', ',')
+        const titleDescribeKey = this.titleDescribeKey.replaceAll('，', ',')
         const keyList = titleDescribeKey.split(',')
         if (this.titleDescribeHandleRadio === 0) {
           keyList.forEach(i => {
@@ -1172,7 +1224,7 @@ export default {
           const resJson = await this.$commodityService.deleteDescriptionTemplate(this.describeConfigId)
           const res = JSON.parse(resJson)
           if (res.code === 200) {
-            let index = this.describeLabelList.findIndex(son => son.id === this.describeConfigId)
+            const index = this.describeLabelList.findIndex(son => son.id === this.describeConfigId)
             console.log(this.describeConfigId, this.describeLabelList, index)
             this.describeLabelList.splice(index, 1)
             this.describeConfigId = ''
@@ -1182,7 +1234,7 @@ export default {
           }
         } else if (type === 3) {
           if (this.describeConfigId) {
-            let index = this.describeLabelList.findIndex(son => son.id === this.describeConfigId)
+            const index = this.describeLabelList.findIndex(son => son.id === this.describeConfigId)
             const label = this.describeLabelList[index].lable
             const descriptionTemplate = await this.$commodityService.uploadDescriptionTemplate(label, this.describeConfig.text)
             const data = JSON.parse(descriptionTemplate)
@@ -1255,10 +1307,10 @@ export default {
           }
           let itemmodelsJson = JSON.stringify(neededTranslateInfoData.itemmodels)
           console.log('翻译：', this.userInfo.translate_set)
-          let saveGoodsJson = []
+          const saveGoodsJson = []
           if (this.userInfo.translate_set == '2') {
-            let goodsTitleJson = await this.$BaseUtilService.getGoodsTranslateInfo(fromLanguage, toLanguage, title)
-            let getGoodsTitle = JSON.parse(goodsTitleJson)
+            const goodsTitleJson = await this.$BaseUtilService.getGoodsTranslateInfo(fromLanguage, toLanguage, title)
+            const getGoodsTitle = JSON.parse(goodsTitleJson)
             if (getGoodsTitle && getGoodsTitle[title]) {
               param.title = getGoodsTitle[title]
             } else {
@@ -1273,7 +1325,7 @@ export default {
                 createdAt: Math.floor(new Date().getTime() / 1000)
               })
             }
-            let getGoodsDescription = JSON.parse(await this.$BaseUtilService.getGoodsTranslateInfo(fromLanguage, toLanguage, description))
+            const getGoodsDescription = JSON.parse(await this.$BaseUtilService.getGoodsTranslateInfo(fromLanguage, toLanguage, description))
             if (getGoodsDescription && getGoodsDescription[description]) {
               param.description = getGoodsTitle[description]
             } else {
@@ -1292,10 +1344,10 @@ export default {
             param.spec2 = neededTranslateInfoData.spec2
             const tier_variation = neededTranslateInfoData.tier_variation
             console.log(neededTranslateInfoData, param)
-            let spec1List = tier_variation[tier_variation.spec1].join('<><>') || ''
-            let spec2List = tier_variation[tier_variation.spec2].join('<><>') || ''
+            const spec1List = tier_variation[tier_variation.spec1].join('<><>') || ''
+            const spec2List = tier_variation[tier_variation.spec2].join('<><>') || ''
             if (this.translationConfig.specChecked) {
-              let getGoodsSpec1 = JSON.parse(await this.$BaseUtilService.getGoodsTranslateInfo(fromLanguage, toLanguage, spec1List))
+              const getGoodsSpec1 = JSON.parse(await this.$BaseUtilService.getGoodsTranslateInfo(fromLanguage, toLanguage, spec1List))
               let spec1ListDstStr = ''
               if (getGoodsSpec1 && getGoodsSpec1[spec1List]) {
                 spec1ListDstStr = getGoodsSpec1[spec1List]
@@ -1318,7 +1370,7 @@ export default {
                 spec1ListDstStr = spec1ListDstStr.replaceAll('< >< >', '<><>')
                 const spec1ListDst = spec1ListDstStr.split('<><>')
                 const spec1ListSrc = spec1List && spec1List.split('<><>')
-                let spec1ListSort = this.getArraySrcLengthSort(spec1ListSrc)
+                const spec1ListSort = this.getArraySrcLengthSort(spec1ListSrc)
                 spec1ListSort.forEach(item => {
                   itemmodelsJson = itemmodelsJson.replaceAll('"sku_spec1":"' + spec1ListSrc[item], '"sku_spec1":"' + spec1ListDst[item])
                   itemmodelsJson = itemmodelsJson.replaceAll('"sku":"' + spec1ListSrc[item], '"sku":"' + spec1ListDst[item])
@@ -1326,7 +1378,7 @@ export default {
               } else {
                 // 谷歌翻译失败
               }
-              let getGoodsSpec2 = JSON.parse(await this.$BaseUtilService.getGoodsTranslateInfo(fromLanguage, toLanguage, spec2List))
+              const getGoodsSpec2 = JSON.parse(await this.$BaseUtilService.getGoodsTranslateInfo(fromLanguage, toLanguage, spec2List))
               let spec2ListDstStr = ''
               if (getGoodsSpec2 && getGoodsSpec2[spec2List]) {
                 spec2ListDstStr = getGoodsSpec2[spec2List]
@@ -1382,15 +1434,15 @@ export default {
             console.log(neededTranslateInfoData, param)
             if (this.translationConfig.specChecked) {
               const spec1List = tier_variation[tier_variation.spec1]
-              let spec1ResultList = []
+              const spec1ResultList = []
               for (let i = 0; i < spec1List.length; i++) {
-                let item = spec1List[i]
-                let getGoodsSpec1 = JSON.parse(await this.$BaseUtilService.getGoodsTranslateInfo(fromLanguage, toLanguage, item))
+                const item = spec1List[i]
+                const getGoodsSpec1 = JSON.parse(await this.$BaseUtilService.getGoodsTranslateInfo(fromLanguage, toLanguage, item))
                 if (getGoodsSpec1 && getGoodsSpec1[item]) {
                   spec1ResultList[i] = getGoodsSpec1[item]
                 } else {
                   const itemJson = await this.$translationBridgeService.getAliYunTransResult([item], fromLanguage, toLanguage)
-                  let itemDstStr = itemJson.Data && itemJson.Data[0] && itemJson.Data[0].DstText
+                  const itemDstStr = itemJson.Data && itemJson.Data[0] && itemJson.Data[0].DstText
                   spec1ResultList[i] = itemDstStr
                   saveGoodsJson.push({
                     srcLanguage: fromLanguage,
@@ -1407,15 +1459,15 @@ export default {
                 itemmodelsJson = itemmodelsJson.replaceAll('"sku":"' + spec1List[item], '"sku":"' + spec1ResultList[item])
               })
               const spec2List = tier_variation[tier_variation.spec2]
-              let spec2ResultList = []
+              const spec2ResultList = []
               for (let i = 0; i < spec2List.length; i++) {
-                let item = spec2List[i]
-                let getGoodsSpec2 = JSON.parse(await this.$BaseUtilService.getGoodsTranslateInfo(fromLanguage, toLanguage, item))
+                const item = spec2List[i]
+                const getGoodsSpec2 = JSON.parse(await this.$BaseUtilService.getGoodsTranslateInfo(fromLanguage, toLanguage, item))
                 if (getGoodsSpec2 && getGoodsSpec2[item]) {
                   spec2ResultList[i] = getGoodsSpec2[item]
                 } else {
                   const itemJson = await this.$translationBridgeService.getAliYunTransResult([item], fromLanguage, toLanguage)
-                  let itemDstStr = itemJson.Data && itemJson.Data[0] && itemJson.Data[0].DstText
+                  const itemDstStr = itemJson.Data && itemJson.Data[0] && itemJson.Data[0].DstText
                   spec2ResultList[i] = itemDstStr
                   saveGoodsJson.push({
                     srcLanguage: fromLanguage,
@@ -1497,7 +1549,7 @@ export default {
                 imageData = Data.Data && Data.Data.Url || son.img
               } else if (this.pictureConfig.typeRadio === 2) {
                 console.log(son.img, this.translationConfig.after)
-                const json =son && son.img && await this.$translationBridgeService.getYunTranslateImg(son.img, this.translationConfig.after) || ''
+                const json = son && son.img && await this.$translationBridgeService.getYunTranslateImg(son.img, this.translationConfig.after) || ''
                 console.log(json)
                 if (json && json.Code === 200) {
                   imageData = json.Data && json.Data.Url || son.img
@@ -1537,7 +1589,7 @@ export default {
                 const { Data } = await this.$translationBridgeService.getAliYunTranslateImg(son, fromLa, this.translationConfig.after)
                 imageData = Data.Data && Data.Data.Url || son
               } else if (this.pictureConfig.typeRadio === 2) {
-                const json = son &&  await this.$translationBridgeService.getYunTranslateImg(son, this.translationConfig.after) || ''
+                const json = son && await this.$translationBridgeService.getYunTranslateImg(son, this.translationConfig.after) || ''
                 console.log(json)
                 if (json && json.Code === 200) {
                   imageData = json.Data && json.Data.Url || son
@@ -1573,7 +1625,7 @@ export default {
       })
     },
     handleSelectionChange(val) {
-      let list = []
+      const list = []
       val.forEach(item => {
         if (!item.isFailure) {
           list.push(item)
@@ -1635,12 +1687,12 @@ export default {
     },
     async goodsListUpdate(item) {
       console.log('goodsListUpdate', item)
-      let index = this.mallTable.findIndex(son => son.id === item.id)
+      const index = this.mallTable.findIndex(son => son.id === item.id)
       if (item) {
         const sysGoodsId = item.id
         const description = item.description
         const title = item.title
-        let param = {
+        const param = {
           sysGoodsId,
           description,
           title,
@@ -1860,25 +1912,25 @@ export default {
           if (res.code === 200) {
             res.data.operation_type = '收藏成功'
             res.data.isFailure = false
-            let index = this.mallTable.findIndex(son => son.id === item.id)
+            const index = this.mallTable.findIndex(son => son.id === item.id)
             this.$set(this.mallTable, index, res.data)
             this.statistics.scSuccess++
           } else {
             let errorStr = ''
-            if(res.msg){
+            if (res.msg) {
               errorStr = res.msg
-            }else {
-              errorStr = '收藏失败：'+res.data
+            } else {
+              errorStr = '收藏失败：' + res.data
             }
             this.StatusName(item, errorStr)
             this.$set(item, 'isFailure', true)
           }
         }
       } catch (error) {
-        if(res.msg){
+        if (res.msg) {
           error = res.msg
-        }else {
-          error = '收藏失败：'+res.data
+        } else {
+          error = '收藏失败：' + res.data
         }
         this.StatusName(item, `${error}`)
         this.$set(item, 'isFailure', true)
@@ -1889,7 +1941,7 @@ export default {
     },
     // 操作结果字段
     StatusName(item, msg, status) {
-      let index = this.mallTable.findIndex(son => son.id === item.id)
+      const index = this.mallTable.findIndex(son => son.id === item.id)
       this.$set(this.mallTable[index], 'operation_type', msg)
       // this.$set(item, 'color', status ? 'green' : 'red')
     }

@@ -240,9 +240,12 @@ export default {
       target.parentElement.removeChild(target)
     },
     // 链接跳转
-    getLink(row) {
-      console.log('--', row)
-      window.BaseUtilBridgeService.openUrl('https://xiapi.xiapibuy.com/product/' + row.shopid + '/' + row.itemid)
+    async getLink(row) {
+      const data = {
+        mallId: row.shopid.toString()
+      }
+      const url = await this.$shopeemanService.getWebUrlLocal(this.country, data)
+      this.$BaseUtilService.openUrl(`${url}/product/${row.shopid}/${row.itemid}`)
     },
     // 一键采集
     fasterToken() {
