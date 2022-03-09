@@ -152,7 +152,7 @@
       :close-on-press-escape="false"
       class="dialog_mall"
     >
-      <autoFollow :user-info="userInfo" @isSave="setSave" />
+      <autoFollow :user-info="userInfo" :mall="selmallList" @isSave="setSave" />
     </el-dialog>
     <Logs ref="Logs" v-model="showlog" clear />
   </div>

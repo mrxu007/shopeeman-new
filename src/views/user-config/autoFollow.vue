@@ -157,22 +157,46 @@ export default {
         this.$message.warning('请前往【爆粉神器】设置需要执行的任务的店铺')
         return
       }
-      if (this.startAddFence && !this.KeyWord) {
+      debugger
+      if (this.startAddFence && !this.followKey) {
         this.$message.warning('关键词不能为空')
         return
       }
+      const cTime = this.startTime.split(':')
       // 自动刷粉-任务
       if (this.startAddFence) {
         // 查看当前站点是否有过任务
-        const mallTest = await window.BaseUtilBridgeService.getAttentionUserTask(this.mall)
+        const mallTest = await window.BaseUtilBridgeService.getAttentionUserTask(this.mall[0].country)
         // 删除原任务
         if (mallTest) {
           const delMallTest = await window.BaseUtilBridgeService.deleteAttentionUserTask(mallTest.id)
         }
         // 添加新任务
+        const params = {
+          'country': this.mall[0].country,
+          'mall_ids': this.mall.map(item => item['platform_mall_id']).toString(),
+          'mall_names': this.mall.map(item => item['mall_alias_name'] || item['platform_mall_name']).toString(),
+          'product_max': this.limitgGoods,
+          'last_login_day': this.lastOnline,
+          'open_hour': cTime[0],
+          'open_minute': cTime[1],
+          'key_word': this.followKey,
+          'follow_number': this.followNum,
+          'follow_interval': this.interTime,
+          'is_not_follow_min_order_evaluation': this.market,
+          'min_order_evaluation': this.marketNum,
+          'is_not_follow_followed_day': this.followDay,
+          'followed_day': this.followDayNum,
+          'followed_type': this.followActor,
+          'cancel_follow_number': this.cancerFollowNum,
+          'cancel_follow_sort_type': 0
+        }
+        const aa = params
+        debugger
+        return
+        const addTest = await window.BaseUtilBridgeService.saveAttentionUserTask()
       }
       // 保存设置
-      const cTime = this.startTime.split(':')
       const content = {
         ProductMax: this.limitgGoods, // 店铺商品上限
         LastLoginDay: this.lastOnline, // 最后活跃时间
