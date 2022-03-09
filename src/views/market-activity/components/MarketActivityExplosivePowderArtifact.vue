@@ -280,7 +280,6 @@ export default {
       this.isStop = true
       this.$refs.Logs.writeLog(`正在取消操作`)
     },
-    // 定时刷粉？？？？？？？？？？？？？？？？？？
     // 判断用户是否登录
     async isLogin(mall) {
       const res = await this.MallAPIInstance.isLogin(mall)
