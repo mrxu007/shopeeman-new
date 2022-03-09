@@ -1447,7 +1447,8 @@ export default {
       },
       shipTypeNameObj: {
         '陆运': 1,
-        '海运': 2
+        '海运': 2,
+        '空运': 3
       },
       isVerifyObj: {
         '-1': '未审核',
@@ -1503,6 +1504,10 @@ export default {
         {
           value: '2',
           name: '海运'
+        },
+        {
+          value: '3',
+          name: '空运'
         }
       ],
       serviceList: [// 质检,贴单服务
@@ -1923,7 +1928,9 @@ export default {
         const is_wainscot = element['贴单服务(必填：填入是或否，同一物流单号取第一次填写的)']
         const is_checked = element['质检服务(必填：填入是或否，同一物流单号取第一次填写的)']
         const ship_type = element['运输方式(必填：填入陆运或海运，同一物流单号取第一次填写的)']
+            || element['运输方式(必填：填入陆运、空运或海运，同一物流单号取第一次填写的)']
         const remark = element['备注(同一物流单号只需填写一次，取第一次填写的备注)']
+
         if (!package_code) {
           this.$refs.Logs.writeLog(`【${index + 1}】物流单号为空`, false)
           continue
@@ -1971,6 +1978,17 @@ export default {
         if (!ship_type) {
           this.$refs.Logs.writeLog(`【${index + 1}】运输方式为空`, false)
           continue
+        }
+        if (!ship_type.includes('海运') && !ship_type.includes('空运') && !ship_type.includes('陆运')){
+          this.$refs.Logs.writeLog(`【${index + 1}】运输方式应为陆运、空运或海运`, false)
+          continue
+        }
+        if (ship_type === '空运'){
+          let url = (sku_url + '').toLocaleString()
+          if (!(url.includes('ph.') || url.includes('my.'))){
+            this.$refs.Logs.writeLog(`【${index + 1}】空运暂时只支持菲律宾和马来西亚站点`, false)
+            continue
+          }
         }
         if (!this.isYnObj[is_wainscot]) {
           this.$refs.Logs.writeLog(`【${index + 1}】贴单服务未找到引用值`, false)
@@ -2079,7 +2097,7 @@ export default {
       <td style="width: 400px">商品链接<span style="color:red">(请填写url地址)</span></td>
       <td style="width: 400px">贴单服务<span style="color:red">(必填：填入是或否，同一物流单号取第一次填写的)</span></td>
       <td style="width: 400px">质检服务<span style="color:red">(必填：填入是或否，同一物流单号取第一次填写的)</span></td>
-      <td style="width: 390px">运输方式<span style="color:red">(必填：填入陆运或海运，同一物流单号取第一次填写的)</span></td>
+      <td style="width: 390px">运输方式<span style="color:red">(必填：填入陆运、空运或海运，同一物流单号取第一次填写的)</span></td>
       <td style="width: 380px">备注<span style="color:red">(同一物流单号只需填写一次，取第一次填写的备注)</span></td>
       </tr>
       <tr>

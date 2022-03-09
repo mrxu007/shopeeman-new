@@ -27,28 +27,27 @@
         </el-tab-pane>
       </el-tabs>
       <div class="content">
-        <el-table
+        <u-table
           ref="multipleTable"
           :data="tableData"
+          use-virtual
+          height="640"
           tooltip-effect="dark"
-          height="calc(100vh - 206px)"
           :header-cell-style="{
-            backgroundColor: '#f5f7fa',
-          }"
-        >
-          <el-table-column type="index" label="序号" min-width="50px" align="center" fixed />
-          <el-table-column min-width="140px" label="仓库" fixed prop="warehouse_name" />
-          <el-table-column min-width="300px" label="地址" prop="full_address" show-overflow-tooltip>
+            backgroundColor: '#f5f7fa'}">
+          <u-table-column type="index" label="序号" min-width="50px" align="center" fixed />
+          <u-table-column min-width="140px" label="仓库" fixed prop="warehouse_name" />
+          <u-table-column min-width="300px" label="地址" prop="full_address" show-overflow-tooltip>
             <template slot-scope="{ row }">
               <div>{{ row.full_address }}</div>
             </template>
-          </el-table-column>
-          <el-table-column min-width="120px" label="收件人" prop="receiving_name" />
-          <el-table-column prop="type" label="仓库类型" min-width="100px">
+          </u-table-column>
+          <u-table-column min-width="120px" label="收件人" prop="receiving_name" />
+          <u-table-column prop="type" label="仓库类型" min-width="100px">
             <template slot-scope="scope"> {{ typeObj[scope.row.type] }} </template>
-          </el-table-column>
-          <el-table-column min-width="100px" label="联系电话" prop="receiving_tel" show-overflow-tooltip />
-          <el-table-column min-width="130px" label="自有手机号" prop="own_phone">
+          </u-table-column>
+          <u-table-column min-width="100px" label="联系电话" prop="receiving_tel" show-overflow-tooltip />
+          <u-table-column min-width="130px" label="自有手机号" prop="own_phone">
             <template slot-scope="{ row }">
               <div v-if="row.isUser === 0">
                 <el-input v-if="row.isPhone" v-model="row.own_phone" v-fo size="mini" @blur="updateOwnPhone(row)" />
@@ -58,30 +57,30 @@
                 </span>
               </div>
             </template>
-          </el-table-column>
-          <el-table-column min-width="80px" label="邮编" prop="post_code" />
-          <el-table-column min-width="140px" label="是否开启自有手机号" align="center">
+          </u-table-column>
+          <u-table-column min-width="80px" label="邮编" prop="post_code" />
+          <u-table-column min-width="140px" label="是否开启自有手机号" align="center">
             <template slot-scope="{ row }">
               <el-switch v-model="row.is_use_own_phone" :disabled="row.isUser === 1 || row.own_phone === ''" active-color="#13ce66" inactive-color="#ff4949" @change="updateOwnPhone(row)" />
             </template>
-          </el-table-column>
-          <el-table-column min-width="100px" label="绑定店铺数量">
+          </u-table-column>
+          <u-table-column min-width="100px" label="绑定店铺数量">
             <template slot-scope="scope"> {{ scope.row.mallInfo.length }} </template>
-          </el-table-column>
-          <el-table-column min-width="90px" label="对应站点" prop="country">
+          </u-table-column>
+          <u-table-column min-width="90px" label="对应站点" prop="country">
             <template slot-scope="scope"> {{ scope.row.country | chineseSite }} </template>
-          </el-table-column>
-          <el-table-column min-width="120px" label="绑定的店铺" show-overflow-tooltip>
+          </u-table-column>
+          <u-table-column min-width="120px" label="绑定的店铺" show-overflow-tooltip>
             <template slot-scope="scope"> {{ bindMallName(scope.row.mallInfo) }} </template>
-          </el-table-column>
-          <el-table-column label="操作" min-width="360px">
+          </u-table-column>
+          <u-table-column label="操作" min-width="360px">
             <template slot-scope="{ row }">
               <el-button type="primary" size="mini" @click="updateBindMall(row)">修改绑定店铺</el-button>
               <el-button v-if="row.isUser === 1" type="primary" size="mini" @click="updateItself(row, flag4 ? 1 : 2)">修改自有仓库地址</el-button>
               <el-button v-if="row.isUser === 1" type="primary" size="mini" @click="deleteOwnStore(row)">删除仓库</el-button>
             </template>
-          </el-table-column>
-        </el-table>
+          </u-table-column>
+        </u-table>
       </div>
     </div>
     <!--选择地址弹窗-->
@@ -99,12 +98,12 @@
         <el-form-item label="仓库类型：">
           <span>{{ flag4 ? '国内中转仓' : '海外中转仓' }}</span>
         </el-form-item>
-        <el-form-item label="仓库站点：" v-if="flag4">
+        <el-form-item v-if="flag4" label="仓库站点：">
           <el-select v-model="itselfCountry" :disabled="!flag3" placeholder="" size="mini" filterable @change="handlerChange3">
             <el-option v-for="(item, index) in countries" :key="index" :label="item.label" :value="item.value" />
           </el-select>
         </el-form-item>
-        <el-form-item label="仓库站点：" v-else>
+        <el-form-item v-else label="仓库站点：">
           <el-select v-model="itselfCountry" :disabled="!flag3" placeholder="" size="mini" filterable @change="handlerChange3">
             <el-option v-for="(item, index) in countriesAbroad" :key="index" :label="item.label" :value="item.value" />
           </el-select>
@@ -113,7 +112,7 @@
           <el-input v-model="itselfWarehouseName" clearable size="mini" oninput="value=value.replace(/\s+/g,'')" />
         </el-form-item>
         <div v-if="flag4">
-          <address-model ref="addressModel" @sendData="sendData" :country="itselfCountry" />
+          <address-model ref="addressModel" :country="itselfCountry" @sendData="sendData" />
         </div>
         <div v-else>
           <div v-if="!isSG">
@@ -178,8 +177,8 @@
       <div class="footer">
         <span> 温馨提示：若新增的自有仓库和系统仓库地址相同, 请绑定对应的归属仓库,若未绑定归属仓库,仓库无 法精准匹配,会有无法出库的风险 </span>
         <span v-if="!flag4">
-          1：收件人尽量不要有特殊字符,如#,+,_,@等<br />
-          2：海外菲律宾仓的买家姓名至少包含2个英文单词, 如：(China Boy)<br />
+          1：收件人尽量不要有特殊字符,如#,+,_,@等<br>
+          2：海外菲律宾仓的买家姓名至少包含2个英文单词, 如：(China Boy)<br>
           3：海外新加坡仓地址必须带楼层单元号并以#隔开且 置于最后,如(1 SoonLeeStreet,Industrial Cres,#01-02)
         </span>
         <el-button type="primary" size="mini" @click="itselfUpdate(flag3 ? 1 : 2)">确 定</el-button>
@@ -223,38 +222,37 @@
           <store-choose-mall :key="changeIndex" :is-all="true" :show-mall="false" @changeMallList="changeMallList" />
           <el-button style="margin-left: 15px" type="primary" size="mini" @click="getBindMall">查 询</el-button>
         </div>
-        <el-table
+        <u-table
           ref="bindMallDataRef"
+          height="420"
           v-loading="warehouseLoading"
           :data="bindMallData"
-          stripe
-          style="min-width: 240px"
-          max-height="450"
-          :row-key="getRowKey"
+          stripe use-virtual :row-key="getRowKey"
           @selection-change="handleSelectionChange"
-        >
-          <el-table-column type="selection" align="center" min-width="45" :reserve-selection="true" />
-          <el-table-column prop="country" align="center" label="站点" min-width="90">
+          :header-cell-style="{
+            backgroundColor: '#f5f7fa'}">
+          <u-table-column type="selection" align="center" min-width="45" :reserve-selection="true" />
+          <u-table-column prop="country" align="center" label="站点" min-width="90">
             <template slot-scope="{ row }">
               {{ row.country | chineseSite }}
             </template>
-          </el-table-column>
-          <el-table-column align="center" label="店铺名称" min-width="120">
+          </u-table-column>
+          <u-table-column align="center" label="店铺名称" min-width="120">
             <template slot-scope="{ row }">
               {{ row.mallAliasName ? row.mallAliasName : row.platformMallName }}
             </template>
-          </el-table-column>
-          <el-table-column align="center" label="绑定国内仓" min-width="120">
+          </u-table-column>
+          <u-table-column align="center" label="绑定国内仓" min-width="120">
             <template slot-scope="{ row }">
               {{ row.address.warehouse_name }}
             </template>
-          </el-table-column>
-          <el-table-column align="center" label="绑定海外仓" min-width="120">
+          </u-table-column>
+          <u-table-column align="center" label="绑定海外仓" min-width="120">
             <template slot-scope="{ row }">
               {{ row.overseas_address.warehouse_name }}
             </template>
-          </el-table-column>
-        </el-table>
+          </u-table-column>
+        </u-table>
       </div>
     </el-dialog>
     <!--Shopee地址设置弹窗-->
@@ -284,15 +282,15 @@
               />
             </el-select>
           </el-form-item>
-           <el-form-item label="邮编：" v-if="itselfCountry==='MY'">
-            <el-input size="mini" v-model="sPDistinctInput"></el-input>
+          <el-form-item v-if="itselfCountry==='MY'" label="邮编：">
+            <el-input v-model="sPDistinctInput" size="mini" />
           </el-form-item>
-          <el-form-item label="收货区：" v-else>
+          <el-form-item v-else label="收货区：">
             <el-select v-model="sPDistinct" :disabled="sCity ? false : true" placeholder="请选择" size="mini" @change="handlerChange6()">
               <el-option v-for="(item, index) in sDistinctList" :key="index" :value="item.id" :label="item.translated_name == item.division_name ? item.division_name : item.division_name + '/' + item.translated_name" />
             </el-select>
           </el-form-item>
-           <el-form-item label="收货街道：" v-if="itselfCountry==='PH'">
+          <el-form-item v-if="itselfCountry==='PH'" label="收货街道：">
             <el-select v-model="sStreet" :disabled="sCity ? false : true" placeholder="请选择" size="mini">
               <el-option v-for="(item, index) in sStreetList" :key="index" :value="item.id" :label="item.division_name" />
             </el-select>
@@ -301,8 +299,7 @@
         <div class="footer">
           <el-button type="primary" size="mini" @click="addAbroadAddress">确 定</el-button>
         </div>
-      </el-form></el-dialog
-    >
+      </el-form></el-dialog>
   </div>
 </template>
 
@@ -313,7 +310,7 @@ import StoreChooseMall from '../../../components/store-choose-mall.vue'
 export default {
   components: {
     AddressModel,
-    StoreChooseMall,
+    StoreChooseMall
   },
   data() {
     return {
@@ -380,15 +377,15 @@ export default {
       sProvince: '',
       sCity: '',
       sPDistinct: '',
-      sPDistinctInput:'',
+      sPDistinctInput: '',
       sProvinceList: [],
       sCityList: [],
       sDistinctList: [],
-      sStreet:'',
-      sStreetList:'',
+      sStreet: '',
+      sStreetList: '',
 
       abroadAddressParams: {},
-      itselfUpdateType: '',
+      itselfUpdateType: ''
     }
   },
   mounted() {
@@ -400,7 +397,7 @@ export default {
   },
   methods: {
     address(str) {
-      let aa = str.split(' ')
+      const aa = str.split(' ')
       console.log(aa, str)
     },
     // 修改自有仓库弹窗
@@ -431,7 +428,7 @@ export default {
         }
         try {
           this.itselfProvinceId = 'R' + row.province_id
-          await this.getLazadaDetailAddress('',  'provinceList', 'ProvinceId')
+          await this.getLazadaDetailAddress('', 'provinceList', 'ProvinceId')
           this.itselfCityId = 'R' + row.city_id
           await this.getLazadaDetailAddress(this.itselfProvinceId, 'cityList', 'CityId')
           this.itselfDistrictId = 'R' + row.distinct_id
@@ -442,6 +439,7 @@ export default {
           this.itselfCityId = ''
         }
       }
+      // this.xzyAllIndex()
     },
     // 修改自有仓库
     async updateItselfData(params) {
@@ -487,7 +485,7 @@ export default {
       }
       const params = {
         mallId: [],
-        address: {},
+        address: {}
       }
       params['id'] = this.itemData.id
       params['warehouseName'] = this.warehouseName
@@ -540,7 +538,7 @@ export default {
       const params = {
         id: this.sysWarehouseId,
         receivingName: this.receivingName,
-        mallId: sysMallId.toString(),
+        mallId: sysMallId.toString()
       }
       this.butLoading = true
       const res = await this.AddressSet.addXzyStore(params)
@@ -578,7 +576,7 @@ export default {
       const params = {
         id: this.sysWarehouseId,
         country: this.mallList.country || '',
-        groupIds: [...groupIds].toString(),
+        groupIds: [...groupIds].toString()
       }
       console.log(params, '-----------')
       const res = await this.AddressSet.getBindMall(params)
@@ -596,7 +594,7 @@ export default {
     // 删除自有仓库
     async deleteOwnStore(row) {
       const params = {
-        id: row.id,
+        id: row.id
       }
       const res = await this.AddressSet.deleteOwnStore(params)
       if (res.code === 200) {
@@ -613,7 +611,7 @@ export default {
       const params = {
         id: row.id,
         isUseOwnPhone: row.is_use_own_phone ? 1 : 0,
-        ownPhone: row.own_phone,
+        ownPhone: row.own_phone
       }
       const res = await this.AddressSet.updateOwnPhone(params)
       if (res.code === 200) {
@@ -636,8 +634,8 @@ export default {
       this.$confirm('请确认当前仓库是否和系统仓库地址相同，若相同，请务必绑定对应的归属仓库，避免因未能准确匹配仓库造成的无法出库的风险?', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
-        type: 'warning',
-      }).then(async () => {
+        type: 'warning'
+      }).then(async() => {
         if (this.itselfWarehouseId !== 0) {
           this.warehouseList.forEach((item) => {
             if (this.itselfWarehouseId === item.id) arr = item
@@ -667,7 +665,7 @@ export default {
           }
         }
         const params = {
-          address: {},
+          address: {}
         }
         // flag4 = true：国内 false：海外
         if (this.flag4) {
@@ -699,9 +697,9 @@ export default {
             this.itselfFullAddress =
               this.itselfDetailAddress + ' ' + (this.addressData.province_text.split('/')[1]
                 ? this.addressData.province_text.split('/')[1].trim()
-                : this.addressData.province_text) + ' ' +( this.addressData.city_text.split('/')[1]
+                : this.addressData.province_text) + ' ' + (this.addressData.city_text.split('/')[1]
                 ? this.addressData.city_text.split('/')[1].trim()
-                : this.addressData.city_text )+ ' ' + (this.addressData.distinct_text.split('/')[1]
+                : this.addressData.city_text) + ' ' + (this.addressData.distinct_text.split('/')[1]
                 ? this.addressData.distinct_text.split('/')[1].trim()
                 : this.addressData.distinct_text)
             // 获取虾皮地址
@@ -716,13 +714,12 @@ export default {
             }
           }
         }
-        console.log(this.itselfProvinceId,"444444444444444444444444444444")
         params['warehouseName'] = this.itselfWarehouseName
-        params['address']['province_id'] = this.itselfCountry == 'TW'?1:this.itselfProvinceId.replace('R', '')
+        params['address']['province_id'] = (this.itselfCountry == 'TW' && this.itselfProvinceId == 'tw') ? 1 : this.itselfProvinceId.replace('R', '')
         params['address']['province_text'] = this.itselfProvinceText || this.addressData.province_text
-        params['address']['city_id'] = this.itselfCountry == 'TW'?1:this.itselfCityId.replace('R', '')
+        params['address']['city_id'] = (this.itselfCountry == 'TW' && this.itselfProvinceId == 'tw') ? 1 : this.itselfCityId.replace('R', '')
         params['address']['city_text'] = this.itselfCityText || this.addressData.city_text
-        params['address']['distinct_id'] = this.itselfCountry == 'TW'?1:this.itselfDistrictId.replace('R', '')
+        params['address']['distinct_id'] = (this.itselfCountry == 'TW' && this.itselfProvinceId == 'tw') ? 1 : this.itselfDistrictId.replace('R', '')
         params['address']['distinct_text'] = this.itselfDistinctText || this.addressData.distinct_text
         params['address']['detail_address'] = this.itselfDetailAddress
         params['address']['full_address'] = this.itselfFullAddress
@@ -731,7 +728,6 @@ export default {
         params['address']['type'] = this.flag4 ? 0 : 3 // 国内/海外
         if (!this.flag4) {
           this.abroadAddressParams = params
-          console.log(this.abroadAddressParams, '5445465465')
           return
         }
         if (this.flag4) {
@@ -754,13 +750,12 @@ export default {
       // params['address']['shopee_map_id'] = this.itselfShopeeMapId
       if (this.isSG) {
         params['address']['post_code'] = this.itselfPostCode
-      } else if(this.itselfCountry == 'MY'){
+      } else if (this.itselfCountry == 'MY') {
         params['address']['post_code'] = this.sPDistinctInput
-      }
-      else {
+      } else {
         params['address']['post_code'] = this.flag4 ? 0 : this.addressData['post_code']
       }
-      if(this.itselfCountry == 'TW'){
+      if (this.itselfCountry == 'TW') {
         params['address']['shopee_map_id'] = this.itselfCityId
       }
       const res = await this.AddressSet.adduserStore(params)
@@ -795,17 +790,14 @@ export default {
     // 获取海外地址信息
     async getLazadaDetailAddress(id, list, val) {
       const res = await this.$BaseUtilService.getLazadaDetailAddress(id, this.itselfCountry)
-      console.log('getLazadaDetailAddress', res)
       this[list] = res
       this['itself' + val] = this.flag5 ? this['itself' + val] : this[list][0][val]
-      console.log(list, this[list],"1111111")
     },
     // 获取所属仓库
     async xzyAllIndex() {
       const res = await this.AddressSet.xzyAllIndex()
       if (res.code === 200) {
         this.warehouseList = res.data
-        console.log('warehouseList', this.warehouseList)
       } else {
         this.$message.error(res.data)
       }
@@ -832,7 +824,6 @@ export default {
           return item.type === 2 || item.type === 3
         })
       }
-      console.log(this.tableData, 'this.tableData')
     },
     // 获取系统仓库，用来判断是否显示申请系统仓库地址
     async xzyIndex(typeLists) {
@@ -847,7 +838,6 @@ export default {
           this.$message.error(res.data)
         }
       }
-      console.log('sysWarehouseData', resData)
       if (resData?.length) {
         if (resData[0].data?.length > 0) {
           this.isHomeApplyAddress = true
@@ -886,11 +876,11 @@ export default {
       this.isShowLoading = false
     },
     addAbroadAddress() {
-      console.log(this.sCity, this.sPDistinct,this.sStreet,'sPDistinct')
+      console.log(this.sCity, this.sPDistinct, this.sStreet, 'sPDistinct')
       if (!this.sPDistinct && (!this.sCity) && !this.sStreet) {
         return this.$message.warning('请先进行shopee地址设置')
       }
-      let shopee_map_id = this.itselfCountry === 'MY'?this.sCity:(this.itselfCountry === 'PH'?this.sStreet:this.sPDistinct )
+      const shopee_map_id = this.itselfCountry === 'MY' ? this.sCity : (this.itselfCountry === 'PH' ? this.sStreet : this.sPDistinct)
       this.abroadAddressParams['address']['shopee_map_id'] = shopee_map_id
       this.shopeeAddressVisible = false
       switch (this.itselfUpdateType) {
@@ -907,11 +897,9 @@ export default {
       const platform = this.$filters.sitePlatform(this.itselfCountry)
       console.log(platform, '1', id.toString())
       const res = await this.$commodityService.getShopeeAddress(platform, '1', id)
-      console.log(res, 'getShopeeAddress')
       const jsonData = this.isJsonString(res)
-      // console.log(jsonData)
       this[list] = jsonData
-      this[val] = this[list][0]?this[list][0].id :''
+      this[val] = this[list][0] ? this[list][0].id : ''
     },
     async handlerChange4() {
       await this.getShopeeAddress(this.sProvince, 'sCityList', 'sCity')
@@ -921,8 +909,8 @@ export default {
       await this.getShopeeAddress(this.sCity, 'sDistinctList', 'sPDistinct')
       await this.handlerChange6()
     },
-    async handlerChange6(){
-      if(this.itselfCountry === 'PH'){
+    async handlerChange6() {
+      if (this.itselfCountry === 'PH') {
         await this.getShopeeAddress(this.sPDistinct, 'sStreetList', 'sStreet')
       }
     },
@@ -963,7 +951,7 @@ export default {
       this.itselfPostCode = ''
     },
     handleClose2() {
-      let type = this.flag4 ? [0] : [3]
+      const type = this.flag4 ? [0] : [3]
       this.xzyIndex(type)
       this.getUserWarehouse()
       this.receivingName = ''
@@ -1004,13 +992,13 @@ export default {
       }
     },
     sendData(val) {
-      console.log('addressData', val)
+      console.log(val, '1111')
       this.itselfProvinceId = val.province_id
       this.itselfProvinceText = val.province_text
-      this.itselfCityId = val.city_id 
+      this.itselfCityId = val.city_id
       this.itselfCityText = val.city_text
-      this.itselfDistrictId = this.itselfCountry === 'TW'?1:val.distinct_id
-      this.itselfDistinctText = this.itselfCountry === 'TW'?'':val.distinct_text
+      this.itselfDistrictId = val.distinct_id
+      this.itselfDistinctText = val.distinct_text
     },
     handleSelectionChange(val) {
       this.multipleSelection = val
@@ -1018,8 +1006,8 @@ export default {
     // 记住所选项
     getRowKey(row) {
       return row.sysMallId
-    },
-  },
+    }
+  }
 }
 </script>
 

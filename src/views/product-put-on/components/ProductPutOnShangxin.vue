@@ -396,7 +396,7 @@
         <el-button size="mini" type="primary" :disabled="isBanPerform" disabled>导入数据</el-button>
         <el-button size="mini" @click="cancelRelease">取消发布</el-button>
         <el-button size="mini" type="primary" @click="deleteGoodsList(true)" :disabled="isBanPerform">清理全部</el-button>
-        <el-button size="mini" type="primary" :disabled="isBanPerform" disabled>设置定时任务</el-button>
+        <el-button size="mini" type="primary" @click="setTimeShow" :disabled="isBanPerform">设置定时任务</el-button>
         <el-button size="mini" type="primary" @click="enterCategory(2,1)" :disabled="isBanPerform">批量映射虾皮类目
         </el-button>
         <el-button size="mini" :type="isNoFoldShow && 'primary' || ''" @click="isNoFoldShow = !isNoFoldShow">
@@ -485,7 +485,7 @@
       <u-table-column align="left" label="shopee类目" show-overflow-tooltip prop="categoryName" width="114">
         <template slot-scope="scope">
           <el-button type="text" @click="enterCategory(0,scope.row)">
-            {{ scope.row.categoryName || '请选择类目' }}
+            {{ scope.row.categoryName || goodsClassName[scope.row.category_id] || '请选择类目' }}
           </el-button>
         </template>
       </u-table-column>
@@ -1033,6 +1033,48 @@
           </u-table>
         </div>
       </el-dialog>
+      <el-dialog title="定时刊登配置" width="540px" top="14vh" :close-on-click-modal="false" :visible.sync="setTimeVisible">
+        <div>
+          <div class="basisInstall" style="width: 100%">
+            <div class="basisInstall-title">定时刊登设置</div>
+            <div class="basisInstall-box">
+              <div class="keepRight">上新时间间隔：</div>
+              <el-input size="mini" v-model="setTimeConfig.onNewInterval"
+                        style="width: 120px;margin-right: 5px;"></el-input>
+              S
+              <el-tooltip class="item" effect="dark" content="默认印尼站点上新时间间隔为50S，其他站点为40S" placement="top">
+                <el-button size="mini" type="text"><i class="el-icon-question" style="padding: 0 2px;"></i></el-button>
+              </el-tooltip>
+            </div>
+            <div class="basisInstall-box">
+              <div>上新加速：</div>
+              <el-input style="width: 100px;margin: 0 5px;" size="mini" v-model="setTimeConfig.onNewThread"
+                        @change="changeStockUpNumber(setTimeConfig.onNewThread,2)"></el-input>
+              条线程
+              <el-tooltip class="item" effect="dark" content="请根据电脑配置合理设置上新线程数，最大为5" :min="1" :max="5" placement="top">
+                <el-button size="mini" type="text"><i class="el-icon-question" style="padding: 0 2px;"></i></el-button>
+              </el-tooltip>
+            </div>
+            <div class="basisInstall-box">
+              <div>时间选择：</div>
+              <el-date-picker
+                  v-model="setTimeConfig.time"
+                  type="datetime"
+                  size="mini"
+                  placeholder="选择日期时间">
+              </el-date-picker>
+            </div>
+            <div class="basisInstall-box">
+              <div>任务名称：</div>
+              <el-input style="width: 300px;margin: 0 5px;" size="mini" v-model="setTimeConfig.name"></el-input>
+            </div>
+          </div>
+          <div style="display: flex;justify-content: space-around;margin:30px 0">
+            <el-button size="mini" type="primary" @click="saveSetTime()">保存此定时任务配置</el-button>
+            <el-button size="mini" type="primary" @click="saveSetTime(true)">保存并启动定时任务</el-button>
+          </div>
+        </div>
+      </el-dialog>
     </div>
   </el-row>
 </template>
@@ -1369,7 +1411,15 @@ export default {
       preorderMaxDays: '',
       detailsVisible: false,
       newOnDetails: {},
-      newOnDetailsList: []
+      newOnDetailsList: [],
+      setTimeVisible: false,
+      goodsClassName: {},
+      setTimeConfig: {
+        onNewInterval: '40',
+        onNewThread: '5',
+        name: '',
+        time: new Date(new Date().getTime() + 3600 * 1000 * 24)
+      }
     }
   },
   computed: {},
@@ -1377,6 +1427,7 @@ export default {
   watch: {
     country(value) {
       this.associatedConfig.onNewInterval = value !== 'ID' && '40' || '50'
+      this.setTimeConfig.onNewInterval = value !== 'ID' && '40' || '50'
       this.sellActiveSetting = []
       switch (value) {
         case 'BR':
@@ -1650,7 +1701,7 @@ export default {
           ratio = Number(ratio / 100)
         }
         console.log(goodsList)
-        if(goodsList.length > 0){
+        if (goodsList.length > 0) {
           for (let item of goodsList) {
             if (this.isCancelRelease) {
               return
@@ -1719,6 +1770,7 @@ export default {
                 let categoryName = `${category.platform_category_name}(${category.platform_category_cn_name})`
                 let index = this.goodsTable.findIndex(son => son.id === item.id)
                 this.$set(this.goodsTable[index], 'categoryName', categoryName)
+                this.goodsClassName[originCategoryId] = categoryName
                 attributesCurrent.forEach(son => {
                   if (son.attribute_id) {
                     goodsParam['attributes'].push({
@@ -2047,14 +2099,14 @@ export default {
               }
             } catch (e) {
               this.updateAttributeName(item, messageName || '发布失败，数据或请求异常', '', mall)
-            }finally {
+            } finally {
               let progressItem = progress / goodsList.length
               let mewOnProgress = (this.mewOnProgress + progressItem).toFixed(2)
               mewOnProgress = mewOnProgress < 100 && mewOnProgress || 100
               this.mewOnProgress = mewOnProgress * 1
             }
           }
-        }else{
+        } else {
           let progressItem = progress
           let mewOnProgress = (this.mewOnProgress + progressItem).toFixed(2)
           mewOnProgress = mewOnProgress < 100 && mewOnProgress || 100
@@ -2496,6 +2548,7 @@ export default {
         if (this.goodsCurrent) {
           let index = this.goodsTable.findIndex(son => son.id === this.goodsCurrent.id)
           this.$set(this.goodsTable[index], 'categoryName', categoryName)
+          this.goodsClassName[this.goodsTable[index].category_id] = categoryName
         } else {
           let attributesList = []
           val.attributesList.forEach(son => {
@@ -2518,6 +2571,7 @@ export default {
             let save = await this.$commodityService.saveCategoryRelation(param)
             let index = this.goodsTable.findIndex(son => son.id === item.id)
             this.$set(this.goodsTable[index], 'categoryName', categoryName)
+            this.goodsClassName[this.goodsTable[index].category_id] = categoryName
           })
         }
       }
@@ -2917,10 +2971,48 @@ export default {
            * product_id
            * price
            */
-          this.newOnDetailsList.push(newOnDetails[key])
+          this.newOnDetailsList.push({ ...newOnDetails[key], mallId: key })
         }
       }
       this.detailsVisible = true
+    },
+    setTimeShow() {
+      if (this.goodsTableSelect.length < 1) {
+        this.$message.error('请选择商品后再操作')
+        return
+      }
+      if (this.logistics.length < 1) {
+        this.$message.error('配置物流信息后再操作')
+        return
+      }
+      if (this.mallList.length < 1) {
+        this.$message.error('请选择店铺后再操作')
+        return
+      }
+      if (this.customLogistics.length > 0) {
+        for (let item of this.customLogistics) {
+          if (!(item.price * 1)) {
+            this.$message.error('运费价格有误，请确认')
+            return
+          }
+        }
+      }
+      if (this.storeConfig.watermarkChecked && this.watermarkSetting && !this.watermarkSetting.type) {
+        this.$message.error('配置水印后再操作')
+        return
+      }
+      this.setTimeConfig = {
+        onNewInterval: '40',
+        onNewThread: '5',
+        name: '',
+        time: new Date(new Date().getTime() + 3600 * 1000 * 24)
+      }
+      this.setTimeVisible = true
+    },
+    saveSetTime(isRun) {
+      let mallJson = ''
+      let goodsJson = ''
+      let setTimeSetting = {}
     }
   }
 }

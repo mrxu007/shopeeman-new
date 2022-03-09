@@ -296,6 +296,7 @@ export default {
             if (info && info.sku_stock_price_list[0]) {
               const price_info = info.sku_stock_price_list[0].price_info
               if (price_info.price_promotion_type) {
+                console.log('isApplyCheck',info)
                 ++errorCount
                 continue
               }

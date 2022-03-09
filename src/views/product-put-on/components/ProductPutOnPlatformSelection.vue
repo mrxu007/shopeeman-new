@@ -1237,7 +1237,9 @@ export default {
           terminateThread()
           return
         }
+        console.log('getGoodsDeail - param',item)
         const res2 = await this.collectLinkApInstance.getGoodsDeail(item)
+        console.log('getGoodsDeail',res2)
         if (res2.code !== 200) {
           this.writeLog(`商品ID: ${item.GoodsId} 采集失败: ${res2.data}`, false)
         } else {
@@ -1395,6 +1397,7 @@ export default {
         } else {
           console.log('详情数据', res2.data)
           res = await this.CollectPublicApInstance.setGoodsData(item, res2.data)
+          console.log('CollectPublicApInstance',res)
           if (res.code === 200) {
             res.data.operation_type = '收藏成功'
             this.StatusName(item, `收藏成功`, true)
@@ -1403,22 +1406,27 @@ export default {
               this.$refs.plTable.toggleRowSelection([{ row: item, selected: false }])
             })
           } else {
-            res.data.operation_type = '收藏失败'
-            this.StatusName(item, `${res.msg}`, false)
+            let errorStr = ''
+            if(res.msg){
+              errorStr = res.msg
+            }else {
+              errorStr = '收藏失败：'+res.data
+            }
+            this.StatusName(item, `${errorStr}`, false)
             this.failNum++
           }
         }
       } catch (error) {
-        res.data.operation_type = `${error}`
+        if(res.msg){
+          error = res.msg
+        }else {
+          error = '收藏失败：'+res.data
+        }
         this.StatusName(item, `${error}`, false)
         this.failNum++
         console.log(error)
       } finally {
         --count.count
-      }
-      // 编辑上新数据
-      if (this.isEditorVisible) {
-        this.editorSelection.push(res.data)
       }
     },
     // 关闭上新弹窗

@@ -28,11 +28,10 @@
           <span class="base-title">列表筛选操作</span>
           <div class="base-item">
             <el-row class="row-style">
-              <storeChoose :is-all="true" @changeMallList="changeMallList" :spanWidth="'90px'" :selectWidth="'180px'" :source="'orderCenter'"></storeChoose>
+              <storeChoose :is-all="true" :span-width="'90px'" :select-width="'180px'" :source="'orderCenter'" @changeMallList="changeMallList" />
               <div class="tool-item">
                 <span>创建时间：</span>
                 <el-date-picker
-                  @change="changeTime($event, 'createTime')"
                   v-model="createTime"
                   size="mini"
                   value-format="yyyy-MM-dd"
@@ -42,6 +41,7 @@
                   start-placeholder="开始日期"
                   end-placeholder="结束日期"
                   :picker-options="pickerOptions"
+                  @change="changeTime($event, 'createTime')"
                 />
               </div>
             </el-row>
@@ -50,7 +50,7 @@
                 <span>发货状态：</span>
                 <el-select v-model="selectForm.orderStatus" placeholder="" size="mini" 　class="inputBox">
                   <el-option label="全部" :value="''" />
-                  <el-option :label="item.label" :value="item.value" v-for="(item, index) in orderStatusList" :key="index" />
+                  <el-option v-for="(item, index) in orderStatusList" :key="index" :label="item.label" :value="item.value" />
                 </el-select>
               </div>
               <div class="tool-item mar-right">
@@ -72,7 +72,6 @@
               <div class="tool-item mar-right">
                 <span>截止时间：</span>
                 <el-date-picker
-                  @change="changeTime($event, 'shipByDate')"
                   v-model="shipByDate"
                   size="mini"
                   value-format="yyyy-MM-dd"
@@ -81,6 +80,7 @@
                   range-separator="-"
                   start-placeholder="开始日期"
                   end-placeholder="结束日期"
+                  @change="changeTime($event, 'shipByDate')"
                 />
               </div>
             </el-row>
@@ -88,6 +88,10 @@
               <div class="tool-item mar-right">
                 <span>订单编号：</span>
                 <el-input v-model="selectForm.orderSn" size="mini" clearable class="inputBox" />
+              </div>
+               <div class="tool-item mar-right">
+                <span>采购物流单号：</span>
+                <el-input v-model="selectForm.originalTrackingNumber" size="mini" clearable class="inputBox" />
               </div>
               <el-button size="mini" type="primary" class="mar-right" @click="getOrderList(1)">搜索</el-button>
               <el-button size="mini" type="primary" class="mar-right" @click="goodsSearchVisible = true">订单号批量查询</el-button>
@@ -100,22 +104,23 @@
       </div>
     </div>
     <div class="content">
-      <u-table 
-       use-virtual
-      :border="false"
-      v-loading="tableLoading" 
-      ref="multipleTable" 
-      :data="tableData" 
-      tooltip-effect="dark" 
-      @selection-change="handleSelectionChange" 
-      height="630px">
+      <u-table
+        ref="multipleTable"
+        v-loading="tableLoading"
+        use-virtual
+        :border="false"
+        :data="tableData"
+        tooltip-effect="dark"
+        height="630px"
+        @selection-change="handleSelectionChange"
+      >
         <u-table-column align="center" type="selection" width="50" />
         <u-table-column align="center" type="index" label="序号" width="50" fixed="left">
           <template slot-scope="scope">{{ (currentPage - 1) * pageSize + scope.$index + 1 }}</template>
         </u-table-column>
         <u-table-column prop="order_sn" label="订单编号" min-width="170px" fixed="left">
           <template slot-scope="scope">
-            <i class="el-icon-document-copy copyStyle" @click="copyItem(scope.row.order_sn)"></i>
+            <i class="el-icon-document-copy copyStyle" @click="copyItem(scope.row.order_sn)" />
             <span class="tableActive" @click="viewDetails('orderDetail', scope.row.order_id, scope.row.mall_info.platform_mall_id)">{{ scope.row.order_sn }}</span>
           </template>
         </u-table-column>
@@ -126,13 +131,13 @@
               <el-dropdown-menu slot="dropdown">
                 <el-dropdown-item><div class="dropdownItem" @click="syncFaceDataSingle(scope.row)">同步面单信息</div></el-dropdown-item>
                 <el-dropdown-item><div class="dropdownItem" @click="batnchDownLoad([scope.row], 'view')">面单预览</div></el-dropdown-item>
-                <el-dropdown-item><div class="dropdownItem" v-if="scope.row.hasLogistics != 0" @click="batnchDownLoad([scope.row], 'down')">下载面单</div></el-dropdown-item>
+                <el-dropdown-item><div v-if="scope.row.hasLogistics != 0" class="dropdownItem" @click="batnchDownLoad([scope.row], 'down')">下载面单</div></el-dropdown-item>
               </el-dropdown-menu>
             </el-dropdown>
           </template>
         </u-table-column>
         <u-table-column min-width="80px" label="站点" prop="country" align="center" fixed="left">
-          <template slot-scope="scope" v-if="scope.row.mall_info">{{ scope.row.mall_info.country | chineseSite }}</template>
+          <template v-if="scope.row.mall_info" slot-scope="scope">{{ scope.row.mall_info.country | chineseSite }}</template>
         </u-table-column>
         <u-table-column label="店铺名称" prop="mall_info.platform_mall_name" min-width="120px" align="center" show-overflow-tooltip />
 
@@ -171,10 +176,10 @@
         </u-table-column>
         <u-table-column align="center" prop="remark" label="本地备注" min-width="120" show-overflow-tooltip>
           <template slot-scope="scope">
-            <div v-show="!(scope.row.id === activeRemarkID ? true : false)" @click="editRemark(scope.$index, scope.row.id)" style="cursor: pointer">
-              <el-input v-model="scope.row.remark" disabled size="mini"></el-input>
+            <div v-show="!(scope.row.id === activeRemarkID ? true : false)" style="cursor: pointer" @click="editRemark(scope.$index, scope.row.id)">
+              <el-input v-model="scope.row.remark" disabled size="mini" />
             </div>
-            <el-input v-model="orderRemark" v-if="scope.row.id === activeRemarkID ? true : false" @blur="changeRemark(scope.row.id, scope.$index)" size="mini"></el-input>
+            <el-input v-if="scope.row.id === activeRemarkID ? true : false" v-model="orderRemark" size="mini" @blur="changeRemark(scope.row.id, scope.$index)" />
             <!-- <i @click="editRemark(scope.$index, scope.row.id)" style="cursor: pointer" class="el-icon-edit-outline"></i> -->
             <!-- {{ scope.row.remark }} -->
           </template>
@@ -188,7 +193,7 @@
         <u-table-column align="center" prop="note" label="是否已下载面单" min-width="120">
           <template slot-scope="scope">{{ scope.row.is_print == '1' ? '已下载' : '未下载' }}</template>
         </u-table-column>
-        
+
       </u-table>
       <div class="pagination">
         <el-pagination
@@ -203,13 +208,13 @@
         />
       </div>
     </div>
-    <Logs ref="Logs" clear v-model="showConsole" />
+    <Logs ref="Logs" v-model="showConsole" clear />
     <el-dialog title="商品详情" :visible.sync="goodsListVisible" width="800px" :close-on-click-modal="false" @close="closeDialog">
       <el-table ref="goodsTable" :data="goodsList" tooltip-effect="dark" height="400px">
         <el-table-column align="center" prop="order_sn" label="订单编号" min-width="120" />
         <el-table-column align="center" label="商品图片" min-width="80">
           <template slot-scope="scope">
-            <el-image v-bind:src="[scope.row.goods_img] | imageRender" style="width: 56px; height: 56px"></el-image>
+            <el-image :src="[scope.row.goods_img] | imageRender" style="width: 56px; height: 56px" />
           </template>
         </el-table-column>
         <el-table-column align="center" prop="goods_id" label="商品ID" min-width="100">
@@ -223,7 +228,7 @@
     </el-dialog>
     <el-dialog title="订单号批量查询" :visible.sync="goodsSearchVisible" width="500px" :close-on-click-modal="false" @close="closeDialog">
       <p>请输入订单号，一行一个，最多五十个</p>
-      <el-input type="textarea" :rows="10" v-model="goodsOrderSnStr"> </el-input>
+      <el-input v-model="goodsOrderSnStr" type="textarea" :rows="10" />
       <span slot="footer">
         <el-button type="primary" size="mini" @click="getOrderList(1, goodsOrderSnStr)">批量查询</el-button>
       </span>
@@ -231,7 +236,7 @@
     <el-dialog title="批量添加本地备注" :visible.sync="localRamarkVisible" width="400px" :close-on-click-modal="false">
       <div class="remark-style">
         <span>本地备注</span>
-        <el-input type="textarea" :rows="4" placeholder="请输入内容" v-model="localRamark"> </el-input>
+        <el-input v-model="localRamark" type="textarea" :rows="4" placeholder="请输入内容" />
       </div>
       <span slot="footer">
         <el-button type="primary" size="mini" @click="batchSetRemark">批量添加</el-button>
@@ -247,25 +252,26 @@ import { exportExcelDataCommon, creatDate, getDaysBetween } from '../../../util/
 import surFaceService from '../../../services/surfaceOrder'
 export default {
   components: {
-    storeChoose,
+    storeChoose
   },
   data() {
     return {
       pickerOptions: {
         disabledDate(time) {
           return time.getTime() > Date.now()
-        },
+        }
       },
-      selectMallList: [], //店铺
-      createTime: [], //创建时间
-      shipByDate: [], //截止时间
+      selectMallList: [], // 店铺
+      createTime: [], // 创建时间
+      shipByDate: [], // 截止时间
       selectForm: {
-        orderStatus: 2, //订单状态
-        orderSn: '', //订单号
-        isPrint: '', //是否下载面单
-        hasTrackingNo: '2', //是否申请物流单号
+        orderStatus: 2, // 订单状态
+        orderSn: '', // 订单号
+        isPrint: '', // 是否下载面单
+        hasTrackingNo: '2', // 是否申请物流单号
+        originalTrackingNumber:''//采购物流单号
       },
-      orderStatusList: orderStatusList, //订单状态
+      orderStatusList: orderStatusList, // 订单状态
       trackStatus: ['', '已申请', '未申请'],
       logisticsStatusList: ['未下载', '已下载', '未下载'],
       total: 0,
@@ -274,15 +280,15 @@ export default {
       multipleSelection: [],
       tableLoading: false,
       tableData: [],
-      showConsole: true, //日志
-      goodsList: [], //商品详情
-      goodsListVisible: false, //商品详情
-      goodsSearchVisible: false, //订单号批量查询
-      goodsOrderSnStr: '', //订单号批量查询
-      localRamarkVisible: false, //本地备注
-      localRamark: '', //本地备注
-      activeRemarkID: '', //本地备注
-      orderRemark: '', //本地备注
+      showConsole: true, // 日志
+      goodsList: [], // 商品详情
+      goodsListVisible: false, // 商品详情
+      goodsSearchVisible: false, // 订单号批量查询
+      goodsOrderSnStr: '', // 订单号批量查询
+      localRamarkVisible: false, // 本地备注
+      localRamark: '', // 本地备注
+      activeRemarkID: '', // 本地备注
+      orderRemark: '' // 本地备注
     }
   },
   mounted() {
@@ -292,28 +298,28 @@ export default {
     }, 2000)
   },
   methods: {
-    //标记面单已下载
-    async updateOrderPrintStatus(array){
-      let mainOrderSns = []
-      array.forEach(item=>{
+    // 标记面单已下载
+    async updateOrderPrintStatus(array) {
+      const mainOrderSns = []
+      array.forEach(item => {
         mainOrderSns.push(item.MainOrderNo)
       })
-      let params = {
+      const params = {
         mainOrderSns: mainOrderSns.join(','),
         isPrint: '1'
       }
-      let res = await this.$api.updateOrderPrintStatus(params)
-      if(res.data.code === 200){ 
-        mainOrderSns.forEach(item=>{
-          let index = this.tableData.findIndex(n=>{ return n.main_order_sn === item})
-          if(index>-1){
-            this.$set(this.tableData[index],'is_print','1')
+      const res = await this.$api.updateOrderPrintStatus(params)
+      if (res.data.code === 200) {
+        mainOrderSns.forEach(item => {
+          const index = this.tableData.findIndex(n => { return n.main_order_sn === item })
+          if (index > -1) {
+            this.$set(this.tableData[index], 'is_print', '1')
           }
         })
       }
     },
     changeTime(val, key, subKey) {
-      let days = getDaysBetween(new Date(val[0]).getTime(), new Date(val[1]).getTime())
+      const days = getDaysBetween(new Date(val[0]).getTime(), new Date(val[1]).getTime())
       if (days > 93) {
         if (subKey) {
           this[key][subKey] = creatDate(30)
@@ -323,23 +329,23 @@ export default {
         return this.$message.warning('只支持查询或导出93天内的数据,请重新选择时间！')
       }
     },
-    //打印台湾虚拟面单
+    // 打印台湾虚拟面单
     async downTWface() {
       try {
-        let filterArr = this.multipleSelection.filter((n) => n.country == 'TW')
+        const filterArr = this.multipleSelection.filter((n) => n.country == 'TW')
         if (!filterArr.length) {
           return this.$message.warning('请选择台湾站订单数据')
         }
-        let ids = []
+        const ids = []
         filterArr.forEach((item) => {
           ids.push(item.main_order_sn)
         })
-        let idStr = ids.toString()
+        const idStr = ids.toString()
         console.log(idStr, 'idStr')
-        let params = {
-          mainOrderSns: idStr,
+        const params = {
+          mainOrderSns: idStr
         }
-        let res = await this.$api.getLogisticsInformationBatch(params)
+        const res = await this.$api.getLogisticsInformationBatch(params)
         console.log(res, 'res')
         let sheetInfo = []
         if (res.data.code === 200 && res.data.data.length) {
@@ -353,7 +359,7 @@ export default {
         console.log('downTWface', downTWface)
       }
     },
-    //打印面单信息
+    // 打印面单信息
     batnchDownLoad(arrList, type) {
       if (!arrList.length) {
         return this.$message.warning('请选择要操作的数据！')
@@ -362,7 +368,7 @@ export default {
         this.$confirm('pdf文件后缀是否小写?', '提示', {
           confirmButtonText: '是',
           cancelButtonText: '否',
-          type: 'warning',
+          type: 'warning'
         })
           .then(() => {
             this.batchPrintOrderSurface(arrList, true, true, false, false)
@@ -374,7 +380,7 @@ export default {
         this.$confirm('是否需要打印虚拟面单?', '提示', {
           confirmButtonText: '是',
           cancelButtonText: '否',
-          type: 'warning',
+          type: 'warning'
         })
           .then(() => {
             this.batchPrintOrderSurface(arrList, false, false, true, true)
@@ -386,7 +392,7 @@ export default {
     },
     async batchPrintOrderSurface(arrList, PdfLower, isDownload, isShowWindow, IsPrintVirtual) {
       let country = ''
-      let countryId = {}
+      const countryId = {}
       let mainOrders = ''
       arrList.forEach((item, index) => {
         countryId[item.country] = item.country
@@ -400,12 +406,12 @@ export default {
       if (Object.keys(countryId).length > 1) {
         return this.$message.warning('由于每个站点面单不一致，请分站点批量预览和打印！')
       }
-      let params = {
-        mainOrderSns: mainOrders,
+      const params = {
+        mainOrderSns: mainOrders
       }
       let sheetInfo = []
       try {
-        let res = await this.$api.getLogisticsInformationBatch(params)
+        const res = await this.$api.getLogisticsInformationBatch(params)
         console.log(res, 'res')
         if (res.data.code === 200) {
           sheetInfo = res.data.data
@@ -422,23 +428,23 @@ export default {
         console.log(error)
       }
     },
-    //打印面单信息
+    // 打印面单信息
     async downFace(arrList, OrderList, country, PdfLower, isDownload, isShowWindow, IsPrintVirtual) {
       this.showConsole = false
       this.$refs.Logs.consoleMsg = ''
       try {
-        let PdfInfoModel = []
+        const PdfInfoModel = []
         for (let i = 0; i < arrList.length; i++) {
-          let info = arrList[i]
+          const info = arrList[i]
           if (!info.url && country !== 'TW') {
             this.$refs.Logs.writeLog(`订单${info.order_sn}未获取到面单信息`, false)
             continue
           }
-          let orderInfo = OrderList.find((n) => {
+          const orderInfo = OrderList.find((n) => {
             return n.order_sn == info.order_sn
           })
           console.log(orderInfo, 'orderInfo')
-          let params = {
+          const params = {
             PDFUrl: info.url || '',
             OrderNo: orderInfo.order_sn,
             MainOrderNo: orderInfo.main_order_sn,
@@ -452,22 +458,22 @@ export default {
             BarInfo: {
               BarCode: orderInfo.order_sn,
               BarCodeWidth: 200,
-              BarCodeHeight: 50,
+              BarCodeHeight: 50
             },
             SkuList: [orderInfo.goodsInfo[0].variation_sku.replace('=|=', ''), orderInfo.goodsInfo[0].goods_count],
-            IsNeedCut: orderInfo.logistics_id == 30007 || orderInfo.logistics_id == 30008 ? true : false,
+            IsNeedCut: !!(orderInfo.logistics_id == 30007 || orderInfo.logistics_id == 30008),
             IsUseA4Size: false,
             PdfWidth: 320,
             PdfHeight: 425,
             LocationY: -420,
             PrintStatus: '0',
             MallId: orderInfo.mall_info.platform_mall_id,
-            MallName: orderInfo.mall_info.platform_mall_name,
+            MallName: orderInfo.mall_info.platform_mall_name
           }
           PdfInfoModel.push(params)
         }
 
-        let pdfDownloadModel1 = {
+        const pdfDownloadModel1 = {
           IsDownload: isDownload,
           PdfExtendName: PdfLower ? '.pdf' : '.PDF',
           PdfExtendNameIsLower: PdfLower,
@@ -476,12 +482,12 @@ export default {
           IsShowWindow: isShowWindow,
           PdfInfoList: PdfInfoModel,
           VirtualPdfPath: {},
-          ConvertFaceInfoList: [],
+          ConvertFaceInfoList: []
         }
-        //1、---------------getOrderPdfInfo
+        // 1、---------------getOrderPdfInfo
         console.log(JSON.stringify(pdfDownloadModel1), '111')
-        let pdfInfo = await window['BaseUtilBridgeService'].getOrderPdfInfo(pdfDownloadModel1)
-        let pdfInfoObj = JSON.parse(pdfInfo)
+        const pdfInfo = await window['BaseUtilBridgeService'].getOrderPdfInfo(pdfDownloadModel1)
+        const pdfInfoObj = JSON.parse(pdfInfo)
         console.log(pdfInfoObj, 'pdfInfo')
         if (pdfInfoObj.code != 200) {
           let message = ''
@@ -491,14 +497,14 @@ export default {
           }
           return this.$refs.Logs.writeLog(`预览失败,${message}`, false)
         }
-        let PdfInfoList = JSON.parse(JSON.stringify(PdfInfoModel))
+        const PdfInfoList = JSON.parse(JSON.stringify(PdfInfoModel))
         PdfInfoList.forEach((item) => {
-          let htmlUrl = pdfInfoObj.data.find((n) => n && n.OrderSn == item.OrderNo)
+          const htmlUrl = pdfInfoObj.data.find((n) => n && n.OrderSn == item.OrderNo)
           if (htmlUrl) {
             item.PDFUrl = htmlUrl.PDFFilePath
           }
         })
-        //2、---------------getVirtualFace 虚拟面单
+        // 2、---------------getVirtualFace 虚拟面单
         console.log(JSON.stringify(PdfInfoList), '222')
         let VirtualPdfPath = null
         let VirtualPdfPathObj = {}
@@ -510,34 +516,34 @@ export default {
             return this.$message.warning('获取虚拟面单失败')
           }
         }
-        let ConvertFaceInfoModel = []
+        const ConvertFaceInfoModel = []
         for (let i = 0; i < arrList.length; i++) {
-          let info = arrList[i]
+          const info = arrList[i]
           console.log(i, info)
           if (!info.url && country !== 'TW') {
             this.$refs.Logs.writeLog(`订单${info.order_sn}未获取到面单信息`, false)
             continue
           }
-          let orderInfo = OrderList.find((n) => {
+          const orderInfo = OrderList.find((n) => {
             return n.order_sn == info.order_sn
           })
-          let htmlUrl = (pdfInfoObj.data && pdfInfoObj.data.find((n) => n && n.OrderSn == orderInfo.order_sn)) || null
+          const htmlUrl = (pdfInfoObj.data && pdfInfoObj.data.find((n) => n && n.OrderSn == orderInfo.order_sn)) || null
           console.log(htmlUrl, 'htmlUrl')
-          let conParams = {
+          const conParams = {
             HtmlFilePath: htmlUrl ? htmlUrl.PDFFilePath : info.url && info.url.includes('.html') ? info.url : '',
             PDFFilePath: htmlUrl ? htmlUrl.PDFFilePath : (info.url && info.url.includes('.PDF')) || (info.url && info.url.includes('.pdf')) ? info.url : '',
             LogisticsId: orderInfo.logistics_id.toString(),
             OrderSn: orderInfo.order_sn,
             MallId: Number(orderInfo.mall_info.platform_mall_id),
-            VirtualFilePath: IsPrintVirtual ? VirtualPdfPathObj.data[orderInfo.order_sn] : '',
+            VirtualFilePath: IsPrintVirtual ? VirtualPdfPathObj.data[orderInfo.order_sn] : ''
           }
           ConvertFaceInfoModel.push(conParams)
           console.log(ConvertFaceInfoModel, '-------')
         }
-        //3、----------------htmlToPdf
+        // 3、----------------htmlToPdf
         console.log('333', JSON.stringify(ConvertFaceInfoModel))
-        let convertRes = await window['BaseUtilBridgeService'].htmlToPdf(ConvertFaceInfoModel, false)
-        let convertResObj = convertRes && JSON.parse(convertRes)
+        const convertRes = await window['BaseUtilBridgeService'].htmlToPdf(ConvertFaceInfoModel, false)
+        const convertResObj = convertRes && JSON.parse(convertRes)
         console.log(convertResObj, 'convertFaceInfoModel')
         if (convertResObj.code != 200) {
           let message = ''
@@ -548,7 +554,7 @@ export default {
           return this.$refs.Logs.writeLog(`打印面单失败,${message}`, false)
         }
 
-        let pdfDownloadModel = {
+        const pdfDownloadModel = {
           IsDownload: isDownload,
           PdfExtendName: PdfLower ? '.pdf' : '.PDF',
           PdfExtendNameIsLower: PdfLower,
@@ -557,9 +563,9 @@ export default {
           IsShowWindow: isShowWindow,
           PdfInfoList: PdfInfoList,
           VirtualPdfPath: IsPrintVirtual ? VirtualPdfPathObj.data : {},
-          ConvertFaceInfoList: convertResObj.data,
+          ConvertFaceInfoList: convertResObj.data
         }
-        //5、-------------------downloadPdf
+        // 5、-------------------downloadPdf
         console.log(JSON.stringify(pdfDownloadModel), '4444444--end')
         this.tableLoading = true
         await window['BaseUtilBridgeService'].downloadPdf(pdfDownloadModel)
@@ -579,27 +585,27 @@ export default {
         console.log(error, 'downFace')
       }
     },
-    //同步单个面单信息
+    // 同步单个面单信息
     async syncFaceDataSingle(row) {
-      //同步单个，强制开启申请面单
-      if(row.hasLogistics == '1' && row.tracking_no != ''){
-        return this.$message.warning('订单面单已存在，无需再同步！')
-      }
+      // 同步单个，强制开启申请面单
+      // if (row.hasLogistics == '1' && row.tracking_no != '') {
+      //   return this.$message.warning('订单面单已存在，无需再同步！')
+      // }
       this.syncSurface([row], true)
     },
-    //同步面单信息
+    // 同步面单信息
     async syncSurfaceBefore() {
       if (!this.multipleSelection.length) {
         return this.$message.warning('请先选择数据！')
       }
-      let arrFilterFrist = this.multipleSelection.filter((n) => {
+      const arrFilterFrist = this.multipleSelection.filter((n) => {
         return n.hasLogistics !== '1' || n.tracking_no == ''
       })
       if (!arrFilterFrist.length) {
         return this.$message.warning('当前没有需要同步面单的订单！')
       }
       console.log(arrFilterFrist, 'arrFilterFrist')
-      let arrFilter = arrFilterFrist.filter((n) => {
+      const arrFilter = arrFilterFrist.filter((n) => {
         return n.country == 'TW'
       })
       console.log(arrFilter, 'arrFilter')
@@ -607,15 +613,15 @@ export default {
         this.$confirm('是否同时批量同步台湾站点的面单（同步台湾站的面单将会缩短发货时效，请谨慎选择）!', '提示', {
           confirmButtonText: '是',
           cancelButtonText: '否',
-          type: 'warning',
+          type: 'warning'
         })
           .then(() => {
-            //同步台湾，强制开启申请面单
+            // 同步台湾，强制开启申请面单
             this.syncSurface(arrFilterFrist, true)
           })
           .catch(() => {
-            //不同步台湾，强制关闭申请面单
-            let arrFilterTW = arrFilterFrist.filter((n) => {
+            // 不同步台湾，强制关闭申请面单
+            const arrFilterTW = arrFilterFrist.filter((n) => {
               return n.country !== 'TW'
             })
             this.syncSurface(arrFilterTW, false)
@@ -624,7 +630,7 @@ export default {
         this.syncSurface(arrFilterFrist, false)
       }
     },
-    //同步面单信息
+    // 同步面单信息
     async syncSurface(syncList, isApplyForceFaceInfo) {
       this.showConsole = false
       if (!syncList.length) {
@@ -635,7 +641,7 @@ export default {
       const service = new surFaceService(this, this.$refs.Logs.writeLog)
       service.handleStart(syncList, isApplyForceFaceInfo)
     },
-    //下载拣货单
+    // 下载拣货单
     async downLoadPickList() {
       if (!this.multipleSelection.length) {
         return this.$message.warning('请先选择数据！')
@@ -645,7 +651,7 @@ export default {
       const service = new surFaceService(this, this.$refs.Logs.writeLog)
       service.getPickListData(this.multipleSelection)
     },
-    //获取导出数据
+    // 获取导出数据
     async getExportData() {
       if (this.multipleSelection.length) {
         this.tableToExcel([this.multipleSelection])
@@ -658,7 +664,7 @@ export default {
             sysMallId = sysMallId + ',' + item.id
           }
         })
-        let params = JSON.parse(JSON.stringify(this.selectForm))
+        const params = JSON.parse(JSON.stringify(this.selectForm))
         params['page'] = 1
         params['pageSize'] = 200
         params['sysMallId'] = sysMallId
@@ -668,20 +674,20 @@ export default {
         let exportData = []
         let dataFlag = (data && data.code === 200 && data.data.data && data.data.data) || []
         while (dataFlag && dataFlag.length) {
-          dataFlag.forEach(async (item) => {
+          dataFlag.forEach(async(item) => {
             item.goodsLink = await this.joinLink(item, item.goodsInfo[0].goods_id)
           })
           exportData = exportData.concat(dataFlag)
           params.page++
-          let { data } = await this.$api.getDeliveryList(params)
+          const { data } = await this.$api.getDeliveryList(params)
           dataFlag = (data && data.code === 200 && data.data.data && data.data.data) || []
         }
         this.tableLoading = false
         if (!exportData.length) {
           return this.$message.warning('没有可导出的数据！')
         }
-        let subExportData = []
-        let dataCopy = JSON.parse(JSON.stringify(exportData))
+        const subExportData = []
+        const dataCopy = JSON.parse(JSON.stringify(exportData))
         if (dataCopy.length > 7000) {
           let i = 0
           while (dataCopy.length) {
@@ -715,12 +721,12 @@ export default {
             <td>虾皮物流单号</td>
             </tr>`
       for (let index = 0; index < exportData.length; index++) {
-        let jsonData = exportData[index]
+        const jsonData = exportData[index]
         for (let j = 0; j < jsonData.length; j++) {
-          let item = jsonData[j]
+          const item = jsonData[j]
           // let goodsArr = item.goodsInfo.length || []
           for (let m = 0; m < item.goodsInfo.length; m++) {
-            let goodsInfo = item.goodsInfo[m]
+            const goodsInfo = item.goodsInfo[m]
             str += `<tr><td>${num++}</td>
                 <td>${item.mall_info && item.mall_info.country ? this.$filters.chineseSite(item.mall_info.country) : '' + '\t'}</td>
                 <td>${item.mall_info && item.mall_info.platform_mall_name ? item.mall_info.platform_mall_name : '' + '\t'}</td>
@@ -745,7 +751,7 @@ export default {
       }
       exportExcelDataCommon('发货管理订单数据', str)
     },
-    //修改单个备注
+    // 修改单个备注
     async changeRemark(id, index) {
       const res = await this.$api.setLocalRemark({ id: id, remark: this.orderRemark })
       if (res.data.code == 200) {
@@ -767,19 +773,19 @@ export default {
       }
       this.localRamarkVisible = true
     },
-    //批量添加本地备注
+    // 批量添加本地备注
     async batchSetRemark() {
       if (!this.multipleSelection.length) {
         return this.$message.warning('请先选择需要标记的商品！')
       }
       this.showConsole = false
       // this.$refs.Logs.consoleMsg = ''
-      this.multipleSelection.forEach(async (item) => {
-        let params = {
+      this.multipleSelection.forEach(async(item) => {
+        const params = {
           id: item.id,
-          remark: this.localRamark,
+          remark: this.localRamark
         }
-        let res = await this.$api.setLocalRemark(params)
+        const res = await this.$api.setLocalRemark(params)
         if (res.data.code === 200) {
           this.$refs.multipleTable.toggleRowSelection(item, false)
           this.$refs.Logs.writeLog(`订单编号【${item.order_sn}】备注成功`, true)
@@ -802,13 +808,13 @@ export default {
           return item != ''
         })
     },
-    //查看商品详情
+    // 查看商品详情
     openGoodsDetail(row) {
       this.clickRow = row
       this.goodsList = row.goodsInfo
       this.goodsListVisible = true
     },
-    //关闭弹窗
+    // 关闭弹窗
     closeDialog() {
       this.clickRow = {}
       this.goodsList = []
@@ -817,8 +823,9 @@ export default {
       this.localRamark = ''
       this.localRamarkVisible = false
     },
-    //获取列表
+    // 获取列表
     async getOrderList(page, goodsOrderSnStr) {
+      try {
       let sysMallId = ''
       this.selectMallList.forEach((item, index) => {
         if (index === 0) {
@@ -827,7 +834,7 @@ export default {
           sysMallId = sysMallId + ',' + item.id
         }
       })
-      let params = JSON.parse(JSON.stringify(this.selectForm))
+      const params = JSON.parse(JSON.stringify(this.selectForm))
       this.currentPage = page || this.currentPage
       params['page'] = this.currentPage
       params['pageSize'] = this.pageSize
@@ -841,23 +848,26 @@ export default {
         params.orderSn = snArr.join(',')
       }
       this.tableLoading = true
-      let res = await this.$api.getDeliveryList(params)
-      console.log(res,"111111111")
+      const res = await this.$api.getDeliveryList(params)
+      console.log(res, '111111111')
       if (res.data.code === 200) {
         this.tableData = res.data.data.data
         this.total = res.data.data.total
       } else {
-        this.$message.error(`获取列表失败，${res.data?res.data.message:''}`)
+        this.$message.error(`获取列表失败，${res.data ? res.data.message : ''}`)
       }
       this.tableLoading = false
       this.closeDialog()
       console.log(this.tableData)
+      } catch (error) {
+        this.tableLoading = false
+      }
     },
     async joinLink(row, goodsId) {
       let url = ''
       if (row.mall_info && row.mall_info.platform_mall_id) {
-        let params = {
-          platform_mall_id: row.mall_info ? row.mall_info.platform_mall_id : '',
+        const params = {
+          platform_mall_id: row.mall_info ? row.mall_info.platform_mall_id : ''
         }
         const webUrl = await this.$shopeemanService.getWebUrl(row.country, params)
         url = webUrl + '/product' + '/' + row.mall_info.platform_mall_id + '/' + goodsId
@@ -868,8 +878,8 @@ export default {
     async openUrl(data, goodsId, type) {
       let url = data
       if (type === 'product') {
-        let params = {
-          platform_mall_id: data.mall_info.platform_mall_id,
+        const params = {
+          platform_mall_id: data.mall_info.platform_mall_id
         }
         const webUrl = await this.$shopeemanService.getWebUrl(data.country, params)
         console.log(webUrl, 'webUrl', data.country)
@@ -882,7 +892,7 @@ export default {
       const reqStr = {
         type: type,
         shopId: shopId,
-        id: id,
+        id: id
       }
       this.$BaseUtilService.getOrderDetailInfo(shopId, JSON.stringify(reqStr))
     },
@@ -902,15 +912,15 @@ export default {
     handleSelectionChange(val) {
       this.multipleSelection = val
     },
-    //点击复制
+    // 点击复制
     copyItem(attr) {
-      let target = document.createElement('div')
+      const target = document.createElement('div')
       target.id = 'tempTarget'
       target.style.opacity = '0'
       target.innerText = attr
       document.body.appendChild(target)
       try {
-        let range = document.createRange()
+        const range = document.createRange()
         range.selectNode(target)
         window.getSelection().removeAllRanges()
         window.getSelection().addRange(range)
@@ -918,12 +928,12 @@ export default {
         window.getSelection().removeAllRanges()
         this.$message.success('复制成功')
       } catch (e) {
-        //console.log('复制失败')
+        // console.log('复制失败')
       }
       target.parentElement.removeChild(target)
     },
-    changeOrderStatus,
-  },
+    changeOrderStatus
+  }
 }
 </script>
 

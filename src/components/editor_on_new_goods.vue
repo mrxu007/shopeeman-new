@@ -297,7 +297,7 @@
           </el-input>
         </template>
       </u-table-column>
-      <u-table-column align="left" :show-overflow-tooltip="true" label="类目" min-width="80">
+      <u-table-column align="left" show-overflow-tooltip label="类目" width="80">
         <template v-slot="{ row }">{{ getCategoty(row) || '未匹配到类目' }}</template>
       </u-table-column>
       <u-table-column align="left" label="价格" prop="price" width="70"/>
@@ -335,7 +335,8 @@
       </u-table-column>
       <u-table-column align="left" label="操作状态" width="100">
         <template v-slot="{row}">
-          <div class="goodsTableLine" style="height: 80px">
+          <div class="goodsTableLine" style="height: 80px"
+               :style="`color:${row.operation_type && row.operation_type.includes('收藏失败') && 'red' || '#000'}`">
             {{ row.operation_type || '' }}
           </div>
         </template>
@@ -345,7 +346,7 @@
       <el-dialog
           title="商品编辑"
           width="1000px"
-          top="8vh"
+          top="2vh"
           :close-on-click-modal="false"
           :close-on-press-escape="false"
           :modal="false"
@@ -510,10 +511,56 @@ export default {
       default() {
         return false
       }
-    }
+    },
+    GoodsDeliveryAddress:{
+      type: Number,
+      default() {
+        return 0
+      }
+    },
+    IsCollectDescriptionIsNull:{
+      type: Boolean,
+      default() {
+        return false
+      }},
+    IsDefaultFilterSkuCount:{
+      type: Boolean,
+      default() {
+        return true
+      }},
+    IsFilterLazadaDeliveryDay:{
+      type: Boolean,
+      default() {
+        return false
+      }},
+    IsFilterShopeeDeliveryDay:{
+      type: Boolean,
+      default() {
+        return false
+      }},
+    MinShoppeDeliveryDay:{
+      type: Number,
+      default() {
+        return 0
+      }},
+    MaxShoppeDeliveryDay:{
+      type: Number,
+      default() {
+        return 20
+      }},
   },
   data() {
     return {
+      shopeeGoodsDeliveryAddressDic:{ // 收藏商品时使用
+        'MY': 'Mainland China',
+        'TW': '中國大陸',
+        'VN': 'Nước ngoài',
+        'ID': 'Luar Negeri',
+        'PH': 'Mainland China',
+        'TH': 'ต่างประเทศ',
+        'SG': 'Mainland China',
+        'BR': 'China Continental'
+      },
       CollectPublicApInstance: new CollectPublicApI(this),
       CollectKeyWordApInstance: new CollectKeyWordApI(this), // 关键词采集
       collectLinkApInstance: new CollectLinkApI(this), // 链接采集
@@ -577,7 +624,7 @@ export default {
           value: 'en'
         }, {
           label: '繁体',
-          value: 'zh-tw'
+          value: 'zh-TW'
         }, {
           label: '中文',
           value: 'zh'
@@ -739,9 +786,11 @@ export default {
     // 开启任务
     async batchDealWith(type, data) {
       console.log('type ===', type)
-      if (this.mallTableSelect.length < 1) {
-        this.$message.error('请选择一个商品信息')
-        return false
+      if (type !== 8){
+        if (this.mallTableSelect.length < 1) {
+          this.$message.error('请选择一个商品信息')
+          return false
+        }
       }
       if (type !== 1) {
         let list = []
@@ -881,7 +930,7 @@ export default {
       } else if (type === 14) {
         this.categoryVisible = true
       } else if (type === 15) {
-        await this.translationPrepare(1)
+        await this.translationPrepare(2)
       } else if (type === 16) {
         this.goodsSizeVisible = true
       } else if (type === 17) {
@@ -935,9 +984,12 @@ export default {
       }
     },
     async translationPrepare(type) {
+      console.log('translationPrepare',type)
       const goodsList = []
       this.mallTableSelect.forEach(item => {
         if (type === 3 && item.operation_type && item.operation_type.includes('翻译失败')) {
+          goodsList.push(item)
+        } else if (type === 2 && this.translationConfig.before !== 'no'){
           goodsList.push(item)
         } else if (item.language.toLocaleUpperCase() !== this.translationConfig.languages.toLocaleUpperCase()) {
           if (item.language !== 'zh-Hans' || this.translationConfig.languages !== 'zh') {
@@ -948,6 +1000,7 @@ export default {
       if (type === 2) {
         this.isTranslationText = false
       }
+      console.log('goodsList', goodsList)
       if (goodsList.length > 0) {
         const res = await batchOperation(goodsList, this.translationDate, parseInt(this.threadNumber))
         this.isTranslationText = true
@@ -1170,7 +1223,7 @@ export default {
           success = await this.translationPicture(item, index)
         }
         success && ++this.statistics.fySuccess
-        this.$set(this.mallTable[index], 'operation_type', success && '翻译成功' || '翻译失败')
+        success && this.$set(this.mallTable[index], 'operation_type', '翻译成功')
       } catch (e) {
         this.$set(this.mallTable[index], 'operation_type', '翻译失败')
         console.log(e)
@@ -1388,7 +1441,7 @@ export default {
           itemmodelsJson = itemmodelsJson.replaceAll(/"selection_id":[0-9]*,/ig, '')
           itemmodelsJson = itemmodelsJson.replaceAll(/"skuId":([0-9]*),/ig, '"skuId":"$1",')
           param['skuSpecs'] = itemmodelsJson
-          param.language = toLanguage === 'zh' && 'zh-Hans' || toLanguage === 'zh-tw' && 'zh-Hant' || toLanguage
+          param.language = toLanguage === 'zh' && 'zh-Hans' || toLanguage === 'zh-TW' && 'zh-Hant' || toLanguage
           console.log('saveTranslationData - param', param, JSON.parse(itemmodelsJson))
           const translationDataJson = await this.$commodityService.saveTranslationData(param)
           const translationDataRes = JSON.parse(translationDataJson)
@@ -1444,19 +1497,22 @@ export default {
                 imageData = Data.Data && Data.Data.Url || son.img
               } else if (this.pictureConfig.typeRadio === 2) {
                 console.log(son.img, this.translationConfig.after)
-                const json = await this.$translationBridgeService.getYunTranslateImg(son.img, this.translationConfig.after)
+                const json =son && son.img && await this.$translationBridgeService.getYunTranslateImg(son.img, this.translationConfig.after) || ''
                 console.log(json)
-                if (json.Code === 200) {
+                if (json && json.Code === 200) {
                   imageData = json.Data && json.Data.Url || son.img
                 } else {
                   imageData = son.img
+                  this.$set(this.mallTable[index], 'operation_type', `轮播图(${(i + 1)}/${image1ListLength})失败${json.Msg}`)
+                  success = false
+                  return
                 }
               }
               const res = await this.$commodityService.updateGoodsImage('1', item.id, son.id, imageData)
               console.log(res)
             }
           }
-          if (this.pictureConfig.specChecked) {
+          if (this.pictureConfig.specChecked && success) {
             let itemmodels = JSON.stringify(neededTranslateInfoData.itemmodels)
             const spec_imageList = neededTranslateInfoData.spec_image || [] // 规格图
             const spec_imageListLength = spec_imageList.length
@@ -1481,12 +1537,14 @@ export default {
                 const { Data } = await this.$translationBridgeService.getAliYunTranslateImg(son, fromLa, this.translationConfig.after)
                 imageData = Data.Data && Data.Data.Url || son
               } else if (this.pictureConfig.typeRadio === 2) {
-                const json = await this.$translationBridgeService.getYunTranslateImg(son, this.translationConfig.after)
+                const json = son &&  await this.$translationBridgeService.getYunTranslateImg(son, this.translationConfig.after) || ''
                 console.log(json)
-                if (json.Code === 200) {
+                if (json && json.Code === 200) {
                   imageData = json.Data && json.Data.Url || son
                 } else {
                   imageData = son
+                  this.$set(this.mallTable[index], 'operation_type', `规格图(${(i + 1)}/${image1ListLength})失败${json.Msg}`)
+                  success = false
                 }
               }
               itemmodels = itemmodels.replaceAll(son, imageData)
@@ -1727,8 +1785,8 @@ export default {
       if (getLabelData.code === 200) {
         if (getLabelData.data) {
           const config = getLabelData.data && getLabelData.data.config
-          this.pictureConfig.typeRadio = parseInt(config.AliImgTranslateType || this.pictureConfig.typeRadio) // 阿里图片翻译类型
-          this.goodsDescribeRadio = parseInt(config.GoodDescribe || this.goodsDescribeRadio) // 商品描述
+          this.pictureConfig.typeRadio = Number(config.AliImgTranslateType || this.pictureConfig.typeRadio) || 2 // 阿里图片翻译类型
+          this.goodsDescribeRadio = Number(config.GoodDescribe || this.goodsDescribeRadio) // 商品描述
           this.translationConfig.titleChecked = config.IsTranslateTitle // 是否翻译标题
           this.translationConfig.specChecked = config.IsTranslateSpecification // 是否翻译规格信息
           this.translationConfig.describeChecked = config.IsTranslateDescribe // 是否翻译描述
@@ -1806,11 +1864,22 @@ export default {
             this.$set(this.mallTable, index, res.data)
             this.statistics.scSuccess++
           } else {
-            this.StatusName(item, `收藏失败`)
+            let errorStr = ''
+            if(res.msg){
+              errorStr = res.msg
+            }else {
+              errorStr = '收藏失败：'+res.data
+            }
+            this.StatusName(item, errorStr)
             this.$set(item, 'isFailure', true)
           }
         }
       } catch (error) {
+        if(res.msg){
+          error = res.msg
+        }else {
+          error = '收藏失败：'+res.data
+        }
         this.StatusName(item, `${error}`)
         this.$set(item, 'isFailure', true)
         console.log(error)

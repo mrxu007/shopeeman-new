@@ -432,6 +432,8 @@ export default class CollectionPublicApi {
           haveImageOption[optionName] = skuData.image
         }
       }
+      console.log('notHaveImageOption', notHaveImageOption)
+      console.log('haveImageOption', haveImageOption)
       // 如果没有图片的规格,多于有图片的规格
       if (notHaveImageOption.length > Object.keys(haveImageOption).length) {
         for (const key in sku) {
@@ -477,6 +479,12 @@ export default class CollectionPublicApi {
         delete sku[clearOption[i]]
       }
       checkData['imageBool'] = true
+      for (const key in sku) {
+        if (!sku[key].image){
+          console.log('无图',sku[key])
+          delete sku[key]
+        }
+      }
       checkData['skuList'] = sku
       return checkData
     }

@@ -1463,7 +1463,8 @@ export default {
                 }
                 // 获取上家parent_sku
                 const tmallCrossBorderUserId = item.platformTypeStr === '天猫淘宝海外平台' ? item.id : ''
-                productInfo['parent_sku'] = await this.$BaseUtilService.buildGoodCode(item.platform, item.id, item.country, mall.platform_mall_id, tmallCrossBorderUserId)
+                // productInfo['parent_sku'] = await this.$BaseUtilService.buildGoodCode(item.platform, item.id, item.country, mall.platform_mall_id, tmallCrossBorderUserId)
+                productInfo['parent_sku'] = item.parent_sku
                 // 随机符号
                 const specialCharList = this.$filters.special_characters
                 const specialChar = specialCharList[Math.floor(Math.random() * specialCharList.length)]
