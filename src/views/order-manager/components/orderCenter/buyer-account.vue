@@ -1,11 +1,4 @@
-<!--
- * @Author: your name
- * @Date: 2021-11-09 10:14:02
- * @LastEditTime: 2022-03-01 14:12:40
- * @LastEditors: Please set LastEditors
- * @Description: In User Settings Edit
- * @FilePath: \shopeeman-new\src\components\buyer-account.vue
--->
+
 <template>
   <div class="account-plugin">
     <div class="box">
@@ -59,8 +52,8 @@
         <div class="sub-row">
           <div class="row"><p>代理设置只适用于shopee和lazada</p></div>
           <div class="row">
-            代理设置：
-            <el-select v-model="proxyType" placeholder="" size="mini" filterable　style="width:100px;margin-right:10px;">
+          代理设置：
+          <el-select v-model="proxyType" placeholder="" size="mini" filterable clearable　style="width:100px;margin-right:10px;">
               <el-option v-for="(item, index) in proxyList" :key="index" :label="item.ip_alias" :value="item.id" />
             </el-select>
             <el-select v-model="siteCode" placeholder="" size="mini" filterable style="width: 100px">

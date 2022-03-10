@@ -1040,33 +1040,30 @@
             <div class="basisInstall-box">
               <div class="keepRight">上新时间间隔：</div>
               <el-input size="mini" v-model="setTimeConfig.onNewInterval"
-                        style="width: 120px;margin-right: 5px;"></el-input>
-              S
+                        style="width: 80px;margin:0 5px;"></el-input>S
               <el-tooltip class="item" effect="dark" content="默认印尼站点上新时间间隔为50S，其他站点为40S" placement="top">
                 <el-button size="mini" type="text"><i class="el-icon-question" style="padding: 0 2px;"></i></el-button>
               </el-tooltip>
             </div>
             <div class="basisInstall-box">
-              <div>上新加速：</div>
-              <el-input style="width: 100px;margin: 0 5px;" size="mini" v-model="setTimeConfig.onNewThread"
-                        @change="changeStockUpNumber(setTimeConfig.onNewThread,2)"></el-input>
-              条线程
+              <div class="keepRight">上新加速：</div>
+              <el-input style="width: 80px;margin: 0 5px;" size="mini" v-model="setTimeConfig.onNewThread"
+                        @change="changeStockUpNumber(setTimeConfig.onNewThread,2)"></el-input>条线程
               <el-tooltip class="item" effect="dark" content="请根据电脑配置合理设置上新线程数，最大为5" :min="1" :max="5" placement="top">
                 <el-button size="mini" type="text"><i class="el-icon-question" style="padding: 0 2px;"></i></el-button>
               </el-tooltip>
             </div>
             <div class="basisInstall-box">
-              <div>时间选择：</div>
+              <div class="keepRight">时间选择：</div>
               <el-date-picker
-                  v-model="setTimeConfig.time"
-                  type="datetime"
-                  size="mini"
+                  v-model="setTimeConfig.time" type="datetime"
+                  size="mini" style="width: 180px;margin: 0 5px;"
                   placeholder="选择日期时间">
               </el-date-picker>
             </div>
             <div class="basisInstall-box">
-              <div>任务名称：</div>
-              <el-input style="width: 300px;margin: 0 5px;" size="mini" v-model="setTimeConfig.name"></el-input>
+              <div class="keepRight">任务名称：</div>
+              <el-input style="width: 240px;margin: 0 5px;" size="mini" v-model="setTimeConfig.name"></el-input>
             </div>
           </div>
           <div style="display: flex;justify-content: space-around;margin:30px 0">
@@ -3082,6 +3079,7 @@ export default {
   white-space: normal;
   cursor: pointer;
   line-height: 40px;
+  overflow: hidden;
 
   &:hover {
     color: #ff0000;

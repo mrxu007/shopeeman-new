@@ -1601,10 +1601,12 @@ export default {
           return
         }
         const data = res3[0].data
+         //mallStatus
+        console.log(data)
         const params = {
           'sysMallId': item.id,
           'platformMallName': data.shop_name,
-          'mallStatus': data.user_status,
+          'mallStatus': data.shop_status,
           'itemLimit': 500,
           'userEmail': data.user_email,
           'phone': data.phone,

@@ -26,7 +26,8 @@ export default class NetMessageBridgeService {
     return {
       mallId: data.mallId || data.platform_mall_id || data.shop_id,
       isEmoticons: false,
-      isFrontShopeeApi: true
+      isFrontShopeeApi: true,
+      isAddCsrfToken: data.isAddCsrfToken || false
     }
   }
   // 各站点本土前台网址
@@ -206,6 +207,7 @@ export default class NetMessageBridgeService {
       options['extrainfo']['exportInfo'] = exportInfo
     }
     delete data.mallId // body 里面不能带店铺id
+    delete data.isAddCsrfToken
     options['params'] = data
     const referer = options['headers'] && options['headers'].referer
     if (referer) {
@@ -228,6 +230,7 @@ export default class NetMessageBridgeService {
       // Object.assign(options['extrainfo'],JSON.parse(JSON.stringify()))
     }
     delete data.mallId
+    delete data.isAddCsrfToken
     const referer = options['headers'] && options['headers'].referer
     if (referer) {
       options['headers'] = Object.assign(options['headers'], {
@@ -2015,7 +2018,7 @@ export default class NetMessageBridgeService {
 
   // 获取广告图表数据
   async getAdventAnalysis(country, data) {
-    const res = await this.getChinese(country, '/api/marketing/v3/pas/report/shop_report_by_time/', data)
+    const res = await this.getChinese(country, '/api/marketing/v3/pas/report/homepage_report_by_time/', data)
     const resObj = res && JSON.parse(res)
     // console.log(res,resObj)
     if (resObj && resObj.status === 200) {

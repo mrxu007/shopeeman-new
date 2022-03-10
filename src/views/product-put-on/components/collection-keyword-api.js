@@ -202,7 +202,7 @@ class CollectKeyWordApI {
       if (!keyword) {
         return { code: -3, data: '关键词不能为空' }
       }
-      keyword = keyword.replace(/\s/g, ';').split(';')
+      keyword = keyword.replace(/\n/g, ';').split(';') //
       // const data = [[]]
       // let index = 0
       // keyword.map(item => { // 分组

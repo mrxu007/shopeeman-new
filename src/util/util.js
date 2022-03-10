@@ -602,17 +602,21 @@ export function getDaysBetween(startDate, endDate) {
 export function getGoodsUrl(platform, data) {
   try {
     const platformData = {}
+    let site = data['site'] || data['goodsExtraInfo'] && data['goodsExtraInfo']['site'] || ''
+    let productId = data['productId'] || data['goods_id']
+    let shopId = data['shopId'] || ''
+    console.log(site, productId, shopId)
     switch (platform) {
       case 1:
-        platformData['url'] = `http://mobile.yangkeduo.com/goods.html?goods_id=${data['productId']}`
+        platformData['url'] = `http://mobile.yangkeduo.com/goods.html?goods_id=${productId}`
         platformData['platformTypeStr'] = '拼多多'
         break
       case 2:
-        platformData['url'] = `https://item.taobao.com/item.htm?id=${data['productId']}`
+        platformData['url'] = `https://item.taobao.com/item.htm?id=${productId}`
         platformData['platformTypeStr'] = '淘宝'
         break
       case 3:
-        platformData['url'] = `https://detail.tmall.com/item.htm?id=${data['productId']}`
+        platformData['url'] = `https://detail.tmall.com/item.htm?id=${productId}`
         platformData['platformTypeStr'] = '天猫'
         break
       case 5:
@@ -620,36 +624,36 @@ export function getGoodsUrl(platform, data) {
         platformData['platformTypeStr'] = '自有产品'
         break
       case 6:
-        platformData['url'] = `http://gh.ppxias.com/goods/${data['productId']}.html`
+        platformData['url'] = `http://gh.ppxias.com/goods/${productId}.html`
         platformData['platformTypeStr'] = '皮皮虾供货平台'
         break
       case 15:
       case 7:
-        platformData['url'] = `http://www.17hyj.com/detail?goodsid=${data['productId']}`
+        platformData['url'] = `http://www.17hyj.com/detail?goodsid=${productId}`
         platformData['platformTypeStr'] = '货老板'
         break
       case 8:
-        platformData['url'] = `https://detail.1688.com/offer/${data['productId']}.html`
+        platformData['url'] = `https://detail.1688.com/offer/${productId}.html`
         platformData['platformTypeStr'] = '1688'
         break
       case 11:
-        platformData['url'] = `${instance.$filters.countryShopeebuyCom(data['site'])}/product/${data['shopId']}/${data['productId']}`
+        platformData['url'] = `${instance.$filters.countryShopeebuyCom(site)}/product/${shopId}/${productId}`
         platformData['platformTypeStr'] = 'Shopee'
         break
       case 12:
-        platformData['url'] = `https://www.aliexpress.com/item/${data['productId']}.html`
+        platformData['url'] = `https://www.aliexpress.com/item/${productId}.html`
         platformData['platformTypeStr'] = '速卖通'
         break
       case 9:
-        platformData['url'] = `${instance.$filters.lazadaGoodsUrl(data['site'])}${data['productId']}.html`
+        platformData['url'] = `${instance.$filters.lazadaGoodsUrl(site)}${productId}.html`
         platformData['platformTypeStr'] = 'Lazada'
         break
       case 10:
-        platformData['url'] = `https://item.m.jd.com/product/${data['productId']}.html`
+        platformData['url'] = `https://item.m.jd.com/product/${productId}.html`
         platformData['platformTypeStr'] = '京喜'
         break
       case 13:
-        platformData['url'] = `https://distributor.taobao.global/apps/product/detail?mpId=${data['productId']}`
+        platformData['url'] = `https://distributor.taobao.global/apps/product/detail?mpId=${productId}`
         platformData['platformTypeStr'] = '天猫淘宝海外平台'
         break
     }
@@ -1204,8 +1208,9 @@ export function getGoodLinkModel(link) {
           data['GoodsId'] = skuId
         }
       }
+      data['platformId'] = 10
       data['Site'] = link.toLocaleLowerCase().indexOf('jd') !== -1 ? 'jd' : 'jx'
-      data['platformId'] = data.Site === 'jd' ? 4 : 10
+      // data['platformId'] = data.Site === 'jd' ? 4 : 10
       break
     }
     case '1688':

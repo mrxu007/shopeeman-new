@@ -2,7 +2,7 @@
 <template>
   <div class="advertisement">
     <div class="header-btn">
-      <storeChoose @changeMallList="changeMallList" :is-all="false" />
+      <storeChoose :is-all="false" @changeMallList="changeMallList" />
     </div>
     <div class="select-btn">
       <div class="select-item">
@@ -68,21 +68,21 @@
               <div class="item-box">
                 <span>广告类型：</span>
                 <el-select v-model="adventType" placeholder="请选择" size="mini" style="width: 140px">
-                  <el-option v-for="item in adventTypeList" :key="item.value" :label="item.label" :value="item.value"> </el-option>
+                  <el-option v-for="item in adventTypeList" :key="item.value" :label="item.label" :value="item.value" />
                 </el-select>
               </div>
               <div class="item-box">
                 <span>活动类型：</span>
                 <el-select v-model="activeType" placeholder="请选择" size="mini" style="width: 140px">
-                  <el-option label="全部" value="all"> </el-option>
-                  <el-option v-for="item in activeTypeList" :key="item.value" :label="item.label" :value="item.value"> </el-option>
+                  <el-option label="全部" value="all" />
+                  <el-option v-for="item in activeTypeList" :key="item.value" :label="item.label" :value="item.value" />
                 </el-select>
               </div>
               <div class="item-box">
                 <span>关键字：</span>
-                <el-input size="mini" type="primary" v-model="keyWords" placeholder="可输入商品标题查询活动"></el-input>
+                <el-input v-model="keyWords" size="mini" type="primary" placeholder="可输入商品标题查询活动" />
               </div>
-              <el-button type="primary" size="mini" class="mar-left" @click="batchGetAdventList" :disabled="loading">搜 索</el-button>
+              <el-button type="primary" size="mini" class="mar-left" :disabled="loading" @click="batchGetAdventList">搜 索</el-button>
               <el-button type="primary" size="mini" @click="cancel">停止搜索</el-button>
               <el-checkbox v-model="showConsole" class="mar-left">隐藏日志</el-checkbox>
             </div>
@@ -100,8 +100,8 @@
     </div>
     <div class="content">
       <u-table
-        v-loading="loading"
         ref="editPlTable"
+        v-loading="loading"
         :data="tableData"
         use-virtual
         :height="550"
@@ -125,7 +125,7 @@
               <div slot="content">
                 <el-image :src="[scope.row.image] | imageRender" style="width: 400px; height: 400px" />
               </div>
-              <el-image v-bind:src="[scope.row.image, true] | imageRender" style="width: 32px; height: 32px"></el-image>
+              <el-image :src="[scope.row.image, true] | imageRender" style="width: 32px; height: 32px" />
             </el-tooltip>
           </template>
         </u-table-column>
@@ -170,23 +170,23 @@
         <!-- <u-table-column align="center" label="操作状态" min-width="150" /> -->
       </u-table>
     </div>
-    <Logs ref="Logs" clear v-model="showConsole" />
+    <Logs ref="Logs" v-model="showConsole" clear />
     <el-dialog v-if="viewDetailVisible" title="店铺综合统计详情概览" :visible.sync="viewDetailVisible" top="5vh" width="1200px" :close-on-click-modal="false">
       <el-table :data="totalData" style="width: 100%" height="300px">
         <el-table-column label="店铺名称" prop="id" width="160px" show-overflow-tooltip>
           <template slot-scope="{ row }"> {{ row.country }}-{{ row.mallName }} </template>
         </el-table-column>
-        <el-table-column label="余额" prop="balance"> </el-table-column>
-        <el-table-column label="浏览数" prop="impression"> </el-table-column>
-        <el-table-column label="点击次数" prop="click"> </el-table-column>
+        <el-table-column label="余额" prop="balance" />
+        <el-table-column label="浏览数" prop="impression" />
+        <el-table-column label="点击次数" prop="click" />
         <el-table-column label="点击率(%)" prop="">
           <template v-slot="{ row }">
             {{ Number(row.impression) == 0 ? 0 : Math.round((Number(row.click) / Number(row.impression)) * 100).toFixed(2) }}
           </template>
         </el-table-column>
-        <el-table-column label="订单数" prop="order"> </el-table-column>
-        <el-table-column label="商品已出售" prop="order"> </el-table-column>
-        <el-table-column label="销售金额" prop="orderGmv"> </el-table-column>
+        <el-table-column label="订单数" prop="order" />
+        <el-table-column label="商品已出售" prop="order" />
+        <el-table-column label="销售金额" prop="orderGmv" />
         <el-table-column label="花费" prop="cost">
           <template slot-scope="scope">
             <span>{{ Number(scope.row.cost).toFixed(2) }}</span>
@@ -229,8 +229,8 @@
       </el-table>
     </el-dialog>
     <el-dialog
-      :visible.sync="createAdventVisible"
       v-if="createAdventVisible"
+      :visible.sync="createAdventVisible"
       top="7vh"
       title="创建广告关键字"
       :close-on-click-modal="false"
@@ -242,16 +242,16 @@
         <div class="warning-top">
           <p v-if="createType === 'single'">选择单个商品时，可选择是否开启自动选择关键字或手动选择关键字</p>
           <p v-else>
-            选择两个及以上商品，shopee将自动管理广告关键字。相同的预算和时长设置将应用于每个广告。<br />
+            选择两个及以上商品，shopee将自动管理广告关键字。相同的预算和时长设置将应用于每个广告。<br>
             最多20个商品，超过将自动选取前20个商品
           </p>
         </div>
         <el-button size="mini" type="primary" @click="goodsItemSelectorVisible = true">添加商品</el-button>
         <el-table
+          v-if="createChooseGoods.length"
           :data="createChooseGoods"
           style="width: 100%; margin: 10px 0"
           max-height="200px"
-          v-if="createChooseGoods.length"
           :row-style="{
             background: '#dcdcdc',
           }"
@@ -260,24 +260,24 @@
           <el-table-column label="店铺名称" prop="id" width="180">
             <template slot-scope="{ row }"> {{ row.country }}-{{ row.mall_alias_name || row.platform_mall_name }} </template>
           </el-table-column>
-          <el-table-column label="商品id" prop="itemid"> </el-table-column>
+          <el-table-column label="商品id" prop="itemid" />
           <el-table-column label="商品图片" prop="impression" width="80">
             <template slot-scope="scope">
               <el-tooltip effect="light" placement="right-end" :visible-arrow="false" :enterable="false" style="width: 32px; height: 32px; display: inline-block">
                 <div slot="content">
                   <el-image :src="[scope.row.image] | imageRender" style="width: 400px; height: 400px" />
                 </div>
-                <el-image v-bind:src="[scope.row.image, true] | imageRender" style="width: 32px; height: 32px"></el-image>
+                <el-image :src="[scope.row.image, true] | imageRender" style="width: 32px; height: 32px" />
               </el-tooltip>
             </template>
           </el-table-column>
-          <el-table-column label="价格" prop="price"> </el-table-column>
+          <el-table-column label="价格" prop="price" />
           <el-table-column label="已选商品数量">
             <template slot-scope="scope">
               <span>{{ createChooseGoods.length }}</span>
             </template>
           </el-table-column>
-          <el-table-column label="操作" prop="impression"> </el-table-column>
+          <el-table-column label="操作" prop="impression" />
         </el-table>
         <div class="base-box mar-top">
           <span class="base-title">每个广告的预算</span>
@@ -287,8 +287,8 @@
             <p v-if="budgetSingle == '1'" style="margin: 5px 0">根据您目前的广告预算余额，您的广告最多可获得0个点击数。</p>
             <div v-if="budgetSingle == '2'" class="item-box mar-top">
               <el-select v-model="budgetType" placeholder="请选择" style="width: 120px" size="mini">
-                <el-option label="每日预算" value="day"> </el-option>
-                <el-option label="总预算" value="total"> </el-option>
+                <el-option label="每日预算" value="day" />
+                <el-option label="总预算" value="total" />
               </el-select>
               <el-input v-model="budget" size="mini" class="mar-left" style="width: 160px">
                 <template slot="prepend">{{ country | siteCoin }}</template>
@@ -299,8 +299,7 @@
             <p v-if="budget" class="mar-top">
               根据您目前的广告预算余额，您的广告最多可获得<span class="activeColor">{{
                 budgetType === 'day' ? Math.floor(budget / dailySingleClickPrice) : Math.floor(budget / totalSingleClickPrice)
-              }}</span
-              >个点击数
+              }}</span>个点击数
             </p>
           </div>
         </div>
@@ -325,10 +324,10 @@
           </div>
         </div>
         <!-- v-if="createType === 'single'-->
-        <div class="base-box mar-top" v-if="createType === 'single'">
+        <div v-if="createType === 'single'" class="base-box mar-top">
           <span class="base-title">关键字</span>
           <div class="base-item">
-            <el-checkbox v-model="autoKeyword">自动选择</el-checkbox><br />
+            <el-checkbox v-model="autoKeyword">自动选择</el-checkbox><br>
             <el-checkbox v-model="handleKeyword" @change="handleChangeKeyType">手动选择</el-checkbox>
             <div v-if="handleKeyword" class="mar-top">
               <div class="item-box">
@@ -336,17 +335,17 @@
                 <el-button size="mini" type="primary" :disabled="loading" @click="batchChangeKey('keyTypeVisible')">批量编辑匹配类型</el-button>
                 <el-button size="mini" type="primary" :disabled="loading" @click="batchChangeKey('delete')">批量删除</el-button>
               </div>
-              <el-table :data="keyWordList" style="width: 100%; margin: 10px 0" max-height="360px" @selection-change="handleSelectionChangeKey" v-loading="keyListLoading">
+              <el-table v-loading="keyListLoading" :data="keyWordList" style="width: 100%; margin: 10px 0" max-height="360px" @selection-change="handleSelectionChangeKey">
                 <el-table-column align="center" type="index" label="序号" width="40" />
                 <el-table-column align="center" type="selection" width="50" fixed="left" />
                 <el-table-column label="关键字" prop="keyword" width="120" show-overflow-tooltip />
-                <el-table-column label="品质分数" prop="relevance"> </el-table-column>
-                <el-table-column label="搜索量" prop="search_volume"> </el-table-column>
+                <el-table-column label="品质分数" prop="relevance" />
+                <el-table-column label="搜索量" prop="search_volume" />
                 <el-table-column label="匹配类型" prop="impression" width="140">
                   <template slot-scope="scope">
                     <el-select v-model="scope.row.algorithm" style="width: 120px" size="mini">
-                      <el-option label="广泛匹配" value="kwrcmdv2"> </el-option>
-                      <el-option label="精准匹配" value="kwrcmdv1"> </el-option>
+                      <el-option label="广泛匹配" value="kwrcmdv2" />
+                      <el-option label="精准匹配" value="kwrcmdv1" />
                     </el-select>
                   </template>
                 </el-table-column>
@@ -372,8 +371,8 @@
           </div>
         </div>
         <div class="footer-btn">
-          <el-button size="mini" type="primary" :disabled="loading" v-if="createType === 'single'" @click="publishAdvent">确认发布</el-button>
-          <el-button size="mini" type="primary" :disabled="loading" v-if="createType === 'batch'" @click="batchCreateKeyWord">确认发布</el-button>
+          <el-button v-if="createType === 'single'" size="mini" type="primary" :disabled="loading" @click="publishAdvent">确认发布</el-button>
+          <el-button v-if="createType === 'batch'" size="mini" type="primary" :disabled="loading" @click="batchCreateKeyWord">确认发布</el-button>
           <el-button size="mini" type="primary" @click="createAdventVisible = false">取消发布</el-button>
         </div>
       </div>
@@ -387,8 +386,8 @@
           <el-radio v-model="keyPriceRadio" label="1">按金额增加/减少出价</el-radio>
           <div class="item-item">
             <el-select v-model="calcType" style="width: 100px" size="mini">
-              <el-option label="增加" value="add"> </el-option>
-              <el-option label="减少" value="sub"> </el-option>
+              <el-option label="增加" value="add" />
+              <el-option label="减少" value="sub" />
             </el-select>
             <el-input v-model="keyPrice1" size="mini" class="mar-left" style="width: 140px">
               <template slot="prepend">{{ country | siteCoin }}</template>
@@ -399,8 +398,8 @@
           <el-radio v-model="keyPriceRadio" label="2">按百分比增加/减少出价</el-radio>
           <div>
             <el-select v-model="calcType" style="width: 100px" size="mini">
-              <el-option label="增加" value="add"> </el-option>
-              <el-option label="减少" value="sub"> </el-option>
+              <el-option label="增加" value="add" />
+              <el-option label="减少" value="sub" />
             </el-select>
             <el-input v-model="keyPrice2" size="mini" class="mar-left" style="width: 140px">
               <template slot="prepend">%</template>
@@ -421,13 +420,13 @@
       </div>
       <span slot="footer" class="dialog-footer">
         <el-button size="mini" @click="keyPriceVisible = false">取 消</el-button>
-        <el-button size="mini" type="primary" @click="setKeyPrice" v-if="adventType === 'keyword'">确 定</el-button>
-        <el-button size="mini" type="primary" @click="setRevalancePrice" v-if="adventType === 'targeting'">确 定</el-button>
+        <el-button v-if="adventType === 'keyword'" size="mini" type="primary" @click="setKeyPrice">确 定</el-button>
+        <el-button v-if="adventType === 'targeting'" size="mini" type="primary" @click="setRevalancePrice">确 定</el-button>
       </span>
     </el-dialog>
     <el-dialog :visible.sync="keyTypeVisible" title="批量修改广告类型" :close-on-click-modal="false" :close-on-press-escape="false" width="500px" @close="closeKeyPrice">
       <div class="keyPrice-style">
-        <el-radio v-model="keyType" label="kwrcmdv2">广泛匹配</el-radio><br />
+        <el-radio v-model="keyType" label="kwrcmdv2">广泛匹配</el-radio><br>
         <p style="color: #a9a9a9" class="mar-top">只要搜寻包含此关键字，或与之有关的内容，您投放的广告就有机会出现</p>
         <el-radio v-model="keyType" label="kwrcmdv1" class="mar-top">精准匹配</el-radio>
         <p style="color: #a9a9a9" class="mar-top">只有搜寻此关键字时，您投放的广告才会出现</p>
@@ -462,14 +461,14 @@
                       <div slot="content">
                         <el-image :src="[scope.row.image] | imageRender" style="width: 400px; height: 400px" />
                       </div>
-                      <el-image v-bind:src="[scope.row.image, true] | imageRender" style="width: 32px; height: 32px"></el-image>
+                      <el-image :src="[scope.row.image, true] | imageRender" style="width: 32px; height: 32px" />
                     </el-tooltip>
                   </template>
                 </el-table-column>
                 <el-table-column label="价格" prop="price" width="80" />
                 <el-table-column label="商品数" width="60" align="center">
                   <template slot-scope="scope">
-                    <span style="color: green">{{ chooseGoodsNumber(scope.row.platform_mall_id)}}</span>
+                    <span style="color: green">{{ chooseGoodsNumber(scope.row.platform_mall_id) }}</span>
                   </template>
                 </el-table-column>
                 <el-table-column label="点击出价" width="180" align="center">
@@ -485,10 +484,10 @@
                 </el-table-column>
                 <el-table-column label="预算" width="160" prop="budgetType" align="center">
                   <template slot-scope="scope">
-                    <el-select v-model="scope.row.budgetType" style="width: 120px" size="mini" ref="select" @change="changeBudgetType($event, scope.$index)">
-                      <el-option label="无限制" value="all"> </el-option>
-                      <el-option label="每日预算" value="day"> </el-option>
-                      <el-option label="总预算" value="total"> </el-option>
+                    <el-select ref="select" v-model="scope.row.budgetType" style="width: 120px" size="mini" @change="changeBudgetType($event, scope.$index)">
+                      <el-option label="无限制" value="all" />
+                      <el-option label="每日预算" value="day" />
+                      <el-option label="总预算" value="total" />
                     </el-select>
                     <el-input
                       v-if="scope.row.budgetType !== 'all'"
@@ -506,13 +505,13 @@
                 <el-table-column label="时间长度" width="200" align="center">
                   <template slot-scope="scope">
                     <el-select v-model="scope.row.timeType" style="width: 200px" size="mini">
-                      <el-option label="无限制" value="0"> </el-option>
-                      <el-option label="设定开始时间/结束时间" value="1"> </el-option>
+                      <el-option label="无限制" value="0" />
+                      <el-option label="设定开始时间/结束时间" value="1" />
                     </el-select>
                     <el-date-picker
-                      :picker-options="pickerOptions1"
                       v-if="scope.row.timeType === '1'"
                       v-model="scope.row.timeRange"
+                      :picker-options="pickerOptions1"
                       value-format="yyyy-MM-dd"
                       unlink-panels
                       size="mini"
@@ -552,7 +551,7 @@
               </div>
               <div class="box">
                 <span class="title">状态</span>
-                <el-switch v-model="detailRadio" active-color="#13ce66" inactive-color="#ff4949"> </el-switch>
+                <el-switch v-model="detailRadio" active-color="#13ce66" inactive-color="#ff4949" />
               </div>
             </div>
             <div class="special-row-style">
@@ -569,7 +568,7 @@
               </div>
               <div class="box">
                 <span class="title">状态</span>
-                <el-switch v-model="dailyRadio" active-color="#13ce66" inactive-color="#ff4949"> </el-switch>
+                <el-switch v-model="dailyRadio" active-color="#13ce66" inactive-color="#ff4949" />
               </div>
             </div>
             <div class="special-row-style">
@@ -586,7 +585,7 @@
               </div>
               <div class="box">
                 <span class="title">状态</span>
-                <el-switch v-model="mayLikeRaido" active-color="#13ce66" inactive-color="#ff4949"> </el-switch>
+                <el-switch v-model="mayLikeRaido" active-color="#13ce66" inactive-color="#ff4949" />
               </div>
             </div>
           </div>
@@ -599,10 +598,10 @@
     </el-dialog>
     <el-dialog :visible.sync="relevanceBudgetVisible" title="批量编辑预算" :close-on-click-modal="false" :close-on-press-escape="false" width="400px" @close="closeDialog">
       <div class="keyPrice-style">
-        <el-select v-model="relevanceBudgetType" style="width: 120px" size="mini" ref="select" @change="changeBudgetType">
-          <el-option label="无限制" value="all"> </el-option>
-          <el-option label="每日预算" value="day"> </el-option>
-          <el-option label="总预算" value="total"> </el-option>
+        <el-select ref="select" v-model="relevanceBudgetType" style="width: 120px" size="mini" @change="changeBudgetType">
+          <el-option label="无限制" value="all" />
+          <el-option label="每日预算" value="day" />
+          <el-option label="总预算" value="total" />
         </el-select>
         <el-input v-if="relevanceBudgetType !== 'all'" v-model="relevanceBudget" placeholder="请输入内容" size="mini" class="mar-left" style="width: 120px; margin-top: 5px" @change="changeBudget">
           <template slot="prepend">{{ country | siteCoin }}</template>
@@ -623,92 +622,92 @@ import { batchOperation, delay, terminateThread, exportExcelDataCommon, creatDat
 export default {
   components: {
     storeChoose,
-    goodsItemSelector,
+    goodsItemSelector
   },
   data() {
     return {
       pickerOptions: {
         disabledDate(time) {
           return time.getTime() > Date.now()
-        },
+        }
       },
       pickerOptions1: {
         disabledDate(time) {
           return time.getTime() < new Date(new Date().toLocaleDateString()).getTime()
-        },
+        }
       },
       selectMallList: [],
       country: 'TH',
       statisticalTime: [],
       showConsole: false,
-      adventType: 'keyword', //广告类型
+      adventType: 'keyword', // 广告类型
       adventTypeList: [
         {
           label: '关键字广告',
-          value: 'keyword',
+          value: 'keyword'
         },
         {
           label: '关联广告',
-          value: 'targeting',
-        },
-      ], //广告类型
-      activeType: 'all', //活动类型
+          value: 'targeting'
+        }
+      ], // 广告类型
+      activeType: 'all', // 活动类型
       activeTypeList: [
         {
           label: '已预设',
-          value: 'scheduled',
+          value: 'scheduled'
         },
         {
           label: '进行中',
-          value: 'ongoing',
+          value: 'ongoing'
         },
         {
           label: '暂停中',
-          value: 'paused',
+          value: 'paused'
         },
         {
           label: '已结束',
-          value: 'ended',
-        },
-      ], //活动类型
-      keyWords: '', //关键字,
+          value: 'ended'
+        }
+      ], // 活动类型
+      keyWords: '', // 关键字,
       tableData: [],
       loading: false,
       multipleSelection: [],
       multipleSelectionKey: [],
       multipleSelectionRelevance: [],
-      viewDetailVisible: false, //查看详情
-      analysisData: {}, //综合统计数据
+      viewDetailVisible: false, // 查看详情
+      analysisData: {}, // 综合统计数据
       totalData: [],
       totalAnalysisData: {
-        balance: 0, //余额
-        impression: 0, //浏览量
-        click: 0, //点击次数
-        order: 0, //订单数(商品已出售)
-        orderGmv: 0, //销售金额
-        cost: 0, //花费
+        balance: 0, // 余额
+        impression: 0, // 浏览量
+        click: 0, // 点击次数
+        order: 0, // 订单数(商品已出售)
+        orderGmv: 0, // 销售金额
+        cost: 0 // 花费
       },
       activeState: {
         ended: '已结束',
         closed: '已结束',
         ongoing: '进行中',
         scheduled: '已预设',
-        paused: '暂停中',
+        paused: '暂停中'
       },
-      createAdventVisible: false, //广告弹窗
+      createAdventVisible: false, // 广告弹窗
       createType: 'single',
-      createChooseGoods: [], //创建弹窗选择的商品
-      budgetSingle: '1', //每个广告的预算
-      timeSingle: '1', //每个广告的时长
+      createChooseGoods: [], // 创建弹窗选择的商品
+      budgetSingle: '1', // 每个广告的预算
+      timeSingle: '1', // 每个广告的时长
       autoKeyword: true,
       handleKeyword: false,
       selectGoods: [],
       goodsItemSelectorVisible: false,
-      budgetType: 'day', //预算类型
-      budget: 0, //预算
-      timeRange: [], //广告时间
+      budgetType: 'day', // 预算类型
+      budget: 0, // 预算
+      timeRange: [], // 广告时间
       keyWordList: [],
-      keyPriceRadio: '1', //关键字出价
+      keyPriceRadio: '1', // 关键字出价
       calcType: 'add',
       keyPrice1: '',
       keyPrice2: '',
@@ -717,46 +716,46 @@ export default {
       keyListLoading: false,
       keyTypeVisible: false,
       keyType: '',
-      dailyBudgetMinLimit: '', //点击量
-      totalBudgetMinLimit: '', //点击量
-      dailySingleClickPrice: '', //点击量
-      totalSingleClickPrice: '', //点击量
-      relevanceVisible: false, //关联广告
-      detailPrice: 0, //关联广告
-      detailRadio: true, //关联广告
-      dailyPrice: 0, //关联广告
-      dailyRadio: true, //关联广告
-      mayLikePrice: 0, //关联广告
-      mayLikeRaido: true, //关联广告
-      relevanceList: [], //关联广告
+      dailyBudgetMinLimit: '', // 点击量
+      totalBudgetMinLimit: '', // 点击量
+      dailySingleClickPrice: '', // 点击量
+      totalSingleClickPrice: '', // 点击量
+      relevanceVisible: false, // 关联广告
+      detailPrice: 0, // 关联广告
+      detailRadio: true, // 关联广告
+      dailyPrice: 0, // 关联广告
+      dailyRadio: true, // 关联广告
+      mayLikePrice: 0, // 关联广告
+      mayLikeRaido: true, // 关联广告
+      relevanceList: [], // 关联广告
       relevanceBudgetVisible: false,
       relevanceBudget: 0,
-      relevanceBudgetType: 'all',
+      relevanceBudgetType: 'all'
     }
   },
   mounted() {
     this.statisticalTime = creatDate(1)
-    let startTime = this.$dayjs(new Date().getTime()).format('YYYY-MM-DD')
-    let endTime = this.$dayjs(new Date().getTime() + 16 * 24 * 60 * 60 * 1000).format('YYYY-MM-DD')
+    const startTime = this.$dayjs(new Date().getTime()).format('YYYY-MM-DD')
+    const endTime = this.$dayjs(new Date().getTime() + 16 * 24 * 60 * 60 * 1000).format('YYYY-MM-DD')
     this.timeRange = [startTime, endTime]
     console.log(this.timeRange, 'this.timeRange')
     this.setClickPrice()
   },
   methods: {
-    chooseGoodsNumber(id){
-      let filterArr = this.relevanceList.filter(n=> {return n.platform_mall_id == id})
+    chooseGoodsNumber(id) {
+      const filterArr = this.relevanceList.filter(n => { return n.platform_mall_id == id })
       return filterArr.length
     },
     cancel() {
       this.loading = false
       terminateThread()
       this.totalAnalysisData = {
-        balance: 0, //余额
-        impression: 0, //浏览量
-        click: 0, //点击次数
-        order: 0, //订单数(商品已出售)
-        orderGmv: 0, //销售金额
-        cost: 0, //花费
+        balance: 0, // 余额
+        impression: 0, // 浏览量
+        click: 0, // 点击次数
+        order: 0, // 订单数(商品已出售)
+        orderGmv: 0, // 销售金额
+        cost: 0 // 花费
       }
       this.$refs.Logs.writeLog(`停止操作,可能需要一些时间！`, false)
       this.$alert('正在停止操作，可能需要一些时间！', '提示', {
@@ -770,10 +769,10 @@ export default {
             this.totalAnalysisData.orderGmv += item.orderGmv
             this.totalAnalysisData.cost += item.cost
           })
-        },
+        }
       })
     },
-    //批量修改出价
+    // 批量修改出价
     batchChnageRevelancePrice() {
       if (!this.multipleSelectionRelevance.length) {
         return this.$message.warning('请选择数据！')
@@ -792,7 +791,7 @@ export default {
         } else if (this.keyPriceRadio === '4') {
           selfPrice = item.nominate1
         }
-        let index = this.relevanceList.findIndex((m) => m.itemid === item.itemid)
+        const index = this.relevanceList.findIndex((m) => m.itemid === item.itemid)
         if (index > -1) {
           this.$set(this.relevanceList[index], 'selfPrice', Number(selfPrice).toFixed(2))
         }
@@ -807,7 +806,7 @@ export default {
     },
     setRelevanceBudgetType() {
       this.multipleSelectionRelevance.forEach((item) => {
-        let index = this.relevanceList.findIndex((m) => m.itemid === item.itemid)
+        const index = this.relevanceList.findIndex((m) => m.itemid === item.itemid)
         console.log(index, 'setRelevanceBudgetType')
         if (index > -1) {
           this.$set(this.relevanceList[index], 'budgetType', this.relevanceBudgetType)
@@ -819,65 +818,65 @@ export default {
     deleteRelevance(index) {
       this.relevanceList.splice(index, 1)
     },
-    //创建关联广告
+    // 创建关联广告
     async publishRelevance() {
       for (let i = 0; i < this.selectMallList.length; i++) {
-        let mall = this.selectMallList[i]
+        const mall = this.selectMallList[i]
         await this.batchCreateRelevance(mall, this.batchCreateRelevance)
         this.relevanceVisible = false
         this.batchGetAdventList()
       }
     },
-    //创建关联广告
+    // 创建关联广告
     async batchCreateRelevance(mall, count = { count: 1 }) {
       try {
-        let goodsFilter = this.relevanceList.filter((n) => n.platform_mall_id == mall.platform_mall_id)
+        const goodsFilter = this.relevanceList.filter((n) => n.platform_mall_id == mall.platform_mall_id)
         if (!goodsFilter.length) {
           return this.$refs.Logs.writeLog(`店铺【${mall.mall_alias_name || mall.platform_mall_name}】停止创建关联广告，该店铺未选择商品`, true)
         }
-        let campaign_ads_list = []
+        const campaign_ads_list = []
         goodsFilter.forEach((goods) => {
-          let advertisements = []
+          const advertisements = []
           if (this.detailRadio) {
-            let place = {
+            const place = {
               status: 1,
               placement: 1,
               itemid: goods.itemid,
               extinfo: {
                 target: {
-                  price: (((100 + Number(this.detailPrice) || 0) * Number(goods.selfPrice)) / 100).toFixed(2),
-                },
-              },
+                  price: (((100 + Number(this.detailPrice) || 0) * Number(goods.selfPrice)) / 100).toFixed(2)
+                }
+              }
             }
             advertisements.push(place)
           }
           if (this.dailyRadio) {
-            let place = {
+            const place = {
               status: 1,
               placement: 2,
               itemid: goods.itemid,
               extinfo: {
                 target: {
-                  price: (((100 + Number(this.dailyPrice) || 0) * Number(goods.selfPrice)) / 100).toFixed(2),
-                },
-              },
+                  price: (((100 + Number(this.dailyPrice) || 0) * Number(goods.selfPrice)) / 100).toFixed(2)
+                }
+              }
             }
             advertisements.push(place)
           }
           if (this.mayLikeRaido) {
-            let place = {
+            const place = {
               status: 1,
               placement: 2,
               itemid: goods.itemid,
               extinfo: {
                 target: {
-                  price: (((100 + Number(this.mayLikePrice) || 0) * Number(goods.selfPrice)) / 100).toFixed(2),
-                },
-              },
+                  price: (((100 + Number(this.mayLikePrice) || 0) * Number(goods.selfPrice)) / 100).toFixed(2)
+                }
+              }
             }
             advertisements.push(place)
           }
-          let params = {
+          const params = {
             status: 1,
             start_time:
               goods.timeType === '1' && goods.timeRange && goods.timeRange.length
@@ -894,24 +893,24 @@ export default {
             time:
               goods.timeType === '1' && goods.timeRange && goods.timeRange.length
                 ? {
-                    start_time: new Date(goods.timeRange[0]),
-                    end_time: new Date(goods.timeRange[1]),
-                  }
+                  start_time: new Date(goods.timeRange[0]),
+                  end_time: new Date(goods.timeRange[1])
+                }
                 : null,
-            budget_error: '',
+            budget_error: ''
           }
-          let allParams = {
+          const allParams = {
             campaign: params,
-            advertisements: advertisements,
+            advertisements: advertisements
           }
           campaign_ads_list.push(allParams)
         })
-        let params = {
+        const params = {
           campaign_ads_list: campaign_ads_list,
           ads_audit_event: 4,
-          mallId: mall.platform_mall_id,
+          mallId: mall.platform_mall_id
         }
-        let res = await this.$shopeemanService.createKeyAdvent(mall.country, params)
+        const res = await this.$shopeemanService.createKeyAdvent(mall.country, params)
         if (res.code === 200) {
           this.$refs.Logs.writeLog(`店铺【${mall.mall_alias_name || mall.platform_mall_name}】创建关联广告成功`, true)
           // this.batchGetAdventList()
@@ -951,36 +950,36 @@ export default {
           this.relevanceBudget = 100
         }
       }
-      //budget
+      // budget
     },
-    //处理关联广告添加的商品
+    // 处理关联广告添加的商品
     async dealWithTargetGoods(array) {
-      let arrayCut = array.splice(0, 10 - this.relevanceList.length)
+      const arrayCut = array.splice(0, 10 - this.relevanceList.length)
       console.log(arrayCut, 'arrayCut')
       for (let i = 0; i < this.selectMallList.length; i++) {
-        let mall = this.selectMallList[i]
-        let goodsListFilter = arrayCut.filter((n) => n.platform_mall_id === mall.platform_mall_id)
+        const mall = this.selectMallList[i]
+        const goodsListFilter = arrayCut.filter((n) => n.platform_mall_id === mall.platform_mall_id)
         if (!goodsListFilter.length) {
           continue
         }
-        let itemIds = goodsListFilter.map((item) => {
+        const itemIds = goodsListFilter.map((item) => {
           return item.itemid
         })
-        let params = {
+        const params = {
           itemids: itemIds,
           placement_list: [1, 2, 5],
-          mallId: mall.platform_mall_id,
+          mallId: mall.platform_mall_id
         }
-        let res = await this.$shopeemanService.getRelevancePrice(mall.country, params)
+        const res = await this.$shopeemanService.getRelevancePrice(mall.country, params)
         if (res.code === 200) {
           goodsListFilter.forEach((item) => {
             item.image = item.images.split(',')[0]
-            let obj1 = res.data.find((n) => n.itemid === item.itemid && n.placement === 1)
+            const obj1 = res.data.find((n) => n.itemid === item.itemid && n.placement === 1)
             item.nominate1 = obj1 ? obj1.price.toFixed(2) : 0
             item.selfPrice = obj1 ? obj1.price.toFixed(1) : 0
-            let obj2 = res.data.find((n) => n.itemid === item.itemid && n.placement === 2)
+            const obj2 = res.data.find((n) => n.itemid === item.itemid && n.placement === 2)
             item.nominate2 = obj2 ? obj2.price.toFixed(2) : 0
-            let obj5 = res.data.find((n) => n.itemid === item.itemid && n.placement === 5)
+            const obj5 = res.data.find((n) => n.itemid === item.itemid && n.placement === 5)
             item.nominate5 = obj5 ? obj5.price.toFixed(2) : 0
             item.budgetType = 'all'
             item.budget = '0'
@@ -1015,27 +1014,27 @@ export default {
         }
       }
     },
-    //创建关联广告
+    // 创建关联广告
     async createRelevance() {
       this.adventType = 'targeting'
       this.goodsItemSelectorVisible = true
       this.relevanceList = []
     },
-    //暂停或继续广告活动
+    // 暂停或继续广告活动
     async stopStartActive(type) {
-      //type 1 stop,
+      // type 1 stop,
       if (!this.multipleSelection.length) {
         return this.$message.warning('请先选择数据！')
       }
       this.showConsole = false
-      this.multipleSelection.forEach(async (item, index) => {
-        let params = {
+      this.multipleSelection.forEach(async(item, index) => {
+        const params = {
           campaignid_list: [item.campaign.campaignid],
           action: type,
           need_campaign: true,
-          mallId: item.mallInfo.platform_mall_id,
+          mallId: item.mallInfo.platform_mall_id
         }
-        let res = await this.$shopeemanService.stopStartAdvent(item.mallInfo.country, params, 'put')
+        const res = await this.$shopeemanService.stopStartAdvent(item.mallInfo.country, params, 'put')
         if (res.code === 200) {
           this.$refs.Logs.writeLog(`店铺【${item.mallInfo.mall_alias_name || item.mallInfo.platform_mall_name}】，商品【${item.product.itemid}】${type === 1 ? '暂停' : '继续'}广告成功！`, true)
         } else if (res.code === 403) {
@@ -1057,7 +1056,7 @@ export default {
     stopCreateAdvent() {
       terminateThread()
       this.$alert('正在停止操作，可能需要一些时间！', '提示', {
-        confirmButtonText: '确定',
+        confirmButtonText: '确定'
       })
     },
     createBatchKeyword() {
@@ -1068,7 +1067,7 @@ export default {
       this.adventType = 'keyword'
       this.createAdventVisible = true
     },
-    //批量添加关键词广告
+    // 批量添加关键词广告
     async batchCreateKeyWord() {
       if (!this.createChooseGoods.length) {
         return this.$message.warning('请先选择商品！')
@@ -1085,41 +1084,41 @@ export default {
       console.log('1111111111111111')
       try {
         this.$refs.Logs.writeLog(`店铺【${mall.mall_alias_name || mall.platform_mall_name}】开始创建广告`, true)
-        let chooseGoods = this.createChooseGoods.filter((n) => n.platform_mall_id == mall.platform_mall_id)
+        const chooseGoods = this.createChooseGoods.filter((n) => n.platform_mall_id == mall.platform_mall_id)
         if (!chooseGoods.length) {
           return this.$refs.Logs.writeLog(`店铺【${mall.mall_alias_name || mall.platform_mall_name}】停止创建广告，该店铺未选择商品`, true)
         }
-        let campaign_ads_list = []
-        let campaign = {
+        const campaign_ads_list = []
+        const campaign = {
           start_time: this.timeRange.length ? Math.round(new Date(this.timeRange[0]).getTime() / 1000) : 0,
           end_time: this.timeRange.length ? Math.round(new Date(this.timeRange[1]).getTime() / 1000) : 0,
           daily_quota: this.budgetType === 'day' ? Number(this.budget) : 0,
           total_quota: this.budgetType === 'total' ? Number(this.budget) : 0,
-          status: 1,
+          status: 1
         }
         chooseGoods.forEach((goods) => {
-          let obj1 = {
+          const obj1 = {
             itemid: goods.itemid,
             status: 1,
             placement: 4,
             extinfo: {
-              target_roi: 0,
-            },
+              target_roi: 0
+            }
           }
-          let advertisements = [obj1]
-          let adsParams = {
+          const advertisements = [obj1]
+          const adsParams = {
             campaign: campaign,
-            advertisements: advertisements,
+            advertisements: advertisements
           }
           campaign_ads_list.push(adsParams)
         })
-        let params = {
+        const params = {
           campaign_ads_list: campaign_ads_list,
           ads_audit_event: 4,
-          mallId: mall.platform_mall_id,
+          mallId: mall.platform_mall_id
         }
         this.showConsole = false
-        let res = await this.$shopeemanService.createKeyAdvent(mall.country, params)
+        const res = await this.$shopeemanService.createKeyAdvent(mall.country, params)
         if (res.code === 200) {
           this.$refs.Logs.writeLog(`店铺【${mall.mall_alias_name || mall.platform_mall_name}】创建广告成功`, true)
           // this.batchGetAdventList()
@@ -1134,7 +1133,7 @@ export default {
         --count.count
       }
     },
-    //确定发布单个商品关键字广告
+    // 确定发布单个商品关键字广告
     async publishAdvent() {
       if (!this.autoKeyword && !this.handleKeyword && !this.multipleSelectionKey.length) {
         return this.$message.warning('请切换自动选择或至少选择一个关键字')
@@ -1145,60 +1144,60 @@ export default {
       this.loading = true
       console.log(this.timeRange)
       try {
-        let campaign_ads_list = []
-        let campaign = {
+        const campaign_ads_list = []
+        const campaign = {
           start_time: this.timeRange.length ? Math.round(new Date(this.timeRange[0]).getTime() / 1000) : 0,
           end_time: this.timeRange.length ? Math.round(new Date(this.timeRange[1]).getTime() / 1000) : 0,
           daily_quota: this.budgetType === 'day' ? Number(this.budget) : 0,
           total_quota: this.budgetType === 'total' ? Number(this.budget) : 0,
-          status: 1,
+          status: 1
         }
         this.createChooseGoods.forEach((goods) => {
-          let advertisements = []
-          let obj1 = {
+          const advertisements = []
+          const obj1 = {
             itemid: goods.itemid,
             status: 1,
             placement: 4,
             extinfo: {
-              target_roi: 0,
-            },
+              target_roi: 0
+            }
           }
           advertisements.push(obj1)
           if (this.handleKeyword) {
-            let keyList = []
+            const keyList = []
             this.multipleSelectionKey.forEach((keyWords) => {
-              let keyObj = {
+              const keyObj = {
                 match_type: 1,
                 keyword: keyWords.keyword,
                 price: Number(keyWords.selfPrice),
                 status: 1,
-                algorithm: keyWords.algorithm,
+                algorithm: keyWords.algorithm
               }
               keyList.push(keyObj)
             })
-            let obj2 = {
+            const obj2 = {
               itemid: goods.itemid,
               status: 1,
               placement: 0,
               extinfo: {
-                keywords: keyList,
-              },
+                keywords: keyList
+              }
             }
             advertisements.push(obj2)
           }
-          let adsParams = {
+          const adsParams = {
             campaign: campaign,
-            advertisements: advertisements,
+            advertisements: advertisements
           }
           campaign_ads_list.push(adsParams)
         })
-        let params = {
+        const params = {
           campaign_ads_list: campaign_ads_list,
           ads_audit_event: 4,
-          mallId: this.selectMallList[0].platform_mall_id,
+          mallId: this.selectMallList[0].platform_mall_id
         }
         this.showConsole = false
-        let res = await this.$shopeemanService.createKeyAdvent(this.country, params)
+        const res = await this.$shopeemanService.createKeyAdvent(this.country, params)
         if (res.code === 200) {
           this.$refs.Logs.writeLog(`创建广告成功`, true)
           this.createAdventVisible = false
@@ -1215,7 +1214,7 @@ export default {
         console.log(error, 'error')
       }
     },
-    //批量修改出价
+    // 批量修改出价
     batchChangeKey(key) {
       console.log(key)
       if (!this.multipleSelectionKey.length) {
@@ -1230,25 +1229,25 @@ export default {
     setKeyDeleteSingle(index) {
       this.keyWordList.splice(index, 1)
     },
-    //批量删除关键字
+    // 批量删除关键字
     setKeyDelete() {
       this.multipleSelectionKey.forEach((item) => {
-        let index = this.keyWordList.findIndex((m) => m.keyword === item.keyword)
+        const index = this.keyWordList.findIndex((m) => m.keyword === item.keyword)
         if (index > -1) {
           this.keyWordList.splice(index, 1)
         }
       })
     },
-    //保存修改类型
+    // 保存修改类型
     setKeyType() {
       this.multipleSelectionKey.forEach((item) => {
-        let index = this.keyWordList.findIndex((m) => m.keyword === item.keyword)
+        const index = this.keyWordList.findIndex((m) => m.keyword === item.keyword)
         if (index > -1) {
           this.$set(this.keyWordList[index], 'algorithm', this.keyType)
         }
       })
     },
-    //保存修改出价
+    // 保存修改出价
     setKeyPrice() {
       this.multipleSelectionKey.forEach((item) => {
         let selfPrice = 0
@@ -1264,7 +1263,7 @@ export default {
         } else if (this.keyPriceRadio === '4') {
           selfPrice = item.recommend_price
         }
-        let index = this.keyWordList.findIndex((m) => m.keyword === item.keyword)
+        const index = this.keyWordList.findIndex((m) => m.keyword === item.keyword)
         if (index > -1) {
           this.$set(this.keyWordList[index], 'selfPrice', Number(selfPrice).toFixed(2))
         }
@@ -1272,10 +1271,10 @@ export default {
       })
       this.keyPriceVisible = false
     },
-    //保存匹配类型
+    // 保存匹配类型
     setKeyType() {
       this.multipleSelectionKey.forEach((item) => {
-        let index = this.keyWordList.findIndex((m) => m.keyword === item.keyword)
+        const index = this.keyWordList.findIndex((m) => m.keyword === item.keyword)
         if (index > -1) {
           this.$set(this.keyWordList[index], 'algorithm', this.keyType)
         }
@@ -1289,15 +1288,15 @@ export default {
       }
     },
     async getKeyWordList() {
-      let params = {
+      const params = {
         itemid: this.createChooseGoods[0].itemid,
         keyword: '',
         count: 30,
         placement: 0,
-        mallId: this.selectGoods[0].platform_mall_id,
+        mallId: this.selectGoods[0].platform_mall_id
       }
       this.keyListLoading = true
-      let res = await this.$shopeemanService.getAdventKeyWordList(this.country, params)
+      const res = await this.$shopeemanService.getAdventKeyWordList(this.country, params)
       this.keyListLoading = false
       if (res.code === 200) {
         res.data.forEach((item) => {
@@ -1310,7 +1309,7 @@ export default {
         return this.$message.error('获取广告关键字失败!')
       }
     },
-    //选择商品
+    // 选择商品
     changeGoodsItem(val) {
       this.selectGoods = val.goodsList
       this.goodsItemSelectorVisible = false
@@ -1324,7 +1323,7 @@ export default {
           this.createChooseGoods.forEach((item) => {
             item.image = item.images.split(',')[0]
           })
-          //获取广告关键字
+          // 获取广告关键字
           // this.getKeyWordList()
           console.log(this.createChooseGoods, 'this.createChooseGoods')
         } else if (this.createType == 'batch') {
@@ -1336,21 +1335,21 @@ export default {
         }
       }
     },
-    //创建单个商品关键字广告
+    // 创建单个商品关键字广告
     async createSingleKeyword() {
       if (!this.selectMallList.length) {
         return this.$message.warning('请选择店铺！')
       }
       if (this.selectMallList.length !== 1) {
         return this.$alert('创建单个商品广告活动只支持单个店铺创建，请重新选择！', '提示', {
-          confirmButtonText: '确定',
+          confirmButtonText: '确定'
         })
       }
       this.createType = 'single'
       this.adventType = 'keyword'
       this.goodsItemSelectorVisible = true
     },
-    //导出数据
+    // 导出数据
     async exportData() {
       if (!this.tableData.length) {
         return this.$message.warning('没有可导出的数据！')
@@ -1383,12 +1382,12 @@ export default {
         <td>${item.product ? item.product.name : '' + '\t'}</td>
         <td>${item.campaign ? this.activeState[item.campaign.state] : '' + '\t'}</td>
         <td>${
-          item.campaign.start_time
-            ? `${this.$dayjs(item.campaign.start_time * 1000).format('YYYY/MM/DD HH:mm:ss')} - ${
-                item.campaign.end_time == 0 ? '' : this.$dayjs(item.campaign.end_time * 1000).format('YYYY/MM/DD HH:mm:ss')
-              }`
-            : '' + '\t'
-        }</td>
+  item.campaign.start_time
+    ? `${this.$dayjs(item.campaign.start_time * 1000).format('YYYY/MM/DD HH:mm:ss')} - ${
+      item.campaign.end_time == 0 ? '' : this.$dayjs(item.campaign.end_time * 1000).format('YYYY/MM/DD HH:mm:ss')
+    }`
+    : '' + '\t'
+}</td>
         <td>${this.dealWithQuota(item) + '\t'}</td>
         <td>${item.report ? item.report.impression.value : '' + '\t'}</td>
         <td>${item.report ? item.report.click.value : '' + '\t'}</td>
@@ -1404,13 +1403,13 @@ export default {
       })
       exportExcelDataCommon('商品广告信息', str)
     },
-    //获取用户余额
+    // 获取用户余额
     async getMallBalance(mall) {
-      let params = {
+      const params = {
         need_create: 0,
-        mallId: mall.platform_mall_id,
+        mallId: mall.platform_mall_id
       }
-      let res = await this.$shopeemanService.getMallBalance(mall.country, params)
+      const res = await this.$shopeemanService.getMallBalance(mall.country, params)
       // console.log(res, 'res')
       if (res.code === 200) {
         this.$refs.Logs.writeLog(`店铺【${mall.mall_alias_name || mall.platform_mall_name}】获取余额成功，余额【${res.data.balance}】`, true)
@@ -1423,42 +1422,61 @@ export default {
         return 0
       }
     },
-    //图表数据
+    // 图表数据
     async getAdventAnalysis(mall, balance) {
-      let startTime = Math.round(new Date(new Date(this.statisticalTime[0]).setHours(0, 0, 0, 0)).getTime() / 1000)
-      let endTime = Math.round(new Date(new Date(this.statisticalTime[1]).setHours(23, 59, 59, 0)).getTime() / 1000)
+      const startTime = Math.round(new Date(new Date(this.statisticalTime[0]).setHours(0, 0, 0, 0)).getTime() / 1000)
+      const endTime = Math.round(new Date(new Date(this.statisticalTime[1]).setHours(23, 59, 59, 0)).getTime() / 1000)
       // let startTime = Math.round(new Date(this.statisticalTime[0]).getTime() / 1000)
       // let endTime = Math.round(new Date(this.statisticalTime[1]).getTime() / 1000)
-      let params = {
+      const params = {
         start_time: startTime,
         end_time: endTime,
         agg_interval: 4,
-        placement_list: [1, 2, 5],
-        mallId: mall.platform_mall_id,
+        // placement_list: [1, 2, 5],
+        mallId: mall.platform_mall_id
+      }
+      if (this.adventType === 'keyword') {
+        params['placement_list'] = [0, 3, 4]
+      } else {
+        params['placement_list'] = [1, 2, 5, 8]
       }
       try {
-        let res = await this.$shopeemanService.getAdventAnalysis(mall.country, params)
+        const res = await this.$shopeemanService.getAdventAnalysis(mall.country, params)
         if (res.code === 200) {
-          let totalObj = {
+          const totalObj = {
             mallId: mall.platform_mall_id,
             mallName: mall.mall_alias_name || mall.platform_mall_name,
             country: mall.country,
-            balance: balance, //余额
-            impression: 0, //浏览量
-            click: 0, //点击次数
-            order: 0, //订单数(商品已出售)
-            orderGmv: 0, //销售金额
-            cost: 0, //花费
+            balance: balance, // 余额
+            impression: 0, // 浏览量
+            click: 0, // 点击次数
+            order: 0, // 订单数(商品已出售)
+            orderGmv: 0, // 销售金额
+            cost: 0 // 花费
           }
-          res.data.forEach((item) => {
-            totalObj.impression += item.impression
-            totalObj.click += item.click
-            totalObj.order += item.order_amount
-            totalObj.orderGmv += item.order_gmv
-            totalObj.cost += item.cost
-          })
+          let data = null
+          if (this.adventType === 'keyword') {
+            res.data.search_report.forEach(item => {
+              totalObj.impression += item.impression
+              totalObj.click += item.click
+              totalObj.order += item.order_amount
+              totalObj.orderGmv += item.order_gmv
+              totalObj.cost += item.cost
+            })
+            data = res.data.search_report
+          } else {
+            res.data.discovery_report.forEach(item => {
+              totalObj.impression += item.impression
+              totalObj.click += item.click
+              totalObj.order += item.order_amount
+              totalObj.orderGmv += item.order_gmv
+              totalObj.cost += item.cost
+            })
+            data = res.data.discovery_report
+          }
+
           this.totalData.push(totalObj)
-          this.analysisData[mall.platform_mall_id] = res.data
+          this.analysisData[mall.platform_mall_id] = data
         } else if (res.code === 403) {
           this.$refs.Logs.writeLog(`店铺【${mall.mall_alias_name || mall.platform_mall_name}】综合统计数据获取失败，店铺未登录`, false)
         } else {
@@ -1468,7 +1486,7 @@ export default {
         console.log(error)
       }
     },
-    //处理预算
+    // 处理预算
     dealWithQuota(row) {
       if (Number(row.campaign.daily_quota) == 0 && Number(row.campaign.total_quota) == 0) {
         return '无限制'
@@ -1480,7 +1498,7 @@ export default {
         }
       }
     },
-    //批量获取数据
+    // 批量获取数据
     async batchGetAdventList() {
       if (!this.selectMallList.length) {
         return this.$message.warning('请选择店铺')
@@ -1490,13 +1508,14 @@ export default {
       this.totalData = []
       this.loading = true
       this.totalAnalysisData = {
-        balance: 0, //余额
-        impression: 0, //浏览量
-        click: 0, //点击次数
-        order: 0, //订单数(商品已出售)
-        orderGmv: 0, //销售金额
-        cost: 0, //花费
+        balance: 0, // 余额
+        impression: 0, // 浏览量
+        click: 0, // 点击次数
+        order: 0, // 订单数(商品已出售)
+        orderGmv: 0, // 销售金额
+        cost: 0 // 花费
       }
+
       await batchOperation(this.selectMallList, this.getAdventList)
       this.totalData.forEach((item) => {
         this.totalAnalysisData.balance += item.balance
@@ -1510,18 +1529,18 @@ export default {
       // console.log(this.totalData, this.analysisData, '11111')
       this.loading = false
     },
-    //列表数据
+    // 列表数据
     async getAdventList(mall, count = { count: 1 }) {
-      // let startTime = Math.round(new Date(this.statisticalTime[0]).getTime() / 1000)  
-      let startTime = Math.round(new Date(new Date(this.statisticalTime[0]).setHours(0, 0, 0, 0)).getTime() / 1000)  
+      // let startTime = Math.round(new Date(this.statisticalTime[0]).getTime() / 1000)
+      const startTime = Math.round(new Date(new Date(this.statisticalTime[0]).setHours(0, 0, 0, 0)).getTime() / 1000)
       // let endTime = Math.round(new Date(this.statisticalTime[1]).getTime() / 1000)
-      let endTime = Math.round(new Date(new Date(this.statisticalTime[1]).setHours(23, 59, 59, 0)).getTime() / 1000)
-      let limit = 40
+      const endTime = Math.round(new Date(new Date(this.statisticalTime[1]).setHours(23, 59, 59, 0)).getTime() / 1000)
+      const limit = 40
       let mallCount = 0
-      let balance = await this.getMallBalance(mall)
-      this.getAdventAnalysis(mall, balance)
+      const balance = await this.getMallBalance(mall)
+      await this.getAdventAnalysis(mall, balance)
       try {
-        let params = {
+        const params = {
           start_time: startTime,
           end_time: endTime,
           campaign_type: this.adventType,
@@ -1531,9 +1550,9 @@ export default {
           search_content: '',
           offset: 0,
           limit: limit,
-          mallId: mall.platform_mall_id,
+          mallId: mall.platform_mall_id
         }
-        let res = await this.$shopeemanService.getAdventList(mall.country, params)
+        const res = await this.$shopeemanService.getAdventList(mall.country, params)
 
         if (res.code === 200) {
           let array = res.data.campaign_ads_list || []
@@ -1545,7 +1564,7 @@ export default {
             })
             this.tableData = this.tableData.concat(array)
             params.offset += limit
-            let res = await this.$shopeemanService.getAdventList(mall.country, params)
+            const res = await this.$shopeemanService.getAdventList(mall.country, params)
             array = res.code === 200 ? res.data.campaign_ads_list : []
           }
           this.$refs.Logs.writeLog(`店铺【${mall.mall_alias_name || mall.platform_mall_name}】功获取到广告数量${mallCount}条`, true)
@@ -1579,69 +1598,69 @@ export default {
     setClickPrice() {
       switch (this.country) {
         case 'TH':
-          this.dailyBudgetMinLimit = 20 //点击量
-          this.totalBudgetMinLimit = 100 //点击量
-          this.dailySingleClickPrice = 2.1 //点击量
-          this.totalSingleClickPrice = 2.1 //点击量
+          this.dailyBudgetMinLimit = 20 // 点击量
+          this.totalBudgetMinLimit = 100 // 点击量
+          this.dailySingleClickPrice = 2.1 // 点击量
+          this.totalSingleClickPrice = 2.1 // 点击量
           break
         case 'ID':
-          this.dailyBudgetMinLimit = 2500 //点击量
-          this.totalBudgetMinLimit = 25000 //点击量
-          this.dailySingleClickPrice = 300 //点击量
-          this.totalSingleClickPrice = 288 //点击量
+          this.dailyBudgetMinLimit = 2500 // 点击量
+          this.totalBudgetMinLimit = 25000 // 点击量
+          this.dailySingleClickPrice = 300 // 点击量
+          this.totalSingleClickPrice = 288 // 点击量
           break
         case 'MY':
-          this.dailyBudgetMinLimit = 2 //点击量
-          this.totalBudgetMinLimit = 20 //点击量
-          this.dailySingleClickPrice = 0.13 //点击量
-          this.totalSingleClickPrice = 0.13 //点击量
+          this.dailyBudgetMinLimit = 2 // 点击量
+          this.totalBudgetMinLimit = 20 // 点击量
+          this.dailySingleClickPrice = 0.13 // 点击量
+          this.totalSingleClickPrice = 0.13 // 点击量
           break
         case 'TW':
-          this.dailyBudgetMinLimit = 20 //点击量
-          this.totalBudgetMinLimit = 100 //点击量
-          this.dailySingleClickPrice = 2.83 //点击量
-          this.totalSingleClickPrice = 2.83 //点击量
+          this.dailyBudgetMinLimit = 20 // 点击量
+          this.totalBudgetMinLimit = 100 // 点击量
+          this.dailySingleClickPrice = 2.83 // 点击量
+          this.totalSingleClickPrice = 2.83 // 点击量
           break
         case 'SG':
-          this.dailyBudgetMinLimit = 2 //点击量
-          this.totalBudgetMinLimit = 20 //点击量
-          this.dailySingleClickPrice = 0.09 //点击量
-          this.totalSingleClickPrice = 0.09 //点击量
+          this.dailyBudgetMinLimit = 2 // 点击量
+          this.totalBudgetMinLimit = 20 // 点击量
+          this.dailySingleClickPrice = 0.09 // 点击量
+          this.totalSingleClickPrice = 0.09 // 点击量
           break
         case 'VN':
-          this.dailyBudgetMinLimit = 5000 //点击量
-          this.totalBudgetMinLimit = 5000 //点击量
-          this.dailySingleClickPrice = 671 //点击量
-          this.totalSingleClickPrice = 671 //点击量
+          this.dailyBudgetMinLimit = 5000 // 点击量
+          this.totalBudgetMinLimit = 5000 // 点击量
+          this.dailySingleClickPrice = 671 // 点击量
+          this.totalSingleClickPrice = 671 // 点击量
           break
         case 'PH':
-          this.dailyBudgetMinLimit = 20 //点击量
-          this.totalBudgetMinLimit = 200 //点击量
-          this.dailySingleClickPrice = 1.18 //点击量
-          this.totalSingleClickPrice = 1.18 //点击量
+          this.dailyBudgetMinLimit = 20 // 点击量
+          this.totalBudgetMinLimit = 200 // 点击量
+          this.dailySingleClickPrice = 1.18 // 点击量
+          this.totalSingleClickPrice = 1.18 // 点击量
           break
       }
     },
     closeDialog() {
       this.handleKeyword = false
-      this.createChooseGoods = [] //创建弹窗选择的商品
-      this.budgetSingle = '1' //每个广告的预算
+      this.createChooseGoods = [] // 创建弹窗选择的商品
+      this.budgetSingle = '1' // 每个广告的预算
       this.timeSingle = '1'
-      this.budgetType = 'day' //预算类型
-      this.budget = '' //预算
+      this.budgetType = 'day' // 预算类型
+      this.budget = '' // 预算
       this.keyType = ''
       this.relevanceBudgetType = 'all'
       this.relevanceBudget = 0
       // this.relevanceList = []
     },
     closeKeyPrice() {
-      this.keyPriceRadio = '1' //关键字出价
+      this.keyPriceRadio = '1' // 关键字出价
       this.calcType = 'add'
       this.keyPrice1 = ''
       this.keyPrice2 = ''
       this.keyPrice3 = ''
-    },
-  },
+    }
+  }
 }
 </script>
 

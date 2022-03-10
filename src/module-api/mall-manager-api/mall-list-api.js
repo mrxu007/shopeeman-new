@@ -1,4 +1,3 @@
-
 // import api from '../../network/jx-request'
 export default class MallListAPI {
   constructor(that) {
@@ -66,12 +65,13 @@ export default class MallListAPI {
       }
       return { code: res.errcode, data: `${res.errcode} ${res.message}` }
     } catch (error) {
-      if ((error+'').indexOf('Unexpected token < in JSON at')>=0 || (error+'').indexOf('of JSON input')>=0) {
+      if ((error + '').indexOf('Unexpected token < in JSON at') >= 0 || (error + '').indexOf('of JSON input') >= 0) {
         return { code: 502, data: '请检测代理信息' }
       }
       return { code: -2, data: `getUserInfo-catch: ${error}` }
     }
   }
+
   // 获取店铺信息
   async getMallInfo(mallInfo) {
     try {
@@ -80,16 +80,22 @@ export default class MallListAPI {
         platform_mall_id: platform_mall_id
       }
       let res = await this._this.$shopeemanService.getChinese(country, '/api/forward/accountservice/v2/shop/', params)
-      console.log('res',res)
-      res = JSON.parse(JSON.parse(res).data)
-      if (res?.username) {
-        return { code: 200, data: res }
+      console.log('getMallInfo - res', res)
+      res = JSON.parse(res)
+      if (res.data) {
+        res = JSON.parse(res.data)
+        if (res?.username) {
+          return { code: 200, data: res }
+        }
+      }else{
+        return { code: -2, data: '店铺信息获取失败' }
       }
       return { code: res.errcode, data: `${res.errcode} ${res.message}` }
     } catch (error) {
       return { code: -2, data: `getMallInfo-catch: ${error}` }
     }
   }
+
   // 开启或关闭店铺休假模式
   async closeOrOpenMallVacation(mallInfo, open) {
     try {
@@ -110,7 +116,10 @@ export default class MallListAPI {
       if (res.code === 0) {
         return { code: 200, data: '操作成功' }// Errors within expectations  开启关闭太频繁，需冷却三小时
       }
-      return { code: res.code, data: `${res.code} ${res.message.indexOf('Errors within expectations') > -1 ? '开启关闭太频繁，需冷却3小时' : res.message}` }
+      return {
+        code: res.code,
+        data: `${res.code} ${res.message.indexOf('Errors within expectations') > -1 ? '开启关闭太频繁，需冷却3小时' : res.message}`
+      }
     } catch (error) {
       return { code: -2, data: `getMallInfo-catch: ${error}` }
     }
@@ -134,11 +143,15 @@ export default class MallListAPI {
       if (res.code === 0) {
         return { code: 200, data: res.data.resource_id }// Errors within expectations  开启关闭太频繁，需冷却三小时
       }
-      return { code: res.code, data: `${res.errcode} ${res.message.indexOf('token not found') > -1 ? '请先登录' : res.message}` }
+      return {
+        code: res.code,
+        data: `${res.errcode} ${res.message.indexOf('token not found') > -1 ? '请先登录' : res.message}`
+      }
     } catch (error) {
       return { code: -2, data: `getMallInfo-catch: ${error}` }
     }
   }
+
   // 更新店铺背景图片
   async updateMallBK(mallInfo, resource_id) {
     try {
@@ -161,6 +174,7 @@ export default class MallListAPI {
       return { code: -2, data: `getMallInfo-catch: ${error}` }
     }
   }
+
   // 发送短信
   async sendMessage(mallInfo, messageHeader, flat) {
     try {
@@ -198,9 +212,13 @@ export default class MallListAPI {
       console.log(country, '/api/selleraccount/vcode/resend/?', params, messageHeader ? { headers } : null, copy_mallInfo)
       let res = await this._this.$shopeemanService.getChinese(country, '/api/selleraccount/vcode/resend/?', params, messageHeader ? { headers } : null, copy_mallInfo)
       console.log(res)
-      res = JSON.parse(JSON.parse(res).data)
-      if (res.code === 0) {
-        return { code: 200, data: '短信验证发送成功' }
+      if (JSON.parse(res).data){
+        res = JSON.parse(JSON.parse(res).data)
+        if (res.code === 0) {
+          return { code: 200, data: '短信验证发送成功' }
+        }
+      }else{
+        return { code: -2, data: '无法发送短信验证' }
       }
       return { code: res.errcode, data: `${res.errcode} ${res.message}` }
     } catch (error) {
@@ -230,6 +248,7 @@ export default class MallListAPI {
     }
     return country === 'SG' || country === 'ID' ? account : reg[country] + account
   }
+
   // 获取店铺物流
   async getMallExpress(mallInfo) {
     try {
@@ -254,7 +273,11 @@ export default class MallListAPI {
               listsObj[item.service_type] = []
               activeNames.push(item.service_type)
             }
-            item.service_type && listsObj[item.service_type].push({ 'isChecked': false, 'name': item.name, 'channel_id': item.channel_id })
+            item.service_type && listsObj[item.service_type].push({
+              'isChecked': false,
+              'name': item.name,
+              'channel_id': item.channel_id
+            })
           })
           console.log('listsObj', listsObj)
         } else { // 父级自己ID关系
@@ -265,7 +288,11 @@ export default class MallListAPI {
             if (item.parent_channel_id === 0) {
               listsObjTemp[item.channel_id] = []
             } else {
-              listsObjTemp[item.parent_channel_id].push({ 'isChecked': false, 'name': item.name, 'channel_id': item.channel_id })
+              listsObjTemp[item.parent_channel_id].push({
+                'isChecked': false,
+                'name': item.name,
+                'channel_id': item.channel_id
+              })
             }
           })
           for (const key in listsObjTemp) {
@@ -283,6 +310,7 @@ export default class MallListAPI {
       return { code: -2, data: `getMallExpress-catch: ${error}` }
     }
   }
+
   // 设置店铺物流信息
   async setMallExpress(mallInfo, channelInfo) {
     try {
@@ -336,6 +364,7 @@ export default class MallListAPI {
       return { code: -2, data: `getMallList-catch: ${error}` }
     }
   }
+
   // 根据站点获取分组
   async getGroup(params) {
     try {
@@ -355,10 +384,12 @@ export default class MallListAPI {
       return { code: -2, data: `getGroup-catch: ${error}` }
     }
   }
+
   // 根据 店铺频台id 找到店铺系统id
   getMallID(platform_mall_id) {
     return this.mallList.find(item => item.platform_mall_id === platform_mall_id - 0)?.id
   }
+
   // 更新店铺水印
   async updateWatermark(params) {
     try {
@@ -371,6 +402,7 @@ export default class MallListAPI {
       return { code: -2, data: `getMallList-catch: ${error}` }
     }
   }
+
   // 更新店铺别名
   async updateMallAliasName(params) {
     try {
@@ -396,6 +428,7 @@ export default class MallListAPI {
       return { code: -2, data: `updateUserPasswordAPI-catch: ${error}` }
     }
   }
+
   // 联动站点分组获取店铺列表
   async ddMallGoodsGetMallList(params) {
     try {
@@ -422,6 +455,7 @@ export default class MallListAPI {
       return { code: -2, data: `getMallList-catch: ${error}` }
     }
   }
+
   // 导入店铺信息(服务端)
   async saveMallAuthInfo(mallInfo) {
     try {
@@ -434,6 +468,7 @@ export default class MallListAPI {
       return { code: -2, data: `saveMallAuthInfo-catch: ${error}` }
     }
   }
+
   // 更新店铺信息
   async updateMallInfo(params) {
     try {
@@ -446,6 +481,7 @@ export default class MallListAPI {
       return { code: -2, data: `saveMallAuthInfo-catch: ${error}` }
     }
   }
+
   // 获取银行卡信息列表
   async getBankList(params) {
     try {
@@ -458,6 +494,7 @@ export default class MallListAPI {
       return { code: -2, data: `getBankList-catch: ${error}` }
     }
   }
+
   // 整理登录数据  和  shopeeMan-service 的login 接口成功反出去的结果一样
   sortMallData(mallInfo, data) {
     const mallId = `${data.shopid}` // 平台店铺ID
