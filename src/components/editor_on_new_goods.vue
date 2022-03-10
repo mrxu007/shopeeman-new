@@ -825,7 +825,7 @@ export default {
     // 开启任务
     async batchDealWith(type, data) {
       console.log('type ===', type)
-      if (type !== 8) {
+      if (type !== 8 || type !== 9) {
         if (this.mallTableSelect.length < 1) {
           this.$message.error('请选择一个商品信息')
           return false
