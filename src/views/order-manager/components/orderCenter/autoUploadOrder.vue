@@ -10,7 +10,7 @@ import orderSync from '../../../../services/timeOrder'
 import surFaceService from '../../../../services/surfaceOrder'
 import LogisticeSyncService from '../../../../services/logistics-sync-service/logistics-sync-service-new-copy'
 export default {
-  data() {
+  data () {
     return {
       showConsole: false,
       mallList: [],
@@ -23,7 +23,7 @@ export default {
       isApplyShopeeLogistics: '2' // 1：申请 2：不申请
     }
   },
-  mounted() {
+  mounted () {
     this.getAllMall()
     this.$refs.Logs.writeLog(`定时任务分别在五分钟、八分钟之后开启`, true)
     window['BaseUtilBridgeService'].checkAutoScriptLog('定时任务分别在五分钟、八分钟之后开启')
@@ -60,7 +60,7 @@ export default {
   },
   methods: {
     // 自动同步面单 8分钟开启，2小时间隔
-    async syncShopeeFace() {
+    async syncShopeeFace () {
       let configInfo = await window['ConfigBridgeService'].getUserConfig()
       configInfo = configInfo && JSON.parse(configInfo) || {}
       this.isApplyShopeeLogistics = (configInfo && configInfo.is_apply_shopee_logistics) || '2'
@@ -73,7 +73,7 @@ export default {
         }, 8 * 60 * 1000)
       }
     },
-    async syncLogis() {
+    async syncLogis () {
       let configInfo = await window['ConfigBridgeService'].getUserConfig()
       configInfo = configInfo && JSON.parse(configInfo) || {}
       this.isAutoLogisitice = (configInfo && configInfo.is_auto_ori_logistics) || '1'
@@ -92,7 +92,7 @@ export default {
     // a.第一个定时任务（同步 toship、shipping、completed、cancelled、refund）：5分钟后启动后每隔4小时同步一次 改all
     // b.第二个定时任务（同步 toship、cancelled、refund）：8分钟后启动后每隔30分钟同步一次
     // c.第三个定时任务（同步 shipping、completed）：8分钟后启动后每隔60分钟同步一次
-    async syncOrders(statusList, type, timeRange) {
+    async syncOrders (statusList, type, timeRange) {
       window['BaseUtilBridgeService'].checkAutoScriptLog('开始自动同步订单')
       this.$refs.Logs.writeLog(`【${type}】开始同步`, true)
       for (let mI = 0; mI < this.mallList.length; mI++) {
@@ -105,7 +105,7 @@ export default {
         }
       }
     },
-    async getAllMall() {
+    async getAllMall () {
       const res = await this.$appConfig.getGlobalCacheInfo('allMallInfo', 'key')
       const mallObject = res && JSON.parse(res)
       if (mallObject) {
@@ -115,18 +115,30 @@ export default {
       }
       console.log(this.mallList, JSON.parse(res))
     },
-    async syncFaceData() {
+    async syncFaceData () {
       this.$refs.Logs.writeLog(`开始同步面单---------------------------`, true)
       window['BaseUtilBridgeService'].checkAutoScriptLog('开始同步面单、平台物流')
       const service = new surFaceService(this, this.$refs.Logs.writeLog)
       service.autoStart()
     },
+    async getAccountList () {
+      const { data } = await this.$api.getBuyerList()
+      if (data.code === 200) {
+        this.buyerAccountList = data.data
+      }
+    },
+    async logisticeSync () {
+      window['BaseUtilBridgeService'].checkAutoScriptLog('开始自动同步采购物流')
+      this.$refs.Logs.writeLog(`开始自动同步采购物流---------------------------`, true)
+      const logisiService = new LogisticeSyncService()
+      await logisiService.start(this, this.buyerAccountList, this.$refs.Logs.writeLog)
+    },
     // 爆粉生神器--自动刷粉
-    checkTimeAutoFollow() {
+    checkTimeAutoFollow () {
       // 检测是否到达时间--获取(time mall isCheck keyword)
       // 执行任务
 
-    }
+    },
   }
 }
 </script>
