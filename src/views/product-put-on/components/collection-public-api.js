@@ -63,8 +63,9 @@ export default class CollectionPublicApi {
         }
         // 5：过滤特殊字符：标题、短标题、描述、过滤Emoji字符串
         await this.FilterSpecialSymbol(goodsData, item)
+        console.log('CategoryName',item)
         // 6：对类目进行处理
-        if (item.CategoryName.includes('未匹配') && item.OriginCategoryId !== 0) {
+        if ((!item.CategoryName || item.CategoryName.includes('未匹配')) && item.OriginCategoryId !== 0) {
           console.log(item.OriginCategoryId, item.Platform, item.Site)
           const cat = await this._this.$collectService.getGoodsCat(item.OriginCategoryId, item.Platform, item.Site)
           item.CategoryName = cat.split('|')[0] || item.CategoryName
@@ -433,8 +434,8 @@ export default class CollectionPublicApi {
           haveImageOption[optionName] = skuData.image
         }
       }
-      console.log('notHaveImageOption', notHaveImageOption)
-      console.log('haveImageOption', haveImageOption)
+      // console.log('notHaveImageOption', notHaveImageOption)
+      // console.log('haveImageOption', haveImageOption)
       // 如果没有图片的规格,多于有图片的规格
       if (notHaveImageOption.length > Object.keys(haveImageOption).length) {
         for (const key in sku) {

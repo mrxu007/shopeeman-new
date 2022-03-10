@@ -3079,6 +3079,7 @@ export default {
   white-space: normal;
   cursor: pointer;
   line-height: 40px;
+  overflow: hidden;
 
   &:hover {
     color: #ff0000;

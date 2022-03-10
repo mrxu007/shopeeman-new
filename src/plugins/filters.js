@@ -164,10 +164,16 @@ const lazada_goods_url = {
 // lazada各网址对应站点
 const lazada_goods_site = {
   'http://www.lazada.co.th/': 'TH',
+  'https://www.lazada.co.th/': 'TH',
+  'http://www.lazada.com.my/': 'MY', // 马来西亚
   'https://www.lazada.com.my/': 'MY', // 马来西亚
+  'http://www.lazada.vn/': 'VN', // 越南
   'https://www.lazada.vn/': 'VN', // 越南
+  'http://www.lazada.co.id/': 'ID', // 印度尼西亚
   'https://www.lazada.co.id/': 'ID', // 印度尼西亚
+  'http://www.lazada.com.ph/': 'PH', // 菲律宾
   'https://www.lazada.com.ph/': 'PH', // 菲律宾
+  'http://www.lazada.sg/': 'SG', // 新加坡
   'https://www.lazada.sg/': 'SG' // 新加坡
 }
 

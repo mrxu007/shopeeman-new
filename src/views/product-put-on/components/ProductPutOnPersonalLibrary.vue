@@ -843,7 +843,7 @@ export default {
 }
 
 .goToGoods {
-  white-space: normal;
+  white-space: nowrap;
   cursor: pointer;
   line-height: 40px;
   margin-right: 5px;

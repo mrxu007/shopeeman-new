@@ -303,13 +303,8 @@
       <u-table-column align="left" show-overflow-tooltip type="index" width="55" label="序号" />
       <u-table-column align="left" show-overflow-tooltip label="主图" width="80" prop="Sales">
         <template v-slot="{ row }">
-          <el-tooltip
-            effect="light"
-            placement="right-end"
-            :visible-arrow="false"
-            :enterable="false"
-            style="width: 56px; height: 56px; display: inline-block"
-          >
+          <el-tooltip effect="light" placement="right-end" :visible-arrow="false"
+            :enterable="false" style="width: 56px; height: 56px; display: inline-block">
             <div slot="content">
               <el-image :src="row.image " style="width: 400px; height: 400px" />
             </div>
@@ -322,11 +317,11 @@
           <p style="white-space: normal">{{ getLabelName(row.sys_label_id) }}</p>
         </template>
       </u-table-column>
-      <u-table-column align="left" label="商品编码" width="130" :show-overflow-tooltip="true">
+      <u-table-column align="left" label="商品编码" width="130" show-overflow-tooltip>
         <template v-slot="{ row }">
-          <span class="goToGoods" @click.stop="goToGoods(row)" style="color: red;cursor: pointer">{{ row.goods_id }}</span>
           <el-button type="text" class="copyIcon" @click="copy(row.goods_id)">
             <i class="el-icon-document-copy" /></el-button>
+          <span class="goToGoods" @click.stop="goToGoods(row)" style="color: red;cursor: pointer">{{ row.goods_id }}</span>
         </template>
       </u-table-column>
       <u-table-column align="left" label="采购来源" width="70">
@@ -384,11 +379,8 @@
       </u-table-column>
       <u-table-column align="left" label="操作状态" width="100">
         <template v-slot="{row}">
-          <div
-            class="goodsTableLine"
-            style="height: 80px"
-            :style="`color:${row.operation_type && row.operation_type.includes('收藏失败') && 'red' || '#000'}`"
-          >
+          <div class="goodsTableLine" style="height: 80px"
+            :style="`color:${(row.operation_type || '').includes('失败') && 'red' || '#000'}`">
             {{ row.operation_type || '' }}
           </div>
         </template>
@@ -787,11 +779,6 @@ export default {
       this.describeConfig.text = item && item.description || ''
       this.describeConfig.describe = item && item.description || ''
       this.describeConfig.lable = item && item.lable || ''
-    },
-    categoryList: {
-      handler(val) {
-      },
-      deep: true
     },
     goodsDescribeRadio(val) {
       this.translationConfig.describeChecked = val > 0 && val < 4
@@ -1555,7 +1542,7 @@ export default {
                   imageData = json.Data && json.Data.Url || son.img
                 } else {
                   imageData = son.img
-                  this.$set(this.mallTable[index], 'operation_type', `轮播图(${(i + 1)}/${image1ListLength})失败${json.Msg}`)
+                  this.$set(this.mallTable[index], 'operation_type', `轮播图(${(i + 1)}/${image1ListLength})失败：${json.Msg}`)
                   success = false
                   return
                 }
@@ -1595,7 +1582,7 @@ export default {
                   imageData = json.Data && json.Data.Url || son
                 } else {
                   imageData = son
-                  this.$set(this.mallTable[index], 'operation_type', `规格图(${(i + 1)}/${image1ListLength})失败${json.Msg}`)
+                  this.$set(this.mallTable[index], 'operation_type', `规格图(${(i + 1)}/${image1ListLength})：失败${json.Msg}`)
                   success = false
                 }
               }
@@ -1618,7 +1605,7 @@ export default {
         } catch (e) {
           console.log(e)
           success = false
-          this.$set(this.mallTable[index], 'operation_type', '翻译失败...')
+          this.$set(this.mallTable[index], 'operation_type', '翻译失败')
         } finally {
           resolve(success)
         }
@@ -1712,10 +1699,16 @@ export default {
       }
     },
     goToGoods(item) {
+      console.log(item)
+      const site = item['site'] || item['goodsExtraInfo'] && item['goodsExtraInfo']['site'] || ''
       const extra_info = item.extra_info && JSON.parse(item.extra_info) || {}
-      const temp = Object.assign({ productId: item.goods_id }, extra_info)
+      const temp = Object.assign({ productId: item.goods_id,site:site }, extra_info)
       const goods = getGoodsUrl(item.source, temp)
       this.$BaseUtilService.openUrl(goods.url)
+
+      // if (url) {
+      //   this.$BaseUtilService.openUrl(url)
+      // }
     },
     imageUpload(file) {
       const localFile = file.raw
@@ -1912,7 +1905,7 @@ export default {
           if (res.code === 200) {
             res.data.operation_type = '收藏成功'
             res.data.isFailure = false
-            const index = this.mallTable.findIndex(son => son.id === item.id)
+            const index = this.mallTable.findIndex(son => son.GoodsId === item.GoodsId)
             this.$set(this.mallTable, index, res.data)
             this.statistics.scSuccess++
           } else {
