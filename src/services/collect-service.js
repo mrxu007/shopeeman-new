@@ -138,6 +138,22 @@ export default class CollectService {
   deleteCronPublishTask(ids){
     return this.nativeService.deleteCronPublishTask(ids)
   }
+  /**
+   * 删除定时刊登配置表
+   * @param ids
+   * @returns {*}
+   */
+  deleteCronPublishConfig(ids){
+    return this.nativeService.deleteCronPublishConfig(ids)
+  }
+  /**
+   * 删除定时刊登商品表
+   * @param ids
+   * @returns {*}
+   */
+  deleteCronPublishGoods(id,status ='',oriGoodsId =''){
+    return this.nativeService.deleteCronPublishGoods(id,status,oriGoodsId)
+  }
 
 
 }

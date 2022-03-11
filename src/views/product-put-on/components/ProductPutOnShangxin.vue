@@ -511,7 +511,6 @@
       <u-table-column align="left" label="标签" prop="sys_label_name" width="80" show-overflow-tooltip/>
       <u-table-column align="left" label="来源" prop="sourceName" width="80"/>
     </u-table>
-
     <div class="on_new_dialog">
       <el-dialog title="水印配置" width="500px" :close-on-click-modal="false"
                  top="10vh" :visible.sync="watermarkVisible">
@@ -1086,7 +1085,7 @@ import {
   terminateThread,
   getSectionRandom,
   imageCompressionUpload,
-  randomWord, sleep, copyText
+  randomWord, sleep, copyText, dateFormat
 } from '@/util/util'
 import GUID from '@/util/guid'
 import MallListAPI from '@/module-api/mall-manager-api/mall-list-api'
@@ -3006,10 +3005,41 @@ export default {
       }
       this.setTimeVisible = true
     },
-    saveSetTime(isRun) {
-      let mallJson = ''
-      let goodsJson = ''
-      let setTimeSetting = {}
+    async saveSetTime(isRun) {
+      if(!this.setTimeConfig.name){
+        this.$message.error('任务名称不能为空')
+        return
+      }
+      if(this.setTimeConfig.onNewThread > 5 || this.setTimeConfig.onNewThread < 1){
+        this.$message.error('任务线程需大于等于1小于等于5')
+        return
+      }
+      let ext_info = JSON.stringify({
+        mallList:this.mallList,
+        config:this.setTimeConfig
+      })
+      let country = this.country;
+      let exec_time = dateFormat(this.setTimeConfig.time,'yyyy-MM-dd hh:mm:ss')
+      let task_name = this.setTimeConfig.name
+      // let mallList = JSON.stringify(this.mallList)
+      let mall_Ids = this.mallList.map(son=> son.platform_mall_id).toString()
+      let mall_names = this.mallList.map(son=>son.mall_alias_name || son.platform_mall_name).toString()
+      let status = isRun && 3 || 4
+      let goods_count = this.goodsTableSelect.length
+      let success_count = 0
+      let fail_count = 0
+      let created_at = Math.floor(new Date().getTime() / 1000)
+      let setTimeSetting = {
+        ext_info, country, exec_time, mall_Ids,mall_names, status,task_name,
+        success_count, fail_count, goods_count, created_at
+      }
+      console.log('saveCronPublishTask - parma',setTimeSetting)
+      let setConfig = await this.$collectService.saveCronPublishTask(setTimeSetting)
+      if(setConfig.code == 200){
+        this.$message.success('配置定时刊登成功')
+      }
+      this.setTimeVisible = false
+      console.log('setConfig', setConfig)
     }
   }
 }
