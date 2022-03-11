@@ -38,7 +38,6 @@
                         range-separator="-"
                         start-placeholder="开始日期"
                         end-placeholder="结束日期"
-                        :picker-options="pickerOptions"
                         @change="changeTime($event, 'selectForm', 'otherTime')"
                     />
                   </div>
@@ -763,6 +762,7 @@
         width="1400px"
         top="5vh"
         :close-on-click-modal="false"
+        @close="closeDialog"
     >
       <div slot="title">{{ outStoreTitle }}</div>
       <goods-out-store :choose-data="uniqueArr(multipleSelection)" :out-store-type="outStoreType" @close="closeDialog"/>
@@ -1357,16 +1357,16 @@ export default {
           showType: 11
         }, {
           key: 18,
-          name: '商品信息',
-          width: '140',
-          propList: [{
-            name: '数量',
-            prop: 'goods_info.goods_count'
-          }, {
-            name: '标题',
-            prop: 'goods_info.goods_name'
-          }],
+          name: '商品数量',
+          width: '70',
           prop: 'goods_info.goods_count',
+          showOverflowTooltip: true,
+          showType: 0
+        }, {
+          key: 19,
+          name: '商品标题',
+          width: '140',
+          prop: 'goods_info.goods_name',
           showOverflowTooltip: true,
           showType: 0
         }, {
