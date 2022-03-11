@@ -823,7 +823,7 @@ export default {
     // 开启任务
     async batchDealWith(type, data) {
       console.log('type ===', type)
-      if (type !== 8) {
+      if (type !== 8 || type !== 9) {
         if (this.mallTableSelect.length < 1) {
           this.$message.error('请选择一个商品信息')
           return false
@@ -1666,6 +1666,7 @@ export default {
           if (category && name) {
             categoty[name] = category || '未匹配到类目'
             this.categoryList = categoty
+            this.categoryList = categoty
           }
         }
       }
@@ -1698,15 +1699,16 @@ export default {
     },
     goToGoods(item) {
       console.log(item)
-      const site = item['site'] || item['goodsExtraInfo'] && item['goodsExtraInfo']['site'] || ''
-      const extra_info = item.extra_info && JSON.parse(item.extra_info) || {}
-      const temp = Object.assign({ productId: item.goods_id,site:site }, extra_info)
-      const goods = getGoodsUrl(item.source, temp)
-      this.$BaseUtilService.openUrl(goods.url)
+      if (item.Url) {
+        this.$BaseUtilService.openUrl(item.Url)
+      }else {
+        const site = item['site'] || item['goodsExtraInfo'] && item['goodsExtraInfo']['site'] || ''
+        const extra_info = item.extra_info && JSON.parse(item.extra_info) || {}
+        const temp = Object.assign({ productId: item.goods_id,site:site }, extra_info)
+        const goods = getGoodsUrl(item.source, temp)
+        this.$BaseUtilService.openUrl(goods.url)
+      }
 
-      // if (url) {
-      //   this.$BaseUtilService.openUrl(url)
-      // }
     },
     imageUpload(file) {
       const localFile = file.raw
