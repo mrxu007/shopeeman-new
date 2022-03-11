@@ -449,18 +449,22 @@
           </el-tooltip>
         </template>
       </u-table-column>
-      <u-table-column align="left" label="上家商品Id" width="126">
+      <u-table-column align="left" label="上家商品Id" width="130">
         <template v-slot="{ row }">
+          <div style="display: flex">
           <span class="goToGoods" @click.stop="goToGoods(row)">{{ row.goods_id }}</span>
           <el-button type="text" class="copyIcon" @click="copy(row.goods_id)">
             <i class="el-icon-document-copy"/></el-button>
+          </div>
         </template>
       </u-table-column>
-      <u-table-column align="left" label="shopee-Id" width="126">
+      <u-table-column align="left" label="shopee-Id" width="130">
         <template slot-scope="{ row }">
-          <span class="goToGoods" @click.stop="goToGoods(row,1)">{{ row.product_id || '' }}</span>
-          <el-button v-if="row.product_id" type="text" class="copyIcon" @click="copy(row.product_id)">
-            <i class="el-icon-document-copy"/></el-button>
+          <div style="display: flex">
+            <span class="goToGoods" @click.stop="goToGoods(row,1)">{{ row.product_id || '' }}</span>
+            <el-button v-if="row.product_id" type="text" class="copyIcon" @click="copy(row.product_id)">
+              <i class="el-icon-document-copy"/></el-button>
+          </div>
         </template>
       </u-table-column>
       <u-table-column align="left" label="标题" min-width="100">
@@ -3106,11 +3110,13 @@ export default {
 }
 
 .goToGoods {
-  white-space: normal;
+  display: block;
+  width: 90px;
+  white-space: nowrap;
   cursor: pointer;
   line-height: 40px;
   overflow: hidden;
-
+  text-overflow: ellipsis;
   &:hover {
     color: #ff0000;
   }
