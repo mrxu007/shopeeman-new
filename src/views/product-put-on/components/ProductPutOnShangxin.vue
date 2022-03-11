@@ -396,7 +396,7 @@
         <el-button size="mini" type="primary" :disabled="isBanPerform" disabled>导入数据</el-button>
         <el-button size="mini" @click="cancelRelease">取消发布</el-button>
         <el-button size="mini" type="primary" @click="deleteGoodsList(true)" :disabled="isBanPerform">清理全部</el-button>
-        <el-button size="mini" type="primary" @click="setTimeShow" :disabled="isBanPerform">设置定时任务</el-button>
+        <el-button size="mini" type="primary" @click="setTimeShow" :disabled="isBanPerform" disabled>设置定时任务</el-button>
         <el-button size="mini" type="primary" @click="enterCategory(2,1)" :disabled="isBanPerform">批量映射虾皮类目
         </el-button>
         <el-button size="mini" :type="isNoFoldShow && 'primary' || ''" @click="isNoFoldShow = !isNoFoldShow">
