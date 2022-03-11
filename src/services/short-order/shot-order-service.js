@@ -90,7 +90,7 @@ export default class {
       StpBackGround: '#1f74fa',
       BtnGround: '#f4a000',
       H5x5sec: configInfo.h5_xsec || '', //非固定传参的字段(暂时默认)
-      TaobaoCookieForImg: buyerMap.get(Number(shotOrderPlatform.TaoBao)) && buyerMap.get(Number(shotOrderPlatform.TaoBao)).Cookiestr || [],
+      TaobaoCookieForImg: buyerMap.get(Number(shotOrderPlatform.TaoBao)) && buyerMap.get(Number(shotOrderPlatform.TaoBao)).LoginedCookies || [],
       TaobaoRemark: configInfo.taobao_leave_content, //'请不要放价格单,不要放好评卡', //非固定传参的字段(暂时默认)
       AlibabaRemark: configInfo.ali_leave_content, //非固定传参的字段(暂时默认)
       ZhiFuBaoAwid: '',
