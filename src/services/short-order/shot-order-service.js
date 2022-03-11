@@ -90,7 +90,7 @@ export default class {
       StpBackGround: '#1f74fa',
       BtnGround: '#f4a000',
       H5x5sec: configInfo.h5_xsec || '', //非固定传参的字段(暂时默认)
-      TaobaoCookieForImg: buyerMap.get(Number(shotOrderPlatform.TaoBao)) && buyerMap.get(Number(shotOrderPlatform.TaoBao)).Cookiestr || [],
+      TaobaoCookieForImg: buyerMap.get(Number(shotOrderPlatform.TaoBao)) && buyerMap.get(Number(shotOrderPlatform.TaoBao)).LoginedCookies || [],
       TaobaoRemark: configInfo.taobao_leave_content, //'请不要放价格单,不要放好评卡', //非固定传参的字段(暂时默认)
       AlibabaRemark: configInfo.ali_leave_content, //非固定传参的字段(暂时默认)
       ZhiFuBaoAwid: '',
@@ -428,20 +428,17 @@ export default class {
     if (res.data.code === 200) {
       this.goodBuyUrlList = res.data.data
     }
-    console.log("buildPurchaseList", this.goodBuyUrlList)
     //  return paramsList
   }
   GetRedirectUrl(itemOrder, nickInfo) {
     let redirectUrl = "";
     switch (itemOrder.goods_info.ori_platform_id) {
-      case 1:
-        redirectUrl = itemOrder.goods_info.ori_url;
-        // redirectUrl = "http://" + process.env.VUE_APP_ddk + "/ddk/singlePromotion?goodsId=" + itemOrder.goods_info.ori_goods_id + "&muid=" + nickInfo.muid;
+      case '1':
+        redirectUrl = "http://" + process.env.VUE_APP_ddk + "/ddk/singlePromotion?goodsId=" + itemOrder.goods_info.ori_goods_id + "&muid=" + nickInfo.muid;
         break;
-      case 2:
-      case 3:
-        redirectUrl = itemOrder.goods_info.ori_url;
-        // redirectUrl = "http://" + process.env.VUE_APP_ddk + "/tbk/singlePromotion?goodsId=" + itemOrder.goods_info.ori_goods_id + "&muid=" + nickInfo.muid;
+      case '2':
+      case '3':
+        redirectUrl = "http://" + process.env.VUE_APP_ddk + "/tbk/singlePromotion?goodsId=" + itemOrder.goods_info.ori_goods_id + "&muid=" + nickInfo.muid;
         break;
       default:
         redirectUrl = itemOrder.goods_info.ori_url
