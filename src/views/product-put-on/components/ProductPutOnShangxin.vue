@@ -1424,7 +1424,6 @@ export default {
   watch: {
     country(value) {
       this.associatedConfig.onNewInterval = value !== 'ID' && '40' || '50'
-      this.setTimeConfig.onNewInterval = value !== 'ID' && '40' || '50'
       this.sellActiveSetting = []
       switch (value) {
         case 'BR':
@@ -2998,8 +2997,9 @@ export default {
         this.$message.error('配置水印后再操作')
         return
       }
+
       this.setTimeConfig = {
-        onNewInterval: '40',
+        onNewInterval: this.country !== 'ID' && '40' || '50',
         onNewThread: '5',
         name: '',
         time: new Date(new Date().getTime() + 3600 * 1000 * 24)
