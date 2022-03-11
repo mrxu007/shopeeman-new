@@ -428,20 +428,17 @@ export default class {
     if (res.data.code === 200) {
       this.goodBuyUrlList = res.data.data
     }
-    console.log("buildPurchaseList", this.goodBuyUrlList)
     //  return paramsList
   }
   GetRedirectUrl(itemOrder, nickInfo) {
     let redirectUrl = "";
     switch (itemOrder.goods_info.ori_platform_id) {
-      case 1:
-        redirectUrl = itemOrder.goods_info.ori_url;
-        // redirectUrl = "http://" + process.env.VUE_APP_ddk + "/ddk/singlePromotion?goodsId=" + itemOrder.goods_info.ori_goods_id + "&muid=" + nickInfo.muid;
+      case '1':
+        redirectUrl = "http://" + process.env.VUE_APP_ddk + "/ddk/singlePromotion?goodsId=" + itemOrder.goods_info.ori_goods_id + "&muid=" + nickInfo.muid;
         break;
-      case 2:
-      case 3:
-        redirectUrl = itemOrder.goods_info.ori_url;
-        // redirectUrl = "http://" + process.env.VUE_APP_ddk + "/tbk/singlePromotion?goodsId=" + itemOrder.goods_info.ori_goods_id + "&muid=" + nickInfo.muid;
+      case '2':
+      case '3':
+        redirectUrl = "http://" + process.env.VUE_APP_ddk + "/tbk/singlePromotion?goodsId=" + itemOrder.goods_info.ori_goods_id + "&muid=" + nickInfo.muid;
         break;
       default:
         redirectUrl = itemOrder.goods_info.ori_url
