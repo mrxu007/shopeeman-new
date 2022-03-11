@@ -203,7 +203,7 @@
           </div>
           <div style="display: flex;align-items: center">
             <div>图片翻译：</div>
-            <el-select v-model="translationConfig.before" size="mini" style="width: 100px;" value="">
+            <el-select v-model="translationConfig.before" size="mini" style="width: 100px;" value="" :disabled="isCollectShow">
               <el-option label="不翻译" :value="'no'" />
               <el-option label="中文" :value="1" />
               <el-option label="英文" :value="2" />
@@ -289,13 +289,10 @@
     </div>
     <u-table
       ref="mallTableRef"
-      :data="mallTable"
-      use-virtual
+      :data="mallTable" use-virtual
       :data-changes-scroll-top="false"
       :header-cell-style="{backgroundColor: '#f5f7fa',}"
-      row-key="id"
-      :border="false"
-      :big-data-checkbox="true"
+      row-key="index" :border="false" :big-data-checkbox="true"
       :height="isNoFoldShow && 430 || 680"
       @selection-change="handleSelectionChange"
     >
@@ -797,6 +794,7 @@ export default {
     this.statistics.count = this.mallTable.length
     if (this.isCollect) {
       this.isCollectShow = this.isCollect
+      console.log(JSON.stringify(this.mallTable))
       await batchOperation(this.mallTable, this.saveGoods)
       this.isCollectShow = false
     }
@@ -812,7 +810,7 @@ export default {
     const userJson = await this.$appConfig.getUserConfig()
     const userInfo = await this.$appConfig.getUserInfo()
     this.userInfo = Object.assign(JSON.parse(userJson), userInfo)
-    console.log('this.userInfo', this.userInfo)
+    // console.log('this.userInfo', this.userInfo)
     await this.showCategory()
     const buyerList = await this.$api.getBuyerList()
     buyerList.data.data.forEach(item => {
@@ -825,7 +823,7 @@ export default {
     // 开启任务
     async batchDealWith(type, data) {
       console.log('type ===', type)
-      if (type !== 8) {
+      if (type !== 8 || type !== 9) {
         if (this.mallTableSelect.length < 1) {
           this.$message.error('请选择一个商品信息')
           return false
@@ -1578,7 +1576,7 @@ export default {
               } else if (this.pictureConfig.typeRadio === 2) {
                 const json = son && await this.$translationBridgeService.getYunTranslateImg(son, this.translationConfig.after) || ''
                 console.log(json)
-                if (json && json.Code === 200) {
+                if (json && json.Code === 200 || json.Msg.includes('无文字')) {
                   imageData = json.Data && json.Data.Url || son
                 } else {
                   imageData = son
@@ -1668,6 +1666,7 @@ export default {
           if (category && name) {
             categoty[name] = category || '未匹配到类目'
             this.categoryList = categoty
+            this.categoryList = categoty
           }
         }
       }
@@ -1700,15 +1699,16 @@ export default {
     },
     goToGoods(item) {
       console.log(item)
-      const site = item['site'] || item['goodsExtraInfo'] && item['goodsExtraInfo']['site'] || ''
-      const extra_info = item.extra_info && JSON.parse(item.extra_info) || {}
-      const temp = Object.assign({ productId: item.goods_id,site:site }, extra_info)
-      const goods = getGoodsUrl(item.source, temp)
-      this.$BaseUtilService.openUrl(goods.url)
+      if (item.Url) {
+        this.$BaseUtilService.openUrl(item.Url)
+      }else {
+        const site = item['site'] || item['goodsExtraInfo'] && item['goodsExtraInfo']['site'] || ''
+        const extra_info = item.extra_info && JSON.parse(item.extra_info) || {}
+        const temp = Object.assign({ productId: item.goods_id,site:site }, extra_info)
+        const goods = getGoodsUrl(item.source, temp)
+        this.$BaseUtilService.openUrl(goods.url)
+      }
 
-      // if (url) {
-      //   this.$BaseUtilService.openUrl(url)
-      // }
     },
     imageUpload(file) {
       const localFile = file.raw

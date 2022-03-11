@@ -91,11 +91,13 @@ class CollectOtherApI {
           break
         }
         this.writeLog(`账号【${account.account_alias_name}】采集第${StartPage}页，采集到约${data.length}条`, true)
-        data = data.map(async item => {
+        let dataList = []
+        for (let i= 0;i<data.length;i++){
+          let item = data[i]
           item.Image = item.images[0]
           item.GoodsId = item.item_id
           item.Title = item.title
-          const cat = await this._this.$collectService.getGoodsCat(Number(account.category_id), 13, '') || ''
+          const cat = await this._this.$collectService.getGoodsCat(Number(item.category_id), 13, '') || ''
           item.CategoryName = cat.split('|')[0] || ''
           item.Price = item.price
           item.Sales = 0
@@ -104,9 +106,9 @@ class CollectOtherApI {
           item.platformId = 13
           item.AccessToken = account.access_token
           item.UserId = account.user_id
-          return item
-        })
-        this._this.goodsList = this._this.goodsList.concat(data)
+          dataList.push(item)
+        }
+        this._this.goodsList = this._this.goodsList.concat(dataList)
       }
       // 采集初始页大于总页码
       StartPage++
