@@ -56,7 +56,7 @@ export default class {
       Password: ""
     }
     payAccount.UserName = configInfo ? configInfo.pay_account : ''
-    payAccount.PayPassword = configInfo ? configInfo.pay_pass : ''
+    payAccount.PayPassword = configInfo ? configInfo.pay_password : ''
     //获取采购地址
     await this.buildPurchaseList(this.orders)
     const res = await this.getShortOrders(buyerMap, payAccount, configInfo, nickInfo)
