@@ -135,6 +135,7 @@ export default class GoodsDiscount {
         }
       })
       const data = JSON.parse(res)
+      console.log('111', data)
       if (data.status === 200) {
         if (JSON.parse(data.data).success) {
           return { code: 200, data: true }
@@ -156,10 +157,10 @@ export default class GoodsDiscount {
       params['mallId'] = item.mallId
       params['isAddCsrfToken'] = true
 
-      params['userShopid'] = item.userShopid
+      params['ShopId'] = item.ShopId
       // params['ShopId'] = item.ShopId
       params['csrfmiddlewaretoken'] = this.guid().replaceAll('-', '')
-      const res = await this._this.$shopeemanService.postChineseBuyer(item.country, `/buyer/unfollow/shop/${item.userShopid}/`, params, {
+      const res = await this._this.$shopeemanService.postChineseBuyer(item.country, `/buyer/unfollow/shop/${item.ShopId}/`, params, {
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
           'Content-Length': '52',
@@ -391,7 +392,7 @@ export default class GoodsDiscount {
         }
       })
       const data = JSON.parse(JSON.parse(res).data)
-      console.log(data)
+      // console.log(data)
       if (data.errcode) {
         return { code: 200, data: false, message: '店铺未登录' }
       } else {

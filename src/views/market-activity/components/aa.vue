@@ -22,7 +22,7 @@
                 <el-input v-model="mallIDinfo" type="textarea" :rows="3" placeholder="请输入内容" />
                 <div>
                   <el-button type="primary" size="mini" style="margin-left: 10px;margin-bottom: 5px;" @click="addCancerMall">添加关注店铺</el-button>
-                  <el-button type="primary" size="mini" @click="clearMallIDinfo">清空店铺信息</el-button>
+                  <el-button type="primary" size="mini">清空店铺信息</el-button>
                 </div>
               </li>
               <!-- row2.2 -->
@@ -37,7 +37,7 @@
               <!-- row2.1 -->
               <li>
                 <el-button type="primary" size="mini" style="width:105px" @click="Unfollower(1)">开始取关</el-button>
-                <el-button type="primary" size="mini" @click="stopSet">取消操作</el-button>
+                <el-button type="primary" size="mini">取消操作</el-button>
               </li>
               <!-- row2.2 -->
               <li>
@@ -164,7 +164,6 @@ import autoFollow from '@/views/user-config/autoFollow.vue'
 import MallManagerAPI from '@/module-api/market-activity-api/ai-addFence'
 import { batchOperation, sleep } from '@/util/util'
 import { AutoAddFence } from '@/views/order-manager/components/orderCenter/powderFence'
-import { waitStart } from '@/util/util'
 export default {
   name: 'BusinessAnalyseGoodsDiscount',
   components: {
@@ -220,13 +219,9 @@ export default {
     }
   },
   created() {
-    this.getUserinfo()
+    this.getUserinfo() // 获取用户设置数据
   },
   methods: {
-    // 清空店铺信息
-    clearMallIDinfo() {
-      this.mallIDinfo = ''
-    },
     // 取关未关注我的用户
     async canCerFollowUnFollowMe() {
       if (!this.tableList.length) {
@@ -301,7 +296,6 @@ export default {
         return
       }
       this.tableList.forEach(el => {
-        el.type = type
         const obj = { ...el }
         obj['following'] = 0
         obj['fence'] = 0
@@ -309,8 +303,6 @@ export default {
         obj['cancerFollow'] = 0
         obj['state'] = '-'
       })
-      this.isStop = false
-      this.showlog = false
       await batchOperation(this.tableList, this.UnfollowerFun)
     },
     async UnfollowerFun(mall, count = { count: 1 }) {
@@ -320,112 +312,70 @@ export default {
         if (!islogin) {
           return
         }
-        // 获取店铺数据
+        // 获取店铺粉丝数据
         const resMall = await this.getHomeMallData(mall)
         this.$set(mall, 'following', resMall ? resMall.account.following_count : 0)
         this.$set(mall, 'fence', resMall ? resMall.follower_count : 0)
         if (!resMall) {
-          this.$refs.Logs.writeLog(`【${mall.mall_alias_name || mall.platform_mall_name}】店铺暂无数据`)
+        // 打印该店铺暂无粉丝
+          this.$refs.Logs.writeLog(`【${mall.mall_alias_name || mall.platform_mall_name}】店铺暂无粉丝`)
           return
         }
-        // 获取第一页店铺关注
-        this.$refs.Logs.writeLog(`【${mall.mall_alias_name || mall.platform_mall_name}】获取第一页关注`)
+        let shopDatas = []
+        let flag = true
+
+        // 获取第一页店铺粉丝
         const params = {}
         params['country'] = mall.country
         params['mallId'] = mall.platform_mall_id
         params['offset'] = 0
-        params['mallName'] = mall.mall_alias_name || mall.platform_mall_name
-
         let totalMallFollow = 0
-        let ALLshopDatas = await this.getHomeFllowering(params) // 获取店铺关注
-        if (!ALLshopDatas.length) {
-          this.$refs.Logs.writeLog(`【${mall.mall_alias_name || mall.platform_mall_name}】店铺暂无关注`)
-          return
-        }
-        let loopNum = ALLshopDatas.length // 是否请求跟多页面
+        let ALLshopDatas = await this.getHomeFllowering(params) // 获取粉丝信息
+
         console.log('217', ALLshopDatas)
-        let isFollow = null
-        for (const shop of ALLshopDatas) {
-          // for (let j = 0; j < ALLshopDatas.length; j++) {
-          //   const shop = ALLshopDatas[j]
-          if (this.isStop) {
-            return
+        // 获取粉丝详情过滤
+        shopDatas = await this.filterShopDatas(ALLshopDatas, mall.country, mall.platform_mall_id) // 筛选活跃粉丝
+        for (const shop of shopDatas) {
+          // 开始取关
+          const isFollow = await this.runCancerAttention(shop, mall, mall.platform_mall_id) // 开始关注
+          if (isFollow) {
+            totalMallFollow++
           }
-          if (mall.type === 0 || !Number(this.userInfo.auto_attention_set.CancelFollowNumber)) {
-            // 取关全部
-            isFollow = await this.runCancerAttention(shop, mall, mall.platform_mall_id)
+          if (Number(this.userInfo.auto_attention_set.CancelFollowNumber)) { // 有数量限制取关
+            if (totalMallFollow >= Number(this.userInfo.auto_attention_set.FollowNumber)) {
+              flag = false
+              break
+            }
+          }
+        }
+        // 取关更多粉丝
+        while (flag) {
+          params['offset'] += 20
+          ALLshopDatas = await this.getHomeFllowering(params)
+          shopDatas = await this.filterShopDatas(ALLshopDatas, mall.country, mall.platform_mall_id)
+          for (let index = 0; index < shopDatas.length; index++) {
+            const shop = shopDatas[index]
+            // 开始取关
+            const isFollow = await this.runCancerAttention(shop, mall, mall.platform_mall_id)
             if (isFollow) {
               totalMallFollow++
-            } else {
-              continue
             }
-          } else {
-            // 部分取关
-            const lineUser = await this.filterShopDatas(shop, mall.country, mall.platform_mall_id)
-            if (!lineUser) {
-              continue
-            } else {
-              isFollow = await this.runCancerAttention(shop, mall, mall.platform_mall_id)
-              if (isFollow) {
-                totalMallFollow++
-                if (totalMallFollow >= Number(this.userInfo.auto_attention_set.CancelFollowNumber)) {
-                  loopNum = 0
-                  break
-                }
-              } else {
-                continue
+            if (Number(this.userInfo.auto_attention_set.FollowNumber) && type === 1) { // 有数量限制关注
+              if (totalMallFollow >= Number(this.userInfo.auto_attention_set.FollowNumber)) {
+                flag = false
+                break
+              }
+            } else { // 取关所有
+              if (!isFollow || totalMallFollow === Number(resMall.account.following_count)) {
+                flag = false
+                break
               }
             }
+          }
+          if (ALLshopDatas.length < 20) {
+            flag = false
           }
         }
-        this.$set(mall, 'cancerFollow', totalMallFollow)
-        // 获取更多店铺关注
-        while (loopNum >= 20) {
-          if (this.isStop) {
-            return
-          }
-          params['offset'] += 20
-          ALLshopDatas = await this.getHomeFllowering(params) // 获取店铺关注
-          console.log('385', ALLshopDatas)
-          this.$refs.Logs.writeLog(`【${mall.mall_alias_name || mall.platform_mall_name}】获取第${(params.offset / 20) + 1}页关注`)
-          loopNum = ALLshopDatas.length
-          for (const shop of ALLshopDatas) {
-            if (this.isStop) {
-              return
-            }
-            if (mall.type === 0 || !Number(this.userInfo.auto_attention_set.CancelFollowNumber)) {
-            // 取关全部
-              isFollow = await this.runCancerAttention(shop, mall, mall.platform_mall_id)
-              if (isFollow) {
-                totalMallFollow++
-              } else {
-                continue
-              }
-            } else {
-            // 部分取关
-              const lineUser = await this.filterShopDatas(shop, mall.country, mall.platform_mall_id)
-              if (!lineUser) {
-                continue
-              } else {
-                isFollow = await this.runCancerAttention(shop, mall, mall.platform_mall_id)
-                debugger
-                if (isFollow) {
-                  totalMallFollow++
-                  if (totalMallFollow >= Number(this.userInfo.auto_attention_set.CancelFollowNumber)) {
-                    loopNum = 0
-                    break
-                  }
-                } else {
-                  continue
-                }
-              }
-            }
-          }
-          this.$set(mall, 'cancerFollow', totalMallFollow)
-        }
-        this.$set(mall, 'cancerFollow', totalMallFollow)
-        this.$set(mall, 'state', '操作结束')
-        this.$refs.Logs.writeLog(`【${mall.mall_alias_name || mall.platform_mall_name}】取关【${totalMallFollow}】个粉丝`)
       } catch (error) {
         console.log(`318-${error}`)
       } finally {
@@ -463,10 +413,10 @@ export default {
       params['timeStamp'] = new Date().getTime()
       const res = await this.MallAPIInstance.getFllowering(params)
       if (res.code === 200) {
-        this.$refs.Logs.writeLog(`【${item.mallName}】第【${(item.offset / 20) + 1}】页获取成功`, true)
+        this.$refs.Logs.writeLog(`第【${(item.offset / 20) + 1}】页获取成功`, true)
         return res.data
       } else {
-        this.$refs.Logs.writeLog(`【${item.mallName}】获取失败，${res.message}`, false)
+        this.$refs.Logs.writeLog(`获取失败，${res.message}`, false)
         return []
       }
     },
@@ -647,7 +597,6 @@ export default {
         return
       }
       this.isStop = false
-      this.showlog = false
       this.$refs.Logs.writeLog(`数据正在处理......`, true)
       const mallIDlist = this.mallIDinfo.split(',')
       this.tableList.map(item => { item['mallIDlist'] = mallIDlist })
@@ -663,57 +612,56 @@ export default {
         this.$set(mall, 'newFollow', 0)
         this.$set(mall, 'cancerFollow', 0)
         this.$set(mall, 'state', '-')
-        this.$refs.Logs.writeLog(`正在查询【${mall.mall_alias_name || mall.platform_mall_name}】店铺关注信息`)
-        // 判断HOME店铺未登录（方法里已打印了日志）
-        const islogin = await this.isLogin(mall)
-        if (!islogin) {
-          return
-        }
-        // 获取HOME店铺数据
-        const resMall = await this.getHomeMallData(mall)
-        this.$set(mall, 'following', resMall ? resMall.account.following_count : 0)
-        this.$set(mall, 'fence', resMall ? resMall.follower_count : 0)
-        if (!resMall) {
-          this.$refs.Logs.writeLog(`【${mall.mall_alias_name || mall.platform_mall_name}】店铺暂无数据`, true)
-          this.$set(mall, 'state', '店铺暂无数据')
-          return
-        }
-        // 获取HOME店铺关注数据
-        const allhomeFollowringList = await this.getHomeFollowingList(mall, resMall.account.following_count)
-        this.$refs.Logs.writeLog(`【${mall.mall_alias_name || mall.platform_mall_name}】店铺关注用户数：【${allhomeFollowringList.length}】`, true)
-        console.log('621', allhomeFollowringList)
-
-        // 遍历关注店铺
-        let totalMallFollow = Number(mall.newFollow)
+        this.$refs.Logs.writeLog(`正在查询【${mall.mall_alias_name || mall.platform_mall_name}】店铺信息`)
         for (const followermallID of followermallIDList) {
+          this.$refs.Logs.writeLog(`关注【${followermallID}】店铺粉丝`)
           if (this.isStop) {
             return
           }
+          // 判断HOME店铺未登录（方法里已打印了日志）
+          const islogin = await this.isLogin(mall)
+          if (!islogin) {
+            return
+          }
+          // 获取HOME店铺数据
+          const resMall = await this.getHomeMallData(mall)
+          this.$set(mall, 'following', resMall ? resMall.account.following_count : 0)
+          this.$set(mall, 'fence', resMall ? resMall.follower_count : 0)
+          if (!resMall) {
+            this.$refs.Logs.writeLog(`店铺暂无数据`, true)
+            this.$set(mall, 'state', '店铺暂无数据')
+            return
+          }
+          // 获取HOME店铺关注数据
+          this.$refs.Logs.writeLog(`正在获取本店铺关注信息`, true)
+          const allhomeFollowringList = await this.getHomeFollowingList(mall, resMall.account.following_count)
+          this.$refs.Logs.writeLog(`本店铺关注用户数：【${allhomeFollowringList.length}】`, true)
+          console.log('621', allhomeFollowringList)
+
           // 接口请求擦参数
           const params = {}
           params['country'] = mall.country
           params['mallId'] = mall.platform_mall_id
           params['shopid'] = followermallID
+          const mallName = mall.mall_alias_name || mall.platform_mall_name
+
           if (this.userInfo.auto_attention_set.FollowType === '0') { // 关注店铺粉丝
-            this.$refs.Logs.writeLog(`【${mall.mall_alias_name || mall.platform_mall_name}】正在获取${followermallID}店铺粉丝信息`, true)
+            this.$refs.Logs.writeLog(`正在获取关注店铺粉丝信息`, true)
+            let shopDatas = [] // 关注的粉丝
             let flag = true
             // 关注第一页粉丝
             params['offset'] = 0
+            let totalMallFollow = 0
             let ALLshopDatas = await this.GetShopLikes(params) // 获取粉丝信息
             this.$refs.Logs.writeLog(`【${mall.mall_alias_name || mall.platform_mall_name}】获取第${(params.offset / 20) + 1}页粉丝`)
-            for (const shop of ALLshopDatas) {
+            shopDatas = await this.filterShopDatas(ALLshopDatas, mall.country, mall.platform_mall_id) // 筛选活跃粉丝
+            for (const shop of shopDatas) {
               if (this.isStop) {
                 return
               }
-              const lineUser = await this.filterShopDatas(ALLshopDatas, mall.country, mall.platform_mall_id) // 筛选活跃粉丝
-              if (!lineUser) {
+              const Followindex = allhomeFollowringList.findIndex(el => { return el.ShopId === shop.ShopId }) // 新增粉丝与已关注粉丝查重
+              if (Followindex >= 0) {
                 continue
-              }
-              if (allhomeFollowringList.length) { // HOME店铺是否有关注的粉丝
-                const Followindex = allhomeFollowringList.findIndex(el => { return el.ShopId === shop.ShopId }) // 新增粉丝与已关注粉丝查重
-                if (Followindex >= 0) {
-                  continue
-                }
               }
               const isFollow = await this.runAttention(shop, mall, followermallID) // 开始关注
               if (isFollow) {
@@ -722,26 +670,16 @@ export default {
                 this.$set(mall, 'newFollow', totalMallFollow)
                 this.$set(mall, 'state', '关注失败')
                 this.$refs.Logs.writeLog(`【${mall.mall_alias_name || mall.platform_mall_name}】关注${shop.UserName}失败,`, false)
-                flag = false
-                continue
               }
               if (Number(this.userInfo.auto_attention_set.FollowNumber)) { // 有数量限制关注
                 if (totalMallFollow >= Number(this.userInfo.auto_attention_set.FollowNumber)) {
                   this.$set(mall, 'newFollow', totalMallFollow)
                   this.$set(mall, 'state', '关注成功')
-                  return
-                }
-              } else {
-                if (mall.following + totalMallFollow >= 3000) {
-                  this.$set(mall, 'newFollow', totalMallFollow)
-                  this.$refs.Logs.writeLog(`【${mall.mall_alias_name || mall.platform_mall_name}】关注已达上限,`, true)
-                  // flag = false
-                  // break
-                  return
+                  flag = false
+                  break
                 }
               }
             }
-            this.$set(mall, 'newFollow', totalMallFollow)
             // 关注更多粉丝
             while (flag) {
               if (this.isStop) {
@@ -751,48 +689,41 @@ export default {
               ALLshopDatas = await this.GetShopLikes(params)
               this.$refs.Logs.writeLog(`【${mall.mall_alias_name || mall.platform_mall_name}】获取第${(params.offset / 20) + 1}页粉丝数据`)
 
-              for (let index = 0; index < ALLshopDatas.length; index++) {
+              shopDatas = await this.filterShopDatas(ALLshopDatas, mall.country, mall.platform_mall_id)
+              for (let index = 0; index < shopDatas.length; index++) {
                 if (this.isStop) {
                   return
                 }
-                const shop = ALLshopDatas[index]
-                const lineUser = await this.filterShopDatas(shop, mall.country, mall.platform_mall_id) // 筛选活跃粉丝
-                if (!lineUser) {
+                const shop = shopDatas[index]
+                const Followindex = allhomeFollowringList.findIndex(el => { return el.ShopId === shop.ShopId }) // 新增粉丝与已关注粉丝查重
+                if (Followindex >= 0) {
                   continue
                 }
-                if (allhomeFollowringList.length) { // HOME店铺是否有关注的粉丝
-                  const Followindex = allhomeFollowringList.findIndex(el => { return el.ShopId === shop.ShopId }) // 新增粉丝与已关注粉丝查重
-                  if (Followindex >= 0) {
-                    continue
-                  }
-                }
                 const isFollow = await this.runAttention(shop, mall, followermallID)
+
                 if (isFollow) {
                   totalMallFollow++
                 } else {
                   this.$set(mall, 'newFollow', totalMallFollow)
                   this.$set(mall, 'state', '关注失败')
                   this.$refs.Logs.writeLog(`【${mall.mall_alias_name || mall.platform_mall_name}】关注${shop.UserName}失败,`, false)
-                  continue
                 }
                 if (Number(this.userInfo.auto_attention_set.FollowNumber)) { // 有数量限制关注
                   if (totalMallFollow >= Number(this.userInfo.auto_attention_set.FollowNumber)) {
+                    flag = false
+                    break
+                  }
+                } else { // 无数量限制关注
+                  if (!isFollow) {
                     this.$set(mall, 'newFollow', totalMallFollow)
                     this.$set(mall, 'state', '关注成功')
-                    return
-                  }
-                } else {
-                  if (mall.following + totalMallFollow >= 3000) {
-                    this.$set(mall, 'newFollow', totalMallFollow)
-                    this.$refs.Logs.writeLog(`【${mall.mall_alias_name || mall.platform_mall_name}】关注已达上限,`, true)
-                    // flag = false
-                    // break
-                    return
+                    this.$refs.Logs.writeLog(`【${mall.mall_alias_name || mall.platform_mall_name}】成功关注${totalMallFollow}个粉丝`)
+                    flag = false
+                    break
                   }
                 }
               }
               if (ALLshopDatas.length < 20) {
-                this.$refs.Logs.writeLog(`【${followermallID}】查找结束`)
                 flag = false
               }
               this.$set(mall, 'newFollow', totalMallFollow)
@@ -801,121 +732,79 @@ export default {
             }
             this.$set(mall, 'state', '操作结束')
             this.$refs.Logs.writeLog(`【${mall.mall_alias_name || mall.platform_mall_name}】成功关注${totalMallFollow}个粉丝`)
-          } else {
-            this.$refs.Logs.writeLog(`正在获取评价用户信息`, true)
-            // 关注评价用户
+          } else { // 关注评价用户
             let flag2 = true
             let RateCustomList = []
             const itemIDindex = this.mallSearchList.findIndex(el => { return el.shopid === Number(followermallID) })
             const itemID = this.mallSearchList[itemIDindex].itemid
             // 关注第一页评价用户
+            let totalCommentFollow = 0
             let offset = 0
-            this.$refs.Logs.writeLog(`【${mall.mall_alias_name || mall.platform_mall_name}】获取${followermallID}第【${(offset / 52) + 1}】页评价用户`)
             RateCustomList = await this.GetShopComment(itemID, followermallID, mall, offset)
-            if (!RateCustomList.length) {
-              this.$refs.Logs.writeLog(`${followermallID}暂无用户评价`)
-              continue
-            }
             for (let j = 0; j < RateCustomList.length; j++) {
               const RateCustom = RateCustomList[j]
               const shop = {}
-              shop['ShopId'] = RateCustom.userid
-              shop['UserName'] = RateCustom.author_username
-              console.log('5555', RateCustom)
-              console.log('55555', allhomeFollowringList)
-              if (allhomeFollowringList.length) { // HOME店铺是否有关注的粉丝
-                debugger
-                const Followindex = allhomeFollowringList.findIndex(el => { return Number(el.ShopId) === Number(shop.ShopId) }) // 新增粉丝与已关注粉丝查重
-                if (Followindex >= 0) {
-                  continue
-                }
-              }
-              const isFollow = await this.runAttention(shop, mall, RateCustom.shopid) // 开始关注
+              shop['ShopId'] = RateCustom.shopid
+              const isFollow = await this.runAttention(shop, mall, followermallID) // 开始关注
               if (isFollow) {
-                totalMallFollow++
+                totalCommentFollow++
               } else {
-                this.$set(mall, 'newFollow', totalMallFollow)
+                this.$set(mall, 'newFollow', totalCommentFollow)
                 this.$set(mall, 'state', '关注失败')
                 this.$refs.Logs.writeLog(`【${mall.mall_alias_name || mall.platform_mall_name}】关注${shop.UserName}失败,`, false)
                 flag2 = false
-                continue
+                break
               }
               if (Number(this.userInfo.auto_attention_set.FollowNumber)) { // 有数量限制关注
-                if (totalMallFollow >= Number(this.userInfo.auto_attention_set.FollowNumber)) {
-                  this.$set(mall, 'newFollow', totalMallFollow)
+                if (totalCommentFollow >= Number(this.userInfo.auto_attention_set.FollowNumber)) {
+                  this.$set(mall, 'newFollow', totalCommentFollow)
                   this.$set(mall, 'state', '关注成功')
-                  return
-                }
-              } else {
-                if (mall.following + totalMallFollow >= 5) {
-                  this.$set(mall, 'newFollow', totalMallFollow)
-                  this.$refs.Logs.writeLog(`【${mall.mall_alias_name || mall.platform_mall_name}】关注已达上限,`, true)
-                  // flag2 = false
-                  return
+                  flag2 = false
+                  break
                 }
               }
             }
-            this.$set(mall, 'newFollow', totalMallFollow)
-            console.log('452', totalMallFollow)
+            console.log('452', totalCommentFollow)
             // 关注更多评价用户
             while (flag2) {
-              if (this.isStop) {
-                return
-              }
               offset += 52
-              this.$refs.Logs.writeLog(`【${mall.mall_alias_name || mall.platform_mall_name}】获取${followermallID}第【${(offset / 52) + 1}】页评价用户`)
               RateCustomList = await this.GetShopComment(itemID, followermallID, mall, offset)
               for (let j = 0; j < RateCustomList.length; j++) {
-                if (this.isStop) {
-                  return
-                }
                 const RateCustom = RateCustomList[j]
                 const shop = {}
                 shop['ShopId'] = RateCustom.shopid
-                shop['UserName'] = RateCustom.author_username
-                if (allhomeFollowringList.length) { // HOME店铺是否有关注的粉丝
-                  const Followindex = allhomeFollowringList.findIndex(el => { return el.ShopId === shop.ShopId }) // 新增粉丝与已关注粉丝查重
-                  if (Followindex >= 0) {
-                    continue
-                  }
-                }
                 const isFollow = await this.runAttention(shop, mall, followermallID) // 开始关注
                 if (isFollow) {
-                  totalMallFollow++
+                  totalCommentFollow++
                 } else {
-                  this.$set(mall, 'newFollow', totalMallFollow)
+                  this.$set(mall, 'newFollow', totalCommentFollow)
                   this.$set(mall, 'state', '关注失败')
                   this.$refs.Logs.writeLog(`【${mall.mall_alias_name || mall.platform_mall_name}】关注${shop.UserName}失败,`, false)
-                  continue
+                  break
                 }
                 if (Number(this.userInfo.auto_attention_set.FollowNumber)) { // 有数量限制关注
-                  if (totalMallFollow >= Number(this.userInfo.auto_attention_set.FollowNumber)) {
-                    this.$set(mall, 'newFollow', totalMallFollow)
+                  if (totalCommentFollow >= Number(this.userInfo.auto_attention_set.FollowNumber)) {
+                    this.$set(mall, 'newFollow', totalCommentFollow)
                     this.$set(mall, 'state', '关注成功')
-                    return
+                    this.$refs.Logs.writeLog(`【${mall.mall_alias_name || mall.platform_mall_name}】成功关注${totalCommentFollow}个粉丝`)
+                    flag2 = false
+                    break
                   }
-                } else {
-                  if (mall.following + totalMallFollow >= 5) {
-                    this.$set(mall, 'newFollow', totalMallFollow)
-                    this.$refs.Logs.writeLog(`【${mall.mall_alias_name || mall.platform_mall_name}】关注已达上限,`, true)
-                    // flag2 = false
-                    // break
-                    return
+                } else { // 无数量限制关注
+                  if (!isFollow) {
+                    this.$set(mall, 'newFollow', totalCommentFollow)
+                    this.$set(mall, 'state', '关注成功')
+                    this.$refs.Logs.writeLog(`【${mall.mall_alias_name || mall.platform_mall_name}】成功关注${totalCommentFollow}个粉丝`)
+                    flag2 = false
+                    break
                   }
                 }
               }
-              if (RateCustomList.length < 52) {
-                this.$refs.Logs.writeLog(`【${followermallID}】查找结束`)
-                flag2 = false
-              }
-              this.$set(mall, 'newFollow', totalMallFollow)
               await sleep((Number(this.userInfo.auto_attention_set.FollowInterval) * 1000))
             }
-            this.$set(mall, 'state', '操作结束')
-            this.$refs.Logs.writeLog(`【${mall.mall_alias_name || mall.platform_mall_name}】成功关注${totalMallFollow}个粉丝`)
           }
+          this.$refs.Logs.writeLog(`【${mallName}】关注结束`, true)
         }
-        this.$refs.Logs.writeLog(`【${mall.mall_alias_name || mall.platform_mall_name}】关注结束`, true)
       } catch (e) {
         this.$refs.Logs.writeLog(`用户信息获取失败-line373，${e}`, false)
       } finally {
@@ -928,7 +817,6 @@ export default {
       params['country'] = mall.country
       params['mallId'] = mall.platform_mall_id
       params['offset'] = 0
-      params['mallName'] = mall.mall_alias_name || mall.platform_mall_name
       let shopDatas = await this.getHomeFllowering(params)
       let ALLshopDatas = shopDatas
       if (!ALLshopDatas.length) {
@@ -979,9 +867,10 @@ export default {
         this.$refs.Logs.writeLog(`【${mall.mall_alias_name || mall.platform_mall_name}】关注${shop.UserName}失败,${res.message}`, false)
       } else {
         if (res.data) {
-          this.$refs.Logs.writeLog(`【${mall.mall_alias_name || mall.platform_mall_name}】关注${shop.UserName}成功`, true)
+          // this.$refs.Logs.writeLog(`【${mall.mall_alias_name || mall.platform_mall_name}】关注${shop.UserName}成功`, true)
           return true
         } else {
+          debugger
           this.$refs.Logs.writeLog(`【${mall.mall_alias_name || mall.platform_mall_name}】关注${shop.UserName}失败,${res.message}`, false)
         }
       }
@@ -996,23 +885,24 @@ export default {
       param['followMallID'] = followermallID
       const res = await this.MallAPIInstance.buyerUNFollow(param)
       if (res.code !== 200) {
-        this.$refs.Logs.writeLog(`【${mall.mall_alias_name || mall.platform_mall_name}】取关${shop.ShopId}失败`, false)
-        return false
-      } else {
-        this.$refs.Logs.writeLog(`【${mall.mall_alias_name || mall.platform_mall_name}】取关${shop.ShopId}成功`, true)
+        this.$refs.Logs.writeLog(`【${mall.mall_alias_name || mall.platform_mall_name}】关注${shop.ShopId}失败`, false)
         return true
       }
+      this.$refs.Logs.writeLog(`【${mall.mall_alias_name || mall.platform_mall_name}】关注${shop.ShopId}成功`, true)
+      return false
     },
-    // 筛选活跃关注()
-    async filterShopDatas(shop, country, platform_mall_id) {
-      const activetime = await this.getActiveUser({ country: country, mallId: platform_mall_id, userName: shop.UserName })
-      const nowTime = new Date(new Date().toLocaleDateString()).getTime()
-      const setTime = nowTime - nowTime * (Number(this.userInfo.auto_attention_set.LastLoginDay) - 1)
-      if (activetime > setTime) {
-        return true
-      } else {
-        return false
+    // 筛选活跃粉丝()
+    async filterShopDatas(shopDatas, country, platform_mall_id) {
+      const resLst = []
+      for (const sd of shopDatas) {
+        const timeStamp = await this.getActiveUser({ country: country, mallId: platform_mall_id, userName: sd.UserName })
+        const zeroTime = new Date(new Date().toLocaleDateString()).getTime()
+        const setTime = zeroTime - zeroTime * (Number(this.userInfo.auto_attention_set.LastLoginDay) - 1)
+        if (timeStamp > setTime) {
+          resLst.push(sd)
+        }
       }
+      return resLst
     },
     // 获取店铺活跃时间
     async getActiveUser(user) {
@@ -1054,26 +944,28 @@ export default {
       const res = await this.$api.userSet()
       if (res.data.code === 200) {
         this.userInfo = res.data.data
+        if (!this.userInfo.auto_attention_set) {
+          this.userInfo.auto_attention_set.ProductMax = 5 // 店铺商品上限
+          this.userInfo.auto_attention_set.LastLoginDay = '1'// 最后活跃时间
+          this.userInfo.auto_attention_set.FollowType = '0'// 关注对象
+          this.userInfo.auto_attention_set.FollowNumber = '100'// 关注数量
+          this.userInfo.auto_attention_set.FollowInterval = '10'// 关注间隔
+          this.userInfo.auto_attention_set.MinOrderEvaluation = '4.5'// //不关注订单评价小于等于
+          this.userInfo.auto_attention_set.IsNotFollowMinOrderEvaluation = true// 是否不关注订单评价小于等于最小值的卖家
+          this.userInfo.auto_attention_set = '30'// 天内关注过的用户
+          this.userInfo.auto_attention_set.IsNotFollowFollowedDay = true// 是否不关注一定天数内已关注的卖家
+          this.userInfo.auto_attention_set.CancelFollowNumber = '100'// 取关数量：
+          this.userInfo.auto_attention_set.IsOpenTimerBrushFans = false// 开启定时刷粉
+          this.userInfo.auto_attention_set.OpenHour = '10'
+          this.userInfo.auto_attention_set.OpenMinute = '00'// 每日启动时间
+          console.log(this.startTime)
+          this.userInfo.auto_attention_set.KeyWord || this.followKey// 关注关键词
+        } else {
+          this.userInfo.auto_attention_set.IsNotFollowMinOrderEvaluation = this.userInfo.auto_attention_set.IsNotFollowMinOrderEvaluation === '1' // 是否不关注订单评价小于等于最小值的卖家
+          this.userInfo.auto_attention_set.IsNotFollowFollowedDay = this.userInfo.auto_attention_set.IsNotFollowFollowedDay === '1'// 是否不关注一定天数内已关注的卖家
+        }
       } else {
         this.$message.warning(`信息获取失败！${res.data.data.message}`)
-      }
-      // if (!this.userInfo.auto_attention_set) {
-      //   this.userInfo.auto_attention_set = {}
-      //   this.userInfo.auto_attention_set.ProductMax = '5'// 店铺商品上限
-      //   this.userInfo.auto_attention_set.LastLoginDay = '5'// 最后活跃时间
-      //   this.userInfo.auto_attention_set.FollowType = '0'// 关注对象
-      //   this.userInfo.auto_attention_set.FollowNumber = '100'// 关注数量
-      //   this.userInfo.auto_attention_set.FollowInterval = '10'// 关注间隔
-      //   this.userInfo.auto_attention_set.MinOrderEvaluation = '4.5'// //不关注订单评价小于等于
-      //   this.userInfo.auto_attention_set.IsNotFollowMinOrderEvaluation = true// 是否不关注订单评价小于等于最小值的卖家
-      //   this.userInfo.auto_attention_set.FollowedDay = '30'// 天内关注过的用户
-      //   this.userInfo.auto_attention_set.IsNotFollowFollowedDay = true // 是否不关注一定天数内已关注的卖家
-      //   this.userInfo.auto_attention_set.CancelFollowNumber = '100'// 取关数量：
-      //   this.userInfo.auto_attention_set.IsOpenTimerBrushFans = false // 每日启动时间
-      // }
-      console.log('useSet', this.userInfo.auto_attention_set)
-      if (!this.userInfo.auto_attention_set) {
-        this.$message.warning(`请先设置参数`)
       }
     },
     // 参数设置保存

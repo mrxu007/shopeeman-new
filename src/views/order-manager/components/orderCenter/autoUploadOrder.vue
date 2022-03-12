@@ -123,9 +123,7 @@ export default {
     },
     // 爆粉生神器--自动刷粉
     checkTimeAutoFollow() {
-      // 检测是否到达时间--获取(time mall isCheck keyword)
-      // 执行任务
-
+      // 检测站点任务
     }
   }
 }

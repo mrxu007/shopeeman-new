@@ -135,22 +135,19 @@ export default {
   methods: {
     getUserinfo() {
       if (this.userInfo && this.userInfo.auto_attention_set) {
-        const data = this.userInfo
-        console.log('124', data.autoAttentionSet)
-        this.limitgGoods = this.userInfo.auto_attention_set.ProductMax // 店铺商品上限
-        this.lastOnline = this.userInfo.auto_attention_set.LastLoginDay // 最后活跃时间
-        this.followActor = this.userInfo.auto_attention_set.FollowType.toString() // 关注对象
-        this.followNum = this.userInfo.auto_attention_set.FollowNumber // 关注数量
-        this.interTime = this.userInfo.auto_attention_set.FollowInterval// 关注间隔
-        this.marketNum = this.userInfo.auto_attention_set.MinOrderEvaluation // //不关注订单评价小于等于
-        this.market = this.userInfo.auto_attention_set.IsNotFollowMinOrderEvaluation // 是否不关注订单评价小于等于最小值的卖家
-        this.followDayNum = this.userInfo.auto_attention_set.FollowedDay // 天内关注过的用户
-        this.followDay = this.userInfo.auto_attention_set.IsNotFollowFollowedDay // 是否不关注一定天数内已关注的卖家
-        this.cancerFollowNum = this.userInfo.auto_attention_set.CancelFollowNumber // 取关数量：
-        this.startAddFence = this.userInfo.auto_attention_set.IsOpenTimerBrushFans // 开启定时刷粉
-        this.startTime = (this.userInfo.auto_attention_set.OpenHour) + ':' + (this.userInfo.auto_attention_set.OpenMinute) // 每日启动时间
-        console.log(this.startTime)
-        this.followKey = this.userInfo.auto_attention_set.KeyWord // 关注关键词
+        this.limitgGoods = this.userInfo.auto_attention_set?.ProductMax || this.limitgGoods// 店铺商品上限
+        this.lastOnline = this.userInfo.auto_attention_set?.LastLoginDay || this.lastOnline// 最后活跃时间
+        this.followActor = this.userInfo.auto_attention_set?.FollowType.toString() || this.followActor// 关注对象
+        this.followNum = this.userInfo.auto_attention_set?.FollowNumber || this.followNum// 关注数量
+        this.interTime = this.userInfo.auto_attention_set?.FollowInterval || this.interTime// 关注间隔
+        this.marketNum = this.userInfo.auto_attention_set?.MinOrderEvaluation || this.marketNum// //不关注订单评价小于等于
+        this.market = this.userInfo.auto_attention_set?.IsNotFollowMinOrderEvaluation || this.market// 是否不关注订单评价小于等于最小值的卖家
+        this.followDayNum = this.userInfo.auto_attention_set?.FollowedDay || this.followDayNum// 天内关注过的用户
+        this.followDay = this.userInfo.auto_attention_set?.IsNotFollowFollowedDay || this.followDay// 是否不关注一定天数内已关注的卖家
+        this.cancerFollowNum = this.userInfo.auto_attention_set?.CancelFollowNumber || this.cancerFollowNum// 取关数量：
+        this.startAddFence = this.userInfo.auto_attention_set?.IsOpenTimerBrushFans || this.startAddFence// 开启定时刷粉
+        this.startTime = ((this.userInfo.auto_attention_set?.OpenHour) + ':' + (this.userInfo.auto_attention_set?.OpenMinute)) || this.startTime// 每日启动时间
+        this.followKey = this.userInfo.auto_attention_set.KeyWord || this.followKey// 关注关键词
       }
     },
     // 时间格式转换
@@ -167,7 +164,7 @@ export default {
     },
     // 定时任务日志加载
     async initLog() {
-      if (this.userInfo.auto_attention_set.IsOpenTimerBrushFans) {
+      if (this.userInfo.auto_attention_set?.IsOpenTimerBrushFans) {
         const mallTest = await window.BaseUtilBridgeService.getAttentionUserTask(this.mall[0].country)
         const logList = await window.BaseUtilBridgeService.getAttentionUserLog(mallTest.taskId)
         logList.forEach(el => {
@@ -175,13 +172,12 @@ export default {
         })
       }
     },
-    async save() {
-      // 自动刷粉--------------
+    // 自动刷粉--------------
+    async autoAddFence() {
       if (this.startAddFence && !this.mall) {
         this.$message.warning('请前往【爆粉神器】设置需要执行的任务的店铺')
         return
       }
-      debugger
       if (this.startAddFence && !this.followKey) {
         this.$message.warning('关键词不能为空')
         return
@@ -193,10 +189,10 @@ export default {
         storeLog['log_message'] = []
         // 查看当前站点是否有过任务
         const mallTest = await window.BaseUtilBridgeService.getAttentionUserTask(this.mall[0].country)
-        debugger
+        console.log(mallTest)
         // 删除原任务
-        if (mallTest) {
-          const delMallTest = await window.BaseUtilBridgeService.deleteAttentionUserTask(mallTest.id)
+        if (mallTest.length) {
+          const delMallTest = await window.BaseUtilBridgeService.deleteAttentionUserTask(mallTest[0].id)
           storeLog['log_message'].push('任务删除')
           storeLog['created_at'] = this.formatTime(new Date().getTime())
         }
@@ -207,24 +203,24 @@ export default {
           'mall_names': this.mall.map(item => item['mall_alias_name'] || item['platform_mall_name']).toString(),
           'product_max': this.limitgGoods,
           'last_login_day': this.lastOnline,
-          'open_hour': cTime[0],
-          'open_minute': cTime[1],
+          'open_hour': cTime[0].toString(),
+          'open_minute': cTime[1].toString(),
           'key_word': this.followKey,
           'follow_number': this.followNum,
           'follow_interval': this.interTime,
-          'is_not_follow_min_order_evaluation': this.market,
+          'is_not_follow_min_order_evaluation': this.market ? 1 : 0,
           'min_order_evaluation': this.marketNum,
-          'is_not_follow_followed_day': this.followDay,
+          'is_not_follow_followed_day': this.followDay ? 1 : 0,
           'followed_day': this.followDayNum,
           'followed_type': this.followActor,
-          'cancel_follow_number': this.cancerFollowNum,
-          'cancel_follow_sort_type': 0
+          'cancel_follow_number': Number(this.cancerFollowNum),
+          'cancel_follow_sort_type': 0,
+          'exec_time': this.teskTime(this.startTime) * 1000
         }
-        debugger
-        const addTest = await window.BaseUtilBridgeService.saveAttentionUserTask(JSON.stringify(params))
-        debugger
-        if (addTest) {
-          storeLog['task_id'] = addTest.task_id
+        const addTest = await window.BaseUtilBridgeService.saveAttentionUserTask(params)
+        if (addTest.code === '200') {
+          const newmallTest = await window.BaseUtilBridgeService.getAttentionUserTask(this.mall[0].country)
+          storeLog['task_id'] = newmallTest[0].id
           storeLog['log_message'].push('任务创建成功')
           storeLog['created_at'] = this.formatTime(new Date().getTime())
         } else {
@@ -233,9 +229,26 @@ export default {
         }
         // 存储日志
         storeLog['log_message'] = storeLog['log_message'].toString()
-        const storLog = await window.BaseUtilBridgeService.saveAttentionUserLog(storeLog)
+        await window.BaseUtilBridgeService.saveAttentionUserLog(storeLog)
+      }
+      return
+    },
+    teskTime(cTime) {
+      // 10:00
+      const YearMonthDay = `${new Date().getFullYear()}-${new Date().getMonth()}-${new Date().getDay()} ${cTime}:00`
+      let new_str = YearMonthDay.replace(/:/g, '-')
+      new_str = new_str.replace(/ /g, '-')
+      const arr = new_str.split('-')
+      const datum = new Date(Date.UTC(arr[0], arr[1] - 1, arr[2], arr[3] - 8, arr[4], arr[5]))
+      return datum.getTime() / 1000
+    },
+    async save() {
+      // 自动刷粉
+      if (this.startAddFence) {
+        await this.autoAddFence()
       }
       // 保存设置----------
+      const cTime = this.startTime.split(':')
       const content = {
         ProductMax: this.limitgGoods, // 店铺商品上限
         LastLoginDay: this.lastOnline, // 最后活跃时间
@@ -243,11 +256,11 @@ export default {
         FollowNumber: this.followNum, // 关注数量
         FollowInterval: this.interTime, // 关注间隔
         MinOrderEvaluation: this.marketNum, // //不关注订单评价小于等于
-        IsNotFollowMinOrderEvaluation: this.market, //
+        IsNotFollowMinOrderEvaluation: this.market, // true false
         FollowedDay: this.followDayNum, // 天内关注过的用户
-        IsNotFollowFollowedDay: this.followDay, //
+        IsNotFollowFollowedDay: this.followDay, //  true false
         CancelFollowNumber: this.cancerFollowNum, // 取关数量：
-        IsOpenTimerBrushFans: this.startAddFence, // 开启定时刷粉
+        IsOpenTimerBrushFans: this.startAddFence, // 开启定时刷粉 true false
         OpenHour: cTime[0],
         OpenMinute: cTime[1],
         KeyWord: this.followKey, // 关注关键词
@@ -262,6 +275,8 @@ export default {
       }
       // console.log(JSON.stringify(param))
       try {
+        // save set
+        console.log('saveParams', content)
         const res = await this.$api.setUserinfo(JSON.stringify(param))
         if (res.data.code === 200) {
           this.$message.success('信息修改成功！')
