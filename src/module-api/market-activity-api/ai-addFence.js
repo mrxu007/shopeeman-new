@@ -181,7 +181,95 @@ export default class GoodsDiscount {
         return { code: 201, data: false, message: '请求失败' }
       }
     } catch (error) {
-      return { code: -2, data: `关注请求异常 ${error}` }
+      return { code: -2, data: `取消关注用户请求异常 ${error}` }
+    }
+  }
+  // 关注评价用户
+  async CommentFollow(val) {
+    const item = val
+    try {
+      const params = {}
+      params['mallId'] = item.mallId
+      // params['isAddCsrfToken'] = true
+      params['shopid'] = item.userShopid
+      // params['ShopId'] = item.ShopId
+      const strGuid = this.guid()
+      // params['csrfmiddlewaretoken'] = this.guid().replaceAll('-', '')
+      const res = await this._this.$shopeemanService.postChineseBuyer(item.country, `/api/v4/shop/follow`, params, {
+        headers: {
+          'Content-Type': 'application/json',
+          'Content-Length': '20',
+          'sec-ch-ua': '" Not A;Brand";v="99", "Chromium";v="98", "Google Chrome";v="98"',
+          'sec-ch-ua-mobile': '?0',
+          referer: `/shop/${item.userShopid}`,
+          'Sec-Fetch-Dest': 'empty',
+          'Sec-Fetch-Mode': 'cors',
+          'Sec-Fetch-Site': 'same-origin',
+          'Accept': ' application/json',
+          'Accept-Encoding': 'gzip, deflate, br',
+          'Accept-Language': 'zh-CN,zh;q=0.9',
+          'X-Requested-With': 'XMLHttpRequest',
+          'If-None-Match-': this.guid(),
+          'X-CSRFToken': strGuid
+        }
+      })
+      const data = JSON.parse(res)
+      console.log('111', data)
+      if (data.status === 200) {
+        if (JSON.parse(data.data).success) {
+          return { code: 200, data: true }
+        } else {
+          return { code: 200, data: false }
+        }
+      } else {
+        return { code: 201, data: false, message: '请求失败' }
+      }
+    } catch (error) {
+      return { code: -2, data: `关注评价请求异常 ${error}` }
+    }
+  }
+  // 取关评价用户
+  async CommentUNFollow(val) {
+    const item = val
+    try {
+      const params = {}
+      params['mallId'] = item.mallId
+      // params['isAddCsrfToken'] = true
+      params['shopid'] = item.userShopid
+      // params['ShopId'] = item.ShopId
+      const strGuid = this.guid()
+      // params['csrfmiddlewaretoken'] = this.guid().replaceAll('-', '')
+      const res = await this._this.$shopeemanService.postChineseBuyer(item.country, `/api/v4/shop/unfollow`, params, {
+        headers: {
+          'Content-Type': 'application/json',
+          'Content-Length': '20',
+          'sec-ch-ua': '" Not A;Brand";v="99", "Chromium";v="98", "Google Chrome";v="98"',
+          'sec-ch-ua-mobile': '?0',
+          referer: `/shop/${item.userShopid}`,
+          'Sec-Fetch-Dest': 'empty',
+          'Sec-Fetch-Mode': 'cors',
+          'Sec-Fetch-Site': 'same-origin',
+          'Accept': ' application/json',
+          'Accept-Encoding': 'gzip, deflate, br',
+          'Accept-Language': 'zh-CN,zh;q=0.9',
+          'X-Requested-With': 'XMLHttpRequest',
+          'If-None-Match-': this.guid(),
+          'X-CSRFToken': strGuid
+        }
+      })
+      const data = JSON.parse(res)
+      console.log('111', data)
+      if (data.status === 200) {
+        if (JSON.parse(data.data).success) {
+          return { code: 200, data: true }
+        } else {
+          return { code: 200, data: false }
+        }
+      } else {
+        return { code: 201, data: false, message: '请求失败' }
+      }
+    } catch (error) {
+      return { code: -2, data: `取关评价用户请求异常 ${error}` }
     }
   }
   // 获取店铺活跃时间
@@ -401,6 +489,18 @@ export default class GoodsDiscount {
     } catch (error) {
       return { code: -2, data: `判断用户是否登录请求异常 ${error}` }
     }
+  }
+  // 时间格式转换
+  add0(m) { return m < 10 ? '0' + m : m }
+  formatTime(val) {
+    var time = new Date(val)
+    var y = time.getFullYear()
+    var m = time.getMonth() + 1
+    var d = time.getDate()
+    var h = time.getHours()
+    var mm = time.getMinutes()
+    var s = time.getSeconds()
+    return y + '-' + this.add0(m) + '-' + this.add0(d) + ' ' + this.add0(h) + ':' + this.add0(mm) + ':' + this.add0(s)
   }
 }
 

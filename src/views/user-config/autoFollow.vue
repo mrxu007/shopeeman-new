@@ -6,9 +6,9 @@
       <li>
         <div>
           <label>店铺商品上限：</label>
-          <el-input v-model="limitgGoods" onkeyup="value=value.replace(/[^\d]/g,0)" style="width:50px" size="mini" />
-          <label style="margin-left:180px">最后活跃时间：</label>
-          <el-input v-model="lastOnline" onkeyup="value=value.replace(/[^\d]/g,0)" style="width:50px" size="mini" /> &nbsp;天内
+          <el-input v-model="limitgGoods" onkeyup="value=value.replace(/[^\d]/g,0)" style="width:80px" size="mini" />
+          <label style="margin-left:120px">最后活跃时间：</label>
+          <el-input v-model="lastOnline" onkeyup="value=value.replace(/[^\d]/g,0)" style="width:80px" size="mini" /> &nbsp;天内
         </div>
       </li>
       <!-- row2 -->
@@ -20,7 +20,7 @@
           <li style="width:450px;margin-left:-20px">
             <el-radio-group v-model="followActor">
               <el-radio label="0">店铺粉丝</el-radio>
-              <el-radio label="1">店铺评价用户</el-radio>
+              <!-- <el-radio label="1">店铺评价用户</el-radio> -->
             </el-radio-group>
           </li>
         </ul>
@@ -146,7 +146,8 @@ export default {
         this.followDay = this.userInfo.auto_attention_set?.IsNotFollowFollowedDay || this.followDay// 是否不关注一定天数内已关注的卖家
         this.cancerFollowNum = this.userInfo.auto_attention_set?.CancelFollowNumber || this.cancerFollowNum// 取关数量：
         this.startAddFence = this.userInfo.auto_attention_set?.IsOpenTimerBrushFans || this.startAddFence// 开启定时刷粉
-        this.startTime = ((this.userInfo.auto_attention_set?.OpenHour) + ':' + (this.userInfo.auto_attention_set?.OpenMinute)) || this.startTime// 每日启动时间
+        const aa = this.userInfo.auto_attention_set
+        this.startTime = ((this.userInfo.auto_attention_set?.OpenHour) + ':' + (aa.OpenMinute === '0' ? '00' : aa.OpenMinute)) || this.startTime// 每日启动时间
         this.followKey = this.userInfo.auto_attention_set.KeyWord || this.followKey// 关注关键词
       }
     },
@@ -176,11 +177,11 @@ export default {
     async autoAddFence() {
       if (this.startAddFence && !this.mall) {
         this.$message.warning('请前往【爆粉神器】设置需要执行的任务的店铺')
-        return
+        return false
       }
       if (this.startAddFence && !this.followKey) {
         this.$message.warning('关键词不能为空')
-        return
+        return false
       }
       const cTime = this.startTime.split(':')
       if (this.startAddFence) {
@@ -231,7 +232,7 @@ export default {
         storeLog['log_message'] = storeLog['log_message'].toString()
         await window.BaseUtilBridgeService.saveAttentionUserLog(storeLog)
       }
-      return
+      return true
     },
     teskTime(cTime) {
       // 10:00
@@ -245,7 +246,10 @@ export default {
     async save() {
       // 自动刷粉
       if (this.startAddFence) {
-        await this.autoAddFence()
+        const des = await this.autoAddFence()
+        if (!des) {
+          return
+        }
       }
       // 保存设置----------
       const cTime = this.startTime.split(':')

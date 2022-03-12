@@ -9,9 +9,11 @@ import { syncStatusFirst, statusListSecond, statusListThird } from './orderCente
 import orderSync from '../../../../services/timeOrder'
 import surFaceService from '../../../../services/surfaceOrder'
 import LogisticeSyncService from '../../../../services/logistics-sync-service/logistics-sync-service-new-copy'
+import { AutoAddFence } from '@/views/order-manager/components/orderCenter/powderFence'
 export default {
   data() {
     return {
+      AutoAddFenceInstance: new AutoAddFence(this),
       showConsole: false,
       mallList: [],
       statusListFirst: syncStatusFirst,
@@ -53,6 +55,8 @@ export default {
           this.syncOrders(this.statusListThird, 'auto-third', 60)
         }, 60 * 60 * 1000)
       }, 8 * 60 * 1000)
+      // 爆粉神器
+      this.checkTimeAutoFollow()
     } catch (error) {
       this.$refs.Logs.writeLog(`error${error}`, false)
       console.log(error, 'errorerrorerrorerrorerror')
@@ -124,6 +128,7 @@ export default {
     // 爆粉生神器--自动刷粉
     checkTimeAutoFollow() {
       // 检测站点任务
+      this.AutoAddFenceInstance.autoAddFenceActive()
     }
   }
 }
