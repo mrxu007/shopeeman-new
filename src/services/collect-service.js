@@ -96,4 +96,64 @@ export default class CollectService {
   createSysSkuNo(goodsId, skuId, platform) {
     return this.nativeService.createSysSkuNo(goodsId, skuId, platform)
   }
+  /**
+   * 保存/更新定时刊登任务:
+   * @param cronPublishTask {
+   *   country  // 国家Code
+   *   mall_names // 店铺名称（逗号分隔）
+   *   mall_Ids // 店铺Id（逗号分隔）
+   *   task_name  // 任务名称
+   *   status // 执行状态（1：已执行，2：部分失败；3：待执行，4：待启动）
+   *   exec_time  // 执行时间
+   *   goods_count  // 商品数量
+   *   success_count  // 成功数量
+   *   fail_count // 失败数量
+   *   ext_info //自定义
+   *   created_at //创建时间
+   * }
+   * @returns {*}
+   */
+  saveCronPublishTask(cronPublishTask){
+    return this.nativeService.saveCronPublishTask(cronPublishTask)
+  }
+
+  /**
+   * 查询定时刊登任务
+   * @param country
+   * @param status
+   * @param taskName
+   * @param startTime
+   * @param endTime
+   * @returns {*}
+   */
+  getCronPublishTask(country,status,taskName,startTime,endTime){
+    return this.nativeService.getCronPublishTask(country,status,taskName,startTime,endTime)
+  }
+
+  /**
+   * 删除定时刊登任务
+   * @param ids
+   * @returns {*}
+   */
+  deleteCronPublishTask(ids){
+    return this.nativeService.deleteCronPublishTask(ids)
+  }
+  /**
+   * 删除定时刊登配置表
+   * @param ids
+   * @returns {*}
+   */
+  deleteCronPublishConfig(ids){
+    return this.nativeService.deleteCronPublishConfig(ids)
+  }
+  /**
+   * 删除定时刊登商品表
+   * @param ids
+   * @returns {*}
+   */
+  deleteCronPublishGoods(id,status ='',oriGoodsId =''){
+    return this.nativeService.deleteCronPublishGoods(id,status,oriGoodsId)
+  }
+
+
 }

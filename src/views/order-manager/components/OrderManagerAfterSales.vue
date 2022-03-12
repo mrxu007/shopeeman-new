@@ -226,7 +226,7 @@
         <u-table-column label="采购订单号" width="150" show-overflow-tooltip>
           <template slot-scope="scope">
             <i v-if="scope.row.shot_order_info.shot_order_sn" class="el-icon-document-copy copyStyle" @click="copy(scope.row.shot_order_info.shot_order_sn)" />
-            <span class="tableActive">{{ scope.row.shot_order_info.shot_order_sn }}</span>
+            <span class="tableActive" @click="clickBuyOrder(scope.row)">{{ scope.row.shot_order_info.shot_order_sn }}</span>
           </template>
         </u-table-column>
         <u-table-column label="采购时间" prop="shot_order_info.shotted_at" min-width="180px" align="center" />
@@ -382,6 +382,48 @@ export default {
     }, 2000)
   },
   methods: {
+     async clickBuyOrder(row) {
+      console.log(row, 'row', this.buyerAccountList)
+      if (!row.shot_order_info.buy_account_info) {
+        return this.$message.warning('订单无买手号信息')
+      }
+      const buy = this.buyerAccountList.find((n) => n.name === row.shot_order_info.buy_account_info.name && n.type == row.shot_order_info.buy_account_info.type)
+      let account = ''
+      if (!buy) {
+        return this.$message.warning(`请登录相应买手号！${row.shot_order_info.buy_account_info.name || '订单无买手号信息'}`)
+      }
+        switch (buy.type) {
+          case 1:
+            account = this.changeAccountParams(buy)
+            await this.$buyerAccountService.pddOrderCenter(account, row.shot_order_info.shot_order_sn)
+            break
+          case 2:
+          case 3:
+            account = this.changeAccountParams(buy)
+            await this.$buyerAccountService.taobaoOrderCenter(account, row.shot_order_info.shot_order_sn)
+            break
+          case 8:
+            account = this.changeAccountParams(buy)
+            await this.$buyerAccountService.AlibabaOrderCenter(account, row.shot_order_info.shot_order_sn)
+            break
+          case 9:
+            account = this.changeAccountParams(buy)
+            await this.$buyerAccountService.lazadaOrderCenter(row.country, account, row.shot_order_info.shot_order_sn)
+            break
+          case 11:
+            let url = ''
+            if (row.shot_order_info.buy_account_info.orderType) {
+              url = `/user/purchase/order/${row.shot_order_info.buy_account_info.orderId}?type=${row.shot_order_info.buy_account_info.orderType}`
+            } else {
+              url = `/user/purchase/order/${row.shot_order_info.buy_account_info.orderId}/?shopid=${row.shot_order_info.shop_id}`
+            }
+            account = this.changeAccountParams(buy)
+            await this.$buyerAccountService.shopeeOrderCenter(row.country, account, url)
+            break
+          default:
+            break
+        }
+    },
     changeSelect(val,key, baseData) {
       if (!val.includes('') && val.length === baseData.length) {
         // this.formData.sysMallId.unshift('全选')

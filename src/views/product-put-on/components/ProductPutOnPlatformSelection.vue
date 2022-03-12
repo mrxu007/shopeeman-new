@@ -1473,6 +1473,10 @@ export default {
       const fData = []
       for (let i = 0; i < data.length; i++) {
         const item = data[i]
+        let oldItem = this.goodsList.find(son=>son.GoodsId === item.GoodsId)
+        if(oldItem){
+          continue
+        }
         item.Sales = Number(item.Sales)
         item.Price = Number(item.Price)
         // 过滤销量
@@ -1711,6 +1715,7 @@ export default {
     },
     // 打开外部链接
     async openUrl(url) {
+      console.log('url', url)
       if (url) {
         this.$BaseUtilService.openUrl(url)
       }

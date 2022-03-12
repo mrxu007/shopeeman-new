@@ -1984,7 +1984,8 @@ export default {
         if (ship_type === '空运'){
           let wid = this.foreignWid
           let widName = this.widList.find(son=>son.id == wid).warehouse_name
-          if (widName.includes('菲律宾') || widName.includes('马来')){
+          console.log('widName',widName)
+          if (!widName.includes('菲律宾') && !widName.includes('马来')){
             this.$refs.Logs.writeLog(`【${index + 1}】空运暂时只支持菲律宾和马来西亚站点`, false)
             continue
           }

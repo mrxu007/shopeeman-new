@@ -195,14 +195,14 @@ export default {
       tableList: [], // 表格
       // 弹窗-店铺搜索
       dialog_mallSearch: false, // 弹窗
-      keyword: '', // 关键词
+      keyword: '裤子', // 关键词
       minComment: '50', // 评论数
       maxComment: '5000',
       minLike: '100', // 点赞数
       maxLike: '10000',
       minScore: '4.5', // 评分数
       maxScore: '5',
-      mallNum: '10', // 店铺数
+      mallNum: '1', // 店铺数
       mallSearchList: [], // 弹窗列表
       sel_mallSearchList: [], // 多选店铺
       isStop: false // 取消操作

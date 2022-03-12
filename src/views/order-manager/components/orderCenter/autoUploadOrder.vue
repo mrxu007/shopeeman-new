@@ -125,6 +125,18 @@ export default {
       const service = new surFaceService(this, this.$refs.Logs.writeLog)
       service.autoStart()
     },
+    async getAccountList() {
+      const { data } = await this.$api.getBuyerList()
+      if (data.code === 200) {
+        this.buyerAccountList = data.data
+      }
+    },
+    async logisticeSync() {
+      window['BaseUtilBridgeService'].checkAutoScriptLog('开始自动同步采购物流')
+      this.$refs.Logs.writeLog(`开始自动同步采购物流---------------------------`, true)
+      const logisiService = new LogisticeSyncService()
+      await logisiService.start(this, this.buyerAccountList, this.$refs.Logs.writeLog)
+    },
     // 爆粉生神器--自动刷粉
     checkTimeAutoFollow() {
       // 检测站点任务

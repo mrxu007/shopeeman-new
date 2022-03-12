@@ -47,7 +47,13 @@
           <div class="keepRight keepTop">活动主图：</div>
           <div class="goods-detail-box">
             <div class="goods-image-detail">
-              <el-image v-if="goodsDetails.images1.length > 0" :src="goodsDetails.images1[0].img"/>
+              <el-tooltip effect="light" placement="right-end" :visible-arrow="false" v-if="goodsDetails.images1.length > 0"
+                          :enterable="false" style="width: 160px; height: 160px; display: inline-block">
+                <div slot="content">
+                  <el-image :src="goodsDetails.images1[0].img" style="width: 400px; height: 400px" />
+                </div>
+                <el-image :src="goodsDetails.images1[0].img" />
+              </el-tooltip>
               <div class="goods-image-footer">
                 <el-button class="footer-but" type="" size="mini" @click="updateImage(2,0)">编辑</el-button>
                 <el-button class="footer-but" type="" size="mini" @click="replaceImage(2,0)">
@@ -69,7 +75,13 @@
           <div class="goods-detail-box">
             <div class="goods-image-detail" v-if="goodsDetails.spec_image.length > 0"
                  v-for="(item,index) in goodsDetails.spec_image" :key="index">
-              <el-image v-if="item" :src="item" @click.native="multipleCheckClick(index,1)"/>
+              <el-tooltip effect="light" placement="right-end" :visible-arrow="false" v-if="goodsDetails.images1.length > 0"
+                          :enterable="false" style="width: 160px; height: 160px; display: inline-block">
+                <div slot="content">
+                  <el-image :src="item" style="width: 400px; height: 400px" />
+                </div>
+                <el-image v-if="item" :src="item" @click.native="multipleCheckClick(index,1)"/>
+              </el-tooltip>
               <div></div>
               <div class="goods-image-top-right">
                 <el-checkbox v-model="specImageCheck[index]"></el-checkbox>
@@ -100,7 +112,13 @@
           <div class="goods-detail-box">
             <div class="goods-image-detail" v-if="goodsDetails.images1.length > 0"
                  v-for="(item,index) in goodsDetails.images1" :key="item.id">
-              <el-image  :src="item.img" @click.native="multipleCheckClick(index,2)"/>
+              <el-tooltip effect="light" placement="right-end" :visible-arrow="false" v-if="goodsDetails.images1.length > 0"
+                          :enterable="false" style="width: 160px; height: 160px; display: inline-block">
+                <div slot="content">
+                  <el-image :src="item.img" style="width: 400px; height: 400px" />
+                </div>
+                <el-image :src="item.img" @click.native="multipleCheckClick(index,2)"/>
+              </el-tooltip>
               <div class="goods-image-top-right">
                 <el-checkbox v-model="carouselImageCheck[index]" size="small"></el-checkbox>
               </div>
@@ -138,7 +156,13 @@
           <div class="goods-detail-box">
             <div class="goods-image-detail" v-if="goodsDetails.descImages.length > 0"
                  v-for="(item,index) in goodsDetails.descImages" :key="item.id">
-              <el-image :src="item.img" @click.native="multipleCheckClick(index,3)"/>
+              <el-tooltip effect="light" placement="right-end" :visible-arrow="false" v-if="goodsDetails.images1.length > 0"
+                          :enterable="false" style="width: 160px; height: 160px; display: inline-block">
+                <div slot="content">
+                  <el-image :src="item.img" style="width: 400px; height: 400px" />
+                </div>
+                <el-image :src="item.img" @click.native="multipleCheckClick(index,3)"/>
+              </el-tooltip>
               <div class="goods-image-top-right">
                 <el-checkbox v-model="descImageCheck[index]" size="small"></el-checkbox>
               </div>
@@ -162,7 +186,13 @@
           <div class="keepRight keepTop">尺寸图：</div>
           <div class="goods-detail-box">
             <div v-if="goodsDetails.sizeImages[0] && goodsDetails.sizeImages[0].img" class="goods-image-detail">
-              <el-image :src="goodsDetails.sizeImages[0].img"/>
+              <el-tooltip effect="light" placement="right-end" :visible-arrow="false" v-if="goodsDetails.images1.length > 0"
+                          :enterable="false" style="width: 160px; height: 160px; display: inline-block">
+                <div slot="content">
+                  <el-image :src="goodsDetails.sizeImages[0].img" style="width: 400px; height: 400px" />
+                </div>
+                <el-image :src="goodsDetails.sizeImages[0].img"/>
+              </el-tooltip>
               <div class="goods-image-footer">
                 <el-button class="footer-but" type="" size="mini" @click="replaceImage(4,0)">替换</el-button>
                 <el-button class="footer-but" type="" size="mini" @click="deleteImages(4)">删除</el-button>
@@ -191,8 +221,14 @@
                  v-for="(item,index) in goodsDetails.tier_variation[goodsDetails.tier_variation.spec1]" :key="index"
                  v-if="goodsDetails.tier_variation && goodsDetails.tier_variation[goodsDetails.tier_variation.spec1]"
                  @click="multipleCheckClick(index,4)">
-              <el-image class="sku_describe_image" v-if="goodsDetails.tier_variation.images[index]"
-                        :src="goodsDetails.tier_variation.images[index]"/>
+              <el-tooltip effect="light" placement="right-end" :visible-arrow="false" v-if="goodsDetails.images1.length > 0"
+                          :enterable="false" style="width: 160px; height: 160px; display: inline-block">
+                <div slot="content">
+                  <el-image :src="goodsDetails.tier_variation.images[index]" style="width: 400px; height: 400px" />
+                </div>
+                <el-image class="sku_describe_image" v-if="goodsDetails.tier_variation.images[index]"
+                          :src="goodsDetails.tier_variation.images[index]"/>
+              </el-tooltip>
               <el-input type="textarea" :rows="4" resize="none" :placeholder="item" @change="updateSpec(item,1,index)"
                         size="mini" style="margin:0 5px;width: 103px;" @click.native.stop=""
                         v-model="goodsDetails.tier_variation[goodsDetails.tier_variation.spec1][index]"/>
@@ -268,7 +304,13 @@
             </u-table-column>
             <u-table-column align="left" label="规格图" width="80">
               <template slot-scope="{row}">
-                <el-image style="width: 60px;height: 60px" :src="row.sku_image"></el-image>
+                <el-tooltip effect="light" placement="right-end" :visible-arrow="false" v-if="goodsDetails.images1.length > 0"
+                            :enterable="false" style="width: 56px; height: 56px; display: inline-block">
+                  <div slot="content">
+                    <el-image :src="row.sku_image" style="width: 400px; height: 400px" />
+                  </div>
+                  <el-image style="width: 60px;height: 60px" :src="{url:row.sku_image,source:goodsDetails.source} | changeImgSizeFilter"></el-image>
+                </el-tooltip>
               </template>
             </u-table-column>
           </u-table>
@@ -608,6 +650,11 @@ export default {
     let neededTranslateInfoJson = await this.$commodityService.getSpuDetailByIdV2(this.goodsEditor.id)
     let neededTranslateInfoData = JSON.parse(neededTranslateInfoJson) && JSON.parse(neededTranslateInfoJson).data
     console.log('getSpuDetailByIdV2 - data', neededTranslateInfoData)
+    if(!neededTranslateInfoData){
+      this.$message.error('不存在该商品信息，请确认后重试')
+      this.$emit('goodsEditorCancel','')
+      return
+    }
     this.goodsDetails = neededTranslateInfoData
     this.tier_variation = JSON.parse(JSON.stringify(neededTranslateInfoData.tier_variation))
     this.lodSpecImage = this.goodsDetails.spec_image
