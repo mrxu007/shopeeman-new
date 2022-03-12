@@ -30,8 +30,9 @@
               </el-table-column>
               <el-table-column min-width="120px" label="商品名称" prop="goods_name" align="center" show-overflow-tooltip />
               <el-table-column width="120px" label="SKUID" prop="variation_id" align="center" show-overflow-tooltip />
-
-              <el-table-column min-width="120px" label="商品规格" prop="variation_sku" align="center" show-overflow-tooltip />
+              <el-table-column min-width="120px" label="商品规格" prop="variation_sku" align="center" show-overflow-tooltip>
+                <template slot-scope="scope">{{ scope.row.variation_sku || scope.row.variation_name }}</template>
+              </el-table-column>
               <el-table-column align="center" prop="goods_count" label="商品数量" width="80" />
               <el-table-column align="center" prop="ori_platform_id" label="商品图片" width="80">
                 <template slot-scope="scope">
