@@ -268,5 +268,7 @@ export default {
   translateAppAdd: (data) => AppRequest.post('/translateApp/add', data), // 新增翻译
   translateAppUpdate: (data) => AppRequest.post('/translateApp/update', data), // 刷新翻译
   translateAppDelete: (data) => AppRequest.post('/translateApp/delete', data), // 删除翻译
-  updateOrderPrintStatus: (data) => AppRequest.post('/order/updateOrderPrintStatus', data) // 标记面单已打印或已下载
+  updateOrderPrintStatus: (data) => AppRequest.post('/order/updateOrderPrintStatus', data), // 标记面单已打印或已下载
+  getNoLogisticsOrders :  (data) => AppRequest.get('/order/getNoLogisticsOrders', { params: data }), // 获取订单需要同步面单的订单 
+  getNotHaveLogisticsInformations :  (data) => AppRequest.get('/orderPackage/getNotHaveLogisticsInformations', { params: data }), // 获取仓库需要同步面单的订单 
 }

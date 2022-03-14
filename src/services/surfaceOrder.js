@@ -71,6 +71,74 @@ export default class {
       return this.writeLog(`【自动同步物流-面单】，终止-${error}`, false)
     }
   }
+  //仓库中面单
+  async autoStartStore(){
+    this.isAuto = true
+    this.activeType = 'auto'
+    try {
+      this.isApplyForceFaceInfo = false
+      const res = await this.$api.getNotHaveLogisticsInformations()
+      console.log(res,"0000000")
+      if (res.data.code === 200) {
+        const arrList = res.data.data || []
+        let listResult = []
+        arrList.forEach(item=>{
+          item.orders.forEach(sub=>{
+            sub.platform_mall_id = item.platform_mall_id
+            listResult.push(sub)
+          })
+        })
+        if (!listResult.length) {
+          return this.writeLog(`【自动同步仓库中没有面单-面单】，终止-目前没有要同步的订单！`, false)
+        }
+        this.writeLog(`【仓库中没有面单】一共获取到需要自动同步的订单${listResult.length}条`, true)
+        for (let i = 0; i < listResult.length; i++) {
+          const order = listResult[i]
+          await this.autoMainFlow(order)
+        }
+        this.writeLog(`自动仓库中没有面单完成`, true)
+      } else {
+        this.writeLog('【自动仓库中没有面单】，终止获取数据失败', false)
+      }
+    } catch (error) {
+      console.log(error, 'error')
+      return this.writeLog(`【自动仓库中没有面单】，终止-${error}`, false)
+    }
+  }
+  //同步订单中没有面单
+  async autoStartNoLogi(){
+    this.isAuto = true
+    this.activeType = 'auto'
+    try {
+      this.isApplyForceFaceInfo = false
+      const res = await this.$api.getNoLogisticsOrders()
+      console.log(res,"0000000")
+      if (res.data.code === 200) {
+        const arrList = res.data.data || []
+        let listResult = []
+        arrList.forEach(item=>{
+          item.orders.forEach(sub=>{
+            sub.platform_mall_id = item.platform_mall_id
+            listResult.push(sub)
+          })
+        })
+        if (!listResult.length) {
+          return this.writeLog(`【自动同步订单中没有面单-面单】，终止-目前没有要同步的订单！`, false)
+        }
+        this.writeLog(`【订单中没有面单】一共获取到需要自动同步的订单${listResult.length}条`, true)
+        for (let i = 0; i < listResult.length; i++) {
+          const order = listResult[i]
+          await this.autoMainFlow(order)
+        }
+        this.writeLog(`自动同步物流-面单完成`, true)
+      } else {
+        this.writeLog('【自动同步物流-面单】，终止-获取待同步物流订单数据失败', false)
+      }
+    } catch (error) {
+      console.log(error, 'error')
+      return this.writeLog(`【自动同步物流-面单】，终止-${error}`, false)
+    }
+  }
   // 自动同步流程（不能同步台湾面单）
   async autoMainFlow(order) {
     if (order.country === 'TW') {
@@ -78,10 +146,10 @@ export default class {
     }
     console.log(order, '4244242425432')
     const mallId = order.platform_mall_id || (order.mall_info ? order.mall_info.platform_mall_id : '')
-    const sysMallId = order.sys_mall_id || (order.mall_info ? order.mall_info.id : '')
-    const orderId = order.order_id
-    const country = order.country
-    const orderSn = order.order_sn || order.main_order_sn
+    const sysMallId = order.sys_mall_id || (order.mall_info ? order.mall_info.id : '') || ''
+    const orderId = order.order_id || order.platform_order_id
+    const country = order.country || ''
+    const orderSn = order.order_sn || order.main_order_sn || order.platform_order_sn
     try {
       // 2、判断有无订单号
       let orderInfo = null
@@ -383,7 +451,7 @@ export default class {
   }
   // 获取物流单号
   async getShopeeShipNumber(orderId, mallId, country, sysMallId, orderSn, warningType) {
-    console.log(orderId, mallId, country)
+    console.log(orderId, mallId, country, sysMallId, orderSn, warningType,'88888888')
     try {
       let trackNo = ''
       let channelId = ''
@@ -865,11 +933,12 @@ export default class {
   async checkFaceInfo(base64, orderSn, logisticsNumber, trackName, country, schemaType, order) {
     console.log(base64.length, orderSn, logisticsNumber, schemaType)
     if (base64 === null || base64.length < 500 || !orderSn || !logisticsNumber) {
+      window['BaseUtilBridgeService'].checkAutoScriptLog(`[${orderSn}]面单长度小于500`)
       return {
         code: 50001,
         data: '面单大小或平台物流获取异常，请重新同步！'
       }
-    } else {
+    }
       let cutBase64 = base64
       // cutRes = await this.cutFaseSize(base64, orderSn, true, 300, 420, -420)
       if (country == 'VN' && trackName == 'J&T Exoress' && schemaType == 2) {
@@ -924,7 +993,6 @@ export default class {
         //   }
         // }
       }
-    }
   }
   // 处理越南首公里面单
   // async GetFirstMileFaceInfo(orderId, shopId) {
