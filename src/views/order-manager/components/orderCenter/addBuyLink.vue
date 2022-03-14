@@ -15,7 +15,7 @@
           <el-option :label="item.label" :value="item.value" v-for="(item, index) in goodsSourceListLink" :key="index"></el-option>
         </el-select> -->
         <span>采购地址{{ index + 1 }}</span>
-        <el-input v-model="item.purchase_url" size="mini" clearable style="width: 600px" class="mar-right" @change="((val)=>{changeLink(val,index)})" />
+        <el-input v-model="item.purchase_url" size="mini" clearable style="width: 600px" class="mar-right" @change="((val)=>{changeLink(val,index)})"/>
         <el-button size="mini" type="primary" @click="openUrl(item.purchase_url)">浏览</el-button>
         <el-button
           size="mini"
@@ -124,6 +124,9 @@ export default {
       this.rowBuyLinks[this.indexLink].purchase_url = url
       this.rowBuyLinks[this.indexLink].purchase_platform_id = res ? res.purchase_platform_id : ''
       this.createUrlByIdVisible = false
+      //默认勾选
+      this.rowBuyLinks[this.indexLink].is_default ='1'
+      this.changeDefault(this.indexLink)
     },
     deleteLink(index) {
       this.rowBuyLinks.splice(index, 1)
