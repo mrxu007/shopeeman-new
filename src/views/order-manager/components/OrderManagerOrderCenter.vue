@@ -584,12 +584,25 @@
     <Logs ref="Logs" v-model="showConsole" clear/>
     <el-dialog
         v-if="columnVisible"
-        title="配置订单列表显示列"
         :visible.sync="columnVisible"
         width="800px"
         top="5vh"
-        :close-on-click-modal="false"
-    >
+        :close-on-click-modal="false">
+      <template slot="title">
+        <div style="display: flex;align-items: center">
+          <div style="margin-right: 25px;color: #000; font-weight: 700">配置订单列表显示列</div>
+          <div style="display: flex;align-items: center;margin-bottom: -15px">
+            列表名定位：
+            <el-input size="mini" v-model="column_search" style="width: 150px"></el-input>
+            <el-tooltip effect="dark" placement="bottom">
+              <div slot="content">
+                用于定位对应订单列所处位置，方便您进行自定义设置（会以红色加粗标注）<br>
+              </div>
+              <i class="el-icon-question" style="font-size: 16px!important;margin-left: 5px;"/>
+            </el-tooltip>
+          </div>
+        </div>
+      </template>
       <div class="column-style">
         <draggable
             v-model="columnConfigShowList"
@@ -599,20 +612,27 @@
             @update="datadragEnd"
         >
           <transition-group>
-            <div
-                v-for="(item, index) in columnConfigShowList"
-                :key="index"
-                :class="index < 2 &&'forbid column-item' || 'column-item'"
-            >
-              <span class="mover">{{ item.column_header }}</span>
-              <el-switch
-                  v-model="item.is_show"
-                  style="display: block"
-                  active-color="#13ce66"
-                  inactive-color="#a9a9a9"
-                  :active-value="1"
-                  :inactive-value="-1"
-              />
+            <div v-for="(item, index) in columnConfigShowList"
+                 :key="index"
+                 :class="index < 2 &&'forbid column-item' || 'column-item'">
+              <div class="column-top">
+                <span
+                    :class="column_search && item.column_header.includes(column_search) && 'mover_search mover' || 'mover'">
+                  {{ item.column_header }}</span>
+                <el-switch
+                    v-model="item.is_show"
+                    style="display: block"
+                    active-color="#13ce66"
+                    inactive-color="#a9a9a9"
+                    :active-value="1"
+                    :inactive-value="-1"/>
+              </div>
+              <div class="column-bottom">
+                宽度：
+                <el-input v-model="item.width" size="mini" oninput="value=value.replace(/[^\d]/g,'')"
+                          style="width: 80px;margin: 0 5px;"></el-input>
+                PX
+              </div>
             </div>
           </transition-group>
         </draggable>
@@ -1718,7 +1738,8 @@ export default {
           prop: 'goods_info.is_overseas_goods',
           showType: 4
         }],
-      columnConfigShowList: []
+      columnConfigShowList: [],
+      column_search: ''
     }
   },
   computed: {
@@ -3183,6 +3204,7 @@ export default {
         arr.push({
           columnHeader: item.column_header,
           isShow: item.is_show,
+          width: item.width,
           sortNumber: index
         })
       })
@@ -3503,7 +3525,7 @@ export default {
             list[0] = Object.assign(item, itemShow)
           } else if (item.name === '操作') {
             list[1] = Object.assign(item, itemShow)
-          } else if (itemShow && itemShow.sort_number&&itemShow.sort_number>1) {
+          } else if (itemShow && itemShow.sort_number && itemShow.sort_number > 1) {
             list[itemShow.sort_number] = (Object.assign(item, itemShow))
           } else {
             list1.push(Object.assign(item, { is_show: 1 }))
@@ -3727,7 +3749,7 @@ export default {
   .column-item {
     span {
       display: inline-block;
-      width: 120px;
+      width: 115px;
       height: 30px;
       line-height: 30px;
       text-align: center;
@@ -3735,13 +3757,35 @@ export default {
       margin-right: 5px;
     }
 
+    .mover_search {
+      color: red;
+      font-weight: 700;
+    }
+
     user-select: none;
     display: flex;
+    flex-flow: column;
     margin: 10px;
     align-items: center;
-    min-width: 160px;
+    min-width: 154px;
     float: left;
     cursor: all-scroll;
+    padding: 2px;
+    box-shadow: 0 0 1px #ABABAB;
+    overflow: hidden;
+    border-radius: 2px;
+
+    .column-top {
+      display: flex;
+    }
+
+    .column-bottom {
+      cursor: initial;
+      display: flex;
+      align-items: center;
+      margin-top: 5px;
+      user-select: auto;
+    }
   }
 
   .forbid {
@@ -3891,6 +3935,16 @@ export default {
 
     margin-bottom: 10px;
   }
+}
+
+/deep/ .el-table tbody tr:hover > td,
+/deep/ .el-table__fixed .el-table__body tbody tr.hover-row td {
+  background-color: #DDEEFF !important;
+}
+
+/deep/ .el-table__header thead tr th .cell {
+  overflow: hidden;
+  white-space: nowrap;
 }
 </style>
 <style lang="less">
