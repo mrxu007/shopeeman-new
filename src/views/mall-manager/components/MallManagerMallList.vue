@@ -1606,7 +1606,7 @@ export default {
         const params = {
           'sysMallId': item.id,
           'platformMallName': data.shop_name,
-          'mallStatus': data.shop_status,
+          'mallStatus': data.user_status,
           'itemLimit': 500,
           'userEmail': data.user_email,
           'phone': data.phone,

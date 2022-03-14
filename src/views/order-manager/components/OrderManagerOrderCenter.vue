@@ -1600,6 +1600,14 @@ export default {
           showOverflowTooltip: true,
           showType: 0
         }, {
+          key: 48,
+          name: '买家备注',
+          width: '140',
+          align: '',
+          prop: 'message_to_seller',
+          showOverflowTooltip: true,
+          showType: 0
+        }, {
           key: 49,
           name: '虾皮物流轨迹',
           width: '130',
@@ -3900,8 +3908,10 @@ export default {
   border-radius: 4px;
   height: 28px;
   line-height: 26px;
-  color: #C0C4CC;
+  color: #333;
+  font-weight: 700;
   padding: 0 10px !important;
   overflow: hidden;
+  text-overflow: ellipsis;
 }
 </style>
