@@ -36,8 +36,6 @@ export class AutoAddFence {
         this.mallTest = mallTest[0]
         await this.searchMall(this.mallTest) // 搜索关注店铺
         await this.startCancer() // 开始关注
-        // 删除原任务
-        await window.BaseUtilBridgeService.deleteAttentionUserTask(this.mallTest.id)
         // 更新新任务
         const params = {
           'country': this.mallTest.country,

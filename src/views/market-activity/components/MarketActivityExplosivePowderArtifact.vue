@@ -1143,21 +1143,23 @@ export default {
       } else {
         this.$message.warning(`信息获取失败！${res.data.data.message}`)
       }
-      // if (!this.userInfo.auto_attention_set) {
-      //   this.userInfo.auto_attention_set = {}
-      //   this.userInfo.auto_attention_set.ProductMax = '5'// 店铺商品上限
-      //   this.userInfo.auto_attention_set.LastLoginDay = '5'// 最后活跃时间
-      //   this.userInfo.auto_attention_set.FollowType = '0'// 关注对象
-      //   this.userInfo.auto_attention_set.FollowNumber = '100'// 关注数量
-      //   this.userInfo.auto_attention_set.FollowInterval = '10'// 关注间隔
-      //   this.userInfo.auto_attention_set.MinOrderEvaluation = '4.5'// //不关注订单评价小于等于
-      //   this.userInfo.auto_attention_set.IsNotFollowMinOrderEvaluation = true// 是否不关注订单评价小于等于最小值的卖家
-      //   this.userInfo.auto_attention_set.FollowedDay = '30'// 天内关注过的用户
-      //   this.userInfo.auto_attention_set.IsNotFollowFollowedDay = true // 是否不关注一定天数内已关注的卖家
-      //   this.userInfo.auto_attention_set.CancelFollowNumber = '100'// 取关数量：
-      //   this.userInfo.auto_attention_set.IsOpenTimerBrushFans = false // 每日启动时间
-      // }
-      console.log('useSet', this.userInfo.auto_attention_set)
+      if (!this.userInfo.auto_attention_set) {
+        this.userInfo.auto_attention_set = {}
+        this.userInfo.auto_attention_set.ProductMax = '5'// 店铺商品上限
+        this.userInfo.auto_attention_set.LastLoginDay = '5'// 最后活跃时间
+        this.userInfo.auto_attention_set.FollowType = '0'// 关注对象
+        this.userInfo.auto_attention_set.FollowNumber = '100'// 关注数量
+        this.userInfo.auto_attention_set.FollowInterval = '10'// 关注间隔
+        this.userInfo.auto_attention_set.MinOrderEvaluation = '4.5'// //不关注订单评价小于等于
+        this.userInfo.auto_attention_set.IsNotFollowMinOrderEvaluation = true// 是否不关注订单评价小于等于最小值的卖家
+        this.userInfo.auto_attention_set.FollowedDay = '30'// 天内关注过的用户
+        this.userInfo.auto_attention_set.IsNotFollowFollowedDay = true // 是否不关注一定天数内已关注的卖家
+        this.userInfo.auto_attention_set.CancelFollowNumber = '100'// 取关数量：
+        this.userInfo.auto_attention_set.IsOpenTimerBrushFans = false // 每日启动时间
+        this.userInfo.auto_attention_set.OpenHour='10'
+        this.userInfo.auto_attention_set.OpenMinute='00'
+      }
+      // console.log('useSet', this.userInfo.auto_attention_set)
       if (!this.userInfo.auto_attention_set) {
         this.$message.warning(`请先设置参数`)
       }

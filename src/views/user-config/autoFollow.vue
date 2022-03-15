@@ -12,11 +12,11 @@
         </div>
       </li>
       <!-- row2 -->
-      <span>&nbsp;  关注设置 &nbsp;</span>
+      <span>&nbsp; 关注设置 &nbsp;</span>
       <li>
         <!--  -->
         <ul style="margin-top:-10px">
-          <span style="margin-left:-20px">&nbsp;  关注对象 &nbsp;</span>
+          <span style="margin-left:-20px">&nbsp; 关注对象 &nbsp;</span>
           <li style="width:450px;margin-left:-20px">
             <el-radio-group v-model="followActor">
               <el-radio label="0">店铺粉丝</el-radio>
@@ -35,21 +35,19 @@
         </div>
         <!--  -->
         <div>
-          <el-checkbox v-model="market" style="margin-bottom:10px">不关注订单评价小于等于
-          </el-checkbox>
-          <el-input v-model="marketNum" style="width:50px" size="mini" @blur="market=true" />
+          <el-checkbox v-model="market" style="margin-bottom:10px">不关注订单评价小于等于 </el-checkbox>
+          <el-input v-model="marketNum" style="width:50px" size="mini" @blur="market = true" />
           的用户
         </div>
         <!--  -->
         <div>
-          <el-checkbox v-model="followDay">不关注
-          </el-checkbox>
-          <el-input v-model="followDayNum" onkeyup="value=value.replace(/[^\d]/g,0)" style="width:75px" size="mini" @blur="followDay=true" />
+          <el-checkbox v-model="followDay">不关注 </el-checkbox>
+          <el-input v-model="followDayNum" onkeyup="value=value.replace(/[^\d]/g,0)" style="width:75px" size="mini" @blur="followDay = true" />
           天内关注过的用户
         </div>
       </li>
       <!-- row3 -->
-      <span>&nbsp; 取关设置  &nbsp;</span>
+      <span>&nbsp; 取关设置 &nbsp;</span>
       <li>
         <div>
           <label>取关数量：</label>
@@ -63,10 +61,10 @@
         <div>
           <el-tooltip class="item" effect="dark" placement="top-start">
             <div slot="content">
-              开启任务请前往【爆粉神器】添加执行任务的店铺，随后进行参数设置<br>
-              注意：1.关键词不能为空<br>
-              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2.一个站点只能执行一条任务<br>
-              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;3.同一个站点的任务保存会替换原来的任务<br>
+              开启任务请前往【爆粉神器】添加执行任务的店铺，随后进行参数设置<br />
+              注意：1.关键词不能为空<br />
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;2.一个站点只能执行一条任务<br />
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;3.同一个站点的任务保存会替换原来的任务<br />
             </div>
             <el-checkbox v-model="startAddFence">开启定时刷粉</el-checkbox>
           </el-tooltip>
@@ -74,9 +72,9 @@
           <el-time-select
             v-model="startTime"
             :picker-options="{
-              start: '08:30',
-              step: '00:15',
-              end: '18:30'
+              start: '00:00',
+              step: '00:01',
+              end: '23:59'
             }"
             style="width:100px"
             placeholder="选择时间"
@@ -84,25 +82,44 @@
           />
           <label style="margin-left:20px">关注关键词：</label>
           <el-input v-model="followKey" style="width:80px" size="mini" />
-          <el-checkbox v-model="showlog" style="margin-left:8px">隐藏日志</el-checkbox>
+          <el-button size="mini" @click="checkLog">查看日志</el-button>
         </div>
-
       </li>
       <el-button type="primary" size="mini" style="flex:1;margin-left:200px;width:100px;" @click="save()">保存</el-button>
     </ul>
-    <Logs ref="Logs" v-model="showlog" clear class="logBox" />
+    <el-dialog title="日志" :visible.sync="logVisible" width="400px" :close-on-click-modal="false" :close-on-press-escape="false">
+      <el-table
+        max-height="590px"
+        :data="logList"
+        tooltip-effect="dark"
+        style="width: 100%"
+        :header-cell-style="{
+          textAlign: 'center',
+          backgroundColor: '#f5f7fa'
+        }"
+        :cell-style="{ textAlign: 'center' }"
+        :row-style="{ height: '80px' }"
+      >
+        <el-table-column label="操作" min-width="180px" prop=""></el-table-column>
+        <el-table-column label="日期" min-width="300px" prop=""></el-table-column>
+      </el-table>
+    </el-dialog>
+
+    <!-- <Logs ref="Logs" v-model="showlog" clear class="logBox" /> -->
   </div>
 </template>
 
 <script>
 import { waitStart } from '@/util/util'
 export default {
-  components: {
-
-  },
+  components: {},
   props: ['userInfo', 'mall'],
   data() {
     return {
+      //日志
+      logVisible: false,
+      logList: [],
+
       userID: '', // 用户ID
       uid: '', // 用户ID
 
@@ -130,29 +147,37 @@ export default {
     })
     await this.getUserinfo() // 用户信息
 
-    this.initLog()// 初始化加载日志
+    this.initLog() // 初始化加载日志
   },
   methods: {
+    //
+    async checkLog() {
+      this.logVisible = true
+      const res = await window.BaseUtilBridgeService.getTopGoodsHistory('')
+      console.log('log', res)
+    },
     getUserinfo() {
       if (this.userInfo && this.userInfo.auto_attention_set) {
-        this.limitgGoods = this.userInfo.auto_attention_set?.ProductMax || this.limitgGoods// 店铺商品上限
-        this.lastOnline = this.userInfo.auto_attention_set?.LastLoginDay || this.lastOnline// 最后活跃时间
-        this.followActor = this.userInfo.auto_attention_set?.FollowType.toString() || this.followActor// 关注对象
-        this.followNum = this.userInfo.auto_attention_set?.FollowNumber || this.followNum// 关注数量
-        this.interTime = this.userInfo.auto_attention_set?.FollowInterval || this.interTime// 关注间隔
-        this.marketNum = this.userInfo.auto_attention_set?.MinOrderEvaluation || this.marketNum// //不关注订单评价小于等于
-        this.market = this.userInfo.auto_attention_set?.IsNotFollowMinOrderEvaluation || this.market// 是否不关注订单评价小于等于最小值的卖家
-        this.followDayNum = this.userInfo.auto_attention_set?.FollowedDay || this.followDayNum// 天内关注过的用户
-        this.followDay = this.userInfo.auto_attention_set?.IsNotFollowFollowedDay || this.followDay// 是否不关注一定天数内已关注的卖家
-        this.cancerFollowNum = this.userInfo.auto_attention_set?.CancelFollowNumber || this.cancerFollowNum// 取关数量：
-        this.startAddFence = this.userInfo.auto_attention_set?.IsOpenTimerBrushFans || this.startAddFence// 开启定时刷粉
+        this.limitgGoods = this.userInfo.auto_attention_set?.ProductMax || this.limitgGoods // 店铺商品上限
+        this.lastOnline = this.userInfo.auto_attention_set?.LastLoginDay || this.lastOnline // 最后活跃时间
+        this.followActor = this.userInfo.auto_attention_set?.FollowType.toString() || this.followActor // 关注对象
+        this.followNum = this.userInfo.auto_attention_set?.FollowNumber || this.followNum // 关注数量
+        this.interTime = this.userInfo.auto_attention_set?.FollowInterval || this.interTime // 关注间隔
+        this.marketNum = this.userInfo.auto_attention_set?.MinOrderEvaluation || this.marketNum // //不关注订单评价小于等于
+        this.market = this.userInfo.auto_attention_set?.IsNotFollowMinOrderEvaluation || this.market // 是否不关注订单评价小于等于最小值的卖家
+        this.followDayNum = this.userInfo.auto_attention_set?.FollowedDay || this.followDayNum // 天内关注过的用户
+        this.followDay = this.userInfo.auto_attention_set?.IsNotFollowFollowedDay || this.followDay // 是否不关注一定天数内已关注的卖家
+        this.cancerFollowNum = this.userInfo.auto_attention_set?.CancelFollowNumber || this.cancerFollowNum // 取关数量：
+        this.startAddFence = this.userInfo.auto_attention_set?.IsOpenTimerBrushFans || this.startAddFence // 开启定时刷粉
         const aa = this.userInfo.auto_attention_set
-        this.startTime = ((this.userInfo.auto_attention_set?.OpenHour) + ':' + (aa.OpenMinute === '0' ? '00' : aa.OpenMinute)) || this.startTime// 每日启动时间
-        this.followKey = this.userInfo.auto_attention_set.KeyWord || this.followKey// 关注关键词
+        this.startTime = this.userInfo.auto_attention_set?.OpenHour + ':' + (aa.OpenMinute === '0' ? '00' : aa.OpenMinute) || this.startTime // 每日启动时间
+        this.followKey = this.userInfo.auto_attention_set.KeyWord || this.followKey // 关注关键词
       }
     },
     // 时间格式转换
-    add0(m) { return m < 10 ? '0' + m : m },
+    add0(m) {
+      return m < 10 ? '0' + m : m
+    },
     formatTime(val) {
       var time = new Date(val)
       var y = time.getFullYear()
@@ -199,24 +224,24 @@ export default {
         }
         // 添加新任务
         const params = {
-          'country': this.mall[0].country,
-          'mall_ids': this.mall.map(item => item['platform_mall_id']).toString(),
-          'mall_names': this.mall.map(item => item['mall_alias_name'] || item['platform_mall_name']).toString(),
-          'product_max': this.limitgGoods,
-          'last_login_day': this.lastOnline,
-          'open_hour': cTime[0].toString(),
-          'open_minute': cTime[1].toString(),
-          'key_word': this.followKey,
-          'follow_number': this.followNum,
-          'follow_interval': this.interTime,
-          'is_not_follow_min_order_evaluation': this.market ? 1 : 0,
-          'min_order_evaluation': this.marketNum,
-          'is_not_follow_followed_day': this.followDay ? 1 : 0,
-          'followed_day': this.followDayNum,
-          'followed_type': this.followActor,
-          'cancel_follow_number': Number(this.cancerFollowNum),
-          'cancel_follow_sort_type': 0,
-          'exec_time': this.teskTime(this.startTime) * 1000
+          country: this.mall[0].country,
+          mall_ids: this.mall.map(item => item['platform_mall_id']).toString(),
+          mall_names: this.mall.map(item => item['mall_alias_name'] || item['platform_mall_name']).toString(),
+          product_max: this.limitgGoods,
+          last_login_day: this.lastOnline,
+          open_hour: cTime[0].toString(),
+          open_minute: cTime[1].toString(),
+          key_word: this.followKey,
+          follow_number: this.followNum,
+          follow_interval: this.interTime,
+          is_not_follow_min_order_evaluation: this.market ? 1 : 0,
+          min_order_evaluation: this.marketNum,
+          is_not_follow_followed_day: this.followDay ? 1 : 0,
+          followed_day: this.followDayNum,
+          followed_type: this.followActor,
+          cancel_follow_number: Number(this.cancerFollowNum),
+          cancel_follow_sort_type: 0,
+          exec_time: this.teskTime(this.startTime) * 1000
         }
         const addTest = await window.BaseUtilBridgeService.saveAttentionUserTask(params)
         if (addTest.code === '200') {
@@ -244,7 +269,9 @@ export default {
       return datum.getTime() / 1000
     },
     // 时间格式转换
-    add0(m) { return m < 10 ? '0' + m : m },
+    add0(m) {
+      return m < 10 ? '0' + m : m
+    },
     formatTime(val) {
       var time = new Date(val)
       var y = time.getFullYear()
@@ -279,34 +306,34 @@ export default {
         const storeLog = {}
         storeLog['country'] = this.mall[0].country
         storeLog['log_message'] = []
-        // 查看当前站点是否有过任务
-        const mallTest = await window.BaseUtilBridgeService.getAttentionUserTask(this.mall[0].country)
-        debugger
-        // 删除原任务
-        if (mallTest) {
-          const delMallTest = await window.BaseUtilBridgeService.deleteAttentionUserTask(mallTest.id)
-          storeLog['log_message'].push('任务删除')
-          storeLog['created_at'] = this.formatTime(new Date().getTime())
-        }
+        // // 查看当前站点是否有过任务
+        // const mallTest = await window.BaseUtilBridgeService.getAttentionUserTask(this.mall[0].country)
+        // debugger
+        // // 删除原任务
+        // if (mallTest) {
+        //   const delMallTest = await window.BaseUtilBridgeService.deleteAttentionUserTask(mallTest.id)
+        //   storeLog['log_message'].push('任务删除')
+        //   storeLog['created_at'] = this.formatTime(new Date().getTime())
+        // }
         // 添加新任务
         const params = {
-          'country': this.mall[0].country,
-          'mall_ids': this.mall.map(item => item['platform_mall_id']).toString(),
-          'mall_names': this.mall.map(item => item['mall_alias_name'] || item['platform_mall_name']).toString(),
-          'product_max': this.limitgGoods,
-          'last_login_day': this.lastOnline,
-          'open_hour': cTime[0],
-          'open_minute': cTime[1],
-          'key_word': this.followKey,
-          'follow_number': this.followNum,
-          'follow_interval': this.interTime,
-          'is_not_follow_min_order_evaluation': this.market,
-          'min_order_evaluation': this.marketNum,
-          'is_not_follow_followed_day': this.followDay,
-          'followed_day': this.followDayNum,
-          'followed_type': this.followActor,
-          'cancel_follow_number': this.cancerFollowNum,
-          'cancel_follow_sort_type': 0
+          country: this.mall[0].country,
+          mall_ids: this.mall.map(item => item['platform_mall_id']).toString(),
+          mall_names: this.mall.map(item => item['mall_alias_name'] || item['platform_mall_name']).toString(),
+          product_max: this.limitgGoods,
+          last_login_day: this.lastOnline,
+          open_hour: cTime[0],
+          open_minute: cTime[1],
+          key_word: this.followKey,
+          follow_number: this.followNum,
+          follow_interval: this.interTime,
+          is_not_follow_min_order_evaluation: this.market,
+          min_order_evaluation: this.marketNum,
+          is_not_follow_followed_day: this.followDay,
+          followed_day: this.followDayNum,
+          followed_type: this.followActor,
+          cancel_follow_number: this.cancerFollowNum,
+          cancel_follow_sort_type: 0
         }
         debugger
         const addTest = await window.BaseUtilBridgeService.saveAttentionUserTask(JSON.stringify(params))
@@ -366,39 +393,34 @@ export default {
     }
   }
 }
-
 </script>
 <style lang="less" scoped>
- .detail{
-
-     background-color: white;
-     ul{
-         margin-left: 20px;
-         li{
-        border: 1px solid #dadada;
-        width: 600px;
-        padding: 10px;
-        padding-top: 20px;
-        padding-left: 20px;
-        border-radius: 5px;
-        margin-bottom: 10px;
-            display: flex;
-        flex-direction: column;
-         }
-       span{
-           position: relative;
-    bottom: -5px;
-    left: 11px;
-    background-color: white;
-       }
-
-     }
-     .orderSet{
-       .el-checkbox{
-         margin-bottom: 5px;
-       }
-     }
-
- }
+.detail {
+  background-color: white;
+  ul {
+    margin-left: 20px;
+    li {
+      border: 1px solid #dadada;
+      width: 600px;
+      padding: 10px;
+      padding-top: 20px;
+      padding-left: 20px;
+      border-radius: 5px;
+      margin-bottom: 10px;
+      display: flex;
+      flex-direction: column;
+    }
+    span {
+      position: relative;
+      bottom: -5px;
+      left: 11px;
+      background-color: white;
+    }
+  }
+  .orderSet {
+    .el-checkbox {
+      margin-bottom: 5px;
+    }
+  }
+}
 </style>
-
