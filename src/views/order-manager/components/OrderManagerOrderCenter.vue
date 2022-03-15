@@ -289,6 +289,7 @@
         </div>
       </transition>
       <div class="showBtn">
+        <p @click="updateTableColumnShow" style="margin-right: 10px;">适配表格高度<i class="el-icon-refresh"/></p>
         <p v-if="isShow" @click="isShow = false">收起<i class="el-icon-caret-top"/></p>
         <p v-else @click="isShow = true">展开<i class="el-icon-caret-bottom"/></p>
       </div>
@@ -296,23 +297,16 @@
     <div class="content" :style="{ height: isShow ? 'calc(100vh - 360px)' : 'calc(100vh - 50px)' }">
       <p style="padding: 0 10px; color: red;">
         温馨提示：1、最终毛利 = 订单收入-采购金额-仓库发货金额（生成仓库发货金额才会去计算，会有汇率差）；含邮费毛利 =
-        订单收入-采购价；2、调整列表顺序，请至【配置自定义列】按钮，拖动表头进行排列
+        订单收入-采购价；2、调整列表顺序，请至【配置自定义列】按钮，拖动表头进行排列，亦可用于自适应表格高度
       </p>
-      <u-table
-          ref="multipleTable"
-          v-loading="tableLoading"
-          style=""
-          use-virtual
-          :row-height="60"
-          :border="false"
-          :data="tableData"
-          tooltip-effect="dark"
-          :height="isShow && 420 || 730"
-          :cell-style="{ padding: '0' }"
-          :header-cell-style="{backgroundColor: '#f5f7fa'}"
-          :resizable="true"
-          @selection-change="handleSelectionChange"
-      >
+      <u-table ref="multipleTable" v-loading="tableLoading"
+               v-if="tableColumnShow" use-virtual
+               :row-height="60" tooltip-effect="dark"
+               :border="false" :data="tableData"
+               :height="isShow && tableHeight || (tableHeight + 290)"
+               :cell-style="{ padding: '0' }"
+               :header-cell-style="{backgroundColor: '#f5f7fa'}"
+               :resizable="true" @selection-change="handleSelectionChange">
         <u-table-column v-if="tableColumnShow" align="center" type="selection" width="50" fixed="left"/>
         <u-table-column v-if="tableColumnShow" align="center" type="index" label="序号" width="50" fixed="left">
           <template slot-scope="scope">{{ (currentPage - 1) * pageSize + scope.$index + 1 }}</template>
@@ -781,11 +775,9 @@
         :visible.sync="goodsOutStoreVisible"
         width="1400px"
         top="5vh"
-        :close-on-click-modal="false"
-        @close="closeDialog"
-    >
+        :close-on-click-modal="false">
       <div slot="title">{{ outStoreTitle }}</div>
-      <goods-out-store :choose-data="uniqueArr(multipleSelection)" :out-store-type="outStoreType" @close="closeDialog"/>
+      <goods-out-store :choose-data="uniqueArr(multipleSelection)" :out-store-type="outStoreType"  @dynamicSet="setTableData"/>
     </el-dialog>
     <el-dialog
         v-if="addBuyLinkVisible"
@@ -1739,7 +1731,8 @@ export default {
           showType: 4
         }],
       columnConfigShowList: [],
-      column_search: ''
+      column_search: '',
+      tableHeight: 430,
     }
   },
   computed: {
@@ -1761,6 +1754,13 @@ export default {
         this.tableColumnList.forEach(item => {
           this.columnConfigShowList.push({ ...item })
         })
+      }
+    },
+    tableColumnShow(val){
+      if(val){
+        let height = document.body.offsetHeight
+        height = height - 410
+        this.tableHeight = height > 200 && height || 200
       }
     }
   },
@@ -2583,7 +2583,7 @@ export default {
       this.$BaseUtilService.openUrl(url)
     },
     // 关弹窗
-    closeDialog(refresh) {
+    closeDialog(refresh,data) {
       this.colorVisible = false
       this.uploadStoreShipAmountVisible = false
       this.purchaseInfoVisible = false
@@ -2600,14 +2600,10 @@ export default {
       this.shipCompany = ''
       this.shipBindStore = ''
       this.shipInfoVisible = false
-      //
       this.trackingNumberList = []
-
       this.multipleSelection = []
-
       this.isAbroadGood = 0
-
-      this.$refs.multipleTable.clearSelection()
+      this.$refs.multipleTable && this.$refs.multipleTable.clearSelection()
       if (!refresh) {
         this.getOrderList()
       }
@@ -3553,6 +3549,20 @@ export default {
         console.log(e)
         this.$message.error('表格列表获取失败，请至【配置自定义列】中修正')
       }
+    },
+    updateTableColumnShow(){
+      if (this.tableColumnShow){
+        this.tableColumnShow = false
+        this.tableLoading = true
+        setTimeout(()=>{
+          this.tableLoading = false
+          this.tableColumnShow = true
+          this.$message.success('表格高度自适配已完成')
+        },200)
+      }
+    },
+    setTableData(item,name,value){
+
     }
   }
 }

@@ -137,7 +137,6 @@ export default {
   // getGoodsInfo: (data) => AppRequest.get('/goodsPackageCode/getGoodsInfoV2 ', data), // 订单包裹详情
   getGoodsInfo: (data) => AppRequest.get('/goodsPackageCode/getGoodsInfo ', data), // 订单包裹详情
   uploadExtService: (data) => AppRequest.post('/orderPackage/uploadExtService ', data), // 订单增值服务
-  getNotHaveLogisticsInformations: () => AppRequest.get('/orderPackage/getNotHaveLogisticsInformations'), // 获取面单信息
   cancelSign: (data) => AppRequest.post('/interceptConfig/delete', data), // 取消拒收/签收信息
   packageSign: (data) => AppRequest.post('/interceptConfig/save', data), // 仓库包裹拒签/签收
   //  warehouseAddress: () => AppRequest.get('/warehouseAddress/userIndex'), // 获取仓库信息
