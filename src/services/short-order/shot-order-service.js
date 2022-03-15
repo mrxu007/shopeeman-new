@@ -628,8 +628,8 @@ export default class {
         if (addressUserInfo["provinceText"].includes('~')) {
           addressUserInfo["provinceText"] = addressUserInfo["provinceText"].split('~')[0];
         }
-        let postCode = resInfo.Post
-        addressUserInfo["postCode"] = typeof postCode === 'number' ? postCode : warehouseInfo.post_code
+        let postCode = Number(resInfo.Post)
+        addressUserInfo["postCode"] = !isNaN(postCode) && postCode !== 0 ? postCode : warehouseInfo.post_code
         addressUserInfo["country"] = warehouseInfo.country
         // addressUserInfo["postCode"] = res.Post
       }
