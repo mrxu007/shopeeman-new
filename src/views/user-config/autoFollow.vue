@@ -335,9 +335,7 @@ export default {
           cancel_follow_number: this.cancerFollowNum,
           cancel_follow_sort_type: 0
         }
-        debugger
         const addTest = await window.BaseUtilBridgeService.saveAttentionUserTask(JSON.stringify(params))
-        debugger
         if (addTest) {
           storeLog['task_id'] = addTest.task_id
           storeLog['log_message'].push('任务创建成功')

@@ -470,6 +470,7 @@ export default class GoodsDiscount {
   }
   // 用户是否登录
   async isLogin(val) {
+    console.log('111');
     const item = val
     try {
       const params = {}

@@ -140,7 +140,9 @@ export default {
     // 爆粉生神器--自动刷粉
     checkTimeAutoFollow() {
       // 检测站点任务
-      this.AutoAddFenceInstance.autoAddFenceActive()
+       setTimeout(() => {
+         this.AutoAddFenceInstance.autoAddFenceActive()
+        }, 10 * 60 * 1000)
     }
   }
 }
