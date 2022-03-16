@@ -1668,6 +1668,7 @@ export default {
           name: '本地备注',
           width: '120',
           align: '',
+          prop: 'remark',
           showOverflowTooltip: true,
           sortable: true,
           showType: 23
