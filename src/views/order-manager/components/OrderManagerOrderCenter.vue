@@ -1298,6 +1298,7 @@ export default {
           rowColor: 'changeOrderStatus_color',
           rowShow: 'changeOrderStatus',
           prop: 'order_status',
+          sortable: true,
           showType: 4
         }, {
           key: 8,
@@ -1341,6 +1342,7 @@ export default {
           iCopy: 'goods_info.goods_id',
           prop: 'goods_info.goods_id',
           rowClick: 'openUrl_product',
+          sortable: true,
           showType: 0
         }, {
           key: 15,
@@ -1420,6 +1422,7 @@ export default {
           rowShow: 'replace_=|=',
           prop: 'goods_info.variation_sku',
           showOverflowTooltip: true,
+          sortable: true,
           showType: 4
         }, {
           key: 25,
@@ -1517,6 +1520,7 @@ export default {
           rowColor: 'changeShotStatus_color',
           rowShow: 'changeShotStatus',
           prop: 'shot_order_info.shot_status',
+          sortable: true,
           showType: 4
         }, {
           key: 37,
@@ -1643,6 +1647,7 @@ export default {
           align: '',
           filter: changeDeliveryStatus,
           prop: 'delivery_status',
+          sortable: true,
           showType: 0
         }, {
           key: 52,
@@ -3562,7 +3567,11 @@ export default {
       }
     },
     setTableData(item,name,value){
-
+      console.log('setTableData - set',item, name, value)
+      let list = this.tableData.filter(son=>son.main_order_sn === item)
+      list.forEach(son=>{
+        this.$set(son,name,value)
+      })
     }
   }
 }
