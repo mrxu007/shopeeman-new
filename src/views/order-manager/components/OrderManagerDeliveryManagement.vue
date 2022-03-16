@@ -10,12 +10,12 @@
             <el-row class="row-style">
               <el-button size="mini" type="primary" class="btnWidth" @click="syncSurfaceBefore">批量同步面单信息</el-button>
               <el-button size="mini" type="primary" class="btnWidth" @click="batnchDownLoad(multipleSelection, 'down')">批量下载平台面单</el-button>
-              <!-- <el-checkbox v-model="isDownloadOriginFace711" size="mini">台湾站711原始面单</el-checkbox> -->
+              <!-- <el-checkbox v-model="isDownloadOriginFace711" size="mini" style="margin-left:10px;">台湾站711原始面单</el-checkbox> -->
             </el-row>
             <el-row class="row-style">
               <el-button size="mini" type="primary" class="btnWidth" @click="batnchDownLoad(multipleSelection, 'view')">批量预览打印平台面单</el-button>
               <el-button size="mini" type="primary" class="btnWidth" @click="getExportData">导出数据</el-button>
-              <!-- <el-checkbox v-model="isDownloadOriginFaceQJ" size="mini">台湾站全家原始面单</el-checkbox> -->
+              <!-- <el-checkbox v-model="isDownloadOriginFaceQJ" size="mini" style="margin-left:10px;">台湾站全家原始面单</el-checkbox> -->
             </el-row>
             <el-row class="row-style">
               <el-button size="mini" type="primary" class="btnWidth" @click="downTWface">批量打印台湾虚拟面单</el-button>
@@ -95,6 +95,20 @@
                 <span>采购物流单号：</span>
                 <el-input v-model="selectForm.originalTrackingNumber" size="mini" clearable class="inputBox" />
               </div>
+              <!-- <div class="tool-item mar-right">
+                <span>截止时间：</span>
+                <el-date-picker
+                  v-model="shipByDate"
+                  size="mini"
+                  value-format="yyyy-MM-dd"
+                  type="daterange"
+                  style="width: 300px"
+                  range-separator="-"
+                  start-placeholder="开始日期"
+                  end-placeholder="结束日期"
+                  @change="changeTime($event, 'shipByDate')"
+                />
+              </div> -->
               <el-button size="mini" type="primary" class="mar-right" @click="getOrderList(1)">搜索</el-button>
               <el-button size="mini" type="primary" class="mar-right" @click="goodsSearchVisible = true">订单号批量查询</el-button>
               <el-button size="mini" type="primary" class="mar-right" @click="openBefore">批量添加本地备注</el-button>
@@ -1012,6 +1026,9 @@ export default {
   display: flex;
   padding-bottom: 8px;
   align-items: center;
+  /deep/.storeChooseUL{
+        flex-wrap: nowrap;
+  }
   .tool-item {
     display: flex;
     align-items: center;
