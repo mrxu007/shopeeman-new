@@ -1795,7 +1795,7 @@ export default {
     })
     this.$IpcMain.on('FinishShotOrderMessage', async(response) => {
       console.log('FinishShotOrderMessage', response)
-      this.getOrderList()
+      // this.getOrderList()
     })
     this.$IpcMain.on('updateShopeeCookie', async(response) => {
       // let obj = response && JSON.parse(response) || ''
@@ -2958,7 +2958,8 @@ export default {
       let shopeeAccount = null
       let crossBorderAccount = null
       console.log('accountCrossBorder', this.accountCrossBorder, this.buyerAccountListGlobal, this.buyerAccountList)
-      console.log(purchasesId, 'purchasesId', this.accountpdd, this.accounttaobao, this.account1688, this.accountjx, this.accountlazada, this.accountshopee, pddAccount, crossBorderAccount)
+      console.log(purchasesId, 'purchasesId', this.accountpdd, this.accounttaobao, this.account1688,
+          this.accountjx, this.accountlazada, this.accountshopee, pddAccount, crossBorderAccount)
       for (const key in purchasesId) {
         console.log(key)
         if (!account[key]) {
