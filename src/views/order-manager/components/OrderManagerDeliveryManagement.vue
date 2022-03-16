@@ -10,12 +10,12 @@
             <el-row class="row-style">
               <el-button size="mini" type="primary" class="btnWidth" @click="syncSurfaceBefore">批量同步面单信息</el-button>
               <el-button size="mini" type="primary" class="btnWidth" @click="batnchDownLoad(multipleSelection, 'down')">批量下载平台面单</el-button>
-              <el-checkbox v-model="isDownloadOriginFace711" size="mini" style="margin-left:10px;">台湾站711原始面单</el-checkbox>
+              <!-- <el-checkbox v-model="isDownloadOriginFace711" size="mini" style="margin-left:10px;">台湾站711原始面单</el-checkbox> -->
             </el-row>
             <el-row class="row-style">
               <el-button size="mini" type="primary" class="btnWidth" @click="batnchDownLoad(multipleSelection, 'view')">批量预览打印平台面单</el-button>
               <el-button size="mini" type="primary" class="btnWidth" @click="getExportData">导出数据</el-button>
-              <el-checkbox v-model="isDownloadOriginFaceQJ" size="mini" style="margin-left:10px;">台湾站全家原始面单</el-checkbox>
+              <!-- <el-checkbox v-model="isDownloadOriginFaceQJ" size="mini" style="margin-left:10px;">台湾站全家原始面单</el-checkbox> -->
             </el-row>
             <el-row class="row-style">
               <el-button size="mini" type="primary" class="btnWidth" @click="downTWface">批量打印台湾虚拟面单</el-button>
@@ -71,7 +71,31 @@
                   <el-option label="未下载" value="2" />
                 </el-select>
               </div>
-               <!-- <div class="tool-item mar-right">
+               <div class="tool-item mar-right">
+                <span>截止时间：</span>
+                <el-date-picker
+                  v-model="shipByDate"
+                  size="mini"
+                  value-format="yyyy-MM-dd"
+                  type="daterange"
+                  style="width: 300px"
+                  range-separator="-"
+                  start-placeholder="开始日期"
+                  end-placeholder="结束日期"
+                  @change="changeTime($event, 'shipByDate')"
+                />
+              </div>
+            </el-row>
+            <el-row class="row-style">
+              <div class="tool-item mar-right">
+                <span>订单编号：</span>
+                <el-input v-model="selectForm.orderSn" size="mini" clearable class="inputBox" />
+              </div>
+              <div class="tool-item mar-right">
+                <span>采购物流单号：</span>
+                <el-input v-model="selectForm.originalTrackingNumber" size="mini" clearable class="inputBox" />
+              </div>
+              <!-- <div class="tool-item mar-right">
                 <span>截止时间：</span>
                 <el-date-picker
                   v-model="shipByDate"
@@ -85,43 +109,19 @@
                   @change="changeTime($event, 'shipByDate')"
                 />
               </div> -->
-            </el-row>
-            <el-row class="row-style">
-              <div class="tool-item mar-right">
-                <span>订单编号：</span>
-                <el-input v-model="selectForm.orderSn" size="mini" clearable class="inputBox" />
-              </div>
-              <div class="tool-item mar-right">
-                <span>采购物流单号：</span>
-                <el-input v-model="selectForm.originalTrackingNumber" size="mini" clearable class="inputBox" />
-              </div>
-              <div class="tool-item mar-right">
-                <span>截止时间：</span>
-                <el-date-picker
-                  v-model="shipByDate"
-                  size="mini"
-                  value-format="yyyy-MM-dd"
-                  type="daterange"
-                  style="width: 300px"
-                  range-separator="-"
-                  start-placeholder="开始日期"
-                  end-placeholder="结束日期"
-                  @change="changeTime($event, 'shipByDate')"
-                />
-              </div>
-              <!-- <el-button size="mini" type="primary" class="mar-right" @click="getOrderList(1)">搜索</el-button>
-              <el-button size="mini" type="primary" class="mar-right" @click="goodsSearchVisible = true">订单号批量查询</el-button>
-              <el-button size="mini" type="primary" class="mar-right" @click="openBefore">批量添加本地备注</el-button>
-              <el-checkbox v-model="showConsole" class="mar-right">隐藏日志</el-checkbox>
-              <p class="tableActive">同步和打印台湾站的面单信息（除711外），请走代理</p> -->
-            </el-row>
-            <el-row class="row-style">
-              <el-button size="mini" type="primary" class="mar-right" @click="getOrderList(1)" style="margin-left: 30px;">搜索</el-button>
+              <el-button size="mini" type="primary" class="mar-right" @click="getOrderList(1)">搜索</el-button>
               <el-button size="mini" type="primary" class="mar-right" @click="goodsSearchVisible = true">订单号批量查询</el-button>
               <el-button size="mini" type="primary" class="mar-right" @click="openBefore">批量添加本地备注</el-button>
               <el-checkbox v-model="showConsole" class="mar-right">隐藏日志</el-checkbox>
               <p class="tableActive">同步和打印台湾站的面单信息（除711外），请走代理</p>
             </el-row>
+            <!-- <el-row class="row-style">
+              <el-button size="mini" type="primary" class="mar-right" @click="getOrderList(1)" style="margin-left: 30px;">搜索</el-button>
+              <el-button size="mini" type="primary" class="mar-right" @click="goodsSearchVisible = true">订单号批量查询</el-button>
+              <el-button size="mini" type="primary" class="mar-right" @click="openBefore">批量添加本地备注</el-button>
+              <el-checkbox v-model="showConsole" class="mar-right">隐藏日志</el-checkbox>
+              <p class="tableActive">同步和打印台湾站的面单信息（除711外），请走代理</p>
+            </el-row> -->
           </div>
         </div>
       </div>
@@ -557,8 +557,8 @@ export default {
         }
         // 3、----------------htmlToPdf
         console.log('333', JSON.stringify(ConvertFaceInfoModel))
-        const convertRes = await window['BaseUtilBridgeService'].htmlToPdf(ConvertFaceInfoModel, false,this.isDownloadOriginFace711,this.isDownloadOriginFaceQJ)
-        // const convertRes = await window['BaseUtilBridgeService'].htmlToPdf(ConvertFaceInfoModel, false)
+        // const convertRes = await window['BaseUtilBridgeService'].htmlToPdf(ConvertFaceInfoModel, false,this.isDownloadOriginFace711,this.isDownloadOriginFaceQJ)
+        const convertRes = await window['BaseUtilBridgeService'].htmlToPdf(ConvertFaceInfoModel, false)
         const convertResObj = convertRes && JSON.parse(convertRes)
         console.log(convertResObj, 'convertFaceInfoModel')
         if (convertResObj.code != 200) {
@@ -980,7 +980,7 @@ export default {
   background: #fff;
   overflow: auto;
   .left-box {
-    width: 520px;
+    width: 360px;
   }
   .right-box {
     flex: 1;
