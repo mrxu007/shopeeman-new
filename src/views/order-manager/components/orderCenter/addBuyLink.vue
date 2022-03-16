@@ -149,7 +149,7 @@ export default {
     // 保存添加采购链接
     async saveAddLink() {
       this.rowBuyLinks.forEach((item, index) => {
-        const execPlatform = /(yangkeduo.com)|(taobao.com)|(jingxi.com)|(jd.com)|(1688.com)|(tmall.com)|(pinduoduo.com)|(xiapi.xiapibuy.com)|(taobao.global)|(lazada.com)|(lazada)|(shopee)/g
+        const execPlatform = /(yangkeduo.com)|(taobao.com)|(jingxi.com)|(jd.com)|(1688.com)|(tmall.com)|(pinduoduo.com)|(xiapibuy.com)|(taobao.global)|(lazada.com)|(lazada)|(shopee)/g
         const execGoods = /goods_id=([0-9]*)/
         const pddGoods = /goodsId=(\d+)/
         const execIDs = /id=([0-9]*)/
@@ -158,6 +158,7 @@ export default {
         const jdlazada1688IDs = /(\d+)\.html/
         const shopeeIDs = /[^\/]+(?!.*\/)/
         const platform = item.purchase_url.match(execPlatform)
+
         if (!platform) {
           return this.$message.error(`采购链接错误，请检查！`)
         }
