@@ -592,7 +592,7 @@ export default class {
         // buyerName = nickInfo.Nickname + " " + warehouseInfo.receiving_name + "-" + "SPM";
         buyerName =  warehouseInfo.receiving_name + "-" + "SPM";
       }
-      addressUserInfo['buyerName'] = buyerName.replace("#", "-");
+      addressUserInfo['buyerName'] = buyerName.replaceAll("#", "-");
     } else if (itemOrder.goods_info.ori_platform_id == 11) {
       if (warehouseInfo.country !== 'SG' && warehouseInfo.type === 3) {
         console.log('50009', warehouseInfo, warehouseInfo.shopee_map_id)
