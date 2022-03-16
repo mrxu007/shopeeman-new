@@ -55,7 +55,7 @@
 </template>
 
 <script>
-import { goodsSourceListLink, platformLinkList, lazadaBuyLinkList } from './orderCenter'
+import { goodsSourceListLink, platformLinkList, lazadaBuyLinkList,lazadaBuyLinkObj } from './orderCenter'
 export default {
   name: 'BuyLink',
   props: {
@@ -73,7 +73,8 @@ export default {
       sourceType: '1',
       goodsSourceListLink: goodsSourceListLink,
       indexLink: -1,
-      platformLinkList: platformLinkList
+      platformLinkList: platformLinkList,
+      lazadaBuyLinkObj: lazadaBuyLinkObj
     }
   },
   mounted() {
@@ -114,12 +115,16 @@ export default {
       this.rowBuyLinks[index].purchase_url = res.purchase_url_all
     },
     creatLink() {
+      console.log("linkRow",this.linkRow)
       const res = this.platformLinkList.find((item) => {
         return item.purchase_platform_id == this.sourceType
       })
       let url = res ? res.purchase_url + this.goodID : ''
-      if (this.sourceType == 8 || this.sourceType == 9) {
+      if (this.sourceType == 8) {
         url = res ? res.purchase_url + this.goodID + '.html' : ''
+      }
+      if(this.sourceType == 9){
+        url = this.lazadaBuyLinkObj[this.linkRow.country.toLowerCase()] ? this.lazadaBuyLinkObj[this.linkRow.country.toLowerCase()] + '/products/i' +  this.goodID + '.html' : ''
       }
       this.rowBuyLinks[this.indexLink].purchase_url = url
       this.rowBuyLinks[this.indexLink].purchase_platform_id = res ? res.purchase_platform_id : ''
